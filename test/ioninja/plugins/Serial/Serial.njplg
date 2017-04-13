@@ -1,0 +1,23 @@
+//..............................................................................
+//
+// Serial session plugin
+//
+
+[plugin]
+
+name        = Serial
+description = "Serial communication using one of the installed COM ports on your PC"
+id          = serial
+group       = clients
+guid        = 29725452-e64f-4c0e-a871-776277b68572
+icon        = images/serial.png
+small-icon  = images/serial-16x16.png
+
+session-class        = SerialSession
+log-representer-func = representSerialLog
+
+[scripts]
+
+SerialSession.jnc
+SerialLog.jnc
+../../common/io_SerialUi.jnc

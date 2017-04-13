@@ -1,0 +1,165 @@
+//..............................................................................
+//
+// TCP Monitor log record declarations and representer
+//
+
+//..............................................................................
+
+enum TcpFlowMonLogRecordCode
+{
+	Resolving,
+	ResolveCompleted,
+	ResolveCancelled,
+	ResolveError,
+	StartingCapture,
+	CaptureStarted,
+	CaptureError,
+	CaptureStopped,
+	ChangingFilter,
+	FilterChanged,
+	FilterError,
+	Connecting,
+	ConnectCompleted,
+	ConnectionPickedUp,
+	Disconnected,
+	OutOfOrderDataDropped,
+}
+
+enum TcpFlowMonLogPartCode
+{
+	Resolving        = 1 | log.PartCodeFlags.MergeableForward,
+	ResolveCompleted = 1 | log.PartCodeFlags.MergeableBackward,
+	StartingCapture  = 2 | log.PartCodeFlags.MergeableForward,
+	CaptureCompleted = 2 | log.PartCodeFlags.MergeableBackward,
+	ChangingFilter   = 3 | log.PartCodeFlags.MergeableForward,
+	FilterCompleted  = 3 | log.PartCodeFlags.MergeableBackward,
+	Connecting       = 4 | log.PartCodeFlags.MergeableForward,
+	ConnectCompleted = 4 | log.PartCodeFlags.MergeableBackward,
+}
+
+//..............................................................................
+
+bool representTcpFlowMonLog (
+	log.RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case TcpFlowMonLogRecordCode.Resolving:
+		char const* addressString = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpFlowMonLogPartCode.Resolving, $"Resolving \e[34m$addressString\e[m...");
+		break;
+
+	case TcpFlowMonLogRecordCode.ResolveCompleted:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.addHyperText (TcpFlowMonLogPartCode.ResolveCompleted, $"ok (\e[34m$addressString\e[m)");
+		break;
+
+	case TcpFlowMonLogRecordCode.ResolveCancelled:
+		target.addPlainText (TcpFlowMonLogPartCode.ResolveCompleted, "cancelled");
+		break;
+
+	case TcpFlowMonLogRecordCode.ResolveError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addPlainText (TcpFlowMonLogPartCode.ResolveCompleted, $"error: $(error.m_description)");
+		break;
+
+	case TcpFlowMonLogRecordCode.StartingCapture:
+		char const* filter = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpFlowMonLogPartCode.StartingCapture, $"Starting capture with filter \e[34m$filter\e[m...");
+		break;
+
+	case TcpFlowMonLogRecordCode.CaptureStarted:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addPlainText (TcpFlowMonLogPartCode.CaptureCompleted, "ok");
+		break;
+
+	case TcpFlowMonLogRecordCode.CaptureError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addPlainText (TcpFlowMonLogPartCode.CaptureCompleted, $"error ($(error.m_description))");
+		break;
+
+	case TcpFlowMonLogRecordCode.CaptureStopped:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addPlainText ("Capture stopped");
+		break;
+
+	case TcpFlowMonLogRecordCode.ChangingFilter:
+		char const* filter = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpFlowMonLogPartCode.ChangingFilter, $"Changing capture filter to \e[34m$filter\e[m...");
+		break;
+
+	case TcpFlowMonLogRecordCode.FilterChanged:
+		target.addPlainText (TcpFlowMonLogPartCode.FilterCompleted, "ok");
+		break;
+
+	case TcpFlowMonLogRecordCode.FilterError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addPlainText (TcpFlowMonLogPartCode.FilterCompleted, $"error ($(error.m_description))");
+		break;
+
+	case TcpFlowMonLogRecordCode.Connecting:
+		char const* srcAddressString = ((io.SocketAddress const*) p).getString ();
+		char const* dstAddressString = ((io.SocketAddress const*) p + 1).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpFlowMonLogPartCode.Connecting, $"Connecting to \e[34m$dstAddressString\e[m from \e[34m$srcAddressString\e[m...");
+		break;
+
+	case TcpFlowMonLogRecordCode.ConnectCompleted:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText (TcpFlowMonLogPartCode.ConnectCompleted, "ok");
+		break;
+
+	case TcpFlowMonLogRecordCode.ConnectionPickedUp:
+		char const* addressString1 = ((io.SocketAddress const*) p).getString ();
+		char const* addressString2 = ((io.SocketAddress const*) p + 1).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText ($"Picked up connection between \e[34m$addressString1\e[m and \e[34m$addressString2\e[m");
+		break;
+
+	case TcpFlowMonLogRecordCode.Disconnected:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ($"Disconnected by \e[34m$addressString\e");
+		break;
+
+	case TcpFlowMonLogRecordCode.OutOfOrderDataDropped:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Out-of-order segment(s), data dropped\e");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

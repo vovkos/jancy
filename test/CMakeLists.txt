@@ -10,6 +10,7 @@
 #...............................................................................
 
 add_subdirectory (jnc)
+add_subdirectory (ioninja)
 
 if (WIN32)
 	option (

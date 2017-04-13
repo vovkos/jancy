@@ -185,39 +185,67 @@ add_jancy_tests
 	set (_FLAGS "--print-retval")
 
 	if (UNIX)
-		set (_FLAGS "${_FLAGS} --mcjit --debug-info")
+		set (_FLAGS "${_FLAGS} --debug-info")
 	endif ()
 
-	string (REPLACE " " ";" _FLAG_LIST ${_FLAGS})
+	string (REPLACE " " ";" _FLAG_LIST "${_FLAGS}")
 
-	set (_FILE_NAME_LIST ${ARGN})
+	set (_ARG_LIST ${ARGN})
 	set (_DIR)
 	set (_PREFIX)
+	set (_FILE_LIST)
+	set (_FIRST_FILE)
 	set (_IS_DIR FALSE)
 	set (_IS_PREFIX FALSE)
+	set (_IS_FLAGS FALSE)
+	set (_IS_FILE_LIST FALSE)
 
-	foreach (_FILE_NAME ${_FILE_NAME_LIST})
-		if (${_IS_DIR})
-			set (_DIR ${_FILE_NAME})
+	foreach (_ARG ${_ARG_LIST})
+		if (_IS_DIR)
+			set (_DIR ${_ARG})
 			set (_IS_DIR FALSE)
-		elseif (${_IS_PREFIX})
-			set (_PREFIX ${_FILE_NAME})
+		elseif (_IS_PREFIX)
+			set (_PREFIX ${_ARG})
 			set (_IS_PREFIX FALSE)
-		elseif ("${_FILE_NAME}" STREQUAL "WORKING_DIRECTORY")
+		elseif (_IS_FLAGS)
+			set (_FLAGS "${_FLAGS} ${_ARG}")
+			set (_IS_FLAGS FALSE)
+			string (REPLACE " " ";" _FLAG_LIST "${_FLAGS}")
+		elseif ("${_ARG}" STREQUAL "WORKING_DIRECTORY")
 			set (_IS_DIR TRUE)
-		elseif ("${_FILE_NAME}" STREQUAL "NAME_PREFIX")
+		elseif ("${_ARG}" STREQUAL "NAME_PREFIX")
 			set (_IS_PREFIX TRUE)
-		elseif ("${_DIR}" STREQUAL "")
-			add_test (
-				NAME ${_PREFIX}${_FILE_NAME}
-				COMMAND jnc_app ${_FLAG_LIST} ${_FILE_NAME}
-				)
+		elseif ("${_ARG}" STREQUAL "FLAGS")
+			set (_IS_FLAGS TRUE)
+		elseif ("${_ARG}" STREQUAL "BEGIN_FILE_LIST")
+			set (_IS_FILE_LIST TRUE)
+			set (_FILE_LIST)
+		elseif (_IS_FILE_LIST AND NOT "${_ARG}" STREQUAL "END_FILE_LIST")
+			if ("${_FILE_LIST}" STREQUAL "")
+				set (_FIRST_FILE ${_ARG})
+			endif ()
+
+			list (APPEND _FILE_LIST ${_ARG})
 		else ()
-			add_test (
-				NAME ${_PREFIX}${_FILE_NAME}
-				WORKING_DIRECTORY ${_DIR}
-				COMMAND jnc_app ${_FLAG_LIST} ${_FILE_NAME}
-				)
+			if (_IS_FILE_LIST)
+				set (_IS_FILE_LIST FALSE)
+			else ()
+				set (_FIRST_FILE ${_ARG})
+				set (_FILE_LIST ${_ARG})
+			endif ()
+
+			if ("${_DIR}" STREQUAL "")
+				add_test (
+					NAME ${_PREFIX}${_FIRST_FILE}
+					COMMAND jnc_app ${_FLAG_LIST} ${_FILE_LIST}
+					)
+			else ()
+				add_test (
+					NAME ${_PREFIX}${_FIRST_FILE}
+					WORKING_DIRECTORY ${_DIR}
+					COMMAND jnc_app ${_FLAG_LIST} ${_FILE_LIST}
+					)
+			endif ()
 		endif ()
 	endforeach ()
 endmacro ()

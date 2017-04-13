@@ -1,0 +1,208 @@
+//..............................................................................
+//
+// IP defragmentation
+//
+
+import "std_List.jnc"
+import "std_HashTable.jnc"
+import "io_TcpIp.jnc"
+
+namespace io {
+
+//..............................................................................
+
+class IpDefragmenter
+{
+	enum
+	{
+		DefIpFragmentLimit   = 8,
+		DefIpFragmentTimeout = 3000,
+	}
+
+protected:
+	struct Fragment
+	{
+		size_t m_offset;
+		void* m_payload;
+		size_t m_size;
+	}
+
+	class Chain
+	{
+		std.ListEntry* m_listEntry;
+		uint64_t m_key;
+		std.List m_fragmentList;
+		uint64_t m_deadlineTimestamp;
+
+		io.IpHdr* m_ipHdr;
+		size_t m_offset;
+		size_t m_size;
+	}
+
+	std.List m_chainList;
+	std.HashTable m_chainHashTable;
+
+public:
+	size_t m_fragmentLimit;
+	uint_t m_timeout;
+
+public:
+	construct ();
+
+	reset ();
+
+	io.IpHdr const* defragment (
+		io.IpHdr const* ipHdr,
+		size_t size
+		);
+
+protected:
+	io.IpHdr const* assembleChain (Chain* chain);
+	removeTimedOutChains ();
+}
+
+IpDefragmenter.construct ()
+{
+	m_fragmentLimit = DefIpFragmentLimit;
+	m_timeout = DefIpFragmentTimeout; // 3 sec
+}
+
+IpDefragmenter.reset ()
+{
+	m_chainHashTable.clear ();
+}
+
+io.IpHdr const* IpDefragmenter.defragment (
+	io.IpHdr const* ipHdr,
+	size_t size
+	)
+{
+	size_t ipHdrSize = ipHdr.m_headerLength * 4;
+	if (ipHdrSize < sizeof (io.IpHdr) ||
+		ipHdrSize > ipHdr.m_totalLength ||
+		ipHdr.m_totalLength > size)
+		return null;
+
+	void const* payload = (char const*) ipHdr + ipHdrSize;
+	size = ipHdr.m_totalLength - ipHdrSize;
+
+	uint64_t timestamp = sys.getTimestamp ();
+	uint64_t key = (uint64_t) ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
+	Chain* chain = m_chainHashTable [key];
+	if (!chain)
+	{
+		chain = new Chain;
+		chain.m_key = key;
+		chain.m_listEntry = m_chainList.insertTail (chain);
+		m_chainHashTable [key] = chain;
+	}
+	else if (
+		chain.m_deadlineTimestamp < timestamp || // chain timed out
+		chain.m_fragmentList.m_count >= m_fragmentLimit) // too many fragments in chain
+	{
+		m_chainList.remove (chain.m_listEntry);
+		m_chainHashTable.removeKey (chain.m_key);
+		return null;
+	}
+
+	size_t offset = ipHdr.m_fragmentOffset * 8;
+	if (chain.m_ipHdr && offset + size > chain.m_size) // ignore invalid fragment past the end of buffer
+		return null;
+
+	// find location to insert it
+
+	std.ListEntry* it = chain.m_fragmentList.m_head;
+	for (; it; it = it.m_next)
+	{
+		Fragment* fragment = it.m_data;
+		if (fragment.m_offset == offset) // duplicate fragment
+			return null;
+
+		if (offset < fragment.m_offset)
+			break;
+	}
+
+	Fragment* fragment = new Fragment;
+	fragment.m_offset = offset;
+	fragment.m_payload = new char [size];
+	fragment.m_size = size;
+	memcpy (fragment.m_payload, payload, size);
+	chain.m_fragmentList.insertBefore (fragment, it);
+
+	if (!(ipHdr.m_flags & io.IpFlags.Mf)) // last fragment, prepare chain buffer
+	{
+		size_t payloadSize = fragment.m_offset + fragment.m_size;
+		size_t bufferSize = sizeof (io.IpHdr) + payloadSize;
+
+		io.IpHdr* newIpHdr = (io.IpHdr*) new char [bufferSize];
+		*newIpHdr = *ipHdr;
+		newIpHdr.m_headerLength = sizeof (io.IpHdr) / 4;
+		newIpHdr.m_totalLength = bufferSize;
+		newIpHdr.m_flags = 0;
+		newIpHdr.m_fragmentOffset = 0;
+
+		chain.m_ipHdr = newIpHdr;
+		chain.m_size = payloadSize;
+		chain.m_offset = 0;
+	}
+
+	// reset chain timer
+
+	chain.m_deadlineTimestamp = timestamp + m_timeout * 10000;
+	m_chainList.moveToTail (chain.m_listEntry);
+
+	io.IpHdr const* result = chain.m_ipHdr ? assembleChain (chain) : null;
+
+	removeTimedOutChains ();
+	return result;
+}
+
+io.IpHdr const* IpDefragmenter.assembleChain (IpDefragmenter.Chain* chain)
+{
+	char* p = (char*) (chain.m_ipHdr + 1) + chain.m_offset;
+	while (chain.m_fragmentList.m_count)
+	{
+		Fragment* fragment = chain.m_fragmentList.m_head.m_data;
+		if (fragment.m_offset > chain.m_offset)
+			return null;
+
+		chain.m_fragmentList.removeHead ();
+
+		if (fragment.m_offset < chain.m_offset)	// overlapping fragment
+		{
+			size_t skip = chain.m_offset - fragment.m_offset;
+			if (skip >= fragment.m_size)
+				continue;
+
+			fragment.m_payload += skip;
+			fragment.m_size -= skip;
+		}
+
+		memcpy (p, fragment.m_payload, fragment.m_size);
+		p += fragment.m_size;
+		chain.m_offset += fragment.m_size;
+	}
+
+	m_chainList.remove (chain.m_listEntry);
+	m_chainHashTable.removeKey (chain.m_key);
+	return chain.m_ipHdr;
+}
+
+IpDefragmenter.removeTimedOutChains ()
+{
+	uint64_t timestamp = sys.getTimestamp ();
+
+	while (m_chainList.m_count)
+	{
+		Chain* chain = m_chainList.m_head.m_data;
+		if (timestamp < chain.m_deadlineTimestamp)
+			break;
+
+		m_chainList.remove (chain.m_listEntry);
+		m_chainHashTable.removeKey (chain.m_key);
+	}
+}
+
+//..............................................................................
+
+} // namespace io {

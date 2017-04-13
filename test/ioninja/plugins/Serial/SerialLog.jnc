@@ -1,0 +1,281 @@
+//..............................................................................
+//
+// Serial log packet declarations and representer
+//
+
+//..............................................................................
+
+enum SerialLogRecordCode
+{
+	PortOpened    = 1 | log.RecordCodeFlags.Foldable,
+	PortOpenError = 2,
+	PortClosed,
+	BaudRateChanged,
+	DataBitsChanged,
+	StopBitsChanged,
+	ParityChanged,
+	FlowControlChanged,
+	RtsChanged,
+	DtrChanged,
+	StatusLineChanged,
+	IoError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SerialOpenParams
+{
+	uint_t m_baudRate;
+	uint_t m_flowControl;
+	uint_t m_dataBits;
+	uint_t m_stopBits;
+	uint_t m_parity;
+
+	// followed by port name
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getTableString (
+	uint_t value,
+	char const* const* table
+	)
+{
+	return value < dynamic countof (table) ? table [value] : "\e[31mundefined\e[m";
+}
+
+char const* getLineString (uint_t line)
+{
+	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
+}
+
+//..............................................................................
+
+bool representSerialLog (
+	log.RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	static char const* flowControlStringTable [] =
+	{
+		"None",
+		"RTS/CTS",
+		"XON/XOFF"
+	}
+
+	static char const* stopBitsStringTable [] =
+	{
+		"1 bit",
+		"1.5 bits",
+		"2 bits"
+	}
+
+	static char const* parityStringTable [] =
+	{
+		"None",
+		"Odd",
+		"Even",
+		"Mark",
+		"Space",
+	}
+
+	switch (recordCode)
+	{
+	case SerialLogRecordCode.PortOpened:
+		SerialOpenParams const* params = (SerialOpenParams const*) p;
+		char const* name = (char const*) (params + 1);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+		if (!(foldFlags & 1))
+			target.addHyperText ($"[\e^+1\e[34m+\e[m] Opened port \e[34m$name\e[m at \e[34m$(params.m_baudRate)\e[m bps");
+		else
+			target.addHyperText (
+				$"[\e^-1\e[34m-\e[m] Opened port \e[34m$name\n"
+				$"    \e[90mBaud rate:    \e[34m$(params.m_baudRate)\e[m bps\n"
+				$"    \e[90mFlow control: \e[34m%1\n"
+				$"    \e[90mData bits:    \e[34m$(params.m_dataBits)\e[m bits\n"
+				$"    \e[90mStop bits:    \e[34m%2\n"
+				$"    \e[90mParity:       \e[34m%3" (
+				getTableString (params.m_flowControl, flowControlStringTable),
+				getTableString (params.m_stopBits, stopBitsStringTable),
+				getTableString (params.m_parity, parityStringTable)
+				));
+
+		break;
+
+	case SerialLogRecordCode.PortClosed:
+		char const* name = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ($"Port \e[34m$name\e[m closed");
+		break;
+
+	case SerialLogRecordCode.PortOpenError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Cannot open port: $(error.m_description)");
+		break;
+
+	case SerialLogRecordCode.BaudRateChanged:
+		uint_t baudRate = *(uint_t const*) p;
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set baud rate: \e[34m$baudRate\e[m bps");
+		break;
+
+	case SerialLogRecordCode.FlowControlChanged:
+		uint_t flowControl = *(uint_t const*) p;
+		char const* flowControlString = getTableString (flowControl, flowControlStringTable);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set flow control: \e[34m$flowControlString");
+		break;
+
+	case SerialLogRecordCode.DataBitsChanged:
+		uint_t dataBits = *(uint_t const*) p;
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set data bits: \e[34m$dataBits\e[m bits");
+		break;
+
+	case SerialLogRecordCode.StopBitsChanged:
+		uint_t stopBits = *(uint_t const*) p;
+		char const* stopBitsString = getTableString (stopBits, stopBitsStringTable);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set stop bits: \e[34m$stopBitsString");
+		break;
+
+	case SerialLogRecordCode.ParityChanged:
+		uint_t parity = *(uint_t const*) p;
+		char const* parityString = getTableString (parity, parityStringTable);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set parity: \e[34m$parityString");
+		break;
+
+	case SerialLogRecordCode.RtsChanged:
+		bool rts = *(bool const*) p;
+		char const* rtsString = getLineString (rts);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set RTS: $rtsString");
+		break;
+
+	case SerialLogRecordCode.DtrChanged:
+		bool dtr = *(bool const*) p;
+		char const* dtrString = getLineString (dtr);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Set DTR: $dtrString");
+		break;
+
+	case SerialLogRecordCode.StatusLineChanged:
+		uint_t lines = ((uint_t const*) p) [0];
+		uint_t mask  = ((uint_t const*) p) [1];
+
+		char const* string = "Status line(s) changed:";
+		if (mask & io.SerialStatusLines.Dsr)
+		{
+			char const* dsrString = getLineString (lines & io.SerialStatusLines.Dsr);
+			string = $"$string DSR: $dsrString";
+		}
+
+		if (mask & io.SerialStatusLines.Cts)
+		{
+			char const* ctsString = getLineString (lines & io.SerialStatusLines.Cts);
+			string = $"$string CTS: $ctsString";
+		}
+
+		if (mask & io.SerialStatusLines.Dcd)
+		{
+			char const* dcdString = getLineString (lines & io.SerialStatusLines.Dcd);
+			string = $"$string DCD: $dcdString";
+		}
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (string);
+		break;
+
+	case SerialLogRecordCode.IoError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"IO error: $(error.m_description)");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+class SerialLogFilter: log.Filter
+{
+	bool m_isSettingChangedVisible;
+	bool m_isControlLineChangedVisible;
+	bool m_isStatusLineChangedVisible;
+
+	construct ();
+
+	override bool filter (
+		uint_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SerialLogFilter.construct ()
+{
+	m_isSettingChangedVisible = true;
+	m_isControlLineChangedVisible = true;
+	m_isStatusLineChangedVisible = true;
+}
+
+bool SerialLogFilter.filter (
+	uint_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	switch (recordCode)
+	{
+	case SerialLogRecordCode.BaudRateChanged:
+	case SerialLogRecordCode.DataBitsChanged:
+	case SerialLogRecordCode.StopBitsChanged:
+	case SerialLogRecordCode.ParityChanged:
+	case SerialLogRecordCode.FlowControlChanged:
+		return m_isSettingChangedVisible;
+
+	case SerialLogRecordCode.RtsChanged:
+	case SerialLogRecordCode.DtrChanged:
+		return m_isControlLineChangedVisible;
+
+	case SerialLogRecordCode.StatusLineChanged:
+		return m_isStatusLineChangedVisible;
+
+	default:
+		return true; // everything else is visible
+	}
+}
+
+//..............................................................................

@@ -1,0 +1,42 @@
+//..............................................................................
+
+// xmodem protocol constants and structures
+
+enum XModemChar: char
+{
+	Soh = 0x01,
+	Eot = 0x04,
+	Ack = 0x06,
+	Nak = 0x15,
+	Can = 0x18,
+}
+
+enum
+{
+	XModemBlockSize = 128,
+	XModemCanCount  = 8,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct XModemBlock
+{
+	uchar_t m_code;
+	uchar_t m_blockNumber;
+	uchar_t m_complement;
+	uchar_t m_data [XModemBlockSize];
+	uchar_t m_checksum;
+}
+
+uchar_t calcXModemChecksum (void const* p)
+{
+	int checksum = 0;
+
+	void const* end = p + XModemBlockSize;
+	for (; p < end; p++)
+		checksum += *(uchar_t const*) p;
+
+	return (uchar_t) checksum;
+}
+
+//..............................................................................

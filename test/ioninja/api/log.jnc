@@ -1,0 +1,318 @@
+//..............................................................................
+//
+// Ninja log engine declarations
+//
+
+import "gui_Base.jnc"
+
+namespace log {
+
+//..............................................................................
+
+bitflag enum RecordCodeFlags
+{
+	Foldable = 0x80000000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PartCodeFlags
+{
+	MergeableBackward = 0x20000000, // don't interfere with RecordCodeFlags
+	MergeableForward  = 0x10000000,
+	Mergeable         = 0x30000000,
+}
+
+//..............................................................................
+
+enum PartKind
+{
+	PlainText = 0,
+	HyperText,
+	Bin,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StdRecordCode
+{
+	Tx             = 0x01000000 | PartCodeFlags.Mergeable,
+	Rx             = 0x02000000 | PartCodeFlags.Mergeable,
+	PlainText      = 0x03000000 | PartCodeFlags.Mergeable,
+	HyperText      = 0x04000000 | PartCodeFlags.Mergeable,
+	Bin            = 0x05000000 | PartCodeFlags.Mergeable,
+	Error          = 0x06000000,
+	RetroColorize  = 0x07000000,
+	SessionStarted = 0x08000000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RetroColorizeParams
+{
+	int m_retroOffset;
+	uint_t m_length;
+	gui.TextAttr m_attr;
+}
+
+//..............................................................................
+
+// visual attributes
+
+enum StdLogIcon
+{
+	Info = 0,
+	Warning,
+	Error,
+	LightBulb,
+	Play,
+	Pause,
+	Connect,
+	Disconnect,
+	Listen,
+	StopListen,
+	TxPacket,
+	RxPacket,
+	Packet,
+	Tx,
+	Rx,
+	_Count,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StdLogColor
+{
+	Start      = gui.StdColor.PastelPurple,
+	Connect    = gui.StdColor.PastelGreen,
+	Disconnect = gui.StdColor.PastelGreen,
+	Info       = gui.StdColor.PastelBlue,
+	Warning    = gui.StdColor.PastelYellow,
+	Error      = gui.StdColor.PastelRed,
+	Tx         = gui.StdColor.Blue,
+	Rx         = gui.StdColor.Green,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum LineAttrFlags
+{
+	TileIcon,
+	Delimiter,
+	Override,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct LineAttr: gui.TextAttr
+{
+	LineAttrFlags m_flags;
+	uint_t m_iconIdx;
+}
+
+//..............................................................................
+
+// represneter-target pair
+
+opaque class RepresenterTarget
+{
+	uint64_t readonly m_timestamp;
+	uint_t readonly m_recordCode;
+	LineAttr m_lineAttr;
+
+	void addPart (
+		PartKind partKind,
+		uint_t partCode,
+		void const* p,
+		size_t size
+		);
+
+	void retroColorize (
+		intptr_t retroOffset,
+		size_t length,
+		gui.TextAttr attr
+		);
+
+	void addPlainText (
+		uint_t partCode,
+		char const* text
+		)
+	{
+		addPart (PartKind.PlainText, partCode, text, strlen (text));
+	}
+
+	void addPlainText (char const* text)
+	{
+		addPart (PartKind.PlainText, m_recordCode, text, strlen (text));
+	}
+
+	void addHyperText (
+		uint_t partCode,
+		char const* text
+		)
+	{
+		addPart (PartKind.HyperText, partCode, text, strlen (text));
+	}
+
+	void addHyperText (char const* text)
+	{
+		addPart (PartKind.HyperText, m_recordCode, text, strlen (text));
+	}
+
+	void addBin (
+		uint_t partCode,
+		void const* p,
+		size_t size
+		)
+	{
+		addPart (PartKind.Bin, partCode, p, size);
+	}
+
+	void addBin (
+		void const* p,
+		size_t size
+		)
+	{
+		addPart (PartKind.Bin, m_recordCode, p, size);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef bool RepresenterFunc (
+	RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	);
+
+//..............................................................................
+
+opaque class Writer
+{
+	write (
+		uint64_t timestamp,
+		uint_t recordCode,
+		void const* p = null,
+		size_t size = 0
+		);
+
+	write (
+		uint_t recordCode,
+		void const* p = null,
+		size_t size = 0
+		)
+	{
+		write (sys.getTimestamp (), recordCode, p, size);
+	}
+
+	retroColorize (
+		intptr_t retroOffset,
+		size_t length,
+		gui.TextAttr attr
+		)
+	{
+		RetroColorizeParams params;
+		params.m_retroOffset = retroOffset;
+		params.m_length = length;
+		params.m_attr = attr;
+
+		write (StdRecordCode.RetroColorize, &params, sizeof (params));
+	}
+
+	retroColorize (
+		intptr_t retroOffset,
+		size_t length,
+		uint_t color
+		)
+	{
+		gui.TextAttr attr;
+		attr.m_textColor = color;
+		attr.m_backColor = gui.ColorFlags.Transparent;
+
+		retroColorize (retroOffset, length, attr);
+	}
+}
+
+//..............................................................................
+
+class Filter
+{
+	abstract bool filter (
+		uint_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	virtual reset ()
+	{
+	}
+}
+
+//..............................................................................
+
+class Converter
+{
+	abstract bool convert (
+		Writer* writer,
+		uint64_t timestamp,
+		uint_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	virtual reset ()
+	{
+	}
+}
+
+//..............................................................................
+
+enum ListenerSensitivity
+{
+	AllRecords,
+	LiveRecordsOnly,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef ListenerFunc (
+	uint64_t timestamp,
+	uint_t recordCode,
+	void const* p,
+	size_t size
+	);
+
+//..............................................................................
+
+// log engine
+
+opaque class Log
+{
+	gui.Icon* property m_iconTable (size_t i);
+
+	Writer* readonly m_writer;
+	RepresenterFunc thin* autoget property m_representerFunc;
+	uint64_t autoget property m_baseTimestamp;
+
+	destruct ();
+
+	attachFilter (Filter* filter);
+
+	attachConverter (
+		Converter* converter,
+		RepresenterFunc thin* representerFunc = null
+		);
+
+	attachListener (
+		ListenerFunc* listenerFunc,
+		ListenerSensitivity sensitivity = ListenerSensitivity.LiveRecordsOnly
+		);
+
+	removeAllLayers ();
+}
+
+//..............................................................................
+
+} // namespace log {

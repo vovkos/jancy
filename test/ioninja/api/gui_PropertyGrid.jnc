@@ -1,0 +1,198 @@
+//..............................................................................
+//
+// Ninja property grid
+//
+
+namespace gui {
+
+//..............................................................................
+
+opaque class Property
+{
+	char const* autoget property m_name;
+	char const* autoget property m_toolTipText;
+	bool autoget property m_isEnabled;
+}
+
+//..............................................................................
+
+opaque class BoolProperty: Property
+{
+	construct (char const* name);
+
+	bool autoget bindable property m_value;
+}
+
+//..............................................................................
+
+opaque class IntProperty: Property
+{
+	construct (char const* name);
+
+	int autoget bindable property m_value;
+}
+
+//..............................................................................
+
+opaque class StringProperty: Property
+{
+	construct (char const* name);
+
+	char const* autoget bindable property m_value;
+	bool autoget property m_isPassword;
+}
+
+//..............................................................................
+
+struct EnumPropertyOption
+{
+	char const* m_text;
+	variant m_value;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class EnumProperty: Property
+{
+	property m_value
+	{
+		variant autoget m_value;
+		set (variant value);
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
+	property m_currentIndex
+	{
+		size_t autoget m_value;
+		set (size_t value);
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
+	construct (char const* name);
+	destruct ();
+
+	setOptions (
+		EnumPropertyOption const* optionArray,
+		size_t count
+		);
+
+	event m_onChanged ();
+}
+
+//..............................................................................
+
+opaque class GroupProperty
+{
+	construct (char const* name);
+
+	addProperty (Property* prop);
+
+	BoolProperty* createBoolProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	IntProperty* createIntProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	StringProperty* createStringProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	EnumProperty* createEnumProperty (
+		char const* name,
+		char const* toolTipText,
+		EnumPropertyOption const* optionArray,
+		size_t count
+		);
+}
+
+//..............................................................................
+
+opaque class PropertyGrid
+{
+	addProperty (Property* prop);
+
+	BoolProperty* createBoolProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	IntProperty* createIntProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	StringProperty* createStringProperty (
+		char const* name,
+		char const* toolTipText
+		);
+
+	EnumProperty* createEnumProperty (
+		char const* name,
+		char const* toolTipText,
+		EnumPropertyOption const* optionArray,
+		size_t count
+		);
+
+	EnumProperty* createNetworkAdapterProperty (
+		char const* name,
+		char const* toolTipText
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+BoolProperty* PropertyGrid.createBoolProperty (
+	char const* name,
+	char const* toolTipText
+	)
+{
+	BoolProperty* prop = new BoolProperty (name);
+	prop.m_toolTipText = toolTipText;
+	addProperty (prop);
+	return prop;
+}
+
+IntProperty* PropertyGrid.createIntProperty (
+	char const* name,
+	char const* toolTipText
+	)
+{
+	IntProperty* prop = new IntProperty (name);
+	prop.m_toolTipText = toolTipText;
+	addProperty (prop);
+	return prop;
+}
+
+StringProperty* PropertyGrid.createStringProperty (
+	char const* name,
+	char const* toolTipText
+	)
+{
+	StringProperty* prop = new StringProperty (name);
+	prop.m_toolTipText = toolTipText;
+	addProperty (prop);
+	return prop;
+}
+
+EnumProperty* PropertyGrid.createEnumProperty (
+	char const* name,
+	char const* toolTipText,
+	EnumPropertyOption const* optionArray,
+	size_t count
+	)
+{
+	EnumProperty* prop = new EnumProperty (name);
+	prop.m_toolTipText = toolTipText;
+	prop.setOptions (optionArray, count);
+	addProperty (prop);
+	return prop;
+}
+
+//..............................................................................
+
+} // namespace gui {

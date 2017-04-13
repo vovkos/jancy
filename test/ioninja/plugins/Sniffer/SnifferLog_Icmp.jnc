@@ -1,0 +1,85 @@
+//..............................................................................
+//
+// Sniffer log ICMP packets handling
+//
+
+//..............................................................................
+
+size_t
+representIcmpHdr (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	size_t* hdrSizeTable,
+	uint_t* hdrColorTable,
+	size_t hdrIdx
+	)
+{
+	io.IcmpHdr const* icmpHdr = (io.IcmpHdr const*) (p + baseOffset);
+
+	target.addHyperText (std.format (
+		"\e[1mICMP\n"
+		"   \e[90mTYPE:     \e^!%d,%d\e[34m%d\n"
+		"   \e[90mCODE:     \e^!%d,%d\e[34m%d\n"
+		"   \e[90mCHECKSUM: \e^!%d,%d\e[34m%04Xh\n"
+		"   \e[90mID:       \e^!%d,%d\e[34m%d\n"
+		"   \e[90mSEQ:      \e^!%d,%d\e[34m%d",
+
+		baseOffset + offsetof (icmpHdr.m_type),
+		sizeof (icmpHdr.m_type),
+		icmpHdr.m_type,
+
+		baseOffset + offsetof (icmpHdr.m_code),
+		sizeof (icmpHdr.m_code),
+		icmpHdr.m_code,
+
+		baseOffset + offsetof (icmpHdr.m_checksum),
+		sizeof (icmpHdr.m_checksum),
+		icmpHdr.m_checksum,
+
+		baseOffset + offsetof (icmpHdr.m_id),
+		sizeof (icmpHdr.m_id),
+		icmpHdr.m_id,
+
+		baseOffset + offsetof (icmpHdr.m_seqNumber),
+		sizeof (icmpHdr.m_seqNumber),
+		icmpHdr.m_seqNumber
+		));
+
+	hdrSizeTable [hdrIdx] = sizeof (io.IcmpHdr);
+	hdrColorTable [hdrIdx] = SnifferLogHdrColor.Icmp;
+	return hdrIdx + 1;
+}
+
+representIcmp (
+	log.RepresenterTarget* target,
+	io.IpHdr const* ipHdr,
+	void const* p,
+	size_t size,
+	size_t baseOffset
+	)
+{
+	if (baseOffset + sizeof (io.IcmpHdr) > size)
+	{
+		target.addHyperText (std.format (
+			"[\e^+1\e[34m+\e[m] \e[1mICMP \e[10;34m%s\e[m > \e[34m%s\e[m [INVALID SIZE:%d]",
+			formatIpString (ipHdr.m_srcAddress),
+			formatIpString (ipHdr.m_dstAddress),
+			size
+			));
+
+		return;
+	}
+
+	io.IcmpHdr const* icmpHdr = (io.IcmpHdr const*) (p + baseOffset);
+	target.addHyperText (std.format (
+		"[\e^+1\e[34m+\e[m] \e[1mICMP \e[10;34m%s\e[m > \e[34m%s\e[m [TYPE:%d CODE:%d]",
+		formatIpString (ipHdr.m_srcAddress),
+		formatIpString (ipHdr.m_dstAddress),
+		icmpHdr.m_type,
+		icmpHdr.m_code
+		));
+}
+
+//..............................................................................

@@ -1,0 +1,180 @@
+//..............................................................................
+//
+// TCP sequencer ensures handling of TCP segments in correct order
+//
+
+import "std_List.jnc"
+
+namespace io {
+
+//..............................................................................
+
+class TcpSequencer
+{
+	enum
+	{
+		DefOutOfSeqLimit = 8
+	}
+
+protected:
+	struct OutOfSeqSegment
+	{
+		OutOfSeqSegment* m_next;
+		uint32_t m_seqNumber;
+		void* m_p;
+		size_t m_size;
+	}
+
+	std.List m_outOfSeqList;
+
+public:
+	size_t m_outOfSeqLimit;
+	uint32_t readonly m_seqNumber;
+
+	function* m_onData (
+		void const* p,
+		size_t size
+		);
+
+	function* m_onDataDrop ();
+
+public:
+	reset (uint32_t seqNumber);
+
+	write (
+		uint32_t seqNumber,
+		void const* p,
+		size_t size
+		);
+
+protected:
+	addOutOfSeqSegment (
+		uint32_t seqNumber,
+		void const* p,
+		size_t size
+		);
+
+	writeInSeqSegment (
+		uint32_t seqNumber,
+		void const* p,
+		size_t size
+		);
+
+	writeAlignedOutOfSeqSegments ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpSequencer.reset (uint32_t seqNumber)
+{
+	m_outOfSeqLimit = DefOutOfSeqLimit;
+	m_seqNumber = seqNumber;
+}
+
+TcpSequencer.write (
+	uint32_t seqNumber,
+	void const* p,
+	size_t size
+	)
+{
+	if ((intptr_t) (seqNumber - m_seqNumber) > 0)
+	{
+		addOutOfSeqSegment (seqNumber, p, size);
+	}
+	else
+	{
+		writeInSeqSegment (seqNumber, p, size);
+		writeAlignedOutOfSeqSegments ();
+	}
+}
+
+TcpSequencer.addOutOfSeqSegment (
+	uint32_t seqNumber,
+	void const* p,
+	size_t size
+	)
+{
+	// find location to insert it
+
+	std.ListEntry* it = m_outOfSeqList.m_head;
+	for (; it; it = it.m_next)
+	{
+		OutOfSeqSegment* segment = it.m_data;
+		if (segment.m_seqNumber == seqNumber)
+		{
+			if (size > segment.m_size)
+			{
+				segment.m_p = new char [size];
+				segment.m_size = size;
+				memcpy (segment.m_p, p, size);
+			}
+
+			return;
+		}
+
+		if (seqNumber < segment.m_seqNumber)
+			break;
+	}
+
+	OutOfSeqSegment* segment = new OutOfSeqSegment;
+	segment.m_seqNumber = seqNumber;
+	segment.m_p = new char [size];
+	segment.m_size = size;
+	memcpy (segment.m_p, p, size);
+
+	m_outOfSeqList.insertBefore (segment, it);
+	if (m_outOfSeqList.m_count < m_outOfSeqLimit)
+		return;
+
+	if (m_onDataDrop)
+		m_onDataDrop ();
+
+	// maintain out-of-seq limit
+
+	while (m_outOfSeqList.m_count > m_outOfSeqLimit)
+	{
+		OutOfSeqSegment* segment = m_outOfSeqList.removeHead ();
+		writeInSeqSegment (segment.m_seqNumber, segment.m_p, segment.m_size);
+	}
+
+	writeAlignedOutOfSeqSegments ();
+}
+
+TcpSequencer.writeInSeqSegment (
+	uint32_t seqNumber,
+	void const* p,
+	size_t size
+	)
+{
+	if ((intptr_t) (m_seqNumber - seqNumber) > 0) // retransmission
+	{
+		size_t skip = m_seqNumber - seqNumber;
+		if (skip >= size)
+			return;
+
+		p += skip;
+		size -= skip;
+	}
+
+	if (m_onData)
+		m_onData (p, size);
+
+	m_seqNumber = seqNumber + (uint32_t) size;
+}
+
+TcpSequencer.writeAlignedOutOfSeqSegments ()
+{
+	while (m_outOfSeqList.m_count)
+	{
+		OutOfSeqSegment* segment = m_outOfSeqList.m_head.m_data;
+		if (segment.m_seqNumber > m_seqNumber)
+			break;
+
+		m_outOfSeqList.removeHead ();
+		writeInSeqSegment (segment.m_seqNumber, segment.m_p, segment.m_size);
+	}
+}
+
+//..............................................................................
+
+} // namespace io {

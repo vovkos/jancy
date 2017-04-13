@@ -1,0 +1,151 @@
+//..............................................................................
+//
+// TCP Proxy log packet declarations and representer
+//
+
+//..............................................................................
+
+enum TcpProxyLogRecordCode
+{
+	Listening,
+	ListenError,
+	ListenStopped,
+	ListenCanceled,
+	ClientConnected,
+	ClientDisconnected,
+	ClientRejected,
+	TargetConnecting,
+	TargetConnectCompleted,
+	TargetConnectCancelled,
+	TargetConnectError,
+	TargetDisconnected,
+	TargetResolving,
+	TargetResolveCompleted,
+	TargetResolvingError,
+}
+
+enum TcpProxyPartCode
+{
+	TargetConnecting       = 1 | log.PartCodeFlags.MergeableForward,
+	TargetConnectCompleted = 1 | log.PartCodeFlags.MergeableBackward,
+}
+
+//..............................................................................
+
+bool representTcpProxyLog (
+	log.RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case TcpProxyLogRecordCode.Listening:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Listening on \e[34m$addressString");
+		break;
+
+	case TcpProxyLogRecordCode.ListenError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, $"Cannot listen: $(error.m_description)");
+		break;
+
+	case TcpProxyLogRecordCode.ListenStopped:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Stopped listening on \e[34m$addressString");
+		break;
+
+	case TcpProxyLogRecordCode.ListenCanceled:
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, "cancelled");
+		break;
+
+	case TcpProxyLogRecordCode.ClientConnected:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Client connected from \e[34m$addressString");
+		break;
+
+	case TcpProxyLogRecordCode.ClientDisconnected:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Client \e[34m$addressString\e[m disconnected");
+		break;
+
+	case TcpProxyLogRecordCode.ClientRejected:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText ($"Client \e[34m$addressString\e[m is rejected ");
+		break;
+
+	case TcpProxyLogRecordCode.TargetConnecting:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpProxyPartCode.TargetConnecting, $"Connecting to \e[34m$addressString\e[m...");
+		break;
+
+	case TcpProxyLogRecordCode.TargetConnectCompleted:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, "ok");
+		break;
+
+	case TcpProxyLogRecordCode.TargetConnectCancelled:
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, "cancelled");
+		break;
+
+	case TcpProxyLogRecordCode.TargetConnectError:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+
+		std.Error const* error = (std.Error const*) p;
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, $"error ($(error.m_description))");
+		break;
+
+	case TcpProxyLogRecordCode.TargetDisconnected:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ($"Disconnected from \e[34m$addressString");
+		break;
+
+	case TcpProxyLogRecordCode.TargetResolving:
+		char const* addressString = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (TcpProxyPartCode.TargetConnecting, $"Resolving \e[34m$addressString\e[m...");
+		break;
+
+	case TcpProxyLogRecordCode.TargetResolveCompleted:
+		char const* addressString = ((io.SocketAddress const*) p).getString ();
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, $"ok (\e[34m$addressString\e[m)");
+		break;
+
+	case TcpProxyLogRecordCode.TargetResolvingError:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+
+		std.Error const* error = (std.Error const*) p;
+		target.addHyperText (TcpProxyPartCode.TargetConnectCompleted, $"error ($(error.m_description))");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}

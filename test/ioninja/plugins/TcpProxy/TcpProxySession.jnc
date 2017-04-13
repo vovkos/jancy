@@ -1,0 +1,711 @@
+//..............................................................................
+//
+// TCP Proxy session
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "io_SocketAddressResolver.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class TcpProxySession: doc.Session
+{
+protected:
+	enum ListenerState
+	{
+		Closed,
+		Resolving,
+		Listening,
+	}
+
+	static char const* m_listenerStateStringTable [] =
+	{
+		"Not listening",
+		"Resolving...",
+		"Listening",
+	}
+
+	enum ServerConnectionState
+	{
+		Closed,
+		Connected,
+	}
+
+	enum ClientConnectionState
+	{
+		Closed,
+		Connecting,
+		Connected,
+	}
+
+	static char const* m_clientConnectionStateStringTable [] =
+	{
+		"Not connected",
+		"Connecting...",
+		"Connected",
+	}
+
+	enum ActionId
+	{
+		Listen,
+		Disconnect,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Listen,
+		StopListen,
+		Disconnect,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		ServerRemoteAddress,
+		ListenerState,
+		ClientConnectionState,
+		_Count,
+	}
+
+protected:
+	// server listener socket
+
+	ListenerState bindable m_listenerState;
+	io.Socket m_listenerSocket;
+	io.SocketAddress m_localAddress;
+
+	// server connection socket
+
+	ServerConnectionState bindable m_serverConnectionState;
+	uint_t m_serverConnectionSyncId;
+	io.Socket* m_serverConnectionSocket;
+	io.SocketAddress m_serverRemoteAddress;
+
+	// client connection socket
+
+	ClientConnectionState bindable m_clientConnectionState;
+	io.Socket m_clientConnectionSocket;
+	io.SocketAddress m_clientRemoteAddress;
+	io.SocketAddressResolver m_resolver;
+	uint_t m_resolverSyncId;
+	bool m_isTargetAddressResolved;
+	bool m_wasTargetAddressChangedWhileResolving;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_adapterCombo;
+	gui.ComboBox* m_serverPortCombo;
+	gui.ComboBox* m_clientAddressCombo;
+
+	// property grid
+
+	gui.StringProperty* m_clientAddressProp;
+	gui.IntProperty* m_serverPortProp;
+	gui.EnumProperty* m_adapterProp;
+	gui.BoolProperty* m_overrideConnectionProp;
+	gui.BoolProperty* m_resetConnectionProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode listen ();
+	stopListen ();
+	disconnect ();
+
+	bool connectTarget ();
+	disconnectTarget ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+protected:
+	handleListenerConnectError (std.Error const* error);
+	handleTargetConnectError (std.Error const* error);
+
+	onListen ();
+	onListenerPortChanged ();
+	onTargetAddressChanged ();
+	onListenerSocketEvent (io.SocketEventParams const* params);
+	onServerConnectionSocketEvent (io.SocketEventParams const* params);
+	onClientConnectionSocketEvent (io.SocketEventParams const* params);
+	onResolverEvent (io.SocketAddressResolverEventParams const* params);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpProxySession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representTcpProxyLog;
+
+	// listener
+
+	m_listenerState = ListenerState.Closed;
+	m_listenerSocket.m_onSocketEvent += onListenerSocketEvent @ pluginHost.m_mainThreadScheduler;
+
+	// server connection
+
+	m_serverConnectionState = ServerConnectionState.Closed;
+
+	// client connection
+
+	m_clientConnectionState = ClientConnectionState.Closed;
+	m_clientConnectionSocket.m_onSocketEvent += onClientConnectionSocketEvent @ pluginHost.m_mainThreadScheduler;
+	m_resolver.m_onResolverEvent += onResolverEvent @ pluginHost.m_mainThreadScheduler;
+	m_resolverSyncId = 0;
+	m_isTargetAddressResolved = false;
+	m_wasTargetAddressChangedWhileResolving = false;
+
+	createUi ();
+}
+
+TcpProxySession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Adapter:");
+	m_adapterCombo = io.createNetworkAdapterComboBox (m_pluginHost.m_toolBar, io.NetworkAdapterUsage.Listener);
+
+	m_pluginHost.m_toolBar.addLabel ("Port:");
+	m_serverPortCombo = m_pluginHost.m_toolBar.addComboBox ();
+	m_serverPortCombo.m_isEditable = true;
+	m_serverPortCombo.m_editText = "1001";
+	m_serverPortCombo.m_onChanged += onListenerPortChanged;
+
+	m_pluginHost.m_toolBar.addLabel ("Remote:");
+	m_clientAddressCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_clientAddressCombo.m_isEditable = true;
+	m_clientAddressCombo.m_editText = "127.0.0.1:1002";
+	m_clientAddressCombo.m_onChanged += onTargetAddressChanged;
+
+	m_iconTable [IconId.Listen] = new gui.Icon ("images/listen.png");
+	m_iconTable [IconId.StopListen] = new gui.Icon ("images/pause.png");
+	m_iconTable [IconId.Disconnect] = new gui.Icon ("images/disconnect.png");
+
+	m_actionTable [ActionId.Listen] = createAction ("Listen", m_iconTable [IconId.Listen]);
+	m_actionTable [ActionId.Listen].m_onTriggered += onListen;
+
+	m_actionTable [ActionId.Disconnect] = createAction ("Disconnect", m_iconTable [IconId.Disconnect]);
+	m_actionTable [ActionId.Disconnect].m_onTriggered += disconnect;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.ServerRemoteAddress] = m_pluginHost.m_statusBar.addPane (, 100);
+	m_statusPaneTable [StatusPaneId.ServerRemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable [StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane (, 80);
+	m_statusPaneTable [StatusPaneId.ClientConnectionState] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_serverPortProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		"Port",
+		"Port to listen on"
+		);
+
+	m_clientAddressProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"Target Address",
+		"Address to connect to"
+		);
+
+	m_adapterProp = io.createNetworkAdapterProperty (
+		m_pluginHost.m_propertyGrid,
+		io.NetworkAdapterUsage.Listener,
+		"Interface",
+		"Interface to bind to and to listen on for target connection"
+		);
+
+	m_overrideConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Override Connections",
+		"Accept incoming connection even if already connected"
+		);
+
+	m_resetConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Reset Connections",
+		"Use TCP RST to terminate connections (instead of TCP graceful disconnect)"
+		);
+
+	m_uiReactor.start ();
+}
+
+TcpProxySession.onListen ()
+{
+	if (m_listenerState)
+		stopListen ();
+	else
+		try listen ();
+}
+
+bool errorcode TcpProxySession.listen ()
+{
+	stopListen ();
+	startSession ();
+
+	//m_addressCombo.addEditTextToHistory ();
+	//m_serverPortCombo.addEditTextToHistory ();
+
+	char const* targetAddressString = m_clientAddressCombo.m_editText;
+
+	io.SocketAddress targetAddress;
+	bool isDirectAddress = try targetAddress.parse (targetAddressString);
+	if (isDirectAddress || m_isTargetAddressResolved)
+	{
+		if (isDirectAddress)
+			m_clientRemoteAddress = targetAddress;
+
+		io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
+		address.m_ip4.m_port = (uint16_t) atoi (m_serverPortCombo.m_editText); // same for IPv4/IPv6
+
+		m_listenerSocket.open (io.Protocol.Tcp, &address, io.SocketOpenFlags.Asynchronous);
+		m_listenerSocket.listen ();
+
+		writeLog (
+			TcpProxyLogRecordCode.Listening,
+			&address,
+			sizeof (address)
+			);
+
+		m_localAddress = address;
+		m_listenerState = ListenerState.Listening;
+	}
+	else
+	{
+		writeLog (
+			TcpProxyLogRecordCode.TargetResolving,
+			targetAddressString,
+			strlen (targetAddressString)
+			);
+
+		m_resolver.m_syncId = ++m_resolverSyncId;
+		m_resolver.resolve (targetAddressString);
+
+		m_listenerState = ListenerState.Resolving;
+		m_isTargetAddressResolved = false;
+		m_wasTargetAddressChangedWhileResolving = false;
+	}
+
+	return true;
+
+catch:
+	handleListenerConnectError (std.getLastError ());
+	return false;
+}
+
+TcpProxySession.stopListen ()
+{
+	m_serverPortCombo.m_backgroundColor = gui.StdColor.White;
+	m_clientAddressCombo.m_backgroundColor = gui.StdColor.White;
+
+	switch (m_listenerState)
+	{
+		case ListenerState.Closed:
+			return;
+
+		case ListenerState.Resolving:
+			writeLog (TcpProxyLogRecordCode.ListenCanceled);
+			m_resolverSyncId++;
+			break;
+
+		case ListenerState.Listening:
+			writeLog (
+				TcpProxyLogRecordCode.ListenStopped,
+				&m_localAddress,
+				sizeof (m_localAddress)
+				);
+			break;
+	}
+
+	m_listenerSocket.close ();
+	m_listenerState = ListenerState.Closed;
+}
+
+TcpProxySession.disconnect ()
+{
+	disconnectTarget ();
+
+	if (m_serverConnectionState != ServerConnectionState.Connected)
+		return;
+
+	writeLog (
+		TcpProxyLogRecordCode.ClientDisconnected,
+		&m_serverRemoteAddress,
+		sizeof (m_serverRemoteAddress)
+		);
+
+	m_serverConnectionSocket.close ();
+	m_serverConnectionSocket = null;
+	m_serverConnectionState = ServerConnectionState.Closed;
+	m_serverConnectionSyncId++;
+}
+
+bool TcpProxySession.connectTarget ()
+{
+	disconnectTarget ();
+
+	writeLog (
+		TcpProxyLogRecordCode.TargetConnecting,
+		&m_clientRemoteAddress,
+		sizeof (m_clientRemoteAddress)
+		);
+
+	m_clientConnectionSocket.open (io.Protocol.Tcp, io.SocketOpenFlags.Asynchronous);
+	m_clientConnectionSocket.connect (&m_clientRemoteAddress);
+
+	m_clientConnectionState = ClientConnectionState.Connecting;
+
+	return true;
+
+catch:
+	handleTargetConnectError (std.getLastError ());
+	return false;
+}
+
+TcpProxySession.disconnectTarget ()
+{
+	if (m_clientConnectionState != ClientConnectionState.Connected)
+		return;
+
+	writeLog (
+		TcpProxyLogRecordCode.TargetDisconnected,
+		&m_clientRemoteAddress,
+		sizeof (m_clientRemoteAddress)
+		);
+
+	m_clientConnectionSocket.close ();
+	m_clientConnectionState = ClientConnectionState.Closed;
+}
+
+override void TcpProxySession.load (doc.Storage* storage)
+{
+	m_adapterCombo.m_currentIndex  = storage.readInt ("adapterIdx");
+	m_serverPortCombo.m_editText = storage.readString ("port");
+	m_clientAddressCombo.m_editText = storage.readString ("targetAddress");
+	m_overrideConnectionProp.m_value = storage.readBool ("overrideConnection");
+	m_resetConnectionProp.m_value = storage.readBool ("resetConnection");
+}
+
+override void TcpProxySession.save (doc.Storage* storage)
+{
+	storage.writeInt ("adapterIdx", (int) m_adapterCombo.m_currentIndex);
+	storage.writeString ("port", m_serverPortCombo.m_editText);
+	storage.writeString ("targetAddress", m_clientAddressCombo.m_editText);
+	storage.writeBool ("overrideConnection", m_overrideConnectionProp.m_value);
+	storage.writeBool ("resetConnection", m_resetConnectionProp.m_value);
+}
+
+override void TcpProxySession.updateProperties ()
+{
+	m_serverPortProp.m_value = atoi (m_serverPortCombo.m_editText);
+	m_clientAddressProp.m_value = m_clientAddressCombo.m_editText;
+}
+
+override bool errorcode TcpProxySession.applyProperties ()
+{
+	m_serverPortCombo.m_editText = $"$(m_serverPortProp.m_value)";
+	m_clientAddressCombo.m_editText = m_clientAddressProp.m_value;
+	return true;
+}
+
+override void TcpProxySession.restoreDefaultProperties ()
+{
+	m_adapterProp.m_currentIndex = 0;
+	m_serverPortProp.m_value = 1001;
+	m_clientAddressProp.m_value = "127.0.0.1:1002";
+	m_overrideConnectionProp.m_value = true;
+	m_resetConnectionProp.m_value = false;
+}
+
+TcpProxySession.onListenerPortChanged ()
+{
+	switch (m_listenerState)
+	{
+		case ListenerState.Listening:
+		case ListenerState.Resolving:
+			m_serverPortCombo.m_backgroundColor = gui.StdColor.PastelOrange;
+			break;
+	}
+}
+
+TcpProxySession.onTargetAddressChanged ()
+{
+	m_isTargetAddressResolved = false;
+
+	if (m_listenerState == ListenerState.Resolving)
+		m_wasTargetAddressChangedWhileResolving = true;
+
+	if (m_listenerState != ListenerState.Closed)
+		m_clientAddressCombo.m_backgroundColor = gui.StdColor.PastelOrange;
+}
+
+TcpProxySession.onListenerSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_listenerSocket.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.IncomingConnection:
+		io.SocketAddress address;
+		io.Socket* socket = try m_listenerSocket.accept (&address);
+		if (!socket)
+			break;
+
+		if (m_serverConnectionState == ServerConnectionState.Connected && !m_overrideConnectionProp.m_value)
+		{
+			socket.close ();
+			writeLog (
+				TcpProxyLogRecordCode.ClientRejected,
+				&address,
+				sizeof (address)
+				);
+
+			break;
+		}
+
+		disconnect ();
+
+		writeLog (
+			TcpProxyLogRecordCode.ClientConnected,
+			&address,
+			sizeof (address)
+			);
+
+		socket.m_syncId = m_serverConnectionSyncId;
+
+		m_serverRemoteAddress = address;
+		m_serverConnectionSocket = socket;
+		m_serverConnectionState = ServerConnectionState.Connected;
+
+		bool result = try connectTarget ();
+		if (!result)
+		{
+			disconnect ();
+			break;
+		}
+
+		break;
+	}
+}
+
+TcpProxySession.onServerConnectionSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_serverConnectionSyncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.Disconnected:
+		for (;;)
+		{
+			static char buffer [512];
+			size_t result = try m_serverConnectionSocket.recv (buffer, sizeof (buffer));
+			if (!result || result == -1)
+				break;
+
+			writeLog (log.StdRecordCode.Tx, buffer, result);
+		}
+
+		writeLog (
+			TcpProxyLogRecordCode.ClientDisconnected,
+			&m_serverRemoteAddress,
+			sizeof (m_serverRemoteAddress)
+			);
+
+		m_serverConnectionSocket = null;
+		m_serverConnectionState = ServerConnectionState.Closed;
+		m_serverConnectionSyncId++;
+
+		disconnectTarget ();
+		break;
+
+	case io.SocketEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_serverConnectionSocket.recv (buffer, sizeof (buffer));
+		if (result != -1)
+		{
+			writeLog (log.StdRecordCode.Tx, buffer, result);
+
+			if (m_clientConnectionState == ClientConnectionState.Connected)
+				try m_clientConnectionSocket.send (buffer, result);
+		}
+
+		break;
+	}
+}
+
+TcpProxySession.onClientConnectionSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_clientConnectionSocket.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.ConnectCompleted:
+		writeLog (TcpProxyLogRecordCode.TargetConnectCompleted);
+		m_clientConnectionState = ClientConnectionState.Connected;
+
+		// only once the connection to the target was successfully established
+		// do we care about the listener connection
+
+		if (m_serverConnectionSocket != null)
+		{
+			m_serverConnectionSocket.m_onSocketEvent += onServerConnectionSocketEvent @ m_pluginHost.m_mainThreadScheduler;
+			m_serverConnectionSocket.m_isSocketEventEnabled = true;
+		}
+
+		break;
+
+	case io.SocketEventCode.ConnectCancelled:
+		writeLog (TcpProxyLogRecordCode.TargetConnectCancelled);
+		m_clientConnectionState = ClientConnectionState.Closed;
+
+		disconnect ();
+		break;
+
+	case io.SocketEventCode.ConnectError:
+		writeLog (
+			TcpProxyLogRecordCode.TargetConnectError,
+			params.m_error,
+			params.m_error.m_size
+			);
+		m_clientConnectionState = ClientConnectionState.Closed;
+
+		disconnect ();
+		break;
+
+	case io.SocketEventCode.Disconnected:
+		for (;;)
+		{
+			static char buffer [512];
+			size_t result = try m_clientConnectionSocket.recv (buffer, sizeof (buffer));
+			if (!result || result == -1)
+				break;
+
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		}
+
+		writeLog (
+			TcpProxyLogRecordCode.TargetDisconnected,
+			&m_clientRemoteAddress,
+			sizeof (m_serverRemoteAddress)
+			);
+		m_clientConnectionState = ClientConnectionState.Closed;
+
+		disconnect ();
+		break;
+
+	case io.SocketEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_clientConnectionSocket.recv (buffer, sizeof (buffer));
+		if (result != -1)
+		{
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+
+			if (m_serverConnectionState == ServerConnectionState.Connected)
+				try m_serverConnectionSocket.send (buffer, result);
+		}
+
+		break;
+	}
+}
+
+TcpProxySession.onResolverEvent (io.SocketAddressResolverEventParams const* params)
+{
+	if (params.m_syncId != m_resolverSyncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketAddressResolverEventCode.ResolveCompleted:
+		writeLog (
+			TcpProxyLogRecordCode.TargetResolveCompleted,
+			params.m_addressTable,
+			sizeof (io.SocketAddress)
+			);
+
+		m_clientRemoteAddress = *params.m_addressTable;
+
+		if (!m_wasTargetAddressChangedWhileResolving)
+			m_isTargetAddressResolved = true;
+
+		// start listening
+
+		io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
+		address.m_ip4.m_port = (uint16_t) atoi (m_serverPortCombo.m_editText); // same for IPv4/IPv6
+
+		m_listenerSocket.open (io.Protocol.Tcp, &address, io.SocketOpenFlags.Asynchronous);
+		m_listenerSocket.listen ();
+
+		writeLog (
+			TcpProxyLogRecordCode.Listening,
+			&address,
+			sizeof (address)
+			);
+
+		m_localAddress = address;
+		m_listenerState = ListenerState.Listening;
+		break;
+
+	case io.SocketAddressResolverEventCode.ResolveError:
+		writeLog (
+			TcpProxyLogRecordCode.TargetResolvingError,
+			params.m_error,
+			params.m_error.m_size
+			);
+		m_listenerState = ListenerState.Closed;
+		break;
+	}
+
+catch:
+	handleListenerConnectError (std.getLastError ());
+}
+
+TcpProxySession.handleListenerConnectError (std.Error const* error)
+{
+	writeLog (
+		TcpProxyLogRecordCode.ListenError,
+		error,
+		error.m_size
+		);
+
+	m_listenerSocket.close ();
+	m_listenerState = ListenerState.Closed;
+}
+
+TcpProxySession.handleTargetConnectError (std.Error const* error)
+{
+	writeLog (
+		TcpProxyLogRecordCode.TargetConnectError,
+		error,
+		error.m_size
+		);
+
+	m_clientConnectionSocket.close ();
+	m_clientConnectionState = ClientConnectionState.Closed;
+}
+
+reactor TcpProxySession.m_uiReactor ()
+{
+	m_title = $"TCP @ $(m_serverPortCombo.m_editText) -> $(m_clientAddressCombo.m_editText)";
+	m_actionTable [ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
+	m_actionTable [ActionId.Listen].m_icon = m_iconTable [m_listenerState ? IconId.StopListen : IconId.Listen];
+	m_actionTable [ActionId.Disconnect].m_isEnabled = m_serverConnectionState || m_clientConnectionState;
+	m_statusPaneTable [StatusPaneId.ServerRemoteAddress].m_text = m_serverConnectionState ? m_serverRemoteAddress.getString () : "<server-peer>";
+	m_statusPaneTable [StatusPaneId.ServerRemoteAddress].m_isVisible = m_serverConnectionState != ServerConnectionState.Closed;
+	m_statusPaneTable [StatusPaneId.ListenerState].m_text = m_listenerStateStringTable [m_listenerState];
+	m_statusPaneTable [StatusPaneId.ClientConnectionState].m_text = m_clientConnectionStateStringTable [m_clientConnectionState];
+}
+
+//..............................................................................

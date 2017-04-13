@@ -1,0 +1,32 @@
+//..............................................................................
+//
+// Network Sniffer session plugin
+//
+
+[plugin]
+
+name        = "Network Sniffer"
+description = "pcap-based network traffic sniffer\nProvides basic tcpdump functionality for TCP/UDP/ICMP protocols"
+id          = sniffer
+group       = monitors
+guid        = b0a872b3-de4b-4f15-88bd-8de55eba7a78
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+terminal    = false
+
+session-class        = SnifferSession
+log-representer-func = representSnifferLog
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[scripts]
+
+SnifferSession.jnc
+SnifferLog.jnc
+SnifferLog_Ethernet.jnc
+SnifferLog_Ip.jnc
+SnifferLog_Icmp.jnc
+SnifferLog_Tcp.jnc
+SnifferLog_Udp.jnc
+../../common/io_IpDefragmenter.jnc
+../../common/io_PcapDeviceUi.jnc

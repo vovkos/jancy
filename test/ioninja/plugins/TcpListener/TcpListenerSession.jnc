@@ -1,0 +1,448 @@
+//..............................................................................
+//
+// TCP Listener session
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class TcpListenerSession: doc.Session
+{
+protected:
+	enum ListenerState
+	{
+		Closed,
+		Listening,
+	}
+
+	enum ConnectionState
+	{
+		Closed,
+		Connected,
+	}
+
+	enum ActionId
+	{
+		Listen,
+		Disconnect,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Listen,
+		StopListen,
+		Disconnect,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		RemoteAddress,
+		ListenerState,
+		_Count,
+	}
+
+protected:
+	// listener socket
+
+	ListenerState bindable m_listenerState;
+	io.Socket m_listenerSocket;
+	io.SocketAddress m_localAddress;
+
+	// connection socket
+
+	ConnectionState bindable m_connectionState;
+	uint_t m_connectionSyncId;
+	io.Socket* m_connectionSocket;
+	io.SocketAddress m_remoteAddress;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_adapterCombo;
+	gui.ComboBox* m_portCombo;
+
+	// property grid
+
+	gui.IntProperty* m_portProp;
+	gui.EnumProperty* m_adapterProp;
+	gui.BoolProperty* m_overrideOldConnectionProp;
+	gui.EnumProperty* m_closeKindProp;
+	gui.BoolProperty* m_isNagleEnabledProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode listen ();
+	stopListen ();
+	disconnect ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onListen ();
+	onListenerSocketEvent (io.SocketEventParams const* params);
+	onConnectionSocketEvent (io.SocketEventParams const* params);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpListenerSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representTcpListenerLog;
+
+	m_connectionState = ConnectionState.Closed;
+	m_listenerState = ListenerState.Closed;
+	m_listenerSocket.m_onSocketEvent += onListenerSocketEvent @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+TcpListenerSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Adapter:");
+	m_adapterCombo = io.createNetworkAdapterComboBox (m_pluginHost.m_toolBar, io.NetworkAdapterUsage.Listener);
+
+	m_pluginHost.m_toolBar.addLabel ("Port:");
+	m_portCombo = m_pluginHost.m_toolBar.addComboBox ();
+	m_portCombo.m_isEditable = true;
+	m_portCombo.m_onEnter += listen;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane (, 100);
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable [StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// action buttons
+
+	m_iconTable [IconId.Listen] = new gui.Icon ("images/listen.png");
+	m_iconTable [IconId.StopListen] = new gui.Icon ("images/pause.png");
+	m_iconTable [IconId.Disconnect] = new gui.Icon ("images/disconnect.png");
+
+	m_actionTable [ActionId.Listen] = createAction ("Listen", m_iconTable [IconId.Listen]);
+	m_actionTable [ActionId.Listen].m_onTriggered += onListen;
+
+	m_actionTable [ActionId.Disconnect] = createAction ("Disconnect", m_iconTable [IconId.Disconnect]);
+	m_actionTable [ActionId.Disconnect].m_onTriggered += disconnect;
+
+	// property grid
+
+	m_adapterProp = io.createNetworkAdapterProperty (
+		m_pluginHost.m_propertyGrid,
+		io.NetworkAdapterUsage.Listener,
+		"Adapter",
+		"Network adapter to listen on"
+		);
+
+	m_portProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		"TCP Port",
+		"TCP port to listen on"
+		);
+
+	m_overrideOldConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Override connections",
+		"Accept incoming connection even if already connected"
+		);
+
+	m_closeKindProp = io.createSocketCloseKindProperty (
+		m_pluginHost.m_propertyGrid,
+		"TCP disconnect",
+		"How to close TCP connection (graceful / reset)"
+		);
+
+	m_isNagleEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Use TCP Nagle algorithm",
+		"Specify whether to reduce the number of small TCP packets being sent"
+		);
+
+	m_uiReactor.start ();
+}
+
+TcpListenerSession.onListen ()
+{
+	if (m_listenerState)
+		stopListen ();
+	else
+		try listen ();
+}
+
+bool errorcode TcpListenerSession.listen ()
+{
+	stopListen ();
+	startSession ();
+
+	m_portCombo.addEditTextToHistory ();
+
+	io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
+	address.m_ip4.m_port = (uint16_t) atoi (m_portCombo.m_editText); // same for IPv4/IPv6
+
+	m_listenerSocket.open (io.Protocol.Tcp, &address, io.SocketOpenFlags.Asynchronous);
+	m_listenerSocket.m_closeKind = (io.SocketCloseKind) m_closeKindProp.m_value;
+	m_listenerSocket.m_isNagleEnabled = m_isNagleEnabledProp.m_value;
+	m_listenerSocket.listen ();
+
+	writeLog (
+		TcpListenerLogRecordCode.Listening,
+		&address,
+		sizeof (address)
+		);
+
+	m_localAddress = address;
+	m_listenerState = ListenerState.Listening;
+	m_actionTable [ActionId.Listen].m_text = "Stop Listening";
+	m_actionTable [ActionId.Listen].m_icon = m_iconTable [IconId.StopListen];
+	return true;
+
+catch:
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		TcpListenerLogRecordCode.ListenError,
+		error,
+		error.m_size
+		);
+
+	m_listenerSocket.close ();
+	return false;
+}
+
+TcpListenerSession.stopListen ()
+{
+	if (m_listenerState != ListenerState.Listening)
+		return;
+
+	writeLog (
+		TcpListenerLogRecordCode.ListenStopped,
+		&m_localAddress,
+		sizeof (m_localAddress)
+		);
+	m_listenerSocket.close ();
+	m_listenerState = ListenerState.Closed;
+}
+
+TcpListenerSession.disconnect ()
+{
+	if (m_connectionState != ConnectionState.Connected)
+		return;
+
+	TcpDisconnectLogRecordParams params;
+	params.m_address = m_remoteAddress;
+	params.m_flags = 0;
+
+	if (m_closeKindProp.m_value == io.SocketCloseKind.Reset)
+		params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+
+	writeLog (
+		TcpListenerLogRecordCode.ClientDisconnected,
+		&params,
+		sizeof (params)
+		);
+
+	m_connectionSocket.close ();
+	m_connectionSocket = null;
+	m_connectionState = ConnectionState.Closed;
+	m_connectionSyncId++;
+}
+
+void TcpListenerSession.load (doc.Storage* storage)
+{
+	m_adapterCombo.m_currentIndex  = storage.readInt ("adapterIdx");
+	m_portCombo.m_editText = storage.readString ("port");
+	m_overrideOldConnectionProp.m_value = storage.readBool ("overrideOldConnection");
+	m_closeKindProp.m_value = storage.readInt ("closeKindProp");
+	m_isNagleEnabledProp.m_value = storage.readBool ("isNagleEnabledProp");
+}
+
+void TcpListenerSession.save (doc.Storage* storage)
+{
+	storage.writeInt ("adapterIdx", (int) m_adapterCombo.m_currentIndex);
+	storage.writeString ("port", m_portCombo.m_editText);
+	storage.writeBool ("overrideOldConnection", m_overrideOldConnectionProp.m_value);
+	storage.writeInt ("closeKindProp", m_closeKindProp.m_value);
+	storage.writeBool ("isNagleEnabledProp", m_isNagleEnabledProp.m_value);
+}
+
+void TcpListenerSession.updateProperties ()
+{
+	m_portProp.m_value = atoi (m_portCombo.m_editText);
+	m_adapterProp.m_currentIndex = m_adapterCombo.m_currentIndex;
+}
+
+bool errorcode TcpListenerSession.applyProperties ()
+{
+	m_portCombo.m_editText = $"$(m_portProp.m_value)";
+	m_adapterCombo.m_currentIndex = m_adapterProp.m_currentIndex;
+
+	if (m_listenerSocket.m_isOpen)
+	{
+		m_listenerSocket.m_closeKind = (io.SocketCloseKind) m_closeKindProp.m_value;
+		m_listenerSocket.m_isNagleEnabled = m_isNagleEnabledProp.m_value;
+	}
+
+	if (m_connectionSocket)
+	{
+		m_connectionSocket.m_closeKind = (io.SocketCloseKind) m_closeKindProp.m_value;
+		m_connectionSocket.m_isNagleEnabled = m_isNagleEnabledProp.m_value;
+	}
+
+	return true;
+}
+
+void TcpListenerSession.restoreDefaultProperties ()
+{
+	m_adapterProp.m_currentIndex = 0;
+	m_portProp.m_value = 1001;
+	m_overrideOldConnectionProp.m_value = true;
+	m_closeKindProp.m_value = io.SocketCloseKind.Graceful;
+	m_isNagleEnabledProp.m_value = true;
+}
+
+size_t errorcode TcpListenerSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_connectionState != ConnectionState.Connected)
+		return -1;
+
+	size_t result = m_connectionSocket.send (p, size);
+	if (result)
+		writeLog (log.StdRecordCode.Tx, p, result);
+
+	if (result < size)
+		m_isTransmitEnabled = false;
+
+	return result;
+}
+
+TcpListenerSession.onListenerSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_listenerSocket.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.IncomingConnection:
+		io.SocketAddress address;
+		io.Socket* socket = try m_listenerSocket.accept (&address);
+		if (!socket)
+			break;
+
+		if (m_connectionState == ConnectionState.Connected && !m_overrideOldConnectionProp.m_value)
+		{
+			socket.close ();
+			writeLog (
+				TcpListenerLogRecordCode.ClientRejected,
+				&address,
+				sizeof (address)
+				);
+
+			break;
+		}
+
+		disconnect ();
+
+		writeLog (
+			TcpListenerLogRecordCode.ClientConnected,
+			&address,
+			sizeof (address)
+			);
+
+		socket.m_syncId = m_connectionSyncId;
+		socket.m_onSocketEvent += onConnectionSocketEvent @ m_pluginHost.m_mainThreadScheduler;
+
+		m_remoteAddress = address;
+		m_connectionSocket = socket;
+		m_connectionState = ConnectionState.Connected;
+
+		socket.m_isSocketEventEnabled = true;
+		break;
+	}
+}
+
+TcpListenerSession.onConnectionSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_connectionSyncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.Disconnected:
+		for (;;)
+		{
+			static char buffer [512];
+			size_t result = try m_connectionSocket.recv (buffer, sizeof (buffer));
+			if (!result || result == -1)
+				break;
+
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		}
+
+		TcpDisconnectLogRecordParams recordParams;
+		recordParams.m_address = m_remoteAddress;
+		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
+
+		if (params.m_flags & io.SocketDisconnectEventFlags.Reset)
+			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+
+		writeLog (
+			TcpListenerLogRecordCode.ClientDisconnected,
+			&recordParams,
+			sizeof (recordParams)
+			);
+
+		m_connectionSocket.close ();
+		m_connectionSocket = null;
+		m_connectionState = ConnectionState.Closed;
+		m_connectionSyncId++;
+		break;
+
+	case io.SocketEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_connectionSocket.recv (buffer, sizeof (buffer));
+		if (result != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+
+		break;
+
+	case io.SocketEventCode.TransmitBufferReady:
+		m_isTransmitEnabled = true;
+		break;
+	}
+}
+
+reactor TcpListenerSession.m_uiReactor ()
+{
+	m_title = $"TCP @ $(m_portCombo.m_editText)";
+	m_isTransmitEnabled = m_connectionState == ConnectionState.Connected;
+	m_actionTable [ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
+	m_actionTable [ActionId.Listen].m_icon = m_iconTable [m_listenerState ? IconId.StopListen : IconId.Listen];
+	m_actionTable [ActionId.Disconnect].m_isEnabled = m_connectionState != ConnectionState.Closed;
+	m_statusPaneTable [StatusPaneId.ListenerState].m_text = m_listenerState ? "Listening" : "Not listening";
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_text = m_connectionState ? m_remoteAddress.getString () : "<peer>";
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_isVisible = m_connectionState != ConnectionState.Closed;
+}
+
+//..............................................................................

@@ -1,0 +1,200 @@
+//..............................................................................
+
+class XModemTransmitter
+{
+protected:
+	enum State
+	{
+		Idle,
+		WaitNak,
+		Data,
+		Eot,
+	}
+
+	State m_state;
+	uint64_t m_offset;
+
+	XModemLayer* m_parent;
+
+public:
+	construct (XModemLayer* parent);
+
+	start  ();
+	cancel ();
+
+	onRx (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onRx_WaitNak (char c);
+	onRx_Data (char c);
+	onRx_Eot (char c);
+
+	complete ();
+	sendNextDataBlock ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+XModemTransmitter.construct (XModemLayer* parent)
+{
+	m_state = State.Idle;
+	m_parent = parent;
+}
+
+XModemTransmitter.start  ()
+{
+	cancel ();
+
+	m_parent.m_progressDlg.m_status = "Waiting for the peer to accept XModem transfer...";
+	m_state = State.WaitNak;
+	m_offset = 0;
+}
+
+XModemTransmitter.cancel ()
+{
+	if (m_state == State.Idle)
+		return;
+
+	m_parent.m_progressDlg.m_status = "Cancelling XModem transfer...";
+
+	static char c = XModemChar.Can;
+	for (size_t i = 0; i < XModemCanCount; i++)
+		try m_parent.transmit (&c, sizeof (c));
+
+	complete ();
+}
+
+XModemTransmitter.complete ()
+{
+	m_state = State.Idle;
+	m_offset = 0;
+	m_parent.m_progressDlg.m_buttons = gui.StdDlgButtons.Ok;
+	m_parent.m_file.close ();
+}
+
+XModemTransmitter.sendNextDataBlock ()
+{
+	if (m_offset > m_parent.m_file.m_size)
+		return;
+
+	size_t size = (size_t) (m_parent.m_file.m_size - m_offset);
+	if (size > XModemBlockSize)
+		size = XModemBlockSize;
+
+	void const* p = m_parent.m_file.view (m_offset, size);
+
+	XModemBlock block;
+	block.m_blockNumber = (uchar_t) (m_offset / XModemBlockSize + 1);
+	block.m_code = XModemChar.Soh;
+	block.m_complement = (uchar_t) (block.m_blockNumber ^ 0xff);
+
+	memcpy (block.m_data, p, size);
+	block.m_checksum = calcXModemChecksum (block.m_data);
+
+	m_parent.transmit (&block, sizeof (block));
+
+	m_parent.m_progressDlg.m_progress = (int) ((m_offset + size / 2) * 100 / m_parent.m_file.m_size);
+	m_offset += size;
+
+catch:
+	m_parent.m_progressDlg.m_status = std.getLastError ().m_description;
+	complete ();
+}
+
+XModemTransmitter.onRx (
+	void const* p,
+	size_t size
+	)
+{
+	switch (m_state)
+	{
+	case State.WaitNak:
+		onRx_WaitNak (*(char const*) p);
+		break;
+
+	case State.Data:
+		onRx_Data (*(char const*) p);
+		break;
+
+	case State.Eot:
+		onRx_Eot (*(char const*) p);
+		break;
+	}
+}
+
+XModemTransmitter.onRx_WaitNak (char c)
+{
+	switch (c)
+	{
+	case XModemChar.Nak:
+		m_parent.m_progressDlg.m_status = "Transferring XModem data blocks...";
+		m_state = State.Data;
+		sendNextDataBlock ();
+		break;
+
+	default:
+		m_parent.m_progressDlg.m_status = "Invalid XModem transfer request";
+		// and ignore it
+	}
+}
+
+ XModemTransmitter.onRx_Data (char c)
+{
+	switch (c)
+	{
+	case XModemChar.Ack:
+		m_parent.m_progressDlg.m_progress = (int) (m_offset * 100 / m_parent.m_file.m_size);
+
+		if (m_offset < m_parent.m_file.m_size)
+		{
+			sendNextDataBlock ();
+			break;
+		}
+
+		m_parent.m_progressDlg.m_status = "Ending XModem transfer...";
+		m_state = State.Eot;
+
+		static char c = XModemChar.Eot;
+		try m_parent.transmit (&c, sizeof (c));
+		break;
+
+	case XModemChar.Nak:
+		m_parent.m_progressDlg.m_status = "Remote node reported out-of-sequence XModem block";
+		complete ();
+		break;
+
+	case XModemChar.Can:
+		m_parent.m_progressDlg.m_status = "XModem transfer cancelled by remote node";
+		complete ();
+		break;
+
+	default:
+		m_parent.m_progressDlg.m_status = "Invalid response to XModem data block";
+		// and ignore it
+	}
+}
+
+XModemTransmitter.onRx_Eot (char c)
+{
+	switch (c)
+	{
+	case XModemChar.Ack:
+		m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";
+		complete ();
+		break;
+
+	case XModemChar.Nak:
+		static char c = XModemChar.Eot; // retransmit eot
+		try m_parent.transmit (&c, sizeof (c));
+		break;
+
+	default:
+		m_parent.m_progressDlg.m_status = "Invalid response to XModem EOT command";
+		// and ignore it
+	}
+}
+
+//..............................................................................

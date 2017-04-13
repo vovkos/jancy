@@ -1,0 +1,524 @@
+//..............................................................................
+//
+// USB session
+//
+
+import "io_usb.jncx"
+import "io_UsbDb.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class UsbSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+		Claimed,
+		Reading,
+	}
+
+	enum ActionId
+	{
+		Refresh,
+		Info,
+		Open,
+		Claim,
+		Read,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Refresh,
+		Open,
+		Close,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// usb
+
+	State bindable m_state;
+
+	io.UsbDevice* m_device;
+	io.UsbInterface* m_interface;
+	io.UsbEndpoint* m_outEndpoint;
+	io.UsbEndpoint* m_inEndpoint;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_deviceCombo;
+	gui.ComboBox* m_interfaceCombo;
+	gui.ComboBox* m_outEndpointCombo;
+	gui.ComboBox* m_inEndpointCombo;
+
+	// property grid
+
+	gui.EnumProperty* m_deviceProp;
+	gui.EnumProperty* m_interfaceProp;
+	gui.EnumProperty* m_inEndpointProp;
+	gui.EnumProperty* m_outEndpointProp;
+	gui.BoolProperty* m_autoDetachKernelDriverProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool openDevice ();
+	void closeDevice ();
+	bool claimInterface ();
+	void releaseInterface ();
+	bool startReading ();
+	void stopReading ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override errorcode bool applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	enumerateDevices ();
+
+	onOpenDevice ();
+	onClaimInterface ();
+	onReadEndpoint ();
+
+	onInEndpointEvent (io.UsbEndpointEventParams const* params);
+
+	createGui ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representUsbLog;
+
+	m_state = State.Closed;
+
+	createGui ();
+}
+
+UsbSession.createGui ()
+{
+	// toolbar
+
+	m_iconTable [IconId.Refresh] = new gui.Icon ("images/refresh.png");
+	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
+	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
+
+	m_pluginHost.m_toolBar.addLabel ("Device:");
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+
+	m_actionTable [ActionId.Refresh]  = createAction ("Re-enumerate devices", m_iconTable [IconId.Refresh]);
+	m_actionTable [ActionId.Refresh].m_onTriggered += enumerateDevices;
+
+	m_actionTable [ActionId.Open] = createAction("Open device", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Open].m_onTriggered += onOpenDevice;
+
+	m_pluginHost.m_toolBar.addLabel ("Iface:");
+	m_interfaceCombo = m_pluginHost.m_toolBar.addComboBox ();
+
+	m_actionTable [ActionId.Claim] = createAction("Claim interface", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Claim].m_onTriggered += onClaimInterface;
+
+	m_pluginHost.m_toolBar.addLabel ("Out:");
+	m_outEndpointCombo = m_pluginHost.m_toolBar.addComboBox ();
+
+	m_pluginHost.m_toolBar.addLabel ("In:");
+	m_inEndpointCombo = m_pluginHost.m_toolBar.addComboBox ();
+
+	m_actionTable [ActionId.Read] = createAction("Start reading from IN endpoint", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Read].m_onTriggered += onReadEndpoint;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		"Device",
+		"Target USB device",
+		null, 0
+		);
+
+	m_interfaceProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		"Interface",
+		"Target USB interface",
+		null, 0
+		);
+
+	m_outEndpointProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		"OUT endpoint",
+		"Transmitting USB endpoint",
+		null, 0
+		);
+
+	m_inEndpointProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		"IN endpoint",
+		"Receiving USB endpoint",
+		null, 0
+		);
+
+	m_autoDetachKernelDriverProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Auto-detach",
+		"Auto detach kernel driver (if present)"
+		);
+
+	enumerateDevices ();
+
+	m_uiReactor.start ();
+	m_state = State.Closed;
+}
+
+UsbSession.onOpenDevice ()
+{
+	if (m_state >= State.Opened)
+		closeDevice ();
+	else
+		openDevice ();
+}
+
+UsbSession.onClaimInterface ()
+{
+	if (m_state >= State.Claimed)
+		releaseInterface ();
+	else
+		claimInterface ();
+}
+
+UsbSession.onReadEndpoint ()
+{
+	if (m_state >= State.Reading)
+		stopReading ();
+	else
+		startReading ();
+}
+
+UsbSession.enumerateDevices ()
+{
+	m_deviceCombo.clear ();
+
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray ();
+	size_t count = dynamic countof (deviceArray);
+
+	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption [count];
+
+	for (size_t i = 0; i < count; i++)
+	{
+		io.UsbDevice* device = deviceArray [i];
+		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbVendor const* vendor = g_usbDb.findVendor (deviceDesc.m_vendorId);
+		io.UsbProduct const* product = vendor ? vendor.findProduct (deviceDesc.m_productId) : null;
+
+		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
+			device.m_bus,
+			device.m_address,
+			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
+			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
+			);
+
+		m_deviceCombo.addItem (text, device);
+
+		optionTable [i].m_text = text;
+		optionTable [i].m_value = device;
+	}
+
+	m_deviceProp.setOptions (optionTable, count);
+}
+
+bool UsbSession.openDevice ()
+{
+	if (m_deviceCombo.m_currentIndex == -1)
+		return false;
+
+	closeDevice ();
+	startSession ();
+
+	m_device = m_deviceCombo.m_currentData;
+
+	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+
+	m_device.open ();
+
+	m_interfaceCombo.clear ();
+
+	io.UsbConfigurationDesc const* confDesc = m_device.m_activeConfigurationDesc;
+	for (size_t i = 0; i < confDesc.m_interfaceCount; i++)
+	{
+		io.UsbInterfaceDesc const* ifaceDesc = &confDesc.m_interfaceTable [i];
+
+		m_interfaceCombo.addItem ($"$(ifaceDesc.m_interfaceId)", ifaceDesc);
+
+		io.UsbInterfaceDesc const* ifaceAltDesc = ifaceDesc.m_nextAltSettingInterface;
+		for (; ifaceAltDesc; ifaceAltDesc = ifaceAltDesc.m_nextAltSettingInterface)
+		{
+			m_interfaceCombo.addItem (
+				$"  $(ifaceAltDesc.m_interfaceId):$(ifaceAltDesc.m_altSettingId)",
+				ifaceAltDesc
+				);
+		}
+	}
+
+	DeviceParams params;
+	params.m_bus = m_device.m_bus;
+	params.m_address = m_device.m_address;
+	params.m_productId = deviceDesc.m_productId;
+	params.m_vendorId = deviceDesc.m_vendorId;
+
+	writeLog (UsbRecordCode.DeviceOpened, &params, sizeof (params));
+	m_state = State.Opened;
+	return true;
+
+catch:
+	writeLogLastError (UsbRecordCode.DeviceOpenError);
+	return false;
+}
+
+UsbSession.closeDevice ()
+{
+	if (m_state == State.Closed)
+		return;
+
+	releaseInterface ();
+	m_device.close ();
+	m_device = null;
+
+	writeLog (UsbRecordCode.DeviceClosed);
+	m_state = State.Closed;
+}
+
+bool UsbSession.claimInterface ()
+{
+	if (m_interfaceCombo.m_currentIndex == -1)
+		return false;
+
+	releaseInterface ();
+
+	io.UsbInterfaceDesc const* ifaceDesc = m_interfaceCombo.m_currentData;
+
+	if (m_device.m_isKernelDriverActive [ifaceDesc.m_interfaceId] &&
+		m_autoDetachKernelDriverProp.m_value)
+	{
+		m_device.detachKernelDriver (ifaceDesc.m_interfaceId);
+		writeLog (UsbRecordCode.KernelDriverDetached, &ifaceDesc.m_interfaceId, sizeof (ifaceDesc.m_interfaceId));
+	}
+
+	m_interface = m_device.claimInterface (ifaceDesc.m_interfaceId, ifaceDesc.m_altSettingId);
+
+	m_outEndpointCombo.clear ();
+	m_inEndpointCombo.clear ();
+
+	for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++)
+	{
+		io.UsbEndpointDesc const* endpointDesc = &ifaceDesc.m_endpointTable [i];
+
+		if (endpointDesc.m_endpointId & 0x80)
+			m_inEndpointCombo.addItem ($"$(endpointDesc.m_endpointId; 02x)", endpointDesc);
+		else
+			m_outEndpointCombo.addItem ($"$(endpointDesc.m_endpointId; 02x)", endpointDesc);
+	}
+
+	InterfaceParams params;
+	params.m_interfaceId = ifaceDesc.m_interfaceId;
+	params.m_altSettingId = ifaceDesc.m_altSettingId;
+
+	writeLog (UsbRecordCode.InterfaceClaimed, &params, sizeof (params));
+	m_state = State.Claimed;
+	return true;
+
+catch:
+	writeLogLastError (UsbRecordCode.InterfaceClaimError);
+	return false;
+}
+
+UsbSession.releaseInterface ()
+{
+	if (m_state <= State.Opened)
+		return;
+
+	stopReading ();
+	m_interface.release ();
+	m_interface = null;
+
+	writeLogLastError (UsbRecordCode.InterfaceReleased);
+	m_state = State.Opened;
+}
+
+bool UsbSession.startReading ()
+{
+	if (m_inEndpointCombo.m_currentIndex == -1)
+		return false;
+
+	stopReading ();
+
+	io.UsbEndpointDesc const* endpointDesc = m_inEndpointCombo.m_currentData;
+	m_inEndpoint = m_interface.openEndpoint (endpointDesc.m_endpointId);
+	m_inEndpoint.m_onEndpointEvent += onInEndpointEvent @ m_pluginHost.m_mainThreadScheduler;
+	m_inEndpoint.m_isEndpointEventEnabled = true;
+
+	writeLog (UsbRecordCode.ReadingStarted, &endpointDesc.m_endpointId, sizeof (endpointDesc.m_endpointId));
+	m_state = State.Reading;
+	return true;
+
+catch:
+	writeLogLastError (UsbRecordCode.EndpointOpenError);
+	return false;
+}
+
+UsbSession.stopReading ()
+{
+	if (m_state <= State.Claimed)
+		return;
+
+	m_inEndpoint.close ();
+	m_inEndpoint = null;
+
+	writeLogLastError (UsbRecordCode.ReadingStopped);
+	m_state = State.Claimed;
+}
+
+UsbSession.load (doc.Storage* storage)
+{
+	m_deviceCombo.m_currentIndex  = storage.readInt ("deviceIdx");
+	m_autoDetachKernelDriverProp.m_value = storage.readBool ("autoDetachKernelDriver");
+}
+
+UsbSession.save (doc.Storage* storage)
+{
+	storage.writeInt ("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeBool ("autoDetachKernelDriver", m_autoDetachKernelDriverProp.m_value);
+}
+
+UsbSession.updateProperties ()
+{
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+}
+
+bool errorcode UsbSession.applyProperties ()
+{
+	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	return true;
+}
+
+UsbSession.restoreDefaultProperties ()
+{
+	m_deviceProp.m_currentIndex = 0;
+	m_autoDetachKernelDriverProp.m_value = true;
+}
+
+size_t errorcode UsbSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_state < State.Claimed || m_outEndpointCombo.m_currentIndex == -1)
+		return -1;
+
+	io.UsbEndpointDesc const* endpointDesc = m_outEndpointCombo.m_currentData;
+	if (!m_outEndpoint || m_outEndpoint.m_endpointDesc.m_endpointId != endpointDesc.m_endpointId)
+		m_outEndpoint = m_interface.openEndpoint (endpointDesc.m_endpointId);
+
+	size = m_outEndpoint.write (p, size, 1000);
+	writeLog (log.StdRecordCode.Tx, p, size);
+	return size;
+
+catch:
+	writeLogLastError (UsbRecordCode.IoError);
+	return -1;
+}
+
+UsbSession.onInEndpointEvent (io.UsbEndpointEventParams const* params)
+{
+	if (params.m_syncId != m_inEndpoint.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.UsbEndpointEventCode.ReadyRead:
+		static char buffer [1024]; // static is OK -- we read in main thread
+		size_t size = try m_inEndpoint.read (buffer, sizeof (buffer));
+		if (size != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, size);
+		break;
+
+	case io.UsbEndpointEventCode.IoError:
+		writeLogError (UsbRecordCode.IoError, params.m_error);
+		break;
+	}
+}
+
+reactor UsbSession.m_uiReactor ()
+{
+	m_title = $"USB $(m_deviceCombo.m_currentText)";
+
+	bindable bool isOpened = m_state >= State.Opened;
+	bindable bool isClaimed = m_state >= State.Claimed;
+	bindable bool isReading = m_state == State.Reading;
+
+	m_actionTable [ActionId.Open].m_text = isOpened ? "Close Device" : "Open Device";
+	m_actionTable [ActionId.Open].m_icon = m_iconTable [isOpened];
+	m_actionTable [ActionId.Claim].m_text = isClaimed ? "Release Interface" : "Claim Interface";
+	m_actionTable [ActionId.Claim].m_icon = m_iconTable [isClaimed];
+	m_actionTable [ActionId.Claim].m_isEnabled = isOpened;
+	m_actionTable [ActionId.Read].m_text = isReading ? "Stop reading" : "Start reading";
+	m_actionTable [ActionId.Read].m_icon = m_iconTable [isReading];
+	m_actionTable [ActionId.Read].m_isEnabled = isClaimed;
+
+	m_interfaceCombo.m_isEnabled = isOpened;
+	m_interfaceProp.m_isEnabled = isOpened;
+	m_outEndpointCombo.m_isEnabled = isClaimed;
+	m_outEndpointProp.m_isEnabled = isClaimed;
+	m_inEndpointCombo.m_isEnabled = isClaimed;
+	m_inEndpointProp.m_isEnabled = isClaimed;
+
+	m_isTransmitEnabled = isClaimed && m_outEndpointCombo.m_currentIndex != -1;
+
+	m_statusPaneTable [StatusPaneId.State].m_text =
+		isReading ? "Reading" :
+		isClaimed ? "Claimed" :
+		isOpened ? "Opened" : "Closed";
+}
+
+//..............................................................................
+
+io.UsbDb g_usbDb;
+
+construct ()
+{
+	// on debug builds, we use 0 period size trigger (to stress-test gc by forcing it
+	// to collect on each allocation). however, on allocation-heavy apps (usb.ids has 20,000+ lines)
+	// this makes everything too slow, so we better patch 0 period size trigger
+
+	sys.GcTriggers triggers = sys.g_gcTriggers;
+	if (!triggers.m_periodSizeTrigger)
+	{
+		triggers.m_periodSizeTrigger = 2 * 1024 * 1024; // 2 MB is a reasonable period
+		sys.g_gcTriggers = triggers;
+	}
+
+	try g_usbDb.load ("../../common/usb.ids"); // ignore if failed
+}
+
+//..............................................................................

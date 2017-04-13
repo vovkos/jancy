@@ -1,0 +1,24 @@
+//..............................................................................
+//
+//  USB session plugin
+//
+
+[plugin]
+
+name        = USB
+description = "Low-level direct USB communications with USB endpoints on a device"
+id          = usb
+group       = clients
+guid        = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73
+icon        = images/usb.png
+small-icon  = images/usb-16x16.png
+
+session-class        = UsbSession
+log-representer-func = representUsbLog
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[scripts]
+
+UsbSession.jnc
+UsbLog.jnc

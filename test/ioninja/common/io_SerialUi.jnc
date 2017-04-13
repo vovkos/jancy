@@ -1,0 +1,62 @@
+//..............................................................................
+//
+// Socket & network adapter user interface
+//
+
+import "gui_PropertyGrid.jnc"
+import "io_base.jncx"
+import "io_Serial.jnc"
+
+namespace io {
+
+//..............................................................................
+
+gui.EnumPropertyOption* createSerialPortPropertyOptionArray (
+	SerialPortDesc const* portList,
+	size_t portCount
+	)
+{
+	gui.EnumPropertyOption* portOptionArray = new gui.EnumPropertyOption [portCount];
+	gui.EnumPropertyOption* portOption = portOptionArray;
+
+	SerialPortDesc const* port = portList;
+	for (; port; port = port.m_next, portOption++)
+	{
+		portOption.m_text = port.m_deviceName;
+		portOption.m_value = 0;
+	}
+
+	return portOptionArray;
+}
+
+gui.EnumProperty* createSerialPortProperty (
+	gui.PropertyGrid* propertyGrid,
+	char const* name,
+	char const* toolTipText,
+	SerialPortDesc const* portList,
+	size_t portCount
+	)
+{
+	gui.EnumPropertyOption* portOptionArray = createSerialPortPropertyOptionArray (portList, portCount);
+
+	return propertyGrid.createEnumProperty (
+		name,
+		toolTipText,
+		portOptionArray,
+		portCount
+		);
+}
+
+void updateSerialPortProperty (
+	gui.EnumProperty* prop,
+	SerialPortDesc const* portList,
+	size_t portCount
+	)
+{
+	gui.EnumPropertyOption* portOptionArray = createSerialPortPropertyOptionArray (portList, portCount);
+	prop.setOptions (portOptionArray, portCount);
+}
+
+//..............................................................................
+
+} // namespace io {

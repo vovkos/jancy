@@ -1,0 +1,27 @@
+//..............................................................................
+//
+// Serial Monitor session plugin
+//
+
+[plugin]
+
+name        = "Serial Monitor"
+description = "Monitor serial communication through one of the installed COM ports on your PC"
+id          = serialmon
+group       = monitors
+monitor     = true
+guid        = 27dcecb3-47dc-4f1d-b0f8-227b627b90ae
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class        = SerialMonSession
+log-representer-func = representSerialMonLog
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[scripts]
+
+SerialMonSession.jnc
+SerialMonLog.jnc
+../Serial/SerialLog.jnc
+../../common/io_SerialUi.jnc

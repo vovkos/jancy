@@ -1,0 +1,301 @@
+//..............................................................................
+//
+// Generic file session
+//
+
+import "io_base.jncx"
+import "io_FileStream.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class FileSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum Access
+	{
+		ReadWrite,
+		ReadOnly,
+		WriteOnly,
+	}
+
+	enum ActionId
+	{
+		Open,
+		Clear,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Open,
+		Close,
+		Clear,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// file
+
+	State bindable m_state;
+	io.FileStream m_file;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_fileNameCombo;
+
+	// property grid
+
+	gui.StringProperty* m_fileNameProp;
+	gui.EnumProperty* m_accessProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode open ();
+	close ();
+	clear ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	createUi ();
+
+	onOpen ();
+	onFileStreamEvent (io.FileStreamEventParams const* params);
+
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+FileSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representFileLog;
+
+	m_state = State.Closed;
+	m_file.m_onFileStreamEvent += onFileStreamEvent @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+FileSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("File:");
+	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_fileNameCombo.m_isEditable = true;
+	m_fileNameCombo.m_onEnter += open;
+
+	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
+	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
+	m_iconTable [IconId.Clear] = new gui.Icon ("images/clear.png");
+
+	m_actionTable [ActionId.Open] = createAction ("Open", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Open].m_onTriggered += onOpen;
+
+	m_actionTable [ActionId.Clear] = createAction ("Clear", m_iconTable [IconId.Clear]);
+	m_actionTable [ActionId.Clear].m_onTriggered += clear;
+	m_actionTable [ActionId.Clear].m_isEnabled = false;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_fileNameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"File name",
+		"Specify the file name to open"
+		);
+
+	static gui.EnumPropertyOption accessModeTable [] =
+	{
+		{ "Read/Write",  Access.ReadWrite },
+		{ "Read-only",   Access.ReadOnly  },
+		{ "Write-only",  Access.WriteOnly },
+	}
+
+	m_accessProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		"Access mode",
+		"Access mode for the file",
+		accessModeTable,
+		countof (accessModeTable)
+		);
+
+	m_uiReactor.start ();
+}
+
+FileSession.onOpen ()
+{
+	if (m_state)
+		close ();
+	else
+		try	open ();
+}
+
+bool errorcode FileSession.open ()
+{
+	close ();
+	startSession ();
+
+	m_fileNameCombo.addEditTextToHistory ();
+
+	char const* fileName = m_fileNameCombo.m_editText;
+
+	Access access = (Access) m_accessProp.m_value;
+	io.FileOpenFlags openFlags =
+		access == Access.ReadOnly ? io.FileOpenFlags.ReadOnly :
+		access == Access.WriteOnly ? io.FileOpenFlags.WriteOnly : 0;
+
+	m_file.open (fileName, openFlags);
+
+	char const* p = $"$(m_file.m_kind; B)$fileName";
+	writeLog (FileLogRecordCode.Opened, p, dynamic sizeof (p));
+	m_state = State.Opened;
+	return true;
+
+catch:
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		FileLogRecordCode.OpenError,
+		error,
+		error.m_size
+		);
+
+	m_file.close ();
+	return false;
+}
+
+FileSession.close ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	writeLog (FileLogRecordCode.Closed);
+	m_file.close ();
+	m_state = State.Closed;
+}
+
+FileSession.clear ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	try m_file.clear ();
+}
+
+void FileSession.load (doc.Storage* storage)
+{
+	m_fileNameCombo.m_editText = storage.readString ("fileName");
+	m_accessProp.m_value = storage.readInt ("access");
+}
+
+void FileSession.save (doc.Storage* storage)
+{
+	storage.writeString ("fileName", m_fileNameCombo.m_editText);
+	storage.writeInt ("access", m_accessProp.m_value);
+}
+
+void FileSession.updateProperties ()
+{
+	m_fileNameProp.m_value = m_fileNameCombo.m_editText;
+}
+
+bool errorcode FileSession.applyProperties ()
+{
+	m_fileNameCombo.m_editText = m_fileNameProp.m_value;
+	return true;
+}
+
+void FileSession.restoreDefaultProperties ()
+{
+	m_fileNameProp.m_value = "\\\\.\\pipe\\mypipe0";
+	m_accessProp.m_value = Access.ReadWrite;
+}
+
+size_t errorcode FileSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_state != State.Opened)
+		return -1;
+
+	size_t result = m_file.write (p, size);
+	if (result)
+		writeLog (log.StdRecordCode.Tx, p, result);
+
+	return result;
+}
+
+FileSession.onFileStreamEvent (io.FileStreamEventParams const* params)
+{
+	if (params.m_syncId != m_file.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.FileStreamEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_file.read (buffer, sizeof (buffer));
+		if (result != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		break;
+
+	case io.FileStreamEventCode.Eof:
+		writeLog (FileLogRecordCode.Eof);
+
+		if (m_file.m_kind != io.FileStreamKind.Disk)
+			close ();
+		break;
+
+	case io.FileStreamEventCode.TransmitBufferReady:
+		m_isTransmitEnabled = true;
+		break;
+
+	case io.FileStreamEventCode.IoError:
+		writeLog (log.StdRecordCode.Error, params.m_error, params.m_error.m_size);
+		close ();
+		break;
+	}
+}
+
+reactor FileSession.m_uiReactor ()
+{
+	m_title = $"File $(m_fileNameCombo.m_editText)";
+	m_isTransmitEnabled = m_state == State.Opened;
+	m_actionTable [ActionId.Open].m_text = m_state ? "Close" : "Open";
+	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state ? IconId.Close : IconId.Open];
+	m_actionTable [ActionId.Clear].m_isEnabled = m_state && m_file.m_kind == io.FileStreamKind.Disk;
+	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
+}
+
+//..............................................................................

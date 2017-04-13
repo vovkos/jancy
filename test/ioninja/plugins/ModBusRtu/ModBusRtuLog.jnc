@@ -1,0 +1,66 @@
+//..............................................................................
+//
+// ModBus Protocol Analyzer log record declarations and representer
+//
+
+import "log.jnc"
+import "io_ModBus.jnc"
+
+//..............................................................................
+
+enum ModBusRtuLogRecordCode
+{
+	Packet  = 0x200 | log.RecordCodeFlags.Foldable, // avoid conflicts with SerialLog and SerialMonLog
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ModBusRtuLogPacket
+{
+	io.ModBusRole m_role;
+	uint8_t m_deviceAddress;
+	uint16_t m_checksum;
+
+	// followed by PDU
+}
+
+//..............................................................................
+
+bool representModBusRtuLog (
+	log.RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	if (recordCode != ModBusRtuLogRecordCode.Packet)
+		return false;
+
+	ModBusRtuLogPacket const* packet = (ModBusRtuLogPacket const*) p;
+
+	target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
+	target.m_lineAttr.m_iconIdx = packet.m_role == io.ModBusRole.Master ?
+		log.StdLogIcon.TxPacket :
+		log.StdLogIcon.RxPacket;
+
+	target.addHyperText (
+		$"Address:  0x%(1; 02X)/%1\n"
+		$"Checksum: 0x%(2; 04X)/%2" (
+			packet.m_deviceAddress,
+			packet.m_checksum
+			)
+		);
+
+	representModBusPdu (
+		target,
+		packet.m_role,
+		(io.ModBusPduHdr const*) (packet + 1),
+		size - sizeof (ModBusRtuLogPacket),
+		foldFlags
+		);
+
+	return true;
+}
+
+//..............................................................................

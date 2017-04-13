@@ -1,0 +1,141 @@
+//..............................................................................
+
+class XModemReceiver
+{
+protected:
+	enum State
+	{
+		Idle,
+		Data,
+		Eot,
+	}
+
+	State m_state;
+	uint64_t m_offset;
+
+	XModemLayer* m_parent;
+
+public:
+	construct (XModemLayer* parent);
+
+	start  ();
+	cancel ();
+
+	onRx (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onRx_Data (XModemBlock const* block);
+
+	complete ();
+	sendNextDataBlock ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+XModemReceiver.construct (XModemLayer* parent)
+{
+	m_state = State.Idle;
+	m_parent = parent;
+}
+
+XModemReceiver.start ()
+{
+	cancel ();
+
+	static char c = XModemChar.Nak;
+	try m_parent.transmit (&c, sizeof (c));
+
+	m_parent.m_progressDlg.m_status = "Receiving XModem data blocks...";
+	m_state = State.Data;
+	m_offset = 0;
+	m_parent.m_file.m_size = 0;
+}
+
+XModemReceiver.cancel ()
+{
+	if (m_state == State.Idle)
+		return;
+
+	static char c = XModemChar.Can;
+	for (size_t i = 0; i < XModemCanCount; i++)
+		try m_parent.transmit (&c, sizeof(c));
+
+	m_parent.m_progressDlg.m_status = "XModem transfer cancelled by user";
+	complete ();
+}
+
+XModemReceiver.complete ()
+{
+	m_state = State.Idle;
+	m_offset = 0;
+	m_parent.m_progressDlg.m_buttons = gui.StdDlgButtons.Ok;
+	m_parent.m_file.close ();
+}
+
+XModemReceiver.onRx (
+	void const* p,
+	size_t size
+	)
+{
+	char c = *(char const*) p;
+
+	switch (c)
+	{
+	case XModemChar.Soh:
+		if (m_state == State.Data && size == sizeof (XModemBlock))
+			onRx_Data ((XModemBlock const*) p);
+
+		break;
+
+	case XModemChar.Can:
+		m_parent.m_progressDlg.m_status = "XModem transfer cancelled by remote node";
+		complete ();
+		break;
+
+	case XModemChar.Eot:
+		static char c = XModemChar.Ack;
+		try m_parent.transmit (&c, sizeof (c));
+
+		m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";
+		complete ();
+		break;
+	}
+}
+
+XModemReceiver.onRx_Data (XModemBlock const* block)
+{
+	static char ack = XModemChar.Ack;
+	static char nak = XModemChar.Nak;
+
+	uchar_t blockNumber = (uchar_t) (m_offset / XModemBlockSize + 1);
+	if (block.m_blockNumber != blockNumber)
+	{
+		m_parent.transmit (&nak, sizeof (nak));
+		m_parent.m_progressDlg.m_status = "Out-of-sequence XModem block";
+		return; // and ignore it
+	}
+
+	uchar_t checksum = calcXModemChecksum (block.m_data);
+	if (block.m_checksum != checksum)
+	{
+		m_parent.transmit (&nak, sizeof (nak));
+		m_parent.m_progressDlg.m_status = "Bad checksum of XModem block";
+		return; // and ignore it
+	}
+
+	m_parent.transmit (&ack, sizeof (ack));
+
+	void* p = m_parent.m_file.view (m_offset, XModemBlockSize);
+	memcpy (p, block.m_data, XModemBlockSize);
+	m_offset += XModemBlockSize;
+	m_parent.m_file.m_size = m_offset;
+
+catch:
+	m_parent.m_progressDlg.m_status = std.getLastError ().m_description;
+	complete ();
+}
+
+//..............................................................................

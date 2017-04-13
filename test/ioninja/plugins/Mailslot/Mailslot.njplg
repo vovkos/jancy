@@ -1,0 +1,24 @@
+//..............................................................................
+//
+// Mailslot session plugin
+//
+
+[plugin]
+
+name        = Mailslot
+description = "Reads from server side of mailslot"
+id          = mailslot
+monitor     = true
+group       = servers
+guid        = 8383248D-607F-431A-9414-178C23FD9603
+icon        = images/mailslot.png
+small-icon  = images/mailslot-16x16.png
+
+session-class        = MailslotSession
+log-representer-func = representMailslotLog
+
+[scripts]
+
+MailslotSession.jnc
+MailslotLog.jnc
+

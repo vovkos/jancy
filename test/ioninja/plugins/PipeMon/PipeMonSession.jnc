@@ -1,0 +1,306 @@
+//..............................................................................
+//
+// Pipe Monitor session
+//
+
+import "io_base.jncx"
+import "io_mon.jncx"
+import "io_NamedPipeMon.jnc"
+import "io_FileIdMgr.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class PipeMonSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum ActionId
+	{
+		Capture,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// named pipe monitor
+
+	State bindable m_state;
+	io.NamedPipeMon m_pipeMon;
+	io.FileIdMgr m_fileIdMgr;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_nameCombo;
+
+	// pipe mon property grid
+
+	gui.StringProperty* m_nameProp;
+
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode capture ();
+	stopCapture ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+protected:
+	onCapture ();
+	onReadyRead (uint_t syncId);
+	setFileId (intptr_t loFileId);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+PipeMonSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+	pluginHost.m_log.m_representerFunc = representPipeMonLog;
+
+	m_state = State.Closed;
+	m_pipeMon.m_onReadyRead += onReadyRead @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+PipeMonSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Name filter:");
+	m_nameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_nameCombo.m_isEditable = true;
+	m_nameCombo.m_onEnter += capture;
+
+	m_iconTable [IconId.Capture] = new gui.Icon ("images/capture.png");
+	m_iconTable [IconId.StopCapture] = new gui.Icon ("images/pause.png");
+
+	m_actionTable [ActionId.Capture] = createAction ("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable [ActionId.Capture].m_onTriggered += onCapture;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_nameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"Name filter",
+		"Specify name wildcard filter"
+		);
+
+	m_uiReactor.start ();
+}
+
+PipeMonSession.onCapture ()
+{
+	if (m_state)
+		stopCapture ();
+	else
+		try capture ();
+}
+
+bool errorcode PipeMonSession.capture ()
+{
+	stopCapture ();
+	startSession ();
+
+	m_nameCombo.addEditTextToHistory ();
+
+	char const* name = m_nameCombo.m_currentText;
+	if (!name || !*name)
+		name = "*"; // null wildcard means we will be also notified by already-opened "nameless" files
+
+	m_pipeMon.capture (name);
+	writeLogString (PipeMonLogRecordCode.CaptureStarted, name);
+
+	m_fileIdMgr.reset ();
+	m_state = State.Opened;
+	return true;
+
+catch:
+	m_pipeMon.close ();
+
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		PipeMonLogRecordCode.CaptureError,
+		error,
+		error.m_size
+		);
+	return false;
+}
+
+PipeMonSession.stopCapture ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	writeLog (PipeMonLogRecordCode.CaptureStopped);
+
+	m_pipeMon.close ();
+	m_state = State.Closed;
+}
+
+void PipeMonSession.load (doc.Storage* storage)
+{
+	m_nameCombo.m_editText = storage.readString ("name");
+}
+
+void PipeMonSession.save (doc.Storage* storage)
+{
+	storage.writeString ("name", m_nameCombo.m_currentText);
+}
+
+void PipeMonSession.updateProperties ()
+{
+	m_nameProp.m_value = m_nameCombo.m_editText;
+}
+
+bool errorcode PipeMonSession.applyProperties ()
+{
+	m_nameCombo.m_editText  = m_nameProp.m_value;
+	return true;
+}
+
+void PipeMonSession.restoreDefaultProperties ()
+{
+	m_nameProp.m_value = "*mypipe*";
+}
+
+PipeMonSession.setFileId (intptr_t loFileId)
+{
+	uint32_t lastFileId = m_fileIdMgr.m_lastHiFileId;
+	uint32_t fileId = m_fileIdMgr.getHiFileId (loFileId);
+
+	if (fileId != lastFileId)
+		writeLog (PipeMonLogRecordCode.FileIdChanged, &fileId, sizeof (fileId));
+}
+
+PipeMonSession.onReadyRead (uint_t syncId)
+{
+	if (syncId != m_pipeMon.m_syncId)
+		return;
+
+	io.NamedPipeMonEventParams params;
+	try m_pipeMon.read (&params);
+
+	switch (params.m_eventCode)
+	{
+	case io.NamedPipeMonEventCode.ClientFileOpen:
+	case io.NamedPipeMonEventCode.ServerFileOpen:
+		static uint_t codeTable [2] [2] =
+		{
+			{ PipeMonLogRecordCode.ClientFileOpened, PipeMonLogRecordCode.ClientFileOpenError },
+			{ PipeMonLogRecordCode.ServerFileOpened, PipeMonLogRecordCode.ServerFileOpenError },
+		}
+
+		uint_t code;
+		char const* logParams;
+
+		size_t row = params.m_eventCode == io.NamedPipeMonEventCode.ServerFileOpen;
+
+		if (params.m_error)
+		{
+			code = codeTable [row] [1];
+			logParams = memcat (params.m_error, params.m_error.m_size, params.m_data, params.m_dataSize);
+		}
+		else
+		{
+			code = codeTable [row] [0];
+			uint32_t fileId = m_fileIdMgr.getHiFileId (params.m_fileId);
+			logParams = memcat (&fileId, sizeof (fileId), params.m_data, params.m_dataSize);
+		}
+
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			code,
+			logParams,
+			dynamic sizeof (logParams)
+			);
+		break;
+
+	case io.NamedPipeMonEventCode.FileClose:
+		setFileId (params.m_fileId);
+		m_fileIdMgr.removeLowFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (params.m_timestamp, PipeMonLogRecordCode.FileClosed);
+		break;
+
+	case io.NamedPipeMonEventCode.ConnectionAccept:
+		if (params.m_error)
+			break;
+
+		setFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (params.m_timestamp, PipeMonLogRecordCode.ConnectionAccepted);
+		break;
+
+	case io.NamedPipeMonEventCode.ConnectionClose:
+		setFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (params.m_timestamp, PipeMonLogRecordCode.ConnectionClosed);
+		break;
+
+	case io.NamedPipeMonEventCode.RxData:
+		if (!params.m_dataSize)
+			break;
+
+		setFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			log.StdRecordCode.Rx,
+			params.m_data,
+			params.m_dataSize
+			);
+		break;
+
+	case io.NamedPipeMonEventCode.TxData:
+		if (!params.m_dataSize)
+			break;
+
+		setFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			log.StdRecordCode.Tx,
+			params.m_data,
+			params.m_dataSize
+			);
+		break;
+	}
+}
+
+reactor PipeMonSession.m_uiReactor ()
+{
+	m_title = $"Mon $(m_nameCombo.m_currentText)";
+	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
+	m_actionTable [ActionId.Capture].m_icon = m_iconTable [m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
+}
+
+//..............................................................................

@@ -1,0 +1,489 @@
+//..............................................................................
+//
+// TCP Connection session
+//
+
+import "io_base.jncx"
+import "io_Socket.jnc"
+import "io_SocketAddressResolver.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class TcpConnectionSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Resolving,
+		Opening,
+		Connecting,
+		Connected,
+	}
+
+	static char const* m_stateStringTable [] =
+	{
+		"Closed",
+		"Resolving...",
+		"Opening...",
+		"Connecting...",
+		"Connected",
+	}
+
+	enum ActionId
+	{
+		Connect,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Connect,
+		Disconnect,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		RemoteAddress,
+		State,
+		_Count,
+	}
+
+protected:
+
+	// socket
+
+	State bindable m_state;
+	io.Socket m_socket;
+	io.SocketAddressResolver m_resolver;
+	io.SocketAddress m_remoteAddress;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_addressCombo;
+
+	// property grid
+
+	gui.StringProperty* m_addressProp;
+	gui.EnumProperty* m_closeKindProp;
+	gui.BoolProperty* m_isNagleEnabledProp;
+	gui.BoolProperty* m_useLocalAddressProp;
+	gui.EnumProperty* m_adapterProp;
+	gui.IntProperty* m_localPortProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode connect ();
+	bool errorcode connect (io.SocketAddress const* address);
+	disconnect ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	handleConnectError (std.Error const* error);
+
+	onConnect ();
+	onSocketEvent (io.SocketEventParams const* params);
+	onResolverEvent (io.SocketAddressResolverEventParams const* params);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpConnectionSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representTcpConnectionLog;
+
+	m_state = State.Closed;
+	m_socket.m_onSocketEvent += onSocketEvent @ pluginHost.m_mainThreadScheduler;
+	m_resolver.m_onResolverEvent += onResolverEvent @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+TcpConnectionSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Address:");
+	m_addressCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_addressCombo.m_isEditable = true;
+	m_addressCombo.m_onEnter += connect;
+
+	m_iconTable [IconId.Connect] = new gui.Icon ("images/connect.png");
+	m_iconTable [IconId.Disconnect] = new gui.Icon ("images/disconnect.png");
+
+	m_actionTable [ActionId.Connect] = createAction ("Connect", m_iconTable [IconId.Connect]);
+	m_actionTable [ActionId.Connect].m_onTriggered += onConnect;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane (, 100);
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_addressProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"Remote address",
+		"Remote address to connect to (IP-address or host-name followed by ':' port)"
+		);
+
+	m_closeKindProp = io.createSocketCloseKindProperty (
+		m_pluginHost.m_propertyGrid,
+		"TCP disconnect",
+		"How to close TCP connection (graceful / reset)"
+		);
+
+	m_isNagleEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Use TCP Nagle algorithm",
+		"Specify whether to reduce the number of small TCP packets being sent"
+		);
+
+	m_useLocalAddressProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Use local address",
+		"Bind socket to the specified local address before connect"
+		);
+
+	m_adapterProp = io.createNetworkAdapterProperty (
+		m_pluginHost.m_propertyGrid,
+		io.NetworkAdapterUsage.Connection,
+		"Adapter",
+		"Adapter to bind to before connect"
+		);
+
+	m_localPortProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		"Local TCP port",
+		"Local TCP port to bind to before connect"
+		);
+
+	m_uiReactor.start ();
+}
+
+TcpConnectionSession.onConnect ()
+{
+	if (m_state)
+		disconnect ();
+	else
+		try connect ();
+}
+
+bool errorcode TcpConnectionSession.connect ()
+{
+	disconnect ();
+
+	startSession ();
+
+	char const* addressString = m_addressCombo.m_editText;
+	m_addressCombo.addEditTextToHistory ();
+
+	io.SocketAddress address;
+	bool isDirectAddress = try address.parse (addressString);
+	if (isDirectAddress)
+		return try connect (&address);
+
+	m_state = State.Resolving;
+
+	writeLog (
+		TcpConnectionLogRecordCode.Resolving,
+		addressString,
+		strlen (addressString)
+		);
+
+	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
+	if (m_useLocalAddressProp.m_value)
+	{
+		io.SocketAddress const* adapterAddress = m_adapterProp.m_value;
+		if (adapterAddress)
+			addressFamily = adapterAddress.m_family;
+	}
+
+	m_resolver.m_syncId = m_socket.m_syncId;
+	m_resolver.resolve (addressString, addressFamily);
+	return true;
+
+catch:
+	handleConnectError (std.getLastError ());
+	return false;
+}
+
+bool errorcode TcpConnectionSession.connect (io.SocketAddress const* remoteAddress)
+{
+	disconnect ();
+
+	io.SocketAddress localAddress;
+
+nestedscope:
+	if (!m_useLocalAddressProp.m_value)
+	{
+		m_socket.open (remoteAddress.m_family, io.Protocol.Tcp, io.SocketOpenFlags.Asynchronous);
+	}
+	else
+	{
+		io.SocketAddress const* adapterAddress = m_adapterProp.m_value;
+		if (adapterAddress)
+			localAddress = *adapterAddress;
+		else
+			localAddress.m_family = remoteAddress.m_family;
+
+		localAddress.m_ip4.m_port = (uint16_t) m_localPortProp.m_value; // same for IPv4/IPv6
+
+		m_socket.open (io.Protocol.Tcp, &localAddress, io.SocketOpenFlags.Asynchronous);
+	}
+
+	m_remoteAddress = *remoteAddress;
+	m_state = State.Connecting;
+
+	m_socket.m_closeKind = (io.SocketCloseKind) m_closeKindProp.m_value;
+	m_socket.m_isNagleEnabled = m_isNagleEnabledProp.m_value;
+	m_socket.connect (remoteAddress);
+
+	localAddress = m_socket.m_address;
+
+	char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
+	writeLog (TcpConnectionLogRecordCode.ConnectingFrom, p, dynamic sizeof (p));
+	return true;
+
+catch:
+	if (!m_useLocalAddressProp.m_value)
+	{
+		writeLog (TcpConnectionLogRecordCode.Connecting, remoteAddress, sizeof (io.SocketAddress));
+	}
+	else
+	{
+		char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
+		writeLog (TcpConnectionLogRecordCode.ConnectingFrom, p, dynamic sizeof (p));
+	}
+
+	handleConnectError (std.getLastError ());
+	return false;
+}
+
+TcpConnectionSession.handleConnectError (std.Error const* error)
+{
+	writeLog (
+		TcpConnectionLogRecordCode.ConnectError,
+		error,
+		error.m_size
+		);
+
+	m_socket.close ();
+	m_state = State.Closed;
+}
+
+TcpConnectionSession.disconnect ()
+{
+	switch (m_state)
+	{
+	case State.Closed:
+		return;
+
+	case State.Resolving:
+	case State.Connecting:
+		writeLog (TcpConnectionLogRecordCode.ConnectCancelled);
+		break;
+
+	case State.Connected:
+		TcpDisconnectLogRecordParams params;
+		params.m_address = m_remoteAddress;
+		params.m_flags = 0;
+
+		if (m_closeKindProp.m_value == io.SocketCloseKind.Reset)
+			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+
+		writeLog (
+			TcpConnectionLogRecordCode.Disconnected,
+			&params,
+			sizeof (params)
+			);
+
+		m_isTransmitEnabled = false;
+		break;
+	}
+
+	m_socket.close ();
+	m_state = State.Closed;
+}
+
+void TcpConnectionSession.load (doc.Storage* storage)
+{
+	m_addressCombo.m_editText = storage.readString ("address");
+	m_closeKindProp.m_value = storage.readInt ("closeKindProp");
+	m_isNagleEnabledProp.m_value = storage.readBool ("isNagleEnabledProp");
+	m_useLocalAddressProp.m_value = storage.readBool ("useLocalAddress");
+	m_adapterProp.m_currentIndex = storage.readInt ("adapterIdx");
+	m_localPortProp.m_value = storage.readInt ("localPort");
+}
+
+void TcpConnectionSession.save (doc.Storage* storage)
+{
+	storage.writeString ("address", m_addressCombo.m_editText);
+	storage.writeInt ("closeKindProp", m_closeKindProp.m_value);
+	storage.writeBool ("isNagleEnabledProp", m_isNagleEnabledProp.m_value);
+	storage.writeBool ("useLocalAddress", m_useLocalAddressProp.m_value);
+	storage.writeInt ("adapterIdx", (int) m_adapterProp.m_currentIndex);
+	storage.writeInt ("localPort", m_localPortProp.m_value);
+}
+
+void TcpConnectionSession.updateProperties ()
+{
+	m_addressProp.m_value = m_addressCombo.m_editText;
+}
+
+bool errorcode TcpConnectionSession.applyProperties ()
+{
+	m_addressCombo.m_editText = m_addressProp.m_value;
+
+	if (m_socket.m_isOpen)
+	{
+		m_socket.m_closeKind = (io.SocketCloseKind) m_closeKindProp.m_value;
+		m_socket.m_isNagleEnabled = m_isNagleEnabledProp.m_value;
+	}
+
+	return true;
+}
+
+void TcpConnectionSession.restoreDefaultProperties ()
+{
+	m_addressProp.m_value = "tibbo.com:80";
+	m_closeKindProp.m_value = io.SocketCloseKind.Graceful;
+	m_isNagleEnabledProp.m_value = true;
+	m_useLocalAddressProp.m_value = false;
+	m_adapterProp.m_value = 0;
+	m_localPortProp.m_value = 0;
+}
+
+size_t errorcode TcpConnectionSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_state != State.Connected)
+		return -1;
+
+	size_t result = m_socket.send (p, size);
+	if (result)
+		writeLog (log.StdRecordCode.Tx, p, result);
+
+	if (result < size)
+		m_isTransmitEnabled = false;
+
+	return result;
+}
+
+TcpConnectionSession.onSocketEvent (io.SocketEventParams const* params)
+{
+	if (params.m_syncId != m_socket.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketEventCode.ConnectCompleted:
+		writeLog (TcpConnectionLogRecordCode.ConnectCompleted);
+		m_state = State.Connected;
+		m_isTransmitEnabled = true;
+		break;
+
+	case io.SocketEventCode.ConnectError:
+		handleConnectError (params.m_error);
+		break;
+
+	case io.SocketEventCode.Disconnected:
+		for (;;)
+		{
+			static char buffer [512];
+			size_t result = try m_socket.recv (buffer, sizeof (buffer));
+			if (!result || result == -1)
+				break;
+
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		}
+
+		TcpDisconnectLogRecordParams recordParams;
+		recordParams.m_address = m_remoteAddress;
+		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
+
+		if (params.m_flags & io.SocketDisconnectEventFlags.Reset)
+			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
+
+		writeLog (
+			TcpConnectionLogRecordCode.Disconnected,
+			&recordParams,
+			sizeof (recordParams)
+			);
+
+		m_socket.close ();
+		m_state = State.Closed;
+		m_isTransmitEnabled = false;
+		break;
+
+	case io.SocketEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_socket.recv (buffer, sizeof (buffer));
+		if (result != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+
+		break;
+
+	case io.SocketEventCode.TransmitBufferReady:
+		m_isTransmitEnabled = true;
+		break;
+	}
+}
+
+TcpConnectionSession.onResolverEvent (io.SocketAddressResolverEventParams const* params)
+{
+	if (params.m_syncId != m_socket.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.SocketAddressResolverEventCode.ResolveCompleted:
+		writeLog (
+			TcpConnectionLogRecordCode.ResolveCompleted,
+			params.m_addressTable,
+			sizeof (io.SocketAddress)
+			);
+
+		m_state = State.Closed;
+		try connect (params.m_addressTable);
+		break;
+
+	case io.SocketAddressResolverEventCode.ResolveError:
+		handleConnectError (params.m_error);
+		break;
+	}
+}
+
+reactor TcpConnectionSession.m_uiReactor ()
+{
+	m_title = $"TCP $(m_addressCombo.m_editText)";
+	m_adapterProp.m_isEnabled = m_useLocalAddressProp.m_value;
+	m_localPortProp.m_isEnabled = m_useLocalAddressProp.m_value;
+	m_actionTable [ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
+	m_actionTable [ActionId.Connect].m_icon = m_iconTable [m_state ? IconId.Disconnect : IconId.Connect];
+	m_statusPaneTable [StatusPaneId.State].m_text = m_stateStringTable [m_state];
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_text = m_state > State.Resolving ? m_remoteAddress.getString () : "<peer-address>";
+	m_statusPaneTable [StatusPaneId.RemoteAddress].m_isVisible = m_state > State.Resolving;
+}
+
+//..............................................................................

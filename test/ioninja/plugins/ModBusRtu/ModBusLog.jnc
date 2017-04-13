@@ -1,0 +1,208 @@
+//..............................................................................
+//
+// ModBus Protocol Analyzer log record declarations and representer
+//
+
+import "log.jnc"
+import "io_ModBus.jnc"
+
+//..............................................................................
+
+representModBusCoils (
+	log.RepresenterTarget* target,
+	uint8_t const* p,
+	size_t count,
+	uint_t foldFlags
+	)
+{
+	if (count == 1)
+	{
+		target.addHyperText ($"Value:    %1" (*p & 1));
+		return;
+	}
+
+	if (count <= 4)
+	{
+		target.addHyperText ($"Values [$count]");
+		representModBusCoilValues (target, p, count);
+	}
+	else if (foldFlags)
+	{
+		target.addHyperText ($"[\e^-1\e[34m-\e[m] Values [$count]");
+		representModBusCoilValues (target, p, count);
+	}
+	else
+	{
+		target.addHyperText ($"[\e^+1\e[34m+\e[m] Values [$count]");
+	}
+}
+
+representModBusCoilValues (
+	log.RepresenterTarget* target,
+	uint8_t const* p,
+	size_t count
+	)
+{
+	size_t size = count / 8;
+	size_t i = 0;
+	for (size_t j = 0; j < size; j++)
+	{
+		uint8_t c = p [j];
+
+		for (uint8_t mask = 1; mask; i++, mask <<= 1)
+		{
+			bool value = (c & mask) != 0;
+			target.addHyperText ($"    #%(1; -3d): %2" (i, value));
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+representModBusRegisters (
+	log.RepresenterTarget* target,
+	bigendian uint16_t const* p,
+	size_t count,
+	uint_t foldFlags
+	)
+{
+	if (count == 1)
+	{
+		target.addHyperText ($"Value:    0x%(1; 04X)/%1" (p [0]));
+		return;
+	}
+
+	if (count <= 4)
+	{
+		target.addHyperText ($"Values [$count]");
+		representModBusRegisterValues (target, p, count);
+	}
+	else if (foldFlags)
+	{
+		target.addHyperText ($"[\e^-1\e[34m-\e[m] Values [$count]");
+		representModBusRegisterValues (target, p, count);
+	}
+	else
+	{
+		target.addHyperText ($"[\e^+1\e[34m+\e[m] Values [$count]");
+	}
+}
+
+representModBusRegisterValues (
+	log.RepresenterTarget* target,
+	bigendian uint16_t const* p,
+	size_t count
+	)
+{
+	for (size_t i = 0; i < count; i++)
+		target.addHyperText ($"    #%(1; -3d): 0x%(2; 04X)/%2" (i, p [i]));
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+representModBusPdu (
+	log.RepresenterTarget* target,
+	io.ModBusRole role,
+	io.ModBusPduHdr const* hdr,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	target.addHyperText ($"Function: 0x%(1; 02X)/%1 - %2" (hdr.m_func, io.getModBusFuncString (hdr.m_func)));
+
+	switch (hdr.m_func)
+	{
+	case io.ModBusFunc.ReadCoils:
+	case io.ModBusFunc.ReadDiscreteInputs:
+	case io.ModBusFunc.ReadHoldingRegisters:
+	case io.ModBusFunc.ReadInputRegisters:
+		if (role == io.ModBusRole.Master)
+		{
+			io.ModBusReadPdu const* pdu = (io.ModBusReadPdu const*) hdr;
+			target.addHyperText (
+				$"Address:  0x%(1; 04X)/%1\n"
+				$"Count:    %2" (
+					pdu.m_address,
+					pdu.m_count
+					)
+				);
+		}
+		else
+		{
+			io.ModBusReadReplyPdu const* pdu = (io.ModBusReadReplyPdu const*) hdr;
+			target.addHyperText ($"Size:     $(pdu.m_size)");
+
+			if (hdr.m_func <= io.ModBusFunc.ReadDiscreteInputs)
+				representModBusCoils (target, (uint8_t const*) (pdu + 1), pdu.m_size / 8, foldFlags);
+			else
+				representModBusRegisters (target, (bigendian uint16_t const*) (pdu + 1), pdu.m_size / 2, foldFlags);
+		}
+		break;
+
+	case io.ModBusFunc.WriteCoil:
+	case io.ModBusFunc.WriteRegister:
+		io.ModBusWritePdu const* pdu = (io.ModBusWritePdu const*) hdr;
+		target.addHyperText (
+			$"Address:  0x%(1; 04X)/%1\n"
+			$"Value:    0x%(2; 04X)/%2" (
+				pdu.m_address,
+				pdu.m_value
+				)
+			);
+		break;
+
+	case io.ModBusFunc.WriteMultipleCoils:
+	case io.ModBusFunc.WriteMultipleRegisters:
+		if (role == io.ModBusRole.Master)
+		{
+			io.ModBusWriteMultiplePdu const* pdu = (io.ModBusWriteMultiplePdu const*) hdr;
+			target.addHyperText (
+				$"Address:  0x%(1; 04X)/%1\n"
+				$"Count:    %2\n"
+				$"Size:     %3" (
+					pdu.m_address,
+					pdu.m_count,
+					pdu.m_size
+					)
+				);
+
+			if (hdr.m_func == io.ModBusFunc.WriteMultipleCoils)
+				representModBusCoils (target, (uint8_t const*) (pdu + 1), pdu.m_count, foldFlags);
+			else
+				representModBusRegisters (target, (bigendian uint16_t const*) (pdu + 1), pdu.m_count, foldFlags);
+		}
+		else
+		{
+			io.ModBusWriteMultipleReplyPdu const* pdu = (io.ModBusWriteMultipleReplyPdu const*) hdr;
+			target.addHyperText (
+				$"Address:  0x%(1; 04X)/%1\n"
+				$"Count:    %2" (
+					pdu.m_address,
+					pdu.m_count
+					)
+				);
+		}
+		break;
+
+	case io.ModBusFunc.ReadExceptionStatus:
+	case io.ModBusFunc.Diagnostics:
+	case io.ModBusFunc.GetCommEventCounter:
+	case io.ModBusFunc.GetCommEventLog:
+	case io.ModBusFunc.ReportServerId:
+	case io.ModBusFunc.ReadFileRecord:
+	case io.ModBusFunc.WriteFileRecord:
+	case io.ModBusFunc.MaskWriteRegister:
+	case io.ModBusFunc.ReadWriteMultipleRegisters:
+	case io.ModBusFunc.ReadFifoQueue:
+	case io.ModBusFunc.EncapsulatedInterface:
+		break; // not supported yet
+
+	default:
+		if (hdr.m_func & io.ModBusFunc.ExceptionFlag)
+		{
+
+		}
+	}
+}
+
+//..............................................................................

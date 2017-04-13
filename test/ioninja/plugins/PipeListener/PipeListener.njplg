@@ -1,0 +1,23 @@
+//..............................................................................
+//
+// Pipe Listener session plugin
+//
+
+[plugin]
+
+name        = Pipe Listener
+description = "Listens for connection over named pipe"
+id          = pipe-listener
+group       = servers
+guid        = d74419a1-789c-4d9a-8d92-bd44ee19c971
+icon        = images/pipe.png
+small-icon  = images/pipe-16x16.png
+
+session-class        = PipeListenerSession
+log-representer-func = representPipeListenerLog
+
+[scripts]
+
+PipeListenerSession.jnc
+PipeListenerLog.jnc
+

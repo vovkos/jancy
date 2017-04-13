@@ -1,0 +1,163 @@
+//..............................................................................
+//
+// Sniffer log TCP packets handling
+//
+
+//..............................................................................
+
+char const* formatTcpFlagString (io.TcpFlags flags)
+{
+	return std.format (
+		"%c%c%c%c%c%c%c",
+		(flags & io.TcpFlags.Fin) ? 'F' : '.',
+		(flags & io.TcpFlags.Syn) ? 'S' : '.',
+		(flags & io.TcpFlags.Rst) ? 'R' : '.',
+		(flags & io.TcpFlags.Psh) ? 'P' : '.',
+		(flags & io.TcpFlags.Ack) ? 'A' : '.',
+		(flags & io.TcpFlags.Urg) ? 'U' : '.',
+		(flags & io.TcpFlags.Bog) ? 'B' : '.'
+		);
+}
+
+size_t
+representTcpHdr (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	size_t* hdrSizeTable,
+	uint_t* hdrColorTable,
+	size_t hdrIdx
+	)
+{
+	io.TcpHdr const* tcpHdr = (io.TcpHdr const*) (p + baseOffset);
+
+	target.addHyperText (std.format (
+		"\e[1mTCP\n"
+		"   \e[90mSRC:      \e^!%d,%d\e[34m%d\n"
+		"   \e[90mDST:      \e^!%d,%d\e[34m%d\n"
+		"   \e[90mSEQ:      \e^!%d,%d\e[34m%08x\n"
+		"   \e[90mACK:      \e^!%d,%d\e[34m%08x\n"
+		"   \e[90mDATAOFFS: \e^!%d,%d\e[34m%d\n"
+		"   \e[90mFLAGS:    \e^!%d,%d\e[34m%s\n"
+		"   \e[90mWINDOW:   \e^!%d,%d\e[34m%d\n"
+		"   \e[90mCHECKSUM: \e^!%d,%d\e[34m%04Xh\n"
+		"   \e[90mURGENT:   \e^!%d,%d\e[34m%d",
+
+		baseOffset + offsetof (tcpHdr.m_srcPort),
+		sizeof (tcpHdr.m_srcPort),
+		tcpHdr.m_srcPort,
+
+		baseOffset + offsetof (tcpHdr.m_dstPort),
+		sizeof (tcpHdr.m_dstPort),
+		tcpHdr.m_dstPort,
+
+		baseOffset + offsetof (tcpHdr.m_seqNumber),
+		sizeof (tcpHdr.m_seqNumber),
+		tcpHdr.m_seqNumber,
+
+		baseOffset + offsetof (tcpHdr.m_ackNumber),
+		sizeof (tcpHdr.m_ackNumber),
+		tcpHdr.m_ackNumber,
+
+		baseOffset + offsetof (tcpHdr.m_dataOffset),
+		sizeof (tcpHdr.m_dataOffset),
+		tcpHdr.m_dataOffset,
+
+		baseOffset + offsetof (tcpHdr.m_flags),
+		sizeof (tcpHdr.m_flags),
+		formatTcpFlagString (tcpHdr.m_flags),
+
+		baseOffset + offsetof (tcpHdr.m_window),
+		sizeof (tcpHdr.m_window),
+		tcpHdr.m_window,
+
+		baseOffset + offsetof (tcpHdr.m_checksum),
+		sizeof (tcpHdr.m_checksum),
+		tcpHdr.m_checksum,
+
+		baseOffset + offsetof (tcpHdr.m_urgentData),
+		sizeof (tcpHdr.m_urgentData),
+		tcpHdr.m_urgentData
+		));
+
+	size_t dataOffset = tcpHdr.m_dataOffset * 4;
+	if (dataOffset > size)
+		dataOffset = size;
+
+	hdrSizeTable [hdrIdx] = sizeof (io.TcpHdr);
+	hdrColorTable [hdrIdx] = SnifferLogHdrColor.Tcp;
+	hdrIdx++;
+
+	if (dataOffset > sizeof (io.TcpHdr))
+	{
+		hdrSizeTable [hdrIdx] = dataOffset - sizeof (io.TcpHdr);
+		hdrColorTable [hdrIdx] = SnifferLogHdrColor.TcpOptions;
+		hdrIdx++;
+	}
+
+	return hdrIdx;
+}
+
+representTcp (
+	log.RepresenterTarget* target,
+	io.IpHdr const* ipHdr,
+	void const* p,
+	size_t size,
+	size_t baseOffset
+	)
+{
+	if (baseOffset + sizeof(io.TcpHdr) > size)
+	{
+		target.addHyperText (std.format (
+			"[\e^+1\e[34m+\e[m] \e[1mTCP \e[10;34m%s\e[m > \e[34m%s\e[m [INVALID SIZE:%d]",
+			formatIpString (ipHdr.m_srcAddress),
+			formatIpString (ipHdr.m_dstAddress),
+			size
+			));
+
+		return;
+	}
+
+	io.TcpHdr const* tcpHdr = (io.TcpHdr const*) (p + baseOffset);
+	size_t dataOffset = tcpHdr.m_dataOffset * 4;
+	size_t dataSize = ipHdr.m_totalLength - sizeof (io.IpHdr) - dataOffset;
+
+	baseOffset += dataOffset;
+	if (baseOffset > size)
+	{
+		target.addHyperText (std.format (
+			"[\e^+1\e[34m+\e[m] \e[1mTCP \e[10;34m%s\e[m > \e[34m%s\e[m [INVALID SIZE:%d]",
+			formatIpString (ipHdr.m_srcAddress),
+			formatIpString (ipHdr.m_dstAddress),
+			size
+			));
+
+		return;
+	}
+
+	char const* lengthString;
+	if (baseOffset + dataSize <= size)
+	{
+		lengthString = $"$dataSize bytes";
+	}
+	else
+	{
+		lengthString = $"INVALID SIZE: $dataSize bytes";
+		dataSize = size - baseOffset;
+	}
+
+	target.addHyperText (std.format (
+		"[\e^+1\e[34m+\e[m] \e[1mTCP \e[10;34m%s:%d\e[m > \e[10;34m%s:%d\e[m [%s] (%s)",
+		formatIpString (ipHdr.m_srcAddress),
+		tcpHdr.m_srcPort,
+		formatIpString (ipHdr.m_dstAddress),
+		tcpHdr.m_dstPort,
+		formatTcpFlagString (tcpHdr.m_flags),
+		lengthString
+		));
+
+	representPacketData (target, p, size, baseOffset, dataSize);
+}
+
+//..............................................................................

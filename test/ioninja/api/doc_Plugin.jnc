@@ -1,0 +1,192 @@
+//..............................................................................
+//
+// Ninja document model: plugins (sessions and protocols)
+//
+
+import "doc_PluginHost.jnc"
+import "doc_Storage.jnc"
+
+namespace doc {
+
+//..............................................................................
+
+class Plugin
+{
+	PluginHost* readonly m_pluginHost;
+
+	construct (PluginHost* host)
+	{
+		m_pluginHost = host;
+	}
+
+	virtual void load (Storage* storage)
+	{
+	}
+
+	virtual void save (Storage* storage)
+	{
+	}
+
+	virtual void updateProperties ()
+	{
+	}
+
+	virtual bool errorcode applyProperties ()
+	{
+		return true;
+	}
+
+	virtual void restoreDefaultProperties ()
+	{
+	}
+
+	abstract size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+	virtual size_t errorcode transmitTo (
+		void const* p,
+		size_t size,
+		void const* address,
+		size_t addressSize
+		)
+	{
+		return transmit (p, size);
+	}
+
+	writeLog (
+		uint_t recordCode,
+		void const* p,
+		size_t size
+		)
+	{
+		m_pluginHost.m_log.m_writer.write (recordCode, p, size);
+	}
+
+	writeLog (uint_t recordCode)
+	{
+		m_pluginHost.m_log.m_writer.write (recordCode, null, 0);
+	}
+
+	writeLogString (
+		uint_t recordCode,
+		char const* p
+		)
+	{
+		m_pluginHost.m_log.m_writer.write (recordCode, p, strlen (p));
+	}
+
+	writeLogError (
+		uint_t recordCode,
+		std.Error const* error
+		)
+	{
+		m_pluginHost.m_log.m_writer.write (recordCode, error, error.m_size);
+	}
+
+	writeLogLastError (uint_t recordCode)
+	{
+		writeLogError (recordCode, std.getLastError ());
+	}
+
+	gui.Action* createAction (
+		char const* text,
+		gui.Icon* icon = null,
+		bool isCheckable = false,
+		bool isChecked = false
+		);
+
+	gui.Action* createAction (
+		char const* text,
+		char const* iconFileName,
+		bool isCheckable = false,
+		bool isChecked = false
+		)
+	{
+		return createAction (text, new gui.Icon (iconFileName), isCheckable, isChecked);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+gui.Action* Plugin.createAction (
+	char const* text,
+	gui.Icon* icon,
+	bool isCheckable,
+	bool isChecked
+	)
+{
+	gui.Action* action = new gui.Action (text, icon);
+	action.m_isCheckable = isCheckable;
+	if (isCheckable)
+		action.m_isChecked = isChecked;
+
+	m_pluginHost.m_menu.addAction (action);
+	m_pluginHost.m_toolBar.addAction (action);
+	return action;
+}
+
+//..............................................................................
+
+class Session: Plugin
+{
+	char const* autoget property m_title;
+	bool autoget property m_isTransmitEnabled;
+
+	construct (PluginHost* host)
+	{
+		basetype.construct (host);
+	}
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		)
+	{
+		return size;
+	}
+
+	startSession ()
+	{
+		uint64_t timestamp = sys.getTimestamp ();
+		m_pluginHost.m_log.m_baseTimestamp = timestamp;
+		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.SessionStarted);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class Layer: Plugin
+{
+	construct (PluginHost* host)
+	{
+		basetype.construct (host);
+	}
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		)
+	{
+		return transmitNext (p, size);
+	}
+
+	size_t transmitNext (
+		void const* p,
+		size_t size
+		);
+
+	size_t transmitToNext (
+		void const* p,
+		size_t size,
+		void const* address,
+		size_t addressSize
+		);
+}
+
+//..............................................................................
+
+} // namespace doc {
+
+trace (char const* p);

@@ -1,0 +1,223 @@
+//..............................................................................
+//
+// Generic file session
+//
+
+import "io_base.jncx"
+import "io_Mailslot.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class MailslotSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+
+	enum ActionId
+	{
+		Open,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Open,
+		Close,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// file
+
+	State bindable m_state;
+	io.Mailslot m_mailslot;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_nameCombo;
+
+	// property grid
+
+	gui.StringProperty* m_nameProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode open ();
+	close ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+protected:
+	createUi ();
+
+	onOpen ();
+	onMailslotEvent (io.MailslotEventParams const* params);
+
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+MailslotSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representFileLog;
+
+	m_state = State.Closed;
+	m_mailslot.m_onMailslotEvent += onMailslotEvent @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+MailslotSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Mailslot:");
+	m_nameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_nameCombo.m_isEditable = true;
+	m_nameCombo.m_onEnter += open;
+
+	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
+	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
+
+	m_actionTable [ActionId.Open] = createAction ("Open", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Open].m_onTriggered += onOpen;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_nameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"Mailslot name",
+		"Specify the mailslot to open"
+		);
+
+	m_uiReactor.start ();
+}
+
+MailslotSession.onOpen ()
+{
+	if (m_state)
+		close ();
+	else
+		try	open ();
+}
+
+bool errorcode MailslotSession.open ()
+{
+	close ();
+	startSession ();
+
+	m_nameCombo.addEditTextToHistory ();
+
+	char const* fileName = m_nameCombo.m_editText;
+
+	m_mailslot.open (fileName);
+
+	writeLogString (MailslotLogRecordCode.Opened, fileName);
+	m_state = State.Opened;
+	return true;
+
+catch:
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		MailslotLogRecordCode.OpenError,
+		error,
+		error.m_size
+		);
+
+	m_mailslot.close ();
+	return false;
+}
+
+MailslotSession.close ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	writeLog (MailslotLogRecordCode.Closed);
+	m_mailslot.close ();
+	m_state = State.Closed;
+}
+
+void MailslotSession.load (doc.Storage* storage)
+{
+	m_nameCombo.m_editText = storage.readString ("name");
+}
+
+void MailslotSession.save (doc.Storage* storage)
+{
+	storage.writeString ("name", m_nameCombo.m_editText);
+}
+
+void MailslotSession.updateProperties ()
+{
+	m_nameProp.m_value = m_nameCombo.m_editText;
+}
+
+bool errorcode MailslotSession.applyProperties ()
+{
+	m_nameCombo.m_editText = m_nameProp.m_value;
+	return true;
+}
+
+void MailslotSession.restoreDefaultProperties ()
+{
+	m_nameProp.m_value = "mymailslot0";
+}
+
+MailslotSession.onMailslotEvent (io.MailslotEventParams const* params)
+{
+	if (params.m_syncId != m_mailslot.m_syncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.MailslotEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_mailslot.read (buffer, sizeof (buffer));
+		if (result != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		break;
+
+	case io.MailslotEventCode.IoError:
+		writeLog (log.StdRecordCode.Error, params.m_error, params.m_error.m_size);
+		close ();
+		break;
+	}
+}
+
+reactor MailslotSession.m_uiReactor ()
+{
+	m_title = $"Mailslot $(m_nameCombo.m_editText)";
+	m_isTransmitEnabled = m_state == State.Opened;
+	m_actionTable [ActionId.Open].m_text = m_state ? "Close" : "Open";
+	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state ? IconId.Close : IconId.Open];
+	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
+}
+
+//..............................................................................

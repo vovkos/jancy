@@ -1,0 +1,380 @@
+//..............................................................................
+//
+// Serial Monitor session
+//
+
+import "io_base.jncx"
+import "io_mon.jncx"
+import "io_SerialMon.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class SerialMonSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum ActionId
+	{
+		Refresh,
+		Capture,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// serial port
+
+	State bindable m_state;
+	io.SerialMon m_serialMon;
+	SerialLogFilter m_logFilter;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_portCombo;
+
+	// serial mon property grid
+
+	gui.EnumProperty* m_portProp;
+
+	// filter property grid
+
+	gui.BoolProperty* m_settingChangedVisibleProp;
+	gui.BoolProperty* m_controlLineChangedVisibleProp;
+	gui.BoolProperty* m_statusLineChangedVisibleProp;
+
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode capture ();
+	stopCapture ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+protected:
+	onRefresh ();
+	onCapture ();
+	onReadyRead (uint_t syncId);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SerialMonSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+	pluginHost.m_log.m_representerFunc = representSerialMonLog;
+	pluginHost.m_log.attachFilter (m_logFilter);
+
+	m_state = State.Closed;
+	m_serialMon.m_onReadyRead += onReadyRead @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+SerialMonSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Port:");
+	m_portCombo = m_pluginHost.m_toolBar.addComboBox ();
+	m_portCombo.m_isEditable = true;
+	m_portCombo.m_onEnter += capture;
+
+	size_t portCount;
+	io.SerialPortDesc const* portList = io.createSerialPortDescList (&portCount);
+	io.SerialPortDesc const* port = portList;
+	for (; port; port = port.m_next)
+		m_portCombo.addItem (port.m_deviceName, null);
+
+	m_actionTable [ActionId.Refresh] = createAction ("Refresh port list", "images/refresh.png");
+	m_actionTable [ActionId.Refresh].m_onTriggered += onRefresh;
+
+	m_iconTable [IconId.Capture] = new gui.Icon ("images/capture.png");
+	m_iconTable [IconId.StopCapture] = new gui.Icon ("images/pause.png");
+
+	m_actionTable [ActionId.Capture] = createAction ("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable [ActionId.Capture].m_onTriggered += onCapture;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_portProp = io.createSerialPortProperty (
+		m_pluginHost.m_propertyGrid,
+		"Port",
+		"Specify serial port to use",
+		portList,
+		portCount
+		);
+
+	// filter
+
+	m_settingChangedVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Show setting changes",
+		"Display setting change log records (or filter them out)"
+		);
+
+	m_controlLineChangedVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Show control line changes",
+		"Display control line change log records (or filter them out)"
+		);
+
+	m_statusLineChangedVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Show status line changes",
+		"Display status line change log records (or filter them out)"
+		);
+
+	m_uiReactor.start ();
+}
+
+SerialMonSession.onRefresh ()
+{
+	char const* name = m_portCombo.m_currentText;
+	m_portCombo.clear ();
+
+	size_t portCount;
+	io.SerialPortDesc const* portList = io.createSerialPortDescList (&portCount);
+	io.SerialPortDesc const* port = portList;
+	for (; port; port = port.m_next)
+		m_portCombo.addItem (port.m_deviceName, null);
+
+	m_portCombo.m_editText = name; // preserve current text
+	m_portCombo.adjustSizeToContents ();
+
+	io.updateSerialPortProperty (m_portProp, portList, portCount);
+}
+
+SerialMonSession.onCapture ()
+{
+	if (m_state)
+		stopCapture ();
+	else
+		try capture ();
+}
+
+bool errorcode SerialMonSession.capture ()
+{
+	stopCapture ();
+	startSession ();
+
+	char const* name = m_portCombo.m_currentText;
+
+	m_serialMon.capture (name);
+	writeLog (SerialMonLogRecordCode.CaptureStarted, name, strlen (name));
+
+	m_state = State.Opened;
+	return true;
+
+catch:
+	m_serialMon.close ();
+
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		SerialMonLogRecordCode.CaptureError,
+		error,
+		error.m_size
+		);
+	return false;
+}
+
+SerialMonSession.stopCapture ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	writeLog (SerialMonLogRecordCode.CaptureStopped);
+
+	m_serialMon.close ();
+	m_state = State.Closed;
+}
+
+void SerialMonSession.load (doc.Storage* storage)
+{
+	m_portCombo.m_editText = storage.readString ("portName");
+	m_logFilter.m_isSettingChangedVisible = storage.readBool ("isSettingChangedVisible", true);
+	m_logFilter.m_isControlLineChangedVisible = storage.readBool ("isControlLineChangedVisible", true);
+	m_logFilter.m_isStatusLineChangedVisible = storage.readBool ("isStatusLineChangedVisible", true);
+}
+
+void SerialMonSession.save (doc.Storage* storage)
+{
+	storage.writeString ("portName", m_portCombo.m_editText);
+	storage.writeBool ("isSettingChangedVisible", m_logFilter.m_isSettingChangedVisible);
+	storage.writeBool ("isControlLineChangedVisible", m_logFilter.m_isControlLineChangedVisible);
+	storage.writeBool ("isStatusLineChangedVisible", m_logFilter.m_isStatusLineChangedVisible);
+}
+
+void SerialMonSession.updateProperties ()
+{
+	m_portProp.m_currentIndex = m_portCombo.m_currentIndex;
+	m_settingChangedVisibleProp.m_value = m_logFilter.m_isSettingChangedVisible;
+	m_controlLineChangedVisibleProp.m_value = m_logFilter.m_isControlLineChangedVisible;
+	m_statusLineChangedVisibleProp.m_value = m_logFilter.m_isStatusLineChangedVisible;
+}
+
+bool errorcode SerialMonSession.applyProperties ()
+{
+	m_portCombo.m_currentIndex = m_portProp.m_currentIndex;
+	m_logFilter.m_isSettingChangedVisible = m_settingChangedVisibleProp.m_value;
+	m_logFilter.m_isControlLineChangedVisible = m_controlLineChangedVisibleProp.m_value;
+	m_logFilter.m_isStatusLineChangedVisible = m_statusLineChangedVisibleProp.m_value;
+	return true;
+}
+
+void SerialMonSession.restoreDefaultProperties ()
+{
+	m_portProp.m_currentIndex = 0;
+	m_settingChangedVisibleProp.m_value = true;
+	m_controlLineChangedVisibleProp.m_value = true;
+	m_statusLineChangedVisibleProp.m_value = true;
+}
+
+SerialMonSession.onReadyRead (uint_t syncId)
+{
+	if (syncId != m_serialMon.m_syncId)
+		return;
+
+	io.SerialMonEventParams params;
+	try m_serialMon.read (&params);
+
+	switch (params.m_eventCode)
+	{
+	case io.SerialMonEventCode.DeviceOpened:
+		m_pluginHost.m_log.m_writer.write (params.m_timestamp, SerialMonLogRecordCode.DeviceOpened);
+		break;
+
+	case io.SerialMonEventCode.DeviceClosed:
+		m_pluginHost.m_log.m_writer.write (params.m_timestamp, SerialMonLogRecordCode.DeviceClosed);
+		break;
+
+	case io.SerialMonEventCode.RxData:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			log.StdRecordCode.Rx,
+			params.m_data,
+			params.m_dataSize
+			);
+		break;
+
+	case io.SerialMonEventCode.TxData:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			log.StdRecordCode.Tx,
+			params.m_data,
+			params.m_dataSize
+			);
+		break;
+
+	case io.SerialMonEventCode.BaudRateChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.BaudRateChanged,
+			&params.m_baudRate,
+			sizeof (params.m_baudRate)
+			);
+		break;
+
+	case io.SerialMonEventCode.FlowControlChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.FlowControlChanged,
+			&params.m_flowControl,
+			sizeof (params.m_flowControl)
+			);
+		break;
+
+	case io.SerialMonEventCode.DataBitsChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.DataBitsChanged,
+			&params.m_dataBits,
+			sizeof (params.m_dataBits)
+			);
+		break;
+
+	case io.SerialMonEventCode.StopBitsChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.StopBitsChanged,
+			&params.m_stopBits,
+			sizeof (params.m_stopBits)
+			);
+		break;
+
+	case io.SerialMonEventCode.ParityChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.ParityChanged,
+			&params.m_parity,
+			sizeof (params.m_parity)
+			);
+		break;
+
+	case io.SerialMonEventCode.StatusLineChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.StatusLineChanged,
+			&params.m_statusLines,
+			sizeof (uint_t) * 2
+			);
+		break;
+
+	case io.SerialMonEventCode.DtrChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.DtrChanged,
+			&params.m_dtr,
+			sizeof (params.m_dtr)
+			);
+		break;
+
+	case io.SerialMonEventCode.RtsChanged:
+		m_pluginHost.m_log.m_writer.write (
+			params.m_timestamp,
+			SerialLogRecordCode.RtsChanged,
+			&params.m_rts,
+			sizeof (params.m_rts)
+			);
+		break;
+	}
+}
+
+reactor SerialMonSession.m_uiReactor ()
+{
+	m_title = $"Mon $(m_portCombo.m_currentText)";
+	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
+	m_actionTable [ActionId.Capture].m_icon = m_iconTable [m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
+}
+
+//..............................................................................

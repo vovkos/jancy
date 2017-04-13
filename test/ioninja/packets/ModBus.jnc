@@ -1,0 +1,91 @@
+//..............................................................................
+//
+// Packet header definitions for ModBus
+//
+
+import "io_ModBus.jnc"
+import "crc16.jnc"
+
+//..............................................................................
+
+struct ModBusReadFrame
+{
+	uint8_t m_deviceAddress;
+	io.ModBusReadPdu m_read;
+	uint16_t m_crc;
+
+	[ packetTemplateAction ]
+	initialize ()
+	{
+		*this = null;
+		m_deviceAddress = 1;
+		m_read.m_func = io.ModBusFunc.ReadHoldingRegisters;
+		m_read.m_count = 1;
+	}
+
+	[ packetTemplateAction ]
+	calcChecksum ()
+	{
+		updateModBusChecksum (this);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ModBusWriteFrame
+{
+	uint8_t m_deviceAddress;
+	io.ModBusWritePdu m_write;
+	uint16_t m_crc;
+
+	[ packetTemplateAction ]
+	initialize ()
+	{
+		*this = null;
+		m_deviceAddress = 1;
+		m_write.m_func = io.ModBusFunc.WriteRegister;
+	}
+
+	[ packetTemplateAction ]
+	calcChecksum ()
+	{
+		updateModBusChecksum (this);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ModBusWriteMultipleFrame
+{
+	uint8_t m_deviceAddress;
+	io.ModBusWriteMultiplePdu m_write;
+
+	[ packetTemplateAction ]
+	initialize ()
+	{
+		*this = null;
+		m_deviceAddress = 1;
+		m_write.m_func = io.ModBusFunc.WriteMultipleRegisters;
+		m_write.m_count = 1;
+	}
+
+	[ packetTemplateAction ]
+	calcChecksum ()
+	{
+		updateModBusChecksum (this);
+	}
+}
+
+//..............................................................................
+
+updateModBusChecksum (void* p)
+{
+	size_t size = dynamic sizeof (p);
+	if (size < 2)
+		return;
+
+	size -= 2;
+	*(uint16_t*) (p + size) = crc16_ansi (p, size, 0xffff);
+}
+
+//..............................................................................

@@ -1,0 +1,330 @@
+//..............................................................................
+//
+// Pipe Listener session
+//
+
+import "io_base.jncx"
+import "io_NamedPipe.jnc"
+import "io_FileStream.jnc"
+import "doc_Plugin.jnc"
+
+//..............................................................................
+
+class PipeListenerSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum ActionId
+	{
+		Listen,
+		Disconnect,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Listen,
+		StopListen,
+		Disconnect,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		ConnectionState,
+		ListenerState,
+		_Count,
+	}
+
+protected:
+	// listener
+
+	State bindable m_listenerState;
+	io.NamedPipe m_listenerPipe;
+	char const* m_pipeName;
+
+	// connection
+
+	State bindable m_connectionState;
+	uint_t m_connectionSyncId;
+	io.FileStream* m_connectionPipe;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_pipeNameCombo;
+
+	// property grid
+
+	gui.StringProperty* m_pipeNameProp;
+	gui.BoolProperty* m_overrideOldConnectionProp;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode listen ();
+	stopListen ();
+	disconnect ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onListen ();
+	onIncomingConnection (uint_t syncId);
+	onConnectionPipeEvent (io.FileStreamEventParams const* params);
+
+	createUi ();
+	reactor m_uiReactor ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+PipeListenerSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	pluginHost.m_log.m_representerFunc = representPipeListenerLog;
+
+	m_connectionState = State.Closed;
+	m_listenerState = State.Closed;
+	m_listenerPipe.m_onIncomingConnection += onIncomingConnection @ pluginHost.m_mainThreadScheduler;
+
+	createUi ();
+}
+
+PipeListenerSession.createUi ()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel ("Name:");
+	m_pipeNameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_pipeNameCombo.m_isEditable = true;
+	m_pipeNameCombo.m_onEnter += listen;
+
+	m_iconTable [IconId.Listen] = new gui.Icon ("images/listen.png");
+	m_iconTable [IconId.StopListen] = new gui.Icon ("images/pause.png");
+	m_iconTable [IconId.Disconnect] = new gui.Icon ("images/disconnect.png");
+
+	m_actionTable [ActionId.Listen] = createAction ("Listen", m_iconTable [IconId.Listen]);
+	m_actionTable [ActionId.Listen].m_onTriggered += onListen;
+
+	m_actionTable [ActionId.Disconnect] = createAction ("Disconnect", m_iconTable [IconId.Disconnect]);
+	m_actionTable [ActionId.Disconnect].m_onTriggered += disconnect;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.ConnectionState] = m_pluginHost.m_statusBar.addPane (, 80);
+	m_statusPaneTable [StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	m_pipeNameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		"Pipe name",
+		"Specify pipe name to listen on"
+		);
+
+	m_overrideOldConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Override connections",
+		"Accept incoming connection even if already connected"
+		);
+
+	m_uiReactor.start ();
+}
+
+PipeListenerSession.onListen ()
+{
+	if (m_listenerState)
+		stopListen ();
+	else
+		try listen ();
+}
+
+bool errorcode PipeListenerSession.listen ()
+{
+	stopListen ();
+	startSession ();
+
+	m_pipeNameCombo.addEditTextToHistory ();
+
+	char const* name = m_pipeNameCombo.m_editText;
+	m_listenerPipe.open (name);
+
+	writeLog (
+		PipeListenerLogRecordCode.Listening,
+		name,
+		strlen (name)
+		);
+
+	m_pipeName = name;
+	m_listenerState = State.Opened;
+	return true;
+
+catch:
+	std.Error const* error = std.getLastError ();
+	writeLog (
+		PipeListenerLogRecordCode.ListenError,
+		error,
+		error.m_size
+		);
+
+	m_listenerPipe.close ();
+	return false;
+}
+
+PipeListenerSession.stopListen ()
+{
+	if (m_listenerState != State.Opened)
+		return;
+
+	writeLog (
+		PipeListenerLogRecordCode.ListenStopped,
+		m_pipeName,
+		strlen (m_pipeName)
+		);
+
+	m_listenerPipe.close ();
+	m_listenerState = State.Closed;
+}
+
+PipeListenerSession.disconnect ()
+{
+	if (m_connectionState != State.Opened)
+		return;
+
+	writeLog (PipeListenerLogRecordCode.ClientDisconnected);
+	m_connectionPipe.close ();
+	m_connectionPipe = null;
+	m_connectionState = State.Closed;
+	m_connectionSyncId++;
+}
+
+void PipeListenerSession.load (doc.Storage* storage)
+{
+	m_pipeNameCombo.m_editText = storage.readString ("pipeName");
+	m_overrideOldConnectionProp.m_value = storage.readBool ("overrideOldConnection");
+}
+
+void PipeListenerSession.save (doc.Storage* storage)
+{
+	storage.writeString ("pipeName", m_pipeNameCombo.m_editText);
+	storage.writeBool ("overrideOldConnection", m_overrideOldConnectionProp.m_value);
+}
+
+void PipeListenerSession.updateProperties ()
+{
+	m_pipeNameProp.m_value = m_pipeNameCombo.m_editText;
+}
+
+bool errorcode PipeListenerSession.applyProperties ()
+{
+	m_pipeNameCombo.m_editText = m_pipeNameProp.m_value;
+	return true;
+}
+
+void PipeListenerSession.restoreDefaultProperties ()
+{
+	m_pipeNameProp.m_value = "\\\\.\\pipe\\mypipe0";
+	m_overrideOldConnectionProp.m_value = true;
+}
+
+size_t errorcode PipeListenerSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_connectionState != State.Opened)
+		return -1;
+
+	size_t result = m_connectionPipe.write (p, size);
+	if (result)
+		writeLog (log.StdRecordCode.Tx, p, result);
+
+	return result;
+}
+
+PipeListenerSession.onIncomingConnection (uint_t syncId)
+{
+	if (syncId != m_listenerPipe.m_syncId)
+		return;
+
+	io.FileStream* pipe = try m_listenerPipe.accept ();
+	if (!pipe)
+		return;
+
+	if (m_connectionState == State.Opened && !m_overrideOldConnectionProp.m_value)
+	{
+		pipe.close ();
+		writeLog (PipeListenerLogRecordCode.ClientRejected);
+		return;
+	}
+
+	disconnect ();
+
+	writeLog (PipeListenerLogRecordCode.ClientConnected);
+
+	pipe.m_syncId = m_connectionSyncId;
+	pipe.m_onFileStreamEvent += onConnectionPipeEvent @ m_pluginHost.m_mainThreadScheduler;
+
+	m_connectionPipe = pipe;
+	m_connectionState = State.Opened;
+
+	pipe.m_isFileStreamEventEnabled = true;
+}
+
+PipeListenerSession.onConnectionPipeEvent (io.FileStreamEventParams const* params)
+{
+	if (params.m_syncId != m_connectionSyncId)
+		return;
+
+	switch (params.m_eventCode)
+	{
+	case io.FileStreamEventCode.Eof:
+		disconnect ();
+		break;
+
+	case io.FileStreamEventCode.TransmitBufferReady:
+		m_isTransmitEnabled = true;
+		break;
+
+	case io.FileStreamEventCode.IoError:
+		writeLog (log.StdRecordCode.Error, params.m_error, params.m_error.m_size);
+		disconnect ();
+		break;
+
+	case io.FileStreamEventCode.IncomingData:
+		static char buffer [512];
+		size_t result = try m_connectionPipe.read (buffer, sizeof (buffer));
+		if (result != -1)
+			writeLog (log.StdRecordCode.Rx, buffer, result);
+		break;
+	}
+}
+
+reactor PipeListenerSession.m_uiReactor ()
+{
+	m_title = $"Pipe $(m_pipeNameCombo.m_editText)";
+	m_isTransmitEnabled = m_connectionState == State.Opened;
+	m_actionTable [ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
+	m_actionTable [ActionId.Listen].m_icon = m_iconTable [m_listenerState ? IconId.StopListen : IconId.Listen];
+	m_actionTable [ActionId.Disconnect].m_isEnabled = m_connectionState == State.Opened;
+	m_statusPaneTable [StatusPaneId.ListenerState].m_text = m_listenerState  ? "Listening" : "Not listening";
+	m_statusPaneTable [StatusPaneId.ConnectionState].m_text = m_connectionState  ? "Connected" : "Not connected";
+}
+
+//..............................................................................

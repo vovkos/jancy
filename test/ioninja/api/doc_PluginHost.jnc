@@ -1,0 +1,45 @@
+//..............................................................................
+//
+// Ninja document model: plugin host
+//
+
+import "gui_Base.jnc"
+import "gui_PropertyGrid.jnc"
+import "log.jnc"
+
+namespace doc {
+
+//..............................................................................
+
+class Terminal
+{
+	uint_t readonly m_consoleWidth;
+	uint_t readonly m_consoleHeight;
+
+	event m_onConsoleSizeChanged ();
+}
+
+//..............................................................................
+
+opaque class MainThreadScheduler: jnc.Scheduler
+{
+}
+
+//..............................................................................
+
+opaque class PluginHost
+{
+	gui.Menu m_menu;
+	gui.ToolBar m_toolBar;
+	gui.StatusBar m_statusBar;
+	gui.PropertyGrid m_propertyGrid;
+	log.Log m_log;
+	doc.Terminal m_terminal;
+	MainThreadScheduler* m_mainThreadScheduler;
+
+	destruct ();
+}
+
+//..............................................................................
+
+} // namespace doc {

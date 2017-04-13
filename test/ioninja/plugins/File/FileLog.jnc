@@ -1,0 +1,64 @@
+//..............................................................................
+//
+// Generic file log packet declarations and representer
+//
+
+import "log.jnc"
+
+//..............................................................................
+
+enum FileLogRecordCode
+{
+	Opened,
+	OpenError,
+	Closed,
+	Eof,
+}
+
+//..............................................................................
+
+bool representFileLog (
+	log.RepresenterTarget* target,
+	uint_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case FileLogRecordCode.Opened:
+		io.FileStreamKind const* kind = (io.FileStreamKind const*) p;
+		char const* fileName = (char const*) (kind + 1);
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText ($"Opened file \e[34m$fileName\e[m ($(io.getFileStreamKindString (*kind)))");
+		break;
+
+	case FileLogRecordCode.OpenError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Cannot open file: $(error.m_description)");
+		break;
+
+	case FileLogRecordCode.Closed:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ($"File closed");
+		break;
+
+	case FileLogRecordCode.Eof:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("EOF reached");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
