@@ -1,0 +1,24 @@
+struct MapEntry
+{
+	MapEntry cmut* m_next;
+	variant m_value;
+}
+
+variant findValue (
+	variant key,
+	variant undefinedValue = null
+	)
+{
+	MapEntry e;
+	MapEntry* entry = &e;
+
+	new int; // <-- bug: caused lifted undefinedValue to be collected
+
+	return entry ? entry.m_value : undefinedValue;
+}
+
+int main ()
+{
+	findValue (100);
+	return 0;
+}

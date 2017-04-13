@@ -21,7 +21,6 @@ bool isEqualString_i (
 	return stricmp (v1, v2) == 0;
 }
 
-
 int main ()
 {
 	std.HashTable hashTable;

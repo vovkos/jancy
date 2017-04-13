@@ -960,11 +960,11 @@ GcHeap::setFrameMap (
 	ASSERT (map && count);
 
 	const size_t* indexArray = map->getGcRootIndexArray ();
-	size_t first = indexArray [0];
-	size_t last = indexArray [count - 1];
-	ASSERT (last >= first);
-
-	memset (frame->m_gcRootArray + first, 0, (last - first + 1) * sizeof (void*));
+	for (size_t i = 0; i < count; i++)
+	{
+		size_t j = indexArray [i];
+		frame->m_gcRootArray [j] = NULL;
+	}
 }
 
 void

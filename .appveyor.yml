@@ -53,8 +53,8 @@ install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
     - call ci\appveyor\install.bat
 
-    - git clone https://github.com/vovkos/axl
-    - git clone https://github.com/vovkos/graco
+    - git clone --depth 1 https://github.com/vovkos/axl
+    - git clone --depth 1 https://github.com/vovkos/graco
 
 build_script:
     - set THIS_DIR=%CD%
