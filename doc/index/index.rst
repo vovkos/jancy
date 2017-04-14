@@ -16,9 +16,9 @@ Jancy is a **scripting programming language** with the **LLVM** back-end. Jancy 
 
 Follow the links below for additional information.
 
-* `Jancy Language Manual <http://docs.tibbo.com/jancy/language>`_
-* `Jancy Standard Library Reference <http://docs.tibbo.com/jancy/stdlib>`_
-* `Jancy C API Reference <http://docs.tibbo.com/jancy/api>`_
-* `Jancy Compiler Overivew <http://docs.tibbo.com/jancy/compiler>`_
-* `Jancy Grammar Reference <http://docs.tibbo.com/jancy/grammar>`_
-* `Jancy Build Guide <http://docs.tibbo.com/jancy/build-guide>`_
+* `Jancy Language Manual <language/index.html>`_
+* `Jancy Standard Library Reference <stdlib/index.html>`_
+* `Jancy C API Reference <api/index.html>`_
+* `Jancy Compiler Overivew <compiler/index.html>`_
+* `Jancy Grammar Reference <grammar/index.html>`_
+* `Jancy Build Guide <build-guide/index.html>`_
