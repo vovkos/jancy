@@ -21,9 +21,3 @@ Secondly, Jancy was created as a scripting language for the `IO Ninja <http://ti
 Finally, Jancy (including its standard library) is an **open-source** project hosted on GitHub at http://github.com/vovkos/jancy, so when you implement a class or a function missing in the standrard library, it's easy to **contribute** it and save the future developers from repeating the same work.
 
 Now let's see what is *already* available...
-
-.. toctree::
-	:titlesonly:
-
-	global.rst
-	appendices.rst

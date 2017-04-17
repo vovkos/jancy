@@ -51,11 +51,13 @@ set (XMLGEN_CMD_LINE ${JANCY_CMD_LINE})
 set (
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
-	-o ${RST_DIR}/global.rst
+	-o ${RST_DIR}/index.rst
 	-F ${DOXYREST_FRAME_DIR}
+	-D g_introFile=intro.rst
 	-D g_language=jancy
 	-D g_globalDefFile=def.rst
-	-f c_global.rst.in
+	-D g_extraPageList=m_syncId.rst,disposable.rst,errorcode.rst
+	-f c_index.rst.in
 	)
 
 set (

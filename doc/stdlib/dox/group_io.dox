@@ -11,15 +11,16 @@
 
 /*!
 
-\namespace io
+\defgroup iolib
 
-	This namespaces contains all IO-related classes and auxiliary types and functions.
+	\title Input/Output (IO) Library
 
-	For your convenience, documentation for all the members of ``namespace io`` is divided into the following categories:
+	This section describes IO-related classes, auxiliary types and functions.
 
 \defgroup file
 
 	\title Generic File IO
+	\ingroup iolib
 
 	\import io_base.jncx
 	\import io_File.jnc
@@ -33,6 +34,7 @@
 \defgroup socket
 
 	\title Socket Communications
+	\ingroup iolib
 
 	\import io_base.jncx
 	\import io_Socket.jnc
@@ -44,6 +46,7 @@
 \defgroup serial
 
 	\title Serial Communications
+	\ingroup iolib
 
 	\import io_base.jncx
 	\import io_Serial.jnc
@@ -53,6 +56,7 @@
 \defgroup network-adapter
 
 	\title Network Adapter Management
+	\ingroup iolib
 
 	\import io_base.jncx
 	\import io_NetworkAdapter.jnc
@@ -62,6 +66,7 @@
 \defgroup ssh
 
 	\title SSH Communications
+	\ingroup iolib
 
 	\import io_ssh.jncx
 
@@ -70,6 +75,7 @@
 \defgroup pcap
 
 	\title Pcap (Packet Capturing Library)
+	\ingroup iolib
 
 	\import io_pcap.jncx
 
@@ -78,6 +84,7 @@
 \defgroup usb
 
 	\title USB Communications
+	\ingroup iolib
 
 	\import io_usb.jncx
 

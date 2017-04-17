@@ -18,6 +18,7 @@ namespace jnc {
 ///; static char dynamicLibTypeSrc [] =
 
 /**
+	\ingroup rtl
 	\brief This class provides direct access to functions in *dynamic libraries* (also known as *shared libraries*).
 
 	You can use ``jnc.DynamicLib`` in one of the two ways.

@@ -18,6 +18,7 @@ namespace jnc {
 ///; static char schedulerTypeSrc [] =
 
 /**
+	\ingroup rtl
 	\brief This interface is used by Jancy compiler when creating *scheduled* function pointers.
 
 	Often times it is necessary to postpone execution of a certain callback function (e.g. IO completion routine or other event handler). A realistic example would be this: IO completion event gets fired in some worker IO thread context, but we want to conveniently process it in the context of the main UI thread. Should you write this code in C, Java or any other traditional language, you would probably use a variation of the following approach:

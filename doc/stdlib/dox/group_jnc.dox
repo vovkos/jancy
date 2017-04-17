@@ -11,8 +11,10 @@
 
 /*!
 
-\namespace jnc
+\defgroup rtl
 
-	This namespace contains built-in types that are integral part of the language and constitute the RTL (runtime-library) of the Jancy compiler.
+	\title Runtime Library (RTL)
+
+	This section describes built-in types that are integral part of the language and constitute the RTL (runtime library) of the Jancy compiler.
 
 */

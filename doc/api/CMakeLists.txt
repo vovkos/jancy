@@ -41,9 +41,10 @@ set (
 	${XML_DIR}/index.xml
 	-D g_hasNewLineAfterReturnType
 	-D g_nameDelimiter=::
-	-o ${RST_DIR}/global.rst
+	-D g_introFile=intro.rst
+	-o ${RST_DIR}/index.rst
 	-F ${DOXYREST_FRAME_DIR}
-	-f c_global.rst.in
+	-f c_index.rst.in
 	)
 
 set (

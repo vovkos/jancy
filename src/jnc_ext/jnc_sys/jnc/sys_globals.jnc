@@ -20,8 +20,6 @@ namespace sys {
 //! \addtogroup thread
 //! @{
 
-/*!
-
 /**
 	Returns the thread identifier (TID) of the current thread.
 
@@ -40,7 +38,6 @@ uintptr_t getCurrentThreadId ();
 			char const* stringContext
 			)
 		{
-
 		}
 
 		// ...

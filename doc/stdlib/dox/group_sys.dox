@@ -11,15 +11,16 @@
 
 /**
 
-\namespace sys
+\defgroup syslib
 
-	This namespaces contains all classes, auxiliary types and functions providing access to system services.
+	\title System Facilities
 
-	For your convenience, documentation for all the members of ``namespace sys`` is divided into the following categories:
+	This section describes classes, auxiliary types and functions which provide access to system services.
 
 \defgroup time
 
 	\title Time & Timers
+	\ingroup syslib
 
 	\import sys_Timer.jnc
 
@@ -28,6 +29,7 @@
 \defgroup thread
 
 	\title Thread Management
+	\ingroup syslib
 
 	\import sys_Thread.jnc
 
@@ -36,6 +38,7 @@
 \defgroup sync
 
 	\title Synchronization Facilities
+	\ingroup syslib
 
 	\import sys_Lock.jnc
 	\import sys_Event.jnc
@@ -46,7 +49,8 @@
 \defgroup gc
 
 	\title Garbage-Collected Heap
+	\ingroup syslib
 
 	This section describes types and facilities used for the GC (garbage-collected heap) management.
-	
+
 */

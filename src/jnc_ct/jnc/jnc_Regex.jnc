@@ -17,6 +17,11 @@ namespace jnc {
 
 ///; static char regexMatchTypeSrc [] =
 
+/**
+	\ingroup rtl
+	\brief This struct holds the information about matched lexeme or sub-lexeme.
+*/
+
 struct RegexMatch
 {
 	//! Holds a pointer to the match (guaranteed to be null-terminated).
@@ -37,6 +42,7 @@ struct RegexMatch
 ///; static char regexStateTypeSrc [] =
 
 /**
+	\ingroup rtl
 	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``reswitch`` statement.
 
 	Jancy ``reswitch`` statements allow for convenient creation of lexers/scanners.
@@ -203,9 +209,9 @@ protected:
 		);
 }
 
-///;
-
 //..............................................................................
+
+///;
 
 ///---
 
