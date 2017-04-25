@@ -283,7 +283,7 @@ The ``event`` modifier limits access to the methods of the underlying ``multicas
 	foo (C* c)
 	{
 		c.m_onCompleted += onCompleted; // adding/remove handlers is ok
-		c.m_completeEvent (); // error: non-friends can't fire events
+		c.m_onCompleted (); // error: non-friends can't fire events
 	}
 
 Other Notable Features
