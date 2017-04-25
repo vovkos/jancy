@@ -149,6 +149,7 @@ protected:
 	// cast operators
 
 	Cast_Default m_cast_Default;
+	Cast_Void m_cast_Void;
 	Cast_Copy m_cast_Copy;
 	Cast_SwapByteOrder m_cast_SwapByteOrder;
 	Cast_PtrFromInt m_cast_PtrFromInt;

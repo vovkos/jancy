@@ -123,7 +123,6 @@ OperatorMgr::OperatorMgr ()
 	m_stdCastOperatorTable [StdCast_Fp] = &m_cast_Fp;
 	m_stdCastOperatorTable [StdCast_FromVariant] = &m_cast_FromVariant;
 
-
 	for (size_t i = 0; i < TypeKind__Count; i++)
 		m_castOperatorTable [i] = &m_cast_Default;
 
@@ -135,6 +134,7 @@ OperatorMgr::OperatorMgr ()
 	for (size_t i = TypeKind_Int16_be; i <= TypeKind_Int64_beu; i++)
 		m_castOperatorTable [i] = &m_cast_BeInt;
 
+	m_castOperatorTable [TypeKind_Void]        = &m_cast_Void;
 	m_castOperatorTable [TypeKind_Float]       = &m_cast_Fp;
 	m_castOperatorTable [TypeKind_Double]      = &m_cast_Fp;
 	m_castOperatorTable [TypeKind_Variant]     = &m_cast_Variant;
@@ -432,6 +432,9 @@ OperatorMgr::getConditionalOperatorResultType (
 	Type* trueType = trueValue.getType ();
 	Type* falseType = falseValue.getType ();
 
+	if (trueType->getTypeKind () == TypeKind_Void || falseType->getTypeKind () == TypeKind_Void)
+		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+
 	if (trueType->getTypeKind () == TypeKind_Array)
 		trueType = ((ArrayType*) trueType)->getElementType ()->getDataPtrType ();
 
@@ -515,22 +518,33 @@ OperatorMgr::conditionalOperator (
 	if (!resultType)
 		return false;
 
-	result = castOperator (rawFalseValue, resultType, &falseValue);
-	if (!result)
-		return false;
+	if (resultType->getTypeKind () != TypeKind_Void)
+	{
+		result = castOperator (rawFalseValue, resultType, &falseValue);
+		if (!result)
+			return false;
+	}
 
 	BasicBlock* elseBlock = m_module->m_controlFlowMgr.getCurrentBlock (); // might have changed
 
 	m_module->m_controlFlowMgr.jump (phiBlock, thenBlock);
 
-	result = castOperator (rawTrueValue, resultType, &trueValue);
-	if (!result)
-		return false;
+	if (resultType->getTypeKind () != TypeKind_Void)
+	{
+		result = castOperator (rawTrueValue, resultType, &trueValue);
+		if (!result)
+			return false;
+	}
 
 	thenBlock = m_module->m_controlFlowMgr.getCurrentBlock (); // might have changed
 
 	m_module->m_controlFlowMgr.follow (phiBlock);
-	m_module->m_llvmIrBuilder.createPhi (trueValue, thenBlock, falseValue, elseBlock, resultValue);
+
+	if (resultType->getTypeKind () != TypeKind_Void)
+		m_module->m_llvmIrBuilder.createPhi (trueValue, thenBlock, falseValue, elseBlock, resultValue);
+	else
+		resultValue->setVoid (m_module);
+
 	return true;
 }
 

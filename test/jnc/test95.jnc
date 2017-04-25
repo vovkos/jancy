@@ -1,0 +1,25 @@
+int foo ()
+{
+	print ("foo\n");
+	return 0;
+}
+
+bar ()
+{
+	print ("bar\n");
+}
+
+int main ()
+{
+	print ("I\u00b2C\n");
+
+	int i = 0;
+
+	i ? foo () : bar ();
+
+	i++;
+
+	i ? foo () : bar ();
+
+	return 0;
+}

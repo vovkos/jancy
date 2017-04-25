@@ -162,6 +162,47 @@ public:
 
 //..............................................................................
 
+// cast to void
+
+class Cast_Void: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind (
+		const Value& opValue,
+		Type* type
+		)
+	{
+		return opValue.getType ()->cmp (type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
+	}
+
+	virtual
+	bool
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
+		)
+	{
+		return true;
+	}
+
+	virtual
+	bool
+	llvmCast (
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		)
+	{
+		resultValue->setVoid (m_module);
+		return true;
+	}
+};
+
+//..............................................................................
+
 // simple copy
 
 class Cast_Copy: public CastOperator
