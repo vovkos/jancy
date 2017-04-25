@@ -432,9 +432,6 @@ OperatorMgr::getConditionalOperatorResultType (
 	Type* trueType = trueValue.getType ();
 	Type* falseType = falseValue.getType ();
 
-	if (trueType->getTypeKind () == TypeKind_Void || falseType->getTypeKind () == TypeKind_Void)
-		return m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
-
 	if (trueType->getTypeKind () == TypeKind_Array)
 		trueType = ((ArrayType*) trueType)->getElementType ()->getDataPtrType ();
 

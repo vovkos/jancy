@@ -1,16 +1,19 @@
-int foo ()
+foo ()
 {
 	print ("foo\n");
-	return 0;
 }
 
-bar ()
+int bar ()
 {
 	print ("bar\n");
+	return 0;
 }
 
 int main ()
 {
+	uint64_t x = 0x12345678abcdef0a;
+	print ($"$(x; 02llx)\n");
+
 	print ("I\u00b2C\n");
 
 	int i = 0;
