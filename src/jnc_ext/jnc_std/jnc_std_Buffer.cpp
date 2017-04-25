@@ -116,7 +116,7 @@ Buffer::insert (
 	if (offset < m_size)
 		memmove (p + offset + size, p + offset, m_size - offset);
 
-	memcpy (p, ptr.m_p, size);
+	memcpy (p + offset, ptr.m_p, size);
 	m_size = newSize;
 	return newSize;
 }

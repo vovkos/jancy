@@ -127,7 +127,7 @@ Array::insert (
 	if (index < m_count)
 		memmove (p + index + count, p + index, (m_count - index) * sizeof (Variant));
 
-	memcpy (p, ptr.m_p, count * sizeof (Variant));
+	memcpy (p + index, ptr.m_p, count * sizeof (Variant));
 	m_count = newCount;
 	return newCount;
 }
