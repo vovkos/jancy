@@ -105,23 +105,27 @@ CastOperator::cast (
 	Value* resultValue
 	)
 {
-	if (opValue.getValueKind () == ValueKind_Const) // try const-cast
-	{
-		char buffer [256];
-		sl::Array <char> constData (ref::BufKind_Stack, buffer, sizeof (buffer));
-		constData.setCount (type->getSize ());
+	if (opValue.getValueKind () != ValueKind_Const) 
+		return llvmCast (opValue, type, resultValue);
+		
+	char buffer [256];
+	sl::Array <char> constData (ref::BufKind_Stack, buffer, sizeof (buffer));
+	constData.setCount (type->getSize ());
 
-		bool result = constCast (opValue, type, constData);
-		if (result)
-		{
-			resultValue->createConst (constData, type);
-			return true;
-		}
+	bool result = constCast (opValue, type, constData);
+	if (result)
+	{
+		resultValue->createConst (constData, type);
+		return true;
 	}
 
-	// if const-cast is not available or fails, do full cast
+	// if const-cast is not available or fails, try full cast -- but only at compile-time!
 
-	return llvmCast (opValue, type, resultValue);
+	if (m_module->getCompileState () < ModuleCompileState_Compiled)
+		return llvmCast (opValue, type, resultValue);
+	
+	setCastError (opValue, type);
+	return false;
 }
 
 //..............................................................................
