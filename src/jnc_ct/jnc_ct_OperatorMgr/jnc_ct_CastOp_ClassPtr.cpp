@@ -72,6 +72,48 @@ Cast_ClassPtr::getCastKind (
 }
 
 bool
+Cast_ClassPtr::constCast (
+	const Value& opValue,
+	Type* type,
+	void* dst
+	)
+{
+	ASSERT (type->getTypeKind () == TypeKind_ClassPtr);
+
+	bool result;
+
+	if (opValue.getType ()->getTypeKind () != TypeKind_ClassPtr)
+		return false; // TODO: user conversions later via constructors
+
+	IfaceHdr* srcIface = *(IfaceHdr**) opValue.getConstData ();
+	ClassType* srcClassType = (ClassType*) srcIface->m_box->m_type;
+
+	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
+	ClassPtrType* dstType = (ClassPtrType*) type;
+	ClassType* dstClassType = dstType->getTargetType ();
+
+	if (dstType->getFlags () & PtrTypeFlag_Safe)
+		m_module->m_operatorMgr.checkNullPtr (opValue);
+
+	if (srcIface == NULL ||
+		dstClassType->getClassTypeKind () == ClassTypeKind_Abstract ||
+		isMulticastToMulticast (srcType, dstType) ||
+		srcClassType->cmp (dstClassType) == 0)
+	{
+		*(void**) dst = srcIface;
+		return true;
+	}
+
+	BaseTypeCoord coord;
+	result = srcClassType->findBaseTypeTraverse (dstClassType, &coord);
+	if (!result)
+		return false;
+		 
+	*(void**) dst = (char*) srcIface + coord.m_offset;
+	return true;
+}
+
+bool
 Cast_ClassPtr::llvmCast (
 	const Value& rawOpValue,
 	Type* type,

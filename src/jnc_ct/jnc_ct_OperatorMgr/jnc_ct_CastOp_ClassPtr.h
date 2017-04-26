@@ -30,6 +30,14 @@ public:
 
 	virtual
 	bool
+	constCast (
+		const Value& opValue,
+		Type* type,
+		void* dst
+		);
+
+	virtual
+	bool
 	llvmCast (
 		const Value& opValue,
 		Type* type,
