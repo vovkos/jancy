@@ -123,11 +123,22 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX AND NOT APPLE)
-	target_link_libraries (
-		jnc_io_usb
-		rt
-		)
+if (UNIX)
+	if (APPLE)
+		find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library (IOKIT_FRAMEWORK IOKit)
+
+		target_link_libraries (
+			jnc_io_usb
+			${CORE_FOUNDATION_FRAMEWORK}
+			${IOKIT_FRAMEWORK}
+			)
+	else ()
+		target_link_libraries (
+			jnc_io_usb
+			rt
+			)
+	endif ()
 endif ()
 
 if (WIN32)

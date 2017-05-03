@@ -260,6 +260,17 @@ if (LIBUSB_FOUND)
 			jnc_test_qt
 			usb-1.0
 			)
+
+		if (APPLE)
+			find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+			find_library (IOKIT_FRAMEWORK IOKit)
+
+			target_link_libraries (
+				jnc_test_qt
+				${CORE_FOUNDATION_FRAMEWORK}
+				${IOKIT_FRAMEWORK}
+				)
+		endif ()
 	endif ()
 endif ()
 
