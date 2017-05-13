@@ -10,7 +10,7 @@
 //..............................................................................
 
 declarator_list <TypeSpecifier* $typeSpecifier>
-	:	declarator <$typeSpecifier> 
+	:	declarator <$typeSpecifier>
 		declarator_list_terminator <$typeSpecifier, &$1.m_declarator>
 	;
 
@@ -23,6 +23,10 @@ declarator <TypeSpecifier* $typeSpecifier>
 	{
 		$.m_declarator.setTypeSpecifier ($typeSpecifier, m_module);
 	}
+	leave
+	{
+		postDeclarator (&$.m_declarator);
+	}
 	:	declarator_prefix <&$.m_declarator>*
 		declarator_name <&$.m_declarator>
 		declarator_suffix <&$.m_declarator>*
@@ -30,7 +34,7 @@ declarator <TypeSpecifier* $typeSpecifier>
 	;
 
 declarator_list_terminator <
-	TypeSpecifier* $typeSpecifier, 
+	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	resolver ('=' '{')
@@ -49,7 +53,7 @@ declarator_list_terminator <
 	;
 
 declarator_w_curly_initializer <
-	TypeSpecifier* $typeSpecifier, 
+	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	'=' curly_initializer_pass1
@@ -61,7 +65,7 @@ declarator_w_curly_initializer <
 	;
 
 declarator_wo_curly_initializer <
-	TypeSpecifier* $typeSpecifier, 
+	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	('=' expression_pass1
@@ -80,6 +84,10 @@ declarator_wo_curly_initializer <
 //..............................................................................
 
 declarator_name <Declarator* $declarator>
+	leave
+	{
+		postDeclaratorName ($declarator);
+	}
 	:	declarator_qualifier <$declarator>
 			{
 				$declarator->m_pos = $1.m_firstToken.m_pos;

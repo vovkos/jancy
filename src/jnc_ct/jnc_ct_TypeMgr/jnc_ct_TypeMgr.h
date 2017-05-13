@@ -834,7 +834,8 @@ public:
 	NamedImportType*
 	getNamedImportType (
 		const QualifiedName& name,
-		Namespace* anchorNamespace
+		Namespace* anchorNamespace,
+		const QualifiedName& anchorName = QualifiedName ()
 		);
 
 	ImportPtrType*

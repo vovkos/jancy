@@ -103,15 +103,18 @@ class NamedImportType:
 	friend class TypeMgr;
 
 protected:
-	Namespace* m_anchorNamespace;
 	QualifiedName m_name;
+	Namespace* m_anchorNamespace;
+	QualifiedName m_anchorName;
 	sl::String m_qualifiedName;
 
 public:
-	NamedImportType ()
+	NamedImportType ();
+
+	const QualifiedName&
+	getName ()
 	{
-		m_typeKind = TypeKind_NamedImport;
-		m_anchorNamespace = NULL;
+		return m_name;
 	}
 
 	Namespace*
@@ -121,10 +124,13 @@ public:
 	}
 
 	const QualifiedName&
-	getName ()
+	getAnchorName ()
 	{
-		return m_name;
+		return m_anchorName;
 	}
+
+	NamedImportType*
+	setAnchorName (const QualifiedName& name);
 
 	const sl::String&
 	getQualifiedName ()
@@ -142,11 +148,9 @@ public:
 	sl::String
 	createSignature (
 		const QualifiedName& name,
-		Namespace* anchorNamespace
-		)
-	{
-		return sl::formatString ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
-	}
+		Namespace* anchorNamespace,
+		const QualifiedName& orphanName
+		);
 
 protected:
 	virtual

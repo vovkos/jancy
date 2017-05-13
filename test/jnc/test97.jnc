@@ -1,0 +1,35 @@
+class C
+{
+	struct S1
+	{
+	};
+
+	struct S2
+	{
+	};
+
+	S1 foo ();
+	bar (S1 a);
+	S1 baz (S1 a, S2 b);
+}
+
+C.bar (S1 a)
+{
+}
+
+S1 C.foo ()
+{
+	S1 s;
+	return s;
+}
+
+S1 C.baz (S1 a, S2 b)
+{
+	S1 s;
+	return s;
+}
+
+int main ()
+{
+	return 0;
+}

@@ -115,6 +115,7 @@ Members
 
 	ModuleItem* m_lastDeclaredItem;
 	sl::Array <TypeSpecifier*> m_typeSpecifierStack;
+	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
 
 	FunctionType* m_lastPropertyGetterType;
 	uint_t m_lastPropertyTypeModifiers;
@@ -201,6 +202,12 @@ Members2
 
 	bool
 	setAccessKind (AccessKind accessKind);
+
+	void
+	postDeclaratorName (Declarator* declarator);
+
+	void
+	postDeclarator (Declarator* declarator);
 
 	void
 	pushTypeSpecifier (TypeSpecifier* typeSpecifier)

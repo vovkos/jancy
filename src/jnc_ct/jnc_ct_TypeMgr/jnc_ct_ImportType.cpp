@@ -31,6 +31,12 @@ ImportType::applyFixups ()
 
 //..............................................................................
 
+NamedImportType::NamedImportType ()
+{
+	m_typeKind = TypeKind_NamedImport;
+	m_anchorNamespace = NULL;
+}
+
 ImportPtrType*
 NamedImportType::getImportPtrType (
 	uint_t typeModifiers,
@@ -38,6 +44,43 @@ NamedImportType::getImportPtrType (
 	)
 {
 	return m_module->m_typeMgr.getImportPtrType (this, typeModifiers, flags);
+}
+
+sl::String
+NamedImportType::createSignature (
+	const QualifiedName& name,
+	Namespace* anchorNamespace,
+	const QualifiedName& orphanName
+	)
+{
+	sl::String signature = sl::formatString ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
+
+	if (!orphanName.isEmpty ())
+	{
+		signature += '-';
+		signature += orphanName.getFullName ();
+	}
+
+	return signature;
+}
+
+NamedImportType*
+NamedImportType::setAnchorName (const QualifiedName& name)
+{
+	if (!m_fixupArray.isEmpty ())
+		return m_module->m_typeMgr.getNamedImportType (m_name, m_anchorNamespace, name);
+
+	ASSERT (m_anchorName.isEmpty ());
+	m_anchorName = name;
+	m_typeStringTuple = NULL;
+
+	m_qualifiedName = m_anchorNamespace->createQualifiedName (name);
+	m_qualifiedName += '.';
+	m_qualifiedName += m_name.getFullName ();
+
+	sl::String signature = createSignature (m_name, m_anchorNamespace, m_anchorName);
+	m_module->m_typeMgr.updateTypeSignature (this, signature);
+	return this;
 }
 
 //..............................................................................

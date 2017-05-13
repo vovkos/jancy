@@ -319,7 +319,14 @@ TypeMgr::resolveImportTypes ()
 		for (size_t i = 0; i < count; i++)
 		{
 			NamedImportType* importType = unresolvedNamedImportTypeArray [i];
-			ModuleItem* item = importType->m_anchorNamespace->findItemTraverse (importType->m_name);
+			Namespace* anchorNamespace = importType->m_anchorNamespace;
+			if (!importType->m_anchorName.isEmpty ())
+			{
+				ModuleItem* item = anchorNamespace->findItemTraverse (importType->m_anchorName);
+				anchorNamespace = item ? item->getNamespace () : NULL;
+			}
+
+			ModuleItem* item = anchorNamespace ? anchorNamespace->findItemTraverse (importType->m_name) : NULL;
 			if (!item)
 			{
 				err::setFormatStringError ("unresolved import '%s'", importType->getTypeString ().sz ());
@@ -1970,12 +1977,13 @@ TypeMgr::getPropertyVTableStructType (PropertyType* propertyType)
 NamedImportType*
 TypeMgr::getNamedImportType (
 	const QualifiedName& name,
-	Namespace* anchorNamespace
+	Namespace* anchorNamespace,
+	const QualifiedName& anchorName
 	)
 {
 	ASSERT (anchorNamespace->getNamespaceKind () != NamespaceKind_Scope);
 
-	sl::String signature = NamedImportType::createSignature (name, anchorNamespace);
+	sl::String signature = NamedImportType::createSignature (name, anchorNamespace, anchorName);
 
 	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
 	if (it->m_value)
@@ -1990,9 +1998,20 @@ TypeMgr::getNamedImportType (
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->m_name = name;
-	type->m_qualifiedName = anchorNamespace->createQualifiedName (name);
 	type->m_anchorNamespace = anchorNamespace;
+	type->m_anchorName = anchorName;
 	type->m_module = m_module;
+
+	if (anchorName.isEmpty ())
+	{
+		type->m_qualifiedName = anchorNamespace->createQualifiedName (name);
+	}
+	else
+	{
+		type->m_qualifiedName = anchorNamespace->createQualifiedName (anchorName);
+		type->m_qualifiedName += '.';
+		type->m_qualifiedName += name.getFullName ();
+	}
 
 	m_namedImportTypeList.insertTail (type);
 	m_unresolvedNamedImportTypeArray.append (type);
@@ -2116,7 +2135,7 @@ TypeMgr::foldDualType (
 		foldedType = type->calcFoldedDualType (isAlien, isContainerConst);
 		tuple->m_typeArray [isAlien] [isContainerConst] = foldedType;
 	}
-	
+
 	return foldedType;
 }
 

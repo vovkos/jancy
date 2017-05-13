@@ -45,6 +45,7 @@ Parser::Parser (Module* module):
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
+	m_topDeclarator = NULL;
 }
 
 bool
@@ -379,6 +380,34 @@ Parser::setAccessKind (AccessKind accessKind)
 
 	m_accessKind = accessKind;
 	return true;
+}
+
+void
+Parser::postDeclaratorName (Declarator* declarator)
+{
+	if (!m_topDeclarator)
+		m_topDeclarator = declarator;
+
+	if (!m_topDeclarator->isQualified () || declarator->m_baseType->getTypeKind () != TypeKind_NamedImport)
+		return;
+
+	// need to re-anchor import
+
+	QualifiedName anchorName = m_topDeclarator->m_name;
+	if (m_topDeclarator->getDeclaratorKind () == DeclaratorKind_Name)
+		anchorName.removeLastName ();
+
+	ASSERT (!anchorName.isEmpty ());
+	declarator->m_baseType = ((NamedImportType*) declarator->m_baseType)->setAnchorName (anchorName);
+}
+
+void
+Parser::postDeclarator (Declarator* declarator)
+{
+	ASSERT (m_topDeclarator);
+
+	if (declarator == m_topDeclarator)
+		m_topDeclarator = NULL;
 }
 
 GlobalNamespace*
