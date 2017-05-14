@@ -177,7 +177,7 @@ CdeclCallConv_msc64::ret (
 
 	if (returnType->getSize () > sizeof (uint64_t))
 	{
-		Value returnPtrValue ((llvm::Argument*) function->getLlvmFunction ()->arg_begin());
+		Value returnPtrValue (&*function->getLlvmFunction ()->arg_begin());
 
 		m_module->m_llvmIrBuilder.createStore (value, returnPtrValue);
 		m_module->m_llvmIrBuilder.createRet (returnPtrValue);
@@ -208,7 +208,7 @@ CdeclCallConv_msc64::getThisArgValue (Function* function)
 		returnType->getSize () > sizeof (uint64_t))
 		llvmArg++;
 
-	return getArgValue ((llvm::Argument*) llvmArg, functionType, 0);
+	return getArgValue (&*llvmArg, functionType, 0);
 }
 
 Value
@@ -267,7 +267,7 @@ CdeclCallConv_msc64::createArgVariables (Function* function)
 			continue;
 
 		Type* type = arg->getType ();
-		llvm::Value* llvmArgValue = (llvm::Argument*) llvmArg;
+		llvm::Value* llvmArgValue = &*llvmArg;
 
 		if (!(type->getFlags () & TypeFlag_StructRet))
 		{

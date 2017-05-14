@@ -639,7 +639,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) entryBlock->getLlvmBlock ()->begin ());
+	m_module->m_llvmIrBuilder.setInsertPoint (&*entryBlock->getLlvmBlock ()->begin ());
 
 	// create sjlj frame array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
 
@@ -681,7 +681,7 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 		BasicBlock* block = m_landingPadBlockArray [i];
 		ASSERT (block->m_landingPadScope && !block->m_llvmBlock->empty ());
 
-		m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) block->m_llvmBlock->begin ());
+		m_module->m_llvmIrBuilder.setInsertPoint (&*block->m_llvmBlock->begin ());
 		setSjljFrame (block->m_landingPadScope->m_sjljFrameIdx);
 
 		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr will not do it for us

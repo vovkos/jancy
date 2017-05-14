@@ -38,8 +38,15 @@ LlvmDiBuilder::create ()
 
 	m_llvmDiBuilder->createCompileUnit (
 		llvm::dwarf::DW_LANG_C99,
+#if (LLVM_VERSION < 0x0400)
 		m_module->getName ().sz (),
 		io::getCurrentDir ().sz (),
+#else
+		m_llvmDiBuilder->createFile (
+			m_module->getName ().sz (),
+			io::getCurrentDir ().sz ()
+			),
+#endif
 		"jnc-1.0.0",
 		false, "", 1
 		);
@@ -114,7 +121,7 @@ LlvmDiBuilder::createEmptyStructType (StructType* structType)
 		structType->getPos ()->m_line + 1,
 		structType->getSize () * 8,
 		structType->getAlignment () * 8,
-		0,
+		(llvm::DIFlags) 0,
 #if (LLVM_VERSION < 0x0307)
 		llvm::DIType (),     // derived from
 #else
@@ -157,7 +164,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			baseType->getType ()->getSize () * 8,
 			baseType->getType ()->getAlignment () * 8,
 			baseType->getOffset () * 8,
-			0,
+			(llvm::DIFlags) 0,
 			baseType->getType ()->getLlvmDiType ()
 			);
 	}
@@ -175,7 +182,7 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 			field->getType ()->getSize () * 8,
 			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
-			0,
+			(llvm::DIFlags) 0,
 			field->getType ()->getLlvmDiType ()
 			);
 	}
@@ -210,7 +217,7 @@ LlvmDiBuilder::createEmptyUnionType (UnionType* unionType)
 		unionType->getPos ()->m_line + 1,
 		unionType->getSize () * 8,
 		unionType->getAlignment () * 8,
-		0,
+		(llvm::DIFlags) 0,
 		llvm::DINodeArray () // elements -- set body later
 		);
 }
@@ -241,7 +248,7 @@ LlvmDiBuilder::setUnionTypeBody (UnionType* unionType)
 			field->getType ()->getSize () * 8,
 			field->getType ()->getAlignment () * 8,
 			field->getOffset () * 8,
-			0,
+			(llvm::DIFlags) 0,
 			field->getType ()->getLlvmDiType ()
 			);
 	}
@@ -306,6 +313,8 @@ LlvmDiBuilder::createPointerType (Type* type)
 		);
 }
 
+#if (LLVM_VERSION < 0x0400)
+
 llvm::DIGlobalVariable_vn
 LlvmDiBuilder::createGlobalVariable (Variable* variable)
 {
@@ -332,6 +341,8 @@ LlvmDiBuilder::createGlobalVariable (Variable* variable)
 		llvmGlobalVariable
 		);
 }
+
+#endif
 
 llvm::DIVariable_vn
 LlvmDiBuilder::createParameterVariable (
@@ -363,7 +374,7 @@ LlvmDiBuilder::createParameterVariable (
 		variable->getPos ()->m_line + 1,
 		variable->getType ()->getLlvmDiType (),
 		true, // bool AlwaysPreserve
-		0     // unsigned Flags
+		(llvm::DIFlags) 0
 		);
 #endif
 }
@@ -453,7 +464,7 @@ LlvmDiBuilder::createFunction (Function* function)
 		false,
 		true,
 		scopePos.m_line + 1,
-		0,     // llvm::DIDescriptor::FlagPrototyped,
+		(llvm::DIFlags) 0,     // llvm::DIDescriptor::FlagPrototyped,
 		false,
 		NULL,  // DITemplateParameterArray TParams
 		NULL   // DISubprogram *Decl

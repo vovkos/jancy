@@ -152,6 +152,17 @@ typedef DIFile* DIFile_vn;
 
 #endif
 
+
+#if (LLVM_VERSION < 0x0400)
+
+typedef unsigned DIFlags;
+
+#else
+
+typedef llvm::DINode::DIFlags DIFlags;
+
+#endif
+
 } // namespace llvm
 
 //..............................................................................

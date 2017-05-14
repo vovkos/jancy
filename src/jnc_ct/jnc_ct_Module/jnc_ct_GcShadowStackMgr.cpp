@@ -201,7 +201,7 @@ GcShadowStackMgr::finalizeFrame ()
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) entryBlock->getLlvmBlock ()->begin ());
+	m_module->m_llvmIrBuilder.setInsertPoint (&*entryBlock->getLlvmBlock ()->begin ());
 
 	// create gc root array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
 
@@ -276,7 +276,7 @@ GcShadowStackMgr::finalizeFrame ()
 		Scope* scope = block->getLandingPadScope ();
 		ASSERT (scope && !block->getLlvmBlock ()->empty ());
 
-		m_module->m_llvmIrBuilder.setInsertPoint ((llvm::Instruction*) block->getLlvmBlock ()->begin ());
+		m_module->m_llvmIrBuilder.setInsertPoint (&*block->getLlvmBlock ()->begin ());
 
 		// on exception landing pads we must restore frame pointer
 

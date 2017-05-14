@@ -294,7 +294,7 @@ ReactorClassType::compileStartMethod ()
 	for (; i < argCount; i++, llvmArgIt++, argFieldIt++)
 	{
 		FunctionArg* arg = argArray [i];
-		llvm::Value* llvmArg = (llvm::Argument*) llvmArgIt;
+		llvm::Value* llvmArg = &*llvmArgIt;
 		StructField* argField = *argFieldIt;
 
 		if (!arg->isNamed ())

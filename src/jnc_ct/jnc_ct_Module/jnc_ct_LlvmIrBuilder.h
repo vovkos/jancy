@@ -88,7 +88,7 @@ public:
 	llvm::Instruction*
 	getInsertPoint ()
 	{
-		return (llvm::Instruction*) m_llvmIrBuilder->GetInsertPoint ();
+		return &*m_llvmIrBuilder->GetInsertPoint ();
 	}
 
 	void
