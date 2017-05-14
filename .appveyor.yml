@@ -82,4 +82,4 @@ build_script:
     - cmake --build . %CMAKE_BUILD_FLAGS%
 
 test_script:
-    - ctest -C %CONFIGURATION%
+    - ctest -C %CONFIGURATION% --output-on-failure
