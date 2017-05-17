@@ -184,7 +184,7 @@ CdeclCallConv_msc64::ret (
 	}
 	else
 	{
-		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64)->getDataPtrType_c ();
+		Type* type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
 
 		Value tmpValue, tmpValue2;
 		m_module->m_llvmIrBuilder.createAlloca (type, "tmpRetVal", NULL, &tmpValue);
