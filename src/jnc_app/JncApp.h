@@ -21,6 +21,7 @@ protected:
 	CmdLine* m_cmdLine;
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;
+	sl::Array <char> m_stdInBuffer;
 
 public:
 	JncApp (CmdLine* cmdLine);

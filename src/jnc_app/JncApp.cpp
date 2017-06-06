@@ -94,8 +94,6 @@ JncApp::parse ()
 #if (_JNC_OS_WIN)
 		int stdInFile = _fileno (stdin);
 #endif
-		sl::Array <char> stdInBuffer;
-
 		for (;;)
 		{
 			char buffer [1024];
@@ -107,14 +105,14 @@ JncApp::parse ()
 			if (size <= 0)
 				break;
 
-			stdInBuffer.append (buffer, size);
+			m_stdInBuffer.append (buffer, size);
 		}
 
 		const char* srcName = !m_cmdLine->m_srcNameOverride.isEmpty () ?
 			m_cmdLine->m_srcNameOverride.sz () :
 			"stdin";
 
-		result = m_module->parse (srcName, stdInBuffer, stdInBuffer.getCount ());
+		result = m_module->parse (srcName, m_stdInBuffer, m_stdInBuffer.getCount ());
 		if (!result)
 			return false;
 	}
