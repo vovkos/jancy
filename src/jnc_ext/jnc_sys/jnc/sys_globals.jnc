@@ -17,6 +17,18 @@ namespace sys {
 
 //..............................................................................
 
+/**
+	\ingroup sys
+
+	Provides access to the system environment variable table.
+
+	Reading from this property results in a call to ``getenv`` standard C library function.
+
+	Writing to this property translates to ``setenv`` on Linux/Mac and ``_putenv`` on Windows.
+*/
+
+char const* property g_env (char const* name);
+
 //! \addtogroup thread
 //! @{
 

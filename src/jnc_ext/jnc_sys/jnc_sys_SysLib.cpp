@@ -35,6 +35,36 @@ getCurrentThreadId ()
 	return (intptr_t) axl::sys::getCurrentThreadId ();
 }
 
+DataPtr
+getEnv (DataPtr namePtr)
+{
+	if (!namePtr.m_p)
+		return g_nullPtr;
+
+	const char* value = getenv ((const char*) namePtr.m_p);
+	return strDup (value);
+}
+
+void
+setEnv (
+	DataPtr namePtr,
+	DataPtr valuePtr
+	)
+{
+#if (_WIN)
+	char buffer [256];
+	sl::String envString (ref::BufKind_Stack, buffer, sizeof (buffer));
+	envString.format ("%s=%s", namePtr.m_p, valuePtr.m_p ? valuePtr.m_p : "");
+	_putenv (envString);
+#else
+	setenv (
+		(const char*) namePtr.m_p,
+		(const char*) valuePtr.m_p,
+		true
+		);
+#endif
+}
+
 uint64_t
 getTimestamp ()
 {
@@ -132,6 +162,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.collectGarbage",     collectGarbage)
 	JNC_MAP_FUNCTION ("sys.getGcStats",         getGcStats)
 	JNC_MAP_PROPERTY ("sys.g_gcTriggers",       getGcTriggers, setGcTriggers)
+	JNC_MAP_PROPERTY ("sys.g_env",              getEnv, setEnv)
 
 	JNC_MAP_TYPE (Lock)
 	JNC_MAP_TYPE (Event)
