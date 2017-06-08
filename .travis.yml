@@ -35,13 +35,8 @@ env:
         - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
         - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
 
-        - BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-
 matrix:
     exclude:
-        - os:  linux
-          env: BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-
         - os:       osx
           compiler: gcc
 
@@ -57,6 +52,13 @@ matrix:
         - os:  osx
           env: LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
+    include:
+        - os:  osx
+          env: BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+
+        - os:  linux
+          env: DEPLOY_JANCY_ORG=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+
 before_install:
     - source ci/travis/install-$TRAVIS_OS_NAME.sh
     - source ci/travis/download-llvm.sh
@@ -69,11 +71,19 @@ script:
     - source ci/travis/build.sh
 
 deploy:
-    provider:      pages
-    skip_cleanup:  true
-    local_dir:     doc/html
-    github_token:  $GITHUB_TOKEN
+    -   provider:      pages
+        skip_cleanup:  true
+        local_dir:     doc/html
+        github_token:  $GITHUB_TOKEN
 
-    on:
-        branch:    master
-        condition: $BUILD_DOC == ON
+        on:
+            branch:    master
+            condition: $BUILD_DOC == ON
+
+    -   provider:      script
+        skip_cleanup:  true
+        script:        bash $THIS_DIR/ci/travis/deploy-jancy-org.sh
+
+        on:
+            branch:    master
+            condition: $DEPLOY_JANCY_ORG == ON
