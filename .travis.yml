@@ -70,6 +70,16 @@ before_install:
 script:
     - source ci/travis/build.sh
 
+notifications:
+    webhooks:
+        on_success: always
+        on_failure: never
+        on_error:   never
+        on_cancel:  never
+
+        urls:
+            - http://jancy.org:5005/travis-ci
+
 deploy:
     -   provider:      pages
         skip_cleanup:  true
