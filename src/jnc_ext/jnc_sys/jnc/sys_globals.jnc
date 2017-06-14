@@ -18,7 +18,7 @@ namespace sys {
 //..............................................................................
 
 /**
-	\ingroup sys
+	\ingroup syslib
 
 	Provides access to the system environment variable table.
 
