@@ -681,7 +681,8 @@ StructType*
 TypeMgr::createStructType (
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	StructType* type = AXL_MEM_NEW (StructType);
@@ -707,6 +708,8 @@ TypeMgr::createStructType (
 
 	type->m_module = m_module;
 	type->m_fieldAlignment = fieldAlignment;
+	type->m_flags |= flags;
+
 	m_structTypeList.insertTail (type);
 	m_module->markForLayout (type, true);
 	return type;
@@ -750,6 +753,7 @@ TypeMgr::createUnionType (
 
 	type->m_module = m_module;
 	type->m_structType = unionStructType;
+
 	m_unionTypeList.insertTail (type);
 	return type;
 }

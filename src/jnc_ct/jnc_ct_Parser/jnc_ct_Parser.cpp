@@ -1909,7 +1909,8 @@ StructType*
 Parser::createStructType (
 	const sl::StringRef& name,
 	sl::BoxList <Type*>* baseTypeList,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	bool result;
@@ -1919,12 +1920,12 @@ Parser::createStructType (
 
 	if (name.isEmpty ())
 	{
-		structType = m_module->m_typeMgr.createUnnamedStructType (fieldAlignment);
+		structType = m_module->m_typeMgr.createUnnamedStructType (fieldAlignment, flags);
 	}
 	else
 	{
 		sl::String qualifiedName = nspace->createQualifiedName (name);
-		structType = m_module->m_typeMgr.createStructType (name, qualifiedName, fieldAlignment);
+		structType = m_module->m_typeMgr.createStructType (name, qualifiedName, fieldAlignment, flags);
 		if (!structType)
 			return NULL;
 	}

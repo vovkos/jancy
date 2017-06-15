@@ -64,8 +64,8 @@ enum jnc_ClassTypeFlag
 {
 	jnc_ClassTypeFlag_HasAbstractMethods = 0x010000,
 	jnc_ClassTypeFlag_Closure            = 0x020000,
-	jnc_ClassTypeFlag_Opaque             = 0x100000,
-	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x200000,
+	jnc_ClassTypeFlag_Opaque             = 0x040000,
+	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x080000,
 };
 
 typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;

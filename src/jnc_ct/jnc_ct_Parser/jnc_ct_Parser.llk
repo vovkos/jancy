@@ -377,7 +377,8 @@ Members2
 	createStructType (
 		const sl::StringRef& name,
 		sl::BoxList <Type*>* baseTypeList,
-		size_t fieldAlignment
+		size_t fieldAlignment,
+		uint_t flags
 		);
 
 	UnionType*
