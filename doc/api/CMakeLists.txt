@@ -40,6 +40,8 @@ set (
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
 	-D g_hasNewLineAfterReturnType
+	-D g_excludeEmptyDefines
+	-D g_excludeDefinePattern=__STDC_
 	-D g_nameDelimiter=::
 	-D g_introFile=intro.rst
 	-o ${RST_DIR}/index.rst
