@@ -738,6 +738,17 @@ DerivableType::generateDocumentation (
 		m_name.sz ()
 		);
 
+	sl::Iterator <BaseTypeSlot> it = m_baseTypeList.getHead ();
+	for (; it; it++)
+	{
+		DerivableType* baseType = it->getType ();
+		itemXml->appendFormat (
+			"<basecompoundref refid='%s'>%s</basecompoundref>\n",
+			baseType->getDoxyBlock ()->getRefId ().sz (),
+			baseType->getQualifiedName ().sz ()
+			);
+	}
+
 	if (!constructorXml.isEmpty () || !destructorXml.isEmpty ())
 	{
 		itemXml->append ("<sectiondef>\n");
