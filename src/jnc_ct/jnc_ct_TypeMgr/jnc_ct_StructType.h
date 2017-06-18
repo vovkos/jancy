@@ -115,6 +115,7 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
+	sl::Array <StructField*> m_dynamicArrayFieldArray;
 	sl::Array <llvm::Type*> m_llvmFieldTypeArray;
 	BitFieldType* m_lastBitFieldType;
 	size_t m_lastBitFieldOffset;

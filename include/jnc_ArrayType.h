@@ -43,7 +43,8 @@
 
 enum jnc_ArrayTypeFlag
 {
-	jnc_ArrayTypeFlag_AutoSize = 0x010000,
+	jnc_ArrayTypeFlag_AutoSize    = 0x010000,
+	jnc_ArrayTypeFlag_DynamicSize = 0x020000, // in a dynamic struct
 };
 
 typedef enum jnc_ArrayTypeFlag jnc_ArrayTypeFlag;
@@ -123,7 +124,8 @@ namespace jnc {
 typedef jnc_ArrayTypeFlag ArrayTypeFlag;
 
 const ArrayTypeFlag
-	ArrayTypeFlag_AutoSize = jnc_ArrayTypeFlag_AutoSize;
+	ArrayTypeFlag_AutoSize    = jnc_ArrayTypeFlag_AutoSize,
+	ArrayTypeFlag_DynamicSize = jnc_ArrayTypeFlag_DynamicSize;
 
 //..............................................................................
 

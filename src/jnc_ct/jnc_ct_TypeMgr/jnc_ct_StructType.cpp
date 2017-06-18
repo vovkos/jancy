@@ -226,9 +226,21 @@ StructType::calcLayout ()
 	{
 		StructField* field = m_memberFieldArray [i];
 
-		result = field->m_type->ensureLayout ();
-		if (!result)
-			return false;
+		if (!(m_flags & StructTypeFlag_Dynamic) || field->m_type->getTypeKind () != TypeKind_Array)
+		{
+			result = field->m_type->ensureLayout ();
+			if (!result)
+				return false;
+		}
+		else
+		{
+			result = ((ArrayType*) field->m_type)->ensureDynamicLayout (this);
+			if (!result)
+				return false;
+
+			if (field->m_type->getFlags () & ArrayTypeFlag_DynamicSize)
+				m_dynamicArrayFieldArray.append (field);
+		}
 
 		if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
 		{
@@ -252,6 +264,12 @@ StructType::calcLayout ()
 
 		if (!result)
 			return false;
+	}
+
+	if ((m_flags & StructTypeFlag_Dynamic) && m_dynamicArrayFieldArray.isEmpty ())
+	{
+		err::setFormatStringError ("dynamic struct '%s' has no dynamic array fields", m_qualifiedName.sz ());
+		return false;
 	}
 
 	if (m_fieldAlignedSize > m_fieldActualSize)

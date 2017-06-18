@@ -26,6 +26,7 @@ ArrayType::ArrayType ()
 	m_elementType = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
+	m_getDynamicElementCountFunction = NULL;
 	m_parentUnit = NULL;
 	m_parentNamespace = NULL;
 }
@@ -79,7 +80,23 @@ ArrayType::createDimensionString ()
 }
 
 bool
-ArrayType::calcLayout ()
+ArrayType::ensureDynamicLayout (StructType* dynamicStruct)
+{
+	bool result;
+
+	if (m_flags & ModuleItemFlag_LayoutReady)
+		return true;
+
+	result = calcLayoutImpl (dynamicStruct);
+	if (!result)
+		return false;
+
+	m_flags |= ModuleItemFlag_LayoutReady;
+	return true;
+}
+
+bool
+ArrayType::calcLayoutImpl (StructType* dynamicStruct)
 {
 	bool result = m_elementType->ensureLayout ();
 	if (!result)
@@ -117,7 +134,12 @@ ArrayType::calcLayout ()
 			);
 
 		if (!result)
+		{
+			if (dynamicStruct) // try a non-const expression
+				return calcDynamicLayout (dynamicStruct);
+
 			return false;
+		}
 
 		if (value <= 0)
 		{
@@ -154,6 +176,33 @@ ArrayType::calcLayout ()
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;
 
+	return true;
+}
+
+bool
+ArrayType::calcDynamicLayout (StructType* dynamicStruct)
+{
+	bool result;
+
+	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
+	m_getDynamicElementCountFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
+	m_getDynamicElementCountFunction->m_storageKind = StorageKind_Member;
+	m_getDynamicElementCountFunction->m_tag.format ("%s.dynamic countof", dynamicStruct->m_tag.sz ());
+
+	result = dynamicStruct->addMethod (m_getDynamicElementCountFunction);
+	if (!result)
+		return false;
+
+	Token token;
+	token.m_token = TokenKind_Return;
+	token.m_pos = m_elementCountInitializer.getHead ()->m_pos;
+	m_elementCountInitializer.insertHead (token);
+
+	m_getDynamicElementCountFunction->setBody (&m_elementCountInitializer);
+	m_module->markForCompile (m_getDynamicElementCountFunction);
+
+	m_flags |= ArrayTypeFlag_DynamicSize;
+	m_size = 0;
 	return true;
 }
 

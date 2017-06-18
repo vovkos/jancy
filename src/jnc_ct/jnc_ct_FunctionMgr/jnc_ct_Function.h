@@ -114,6 +114,7 @@ class Function:
 	friend class NamedTypeBlock;
 	friend class DerivableType;
 	friend class ClassType;
+	friend class ArrayType;
 	friend class ReactorClassType;
 	friend class Property;
 	friend class Orphan;
