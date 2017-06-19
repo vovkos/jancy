@@ -188,10 +188,7 @@ ArrayType::calcDynamicLayout (StructType* dynamicStruct)
 	m_getDynamicElementCountFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
 	m_getDynamicElementCountFunction->m_storageKind = StorageKind_Member;
 	m_getDynamicElementCountFunction->m_tag.format ("%s.dynamic countof", dynamicStruct->m_tag.sz ());
-
-	result = dynamicStruct->addMethod (m_getDynamicElementCountFunction);
-	if (!result)
-		return false;
+	m_getDynamicElementCountFunction->convertToMemberMethod (dynamicStruct);
 
 	Token token;
 	token.m_token = TokenKind_Return;
