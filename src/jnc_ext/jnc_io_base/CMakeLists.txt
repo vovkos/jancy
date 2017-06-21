@@ -230,7 +230,7 @@ set_target_properties (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	FILES ${BIN_DIR}/io_base.jncx
+	FILES ${JANCY_BIN_BASE_DIR}/$<CONFIGURATION>/io_base.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 

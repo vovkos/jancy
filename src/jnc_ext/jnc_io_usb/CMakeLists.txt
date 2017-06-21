@@ -184,7 +184,7 @@ set_target_properties (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	FILES ${BIN_DIR}/io_usb.jncx
+	FILES ${JANCY_BIN_BASE_DIR}/$<CONFIGURATION>/io_usb.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 
