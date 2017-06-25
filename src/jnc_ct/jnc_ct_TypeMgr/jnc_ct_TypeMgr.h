@@ -404,15 +404,17 @@ public:
 	createUnionType (
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
 		);
 
 	UnionType*
 	createUnnamedUnionType (
-		size_t fieldAlignment = 8
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
 		)
 	{
-		return createUnionType (sl::String (), sl::String (), fieldAlignment);
+		return createUnionType (sl::String (), sl::String (), fieldAlignment, flags);
 	}
 
 	ClassType*

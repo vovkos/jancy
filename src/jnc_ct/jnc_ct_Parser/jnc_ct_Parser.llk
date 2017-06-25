@@ -384,7 +384,8 @@ Members2
 	UnionType*
 	createUnionType (
 		const sl::StringRef& name,
-		size_t fieldAlignment
+		size_t fieldAlignment,
+		uint_t flags
 		);
 
 	ClassType*

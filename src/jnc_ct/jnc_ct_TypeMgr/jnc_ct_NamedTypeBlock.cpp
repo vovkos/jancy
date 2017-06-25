@@ -201,7 +201,7 @@ NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
 		sl::BoxList <Value> argList;
 		argList.insertTail (fieldValue);
 
-		if (!(type->getFlags () & TypeFlag_Child))
+		if (type->getTypeKind () != TypeKind_Class || !(type->getFlags () & ClassTypeFlag_Child))
 		{
 			constructor = type->getDefaultConstructor ();
 			if (!constructor)

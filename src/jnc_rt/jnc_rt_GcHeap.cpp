@@ -785,7 +785,7 @@ GcHeap::markData (Box* box)
 
 	box->m_flags |= BoxFlag_DataMark;
 
-	if (!(box->m_type->getFlags () & ct::TypeFlag_GcRoot))
+	if (!(box->m_type->getFlags () & TypeFlag_GcRoot))
 		return;
 
 	ASSERT (!(box->m_flags & BoxFlag_StaticData));
@@ -815,7 +815,7 @@ GcHeap::markClass (Box* box)
 
 	box->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark;
 
-	if (box->m_type->getFlags () & ct::TypeFlag_GcRoot)
+	if (box->m_type->getFlags () & TypeFlag_GcRoot)
 		addRoot (box, box->m_type);
 }
 
@@ -890,7 +890,7 @@ GcHeap::addRoot (
 {
 	ASSERT (m_state == State_Mark && p);
 
-	if (type->getFlags () & ct::TypeFlag_GcRoot)
+	if (type->getFlags () & TypeFlag_GcRoot)
 	{
 		Root root = { p, type };
 		m_markRootArray [m_currentMarkRootArrayIdx].append (root);
@@ -928,7 +928,7 @@ GcHeap::addRootArray (
 	size_t count
 	)
 {
-	ASSERT (type->getTypeKind () != TypeKind_Class && (type->getFlags () & ct::TypeFlag_GcRoot));
+	ASSERT (type->getTypeKind () != TypeKind_Class && (type->getFlags () & TypeFlag_GcRoot));
 
 	sl::Array <Root>* markRootArray = &m_markRootArray [m_currentMarkRootArrayIdx];
 	size_t baseCount = markRootArray->getCount ();
@@ -1079,7 +1079,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	count = m_staticRootArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		ASSERT (m_staticRootArray [i].m_type->getFlags () & ct::TypeFlag_GcRoot);
+		ASSERT (m_staticRootArray [i].m_type->getFlags () & TypeFlag_GcRoot);
 		addRoot (
 			m_staticRootArray [i].m_p,
 			m_staticRootArray [i].m_type

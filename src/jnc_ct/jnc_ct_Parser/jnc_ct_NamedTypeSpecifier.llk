@@ -142,7 +142,7 @@ struct_specifier
 					&$n ? $n.m_data.m_string : sl::String (),
 					&$b ? &$b.m_typeList : NULL,
 					m_fieldAlignment,
-					&$d ? StructTypeFlag_Dynamic : 0
+					&$d ? TypeFlag_Dynamic : 0
 					);
 
 				if (!$.m_type)
@@ -165,12 +165,14 @@ union_specifier
 		if ($.m_type->getName ().isEmpty ())
 			return declareUnnamedStructOrUnion ($.m_type);
 	}
-	:	TokenKind_Union
+	:	TokenKind_Dynamic $d?
+		TokenKind_Union
 		TokenKind_Identifier $n?
 			{
 				$.m_type = createUnionType (
 					&$n ? $n.m_data.m_string : sl::String (),
-					m_fieldAlignment
+					m_fieldAlignment,
+					&$d ? TypeFlag_Dynamic : 0
 					);
 
 				if (!$.m_type)

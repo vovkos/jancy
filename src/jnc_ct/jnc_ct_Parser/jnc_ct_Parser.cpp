@@ -1955,7 +1955,8 @@ Parser::createStructType (
 UnionType*
 Parser::createUnionType (
 	const sl::StringRef& name,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	bool result;
@@ -1965,12 +1966,12 @@ Parser::createUnionType (
 
 	if (name.isEmpty ())
 	{
-		unionType = m_module->m_typeMgr.createUnnamedUnionType (fieldAlignment);
+		unionType = m_module->m_typeMgr.createUnnamedUnionType (fieldAlignment, flags);
 	}
 	else
 	{
 		sl::String qualifiedName = nspace->createQualifiedName (name);
-		unionType = m_module->m_typeMgr.createUnionType (name, qualifiedName, fieldAlignment);
+		unionType = m_module->m_typeMgr.createUnionType (name, qualifiedName, fieldAlignment, flags);
 		if (!unionType)
 			return NULL;
 

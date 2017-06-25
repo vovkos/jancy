@@ -44,7 +44,12 @@ protected:
 	Type* m_bitFieldBaseType;
 	size_t m_bitCount;
 	size_t m_offset;
-	uint_t m_llvmIndex;
+
+	union
+	{
+		uint_t m_llvmIndex;
+		size_t m_prevDynamicFieldIndex;
+	};
 
 public:
 	StructField ();
@@ -77,6 +82,12 @@ public:
 	getLlvmIndex ()
 	{
 		return m_llvmIndex;
+	}
+
+	size_t
+	getPrevDynamicFieldIndex ()
+	{
+		return m_prevDynamicFieldIndex;
 	}
 
 	virtual
@@ -115,7 +126,7 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
-	sl::Array <StructField*> m_dynamicArrayFieldArray;
+	sl::Array <StructField*> m_dynamicFieldArray;
 	sl::Array <llvm::Type*> m_llvmFieldTypeArray;
 	BitFieldType* m_lastBitFieldType;
 	size_t m_lastBitFieldOffset;
@@ -184,6 +195,9 @@ protected:
 	virtual
 	bool
 	calcLayout ();
+
+	bool
+	layoutField (StructField* field);
 
 	bool
 	layoutField (

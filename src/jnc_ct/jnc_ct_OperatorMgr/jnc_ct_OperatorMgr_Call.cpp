@@ -145,7 +145,7 @@ OperatorMgr::getCdeclVarArgType (Type* type)
 		case TypeKind_ClassRef:
 			type = ((ClassPtrType*) type)->getTargetType ()->getClassPtrType (
 				((ClassPtrType*) type)->getPtrTypeKind (),
-				type->getFlags () & PtrTypeFlag__AllMask
+				type->getFlags ()
 				);
 			break;
 
@@ -301,7 +301,7 @@ OperatorMgr::callOperator (
 			return false;
 		}
 
-		if ((callOperator->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) && 
+		if ((callOperator->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(ptrType->getFlags () & PtrTypeFlag_Event))
 		{
 			err::setFormatStringError ("'call' is inaccessible via 'event' pointer");

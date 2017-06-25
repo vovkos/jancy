@@ -1,0 +1,27 @@
+size_t foo ()
+{
+	return 5;
+}
+
+dynamic struct S
+{
+	char m_a;
+	char m_s [foo ()];
+	char m_b;
+}
+
+dynamic struct T
+{
+	S m_s;
+}
+
+
+int main ()
+{
+	char buffer [] = { 10, 'h', 'u', 'i', 0, 20 };
+	S* s = (S*) buffer; 
+	
+//	printf ("s.m_a = %d\ns.m_b = %d\n", s.m_a, s.m_b);
+
+	return 0;
+}

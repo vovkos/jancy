@@ -51,10 +51,11 @@ ClassPtrType::getPointerStringSuffix ()
 {
 	sl::String string;
 
-	if (m_flags & PtrTypeFlag__AllMask)
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
+	if (!ptrTypeFlagString.isEmpty ())
 	{
 		string += ' ';
-		string += getPtrTypeFlagString (m_flags);
+		string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != ClassPtrTypeKind_Normal)

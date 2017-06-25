@@ -719,7 +719,8 @@ UnionType*
 TypeMgr::createUnionType (
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	UnionType* type = AXL_MEM_NEW (UnionType);
@@ -745,14 +746,19 @@ TypeMgr::createUnionType (
 
 	m_module->markForLayout (type, true); // before child struct
 
-	StructType* unionStructType = createUnnamedStructType ();
-	unionStructType->m_parentNamespace = type;
-	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
-	unionStructType->m_fieldAlignment = fieldAlignment;
-	unionStructType->m_tag.format ("%s.Struct", type->m_tag.sz ());
-
 	type->m_module = m_module;
-	type->m_structType = unionStructType;
+	type->m_flags |= flags;
+
+	if (!(flags & TypeFlag_Dynamic))
+	{
+		StructType* unionStructType = createUnnamedStructType ();
+		unionStructType->m_parentNamespace = type;
+		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
+		unionStructType->m_fieldAlignment = fieldAlignment;
+		unionStructType->m_tag.format ("%s.Struct", type->m_tag.sz ());
+
+		type->m_structType = unionStructType;
+	}
 
 	m_unionTypeList.insertTail (type);
 	return type;
@@ -1581,7 +1587,7 @@ TypeMgr::createReactorType (
 	{
 		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 
-		type->m_flags |= TypeFlag_Child;
+		type->m_flags |= ClassTypeFlag_Child;
 		type->m_fieldArray [ReactorFieldKind_Parent] = type->createField ("!m_parent", parentPtrType);
 
 		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
@@ -1767,7 +1773,7 @@ TypeMgr::getDataPtrType (
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	if (isDualType (targetType))
-		flags |= TypeFlag_DerivedDual;
+		flags |= PtrTypeFlag_DualTarget;
 
 	DataPtrTypeTuple* tuple = getDataPtrTypeTuple (targetType);
 

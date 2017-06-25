@@ -27,6 +27,7 @@ StructField::StructField ()
 	m_bitCount = 0;
 	m_offset = 0;
 	m_llvmIndex = -1;
+	m_prevDynamicFieldIndex = -1;
 }
 
 bool
@@ -180,6 +181,7 @@ StructType::calcLayout ()
 	{
 		BaseTypeSlot* slot = *slotIt;
 		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
+			(slot->m_type->getFlags () & TypeFlag_Dynamic) ||
 			slot->m_type->getTypeKind () == TypeKind_Class)
 		{
 			err::setFormatStringError ("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().sz ());
@@ -225,50 +227,14 @@ StructType::calcLayout ()
 	for (size_t i = 0; i < count; i++)
 	{
 		StructField* field = m_memberFieldArray [i];
-
-		if (!(m_flags & StructTypeFlag_Dynamic) || field->m_type->getTypeKind () != TypeKind_Array)
-		{
-			result = field->m_type->ensureLayout ();
-			if (!result)
-				return false;
-		}
-		else
-		{
-			result = ((ArrayType*) field->m_type)->ensureDynamicLayout (this);
-			if (!result)
-				return false;
-
-			if (field->m_type->getFlags () & ArrayTypeFlag_DynamicSize)
-				m_dynamicArrayFieldArray.append (field);
-		}
-
-		if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
-		{
-			err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
-			return false;
-		}
-
-		result = field->m_bitCount ?
-			layoutBitField (
-				field->m_bitFieldBaseType,
-				field->m_bitCount,
-				&field->m_type,
-				&field->m_offset,
-				&field->m_llvmIndex
-				) :
-			layoutField (
-				field->m_type,
-				&field->m_offset,
-				&field->m_llvmIndex
-				);
-
+		result = layoutField (field);
 		if (!result)
 			return false;
 	}
 
-	if ((m_flags & StructTypeFlag_Dynamic) && m_dynamicArrayFieldArray.isEmpty ())
+	if ((m_flags & TypeFlag_Dynamic) && m_dynamicFieldArray.isEmpty ())
 	{
-		err::setFormatStringError ("dynamic struct '%s' has no dynamic array fields", m_qualifiedName.sz ());
+		err::setFormatStringError ("dynamic struct '%s' has no dynamic fields", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -369,12 +335,7 @@ StructType::calcLayout ()
 				);
 
 			StructField* field = createField (opaqueDataType);
-			result = layoutField (
-				field->m_type,
-				&field->m_offset,
-				&field->m_llvmIndex
-				);
-
+			result = layoutField (field);
 			ASSERT (result);
 		}
 
@@ -388,15 +349,23 @@ StructType::calcLayout ()
 			classType->m_flags |= ClassTypeFlag_OpaqueNonCreatable;
 	}
 
-	llvm::StructType* llvmStructType = (llvm::StructType*) getLlvmType ();
-	llvmStructType->setBody (
-		llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount ()),
-		true
-		);
-
-	m_size = m_fieldAlignedSize;
-	if (m_size > TypeSizeLimit_StackAllocSize)
+	if (m_flags & TypeFlag_Dynamic)
+	{
+		m_size = 0;
 		m_flags |= TypeFlag_NoStack;
+	}
+	else
+	{
+		llvm::StructType* llvmStructType = (llvm::StructType*) getLlvmType ();
+		llvmStructType->setBody (
+			llvm::ArrayRef <llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount ()),
+			true
+			);
+
+		m_size = m_fieldAlignedSize;
+		if (m_size > TypeSizeLimit_StackAllocSize)
+			m_flags |= TypeFlag_NoStack;
+	}
 
 	return true;
 }
@@ -424,6 +393,67 @@ StructType::compile ()
 }
 
 bool
+StructType::layoutField (StructField* field)
+{
+	bool result;
+
+	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
+	{
+		err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
+		return false;
+	}
+
+	if ((m_flags & TypeFlag_Dynamic) && field->m_type->getTypeKind () == TypeKind_Array)
+	{
+		result = ((ArrayType*) field->m_type)->ensureDynamicLayout (this);
+		if (!result)
+			return false;
+	}
+	else
+	{
+		result = field->m_type->ensureLayout ();
+		if (!result)
+			return false;
+	}
+
+	result = field->m_bitCount ?
+		layoutBitField (
+			field->m_bitFieldBaseType,
+			field->m_bitCount,
+			&field->m_type,
+			&field->m_offset,
+			&field->m_llvmIndex
+			) :
+		layoutField (
+			field->m_type,
+			&field->m_offset,
+			&field->m_llvmIndex
+			);
+
+	if (m_flags & TypeFlag_Dynamic)
+	{
+		field->m_prevDynamicFieldIndex = m_dynamicFieldArray.getCount () - 1;
+
+		if (field->m_type->getFlags () & TypeFlag_Dynamic)
+		{
+			m_dynamicFieldArray.append (field);
+
+			// reset sizes on each dynamic field
+
+			m_fieldAlignedSize = 0;
+			m_fieldActualSize = 0;
+		}
+	}
+	else if (field->m_type->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
+		return false;
+	}
+
+	return true;
+}
+
+bool
 StructType::layoutField (
 	llvm::Type* llvmType,
 	size_t size,
@@ -440,12 +470,16 @@ StructType::layoutField (
 		insertPadding (offset - m_fieldActualSize);
 
 	*offset_o = offset;
-	*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
+
+	if (!(m_flags & TypeFlag_Dynamic))
+	{
+		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
+		m_llvmFieldTypeArray.append (llvmType);
+	}
 
 	m_lastBitFieldType = NULL;
 	m_lastBitFieldOffset = 0;
 
-	m_llvmFieldTypeArray.append (llvmType);
 	setFieldActualSize (offset + size);
 	return true;
 }
@@ -521,9 +555,13 @@ StructType::layoutBitField (
 		insertPadding (offset - m_fieldActualSize);
 
 	*offset_o = offset;
-	*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
 
-	m_llvmFieldTypeArray.append (type->getLlvmType ());
+	if (!(m_flags & TypeFlag_Dynamic))
+	{
+		*llvmIndex = (uint_t) m_llvmFieldTypeArray.getCount ();
+		m_llvmFieldTypeArray.append (type->getLlvmType ());
+	}
+
 	setFieldActualSize (offset + type->getSize ());
 	return true;
 }

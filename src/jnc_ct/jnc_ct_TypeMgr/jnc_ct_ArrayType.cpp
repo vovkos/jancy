@@ -102,6 +102,13 @@ ArrayType::calcLayoutImpl (StructType* dynamicStruct)
 	if (!result)
 		return false;
 
+	if (m_elementType->getTypeKind () == TypeKind_Class ||
+		m_elementType->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError ("'%s' cannot be an element of an array", m_elementType->getTypeString ().sz ());
+		return false;
+	}
+
 	// ensure update
 
 	m_rootType = NULL;
@@ -184,7 +191,8 @@ ArrayType::calcDynamicLayout (StructType* dynamicStruct)
 {
 	bool result;
 
-	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
+	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+	FunctionType* type = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 	m_getDynamicElementCountFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
 	m_getDynamicElementCountFunction->m_storageKind = StorageKind_Member;
 	m_getDynamicElementCountFunction->m_tag.format ("%s.dynamic countof", dynamicStruct->m_tag.sz ());
@@ -195,10 +203,22 @@ ArrayType::calcDynamicLayout (StructType* dynamicStruct)
 	token.m_pos = m_elementCountInitializer.getHead ()->m_pos;
 	m_elementCountInitializer.insertHead (token);
 
+	token.m_token = '{';
+	m_elementCountInitializer.insertHead (token);
+
+	token.m_token = ';';
+	token.m_pos = m_elementCountInitializer.getTail ()->m_pos;
+	m_elementCountInitializer.insertTail (token);
+
+	token.m_token = '}';
+	token.m_pos = m_elementCountInitializer.getTail ()->m_pos;
+	m_elementCountInitializer.insertTail (token);
+
 	m_getDynamicElementCountFunction->setBody (&m_elementCountInitializer);
 	m_module->markForCompile (m_getDynamicElementCountFunction);
 
-	m_flags |= ArrayTypeFlag_DynamicSize;
+	m_flags |= TypeFlag_Dynamic;
+	m_elementCount = 0;
 	m_size = 0;
 	return true;
 }

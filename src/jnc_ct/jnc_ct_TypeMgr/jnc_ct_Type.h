@@ -47,38 +47,7 @@ enum TypeSizeLimit
 	TypeSizeLimit_StackAllocSize = 128,
 };
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum TypeFlag
-{
-	TypeFlag_Named       = 0x0100,
-	TypeFlag_Child       = 0x0200, // constructor has an implicit 'parent' arg
-	TypeFlag_Pod         = 0x0400, // plain-old-data
-	TypeFlag_GcRoot      = 0x0800, // is or contains gc-traceable pointers
-	TypeFlag_StructRet   = 0x1000, // return through hidden 1st arg (gcc32 callconv)
-	TypeFlag_NoStack     = 0x2000, // try to avoid allocation on stack
-	TypeFlag_DerivedDual = 0x4000, // derived from dual type(s) and needs to be folded
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum PtrTypeFlag
-{
-	PtrTypeFlag_Safe      = 0x0010000, // all ptr
-	PtrTypeFlag_Const     = 0x0020000, // class & data ptr
-	PtrTypeFlag_ReadOnly  = 0x0040000, // class & data ptr
-	PtrTypeFlag_CMut      = 0x0080000, // class & data ptr
-	PtrTypeFlag_Volatile  = 0x0100000, // class & data ptr
-	PtrTypeFlag_Event     = 0x0200000, // multicast-class only
-	PtrTypeFlag_DualEvent = 0x0400000, // multicast-class only
-	PtrTypeFlag_Bindable  = 0x0800000, // multicast-class only
-	PtrTypeFlag_AutoGet   = 0x1000000, // data ptr only
-
-	PtrTypeFlag__Dual     = PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent,
-	PtrTypeFlag__AllMask  = 0x1ff0000,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
 
 JNC_INLINE
 PtrTypeFlag
@@ -544,7 +513,7 @@ inline
 bool
 isDualType (Type* type)
 {
-	return (type->getFlags () & (TypeFlag_DerivedDual | PtrTypeFlag__Dual)) != 0;
+	return (type->getFlags () & PtrTypeFlag__Dual) != 0;
 }
 
 bool

@@ -39,15 +39,6 @@
 
 //..............................................................................
 
-enum jnc_StructTypeFlag
-{
-	jnc_StructTypeFlag_Dynamic = 0x010000,
-};
-
-typedef enum jnc_StructTypeFlag jnc_StructTypeFlag;
-
-//..............................................................................
-
 JNC_EXTERN_C
 size_t
 jnc_StructField_getOffset (jnc_StructField* field);
@@ -77,23 +68,6 @@ struct jnc_StructType: jnc_DerivableType
 
 #endif // _JNC_CORE
 
-//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-#ifdef __cplusplus
-
-namespace jnc {
-
 //..............................................................................
-
-typedef jnc_StructTypeFlag StructTypeFlag;
-
-const StructTypeFlag
-	StructTypeFlag_Dynamic = jnc_StructTypeFlag_Dynamic;
-
-//..............................................................................
-
-} // namespace jnc
-
-#endif // __cplusplus
 
 /// @}
