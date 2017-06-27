@@ -1961,6 +1961,12 @@ Parser::createUnionType (
 {
 	bool result;
 
+	if (flags & TypeFlag_Dynamic)
+	{
+		err::setError ("dynamic unions are not supported yet");
+		return NULL;
+	}
+
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	UnionType* unionType = NULL;
 

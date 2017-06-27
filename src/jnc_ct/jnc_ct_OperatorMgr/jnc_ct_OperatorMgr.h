@@ -1434,22 +1434,30 @@ public:
 	bool
 	getStructField (
 		const Value& opValue,
-		StructField* member,
+		StructField* field,
 		MemberCoord* coord,
+		Value* resultValue
+		);
+
+	bool
+	getDynamicStructField (
+		const Value& opValue,
+		DerivableType* type,
+		StructField* field,
 		Value* resultValue
 		);
 
 	bool
 	getUnionField (
 		const Value& opValue,
-		StructField* member,
+		StructField* field,
 		Value* resultValue
 		);
 
 	bool
 	getClassField (
 		const Value& opValue,
-		StructField* member,
+		StructField* field,
 		MemberCoord* coord,
 		Value* resultValue
 		);

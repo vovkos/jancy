@@ -631,6 +631,92 @@ lazyGetDynamicLibFunction (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void*
+getDynamicField (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+
+	if (type->getTypeKind () != TypeKind_Struct)
+	{
+		err::setError ("only dynamic structs are currently supported");
+		dynamicThrow ();
+	}
+
+	StructType* structType = (StructType*) type;
+	sl::Array <ct::StructField*> dynamicFieldArray = structType->getDynamicFieldArray ();
+
+	size_t offset;
+	size_t prevIndex;
+
+	if (field)
+	{
+		offset = field->getOffset ();	
+		prevIndex = field->getPrevDynamicFieldIndex ();
+		if (prevIndex == -1)
+			return (char*) ptr.m_p + offset;
+	}
+	else
+	{
+		field = structType->getMemberFieldArray ().getBack ();
+
+		if (field->getType ()->getFlags () & TypeFlag_Dynamic)
+		{
+			offset = 0;
+			prevIndex = dynamicFieldArray.getCount () - 1;
+		}
+		else
+		{			
+			offset = field->getOffset () + field->getType ()->getSize ();
+			prevIndex = field->getPrevDynamicFieldIndex ();
+		}
+	}
+
+
+	static int32_t lock = 0;
+	sys::atomicLock (&lock);
+	sys::atomicUnlock (&lock);
+
+	typedef 
+	size_t
+	GetDynamicSize (DataPtr ptr);
+
+	for (intptr_t i = prevIndex; i >= 0; i--)
+	{
+		AXL_TODO ("use cache for finding out dynamic field end offsets");
+
+		offset += dynamicFieldArray [i]->getOffset ();
+
+		Type* type = dynamicFieldArray [i]->getType ();
+		ASSERT (type->getFlags () & TypeFlag_Dynamic);
+
+		size_t size;
+
+		if (type->getTypeKind () == TypeKind_Array)
+		{
+			Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
+			ASSERT (getDynamicSizeFunc);
+
+			GetDynamicSize* getDynamicSize = (GetDynamicSize*) getDynamicSizeFunc->getMachineCode ();
+			size = getDynamicSize (ptr);
+		}
+		else
+		{
+			err::setError ("only dynamic arrays are currently supported");
+			dynamicThrow ();
+		}
+		
+		offset += size;
+	}
+
+	return (char*) ptr.m_p + offset;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 size_t
 appendFmtLiteral_a (
 	FmtLiteral* fmtLiteral,
@@ -1111,6 +1197,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_StrengthenClassPtr,  strengthenClassPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_GetDynamicField,     getDynamicField)
 
 	// gc heap
 

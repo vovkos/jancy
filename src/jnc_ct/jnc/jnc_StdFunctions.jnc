@@ -202,6 +202,14 @@ void thin* lazyGetDynamicLibFunction (
 	char thin const* name
 	);
 
+///; static char getDynamicFieldSrc [] =
+
+void thin* getDynamicFieldFunction (
+	void const* p,
+	void thin* type,
+	void thin* field
+	);
+
 ///;
 
 //..............................................................................

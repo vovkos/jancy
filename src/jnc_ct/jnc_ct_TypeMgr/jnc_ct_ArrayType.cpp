@@ -26,7 +26,7 @@ ArrayType::ArrayType ()
 	m_elementType = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
-	m_getDynamicElementCountFunction = NULL;
+	m_getDynamicSizeFunction = NULL;
 	m_parentUnit = NULL;
 	m_parentNamespace = NULL;
 }
@@ -80,14 +80,17 @@ ArrayType::createDimensionString ()
 }
 
 bool
-ArrayType::ensureDynamicLayout (StructType* dynamicStruct)
+ArrayType::ensureDynamicLayout (
+	StructType* dynamicStruct,
+	StructField* dynamicField
+	)
 {
 	bool result;
 
 	if (m_flags & ModuleItemFlag_LayoutReady)
 		return true;
 
-	result = calcLayoutImpl (dynamicStruct);
+	result = calcLayoutImpl (dynamicStruct, dynamicField);
 	if (!result)
 		return false;
 
@@ -96,7 +99,10 @@ ArrayType::ensureDynamicLayout (StructType* dynamicStruct)
 }
 
 bool
-ArrayType::calcLayoutImpl (StructType* dynamicStruct)
+ArrayType::calcLayoutImpl (
+	StructType* dynamicStruct,
+	StructField* dynamicField
+	)
 {
 	bool result = m_elementType->ensureLayout ();
 	if (!result)
@@ -142,10 +148,26 @@ ArrayType::calcLayoutImpl (StructType* dynamicStruct)
 
 		if (!result)
 		{
-			if (dynamicStruct) // try a non-const expression
-				return calcDynamicLayout (dynamicStruct);
+			if (!dynamicStruct) 
+				return false;
 
-			return false;
+			Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+			FunctionType* type = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
+			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
+			m_getDynamicSizeFunction->m_tag.format (
+				"%s.%s.getDynamicSize", 
+				dynamicStruct->m_tag.sz (), 
+				dynamicField->getName ().sz ()
+				);
+
+			m_getDynamicSizeFunction->convertToMemberMethod (dynamicStruct);
+			m_module->markForCompile (this);
+
+			m_flags |= TypeFlag_Dynamic;
+			m_elementCount = 0;
+			m_size = 0;
+			return true;
 		}
 
 		if (value <= 0)
@@ -187,39 +209,43 @@ ArrayType::calcLayoutImpl (StructType* dynamicStruct)
 }
 
 bool
-ArrayType::calcDynamicLayout (StructType* dynamicStruct)
+ArrayType::compile ()
 {
+	ASSERT (m_getDynamicSizeFunction);
+
 	bool result;
 
-	Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
-	FunctionType* type = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
-	m_getDynamicElementCountFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
-	m_getDynamicElementCountFunction->m_storageKind = StorageKind_Member;
-	m_getDynamicElementCountFunction->m_tag.format ("%s.dynamic countof", dynamicStruct->m_tag.sz ());
-	m_getDynamicElementCountFunction->convertToMemberMethod (dynamicStruct);
+	m_module->m_functionMgr.internalPrologue (m_getDynamicSizeFunction);
+	m_module->m_functionMgr.createThisValue ();
 
-	Token token;
-	token.m_token = TokenKind_Return;
-	token.m_pos = m_elementCountInitializer.getHead ()->m_pos;
-	m_elementCountInitializer.insertHead (token);
+	Value resultValue;
+	result = m_module->m_operatorMgr.parseExpression (
+			m_getDynamicSizeFunction->getParentUnit (),
+			m_elementCountInitializer,
+			&resultValue
+			);
+	if (!result)
+		return false;
 
-	token.m_token = '{';
-	m_elementCountInitializer.insertHead (token);
-
-	token.m_token = ';';
-	token.m_pos = m_elementCountInitializer.getTail ()->m_pos;
-	m_elementCountInitializer.insertTail (token);
-
-	token.m_token = '}';
-	token.m_pos = m_elementCountInitializer.getTail ()->m_pos;
-	m_elementCountInitializer.insertTail (token);
-
-	m_getDynamicElementCountFunction->setBody (&m_elementCountInitializer);
-	m_module->markForCompile (m_getDynamicElementCountFunction);
-
-	m_flags |= TypeFlag_Dynamic;
-	m_elementCount = 0;
-	m_size = 0;
+	size_t size = m_elementType->getSize ();
+	if (size != 1)
+	{
+		Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+		result = m_module->m_operatorMgr.binaryOperator (
+			BinOpKind_Mul, 
+			&resultValue, 
+			sizeValue
+			);
+		
+		if (!result)
+			return false;
+	}
+	
+	result = m_module->m_controlFlowMgr.ret (resultValue);
+	if (!result)
+		return false;
+		
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

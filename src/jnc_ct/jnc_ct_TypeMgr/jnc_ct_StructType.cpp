@@ -405,7 +405,7 @@ StructType::layoutField (StructField* field)
 
 	if ((m_flags & TypeFlag_Dynamic) && field->m_type->getTypeKind () == TypeKind_Array)
 	{
-		result = ((ArrayType*) field->m_type)->ensureDynamicLayout (this);
+		result = ((ArrayType*) field->m_type)->ensureDynamicLayout (this, field);
 		if (!result)
 			return false;
 	}

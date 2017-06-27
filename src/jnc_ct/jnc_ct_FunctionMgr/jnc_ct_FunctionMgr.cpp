@@ -1035,6 +1035,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 	case StdFunc_CheckDivByZero_f64:
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
+	case StdFunc_GetDynamicField:
 		source = getStdFunctionSource (func);
 		ASSERT (source->m_source);
 

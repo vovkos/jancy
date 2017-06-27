@@ -29,9 +29,10 @@ protected:
 	Type* m_elementType;
 	Type* m_rootType;
 	size_t m_elementCount;
-	Function* m_getDynamicElementCountFunction;
 
 	sl::BoxList <Token> m_elementCountInitializer;
+	Function* m_getDynamicSizeFunction;
+
 	Unit* m_parentUnit;
 	Namespace* m_parentNamespace;
 
@@ -59,9 +60,9 @@ public:
 		return m_elementCountInitializer;
 	}
 
-	Function* getGetDynamicElementCountFunction ()
+	Function* getGetDynamicSizeFunction ()
 	{
-		return m_getDynamicElementCountFunction;
+		return m_getDynamicSizeFunction;
 	}
 
 	static
@@ -86,21 +87,28 @@ public:
 		);
 
 	bool
-	ensureDynamicLayout (StructType* dynamicStruct);
+	ensureDynamicLayout (
+		StructType* dynamicStruct,
+		StructField* dynamicField
+		);
 
 protected:
 	virtual
 	bool
 	calcLayout ()
 	{
-		return calcLayoutImpl (NULL);
+		return calcLayoutImpl (NULL, NULL);
 	}
 
+	virtual
 	bool
-	calcLayoutImpl (StructType* dynamicStruct);
+	compile ();
 
 	bool
-	calcDynamicLayout (StructType* dynamicStruct);
+	calcLayoutImpl (
+		StructType* dynamicStruct,
+		StructField* dynamicField
+		);
 
 	virtual
 	void

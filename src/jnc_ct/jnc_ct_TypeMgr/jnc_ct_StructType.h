@@ -158,6 +158,12 @@ public:
 		return m_fieldAlignedSize;
 	}
 
+	sl::Array <StructField*>
+	getDynamicFieldArray ()
+	{
+		return m_dynamicFieldArray;
+	}
+
 	bool
 	append (StructType* type);
 

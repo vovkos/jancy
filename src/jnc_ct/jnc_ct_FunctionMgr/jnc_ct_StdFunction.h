@@ -88,6 +88,8 @@ enum StdFunc
 	StdFunc_LlvmMemmove,
 	StdFunc_LlvmMemset,
 
+	StdFunc_GetDynamicField,
+
 	StdFunc__Count
 };
 

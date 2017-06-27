@@ -724,7 +724,7 @@ TypeMgr::createUnionType (
 	)
 {
 	UnionType* type = AXL_MEM_NEW (UnionType);
-
+	
 	if (name.isEmpty ())
 	{
 		m_unnamedUnionTypeCounter++;

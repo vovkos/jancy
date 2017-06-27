@@ -196,9 +196,14 @@ getStdFunctionSource (StdFunc stdFunc)
 			lengthof (lazyGetDynamicLibFunctionSrc),
 			StdNamespace_Internal,
 		},
-		{ NULL },                               // StdFunc_LlvmMemcpy
-		{ NULL },                               // StdFunc_LlvmMemmove
-		{ NULL },                               // StdFunc_LlvmMemset
+		{ NULL },                                // StdFunc_LlvmMemcpy
+		{ NULL },                                // StdFunc_LlvmMemmove
+		{ NULL },                                // StdFunc_LlvmMemset
+		{                                        // StdFunc_GetDynamicField,
+			getDynamicFieldSrc,
+			lengthof (getDynamicFieldSrc),
+			StdNamespace_Internal,
+		},
 	};
 
 	ASSERT ((size_t) stdFunc < StdFunc__Count);

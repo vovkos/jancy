@@ -283,10 +283,10 @@ public:
 		ClassPtrTypeKind schedulerPtrTypeKind = ClassPtrTypeKind_Normal
 		);
 
-protected:
 	void
 	createThisValue ();
 
+protected:
 	void
 	injectTlsPrologue (Function* function);
 
