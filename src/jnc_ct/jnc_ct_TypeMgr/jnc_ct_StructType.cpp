@@ -353,6 +353,8 @@ StructType::calcLayout ()
 	{
 		m_size = 0;
 		m_flags |= TypeFlag_NoStack;
+
+		m_module->m_typeMgr.getStdType (StdType_DynamicLayout); // ensure jnc.DynamicLayout is present
 	}
 	else
 	{

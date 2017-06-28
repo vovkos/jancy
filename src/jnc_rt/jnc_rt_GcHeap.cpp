@@ -767,6 +767,9 @@ GcHeap::weakMark (Box* box)
 
 	box->m_flags |= BoxFlag_WeakMark;
 
+	if (box->m_dynamicLayout)
+		markClass (box->m_dynamicLayout->m_box);
+
 	if (box->m_rootOffset)
 	{
 		Box* root = (Box*) ((char*) box - box->m_rootOffset);

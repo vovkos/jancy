@@ -11,15 +11,12 @@
 
 #include "pch.h"
 #include "jnc_rtl_DynamicLib.h"
+#include "jnc_rtl_DynamicLayout.h"
 #include "jnc_rtl_Multicast.h"
 #include "jnc_rtl_Regex.h"
-
-#ifdef _JNC_CORE
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_ct_Module.h"
-#endif
-
-#include "jnc_Runtime.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_ct_Module.h"
+#include "jnc_CallSite.h"
 
 #define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
 	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
@@ -631,6 +628,39 @@ lazyGetDynamicLibFunction (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+static int32_t g_dynamicLayoutLock = 0;
+
+rtl::DynamicLayout* 
+getDynamicLayout (DataPtr ptr)
+{
+	rtl::DynamicLayout* dynamicLayout = NULL;
+
+	sys::atomicLock (&g_dynamicLayoutLock);
+	
+	Box* box = ptr.m_validator->m_targetBox;
+	if (box->m_dynamicLayout)
+	{
+		dynamicLayout = (rtl::DynamicLayout*) box->m_dynamicLayout;
+		sys::atomicUnlock (&g_dynamicLayoutLock);
+		return dynamicLayout;
+	}
+
+	sys::atomicUnlock (&g_dynamicLayoutLock);
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	dynamicLayout = createClass <DynamicLayout> (runtime);
+
+	sys::atomicLock (&g_dynamicLayoutLock);
+	if (box->m_dynamicLayout) // someone else set it
+		dynamicLayout = (rtl::DynamicLayout*)  box->m_dynamicLayout;
+	else
+		box->m_dynamicLayout = dynamicLayout;
+
+	sys::atomicUnlock (&g_dynamicLayoutLock);
+
+	return dynamicLayout;
+}
+
 void*
 getDynamicField (
 	DataPtr ptr,
@@ -647,7 +677,6 @@ getDynamicField (
 	}
 
 	StructType* structType = (StructType*) type;
-	sl::Array <ct::StructField*> dynamicFieldArray = structType->getDynamicFieldArray ();
 
 	size_t offset;
 	size_t prevIndex;
@@ -666,7 +695,7 @@ getDynamicField (
 		if (field->getType ()->getFlags () & TypeFlag_Dynamic)
 		{
 			offset = 0;
-			prevIndex = dynamicFieldArray.getCount () - 1;
+			prevIndex = structType->getDynamicFieldArray ().getCount () - 1;
 		}
 		else
 		{			
@@ -675,43 +704,8 @@ getDynamicField (
 		}
 	}
 
-
-	static int32_t lock = 0;
-	sys::atomicLock (&lock);
-	sys::atomicUnlock (&lock);
-
-	typedef 
-	size_t
-	GetDynamicSize (DataPtr ptr);
-
-	for (intptr_t i = prevIndex; i >= 0; i--)
-	{
-		AXL_TODO ("use cache for finding out dynamic field end offsets");
-
-		offset += dynamicFieldArray [i]->getOffset ();
-
-		Type* type = dynamicFieldArray [i]->getType ();
-		ASSERT (type->getFlags () & TypeFlag_Dynamic);
-
-		size_t size;
-
-		if (type->getTypeKind () == TypeKind_Array)
-		{
-			Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
-			ASSERT (getDynamicSizeFunc);
-
-			GetDynamicSize* getDynamicSize = (GetDynamicSize*) getDynamicSizeFunc->getMachineCode ();
-			size = getDynamicSize (ptr);
-		}
-		else
-		{
-			err::setError ("only dynamic arrays are currently supported");
-			dynamicThrow ();
-		}
-		
-		offset += size;
-	}
-
+	rtl::DynamicLayout* dynamicLayout = getDynamicLayout (ptr);
+	offset += dynamicLayout->getDynamicFieldEndOffset (ptr, structType, prevIndex);
 	return (char*) ptr.m_p + offset;
 }
 
@@ -1186,6 +1180,7 @@ JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexState)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (DynamicLayout)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
@@ -1272,8 +1267,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// std types
 
-	JNC_MAP_STD_TYPE (StdType_RegexState, RegexState)
-	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)
+	JNC_MAP_STD_TYPE (StdType_RegexState,    RegexState)
+	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
+	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
 
 JNC_END_LIB_FUNCTION_MAP ()
 

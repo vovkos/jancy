@@ -605,7 +605,10 @@ Module::processCalcLayoutArray ()
 		{
 			result = calcLayoutArray [i]->ensureLayout ();
 			if (!result)
+			{
+				calcLayoutArray [i]->ensureLayout ();
 				return false;
+			}
 		}
 	}
 

@@ -1,31 +1,50 @@
+size_t getSzSize1 (char const* s)
+{
+	printf ("getSzSize1 (%s)\n", s);
+	return strlen (s) + 1;
+}
+
+size_t getSzSize2 (char const* s)
+{
+	printf ("getSzSize2 (%s)\n", s);
+	return strlen (s) + 1;
+}
+
 dynamic struct S
 {
 	char m_a;
-	char m_string1 [m_a];
+	char m_s1 [getSzSize1 (m_s1)];
 	char m_b;
-	char m_string2 [strlen (m_string2) + 1];
+	char m_s2 [getSzSize2 (m_s2)];
 	char m_c;
+	char m_d;
 }
 
 int main ()
 {
-	char buffer [] = { 4, 'a', 'b', 'c', 0, 10, 'd', 'e', 'f', 'g', 0, 20 };
-	S* s = (S*) buffer;	
+	char buffer [] = { 
+		4, 'a', 'b', 'c', 0, 10, 'd', 'e', 'f', 'g', 0, 20, 30,
+		5, 'A', 'B', 'C', 0, 11, 'D', 'E', 'F', 'G', 0, 21, 31,
+	}
 
-	printf (
-		"s.m_a = %d\n"
-		"s.m_b = %d\n"
-		"s.m_c = %d\n", 
-		s.m_a,
-		s.m_b,
-		s.m_c
-		);
+
+	S* s = (S*) buffer;
+
+	printf ("s.m_a = %d\n", s.m_a);
+	printf ("s.m_b = %d\n", s.m_b);
+	printf ("s.m_c = %d\n", s.m_c);
+	printf ("s.m_d = %d\n", s.m_d);
 
 	printf ("s     = %p\n", s);
 
 	s++;
 
 	printf ("s + 1 = %p\n", s);
+
+	printf ("s.m_a = %d\n", s.m_a);
+	printf ("s.m_b = %d\n", s.m_b);
+	printf ("s.m_c = %d\n", s.m_c);
+	printf ("s.m_d = %d\n", s.m_d);
 
 	return 0;
 }

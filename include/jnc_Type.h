@@ -252,6 +252,7 @@ enum jnc_StdType
 	jnc_StdType_RegexMatch,
 	jnc_StdType_RegexState,
 	jnc_StdType_DynamicLib,
+	jnc_StdType_DynamicLayout,
 	jnc_StdType_FmtLiteral,
 	jnc_StdType_Int64Int64, // for system V coercion
 	jnc_StdType_Fp64Fp64,   // for system V coercion
@@ -659,6 +660,7 @@ const StdType
 	StdType_RegexMatch          = jnc_StdType_RegexMatch,
 	StdType_RegexState          = jnc_StdType_RegexState,
 	StdType_DynamicLib          = jnc_StdType_DynamicLib,
+	StdType_DynamicLayout       = jnc_StdType_DynamicLayout,
 	StdType_FmtLiteral          = jnc_StdType_FmtLiteral,
 	StdType_Int64Int64          = jnc_StdType_Int64Int64,
 	StdType_Fp64Fp64            = jnc_StdType_Fp64Fp64,
