@@ -1009,6 +1009,9 @@ FunctionMgr::getStdFunction (StdFunc func)
 
 	case StdFunc_DynamicSizeOf:
 	case StdFunc_DynamicCountOf:
+	case StdFunc_DynamicTypeSizeOf:
+	case StdFunc_DynamicFieldSizeOf:
+	case StdFunc_DynamicFieldCountOf:
 	case StdFunc_DynamicCastDataPtr:
 	case StdFunc_DynamicCastClassPtr:
 	case StdFunc_DynamicCastVariant:

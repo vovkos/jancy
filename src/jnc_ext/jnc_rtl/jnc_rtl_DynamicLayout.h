@@ -26,7 +26,7 @@ protected:
 	struct Key
 	{
 		void* m_base;
-		StructType* m_type;
+		DerivableType* m_type;
 
 		size_t hash () const
 		{
@@ -55,9 +55,16 @@ public:
 	getType (Module* module);
 
 	size_t
+	getDynamicFieldSize (
+		DataPtr ptr,
+		size_t offset,
+		StructField* field
+		);
+
+	size_t
 	getDynamicFieldEndOffset (
 		DataPtr ptr,
-		StructType* type,
+		DerivableType* type,
 		size_t fieldIndex // dynamic
 		);
 };

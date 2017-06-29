@@ -322,6 +322,7 @@ OperatorMgr::getDynamicStructField (
 
 	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, &ptrValue);
 	resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
+	resultValue->setDynamicFieldInfo (opValue, type, field);
 	return true;
 }
 

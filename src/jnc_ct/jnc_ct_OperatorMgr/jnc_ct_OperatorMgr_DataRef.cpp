@@ -86,6 +86,12 @@ OperatorMgr::loadDataRef (
 	DataPtrType* type = (DataPtrType*) opValue.getType ();
 	Type* targetType = type->getTargetType ();
 
+	if (targetType->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		return NULL;
+	}
+
 	if (opValue.getValueKind () != ValueKind_Const)
 	{
 		Value ptrValue;
@@ -155,6 +161,12 @@ OperatorMgr::storeDataRef (
 	}
 
 	Type* targetType = dstType->getTargetType ();
+	if (targetType->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		return NULL;
+	}
+
 	TypeKind targetTypeKind = targetType->getTypeKind ();
 
 	Type* castType = (targetTypeKind == TypeKind_BitField) ?

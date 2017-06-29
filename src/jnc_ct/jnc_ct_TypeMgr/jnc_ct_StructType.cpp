@@ -401,7 +401,8 @@ StructType::layoutField (StructField* field)
 
 	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind () == TypeKind_Class)
 	{
-		err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
+		err::setFormatStringError ("class '%s' cannot be a struct member", field->m_type->getTypeString ().sz ());
+		field->pushSrcPosError ();
 		return false;
 	}
 
@@ -448,7 +449,8 @@ StructType::layoutField (StructField* field)
 	}
 	else if (field->m_type->getFlags () & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError ("'%s' cannot be a field of a struct", field->m_type->getTypeString ().sz ());
+		err::setFormatStringError ("dynamic '%s' cannot be a struct member", field->m_type->getTypeString ().sz ());
+		field->pushSrcPosError ();
 		return false;
 	}
 

@@ -217,6 +217,7 @@ ArrayType::compile ()
 
 	m_module->m_functionMgr.internalPrologue (m_getDynamicSizeFunction);
 	m_module->m_functionMgr.createThisValue ();
+	m_module->m_namespaceMgr.openNamespace (m_getDynamicSizeFunction->getParentNamespace ());
 
 	Value resultValue;
 	result = m_module->m_operatorMgr.parseExpression (
@@ -245,6 +246,7 @@ ArrayType::compile ()
 	if (!result)
 		return false;
 		
+	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }

@@ -633,6 +633,12 @@ static int32_t g_dynamicLayoutLock = 0;
 rtl::DynamicLayout* 
 getDynamicLayout (DataPtr ptr)
 {
+	if (!ptr.m_p || !ptr.m_validator)
+	{
+		err::setError ("null data pointer access");
+		dynamicThrow ();
+	}
+
 	rtl::DynamicLayout* dynamicLayout = NULL;
 
 	sys::atomicLock (&g_dynamicLayoutLock);
@@ -661,8 +667,8 @@ getDynamicLayout (DataPtr ptr)
 	return dynamicLayout;
 }
 
-void*
-getDynamicField (
+size_t
+getDynamicFieldOffset (
 	DataPtr ptr,
 	DerivableType* type,
 	StructField* field
@@ -686,7 +692,7 @@ getDynamicField (
 		offset = field->getOffset ();	
 		prevIndex = field->getPrevDynamicFieldIndex ();
 		if (prevIndex == -1)
-			return (char*) ptr.m_p + offset;
+			return offset;
 	}
 	else
 	{
@@ -706,7 +712,56 @@ getDynamicField (
 
 	rtl::DynamicLayout* dynamicLayout = getDynamicLayout (ptr);
 	offset += dynamicLayout->getDynamicFieldEndOffset (ptr, structType, prevIndex);
-	return (char*) ptr.m_p + offset;
+	return offset;
+}
+
+void*
+getDynamicField (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	return (char*) ptr.m_p + getDynamicFieldOffset (ptr, type, field);
+}
+
+size_t
+dynamicTypeSizeOf (
+	DataPtr ptr,
+	DerivableType* type
+	)
+{
+	return getDynamicFieldOffset (ptr, type, NULL);
+}
+
+size_t
+dynamicFieldSizeOf (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+
+	sl::Iterator <StructField> nextFieldIt = sl::Iterator <StructField> (field).getNext (); // may be NULL
+
+	size_t beginOffset = getDynamicFieldOffset (ptr, type, field);
+	size_t endOffset = getDynamicFieldOffset (ptr, type, *nextFieldIt);
+	return endOffset - beginOffset;
+}
+
+size_t
+dynamicFieldCountOf (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT (field->getType ()->getTypeKind () == TypeKind_Array);
+	ArrayType* arrayType = (ArrayType*) field->getType ();
+
+	size_t size = dynamicFieldSizeOf (ptr, type, field);
+	return size / arrayType->getElementType ()->getSize ();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1188,6 +1243,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicSizeOf,       dynamicSizeOf)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCountOf,      dynamicCountOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicTypeSizeOf,   dynamicTypeSizeOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicFieldSizeOf,  dynamicFieldSizeOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicFieldCountOf, dynamicFieldCountOf)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastDataPtr,  dynamicCastDataPtr)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)

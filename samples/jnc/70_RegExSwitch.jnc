@@ -23,14 +23,14 @@
 
 bool errorcode fooBar (
 	jnc.RegexState* state,
-	const char* p,
+	char const* p,
 	size_t length = -1
 	)
 {
 	if (length == -1)
 		length = strlen (p);
 
-	const char* end = p + length;
+	char const* end = p + length;
 
 	// post-condition loop allows passing 'null' as eof
 	do

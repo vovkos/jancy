@@ -21,36 +21,44 @@ namespace ct {
 Type*
 UnOp_Addr::getResultType (const Value& opValue)
 {
-	Type* opType = opValue.getType ();
-	TypeKind opTypeKind = opType->getTypeKind ();
+	union
+	{
+		Type* m_type;
+		DataPtrType* m_dataPtrType;
+		ClassPtrType* m_classPtrType;
+		FunctionPtrType* m_functionPtrType;
+		PropertyPtrType* m_propertyPtrType;
+	} t = { opValue.getType () };
+	
+	TypeKind opTypeKind = t.m_type->getTypeKind ();
 	switch (opTypeKind)
 	{
 	case TypeKind_DataRef:
-		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
+		return t.m_dataPtrType->getTargetType ()->getDataPtrType (
 			TypeKind_DataPtr,
-			((DataPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_dataPtrType->getPtrTypeKind (),
+			t.m_dataPtrType->getFlags ()
 			);
 
 	case TypeKind_ClassRef:
-		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
+		return t.m_classPtrType->getTargetType ()->getClassPtrType (
 			TypeKind_ClassPtr,
-			((ClassPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_classPtrType->getPtrTypeKind (),
+			t.m_classPtrType->getFlags ()
 			);
 
 	case TypeKind_FunctionRef:
-		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
+		return t.m_functionPtrType->getTargetType ()->getFunctionPtrType (
 			TypeKind_FunctionPtr,
-			((FunctionPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_functionPtrType->getPtrTypeKind (),
+			t.m_functionPtrType->getFlags ()
 			);
 
 	case TypeKind_PropertyRef:
-		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
+		return t.m_propertyPtrType->getTargetType ()->getPropertyPtrType (
 			TypeKind_PropertyPtr,
-			((PropertyPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_propertyPtrType->getPtrTypeKind (),
+			t.m_propertyPtrType->getFlags ()
 			);
 
 	default:
@@ -78,36 +86,44 @@ UnOp_Addr::op (
 Type*
 UnOp_Indir::getResultType (const Value& opValue)
 {
-	Type* opType = opValue.getType ();
-	TypeKind opTypeKind = opType->getTypeKind ();
+	union
+	{
+		Type* m_type;
+		DataPtrType* m_dataPtrType;
+		ClassPtrType* m_classPtrType;
+		FunctionPtrType* m_functionPtrType;
+		PropertyPtrType* m_propertyPtrType;
+	} t = { opValue.getType () };
+	
+	TypeKind opTypeKind = t.m_type->getTypeKind ();
 	switch (opTypeKind)
 	{
 	case TypeKind_DataPtr:
-		return ((DataPtrType*) opType)->getTargetType ()->getDataPtrType (
+		return t.m_dataPtrType->getTargetType ()->getDataPtrType (
 			TypeKind_DataRef,
-			((DataPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_dataPtrType->getPtrTypeKind (),
+			t.m_dataPtrType->getFlags ()
 			);
 
 	case TypeKind_ClassPtr:
-		return ((ClassPtrType*) opType)->getTargetType ()->getClassPtrType (
+		return t.m_classPtrType->getTargetType ()->getClassPtrType (
 			TypeKind_ClassRef,
-			((ClassPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_classPtrType->getPtrTypeKind (),
+			t.m_classPtrType->getFlags ()
 			);
 
 	case TypeKind_FunctionPtr:
-		return ((FunctionPtrType*) opType)->getTargetType ()->getFunctionPtrType (
+		return t.m_functionPtrType->getTargetType ()->getFunctionPtrType (
 			TypeKind_FunctionRef,
-			((FunctionPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_functionPtrType->getPtrTypeKind (),
+			t.m_functionPtrType->getFlags ()
 			);
 
 	case TypeKind_PropertyPtr:
-		return ((PropertyPtrType*) opType)->getTargetType ()->getPropertyPtrType (
+		return t.m_propertyPtrType->getTargetType ()->getPropertyPtrType (
 			TypeKind_PropertyRef,
-			((PropertyPtrType*) opType)->getPtrTypeKind (),
-			opType->getFlags ()
+			t.m_propertyPtrType->getPtrTypeKind (),
+			t.m_propertyPtrType->getFlags ()
 			);
 
 	default:

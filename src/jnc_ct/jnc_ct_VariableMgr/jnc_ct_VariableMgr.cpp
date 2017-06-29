@@ -214,6 +214,18 @@ VariableMgr::createSimpleStaticVariable (
 bool
 VariableMgr::initializeVariable (Variable* variable)
 {
+	if (variable->m_type->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError (
+			"'%s' uses dynamic type '%s'", 
+			variable->m_qualifiedName.sz (),
+			variable->m_type->getTypeString ().sz ()
+			);
+
+		variable->pushSrcPosError ();
+		return false;
+	}
+
 	switch (variable->m_storageKind)
 	{
 	case StorageKind_Static:
@@ -394,14 +406,19 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	ASSERT (llvm::isa <llvm::Constant> (variablePtrValue.getLlvmValue ()));
 	ASSERT (llvm::isa <llvm::Constant> (variableEndPtrValue.getLlvmValue ()));
 
-	llvm::Constant* llvmMemberArray [4];
-	llvmMemberArray [0] = Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type);
-	llvmMemberArray [1] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags);
-	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();
+	void* null = NULL;
+
+	llvm::Constant* llvmMemberArray [4] =
+	{
+		Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type),
+		Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags),
+		Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &null),
+		(llvm::Constant*) variablePtrValue.getLlvmValue ()
+	};
 
 	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get (
 		(llvm::StructType*) boxType->getLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, 3)
+		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, countof (llvmMemberArray))
 		);
 
 	sl::String boxTag = variable->m_tag + ".box";

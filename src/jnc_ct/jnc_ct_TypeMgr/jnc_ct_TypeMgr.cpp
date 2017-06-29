@@ -2495,7 +2495,7 @@ TypeMgr::createDataBoxType ()
 	StructType* type = createStructType ("DataBox", "jnc.DataBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField ("!m_dynamicLayout", getStdType (StdType_AbstractClassPtr));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
 	return type;
@@ -2507,7 +2507,7 @@ TypeMgr::createDynamicArrayBoxType ()
 	StructType* type = createStructType ("DynamicArrayBox", "jnc.DynamicArrayBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField ("!m_dynamicLayout", getStdType (StdType_AbstractClassPtr));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_count", getPrimitiveType (TypeKind_Int64_u));
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
@@ -2520,7 +2520,7 @@ TypeMgr::createStaticDataBoxType ()
 	StructType* type = createStructType ("StaticDataBox", "jnc.StaticDataBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField ("!m_dynamicLayout", getStdType (StdType_AbstractClassPtr));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;

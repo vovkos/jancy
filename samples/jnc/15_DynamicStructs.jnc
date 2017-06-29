@@ -1,0 +1,62 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+// Jancy is not the first language to introduce dynamic structs per se -- many
+// languages support introspection/reflection facilities, which allow modifying
+// the type system at runtime.
+
+// However, dynamic structs in Jancy allow something that's simply not possible
+// with any other language, and that is self-describing structs, where the
+// length of one field is somehow defined within the struct itself. This
+// approach is used in many network protocols.
+
+// All calculated offsets are cached and then re-used on the next access, so
+// you don't have to worry about performance of dynamic structs too much.
+
+//..............................................................................
+
+struct Section
+{
+	uint32_t m_offset;
+	uint32_t m_size;
+}
+
+dynamic struct FileHdr
+{
+	uint32_t m_signature;
+	uint32_t m_sectionCount;
+	Section m_sectionTable [m_sectionCount];
+	uint32_t m_version;
+	char m_authorName [strlen (m_authorName)];
+	char m_authorEmail [strlen (m_authorEmail)];
+}
+
+int main ()
+{
+	char buffer [] =
+	{
+		"hui", 'a', 'b', 'c', 'd', 0, 10, 20, 'd', 'e', 'f', 'g', 0, 30, 40,
+		5, 'A', 'B', 0, 11, 21, 'D', 'E', 'F', 'G', 'H', 0, 31, 41,
+	}
+
+	FileHdr const* s = (FileHdr const*) buffer;
+
+	// dynamic structs can only be incremented by 1 (one)
+
+	char const* data = (char const*) (s + 1); 
+
+	// s--;    // <-- error
+	// s += 2; // <-- error
+
+	return 0;
+}
+
+//..............................................................................

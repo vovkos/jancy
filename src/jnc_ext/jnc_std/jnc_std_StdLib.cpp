@@ -456,6 +456,19 @@ printf (
 	return g_printOutFunc (string.cp (), string.getLength ());
 }
 
+extern int32_t g_dynamicLayoutLock = 0;
+
+void 
+resetDynamicLayout (DataPtr ptr)
+{
+	if (!ptr.m_validator)
+		return;
+
+	sys::atomicLock (&g_dynamicLayoutLock);
+	ptr.m_validator->m_targetBox->m_dynamicLayout = NULL;
+	sys::atomicUnlock (&g_dynamicLayoutLock);
+}
+
 //..............................................................................
 
 } // namespace std
@@ -472,10 +485,11 @@ JNC_DEFINE_LIB (
 	)
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
-	JNC_MAP_FUNCTION ("std.getLastError", getLastError)
-	JNC_MAP_FUNCTION ("std.setErrno",     setErrno)
-	JNC_MAP_FUNCTION ("std.setError",     setError)
-	JNC_MAP_FUNCTION ("std.format",       format)
+	JNC_MAP_FUNCTION ("std.getLastError",       getLastError)
+	JNC_MAP_FUNCTION ("std.setErrno",           setErrno)
+	JNC_MAP_FUNCTION ("std.setError",           setError)
+	JNC_MAP_FUNCTION ("std.format",             format)
+	JNC_MAP_FUNCTION ("std.resetDynamicLayout", resetDynamicLayout)
 
 	JNC_MAP_FUNCTION ("strlen",   jnc::strLen)
 	JNC_MAP_FUNCTION ("strcmp",   strCmp)

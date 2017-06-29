@@ -979,15 +979,46 @@ OperatorMgr::sizeofOperator (
 	Value* resultValue
 	)
 {
+	Type* type = opValue.getType ();
+	if (type->getTypeKind () == TypeKind_DataRef)
+		type = ((DataPtrType*) type)->getTargetType ();
+
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
+		if (type->getFlags () & TypeFlag_Dynamic)
+		{
+			DynamicFieldValueInfo* fieldInfo = opValue.getDynamicFieldInfo ();
+			if (fieldInfo)
+			{
+				Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicFieldSizeOf);
+				Value typeValue (&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+				Value fieldValue (&fieldInfo->m_field, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+				return callOperator (function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
+			}
+			else
+			{
+				Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicTypeSizeOf);
+				Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+				return callOperator (function, opValue, typeValue, resultValue);
+			}
+		}
+
+		type = prepareOperandType (opValue);
+		if (type->getTypeKind () != TypeKind_DataPtr)
+		{
+			err::setFormatStringError ("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().sz ());
+			return false;
+		}
+
 		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicSizeOf);
 		return callOperator (function, opValue, resultValue);
 	}
 
-	Type* type = opValue.getType ();
-	if (type->getTypeKind () == TypeKind_DataRef)
-		type = ((DataPtrType*) type)->getTargetType ();
+	if (type->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setError ("use 'dynamic sizeof' to get size of a dynamic type");
+		return false;
+	}
 
 	resultValue->setConstSizeT (type->getSize (), m_module);
 	return true;
@@ -996,18 +1027,39 @@ OperatorMgr::sizeofOperator (
 bool
 OperatorMgr::countofOperator (
 	OperatorDynamism dynamism,
-	const Value& rawOpValue,
+	const Value& opValue,
 	Value* resultValue
 	)
 {
+	Type* type = opValue.getType ();
+	if (type->getTypeKind () == TypeKind_DataRef)
+		type = ((DataPtrType*) type)->getTargetType ();
+
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
-		Value opValue;
-		bool result = prepareOperand (rawOpValue, &opValue);
-		if (!result)
-			return false;
+		if (type->getFlags () & TypeFlag_Dynamic)
+		{
+			DynamicFieldValueInfo* fieldInfo = opValue.getDynamicFieldInfo ();
+			if (!fieldInfo)
+			{
+				err::setError ("invalid 'dynamic countof' operator");
+				return false;
+			}
 
-		Type* type = opValue.getType ();
+			Type* fieldType = fieldInfo->m_field->getType ();
+			if (fieldType->getTypeKind () != TypeKind_Array)
+			{
+				err::setFormatStringError ("'dynamic countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().sz ());
+				return false;
+			}
+
+			Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicFieldCountOf);
+			Value typeValue (&fieldInfo->m_parentType, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+			Value fieldValue (&fieldInfo->m_field, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+			return callOperator (function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
+		}
+
+		type = prepareOperandType (opValue);
 		if (type->getTypeKind () != TypeKind_DataPtr)
 		{
 			err::setFormatStringError ("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().sz ());
@@ -1020,13 +1072,15 @@ OperatorMgr::countofOperator (
 		return callOperator (function, opValue, typeValue, resultValue);
 	}
 
-	Type* type = rawOpValue.getType ();
-	if (type->getTypeKind () == TypeKind_DataRef)
-		type = ((DataPtrType*) type)->getTargetType ();
-
 	if (type->getTypeKind () != TypeKind_Array)
 	{
 		err::setFormatStringError ("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().sz ());
+		return false;
+	}
+
+	if (type->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setError ("use 'dynamic countof' to get element count of a dynamic array");
 		return false;
 	}
 

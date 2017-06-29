@@ -18,6 +18,12 @@
 namespace jnc {
 namespace rtl {
 
+size_t
+dynamicTypeSizeOf (
+	DataPtr ptr,
+	DerivableType* type
+	);
+
 //..............................................................................
 
 // can't use JNC_DEFINE_OPAQUE_CLASS_TYPE cause it relies on namespace lookups
@@ -62,9 +68,47 @@ DynamicLayout::getType (Module* module)
 }
 
 size_t
+DynamicLayout::getDynamicFieldSize (
+	DataPtr ptr,
+	size_t offset,
+	StructField* field
+	)
+{
+	size_t size = 0;
+
+	Type* type = field->getType ();
+	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+
+	if (type->getTypeKindFlags () & TypeKindFlag_Derivable)
+	{
+		ptr.m_p = (char*) ptr.m_p + offset;
+		size = dynamicTypeSizeOf (ptr, (DerivableType*) type);
+	}
+	else if (type->getTypeKind () == TypeKind_Array)
+	{
+		Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
+		ASSERT (getDynamicSizeFunc);
+
+		typedef 
+		size_t
+		GetDynamicSize (DataPtr ptr);
+
+		GetDynamicSize* getDynamicSize = (GetDynamicSize*) getDynamicSizeFunc->getMachineCode ();
+		size = getDynamicSize (ptr);
+	}
+	else
+	{
+		err::setError ("only dynamic arrays are currently supported");
+		dynamicThrow ();
+	}
+
+	return size;
+}
+
+size_t
 DynamicLayout::getDynamicFieldEndOffset (
 	DataPtr ptr,
-	StructType* type,
+	DerivableType* type,
 	size_t fieldIndex // dynamic
 	)
 {
@@ -85,7 +129,10 @@ DynamicLayout::getDynamicFieldEndOffset (
 		it->m_value = entry;
 	}
 
-	sl::Array <StructField*> dynamicFieldArray = type->getDynamicFieldArray ();
+	TypeKind typeKind = type->getTypeKind ();
+	ASSERT (typeKind == TypeKind_Struct);
+
+	sl::Array <StructField*> dynamicFieldArray = ((StructType*) type)->getDynamicFieldArray ();
 
 	size_t offset;
 
@@ -107,30 +154,8 @@ DynamicLayout::getDynamicFieldEndOffset (
 
 		StructField* field = dynamicFieldArray [i];
 		offset += field->getOffset ();
-
-		Type* type = field->getType ();
-		ASSERT (type->getFlags () & TypeFlag_Dynamic);
-
-		size_t size;
-
-		if (type->getTypeKind () == TypeKind_Array)
-		{
-			Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
-			ASSERT (getDynamicSizeFunc);
-
-			typedef 
-			size_t
-			GetDynamicSize (DataPtr ptr);
-
-			GetDynamicSize* getDynamicSize = (GetDynamicSize*) getDynamicSizeFunc->getMachineCode ();
-			size = getDynamicSize (ptr);
-		}
-		else
-		{
-			err::setError ("only dynamic arrays are currently supported");
-			dynamicThrow ();
-		}
 		
+		size_t size = getDynamicFieldSize (ptr, offset, field);
 		offset += size;
 
 		m_lock.lock ();
