@@ -24,7 +24,7 @@
 Abstract
 --------
 
-Jancy is *the first and only* scripting language with **safe pointer arithmetics**, high level of ABI and source **compatibility with C**, support for spreadsheet-like **reactive programming**, built-in generator of **incremental lexers/scanners**, **dual error handling model** which allows you to choose between error-code checks and throw semantics at each *call-site*, and a lot of other unique and really useful features.
+Jancy is *the first and only* scripting language with **safe pointer arithmetics**, high level of ABI and source **compatibility with C**, support for spreadsheet-like **reactive programming**, built-in generator of **incremental lexers/scanners**, **dynamic structures** with array fields of non-constant sizes, **dual error handling model** which allows you to choose between error-code checks and throw semantics at each *call-site*, and a lot of other unique and really useful features.
 
 Design Principles
 -----------------
@@ -120,6 +120,39 @@ Create *efficient* regex-based switches for tokenizing string streams:
 This statement will compile into a table-driven DFA which can parse the input string in *O(length)* -- you don't get any faster than that.
 
 But there's more -- the resulting DFA recognizer is *incremental*, which means you can feed it the data chunk-by-chunk when it becomes available (e.g. once received over the network).
+
+Dynamic Structs
+~~~~~~~~~~~~~~~
+
+Jancy supports structures with non-constant sizes of array fields.
+
+In many file formats and network protocol headers the lengths of some fields are dynamically calculated based on the values of others; another commonly used data model is null-terminated string fields:
+
+.. code:: cpp
+
+	struct FileHdr
+	{
+		// ...
+		char m_authorName [strlen (m_authorName) + 1];
+		char m_authorEmail [strlen (m_authorEmail) + 1];
+		uint8_t m_sectionCount;
+		SectionDesc m_sectionTable [m_sectionCount];
+		// ...
+	}
+
+In Jancy you can describe a dynamic struct, overlap your buffer with a pointer to this struct and then access the fields at dynamic offsets normally, just like you do with regular C-structs:
+
+.. code:: cpp
+
+	FileHdr const* hdr = buffer;
+
+	displayAuthorInfo (hdr.m_authorName, hdr.m_authorEmail);
+	for (size_t i = 0; i < hdr.m_sectionCount; i++)
+	{
+		processSection (hdr.m_sectionTable [i].m_offset, hdr.m_sectionTable [i].m_size);
+	}
+
+You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using Jancy dynamic structs!
 
 Scheduled Function Pointers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
