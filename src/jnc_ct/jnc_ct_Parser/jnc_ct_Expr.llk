@@ -964,6 +964,9 @@ curly_initializer_item <CurlyInitializer* $initializer>
 				return prepareCurlyInitializerNamedItem ($initializer, $n.m_data.m_string);
 			}
 		(	curly_initializer
+				{
+					$initializer->m_count++;
+				}
 		|	expression $e
 				{
 					return assignCurlyInitializerItem ($initializer, $e.m_value);
@@ -980,6 +983,10 @@ curly_initializer_item <CurlyInitializer* $initializer>
 				return prepareCurlyInitializerIndexedItem ($initializer);
 			}
 		curly_initializer
+			{
+				$initializer->m_index++;
+				$initializer->m_count++;
+			}
 	|	epsilon
 			{
 				return skipCurlyInitializerItem ($initializer);
