@@ -473,7 +473,7 @@ literal_atom_0 <Literal_0* $literal>
 				$literal->m_length += $1.m_data.m_string.getLength ();
 				$literal->m_isZeroTerminated = true;
 			}
-	|	TokenKind_HexLiteral
+	|	TokenKind_BinLiteral
 			{
 				$literal->m_length += $1.m_data.m_binData.getCount ();
 				$literal->m_isZeroTerminated = false;

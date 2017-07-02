@@ -233,29 +233,6 @@ constant_integer_expr
 			}
 	;
 
-class
-{
-	sl::StringRef m_data;
-}
-start
-constant_literal_expr
-	:	expression
-			{
-				if ($1.m_value.getValueKind () != ValueKind_Const ||
-					!isCharArrayType ($1.m_value.getType ()))
-				{
-					err::setFormatStringError ("not a constant literal expression");
-					return false;
-				}
-
-				$.m_data = sl::StringRef (
-					$1.m_value.m_constData.getHdr (),
-					$1.m_value.m_constData.cp (),
-					$1.m_value.m_constData.getCount ()
-					);
-			}
-	;
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class
@@ -914,14 +891,14 @@ type_name_or_expr
 			}
 	;
 
+class
+{
+	Literal m_literal;
+}
 literal <Value* $value>
-	local
-	{
-		Literal $literal;
-	}
-	:	literal_atom <&$literal>+ ('(' expression_or_empty_list $a ')')?
+	:	literal_atom <&$.m_literal>+ ('(' expression_or_empty_list $a ')')?
 			{
-				return finalizeLiteral (&$literal, &$a ? &$a.m_valueList : NULL, $value);
+				return finalizeLiteral (&$.m_literal, &$a ? &$a.m_valueList : NULL, $value);
 			}
 	;
 
@@ -931,7 +908,7 @@ literal_atom <Literal* $literal>
 				$literal->m_binData.append ($1.m_data.m_string.cp (), $1.m_data.m_string.getLength ());
 				$literal->m_isZeroTerminated = true;
 			}
-	|	TokenKind_HexLiteral
+	|	TokenKind_BinLiteral
 			{
 				$literal->m_binData.append ($1.m_data.m_binData, $1.m_data.m_binData.getCount ());
 				$literal->m_isZeroTerminated = false;
@@ -989,7 +966,7 @@ curly_initializer_item <CurlyInitializer* $initializer>
 		(	curly_initializer
 		|	expression $e
 				{
-					return m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, $initializer->m_memberValue, $e.m_value);
+					return assignCurlyInitializerItem ($initializer, $e.m_value);
 				}
 		)
 	|		{
@@ -997,7 +974,7 @@ curly_initializer_item <CurlyInitializer* $initializer>
 			}
 		expression $e
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, $initializer->m_memberValue, $e.m_value);
+				return assignCurlyInitializerItem ($initializer, $e.m_value);
 			}
 	|		{
 				return prepareCurlyInitializerIndexedItem ($initializer);

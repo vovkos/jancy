@@ -139,9 +139,18 @@ Lexer::createStringToken (
 Token*
 Lexer::createBinLiteralToken (int radix)
 {
-	Token* token = createToken (TokenKind_HexLiteral);
+	Token* token = createToken (TokenKind_BinLiteral);
 	ASSERT (token->m_pos.m_length >= 4);
 	decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (ts + 3, token->m_pos.m_length - 4));
+	return token;
+}
+
+Token*
+Lexer::createRawLiteralToken ()
+{
+	Token* token = createToken (TokenKind_BinLiteral);
+	ASSERT (token->m_pos.m_length >= 3);
+	token->m_data.m_binData.copy (ts + 2, token->m_pos.m_length - 3);
 	return token;
 }
 
@@ -313,7 +322,7 @@ Lexer::createMlLiteralToken ()
 
 	if (radix)
 	{
-		token->m_token = TokenKind_HexLiteral;
+		token->m_token = TokenKind_BinLiteral;
 		decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (p, length));
 	}
 	else

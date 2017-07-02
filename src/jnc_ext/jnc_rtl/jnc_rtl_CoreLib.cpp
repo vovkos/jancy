@@ -628,9 +628,7 @@ lazyGetDynamicLibFunction (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-static int32_t g_dynamicLayoutLock = 0;
-
-rtl::DynamicLayout* 
+rtl::DynamicLayout*
 getDynamicLayout (DataPtr ptr)
 {
 	if (!ptr.m_p || !ptr.m_validator)
@@ -639,32 +637,15 @@ getDynamicLayout (DataPtr ptr)
 		dynamicThrow ();
 	}
 
-	rtl::DynamicLayout* dynamicLayout = NULL;
-
-	sys::atomicLock (&g_dynamicLayoutLock);
-	
 	Box* box = ptr.m_validator->m_targetBox;
 	if (box->m_dynamicLayout)
-	{
-		dynamicLayout = (rtl::DynamicLayout*) box->m_dynamicLayout;
-		sys::atomicUnlock (&g_dynamicLayoutLock);
-		return dynamicLayout;
-	}
-
-	sys::atomicUnlock (&g_dynamicLayoutLock);
+		return (rtl::DynamicLayout*) box->m_dynamicLayout;
 
 	Runtime* runtime = getCurrentThreadRuntime ();
-	dynamicLayout = createClass <DynamicLayout> (runtime);
+	rtl::DynamicLayout* dynamicLayout = dynamicLayout = createClass <DynamicLayout> (runtime);
+	rtl::DynamicLayout* prevDynamicLayout = (rtl::DynamicLayout*) sys::atomicCmpXchg ((size_t*) &box->m_dynamicLayout, 0, (size_t) dynamicLayout);
 
-	sys::atomicLock (&g_dynamicLayoutLock);
-	if (box->m_dynamicLayout) // someone else set it
-		dynamicLayout = (rtl::DynamicLayout*)  box->m_dynamicLayout;
-	else
-		box->m_dynamicLayout = dynamicLayout;
-
-	sys::atomicUnlock (&g_dynamicLayoutLock);
-
-	return dynamicLayout;
+	return prevDynamicLayout ? prevDynamicLayout : dynamicLayout;
 }
 
 size_t
@@ -674,7 +655,7 @@ getDynamicFieldOffset (
 	StructField* field
 	)
 {
-	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+	ASSERT	(type->getFlags () & TypeFlag_Dynamic);
 
 	if (type->getTypeKind () != TypeKind_Struct)
 	{
@@ -689,7 +670,7 @@ getDynamicFieldOffset (
 
 	if (field)
 	{
-		offset = field->getOffset ();	
+		offset = field->getOffset ();
 		prevIndex = field->getPrevDynamicFieldIndex ();
 		if (prevIndex == -1)
 			return offset;
@@ -704,7 +685,7 @@ getDynamicFieldOffset (
 			prevIndex = structType->getDynamicFieldArray ().getCount () - 1;
 		}
 		else
-		{			
+		{
 			offset = field->getOffset () + field->getType ()->getSize ();
 			prevIndex = field->getPrevDynamicFieldIndex ();
 		}
@@ -742,11 +723,14 @@ dynamicFieldSizeOf (
 	)
 {
 	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+	ASSERT (field->getType ()->getFlags () & TypeFlag_Dynamic);
 
-	sl::Iterator <StructField> nextFieldIt = sl::Iterator <StructField> (field).getNext (); // may be NULL
+	rtl::DynamicLayout* dynamicLayout = getDynamicLayout (ptr);
+	size_t dynamicFieldIndex = field->getPrevDynamicFieldIndex () + 1;
 
 	size_t beginOffset = getDynamicFieldOffset (ptr, type, field);
-	size_t endOffset = getDynamicFieldOffset (ptr, type, *nextFieldIt);
+	size_t endOffset = dynamicLayout->getDynamicFieldEndOffset (ptr, type, dynamicFieldIndex);
+
 	return endOffset - beginOffset;
 }
 

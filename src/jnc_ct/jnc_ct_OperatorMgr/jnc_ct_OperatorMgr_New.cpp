@@ -19,16 +19,20 @@ namespace ct {
 
 //..............................................................................
 
-llvm::CallInst*
+bool
 OperatorMgr::memSet (
 	const Value& value,
 	char c,
 	size_t size,
-	size_t alignment
+	size_t alignment,
+	bool isVolatile
 	)
 {
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+
+	bool result = castOperator (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+	if (!result)
+		return false;
 
 	Value argValueArray [5] =
 	{
@@ -36,17 +40,60 @@ OperatorMgr::memSet (
 		Value (c, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int8)),
 		Value (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
 		Value (alignment, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
-		Value ((int64_t) false, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
+		Value (isVolatile, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
 	};
 
 	Function* llvmMemset = m_module->m_functionMgr.getStdFunction (StdFunc_LlvmMemset);
-	return m_module->m_llvmIrBuilder.createCall (
+	m_module->m_llvmIrBuilder.createCall (
 		llvmMemset,
 		llvmMemset->getType (),
 		argValueArray,
 		countof (argValueArray),
 		NULL
 		);
+
+	return true;
+}
+
+bool
+OperatorMgr::memCpy (
+	StdFunc stdFunc,
+	const Value& dstValue,
+	const Value& srcValue,
+	size_t size,
+	size_t alignment,
+	bool isVolatile
+	)
+{
+	Value dstPtrValue;
+	Value srcPtrValue;
+
+	bool result =
+		castOperator (dstValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &dstPtrValue) &&
+		castOperator (srcValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &srcPtrValue);
+
+	if (!result)
+		return false;
+
+	Value argValueArray [5] =
+	{
+		dstPtrValue,
+		srcPtrValue,
+		Value (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value (alignment, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32)),
+		Value (isVolatile, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
+	};
+
+	Function* llvmMemcpy = m_module->m_functionMgr.getStdFunction (stdFunc);
+	m_module->m_llvmIrBuilder.createCall (
+		llvmMemcpy,
+		llvmMemcpy->getType (),
+		argValueArray,
+		countof (argValueArray),
+		NULL
+		);
+
+	return true;
 }
 
 void
@@ -304,30 +351,26 @@ OperatorMgr::parseConstIntegerExpression (
 	return true;
 }
 
-bool
+size_t
 OperatorMgr::parseAutoSizeArrayInitializer (
-	const sl::ConstBoxList <Token>& initializerTokenList,
-	size_t* elementCount
+	ArrayType* arrayType,
+	const sl::ConstBoxList <Token>& initializerTokenList
 	)
 {
 	int firstToken = initializerTokenList.getHead ()->m_token;
 	switch (firstToken)
 	{
 	case TokenKind_Literal:
-	case TokenKind_HexLiteral:
-		*elementCount = parseAutoSizeArrayLiteralInitializer (initializerTokenList);
-		break;
+	case TokenKind_BinLiteral:
+		return parseAutoSizeArrayLiteralInitializer (initializerTokenList);
 
 	case '{':
-		*elementCount = parseAutoSizeArrayCurlyInitializer (initializerTokenList);
-		break;
+		return parseAutoSizeArrayCurlyInitializer (arrayType, initializerTokenList);
 
 	default:
 		err::setFormatStringError ("invalid initializer for auto-size-array");
-		return false;
+		return -1;
 	}
-
-	return true;
 }
 
 // it's both more efficient AND easier to parse these by hand
@@ -346,7 +389,7 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer (const sl::ConstBoxList <Token
 			elementCount += token->m_data.m_string.getLength ();
 			break;
 
-		case TokenKind_HexLiteral:
+		case TokenKind_BinLiteral:
 			elementCount += token->m_data.m_binData.getCount ();
 			break;
 		}
@@ -359,11 +402,15 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer (const sl::ConstBoxList <Token
 }
 
 size_t
-OperatorMgr::parseAutoSizeArrayCurlyInitializer (const sl::ConstBoxList <Token>& initializerTokenList)
+OperatorMgr::parseAutoSizeArrayCurlyInitializer (
+	ArrayType* arrayType,
+	const sl::ConstBoxList <Token>& initializerTokenList
+	)
 {
 	intptr_t level = 0;
 	size_t elementCount = 0;
 
+	bool isCharArray = arrayType->getElementType ()->getTypeKind () == TypeKind_Char;
 	bool isElement = false;
 
 	sl::BoxIterator <Token> token = initializerTokenList.getHead ();
@@ -389,10 +436,37 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer (const sl::ConstBoxList <Token>&
 			break;
 
 		case ',':
-			if (level == 1)
+			if (level == 1 && isElement)
 			{
 				elementCount++;
 				isElement = false;
+			}
+
+			break;
+
+		case TokenKind_Literal:
+			if (level == 1)
+			{
+				if (isCharArray)
+					elementCount += token->m_data.m_string.getLength ();
+
+				isElement = true; // account for null-terminator
+			}
+
+			break;
+
+		case TokenKind_BinLiteral:
+			if (level == 1)
+			{
+				if (isCharArray)
+				{
+					elementCount += token->m_data.m_binData.getCount ();
+					isElement = false;
+				}
+				else
+				{
+					isElement = true;
+				}
 			}
 
 			break;

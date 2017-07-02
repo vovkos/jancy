@@ -82,7 +82,7 @@ struct jnc_Box
 	uintptr_t m_rootOffset : 24; // more than enough
 #endif
 
-	jnc_IfaceHdr* m_dynamicLayout;
+	jnc_IfaceHdr* volatile m_dynamicLayout;
 };
 
 //..............................................................................

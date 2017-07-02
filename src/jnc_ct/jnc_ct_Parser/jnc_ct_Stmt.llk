@@ -140,7 +140,7 @@ switch_stmt
 	{
 		m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
 	}
-	:	TokenKind_Switch '(' expression $e ')' 
+	:	TokenKind_Switch '(' expression $e ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, $e.m_value, $l.m_pos);
@@ -174,18 +174,18 @@ reswitch_stmt
 	{
 		m_module->m_controlFlowMgr.reSwitchStmt_Create (&$stmt);
 	}
-	:	TokenKind_ReSwitch '(' expression $r ',' expression $e (',' expression $s)? ')' 
+	:	TokenKind_ReSwitch '(' expression $r ',' expression $e (',' expression $s)? ')'
 		'{' $l
 			{
 				return m_module->m_controlFlowMgr.reSwitchStmt_Condition (
-					&$stmt, 
-					$r.m_value, 
-					$e.m_value, 
+					&$stmt,
+					$r.m_value,
+					$e.m_value,
 					&$s ? $s.m_value : Value (),
 					$l.m_pos
 					);
 			}
-		reswitch_block_stmt <&$stmt>* 
+		reswitch_block_stmt <&$stmt>*
 			{
 				return m_module->m_controlFlowMgr.reSwitchStmt_Finalize (&$stmt);
 			}
@@ -193,7 +193,7 @@ reswitch_stmt
 	;
 
 reswitch_block_stmt <ReSwitchStmt* $stmt>
-	:	TokenKind_Case constant_literal_expr ':'
+	:	TokenKind_Case reswitch_case_literal ':'
 			{
 				return m_module->m_controlFlowMgr.reSwitchStmt_Case ($stmt, $2.m_data, $1.m_pos, $1.m_data.m_integer);
 			}
@@ -202,6 +202,23 @@ reswitch_block_stmt <ReSwitchStmt* $stmt>
 				return m_module->m_controlFlowMgr.reSwitchStmt_Default ($stmt, $1.m_pos, $1.m_data.m_integer);
 			}
 	|	local_declaration
+	;
+
+
+class
+{
+	sl::StringRef m_data;
+}
+start
+reswitch_case_literal
+	local
+	{
+		Value $value;
+	}
+	:	literal <&$value>
+			{
+				return finalizeReSwitchCaseLiteral (&$.m_data, $value, $1.m_literal.m_isZeroTerminated);
+			}
 	;
 
 while_stmt

@@ -702,13 +702,48 @@ public:
 	void
 	zeroInitialize (const Value& value);
 
-	llvm::CallInst*
+	bool
 	memSet (
 		const Value& value,
 		char c,
 		size_t size,
-		size_t alignment
+		size_t alignment = 1,
+		bool isVolatile = false
 		);
+
+	bool
+	memCpy (
+		StdFunc stdFunc,
+		const Value& dstValue,
+		const Value& srcValue,
+		size_t size,
+		size_t alignment = 1,
+		bool isVolatile = false
+		);
+
+	bool
+	memCpy (
+		const Value& dstValue,
+		const Value& srcValue,
+		size_t size,
+		size_t alignment = 1,
+		bool isVolatile = false
+		)
+	{
+		return memCpy (StdFunc_LlvmMemcpy, dstValue, srcValue, size, alignment, isVolatile);
+	}
+
+	bool
+	memMove (
+		const Value& dstValue,
+		const Value& srcValue,
+		size_t size,
+		size_t alignment = 1,
+		bool isVolatile = false
+		)
+	{
+		return memCpy (StdFunc_LlvmMemmove, dstValue, srcValue, size, alignment, isVolatile);
+	}
 
 	bool
 	construct (
@@ -784,17 +819,20 @@ public:
 		int64_t* integer
 		);
 
-	bool
+	size_t
 	parseAutoSizeArrayInitializer (
-		const sl::ConstBoxList <Token>& initializerTokenList,
-		size_t* elementCount
+		ArrayType* arrayType,
+		const sl::ConstBoxList <Token>& initializerTokenList
 		);
 
 	size_t
 	parseAutoSizeArrayLiteralInitializer (const sl::ConstBoxList <Token>& initializerTokenList);
 
 	size_t
-	parseAutoSizeArrayCurlyInitializer (const sl::ConstBoxList <Token>& initializerTokenList);
+	parseAutoSizeArrayCurlyInitializer (
+		ArrayType* arrayType,
+		const sl::ConstBoxList <Token>& initializerTokenList
+		);
 
 	Type*
 	getNewOperatorResultType (Type* type)

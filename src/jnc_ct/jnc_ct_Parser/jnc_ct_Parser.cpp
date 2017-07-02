@@ -1492,8 +1492,8 @@ Parser::declareData (
 		}
 
 		ArrayType* arrayType = (ArrayType*) type;
-		result = m_module->m_operatorMgr.parseAutoSizeArrayInitializer (*initializer, &arrayType->m_elementCount);
-		if (!result)
+		arrayType->m_elementCount = m_module->m_operatorMgr.parseAutoSizeArrayInitializer (arrayType, *initializer);
+		if (arrayType->m_elementCount == -1)
 			return false;
 
 		if (m_stage == Stage_Pass2)
@@ -2742,7 +2742,6 @@ Parser::prepareCurlyInitializerNamedItem (
 		return false;
 
 	initializer->m_index = -1;
-	initializer->m_count++;
 	m_curlyInitializerTargetValue = initializer->m_memberValue;
 	return true;
 }
@@ -2765,8 +2764,6 @@ Parser::prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer)
 	if (!result)
 		return false;
 
-	initializer->m_index++;
-	initializer->m_count++;
 	m_curlyInitializerTargetValue = initializer->m_memberValue;
 	return true;
 }
@@ -2782,6 +2779,45 @@ Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 
 	initializer->m_index++;
 	return true;
+}
+
+bool
+Parser::assignCurlyInitializerItem (
+	CurlyInitializer* initializer,
+	const Value& value
+	)
+{
+	if (initializer->m_index == -1 ||
+		value.getValueKind () != ValueKind_Const ||
+		!isCharArrayType (value.getType ()) ||
+		!isCharArrayRefType (initializer->m_targetValue.getType ()))
+	{
+		if (initializer->m_index != -1)
+			initializer->m_index++;
+
+		initializer->m_count++;
+		return m_module->m_operatorMgr.binaryOperator (BinOpKind_Assign, initializer->m_memberValue, value);
+	}
+
+	ArrayType* srcType = (ArrayType*) value.getType ();
+	ArrayType* dstType = (ArrayType*) ((DataPtrType*) initializer->m_targetValue.getType ())->getTargetType ();
+
+	size_t length = srcType->getElementCount ();
+
+	if (dstType->getElementCount () < initializer->m_index + length)
+	{
+		err::setFormatStringError ("literal initializer is too big to fit inside the target array");
+		return false;
+	}
+
+	initializer->m_index += length;
+	initializer->m_count++;
+
+	Value memberPtrValue;
+
+	return
+		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, initializer->m_memberValue, &memberPtrValue) &&
+		m_module->m_operatorMgr.memCpy (memberPtrValue, value, length);
 }
 
 bool
@@ -3119,6 +3155,30 @@ Parser::appendFmtLiteralBinValue (
 		&resultValue
 		);
 
+	return true;
+}
+
+bool
+Parser::finalizeReSwitchCaseLiteral (
+	sl::StringRef* data,
+	const Value& value,
+	bool isZeroTerminated
+	)
+{
+	if (value.getValueKind () != ValueKind_Const)
+	{
+		err::setFormatStringError ("not a constant literal expression");
+		return false;
+	}
+
+	size_t length = value.m_type->getSize ();
+	if (isZeroTerminated)
+	{
+		ASSERT (length);
+		length--;
+	}
+
+	*data = sl::StringRef (value.m_constData.getHdr (), value.m_constData.cp (), length);
 	return true;
 }
 

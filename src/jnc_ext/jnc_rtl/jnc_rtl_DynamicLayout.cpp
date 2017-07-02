@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_rtl_DynamicLayout.h"
 #include "jnc_ct_Module.h"
+#include "jnc_rt_Runtime.h"
 #include "jnc_Runtime.h"
 #include "jnc_Construct.h"
 
@@ -35,19 +36,19 @@ DynamicLayout_getType (jnc_Module* module)
 	return (jnc_ClassType*) module->m_typeMgr.getStdType (StdType_DynamicLayout);
 }
 
-JNC_EXTERN_C 
+JNC_EXTERN_C
 const char*
 DynamicLayout_getQualifiedName ()
 {
 	return "jnc.DynamicLayout";
 }
 
-JNC_EXTERN_C 
+JNC_EXTERN_C
 const jnc_OpaqueClassTypeInfo*
 DynamicLayout_getOpaqueClassTypeInfo ()
 {
-	static jnc_OpaqueClassTypeInfo typeInfo = 
-	{ 
+	static jnc_OpaqueClassTypeInfo typeInfo =
+	{
 		sizeof (DynamicLayout), // m_size
 		NULL,                   // m_markOpaqueGcRootsFunc
 		false,                  // m_isNonCreatable
@@ -61,7 +62,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
-ClassType* 
+ClassType*
 DynamicLayout::getType (Module* module)
 {
 	return (ClassType*) module->m_typeMgr.getStdType (StdType_DynamicLayout);
@@ -89,7 +90,7 @@ DynamicLayout::getDynamicFieldSize (
 		Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
 		ASSERT (getDynamicSizeFunc);
 
-		typedef 
+		typedef
 		size_t
 		GetDynamicSize (DataPtr ptr);
 
@@ -98,7 +99,7 @@ DynamicLayout::getDynamicFieldSize (
 	}
 	else
 	{
-		err::setError ("only dynamic arrays are currently supported");
+		err::setFormatStringError ("invalid dynamic type: %s", type->getTypeString ().sz ());
 		dynamicThrow ();
 	}
 
@@ -146,7 +147,7 @@ DynamicLayout::getDynamicFieldEndOffset (
 	}
 
 	entry->m_endOffsetArray.reserve (dynamicFieldArray.getCount ());
-	offset = count ? entry->m_endOffsetArray [0] : 0;
+	offset = count ? entry->m_endOffsetArray [count - 1] : 0;
 
 	for (size_t i = count; i <= fieldIndex; i++)
 	{
@@ -154,7 +155,7 @@ DynamicLayout::getDynamicFieldEndOffset (
 
 		StructField* field = dynamicFieldArray [i];
 		offset += field->getOffset ();
-		
+
 		size_t size = getDynamicFieldSize (ptr, offset, field);
 		offset += size;
 
