@@ -134,6 +134,15 @@ char const* strstr (
 	);
 
 /**
+	Copies null-terminated string ``src`` to the buffer pointed to by ``dst``.
+*/
+
+void strcpy (
+	char* dst,
+	char const* src
+	);
+
+/**
 	Creates a new string as a concatenation of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
 	Returns a pointer to the result string.
@@ -430,13 +439,13 @@ char const* cdecl errorcode format (
 		file.read (buffer, sizeof (buffer));
 
 		HeaderA const* a = (HeaderA const*) buffer;
-		
+
 		// access the buffer via dynamic struct A...
 
 		file.read (buffer, sizeof (buffer));
 
-		// we need to drop the previous cache -- otherwise, 
-		// Jancy runtime will re-use pre-calculated offsets. 
+		// we need to drop the previous cache -- otherwise,
+		// Jancy runtime will re-use pre-calculated offsets.
 		// that, obviously, will yield wrong resultts (the data is different)
 
 		std.resetDynamicLayout (buffer);
@@ -445,10 +454,10 @@ char const* cdecl errorcode format (
 
 		// access the buffer via dynamic struct A...
 
-		// no need to drop cache before accessing the same 
+		// no need to drop cache before accessing the same
 		// buffer with a different dynamic struct pointer
 
-		HeaderB const* b = (HeaderB const*) buffer; 
+		HeaderB const* b = (HeaderB const*) buffer;
 
 */
 

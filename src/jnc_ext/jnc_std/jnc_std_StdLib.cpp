@@ -358,6 +358,33 @@ strStr (
 	return resultPtr;
 }
 
+void
+strCpy (
+	DataPtr dstPtr,
+	DataPtr srcPtr,
+	size_t size
+	)
+{
+	if (!dstPtr.m_validator)
+	{
+		err::setError ("null data pointer access");
+		dynamicThrow ();
+	}
+
+	size_t dstLength = dstPtr.m_p < dstPtr.m_validator->m_rangeEnd ? (char*) dstPtr.m_validator->m_rangeEnd - (char*) dstPtr.m_p : 0;
+	size_t srcLength = strLen (srcPtr);
+
+	if (dstLength <= srcLength)
+	{
+		memcpy (dstPtr.m_p, srcPtr.m_p, dstLength);
+	}
+	else
+	{
+		memcpy (dstPtr.m_p, srcPtr.m_p, srcLength);
+		((char*) dstPtr.m_p) [srcLength] = 0;
+	}
+}
+
 DataPtr
 strCat (
 	DataPtr ptr1,
@@ -456,17 +483,11 @@ printf (
 	return g_printOutFunc (string.cp (), string.getLength ());
 }
 
-extern int32_t g_dynamicLayoutLock = 0;
-
-void 
+void
 resetDynamicLayout (DataPtr ptr)
 {
-	if (!ptr.m_validator)
-		return;
-
-	sys::atomicLock (&g_dynamicLayoutLock);
-	ptr.m_validator->m_targetBox->m_dynamicLayout = NULL;
-	sys::atomicUnlock (&g_dynamicLayoutLock);
+	if (ptr.m_validator)
+		sys::atomicXchg ((size_t*) &ptr.m_validator->m_targetBox->m_dynamicLayout, 0);
 }
 
 //..............................................................................
@@ -496,6 +517,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("stricmp",  striCmp)
 	JNC_MAP_FUNCTION ("strchr",   strChr)
 	JNC_MAP_FUNCTION ("strstr",   strStr)
+	JNC_MAP_FUNCTION ("strcpy",   strCpy)
 	JNC_MAP_FUNCTION ("strcat",   strCat)
 	JNC_MAP_FUNCTION ("strdup",   strDup)
 	JNC_MAP_FUNCTION ("strdjb2",  strDjb2)
