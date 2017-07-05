@@ -52,13 +52,6 @@ matrix:
         - os:  osx
           env: LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
-    include:
-        - os:  osx
-          env: BUILD_DOC=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-
-        - os:  linux
-          env: DEPLOY_JANCY_ORG=ON LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-
 before_install:
     - source ci/travis/install-$TRAVIS_OS_NAME.sh
     - source ci/travis/download-llvm.sh
@@ -83,7 +76,7 @@ notifications:
 deploy:
     -   provider:      pages
         skip_cleanup:  true
-        local_dir:     doc/html
+        local_dir:     build/doc/html
         github_token:  $GITHUB_TOKEN
 
         on:
@@ -92,8 +85,8 @@ deploy:
 
     -   provider:      script
         skip_cleanup:  true
-        script:        bash $THIS_DIR/ci/travis/deploy-jancy-org.sh
+        script:        bash $THIS_DIR/ci/travis/deploy-jancy-package.sh
 
         on:
             branch:    master
-            condition: $DEPLOY_JANCY_ORG == ON
+            condition: $DEPLOY_JANCY_PACKAGE == ON

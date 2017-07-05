@@ -16,55 +16,60 @@ echo "    axl_override_setting (GCC_FLAG_CPP_STANDARD -std=$CPP_STD)" >> setting
 echo "endif ()" >> settings.cmake
 
 mkdir axl/build
-cd axl/build
+pushd axl/build
 cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
 make
+popd
 
-cd $THIS_DIR
 echo "set (AXL_CMAKE_DIR $THIS_DIR/axl/cmake $THIS_DIR/axl/build/cmake)" >> paths.cmake
 
 mkdir graco/build
-cd graco/build
+pushd graco/build
 cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
 make
+popd
 
-cd $THIS_DIR
-echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR//graco/build/cmake)" >> paths.cmake
+echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR/graco/build/cmake)" >> paths.cmake
 
 if [ "$BUILD_DOC" != "" ]; then
 	mkdir doxyrest/build
-	cd doxyrest/build
+	pushd doxyrest/build
 	cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
 	make
+	popd
 
-	cd $THIS_DIR
-	echo "set (DOXYREST_CMAKE_DIR $THIS_DIR/doxyrest/cmake $THIS_DIR//doxyrest/build/cmake)" >> paths.cmake
+	echo "set (DOXYREST_CMAKE_DIR $THIS_DIR/doxyrest/cmake $THIS_DIR/doxyrest/build/cmake)" >> paths.cmake
 fi
 
 mkdir build
-cd build
+pushd build
 cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
 make
+ctest --output-on-failure
 
-if [ "$BUILD_DOC" == "" ]; then
-	ctest --output-on-failure
-	doc/stdlib/build-xml.sh
+if [ "$DEPLOY_JANCY_PACKAGE" == "ON" ]; then
+	cpack -G TXZ -D CPACK_PACKAGE_FILE_NAME=jancy-${TRAVIS_OS_NAME}-${TARGET_CPU}
+fi
 
-	cd $THIS_DIR
-	source ci/travis/get-coverage.sh
-else
-	source doc/index/build-html.sh
-	source doc/build-guide/build-html.sh
-	source doc/language/build-html.sh
-	source doc/compiler/build-html.sh
-	source doc/grammar/build-llk.sh
-	source doc/grammar/build-html.sh
-	source doc/stdlib/build-xml.sh
-	source doc/stdlib/build-rst.sh
-	source doc/stdlib/build-html.sh
-	source doc/api/build-xml.sh
-	source doc/api/build-rst.sh
-	source doc/api/build-html.sh
+popd
 
-	touch doc/html/.nojekyll
+source ci/travis/get-coverage.sh
+
+if [ "$BUILD_DOC" != "" ]; then
+	pushd build/doc
+	source index/build-html.sh
+	source build-guide/build-html.sh
+	source language/build-html.sh
+	source compiler/build-html.sh
+	source grammar/build-llk.sh
+	source grammar/build-html.sh
+	source stdlib/build-xml.sh
+	source stdlib/build-rst.sh
+	source stdlib/build-html.sh
+	source api/build-xml.sh
+	source api/build-rst.sh
+	source api/build-html.sh
+
+	touch html/.nojekyll
+	popd
 fi

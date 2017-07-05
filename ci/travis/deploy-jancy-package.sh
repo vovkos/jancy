@@ -9,6 +9,10 @@
 #
 #...............................................................................
 
+if [ "$DEPLOY_JANCY_PACKAGE" != "ON" ]; then
+	return
+fi
+
 openssl \
 	aes-256-cbc \
 	-K $encrypted_98788fbcf1f3_key \
@@ -19,25 +23,19 @@ openssl \
 
 chmod 600 travis_id_rsa
 
-sftp \
-	-i travis_id_rsa \
-	-o StrictHostKeyChecking=no \
-	travis@jancy.org \
-	<< ===
+eval $(ssh-agent -s)
+ssh-add travis_id_rsa
+ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-	lcd $TRAVIS_BUILD_DIR/build/bin/Release
-	cd /incoming/jancy/bin
-	put jancy
+git clone git@github.com:vovkos/jancy-package
 
-	cd /incoming/jancy/extensions
-	rm *.jncx
-	put *.jncx
+pushd jancy-package
+git checkout ${TRAVIS_OS_NAME}-${TARGET_CPU}
 
-	lcd $TRAVIS_BUILD_DIR/samples/jnc
-	cd /incoming/jancy/samples
-	rm *.jnc
-	put *.jnc
+cp $TRAVIS_BUILD_DIR/build/jancy-${TRAVIS_OS_NAME}-${TARGET_CPU}.tar.xz ./
 
-	bye
+git add --all
+git commit --amend --message "Travis CI auto-deploy for: ${TRAVIS_COMMIT}"
+git push --force
 
-===
+popd

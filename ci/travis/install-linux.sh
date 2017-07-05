@@ -65,3 +65,7 @@ if [ "$CC" != "clang" ] && [ "$BUILD_CONFIGURATION" == "Debug" ]; then
 	sudo apt-get install -y lcov
 	echo "axl_override_setting (GCC_FLAG_COVERAGE -coverage)" >> settings.cmake
 fi
+
+if [ "$CC" == "gcc" ] && [ "$BUILD_CONFIGURATION" == "Release" ] && [ "$LLVM_VERSION" == "3.4.2" ]; then
+	DEPLOY_JANCY_PACKAGE=ON
+fi
