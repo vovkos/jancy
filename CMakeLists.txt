@@ -77,6 +77,7 @@ install (
 install (
 	DIRECTORY samples/
 	DESTINATION ${JANCY_INSTALL_SAMPLE_SUBDIR}
+	PATTERN "CMakeLists.txt" EXCLUDE
 	)
 
 install (
