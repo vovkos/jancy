@@ -280,6 +280,19 @@ Value::getClosureAwareType () const
 }
 
 void
+Value::setDynamicFieldInfo (
+	const Value& parentValue,
+	DerivableType* parentType,
+	StructField* field
+	)
+{
+	m_dynamicFieldInfo = AXL_REF_NEW (DynamicFieldValueInfo);
+	m_dynamicFieldInfo->m_parentValue = parentValue;
+	m_dynamicFieldInfo->m_parentType = parentType;
+	m_dynamicFieldInfo->m_field = field;
+}
+
+void
 Value::setVoid (Module* module)
 {
 	clear ();
@@ -459,9 +472,8 @@ Value::setLeanDataPtrValidator (const Value& originValue)
 	}
 	else
 	{
-		ref::Ptr <LeanDataPtrValidator> validator = AXL_REF_NEW (LeanDataPtrValidator);
-		validator->m_originValue = originValue;
-		m_leanDataPtrValidator = validator;
+		m_leanDataPtrValidator = AXL_REF_NEW (LeanDataPtrValidator);
+		m_leanDataPtrValidator->m_originValue = originValue;
 	}
 }
 

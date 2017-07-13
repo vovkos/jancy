@@ -26,6 +26,30 @@ size_t dynamicCountOf (
 	void thin* type
 	);
 
+///; static char dynamicTypeSizeOfSrc [] =
+
+size_t dynamicTypeSizeOf (
+	void const* p,
+	void thin* type
+	);
+
+///; static char dynamicFieldSizeOfSrc [] =
+
+size_t dynamicFieldSizeOf (
+	void const* p,
+	void thin* type,
+	void thin* field
+	);
+
+///; static char dynamicFieldCountOfSrc [] =
+
+size_t dynamicFieldCountOf (
+	void const* p,
+	void thin* type,
+	void thin* field
+	);
+
+
 ///; static char dynamicCastDataPtrSrc [] =
 
 void* dynamicCastDataPtr (
@@ -200,6 +224,14 @@ void thin* lazyGetDynamicLibFunction (
 	jnc.DynamicLib* lib,
 	size_t index,
 	char thin const* name
+	);
+
+///; static char getDynamicFieldSrc [] =
+
+void thin* getDynamicField (
+	void const* p,
+	void thin* type,
+	void thin* field
 	);
 
 ///;

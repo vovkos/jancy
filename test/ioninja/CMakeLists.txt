@@ -9,6 +9,10 @@
 #
 #...............................................................................
 
+if (NOT ${BUILD_JNC_APP})
+	return ()
+endif ()
+
 add_jancy_tests (
 	NAME_PREFIX "jnc-ioninja-plugin-"
 	FLAGS "-c -I ../../api -I ../../common"

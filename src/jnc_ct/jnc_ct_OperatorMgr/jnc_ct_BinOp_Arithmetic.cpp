@@ -28,6 +28,8 @@ dataPtrIncrementOperator (
 {
 	ASSERT (opValue1.getType ()->getTypeKind () == TypeKind_DataPtr);
 
+	bool result;
+
 	DataPtrType* opType = (DataPtrType*) opValue1.getType ();
 	DataPtrType* resultType = opType->getUnCheckedPtrType ();
 	Type* targetType = opType->getTargetType ();
@@ -44,7 +46,7 @@ dataPtrIncrementOperator (
 		opValue2.getValueKind () == ValueKind_Const)
 	{
 		Value deltaValue;
-		bool result = module->m_operatorMgr.castOperator (opValue2, TypeKind_IntPtr, &deltaValue);
+		result = module->m_operatorMgr.castOperator (opValue2, TypeKind_IntPtr, &deltaValue);
 		if (!result)
 			return false;
 
@@ -73,7 +75,7 @@ dataPtrIncrementOperator (
 		module->m_llvmIrBuilder.createGep (opValue1, opValue2, resultType, resultValue);
 		resultValue->setLeanDataPtr (resultValue->getLlvmValue (), resultType, opValue1);
 	}
-	else // EDataPtrType_Normal
+	else if (!(targetType->getFlags () & TypeFlag_Dynamic)) // DataPtrTypeKind_Normal
 	{
 		size_t size = targetType->getSize ();
 		Value sizeValue(size ? size : 1, module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
@@ -84,6 +86,43 @@ dataPtrIncrementOperator (
 		Value ptrValue;
 		module->m_llvmIrBuilder.createExtractValue (opValue1, 0, NULL, &ptrValue);
 		module->m_llvmIrBuilder.createGep(ptrValue, incValue, NULL, &ptrValue);
+		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
+	}
+	else // DataPtrTypeKind_Normal, TypeFlag_Dynamic
+	{
+		if (targetType->getTypeKind () != TypeKind_Struct)
+		{
+			err::setError ("pointer increments are only supported for dynamic structs");
+			return false;
+		}
+
+		Value incValue;
+		result = module->m_operatorMgr.castOperator (opValue2, TypeKind_SizeT, &incValue);
+		if (!result)
+			return false;
+
+		if (incValue.getValueKind () != ValueKind_Const || incValue.getSizeT () != 1)
+		{
+			err::setError ("invalid pointer increment on a dynamic pointer (+1 only)");
+			return false;
+		}
+
+		Type* ptrType = module->m_typeMgr.getStdType (StdType_BytePtr);		
+
+		Function* getDynamicFieldFunc = module->m_functionMgr.getStdFunction (StdFunc_GetDynamicField);
+
+		Value ptrValue;
+		result = module->m_operatorMgr.callOperator (
+			getDynamicFieldFunc, 
+			opValue1, 
+			Value (&targetType, ptrType),
+			ptrType->getZeroValue (), // field = null
+			&ptrValue
+			);
+
+		if (!result)
+			return false;
+
 		module->m_llvmIrBuilder.createInsertValue (opValue1, ptrValue, 0, resultType, resultValue);
 	}
 
@@ -112,6 +151,11 @@ dataPtrDifferenceOperator (
 	else if (targetType1->getStdType () == StdType_AbstractData)
 	{
 		err::setError ("pointer arithmetic is not applicable to 'anydata' pointers");
+		return false;
+	}
+	else if (targetType1->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setError ("pointer subtraction is not applicable to dynamic pointers");
 		return false;
 	}
 

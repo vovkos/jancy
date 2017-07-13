@@ -23,6 +23,9 @@ enum StdFunc
 {
 	StdFunc_DynamicSizeOf,
 	StdFunc_DynamicCountOf,
+	StdFunc_DynamicTypeSizeOf,
+	StdFunc_DynamicFieldSizeOf,
+	StdFunc_DynamicFieldCountOf,
 	StdFunc_DynamicCastDataPtr,
 	StdFunc_DynamicCastClassPtr,
 	StdFunc_DynamicCastVariant,
@@ -87,6 +90,8 @@ enum StdFunc
 	StdFunc_LlvmMemcpy,
 	StdFunc_LlvmMemmove,
 	StdFunc_LlvmMemset,
+
+	StdFunc_GetDynamicField,
 
 	StdFunc__Count
 };

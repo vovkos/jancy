@@ -11,15 +11,12 @@
 
 #include "pch.h"
 #include "jnc_rtl_DynamicLib.h"
+#include "jnc_rtl_DynamicLayout.h"
 #include "jnc_rtl_Multicast.h"
 #include "jnc_rtl_Regex.h"
-
-#ifdef _JNC_CORE
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_ct_Module.h"
-#endif
-
-#include "jnc_Runtime.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_ct_Module.h"
+#include "jnc_CallSite.h"
 
 #define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
 	if (module->m_functionMgr.isStdFunctionUsed (stdFuncKind)) \
@@ -631,6 +628,128 @@ lazyGetDynamicLibFunction (
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+rtl::DynamicLayout*
+getDynamicLayout (DataPtr ptr)
+{
+	if (!ptr.m_p || !ptr.m_validator)
+	{
+		err::setError ("null data pointer access");
+		dynamicThrow ();
+	}
+
+	Box* box = ptr.m_validator->m_targetBox;
+	if (box->m_dynamicLayout)
+		return (rtl::DynamicLayout*) box->m_dynamicLayout;
+
+	Runtime* runtime = getCurrentThreadRuntime ();
+	rtl::DynamicLayout* dynamicLayout = dynamicLayout = createClass <DynamicLayout> (runtime);
+	rtl::DynamicLayout* prevDynamicLayout = (rtl::DynamicLayout*) sys::atomicCmpXchg ((size_t*) &box->m_dynamicLayout, 0, (size_t) dynamicLayout);
+
+	return prevDynamicLayout ? prevDynamicLayout : dynamicLayout;
+}
+
+size_t
+getDynamicFieldOffset (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT	(type->getFlags () & TypeFlag_Dynamic);
+
+	if (type->getTypeKind () != TypeKind_Struct)
+	{
+		err::setError ("only dynamic structs are currently supported");
+		dynamicThrow ();
+	}
+
+	StructType* structType = (StructType*) type;
+
+	size_t offset;
+	size_t prevIndex;
+
+	if (field)
+	{
+		offset = field->getOffset ();
+		prevIndex = field->getPrevDynamicFieldIndex ();
+		if (prevIndex == -1)
+			return offset;
+	}
+	else
+	{
+		field = structType->getMemberFieldArray ().getBack ();
+
+		if (field->getType ()->getFlags () & TypeFlag_Dynamic)
+		{
+			offset = 0;
+			prevIndex = structType->getDynamicFieldArray ().getCount () - 1;
+		}
+		else
+		{
+			offset = field->getOffset () + field->getType ()->getSize ();
+			prevIndex = field->getPrevDynamicFieldIndex ();
+		}
+	}
+
+	rtl::DynamicLayout* dynamicLayout = getDynamicLayout (ptr);
+	offset += dynamicLayout->getDynamicFieldEndOffset (ptr, structType, prevIndex);
+	return offset;
+}
+
+void*
+getDynamicField (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	return (char*) ptr.m_p + getDynamicFieldOffset (ptr, type, field);
+}
+
+size_t
+dynamicTypeSizeOf (
+	DataPtr ptr,
+	DerivableType* type
+	)
+{
+	return getDynamicFieldOffset (ptr, type, NULL);
+}
+
+size_t
+dynamicFieldSizeOf (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+	ASSERT (field->getType ()->getFlags () & TypeFlag_Dynamic);
+
+	rtl::DynamicLayout* dynamicLayout = getDynamicLayout (ptr);
+	size_t dynamicFieldIndex = field->getPrevDynamicFieldIndex () + 1;
+
+	size_t beginOffset = getDynamicFieldOffset (ptr, type, field);
+	size_t endOffset = dynamicLayout->getDynamicFieldEndOffset (ptr, type, dynamicFieldIndex);
+
+	return endOffset - beginOffset;
+}
+
+size_t
+dynamicFieldCountOf (
+	DataPtr ptr,
+	DerivableType* type,
+	StructField* field
+	)
+{
+	ASSERT (field->getType ()->getTypeKind () == TypeKind_Array);
+	ArrayType* arrayType = (ArrayType*) field->getType ();
+
+	size_t size = dynamicFieldSizeOf (ptr, type, field);
+	return size / arrayType->getElementType ()->getSize ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 size_t
 appendFmtLiteral_a (
 	FmtLiteral* fmtLiteral,
@@ -1100,6 +1219,7 @@ JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexState)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (DynamicLayout)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
@@ -1107,10 +1227,14 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicSizeOf,       dynamicSizeOf)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCountOf,      dynamicCountOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicTypeSizeOf,   dynamicTypeSizeOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicFieldSizeOf,  dynamicFieldSizeOf)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicFieldCountOf, dynamicFieldCountOf)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastDataPtr,  dynamicCastDataPtr)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastClassPtr, dynamicCastClassPtr)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicCastVariant,  dynamicCastVariant)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_StrengthenClassPtr,  strengthenClassPtr)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_GetDynamicField,     getDynamicField)
 
 	// gc heap
 
@@ -1185,8 +1309,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	// std types
 
-	JNC_MAP_STD_TYPE (StdType_RegexState, RegexState)
-	JNC_MAP_STD_TYPE (StdType_DynamicLib, DynamicLib)
+	JNC_MAP_STD_TYPE (StdType_RegexState,    RegexState)
+	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
+	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
 
 JNC_END_LIB_FUNCTION_MAP ()
 

@@ -33,7 +33,7 @@ enum TokenKind
 
 	// special literals
 
-	TokenKind_HexLiteral,
+	TokenKind_BinLiteral,
 	TokenKind_FmtLiteral,
 	TokenKind_FmtSpecifier,
 
@@ -223,7 +223,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	// literal tokens
 
 	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
-	AXL_LEX_TOKEN_NAME (TokenKind_HexLiteral,   "hex-literal")
+	AXL_LEX_TOKEN_NAME (TokenKind_BinLiteral,   "bin-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
 
@@ -427,6 +427,9 @@ protected:
 
 	Token*
 	createBinLiteralToken (int radix);
+
+	Token*
+	createRawLiteralToken ();
 
 	Token*
 	createCharToken (

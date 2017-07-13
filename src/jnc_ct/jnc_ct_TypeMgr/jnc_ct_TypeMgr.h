@@ -387,33 +387,34 @@ public:
 	createStructType (
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
 		);
 
 	StructType*
-	createUnnamedStructType (size_t fieldAlignment = 8)
+	createUnnamedStructType (
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
 	{
-		return createStructType (sl::String (), sl::String (), fieldAlignment);
+		return createStructType (sl::String (), sl::String (), fieldAlignment, flags);
 	}
-
-	StructType*
-	getStructType (
-		Type** memberTypeArray,
-		size_t memberCount,
-		size_t fieldAlignment = 8
-		);
 
 	UnionType*
 	createUnionType (
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
 		);
 
 	UnionType*
-	createUnnamedUnionType (size_t fieldAlignment = 8)
+	createUnnamedUnionType (
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
 	{
-		return createUnionType (sl::String (), sl::String (), fieldAlignment);
+		return createUnionType (sl::String (), sl::String (), fieldAlignment, flags);
 	}
 
 	ClassType*

@@ -64,8 +64,9 @@ enum jnc_ClassTypeFlag
 {
 	jnc_ClassTypeFlag_HasAbstractMethods = 0x010000,
 	jnc_ClassTypeFlag_Closure            = 0x020000,
-	jnc_ClassTypeFlag_Opaque             = 0x100000,
-	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x200000,
+	jnc_ClassTypeFlag_Opaque             = 0x040000,
+	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x080000,
+	jnc_ClassTypeFlag_Child              = 0x100000, // constructor has an implicit 'parent' arg
 };
 
 typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
@@ -371,7 +372,8 @@ const ClassTypeFlag
 	ClassTypeFlag_HasAbstractMethods = jnc_ClassTypeFlag_HasAbstractMethods,
 	ClassTypeFlag_Closure            = jnc_ClassTypeFlag_Closure,
 	ClassTypeFlag_Opaque             = jnc_ClassTypeFlag_Opaque,
-	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable;
+	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable,
+	ClassTypeFlag_Child              = jnc_ClassTypeFlag_Child;
 
 //..............................................................................
 

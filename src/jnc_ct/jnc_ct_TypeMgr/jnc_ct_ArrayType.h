@@ -31,6 +31,8 @@ protected:
 	size_t m_elementCount;
 
 	sl::BoxList <Token> m_elementCountInitializer;
+	Function* m_getDynamicSizeFunction;
+
 	Unit* m_parentUnit;
 	Namespace* m_parentNamespace;
 
@@ -58,6 +60,11 @@ public:
 		return m_elementCountInitializer;
 	}
 
+	Function* getGetDynamicSizeFunction ()
+	{
+		return m_getDynamicSizeFunction;
+	}
+
 	static
 	sl::String
 	createSignature (
@@ -79,10 +86,29 @@ public:
 		rt::GcHeap* gcHeap
 		);
 
+	bool
+	ensureDynamicLayout (
+		StructType* dynamicStruct,
+		StructField* dynamicField
+		);
+
 protected:
 	virtual
 	bool
-	calcLayout ();
+	calcLayout ()
+	{
+		return calcLayoutImpl (NULL, NULL);
+	}
+
+	virtual
+	bool
+	compile ();
+
+	bool
+	calcLayoutImpl (
+		StructType* dynamicStruct,
+		StructField* dynamicField
+		);
 
 	virtual
 	void

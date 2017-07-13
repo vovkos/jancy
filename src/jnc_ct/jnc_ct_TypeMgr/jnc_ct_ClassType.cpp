@@ -316,7 +316,8 @@ ClassType::calcLayout ()
 	for (size_t i = 0; slotIt; i++, slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable))
+		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
+			(slot->m_type->getFlags () & TypeFlag_Dynamic))
 		{
 			err::setFormatStringError ("'%s' cannot be a base type of a class", slot->m_type->getTypeString ().sz ());
 			return false;

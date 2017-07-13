@@ -74,10 +74,11 @@ DataPtrType::getPointerStringSuffix ()
 {
 	sl::String string;
 
-	if (m_flags & PtrTypeFlag__AllMask)
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
+	if (!ptrTypeFlagString.isEmpty ())
 	{
 		string += ' ';
-		string += getPtrTypeFlagString (m_flags);
+		string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != DataPtrTypeKind_Normal)
@@ -136,7 +137,7 @@ DataPtrType::calcFoldedDualType (
 {
 	ASSERT (isDualType (this));
 
-	Type* targetType = (m_flags & TypeFlag_DerivedDual) ? 
+	Type* targetType = (m_flags & PtrTypeFlag_DualTarget) ?
 		m_module->m_typeMgr.foldDualType (m_targetType, isAlien, isContainerConst) :
 		m_targetType;
 

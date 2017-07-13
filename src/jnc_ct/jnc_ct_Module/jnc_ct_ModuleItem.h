@@ -140,6 +140,9 @@ public:
 		return m_attributeBlock;
 	}
 
+	void
+	pushSrcPosError ();
+
 protected:
 	sl::String
 	getDoxyLocationString ();

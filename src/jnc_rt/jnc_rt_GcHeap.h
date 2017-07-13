@@ -270,7 +270,6 @@ public:
 
 	// marking
 
-	static
 	void
 	weakMark (Box* box);
 

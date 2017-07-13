@@ -377,13 +377,15 @@ Members2
 	createStructType (
 		const sl::StringRef& name,
 		sl::BoxList <Type*>* baseTypeList,
-		size_t fieldAlignment
+		size_t fieldAlignment,
+		uint_t flags
 		);
 
 	UnionType*
 	createUnionType (
 		const sl::StringRef& name,
-		size_t fieldAlignment
+		size_t fieldAlignment,
+		uint_t flags
 		);
 
 	ClassType*
@@ -504,6 +506,12 @@ Members2
 	skipCurlyInitializerItem (CurlyInitializer* initializer);
 
 	bool
+	assignCurlyInitializerItem (
+		CurlyInitializer* initializer,
+		const Value& value
+		);
+
+	bool
 	addFmtSite (
 		Literal* literal,
 		const sl::StringRef& string,
@@ -543,6 +551,13 @@ Members2
 	appendFmtLiteralBinValue (
 		const Value& fmtLiteralValue,
 		const Value& rawSrcValue
+		);
+
+	bool
+	finalizeReSwitchCaseLiteral (
+		sl::StringRef* data,
+		const Value& value,
+		bool isZeroTerminated
 		);
 
 	BasicBlock*

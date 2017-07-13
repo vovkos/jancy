@@ -189,6 +189,40 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind);
 
 //..............................................................................
 
+enum jnc_TypeFlag
+{
+	jnc_TypeFlag_Named     = 0x0100,
+	jnc_TypeFlag_Pod       = 0x0200, // plain-old-data
+	jnc_TypeFlag_GcRoot    = 0x0400, // is or contains gc-traceable pointers
+	jnc_TypeFlag_StructRet = 0x0800, // return through hidden 1st arg (gcc32 callconv)
+	jnc_TypeFlag_NoStack   = 0x1000, // try to avoid allocation on stack
+	jnc_TypeFlag_Dynamic   = 0x2000, // dynamic struct/union/array
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_PtrTypeFlag
+{
+	jnc_PtrTypeFlag_Safe       = 0x0010000, // all ptr
+	jnc_PtrTypeFlag_Const      = 0x0020000, // class & data ptr
+	jnc_PtrTypeFlag_ReadOnly   = 0x0040000, // class & data ptr
+	jnc_PtrTypeFlag_CMut       = 0x0080000, // class & data ptr
+	jnc_PtrTypeFlag_Volatile   = 0x0100000, // class & data ptr
+	jnc_PtrTypeFlag_Event      = 0x0200000, // multicast-class only
+	jnc_PtrTypeFlag_DualEvent  = 0x0400000, // multicast-class only
+	jnc_PtrTypeFlag_Bindable   = 0x0800000, // multicast-class only
+	jnc_PtrTypeFlag_AutoGet    = 0x1000000, // data ptr only
+	jnc_PtrTypeFlag_DualTarget = 0x2000000, // data ptr only
+
+	jnc_PtrTypeFlag__Dual =
+		jnc_PtrTypeFlag_ReadOnly |
+		jnc_PtrTypeFlag_CMut |
+		jnc_PtrTypeFlag_DualEvent |
+		jnc_PtrTypeFlag_DualTarget,
+};
+
+//..............................................................................
+
 // commonly used non-primitive types
 
 enum jnc_StdType
@@ -218,6 +252,7 @@ enum jnc_StdType
 	jnc_StdType_RegexMatch,
 	jnc_StdType_RegexState,
 	jnc_StdType_DynamicLib,
+	jnc_StdType_DynamicLayout,
 	jnc_StdType_FmtLiteral,
 	jnc_StdType_Int64Int64, // for system V coercion
 	jnc_StdType_Fp64Fp64,   // for system V coercion
@@ -567,6 +602,36 @@ getTypeKindFlags (TypeKind typeKind)
 
 //..............................................................................
 
+typedef jnc_TypeFlag TypeFlag;
+
+const TypeFlag
+	TypeFlag_Named     = jnc_TypeFlag_Named,
+	TypeFlag_Pod       = jnc_TypeFlag_Pod,
+	TypeFlag_GcRoot    = jnc_TypeFlag_GcRoot,
+	TypeFlag_StructRet = jnc_TypeFlag_StructRet,
+	TypeFlag_NoStack   = jnc_TypeFlag_NoStack,
+	TypeFlag_Dynamic   = jnc_TypeFlag_Dynamic;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef jnc_PtrTypeFlag PtrTypeFlag;
+
+const PtrTypeFlag
+	PtrTypeFlag_Safe       = jnc_PtrTypeFlag_Safe,
+	PtrTypeFlag_Const      = jnc_PtrTypeFlag_Const,
+	PtrTypeFlag_ReadOnly   = jnc_PtrTypeFlag_ReadOnly,
+	PtrTypeFlag_CMut       = jnc_PtrTypeFlag_CMut,
+	PtrTypeFlag_Volatile   = jnc_PtrTypeFlag_Volatile,
+	PtrTypeFlag_Event      = jnc_PtrTypeFlag_Event,
+	PtrTypeFlag_DualEvent  = jnc_PtrTypeFlag_DualEvent,
+	PtrTypeFlag_Bindable   = jnc_PtrTypeFlag_Bindable,
+	PtrTypeFlag_AutoGet    = jnc_PtrTypeFlag_AutoGet,
+	PtrTypeFlag_DualTarget = jnc_PtrTypeFlag_DualTarget,
+
+	PtrTypeFlag__Dual      = jnc_PtrTypeFlag__Dual;
+
+//..............................................................................
+
 typedef jnc_StdType StdType;
 
 const StdType
@@ -595,6 +660,7 @@ const StdType
 	StdType_RegexMatch          = jnc_StdType_RegexMatch,
 	StdType_RegexState          = jnc_StdType_RegexState,
 	StdType_DynamicLib          = jnc_StdType_DynamicLib,
+	StdType_DynamicLayout       = jnc_StdType_DynamicLayout,
 	StdType_FmtLiteral          = jnc_StdType_FmtLiteral,
 	StdType_Int64Int64          = jnc_StdType_Int64Int64,
 	StdType_Fp64Fp64            = jnc_StdType_Fp64Fp64,

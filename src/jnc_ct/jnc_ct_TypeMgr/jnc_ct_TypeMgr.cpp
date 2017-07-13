@@ -253,6 +253,7 @@ TypeMgr::getStdType (StdType stdType)
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
 	case StdType_Fp64Int64:
+	case StdType_DynamicLayout:
 		type = parseStdType (stdType);
 		break;
 
@@ -681,7 +682,8 @@ StructType*
 TypeMgr::createStructType (
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	StructType* type = AXL_MEM_NEW (StructType);
@@ -707,6 +709,8 @@ TypeMgr::createStructType (
 
 	type->m_module = m_module;
 	type->m_fieldAlignment = fieldAlignment;
+	type->m_flags |= flags;
+
 	m_structTypeList.insertTail (type);
 	m_module->markForLayout (type, true);
 	return type;
@@ -716,11 +720,12 @@ UnionType*
 TypeMgr::createUnionType (
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	size_t fieldAlignment
+	size_t fieldAlignment,
+	uint_t flags
 	)
 {
 	UnionType* type = AXL_MEM_NEW (UnionType);
-
+	
 	if (name.isEmpty ())
 	{
 		m_unnamedUnionTypeCounter++;
@@ -742,14 +747,20 @@ TypeMgr::createUnionType (
 
 	m_module->markForLayout (type, true); // before child struct
 
-	StructType* unionStructType = createUnnamedStructType ();
-	unionStructType->m_parentNamespace = type;
-	unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
-	unionStructType->m_fieldAlignment = fieldAlignment;
-	unionStructType->m_tag.format ("%s.Struct", type->m_tag.sz ());
-
 	type->m_module = m_module;
-	type->m_structType = unionStructType;
+	type->m_flags |= flags;
+
+	if (!(flags & TypeFlag_Dynamic))
+	{
+		StructType* unionStructType = createUnnamedStructType ();
+		unionStructType->m_parentNamespace = type;
+		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
+		unionStructType->m_fieldAlignment = fieldAlignment;
+		unionStructType->m_tag.format ("%s.Struct", type->m_tag.sz ());
+
+		type->m_structType = unionStructType;
+	}
+
 	m_unionTypeList.insertTail (type);
 	return type;
 }
@@ -1577,7 +1588,7 @@ TypeMgr::createReactorType (
 	{
 		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 
-		type->m_flags |= TypeFlag_Child;
+		type->m_flags |= ClassTypeFlag_Child;
 		type->m_fieldArray [ReactorFieldKind_Parent] = type->createField ("!m_parent", parentPtrType);
 
 		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
@@ -1763,7 +1774,7 @@ TypeMgr::getDataPtrType (
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	if (isDualType (targetType))
-		flags |= TypeFlag_DerivedDual;
+		flags |= PtrTypeFlag_DualTarget;
 
 	DataPtrTypeTuple* tuple = getDataPtrTypeTuple (targetType);
 
@@ -2473,6 +2484,7 @@ TypeMgr::createBoxType ()
 	StructType* type = createStructType ("Box", "jnc.Box");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
 }
@@ -2483,6 +2495,7 @@ TypeMgr::createDataBoxType ()
 	StructType* type = createStructType ("DataBox", "jnc.DataBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
 	return type;
@@ -2494,6 +2507,7 @@ TypeMgr::createDynamicArrayBoxType ()
 	StructType* type = createStructType ("DynamicArrayBox", "jnc.DynamicArrayBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_count", getPrimitiveType (TypeKind_Int64_u));
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
@@ -2506,6 +2520,7 @@ TypeMgr::createStaticDataBoxType ()
 	StructType* type = createStructType ("StaticDataBox", "jnc.StaticDataBox");
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
+	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;

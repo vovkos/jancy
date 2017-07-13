@@ -78,10 +78,11 @@ PropertyPtrType::prepareTypeString ()
 
 	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
 
-	if (m_flags & PtrTypeFlag__AllMask)
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
+	if (!ptrTypeFlagString.isEmpty ())
 	{
 		tuple->m_typeStringPrefix += ' ';
-		tuple->m_typeStringPrefix += getPtrTypeFlagString (m_flags);
+		tuple->m_typeStringPrefix += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)
@@ -106,10 +107,11 @@ PropertyPtrType::prepareDoxyLinkedText ()
 
 	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
 
-	if (m_flags & PtrTypeFlag__AllMask)
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
+	if (!ptrTypeFlagString.isEmpty ())
 	{
 		tuple->m_doxyLinkedTextPrefix += ' ';
-		tuple->m_doxyLinkedTextPrefix += getPtrTypeFlagString (m_flags);
+		tuple->m_doxyLinkedTextPrefix += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != PropertyPtrTypeKind_Normal)

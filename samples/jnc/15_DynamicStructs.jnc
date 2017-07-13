@@ -1,0 +1,121 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+// Jancy is not the first language to introduce dynamic structs per se -- many
+// languages support introspection/reflection facilities, which allow modifying
+// the type system at runtime.
+
+// However, dynamic structs in Jancy allow something that's simply not possible
+// with any other language -- self-description. The lengths of some fields may
+// be defined within the very same struct -- via "length"/"count" fields,
+// null-termination, etc. This approach is used in many file formats and network
+// protocols.
+
+// All calculated offsets are cached and then re-used during the next access, so
+// you don't have to worry much about the performance aspect of dynamic structs.
+
+//..............................................................................
+
+struct Section
+{
+	uint32_t m_offset;
+	uint32_t m_size;
+}
+
+dynamic struct FileHdr
+{
+	uint32_t m_signature;
+	uint32_t m_sectionCount;
+	Section m_sectionTable [m_sectionCount];
+	uint32_t m_version;
+	char m_authorName [strlen (m_authorName) + 1];
+	char m_authorEmail [strlen (m_authorEmail) + 1];
+}
+
+printFileHdr (FileHdr const* hdr)
+{
+	printf (
+		"signature:   %.4s (0x%08x)\n"
+		"sections:    %d\n"
+		"version:     %d.%d.%d (0x%06x)\n"
+		"author:      %s\n"
+		"email:       %s\n"
+		"total size:  %d\n",
+		&hdr.m_signature,
+		hdr.m_signature,
+		hdr.m_sectionCount,
+		(hdr.m_version & 0xff0000) >> 16,
+		(hdr.m_version & 0x00ff00) >> 8,
+		(hdr.m_version & 0x0000ff),
+		hdr.m_version,
+		hdr.m_authorName,
+		hdr.m_authorEmail,
+		dynamic sizeof (*hdr)
+		);
+
+	// dynamic structs can only be incremented by 1 (one)
+
+	char const* data = (char const*) (hdr + 1);
+
+	for (size_t i = 0; i < hdr.m_sectionCount; i++)
+	{
+		char const* section = data + hdr.m_sectionTable [i].m_offset;
+		printf ("section [%d]: %s\n", i, section);
+	}
+}
+
+int main ()
+{
+	char buffer [] =
+	{
+		r"ABCD",            // 00: m_signature
+		3,  0, 0, 0,        // 04: m_sectionCount
+		0,  0, 0, 0,        // 08: m_sectionTable [0].m_offset
+		10, 0, 0, 0,        // 12: m_sectionTable [0].m_size
+		10, 0, 0, 0,        // 16: m_sectionTable [1].m_offset
+		10, 0, 0, 0,        // 20: m_sectionTable [1].m_size
+		20, 0, 0, 0,        // 24: m_sectionTable [2].m_offset
+		10, 0, 0, 0,        // 28: m_sectionTable [2].m_size
+		0,  0, 1, 0,        // 32: m_version (1.0.0)
+		"John Smith",       // 36: m_authorName
+		"me@johnsmith.org", // 47: m_authorEmail [strlen (m_authorEmail)]
+		"section-0",        // 64:
+ 		"section-1",        // 74:
+		"section-2",        // 84:
+	}
+
+	printf ("sizeof (buffer): %d\n", sizeof (buffer));
+
+	printFileHdr ((FileHdr const*) buffer);
+
+	printf ("-----------------\n");
+
+	// we will re-use the same buffer -- drop the dynamic layout cache
+
+	std.resetDynamicLayout (buffer);
+
+	// you can also use dynamic structs for write-access
+	// in this case, be sure to set the fields from top to bottom
+
+	FileHdr* hdr = (FileHdr*) buffer;
+	hdr.m_sectionCount = 1;   // now all the dynamic offsets will be  different
+	hdr.m_version = 0x020000; // 2.0.0
+	strcpy (hdr.m_authorName, "Jane Doe");
+	strcpy (hdr.m_authorEmail, "jane.doe@gmail.com");
+
+	strcpy ((char*) (hdr + 1), "SECTION-0");
+
+	printFileHdr (hdr);
+
+	return 0;
+}
+
+//..............................................................................

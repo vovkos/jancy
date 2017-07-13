@@ -54,6 +54,12 @@ ModuleItemDecl::getDoxyLocationString ()
 	return string;
 }
 
+void
+ModuleItemDecl::pushSrcPosError ()
+{
+	lex::pushSrcPosError (m_parentUnit->getFilePath (), m_pos);
+}
+
 //..............................................................................
 
 ModuleItem::ModuleItem ()

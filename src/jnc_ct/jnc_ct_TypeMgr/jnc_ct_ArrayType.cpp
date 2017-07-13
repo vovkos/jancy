@@ -26,6 +26,7 @@ ArrayType::ArrayType ()
 	m_elementType = NULL;
 	m_rootType = NULL;
 	m_elementCount = -1;
+	m_getDynamicSizeFunction = NULL;
 	m_parentUnit = NULL;
 	m_parentNamespace = NULL;
 }
@@ -79,11 +80,40 @@ ArrayType::createDimensionString ()
 }
 
 bool
-ArrayType::calcLayout ()
+ArrayType::ensureDynamicLayout (
+	StructType* dynamicStruct,
+	StructField* dynamicField
+	)
+{
+	bool result;
+
+	if (m_flags & ModuleItemFlag_LayoutReady)
+		return true;
+
+	result = calcLayoutImpl (dynamicStruct, dynamicField);
+	if (!result)
+		return false;
+
+	m_flags |= ModuleItemFlag_LayoutReady;
+	return true;
+}
+
+bool
+ArrayType::calcLayoutImpl (
+	StructType* dynamicStruct,
+	StructField* dynamicField
+	)
 {
 	bool result = m_elementType->ensureLayout ();
 	if (!result)
 		return false;
+
+	if (m_elementType->getTypeKind () == TypeKind_Class ||
+		m_elementType->getFlags () & TypeFlag_Dynamic)
+	{
+		err::setFormatStringError ("'%s' cannot be an element of an array", m_elementType->getTypeString ().sz ());
+		return false;
+	}
 
 	// ensure update
 
@@ -117,7 +147,28 @@ ArrayType::calcLayout ()
 			);
 
 		if (!result)
-			return false;
+		{
+			if (!dynamicStruct) 
+				return false;
+
+			Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
+			FunctionType* type = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
+			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
+			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
+			m_getDynamicSizeFunction->m_tag.format (
+				"%s.%s.getDynamicSize", 
+				dynamicStruct->m_tag.sz (), 
+				dynamicField->getName ().sz ()
+				);
+
+			m_getDynamicSizeFunction->convertToMemberMethod (dynamicStruct);
+			m_module->markForCompile (this);
+
+			m_flags |= TypeFlag_Dynamic;
+			m_elementCount = 0;
+			m_size = 0;
+			return true;
+		}
 
 		if (value <= 0)
 		{
@@ -154,6 +205,49 @@ ArrayType::calcLayout ()
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;
 
+	return true;
+}
+
+bool
+ArrayType::compile ()
+{
+	ASSERT (m_getDynamicSizeFunction);
+
+	bool result;
+
+	m_module->m_functionMgr.internalPrologue (m_getDynamicSizeFunction);
+	m_module->m_functionMgr.createThisValue ();
+	m_module->m_namespaceMgr.openNamespace (m_getDynamicSizeFunction->getParentNamespace ());
+
+	Value resultValue;
+	result = m_module->m_operatorMgr.parseExpression (
+			m_getDynamicSizeFunction->getParentUnit (),
+			m_elementCountInitializer,
+			&resultValue
+			);
+	if (!result)
+		return false;
+
+	size_t size = m_elementType->getSize ();
+	if (size != 1)
+	{
+		Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+		result = m_module->m_operatorMgr.binaryOperator (
+			BinOpKind_Mul, 
+			&resultValue, 
+			sizeValue
+			);
+		
+		if (!result)
+			return false;
+	}
+	
+	result = m_module->m_controlFlowMgr.ret (resultValue);
+	if (!result)
+		return false;
+		
+	m_module->m_namespaceMgr.closeNamespace ();
+	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }
 

@@ -82,10 +82,11 @@ FunctionPtrType::getTypeModifierString ()
 {
 	sl::String string;
 
-	if (m_flags & PtrTypeFlag__AllMask)
+	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
+	if (!ptrTypeFlagString.isEmpty ())
 	{
-		string += getPtrTypeFlagString (m_flags);
 		string += ' ';
+		string += ptrTypeFlagString;
 	}
 
 	if (m_ptrTypeKind != FunctionPtrTypeKind_Normal)

@@ -108,7 +108,14 @@ UnionType::calcLayout ()
 
 		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
-			err::setFormatStringError ("non-POD '%s' cannot be union member", field->m_type->getTypeString ().sz ());
+			err::setFormatStringError ("non-POD '%s' cannot be a union member", field->m_type->getTypeString ().sz ());
+			field->pushSrcPosError ();
+			return false;
+		}
+		else if (fieldTypeFlags & TypeFlag_Dynamic)
+		{
+			err::setFormatStringError ("dynamic '%s' cannot be a union member", field->m_type->getTypeString ().sz ());
+			field->pushSrcPosError ();
 			return false;
 		}
 

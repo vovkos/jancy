@@ -134,6 +134,15 @@ char const* strstr (
 	);
 
 /**
+	Copies null-terminated string ``src`` to the buffer pointed to by ``dst``.
+*/
+
+void strcpy (
+	char* dst,
+	char const* src
+	);
+
+/**
 	Creates a new string as a concatenation of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
 	Returns a pointer to the result string.
@@ -389,7 +398,7 @@ namespace std {
 //! @{
 
 /**
-	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffered [#f3]_.
+	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffer [#f3]_.
 
 	Returns a pointer to null-terminated string containing the newly formatted text.
 
@@ -403,6 +412,56 @@ char const* cdecl errorcode format (
 	);
 
 //! @}
+
+/**
+	Clears the cache of dynamically calculated offsets inside a ``dynamic struct``.
+
+	Jancy runtime optimizes access to dynamic structures by caching the calucated offsets of dynamic fields. The cache is stored inside a buffer itself (as part of jnc.Box, not as part of a dynamic pointer). Therefore, it's necessary to drop this cache if you are about to re-use the same buffer by re-writing it with another block of memory and analyzing it agani with dynamic structures.
+
+	Note that dropping the cache is not required if you just want to analyze the same buffer with other ``dynamic struct`` pointers -- the cache is smart enough to distinguish between multiple dynamic structure types.
+
+	.. rubric:: Sample code:
+
+	.. ref-code-block::
+
+		dynamic struct HeaderA
+		{
+			// ...
+		};
+
+		dynamic struct HeaderB
+		{
+			// ...
+		};
+
+		char buffer [1024];
+
+		file.read (buffer, sizeof (buffer));
+
+		HeaderA const* a = (HeaderA const*) buffer;
+
+		// access the buffer via dynamic struct A...
+
+		file.read (buffer, sizeof (buffer));
+
+		// we need to drop the previous cache -- otherwise,
+		// Jancy runtime will re-use pre-calculated offsets.
+		// that, obviously, will yield wrong resultts (the data is different)
+
+		std.resetDynamicLayout (buffer);
+
+		HeaderA const* a = (HeaderA const*) buffer;
+
+		// access the buffer via dynamic struct A...
+
+		// no need to drop cache before accessing the same
+		// buffer with a different dynamic struct pointer
+
+		HeaderB const* b = (HeaderB const*) buffer;
+
+*/
+
+void resetDynamicLayout (void const* p);
 
 //..............................................................................
 

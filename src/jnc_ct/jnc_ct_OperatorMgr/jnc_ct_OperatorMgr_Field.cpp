@@ -33,6 +33,12 @@ OperatorMgr::getField (
 	else if (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
 		type = ((ClassPtrType*) opValue.getType ())->getTargetType ();
 
+	if (type->getFlags () & TypeFlag_Dynamic)
+	{
+		ASSERT (type->getTypeKindFlags () & TypeKindFlag_Derivable);
+		return getDynamicStructField (opValue, (DerivableType*) type, field, resultValue);
+	}
+		
 	TypeKind typeKind = type->getTypeKind ();
 	switch (typeKind)
 	{
@@ -268,6 +274,55 @@ OperatorMgr::getStructField (
 			);
 	}
 
+	return true;
+}
+
+bool
+OperatorMgr::getDynamicStructField (
+	const Value& opValue,
+	DerivableType* type,
+	StructField* field,
+	Value* resultValue
+	)
+{
+	bool result;
+
+	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction (StdFunc_GetDynamicField);
+	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Value fieldValue (&field, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	
+	Value ptrValue;
+	result = m_module->m_operatorMgr.callOperator (
+		getDynamicFieldFunc,
+		opValue,
+		typeValue,
+		fieldValue,
+		&ptrValue
+		);
+
+	if (!result)
+		return false;
+
+	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr); // otherwise, getDynamicFieldFunc fails
+	DataPtrType* opType = (DataPtrType*) opValue.getType ();
+	
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
+	ASSERT (ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
+
+	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
+	if (field->getStorageKind () == StorageKind_Mutable)
+		ptrTypeFlags &= ~PtrTypeFlag_Const;
+
+	ASSERT (opType->getTargetType ()->getFlags () & TypeFlag_Pod); // dynamic struct must be POD
+	DataPtrType* resultType = field->getType ()->getDataPtrType (
+		TypeKind_DataRef,
+		DataPtrTypeKind_Lean,
+		ptrTypeFlags
+		);
+
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, &ptrValue);
+	resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
+	resultValue->setDynamicFieldInfo (opValue, type, field);
 	return true;
 }
 

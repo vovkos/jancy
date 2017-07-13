@@ -113,7 +113,9 @@ class Function:
 	friend class TypeMgr;
 	friend class NamedTypeBlock;
 	friend class DerivableType;
+	friend class StructType;
 	friend class ClassType;
+	friend class ArrayType;
 	friend class ReactorClassType;
 	friend class Property;
 	friend class Orphan;

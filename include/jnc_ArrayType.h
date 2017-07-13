@@ -43,7 +43,7 @@
 
 enum jnc_ArrayTypeFlag
 {
-	jnc_ArrayTypeFlag_AutoSize = 0x010000,
+	jnc_ArrayTypeFlag_AutoSize    = 0x010000,
 };
 
 typedef enum jnc_ArrayTypeFlag jnc_ArrayTypeFlag;

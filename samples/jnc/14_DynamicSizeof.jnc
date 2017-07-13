@@ -10,8 +10,9 @@
 //..............................................................................
 
 // Jancy runtime uses data pointer validators for ensuring pointer safety. The
-// developer can also access certain information in validators. This may come
-// handy in certain situations.
+// developer can also access range information in validators. This is very handy
+// because in many situations it allows omitting size/count arguments -- this 
+// information can be recovered directly from pointers themselves.
 
 //..............................................................................
 
