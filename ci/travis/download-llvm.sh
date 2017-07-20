@@ -21,7 +21,7 @@ fi
 
 isVersionGe ()
 {
-    [  $1 == `echo -e "$1\n$2" | $GNUSORT -V -r | head -n1` ]
+    [ $1 == `echo -e "$1\n$2" | $GNUSORT -V -r | head -n1` ]
 }
 
 if [ $BUILD_CONFIGURATION != "Debug" ]; then
@@ -40,16 +40,16 @@ fi
 LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX$CC_SUFFIX$DEBUG_SUFFIX.tar$TAR_FILE_EXT
 LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/download/llvm-$LLVM_VERSION/$LLVM_TAR
 
+if isVersionGe $LLVM_VERSION 3.9; then
+    LLVM_CMAKE_SUBDIR=lib/cmake/llvm
+else
+    LLVM_CMAKE_SUBDIR=share/llvm/cmake
+fi
+
 echo getting LLVM from: $LLVM_URL
 
 wget --quiet $LLVM_URL
 mkdir -p llvm
 tar --strip-components=1 -xf $LLVM_TAR -C llvm
-
-if isVersionGe $LLVM_VERSION 3.9; then
-    export LLVM_CMAKE_SUBDIR=lib/cmake/llvm
-else
-    export LLVM_CMAKE_SUBDIR=share/llvm/cmake
-fi
 
 echo "set (LLVM_CMAKE_DIR $(pwd)/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake

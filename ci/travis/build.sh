@@ -53,10 +53,17 @@ fi
 
 popd
 
-source ci/travis/get-coverage.sh
+if [ "$GET_COVERAGE" != "" ]; then
+	lcov --capture --directory . --no-external --output-file coverage.info
+	lcov --remove coverage.info '*/llvm/*' '*/axl/*' '*/graco/*' --output-file coverage.info
+	lcov --list coverage.info
+
+	curl -s https://codecov.io/bash | bash
+fi
 
 if [ "$BUILD_DOC" != "" ]; then
 	pushd build/doc
+
 	source index/build-html.sh
 	source build-guide/build-html.sh
 	source language/build-html.sh
