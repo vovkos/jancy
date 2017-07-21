@@ -19,6 +19,7 @@ if [ "$BUILD_DOC" != "" ]; then
 	brew install doxygen
 	pip install sphinx sphinx_rtd_theme
 	rvm get stable
+	echo rvm_auto_reload_flag=1 >> ~/.rvmrc
 
 	git clone --depth 1 http://github.com/vovkos/doxyrest
 fi
