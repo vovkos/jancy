@@ -26,7 +26,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 		export GET_COVERAGE=ON
 	fi
 elif [ "$TRAVIS_OS_NAME" == "osx" ]; then
- 	if [ "$BUILD_CONFIGURATION" == "Release" ]; then
+ 	if [ "$BUILD_CONFIGURATION" == "Release" ] && [ "$LLVM_VERSION" == "3.4.2" ]; then
 		export BUILD_DOC=ON
  	fi
 fi

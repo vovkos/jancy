@@ -20,6 +20,9 @@
 	:target: https://ci.appveyor.com/project/vovkos/jancy
 .. image:: https://codecov.io/gh/vovkos/jancy/branch/master/graph/badge.svg
 	:target: https://codecov.io/gh/vovkos/jancy
+.. image:: https://img.shields.io/badge/donate-@jancy.org-blue.svg
+	:align: right
+	:target: http://jancy.org/donate.html?donate=jancy
 
 Abstract
 --------
