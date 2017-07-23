@@ -9,10 +9,8 @@
 ..
 .. .............................................................................
 
-.. raw:: html
-
-	<img src="/doc/mascot/jancy-215x350.png" alt="Jancy" align="right">
-	<h1>Jancy</h1>
+Jancy
+=====
 
 .. image:: https://travis-ci.org/vovkos/jancy.svg?branch=master
 	:target: https://travis-ci.org/vovkos/jancy
@@ -26,6 +24,10 @@
 
 Abstract
 --------
+
+.. raw:: html
+
+	<a href="http://jancy.org"><img src="jancy-215x350.png" alt="Jancy" align="right"></a>
 
 Jancy is *the first and only* scripting language with **safe pointer arithmetics**, high level of ABI and source **compatibility with C**, support for spreadsheet-like **reactive programming**, built-in generator of **incremental lexers/scanners**, **dynamic structures** with array fields of non-constant sizes, **dual error handling model** which allows you to choose between error-code checks and throw semantics at each *call-site*, and a lot of other unique and really useful features.
 
