@@ -725,7 +725,7 @@ TypeMgr::createUnionType (
 	)
 {
 	UnionType* type = AXL_MEM_NEW (UnionType);
-	
+
 	if (name.isEmpty ())
 	{
 		m_unnamedUnionTypeCounter++;
@@ -2394,6 +2394,8 @@ TypeMgr::parseStdType (
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace (stdNamespace);
 
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit (m_module->m_unitMgr.getCoreLibUnit ());
+
 	Parser parser (m_module);
 	parser.create (SymbolKind_named_type_specifier_save_type);
 
@@ -2413,6 +2415,8 @@ TypeMgr::parseStdType (
 
 		lexer.nextToken ();
 	}
+
+	m_module->m_unitMgr.setCurrentUnit (prevUnit);
 
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace ();

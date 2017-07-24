@@ -101,6 +101,7 @@ protected:
 	Module* m_module;
 	sl::StdList <Unit> m_unitList;
 	Unit* m_currentUnit;
+	Unit* m_coreLibUnit;
 
 public:
 	UnitMgr ();
@@ -128,6 +129,9 @@ public:
 
 	Unit*
 	setCurrentUnit (Unit* unit);
+
+	Unit*
+	getCoreLibUnit ();
 
 	Unit*
 	createUnit (

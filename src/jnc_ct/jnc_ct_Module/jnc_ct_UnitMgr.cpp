@@ -66,6 +66,7 @@ UnitMgr::UnitMgr ()
 	ASSERT (m_module);
 
 	m_currentUnit = NULL;
+	m_coreLibUnit = NULL;
 }
 
 void
@@ -73,6 +74,7 @@ UnitMgr::clear ()
 {
 	m_unitList.clear ();
 	m_currentUnit = NULL;
+	m_coreLibUnit = NULL;
 }
 
 Unit*
@@ -83,6 +85,15 @@ UnitMgr::setCurrentUnit (Unit* unit)
 	Unit* prevUnit = m_currentUnit;
 	m_currentUnit = unit;
 	return prevUnit;
+}
+
+Unit*
+UnitMgr::getCoreLibUnit ()
+{
+	if (!m_coreLibUnit)
+		m_coreLibUnit = createUnit (jnc_CoreLib_getLib (), "jnc_rtl.jnc");
+
+	return m_coreLibUnit;
 }
 
 Unit*
