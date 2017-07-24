@@ -742,11 +742,15 @@ DerivableType::generateDocumentation (
 	for (; it; it++)
 	{
 		DerivableType* baseType = it->getType ();
-		itemXml->appendFormat (
-			"<basecompoundref refid='%s'>%s</basecompoundref>\n",
-			baseType->getDoxyBlock ()->getRefId ().sz (),
-			baseType->getQualifiedName ().sz ()
-			);
+		sl::String refId = baseType->getDoxyBlock ()->getRefId ();
+		Unit* unit = baseType->getParentUnit ();
+		ExtensionLib* lib = unit ? unit->getLib () : NULL;
+		if (lib)
+			itemXml->appendFormat ("<basecompoundref importid='%s/%s'>", lib->m_guid->getGuidString ().sz (), refId.sz ());
+		else
+			itemXml->appendFormat ("<basecompoundref refid='%s'>", refId.sz ());
+
+		itemXml->appendFormat ("%s</basecompoundref>\n", baseType->getQualifiedName ().sz ());
 	}
 
 	if (!constructorXml.isEmpty () || !destructorXml.isEmpty ())
