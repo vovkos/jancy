@@ -129,13 +129,11 @@ But there's more -- the resulting DFA recognizer is *incremental*, which means y
 Dynamic Structs
 ~~~~~~~~~~~~~~~
 
-Jancy supports structures with non-constant sizes of array fields.
-
-In many file formats and network protocol headers the lengths of some fields are dynamically calculated based on the values of others; another commonly used data model is null-terminated string fields:
+Define dynamically laid-out structures with non-constant sizes of array fields -- this is used in many file formats and network protocol headers (i.e. the length of one field depends on the value of another):
 
 .. code:: cpp
 
-	struct FileHdr
+	dynamic struct FileHdr
 	{
 		// ...
 		char m_authorName [strlen (m_authorName) + 1];
@@ -152,12 +150,13 @@ In Jancy you can describe a dynamic struct, overlap your buffer with a pointer t
 	FileHdr const* hdr = buffer;
 
 	displayAuthorInfo (hdr.m_authorName, hdr.m_authorEmail);
+
 	for (size_t i = 0; i < hdr.m_sectionCount; i++)
 	{
 		processSection (hdr.m_sectionTable [i].m_offset, hdr.m_sectionTable [i].m_size);
 	}
 
-You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using Jancy dynamic structs!
+You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using this facility.
 
 Scheduled Function Pointers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
