@@ -341,4 +341,4 @@ texinfo_documents = [
 #
 # texinfo_no_detailmenu = False
 
-highlight_language = 'cpp'
+highlight_language = 'jnc'
