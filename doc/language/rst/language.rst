@@ -23,6 +23,9 @@ This chapter describes the syntax and semantics of the Jancy language.
 	decl_advanced.rst
 	decl_curly.rst
 	decl_storage.rst
+	literals.rst
+	aliases.rst
+	function_redirection.rst
 	cflow.rst
 	prop.rst
 	nspace.rst
@@ -30,9 +33,9 @@ This chapter describes the syntax and semantics of the Jancy language.
 	type_ptr.rst
 	multicasts.rst
 	reactive.rst
-	automatons.rst
+	regex_switches.rst
 	schedulers.rst
+	dynamic_structs.rst
 	dual_modifiers.rst
-	literals.rst
 	exceptions.rst
 	disposable.rst

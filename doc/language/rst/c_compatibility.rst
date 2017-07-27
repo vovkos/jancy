@@ -9,10 +9,10 @@
 ..
 .. .............................................................................
 
-ABI-compatibility with C
-========================
+Compatibility with C
+====================
 
-After the **proper declarations** in the Jancy scripts and in the host C/C++ application it becomes possible to **directly pass** data through **arguments and return values** without the need to explicitly push and pop the stack of the virtual machine or pack data into variant-like containers.
+After the proper declarations in the Jancy scripts and in the host C/C++ application it becomes possible to **directly pass data** through arguments and return values without the need to explicitly push and pop the stack of the virtual machine or pack data into variant-like containers.
 
 The following types are supported:
 
@@ -123,7 +123,14 @@ C++ implementation must be **mapped** to Jancy names so Jancy knows where to fin
 	    // ...
 	JNC_END_TYPE_FUNCTION_MAP ()
 
-The **high level of compatibility** between Jancy and C also means you can **copy-paste C** definitions of communication protocol headers (such as TCP, UDP, etc.). C is the de-facto standard of system programming and it's possible to find C definition for **virtually any protocol** in existence. Need to use this protocol from Jancy for analysis, implementation, or testing? Simply **copy-paste** the definition of protocol headers into Jancy, and often times it will compile without even touching a thing! However, it is recommended to **adjust definition** -- just so you can make use of Jancy features such as **derived enums** or **bigendians**.
+That's it. Now Jancy can call C++ methods directly.
+
+Source Compatibility
+--------------------
+
+The compatibility between Jancy and C doesn't end at ABI-level. High level of source compatibility between the two languages means that you can often times simply **copy-paste** C algorithms, definitions of communication protocol headers, etc.
+
+C is the de-facto standard of system programming. It's possible to find C definition for virtually any algorithm or protocol in existence. Let, say, you need to use some protocol headers from Jancy. Simply copy-paste the C declarations and often times it will compile without even touching a thing! It is, however, recommended to *make adjustments* -- just so you can make use of Jancy features such as **derived enums** or **bigendians**:
 
 .. code-block:: jnc
 
