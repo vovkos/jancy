@@ -183,11 +183,18 @@ if (LIBUSB_FOUND)
 	add_definitions (-D_JNC_IO_USB=1)
 endif ()
 
+add_definitions (
+	-DQT_COMPILING_QSTRING_COMPAT_CPP
+	-DQT_COMPILING_QIMAGE_COMPAT_CPP
+	)
+
 link_directories (
 	${AXL_LIB_DIR}
 	${LLVM_LIB_DIR}
 	${PCAP_LIB_DIR}
 	)
+
+add_definitions (-DQT_COMPILING_QSTRING_COMPAT_CPP)
 
 add_executable (
 	jnc_test_qt

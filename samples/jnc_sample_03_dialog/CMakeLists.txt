@@ -123,6 +123,11 @@ link_directories (
 	${LLVM_LIB_DIR}
 	)
 
+add_definitions (
+	-DQT_COMPILING_QSTRING_COMPAT_CPP
+	-DQT_COMPILING_QIMAGE_COMPAT_CPP
+	)
+
 add_executable (
 	jnc_sample_03_dialog
 	${PCH_H}
