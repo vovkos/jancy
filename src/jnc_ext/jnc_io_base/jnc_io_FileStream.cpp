@@ -43,11 +43,13 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <FileStream>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <FileStream>)
+	JNC_MAP_PROPERTY ("m_namedPipeReadMode", &FileStream::getNamedPipeReadMode, &FileStream::setNamedPipeReadMode)
 	JNC_MAP_FUNCTION ("open",  &FileStream::open)
 	JNC_MAP_FUNCTION ("close", &FileStream::close)
 	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
 	JNC_MAP_FUNCTION ("read",  &FileStream::read)
 	JNC_MAP_FUNCTION ("write", &FileStream::write)	
+	JNC_MAP_FUNCTION ("readNamedPipeMessage",  &FileStream::readNamedPipeMessage)
 	JNC_MAP_PROPERTY ("m_isFileStreamEventEnabled", &FileStream::isFileStreamEventEnabled, &FileStream::setFileStreamEventEnabled)
 JNC_END_TYPE_FUNCTION_MAP ()
 
@@ -72,6 +74,36 @@ FileStream::wakeIoThread ()
 	m_ioThreadEvent.signal ();
 #else
 	m_selfPipe.write (" ", 1);
+#endif
+}
+
+NamedPipeMode
+JNC_CDECL
+FileStream::getNamedPipeReadMode ()
+{
+#if (!_JNC_OS_WIN)
+	return NamedPipeMode_Stream;
+#else
+	dword_t state = 0;
+	bool_t result = ::GetNamedPipeHandleStateW (m_file.m_file, &state, NULL, NULL, NULL, NULL, 0);
+
+	return result && (state & PIPE_READMODE_MESSAGE) ?
+		NamedPipeMode_Message :
+		NamedPipeMode_Stream;
+#endif
+}
+
+bool
+JNC_CDECL
+FileStream::setNamedPipeReadMode (NamedPipeMode mode)
+{
+#if (!_JNC_OS_WIN)
+	err::setError (err::SystemErrorCode_NotImplemented);
+	return false;
+#else
+	dword_t state = mode == NamedPipeMode_Message ? PIPE_READMODE_MESSAGE : PIPE_READMODE_BYTE;
+	bool_t result = ::SetNamedPipeHandleState (m_file.m_file, &state, NULL, NULL);
+	return err::complete (result);
 #endif
 }
 
@@ -307,6 +339,72 @@ FileStream::read (
 	}
 }
 
+ReadNamedPipeMessageResult
+JNC_CDECL
+FileStream::readNamedPipeMessage (
+	DataPtr ptr,
+	size_t size,
+	DataPtr actualSizePtr
+	)
+{
+	size_t* actualSize = (size_t*) actualSizePtr.m_p;
+	if (!actualSize)
+	{
+		setError (err::SystemErrorCode_InvalidParameter);
+		return ReadNamedPipeMessageResult_Error;
+	}
+
+	m_ioLock.lock ();
+	if (m_ioFlags & IoFlag_WriteOnly)
+	{
+		m_ioLock.unlock ();
+		setError (err::SystemErrorCode_AccessDenied);
+		return ReadNamedPipeMessageResult_Error;
+	}
+	else if (m_ioFlags & IoFlag_IncomingData)
+	{
+		bool isIncompleteMessage = (m_ioFlags & IoFlag_IncompleteMessage) != 0;
+		size_t result = readImpl (ptr.m_p, size);
+		wakeIoThread ();
+		m_ioLock.unlock ();
+
+		if (result == -1)
+			return ReadNamedPipeMessageResult_Error;
+
+		*actualSize = result;
+		
+		return isIncompleteMessage ? 
+			ReadNamedPipeMessageResult_MoreData : 
+			ReadNamedPipeMessageResult_Success;
+	}
+	else
+	{
+		Read read;
+		read.m_buffer = ptr.m_p;
+		read.m_size = size;
+		m_readList.insertTail (&read);
+		wakeIoThread ();
+		m_ioLock.unlock ();
+
+		GcHeap* gcHeap = m_runtime->getGcHeap ();
+		gcHeap->enterWaitRegion ();
+		read.m_completionEvent.wait ();
+		gcHeap->leaveWaitRegion ();
+
+		if (read.m_result == -1)
+		{
+			setError (read.m_error);
+			return ReadNamedPipeMessageResult_Error;
+		}
+
+		*actualSize = read.m_result;
+		
+		return read.m_isIncompleteMessage ? 
+			ReadNamedPipeMessageResult_MoreData : 
+			ReadNamedPipeMessageResult_Success;
+	}
+}
+
 size_t
 FileStream::readImpl (
 	void* p,
@@ -482,14 +580,19 @@ FileStream::readLoop ()
 			bool result = m_file.m_file.overlappedRead (readBuffer, readSize, &overlapped);
 			if (!result)
 			{
-				if (read)
+				err::Error error = err::getLastError ();
+				if (m_fileStreamKind != FileStreamKind_Pipe || error->m_code != ERROR_MORE_DATA)
 				{
-					read->m_result = -1;
-					read->m_error = err::getLastError ();
-					read->m_completionEvent.signal ();
-				}
+					if (read)
+					{
+						read->m_result = -1;
+						read->m_error = error;
+						read->m_completionEvent.signal ();
+					}
 
-				break;
+					fireFileStreamEvent (FileStreamEventCode_IoError, error);
+					return;
+				}
 			}
 
 			for (;;) // cycle is needed case main thread can add new reads to m_readList
@@ -516,25 +619,36 @@ FileStream::readLoop ()
 					break;
 			}
 
-			readSize = m_file.m_file.getOverlappedResult (&overlapped);
-			if (readSize == -1)
+			dword_t actualSize = 0;
+			bool isIncompleteMessage = false;
+			result = m_file.m_file.getOverlappedResult (&overlapped, &actualSize);
+			if (!result)
 			{
 				err::Error error = err::getLastError ();
-
-				if (read)
+				if (m_fileStreamKind == FileStreamKind_Pipe && error->m_code == ERROR_MORE_DATA)
 				{
-					read->m_result = -1;
-					read->m_error = error;
-					read->m_completionEvent.signal ();
+					isIncompleteMessage = true;
 				}
+				else
+				{
+					if (read)
+					{
+						read->m_result = -1;
+						read->m_error = error;
+						read->m_completionEvent.signal ();
+					}
 
-				fireFileStreamEvent (FileStreamEventCode_IoError, error);
-				return;
+					fireFileStreamEvent (FileStreamEventCode_IoError, error);
+					return;
+				}
 			}
+
+			readSize = actualSize;
 
 			if (read)
 			{
 				read->m_result = readSize;
+				read->m_isIncompleteMessage = isIncompleteMessage;
 				read->m_completionEvent.signal ();
 			}
 			else
@@ -546,6 +660,11 @@ FileStream::readLoop ()
 					m_ioFlags |= IoFlag_IncomingData;
 					m_incomingDataSize = readSize;
 				}
+
+				if (isIncompleteMessage)
+					m_ioFlags |= IoFlag_IncompleteMessage;
+				else
+					m_ioFlags &= ~IoFlag_IncompleteMessage;
 
 				m_ioLock.unlock ();
 
@@ -582,6 +701,18 @@ FileStream::read (
 	m_ioLock.unlock ();
 
 	return result;
+}
+
+ReadNamedPipeMessageResult
+JNC_CDECL
+FileStream::readNamedPipeMessage (
+	DataPtr ptr,
+	size_t size,
+	DataPtr actualSizePtr
+	)
+{
+	err::setError (err::SystemErrorCode_NotImplemented);
+	return ReadNamedPipeMessageResult_Error;
 }
 
 size_t

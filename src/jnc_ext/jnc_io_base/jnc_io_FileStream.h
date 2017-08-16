@@ -48,6 +48,23 @@ struct FileStreamEventParams
 	DataPtr m_errorPtr;
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum NamedPipeMode
+{
+	NamedPipeMode_Stream,
+	NamedPipeMode_Message,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ReadNamedPipeMessageResult
+{
+	ReadNamedPipeMessageResult_Error    = -1,
+	ReadNamedPipeMessageResult_MoreData = 0,
+	ReadNamedPipeMessageResult_Success  = 1,
+};
+
 //..............................................................................
 
 class FileStream: public IfaceHdr
@@ -82,6 +99,7 @@ protected:
 		IoFlag_Closing                 = 0x0010,
 		IoFlag_IncomingData            = 0x0020,
 		IoFlag_RemainingData           = 0x0040,
+		IoFlag_IncompleteMessage       = 0x0080,
 	};
 
 	struct PendingEvent: sl::ListLink
@@ -98,6 +116,7 @@ protected:
 		size_t m_result;
 		err::Error m_error;
 		sys::Event m_completionEvent;
+		bool m_isIncompleteMessage;
 	};
 #endif
 
@@ -118,9 +137,9 @@ protected:
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
+	sl::AuxList <Read> m_readList;
 	sl::Array <char> m_readBuffer;
 	size_t m_incomingDataSize;
-	sl::AuxList <Read> m_readList;
 #else
 	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
 #endif
@@ -133,10 +152,19 @@ public:
 		close ();
 	}
 
+	NamedPipeMode
+	JNC_CDECL
+	getNamedPipeReadMode ();
+
+	bool
+	JNC_CDECL
+	setNamedPipeReadMode (NamedPipeMode mode);
+
 	bool
 	JNC_CDECL
 	open (
 		DataPtr namePtr,
+
 		uint_t openFlags
 		);
 
@@ -160,6 +188,14 @@ public:
 	write (
 		DataPtr ptr,
 		size_t size
+		);
+
+	ReadNamedPipeMessageResult
+	JNC_CDECL
+	readNamedPipeMessage (
+		DataPtr ptr,
+		size_t size,
+		DataPtr actualSizePtr
 		);
 
 	bool

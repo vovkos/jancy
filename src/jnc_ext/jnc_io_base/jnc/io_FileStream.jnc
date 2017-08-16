@@ -146,7 +146,51 @@ struct FileStreamEventParams
 	std.Error* m_error;
 }
 
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_FileStream.jnc
+
+	\brief This enumeration contains all possible values for the named pipe mode on Windows.
+*/
+
+enum NamedPipeMode
+{
+	//! Named pipe operates in byte stream mode.
+
+	Stream, 
+
+	//! Named pipe operates in message-oriented mode.
+
+	Message,
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_FileStream.jnc
+
+	\brief This enumeration contains all possible return values from `io.FileStream.readNamedPipeMessage` on Windows.
+*/
+
+enum ReadNamedPipeMessageResult
+{
+	//! Error occured during the read operation.
+
+	Error = -1, 
+
+	//! A chunk of message has been read into the supplied buffer, but there is more data; re-issue `io.FileStream.readNamedPipeMessage` to read the next chunk.
+
+	MoreData = 0,
+
+	//! The message has been read into the supplied buffer completely.
+
+	Success = 1,
+}
+
+//..............................................................................
 
 /**
 	\import io_base.jncx
@@ -255,6 +299,14 @@ opaque class FileStream
 
 	FileStreamKind readonly m_kind;
 
+	/**
+		Specifies read mode of the named pipe file stream. For the full list of supported named pipe modes, refer to `io.NamedPipeMode`.
+
+		This field is only available on Windows and translates to WinAPI functions ``GetNamedPipeHandleState``/``SetNamedPipeHandleState``.
+	*/
+
+	NamedPipeMode property m_namedPipeReadMode;
+
 	construct ();
 	destruct ();
 
@@ -298,7 +350,7 @@ opaque class FileStream
 
 		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
-		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the file is closed, so its behavior resembles ``io.File.read``
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the file is closed.
 	*/
 
 	size_t errorcode read (
@@ -317,6 +369,20 @@ opaque class FileStream
 	size_t errorcode write (
 		void const* p,
 		size_t size
+		);
+
+	/**
+		Attempts to read the message over a message-oriented named pipe on Windows. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns `ReadNamedPipeMessageResult.Error` [#f1]_. 
+		
+		Otherwise, it returns `io.ReadNamedPipeMessageResult.Success` if the message has bean read completely, or `io.ReadNamedPipeMessageResult.MoreData` if there is still more message data left unread. The amount of copied message data can be discovered using ``actualSize``.
+
+		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the file is closed.
+	*/
+
+	ReadNamedPipeMessageResult errorcode readNamedPipeMessage (
+		void* p,
+		size_t size,
+		size_t* actualSize
 		);
 
 	/**

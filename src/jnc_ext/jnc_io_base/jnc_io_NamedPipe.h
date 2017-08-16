@@ -88,6 +88,7 @@ public:
 	JNC_CDECL
 	open (
 		DataPtr namePtr,
+		NamedPipeMode mode,
 		size_t backLog
 		);
 

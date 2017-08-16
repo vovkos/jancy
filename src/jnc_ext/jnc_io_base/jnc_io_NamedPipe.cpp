@@ -50,6 +50,7 @@ bool
 JNC_CDECL
 NamedPipe::open (
 	DataPtr namePtr,
+	NamedPipeMode mode,
 	size_t backLog
 	)
 {
@@ -65,6 +66,10 @@ NamedPipe::open (
 
 	const char* name = (const char*) namePtr.m_p;
 
+	uint_t pipeMode = mode == NamedPipeMode_Message ?
+		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
+		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE;
+
 	sl::String_w pipeName = name;
 	sl::Array <axl::io::win::NamedPipe> pipeArray;
 
@@ -76,7 +81,7 @@ NamedPipe::open (
 		result = pipe.create (
 			pipeName,
 			PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-			PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
+			pipeMode,
 			PIPE_UNLIMITED_INSTANCES,
 			Const_TxBufferSize,
 			Const_RxBufferSize,
@@ -178,6 +183,7 @@ NamedPipe::accept ()
 	FileStream* fileStream = (FileStream*) gcHeap->allocateClass (type);
 	jnc::construct <FileStream > (fileStream);
 	fileStream->m_file.m_file.attach (hPipe);
+	fileStream->m_fileStreamKind = FileStreamKind_Pipe;
 	fileStream->m_readBuffer.setCount (FileStream::Const_ReadBufferSize);
 	fileStream->m_isOpen = true;
 	fileStream->m_ioFlags |= FileStream::IoFlag_Opened | FileStream::IoFlag_FileStreamEventDisabled;
@@ -213,10 +219,11 @@ NamedPipe::listenLoop ()
 
 	char buffer1 [256];
 	sl::Array <sys::Event> eventArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
+	eventArray.setCount (pipeCount);
 
 	char buffer2 [256];
 	sl::Array <OVERLAPPED> overlappedArray (ref::BufKind_Stack, buffer2, sizeof (buffer2));
-	eventArray.setCount (pipeCount);
+	overlappedArray.setCount (pipeCount);
 
 	char buffer3 [256];
 	sl::Array <HANDLE> waitArray (ref::BufKind_Stack, buffer3, sizeof (buffer3));
@@ -227,10 +234,10 @@ NamedPipe::listenLoop ()
 	sl::Array <size_t> waitMapArray (ref::BufKind_Stack, buffer4, sizeof (buffer4));
 	waitMapArray.setCount (pipeCount);
 
-	for (size_t i = 0, j = 1; i < pipeCount; i++, j++)
+	for (size_t i = 0; i < pipeCount; i++)
 	{
 		overlappedArray [i].hEvent = eventArray [i].m_event;
-		waitArray [j] = eventArray [i].m_event;
+		waitArray [i + 1] = eventArray [i].m_event;
 		waitMapArray [i] = i;
 
 		result = m_pipeArray [i].overlappedConnect (&overlappedArray [i]);
