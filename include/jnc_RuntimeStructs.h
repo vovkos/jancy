@@ -83,6 +83,10 @@ struct jnc_Box
 #endif
 
 	jnc_IfaceHdr* volatile m_dynamicLayout;
+
+#if (JNC_PTR_SIZE == 4)
+	char m_padding [4]; // ensure (Box + 1) points to the actual data regardless of align factor
+#endif
 };
 
 //..............................................................................

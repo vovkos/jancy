@@ -2489,6 +2489,9 @@ TypeMgr::createBoxType ()
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
+#if (JNC_PTR_SIZE == 4)
+	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
+#endif
 	type->ensureLayout ();
 	return type;
 }
@@ -2500,6 +2503,9 @@ TypeMgr::createDataBoxType ()
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
+#if (JNC_PTR_SIZE == 4)
+	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
+#endif
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
 	return type;
@@ -2512,6 +2518,9 @@ TypeMgr::createDynamicArrayBoxType ()
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
+#if (JNC_PTR_SIZE == 4)
+	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
+#endif
 	type->createField ("!m_count", getPrimitiveType (TypeKind_Int64_u));
 	type->createField ("!m_validator", getStdType (StdType_DataPtrValidator));
 	type->ensureLayout ();
@@ -2525,6 +2534,9 @@ TypeMgr::createStaticDataBoxType ()
 	type->createField ("!m_type", getStdType (StdType_BytePtr));
 	type->createField ("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField ("!m_dynamicLayout", getStdType (StdType_BytePtr));
+#if (JNC_PTR_SIZE == 4)
+	type->createField ("!m_padding", getPrimitiveType (TypeKind_Int32));
+#endif
 	type->createField ("!m_p", getStdType (StdType_BytePtr));
 	type->ensureLayout ();
 	return type;
