@@ -406,22 +406,15 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	ASSERT (llvm::isa <llvm::Constant> (variablePtrValue.getLlvmValue ()));
 	ASSERT (llvm::isa <llvm::Constant> (variableEndPtrValue.getLlvmValue ()));
 
-	void* null = NULL;
-
-	llvm::Constant* llvmMemberArray [] =
-	{
-		Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type),
-		Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags),
-		Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &null),
-#if (JNC_PTR_SIZE == 4)
-		Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32), &null),
-#endif
-		(llvm::Constant*) variablePtrValue.getLlvmValue ()
-	};
+	llvm::Constant* llvmMemberArray [4]; // this buffer is used twice
+	
+	llvmMemberArray [0] = Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type),
+	llvmMemberArray [1] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags),
+	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();
 
 	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get (
 		(llvm::StructType*) boxType->getLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, countof (llvmMemberArray))
+		llvm::ArrayRef <llvm::Constant*> (llvmMemberArray, 3)
 		);
 
 	sl::String boxTag = variable->m_tag + ".box";

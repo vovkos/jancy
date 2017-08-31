@@ -111,6 +111,8 @@ protected:
 	sl::Array <Root> m_markRootArray [2];
 	size_t m_currentMarkRootArrayIdx;
 
+	sl::HashTable <Box*, IfaceHdr*, sl::HashId <Box*> > m_dynamicLayoutMap;
+
 	// adjustable triggers
 
 	size_t m_allocSizeTrigger;
@@ -176,6 +178,14 @@ public:
 		void* rangeBegin,
 		size_t rangeLength
 		);
+
+	// dynamic layout methods
+
+	IfaceHdr*
+	getDynamicLayout (Box* box);
+
+	void
+	resetDynamicLayout (Box* box);
 
 	// management methods
 

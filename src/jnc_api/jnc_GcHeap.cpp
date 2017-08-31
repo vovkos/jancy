@@ -194,6 +194,26 @@ jnc_GcHeap_createDataPtrValidator (
 }
 
 JNC_EXTERN_C
+jnc_IfaceHdr*
+jnc_GcHeap_getDynamicLayout (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_getDynamicLayoutFunc (gcHeap, box);
+}
+
+JNC_EXTERN_C
+void
+jnc_GcHeap_resetDynamicLayout (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_resetDynamicLayoutFunc (gcHeap, box);
+}
+
+JNC_EXTERN_C
 void
 jnc_GcHeap_weakMark (
 	jnc_GcHeap* gcHeap,
@@ -461,6 +481,26 @@ jnc_GcHeap_createDataPtrValidator (
 	)
 {
 	return gcHeap->createDataPtrValidator (box, rangeBegin, rangeLength);
+}
+
+JNC_EXTERN_C
+jnc_IfaceHdr*
+jnc_GcHeap_getDynamicLayout (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	)
+{
+	return gcHeap->getDynamicLayout (box);
+}
+
+JNC_EXTERN_C
+void
+jnc_GcHeap_resetDynamicLayout (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	)
+{
+	return gcHeap->resetDynamicLayout (box);
 }
 
 JNC_EXTERN_C

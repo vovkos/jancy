@@ -486,8 +486,13 @@ printf (
 void
 resetDynamicLayout (DataPtr ptr)
 {
-	if (ptr.m_validator)
-		sys::atomicXchg ((size_t*) &ptr.m_validator->m_targetBox->m_dynamicLayout, 0);
+	if (!ptr.m_validator)
+		return;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	gcHeap->resetDynamicLayout (ptr.m_validator->m_targetBox);
 }
 
 //..............................................................................

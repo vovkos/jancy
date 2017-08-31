@@ -1252,6 +1252,20 @@ jnc_GcHeap_CreateDataPtrValidatorFunc (
 	);
 
 typedef
+jnc_IfaceHdr*
+jnc_GcHeap_GetDynamicLayoutFunc (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	);
+
+typedef
+void
+jnc_GcHeap_ResetDynamicLayoutFunc (
+	jnc_GcHeap* gcHeap,
+	jnc_Box* box
+	);
+
+typedef
 void
 jnc_GcHeap_WeakMarkFunc (
 	jnc_GcHeap* gcHeap,
@@ -1307,6 +1321,8 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_AllocateBufferFunc* m_allocateBufferFunc;
 	jnc_GcHeap_AllocateBufferFunc* m_tryAllocateBufferFunc;
 	jnc_GcHeap_CreateDataPtrValidatorFunc* m_createDataPtrValidatorFunc;
+	jnc_GcHeap_GetDynamicLayoutFunc* m_getDynamicLayoutFunc;
+	jnc_GcHeap_ResetDynamicLayoutFunc* m_resetDynamicLayoutFunc;
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;

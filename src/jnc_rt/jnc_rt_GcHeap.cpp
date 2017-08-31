@@ -13,6 +13,7 @@
 #include "jnc_rt_GcHeap.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
+#include "jnc_rtl_DynamicLayout.h"
 #include "jnc_CallSite.h"
 
 // #define _JNC_TRACE_GC_COLLECT
@@ -478,6 +479,54 @@ GcHeap::createDataPtrValidator (
 	return validator;
 }
 
+// dynamic layout methods
+
+IfaceHdr*
+GcHeap::getDynamicLayout (Box* box)
+{
+	IfaceHdr* dynamicLayout;
+
+	waitIdleAndLock ();
+	sl::HashTableIterator <Box*, IfaceHdr*> it = m_dynamicLayoutMap.find (box);
+	if (it)
+	{
+		dynamicLayout = it->m_value;
+		m_lock.unlock ();
+		return dynamicLayout;
+	}
+
+	m_lock.unlock ();
+
+	// we need a call site so the newly allocated dynamic layout 
+	// does not get collected during waitIdleAndLock ()
+
+	JNC_BEGIN_CALL_SITE (m_runtime) 
+
+	dynamicLayout = createClass <rtl::DynamicLayout> (m_runtime);
+
+	waitIdleAndLock ();
+	
+	sl::HashTableIterator <Box*, IfaceHdr*> it = m_dynamicLayoutMap.visit (box);
+	if (it->m_value)
+		dynamicLayout = it->m_value;
+	else
+		it->m_value = dynamicLayout;		 
+
+	m_lock.unlock ();
+
+	JNC_END_CALL_SITE ()
+
+	return dynamicLayout;
+}
+
+void
+GcHeap::resetDynamicLayout (Box* box)
+{
+	waitIdleAndLock ();
+	m_dynamicLayoutMap.eraseKey (box);
+	m_lock.unlock ();
+}
+
 // management
 
 void
@@ -533,7 +582,8 @@ GcHeap::finalizeShutdown ()
 		m_staticDestructorList.isEmpty () &&
 		m_dynamicDestructArray.isEmpty () &&
 		m_allocBoxArray.isEmpty () &&
-		m_classBoxArray.isEmpty ()
+		m_classBoxArray.isEmpty () &&
+		m_dynamicLayoutMap.isEmpty ()
 		);
 
 	// force-clear anyway
@@ -546,6 +596,7 @@ GcHeap::finalizeShutdown ()
 	m_allocBoxArray.clear ();
 	m_classBoxArray.clear ();
 	m_destructibleClassBoxArray.clear ();
+	m_dynamicLayoutMap.clear ();
 }
 
 void
@@ -766,9 +817,6 @@ GcHeap::weakMark (Box* box)
 		return;
 
 	box->m_flags |= BoxFlag_WeakMark;
-
-	if (box->m_dynamicLayout)
-		markClass (box->m_dynamicLayout->m_box);
 
 	if (box->m_rootOffset)
 	{
@@ -1161,6 +1209,20 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	runMarkCycle ();
 
+	// mark used dynamic layouts and remove unused from the map
+
+	sl::HashTableIterator <Box*, IfaceHdr*> it = m_dynamicLayoutMap.getHead ();
+	sl::HashTableIterator <Box*, IfaceHdr*> nextIt;
+	for (; it; it = nextIt)
+	{
+		nextIt = it.getNext ();
+
+		if (it->m_key->m_flags & BoxFlag_WeakMark)
+			markClass (it->m_value->m_box); // simple mark is enough -- DynamicLayout is a primitive opaque class
+		else
+			m_dynamicLayoutMap.erase (it);
+	}
+
 	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- mark complete\n");
 
 	// schedule destruction for unmarked class boxes
@@ -1208,7 +1270,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		runMarkCycle ();
 	}
 
-	// remove unmarked class boxes
+	// sweep unmarked class boxes
 
 	dstIdx = 0;
 	count = m_classBoxArray.getCount ();
@@ -1221,7 +1283,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	m_classBoxArray.setCount (dstIdx);
 
-	// sweep
+	// sweep allocated boxes
 
 	m_state = State_Sweep;
 	size_t freeSize = 0;

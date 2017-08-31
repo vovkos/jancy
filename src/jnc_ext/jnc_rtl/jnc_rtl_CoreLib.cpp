@@ -637,15 +637,13 @@ getDynamicLayout (DataPtr ptr)
 		dynamicThrow ();
 	}
 
-	Box* box = ptr.m_validator->m_targetBox;
-	if (box->m_dynamicLayout)
-		return (rtl::DynamicLayout*) box->m_dynamicLayout;
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
 
-	Runtime* runtime = getCurrentThreadRuntime ();
-	rtl::DynamicLayout* dynamicLayout = dynamicLayout = createClass <DynamicLayout> (runtime);
-	rtl::DynamicLayout* prevDynamicLayout = (rtl::DynamicLayout*) sys::atomicCmpXchg ((size_t*) &box->m_dynamicLayout, 0, (size_t) dynamicLayout);
+	IfaceHdr* iface = gcHeap->getDynamicLayout (ptr.m_validator->m_targetBox);
+	ASSERT (iface->m_box->m_type->getStdType () == StdType_DynamicLayout);
 
-	return prevDynamicLayout ? prevDynamicLayout : dynamicLayout;
+	return (rtl::DynamicLayout*) iface;
 }
 
 size_t
