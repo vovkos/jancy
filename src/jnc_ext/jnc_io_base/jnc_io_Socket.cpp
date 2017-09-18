@@ -1033,7 +1033,7 @@ Socket::sendRecvLoop ()
 			m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
 			m_ioLock.unlock ();
 
-			fireSocketEvent (SocketEventCode_IncomingData);
+			fireSocketEvent (SocketEventCode_TransmitBufferReady);
 		}
 	}
 }
