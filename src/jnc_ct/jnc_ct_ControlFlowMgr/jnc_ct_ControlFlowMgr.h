@@ -42,13 +42,6 @@ struct SwitchStmt
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ReSwitchAcceptContext: sl::ListLink
-{
-	BasicBlock* m_actionBlock;
-	size_t m_firstGroupId;
-	size_t m_groupCount;
-};
-
 struct ReSwitchStmt
 {
 	Value m_regexStateValue;

@@ -26,6 +26,18 @@ Dfa::Dfa ()
 	m_maxSubMatchCount = 0;
 }
 
+void
+Dfa::clear ()
+{
+	m_stateCount = 0;
+	m_groupCount = 0;
+	m_maxSubMatchCount = 0;
+	m_transitionTable.clear ();
+	m_stateInfoTable.clear ();
+	m_acceptInfoList.clear ();
+	m_groupSetList.clear ();
+}
+
 bool
 Dfa::build (fsm::Regex* regex)
 {

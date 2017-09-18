@@ -209,6 +209,56 @@ protected:
 		);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char regexDfaTypeSrc [] =
+
+opaque class RegexDfa
+{
+	construct ();
+	destruct ();
+
+	clear ();
+
+	bool errorcode compile (
+		char const* regexString,
+		size_t length = -1
+		)
+	{
+		clear ();
+		return inrementalCompile (regexString, length) && finalize ();
+	}
+
+	bool errorcode inrementalCompile (
+		char const* regexString,
+		size_t length = -1
+		);
+
+	bool errorcode finalize ();
+
+	size_t errorcode match (
+		RegexState* state,
+		char const* p,
+		size_t length = -1
+		)
+	{
+		state.reset ();
+		state.m_isIncremental = false;
+		return incrementalMatch (state, p, length);
+	}
+
+	size_t errorcode incrementalMatch (
+		RegexState* state,
+		char const* p,
+		size_t length = -1
+		);
+
+	size_t errorcode eof (RegexState* state)
+	{
+		return incrementalMatch (state, null, 0);
+	}
+}
+
 //..............................................................................
 
 ///;

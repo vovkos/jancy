@@ -1,0 +1,15 @@
+int main ()
+{
+	jnc.RegexDfa regex;
+	regex.compile (".*(abc)");
+
+	jnc.RegexState state;
+
+	size_t result = regex.match (&state, "hui abc govno");
+	printf ("result: %d\n", result);
+	return 0;
+
+catch:
+	printf ($"error: $!\n");
+	return -1;
+}

@@ -100,6 +100,7 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem ("Scheduler", m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
 		jnc->addItem ("RegexMatch", m_module->m_typeMgr.getLazyStdType (StdType_RegexMatch)) &&
 		jnc->addItem ("RegexState", m_module->m_typeMgr.getLazyStdType (StdType_RegexState)) &&
+		jnc->addItem ("RegexDfa", m_module->m_typeMgr.getLazyStdType (StdType_RegexDfa)) &&
 		jnc->addItem ("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
 
 	ASSERT (result);

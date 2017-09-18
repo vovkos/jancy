@@ -19,6 +19,20 @@ class BasicBlock;
 
 //..............................................................................
 
+struct ReSwitchAcceptContext: sl::ListLink
+{
+	size_t m_firstGroupId;
+	size_t m_groupCount;
+
+	union
+	{
+		BasicBlock* m_actionBlock;
+		size_t m_actionIdx;
+	};
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct DfaGroupSet: sl::ListLink
 {
 	sl::Array <size_t> m_openArray;
@@ -58,8 +72,14 @@ protected:
 public:
 	Dfa ();
 
+	bool
+	isEmpty ()
+	{
+		return m_stateCount == 0;
+	}
+
 	size_t
-	getStateCount ()
+	getStateCount()
 	{
 		return m_stateCount;
 	}
@@ -75,6 +95,9 @@ public:
 	{
 		return m_maxSubMatchCount;
 	}
+
+	void
+	clear ();
 
 	bool
 	build (fsm::Regex* regex);

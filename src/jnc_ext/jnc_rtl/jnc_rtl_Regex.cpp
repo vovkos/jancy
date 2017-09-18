@@ -40,6 +40,26 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
+	RegexDfa,
+	"jnc.RegexDfa",
+	sl::g_nullGuid,
+	-1,
+	RegexDfa,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP (RegexDfa)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <RegexDfa>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <RegexDfa>)
+	JNC_MAP_FUNCTION ("clear", &RegexDfa::clear)
+	JNC_MAP_FUNCTION ("inrementalCompile", &RegexDfa::inrementalCompile)
+	JNC_MAP_FUNCTION ("finalize", &RegexDfa::finalize)
+	JNC_MAP_FUNCTION ("incrementalMatch", &RegexDfa::incrementalMatch)
+JNC_END_TYPE_FUNCTION_MAP ()
+
+//..............................................................................
+
 void
 JNC_CDECL
 RegexState::construct (bool isIncremental)
@@ -387,6 +407,70 @@ RegexState::match (size_t stateId)
 
 	softReset ();
 	return stateId;
+}
+
+//..............................................................................
+
+void
+JNC_CDECL
+RegexDfa::clear ()
+{
+	m_regex.clear ();
+	m_acceptContextList.clear ();
+	m_dfa.clear ();
+}
+
+bool 
+JNC_CDECL
+RegexDfa::inrementalCompile (
+	DataPtr regexStringPtr,
+	size_t length
+	)
+{
+	if (length == -1)
+		length = jnc::strLen (regexStringPtr);
+
+	ct::ReSwitchAcceptContext* context = AXL_MEM_NEW (ct::ReSwitchAcceptContext);
+	context->m_firstGroupId = m_regex.getGroupCount ();
+	context->m_groupCount = 0;
+	context->m_actionIdx = m_acceptContextList.getCount ();
+	m_acceptContextList.insertTail (context);
+
+	fsm::RegexCompiler compiler (&m_regex);
+	return compiler.incrementalCompile (sl::StringRef ((const char*) regexStringPtr.m_p, length), context);
+}
+
+bool 
+JNC_CDECL
+RegexDfa::finalize ()
+{
+	fsm::RegexCompiler regexCompiler (&m_regex);
+	regexCompiler.finalize ();
+
+	return m_dfa.build (&m_regex);
+}
+
+size_t 
+JNC_CDECL
+RegexDfa::incrementalMatch (
+	RegexState* state,
+	DataPtr ptr,
+	size_t length
+	)
+{
+	size_t stateId = state->exec (&m_dfa, ptr, length);
+	if ((intptr_t) stateId <= 0)
+	{
+		err::setError ("regular expression mismatch");
+		return -1;
+	}
+
+	sl::Array <fsm::DfaState*> stateArray = m_regex.getDfaStateArray ();
+	fsm::DfaState* dfaState = stateArray [stateId];
+	
+	ASSERT (dfaState->m_isAccept);
+	ct::ReSwitchAcceptContext* context = (ct::ReSwitchAcceptContext*) dfaState->m_acceptContext; 
+	return context->m_actionIdx;
 }
 
 //..............................................................................

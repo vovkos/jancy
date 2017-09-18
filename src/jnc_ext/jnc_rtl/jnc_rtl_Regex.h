@@ -12,21 +12,16 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_ct_RegexMgr.h"
 
 namespace jnc {
-namespace ct {
-
-struct DfaTransition;
-struct DfaGroupSet;
-class Dfa;
-
-}  // namespace ct
-
 namespace rtl {
 
 class RegexState;
+class RegexDfa;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (RegexState)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (RegexDfa)
 
 //..............................................................................
 
@@ -139,6 +134,40 @@ protected:
 
 	size_t
 	match (size_t stateId);
+};
+
+//..............................................................................
+
+class RegexDfa: public IfaceHdr
+{
+protected:
+	fsm::Regex m_regex;
+	sl::StdList <ct::ReSwitchAcceptContext> m_acceptContextList;
+	ct::Dfa m_dfa;
+
+public:
+	void
+	JNC_CDECL
+	clear ();
+
+	bool 
+	JNC_CDECL
+	inrementalCompile (
+		DataPtr regexStringPtr,
+		size_t length
+		);
+
+	bool 
+	JNC_CDECL
+	finalize ();
+
+	size_t 
+	JNC_CDECL
+	incrementalMatch (
+		RegexState* state,
+		DataPtr ptr,
+		size_t length
+		);
 };
 
 //..............................................................................

@@ -1217,6 +1217,7 @@ JNC_END_LIB_SOURCE_FILE_TABLE ()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexState)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexDfa)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (DynamicLayout)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
@@ -1308,6 +1309,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	// std types
 
 	JNC_MAP_STD_TYPE (StdType_RegexState,    RegexState)
+	JNC_MAP_STD_TYPE (StdType_RegexDfa,      RegexDfa)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
 

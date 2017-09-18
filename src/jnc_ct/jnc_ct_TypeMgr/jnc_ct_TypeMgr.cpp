@@ -235,6 +235,12 @@ TypeMgr::getStdType (StdType stdType)
 			type = parseStdType (stdType);
 		break;
 
+	case StdType_RegexDfa:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("RegexDfa");
+		if (!type)
+			type = parseStdType (stdType);
+		break;
+
 	case StdType_DynamicLib:
 		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("DynamicLib");
 		if (!type)
@@ -2428,6 +2434,9 @@ TypeMgr::parseStdType (
 	if (state >= ModuleCompileState_LayoutCalculated && m_parseStdTypeLevel == 1)
 	{
 		result = m_module->postParseStdItem ();
+		if (!result)
+			printf ("error: %s\n", err::getLastErrorDescription ().sz ());
+
 		ASSERT (result);
 
 		// if this assert fires, rewrite std type
