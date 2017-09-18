@@ -431,11 +431,14 @@ Serial::ioThreadFunc ()
 			}
 
 			if (!stat.cbInQue)
-			{
-				m_ioLock.unlock ();
-				
+			{	
 				if (!(mask & EV_RXCHAR) && !(m_ioFlags & IoFlag_IncomingData)) // need to change wait mask
+				{
+					m_ioLock.unlock ();
 					break;
+				}
+
+				m_ioLock.unlock ();
 			}
 			else if (m_ioFlags & IoFlag_IncomingData) // don't re-fire event if previous is not handled yet
 			{
