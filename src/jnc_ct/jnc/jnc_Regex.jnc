@@ -240,23 +240,7 @@ opaque class RegexDfa
 		RegexState* state,
 		char const* p,
 		size_t length = -1
-		)
-	{
-		state.reset ();
-		state.m_isIncremental = false;
-		return incrementalMatch (state, p, length);
-	}
-
-	size_t errorcode incrementalMatch (
-		RegexState* state,
-		char const* p,
-		size_t length = -1
-		);
-
-	size_t errorcode eof (RegexState* state)
-	{
-		return incrementalMatch (state, null, 0);
-	}
+		) const;
 }
 
 //..............................................................................

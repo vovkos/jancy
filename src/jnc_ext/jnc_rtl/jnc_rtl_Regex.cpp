@@ -55,7 +55,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (RegexDfa)
 	JNC_MAP_FUNCTION ("clear", &RegexDfa::clear)
 	JNC_MAP_FUNCTION ("inrementalCompile", &RegexDfa::inrementalCompile)
 	JNC_MAP_FUNCTION ("finalize", &RegexDfa::finalize)
-	JNC_MAP_FUNCTION ("incrementalMatch", &RegexDfa::incrementalMatch)
+	JNC_MAP_FUNCTION ("match", &RegexDfa::match)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -159,7 +159,7 @@ RegexState::exec (
 		result = eof ();
 	}
 	else
-	{	
+	{
 		result = writeData ((uchar_t*) ptr.m_p, length);
 		if (result == RegexResult_Continue && !m_isIncremental)
 			result = eof ();
@@ -172,7 +172,7 @@ RegexState::exec (
 	}
 
 	m_consumedLength = m_currentOffset - prevOffset;
-	return result; 
+	return result;
 }
 
 void
@@ -297,7 +297,7 @@ RegexState::writeChar (uint_t c)
 
 	uintptr_t targetStateId = m_dfa->getTransition (m_stateId, c);
 	return
-		targetStateId != -1 ? gotoState (targetStateId) : 
+		targetStateId != -1 ? gotoState (targetStateId) :
 		m_lastAcceptStateId != -1 ? rollback () :
 		RegexResult_Error;
 }
@@ -420,13 +420,19 @@ RegexDfa::clear ()
 	m_dfa.clear ();
 }
 
-bool 
+bool
 JNC_CDECL
 RegexDfa::inrementalCompile (
 	DataPtr regexStringPtr,
 	size_t length
 	)
 {
+	if (!m_dfa.isEmpty ())
+	{
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		return false;
+	}
+
 	if (length == -1)
 		length = jnc::strLen (regexStringPtr);
 
@@ -440,24 +446,32 @@ RegexDfa::inrementalCompile (
 	return compiler.incrementalCompile (sl::StringRef ((const char*) regexStringPtr.m_p, length), context);
 }
 
-bool 
+bool
 JNC_CDECL
 RegexDfa::finalize ()
 {
+	if (!m_dfa.isEmpty ())
+	{
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		return false;
+	}
+
 	fsm::RegexCompiler regexCompiler (&m_regex);
 	regexCompiler.finalize ();
 
 	return m_dfa.build (&m_regex);
 }
 
-size_t 
+size_t
 JNC_CDECL
-RegexDfa::incrementalMatch (
+RegexDfa::match (
 	RegexState* state,
 	DataPtr ptr,
 	size_t length
 	)
 {
+	state->m_isIncremental = true; // ensure incremental matching
+
 	size_t stateId = state->exec (&m_dfa, ptr, length);
 	if ((intptr_t) stateId <= 0)
 	{
@@ -467,9 +481,9 @@ RegexDfa::incrementalMatch (
 
 	sl::Array <fsm::DfaState*> stateArray = m_regex.getDfaStateArray ();
 	fsm::DfaState* dfaState = stateArray [stateId];
-	
+
 	ASSERT (dfaState->m_isAccept);
-	ct::ReSwitchAcceptContext* context = (ct::ReSwitchAcceptContext*) dfaState->m_acceptContext; 
+	ct::ReSwitchAcceptContext* context = (ct::ReSwitchAcceptContext*) dfaState->m_acceptContext;
 	return context->m_actionIdx;
 }
 

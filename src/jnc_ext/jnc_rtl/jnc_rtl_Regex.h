@@ -150,20 +150,20 @@ public:
 	JNC_CDECL
 	clear ();
 
-	bool 
+	bool
 	JNC_CDECL
 	inrementalCompile (
 		DataPtr regexStringPtr,
 		size_t length
 		);
 
-	bool 
+	bool
 	JNC_CDECL
 	finalize ();
 
-	size_t 
+	size_t
 	JNC_CDECL
-	incrementalMatch (
+	match (
 		RegexState* state,
 		DataPtr ptr,
 		size_t length
