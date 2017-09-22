@@ -853,6 +853,9 @@ OperatorMgr::getArgCastKind (
 		Type* formalArgType = formalArgArray [i]->getType ();
 		Type* actualArgType = argValueArray [i].getType ();
 
+		if (!actualArgType)
+			return formalArgArray [i]->getInitializer ().isEmpty () ? CastKind_None : CastKind_Identitiy;
+
 		CastKind castKind = getCastKind (actualArgType, formalArgType);
 		if (!castKind)
 			return CastKind_None;
@@ -893,6 +896,9 @@ OperatorMgr::getArgCastKind (
 	for (size_t i = 0; i < argCount; i++, arg++)
 	{
 		Type* formalArgType = formalArgArray [i]->getType ();
+
+		if (arg->isEmpty ())
+			return formalArgArray [i]->getInitializer ().isEmpty () ? CastKind_None : CastKind_Identitiy;
 
 		CastKind castKind = getCastKind (*arg, formalArgType);
 		if (!castKind)
