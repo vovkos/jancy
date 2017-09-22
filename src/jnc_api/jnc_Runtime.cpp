@@ -118,6 +118,23 @@ jnc_Runtime_setSjljFrame (
 }
 
 JNC_EXTERN_C
+void*
+jnc_Runtime_getUserData (jnc_Runtime* runtime)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getUserDataFunc (runtime);
+}
+
+JNC_EXTERN_C
+void*
+jnc_Runtime_setUserData (
+	jnc_Runtime* runtime,
+	void* data
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setUserDataFunc (runtime, data);
+}
+
+JNC_EXTERN_C
 void
 jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 {
@@ -276,6 +293,23 @@ jnc_Runtime_setSjljFrame (
 	)
 {
 	return runtime->setSjljFrame (frame);
+}
+
+JNC_EXTERN_C
+void*
+jnc_Runtime_getUserData (jnc_Runtime* runtime)
+{
+	return runtime->m_userData;
+}
+
+JNC_EXTERN_C
+void*
+jnc_Runtime_setUserData (
+	jnc_Runtime* runtime,
+	void* data
+	)
+{
+	return (void*) sys::atomicXchg ((size_t volatile*) &runtime->m_userData, (size_t) data);
 }
 
 JNC_EXTERN_C

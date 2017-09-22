@@ -49,6 +49,9 @@ protected:
 	GcHeap m_gcHeap;
 
 public:
+	void* volatile m_userData;
+
+public:
 	Runtime ();
 
 	~Runtime ()

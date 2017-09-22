@@ -117,6 +117,17 @@ jnc_Runtime_setSjljFrame (
 	);
 
 JNC_EXTERN_C
+void*
+jnc_Runtime_getUserData (jnc_Runtime* runtime);
+
+JNC_EXTERN_C
+void*
+jnc_Runtime_setUserData (
+	jnc_Runtime* runtime,
+	void* data
+	);
+
+JNC_EXTERN_C
 void
 jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime);
 
@@ -184,6 +195,18 @@ struct jnc_Runtime
 	uninitializeCallSite (jnc_CallSite* callSite)
 	{
 		jnc_Runtime_uninitializeCallSite (this, callSite);
+	}
+
+	void*
+	getUserData ()
+	{
+		return jnc_Runtime_getUserData (this);
+	}
+
+	void*
+	setUserData (void* data)
+	{
+		return jnc_Runtime_setUserData (this, data);
 	}
 
 	void
