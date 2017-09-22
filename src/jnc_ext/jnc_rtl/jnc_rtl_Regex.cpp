@@ -53,7 +53,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (RegexDfa)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <RegexDfa>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <RegexDfa>)
 	JNC_MAP_FUNCTION ("clear", &RegexDfa::clear)
-	JNC_MAP_FUNCTION ("inrementalCompile", &RegexDfa::inrementalCompile)
+	JNC_MAP_FUNCTION ("incrementalCompile", &RegexDfa::incrementalCompile)
 	JNC_MAP_FUNCTION ("finalize", &RegexDfa::finalize)
 	JNC_MAP_FUNCTION ("match", &RegexDfa::match)
 JNC_END_TYPE_FUNCTION_MAP ()
@@ -125,15 +125,22 @@ void
 JNC_CDECL
 RegexState::reset ()
 {
-	softReset ();
-
 	m_currentOffset = 0;
-	m_matchOffset = 0;
 	m_consumedLength = 0;
+	m_subMatchArrayPtr = g_nullPtr;
 	m_subMatchCount = 0;
 
 	memset (&m_match, 0, sizeof (RegexMatch));
-	memset (m_subMatchArrayPtr.m_p, 0, m_maxSubMatchCount * sizeof (RegexMatch));
+
+	m_dfa = NULL;
+	m_stateId = 0;
+	m_lastAcceptStateId = -1;
+	m_lastAcceptMatchLength = 0;
+	m_matchOffset = 0;
+	m_matchLength = 0;
+	m_groupOffsetArrayPtr = g_nullPtr;
+	m_groupCount = 0;
+	m_maxSubMatchCount = 0;
 }
 
 size_t
@@ -422,7 +429,7 @@ RegexDfa::clear ()
 
 bool
 JNC_CDECL
-RegexDfa::inrementalCompile (
+RegexDfa::incrementalCompile (
 	DataPtr regexStringPtr,
 	size_t length
 	)

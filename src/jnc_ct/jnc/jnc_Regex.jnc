@@ -226,10 +226,10 @@ opaque class RegexDfa
 		)
 	{
 		clear ();
-		return inrementalCompile (regexString, length) && finalize ();
+		return incrementalCompile (regexString, length) && finalize ();
 	}
 
-	bool errorcode inrementalCompile (
+	bool errorcode incrementalCompile (
 		char const* regexString,
 		size_t length = -1
 		);

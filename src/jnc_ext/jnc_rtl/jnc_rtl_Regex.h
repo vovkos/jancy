@@ -152,7 +152,7 @@ public:
 
 	bool
 	JNC_CDECL
-	inrementalCompile (
+	incrementalCompile (
 		DataPtr regexStringPtr,
 		size_t length
 		);
