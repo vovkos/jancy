@@ -2751,7 +2751,7 @@ Parser::prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer)
 {
 	if (initializer->m_index == -1)
 	{
-		err::setFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
+		err::setFormatStringError ("indexed-based initializer cannot be used after named-based initializer");
 		return false;
 	}
 
@@ -2771,11 +2771,8 @@ Parser::prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer)
 bool
 Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 {
-	if (initializer->m_index == -1)
-	{
-		err::setFormatStringError ("indexed-baded initializer cannot be used after named-based initializer");
-		return false;
-	}
+	if (initializer->m_index == -1) 
+		return true; // allow finishing comma(s)
 
 	initializer->m_index++;
 	return true;
