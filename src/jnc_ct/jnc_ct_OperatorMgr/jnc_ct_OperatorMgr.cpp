@@ -429,8 +429,8 @@ OperatorMgr::getConditionalOperatorResultType (
 {
 	Type* resultType;
 
-	Type* trueType = trueValue.getType ();
-	Type* falseType = falseValue.getType ();
+	Type* trueType = trueValue.getClosureAwareType ();
+	Type* falseType = falseValue.getClosureAwareType ();
 
 	if (trueType->getTypeKind () == TypeKind_Array)
 		trueType = ((ArrayType*) trueType)->getElementType ()->getDataPtrType ();
