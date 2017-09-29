@@ -205,6 +205,8 @@ JNC_CDECL
 SshChannel::connect (
 	DataPtr addressPtr,
 	DataPtr userNamePtr,
+	DataPtr privateKeyPtr,
+	size_t privateKeySize,
 	DataPtr passwordPtr,
 	DataPtr channelTypePtr,
 	DataPtr processTypePtr,
@@ -228,6 +230,10 @@ SshChannel::connect (
 	ASSERT (!m_connectParams);
 	m_connectParams = AXL_MEM_NEW (ConnectParams);
 	m_connectParams->m_userName    = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
+	
+	if (privateKeyPtr.m_p && privateKeySize)
+		m_connectParams->m_privateKey.copy ((char*) privateKeyPtr.m_p, privateKeySize);
+
 	m_connectParams->m_password    = (const char*) passwordPtr.m_p;
 	m_connectParams->m_channelType = channelTypePtr.m_p ? (const char*) channelTypePtr.m_p : "session";
 	m_connectParams->m_processType = processTypePtr.m_p ? (const char*) processTypePtr.m_p : "shell";
@@ -266,6 +272,8 @@ bool
 JNC_CDECL
 SshChannel::authenticate (
 	DataPtr userNamePtr,
+	DataPtr privateKeyPtr,
+	size_t privateKeySize,
 	DataPtr passwordPtr
 	)
 {
@@ -281,6 +289,10 @@ SshChannel::authenticate (
 	ASSERT (m_connectParams);
 	m_connectParams->m_userName = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
 	m_connectParams->m_password = (const char*) passwordPtr.m_p;
+
+	if (privateKeyPtr.m_p && privateKeySize)
+		m_connectParams->m_privateKey.copy ((char*) privateKeyPtr.m_p, privateKeySize);
+
 	wakeIoThread ();
 	m_ioLock.unlock ();
 
@@ -441,7 +453,7 @@ int
 SshChannel::sshAsyncLoop (int result)
 {
 	if (result >= 0)
-		return 0;
+		return result;
 
 	if (result != LIBSSH2_ERROR_EAGAIN)
 	{
@@ -500,11 +512,22 @@ SshChannel::sshConnect ()
 	{
 		do
 		{
-			result = libssh2_userauth_password (
-				m_sshSession,
-				m_connectParams->m_userName,
-				m_connectParams->m_password
-				);
+			result = m_connectParams->m_privateKey.isEmpty () ? 
+				libssh2_userauth_password (
+					m_sshSession,
+					m_connectParams->m_userName,
+					m_connectParams->m_password
+					) :
+				libssh2_userauth_publickey_frommemory (
+					m_sshSession,
+					m_connectParams->m_userName.cp (),
+					m_connectParams->m_userName.getLength (),
+					NULL,
+					0,
+					m_connectParams->m_privateKey.cp (),
+					m_connectParams->m_privateKey.getCount (),
+					m_connectParams->m_password.sz ()
+					);
 
 			result = sshAsyncLoop (result);
 		} while (result == LIBSSH2_ERROR_EAGAIN);
@@ -512,7 +535,8 @@ SshChannel::sshConnect ()
 		if (!result)
 			break;
 
-		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED)
+		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED && 
+			result != LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED)
 		{
 			fireSshEvent (SshEventCode_ConnectError, getSshLastError (m_sshSession));
 			return false;

@@ -120,7 +120,8 @@ protected:
 	struct ConnectParams
 	{
 		sl::String m_userName;
-		sl::String m_password;
+		sl::Array <char> m_privateKey;
+		sl::String m_password; // or private key passphrase
 		sl::String m_channelType;
 		sl::String m_processType;
 		sl::String m_ptyType;
@@ -187,12 +188,14 @@ public:
 	bool
 	JNC_CDECL
 	connect (
-		DataPtr address,
-		DataPtr userName,
-		DataPtr password,
-		DataPtr channelType,
-		DataPtr processType,
-		DataPtr ptyType,
+		DataPtr addressPtr,
+		DataPtr userNamePtr,
+		DataPtr privateKeyPtr,
+		size_t privateKeySize,
+		DataPtr passwordPtr,
+		DataPtr channelTypePtr,
+		DataPtr processTypePtr,
+		DataPtr ptyTypePtr,
 		uint_t ptyWidth,
 		uint_t ptyHeight,
 		bool isSync
@@ -201,8 +204,10 @@ public:
 	bool
 	JNC_CDECL
 	authenticate (
-		DataPtr userName,
-		DataPtr password
+		DataPtr userNamePtr,
+		DataPtr privateKeyPtr,
+		size_t privateKeySize,
+		DataPtr passwordPtr
 		);
 
 	bool

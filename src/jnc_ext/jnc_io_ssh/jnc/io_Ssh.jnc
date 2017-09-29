@@ -343,6 +343,8 @@ opaque class SshChannel
 	bool errorcode connect (
 		SocketAddress const* address,
 		char const* userName,
+		void const* privateKey,
+		size_t privateKeySize,
 		char const* password,
 		char const* channelType = "session", // session, direct-tcpip, tcpip-forward, etc
 		char const* processType = "shell",   // shell, exec, subsystem, etc
@@ -360,6 +362,8 @@ opaque class SshChannel
 
 	bool errorcode authenticate (
 		char const* userName,
+		void const* privateKey,
+		size_t privateKeySize,
 		char const* password
 		);
 
