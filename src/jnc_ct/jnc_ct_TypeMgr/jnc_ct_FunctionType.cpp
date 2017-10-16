@@ -26,7 +26,6 @@ FunctionType::FunctionType ()
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
 	m_functionPtrTypeTuple = NULL;
-	m_reactorIfaceType = NULL;
 }
 
 DerivableType*

@@ -1542,14 +1542,25 @@ TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
 		return NULL;
 	}
 
-	if (startMethodType->m_reactorIfaceType)
-		return startMethodType->m_reactorIfaceType;
+	sl::String signature;
+	signature.format ("CA%s", startMethodType->getSignature ().sz ());
 
+	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
+	if (it->m_value)
+	{
+		ClassType* type = (ClassType*) it->m_value;
+		ASSERT (type->m_signature == signature && type->getClassTypeKind () == ClassTypeKind_ReactorIface);
+		return type;
+	}
+	
 	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
-	type->m_signature.format ("CA%s", startMethodType->getTypeString ().sz ());
+	type->m_signature = signature;
 	Function* starter = type->createMethod (StorageKind_Abstract, "start", startMethodType);
-	type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
+	Function* stopper = type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
 	type->m_callOperator = starter;
+
+	it->m_value = type;
+
 	return type;
 }
 

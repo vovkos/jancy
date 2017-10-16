@@ -1,15 +1,29 @@
+bool bindable autoget property g_p;
+
+g_p.set (bool)
+{
+}
+
+bool g_b;
+
+class C1
+{
+	reactor m_reactor ()
+	{
+		g_b = g_p;
+	}
+}
+
+class C2
+{
+	reactor m_reactor ()
+	{
+		g_b = g_p;
+	}
+}
+
 int main ()
 {
-	jnc.RegexDfa regex;
-	regex.compile (".*(abc)");
-
-	jnc.RegexState state;
-
-	size_t result = regex.match (&state, "hui abc govno");
-	printf ("result: %d\n", result);
+	printf ("main\n");
 	return 0;
-
-catch:
-	printf ($"error: $!\n");
-	return -1;
 }
