@@ -138,6 +138,8 @@ RegexState::reset ()
 	m_lastAcceptMatchLength = 0;
 	m_matchOffset = 0;
 	m_matchLength = 0;
+	m_replayBufferOffset = 0;
+	m_replayLength = 0;
 	m_groupOffsetArrayPtr = g_nullPtr;
 	m_groupCount = 0;
 	m_maxSubMatchCount = 0;
@@ -157,9 +159,56 @@ RegexState::exec (
 	if (length == -1)
 		length = strLen (ptr);
 
+	size_t prevOffset = m_currentOffset;
+
 	size_t result;
 
-	size_t prevOffset = m_currentOffset;
+	if (m_replayLength) // replay is only available after a match
+	{
+		size_t replayBufferOffset = m_replayBufferOffset;
+		size_t replayLength = m_replayLength;
+
+		m_replayBufferOffset = 0;
+		m_replayLength = 0;
+
+		result = writeData ((uchar_t*) m_matchBufferPtr.m_p + replayBufferOffset, replayLength);
+		switch (result)
+		{
+		case RegexResult_Continue:
+			break;
+
+		case RegexResult_Error:
+			m_currentOffset = m_matchOffset; // rewind to the very beginning
+			m_replayBufferOffset = 0;
+			m_replayLength = 0;
+			softReset ();
+
+			m_consumedLength = 0;
+			return RegexResult_Error;
+
+		default:
+			size_t newOffset = m_currentOffset + m_replayLength;
+			size_t consumedLength = newOffset > prevOffset ? newOffset - prevOffset : 0;
+			if (consumedLength < replayLength)
+			{
+				size_t extraLength = replayLength - consumedLength;
+
+				memmove (
+					(uchar_t*) m_matchBufferPtr.m_p + m_replayBufferOffset + m_replayLength,
+					(uchar_t*) m_matchBufferPtr.m_p + replayBufferOffset + consumedLength,
+					extraLength
+					);
+
+				m_replayLength += extraLength;
+			}
+
+			m_consumedLength = 0;
+			return result;		
+		}
+
+		ASSERT (!m_replayLength);
+		prevOffset = m_currentOffset;
+	}
 
 	if (!length)
 	{
@@ -174,11 +223,14 @@ RegexState::exec (
 
 	if (result == RegexResult_Error)
 	{
-		m_currentOffset = m_matchOffset; // rollback offset to the very beginning (not prevOffset!)
+		m_currentOffset = m_matchOffset; // rewind to the very beginning (not prevOffset!)
+		m_replayBufferOffset = 0;
+		m_replayLength = 0;
 		softReset ();
 	}
 
-	m_consumedLength = m_currentOffset - prevOffset;
+	size_t newOffset = m_currentOffset + m_replayLength;
+	m_consumedLength = newOffset > prevOffset ? newOffset - prevOffset : 0;
 	return result;
 }
 
@@ -250,21 +302,23 @@ RegexState::softReset ()
 size_t
 RegexState::eof ()
 {
-	for (;;)
-	{
-		if (!m_matchLength) // just matched
-			return RegexResult_Continue;
+	size_t result;
 
-		if (m_lastAcceptStateId == -1)
-			return RegexResult_Error;
+	if (!m_matchLength) // just matched
+		return RegexResult_Continue;
 
-		if (m_lastAcceptMatchLength >= m_matchLength)
-			return match (m_lastAcceptStateId);
+	if (m_lastAcceptStateId == -1)
+		return RegexResult_Error;
 
-		size_t result = rollback ();
-		if (result != RegexResult_Continue)
-			return result;
-	}
+	result = m_lastAcceptStateId;
+
+	ASSERT (m_lastAcceptMatchLength <= m_matchLength);
+	if (m_lastAcceptMatchLength < m_matchLength)
+		rollback ();
+	else
+		match (m_lastAcceptStateId);
+
+	return result;
 }
 
 size_t
@@ -293,20 +347,22 @@ RegexState::writeData (
 }
 
 size_t
-RegexState::writeChar (uint_t c)
+RegexState::writeChar (uchar_t c)
 {
-	if (c < 256) // not a pseudo-char
-	{
-		((uchar_t*) m_matchBufferPtr.m_p) [m_matchLength++] = c;
-		if (m_matchLength >= m_matchLengthLimit)
-			return RegexResult_Error;
-	}
+	((uchar_t*) m_matchBufferPtr.m_p) [m_matchLength++] = c;
+	if (m_matchLength >= m_matchLengthLimit)
+		return RegexResult_Error;
 
 	uintptr_t targetStateId = m_dfa->getTransition (m_stateId, c);
-	return
-		targetStateId != -1 ? gotoState (targetStateId) :
-		m_lastAcceptStateId != -1 ? rollback () :
-		RegexResult_Error;
+	if (targetStateId != -1)
+		return gotoState (targetStateId);
+
+	if (m_lastAcceptStateId == -1)
+		return RegexResult_Error;
+
+	size_t result = m_lastAcceptStateId;
+	rollback ();
+	return result;
 }
 
 size_t
@@ -322,56 +378,22 @@ RegexState::gotoState (size_t stateId)
 		return RegexResult_Continue;
 
 	if (state->m_flags & StateFlag_Final)
-		return match (stateId);
+	{
+		match (stateId);
+		return stateId;
+	}
 
 	m_lastAcceptStateId = stateId;
 	m_lastAcceptMatchLength = m_matchLength;
 	return RegexResult_Continue;
 }
 
-size_t
-RegexState::rollback ()
-{
-	ASSERT (m_lastAcceptStateId != -1 && m_lastAcceptMatchLength);
-
-	uchar_t* chunk = (uchar_t*) m_matchBufferPtr.m_p + m_lastAcceptMatchLength;
-	size_t chunkLength = m_matchLength - m_lastAcceptMatchLength;
-
-	m_currentOffset = m_matchOffset + m_lastAcceptMatchLength;
-	m_matchLength = m_lastAcceptMatchLength;
-
-	// rollback groups
-
-	size_t* offsetArray = (size_t*) m_groupOffsetArrayPtr.m_p;
-	for (size_t i = 0; i < m_groupCount; i++)
-	{
-		size_t j = i * 2;
-		if (offsetArray [j] == -1)
-			continue;
-
-		if (offsetArray [j] >= m_matchLength)
-		{
-			offsetArray [j] = -1;
-			offsetArray [j + 1] = -1;
-		}
-		else if (offsetArray [j + 1] > m_matchLength)
-		{
-			ASSERT (offsetArray [j] < m_matchLength);
-			offsetArray [j + 1] = m_matchLength;
-		}
-	}
-
-	size_t result = match (m_lastAcceptStateId);
-	return
-		result != RegexResult_Continue ? result :
-		chunkLength ? writeData (chunk, chunkLength) :
-		RegexResult_Continue;
-}
-
-size_t
+void
 RegexState::match (size_t stateId)
 {
 	ASSERT ((intptr_t) stateId >= 0);
+
+	size_t replayBufferOffset = m_matchLength;
 
 	// create null-terminated match and sub-matches
 	// save last char and ensure null-termination for the whole lexeme
@@ -413,7 +435,43 @@ RegexState::match (size_t stateId)
 	}
 
 	softReset ();
-	return stateId;
+
+	m_replayBufferOffset = replayBufferOffset;
+}
+
+void
+RegexState::rollback ()
+{
+	ASSERT (m_lastAcceptStateId != -1 && m_lastAcceptMatchLength);
+
+	size_t replayLength = m_matchLength - m_lastAcceptMatchLength;
+	m_currentOffset = m_matchOffset + m_lastAcceptMatchLength;
+	m_matchLength = m_lastAcceptMatchLength;
+
+	// rollback groups
+
+	size_t* offsetArray = (size_t*) m_groupOffsetArrayPtr.m_p;
+	for (size_t i = 0; i < m_groupCount; i++)
+	{
+		size_t j = i * 2;
+		if (offsetArray [j] == -1)
+			continue;
+
+		if (offsetArray [j] >= m_matchLength)
+		{
+			offsetArray [j] = -1;
+			offsetArray [j + 1] = -1;
+		}
+		else if (offsetArray [j + 1] > m_matchLength)
+		{
+			ASSERT (offsetArray [j] < m_matchLength);
+			offsetArray [j + 1] = m_matchLength;
+		}
+	}
+
+	match (m_lastAcceptStateId);
+
+	m_replayLength = replayLength;
 }
 
 //..............................................................................

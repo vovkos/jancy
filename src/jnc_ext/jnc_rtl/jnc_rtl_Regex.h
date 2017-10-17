@@ -70,6 +70,8 @@ protected:
 	DataPtr m_matchBufferPtr;
 	size_t m_matchOffset;
 	size_t m_matchLength;
+	size_t m_replayBufferOffset;
+	size_t m_replayLength;
 
 	DataPtr m_groupOffsetArrayPtr;
 	size_t m_groupCount;
@@ -124,16 +126,16 @@ protected:
 		);
 
 	size_t
-	writeChar (uint_t c);
+	writeChar (uchar_t c);
 
 	size_t
 	gotoState (size_t stateId);
 
-	size_t
-	rollback ();
-
-	size_t
+	void
 	match (size_t stateId);
+
+	void
+	rollback ();
 };
 
 //..............................................................................
