@@ -187,8 +187,10 @@ RegexState::exec (
 			return RegexResult_Error;
 
 		default:
-			size_t newOffset = m_currentOffset + m_replayLength;
-			size_t consumedLength = newOffset > prevOffset ? newOffset - prevOffset : 0;
+			size_t consumedLength = m_currentOffset + m_replayLength - prevOffset;			
+			if ((intptr_t) consumedLength < 0)
+				consumedLength = 0;
+
 			if (consumedLength < replayLength)
 			{
 				size_t extraLength = replayLength - consumedLength;
@@ -229,8 +231,10 @@ RegexState::exec (
 		softReset ();
 	}
 
-	size_t newOffset = m_currentOffset + m_replayLength;
-	m_consumedLength = newOffset > prevOffset ? newOffset - prevOffset : 0;
+	m_consumedLength = m_currentOffset + m_replayLength - prevOffset;
+	if ((intptr_t) m_consumedLength < 0)
+			m_consumedLength = 0;
+
 	return result;
 }
 
