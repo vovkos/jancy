@@ -294,7 +294,9 @@ class ExtensionNamespace: public GlobalNamespace
 	friend class NamespaceMgr;
 
 protected:
-	DerivableType* m_type;
+	Type* m_type;
+	sl::Array <Function*> m_fixupMethodArray;
+	sl::Array <Property*> m_fixupPropertyArray;
 
 public:
 	ExtensionNamespace ()
@@ -303,10 +305,27 @@ public:
 		m_type = NULL;
 	}
 
-	DerivableType* getType ()
+	Type* getType ()
 	{
 		return m_type;
 	}
+
+	bool 
+	addMethod (Function* function);
+
+	bool 
+	addProperty (Property* prop);
+
+protected:
+	virtual
+	bool 
+	calcLayout ();
+
+	void
+	fixupMethod (Function* function);
+
+	void
+	fixupProperty (Property* prop);
 };
 
 //..............................................................................

@@ -286,9 +286,13 @@ Parser::setFunctionBody (
 	if (!result)
 		return false;
 
+	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
+		&m_module->m_namespaceMgr :
+		NULL;
+
 	while (nspace)
 	{
-		function->m_usingSet.append (nspace->getUsingSet ());
+		function->m_usingSet.append (importNamespaceMgr, nspace->getUsingSet ());
 		nspace = nspace->getParentNamespace ();
 	}
 
@@ -483,34 +487,17 @@ Parser::openExtensionNamespace (
 	const Token::Pos& pos
 	)
 {
-	TypeKind typeKind = type->getTypeKind ();
-	switch (typeKind)
-	{
-	case TypeKind_Struct:
-	case TypeKind_Union:
-	case TypeKind_Class:
-		break;
-
-	case TypeKind_NamedImport:
-		err::setFormatStringError ("type extensions for imports not supported yet");
-		return NULL;
-
-	default:
-		err::setFormatStringError ("'%s' cannot have a type extension", type->getTypeString ().sz ());
-		return NULL;
-	}
-
-	DerivableType* derivableType = (DerivableType*) type;
-
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	ExtensionNamespace* extensionNamespace = m_module->m_namespaceMgr.createExtensionNamespace (
 		name,
-		derivableType,
+		type,
 		currentNamespace
 		);
 
+	if (!extensionNamespace)
+		return NULL;
+
 	extensionNamespace->m_pos = pos;
-	derivableType->m_extensionNamespaceArray.append (extensionNamespace);
 
 	bool result = currentNamespace->addItem (extensionNamespace);
 	if (!result)
@@ -527,45 +514,20 @@ Parser::useNamespace (
 	const Token::Pos& pos
 	)
 {
+	bool result;
+
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+
+	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
+		&m_module->m_namespaceMgr :
+		NULL;
 
 	sl::BoxIterator <QualifiedName> it = nameList.getHead ();
 	for (; it; it++)
 	{
-		ModuleItem* item = nspace->findItemTraverse (*it);
-		if (!item)
-		{
-			err::setFormatStringError ("undeclared identifier '%s'", it->getFullName ().sz ());
+		result = nspace->m_usingSet.addNamespace (importNamespaceMgr, nspace, namespaceKind, *it);
+		if (!result)
 			return false;
-		}
-
-		if (item->getItemKind () != ModuleItemKind_Namespace)
-		{
-			err::setFormatStringError ("'%s' is not a namespace", it->getFullName ().sz ());
-			return false;
-		}
-
-		GlobalNamespace* usedNamespace = (GlobalNamespace*) item;
-		if (usedNamespace->getNamespaceKind () != namespaceKind)
-		{
-			err::setFormatStringError ("'%s' is not %s", it->getFullName ().sz (), getNamespaceKindString (namespaceKind));
-			return false;
-		}
-
-		switch (namespaceKind)
-		{
-		case NamespaceKind_Global:
-			nspace->m_usingSet.addGlobalNamespace (usedNamespace);
-			break;
-
-		case NamespaceKind_Extension:
-			nspace->m_usingSet.addExtensionNamespace ((ExtensionNamespace*) usedNamespace);
-			break;
-
-		default:
-			err::setFormatStringError ("invalid using: %s", getNamespaceKindString (namespaceKind));
-			return false;
-		}
 	}
 
 	return true;
@@ -1013,32 +975,12 @@ Parser::declareFunction (
 
 	ASSERT (functionItem->getItemKind () == ModuleItemKind_Function);
 	Function* function = (Function*) functionItem;
-
-	ExtensionNamespace* extensionNamespace;
-	DerivableType* extensionType;
 	TypeKind typeKind;
 
 	switch (namespaceKind)
 	{
 	case NamespaceKind_Extension:
-		if (function->isVirtual ())
-		{
-			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (function->m_storageKind));
-			return false;
-		}
-
-		extensionNamespace = (ExtensionNamespace*) nspace;
-		extensionType = extensionNamespace->getType ();
-
-		if (function->m_storageKind != StorageKind_Static)
-		{
-			function->m_storageKind = StorageKind_Member;
-			function->convertToMemberMethod (extensionType);
-		}
-
-		function->m_parentNamespace = extensionType;
-		function->m_extensionNamespace = extensionNamespace;
-		break;
+		return ((ExtensionNamespace*) nspace)->addMethod (function);
 
 	case NamespaceKind_Type:
 		typeKind = ((NamedType*) nspace)->getTypeKind ();
@@ -1184,34 +1126,14 @@ Parser::createProperty (Declarator* declarator)
 
 	assignDeclarationAttributes (prop, prop, declarator);
 
-	ExtensionNamespace* extensionNamespace;
-	DerivableType* extensionType;
 	TypeKind typeKind;
-
 	switch (namespaceKind)
 	{
 	case NamespaceKind_Extension:
-		if (prop->isVirtual ())
-		{
-			err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
-			return NULL;
-		}
-
-		extensionNamespace = (ExtensionNamespace*) nspace;
-		extensionType = extensionNamespace->getType ();
-
-		if (prop->m_storageKind != StorageKind_Static)
-		{
-			prop->m_storageKind = StorageKind_Member;
-			prop->m_parentType = extensionType;
-		}
-
-		result = nspace->addItem (prop);
+		result = ((ExtensionNamespace*) nspace)->addProperty (prop);
 		if (!result)
 			return NULL;
 
-		prop->m_parentNamespace = extensionType;
-		prop->m_extensionNamespace = extensionNamespace;
 		break;
 
 	case NamespaceKind_Type:

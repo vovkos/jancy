@@ -69,6 +69,7 @@ NamespaceMgr::clear ()
 	m_currentScope = NULL;
 	m_sourcePosLockCount = 0;
 	m_staticObjectValue.clear ();
+	m_importUsingSetArray.clear ();
 }
 
 void
@@ -128,6 +129,23 @@ NamespaceMgr::resolveOrphans ()
 	for (; it; it++)
 	{
 		result = it->resolveOrphan ();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+NamespaceMgr::resolveImportUsingSets ()
+{
+	bool result;
+
+	size_t count = m_importUsingSetArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		UsingSet* usingSet = m_importUsingSetArray [i];
+		result = usingSet->resolveImportNamespaces ();
 		if (!result)
 			return false;
 	}
@@ -416,23 +434,33 @@ NamespaceMgr::createGlobalNamespace (
 ExtensionNamespace*
 NamespaceMgr::createExtensionNamespace (
 	const sl::StringRef& name,
-	DerivableType* type,
+	Type* type,
 	Namespace* parentNamespace
 	)
 {
 	if (!parentNamespace)
 		parentNamespace = &m_stdNamespaceArray [StdNamespace_Global];
 
-	sl::String qualifiedName = type->createQualifiedName (name);
-
 	ExtensionNamespace* nspace = AXL_MEM_NEW (ExtensionNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
-	nspace->m_qualifiedName = qualifiedName;
-	nspace->m_tag = qualifiedName;
+	nspace->m_tag = name;
 	nspace->m_parentNamespace = parentNamespace;
-	nspace->m_type = type;
+	nspace->m_type = (DerivableType*) type; // force-cast
 	m_extensionNamespaceList.insertTail (nspace);
+
+	if (type->getTypeKindFlags () & TypeKindFlag_Import)
+	{
+		((ImportType*) type)->addFixup (&nspace->m_type);
+		m_module->markForLayout (nspace, true);
+	}
+	else
+	{
+		bool result = nspace->ensureLayout ();
+		if (!result)
+			return NULL;
+	}
+
 	return nspace;
 }
 

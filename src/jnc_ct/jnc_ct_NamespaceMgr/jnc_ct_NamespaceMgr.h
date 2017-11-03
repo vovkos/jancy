@@ -50,6 +50,7 @@ protected:
 	sl::StdList <Alias> m_aliasList;
 
 	sl::Array <NamespaceStackEntry> m_namespaceStack;
+	sl::Array <UsingSet*> m_importUsingSetArray;
 
 	Namespace* m_currentNamespace;
 	Scope* m_currentScope;
@@ -96,6 +97,15 @@ public:
 		uint_t ptrTypeFlags,
 		sl::BoxList <Token>* initializer
 		);
+
+	void
+	addImportUsingSet (UsingSet* usingSet)
+	{
+		m_importUsingSetArray.append (usingSet);
+	}
+
+	bool
+	resolveImportUsingSets ();
 
 	void
 	lockSourcePos ()
@@ -192,7 +202,7 @@ public:
 	ExtensionNamespace*
 	createExtensionNamespace (
 		const sl::StringRef& name,
-		DerivableType* type,
+		Type* type,
 		Namespace* parentNamespace = NULL
 		);
 

@@ -152,7 +152,7 @@ Function::compile ()
 		Token::Pos endPos = m_body.getTail ()->m_pos;
 
 		m_module->m_functionMgr.prologue (this, beginPos);
-		m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (&m_usingSet);
+		m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (NULL, &m_usingSet);
 
 		result =
 			m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :

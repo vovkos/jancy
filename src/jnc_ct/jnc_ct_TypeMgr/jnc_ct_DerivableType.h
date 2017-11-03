@@ -141,7 +141,6 @@ protected:
 
 	Type* m_setAsType;
 	Function* m_defaultConstructor;
-	sl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
 
 	// overloaded operators
 

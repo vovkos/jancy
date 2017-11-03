@@ -1,0 +1,41 @@
+using extension E;
+
+class C2
+{
+	baz ();
+}
+
+C2.baz ()
+{
+	C c;
+	c.bar ();
+}
+
+int main ()
+{
+	printf ("main\n");	
+
+	C c;
+	c.foo ();
+	c.bar ();	
+	return 0;
+}
+
+extension E: C
+{
+	bar ();
+}
+
+class C
+{
+	foo ()
+	{
+		printf ("C.foo (%p)\n", this);
+	}
+}
+
+E.bar ()
+{
+	printf ("E.bar (%p)\n", this);
+	foo ();
+}

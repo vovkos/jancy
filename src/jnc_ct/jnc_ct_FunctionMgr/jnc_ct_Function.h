@@ -118,6 +118,7 @@ class Function:
 	friend class ArrayType;
 	friend class ReactorClassType;
 	friend class Property;
+	friend class ExtensionNamespace;
 	friend class Orphan;
 	friend class Parser;
 

@@ -52,6 +52,7 @@ class Property:
 	friend class NamedTypeBlock;
 	friend class DerivableType;
 	friend class ClassType;
+	friend class ExtensionNamespace;
 	friend class FunctionMgr;
 	friend class Parser;
 
