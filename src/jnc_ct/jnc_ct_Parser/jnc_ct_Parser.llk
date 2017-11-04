@@ -239,12 +239,6 @@ Members2
 	bool
 	setDeclarationBody (sl::BoxList <Token>* tokenList);
 
-	bool
-	setFunctionBody (
-		Function* function,
-		sl::BoxList <Token>* tokenList
-		);
-
 	void
 	assignDeclarationAttributes (
 		ModuleItem* item,

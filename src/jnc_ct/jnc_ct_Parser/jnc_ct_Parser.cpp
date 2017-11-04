@@ -270,22 +270,6 @@ Parser::bodylessDeclaration ()
 }
 
 bool
-Parser::setFunctionBody (
-	Function* function,
-	sl::BoxList <Token>* tokenList
-	)
-{
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
-	if (nspace->getNamespaceKind () == NamespaceKind_DynamicLib)
-	{
-		err::setFormatStringError ("dynamiclib function cannot have a body");
-		return false;
-	}
-
-	return function->setBody (tokenList, nspace);
-}
-
-bool
 Parser::setDeclarationBody (sl::BoxList <Token>* tokenList)
 {
 	if (!m_lastDeclaredItem)
@@ -293,14 +277,25 @@ Parser::setDeclarationBody (sl::BoxList <Token>* tokenList)
 		err::setFormatStringError ("declaration without declarator cannot have a body");
 		return false;
 	}
-
+	
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	Function* function;
+	Orphan* orphan;
 	Type* type;
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind ();
 	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
-		return setFunctionBody ((Function*) m_lastDeclaredItem, tokenList);
+		if (nspace->getNamespaceKind () == NamespaceKind_DynamicLib)
+		{
+			err::setFormatStringError ("dynamiclib function cannot have a body");
+			return false;
+		}
+
+		function = (Function*) m_lastDeclaredItem;
+		function->addUsingSet (nspace);
+		return function->setBody (tokenList);
 
 	case ModuleItemKind_Property:
 		return parseLastPropertyBody (*tokenList);
@@ -322,7 +317,9 @@ Parser::setDeclarationBody (sl::BoxList <Token>* tokenList)
 		break;
 
 	case ModuleItemKind_Orphan:
-		return ((Orphan*) m_lastDeclaredItem)->setBody (tokenList, m_module->m_namespaceMgr.getCurrentNamespace ());
+		orphan = (Orphan*) m_lastDeclaredItem;
+		orphan->addUsingSet (nspace);
+		return orphan->setBody (tokenList);
 
 	default:
 		err::setFormatStringError ("'%s' cannot have a body", getModuleItemKindString (m_lastDeclaredItem->getItemKind ()));

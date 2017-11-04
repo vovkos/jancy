@@ -63,42 +63,25 @@ Function::setBody (sl::BoxList <Token>* tokenList)
 	return true;
 }
 
-bool
-Function::setBody (
-	sl::BoxList <Token>* tokenList,
-	Namespace* anchorNamespace
-	)
+void
+Function::addUsingSet (Namespace* anchorNamespace)
 {
-	bool result = setBody (tokenList);
-	if (!result)
-		return false;
-
 	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
 		&m_module->m_namespaceMgr :
 		NULL;
 
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace ())
 		m_usingSet.append (importNamespaceMgr, nspace->getUsingSet ());
-
-	return true;
 }
 
-bool
-Function::setBody (
-	sl::BoxList <Token>* tokenList,
-	UsingSet* usingSet
-	)
+void
+Function::addUsingSet (UsingSet* usingSet)
 {
-	bool result = setBody (tokenList, (Namespace*) NULL);
-	if (!result)
-		return false;
-
 	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
 		&m_module->m_namespaceMgr :
 		NULL;
 
 	m_usingSet.append (NULL, usingSet);
-	return true;
 }
 
 llvm::Function*

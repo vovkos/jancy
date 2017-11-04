@@ -284,16 +284,13 @@ public:
 	}
 
 	bool
-	setBody (
-		sl::BoxList <Token>* tokenList,
-		Namespace* anchorNamespace
-		);
+	setBody (sl::BoxList <Token>* tokenList);
 
-	bool
-	setBody (
-		sl::BoxList <Token>* tokenList,
-		UsingSet* usingSet
-		);
+	void
+	addUsingSet (UsingSet* usingSet);
+
+	void
+	addUsingSet (Namespace* anchorNamespace);
 
 	Scope*
 	getScope ()
@@ -440,9 +437,6 @@ public:
 		);
 
 protected:
-	bool
-	setBody (sl::BoxList <Token>* tokenList);
-
 	bool
 	compileConstructorBody ();
 

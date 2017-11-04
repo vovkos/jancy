@@ -26,10 +26,7 @@ Orphan::Orphan ()
 }
 
 bool
-Orphan::setBody (
-	sl::BoxList <Token>* tokenList,
-	Namespace* anchorNamespace
-	)
+Orphan::setBody (sl::BoxList <Token>* tokenList)
 {
 	if (!m_body.isEmpty ())
 	{
@@ -38,15 +35,18 @@ Orphan::setBody (
 	}
 
 	m_body.takeOver (tokenList);
+	return true;
+}
 
+void
+Orphan::addUsingSet (Namespace* anchorNamespace)
+{
 	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
 		&m_module->m_namespaceMgr :
 		NULL;
 
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace ())
 		m_usingSet.append (importNamespaceMgr, nspace->getUsingSet ());
-
-	return true;
 }
 
 bool
@@ -180,10 +180,11 @@ Orphan::adoptOrphanFunction (ModuleItem* item)
 	ASSERT (originFunction->m_functionKind == m_functionKind);
 
 	copySrcPos (originFunction);
+	originFunction->addUsingSet (&m_usingSet);
 
 	return
 		copyArgNames (originFunction->getType ()) &&
-		originFunction->setBody (&m_body, &m_usingSet) &&
+		originFunction->setBody (&m_body) &&
 		verifyStorageKind (originFunction);
 }
 
@@ -215,6 +216,7 @@ Orphan::adoptOrphanReactor (ModuleItem* item)
 
 	copySrcPos (originType);
 	copySrcPos (originStart);
+	originStart->addUsingSet (&m_usingSet);
 
 	return
 		copyArgNames (originStart->getType ()) &&

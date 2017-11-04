@@ -65,10 +65,10 @@ public:
 	}
 
 	bool
-	setBody (
-		sl::BoxList <Token>* tokenList,
-		Namespace* anchorNamespace
-		);
+	setBody (sl::BoxList <Token>* tokenList);
+
+	void
+	addUsingSet (Namespace* anchorNamespace);
 
 	bool
 	resolveOrphan ();
