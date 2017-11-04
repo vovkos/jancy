@@ -114,6 +114,7 @@ NamespaceMgr::createOrphan (
 	)
 {
 	Orphan* orphan = AXL_MEM_NEW (Orphan);
+	orphan->m_module = m_module;
 	orphan->m_orphanKind = orphanKind;
 	orphan->m_functionType = functionType;
 	m_orphanList.insertTail (orphan);

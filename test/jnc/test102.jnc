@@ -17,7 +17,10 @@ int main ()
 
 	C c;
 	c.foo ();
-	c.bar ();	
+	c.bar ();
+
+	C2 c2;
+	c2.baz ();
 	return 0;
 }
 

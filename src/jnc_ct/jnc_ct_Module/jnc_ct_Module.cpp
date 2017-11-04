@@ -488,8 +488,8 @@ Module::link ()
 
 	result =
 		m_typeMgr.resolveImportTypes () &&
-		m_namespaceMgr.resolveOrphans () &&
-		m_namespaceMgr.resolveImportUsingSets ();
+		m_namespaceMgr.resolveImportUsingSets () &&
+		m_namespaceMgr.resolveOrphans ();
 
 	if (!result)
 		return false;

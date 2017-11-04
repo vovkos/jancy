@@ -156,10 +156,10 @@ protected:
 	ExtensionNamespace* m_extensionNamespace;
 
 	sl::BoxList <Token> m_body;
+	UsingSet m_usingSet;
 
 	BasicBlock* m_entryBlock;
 	Scope* m_scope;
-	UsingSet m_usingSet;
 
 	llvm::Function* m_llvmFunction;
 	llvm::DISubprogram_vn m_llvmDiSubprogram;
@@ -284,7 +284,16 @@ public:
 	}
 
 	bool
-	setBody (sl::BoxList <Token>* tokenList);
+	setBody (
+		sl::BoxList <Token>* tokenList,
+		Namespace* anchorNamespace
+		);
+
+	bool
+	setBody (
+		sl::BoxList <Token>* tokenList,
+		UsingSet* usingSet
+		);
 
 	Scope*
 	getScope ()
@@ -431,6 +440,9 @@ public:
 		);
 
 protected:
+	bool
+	setBody (sl::BoxList <Token>* tokenList);
+
 	bool
 	compileConstructorBody ();
 

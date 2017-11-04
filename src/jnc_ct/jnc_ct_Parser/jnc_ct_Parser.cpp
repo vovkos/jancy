@@ -282,21 +282,7 @@ Parser::setFunctionBody (
 		return false;
 	}
 
-	bool result = function->setBody (tokenList);
-	if (!result)
-		return false;
-
-	NamespaceMgr* importNamespaceMgr = m_module->getCompileState () < ModuleCompileState_Linked ?
-		&m_module->m_namespaceMgr :
-		NULL;
-
-	while (nspace)
-	{
-		function->m_usingSet.append (importNamespaceMgr, nspace->getUsingSet ());
-		nspace = nspace->getParentNamespace ();
-	}
-
-	return true;
+	return function->setBody (tokenList, nspace);
 }
 
 bool
@@ -336,7 +322,7 @@ Parser::setDeclarationBody (sl::BoxList <Token>* tokenList)
 		break;
 
 	case ModuleItemKind_Orphan:
-		return ((Orphan*) m_lastDeclaredItem)->setBody (tokenList);
+		return ((Orphan*) m_lastDeclaredItem)->setBody (tokenList, m_module->m_namespaceMgr.getCurrentNamespace ());
 
 	default:
 		err::setFormatStringError ("'%s' cannot have a body", getModuleItemKindString (m_lastDeclaredItem->getItemKind ()));
@@ -2693,7 +2679,7 @@ Parser::prepareCurlyInitializerIndexedItem (CurlyInitializer* initializer)
 bool
 Parser::skipCurlyInitializerItem (CurlyInitializer* initializer)
 {
-	if (initializer->m_index == -1) 
+	if (initializer->m_index == -1)
 		return true; // allow finishing comma(s)
 
 	initializer->m_index++;

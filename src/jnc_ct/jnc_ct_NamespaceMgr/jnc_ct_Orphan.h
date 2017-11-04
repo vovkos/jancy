@@ -41,6 +41,7 @@ protected:
 	OrphanKind m_orphanKind;
 	FunctionType* m_functionType;
 	sl::BoxList <Token> m_body;
+	UsingSet m_usingSet;
 
 public:
 	Orphan ();
@@ -64,7 +65,10 @@ public:
 	}
 
 	bool
-	setBody (sl::BoxList <Token>* tokenList);
+	setBody (
+		sl::BoxList <Token>* tokenList,
+		Namespace* anchorNamespace
+		);
 
 	bool
 	resolveOrphan ();
