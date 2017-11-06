@@ -65,12 +65,6 @@ setEnv (
 #endif
 }
 
-uint64_t
-getTimestamp ()
-{
-	return axl::sys::getTimestamp ();
-}
-
 void
 sleep (uint32_t msCount)
 {
@@ -156,13 +150,14 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_SysLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
-	JNC_MAP_FUNCTION ("sys.getCurrentThreadId", getCurrentThreadId)
-	JNC_MAP_FUNCTION ("sys.getTimestamp",       getTimestamp)
-	JNC_MAP_FUNCTION ("sys.sleep",              jnc::sys::sleep)
-	JNC_MAP_FUNCTION ("sys.collectGarbage",     collectGarbage)
-	JNC_MAP_FUNCTION ("sys.getGcStats",         getGcStats)
-	JNC_MAP_PROPERTY ("sys.g_gcTriggers",       getGcTriggers, setGcTriggers)
-	JNC_MAP_PROPERTY ("sys.g_env",              getEnv, setEnv)
+	JNC_MAP_FUNCTION ("sys.getCurrentThreadId",  getCurrentThreadId)
+	JNC_MAP_FUNCTION ("sys.getTimestamp",        axl::sys::getTimestamp)
+	JNC_MAP_FUNCTION ("sys.getPreciseTimestamp", axl::sys::getPreciseTimestamp)
+	JNC_MAP_FUNCTION ("sys.sleep",               jnc::sys::sleep)
+	JNC_MAP_FUNCTION ("sys.collectGarbage",      collectGarbage)
+	JNC_MAP_FUNCTION ("sys.getGcStats",          getGcStats)
+	JNC_MAP_PROPERTY ("sys.g_gcTriggers",        getGcTriggers, setGcTriggers)
+	JNC_MAP_PROPERTY ("sys.g_env",               getEnv, setEnv)
 
 	JNC_MAP_TYPE (Lock)
 	JNC_MAP_TYPE (Event)

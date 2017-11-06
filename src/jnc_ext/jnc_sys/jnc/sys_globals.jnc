@@ -75,9 +75,26 @@ void sleep (uint32_t timeout);
 	Returns current system timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
 
 	This format is the same as used in Windows ``FILETIME`` struct.
+
+	Even though nominally this timestamp is expressed as the number of 100-nanosecond intervals, a sub-microsecond precision is not guaranteed. For a guaranteed sub-microsecond precision, use `sys.getPreciseTimestamp`.
+
+	\sa `sys.getPreciseTimestamp`
 */
 
 uint64_t getTimestamp ();
+
+/**
+	Returns current system high-precision timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+
+	This format is the same as used in Windows ``FILETIME`` struct.
+
+	This timestamp is guaranteed to have sub-microsecond precision. If you don't need sub-microsecond precision, use a slightly faster `sys.getTimestamp`.
+
+	\sa `sys.getTimestamp`
+*/
+
+uint64_t getPreciseTimestamp ();
+
 
 //! @}
 
