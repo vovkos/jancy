@@ -88,7 +88,10 @@ Pcap::Pcap ()
 }
 
 void
-Pcap::firePcapEvent (PcapEventCode eventCode)
+Pcap::firePcapEvent (
+	PcapEventCode eventCode,
+	const err::ErrorHdr* error
+	)
 {
 	JNC_BEGIN_CALL_SITE (m_runtime);
 
@@ -96,6 +99,9 @@ Pcap::firePcapEvent (PcapEventCode eventCode)
 	PcapEventParams* params = (PcapEventParams*) paramsPtr.m_p;
 	params->m_eventCode = eventCode;
 	params->m_syncId = m_syncId;
+
+	if (error)
+		params->m_errorPtr = memDup (error, error->m_size);
 
 	callMulticast (m_onPcapEvent, paramsPtr);
 
@@ -217,6 +223,13 @@ Pcap::read (
 		return 0;
 	}
 
+	if (m_ioFlags & IoFlag_IoError)
+	{
+		m_ioLock.unlock ();
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		return -1;
+	}
+
 	m_readList.insertTail (&read);
 	m_ioThreadEvent.signal ();
 	m_ioLock.unlock ();
@@ -227,7 +240,7 @@ Pcap::read (
 	gcHeap->leaveWaitRegion ();
 
 	if (read.m_result == -1)
-		setError (read.m_error);
+		err::setError (err::SystemErrorCode_Cancelled);
 
 	return read.m_result;
 }
@@ -246,6 +259,8 @@ Pcap::ioThreadFunc ()
 		for (;;)
 		{
 			readResult = m_pcap.read (readBuffer, sizeof (readBuffer));
+			if (readResult == -1)
+				readError = err::getLastError ();
 
 			m_ioLock.lock ();
 			if (m_ioFlags & IoFlag_Closing)
@@ -267,7 +282,13 @@ Pcap::ioThreadFunc ()
 			if (readResult != 0) // not a timeout
 			{
 				if (readResult == -1)
-					readError = err::getLastError ();
+				{
+					m_ioFlags |= IoFlag_IoError;
+					cancelAllReads_l ();
+					firePcapEvent (PcapEventCode_IoError, readError);
+					return;
+				}
+
 				break;
 			}
 		}
@@ -307,7 +328,6 @@ Pcap::ioThreadFunc ()
 		}
 
 		read->m_result = readResult;
-		read->m_error = readError;
 		read->m_completeEvent.signal ();
 	}
 }
@@ -323,7 +343,6 @@ Pcap::cancelAllReads_l ()
 	{
 		Read* read = m_readList.removeHead ();
 		read->m_result = -1;
-		read->m_error = err::SystemErrorCode_Cancelled;
 		read->m_completeEvent.signal ();
 	}
 }

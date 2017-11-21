@@ -24,6 +24,7 @@ JNC_DECLARE_TYPE (PcapDeviceDesc)
 enum PcapEventCode
 {
 	PcapEventCode_ReadyRead = 0,
+	PcapEventCode_IoError,
 	PcapEventCode_Eof,
 };
 
@@ -35,6 +36,7 @@ struct PcapEventParams
 
 	PcapEventCode m_eventCode;
 	uint_t m_syncId;
+	DataPtr m_errorPtr;
 };
 
 //..............................................................................
@@ -54,6 +56,7 @@ protected:
 		IoFlag_Closing = 0x0001,
 		IoFlag_File    = 0x0010,
 		IoFlag_Eof     = 0x0020,
+		IoFlag_IoError = 0x0040,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -71,7 +74,6 @@ protected:
 		void* m_p;
 		size_t m_size;
 		size_t m_result;
-		err::Error m_error;
 		sys::Event m_completeEvent;
 	};
 
@@ -142,7 +144,10 @@ public:
 
 protected:
 	void
-	firePcapEvent (PcapEventCode eventCode);
+	firePcapEvent (
+		PcapEventCode eventCode,
+		const err::ErrorHdr* error = NULL
+		);
 
 	void
 	ioThreadFunc ();
