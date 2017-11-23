@@ -29,6 +29,7 @@ class NamespaceMgr
 	friend class Module;
 	friend class Parser;
 	friend class FunctionMgr;
+	friend class VariableMgr;
 
 protected:
 	struct NamespaceStackEntry

@@ -148,7 +148,6 @@ GcHeap::waitIdleAndLock ()
 	else
 	{
 		m_lock.lock ();
-
 		while (m_state == State_StopTheWorld)
 		{
 			m_lock.unlock ();

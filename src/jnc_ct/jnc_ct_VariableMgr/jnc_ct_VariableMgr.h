@@ -35,6 +35,7 @@ protected:
 	sl::Array <Variable*> m_globalStaticVariableArray;
 	sl::Array <Variable*> m_liftedStackVariableArray;
 	sl::Array <Variable*> m_tlsVariableArray;
+	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
 
 	Variable* m_stdVariableArray [StdVariable__Count];
@@ -89,6 +90,12 @@ public:
 	{
 		ASSERT (m_tlsStructType);
 		return m_tlsStructType;
+	}
+
+	Variable*
+	getCurrentLiftedStackVariable ()
+	{
+		return m_currentLiftedStackVariable;
 	}
 
 	Variable*

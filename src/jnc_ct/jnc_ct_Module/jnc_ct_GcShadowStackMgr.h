@@ -140,8 +140,7 @@ public:
 	void
 	markGcRoot (
 		const Value& ptrValue,
-		Type* type,
-		Scope* scope = NULL
+		Type* type
 		);
 
 protected:

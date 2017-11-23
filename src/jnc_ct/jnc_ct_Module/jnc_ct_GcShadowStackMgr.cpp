@@ -77,15 +77,16 @@ GcShadowStackMgr::createTmpGcRoot (const Value& value)
 void
 GcShadowStackMgr::markGcRoot (
 	const Value& ptrValue,
-	Type* type,
-	Scope* scope
+	Type* type
 	)
 {
 	if (!m_frameVariable)
 		preCreateFrame ();
-
-	if (!scope)
-		scope = m_module->m_namespaceMgr.getCurrentScope ();
+	
+	Variable* variableBeingLifted = m_module->m_variableMgr.getCurrentLiftedStackVariable ();
+	Scope* scope = variableBeingLifted ? 
+		variableBeingLifted->getScope () : 
+		m_module->m_namespaceMgr.getCurrentScope ();
 
 	GcShadowStackFrameMap* frameMap = openFrameMap (scope);
 

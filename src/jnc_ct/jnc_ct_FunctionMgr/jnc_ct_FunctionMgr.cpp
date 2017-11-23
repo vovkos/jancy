@@ -781,21 +781,21 @@ FunctionMgr::getStdFunction (StdFunc func)
 		break;
 
 	case StdFunc_TryAllocateData:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractDataPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.tryAllocateData", functionType);
 		break;
 
 	case StdFunc_AllocateData:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractDataPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
 		function = createFunction (FunctionKind_Internal, "jnc.allocateData", functionType);
 		break;
 
 	case StdFunc_TryAllocateArray:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractDataPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
@@ -803,7 +803,7 @@ FunctionMgr::getStdFunction (StdFunc func)
 		break;
 
 	case StdFunc_AllocateArray:
-		returnType = m_module->m_typeMgr.getStdType (StdType_DataPtrStruct);
+		returnType = m_module->m_typeMgr.getStdType (StdType_AbstractDataPtr);
 		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_BytePtr);
 		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);

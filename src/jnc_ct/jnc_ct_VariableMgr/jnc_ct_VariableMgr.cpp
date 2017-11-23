@@ -24,6 +24,7 @@ VariableMgr::VariableMgr ()
 	m_module = Module::getCurrentConstructedModule ();
 	ASSERT (m_module);
 
+	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
@@ -38,6 +39,7 @@ VariableMgr::clear ()
 	m_globalStaticVariableArray.clear ();
 	m_liftedStackVariableArray.clear ();
 	m_tlsVariableArray.clear ();
+	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
 
 	memset (m_stdVariableArray, 0, sizeof (m_stdVariableArray));
@@ -506,7 +508,7 @@ VariableMgr::allocateHeapVariable (Variable* variable)
 		validator->m_validatorValue = validatorValue;
 	}
 
-	m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type->getDataPtrType_c (), variable->m_scope);
+	// no need to mark gc root -- should have been marked in gcHeapAllocate
 	return true;
 }
 
@@ -526,8 +528,10 @@ VariableMgr::liftStackVariable (Variable* variable)
 		&prevInsertPoint
 		);
 
+	m_currentLiftedStackVariable = variable;
 	bool result = allocateHeapVariable (variable);
 	ASSERT (result);
+	m_currentLiftedStackVariable = NULL;
 
 	if (isInsertPointChanged)
 		m_module->m_llvmIrBuilder.restoreInsertPoint (prevInsertPoint);
