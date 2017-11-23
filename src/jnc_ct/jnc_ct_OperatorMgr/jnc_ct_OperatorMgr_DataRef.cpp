@@ -23,7 +23,7 @@ tryCheckDataPtrRangeIndirect (
 	size_t size,
 	DataPtrValidator* validator
 	);
-	
+
 } // namespace rtl
 
 namespace ct {
@@ -89,7 +89,7 @@ OperatorMgr::loadDataRef (
 	if (targetType->getFlags () & TypeFlag_Dynamic)
 	{
 		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
-		return NULL;
+		return false;
 	}
 
 	if (opValue.getValueKind () != ValueKind_Const)
@@ -164,7 +164,7 @@ OperatorMgr::storeDataRef (
 	if (targetType->getFlags () & TypeFlag_Dynamic)
 	{
 		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
-		return NULL;
+		return false;
 	}
 
 	TypeKind targetTypeKind = targetType->getTypeKind ();
