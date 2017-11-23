@@ -2485,10 +2485,10 @@ TypeMgr::createAbstractDataType ()
 	TypeStringTuple* tuple = type->getTypeStringTuple ();
 	tuple->m_typeStringPrefix = typeString;
 	tuple->m_doxyLinkedTextPrefix = typeString;
-	type->createField ("!m_dummy", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout ();
 
-	ASSERT (!(type->m_flags & TypeFlag_Pod));
+	type->m_flags |= TypeFlag_GcRoot;
+	type->m_flags &= ~TypeFlag_Pod;
 	return type;
 }
 
