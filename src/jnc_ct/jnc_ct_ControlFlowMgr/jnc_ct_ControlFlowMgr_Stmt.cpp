@@ -625,7 +625,7 @@ ControlFlowMgr::onceStmt_PreBody (
 #else
 			llvm::AtomicOrdering::Acquire,
 #endif
-			llvm::CrossThread,
+			llvm::DefaultSynchronizationScope_vn,
 			&value
 			);
 
@@ -679,7 +679,7 @@ ControlFlowMgr::onceStmt_PostBody (
 #else
 			llvm::AtomicOrdering::Release,
 #endif
-			llvm::CrossThread,
+			llvm::DefaultSynchronizationScope_vn,
 			&tmpValue
 			);
 	}

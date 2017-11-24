@@ -24,14 +24,37 @@ LlvmIrBuilder::LlvmIrBuilder ()
 	ASSERT (m_module);
 
 	m_llvmIrBuilder = NULL;
+	m_llvmAllocaIrBuilder = NULL;
+	m_llvmAllocaBlock = NULL;
+#if (LLVM_VERSION >= 0x0500)
+	m_llvmAllocaFunction = NULL;
+#endif
 }
 
 void
 LlvmIrBuilder::create ()
 {
 	ASSERT (!m_llvmIrBuilder);
+
+#if (LLVM_VERSION < 0x0500)
+	llvm::Function* llvmFunction = NULL;
+#else
+	// apparently, since llvm 5.0 we can't insert to an orphan block
+
+	llvm::FunctionType* llvmFunctionType = (llvm::FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction)->getLlvmType ();
+
+	llvm::Function* llvmFunction = llvm::Function::Create (
+		llvmFunctionType,
+		llvm::Function::ExternalLinkage,
+		"alloca_function",
+		m_module->getLlvmModule ()
+		);
+
+	m_llvmAllocaFunction = llvmFunction;
+#endif
+
 	m_llvmIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
-	m_llvmAllocaBlock = llvm::BasicBlock::Create (*m_module->getLlvmContext (), "alloca_block", NULL);
+	m_llvmAllocaBlock = llvm::BasicBlock::Create (*m_module->getLlvmContext (), "alloca_block", llvmFunction);
 	m_llvmAllocaIrBuilder = new llvm::IRBuilder <> (*m_module->getLlvmContext ());
 	m_llvmAllocaIrBuilder->SetInsertPoint (m_llvmAllocaBlock);
 }
@@ -43,12 +66,9 @@ LlvmIrBuilder::clear ()
 		return;
 
 	delete m_llvmIrBuilder;
-	delete m_llvmAllocaIrBuilder;
-	delete m_llvmAllocaBlock;
-
 	m_llvmIrBuilder = NULL;
-	m_llvmAllocaIrBuilder = NULL;
-	m_llvmAllocaBlock = NULL;
+
+	deleteAllocaBuilder ();
 }
 
 void
@@ -57,6 +77,25 @@ LlvmIrBuilder::moveAllAllocas (BasicBlock* block)
 	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
 	llvmBlock->getInstList ().splice (llvmBlock->begin (), m_llvmAllocaBlock->getInstList ());
 	ASSERT (m_llvmAllocaBlock->empty ());
+}
+
+void
+LlvmIrBuilder::deleteAllocaBuilder ()
+{
+	if (!m_llvmAllocaIrBuilder)
+		return;
+
+	delete m_llvmAllocaIrBuilder;
+	m_llvmAllocaIrBuilder = NULL;
+
+#if (LLVM_VERSION < 0x0500)
+	delete m_llvmAllocaBlock;
+	m_llvmAllocaBlock = NULL;
+#else
+	m_llvmAllocaFunction->eraseFromParent ();
+	m_llvmAllocaBlock = NULL;
+	m_llvmAllocaFunction = NULL;
+#endif
 }
 
 llvm::SwitchInst*
@@ -109,8 +148,15 @@ LlvmIrBuilder::saveInsertPoint (LlvmIrInsertPoint* insertPoint)
 	else
 	{
 		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint ();
+#if (LLVM_VERSION < 0x0500)
+		bool isInsideBlock = &*llvmInstIt != NULL;
+		ASSERT (isInsideBlock == (llvmInstIt != insertPoint->m_llvmBlock->end ())); // replace after testing
+#else
+		bool isInsideBlock = llvmInstIt != insertPoint->m_llvmBlock->end ();
+#endif
+
 		insertPoint->m_llvmInstruction =
-			&*llvmInstIt ? llvmInstIt != insertPoint->m_llvmBlock->begin () ?
+			isInsideBlock ? llvmInstIt != insertPoint->m_llvmBlock->begin () ?
 			&*--llvmInstIt : NULL :
 			&insertPoint->m_llvmBlock->back ();
 	}

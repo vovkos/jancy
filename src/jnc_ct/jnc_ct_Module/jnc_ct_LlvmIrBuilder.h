@@ -35,6 +35,9 @@ protected:
 	llvm::IRBuilder <>* m_llvmIrBuilder;
 	llvm::IRBuilder <>* m_llvmAllocaIrBuilder;
 	llvm::BasicBlock* m_llvmAllocaBlock;
+#if (LLVM_VERSION >= 0x0500)
+	llvm::Function* m_llvmAllocaFunction;
+#endif
 
 public:
 	LlvmIrBuilder ();
@@ -64,6 +67,9 @@ public:
 
 	void
 	moveAllAllocas (BasicBlock* block);
+
+	void
+	deleteAllocaBuilder ();
 
 	llvm::DebugLoc
 	getCurrentDebugLoc ()
@@ -853,7 +859,7 @@ public:
 		const Value& cmpValue,
 		const Value& newValue,
 		llvm::AtomicOrdering orderingKind,
-		llvm::SynchronizationScope syncKind,
+		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
 		)
 	{
@@ -880,7 +886,7 @@ public:
 		const Value& newValue,
 		llvm::AtomicOrdering successOrderingKind,
 		llvm::AtomicOrdering failureOrderingKind,
-		llvm::SynchronizationScope syncKind,
+		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
 		)
 	{
@@ -904,7 +910,7 @@ public:
 		const Value& ptrValue,
 		const Value& newValue,
 		llvm::AtomicOrdering orderingKind,
-		llvm::SynchronizationScope syncKind,
+		llvm::SynchronizationScope_vn syncKind,
 		Value* resultValue
 		)
 	{

@@ -579,6 +579,14 @@ Module::jit ()
 			return false;
 	}
 
+#if (LLVM_VERSION >= 0x0500)
+	// llvm 5.0 requires a dedicated function to hold alloca-block
+	// we need to delete it before jitting, or else llvm will complain
+	// about ill-formed functions
+
+	m_llvmIrBuilder.deleteAllocaBuilder ();
+#endif
+
 	result =
 		createLlvmExecutionEngine () &&
 		m_extensionLibMgr.mapFunctions () &&

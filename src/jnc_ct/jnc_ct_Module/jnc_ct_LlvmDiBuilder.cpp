@@ -309,6 +309,9 @@ LlvmDiBuilder::createPointerType (Type* type)
 		type->getLlvmDiType (),
 		type->getSize () * 8,
 		type->getAlignment () * 8,
+#if (LLVM_VERSION >= 0x0500)
+		llvm::None,
+#endif
 		type->getTypeString ().sz ()
 		);
 }

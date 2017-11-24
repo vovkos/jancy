@@ -72,7 +72,6 @@
 #	include "llvm/IR/Verifier.h"
 #endif
 
-#include "llvm/Support/Dwarf.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/ManagedStatic.h"
@@ -159,7 +158,19 @@ typedef unsigned DIFlags;
 
 #else
 
-typedef llvm::DINode::DIFlags DIFlags;
+typedef DINode::DIFlags DIFlags;
+
+#endif
+
+#if (LLVM_VERSION < 0x0500)
+
+typedef SynchronizationScope SynchronizationScope_vn;
+const SynchronizationScope DefaultSynchronizationScope_vn = CrossThread;
+
+#else
+
+typedef SyncScope::ID SynchronizationScope_vn;
+const SyncScope::ID DefaultSynchronizationScope_vn = llvm::SyncScope::System;
 
 #endif
 

@@ -633,7 +633,7 @@ OperatorMgr::gcSafePoint ()
 #else
 			llvm::AtomicOrdering::AcquireRelease,
 #endif
-			llvm::CrossThread,
+			llvm::DefaultSynchronizationScope_vn,
 			&value
 			);
 	}
