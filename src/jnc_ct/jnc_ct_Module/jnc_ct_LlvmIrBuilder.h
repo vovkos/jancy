@@ -34,10 +34,6 @@ protected:
 	Module* m_module;
 	llvm::IRBuilder <>* m_llvmIrBuilder;
 	llvm::IRBuilder <>* m_llvmAllocaIrBuilder;
-	llvm::BasicBlock* m_llvmAllocaBlock;
-#if (LLVM_VERSION >= 0x0500)
-	llvm::Function* m_llvmAllocaFunction;
-#endif
 
 public:
 	LlvmIrBuilder ();
@@ -59,6 +55,12 @@ public:
 		return m_llvmIrBuilder;
 	}
 
+	llvm::IRBuilder <>*
+	getLlvmAllocaIrBuilder ()
+	{
+		return m_llvmAllocaIrBuilder;
+	}
+
 	void
 	create ();
 
@@ -66,10 +68,7 @@ public:
 	clear ();
 
 	void
-	moveAllAllocas (BasicBlock* block);
-
-	void
-	deleteAllocaBuilder ();
+	setAllocaBlock (BasicBlock* block);
 
 	llvm::DebugLoc
 	getCurrentDebugLoc ()

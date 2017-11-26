@@ -217,12 +217,17 @@ FunctionMgr::prologue (
 {
 	m_currentFunction = function;
 
-	// create entry block
+	// create entry blocks
 
-	function->m_entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
-	function->m_entryBlock->markEntry ();
+	function->m_allocaBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	function->m_allocaBlock->markEntry ();
+	function->m_prologueBlock = m_module->m_controlFlowMgr.createBlock ("function_prologue");
+	function->m_prologueBlock->markEntry ();
 
-	m_module->m_controlFlowMgr.setCurrentBlock (function->m_entryBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_allocaBlock);
+	m_module->m_controlFlowMgr.jump (function->m_prologueBlock);
+	m_module->m_llvmIrBuilder.setAllocaBlock (function->m_allocaBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_prologueBlock);
 
 	// create scope
 
@@ -398,7 +403,6 @@ FunctionMgr::finalizeFunction (
 	m_module->m_variableMgr.finalizeLiftedStackVariables ();
 	m_module->m_gcShadowStackMgr.finalizeFunction ();
 	m_module->m_controlFlowMgr.finalizeFunction ();
-	m_module->m_llvmIrBuilder.moveAllAllocas (function->getEntryBlock ());
 
 	size_t count = function->m_tlsVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -419,10 +423,15 @@ FunctionMgr::internalPrologue (
 
 	m_module->m_llvmIrBuilder.setCurrentDebugLoc (llvm::DebugLoc ());
 
-	function->m_entryBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
-	function->m_entryBlock->markEntry ();
+	function->m_allocaBlock = m_module->m_controlFlowMgr.createBlock ("function_entry");
+	function->m_allocaBlock->markEntry ();
+	function->m_prologueBlock = m_module->m_controlFlowMgr.createBlock ("function_prologue");
+	function->m_prologueBlock->markEntry ();
 
-	m_module->m_controlFlowMgr.setCurrentBlock (function->m_entryBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_allocaBlock);
+	m_module->m_controlFlowMgr.jump (function->m_prologueBlock);
+	m_module->m_llvmIrBuilder.setAllocaBlock (function->m_allocaBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock (function->m_prologueBlock);
 
 	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
 
@@ -633,7 +642,7 @@ FunctionMgr::injectTlsPrologues ()
 	for (; functionIt; functionIt++)
 	{
 		Function* function = *functionIt;
-		if (function->getEntryBlock () && function->isTlsRequired ())
+		if (function->getPrologueBlock () && function->isTlsRequired ())
 			injectTlsPrologue (function);
 	}
 
@@ -659,7 +668,7 @@ FunctionMgr::injectTlsPrologues ()
 void
 FunctionMgr::injectTlsPrologue (Function* function)
 {
-	BasicBlock* block = function->getEntryBlock ();
+	BasicBlock* block = function->getPrologueBlock ();
 	ASSERT (block);
 
 	m_module->m_controlFlowMgr.setCurrentBlock (block);
@@ -720,7 +729,7 @@ FunctionMgr::jitFunctions ()
 		for (; functionIt; functionIt++)
 		{
 			Function* function = *functionIt;
-			if (!function->getEntryBlock ())
+			if (!function->getPrologueBlock ())
 				continue;
 
 			llvm::Function* llvmFunction = function->getLlvmFunction ();

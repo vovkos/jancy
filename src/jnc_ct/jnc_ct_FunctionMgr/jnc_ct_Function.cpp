@@ -37,7 +37,8 @@ Function::Function ()
 	m_classVTableIndex = -1;
 	m_propertyVTableIndex = -1;
 	m_reactionIndex = -1;
-	m_entryBlock = NULL;
+	m_allocaBlock = NULL;
+	m_prologueBlock = NULL;
 	m_scope = NULL;
 	m_llvmFunction = NULL;
 	m_machineCode = NULL;
@@ -159,7 +160,7 @@ Function::compile ()
 	bool result;
 
 	ASSERT (!m_body.isEmpty () || !m_initializer.isEmpty ()); // otherwise what are we doing here?
-	ASSERT (!m_entryBlock);
+	ASSERT (!m_prologueBlock);
 
 	Unit* unit = getParentUnit ();
 	if (unit)

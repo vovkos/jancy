@@ -535,7 +535,7 @@ ControlFlowMgr::onceStmt_Create (
 
 	if (storageKind == StorageKind_Static)
 	{
-		BasicBlock* block = setCurrentBlock (m_module->getConstructor ()->getEntryBlock ());
+		BasicBlock* block = setCurrentBlock (m_module->getConstructor ()->getPrologueBlock ());
 		m_module->m_operatorMgr.zeroInitialize (flagVariable);
 		setCurrentBlock (block);
 	}

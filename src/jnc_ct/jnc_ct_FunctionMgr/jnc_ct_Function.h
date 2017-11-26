@@ -158,7 +158,8 @@ protected:
 	sl::BoxList <Token> m_body;
 	UsingSet m_usingSet;
 
-	BasicBlock* m_entryBlock;
+	BasicBlock* m_allocaBlock;
+	BasicBlock* m_prologueBlock;
 	Scope* m_scope;
 
 	llvm::Function* m_llvmFunction;
@@ -299,9 +300,15 @@ public:
 	}
 
 	BasicBlock*
-	getEntryBlock ()
+	getAllocaBlock ()
 	{
-		return m_entryBlock;
+		return m_allocaBlock;
+	}
+
+	BasicBlock*
+	getPrologueBlock ()
+	{
+		return m_prologueBlock;
 	}
 
 	llvm::Function*

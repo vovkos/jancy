@@ -198,11 +198,11 @@ GcShadowStackMgr::finalizeFrame ()
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
 
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	BasicBlock* prologueBlock = function->getPrologueBlock ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_llvmIrBuilder.setInsertPoint (&*entryBlock->getLlvmBlock ()->begin ());
+	m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
+	m_module->m_llvmIrBuilder.setInsertPoint (&*prologueBlock->getLlvmBlock ()->begin ());
 
 	// create gc root array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
 

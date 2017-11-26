@@ -357,7 +357,7 @@ bool MainWindow::compile ()
 
 	// DebugInfo does not work on Windows
 
-	uint_t compileFlags = 
+	uint_t compileFlags =
 		jnc::ModuleCompileFlag_StdFlags
 #if (!_JNC_OS_WIN)
 		| jnc::ModuleCompileFlag_DebugInfo

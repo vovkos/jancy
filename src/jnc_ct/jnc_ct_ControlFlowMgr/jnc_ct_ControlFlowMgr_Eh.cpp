@@ -42,7 +42,7 @@ ControlFlowMgr::getFinallyRouteIdxVariable ()
 		return m_finallyRouteIdxVariable;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
+	BasicBlock* prevBlock = setCurrentBlock (function->getPrologueBlock ());
 	m_finallyRouteIdxVariable = m_module->m_variableMgr.createSimpleStackVariable ("finallyRouteIdx", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
 	setCurrentBlock (prevBlock);
 	return m_finallyRouteIdxVariable;
@@ -609,8 +609,8 @@ void
 ControlFlowMgr::preCreateSjljFrameArray ()
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	BasicBlock* prologueBlock = function->getPrologueBlock ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
 
 	ASSERT (!m_sjljFrameArrayValue);
 	Type* type = m_module->m_typeMgr.getStdType (StdType_SjljFrame);
@@ -635,11 +635,11 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
 
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	BasicBlock* prologueBlock = function->getPrologueBlock ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
-	m_module->m_llvmIrBuilder.setInsertPoint (&*entryBlock->getLlvmBlock ()->begin ());
+	m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
+	m_module->m_llvmIrBuilder.setInsertPoint (&*prologueBlock->getLlvmBlock ()->begin ());
 
 	// create sjlj frame array stack variable (no need to zero-init now, GcHeap::openFrameMap will do that)
 

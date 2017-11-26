@@ -71,8 +71,8 @@ Variable::getLlvmValue ()
 	ASSERT (m_storageKind == StorageKind_Tls);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	BasicBlock* entryBlock = function->getEntryBlock ();
-	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (entryBlock);
+	BasicBlock* prologueBlock = function->getPrologueBlock ();
+	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock (prologueBlock);
 
 	Value ptrValue;
 	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca (

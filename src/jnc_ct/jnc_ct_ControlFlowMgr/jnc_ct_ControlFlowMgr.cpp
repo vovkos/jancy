@@ -257,7 +257,7 @@ ControlFlowMgr::getReturnValueVariable ()
 	Type* returnType = function->getType ()->getReturnType ();
 	ASSERT (returnType->getTypeKind () != TypeKind_Void);
 
-	BasicBlock* prevBlock = setCurrentBlock (function->getEntryBlock ());
+	BasicBlock* prevBlock = setCurrentBlock (function->getPrologueBlock ());
 	m_returnValueVariable = m_module->m_variableMgr.createSimpleStackVariable ("savedReturnValue", returnType);
 	setCurrentBlock (prevBlock);
 	return m_returnValueVariable;
