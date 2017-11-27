@@ -291,15 +291,6 @@ JNC_EXTERN_C
 void
 jnc_GcHeap_addBoxToCallSite (jnc_Box* box);
 
-#if (_JNC_OS_WIN)
-JNC_EXTERN_C
-int
-jnc_GcHeap_handleGcSehException (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	);
-#endif
-
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GcHeap
 {
@@ -506,18 +497,6 @@ struct jnc_GcHeap
 	{
 		jnc_GcHeap_addBoxToCallSite (box);
 	}
-
-#	if (_JNC_OS_WIN)
-	static
-	int
-	handleGcSehException (
-		uint_t code,
-		EXCEPTION_POINTERS* exceptionPointers
-		)
-	{
-		return jnc_GcHeap_handleGcSehException (code, exceptionPointers);
-	}
-#	endif // _JNC_OS_WIN
 };
 #endif // _JNC_CORE
 

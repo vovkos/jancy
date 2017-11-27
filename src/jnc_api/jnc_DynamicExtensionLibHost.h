@@ -1120,6 +1120,15 @@ typedef
 void
 jnc_DynamicThrowFunc ();
 
+#if (_JNC_OS_WIN)
+typedef
+int
+jnc_HandleSehExceptionFunc (
+	uint_t code,
+	EXCEPTION_POINTERS* exceptionPointers
+	);
+#endif
+
 typedef
 void
 jnc_PrimeClassFunc (
@@ -1168,6 +1177,9 @@ struct jnc_RuntimeFuncTable
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
 	jnc_DynamicThrowFunc* m_dynamicThrowFunc;
+#if (_JNC_OS_WIN)
+	jnc_HandleSehExceptionFunc* m_handleSehExceptionFunc;
+#endif // _JNC_OS_WIN
 	jnc_PrimeClassFunc* m_primeClassFunc;
 	jnc_StrLenFunc* m_strLenFunc;
 	jnc_StrDupFunc* m_strDupFunc;
@@ -1303,15 +1315,6 @@ typedef
 void
 jnc_GcHeap_AddBoxToCallSiteFunc (jnc_Box* box);
 
-#if (_JNC_OS_WIN)
-typedef
-int
-jnc_GcHeap_HandleGcSehExceptionFunc (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	);
-#endif
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_GcHeapFuncTable
@@ -1340,9 +1343,6 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_MarkDataFunc* m_markDataFunc;
 	jnc_GcHeap_MarkClassFunc* m_markClassFunc;
 	jnc_GcHeap_AddBoxToCallSiteFunc* m_addBoxToCallSiteFunc;
-#if (_JNC_OS_WIN)
-	jnc_GcHeap_HandleGcSehExceptionFunc* m_handleGcSehExceptionFunc;
-#endif // _JNC_OS_WIN
 };
 
 //..............................................................................

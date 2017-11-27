@@ -344,6 +344,12 @@ typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_GcStats jnc_GcStats;
 typedef struct jnc_GcSizeTriggers jnc_GcSizeTriggers;
 
+//..............................................................................
+
+JNC_EXTERN_C
+void
+jnc_initialize (const char* tag);
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -395,6 +401,15 @@ typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
 typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;
+
+//..............................................................................
+
+inline
+void
+initialize (const char* tag = NULL)
+{
+	jnc_initialize (tag);
+}
 
 //..............................................................................
 

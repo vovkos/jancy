@@ -62,7 +62,6 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x00000020,
 	jnc_ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x00000040,
 	jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x00000080,
-	jnc_ModuleCompileFlag_CheckDivByZero                       = 0x00000100,
 	jnc_ModuleCompileFlag_Documentation                        = 0x00000200,
 	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x00000400,
 	jnc_ModuleCompileFlag_KeepTypedefShadow                    = 0x00000800,
@@ -71,17 +70,20 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_DisableDoxyComment2                  = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3                  = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4                  = 0x00010000,
+	jnc_ModuleCompileFlag_SimpleCheckDivByZero                 = 0x00100000,
+	jnc_ModuleCompileFlag_SimpleCheckNullPtr                   = 0x00200000,
 
 	jnc_ModuleCompileFlag_StdFlags =
 		jnc_ModuleCompileFlag_GcSafePointInPrologue |
 		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue |
-		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue |
-		jnc_ModuleCompileFlag_CheckDivByZero
+		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue
 #if (_JNC_OS_WIN && !_JNC_CPU_X86)
-		// SEH on amd64/ia64 relies on being able to walk the stack which is not as
-		// reliable as frame-based SEH on x86. therefore, use write barrier for
-		// safe points on windows if and only if it's x86
+		// SEH on amd64 relies on being able to walk the stack (unlike frame-based SEH on x86)
+		// support for SEH on amd64 is still missing from LLVM -- they really don't give a fudge about windows
+		// therefore, use write barriers safe points and SEH-based exceptions if and only if it's x86
 		| jnc_ModuleCompileFlag_SimpleGcSafePoint
+		| jnc_ModuleCompileFlag_SimpleCheckDivByZero
+		| jnc_ModuleCompileFlag_SimpleCheckNullPtr
 #elif (_JNC_OS_POSIX)
 		| jnc_ModuleCompileFlag_McJit
 #endif
@@ -446,12 +448,6 @@ struct jnc_Module
 };
 #endif // _JNC_CORE
 
-//..............................................................................
-
-JNC_EXTERN_C
-void
-jnc_initialize (const char* tag);
-
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -481,7 +477,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_GcSafePointInInternalPrologue        = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
 	ModuleCompileFlag_CheckStackOverflowInPrologue         = jnc_ModuleCompileFlag_CheckStackOverflowInPrologue,
 	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue,
-	ModuleCompileFlag_CheckDivByZero                       = jnc_ModuleCompileFlag_CheckDivByZero,
 	ModuleCompileFlag_Documentation                        = jnc_ModuleCompileFlag_Documentation,
 	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
 	ModuleCompileFlag_KeepTypedefShadow                    = jnc_ModuleCompileFlag_KeepTypedefShadow,
@@ -490,6 +485,8 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2                  = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3                  = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
+	ModuleCompileFlag_SimpleCheckDivByZero                 = jnc_ModuleCompileFlag_SimpleCheckDivByZero,
+	ModuleCompileFlag_SimpleCheckNullPtr                   = jnc_ModuleCompileFlag_SimpleCheckNullPtr,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //..............................................................................
@@ -528,15 +525,6 @@ public:
 		return m_module;
 	}
 };
-
-//..............................................................................
-
-inline
-void
-initialize (const char* tag = NULL)
-{
-	jnc_initialize (tag);
-}
 
 //..............................................................................
 

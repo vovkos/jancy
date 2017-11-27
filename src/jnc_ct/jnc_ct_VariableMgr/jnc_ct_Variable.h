@@ -29,6 +29,7 @@ enum StdVariable
 	StdVariable_SjljFrame,
 	StdVariable_GcShadowStackTop,
 	StdVariable_GcSafePointTrigger,
+	StdVariable_NullPtrCheckSink,
 	StdVariable__Count,
 };
 

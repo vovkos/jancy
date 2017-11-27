@@ -93,6 +93,15 @@ VariableMgr::getStdVariable (StdVariable stdVariable)
 			);
 		break;
 
+	case StdVariable_NullPtrCheckSink:
+		variable = createVariable (
+			StorageKind_Static,
+			"g_nullPtrCheckSink",
+			"jnc.g_nullPtrCheckSink",
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_Char)
+			);
+		break;
+
 	default:
 		ASSERT (false);
 		variable = NULL;
@@ -219,7 +228,7 @@ VariableMgr::initializeVariable (Variable* variable)
 	if (variable->m_type->getFlags () & TypeFlag_Dynamic)
 	{
 		err::setFormatStringError (
-			"'%s' uses dynamic type '%s'", 
+			"'%s' uses dynamic type '%s'",
 			variable->m_qualifiedName.sz (),
 			variable->m_type->getTypeString ().sz ()
 			);
@@ -409,7 +418,7 @@ VariableMgr::createStaticDataPtrValidatorVariable (Variable* variable)
 	ASSERT (llvm::isa <llvm::Constant> (variableEndPtrValue.getLlvmValue ()));
 
 	llvm::Constant* llvmMemberArray [4]; // this buffer is used twice
-	
+
 	llvmMemberArray [0] = Value::getLlvmConst (m_module->m_typeMgr.getStdType (StdType_BytePtr), &variable->m_type),
 	llvmMemberArray [1] = Value::getLlvmConst (m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr_u), &flags),
 	llvmMemberArray [2] = (llvm::Constant*) variablePtrValue.getLlvmValue ();

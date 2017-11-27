@@ -206,7 +206,7 @@ testAlloc ()
 	jnc::DataPtr ptr2;
 	jnc::DataPtr ptr3;
 
-	JNC_BEGIN_NESTED_CALL_SITE (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 
 	ptr1 = gcHeap->allocateBuffer (100);
 	memset (ptr1.m_p, 0xaa, 100);
@@ -217,7 +217,7 @@ testAlloc ()
 	ptr3 = gcHeap->allocateBuffer (100);
 	memset (ptr3.m_p, 0xcc, 100);
 
-	JNC_END_NESTED_CALL_SITE ()
+	JNC_END_CALL_SITE ()
 
 	gcHeap->collect ();
 

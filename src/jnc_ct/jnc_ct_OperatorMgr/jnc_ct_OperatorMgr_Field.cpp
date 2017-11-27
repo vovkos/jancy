@@ -38,7 +38,7 @@ OperatorMgr::getField (
 		ASSERT (type->getTypeKindFlags () & TypeKindFlag_Derivable);
 		return getDynamicStructField (opValue, (DerivableType*) type, field, resultValue);
 	}
-		
+
 	TypeKind typeKind = type->getTypeKind ();
 	switch (typeKind)
 	{
@@ -290,7 +290,7 @@ OperatorMgr::getDynamicStructField (
 	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction (StdFunc_GetDynamicField);
 	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
 	Value fieldValue (&field, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-	
+
 	Value ptrValue;
 	result = m_module->m_operatorMgr.callOperator (
 		getDynamicFieldFunc,
@@ -305,7 +305,7 @@ OperatorMgr::getDynamicStructField (
 
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr); // otherwise, getDynamicFieldFunc fails
 	DataPtrType* opType = (DataPtrType*) opValue.getType ();
-	
+
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
 	ASSERT (ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
 

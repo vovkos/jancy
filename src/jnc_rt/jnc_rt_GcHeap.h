@@ -100,7 +100,6 @@ protected:
 #	else
 	sys::psx::Sem m_handshakeSem; // POSIX sems can be safely signalled from signal handlers
 #	endif
-	static sigset_t m_signalWaitMask;
 #endif
 
 	sl::Array <Box*> m_allocBoxArray;
@@ -138,6 +137,12 @@ public:
 	getRuntime ()
 	{
 		return m_runtime;
+	}
+
+	void*
+	getGuardPage ()
+	{
+		return m_guardPage;
 	}
 
 	// allocation methods
@@ -305,14 +310,8 @@ public:
 		size_t count
 		);
 
-#if (_JNC_OS_WIN)
-	static
-	int
-	handleSehException (
-		uint_t code,
-		EXCEPTION_POINTERS* exceptionPointers
-		);
-#endif
+	void
+	handleGuardPageHit (GcMutatorThread* thread);
 
 	static
 	bool
@@ -353,28 +352,10 @@ protected:
 	runDestructCycle_l ();
 
 	void
+	parkAtSafePoint (GcMutatorThread* thread);
+
+	void
 	parkAtSafePoint ();
-
-#if (_JNC_OS_POSIX) // signal handlers
-	static
-	void
-	installSignalHandlers (int);
-
-	static
-	void
-	signalHandler_SIGSEGV (
-		int signal,
-		siginfo_t* signalInfo,
-		void* context
-		);
-
-	static
-	void
-	signalHandler_SIGUSR1 (int signal)
-	{
-		// do nothing (we handshake manually). but we still need a handler
-	}
-#endif
 };
 
 //..............................................................................

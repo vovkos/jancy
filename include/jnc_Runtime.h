@@ -239,6 +239,15 @@ JNC_EXTERN_C
 void
 jnc_dynamicThrow ();
 
+#if (_JNC_OS_WIN)
+JNC_EXTERN_C
+int
+jnc_handleSehException (
+	uint_t code,
+	EXCEPTION_POINTERS* exceptionPointers
+	);
+#endif // _JNC_OS_WIN
+
 JNC_EXTERN_C
 void
 jnc_primeClass (
@@ -313,6 +322,18 @@ dynamicThrow ()
 {
 	return jnc_dynamicThrow ();
 }
+
+#if (_JNC_OS_WIN)
+inline
+int
+handleSehException (
+	uint_t code,
+	EXCEPTION_POINTERS* exceptionPointers
+	)
+{
+	return jnc_handleSehException (code, exceptionPointers);
+}
+#endif // _JNC_OS_WIN
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

@@ -279,7 +279,7 @@ createUsbDeviceDesc (
 {
 	DataPtr resultPtr = g_nullPtr;
 
-	JNC_BEGIN_NESTED_CALL_SITE (runtime)
+	JNC_BEGIN_CALL_SITE (runtime)
 
 	resultPtr = createData <UsbDeviceDesc> (runtime);
 	UsbDeviceDesc* deviceDesc = (UsbDeviceDesc*) resultPtr.m_p;
@@ -308,7 +308,7 @@ createUsbDeviceDesc (
 	deviceDesc->m_subClass = srcDesc->bDeviceSubClass;
 	deviceDesc->m_protocol = srcDesc->bDeviceProtocol;
 
-	JNC_END_NESTED_CALL_SITE ()
+	JNC_END_CALL_SITE ()
 
 	return resultPtr;
 }

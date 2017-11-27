@@ -108,7 +108,9 @@ LlvmIrBuilder::saveInsertPoint (LlvmIrInsertPoint* insertPoint)
 	else
 	{
 		llvm::BasicBlock::iterator llvmInstIt = m_llvmIrBuilder->GetInsertPoint ();
+#if (LLVM_VERSION < 0x0500)
 		ASSERT (&*llvmInstIt);
+#endif
 
 		insertPoint->m_llvmInstruction =
 			llvmInstIt == insertPoint->m_llvmBlock->begin () ?

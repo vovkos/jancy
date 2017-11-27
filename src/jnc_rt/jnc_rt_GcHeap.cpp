@@ -36,10 +36,6 @@ namespace rt {
 
 //..............................................................................
 
-#if (_JNC_OS_POSIX)
-sigset_t GcHeap::m_signalWaitMask = { 0 };
-#endif
-
 GcHeap::GcHeap ()
 {
 	m_runtime = containerof (this, Runtime, m_gcHeap);
@@ -497,20 +493,20 @@ GcHeap::getDynamicLayout (Box* box)
 
 	m_lock.unlock ();
 
-	// we need a call site so the newly allocated dynamic layout 
+	// we need a call site so the newly allocated dynamic layout
 	// does not get collected during waitIdleAndLock ()
 
-	JNC_BEGIN_CALL_SITE (m_runtime) 
+	JNC_BEGIN_CALL_SITE (m_runtime)
 
 	dynamicLayout = createClass <rtl::DynamicLayout> (m_runtime);
 
 	waitIdleAndLock ();
-	
+
 	sl::HashTableIterator <Box*, IfaceHdr*> it = m_dynamicLayoutMap.visit (box);
 	if (it->m_value)
 		dynamicLayout = it->m_value;
 	else
-		it->m_value = dynamicLayout;		 
+		it->m_value = dynamicLayout;
 
 	m_lock.unlock ();
 
@@ -1100,8 +1096,6 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 
-		static int32_t onceFlag = 0;
-		sl::callOnce (installSignalHandlers, 0, &onceFlag);
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif
@@ -1475,10 +1469,17 @@ GcHeap::destructThreadFunc ()
 void
 GcHeap::parkAtSafePoint ()
 {
-	ASSERT (m_state == State_StopTheWorld); // shouldn't be here otherwise
-
 	GcMutatorThread* thread = getCurrentGcMutatorThread ();
-	ASSERT (thread && !thread->m_waitRegionLevel && !thread->m_isSafePoint);
+	ASSERT (thread);
+
+	parkAtSafePoint (thread);
+}
+
+void
+GcHeap::parkAtSafePoint (GcMutatorThread* thread)
+{
+	ASSERT (m_state == State_StopTheWorld); // shouldn't be here otherwise
+	ASSERT (!thread->m_waitRegionLevel && !thread->m_isSafePoint);
 
 	thread->m_isSafePoint = true;
 
@@ -1499,94 +1500,38 @@ GcHeap::parkAtSafePoint ()
 
 #if (_JNC_OS_WIN)
 
-int
-GcHeap::handleSehException (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	)
+void
+GcHeap::handleGuardPageHit (GcMutatorThread* thread)
 {
-	GcHeap* self = getCurrentThreadGcHeap ();
-
-	if (!self ||
-		code != EXCEPTION_ACCESS_VIOLATION ||
-		exceptionPointers->ExceptionRecord->ExceptionInformation [1] != (uintptr_t) self->m_guardPage.p ())
-		return EXCEPTION_CONTINUE_SEARCH;
-
-	self->parkAtSafePoint ();
-
-	return EXCEPTION_CONTINUE_EXECUTION;
+	parkAtSafePoint (thread);
 }
 
 #elif (_JNC_OS_POSIX)
 
-#if (_JNC_OS_DARWIN)
-#	define JNC_SIGSEGV SIGBUS
-#else
-#	define JNC_SIGSEGV SIGSEGV
-#endif
-
 void
-GcHeap::installSignalHandlers (int)
+GcHeap::handleGuardPageHit (GcMutatorThread* thread)
 {
-	sigemptyset (&m_signalWaitMask); // don't block any signals when servicing SIGSEGV
-
-	struct sigaction prevSigAction;
-	struct sigaction sigAction = { 0 };
-	sigAction.sa_flags = SA_SIGINFO;
-	sigAction.sa_sigaction = signalHandler_SIGSEGV;
-	sigAction.sa_mask = m_signalWaitMask;
-
-	int result = sigaction (JNC_SIGSEGV, &sigAction, &prevSigAction);
-	ASSERT (result == 0);
-
-	sigAction.sa_flags = 0;
-	sigAction.sa_handler = signalHandler_SIGUSR1;
-	result = sigaction (SIGUSR1, &sigAction, &prevSigAction);
-	ASSERT (result == 0);
-}
-
-void
-GcHeap::signalHandler_SIGSEGV (
-	int signal,
-	siginfo_t* signalInfo,
-	void* context
-	)
-{
-	ASSERT (signal == JNC_SIGSEGV);
-
-	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
-
-	Tls* tls = getCurrentThreadTls ();
-	if (!tls)
-		return;
-
-	GcHeap* self = &tls->m_runtime->m_gcHeap;
-
-	if (signalInfo->si_addr != self->m_guardPage)
-		return; // ignore
-
-	ASSERT (self->m_state == State_StopTheWorld); // shouldn't be here otherwise
-
-	GcMutatorThread* thread = &tls->m_gcMutatorThread;
+	ASSERT (m_state == State_StopTheWorld); // shouldn't be here otherwise
 	ASSERT (!thread->m_waitRegionLevel && !thread->m_isSafePoint);
 
 	thread->m_isSafePoint = true;
 
-	intptr_t count = sys::atomicDec (&self->m_handshakeCount);
+	intptr_t count = sys::atomicDec (&m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
-		self->m_handshakeSem.signal ();
+		m_handshakeSem.signal ();
 
 	do
 	{
-		sigsuspend (&self->m_signalWaitMask);
-	} while (self->m_state != State_ResumeTheWorld);
+		static sigset_t signalWaitMask = { 0 }; // the triggering signal is already excluded
+		sigsuspend (&signalWaitMask);
+	} while (m_state != State_ResumeTheWorld);
 
 	thread->m_isSafePoint = false;
-	count = sys::atomicDec (&self->m_handshakeCount);
+	count = sys::atomicDec (&m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
-		self->m_handshakeSem.signal ();
+		m_handshakeSem.signal ();
 }
 
 #endif // _JNC_OS_POSIX

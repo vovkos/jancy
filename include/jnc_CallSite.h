@@ -29,19 +29,23 @@
 
 //..............................................................................
 
+// everything will work with or witout dedicated SEH-frames, but it will be 
+// easier to debug under Windows if each Jancy-invoking thread wraps Jancy calls 
+// into SEH-frames -- UnhandledExceptionFilter is notoriously hard to debug
+
 #if (_JNC_OS_WIN)
-#	define JNC_BEGIN_GC_SITE() \
+#	define JNC_BEGIN_SEH_FRAME() \
 	__try {
 
-#define JNC_END_GC_SITE() \
-	} __except (jnc_GcHeap_handleGcSehException ( \
+#define JNC_END_SEH_FRAME() \
+	} __except (jnc_handleSehException ( \
 		GetExceptionCode (), \
 		GetExceptionInformation () \
 		)) { }
 
 #else
-#	define JNC_BEGIN_GC_SITE() {
-#	define JNC_END_GC_SITE()   }
+#	define JNC_BEGIN_SEH_FRAME() {
+#	define JNC_END_SEH_FRAME()   }
 #endif
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -88,31 +92,14 @@
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_CALL_SITE(runtime) \
-	JNC_BEGIN_GC_SITE () \
+	{ \
 	JNC_BEGIN_CALL_SITE_IMPL (runtime)
 
 #define JNC_END_CALL_SITE() \
 	JNC_END_CALL_SITE_IMPL () \
-	JNC_END_GC_SITE ()
-
-#define JNC_END_CALL_SITE_EX(result) \
-	JNC_END_CALL_SITE_IMPL() \
-	*(result) = __jncCallSite.m_result != 0; \
-	JNC_END_GC_SITE ()
-
-//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// when we are nested inside jancy call stack, no need to create GC site
-
-#define JNC_BEGIN_NESTED_CALL_SITE(runtime) \
-	{ \
-	JNC_BEGIN_CALL_SITE_IMPL (runtime)
-
-#define JNC_END_NESTED_CALL_SITE() \
-	JNC_END_CALL_SITE_IMPL () \
 	}
 
-#define JNC_END_NESTED_CALL_SITE_EX(result) \
+#define JNC_END_CALL_SITE_EX(result) \
 	JNC_END_CALL_SITE_IMPL() \
 	*(result) = __jncCallSite.m_result != 0; \
 	}

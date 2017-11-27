@@ -58,7 +58,8 @@ OperatorMgr::getPropertyVTable (
 {
 	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
 
-	checkNullPtr (opValue);
+	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr)
+		checkNullPtr (opValue);
 
 	PropertyPtrType* ptrType = (PropertyPtrType*) opValue.getType ();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();

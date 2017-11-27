@@ -152,6 +152,20 @@ OperatorMgr::checkNullPtr (const Value& value)
 
 	TypeKind typeKind = type->getTypeKind ();
 
+	if (!(m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr))
+	{
+		ASSERT (typeKind == TypeKind_ClassPtr || typeKind == TypeKind_ClassRef);
+
+		// use a static sink to avoid load being optimized out
+		Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable (StdVariable_NullPtrCheckSink);
+
+		Value tmpValue;
+		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &tmpValue);
+		m_module->m_llvmIrBuilder.createLoad (tmpValue, NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createStore (tmpValue, nullPtrCheckSink);
+		return;
+	}
+
 	bool isThin;
 
 	switch (typeKind)

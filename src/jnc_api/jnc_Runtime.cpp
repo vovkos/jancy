@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
+#	include "jnc_rt_ExceptionMgr.h"
 #	include "jnc_ct_Module.h"
 #endif
 
@@ -154,6 +155,18 @@ jnc_getCurrentThreadTls ()
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getCurrentThreadTlsFunc ();
 }
+
+#	if (_JNC_OS_WIN)
+JNC_EXTERN_C
+int
+jnc_handleSehException (
+	uint_t code,
+	EXCEPTION_POINTERS* exceptionPointers
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_handleSehExceptionFunc (code, exceptionPointers);
+}
+#	endif // _JNC_OS_WIN
 
 JNC_EXTERN_C
 void
@@ -339,6 +352,18 @@ jnc_dynamicThrow ()
 {
 	jnc::rt::Runtime::dynamicThrow ();
 }
+
+#if (_JNC_OS_WIN)
+JNC_EXTERN_C
+int
+jnc_handleSehException (
+	uint_t code,
+	EXCEPTION_POINTERS* exceptionPointers
+	)
+{
+	return jnc::rt::ExceptionMgr::handleSehException (code, exceptionPointers);
+}
+#	endif // _JNC_OS_WIN
 
 static
 void

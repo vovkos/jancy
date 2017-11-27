@@ -583,7 +583,8 @@ OperatorMgr::callImpl (
 		return false;
 	}
 
-	checkNullPtr (pfnValue);
+	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr)
+		checkNullPtr (pfnValue);
 
 	bool result = castArgValueList (functionType, pfnValue.getClosure (), argValueList);
 	if (!result)

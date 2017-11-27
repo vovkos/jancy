@@ -25,7 +25,8 @@ OperatorMgr::getClassVTable (
 	Value* resultValue
 	)
 {
-	checkNullPtr (opValue);
+	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr)
+		checkNullPtr (opValue);
 
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ptrValue);

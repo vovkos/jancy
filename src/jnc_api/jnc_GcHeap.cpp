@@ -17,6 +17,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
+#	include "jnc_rt_ExceptionMgr.h"
 #	include "jnc_ct_Module.h"
 #endif
 
@@ -248,18 +249,6 @@ jnc_GcHeap_addBoxToCallSite (jnc_Box* box)
 {
 	jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_addBoxToCallSiteFunc (box);
 }
-
-#	if (_JNC_OS_WIN)
-JNC_EXTERN_C
-int
-jnc_GcHeap_handleGcSehException (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_handleGcSehExceptionFunc (code, exceptionPointers);
-}
-#	endif // _JNC_OS_WIN
 
 #else     // _JNC_DYNAMIC_EXTENSION_LIB
 
@@ -550,18 +539,6 @@ jnc_GcHeap_addBoxToCallSite (jnc_Box* box)
 	bool result = jnc::rt::GcHeap::addBoxIfDynamicFrame (box);
 	ASSERT (result);
 }
-
-#if (_JNC_OS_WIN)
-JNC_EXTERN_C
-int
-jnc_GcHeap_handleGcSehException (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	)
-{
-	return jnc::rt::GcHeap::handleSehException (code, exceptionPointers);
-}
-#	endif // _JNC_OS_WIN
 
 #endif    // _JNC_DYNAMIC_EXTENSION_LIB
 

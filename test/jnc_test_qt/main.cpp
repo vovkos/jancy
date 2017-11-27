@@ -14,6 +14,17 @@
 
 //..............................................................................
 
+int exec (QApplication* app)
+{
+	int result = 0;
+
+	JNC_BEGIN_SEH_FRAME ()
+	result = app->exec ();
+	JNC_END_SEH_FRAME ()
+
+	return result;
+}
+
 int main (int argc, char* argv [])
 {
 #if (_JNC_OS_WIN)
@@ -41,7 +52,7 @@ int main (int argc, char* argv [])
 	MainWindow mainWindow;
 	mainWindow.showMaximized();
 
-	return app.exec ();
+	return exec (&app);
 }
 
 //..............................................................................
