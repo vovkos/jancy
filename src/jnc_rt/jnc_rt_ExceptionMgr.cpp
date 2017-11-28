@@ -126,13 +126,17 @@ LONG
 WINAPI 
 ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 {
+	LONG status = exceptionPointers->ExceptionRecord->ExceptionCode;
+	if (status >= 0) // we only care about NT error conditions
+		return EXCEPTION_CONTINUE_SEARCH;
+
 	Tls* tls = getCurrentThreadTls ();
 	if (!tls)
 		return EXCEPTION_CONTINUE_SEARCH;
 
 	GcHeap* gcHeap = tls->m_runtime->getGcHeap ();
 	
-	if (exceptionPointers->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
+	if (status == EXCEPTION_ACCESS_VIOLATION &&
 		exceptionPointers->ExceptionRecord->ExceptionInformation [1] == (uintptr_t) gcHeap->getGuardPage ())
 	{		
 		gcHeap->handleGuardPageHit (&tls->m_gcMutatorThread);
@@ -143,7 +147,7 @@ ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 	if (tlsVariableTable->m_sjljFrame)
 	{
 		AXL_TODO ("encode SEH information better");
-		sys::win::setNtStatus (exceptionPointers->ExceptionRecord->ExceptionCode);
+		sys::win::setNtStatus (status);
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 	}
 
