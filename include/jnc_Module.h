@@ -77,14 +77,7 @@ enum jnc_ModuleCompileFlag
 		jnc_ModuleCompileFlag_GcSafePointInPrologue |
 		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue |
 		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue
-#if (_JNC_OS_WIN && !_JNC_CPU_X86)
-		// SEH on amd64 relies on being able to walk the stack (unlike frame-based SEH on x86)
-		// support for SEH on amd64 is still missing from LLVM -- they really don't give a fudge about windows
-		// therefore, use write barriers safe points and SEH-based exceptions if and only if it's x86
-		| jnc_ModuleCompileFlag_SimpleGcSafePoint
-		| jnc_ModuleCompileFlag_SimpleCheckDivByZero
-		| jnc_ModuleCompileFlag_SimpleCheckNullPtr
-#elif (_JNC_OS_POSIX)
+#if (_JNC_OS_POSIX)
 		| jnc_ModuleCompileFlag_McJit
 #endif
 };

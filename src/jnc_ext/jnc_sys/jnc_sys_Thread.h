@@ -76,7 +76,10 @@ public:
 
 protected:
 	void
-	threadFunc ();
+	threadFunc ()
+	{
+		callVoidFunctionPtr (m_runtime, m_threadFuncPtr);
+	}
 };
 
 //..............................................................................

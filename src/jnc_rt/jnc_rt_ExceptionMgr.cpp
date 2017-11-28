@@ -119,22 +119,20 @@ ExceptionMgr::invokePrevSignalHandler (int signal)
 void
 ExceptionMgr::install ()
 {
-	m_prevUnhandledExceptionFilter = ::SetUnhandledExceptionFilter (unhandledExceptionFilter);
+	::AddVectoredExceptionHandler (true, vectoredExceptionHandler);
 }
 
-int
-ExceptionMgr::handleSehException (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	)
+LONG 
+WINAPI 
+ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 {
 	Tls* tls = getCurrentThreadTls ();
 	if (!tls)
 		return EXCEPTION_CONTINUE_SEARCH;
 
 	GcHeap* gcHeap = tls->m_runtime->getGcHeap ();
-
-	if (code == EXCEPTION_ACCESS_VIOLATION &&
+	
+	if (exceptionPointers->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION &&
 		exceptionPointers->ExceptionRecord->ExceptionInformation [1] == (uintptr_t) gcHeap->getGuardPage ())
 	{		
 		gcHeap->handleGuardPageHit (&tls->m_gcMutatorThread);
@@ -145,26 +143,11 @@ ExceptionMgr::handleSehException (
 	if (tlsVariableTable->m_sjljFrame)
 	{
 		AXL_TODO ("encode SEH information better");
-		sys::win::setNtStatus (code);
+		sys::win::setNtStatus (exceptionPointers->ExceptionRecord->ExceptionCode);
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
-}
-
-LONG 
-WINAPI 
-ExceptionMgr::unhandledExceptionFilter (EXCEPTION_POINTERS* exceptionPointers)
-{
-	int result = handleSehException (exceptionPointers->ExceptionRecord->ExceptionCode, exceptionPointers);
-	if (result != EXCEPTION_CONTINUE_SEARCH)
-		return result;
-
-	ExceptionMgr* self = sl::getSimpleSingleton <ExceptionMgr> ();
-	if (self->m_prevUnhandledExceptionFilter)
-		result = self->m_prevUnhandledExceptionFilter (exceptionPointers);
-
-	return result;
 }
 
 #endif

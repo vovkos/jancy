@@ -58,30 +58,15 @@ protected:
 
 class ExceptionMgr
 {
-protected:
-	PTOP_LEVEL_EXCEPTION_FILTER m_prevUnhandledExceptionFilter;
-
 public:
-	ExceptionMgr ()
-	{
-		m_prevUnhandledExceptionFilter = NULL;
-	}
-
 	void
 	install ();
-
-	static
-	int
-	handleSehException (
-		uint_t code,
-		EXCEPTION_POINTERS* exceptionPointers
-		);
 
 protected:
 	static
 	LONG 
 	WINAPI 
-	unhandledExceptionFilter (EXCEPTION_POINTERS* exceptionPointers);
+	vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers);
 };
 
 #endif

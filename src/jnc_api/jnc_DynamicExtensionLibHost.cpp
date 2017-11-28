@@ -298,9 +298,6 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_getCurrentThreadRuntime,
 	jnc_getCurrentThreadTls,
 	jnc_dynamicThrow,
-#if (_JNC_OS_WIN)
-	jnc_handleSehException,
-#endif // _JNC_OS_WIN
 	jnc_primeClass,
 	jnc_strLen,
 	jnc_strDup,

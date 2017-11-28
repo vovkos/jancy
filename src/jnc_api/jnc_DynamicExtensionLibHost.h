@@ -1177,9 +1177,6 @@ struct jnc_RuntimeFuncTable
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
 	jnc_DynamicThrowFunc* m_dynamicThrowFunc;
-#if (_JNC_OS_WIN)
-	jnc_HandleSehExceptionFunc* m_handleSehExceptionFunc;
-#endif // _JNC_OS_WIN
 	jnc_PrimeClassFunc* m_primeClassFunc;
 	jnc_StrLenFunc* m_strLenFunc;
 	jnc_StrDupFunc* m_strDupFunc;

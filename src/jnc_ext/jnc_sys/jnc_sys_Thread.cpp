@@ -99,14 +99,6 @@ Thread::waitAndClose (uint_t timeout)
 	m_threadId = 0;
 }
 
-void
-Thread::threadFunc ()
-{
-	JNC_BEGIN_SEH_FRAME ()
-	callVoidFunctionPtr (m_runtime, m_threadFuncPtr);
-	JNC_END_SEH_FRAME ()
-}
-
 //..............................................................................
 
 } // namespace sys
