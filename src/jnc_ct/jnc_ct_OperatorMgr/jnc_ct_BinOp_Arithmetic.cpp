@@ -422,7 +422,7 @@ BinOp_BwAnd::op (
 		isBitFlagEnumType (rawOpValue1.getType ()) ? (EnumType*) rawOpValue1.getType () :
 		isBitFlagEnumType (rawOpValue2.getType ()) ? (EnumType*) rawOpValue2.getType () : NULL;
 
-	// prepare before calling Base::Op cause we have EOpFlag_KeepEnum
+	// prepare before calling Base::Op cause we have OpFlag_KeepEnum
 
 	if (!enumType)
 	{
@@ -471,9 +471,9 @@ BinOp_BwOr::op (
 	Value opValue2;
 	Value tmpValue;
 
-	// prepare before calling Base::Op cause we have EOpFlag_KeepEnum
+	// prepare before calling Base::Op cause we have OpFlag_KeepEnum
 
-	if (!isFlagEnumOpType (rawOpValue1, rawOpValue2))
+	if (!isBitFlagEnumOpType (rawOpValue1, rawOpValue2))
 	{
 		return
 			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
@@ -504,6 +504,44 @@ BinOp_BwOr::llvmOpInt (
 }
 
 //..............................................................................
+
+BinOp_BwXor::BinOp_BwXor ()
+{
+	m_opKind = BinOpKind_BwXor;
+	m_opFlags1 = OpFlag_KeepEnum;
+	m_opFlags2 = OpFlag_KeepEnum;
+}
+
+bool
+BinOp_BwXor::op (
+	const Value& rawOpValue1,
+	const Value& rawOpValue2,
+	Value* resultValue
+	)
+{
+	Value opValue1;
+	Value opValue2;
+	Value tmpValue;
+
+	// prepare before calling Base::Op cause we have OpFlag_KeepEnum
+
+	if (!isBitFlagEnumOpType (rawOpValue1, rawOpValue2))
+	{
+		return
+			m_module->m_operatorMgr.prepareOperand (rawOpValue1, &opValue1) &&
+			m_module->m_operatorMgr.prepareOperand (rawOpValue2, &opValue2) &&
+			BinOp_IntegerOnly <BinOp_BwXor>::op (opValue1, opValue2, resultValue);
+	}
+
+	EnumType* enumType = (EnumType*) rawOpValue1.getType ();
+
+	opValue1.overrideType (rawOpValue1, enumType->getBaseType ());
+	opValue2.overrideType (rawOpValue2, enumType->getBaseType ());
+
+	return
+		BinOp_IntegerOnly <BinOp_BwXor>::op (opValue1, opValue2, &tmpValue) &&
+		m_module->m_operatorMgr.castOperator (tmpValue, enumType, resultValue);
+}
 
 llvm::Value*
 BinOp_BwXor::llvmOpInt (

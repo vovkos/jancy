@@ -1,0 +1,16 @@
+bitflag enum Flags
+{
+	A,
+	B,
+	C
+}
+
+int main ()
+{
+	Flags a = Flags.A;
+	Flags b = Flags.A;
+	Flags c = a ^ b;
+	
+	
+	return 0;
+}
