@@ -18,8 +18,8 @@ namespace io {
 
 enum IoLibCacheSlot
 {
+	IoLibCacheSlot_AsyncIoDevice,
 	IoLibCacheSlot_Serial,
-	IoLibCacheSlot_SerialEventParams,
 	IoLibCacheSlot_SerialPortDesc,
 	IoLibCacheSlot_Address_ip4,
 	IoLibCacheSlot_Address_ip6,

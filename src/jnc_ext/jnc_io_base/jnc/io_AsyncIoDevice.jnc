@@ -1,0 +1,45 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//..............................................................................
+
+opaque class AsyncIoDevice
+{
+	uint_t readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	/**
+		Holds the open status for the device, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
+	bool readonly m_isOpen;
+
+	construct ();
+	destruct ();
+
+	intptr errorcode wait (
+		uint_t eventMask,
+		function* handler (uint_t triggeredEvents)
+		);
+
+	bool errorcode cancelWait (intptr handle);
+
+	uint_t errorcode blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		);
+}
+
+//..............................................................................
+
+} // namespace io

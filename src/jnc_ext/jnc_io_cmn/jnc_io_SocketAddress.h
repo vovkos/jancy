@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "jnc_Runtime.h"
-
 namespace jnc {
 namespace io {
 

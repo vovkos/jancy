@@ -13,8 +13,15 @@
 
 #define _JNC_DYNAMIC_EXTENSION_LIB
 
-#include "jnc_ExtensionLib.h"
-
 #include "axl_io_Socket.h"
+#include "axl_sl_CircularBuffer.h"
+#include "axl_sl_HandleTable.h"
+#include "axl_sys_Event.h"
+#include "axl_io_win_FileHandle.h"
+
+#include "jnc_ExtensionLib.h"
+#include "jnc_Runtime.h"
+#include "jnc_CallSite.h"
+#include "jnc_Error.h"
 
 using namespace axl;

@@ -15,11 +15,13 @@
 
 set (
 	LIB_H_LIST
+	jnc_io_AsyncIoDevice.h
 	jnc_io_SocketAddress.h
 	)
 
 set (
 	LIB_CPP_LIST
+	jnc_io_AsyncIoDevice.cpp
 	jnc_io_SocketAddress.cpp
 	)
 

@@ -46,8 +46,8 @@ protected:
 
 	enum IoFlag
 	{
-		IoFlag_Opened             = 0x0001,
-		IoFlag_Closing            = 0x0002,
+		IoFlag_Opened  = 0x0001,
+		IoFlag_Closing = 0x0002,
 	};
 
 	struct Accept: sl::ListLink
