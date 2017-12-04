@@ -774,7 +774,9 @@ ClassType::markGcRootsImpl (
 
 	if (m_markOpaqueGcRootsFunc)
 	{
-		ASSERT (iface->m_box->m_type == this);
+		ClassType* boxType = (ClassType*) iface->m_box->m_type;
+		ASSERT (isOpaqueClassType (boxType) && (boxType == this || boxType->findBaseTypeTraverse (this)));
+
 		m_markOpaqueGcRootsFunc (iface, gcHeap);
 	}
 }
