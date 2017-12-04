@@ -352,6 +352,21 @@ Type::getZeroValue ()
 	return Value (llvmValue, this);
 }
 
+Value
+Type::getErrorCodeValue ()
+{
+	uint_t typeKindFlags = getTypeKindFlags ();
+	ASSERT (typeKindFlags & TypeKindFlag_ErrorCode);
+
+	if (m_typeKind == TypeKind_Bool || !(typeKindFlags & TypeKindFlag_Integer))
+		return getZeroValue ();
+
+	Value errorCodeValue;
+	uint64_t minusOne = -1;
+	errorCodeValue.createConst (&minusOne, this);
+	return errorCodeValue;
+}
+
 ArrayType*
 Type::getArrayType (size_t elementCount)
 {

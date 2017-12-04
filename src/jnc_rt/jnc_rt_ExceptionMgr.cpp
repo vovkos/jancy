@@ -94,6 +94,7 @@ ExceptionMgr::signalHandler (
 	{
 		AXL_TODO ("add extra variables to the SJLJ frame to store error information");
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+		ASSERT (false);
 	}
 }
 
@@ -149,6 +150,7 @@ ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 		AXL_TODO ("encode SEH information better");
 		sys::win::setNtStatus (status);
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+		ASSERT (false);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;

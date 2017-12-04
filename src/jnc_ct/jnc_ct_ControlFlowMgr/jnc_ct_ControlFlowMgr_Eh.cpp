@@ -88,19 +88,8 @@ ControlFlowMgr::throwException ()
 		{
 			FunctionType* currentFunctionType = m_module->m_functionMgr.getCurrentFunction ()->getType ();
 			ASSERT (currentFunctionType->getFlags () & FunctionTypeFlag_ErrorCode);
-			Type* currentReturnType = currentFunctionType->getReturnType ();
 
-			Value throwValue;
-			if (currentReturnType->getTypeKindFlags () & TypeKindFlag_Integer)
-			{
-				uint64_t minusOne = -1;
-				throwValue.createConst (&minusOne, currentReturnType);
-			}
-			else
-			{
-				throwValue = currentReturnType->getZeroValue ();
-			}
-
+			Value throwValue = currentFunctionType->getReturnType ()->getErrorCodeValue ();
 			ret (throwValue);
 		}
 	}
@@ -184,13 +173,9 @@ ControlFlowMgr::endTryOperator (
 		value->setConstBool (true, m_module);
 		errorValue.setConstBool (false, m_module);
 	}
-	else if (type->getTypeKindFlags () & TypeKindFlag_Integer)
-	{
-		errorValue.setConstInt64 (-1, type);
-	}
 	else if (type->getTypeKindFlags () & TypeKindFlag_ErrorCode)
 	{
-		errorValue = type->getZeroValue ();
+		errorValue = type->getErrorCodeValue ();
 	}
 	else
 	{
@@ -225,14 +210,13 @@ ControlFlowMgr::throwExceptionIf (
 		(returnType->getTypeKindFlags () & TypeKindFlag_ErrorCode));
 
 	Value indicatorValue;
-	if (!(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
+	if (returnType->getTypeKind () == TypeKind_Bool || !(returnType->getTypeKindFlags () & TypeKindFlag_Integer))
 	{
 		indicatorValue = returnValue;
 	}
 	else
 	{
 		uint64_t minusOne = -1;
-
 		Value minusOneValue;
 		minusOneValue.createConst (&minusOne, returnType);
 

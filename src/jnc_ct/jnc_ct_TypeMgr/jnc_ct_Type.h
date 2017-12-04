@@ -275,6 +275,9 @@ public:
 	Value
 	getZeroValue ();
 
+	Value
+	getErrorCodeValue ();
+
 	int
 	cmp (Type* type)
 	{

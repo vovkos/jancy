@@ -2,15 +2,16 @@ bitflag enum Flags
 {
 	A,
 	B,
-	C
+	C = false
 }
 
 int main ()
 {
 	Flags a = Flags.A;
-	Flags b = Flags.A;
+	Flags b = Flags.B;
 	Flags c = a ^ b;
 	
+	c = Flags.A ^ Flags.B;
 	
 	return 0;
 }

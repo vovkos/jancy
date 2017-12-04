@@ -30,8 +30,9 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 		0,                              // jnc_TypeKind_Void
 		jnc_TypeKindFlag_Nullable,      // jnc_TypeKind_Variant
 
+		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Bool
 		jnc_TypeKindFlag_Numeric |
-		jnc_TypeKindFlag_ErrorCode,     // jnc_TypeKind_Bool
+		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Integer |      // jnc_TypeKind_Int8
 		jnc_TypeKindFlag_Numeric |

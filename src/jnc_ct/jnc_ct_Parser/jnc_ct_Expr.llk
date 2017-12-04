@@ -221,7 +221,7 @@ constant_integer_expr
 				if ($1.m_value.getValueKind () != ValueKind_Const ||
 					!($1.m_value.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
 				{
-					err::setFormatStringError ("not a constant integer expression");
+					err::setFormatStringError ("expression is not integer constant");
 					return false;
 				}
 
