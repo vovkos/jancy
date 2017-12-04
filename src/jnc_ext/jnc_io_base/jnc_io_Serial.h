@@ -11,43 +11,54 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoDevice.h"
+
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (SerialEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Serial)
 JNC_DECLARE_TYPE (SerialPortDesc)
 
 //..............................................................................
 
-enum SerialEventCode
+enum SerialCompatibilityFlag
 {
-	SerialEventCode_IncomingData = 0,
-	SerialEventCode_IoError,
-	SerialEventCode_TransmitBufferReady,
-	SerialEventCode_StatusLineChanged,
+	SerialCompatibilityFlag_WinReadCheckComstat = 0x01,
+	SerialCompatibilityFlag_WinReadWaitFirstChar = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct SerialEventParams
+enum SerialEvent
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (SerialEventParams)
-
-	SerialEventCode m_eventCode;
-	uint_t m_syncId;
-	uint_t m_lines;
-	uint_t m_mask;
-	DataPtr m_errorPtr;
+	SerialEvent_CtsOn          = 0x0010,
+	SerialEvent_CtsOff         = 0x0020,
+	SerialEvent_DsrOn          = 0x0040,
+	SerialEvent_DsrOff         = 0x0080,
+	SerialEvent_RingOn         = 0x0100,
+	SerialEvent_RingOff        = 0x0200,
+	SerialEvent_DcdOn          = 0x0400,
+	SerialEvent_DcdOff         = 0x0800,
+	SerialEvent_StatusLineMask = 0x0ff0,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Serial: public IfaceHdr
+class Serial: public AsyncIoDevice
 {
 	friend class IoThread;
 
 protected:
+	enum Def
+	{
+		Def_ReadInterval    = 10,
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 1 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_BaudRate        = 38400,
+	};
+
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
@@ -58,13 +69,14 @@ protected:
 		}
 	};
 
-	enum IoFlag
-	{
-		IoFlag_Closing      = 0x0001,
-		IoFlag_IncomingData = 0x0010,
-	};
-
 protected:
+	uint_t m_readInterval;
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+	uint_t m_compatibilityFlags;
+
 	uint_t m_baudRate;
 	axl::io::SerialFlowControl m_flowControl;
 	uint_t m_dataBits;
@@ -73,22 +85,14 @@ protected:
 
 	bool m_dtr;
 	bool m_rts;
-	bool m_isOpen;
-	uint_t m_syncId;
-
-	ClassBox <Multicast> m_onSerialEvent;
 
 protected:
-	Runtime* m_runtime;
-	axl::io::Serial m_serial;
-	sys::Lock m_ioLock;
-	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
 
-#if (_JNC_OS_WIN)
-	sys::Event m_ioThreadEvent;
-#else
-	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
+	axl::io::Serial m_serial;
+
+#if (_AXL_OS_WIN)
+	dword_t m_serialEvents;
 #endif
 
 public:
@@ -107,23 +111,57 @@ public:
 	JNC_CDECL
 	close ();
 
+	bool
+	JNC_CDECL
+	setReadInterval (uint_t count);
+
+	bool
+	JNC_CDECL
+	setReadParallelism (uint_t count);
+
+	bool
+	JNC_CDECL
+	setReadBlockSize (size_t size);
+
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size);
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size);
+
+	bool
+	JNC_CDECL
+	setCompatibilityFlags (uint_t flags);
+
 	size_t
 	JNC_CDECL
 	read (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedRead (ptr, size);
+	}
 
 	size_t
 	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedWrite (ptr, size);
+	}
 
 	bool
 	JNC_CDECL
 	setBaudRate (uint_t baudRate);
+
+	bool
+	JNC_CDECL
+	setFlowControl (axl::io::SerialFlowControl flowControl);
 
 	bool
 	JNC_CDECL
@@ -137,9 +175,12 @@ public:
 	JNC_CDECL
 	setParity (axl::io::SerialParity parity);
 
-	bool
+	uint_t
 	JNC_CDECL
-	setFlowControl (axl::io::SerialFlowControl flowControl);
+	getStatusLines ()
+	{
+		return m_serial.getStatusLines ();
+	}
 
 	bool
 	JNC_CDECL
@@ -149,32 +190,14 @@ public:
 	JNC_CDECL
 	setRts (bool rts);
 
-	uint_t
-	JNC_CDECL
-	getStatusLines ()
-	{
-		return m_serial.getStatusLines ();
-	}
-
 protected:
-	void
-	fireSerialEvent (
-		SerialEventCode eventCode,
-		uint_t lines = 0,
-		uint_t mask = 0
-		);
-
-	void
-	fireSerialEvent (
-		SerialEventCode eventCode,
-		const err::ErrorRef& error
-		);
-
 	void
 	ioThreadFunc ();
 
-	void
-	wakeIoThread ();
+#if (_AXL_OS_WIN)
+	bool
+	setReadWaitFirstChar ();
+#endif
 };
 
 //..............................................................................

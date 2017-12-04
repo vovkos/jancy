@@ -19,18 +19,6 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	SerialEventParams,
-	"io.SerialEventParams",
-	g_ioLibGuid,
-	IoLibCacheSlot_SerialEventParams
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (SerialEventParams)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Serial,
 	"io.Serial",
@@ -43,6 +31,14 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <Serial>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Serial>)
+
+	JNC_MAP_AUTOGET_PROPERTY ("m_readInterval",       &Serial::setReadInterval)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism",    &Serial::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",      &Serial::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",     &Serial::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize",    &Serial::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_compatibilityFlags", &Serial::setCompatibilityFlags)
+
 	JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
 	JNC_MAP_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dataBits",    &Serial::setDataBits)
@@ -51,6 +47,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dtr",         &Serial::setDtr)
 	JNC_MAP_AUTOGET_PROPERTY ("m_rts",         &Serial::setRts)
 	JNC_MAP_CONST_PROPERTY   ("m_statusLines", &Serial::getStatusLines)
+
 	JNC_MAP_FUNCTION ("open",  &Serial::open)
 	JNC_MAP_FUNCTION ("close", &Serial::close)
 	JNC_MAP_FUNCTION ("read",  &Serial::read)
@@ -73,30 +70,36 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 Serial::Serial ()
 {
-	m_runtime = getCurrentThreadRuntime ();
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId = 0;
+	m_readInterval = Def_ReadInterval;
+	m_readParallelism = Def_ReadParallelism;
+	m_readBlockSize = Def_ReadBlockSize;
+	m_readBufferSize = Def_ReadBufferSize;
+	m_writeBufferSize = Def_WriteBufferSize;
 
-	m_baudRate = 38400;
-	m_flowControl = axl::io::SerialFlowControl_None;
+	m_baudRate = Def_BaudRate;
+	m_flowControl = axl::io::SerialFlowControl_None,
 	m_dataBits = 8;
 	m_stopBits = axl::io::SerialStopBits_1;
-	m_parity   = axl::io::SerialParity_None;
+	m_parity = axl::io::SerialParity_None;
 
 	m_dtr = true;
 	m_rts = false;
+
+	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
 }
 
-void
-Serial::wakeIoThread ()
+#if (_AXL_OS_WIN)
+bool
+Serial::setReadWaitFirstChar ()
 {
-#if (_JNC_OS_WIN)
-	m_ioThreadEvent.signal ();
-#else
-	m_selfPipe.write (" ", 1);
-#endif
+	COMMTIMEOUTS timeouts = { 0 };
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+	timeouts.ReadTotalTimeoutConstant = MAXDWORD - 1;  // even when this (insanely) long wait completes, 
+	return m_serial.m_serial.setTimeouts (&timeouts);  // still no problem -- read will just return 0 bytes	
 }
+#endif
 
 bool
 JNC_CDECL
@@ -109,14 +112,15 @@ Serial::open (DataPtr namePtr)
 		m_flowControl,
 		m_dataBits,
 		m_stopBits,
-		m_parity
+		m_parity,
+		m_readInterval
 		);
-
-	serialSettings.m_readInterval = 0; // complete Serial.Read immediatly!
 
 	bool result =
 		m_serial.open ((const char*) namePtr.m_p) &&
-		m_serial.setSettings (&serialSettings);
+		m_serial.setSettings (&serialSettings) &&
+		m_serial.setDtr (m_dtr) &&
+		m_serial.setRts (m_rts);
 
 	if (!result)
 	{
@@ -124,14 +128,19 @@ Serial::open (DataPtr namePtr)
 		return false;
 	}
 
-	m_isOpen = true;
-
-#if (_JNC_OS_WIN)
-	m_ioThreadEvent.reset ();
-#elif (_JNC_OS_POSIX)
-	m_selfPipe.create ();
+#if (_AXL_OS_WIN)
+	if (m_compatibilityFlags & SerialCompatibilityFlag_WinReadWaitFirstChar)
+	{
+		result = setReadWaitFirstChar ();
+		if (!result)
+		{
+			propagateLastError ();
+			return false;
+		}
+	}
 #endif
 
+	AsyncIoDevice::open ();
 	m_ioThread.start ();
 	return true;
 }
@@ -140,8 +149,11 @@ void
 JNC_CDECL
 Serial::close ()
 {
-	if (!m_serial.isOpen ())
+	if (!m_isOpen)
+	{
+		m_serial.close (); // take care of failed open ()
 		return;
+	}
 
 	m_ioLock.lock ();
 	m_ioFlags |= IoFlag_Closing;
@@ -152,63 +164,167 @@ Serial::close ()
 	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
-
-	m_ioFlags = 0;
+	
 	m_serial.close ();
 
-#if (_JNC_OS_POSIX)
-	m_selfPipe.close ();
+	AsyncIoDevice::close ();
+}
+
+bool
+JNC_CDECL
+Serial::setReadInterval (uint_t interval)
+{
+	if (!m_isOpen)
+	{
+		m_readInterval = interval;
+		return true;
+	}
+
+#if (_AXL_OS_WIN)
+	if (m_compatibilityFlags & SerialCompatibilityFlag_WinReadWaitFirstChar) // interval is ignored
+	{
+		m_readInterval = interval;
+		return true;	
+	}
 #endif
 
-	m_isOpen = false;
-	m_syncId++;
+	axl::io::SerialSettings settings;
+	settings.m_readInterval = interval;
+	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_ReadInterval);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_readInterval = interval;
+	return true;
 }
 
-void
-Serial::fireSerialEvent (
-	SerialEventCode eventCode,
-	uint_t lines,
-	uint_t mask
-	)
+bool
+JNC_CDECL
+Serial::setReadParallelism (uint_t count)
 {
-	JNC_BEGIN_CALL_SITE (m_runtime);
+	if (!m_isOpen)
+	{
+		m_readParallelism = count;
+		return true;
+	}
 
-	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
-	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
-	params->m_lines = lines;
-	params->m_mask = mask;
-
-	callMulticast (m_onSerialEvent, paramsPtr);
-
-	JNC_END_CALL_SITE ();
+	m_ioLock.lock ();
+	m_readParallelism = count;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+	return true;
 }
 
-
-void
-Serial::fireSerialEvent (
-	SerialEventCode eventCode,
-	const err::ErrorRef& error
-	)
+bool
+JNC_CDECL
+Serial::setReadBlockSize (size_t size)
 {
-	JNC_BEGIN_CALL_SITE (m_runtime);
+	if (!m_isOpen)
+	{
+		m_readBlockSize = size;
+		return true;
+	}
 
-	DataPtr paramsPtr = createData <SerialEventParams> (m_runtime);
-	SerialEventParams* params = (SerialEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
-	params->m_errorPtr = memDup (error, error->m_size);
+	m_ioLock.lock ();
+	m_readBlockSize = size;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+	return true;
+}
 
-	callMulticast (m_onSerialEvent, paramsPtr);
+bool
+JNC_CDECL
+Serial::setReadBufferSize (size_t size)
+{
+	m_ioLock.lock ();
+	
+	bool result = m_readBuffer.setBufferSize (size);
+	if (!result)
+	{
+		m_ioLock.unlock ();
+		propagateLastError ();
+		return false;
+	}
 
-	JNC_END_CALL_SITE ();
+	m_readBufferSize = size;
+	m_ioLock.unlock ();
+	return true;
+}
+
+bool
+JNC_CDECL
+Serial::setWriteBufferSize (size_t size)
+{
+	m_ioLock.lock ();
+
+	bool result = m_writeBuffer.setBufferSize (size);
+	if (!result)
+	{
+		m_ioLock.unlock ();
+		propagateLastError ();
+		return false;
+	}
+
+	m_writeBufferSize = size;
+	m_ioLock.unlock ();
+	return true;
+}
+
+bool
+JNC_CDECL
+Serial::setCompatibilityFlags (uint_t flags)
+{
+	if (!m_isOpen)
+	{
+		m_compatibilityFlags = flags;
+		return true;
+	}
+
+#if (_AXL_OS_WIN)
+	if ((flags & SerialCompatibilityFlag_WinReadWaitFirstChar) ^ 
+		(m_compatibilityFlags & SerialCompatibilityFlag_WinReadWaitFirstChar))
+	{
+		bool result;
+
+		if (flags & SerialCompatibilityFlag_WinReadWaitFirstChar)
+		{
+			result = setReadWaitFirstChar ();
+		}
+		else // re-apply the original timeout
+		{
+			axl::io::SerialSettings settings;
+			settings.m_readInterval = m_readInterval;
+			result = m_serial.setSettings (&settings, axl::io::SerialSettingId_ReadInterval);
+		}
+
+		if (!result)
+		{
+			propagateLastError ();
+			return false;
+		}
+	}
+#endif
+
+	m_ioLock.lock ();
+	m_compatibilityFlags = flags;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+	return true;
 }
 
 bool
 JNC_CDECL
 Serial::setBaudRate (uint_t baudRate)
 {
+	if (!m_isOpen)
+	{
+		m_baudRate = baudRate;
+		return true;
+	}
+
 	axl::io::SerialSettings settings;
 	settings.m_baudRate = baudRate;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_BaudRate);
@@ -224,8 +340,37 @@ Serial::setBaudRate (uint_t baudRate)
 
 bool
 JNC_CDECL
+Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
+{
+	if (!m_isOpen)
+	{
+		m_flowControl = flowControl;
+		return true;
+	}
+
+	axl::io::SerialSettings settings;
+	settings.m_flowControl = flowControl;
+	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_flowControl = flowControl;
+	return true;
+}
+
+bool
+JNC_CDECL
 Serial::setDataBits (uint_t dataBits)
 {
+	if (!m_isOpen)
+	{
+		m_dataBits = dataBits;
+		return true;
+	}
+
 	axl::io::SerialSettings settings;
 	settings.m_dataBits = dataBits;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_DataBits);
@@ -243,6 +388,12 @@ bool
 JNC_CDECL
 Serial::setStopBits (axl::io::SerialStopBits stopBits)
 {
+	if (!m_isOpen)
+	{
+		m_stopBits = stopBits;
+		return true;
+	}
+
 	axl::io::SerialSettings settings;
 	settings.m_stopBits = stopBits;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_StopBits);
@@ -260,6 +411,12 @@ bool
 JNC_CDECL
 Serial::setParity (axl::io::SerialParity parity)
 {
+	if (!m_isOpen)
+	{
+		m_parity = parity;
+		return true;
+	}
+
 	axl::io::SerialSettings settings;
 	settings.m_parity = parity;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_Parity);
@@ -275,25 +432,14 @@ Serial::setParity (axl::io::SerialParity parity)
 
 bool
 JNC_CDECL
-Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
-{
-	axl::io::SerialSettings settings;
-	settings.m_flowControl = flowControl;
-	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
-	if (!result)
-	{
-		propagateLastError ();
-		return false;
-	}
-
-	m_flowControl = flowControl;
-	return true;
-}
-
-bool
-JNC_CDECL
 Serial::setDtr (bool dtr)
 {
+	if (!m_isOpen)
+	{
+		m_dtr = dtr;
+		return true;
+	}
+
 	bool result = m_serial.setDtr (dtr);
 	if (!result)
 	{
@@ -309,6 +455,12 @@ bool
 JNC_CDECL
 Serial::setRts (bool rts)
 {
+	if (!m_isOpen)
+	{
+		m_rts = rts;
+		return true;
+	}
+
 	bool result = m_serial.setRts (rts);
 	if (!result)
 	{
@@ -320,41 +472,6 @@ Serial::setRts (bool rts)
 	return true;
 }
 
-size_t
-JNC_CDECL
-Serial::read (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	size_t result = m_serial.read (ptr.m_p, size);
-
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingData;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-
-	if (result == -1)
-		propagateLastError ();
-
-	return result;
-}
-
-size_t
-JNC_CDECL
-Serial::write (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	size_t result = m_serial.write (ptr.m_p, size);
-
-	if (result == -1)
-		propagateLastError ();
-
-	return result;
-}
-
 #if (_JNC_OS_WIN)
 
 void
@@ -362,113 +479,269 @@ Serial::ioThreadFunc ()
 {
 	ASSERT (m_serial.isOpen ());
 
-	sys::Event serialEvent;
+	bool result;
 
-	HANDLE waitTable [] =
+	axl::io::win::StdOverlapped serialWaitOverlapped;
+	axl::io::win::StdOverlapped writeOverlapped;
+
+	axl::io::win::StdOverlapped*
+	overlappedTable [3] = 
 	{
-		m_ioThreadEvent.m_event,
-		serialEvent.m_event,
+		&serialWaitOverlapped,
+		&writeOverlapped,
+		NULL,  // placeholder for read overlapped
 	};
 
-	uint_t prevLines = m_serial.getStatusLines ();
+	HANDLE waitTable [4] =
+	{
+		m_ioThreadEvent.m_event,
+		serialWaitOverlapped.m_completionEvent.m_event,
+		writeOverlapped.m_completionEvent.m_event,
+		NULL, // placeholder for read completion event
+	};
+
+	size_t waitCount = 3; // always 3 or 4
+
+	enum
+	{
+		EventMask = EV_RXCHAR | EV_CTS | EV_DSR | EV_RING | EV_RLSD,
+	};
+
+	enum WaitResult
+	{
+		WaitResult_Failed   = WAIT_FAILED,
+		WaitResult_IoThread = WAIT_OBJECT_0,
+		WaitResult_SerialWait,
+		WaitResult_Write,
+		WaitResult_Read,
+	};
+
+	result = 
+		m_serial.m_serial.setWaitMask (EventMask) &&
+		m_serial.m_serial.overlappedWait (&m_serialEvents, &serialWaitOverlapped);
+
+	if (!result)
+	{
+		setIoErrorEvent ();
+		return;
+	}
+
+	m_ioThreadEvent.signal (); // do initial update of active events
 
 	for (;;)
 	{
-		dword_t mask = EV_CTS | EV_DSR | EV_RING | EV_RLSD;
+		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitTable, false, INFINITE);
 
-		m_ioLock.lock ();
-
-		if (m_ioFlags & IoFlag_Closing)
+		dword_t actualSize = 0;
+		if (waitResult == WAIT_FAILED)
 		{
-			m_ioLock.unlock ();
+			setIoErrorEvent ();
 			return;
 		}
 
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't add EV_RXCHAR if previous is not handled yet
-			mask |= EV_RXCHAR;
-
-		m_ioLock.unlock ();
-
-		OVERLAPPED overlapped = { 0 };
-		overlapped.hEvent = serialEvent.m_event;
-
-		dword_t event = 0;
-		bool result =
-			m_serial.m_serial.setWaitMask (mask) &&
-			m_serial.m_serial.overlappedWait (&event, &overlapped);
-
-		if (!result)
+		if (waitResult >= WaitResult_SerialWait && waitResult <= WaitResult_Read)
 		{
-			fireSerialEvent (SerialEventCode_IoError, err::getLastError ());
+			size_t i = waitResult - WaitResult_SerialWait;
+			axl::io::win::StdOverlapped* overlapped = overlappedTable [i];
+			ASSERT (overlapped);
+
+			result = m_serial.m_serial.getOverlappedResult (overlapped, &actualSize);
+			if (!result)
+			{
+				setIoErrorEvent ();
+				break;
+			}
+
+			overlapped->m_completionEvent.reset ();
+		}
+
+		bool canWrite = false;
+		bool canWait = false;		
+		bool canReadMaybe = false;
+
+		size_t readParallelism;
+		size_t readBlockSize;
+		uint_t compatibilityFlags;
+
+		uint_t statusLines = m_serial.getStatusLines ();
+
+		m_ioLock.lock ();
+		if (m_ioFlags & IoFlag_Closing)
+		{
+			m_ioLock.unlock ();
 			break;
 		}
 
-		// wait for comm event
+		uint_t prevActiveEvents = m_activeEvents;
 
-		for (;;)
+		AsyncReadBlock* read = NULL;
+
+		switch (waitResult)
 		{
-			DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
-			if (waitResult == WAIT_FAILED)
-			{
-				err::Error error (err::getLastSystemErrorCode ());
-				fireSerialEvent (SerialEventCode_IoError, error);
-				return;
-			}
+		case WaitResult_Read:
+			ASSERT (!m_activeReadBlockList.isEmpty ());
+			read = m_activeReadBlockList.removeHead ();
 
-			COMSTAT stat;
-			result = m_serial.m_serial.clearError (NULL, &stat);
-			if (!result)
-			{
-				fireSerialEvent (SerialEventCode_IoError, err::getLastError ());
+			addToReadBuffer (read->m_buffer, actualSize);
+			m_freeReadBlockList.insertHead (read);
+			break;
+
+		case WaitResult_Write:
+			ASSERT (m_ioFlags & IoFlag_Writing);
+			m_ioFlags &= ~IoFlag_Writing;
+
+			if (actualSize < m_writeBlock.getCount ()) // shouldn't happen, actually (unless with a non-standard driver)
+				m_writeBlock.remove (0, actualSize);
+			else
+				m_writeBuffer.readAll (&m_writeBlock);
+
+			break;
+
+		case WaitResult_SerialWait:
+			canWait = true; // always restart
+			break;
+		} 
+
+		while (!m_activeReadBlockList.isEmpty ())
+		{
+			read = *m_activeReadBlockList.getHead ();
+
+			result = 
+				read->m_overlapped.m_completionEvent.wait (0) && // don't wait
+				m_serial.m_serial.getOverlappedResult (&read->m_overlapped, &actualSize);
+
+			if (!result) // not yet
 				break;
-			}
 
-			m_ioLock.lock ();
-			if (m_ioFlags & IoFlag_Closing)
+			m_activeReadBlockList.remove (read);
+			addToReadBuffer (read->m_buffer, actualSize);
+			m_freeReadBlockList.insertHead (read);
+		}
+
+		m_activeEvents = 0;
+
+		if (!m_readBuffer.isEmpty ())
+			m_activeEvents |= AsyncIoEvent_IncomingData;
+
+		if (!m_writeBuffer.isFull ())
+			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
+
+		if (m_readBuffer.isFull ())
+		{
+			m_activeEvents |= AsyncIoEvent_ReceiveBufferFull;
+		}
+		else
+		{
+			canReadMaybe = true;
+			readParallelism = m_readParallelism;
+			readBlockSize = m_readBlockSize;
+			compatibilityFlags = m_compatibilityFlags;
+		}
+
+		if (!(m_ioFlags & IoFlag_Writing) && !m_writeBuffer.isEmpty ())
+		{
+			m_writeBuffer.readAll (&m_writeBlock);
+			m_ioFlags |= IoFlag_Writing;
+			canWrite = true;
+		}
+
+		if (statusLines & axl::io::SerialStatusLine_Cts)
+			m_activeEvents |= SerialEvent_CtsOn;
+		else
+			m_activeEvents |= SerialEvent_CtsOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Dsr)
+			m_activeEvents |= SerialEvent_DsrOn;
+		else
+			m_activeEvents |= SerialEvent_DsrOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Dcd)
+			m_activeEvents |= SerialEvent_DcdOn;
+		else
+			m_activeEvents |= SerialEvent_DcdOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Ring)
+			m_activeEvents |= SerialEvent_RingOn;
+		else
+			m_activeEvents |= SerialEvent_RingOff;
+
+		if (m_activeEvents ^ prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_ioLock.unlock ();
+
+		result = 
+			(!canWrite || m_serial.m_serial.overlappedWrite (m_writeBlock, m_writeBlock.getCount (), &writeOverlapped)) &&
+			(!canWait || m_serial.m_serial.overlappedWait (&m_serialEvents, &serialWaitOverlapped));
+
+		if (!result)
+		{
+			setIoErrorEvent ();
+			break;
+		}
+
+		// the rest is read handling
+
+		if (canReadMaybe)
+		{
+			size_t newReadCount = 0;
+
+			if (!(compatibilityFlags & SerialCompatibilityFlag_WinReadCheckComstat))
 			{
-				m_ioLock.unlock ();
-				return;
+				size_t activeReadCount = m_activeReadBlockList.getCount ();
+				if (activeReadCount < readParallelism)
+					newReadCount = readParallelism - activeReadCount;
 			}
-
-			if (!stat.cbInQue)
-			{	
-				if (!(mask & EV_RXCHAR) && !(m_ioFlags & IoFlag_IncomingData)) // need to change wait mask
+			else if (m_activeReadBlockList.isEmpty ())
+			{
+				COMSTAT stat = { 0 };
+				result = m_serial.m_serial.clearError (NULL, &stat);
+				if (!result)
 				{
-					m_ioLock.unlock ();
+					setIoErrorEvent ();
 					break;
 				}
 
-				m_ioLock.unlock ();
-			}
-			else if (m_ioFlags & IoFlag_IncomingData) // don't re-fire event if previous is not handled yet
-			{
-				m_ioLock.unlock ();
-			}
-			else
-			{
-				m_ioFlags |= IoFlag_IncomingData;
-				m_ioLock.unlock ();
-
-				fireSerialEvent (SerialEventCode_IncomingData);
+				if (stat.cbInQue)
+					newReadCount = 1;
 			}
 
-			if (waitResult == WAIT_OBJECT_0 + 1)
-				break;
+			for (size_t i = 0; i < newReadCount; i++)
+			{
+				AsyncReadBlock* read = !m_freeReadBlockList.isEmpty () ? 
+					m_freeReadBlockList.removeHead () :
+					AXL_MEM_NEW (AsyncReadBlock);
+
+				result = 
+					read->m_buffer.setCount (readBlockSize) &&
+					m_serial.m_serial.overlappedRead (read->m_buffer, readBlockSize, &read->m_overlapped);
+
+				if (!result)
+				{
+					setIoErrorEvent ();
+					return;
+				}
+
+				m_activeReadBlockList.insertTail (read);
+			}
 		}
 
-		// EV_RXCHAR is already handled above
-
-		if (event & (EV_CTS | EV_DSR | EV_RING | EV_RLSD))
+		if (m_activeReadBlockList.isEmpty ())
 		{
-			uint_t lines = m_serial.getStatusLines ();
-			uint_t mask = lines ^ prevLines;
-			prevLines = lines;
+			waitCount = 3;
+		}
+		else
+		{
+			// tables may already hold correct value -- but there's no harm in writing it over
 
-			if (mask)
-				fireSerialEvent (SerialEventCode_StatusLineChanged, lines, mask);
+			axl::io::win::StdOverlapped* overlapped = &m_activeReadBlockList.getHead ()->m_overlapped;
+			waitTable [3] = overlapped->m_completionEvent.m_event;
+			overlappedTable [2] = overlapped;
+			waitCount = 4;
 		}
 	}
 }
+
 #elif (_JNC_OS_POSIX)
 void
 Serial::ioThreadFunc ()

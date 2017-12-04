@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "io_AsyncIoDevice.jnc"
+
 namespace io {
 
 //! \addtogroup serial
@@ -136,7 +138,7 @@ enum SerialParity
 
 	\brief This enumeration lists all possible status lines on the serial port.
 
-	You can read values of all the status lines at once by accessing `io.Serial.m_statusLines` property. You also get all the values of *changed* status lines in `io.SerialEventParams.m_lines`.
+	You can read values of all the status lines at once by accessing `io.Serial.m_statusLines` property.
 
 	\sa `io.Serial`
 */
@@ -168,24 +170,28 @@ bitflag enum SerialStatusLines
 
 	\brief This enumeration contains codes of all possible events that might happen on `io.Serial` object.
 
-	When `io.Serial` object is about to fire an event, it allocates an `io.SerialEventParams` structure, sets `io.SerialEventParams.m_eventCode` field to once of the values below, fills other relevant fields of and then calls all subscribers of `io.Serial.m_onSerialEvent`.
-
-	\sa `io.Serial`, `io.SerialEventParams`
+	\sa `io.Serial`
 */
 
-enum SerialEventCode
+bitflag enum SerialEvents
 {
 	/**
-		More data is available on the serial port; this data could be fetched with `io.Serial.read` method.
+		An IO error occured on the serial port; detailed information about the error is available at `io.AsyncDevice.m_ioError`.
+	*/
+
+	IoError,
+
+	/**
+		Incoming data is available on the serial port; this data could be fetched with `io.Serial.read` method.
 	*/
 
 	IncomingData,
 
 	/**
-		An IO error occured on the serial port; detailed information about the error is available at `io.SerialEventParams.m_error`.
+		Serial port receive buffer is full; upcoming data may be dropped .
 	*/
 
-	IoError,
+	ReceiveBufferFull,
 
 	/**
 		Serial port transmit buffer is ready to accept more data; it's OK to issue more `io.Serial.write` requests.
@@ -193,61 +199,22 @@ enum SerialEventCode
 
 	TransmitBufferReady,
 
-	/**
-		One or more serial status lines has changed. All the information about the change is contained in event params structure. `io.SerialEventParams.m_mask` holds the mask of all serial lines that has changed; `io.SerialEventParams.m_lines` holds new values of those lines.
-	*/
-
-	StatusLineChanged,
+	CtsOn,
+	CtsOff,
+	DsrOn,
+	DsrOff,
+	RingOn,
+	RingOff,
+	DcdOn,
+	DcdOff,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-/**
-	\import io_base.jncx
-	\import io_Serial.jnc
-
-	\brief This struct contains detailed information about the event occured on `io.Serial` object.
-
-	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Serial.m_onSerialEvent`.
-
-	\sa `io.Serial`, `io.SerialEventCode`
-
-	\footnote f1
-
-		|footnote-sync-id|
-*/
-
-struct SerialEventParams
+bitflag enum SerialCompatibilityFlags
 {
-	/**
-		Holds the numerical code of the event. For a list of all possible codes refer to `io.SerialEventCode`.
-	*/
-
-	SerialEventCode m_eventCode;
-
-	/**
-		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
-	*/
-
-	uint_t m_syncId;
-
-	/**
-		This field is used by `io.SerialEventCode.StatusLineChanged` event; it holds the status of serial status lines which have changed and is represented by a combination of values from `io.SerialStatusLines` enumeration.
-	*/
-
-	SerialStatusLines m_lines;
-
-	/**
-		This field is used by `io.SerialEventCode.StatusLineChanged` event; it holds the mask of all the serial status lines which have changed and is represented by a combination of values from `io.SerialStatusLines` enumeration.
-	*/
-
-	SerialStatusLines m_mask;
-
-	/**
-		Holds extended error information for error events. Currently this field is only used by `io.SerialEventCode.IoError`.
-	*/
-
-	std.Error* m_error;
+	WinReadCheckComstat,
+	WinReadWaitFirstChar,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -336,10 +303,6 @@ struct SerialEventParams
 
 	\sa `io.SerialEventParams`, `io.SerialEventCode`, `io.File`, `io.FileStream`
 
-	\footnote f3
-
-		|footnote-sync-id|
-
 	\footnote f4
 
 		|footnote-set-property-fail|
@@ -353,8 +316,17 @@ struct SerialEventParams
 		|footnote-disposable|
 */
 
-opaque class Serial
+opaque class Serial: AsyncIoDevice
 {
+	uint_t autoget property m_readInterval;
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	SerialCompatibilityFlags autoget property m_compatibilityFlags;
+
+
 	/**
 		This property is used for getting and setting [#f4]_ baud rate, i.e. the number of signal changes per second, which directly affects the speed of data transmission.
 
@@ -403,6 +375,7 @@ opaque class Serial
 
 	SerialStatusLines const property m_statusLines;
 
+
 	/**
 		This property is used for getting and setting [#f4]_ ``DTR`` (data-terminal-ready) serial control line.
 	*/
@@ -414,18 +387,6 @@ opaque class Serial
 	*/
 
 	bool autoget property m_rts;
-
-	/**
-		Holds the open status for the serial port, i.e. ``true`` if opened; ``false`` otherwise.
-	*/
-
-	bool readonly m_isOpen;
-
-	/**
-		Holds the synchronization ID for the serial port [#f3]_.
-	*/
-
-	uint_t m_syncId;
 
 	construct ();
 	destruct ();
@@ -479,16 +440,6 @@ opaque class Serial
 		void const* p,
 		size_t size
 		);
-
-	/**
-		This event is fired whenever an event occurs on the serial port.
-
-		For the list of possible events, refer to `io.SerialEventCode` enumeration.
-
-		Event handler receives a single argument of type `io.SerialEventParams` which holds parameters of the particular event [#f3]_.
-	*/
-
-	event m_onSerialEvent (SerialEventParams const* params);
 }
 
 //..............................................................................
