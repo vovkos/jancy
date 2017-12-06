@@ -67,7 +67,6 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/io_AsyncIoDevice.jnc
 	jnc/io_Serial.jnc
 	jnc/io_Socket.jnc
 	jnc/io_SocketAddress.jnc

@@ -14,8 +14,6 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (AsyncIoDevice)
-
 //..............................................................................
 
 enum AsyncIoEvent
@@ -24,16 +22,24 @@ enum AsyncIoEvent
 	AsyncIoEvent_IncomingData        = 0x0002,
 	AsyncIoEvent_ReceiveBufferFull   = 0x0004,
 	AsyncIoEvent_TransmitBufferReady = 0x0008,
-	AsyncIoEvent_BufferMask          = 0x0007,
 };
 
-class AsyncIoDevice: public IfaceHdr
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum AsyncIoCompatibilityFlag
+{
+	AsyncIoCompatibilityFlag_MaintainReadBlockSize  = 0x01,
+	AsyncIoCompatibilityFlag_MaintainWriteBlockSize = 0x02,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class AsyncIoDevice
 {
 protected:
 	enum IoFlag
 	{
 		IoFlag_Closing = 0x0001,
-		IoFlag_Writing = 0x0002,
 	};
 
 	struct Wait: sl::ListLink
@@ -49,15 +55,22 @@ protected:
 	struct AsyncWait: Wait
 	{
 		FunctionPtr m_handlerPtr;
+		handle_t m_handle;
 	};
 
 #if (_AXL_OS_WIN)
-	struct AsyncReadBlock: sl::ListLink
+	struct OverlappedRead: sl::ListLink
 	{
 		axl::io::win::StdOverlapped m_overlapped;
 		sl::Array <char> m_buffer;
 	};
 #endif
+
+	struct ReadWriteMetaData: sl::ListLink
+	{
+		size_t m_blockSize;
+		size_t m_paramSize;
+	};
 
 public:
 	uint_t m_activeEvents;
@@ -67,7 +80,6 @@ public:
 
 protected:
 	Runtime* m_runtime;
-
 	sys::Lock m_ioLock;
 	volatile uint_t m_ioFlags;
 	sl::AuxList <SyncWait> m_syncWaitList;
@@ -84,41 +96,41 @@ protected:
 	// buffers are not always used, but we get a cleaner impl this way
 
 	sl::CircularBuffer m_readBuffer;
-	sl::CircularBuffer m_readOverflowBuffer;
 	sl::CircularBuffer m_writeBuffer;
+	sl::Array <char> m_readOverflowBuffer;
+
+	sl::StdList <ReadWriteMetaData> m_readMetaDataList;
+	sl::StdList <ReadWriteMetaData> m_writeMetaDataList;
+	sl::StdList <ReadWriteMetaData> m_freeReadWriteMetaDataList;
 
 #if (_AXL_OS_WIN)
-	sl::StdList <AsyncReadBlock> m_activeReadBlockList;
-	sl::StdList <AsyncReadBlock> m_freeReadBlockList;
+	sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+	sl::StdList <OverlappedRead> m_freeOverlappedReadList;
 	sl::Array <char> m_writeBlock;
 #endif
 
 public:
 	AsyncIoDevice ();
 
+protected:
 	void
-	JNC_CDECL
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
 	handle_t 
-	JNC_CDECL
 	wait (
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		);
 
 	bool
-	JNC_CDECL
 	cancelWait (handle_t handle);
 
 	uint_t
-	JNC_CDECL
 	blockingWait (
 		uint_t eventMask,
 		uint_t timeout
 		);
 
-protected:
 	void
 	open ();
 
@@ -127,6 +139,30 @@ protected:
 
 	void
 	wakeIoThread ();
+	
+	bool
+	setReadParallelismImpl (
+		uint_t* p,
+		uint_t count
+		);
+
+	bool
+	setReadBlockSizeImpl (
+		size_t* p,
+		size_t size
+		);
+
+	bool
+	setReadBufferSizeImpl (
+		size_t* p,
+		size_t size
+		);
+
+	bool
+	setWriteBufferSizeImpl (
+		size_t* p,
+		size_t size
+		);
 
 	void
 	cancelAllWaits ();
@@ -135,13 +171,35 @@ protected:
 	processWaitLists_l ();
 
 	void
-	setIoErrorEvent (const err::Error& error);
+	setEvents (uint_t events);
+
+	void
+	setErrorEvent (
+		uint_t event, 
+		const err::Error& error
+		);
+
+	void
+	setIoErrorEvent (const err::Error& error)
+	{
+		setErrorEvent (AsyncIoEvent_IoError, error);
+	}
 
 	void
 	setIoErrorEvent ()
 	{
-		setIoErrorEvent (err::getLastError ());
+		setErrorEvent (AsyncIoEvent_IoError, err::getLastError ());
 	}
+
+	bool
+	isReadBufferValid ();
+
+	bool
+	addToReadBuffer (
+		const void* p, 
+		size_t size,
+		const uint_t* flags
+		);
 
 	size_t
 	bufferedRead (
@@ -152,14 +210,26 @@ protected:
 	size_t
 	bufferedWrite (
 		DataPtr ptr,
-		size_t size
+		size_t size,
+		const uint_t* flags
 		);
 
-	bool
-	addToReadBuffer (
-		const void* p, 
-		size_t size
-		);
+	OverlappedRead*
+	createOverlappedRead ()
+	{
+		return !m_freeOverlappedReadList.isEmpty () ? 
+			m_freeOverlappedReadList.removeHead () : 
+			AXL_MEM_NEW (OverlappedRead);
+	}
+
+	ReadWriteMetaData*
+	createReadWriteMetaData (size_t paramSize = 0)
+	{
+		return !m_freeReadWriteMetaDataList.isEmpty () &&
+			m_freeReadWriteMetaDataList.getHead ()->m_paramSize >= paramSize ?
+			m_freeReadWriteMetaDataList.removeHead () :
+			AXL_MEM_NEW_EXTRA (ReadWriteMetaData, paramSize);
+	}
 };
 
 //..............................................................................

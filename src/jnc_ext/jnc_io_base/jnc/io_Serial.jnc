@@ -9,8 +9,6 @@
 //
 //..............................................................................
 
-import "io_AsyncIoDevice.jnc"
-
 namespace io {
 
 //! \addtogroup serial
@@ -213,6 +211,8 @@ bitflag enum SerialEvents
 
 bitflag enum SerialCompatibilityFlags
 {
+	MaintainReadBlockSize,
+	MaintainWriteBlockSize,
 	WinReadCheckComstat,
 	WinReadWaitFirstChar,
 }
@@ -316,17 +316,8 @@ bitflag enum SerialCompatibilityFlags
 		|footnote-disposable|
 */
 
-opaque class Serial: AsyncIoDevice
+opaque class Serial
 {
-	uint_t autoget property m_readInterval;
-	uint_t autoget property m_readParallelism;
-	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
-
-	SerialCompatibilityFlags autoget property m_compatibilityFlags;
-
-
 	/**
 		This property is used for getting and setting [#f4]_ baud rate, i.e. the number of signal changes per second, which directly affects the speed of data transmission.
 
@@ -388,6 +379,23 @@ opaque class Serial: AsyncIoDevice
 
 	bool autoget property m_rts;
 
+	uint_t autoget property m_readInterval;
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	SerialCompatibilityFlags autoget property m_compatibilityFlags;
+
+	io.SerialEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	/**
+		Holds the open status for serial port, i.e. ``true`` if opened; ``false`` otherwise.
+	*/
+
+	bool readonly m_isOpen;
+
 	construct ();
 	destruct ();
 
@@ -439,6 +447,18 @@ opaque class Serial: AsyncIoDevice
 	size_t errorcode write (
 		void const* p,
 		size_t size
+		);
+
+	intptr errorcode wait (
+		SerialEvents eventMask,
+		function* handler (SerialEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait (intptr handle);
+
+	uint_t errorcode blockingWait (
+		SerialEvents eventMask,
+		uint_t timeout
 		);
 }
 

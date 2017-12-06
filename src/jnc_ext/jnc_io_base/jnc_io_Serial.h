@@ -23,8 +23,8 @@ JNC_DECLARE_TYPE (SerialPortDesc)
 
 enum SerialCompatibilityFlag
 {
-	SerialCompatibilityFlag_WinReadCheckComstat = 0x01,
-	SerialCompatibilityFlag_WinReadWaitFirstChar = 0x02,
+	SerialCompatibilityFlag_WinReadCheckComstat  = 0x04,
+	SerialCompatibilityFlag_WinReadWaitFirstChar = 0x08,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -42,21 +42,53 @@ enum SerialEvent
 	SerialEvent_StatusLineMask = 0x0ff0,
 };
 
+//..............................................................................
+
+struct SerialHdr: IfaceHdr
+{
+	uint_t m_baudRate;
+	axl::io::SerialFlowControl m_flowControl;
+	uint_t m_dataBits;
+	axl::io::SerialStopBits m_stopBits;
+	axl::io::SerialParity m_parity;
+
+	bool m_dtr;
+	bool m_rts;
+
+	uint_t m_readInterval;
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+	uint_t m_compatibilityFlags;
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Serial: public AsyncIoDevice
+class Serial: 
+	public SerialHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
 protected:
 	enum Def
 	{
-		Def_ReadInterval    = 10,
-		Def_ReadParallelism = 4,
-		Def_ReadBlockSize   = 1 * 1024,
-		Def_ReadBufferSize  = 16 * 1024,
-		Def_WriteBufferSize = 16 * 1024,
-		Def_BaudRate        = 38400,
+		Def_ReadInterval       = 10,
+		Def_ReadParallelism    = 4,
+		Def_ReadBlockSize      = 1 * 1024,
+		Def_ReadBufferSize     = 16 * 1024,
+		Def_WriteBufferSize    = 16 * 1024,
+		Def_BaudRate           = 38400,
+		Def_CompatibilityFlags =
+			AsyncIoCompatibilityFlag_MaintainReadBlockSize |
+			AsyncIoCompatibilityFlag_MaintainWriteBlockSize |
+			SerialCompatibilityFlag_WinReadWaitFirstChar,
+	};
+
+	enum IoFlag
+	{
+		IoFlag_Writing = 0x0010,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -68,23 +100,6 @@ protected:
 			containerof (this, Serial, m_ioThread)->ioThreadFunc ();
 		}
 	};
-
-protected:
-	uint_t m_readInterval;
-	uint_t m_readParallelism;
-	size_t m_readBlockSize;
-	size_t m_readBufferSize;
-	size_t m_writeBufferSize;
-	uint_t m_compatibilityFlags;
-
-	uint_t m_baudRate;
-	axl::io::SerialFlowControl m_flowControl;
-	uint_t m_dataBits;
-	axl::io::SerialStopBits m_stopBits;
-	axl::io::SerialParity m_parity;
-
-	bool m_dtr;
-	bool m_rts;
 
 protected:
 	IoThread m_ioThread;
@@ -103,6 +118,13 @@ public:
 		close ();
 	}
 
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	{
+		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+	}
+
 	bool
 	JNC_CDECL
 	open (DataPtr namePtr);
@@ -117,43 +139,35 @@ public:
 
 	bool
 	JNC_CDECL
-	setReadParallelism (uint_t count);
+	setReadParallelism (uint_t count)
+	{
+		return setReadParallelismImpl (&m_readParallelism, count ? count : Def_ReadParallelism);
+	}
 
 	bool
 	JNC_CDECL
-	setReadBlockSize (size_t size);
+	setReadBlockSize (size_t size)
+	{
+		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize (size_t size);
+	setReadBufferSize (size_t size)
+	{
+		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize (size_t size);
+	setWriteBufferSize (size_t size)
+	{
+		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
 
 	bool
 	JNC_CDECL
 	setCompatibilityFlags (uint_t flags);
-
-	size_t
-	JNC_CDECL
-	read (
-		DataPtr ptr,
-		size_t size
-		)
-	{
-		return bufferedRead (ptr, size);
-	}
-
-	size_t
-	JNC_CDECL
-	write (
-		DataPtr ptr,
-		size_t size
-		)
-	{
-		return bufferedWrite (ptr, size);
-	}
 
 	bool
 	JNC_CDECL
@@ -189,6 +203,53 @@ public:
 	bool
 	JNC_CDECL
 	setRts (bool rts);
+
+	size_t
+	JNC_CDECL
+	read (
+		DataPtr ptr,
+		size_t size
+		)
+	{
+		return bufferedRead (ptr, size);
+	}
+
+	size_t
+	JNC_CDECL
+	write (
+		DataPtr ptr,
+		size_t size
+		)
+	{
+		return bufferedWrite (ptr, size, &m_compatibilityFlags);
+	}
+
+	handle_t 
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
+
+	bool
+	JNC_CDECL
+	cancelWait (handle_t handle)
+	{
+		return AsyncIoDevice::cancelWait (handle);
+	}
+
+	uint_t
+	JNC_CDECL
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
 
 protected:
 	void

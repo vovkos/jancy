@@ -25,19 +25,12 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_ioLibGuid,
 	IoLibCacheSlot_Serial,
 	Serial,
-	NULL
+	&Serial::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <Serial>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Serial>)
-
-	JNC_MAP_AUTOGET_PROPERTY ("m_readInterval",       &Serial::setReadInterval)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism",    &Serial::setReadParallelism)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",      &Serial::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",     &Serial::setReadBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize",    &Serial::setWriteBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_compatibilityFlags", &Serial::setCompatibilityFlags)
 
 	JNC_MAP_AUTOGET_PROPERTY ("m_baudRate",    &Serial::setBaudRate)
 	JNC_MAP_AUTOGET_PROPERTY ("m_flowControl", &Serial::setFlowControl)
@@ -48,10 +41,20 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_AUTOGET_PROPERTY ("m_rts",         &Serial::setRts)
 	JNC_MAP_CONST_PROPERTY   ("m_statusLines", &Serial::getStatusLines)
 
-	JNC_MAP_FUNCTION ("open",  &Serial::open)
-	JNC_MAP_FUNCTION ("close", &Serial::close)
-	JNC_MAP_FUNCTION ("read",  &Serial::read)
-	JNC_MAP_FUNCTION ("write", &Serial::write)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readInterval",       &Serial::setReadInterval)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism",    &Serial::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",      &Serial::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",     &Serial::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize",    &Serial::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_compatibilityFlags", &Serial::setCompatibilityFlags)
+
+	JNC_MAP_FUNCTION ("open",         &Serial::open)
+	JNC_MAP_FUNCTION ("close",        &Serial::close)
+	JNC_MAP_FUNCTION ("read",         &Serial::read)
+	JNC_MAP_FUNCTION ("write",        &Serial::write)
+	JNC_MAP_FUNCTION ("wait",         &Serial::wait)
+	JNC_MAP_FUNCTION ("cancelWait",   &Serial::cancelWait)
+	JNC_MAP_FUNCTION ("blockingWait", &Serial::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -75,6 +78,7 @@ Serial::Serial ()
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_writeBufferSize = Def_WriteBufferSize;
+	m_compatibilityFlags = Def_CompatibilityFlags;
 
 	m_baudRate = Def_BaudRate;
 	m_flowControl = axl::io::SerialFlowControl_None,
@@ -198,78 +202,6 @@ Serial::setReadInterval (uint_t interval)
 	}
 
 	m_readInterval = interval;
-	return true;
-}
-
-bool
-JNC_CDECL
-Serial::setReadParallelism (uint_t count)
-{
-	if (!m_isOpen)
-	{
-		m_readParallelism = count;
-		return true;
-	}
-
-	m_ioLock.lock ();
-	m_readParallelism = count;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-	return true;
-}
-
-bool
-JNC_CDECL
-Serial::setReadBlockSize (size_t size)
-{
-	if (!m_isOpen)
-	{
-		m_readBlockSize = size;
-		return true;
-	}
-
-	m_ioLock.lock ();
-	m_readBlockSize = size;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-	return true;
-}
-
-bool
-JNC_CDECL
-Serial::setReadBufferSize (size_t size)
-{
-	m_ioLock.lock ();
-	
-	bool result = m_readBuffer.setBufferSize (size);
-	if (!result)
-	{
-		m_ioLock.unlock ();
-		propagateLastError ();
-		return false;
-	}
-
-	m_readBufferSize = size;
-	m_ioLock.unlock ();
-	return true;
-}
-
-bool
-JNC_CDECL
-Serial::setWriteBufferSize (size_t size)
-{
-	m_ioLock.lock ();
-
-	bool result = m_writeBuffer.setBufferSize (size);
-	if (!result)
-	{
-		m_ioLock.unlock ();
-		propagateLastError ();
-		return false;
-	}
-
-	m_writeBufferSize = size;
-	m_ioLock.unlock ();
 	return true;
 }
 
@@ -535,7 +467,7 @@ Serial::ioThreadFunc ()
 		dword_t actualSize = 0;
 		if (waitResult == WAIT_FAILED)
 		{
-			setIoErrorEvent ();
+			setIoErrorEvent (err::getLastSystemErrorCode ());
 			return;
 		}
 
@@ -572,18 +504,15 @@ Serial::ioThreadFunc ()
 			break;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-
-		AsyncReadBlock* read = NULL;
+		OverlappedRead* read = NULL;
 
 		switch (waitResult)
 		{
 		case WaitResult_Read:
-			ASSERT (!m_activeReadBlockList.isEmpty ());
-			read = m_activeReadBlockList.removeHead ();
-
-			addToReadBuffer (read->m_buffer, actualSize);
-			m_freeReadBlockList.insertHead (read);
+			ASSERT (!m_activeOverlappedReadList.isEmpty ());
+			read = m_activeOverlappedReadList.removeHead ();
+			addToReadBuffer (read->m_buffer, actualSize, &m_compatibilityFlags);
+			m_freeOverlappedReadList.insertHead (read);
 			break;
 
 		case WaitResult_Write:
@@ -593,7 +522,7 @@ Serial::ioThreadFunc ()
 			if (actualSize < m_writeBlock.getCount ()) // shouldn't happen, actually (unless with a non-standard driver)
 				m_writeBlock.remove (0, actualSize);
 			else
-				m_writeBuffer.readAll (&m_writeBlock);
+				m_writeBlock.clear ();
 
 			break;
 
@@ -602,9 +531,9 @@ Serial::ioThreadFunc ()
 			break;
 		} 
 
-		while (!m_activeReadBlockList.isEmpty ())
+		while (!m_activeOverlappedReadList.isEmpty ())
 		{
-			read = *m_activeReadBlockList.getHead ();
+			read = *m_activeOverlappedReadList.getHead ();
 
 			result = 
 				read->m_overlapped.m_completionEvent.wait (0) && // don't wait
@@ -613,18 +542,16 @@ Serial::ioThreadFunc ()
 			if (!result) // not yet
 				break;
 
-			m_activeReadBlockList.remove (read);
-			addToReadBuffer (read->m_buffer, actualSize);
-			m_freeReadBlockList.insertHead (read);
+			m_activeOverlappedReadList.remove (read);
+			addToReadBuffer (read->m_buffer, actualSize, &m_compatibilityFlags);
+			m_freeOverlappedReadList.insertHead (read);
 		}
 
+		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
 		if (!m_readBuffer.isEmpty ())
 			m_activeEvents |= AsyncIoEvent_IncomingData;
-
-		if (!m_writeBuffer.isFull ())
-			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
 
 		if (m_readBuffer.isFull ())
 		{
@@ -638,12 +565,17 @@ Serial::ioThreadFunc ()
 			compatibilityFlags = m_compatibilityFlags;
 		}
 
-		if (!(m_ioFlags & IoFlag_Writing) && !m_writeBuffer.isEmpty ())
-		{
+		if (m_writeBlock.isEmpty ())
 			m_writeBuffer.readAll (&m_writeBlock);
+
+		if (!(m_ioFlags & IoFlag_Writing) && !m_writeBlock.isEmpty ())
+		{
 			m_ioFlags |= IoFlag_Writing;
 			canWrite = true;
 		}
+
+		if (!m_writeBuffer.isFull ())
+			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
 
 		if (statusLines & axl::io::SerialStatusLine_Cts)
 			m_activeEvents |= SerialEvent_CtsOn;
@@ -665,7 +597,7 @@ Serial::ioThreadFunc ()
 		else
 			m_activeEvents |= SerialEvent_RingOff;
 
-		if (m_activeEvents ^ prevActiveEvents)
+		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l ();
 		else
 			m_ioLock.unlock ();
@@ -688,11 +620,11 @@ Serial::ioThreadFunc ()
 
 			if (!(compatibilityFlags & SerialCompatibilityFlag_WinReadCheckComstat))
 			{
-				size_t activeReadCount = m_activeReadBlockList.getCount ();
+				size_t activeReadCount = m_activeOverlappedReadList.getCount ();
 				if (activeReadCount < readParallelism)
 					newReadCount = readParallelism - activeReadCount;
 			}
-			else if (m_activeReadBlockList.isEmpty ())
+			else if (m_activeOverlappedReadList.isEmpty ())
 			{
 				COMSTAT stat = { 0 };
 				result = m_serial.m_serial.clearError (NULL, &stat);
@@ -708,9 +640,7 @@ Serial::ioThreadFunc ()
 
 			for (size_t i = 0; i < newReadCount; i++)
 			{
-				AsyncReadBlock* read = !m_freeReadBlockList.isEmpty () ? 
-					m_freeReadBlockList.removeHead () :
-					AXL_MEM_NEW (AsyncReadBlock);
+				read = createOverlappedRead ();
 
 				result = 
 					read->m_buffer.setCount (readBlockSize) &&
@@ -722,11 +652,11 @@ Serial::ioThreadFunc ()
 					return;
 				}
 
-				m_activeReadBlockList.insertTail (read);
+				m_activeOverlappedReadList.insertTail (read);
 			}
 		}
 
-		if (m_activeReadBlockList.isEmpty ())
+		if (m_activeOverlappedReadList.isEmpty ())
 		{
 			waitCount = 3;
 		}
@@ -734,7 +664,7 @@ Serial::ioThreadFunc ()
 		{
 			// tables may already hold correct value -- but there's no harm in writing it over
 
-			axl::io::win::StdOverlapped* overlapped = &m_activeReadBlockList.getHead ()->m_overlapped;
+			axl::io::win::StdOverlapped* overlapped = &m_activeOverlappedReadList.getHead ()->m_overlapped;
 			waitTable [3] = overlapped->m_completionEvent.m_event;
 			overlappedTable [2] = overlapped;
 			waitCount = 4;

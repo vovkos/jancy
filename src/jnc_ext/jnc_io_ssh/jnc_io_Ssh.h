@@ -11,44 +11,34 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoDevice.h"
 #include "jnc_io_SocketAddress.h"
 
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (SshEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
 
 //..............................................................................
 
-enum SshEventCode
+enum SshEvent
 {
-	SshEventCode_TcpConnectCompleted = 0,
-	SshEventCode_SshHandshakeCompleted,
-	SshEventCode_SshAuthCompleted,
-	SshEventCode_SshAuthError,
-	SshEventCode_SshChannelOpened,
-	SshEventCode_SshPtyRequested,
-	SshEventCode_SshProcessStarted,
-	SshEventCode_ConnectCompleted,
-	SshEventCode_ConnectCancelled,
-	SshEventCode_ConnectError,
-	SshEventCode_Disconnected,
-	SshEventCode_ReauthenticateInitiated,
-	SshEventCode_ReconnectInitiated,
-	SshEventCode_IncomingData,
-	SshEventCode_TransmitBufferReady,
-};
+	SshEvent_TcpDisconnected          = 0x0010,
+	SshEvent_TcpConnectCompleted      = 0x0020,
+	SshEvent_SshHandshakeCompleted    = 0x0040,
+	SshEvent_SshAuthenticateError     = 0x0080,
+	SshEvent_SshAuthenticateCompleted = 0x0100,
+	SshEvent_SshChannelOpened         = 0x0200,
+	SshEvent_SshPtyRequestCompleted   = 0x0400,
+	SshEvent_SshConnectCompleted      = 0x0800,
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct SshEventParams
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (SshEventParams)
-
-	SshEventCode m_eventCode;
-	uint_t m_syncId;
-	DataPtr m_errorPtr;
+	SshEvent_FullyConnected = 
+		SshEvent_TcpConnectCompleted |
+		SshEvent_SshHandshakeCompleted |
+		SshEvent_SshAuthenticateCompleted |
+		SshEvent_SshChannelOpened |
+		SshEvent_SshPtyRequestCompleted |
+		SshEvent_SshConnectCompleted,
 };
 
 //..............................................................................
@@ -84,11 +74,38 @@ typedef sl::Handle <LIBSSH2_CHANNEL*, FreeLibSsh2Channel> SshChannelHandle;
 
 //..............................................................................
 
-class SshChannel: public IfaceHdr
+struct SshChannelHdr: IfaceHdr
+{
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+	uint_t m_compatibilityFlags;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class SshChannel: 
+	public SshChannelHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
 protected:
+	enum Def
+	{
+		Def_ReadBlockSize      = 4 * 1024,
+		Def_ReadBufferSize     = 16 * 1024,
+		Def_WriteBufferSize    = 16 * 1024,
+		Def_CompatibilityFlags =
+			AsyncIoCompatibilityFlag_MaintainReadBlockSize |
+			AsyncIoCompatibilityFlag_MaintainWriteBlockSize,
+	};
+
+	enum IoFlag
+	{
+		IoFlag_ResizePty = 0x0010,
+	};
+
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
@@ -99,24 +116,6 @@ protected:
 		}
 	};
 
-	enum IoFlag
-	{
-		IoFlag_Connected    = 0x0001,
-		IoFlag_Closing      = 0x0002,
-		IoFlag_Connecting   = 0x0004,
-		IoFlag_AuthError    = 0x0008,
-		IoFlag_IncomingData = 0x0100,
-	};
-
-	struct Read: sl::ListLink
-	{
-		void* m_buffer;
-		size_t m_size;
-		size_t m_result;
-		err::Error m_error;
-		sys::Event m_completionEvent;
-	};
-
 	struct ConnectParams
 	{
 		sl::String m_userName;
@@ -125,41 +124,20 @@ protected:
 		sl::String m_channelType;
 		sl::String m_processType;
 		sl::String m_ptyType;
-		uint_t m_ptyWidth;
-		uint_t m_ptyHeight;
 	};
 
 protected:
-	bool m_isOpen;
-	uint_t m_syncId;
-
-	ClassBox <Multicast> m_onSshChannelEvent;
-
-protected:
-	Runtime* m_runtime;
-
 	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
 
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
+	volatile uint_t m_ptyWidth;
+	volatile uint_t m_ptyHeight;
 
 	ConnectParams* m_connectParams;
-
-	sys::Lock m_ioLock;
-	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
-
-	sl::Array <char> m_readBuffer;
-	size_t m_incomingDataSize;
-	sl::AuxList <Read> m_readList;
-
-#if (_JNC_OS_WIN)
-	sys::Event m_ioThreadEvent;
-#else
-	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
-#endif
 
 public:
 	SshChannel ();
@@ -168,6 +146,38 @@ public:
 	{
 		close ();
 	}
+
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	{
+		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setCompatibilityFlags (uint_t flags);
 
 	axl::io::SockAddr
 	JNC_CDECL
@@ -197,8 +207,7 @@ public:
 		DataPtr processTypePtr,
 		DataPtr ptyTypePtr,
 		uint_t ptyWidth,
-		uint_t ptyHeight,
-		bool isSync
+		uint_t ptyHeight
 		);
 
 	bool
@@ -214,8 +223,7 @@ public:
 	JNC_CDECL
 	resizePty (
 		uint_t ptyWidth,
-		uint_t ptyHeight,
-		bool isSync
+		uint_t ptyHeight
 		);
 
 	size_t
@@ -223,45 +231,69 @@ public:
 	read (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedRead (ptr, size);
+	}
 
 	size_t
 	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedWrite (ptr, size, &m_compatibilityFlags);
+	}
+
+	handle_t 
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
+
+	bool
+	JNC_CDECL
+	cancelWait (handle_t handle)
+	{
+		return AsyncIoDevice::cancelWait (handle);
+	}
+
+	uint_t
+	JNC_CDECL
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
 
 protected:
-	void
-	fireSshEvent (
-		SshEventCode eventCode,
-		const err::ErrorHdr* error = NULL
-		);
-
 	void
 	ioThreadFunc ();
 
 	void
-	wakeIoThread ();
-
-	void
 	sleepIoThread ();
-
-	bool
-	tcpConnect ();
-
-	bool
-	sshConnect ();
-
-	void
-	sshReadLoop ();
 
 	err::Error
 	getLastSshError ();
 
 	int
 	sshAsyncLoop (int result);
+
+	bool
+	tcpConnectLoop ();
+
+	bool
+	sshConnect ();
+
+	void
+	sshReadWriteLoop ();
 };
 
 //..............................................................................

@@ -9,6 +9,7 @@
 //
 //..............................................................................
 
+import "io_base.jncx"
 import "io_SocketAddress.jnc"
 
 namespace io {
@@ -28,85 +29,13 @@ namespace io {
 	\sa `io.SshChannel`, `io.SshEventParams`
 */
 
-enum SshEventCode
+bitflag enum SshEvents
 {
 	/**
-		Underlying transport ``TCP`` has been established.
+		An IO error occured on the SSH channel; detailed information about the error is available at `io.AsyncDevice.m_ioError`. 
 	*/
 
-	TcpConnectCompleted,
-
-	/**
-		``SSH`` handshake and protocol information exchange has been completed successfully.
-	*/
-
-	SshHandshakeCompleted,
-
-	/**
-		``SSH`` authentication has been completed successfully.
-	*/
-
-	SshAuthCompleted,
-
-	/**
-		``SSH`` authentication has failed. You have a chance to re-authenticate: ask user for new credentials and then call `io.SshChannel.authenticate`.
-	*/
-
-	SshAuthError,
-
-	/**
-		``SSH`` channel to the server has been opened successfully.
-	*/
-
-	SshChannelOpened,
-
-	/**
-		Request has been sent to the ``SSH`` server for a specific pseudo-terminal (such as ``xterm``).
-	*/
-
-	SshPtyRequested,
-
-	/**
-		Remote process (such as ``shell``) has been started by the ``SSH`` server.
-	*/
-
-	SshProcessStarted,
-
-	/**
-		The full ``SSH`` connect sequence has been completed successfully. ``SSH`` channel is ready to use.
-	*/
-
-	ConnectCompleted,
-
-	/**
-		``SSH`` connect sequence has been interrupted by `io.SshChannel.close` method.
-	*/
-
-	ConnectCancelled,
-
-	/**
-		Failure happened during ``SSH`` connect sequence. Detailed error information is available at: `io.SshEventParams.m_error`.
-	*/
-
-	ConnectError,
-
-	/**
-		``SSH`` channel has been closed by the remote server. Note that if connection was terminated by the local node (using `io.SshChannel.close`), ``Disconnect`` event is **not** fired.
-	*/
-
-	Disconnected,
-
-	/**
-		User has issued `io.SshChannel.authenticate` using the same user name; no re-connect is needed for ``SSH`` re-authentication.
-	*/
-
-	ReauthenticateInitiated,
-
-	/**
-		User has issued `io.SshChannel.authenticate` using a different user name; a full cycle of re-connect (starting at the transport ``TCP`` level) is required.
-	*/
-
-	ReconnectInitiated,
+	IoError,
 
 	/**
 		More data is available on the socket; this data could be fetched with `io.SshChannel.read` method.
@@ -115,47 +44,72 @@ enum SshEventCode
 	IncomingData,
 
 	/**
+		Socket receive buffer is full (data is arriving faster than the application is able to read it).
+	*/
+
+	ReceiveBufferFull,
+
+	/**
 		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.SshChannel.write` requests.
 	*/
 
 	TransmitBufferReady,
+
+	/**
+		``SSH`` channel has been closed by the remote server. Note that if connection was terminated by the local node (using `io.SshChannel.close`), ``Disconnect`` event is **not** fired.
+	*/
+
+	TcpDisconnected,
+
+	/**
+		Underlying ``TCP`` connection has been established; ``SSH`` handshake has been initialated.
+	*/
+
+	TcpConnectCompleted,
+
+	/**
+		``SSH`` handshake and protocol information exchange has been completed successfully; an authentication request has been set.
+	*/
+
+	SshHandshakeCompleted,
+
+	/**
+		``SSH`` authentication has failed. You have a chance to re-authenticate: ask user for new credentials and then call `io.SshChannel.authenticate`.
+	*/
+
+	SshAuthenticateError,
+
+	/**
+		``SSH`` authentication has been completed successfully; a request to open a channel has been sent.
+	*/
+
+	SshAuthenticateCompleted,
+
+	/**
+		``SSH`` channel to the server has been opened successfully; a request for a specific pseudo-terminal (such as ``xterm``) has been sent.
+	*/
+
+	SshChannelOpened,
+
+	/**
+		Request to the ``SSH`` server for a specific pseudo-terminal (such as ``xterm``) has been completed successfully; request to start a remote process (such as ``shell``) has been sent.
+	*/
+
+	SshPtyRequestCompleted,
+
+	/**
+		A remote process (such as ``shell``) has been started; the full ``SSH`` connect sequence has been completed successfully. ``SSH`` channel is ready to use.
+	*/
+
+	SshConnectCompleted,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-/**
-	\import io_ssh.jncx
-
-	\brief This struct contains detailed information about the event occured on `io.SshChannel` object.
-
-	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.SshChannel.m_onSshEvent`.
-
-	\sa `io.SshChannel`, `io.SshEventCode`
-
-	\footnote f1
-
-		|footnote-sync-id|
-*/
-
-struct SshEventParams
+bitflag enum SshCompatibilityFlags
 {
-	/**
-		Holds the numerical code of the event. For a list of all possible codes refer to `io.SshEventCode`.
-	*/
-
-	SshEventCode m_eventCode;
-
-	/**
-		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
-	*/
-
-	uint_t m_syncId;
-
-	/**
-		Holds extended error information for error events. This field is used by `io.SshEventCode.ConnectError`, `io.SshEventCode.SshAuthError`.
-	*/
-
-	std.Error const* m_error;
+	MaintainReadBlockSize,
+	MaintainWriteBlockSize,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -287,17 +241,20 @@ opaque class SshChannel
 
 	SocketAddress const property m_peerAddress;
 
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+	
+	SshCompatibilityFlags autoget property m_compatibilityFlags;
+
+	io.SshEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
 	/**
-		Holds the open status for the SSH channel, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for the socket, i.e. ``true`` if opened; ``false`` otherwise.
 	*/
 
 	bool readonly m_isOpen;
-
-	/**
-		Holds the synchronization ID for the SSH channel [#f3]_.
-	*/
-
-	uint_t m_syncId;
 
 	construct ();
 	destruct ();
@@ -350,8 +307,7 @@ opaque class SshChannel
 		char const* processType = "shell",   // shell, exec, subsystem, etc
 		char const* ptyType = "ansi",        // vanilla, ansi, xterm, vt102, etc
 		uint_t ptyWidth = 80,
-		uint_t ptyHeight = 24,
-		bool isSync = false
+		uint_t ptyHeight = 24
 		);
 
 	/**
@@ -375,8 +331,7 @@ opaque class SshChannel
 
 	bool errorcode resizePty (
 		uint_t width,
-		uint_t height,
-		bool isSync = false
+		uint_t height
 		);
 
 	/**
@@ -405,15 +360,17 @@ opaque class SshChannel
 		size_t size
 		);
 
-	/**
-		This event is fired whenever an event occurs on the SSH socket.
+	intptr errorcode wait (
+		SshEvents eventMask,
+		function* handler (SshEvents triggeredEvents)
+		);
 
-		For the list of possible events, refer to `io.SshEventCode` enumeration.
+	bool errorcode cancelWait (intptr handle);
 
-		Event handler receives a single argument of type `io.SshEventParams` which holds parameters of the particular event [#f3]_.
-	*/
-
-	event m_onSshEvent (SshEventParams const* params);
+	uint_t errorcode blockingWait (
+		SshEvents eventMask,
+		uint_t timeout
+		);
 }
 
 //..............................................................................

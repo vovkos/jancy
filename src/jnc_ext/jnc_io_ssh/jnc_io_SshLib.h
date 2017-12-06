@@ -25,7 +25,6 @@ JNC_DEFINE_GUID (
 enum SshLibCacheSlot
 {
 	SshLibCacheSlot_SshChannel,
-	SshLibCacheSlot_SshEventParams,
 };
 
 //..............................................................................

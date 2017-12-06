@@ -93,12 +93,11 @@ protected:
 		IoFlag_Asynchronous          = 0x0001,
 		IoFlag_Udp                   = 0x0002,
 		IoFlag_Connected             = 0x0004,
-		IoFlag_SocketEventDisabled    = 0x0008,
+		IoFlag_SocketEventDisabled   = 0x0008,
 		IoFlag_Closing               = 0x0010,
 		IoFlag_Connecting            = 0x0020,
 		IoFlag_Listening             = 0x0040,
 		IoFlag_WaitingTransmitBuffer = 0x0080,
-
 #if (_JNC_OS_POSIX)
 		IoFlag_IncomingData          = 0x0100,
 		IoFlag_IncomingConnection    = 0x0200,

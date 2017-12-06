@@ -18,26 +18,6 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
-	AsyncIoDevice,
-	"io.AsyncIoDevice",
-	g_ioLibGuid,
-	IoLibCacheSlot_AsyncIoDevice,
-	AsyncIoDevice,
-	&AsyncIoDevice::markOpaqueGcRoots
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (AsyncIoDevice)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <AsyncIoDevice>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <AsyncIoDevice>)
-	
-	JNC_MAP_FUNCTION ("wait", &AsyncIoDevice::wait)
-	JNC_MAP_FUNCTION ("cancelWait", &AsyncIoDevice::cancelWait)
-	JNC_MAP_FUNCTION ("blockingWait", &AsyncIoDevice::blockingWait)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 AsyncIoDevice::AsyncIoDevice ()
 {
 	m_runtime = getCurrentThreadRuntime ();
@@ -64,11 +44,13 @@ AsyncIoDevice::open ()
 {
 	m_isOpen = true;
 	m_ioFlags = 0;
-	m_activeEvents = AsyncIoEvent_TransmitBufferReady; // status line events will be updated in io thread
+	m_activeEvents = 0;
 
 	m_readBuffer.clear ();
 	m_writeBuffer.clear ();
-	m_freeReadBlockList.insertListTail (&m_activeReadBlockList);
+	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
+	m_freeReadWriteMetaDataList.insertListTail (&m_readMetaDataList);
+	m_freeReadWriteMetaDataList.insertListTail (&m_writeMetaDataList);
 
 #if (_JNC_OS_WIN)
 	m_ioThreadEvent.reset ();
@@ -87,13 +69,97 @@ AsyncIoDevice::close ()
 
 	m_readBuffer.clear ();
 	m_writeBuffer.clear ();
-	m_freeReadBlockList.insertListTail (&m_activeReadBlockList);
+	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
+	m_freeReadWriteMetaDataList.insertListTail (&m_readMetaDataList);
+	m_freeReadWriteMetaDataList.insertListTail (&m_writeMetaDataList);
 
 #if (_JNC_OS_POSIX)
 	m_selfPipe.close ();
 #endif
 
 	m_isOpen = false;
+}
+
+
+bool
+AsyncIoDevice::setReadParallelismImpl (
+	uint_t* p,
+	uint_t count
+	)
+{
+	if (!m_isOpen)
+	{
+		*p = count;
+		return true;
+	}
+
+	m_ioLock.lock ();
+	*p = count;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+	return true;
+}
+
+
+bool
+AsyncIoDevice::setReadBlockSizeImpl (
+	size_t* p,
+	size_t size
+	)
+{
+	if (!m_isOpen)
+	{
+		*p = size;
+		return true;
+	}
+
+	m_ioLock.lock ();
+	*p = size;
+	wakeIoThread ();
+	m_ioLock.unlock ();
+	return true;
+}
+
+bool
+AsyncIoDevice::setReadBufferSizeImpl (
+	size_t* p,
+	size_t size
+	)
+{
+	m_ioLock.lock ();
+	
+	bool result = m_readBuffer.setBufferSize (size);
+	if (!result)
+	{
+		m_ioLock.unlock ();
+		propagateLastError ();
+		return false;
+	}
+
+	*p = size;
+	m_ioLock.unlock ();
+	return true;
+}
+
+bool
+AsyncIoDevice::setWriteBufferSizeImpl (
+	size_t* p,
+	size_t size
+	)
+{
+	m_ioLock.lock ();
+
+	bool result = m_writeBuffer.setBufferSize (size);
+	if (!result)
+	{
+		m_ioLock.unlock ();
+		propagateLastError ();
+		return false;
+	}
+
+	*p = size;
+	m_ioLock.unlock ();
+	return true;
 }
 
 uint_t
@@ -153,13 +219,12 @@ AsyncIoDevice::wait (
 		return 0; // not added
 	}
 
-	sys::Event event;
-	
 	AsyncWait* wait = AXL_MEM_NEW (AsyncWait);
 	wait->m_mask = eventMask;
 	wait->m_handlerPtr = handlerPtr;
 	m_asyncWaitList.insertTail (wait);
 	handle_t handle = m_asyncWaitMap.add (wait);
+	wait->m_handle = handle;
 	m_ioLock.unlock ();
 
 	return handle;
@@ -230,7 +295,7 @@ AsyncIoDevice::processWaitLists_l ()
 			wait->m_mask = triggeredEvents;
 			m_asyncWaitList.remove (wait);
 			m_pendingAsyncWaitList.insertTail (wait);
-			m_asyncWaitMap.eraseHandle (wait);
+			m_asyncWaitMap.eraseHandle (wait->m_handle);
 			asyncIt = nextIt;
 		}
 	}
@@ -260,14 +325,75 @@ AsyncIoDevice::processWaitLists_l ()
 }
 
 void
-AsyncIoDevice::setIoErrorEvent (const err::Error& error)
+AsyncIoDevice::setEvents (uint_t events)
 {
+	m_ioLock.lock ();
+	if (!(m_activeEvents ^ events))
+	{
+		m_ioLock.unlock ();
+		return;
+	}
+
+	m_activeEvents |= events;
+	processWaitLists_l ();
+}
+
+void
+AsyncIoDevice::setErrorEvent (
+	uint_t event,
+	const err::Error& error
+	)
+{
+	JNC_BEGIN_CALL_SITE (m_runtime)
+
 	DataPtr errorPtr = memDup (error, error->m_size);
 
 	m_ioLock.lock ();
-	m_activeEvents |= AsyncIoEvent_IoError;
-	m_ioErrorPtr = errorPtr;
-	processWaitLists_l ();
+	if (m_activeEvents & event)
+	{
+		m_ioLock.unlock ();
+	}
+	else
+	{
+		m_activeEvents |= event;
+		m_ioErrorPtr = errorPtr;
+		processWaitLists_l ();
+	}
+
+	JNC_END_CALL_SITE ()
+}
+
+bool
+AsyncIoDevice::isReadBufferValid ()
+{
+	return 		
+		m_readBuffer.isValid () && 
+		(m_readOverflowBuffer.isEmpty () || m_readBuffer.isFull ());
+}
+
+bool
+AsyncIoDevice::addToReadBuffer (
+	const void* p, 
+	size_t size,
+	const uint_t* flags
+	)
+{
+	size_t addedSize = m_readBuffer.write (p, size);
+	if (addedSize < size)
+	{
+		size_t overflowSize = size - addedSize;
+		m_readOverflowBuffer.append ((char*) p + addedSize, overflowSize);
+	}
+
+	if (*flags & AsyncIoCompatibilityFlag_MaintainReadBlockSize)
+	{
+		ReadWriteMetaData* meta = createReadWriteMetaData ();
+		meta->m_blockSize = size;
+		m_readMetaDataList.insertTail (meta);
+	}
+
+	ASSERT (isReadBufferValid ());
+	return true;
 }
 
 size_t
@@ -283,24 +409,39 @@ AsyncIoDevice::bufferedRead (
 	}
 
 	char* p = (char*) ptr.m_p;
-	size_t result = 0;
 
 	m_ioLock.lock ();
 
-	if (!m_readOverflowBuffer.isEmpty ())
+	if (!m_readMetaDataList.isEmpty ())
 	{
-		result = m_readOverflowBuffer.read (p, size);
-		if (!m_readOverflowBuffer.isEmpty ()) // not yet
+		ReadWriteMetaData* meta = *m_readMetaDataList.getHead ();
+		if (size < meta->m_blockSize)
 		{
-			m_ioLock.unlock ();
-			return result;			
+			meta->m_blockSize -= size;
 		}
-
-		p += result;
-		size -= result;
+		else
+		{
+			size = meta->m_blockSize;
+			m_readMetaDataList.remove (meta);
+			m_freeReadWriteMetaDataList.insertHead (meta);
+		}
 	}
 
-	result += m_readBuffer.read (p, size);
+	size_t result = m_readBuffer.read (p, size);
+	if (!m_readOverflowBuffer.isEmpty ())
+	{
+		p += result;
+		size -= result;
+
+		size_t overflowSize = m_readOverflowBuffer.getCount ();
+		size_t extraSize = AXL_MIN (overflowSize, size);
+
+		memcpy (p, m_readOverflowBuffer, extraSize);
+		result += extraSize;
+
+		size_t movedSize = m_readBuffer.write (m_readOverflowBuffer + extraSize, overflowSize - extraSize);
+		m_readOverflowBuffer.remove (0, movedSize);
+	}
 
 	if (result)
 	{
@@ -310,6 +451,7 @@ AsyncIoDevice::bufferedRead (
 		wakeIoThread ();
 	}
 
+	ASSERT (isReadBufferValid ());
 	m_ioLock.unlock ();
 
 	return result;
@@ -318,7 +460,8 @@ AsyncIoDevice::bufferedRead (
 size_t
 AsyncIoDevice::bufferedWrite (
 	DataPtr ptr,
-	size_t size
+	size_t size,
+	const uint_t* flags
 	)
 {
 	if (!m_isOpen)
@@ -333,6 +476,13 @@ AsyncIoDevice::bufferedWrite (
 
 	if (result)
 	{
+		if (*flags & AsyncIoCompatibilityFlag_MaintainReadBlockSize)
+		{
+			ReadWriteMetaData* meta = createReadWriteMetaData ();
+			meta->m_blockSize = result;
+			m_writeMetaDataList.insertTail (meta);
+		}
+
 		if (m_writeBuffer.isFull ())
 			m_activeEvents &= ~AsyncIoEvent_TransmitBufferReady;
 
@@ -342,35 +492,6 @@ AsyncIoDevice::bufferedWrite (
 	m_ioLock.unlock ();
 
 	return result;
-}
-
-bool
-AsyncIoDevice::addToReadBuffer (
-	const void* p, 
-	size_t size
-	)
-{
-	size_t addedSize = m_readBuffer.write (p, size);
-	if (addedSize == size)
-		return true;
-
-	ASSERT (addedSize < size);
-	
-	size_t overflowSize = size - addedSize;
-	size_t oldDataSize = m_readOverflowBuffer.getDataSize ();
-	size_t bufferSize = m_readOverflowBuffer.getBufferSize ();
-	
-	if (oldDataSize + overflowSize > bufferSize)
-	{
-		// grow overflow buffer
-
-		bool result = m_readOverflowBuffer.setBufferSize (oldDataSize + overflowSize);
-		if (!result)
-			return false;
-	}
-
-	m_readOverflowBuffer.write ((char*) p + addedSize, overflowSize);
-	return true;
 }
 
 //..............................................................................
