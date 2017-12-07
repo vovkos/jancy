@@ -209,10 +209,10 @@ bitflag enum SerialEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SerialCompatibilityFlags
+bitflag enum SerialOptions
 {
-	MaintainReadBlockSize,
-	MaintainWriteBlockSize,
+	KeepReadBlockSize,
+	KeepWriteBlockSize,
 	WinReadCheckComstat,
 	WinReadWaitFirstChar,
 }
@@ -385,7 +385,7 @@ opaque class Serial
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
 
-	SerialCompatibilityFlags autoget property m_compatibilityFlags;
+	SerialOptions autoget property m_options;
 
 	io.SerialEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

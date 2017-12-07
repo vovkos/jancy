@@ -21,6 +21,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
 
 //..............................................................................
 
+enum SshCompatibilityFlag
+{
+	SshCompatibilityFlag_TcpNagle = 0x04,
+	SshCompatibilityFlag_TcpReset = 0x08,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum SshEvent
 {
 	SshEvent_TcpDisconnected          = 0x0010,
@@ -79,7 +87,6 @@ struct SshChannelHdr: IfaceHdr
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
 	size_t m_writeBufferSize;
-	uint_t m_compatibilityFlags;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -93,12 +100,10 @@ class SshChannel:
 protected:
 	enum Def
 	{
-		Def_ReadBlockSize      = 4 * 1024,
-		Def_ReadBufferSize     = 16 * 1024,
-		Def_WriteBufferSize    = 16 * 1024,
-		Def_CompatibilityFlags =
-			AsyncIoCompatibilityFlag_MaintainReadBlockSize |
-			AsyncIoCompatibilityFlag_MaintainWriteBlockSize,
+		Def_ReadBlockSize   = 4 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_Options         = 0,
 	};
 
 	enum IoFlag
@@ -177,7 +182,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setCompatibilityFlags (uint_t flags);
+	setOptions (uint_t flags);
 
 	axl::io::SockAddr
 	JNC_CDECL
@@ -243,7 +248,7 @@ public:
 		size_t size
 		)
 	{
-		return bufferedWrite (ptr, size, &m_compatibilityFlags);
+		return bufferedWrite (ptr, size);
 	}
 
 	handle_t 
@@ -276,9 +281,6 @@ public:
 protected:
 	void
 	ioThreadFunc ();
-
-	void
-	sleepIoThread ();
 
 	err::Error
 	getLastSshError ();

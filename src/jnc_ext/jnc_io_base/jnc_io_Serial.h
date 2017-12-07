@@ -21,10 +21,10 @@ JNC_DECLARE_TYPE (SerialPortDesc)
 
 //..............................................................................
 
-enum SerialCompatibilityFlag
+enum SerialOption
 {
-	SerialCompatibilityFlag_WinReadCheckComstat  = 0x04,
-	SerialCompatibilityFlag_WinReadWaitFirstChar = 0x08,
+	SerialOption_WinReadCheckComstat  = 0x04,
+	SerialOption_WinReadWaitFirstChar = 0x08,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -60,7 +60,6 @@ struct SerialHdr: IfaceHdr
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
 	size_t m_writeBufferSize;
-	uint_t m_compatibilityFlags;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -74,21 +73,13 @@ class Serial:
 protected:
 	enum Def
 	{
-		Def_ReadInterval       = 10,
-		Def_ReadParallelism    = 4,
-		Def_ReadBlockSize      = 1 * 1024,
-		Def_ReadBufferSize     = 16 * 1024,
-		Def_WriteBufferSize    = 16 * 1024,
-		Def_BaudRate           = 38400,
-		Def_CompatibilityFlags =
-			AsyncIoCompatibilityFlag_MaintainReadBlockSize |
-			AsyncIoCompatibilityFlag_MaintainWriteBlockSize |
-			SerialCompatibilityFlag_WinReadWaitFirstChar,
-	};
-
-	enum IoFlag
-	{
-		IoFlag_Writing = 0x0010,
+		Def_ReadInterval    = 10,
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 1 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_BaudRate        = 38400,
+		Def_Options         = SerialOption_WinReadWaitFirstChar,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -167,7 +158,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setCompatibilityFlags (uint_t flags);
+	setOptions (uint_t options);
 
 	bool
 	JNC_CDECL
@@ -221,7 +212,7 @@ public:
 		size_t size
 		)
 	{
-		return bufferedWrite (ptr, size, &m_compatibilityFlags);
+		return bufferedWrite (ptr, size);
 	}
 
 	handle_t 
