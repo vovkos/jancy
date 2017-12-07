@@ -57,7 +57,7 @@ SshChannel::SshChannel ()
 {
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
-	m_writeBufferSize = Def_WriteBufferSize;	
+	m_writeBufferSize = Def_WriteBufferSize;
 	m_compatibilityFlags = Def_CompatibilityFlags,
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
@@ -187,7 +187,7 @@ SshChannel::connect (
 	ASSERT (!m_connectParams);
 	m_connectParams = AXL_MEM_NEW (ConnectParams);
 	m_connectParams->m_userName    = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
-	
+
 	if (privateKeyPtr.m_p && privateKeySize)
 		m_connectParams->m_privateKey.copy ((char*) privateKeyPtr.m_p, privateKeySize);
 
@@ -380,7 +380,7 @@ SshChannel::sshConnect ()
 	{
 		do
 		{
-			result = m_connectParams->m_privateKey.isEmpty () ? 
+			result = m_connectParams->m_privateKey.isEmpty () ?
 				libssh2_userauth_password (
 					m_sshSession,
 					m_connectParams->m_userName,
@@ -403,7 +403,7 @@ SshChannel::sshConnect ()
 		if (!result)
 			break;
 
-		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED && 
+		if (result != LIBSSH2_ERROR_AUTHENTICATION_FAILED &&
 			result != LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED)
 		{
 			setIoErrorEvent (getSshLastError (m_sshSession));
@@ -721,7 +721,7 @@ SshChannel::sshReadWriteLoop ()
 			break;
 		}
 
-		size_t readActualSize = 0;
+		ssize_t readActualSize = 0;
 		if (canReadSocket && canAddToReadBuffer)
 		{
 			readActualSize = libssh2_channel_read (m_sshChannel, readBlock, readBlock.getCount ());
@@ -763,7 +763,7 @@ SshChannel::sshReadWriteLoop ()
 			m_activeEvents |= AsyncIoEvent_ReceiveBufferFull;
 			canAddToReadBuffer = false;
 		}
-		else 
+		else
 		{
 			canAddToReadBuffer = true;
 		}
@@ -795,7 +795,7 @@ SshChannel::sshReadWriteLoop ()
 				writeBlock.setCount (writeBlockSize);
 				m_writeBuffer.read (writeBlock, writeBlockSize);
 			}
-		}			
+		}
 
 		if (!m_writeBuffer.isFull ())
 			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;

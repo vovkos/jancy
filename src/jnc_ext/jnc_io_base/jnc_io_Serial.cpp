@@ -100,8 +100,8 @@ Serial::setReadWaitFirstChar ()
 	COMMTIMEOUTS timeouts = { 0 };
 	timeouts.ReadIntervalTimeout = MAXDWORD;
 	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-	timeouts.ReadTotalTimeoutConstant = MAXDWORD - 1;  // even when this (insanely) long wait completes, 
-	return m_serial.m_serial.setTimeouts (&timeouts);  // still no problem -- read will just return 0 bytes	
+	timeouts.ReadTotalTimeoutConstant = MAXDWORD - 1;  // even when this (insanely) long wait completes,
+	return m_serial.m_serial.setTimeouts (&timeouts);  // still no problem -- read will just return 0 bytes
 }
 #endif
 
@@ -168,7 +168,7 @@ Serial::close ()
 	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
-	
+
 	m_serial.close ();
 
 	AsyncIoDevice::close ();
@@ -188,7 +188,7 @@ Serial::setReadInterval (uint_t interval)
 	if (m_compatibilityFlags & SerialCompatibilityFlag_WinReadWaitFirstChar) // interval is ignored
 	{
 		m_readInterval = interval;
-		return true;	
+		return true;
 	}
 #endif
 
@@ -216,7 +216,7 @@ Serial::setCompatibilityFlags (uint_t flags)
 	}
 
 #if (_AXL_OS_WIN)
-	if ((flags & SerialCompatibilityFlag_WinReadWaitFirstChar) ^ 
+	if ((flags & SerialCompatibilityFlag_WinReadWaitFirstChar) ^
 		(m_compatibilityFlags & SerialCompatibilityFlag_WinReadWaitFirstChar))
 	{
 		bool result;
@@ -417,7 +417,7 @@ Serial::ioThreadFunc ()
 	axl::io::win::StdOverlapped writeOverlapped;
 
 	axl::io::win::StdOverlapped*
-	overlappedTable [3] = 
+	overlappedTable [3] =
 	{
 		&serialWaitOverlapped,
 		&writeOverlapped,
@@ -448,7 +448,7 @@ Serial::ioThreadFunc ()
 		WaitResult_Read,
 	};
 
-	result = 
+	result =
 		m_serial.m_serial.setWaitMask (EventMask) &&
 		m_serial.m_serial.overlappedWait (&m_serialEvents, &serialWaitOverlapped);
 
@@ -488,7 +488,7 @@ Serial::ioThreadFunc ()
 		}
 
 		bool canWrite = false;
-		bool canWait = false;		
+		bool canWait = false;
 		bool canReadMaybe = false;
 
 		size_t readParallelism;
@@ -529,13 +529,13 @@ Serial::ioThreadFunc ()
 		case WaitResult_SerialWait:
 			canWait = true; // always restart
 			break;
-		} 
+		}
 
 		while (!m_activeOverlappedReadList.isEmpty ())
 		{
 			read = *m_activeOverlappedReadList.getHead ();
 
-			result = 
+			result =
 				read->m_overlapped.m_completionEvent.wait (0) && // don't wait
 				m_serial.m_serial.getOverlappedResult (&read->m_overlapped, &actualSize);
 
@@ -602,7 +602,7 @@ Serial::ioThreadFunc ()
 		else
 			m_ioLock.unlock ();
 
-		result = 
+		result =
 			(!canWrite || m_serial.m_serial.overlappedWrite (m_writeBlock, m_writeBlock.getCount (), &writeOverlapped)) &&
 			(!canWait || m_serial.m_serial.overlappedWait (&m_serialEvents, &serialWaitOverlapped));
 
@@ -642,7 +642,7 @@ Serial::ioThreadFunc ()
 			{
 				read = createOverlappedRead ();
 
-				result = 
+				result =
 					read->m_buffer.setCount (readBlockSize) &&
 					m_serial.m_serial.overlappedRead (read->m_buffer, readBlockSize, &read->m_overlapped);
 
@@ -681,28 +681,29 @@ Serial::ioThreadFunc ()
 	int result;
 	int selectFd = AXL_MAX (m_serial.m_serial, m_selfPipe.m_readFile) + 1;
 
+	sl::Array <char> readBlock;
+	sl::Array <char> writeBlock;
+
+	readBlock.setCount (Def_ReadBlockSize);
+
+	bool canReadSerial = false;
+	bool canAddToReadBuffer = false;
+	bool canWriteSerial = false;
+
 	// read/write loop
 
 	for (;;)
 	{
 		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
 
-		FD_SET (m_selfPipe.m_readFile, &readSet);
+		if (!canReadSerial)
+			FD_SET (m_selfPipe.m_readFile, &readSet);
 
-		m_ioLock.lock ();
+		if (!canWriteSerial)
+			FD_SET (m_selfPipe.m_readFile, &writeSet);
 
-		if (m_ioFlags & IoFlag_Closing)
-		{
-			m_ioLock.unlock ();
-			break;
-		}
-
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
-			FD_SET (m_serial.m_serial, &readSet);
-
-		m_ioLock.unlock ();
-
-		result = select (selectFd, &readSet, NULL, NULL, NULL);
+		result = select (selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 			break;
 
@@ -717,27 +718,109 @@ Serial::ioThreadFunc ()
 			size_t incomingDataSize = m_serial.m_serial.getIncomingDataSize ();
 			if (incomingDataSize == -1)
 			{
-				err::Error error = err::getLastSystemErrorCode ();
-				fireSerialEvent (SerialEventCode_IoError, error);
+				setIoErrorEvent ();
 				return;
 			}
 
-			if (incomingDataSize == 0)
+			canReadSerial = incomingDataSize > 0;
+		}
+
+		if (FD_ISSET (m_serial.m_serial, &writeSet))
+			canWriteSerial = true;
+
+		size_t readActualSize = 0;
+		if (canReadSerial && canAddToReadBuffer)
+		{
+			readActualSize = m_serial.read (readBlock, readBlock.getCount ());
+			if (readActualSize == -1)
 			{
-				// shouldn't actually be here -- if USB serial is disconnected,
-				// Fd::getIncomingDataSize should fail with some kind of IO error
-
-				err::Error error (ENXIO);
-				fireSerialEvent (SerialEventCode_IoError, error);
+				setIoErrorEvent ();
 				return;
 			}
+		}
 
-			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-			m_ioFlags |= IoFlag_IncomingData;
+		m_ioLock.lock ();
+		if (m_ioFlags & IoFlag_Closing)
+		{
+			m_ioLock.unlock ();
+			return;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
+		if (canAddToReadBuffer)
+		{
+			addToReadBuffer (readBlock, readActualSize, &m_compatibilityFlags);
+			readBlock.setCount (m_readBlockSize);
+		}
+
+		if (m_readBuffer.isFull ())
+		{
+			m_activeEvents |= AsyncIoEvent_ReceiveBufferFull;
+			canAddToReadBuffer = false;
+		}
+		else
+		{
+			canAddToReadBuffer = true;
+		}
+
+		if (!m_readBuffer.isEmpty ())
+			m_activeEvents |= AsyncIoEvent_IncomingData;
+
+		if (writeBlock.isEmpty ())
+		{
+			if (m_writeMetaDataList.isEmpty ())
+			{
+				m_writeBuffer.readAll (&writeBlock);
+			}
+			else
+			{
+				size_t writeBlockSize = m_writeBuffer.getDataSize ();
+				ReadWriteMetaData* meta = *m_readMetaDataList.getHead ();
+				if (writeBlockSize < meta->m_blockSize)
+				{
+					meta->m_blockSize -= writeBlockSize;
+				}
+				else
+				{
+					writeBlockSize = meta->m_blockSize;
+					m_readMetaDataList.remove (meta);
+					m_freeReadWriteMetaDataList.insertHead (meta);
+				}
+
+				writeBlock.setCount (writeBlockSize);
+				m_writeBuffer.read (writeBlock, writeBlockSize);
+			}
+		}
+
+		if (!m_writeBuffer.isFull ())
+			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
 			m_ioLock.unlock ();
 
-			fireSerialEvent (SerialEventCode_IncomingData);
+		if (canWriteSerial && !writeBlock.isEmpty ())
+		{
+			size_t writeBlockSize = writeBlock.getCount ();
+			size_t writeActualSize = m_serial.write (writeBlock, writeBlockSize);
+			if (writeActualSize == -1)
+			{
+				setIoErrorEvent ();
+				return;
+			}
+
+			if (writeActualSize < writeBlockSize)
+			{
+				writeBlock.remove (0, writeActualSize);
+				canWriteSerial = false;
+			}
+			else
+			{
+				writeBlock.clear ();
+			}
 		}
 	}
 }

@@ -116,7 +116,7 @@ protected:
 	void
 	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
-	handle_t 
+	handle_t
 	wait (
 		uint_t eventMask,
 		FunctionPtr handlerPtr
@@ -139,7 +139,7 @@ protected:
 
 	void
 	wakeIoThread ();
-	
+
 	bool
 	setReadParallelismImpl (
 		uint_t* p,
@@ -175,7 +175,7 @@ protected:
 
 	void
 	setErrorEvent (
-		uint_t event, 
+		uint_t event,
 		const err::Error& error
 		);
 
@@ -196,7 +196,7 @@ protected:
 
 	bool
 	addToReadBuffer (
-		const void* p, 
+		const void* p,
 		size_t size,
 		const uint_t* flags
 		);
@@ -214,13 +214,15 @@ protected:
 		const uint_t* flags
 		);
 
+#if (_JNC_OS_WIN)
 	OverlappedRead*
 	createOverlappedRead ()
 	{
-		return !m_freeOverlappedReadList.isEmpty () ? 
-			m_freeOverlappedReadList.removeHead () : 
+		return !m_freeOverlappedReadList.isEmpty () ?
+			m_freeOverlappedReadList.removeHead () :
 			AXL_MEM_NEW (OverlappedRead);
 	}
+#endif
 
 	ReadWriteMetaData*
 	createReadWriteMetaData (size_t paramSize = 0)

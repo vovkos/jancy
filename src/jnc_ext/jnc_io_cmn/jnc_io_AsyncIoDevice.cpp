@@ -48,11 +48,11 @@ AsyncIoDevice::open ()
 
 	m_readBuffer.clear ();
 	m_writeBuffer.clear ();
-	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
 	m_freeReadWriteMetaDataList.insertListTail (&m_readMetaDataList);
 	m_freeReadWriteMetaDataList.insertListTail (&m_writeMetaDataList);
 
 #if (_JNC_OS_WIN)
+	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
 	m_ioThreadEvent.reset ();
 #elif (_JNC_OS_POSIX)
 	m_selfPipe.create ();
@@ -69,11 +69,12 @@ AsyncIoDevice::close ()
 
 	m_readBuffer.clear ();
 	m_writeBuffer.clear ();
-	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
 	m_freeReadWriteMetaDataList.insertListTail (&m_readMetaDataList);
 	m_freeReadWriteMetaDataList.insertListTail (&m_writeMetaDataList);
 
-#if (_JNC_OS_POSIX)
+#if (_JNC_OS_WIN)
+	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
+#elif (_JNC_OS_POSIX)
 	m_selfPipe.close ();
 #endif
 
@@ -127,7 +128,7 @@ AsyncIoDevice::setReadBufferSizeImpl (
 	)
 {
 	m_ioLock.lock ();
-	
+
 	bool result = m_readBuffer.setBufferSize (size);
 	if (!result)
 	{
@@ -179,7 +180,7 @@ AsyncIoDevice::blockingWait (
 	}
 
 	sys::Event event;
-	
+
 	SyncWait wait;
 	wait.m_mask = eventMask;
 	wait.m_event = &event;
@@ -196,7 +197,7 @@ AsyncIoDevice::blockingWait (
 	return triggeredEvents;
 }
 
-handle_t 
+handle_t
 JNC_CDECL
 AsyncIoDevice::wait (
 	uint_t eventMask,
@@ -282,7 +283,7 @@ AsyncIoDevice::processWaitLists_l ()
 {
 	sl::Iterator <AsyncWait> asyncIt = m_asyncWaitList.getHead ();
 	while (asyncIt)
-	{	
+	{
 		uint_t triggeredEvents = asyncIt->m_mask & m_activeEvents;
 		if (!triggeredEvents)
 		{
@@ -302,7 +303,7 @@ AsyncIoDevice::processWaitLists_l ()
 
 	sl::Iterator <SyncWait> syncIt = m_syncWaitList.getHead ();
 	for (; syncIt; syncIt++)
-	{	
+	{
 		if (syncIt->m_mask & m_activeEvents)
 			syncIt->m_event->signal ();
 	}
@@ -310,12 +311,12 @@ AsyncIoDevice::processWaitLists_l ()
 	size_t count = m_pendingAsyncWaitList.getCount ();
 
 	while (!m_pendingAsyncWaitList.isEmpty ())
-	{	
+	{
 		AsyncWait* wait = *m_pendingAsyncWaitList.getHead ();
 		m_ioLock.unlock ();
 
 		callVoidFunctionPtr (m_runtime, wait->m_handlerPtr, wait->m_mask);
-		
+
 		m_ioLock.lock ();
 		m_pendingAsyncWaitList.erase (wait);
 	}
@@ -366,14 +367,14 @@ AsyncIoDevice::setErrorEvent (
 bool
 AsyncIoDevice::isReadBufferValid ()
 {
-	return 		
-		m_readBuffer.isValid () && 
+	return
+		m_readBuffer.isValid () &&
 		(m_readOverflowBuffer.isEmpty () || m_readBuffer.isFull ());
 }
 
 bool
 AsyncIoDevice::addToReadBuffer (
-	const void* p, 
+	const void* p,
 	size_t size,
 	const uint_t* flags
 	)

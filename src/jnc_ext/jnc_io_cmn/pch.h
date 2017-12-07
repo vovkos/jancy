@@ -17,7 +17,12 @@
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_sys_Event.h"
-#include "axl_io_win_FileHandle.h"
+
+#if (_AXL_OS_WIN)
+#	include "axl_io_win_FileHandle.h"
+#elif (_AXL_OS_POSIX)
+#	include "axl_io_psx_Pipe.h"
+#endif
 
 #include "jnc_ExtensionLib.h"
 #include "jnc_Runtime.h"
