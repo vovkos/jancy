@@ -17,6 +17,7 @@ set (
 	LIB_H_LIST
 	jnc_io_AsyncIoDevice.h
 	jnc_io_SocketAddress.h
+	jnc_io_SocketOptions.h
 	)
 
 set (

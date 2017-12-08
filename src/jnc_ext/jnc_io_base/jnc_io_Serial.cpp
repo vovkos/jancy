@@ -153,11 +153,8 @@ void
 JNC_CDECL
 Serial::close ()
 {
-	if (!m_isOpen)
-	{
-		m_serial.close (); // take care of failed open ()
+	if (!m_serial.isOpen ())
 		return;
-	}
 
 	m_lock.lock ();
 	m_ioThreadFlags |= IoThreadFlag_Closing;

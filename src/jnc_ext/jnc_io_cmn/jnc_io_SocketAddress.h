@@ -27,7 +27,7 @@ enum AddressFamily
 	AddressFamily_Undefined = 0,
 	AddressFamily_Unused    = 1,
 	AddressFamily_Ip4       = 2, // AF_INET
-	AddressFamily_Ip6, // can be different
+	AddressFamily_Ip6,           // actual value is platform-specific
 	AddressFamily__Count,
 };
 

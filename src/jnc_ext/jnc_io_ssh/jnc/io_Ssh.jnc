@@ -11,6 +11,7 @@
 
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
+import "io_SocketOptions.jnc"
 
 namespace io {
 
@@ -102,16 +103,6 @@ bitflag enum SshEvents
 	*/
 
 	SshConnectCompleted,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bitflag enum SshOptions
-{
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
-	TcpNagle,
-	TcpReset,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -247,7 +238,7 @@ opaque class SshChannel
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
 	
-	SshOptions autoget property m_options;
+	SocketOptions autoget property m_options;
 
 	io.SshEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
@@ -369,7 +360,7 @@ opaque class SshChannel
 
 	bool errorcode cancelWait (intptr handle);
 
-	uint_t errorcode blockingWait (
+	SshEvents errorcode blockingWait (
 		SshEvents eventMask,
 		uint_t timeout
 		);

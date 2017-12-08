@@ -68,6 +68,10 @@ enum Protocol
 	//! ``UDP`` protocol; maps to ``IPPROTO_UDP`` platform constant.
 
 	Udp  = 17,
+
+	//! Raw ``IP`` protocol; maps to ``IPPROTO_RAW`` platform constant.
+
+	Raw  = 255,
 }
 
 //..............................................................................

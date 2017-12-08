@@ -21,14 +21,6 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
 
 //..............................................................................
 
-enum SshCompatibilityFlag
-{
-	SshCompatibilityFlag_TcpNagle = 0x04,
-	SshCompatibilityFlag_TcpReset = 0x08,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum SshEvent
 {
 	SshEvent_TcpDisconnected          = 0x0010,

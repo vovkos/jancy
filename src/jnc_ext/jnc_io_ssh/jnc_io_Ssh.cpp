@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_io_Ssh.h"
 #include "jnc_io_SshLib.h"
+#include "jnc_io_SocketOptions.h"
 #include "jnc_Error.h"
 
 namespace jnc {
@@ -77,10 +78,9 @@ SshChannel::setOptions (uint_t options)
 		return true;
 	}
 
-	if ((options & SshCompatibilityFlag_TcpNagle) ^
-		(m_options & SshCompatibilityFlag_TcpNagle))
+	if ((options & SocketOption_TcpNagle) ^ (m_options & SocketOption_TcpNagle))
 	{
-		int value = !(options & SshCompatibilityFlag_TcpNagle);
+		int value = !(options & SocketOption_TcpNagle);
 		result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
 		if (!result)
 		{
@@ -89,11 +89,10 @@ SshChannel::setOptions (uint_t options)
 		}
 	}
 
-	if ((options & SshCompatibilityFlag_TcpReset) ^
-		(m_options & SshCompatibilityFlag_TcpReset))
+	if ((options & SocketOption_TcpReset) ^ (m_options & SocketOption_TcpReset))
 	{
 		linger value;
-		value.l_onoff = (options & SshCompatibilityFlag_TcpReset) != 0;
+		value.l_onoff = (options & SocketOption_TcpReset) != 0;
 		value.l_linger = 0;
 
 		result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
@@ -129,22 +128,27 @@ SshChannel::getPeerAddress ()
 	return sockAddr;
 }
 
+
 bool
 JNC_CDECL
 SshChannel::open (DataPtr addressPtr)
 {
 	close ();
 
-	int tcpNoDelayValue = !(m_options & SshCompatibilityFlag_TcpNagle);
+	int tcpNoDelayValue = !(m_options & SocketOption_TcpNagle);
 
 	linger lingerValue;
-	lingerValue.l_onoff = (m_options & SshCompatibilityFlag_TcpReset) != 0;
+	lingerValue.l_onoff = (m_options & SocketOption_TcpReset) != 0;
 	lingerValue.l_linger = 0;
+
+	int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
 
 	bool result = 
 		m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP) &&
+		m_socket.setBlockingMode (false) &&
 		m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof (tcpNoDelayValue)) &&
 		m_socket.setOption (SOL_SOCKET, SO_LINGER, &lingerValue, sizeof (lingerValue));
+		m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof (reuseAddrValue));
 
 	if (!result)
 	{
@@ -238,13 +242,6 @@ SshChannel::connect (
 	m_ptyWidth = ptyWidth;
 	m_ptyHeight = ptyHeight;
 	m_lock.unlock ();
-
-	result = m_socket.setBlockingMode (false);
-	if (!result)
-	{
-		propagateLastError ();
-		return false;
-	}
 
 	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
 	result = m_socket.connect (m_remoteAddress.getSockAddr ());

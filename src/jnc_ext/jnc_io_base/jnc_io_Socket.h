@@ -12,65 +12,39 @@
 #pragma once
 
 #include "jnc_io_SocketAddress.h"
+#include "jnc_io_SocketOptions.h"
+#include "jnc_io_AsyncIoDevice.h"
 
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (SocketEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Socket)
 
 //..............................................................................
 
-enum SocketEventCode
+enum SocketEvent
 {
-	SocketEventCode_ConnectCompleted = 0,
-	SocketEventCode_ConnectCancelled,
-	SocketEventCode_ConnectError,
-	SocketEventCode_Disconnected,
-	SocketEventCode_IncomingData,
-	SocketEventCode_IncomingConnection,
-	SocketEventCode_TransmitBufferReady,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum SocketDisconnectEventFlag
-{
-	SocketDisconnectEventFlag_Reset = 0x01,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct SocketEventParams
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (SocketEventParams)
-
-	SocketEventCode m_eventCode;
-	uint_t m_syncId;
-	uint_t m_flags;
-	DataPtr m_errorPtr;
+	SocketEvent_IncomingConnection = 0x10,
+	SocketEvent_Connected          = 0x20,
+	SocketEvent_Disconnected       = 0x40,
+	SocketEvent_Reset              = 0x80,
 };
 
 //..............................................................................
 
-enum SocketCloseKind
+struct SocketHdr: IfaceHdr
 {
-	SocketCloseKind_Reset = 0,
-	SocketCloseKind_Graceful,
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum SocketOpenFlag
-{
-	SocketOpenFlag_Raw          = 0x01,
-	SocketOpenFlag_Asynchronous = 0x02,
-	SocketOpenFlag_ReuseAddress = 0x04,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class Socket: public IfaceHdr
+class Socket: 
+	public SocketHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
@@ -78,6 +52,15 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (Socket)
 
 protected:
+	enum Def
+	{
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 4 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_Options         = 0,
+	};
+
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
@@ -88,51 +71,33 @@ protected:
 		}
 	};
 
-	enum IoFlag
+	enum IoThreadFlag
 	{
-		IoFlag_Asynchronous          = 0x0001,
-		IoFlag_Udp                   = 0x0002,
-		IoFlag_Connected             = 0x0004,
-		IoFlag_SocketEventDisabled   = 0x0008,
-		IoFlag_Closing               = 0x0010,
-		IoFlag_Connecting            = 0x0020,
-		IoFlag_Listening             = 0x0040,
-		IoFlag_WaitingTransmitBuffer = 0x0080,
+		IoThreadFlag_Tcp                   = 0x0010,
+		IoThreadFlag_Ip6                   = 0x0020,
+		IoThreadFlag_Connecting            = 0x0100,
+		IoThreadFlag_Listening             = 0x0200,
+		IoThreadFlag_Connected             = 0x0400,
+		IoThreadFlag_WaitingTransmitBuffer = 0x0800,
 #if (_JNC_OS_POSIX)
-		IoFlag_IncomingData          = 0x0100,
-		IoFlag_IncomingConnection    = 0x0200,
+		IoThreadFlag_IncomingData          = 0x1000,
+		IoThreadFlag_IncomingConnection    = 0x2000,
 #endif
 	};
 
-	struct PendingEvent: sl::ListLink
+	struct IncomingConnection: sl::ListLink
 	{
-		SocketEventCode m_eventCode;
-		uint_t m_flags;
-		err::Error m_error;
+		axl::io::Socket m_socket;
+		axl::io::SockAddr m_address;
 	};
 
 protected:
-	bool m_isOpen;
-	uint_t m_syncId;
-	ClassBox <Multicast> m_onSocketEvent;
-
-protected:
-	Runtime* m_runtime;
-
 	axl::io::Socket m_socket;
-
-	sys::Lock m_ioLock;
-	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
-	sl::StdList <PendingEvent> m_pendingEventList;
 
-#if (_JNC_OS_WIN)
-	sys::Event m_ioThreadEvent;
-#else
-	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
-#endif
-
-	int m_family;
+	sl::BoxList <IncomingConnection> m_pendingIncomingConnectionList;
+	sl::BoxList <IncomingConnection> m_freeIncomingConnectionList;
+	size_t m_backLogLimit;
 
 public:
 	Socket ();
@@ -142,37 +107,12 @@ public:
 		close ();
 	}
 
-	bool
+	void
 	JNC_CDECL
-	isBroadcastEnabled ();
-
-	bool
-	JNC_CDECL
-	setBroadcastEnabled (bool isEnabled);
-
-	bool
-	JNC_CDECL
-	isNagleEnabled ();
-
-	bool
-	JNC_CDECL
-	setNagleEnabled (bool isEnabled);
-
-	bool
-	JNC_CDECL
-	isRawHdrIncluded ();
-
-	bool
-	JNC_CDECL
-	setRawHdrIncluded (bool isIncluded);
-
-	SocketCloseKind
-	JNC_CDECL
-	getCloseKind ();
-
-	bool
-	JNC_CDECL
-	setCloseKind (SocketCloseKind closeKind);
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	{
+		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+	}
 
 	static
 	SocketAddress
@@ -186,25 +126,55 @@ public:
 
 	bool
 	JNC_CDECL
+	setReadParallelism (uint_t count)
+	{
+		return setReadParallelismImpl (&m_readParallelism, count ? count : Def_ReadParallelism);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setOptions (uint_t flags);
+
+	bool
+	JNC_CDECL
 	open_0 (
 		uint16_t family,
-		int protocol,
-		uint_t flags
+		int protocol
 		)
 	{
-		return openImpl (family, protocol, NULL, flags);
+		return openImpl (family, protocol, NULL);
 	}
 
 	bool
 	JNC_CDECL
 	open_1 (
 		int protocol,
-		DataPtr addressPtr,
-		uint_t flags
+		DataPtr addressPtr
 		)
 	{
 		const SocketAddress* address = (const SocketAddress*) addressPtr.m_p;
-		return openImpl (address ? address->m_family : AddressFamily_Ip4, protocol, address, flags);
+		return openImpl (address ? address->m_family : AddressFamily_Ip4, protocol, address);
 	}
 
 	void
@@ -217,7 +187,7 @@ public:
 
 	bool
 	JNC_CDECL
-	listen (size_t backLog);
+	listen (size_t backLogLimit);
 
 	Socket*
 	JNC_CDECL
@@ -225,21 +195,27 @@ public:
 
 	size_t
 	JNC_CDECL
-	send (
+	read (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedRead (ptr, size);
+	}
 
 	size_t
 	JNC_CDECL
-	recv (
+	write (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedWrite (ptr, size);
+	}
 
 	size_t
 	JNC_CDECL
-	sendTo (
+	readDatagram (
 		DataPtr ptr,
 		size_t size,
 		DataPtr addressPtr
@@ -247,51 +223,49 @@ public:
 
 	size_t
 	JNC_CDECL
-	recvFrom (
+	writeDatagram (
 		DataPtr ptr,
 		size_t size,
 		DataPtr addressPtr
 		);
+
+	handle_t 
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
 
 	bool
 	JNC_CDECL
-	isSocketEventEnabled ()
+	cancelWait (handle_t handle)
 	{
-		return !(m_ioFlags & IoFlag_SocketEventDisabled);
+		return AsyncIoDevice::cancelWait (handle);
 	}
 
-	void
+	uint_t
 	JNC_CDECL
-	setSocketEventEnabled (bool isEnabled);
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
 
 protected:
 	bool
 	openImpl (
 		uint16_t family,
 		int protocol,
-		const SocketAddress* address,
-		uint_t flags
-		);
-
-	void
-	fireSocketEvent (
-		SocketEventCode eventCode,
-		uint_t flags = 0,
-		const err::ErrorHdr* error = NULL
-		);
-
-	void
-	fireSocketEventImpl (
-		SocketEventCode eventCode,
-		uint_t flags,
-		const err::ErrorHdr* error
+		const SocketAddress* address
 		);
 
 	void
 	ioThreadFunc ();
-
-	void
-	wakeIoThread ();
 
 	bool
 	connectLoop ();
@@ -301,12 +275,6 @@ protected:
 
 	bool
 	sendRecvLoop ();
-
-	size_t
-	postSend (
-		size_t size,
-		size_t result
-		);
 };
 
 //..............................................................................

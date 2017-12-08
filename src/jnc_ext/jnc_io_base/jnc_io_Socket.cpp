@@ -23,47 +23,37 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	SocketEventParams,
-	"io.SocketEventParams",
-	g_ioLibGuid,
-	IoLibCacheSlot_SocketEventParams
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (SocketEventParams)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Socket,
 	"io.Socket",
 	g_ioLibGuid,
 	IoLibCacheSlot_Socket,
 	Socket,
-	NULL
+	&Socket::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Socket)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <Socket>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Socket>)
-	JNC_MAP_CONST_PROPERTY ("m_address",      &Socket::getAddress)
-	JNC_MAP_CONST_PROPERTY ("m_peerAddress",  &Socket::getPeerAddress)
-	JNC_MAP_PROPERTY ("m_isBroadcastEnabled", &Socket::isBroadcastEnabled, &Socket::setBroadcastEnabled)
-	JNC_MAP_PROPERTY ("m_isNagleEnabled",     &Socket::isNagleEnabled, &Socket::setNagleEnabled)
-	JNC_MAP_PROPERTY ("m_isRawHdrIncluded",   &Socket::isRawHdrIncluded, &Socket::setRawHdrIncluded)
-	JNC_MAP_PROPERTY ("m_closeKind",          &Socket::getCloseKind, &Socket::setCloseKind)
-	JNC_MAP_FUNCTION ("open",     &Socket::open_0)
+
+	JNC_MAP_CONST_PROPERTY ("m_address",     &Socket::getAddress)
+	JNC_MAP_CONST_PROPERTY ("m_peerAddress", &Socket::getPeerAddress)
+
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",   &Socket::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &Socket::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &Socket::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_options",         &Socket::setOptions)
+
+	JNC_MAP_FUNCTION ("open",          &Socket::open_0)
 	JNC_MAP_OVERLOAD (&Socket::open_1)
-	JNC_MAP_FUNCTION ("close",    &Socket::close)
-	JNC_MAP_FUNCTION ("connect",  &Socket::connect)
-	JNC_MAP_FUNCTION ("listen",   &Socket::listen)
-	JNC_MAP_FUNCTION ("accept",   &Socket::accept)
-	JNC_MAP_FUNCTION ("send",     &Socket::send)
-	JNC_MAP_FUNCTION ("recv",     &Socket::recv)
-	JNC_MAP_FUNCTION ("sendTo",   &Socket::sendTo)
-	JNC_MAP_FUNCTION ("recvFrom", &Socket::recvFrom)
-	JNC_MAP_PROPERTY ("m_isSocketEventEnabled", &Socket::isSocketEventEnabled, &Socket::setSocketEventEnabled)
+	JNC_MAP_FUNCTION ("close",         &Socket::close)
+	JNC_MAP_FUNCTION ("connect",       &Socket::connect)
+	JNC_MAP_FUNCTION ("listen",        &Socket::listen)
+	JNC_MAP_FUNCTION ("accept",        &Socket::accept)
+	JNC_MAP_FUNCTION ("read",          &Socket::read)
+	JNC_MAP_FUNCTION ("write",         &Socket::write)
+	JNC_MAP_FUNCTION ("readDatagram",  &Socket::readDatagram)
+	JNC_MAP_FUNCTION ("writeDatagram", &Socket::writeDatagram)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
@@ -71,102 +61,6 @@ JNC_END_TYPE_FUNCTION_MAP ()
 Socket::Socket ()
 {
 	m_runtime = getCurrentThreadRuntime ();
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId = 0;
-	m_family = 0;
-}
-
-void
-Socket::wakeIoThread ()
-{
-#if (_JNC_OS_WIN)
-	m_ioThreadEvent.signal ();
-#else
-	m_selfPipe.write (" ", 1);
-#endif
-}
-
-void
-Socket::fireSocketEvent (
-	SocketEventCode eventCode,
-	uint_t flags,
-	const err::ErrorHdr* error
-	)
-{
-	m_ioLock.lock ();
-	if (!(m_ioFlags & IoFlag_SocketEventDisabled))
-	{
-		m_ioLock.unlock ();
-		fireSocketEventImpl (eventCode, flags, error);
-	}
-	else
-	{
-		PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
-		pendingEvent->m_eventCode = eventCode;
-		pendingEvent->m_flags = flags;
-		pendingEvent->m_error = error;
-		m_pendingEventList.insertTail (pendingEvent);
-		m_ioLock.unlock ();
-	}
-}
-
-void
-Socket::fireSocketEventImpl (
-	SocketEventCode eventCode,
-	uint_t flags,
-	const err::ErrorHdr* error
-	)
-{
-	JNC_BEGIN_CALL_SITE (m_runtime);
-
-	DataPtr paramsPtr = createData <SocketEventParams> (m_runtime);
-	SocketEventParams* params = (SocketEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
-	params->m_flags = flags;
-
-	if (error)
-		params->m_errorPtr = memDup (error, error->m_size);
-
-	callMulticast (m_onSocketEvent, paramsPtr);
-
-	JNC_END_CALL_SITE ();
-}
-
-void
-JNC_CDECL
-Socket::setSocketEventEnabled (bool isEnabled)
-{
-	m_ioLock.lock ();
-	if (!isEnabled)
-	{
-		if (!(m_ioFlags & IoFlag_SocketEventDisabled))
-			m_ioFlags |= IoFlag_SocketEventDisabled;
-
-		m_ioLock.unlock ();
-		return;
-	}
-
-	if (!(m_ioFlags & IoFlag_SocketEventDisabled))
-	{
-		m_ioLock.unlock ();
-		return;
-	}
-
-	while (!m_pendingEventList.isEmpty  ())
-	{
-		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
-		m_ioLock.unlock ();
-
-		fireSocketEventImpl (pendingEvent->m_eventCode, pendingEvent->m_flags, pendingEvent->m_error);
-		AXL_MEM_DELETE (pendingEvent);
-
-		m_ioLock.lock ();
-	}
-
-	m_ioFlags &= ~IoFlag_SocketEventDisabled;
-	m_ioLock.unlock ();
 }
 
 SocketAddress
@@ -188,138 +82,73 @@ Socket::getPeerAddress (Socket* self)
 }
 
 bool
-JNC_CDECL
-Socket::isBroadcastEnabled ()
-{
-	int value = 0;
-	bool result = m_socket.getOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
-	return result && value != 0;
-}
-
-bool
-JNC_CDECL
-Socket::setBroadcastEnabled (bool isEnabled)
-{
-	int value = isEnabled;
-	bool result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
-bool
-JNC_CDECL
-Socket::isNagleEnabled ()
-{
-	int value = 0;
-	bool result = m_socket.getOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
-	return result && value == 0;
-}
-
-bool
-JNC_CDECL
-Socket::setNagleEnabled (bool isEnabled)
-{
-	int value = !isEnabled;
-	bool result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
-bool
-JNC_CDECL
-Socket::isRawHdrIncluded ()
-{
-	int value = 0;
-
-	bool result = m_family == AF_INET6 ?
-		m_socket.getOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
-		m_socket.getOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
-
-	return result && value == 0;
-}
-
-bool
-JNC_CDECL
-Socket::setRawHdrIncluded (bool isIncluded)
-{
-	int value = isIncluded;
-
-	bool result = m_family == AF_INET6 ?
-		m_socket.setOption (IPPROTO_IPV6, IPV6_HDRINCL, &value, sizeof (value)) :
-		m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &value, sizeof (value));
-
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
-SocketCloseKind
-JNC_CDECL
-Socket::getCloseKind ()
-{
-	linger value = { 0 };
-	bool result = m_socket.getOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
-	return result ? value.l_onoff ?
-		SocketCloseKind_Reset :
-		SocketCloseKind_Graceful :
-		SocketCloseKind_Graceful;
-}
-
-bool
-JNC_CDECL
-Socket::setCloseKind (SocketCloseKind closeKind)
-{
-	linger value;
-	value.l_onoff = closeKind == SocketCloseKind_Reset;
-	value.l_linger = 0;
-	bool result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
-bool
 Socket::openImpl (
 	uint16_t family_jnc,
 	int protocol,
-	const SocketAddress* address,
-	uint_t flags
+	const SocketAddress* address
 	)
 {
 	close ();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
 	int socketKind =
-		(flags & SocketOpenFlag_Raw) ? SOCK_RAW :
-		protocol == IPPROTO_TCP ? SOCK_STREAM : SOCK_DGRAM;
+		protocol == IPPROTO_TCP ? SOCK_STREAM :
+		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
 
-	bool result = m_socket.open (family_s, socketKind, protocol);
+	bool result =
+		m_socket.m_socket.wsaOpen (family_s, SOCK_STREAM, IPPROTO_TCP, WSA_FLAG_OVERLAPPED) &&
+		m_socket.setBlockingMode (false);
+
 	if (!result)
 	{
 		propagateLastError ();
 		return false;
 	}
 
-	if (flags & SocketOpenFlag_ReuseAddress)
+	switch (protocol)
 	{
-		int value = true;
-		result = m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &value, sizeof (value));
-		if (!result)
-		{
-			propagateLastError ();
-			return false;
-		}
+		int tcpNoDelayValue;
+		linger lingerValue;
+		int udpBroadcastValue;
+		int rawHdrInclValue;
+
+	case IPPROTO_TCP:
+		tcpNoDelayValue = !(m_options & SocketOption_TcpNagle);
+		lingerValue.l_onoff = (m_options & SocketOption_TcpReset) != 0;
+		lingerValue.l_linger = 0;
+
+		result =
+			m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof (tcpNoDelayValue)) &&
+			m_socket.setOption (SOL_SOCKET, SO_LINGER, &lingerValue, sizeof (lingerValue));
+		break;
+
+	case IPPROTO_UDP:
+		udpBroadcastValue = (m_options & SocketOption_UdpBroadcast) != 0;
+		result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof (udpBroadcastValue));
+		break;
+
+	case IPPROTO_RAW:
+		rawHdrInclValue = (m_options & SocketOption_RawHdrIncl) != 0;
+		result = family_s == AF_INET6 ?
+			m_socket.setOption (IPPROTO_IPV6, IPV6_HDRINCL, &rawHdrInclValue, sizeof (rawHdrInclValue)) :
+			m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &rawHdrInclValue, sizeof (rawHdrInclValue));
+		break;
+	}
+
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
 	}
 
 	if (address)
 	{
-		result = m_socket.bind (address->getSockAddr ());
+		int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
+
+		result =
+			m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof (reuseAddrValue)) &&
+			m_socket.bind (address->getSockAddr ());
+
 		if (!result)
 		{
 			propagateLastError ();
@@ -327,38 +156,17 @@ Socket::openImpl (
 		}
 	}
 
-	m_isOpen = true;
-	m_family = family_s;
+	AsyncIoDevice::open ();
 
-	if (protocol == IPPROTO_UDP)
-	{
-		m_ioFlags |= IoFlag_Udp;
-		setBroadcastEnabled (true);
-	}
+	if (family_s == AF_INET6)
+		m_ioThreadFlags |= IoThreadFlag_Ip6;
 
-	if (flags & SocketOpenFlag_Asynchronous)
-	{
-		m_ioFlags |= IoFlag_Asynchronous;
+	if (protocol == IPPROTO_TCP)
+		m_ioThreadFlags |= IoThreadFlag_Tcp;
+	else
+		m_options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
 
-		result = m_socket.setBlockingMode (false);
-		if (!result)
-		{
-			propagateLastError ();
-			return false;
-		}
-
-#if (_JNC_OS_WIN)
-		m_ioThreadEvent.reset ();
-#elif (_JNC_OS_POSIX)
-		m_selfPipe.create ();
-#endif
-
-		if (protocol == IPPROTO_UDP)
-			wakeIoThread (); // it's ok to wake before start
-
-		m_ioThread.start ();
-	}
-
+	m_ioThread.start ();
 	return true;
 }
 
@@ -369,266 +177,227 @@ Socket::close ()
 	if (!m_socket.isOpen ())
 		return;
 
-	if (m_ioFlags & IoFlag_Asynchronous)
-	{
-		m_ioLock.lock ();
-		m_ioFlags |= IoFlag_Closing;
-		wakeIoThread ();
-		m_ioLock.unlock ();
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Closing;
+	wakeIoThread ();
+	m_lock.unlock ();
 
-		GcHeap* gcHeap = m_runtime->getGcHeap ();
-		gcHeap->enterWaitRegion ();
-		m_ioThread.waitAndClose ();
-		gcHeap->leaveWaitRegion ();
-
-#if (_JNC_OS_POSIX)
-		m_selfPipe.close ();
-#endif
-	}
+	GcHeap* gcHeap = m_runtime->getGcHeap ();
+	gcHeap->enterWaitRegion ();
+	m_ioThread.waitAndClose ();
+	gcHeap->leaveWaitRegion ();
 
 	m_socket.close ();
 
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId++;
+	AsyncIoDevice::close ();
 }
 
 bool
 JNC_CDECL
 Socket::connect (DataPtr addressPtr)
 {
-	bool result;
 	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
-
-	if (!(m_ioFlags & IoFlag_Asynchronous))
-	{
-		result = m_socket.connect (address->getSockAddr ());
-	}
-	else
-	{
-		m_ioLock.lock ();
-		if (m_ioFlags & ~IoFlag_Asynchronous)
-		{
-			m_ioLock.unlock ();
-			setError (err::SystemErrorCode_InvalidDeviceState);
-			return false;
-		}
-
-		m_ioLock.unlock ();
-
-		result = m_socket.connect (address->getSockAddr ());
-		if (result)
-		{
-			m_ioLock.lock ();
-			m_ioFlags |= IoFlag_Connecting;
-			wakeIoThread ();
-			m_ioLock.unlock ();
-		}
-	}
-
+	bool result = m_socket.connect (address->getSockAddr ());
 	if (!result)
+	{
 		propagateLastError ();
+		return false;
+	}
+
+	if (result)
+	{
+		m_lock.lock ();
+		m_ioThreadFlags |= IoThreadFlag_Connecting;
+		wakeIoThread ();
+		m_lock.unlock ();
+	}
 
 	return result;
 }
 
 bool
 JNC_CDECL
-Socket::listen (size_t backLog)
+Socket::listen (size_t backLogLimit)
 {
-	bool result;
-
-	if (m_ioFlags & IoFlag_Asynchronous)
+	bool result = m_socket.listen (backLogLimit);
+	if (!result)
 	{
-		m_ioLock.lock ();
-		if (m_ioFlags & ~IoFlag_Asynchronous)
-		{
-			m_ioLock.unlock ();
-			setError (err::SystemErrorCode_InvalidDeviceState);
-			return false;
-		}
-
-		m_ioFlags |= IoFlag_Listening;
-		wakeIoThread ();
-		m_ioLock.unlock ();
+		propagateLastError ();
+		return false;
 	}
 
-	result = m_socket.listen (backLog);
-	if (!result)
-		propagateLastError ();
+	if (result)
+	{
+		m_lock.lock ();
+		m_backLogLimit = backLogLimit;
+		m_ioThreadFlags |= IoThreadFlag_Listening;
+		wakeIoThread ();
+		m_lock.unlock ();
+	}
 
-	return result;
+	return true;
 }
 
 Socket*
 JNC_CDECL
 Socket::accept (DataPtr addressPtr)
 {
-	Socket* connectionSocket = createClass <Socket> (m_runtime);
+	SocketAddress* address = ((SocketAddress*) addressPtr.m_p);
 
-	axl::io::SockAddr sockAddr;
-	bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
-
-#if (_JNC_OS_POSIX)
-	if (m_ioFlags & IoFlag_Asynchronous)
+	m_lock.lock ();
+	if (m_pendingIncomingConnectionList.isEmpty ())
 	{
-		m_ioLock.lock ();
-		m_ioFlags &= ~IoFlag_IncomingConnection;
-		wakeIoThread ();
-		m_ioLock.unlock ();
-	}
-#endif
-
-	if (!result)
-	{
-		propagateLastError ();
-
-		AXL_MEM_DELETE (connectionSocket);
+		m_lock.unlock ();
+		setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
 		return NULL;
 	}
 
-	connectionSocket->setCloseKind (getCloseKind ());
-	connectionSocket->setNagleEnabled (isNagleEnabled ());
+	Accept* accept = m_pendingIncomingConnectionList.removeHead ();
+	m_lock.unlock ();
 
-	if (m_ioFlags & IoFlag_Asynchronous)
-	{
-		connectionSocket->m_ioFlags = IoFlag_Asynchronous | IoFlag_Connected | IoFlag_SocketEventDisabled;
+	Socket* connectionSocket = createClass <Socket> (m_runtime);
+	connectionSocket->m_socket.m_socket.takeOver (&socketEntry->m_value);
+	connectionSocket->setOptions (m_options);
+	connectionSocket->AsyncIoDevice::open ();
+	connectionSocket->m_ioThreadFlags =
+		(m_ioThreadFlags & IoThreadFlag_Ip6) |
+		IoThreadFlag_Tcp |
+		IoThreadFlag_Connected;
 
-#if (_JNC_OS_POSIX)
-		connectionSocket->m_selfPipe.create ();
-#endif
-		connectionSocket->m_ioThread.start ();
-		connectionSocket->wakeIoThread ();
-	}
+	connectionSocket->m_ioThread.start ();
 
-	if (addressPtr.m_p)
-		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);
+	if (address)
+		address->setSockAddr (sockAddr);
 
 	return connectionSocket;
 }
 
 size_t
-Socket::postSend (
-	size_t size,
-	size_t result
-	)
-{
-	if (!(m_ioFlags & IoFlag_Asynchronous))
-	{
-		if (result == -1)
-			propagateLastError ();
-
-		return result;
-	}
-
-	if (result == -1)
-	{
-		err::Error error = err::getLastError ();
-
-#if (_JNC_OS_WIN)
-		if (error->m_code != WSAEWOULDBLOCK)
-#elif (_JNC_OS_POSIX)
-		if (error->m_code != EWOULDBLOCK && error->m_code != EAGAIN)
-#endif
-		{
-			setError (error);
-			return -1;
-		}
-
-		result = 0;
-	}
-
-	if (result < size)
-	{
-		m_ioLock.lock ();
-		if (!(m_ioFlags & IoFlag_WaitingTransmitBuffer))
-		{
-			m_ioFlags |= IoFlag_WaitingTransmitBuffer;
-			wakeIoThread ();
-		}
-
-		m_ioLock.unlock ();
-	}
-
-	return result;
-
-}
-
-size_t
 JNC_CDECL
-Socket::send (
-	DataPtr ptr,
-	size_t size
+Socket::readDatagram (
+	DataPtr userBufferPtr,
+	size_t userBufferSize,
+	DataPtr addressPtr
 	)
 {
-	size_t result = m_socket.send (ptr.m_p, size);
-	return postSend (size, result);
-}
-
-size_t
-JNC_CDECL
-Socket::recv (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	size_t result = m_socket.recv (ptr.m_p, size);
-
-#if (_JNC_OS_POSIX)
-	if (m_ioFlags & IoFlag_Asynchronous)
+	if (!m_isOpen)
 	{
-		m_ioLock.lock ();
-		m_ioFlags &= ~IoFlag_IncomingData;
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
+		return -1;
+	}
+
+	SocketAddress* address = ((SocketAddress*) addressPtr.m_p);
+
+	m_lock.lock ();
+
+	if (m_readMetaList.isEmpty ())
+	{
+		m_lock.unlock ();
+		if (address)
+			memset (address, 0, sizeof (SocketAddress));
+
+		return 0;
+	}
+
+	// we need to remove the whole datagram, even if the user buffer is too small
+
+	ReadWriteMeta* meta = *m_readMetaList.getHead ();
+	size_t datagramSize = meta->m_blockSize;
+
+	sl::Array <char> datagram;
+	char* p;
+
+	if (userBufferSize >= datagramSize)
+	{
+		p = (char*) userBufferPtr.m_p;
+	}
+	else
+	{
+		datagram.setCount (datagramSize);
+		p = datagram;
+	}
+
+	size_t result = m_readBuffer.read (p, datagramSize);
+	if (!m_readOverflowBuffer.isEmpty ())
+	{
+		p += result;
+		datagramSize -= result;
+
+		size_t overflowSize = m_readOverflowBuffer.getCount ();
+		size_t extraSize = AXL_MIN (overflowSize, datagramSize);
+
+		memcpy (p, m_readOverflowBuffer, extraSize);
+		result += extraSize;
+
+		size_t movedSize = m_readBuffer.write (m_readOverflowBuffer + extraSize, overflowSize - extraSize);
+		m_readOverflowBuffer.remove (0, movedSize);
+	}
+
+	if (userBufferSize < datagramSize)
+		memcpy (userBufferPtr.m_p, datagram, userBufferSize);
+
+	if (address)
+	{
+		if (meta->m_paramSize >= sizeof (SocketAddress))
+			(*(SocketAddress*) addressPtr.m_p) = *(SocketAddress*) (meta + 1);
+		else
+			memset (addressPtr.m_p, 0, sizeof (SocketAddress));
+	}
+
+	m_readMetaList.remove (meta);
+	m_freeReadWriteMetaList.insertHead (meta);
+
+	if (result)
+	{
+		if (m_readMetaList.isEmpty ())
+			m_activeEvents &= ~AsyncIoEvent_IncomingData;
+
 		wakeIoThread ();
-		m_ioLock.unlock ();
 	}
-#endif
 
-	if (result == -1)
-		propagateLastError ();
+	ASSERT (isReadBufferValid ());
+	m_lock.unlock ();
 
 	return result;
 }
 
 size_t
 JNC_CDECL
-Socket::sendTo (
+Socket::writeDatagram (
 	DataPtr ptr,
 	size_t size,
 	DataPtr addressPtr
 	)
 {
-	axl::io::SockAddr sockAddr = ((const SocketAddress*) addressPtr.m_p)->getSockAddr ();
-	size_t result = m_socket.sendTo (ptr.m_p, size, sockAddr);
-	return postSend (size, result);
-}
-
-size_t
-JNC_CDECL
-Socket::recvFrom (
-	DataPtr ptr,
-	size_t size,
-	DataPtr addressPtr
-	)
-{
-	axl::io::SockAddr sockAddr;
-	size_t result = m_socket.recvFrom (ptr.m_p, size, &sockAddr);
-
-#if (_JNC_OS_POSIX)
-	if (m_ioFlags & IoFlag_Asynchronous)
+	if (!m_isOpen || (m_ioThreadFlags & IoThreadFlag_Tcp))
 	{
-		m_ioLock.lock ();
-		m_ioFlags &= ~IoFlag_IncomingData;
-		wakeIoThread ();
-		m_ioLock.unlock ();
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
+		return -1;
 	}
-#endif
 
-	if (result == -1)
-		propagateLastError ();
+	SocketAddress* address = ((SocketAddress*) addressPtr.m_p);
 
-	if (addressPtr.m_p)
-		((SocketAddress*) addressPtr.m_p)->setSockAddr (sockAddr);
+	m_lock.lock ();
+	size_t result = m_writeBuffer.write (ptr.m_p, size);
+
+	if (result)
+	{
+		ReadWriteMeta* meta = createReadWriteMeta (sizeof (axl::io::SockAddr));
+		meta->m_blockSize = result;
+
+		if (address)
+			*(axl::io::SockAddr*) (meta + 1) = address->getSockAddr ();
+
+		m_writeMetaList.insertTail (meta);
+
+		if (m_writeBuffer.isFull ())
+			m_activeEvents &= ~AsyncIoEvent_TransmitBufferReady;
+
+		wakeIoThread ();
+	}
+
+	ASSERT (isWriteBufferValid ());
+	m_lock.unlock ();
 
 	return result;
 }
@@ -638,39 +407,35 @@ Socket::ioThreadFunc ()
 {
 	ASSERT (m_socket.isOpen ());
 
-#if (_JNC_OS_WIN)
-	m_ioThreadEvent.wait ();
-#elif (_JNC_OS_POSIX)
-	char buffer [256];
-	m_selfPipe.read (buffer, sizeof (buffer));
-#endif
-
-	uint_t ioFlags = m_ioFlags;
-	if (ioFlags & IoFlag_Closing)
+	m_lock.lock ();
+	if (!(m_ioThreadFlags & IoThreadFlag_Tcp))
 	{
-		return;
-	}
-	else if (ioFlags & IoFlag_Udp)
-	{
+		m_lock.unlock ();
 		sendRecvLoop ();
 	}
-	else if (ioFlags & IoFlag_Connected)
+	else
 	{
-		bool result = sendRecvLoop ();
-		uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
-		fireSocketEvent (SocketEventCode_Disconnected, flags);
-	}
-	else if (ioFlags & IoFlag_Listening)
-	{
-		acceptLoop ();
-	}
-	else if (ioFlags & IoFlag_Connecting)
-	{
-		if (connectLoop ())
+		sleepIoThread ();
+
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
-			bool result = sendRecvLoop ();
-			uint_t flags = result ? 0 : SocketDisconnectEventFlag_Reset;
-			fireSocketEvent (SocketEventCode_Disconnected, flags);
+			m_lock.unlock ();
+		}
+		else if (m_ioThreadFlags & IoThreadFlag_Connecting)
+		{
+			m_lock.unlock ();
+			connectLoop () && sendRecvLoop ();
+		}
+		else if (m_ioThreadFlags & IoThreadFlag_Listening)
+		{
+			m_lock.unlock ();
+			acceptLoop ();
+		}
+		else if (m_ioThreadFlags & IoThreadFlag_Connected)
+		{
+			m_lock.unlock ();
+			sendRecvLoop ();
 		}
 	}
 }
@@ -685,7 +450,7 @@ Socket::connectLoop ()
 	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_CONNECT);
 	if (!result)
 	{
-		fireSocketEvent (SocketEventCode_ConnectError, 0, err::getLastError ());
+		setIoErrorEvent ();
 		return false;
 	}
 
@@ -701,19 +466,27 @@ Socket::connectLoop ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-			fireSocketEvent (SocketEventCode_ConnectError, 0, err::getLastError ());
+			setIoErrorEvent (err::getLastSystemErrorCode ());
 			return false;
 
 		case WAIT_OBJECT_0:
-			fireSocketEvent (SocketEventCode_ConnectCancelled);
-			return false;
+			m_lock.lock ();
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
+			{
+				m_lock.unlock ();
+				setIoErrorEvent (err::SystemErrorCode_Cancelled);
+				return false;
+			}
+
+			m_lock.unlock ();
+			break;
 
 		case WAIT_OBJECT_0 + 1:
 			WSANETWORKEVENTS networkEvents;
 			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
 			if (!result)
 			{
-				fireSocketEvent (SocketEventCode_ConnectCancelled);
+				setIoErrorEvent ();
 				return false;
 			}
 
@@ -722,12 +495,12 @@ Socket::connectLoop ()
 				int error = networkEvents.iErrorCode [FD_CONNECT_BIT];
 				if (error)
 				{
-					fireSocketEvent (SocketEventCode_ConnectError, 0, err::Error (error));
+					setIoErrorEvent (error);
 					return false;
 				}
 				else
 				{
-					fireSocketEvent (SocketEventCode_ConnectCompleted);
+					setEvents (SocketEvent_Connected);
 					return true;
 				}
 			}
@@ -758,26 +531,56 @@ Socket::acceptLoop ()
 		switch (waitResult)
 		{
 		case WAIT_FAILED:
-		case WAIT_OBJECT_0:
+			setIoErrorEvent (err::getLastSystemErrorCode ());
 			return;
+
+		case WAIT_OBJECT_0:
+			m_lock.lock ();
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
+			{
+				m_lock.unlock ();
+				setIoErrorEvent (err::SystemErrorCode_Cancelled);
+				return;
+			}
+
+			m_lock.unlock ();
+			break;
 
 		case WAIT_OBJECT_0 + 1:
 			WSANETWORKEVENTS networkEvents;
 			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
 			if (!result)
+			{
+				setIoErrorEvent ();
 				return;
+			}
 
 			if (networkEvents.lNetworkEvents & FD_ACCEPT)
 			{
 				int error = networkEvents.iErrorCode [FD_ACCEPT_BIT];
-				if (!error)
-					fireSocketEvent (SocketEventCode_IncomingConnection);
+				if (error)
+				{
+					setIoErrorEvent (error);
+					return;
+				}
+
+				axl::io::SockAddr sockAddr;
+				bool result = m_socket.accept (&connectionSocket->m_socket, &sockAddr);
+				if (!result)
+				{
+					propagateLastError ();
+					return NULL;
+				}
+
+				setEvents (SocketEvent_IncomingConnection);
 			}
 
 			break;
 		}
 	}
 }
+
+#if 0
 
 bool
 Socket::sendRecvLoop ()
@@ -793,17 +596,17 @@ Socket::sendRecvLoop ()
 	for (;;)
 	{
 		uint_t eventMask = FD_READ | FD_CLOSE;
-		m_ioLock.lock ();
-		if (m_ioFlags & IoFlag_Closing)
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
-			m_ioLock.unlock ();
+			m_lock.unlock ();
 			return true;
 		}
 
-		if (m_ioFlags & IoFlag_WaitingTransmitBuffer)
+		if (m_ioThreadFlags & IoThreadFlag_WaitingTransmitBuffer)
 			eventMask |= FD_WRITE;
 
-		m_ioLock.unlock ();
+		m_lock.unlock ();
 
 		bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, eventMask);
 		if (!result)
@@ -850,10 +653,10 @@ Socket::sendRecvLoop ()
 				if (error)
 					return false;
 
-				m_ioLock.lock ();
-				ASSERT (m_ioFlags & IoFlag_WaitingTransmitBuffer);
-				m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
-				m_ioLock.unlock ();
+				m_lock.lock ();
+				ASSERT (m_ioThreadFlags & IoThreadFlag_WaitingTransmitBuffer);
+				m_ioThreadFlags &= ~IoThreadFlag_WaitingTransmitBuffer;
+				m_lock.unlock ();
 
 				fireSocketEvent (SocketEventCode_TransmitBufferReady);
 			}
@@ -862,6 +665,8 @@ Socket::sendRecvLoop ()
 		}
 	}
 }
+
+#endif
 
 #else
 
@@ -926,18 +731,18 @@ Socket::acceptLoop ()
 
 		FD_SET (m_selfPipe.m_readFile, &readSet);
 
-		m_ioLock.lock ();
+		m_lock.lock ();
 
-		if (m_ioFlags & IoFlag_Closing)
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
-			m_ioLock.unlock ();
+			m_lock.unlock ();
 			break;
 		}
 
-		if (!(m_ioFlags & IoFlag_IncomingConnection))  // don't re-issue select if not handled yet
+		if (!(m_ioThreadFlags & IoThreadFlag_IncomingConnection))  // don't re-issue select if not handled yet
 			FD_SET (m_socket.m_socket, &readSet);
 
-		m_ioLock.unlock ();
+		m_lock.unlock ();
 
 		result = select (selectFd, &readSet, NULL, NULL, NULL);
 		if (result == -1)
@@ -951,10 +756,10 @@ Socket::acceptLoop ()
 
 		if (FD_ISSET (m_socket.m_socket, &readSet))
 		{
-			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingConnection));
-			m_ioFlags |= IoFlag_IncomingConnection;
-			m_ioLock.unlock ();
+			m_lock.lock ();
+			ASSERT (!(m_ioThreadFlags & IoThreadFlag_IncomingConnection));
+			m_ioThreadFlags |= IoThreadFlag_IncomingConnection;
+			m_lock.unlock ();
 
 			fireSocketEvent (SocketEventCode_IncomingConnection);
 		}
@@ -977,24 +782,24 @@ Socket::sendRecvLoop ()
 
 		FD_SET (m_selfPipe.m_readFile, &readSet);
 
-		m_ioLock.lock ();
+		m_lock.lock ();
 
-		if (m_ioFlags & IoFlag_Closing)
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
-			m_ioLock.unlock ();
+			m_lock.unlock ();
 			return true;
 		}
 
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
+		if (!(m_ioThreadFlags & IoThreadFlag_IncomingData)) // don't re-issue select if not handled yet
 			FD_SET (m_socket.m_socket, &readSet);
 
-		if (m_ioFlags & IoFlag_WaitingTransmitBuffer)
+		if (m_ioThreadFlags & IoThreadFlag_WaitingTransmitBuffer)
 		{
 			FD_SET (m_socket.m_socket, &writeSet);
 			writeSetPtr = &writeSet;
 		}
 
-		m_ioLock.unlock ();
+		m_lock.unlock ();
 
 		result = select (selectFd, &readSet, writeSetPtr, NULL, NULL);
 		if (result == -1)
@@ -1018,20 +823,20 @@ Socket::sendRecvLoop ()
 				return error == 0; // probably, ECONNRESET
 			}
 
-			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-			m_ioFlags |= IoFlag_IncomingData;
-			m_ioLock.unlock ();
+			m_lock.lock ();
+			ASSERT (!(m_ioThreadFlags & IoThreadFlag_IncomingData));
+			m_ioThreadFlags |= IoThreadFlag_IncomingData;
+			m_lock.unlock ();
 
 			fireSocketEvent (SocketEventCode_IncomingData);
 		}
 
 		if (FD_ISSET (m_socket.m_socket, &writeSet))
 		{
-			m_ioLock.lock ();
-			ASSERT (m_ioFlags & IoFlag_WaitingTransmitBuffer);
-			m_ioFlags &= ~IoFlag_WaitingTransmitBuffer;
-			m_ioLock.unlock ();
+			m_lock.lock ();
+			ASSERT (m_ioThreadFlags & IoThreadFlag_WaitingTransmitBuffer);
+			m_ioThreadFlags &= ~IoThreadFlag_WaitingTransmitBuffer;
+			m_lock.unlock ();
 
 			fireSocketEvent (SocketEventCode_TransmitBufferReady);
 		}

@@ -162,6 +162,16 @@ bitflag enum SerialStatusLines
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum SerialOptions
+{
+	KeepReadBlockSize,
+	KeepWriteBlockSize,
+	WinReadCheckComstat,
+	WinReadWaitFirstChar,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 /**
 	\import io_base.jncx
 	\import io_Serial.jnc
@@ -205,16 +215,6 @@ bitflag enum SerialEvents
 	RingOff,
 	DcdOn,
 	DcdOff,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bitflag enum SerialOptions
-{
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
-	WinReadCheckComstat,
-	WinReadWaitFirstChar,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -456,7 +456,7 @@ opaque class Serial
 
 	bool errorcode cancelWait (intptr handle);
 
-	uint_t errorcode blockingWait (
+	SerialEvents errorcode blockingWait (
 		SerialEvents eventMask,
 		uint_t timeout
 		);

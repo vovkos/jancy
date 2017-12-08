@@ -69,6 +69,7 @@ set (
 	JNC_LIST
 	jnc/io_Serial.jnc
 	jnc/io_Socket.jnc
+	jnc/io_SocketOptions.jnc
 	jnc/io_SocketAddress.jnc
 	jnc/io_SocketAddressResolver.jnc
 	jnc/io_NetworkAdapter.jnc
