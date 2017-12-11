@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_io_Ssh.h"
 #include "jnc_io_SshLib.h"
-#include "jnc_io_SocketOptions.h"
 #include "jnc_Error.h"
 
 namespace jnc {
@@ -41,7 +40,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SshChannel)
 	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &SshChannel::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY ("m_options",         &SshChannel::setOptions)
 
-	JNC_MAP_FUNCTION ("open",         &SshChannel::open)
+	JNC_MAP_FUNCTION ("open",         &SshChannel::open_0)
+	JNC_MAP_OVERLOAD (&SshChannel::open_1)
 	JNC_MAP_FUNCTION ("close",        &SshChannel::close)
 	JNC_MAP_FUNCTION ("connect",      &SshChannel::connect)
 	JNC_MAP_FUNCTION ("authenticate", &SshChannel::authenticate)
@@ -68,107 +68,26 @@ SshChannel::SshChannel ()
 
 bool
 JNC_CDECL
-SshChannel::setOptions (uint_t options)
+SshChannel::open_0 (uint16_t family)
 {
-	bool result;
+	bool result = SocketBase::open (family, IPPROTO_TCP, NULL);
+	if (!result)
+		return false;
 
-	if (!m_isOpen)
-	{
-		m_options = options;
-		return true;
-	}
-
-	if ((options & SocketOption_TcpNagle) ^ (m_options & SocketOption_TcpNagle))
-	{
-		int value = !(options & SocketOption_TcpNagle);
-		result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
-		if (!result)
-		{
-			propagateLastError ();
-			return false;
-		}
-	}
-
-	if ((options & SocketOption_TcpReset) ^ (m_options & SocketOption_TcpReset))
-	{
-		linger value;
-		value.l_onoff = (options & SocketOption_TcpReset) != 0;
-		value.l_linger = 0;
-
-		result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
-		if (!result)
-		{
-			propagateLastError ();
-			return false;
-		}
-	}
-
-	m_lock.lock ();
-	m_options = options;
-	wakeIoThread ();
-	m_lock.unlock ();
+	m_ioThread.start ();
 	return true;
 }
 
-axl::io::SockAddr
-JNC_CDECL
-SshChannel::getAddress ()
-{
-	axl::io::SockAddr sockAddr;
-	m_socket.getAddress (&sockAddr);
-	return sockAddr;
-}
-
-axl::io::SockAddr
-JNC_CDECL
-SshChannel::getPeerAddress ()
-{
-	axl::io::SockAddr sockAddr;
-	m_socket.getPeerAddress (&sockAddr);
-	return sockAddr;
-}
-
-
 bool
 JNC_CDECL
-SshChannel::open (DataPtr addressPtr)
+SshChannel::open_1 (DataPtr addressPtr)
 {
-	close ();
+	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
 
-	int tcpNoDelayValue = !(m_options & SocketOption_TcpNagle);
-
-	linger lingerValue;
-	lingerValue.l_onoff = (m_options & SocketOption_TcpReset) != 0;
-	lingerValue.l_linger = 0;
-
-	int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
-
-	bool result = 
-		m_socket.open (AF_INET, SOCK_STREAM, IPPROTO_TCP) &&
-		m_socket.setBlockingMode (false) &&
-		m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof (tcpNoDelayValue)) &&
-		m_socket.setOption (SOL_SOCKET, SO_LINGER, &lingerValue, sizeof (lingerValue));
-		m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof (reuseAddrValue));
-
+	bool result = SocketBase::open (address ? address->m_family : AF_INET, IPPROTO_TCP, address);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
-	if (addressPtr.m_p)
-	{
-		m_localAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
-
-		result = m_socket.bind (m_localAddress.getSockAddr ());
-		if (!result)
-		{
-			propagateLastError ();
-			return false;
-		}
-	}
-
-	AsyncIoDevice::open ();
 	m_ioThread.start ();
 	return true;
 }
@@ -191,7 +110,6 @@ SshChannel::close ()
 	gcHeap->leaveWaitRegion ();
 
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
-	m_socket.close ();
 
 	if (m_connectParams)
 	{
@@ -199,7 +117,7 @@ SshChannel::close ()
 		m_connectParams = NULL;
 	}
 
-	AsyncIoDevice::close ();
+	SocketBase::close ();
 }
 
 bool
@@ -323,7 +241,7 @@ SshChannel::ioThreadFunc ()
 
 	m_lock.unlock ();
 
-	bool result = tcpConnectLoop () && sshConnect ();
+	bool result = tcpConnect (SshEvent_TcpConnectCompleted) && sshConnect ();
 	if (result)
 	{
 		wakeIoThread ();
@@ -481,7 +399,7 @@ SshChannel::sshConnect ()
 				return false;
 			}
 
-			result = tcpConnectLoop ();
+			result = tcpConnect (SshEvent_TcpConnectCompleted);
 			if (!result)
 				return false;
 
@@ -584,73 +502,6 @@ SshChannel::sshConnect ()
 }
 
 #if (_JNC_OS_WIN)
-
-bool
-SshChannel::tcpConnectLoop ()
-{
-	sys::Event socketEvent;
-
-	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_CONNECT);
-	if (!result)
-	{
-		setIoErrorEvent (err::getLastError ());
-		return false;
-	}
-
-	HANDLE waitTable [] =
-	{
-		m_ioThreadEvent.m_event,
-		socketEvent.m_event,
-	};
-
-	for (;;)
-	{
-		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
-		switch (waitResult)
-		{
-		case WAIT_FAILED:
-			setIoErrorEvent (err::getLastSystemErrorCode ());
-			return false;
-
-		case WAIT_OBJECT_0:
-			m_lock.lock ();
-			if (m_ioThreadFlags & IoThreadFlag_Closing)
-			{
-				m_lock.unlock ();
-				return false;
-			}
-
-			m_lock.unlock ();
-			break;
-
-		case WAIT_OBJECT_0 + 1:
-			WSANETWORKEVENTS networkEvents;
-			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
-			if (!result)
-			{
-				setIoErrorEvent ();
-				return false;
-			}
-
-			if (networkEvents.lNetworkEvents & FD_CONNECT)
-			{
-				int error = networkEvents.iErrorCode [FD_CONNECT_BIT];
-				if (error)
-				{
-					setIoErrorEvent (error);
-					return false;
-				}
-				else
-				{
-					setEvents (SshEvent_TcpConnectCompleted);
-					return true;
-				}
-			}
-
-			break;
-		}
-	}
-}
 
 void
 SshChannel::sshReadWriteLoop ()
@@ -755,19 +606,16 @@ SshChannel::sshReadWriteLoop ()
 			ssize_t actualSize = libssh2_channel_read (m_sshChannel, readBlock, readBlock.getCount ());
 			if (actualSize == LIBSSH2_ERROR_EAGAIN)
 			{
-				actualSize = 0; // retry again after we receive FD_READ
 				canReadSocket = false;
 			}
 			else if (actualSize < 0)
 			{
-				setIoErrorEvent (err::Errno ((int) actualSize));
-				m_lock.unlock ();
+				setIoErrorEvent_l (err::Errno ((int) actualSize));
 				return;
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents (SshEvent_TcpDisconnected);
-				m_lock.unlock ();
+				setEvents_l (SshEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -776,34 +624,30 @@ SshChannel::sshReadWriteLoop ()
 			}
 		}
 
-		if (canWriteSocket)
+		while (canWriteSocket)
 		{
 			getNextWriteBlock (&writeBlock);
-			if (!writeBlock.isEmpty ())
-			{
-				size_t blockSize = writeBlock.getCount ();
-				ssize_t actualSize = libssh2_channel_write (m_sshChannel, writeBlock, blockSize);
-				if (actualSize == LIBSSH2_ERROR_EAGAIN)
-				{
-					canWriteSocket = false;
-				}
-				else if (actualSize < 0)
-				{
-					setIoErrorEvent (err::Errno ((int) actualSize));
-					m_lock.unlock ();
-					return;
-				}
-				else if ((size_t) actualSize < blockSize)
-				{
-					writeBlock.remove (0, actualSize);
-				}
-				else
-				{
-					writeBlock.clear ();
-				}
+			if (writeBlock.isEmpty ())
+				break;
 
-				if (canWriteSocket)
-					m_ioThreadEvent.signal (); // check again next cycle
+			size_t blockSize = writeBlock.getCount ();
+			ssize_t actualSize = libssh2_channel_write (m_sshChannel, writeBlock, blockSize);
+			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			{
+				canWriteSocket = false;
+			}
+			else if (actualSize < 0)
+			{
+				setIoErrorEvent_l (err::Errno ((int) actualSize));
+				return;
+			}
+			else if ((size_t) actualSize < blockSize)
+			{
+				writeBlock.remove (0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear ();
 			}
 		}
 
@@ -816,8 +660,7 @@ SshChannel::sshReadWriteLoop ()
 			}
 			else if (sshResult < 0)
 			{
-				setIoErrorEvent (err::Errno ((int) sshResult));
-				m_lock.unlock ();
+				setIoErrorEvent_l (err::Errno ((int) sshResult));
 				return;
 			}
 			else
@@ -835,54 +678,7 @@ SshChannel::sshReadWriteLoop ()
 	}
 }
 
-#else
-
-bool
-SshChannel::tcpConnect ()
-{
-	int result;
-	int selectFd = AXL_MAX (m_socket.m_socket, m_selfPipe.m_readFile) + 1;
-
-	// connection loop
-
-	for (;;)
-	{
-		fd_set readSet = { 0 };
-		fd_set writeSet = { 0 };
-
-		FD_SET (m_selfPipe.m_readFile, &readSet);
-		FD_SET (m_socket.m_socket, &writeSet);
-
-		result = select (selectFd, &readSet, &writeSet, NULL, NULL);
-		if (result == -1)
-		{
-			setIoErrorEvent (errno);
-			return false;
-		}
-
-		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
-		{
-			setEvents (SshEvent_ConnectCancelled);
-			return false;
-		}
-
-		if (FD_ISSET (m_socket.m_socket, &writeSet))
-		{
-			int error = m_socket.getError ();
-			if (error)
-			{
-				setIoErrorEvent (error);
-				return false;
-			}
-			else
-			{
-				m_socket.setBlockingMode (true); // turn blocking mode back on
-				setEvents (SshEvent_TcpConnectCompleted);
-				return true;
-			}
-		}
-	}
-}
+#elif (_JNC_OS_POSIX)
 
 #endif
 

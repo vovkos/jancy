@@ -64,7 +64,7 @@ struct SerialHdr: IfaceHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Serial: 
+class Serial:
 	public SerialHdr,
 	public AsyncIoDevice
 {
@@ -93,9 +93,8 @@ protected:
 	};
 
 protected:
-	IoThread m_ioThread;
-
 	axl::io::Serial m_serial;
+	IoThread m_ioThread;
 
 #if (_AXL_OS_WIN)
 	dword_t m_serialEvents;
@@ -132,28 +131,28 @@ public:
 	JNC_CDECL
 	setReadParallelism (uint_t count)
 	{
-		return setReadParallelismImpl (&m_readParallelism, count ? count : Def_ReadParallelism);
+		return AsyncIoDevice::setReadParallelism (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	bool
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
 	setReadBufferSize (size_t size)
 	{
-		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
 	setWriteBufferSize (size_t size)
 	{
-		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
@@ -215,7 +214,7 @@ public:
 		return bufferedWrite (ptr, size);
 	}
 
-	handle_t 
+	handle_t
 	JNC_CDECL
 	wait (
 		uint_t eventMask,

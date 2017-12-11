@@ -33,7 +33,7 @@ namespace io {
 bitflag enum SshEvents
 {
 	/**
-		An IO error occured on the SSH channel; detailed information about the error is available at `io.AsyncDevice.m_ioError`. 
+		An IO error occured on the SSH channel; detailed information about the error is available at `io.AsyncDevice.m_ioError`.
 	*/
 
 	IoError,
@@ -237,7 +237,7 @@ opaque class SshChannel
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
-	
+
 	SocketOptions autoget property m_options;
 
 	io.SshEvents readonly volatile m_activeEvents;
@@ -252,13 +252,22 @@ opaque class SshChannel
 	construct ();
 	destruct ();
 
+
 	/**
 		Opens a ``TCP`` socket this connection will use for transport.
 
 		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (SocketAddress const* address = null);
+	bool errorcode open (AddressFamily family);
+
+	/**
+		Opens a ``TCP`` socket this connection will use for transport.
+
+		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+	*/
+
+	bool errorcode open (SocketAddress const* address);
 
 	/**
 		Closes ``SSH`` channel and underlying ``TCP`` socket; does nothing if connection is not and not being established.

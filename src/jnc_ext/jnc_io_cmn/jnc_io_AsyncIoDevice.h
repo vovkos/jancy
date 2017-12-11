@@ -39,7 +39,8 @@ class AsyncIoDevice
 protected:
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Closing = 0x0001,
+		IoThreadFlag_Closing  = 0x0001,
+		IoThreadFlag_Datagram = 0x0002,
 	};
 
 	struct Wait: sl::ListLink
@@ -145,25 +146,25 @@ protected:
 	sleepIoThread ();
 
 	bool
-	setReadParallelismImpl (
+	setReadParallelism (
 		uint_t* p,
 		uint_t count
 		);
 
 	bool
-	setReadBlockSizeImpl (
+	setReadBlockSize (
 		size_t* p,
 		size_t size
 		);
 
 	bool
-	setReadBufferSizeImpl (
+	setReadBufferSize (
 		size_t* p,
 		size_t size
 		);
 
 	bool
-	setWriteBufferSizeImpl (
+	setWriteBufferSize (
 		size_t* p,
 		size_t size
 		);
@@ -175,7 +176,36 @@ protected:
 	processWaitLists_l ();
 
 	void
-	setEvents (uint_t events);
+	setEvents_l (uint_t events);
+
+	void
+	setEvents (uint_t events)
+	{
+		m_lock.lock ();
+		setEvents_l (events);
+	}
+
+	void
+	setErrorEvent_l (
+		uint_t event,
+		const err::Error& error
+		)
+	{
+		m_lock.unlock ();
+		setErrorEvent (event, error);
+	}
+
+	void
+	setIoErrorEvent_l (const err::Error& error)
+	{
+		setErrorEvent_l (AsyncIoEvent_IoError, error);
+	}
+
+	void
+	setIoErrorEvent_l ()
+	{
+		setErrorEvent_l (AsyncIoEvent_IoError, err::getLastError ());
+	}
 
 	void
 	setErrorEvent (
@@ -204,23 +234,38 @@ protected:
 	size_t
 	bufferedRead (
 		DataPtr ptr,
-		size_t size
+		size_t size,
+		sl::Array <char>* params = NULL
+		);
+
+	size_t
+	bufferedReadImpl_l (
+		void* p,
+		size_t size,
+		sl::Array <char>* params = NULL
 		);
 
 	size_t
 	bufferedWrite (
-		DataPtr ptr,
-		size_t size
+		DataPtr dataPtr,
+		size_t dataSize,
+		const void* params = NULL,
+		size_t paramSize = 0
 		);
 
 	void
 	addToReadBuffer (
 		const void* p,
-		size_t size
+		size_t size,
+		const void* params = NULL,
+		size_t paramSize = 0
 		);
 
 	void
-	getNextWriteBlock (sl::Array <char>* writeBlock);
+	getNextWriteBlock (
+		sl::Array <char>* data,
+		sl::Array <char>* params = NULL
+		);
 
 	void
 	updateReadWriteBufferEvents ();

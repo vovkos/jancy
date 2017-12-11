@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_io_AsyncIoDevice.h"
-#include "jnc_io_SocketAddress.h"
+#include "jnc_io_SocketBase.h"
 
 namespace jnc {
 namespace io {
@@ -32,7 +32,7 @@ enum SshEvent
 	SshEvent_SshPtyRequestCompleted   = 0x0400,
 	SshEvent_SshConnectCompleted      = 0x0800,
 
-	SshEvent_FullyConnected = 
+	SshEvent_FullyConnected =
 		SshEvent_TcpConnectCompleted |
 		SshEvent_SshHandshakeCompleted |
 		SshEvent_SshAuthenticateCompleted |
@@ -83,9 +83,9 @@ struct SshChannelHdr: IfaceHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class SshChannel: 
+class SshChannel:
 	public SshChannelHdr,
-	public AsyncIoDevice
+	public SocketBase
 {
 	friend class IoThread;
 
@@ -124,7 +124,6 @@ protected:
 	};
 
 protected:
-	axl::io::Socket m_socket;
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
 
@@ -151,42 +150,58 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
 	}
 
+	static
+	SocketAddress
+	JNC_CDECL
+	getAddress (SshChannel* self)
+	{
+		return self->SocketBase::getAddress ();
+	}
+
+	static
+	SocketAddress
+	JNC_CDECL
+	getPeerAddress (SshChannel* self)
+	{
+		return self->SocketBase::getPeerAddress ();
+	}
+
 	bool
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
 	setReadBufferSize (size_t size)
 	{
-		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
 	setWriteBufferSize (size_t size)
 	{
-		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setOptions (uint_t flags);
+	setOptions (uint_t flags)
+	{
+		return SocketBase::setOptions (flags);
+	}
 
-	axl::io::SockAddr
-	JNC_CDECL
-	getAddress ();
-
-	axl::io::SockAddr
-	JNC_CDECL
-	getPeerAddress ();
 
 	bool
 	JNC_CDECL
-	open (DataPtr address);
+	open_0 (uint16_t family);
+
+	bool
+	JNC_CDECL
+	open_1 (DataPtr addressPtr);
 
 	void
 	JNC_CDECL
@@ -243,7 +258,7 @@ public:
 		return bufferedWrite (ptr, size);
 	}
 
-	handle_t 
+	handle_t
 	JNC_CDECL
 	wait (
 		uint_t eventMask,
@@ -279,9 +294,6 @@ protected:
 
 	int
 	sshAsyncLoop (int result);
-
-	bool
-	tcpConnectLoop ();
 
 	bool
 	sshConnect ();

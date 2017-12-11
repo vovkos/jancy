@@ -82,9 +82,8 @@ AsyncIoDevice::close ()
 	m_isOpen = false;
 }
 
-
 bool
-AsyncIoDevice::setReadParallelismImpl (
+AsyncIoDevice::setReadParallelism (
 	uint_t* p,
 	uint_t count
 	)
@@ -104,7 +103,7 @@ AsyncIoDevice::setReadParallelismImpl (
 
 
 bool
-AsyncIoDevice::setReadBlockSizeImpl (
+AsyncIoDevice::setReadBlockSize (
 	size_t* p,
 	size_t size
 	)
@@ -123,7 +122,7 @@ AsyncIoDevice::setReadBlockSizeImpl (
 }
 
 bool
-AsyncIoDevice::setReadBufferSizeImpl (
+AsyncIoDevice::setReadBufferSize (
 	size_t* p,
 	size_t size
 	)
@@ -144,7 +143,7 @@ AsyncIoDevice::setReadBufferSizeImpl (
 }
 
 bool
-AsyncIoDevice::setWriteBufferSizeImpl (
+AsyncIoDevice::setWriteBufferSize (
 	size_t* p,
 	size_t size
 	)
@@ -338,7 +337,7 @@ AsyncIoDevice::processWaitLists_l ()
 }
 
 void
-AsyncIoDevice::setEvents (uint_t events)
+AsyncIoDevice::setEvents_l (uint_t events)
 {
 	m_lock.lock ();
 	if (!(m_activeEvents ^ events))
@@ -396,7 +395,8 @@ AsyncIoDevice::isWriteBufferValid ()
 size_t
 AsyncIoDevice::bufferedRead (
 	DataPtr ptr,
-	size_t size
+	size_t size,
+	sl::Array <char>* params
 	)
 {
 	if (!m_isOpen)
@@ -405,13 +405,41 @@ AsyncIoDevice::bufferedRead (
 		return -1;
 	}
 
-	char* p = (char*) ptr.m_p;
-
 	m_lock.lock ();
+	if (m_readMetaList.isEmpty () ||
+		m_readMetaList.getHead ()->m_blockSize <= size ||
+		!(m_ioThreadFlags & IoThreadFlag_Datagram))
+		return bufferedReadImpl_l (ptr.m_p, size, params);
 
-	if (!m_readMetaList.isEmpty ())
+	size_t datagramSize = m_readMetaList.getHead ()->m_blockSize;
+	char datagramBuffer [256];
+	sl::Array <char> datagram (ref::BufKind_Stack, datagramBuffer, sizeof (datagramBuffer));
+	datagram.setCount (datagramSize);
+
+	size_t result = bufferedReadImpl_l (datagram, datagramSize, params);
+	memcpy (ptr.m_p, datagram, size);
+	return result;
+}
+
+size_t
+AsyncIoDevice::bufferedReadImpl_l (
+	void* p0,
+	size_t size,
+	sl::Array <char>* params
+	)
+{
+	char* p = (char*) p0;
+	if (m_readMetaList.isEmpty ())
+	{
+		if (params)
+			params->clear ();
+	}
+	else
 	{
 		ReadWriteMeta* meta = *m_readMetaList.getHead ();
+		if (params)
+			params->copy ((char*) (meta + 1), meta->m_paramSize);
+
 		if (size < meta->m_blockSize)
 		{
 			meta->m_blockSize -= size;
@@ -437,7 +465,7 @@ AsyncIoDevice::bufferedRead (
 		result += extraSize;
 
 		size_t movedSize = m_readBuffer.write (m_readOverflowBuffer + extraSize, overflowSize - extraSize);
-		m_readOverflowBuffer.remove (0, movedSize);
+		m_readOverflowBuffer.remove (0, extraSize + movedSize);
 	}
 
 	if (result)
@@ -456,10 +484,14 @@ AsyncIoDevice::bufferedRead (
 
 size_t
 AsyncIoDevice::bufferedWrite (
-	DataPtr ptr,
-	size_t size
+	DataPtr dataPtr,
+	size_t dataSize,
+	const void* params,
+	size_t paramSize
 	)
 {
+	ASSERT ((m_options & AsyncIoOption_KeepWriteBlockSize) || paramSize == 0);
+
 	if (!m_isOpen)
 	{
 		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
@@ -468,14 +500,14 @@ AsyncIoDevice::bufferedWrite (
 
 	m_lock.lock ();
 
-	size_t result = m_writeBuffer.write (ptr.m_p, size);
-
+	size_t result = m_writeBuffer.write (dataPtr.m_p, dataSize);
 	if (result)
 	{
 		if (m_options & AsyncIoOption_KeepWriteBlockSize)
 		{
-			ReadWriteMeta* meta = createReadWriteMeta ();
+			ReadWriteMeta* meta = createReadWriteMeta (paramSize);
 			meta->m_blockSize = result;
+			memcpy (meta + 1, params, paramSize);
 			m_writeMetaList.insertTail (meta);
 		}
 
@@ -494,7 +526,9 @@ AsyncIoDevice::bufferedWrite (
 void
 AsyncIoDevice::addToReadBuffer (
 	const void* p,
-	size_t size
+	size_t size,
+	const void* params,
+	size_t paramSize
 	)
 {
 	if (!size)
@@ -518,32 +552,32 @@ AsyncIoDevice::addToReadBuffer (
 }
 
 void
-AsyncIoDevice::getNextWriteBlock (sl::Array <char>* writeBlock)
+AsyncIoDevice::getNextWriteBlock (
+	sl::Array <char>* data,
+	sl::Array <char>* params
+	)
 {
-	if (!writeBlock->isEmpty ())
+	if (!data->isEmpty ())
 		return;
 
 	if (m_writeMetaList.isEmpty ())
 	{
-		m_writeBuffer.readAll (writeBlock);
+		m_writeBuffer.readAll (data);
+		if (params)
+			params->clear ();
 	}
 	else
 	{
-		size_t writeBlockSize = m_writeBuffer.getDataSize ();
-		ReadWriteMeta* meta = *m_writeMetaList.getHead ();
-		if (writeBlockSize < meta->m_blockSize)
-		{
-			meta->m_blockSize -= writeBlockSize;
-		}
-		else
-		{
-			writeBlockSize = meta->m_blockSize;
-			m_writeMetaList.remove (meta);
-			m_freeReadWriteMetaList.insertHead (meta);
-		}
+		ReadWriteMeta* meta = m_writeMetaList.removeHead ();
+		ASSERT (meta->m_blockSize <= m_writeBuffer.getDataSize ());
 
-		writeBlock->setCount (writeBlockSize);
-		m_writeBuffer.read (*writeBlock, writeBlockSize);
+		data->setCount (meta->m_blockSize);
+		m_writeBuffer.read (*data, meta->m_blockSize);
+
+		if (params)
+			params->copy ((char*) (meta + 1), meta->m_paramSize);
+
+		m_freeReadWriteMetaList.insertHead (meta);
 	}
 
 	ASSERT (isWriteBufferValid ());

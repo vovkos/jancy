@@ -11,9 +11,7 @@
 
 #pragma once
 
-#include "jnc_io_SocketAddress.h"
-#include "jnc_io_SocketOptions.h"
-#include "jnc_io_AsyncIoDevice.h"
+#include "jnc_io_SocketBase.h"
 
 namespace jnc {
 namespace io {
@@ -42,9 +40,9 @@ struct SocketHdr: IfaceHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Socket: 
+class Socket:
 	public SocketHdr,
-	public AsyncIoDevice
+	public SocketBase
 {
 	friend class IoThread;
 
@@ -73,35 +71,26 @@ protected:
 
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Tcp                   = 0x0010,
-		IoThreadFlag_Ip6                   = 0x0020,
-		IoThreadFlag_Connecting            = 0x0100,
-		IoThreadFlag_Listening             = 0x0200,
-		IoThreadFlag_Connected             = 0x0400,
-		IoThreadFlag_WaitingTransmitBuffer = 0x0800,
-#if (_JNC_OS_POSIX)
-		IoThreadFlag_IncomingData          = 0x1000,
-		IoThreadFlag_IncomingConnection    = 0x2000,
-#endif
+		IoThreadFlag_Connecting         = 0x0100,
+		IoThreadFlag_Listening          = 0x0200,
+		IoThreadFlag_IncomingConnection = 0x0400,
 	};
 
 	struct IncomingConnection: sl::ListLink
 	{
 		axl::io::Socket m_socket;
-		axl::io::SockAddr m_address;
+		axl::io::SockAddr m_sockAddr;
 	};
 
 protected:
 	axl::io::Socket m_socket;
 	IoThread m_ioThread;
 
-	sl::BoxList <IncomingConnection> m_pendingIncomingConnectionList;
-	sl::BoxList <IncomingConnection> m_freeIncomingConnectionList;
+	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
+	sl::StdList <IncomingConnection> m_freeIncomingConnectionList;
 	size_t m_backLogLimit;
 
 public:
-	Socket ();
-
 	~Socket ()
 	{
 		close ();
@@ -117,44 +106,53 @@ public:
 	static
 	SocketAddress
 	JNC_CDECL
-	getAddress (Socket* self);
+	getAddress (Socket* self)
+	{
+		return self->SocketBase::getAddress ();
+	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getPeerAddress (Socket* self);
+	getPeerAddress (Socket* self)
+	{
+		return self->SocketBase::getPeerAddress ();
+	}
 
 	bool
 	JNC_CDECL
 	setReadParallelism (uint_t count)
 	{
-		return setReadParallelismImpl (&m_readParallelism, count ? count : Def_ReadParallelism);
+		return AsyncIoDevice::setReadParallelism (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	bool
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return setReadBlockSizeImpl (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
 	setReadBufferSize (size_t size)
 	{
-		return setReadBufferSizeImpl (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
 	setWriteBufferSize (size_t size)
 	{
-		return setWriteBufferSizeImpl (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setOptions (uint_t flags);
+	setOptions (uint_t flags)
+	{
+		return SocketBase::setOptions (flags);
+	}
 
 	bool
 	JNC_CDECL
@@ -216,20 +214,20 @@ public:
 	size_t
 	JNC_CDECL
 	readDatagram (
-		DataPtr ptr,
-		size_t size,
+		DataPtr dataPtr,
+		size_t dataSize,
 		DataPtr addressPtr
 		);
 
 	size_t
 	JNC_CDECL
 	writeDatagram (
-		DataPtr ptr,
-		size_t size,
+		DataPtr dataPtr,
+		size_t dataSize,
 		DataPtr addressPtr
 		);
 
-	handle_t 
+	handle_t
 	JNC_CDECL
 	wait (
 		uint_t eventMask,
@@ -267,14 +265,20 @@ protected:
 	void
 	ioThreadFunc ();
 
-	bool
-	connectLoop ();
-
 	void
 	acceptLoop ();
 
-	bool
+	void
 	sendRecvLoop ();
+
+	IncomingConnection*
+	createIncomingConnection ()
+	{
+		return !m_freeIncomingConnectionList.isEmpty () ?
+			m_freeIncomingConnectionList.removeHead () :
+			AXL_MEM_NEW (IncomingConnection);
+	}
+
 };
 
 //..............................................................................

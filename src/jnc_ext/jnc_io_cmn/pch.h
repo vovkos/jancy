@@ -17,6 +17,7 @@
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_sys_Event.h"
+#include "axl_err_Errno.h"
 
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_FileHandle.h"
@@ -28,5 +29,9 @@
 #include "jnc_Runtime.h"
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
+
+#if (_AXL_OS_POSIX)
+#	include <netinet/tcp.h>
+#endif
 
 using namespace axl;

@@ -552,8 +552,8 @@ Serial::ioThreadFunc ()
 		if (!isWritingSerial && !m_overlappedWriteBlock.isEmpty ())
 		{
 			result = m_serial.m_serial.overlappedWrite (
-				m_overlappedWriteBlock, 
-				m_overlappedWriteBlock.getCount (), 
+				m_overlappedWriteBlock,
+				m_overlappedWriteBlock.getCount (),
 				&writeOverlapped
 				);
 
@@ -654,13 +654,14 @@ Serial::ioThreadFunc ()
 }
 
 #elif (_JNC_OS_POSIX)
+
 void
 Serial::ioThreadFunc ()
 {
 	ASSERT (m_serial.isOpen ());
 
 	int result;
-	int selectFd = AXL_MAX (m_serial.m_serial, m_selfPipe.m_readFile) + 1;
+	int selectFd = AXL_MAX (m_serial.m_serial, m_ioThreadSelfPipe.m_readFile) + 1;
 
 	sl::Array <char> readBlock;
 	sl::Array <char> writeBlock;
@@ -668,7 +669,6 @@ Serial::ioThreadFunc ()
 	readBlock.setCount (Def_ReadBlockSize);
 
 	bool canReadSerial = false;
-	bool canAddToReadBuffer = false;
 	bool canWriteSerial = false;
 
 	// read/write loop
@@ -678,20 +678,22 @@ Serial::ioThreadFunc ()
 		fd_set readSet = { 0 };
 		fd_set writeSet = { 0 };
 
+		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
+
 		if (!canReadSerial)
-			FD_SET (m_selfPipe.m_readFile, &readSet);
+			FD_SET (m_serial.m_serial, &readSet);
 
 		if (!canWriteSerial)
-			FD_SET (m_selfPipe.m_readFile, &writeSet);
+			FD_SET (m_serial.m_serial, &writeSet);
 
-		result = select (selectFd, &readSet, &writeSet, NULL, NULL);
+		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 			break;
 
-		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
+		if (FD_ISSET (m_ioThreadSelfPipe.m_readFile, &readSet))
 		{
 			char buffer [256];
-			m_selfPipe.read (buffer, sizeof (buffer));
+			m_ioThreadSelfPipe.read (buffer, sizeof (buffer));
 		}
 
 		if (FD_ISSET (m_serial.m_serial, &readSet))
@@ -709,17 +711,6 @@ Serial::ioThreadFunc ()
 		if (FD_ISSET (m_serial.m_serial, &writeSet))
 			canWriteSerial = true;
 
-		size_t readActualSize = 0;
-		if (canReadSerial && canAddToReadBuffer)
-		{
-			readActualSize = m_serial.read (readBlock, readBlock.getCount ());
-			if (readActualSize == -1)
-			{
-				setIoErrorEvent ();
-				return;
-			}
-		}
-
 		m_lock.lock ();
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
@@ -730,81 +721,68 @@ Serial::ioThreadFunc ()
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
-		if (canAddToReadBuffer)
-		{
-			addToReadBuffer (readBlock, readActualSize);
-			readBlock.setCount (m_readBlockSize);
-		}
+		readBlock.setCount (m_readBlockSize); // update read block size
 
-		if (m_readBuffer.isFull ())
+		while (canReadSerial && !m_readBuffer.isFull ())
 		{
-			m_activeEvents |= AsyncIoEvent_ReceiveBufferFull;
-			canAddToReadBuffer = false;
-		}
-		else
-		{
-			canAddToReadBuffer = true;
-		}
-
-		if (!m_readBuffer.isEmpty ())
-			m_activeEvents |= AsyncIoEvent_IncomingData;
-
-		if (writeBlock.isEmpty ())
-		{
-			if (m_writeMetaDataList.isEmpty ())
+			ssize_t actualSize = ::read (m_serial.m_serial, readBlock, readBlock.getCount ());
+			if (actualSize != -1)
 			{
-				m_writeBuffer.readAll (&writeBlock);
-			}
-			else
-			{
-				size_t writeBlockSize = m_writeBuffer.getDataSize ();
-				ReadWriteMetaData* meta = *m_readMetaDataList.getHead ();
-				if (writeBlockSize < meta->m_blockSize)
+				if (errno == EAGAIN)
 				{
-					meta->m_blockSize -= writeBlockSize;
+					canReadSerial = false;
 				}
 				else
 				{
-					writeBlockSize = meta->m_blockSize;
-					m_readMetaDataList.remove (meta);
-					m_freeReadWriteMetaDataList.insertHead (meta);
+					setIoErrorEvent_l (err::Errno (errno));
+					return;
 				}
-
-				writeBlock.setCount (writeBlockSize);
-				m_writeBuffer.read (writeBlock, writeBlockSize);
+			}
+			else
+			{
+				addToReadBuffer (readBlock, actualSize);
 			}
 		}
 
-		if (!m_writeBuffer.isFull ())
-			m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
-
-		if (m_activeEvents != prevActiveEvents)
-			processWaitLists_l ();
-		else
-			m_lock.unlock ();
-
-		if (canWriteSerial && !writeBlock.isEmpty ())
+		while (canWriteSerial)
 		{
-			size_t writeBlockSize = writeBlock.getCount ();
-			size_t writeActualSize = m_serial.write (writeBlock, writeBlockSize);
-			if (writeActualSize == -1)
-			{
-				setIoErrorEvent ();
-				return;
-			}
+			getNextWriteBlock (&writeBlock);
+			if (writeBlock.isEmpty ())
+				break;
 
-			if (writeActualSize < writeBlockSize)
+			size_t blockSize = writeBlock.getCount ();
+			ssize_t actualSize = ::write (m_serial.m_serial, writeBlock, blockSize);
+			if (actualSize == -1)
 			{
-				writeBlock.remove (0, writeActualSize);
-				canWriteSerial = false;
+				if (errno == EAGAIN)
+				{
+					canWriteSerial = false;
+				}
+				else if (actualSize < 0)
+				{
+					setIoErrorEvent_l (err::Errno ((int) actualSize));
+					return;
+				}
+			}
+			else if ((size_t) actualSize < blockSize)
+			{
+				writeBlock.remove (0, actualSize);
 			}
 			else
 			{
 				writeBlock.clear ();
 			}
 		}
+
+		updateReadWriteBufferEvents ();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
 	}
 }
+
 #endif
 
 //..............................................................................

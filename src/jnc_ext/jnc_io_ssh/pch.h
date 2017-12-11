@@ -41,4 +41,6 @@ using namespace axl;
 #if (_AXL_OS_WIN)
 #	pragma comment (lib, "ws2_32.lib")
 #	pragma comment (lib, "crypt32.lib")
+#elif (_AXL_OS_POSIX)
+#	include <netinet/tcp.h>
 #endif
