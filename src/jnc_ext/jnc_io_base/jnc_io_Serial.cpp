@@ -413,14 +413,6 @@ Serial::ioThreadFunc ()
 	axl::io::win::StdOverlapped serialWaitOverlapped;
 	axl::io::win::StdOverlapped writeOverlapped;
 
-	axl::io::win::StdOverlapped*
-	overlappedTable [3] =
-	{
-		&serialWaitOverlapped,
-		&writeOverlapped,
-		NULL,  // placeholder for read overlapped
-	};
-
 	HANDLE waitTable [4] =
 	{
 		m_ioThreadEvent.m_event,
@@ -447,7 +439,7 @@ Serial::ioThreadFunc ()
 			return;
 		}
 
-		// do as much as we can out-of-lock
+		// do as much as we can without lock
 
 		while (!m_activeOverlappedReadList.isEmpty ())
 		{
@@ -468,6 +460,7 @@ Serial::ioThreadFunc ()
 			m_activeOverlappedReadList.remove (read);
 
 			// only the main read buffer must be lock-protected
+
 			m_lock.lock ();
 			addToReadBuffer (read->m_buffer, actualSize);
 			m_lock.unlock ();
@@ -643,11 +636,10 @@ Serial::ioThreadFunc ()
 		}
 		else
 		{
-			// tables may already hold correct value -- but there's no harm in writing it over
+			// wait-table may already hold correct value -- but there's no harm in writing it over
 
 			axl::io::win::StdOverlapped* overlapped = &m_activeOverlappedReadList.getHead ()->m_overlapped;
 			waitTable [3] = overlapped->m_completionEvent.m_event;
-			overlappedTable [2] = overlapped;
 			waitCount = 4;
 		}
 	}

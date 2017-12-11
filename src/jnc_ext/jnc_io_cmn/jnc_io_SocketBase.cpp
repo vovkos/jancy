@@ -88,6 +88,8 @@ SocketBase::open (
 	const SocketAddress* address
 	)
 {
+	bool result;
+
 	close ();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
@@ -95,15 +97,19 @@ SocketBase::open (
 		protocol == IPPROTO_TCP ? SOCK_STREAM :
 		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
 
-	bool result;
 #if (_AXL_OS_WIN)
 	result = m_socket.m_socket.wsaOpen (family_s, SOCK_STREAM, IPPROTO_TCP, WSA_FLAG_OVERLAPPED);
 #else
-	result =
-		m_socket.m_socket.open (family_s, SOCK_STREAM, IPPROTO_TCP) &&
-		m_socket.setBlockingMode (false);
+	result = m_socket.m_socket.open (family_s, SOCK_STREAM, IPPROTO_TCP);
 #endif
 
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	result = m_socket.setBlockingMode (false);
 	if (!result)
 	{
 		propagateLastError ();
@@ -166,11 +172,7 @@ SocketBase::open (
 	if (family_s == AF_INET6)
 		m_ioThreadFlags |= IoThreadFlag_Ip6;
 
-	if (protocol == IPPROTO_TCP)
-	{
-		m_ioThreadFlags |= IoThreadFlag_Tcp;
-	}
-	else
+	if (protocol != IPPROTO_TCP)
 	{
 		m_ioThreadFlags |= IoThreadFlag_Datagram;
 		m_options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;

@@ -82,13 +82,25 @@ protected:
 		axl::io::SockAddr m_sockAddr;
 	};
 
+#if (_AXL_OS_WIN)
+	struct OverlappedRecvParams
+	{
+		axl::io::SockAddr m_sockAddr;
+		socklen_t m_sockAddrSize;
+		dword_t m_flags;
+	};
+#endif
+
 protected:
-	axl::io::Socket m_socket;
 	IoThread m_ioThread;
 
 	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
 	sl::StdList <IncomingConnection> m_freeIncomingConnectionList;
 	size_t m_backLogLimit;
+
+#if (_AXL_OS_WIN)
+	sl::Array <char> m_overlappedSendToParams;
+#endif
 
 public:
 	~Socket ()
@@ -269,7 +281,10 @@ protected:
 	acceptLoop ();
 
 	void
-	sendRecvLoop ();
+	sendRecvLoop (
+		uint_t baseEvents,
+		bool isDatagram
+		);
 
 	IncomingConnection*
 	createIncomingConnection ()

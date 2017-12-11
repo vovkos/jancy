@@ -64,6 +64,7 @@ protected:
 	{
 		axl::io::win::StdOverlapped m_overlapped;
 		sl::Array <char> m_buffer;
+		size_t m_paramSize;
 	};
 #endif
 
@@ -272,11 +273,12 @@ protected:
 
 #if (_JNC_OS_WIN)
 	OverlappedRead*
-	createOverlappedRead ()
+	createOverlappedRead (size_t paramSize = 0)
 	{
-		return !m_freeOverlappedReadList.isEmpty () ?
+		return !m_freeOverlappedReadList.isEmpty () &&
+			m_freeOverlappedReadList.getHead ()->m_paramSize >= paramSize ?
 			m_freeOverlappedReadList.removeHead () :
-			AXL_MEM_NEW (OverlappedRead);
+			AXL_MEM_NEW_EXTRA (OverlappedRead, paramSize);
 	}
 #endif
 

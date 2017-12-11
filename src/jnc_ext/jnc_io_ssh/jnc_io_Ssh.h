@@ -124,16 +124,15 @@ protected:
 	};
 
 protected:
+	IoThread m_ioThread;
 	SshSessionHandle m_sshSession;
 	SshChannelHandle m_sshChannel;
 
+	ConnectParams* m_connectParams;
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
 	volatile uint_t m_ptyWidth;
 	volatile uint_t m_ptyHeight;
-
-	ConnectParams* m_connectParams;
-	IoThread m_ioThread;
 
 public:
 	SshChannel ();

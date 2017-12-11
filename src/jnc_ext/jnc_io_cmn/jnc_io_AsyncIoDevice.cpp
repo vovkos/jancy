@@ -339,7 +339,6 @@ AsyncIoDevice::processWaitLists_l ()
 void
 AsyncIoDevice::setEvents_l (uint_t events)
 {
-	m_lock.lock ();
 	if (!(m_activeEvents ^ events))
 	{
 		m_lock.unlock ();

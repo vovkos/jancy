@@ -25,8 +25,7 @@ class SocketBase: public AsyncIoDevice
 protected:
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Tcp = 0x0010,
-		IoThreadFlag_Ip6 = 0x0020,
+		IoThreadFlag_Ip6 = 0x0010,
 	};
 
 protected:

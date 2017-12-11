@@ -200,7 +200,7 @@ opaque class Socket
 	
 	SocketOptions autoget property m_options;
 
-	io.SshEvents readonly volatile m_activeEvents;
+	io.SocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 
 	/**
@@ -246,7 +246,7 @@ opaque class Socket
 
 	bool errorcode open (Protocol protocol)
 	{
-		return open (AddressFamily.Ip4, protocol, flags);
+		return open (AddressFamily.Ip4, protocol);
 	}
 
 	/**
