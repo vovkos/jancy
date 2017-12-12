@@ -137,14 +137,16 @@ ArrayType::calcLayoutImpl (
 	if (!m_elementCountInitializer.isEmpty ())
 	{
 		ASSERT (m_parentUnit && m_parentNamespace);
+
+		if (m_parentUnit)
+			m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+
 		m_module->m_namespaceMgr.openNamespace (m_parentNamespace);
 
 		int64_t value = 0;
-		result = m_module->m_operatorMgr.parseConstIntegerExpression (
-			m_parentUnit,
-			m_elementCountInitializer,
-			&value
-			);
+		result = m_module->m_operatorMgr.parseConstIntegerExpression (m_elementCountInitializer, &value);
+
+		m_module->m_namespaceMgr.closeNamespace ();
 
 		if (!result)
 		{
@@ -195,7 +197,6 @@ ArrayType::calcLayoutImpl (
 #endif
 
 		m_elementCount = (size_t) value;
-		m_module->m_namespaceMgr.closeNamespace ();
 	}
 
 	sl::String signature = createSignature (m_elementType, m_elementCount);
@@ -217,14 +218,15 @@ ArrayType::compile ()
 
 	m_module->m_functionMgr.internalPrologue (m_getDynamicSizeFunction);
 	m_module->m_functionMgr.createThisValue ();
+
+	Unit* parentUnit = m_getDynamicSizeFunction->getParentUnit ();
+	if (parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (parentUnit);
+
 	m_module->m_namespaceMgr.openNamespace (m_getDynamicSizeFunction->getParentNamespace ());
 
 	Value resultValue;
-	result = m_module->m_operatorMgr.parseExpression (
-			m_getDynamicSizeFunction->getParentUnit (),
-			m_elementCountInitializer,
-			&resultValue
-			);
+	result = m_module->m_operatorMgr.parseExpression (m_elementCountInitializer, &resultValue);
 	if (!result)
 		return false;
 

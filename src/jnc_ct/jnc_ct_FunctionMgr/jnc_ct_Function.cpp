@@ -162,9 +162,8 @@ Function::compile ()
 	ASSERT (!m_body.isEmpty () || !m_initializer.isEmpty ()); // otherwise what are we doing here?
 	ASSERT (!m_prologueBlock);
 
-	Unit* unit = getParentUnit ();
-	if (unit)
-		m_module->m_unitMgr.setCurrentUnit (unit);
+	if (m_parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
 
 	if (!m_body.isEmpty ())
 	{

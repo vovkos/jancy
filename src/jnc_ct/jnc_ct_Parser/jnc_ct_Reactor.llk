@@ -76,7 +76,7 @@ reactor_event_name
 			{
 				Value value;
 				return
-					m_module->m_operatorMgr.parseExpression (NULL, $tokenList, &value) &&
+					m_module->m_operatorMgr.parseExpression ($tokenList, &value) &&
 					$.m_valueList.insertTail (value);
 			}
 	;

@@ -754,7 +754,6 @@ public:
 	bool
 	parseInitializer (
 		const Value& value,
-		Unit* unit,
 		const sl::ConstBoxList <Token>& constructorTokenList,
 		const sl::ConstBoxList <Token>& initializerTokenList
 		);
@@ -789,7 +788,6 @@ public:
 
 	bool
 	parseExpression (
-		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
 		uint_t parserFlags,
 		Value* resultValue
@@ -797,24 +795,21 @@ public:
 
 	bool
 	parseExpression (
-		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
 		Value* resultValue
 		)
 	{
-		return parseExpression (unit, expressionTokenList, 0, resultValue);
+		return parseExpression (expressionTokenList, 0, resultValue);
 	}
 
 	bool
 	parseConstExpression (
-		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
 		Value* resultValue
 		);
 
 	bool
 	parseConstIntegerExpression (
-		Unit* unit,
 		const sl::ConstBoxList <Token>& expressionTokenList,
 		int64_t* integer
 		);

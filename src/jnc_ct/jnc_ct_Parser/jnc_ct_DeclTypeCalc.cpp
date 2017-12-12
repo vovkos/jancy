@@ -47,12 +47,7 @@ DeclTypeCalc::calcType (
 
 		if (!elementCountInitializer->isEmpty ())
 		{
-			result = m_module->m_operatorMgr.parseExpression (
-				NULL,
-				*elementCountInitializer,
-				elementCountValue
-				);
-
+			result = m_module->m_operatorMgr.parseExpression (*elementCountInitializer, elementCountValue);
 			if (!result)
 				return NULL;
 

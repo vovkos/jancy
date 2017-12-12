@@ -132,8 +132,10 @@ EnumType::calcLayout ()
 
 	// assign values to consts
 
+	if (m_parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+
 	m_module->m_namespaceMgr.openNamespace (this);
-	Unit* unit = getParentUnit ();
 
 	if (m_flags & EnumTypeFlag_BitFlag)
 	{
@@ -144,12 +146,7 @@ EnumType::calcLayout ()
 		{
 			if (!constIt->m_initializer.isEmpty ())
 			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression (
-					unit,
-					constIt->m_initializer,
-					&value
-					);
-
+				result = m_module->m_operatorMgr.parseConstIntegerExpression (constIt->m_initializer, &value);
 				if (!result)
 					return false;
 			}
@@ -177,12 +174,7 @@ EnumType::calcLayout ()
 		{
 			if (!constIt->m_initializer.isEmpty ())
 			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression (
-					unit,
-					constIt->m_initializer,
-					&value
-					);
-
+				result = m_module->m_operatorMgr.parseConstIntegerExpression (constIt->m_initializer, &value);
 				if (!result)
 					return false;
 			}

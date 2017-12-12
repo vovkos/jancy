@@ -23,11 +23,10 @@ Attribute::calcLayout ()
 {
 	ASSERT (!m_initializer.isEmpty ());
 
-	return m_module->m_operatorMgr.parseConstExpression (
-		m_parentUnit,
-		m_initializer,
-		&m_value
-		);
+	if (m_parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+
+	return m_module->m_operatorMgr.parseConstExpression (m_initializer, &m_value);
 }
 
 //..............................................................................

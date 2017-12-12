@@ -126,6 +126,12 @@ NamedTypeBlock::initializeStaticFields ()
 	bool result;
 
 	Module* module = m_parent->getModule ();
+	
+	Unit* unit = getParentUnitImpl ();
+	if (unit)
+		module->m_unitMgr.setCurrentUnit (unit);
+
+	module->m_namespaceMgr.openNamespace (getParentNamespaceImpl ());
 
 	size_t count = m_initializedStaticFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -136,6 +142,8 @@ NamedTypeBlock::initializeStaticFields ()
 			return false;
 	}
 
+	module->m_namespaceMgr.closeNamespace ();
+
 	return true;
 }
 
@@ -144,8 +152,13 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
-	Unit* parentUnit = getParentUnitImpl ();
+	Module* module = m_parent->getModule ();	
+
+	Unit* unit = getParentUnitImpl ();
+	if (unit)
+		module->m_unitMgr.setCurrentUnit (unit);
+
+	module->m_namespaceMgr.openNamespace (getParentNamespaceImpl ());
 
 	size_t count = m_initializedMemberFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -159,7 +172,6 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 
 		result = module->m_operatorMgr.parseInitializer (
 			fieldValue,
-			parentUnit,
 			field->m_constructor,
 			field->m_initializer
 			);
@@ -167,6 +179,8 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 		if (!result)
 			return false;
 	}
+
+	module->m_namespaceMgr.closeNamespace ();
 
 	return true;
 }

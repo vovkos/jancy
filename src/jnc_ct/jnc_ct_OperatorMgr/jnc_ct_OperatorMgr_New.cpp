@@ -189,14 +189,10 @@ OperatorMgr::construct (
 bool
 OperatorMgr::parseInitializer (
 	const Value& rawValue,
-	Unit* unit,
 	const sl::ConstBoxList <Token>& constructorTokenList,
 	const sl::ConstBoxList <Token>& initializerTokenList
 	)
 {
-	if (unit)
-		m_module->m_unitMgr.setCurrentUnit (unit);
-
 	bool result;
 
 	Value value = rawValue;
@@ -292,15 +288,11 @@ OperatorMgr::parseFunctionArgDefaultValue (
 
 bool
 OperatorMgr::parseExpression (
-	Unit* unit,
 	const sl::ConstBoxList <Token>& expressionTokenList,
 	uint_t flags,
 	Value* resultValue
 	)
 {
-	if (unit)
-		m_module->m_unitMgr.setCurrentUnit (unit);
-
 	Parser parser (m_module);
 	parser.m_stage = Parser::Stage_Pass2;
 	parser.m_flags |= flags;
@@ -315,12 +307,11 @@ OperatorMgr::parseExpression (
 
 bool
 OperatorMgr::parseConstExpression (
-	Unit* unit,
 	const sl::ConstBoxList <Token>& expressionTokenList,
 	Value* resultValue
 	)
 {
-	bool result = parseExpression (unit, expressionTokenList, Parser::Flag_ConstExpression, resultValue);
+	bool result = parseExpression (expressionTokenList, Parser::Flag_ConstExpression, resultValue);
 	if (!result)
 		return false;
 
@@ -330,13 +321,12 @@ OperatorMgr::parseConstExpression (
 
 bool
 OperatorMgr::parseConstIntegerExpression (
-	Unit* unit,
 	const sl::ConstBoxList <Token>& expressionTokenList,
 	int64_t* integer
 	)
 {
 	Value value;
-	bool result = parseConstExpression (unit, expressionTokenList, &value);
+	bool result = parseConstExpression (expressionTokenList, &value);
 	if (!result)
 		return false;
 

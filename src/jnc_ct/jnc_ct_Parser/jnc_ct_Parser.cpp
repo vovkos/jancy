@@ -3090,7 +3090,7 @@ Parser::assertCondition (const sl::BoxList <Token>& tokenList)
 	bool result;
 
 	Value conditionValue;
-	result = m_module->m_operatorMgr.parseExpression (NULL, tokenList, &conditionValue);
+	result = m_module->m_operatorMgr.parseExpression (tokenList, &conditionValue);
 	if (!result)
 		return NULL;
 

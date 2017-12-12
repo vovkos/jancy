@@ -265,9 +265,11 @@ VariableMgr::initializeVariable (Variable* variable)
 		ASSERT (false);
 	};
 
+	if (variable->m_parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (variable->m_parentUnit);
+
 	return m_module->m_operatorMgr.parseInitializer (
 		variable,
-		variable->getParentUnit (),
 		variable->m_constructor,
 		variable->m_initializer
 		);
