@@ -65,17 +65,7 @@ AsyncIoDevice::close ()
 {
 	cancelAllWaits ();
 
-	m_ioThreadFlags = 0;
-	m_activeEvents = 0;
-
-	m_readBuffer.clear ();
-	m_writeBuffer.clear ();
-	m_freeReadWriteMetaList.insertListTail (&m_readMetaList);
-	m_freeReadWriteMetaList.insertListTail (&m_writeMetaList);
-
-#if (_JNC_OS_WIN)
-	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
-#elif (_JNC_OS_POSIX)
+#if (_JNC_OS_POSIX)
 	m_ioThreadSelfPipe.close ();
 #endif
 
