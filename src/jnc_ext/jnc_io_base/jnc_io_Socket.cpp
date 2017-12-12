@@ -62,6 +62,18 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
+Socket::Socket ()
+{
+	m_readParallelism = Def_ReadParallelism;
+	m_readBlockSize = Def_ReadBlockSize;
+	m_readBufferSize = Def_ReadBufferSize;
+	m_writeBufferSize = Def_WriteBufferSize;
+	m_options = Def_Options,
+
+	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+}
+
 bool
 Socket::openImpl (
 	uint16_t family,
@@ -72,6 +84,8 @@ Socket::openImpl (
 	bool result = SocketBase::open (family, protocol, address);
 	if (!result)
 		return false;
+
+	m_freeIncomingConnectionList.insertListTail (&m_pendingIncomingConnectionList);
 
 	if (m_ioThreadFlags & IoThreadFlag_Datagram)
 		wakeIoThread ();
@@ -98,6 +112,10 @@ Socket::close ()
 	gcHeap->leaveWaitRegion ();
 
 	SocketBase::close ();
+
+	sl::Iterator <IncomingConnection> it = m_pendingIncomingConnectionList.getHead ();
+	for (; it; it++)
+		it->m_socket.close ();
 }
 
 bool
@@ -173,8 +191,13 @@ Socket::accept (DataPtr addressPtr)
 		address->setSockAddr (incomingConnection->m_sockAddr);
 
 	m_freeIncomingConnectionList.insertHead (incomingConnection);
+	
+	if (m_pendingIncomingConnectionList.isEmpty ())
+		m_activeEvents &= ~SocketEvent_IncomingConnection;
+
 	m_lock.unlock ();
 
+	connectionSocket->wakeIoThread ();
 	connectionSocket->m_ioThread.start ();
 	return connectionSocket;
 }

@@ -103,6 +103,8 @@ protected:
 #endif
 
 public:
+	Socket ();
+
 	~Socket ()
 	{
 		close ();
