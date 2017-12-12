@@ -33,7 +33,7 @@ void TcpConnectionSession.foo (io.SocketAddress const* remoteAddress)
 
 		printf ("foo - 2\n");
 
-		m_socket.open (io.Protocol.Tcp, &localAddress, io.SocketOpenFlags.Asynchronous);
+		m_socket.open (io.Protocol.Tcp, &localAddress);
 
 		printf ("foo - 3\n");
 	}
