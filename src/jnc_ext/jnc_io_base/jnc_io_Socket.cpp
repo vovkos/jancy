@@ -401,7 +401,7 @@ Socket::sendRecvLoop (
 			{
 				err::Error error = err::getLastError ();
 				ASSERT (error->m_guid == err::g_systemErrorGuid);
-				
+
 				if (error->m_code == WSAECONNRESET)
 					setEvents (SocketEvent_Disconnected | SocketEvent_Reset);
 				else
@@ -465,7 +465,7 @@ Socket::sendRecvLoop (
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = baseEvents;
 
-		isDatagram ? 
+		isDatagram ?
 			getNextWriteBlock (&m_overlappedWriteBlock) :
 			getNextWriteBlock (&m_overlappedWriteBlock, &m_overlappedSendToParams);
 
@@ -485,7 +485,7 @@ Socket::sendRecvLoop (
 
 		if (!isSendingSocket && !m_overlappedWriteBlock.isEmpty ())
 		{
-			result = isDatagram ? 
+			result = isDatagram ?
 				m_socket.m_socket.wsaSendTo (
 					m_overlappedWriteBlock,
 					m_overlappedWriteBlock.getCount (),
@@ -522,11 +522,11 @@ Socket::sendRecvLoop (
 				OverlappedRecvParams* params = (OverlappedRecvParams*) (read + 1);
 
 				result =
-					read->m_buffer.setCount (readBlockSize) && 
+					read->m_buffer.setCount (readBlockSize) &&
 					(isDatagram ?
 						m_socket.m_socket.wsaRecvFrom (
-							read->m_buffer, 
-							readBlockSize, 
+							read->m_buffer,
+							readBlockSize,
 							NULL,
 							&params->m_flags,
 							&params->m_sockAddr,
@@ -534,8 +534,8 @@ Socket::sendRecvLoop (
 							&read->m_overlapped
 							) :
 						m_socket.m_socket.wsaRecv (
-							read->m_buffer, 
-							readBlockSize, 
+							read->m_buffer,
+							readBlockSize,
 							NULL,
 							&params->m_flags,
 							&read->m_overlapped
@@ -714,11 +714,11 @@ Socket::sendRecvLoop (
 				socklen_t sockAddrSize = sizeof (sockAddr);
 
 				ssize_t actualSize = ::recvfrom (
-					m_socket.m_socket, 
-					readBlock, 
-					readBlock.getCount (), 
-					0, 
-					&sockAddr.m_addr, 
+					m_socket.m_socket,
+					readBlock,
+					readBlock.getCount (),
+					0,
+					&sockAddr.m_addr,
 					&sockAddrSize
 					);
 
@@ -747,15 +747,15 @@ Socket::sendRecvLoop (
 					break;
 
 				axl::io::SockAddr* sockAddr = ((axl::io::SockAddr*) writeParams.p ());
-				socklen_t sockAddrSize = axl::io::getSockAddrSize (&sockAddr.m_addr);
+				socklen_t sockAddrSize = axl::io::getSockAddrSize (&sockAddr->m_addr);
 				size_t blockSize = writeBlock.getCount ();
-				
+
 				ssize_t actualSize = ::sendto (
-					m_socket.m_socket, 
-					writeBlock, 
-					blockSize, 
-					0, 
-					&sockAddr->m_addr, 
+					m_socket.m_socket,
+					writeBlock,
+					blockSize,
+					0,
+					&sockAddr->m_addr,
 					sockAddrSize
 					);
 
@@ -796,8 +796,8 @@ Socket::sendRecvLoop (
 				}
 				else if (actualSize == 0)
 				{
-					setEvents (m_socket.getError () ? 
-						SocketEvent_Disconnected | SocketEvent_Reset : 
+					setEvents (m_socket.getError () ?
+						SocketEvent_Disconnected | SocketEvent_Reset :
 						SocketEvent_Disconnected
 						);
 					return;
