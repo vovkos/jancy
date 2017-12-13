@@ -340,10 +340,10 @@ jnc_GcHeap_setFrameMap (
 	jnc_GcHeap* gcHeap,
 	jnc_GcShadowStackFrame* frame,
 	jnc_GcShadowStackFrameMap* map,
-	int isOpen
+	jnc_GcShadowStackFrameMapOp op
 	)
 {
-	gcHeap->setFrameMap (frame, map, isOpen != 0);
+	gcHeap->setFrameMap (frame, map, op);
 }
 
 JNC_EXTERN_C

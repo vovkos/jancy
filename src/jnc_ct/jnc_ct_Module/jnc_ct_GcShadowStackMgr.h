@@ -14,6 +14,7 @@
 #include "jnc_ct_Value.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 #include "jnc_RuntimeStructs.h"
+#include "jnc_GcHeap.h"
 
 namespace jnc {
 namespace ct {
@@ -37,7 +38,12 @@ class GcShadowStackFrameMap: public sl::ListLink
 	friend class GcShadowStackMgr;
 
 protected:
-	GcShadowStackFrameMap* m_prev;
+	union
+	{
+		Scope* m_scope; // before a function is finalized
+		GcShadowStackFrameMap* m_prev;
+	};
+
 	GcShadowStackFrameMapKind m_mapKind;
 	sl::Array <intptr_t> m_gcRootArray;
 	sl::Array <Type*> m_gcRootTypeArray;
@@ -108,6 +114,7 @@ protected:
 	sl::StdList <GcShadowStackFrameMap> m_frameMapList;
 	Value m_gcRootArrayValue;
 
+	sl::Array <GcShadowStackFrameMap*> m_functionFrameMapArray;
 	Variable* m_frameVariable;
 	size_t m_gcRootCount;
 
@@ -150,7 +157,7 @@ protected:
 	void
 	setFrameMap (
 		GcShadowStackFrameMap* frameMap,
-		bool isOpen
+		GcShadowStackFrameMapOp op
 		);
 
 	void

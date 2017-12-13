@@ -242,13 +242,13 @@ void
 setGcShadowStackFrameMap (
 	GcShadowStackFrame* frame,
 	GcShadowStackFrameMap* map,
-	bool isOpen
+	GcShadowStackFrameMapOp op
 	)
 {
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
 
-	gcHeap->setFrameMap (frame, map, isOpen);
+	gcHeap->setFrameMap (frame, map, op);
 }
 
 void

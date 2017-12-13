@@ -40,7 +40,7 @@ enum StdFunc
 	StdFunc_AllocateArray,
 	StdFunc_CreateDataPtrValidator,
 	StdFunc_GcSafePoint,
-	StdFunc_SetGcShadowStackFrameMap, // sets frame-map and zeroes gc-roots
+	StdFunc_SetGcShadowStackFrameMap,
 	StdFunc_GetTls,
 
 	StdFunc_SetJmp,

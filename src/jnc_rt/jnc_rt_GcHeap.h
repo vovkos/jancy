@@ -280,7 +280,7 @@ public:
 	setFrameMap (
 		GcShadowStackFrame* frame,
 		GcShadowStackFrameMap* map,
-		bool isOpen
+		GcShadowStackFrameMapOp op
 		);
 
 	// marking

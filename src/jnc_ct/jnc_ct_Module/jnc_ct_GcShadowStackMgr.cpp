@@ -31,6 +31,7 @@ void
 GcShadowStackMgr::clear ()
 {
 	m_frameMapList.clear ();
+	m_functionFrameMapArray.clear ();
 	m_frameVariable = NULL;
 	m_gcRootArrayValue.clear ();
 	m_gcRootCount = 0;
@@ -45,6 +46,7 @@ GcShadowStackMgr::finalizeFunction ()
 	finalizeFrame ();
 
 	m_gcRootArrayValue.clear ();
+	m_functionFrameMapArray.clear ();
 	m_frameVariable = NULL;
 	m_gcRootCount = 0;
 }
@@ -52,14 +54,11 @@ GcShadowStackMgr::finalizeFunction ()
 void
 GcShadowStackMgr::finalizeScope (Scope* scope)
 {
-	Scope* parentScope = scope->getParentScope ();
-	GcShadowStackFrameMap* parentFrameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL;
-
-	if (parentFrameMap == scope->m_gcShadowStackFrameMap) // stays the same
+	if (!scope->m_gcShadowStackFrameMap ||
+		!(m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable))
 		return;
 
-	if (m_module->m_controlFlowMgr.getCurrentBlock ()->getFlags () & BasicBlockFlag_Reachable)
-		setFrameMap (parentFrameMap, false);
+	setFrameMap (scope->m_gcShadowStackFrameMap, GcShadowStackFrameMapOp_Close);
 }
 
 void
@@ -108,30 +107,15 @@ GcShadowStackFrameMap*
 GcShadowStackMgr::openFrameMap (Scope* scope)
 {
 	Scope* parentScope = scope->getParentScope ();
-	GcShadowStackFrameMap* prevFrameMap = parentScope ? parentScope->m_gcShadowStackFrameMap : NULL;
 
-	if (scope->m_gcShadowStackFrameMap != prevFrameMap) // this scope already has its own frame map
-	{
-		ASSERT (scope->m_gcShadowStackFrameMap);
+	if (scope->m_gcShadowStackFrameMap) // this scope already has its own frame map
 		return scope->m_gcShadowStackFrameMap;
-	}
 
 	GcShadowStackFrameMap* frameMap = AXL_MEM_NEW (GcShadowStackFrameMap);
-	frameMap->m_prev = prevFrameMap;
+	frameMap->m_scope = scope;
 	m_frameMapList.insertTail (frameMap);
+	m_functionFrameMapArray.append (frameMap);
 	scope->m_gcShadowStackFrameMap = frameMap;
-
-	// also update all the nested scopes in the scope stack
-
-	Scope* childScope = m_module->m_namespaceMgr.getCurrentScope ();
-	while (childScope != scope)
-	{
-		if (childScope->m_gcShadowStackFrameMap == prevFrameMap)
-			childScope->m_gcShadowStackFrameMap = frameMap;
-
-		childScope = childScope->getParentScope ();
-		ASSERT (childScope);
-	}
 
 	// we need to set the map in the beginning of scope
 
@@ -143,7 +127,7 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 		&prevInsertPoint
 		);
 
-	setFrameMap (frameMap, true);
+	setFrameMap (frameMap, GcShadowStackFrameMapOp_Open);
 
 	// if first stack variable lift point is the same, update it -- must lift AFTER frame map is set
 
@@ -159,7 +143,7 @@ GcShadowStackMgr::openFrameMap (Scope* scope)
 void
 GcShadowStackMgr::setFrameMap (
 	GcShadowStackFrameMap* frameMap,
-	bool isOpen
+	GcShadowStackFrameMapOp op
 	)
 {
 	ASSERT (m_frameVariable);
@@ -171,7 +155,7 @@ GcShadowStackMgr::setFrameMap (
 		function->getType (),
 		m_frameVariable,
 		Value (&frameMap, m_module->m_typeMgr.getStdType (StdType_BytePtr)),
-		Value (isOpen, m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool)),
+		Value (op, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int)),
 		NULL
 		);
 }
@@ -267,6 +251,16 @@ GcShadowStackMgr::finalizeFrame ()
 		m_module->m_llvmIrBuilder.createStore (prevStackTopValue, stackTopVariable);
 	}
 
+	// calculate frame map m_prev field
+
+	count = m_functionFrameMapArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		GcShadowStackFrameMap* map = m_functionFrameMapArray [i];
+		Scope* scope = map->m_scope->getParentScope ();
+		map->m_prev = scope ? scope->findGcShadowStackFrameMap () : NULL;
+	}
+
 	// restore current stack top and frame map at every landing pad
 
 	sl::Array <BasicBlock*> landingPadBlockArray = m_module->m_controlFlowMgr.getLandingPadBlockArray ();
@@ -284,12 +278,8 @@ GcShadowStackMgr::finalizeFrame ()
 		if (block->getLandingPadKind () == LandingPadKind_Exception)
 			m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
-#if 0
-		Value frameMapValue (&scope->m_gcShadowStackFrameMap, type);
-		m_module->m_llvmIrBuilder.createStore (frameMapValue, frameMapFieldValue);
-#else
-		setFrameMap (scope->m_gcShadowStackFrameMap, false); // easier to see in LLVM IR
-#endif
+		GcShadowStackFrameMap* map = scope->findGcShadowStackFrameMap ();
+		setFrameMap (map, GcShadowStackFrameMapOp_Restore);
 	}
 
 	// done

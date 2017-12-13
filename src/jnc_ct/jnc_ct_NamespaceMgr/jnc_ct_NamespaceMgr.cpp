@@ -240,7 +240,6 @@ NamespaceMgr::openInternalScope ()
 		// propagate parent scope traits
 		scope->m_flags |= m_currentScope->m_flags & (ScopeFlag_Finalizable | ScopeFlag_HasCatch);
 		scope->m_sjljFrameIdx = m_currentScope->m_sjljFrameIdx;
-		scope->m_gcShadowStackFrameMap = m_currentScope->m_gcShadowStackFrameMap;
 	}
 	else
 	{

@@ -994,23 +994,39 @@ void
 GcHeap::setFrameMap (
 	GcShadowStackFrame* frame,
 	GcShadowStackFrameMap* map,
-	bool isOpen
+	GcShadowStackFrameMapOp op
 	)
 {
-	frame->m_map = map;
-	if (!isOpen)
-		return;
-
-	// on open we also need to zero gc-roots
-
-	size_t count = map->getGcRootCount ();
-	ASSERT (map && count);
-
-	const size_t* indexArray = map->getGcRootIndexArray ();
-	for (size_t i = 0; i < count; i++)
+	switch (op)
 	{
-		size_t j = indexArray [i];
-		frame->m_gcRootArray [j] = NULL;
+		size_t count;
+		const size_t* indexArray;
+
+	case GcShadowStackFrameMapOp_Open:
+		count = map->getGcRootCount ();
+		ASSERT (map && count);
+
+		indexArray = map->getGcRootIndexArray ();
+		for (size_t i = 0; i < count; i++)
+		{
+			size_t j = indexArray [i];
+			frame->m_gcRootArray [j] = NULL;
+		}
+
+		frame->m_map = map;
+		break;	
+
+	case GcShadowStackFrameMapOp_Close:
+		ASSERT (frame->m_map == map); // this assert helps catch wrongly sequenced closeScope & jumps
+		frame->m_map = map->getPrev ();
+		break;
+
+	case GcShadowStackFrameMapOp_Restore:
+		frame->m_map = map;
+		break;
+
+	default:
+		ASSERT (false);
 	}
 }
 

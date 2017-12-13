@@ -61,6 +61,17 @@ enum jnc_GcDef
 
 typedef enum jnc_GcDef jnc_GcDef;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_GcShadowStackFrameMapOp
+{
+	jnc_GcShadowStackFrameMapOp_Open,
+	jnc_GcShadowStackFrameMapOp_Close,
+	jnc_GcShadowStackFrameMapOp_Restore,
+};
+
+typedef enum jnc_GcShadowStackFrameMapOp jnc_GcShadowStackFrameMapOp;
+
 //..............................................................................
 
 struct jnc_GcStats
@@ -151,7 +162,7 @@ jnc_GcHeap_setFrameMap (
 	jnc_GcHeap* gcHeap,
 	jnc_GcShadowStackFrame* frame,
 	jnc_GcShadowStackFrameMap* map,
-	int isOpen
+	jnc_GcShadowStackFrameMapOp op
 	);
 
 JNC_EXTERN_C
@@ -358,10 +369,10 @@ struct jnc_GcHeap
 	setFrameMap (
 		jnc_GcShadowStackFrame* frame,
 		jnc_GcShadowStackFrameMap* map,
-		bool isOpen
+		jnc_GcShadowStackFrameMapOp op
 		)
 	{
-		jnc_GcHeap_setFrameMap (this, frame, map, isOpen);
+		jnc_GcHeap_setFrameMap (this, frame, map, op);
 	}
 
 	void
@@ -515,6 +526,13 @@ const GcDef
 	GcDef_PeriodSizeTrigger        = jnc_GcDef_PeriodSizeTrigger,
 	GcDef_DataPtrValidatorPoolSize = jnc_GcDef_DataPtrValidatorPoolSize,
 	GcDef_ShutdownIterationLimit   = jnc_GcDef_ShutdownIterationLimit;
+
+typedef jnc_GcShadowStackFrameMapOp GcShadowStackFrameMapOp;
+
+const GcShadowStackFrameMapOp
+	GcShadowStackFrameMapOp_Open    = jnc_GcShadowStackFrameMapOp_Open,
+	GcShadowStackFrameMapOp_Close   = jnc_GcShadowStackFrameMapOp_Close,
+	GcShadowStackFrameMapOp_Restore = jnc_GcShadowStackFrameMapOp_Restore;
 
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;

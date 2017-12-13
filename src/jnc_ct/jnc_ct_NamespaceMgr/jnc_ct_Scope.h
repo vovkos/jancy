@@ -28,17 +28,18 @@ struct TryExpr;
 
 enum ScopeFlag
 {
-	ScopeFlag_Function     = 0x000100,
-	ScopeFlag_Unsafe       = 0x000200,
-	ScopeFlag_Nested       = 0x000400,
-	ScopeFlag_Try          = 0x001000,
-	ScopeFlag_Catch        = 0x002000,
-	ScopeFlag_Finally      = 0x004000,
-	ScopeFlag_CatchAhead   = 0x020000,
-	ScopeFlag_FinallyAhead = 0x040000,
-	ScopeFlag_Finalizable  = 0x100000, // scope or one of its parents has finally
-	ScopeFlag_Disposable   = 0x200000, // this scope contains disposable variables
-	ScopeFlag_HasCatch     = 0x400000, // this scope or some of its parents have catch
+	ScopeFlag_Function       = 0x000100,
+	ScopeFlag_Unsafe         = 0x000200,
+	ScopeFlag_Nested         = 0x000400,
+	ScopeFlag_Try            = 0x001000,
+	ScopeFlag_Catch          = 0x002000,
+	ScopeFlag_Finally        = 0x004000,
+	ScopeFlag_CatchAhead     = 0x020000,
+	ScopeFlag_FinallyAhead   = 0x040000,
+	ScopeFlag_Finalizable    = 0x100000, // scope or one of its parents has finally
+	ScopeFlag_Disposable     = 0x200000, // this scope contains disposable variables
+	ScopeFlag_HasCatch       = 0x400000, // this scope or some of its parents have catch
+	ScopeFlag_FrameMapCached = 0x800000, // this scope or some of its parents have catch
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -85,6 +86,9 @@ public:
 	{
 		return m_parentNamespace && m_parentNamespace->getNamespaceKind () == NamespaceKind_Scope ? (Scope*) m_parentNamespace : NULL;
 	}
+
+	GcShadowStackFrameMap* 
+	findGcShadowStackFrameMap ();
 
 	Variable*
 	getDisposeLevelVariable ()

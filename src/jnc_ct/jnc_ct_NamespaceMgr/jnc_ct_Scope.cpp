@@ -43,6 +43,27 @@ Scope::canStaticThrow ()
 		(m_function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode);
 }
 
+GcShadowStackFrameMap* 
+Scope::findGcShadowStackFrameMap ()
+{
+	if (m_flags & ScopeFlag_FrameMapCached)
+		return m_gcShadowStackFrameMap;
+
+	if (!m_gcShadowStackFrameMap)
+	{
+		Scope* scope = getParentScope ();
+		for (; scope; scope = scope->getParentScope ())
+			if (scope->m_gcShadowStackFrameMap)
+			{
+				m_gcShadowStackFrameMap = scope->m_gcShadowStackFrameMap;
+				break;
+			}
+	}
+
+	m_flags |= ScopeFlag_FrameMapCached;
+	return m_gcShadowStackFrameMap;
+}
+
 //..............................................................................
 
 } // namespace ct
