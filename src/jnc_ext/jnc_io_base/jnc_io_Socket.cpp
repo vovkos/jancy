@@ -183,9 +183,7 @@ Socket::accept (DataPtr addressPtr)
 	connectionSocket->m_socket.m_socket.takeOver (&incomingConnection->m_socket.m_socket);
 	connectionSocket->setOptions (m_options);
 	connectionSocket->AsyncIoDevice::open ();
-	connectionSocket->m_ioThreadFlags =
-		(m_ioThreadFlags & IoThreadFlag_Ip6) |
-		IoThreadFlag_IncomingConnection;
+	connectionSocket->m_ioThreadFlags =	IoThreadFlag_IncomingConnection;
 
 	if (address)
 		address->setSockAddr (incomingConnection->m_sockAddr);
@@ -249,7 +247,14 @@ Socket::writeDatagram (
 		return -1;
 	}
 
-	axl::io::SockAddr sockAddr = ((SocketAddress*) addressPtr.m_p)->getSockAddr ();
+	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
+	if (address->m_family != m_family)
+	{
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidParameter));
+		return -1;
+	}
+
+	axl::io::SockAddr sockAddr = address->getSockAddr ();
 	return bufferedWrite (dataPtr, dataSize, &sockAddr, sizeof (sockAddr));
 }
 
@@ -489,8 +494,8 @@ Socket::sendRecvLoop (
 		m_activeEvents = baseEvents;
 
 		isDatagram ?
-			getNextWriteBlock (&m_overlappedWriteBlock) :
-			getNextWriteBlock (&m_overlappedWriteBlock, &m_overlappedSendToParams);
+			getNextWriteBlock (&m_overlappedWriteBlock, &m_overlappedSendToParams) :
+			getNextWriteBlock (&m_overlappedWriteBlock);
 
 		updateReadWriteBufferEvents ();
 
@@ -544,10 +549,13 @@ Socket::sendRecvLoop (
 				OverlappedRead* read = createOverlappedRead (sizeof (OverlappedRecvParams));
 				OverlappedRecvParams* params = (OverlappedRecvParams*) (read + 1);
 
-				result =
-					read->m_buffer.setCount (readBlockSize) &&
-					(isDatagram ?
-						m_socket.m_socket.wsaRecvFrom (
+				read->m_buffer.setCount (readBlockSize);
+
+				if (isDatagram)
+				{
+					params->m_sockAddrSize = sizeof (params->m_sockAddr);
+					
+					result = m_socket.m_socket.wsaRecvFrom (
 							read->m_buffer,
 							readBlockSize,
 							NULL,
@@ -555,14 +563,18 @@ Socket::sendRecvLoop (
 							&params->m_sockAddr,
 							&params->m_sockAddrSize,
 							&read->m_overlapped
-							) :
-						m_socket.m_socket.wsaRecv (
-							read->m_buffer,
-							readBlockSize,
-							NULL,
-							&params->m_flags,
-							&read->m_overlapped
-							));
+							);
+				}
+				else
+				{
+					result = m_socket.m_socket.wsaRecv (
+						read->m_buffer,
+						readBlockSize,
+						NULL,
+						&params->m_flags,
+						&read->m_overlapped
+						);
+				}
 
 				if (!result)
 				{

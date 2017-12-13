@@ -169,8 +169,7 @@ SocketBase::open (
 
 	AsyncIoDevice::open ();
 
-	if (family_s == AF_INET6)
-		m_ioThreadFlags |= IoThreadFlag_Ip6;
+	m_family = family_jnc;
 
 	if (protocol != IPPROTO_TCP)
 	{

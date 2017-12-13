@@ -23,13 +23,8 @@ namespace io {
 class SocketBase: public AsyncIoDevice
 {
 protected:
-	enum IoThreadFlag
-	{
-		IoThreadFlag_Ip6 = 0x0010,
-	};
-
-protected:
 	axl::io::Socket m_socket;
+	uint16_t m_family;
 
 protected:
 	SocketAddress
