@@ -506,8 +506,8 @@ ControlFlowMgr::forStmt_PreBody (ForStmt* stmt)
 void
 ControlFlowMgr::forStmt_PostBody (ForStmt* stmt)
 {
-	m_module->m_namespaceMgr.closeScope ();
 	jump (stmt->m_loopBlock, stmt->m_followBlock);
+	m_module->m_namespaceMgr.closeScope ();
 
 	if (!(stmt->m_followBlock->getFlags () & BasicBlockFlag_Jumped))
 		markUnreachable (stmt->m_followBlock);
