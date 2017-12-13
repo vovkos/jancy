@@ -98,9 +98,9 @@ SocketBase::open (
 		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
 
 #if (_AXL_OS_WIN)
-	result = m_socket.m_socket.wsaOpen (family_s, SOCK_STREAM, IPPROTO_TCP, WSA_FLAG_OVERLAPPED);
+	result = m_socket.m_socket.wsaOpen (family_s, socketKind, protocol, WSA_FLAG_OVERLAPPED);
 #else
-	result = m_socket.m_socket.open (family_s, SOCK_STREAM, IPPROTO_TCP);
+	result = m_socket.m_socket.open (family_s, socketKind, protocol);
 #endif
 
 	if (!result)
