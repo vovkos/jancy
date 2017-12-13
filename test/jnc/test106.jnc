@@ -8,6 +8,12 @@ class Foo
 	int m_value = Defaults.Value; // BUG: undeclared identifier
 }
 
+foo ()
+{
+	return -1;
+}
+
+
 int main ()
 {
 	Foo f;

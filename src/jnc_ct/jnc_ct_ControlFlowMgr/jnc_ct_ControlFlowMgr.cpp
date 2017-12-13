@@ -437,7 +437,7 @@ ControlFlowMgr::ret (const Value& value)
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	if (!value)
+	if (!value || value.getType ()->getTypeKind () == TypeKind_Void)
 	{
 		if (functionType->getReturnType ()->getTypeKind () != TypeKind_Void)
 		{
@@ -460,6 +460,16 @@ ControlFlowMgr::ret (const Value& value)
 	}
 	else
 	{
+		if (functionType->getReturnType ()->getTypeKind () == TypeKind_Void)
+		{
+			err::setFormatStringError (
+				"void function '%s' returning a '%s' value",
+				function->m_tag.sz (),
+				value.getType ()->getTypeString ().sz ()
+				);
+			return false;
+		}
+
 		Value returnValue;
 		bool result = m_module->m_operatorMgr.castOperator (value, returnType, &returnValue);
 		if (!result)
