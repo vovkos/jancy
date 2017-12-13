@@ -70,7 +70,7 @@ protected:
 
 	struct ReadWriteMeta: sl::ListLink
 	{
-		size_t m_blockSize;
+		size_t m_dataSize;
 		size_t m_paramSize;
 	};
 
@@ -257,7 +257,7 @@ protected:
 	void
 	addToReadBuffer (
 		const void* p,
-		size_t size,
+		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
 		);
@@ -283,13 +283,11 @@ protected:
 #endif
 
 	ReadWriteMeta*
-	createReadWriteMeta (size_t paramSize = 0)
-	{
-		return !m_freeReadWriteMetaList.isEmpty () &&
-			m_freeReadWriteMetaList.getHead ()->m_paramSize >= paramSize ?
-			m_freeReadWriteMetaList.removeHead () :
-			AXL_MEM_NEW_EXTRA (ReadWriteMeta, paramSize);
-	}
+	createReadWriteMeta (
+		size_t dataSize,
+		const void* params,
+		size_t paramSize
+		);
 };
 
 //..............................................................................
