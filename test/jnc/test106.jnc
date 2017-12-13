@@ -1,0 +1,16 @@
+class Foo
+{
+	enum Defaults
+	{
+		Value = 100,
+	}
+
+	int m_value = Defaults.Value; // BUG: undeclared identifier
+}
+
+int main ()
+{
+	Foo f;
+	printf ("f.m_value = %d\n", f.m_value);
+	return 0;
+}
