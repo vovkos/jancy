@@ -28,6 +28,12 @@ bitflag enum SocketOptions
 	ReuseAddress,
 
 	/**
+		Translates to SO_KEEPALIVE socket option.
+	*/
+
+	TcpKeepAlive,
+
+	/**
 		This property is used for getting and setting [#f4]_ the Nagle algorithm flag for ``TCP`` sockets. When this property is set to ``true``, the socket attempts to delay the transmission of TCP data segments in order to reduce the overall number of transmitted packets.
 
 		For detailed description of Nagle algorithm refer to: http://en.wikipedia.org/wiki/Nagle's_algorithm

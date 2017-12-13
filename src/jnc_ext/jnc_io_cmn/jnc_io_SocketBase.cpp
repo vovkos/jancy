@@ -119,17 +119,20 @@ SocketBase::open (
 	switch (protocol)
 	{
 		int tcpNoDelayValue;
+		int tcpKeepAlive;
 		linger lingerValue;
 		int udpBroadcastValue;
 		int rawHdrInclValue;
 
 	case IPPROTO_TCP:
 		tcpNoDelayValue = !(m_options & SocketOption_TcpNagle);
+		tcpKeepAlive = (m_options & SocketOption_TcpKeepAlive) != 0;
 		lingerValue.l_onoff = (m_options & SocketOption_TcpReset) != 0;
 		lingerValue.l_linger = 0;
 
 		result =
 			m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof (tcpNoDelayValue)) &&
+			m_socket.setOption (SOL_SOCKET, SO_KEEPALIVE, &tcpKeepAlive, sizeof (tcpKeepAlive)) &&
 			m_socket.setOption (SOL_SOCKET, SO_LINGER, &lingerValue, sizeof (lingerValue));
 		break;
 
