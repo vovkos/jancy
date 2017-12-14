@@ -44,8 +44,7 @@ ExceptionMgr::install ()
 	result = sigaction (SIGFPE, &sigAction, &m_prevSigActionTable [SIGFPE]);
 	ASSERT (result == 0);
 
-	sigAction.sa_flags = 0;
-	sigAction.sa_handler = signalHandler_SIGUSR;
+	sigAction.sa_sigaction = signalHandler_SIGUSR;
 	result = sigaction (SIGUSR1, &sigAction, &m_prevSigActionTable [SIGUSR1]);
 	ASSERT (result == 0);
 }
@@ -71,7 +70,7 @@ ExceptionMgr::signalHandler (
 	Tls* tls = getCurrentThreadTls ();
 	if (!tls)
 	{
-		sl::getSimpleSingleton <ExceptionMgr> ()->invokePrevSignalHandler (signal);
+		sl::getSimpleSingleton <ExceptionMgr> ()->invokePrevSignalHandler (signal, signalInfo, context);
 		return;
 	}
 
@@ -88,7 +87,7 @@ ExceptionMgr::signalHandler (
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (tls + 1);
 	if (!tlsVariableTable->m_sjljFrame)
 	{
-		sl::getSimpleSingleton <ExceptionMgr> ()->invokePrevSignalHandler (signal);
+		sl::getSimpleSingleton <ExceptionMgr> ()->invokePrevSignalHandler (signal, signalInfo, context);
 	}
 	else
 	{
@@ -99,20 +98,48 @@ ExceptionMgr::signalHandler (
 }
 
 void
-ExceptionMgr::invokePrevSignalHandler (int signal)
+ExceptionMgr::signalHandler_SIGUSR (
+	int signal,
+	siginfo_t* signalInfo,
+	void* context
+	)
 {
-	AXL_TODO ("invoking prev hanlder could be done faster without sigaction/raise/sigaction triple")
+	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
 
-	int result;
-	struct sigaction currentSigAction;
+	Tls* tls = getCurrentThreadTls ();
+	if (!tls)
+		sl::getSimpleSingleton <ExceptionMgr> ()->invokePrevSignalHandler (signal, signalInfo, context);
 
-	result = sigaction (signal, &m_prevSigActionTable [signal], &currentSigAction);
-	ASSERT (result == 0);
+	// do nothing (we gc-handshake manually). but we still need a handler
+}
 
-	raise (signal);
+void
+ExceptionMgr::invokePrevSignalHandler (
+	int signal,
+	siginfo_t* signalInfo,
+	void* context
+	)
+{
+	const struct sigaction* prevSigAction = &m_prevSigActionTable [signal];
 
-	result = sigaction (signal, &currentSigAction, NULL);
-	ASSERT (result == 0);
+	if (prevSigAction->sa_handler == SIG_IGN)
+	{
+		return;
+	}
+	else if (prevSigAction->sa_handler == SIG_DFL)
+	{
+		// no other choice but to restore and re-raise
+		sigaction (signal, &m_prevSigActionTable [signal], NULL);
+		raise (signal);
+	}
+	else if (!(prevSigAction->sa_flags & SA_SIGINFO))
+	{
+		prevSigAction->sa_handler (signal);
+	}
+	else if (prevSigAction->sa_sigaction)
+	{
+		prevSigAction->sa_sigaction (signal, signalInfo, context);
+	}
 }
 
 #elif (_AXL_OS_WIN)
@@ -123,8 +150,8 @@ ExceptionMgr::install ()
 	::AddVectoredExceptionHandler (true, vectoredExceptionHandler);
 }
 
-LONG 
-WINAPI 
+LONG
+WINAPI
 ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 {
 	LONG status = exceptionPointers->ExceptionRecord->ExceptionCode;
@@ -136,10 +163,10 @@ ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 		return EXCEPTION_CONTINUE_SEARCH;
 
 	GcHeap* gcHeap = tls->m_runtime->getGcHeap ();
-	
+
 	if (status == EXCEPTION_ACCESS_VIOLATION &&
 		exceptionPointers->ExceptionRecord->ExceptionInformation [1] == (uintptr_t) gcHeap->getGuardPage ())
-	{		
+	{
 		gcHeap->handleGuardPageHit (&tls->m_gcMutatorThread);
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}

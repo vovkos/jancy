@@ -29,7 +29,7 @@ public:
 	ExceptionMgr ()
 	{
 		memset (m_prevSigActionTable, 0, sizeof (m_prevSigActionTable));
-	} 
+	}
 
 	void
 	install ();
@@ -45,13 +45,18 @@ protected:
 
 	static
 	void
-	signalHandler_SIGUSR (int signal)
-	{
-		// do nothing (we gc-handshake manually). but we still need a handler
-	}
+	signalHandler_SIGUSR (
+		int signal,
+		siginfo_t* signalInfo,
+		void* context
+		);
 
 	void
-	invokePrevSignalHandler (int signal);
+	invokePrevSignalHandler (
+		int signal,
+		siginfo_t* signalInfo,
+		void* context
+		);
 };
 
 #elif (_JNC_OS_WIN)
@@ -64,8 +69,8 @@ public:
 
 protected:
 	static
-	LONG 
-	WINAPI 
+	LONG
+	WINAPI
 	vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers);
 };
 
