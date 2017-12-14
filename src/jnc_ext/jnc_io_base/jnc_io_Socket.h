@@ -96,7 +96,6 @@ protected:
 
 	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
 	sl::StdList <IncomingConnection> m_freeIncomingConnectionList;
-	size_t m_backLogLimit;
 
 #if (_AXL_OS_WIN)
 	sl::Array <char> m_overlappedSendToParams;

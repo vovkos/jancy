@@ -155,7 +155,6 @@ Socket::listen (size_t backLogLimit)
 	if (result)
 	{
 		m_lock.lock ();
-		m_backLogLimit = backLogLimit;
 		m_ioThreadFlags |= IoThreadFlag_Listening;
 		wakeIoThread ();
 		m_lock.unlock ();
@@ -189,11 +188,18 @@ Socket::accept (DataPtr addressPtr)
 		address->setSockAddr (incomingConnection->m_sockAddr);
 
 	m_freeIncomingConnectionList.insertHead (incomingConnection);
-	
+
 	if (m_pendingIncomingConnectionList.isEmpty ())
 		m_activeEvents &= ~SocketEvent_IncomingConnection;
 
 	m_lock.unlock ();
+
+	bool result = connectionSocket->m_socket.setBlockingMode (false); // not guaranteed to be propagated across accept calls
+	if (!result)
+	{
+		propagateLastError ();
+		return NULL;
+	}
 
 	connectionSocket->wakeIoThread ();
 	connectionSocket->m_ioThread.start ();
@@ -329,7 +335,7 @@ Socket::acceptLoop ()
 			m_lock.lock ();
 			if (m_ioThreadFlags & IoThreadFlag_Closing)
 			{
-				setIoErrorEvent_l (err::SystemErrorCode_Cancelled);
+				m_lock.unlock ();
 				return;
 			}
 
@@ -368,7 +374,6 @@ Socket::acceptLoop ()
 				incomingConnection->m_sockAddr = sockAddr;
 				incomingConnection->m_socket.m_socket.takeOver (&socket.m_socket);
 				m_pendingIncomingConnectionList.insertTail (incomingConnection);
-
 				setEvents_l (SocketEvent_IncomingConnection);
 			}
 
@@ -554,7 +559,7 @@ Socket::sendRecvLoop (
 				if (isDatagram)
 				{
 					params->m_sockAddrSize = sizeof (params->m_sockAddr);
-					
+
 					result = m_socket.m_socket.wsaRecvFrom (
 							read->m_buffer,
 							readBlockSize,
@@ -643,7 +648,7 @@ Socket::acceptLoop ()
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
-		while (canAcceptSocket && m_freeIncomingConnectionList.getCount () < m_backLogLimit)
+		while (canAcceptSocket)
 		{
 			axl::io::SockAddr sockAddr;
 			socklen_t sockAddrSize = sizeof (sockAddr);
@@ -676,7 +681,6 @@ Socket::acceptLoop ()
 			processWaitLists_l ();
 		else
 			m_lock.unlock ();
-
 	}
 }
 
@@ -757,7 +761,7 @@ Socket::sendRecvLoop (
 					&sockAddrSize
 					);
 
-				if (actualSize != -1)
+				if (actualSize == -1)
 				{
 					if (errno == EAGAIN)
 					{
@@ -817,7 +821,7 @@ Socket::sendRecvLoop (
 			while (canReadSocket && !m_readBuffer.isFull ())
 			{
 				ssize_t actualSize = ::recv (m_socket.m_socket, readBlock, readBlock.getCount (), 0);
-				if (actualSize != -1)
+				if (actualSize == -1)
 				{
 					if (errno == EAGAIN)
 					{
@@ -831,7 +835,7 @@ Socket::sendRecvLoop (
 				}
 				else if (actualSize == 0)
 				{
-					setEvents (m_socket.getError () ?
+					setEvents_l (m_socket.getError () ?
 						SocketEvent_Disconnected | SocketEvent_Reset :
 						SocketEvent_Disconnected
 						);
@@ -857,9 +861,9 @@ Socket::sendRecvLoop (
 					{
 						canWriteSocket = false;
 					}
-					else if (actualSize < 0)
+					else
 					{
-						setIoErrorEvent_l (err::Errno ((int) actualSize));
+						setIoErrorEvent_l (err::Errno (errno));
 						return;
 					}
 				}
