@@ -35,5 +35,44 @@ enum SysLibCacheSlot
 
 //..............................................................................
 
+enum CpuKind
+{
+	CpuKind_Ia32,
+	CpuKind_Amd64,
+	CpuKind_Arm32,
+	CpuKind_Arm64,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OsKind
+{
+	OsKind_Windows,
+	OsKind_Linux,
+	OsKind_Solaris,
+	OsKind_Bsd,
+	OsKind_Mac,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OsFlag
+{
+	OsFlag_Posix,
+	OsFlag_Bsd,
+	OsFlag_Darwin,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SystemInfo
+{
+	uint_t m_cpuKind;
+	uint_t m_osKind;
+	uint_t m_osFlags;
+};
+
+//..............................................................................
+
 } // namespace sys
 } // namespace jnc

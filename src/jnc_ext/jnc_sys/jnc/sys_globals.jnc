@@ -29,6 +29,41 @@ namespace sys {
 
 char const* property g_env (char const* name);
 
+enum CpuKind
+{
+	Ia32,
+	Amd64,
+	Arm32,
+	Arm64,
+}
+
+enum OsKind
+{
+	Windows,
+	Linux,
+	Solaris,
+	Bsd,
+	Mac,
+}
+
+bitflag enum OsFlags
+{
+	Posix,
+	Bsd,
+	Darwin,
+}
+
+struct SystemInfo
+{
+	CpuKind m_cpuKind;
+	OsKind m_osKind;
+	OsFlags m_osFlags;
+
+	// extend later as needed
+}
+
+SystemInfo const property g_systemInfo;
+
 //! \addtogroup thread
 //! @{
 
