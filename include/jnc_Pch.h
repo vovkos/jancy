@@ -43,15 +43,25 @@
 
 #if (_JNC_CPP_MSC)
 #	if (defined _M_IX86)
-#		define _JNC_CPU_X86 1
+#		define _JNC_CPU_IA32  1
+#		define _JNC_CPU_X86   1
 #	elif (defined _M_AMD64)
 #		define _JNC_CPU_AMD64 1
+#	elif (defined _M_ARM)
+#		define _JNC_CPU_ARM32 1
+#	elif (defined _M_ARM64)
+#		define _JNC_CPU_ARM64 1
 #	endif
 #elif (_JNC_CPP_GCC)
 #	if defined __i386__
-#		define _JNC_CPU_X86 1
+#		define _JNC_CPU_IA32  1
+#		define _JNC_CPU_X86   1
 #	elif (defined __amd64__)
 #		define _JNC_CPU_AMD64 1
+#	elif (defined __arm__)
+#		define _JNC_CPU_ARM32 1
+#	elif (defined __aarch64__)
+#		define _JNC_CPU_ARM64 1
 #	endif
 #endif
 
