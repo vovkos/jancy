@@ -10,7 +10,7 @@ class Foo
 
 foo ()
 {
-	return -1;
+	return (void) -1;
 }
 
 
