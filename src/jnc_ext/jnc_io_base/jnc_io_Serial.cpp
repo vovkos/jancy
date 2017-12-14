@@ -121,7 +121,7 @@ Serial::open (DataPtr namePtr)
 		);
 
 	bool result =
-		m_serial.open ((const char*) namePtr.m_p) &&
+		m_serial.open ((const char*) namePtr.m_p, axl::io::FileFlag_Asynchronous) &&
 		m_serial.setSettings (&serialSettings) &&
 		m_serial.setDtr (m_dtr) &&
 		m_serial.setRts (m_rts);
