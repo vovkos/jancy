@@ -288,6 +288,15 @@ SocketBase::tcpConnect (uint_t connectCompletedEvent)
 		{
 			char buffer [256];
 			m_ioThreadSelfPipe.read (buffer, sizeof (buffer));
+
+			m_lock.lock ();
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
+			{
+				m_lock.unlock ();
+				return false;
+			}
+
+			m_lock.unlock ();
 		}
 
 		if (FD_ISSET (m_socket.m_socket, &writeSet))
