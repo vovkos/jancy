@@ -257,7 +257,7 @@ SshChannel::getLastSshError ()
 {
 	char* errorString = NULL;
 	int length = 0;
-	libssh2_session_last_error (m_sshSession, &errorString, &length, false);
+	::libssh2_session_last_error (m_sshSession, &errorString, &length, false);
 	return err::Error (sl::StringRef (errorString, length));
 }
 
@@ -288,7 +288,7 @@ getSshLastError (LIBSSH2_SESSION* sshSession)
 {
 	char* string;
 	int length;
-	libssh2_session_last_error (sshSession, &string, &length, false);
+	::libssh2_session_last_error (sshSession, &string, &length, false);
 	return err::Error (sl::StringRef (string, length));
 }
 
@@ -297,14 +297,14 @@ SshChannel::sshConnect ()
 {
 	int result;
 
-	LIBSSH2_SESSION* sshSession = libssh2_session_init ();
+	LIBSSH2_SESSION* sshSession = ::libssh2_session_init ();
 
 	m_sshSession.attach (sshSession);
-	libssh2_session_set_blocking (m_sshSession, false);
+	::libssh2_session_set_blocking (m_sshSession, false);
 
 	do
 	{
-		result = libssh2_session_handshake (m_sshSession, m_socket.m_socket);
+		result = ::libssh2_session_handshake (m_sshSession, m_socket.m_socket);
 		result = sshAsyncLoop (result);
 	} while (result == LIBSSH2_ERROR_EAGAIN);
 
@@ -325,12 +325,12 @@ SshChannel::sshConnect ()
 		do
 		{
 			result = m_connectParams->m_privateKey.isEmpty () ?
-				libssh2_userauth_password (
+				::libssh2_userauth_password (
 					m_sshSession,
 					m_connectParams->m_userName,
 					m_connectParams->m_password
 					) :
-				libssh2_userauth_publickey_frommemory (
+				::libssh2_userauth_publickey_frommemory (
 					m_sshSession,
 					m_connectParams->m_userName.cp (),
 					m_connectParams->m_userName.getLength (),
@@ -403,14 +403,14 @@ SshChannel::sshConnect ()
 			if (!result)
 				return false;
 
-			sshSession = libssh2_session_init ();
+			sshSession = ::libssh2_session_init ();
 
 			m_sshSession.attach (sshSession);
-			libssh2_session_set_blocking (m_sshSession, false);
+			::libssh2_session_set_blocking (m_sshSession, false);
 
 			do
 			{
-				result = libssh2_session_handshake (m_sshSession, m_socket.m_socket);
+				result = ::libssh2_session_handshake (m_sshSession, m_socket.m_socket);
 				result = sshAsyncLoop (result);
 			} while (result == LIBSSH2_ERROR_EAGAIN);
 
@@ -430,7 +430,7 @@ SshChannel::sshConnect ()
 
 	do
 	{
-		channel = libssh2_channel_open_ex (
+		channel = ::libssh2_channel_open_ex (
 			m_sshSession,
 			m_connectParams->m_channelType,
 			m_connectParams->m_channelType.getLength (),
@@ -439,7 +439,7 @@ SshChannel::sshConnect ()
 			NULL, 0
 			);
 
-		result = channel ? 0 : sshAsyncLoop (libssh2_session_last_errno (m_sshSession));
+		result = channel ? 0 : sshAsyncLoop (::libssh2_session_last_errno (m_sshSession));
 	} while (result == LIBSSH2_ERROR_EAGAIN);
 
 	if (!channel)
@@ -449,13 +449,13 @@ SshChannel::sshConnect ()
 	}
 
 	m_sshChannel.attach (channel);
-	libssh2_channel_set_blocking (m_sshChannel, false);
+	::libssh2_channel_set_blocking (m_sshChannel, false);
 
 	setEvents (SshEvent_SshChannelOpened);
 
 	do
 	{
-		result = libssh2_channel_request_pty_ex (
+		result = ::libssh2_channel_request_pty_ex (
 			m_sshChannel,
 			m_connectParams->m_ptyType,
 			m_connectParams->m_ptyType.getLength (),
@@ -478,7 +478,7 @@ SshChannel::sshConnect ()
 
 	do
 	{
-		result = libssh2_channel_process_startup (
+		result = ::libssh2_channel_process_startup (
 			m_sshChannel,
 			m_connectParams->m_processType,
 			m_connectParams->m_processType.getLength (),
@@ -603,7 +603,7 @@ SshChannel::sshReadWriteLoop ()
 
 		while (canReadSocket && !m_readBuffer.isFull ())
 		{
-			ssize_t actualSize = libssh2_channel_read (m_sshChannel, readBlock, readBlock.getCount ());
+			ssize_t actualSize = ::libssh2_channel_read (m_sshChannel, readBlock, readBlock.getCount ());
 			if (actualSize == LIBSSH2_ERROR_EAGAIN)
 			{
 				canReadSocket = false;
@@ -631,7 +631,7 @@ SshChannel::sshReadWriteLoop ()
 				break;
 
 			size_t blockSize = writeBlock.getCount ();
-			ssize_t actualSize = libssh2_channel_write (m_sshChannel, writeBlock, blockSize);
+			ssize_t actualSize = ::libssh2_channel_write (m_sshChannel, writeBlock, blockSize);
 			if (actualSize == LIBSSH2_ERROR_EAGAIN)
 			{
 				canWriteSocket = false;
@@ -653,7 +653,7 @@ SshChannel::sshReadWriteLoop ()
 
 		if (canWriteSocket && (m_ioThreadFlags & IoFlag_ResizePty))
 		{
-			ssize_t sshResult = libssh2_channel_request_pty_size (m_sshChannel, m_ptyWidth, m_ptyHeight);
+			ssize_t sshResult = ::libssh2_channel_request_pty_size (m_sshChannel, m_ptyWidth, m_ptyHeight);
 			if (sshResult == LIBSSH2_ERROR_EAGAIN)
 			{
 				canWriteSocket = false;
@@ -679,6 +679,141 @@ SshChannel::sshReadWriteLoop ()
 }
 
 #elif (_JNC_OS_POSIX)
+
+void
+SshChannel::sshReadWriteLoop ()
+{
+	int result;
+	int selectFd = AXL_MAX (m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	sl::Array <char> readBlock;
+	sl::Array <char> writeBlock;
+	readBlock.setCount (Def_ReadBlockSize);
+
+	char buffer [256];
+	sl::Array <char> writeParams (ref::BufKind_Stack, buffer, sizeof (buffer));
+	writeParams.setCount (sizeof (SocketAddress));
+
+	bool canReadSocket = false;
+	bool canWriteSocket = false;
+
+	for (;;)
+	{
+		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
+
+		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
+
+		if (!canReadSocket)
+			FD_SET (m_socket.m_socket, &readSet);
+
+		if (!canWriteSocket)
+			FD_SET (m_socket.m_socket, &writeSet);
+
+		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
+		if (result == -1)
+			break;
+
+		if (FD_ISSET (m_ioThreadSelfPipe.m_readFile, &readSet))
+		{
+			char buffer [256];
+			m_ioThreadSelfPipe.read (buffer, sizeof (buffer));
+		}
+
+		if (FD_ISSET (m_socket.m_socket, &readSet))
+			canReadSocket = true;
+
+		if (FD_ISSET (m_socket.m_socket, &writeSet))
+			canWriteSocket = true;
+
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock ();
+			return;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = SshEvent_FullyConnected;
+
+		readBlock.setCount (m_readBlockSize); // update read block size
+
+		while (canReadSocket && !m_readBuffer.isFull ())
+		{
+			ssize_t actualSize = ::libssh2_channel_read (m_sshChannel, readBlock, readBlock.getCount ());
+			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			{
+				canReadSocket = false;
+			}
+			else if (actualSize < 0)
+			{
+				setIoErrorEvent_l (err::Errno ((int) actualSize));
+				return;
+			}
+			else if (actualSize == 0) // disconnect by remote node
+			{
+				setEvents_l (SshEvent_TcpDisconnected);
+				return;
+			}
+			else
+			{
+				addToReadBuffer (readBlock, actualSize);
+			}
+		}
+
+		while (canWriteSocket)
+		{
+			getNextWriteBlock (&writeBlock);
+			if (writeBlock.isEmpty ())
+				break;
+
+			size_t blockSize = writeBlock.getCount ();
+			ssize_t actualSize = ::libssh2_channel_write (m_sshChannel, writeBlock, blockSize);
+			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			{
+				canWriteSocket = false;
+			}
+			else if (actualSize < 0)
+			{
+				setIoErrorEvent_l (err::Errno ((int) actualSize));
+				return;
+			}
+			else if ((size_t) actualSize < blockSize)
+			{
+				writeBlock.remove (0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear ();
+			}
+		}
+
+		if (canWriteSocket && (m_ioThreadFlags & IoFlag_ResizePty))
+		{
+			ssize_t sshResult = ::libssh2_channel_request_pty_size (m_sshChannel, m_ptyWidth, m_ptyHeight);
+			if (sshResult == LIBSSH2_ERROR_EAGAIN)
+			{
+				canWriteSocket = false;
+			}
+			else if (sshResult < 0)
+			{
+				setIoErrorEvent_l (err::Errno ((int) sshResult));
+				return;
+			}
+			else
+			{
+				m_ioThreadFlags &= ~IoFlag_ResizePty;
+			}
+		}
+
+		updateReadWriteBufferEvents ();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
+	}
+}
 
 #endif
 
