@@ -437,7 +437,7 @@ ControlFlowMgr::ret (const Value& value)
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
-	if (!value || value.getType ()->getTypeKind () == TypeKind_Void)
+	if (!value || value.getValueKind () == ValueKind_Void)
 	{
 		if (functionType->getReturnType ()->getTypeKind () != TypeKind_Void)
 		{
