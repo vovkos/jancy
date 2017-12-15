@@ -25,7 +25,6 @@ AsyncIoDevice::AsyncIoDevice ()
 }
 
 void
-JNC_CDECL
 AsyncIoDevice::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
 	sl::Iterator <AsyncWait> it = m_asyncWaitList.getHead ();
@@ -154,7 +153,6 @@ AsyncIoDevice::setWriteBufferSize (
 }
 
 uint_t
-JNC_CDECL
 AsyncIoDevice::blockingWait (
 	uint_t eventMask,
 	uint_t timeout
@@ -188,7 +186,6 @@ AsyncIoDevice::blockingWait (
 }
 
 handle_t
-JNC_CDECL
 AsyncIoDevice::wait (
 	uint_t eventMask,
 	FunctionPtr handlerPtr
@@ -222,7 +219,6 @@ AsyncIoDevice::wait (
 }
 
 bool
-JNC_CDECL
 AsyncIoDevice::cancelWait (handle_t handle)
 {
 	m_lock.lock ();
