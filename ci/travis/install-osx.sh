@@ -15,15 +15,6 @@ brew install lua
 brew install ragel
 brew install p7zip
 
-if [ "$BUILD_DOC" != "" ]; then
-	brew install doxygen
-	pip install sphinx sphinx_rtd_theme
-	rvm get stable
-	echo rvm_auto_reload_flag=1 >> ~/.rvmrc
-
-	git clone --depth 1 http://github.com/vovkos/doxyrest
-fi
-
 # openssl is already installed, but not linked
 
 echo "set (OPENSSL_INC_DIR /usr/local/opt/openssl/include)" >> paths.cmake

@@ -50,6 +50,13 @@ fi
 
 sudo apt-get install -y p7zip-full
 
+if [ "$BUILD_DOC" != "" ]; then
+	sudo apt-get install -y doxygen
+	sudo pip install sphinx sphinx_rtd_theme
+
+	git clone --depth 1 http://github.com/vovkos/doxyrest
+fi
+
 if [ "$GET_COVERAGE" != "" ]; then
 	sudo apt-get install -y lcov
 	echo "axl_override_setting (GCC_FLAG_COVERAGE -coverage)" >> settings.cmake
