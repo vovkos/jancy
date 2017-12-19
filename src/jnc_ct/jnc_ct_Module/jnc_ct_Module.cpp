@@ -78,8 +78,7 @@ Module::clear ()
 	m_calcLayoutArray.clear ();
 	m_compileArray.clear ();
 	m_sourceList.clear ();
-	m_filePathList.clear ();
-	m_filePathMap.clear ();
+	m_filePathSet.clear ();
 	m_functionMap.clear ();
 
 	m_llvmModule = NULL;
@@ -437,7 +436,7 @@ Module::parseFile (const sl::StringRef& fileName)
 {
 	sl::String filePath = io::getFullFilePath (fileName);
 
-	sl::StringHashTableIterator <bool> it = m_filePathMap.find (filePath);
+	sl::StringHashTableIterator <bool> it = m_filePathSet.find (filePath);
 	if (it)
 		return true; // already parsed
 
@@ -450,8 +449,7 @@ Module::parseFile (const sl::StringRef& fileName)
 	sl::String source ((const char*) file.p (), length);
 
 	m_sourceList.insertTail (source);
-	m_filePathList.insertTail (filePath);
-	m_filePathMap.visit (filePath);
+	m_filePathSet.visit (filePath);
 
 	return parse (NULL, filePath, source);
 }

@@ -76,8 +76,7 @@ protected:
 	sl::Array <ModuleItem*> m_calcLayoutArray;
 	sl::Array <ModuleItem*> m_compileArray;
 	sl::BoxList <sl::String> m_sourceList; // need to keep all sources in-memory during compilation
-	sl::BoxList <sl::String> m_filePathList;
-	sl::StringHashTable <bool> m_filePathMap;
+	sl::StringHashTable <bool> m_filePathSet;
 	sl::StringHashTable <void*> m_functionMap;
 
 	llvm::Module* m_llvmModule;
