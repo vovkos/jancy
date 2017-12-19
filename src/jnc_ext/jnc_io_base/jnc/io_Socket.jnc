@@ -45,7 +45,7 @@ bitflag enum SocketEvents
 	IncomingData,
 
 	/**
-		Socket receive buffer is full; upcoming data may be dropped .
+		Socket receive buffer is full.
 	*/
 
 	ReceiveBufferFull,
@@ -197,7 +197,7 @@ opaque class Socket
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
-	
+
 	SocketOptions autoget property m_options;
 
 	io.SocketEvents readonly volatile m_activeEvents;

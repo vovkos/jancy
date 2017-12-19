@@ -33,6 +33,7 @@ set (
 	-d
 	--std-lib-doc
 	--no-doxy-comment ///
+	--ignore-import io_base.jncx
 	-O ${XML_DIR}
 	${JANCY_SRC_DIR}/jnc_ct/jnc/.forced.jnc
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc
