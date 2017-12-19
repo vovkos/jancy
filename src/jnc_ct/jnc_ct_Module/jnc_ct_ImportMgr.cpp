@@ -29,13 +29,16 @@ ImportMgr::clear ()
 {
 	m_importList.clear ();
 	m_importFilePathMap.clear ();
-	m_extensionLibFilePathCache.clear ();
+	m_ignoredImportSet.clear ();
 }
 
 bool
 ImportMgr::addImport (const sl::StringRef& fileName)
 {
 	sl::String filePath;
+
+	if (m_ignoredImportSet.find (fileName))
+		return true;
 
 	bool isExtensionLib = fileName.isSuffix (".jncx");
 	if (isExtensionLib)
@@ -46,7 +49,6 @@ ImportMgr::addImport (const sl::StringRef& fileName)
 		else if (findResult == FindResult_AlreadyImported)
 			return true;
 
-		m_extensionLibFilePathCache.insertTail (filePath);
 		return m_module->m_extensionLibMgr.loadDynamicLib (filePath);
 	}
 

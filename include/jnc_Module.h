@@ -188,6 +188,13 @@ jnc_Module_addImport (
 
 JNC_EXTERN_C
 void
+jnc_Module_addIgnoredImport (
+	jnc_Module* module,
+	const char* fileName
+	);
+
+JNC_EXTERN_C
+void
 jnc_Module_addOpaqueClassTypeInfo (
 	jnc_Module* module,
 	const char* qualifiedName,
@@ -353,6 +360,12 @@ struct jnc_Module
 	addImport (const char* fileName)
 	{
 		jnc_Module_addImport (this, fileName);
+	}
+
+	void
+	addIgnoredImport (const char* fileName)
+	{
+		jnc_Module_addIgnoredImport (this, fileName);
 	}
 
 	void

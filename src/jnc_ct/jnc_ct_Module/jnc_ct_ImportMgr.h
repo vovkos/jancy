@@ -52,8 +52,8 @@ protected:
 	Module* m_module;
 
 	sl::StdList <Import> m_importList;
+	sl::StringHashTable <bool> m_ignoredImportSet;
 	sl::StringHashTable <bool> m_importFilePathMap;
-	sl::BoxList <sl::String> m_extensionLibFilePathCache;
 
 public:
 	sl::BoxList <sl::String> m_importDirList;
@@ -85,6 +85,12 @@ public:
 		const sl::StringRef& filePath,
 		const sl::StringRef& source
 		);
+
+	void
+	addIgnoredImport (const sl::StringRef& fileName)
+	{
+		m_ignoredImportSet.visit (fileName);
+	}
 
 protected:
 	FindResult
