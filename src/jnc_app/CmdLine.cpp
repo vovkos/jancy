@@ -154,16 +154,20 @@ CmdLineParser::onSwitch (
 
 		break;
 
-	case CmdLineSwitch_ImportDir:
-		m_cmdLine->m_importDirList.insertTail (value);
-		break;
-
 	case CmdLineSwitch_SourceDir:
 		m_cmdLine->m_sourceDirList.insertTail (value);
 		break;
 
 	case CmdLineSwitch_OutputDir:
 		m_cmdLine->m_outputDir = value;
+		break;
+
+	case CmdLineSwitch_ImportDir:
+		m_cmdLine->m_importDirList.insertTail (value);
+		break;
+
+	case CmdLineSwitch_IgnoreImport:
+		m_cmdLine->m_ignoredImportList.insertTail (value);
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:

@@ -45,6 +45,7 @@ struct CmdLine
 	sl::BoxList <sl::String> m_fileNameList;
 	sl::BoxList <sl::String> m_importDirList;
 	sl::BoxList <sl::String> m_sourceDirList;
+	sl::BoxList <sl::String> m_ignoredImportList;
 
 	CmdLine ();
 
@@ -61,9 +62,10 @@ enum CmdLineSwitch
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_CompileOnly,
 	CmdLineSwitch_Documentation,
+	CmdLineSwitch_OutputDir,
 	CmdLineSwitch_SourceDir,
 	CmdLineSwitch_ImportDir,
-	CmdLineSwitch_OutputDir,
+	CmdLineSwitch_IgnoreImport,
 	CmdLineSwitch_PrintReturnValue,
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
@@ -115,6 +117,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		"d", "doc", "documentation", NULL,
 		"Generate documentation"
 		)
+	AXL_SL_CMD_LINE_SWITCH_2 (
+		CmdLineSwitch_OutputDir,
+		"O", "output-dir", "<dir>",
+		"Specify output directory"
+		)
 	AXL_SL_CMD_LINE_SWITCH_3 (
 		CmdLineSwitch_SourceDir,
 		"S", "src-dir", "source-dir", "<dir>",
@@ -125,10 +132,10 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		"I", "import-dir", "<dir>",
 		"Add import directory"
 		)
-	AXL_SL_CMD_LINE_SWITCH_2 (
-		CmdLineSwitch_OutputDir,
-		"O", "output-dir", "<dir>",
-		"Specify output directory"
+	AXL_SL_CMD_LINE_SWITCH (
+		CmdLineSwitch_IgnoreImport,
+		"ignore-import", "<file>",
+		"Ignore imports of a specific file (for documentation)"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_LlvmIr,
@@ -153,7 +160,7 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 	AXL_SL_CMD_LINE_SWITCH (
 		CmdLineSwitch_SimpleGcSafePoint,
 		"simple-gc-safe-point", NULL,
-		"Use simple GC safe-point call (rather than write barrier)"
+		"Use simple GC safe-point call (rather than guard page)"
 		)
 	AXL_SL_CMD_LINE_SWITCH (
 		CmdLineSwitch_StdLibDoc,

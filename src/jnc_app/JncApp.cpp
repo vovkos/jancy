@@ -81,6 +81,10 @@ JncApp::JncApp (CmdLine* cmdLine)
 	for (; it; it++)
 		m_module->addImportDir (*it);
 
+	it = cmdLine->m_ignoredImportList.getHead ();
+	for (; it; it++)
+		m_module->addIgnoredImport (*it);
+
 	m_module->addImportDir (io::getExeDir ());
 }
 
