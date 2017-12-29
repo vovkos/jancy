@@ -457,6 +457,9 @@ AsyncIoDevice::bufferedReadImpl_l (
 
 	if (result)
 	{
+		ASSERT (!m_readBuffer.isFull ());
+		m_activeEvents &= ~AsyncIoEvent_ReceiveBufferFull;
+
 		if (m_readBuffer.isEmpty ())
 			m_activeEvents &= ~AsyncIoEvent_IncomingData;
 
