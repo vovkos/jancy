@@ -70,6 +70,8 @@ bool
 JNC_CDECL
 SshChannel::open_0 (uint16_t family)
 {
+	close ();
+
 	bool result = SocketBase::open (family, IPPROTO_TCP, NULL);
 	if (!result)
 		return false;
@@ -82,6 +84,8 @@ bool
 JNC_CDECL
 SshChannel::open_1 (DataPtr addressPtr)
 {
+	close ();
+
 	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
 
 	bool result = SocketBase::open (address ? address->m_family : AF_INET, IPPROTO_TCP, address);

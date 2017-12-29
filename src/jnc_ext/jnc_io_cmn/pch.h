@@ -11,8 +11,6 @@
 
 #pragma once
 
-#define _JNC_DYNAMIC_EXTENSION_LIB
-
 #include "axl_io_Socket.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"

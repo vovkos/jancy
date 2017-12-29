@@ -1,0 +1,146 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_win_DeviceMonitorNotify.jnc"
+import "io_lnx_DeviceMonitorNotify.jnc"
+
+namespace io {
+
+//..............................................................................
+
+bitflag enum DeviceMonitorEvents
+{
+	/**
+		An IO error occured on the device monitor; detailed information about the error is available at `io.AsyncDevice.m_ioError`.
+	*/
+
+	IoError,
+
+	/**
+		Incoming data is available on the device monitor; this data could be fetched with `io.DeviceMonitor.read`.
+	*/
+
+	IncomingData,
+
+	/**
+		Device monitor receive buffer is full.
+	*/
+
+	ReceiveBufferFull,
+}
+
+namespace psx {
+
+//..............................................................................
+
+bitflag enum DeviceMonitorIoctlFlags
+{
+	HasArgSizeField,
+	ArgSizeField8,
+	ArgSizeField16,
+	ArgSizeFieldBigEndian,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorIoctlDesc
+{
+	uint32_t m_code;
+	uint32_t m_argFixedSize;
+	uint32_t m_argSizeFieldOffset;
+	DeviceMonitorIoctlFlags m_flags;
+};
+
+//..............................................................................
+
+} // namespace psx
+
+enum
+{
+	DeviceMonitorNotifyHdrSignature = 'nomt',
+}
+
+bitflag enum DeviceMonitorNotifyFlags: uint16_t
+{
+	DataDropped = 0x02, // one or more notifications after this one were dropped
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorNotifyHdr
+{
+	uint32_t m_signature;
+	uint16_t m_code;
+	uint16_t m_flags;
+	int32_t m_ntStatus;
+	uint32_t m_paramSize;
+	uint32_t m_processId;
+	uint32_t m_threadId;
+	uint64_t m_timestamp;
+
+	// followed by params
+}
+
+//..............................................................................
+
+opaque class DeviceMonitor
+{
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_pendingNotifySizeLimit;
+
+	char const* readonly m_deviceName;
+	char const* autoget property m_fileNameFilter;
+
+	bool readonly m_isConnected;
+	bool autoget property m_isEnabled;
+
+	uint_t readonly m_unused;
+
+	DeviceMonitorEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+	bool readonly m_isOpen;
+
+	construct ();
+	destruct ();
+
+	bool errorcode open ();
+	bool errorcode connect (char const* deviceName);
+	void close ();
+
+
+	void setIoctlDescTable (
+		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
+		size_t count
+		);
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	intptr errorcode wait (
+		DeviceMonitorEvents eventMask,
+		function* handler (DeviceMonitorEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait (intptr handle);
+
+	DeviceMonitorEvents errorcode blockingWait (
+		DeviceMonitorEvents eventMask,
+		uint_t timeout
+		);
+}
+
+//..............................................................................
+
+} // namespace io

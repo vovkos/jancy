@@ -1,0 +1,219 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+namespace win {
+
+//..............................................................................
+
+enum DeviceMonitorNotifyCode: uint16_t
+{
+	Undefined = 0,
+	PnpStartDevice,
+	PnpStopDevice,
+	PnpRemoveDevice,
+	FastIoDetachDevice,
+	Create,
+	CreateNamedPipe,
+	Close,
+	Read,
+	Write,
+	Ioctl,
+	InternalIoctl,
+	Fsctl,
+	CreateMailslot,
+	KeyboardEvent,
+	MouseEvent,
+	FastIoRead,
+	FastIoWrite,
+	FastIoIoctl,
+	_Count,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// unions and paddings are to ensure the same layout for x86/amd64 and regardless of pragma pack
+
+struct DeviceMonitorCreateNotifyParams
+{
+	union
+	{
+		uintptr_t m_fileId;
+		uint64_t m_fileId64;
+	}
+
+	uint32_t m_options;
+	uint32_t m_desiredAccess;
+	uint32_t m_shareAccess;
+	uint32_t m_fileAttributes;
+	uint32_t m_fileNameLength;
+	uint32_t _m_padding;
+
+	// followed by UTF16 file name
+}
+
+struct DeviceMonitorCreateNamedPipeNotifyParams: DeviceMonitorCreateNotifyParams
+{
+	uint32_t m_pipeType;
+	uint32_t m_readMode;
+	uint32_t m_completionMode;
+	uint32_t m_maxInstanceCount;
+	uint32_t m_inBoundQuota;
+	uint32_t m_outBoundQuota;
+	uint64_t m_defaultTimeout;
+
+	// followed by UTF16 pipe name
+}
+
+struct DeviceMonitorCreateMailslotNotifyParams: DeviceMonitorCreateNotifyParams
+{
+	uint32_t m_mailslotQuota;
+	uint32_t m_maxMessageSize;
+	uint64_t m_readTimeout;
+
+	// followed by UTF16 mailslot name
+}
+
+struct DeviceMonitorCloseNotifyParams
+{
+	union
+	{
+		uintptr_t m_fileId;
+		uint64_t m_fileId64;
+	}
+}
+
+struct DeviceMonitorReadWriteNotifyParams
+{
+	union
+	{
+		uintptr_t m_fileId;
+		uint64_t m_fileId64;
+	}
+
+	uint64_t m_offset;
+	uint32_t m_bufferSize;
+	uint32_t m_dataSize;
+
+	// followed by read/write data
+}
+
+struct DeviceMonitorIoctlNotifyParams
+{
+	union
+	{
+		uintptr_t m_fileId;
+		uint64_t m_fileId64;
+	}
+
+	uint32_t m_code;
+	uint32_t m_inDataSize;
+	uint32_t m_outBufferSize;
+	uint32_t m_outDataSize;
+
+	// followed by in-data
+	// followed by out-data
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DeviceMonitorMouseEventFlag
+{
+	DeviceMonitorMouseEventFlag_RelativeCoordinates = 0x0001,
+	DeviceMonitorMouseEventFlag_AbsoluteCoordinates = 0x0002,
+	DeviceMonitorMouseEventFlag_VirtualDesktop      = 0x0004,
+	DeviceMonitorMouseEventFlag_MoveNoCoalesce      = 0x0008,
+	DeviceMonitorMouseEventFlag_LeftButtonDown      = 0x0010,
+	DeviceMonitorMouseEventFlag_LeftButtonUp        = 0x0020,
+	DeviceMonitorMouseEventFlag_RightButtonDown     = 0x0040,
+	DeviceMonitorMouseEventFlag_RightButtonUp       = 0x0080,
+	DeviceMonitorMouseEventFlag_MiddleButtonDown    = 0x0100,
+	DeviceMonitorMouseEventFlag_MiddleButtonUp      = 0x0200,
+	DeviceMonitorMouseEventFlag_Button4Down         = 0x0400,
+	DeviceMonitorMouseEventFlag_Button4Up           = 0x0800,
+	DeviceMonitorMouseEventFlag_Button5Down         = 0x1000,
+	DeviceMonitorMouseEventFlag_Button5Up           = 0x2000,
+	DeviceMonitorMouseEventFlag_Wheel               = 0x4000,
+}
+
+enum DeviceMonitorKeyboardEventFlag
+{
+	DeviceMonitorKeyboardEventFlag_Pressed           = 0x01,
+	DeviceMonitorKeyboardEventFlag_Released          = 0x02,
+	DeviceMonitorKeyboardEventFlag_ExtendedScanCode  = 0x04,
+	DeviceMonitorKeyboardEventFlag_ExtendedScanCode2 = 0x08,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorKeyboardEventParams
+{
+	uint32_t m_inputCount;
+
+	// followed by DeviceMonitorKeyboardInput m_input [m_inputCount]
+}
+
+struct DeviceMonitorKeyboardInput // binary compatible with WDK KEYBOARD_INPUT_DATA
+{
+	uint16_t m_unitId;
+	uint16_t m_scanCode;
+	uint16_t m_flags;
+	uint16_t m_reserved;
+	uint32_t  m_extraInformation;
+}
+
+struct DeviceMonitorMouseEventParams
+{
+	uint32_t m_inputCount;
+
+	// followed by DeviceMonitorMouseInput m_input [m_inputCount]
+}
+
+struct DeviceMonitorMouseInput // binary compatible with WDK MOUSE_INPUT_DATA
+{
+	uint16_t m_unitId;
+	uint16_t m_flags;
+
+	union
+	{
+		uint32_t m_buttons;
+
+		struct
+		{
+			uint16_t m_buttonFlags;
+			uint16_t m_buttonData;
+		}
+	}
+
+	uint32_t  m_rawButtons;
+
+	union
+	{
+		struct
+		{
+			int32_t m_absoluteX;
+			int32_t m_absoluteY;
+		}
+
+		struct
+		{
+			int32_t m_deltaX;
+			int32_t m_deltaY;
+		}
+	}
+
+	uint32_t  m_extraInformation;
+}
+
+//..............................................................................
+
+} // namespace win
+} // namespace io

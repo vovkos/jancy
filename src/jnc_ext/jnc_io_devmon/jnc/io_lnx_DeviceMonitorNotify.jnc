@@ -1,0 +1,70 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+namespace lnx {
+
+//..............................................................................
+
+enum DeviceMonitorNotifyCode: uint16_t
+{
+	Undefined = 0,
+	Open,
+	Close,
+	Read,
+	Write,
+	UnlockedIoctl,
+	CompatIoctl,
+	Count,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorOpenNotifyParams
+{
+	uint64_t m_fileId;
+	uint32_t m_flags;
+	uint32_t m_mode;
+	uint32_t m_fileNameLength;
+	uint32_t _m_padding;
+
+	// followed by file name
+}
+
+struct DeviceMonitorCloseNotifyParams
+{
+	uint64_t m_fileId;
+}
+
+struct DeviceMonitorReadWriteNotifyParams
+{
+	uint64_t m_fileId;
+	uint64_t m_offset;
+	uint32_t m_bufferSize;
+	uint32_t m_dataSize;
+
+	// followed by read/write data
+}
+
+struct DeviceMonitorIoctlNotifyParams
+{
+	uint64_t m_fileId;
+	uint32_t m_code;
+	uint32_t m_argSize;
+	uint64_t m_arg;
+
+	// followed by argument data
+}
+
+//..............................................................................
+
+} // namespace lnx
+} // namespace io

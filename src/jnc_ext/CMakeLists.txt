@@ -24,7 +24,7 @@ if (BUILD_JNC_IO_BASE)
 	add_subdirectory (jnc_io_base)
 endif ()
 
-if (${LIBSSH2_FOUND})
+if (LIBSSH2_FOUND)
 	option (
 		BUILD_JNC_IO_SSH
 		"Build jancy SSH IO extension library"
@@ -36,7 +36,7 @@ if (${LIBSSH2_FOUND})
 	endif ()
 endif ()
 
-if (${PCAP_FOUND})
+if (PCAP_FOUND)
 	option (
 		BUILD_JNC_IO_PCAP
 		"Build jancy PCAP IO extension library"
@@ -48,7 +48,7 @@ if (${PCAP_FOUND})
 	endif ()
 endif ()
 
-if (${LIBUSB_FOUND})
+if (LIBUSB_FOUND)
 	option (
 		BUILD_JNC_IO_USB
 		"Build jancy USB IO extension library"
@@ -57,6 +57,18 @@ if (${LIBUSB_FOUND})
 
 	if (BUILD_JNC_IO_USB)
 		add_subdirectory (jnc_io_usb)
+	endif ()
+endif ()
+
+if (DEVMON_FOUND)
+	option (
+		BUILD_JNC_IO_DEVMON
+		"Build jancy IO device monitoring extension library"
+		ON
+		)
+
+	if (BUILD_JNC_IO_DEVMON)
+		add_subdirectory (jnc_io_devmon)
 	endif ()
 endif ()
 

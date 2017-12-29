@@ -52,6 +52,7 @@ set (
 		openssl
 		pcap
 		libusb
+		devmon
 		doxygen
 		doxyrest
 		sphinx
@@ -67,6 +68,7 @@ set (
 
 	${CMAKE_CURRENT_LIST_DIR}/cmake
 	${GRACO_CMAKE_DIR}
+	${DEVMON_CMAKE_DIR}
 	${DOXYREST_CMAKE_DIR}
 	)
 
