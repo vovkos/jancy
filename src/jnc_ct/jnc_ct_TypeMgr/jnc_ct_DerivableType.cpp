@@ -146,6 +146,7 @@ DerivableType::chooseIndexerProperty (const Value& opValue)
 {
 	CastKind bestCastKind = CastKind_None;
 	Property* bestProperty = NULL;
+	bool isAmbiguous = false;
 
 	sl::StringHashTableIterator <Property*> it = m_indexerPropertyMap.getHead ();
 	for (; it; it++)
@@ -158,21 +159,25 @@ DerivableType::chooseIndexerProperty (const Value& opValue)
 			continue;
 
 		if (castKind == bestCastKind)
-		{
-			err::setFormatStringError ("ambiguous call to overloaded function");
-			return NULL;
-		}
+			isAmbiguous = true;
 
 		if (castKind > bestCastKind)
 		{
 			bestProperty = prop;
 			bestCastKind = castKind;
+			isAmbiguous = false;
 		}
 	}
 
 	if (!bestProperty)
 	{
 		err::setFormatStringError ("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount ());
+		return NULL;
+	}
+
+	if (isAmbiguous)
+	{
+		err::setFormatStringError ("ambiguous call to overloaded function");
 		return NULL;
 	}
 
