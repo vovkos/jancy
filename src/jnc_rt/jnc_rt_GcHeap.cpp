@@ -271,10 +271,50 @@ GcHeap::addClassBox_l (Box* box)
 {
 	ASSERT (box->m_type->getTypeKind () == TypeKind_Class);
 	ct::ClassType* classType = (ct::ClassType*) box->m_type;
+	IfaceHdr* ifaceHdr = (IfaceHdr*) (box + 1);
 
-	char* p = (char*) (box + 1);
+	addBaseTypeClassFieldBoxes_l (classType, ifaceHdr);
+	addClassFieldBoxes_l (classType, ifaceHdr);
 
-	sl::Array <ct::StructField*> classFieldArray = classType->getClassMemberFieldArray ();
+	m_classBoxArray.append (box); // after all the fields
+
+	if (classType->getDestructor ())
+		m_destructibleClassBoxArray.append (box);
+}
+
+void
+GcHeap::addBaseTypeClassFieldBoxes_l (
+	ClassType* type,
+	IfaceHdr* ifaceHdr
+	)
+{
+	char* p = (char*) ifaceHdr;
+
+	sl::Array <ct::BaseTypeSlot*> baseTypeArray = type->getBaseTypeArray ();
+	size_t count = baseTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		ct::BaseTypeSlot* slot = baseTypeArray [i];
+		ct::Type* baseType = slot->getType ();
+		if (baseType->getTypeKind () != TypeKind_Class)
+			continue;
+
+		ct::ClassType* baseClassType = (ct::ClassType*) baseType;
+		IfaceHdr* baseIfaceHdr = (IfaceHdr*) (p + slot->getOffset ());
+		addBaseTypeClassFieldBoxes_l (baseClassType, baseIfaceHdr);
+		addClassFieldBoxes_l (baseClassType, baseIfaceHdr);
+	}
+}
+
+void
+GcHeap::addClassFieldBoxes_l (
+	ClassType* type,
+	IfaceHdr* ifaceHdr
+	)
+{
+	char* p = (char*) ifaceHdr;
+
+	sl::Array <ct::StructField*> classFieldArray = type->getClassMemberFieldArray ();
 	size_t count = classFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -287,11 +327,6 @@ GcHeap::addClassBox_l (Box* box)
 
 		addClassBox_l (childBox);
 	}
-
-	m_classBoxArray.append (box); // after all the children
-
-	if (classType->getDestructor ())
-		m_destructibleClassBoxArray.append (box);
 }
 
 DataPtr
@@ -1014,7 +1049,7 @@ GcHeap::setFrameMap (
 		}
 
 		frame->m_map = map;
-		break;	
+		break;
 
 	case GcShadowStackFrameMapOp_Close:
 		ASSERT (frame->m_map == map); // this assert helps catch wrongly sequenced closeScope & jumps

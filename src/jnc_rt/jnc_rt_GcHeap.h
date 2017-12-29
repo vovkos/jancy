@@ -343,6 +343,18 @@ protected:
 	addClassBox_l (Box* box);
 
 	void
+	addBaseTypeClassFieldBoxes_l (
+		ClassType* type,
+		IfaceHdr* ifaceHdr
+		);
+
+	void
+	addClassFieldBoxes_l (
+		ClassType* type,
+		IfaceHdr* ifaceHdr
+		);
+
+	void
 	markClassFields (Box* box);
 
 	void
