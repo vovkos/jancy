@@ -55,7 +55,7 @@ Cast_ClassPtr::getCastKind (
 	ClassPtrType* srcType = (ClassPtrType*) opValue.getType ();
 	ClassPtrType* dstType = (ClassPtrType*) type;
 
-	if ((srcType->getFlags () & PtrTypeFlag_Const) && 
+	if ((srcType->getFlags () & PtrTypeFlag_Const) &&
 		!(dstType->getFlags () & PtrTypeFlag_Const))
 		return CastKind_None; // const vs non-const mismatch
 
@@ -108,7 +108,7 @@ Cast_ClassPtr::constCast (
 	result = srcClassType->findBaseTypeTraverse (dstClassType, &coord);
 	if (!result)
 		return false;
-		 
+
 	*(void**) dst = (char*) srcIface + coord.m_offset;
 	return true;
 }
@@ -176,6 +176,22 @@ Cast_ClassPtr::llvmCast (
 	{
 		setCastError (opValue, type, CastKind_Dynamic);
 		return false;
+	}
+
+	if (srcType->getFlags () & PtrTypeFlag_Safe) // non-null guarantee
+	{
+		coord.m_llvmIndexArray.insert (0, 0);
+
+		Value ptrValue;
+		m_module->m_llvmIrBuilder.createGep (
+			opValue,
+			coord.m_llvmIndexArray,
+			coord.m_llvmIndexArray.getCount (),
+			dstType,
+			resultValue
+			);
+
+		return true;
 	}
 
 	Value srcNullValue = srcType->getZeroValue ();
