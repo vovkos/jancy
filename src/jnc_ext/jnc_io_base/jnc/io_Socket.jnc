@@ -200,7 +200,7 @@ opaque class Socket
 
 	SocketOptions autoget property m_options;
 
-	io.SocketEvents readonly volatile m_activeEvents;
+	SocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 
 	/**

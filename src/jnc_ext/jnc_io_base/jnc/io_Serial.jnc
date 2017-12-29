@@ -387,7 +387,7 @@ opaque class Serial
 
 	SerialOptions autoget property m_options;
 
-	io.SerialEvents readonly volatile m_activeEvents;
+	SerialEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 
 	/**

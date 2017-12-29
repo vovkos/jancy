@@ -68,6 +68,12 @@ add_library (
 	${LIB_CPP_LIST}
 	)
 
+target_compile_definitions (
+	jnc_io_cmn
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB
+	)
+
 axl_set_pch (
 	jnc_io_cmn
 	${PCH_H}

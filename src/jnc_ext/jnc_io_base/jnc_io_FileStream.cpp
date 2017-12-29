@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_io_FileStream.h"
 #include "jnc_io_IoLib.h"
-#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
@@ -48,7 +47,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
 	JNC_MAP_FUNCTION ("close", &FileStream::close)
 	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
 	JNC_MAP_FUNCTION ("read",  &FileStream::read)
-	JNC_MAP_FUNCTION ("write", &FileStream::write)	
+	JNC_MAP_FUNCTION ("write", &FileStream::write)
 	JNC_MAP_FUNCTION ("readNamedPipeMessage",  &FileStream::readNamedPipeMessage)
 	JNC_MAP_PROPERTY ("m_isFileStreamEventEnabled", &FileStream::isFileStreamEventEnabled, &FileStream::setFileStreamEventEnabled)
 JNC_END_TYPE_FUNCTION_MAP ()
@@ -372,9 +371,9 @@ FileStream::readNamedPipeMessage (
 			return ReadNamedPipeMessageResult_Error;
 
 		*actualSize = result;
-		
-		return isIncompleteMessage ? 
-			ReadNamedPipeMessageResult_MoreData : 
+
+		return isIncompleteMessage ?
+			ReadNamedPipeMessageResult_MoreData :
 			ReadNamedPipeMessageResult_Success;
 	}
 	else
@@ -398,9 +397,9 @@ FileStream::readNamedPipeMessage (
 		}
 
 		*actualSize = read.m_result;
-		
-		return read.m_isIncompleteMessage ? 
-			ReadNamedPipeMessageResult_MoreData : 
+
+		return read.m_isIncompleteMessage ?
+			ReadNamedPipeMessageResult_MoreData :
 			ReadNamedPipeMessageResult_Success;
 	}
 }

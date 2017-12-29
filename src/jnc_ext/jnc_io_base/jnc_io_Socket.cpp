@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_io_Socket.h"
 #include "jnc_io_IoLib.h"
-#include "jnc_Error.h"
 
 #ifndef IPV6_HDRINCL
 #	define IPV6_HDRINCL IP_HDRINCL
@@ -81,6 +80,8 @@ Socket::openImpl (
 	const SocketAddress* address
 	)
 {
+	close ();
+
 	bool result = SocketBase::open (family, protocol, address);
 	if (!result)
 		return false;

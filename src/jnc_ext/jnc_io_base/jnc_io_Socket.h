@@ -162,9 +162,9 @@ public:
 
 	bool
 	JNC_CDECL
-	setOptions (uint_t flags)
+	setOptions (uint_t options)
 	{
-		return SocketBase::setOptions (flags);
+		return SocketBase::setOptions (options);
 	}
 
 	bool
