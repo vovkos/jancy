@@ -44,6 +44,7 @@ set (
 	${JANCY_INC_DIR}/jnc_ExtensionLib.h
 	${JANCY_INC_DIR}/jnc_CallSite.h
 	${JANCY_INC_DIR}/jnc_Construct.h
+	${JANCY_INC_DIR}/jnc_WarningSuppression.h
 	jnc_DynamicExtensionLibHost.h
 	)
 
