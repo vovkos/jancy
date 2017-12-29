@@ -29,8 +29,12 @@ JNC_DEFINE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (StringBuilder)
 	JNC_MAP_FUNCTION ("clear", &StringBuilder::clear)
 	JNC_MAP_FUNCTION ("reserve", &StringBuilder::reserve)
-	JNC_MAP_FUNCTION ("copy", &StringBuilder::copy)
-	JNC_MAP_FUNCTION ("insert", &StringBuilder::insert)
+	JNC_MAP_FUNCTION ("copy", &StringBuilder::copy_utf8)
+	JNC_MAP_OVERLOAD (&StringBuilder::copy_utf16)
+	JNC_MAP_OVERLOAD (&StringBuilder::copy_utf32)
+	JNC_MAP_FUNCTION ("insert", &StringBuilder::insert_utf8)
+	JNC_MAP_OVERLOAD (&StringBuilder::insert_utf16)
+	JNC_MAP_OVERLOAD (&StringBuilder::insert_utf32)
 	JNC_MAP_FUNCTION ("remove", &StringBuilder::remove)
 	JNC_MAP_FUNCTION ("detachString", &StringBuilder::detachString)
 	JNC_MAP_FUNCTION ("cloneString", &StringBuilder::cloneString)
@@ -61,7 +65,7 @@ StringBuilder::reserve (size_t length)
 
 size_t
 JNC_CDECL
-StringBuilder::copy (
+StringBuilder::copy_utf8 (
 	DataPtr ptr,
 	size_t length
 	)
@@ -69,18 +73,38 @@ StringBuilder::copy (
 	if (length == -1)
 		length = strLen (ptr);
 
-	bool result = reserve (length);
-	if (!result)
-		return -1;
-
-	memcpy (m_ptr.m_p, ptr.m_p, length);
-	m_length = length;
-	return length;
+	return copyImpl ((char*) ptr.m_p, length);
 }
 
 size_t
 JNC_CDECL
-StringBuilder::insert (
+StringBuilder::copy_utf16 (
+	DataPtr ptr,
+	size_t length
+	)
+{
+	char buffer [256];
+	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.copy ((utf16_t*) ptr.m_p, length);
+	return copyImpl (string, string.getLength ());
+}
+
+size_t
+JNC_CDECL
+StringBuilder::copy_utf32 (
+	DataPtr ptr,
+	size_t length
+	)
+{
+	char buffer [256];
+	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.copy ((utf32_t*) ptr.m_p, length);
+	return copyImpl (string, string.getLength ());
+}
+
+size_t
+JNC_CDECL
+StringBuilder::insert_utf8 (
 	size_t offset,
 	DataPtr ptr,
 	size_t length
@@ -89,22 +113,35 @@ StringBuilder::insert (
 	if (length == -1)
 		length = strLen (ptr);
 
-	size_t newLength = m_length + length;
-	bool result = reserve (newLength);
-	if (!result)
-		return -1;
+	return insertImpl (offset, (char*) ptr.m_p, length);
+}
 
-	if (offset > m_length)
-		offset = m_length;
+size_t
+JNC_CDECL
+StringBuilder::insert_utf16 (
+	size_t offset,
+	DataPtr ptr,
+	size_t length
+	)
+{
+	char buffer [256];
+	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.copy ((utf16_t*) ptr.m_p, length);
+	return insertImpl (offset, string, string.getLength ());
+}
 
-	char* p = (char*) m_ptr.m_p;
-
-	if (offset < m_length)
-		memmove (p + offset + length, p + offset, m_length - offset);
-
-	memcpy (p + offset, ptr.m_p, length);
-	m_length = newLength;
-	return newLength;
+size_t
+JNC_CDECL
+StringBuilder::insert_utf32 (
+	size_t offset,
+	DataPtr ptr,
+	size_t length
+	)
+{
+	char buffer [256];
+	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	string.copy ((utf32_t*) ptr.m_p, length);
+	return insertImpl (offset, string, string.getLength ());
 }
 
 size_t
@@ -164,6 +201,52 @@ StringBuilder::cloneString (StringBuilder* self)
 
 	memcpy (ptr.m_p, self->m_ptr.m_p, self->m_length);
 	return ptr;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t
+StringBuilder::copyImpl (
+	const char* p,
+	size_t length
+	)
+{
+	ASSERT (length != -1);
+
+	bool result = reserve (length);
+	if (!result)
+		return -1;
+
+	memcpy (m_ptr.m_p, p, length);
+	m_length = length;
+	return length;
+}
+
+size_t
+StringBuilder::insertImpl (
+	size_t offset,
+	const char* src,
+	size_t length
+	)
+{
+	ASSERT (length != -1);
+
+	size_t newLength = m_length + length;
+	bool result = reserve (newLength);
+	if (!result)
+		return -1;
+
+	if (offset > m_length)
+		offset = m_length;
+
+	char* dst = (char*) m_ptr.m_p;
+
+	if (offset < m_length)
+		memmove (dst + offset + length, dst + offset, m_length - offset);
+
+	memcpy (dst + offset, src, length);
+	m_length = newLength;
+	return newLength;
 }
 
 //..............................................................................

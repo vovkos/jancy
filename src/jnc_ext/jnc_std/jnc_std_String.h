@@ -43,14 +43,44 @@ public:
 
 	size_t
 	JNC_CDECL
-	copy (
+	copy_utf8 (
 		DataPtr ptr,
 		size_t length
 		);
 
 	size_t
 	JNC_CDECL
-	insert (
+	copy_utf16 (
+		DataPtr ptr,
+		size_t length
+		);
+
+	size_t
+	JNC_CDECL
+	copy_utf32 (
+		DataPtr ptr,
+		size_t length
+		);
+
+	size_t
+	JNC_CDECL
+	insert_utf8 (
+		size_t offset,
+		DataPtr ptr,
+		size_t length
+		);
+
+	size_t
+	JNC_CDECL
+	insert_utf16 (
+		size_t offset,
+		DataPtr ptr,
+		size_t length
+		);
+
+	size_t
+	JNC_CDECL
+	insert_utf32 (
 		size_t offset,
 		DataPtr ptr,
 		size_t length
@@ -70,6 +100,20 @@ public:
 	static
 	DataPtr
 	cloneString (StringBuilder* self);
+
+protected:
+	size_t
+	copyImpl (
+		const char* p,
+		size_t length
+		);
+
+	size_t
+	insertImpl (
+		size_t offset,
+		const char* p,
+		size_t length
+		);
 };
 
 //..............................................................................

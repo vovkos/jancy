@@ -60,7 +60,17 @@ class StringBuilder
 		size_t length = -1
 		);
 
-	size_t errorcode copy (char c)
+	size_t errorcode copy (
+		utf16_t const* p,
+		size_t length = -1
+		);
+
+	size_t errorcode copy (
+		utf32_t const* p,
+		size_t length = -1
+		);
+
+	size_t errorcode copy (utf32_t c)
 	{
 		return copy (&c, 1);
 	}
@@ -73,7 +83,23 @@ class StringBuilder
 		return insert (-1, p, length);
 	}
 
-	size_t errorcode append (char c)
+	size_t errorcode append (
+		utf16_t const* p,
+		size_t length = -1
+		)
+	{
+		return insert (-1, p, length);
+	}
+
+	size_t errorcode append (
+		utf32_t const* p,
+		size_t length = -1
+		)
+	{
+		return insert (-1, p, length);
+	}
+
+	size_t errorcode append (utf32_t c)
 	{
 		return insert (-1, &c, 1);
 	}
@@ -86,8 +112,23 @@ class StringBuilder
 
 	size_t errorcode insert (
 		size_t offset,
-		char c
+		utf16_t const* p,
+		size_t length = -1
 		);
+
+	size_t errorcode insert (
+		size_t offset,
+		utf32_t const* p,
+		size_t length = -1
+		);
+
+	size_t errorcode insert (
+		size_t offset,
+		utf32_t c
+		)
+	{
+		return insert (offset, &c, 1);
+	}
 
 	size_t remove (
 		size_t offset,
