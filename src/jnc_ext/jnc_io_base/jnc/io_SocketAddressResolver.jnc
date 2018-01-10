@@ -183,11 +183,11 @@ struct SocketAddressResolverEventParams
 
 opaque class SocketAddressResolver
 {
-	/**
-		Holds the synchronization ID for the socket address resolver [#f3]_.
-	*/
-
-	uint_t m_syncId;
+	typedef CompletionFunc (
+		SocketAddress const* addressTable,
+		size_t addressCount,
+		std.Error const* error
+		);
 
 	construct ();
 	destruct ();
@@ -198,16 +198,25 @@ opaque class SocketAddressResolver
 		Returns ``true`` on success. If a resolve request could not be started, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode resolve (
+	uintptr_t errorcode resolve (
 		char const* name,
-		AddressFamily family = AddressFamily.Undefined
+		AddressFamily family,
+		CompletionFunc* completionFunc
 		);
+
+	uintptr_t errorcode resolve (
+		char const* name,
+		CompletionFunc* completionFunc
+		)
+	{
+		return resolve (name, AddressFamily.Undefined, completionFunc);
+	}
 
 	/**
 		Cancels an on-going resolve requests identified by ``syncId``, does nothing is ``syncId`` request is not found.
 	*/
 
-	bool cancel (uint_t syncId);
+	bool cancel (uintptr_t id);
 
 	/**
 		Cancels all on-going resolve requests.
@@ -222,16 +231,6 @@ opaque class SocketAddressResolver
 	*/
 
 	alias dispose = cancelAll;
-
-	/**
-		This event is fired whenever an event occurs on the socket address resolver.
-
-		For the list of possible events, refer to `io.SocketAddressResolverEventCode` enumeration.
-
-		Event handler receives a single argument of type `io.SocketAddressResolverEventParams` which holds parameters of the particular event [#f3]_.
-	*/
-
-	event m_onResolverEvent (SocketAddressResolverEventParams const* params);
 }
 
 //..............................................................................

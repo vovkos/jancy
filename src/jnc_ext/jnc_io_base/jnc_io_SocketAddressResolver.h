@@ -16,30 +16,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (SocketAddressResolverEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (SocketAddressResolver)
-
-//..............................................................................
-
-enum SocketAddressResolverEventCode
-{
-	SocketAddressResolverEventCode_ResolveCompleted = 0,
-	SocketAddressResolverEventCode_ResolveCancelled,
-	SocketAddressResolverEventCode_ResolveError,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct SocketAddressResolverEventParams
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (SocketAddressResolverEventParams)
-
-	SocketAddressResolverEventCode m_eventCode;
-	uint_t m_syncId;
-	DataPtr m_addressPtr;
-	size_t m_addressCount;
-	DataPtr m_errorPtr;
-};
 
 //..............................................................................
 
@@ -58,32 +35,31 @@ protected:
 		}
 	};
 
-	enum IoFlag
+	enum IoThreadFlag
 	{
-		IoFlag_Running = 0x0001,
-		IoFlag_Closing = 0x0010,
+		IoThreadFlag_Running = 0x0001,
+		IoThreadFlag_Closing = 0x0010,
 	};
 
 	struct Req: sl::ListLink
 	{
-		uint_t m_syncId;
 		sl::String m_name;
 		uint_t m_port;
 		uint_t m_addrFamily;
+		uintptr_t m_id;
+
+		FunctionPtr m_completionFuncPtr;
 	};
-
-protected:
-	uint_t m_syncId;
-
-	ClassBox <Multicast> m_onSocketAddressResolverEvent;
 
 protected:
 	Runtime* m_runtime;
 
-	sys::Lock m_ioLock;
-	uint_t m_ioFlags;
+	sys::Lock m_lock;
+	uint_t m_ioThreadFlags;
 	IoThread m_ioThread;
-	sl::StdList <Req> m_reqList;
+	sl::StdList <Req> m_pendingReqList;
+	sl::StdList <Req> m_activeReqList;
+	sl::HandleTable <Req*> m_reqMap;
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
@@ -93,23 +69,23 @@ protected:
 
 public:
 	SocketAddressResolver ();
+	~SocketAddressResolver ();
 
-	~SocketAddressResolver ()
-	{
-		cancelAll ();
-		stopIoThread ();
-	}
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
 
-	bool
+	uintptr_t
 	JNC_CDECL
 	resolve (
 		DataPtr namePtr,
-		uint16_t addrFamily
+		uint16_t addrFamily,
+		FunctionPtr completionFuncPtr
 		);
 
 	bool
 	JNC_CDECL
-	cancel (uint_t syncId);
+	cancel (uintptr_t id);
 
 	void
 	JNC_CDECL
@@ -117,22 +93,20 @@ public:
 
 protected:
 	void
-	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventCode eventCode,
-		uint_t syncId,
-		const axl::io::SockAddr* addressTable = NULL,
-		size_t addressCount = 0,
+	callCompletionFunc (
+		FunctionPtr completionFuncPtr,
+		const axl::io::SockAddr* addressTable,
+		size_t addressCount,
 		const err::ErrorHdr* error = NULL
 		);
 
 	void
-	fireSocketAddressResolverEvent (
-		SocketAddressResolverEventCode eventCode,
-		uint_t syncId,
-		const err::ErrorHdr* error
+	callCompletionFunc (
+		FunctionPtr completionFuncPtr,
+		const err::Error& error
 		)
 	{
-		fireSocketAddressResolverEvent (eventCode, syncId, NULL, 0, error);
+		callCompletionFunc (completionFuncPtr, NULL, 0, error);
 	}
 
 	void
