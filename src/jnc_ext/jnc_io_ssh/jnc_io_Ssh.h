@@ -165,11 +165,11 @@ public:
 		return self->SocketBase::getPeerAddress ();
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
