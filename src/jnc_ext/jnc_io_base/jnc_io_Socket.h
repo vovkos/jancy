@@ -83,22 +83,31 @@ protected:
 	};
 
 #if (_AXL_OS_WIN)
-	struct OverlappedRecvParams
+	struct OverlappedRecv: OverlappedRead
 	{
 		axl::io::SockAddr m_sockAddr;
 		socklen_t m_sockAddrSize;
 		dword_t m_flags;
+	};
+
+	struct OverlappedIo
+	{
+		mem::Pool <OverlappedRecv> m_overlappedRecvPool;
+		sl::StdList <OverlappedRecv> m_activeOverlappedRecvList;
+		axl::io::win::StdOverlapped m_sendOverlapped;
+		sl::Array <char> m_sendBlock;
+		sl::Array <char> m_sendToParams;
 	};
 #endif
 
 protected:
 	IoThread m_ioThread;
 
+	mem::Pool <IncomingConnection> m_incomingConnectionPool;
 	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
-	sl::StdList <IncomingConnection> m_freeIncomingConnectionList;
 
 #if (_AXL_OS_WIN)
-	sl::Array <char> m_overlappedSendToParams;
+	OverlappedIo* m_overlappedIo;
 #endif
 
 public:
@@ -132,18 +141,18 @@ public:
 		return self->SocketBase::getPeerAddress ();
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadParallelism (uint_t count)
 	{
-		return AsyncIoDevice::setReadParallelism (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
@@ -286,15 +295,6 @@ protected:
 		uint_t baseEvents,
 		bool isDatagram
 		);
-
-	IncomingConnection*
-	createIncomingConnection ()
-	{
-		return !m_freeIncomingConnectionList.isEmpty () ?
-			m_freeIncomingConnectionList.removeHead () :
-			AXL_MEM_NEW (IncomingConnection);
-	}
-
 };
 
 //..............................................................................
