@@ -59,15 +59,6 @@ protected:
 		handle_t m_handle;
 	};
 
-#if (_AXL_OS_WIN)
-	struct OverlappedRead: sl::ListLink
-	{
-		axl::io::win::StdOverlapped m_overlapped;
-		sl::Array <char> m_buffer;
-		size_t m_paramSize;
-	};
-#endif
-
 	struct ReadWriteMeta: sl::ListLink
 	{
 		size_t m_dataSize;
@@ -106,12 +97,6 @@ protected:
 	sl::StdList <ReadWriteMeta> m_writeMetaList;
 	sl::StdList <ReadWriteMeta> m_freeReadWriteMetaList;
 
-#if (_AXL_OS_WIN)
-	sl::StdList <OverlappedRead> m_activeOverlappedReadList;
-	sl::StdList <OverlappedRead> m_freeOverlappedReadList;
-	sl::Array <char> m_overlappedWriteBlock;
-#endif
-
 public:
 	AsyncIoDevice ();
 
@@ -146,17 +131,24 @@ protected:
 	void
 	sleepIoThread ();
 
-	bool
-	setReadParallelism (
-		uint_t* p,
-		uint_t count
-		);
+	template <typename T>
+	void
+	setSetting (
+		T* p,
+		T value
+		)
+	{
+		if (!m_isOpen)
+		{
+			*p = value;
+			return;
+		}
 
-	bool
-	setReadBlockSize (
-		size_t* p,
-		size_t size
-		);
+		m_lock.lock ();
+		*p = value;
+		wakeIoThread ();
+		m_lock.unlock ();
+	}
 
 	bool
 	setReadBufferSize (
@@ -271,17 +263,6 @@ protected:
 	void
 	updateReadWriteBufferEvents ();
 
-#if (_JNC_OS_WIN)
-	OverlappedRead*
-	createOverlappedRead (size_t paramSize = 0)
-	{
-		return !m_freeOverlappedReadList.isEmpty () &&
-			m_freeOverlappedReadList.getHead ()->m_paramSize >= paramSize ?
-			m_freeOverlappedReadList.removeHead () :
-			AXL_MEM_NEW_EXTRA (OverlappedRead, paramSize);
-	}
-#endif
-
 	ReadWriteMeta*
 	createReadWriteMeta (
 		size_t dataSize,
@@ -289,6 +270,18 @@ protected:
 		size_t paramSize
 		);
 };
+
+//..............................................................................
+
+#if (_AXL_OS_WIN)
+
+struct OverlappedRead: sl::ListLink
+{
+	axl::io::win::StdOverlapped m_overlapped;
+	sl::Array <char> m_buffer;
+};
+
+#endif
 
 //..............................................................................
 

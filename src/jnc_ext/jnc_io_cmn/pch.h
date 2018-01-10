@@ -16,6 +16,7 @@
 #include "axl_sl_HandleTable.h"
 #include "axl_sys_Event.h"
 #include "axl_err_Errno.h"
+#include "axl_mem_Pool.h"
 
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_FileHandle.h"

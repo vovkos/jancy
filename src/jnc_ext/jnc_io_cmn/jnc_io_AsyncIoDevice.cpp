@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_io_AsyncIoDevice.h"
-#include "../jnc_io_base/jnc_io_IoLib.h"
 
 namespace jnc {
 namespace io {
@@ -47,12 +46,8 @@ AsyncIoDevice::open ()
 
 	m_readBuffer.clear ();
 	m_writeBuffer.clear ();
-	m_freeReadWriteMetaList.insertListTail (&m_readMetaList);
-	m_freeReadWriteMetaList.insertListTail (&m_writeMetaList);
 
 #if (_JNC_OS_WIN)
-	m_freeOverlappedReadList.insertListTail (&m_activeOverlappedReadList);
-	m_overlappedWriteBlock.clear ();
 	m_ioThreadEvent.reset ();
 #elif (_JNC_OS_POSIX)
 	m_ioThreadSelfPipe.create ();
@@ -64,50 +59,14 @@ AsyncIoDevice::close ()
 {
 	cancelAllWaits ();
 
-#if (_JNC_OS_POSIX)
+#if (_JNC_OS_WIN)
+	m_freeReadWriteMetaList.insertListTail (&m_readMetaList);
+	m_freeReadWriteMetaList.insertListTail (&m_writeMetaList);
+#elif (_JNC_OS_POSIX)
 	m_ioThreadSelfPipe.close ();
 #endif
 
 	m_isOpen = false;
-}
-
-bool
-AsyncIoDevice::setReadParallelism (
-	uint_t* p,
-	uint_t count
-	)
-{
-	if (!m_isOpen)
-	{
-		*p = count;
-		return true;
-	}
-
-	m_lock.lock ();
-	*p = count;
-	wakeIoThread ();
-	m_lock.unlock ();
-	return true;
-}
-
-
-bool
-AsyncIoDevice::setReadBlockSize (
-	size_t* p,
-	size_t size
-	)
-{
-	if (!m_isOpen)
-	{
-		*p = size;
-		return true;
-	}
-
-	m_lock.lock ();
-	*p = size;
-	wakeIoThread ();
-	m_lock.unlock ();
-	return true;
 }
 
 bool
