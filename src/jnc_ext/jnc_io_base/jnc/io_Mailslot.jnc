@@ -16,6 +16,13 @@ namespace io {
 
 //..............................................................................
 
+bitflag enum MailslotOptions
+{
+	KeepReadBlockSize,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 /**
 	\import io_base.jncx
 	\import io_Mailslot.jnc
@@ -27,8 +34,14 @@ namespace io {
 	\sa `io.Mailslot`, `io.MailslotEventParams`
 */
 
-enum MailslotEventCode
+bitflag enum MailslotEvents
 {
+	/**
+		An IO error occured on the mailslot; detailed information about the error is available at `io.MailslotEventParams.m_error`.
+	*/
+
+	IoError,
+
 	/**
 		More data is available on the mailslot; this data could be fetched with `io.Mailslot.read` method.
 	*/
@@ -36,48 +49,10 @@ enum MailslotEventCode
 	IncomingData,
 
 	/**
-		An IO error occured on the mailslot; detailed information about the error is available at `io.MailslotEventParams.m_error`.
+		Mailslot receive buffer is full.
 	*/
 
-	IoError,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-/**
-	\import io_base.jncx
-	\import io_Mailslot.jnc
-
-	\brief This struct contains detailed information about the event occured on `io.Mailslot` object.
-
-	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Mailslot.m_onMailslotEvent`.
-
-	\sa `io.Mailslot`, `io.MailslotEventCode`
-
-	\footnote f1
-
-		|footnote-sync-id|
-*/
-
-struct MailslotEventParams
-{
-	/**
-		Holds the numerical code of the event. For a list of all possible codes refer to `io.MailslotEventCode`.
-	*/
-
-	MailslotEventCode m_eventCode;
-
-	/**
-		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
-	*/
-
-	uint_t m_syncId;
-
-	/**
-		Holds extended error information for error events. Currently this field is only used by `io.MailslotEventCode.IoError`.
-	*/
-
-	std.Error* m_error;
+	ReceiveBufferFull,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -149,6 +124,15 @@ struct MailslotEventParams
 
 opaque class Mailslot
 {
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+
+	MailslotOptions autoget property m_options;
+
+	MailslotEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
 	/**
 		Holds the open status for the mailslot, i.e. ``true`` if opened; ``false`` otherwise.
 	*/
@@ -201,15 +185,17 @@ opaque class Mailslot
 		size_t size
 		);
 
-	/**
-		This event is fired whenever an event occurs on the file stream.
+	intptr errorcode wait (
+		MailslotEvents eventMask,
+		function* handler (MailslotEvents triggeredEvents)
+		);
 
-		For the list of possible events, refer to `io.MailslotEventCode` enumeration.
+	bool errorcode cancelWait (intptr handle);
 
-		Event handler receives a single argument of type `io.MailslotEventParams` which holds parameters of the particular event [#f3]_.
-	*/
-
-	event m_onMailslotEvent (MailslotEventParams const* params);
+	MailslotEvents errorcode blockingWait (
+		MailslotEvents eventMask,
+		uint_t timeout
+		);
 }
 
 //..............................................................................
