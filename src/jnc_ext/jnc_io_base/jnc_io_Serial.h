@@ -73,7 +73,7 @@ class Serial:
 protected:
 	enum Def
 	{
-		Def_ReadInterval    = 10,
+		Def_ReadInterval    = 0,
 		Def_ReadParallelism = 4,
 		Def_ReadBlockSize   = 1 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
@@ -92,12 +92,24 @@ protected:
 		}
 	};
 
+#if (_AXL_OS_WIN)
+	struct OverlappedIo
+	{
+		mem::Pool <OverlappedRead> m_overlappedReadPool;
+		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+		axl::io::win::StdOverlapped m_serialWaitOverlapped;
+		axl::io::win::StdOverlapped m_writeOverlapped;
+		sl::Array <char> m_writeBlock;
+		dword_t m_serialEvents;
+	};
+#endif
+
 protected:
 	axl::io::Serial m_serial;
 	IoThread m_ioThread;
 
 #if (_AXL_OS_WIN)
-	dword_t m_serialEvents;
+	OverlappedIo* m_overlappedIo;
 #endif
 
 public:
@@ -127,18 +139,18 @@ public:
 	JNC_CDECL
 	setReadInterval (uint_t count);
 
-	bool
+	void
 	JNC_CDECL
 	setReadParallelism (uint_t count)
 	{
-		return AsyncIoDevice::setReadParallelism (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
