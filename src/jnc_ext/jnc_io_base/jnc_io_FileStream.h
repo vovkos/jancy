@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoDevice.h"
+
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (FileStreamEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (FileStream)
 
 //..............................................................................
@@ -29,45 +30,35 @@ enum FileStreamKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum FileStreamEventCode
+enum FileStreamOption
 {
-	FileStreamEventCode_Eof,
-	FileStreamEventCode_IncomingData,
-	FileStreamEventCode_IoError,
-	FileStreamEventCode_TransmitBufferReady,
+	FileStreamOption_MessageNamedPipe = 0x04,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct FileStreamEventParams
+enum FileStreamEvent
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (FileStreamEventParams)
-
-	FileStreamEventCode m_eventCode;
-	uint_t m_syncId;
-	DataPtr m_errorPtr;
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum NamedPipeMode
-{
-	NamedPipeMode_Stream,
-	NamedPipeMode_Message,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum ReadNamedPipeMessageResult
-{
-	ReadNamedPipeMessageResult_Error    = -1,
-	ReadNamedPipeMessageResult_MoreData = 0,
-	ReadNamedPipeMessageResult_Success  = 1,
+	FileStreamEvent_Eof = 0x0100,
 };
 
 //..............................................................................
 
-class FileStream: public IfaceHdr
+struct FileStreamHdr: IfaceHdr
+{
+	FileStreamKind m_fileStreamKind;
+
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class FileStream:
+	public FileStreamHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 	friend class NamedPipe;
@@ -76,6 +67,15 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (FileStream)
 
 protected:
+	enum Def
+	{
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 1 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_Options         = 0,
+	};
+
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
@@ -86,62 +86,22 @@ protected:
 		}
 	};
 
-	enum Const
+#if (_AXL_OS_WIN)
+	struct OverlappedIo
 	{
-		Const_ReadBufferSize  = 4 * 1024,
-	};
-
-	enum IoFlag
-	{
-		IoFlag_Opened                  = 0x0001,
-		IoFlag_WriteOnly               = 0x0002,
-		IoFlag_FileStreamEventDisabled = 0x0004,
-		IoFlag_Closing                 = 0x0010,
-		IoFlag_IncomingData            = 0x0020,
-		IoFlag_RemainingData           = 0x0040,
-		IoFlag_IncompleteMessage       = 0x0080,
-	};
-
-	struct PendingEvent: sl::ListLink
-	{
-		FileStreamEventCode m_eventCode;
-		err::Error m_error;
-	};
-
-#if (_JNC_OS_WIN)
-	struct Read: sl::ListLink
-	{
-		void* m_buffer;
-		size_t m_size;
-		size_t m_result;
-		err::Error m_error;
-		sys::Event m_completionEvent;
-		bool m_isIncompleteMessage;
+		mem::Pool <OverlappedRead> m_overlappedReadPool;
+		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+		axl::io::win::StdOverlapped m_writeOverlapped;
+		sl::Array <char> m_writeBlock;
 	};
 #endif
 
 protected:
-	bool m_isOpen;
-	uint_t m_syncId;
-	FileStreamKind m_fileStreamKind;
-	ClassBox <Multicast> m_onFileStreamEvent;
-
-protected:
-	Runtime* m_runtime;
 	axl::io::File m_file;
-
-	sys::Lock m_ioLock;
-	uint_t m_ioFlags;
 	IoThread m_ioThread;
-	sl::StdList <PendingEvent> m_pendingEventList;
 
-#if (_JNC_OS_WIN)
-	sys::Event m_ioThreadEvent;
-	sl::AuxList <Read> m_readList;
-	sl::Array <char> m_readBuffer;
-	size_t m_incomingDataSize;
-#else
-	axl::io::psx::Pipe m_selfPipe; // for self-pipe trick
+#if (_AXL_OS_WIN)
+	OverlappedIo* m_overlappedIo;
 #endif
 
 public:
@@ -152,25 +112,48 @@ public:
 		close ();
 	}
 
-	NamedPipeMode
-	JNC_CDECL
-	getNamedPipeReadMode ();
-
-	bool
-	JNC_CDECL
-	setNamedPipeReadMode (NamedPipeMode mode);
-
 	bool
 	JNC_CDECL
 	open (
 		DataPtr namePtr,
-
 		uint_t openFlags
 		);
 
 	void
 	JNC_CDECL
 	close ();
+
+	void
+	JNC_CDECL
+	setReadParallelism (uint_t count)
+	{
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+	}
+
+	void
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setOptions (uint_t options);
 
 	bool
 	JNC_CDECL
@@ -181,63 +164,51 @@ public:
 	read (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedRead (ptr, size);
+	}
 
 	size_t
 	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
-		);
+		)
+	{
+		return bufferedWrite (ptr, size);
+	}
 
-	ReadNamedPipeMessageResult
+	handle_t
 	JNC_CDECL
-	readNamedPipeMessage (
-		DataPtr ptr,
-		size_t size,
-		DataPtr actualSizePtr
-		);
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
 
 	bool
 	JNC_CDECL
-	isFileStreamEventEnabled ()
+	cancelWait (handle_t handle)
 	{
-		return !(m_ioFlags & IoFlag_FileStreamEventDisabled);
+		return AsyncIoDevice::cancelWait (handle);
 	}
 
-	void
+	uint_t
 	JNC_CDECL
-	setFileStreamEventEnabled (bool isEnabled);
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
 
 protected:
-	size_t
-	readImpl (
-		void* p,
-		size_t size
-		);
-
-	void
-	fireFileStreamEvent (
-		FileStreamEventCode eventCode,
-		const err::ErrorHdr* error = NULL
-		);
-
-	void
-	fireFileStreamEventImpl (
-		FileStreamEventCode eventCode,
-		const err::ErrorHdr* error
-		);
-
 	void
 	ioThreadFunc ();
-
-	void
-	wakeIoThread ();
-
-#if (_JNC_OS_WIN)
-	void
-	readLoop ();
-#endif
 };
 
 //..............................................................................

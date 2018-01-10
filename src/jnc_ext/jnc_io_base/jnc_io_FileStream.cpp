@@ -18,18 +18,6 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	FileStreamEventParams,
-	"io.FileStreamEventParams",
-	g_ioLibGuid,
-	IoLibCacheSlot_FileStreamEventParams
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (FileStreamEventParams)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	FileStream,
 	"io.FileStream",
@@ -42,68 +30,36 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <FileStream>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <FileStream>)
-	JNC_MAP_PROPERTY ("m_namedPipeReadMode", &FileStream::getNamedPipeReadMode, &FileStream::setNamedPipeReadMode)
-	JNC_MAP_FUNCTION ("open",  &FileStream::open)
-	JNC_MAP_FUNCTION ("close", &FileStream::close)
-	JNC_MAP_FUNCTION ("clear", &FileStream::clear)
-	JNC_MAP_FUNCTION ("read",  &FileStream::read)
-	JNC_MAP_FUNCTION ("write", &FileStream::write)
-	JNC_MAP_FUNCTION ("readNamedPipeMessage",  &FileStream::readNamedPipeMessage)
-	JNC_MAP_PROPERTY ("m_isFileStreamEventEnabled", &FileStream::isFileStreamEventEnabled, &FileStream::setFileStreamEventEnabled)
+
+	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism", &FileStream::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",   &FileStream::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &FileStream::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &FileStream::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_options",         &FileStream::setOptions)
+
+	JNC_MAP_FUNCTION ("open",         &FileStream::open)
+	JNC_MAP_FUNCTION ("close",        &FileStream::close)
+	JNC_MAP_FUNCTION ("clear",        &FileStream::clear)
+	JNC_MAP_FUNCTION ("read",         &FileStream::read)
+	JNC_MAP_FUNCTION ("write",        &FileStream::write)
+	JNC_MAP_FUNCTION ("wait",         &FileStream::wait)
+	JNC_MAP_FUNCTION ("cancelWait",   &FileStream::cancelWait)
+	JNC_MAP_FUNCTION ("blockingWait", &FileStream::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
 FileStream::FileStream ()
 {
-	m_runtime = getCurrentThreadRuntime ();
-	m_ioFlags = 0;
-#if (_JNC_OS_WIN)
-	m_incomingDataSize = 0;
-#endif
-	m_isOpen = false;
-	m_syncId = 0;
 	m_fileStreamKind = FileStreamKind_Unknown;
-}
+	m_readParallelism = Def_ReadParallelism;
+	m_readBlockSize = Def_ReadBlockSize;
+	m_readBufferSize = Def_ReadBufferSize;
+	m_writeBufferSize = Def_WriteBufferSize;
+	m_options = Def_Options;
 
-void
-FileStream::wakeIoThread ()
-{
-#if (_JNC_OS_WIN)
-	m_ioThreadEvent.signal ();
-#else
-	m_selfPipe.write (" ", 1);
-#endif
-}
-
-NamedPipeMode
-JNC_CDECL
-FileStream::getNamedPipeReadMode ()
-{
-#if (!_JNC_OS_WIN)
-	return NamedPipeMode_Stream;
-#else
-	dword_t state = 0;
-	bool_t result = ::GetNamedPipeHandleStateW (m_file.m_file, &state, NULL, NULL, NULL, NULL, 0);
-
-	return result && (state & PIPE_READMODE_MESSAGE) ?
-		NamedPipeMode_Message :
-		NamedPipeMode_Stream;
-#endif
-}
-
-bool
-JNC_CDECL
-FileStream::setNamedPipeReadMode (NamedPipeMode mode)
-{
-#if (!_JNC_OS_WIN)
-	err::setError (err::SystemErrorCode_NotImplemented);
-	return false;
-#else
-	dword_t state = mode == NamedPipeMode_Message ? PIPE_READMODE_MESSAGE : PIPE_READMODE_BYTE;
-	bool_t result = ::SetNamedPipeHandleState (m_file.m_file, &state, NULL, NULL);
-	return err::complete (result);
-#endif
+	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
 }
 
 bool
@@ -117,25 +73,29 @@ FileStream::open (
 
 	close ();
 
-#if (_JNC_OS_POSIX)
-	// force asynchronous and restore blocking mode later
-
-	result =
-		m_file.open ((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous) &&
-		m_file.m_file.setBlockingMode (true);
-#else
 	result = m_file.open ((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous);
-#endif
-
 	if (!result)
 	{
 		propagateLastError ();
 		return false;
 	}
 
-	m_isOpen = true;
-
 #if (_JNC_OS_WIN)
+	dword_t pipeMode = 0;
+	if (m_options & FileStreamOption_MessageNamedPipe)
+	{
+		pipeMode = PIPE_READMODE_MESSAGE;
+		m_options |= AsyncIoOption_KeepReadBlockSize;
+	}
+	
+	result = ::SetNamedPipeHandleState (m_file.m_file, &pipeMode, NULL, NULL) != 0;
+	if (!result)
+	{
+		err::setLastSystemError ();
+		propagateLastError ();
+		return false;
+	}
+
 	dword_t type = ::GetFileType (m_file.m_file);
 	switch (type)
 	{
@@ -154,26 +114,13 @@ FileStream::open (
 	default:
 		m_fileStreamKind = FileStreamKind_Unknown;
 	};
+
+	ASSERT (!m_overlappedIo);
+	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
 #endif
 
-	if (openFlags & axl::io::FileFlag_WriteOnly)
-	{
-		m_ioFlags = IoFlag_Opened | IoFlag_WriteOnly;
-	}
-	else
-	{
-#if (_JNC_OS_WIN)
-		m_ioThreadEvent.reset ();
-		m_readBuffer.setCount (Const_ReadBufferSize);
-		m_incomingDataSize = 0;
-#elif (_JNC_OS_POSIX)
-		m_selfPipe.create ();
-#endif
-
-		m_ioFlags = IoFlag_Opened;
-		m_ioThread.start ();
-	}
-
+	AsyncIoDevice::open ();
+	m_ioThread.start ();
 	return true;
 }
 
@@ -184,545 +131,246 @@ FileStream::close ()
 	if (!m_file.isOpen ())
 		return;
 
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_Opened;
-	m_ioFlags |= IoFlag_Closing;
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Closing;
 	wakeIoThread ();
-	m_ioLock.unlock ();
+	m_lock.unlock ();
 
 	GcHeap* gcHeap = m_runtime->getGcHeap ();
 	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
 
-#if (_JNC_OS_POSIX)
-	m_selfPipe.close ();
+	m_file.close ();
+	AsyncIoDevice::close ();
+
+#if (_AXL_OS_WIN)
+	if (m_overlappedIo)
+	{
+		AXL_MEM_DELETE (m_overlappedIo);
+		m_overlappedIo = NULL;
+	}
+#endif
+}
+
+bool
+JNC_CDECL
+FileStream::setOptions (uint_t options)
+{
+	if (!m_isOpen)
+	{
+		m_options = options;
+		return true;
+	}
+
+#if (_AXL_OS_WIN)
+	if ((options & FileStreamOption_MessageNamedPipe) ^
+		(m_options & FileStreamOption_MessageNamedPipe))
+	{
+		dword_t pipeMode = 0;
+		
+		if (options & FileStreamOption_MessageNamedPipe)
+		{
+			pipeMode = PIPE_READMODE_MESSAGE;
+			options |= AsyncIoOption_KeepReadBlockSize;
+		}
+
+		bool result = ::SetNamedPipeHandleState (m_file.m_file, &pipeMode, NULL, NULL) != 0;
+		if (!result)
+		{
+			err::setLastSystemError ();
+			propagateLastError ();
+			return false;
+		}
+	}
 #endif
 
-	m_file.close ();
-	m_ioFlags = 0;
-#if (_JNC_OS_WIN)
-	m_incomingDataSize = 0;
-#endif
-	m_isOpen = false;
-	m_syncId++;
+	m_lock.lock ();
+	m_options = options;
+	wakeIoThread ();
+	m_lock.unlock ();
+	return true;
 }
 
 bool
 JNC_CDECL
 FileStream::clear ()
 {
-	return m_file.setSize (0);
-}
-
-void
-FileStream::fireFileStreamEvent (
-	FileStreamEventCode eventCode,
-	const err::ErrorHdr* error
-	)
-{
-	m_ioLock.lock ();
-	if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
+	bool result = m_file.setSize (0);
+	if (!result)
 	{
-		m_ioLock.unlock ();
-		fireFileStreamEventImpl (eventCode, error);
-	}
-	else
-	{
-		PendingEvent* pendingEvent = AXL_MEM_NEW (PendingEvent);
-		pendingEvent->m_eventCode = eventCode;
-		pendingEvent->m_error = error;
-		m_pendingEventList.insertTail (pendingEvent);
-		m_ioLock.unlock ();
-	}
-}
-
-void
-FileStream::fireFileStreamEventImpl (
-	FileStreamEventCode eventCode,
-	const err::ErrorHdr* error
-	)
-{
-	JNC_BEGIN_CALL_SITE (m_runtime);
-
-	DataPtr paramsPtr = createData <FileStreamEventParams> (m_runtime);
-	FileStreamEventParams* params = (FileStreamEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
-
-	if (error)
-		params->m_errorPtr = memDup (error, error->m_size);
-
-	callMulticast (m_onFileStreamEvent, paramsPtr);
-
-	JNC_END_CALL_SITE ();
-}
-
-void
-JNC_CDECL
-FileStream::setFileStreamEventEnabled (bool isEnabled)
-{
-	m_ioLock.lock ();
-	if (!isEnabled)
-	{
-		if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
-			m_ioFlags |= IoFlag_FileStreamEventDisabled;
-
-		m_ioLock.unlock ();
-		return;
+		propagateLastError ();
+		return false;
 	}
 
-	if (!(m_ioFlags & IoFlag_FileStreamEventDisabled))
-	{
-		m_ioLock.unlock ();
-		return;
-	}
-
-	while (!m_pendingEventList.isEmpty  ())
-	{
-		PendingEvent* pendingEvent = m_pendingEventList.removeHead ();
-		m_ioLock.unlock ();
-
-		fireFileStreamEventImpl (pendingEvent->m_eventCode, pendingEvent->m_error);
-		AXL_MEM_DELETE (pendingEvent);
-
-		m_ioLock.lock ();
-	}
-
-	m_ioFlags &= ~IoFlag_FileStreamEventDisabled;
-	m_ioLock.unlock ();
+	return true;
 }
 
 #if (_JNC_OS_WIN)
 
-size_t
-JNC_CDECL
-FileStream::read (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	m_ioLock.lock ();
-	if (m_ioFlags & IoFlag_WriteOnly)
-	{
-		m_ioLock.unlock ();
-		setError (err::SystemErrorCode_AccessDenied);
-		return -1;
-	}
-	else if (m_ioFlags & IoFlag_IncomingData)
-	{
-		size_t result = readImpl (ptr.m_p, size);
-		wakeIoThread ();
-		m_ioLock.unlock ();
-
-		return result;
-	}
-	else
-	{
-		Read read;
-		read.m_buffer = ptr.m_p;
-		read.m_size = size;
-		m_readList.insertTail (&read);
-		wakeIoThread ();
-		m_ioLock.unlock ();
-
-		GcHeap* gcHeap = m_runtime->getGcHeap ();
-		gcHeap->enterWaitRegion ();
-		read.m_completionEvent.wait ();
-		gcHeap->leaveWaitRegion ();
-
-		if (read.m_result == -1)
-			setError (read.m_error);
-
-		return read.m_result;
-	}
-}
-
-ReadNamedPipeMessageResult
-JNC_CDECL
-FileStream::readNamedPipeMessage (
-	DataPtr ptr,
-	size_t size,
-	DataPtr actualSizePtr
-	)
-{
-	size_t* actualSize = (size_t*) actualSizePtr.m_p;
-	if (!actualSize)
-	{
-		setError (err::SystemErrorCode_InvalidParameter);
-		return ReadNamedPipeMessageResult_Error;
-	}
-
-	m_ioLock.lock ();
-	if (m_ioFlags & IoFlag_WriteOnly)
-	{
-		m_ioLock.unlock ();
-		setError (err::SystemErrorCode_AccessDenied);
-		return ReadNamedPipeMessageResult_Error;
-	}
-	else if (m_ioFlags & IoFlag_IncomingData)
-	{
-		bool isIncompleteMessage = (m_ioFlags & IoFlag_IncompleteMessage) != 0;
-		size_t result = readImpl (ptr.m_p, size);
-		wakeIoThread ();
-		m_ioLock.unlock ();
-
-		if (result == -1)
-			return ReadNamedPipeMessageResult_Error;
-
-		*actualSize = result;
-
-		return isIncompleteMessage ?
-			ReadNamedPipeMessageResult_MoreData :
-			ReadNamedPipeMessageResult_Success;
-	}
-	else
-	{
-		Read read;
-		read.m_buffer = ptr.m_p;
-		read.m_size = size;
-		m_readList.insertTail (&read);
-		wakeIoThread ();
-		m_ioLock.unlock ();
-
-		GcHeap* gcHeap = m_runtime->getGcHeap ();
-		gcHeap->enterWaitRegion ();
-		read.m_completionEvent.wait ();
-		gcHeap->leaveWaitRegion ();
-
-		if (read.m_result == -1)
-		{
-			setError (read.m_error);
-			return ReadNamedPipeMessageResult_Error;
-		}
-
-		*actualSize = read.m_result;
-
-		return read.m_isIncompleteMessage ?
-			ReadNamedPipeMessageResult_MoreData :
-			ReadNamedPipeMessageResult_Success;
-	}
-}
-
-size_t
-FileStream::readImpl (
-	void* p,
-	size_t size
-	)
-{
-	ASSERT (m_incomingDataSize);
-
-	size_t copySize;
-
-	if (size < m_incomingDataSize)
-	{
-		copySize = size;
-		m_incomingDataSize -= size;
-		m_ioFlags |= IoFlag_RemainingData;
-		memcpy (p, m_readBuffer, copySize);
-		memmove (m_readBuffer, m_readBuffer + copySize, m_incomingDataSize);
-	}
-	else
-	{
-		copySize = m_incomingDataSize;
-		m_incomingDataSize = 0;
-		m_ioFlags &= ~IoFlag_IncomingData;
-		memcpy (p, m_readBuffer, copySize);
-	}
-
-	return copySize;
-}
-
-size_t
-JNC_CDECL
-FileStream::write (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	sys::Event completionEvent;
-	OVERLAPPED overlapped = { 0 };
-	overlapped.hEvent = completionEvent.m_event;
-
-	if (m_fileStreamKind == FileStreamKind_Disk)
-	{
-		uint64_t offset = m_file.getSize ();
-		overlapped.Offset = (DWORD) offset;
-		overlapped.OffsetHigh = (DWORD) (offset >> 32);
-	}
-
-	bool result = m_file.m_file.overlappedWrite (ptr.m_p, size, &overlapped);
-	size_t actualSize = result ? m_file.m_file.getOverlappedResult (&overlapped) : -1;
-
-	if (actualSize == -1)
-		propagateLastError ();
-
-	return actualSize;
-}
-
 void
 FileStream::ioThreadFunc ()
 {
-	ASSERT (m_file.isOpen ());
+	ASSERT (m_file.isOpen () && m_overlappedIo);
 
-	readLoop ();
+	bool result;
 
-	// wait for close, cancell all incoming reads
-
-	for (;;)
-	{
-		m_ioLock.lock ();
-
-		while (!m_readList.isEmpty ())
-		{
-			Read* read = m_readList.removeHead ();
-			read->m_result = -1;
-			read->m_error = err::Error (ERROR_CANCELLED);
-			read->m_completionEvent.signal ();
-		}
-
-		if (m_ioFlags & IoFlag_Closing)
-		{
-			m_ioLock.unlock ();
-			break;
-		}
-
-		m_ioLock.unlock ();
-
-		m_ioThreadEvent.wait ();
-	}
-}
-
-void
-FileStream::readLoop ()
-{
-	sys::Event completionEvent;
-
-	HANDLE waitTable [] =
+	HANDLE waitTable [3] =
 	{
 		m_ioThreadEvent.m_event,
-		completionEvent.m_event,
+		m_overlappedIo->m_writeOverlapped.m_completionEvent.m_event,
+		NULL, // placeholder for read completion event
 	};
 
-	uint64_t offset = 0;
+	size_t waitCount = 2; // always 2 or 3
+
+	bool isWritingFile = false;
+
+	m_ioThreadEvent.signal (); // do initial update of active events
 
 	for (;;)
 	{
-		Read* read = NULL;
-		void* readBuffer;
-		size_t readSize;
-
-		m_ioLock.lock ();
-
-		if (m_ioFlags & IoFlag_Closing)
+		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitTable, false, INFINITE);
+		if (waitResult == WAIT_FAILED)
 		{
-			m_ioLock.unlock ();
+			setIoErrorEvent (err::getLastSystemErrorCode ());
+			return;
+		}
+
+		// do as much as we can without lock
+
+		while (!m_overlappedIo->m_activeOverlappedReadList.isEmpty ())
+		{
+			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead ();
+			result = read->m_overlapped.m_completionEvent.wait (0);
+			if (!result)
+				break;
+			 
+			dword_t actualSize;
+			result = m_file.m_file.getOverlappedResult (&read->m_overlapped, &actualSize);
+			if (!result)
+			{
+				err::Error error = err::getLastError ();
+				if (error->m_code == ERROR_HANDLE_EOF)
+					setEvents (FileStreamEvent_Eof);
+				else
+					setIoErrorEvent ();
+
+				return;
+			}
+
+			m_overlappedIo->m_activeOverlappedReadList.remove (read);
+
+			// only the main read buffer must be lock-protected
+
+			m_lock.lock ();
+			addToReadBuffer (read->m_buffer, actualSize);
+			m_lock.unlock ();
+
+			read->m_overlapped.m_completionEvent.reset ();
+			m_overlappedIo->m_overlappedReadPool.put (read);
+		}
+
+		if (isWritingFile && m_overlappedIo->m_writeOverlapped.m_completionEvent.wait (0))
+		{
+			ASSERT (isWritingFile);
+
+			dword_t actualSize;
+			result = m_file.m_file.getOverlappedResult (&m_overlappedIo->m_writeOverlapped, &actualSize);
+			if (!result)
+			{
+				setIoErrorEvent ();
+				return;
+			}
+
+			if (actualSize < m_overlappedIo->m_writeBlock.getCount ()) // shouldn't happen, actually (unless with a non-standard driver)
+				m_overlappedIo->m_writeBlock.remove (0, actualSize);
+			else
+				m_overlappedIo->m_writeBlock.clear ();
+
+			m_overlappedIo->m_writeOverlapped.m_completionEvent.reset ();
+			isWritingFile = false;
+		}
+
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock ();
 			break;
 		}
 
-		if (m_ioFlags & IoFlag_RemainingData)
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
+		getNextWriteBlock (&m_overlappedIo->m_writeBlock);
+		updateReadWriteBufferEvents ();
+
+		// take snapshots before releasing the lock
+
+		bool isReadBufferFull = m_readBuffer.isFull ();
+		size_t readParallelism = m_readParallelism;
+		size_t readBlockSize = m_readBlockSize;
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
+
+		if (!isWritingFile && !m_overlappedIo->m_writeBlock.isEmpty ())
 		{
-			ASSERT (m_ioFlags & IoFlag_IncomingData);
+			result = m_file.m_file.overlappedWrite (
+				m_overlappedIo->m_writeBlock,
+				m_overlappedIo->m_writeBlock.getCount (),
+				&m_overlappedIo->m_writeOverlapped
+				);
 
-			if (!m_readList.isEmpty ())
+			if (!result)
 			{
-				read = m_readList.removeHead ();
-				readImpl (read->m_buffer, read->m_size);
-			}
-			else
-			{
-				fireFileStreamEvent (FileStreamEventCode_IncomingData);
+				setIoErrorEvent ();
+				break;
 			}
 
-			m_ioFlags &= ~IoFlag_RemainingData;
-			m_ioLock.unlock ();
-			continue;
+			isWritingFile = true;
 		}
 
-		if (!m_readList.isEmpty ())
+		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount ();
+		if (!isReadBufferFull && activeReadCount < readParallelism)
 		{
-			read = m_readList.removeHead ();
-			readBuffer = read->m_buffer;
-			readSize = read->m_size;
+			size_t newReadCount = readParallelism - activeReadCount;
+			for (size_t i = 0; i < newReadCount; i++)
+			{
+				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get ();
+
+				result =
+					read->m_buffer.setCount (readBlockSize) &&
+					m_file.m_file.overlappedRead (read->m_buffer, readBlockSize, &read->m_overlapped);
+
+				if (!result)
+				{
+					setIoErrorEvent ();
+					return;
+				}
+
+				m_overlappedIo->m_activeOverlappedReadList.insertTail (read);
+			}
 		}
-		else if (!(m_ioFlags & IoFlag_IncomingData))
+
+		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty ())
 		{
-			ASSERT (m_incomingDataSize == 0);
-			readBuffer = m_readBuffer;
-			readSize = m_readBuffer.getCount ();
+			waitCount = 2;
 		}
 		else
 		{
-			readBuffer = NULL;
-		}
+			// wait-table may already hold correct value -- but there's no harm in writing it over
 
-		m_ioLock.unlock ();
-
-		if (!readBuffer)
-		{
-			DWORD waitResult = ::WaitForSingleObject (m_ioThreadEvent.m_event, INFINITE);
-			if (waitResult == WAIT_FAILED)
-			{
-				err::Error error = err::getLastSystemErrorCode ();
-				fireFileStreamEvent (FileStreamEventCode_IoError, error);
-				return;
-			}
-		}
-		else
-		{
-			OVERLAPPED overlapped = { 0 };
-
-			overlapped.hEvent = completionEvent.m_event;
-			overlapped.Offset = (DWORD) offset;
-			overlapped.OffsetHigh = (DWORD) (offset >> 32);
-
-			bool result = m_file.m_file.overlappedRead (readBuffer, readSize, &overlapped);
-			if (!result)
-			{
-				err::Error error = err::getLastError ();
-				if (m_fileStreamKind != FileStreamKind_Pipe || error->m_code != ERROR_MORE_DATA)
-				{
-					if (read)
-					{
-						read->m_result = -1;
-						read->m_error = error;
-						read->m_completionEvent.signal ();
-					}
-
-					fireFileStreamEvent (FileStreamEventCode_IoError, error);
-					return;
-				}
-			}
-
-			for (;;) // cycle is needed case main thread can add new reads to m_readList
-			{
-				DWORD waitResult = ::WaitForMultipleObjects (2, waitTable, false, INFINITE);
-				if (waitResult == WAIT_FAILED)
-				{
-					err::Error error = err::getLastSystemErrorCode ();
-					fireFileStreamEvent (FileStreamEventCode_IoError, error);
-					return;
-				}
-
-				m_ioLock.lock ();
-
-				if (m_ioFlags & IoFlag_Closing)
-				{
-					m_ioLock.unlock ();
-					return;
-				}
-
-				m_ioLock.unlock ();
-
-				if (waitResult == WAIT_OBJECT_0 + 1)
-					break;
-			}
-
-			dword_t actualSize = 0;
-			bool isIncompleteMessage = false;
-			result = m_file.m_file.getOverlappedResult (&overlapped, &actualSize);
-			if (!result)
-			{
-				err::Error error = err::getLastError ();
-				if (m_fileStreamKind == FileStreamKind_Pipe && error->m_code == ERROR_MORE_DATA)
-				{
-					isIncompleteMessage = true;
-				}
-				else
-				{
-					if (read)
-					{
-						read->m_result = -1;
-						read->m_error = error;
-						read->m_completionEvent.signal ();
-					}
-
-					fireFileStreamEvent (FileStreamEventCode_IoError, error);
-					return;
-				}
-			}
-
-			readSize = actualSize;
-
-			if (read)
-			{
-				read->m_result = readSize;
-				read->m_isIncompleteMessage = isIncompleteMessage;
-				read->m_completionEvent.signal ();
-			}
-			else
-			{
-				m_ioLock.lock ();
-				ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-				if (readSize)
-				{
-					m_ioFlags |= IoFlag_IncomingData;
-					m_incomingDataSize = readSize;
-				}
-
-				if (isIncompleteMessage)
-					m_ioFlags |= IoFlag_IncompleteMessage;
-				else
-					m_ioFlags &= ~IoFlag_IncompleteMessage;
-
-				m_ioLock.unlock ();
-
-				if (readSize)
-				{
-					fireFileStreamEvent (FileStreamEventCode_IncomingData);
-				}
-				else
-				{
-					fireFileStreamEvent (FileStreamEventCode_Eof);
-					return;
-				}
-			}
-
-			offset += readSize; // advance offset
+			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead ();
+			waitTable [2] = read->m_overlapped.m_completionEvent.m_event;
+			waitCount = 3;
 		}
 	}
 }
 
 #elif (_JNC_OS_POSIX)
-
-size_t
-JNC_CDECL
-FileStream::read (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	size_t result = m_file.read (ptr.m_p, size);
-
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_IncomingData;
-	wakeIoThread ();
-	m_ioLock.unlock ();
-
-	return result;
-}
-
-ReadNamedPipeMessageResult
-JNC_CDECL
-FileStream::readNamedPipeMessage (
-	DataPtr ptr,
-	size_t size,
-	DataPtr actualSizePtr
-	)
-{
-	err::setError (err::SystemErrorCode_NotImplemented);
-	return ReadNamedPipeMessageResult_Error;
-}
-
-size_t
-JNC_CDECL
-FileStream::write (
-	DataPtr ptr,
-	size_t size
-	)
-{
-	return m_file.write (ptr.m_p, size);
-}
 
 void
 FileStream::ioThreadFunc ()
@@ -730,57 +378,128 @@ FileStream::ioThreadFunc ()
 	ASSERT (m_file.isOpen ());
 
 	int result;
-	int selectFd = AXL_MAX (m_file.m_file, m_selfPipe.m_readFile) + 1;
+	int selectFd = AXL_MAX (m_file.m_file, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	sl::Array <char> readBlock;
+	sl::Array <char> writeBlock;
+
+	readBlock.setCount (Def_ReadBlockSize);
+
+	bool canReadSerial = false;
+	bool canWriteSerial = false;
 
 	// read/write loop
 
 	for (;;)
 	{
 		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
 
-		FD_SET (m_selfPipe.m_readFile, &readSet);
+		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
 
-		m_ioLock.lock ();
-
-		if (m_ioFlags & IoFlag_Closing)
-		{
-			m_ioLock.unlock ();
-			break;
-		}
-
-		if (!(m_ioFlags & IoFlag_IncomingData)) // don't re-issue select if not handled yet
+		if (!canReadSerial)
 			FD_SET (m_file.m_file, &readSet);
 
-		m_ioLock.unlock ();
+		if (!canWriteSerial)
+			FD_SET (m_file.m_file, &writeSet);
 
-		result = select (selectFd, &readSet, NULL, NULL, NULL);
+		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 			break;
 
-		if (FD_ISSET (m_selfPipe.m_readFile, &readSet))
+		if (FD_ISSET (m_ioThreadSelfPipe.m_readFile, &readSet))
 		{
 			char buffer [256];
-			m_selfPipe.read (buffer, sizeof (buffer));
+			m_ioThreadSelfPipe.read (buffer, sizeof (buffer));
 		}
 
 		if (FD_ISSET (m_file.m_file, &readSet))
 		{
 			size_t incomingDataSize = m_file.m_file.getIncomingDataSize ();
-			if (incomingDataSize == -1 || !incomingDataSize) // error or end-of-file
+			if (incomingDataSize == -1)
 			{
-				fireFileStreamEvent (FileStreamEventCode_Eof);
-				break;
+				setIoErrorEvent ();
+				return;
 			}
 
-			m_ioLock.lock ();
-			ASSERT (!(m_ioFlags & IoFlag_IncomingData));
-			m_ioFlags |= IoFlag_IncomingData;
-			m_ioLock.unlock ();
-
-			fireFileStreamEvent (FileStreamEventCode_IncomingData);
+			canReadSerial = incomingDataSize > 0;
 		}
+
+		if (FD_ISSET (m_file.m_file, &writeSet))
+			canWriteSerial = true;
+
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock ();
+			return;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
+		readBlock.setCount (m_readBlockSize); // update read block size
+
+		while (canReadSerial && !m_readBuffer.isFull ())
+		{
+			ssize_t actualSize = ::read (m_file.m_file, readBlock, readBlock.getCount ());
+			if (actualSize == -1)
+			{
+				if (errno == EAGAIN)
+				{
+					canReadSerial = false;
+				}
+				else
+				{
+					setIoErrorEvent_l (err::Errno (errno));
+					return;
+				}
+			}
+			else
+			{
+				addToReadBuffer (readBlock, actualSize);
+			}
+		}
+
+		while (canWriteSerial)
+		{
+			getNextWriteBlock (&writeBlock);
+			if (writeBlock.isEmpty ())
+				break;
+
+			size_t blockSize = writeBlock.getCount ();
+			ssize_t actualSize = ::write (m_file.m_file, writeBlock, blockSize);
+			if (actualSize == -1)
+			{
+				if (errno == EAGAIN)
+				{
+					canWriteSerial = false;
+				}
+				else if (actualSize < 0)
+				{
+					setIoErrorEvent_l (err::Errno ((int) actualSize));
+					return;
+				}
+			}
+			else if ((size_t) actualSize < blockSize)
+			{
+				writeBlock.remove (0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear ();
+			}
+		}
+
+		updateReadWriteBufferEvents ();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
 	}
 }
+
 #endif
 
 //..............................................................................
