@@ -11,52 +11,48 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoDevice.h"
+
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE (PcapEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (Pcap)
 JNC_DECLARE_TYPE (PcapAddress)
 JNC_DECLARE_TYPE (PcapDeviceDesc)
 
 //..............................................................................
 
-enum PcapEventCode
+enum PcapEvent
 {
-	PcapEventCode_ReadyRead = 0,
-	PcapEventCode_IoError,
-	PcapEventCode_Eof,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct PcapEventParams
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (PcapEventParams)
-
-	PcapEventCode m_eventCode;
-	uint_t m_syncId;
-	DataPtr m_errorPtr;
+	PcapEvent_Eof = 0x0100,
 };
 
 //..............................................................................
 
-class Pcap: public IfaceHdr
+struct PcapHdr: IfaceHdr
+{
+	size_t m_snapshotSize;
+	bool m_isPromiscious;
+	uint_t m_readTimeout;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+
+	DataPtr m_filterPtr;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class Pcap: 
+	public PcapHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
 protected:
-	enum DefKind
+	enum Def
 	{
-		DefKind_SnapshotSize = 2 * 1024,
-	};
-
-	enum IoFlag
-	{
-		IoFlag_Closing = 0x0001,
-		IoFlag_File    = 0x0010,
-		IoFlag_Eof     = 0x0020,
-		IoFlag_IoError = 0x0040,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -78,21 +74,8 @@ protected:
 	};
 
 protected:
-	DataPtr m_filter;
-	bool m_isPromiscious;
-	bool m_isOpen;
-	uint_t m_syncId;
-
-	ClassBox <Multicast> m_onPcapEvent;
-
-protected:
-	Runtime* m_runtime;
 	axl::io::Pcap m_pcap;
-	sys::Lock m_ioLock;
-	sl::AuxList <Read> m_readList;
-	volatile uint_t m_ioFlags;
 	IoThread m_ioThread;
-	sys::Event m_ioThreadEvent;
 
 public:
 	Pcap ();
@@ -104,32 +87,49 @@ public:
 
 	bool
 	JNC_CDECL
-	setFilter (DataPtr filter);
-
-	bool
-	JNC_CDECL
 	openDevice (
-		DataPtr deviceName,
-		DataPtr filter,
-		bool isPromiscious = false
+		DataPtr deviceNamePtr,
+		DataPtr filterPtr,
+		uint_t snapshotSize,
+		bool isPromiscious,
+		uint_t readTimeout
 		);
 
 	bool
 	JNC_CDECL
 	openFile (
-		DataPtr fileName,
-		DataPtr filter
+		DataPtr fileNamePtr,
+		DataPtr filterPtr
 		);
 
 	void
 	JNC_CDECL
 	close ();
 
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setFilter (DataPtr filter);
+
 	size_t
 	JNC_CDECL
 	read (
-		DataPtr ptr,
-		size_t size
+		DataPtr dataPtr,
+		size_t size,
+		DataPtr timestampPtr
 		);
 
 	size_t
@@ -139,21 +139,42 @@ public:
 		size_t size
 		)
 	{
-		return m_pcap.write (ptr.m_p, size);
+		return bufferedWrite (ptr, size);
+	}
+
+	handle_t
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
+
+	bool
+	JNC_CDECL
+	cancelWait (handle_t handle)
+	{
+		return AsyncIoDevice::cancelWait (handle);
+	}
+
+	uint_t
+	JNC_CDECL
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
 	}
 
 protected:
-	void
-	firePcapEvent (
-		PcapEventCode eventCode,
-		const err::ErrorHdr* error = NULL
-		);
+	bool
+	finishOpen ();
 
 	void
 	ioThreadFunc ();
-
-	void
-	cancelAllReads_l ();
 };
 
 //..............................................................................

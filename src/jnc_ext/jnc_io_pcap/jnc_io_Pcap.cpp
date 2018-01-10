@@ -43,12 +43,19 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (Pcap)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <Pcap>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Pcap>)
-	JNC_MAP_FUNCTION ("openDevice",  &Pcap::openDevice)
-	JNC_MAP_FUNCTION ("openFile",    &Pcap::openFile)
-	JNC_MAP_FUNCTION ("close",       &Pcap::close)
-	JNC_MAP_FUNCTION ("setFilter",   &Pcap::setFilter)
-	JNC_MAP_FUNCTION ("write",       &Pcap::write)
-	JNC_MAP_FUNCTION ("read",        &Pcap::read)
+
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &Pcap::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &Pcap::setWriteBufferSize)
+
+	JNC_MAP_FUNCTION ("openDevice",   &Pcap::openDevice)
+	JNC_MAP_FUNCTION ("openFile",     &Pcap::openFile)
+	JNC_MAP_FUNCTION ("close",        &Pcap::close)
+	JNC_MAP_FUNCTION ("setFilter",    &Pcap::setFilter)
+	JNC_MAP_FUNCTION ("write",        &Pcap::write)
+	JNC_MAP_FUNCTION ("read",         &Pcap::read)
+	JNC_MAP_FUNCTION ("wait",         &Pcap::wait)
+	JNC_MAP_FUNCTION ("cancelWait",   &Pcap::cancelWait)
+	JNC_MAP_FUNCTION ("blockingWait", &Pcap::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -79,96 +86,65 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 Pcap::Pcap ()
 {
-	m_runtime = getCurrentThreadRuntime ();
-	m_ioFlags = 0;
-	memset (&m_filter, 0, sizeof (m_filter));
-	m_isPromiscious = false;
-	m_isOpen = false;
-	m_syncId = 0;
-}
+	m_readBufferSize = Def_ReadBufferSize;
+	m_writeBufferSize = Def_WriteBufferSize;
 
-void
-Pcap::firePcapEvent (
-	PcapEventCode eventCode,
-	const err::ErrorHdr* error
-	)
-{
-	JNC_BEGIN_CALL_SITE (m_runtime);
-
-	DataPtr paramsPtr = createData <PcapEventParams> (m_runtime);
-	PcapEventParams* params = (PcapEventParams*) paramsPtr.m_p;
-	params->m_eventCode = eventCode;
-	params->m_syncId = m_syncId;
-
-	if (error)
-		params->m_errorPtr = memDup (error, error->m_size);
-
-	callMulticast (m_onPcapEvent, paramsPtr);
-
-	JNC_END_CALL_SITE ();
-}
-
-bool
-JNC_CDECL
-Pcap::setFilter (DataPtr filter)
-{
-	bool result = m_pcap.setFilter ((const char*) filter.m_p);
-	if (!result)
-	{
-		propagateLastError ();
-		return false;
-	}
-
-	m_filter = filter;
-	return true;
+	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
 }
 
 bool
 JNC_CDECL
 Pcap::openDevice (
-	DataPtr deviceName,
-	DataPtr filter,
-	bool isPromiscious
+	DataPtr deviceNamePtr,
+	DataPtr filterPtr,
+	uint_t snapshotSize,
+	bool isPromiscious,
+	uint_t readTimeout
 	)
 {
 	bool result;
 
+	const char* deviceName = (const char*) deviceNamePtr.m_p; 
+	const char* filter = (const char*) filterPtr.m_p;
+
 	close ();
 
-	result =
-		m_pcap.openDevice ((const char*) deviceName.m_p, DefKind_SnapshotSize, isPromiscious, 200) &&
-		m_pcap.setFilter ((const char*) filter.m_p);
-
+	result = 
+		m_pcap.openDevice (deviceName, snapshotSize, isPromiscious, readTimeout) &&
+		m_pcap.setFilter (filter);
+		
 	if (!result)
 	{
 		propagateLastError ();
 		return false;
 	}
 
-	m_filter = filter;
+	m_snapshotSize = snapshotSize;
 	m_isPromiscious = isPromiscious;
-	m_isOpen = true;
+	m_readTimeout = readTimeout;
+	m_filterPtr = strDup (filter);
 
-	m_ioThreadEvent.reset ();
-	m_ioFlags = 0;
-	m_ioThread.start ();
-	return true;
+	return finishOpen ();
 }
 
 bool
 JNC_CDECL
 Pcap::openFile (
-	DataPtr fileName,
-	DataPtr filter
+	DataPtr fileNamePtr,
+	DataPtr filterPtr
 	)
 {
 	bool result;
 
+	const char* fileName = (const char*) fileNamePtr.m_p; 
+	const char* filter = (const char*) filterPtr.m_p;
+
 	close ();
 
-	result =
-		m_pcap.openFile ((const char*) fileName.m_p) &&
-		m_pcap.setFilter ((const char*) filter.m_p);
+	result = 
+		m_pcap.openFile (fileName) &&
+		m_pcap.setFilter (filter);
 
 	if (!result)
 	{
@@ -176,12 +152,19 @@ Pcap::openFile (
 		return false;
 	}
 
-	m_filter = filter;
-	m_isPromiscious = false;
-	m_isOpen = true;
+	m_filterPtr = strDup (filter);
 
-	m_ioThreadEvent.reset ();
-	m_ioFlags = IoFlag_File;
+	return finishOpen ();
+}
+
+bool
+Pcap::finishOpen ()
+{
+	AsyncIoDevice::open ();
+
+	m_ioThreadFlags |= IoThreadFlag_Datagram;
+	m_options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
+
 	m_ioThread.start ();
 	return true;
 }
@@ -190,160 +173,135 @@ void
 JNC_CDECL
 Pcap::close ()
 {
-	m_ioLock.lock ();
-	m_ioFlags |= IoFlag_Closing;
-	m_ioThreadEvent.signal ();
-	m_ioLock.unlock ();
+	if (!m_pcap.isOpen ())
+		return;
+
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Closing;
+	wakeIoThread ();
+	m_lock.unlock ();
 
 	GcHeap* gcHeap = m_runtime->getGcHeap ();
 	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
 
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId++;
+	m_pcap.close ();
+
+	AsyncIoDevice::close ();
+	m_snapshotSize = 0;
+	m_isPromiscious = false;
+	m_readTimeout = 0;
+}
+
+bool
+JNC_CDECL
+Pcap::setFilter (DataPtr filterPtr)
+{
+	const char* filter = (const char*) filterPtr.m_p;
+
+	bool result = m_pcap.setFilter (filter);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_filterPtr = strDup (filter);
+	return true;
 }
 
 size_t
 JNC_CDECL
 Pcap::read (
-	DataPtr ptr,
-	size_t size
+	DataPtr dataPtr,
+	size_t size,
+	DataPtr timestampPtr
 	)
 {
-	Read read;
-	read.m_p = ptr.m_p;
-	read.m_size = size;
+	size_t result;
 
-	m_ioLock.lock ();
-	if (m_ioFlags & IoFlag_Eof)
+	if (!timestampPtr.m_p)
 	{
-		m_ioLock.unlock ();
-		return 0;
+		result = bufferedRead (dataPtr, size);
+	}
+	else
+	{
+		char buffer [256];
+		sl::Array <char> params (ref::BufKind_Stack, buffer, sizeof (buffer));
+		result = bufferedRead (dataPtr, size, &params);
+
+		ASSERT (params.getCount () == sizeof (uint64_t));
+		*(uint64_t*) timestampPtr.m_p = *(uint64_t*) params.p ();
 	}
 
-	if (m_ioFlags & IoFlag_IoError)
-	{
-		m_ioLock.unlock ();
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		return -1;
-	}
-
-	m_readList.insertTail (&read);
-	m_ioThreadEvent.signal ();
-	m_ioLock.unlock ();
-
-	GcHeap* gcHeap = m_runtime->getGcHeap ();
-	gcHeap->enterWaitRegion ();
-	read.m_completeEvent.wait ();
-	gcHeap->leaveWaitRegion ();
-
-	if (read.m_result == -1)
-		err::setError (err::SystemErrorCode_Cancelled);
-
-	return read.m_result;
+	return result;
 }
 
 void
 Pcap::ioThreadFunc ()
 {
+	ASSERT (m_pcap.isOpen ());
+
+	sl::Array <char> readBuffer;
+	readBuffer.setCount (m_snapshotSize);
+
 	for (;;)
 	{
-		// wait for packet
+		uint64_t timestamp;
 
-		char readBuffer [DefKind_SnapshotSize];
-		size_t readResult;
-		err::Error readError;
-
-		for (;;)
+		size_t readResult = m_pcap.read (readBuffer, m_snapshotSize, &timestamp);
+		if (readResult == -1)
 		{
-			readResult = m_pcap.read (readBuffer, sizeof (readBuffer));
-			if (readResult == -1)
-				readError = err::getLastError ();
-
-			m_ioLock.lock ();
-			if (m_ioFlags & IoFlag_Closing)
-			{
-				cancelAllReads_l ();
-				return;
-			}
-
-			if (readResult == -2)
-			{
-				m_ioFlags |= IoFlag_Eof;
-				cancelAllReads_l ();
-				firePcapEvent (PcapEventCode_Eof);
-				return;
-			}
-
-			m_ioLock.unlock ();
-
-			if (readResult != 0) // not a timeout
-			{
-				if (readResult == -1)
-				{
-					m_ioFlags |= IoFlag_IoError;
-					cancelAllReads_l ();
-					firePcapEvent (PcapEventCode_IoError, readError);
-					return;
-				}
-
-				break;
-			}
+			setIoErrorEvent ();
+			break;
 		}
 
-		// wait for read request
-
-		m_ioLock.lock ();
-		if (m_readList.isEmpty ())
+		if (readResult == -2)
 		{
-			m_ioLock.unlock ();
-			firePcapEvent (PcapEventCode_ReadyRead);
-			m_ioLock.lock ();
+			setEvents (PcapEvent_Eof);
+			break;
 		}
 
-		while (m_readList.isEmpty ())
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
-			m_ioLock.unlock ();
+			m_lock.unlock ();
+			break;
+		}
+
+		if (readResult == 0) // timeout
+		{
+			m_lock.unlock ();
+			continue;
+		}
+
+		while (m_readBuffer.isFull ())
+		{
+			m_lock.unlock ();
+
 			m_ioThreadEvent.wait ();
 
-			m_ioLock.lock ();
-			if (m_ioFlags & IoFlag_Closing)
+			m_lock.lock ();
+
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
 			{
-				cancelAllReads_l ();
+				m_lock.unlock ();
 				return;
 			}
 		}
 
-		// complete read request
+		addToReadBuffer (readBuffer, readResult, &timestamp, sizeof (timestamp));
 
-		Read* read = m_readList.removeHead ();
-		m_ioLock.unlock ();
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
 
-		if (readResult != -1)
-		{
-			readResult = AXL_MIN (readResult, read->m_size);
-			memcpy (read->m_p, readBuffer, readResult);
-		}
+		updateReadWriteBufferEvents ();
 
-		read->m_result = readResult;
-		read->m_completeEvent.signal ();
-	}
-}
-
-void
-Pcap::cancelAllReads_l ()
-{
-	sl::AuxList <Read> readList;
-	readList.takeOver (&m_readList);
-	m_ioLock.unlock ();
-
-	while (!readList.isEmpty ())
-	{
-		Read* read = m_readList.removeHead ();
-		read->m_result = -1;
-		read->m_completeEvent.signal ();
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
 	}
 }
 

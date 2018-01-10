@@ -72,6 +72,7 @@ include_directories (
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	../jnc_io_cmn
 	)
 
 link_directories (
@@ -112,6 +113,7 @@ set_target_properties (
 
 target_link_libraries (
 	jnc_io_pcap
+	jnc_io_cmn
 	jnc_api_dynamic
 	axl_io
 	axl_core

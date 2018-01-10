@@ -28,14 +28,8 @@ namespace io {
 	\sa `io.Pcap`, `io.PcapEventParams`
 */
 
-enum PcapEventCode
+bitflag enum PcapEvents
 {
-	/**
-		New packet(s) are available on the Pcap device or file; the next packet could be fetched with `io.Pcap.read` method.
-	*/
-
-	ReadyRead,
-
 	/**
 		An IO error occured on the Pcap device or file; detailed information about the error is available at `io.PcapEventParams.m_error`.
 	*/
@@ -43,47 +37,28 @@ enum PcapEventCode
 	IoError,
 
 	/**
+		New packet(s) are available on the Pcap device or file; the next packet could be fetched with `io.Pcap.read` method.
+	*/
+
+	IncomingData,
+
+	/**
+		Pcap device receive buffer is full; upcoming packets may be dropped (depending on the internal buffer size of the kernel Pcap provider).
+	*/
+
+	ReceiveBufferFull,
+
+	/**  
+		Pcap device transmit buffer is ready to accept more data; it's OK to issue more `io.Pcap.write` requests.
+	*/
+
+	TransmitBufferReady,
+
+	/**
 		End-of-file was reached on the Pcap file.
 	*/
 
 	Eof,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-/**
-	\import io_pcap.jncx
-
-	\brief This struct contains detailed information about the event occured on `io.Pcap` object.
-
-	Pointer to the instance of this struct is the only argument passed to the subscribers of `io.Pcap.m_onPcapEvent`.
-
-	\sa `io.Pcap`, `io.PcapEventCode`
-
-	\footnote f1
-
-		|footnote-sync-id|
-*/
-
-struct PcapEventParams
-{
-	/**
-		Holds the numerical code of the event. For a list of all possible codes refer to `io.PcapEventCode`.
-	*/
-
-	PcapEventCode m_eventCode;
-
-	/**
-		Holds the synchronization ID of the event. This field should be used for discarding of the events which have been delivered late due to scheduling [#f1]_.
-	*/
-
-	uint_t m_syncId;
-
-	/**
-		Holds extended error information for error events. Currently this field is only used by `io.PcapEventCode.IoError`.
-	*/
-
-	std.Error* m_error;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -177,29 +152,36 @@ struct PcapEventParams
 
 opaque class Pcap
 {
+	enum Defaults
+	{
+		SnapshotSize = 16 * 1024,
+		Promiscious  = false,
+		ReadTimeout  = 200,
+	}
+
+	size_t readonly m_snapshotSize;
+	bool readonly m_isPromiscious;
+	uint_t readonly m_readTimeout;
+	
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
 	/**
 		Holds currently specified capture filter [#f4]_.
 	*/
 
 	char const* readonly m_filter;
 
-	/**
-		Holds ``true`` if network interface has been opened in promiscuos mode; ``false`` otherwise.
-	*/
+	uint_t readonly m_unused;
 
-	bool readonly m_isPromiscious;
+	io.PcapEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
 
 	/**
 		Holds the open status for the Pcap object, i.e. ``true`` if opened; ``false`` otherwise.
 	*/
 
 	bool readonly m_isOpen;
-
-	/**
-		Holds the synchronization ID for the Pcap object [#f3]_.
-	*/
-
-	uint_t m_syncId;
 
 	construct ();
 	destruct ();
@@ -218,8 +200,10 @@ opaque class Pcap
 
 	bool errorcode openDevice (
 		char const* deviceName,
-		char const* filter = null,
-		bool isPromiscious = false
+		char const* filter,
+		uint_t snapshotSize = Defaults.SnapshotSize,
+		bool isPromiscious = Defaults.Promiscious,
+		uint_t readTimeout = Defaults.ReadTimeout
 		);
 
 	/**
@@ -232,7 +216,7 @@ opaque class Pcap
 
 	bool errorcode openFile (
 		char const* fileName,
-		char const* filter = null
+		char const* filter
 		);
 
 	/**
@@ -258,17 +242,6 @@ opaque class Pcap
 	bool errorcode setFilter (char const* filter);
 
 	/**
-		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as a packet on a currently opened device.
-
-		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
-	*/
-
-	size_t errorcode write (
-		void const* p,
-		size_t size
-		);
-
-	/**
 		Reads the next packet into the buffer pointed to by ``p`` and ``size`` bytes long.
 
 		Returns the actual amount of bytes read or ``-1`` if error occurs.
@@ -280,18 +253,32 @@ opaque class Pcap
 
 	size_t errorcode read (
 		void* p,
-		size_t size
+		size_t size,
+		uint64_t* timestamp = null
 		);
 
 	/**
-		This event is fired whenever an event occurs on the Pcap capture object.
+		Attempts to inject ``size`` bytes from the buffer pointed to by ``p`` as a packet on a currently opened device.
 
-		For the list of possible events, refer to `io.PcapEventCode` enumeration.
-
-		Event handler receives a single argument of type `io.PcapEventParams` which holds parameters of the particular event [#f3]_.
+		Returns the actual amount of bytes written on success. If write operation is unsuccessful, function sets the error reported by Pcap and returns ``-1`` [#f1]_.
 	*/
 
-	event m_onPcapEvent (PcapEventParams const* params);
+	size_t errorcode write (
+		void const* p,
+		size_t size
+		);
+
+	intptr errorcode wait (
+		PcapEvents eventMask,
+		function* handler (PcapEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait (intptr handle);
+
+	PcapEvents errorcode blockingWait (
+		PcapEvents eventMask,
+		uint_t timeout
+		);
 }
 
 //..............................................................................
