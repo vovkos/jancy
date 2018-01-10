@@ -73,13 +73,13 @@ DeviceMonitor::setPendingNotifySizeLimit (size_t limit)
 
 bool
 JNC_CDECL
-DeviceMonitor::setFileNameFilter (jnc::DataPtr filterPtr)
+DeviceMonitor::setFileNameFilter (DataPtr filterPtr)
 {
 	const char* filter = (const char*) filterPtr.m_p;
 
 	if (!m_isConnected)
 	{
-		m_fileNameFilterPtr = jnc::strDup (filter);
+		m_fileNameFilterPtr = strDup (filter);
 		return true;
 	}
 
@@ -90,7 +90,7 @@ DeviceMonitor::setFileNameFilter (jnc::DataPtr filterPtr)
 		return false;
 	}
 
-	m_fileNameFilterPtr = jnc::strDup (filter);
+	m_fileNameFilterPtr = strDup (filter);
 	return true;
 }
 
@@ -160,7 +160,7 @@ DeviceMonitor::close ()
 
 bool
 JNC_CDECL
-DeviceMonitor::connect (jnc::DataPtr deviceNamePtr)
+DeviceMonitor::connect (DataPtr deviceNamePtr)
 {
 	bool result = m_monitor.connect ((const char*) deviceNamePtr.m_p);
 	if (!result)
@@ -238,7 +238,7 @@ DeviceMonitor::connectLoop ()
 void
 DeviceMonitor::ioThreadFunc ()
 {
-	ASSERT (m_monitor.isOpen ());
+	ASSERT (m_monitor.isOpen () && m_overlappedIo);
 
 	bool result = connectLoop ();
 	if (!result)
@@ -267,9 +267,9 @@ DeviceMonitor::ioThreadFunc ()
 
 		// do as much as we can without lock
 
-		while (!m_activeOverlappedReadList.isEmpty ())
+		while (!m_overlappedIo->m_activeOverlappedReadList.isEmpty ())
 		{
-			OverlappedRead* read = *m_activeOverlappedReadList.getHead ();
+			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead ();
 			result = read->m_overlapped.m_completionEvent.wait (0);
 			if (!result)
 				break;
@@ -283,7 +283,7 @@ DeviceMonitor::ioThreadFunc ()
 			}
 
 			read->m_overlapped.m_completionEvent.reset ();
-			m_activeOverlappedReadList.remove (read);
+			m_overlappedIo->m_activeOverlappedReadList.remove (read);
 
 			// only the main read buffer must be lock-protected
 
@@ -291,7 +291,8 @@ DeviceMonitor::ioThreadFunc ()
 			addToReadBuffer (read->m_buffer, actualSize);
 			m_lock.unlock ();
 
-			m_freeOverlappedReadList.insertHead (read);
+			read->m_overlapped.m_completionEvent.reset ();
+			m_overlappedIo->m_overlappedReadPool.put (read);
 		}
 
 		m_lock.lock ();
@@ -304,7 +305,6 @@ DeviceMonitor::ioThreadFunc ()
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
-		getNextWriteBlock (&m_overlappedWriteBlock);
 		updateReadWriteBufferEvents ();
 
 		// take snapshots before releasing the lock
@@ -312,21 +312,20 @@ DeviceMonitor::ioThreadFunc ()
 		bool isReadBufferFull = m_readBuffer.isFull ();
 		size_t readParallelism = m_readParallelism;
 		size_t readBlockSize = m_readBlockSize;
-		uint_t compatibilityFlags = m_options;
 
 		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l ();
 		else
 			m_lock.unlock ();
 
-		size_t activeReadCount = m_activeOverlappedReadList.getCount ();
+		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount ();
 		if (!isReadBufferFull && activeReadCount < readParallelism)
 		{
 			size_t newReadCount = readParallelism - activeReadCount;
 
 			for (size_t i = 0; i < newReadCount; i++)
 			{
-				OverlappedRead* read = createOverlappedRead ();
+				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get ();
 
 				result =
 					read->m_buffer.setCount (readBlockSize) &&
@@ -338,11 +337,11 @@ DeviceMonitor::ioThreadFunc ()
 					return;
 				}
 
-				m_activeOverlappedReadList.insertTail (read);
+				m_overlappedIo->m_activeOverlappedReadList.insertTail (read);
 			}
 		}
 
-		if (m_activeOverlappedReadList.isEmpty ())
+		if (m_overlappedIo->m_activeOverlappedReadList.isEmpty ())
 		{
 			waitCount = 1;
 		}
@@ -350,8 +349,8 @@ DeviceMonitor::ioThreadFunc ()
 		{
 			// wait-table may already hold correct value -- but there's no harm in writing it over
 
-			axl::io::win::StdOverlapped* overlapped = &m_activeOverlappedReadList.getHead ()->m_overlapped;
-			waitTable [1] = overlapped->m_completionEvent.m_event;
+			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead ();
+			waitTable [1] = read->m_overlapped.m_completionEvent.m_event;
 			waitCount = 2;
 		}
 	}

@@ -57,9 +57,21 @@ protected:
 		}
 	};
 
+#if (_AXL_OS_WIN)
+	struct OverlappedIo
+	{
+		mem::Pool <OverlappedRead> m_overlappedReadPool;
+		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+	};
+#endif
+
 protected:
 	dm::Monitor m_monitor;
 	IoThread m_ioThread;
+
+#if (_AXL_OS_WIN)
+	OverlappedIo* m_overlappedIo;
+#endif
 
 public:
 	DeviceMonitor ();
@@ -71,23 +83,23 @@ public:
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	markOpaqueGcRoots (GcHeap* gcHeap)
 	{
 		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadParallelism (uint_t count)
 	{
-		return AsyncIoDevice::setReadParallelism (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
-	bool
+	void
 	JNC_CDECL
 	setReadBlockSize (size_t size)
 	{
-		return AsyncIoDevice::setReadBlockSize (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
@@ -103,7 +115,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setFileNameFilter (jnc::DataPtr filterPtr);
+	setFileNameFilter (DataPtr filterPtr);
 
 	bool
 	JNC_CDECL
@@ -119,7 +131,7 @@ public:
 
 	bool
 	JNC_CDECL
-	connect (jnc::DataPtr deviceNamePtr);
+	connect (DataPtr deviceNamePtr);
 
 	bool
 	JNC_CDECL
@@ -131,7 +143,7 @@ public:
 	size_t
 	JNC_CDECL
 	read (
-		jnc::DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		)
 	{
