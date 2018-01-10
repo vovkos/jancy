@@ -20,6 +20,28 @@ namespace io {
 
 /**
 	\import io_base.jncx
+	\import io_FileStream.jnc
+
+	\brief This enumeration contains codes of all possible events that might happen on `io.NamedPipe` object.
+
+	\sa `io.NamedPipe`
+*/
+
+bitflag enum NamedPipeEvents
+{
+	/**
+		An IO error occured on the named pipe server; detailed information about the error is available at `io.NamedPipe.m_ioError`.
+	*/
+
+	IoError,
+
+	IncomingConnection,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
 	\import io_NamedPipe.jnc
 
 	\brief This class provides high-level asynchronous interface for the *server* side of Windows named pipes. Windows named pipes are widely used for IPC (Inter-Process Communications) between applications, services and drivers on Windows platform.
@@ -100,17 +122,22 @@ namespace io {
 
 opaque class NamedPipe
 {
+	uint_t autoget property m_connectParallelism;
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	FileStreamOptions autoget property m_options;
+
+	NamedPipeEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
 	/**
-		Holds the open status for the named pipe, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for serial port, i.e. ``true`` if opened; ``false`` otherwise.
 	*/
 
 	bool readonly m_isOpen;
-
-	/**
-		Holds the synchronization ID for the named pipe [#f3]_.
-	*/
-
-	uint_t m_syncId;
 
 	construct ();
 	destruct ();
@@ -125,8 +152,7 @@ opaque class NamedPipe
 
 	bool errorcode open (
 		char const* name,
-		NamedPipeMode mode = NamedPipeMode.Stream,
-		size_t backlog = 0
+		size_t backLogLimit = 0 // 0 -- default
 		);
 
 	/**
@@ -153,15 +179,17 @@ opaque class NamedPipe
 
 	FileStream* accept ();
 
-	/**
-		This event is fired whenever there is a client trying to connect to the named pipe server.
+	intptr errorcode wait (
+		NamedPipeEvents eventMask,
+		function* handler (NamedPipeEvents triggeredEvents)
+		);
 
-		The event handler receives a single ``syncId`` parameter [#f3]_.
+	bool errorcode cancelWait (intptr handle);
 
-		Call ``accept`` method to accept incoming connection and start communication with this particular client.
-	*/
-
-	event m_onIncomingConnection (uint_t syncId);
+	NamedPipeEvents errorcode blockingWait (
+		NamedPipeEvents eventMask,
+		uint_t timeout
+		);
 }
 
 //..............................................................................

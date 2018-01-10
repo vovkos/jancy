@@ -11,6 +11,10 @@
 
 #pragma once
 
+#if (!_AXL_OS_WIN)
+#	error This file is Windows-only
+#endif
+
 #include "jnc_io_FileStream.h"
 
 namespace jnc {
@@ -20,11 +24,44 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (NamedPipe)
 
 //..............................................................................
 
-class NamedPipe: public IfaceHdr
+enum NamedPipeEvent
+{
+	NamedPipeEvent_IncomingConnection = 0x0002,
+};
+
+//..............................................................................
+
+struct NamedPipeHdr: IfaceHdr
+{
+	uint_t m_connectParallelism;
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class NamedPipe:
+	public NamedPipeHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
 protected:
+	enum Def
+	{
+		Def_ConnectParallelism = 4,
+		Def_ReadParallelism    = 4,
+		Def_ReadBlockSize      = 4 * 1024,
+		Def_ReadBufferSize     = 16 * 1024,
+		Def_WriteBufferSize    = 16 * 1024,
+		Def_Options            = 0,
+		Def_Timeout            = 0,
+		Def_BackLogLimit       = 4,
+		Def_MaxBackLogLimit    = 8,
+	};
+
 	class IoThread: public sys::ThreadImpl <IoThread>
 	{
 	public:
@@ -35,46 +72,32 @@ protected:
 		}
 	};
 
-	enum Const
+	struct IncomingConnection: sl::ListLink
 	{
-		Const_TxBufferSize = 512,
-		Const_RxBufferSize = 512,
-		Const_Timeout      = 3000, // 3 sec
-		Const_MaxBackLog   = 8,
-		Const_DefBackLog   = 2,
+		axl::io::win::NamedPipe m_pipe;
 	};
 
-	enum IoFlag
+	struct OverlappedConnect: sl::ListLink
 	{
-		IoFlag_Opened  = 0x0001,
-		IoFlag_Closing = 0x0002,
+		axl::io::win::NamedPipe m_pipe;
+		axl::io::win::StdOverlapped m_overlapped;
 	};
 
-	struct Accept: sl::ListLink
+	struct OverlappedIo
 	{
-		HANDLE m_hPipe;
-		err::Error m_error;
-		sys::Event m_completionEvent;
+		mem::Pool <OverlappedConnect> m_overlappedConnectPool;
+		sl::StdList <OverlappedConnect> m_pipeList;
+		sl::StdList <OverlappedConnect> m_activeOverlappedConnectList;
 	};
 
 protected:
-	bool m_isOpen;
-	uint_t m_syncId;
-
-	ClassBox <Multicast> m_onIncomingConnectionEvent;
-
-protected:
-	Runtime* m_runtime;
-	sl::String_w m_pipeName;
-	sl::Array <axl::io::win::NamedPipe> m_pipeArray;
-
-	sys::Lock m_ioLock;
-	uint_t m_ioFlags;
 	IoThread m_ioThread;
-	sl::Array <size_t> m_pendingAcceptArray;
-	sl::Array <size_t> m_listenArray;
-	sl::AuxList <Accept> m_acceptList;
-	sys::Event m_ioThreadEvent;
+
+	sl::String_w m_pipeName;
+	size_t m_backLogLimit;
+	mem::Pool <IncomingConnection> m_incomingConnectionPool;
+	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
+	OverlappedIo* m_overlappedIo;
 
 public:
 	NamedPipe ();
@@ -88,24 +111,86 @@ public:
 	JNC_CDECL
 	open (
 		DataPtr namePtr,
-		NamedPipeMode mode,
-		size_t backLog
+		size_t backLogLimit
 		);
 
 	void
 	JNC_CDECL
 	close ();
 
+	void
+	JNC_CDECL
+	setConnectParallelism (uint_t count)
+	{
+		AsyncIoDevice::setSetting (&m_connectParallelism, count ? count : Def_ConnectParallelism);
+	}
+
+	void
+	JNC_CDECL
+	setReadParallelism (uint_t count)
+	{
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+	}
+
+	void
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
+	bool
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setOptions (uint_t options);
+
 	FileStream*
 	JNC_CDECL
 	accept ();
 
+	handle_t
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
+
+	bool
+	JNC_CDECL
+	cancelWait (handle_t handle)
+	{
+		return AsyncIoDevice::cancelWait (handle);
+	}
+
+	uint_t
+	JNC_CDECL
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
+
 protected:
 	void
 	ioThreadFunc ();
-
-	void
-	listenLoop ();
 };
 
 //..............................................................................

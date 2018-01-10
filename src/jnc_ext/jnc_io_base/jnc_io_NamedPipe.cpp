@@ -31,61 +31,74 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <NamedPipe>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <NamedPipe>)
-	JNC_MAP_FUNCTION ("open",   &NamedPipe::open)
-	JNC_MAP_FUNCTION ("close",  &NamedPipe::close)
-	JNC_MAP_FUNCTION ("accept", &NamedPipe::accept)
+
+	JNC_MAP_AUTOGET_PROPERTY ("m_connectParallelism", &NamedPipe::setConnectParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism",    &NamedPipe::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",      &NamedPipe::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",     &NamedPipe::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize",    &NamedPipe::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_options",            &NamedPipe::setOptions)
+
+	JNC_MAP_FUNCTION ("open",         &NamedPipe::open)
+	JNC_MAP_FUNCTION ("close",        &NamedPipe::close)
+	JNC_MAP_FUNCTION ("accept",       &NamedPipe::accept)
+	JNC_MAP_FUNCTION ("wait",         &NamedPipe::wait)
+	JNC_MAP_FUNCTION ("cancelWait",   &NamedPipe::cancelWait)
+	JNC_MAP_FUNCTION ("blockingWait", &NamedPipe::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
 
 NamedPipe::NamedPipe ()
 {
-	m_runtime = getCurrentThreadRuntime ();
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId = 0;
+	m_connectParallelism = Def_ConnectParallelism;
+	m_readParallelism = Def_ReadParallelism;
+	m_readBlockSize = Def_ReadBlockSize;
+	m_readBufferSize = Def_ReadBufferSize;
+	m_writeBufferSize = Def_WriteBufferSize;
+	m_options = Def_Options;
+	m_backLogLimit = Def_BackLogLimit;
+
+	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
 }
 
 bool
 JNC_CDECL
 NamedPipe::open (
 	DataPtr namePtr,
-	NamedPipeMode mode,
-	size_t backLog
+	size_t backLogLimit
 	)
 {
 	bool result;
 
 	close ();
 
-	if (backLog == 0)
-		backLog = Const_DefBackLog;
+	if (backLogLimit == 0)
+		backLogLimit = Def_BackLogLimit;
 
-	if (backLog > Const_MaxBackLog)
-		backLog = Const_MaxBackLog;
+	if (backLogLimit > Def_MaxBackLogLimit)
+		backLogLimit = Def_MaxBackLogLimit;
 
-	const char* name = (const char*) namePtr.m_p;
+	m_pipeName = (const char*) namePtr.m_p;
+	m_backLogLimit = backLogLimit;
 
-	uint_t pipeMode = mode == NamedPipeMode_Message ?
+	uint_t pipeMode = m_options & FileStreamOption_MessageNamedPipe ?
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
 		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE;
 
-	sl::String_w pipeName = name;
-	sl::Array <axl::io::win::NamedPipe> pipeArray;
-
-	pipeArray.setCount (backLog);
-
-	for (size_t i = 0; i < backLog; i++)
+	sl::StdList <OverlappedConnect> pipeList;
+	for (size_t i = 0; i < backLogLimit; i++)
 	{
 		axl::io::win::NamedPipe pipe;
 		result = pipe.create (
-			pipeName,
+			m_pipeName,
 			PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
 			pipeMode,
 			PIPE_UNLIMITED_INSTANCES,
-			Const_TxBufferSize,
-			Const_RxBufferSize,
-			Const_Timeout,
+			m_writeBufferSize,
+			m_readBufferSize,
+			Def_Timeout,
 			NULL
 			);
 
@@ -95,16 +108,16 @@ NamedPipe::open (
 			return false;
 		}
 
-		pipeArray [i].attach (pipe.detach ());
+		OverlappedConnect* connect = AXL_MEM_NEW (OverlappedConnect);
+		connect->m_pipe.takeOver (&pipe);
+		pipeList.insertTail (connect);
 	}
 
-	m_pipeName = pipeName;
-	m_pipeArray = pipeArray;
-	pipeArray.release ();
-	m_listenArray.clear ();
-	m_isOpen = true;
-	m_ioFlags = IoFlag_Opened;
-	m_ioThreadEvent.reset ();
+	ASSERT (!m_overlappedIo);
+	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
+	m_overlappedIo->m_pipeList.takeOver (&pipeList);
+
+	AsyncIoDevice::open ();
 	m_ioThread.start ();
 	return true;
 }
@@ -116,78 +129,81 @@ NamedPipe::close ()
 	if (!m_isOpen)
 		return;
 
-	m_ioLock.lock ();
-	m_ioFlags &= ~IoFlag_Opened;
-	m_ioFlags |= IoFlag_Closing;
-	m_ioThreadEvent.signal ();
-	m_ioLock.unlock ();
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Closing;
+	wakeIoThread ();
+	m_lock.unlock ();
 
 	GcHeap* gcHeap = m_runtime->getGcHeap ();
 	gcHeap->enterWaitRegion ();
 	m_ioThread.waitAndClose ();
 	gcHeap->leaveWaitRegion ();
 
-	m_pipeArray.clear ();
-	m_ioFlags = 0;
-	m_isOpen = false;
-	m_syncId++;
+	AsyncIoDevice::close ();
+
+	m_pipeName.clear ();
+
+	sl::Iterator <IncomingConnection> it = m_pendingIncomingConnectionList.getHead ();
+	for (; it; it++)
+		it->m_pipe.close ();
+
+	m_incomingConnectionPool.put (&m_pendingIncomingConnectionList);
+
+	ASSERT (m_overlappedIo);
+	AXL_MEM_DELETE (m_overlappedIo);
+}
+
+bool
+JNC_CDECL
+NamedPipe::setOptions (uint_t options)
+{
+	if (!m_isOpen)
+	{
+		m_options = options;
+		return true;
+	}
+
+	if ((options & FileStreamOption_MessageNamedPipe) ^ (m_options & FileStreamOption_MessageNamedPipe))
+	{
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		propagateLastError ();
+		return false;
+	}
+
+	m_lock.lock ();
+	m_options = options;
+	wakeIoThread ();
+	m_lock.unlock ();
+	return true;
 }
 
 FileStream*
 JNC_CDECL
 NamedPipe::accept ()
 {
-	m_ioLock.lock ();
-	if (!(m_ioFlags & IoFlag_Opened))
+	m_lock.lock ();
+	if (m_pendingIncomingConnectionList.isEmpty ())
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
 		propagateLastError ();
 		return NULL;
 	}
 
-	HANDLE hPipe;
+	IncomingConnection* connection = m_pendingIncomingConnectionList.removeHead ();
+	HANDLE h = connection->m_pipe.detach ();
+	m_incomingConnectionPool.put (connection);
+	wakeIoThread ();
+	m_lock.unlock ();
 
-	GcHeap* gcHeap = m_runtime->getGcHeap ();
-
-	if (!m_pendingAcceptArray.isEmpty ())
-	{
-		size_t i = m_pendingAcceptArray [0];
-		m_pendingAcceptArray.remove (0);
-		m_listenArray.append (i);
-		hPipe = m_pipeArray [i].detach ();
-		m_ioThreadEvent.signal ();
-		m_ioLock.unlock ();
-	}
-	else
-	{
-		Accept accept;
-		m_acceptList.insertTail (&accept);
-		m_ioThreadEvent.signal ();
-		m_ioLock.unlock ();
-
-		gcHeap->enterWaitRegion ();
-		accept.m_completionEvent.wait ();
-		gcHeap->leaveWaitRegion ();
-
-		if (accept.m_hPipe == INVALID_HANDLE_VALUE)
-		{
-			err::setError (accept.m_error);
-			propagateLastError ();
-			return NULL;
-		}
-
-		hPipe = accept.m_hPipe;
-	}
-
-	ClassType* type = FileStream_getType (m_runtime->getModule ());
-	FileStream* fileStream = (FileStream*) gcHeap->allocateClass (type);
-	jnc::construct <FileStream > (fileStream);
-	fileStream->m_file.m_file.attach (hPipe);
+	FileStream* fileStream = jnc::createClass <FileStream> (m_runtime);
+	fileStream->m_file.m_file.attach (h);
 	fileStream->m_fileStreamKind = FileStreamKind_Pipe;
-	fileStream->m_readBuffer.setCount (FileStream::Const_ReadBufferSize);
-	fileStream->m_isOpen = true;
-	fileStream->m_ioFlags |= FileStream::IoFlag_Opened | FileStream::IoFlag_FileStreamEventDisabled;
-	fileStream->m_ioThreadEvent.reset ();
+	fileStream->setReadParallelism (m_readParallelism);
+	fileStream->setReadBlockSize (m_readBlockSize);
+	fileStream->setReadBufferSize (m_readBufferSize);
+	fileStream->setWriteBufferSize (m_writeBufferSize);
+	fileStream->setOptions (m_options);
+	fileStream->m_isOpen = true; 
 	fileStream->m_ioThread.start ();
 	return fileStream;
 }
@@ -195,125 +211,149 @@ NamedPipe::accept ()
 void
 NamedPipe::ioThreadFunc ()
 {
-	listenLoop ();
+	ASSERT (m_overlappedIo);
 
-	sl::AuxList <Accept> acceptList;
-	acceptList.takeOver (&m_acceptList);
-	m_ioLock.unlock ();
-
-	while (!acceptList.isEmpty ())
-	{
-		Accept* accept = acceptList.removeHead ();
-		accept->m_error = err::Error (ERROR_CANCELLED);
-		accept->m_completionEvent.signal ();
-	}
-}
-
-void
-NamedPipe::listenLoop ()
-{
 	bool result;
 
-	size_t pipeCount = m_pipeArray.getCount ();
-	ASSERT (pipeCount);
-
-	char buffer1 [256];
-	sl::Array <sys::Event> eventArray (ref::BufKind_Stack, buffer1, sizeof (buffer1));
-	eventArray.setCount (pipeCount);
-
-	char buffer2 [256];
-	sl::Array <OVERLAPPED> overlappedArray (ref::BufKind_Stack, buffer2, sizeof (buffer2));
-	overlappedArray.setCount (pipeCount);
-
-	char buffer3 [256];
-	sl::Array <HANDLE> waitArray (ref::BufKind_Stack, buffer3, sizeof (buffer3));
-	waitArray.setCount (pipeCount + 1);
-	waitArray [0] = m_ioThreadEvent.m_event;
-
-	char buffer4 [256];
-	sl::Array <size_t> waitMapArray (ref::BufKind_Stack, buffer4, sizeof (buffer4));
-	waitMapArray.setCount (pipeCount);
-
-	for (size_t i = 0; i < pipeCount; i++)
+	HANDLE waitTable [2] =
 	{
-		overlappedArray [i].hEvent = eventArray [i].m_event;
-		waitArray [i + 1] = eventArray [i].m_event;
-		waitMapArray [i] = i;
+		m_ioThreadEvent.m_event,
+		NULL, // placeholder for connect completion event
+	};
 
-		result = m_pipeArray [i].overlappedConnect (&overlappedArray [i]);
-		ASSERT (result); // ignore result
+	size_t waitCount = 1; // always 1 or 2
+
+	// start connect on the initial pipe list
+
+	while (!m_overlappedIo->m_pipeList.isEmpty ())
+	{
+		OverlappedConnect* connect = m_overlappedIo->m_pipeList.removeHead ();
+		result = connect->m_pipe.overlappedConnect (&connect->m_overlapped);
+		if (!result)
+		{
+			setIoErrorEvent ();
+			return;
+		}
+
+		m_overlappedIo->m_activeOverlappedConnectList.insertTail (connect);
 	}
+
+	m_ioThreadEvent.signal (); // do initial update of active events
 
 	for (;;)
 	{
-		size_t waitCount = waitArray.getCount ();
-		ASSERT (waitCount);
-
-		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitArray, false, -1);
-
-		m_ioLock.lock ();
+		DWORD waitResult = ::WaitForMultipleObjects (waitCount, waitTable, false, INFINITE);
 		if (waitResult == WAIT_FAILED)
 		{
+			setIoErrorEvent (err::getLastSystemErrorCode ());
 			return;
 		}
-		else if (waitResult == WAIT_OBJECT_0)
+
+		// do as much as we can without lock
+
+		while (!m_overlappedIo->m_activeOverlappedConnectList.isEmpty ())
 		{
-			if (m_ioFlags & IoFlag_Closing)
-				return;
+			OverlappedConnect* connect = *m_overlappedIo->m_activeOverlappedConnectList.getHead ();
+			result = connect->m_overlapped.m_completionEvent.wait (0);
+			if (!result)
+				break;
 
-			sl::Array <size_t> listenArray = m_listenArray;
-			m_listenArray.clear ();
-			m_ioLock.unlock ();
-
-			size_t listenCount = listenArray.getCount ();
-			for (size_t i = 0; i < listenCount; i++)
+			dword_t actualSize;
+			result = connect->m_pipe.getOverlappedResult (&connect->m_overlapped, &actualSize);
+			if (!result)
 			{
-				size_t pipeIdx = listenArray [i];
-				result = m_pipeArray [pipeIdx].create (
+				setIoErrorEvent ();
+				return;
+			}
+
+			m_overlappedIo->m_activeOverlappedConnectList.remove (connect);
+
+			m_lock.lock ();
+			IncomingConnection* connection = m_incomingConnectionPool.get ();
+			connection->m_pipe.takeOver (&connect->m_pipe);
+			m_pendingIncomingConnectionList.insertTail (connection);
+			m_lock.unlock ();
+
+			connect->m_overlapped.m_completionEvent.reset ();
+			m_overlappedIo->m_overlappedConnectPool.put (connect);
+		}
+
+		m_lock.lock ();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock ();
+			break;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
+		if (!m_pendingIncomingConnectionList.isEmpty ())
+			m_activeEvents |= NamedPipeEvent_IncomingConnection;
+
+		// take snapshots before releasing the lock
+
+		size_t connectParallelism = m_connectParallelism;
+
+		uint_t pipeMode = m_options & FileStreamOption_MessageNamedPipe ?
+			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
+			PIPE_TYPE_BYTE | PIPE_READMODE_BYTE;
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l ();
+		else
+			m_lock.unlock ();
+
+		size_t pendingIncomingConnectionCount = m_pendingIncomingConnectionList.getCount ();
+		size_t activeConnectCount = m_overlappedIo->m_activeOverlappedConnectList.getCount ();
+		if (pendingIncomingConnectionCount < m_backLogLimit && activeConnectCount < connectParallelism)
+		{
+			size_t newReadCount = connectParallelism - activeConnectCount;
+			for (size_t i = 0; i < newReadCount; i++)
+			{
+				axl::io::win::NamedPipe pipe;
+				result = pipe.create (
 					m_pipeName,
 					PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-					PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
+					pipeMode,
 					PIPE_UNLIMITED_INSTANCES,
-					Const_TxBufferSize,
-					Const_RxBufferSize,
-					Const_Timeout,
+					m_writeBufferSize,
+					m_readBufferSize,
+					Def_Timeout,
 					NULL
-					) &&
-					m_pipeArray [pipeIdx].overlappedConnect (&overlappedArray [pipeIdx]);
+					);
 
-				if (result)
+				if (!result)
 				{
-					waitArray.append (eventArray [pipeIdx].m_event);
-					waitMapArray.append (pipeIdx);
+					setIoErrorEvent ();
+					return;
 				}
+
+				OverlappedConnect* connect = m_overlappedIo->m_overlappedConnectPool.get ();
+				connect->m_pipe.takeOver (&pipe);
+
+				result = connect->m_pipe.overlappedConnect (&connect->m_overlapped);
+				if (!result)
+				{
+					setIoErrorEvent ();
+					return;
+				}
+
+				m_overlappedIo->m_activeOverlappedConnectList.insertTail (connect);
 			}
+		}
+
+		if (m_overlappedIo->m_activeOverlappedConnectList.isEmpty ())
+		{
+			waitCount = 1;
 		}
 		else
 		{
-			size_t waitMapIdx = waitResult - 1;
-			ASSERT (waitMapIdx < waitMapArray.getCount ());
+			// wait-table may already hold correct value -- but there's no harm in writing it over
 
-			size_t pipeIdx = waitMapArray [waitMapIdx];
-			ASSERT (pipeIdx < pipeCount && m_pipeArray [pipeIdx].isOpen ());
-
-			if (!m_acceptList.isEmpty ())
-			{
-				Accept* accept = m_acceptList.removeHead ();
-				m_ioLock.unlock ();
-
-				accept->m_hPipe = m_pipeArray [pipeIdx].detach ();
-				accept->m_completionEvent.signal ();
-			}
-			else
-			{
-				m_pendingAcceptArray.append (pipeIdx);
-				m_ioLock.unlock ();
-
-				callMulticast (m_runtime, m_onIncomingConnectionEvent, m_syncId);
-
-				waitArray.remove (waitResult);
-				waitMapArray.remove (waitMapIdx);
-			}
+			OverlappedConnect* connect = *m_overlappedIo->m_activeOverlappedConnectList.getHead ();
+			waitTable [1] = connect->m_overlapped.m_completionEvent.m_event;
+			waitCount = 2;
 		}
 	}
 }
