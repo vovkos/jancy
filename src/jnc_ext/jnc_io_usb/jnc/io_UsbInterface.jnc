@@ -1,0 +1,97 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_UsbEndpoint.jnc"
+
+namespace io {
+
+//! \addtogroup usb
+//! @{
+
+//..............................................................................
+
+enum UsbClass: uint8_t
+{
+	PerInterface       = 0,
+	Audio              = 1,
+	Comm               = 2,
+	Hid                = 3,
+	Physical           = 5,
+	Ptp                = 6,
+	Printer            = 7,
+	MassStorage        = 8,
+	Hub                = 9,
+	Data               = 10,
+	SmartCard          = 0x0b,
+	ContentSecurity    = 0x0d,
+	Video              = 0x0e,
+	PersonalHealthcare = 0x0f,
+	DiagnosticDevice   = 0xdc,
+	Wireless           = 0xe0,
+	Application        = 0xfe,
+	VendorSpec         = 0xff
+}
+
+enum UsbSpeed: uint8_t
+{
+	Unknown = 0,
+	Low     = 1,
+	Full    = 2,
+	High    = 3,
+	Super   = 4,
+}
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const*
+getUsbClassString (UsbClass cls);
+
+char const*
+getUsbSpeedString (UsbSpeed speed);
+
+//..............................................................................
+
+struct UsbInterfaceDesc
+{
+	UsbInterfaceDesc const* m_nextAltSettingInterface;
+	UsbEndpointDesc const* m_endpointTable;
+	size_t m_endpointCount;
+
+	uint8_t m_interfaceId;
+	uint8_t m_altSettingId;
+	uint8_t m_descriptionStringId;
+	UsbClass m_class;
+	UsbSpeed m_subClass;
+	uint8_t m_protocol;
+}
+
+//..............................................................................
+
+opaque class UsbInterface
+{
+	UsbDevice* const m_parentDevice;
+	UsbInterfaceDesc const* const m_interfaceDesc;
+
+	bool readonly m_isClaimed;
+
+	construct ();
+	destruct ();
+
+	void release ();
+	alias void dispose = release;
+
+	UsbEndpoint* errorcode openEndpoint (uint8_t endpointId);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

@@ -11,36 +11,34 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoDevice.h"
+#include "jnc_io_UsbDesc.h"
+
 namespace jnc {
 namespace io {
 
 class UsbInterface;
 
-JNC_DECLARE_TYPE (UsbEndpointEventParams)
 JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbEndpoint)
 
 //..............................................................................
 
-enum UsbEndpointEventCode
+struct UsbEndpointHdr: IfaceHdr
 {
-	UsbEndpointEventCode_ReadyRead = 0,
-	UsbEndpointEventCode_IoError,
+	UsbInterface* m_parentInterface;
+	DataPtr m_endpointDescPtr;
+
+	uint_t m_readParallelism;
+	size_t m_readBlockSize;
+	size_t m_readBufferSize;
+	size_t m_writeBufferSize;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct UsbEndpointEventParams
-{
-	JNC_DECLARE_TYPE_STATIC_METHODS (UsbEndpointEventParams)
-
-	UsbEndpointEventCode m_eventCode;
-	uint_t m_syncId;
-	DataPtr m_errorPtr;
-};
-
-//..............................................................................
-
-class UsbEndpoint: public IfaceHdr
+class UsbEndpoint:
+	public UsbEndpointHdr,
+	public AsyncIoDevice
 {
 	friend class IoThread;
 
@@ -48,34 +46,13 @@ public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (UsbEndpoint)
 
 protected:
-	enum IoFlag
+	enum Def
 	{
-		IoFlag_Closing               = 0x0001,
-		IoFlag_Reading               = 0x0002,
-		IoFlag_Error                 = 0x0004,
-		IoFlag_EndpointEventDisabled = 0x0008,
-	};
-
-	struct Read: sl::ListLink
-	{
-		void* m_p;
-		size_t m_size;
-		size_t m_result;
-		err::Error m_error;
-		sys::Event m_completeEvent;
-	};
-
-	struct Packet: sl::ListLink
-	{
-		size_t m_size;
-		// followed by packet data
-	};
-
-	struct PendingEvent: sl::ListLink
-	{
-		UsbEndpointEventCode m_eventCode;
-		uint_t m_syncId;
-		err::Error m_error;
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 1 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_Options         = AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -88,28 +65,20 @@ protected:
 		}
 	};
 
-public:
-	UsbInterface* m_parentInterface;
-	DataPtr m_endpointDescPtr;
-	size_t m_incomingQueueLimit;
-	bool m_isOpen;
-	uint_t m_syncId;
-	ClassBox <Multicast> m_onEndpointEvent;
+	struct Transfer: sl::ListLink
+	{
+		UsbEndpoint* m_self;
+		axl::io::UsbTransfer m_usbTransfer;
+		sl::Array <char> m_buffer;
+	};
 
 protected:
-	Runtime* m_runtime;
-
-	sys::Lock m_ioLock;
 	IoThread m_ioThread;
-	axl::sys::Event m_ioThreadEvent;
-	uint_t m_ioFlags;
-	sl::AuxList <Read> m_readList;
-	sl::StdList <Packet> m_incomingPacketList;
-	sl::StdList <PendingEvent> m_pendingEventList;
-	size_t m_totalIncomingPacketSize;
-	axl::io::UsbTransfer m_readTransfer;
-	sl::Array <char> m_readBuffer;
-	axl::sys::NotificationEvent m_readTransferCompleted;
+
+	mem::Pool <Transfer> m_transferPool;
+	sl::StdList <Transfer> m_activeTransferList;
+	sl::StdList <Transfer> m_completedTransferList;
+	sl::Array <char> m_writeBlock;
 
 public:
 	UsbEndpoint ();
@@ -129,8 +98,40 @@ public:
 	JNC_CDECL
 	close ();
 
+	void
+	JNC_CDECL
+	setReadParallelism (uint_t count)
+	{
+		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+	}
+
+	void
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
 	bool
-	startRead ();
+	JNC_CDECL
+	setReadBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize (size_t size)
+	{
+		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	void
+	JNC_CDECL
+	setOptions (uint_t options)
+	{
+		AsyncIoDevice::setSetting (&m_options, options);
+	}
 
 	size_t
 	JNC_CDECL
@@ -143,48 +144,72 @@ public:
 	JNC_CDECL
 	write (
 		DataPtr ptr,
-		size_t size,
-		uint_t timeout
+		size_t size
 		);
+
+	handle_t
+	JNC_CDECL
+	wait (
+		uint_t eventMask,
+		FunctionPtr handlerPtr
+		)
+	{
+		return AsyncIoDevice::wait (eventMask, handlerPtr);
+	}
 
 	bool
 	JNC_CDECL
-	isEndpointEventEnabled ()
+	cancelWait (handle_t handle)
 	{
-		return !(m_ioFlags & IoFlag_EndpointEventDisabled);
+		return AsyncIoDevice::cancelWait (handle);
 	}
 
-	void
+	uint_t
 	JNC_CDECL
-	setEndpointEventEnabled (bool isEnabled);
+	blockingWait (
+		uint_t eventMask,
+		uint_t timeout
+		)
+	{
+		return AsyncIoDevice::blockingWait (eventMask, timeout);
+	}
 
 protected:
-	void
-	postEndpointEvent_l (
-		UsbEndpointEventCode eventCode,
-		const err::ErrorHdr* error = NULL
-		);
+	bool
+	isInEndpoint ()
+	{
+		return (((UsbEndpointDesc*) m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
+	}
 
-	void
-	firePendingEvents_l ();
+	bool
+	isOutEndpoint ()
+	{
+		return (((UsbEndpointDesc*) m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
+	}
 
 	void
 	ioThreadFunc ();
 
-	size_t
-	writePacket (
-		const void* p,
-		size_t size, // must be <= m_endpointDesc->m_maxPacketSize
-		uint_t timeout
-		);
+	void
+	cancelAllActiveTransfers ();
+
+	void
+	readLoop ();
+
+	void
+	writeLoop ();
 
 	bool
-	nextReadTransfer_l ();
+	submitTransfer (
+		Transfer* transfer,
+		void* p,
+		size_t size
+		);
 
 	static
 	void
 	LIBUSB_CALL
-	onReadTransferCompleted (libusb_transfer* transfer);
+	onTransferCompleted (libusb_transfer* transfer);
 };
 
 //..............................................................................

@@ -45,7 +45,9 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/io_Usb.jnc
+	jnc/io_UsbDevice.jnc
+	jnc/io_UsbInterface.jnc
+	jnc/io_UsbEndpoint.jnc
 	)
 
 source_group (
@@ -78,6 +80,7 @@ include_directories (
 	${LIBUSB_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	../jnc_io_cmn
 	)
 
 link_directories (
@@ -118,6 +121,7 @@ set_target_properties (
 
 target_link_libraries (
 	jnc_io_usb
+	jnc_io_cmn
 	jnc_api_dynamic
 	axl_io
 	axl_core

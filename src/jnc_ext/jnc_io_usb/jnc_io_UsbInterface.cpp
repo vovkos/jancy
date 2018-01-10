@@ -95,13 +95,6 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 	if (!result)
 		return NULL;
 
-	if (endpointId & LIBUSB_ENDPOINT_IN)
-	{
-		result = endpoint->startRead ();
-		if (!result)
-			return NULL;
-	}
-
 	return endpoint;
 }
 

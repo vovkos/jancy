@@ -1,0 +1,98 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_UsbInterface.jnc"
+
+namespace io {
+
+//! \addtogroup usb
+//! @{
+
+//..............................................................................
+
+struct UsbConfigurationDesc
+{
+	UsbInterfaceDesc const* m_interfaceTable;
+	size_t m_interfaceCount;
+
+	uint8_t m_configurationId;
+	uint8_t m_descriptionStringId;
+	uint8_t m_attributes;
+	uint8_t  m_maxPower;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UsbDeviceDesc
+{
+	UsbConfigurationDesc const* m_configurationTable;
+	size_t m_configurationCount;
+
+	uint16_t m_usbVersion;
+	uint16_t m_deviceVersion;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+	uint8_t m_vendorStringId;
+	uint8_t m_productStringId;
+	uint8_t m_serialStringId;
+	UsbClass m_class;
+	uint8_t m_subClass;
+	uint8_t m_protocol;
+}
+
+//..............................................................................
+
+opaque class UsbDevice
+{
+	UsbDeviceDesc const* const property m_deviceDesc;
+	UsbConfigurationDesc const* const property m_activeConfigurationDesc;
+	uint8_t property m_configurationId;
+	uint8_t const property m_bus;
+	uint8_t const property m_address;
+	UsbSpeed const property m_speed;
+
+	bool readonly m_isOpen;
+
+	construct ();
+	destruct ();
+
+	void close ();
+	alias void dispose = close;
+
+	bool errorcode open ();
+
+	bool autoget property m_isAutoDetachKernelDriverEnabled;
+	bool const property m_isKernelDriverActive (uint_t interfaceId);
+	bool errorcode attachKernelDriver (uint_t interfaceId);
+	bool errorcode detachKernelDriver (uint_t interfaceId);
+
+	UsbInterface* errorcode claimInterface (
+		uint8_t interfaceId,
+		uint8_t altSettingId = 0
+		);
+
+	char const* errorcode getStringDesc (uint8_t stringId);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbDevice* const* errorcode createUsbDeviceArray (size_t* count = null);
+
+UsbDevice* errorcode openUsbDevice (
+	uint_t vendorId,
+	uint_t productId
+	);
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

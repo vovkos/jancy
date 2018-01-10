@@ -2,20 +2,17 @@ import "io_usb.jncx"
 
 onUsbEndpointEvent (
 	io.UsbEndpoint* endpoint,
-	io.UsbEndpointEventParams const* params
+	io.UsbEndpointEvents triggeredEvents
 	)
 {
-	switch (params.m_eventCode)
+	while (endpoint.m_activeEvents & io.UsbEndpointEvents.IncomingData)
 	{
-	case io.UsbEndpointEventCode.ReadyRead:
 		static char buffer [1024];
 		size_t size = endpoint.read (buffer, sizeof (buffer));
 		printf ("  %d bytes read from the endpoint\n", size);
-		break;
-
-	default:
-		printf ("onUsbEndpointEvent: %d\n", params.m_eventCode);
 	}
+
+	endpoint.wait (io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
 }
 
 int main ()
@@ -29,8 +26,7 @@ int main ()
 
 	printf ("Opening IN endpoint #81...\n");
 	io.UsbEndpoint* endpoint = iface.openEndpoint (0x81);
-	endpoint.m_onEndpointEvent += onUsbEndpointEvent ~(endpoint);
-	endpoint.m_isEndpointEventEnabled = true;
+	endpoint.wait (io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
 
 	printf ("Closing endpoint...\n");
 	endpoint.close ();

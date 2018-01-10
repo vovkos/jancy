@@ -1,0 +1,151 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup usb
+//! @{
+
+//..............................................................................
+
+enum UsbTransferType: uint8_t
+{
+	Control     = 0,
+	Isochronous = 1,
+	Bulk        = 2,
+	Interrupt   = 3,
+	BulkStream  = 4,
+}
+
+enum UsbIsoSyncType: uint8_t
+{
+	None     = 0,
+	Async    = 1,
+	Adaptive = 2,
+	Sync     = 3,
+}
+
+enum UsbIsoUsage: uint8_t
+{
+	Data     = 0,
+	Feedback = 1,
+	Implicit = 2,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const*
+getUsbTransferTypeString (UsbTransferType type);
+
+//..............................................................................
+
+struct UsbEndpointDesc
+{
+	uint8_t m_endpointId;
+	UsbTransferType m_transferType;
+	UsbIsoSyncType m_isoSyncType;
+	UsbIsoUsage m_isoUsage;
+	uint16_t m_maxPacketSize;
+	uint8_t m_interval;
+	uint8_t m_refresh;
+	uint8_t m_synchAddress;
+}
+
+//..............................................................................
+
+bitflag enum UsbEndpointOptions
+{
+	KeepReadBlockSize,
+	KeepWriteBlockSize,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum UsbEndpointEvents
+{
+	/**
+		An IO error occured on the USB endpoint; detailed information about the error is available at `io.UsbEndpoint.m_ioError`.
+	*/
+
+	IoError,
+
+	/**
+		More data is available on the USB endoint; this data could be fetched with `io.UsbEndpoint.read` method.
+	*/
+
+	IncomingData,
+
+	/**
+		IO USB endpoint receive buffer is full; upcoming data may be dropped (depending on the endpoint transfer type).
+	*/
+
+	ReceiveBufferFull,
+
+	/**
+		USB endpoint transmit buffer is ready to accept more data; it's OK to issue more `io.UsbEndpoint.write` requests.
+	*/
+
+	TransmitBufferReady,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class UsbEndpoint
+{
+	UsbInterface* const m_parentInterface;
+	UsbEndpointDesc const* const m_endpointDesc;
+
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	UsbEndpointOptions autoget property m_options;
+
+	UsbEndpointEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	bool readonly m_isOpen;
+
+	construct ();
+	destruct ();
+
+	void close ();
+	alias void dispose = close;
+
+	size_t errorcode read (
+		void* p,
+		size_t size
+		);
+
+	size_t errorcode write (
+		void const* p,
+		size_t size
+		);
+
+	intptr errorcode wait (
+		UsbEndpointEvents eventMask,
+		function* handler (UsbEndpointEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait (intptr handle);
+
+	UsbEndpointEvents errorcode blockingWait (
+		UsbEndpointEvents eventMask,
+		uint_t timeout
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
