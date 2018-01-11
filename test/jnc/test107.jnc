@@ -1,0 +1,30 @@
+int main ()
+{
+	printf (
+		"system info:\n"
+		"CPU:       %d x %d\n"
+		"OS:        %d (%x)\n"
+		"C++:       %d (%x)\n"
+		"page size: %d\n"
+		"map align: %d\n",
+		sys.g_systemInfo.m_cpuKind,
+		sys.g_systemInfo.m_processorCount,
+		sys.g_systemInfo.m_osKind,
+		sys.g_systemInfo.m_osFlags,
+		sys.g_systemInfo.m_cppKind,
+		sys.g_systemInfo.m_cppFlags,
+		sys.g_systemInfo.m_pageSize,
+		sys.g_systemInfo.m_mappingAlignFactor
+		);
+
+	if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows) // crashed on x86
+	{
+		printf ("windows\n");
+	}
+	else
+	{
+		printf ("non-windows\n");
+	}
+
+	return 0;
+}

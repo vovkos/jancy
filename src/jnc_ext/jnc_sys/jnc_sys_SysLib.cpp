@@ -65,45 +65,6 @@ setEnv (
 #endif
 }
 
-SystemInfo
-getSystemInfo ()
-{
-	SystemInfo systemInfo;
-
-#if (_JNC_CPU_X86)
-	systemInfo.m_cpuKind = CpuKind_Ia32;
-#elif (_JNC_CPU_AMD64)
-	systemInfo.m_cpuKind = CpuKind_Amd64;
-#elif (_JNC_CPU_ARM32)
-	systemInfo.m_cpuKind = CpuKind_Arm32;
-#elif (_JNC_CPU_ARM64)
-	systemInfo.m_cpuKind = CpuKind_Arm64;
-#else
-#	error unsupported CPU architecture
-#endif
-
-#if (_JNC_OS_WIN)
-	systemInfo.m_osKind = OsKind_Windows;
-	systemInfo.m_osFlags = 0;
-#elif (_JNC_OS_LINUX)
-	systemInfo.m_osKind = OsKind_Linux;
-	systemInfo.m_osFlags = OsFlag_Posix;
-#elif (_JNC_OS_SOLARIS)
-	systemInfo.m_osKind = OsKind_Solaris;
-	systemInfo.m_osFlags = OsFlag_Posix;
-#elif (_JNC_OS_DARWIN)
-	systemInfo.m_osKind = OsKind_Mac;
-	systemInfo.m_osFlags = OsFlag_Posix | OsFlag_Bsd;
-#elif (_JNC_OS_BSD)
-	systemInfo.m_osKind = OsKind_Bsd;
-	systemInfo.m_osFlags = OsFlag_Posix | OsFlag_Bsd;
-#else
-#	error unsupported OS
-#endif
-
-	return systemInfo;
-}
-
 void
 sleep (uint32_t msCount)
 {
@@ -155,6 +116,71 @@ setGcTriggers (GcSizeTriggers triggers)
 	gcHeap->setSizeTriggers (&triggers);
 }
 
+void
+initSystemInfo (SystemInfo* systemInfo)
+{
+#if (_JNC_CPU_X86)
+	systemInfo->m_cpuKind = CpuKind_Ia32;
+#elif (_JNC_CPU_AMD64)
+	systemInfo->m_cpuKind = CpuKind_Amd64;
+#elif (_JNC_CPU_ARM32)
+	systemInfo->m_cpuKind = CpuKind_Arm32;
+#elif (_JNC_CPU_ARM64)
+	systemInfo->m_cpuKind = CpuKind_Arm64;
+#else
+#	error unsupported CPU architecture
+#endif
+
+#if (_JNC_OS_WIN)
+	systemInfo->m_osKind = OsKind_Windows;
+	systemInfo->m_osFlags = 0;
+#elif (_JNC_OS_LINUX)
+	systemInfo->m_osKind = OsKind_Linux;
+	systemInfo->m_osFlags = OsFlag_Posix;
+#elif (_JNC_OS_SOLARIS)
+	systemInfo->m_osKind = OsKind_Solaris;
+	systemInfo->m_osFlags = OsFlag_Posix;
+#elif (_JNC_OS_DARWIN)
+	systemInfo->m_osKind = OsKind_Mac;
+	systemInfo->m_osFlags = OsFlag_Posix | OsFlag_Bsd;
+#elif (_JNC_OS_BSD)
+	systemInfo->m_osKind = OsKind_Bsd;
+	systemInfo->m_osFlags = OsFlag_Posix | OsFlag_Bsd;
+#else
+#	error unsupported OS
+#endif
+
+#if (_JNC_CPP_MSC)
+	systemInfo->m_osKind = CppKind_Msc;
+	systemInfo->m_osFlags = 0;
+#elif (_JNC_CPP_GCC)
+#	if (_JNC_CPP_CLANG)
+	systemInfo->m_osKind = CppKind_Clang;
+#	elif (_JNC_CPP_ICC)
+	systemInfo->m_osKind = CppKind_Icc;
+#	else
+	systemInfo->m_osKind = CppKind_Gcc;
+#	endif
+	systemInfo->m_osFlags = CppFlag_Gcc;
+#else
+#	error unsupported C++ compiler
+#endif
+
+	const g::SystemInfo* axlSystemInfo = g::getModule ()->getSystemInfo ();
+	systemInfo->m_processorCount = axlSystemInfo->m_processorCount;
+	systemInfo->m_pageSize = axlSystemInfo->m_pageSize;
+	systemInfo->m_mappingAlignFactor = axlSystemInfo->m_mappingAlignFactor;
+}
+
+inline
+SystemInfo*
+getSystemInfo ()
+{
+	static SystemInfo systemInfo;
+	axl::sl::callOnce (initSystemInfo, &systemInfo);
+	return &systemInfo;
+}
+
 //..............................................................................
 
 } // namespace sys
@@ -197,7 +223,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.getGcStats",          getGcStats)
 	JNC_MAP_PROPERTY ("sys.g_gcTriggers",        getGcTriggers, setGcTriggers)
 	JNC_MAP_PROPERTY ("sys.g_env",               getEnv, setEnv)
-	JNC_MAP_CONST_PROPERTY ("sys.g_systemInfo",  getSystemInfo)
+	JNC_MAP_VARIABLE ("sys.g_systemInfo",        getSystemInfo ())
 
 	JNC_MAP_TYPE (Lock)
 	JNC_MAP_TYPE (Event)

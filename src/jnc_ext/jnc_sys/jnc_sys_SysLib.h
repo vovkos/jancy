@@ -65,11 +65,26 @@ enum OsFlag
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum CppKind
+{
+	CppKind_Msc,
+	CppKind_Gcc,
+	CppKind_Icc,
+	CppKind_Clang,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct SystemInfo
 {
 	uint_t m_cpuKind;
 	uint_t m_osKind;
 	uint_t m_osFlags;
+	uint_t m_cppKind;
+	uint_t m_cppFlags;
+	uint_t m_processorCount;
+	size_t m_pageSize;
+	size_t m_mappingAlignFactor;
 };
 
 //..............................................................................

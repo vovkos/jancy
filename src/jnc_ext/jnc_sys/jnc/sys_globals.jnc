@@ -53,16 +53,34 @@ bitflag enum OsFlags
 	Darwin,
 }
 
+enum CppKind
+{
+	Msc,
+	Gcc,
+	Icc,
+	Clang,
+}
+
+bitflag enum CppFlags
+{
+	Gcc,
+}
+
 struct SystemInfo
 {
 	CpuKind m_cpuKind;
 	OsKind m_osKind;
 	OsFlags m_osFlags;
+	CppKind m_cppKind;
+	CppFlags m_cppFlags;
+	uint_t m_processorCount;
+	size_t m_pageSize;
+	size_t m_mappingAlignFactor;
 
 	// extend later as needed
 }
 
-SystemInfo const property g_systemInfo;
+SystemInfo const g_systemInfo;
 
 //! \addtogroup thread
 //! @{

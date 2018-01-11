@@ -15,5 +15,6 @@
 #include "axl_sys_Event.h"
 #include "axl_sys_Thread.h"
 #include "axl_sys_Time.h"
+#include "axl_g_Module.h"
 
 using namespace axl;
