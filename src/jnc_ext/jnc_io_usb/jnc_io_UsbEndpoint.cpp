@@ -271,7 +271,7 @@ UsbEndpoint::writeLoop ()
 				break;
 			}
 
-			if (transfer->m_usbTransfer->actual_length < m_writeBlock.getCount ()) // shouldn't happen, actually
+			if ((size_t) transfer->m_usbTransfer->actual_length < m_writeBlock.getCount ()) // shouldn't happen, actually
 				m_writeBlock.remove (0, transfer->m_usbTransfer->actual_length);
 			else
 				m_writeBlock.clear ();
