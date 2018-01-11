@@ -164,6 +164,7 @@
 #	endif
 #
 #	define WIN32_LEAN_AND_MEAN // prevent winsock.h vs winsock2.h conflict
+#	define NOMINMAX            // prevent min/max macro conflicts
 #
 #	include <windows.h>
 #	include <crtdbg.h>
