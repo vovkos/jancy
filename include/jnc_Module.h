@@ -155,7 +155,15 @@ jnc_Module_findItem (
 	);
 
 JNC_EXTERN_C
-void
+int
+jnc_Module_mapVariable (
+	jnc_Module* module,
+	jnc_Variable* variable,
+	void* p
+	);
+
+JNC_EXTERN_C
+int
 jnc_Module_mapFunction (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -329,15 +337,23 @@ struct jnc_Module
 		return jnc_Module_findItem (this, name, libGuid, itemCacheSlot);
 	}
 
-	void
+	bool
+	mapVariable (
+		jnc_Variable* variable,
+		void* p
+		)
+	{
+		return jnc_Module_mapVariable (this, variable, p) != 0;
+	}
+
+	bool
 	mapFunction (
 		jnc_Function* function,
 		void* p
 		)
 	{
-		jnc_Module_mapFunction (this, function, p);
+		return jnc_Module_mapFunction (this, function, p) != 0;
 	}
-
 
 	void
 	addSource (

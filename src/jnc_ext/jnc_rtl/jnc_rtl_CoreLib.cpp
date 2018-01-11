@@ -23,7 +23,7 @@
 	{ \
 		function = module->m_functionMgr.getStdFunction (stdFuncKind); \
 		ASSERT (function); \
-		JNC_MAP (function, proc); \
+		JNC_MAP_FUNCTION_IMPL (function, proc); \
 	}
 
 #define JNC_MAP_STD_TYPE(stdType, Type) \

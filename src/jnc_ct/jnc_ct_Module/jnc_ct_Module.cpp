@@ -254,7 +254,25 @@ Module::createLlvmExecutionEngine ()
 	return true;
 }
 
-void
+bool
+Module::mapVariable (
+	Variable* variable,
+	void* p
+	)
+{
+	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable ();
+	if (!llvmVariable)
+	{
+		err::setFormatStringError ("attempt to mapping non-global variable: %s", variable->getQualifiedName ().sz ());
+		return false;
+	}
+
+	ASSERT (m_llvmExecutionEngine);
+	m_llvmExecutionEngine->addGlobalMapping (llvmVariable, p);
+	return true;
+}
+
+bool
 Module::mapFunction (
 	Function* function,
 	void* p
@@ -265,7 +283,12 @@ Module::mapFunction (
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		sl::StringHashTableIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
-		ASSERT (!it->m_value); // mapped twice?
+		if (it->m_value)
+		{
+			err::setFormatStringError ("attempt to re-map function: %s", function->getQualifiedName ().sz ());
+			return false;
+		}
+
 		it->m_value = p;
 	}
 	else
@@ -275,6 +298,7 @@ Module::mapFunction (
 	}
 
 	function->m_machineCode = p;
+	return true;
 }
 
 void*
@@ -579,7 +603,7 @@ Module::jit ()
 
 	result =
 		createLlvmExecutionEngine () &&
-		m_extensionLibMgr.mapFunctions () &&
+		m_extensionLibMgr.mapAddresses () &&
 		m_functionMgr.jitFunctions ();
 
 	if (!result)

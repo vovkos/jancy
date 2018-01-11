@@ -141,12 +141,12 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 }
 
 bool
-ExtensionLibMgr::mapFunctions ()
+ExtensionLibMgr::mapAddresses ()
 {
 	size_t count = m_libArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
-		bool result = m_libArray [i]->m_mapFunctionsFunc (m_module) != 0;
+		bool result = m_libArray [i]->m_mapAddressesFunc (m_module) != 0;
 		if (!result)
 			return false;
 	}

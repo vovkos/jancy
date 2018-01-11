@@ -78,6 +78,7 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 {
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
+	jnc_Namespace_findVariable,
 	jnc_Namespace_findFunction,
 	jnc_Namespace_findProperty,
 	jnc_Namespace_findClassType,
@@ -264,6 +265,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 	jnc_Module_getGlobalNamespace,
 	jnc_Module_getPrimitiveType,
 	jnc_Module_findItem,
+	jnc_Module_mapVariable,
 	jnc_Module_mapFunction,
 	jnc_Module_addSource,
 	jnc_Module_addImportDir,

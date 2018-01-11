@@ -239,7 +239,13 @@ public:
 	bool
 	postParseStdItem ();
 
-	void
+	bool
+	mapVariable (
+		Variable* variable,
+		void* p
+		);
+
+	bool
 	mapFunction (
 		Function* function,
 		void* p

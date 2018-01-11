@@ -226,6 +226,14 @@ jnc_Namespace_GetItemFunc (
 	);
 
 typedef
+jnc_Variable*
+jnc_Namespace_FindVariableFunc (
+	jnc_Namespace* nspace,
+	const char* name,
+	bool_t isRequired
+	);
+
+typedef
 jnc_Function*
 jnc_Namespace_FindFunctionFunc (
 	jnc_Namespace* nspace,
@@ -255,6 +263,7 @@ struct jnc_NamespaceFuncTable
 {
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
+	jnc_Namespace_FindVariableFunc* m_findVariableFunc;
 	jnc_Namespace_FindFunctionFunc* m_findFunctionFunc;
 	jnc_Namespace_FindPropertyFunc* m_findPropertyFunc;
 	jnc_Namespace_FindClassTypeFunc* m_findClassTypeFunc;
@@ -921,7 +930,15 @@ jnc_Module_FindItemFunc (
 	);
 
 typedef
-void
+int
+jnc_Module_MapVariableFunc (
+	jnc_Module* module,
+	jnc_Variable* variable,
+	void* p
+	);
+
+typedef
+int
 jnc_Module_MapFunctionFunc (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -1015,6 +1032,7 @@ struct jnc_ModuleFuncTable
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;
 	jnc_Module_FindItemFunc* m_findItemFunc;
+	jnc_Module_MapVariableFunc* m_mapVariableFunc;
 	jnc_Module_MapFunctionFunc* m_mapFunctionFunc;
 	jnc_Module_AddSourceFunc* m_addSourceFunc;
 	jnc_Module_AddImportDirFunc* m_addImportDirFunc;

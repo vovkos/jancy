@@ -72,6 +72,14 @@ jnc_Namespace_getItem (
 	);
 
 JNC_EXTERN_C
+jnc_Variable*
+jnc_Namespace_findVariable (
+	jnc_Namespace* nspace,
+	const char* name,
+	bool_t isRequired
+	);
+
+JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
@@ -110,6 +118,15 @@ struct jnc_Namespace
 	getItem (size_t index)
 	{
 		return jnc_Namespace_getItem (this, index);
+	}
+
+	jnc_Variable*
+	findVariable (
+		const char* name,
+		bool isRequired = false
+		)
+	{
+		return jnc_Namespace_findVariable (this, name, isRequired);
 	}
 
 	jnc_Function*

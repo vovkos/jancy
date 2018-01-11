@@ -293,6 +293,17 @@ verifyModuleItemIsClassType (
 	);
 
 JNC_INLINE
+Variable*
+verifyModuleItemIsVariable (
+	ModuleItem* item,
+	const sl::StringRef& name
+	)
+
+{
+	return (Variable*) verifyModuleItemKind (item, ModuleItemKind_Variable, name);
+}
+
+JNC_INLINE
 Function*
 verifyModuleItemIsFunction (
 	ModuleItem* item,

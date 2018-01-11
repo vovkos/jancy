@@ -48,7 +48,7 @@ jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc (jnc_Module* module);
 
 typedef
 int
-jnc_ExtensionLib_MapFunctionsFunc (jnc_Module* module);
+jnc_ExtensionLib_MapAddressesFunc (jnc_Module* module);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -60,7 +60,7 @@ struct jnc_ExtensionLib
 
 	jnc_ExtensionLib_AddSourcesFunc* m_addSourcesFunc;
 	jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc* m_addOpaqueClassTypeInfosFunc;
-	jnc_ExtensionLib_MapFunctionsFunc* m_mapFunctionsFunc;
+	jnc_ExtensionLib_MapAddressesFunc* m_mapAddressesFunc;
 };
 
 //..............................................................................
@@ -105,7 +105,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	LibPrefix##_addOpaqueClassTypeInfos (jnc_Module* module); \
 	JNC_EXTERN_C \
 	int \
-	LibPrefix##_mapFunctions (jnc_Module* module); \
+	LibPrefix##_mapAddresses (jnc_Module* module); \
 	JNC_EXTERN_C \
 	jnc_ExtensionLib* \
 	LibPrefix##_getLib () \
@@ -117,7 +117,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 			libDescription, \
 			LibPrefix##_addSources, \
 			LibPrefix##_addOpaqueClassTypeInfos, \
-			LibPrefix##_mapFunctions, \
+			LibPrefix##_mapAddresses, \
 		}; \
 		return &lib; \
 	}
@@ -163,9 +163,10 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_BEGIN_LIB_FUNCTION_MAP(LibPrefix) \
 	JNC_EXTERN_C \
 	int \
-	LibPrefix##_mapFunctions (jnc_Module* module) \
+	LibPrefix##_mapAddresses (jnc_Module* module) \
 	{ \
 		int result = 1; \
+		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
 		jnc_GlobalNamespace* global = jnc_Module_getGlobalNamespace (module); \
@@ -187,7 +188,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	TypePrefix##_getType (jnc_Module* module); \
 	JNC_EXTERN_C \
 	int \
-	TypePrefix##_mapFunctions ( \
+	TypePrefix##_mapAddresses ( \
 		jnc_Module* module, \
 		int isRequired \
 		);
@@ -287,12 +288,12 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	} \
 	static \
 	bool \
-	mapFunctions ( \
+	mapAddresses ( \
 		jnc::Module* module, \
 		bool isRequired \
 		) \
 	{ \
-		return TypePrefix##_mapFunctions (module, isRequired) != 0; \
+		return TypePrefix##_mapAddresses (module, isRequired) != 0; \
 	}
 
 #define JNC_DECLARE_TYPE_STATIC_METHODS(TypePrefix) \
@@ -344,12 +345,13 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_BEGIN_TYPE_FUNCTION_MAP(TypePrefix) \
 	int \
-	TypePrefix##_mapFunctions ( \
+	TypePrefix##_mapAddresses ( \
 		jnc_Module* module, \
 		int isRequired \
 		) \
 	{ \
 		int result = 1; \
+		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
 		jnc_Namespace* nspace = NULL; \
@@ -366,7 +368,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 //..............................................................................
 
 #define JNC_MAP_TYPE_EX(TypePrefix, isRequired) \
-	result = TypePrefix##_mapFunctions (module, isRequired); \
+	result = TypePrefix##_mapAddresses (module, isRequired); \
 	if (!result) \
 		return 0;
 
@@ -376,8 +378,10 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 #define JNC_MAP_TYPE_REQ(TypePrefix) \
 	JNC_MAP_TYPE_EX(TypePrefix, 1)
 
-#define JNC_MAP(function, p) \
-	jnc_Module_mapFunction (module, function, jnc_pvoid_cast (p));
+#define JNC_MAP_FUNCTION_IMPL(function, p) \
+	result = jnc_Module_mapFunction (module, function, jnc_pvoid_cast (p)); \
+	if (!result) \
+		return 0;
 
 #define JNC_MAP_OVERLOAD(p) \
 	if (function) \
@@ -385,7 +389,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_Function* overload = jnc_Function_getOverload (function, ++overloadIdx); \
 		if (!overload) \
 			return 0; \
-		JNC_MAP (overload, p) \
+		JNC_MAP_FUNCTION_IMPL (overload, p) \
 	}
 
 #define JNC_MAP_PRECONSTRUCTOR(p) \
@@ -393,70 +397,70 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_CONSTRUCTOR(p) \
 	function = jnc_DerivableType_getConstructor (type); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_DESTRUCTOR(p) \
 	function = jnc_DerivableType_getDestructor (type); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_UNARY_OPERATOR(opKind, p) \
 	function = jnc_DerivableType_getUnaryOperator (type, opKind); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_BINARY_OPERATOR(opKind, p) \
 	function = jnc_DerivableType_getBinaryOperator (type, opKind); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_CALL_OPERATOR(p) \
 	function = jnc_DerivableType_getCallOperator (); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_CAST_OPERATOR(i, p) \
 	function = jnc_DerivableType_getCastOperator (i); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p)
+	JNC_MAP_FUNCTION_IMPL (function, p)
 
 #define JNC_MAP_FUNCTION(name, p) \
 	function = jnc_Namespace_findFunction (nspace, name, 1); \
 	if (function) \
 	{ \
 		overloadIdx = 0; \
-		JNC_MAP (function, p) \
+		JNC_MAP_FUNCTION_IMPL (function, p) \
 	}
 
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
 	function = jnc_Property_getGetter (prop); \
 	JNC_ASSERT (function); \
 	overloadIdx = 0; \
-	JNC_MAP (function, p);
+	JNC_MAP_FUNCTION_IMPL (function, p);
 
 #define JNC_MAP_PROPERTY_SETTER(prop, p) \
 	function = jnc_Property_getSetter (prop); \
 	if (!function) \
 		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP (function, p);
+	JNC_MAP_FUNCTION_IMPL (function, p);
 
 #define JNC_MAP_PROPERTY(name, getter, setter) \
 	prop = jnc_Namespace_findProperty (nspace, name, 1); \
@@ -476,6 +480,16 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	if (!prop) \
 		return 0; \
 	JNC_MAP_PROPERTY_SETTER (prop, setter);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_MAP_VARIABLE(name, p) \
+	variable = jnc_Namespace_findVariable (nspace, name, 1); \
+	if (!variable) \
+		return 0; \
+	result = jnc_Module_mapVariable (module, variable, p); \
+	if (!result) \
+		return 0;
 
 //..............................................................................
 
@@ -581,7 +595,7 @@ private:
 
 typedef jnc_ExtensionLib_AddSourcesFunc ExtensionLib_AddSourcesFunc;
 typedef jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc ExtensionLib_AddOpaqueClassTypeInfosFunc;
-typedef jnc_ExtensionLib_MapFunctionsFunc ExtensionLib_MapFunctionsFunc;
+typedef jnc_ExtensionLib_MapAddressesFunc ExtensionLib_MapAddressesFunc;
 
 typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;

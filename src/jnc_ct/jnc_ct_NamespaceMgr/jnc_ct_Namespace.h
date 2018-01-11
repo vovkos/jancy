@@ -140,6 +140,20 @@ public:
 		return item ? verifyModuleItemIsClassType (item, name) : NULL;
 	}
 
+	Variable*
+	findVariableByName (const sl::StringRef& name)
+	{
+		ModuleItem* item = findItemByName (name);
+		return item ? verifyModuleItemIsVariable (item, name) : NULL;
+	}
+
+	Variable*
+	getVariableByName (const sl::StringRef& name)
+	{
+		ModuleItem* item = getItemByName (name);
+		return item ? verifyModuleItemIsVariable (item, name) : NULL;
+	}
+
 	Function*
 	findFunctionByName (const sl::StringRef& name)
 	{

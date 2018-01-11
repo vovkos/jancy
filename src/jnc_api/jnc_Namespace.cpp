@@ -63,6 +63,17 @@ jnc_Namespace_getItem (
 }
 
 JNC_EXTERN_C
+jnc_Variable*
+jnc_Namespace_findVariable (
+	jnc_Namespace* nspace,
+	const char* name,
+	bool_t isRequired
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findVariableFunc (nspace, name, isRequired);
+}
+
+JNC_EXTERN_C
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
@@ -112,6 +123,19 @@ jnc_Namespace_getItem (
 	)
 {
 	return nspace->getItem (index);
+}
+
+JNC_EXTERN_C
+jnc_Variable*
+jnc_Namespace_findVariable (
+	jnc_Namespace* nspace,
+	const char* name,
+	bool_t isRequired
+	)
+{
+	return isRequired ?
+		nspace->getVariableByName (name) :
+		nspace->findVariableByName (name);
 }
 
 JNC_EXTERN_C

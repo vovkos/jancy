@@ -84,7 +84,7 @@ public:
 	loadDynamicLib (const sl::StringRef& fileName);
 
 	bool
-	mapFunctions ();
+	mapAddresses ();
 
 	bool
 	findSourceFileContents (

@@ -55,7 +55,18 @@ jnc_Module_findItem (
 }
 
 JNC_EXTERN_C
-void
+int
+jnc_Module_mapVariable (
+	jnc_Module* module,
+	jnc_Variable* variable,
+	void* p
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_mapVariableFunc (module, variable, p);
+}
+
+JNC_EXTERN_C
+int
 jnc_Module_mapFunction (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -187,14 +198,25 @@ jnc_Module_findItem (
 }
 
 JNC_EXTERN_C
-void
+int
+jnc_Module_mapVariable (
+	jnc_Module* module,
+	jnc_Variable* variable,
+	void* p
+	)
+{
+	return module->mapVariable (variable, p);
+}
+
+JNC_EXTERN_C
+int
 jnc_Module_mapFunction (
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
 	)
 {
-	module->mapFunction (function, p);
+	return module->mapFunction (function, p);
 }
 
 JNC_EXTERN_C
