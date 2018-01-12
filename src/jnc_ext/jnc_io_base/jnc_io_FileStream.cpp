@@ -164,7 +164,7 @@ FileStream::setOptions (uint_t options)
 	}
 
 #if (_AXL_OS_WIN)
-	if ((options & FileStreamOption_MessageNamedPipe) ^
+	if ((options & FileStreamOption_MessageNamedPipe) !=
 		(m_options & FileStreamOption_MessageNamedPipe))
 	{
 		dword_t pipeMode = 0;

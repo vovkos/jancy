@@ -49,7 +49,7 @@ SocketBase::setOptions (uint_t options)
 		return true;
 	}
 
-	if ((options & SocketOption_TcpNagle) ^ (m_options & SocketOption_TcpNagle))
+	if ((options & SocketOption_TcpNagle) != (m_options & SocketOption_TcpNagle))
 	{
 		int value = !(options & SocketOption_TcpNagle);
 		result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
@@ -60,7 +60,7 @@ SocketBase::setOptions (uint_t options)
 		}
 	}
 
-	if ((options & SocketOption_TcpReset) ^ (m_options & SocketOption_TcpReset))
+	if ((options & SocketOption_TcpReset) != (m_options & SocketOption_TcpReset))
 	{
 		linger value;
 		value.l_onoff = (options & SocketOption_TcpReset) != 0;
