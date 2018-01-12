@@ -51,6 +51,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_FUNCTION ("close",        &Serial::close)
 	JNC_MAP_FUNCTION ("read",         &Serial::read)
 	JNC_MAP_FUNCTION ("write",        &Serial::write)
+	JNC_MAP_FUNCTION ("setupDevice",  &Serial::setupDevice)
 	JNC_MAP_FUNCTION ("wait",         &Serial::wait)
 	JNC_MAP_FUNCTION ("cancelWait",   &Serial::cancelWait)
 	JNC_MAP_FUNCTION ("blockingWait", &Serial::blockingWait)
@@ -116,14 +117,14 @@ Serial::open (DataPtr namePtr)
 		m_dataBits,
 		m_stopBits,
 		m_parity,
-		m_readInterval
+		m_readInterval,
+		m_dtr,
+		m_rts
 		);
 
 	bool result =
 		m_serial.open ((const char*) namePtr.m_p, axl::io::FileFlag_Asynchronous) &&
-		m_serial.setSettings (&serialSettings) &&
-		m_serial.setDtr (m_dtr) &&
-		m_serial.setRts (m_rts);
+		m_serial.setSettings (&serialSettings);
 
 	if (!result)
 	{
@@ -265,6 +266,7 @@ Serial::setBaudRate (uint_t baudRate)
 
 	axl::io::SerialSettings settings;
 	settings.m_baudRate = baudRate;
+
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_BaudRate);
 	if (!result)
 	{
@@ -288,6 +290,9 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 
 	axl::io::SerialSettings settings;
 	settings.m_flowControl = flowControl;
+	settings.m_dtr = m_dtr;
+	settings.m_rts = m_rts;
+
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
 	if (!result)
 	{
@@ -311,6 +316,7 @@ Serial::setDataBits (uint_t dataBits)
 
 	axl::io::SerialSettings settings;
 	settings.m_dataBits = dataBits;
+
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_DataBits);
 	if (!result)
 	{
@@ -334,6 +340,7 @@ Serial::setStopBits (axl::io::SerialStopBits stopBits)
 
 	axl::io::SerialSettings settings;
 	settings.m_stopBits = stopBits;
+
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_StopBits);
 	if (!result)
 	{
@@ -357,6 +364,7 @@ Serial::setParity (axl::io::SerialParity parity)
 
 	axl::io::SerialSettings settings;
 	settings.m_parity = parity;
+
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_Parity);
 	if (!result)
 	{
@@ -406,6 +414,67 @@ Serial::setRts (bool rts)
 		return false;
 	}
 
+	m_rts = rts;
+	return true;
+}
+
+bool 
+JNC_CDECL
+Serial::setupDevice (
+	uint_t baudRate,
+	axl::io::SerialFlowControl flowControl,
+	uint_t dataBits,
+	axl::io::SerialStopBits stopBits,
+	axl::io::SerialParity parity,
+	uint_t readInterval,
+	bool dtr,
+	bool rts
+	)
+{
+	if (!m_isOpen)
+	{
+		m_baudRate = baudRate;
+		m_flowControl = flowControl;
+		m_dataBits = dataBits;
+		m_stopBits = stopBits;
+		m_parity = parity;
+		m_readInterval = readInterval;
+		m_dtr = dtr;
+		m_rts = rts;
+		return true;
+	}
+
+	uint_t mask = -1;
+
+	axl::io::SerialSettings settings;
+	settings.m_baudRate = baudRate;
+	settings.m_flowControl = flowControl;
+	settings.m_dataBits = dataBits;
+	settings.m_stopBits = stopBits;
+	settings.m_parity = parity;
+	settings.m_readInterval = readInterval;
+	settings.m_dtr = dtr;
+	settings.m_rts = rts;
+
+#if (_AXL_OS_WIN)
+	if (m_options & SerialOption_WinReadWaitFirstChar) // interval is ignored
+		mask &= ~axl::io::SerialSettingId_ReadInterval;
+#endif
+
+	bool result = m_serial.setSettings (&settings, mask);
+	if (!result)
+	{
+		propagateLastError ();
+		return false;
+	}
+
+	m_baudRate = baudRate;
+	m_flowControl = flowControl;
+	m_dataBits = dataBits;
+	m_stopBits = stopBits;
+	m_parity = parity;
+	m_readInterval = readInterval;
+	m_dtr = dtr;
 	m_rts = rts;
 	return true;
 }
@@ -495,6 +564,8 @@ Serial::ioThreadFunc ()
 
 		if (m_overlappedIo->m_serialWaitOverlapped.m_completionEvent.wait (0))
 		{
+			// not really necessary to call getOverlappedResult
+
 			m_overlappedIo->m_serialWaitOverlapped.m_completionEvent.reset ();
 			isWaitingSerial = false;
 		}
@@ -546,6 +617,38 @@ Serial::ioThreadFunc ()
 		else
 			m_lock.unlock ();
 
+		uint_t serialEventMask = EV_CTS | EV_DSR | EV_RING | EV_RLSD;
+		if (options & SerialOption_WinReadCheckComstat)
+			serialEventMask |= EV_RXCHAR;
+
+		if (prevSerialEventMask != serialEventMask)
+		{
+			result = m_serial.m_serial.setWaitMask (serialEventMask); // if wait is in progress, it will be completed now
+			if (!result)
+			{
+				setIoErrorEvent ();
+				break;
+			}
+
+			prevSerialEventMask = serialEventMask;
+		}
+
+		if (!isWaitingSerial)
+		{
+			result = m_serial.m_serial.overlappedWait (
+				&m_overlappedIo->m_serialEvents, 
+				&m_overlappedIo->m_serialWaitOverlapped
+				);
+
+			if (!result)
+			{
+				setIoErrorEvent ();
+				break;
+			}
+
+			isWaitingSerial = true;
+		}
+
 		if (!isWritingSerial && !m_overlappedIo->m_writeBlock.isEmpty ())
 		{
 			result = m_serial.m_serial.overlappedWrite (
@@ -561,39 +664,6 @@ Serial::ioThreadFunc ()
 			}
 
 			isWritingSerial = true;
-		}
-
-		if (!isWaitingSerial)
-		{
-			uint_t serialEventMask = EV_CTS | EV_DSR | EV_RING | EV_RLSD;
-
-			if (options & SerialOption_WinReadCheckComstat)
-				serialEventMask |= EV_RXCHAR;
-
-			if (prevSerialEventMask != serialEventMask)
-			{
-				result = m_serial.m_serial.setWaitMask (serialEventMask);
-				if (!result)
-				{
-					setIoErrorEvent ();
-					break;
-				}
-
-				prevSerialEventMask = serialEventMask;
-			}
-
-			result = m_serial.m_serial.overlappedWait (
-				&m_overlappedIo->m_serialEvents, 
-				&m_overlappedIo->m_serialWaitOverlapped
-				);
-
-			if (!result)
-			{
-				setIoErrorEvent ();
-				break;
-			}
-
-			isWaitingSerial = true;
 		}
 
 		if (!isReadBufferFull)

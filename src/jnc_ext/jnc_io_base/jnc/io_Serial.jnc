@@ -423,6 +423,17 @@ opaque class Serial
 
 	alias dispose = close;
 
+	bool errorcode setupDevice (
+		uint_t baudRate,
+		SerialFlowControl flowControl,
+		uint_t dataBits,
+		SerialStopBits stopBits,
+		SerialParity parity,
+		uint_t readInterval,
+		bool dtr,
+		bool rts
+		);
+
 	/**
 		Attempts to read up to ``size`` bytes from the serial port into the buffer pointed to by ``p``.
 

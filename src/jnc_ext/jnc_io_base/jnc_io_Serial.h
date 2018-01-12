@@ -137,7 +137,7 @@ public:
 
 	bool
 	JNC_CDECL
-	setReadInterval (uint_t count);
+	setReadInterval (uint_t interval);
 
 	void
 	JNC_CDECL
@@ -205,6 +205,19 @@ public:
 	bool
 	JNC_CDECL
 	setRts (bool rts);
+
+	bool 
+	JNC_CDECL
+	setupDevice (
+		uint_t baudRate,
+		axl::io::SerialFlowControl flowControl,
+		uint_t dataBits,
+		axl::io::SerialStopBits stopBits,
+		axl::io::SerialParity parity,
+		uint_t readInterval,
+		bool dtr,
+		bool rts
+		);
 
 	size_t
 	JNC_CDECL
