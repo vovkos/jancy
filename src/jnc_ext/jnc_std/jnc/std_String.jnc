@@ -26,6 +26,14 @@ class StringBuilder
 	size_t readonly m_length;
 	size_t readonly m_maxLength;
 
+	property m_sz
+	{
+		char const* get ()
+		{
+			return m_p ? m_p : "";
+		}
+	}
+
 	char get (size_t offset)
 	{
 		boundsCheck (offset);

@@ -56,7 +56,7 @@ public:
 	JNC_CDECL
 	insert (
 		size_t offset,
-			DataPtr ptr,
+		DataPtr ptr,
 		size_t size
 		);
 
