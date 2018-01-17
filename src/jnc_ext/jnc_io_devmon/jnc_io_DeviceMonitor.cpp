@@ -75,14 +75,13 @@ bool
 JNC_CDECL
 DeviceMonitor::setFileNameFilter (DataPtr filterPtr)
 {
-	const char* filter = (const char*) filterPtr.m_p;
-
 	if (!m_isConnected)
 	{
-		m_fileNameFilterPtr = strDup (filter);
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return true;
 	}
 
+	const char* filter = (const char*) filterPtr.m_p;
 	bool result = m_monitor.setFileNameFilter (filter);
 	if (!result)
 	{
@@ -100,7 +99,7 @@ DeviceMonitor::setEnabled (bool isEnabled)
 {
 	if (!m_isConnected)
 	{
-		m_isEnabled = isEnabled;
+		setError (err::SystemErrorCode_InvalidDeviceState);
 		return true;
 	}
 
@@ -128,6 +127,11 @@ DeviceMonitor::open ()
 		return false;
 	}
 
+#if (_AXL_OS_WIN)
+	ASSERT (!m_overlappedIo);
+	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
+#endif
+
 	AsyncIoDevice::open ();
 	m_ioThread.start ();
 	return true;
@@ -154,15 +158,27 @@ DeviceMonitor::close ()
 
 	AsyncIoDevice::close ();
 	m_isConnected = false;
+	m_isEnabled = false;
 	m_deviceNamePtr = g_nullPtr;
 	m_fileNameFilterPtr = g_nullPtr;
+
+#if (_AXL_OS_WIN)
+	if (m_overlappedIo)
+	{
+		AXL_MEM_DELETE (m_overlappedIo);
+		m_overlappedIo = NULL;
+	}
+#endif
 }
 
 bool
 JNC_CDECL
 DeviceMonitor::connect (DataPtr deviceNamePtr)
 {
-	bool result = m_monitor.connect ((const char*) deviceNamePtr.m_p);
+	bool result = 
+		m_monitor.connect ((const char*) deviceNamePtr.m_p) &&
+		m_monitor.setPendingNotifySizeLimit (m_pendingNotifySizeLimit);
+
 	if (!result)
 	{
 		propagateLastError ();
