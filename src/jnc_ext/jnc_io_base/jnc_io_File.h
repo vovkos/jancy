@@ -97,6 +97,13 @@ public:
 	{
 		return m_file.write (ptr.m_p, size);
 	}
+
+	bool
+	JNC_CDECL
+	flush ()
+	{
+		return m_file.flush ();
+	}
 };
 
 //..............................................................................

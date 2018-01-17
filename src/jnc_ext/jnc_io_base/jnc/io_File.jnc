@@ -198,6 +198,8 @@ opaque class File
 		void const* p,
 		size_t size
 		);
+
+	bool errorcode flush ();
 }
 
 //..............................................................................

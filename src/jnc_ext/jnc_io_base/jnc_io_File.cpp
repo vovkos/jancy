@@ -35,7 +35,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (File)
 	JNC_MAP_FUNCTION ("open",  &File::open)
 	JNC_MAP_FUNCTION ("close", &File::close)
 	JNC_MAP_FUNCTION ("read",  &File::read)
-	JNC_MAP_FUNCTION ("write",  &File::write)
+	JNC_MAP_FUNCTION ("write", &File::write)
+	JNC_MAP_FUNCTION ("flush", &File::flush)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
