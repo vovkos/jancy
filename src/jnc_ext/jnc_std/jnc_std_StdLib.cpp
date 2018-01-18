@@ -303,6 +303,22 @@ strCmp (
 }
 
 int
+strnCmp (
+	DataPtr ptr1,
+	DataPtr ptr2,
+	size_t length
+	)
+{
+	if (ptr1.m_p == ptr2.m_p)
+		return 0;
+
+	return
+		!ptr1.m_p ? -1 :
+		!ptr2.m_p ? 1 :
+		strncmp ((char*) ptr1.m_p, (char*) ptr2.m_p, length);
+}
+
+int
 striCmp (
 	DataPtr ptr1,
 	DataPtr ptr2
@@ -317,10 +333,26 @@ striCmp (
 		_stricmp ((char*) ptr1.m_p, (char*) ptr2.m_p);
 }
 
+int
+strniCmp (
+	DataPtr ptr1,
+	DataPtr ptr2,
+	size_t length
+	)
+{
+	if (ptr1.m_p == ptr2.m_p)
+		return 0;
+
+	return
+		!ptr1.m_p ? -1 :
+		!ptr2.m_p ? 1 :
+		_strnicmp ((char*) ptr1.m_p, (char*) ptr2.m_p, length);
+}
+
 DataPtr
 strChr (
 	DataPtr ptr,
-	int c
+	char c
 	)
 {
 	if (!ptr.m_p)
@@ -332,6 +364,29 @@ strChr (
 
 	DataPtr resultPtr;
 	resultPtr.m_p =
+	resultPtr.m_validator = ptr.m_validator;
+	return resultPtr;
+}
+
+DataPtr
+striChr (
+	DataPtr ptr,
+	char c
+	)
+{
+	if (!ptr.m_p)
+		return g_nullPtr;
+
+	size_t length = strLen (ptr);
+
+	sl::TextBoyerMooreFind find;
+	find.setPattern (enc::CharCodecKind_Ascii, &c, 1, sl::TextBoyerMooreFlag_CaseInsensitive);
+	size_t offset = find.find (enc::CharCodecKind_Ascii, ptr.m_p, length);
+	if (offset == -1)
+		return g_nullPtr;
+
+	DataPtr resultPtr;
+	resultPtr.m_p = (char*) ptr.m_p + offset;
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
@@ -354,6 +409,33 @@ strStr (
 
 	DataPtr resultPtr;
 	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr1.m_validator;
+	return resultPtr;
+}
+
+DataPtr
+striStr (
+	DataPtr ptr1,
+	DataPtr ptr2
+	)
+{
+	if (!ptr1.m_p)
+		return g_nullPtr;
+
+	if (!ptr2.m_p)
+		return ptr1;
+
+	size_t length1 = strLen (ptr1);
+	size_t length2 = strLen (ptr2);
+
+	sl::TextBoyerMooreFind find;
+	find.setPattern (enc::CharCodecKind_Ascii, ptr2.m_p, length2, sl::TextBoyerMooreFlag_CaseInsensitive);
+	size_t offset = find.find (enc::CharCodecKind_Ascii, ptr1.m_p, length1);
+	if (offset == -1)
+		return g_nullPtr;
+
+	DataPtr resultPtr;
+	resultPtr.m_p = (char*) ptr1.m_p + offset;
 	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
@@ -519,9 +601,13 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 
 	JNC_MAP_FUNCTION ("strlen",   jnc::strLen)
 	JNC_MAP_FUNCTION ("strcmp",   strCmp)
+	JNC_MAP_FUNCTION ("strncmp",  strnCmp)
 	JNC_MAP_FUNCTION ("stricmp",  striCmp)
+	JNC_MAP_FUNCTION ("strnicmp", strniCmp)
 	JNC_MAP_FUNCTION ("strchr",   strChr)
+	JNC_MAP_FUNCTION ("strichr",  striChr)
 	JNC_MAP_FUNCTION ("strstr",   strStr)
+	JNC_MAP_FUNCTION ("stristr",  striStr)
 	JNC_MAP_FUNCTION ("strcpy",   strCpy)
 	JNC_MAP_FUNCTION ("strcat",   strCat)
 	JNC_MAP_FUNCTION ("strdup",   strDup)

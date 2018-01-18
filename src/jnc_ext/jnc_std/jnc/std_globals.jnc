@@ -62,6 +62,12 @@ int strcmp (
 	char const* p2
 	);
 
+int strncmp (
+	char const* p1,
+	char const* p2,
+	size_t length
+	);
+
 /**
 	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
@@ -75,6 +81,12 @@ int strcmp (
 int stricmp (
 	char const* p1,
 	char const* p2
+	);
+
+int strnicmp (
+	char const* p1,
+	char const* p2,
+	size_t length
 	);
 
 /**
@@ -99,6 +111,15 @@ bool streq (
 	return strcmp (p1, p2) == 0;
 }
 
+bool strneq (
+	char const* p1,
+	char const* p2,
+	size_t length
+	)
+{
+	return strncmp (p1, p2, length) == 0;
+}
+
 /**
 	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
@@ -113,9 +134,23 @@ bool strieq (
 	return stricmp (p1, p2) == 0;
 }
 
+bool strnieq (
+	char const* p1,
+	char const* p2,
+	size_t length
+	)
+{
+	return strnicmp (p1, p2, length) == 0;
+}
+
 char const* strchr (
 	char const* p,
-	int c
+	char c
+	);
+
+char const* strichr (
+	char const* p,
+	char c
 	);
 
 /**
@@ -129,6 +164,11 @@ char const* strchr (
 */
 
 char const* strstr (
+	char const* p1,
+	char const* p2
+	);
+
+char const* stristr (
 	char const* p1,
 	char const* p2
 	);
