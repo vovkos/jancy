@@ -25,6 +25,8 @@
 
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_FileHandle.h"
+#elif (_AXL_OS_POSIX)
+#	include "axl_io_psx_Pipe.h"
 #endif
 
 using namespace axl;
