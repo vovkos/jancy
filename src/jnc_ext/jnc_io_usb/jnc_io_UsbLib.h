@@ -28,7 +28,6 @@ enum UsbLibCacheSlot
 	UsbLibCacheSlot_UsbInterfaceDesc,
 	UsbLibCacheSlot_UsbConfigurationDesc,
 	UsbLibCacheSlot_UsbDeviceDesc,
-	UsbLibCacheSlot_UsbEndpointEventParams,
 	UsbLibCacheSlot_UsbEndpoint,
 	UsbLibCacheSlot_UsbInterface,
 	UsbLibCacheSlot_UsbDevice,
