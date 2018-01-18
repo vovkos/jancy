@@ -54,13 +54,11 @@ enum OsKind
 	OsKind_Mac,
 };
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 enum OsFlag
 {
-	OsFlag_Posix,
-	OsFlag_Bsd,
-	OsFlag_Darwin,
+	OsFlag_Posix  = 0x01,
+	OsFlag_Bsd    = 0x02,
+	OsFlag_Darwin = 0x04,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -71,6 +69,11 @@ enum CppKind
 	CppKind_Gcc,
 	CppKind_Icc,
 	CppKind_Clang,
+};
+
+enum CppFlag
+{
+	CppFlag_Gcc = 0x01,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
