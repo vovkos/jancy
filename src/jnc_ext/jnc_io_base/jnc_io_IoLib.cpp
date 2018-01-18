@@ -31,6 +31,21 @@ namespace io {
 
 //..............................................................................
 
+DataPtr getSymbolicLinkTarget (DataPtr namePtr)
+{
+	sl::String linkTarget;
+	bool result = axl::io::getSymbolicLinkTarget (&linkTarget, (const char*) namePtr.m_p);
+	if (!result)
+	{
+		propagateLastError ();
+		return g_nullPtr;
+	}
+
+	return strDup (linkTarget);
+}
+
+//..............................................................................
+
 JNC_DEFINE_LIB (
 	IoLib,
 	g_ioLibGuid,
@@ -70,8 +85,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP (IoLib)
 	JNC_MAP_TYPE (NamedPipe)
 	JNC_MAP_TYPE (Mailslot)
 #endif
-	JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", &createNetworkAdapterDescList)
-	JNC_MAP_FUNCTION ("io.createSerialPortDescList",     &createSerialPortDescList)
+	JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
+	JNC_MAP_FUNCTION ("io.createSerialPortDescList",     createSerialPortDescList)
+	JNC_MAP_FUNCTION ("io.getSymbolicLinkTarget",        getSymbolicLinkTarget)
 JNC_END_LIB_FUNCTION_MAP ()
 
 //..............................................................................

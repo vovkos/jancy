@@ -15,6 +15,7 @@
 #include "axl_io_Socket.h"
 #include "axl_io_NetworkAdapter.h"
 #include "axl_io_MappedFile.h"
+#include "axl_io_FilePathUtils.h"
 #include "axl_sys_Thread.h"
 #include "axl_sys_Event.h"
 #include "axl_sys_Time.h"
