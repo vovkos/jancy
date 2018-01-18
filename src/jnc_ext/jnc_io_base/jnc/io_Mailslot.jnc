@@ -139,12 +139,6 @@ opaque class Mailslot
 
 	bool readonly m_isOpen;
 
-	/**
-		Holds the synchronization ID for the mailslot [#f3]_.
-	*/
-
-	uint_t m_syncId;
-
 	construct ();
 	destruct ();
 
