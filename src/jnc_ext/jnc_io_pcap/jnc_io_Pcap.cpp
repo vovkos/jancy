@@ -93,15 +93,15 @@ Pcap::openDevice (
 {
 	bool result;
 
-	const char* deviceName = (const char*) deviceNamePtr.m_p; 
+	const char* deviceName = (const char*) deviceNamePtr.m_p;
 	const char* filter = (const char*) filterPtr.m_p;
 
 	close ();
 
-	result = 
+	result =
 		m_pcap.openDevice (deviceName, snapshotSize, isPromiscious, readTimeout) &&
 		m_pcap.setFilter (filter);
-		
+
 	if (!result)
 	{
 		propagateLastError ();
@@ -125,12 +125,12 @@ Pcap::openFile (
 {
 	bool result;
 
-	const char* fileName = (const char*) fileNamePtr.m_p; 
+	const char* fileName = (const char*) fileNamePtr.m_p;
 	const char* filter = (const char*) filterPtr.m_p;
 
 	close ();
 
-	result = 
+	result =
 		m_pcap.openFile (fileName) &&
 		m_pcap.setFilter (filter);
 
@@ -267,9 +267,7 @@ Pcap::ioThreadFunc ()
 		while (m_readBuffer.isFull ())
 		{
 			m_lock.unlock ();
-
-			m_ioThreadEvent.wait ();
-
+			sleepIoThread ();
 			m_lock.lock ();
 
 			if (m_ioThreadFlags & IoThreadFlag_Closing)
