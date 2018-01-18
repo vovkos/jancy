@@ -142,7 +142,7 @@ initSystemInfo (SystemInfo* systemInfo)
 	systemInfo->m_osFlags = OsFlag_Posix;
 #elif (_JNC_OS_DARWIN)
 	systemInfo->m_osKind = OsKind_Mac;
-	systemInfo->m_osFlags = OsFlag_Posix | OsFlag_Bsd;
+	systemInfo->m_osFlags = OsFlag_Posix | OsFlag_Bsd | OsFlag_Darwin;
 #elif (_JNC_OS_BSD)
 	systemInfo->m_osKind = OsKind_Bsd;
 	systemInfo->m_osFlags = OsFlag_Posix | OsFlag_Bsd;
@@ -151,17 +151,17 @@ initSystemInfo (SystemInfo* systemInfo)
 #endif
 
 #if (_JNC_CPP_MSC)
-	systemInfo->m_osKind = CppKind_Msc;
-	systemInfo->m_osFlags = 0;
+	systemInfo->m_cppKind = CppKind_Msc;
+	systemInfo->m_cppFlags = 0;
 #elif (_JNC_CPP_GCC)
 #	if (_JNC_CPP_CLANG)
-	systemInfo->m_osKind = CppKind_Clang;
+	systemInfo->m_cppKind = CppKind_Clang;
 #	elif (_JNC_CPP_ICC)
-	systemInfo->m_osKind = CppKind_Icc;
+	systemInfo->m_cppKind = CppKind_Icc;
 #	else
-	systemInfo->m_osKind = CppKind_Gcc;
+	systemInfo->m_cppKind = CppKind_Gcc;
 #	endif
-	systemInfo->m_osFlags = CppFlag_Gcc;
+	systemInfo->m_cppFlags = CppFlag_Gcc;
 #else
 #	error unsupported C++ compiler
 #endif
