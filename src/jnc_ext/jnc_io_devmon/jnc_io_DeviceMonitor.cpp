@@ -175,7 +175,7 @@ bool
 JNC_CDECL
 DeviceMonitor::connect (DataPtr deviceNamePtr)
 {
-	bool result = 
+	bool result =
 		m_monitor.connect ((const char*) deviceNamePtr.m_p) &&
 		m_monitor.setPendingNotifySizeLimit (m_pendingNotifySizeLimit);
 
@@ -229,7 +229,7 @@ DeviceMonitor::connectLoop ()
 {
 	for (;;)
 	{
-		m_ioThreadEvent.wait ();
+		sleepIoThread ();
 
 		m_lock.lock ();
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
