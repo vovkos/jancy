@@ -26,18 +26,14 @@ enum IoLibCacheSlot
 	IoLibCacheSlot_SocketAddress_ip6,
 	IoLibCacheSlot_SocketAddress,
 	IoLibCacheSlot_SocketAddressResolver,
-	IoLibCacheSlot_SocketAddressResolverEventParams,
 	IoLibCacheSlot_Socket,
-	IoLibCacheSlot_SocketEventParams,
 	IoLibCacheSlot_NetworkAdapterAddress,
 	IoLibCacheSlot_NetworkAdapterDesc,
 	IoLibCacheSlot_File,
 	IoLibCacheSlot_MappedFile,
 	IoLibCacheSlot_FileStream,
-	IoLibCacheSlot_FileStreamEventParams,
 	IoLibCacheSlot_NamedPipe,
 	IoLibCacheSlot_Mailslot,
-	IoLibCacheSlot_MailslotEventParams,
 };
 
 // {362FF8E2-1BDD-4319-AF8F-AD86C3917AC5}
