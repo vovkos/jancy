@@ -19,18 +19,6 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
-	PcapEventParams,
-	"io.PcapEventParams",
-	g_pcapLibGuid,
-	PcapLibCacheSlot_PcapEventParams
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP (PcapEventParams)
-JNC_END_TYPE_FUNCTION_MAP ()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Pcap,
 	"io.Pcap",
