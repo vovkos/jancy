@@ -560,12 +560,12 @@ Socket::sendRecvLoop (
 			for (size_t i = 0; i < newReadCount; i++)
 			{
 				OverlappedRecv* recv = m_overlappedIo->m_overlappedRecvPool.get ();
-				
+
 				if (isDatagram)
 				{
 					recv->m_sockAddrSize = sizeof (recv->m_sockAddr);
 
-					result = 
+					result =
 						recv->m_buffer.setCount (readBlockSize) &&
 						m_socket.m_socket.wsaRecvFrom (
 							recv->m_buffer,
@@ -579,7 +579,7 @@ Socket::sendRecvLoop (
 				}
 				else
 				{
-					result = 
+					result =
 						recv->m_buffer.setCount (readBlockSize) &&
 						m_socket.m_socket.wsaRecv (
 							recv->m_buffer,
@@ -676,7 +676,7 @@ Socket::acceptLoop ()
 			}
 			else
 			{
-				IncomingConnection* incomingConnection = createIncomingConnection ();
+				IncomingConnection* incomingConnection = m_incomingConnectionPool.get ();
 				incomingConnection->m_sockAddr = sockAddr;
 				incomingConnection->m_socket.m_socket.attach (socket);
 				m_pendingIncomingConnectionList.insertTail (incomingConnection);
