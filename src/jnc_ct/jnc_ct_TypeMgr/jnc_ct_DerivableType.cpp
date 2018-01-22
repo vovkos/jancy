@@ -614,6 +614,9 @@ DerivableType::findItemTraverseImpl (
 			return item;
 		}
 
+		uint_t modFlags = flags | TraverseKind_NoParentNamespace;
+		size_t nextLevel = level + 1;
+
 		size_t count = m_unnamedFieldArray.getCount ();
 		for	(size_t i = 0; i < count; i++)
 		{
@@ -621,7 +624,7 @@ DerivableType::findItemTraverseImpl (
 			if (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable)
 			{
 				DerivableType* type = (DerivableType*) field->getType ();
-				item = type->findItemTraverseImpl (name, coord, flags | TraverseKind_NoParentNamespace, level + 1);
+				item = type->findItemTraverseImpl (name, coord, modFlags, nextLevel);
 				if (item)
 				{
 					if (coord && coord->m_type)
@@ -651,10 +654,11 @@ DerivableType::findItemTraverseImpl (
 			return item;
 	}
 
-	flags &= ~TraverseKind_NoThis;
-
 	if (!(flags & TraverseKind_NoBaseType))
 	{
+		uint_t modFlags = (flags & ~TraverseKind_NoThis) | TraverseKind_NoParentNamespace;
+		size_t nextLevel = level + 1;
+
 		sl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
 		for (; slotIt; slotIt++)
 		{
@@ -667,7 +671,7 @@ DerivableType::findItemTraverseImpl (
 				return NULL;
 			}
 
-			item = baseType->findItemTraverseImpl (name, coord, flags, level + 1);
+			item = baseType->findItemTraverseImpl (name, coord, modFlags, nextLevel);
 			if (item)
 			{
 				if (coord && coord->m_type)
