@@ -323,13 +323,25 @@ VariableMgr::createLlvmGlobalVariable (
 		(llvm::Constant*) initValue.getLlvmValue () :
 		(llvm::Constant*) type->getZeroValue ().getLlvmValue ();
 
+	sl::String llvmName;
+
+	if (m_module->getCompileFlags () & ModuleCompileFlag_McJit)
+	{
+		llvmName = "?"; // as to avoid linking conflicts
+		llvmName += tag;
+	}
+	else
+	{
+		llvmName = tag;
+	}
+
 	return new llvm::GlobalVariable (
 		*m_module->getLlvmModule (),
 		type->getLlvmType (),
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmInitConstant,
-		tag >> toLlvm
+		llvmName >> toLlvm
 		);
 }
 
