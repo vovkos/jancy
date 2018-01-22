@@ -267,23 +267,43 @@ Module::mapVariable (
 		return false;
 	}
 
-	std::string name = llvmVariable->getName ();
-	name += ".mapping";
+	if (m_compileFlags & ModuleCompileFlag_McJit)
+	{
+		std::string name = llvmVariable->getName ();
+		name += ".mapping";
 
-	llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable (
-		*m_llvmModule,
-		variable->getType ()->getLlvmType (),
-		false,
-		llvm::GlobalVariable::ExternalWeakLinkage,
-		NULL,
-		name
-		);
+		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable (
+			*m_llvmModule,
+			variable->getType ()->getLlvmType (),
+			false,
+			llvm::GlobalVariable::ExternalWeakLinkage,
+			NULL,
+			name
+			);
 
-	llvmVariable->replaceAllUsesWith (llvmMapping);
-	llvmVariable->eraseFromParent ();
+		llvmVariable->replaceAllUsesWith (llvmMapping);
+		llvmVariable->eraseFromParent ();
 
-	ASSERT (m_llvmExecutionEngine);
-	m_llvmExecutionEngine->addGlobalMapping (llvmMapping, p);
+#if (LLVM_VERSION >= 0x0400)
+		ASSERT (m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping (llvmMapping, p);
+#else
+		sl::StringHashTableIterator <void*> it = m_functionMap.visit (llvmMapping->getName ().data ());
+		if (it->m_value)
+		{
+			err::setFormatStringError ("attempt to re-map variable: %s", variable->getQualifiedName ().sz ());
+			return false;
+		}
+
+		it->m_value = p;
+#endif
+	}
+	else
+	{
+		ASSERT (m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping (llvmVariable, p);
+	}
+
 	return true;
 }
 
