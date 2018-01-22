@@ -263,12 +263,27 @@ Module::mapVariable (
 	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable ();
 	if (!llvmVariable)
 	{
-		err::setFormatStringError ("attempt to mapping non-global variable: %s", variable->getQualifiedName ().sz ());
+		err::setFormatStringError ("attempt to map non-global variable: %s", variable->getQualifiedName ().sz ());
 		return false;
 	}
 
+	std::string name = llvmVariable->getName ();
+	name += ".mapping";
+
+	llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable (
+		*m_llvmModule,
+		variable->getType ()->getLlvmType (),
+		false,
+		llvm::GlobalVariable::ExternalWeakLinkage,
+		NULL,
+		name
+		);
+
+	llvmVariable->replaceAllUsesWith (llvmMapping);
+	llvmVariable->eraseFromParent ();
+
 	ASSERT (m_llvmExecutionEngine);
-	m_llvmExecutionEngine->addGlobalMapping (llvmVariable, p);
+	m_llvmExecutionEngine->addGlobalMapping (llvmMapping, p);
 	return true;
 }
 
