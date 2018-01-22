@@ -411,16 +411,7 @@ DeviceMonitor::ioThreadFunc ()
 		}
 
 		if (FD_ISSET (m_monitor.m_device, &readSet))
-		{
-			size_t incomingDataSize = m_monitor.m_device.getIncomingDataSize ();
-			if (incomingDataSize == -1)
-			{
-				setIoErrorEvent ();
-				return;
-			}
-
-			canReadMonitor = incomingDataSize > 0;
-		}
+			canReadMonitor = true;
 
 		m_lock.lock ();
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
