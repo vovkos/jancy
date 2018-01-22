@@ -418,7 +418,7 @@ Serial::setRts (bool rts)
 	return true;
 }
 
-bool 
+bool
 JNC_CDECL
 Serial::setupDevice (
 	uint_t baudRate,
@@ -636,7 +636,7 @@ Serial::ioThreadFunc ()
 		if (!isWaitingSerial)
 		{
 			result = m_serial.m_serial.overlappedWait (
-				&m_overlappedIo->m_serialEvents, 
+				&m_overlappedIo->m_serialEvents,
 				&m_overlappedIo->m_serialWaitOverlapped
 				);
 
@@ -767,16 +767,7 @@ Serial::ioThreadFunc ()
 		}
 
 		if (FD_ISSET (m_serial.m_serial, &readSet))
-		{
-			size_t incomingDataSize = m_serial.m_serial.getIncomingDataSize ();
-			if (incomingDataSize == -1)
-			{
-				setIoErrorEvent ();
-				return;
-			}
-
-			canReadSerial = incomingDataSize > 0;
-		}
+			canReadSerial = true;
 
 		if (FD_ISSET (m_serial.m_serial, &writeSet))
 			canWriteSerial = true;

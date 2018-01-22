@@ -87,7 +87,7 @@ FileStream::open (
 		pipeMode = PIPE_READMODE_MESSAGE;
 		m_options |= AsyncIoOption_KeepReadBlockSize;
 	}
-	
+
 	result = ::SetNamedPipeHandleState (m_file.m_file, &pipeMode, NULL, NULL) != 0;
 	if (!result)
 	{
@@ -168,7 +168,7 @@ FileStream::setOptions (uint_t options)
 		(m_options & FileStreamOption_MessageNamedPipe))
 	{
 		dword_t pipeMode = 0;
-		
+
 		if (options & FileStreamOption_MessageNamedPipe)
 		{
 			pipeMode = PIPE_READMODE_MESSAGE;
@@ -245,7 +245,7 @@ FileStream::ioThreadFunc ()
 			result = read->m_overlapped.m_completionEvent.wait (0);
 			if (!result)
 				break;
-			 
+
 			dword_t actualSize;
 			result = m_file.m_file.getOverlappedResult (&read->m_overlapped, &actualSize);
 			if (!result)
@@ -414,16 +414,7 @@ FileStream::ioThreadFunc ()
 		}
 
 		if (FD_ISSET (m_file.m_file, &readSet))
-		{
-			size_t incomingDataSize = m_file.m_file.getIncomingDataSize ();
-			if (incomingDataSize == -1)
-			{
-				setIoErrorEvent ();
-				return;
-			}
-
-			canReadSerial = incomingDataSize > 0;
-		}
+			canReadSerial = true;
 
 		if (FD_ISSET (m_file.m_file, &writeSet))
 			canWriteSerial = true;
