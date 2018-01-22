@@ -49,7 +49,7 @@ enum SerialFlowControl
 		If a side of transmission detects ``XOFF`` character in input stream, this side should suspend the transmission until it sees ``XON`` character; at which moment the transmission may be resumed.
 	*/
 
-	XOnXOff,
+	XonXoff,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
