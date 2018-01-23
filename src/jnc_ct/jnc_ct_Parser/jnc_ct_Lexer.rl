@@ -300,11 +300,12 @@ lit_sq           { createCharToken (TokenKind_Integer, 1, 1, true); };
 lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
 [rR] raw_lit_sq  { createCharToken (TokenKind_Integer, 2, 1, false); };
 [rR] raw_lit_dq  { createRawLiteralToken (); };
-dec+             { createIntegerToken (10); };
 '0' oct+         { createIntegerToken (8); };
+dec+             { createIntegerToken (10); };
 '0' [xX] hex+    { createIntegerToken (16, 2); };
 '0' [oO] oct+    { createIntegerToken (8, 2); };
 '0' [bB] bin+    { createIntegerToken (2, 2); };
+'0' [nNdD] dec+  { createIntegerToken (10, 2); };
 
 '0' [xX] raw_lit_dq
 				 { createBinLiteralToken (16); };
