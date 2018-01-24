@@ -87,13 +87,13 @@ bitflag enum UsbEndpointEvents
 		IO USB endpoint receive buffer is full; upcoming data may be dropped (depending on the endpoint transfer type).
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 
 	/**
 		USB endpoint transmit buffer is ready to accept more data; it's OK to issue more `io.UsbEndpoint.write` requests.
 	*/
 
-	TransmitBufferReady,
+	WriteBufferReady,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

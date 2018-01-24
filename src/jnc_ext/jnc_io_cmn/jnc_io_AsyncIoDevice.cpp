@@ -417,7 +417,7 @@ AsyncIoDevice::bufferedReadImpl_l (
 	if (result)
 	{
 		ASSERT (!m_readBuffer.isFull ());
-		m_activeEvents &= ~AsyncIoEvent_ReceiveBufferFull;
+		m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
 
 		if (m_readBuffer.isEmpty ())
 			m_activeEvents &= ~AsyncIoEvent_IncomingData;
@@ -459,7 +459,7 @@ AsyncIoDevice::bufferedWrite (
 		}
 
 		if (m_writeBuffer.isFull ())
-			m_activeEvents &= ~AsyncIoEvent_TransmitBufferReady;
+			m_activeEvents &= ~AsyncIoEvent_WriteBufferReady;
 
 		wakeIoThread ();
 	}
@@ -556,10 +556,10 @@ AsyncIoDevice::updateReadWriteBufferEvents ()
 		m_activeEvents |= AsyncIoEvent_IncomingData;
 
 	if (m_readBuffer.isFull ())
-		m_activeEvents |= AsyncIoEvent_ReceiveBufferFull;
+		m_activeEvents |= AsyncIoEvent_ReadBufferFull;
 
 	if (!m_writeBuffer.isFull ())
-		m_activeEvents |= AsyncIoEvent_TransmitBufferReady;
+		m_activeEvents |= AsyncIoEvent_WriteBufferReady;
 }
 
 //..............................................................................

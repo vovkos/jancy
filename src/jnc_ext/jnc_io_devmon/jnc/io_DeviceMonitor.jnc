@@ -34,7 +34,7 @@ bitflag enum DeviceMonitorEvents
 		Device monitor receive buffer is full.
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 }
 
 namespace psx {

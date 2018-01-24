@@ -52,7 +52,7 @@ bitflag enum MailslotEvents
 		Mailslot receive buffer is full.
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

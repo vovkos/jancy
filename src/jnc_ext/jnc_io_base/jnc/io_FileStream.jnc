@@ -106,13 +106,13 @@ bitflag enum FileStreamEvents
 		File stream receive buffer is full; upcoming data may be dropped (depending on the underlying device represented by the file).
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 
 	/**
 		File stream transmit buffer is ready to accept more data; it's OK to issue more `io.FileStream.write` requests.
 	*/
 
-	TransmitBufferReady,
+	WriteBufferReady,
 
 	/**
 		End-of-file was reached on the file stream.
@@ -138,7 +138,7 @@ bitflag enum FileStreamEvents
 	* When ``IncomingData`` event is fired, read from the file using ``read`` method;
 	* Write to the file stream using ``write`` method;
 	* Suspend writing if the return value of ``write`` is less than requested;
-	* Resume writing on ``TransmitBufferReady`` event;
+	* Resume writing on ``WriteBufferReady`` event;
 	* Close the file stream when no longer needed with ``close`` method.
 
 	.. rubric:: Sample code:
@@ -290,7 +290,7 @@ opaque class FileStream
 
 		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
-		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``WriteBufferReady`` event is fired and transmission could be resumed.
 	*/
 
 	size_t errorcode write (

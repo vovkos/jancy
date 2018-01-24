@@ -20,8 +20,8 @@ enum AsyncIoEvent
 {
 	AsyncIoEvent_IoError             = 0x0001,
 	AsyncIoEvent_IncomingData        = 0x0002,
-	AsyncIoEvent_ReceiveBufferFull   = 0x0004,
-	AsyncIoEvent_TransmitBufferReady = 0x0008,
+	AsyncIoEvent_ReadBufferFull   = 0x0004,
+	AsyncIoEvent_WriteBufferReady = 0x0008,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

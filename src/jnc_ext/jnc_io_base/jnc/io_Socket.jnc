@@ -48,13 +48,13 @@ bitflag enum SocketEvents
 		Socket receive buffer is full.
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 
 	/**
 		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.Socket.write` or `io.Socket.writeDatagram` requests.
 	*/
 
-	TransmitBufferReady,
+	WriteBufferReady,
 
 	/**
 		New incoming client connection is pending on the listening server socket. The new client can be accepted using `io.Socket.accept` method (to reject the connection you still have to accept it first, and then close it)
@@ -313,7 +313,7 @@ opaque class Socket
 
 		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
-		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``WriteBufferReady`` event is fired and transmission could be resumed.
 	*/
 
 	size_t errorcode write (
@@ -340,7 +340,7 @@ opaque class Socket
 
 		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
 
-		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``TransmitBufferReady`` event is fired and transmission could be resumed.
+		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``WriteBufferReady`` event is fired and transmission could be resumed.
 	*/
 
 	size_t errorcode writeDatagram (

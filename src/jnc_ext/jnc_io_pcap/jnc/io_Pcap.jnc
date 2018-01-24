@@ -46,13 +46,13 @@ bitflag enum PcapEvents
 		Pcap device receive buffer is full; upcoming packets may be dropped (depending on the internal buffer size of the kernel Pcap provider).
 	*/
 
-	ReceiveBufferFull,
+	ReadBufferFull,
 
 	/**  
 		Pcap device transmit buffer is ready to accept more data; it's OK to issue more `io.Pcap.write` requests.
 	*/
 
-	TransmitBufferReady,
+	WriteBufferReady,
 
 	/**
 		End-of-file was reached on the Pcap file.
