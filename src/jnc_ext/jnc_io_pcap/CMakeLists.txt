@@ -90,6 +90,12 @@ add_library (
 	${JNC_LIST}
 	)
 
+target_compile_definitions (
+	jnc_io_pcap
+	PUBLIC
+	-D_JNC_DYNAMIC_EXTENSION_LIB
+	)
+
 axl_set_pch (
 	jnc_io_pcap
 	${PCH_H}
@@ -97,12 +103,6 @@ axl_set_pch (
 	)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX)
-
-target_compile_definitions (
-	jnc_io_pcap
-	PUBLIC
-	-D_JNC_DYNAMIC_EXTENSION_LIB
-	)
 
 set_target_properties (
 	jnc_io_pcap
