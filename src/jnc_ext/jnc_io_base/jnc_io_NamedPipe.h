@@ -33,7 +33,7 @@ enum NamedPipeEvent
 
 struct NamedPipeHdr: IfaceHdr
 {
-	uint_t m_connectParallelism;
+	uint_t m_backLogLimit;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -51,15 +51,13 @@ class NamedPipe:
 protected:
 	enum Def
 	{
-		Def_ConnectParallelism = 4,
-		Def_ReadParallelism    = 4,
-		Def_ReadBlockSize      = 4 * 1024,
-		Def_ReadBufferSize     = 16 * 1024,
-		Def_WriteBufferSize    = 16 * 1024,
-		Def_Options            = 0,
-		Def_Timeout            = 0,
-		Def_BackLogLimit       = 4,
-		Def_MaxBackLogLimit    = 8,
+		Def_BackLogLimit    = 4,
+		Def_ReadParallelism = 4,
+		Def_ReadBlockSize   = 4 * 1024,
+		Def_ReadBufferSize  = 16 * 1024,
+		Def_WriteBufferSize = 16 * 1024,
+		Def_Options         = 0,
+		Def_Timeout         = 0,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -94,7 +92,6 @@ protected:
 	IoThread m_ioThread;
 
 	sl::String_w m_pipeName;
-	size_t m_backLogLimit;
 	mem::Pool <IncomingConnection> m_incomingConnectionPool;
 	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
 	OverlappedIo* m_overlappedIo;
@@ -109,10 +106,7 @@ public:
 
 	bool
 	JNC_CDECL
-	open (
-		DataPtr namePtr,
-		size_t backLogLimit
-		);
+	open (DataPtr namePtr);
 
 	void
 	JNC_CDECL
@@ -120,9 +114,9 @@ public:
 
 	void
 	JNC_CDECL
-	setConnectParallelism (uint_t count)
+	setBackLogLimit (uint_t limit)
 	{
-		AsyncIoDevice::setSetting (&m_connectParallelism, count ? count : Def_ConnectParallelism);
+		AsyncIoDevice::setSetting (&m_backLogLimit, limit ? limit : Def_BackLogLimit);
 	}
 
 	void

@@ -32,12 +32,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <NamedPipe>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <NamedPipe>)
 
-	JNC_MAP_AUTOGET_PROPERTY ("m_connectParallelism", &NamedPipe::setConnectParallelism)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism",    &NamedPipe::setReadParallelism)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",      &NamedPipe::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",     &NamedPipe::setReadBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize",    &NamedPipe::setWriteBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_options",            &NamedPipe::setOptions)
+	JNC_MAP_AUTOGET_PROPERTY ("m_backLogLimit",    &NamedPipe::setBackLogLimit)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism", &NamedPipe::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",   &NamedPipe::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &NamedPipe::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &NamedPipe::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY ("m_options",         &NamedPipe::setOptions)
 
 	JNC_MAP_FUNCTION ("open",         &NamedPipe::open)
 	JNC_MAP_FUNCTION ("close",        &NamedPipe::close)
@@ -51,13 +51,12 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 NamedPipe::NamedPipe ()
 {
-	m_connectParallelism = Def_ConnectParallelism;
+	m_backLogLimit = Def_BackLogLimit;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_writeBufferSize = Def_WriteBufferSize;
 	m_options = Def_Options;
-	m_backLogLimit = Def_BackLogLimit;
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
@@ -65,30 +64,20 @@ NamedPipe::NamedPipe ()
 
 bool
 JNC_CDECL
-NamedPipe::open (
-	DataPtr namePtr,
-	size_t backLogLimit
-	)
+NamedPipe::open (DataPtr namePtr)
 {
 	bool result;
 
 	close ();
 
-	if (backLogLimit == 0)
-		backLogLimit = Def_BackLogLimit;
-
-	if (backLogLimit > Def_MaxBackLogLimit)
-		backLogLimit = Def_MaxBackLogLimit;
-
 	m_pipeName = (const char*) namePtr.m_p;
-	m_backLogLimit = backLogLimit;
 
 	uint_t pipeMode = m_options & FileStreamOption_MessageNamedPipe ?
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
 		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE;
 
 	sl::StdList <OverlappedConnect> pipeList;
-	for (size_t i = 0; i < backLogLimit; i++)
+	for (size_t i = 0; i < m_backLogLimit; i++)
 	{
 		axl::io::win::NamedPipe pipe;
 		result = pipe.create (
@@ -294,7 +283,7 @@ NamedPipe::ioThreadFunc ()
 
 		// take snapshots before releasing the lock
 
-		size_t connectParallelism = m_connectParallelism;
+		size_t backLogLimit = m_backLogLimit;
 
 		uint_t pipeMode = m_options & FileStreamOption_MessageNamedPipe ?
 			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
@@ -305,12 +294,14 @@ NamedPipe::ioThreadFunc ()
 		else
 			m_lock.unlock ();
 
-		size_t pendingIncomingConnectionCount = m_pendingIncomingConnectionList.getCount ();
-		size_t activeConnectCount = m_overlappedIo->m_activeOverlappedConnectList.getCount ();
-		if (pendingIncomingConnectionCount < m_backLogLimit && activeConnectCount < connectParallelism)
+		size_t backLogCount = 
+			m_pendingIncomingConnectionList.getCount () + 
+			m_overlappedIo->m_activeOverlappedConnectList.getCount ();
+
+		if (backLogCount < backLogLimit)
 		{
-			size_t newReadCount = connectParallelism - activeConnectCount;
-			for (size_t i = 0; i < newReadCount; i++)
+			size_t newPipeCount = backLogLimit - backLogCount;
+			for (size_t i = 0; i < newPipeCount; i++)
 			{
 				axl::io::win::NamedPipe pipe;
 				result = pipe.create (

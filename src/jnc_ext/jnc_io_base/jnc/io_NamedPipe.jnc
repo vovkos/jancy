@@ -122,7 +122,7 @@ bitflag enum NamedPipeEvents
 
 opaque class NamedPipe
 {
-	uint_t autoget property m_connectParallelism;
+	uint_t autoget property m_backLogLimit;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
@@ -150,10 +150,7 @@ opaque class NamedPipe
 		Returns ``true`` on success. If the named pipe server could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (
-		char const* name,
-		size_t backLogLimit = 0 // 0 -- default
-		);
+	bool errorcode open (char const* name);
 
 	/**
 		Closes all previously opened server-side named pipes in the backlog; does nothing if the named pipe server is not started. This function always succeeds.
