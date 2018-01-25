@@ -45,6 +45,7 @@ typedef unsigned intptr size_t;
 */
 
 typedef char int8_t;
+typedef char utf8_t;
 
 /**
 	\subgroup
@@ -61,6 +62,7 @@ typedef unsigned char byte_t;
 */
 
 typedef short int16_t;
+typedef short utf16_t;
 
 /**
 	\subgroup
@@ -77,6 +79,7 @@ typedef unsigned short word_t;
 */
 
 typedef int int32_t;
+typedef int utf32_t;
 
 /**
 	\subgroup
