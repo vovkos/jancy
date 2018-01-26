@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_pcapLibGuid,
 	PcapLibCacheSlot_Pcap,
 	Pcap,
-	NULL
+	&Pcap::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Pcap)

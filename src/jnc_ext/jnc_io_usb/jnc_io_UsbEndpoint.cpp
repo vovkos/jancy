@@ -27,7 +27,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbEndpoint,
 	UsbEndpoint,
-	NULL
+	&UsbEndpoint::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (UsbEndpoint)

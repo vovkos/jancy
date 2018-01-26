@@ -24,7 +24,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_ioLibGuid,
 	IoLibCacheSlot_FileStream,
 	FileStream,
-	NULL
+	&FileStream::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (FileStream)

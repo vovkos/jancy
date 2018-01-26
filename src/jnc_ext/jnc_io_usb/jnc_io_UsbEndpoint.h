@@ -88,6 +88,13 @@ public:
 		close ();
 	}
 
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	{
+		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+	}
+
 	bool
 	startIoThread ()
 	{

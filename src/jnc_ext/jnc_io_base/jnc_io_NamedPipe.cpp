@@ -25,7 +25,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_ioLibGuid,
 	IoLibCacheSlot_NamedPipe,
 	NamedPipe,
-	NULL
+	&NamedPipe::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (NamedPipe)
