@@ -140,6 +140,7 @@ NamedPipe::close ()
 
 	ASSERT (m_overlappedIo);
 	AXL_MEM_DELETE (m_overlappedIo);
+	m_overlappedIo = NULL;
 }
 
 bool
@@ -193,6 +194,7 @@ NamedPipe::accept ()
 	fileStream->setReadBufferSize (m_readBufferSize);
 	fileStream->setWriteBufferSize (m_writeBufferSize);
 	fileStream->setOptions (m_options);
+	fileStream->m_overlappedIo = AXL_MEM_NEW (FileStream::OverlappedIo);
 	fileStream->m_isOpen = true; 
 	fileStream->m_ioThread.start ();
 	return fileStream;
