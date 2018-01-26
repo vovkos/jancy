@@ -69,7 +69,7 @@ Mailslot::open (DataPtr namePtr)
 
 	sl::StringRef name ((const char*) namePtr.m_p);
 	if (name.isPrefix ("\\\\.\\mailslot\\"))
-		deviceName += name.getSubString (4);
+		deviceName += name.getSubString (deviceName.getLength ());
 	else
 		deviceName += name;
 

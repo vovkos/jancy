@@ -74,7 +74,7 @@ NamedPipe::open (DataPtr namePtr)
 
 	sl::StringRef name ((const char*) namePtr.m_p);
 	if (name.isPrefix ("\\\\.\\pipe\\"))
-		m_pipeName += name.getSubString (4);
+		m_pipeName += name.getSubString (m_pipeName.getLength ());
 	else
 		m_pipeName += name;
 
