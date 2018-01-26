@@ -98,6 +98,7 @@ protected:
 
 protected:
 	axl::io::File m_file;
+	uint_t m_openFlags;
 	IoThread m_ioThread;
 
 #if (_AXL_OS_WIN)

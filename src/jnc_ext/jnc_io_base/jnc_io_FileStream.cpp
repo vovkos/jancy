@@ -119,6 +119,8 @@ FileStream::open (
 	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
 #endif
 
+	m_openFlags = openFlags;
+
 	AsyncIoDevice::open ();
 	m_ioThread.start ();
 	return true;
@@ -334,7 +336,7 @@ FileStream::ioThreadFunc ()
 		}
 
 		size_t activeReadCount = m_overlappedIo->m_activeOverlappedReadList.getCount ();
-		if (!isReadBufferFull && activeReadCount < readParallelism)
+		if (!(m_openFlags & axl::io::FileFlag_WriteOnly) && !isReadBufferFull && activeReadCount < readParallelism)
 		{
 			size_t newReadCount = readParallelism - activeReadCount;
 			for (size_t i = 0; i < newReadCount; i++)
