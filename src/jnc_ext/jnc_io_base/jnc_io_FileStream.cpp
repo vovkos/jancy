@@ -81,21 +81,6 @@ FileStream::open (
 	}
 
 #if (_JNC_OS_WIN)
-	dword_t pipeMode = 0;
-	if (m_options & FileStreamOption_MessageNamedPipe)
-	{
-		pipeMode = PIPE_READMODE_MESSAGE;
-		m_options |= AsyncIoOption_KeepReadBlockSize;
-	}
-
-	result = ::SetNamedPipeHandleState (m_file.m_file, &pipeMode, NULL, NULL) != 0;
-	if (!result)
-	{
-		err::setLastSystemError ();
-		propagateLastError ();
-		return false;
-	}
-
 	dword_t type = ::GetFileType (m_file.m_file);
 	switch (type)
 	{
@@ -114,6 +99,24 @@ FileStream::open (
 	default:
 		m_fileStreamKind = FileStreamKind_Unknown;
 	};
+
+	if (m_fileStreamKind == FileStreamKind_Pipe)
+	{
+		dword_t pipeMode = 0;
+		if (m_options & FileStreamOption_MessageNamedPipe)
+		{
+			pipeMode = PIPE_READMODE_MESSAGE;
+			m_options |= AsyncIoOption_KeepReadBlockSize;
+		}
+
+		result = ::SetNamedPipeHandleState (m_file.m_file, &pipeMode, NULL, NULL) != 0;
+		if (!result)
+		{
+			err::setLastSystemError ();
+			propagateLastError ();
+			return false;
+		}
+	}
 
 	ASSERT (!m_overlappedIo);
 	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
