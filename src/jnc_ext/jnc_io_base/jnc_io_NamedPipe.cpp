@@ -70,7 +70,13 @@ NamedPipe::open (DataPtr namePtr)
 
 	close ();
 
-	m_pipeName = (const char*) namePtr.m_p;
+	m_pipeName = L"\\\\.\\pipe\\";
+
+	sl::StringRef name ((const char*) namePtr.m_p);
+	if (name.isPrefix ("\\\\.\\pipe\\"))
+		m_pipeName += name.getSubString (4);
+	else
+		m_pipeName += name;
 
 	uint_t pipeMode = m_options & FileStreamOption_MessageNamedPipe ?
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
