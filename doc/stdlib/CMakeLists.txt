@@ -43,6 +43,7 @@ set (
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_ssh/jnc
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_pcap/jnc
 	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_usb/jnc
+	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_devmon/jnc
 	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 	)
 
@@ -57,7 +58,7 @@ set (
 	-D g_introFile=intro.rst
 	-D g_language=jancy
 	-D g_globalDefFile=def.rst
-	-D g_extraPageList=m_syncId.rst,disposable.rst,errorcode.rst
+	-D g_extraPageList=syncId.rst,disposable.rst,errorcode.rst
 	-f c_index.rst.in
 	)
 

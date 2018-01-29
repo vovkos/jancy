@@ -14,6 +14,9 @@ import "io_lnx_DeviceMonitorNotify.jnc"
 
 namespace io {
 
+//! \addtogroup devmon
+//! @{
+
 //..............................................................................
 
 bitflag enum DeviceMonitorEvents
@@ -142,5 +145,7 @@ opaque class DeviceMonitor
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

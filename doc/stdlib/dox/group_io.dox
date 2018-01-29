@@ -90,4 +90,13 @@
 
 	This section describes types and facilities used for accessing USB devices with ``libusb``.
 
+\defgroup devmon
+
+	\title Device Monitoring
+	\ingroup iolib
+
+	\import io_devmon.jncx
+
+	This section describes types and facilities used for hook-based device monitoring (via *Tibbo Device Monitor*).
+
 */

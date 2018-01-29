@@ -9,8 +9,14 @@
 //
 //..............................................................................
 
+import "io_win_DeviceMonitorNotify.jnc"
+import "io_lnx_DeviceMonitorNotify.jnc"
+
 namespace io {
 namespace win {
+
+//! \addtogroup devmon
+//! @{
 
 //..............................................................................
 
@@ -167,7 +173,7 @@ struct DeviceMonitorKeyboardInput // binary compatible with WDK KEYBOARD_INPUT_D
 	uint16_t m_scanCode;
 	uint16_t m_flags;
 	uint16_t m_reserved;
-	uint32_t  m_extraInformation;
+	uint32_t m_extraInformation;
 }
 
 struct DeviceMonitorMouseEventParams
@@ -214,6 +220,8 @@ struct DeviceMonitorMouseInput // binary compatible with WDK MOUSE_INPUT_DATA
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace win
 } // namespace io

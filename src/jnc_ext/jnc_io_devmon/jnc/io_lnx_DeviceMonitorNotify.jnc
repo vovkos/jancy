@@ -9,8 +9,14 @@
 //
 //..............................................................................
 
+import "io_win_DeviceMonitorNotify.jnc"
+import "io_lnx_DeviceMonitorNotify.jnc"
+
 namespace io {
 namespace lnx {
+
+//! \addtogroup devmon
+//! @{
 
 //..............................................................................
 
@@ -65,6 +71,8 @@ struct DeviceMonitorIoctlNotifyParams
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace lnx
 } // namespace io

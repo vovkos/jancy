@@ -11,8 +11,8 @@
 
 .. _sync-id:
 
-m_syncId Model Explanation
-==========================
+syncId Model Explanation
+========================
 
 When working with asynchronous IO interfaces, you need to take care of one subtle issue.
 
