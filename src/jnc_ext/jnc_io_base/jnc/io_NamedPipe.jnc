@@ -22,7 +22,9 @@ namespace io {
 	\import io_base.jncx
 	\import io_FileStream.jnc
 
-	\brief This enumeration contains codes of all possible events that might happen on `io.NamedPipe` object.
+	\brief This enumeration contains codes of all possible events that might
+	happen on `io.NamedPipe` object. The set of *active* events is accessible
+	via `io.NamedPipe.m_activeEvents`.
 
 	\sa `io.NamedPipe`
 */
@@ -30,7 +32,8 @@ namespace io {
 bitflag enum NamedPipeEvents
 {
 	/**
-		An IO error occured on the named pipe server; detailed information about the error is available at `io.NamedPipe.m_ioError`.
+		An IO error occured on the named pipe server; detailed information about
+		the error is available at `io.NamedPipe.m_ioError`.
 	*/
 
 	IoError,
@@ -44,68 +47,29 @@ bitflag enum NamedPipeEvents
 	\import io_base.jncx
 	\import io_NamedPipe.jnc
 
-	\brief This class provides high-level asynchronous interface for the *server* side of Windows named pipes. Windows named pipes are widely used for IPC (Inter-Process Communications) between applications, services and drivers on Windows platform.
+	\brief This class provides high-level asynchronous interface for the
+	*server* side of Windows named pipes. Windows named pipes are widely
+	used for IPC (Inter-Process Communications) between applications,
+	services and drivers on Windows platform.
 
-	For working from the *client* side of a named pipe, please use `io.File` class.
+	For working from the *client* side of a named pipe, please use `io.File`
+	class.
 
-	A typical sequence of steps when working with a named pipe server looks something like this:
+	A typical sequence of steps when working with a named pipe server looks
+	something like this:
 
-	* Assign your event handler using ``m_onIncomingConnection`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
 	* Open a server-side named pipe with ``open`` method;
-	* When ``m_onIncomingConnection`` event is fired, accept a client connection using ``accept`` method;
+	* Assign IO event handler with ``wait`` method. You would probably also
+	  want to *schedule* your event handler to be run in particular
+	  environment (e.g., in a specific thread) and partially apply some
+	  syncrhonization ID to discard late events;
+	* When `io.NamedPipeEvents.IncomingConnection` event is fired, accept a
+	  client connection using ``accept`` method;
 	* Communicate with the client via `io.FileStream` returned by ``accept``;
-	* Close named pipe server and accepted client file streams when no longer needed with ``close`` method.
+	* Close named pipe server and accepted client file streams when no longer
+	  needed with ``close`` method.
 
-	.. rubric:: Sample code:
-
-	.. ref-code-block::
-
-		class MyDialog
-		{
-			// ...
-
-			io.NamedPipe m_namedPipe;
-
-			construct ();
-			onIncomingConnection (uint_t syncId);
-			onFileStreamEvent (`io.FileStreamEventParams` const* params);
-		}
-
-		MyDialog.construct ()
-		{
-			// ...
-			m_namedPipe.m_onIncomingConnection += onIncomingConnection @ g_mainThreadScheduler;
-		}
-
-		MyDialog.onIncomingConnection (uint_t syncId)
-		{
-			if (syncId != m_namedPipe.m_syncId) // late event
-				return;
-
-			`io.FileStream`* fileStream = m_namedPipe.accept (); // file stream events are disabled on accept
-			fileStream.m_onFileStreamEvent += onFileStreamEvent ~(fileStream) @ g_mainThreadScheduler;
-			fileStream.m_isFileStreamEventEnabled = true; // enable events
-		}
-
-		MyDialog.onFileStreamEvent (
-			`io.FileStream`* fileStream,
-			`io.FileStreamEventParams` const* params
-			);
-		{
-			if (syncId != fileStream.m_syncId) // late event
-				return;
-
-			switch (params.m_code)
-			{
-			case `io.FileStreamEventCode.IncomingData`:
-				char buffer [256];
-				size_t size = fileStream.read (buffer, sizeof (buffer));
-				// ...
-				break;
-			}
-		}
-
-	\sa `io.File`, `io.FileStream`
+	\sa `io.NamedPipeEvents`, `io.File`, `io.FileStream`
 
 	\footnote f1
 
@@ -134,7 +98,8 @@ opaque class NamedPipe
 	std.Error const* readonly volatile m_ioError;
 
 	/**
-		Holds the open status for serial port, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for serial port, i.e. ``true`` if opened;
+		``false`` otherwise.
 	*/
 
 	bool readonly m_isOpen;
@@ -143,19 +108,30 @@ opaque class NamedPipe
 	destruct ();
 
 	/**
-		Opens server-side named pipe(s), effectively starting a named pipe server.
+		Opens server-side named pipe(s), effectively starting a named pipe
+		server.
 
-		The function accepts three arguments. The first one, ``name``, is used to specify the name of the server-side named pipe. The second one, ``flags``, allows you to set  The last and final one, ``backlog``, specifies the size of the server backlog. Server backlog is defined as the maximum length of the queue of *pending* client-side connections, i.e. connections which has not been accepted via ``accept`` method yet.
+		The function accepts three arguments. The first one, ``name``, is used
+		to specify the name of the server-side named pipe. The second one,
+		``flags``, allows you to set  The last and final one, ``backlog``,
+		specifies the size of the server backlog. Server backlog is defined as
+		the maximum length of the queue of *pending* client-side connections,
+		i.e. connections which has not been accepted via ``accept`` method yet.
 
-		Returns ``true`` on success. If the named pipe server could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If the named pipe server could not be
+		opened, IO error supplied by operating system is set and then the
+		function returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode open (char const* name);
 
 	/**
-		Closes all previously opened server-side named pipes in the backlog; does nothing if the named pipe server is not started. This function always succeeds.
+		Closes all previously opened server-side named pipes in the backlog;
+		does nothing if the named pipe server is not started. This function
+		always succeeds.
 
-		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``close`` [#f2]_.
 	*/
 
 	void close ();
@@ -167,9 +143,10 @@ opaque class NamedPipe
 	alias dispose = close;
 
 	/**
-		Accepts a client connection and returns a resulting `io.FileStream` object to communicate with this particular client. To terminate a client connection, issue ``close`` method on the client file stream object.
-
-		The new `io.FileStream` is created with events disabled. Turn events back on after assigning an event handler using `io.FileStream.m_isFileStreamEventEnabled` property.
+		Accepts a client connection and returns a resulting `io.FileStream`
+		object to communicate with this particular client. To terminate a
+		client connection, issue ``close`` method on the client file stream
+		object.
 
 		If method fails, ``null`` value is returned [#f1]_.
 	*/

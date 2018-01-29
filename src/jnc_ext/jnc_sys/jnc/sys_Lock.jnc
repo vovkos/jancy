@@ -23,11 +23,17 @@ namespace sys {
 /**
 	\import sys_Lock.jnc
 
-	\brief This class is used to ensure exclusive access to some shared resource.
+	\brief This class is used to ensure exclusive access to some shared
+	resource.
 
-	Only one thread at a time can *acquire* the ``sys.Lock`` object and hence, get exclusive access to some resource this ``sys.Lock`` object is being a guardian of. To do that, a thread calls ``lock`` method. Once it returns, the ``sys.Lock`` object is in *locked* state and this thread can exclusively access the associated resource.
+	Only one thread at a time can *acquire* the ``sys.Lock`` object and hence,
+	get exclusive access to some resource this ``sys.Lock`` object is being a
+	guardian of. To do that, a thread calls ``lock`` method. Once it returns,
+	the ``sys.Lock`` object is in *locked* state and this thread can exclusively
+	access the associated resource.
 
-	Any other thread trying to *acquire* it will wait until the original thread *releases* the lock with ``unlock`` method.
+	Any other thread trying to *acquire* it will wait until the original thread
+	*releases* the lock with ``unlock`` method.
 
 	Code sample::
 
@@ -67,13 +73,16 @@ opaque class Lock
 	destruct ();
 
 	/**
-		*Acquires* the lock. If the lock is already acquired by another thread, the current thread enters the wait queue for the lock. When the lock is released by other thread(s), the current thread acquires it.
+		*Acquires* the lock. If the lock is already acquired by another thread,
+		the current thread enters the wait queue for the lock. When the lock is
+		released by other thread(s), the current thread acquires it.
 	*/
 
 	lock ();
 
 	/**
-		*Releases* the lock. If other threads are waiting for the lock at the moment, the first one in the wait queue *acquires* the lock.
+		*Releases* the lock. If other threads are waiting for the lock at the
+		moment, the first one in the wait queue *acquires* the lock.
 	*/
 
 	unlock ();

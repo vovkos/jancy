@@ -23,15 +23,22 @@ namespace std {
 /**
 	\brief This struct describes a globally unique identifier (GUID).
 
-	GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.
+	GUIDs are 128-bit values often used as permanent labels which uniquely
+	identify some sort of information. Creation of GUIDs does not require any
+	significant central coordination.
 
-	In practice any two generated GUIDs could be assumed to be distinct -- even though neither of GUID generation algorithms could strictly guarantee uniqueness of generated identifiers. The probability of collision is too low and can be neglected in most practical applications.
+	In practice any two generated GUIDs could be assumed to be distinct -- even
+	though neither of GUID generation algorithms could strictly guarantee
+	uniqueness of generated identifiers. The probability of collision is too low
+	and can be neglected in most practical applications.
 
-	In Jancy standard library GUIDs are used to identify the type of an error (``NTSTATUS``, ``WinError``, ``errno``, ``string-error`` etc).
+	In Jancy standard library GUIDs are used to identify the type of an error
+	(``NTSTATUS``, ``WinError``, ``errno``, ``string-error`` etc).
 
 	This struct directly maps to ``struct UUID`` as defined in ``WinAPI``.
 
-	For more details about globally unique identifiers refer to: https://en.wikipedia.org/wiki/Globally_unique_identifier
+	For more details about globally unique identifiers refer to:
+	https://en.wikipedia.org/wiki/Globally_unique_identifier
 */
 
 struct Guid
@@ -55,7 +62,9 @@ struct Guid
 	uint16_t m_data3;
 
 	/**
-		Array of eight elements. The first two elements contain the third group of 4 hexadecimal digits of the GUID. The remaining six elements contain the final 12 hexadecimal digits of the GUID.
+		Array of eight elements. The first two elements contain the third group
+		of 4 hexadecimal digits of the GUID. The remaining six elements contain
+		the final 12 hexadecimal digits of the GUID.
 	*/
 
 	uint8_t m_data4 [8];

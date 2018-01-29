@@ -72,25 +72,29 @@ bitflag enum UsbEndpointOptions
 bitflag enum UsbEndpointEvents
 {
 	/**
-		An IO error occured on the USB endpoint; detailed information about the error is available at `io.UsbEndpoint.m_ioError`.
+		An IO error occured on the USB endpoint; detailed information about the
+		error is available at `io.UsbEndpoint.m_ioError`.
 	*/
 
 	IoError,
 
 	/**
-		More data is available on the USB endoint; this data could be fetched with `io.UsbEndpoint.read` method.
+		More data is available on the USB endoint; this data could be fetched
+		with `io.UsbEndpoint.read` method.
 	*/
 
 	IncomingData,
 
 	/**
-		IO USB endpoint receive buffer is full; upcoming data may be dropped (depending on the endpoint transfer type).
+		IO USB endpoint receive buffer is full; upcoming data may be dropped
+		(depending on the endpoint transfer type).
 	*/
 
 	ReadBufferFull,
 
 	/**
-		USB endpoint transmit buffer is ready to accept more data; it's OK to issue more `io.UsbEndpoint.write` requests.
+		USB endpoint transmit buffer is ready to accept more data; it's OK to
+		issue more `io.UsbEndpoint.write` requests.
 	*/
 
 	WriteBufferReady,

@@ -150,15 +150,16 @@ bitflag enum FileStreamEvents
 	A typical sequence of steps when working with a file stream looks something
 	like this:
 
-	* Assign your event handler using ``m_onFileStreamEvent`` (you would probably
-	  also want to *schedule* your event handler to be run in particular
-	  environment, e.g. in specific thread)
 	* Open a file stream with ``open`` method;
-	* When ``IncomingData`` event is fired, read from the file using ``read``
-	  method;
+	* Assign IO event handler with ``wait`` method. You would probably also
+	  want to *schedule* your event handler to be run in particular
+	  environment (e.g., in a specific thread) and partially apply some
+	  syncrhonization ID to discard late events;
+	* When `io.FileStreamEvents.IncomingData` event is fired, read from the file
+	  using ``read`` method;
 	* Write to the file stream using ``write`` method;
 	* Suspend writing if the return value of ``write`` is less than requested;
-	* Resume writing on ``WriteBufferReady`` event;
+	* Resume writing on `io.FileStreamEvents.WriteBufferReady` event;
 	* Close the file stream when no longer needed with ``close`` method.
 
 	.. rubric:: Sample code:
@@ -170,27 +171,46 @@ bitflag enum FileStreamEvents
 			// ...
 
 			io.FileStream m_fileStream;
+			uint_t m_syncId;
 
-			construct ();
 			open (char const* fileName);
-			onWriteButtonClicked ();
-			onFileStreamEvent (`io.FileStreamEventParams` const* params);
-		}
+			close ();
+			waitFileStreamEvents ();
 
-		MyDialog.construct ()
-		{
-			// ...
-			m_fileStream.m_onFileStreamEvent +=
-				onFileStreamEvent @ g_mainThreadScheduler;
+			onWriteButtonClicked ();
+
+			onFileStreamEvent (
+				uint_t syncId,
+				`io.FileStreamEvents` triggeredEvents
+				);
 		}
 
 		MyDialog.open (char const* fileName)
-			bool result = try m_fileStream.open (fileName);
 		{
+			bool result = try m_fileStream.open (fileName);
 			if (!result)
 			{
-				// handle the error...
+				char const* errorString = std.getLastError ().m_description;
+				// ...
 			}
+
+			waitFileStreamEvents ();
+		}
+
+		MyDialog.close ()
+		{
+			m_fileStream.close ();
+			m_syncId++; // events past this point will be discarded as 'late'
+		}
+
+		MyDialog.waitFileStreamEvent ()
+		{
+			`io.FileStreamEvents` eventMask =
+				`io.FileStreamEvents.IoError` |
+				`io.FileStreamEvents.IncomingData`;
+
+			m_fileStream.wait (eventMask, onFileStreamEvent ~(++m_syncId) @
+				g_mainThreadScheduler);
 		}
 
 		MyDialog.onWriteButtonClicked ()
@@ -199,19 +219,28 @@ bitflag enum FileStreamEvents
 			m_fileStream.write (data, sizeof (data));
 		}
 
-		MyDialog.onFileStreamEvent (`io.FileStreamEventParams` const* params)
+		MyDialog.onFileStreamEvent (
+			uint_t syncId,
+			`io.FileStreamEvents` triggeredEvents
+			)
 		{
-			if (params.m_syncId != m_fileStream.m_syncId) // late event
+			if (syncId != m_syncId) // late event
 				return;
 
-			switch (params.m_code)
+			if (triggeredEvents & `io.FileStreamEvents.IoError`)
 			{
-			case `io.FileStreamEventCode.IncomingData`:
+				char const* errorString = m_fileStream.m_ioError.m_description;
+				// ...
+			}
+
+			if (triggeredEvents & `io.FileStreamEvents.IncomingData`)
+			{
 				char buffer [256];
 				size_t size = m_fileStream.read (buffer, sizeof (buffer));
 				// ...
-				break;
 			}
+
+			waitFileStreamEvents (); // restart wait
 		}
 
 	\sa `io.FileStreamEvents`, `io.File`, `io.NamedPipe`, `io.Mailslot`

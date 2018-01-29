@@ -73,12 +73,13 @@ bitflag enum MailslotEvents
 	A typical sequence of steps when working with a mailslot looks something
 	like this:
 
-	* Assign your event handler using ``m_onMailslotEvent`` (you would probably
-	  also want to *schedule* your event handler to be run in particular
-	  environment, e.g. in specific thread)
 	* Open a mailslot with ``open`` method;
-	* When ``IncomingData`` event is fired, read from the mailslot using
-	  ``read`` method;
+	* Assign IO event handler with ``wait`` method. You  would probably also
+	  want to *schedule* your event handler to be run in particular
+	  environment (e.g., in a specific thread) and partially apply some
+	  syncrhonization ID to discard late events;
+	* When `io.MailslotEvents.IncomingData` event is fired, read from the
+	  mailslot using ``read`` method;
 	* Close the mailslot when no longer needed with ``close`` method.
 
 	.. rubric:: Sample code:
@@ -90,32 +91,70 @@ bitflag enum MailslotEvents
 			// ...
 
 			io.Mailslot m_mailslot;
+			uint_t m_syncId;
 
-			construct ();
-			onMailslotEvent (`io.MailslotEventParams` const* params);
+			open (char const* fileName);
+			close ();
+			waitMailslotEvents ();
+
+			onMailslotEvent (
+				uint_t syncId,
+				`io.MailslotEvents` triggeredEvents
+				);
 		}
 
-		MyDialog.construct ()
+		MyDialog.open (char const* fileName)
 		{
-			// ...
-			m_mailslot.m_onMailslotEvent +=
-				onMailslotEvent @ g_mainThreadScheduler;
+			bool result = try m_mailslot.open (fileName);
+			if (!result)
+			{
+				char const* errorString = std.getLastError ().m_description;
+				// ...
+			}
+
+			waitMailslotEvents ();
 		}
 
-		MyDialog.onMailslotEvent (`io.MailslotEventParams` const* params)
+		MyDialog.close ()
 		{
-			if (params.m_syncId != m_mailslot.m_syncId) // late event
+			m_mailslot.close ();
+			m_syncId++; // events past this point will be discarded as 'late'
+		}
+
+		MyDialog.waitMailslotEvent ()
+		{
+			`io.MailslotEvents` eventMask =
+				`io.MailslotEvents.IoError` |
+				`io.MailslotEvents.IncomingData`;
+
+			m_mailslot.wait (eventMask, onMailslotEvent ~(++m_syncId) @
+				g_mainThreadScheduler);
+		}
+
+		MyDialog.onMailslotEvent (
+			uint_t syncId,
+			`io.FileStreamEvents` triggeredEvents
+			)
+		{
+			if (syncId != m_syncId) // late event
 				return;
 
-			switch (params.m_code)
+			if (triggeredEvents & `io.MailslotEvents.IoError`)
 			{
-			case `io.mailslotEventCode.IncomingData`:
+				char const* errorString = m_mailslot.m_ioError.m_description;
+				// ...
+			}
+
+			if (triggeredEvents & `io.MailslotEvents.IncomingData`)
+			{
 				char buffer [256];
 				size_t size = m_mailslot.read (buffer, sizeof (buffer));
 				// ...
-				break;
 			}
+
+			waitMailslotEvents (); // restart wait
 		}
+
 
 	\sa `io.MailslotEvents`, `io.File`, `io.FileStream`
 

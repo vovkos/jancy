@@ -23,83 +23,98 @@ namespace io {
 /**
 	\import io_ssh.jncx
 
-	\brief This enumeration contains codes of all possible events that might happen on `io.SshChannel` object.
+	\brief This enumeration contains codes of all possible events that might
+	happen on `io.SshChannel` object. The set of *active* events is accessible
+	via `io.SshChannel.m_activeEvents`.
 
-	When `io.SshChannel` object is about to fire an event, it allocates an `io.SshEventParams` structure, sets `io.SshEventParams.m_eventCode` field to one of the values below, fills other relevant fields of and then calls all subscribers of `io.SshChannel.m_onSshEvent`.
-
-	\sa `io.SshChannel`, `io.SshEventParams`
+	\sa `io.SshChannel`
 */
 
 bitflag enum SshEvents
 {
 	/**
-		An IO error occured on the SSH channel; detailed information about the error is available at `io.AsyncDevice.m_ioError`.
+		An IO error occured on the SSH channel; detailed information about the
+		error is available at `io.SshChannel.m_ioError`.
 	*/
 
 	IoError,
 
 	/**
-		More data is available on the socket; this data could be fetched with `io.SshChannel.read` method.
+		More data is available on the socket; this data could be fetched with
+		`io.SshChannel.read` method.
 	*/
 
 	IncomingData,
 
 	/**
-		Socket receive buffer is full (data is arriving faster than the application is able to read it).
+		Socket receive buffer is full (data is arriving faster than the
+		application is able to read it).
 	*/
 
 	ReadBufferFull,
 
 	/**
-		Socket transmit buffer is ready to accept more data; it's OK to issue more `io.SshChannel.write` requests.
+		Socket transmit buffer is ready to accept more data; it's OK to issue
+		more `io.SshChannel.write` requests.
 	*/
 
 	WriteBufferReady,
 
 	/**
-		``SSH`` channel has been closed by the remote server. Note that if connection was terminated by the local node (using `io.SshChannel.close`), ``Disconnect`` event is **not** fired.
+		``SSH`` channel has been closed by the remote server. Note that if
+		connection was terminated by the local node (using
+		`io.SshChannel.close`), ``Disconnect`` event is **not** fired.
 	*/
 
 	TcpDisconnected,
 
 	/**
-		Underlying ``TCP`` connection has been established; ``SSH`` handshake has been initialated.
+		Underlying ``TCP`` connection has been established; ``SSH`` handshake
+		has been initialated.
 	*/
 
 	TcpConnectCompleted,
 
 	/**
-		``SSH`` handshake and protocol information exchange has been completed successfully; an authentication request has been set.
+		``SSH`` handshake and protocol information exchange has been completed
+		successfully; an authentication request has been set.
 	*/
 
 	SshHandshakeCompleted,
 
 	/**
-		``SSH`` authentication has failed. You have a chance to re-authenticate: ask user for new credentials and then call `io.SshChannel.authenticate`.
+		``SSH`` authentication has failed. You have a chance to re-authenticate:
+		ask user for new credentials and then call `io.SshChannel.authenticate`.
 	*/
 
 	SshAuthenticateError,
 
 	/**
-		``SSH`` authentication has been completed successfully; a request to open a channel has been sent.
+		``SSH`` authentication has been completed successfully; a request to
+		open a channel has been sent.
 	*/
 
 	SshAuthenticateCompleted,
 
 	/**
-		``SSH`` channel to the server has been opened successfully; a request for a specific pseudo-terminal (such as ``xterm``) has been sent.
+		``SSH`` channel to the server has been opened successfully; a request
+		for a specific pseudo-terminal (such as ``xterm``) has been sent.
 	*/
 
 	SshChannelOpened,
 
 	/**
-		Request to the ``SSH`` server for a specific pseudo-terminal (such as ``xterm``) has been completed successfully; request to start a remote process (such as ``shell``) has been sent.
+		Request to the ``SSH`` server for a specific pseudo-terminal (such as
+		``xterm``) has been completed successfully; request to start a remote
+		process (such as ``shell``) has been sent.
 	*/
 
 	SshPtyRequestCompleted,
 
 	/**
-		A remote process (such as ``shell``) has been started; the full ``SSH`` connect sequence has been completed successfully. ``SSH`` channel is ready to use.
+		A remote process (such as ``shell``) has been started; the full ``SSH``
+		connect sequence has been completed successfully. ``SSH`` channel is
+		ready to use.
 	*/
 
 	SshConnectCompleted,
@@ -110,21 +125,29 @@ bitflag enum SshEvents
 /**
 	\import io_ssh.jncx
 
-	\brief This class provides high-level asynchronous interface for client-side SSH connections.
+	\brief This class provides high-level asynchronous interface for client-side
+	SSH connections.
 
 	Under the hood ``io.SshChannel`` uses libssh2 library.
 
-	A typical sequence of steps when establishing an SSH connection looks like this:
+	A typical sequence of steps when establishing an SSH connection looks like
+	this:
 
-	* Assign your event handler using ``m_onSshEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread);
 	* Call ``open`` method to open underlying socket;
 	* Call ``connect`` method to initate connection to ``SSH`` server;
-	* If ``SshAuthError`` event is fired, you can re-authenticate using ``authenticate`` method;
-	* Wait until ``ConnectCompleted`` or ``ConnectError`` event;
-	* When ``IncomingData`` event is fired, read from the file using ``read`` method;
+	* Assign IO event handler with ``wait`` method. You would probably also
+	  want to *schedule* your event handler to be run in particular
+	  environment (e.g., in a specific thread) and partially apply some
+	  syncrhonization ID to discard late events;
+	* If `io.SshEvents.SshAuthenticateError` event is fired, you can
+	  re-authenticate using ``authenticate`` method;
+	* Wait until `io.SshEvents.SshConnectCompleted` or `io.SshEvents.IoError`
+	  event;
+	* When `io.SshEvents.IncomingData` event is fired, read from the file using
+	  ``read`` method;
 	* Write to the file stream using ``write`` method;
 	* Suspend writing if the return value of ``write`` is less than requested;
-	* Resume writing on ``WriteBufferReady`` event;
+	* Resume writing on `io.SshEvents.WriteBufferReady` event;
 	* Close the SSH channel when no longer needed with ``close`` method.
 
 	.. rubric:: Sample code:
@@ -136,6 +159,7 @@ bitflag enum SshEvents
 			// ...
 
 			io.SshChannel m_ssh;
+			uint_t m_syncId;
 
 			construct ();
 
@@ -144,14 +168,15 @@ bitflag enum SshEvents
 				uint_t baudRate
 				);
 
-			onWriteButtonClicked ();
-			onSshEvent (`io.SshEventParams` const* params);
-		}
+			close ();
+			waitSshEvents ();
 
-		MyDialog.construct ()
-		{
-			// ...
-			m_ssh.m_onSshEvent += onSshEvent @ g_mainThreadScheduler;
+			onWriteButtonClicked ();
+
+			onSshEvent (
+				uint_t syncId,
+				`io.SshEvents` triggeredEvents
+				);
 		}
 
 		MyDialog.connect (
@@ -166,46 +191,78 @@ bitflag enum SshEvents
 			m_ssh.open ();
 			m_ssh.connect (sockAddr, userName, password);
 
+			waitSshEvents ();
+
 		catch:
 			// handle the error...
 		}
 
-		MyDialog.onSendButtonClicked ()
+		MyDialog.close ()
+		{
+			m_serial.close ();
+			m_syncId++; // events past this point will be discarded as 'late'
+		}
+
+		MyDialog.waitSshEvent ()
+		{
+			`io.SshEvents` eventMask =
+				`io.SshEvents.IoError` |
+				`io.SshEvents.SshAuthenticateError` |
+				`io.SshEvents.IncomingData`;
+
+			if (!(m_ssh.m_activeEvents & `io.SshEvents.SshConnectCompleted`))
+				eventMask |= `io.SshEvents.SshConnectCompleted`;
+
+			m_ssh.wait (eventMask, onPcapEvent ~(++m_syncId) @
+				g_mainThreadScheduler);
+		}
+
+		MyDialog.onWriteButtonClicked ()
 		{
 			static char data [] = "a quick brown fox jumps over the lazy dog";
-			m_ssh.send (data, sizeof (data));
+			m_ssh.write (data, sizeof (data));
 		}
 
-		MyDialog.onSshEvent (`io.SshEventParams` const* params)
+		MyDialog.onSshEvent (
+			uint_t syncId,
+			`io.SshEvents` triggeredEvents
+			)
 		{
-			if (params.m_syncId != m_ssh.m_syncId) // late event
+			if (syncId != m_syncId) // late event
 				return;
 
-			switch (params.m_code)
+			if (triggeredEvents & `io.SshEvents.IoError`)
 			{
-			case `io.SshEventCode.SshAuthError`:
-				// show some kind of login dialog...
-				// ... then re-authenticate:
-				m_ssh.authenticate (userName, password);
-				break;
-
-			case `io.SshEventCode.ConnectError`:
-				// handle error (extended info is at: params.m_error)...
-				break;
-
-			case `io.SshEventCode.ConnectCompleted`:
-				// handle successfull connection...
-				break;
-
-			case `io.SshEventCode.IncomingData`:
-				char buffer [256];
-				size_t size = m_ssh.recv (buffer, sizeof (buffer));
+				char cont* errorString = m_ssh.m_ioError.m_description;
 				// ...
-				break;
 			}
+
+			if (triggeredEvents & `io.SshEvents.SshAuthenticateError`)
+			{
+				// show some kind of login dialog ...
+				// ...
+				// ... then re-authenticate:
+
+				m_ssh.authenticate (userName, password);
+			}
+
+			if (triggeredEvents & `io.SshEvents.SshConnectCompleted`)
+			{
+				// SSH channel established
+			}
+
+			if (triggeredEvents & `io.SshEvents.IncomingData`)
+			{
+				char buffer [256];
+				size_t size = m_ssh.read (buffer, sizeof (buffer));
+				// ...
+			}
+
+			waitSshEvents (); // restart wait
 		}
 
-	\sa `io.Socket`, `io.SocketAddress`, `io.SocketAddressResolver`
+	\sa `io.SshEvents`, `io.Socket`, `io.SocketAddress`,
+	`io.SocketAddressResolver`
 
 	\footnote f1
 
@@ -223,13 +280,16 @@ bitflag enum SshEvents
 opaque class SshChannel
 {
 	/**
-		This property is used for getting the local address assigned to this socket. If the address has not been assigned yet, returns empty address.
+		This property is used for getting the local address assigned to this
+		socket. If the address has not been assigned yet, returns empty address.
 	*/
 
 	SocketAddress const property m_address;
 
 	/**
-		This property is used for getting the remote address of the peer this socket is connected to. If the connection has not been established yet, returns empty address.
+		This property is used for getting the remote address of the peer this
+		socket is connected to. If the connection has not been established yet,
+		returns empty address.
 	*/
 
 	SocketAddress const property m_peerAddress;
@@ -244,7 +304,8 @@ opaque class SshChannel
 	std.Error const* readonly volatile m_ioError;
 
 	/**
-		Holds the open status for the socket, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for the socket, i.e. ``true`` if opened; ``false``
+		otherwise.
 	*/
 
 	bool readonly m_isOpen;
@@ -256,7 +317,9 @@ opaque class SshChannel
 	/**
 		Opens a ``TCP`` socket this connection will use for transport.
 
-		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If a new socket could not be opened, IO
+		error supplied by operating system is set and then the function returns
+		``false`` [#f1]_.
 	*/
 
 	bool errorcode open (AddressFamily family);
@@ -264,15 +327,19 @@ opaque class SshChannel
 	/**
 		Opens a ``TCP`` socket this connection will use for transport.
 
-		Returns ``true`` on success. If a new socket could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If a new socket could not be opened, IO
+		error supplied by operating system is set and then the function returns
+		``false`` [#f1]_.
 	*/
 
 	bool errorcode open (SocketAddress const* address);
 
 	/**
-		Closes ``SSH`` channel and underlying ``TCP`` socket; does nothing if connection is not and not being established.
+		Closes ``SSH`` channel and underlying ``TCP`` socket; does nothing if
+		connection is not and not being established.
 
-		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``close`` [#f2]_.
 	*/
 
 	void close ();
@@ -289,14 +356,24 @@ opaque class SshChannel
 		The meanings of the arguments for this function are as follows:
 
 		* ``address`` specifes the remote ``SSH`` server to connect to;
-		* ``userName`` and ``password`` specify user credential used to login to this SSH server;
-		* ``channelType`` specifies the type of the channel to establish (typically, ``session``; can also be ``direct-tcpip``, ``tcpip-forward`` etc);
-		* ``processType`` specifies what kind of process to run on the server side of this ``SSH`` channel (typically, ``shell``; can also be ``exec``, ``subsystem`` etc);
-		* ``ptyType`` specifies what type of pseudo terminal kind of process to run on the server side of this ``SSH`` channel (typically, ``xterm``; can also be ``ansi``, ``vanilla`` etc);
-		* ``ptyWidth`` and ``ptyHeight`` specify the size of the pseudo-terminal;
+		* ``userName`` and ``password`` specify user credential used to login to
+		  this SSH server;
+		* ``channelType`` specifies the type of the channel to establish
+		  (typically, ``session``; can also be ``direct-tcpip``,
+		  ``tcpip-forward``, etc);
+		* ``processType`` specifies what kind of process to run on the server
+		  side of this ``SSH`` channel (typically, ``shell``; can also be
+		  ``exec``, ``subsystem`` etc);
+		* ``ptyType`` specifies what type of pseudo terminal kind of process to
+		  run on the server side of this ``SSH`` channel (typically, ``xterm``;
+		  can also be ``ansi``, ``vanilla`` etc);
+		* ``ptyWidth`` and ``ptyHeight`` specify the size of the
+		  pseudo-terminal;
 		* ``isSync`` specifies whether this is a synchronous connect.
 
-		Returns ``true`` on success. If a connection could not be initiated, corresponding error is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If a connection could not be initiated,
+		corresponding error is set and then the function returns ``false``
+		[#f1]_.
 	*/
 
 	bool errorcode connect (
@@ -315,7 +392,8 @@ opaque class SshChannel
 	/**
 		Sends a request to SSH server to re-authenticate on ``AuthError`` event.
 
-		Returns ``true`` on success. If re-authenticate request could not be sent, returns ``false`` [#f1]_.
+		Returns ``true`` on success. If re-authenticate request could not be
+		sent, returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode authenticate (
@@ -326,9 +404,13 @@ opaque class SshChannel
 		);
 
 	/**
-		Sends a request to SSH server to resize pseudo-terminal to ``width`` x ``height``. If ``isSync`` is ``true`` then this method does not return until the remote server completes the request.
+		Sends a request to SSH server to resize pseudo-terminal to ``width`` x
+		``height``. If ``isSync`` is ``true`` then this method does not return
+		until the remote server completes the request.
 
-		Returns ``true`` on success. If pseudo-terminal could not be resized, error returned by the remote server is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If pseudo-terminal could not be resized,
+		error returned by the remote server is set and then the function returns
+		``false`` [#f1]_.
 	*/
 
 	bool errorcode resizePty (
@@ -337,11 +419,17 @@ opaque class SshChannel
 		);
 
 	/**
-		Attempts to receive up to ``size`` bytes from the SSH socket into the buffer pointed to by ``p``.
+		Attempts to receive up to ``size`` bytes from the SSH socket into the
+		buffer pointed to by ``p``.
 
-		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+		Returns the actual amount of bytes read on success. If read operation
+		is unsuccessful, IO error supplied by the operating system is set and
+		then the function returns ``-1`` [#f1]_.
 
-		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the socket is closed.
+		Normally you would call this function from within your event handler
+		for ``IncomingData`` event. If this function is called when there is
+		no incoming data, it blocks until either the data arrives, or the socket
+		is closed.
 	*/
 
 	size_t errorcode read (
@@ -350,11 +438,17 @@ opaque class SshChannel
 		);
 
 	/**
-		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over the established SSH channel.
+		Attempts to send ``size`` bytes from the buffer pointed to by ``p`` over
+		the established SSH channel.
 
-		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+		Returns the actual amount of bytes written on success. If write
+		operation is unsuccessful, IO error supplied by the operating system is
+		set and then the function returns ``-1`` [#f1]_.
 
-		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``WriteBufferReady`` event is fired and transmission could be resumed.
+		If the return value shows *less* bytes than specified by ``size``
+		argument, you should suspend further transmission until the file stream
+		is ready to accept more data. When this happens, ``WriteBufferReady``
+		event is fired and transmission could be resumed.
 	*/
 
 	size_t errorcode write (

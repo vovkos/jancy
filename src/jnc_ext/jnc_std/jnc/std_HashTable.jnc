@@ -34,15 +34,20 @@ typedef bool IsEqualFunc (
 /**
 	\import std_HashTable.jnc
 
-	\brief This class provides a hash-table-based mapping from ``variant``-s to ``variant``-s.
+	\brief This class provides a hash-table-based mapping from ``variant``-s to
+	``variant``-s.
 
-	``std.HashTable`` stores ``(key; value)`` pairs and provides fast lookup of the ``value`` associated with a ``key``.
+	``std.HashTable`` stores ``(key; value)`` pairs and provides fast lookup of
+	the ``value`` associated with a ``key``.
 
-	A typical sequence of steps when working with a hash table usually looks like this:
+	A typical sequence of steps when working with a hash table usually looks
+	like this:
 
-	* Add ``(key; value)`` pairs using ``add`` method (or by accessing the *indexer* property);
+	* Add ``(key; value)`` pairs using ``add`` method (or by accessing the
+	  *indexer* property);
 	* Remove ``(key; value)`` pairs using ``remove`` or ``removeKey`` methods;
-	* Find ``value`` associated with a ``key`` using ``find``, ``findValue`` method (or by accessing the *indexer* property).
+	* Find ``value`` associated with a ``key`` using ``find``, ``findValue``
+	  method (or by accessing the *indexer* property).
 
 	.. rubric:: Sample code:
 
@@ -92,7 +97,9 @@ opaque class HashTable
 	}
 
 	/**
-		Provides a map-style access to the hash table. Reading from this property results in calling ``find`` method; writing to this property results in calling ``insert`` method.
+		Provides a map-style access to the hash table. Reading from this
+		property results in calling ``find`` method; writing to this property
+		results in calling ``insert`` method.
 	*/
 
 	variant get (variant key)
@@ -119,7 +126,8 @@ opaque class HashTable
 	/**
 		Looks up a value associated with the key ``key``.
 
-		If the value is found, it is copied to the buffer pointed to by ``value``; then ``find`` method returns ``true``.
+		If the value is found, it is copied to the buffer pointed to by
+		``value``; then ``find`` method returns ``true``.
 
 		Returns ``false`` if key ``key`` is not found.
 	*/
@@ -129,9 +137,10 @@ opaque class HashTable
 	/**
 		Looks up a value associated with the key ``key``.
 
-		Returns the found value or ``null`` if the value is not found.
+		Returns the found value or ``undefinedValue`` if the value is not found.
 
-		The limitation of this overload is that it's impossible to distinguish between ``null`` being stored as a value associated with ``key`` and ``null`` returned as an indication of *key-not-found*.
+		``undefinedValue`` must be chosen distinct from all the possible values
+		in the hash table so it can be used as a *key-not-found* token.
 	*/
 
 	variant findValue (
@@ -146,7 +155,9 @@ opaque class HashTable
 	/**
 		Adds a new ``(key; value)`` pair into the hash table.
 
-		If ``key`` is already in the hash, ``insert`` re-writes the value of existing association with the new value specified by the ``value`` argument.
+		If ``key`` is already in the hash, ``insert`` re-writes the value of
+		existing association with the new value specified by the ``value``
+		argument.
 	*/
 
 	MapEntry* errorcode add (
@@ -164,7 +175,8 @@ opaque class HashTable
 	/**
 		Finds and deletes ``key`` from the hash table.
 
-		Returns ``true`` if ``key`` was found and ``(key; value)`` pair successfully deleted.
+		Returns ``true`` if ``key`` was found and ``(key; value)`` pair
+		successfully deleted.
 
 		Returns ``false`` if ``key`` was not found.
 	*/

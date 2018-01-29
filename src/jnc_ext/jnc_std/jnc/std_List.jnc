@@ -31,19 +31,22 @@ namespace std {
 struct ListEntry
 {
 	/**
-		Holds a pointer to the next list entry on the list or ``null`` if this is the last entry.
+		Holds a pointer to the next list entry on the list or ``null`` if this
+		is the last entry.
 	*/
 
 	ListEntry cmut* readonly m_next;
 
 	/**
-		Holds a pointer to the previous list entry on the list or ``null`` if this is the first entry.
+		Holds a pointer to the previous list entry on the list or ``null`` if
+		this is the first entry.
 	*/
 
 	ListEntry cmut* readonly m_prev;
 
 	/**
-		Opaque field used for internal validation of the list entry. Must be ignored in user code.
+		Opaque field used for internal validation of the list entry. Must be
+		ignored in user code.
 	*/
 
 	intptr_t readonly m_validator;
@@ -60,13 +63,19 @@ struct ListEntry
 /**
 	\import std_List.jnc
 
-	\brief This class provides a doubly linked list container for ``variant`` values.
+	\brief This class provides a doubly linked list container for ``variant``
+	values.
 
-	A typical sequence of steps when working with a doubly linked list usually looks like this:
+	A typical sequence of steps when working with a doubly linked list usually
+	looks like this:
 
-	* Add items using *insert* methods: ``insertHead``, ``insertTail``, ``insertBefore``, ``insertAfter``;
-	* Remove items using *remove* methods: ``removeHead``, ``removeTail``, ``removeBefore``, ``removeAfter``, ``remove``;
-	* Iterate over items by starting with ``m_head`` or ``m_tail`` and then move to the next element by inspecting `std.ListEntry.m_next` or `std.ListEntry.m_prev`.
+	* Add items using *insert* methods: ``insertHead``, ``insertTail``,
+	  ``insertBefore``, ``insertAfter``;
+	* Remove items using *remove* methods: ``removeHead``, ``removeTail``,
+	  ``removeBefore``, ``removeAfter``, ``remove``;
+	* Iterate over items by starting with ``m_head`` or ``m_tail`` and then move
+	  to the next element by inspecting `std.ListEntry.m_next` or
+	  `std.ListEntry.m_prev`.
 
 	.. rubric:: Sample code:
 
@@ -95,13 +104,15 @@ struct ListEntry
 class List
 {
 	/**
-		Holds a pointer to the *list head* (the first element of the list) or ``null`` if the list is empty.
+		Holds a pointer to the *list head* (the first element of the list) or
+		``null`` if the list is empty.
 	*/
 
 	ListEntry* readonly m_head;
 
 	/**
-		Holds a pointer to the *list tail* (the last element of the list) or ``null`` if the list is empty.
+		Holds a pointer to the *list tail* (the last element of the list) or
+		``null`` if the list is empty.
 	*/
 
 	ListEntry* readonly m_tail;
@@ -121,9 +132,12 @@ class List
 	/**
 		Moves all the elements from the source list ``list`` to this list.
 
-		After the take-over, ``list`` will be empty and this list will contain the same elements as ``list`` originally did.
+		After the take-over, ``list`` will be empty and this list will contain
+		the same elements as ``list`` originally did.
 
-		This operation is performed in constant time no matter the size of the source list -- so it's always more efficient than clearing the list first and then adding all the items from the source list in a loop.
+		This operation is performed in constant time no matter the size of the
+		source list -- so it's always more efficient than clearing the list
+		first and then adding all the items from the source list in a loop.
 	*/
 
 	takeOver (List* list);
@@ -158,7 +172,8 @@ class List
 	ListEntry* errorcode insertTail (variant data);
 
 	/**
-		Inserts item ``data`` before the item entry pointed to by ``entry`` argument.
+		Inserts item ``data`` before the item entry pointed to by ``entry``
+		argument.
 
 		If ``entry == null`` then this method is equivalent to ``insertTail``.
 
@@ -171,7 +186,8 @@ class List
 		);
 
 	/**
-		Inserts item ``data`` after the item entry pointed to by ``entry`` argument.
+		Inserts item ``data`` after the item entry pointed to by ``entry``
+		argument.
 
 		If ``entry == null`` then this method is equivalent to ``insertHead``.
 
@@ -200,7 +216,8 @@ class List
 	moveToTail (ListEntry* entry);
 
 	/**
-		Moves item entry pointed to by ``entry`` before item entry pointed to by  ``before``.
+		Moves item entry pointed to by ``entry`` before item entry pointed to
+		by  ``before``.
 
 		If ``entry == null`` then this method is equivalent to ``moveToTail``.
 	*/
@@ -211,7 +228,8 @@ class List
 		);
 
 	/**
-		Moves item entry pointed to by  ``entry`` after item entry pointed to by ``after``.
+		Moves item entry pointed to by  ``entry`` after item entry pointed to by
+		``after``.
 
 		If ``after == null`` then this method is equivalent to ``moveToHead``.
 	*/
@@ -224,9 +242,11 @@ class List
 	/**
 		Removes head item entry.
 
-		Returns the value of `std.ListEntry.m_data` field of the removed list head.
+		Returns the value of `std.ListEntry.m_data` field of the removed list
+		head.
 
-		If list is empty at the moment of removal does nothing and returns ``null``.
+		If list is empty at the moment of removal does nothing and returns
+		``null``.
 	*/
 
 	variant removeHead ();
@@ -234,9 +254,11 @@ class List
 	/**
 		Removes tail item entry.
 
-		Returns the value of `std.ListEntry.m_data` field of the removed list tail.
+		Returns the value of `std.ListEntry.m_data` field of the removed list
+		tail.
 
-		If list is empty at the moment of removal does nothing and returns ``null``.
+		If list is empty at the moment of removal does nothing and returns
+		``null``.
 	*/
 
 	variant removeTail ();

@@ -23,11 +23,17 @@ namespace sys {
 /**
 	\import sys_Timer.jnc
 
-	\brief This class provides facilities to manage both peridodic (repetitive) and non-periodic (single-shot) timers.
+	\brief This class provides facilities to manage both peridodic (repetitive)
+	and non-periodic (single-shot) timers.
 
-	Each instance of ``sys.Timer`` manages a single timer (either periodic, or single-shot). You start the timer with ``start``, ``startDueTimer``, ``startSingleShotTimer``, ``startPeriodicTimer`` methods. When the timer is due, it will call the function you have supplied as an argument to one of aforementioned methods.
+	Each instance of ``sys.Timer`` manages a single timer (either periodic, or
+	single-shot). You start the timer with ``start``, ``startDueTimer``,
+	``startSingleShotTimer``, ``startPeriodicTimer`` methods. When the timer is
+	due, it will call the function you have supplied as an argument to one of
+	aforementioned methods.
 
-	To stop the timer, invoke ``stop`` method. For local timers it is recommended to use *disposable* pattern [#f1]_.
+	To stop the timer, invoke ``stop`` method. For local timers it is
+	recommended to use *disposable* pattern [#f1]_.
 
 	Code sample::
 
@@ -69,11 +75,19 @@ opaque class Timer
 	/**
 		Starts a new peridodic or non-periodic timer.
 
-		The function accepts three arguments. The first one, ``timerFunc`` specifies the function pointer to the timer function to be called when the timer is due. The second one, ``dueTime``, specifies the *timestamp* of the moment when the timer function should be *first* called. The last one, ``period``, specifies the period in milliseconds for a periodic timer, or ``0`` if this is a single-shot timer.
+		The function accepts three arguments. The first one, ``timerFunc``
+		specifies the function pointer to the timer function to be called when
+		the timer is due. The second one, ``dueTime``, specifies the *timestamp*
+		of the moment when the timer function should be *first* called. The last
+		one, ``period``, specifies the period in milliseconds for a periodic
+		timer, or ``0`` if this is a single-shot timer.
 
-		Returns ``true`` on success. If the timer could not be started, error supplied by operating system is set and then the function returns ``false`` [#f2]_.
+		Returns ``true`` on success. If the timer could not be started, error
+		supplied by operating system is set and then the function returns
+		``false`` [#f2]_.
 
-		If the timer has been already started, ``start`` method stops the previous timer first.
+		If the timer has been already started, ``start`` method stops the
+		previous timer first.
 	*/
 
 	bool errorcode start (
@@ -83,7 +97,8 @@ opaque class Timer
 		);
 
 	/**
-		Stops a previously started timer, does nothing if the timer is not started. This function always succeeds.
+		Stops a previously started timer, does nothing if the timer is not
+		started. This function always succeeds.
 
 		For local timers it is recommended to use *disposable* pattern [#f1]_.
 	*/
@@ -97,9 +112,11 @@ opaque class Timer
 	alias dispose = stop;
 
 	/**
-		Starts a non-periodic due timer, i.e. you specify the *timestamp* of the moment when your function should be called.
+		Starts a non-periodic due timer, i.e. you specify the *timestamp* of the
+		moment when your function should be called.
 
-		Technically calling startDueTimer is equivalent to calling ``start`` with the last ``interval`` argument set to ``0``.
+		Technically calling startDueTimer is equivalent to calling ``start``
+		with the last ``interval`` argument set to ``0``.
 	*/
 
 	bool errorcode startDueTimer (
@@ -111,9 +128,12 @@ opaque class Timer
 	}
 
 	/**
-		Starts a periodic timer, i.e. the timer will invoke your function each ``interval`` milliseconds.
+		Starts a periodic timer, i.e. the timer will invoke your function each
+		``interval`` milliseconds.
 
-		This is probably the most common type of timer. Technically calling startDueTimer is equivalent to calling ``start`` with the ``dueTime`` argument calculated as ``sys.getTimestamp () + interval``.
+		This is probably the most common type of timer. Technically calling
+		startDueTimer is equivalent to calling ``start`` with the ``dueTime``
+		argument calculated as ``sys.getTimestamp () + interval``.
 	*/
 
 	bool errorcode startPeriodicTimer (
@@ -126,9 +146,12 @@ opaque class Timer
 	}
 
 	/**
-		Starts a single-shot non-periodic timer, i.e. you specify the delay in milliseconds after passing of which your function will be invoked.
+		Starts a single-shot non-periodic timer, i.e. you specify the delay in
+		milliseconds after passing of which your function will be invoked.
 
-		Technically calling startDueTimer is equivalent to calling ``start`` with the ``dueTime`` argument calculated as ``sys.getTimestamp () + interval`` and ``interval`` set to ``0``.
+		Technically calling startDueTimer is equivalent to calling ``start``
+		with the ``dueTime`` argument calculated as
+		``sys.getTimestamp () + interval`` and ``interval`` set to ``0``.
 	*/
 
 	bool errorcode startSingleShotTimer (

@@ -23,9 +23,14 @@ namespace sys {
 /**
 	\import sys_NotificationEvent.jnc
 
-	\brief This class provides standard means of synchronization between threads.
+	\brief This class provides standard means of synchronization between
+	threads.
 
-	Any object of this class can be in one of the following two states: *idle* or *signalled*. One or more threads can wait until the event becomes signalled by invoking ``wait`` method. When some other thread signals the event by invoking ``signal`` method, *all* the waiging threads wake up, and the event remains in *signalled* state.
+	Any object of this class can be in one of the following two states: *idle*
+	or *signalled*. One or more threads can wait until the event becomes
+	signalled by invoking ``wait`` method. When some other thread signals the
+	event by invoking ``signal`` method, *all* the waiging threads wake up, and
+	the event remains in *signalled* state.
 
 	To return event to *idle* state, use ``reset`` method.
 
@@ -57,10 +62,12 @@ namespace sys {
 		{
 			// ...
 
-			g_event.signal (); // thread1 and thread2 wake up and continue, g_event is still signalled
+			g_event.signal (); // thread1 and thread2 wake up and continue;
+			                    // g_event is still signalled
 
 			// ...
-			// if any other thread issues g_event.wait (), it will be satisfied immediatly
+			// if any other thread issues g_event.wait (), it will be satisfied
+			// immediatly
 
 			g_event.reset (); // not signalled anymore
 		}
@@ -74,7 +81,8 @@ opaque class NotificationEvent
 	destruct ();
 
 	/**
-		Sets event to *signalled* state. All the waiting threads wake up, the event remains in *signalled* state.
+		Sets event to *signalled* state. All the waiting threads wake up, the
+		event remains in *signalled* state.
 	*/
 
 	signal ();
@@ -86,9 +94,12 @@ opaque class NotificationEvent
 	reset ();
 
 	/**
-		Waits until event goes to *signalled* state. When it happens, ``wait`` returns ``true`` but the event remains in *signalled* state.
+		Waits until event goes to *signalled* state. When it happens, ``wait``
+		returns ``true`` but the event remains in *signalled* state.
 
-		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the event does not get signalled until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time
+		limit*. If the event does not get signalled until timeout expires,
+		``wait`` return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
 	bool wait (uint_t timeout = -1);

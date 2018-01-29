@@ -22,13 +22,21 @@ namespace io {
 	\import io_base.jncx
 	\import io_SocketAddressResolver.jncx
 
-	\brief This class provides an asynchrounous interface for resolving host names into socket addresses.
+	\brief This class provides an asynchrounous interface for resolving host
+	names into socket addresses.
 
-	In the most general case conversion of a host name such as ``tibbo.com`` into an ``IP`` requires sending and receiving network packets and, therefore, may take substantial time. Doing this operation synchronoulsy, while acceptable in many cases, is not really optimal for interactive GUI applications where we do not want to have moments of *non-responsiveness*. For such cases using ``io.SocketAddressResolver`` may be a better approach.
+	In the most general case conversion of a host name such as ``tibbo.com``
+	into an ``IP`` requires sending and receiving network packets and,
+	therefore, may take substantial time. Doing this operation synchronoulsy,
+	while acceptable in many cases, is not really optimal for interactive GUI
+	applications where we do not want to have moments of *non-responsiveness*.
+	For such cases using ``io.SocketAddressResolver`` may be a better approach.
 
 	A typical sequence of steps when resolving a host address looks like this:
 
-	* Assign your event handler using ``m_onResolverEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Assign your event handler using ``m_onResolverEvent`` (you would probably
+	  also want to *schedule* your event handler to be run in particular
+	  environment, e.g. in specific thread)
 	* Start one or more resolve requests with ``resolve`` method;
 	* Wait until ``ResolveCompleted`` or ``ResolveError`` event;
 	* Cancel all pending resolve requests with ``cancelAll`` method.
@@ -42,22 +50,24 @@ namespace io {
 			// ...
 
 			io.SocketAddressResolver m_resolver;
-
-			construct ();
+			uint_t m_syncId;
 
 			resolve (char const* hostName);
-			onResolverEvent (`io.SocketAddressResolverEventParams` const* params);
-		}
 
-		MyDialog.construct ()
-		{
-			// ...
-			m_socket.m_onSocketEvent += onSocketEvent @ g_mainThreadScheduler;
+			onResolverEvent (
+				uint_t syncId,
+				`io.SocketAddress` const* addressTable,
+				size_t addressCount,
+				`std.Error` const* error
+				);
 		}
 
 		MyDialog.resolve (char const* hostName)
 		{
-			bool result = try m_resolver.resolve (hostName);
+			bool result = try m_resolver.resolve (
+				hostName,
+				onResolveCompleted ~(++m_syncId) @ g_mainThreadScheduler
+				);
 
 			if (!result)
 			{
@@ -65,24 +75,27 @@ namespace io {
 			}
 		}
 
-		MyDialog.onResolverEvent (`io.SocketAddressResolverEventParams` const* params)
+		MyDialog.onResolveCompleted (
+			uint_t syncId,
+			`io.SocketAddress` const* addressTable,
+			size_t addressCount,
+			`std.Error` const* error
+			)
 		{
-			if (params.m_syncId != m_resolver.m_syncId) // late event
+			if (syncId != m_syncId) // late event
 				return;
 
-			switch (params.m_code)
+			if (error)
 			{
-			case `io.SocketAddressResolverEventCode.ResolveError`:
-				// handle error (extended info is at: params.m_error)...
-				break;
-
-			case `io.SocketAddressResolverEventCode.ResolveCompleted`:
-				// hostname successfully resolved (result is at: params.m_addressTable)...
-				break;
+				// handle error
+			}
+			else
+			{
+				// hostname successfully resolved; result is at: addressTable
 			}
 		}
 
-	\sa `io.SocketAddressResolverEventParams`, `io.SocketAddressResolverEventCode`, `io.SocketAddress`
+	\sa `io.SocketAddress`
 
 	\footnote f1
 
@@ -109,9 +122,12 @@ opaque class SocketAddressResolver
 	destruct ();
 
 	/**
-		Starts a new resolve request, bumps ``m_syncId`` and assigns it to the new request.
+		Starts a new resolve request, bumps ``m_syncId`` and assigns it to the
+		new request.
 
-		Returns ``true`` on success. If a resolve request could not be started, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If a resolve request could not be started,
+		IO error supplied by operating system is set and then the function
+		returns ``false`` [#f1]_.
 	*/
 
 	uintptr_t errorcode resolve (
@@ -129,7 +145,8 @@ opaque class SocketAddressResolver
 	}
 
 	/**
-		Cancels an on-going resolve requests identified by ``syncId``, does nothing is ``syncId`` request is not found.
+		Cancels an on-going resolve requests identified by ``syncId``, does
+		nothing is ``syncId`` request is not found.
 	*/
 
 	bool cancel (uintptr_t id);
@@ -137,13 +154,15 @@ opaque class SocketAddressResolver
 	/**
 		Cancels all on-going resolve requests.
 
-		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``cancelAll`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``cancelAll`` [#f2]_.
 	*/
 
 	void cancelAll ();
 
 	/**
-		Effectively makes ``io.SocketAddressResolver`` a *disposable* class [#f2]_.
+		Effectively makes ``io.SocketAddressResolver`` a *disposable* class
+		[#f2]_.
 	*/
 
 	alias dispose = cancelAll;

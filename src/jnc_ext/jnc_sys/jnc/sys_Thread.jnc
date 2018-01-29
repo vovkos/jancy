@@ -23,13 +23,22 @@ namespace sys {
 /**
 	\import sys_Thread.jnc
 
-	\brief This class provides standard facilities for creating and managing threads.
+	\brief This class provides standard facilities for creating and managing
+	threads.
 
-	Each instance of ``sys.Thread`` class manages a single thread within the program. Unlike the usual approach taken in most implementations of threading frameworks, in Jancy you don't need to subclass ``sys.Thread`` and then override some kind of ``run`` method.
+	Each instance of ``sys.Thread`` class manages a single thread within the
+	program. Unlike the usual approach taken in most implementations of
+	threading frameworks, in Jancy you don't need to subclass ``sys.Thread`` and
+	then override some kind of ``run`` method.
 
-	Instead, you just start a new thread directly by passing a *thread function* to ``start`` method. You can pass arbitrary number of parameters to the newly created thread using Jancy feature of *partial application* for function pointers.
+	Instead, you just start a new thread directly by passing a *thread function*
+	to ``start`` method. You can pass arbitrary number of parameters to the
+	newly created thread using Jancy feature of *partial application* for
+	function pointers.
 
-	After a thread is created, you can wait for its completion with ``wait`` and ``waitAndClose`` methods or forcefully terminate it with ``terminate`` method.
+	After a thread is created, you can wait for its completion with ``wait`` and
+	``waitAndClose`` methods or forcefully terminate it with ``terminate``
+	method.
 
 	Code sample::
 
@@ -66,7 +75,10 @@ opaque class Thread
 	protected function* m_threadFunc ();
 
 	/**
-		Holds native TID (thread identifier) of the thread controlled by ``sys.Thread`` object. The field is updated in ``start`` method; accessing it when the thread has not been started yet or *closed* yields ``0``.
+		Holds native TID (thread identifier) of the thread controlled by
+		``sys.Thread`` object. The field is updated in ``start`` method;
+		accessing it when the thread has not been started yet or *closed*
+		yields ``0``.
 	*/
 
 	uintptr_t readonly m_threadId;
@@ -75,9 +87,13 @@ opaque class Thread
 	destruct ();
 
 	/**
-		Attempt to start a new thread with a thread function pointed to by ``func`` argument. Pass additional arguments to the thread function using *partial application*.
+		Attempt to start a new thread with a thread function pointed to by
+		``func`` argument. Pass additional arguments to the thread function
+		using *partial application*.
 
-		Returns ``true`` on success. If a new thread could not be started, system error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If a new thread could not be started,
+		system error supplied by operating system is set and then the function
+		returns ``false`` [#f1]_.
 
 		Calling this method on a non-closed thread fails immediatly.
 	*/
@@ -85,17 +101,25 @@ opaque class Thread
 	bool errorcode start (function* func ());
 
 	/**
-		Waits until thread finishes. When it happens, ``wait`` returns ``true``, but the thread remains open, so its TID is not released and can still be accessed using ``m_threadId`` field.
+		Waits until thread finishes. When it happens, ``wait`` returns ``true``,
+		but the thread remains open, so its TID is not released and can still be
+		accessed using ``m_threadId`` field.
 
-		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the thread does not terminate until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time
+		limit*. If the thread does not terminate until timeout expires, ``wait``
+		return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
 	bool wait (uint_t timeout = -1);
 
 	/**
-		Waits until event thread finishes. When it happens, ``waitAndClose`` closes TID and returns ``true``. Accessing ``m_threadId`` after that will yield ``0``.
+		Waits until event thread finishes. When it happens, ``waitAndClose``
+		closes TID and returns ``true``. Accessing ``m_threadId`` after that
+		will yield ``0``.
 
-		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time limit*. If the thread does not terminate until timeout expires, ``wait`` return ``false``. Timeout is expressed in *milliseconds*.
+		If ``timeout`` parameter is not ``-1`` then it's a wait with a *time
+		limit*. If the thread does not terminate until timeout expires, ``wait``
+		return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
 	void waitAndClose (uint_t timeout = -1);
@@ -103,9 +127,14 @@ opaque class Thread
 	/**
 		Forcefully terminates thread.
 
-		Returns ``true`` on success. If the thread could not be terminated, system error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If the thread could not be terminated,
+		system error supplied by operating system is set and then the function
+		returns ``false`` [#f1]_.
 
-		Note that it's not recommended to ever call this function under normal circumstances. The preferred approach should be setting up a normal thread termination infrastructure using `sys.Event` (or `sys.NotificationEvent`).
+		Note that it's not recommended to ever call this function under normal
+		circumstances. The preferred approach should be setting up a normal
+		thread termination infrastructure using `sys.Event` (or
+		`sys.NotificationEvent`).
 	*/
 
 	bool terminate ();

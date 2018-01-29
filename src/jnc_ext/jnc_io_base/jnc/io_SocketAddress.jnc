@@ -20,9 +20,11 @@ namespace io {
 	\import io_base.jncx
 	\import io_SocketAddress.jnc
 
-	\brief This enumeration contains possible values for socket address types (families).
+	\brief This enumeration contains possible values for socket address types
+	(families).
 
-	``io.AddressFamily`` values map to ``AF_XXX`` platform constants. At the moment, only ``IP4`` and ``IP6`` address families are supported.
+	``io.AddressFamily`` values map to ``AF_XXX`` platform constants. At the
+	moment, only ``IP4`` and ``IP6`` address families are supported.
 
 	\sa `io.SocketAddress`
 */
@@ -48,9 +50,12 @@ enum AddressFamily: uint16_t
 	\import io_base.jncx
 	\import io_SocketAddress.jnc
 
-	\brief This enumeration contains all possible values for network protocols that can be used with sockets.
+	\brief This enumeration contains all possible values for network protocols
+	that can be used with sockets.
 
-	When opening a socket using `io.Socket.open` method you have to specify the protocol to use (all overloads of `io.Socket.open` methods require a ``protocol`` argument).
+	When opening a socket using `io.Socket.open` method you have to specify the
+	protocol to use (all overloads of `io.Socket.open` methods require a
+	``protocol`` argument).
 
 	\sa `io.Socket`
 */
@@ -94,7 +99,10 @@ enum Protocol
 union Address_ip4
 {
 	/**
-		Holds 32-bit representation of ``IP4`` address. There is no need to change the byte order of the address before assignment -- this field is already declared as ``bigendian`` so all the necessary conversions will happen automatically.
+		Holds 32-bit representation of ``IP4`` address. There is no need to
+		change the byte order of the address before assignment -- this field is
+		already declared as ``bigendian`` so all the necessary conversions will
+		happen automatically.
 	*/
 
 	bigendian uint32_t m_i32;
@@ -106,9 +114,11 @@ union Address_ip4
 	uint8_t m_i8 [4];
 
 	/**
-		Constructs the address from a string representation in ``string`` argument.
+		Constructs the address from a string representation in ``string``
+		argument.
 
-		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
+		Returns ``true`` if address string was parsed successfully. Otherwise,
+		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode parse (char const* string);
@@ -152,9 +162,11 @@ union Address_ip6
 	uint8_t m_i8 [16];
 
 	/**
-		Constructs the address from a string representation in ``string`` argument.
+		Constructs the address from a string representation in ``string``
+		argument.
 
-		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
+		Returns ``true`` if address string was parsed successfully. Otherwise,
+		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode parse (char const* string);
@@ -174,7 +186,8 @@ alignment (2);
 	\import io_base.jncx
 	\import io_SocketAddress.jnc
 
-	\brief This struct holds information about ``IP4`` address in the form suitable for socket communications.
+	\brief This struct holds information about ``IP4`` address in the form
+	suitable for socket communications.
 
 	On the binary level this structure directly maps to ``sockaddr_in``.
 
@@ -188,13 +201,17 @@ alignment (2);
 struct SocketAddress_ip4
 {
 	/**
-		Holds the address family of the socket address; should be set to `io.AddressFamily.Ip4`.
+		Holds the address family of the socket address; should be set to
+		`io.AddressFamily.Ip4`.
 	*/
 
 	AddressFamily m_family;
 
 	/**
-		Holds the number of ``TCP`` or ``UDP`` port. There is no need to change the byte order of the port before assignment -- this field is already declared as ``bigendian`` so all the necessary conversions will happen automatically.
+		Holds the number of ``TCP`` or ``UDP`` port. There is no need to change
+		the byte order of the port before assignment -- this field is already
+		declared as ``bigendian`` so all the necessary conversions will happen
+		automatically.
 	*/
 
 	bigendian uint16_t m_port;
@@ -212,17 +229,22 @@ struct SocketAddress_ip4
 	char m_padding [8];
 
 	/**
-		Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if addresses are equal and ``false`` otherwise.
+		Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if
+		addresses are equal and ``false`` otherwise.
 	*/
 
 	bool isEqual (SocketAddress_ip4 const* address);
 
 	/**
-		Checks two ``IP4`` socket addresses for *matching*. The term matching requires some explanation.
+		Checks two ``IP4`` socket addresses for *matching*. The term matching
+		requires some explanation.
 
-		Matching could be described as a non-strict equality check. We may decide to only check *port* for equality and ignore the address. To do so, set ``m_address`` field of ``filter`` argument to ``0``.
+		Matching could be described as a non-strict equality check. We may
+		decide to only check *port* for equality and ignore the address. To do
+		so, set ``m_address`` field of ``filter`` argument to ``0``.
 
-		Or the other way around -- only check *address* and ignore port -- set ``m_port`` field of ``filter`` argument to ``0``.
+		Or the other way around -- only check *address* and ignore port -- set
+		``m_port`` field of ``filter`` argument to ``0``.
 
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
@@ -230,9 +252,11 @@ struct SocketAddress_ip4
 	bool isMatch (SocketAddress_ip4 const* filterAddress);
 
 	/**
-		Constructs the address from a string representation in ``string`` argument.
+		Constructs the address from a string representation in ``string``
+		argument.
 
-		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
+		Returns ``true`` if address string was parsed successfully. Otherwise,
+		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode parse (char const* string);
@@ -250,7 +274,8 @@ struct SocketAddress_ip4
 	\import io_base.jncx
 	\import io_SocketAddress.jnc
 
-	\brief This struct holds information about ``IP6`` address in the form suitable for socket communications.
+	\brief This struct holds information about ``IP6`` address in the form
+	suitable for socket communications.
 
 	On the binary level this structure directly maps to ``sockaddr_in6``.
 
@@ -264,13 +289,17 @@ struct SocketAddress_ip4
 struct SocketAddress_ip6
 {
 	/**
-		Holds the address family of the socket address; should be set to `io.AddressFamily.Ip6`.
+		Holds the address family of the socket address; should be set to
+		`io.AddressFamily.Ip6`.
 	*/
 
 	AddressFamily m_family;
 
 	/**
-		Holds the number of ``TCP`` or ``UDP`` port. There is no need to change the byte order of the port before assignment -- this field is already declared as ``bigendian`` so all the necessary conversions will happen automatically.
+		Holds the number of ``TCP`` or ``UDP`` port. There is no need to change
+		the byte order of the port before assignment -- this field is already
+		declared as ``bigendian`` so all the necessary conversions will happen
+		automatically.
 	*/
 
 	bigendian uint16_t m_port;
@@ -294,17 +323,22 @@ struct SocketAddress_ip6
 	uint32_t m_scope;
 
 	/**
-		Checks two ``IP6`` socket addresses for *equality*; returns ``true`` if addresses are equal and ``false`` otherwise.
+		Checks two ``IP6`` socket addresses for *equality*; returns ``true`` if
+		addresses are equal and ``false`` otherwise.
 	*/
 
 	bool isEqual (SocketAddress_ip6 const* address);
 
 	/**
-		Checks two ``IP6`` socket addresses for *matching*. The term *matching* requires some explanation.
+		Checks two ``IP6`` socket addresses for *matching*. The term *matching*
+		requires some explanation.
 
-		Matching could be described as a non-strict equality check. We may decide to only check *port* for equality and ignore the address. To do so, set ``m_address`` field of ``filter`` argument to ``0``.
+		Matching could be described as a non-strict equality check. We may
+		decide to only check *port* for equality and ignore the address. To do
+		so, set ``m_address`` field of ``filter`` argument to ``0``.
 
-		Or the other way around -- only check *address* and ignore port -- set ``m_port`` field of ``filter`` argument to ``0``.
+		Or the other way around -- only check *address* and ignore port -- set
+		``m_port`` field of ``filter`` argument to ``0``.
 
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
@@ -312,9 +346,11 @@ struct SocketAddress_ip6
 	bool isMatch (SocketAddress_ip6 const* filterAddress);
 
 	/**
-		Constructs the address from a string representation in ``string`` argument.
+		Constructs the address from a string representation in ``string``
+		argument.
 
-		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
+		Returns ``true`` if address string was parsed successfully. Otherwise,
+		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode parse (char const* string);
@@ -334,7 +370,8 @@ struct SocketAddress_ip6
 
 	\biref This union is a container for both ``IP4`` and ``IP6`` addresses.
 
-	All methods and/or properties of `io.Socket` class which accept or return addresses, use ``io.SocketAddress`` arguments.
+	All methods and/or properties of `io.Socket` class which accept or return
+	addresses, use ``io.SocketAddress`` arguments.
 
 	\footnote f1
 
@@ -344,7 +381,9 @@ struct SocketAddress_ip6
 union SocketAddress
 {
 	/**
-		Holds the address family of the socket address. Depending on the value of this field, the actual address is stored in either ``m_ip4`` or in ``m_ip6`` fields.
+		Holds the address family of the socket address. Depending on the value
+		of this field, the actual address is stored in either ``m_ip4`` or in
+		``m_ip6`` fields.
 	*/
 
 	AddressFamily m_family;
@@ -362,13 +401,16 @@ union SocketAddress
 	SocketAddress_ip6 m_ip6;
 
 	/**
-		Checks two socket addresses for *equality*; returns ``true`` if addresses are equal and ``false`` otherwise.
+		Checks two socket addresses for *equality*; returns ``true`` if
+		addresses are equal and ``false`` otherwise.
 	*/
 
 	bool isEqual (SocketAddress const* addr);
 
 	/**
-		Checks two socket addresses for *matching*. See `io.SocketAddress_ip4.isMatch` or `io.SocketAddress_ip6.isMatch` for definition of the term *match*.
+		Checks two socket addresses for *matching*. See
+		`io.SocketAddress_ip4.isMatch` or `io.SocketAddress_ip6.isMatch`
+		for definition of the term *match*.
 
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
@@ -376,9 +418,11 @@ union SocketAddress
 	bool isMatch (SocketAddress const* filterAddress);
 
 	/**
-		Constructs the address from a string representation in ``string`` argument.
+		Constructs the address from a string representation in ``string``
+		argument.
 
-		Returns ``true`` if address string was parsed successfully. Otherwise, sets the description of parsing error and returns ``false`` [#f1]_.
+		Returns ``true`` if address string was parsed successfully. Otherwise,
+		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode parse (char const* string);

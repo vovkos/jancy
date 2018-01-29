@@ -22,9 +22,11 @@ namespace sys {
 
 	Provides access to the system environment variable table.
 
-	Reading from this property results in a call to ``getenv`` standard C library function.
+	Reading from this property results in a call to ``getenv`` standard C
+	library function.
 
-	Writing to this property translates to ``setenv`` on Linux/Mac and ``_putenv`` on Windows.
+	Writing to this property translates to ``setenv`` on Linux/Mac and
+	``_putenv`` on Windows.
 */
 
 char const* property g_env (char const* name);
@@ -88,15 +90,18 @@ SystemInfo const g_systemInfo;
 /**
 	Returns the thread identifier (TID) of the current thread.
 
-	Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on POSIX.
+	Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on
+	POSIX.
 */
 
 uintptr_t getCurrentThreadId ();
 
 /**
-	Creates a new thead and executes ``threadFunc`` in the context of the newly created thread.
+	Creates a new thead and executes ``threadFunc`` in the context of the newly
+	created thread.
 
-	If you need to pass extra context parameters to the ``threadFunc``, use partial application as such::
+	If you need to pass extra context parameters to the ``threadFunc``, use
+	partial application as such::
 
 		myThreadFunc (
 			int intContext,
@@ -119,17 +124,22 @@ bool createThread (function* threadFunc ());
 //! @{
 
 /**
-	Suspends the execution of the calling thread until ``timeout`` interval elapses. ``timeout`` is expressed in milliseconds.
+	Suspends the execution of the calling thread until ``timeout`` interval
+	elapses. ``timeout`` is expressed in milliseconds.
 */
 
 void sleep (uint32_t timeout);
 
 /**
-	Returns current system timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+	Returns current system timestamp. Timestamp is expressed as a 64-bit value
+	representing the number of 100-nanosecond intervals since
+	January 1, 1601 (UTC).
 
 	This format is the same as used in Windows ``FILETIME`` struct.
 
-	Even though nominally this timestamp is expressed as the number of 100-nanosecond intervals, a sub-microsecond precision is not guaranteed. For a guaranteed sub-microsecond precision, use `sys.getPreciseTimestamp`.
+	Even though nominally this timestamp is expressed as the number of
+	100-nanosecond intervals, a sub-microsecond precision is not guaranteed.
+	For a guaranteed sub-microsecond precision, use `sys.getPreciseTimestamp`.
 
 	\sa `sys.getPreciseTimestamp`
 */
@@ -137,11 +147,14 @@ void sleep (uint32_t timeout);
 uint64_t getTimestamp ();
 
 /**
-	Returns current system high-precision timestamp. Timestamp is expressed as a 64-bit value representing the number of 100-nanosecond intervals since January 1, 1601 (UTC).
+	Returns current system high-precision timestamp. Timestamp is expressed as a
+	64-bit value representing the number of 100-nanosecond intervals since
+	January 1, 1601 (UTC).
 
 	This format is the same as used in Windows ``FILETIME`` struct.
 
-	This timestamp is guaranteed to have sub-microsecond precision. If you don't need sub-microsecond precision, use a slightly faster `sys.getTimestamp`.
+	This timestamp is guaranteed to have sub-microsecond precision. If you don't
+	need sub-microsecond precision, use a slightly faster `sys.getTimestamp`.
 
 	\sa `sys.getTimestamp`
 */

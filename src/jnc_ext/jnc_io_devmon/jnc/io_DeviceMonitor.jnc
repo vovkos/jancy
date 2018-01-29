@@ -22,13 +22,15 @@ namespace io {
 bitflag enum DeviceMonitorEvents
 {
 	/**
-		An IO error occured on the device monitor; detailed information about the error is available at `io.AsyncDevice.m_ioError`.
+		An IO error occured on the device monitor; detailed information about
+		the error is available at `io.DeviceMonitor.m_ioError`.
 	*/
 
 	IoError,
 
 	/**
-		Incoming data is available on the device monitor; this data could be fetched with `io.DeviceMonitor.read`.
+		Incoming data is available on the device monitor; this data could be
+		fetched with `io.DeviceMonitor.read`.
 	*/
 
 	IncomingData,

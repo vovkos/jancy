@@ -22,25 +22,36 @@
 
 	\brief This section contains C runtime functions available from Jancy.
 
-	The purpose of these functions is to create a familiar environment for C/C++ programmers and make it easier to switch between Jancy and C/C++.
+	The purpose of these functions is to create a familiar environment for C/C++
+	programmers and make it easier to switch between Jancy and C/C++.
 
 	\footnote f1
 
-		If null-terminating ``0`` byte is not discovered withing the allowed range of string pointer, Jancy string functions behave just like if ``0`` was found at the very next byte after the end of allowed range. In other words, it is always assumed that ``0`` could be found at the location ``p + dynamic sizeof (p)`` -- even if the actual byte at this location isn't really ``0``.
+		If null-terminating ``0`` byte is not discovered withing the allowed
+		range of string pointer, Jancy string functions behave just like if
+		``0`` was found at the very next byte after the end of allowed range.
+		In other words, it is always assumed that ``0`` could be found at the
+		location ``p + dynamic sizeof (p)`` -- even if the actual byte at this
+		location isn't really ``0``.
 
 	\footnote f2
 
-		The notation ``p:size`` here means: memory block pointed to by ``p`` and of ``size`` bytes long.
+		The notation ``p:size`` here means: memory block pointed to by ``p`` and
+		of ``size`` bytes long.
 
 	\footnote f3
-		Note that this function uses ``C`` vararg calling convention (and actually maps directly to libc ``snprintf``). As such, it is **not safe**. It is recommended to use formatting literals instead.
+		Note that this function uses ``C`` vararg calling convention (and
+		actually maps directly to libc ``snprintf``). As such, it is
+		**not safe**. It is recommended to use formatting literals instead.
 */
 
 //! \addtogroup g2_crt
 //! @{
 
 /**
-	Calculates and returns the length of the string pointed to by ``p`` argument. The length of the string is defined as the number of bytes between the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
+	Calculates and returns the length of the string pointed to by ``p``
+	argument. The length of the string is defined as the number of bytes between
+	the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
 
 	Returns ``0`` if ``p == null``.
 */
@@ -48,9 +59,11 @@
 size_t strlen (char const* p);
 
 /**
-	Performs a case-sensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+	Performs a case-sensitive lexicographic comparison of two null-terminated
+	strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
-	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2``
+	are equal.
 
 	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
 
@@ -69,9 +82,11 @@ int strncmp (
 	);
 
 /**
-	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+	Performs a case-insensitive lexicographic comparison of two null-terminated
+	strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
-	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are
+	equal.
 
 	Returns ``-1`` if ``p1`` appears before ``p2`` in lexographical order.
 
@@ -90,7 +105,8 @@ int strnicmp (
 	);
 
 /**
-	Finds the first occurance of char ``c`` within null-terminated string pointed to by ``p`` [#f1]_.
+	Finds the first occurance of char ``c`` within null-terminated string
+	pointed to by ``p`` [#f1]_.
 
 	Returns a pointer to the first occurrence of ``c`` in ``p``.
 
@@ -98,9 +114,11 @@ int strnicmp (
 */
 
 /**
-	Performs a case-sensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+	Performs a case-sensitive lexicographic comparison of two null-terminated
+	strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
-	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal and ``false`` otherwise.
+	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2``
+	are equal and ``false`` otherwise.
 */
 
 bool streq (
@@ -121,9 +139,11 @@ bool strneq (
 }
 
 /**
-	Performs a case-insensitive lexicographic comparison of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+	Performs a case-insensitive lexicographic comparison of two null-terminated
+	strings pointed to by ``p1`` and ``p2`` [#f1]_.
 
-	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal and ``false`` otherwise.
+	Returns ``true`` if null-terminated strings pointed to by ``p1`` and ``p2``
+	are equal and ``false`` otherwise.
 */
 
 bool strieq (
@@ -154,7 +174,8 @@ char const* strichr (
 	);
 
 /**
-	Finds the first occurance of null-terminated substring ''p2'' within null-terminated string pointed to by ``p1`` [#f1]_.
+	Finds the first occurance of null-terminated substring ''p2'' within
+	null-terminated string pointed to by ``p1`` [#f1]_.
 
 	Returns a pointer to the first occurrence of substring ``p2`` in ``p1``.
 
@@ -183,7 +204,8 @@ void strcpy (
 	);
 
 /**
-	Creates a new string as a concatenation of two null-terminated strings pointed to by ``p1`` and ``p2`` [#f1]_.
+	Creates a new string as a concatenation of two null-terminated strings
+	pointed to by ``p1`` and ``p2`` [#f1]_.
 
 	Returns a pointer to the result string.
 
@@ -220,19 +242,24 @@ size_t strdjb2 (char const* p)
 /**
 	Calculates a case-insensitive DJB2 hash of null-terminated string ``p``.
 
-	Equivalent of calling `strdjb2` on a string, each character of which was converted to lower-case via `tolower`.
+	Equivalent of calling `strdjb2` on a string, each character of which was
+	converted to lower-case via `tolower`.
 */
 
 size_t stridjb2 (char const* p);
 
 /**
-	Performs a case-sensitive lexicographic comparison of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+	Performs a case-sensitive lexicographic comparison of two memory blocks
+	``p1:size1`` and ``p2:size2`` [#f2]_.
 
-	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are equal.
+	Returns ``0`` if null-terminated strings pointed to by ``p1`` and ``p2`` are
+	equal.
 
-	Returns ``-1`` if ``p1:size1`` appears before ``p2:size2`` in lexographical order.
+	Returns ``-1`` if ``p1:size1`` appears before ``p2:size2`` in lexographical
+	order.
 
-	Returns ``1`` if ``p1:size1`` appears after ``p2:size2`` in lexographical order.
+	Returns ``1`` if ``p1:size1`` appears after ``p2:size2`` in lexographical
+	order.
 */
 
 int memcmp (
@@ -242,7 +269,8 @@ int memcmp (
 	);
 
 /**
-	Finds the first occurance of char ``c`` within memory block ``p:size`` [#f2]_.
+	Finds the first occurance of char ``c`` within memory block ``p:size``
+	[#f2]_.
 
 	Returns a pointer to the first occurrence of ``c`` in ``p:size``.
 
@@ -256,9 +284,11 @@ void const* memchr (
 	);
 
 /**
-	Finds the first occurance of memory block ``p2:size2`` within memory block ``p1:size1`` [#f2]_.
+	Finds the first occurance of memory block ``p2:size2`` within memory block
+	``p1:size1`` [#f2]_.
 
-	Returns a pointer to the first occurrence of block ``p2:size2`` in ``p1:size1``.
+	Returns a pointer to the first occurrence of block ``p2:size2`` in
+	``p1:size1``.
 
 	Returns ``null`` if block ``p2:size2`` is not found.
 
@@ -283,7 +313,8 @@ void memcpy (
 	);
 
 /**
-	Copies character ``c`` to each of the first ``size`` bytes of memory block pointed to by ``p``.
+	Copies character ``c`` to each of the first ``size`` bytes of memory block
+	pointed to by ``p``.
 */
 
 void memset (
@@ -293,11 +324,13 @@ void memset (
 	);
 
 /**
-	Creates a new memory block as a concatenation of two memory blocks ``p1:size1`` and ``p2:size2`` [#f2]_.
+	Creates a new memory block as a concatenation of two memory blocks
+	``p1:size1`` and ``p2:size2`` [#f2]_.
 
 	Returns a pointer to the result memory block.
 
-	Returns ``null`` if the buffer for the new memory block could not be allocated.
+	Returns ``null`` if the buffer for the new memory block could not be
+	allocated.
 */
 
 void* errorcode memcat (
@@ -312,7 +345,8 @@ void* errorcode memcat (
 
 	Returns a pointer to the result memory block.
 
-	Returns ``null`` if the buffer for the new memory block could not be allocated.
+	Returns ``null`` if the buffer for the new memory block could not be
+	allocated.
 */
 
 void* errorcode memdup (
@@ -330,7 +364,8 @@ size_t memdjb2 (
 	);
 
 /**
-	Returns a pseudo-random integral value between ``0`` and implementation-defined ``RAND_MAX`` (typically, ``32767``)
+	Returns a pseudo-random integral value between ``0`` and
+	implementation-defined ``RAND_MAX`` (typically, ``32767``)
 
 	Maps directly to standard C function ``rand``.
 */
@@ -356,9 +391,12 @@ uint32_t tolower (uint32_t c);
 /**
 	Parses a string representation of an integer.
 
-	Discards any whitespace characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid integer number representation and converts them to an integer value.
+	Discards any whitespace characters until the first non-whitespace character
+	is found, then takes as many characters as possible to form a valid integer
+	number representation and converts them to an integer value.
 
-	Returns result integer value or ``0`` if string does not contain a valid representation of an integer.
+	Returns result integer value or ``0`` if string does not contain a valid
+	representation of an integer.
 
 	Returns ``0`` if ``p == null``.
 */
@@ -368,11 +406,16 @@ int atoi (char const* p);
 /**
 	Parses a string representation of an integer.
 
-	Discards any whitespace characters until the first non-whitespace character is found, then takes as many characters as possible to form a valid integer number representation and converts them to an integer value.
+	Discards any whitespace characters until the first non-whitespace character
+	is found, then takes as many characters as possible to form a valid integer
+	number representation and converts them to an integer value.
 
-	Returns result integer value or ``0`` if string does not contain a valid representation of an integer.
+	Returns result integer value or ``0`` if string does not contain a valid
+	representation of an integer.
 
-	The functions sets the pointer pointed to by ``end`` to point to the character past the last character interpreted. If ``end`` is ``null``, it is ignored.
+	The functions sets the pointer pointed to by ``end`` to point to the
+	character past the last character interpreted. If ``end`` is ``null``, it
+	is ignored.
 
 	Returns ``0`` if ``p == null``.
 */
@@ -388,7 +431,8 @@ long strtol (
 
 	Returns the resulting string, or a ``null`` if an error occurs.
 
-	Length of the string can be discovered using `strlen` or, better, with ``dynamic sizeof``::
+	Length of the string can be discovered using `strlen` or, better, with
+	``dynamic sizeof``::
 
 		char* s = gets ();
 		size_t length = dynamic sizeof (s) - 1;
@@ -407,7 +451,9 @@ size_t print (char const* text);
 /**
 	Prints error message to the standard error stream.
 
-	Unlike its standard C library counterpart, does not follow the message with ``: <errno decription>``. If you need the last error description, inject it using formatting literals and the ``$!`` placeholder.
+	Unlike its standard C library counterpart, does not follow the message with
+	``: <errno decription>``. If you need the last error description, inject it
+	using formatting literals and the ``$!`` placeholder.
 
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 */
@@ -419,7 +465,8 @@ size_t perror (char const* text);
 
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 
-	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+	For detailed description of format specifier ``fmtSpecifier`` please refer
+	to: http://www.cplusplus.com/reference/cstdio/printf/
 
 */
 
@@ -438,11 +485,15 @@ namespace std {
 //! @{
 
 /**
-	Composes a string with the same text that would be printed if ``fmtSpecifier`` was used in `printf` function, but instead of being printed, the content is stored in a memory buffer [#f3]_.
+	Composes a string with the same text that would be printed if
+	``fmtSpecifier`` was used in `printf` function, but instead of being
+	printed, the content is stored in a memory buffer [#f3]_.
 
-	Returns a pointer to null-terminated string containing the newly formatted text.
+	Returns a pointer to null-terminated string containing the newly formatted
+	text.
 
-	For detailed description of format specifier ``fmtSpecifier`` please refer to: http://www.cplusplus.com/reference/cstdio/printf/
+	For detailed description of format specifier ``fmtSpecifier`` please refer
+	to: http://www.cplusplus.com/reference/cstdio/printf/
 
 */
 
@@ -454,11 +505,19 @@ char const* cdecl errorcode format (
 //! @}
 
 /**
-	Clears the cache of dynamically calculated offsets inside a ``dynamic struct``.
+	Clears the cache of dynamically calculated offsets inside a
+	``dynamic struct``.
 
-	Jancy runtime optimizes access to dynamic structures by caching the calucated offsets of dynamic fields. The cache is stored inside a buffer itself (as part of jnc.Box, not as part of a dynamic pointer). Therefore, it's necessary to drop this cache if you are about to re-use the same buffer by re-writing it with another block of memory and analyzing it agani with dynamic structures.
+	Jancy runtime optimizes access to dynamic structures by caching the
+	calucated offsets of dynamic fields. The cache is stored inside a buffer
+	itself (as part of jnc.Box, not as part of a dynamic pointer). Therefore,
+	it's necessary to drop this cache if you are about to re-use the same buffer
+	by re-writing it with another block of memory and analyzing it agani with
+	dynamic structures.
 
-	Note that dropping the cache is not required if you just want to analyze the same buffer with other ``dynamic struct`` pointers -- the cache is smart enough to distinguish between multiple dynamic structure types.
+	Note that dropping the cache is not required if you just want to analyze the
+	same buffer with other ``dynamic struct`` pointers -- the cache is smart
+	enough to distinguish between multiple dynamic structure types.
 
 	.. rubric:: Sample code:
 

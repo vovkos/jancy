@@ -22,7 +22,10 @@ namespace io {
 
 	\brief This enumeration specifies available types of the network adapter.
 
-	When enumerating available network adapter you first call `io.createNetworkAdapterDescList`, then iterate through the resulting list of `io.NetworkAdapterDesc` structures, each contains its type information `io.NetworkAdapterDesc.m_type` field.
+	When enumerating available network adapter you first call
+	`io.createNetworkAdapterDescList`, then iterate through the resulting list
+	of `io.NetworkAdapterDesc` structures, each contains its type information
+	`io.NetworkAdapterDesc.m_type` field.
 */
 
 enum NetworkAdapterType
@@ -60,7 +63,9 @@ enum NetworkAdapterType
 	Tunnel,
 
 	/**
-		Not really a type of interface; rather, this is a convenience constant denoting the total count  of adapter types. Should you need a table indexed by adapter type, you could write something like::
+		Not really a type of interface; rather, this is a convenience constant
+		denoting the total count  of adapter types. Should you need a table
+		indexed by adapter type, you could write something like::
 
 			char const* getNetworkAdapterTypeString (io.NetworkAdapterType type)
 			{
@@ -86,14 +91,20 @@ enum NetworkAdapterType
 
 	\brief This enumeration specifies flag properties of the network adapter.
 
-	When enumerating available network adapter you first call `io.createNetworkAdapterDescList`, then iterate through the resulting list of `io.NetworkAdapterDesc` structures, each contains a set of flag properties in `io.NetworkAdapterDesc.m_flags` field.
+	When enumerating available network adapter you first call
+	`io.createNetworkAdapterDescList`, then iterate through the resulting list
+	of `io.NetworkAdapterDesc` structures, each contains a set of flag
+	properties in `io.NetworkAdapterDesc.m_flags` field.
 
 	\sa `io.createNetworkAdapterDescList`, `io.NetworkAdapterDesc`
 */
 
 bitflag enum NetworkAdapterFlags
 {
-	//! ``DHCP`` (Dynamic Host Configuration Protocol) is enabled on this adapter.
+	/**
+		``DHCP`` (Dynamic Host Configuration Protocol) is enabled on this
+		adapter.
+	*/
 
 	Dhcp,
 
@@ -124,9 +135,11 @@ bitflag enum NetworkAdapterFlags
 	\import io_base.jncx
 	\import io_NetworkAdapter.jnc
 
-	\brief This struct holds information about single address of the network adapter.
+	\brief This struct holds information about single address of the network
+	adapter.
 
-	A list of network adapter addresses is part of network adapter description stored in `io.NetworkAdapterDesc`.
+	A list of network adapter addresses is part of network adapter description
+	stored in `io.NetworkAdapterDesc`.
 
 	\sa `io.NetworkAdapterDesc`, `io.createNetworkAdapterDescList`
 
@@ -135,19 +148,24 @@ bitflag enum NetworkAdapterFlags
 struct NetworkAdapterAddress
 {
 	/**
-		Holds a pointer to the next newtwork adatper address or ``null`` if this is the last address.
+		Holds a pointer to the next newtwork adatper address or ``null`` if this
+		is the last address.
 	*/
 
 	NetworkAdapterAddress const* m_next;
 
 	/**
-		Holds address of the network adapter as `io.SocketAddress`. ``m_port`` field of the address should obviously be ignored.
+		Holds address of the network adapter as `io.SocketAddress`. ``m_port``
+		field of the address should obviously be ignored.
 	*/
 
 	SocketAddress m_address;
 
 	/**
-		The length, in bits, of the prefix or network part of the IP address. For a unicast IPv4 address, any value greater than 32 is an illegal value. For a unicast IPv6 address, any value greater than 128 is an illegal value.
+		The length, in bits, of the prefix or network part of the IP address.
+		For a unicast IPv4 address, any value greater than 32 is an illegal
+		value. For a unicast IPv6 address, any value greater than 128 is an
+		illegal value.
 	*/
 
 	size_t m_netMaskBitCount;
@@ -161,7 +179,8 @@ struct NetworkAdapterAddress
 
 	\brief This struct holds information about the network adapter.
 
-	A list of network adapter descriptions is returned by `io.createNetworkAdapterDescList`.
+	A list of network adapter descriptions is returned by
+	`io.createNetworkAdapterDescList`.
 
 	\sa `io.createNetworkAdapterDescList`
 */
@@ -169,7 +188,8 @@ struct NetworkAdapterAddress
 struct NetworkAdapterDesc
 {
 	/**
-		Holds a pointer to the next nextwork adapter description or ``null`` if this is the last adapter.
+		Holds a pointer to the next nextwork adapter description or ``null`` if
+		this is the last adapter.
 	*/
 
 	NetworkAdapterDesc const* m_next;
@@ -187,31 +207,37 @@ struct NetworkAdapterDesc
 	char const* m_description;
 
 	/**
-		Holds the type the network adapter. For a complete list of types refer to `io.NetworkAdapterType` enumeration.
+		Holds the type the network adapter. For a complete list of types refer
+		to `io.NetworkAdapterType` enumeration.
 	*/
 
 	NetworkAdapterType m_type;
 
 	/**
-		Holds the flag optins of the network adapter. For a complete list of flag options refer to `io.NetworkAdapterFlags` enumeration.
+		Holds the flag optins of the network adapter. For a complete list of
+		flag options refer to `io.NetworkAdapterFlags` enumeration.
 	*/
 
 	NetworkAdapterFlags m_flags;
 
 	/**
-		Holds the hardware Media Access Control (MAC) address of the network adapter.
+		Holds the hardware Media Access Control (MAC) address of the network
+		adapter.
 	*/
 
 	uint8_t m_mac [6];
 
 	/**
-		Holds a pointer to the head of the list of addresses assigned to this network adapter. Iterate through the list by instpecting `io.NetworkAdapterAddress.m_next` field.
+		Holds a pointer to the head of the list of addresses assigned to this
+		network adapter. Iterate through the list by instpecting
+		`io.NetworkAdapterAddress.m_next` field.
 	*/
 
 	NetworkAdapterAddress const* m_address;
 
 	/**
-		Holds the total number of addresses on the list pointed to by ``m_addresses`` field.
+		Holds the total number of addresses on the list pointed to by
+		``m_addresses`` field.
 	*/
 
 	size_t m_addressCount;
@@ -222,13 +248,17 @@ struct NetworkAdapterDesc
 /**
 	Enumerates all available network adapters on the system.
 
-	``count`` argument can be used to obtain the total number of devices in the resulting list.
+	``count`` argument can be used to obtain the total number of devices in the
+	resulting list.
 
-	Returns a pointer to the very first `io.NetworkAdapterDesc` in the resulting list. You can walk through the list by inspecting `io.NetworkAdapterDesc.m_next` field:
+	Returns a pointer to the very first `io.NetworkAdapterDesc` in the resulting
+	list. You can walk through the list by inspecting
+	`io.NetworkAdapterDesc.m_next` field:
 
 	.. ref-code-block::
 
-		`io.NetworkAdapterDesc` const* adapterDesc = io.createNetworkAdapterDescList ();
+		`io.NetworkAdapterDesc` const* adapterDesc =
+			io.createNetworkAdapterDescList ();
 		for (; adapterDesc; adapterDesc = adapterDesc.m_next)
 		{
 			// add adapter to the combo box...
