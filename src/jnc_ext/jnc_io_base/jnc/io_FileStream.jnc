@@ -22,9 +22,11 @@ namespace io {
 	\import io_base.jncx
 	\import io_FileStream.jnc
 
-	\brief This enumeration contains all possible values for the underlying type of of `io.FileStream` object.
+	\brief This enumeration contains all possible values for the underlying type
+	of of `io.FileStream` object.
 
-	Currently, this functionality is only available on Windows (via WinAPI function ``GetFileType``).
+	Currently, this functionality is only available on Windows (via the WinAPI
+	function ``GetFileType``).
 */
 
 enum FileStreamKind
@@ -50,7 +52,10 @@ enum FileStreamKind
 
 /**
 
-	Returns string representation of the ``kind`` argument. In case ``kind`` does not correspond to any known file stream kind (e.g. you have casted a random integer number to `io.FileStreamKind` enumeration type), string ``unknown device`` is returned.
+	Returns string representation of the ``kind`` argument. In case ``kind``
+	does not correspond to any known file stream kind (e.g. you have casted a
+	random integer number to `io.FileStreamKind` enumeration type), string
+	``unknown device`` is returned.
 */
 
 char const* getFileStreamKindString (FileStreamKind kind)
@@ -83,7 +88,9 @@ bitflag enum FileStreamOptions
 	\import io_base.jncx
 	\import io_FileStream.jnc
 
-	\brief This enumeration contains codes of all possible events that might happen on `io.FileStream` object.
+	\brief This enumeration contains codes of all possible events that might
+	happen on `io.FileStream` object. The set of *active* events is accessible
+	via `io.FileStream.m_activeEvents`.
 
 	\sa `io.FileStream`
 */
@@ -91,25 +98,29 @@ bitflag enum FileStreamOptions
 bitflag enum FileStreamEvents
 {
 	/**
-		An IO error occured on the file stream; detailed information about the error is available at `io.FileStream.m_ioError`.
+		An IO error occured on the file stream; detailed information about the
+		error is available at `io.FileStream.m_ioError`.
 	*/
 
 	IoError,
 
 	/**
-		More data is available on the file stream; this data could be fetched with `io.FileStream.read` method.
+		More data is available on the file stream; this data could be fetched
+		with `io.FileStream.read` method.
 	*/
 
 	IncomingData,
 
 	/**
-		File stream receive buffer is full; upcoming data may be dropped (depending on the underlying device represented by the file).
+		File stream receive buffer is full; upcoming data may be dropped
+		(depending on the underlying device represented by the file).
 	*/
 
 	ReadBufferFull,
 
 	/**
-		File stream transmit buffer is ready to accept more data; it's OK to issue more `io.FileStream.write` requests.
+		File stream transmit buffer is ready to accept more data; it's OK to
+		issue more `io.FileStream.write` requests.
 	*/
 
 	WriteBufferReady,
@@ -127,15 +138,24 @@ bitflag enum FileStreamEvents
 	\import io_base.jncx
 	\import io_FileStream.jnc
 
-	\brief This class provides high-level asynchronous streaming interface for reading from and writing to files or devices.
+	\brief This class provides high-level asynchronous streaming interface for
+	reading from and writing to files or devices.
 
-	Besides all the standard methods of ``io.File`` (like ``open``, ``read``, ``write`` etc) ``io.FileStream`` also notifies its clients of events occured on this file stream such as when data has arrived and could be read or when IO error occured. This allows for clean and convenient asynchronous event-driven IO programming.
+	Besides all the standard methods of ``io.File`` (like ``open``, ``read``,
+	``write`` etc) ``io.FileStream`` also notifies its clients of events occured
+	on this file stream such as when data has arrived and could be read or when
+	IO error occured. This allows for clean and convenient asynchronous
+	event-driven IO programming.
 
-	A typical sequence of steps when working with a file stream looks something like this:
+	A typical sequence of steps when working with a file stream looks something
+	like this:
 
-	* Assign your event handler using ``m_onFileStreamEvent`` (you would probably also want to *schedule* your event handler to be run in particular environment, e.g. in specific thread)
+	* Assign your event handler using ``m_onFileStreamEvent`` (you would probably
+	  also want to *schedule* your event handler to be run in particular
+	  environment, e.g. in specific thread)
 	* Open a file stream with ``open`` method;
-	* When ``IncomingData`` event is fired, read from the file using ``read`` method;
+	* When ``IncomingData`` event is fired, read from the file using ``read``
+	  method;
 	* Write to the file stream using ``write`` method;
 	* Suspend writing if the return value of ``write`` is less than requested;
 	* Resume writing on ``WriteBufferReady`` event;
@@ -160,7 +180,8 @@ bitflag enum FileStreamEvents
 		MyDialog.construct ()
 		{
 			// ...
-			m_fileStream.m_onFileStreamEvent += onFileStreamEvent @ g_mainThreadScheduler;
+			m_fileStream.m_onFileStreamEvent +=
+				onFileStreamEvent @ g_mainThreadScheduler;
 		}
 
 		MyDialog.open (char const* fileName)
@@ -193,7 +214,7 @@ bitflag enum FileStreamEvents
 			}
 		}
 
-	\sa `io.FileStreamEventParams`, `io.FileStreamEventCode`, `io.File`, `io.NamedPipe`, `io.Mailslot`
+	\sa `io.FileStreamEvents`, `io.File`, `io.NamedPipe`, `io.Mailslot`
 
 	\footnote f1
 
@@ -211,9 +232,12 @@ bitflag enum FileStreamEvents
 opaque class FileStream
 {
 	/**
-		Specifies the type of the file stream (regular disk file, serial port etc). For the full list of supported file stream types, refer to `io.FileStreamKind`.
+		Specifies the type of the file stream (regular disk file, serial port
+		etc). For the full list of supported file stream types, refer to
+		`io.FileStreamKind`.
 
-		This field is currently only initialized on Windows. To to detect the type ``io.FileStream`` uses WinAPI function ``GetFileType``.
+		This field is currently only initialized on Windows. To to detect the
+		type ``io.FileStream`` uses WinAPI function ``GetFileType``.
 	*/
 
 	FileStreamKind readonly m_kind;
@@ -229,7 +253,8 @@ opaque class FileStream
 	std.Error const* readonly volatile m_ioError;
 
 	/**
-		Holds the open status for serial port, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for serial port, i.e. ``true`` if opened;
+		``false`` otherwise.
 	*/
 
 	bool readonly m_isOpen;
@@ -240,9 +265,14 @@ opaque class FileStream
 	/**
 		Opens or creates a file stream.
 
-		The function accepts two arguments. The first one, ``name`` specifies the name of the file/device. The second one, ``flags``, can be used to specify open options. Check `io.FileOpenFlags` for the complete list of options.
+		The function accepts two arguments. The first one, ``name`` specifies
+		the name of the file/device. The second one, ``flags``, can be used to
+		specify open options. Check `io.FileOpenFlags` for the complete list of
+		options.
 
-		Returns ``true`` on success. If the file stream could not be opened, IO error supplied by operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If the file stream could not be opened, IO
+		error supplied by operating system is set and then the function returns
+		``false`` [#f1]_.
 	*/
 
 	bool errorcode open (
@@ -251,9 +281,11 @@ opaque class FileStream
 		);
 
 	/**
-		Closes a previously opened file stream, does nothing if the file stream is not opened. This function always succeeds.
+		Closes a previously opened file stream, does nothing if the file stream
+		is not opened. This function always succeeds.
 
-		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``close`` [#f2]_.
 	*/
 
 	void close ();
@@ -265,19 +297,28 @@ opaque class FileStream
 	alias dispose = close;
 
 	/**
-		Clears the file, destroying all its contents. This function is only applicable to regular disk file streams.
+		Clears the file, destroying all its contents. This function is only
+		applicable to regular disk file streams.
 
-		Returns ``true`` on success. If clear operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If clear operation is unsuccessful, IO
+		error supplied by the operating system is set and then the function
+		returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode clear ();
 
 	/**
-		Attempts to read up to ``size`` bytes from the file strean into the buffer pointed to by ``p``.
+		Attempts to read up to ``size`` bytes from the file strean into the
+		buffer pointed to by ``p``.
 
-		Returns the actual amount of bytes read on success. If read operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+		Returns the actual amount of bytes read on success. If read operation
+		is unsuccessful, IO error supplied by the operating system is set and
+		then the function returns ``-1`` [#f1]_.
 
-		Normally you would call this function from within your event handler for ``IncomingData`` event. If this function is called when there is no incoming data, it blocks until either the data arrives, or the file is closed.
+		Normally you would call this function from within your event handler
+		for ``IncomingData`` event. If this function is called when there is
+		no incoming data, it blocks until either the data arrives, or the file
+		is closed.
 	*/
 
 	size_t errorcode read (
@@ -286,11 +327,17 @@ opaque class FileStream
 		);
 
 	/**
-		Attempts to write ``size`` bytes from the buffer pointed to by ``p`` into the file stream.
+		Attempts to write ``size`` bytes from the buffer pointed to by ``p``
+		into the file stream.
 
-		Returns the actual amount of bytes written on success. If write operation is unsuccessful, IO error supplied by the operating system is set and then the function returns ``-1`` [#f1]_.
+		Returns the actual amount of bytes written on success. If write
+		operation is unsuccessful, IO error supplied by the operating system
+		is set and then the function returns ``-1`` [#f1]_.
 
-		If the return value shows *less* bytes than specified by ``size`` argument, you should suspend further transmission until the file stream is ready to accept more data. When this happens, ``WriteBufferReady`` event is fired and transmission could be resumed.
+		If the return value shows *less* bytes than specified by ``size``
+		argument, you should suspend further transmission until the file stream
+		is ready to accept more data. When this happens, ``WriteBufferReady``
+		event is fired and transmission could be resumed.
 	*/
 
 	size_t errorcode write (

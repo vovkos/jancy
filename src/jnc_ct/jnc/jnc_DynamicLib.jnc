@@ -19,11 +19,14 @@ namespace jnc {
 
 /**
 	\ingroup rtl
-	\brief This class provides direct access to functions in *dynamic libraries* (also known as *shared libraries*).
+	\brief This class provides direct access to functions in *dynamic libraries*
+	(also known as *shared libraries*).
 
 	You can use ``jnc.DynamicLib`` in one of the two ways.
 
-	One way is to explicitly load a dynamic library by file name, resolve function names to pointers, (unsafely) cast these pointers to appropriate function pointer types, and then call these function pointers:
+	One way is to explicitly load a dynamic library by file name, resolve
+	function names to pointers, (unsafely) cast these pointers to appropriate
+	function pointer types, and then call these function pointers:
 
 	.. ref-code-block::
 
@@ -37,7 +40,7 @@ namespace jnc {
 
 			unsafe
 			{
-				FooFunc thin* foo = (FooFunc thin*) p; // cast to proper function type
+				FooFunc thin* foo = (FooFunc thin*) p; // cast to the proper type
 			}
 
 			foo (100); // call this function
@@ -46,13 +49,20 @@ namespace jnc {
 			// handle error...
 		}
 
-	Alternatively, you can declare a pseudo-interface using ``dynamiclib`` keyword, and then simply call methods of this interface. Eventually it will result in the same sequence of steps, and even the base implementation class will be the same, ``jnc.DynamicLib``. But all the above steps will be done behind the scene -- Jancy compiler will generate necessary calls automatically. Moreover, once the resolve completes, the result is cached, so the next time you call the same functions, cached pointer will be used and no repetitive resolve-by-name is going to happen.
+	Alternatively, you can declare a pseudo-interface using ``dynamiclib``
+	keyword, and then simply call methods of this interface. Eventually it
+	will result in the same sequence of steps, and even the base implementation
+	class will be the same, ``jnc.DynamicLib``. But all the above steps will be
+	done behind the scene -- Jancy compiler will generate necessary calls
+	automatically. Moreover, once the resolve completes, the result is cached,
+	so the next time you call the same functions, cached pointer will be used
+	and no repetitive resolve-by-name is going to happen.
 
 	Needless to say, this is the preferred approach:
 
 	.. ref-code-block::
 
-		dynamiclib MyLib // this pseudo-interface will use jnc.DynamicLib behind the scene
+		dynamiclib MyLib // will use jnc.DynamicLib behind the scene
 		{
 			void stdcall foo (int);
 		}
@@ -67,7 +77,10 @@ namespace jnc {
 			// handle error...
 		}
 
-	Please note that when accessing functions from the dynamic library (``foo`` in the example above), you need to prefix it with ``lib.`` qualifier -- this design was chosen to avoid conflicts between library functions and ``jnc.DynamicLib`` members.
+	Please note that when accessing functions from the dynamic library (``foo``
+	in the example above), you need to prefix it with ``lib.`` qualifier -- this
+	design was chosen to avoid conflicts between library functions and
+	``jnc.DynamicLib`` members.
 
 	\footnote f1
 
@@ -81,15 +94,19 @@ namespace jnc {
 class DynamicLib
 {
 	/**
-		This field holds the native handle of the dynamic library (``HMODULE`` returned by  ``LoadLibraryW`` on Windows, ``void*`` returned by ``dlopen`` on POSIX)
+		This field holds the native handle of the dynamic library (``HMODULE``
+		returned by  ``LoadLibraryW`` on Windows, ``void*`` returned by
+		``dlopen`` on POSIX)
 
-		Usually, you should ignore this field -- unless you plan to do some platform-dependent low-level magic.
+		Usually, you should ignore this field -- unless you plan to do some
+		platform-dependent low-level magic.
 	*/
 
 	void thin* readonly m_handle;
 
 	/**
-		Holds the open status for the dynamic library, i.e. ``true`` if opened; ``false`` otherwise.
+		Holds the open status for the dynamic library, i.e. ``true`` if opened;
+		``false`` otherwise.
 	*/
 
 	property m_isOpen
@@ -108,17 +125,22 @@ class DynamicLib
 	/**
 		Opens (loads) a dynamic library.
 
-		The function accepts a single ``fileName`` argument, which specifies the name of the library-containing file.
+		The function accepts a single ``fileName`` argument, which specifies the
+		name of the library-containing file.
 
-		Returns ``true`` on success. If the dynamic library could not be loaded, IO error supplied by the dynamic loader of the operating system is set and then the function returns ``false`` [#f1]_.
+		Returns ``true`` on success. If the dynamic library could not be loaded,
+		IO error supplied by the dynamic loader of the operating system is set
+		and then the function returns ``false`` [#f1]_.
 	*/
 
 	bool errorcode open (char const* fileName);
 
 	/**
-		Closes (releases) a previously loaded dynamic library, does nothing if no library is loaded. This function always succeeds.
+		Closes (releases) a previously loaded dynamic library, does nothing if
+		no library is loaded. This function always succeeds.
 
-		Sometimes it may be convenient to use *disposable* pattern to ensure timely invokation of ``close`` [#f2]_.
+		Sometimes it may be convenient to use *disposable* pattern to ensure
+		timely invokation of ``close`` [#f2]_.
 	*/
 
 	void close ();
@@ -132,11 +154,18 @@ class DynamicLib
 	/**
 		Resolves a function name in the previously loaded dynamic library.
 
-		The function accepts a single ``name`` argument, which specifies the name of the function. Note that if this is a ``C++`` function, name should be properly *mangled*. On the other hand, ``C`` functions do not have to be prefixed with underscore character ``_``.
+		The function accepts a single ``name`` argument, which specifies the
+		name of the function. Note that if this is a ``C++`` function, name
+		should be properly *mangled*. On the other hand, ``C`` functions do
+		not have to be prefixed with underscore character ``_``.
 
-		Returns abstract pointer (``void thin*``), which then has to be cast to a ``thin`` function pointer of the proper type (e.g., ``void thin function* (int)``.
+		Returns abstract pointer (``void thin*``), which then has to be cast
+		to a ``thin`` function pointer of the proper type (e.g., ``void thin
+		function* (int)``.
 
-		If the function name could not be resolved, IO error supplied by the dynamic loader of the operating system is set and then the function returns ``null`` [#f1]_.
+		If the function name could not be resolved, IO error supplied by the
+		dynamic loader of the operating system is set and then the function
+		returns ``null`` [#f1]_.
 	*/
 
 	void thin* errorcode getFunction (char const* fileName);

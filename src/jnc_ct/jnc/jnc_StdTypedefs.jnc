@@ -17,7 +17,8 @@
 
 	\brief This section describes standard typedefs available in Jancy.
 
-	The purpose of these typedefs is to create a familiar environment for C/C++ programmers and make it easier to switch between Jancy and C/C++.
+	The purpose of these typedefs is to create a familiar environment for C/C++
+	programmers and make it easier to switch between Jancy and C/C++.
 
 */
 
@@ -26,7 +27,9 @@
 //! @{
 
 /**
-	Signed integer type with size equal to the size of a pointer on the given platform. On 32-bit platform ``intptr_t`` is identical to ``int32_t``; on 64-bit platforns ``intptr_t`` is identical to ``int64_t``.
+	Signed integer type with size equal to the size of a pointer on the given
+	platform. On 32-bit platform ``intptr_t`` is identical to ``int32_t``; on
+	64-bit platforns ``intptr_t`` is identical to ``int64_t``.
 */
 
 typedef intptr intptr_t;
@@ -34,13 +37,17 @@ typedef intptr intptr_t;
 /**
 	\subgroup
 
-	Unsigned integer type with size equal to the size of a pointer on the given platform. On 32-bit platform both ``uintptr_t`` and ``size_t`` are identical to ``uint32_t``; on 64-bit platforns they are identical to ``uint64_t``.
+	Unsigned integer type with size equal to the size of a pointer on the given
+	platform. On 32-bit platform both ``uintptr_t`` and ``size_t`` are identical
+	to ``uint32_t``; on 64-bit platforns they are identical to ``uint64_t``.
 */
 
 typedef unsigned intptr uintptr_t;
 typedef unsigned intptr size_t;
 
 /**
+	\subgroup
+
 	Signed integer type with width of 8 bits.
 */
 
@@ -58,6 +65,8 @@ typedef unsigned char uchar_t;
 typedef unsigned char byte_t;
 
 /**
+	\subgroup
+
 	Signed integer type with width of 16 bits.
 */
 
@@ -75,6 +84,8 @@ typedef unsigned short ushort_t;
 typedef unsigned short word_t;
 
 /**
+	\subgroup
+
 	Signed integer type with width of 32 bits.
 */
 

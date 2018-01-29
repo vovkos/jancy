@@ -22,11 +22,24 @@ namespace io {
 	\import io_base.jncx
 	\import io_MappedFile.jnc
 
-	\brief This class provides high level mapped access to the contents of regular disk files.
+	\brief This class provides high level mapped access to the contents of
+	regular disk files.
 
-	From the client point of view, ``io.MappedFile`` exposes the most natural interface imaginable. You just tell: I want to access a region of the file at *this* offset, and of *this* length. And you get a pointer to this region (or ``null`` if this could not be done). That's it! Actual mapping operations, aligning offsets and maintaining a database of previously mapped views is happening behind the stage.
+	From the programmer's point of view, ``io.MappedFile`` exposes the most
+	natural interface imaginable. You just tell: I want to access a region of
+	the file at *this* offset, and of *this* length. And you get a pointer to
+	this region (or ``null`` if this could not be done). That's it! Actual
+	mapping operations, aligning offsets and maintaining a database of
+	previously mapped views is happening behind the stage.
 
-	Views provided by ``io.MappedFile`` can be *permanent* or *dynamic*. A pointer to a permanent view, as the name suggests, remains valid *all the time* while the file is open. Pointers to *dynamic* views, on the other hand, do expire. You can only access ``m_dynamicViewLimit`` views at the same time. Expiration queue is organized in FIFO (first-in-first-out) manner, but it is readjusted each time user requests access to the region with ``view`` method (last accessed view is moved to the tail of the expiration queue).
+	Views provided by ``io.MappedFile`` can be *permanent* or *dynamic*.
+	A pointer to a permanent view, as the name suggests, remains valid *all the
+	time* while the file is open. Pointers to *dynamic* views, on the other
+	hand, do expire. You can only access ``m_dynamicViewLimit`` views at the
+	same time. Expiration queue is organized in FIFO (first-in-first-out)
+	manner, but it is readjusted each time user requests access to the region
+	with ``view`` method (last accessed view is moved to the tail of the
+	expiration queue).
 
 	.. rubric:: Sample code:
 

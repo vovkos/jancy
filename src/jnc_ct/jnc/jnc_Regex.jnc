@@ -43,17 +43,23 @@ struct RegexMatch
 
 /**
 	\ingroup rtl
-	\brief This class holds the lexeme buffer and the state of DFA constructed from an ``reswitch`` statement.
+	\brief This class holds the lexeme buffer and the state of DFA constructed
+	from an ``reswitch`` statement.
 
-	Jancy ``reswitch`` statements allow for convenient creation of lexers/scanners.
+	Jancy ``reswitch`` statements allow for convenient creation of lexers and/or
+	scanners.
 
 	The idea is taken from well-known tools like *Lex*, *Flex*, *Ragel* etc.
 
 	1. Define a list of recognized lexemes in the form of regular expressions.
-	2. Specify which actions to execute when these lexemes are found in the input stream.
-	3. Jancy compiler automatically builds a DFA to recognize your language and perform correspondig actions.
+	2. Specify which actions to execute when these lexemes are found in the
+	   input stream.
+	3. Jancy compiler automatically builds a DFA to recognize your language and
+	   perform correspondig actions.
 
-	To *execute* the resulting DFA you need a ``jnc.RegexState`` object -- it will hold the state of DFA and buffer matched lexemes. In its simplest form recognizer looks like this:
+	To *execute* the resulting DFA you need a ``jnc.RegexState`` object -- it
+	will hold the state of DFA and buffer matched lexemes. In its simplest form
+	recognizer looks like this:
 
 	.. ref-code-block::
 
@@ -75,7 +81,9 @@ struct RegexMatch
 		// ...
 		}
 
-	To employ incremental recognition, you would want to create some kind of a *match* function and call it each time the next chunk of data becomes available:
+	To employ incremental recognition, you would want to create some kind of a
+	*match* function and call it each time the next chunk of data becomes
+	available:
 
 	.. ref-code-block::
 
@@ -114,7 +122,9 @@ struct RegexMatch
 					if (!state.m_consumedLength)
 						return false;
 
-					assert (state.m_isIncremental && state.m_consumedLength == end - p);
+					assert (
+						state.m_isIncremental &&
+						state.m_consumedLength == end - p);
 				}
 
 				p += state.m_consumedLength; // advance to the next lexeme
@@ -123,7 +133,9 @@ struct RegexMatch
 			return true;
 		}
 
-	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk (and not as the whole). You do so by setting ``m_isIncremental`` field to ``true``:
+	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk
+	(and not as the whole). You do so by setting ``m_isIncremental`` field to
+	``true``:
 
 	.. ref-code-block::
 
@@ -153,11 +165,16 @@ opaque class RegexState
 	bool m_isIncremental;
 
 	/**
-		Holds the maximum buffer size for lexemes. Set before starting recognition.
+		Holds the maximum buffer size for lexemes. Set before starting
+		recognition.
 
-		What happends when lexeme in the input stream does not fit inside the buffer, depends on the whether the captured part of lexeme *already* matches some rule. If yes, recognizer will execute corresponding action and then reset its state to initial value.
+		What happends when lexeme in the input stream does not fit inside
+		the buffer, depends on the whether the captured part of lexeme *already*
+		matches some rule. If yes, recognizer will execute corresponding action
+		and then reset its state to initial value.
 
-		If captured part of lexeme does not match any rules, ``write`` or ``recognize`` will return error.
+		If captured part of lexeme does not match any rules, ``write`` or
+		``recognize`` will return error.
 	*/
 
 	size_t autoget property m_matchLengthLimit;
@@ -165,13 +182,22 @@ opaque class RegexState
 	/**
 		Holds the current offset of recognizer.
 
-		Could be adjusted manually. For example, you can adjust ``m_currentOffset`` before starting recognition; when a lexeme is found, ``m_lexemeOffset`` will account for the initial offset (offset relative the beginning of the stream plus initial offset set before starting recognition).
+		Could be adjusted manually. For example, you can adjust
+		``m_currentOffset`` before starting recognition; when a lexeme is found,
+		``m_lexemeOffset`` will account for the initial offset (offset relative
+		the beginning of the stream plus initial offset set before starting
+		recognition).
 	*/
 
 	size_t autoget property m_currentOffset;
 
 	/**
-		Holds the actual length of data consumed during the last invokation of the DFA. When non-incremental recognizer discovers a match, ``m_consumedLength`` will always be the same as ``m_match.m_length``. In case of a incremental recognizer, ``m_consumedLength`` may be smaller than ``m_match.m_length`` (the match may be spread across multiple blocks of input data).
+		Holds the actual length of data consumed during the last invokation of
+		the DFA. When non-incremental recognizer discovers a match,
+		``m_consumedLength`` will always be the same as ``m_match.m_length``. In
+		case of a incremental recognizer, ``m_consumedLength`` may be smaller
+		than ``m_match.m_length`` (the match may be spread across multiple
+		blocks of input data).
 	*/
 
 	size_t readonly m_consumedLength;
@@ -179,9 +205,11 @@ opaque class RegexState
 	/**
 		\subgroup
 
-		These fields hold information about the matched lexeme and, possibly, sub-lexemes (if capturing regular expressions groups were used).
+		These fields hold information about the matched lexeme and, possibly,
+		sub-lexemes (if capturing regular expressions groups were used).
 
-		These fields should only be accessed from within **action** inside ``automaton`` function.
+		These fields should only be accessed from within **action** inside
+		``automaton`` function.
 	*/
 
 	RegexMatch readonly m_match;
@@ -190,13 +218,16 @@ opaque class RegexState
 
 public:
 	/**
-		Constructor of ``jnc.Recognizer`` class. Accepts a single optional argument ``automatonFunc`` which, if supplied, will be written to ``m_automatonFunc`` and used for subsequent scanning.
+		Constructor of ``jnc.Recognizer`` class. Accepts a single optional
+		argument ``automatonFunc`` which, if supplied, will be written to
+		``m_automatonFunc`` and used for subsequent scanning.
 	*/
 
 	construct (bool isIncremental = false);
 
 	/**
-		Resets state of recognizer including all offsets and captured lexeme bytes.
+		Resets state of recognizer including all offsets and captured lexeme
+		bytes.
 	*/
 
 	reset ();
