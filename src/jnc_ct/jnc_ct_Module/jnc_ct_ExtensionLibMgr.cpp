@@ -111,7 +111,7 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.sz (), sys::getTimestamp (), dynamicLibFileName.sz ());
 
 	result =
-		entry->m_zipReader.extractFileToFile (dynamicLibFileIdx, entry->m_dynamicLibFilePath);
+		entry->m_zipReader.extractFileToFile (dynamicLibFileIdx, entry->m_dynamicLibFilePath) &&
 		entry->m_dynamicLib.open (entry->m_dynamicLibFilePath);
 
 	if (!result)
