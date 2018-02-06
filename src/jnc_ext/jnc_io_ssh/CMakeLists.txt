@@ -99,6 +99,13 @@ target_compile_definitions (
 	-D_JNC_DYNAMIC_EXTENSION_LIB
 	)
 
+if (GCC)
+	axl_set_export_version_script_gcc (
+		jnc_io_ssh
+		jncDynamicExtensionLibMain
+		)
+endif ()
+
 axl_set_pch (
 	jnc_io_ssh
 	${PCH_H}

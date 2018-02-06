@@ -90,6 +90,13 @@ add_library (
 	${JNC_LIST}
 	)
 
+if (GCC)
+	axl_set_export_version_script_gcc (
+		jnc_io_pcap
+		jncDynamicExtensionLibMain
+		)
+endif ()
+
 target_compile_definitions (
 	jnc_io_pcap
 	PUBLIC
