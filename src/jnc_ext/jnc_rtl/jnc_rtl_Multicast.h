@@ -81,7 +81,7 @@ protected:
 		*(T*) m_ptr.m_p = ptr;
 		sl::HandleTable <size_t>* handleTable = getHandleTable ();
 		handleTable->clear ();
-		return handleTable->add (0);
+		return (handle_t) handleTable->add (0);
 	}
 
 	template <typename T>
@@ -94,7 +94,7 @@ protected:
 			return NULL;
 
 		*((T*) m_ptr.m_p + i) = ptr;
-		return getHandleTable ()->add (i);
+		return (handle_t) getHandleTable ()->add (i);
 	}
 
 	template <typename T>
@@ -107,13 +107,11 @@ protected:
 			return ptr;
 
 		sl::HandleTable <size_t>* handleTable = (sl::HandleTable <size_t>*) m_handleTable;
-		sl::HandleTable <size_t>::MapIterator mapIt = handleTable->find (handle);
-		if (!mapIt)
+		sl::HandleTableIterator <size_t> it = handleTable->find ((uintptr_t) handle);
+		if (!it)
 			return ptr;
 
-		sl::HandleTable <size_t>::ListIterator listIt = mapIt->m_value;
-
-		size_t i = listIt->m_value;
+		size_t i = it->m_value;
 		ASSERT (i < m_count);
 
 		ptr = *((T*) m_ptr.m_p + i);
@@ -125,10 +123,13 @@ protected:
 		m_count--;
 		memset ((T*) m_ptr.m_p + m_count, 0, sizeof (T));
 
-		for (listIt++; listIt; listIt++)
-			listIt->m_value--;
+		// adjust following indices
 
-		handleTable->erase (mapIt);
+		sl::HandleTableIterator <size_t> it0 = it;
+		for (it++; it; it++)
+			it->m_value--;
+
+		handleTable->erase (it0);
 		return ptr;
 	}
 };

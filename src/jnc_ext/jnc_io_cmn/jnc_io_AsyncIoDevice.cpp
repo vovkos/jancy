@@ -170,7 +170,7 @@ AsyncIoDevice::wait (
 	wait->m_mask = eventMask;
 	wait->m_handlerPtr = handlerPtr;
 	m_asyncWaitList.insertTail (wait);
-	handle_t handle = m_asyncWaitMap.add (wait);
+	handle_t handle = (handle_t) m_asyncWaitMap.add (wait);
 	wait->m_handle = handle;
 	m_lock.unlock ();
 
@@ -182,7 +182,7 @@ AsyncIoDevice::cancelWait (handle_t handle)
 {
 	m_lock.lock ();
 
-	sl::HandleTable <AsyncWait*>::MapIterator it = m_asyncWaitMap.find (handle);
+	sl::HandleTableIterator <AsyncWait*> it = m_asyncWaitMap.find ((uintptr_t) handle);
 	if (!it)
 	{
 		m_lock.unlock ();
@@ -190,7 +190,7 @@ AsyncIoDevice::cancelWait (handle_t handle)
 		return false; // not found
 	}
 
-	m_asyncWaitList.erase (it->m_value->m_value);
+	m_asyncWaitList.erase (it->m_value);
 	m_asyncWaitMap.erase (it);
 	m_lock.unlock ();
 
@@ -252,7 +252,7 @@ AsyncIoDevice::processWaitLists_l ()
 			wait->m_mask = triggeredEvents;
 			m_asyncWaitList.remove (wait);
 			m_pendingAsyncWaitList.insertTail (wait);
-			m_asyncWaitMap.eraseHandle (wait->m_handle);
+			m_asyncWaitMap.eraseKey ((uintptr_t) wait->m_handle);
 			asyncIt = nextIt;
 		}
 	}

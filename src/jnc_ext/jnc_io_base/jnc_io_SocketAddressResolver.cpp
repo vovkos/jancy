@@ -136,8 +136,7 @@ SocketAddressResolver::resolve (
 
 	m_lock.lock ();
 
-	uintptr_t id = (uintptr_t) m_reqMap.add (req);
-
+	uintptr_t id = m_reqMap.add (req);
 	m_pendingReqList.insertTail (req);
 	req->m_id = id;
 
@@ -166,7 +165,7 @@ SocketAddressResolver::cancel (uintptr_t id)
 {
 	m_lock.lock ();
 
-	Req* req = m_reqMap.findValue ((handle_t) id, NULL);
+	Req* req = m_reqMap.findValue (id, NULL);
 	if (!req)
 	{
 		m_lock.unlock ();
@@ -174,7 +173,7 @@ SocketAddressResolver::cancel (uintptr_t id)
 	}
 
 	ASSERT (req->m_id == id);
-	m_reqMap.eraseHandle ((handle_t) req->m_id);
+	m_reqMap.eraseKey (req->m_id);
 	m_activeReqList.insertTail (req);
 	m_lock.unlock ();
 
@@ -198,7 +197,7 @@ SocketAddressResolver::cancelAll ()
 	while (!m_activeReqList.isEmpty ())
 	{
 		Req* req = m_pendingReqList.removeTail ();
-		m_reqMap.eraseHandle ((handle_t) req->m_id);
+		m_reqMap.eraseKey (req->m_id);
 		m_activeReqList.insertTail (req);
 		m_lock.unlock ();
 
@@ -223,7 +222,7 @@ SocketAddressResolver::ioThreadFunc ()
 				break;
 
 			Req* req = m_pendingReqList.removeHead ();
-			m_reqMap.eraseHandle ((handle_t) req->m_id);
+			m_reqMap.eraseKey (req->m_id);
 			m_activeReqList.insertTail (req);
 			m_lock.unlock ();
 
