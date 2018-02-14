@@ -1799,7 +1799,7 @@ TypeMgr::getDataPtrType (
 
 	size_t i1 = typeKind == TypeKind_DataRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : 1;
+	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : (flags & PtrTypeFlag_ReadOnly) ? 1 : 2;
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
@@ -1852,7 +1852,7 @@ TypeMgr::getClassPtrType (
 
 	size_t i1 = typeKind == TypeKind_ClassRef;
 	size_t i2 = ptrTypeKind;
-	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : 1;
+	size_t i3 = (flags & PtrTypeFlag_Const) ? 0 : (flags & PtrTypeFlag_ReadOnly) ? 1 : 2;
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
