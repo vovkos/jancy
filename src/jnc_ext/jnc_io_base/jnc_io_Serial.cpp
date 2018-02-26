@@ -787,6 +787,7 @@ Serial::ioThreadFunc ()
 		while (canReadSerial && !m_readBuffer.isFull ())
 		{
 			ssize_t actualSize = ::read (m_serial.m_serial, readBlock, readBlock.getCount ());
+
 			if (actualSize == -1)
 			{
 				if (errno == EAGAIN)
@@ -798,6 +799,11 @@ Serial::ioThreadFunc ()
 					setIoErrorEvent_l (err::Errno (errno));
 					return;
 				}
+			}
+			else if (actualSize == 0)
+			{
+				setIoErrorEvent_l (err::Errno (EPIPE));
+				return;
 			}
 			else
 			{
