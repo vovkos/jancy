@@ -53,6 +53,11 @@ void
 JNC_CDECL
 SocketAddressResolver::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
+	if (!m_runtime) // not constructed yet
+		return;
+
+	m_lock.lock ();
+
 	sl::Iterator <Req> it = m_pendingReqList.getHead ();
 	for (; it; it++)
 		if (it->m_completionFuncPtr.m_closure)
@@ -62,6 +67,8 @@ SocketAddressResolver::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 	for (; it; it++)
 		if (it->m_completionFuncPtr.m_closure)
 			gcHeap->markClass (it->m_completionFuncPtr.m_closure->m_box);
+
+	m_lock.unlock ();
 }
 
 void

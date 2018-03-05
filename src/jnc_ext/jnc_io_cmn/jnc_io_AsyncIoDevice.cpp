@@ -26,6 +26,11 @@ AsyncIoDevice::AsyncIoDevice ()
 void
 AsyncIoDevice::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
+	if (!m_runtime) // not constructed yet
+		return;
+
+	m_lock.lock ();
+
 	sl::Iterator <AsyncWait> it = m_asyncWaitList.getHead ();
 	for (; it; it++)
 		if (it->m_handlerPtr.m_closure)
@@ -35,6 +40,8 @@ AsyncIoDevice::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 	for (; it; it++)
 		if (it->m_handlerPtr.m_closure)
 			gcHeap->markClass (it->m_handlerPtr.m_closure->m_box);
+
+	m_lock.unlock ();
 }
 
 void
