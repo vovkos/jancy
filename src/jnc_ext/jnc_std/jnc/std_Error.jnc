@@ -42,14 +42,14 @@ struct Error
 		``>= sizeof (std.Error)``.
 	*/
 
-	uint32_t readonly m_size;
+	uint32_t m_size;
 
 	/**
 		The ``GUID`` of the error. It tells Jancy runtime how to interpret
 		``m_code`` and the extra bytes of data following ``std.Error`` header.
 	*/
 
-	Guid readonly m_guid;
+	Guid m_guid;
 
 	/**
 		The numerical code of the error. The actual meaning of this code depends
@@ -57,7 +57,7 @@ struct Error
 		user-defined code.
 	*/
 
-	uint32_t readonly m_code;
+	uint32_t m_code;
 
 	/**
 		Creates and returns human-readable description of the error.
