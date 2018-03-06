@@ -52,6 +52,7 @@ AsyncIoDevice::open ()
 	m_activeEvents = 0;
 
 	m_readBuffer.clear ();
+	m_readOverflowBuffer.clear ();
 	m_writeBuffer.clear ();
 
 #if (_JNC_OS_WIN)
