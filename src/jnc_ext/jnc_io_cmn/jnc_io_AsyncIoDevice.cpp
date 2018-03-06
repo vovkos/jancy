@@ -292,7 +292,7 @@ AsyncIoDevice::processWaitLists_l ()
 void
 AsyncIoDevice::setEvents_l (uint_t events)
 {
-	if (!(m_activeEvents ^ events))
+	if ((m_activeEvents & events) == events) // was set already
 	{
 		m_lock.unlock ();
 		return;
