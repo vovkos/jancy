@@ -390,8 +390,8 @@ FileStream::ioThreadFunc ()
 
 	readBlock.setCount (Def_ReadBlockSize);
 
-	bool canReadSerial = false;
-	bool canWriteSerial = false;
+	bool canReadFile = false;
+	bool canWriteFile = false;
 
 	// read/write loop
 
@@ -402,10 +402,10 @@ FileStream::ioThreadFunc ()
 
 		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
 
-		if (!canReadSerial)
+		if (!canReadFile)
 			FD_SET (m_file.m_file, &readSet);
 
-		if (!canWriteSerial)
+		if (!canWriteFile)
 			FD_SET (m_file.m_file, &writeSet);
 
 		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
@@ -419,10 +419,10 @@ FileStream::ioThreadFunc ()
 		}
 
 		if (FD_ISSET (m_file.m_file, &readSet))
-			canReadSerial = true;
+			canReadFile = true;
 
 		if (FD_ISSET (m_file.m_file, &writeSet))
-			canWriteSerial = true;
+			canWriteFile = true;
 
 		m_lock.lock ();
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
@@ -436,14 +436,14 @@ FileStream::ioThreadFunc ()
 
 		readBlock.setCount (m_readBlockSize); // update read block size
 
-		while (canReadSerial && !m_readBuffer.isFull ())
+		while (canReadFile && !m_readBuffer.isFull ())
 		{
 			ssize_t actualSize = ::read (m_file.m_file, readBlock, readBlock.getCount ());
 			if (actualSize == -1)
 			{
 				if (errno == EAGAIN)
 				{
-					canReadSerial = false;
+					canReadFile = false;
 				}
 				else
 				{
@@ -451,13 +451,18 @@ FileStream::ioThreadFunc ()
 					return;
 				}
 			}
+			else if (actualSize == 0)
+			{
+				setEvents_l (FileStreamEvent_Eof);
+				return;
+			}
 			else
 			{
 				addToReadBuffer (readBlock, actualSize);
 			}
 		}
 
-		while (canWriteSerial)
+		while (canWriteFile)
 		{
 			getNextWriteBlock (&writeBlock);
 			if (writeBlock.isEmpty ())
@@ -469,7 +474,7 @@ FileStream::ioThreadFunc ()
 			{
 				if (errno == EAGAIN)
 				{
-					canWriteSerial = false;
+					canWriteFile = false;
 				}
 				else if (actualSize < 0)
 				{
