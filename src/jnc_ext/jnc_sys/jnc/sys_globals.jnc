@@ -161,6 +161,43 @@ uint64_t getTimestamp ();
 
 uint64_t getPreciseTimestamp ();
 
+/**
+	\subgroup
+
+	Returns string representation of the timestamp.
+
+	%h -- hour in 24-hour format (00..24)
+	%H -- hour in 12-hour format (1..12)
+	%m -- minutes (00..59)
+	%s -- seconds (00..59)
+	%l -- milliseconds (0..999)
+	%c -- microseconds (0..999)
+	%p -- AM / PM designition lower case (a / p)
+	%p -- AM / PM designition upper case (A / P)
+	%y -- year, last 2-digit format (0..99)
+	%Y -- year, all digits
+	%D -- day of month, leading zero (01..31)
+	%d -- day of month, no leading zero (1..31)
+	%M -- month index, leading zero (01..12)
+	%o -- month index, no leading zero (1..12)
+	%n -- month short name (Jan..Dec)
+	%N -- month full name (January..December)
+	%w -- week day short name (Sun..Sat)
+	%W -- week day full name (Sunday..Saturday)
+
+	\sa `sys.getTimestamp`, `sys.getPreciseTimestamp`
+*/
+
+char const* formatTimestamp (
+	uint64_t timestamp,
+	char const* format
+	);
+
+char const* formatTimestamp (
+	uint64_t timestamp,
+	int timeZone,
+	char const* format
+	);
 
 //! @}
 

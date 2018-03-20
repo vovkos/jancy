@@ -181,6 +181,29 @@ getSystemInfo ()
 	return &systemInfo;
 }
 
+DataPtr 
+formatTimestamp_0 (
+	uint64_t timestamp,
+	DataPtr format
+	)
+{
+	axl::sys::Time time (timestamp);
+	sl::String string = time.format ((const char*) format.m_p);
+	return strDup (string);
+}
+
+DataPtr 
+formatTimestamp_1 (
+	uint64_t timestamp,
+	int timeZone,
+	DataPtr format
+	)
+{
+	axl::sys::Time time (timestamp, timeZone);
+	sl::String string = time.format ((const char*) format.m_p);
+	return strDup (string);
+}
+
 //..............................................................................
 
 } // namespace sys
@@ -218,6 +241,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
 	JNC_MAP_FUNCTION ("sys.getCurrentThreadId",  getCurrentThreadId)
 	JNC_MAP_FUNCTION ("sys.getTimestamp",        axl::sys::getTimestamp)
 	JNC_MAP_FUNCTION ("sys.getPreciseTimestamp", axl::sys::getPreciseTimestamp)
+	JNC_MAP_FUNCTION ("sys.formatTimestamp",     formatTimestamp_0)
+	JNC_MAP_OVERLOAD (formatTimestamp_1)
 	JNC_MAP_FUNCTION ("sys.sleep",               jnc::sys::sleep)
 	JNC_MAP_FUNCTION ("sys.collectGarbage",      collectGarbage)
 	JNC_MAP_FUNCTION ("sys.getGcStats",          getGcStats)
