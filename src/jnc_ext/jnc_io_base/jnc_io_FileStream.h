@@ -39,7 +39,7 @@ enum FileStreamOption
 
 enum FileStreamEvent
 {
-	FileStreamEvent_Eof = 0x0100,
+	FileStreamEvent_Eof = 0x0010,
 };
 
 //..............................................................................
@@ -93,6 +93,8 @@ protected:
 		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
 		axl::io::win::StdOverlapped m_writeOverlapped;
 		sl::Array <char> m_writeBlock;
+		uint64_t m_readOffset;
+		uint64_t m_writeOffset;
 	};
 #endif
 

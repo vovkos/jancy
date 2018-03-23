@@ -208,6 +208,13 @@ FileStream::clear ()
 		return false;
 	}
 
+#if (_AXL_OS_WIN)
+	m_lock.lock ();
+	m_overlappedIo->m_readOffset = 0;
+	m_overlappedIo->m_writeOffset = 0;
+	m_lock.unlock ();
+#endif
+
 	return true;
 }
 
@@ -230,6 +237,7 @@ FileStream::ioThreadFunc ()
 	size_t waitCount = 2; // always 2 or 3
 
 	bool isWritingFile = false;
+	bool isDiskFile = ::GetFileType (m_file.m_file) == FILE_TYPE_DISK; // need to advance read/write offsets
 
 	m_ioThreadEvent.signal (); // do initial update of active events
 
@@ -264,12 +272,19 @@ FileStream::ioThreadFunc ()
 				return;
 			}
 
+			if (!actualSize)
+			{
+				setEvents (FileStreamEvent_Eof);
+				return;
+			}
+
 			m_overlappedIo->m_activeOverlappedReadList.remove (read);
 
 			// only the main read buffer must be lock-protected
 
 			m_lock.lock ();
 			addToReadBuffer (read->m_buffer, actualSize);
+			m_overlappedIo->m_readOffset += actualSize;
 			m_lock.unlock ();
 
 			read->m_overlapped.m_completionEvent.reset ();
@@ -294,6 +309,8 @@ FileStream::ioThreadFunc ()
 				m_overlappedIo->m_writeBlock.clear ();
 
 			m_overlappedIo->m_writeOverlapped.m_completionEvent.reset ();
+			m_overlappedIo->m_writeOffset += actualSize;
+
 			isWritingFile = false;
 		}
 
@@ -313,8 +330,9 @@ FileStream::ioThreadFunc ()
 		// take snapshots before releasing the lock
 
 		bool isReadBufferFull = m_readBuffer.isFull ();
-		size_t readParallelism = m_readParallelism;
+		size_t readParallelism = isDiskFile ? 1 : m_readParallelism;
 		size_t readBlockSize = m_readBlockSize;
+		uint64_t writeOffset = m_overlappedIo->m_writeOffset;
 
 		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l ();
@@ -323,6 +341,12 @@ FileStream::ioThreadFunc ()
 
 		if (!isWritingFile && !m_overlappedIo->m_writeBlock.isEmpty ())
 		{
+			if (isDiskFile)
+			{
+				m_overlappedIo->m_writeOverlapped.Offset = (uint32_t) writeOffset;
+				m_overlappedIo->m_writeOverlapped.OffsetHigh = (uint32_t) (writeOffset >> 32);
+			}
+
 			result = m_file.m_file.overlappedWrite (
 				m_overlappedIo->m_writeBlock,
 				m_overlappedIo->m_writeBlock.getCount (),
@@ -345,6 +369,12 @@ FileStream::ioThreadFunc ()
 			for (size_t i = 0; i < newReadCount; i++)
 			{
 				OverlappedRead* read = m_overlappedIo->m_overlappedReadPool.get ();
+
+				if (isDiskFile)
+				{
+					read->m_overlapped.Offset = (uint32_t) m_overlappedIo->m_readOffset;
+					read->m_overlapped.OffsetHigh = (uint32_t) (m_overlappedIo->m_readOffset >> 32);
+				}
 
 				result =
 					read->m_buffer.setCount (readBlockSize) &&
