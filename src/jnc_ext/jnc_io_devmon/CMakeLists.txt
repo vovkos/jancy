@@ -103,7 +103,7 @@ target_compile_definitions (
 	-D_JNC_DYNAMIC_EXTENSION_LIB
 	)
 
-if (GCC)
+if (GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc (
 		jnc_io_devmon
 		jncDynamicExtensionLibMain

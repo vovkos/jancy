@@ -90,7 +90,7 @@ add_library (
 	${JNC_LIST}
 	)
 
-if (GCC)
+if (GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc (
 		jnc_io_pcap
 		jncDynamicExtensionLibMain
