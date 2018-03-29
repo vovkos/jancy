@@ -145,6 +145,7 @@ elseif (UNIX)
 	if (NOT APPLE)
 		target_link_libraries (
 			jnc_io_ssh
+			crypto
 			rt
 			)
 	endif ()

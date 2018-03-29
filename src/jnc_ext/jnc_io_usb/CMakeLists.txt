@@ -162,6 +162,13 @@ else ()
 		jnc_io_usb
 		usb-1.0
 		)
+
+	if (LINUX)
+		target_link_libraries (
+			jnc_io_usb
+			udev
+			)
+	endif ()
 endif ()
 
 set_target_properties (

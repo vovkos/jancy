@@ -278,6 +278,13 @@ if (LIBUSB_FOUND)
 				${IOKIT_FRAMEWORK}
 				)
 		endif ()
+
+		if (LINUX)
+			target_link_libraries (
+				jnc_test_qt
+				udev
+				)
+		endif ()
 	endif ()
 endif ()
 
