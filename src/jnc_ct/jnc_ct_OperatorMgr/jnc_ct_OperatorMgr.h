@@ -53,6 +53,7 @@ enum StdCast
 	StdCast_SwapByteOrder,
 	StdCast_PtrFromInt,
 	StdCast_Int,
+	StdCast_BeInt,
 	StdCast_Fp,
 	StdCast_FromVariant,
 	StdCast__Count

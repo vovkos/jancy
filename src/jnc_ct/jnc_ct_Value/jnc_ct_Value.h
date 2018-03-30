@@ -428,6 +428,9 @@ public:
 	setProperty (Property* prop);
 
 	void
+	setEnumConst (EnumConst* enumConst);
+
+	void
 	setField (
 		StructField* field,
 		Type* type,

@@ -402,8 +402,10 @@ Cast_IntFromEnum::getCastOperators (
 		return true;
 	}
 
+	bool isBigEndian = (intermediateType->getTypeKindFlags () & TypeKindFlag_BigEndian) != 0;
+
 	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (isBigEndian ? StdCast_BeInt : StdCast_Int);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -445,7 +447,9 @@ Cast_Enum::getCastOperators (
 		return true;
 	}
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Int);
+	bool isBigEndian = (intermediateType->getTypeKindFlags () & TypeKindFlag_BigEndian) != 0;
+
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (isBigEndian ? StdCast_BeInt : StdCast_Int);
 	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
 	*intermediateType_o = intermediateType;
 	return true;

@@ -401,6 +401,27 @@ Value::setProperty (Property* prop)
 }
 
 void
+Value::setEnumConst (EnumConst* enumConst)
+{
+	EnumType* enumType;
+	uint64_t enumValue;
+
+	enumType = enumConst->getParentEnumType ();
+	enumValue = enumConst->getValue ();
+
+	if (enumType->getBaseType ()->getTypeKindFlags () & TypeKindFlag_BigEndian)
+	{
+		enumValue = sl::swapByteOrder64 (enumValue);
+			
+		size_t size = enumType->getSize ();
+		if (size < 8)
+			enumValue >>= (8 - size) * 8; 
+	}
+
+	createConst (&enumValue, enumType);
+}
+
+void
 Value::setField (
 	StructField* field,
 	Type* type,

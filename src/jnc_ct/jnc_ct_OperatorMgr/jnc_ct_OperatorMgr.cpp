@@ -120,6 +120,7 @@ OperatorMgr::OperatorMgr ()
 	m_stdCastOperatorTable [StdCast_SwapByteOrder] = &m_cast_SwapByteOrder;
 	m_stdCastOperatorTable [StdCast_PtrFromInt] = &m_cast_PtrFromInt;
 	m_stdCastOperatorTable [StdCast_Int] = &m_cast_Int;
+	m_stdCastOperatorTable [StdCast_BeInt] = &m_cast_BeInt;
 	m_stdCastOperatorTable [StdCast_Fp] = &m_cast_Fp;
 	m_stdCastOperatorTable [StdCast_FromVariant] = &m_cast_FromVariant;
 

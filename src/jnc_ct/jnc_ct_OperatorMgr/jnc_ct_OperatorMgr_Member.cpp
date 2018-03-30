@@ -328,10 +328,7 @@ OperatorMgr::getNamespaceMember (
 		if (!result)
 			return false;
 
-		resultValue->setConstInt64 (
-			((EnumConst*) item)->getValue (),
-			((EnumConst*) item)->getParentEnumType ()
-			);
+		resultValue->setEnumConst ((EnumConst*) item);
 		decl = (EnumConst*) item;
 		break;
 

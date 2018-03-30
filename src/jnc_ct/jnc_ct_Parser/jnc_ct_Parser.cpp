@@ -2504,10 +2504,7 @@ Parser::lookupIdentifier (
 				return false;
 		}
 
-		value->setConstInt64 (
-			((EnumConst*) item)->getValue (),
-			((EnumConst*) item)->getParentEnumType ()
-			);
+		value->setEnumConst ((EnumConst*) item);
 		break;
 
 	case ModuleItemKind_StructField:
