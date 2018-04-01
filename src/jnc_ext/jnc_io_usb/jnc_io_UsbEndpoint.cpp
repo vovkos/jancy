@@ -336,7 +336,7 @@ UsbEndpoint::submitTransfer (
 			p,
 			size,
 			onTransferCompleted,
-			this
+			transfer
 			);
 		break;
 
@@ -347,7 +347,7 @@ UsbEndpoint::submitTransfer (
 			p,
 			size,
 			onTransferCompleted,
-			this
+			transfer
 			);
 		break;
 
