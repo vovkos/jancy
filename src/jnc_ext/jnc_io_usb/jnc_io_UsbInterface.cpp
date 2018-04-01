@@ -89,6 +89,8 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 		sizeof (UsbEndpointDesc)
 		);
 
+	endpoint->m_isOpen = true;
+
 	JNC_END_CALL_SITE ()
 
 	result = endpoint->startIoThread ();

@@ -18,8 +18,8 @@ namespace io {
 
 enum AsyncIoEvent
 {
-	AsyncIoEvent_IoError             = 0x0001,
-	AsyncIoEvent_IncomingData        = 0x0002,
+	AsyncIoEvent_IoError          = 0x0001,
+	AsyncIoEvent_IncomingData     = 0x0002,
 	AsyncIoEvent_ReadBufferFull   = 0x0004,
 	AsyncIoEvent_WriteBufferReady = 0x0008,
 };
