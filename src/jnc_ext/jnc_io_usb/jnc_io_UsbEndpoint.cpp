@@ -134,7 +134,7 @@ UsbEndpoint::cancelAllActiveTransfers ()
 	sl::Array <Transfer*> activeTransferArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
 	m_lock.lock ();
-	
+
 	sl::Iterator <Transfer> it = m_activeTransferList.getHead ();
 	for (; it; it++)
 		activeTransferArray.append (*it);
@@ -184,7 +184,7 @@ UsbEndpoint::readLoop ()
 			m_lock.unlock ();
 			break;
 		}
-		
+
 		while (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = m_completedTransferList.removeHead ();
@@ -260,7 +260,7 @@ UsbEndpoint::writeLoop ()
 			m_lock.unlock ();
 			break;
 		}
-		
+
 		if (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = *m_completedTransferList.getHead ();
@@ -289,7 +289,7 @@ UsbEndpoint::writeLoop ()
 		{
 			Transfer* transfer = m_transferPool.get ();
 			m_lock.unlock ();
-				
+
 			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount ());
 
 			m_lock.lock ();
@@ -321,6 +321,10 @@ UsbEndpoint::submitTransfer (
 	)
 {
 	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
+
+	bool result = transfer->m_usbTransfer.create ();
+	if (!result)
+		return false;
 
 	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice ();
 	switch (desc->m_transferType)
@@ -356,7 +360,7 @@ UsbEndpoint::submitTransfer (
 		err::setError (err::SystemErrorCode_NotImplemented);
 		return false;
 	}
-	
+
 	transfer->m_self = this;
 
 	return transfer->m_usbTransfer.submit ();
