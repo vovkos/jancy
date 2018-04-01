@@ -75,11 +75,11 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 		return NULL;
 	}
 
-	UsbEndpoint* endpoint = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();
+	GcHeap* gcHeap = runtime->getGcHeap ();
+	gcHeap->enterNoCollectRegion();
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	endpoint = createClass <UsbEndpoint> (runtime);
+	UsbEndpoint* endpoint = createClass <UsbEndpoint> (runtime);
 	endpoint->m_parentInterface = this;
 	endpoint->m_endpointDescPtr.m_p = endpointDesc;
 
@@ -89,13 +89,9 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 		sizeof (UsbEndpointDesc)
 		);
 
-	endpoint->m_isOpen = true;
+	gcHeap->leaveNoCollectRegion (false);
 
-	JNC_END_CALL_SITE ()
-
-	result = endpoint->startIoThread ();
-	if (!result)
-		return NULL;
+	endpoint->open ();
 
 	return endpoint;
 }

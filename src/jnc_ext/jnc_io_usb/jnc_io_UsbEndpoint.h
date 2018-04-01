@@ -28,6 +28,7 @@ struct UsbEndpointHdr: IfaceHdr
 	UsbInterface* m_parentInterface;
 	DataPtr m_endpointDescPtr;
 
+	uint_t m_readTimeout;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -48,8 +49,9 @@ public:
 protected:
 	enum Def
 	{
+		Def_ReadTimeout     = 200,
+		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadParallelism = 4,
-		Def_ReadBlockSize   = 1 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_WriteBufferSize = 16 * 1024,
 		Def_Options         = AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize,
@@ -96,14 +98,18 @@ public:
 	}
 
 	bool
-	startIoThread ()
-	{
-		return m_ioThread.start ();
-	}
+	open ();
 
 	void
 	JNC_CDECL
 	close ();
+
+	void
+	JNC_CDECL
+	setReadTimeout (uint_t timeout)
+	{
+		AsyncIoDevice::setSetting (&m_readTimeout, timeout ? timeout : Def_ReadTimeout);
+	}
 
 	void
 	JNC_CDECL
@@ -112,18 +118,18 @@ public:
 		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
-	void
-	JNC_CDECL
-	setReadBlockSize (size_t size)
-	{
-		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
-	}
-
 	bool
 	JNC_CDECL
 	setReadBufferSize (size_t size)
 	{
 		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+	}
+
+	void
+	JNC_CDECL
+	setReadBlockSize (size_t size)
+	{
+		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
@@ -210,7 +216,8 @@ protected:
 	submitTransfer (
 		Transfer* transfer,
 		void* p,
-		size_t size
+		size_t size,
+		uint_t timeout
 		);
 
 	static

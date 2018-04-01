@@ -107,6 +107,7 @@ opaque class UsbEndpoint
 	UsbInterface* const m_parentInterface;
 	UsbEndpointDesc const* const m_endpointDesc;
 
+	uint_t autoget property m_readTimeout;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;

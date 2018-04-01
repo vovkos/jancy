@@ -151,10 +151,11 @@ UsbDevice::claimInterface (
 		return NULL;
 	}
 
-	Runtime* runtime = getCurrentThreadRuntime ();
 	UsbInterface* iface = NULL;
 
-	JNC_BEGIN_CALL_SITE (runtime)
+	Runtime* runtime = getCurrentThreadRuntime ();
+	GcHeap* gcHeap = runtime->getGcHeap ();
+	gcHeap->enterNoCollectRegion();
 
 	DataPtr configDescPtr = getActiveConfigurationDesc (this);
 	UsbConfigurationDesc* configDesc = (UsbConfigurationDesc*) configDescPtr.m_p;
@@ -179,7 +180,7 @@ UsbDevice::claimInterface (
 		iface->m_isClaimed = true;
 	}
 
-	JNC_END_CALL_SITE ()
+	gcHeap->leaveNoCollectRegion (false);
 
 	if (!iface)
 		jnc::propagateLastError ();

@@ -34,6 +34,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (UsbEndpoint)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <UsbEndpoint>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbEndpoint>)
 
+	JNC_MAP_AUTOGET_PROPERTY ("m_readTimeout",     &UsbEndpoint::setReadTimeout)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism", &UsbEndpoint::setReadParallelism)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",   &UsbEndpoint::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &UsbEndpoint::setReadBufferSize)
@@ -52,6 +53,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 UsbEndpoint::UsbEndpoint ()
 {
+	m_readTimeout = Def_ReadTimeout;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
@@ -60,6 +62,14 @@ UsbEndpoint::UsbEndpoint ()
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+}
+
+bool
+UsbEndpoint::open ()
+{
+	AsyncIoDevice::open ();
+	wakeIoThread ();
+	return m_ioThread.start ();
 }
 
 void
@@ -174,6 +184,8 @@ UsbEndpoint::readLoop ()
 
 	bool result;
 
+	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
+
 	for (;;)
 	{
 		sleepIoThread ();
@@ -185,10 +197,15 @@ UsbEndpoint::readLoop ()
 			break;
 		}
 
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
 		while (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = m_completedTransferList.removeHead ();
-			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED)
+			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED &&
+				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_TIMED_OUT
+				)
 			{
 				m_transferPool.put (transfer);
 				setIoErrorEvent_l (axl::io::UsbError (LIBUSB_ERROR_IO));
@@ -199,17 +216,16 @@ UsbEndpoint::readLoop ()
 			m_transferPool.put (transfer);
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = 0;
-
 		size_t activeReadCount = m_activeTransferList.getCount ();
 		if (!m_readBuffer.isFull () && activeReadCount < m_readParallelism)
 		{
+			uint_t readTimeout = m_readTimeout;
+			size_t readBlockSize = m_readBlockSize;
 			size_t newReadCount = m_readParallelism - activeReadCount;
 			for (size_t i = 0; i < newReadCount; i++)
 			{
 				Transfer* transfer = m_transferPool.get ();
-				result = transfer->m_buffer.setCount (m_readBlockSize);
+				result = transfer->m_buffer.setCount (readBlockSize);
 				if (!result)
 				{
 					m_transferPool.put (transfer);
@@ -219,7 +235,7 @@ UsbEndpoint::readLoop ()
 
 				m_lock.unlock ();
 
-				result = submitTransfer (transfer, transfer->m_buffer, transfer->m_buffer.getCount ());
+				result = submitTransfer (transfer, transfer->m_buffer, transfer->m_buffer.getCount (), readTimeout);
 
 				m_lock.lock ();
 
@@ -261,6 +277,9 @@ UsbEndpoint::writeLoop ()
 			break;
 		}
 
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
 		if (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = *m_completedTransferList.getHead ();
@@ -280,9 +299,6 @@ UsbEndpoint::writeLoop ()
 			ASSERT (m_completedTransferList.isEmpty ());
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = 0;
-
 		getNextWriteBlock (&m_writeBlock);
 
 		if (m_activeTransferList.isEmpty () && !m_writeBlock.isEmpty ())
@@ -290,7 +306,7 @@ UsbEndpoint::writeLoop ()
 			Transfer* transfer = m_transferPool.get ();
 			m_lock.unlock ();
 
-			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount ());
+			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount (), -1);
 
 			m_lock.lock ();
 
@@ -317,7 +333,8 @@ bool
 UsbEndpoint::submitTransfer (
 	Transfer* transfer,
 	void* p,
-	size_t size
+	size_t size,
+	uint_t timeout
 	)
 {
 	UsbEndpointDesc* desc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
@@ -336,8 +353,10 @@ UsbEndpoint::submitTransfer (
 			p,
 			size,
 			onTransferCompleted,
-			transfer
+			transfer,
+			timeout
 			);
+
 		break;
 
 	case LIBUSB_TRANSFER_TYPE_INTERRUPT:
@@ -347,8 +366,10 @@ UsbEndpoint::submitTransfer (
 			p,
 			size,
 			onTransferCompleted,
-			transfer
+			transfer,
+			timeout
 			);
+
 		break;
 
 	case LIBUSB_TRANSFER_TYPE_CONTROL:
