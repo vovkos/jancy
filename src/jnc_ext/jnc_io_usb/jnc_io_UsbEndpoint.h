@@ -72,6 +72,7 @@ protected:
 		UsbEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
 		sl::Array <char> m_buffer;
+		bool m_isCompletedOutOfOrder;
 	};
 
 protected:

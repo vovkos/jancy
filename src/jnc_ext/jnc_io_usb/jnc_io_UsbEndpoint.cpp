@@ -203,8 +203,10 @@ UsbEndpoint::readLoop ()
 		while (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = m_completedTransferList.removeHead ();
+
 			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED &&
-				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_TIMED_OUT
+				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_TIMED_OUT && // <- not really an error
+				transfer->m_usbTransfer->status != LIBUSB_TRANSFER_CANCELLED    // <- not really an error
 				)
 			{
 				m_transferPool.put (transfer);
@@ -233,6 +235,8 @@ UsbEndpoint::readLoop ()
 					return;
 				}
 
+				transfer->m_isCompletedOutOfOrder = false;
+				m_activeTransferList.insertTail (transfer); // put it on active list prior to submission
 				m_lock.unlock ();
 
 				result = submitTransfer (transfer, transfer->m_buffer, transfer->m_buffer.getCount (), readTimeout);
@@ -241,12 +245,11 @@ UsbEndpoint::readLoop ()
 
 				if (!result)
 				{
+					m_activeTransferList.remove (transfer);
 					m_transferPool.put (transfer);
 					setIoErrorEvent_l ();
 					return;
 				}
-
-				m_activeTransferList.insertTail (transfer);
 			}
 		}
 
@@ -282,7 +285,8 @@ UsbEndpoint::writeLoop ()
 
 		if (!m_completedTransferList.isEmpty ())
 		{
-			Transfer* transfer = *m_completedTransferList.getHead ();
+			Transfer* transfer = m_completedTransferList.removeHead ();
+
 			if (transfer->m_usbTransfer->status != LIBUSB_TRANSFER_COMPLETED)
 			{
 				m_transferPool.put (transfer);
@@ -296,7 +300,7 @@ UsbEndpoint::writeLoop ()
 				m_writeBlock.clear ();
 
 			m_transferPool.put (transfer);
-			ASSERT (m_completedTransferList.isEmpty ());
+			ASSERT (m_completedTransferList.isEmpty ()); // we never submit more than one
 		}
 
 		getNextWriteBlock (&m_writeBlock);
@@ -304,6 +308,8 @@ UsbEndpoint::writeLoop ()
 		if (m_activeTransferList.isEmpty () && !m_writeBlock.isEmpty ())
 		{
 			Transfer* transfer = m_transferPool.get ();
+			transfer->m_isCompletedOutOfOrder = false;
+			m_activeTransferList.insertTail (transfer); // put it on active list prior to submission
 			m_lock.unlock ();
 
 			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount (), -1);
@@ -312,12 +318,11 @@ UsbEndpoint::writeLoop ()
 
 			if (!result)
 			{
+				m_activeTransferList.remove (transfer);
 				m_transferPool.put (transfer);
 				setIoErrorEvent_l ();
 				break;
 			}
-
-			m_activeTransferList.insertTail (transfer);
 		}
 
 		updateReadWriteBufferEvents ();
@@ -392,13 +397,30 @@ LIBUSB_CALL
 UsbEndpoint::onTransferCompleted (libusb_transfer* usbTransfer)
 {
 	Transfer* transfer = (Transfer*) usbTransfer->user_data;
+	ASSERT (transfer->m_usbTransfer == usbTransfer);
+
 	UsbEndpoint* self = transfer->m_self;
 
 	self->m_lock.lock ();
-	ASSERT (transfer->m_usbTransfer == usbTransfer && transfer == *self->m_activeTransferList.getHead ());
-	self->m_activeTransferList.remove (transfer);
-	self->m_completedTransferList.insertTail (transfer);
-	self->wakeIoThread ();
+
+	// surprisingly enough, libusb may deliver completions out-of-order
+
+	if (transfer != *self->m_activeTransferList.getHead ()) 
+	{
+		transfer->m_isCompletedOutOfOrder = true;
+	}
+	else
+	{
+		do
+		{
+			self->m_activeTransferList.remove (transfer);
+			self->m_completedTransferList.insertTail (transfer);
+			transfer = *self->m_activeTransferList.getHead ();
+		} while (transfer && transfer->m_isCompletedOutOfOrder);
+
+		self->wakeIoThread ();
+	}
+
 	self->m_lock.unlock ();
 }
 
