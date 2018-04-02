@@ -424,8 +424,8 @@ AsyncIoDevice::bufferedReadImpl_l (
 
 	if (result)
 	{
-		ASSERT (!m_readBuffer.isFull ());
-		m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
+		if (!m_readBuffer.isFull ()) // may have been refilled from read-overflow-buffer
+			m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
 
 		if (m_readBuffer.isEmpty ())
 			m_activeEvents &= ~AsyncIoEvent_IncomingData;
