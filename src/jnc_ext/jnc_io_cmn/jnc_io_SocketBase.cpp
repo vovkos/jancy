@@ -74,10 +74,27 @@ SocketBase::setOptions (uint_t options)
 		}
 	}
 
+	if ((options & SocketOption_UdpBroadcast) != (m_options & SocketOption_UdpBroadcast))
+	{
+		int value = (m_options & SocketOption_UdpBroadcast) != 0;
+
+		result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
+		if (!result)
+		{
+			propagateLastError ();
+			return false;
+		}
+	}
+
 	m_lock.lock ();
+
+	if (m_ioThreadFlags & IoThreadFlag_Datagram)
+		options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
+
 	m_options = options;
 	wakeIoThread ();
 	m_lock.unlock ();
+
 	return true;
 }
 
