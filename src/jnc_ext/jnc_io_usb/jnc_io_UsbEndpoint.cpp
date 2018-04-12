@@ -197,9 +197,6 @@ UsbEndpoint::readLoop ()
 			break;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = 0;
-
 		while (!m_completedTransferList.isEmpty ())
 		{
 			Transfer* transfer = m_completedTransferList.removeHead ();
@@ -253,6 +250,9 @@ UsbEndpoint::readLoop ()
 			}
 		}
 
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
 		updateReadWriteBufferEvents ();
 
 		if (m_activeEvents != prevActiveEvents)
@@ -279,9 +279,6 @@ UsbEndpoint::writeLoop ()
 			m_lock.unlock ();
 			break;
 		}
-
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = 0;
 
 		if (!m_completedTransferList.isEmpty ())
 		{
@@ -324,6 +321,9 @@ UsbEndpoint::writeLoop ()
 				break;
 			}
 		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
 
 		updateReadWriteBufferEvents ();
 
