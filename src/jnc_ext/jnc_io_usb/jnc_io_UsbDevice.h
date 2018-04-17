@@ -122,6 +122,14 @@ public:
 		return m_device.getDeviceSpeed ();
 	}
 
+	static
+	DataPtr
+	JNC_CDECL
+	getStringDesc (
+		UsbDevice* self,
+		uint8_t stringId
+		);
+
 	bool
 	JNC_CDECL
 	setAutoDetachKernelDriverEnabled (bool isEnabled);
@@ -148,12 +156,16 @@ public:
 		uint8_t altSettingId
 		);
 
-	static
-	DataPtr
+	size_t 
 	JNC_CDECL
-	getStringDesc (
-		UsbDevice* self,
-		uint8_t stringId
+	controlTransfer (
+		uint_t requestType,
+		uint_t requestId,
+		uint_t value,
+		uint_t index,
+		DataPtr pptr,
+		size_t size,
+		uint_t timeout
 		);
 };
 

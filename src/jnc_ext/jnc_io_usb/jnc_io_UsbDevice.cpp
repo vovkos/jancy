@@ -35,10 +35,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbDevice>)
 	JNC_MAP_FUNCTION ("open",               &UsbDevice::open)
 	JNC_MAP_FUNCTION ("close",              &UsbDevice::close)
+	JNC_MAP_FUNCTION ("getStringDesc",      &UsbDevice::getStringDesc)
 	JNC_MAP_FUNCTION ("attachKernelDriver", &UsbDevice::attachKernelDriver)
 	JNC_MAP_FUNCTION ("detachKernelDriver", &UsbDevice::detachKernelDriver)
 	JNC_MAP_FUNCTION ("claimInterface",     &UsbDevice::claimInterface)
-	JNC_MAP_FUNCTION ("getStringDesc",      &UsbDevice::getStringDesc)
+	JNC_MAP_FUNCTION ("controlTransfer",    &UsbDevice::controlTransfer)
 	JNC_MAP_AUTOGET_PROPERTY ("m_isAutoDetachKernelDriverEnabled", &UsbDevice::setAutoDetachKernelDriverEnabled)
 	JNC_MAP_CONST_PROPERTY ("m_isKernelDriverActive", &UsbDevice::isKernelDriverActive)
 	JNC_MAP_CONST_PROPERTY ("m_deviceDesc", &UsbDevice::getDeviceDesc)
@@ -96,6 +97,24 @@ UsbDevice::getActiveConfigurationDesc (UsbDevice* self)
 	}
 
 	return createUsbConfigurationDesc (getCurrentThreadRuntime (), desc);
+}
+
+DataPtr
+JNC_CDECL
+UsbDevice::getStringDesc (
+	UsbDevice* self,
+	uint8_t stringId
+	)
+{
+	if (!self->m_isOpen)
+	{
+		err::setError (err::SystemErrorCode_InvalidDeviceState);
+		jnc::propagateLastError ();
+		return g_nullPtr;
+	}
+
+	sl::String string = self->m_device.getStringDesrciptor (stringId);
+	return strDup (string, string.getLength ());
 }
 
 bool
@@ -188,22 +207,29 @@ UsbDevice::claimInterface (
 	return iface;
 }
 
-DataPtr
+size_t 
 JNC_CDECL
-UsbDevice::getStringDesc (
-	UsbDevice* self,
-	uint8_t stringId
+UsbDevice::controlTransfer (
+	uint_t requestType,
+	uint_t requestId,
+	uint_t value,
+	uint_t index,
+	DataPtr ptr,
+	size_t size,
+	uint_t timeout
 	)
 {
-	if (!self->m_isOpen)
+	if (!m_isOpen)
 	{
-		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		jnc::propagateLastError ();
-		return g_nullPtr;
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
+		return -1;
 	}
 
-	sl::String string = self->m_device.getStringDesrciptor (stringId);
-	return strDup (string, string.getLength ());
+	size_t result = m_device.controlTransfer (requestType, requestId, value, index, ptr.m_p, size, timeout);
+	if (result == -1)
+		jnc::propagateLastError ();
+
+	return result;
 }
 
 //..............................................................................

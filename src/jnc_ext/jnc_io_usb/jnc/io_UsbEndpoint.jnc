@@ -145,7 +145,7 @@ opaque class UsbEndpoint
 
 	UsbEndpointEvents errorcode blockingWait (
 		UsbEndpointEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

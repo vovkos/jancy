@@ -64,8 +64,6 @@ UsbEndpoint*
 JNC_CDECL
 UsbInterface::openEndpoint (uint8_t endpointId)
 {
-	bool result;
-
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*) m_interfaceDescPtr.m_p;
 	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc (endpointId);
 	if (!endpointDesc)

@@ -64,10 +64,11 @@ opaque class UsbDevice
 	construct ();
 	destruct ();
 
+	bool errorcode open ();
 	void close ();
 	alias void dispose = close;
 
-	bool errorcode open ();
+	char const* errorcode getStringDesc (uint8_t stringId);
 
 	bool autoget property m_isAutoDetachKernelDriverEnabled;
 	bool const property m_isKernelDriverActive (uint_t interfaceId);
@@ -79,7 +80,15 @@ opaque class UsbDevice
 		uint8_t altSettingId = 0
 		);
 
-	char const* errorcode getStringDesc (uint8_t stringId);
+	size_t errorcode controlTransfer (
+		uint_t requestType,
+		uint_t requestId,
+		uint_t value,
+		uint_t index,
+		void* p,
+		size_t size,
+		uint_t timeout = -1
+		);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
