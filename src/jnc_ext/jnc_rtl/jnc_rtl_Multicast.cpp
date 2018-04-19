@@ -96,7 +96,7 @@ MulticastImpl::setCount (
 	ASSERT (isClassType (type, ClassTypeKind_Multicast));
 
 	FunctionPtrType* targetType = type->getTargetType ();
-	size_t maxCount = sl::getMinPower2Ge (count);
+	size_t maxCount = sl::getHiBit (count);
 	DataPtr ptr = gcHeap->allocateArray (targetType, maxCount);
 
 	if (m_count)

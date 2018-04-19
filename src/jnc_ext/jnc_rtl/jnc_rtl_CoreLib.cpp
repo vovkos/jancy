@@ -764,7 +764,7 @@ appendFmtLiteral_a (
 
 	if (fmtLiteral->m_maxLength < newLength)
 	{
-		size_t newMaxLength = sl::getMinPower2Ge (newLength);
+		size_t newMaxLength = sl::getHiBit (newLength);
 
 		DataPtr ptr = gcHeap->tryAllocateBuffer (newMaxLength + 1);
 		if (!ptr.m_p)
