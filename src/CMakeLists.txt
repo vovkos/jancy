@@ -20,8 +20,18 @@ option (
 	ON
 	)
 
+option (
+	BUILD_JNC_DLL
+	"Build jancy shared library"
+	ON
+	)
+
 if (BUILD_JNC_APP)
 	add_subdirectory (jnc_app)
+endif ()
+
+if (BUILD_JNC_DLL)
+	add_subdirectory (jnc_dll)
 endif ()
 
 #...............................................................................

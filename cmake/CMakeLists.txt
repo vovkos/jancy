@@ -9,6 +9,8 @@
 #
 #...............................................................................
 
+include (${JANCY_ROOT_DIR}/version.cmake)
+
 string (REGEX REPLACE "[a-z]+" ".." JANCY_INSTALL_ROOT_SUBDIR ${JANCY_INSTALL_CMAKE_SUBDIR})
 
 configure_file (
