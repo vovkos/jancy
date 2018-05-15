@@ -22,6 +22,7 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
 uint_t
 jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 {

@@ -22,6 +22,7 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
 const char*
 jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 {
@@ -56,6 +57,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 
 //..............................................................................
 
+JNC_EXTERN_C
 uint_t
 jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 {

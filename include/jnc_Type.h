@@ -184,6 +184,7 @@ typedef enum jnc_TypeKindFlag jnc_TypeKindFlag;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 uint_t
 jnc_getTypeKindFlags (jnc_TypeKind typeKind);
 

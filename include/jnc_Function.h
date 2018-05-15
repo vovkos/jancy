@@ -66,6 +66,7 @@ typedef enum jnc_FunctionKind jnc_FunctionKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 const char*
 jnc_getFunctionKindString (jnc_FunctionKind functionKind);
 
@@ -82,6 +83,7 @@ typedef enum jnc_FunctionKindFlag jnc_FunctionKindFlag;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+JNC_EXTERN_C
 uint_t
 jnc_getFunctionKindFlags (jnc_FunctionKind functionKind);
 
