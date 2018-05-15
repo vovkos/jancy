@@ -67,6 +67,7 @@ include_directories (
 
 link_directories (
 	${AXL_LIB_DIR}
+	${JANCY_LIB_DIR}
 	${LLVM_LIB_DIR}
 	)
 
@@ -91,22 +92,39 @@ set_target_properties (
 	FOLDER samples
 	)
 
+if (BUILD_JNC_DLL)
+	add_dependencies (
+		jnc_sample_01_embed_c
+		jnc_dll
+		)
+
+	target_link_libraries (
+		jnc_sample_01_embed_c
+		${JANCY_DLL_NAME}
+		)
+else ()
+	target_link_libraries (
+		jnc_sample_01_embed_c
+		jnc_api_static
+		jnc_ct
+		jnc_rt
+		jnc_rtl
+		jnc_std
+		jnc_sys
+		jnc_api_static
+		)
+
+	target_link_llvm_jit_libraries (jnc_sample_01_embed_c)
+endif ()
+
 target_link_libraries (
 	jnc_sample_01_embed_c
-	jnc_api_static
-	jnc_ct
-	jnc_rt
-	jnc_rtl
-	jnc_std
-	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io
 	axl_lex
 	axl_core
 	)
-
-target_link_llvm_jit_libraries (jnc_sample_01_embed_c)
 
 if (UNIX AND NOT APPLE)
 	target_link_libraries (

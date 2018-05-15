@@ -105,8 +105,9 @@ include_directories (
 	)
 
 link_directories (
-	${LLVM_LIB_DIR}
 	${AXL_LIB_DIR}
+	${JANCY_LIB_DIR}
+	${LLVM_LIB_DIR}
 	)
 
 add_executable (
@@ -131,23 +132,39 @@ set_target_properties (
 	OUTPUT_NAME jancy
 	)
 
+if (BUILD_JNC_DLL)
+	add_dependencies (
+		jnc_app
+		jnc_dll
+		)
+
+	target_link_libraries (
+		jnc_app
+		${JANCY_DLL_NAME}
+		)
+else ()
+	target_link_libraries (
+		jnc_app
+		jnc_api_static
+		jnc_ct
+		jnc_rt
+		jnc_rtl
+		jnc_std
+		jnc_sys
+		jnc_api_static
+		)
+
+	target_link_llvm_jit_libraries (jnc_app)
+endif ()
+
 target_link_libraries (
 	jnc_app
-	jnc_api_static
-	jnc_ct
-	jnc_rt
-	jnc_rtl
-	jnc_std
-	jnc_sys
-	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io
 	axl_lex
 	axl_core
 	)
-
-target_link_llvm_jit_libraries (jnc_app)
 
 if (WIN32)
 	target_link_libraries (

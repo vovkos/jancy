@@ -157,6 +157,31 @@ set_target_properties (
 	FOLDER extensions
 	)
 
+if (WIN32)
+	set (_DLL_LIST)
+
+	if (LIBSSH2_DLL_DIR)
+		list (APPEND _DLL_LIST ${LIBSSH2_DLL_DIR}/libssh2.dll)
+	endif ()
+
+	if (OPENSSL_DLL_DIR)
+		list (APPEND _DLL_LIST ${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll)
+	endif ()
+
+	if (_DLL_LIST)
+		add_custom_command (
+			TARGET jnc_io_ssh
+			POST_BUILD
+			COMMAND
+				echo "Copying DLL files for jnc_io_ssh..."
+			COMMAND
+				${CMAKE_COMMAND} -E copy
+				${_DLL_LIST}
+				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION_SUFFIX}
+			)
+	endif ()
+endif ()
+
 #...............................................................................
 #
 # io_ssh.jncx archive

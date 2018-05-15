@@ -177,6 +177,19 @@ set_target_properties (
 	FOLDER extensions
 	)
 
+if (WIN32 AND LIBUSB_DLL_DIR)
+	add_custom_command (
+		TARGET jnc_io_usb
+		POST_BUILD
+		COMMAND
+			echo "Copying DLL files for jnc_io_usb..."
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			${LIBUSB_DLL_DIR}/libusb-1.0.dll
+			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION_SUFFIX}
+		)
+endif ()
+
 #...............................................................................
 #
 # io_usb.jncx archive

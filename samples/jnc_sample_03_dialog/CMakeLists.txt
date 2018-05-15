@@ -120,6 +120,7 @@ include_directories (
 
 link_directories (
 	${AXL_LIB_DIR}
+	${JANCY_LIB_DIR}
 	${LLVM_LIB_DIR}
 	)
 
@@ -153,14 +154,33 @@ set_target_properties (
 	FOLDER samples
 	)
 
+if (BUILD_JNC_DLL)
+	add_dependencies (
+		jnc_sample_03_dialog
+		jnc_dll
+		)
+
+	target_link_libraries (
+		jnc_sample_03_dialog
+		${JANCY_DLL_NAME}
+		)
+else ()
+	target_link_libraries (
+		jnc_sample_03_dialog
+		jnc_api_static
+		jnc_ct
+		jnc_rt
+		jnc_rtl
+		jnc_std
+		jnc_sys
+		jnc_api_static
+		)
+
+	target_link_llvm_jit_libraries (jnc_sample_03_dialog)
+endif ()
+
 target_link_libraries (
 	jnc_sample_03_dialog
-	jnc_api_static
-	jnc_ct
-	jnc_rt
-	jnc_rtl
-	jnc_std
-	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io
@@ -168,19 +188,30 @@ target_link_libraries (
 	axl_core
 	)
 
-target_link_llvm_jit_libraries (jnc_sample_03_dialog)
-
 if (UNIX AND NOT APPLE)
 	target_link_libraries (
 		jnc_sample_03_dialog
 		rt
 		)
+
+	add_qt_rpath_link ()
 endif ()
 
-if (WIN32)
-	copy_qt_dll_files (jnc_sample_03_dialog Core Gui Widgets)
-elseif (UNIX AND NOT APPLE)
-	add_qt_rpath_link ()
+if (WIN32 AND QT_DLL_DIR)
+	set (_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
+
+	add_custom_command (
+		TARGET jnc_sample_03_dialog
+		POST_BUILD
+		COMMAND
+			echo "Copying DLL files for jnc_sample_03_dialog..."
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll
+			${QT_DLL_DIR}/Qt5Gui${_DEBUG_SUFFIX}.dll
+			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
+			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION_SUFFIX}
+		)
 endif ()
 
 # only add this test on Windows and Linux native build --

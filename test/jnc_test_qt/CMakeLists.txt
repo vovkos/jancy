@@ -176,7 +176,7 @@ include_directories (
 	${GEN_DIR}
 	)
 
-if (LIBUSB_FOUND)
+if (BUILD_JNC_IO_USB)
 	include_directories (${LIBUSB_INC_DIR})
 	link_directories (${LIBUSB_LIB_DIR})
 
@@ -190,8 +190,8 @@ add_definitions (
 
 link_directories (
 	${AXL_LIB_DIR}
+	${JANCY_LIB_DIR}
 	${LLVM_LIB_DIR}
-	${PCAP_LIB_DIR}
 	)
 
 add_definitions (-DQT_COMPILING_QSTRING_COMPAT_CPP)
@@ -226,23 +226,42 @@ set_target_properties (
 	FOLDER test
 	)
 
+if (BUILD_JNC_DLL)
+	add_dependencies (
+		jnc_test_qt
+		jnc_dll
+		)
+
+	target_link_libraries (
+		jnc_test_qt
+		${JANCY_DLL_NAME}
+		)
+else ()
+
+	message ("WTF-3")
+
+	target_link_libraries (
+		jnc_test_qt
+		jnc_api_static
+		jnc_ct
+		jnc_rt
+		jnc_rtl
+		jnc_std
+		jnc_sys
+		jnc_api_static
+		)
+
+	target_link_llvm_jit_libraries (jnc_test_qt)
+endif ()
+
 target_link_libraries (
 	jnc_test_qt
-	jnc_api_static
-	jnc_ct
-	jnc_rt
-	jnc_rtl
-	jnc_sys
-	jnc_std
-	jnc_api_static
 	axl_zip
 	axl_fsm
 	axl_io
 	axl_lex
 	axl_core
 	)
-
-target_link_llvm_jit_libraries (jnc_test_qt)
 
 if (WIN32)
 	target_link_libraries (
@@ -254,9 +273,11 @@ elseif (UNIX AND NOT APPLE)
 		jnc_test_qt
 		rt
 		)
+
+	add_qt_rpath_link ()
 endif ()
 
-if (LIBUSB_FOUND)
+if (BUILD_JNC_IO_USB)
 	if (WIN32)
 		target_link_libraries (
 			jnc_test_qt
@@ -288,10 +309,21 @@ if (LIBUSB_FOUND)
 	endif ()
 endif ()
 
-if (WIN32)
-	copy_qt_dll_files (jnc_test_qt Core Gui Widgets)
-elseif (UNIX AND NOT APPLE)
-	add_qt_rpath_link ()
+if (WIN32 AND QT_DLL_DIR)
+	set (_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
+
+	add_custom_command (
+		TARGET jnc_test_qt
+		POST_BUILD
+		COMMAND
+			echo "Copying DLL files for jnc_test_qt..."
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll
+			${QT_DLL_DIR}/Qt5Gui${_DEBUG_SUFFIX}.dll
+			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
+			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION_SUFFIX}
+		)
 endif ()
 
 #...............................................................................

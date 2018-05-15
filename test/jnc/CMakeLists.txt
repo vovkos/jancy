@@ -16,7 +16,7 @@ file (
 	test*.jnc
 	)
 
-if (NOT LIBUSB_FOUND)
+if (NOT BUILD_JNC_IO_USB)
 	list (
 		REMOVE_ITEM
 		TEST_JNC_LIST
