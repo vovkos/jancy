@@ -667,6 +667,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_StdLib_setStdIo (
 	jnc_StdLib_StdInputFunc* getsFunc,
