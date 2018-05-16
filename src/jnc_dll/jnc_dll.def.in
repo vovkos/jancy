@@ -1,3 +1,14 @@
+;...............................................................................
+;
+;  This file is part of the Jancy toolkit.
+;
+;  Jancy is distributed under the MIT license.
+;  For details see accompanying license.txt file,
+;  the public copy of which is also available at:
+;  http://tibbo.com/downloads/archive/jancy/license.txt
+;
+;...............................................................................
+
 LIBRARY jancy-${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.dll
 
 EXPORTS
@@ -201,16 +212,7 @@ EXPORTS
 	jnc_GcHeap_tryAllocateClass
 	jnc_GcHeap_tryAllocateData
 	jnc_GcHeap_weakMark
-	jnc_CoreLib_addOpaqueClassTypeInfos
-	jnc_CoreLib_addSources
 	jnc_CoreLib_getLib
-	jnc_CoreLib_mapAddresses
-	jnc_StdLib_addOpaqueClassTypeInfos
-	jnc_StdLib_addSources
 	jnc_StdLib_getLib
-	jnc_StdLib_mapAddresses
 	jnc_StdLib_setStdIo
-	jnc_SysLib_addOpaqueClassTypeInfos
-	jnc_SysLib_addSources
 	jnc_SysLib_getLib
-	jnc_SysLib_mapAddresses
