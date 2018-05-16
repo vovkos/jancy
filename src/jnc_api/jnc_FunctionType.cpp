@@ -23,6 +23,7 @@
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 {
@@ -46,6 +47,7 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 {
@@ -53,6 +55,7 @@ jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_FunctionType_getArgCount (jnc_FunctionType* type)
 {
@@ -60,6 +63,7 @@ jnc_FunctionType_getArgCount (jnc_FunctionType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionArg*
 jnc_FunctionType_getArg (
 	jnc_FunctionType* type,
@@ -70,6 +74,7 @@ jnc_FunctionType_getArg (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType (
 	jnc_FunctionType* type,
@@ -81,6 +86,7 @@ jnc_FunctionType_getFunctionPtrType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionType*
 jnc_FunctionType_getShortType (jnc_FunctionType* type)
 {
@@ -90,6 +96,7 @@ jnc_FunctionType_getShortType (jnc_FunctionType* type)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionPtrTypeKind
 jnc_FunctionPtrType_getPtrTypeKind (jnc_FunctionPtrType* type)
 {
@@ -97,6 +104,7 @@ jnc_FunctionPtrType_getPtrTypeKind (jnc_FunctionPtrType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionType*
 jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 {
@@ -106,6 +114,7 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg)
 {
@@ -113,6 +122,7 @@ jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg)
 {
@@ -122,6 +132,7 @@ jnc_FunctionArg_getDefaultValueString_v (jnc_FunctionArg* arg)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 {
@@ -129,6 +140,7 @@ jnc_FunctionType_getReturnType (jnc_FunctionType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_FunctionType_getArgCount (jnc_FunctionType* type)
 {
@@ -136,6 +148,7 @@ jnc_FunctionType_getArgCount (jnc_FunctionType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionArg*
 jnc_FunctionType_getArg (
 	jnc_FunctionType* type,
@@ -148,6 +161,7 @@ jnc_FunctionType_getArg (
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionPtrTypeKind
 jnc_FunctionPtrType_getPtrTypeKind (jnc_FunctionPtrType* type)
 {
@@ -155,6 +169,7 @@ jnc_FunctionPtrType_getPtrTypeKind (jnc_FunctionPtrType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionType*
 jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 {
@@ -162,6 +177,7 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType (
 	jnc_FunctionType* type,
@@ -173,6 +189,7 @@ jnc_FunctionType_getFunctionPtrType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionType*
 jnc_FunctionType_getShortType (jnc_FunctionType* type)
 {

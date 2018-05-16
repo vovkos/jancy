@@ -25,6 +25,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 {
@@ -32,6 +33,7 @@ jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 {
@@ -41,6 +43,7 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type)
 {
@@ -48,6 +51,7 @@ jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type)
 {
@@ -55,6 +59,7 @@ jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getPreConstructor (jnc_DerivableType* type)
 {
@@ -62,6 +67,7 @@ jnc_DerivableType_getPreConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getConstructor (jnc_DerivableType* type)
 {
@@ -69,6 +75,7 @@ jnc_DerivableType_getConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getDestructor (jnc_DerivableType* type)
 {
@@ -76,6 +83,7 @@ jnc_DerivableType_getDestructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
@@ -86,6 +94,7 @@ jnc_DerivableType_getUnaryOperator (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getBinaryOperator (
 	jnc_DerivableType* type,
@@ -96,6 +105,7 @@ jnc_DerivableType_getBinaryOperator (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCallOperator (jnc_DerivableType* type)
 {
@@ -103,6 +113,7 @@ jnc_DerivableType_getCallOperator (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCastOperator (
 	jnc_DerivableType* type,
@@ -115,6 +126,7 @@ jnc_DerivableType_getCastOperator (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 {
@@ -122,6 +134,7 @@ jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 {
@@ -131,6 +144,7 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type)
 {
@@ -145,6 +159,7 @@ jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type)
 {
@@ -159,6 +174,7 @@ jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getPreConstructor (jnc_DerivableType* type)
 {
@@ -173,6 +189,7 @@ jnc_DerivableType_getPreConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getConstructor (jnc_DerivableType* type)
 {
@@ -187,6 +204,7 @@ jnc_DerivableType_getConstructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getDestructor (jnc_DerivableType* type)
 {
@@ -201,6 +219,7 @@ jnc_DerivableType_getDestructor (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getUnaryOperator (
 	jnc_DerivableType* type,
@@ -218,6 +237,7 @@ jnc_DerivableType_getUnaryOperator (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getBinaryOperator (
 	jnc_DerivableType* type,
@@ -235,6 +255,7 @@ jnc_DerivableType_getBinaryOperator (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCallOperator (jnc_DerivableType* type)
 {
@@ -249,6 +270,7 @@ jnc_DerivableType_getCallOperator (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCastOperator (
 	jnc_DerivableType* type,
@@ -266,6 +288,7 @@ jnc_DerivableType_getCastOperator (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type)
 {
@@ -273,6 +296,7 @@ jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_BaseTypeSlot*
 jnc_DerivableType_getBaseType (
 	jnc_DerivableType* type,
@@ -283,6 +307,7 @@ jnc_DerivableType_getBaseType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DerivableType_findBaseTypeOffset (
 	jnc_DerivableType* type,
@@ -293,6 +318,7 @@ jnc_DerivableType_findBaseTypeOffset (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DerivableType_getMemberFieldCount (jnc_DerivableType* type)
 {
@@ -300,6 +326,7 @@ jnc_DerivableType_getMemberFieldCount (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_StructField*
 jnc_DerivableType_getMemberField (
 	jnc_DerivableType* type,
@@ -310,6 +337,7 @@ jnc_DerivableType_getMemberField (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DerivableType_getMemberMethodCount (jnc_DerivableType* type)
 {
@@ -317,6 +345,7 @@ jnc_DerivableType_getMemberMethodCount (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getMemberMethod (
 	jnc_DerivableType* type,
@@ -327,6 +356,7 @@ jnc_DerivableType_getMemberMethod (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_DerivableType_getMemberPropertyCount (jnc_DerivableType* type)
 {
@@ -334,6 +364,7 @@ jnc_DerivableType_getMemberPropertyCount (jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Property*
 jnc_DerivableType_getMemberProperty (
 	jnc_DerivableType* type,

@@ -107,6 +107,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	int \
 	LibPrefix##_mapAddresses (jnc_Module* module); \
 	JNC_EXTERN_C \
+	JNC_EXPORT_O \
 	jnc_ExtensionLib* \
 	LibPrefix##_getLib () \
 	{ \
@@ -510,10 +511,10 @@ jnc_StdLib_StdInputFunc (
 	size_t size
 	);
 
-typedef 
+typedef
 size_t
 jnc_StdLib_StdOutputFunc (
-	const void* p, 
+	const void* p,
 	size_t size
 	);
 

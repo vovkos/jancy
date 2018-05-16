@@ -27,6 +27,7 @@
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Alias_getTargetItem (jnc_Alias* alias)
 {

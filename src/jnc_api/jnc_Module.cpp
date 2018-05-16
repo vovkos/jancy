@@ -26,6 +26,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace (jnc_Module* module)
 {
@@ -33,6 +34,7 @@ jnc_Module_getGlobalNamespace (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getPrimitiveType (
 	jnc_Module* module,
@@ -43,6 +45,7 @@ jnc_Module_getPrimitiveType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Module_findItem (
 	jnc_Module* module,
@@ -55,6 +58,7 @@ jnc_Module_findItem (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_mapVariable (
 	jnc_Module* module,
@@ -66,6 +70,7 @@ jnc_Module_mapVariable (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_mapFunction (
 	jnc_Module* module,
@@ -77,6 +82,7 @@ jnc_Module_mapFunction (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addSource (
 	jnc_Module* module,
@@ -90,6 +96,7 @@ jnc_Module_addSource (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addImport (
 	jnc_Module* module,
@@ -100,6 +107,7 @@ jnc_Module_addImport (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addOpaqueClassTypeInfo (
 	jnc_Module* module,
@@ -113,6 +121,7 @@ jnc_Module_addOpaqueClassTypeInfo (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Module*
 jnc_Module_create ()
 {
@@ -120,6 +129,7 @@ jnc_Module_create ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_destroy (jnc_Module* module)
 {
@@ -127,6 +137,7 @@ jnc_Module_destroy (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_clear (jnc_Module* module)
 {
@@ -134,6 +145,7 @@ jnc_Module_clear (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_initialize (
 	jnc_Module* module,
@@ -145,6 +157,7 @@ jnc_Module_initialize (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 uint_t
 jnc_Module_getCompileFlags (jnc_Module* module)
 {
@@ -152,6 +165,7 @@ jnc_Module_getCompileFlags (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleCompileState
 jnc_Module_getCompileState (jnc_Module* module)
 {
@@ -159,6 +173,7 @@ jnc_Module_getCompileState (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace (jnc_Module* module)
 {
@@ -166,6 +181,7 @@ jnc_Module_getGlobalNamespace (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getPrimitiveType (
 	jnc_Module* module,
@@ -176,6 +192,7 @@ jnc_Module_getPrimitiveType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getStdType (
 	jnc_Module* module,
@@ -186,6 +203,7 @@ jnc_Module_getStdType (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Module_findItem (
 	jnc_Module* module,
@@ -198,6 +216,7 @@ jnc_Module_findItem (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_mapVariable (
 	jnc_Module* module,
@@ -209,6 +228,7 @@ jnc_Module_mapVariable (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_mapFunction (
 	jnc_Module* module,
@@ -220,6 +240,7 @@ jnc_Module_mapFunction (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addSource (
 	jnc_Module* module,
@@ -233,6 +254,7 @@ jnc_Module_addSource (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addImportDir (
 	jnc_Module* module,
@@ -243,6 +265,7 @@ jnc_Module_addImportDir (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addImport (
 	jnc_Module* module,
@@ -253,6 +276,7 @@ jnc_Module_addImport (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addIgnoredImport (
 	jnc_Module* module,
@@ -263,6 +287,7 @@ jnc_Module_addIgnoredImport (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addOpaqueClassTypeInfo (
 	jnc_Module* module,
@@ -274,6 +299,7 @@ jnc_Module_addOpaqueClassTypeInfo (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Module_addStaticLib (
 	jnc_Module* module,
@@ -284,6 +310,7 @@ jnc_Module_addStaticLib (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_parse (
 	jnc_Module* module,
@@ -297,6 +324,7 @@ jnc_Module_parse (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_parseFile (
 	jnc_Module* module,
@@ -307,6 +335,7 @@ jnc_Module_parseFile (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_parseImports (jnc_Module* module)
 {
@@ -314,6 +343,7 @@ jnc_Module_parseImports (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_link (jnc_Module* module)
 {
@@ -321,6 +351,7 @@ jnc_Module_link (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_calcLayout (jnc_Module* module)
 {
@@ -328,6 +359,7 @@ jnc_Module_calcLayout (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_compile (jnc_Module* module)
 {
@@ -335,6 +367,7 @@ jnc_Module_compile (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_jit (jnc_Module* module)
 {
@@ -342,6 +375,7 @@ jnc_Module_jit (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Module_getLlvmIrString_v (jnc_Module* module)
 {
@@ -349,6 +383,7 @@ jnc_Module_getLlvmIrString_v (jnc_Module* module)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Module_generateDocumentation (
 	jnc_Module* module,
@@ -421,6 +456,7 @@ jnc_Module_generateDocumentation (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_initialize (const char* tag)
 {

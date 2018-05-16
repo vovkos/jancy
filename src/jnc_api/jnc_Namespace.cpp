@@ -23,6 +23,7 @@
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_getNamespaceKindString (jnc_NamespaceKind namespaceKind)
 {
@@ -46,6 +47,7 @@ jnc_getNamespaceKindString (jnc_NamespaceKind namespaceKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount (jnc_Namespace* nspace)
 {
@@ -53,6 +55,7 @@ jnc_Namespace_getItemCount (jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Namespace_getItem (
 	jnc_Namespace* nspace,
@@ -63,6 +66,7 @@ jnc_Namespace_getItem (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Variable*
 jnc_Namespace_findVariable (
 	jnc_Namespace* nspace,
@@ -74,6 +78,7 @@ jnc_Namespace_findVariable (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
@@ -85,6 +90,7 @@ jnc_Namespace_findFunction (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
@@ -96,6 +102,7 @@ jnc_Namespace_findProperty (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ClassType*
 jnc_Namespace_findClassType (
 	jnc_Namespace* nspace,
@@ -109,6 +116,7 @@ jnc_Namespace_findClassType (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount (jnc_Namespace* nspace)
 {
@@ -116,6 +124,7 @@ jnc_Namespace_getItemCount (jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Namespace_getItem (
 	jnc_Namespace* nspace,
@@ -126,6 +135,7 @@ jnc_Namespace_getItem (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Variable*
 jnc_Namespace_findVariable (
 	jnc_Namespace* nspace,
@@ -139,6 +149,7 @@ jnc_Namespace_findVariable (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_Namespace_findFunction (
 	jnc_Namespace* nspace,
@@ -152,6 +163,7 @@ jnc_Namespace_findFunction (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Property*
 jnc_Namespace_findProperty (
 	jnc_Namespace* nspace,
@@ -165,6 +177,7 @@ jnc_Namespace_findProperty (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_ClassType*
 jnc_Namespace_findClassType (
 	jnc_Namespace* nspace,

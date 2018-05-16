@@ -27,6 +27,7 @@
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Variable_hasInitializer (jnc_Variable* variable)
 {
@@ -34,6 +35,7 @@ jnc_Variable_hasInitializer (jnc_Variable* variable)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_Variable_getInitializerString_v (jnc_Variable* variable)
 {

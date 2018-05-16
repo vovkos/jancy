@@ -23,6 +23,7 @@
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 {
@@ -58,6 +59,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 uint_t
 jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 {
@@ -106,6 +108,7 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function)
 {
@@ -113,6 +116,7 @@ jnc_Function_getFunctionKind (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Function_isMember (jnc_Function* function)
 {
@@ -120,6 +124,7 @@ jnc_Function_isMember (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Function_isOverloaded (jnc_Function* function)
 {
@@ -127,6 +132,7 @@ jnc_Function_isOverloaded (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Function_getOverloadCount (jnc_Function* function)
 {
@@ -134,6 +140,7 @@ jnc_Function_getOverloadCount (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_Function_getOverload (
 	jnc_Function* function,
@@ -144,6 +151,7 @@ jnc_Function_getOverload (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Function_getMachineCode (jnc_Function* function)
 {
@@ -153,6 +161,7 @@ jnc_Function_getMachineCode (jnc_Function* function)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionKind
 jnc_Function_getFunctionKind (jnc_Function* function)
 {
@@ -160,6 +169,7 @@ jnc_Function_getFunctionKind (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Function_isMember (jnc_Function* function)
 {
@@ -167,6 +177,7 @@ jnc_Function_isMember (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Function_isOverloaded (jnc_Function* function)
 {
@@ -174,6 +185,7 @@ jnc_Function_isOverloaded (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Function_getOverloadCount (jnc_Function* function)
 {
@@ -181,6 +193,7 @@ jnc_Function_getOverloadCount (jnc_Function* function)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_Function_getOverload (
 	jnc_Function* function,
@@ -198,6 +211,7 @@ jnc_Function_getOverload (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Function_getMachineCode (jnc_Function* function)
 {

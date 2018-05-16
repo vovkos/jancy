@@ -14,6 +14,8 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_getUnOpKindString (jnc_UnOpKind opKind)
 {
@@ -38,6 +40,8 @@ jnc_getUnOpKindString (jnc_UnOpKind opKind)
 		stringTable [jnc_UnOpKind_Undefined];
 }
 
+JNC_EXTERN_C
+JNC_EXPORT_O
 const char*
 jnc_getBinOpKindString (jnc_BinOpKind opKind)
 {

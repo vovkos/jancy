@@ -27,6 +27,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Runtime*
 jnc_Runtime_create ()
 {
@@ -34,6 +35,7 @@ jnc_Runtime_create ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_destroy (jnc_Runtime* runtime)
 {
@@ -41,6 +43,7 @@ jnc_Runtime_destroy (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Module*
 jnc_Runtime_getModule (jnc_Runtime* runtime)
 {
@@ -48,6 +51,7 @@ jnc_Runtime_getModule (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 {
@@ -55,6 +59,7 @@ jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 {
@@ -62,6 +67,7 @@ jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Runtime_setStackSizeLimit (
 	jnc_Runtime* runtime,
@@ -72,6 +78,7 @@ jnc_Runtime_setStackSizeLimit (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Runtime_startup (
 	jnc_Runtime* runtime,
@@ -82,6 +89,7 @@ jnc_Runtime_startup (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_shutdown (jnc_Runtime* runtime)
 {
@@ -89,6 +97,7 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
@@ -99,6 +108,7 @@ jnc_Runtime_initializeCallSite (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_uninitializeCallSite (
 	jnc_Runtime* runtime,
@@ -109,6 +119,7 @@ jnc_Runtime_uninitializeCallSite (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_SjljFrame*
 jnc_Runtime_setSjljFrame (
 	jnc_Runtime* runtime,
@@ -119,6 +130,7 @@ jnc_Runtime_setSjljFrame (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Runtime_getUserData (jnc_Runtime* runtime)
 {
@@ -126,6 +138,7 @@ jnc_Runtime_getUserData (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Runtime_setUserData (
 	jnc_Runtime* runtime,
@@ -136,6 +149,7 @@ jnc_Runtime_setUserData (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 {
@@ -143,6 +157,7 @@ jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ()
 {
@@ -150,6 +165,7 @@ jnc_getCurrentThreadRuntime ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Tls*
 jnc_getCurrentThreadTls ()
 {
@@ -157,6 +173,7 @@ jnc_getCurrentThreadTls ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_dynamicThrow ()
 {
@@ -164,6 +181,7 @@ jnc_dynamicThrow ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_primeClass (
 	jnc_Box* box,
@@ -176,6 +194,7 @@ jnc_primeClass (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_strLen (jnc_DataPtr ptr)
 {
@@ -183,6 +202,7 @@ jnc_strLen (jnc_DataPtr ptr)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_strDup (
 	const char* p,
@@ -193,6 +213,7 @@ jnc_strDup (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_memDup (
 	const void* p,
@@ -205,6 +226,7 @@ jnc_memDup (
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Runtime*
 jnc_Runtime_create ()
 {
@@ -212,6 +234,7 @@ jnc_Runtime_create ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_destroy (jnc_Runtime* runtime)
 {
@@ -219,6 +242,7 @@ jnc_Runtime_destroy (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Module*
 jnc_Runtime_getModule (jnc_Runtime* runtime)
 {
@@ -226,6 +250,7 @@ jnc_Runtime_getModule (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 {
@@ -233,6 +258,7 @@ jnc_Runtime_getGcHeap (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 {
@@ -240,6 +266,7 @@ jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Runtime_setStackSizeLimit (
 	jnc_Runtime* runtime,
@@ -250,6 +277,7 @@ jnc_Runtime_setStackSizeLimit (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 int
 jnc_Runtime_startup (
 	jnc_Runtime* runtime,
@@ -260,6 +288,7 @@ jnc_Runtime_startup (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_shutdown (jnc_Runtime* runtime)
 {
@@ -267,6 +296,7 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
@@ -277,6 +307,7 @@ jnc_Runtime_initializeCallSite (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_uninitializeCallSite (
 	jnc_Runtime* runtime,
@@ -287,6 +318,7 @@ jnc_Runtime_uninitializeCallSite (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_SjljFrame*
 jnc_Runtime_setSjljFrame (
 	jnc_Runtime* runtime,
@@ -297,6 +329,7 @@ jnc_Runtime_setSjljFrame (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Runtime_getUserData (jnc_Runtime* runtime)
 {
@@ -304,6 +337,7 @@ jnc_Runtime_getUserData (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Runtime_setUserData (
 	jnc_Runtime* runtime,
@@ -314,6 +348,7 @@ jnc_Runtime_setUserData (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 {
@@ -321,6 +356,7 @@ jnc_Runtime_checkStackOverflow (jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Runtime*
 jnc_getCurrentThreadRuntime ()
 {
@@ -328,6 +364,7 @@ jnc_getCurrentThreadRuntime ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Tls*
 jnc_getCurrentThreadTls ()
 {
@@ -335,6 +372,7 @@ jnc_getCurrentThreadTls ()
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_dynamicThrow ()
 {
@@ -395,6 +433,7 @@ primeIface (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_primeClass (
 	jnc_Box* box,
@@ -418,6 +457,7 @@ jnc_primeClass (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_IfaceHdr*
 jnc_strengthenClassPtr (jnc_IfaceHdr* iface)
 {
@@ -436,6 +476,7 @@ jnc_strengthenClassPtr (jnc_IfaceHdr* iface)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_strLen (jnc_DataPtr ptr)
 {
@@ -453,6 +494,7 @@ jnc_strLen (jnc_DataPtr ptr)
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_strDup (
 	const char* p,
@@ -481,6 +523,7 @@ jnc_strDup (
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_memDup (
 	const void* p,

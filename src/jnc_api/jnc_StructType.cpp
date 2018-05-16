@@ -25,6 +25,7 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_StructField_getOffset (jnc_StructField* field)
 {
@@ -34,6 +35,7 @@ jnc_StructField_getOffset (jnc_StructField* field)
 #else // _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_StructField_getOffset (jnc_StructField* field)
 {
