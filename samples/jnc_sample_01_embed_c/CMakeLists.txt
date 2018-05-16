@@ -61,15 +61,17 @@ source_group (
 # jnc_sample_01_embed_c sample
 #
 
-include_directories (
-	${JANCY_INC_DIR}
-	)
+include_directories (${JANCY_INC_DIR})
+link_directories (${AXL_LIB_DIR})
 
-link_directories (
-	${AXL_LIB_DIR}
-	${JANCY_LIB_DIR}
-	${LLVM_LIB_DIR}
-	)
+if (BUILD_JNC_DLL)
+	link_directories (
+		${JANCY_LIB_DIR}
+		${JANCY_BIN_DIR}
+		)
+else ()
+	link_directories (${LLVM_LIB_DIR})
+endif ()
 
 add_executable (
 	jnc_sample_01_embed_c
@@ -126,11 +128,18 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX AND NOT APPLE)
+if (UNIX)
 	target_link_libraries (
 		jnc_sample_01_embed_c
-		rt
+		pthread
 		)
+
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_sample_01_embed_c
+			rt
+			)
+	endif ()
 endif ()
 
 add_test (

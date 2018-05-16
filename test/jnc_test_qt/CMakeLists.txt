@@ -170,16 +170,25 @@ if (MSVC)
 endif ()
 
 include_directories (
-	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
 	)
 
+link_directories (${AXL_LIB_DIR})
+
+if (BUILD_JNC_DLL)
+	link_directories (
+		${JANCY_LIB_DIR}
+		${JANCY_BIN_DIR}
+		)
+else ()
+	link_directories (${LLVM_LIB_DIR})
+endif ()
+
 if (BUILD_JNC_IO_USB)
 	include_directories (${LIBUSB_INC_DIR})
 	link_directories (${LIBUSB_LIB_DIR})
-
 	add_definitions (-D_JNC_IO_USB=1)
 endif ()
 
@@ -187,14 +196,6 @@ add_definitions (
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
 	)
-
-link_directories (
-	${AXL_LIB_DIR}
-	${JANCY_LIB_DIR}
-	${LLVM_LIB_DIR}
-	)
-
-add_definitions (-DQT_COMPILING_QSTRING_COMPAT_CPP)
 
 add_executable (
 	jnc_test_qt
@@ -237,9 +238,6 @@ if (BUILD_JNC_DLL)
 		${JANCY_DLL_NAME}
 		)
 else ()
-
-	message ("WTF-3")
-
 	target_link_libraries (
 		jnc_test_qt
 		jnc_api_static
@@ -268,13 +266,20 @@ if (WIN32)
 		jnc_test_qt
 		ws2_32
 		)
-elseif (UNIX AND NOT APPLE)
+elseif (UNIX)
 	target_link_libraries (
 		jnc_test_qt
-		rt
+		pthread
 		)
 
-	add_qt_rpath_link ()
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_test_qt
+			rt
+			)
+
+		add_qt_rpath_link ()
+	endif ()
 endif ()
 
 if (BUILD_JNC_IO_USB)

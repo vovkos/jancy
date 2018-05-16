@@ -31,7 +31,10 @@ if (BUILD_JNC_APP)
 endif ()
 
 if (BUILD_JNC_DLL)
+	set (JNC_LIBRARY_OBJECT OBJECT)
 	add_subdirectory (jnc_dll)
+else ()
+	set (JNC_LIBRARY_OBJECT)
 endif ()
 
 #...............................................................................

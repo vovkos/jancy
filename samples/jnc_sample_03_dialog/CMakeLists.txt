@@ -111,18 +111,20 @@ if (MSVC)
 endif ()
 
 include_directories (
-	${LLVM_INC_DIR}
-	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${JANCY_INC_PRIVATE_DIR}
 	${GEN_DIR}
 	)
 
-link_directories (
-	${AXL_LIB_DIR}
-	${JANCY_LIB_DIR}
-	${LLVM_LIB_DIR}
-	)
+link_directories (${AXL_LIB_DIR})
+
+if (BUILD_JNC_DLL)
+	link_directories (
+		${JANCY_LIB_DIR}
+		${JANCY_BIN_DIR}
+		)
+else ()
+	link_directories (${LLVM_LIB_DIR})
+endif ()
 
 add_definitions (
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
@@ -188,13 +190,20 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX AND NOT APPLE)
+if (UNIX)
 	target_link_libraries (
 		jnc_sample_03_dialog
-		rt
+		pthread
 		)
 
-	add_qt_rpath_link ()
+	if (NOT APPLE)
+		target_link_libraries (
+			jnc_sample_03_dialog
+			rt
+			)
+
+		add_qt_rpath_link ()
+	endif ()
 endif ()
 
 if (WIN32 AND QT_DLL_DIR)

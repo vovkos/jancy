@@ -104,11 +104,16 @@ include_directories (
 	${GEN_DIR}
 	)
 
-link_directories (
-	${AXL_LIB_DIR}
-	${JANCY_LIB_DIR}
-	${LLVM_LIB_DIR}
-	)
+link_directories (${AXL_LIB_DIR})
+
+if (BUILD_JNC_DLL)
+	link_directories (
+		${JANCY_LIB_DIR}
+		${JANCY_BIN_DIR}
+		)
+else ()
+	link_directories (${LLVM_LIB_DIR})
+endif ()
 
 add_executable (
 	jnc_app
