@@ -19,8 +19,13 @@ set (JANCY_LIB_DIR      "@JANCY_LIB_BASE_DIR@/${CONFIGURATION}")
 set (JANCY_SPHINX_DIR   "@JANCY_ROOT_DIR@/sphinx")
 
 set (JANCY_EXE          "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}/jancy")
-set (JANCY_DLL_NAME     jancy)
 set (JNC2CPP_PL         "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
+
+if (WIN32)
+	set (JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
+else ()
+	set (JANCY_DLL_NAME jancy)
+endif ()
 
 set (
 	JANCY_CMAKE_DIR
