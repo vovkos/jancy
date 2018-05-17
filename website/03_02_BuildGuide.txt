@@ -14,7 +14,7 @@ The path configuration is stored in *paths.cmake* file in *$AXL_DIR/cmake/std* a
 * `LLVM_LIB_DIR` points to generated LLVM libraries (in build directory)
 * `LLVM_CMAKE_DIR` points to generated LLVM cmake files (in build directory)
 * `QT_CMAKE_DIR` points to QT cmake files
-* `QT_DLL_DIR` points to QT DLL files (Windows only) 
+* `QT_DLL_DIR` points to QT DLL files (Windows only)
 * `AXL_CMAKE_DIR` points to `$AXL_DIR/cmake`
 * `GRACO_CMAKE_DIR` points to `$GRACO_DIR/cmake`
 * `PERL_EXE` points to Perl executable
@@ -29,10 +29,10 @@ set (QT_VERSION        5.0.2)
 set (AXL_VERSION       5.3.2)
 set (GRACO_VERSION     1.1.1)
 set (RAGEL_VERSION     6.7)
- 
+
 set (LLVM_INC_DIR        "c:/Develop/llvm/llvm-${LLVM_VERSION}/include")
 set (LLVM_INC_DIR_2      "c:/Develop/llvm/llvm-${LLVM_VERSION}/build/include")
-set (LLVM_LIB_DIR        "c:/Develop/llvm/llvm-${LLVM_VERSION}/build/lib/${CONFIGURATION_SUFFIX}")
+set (LLVM_LIB_DIR        "c:/Develop/llvm/llvm-${LLVM_VERSION}/build/lib/${CONFIGURATION}")
 set (LLVM_CMAKE_DIR      "c:/Develop/llvm/llvm-${LLVM_VERSION}/build/share/llvm/cmake")
 set (QT_CMAKE_DIR        "c:/Develop/qt/qt-${QT_VERSION}/build/qtbase/lib/cmake")
 set (QT_DLL_DIR          "c:/Develop/qt/qt-${QT_VERSION}/build/qtbase/lib")
@@ -82,7 +82,7 @@ Of course, you can use *cmake-gui* for generating project files all along. Once 
 
 <md>
 
-On Windows you can start Visual Studio by double-clicking the newly generated solution file *axl.sln* and build from the IDE. 
+On Windows you can start Visual Studio by double-clicking the newly generated solution file *axl.sln* and build from the IDE.
 
 Or, if you  prefer building from command line you need to have *msbuild.exe* in your *PATH*. Then you can run (from *$AXL_DIR/build*):
 

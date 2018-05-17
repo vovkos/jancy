@@ -218,13 +218,13 @@ set_target_properties (
 # io_base.jncx archive
 #
 
-set (BIN_DIR ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX})
+set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
 add_custom_target (
 	jnc_io_base_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_base.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_base-${TARGET_CPU}.bin
+	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_base.jncx
+	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_base-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_base
 	)
@@ -238,7 +238,7 @@ set_target_properties (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	FILES ${JANCY_BIN_BASE_DIR}/$<CONFIGURATION>/io_base.jncx
+	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_base.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 

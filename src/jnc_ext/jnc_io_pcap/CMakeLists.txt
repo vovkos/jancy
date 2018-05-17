@@ -157,13 +157,13 @@ set_target_properties (
 # io_pcap.jncx archive
 #
 
-set (BIN_DIR ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX})
+set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
 add_custom_target (
 	jnc_io_pcap_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_pcap.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_pcap.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_pcap-${TARGET_CPU}.bin
+	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_pcap.jncx
+	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_pcap.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_pcap-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_pcap
 	)
@@ -177,7 +177,7 @@ set_target_properties (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	FILES ${JANCY_BIN_BASE_DIR}/$<CONFIGURATION>/io_pcap.jncx
+	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_pcap.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 

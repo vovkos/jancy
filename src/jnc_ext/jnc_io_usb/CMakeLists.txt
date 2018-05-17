@@ -186,7 +186,7 @@ if (WIN32 AND LIBUSB_DLL_DIR)
 		COMMAND
 			${CMAKE_COMMAND} -E copy
 			${LIBUSB_DLL_DIR}/libusb-1.0.dll
-			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION_SUFFIX}
+			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 		)
 endif ()
 
@@ -195,13 +195,13 @@ endif ()
 # io_usb.jncx archive
 #
 
-set (BIN_DIR ${JANCY_BIN_BASE_DIR}/${CONFIGURATION_SUFFIX})
+set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
 add_custom_target (
 	jnc_io_usb_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${BIN_DIR}/io_usb.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${BIN_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${BIN_DIR}/io_usb-${TARGET_CPU}.bin
+	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_usb.jncx
+	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_usb-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_usb
 	)
@@ -215,7 +215,7 @@ set_target_properties (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	FILES ${JANCY_BIN_BASE_DIR}/$<CONFIGURATION>/io_usb.jncx
+	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_usb.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 

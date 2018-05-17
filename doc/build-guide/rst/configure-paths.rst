@@ -52,13 +52,13 @@ On Windows, you will also need to specify paths to the required libraries -- the
 	set (LLVM_INC_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/include)
 
 	if ("${TARGET_CPU}" STREQUAL "amd64")
-		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
-		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/include)
-		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION_SUFFIX}/lib)
+		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION}/share/llvm/cmake)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION}/include)
+		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-amd64/${CONFIGURATION}/lib)
 	else ()
-		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/share/llvm/cmake)
-		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/include)
-		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION_SUFFIX}/lib)
+		set (LLVM_CMAKE_DIR  /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION}/share/llvm/cmake)
+		set (LLVM_INC_DIR    ${LLVM_INC_DIR} /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION}/include)
+		set (LLVM_LIB_DIR    /home/vladimir/Develop/llvm/llvm-${LLVM_VERSION}/build/make-x86/${CONFIGURATION}/lib)
 	endif ()
 
 .. rubric:: Sample paths.cmake on Windows:
@@ -77,14 +77,14 @@ On Windows, you will also need to specify paths to the required libraries -- the
 	set (LLVM_INC_DIR c:/Develop/llvm/llvm-${LLVM_VERSION}/include)
 
 	if ("${TARGET_CPU}" STREQUAL "amd64")
-		set (LUA_LIB_DIR    c:/Develop/lua/lua-${LUA_VERSION}/lib/amd64/${CONFIGURATION_SUFFIX})
+		set (LUA_LIB_DIR    c:/Develop/lua/lua-${LUA_VERSION}/lib/amd64/${CONFIGURATION})
 		set (LLVM_INC_DIR   ${LLVM_INC_DIR} c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/include)
-		set (LLVM_LIB_DIR   c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/lib/${CONFIGURATION_SUFFIX})
+		set (LLVM_LIB_DIR   c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/lib/${CONFIGURATION})
 		set (LLVM_CMAKE_DIR c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10-amd64/share/llvm/cmake)
 	else ()
-		set (LUA_LIB_DIR    c:/Develop/lua/lua-${LUA_VERSION}/lib/x86/${CONFIGURATION_SUFFIX})
+		set (LUA_LIB_DIR    c:/Develop/lua/lua-${LUA_VERSION}/lib/x86/${CONFIGURATION})
 		set (LLVM_INC_DIR   ${LLVM_INC_DIR} c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10/include)
-		set (LLVM_LIB_DIR   c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10/lib/${CONFIGURATION_SUFFIX})
+		set (LLVM_LIB_DIR   c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10/lib/${CONFIGURATION})
 		set (LLVM_CMAKE_DIR c:/Develop/llvm/llvm-${LLVM_VERSION}/build/msvc10/share/llvm/cmake)
 	endif()
 
