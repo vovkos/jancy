@@ -129,7 +129,7 @@ set_target_properties (
 target_link_libraries (
 	jnc_io_usb
 	jnc_io_cmn
-	jnc_api_dynamic
+	jnc_api_ext
 	axl_io
 	axl_core
 	)
@@ -182,7 +182,7 @@ if (WIN32 AND LIBUSB_DLL_DIR)
 		TARGET jnc_io_usb
 		POST_BUILD
 		COMMAND
-			echo "Copying DLL files for jnc_io_usb..."
+			echo Copying DLL files for jnc_io_usb...
 		COMMAND
 			${CMAKE_COMMAND} -E copy
 			${LIBUSB_DLL_DIR}/libusb-1.0.dll

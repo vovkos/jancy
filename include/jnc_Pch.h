@@ -296,7 +296,7 @@ typedef wchar_t           utf32_t;
 #	define JNC_INLINE   static __inline
 #endif
 
-#if (_JNC_OBJECT_LIB)
+#if (_JNC_OBJECT_LIB && _JNC_CPP_GCC)
 #	define JNC_EXPORT_O JNC_EXPORT
 #else
 #	define JNC_EXPORT_O

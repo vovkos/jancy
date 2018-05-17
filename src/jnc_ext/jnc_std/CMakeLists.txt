@@ -219,35 +219,37 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-# object library to be re-used as sources for the jancy dll/shared/dylib
+# object library to be re-used as sources for the jancy shared/dylib
 
-add_library (
-	jnc_std_o OBJECT
-	${PCH_H}
-	${PCH_O_CPP}
-	${LIB_H_LIST}
-	${LIB_CPP_LIST}
-	${JNC_LIST}
-	${GEN_JNC_CPP_LIST}
-	)
+if (UNIX)
+	add_library (
+		jnc_std_o OBJECT
+		${PCH_H}
+		${PCH_O_CPP}
+		${LIB_H_LIST}
+		${LIB_CPP_LIST}
+		${JNC_LIST}
+		${GEN_JNC_CPP_LIST}
+		)
 
-target_compile_definitions (
-	jnc_std_o
-	PUBLIC
-	-D_JNC_OBJECT_LIB=1
-	)
+	target_compile_definitions (
+		jnc_std_o
+		PUBLIC
+		-D_JNC_OBJECT_LIB=1
+		)
 
-axl_set_pch (
-	jnc_std_o
-	${PCH_H}
-	${PCH_O_CPP}
-	)
+	axl_set_pch (
+		jnc_std_o
+		${PCH_H}
+		${PCH_O_CPP}
+		)
 
-set_target_properties (
-	jnc_std_o
-	PROPERTIES
-	FOLDER extensions
-	)
+	set_target_properties (
+		jnc_std_o
+		PROPERTIES
+		FOLDER extensions
+		)
+endif ()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

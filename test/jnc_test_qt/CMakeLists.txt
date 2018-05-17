@@ -240,13 +240,13 @@ if (BUILD_JNC_DLL)
 else ()
 	target_link_libraries (
 		jnc_test_qt
-		jnc_api_static
+		jnc_api_core
 		jnc_ct
 		jnc_rt
 		jnc_rtl
 		jnc_std
 		jnc_sys
-		jnc_api_static
+		jnc_api_core
 		)
 
 	target_link_llvm_jit_libraries (jnc_test_qt)
@@ -321,7 +321,7 @@ if (WIN32 AND QT_DLL_DIR)
 		TARGET jnc_test_qt
 		POST_BUILD
 		COMMAND
-			echo "Copying DLL files for jnc_test_qt..."
+			echo Copying DLL files for jnc_test_qt...
 		COMMAND
 			${CMAKE_COMMAND} -E copy
 			${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll

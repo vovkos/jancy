@@ -107,13 +107,13 @@ if (BUILD_JNC_DLL)
 else ()
 	target_link_libraries (
 		jnc_sample_01_embed_c
-		jnc_api_static
+		jnc_api_core
 		jnc_ct
 		jnc_rt
 		jnc_rtl
 		jnc_std
 		jnc_sys
-		jnc_api_static
+		jnc_api_core
 		)
 
 	target_link_llvm_jit_libraries (jnc_sample_01_embed_c)

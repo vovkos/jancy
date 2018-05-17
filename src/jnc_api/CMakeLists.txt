@@ -127,7 +127,7 @@ include_directories (
 	)
 
 add_library (
-	jnc_api_static
+	jnc_api_core
 	${PCH_H_LIST}
 	${PCH_STATIC_CPP}
 	${LIB_H_LIST}
@@ -135,39 +135,41 @@ add_library (
 	)
 
 axl_set_pch (
-	jnc_api_static
+	jnc_api_core
 	${PCH_H}
 	${PCH_STATIC_CPP}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-# object library to be re-used as sources for the jancy dll/shared/dylib
+# object library to be re-used as sources for the jancy shared/dylib
 
-add_library (
-	jnc_api_static_o OBJECT
-	${PCH_H_LIST}
-	${PCH_STATIC_O_CPP}
-	${LIB_H_LIST}
-	${LIB_STATIC_CPP_LIST}
-	)
+if (UNIX)
+	add_library (
+		jnc_api_core_o OBJECT
+		${PCH_H_LIST}
+		${PCH_STATIC_O_CPP}
+		${LIB_H_LIST}
+		${LIB_STATIC_CPP_LIST}
+		)
 
-target_compile_definitions (
-	jnc_api_static_o
-	PUBLIC
-	-D_JNC_OBJECT_LIB=1
-	)
+	target_compile_definitions (
+		jnc_api_core_o
+		PUBLIC
+		-D_JNC_OBJECT_LIB=1
+		)
 
-axl_set_pch (
-	jnc_api_static_o
-	${PCH_H}
-	${PCH_STATIC_O_CPP}
-	)
+	axl_set_pch (
+		jnc_api_core_o
+		${PCH_H}
+		${PCH_STATIC_O_CPP}
+		)
+endif ()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 add_library (
-	jnc_api_dynamic
+	jnc_api_ext
 	${PCH_H_LIST}
 	${PCH_DYNAMIC_CPP}
 	${LIB_H_LIST}
@@ -175,13 +177,13 @@ add_library (
 	)
 
 target_compile_definitions (
-	jnc_api_dynamic
+	jnc_api_ext
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
 axl_set_pch (
-	jnc_api_dynamic
+	jnc_api_ext
 	${PCH_H}
 	${PCH_DYNAMIC_CPP}
 	)
@@ -189,12 +191,12 @@ axl_set_pch (
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install (
-	TARGETS jnc_api_static
+	TARGETS jnc_api_core
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)
 
 install (
-	TARGETS jnc_api_dynamic
+	TARGETS jnc_api_ext
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)
 

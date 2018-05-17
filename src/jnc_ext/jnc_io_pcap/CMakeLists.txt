@@ -121,7 +121,7 @@ set_target_properties (
 target_link_libraries (
 	jnc_io_pcap
 	jnc_io_cmn
-	jnc_api_dynamic
+	jnc_api_ext
 	axl_io
 	axl_core
 	)

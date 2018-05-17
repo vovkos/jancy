@@ -124,7 +124,7 @@ set_target_properties (
 target_link_libraries (
 	jnc_io_ssh
 	jnc_io_cmn
-	jnc_api_dynamic
+	jnc_api_ext
 	axl_io
 	axl_core
 	${OPENSSL_CRYPTO_LIB_NAME}
@@ -173,7 +173,7 @@ if (WIN32)
 			TARGET jnc_io_ssh
 			POST_BUILD
 			COMMAND
-				echo "Copying DLL files for jnc_io_ssh..."
+				echo Copying DLL files for jnc_io_ssh...
 			COMMAND
 				${CMAKE_COMMAND} -E copy
 				${_DLL_LIST}
