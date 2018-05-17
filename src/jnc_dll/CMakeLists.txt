@@ -27,7 +27,7 @@ if (WIN32)
 		jnc_dll.def.in
 		${CMAKE_CURRENT_BINARY_DIR}/jnc_dll.def
 		)
-elseif (UNIX AND NOT APPLE)
+else ()
 	set (
 		DLL_SRC_LIST
 		$<TARGET_OBJECTS:jnc_api_core_o>
@@ -36,6 +36,14 @@ elseif (UNIX AND NOT APPLE)
 		$<TARGET_OBJECTS:jnc_sys_o>
 		jnc_dll.version
 		)
+
+	if (NOT APPLE)
+		set (
+			DLL_SRC_LIST
+			${DLL_SRC_LIST}
+			jnc_dll.version
+			)
+		endif ()
 endif ()
 
 source_group (
@@ -95,7 +103,9 @@ set_target_properties (
 	jnc_dll
 	PROPERTIES
 		LINKER_LANGUAGE C
-		OUTPUT_NAME ${JANCY_DLL_NAME}
+		OUTPUT_NAME jancy
+		VERSION ${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.${JANCY_VERSION_REVISION}
+		SOVERSION ${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

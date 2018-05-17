@@ -57,6 +57,12 @@ else ()
 	set (JANCY_INSTALL_SPHINX_SUBDIR  share/${CMAKE_PROJECT_NAME}/sphinx)
 	set (JANCY_INSTALL_DOC_SUBDIR     share/${CMAKE_PROJECT_NAME}/doc)
 	set (JANCY_INSTALL_LICENSE_SUBDIR share/${CMAKE_PROJECT_NAME}/license)
+
+	if (APPLE)
+		set (CMAKE_INSTALL_RPATH "@loader_path/../lib")
+	else ()
+		set (CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+	endif ()
 endif ()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
