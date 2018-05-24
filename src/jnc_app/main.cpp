@@ -72,6 +72,8 @@ main (
 	bool result;
 
 	jnc::initialize ("jnc_app");
+	jnc::setErrorRouter (err::getErrorMgr ());
+	lex::registerParseErrorProvider ();
 
 	srand ((int) sys::getTimestamp ());
 
