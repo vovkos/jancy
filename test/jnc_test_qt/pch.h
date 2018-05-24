@@ -50,6 +50,9 @@
 #	include "axl_io_UsbError.h"
 #endif
 
+#include "axl_lex_ParseError.h"
+#include "axl_err_ErrorMgr.h"
+
 using namespace axl;
 
 // Jancy
@@ -58,6 +61,7 @@ using namespace axl;
 #include "jnc_Runtime.h"
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
+#include "jnc_Error.h"
 
 #if (_JNC_OS_WIN)
 

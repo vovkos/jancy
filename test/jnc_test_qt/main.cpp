@@ -26,6 +26,8 @@ int main (int argc, char* argv [])
 #endif
 
 	jnc::initialize ("jnc_test_qt");
+	jnc::setErrorRouter (err::getErrorMgr ());
+	lex::registerParseErrorProvider ();
 
 #if (_JNC_IO_USB)
 	io::registerUsbErrorProvider ();
