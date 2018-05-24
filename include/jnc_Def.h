@@ -88,6 +88,7 @@ class GcHeap;
 typedef axl::sl::ListLink jnc_ListLink;
 typedef axl::sl::Guid jnc_Guid;
 typedef axl::err::ErrorHdr jnc_Error;
+typedef axl::err::ErrorRouter jnc_ErrorRouter;
 typedef jnc::ct::ModuleItemDecl jnc_ModuleItemDecl;
 typedef jnc::ct::ModuleItem jnc_ModuleItem;
 typedef jnc::ct::Attribute jnc_Attribute;
@@ -179,14 +180,10 @@ typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#	ifdef _AXL_ERR_ERROR_H
-typedef axl::err::ErrorHdr jnc_Error;
-#else
-typedef struct jnc_Error jnc_Error;
-#endif
-
 #	ifdef _AXL_SL_LISTBASE_H
+
 typedef axl::sl::ListLink jnc_ListLink;
+
 #	else // _AXL_SL_LISTBASE_H
 
 typedef struct jnc_ListLink jnc_ListLink;
@@ -237,7 +234,6 @@ typedef axl::sl::Guid jnc_Guid;
 
 #		define JNC_GUID_INITIALIZER AXL_SL_GUID_INITIALIZER
 #		define JNC_DEFINE_GUID AXL_SL_DEFINE_GUID
-
 #	else // _AXL_SL_GUID_H
 
 typedef struct jnc_Guid jnc_Guid;
@@ -335,6 +331,33 @@ struct jnc_Guid
 			JNC_GUID_SPECIFIER jnc_Guid n = \
 			JNC_GUID_INITIALIZER (l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
 #	endif // _AXL_SL_GUID_H
+
+#	ifdef _AXL_ERR_ERROR_H
+
+typedef axl::err::ErrorHdr jnc_Error;
+
+#	else
+
+typedef struct jnc_Error jnc_Error;
+
+struct jnc_Error
+{
+	uint32_t m_size;
+	jnc_Guid m_guid;
+	uint32_t m_code;
+};
+
+#	endif // _AXL_ERR_ERROR_H
+
+#	ifdef _AXL_ERR_ERRORMGR_H
+
+typedef axl::err::ErrorRouter jnc_ErrorRouter;
+
+#	else
+
+typedef struct jnc_ErrorRouter jnc_ErrorRouter; // opaque
+
+#	endif // _AXL_ERR_ERRORMGR_H
 
 #endif // _JNC_CORE
 
