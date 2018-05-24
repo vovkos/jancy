@@ -77,7 +77,6 @@ Mailslot::open (DataPtr namePtr)
 	if (h == INVALID_HANDLE_VALUE)
 	{
 		err::setLastSystemError ();
-		propagateLastError ();
 		return false;
 	}
 

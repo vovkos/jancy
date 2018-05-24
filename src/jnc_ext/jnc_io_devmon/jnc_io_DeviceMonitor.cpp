@@ -62,10 +62,7 @@ DeviceMonitor::setPendingNotifySizeLimit (size_t limit)
 
 	bool result = m_monitor.setPendingNotifySizeLimit (limit);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_pendingNotifySizeLimit = limit;
 	return true;
@@ -84,10 +81,7 @@ DeviceMonitor::setFileNameFilter (DataPtr filterPtr)
 	const char* filter = (const char*) filterPtr.m_p;
 	bool result = m_monitor.setFileNameFilter (filter);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_fileNameFilterPtr = strDup (filter);
 	return true;
@@ -105,10 +99,7 @@ DeviceMonitor::setEnabled (bool isEnabled)
 
 	bool result = isEnabled ? m_monitor.enable () : m_monitor.disable ();
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_isEnabled = isEnabled;
 	return true;
@@ -122,10 +113,7 @@ DeviceMonitor::open ()
 
 	bool result = m_monitor.open ();
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 #if (_AXL_OS_WIN)
 	ASSERT (!m_overlappedIo);
@@ -180,10 +168,7 @@ DeviceMonitor::connect (DataPtr deviceNamePtr)
 		m_monitor.setPendingNotifySizeLimit (m_pendingNotifySizeLimit);
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 #if (_JNC_OS_WIN)
 	dm::DeviceInfo deviceInfo;
@@ -215,10 +200,7 @@ DeviceMonitor::setIoctlDescTable (
 	const dm_IoctlDesc* ioctlDesc = (const dm_IoctlDesc*) ioctlDescPtr.m_p;
 	bool result = m_monitor.setIoctlDescTable (ioctlDesc, count);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 #endif
 
 	return true;

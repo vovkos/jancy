@@ -71,7 +71,7 @@ add_library (
 target_compile_definitions (
 	jnc_io_cmn
 	PUBLIC
-	-D_JNC_DYNAMIC_EXTENSION_LIB
+	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
 axl_set_pch (

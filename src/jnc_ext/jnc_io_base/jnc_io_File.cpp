@@ -47,20 +47,6 @@ File::File ()
 	m_isOpen = false;
 }
 
-bool
-JNC_CDECL
-File::open (
-	DataPtr namePtr,
-	uint_t flags
-	)
-{
-	bool result = m_file.open ((const char*) namePtr.m_p, flags);
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
 //..............................................................................
 
 } // namespace io

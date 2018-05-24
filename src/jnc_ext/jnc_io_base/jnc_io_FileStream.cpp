@@ -75,10 +75,7 @@ FileStream::open (
 
 	result = m_file.open ((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 #if (_JNC_OS_WIN)
 	dword_t type = ::GetFileType (m_file.m_file);
@@ -113,7 +110,6 @@ FileStream::open (
 		if (!result)
 		{
 			err::setLastSystemError ();
-			propagateLastError ();
 			return false;
 		}
 	}
@@ -184,7 +180,6 @@ FileStream::setOptions (uint_t options)
 		if (!result)
 		{
 			err::setLastSystemError ();
-			propagateLastError ();
 			return false;
 		}
 	}
@@ -203,10 +198,7 @@ FileStream::clear ()
 {
 	bool result = m_file.setSize (0);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 #if (_AXL_OS_WIN)
 	m_lock.lock ();

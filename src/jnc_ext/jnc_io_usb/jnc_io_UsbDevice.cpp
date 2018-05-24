@@ -58,10 +58,7 @@ UsbDevice::open ()
 {
 	bool result = m_device.open ();
 	if (!result)
-	{
-		jnc::propagateLastError ();
 		return false;
-	}
 
 	m_isOpen = true;
 	return true;
@@ -75,10 +72,7 @@ UsbDevice::getDeviceDesc (UsbDevice* self)
 
 	bool result = self->m_device.getDeviceDescriptor (&desc);
 	if (!result)
-	{
-		jnc::propagateLastError ();
 		return g_nullPtr;
-	}
 
 	return createUsbDeviceDesc (getCurrentThreadRuntime (), &desc, &self->m_device);
 }
@@ -91,10 +85,7 @@ UsbDevice::getActiveConfigurationDesc (UsbDevice* self)
 
 	bool result = self->m_device.getActiveConfigDescriptor (&desc);
 	if (!result)
-	{
-		jnc::propagateLastError ();
 		return g_nullPtr;
-	}
 
 	return createUsbConfigurationDesc (getCurrentThreadRuntime (), desc);
 }
@@ -109,45 +100,11 @@ UsbDevice::getStringDesc (
 	if (!self->m_isOpen)
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		jnc::propagateLastError ();
 		return g_nullPtr;
 	}
 
 	sl::String string = self->m_device.getStringDesrciptor (stringId);
 	return strDup (string, string.getLength ());
-}
-
-bool
-JNC_CDECL
-UsbDevice::setAutoDetachKernelDriverEnabled (bool isEnabled)
-{
-	bool result = m_device.setAutoDetachKernelDriver (isEnabled);
-	if (!result)
-		jnc::propagateLastError ();
-
-	return result;
-}
-
-bool
-JNC_CDECL
-UsbDevice::attachKernelDriver (uint_t interfaceId)
-{
-	bool result = m_device.attachKernelDriver (interfaceId);
-	if (!result)
-		jnc::propagateLastError ();
-
-	return result;
-}
-
-bool
-JNC_CDECL
-UsbDevice::detachKernelDriver (uint_t interfaceId)
-{
-	bool result = m_device.detachKernelDriver (interfaceId);
-	if (!result)
-		jnc::propagateLastError ();
-
-	return result;
 }
 
 UsbInterface*
@@ -165,10 +122,7 @@ UsbDevice::claimInterface (
 
 	bool result = m_device.claimInterface (interfaceId);
 	if (!result)
-	{
-		jnc::propagateLastError ();
 		return NULL;
-	}
 
 	UsbInterface* iface = NULL;
 
@@ -201,9 +155,6 @@ UsbDevice::claimInterface (
 
 	gcHeap->leaveNoCollectRegion (false);
 
-	if (!iface)
-		jnc::propagateLastError ();
-
 	return iface;
 }
 
@@ -225,11 +176,7 @@ UsbDevice::controlTransfer (
 		return -1;
 	}
 
-	size_t result = m_device.controlTransfer (requestType, requestId, value, index, ptr.m_p, size, timeout);
-	if (result == -1)
-		jnc::propagateLastError ();
-
-	return result;
+	return m_device.controlTransfer (requestType, requestId, value, index, ptr.m_p, size, timeout);
 }
 
 //..............................................................................
@@ -275,10 +222,7 @@ openUsbDevice (
 	axl::io::UsbDevice srcDevice;
 	bool result = srcDevice.open (vendorId, productId);
 	if (!result)
-	{
-		jnc::propagateLastError ();
 		return NULL;
-	}
 
 	UsbDevice* device = NULL;
 	Runtime* runtime = getCurrentThreadRuntime ();

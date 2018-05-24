@@ -89,7 +89,6 @@ AsyncIoDevice::setReadBufferSize (
 	if (!result)
 	{
 		m_lock.unlock ();
-		propagateLastError ();
 		return false;
 	}
 
@@ -110,7 +109,6 @@ AsyncIoDevice::setWriteBufferSize (
 	if (!result)
 	{
 		m_lock.unlock ();
-		propagateLastError ();
 		return false;
 	}
 

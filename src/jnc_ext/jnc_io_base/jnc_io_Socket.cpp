@@ -139,10 +139,7 @@ Socket::connect (DataPtr addressPtr)
 	SocketAddress* address = (SocketAddress*) addressPtr.m_p;
 	bool result = m_socket.connect (address->getSockAddr ());
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	if (result)
 	{
@@ -161,10 +158,7 @@ Socket::listen (size_t backLogLimit)
 {
 	bool result = m_socket.listen (backLogLimit);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	if (result)
 	{
@@ -214,10 +208,7 @@ Socket::accept (DataPtr addressPtr)
 
 	bool result = connectionSocket->m_socket.setBlockingMode (false); // not guaranteed to be propagated across accept calls
 	if (!result)
-	{
-		propagateLastError ();
 		return NULL;
-	}
 
 	connectionSocket->wakeIoThread ();
 	connectionSocket->m_ioThread.start ();
@@ -382,10 +373,7 @@ Socket::acceptLoop ()
 				axl::io::SockAddr sockAddr;
 				bool result = m_socket.accept (&socket, &sockAddr);
 				if (!result)
-				{
-					propagateLastError ();
 					return;
-				}
 
 				m_lock.lock ();
 				IncomingConnection* incomingConnection = m_incomingConnectionPool.get ();

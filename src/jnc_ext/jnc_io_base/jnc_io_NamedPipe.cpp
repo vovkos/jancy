@@ -98,10 +98,7 @@ NamedPipe::open (DataPtr namePtr)
 			);
 
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 
 		OverlappedConnect* connect = AXL_MEM_NEW (OverlappedConnect);
 		connect->m_pipe.takeOver (&pipe);
@@ -163,7 +160,6 @@ NamedPipe::setOptions (uint_t options)
 		(m_options & FileStreamOption_MessageNamedPipe))
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		propagateLastError ();
 		return false;
 	}
 
@@ -182,7 +178,6 @@ NamedPipe::accept ()
 	if (m_pendingIncomingConnectionList.isEmpty ())
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
-		propagateLastError ();
 		return NULL;
 	}
 

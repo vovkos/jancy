@@ -54,10 +54,7 @@ SocketBase::setOptions (uint_t options)
 		int value = !(options & SocketOption_TcpNagle);
 		result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 
 	if ((options & SocketOption_TcpReset) != (m_options & SocketOption_TcpReset))
@@ -68,10 +65,7 @@ SocketBase::setOptions (uint_t options)
 
 		result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 
 	if ((options & SocketOption_UdpBroadcast) != (m_options & SocketOption_UdpBroadcast))
@@ -80,10 +74,7 @@ SocketBase::setOptions (uint_t options)
 
 		result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 
 	m_lock.lock ();
@@ -121,17 +112,11 @@ SocketBase::open (
 #endif
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	result = m_socket.setBlockingMode (false);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	switch (protocol)
 	{
@@ -167,10 +152,7 @@ SocketBase::open (
 	}
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	if (address)
 	{
@@ -181,10 +163,7 @@ SocketBase::open (
 			m_socket.bind (address->getSockAddr ());
 
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 
 	AsyncIoDevice::open ();

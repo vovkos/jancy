@@ -69,7 +69,10 @@ public:
 	open (
 		DataPtr namePtr,
 		uint_t flags
-		);
+		)
+	{
+		return m_file.open ((const char*) namePtr.m_p, flags);
+	}
 
 	void
 	JNC_CDECL

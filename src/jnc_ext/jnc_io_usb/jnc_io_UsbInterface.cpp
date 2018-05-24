@@ -69,7 +69,6 @@ UsbInterface::openEndpoint (uint8_t endpointId)
 	if (!endpointDesc)
 	{
 		err::setError (err::SystemErrorCode_ObjectNameNotFound);
-		jnc::propagateLastError ();
 		return NULL;
 	}
 

@@ -41,6 +41,7 @@ jnc::ExtensionLib*
 jncDynamicExtensionLibMain (jnc::DynamicExtensionLibHost* host)
 {
 	g::getModule ()->setTag ("jnc_io_devmon");
+	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::DevMonLib_getLib ();
 }

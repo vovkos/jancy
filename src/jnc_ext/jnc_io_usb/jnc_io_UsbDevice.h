@@ -132,7 +132,10 @@ public:
 
 	bool
 	JNC_CDECL
-	setAutoDetachKernelDriverEnabled (bool isEnabled);
+	setAutoDetachKernelDriverEnabled (bool isEnabled)
+	{
+		return m_device.setAutoDetachKernelDriver (isEnabled);
+	}
 
 	bool
 	JNC_CDECL
@@ -143,11 +146,17 @@ public:
 
 	bool
 	JNC_CDECL
-	attachKernelDriver (uint_t interfaceId);
+	attachKernelDriver (uint_t interfaceId)
+	{
+		return m_device.attachKernelDriver (interfaceId);
+	}
 
 	bool
 	JNC_CDECL
-	detachKernelDriver (uint_t interfaceId);
+	detachKernelDriver (uint_t interfaceId)
+	{
+		return m_device.detachKernelDriver (interfaceId);
+	}
 
 	UsbInterface*
 	JNC_CDECL

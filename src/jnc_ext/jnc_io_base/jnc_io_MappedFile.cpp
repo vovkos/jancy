@@ -46,20 +46,6 @@ MappedFile::MappedFile ()
 	m_isOpen = false;
 }
 
-bool
-JNC_CDECL
-MappedFile::open (
-	DataPtr namePtr,
-	uint_t flags
-	)
-{
-	bool result = m_file.open ((const char*) namePtr.m_p, flags);
-	if (!result)
-		propagateLastError ();
-
-	return result;
-}
-
 DataPtr
 JNC_CDECL
 MappedFile::view (
@@ -71,10 +57,7 @@ MappedFile::view (
 {
 	void* p = self->m_file.view (offset, size, isPermanent);
 	if (!p)
-	{
-		propagateLastError ();
 		return g_nullPtr;
-	}
 
 	// lifetime of the resulting view is not guaranteed
 	// but its the best we can do with the direct use of axl::io::MappedFile

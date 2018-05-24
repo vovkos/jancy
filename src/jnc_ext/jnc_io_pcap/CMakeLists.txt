@@ -100,7 +100,7 @@ endif ()
 target_compile_definitions (
 	jnc_io_pcap
 	PUBLIC
-	-D_JNC_DYNAMIC_EXTENSION_LIB
+	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
 axl_set_pch (

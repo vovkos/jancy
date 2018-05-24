@@ -12,8 +12,9 @@
 #include "axl_sys_Thread.h"
 #include "axl_sys_Time.h"
 #include "axl_sys_win_NtStatus.h"
-#include "axl_err_Errno.h"
 #include "axl_mem_Pool.h"
+#include "axl_err_Errno.h"
+#include "axl_err_ErrorMgr.h"
 #include "axl_g_Module.h"
 
 #if (_AXL_OS_POSIX)

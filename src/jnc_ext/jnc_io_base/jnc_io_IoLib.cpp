@@ -36,10 +36,7 @@ DataPtr getSymbolicLinkTarget (DataPtr namePtr)
 	sl::String linkTarget;
 	bool result = axl::io::getSymbolicLinkTarget (&linkTarget, (const char*) namePtr.m_p);
 	if (!result)
-	{
-		propagateLastError ();
 		return g_nullPtr;
-	}
 
 	return strDup (linkTarget);
 }
@@ -103,6 +100,7 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule ()->setTag ("jnc_io_base");
+	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::IoLib_getLib ();
 }

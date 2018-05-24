@@ -51,6 +51,7 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule ()->setTag ("jnc_io_pcap");
+	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::PcapLib_getLib ();
 }

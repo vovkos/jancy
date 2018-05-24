@@ -127,20 +127,14 @@ Serial::open (DataPtr namePtr)
 		m_serial.setSettings (&serialSettings);
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 #if (_AXL_OS_WIN)
 	if (m_options & SerialOption_WinReadWaitFirstChar)
 	{
 		result = setReadWaitFirstChar ();
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 
 	ASSERT (!m_overlappedIo);
@@ -203,10 +197,7 @@ Serial::setReadInterval (uint_t interval)
 	settings.m_readInterval = interval;
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_ReadInterval);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_readInterval = interval;
 	return true;
@@ -240,10 +231,7 @@ Serial::setOptions (uint_t options)
 		}
 
 		if (!result)
-		{
-			propagateLastError ();
 			return false;
-		}
 	}
 #endif
 
@@ -269,10 +257,7 @@ Serial::setBaudRate (uint_t baudRate)
 
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_BaudRate);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_baudRate = baudRate;
 	return true;
@@ -295,10 +280,7 @@ Serial::setFlowControl (axl::io::SerialFlowControl flowControl)
 
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_FlowControl);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_flowControl = flowControl;
 	return true;
@@ -319,10 +301,7 @@ Serial::setDataBits (uint_t dataBits)
 
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_DataBits);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_dataBits = dataBits;
 	return true;
@@ -343,10 +322,7 @@ Serial::setStopBits (axl::io::SerialStopBits stopBits)
 
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_StopBits);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_stopBits = stopBits;
 	return true;
@@ -367,10 +343,7 @@ Serial::setParity (axl::io::SerialParity parity)
 
 	bool result = m_serial.setSettings (&settings, axl::io::SerialSettingId_Parity);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_parity = parity;
 	return true;
@@ -388,10 +361,7 @@ Serial::setDtr (bool dtr)
 
 	bool result = m_serial.setDtr (dtr);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_dtr = dtr;
 	return true;
@@ -409,10 +379,7 @@ Serial::setRts (bool rts)
 
 	bool result = m_serial.setRts (rts);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_rts = rts;
 	return true;
@@ -463,10 +430,7 @@ Serial::setupDevice (
 
 	bool result = m_serial.setSettings (&settings, mask);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_baudRate = baudRate;
 	m_flowControl = flowControl;

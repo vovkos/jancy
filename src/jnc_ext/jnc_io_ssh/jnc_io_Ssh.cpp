@@ -168,10 +168,7 @@ SshChannel::connect (
 	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
 	result = m_socket.connect (m_remoteAddress.getSockAddr ());
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	wakeIoThread ();
 	return true;

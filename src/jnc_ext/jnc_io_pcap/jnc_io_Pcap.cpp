@@ -103,10 +103,7 @@ Pcap::openDevice (
 		m_pcap.setFilter (filter);
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_snapshotSize = snapshotSize;
 	m_isPromiscious = isPromiscious;
@@ -135,10 +132,7 @@ Pcap::openFile (
 		m_pcap.setFilter (filter);
 
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_filterPtr = strDup (filter);
 
@@ -190,10 +184,7 @@ Pcap::setFilter (DataPtr filterPtr)
 
 	bool result = m_pcap.setFilter (filter);
 	if (!result)
-	{
-		propagateLastError ();
 		return false;
-	}
 
 	m_filterPtr = strDup (filter);
 	return true;

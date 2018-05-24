@@ -102,7 +102,6 @@ UsbEndpoint::read (
 	if (isOutEndpoint ())
 	{
 		err::setError ("Cannot read from a USB OUT-endpoint");
-		jnc::propagateLastError ();
 		return -1;
 	}
 
@@ -119,7 +118,6 @@ UsbEndpoint::write (
 	if (isInEndpoint ())
 	{
 		err::setError ("Cannot write to a USB IN-endpoint");
-		jnc::propagateLastError ();
 		return -1;
 	}
 

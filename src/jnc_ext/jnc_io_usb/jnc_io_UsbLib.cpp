@@ -62,12 +62,11 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule ()->setTag ("jnc_io_usb");
-	jnc_g_dynamicExtensionLibHost = host;
-
+	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
 	axl::io::registerUsbErrorProvider ();
 	axl::io::getUsbDefaultContext ()->createDefault ();
 	axl::io::getUsbDefaultContextEventThread ()->start ();
-
+	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::UsbLib_getLib ();
 }
 
