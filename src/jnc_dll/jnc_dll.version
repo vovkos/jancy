@@ -1,8 +1,8 @@
 {
 	global:
-		jnc_hui;
 		jnc_getBinOpKindString;
 		jnc_getUnOpKindString;
+		jnc_setErrorRouter;
 		jnc_getErrorDescription_v;
 		jnc_getLastError;
 		jnc_setErrno;
