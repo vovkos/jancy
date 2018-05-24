@@ -12,7 +12,6 @@
 #include "pch.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
-#	include "jnc_DynamicExtensionLibHost.h"
 #	include "jnc_ExtensionLib.h"
 #elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"

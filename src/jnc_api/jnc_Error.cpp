@@ -13,7 +13,6 @@
 #include "jnc_Error.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
-#	include "jnc_DynamicExtensionLibHost.h"
 #	include "jnc_ExtensionLib.h"
 #elif defined (_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
@@ -106,6 +105,15 @@ jnc_getErrorDescription_v (const jnc_Error* error)
 	return *jnc::getTlsStringBuffer () = error->getDescription ();
 }
 
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_setErrorRouter (jnc_ErrorRouter* router)
+{
+	err::ErrorMgr* errorMgr = err::getErrorMgr ();
+	if (router != errorMgr)
+		errorMgr->setForwardRouter (router);
+}
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
