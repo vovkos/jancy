@@ -13,6 +13,7 @@
 
 #define _JNC_EXTENSIONLIB_H
 
+#include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Module.h"
 
 /**
@@ -34,7 +35,6 @@
 */
 
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
-typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //..............................................................................
 

@@ -42,10 +42,10 @@ set (
 	${JANCY_INC_DIR}/jnc_Runtime.h
 	${JANCY_INC_DIR}/jnc_GcHeap.h
 	${JANCY_INC_DIR}/jnc_ExtensionLib.h
+	${JANCY_INC_DIR}/jnc_DynamicExtensionLibHost.h
 	${JANCY_INC_DIR}/jnc_CallSite.h
 	${JANCY_INC_DIR}/jnc_Construct.h
 	${JANCY_INC_DIR}/jnc_WarningSuppression.h
-	jnc_DynamicExtensionLibHost.h
 	)
 
 set (

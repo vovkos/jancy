@@ -19,6 +19,45 @@
 #include "jnc_Variant.h"
 #include "jnc_OpKind.h"
 
+typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
+typedef struct jnc_ModuleItemDeclFuncTable jnc_ModuleItemDeclFuncTable;
+typedef struct jnc_ModuleItemFuncTable jnc_ModuleItemFuncTable;
+typedef struct jnc_AttributeFuncTable jnc_AttributeFuncTable;
+typedef struct jnc_AttributeBlockFuncTable jnc_AttributeBlockFuncTable;
+typedef struct jnc_NamespaceFuncTable jnc_NamespaceFuncTable;
+typedef struct jnc_GlobalNamespaceFuncTable jnc_GlobalNamespaceFuncTable;
+typedef struct jnc_VariableFuncTable jnc_VariableFuncTable;
+typedef struct jnc_FunctionFuncTable jnc_FunctionFuncTable;
+typedef struct jnc_PropertyFuncTable jnc_PropertyFuncTable;
+typedef struct jnc_TypedefFuncTable jnc_TypedefFuncTable;
+typedef struct jnc_TypeFuncTable jnc_TypeFuncTable;
+typedef struct jnc_NamedTypeFuncTable jnc_NamedTypeFuncTable;
+typedef struct jnc_BaseTypeSlotFuncTable jnc_BaseTypeSlotFuncTable;
+typedef struct jnc_DerivableTypeFuncTable jnc_DerivableTypeFuncTable;
+typedef struct jnc_ArrayTypeFuncTable jnc_ArrayTypeFuncTable;
+typedef struct jnc_BitFieldTypeFuncTable jnc_BitFieldTypeFuncTable;
+typedef struct jnc_FunctionArgFuncTable jnc_FunctionArgFuncTable;
+typedef struct jnc_FunctionTypeFuncTable jnc_FunctionTypeFuncTable;
+typedef struct jnc_PropertyTypeFuncTable jnc_PropertyTypeFuncTable;
+typedef struct jnc_EnumConstFuncTable jnc_EnumConstFuncTable;
+typedef struct jnc_EnumTypeFuncTable jnc_EnumTypeFuncTable;
+typedef struct jnc_StructFieldFuncTable jnc_StructFieldFuncTable;
+typedef struct jnc_StructTypeFuncTable jnc_StructTypeFuncTable;
+typedef struct jnc_UnionTypeFuncTable jnc_UnionTypeFuncTable;
+typedef struct jnc_ClassTypeFuncTable jnc_ClassTypeFuncTable;
+typedef struct jnc_MulticastClassTypeFuncTable jnc_MulticastClassTypeFuncTable;
+typedef struct jnc_McSnapshotClassTypeFuncTable jnc_McSnapshotClassTypeFuncTable;
+typedef struct jnc_DataPtrTypeFuncTable jnc_DataPtrTypeFuncTable;
+typedef struct jnc_ClassPtrTypeFuncTable jnc_ClassPtrTypeFuncTable;
+typedef struct jnc_FunctionPtrTypeFuncTable jnc_FunctionPtrTypeFuncTable;
+typedef struct jnc_PropertyPtrTypeFuncTable jnc_PropertyPtrTypeFuncTable;
+typedef struct jnc_VariantFuncTable jnc_VariantFuncTable;
+typedef struct jnc_UnitFuncTable jnc_UnitFuncTable;
+typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
+typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
+typedef struct jnc_GcHeapFuncTable jnc_GcHeapFuncTable;
+typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
+
 //..............................................................................
 
 // Error
@@ -47,6 +86,7 @@ jnc_GetErrorDescriptionFunc (const jnc_Error* error);
 
 struct jnc_ErrorFuncTable
 {
+	size_t m_size;
 	jnc_GetLastErrorFunc* m_getLastErrorFunc;
 	jnc_SetErrorFunc* m_setErrorFunc;
 	jnc_SetErrnoFunc* m_setErrnoFunc;
@@ -102,6 +142,7 @@ jnc_ModuleItemDecl_GetOffsetFunc (jnc_ModuleItemDecl* decl);
 
 struct jnc_ModuleItemDeclFuncTable
 {
+	size_t m_size;
 	jnc_ModuleItemDecl_GetNameFunc* m_getNameFunc;
 	jnc_ModuleItemDecl_GetQualifiedNameFunc* m_getQualifiedNameFunc;
 	jnc_ModuleItemDecl_GetStorageKindFunc* m_getStorageKindFunc;
@@ -160,6 +201,7 @@ jnc_VerifyModuleItemIsClassTypeFunc (
 
 struct jnc_ModuleItemFuncTable
 {
+	size_t m_size;
 	jnc_ModuleItem_GetModuleFunc* m_getModuleFunc;
 	jnc_ModuleItem_GetItemKindFunc* m_getItemKindFunc;
 	jnc_ModuleItem_GetFlagsFunc* m_getFlagsFunc;
@@ -177,6 +219,7 @@ struct jnc_ModuleItemFuncTable
 
 struct jnc_AttributeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -205,6 +248,7 @@ jnc_AttributeBlock_FindAttributeFunc (
 
 struct jnc_AttributeBlockFuncTable
 {
+	size_t m_size;
 	jnc_AttributeBlock_GetAttributeCountFunc* m_getAttributeCountFunc;
 	jnc_AttributeBlock_GetAttributeFunc* m_getAttributeFunc;
 	jnc_AttributeBlock_FindAttributeFunc* m_findAttributeFunc;
@@ -261,6 +305,7 @@ jnc_Namespace_FindClassTypeFunc (
 
 struct jnc_NamespaceFuncTable
 {
+	size_t m_size;
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
 	jnc_Namespace_FindVariableFunc* m_findVariableFunc;
@@ -275,6 +320,7 @@ struct jnc_NamespaceFuncTable
 
 struct jnc_GlobalNamespaceFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -283,6 +329,7 @@ struct jnc_GlobalNamespaceFuncTable
 
 struct jnc_VariableFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -320,6 +367,7 @@ jnc_Function_GetMachineCodeFunc (jnc_Function* function);
 
 struct jnc_FunctionFuncTable
 {
+	size_t m_size;
 	jnc_Function_GetFunctionKindFunc* m_getFunctionKindFunc;
 	jnc_Function_IsMemberFunc* m_isMemberFunc;
 	jnc_Function_IsOverloadedFunc* m_isOverloadedFunc;
@@ -344,6 +392,7 @@ jnc_Property_GetSetterFunc (jnc_Property* prop);
 
 struct jnc_PropertyFuncTable
 {
+	size_t m_size;
 	jnc_Property_GetGetterFunc* m_getGetterFunc;
 	jnc_Property_GetSetterFunc* m_getSetterFunc;
 };
@@ -354,6 +403,7 @@ struct jnc_PropertyFuncTable
 
 struct jnc_TypedefFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -399,6 +449,7 @@ jnc_Type_MarkGcRootsFunc (
 
 struct jnc_TypeFuncTable
 {
+	size_t m_size;
 	jnc_Type_GetTypeKindFunc* m_getTypeKindFunc;
 	jnc_Type_GetSizeFunc* m_getSizeFunc;
 	jnc_Type_GetTypeStringFunc* m_getTypeStringFunc;
@@ -413,6 +464,7 @@ struct jnc_TypeFuncTable
 
 struct jnc_NamedTypeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -431,6 +483,7 @@ jnc_BaseTypeSlot_GetVTableIndexFunc (jnc_BaseTypeSlot* baseType);
 
 struct jnc_BaseTypeSlotFuncTable
 {
+	size_t m_size;
 	jnc_BaseTypeSlot_GetOffsetFunc* m_getOffsetFunc;
 	jnc_BaseTypeSlot_GetVTableIndexFunc* m_getVTableIndexFunc;
 };
@@ -468,6 +521,7 @@ jnc_DerivableType_GetCastOperatorFunc (
 
 struct jnc_DerivableTypeFuncTable
 {
+	size_t m_size;
 	jnc_DerivableType_GetMemberMethodFunc* m_getStaticConstructorFunc;
 	jnc_DerivableType_GetMemberMethodFunc* m_getStaticDestructorFunc;
 	jnc_DerivableType_GetMemberMethodFunc* m_getPreConstructorFunc;
@@ -495,6 +549,7 @@ jnc_ArrayType_GetElementCountFunc (jnc_ArrayType* type);
 
 struct jnc_ArrayTypeFuncTable
 {
+	size_t m_size;
 	jnc_ArrayType_GetElementTypeFunc* m_getElementTypeFunc;
 	jnc_ArrayType_GetElementCountFunc* m_GetElementCountFunc;
 };
@@ -519,6 +574,7 @@ jnc_BitFieldType_GetBitCountFunc (jnc_BitFieldType* type);
 
 struct jnc_BitFieldTypeFuncTable
 {
+	size_t m_size;
 	jnc_BitFieldType_GetBaseTypeFunc* m_getBaseTypeFunc;
 	jnc_BitFieldType_GetBitOffsetFunc* m_getBitOffsetFunc;
 	jnc_BitFieldType_GetBitCountFunc* m_getBitCountFunc;
@@ -530,6 +586,7 @@ struct jnc_BitFieldTypeFuncTable
 
 struct jnc_FunctionArgFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -568,6 +625,7 @@ jnc_FunctionType_GetShortTypeFunc (jnc_FunctionType* type);
 
 struct jnc_FunctionTypeFuncTable
 {
+	size_t m_size;
 	jnc_FunctionType_GetReturnTypeFunc* m_getReturnTypeFunc;
 	jnc_FunctionType_GetArgCountFunc* m_getArgCountFunc;
 	jnc_FunctionType_GetArgFunc* m_getArgFunc;
@@ -581,6 +639,7 @@ struct jnc_FunctionTypeFuncTable
 
 struct jnc_PropertyTypeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -595,6 +654,7 @@ jnc_EnumConst_GetValueFunc (jnc_EnumConst* enumConst);
 
 struct jnc_EnumConstFuncTable
 {
+	size_t m_size;
 	jnc_EnumConst_GetValueFunc* m_getValueFunc;
 };
 
@@ -621,6 +681,7 @@ jnc_EnumType_GetConstFunc (
 
 struct jnc_EnumTypeFuncTable
 {
+	size_t m_size;
 	jnc_EnumType_GetBaseTypeFunc* m_getBaseTypeFunc;
 	jnc_EnumType_GetConstCountFunc* m_getConstCountFunc;
 	jnc_EnumType_GetConstFunc* m_getConstFunc;
@@ -638,6 +699,7 @@ jnc_StructField_GetOffsetFunc (jnc_StructField* field);
 
 struct jnc_StructFieldFuncTable
 {
+	size_t m_size;
 	jnc_StructField_GetOffsetFunc* m_getOffsetFunc;
 };
 
@@ -647,6 +709,7 @@ struct jnc_StructFieldFuncTable
 
 struct jnc_StructTypeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -655,6 +718,7 @@ struct jnc_StructTypeFuncTable
 
 struct jnc_UnionTypeFuncTable
 {
+	size_t m_size;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -681,6 +745,7 @@ jnc_ClassType_GetClassPtrTypeFunc (
 
 struct jnc_ClassTypeFuncTable
 {
+	size_t m_size;
 	jnc_ClassType_GetClassTypeKindFunc* m_getClassTypeKindFunc;
 	jnc_ClassType_GetIfaceStructTypeFunc* m_getIfaceStructTypeFunc;
 	jnc_ClassType_GetClassPtrTypeFunc* m_getClassPtrTypeFunc;
@@ -705,6 +770,7 @@ jnc_MulticastClassType_GetMethodFunc (
 
 struct jnc_MulticastClassTypeFuncTable
 {
+	size_t m_size;
 	jnc_MulticastClassType_GetTargetTypeFunc* m_getTargetTypeFunc;
 	jnc_MulticastClassType_GetMethodFunc* m_getMethodFunc;
 };
@@ -728,6 +794,7 @@ jnc_McSnapshotClassType_GetMethodFunc (
 
 struct jnc_McSnapshotClassTypeFuncTable
 {
+	size_t m_size;
 	jnc_McSnapshotClassType_GetTargetTypeFunc* m_getTargetTypeFunc;
 	jnc_McSnapshotClassType_GetMethodFunc* m_getMethodFunc;
 };
@@ -748,6 +815,7 @@ jnc_DataPtrType_GetTargetTypeFunc (jnc_DataPtrType* type);
 
 struct jnc_DataPtrTypeFuncTable
 {
+	size_t m_size;
 	jnc_DataPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
 	jnc_DataPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
@@ -758,6 +826,7 @@ struct jnc_DataPtrTypeFuncTable
 
 struct jnc_ClassPtrTypeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -776,6 +845,7 @@ jnc_FunctionPtrType_GetTargetTypeFunc (jnc_FunctionPtrType* type);
 
 struct jnc_FunctionPtrTypeFuncTable
 {
+	size_t m_size;
 	jnc_FunctionPtrType_GetPtrTypeKindFunc* m_getPtrTypeKindFunc;
 	jnc_FunctionPtrType_GetTargetTypeFunc* m_getTargetTypeFunc;
 };
@@ -786,6 +856,7 @@ struct jnc_FunctionPtrTypeFuncTable
 
 struct jnc_PropertyPtrTypeFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -866,6 +937,7 @@ jnc_Variant_HashFunc (const jnc_Variant* variant);
 
 struct jnc_VariantFuncTable
 {
+	size_t m_size;
 	jnc_Variant_CastFunc* m_castFunc;
 	jnc_Variant_UnaryOperatorFunc* m_unaryOperatorFunc;
 	jnc_Variant_BinaryOperatorFunc* m_binaryOperatorFunc;
@@ -883,6 +955,7 @@ struct jnc_VariantFuncTable
 
 struct jnc_UnitFuncTable
 {
+	size_t m_size;
 };
 
 //..............................................................................
@@ -1025,6 +1098,7 @@ jnc_Module_getLlvmIrStringFunc (jnc_Module* module);
 
 struct jnc_ModuleFuncTable
 {
+	size_t m_size;
 	jnc_Module_CreateFunc* m_createFunc;
 	jnc_Module_DestroyFunc* m_destroyFunc;
 	jnc_Module_ClearFunc* m_clearFunc;
@@ -1178,6 +1252,7 @@ jnc_MemDupFunc (
 
 struct jnc_RuntimeFuncTable
 {
+	size_t m_size;
 	jnc_Runtime_CreateFunc* m_createFunc;
 	jnc_Runtime_DestroyFunc* m_destroyFunc;
 	jnc_Runtime_GetModuleFunc* m_getModuleFunc;
@@ -1334,6 +1409,7 @@ jnc_GcHeap_AddBoxToCallSiteFunc (jnc_Box* box);
 
 struct jnc_GcHeapFuncTable
 {
+	size_t m_size;
 	jnc_GcHeap_GetRuntimeFunc* m_getRuntimeFunc;
 	jnc_GcHeap_GetStatsFunc* m_getStatsFunc;
 	jnc_GcHeap_GetSizeTriggersFunc* m_getSizeTriggersFunc;
@@ -1366,6 +1442,8 @@ struct jnc_GcHeapFuncTable
 
 struct jnc_DynamicExtensionLibHost
 {
+	size_t m_size;
+	jnc_ErrorRouter* m_errorRouter;
 	jnc_ErrorFuncTable* m_errorFuncTable;
 	jnc_ModuleItemDeclFuncTable* m_moduleItemDeclFuncTable;
 	jnc_ModuleItemFuncTable* m_moduleItemFuncTable;

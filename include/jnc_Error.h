@@ -38,6 +38,14 @@
 
 //..............................................................................
 
+#if (!defined _JNC_DYNAMIC_EXTENSION_LIB)
+
+JNC_EXTERN_C
+void
+jnc_setErrorRouter (jnc_ErrorRouter* router);
+
+#endif
+
 /// Returns a pointer to the last error set in the context of the current thread.
 
 JNC_EXTERN_C
@@ -105,15 +113,6 @@ jnc_getLastErrorDescription_v ()
 	return jnc_getErrorDescription_v (jnc_getLastError ());
 }
 
-#if (defined _JNC_DYNAMIC_EXTENSION_LIB && defined _AXL_ERR_ERROR_H)
-JNC_INLINE
-void
-jnc_propagateLastError ()
-{
-	jnc_setError (axl::err::getLastError ());
-}
-#endif
-
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -121,6 +120,17 @@ jnc_propagateLastError ()
 namespace jnc {
 
 //..............................................................................
+
+#if (!defined _JNC_DYNAMIC_EXTENSION_LIB)
+
+inline
+void
+setErrorRouter (jnc_ErrorRouter* router)
+{
+	jnc_setErrorRouter (router);
+}
+
+#endif
 
 inline
 const jnc_Error*
@@ -163,15 +173,6 @@ getLastErrorDescription_v ()
 {
 	return jnc_getLastErrorDescription_v ();
 }
-
-#if (defined _JNC_DYNAMIC_EXTENSION_LIB && defined _AXL_ERR_ERROR_H)
-inline
-void
-propagateLastError ()
-{
-	jnc_propagateLastError ();
-}
-#endif
 
 //..............................................................................
 

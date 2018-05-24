@@ -30,6 +30,7 @@
 
 static jnc_ErrorFuncTable g_errorFuncTable =
 {
+	sizeof (jnc_ErrorFuncTable),
 	jnc_getLastError,
 	jnc_setError,
 	jnc_setErrno,
@@ -39,6 +40,7 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 
 static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
 {
+	sizeof (jnc_ModuleItemDeclFuncTable),
 	jnc_ModuleItemDecl_getName,
 	jnc_ModuleItemDecl_getQualifiedName,
 	jnc_ModuleItemDecl_getStorageKind,
@@ -53,6 +55,7 @@ static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
 
 static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
 {
+	sizeof (jnc_ModuleItemFuncTable),
 	jnc_ModuleItem_getModule,
 	jnc_ModuleItem_getItemKind,
 	jnc_ModuleItem_getFlags,
@@ -65,10 +68,12 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
 
 static jnc_AttributeFuncTable g_attributeFuncTable =
 {
+	sizeof (jnc_AttributeFuncTable),
 };
 
 static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable =
 {
+	sizeof (jnc_AttributeBlockFuncTable),
 	jnc_AttributeBlock_getAttributeCount,
 	jnc_AttributeBlock_getAttribute,
 	jnc_AttributeBlock_findAttribute,
@@ -76,6 +81,7 @@ static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable =
 
 static jnc_NamespaceFuncTable g_namespaceFuncTable =
 {
+	sizeof (jnc_NamespaceFuncTable),
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
 	jnc_Namespace_findVariable,
@@ -86,14 +92,17 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 
 static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable =
 {
+	sizeof (jnc_GlobalNamespaceFuncTable),
 };
 
 static jnc_VariableFuncTable g_variableFuncTable =
 {
+	sizeof (jnc_VariableFuncTable),
 };
 
 static jnc_FunctionFuncTable g_functionFuncTable =
 {
+	sizeof (jnc_FunctionFuncTable),
 	jnc_Function_getFunctionKind,
 	jnc_Function_isMember,
 	jnc_Function_isOverloaded,
@@ -104,16 +113,19 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 
 static jnc_PropertyFuncTable g_propertyFuncTable =
 {
+	sizeof (jnc_PropertyFuncTable),
 	jnc_Property_getGetter,
 	jnc_Property_getSetter,
 };
 
 static jnc_TypedefFuncTable g_typedefFuncTable =
 {
+	sizeof (jnc_TypedefFuncTable),
 };
 
 static jnc_TypeFuncTable g_typeFuncTable =
 {
+	sizeof (jnc_TypeFuncTable),
 	jnc_Type_getTypeKind,
 	jnc_Type_getSize,
 	jnc_Type_getTypeString,
@@ -124,16 +136,19 @@ static jnc_TypeFuncTable g_typeFuncTable =
 
 static jnc_NamedTypeFuncTable g_namedTypeFuncTable =
 {
+	sizeof (jnc_NamedTypeFuncTable),
 };
 
 static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable =
 {
+	sizeof (jnc_BaseTypeSlotFuncTable),
 	jnc_BaseTypeSlot_getOffset,
 	jnc_BaseTypeSlot_getVTableIndex,
 };
 
 static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
 {
+	sizeof (jnc_DerivableTypeFuncTable),
 	jnc_DerivableType_getStaticConstructor,
 	jnc_DerivableType_getStaticDestructor,
 	jnc_DerivableType_getPreConstructor,
@@ -147,12 +162,14 @@ static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
 
 static jnc_ArrayTypeFuncTable g_arrayTypeFuncTable =
 {
+	sizeof (jnc_ArrayTypeFuncTable),
 	jnc_ArrayType_getElementType,
 	jnc_ArrayType_getElementCount,
 };
 
 static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable =
 {
+	sizeof (jnc_BitFieldTypeFuncTable),
 	jnc_BitFieldType_getBaseType,
 	jnc_BitFieldType_getBitOffset,
 	jnc_BitFieldType_getBitCount,
@@ -160,10 +177,12 @@ static jnc_BitFieldTypeFuncTable g_bitFieldTypeFuncTable =
 
 static jnc_FunctionArgFuncTable g_functionArgFuncTable =
 {
+	sizeof (jnc_FunctionArgFuncTable),
 };
 
 static jnc_FunctionTypeFuncTable g_functionTypeFuncTable =
 {
+	sizeof (jnc_FunctionTypeFuncTable),
 	jnc_FunctionType_getReturnType,
 	jnc_FunctionType_getArgCount,
 	jnc_FunctionType_getArg,
@@ -173,15 +192,18 @@ static jnc_FunctionTypeFuncTable g_functionTypeFuncTable =
 
 static jnc_PropertyTypeFuncTable g_propertyTypeFuncTable =
 {
+	sizeof (jnc_PropertyTypeFuncTable),
 };
 
 static jnc_EnumConstFuncTable g_enumConstFuncTable =
 {
+	sizeof (jnc_EnumConstFuncTable),
 	jnc_EnumConst_getValue,
 };
 
 static jnc_EnumTypeFuncTable g_enumTypeFuncTable =
 {
+	sizeof (jnc_EnumTypeFuncTable),
 	jnc_EnumType_getBaseType,
 	jnc_EnumType_getConstCount,
 	jnc_EnumType_getConst,
@@ -189,19 +211,23 @@ static jnc_EnumTypeFuncTable g_enumTypeFuncTable =
 
 static jnc_StructFieldFuncTable g_structFieldFuncTable =
 {
+	sizeof (jnc_StructFieldFuncTable),
 	jnc_StructField_getOffset,
 };
 
 static jnc_StructTypeFuncTable g_structTypeFuncTable =
 {
+	sizeof (jnc_StructTypeFuncTable),
 };
 
 static jnc_UnionTypeFuncTable g_unionTypeFuncTable =
 {
+	sizeof (jnc_UnionTypeFuncTable),
 };
 
 static jnc_ClassTypeFuncTable g_classTypeFuncTable =
 {
+	sizeof (jnc_ClassTypeFuncTable),
 	jnc_ClassType_getClassTypeKind,
 	jnc_ClassType_getIfaceStructType,
 	jnc_ClassType_getClassPtrType,
@@ -209,38 +235,45 @@ static jnc_ClassTypeFuncTable g_classTypeFuncTable =
 
 static jnc_MulticastClassTypeFuncTable g_multicastClassTypeFuncTable =
 {
+	sizeof (jnc_MulticastClassTypeFuncTable),
 	jnc_MulticastClassType_getTargetType,
 	jnc_MulticastClassType_getMethod,
 };
 
 static jnc_McSnapshotClassTypeFuncTable g_mcSnapshotClassTypeFuncTable =
 {
+	sizeof (jnc_McSnapshotClassTypeFuncTable),
 	jnc_McSnapshotClassType_getTargetType,
 	jnc_McSnapshotClassType_getMethod,
 };
 
 static jnc_DataPtrTypeFuncTable g_dataPtrTypeFuncTable =
 {
+	sizeof (jnc_DataPtrTypeFuncTable),
 	jnc_DataPtrType_getPtrTypeKind,
 	jnc_DataPtrType_getTargetType,
 };
 
 static jnc_ClassPtrTypeFuncTable g_classPtrTypeFuncTable =
 {
+	sizeof (jnc_ClassPtrTypeFuncTable),
 };
 
 static jnc_FunctionPtrTypeFuncTable g_functionPtrTypeFuncTable =
 {
+	sizeof (jnc_FunctionPtrTypeFuncTable),
 	jnc_FunctionPtrType_getPtrTypeKind,
 	jnc_FunctionPtrType_getTargetType,
 };
 
 static jnc_PropertyPtrTypeFuncTable g_propertyPtrTypeFuncTable =
 {
+	sizeof (jnc_PropertyPtrTypeFuncTable),
 };
 
 static jnc_VariantFuncTable g_variantFuncTable =
 {
+	sizeof (jnc_VariantFuncTable),
 	jnc_Variant_cast,
 	jnc_Variant_unaryOperator,
 	jnc_Variant_binaryOperator,
@@ -254,10 +287,12 @@ static jnc_VariantFuncTable g_variantFuncTable =
 
 static jnc_UnitFuncTable g_unitFuncTable =
 {
+	sizeof (jnc_UnitFuncTable),
 };
 
 static jnc_ModuleFuncTable g_moduleFuncTable =
 {
+	sizeof (jnc_ModuleFuncTable),
 	jnc_Module_create,
 	jnc_Module_destroy,
 	jnc_Module_clear,
@@ -283,6 +318,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 
 static jnc_RuntimeFuncTable g_runtimeFuncTable =
 {
+	sizeof (jnc_RuntimeFuncTable),
 	jnc_Runtime_create,
 	jnc_Runtime_destroy,
 	jnc_Runtime_getModule,
@@ -308,6 +344,7 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 
 static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 {
+	sizeof (jnc_GcHeapFuncTable),
 	jnc_GcHeap_getRuntime,
 	jnc_GcHeap_getStats,
 	jnc_GcHeap_getSizeTriggers,
@@ -338,6 +375,8 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 
 jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 {
+	sizeof (jnc_DynamicExtensionLibHost),
+	err::getErrorMgr (),
 	&g_errorFuncTable,
 	&g_moduleItemDeclFuncTable,
 	&g_moduleItemFuncTable,
