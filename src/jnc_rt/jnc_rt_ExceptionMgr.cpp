@@ -176,6 +176,12 @@ ExceptionMgr::vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers)
 	{
 		AXL_TODO ("encode SEH information better");
 		sys::win::setNtStatus (status);
+
+#if (_AXL_CPU_AMD64)
+		_JUMP_BUFFER* pBuffer = (_JUMP_BUFFER*) tlsVariableTable->m_sjljFrame->m_jmpBuf;
+		pBuffer->Frame = 0; // prevent unwinding -- it doesn't work with the LLVM MCJIT-generated code
+#endif
+
 		longjmp (tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT (false);
 	}
