@@ -3,6 +3,8 @@ int main ()
 	printf ("compiling\n");	
 	
 	jnc.RegexState state;
+	state.m_isIncremental = true;
+
 	jnc.RegexDfa dfa;
 	dfa.incrementalCompile (r"[0-9]+");
 	dfa.incrementalCompile (r".");

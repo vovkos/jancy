@@ -555,8 +555,6 @@ RegexDfa::match (
 	size_t length
 	)
 {
-	state->m_isIncremental = true; // ensure incremental matching
-
 	size_t stateId = state->exec (&m_dfa, ptr, length);
 	if ((intptr_t) stateId <= 0)
 	{
