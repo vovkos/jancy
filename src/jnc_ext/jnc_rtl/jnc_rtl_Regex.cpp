@@ -528,6 +528,22 @@ RegexDfa::finalize ()
 	fsm::RegexCompiler regexCompiler (&m_regex);
 	regexCompiler.finalize ();
 
+	sl::Iterator <ct::ReSwitchAcceptContext> prev = m_acceptContextList.getHead ();
+	sl::Iterator <ct::ReSwitchAcceptContext> next = prev.getNext ();
+	while (next)
+	{
+		prev->m_groupCount = next->m_firstGroupId - prev->m_firstGroupId;
+		prev = next++;
+	}
+
+	if (!prev)
+	{
+		err::setError ("empty regular expression");
+		return false;
+	}
+
+	prev->m_groupCount = m_regex.getGroupCount () - prev->m_firstGroupId;
+
 	return m_dfa.build (&m_regex);
 }
 
