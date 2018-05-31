@@ -18,4 +18,8 @@
 
 #include "axl_sl_BitIdx.h"
 
+#if (_JNC_IO_USB)
+#	include "axl_io_UsbError.h"
+#endif
+
 using namespace axl;

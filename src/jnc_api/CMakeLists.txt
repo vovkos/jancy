@@ -118,6 +118,11 @@ source_group (
 # jnc_api static/static_o/dynamic libraries
 #
 
+if (BUILD_JNC_IO_USB)
+	include_directories (${LIBUSB_INC_DIR})
+	add_definitions (-D_JNC_IO_USB=1)
+endif ()
+
 include_directories (
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
