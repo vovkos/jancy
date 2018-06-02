@@ -13,6 +13,9 @@
 # jnc_dll library
 #
 
+set (CMAKE_INSTALL_RPATH)
+set (CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 link_directories (
 	${LLVM_LIB_DIR}
 	${AXL_LIB_DIR}

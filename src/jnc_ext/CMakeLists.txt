@@ -9,6 +9,9 @@
 #
 #...............................................................................
 
+set (CMAKE_INSTALL_RPATH)
+set (CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 add_subdirectory (jnc_rtl)
 add_subdirectory (jnc_std)
 add_subdirectory (jnc_sys)
