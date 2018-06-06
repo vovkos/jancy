@@ -11,8 +11,8 @@
 
 add_subdirectory (jnc_ct)
 add_subdirectory (jnc_rt)
+add_subdirectory (jnc_ext) # ext BEFORE everything api, app & dll (we need BUILD_JNC_IO_USB)
 add_subdirectory (jnc_api)
-add_subdirectory (jnc_ext)
 
 option (
 	BUILD_JNC_APP
