@@ -375,6 +375,15 @@ bool MainWindow::compile ()
 
 	m_module->addImportDir (appDir.constData ());
 
+#if (_JNC_OS_POSIX)
+#	if (_JNC_DEBUG)
+	QString libDir = qApp->applicationDirPath () + "/../../lib/Debug";
+#	else
+	QString libDir = qApp->applicationDirPath () + "/../../lib/Release";
+#	endif
+	m_module->addImportDir (libDir.toUtf8 ().constData ());
+#endif
+
 	writeOutput("Parsing...\n");
 
 	m_modulePane->clear ();
