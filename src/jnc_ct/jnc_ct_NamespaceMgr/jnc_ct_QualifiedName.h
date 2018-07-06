@@ -95,9 +95,6 @@ public:
 
 	void
 	copy (const QualifiedName& name);
-
-	void
-	takeOver (QualifiedName* name);
 };
 
 //..............................................................................

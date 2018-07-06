@@ -537,7 +537,7 @@ TypeMgr::createArrayType (
 	ArrayType* type = AXL_MEM_NEW (ArrayType);
 	type->m_module = m_module;
 	type->m_elementType = elementType;
-	type->m_elementCountInitializer.takeOver (elementCountInitializer);
+	sl::takeOver (&type->m_elementCountInitializer, elementCountInitializer);
 	type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit ();
 	type->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	m_arrayTypeList.insertTail (type);
@@ -889,7 +889,7 @@ TypeMgr::createFunctionArg (
 	functionArg->m_ptrTypeFlags = ptrTypeFlags;
 
 	if (initializer)
-		functionArg->m_initializer.takeOver (initializer);
+		sl::takeOver (&functionArg->m_initializer, initializer);
 
 	m_functionArgList.insertTail (functionArg);
 
@@ -918,10 +918,10 @@ TypeMgr::createStructField (
 	field->m_bitCount = bitCount;
 
 	if (constructor)
-		field->m_constructor.takeOver (constructor);
+		sl::takeOver (&field->m_constructor, constructor);
 
 	if (initializer)
-		field->m_initializer.takeOver (initializer);
+		sl::takeOver (&field->m_initializer, initializer);
 
 	m_structFieldList.insertTail (field);
 

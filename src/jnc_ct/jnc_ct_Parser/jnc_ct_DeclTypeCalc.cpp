@@ -136,7 +136,7 @@ DeclTypeCalc::calcType (
 			return NULL;
 	}
 
-	takeOver (typeModifiers);
+	takeOverTypeModifiers (typeModifiers);
 
 	if (m_typeModifiers & TypeModifierMaskKind_Integer)
 	{

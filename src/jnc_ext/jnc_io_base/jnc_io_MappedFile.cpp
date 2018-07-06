@@ -31,10 +31,12 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (MappedFile)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <MappedFile>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <MappedFile>)
 	JNC_MAP_AUTOGET_PROPERTY ("m_dynamicViewLimit", &MappedFile::setDynamicViewLimit)
-	JNC_MAP_PROPERTY ("m_size", &MappedFile::getSize, &MappedFile::setSize)
+	JNC_MAP_CONST_PROPERTY ("m_size", &MappedFile::getSize)
+	JNC_MAP_FUNCTION ("setSize",  &MappedFile::setSize)
 	JNC_MAP_FUNCTION ("open",  &MappedFile::open)
 	JNC_MAP_FUNCTION ("close", &MappedFile::close)
 	JNC_MAP_FUNCTION ("view",  &MappedFile::view)
+	JNC_MAP_FUNCTION ("unmapAllViews",  &MappedFile::unmapAllViews)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................

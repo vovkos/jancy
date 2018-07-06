@@ -120,7 +120,7 @@ nullable
 expression_or_empty_list_save_list
 	:	expression_or_empty_list
 			{
-				m_expressionValueList.takeOver (&$1.m_valueList);
+				sl::takeOver (&m_expressionValueList, &$1.m_valueList);
 			}
 	;
 
@@ -716,7 +716,7 @@ new_operator_type
 		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
 			{
 				$.m_type = $t.m_type;
-				$.m_argList.takeOver (&$a.m_valueList);
+				sl::takeOver (&$.m_argList, &$a.m_valueList);
 			}
 	;
 

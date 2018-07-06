@@ -182,12 +182,6 @@ public:
 		m_typeModifiers = 0;
 	}
 
-	void
-	clear ();
-
-	void
-	takeOver (TypeModifiers* src);
-
 	int
 	getTypeModifiers ()
 	{
@@ -197,8 +191,21 @@ public:
 	bool
 	addTypeModifier (TypeModifier modifier);
 
+	void
+	clearTypeModifiers ()
+	{
+		m_typeModifiers = 0;
+	}
+
 	int
 	clearTypeModifiers (int modifierMask);
+
+	void
+	takeOverTypeModifiers (TypeModifiers* modifiers)
+	{
+		m_typeModifiers = modifiers->m_typeModifiers;
+		modifiers->m_typeModifiers = 0;
+	}
 
 protected:
 	bool

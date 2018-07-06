@@ -160,7 +160,7 @@ opaque class File
 		it sets new size [#f3]_.
 	*/
 
-	uint64_t property m_size;
+	uint64_t const property m_size;
 
 	/**
 		This property is used for getting and setting [#f3]_ current file
@@ -211,6 +211,8 @@ opaque class File
 	*/
 
 	alias dispose = close;
+
+	bool errorcode setSize (uint64_t size);
 
 	/**
 		Attempts to read up to ``size`` bytes from file into the buffer pointed

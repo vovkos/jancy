@@ -173,7 +173,7 @@ NamespaceMgr::createAlias (
 	alias->m_tag = qualifiedName;
 	alias->m_type = type;
 	alias->m_ptrTypeFlags = ptrTypeFlags;
-	alias->m_initializer.takeOver (initializer);
+	sl::takeOver (&alias->m_initializer, initializer);
 	m_aliasList.insertTail (alias);
 
 	m_module->markForLayout (alias);

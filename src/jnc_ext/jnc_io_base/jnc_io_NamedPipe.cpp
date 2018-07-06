@@ -101,13 +101,13 @@ NamedPipe::open (DataPtr namePtr)
 			return false;
 
 		OverlappedConnect* connect = AXL_MEM_NEW (OverlappedConnect);
-		connect->m_pipe.takeOver (&pipe);
+		sl::takeOver (&connect->m_pipe, &pipe);
 		pipeList.insertTail (connect);
 	}
 
 	ASSERT (!m_overlappedIo);
 	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
-	m_overlappedIo->m_pipeList.takeOver (&pipeList);
+	sl::takeOver (&m_overlappedIo->m_pipeList, &pipeList);
 
 	AsyncIoDevice::open ();
 	m_ioThread.start ();
@@ -263,7 +263,7 @@ NamedPipe::ioThreadFunc ()
 
 			m_lock.lock ();
 			IncomingConnection* connection = m_incomingConnectionPool.get ();
-			connection->m_pipe.takeOver (&connect->m_pipe);
+			sl::takeOver (&connection->m_pipe, &connect->m_pipe);
 			m_pendingIncomingConnectionList.insertTail (connection);
 			m_lock.unlock ();
 
@@ -325,7 +325,7 @@ NamedPipe::ioThreadFunc ()
 				}
 
 				OverlappedConnect* connect = m_overlappedIo->m_overlappedConnectPool.get ();
-				connect->m_pipe.takeOver (&pipe);
+				sl::takeOver (&connect->m_pipe, &pipe);
 
 				result = connect->m_pipe.overlappedConnect (&connect->m_overlapped);
 				if (!result)

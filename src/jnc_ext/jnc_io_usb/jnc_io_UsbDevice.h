@@ -62,7 +62,7 @@ public:
 	takeOver (axl::io::UsbDevice* srcDevice)
 	{
 		m_isOpen = srcDevice->isOpen ();
-		m_device.takeOver (srcDevice);
+		sl::takeOver (&m_device, srcDevice);
 	}
 
 	void
@@ -165,7 +165,7 @@ public:
 		uint8_t altSettingId
 		);
 
-	size_t 
+	size_t
 	JNC_CDECL
 	controlTransfer (
 		uint_t requestType,

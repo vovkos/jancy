@@ -50,7 +50,7 @@ AttributeBlock::createAttribute (
 
 	if (initializer)
 	{
-		attribute->m_initializer.takeOver (initializer);
+		sl::takeOver (&attribute->m_initializer, initializer);
 		m_module->markForLayout (attribute);
 	}
 

@@ -59,7 +59,7 @@ reactor_event_name
 	}
 	:	'(' expression_list ')'
 			{
-				$.m_valueList.takeOver (&$2.m_valueList)
+				sl::takeOver (&$.m_valueList, &$2.m_valueList)
 			}
 	|	TokenKind_BindingOf '(' expression ')'
 			{

@@ -34,7 +34,7 @@ Orphan::setBody (sl::BoxList <Token>* tokenList)
 		return false;
 	}
 
-	m_body.takeOver (tokenList);
+	sl::takeOver (&m_body, tokenList);
 	return true;
 }
 

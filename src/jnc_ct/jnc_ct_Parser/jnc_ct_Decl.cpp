@@ -82,19 +82,6 @@ getTypeModifierString (uint_t modifiers)
 
 //..............................................................................
 
-void
-TypeModifiers::clear ()
-{
-	m_typeModifiers = 0;
-}
-
-void
-TypeModifiers::takeOver (TypeModifiers* src)
-{
-	m_typeModifiers = src->m_typeModifiers;
-	src->clear ();
-}
-
 bool
 TypeModifiers::addTypeModifier (TypeModifier modifier)
 {
@@ -300,7 +287,7 @@ Declarator::setTypeSpecifier (
 		return;
 	}
 
-	takeOver (typeSpecifier);
+	takeOverTypeModifiers (typeSpecifier);
 
 	m_baseType = typeSpecifier->getType ();
 	if (!m_baseType)
@@ -391,7 +378,7 @@ void
 Declarator::addPointerPrefix ()
 {
 	DeclPointerPrefix* prefix = AXL_MEM_NEW (DeclPointerPrefix);
-	prefix->takeOver (this);
+	prefix->takeOverTypeModifiers (this);
 	m_pointerPrefixList.insertTail (prefix);
 }
 
@@ -400,7 +387,7 @@ Declarator::addArraySuffix (sl::BoxList <Token>* elementCountInitializer)
 {
 	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
 	suffix->m_declarator = this;
-	suffix->m_elementCountInitializer.takeOver (elementCountInitializer);
+	sl::takeOver (&suffix->m_elementCountInitializer, elementCountInitializer);
 	m_suffixList.insertTail (suffix);
 	return suffix;
 }

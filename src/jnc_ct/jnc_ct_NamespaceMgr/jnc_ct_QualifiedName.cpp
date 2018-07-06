@@ -92,14 +92,6 @@ QualifiedName::copy (const QualifiedName& name)
 		m_list.insertTail (*it);
 }
 
-void
-QualifiedName::takeOver (QualifiedName* name)
-{
-	m_first = name->m_first;
-	m_list.takeOver (&name->m_list);
-	name->clear ();
-}
-
 //..............................................................................
 
 } // namespace ct

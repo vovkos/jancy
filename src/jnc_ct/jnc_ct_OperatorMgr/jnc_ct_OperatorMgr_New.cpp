@@ -212,7 +212,7 @@ OperatorMgr::parseInitializer (
 		if (!result)
 			return false;
 
-		argList.takeOver (&parser.m_expressionValueList);
+		sl::takeOver (&argList, &parser.m_expressionValueList);
 	}
 
 	result = construct (value, &argList);

@@ -53,7 +53,7 @@ ReactorClassType::setBody (sl::BoxList <Token>* tokenList)
 		return false;
 	}
 
-	m_body.takeOver (tokenList);
+	sl::takeOver (&m_body, tokenList);
 	m_module->markForCompile (this);
 	return true;
 }

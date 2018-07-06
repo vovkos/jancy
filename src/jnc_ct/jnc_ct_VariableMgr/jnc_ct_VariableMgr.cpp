@@ -135,10 +135,10 @@ VariableMgr::createVariable (
 	variable->m_scope = m_module->m_namespaceMgr.getCurrentScope ();
 
 	if (constructor)
-		variable->m_constructor.takeOver (constructor);
+		sl::takeOver (&variable->m_constructor, constructor);
 
 	if (initializer)
-		variable->m_initializer.takeOver (initializer);
+		sl::takeOver (&variable->m_initializer, initializer);
 
 	m_variableList.insertTail (variable);
 

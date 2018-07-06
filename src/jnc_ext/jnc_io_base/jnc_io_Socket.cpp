@@ -187,7 +187,7 @@ Socket::accept (DataPtr addressPtr)
 	}
 
 	IncomingConnection* incomingConnection = m_pendingIncomingConnectionList.removeHead ();
-	connectionSocket->m_socket.m_socket.takeOver (&incomingConnection->m_socket.m_socket);
+	sl::takeOver (&connectionSocket->m_socket.m_socket, &incomingConnection->m_socket.m_socket);
 	connectionSocket->setOptions (m_options);
 	connectionSocket->AsyncIoDevice::open ();
 	connectionSocket->m_ioThreadFlags =	IoThreadFlag_IncomingConnection;
@@ -378,7 +378,7 @@ Socket::acceptLoop ()
 				m_lock.lock ();
 				IncomingConnection* incomingConnection = m_incomingConnectionPool.get ();
 				incomingConnection->m_sockAddr = sockAddr;
-				incomingConnection->m_socket.m_socket.takeOver (&socket.m_socket);
+				sl::takeOver (&incomingConnection->m_socket.m_socket, &socket.m_socket);
 				m_pendingIncomingConnectionList.insertTail (incomingConnection);
 				setEvents_l (SocketEvent_IncomingConnection);
 			}

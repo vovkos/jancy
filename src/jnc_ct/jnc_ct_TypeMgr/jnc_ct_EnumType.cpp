@@ -104,7 +104,7 @@ EnumType::createConst (
 	enumConst->m_tag = m_tag.isEmpty () ? name : m_tag + "." + name;
 
 	if (initializer)
-		enumConst->m_initializer.takeOver (initializer);
+		sl::takeOver (&enumConst->m_initializer, initializer);
 
 	m_constList.insertTail (enumConst);
 	m_constArray.append (enumConst);

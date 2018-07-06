@@ -905,7 +905,7 @@ Parser::declareFunction (
 
 		if (!declarator->m_initializer.isEmpty ())
 		{
-			function->m_initializer.takeOver (&declarator->m_initializer);
+			sl::takeOver (&function->m_initializer, &declarator->m_initializer);
 			m_module->markForCompile (function);
 		}
 	}
@@ -2080,7 +2080,7 @@ Parser::reactorOnEventStmt (
 		);
 
 	reaction->m_function->setBody (tokenList);
-	reaction->m_bindSiteList.takeOver (valueList);
+	sl::takeOver (&reaction->m_bindSiteList, valueList);
 	m_reactionList.insertTail (reaction);
 }
 
@@ -2121,7 +2121,7 @@ Parser::reactorDeclarationOrExpressionStmt (sl::BoxList <Token>* tokenList)
 	Reaction* reaction = AXL_MEM_NEW (Reaction);
 	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
 	reaction->m_function->setBody (tokenList);
-	reaction->m_bindSiteList.takeOver (&parser.m_reactionBindSiteList);
+	sl::takeOver (&reaction->m_bindSiteList, &parser.m_reactionBindSiteList);
 	m_reactionList.insertTail (reaction);
 	return true;
 }

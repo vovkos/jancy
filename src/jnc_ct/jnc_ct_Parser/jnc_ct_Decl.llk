@@ -177,12 +177,12 @@ qualified_name_list
 	:	qualified_name
 			{
 				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
-				it->takeOver (&$1.m_name);
+				sl::takeOver (it.p (), &$1.m_name);
 			}
 		(',' qualified_name
 			{
 				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
-				it->takeOver (&$3.m_name);
+				sl::takeOver (it.p (), &$3.m_name);
 			}
 		)*
 	;
@@ -313,7 +313,7 @@ statement_pass1 <StmtPass1* $stmt>
 // type names
 
 type_name_impl <
-	Type** $type, 
+	Type** $type,
 	Value* $countValue
 	>
 	local

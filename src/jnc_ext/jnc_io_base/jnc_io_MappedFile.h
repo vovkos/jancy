@@ -49,7 +49,7 @@ public:
 	JNC_CDECL
 	setSize (uint64_t size)
 	{
-		return m_file.setSize (size);
+		return m_file.m_file.setSize (size);
 	}
 
 	bool
@@ -78,6 +78,13 @@ public:
 		size_t size,
 		bool isPermanent
 		);
+
+	void
+	JNC_CDECL
+	unmapAllViews ()
+	{
+		m_file.unmapAllViews ();
+	}
 };
 
 //..............................................................................

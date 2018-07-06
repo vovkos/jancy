@@ -131,7 +131,7 @@ opaque class MappedFile
 		operating system is set; then dynamic exception is thrown.
 	*/
 
-	uint64_t property m_size;
+	uint64_t const property m_size;
 
 	construct ();
 	destruct ();
@@ -169,6 +169,8 @@ opaque class MappedFile
 
 	alias void dispose = close;
 
+	bool errorcode setSize (uint64_t size);
+
 	/**
 		Provides access to the region of the file at ``offset`` and ``size``
 		bytes long. The final, third argument is used to specify whether the
@@ -183,6 +185,8 @@ opaque class MappedFile
 		size_t size,
 		bool isPermanent = false
 		);
+
+	void unmapAllViews ();
 }
 
 //..............................................................................

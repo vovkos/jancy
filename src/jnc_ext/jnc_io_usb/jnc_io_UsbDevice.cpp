@@ -158,7 +158,7 @@ UsbDevice::claimInterface (
 	return iface;
 }
 
-size_t 
+size_t
 JNC_CDECL
 UsbDevice::controlTransfer (
 	uint_t requestType,

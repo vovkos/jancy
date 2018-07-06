@@ -230,7 +230,7 @@ AsyncIoDevice::cancelAllWaits ()
 	m_lock.lock ();
 
 	sl::StdList <AsyncWait> asyncWaitList; // will be cleared upon exiting the scope
-	asyncWaitList.takeOver (&m_asyncWaitList);
+	sl::takeOver (&asyncWaitList, &m_asyncWaitList);
 	m_asyncWaitMap.clear ();
 
 	sl::Iterator <SyncWait> it = m_syncWaitList.getHead ();

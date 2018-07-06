@@ -58,7 +58,7 @@ declarator_w_curly_initializer <
 	>
 	:	'=' curly_initializer_pass1
 			{
-				$declarator->m_initializer.takeOver (&$2.m_tokenList);
+				sl::takeOver (&$declarator->m_initializer, &$2.m_tokenList);
 				return declare ($declarator);
 			}
 		(',' declarator_list <$typeSpecifier>)?
@@ -70,7 +70,7 @@ declarator_wo_curly_initializer <
 	>
 	:	('=' expression_pass1
 			{
-				$declarator->m_initializer.takeOver (&$2.m_tokenList);
+				sl::takeOver (&$declarator->m_initializer, &$2.m_tokenList);
 			}
 		)?
 			{
@@ -427,7 +427,7 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 		declarator_suffix <&$declarator>*
 		('=' expression_pass1 $i
 			{
-				$declarator.m_initializer.takeOver (&$i.m_tokenList);
+				sl::takeOver (&$declarator.m_initializer, &$i.m_tokenList);
 			}
 		)?
 			{
@@ -460,7 +460,7 @@ bitfield_suffix <Declarator* $declarator>
 declarator_constructor <Declarator* $declarator>
 	:	TokenKind_Construct? arg_list_pass1
 			{
-				$declarator->m_constructor.takeOver (&$2.m_tokenList);
+				sl::takeOver (&$declarator->m_constructor, &$2.m_tokenList);
 			}
 	;
 
