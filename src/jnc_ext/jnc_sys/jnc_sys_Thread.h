@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include "axl_g_WarningSuppression.h"
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
 
