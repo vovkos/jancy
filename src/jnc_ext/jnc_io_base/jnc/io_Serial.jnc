@@ -523,13 +523,13 @@ opaque class Serial
 
 	bool errorcode setupDevice (
 		uint_t baudRate,
-		SerialFlowControl flowControl,
-		uint_t dataBits,
-		SerialStopBits stopBits,
-		SerialParity parity,
-		uint_t readInterval,
-		bool dtr,
-		bool rts
+		uint_t dataBits = 8,
+		SerialStopBits stopBits = SerialStopBits._1,
+		SerialParity parity = SerialParity.None,
+		SerialFlowControl flowControl = SerialFlowControl.None,
+		uint_t readInterval = 0,
+		bool dtr = false,
+		bool rts = false
 		);
 
 	/**

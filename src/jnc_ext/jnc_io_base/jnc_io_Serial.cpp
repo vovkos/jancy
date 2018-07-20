@@ -113,10 +113,10 @@ Serial::open (DataPtr namePtr)
 
 	axl::io::SerialSettings serialSettings (
 		m_baudRate,
-		m_flowControl,
 		m_dataBits,
 		m_stopBits,
 		m_parity,
+		m_flowControl,
 		m_readInterval,
 		m_dtr,
 		m_rts
@@ -389,10 +389,10 @@ bool
 JNC_CDECL
 Serial::setupDevice (
 	uint_t baudRate,
-	axl::io::SerialFlowControl flowControl,
 	uint_t dataBits,
 	axl::io::SerialStopBits stopBits,
 	axl::io::SerialParity parity,
+	axl::io::SerialFlowControl flowControl,
 	uint_t readInterval,
 	bool dtr,
 	bool rts

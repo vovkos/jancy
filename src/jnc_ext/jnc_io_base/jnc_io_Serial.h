@@ -206,14 +206,14 @@ public:
 	JNC_CDECL
 	setRts (bool rts);
 
-	bool 
+	bool
 	JNC_CDECL
 	setupDevice (
 		uint_t baudRate,
-		axl::io::SerialFlowControl flowControl,
 		uint_t dataBits,
 		axl::io::SerialStopBits stopBits,
 		axl::io::SerialParity parity,
+		axl::io::SerialFlowControl flowControl,
 		uint_t readInterval,
 		bool dtr,
 		bool rts
