@@ -152,23 +152,16 @@ if (UNIX)
 	endif ()
 endif ()
 
-if (WIN32)
-	target_link_libraries (
-		jnc_io_usb
-		libusb-1.0
-		)
-else ()
-	target_link_libraries (
-		jnc_io_usb
-		usb-1.0
-		)
+target_link_libraries (
+	jnc_io_usb
+	${LIBUSB_LIB_NAME}
+	)
 
-	if (LINUX)
-		target_link_libraries (
-			jnc_io_usb
-			udev
-			)
-	endif ()
+if (LINUX)
+	target_link_libraries (
+		jnc_io_usb
+		udev
+		)
 endif ()
 
 set_target_properties (
