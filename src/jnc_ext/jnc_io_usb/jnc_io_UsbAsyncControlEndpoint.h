@@ -25,7 +25,9 @@ protected:
 	{
 		UsbAsyncControlEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
-		sl::Array <char> m_buffer;
+		axl::ref::Buf <libusb_control_setup> m_buffer;
+		jnc::DataPtr m_inBufferPtr;
+		jnc::FunctionPtr m_completionFuncPtr;
 	};
 
 	enum Flag
@@ -45,19 +47,21 @@ protected:
 	};
 
 protected:
+	Runtime* m_runtime;
+	axl::io::UsbDevice* m_device;
+
 	CompletionThread m_completionThread;
 	sys::Lock m_lock;
 	volatile uint_t m_flags;
 	sys::Event m_event;
 	sys::NotificationEvent m_idleEvent;
+
+	mem::Pool <Transfer> m_transferPool;
 	sl::StdList <Transfer> m_activeTransferList;
 	sl::StdList <Transfer> m_completedTransferList;
 
 public:
-	UsbAsyncControlEndpoint ()
-	{
-		m_flags = 0;
-	}
+	UsbAsyncControlEndpoint (axl::io::UsbDevice* device);
 
 	~UsbAsyncControlEndpoint ()
 	{
@@ -70,6 +74,9 @@ public:
 	void
 	stop ();
 
+	void
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+
 	bool
 	JNC_CDECL
 	transfer (
@@ -80,7 +87,7 @@ public:
 		DataPtr ptr,
 		size_t size,
 		uint_t timeout,
-		FunctionPtr onCompletedPtr
+		FunctionPtr completionFuncPtr
 		);
 
 	void
@@ -93,16 +100,33 @@ protected:
 		return m_activeTransferList.isEmpty () && m_completedTransferList.isEmpty ();
 	}
 
+	static
 	void
-	cancelAllActiveTransfers ();
+	markTransferGcRoots (
+		GcHeap* gcHeap,
+		Transfer* transfer
+		);
 
 	void
 	completionThreadFunc ();
 
+	void
+	cancelAllActiveTransfers_l ();
+
+	void
+	finalizeTransfers_l ();
+
+	bool
+	callCompletionFunc (
+		FunctionPtr completionFuncPtr,
+		size_t resultSize,
+		const err::ErrorRef& error = err::ErrorRef ()
+		);
+
 	static
 	void
 	LIBUSB_CALL
-	onControlTransferCompleted (libusb_transfer* transfer);
+	onTransferCompleted (libusb_transfer* transfer);
 };
 
 //..............................................................................

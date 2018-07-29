@@ -44,6 +44,10 @@ public:
 		close ();
 	}
 
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+
 	axl::io::UsbDevice*
 	getDevice ()
 	{

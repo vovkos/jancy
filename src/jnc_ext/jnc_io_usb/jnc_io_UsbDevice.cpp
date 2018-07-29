@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbDevice,
 	UsbDevice,
-	NULL
+	&UsbDevice::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
@@ -59,6 +59,14 @@ UsbDevice::UsbDevice ()
 	m_isOpen = false;
 	m_isAutoDetachKernelDriverEnabled = false;
 	m_asyncControlEndpoint = NULL;
+}
+
+void
+JNC_CDECL
+UsbDevice::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+{
+	if (m_asyncControlEndpoint)
+		m_asyncControlEndpoint->markOpaqueGcRoots (gcHeap);
 }
 
 void
@@ -209,18 +217,18 @@ UsbDevice::controlTransfer_1 (
 	DataPtr ptr,
 	size_t size,
 	uint_t timeout,
-	FunctionPtr onCompletedPtr
+	FunctionPtr completionFuncPtr
 	)
 {
 	if (!m_isOpen)
 	{
 		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
-		return -1;
+		return false;
 	}
 
 	if (!m_asyncControlEndpoint)
 	{
-		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW (UsbAsyncControlEndpoint);
+		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW_ARGS (UsbAsyncControlEndpoint, (&m_device));
 		bool result = endpoint->start ();
 		if (!result)
 		{
@@ -239,7 +247,7 @@ UsbDevice::controlTransfer_1 (
 		ptr,
 		size,
 		timeout,
-		onCompletedPtr
+		completionFuncPtr
 		);
 }
 

@@ -98,7 +98,10 @@ opaque class UsbDevice
 		void* p,
 		size_t size,
 		uint_t timeout = -1,
-		function* onCompleted (std.Error const* error)
+		function* onCompleted (
+			size_t resultSize,
+			std.Error const* error
+			)
 		);
 
 	void cancelControlTransfers ();
