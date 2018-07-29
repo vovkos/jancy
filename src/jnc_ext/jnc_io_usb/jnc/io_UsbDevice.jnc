@@ -89,6 +89,19 @@ opaque class UsbDevice
 		size_t size,
 		uint_t timeout = -1
 		);
+
+	bool errorcode controlTransfer (
+		uint_t requestType,
+		uint_t requestId,
+		uint_t value,
+		uint_t index,
+		void* p,
+		size_t size,
+		uint_t timeout = -1,
+		function* onCompleted (std.Error const* error)
+		);
+
+	void cancelControlTransfers ();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

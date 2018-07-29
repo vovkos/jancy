@@ -34,7 +34,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (UsbEndpoint)
 	JNC_MAP_CONSTRUCTOR (&jnc::construct <UsbEndpoint>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbEndpoint>)
 
-	JNC_MAP_AUTOGET_PROPERTY ("m_readTimeout",     &UsbEndpoint::setReadTimeout)
+	JNC_MAP_AUTOGET_PROPERTY ("m_transferTimeout", &UsbEndpoint::setTransferTimeout)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readParallelism", &UsbEndpoint::setReadParallelism)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readBlockSize",   &UsbEndpoint::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &UsbEndpoint::setReadBufferSize)
@@ -53,7 +53,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 
 UsbEndpoint::UsbEndpoint ()
 {
-	m_readTimeout = Def_ReadTimeout;
+	m_transferTimeout = Def_TransferTimeout;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
@@ -216,7 +216,7 @@ UsbEndpoint::readLoop ()
 		size_t activeReadCount = m_activeTransferList.getCount ();
 		if (!m_readBuffer.isFull () && activeReadCount < m_readParallelism)
 		{
-			uint_t readTimeout = m_readTimeout;
+			uint_t timeout = m_transferTimeout;
 			size_t readBlockSize = m_readBlockSize;
 			size_t newReadCount = m_readParallelism - activeReadCount;
 			for (size_t i = 0; i < newReadCount; i++)
@@ -234,7 +234,7 @@ UsbEndpoint::readLoop ()
 				m_activeTransferList.insertTail (transfer); // put it on active list prior to submission
 				m_lock.unlock ();
 
-				result = submitTransfer (transfer, transfer->m_buffer, transfer->m_buffer.getCount (), readTimeout);
+				result = submitTransfer (transfer, transfer->m_buffer, transfer->m_buffer.getCount (), timeout);
 
 				m_lock.lock ();
 
@@ -302,12 +302,14 @@ UsbEndpoint::writeLoop ()
 
 		if (m_activeTransferList.isEmpty () && !m_writeBlock.isEmpty ())
 		{
+			uint_t timeout = m_transferTimeout;
+
 			Transfer* transfer = m_transferPool.get ();
 			transfer->m_isCompletedOutOfOrder = false;
 			m_activeTransferList.insertTail (transfer); // put it on active list prior to submission
 			m_lock.unlock ();
 
-			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount (), -1);
+			result = submitTransfer (transfer, m_writeBlock, m_writeBlock.getCount (), timeout);
 
 			m_lock.lock ();
 
@@ -403,7 +405,7 @@ UsbEndpoint::onTransferCompleted (libusb_transfer* usbTransfer)
 
 	// surprisingly enough, libusb may deliver completions out-of-order
 
-	if (transfer != *self->m_activeTransferList.getHead ()) 
+	if (transfer != *self->m_activeTransferList.getHead ())
 	{
 		transfer->m_isCompletedOutOfOrder = true;
 	}

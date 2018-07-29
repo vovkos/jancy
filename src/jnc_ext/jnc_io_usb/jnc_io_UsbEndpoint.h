@@ -28,7 +28,7 @@ struct UsbEndpointHdr: IfaceHdr
 	UsbInterface* m_parentInterface;
 	DataPtr m_endpointDescPtr;
 
-	uint_t m_readTimeout;
+	uint_t m_transferTimeout;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -49,7 +49,7 @@ public:
 protected:
 	enum Def
 	{
-		Def_ReadTimeout     = 200,
+		Def_TransferTimeout = -1,
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadParallelism = 4,
 		Def_ReadBufferSize  = 16 * 1024,
@@ -107,9 +107,9 @@ public:
 
 	void
 	JNC_CDECL
-	setReadTimeout (uint_t timeout)
+	setTransferTimeout (uint_t timeout)
 	{
-		AsyncIoDevice::setSetting (&m_readTimeout, timeout ? timeout : Def_ReadTimeout);
+		AsyncIoDevice::setSetting (&m_transferTimeout, timeout ? timeout : Def_TransferTimeout);
 	}
 
 	void

@@ -15,6 +15,7 @@ namespace jnc {
 namespace io {
 
 class UsbInterface;
+class UsbAsyncControlEndpoint;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbDevice)
 
@@ -33,13 +34,10 @@ protected:
 
 protected:
 	axl::io::UsbDevice m_device;
+	UsbAsyncControlEndpoint* m_asyncControlEndpoint;
 
 public:
-	UsbDevice ()
-	{
-		m_isOpen = false;
-		m_isAutoDetachKernelDriverEnabled = false;
-	}
+	UsbDevice ();
 
 	~UsbDevice ()
 	{
@@ -67,11 +65,7 @@ public:
 
 	void
 	JNC_CDECL
-	close ()
-	{
-		m_device.close ();
-		m_isOpen = false;
-	}
+	close ();
 
 	bool
 	JNC_CDECL
@@ -167,15 +161,32 @@ public:
 
 	size_t
 	JNC_CDECL
-	controlTransfer (
+	controlTransfer_0 (
 		uint_t requestType,
 		uint_t requestId,
 		uint_t value,
 		uint_t index,
-		DataPtr pptr,
+		DataPtr ptr,
 		size_t size,
 		uint_t timeout
 		);
+
+	bool
+	JNC_CDECL
+	controlTransfer_1 (
+		uint_t requestType,
+		uint_t requestId,
+		uint_t value,
+		uint_t index,
+		DataPtr ptr,
+		size_t size,
+		uint_t timeout,
+		FunctionPtr onCompletedPtr
+		);
+
+	void
+	JNC_CDECL
+	cancelControlTransfers ();
 };
 
 //..............................................................................

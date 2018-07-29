@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_UsbDevice.h"
+#include "jnc_io_UsbAsyncControlEndpoint.h"
 #include "jnc_io_UsbInterface.h"
 #include "jnc_io_UsbDesc.h"
 #include "jnc_io_UsbLib.h"
@@ -39,7 +40,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
 	JNC_MAP_FUNCTION ("attachKernelDriver", &UsbDevice::attachKernelDriver)
 	JNC_MAP_FUNCTION ("detachKernelDriver", &UsbDevice::detachKernelDriver)
 	JNC_MAP_FUNCTION ("claimInterface",     &UsbDevice::claimInterface)
-	JNC_MAP_FUNCTION ("controlTransfer",    &UsbDevice::controlTransfer)
+	JNC_MAP_FUNCTION ("controlTransfer",    &UsbDevice::controlTransfer_0)
+	JNC_MAP_OVERLOAD (&UsbDevice::controlTransfer_1)
 	JNC_MAP_AUTOGET_PROPERTY ("m_isAutoDetachKernelDriverEnabled", &UsbDevice::setAutoDetachKernelDriverEnabled)
 	JNC_MAP_CONST_PROPERTY ("m_isKernelDriverActive", &UsbDevice::isKernelDriverActive)
 	JNC_MAP_CONST_PROPERTY ("m_deviceDesc", &UsbDevice::getDeviceDesc)
@@ -51,6 +53,24 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (UsbDevice)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 //..............................................................................
+
+UsbDevice::UsbDevice ()
+{
+	m_isOpen = false;
+	m_isAutoDetachKernelDriverEnabled = false;
+	m_asyncControlEndpoint = NULL;
+}
+
+void
+JNC_CDECL
+UsbDevice::close ()
+{
+	if (m_asyncControlEndpoint)
+		AXL_MEM_DELETE (m_asyncControlEndpoint);
+
+	m_device.close ();
+	m_isOpen = false;
+}
 
 bool
 JNC_CDECL
@@ -160,7 +180,7 @@ UsbDevice::claimInterface (
 
 size_t
 JNC_CDECL
-UsbDevice::controlTransfer (
+UsbDevice::controlTransfer_0 (
 	uint_t requestType,
 	uint_t requestId,
 	uint_t value,
@@ -177,6 +197,58 @@ UsbDevice::controlTransfer (
 	}
 
 	return m_device.controlTransfer (requestType, requestId, value, index, ptr.m_p, size, timeout);
+}
+
+bool
+JNC_CDECL
+UsbDevice::controlTransfer_1 (
+	uint_t requestType,
+	uint_t requestId,
+	uint_t value,
+	uint_t index,
+	DataPtr ptr,
+	size_t size,
+	uint_t timeout,
+	FunctionPtr onCompletedPtr
+	)
+{
+	if (!m_isOpen)
+	{
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
+		return -1;
+	}
+
+	if (!m_asyncControlEndpoint)
+	{
+		UsbAsyncControlEndpoint* endpoint = AXL_MEM_NEW (UsbAsyncControlEndpoint);
+		bool result = endpoint->start ();
+		if (!result)
+		{
+			AXL_MEM_DELETE (endpoint);
+			return false;
+		}
+
+		m_asyncControlEndpoint = endpoint;
+	}
+
+	return m_asyncControlEndpoint->transfer (
+		requestType,
+		requestId,
+		value,
+		index,
+		ptr,
+		size,
+		timeout,
+		onCompletedPtr
+		);
+}
+
+void
+JNC_CDECL
+UsbDevice::cancelControlTransfers ()
+{
+	if (m_asyncControlEndpoint)
+		m_asyncControlEndpoint->cancelTransfers ();
 }
 
 //..............................................................................
