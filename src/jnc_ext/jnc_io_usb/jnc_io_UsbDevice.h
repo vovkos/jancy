@@ -167,7 +167,7 @@ public:
 	JNC_CDECL
 	controlTransfer_0 (
 		uint_t requestType,
-		uint_t requestId,
+		uint_t requestCode,
 		uint_t value,
 		uint_t index,
 		DataPtr ptr,
@@ -179,7 +179,7 @@ public:
 	JNC_CDECL
 	controlTransfer_1 (
 		uint_t requestType,
-		uint_t requestId,
+		uint_t requestCode,
 		uint_t value,
 		uint_t index,
 		DataPtr ptr,

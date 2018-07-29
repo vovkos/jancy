@@ -82,7 +82,7 @@ opaque class UsbDevice
 
 	size_t errorcode controlTransfer (
 		uint_t requestType,
-		uint_t requestId,
+		uint_t requestCode,
 		uint_t value,
 		uint_t index,
 		void* p,
@@ -92,14 +92,14 @@ opaque class UsbDevice
 
 	bool errorcode controlTransfer (
 		uint_t requestType,
-		uint_t requestId,
+		uint_t requestCode,
 		uint_t value,
 		uint_t index,
 		void* p,
 		size_t size,
 		uint_t timeout = -1,
 		function* onCompleted (
-			size_t resultSize,
+			size_t size,
 			std.Error const* error
 			)
 		);

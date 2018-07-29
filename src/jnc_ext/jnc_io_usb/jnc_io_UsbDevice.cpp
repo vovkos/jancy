@@ -190,7 +190,7 @@ size_t
 JNC_CDECL
 UsbDevice::controlTransfer_0 (
 	uint_t requestType,
-	uint_t requestId,
+	uint_t requestCode,
 	uint_t value,
 	uint_t index,
 	DataPtr ptr,
@@ -204,14 +204,14 @@ UsbDevice::controlTransfer_0 (
 		return -1;
 	}
 
-	return m_device.controlTransfer (requestType, requestId, value, index, ptr.m_p, size, timeout);
+	return m_device.controlTransfer (requestType, requestCode, value, index, ptr.m_p, size, timeout);
 }
 
 bool
 JNC_CDECL
 UsbDevice::controlTransfer_1 (
 	uint_t requestType,
-	uint_t requestId,
+	uint_t requestCode,
 	uint_t value,
 	uint_t index,
 	DataPtr ptr,
@@ -241,7 +241,7 @@ UsbDevice::controlTransfer_1 (
 
 	return m_asyncControlEndpoint->transfer (
 		requestType,
-		requestId,
+		requestCode,
 		value,
 		index,
 		ptr,

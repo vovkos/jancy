@@ -20,7 +20,7 @@ namespace io {
 
 UsbAsyncControlEndpoint::UsbAsyncControlEndpoint (axl::io::UsbDevice* device)
 {
-	jnc::Runtime* m_runtime = getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime ();
 	ASSERT (m_runtime);
 
 	m_device = device;
@@ -80,7 +80,7 @@ bool
 JNC_CDECL
 UsbAsyncControlEndpoint::transfer (
 	uint_t requestType,
-	uint_t requestId,
+	uint_t requestCode,
 	uint_t value,
 	uint_t index,
 	DataPtr ptr,
@@ -111,7 +111,7 @@ UsbAsyncControlEndpoint::transfer (
 	transfer->m_usbTransfer.fillControlSetup (
 		setup,
 		requestType,
-		requestId,
+		requestCode,
 		value,
 		index,
 		size

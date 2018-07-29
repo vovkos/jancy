@@ -81,7 +81,7 @@ public:
 	JNC_CDECL
 	transfer (
 		uint_t requestType,
-		uint_t requestId,
+		uint_t requestCode,
 		uint_t value,
 		uint_t index,
 		DataPtr ptr,
