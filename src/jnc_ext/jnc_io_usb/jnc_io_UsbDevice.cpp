@@ -74,7 +74,10 @@ JNC_CDECL
 UsbDevice::close ()
 {
 	if (m_asyncControlEndpoint)
+	{
 		AXL_MEM_DELETE (m_asyncControlEndpoint);
+		m_asyncControlEndpoint = NULL;
+	}
 
 	m_device.close ();
 	m_isOpen = false;
