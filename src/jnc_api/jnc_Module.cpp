@@ -471,7 +471,7 @@ jnc_initialize (const char* tag)
 	llvm::InitializeNativeTargetAsmPrinter ();
 	llvm::InitializeNativeTargetDisassembler ();
 
-#if LLVM_VERSION < 0x0306
+#if (LLVM_VERSION < 0x0306)
 	LLVMLinkInJIT();
 #endif
 	LLVMLinkInMCJIT();

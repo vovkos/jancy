@@ -107,34 +107,27 @@ target_link_libraries (
 target_link_llvm_jit_libraries (jnc_dll)
 
 if (BUILD_JNC_IO_USB)
-	if (WIN32)
+	target_link_libraries (
+		jnc_dll
+		${LIBUSB_LIB_NAME}
+		)
+
+	if (APPLE)
+		find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library (IOKIT_FRAMEWORK IOKit)
+
 		target_link_libraries (
 			jnc_dll
-			libusb-1.0
+			${CORE_FOUNDATION_FRAMEWORK}
+			${IOKIT_FRAMEWORK}
 			)
-	else ()
+	endif ()
+
+	if (LINUX)
 		target_link_libraries (
 			jnc_dll
-			usb-1.0
+			udev
 			)
-
-		if (APPLE)
-			find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-			find_library (IOKIT_FRAMEWORK IOKit)
-
-			target_link_libraries (
-				jnc_dll
-				${CORE_FOUNDATION_FRAMEWORK}
-				${IOKIT_FRAMEWORK}
-				)
-		endif ()
-
-		if (LINUX)
-			target_link_libraries (
-				jnc_dll
-				udev
-				)
-		endif ()
 	endif ()
 endif ()
 
