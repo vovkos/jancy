@@ -98,6 +98,14 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime)
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
+jnc_Runtime_abort (jnc_Runtime* runtime)
+{
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_abortFunc (runtime);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
 jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
@@ -292,6 +300,14 @@ void
 jnc_Runtime_shutdown (jnc_Runtime* runtime)
 {
 	return runtime->shutdown ();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Runtime_abort (jnc_Runtime* runtime)
+{
+	return runtime->abort ();
 }
 
 JNC_EXTERN_C

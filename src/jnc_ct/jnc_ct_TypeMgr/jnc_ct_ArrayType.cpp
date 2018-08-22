@@ -150,7 +150,7 @@ ArrayType::calcLayoutImpl (
 
 		if (!result)
 		{
-			if (!dynamicStruct) 
+			if (!dynamicStruct)
 				return false;
 
 			Type* returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT);
@@ -158,8 +158,8 @@ ArrayType::calcLayoutImpl (
 			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction (FunctionKind_Internal, type);
 			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
 			m_getDynamicSizeFunction->m_tag.format (
-				"%s.%s.getDynamicSize", 
-				dynamicStruct->m_tag.sz (), 
+				"%s.%s.getDynamicSize",
+				dynamicStruct->m_tag.sz (),
 				dynamicField->getName ().sz ()
 				);
 
@@ -235,19 +235,19 @@ ArrayType::compile ()
 	{
 		Value sizeValue (size, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
 		result = m_module->m_operatorMgr.binaryOperator (
-			BinOpKind_Mul, 
-			&resultValue, 
+			BinOpKind_Mul,
+			&resultValue,
 			sizeValue
 			);
-		
+
 		if (!result)
 			return false;
 	}
-	
+
 	result = m_module->m_controlFlowMgr.ret (resultValue);
 	if (!result)
 		return false;
-		
+
 	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.internalEpilogue ();
 	return true;

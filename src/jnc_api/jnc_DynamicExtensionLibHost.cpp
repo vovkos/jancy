@@ -327,6 +327,7 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_Runtime_setStackSizeLimit,
 	jnc_Runtime_startup,
 	jnc_Runtime_shutdown,
+	jnc_Runtime_abort,
 	jnc_Runtime_initializeCallSite,
 	jnc_Runtime_uninitializeCallSite,
 	jnc_Runtime_setSjljFrame,

@@ -87,6 +87,9 @@ public:
 	shutdown ();
 
 	void
+	abort ();
+
+	void
 	initializeCallSite (jnc_CallSite* callSite);
 
 	void

@@ -18,15 +18,6 @@ namespace rt {
 
 //..............................................................................
 
-enum GcHeapFlag
-{
-	GcHeapFlag_SimpleSafePoint         = 0x01,
-	GcHeapFlag_ShuttingDown            = 0x02,
-	GcHeapFlag_TerminateDestructThread = 0x04,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 class GcHeap
 {
 protected:
@@ -37,6 +28,14 @@ protected:
 		State_Mark,
 		State_Sweep,
 		State_ResumeTheWorld,
+	};
+
+	enum Flag
+	{
+		Flag_SimpleSafePoint         = 0x01,
+		Flag_ShuttingDown            = 0x02,
+		Flag_TerminateDestructThread = 0x04,
+		Flag_Abort                   = 0x10,
 	};
 
 	struct Root
@@ -220,6 +219,9 @@ public:
 	startup (ct::Module* module);
 
 	void
+	abort ();
+
+	void
 	beginShutdown ();
 
 	void
@@ -336,6 +338,12 @@ protected:
 	void
 	incrementAllocSize_l (size_t size);
 
+	size_t
+	stopTheWorld_l (bool isMutatorThread);
+
+	void
+	resumeTheWorld (size_t handshakeCount);
+
 	void
 	collect_l (bool isMutatorThread);
 
@@ -368,6 +376,9 @@ protected:
 
 	void
 	parkAtSafePoint ();
+
+	void
+	abortThrow ();
 };
 
 //..............................................................................

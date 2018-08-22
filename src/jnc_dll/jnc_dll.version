@@ -149,6 +149,7 @@
 		jnc_Module_parseFile;
 		jnc_Module_parseImports;
 		jnc_initialize;
+		jnc_Runtime_abort;
 		jnc_Runtime_checkStackOverflow;
 		jnc_Runtime_create;
 		jnc_Runtime_destroy;

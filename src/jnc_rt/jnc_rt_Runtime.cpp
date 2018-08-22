@@ -71,7 +71,7 @@ Runtime::shutdown ()
 		return;
 	}
 
-	ASSERT (m_state == State_Running); // otherwise, concurrent shutdowns
+	ASSERT (m_state != State_ShuttingDown); // concurrent shutdowns?
 	m_state = State_ShuttingDown;
 	m_lock.unlock ();
 
@@ -90,6 +90,21 @@ Runtime::shutdown ()
 	m_gcHeap.finalizeShutdown ();
 
 	m_state = State_Idle;
+}
+
+void
+Runtime::abort ()
+{
+	m_lock.lock ();
+	if (m_state != State_Running)
+	{
+		m_lock.unlock ();
+		return;
+	}
+
+	m_lock.unlock ();
+
+	m_gcHeap.abort ();
 }
 
 void

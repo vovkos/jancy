@@ -106,7 +106,7 @@ GcHeap::startup (ct::Module* module)
 
 	if (module->getCompileFlags () & ModuleCompileFlag_SimpleGcSafePoint)
 	{
-		m_flags |= GcHeapFlag_SimpleSafePoint;
+		m_flags |= Flag_SimpleSafePoint;
 	}
 	else
 	{
@@ -121,6 +121,51 @@ GcHeap::startup (ct::Module* module)
 		addStaticDestructor ((StaticDestructFunc*) destructor->getMachineCode ());
 
 	return m_destructThread.start ();
+}
+
+#if (_AXL_OS_WIN)
+static
+void
+JNC_STDCALL
+abortApc (uintptr_t context)
+{
+}
+#endif
+
+void
+GcHeap::abort ()
+{
+	bool isMutatorThread = waitIdleAndLock ();
+	size_t handshakeCount = stopTheWorld_l (isMutatorThread);
+
+	m_flags |= Flag_Abort;
+
+	// try to interrupt all blocked threads
+
+#if (_AXL_OS_WIN)
+	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
+	for (; threadIt; threadIt++)
+	{
+		if (!threadIt->m_waitRegionLevel)
+			continue;
+
+		HANDLE h = ::OpenThread (THREAD_ALL_ACCESS, FALSE, (DWORD) threadIt->m_threadId);
+		if (!h)
+			continue;
+
+		::QueueUserAPC (abortApc, h, 0);
+		::CloseHandle (h);
+	}
+#endif
+
+	resumeTheWorld (handshakeCount);
+
+	// go to idle state
+
+	m_lock.lock ();
+	m_state = State_Idle;
+	m_idleEvent.signal ();
+	m_lock.unlock ();
 }
 
 // locking
@@ -566,7 +611,7 @@ GcHeap::beginShutdown ()
 	bool isMutatorThread = waitIdleAndLock ();
 	ASSERT (!isMutatorThread);
 
-	m_flags |= GcHeapFlag_ShuttingDown;  // this will prevent boxes from being actually freed
+	m_flags |= Flag_ShuttingDown;  // this will prevent boxes from being actually freed
 
 	m_staticRootArray.clear (); // drop static roots
 	m_lock.unlock ();
@@ -576,11 +621,11 @@ void
 GcHeap::finalizeShutdown ()
 {
 	bool isMutatorThread = waitIdleAndLock ();
-	ASSERT (!isMutatorThread && (m_flags & GcHeapFlag_ShuttingDown));
+	ASSERT (!isMutatorThread && (m_flags & Flag_ShuttingDown));
 
 	// wait for destruct thread
 
-	m_flags |= GcHeapFlag_TerminateDestructThread;
+	m_flags |= Flag_TerminateDestructThread;
 	m_destructEvent.signal ();
 	m_lock.unlock ();
 
@@ -598,7 +643,7 @@ GcHeap::finalizeShutdown ()
 
 	sl::Array <Box*> postponeFreeBoxArray = m_postponeFreeBoxArray;
 	m_postponeFreeBoxArray.clear ();
-	m_flags &= ~GcHeapFlag_ShuttingDown;
+	m_flags &= ~Flag_ShuttingDown;
 	m_lock.unlock ();
 
 	size_t count = postponeFreeBoxArray.getCount ();
@@ -776,7 +821,11 @@ GcHeap::leaveWaitRegion ()
 
 	JNC_TRACE_GC_REGION ("GcHeap::leaveWaitRegion () (tid = %x)\n", (uint_t) sys::getCurrentThreadId ());
 
+	bool isAbort = (m_flags & Flag_Abort) != 0;
 	m_lock.unlock ();
+
+	if (isAbort)
+		abortThrow ();
 }
 
 void
@@ -835,7 +884,7 @@ GcHeap::safePoint ()
 	ASSERT (thread && thread->m_waitRegionLevel == 0); // otherwise we may finish handshake prematurely
 #endif
 
-	if (!(m_flags & GcHeapFlag_SimpleSafePoint))
+	if (!(m_flags & Flag_SimpleSafePoint))
 		sys::atomicXchg ((volatile int32_t*) m_guardPage.p (), 0); // we need a fence, hence atomicXchg
 	else if (m_state == State_StopTheWorld)
 		parkAtSafePoint (); // parkAtSafePoint will force a fence with atomicDec
@@ -1076,18 +1125,9 @@ GcHeap::collect ()
 		m_lock.unlock (); // not now
 }
 
-void
-GcHeap::collect_l (bool isMutatorThread)
+size_t
+GcHeap::stopTheWorld_l (bool isMutatorThread)
 {
-	ASSERT (!m_noCollectMutatorThreadCount && m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
-
-	m_stats.m_totalCollectCount++;
-	m_stats.m_lastCollectTime = sys::getTimestamp ();
-
-	bool isShuttingDown = (m_flags & GcHeapFlag_ShuttingDown) != 0;
-
-	// stop the world
-
 	size_t handshakeCount = m_mutatorThreadList.getCount () - m_waitingMutatorThreadCount;
 	if (isMutatorThread)
 	{
@@ -1096,7 +1136,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	}
 
 	JNC_TRACE_GC_COLLECT (
-		"+++ GcHeap::collect_l (tid = %x; isMutator = %d; mutatorCount = %d; waitingMutatorThreadCount = %d, handshakeCount = %d)\n",
+		"+++ GcHeap::stopTheWorld_l (tid = %x; isMutator = %d; mutatorCount = %d; waitingMutatorThreadCount = %d, handshakeCount = %d)\n",
 		(uint_t) sys::getCurrentThreadId (),
 		isMutatorThread,
 		m_mutatorThreadList.getCount (),
@@ -1115,11 +1155,10 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	if (!handshakeCount)
 	{
-		m_state = State_Mark;
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 	}
-	else if (m_flags & GcHeapFlag_SimpleSafePoint)
+	else if (m_flags & Flag_SimpleSafePoint)
 	{
 		m_resumeEvent.reset ();
 		sys::atomicXchg (&m_handshakeCount, handshakeCount);
@@ -1128,7 +1167,6 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_lock.unlock ();
 
 		m_handshakeEvent.wait ();
-		m_state = State_Mark;
 	}
 	else
 	{
@@ -1150,12 +1188,73 @@ GcHeap::collect_l (bool isMutatorThread)
 		m_guardPage.protect (PROT_NONE);
 		m_handshakeSem.wait ();
 #endif
-		m_state = State_Mark;
 	}
+
+	return handshakeCount;
+}
+
+void
+GcHeap::resumeTheWorld (size_t handshakeCount)
+{
+	if (!handshakeCount)
+		return;
+
+	if (m_flags & Flag_SimpleSafePoint)
+	{
+		sys::atomicXchg (&m_handshakeCount, handshakeCount);
+		m_state = State_ResumeTheWorld;
+		m_resumeEvent.signal ();
+		m_handshakeEvent.wait ();
+	}
+	else
+	{
+#if (_JNC_OS_WIN)
+		m_guardPage.protect (PAGE_READWRITE);
+		sys::atomicXchg (&m_handshakeCount, handshakeCount);
+		m_state = State_ResumeTheWorld;
+		m_resumeEvent.signal ();
+		m_handshakeEvent.wait ();
+#elif (_JNC_OS_POSIX)
+		m_guardPage.protect (PROT_READ | PROT_WRITE);
+		sys::atomicXchg (&m_handshakeCount, handshakeCount);
+		m_state = State_ResumeTheWorld;
+
+		for (;;) // we need a loop -- sigsuspend can lose per-thread signals
+		{
+			bool result;
+
+			threadIt = m_mutatorThreadList.getHead ();
+			for (; threadIt; threadIt++)
+			{
+				if (threadIt->m_isSafePoint)
+					pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1); // resume
+			}
+
+			result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
+			if (result)
+				break;
+		}
+#endif
+	}
+}
+
+void
+GcHeap::collect_l (bool isMutatorThread)
+{
+	ASSERT (!m_noCollectMutatorThreadCount && m_waitingMutatorThreadCount <= m_mutatorThreadList.getCount ());
+
+	m_stats.m_totalCollectCount++;
+	m_stats.m_lastCollectTime = sys::getTimestamp ();
+
+	bool isShuttingDown = (m_flags & Flag_ShuttingDown) != 0;
+
+	size_t handshakeCount = stopTheWorld_l (isMutatorThread);
+
+	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- the world is stopped\n");
 
 	// the world is stopped, mark (no lock is needed)
 
-	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- the world is stopped\n");
+	m_state = State_Mark;
 
 	m_currentMarkRootArrayIdx = 0;
 	m_markRootArray [0].clear ();
@@ -1188,7 +1287,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	sl::Array <ct::StructField*> tlsRootFieldArray = tlsType->getGcRootMemberFieldArray ();
 	size_t tlsRootFieldCount = tlsRootFieldArray.getCount ();
 
-	threadIt = m_mutatorThreadList.getHead ();
+	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
 		GcMutatorThread* thread = *threadIt;
@@ -1362,48 +1461,7 @@ GcHeap::collect_l (bool isMutatorThread)
 
 	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- sweep complete\n");
 
-	// resume the world
-
-	if (handshakeCount)
-	{
-		if (m_flags & GcHeapFlag_SimpleSafePoint)
-		{
-			sys::atomicXchg (&m_handshakeCount, handshakeCount);
-			m_state = State_ResumeTheWorld;
-			m_resumeEvent.signal ();
-			m_handshakeEvent.wait ();
-		}
-		else
-		{
-#if (_JNC_OS_WIN)
-			m_guardPage.protect (PAGE_READWRITE);
-			sys::atomicXchg (&m_handshakeCount, handshakeCount);
-			m_state = State_ResumeTheWorld;
-			m_resumeEvent.signal ();
-			m_handshakeEvent.wait ();
-#elif (_JNC_OS_POSIX)
-			m_guardPage.protect (PROT_READ | PROT_WRITE);
-			sys::atomicXchg (&m_handshakeCount, handshakeCount);
-			m_state = State_ResumeTheWorld;
-
-			for (;;) // we need a loop -- sigsuspend can lose per-thread signals
-			{
-				bool result;
-
-				threadIt = m_mutatorThreadList.getHead ();
-				for (; threadIt; threadIt++)
-				{
-					if (threadIt->m_isSafePoint)
-						pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1); // resume
-				}
-
-				result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
-				if (result)
-					break;
-			}
-#endif
-		}
-	}
+	resumeTheWorld (handshakeCount);
 
 	JNC_TRACE_GC_COLLECT ("   ... GcHeap::collect_l () -- the world is resumed\n");
 
@@ -1478,7 +1536,7 @@ GcHeap::destructThreadFunc ()
 		m_destructEvent.wait ();
 
 		waitIdleAndLock ();
-		if (m_flags & GcHeapFlag_TerminateDestructThread)
+		if (m_flags & Flag_TerminateDestructThread)
 			break;
 
 		runDestructCycle_l ();
@@ -1542,11 +1600,24 @@ GcHeap::parkAtSafePoint (GcMutatorThread* thread)
 	m_resumeEvent.wait ();
 	ASSERT (m_state == State_ResumeTheWorld);
 
+	bool isAbort = (m_flags & Flag_Abort) != 0;
+
 	thread->m_isSafePoint = false;
 	count = sys::atomicDec (&m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
 		m_handshakeEvent.signal ();
+
+	if (isAbort)
+		abortThrow ();
+}
+
+void
+GcHeap::abortThrow ()
+{
+	err::setError ("Jancy script execution forcibly interrupted");
+	Runtime::dynamicThrow ();
+	ASSERT (false);
 }
 
 #if (_JNC_OS_WIN)
@@ -1578,11 +1649,16 @@ GcHeap::handleGuardPageHit (GcMutatorThread* thread)
 		sigsuspend (&signalWaitMask);
 	} while (m_state != State_ResumeTheWorld);
 
+	bool isAbort = (m_flags & Flag_Abort) != 0;
+
 	thread->m_isSafePoint = false;
 	count = sys::atomicDec (&m_handshakeCount);
 	ASSERT (count >= 0);
 	if (!count)
 		m_handshakeSem.signal ();
+
+	if (isAbort)
+		abortThrow ();
 }
 
 #endif // _JNC_OS_POSIX

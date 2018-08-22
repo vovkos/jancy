@@ -97,6 +97,10 @@ jnc_Runtime_shutdown (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
 void
+jnc_Runtime_abort (jnc_Runtime* runtime);
+
+JNC_EXTERN_C
+void
 jnc_Runtime_initializeCallSite (
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
@@ -183,6 +187,12 @@ struct jnc_Runtime
 	shutdown ()
 	{
 		jnc_Runtime_shutdown (this);
+	}
+
+	void
+	abort ()
+	{
+		jnc_Runtime_abort (this);
 	}
 
 	void

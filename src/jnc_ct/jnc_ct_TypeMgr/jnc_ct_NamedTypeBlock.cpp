@@ -126,7 +126,7 @@ NamedTypeBlock::initializeStaticFields ()
 	bool result;
 
 	Module* module = m_parent->getModule ();
-	
+
 	Unit* unit = getParentUnitImpl ();
 	if (unit)
 		module->m_unitMgr.setCurrentUnit (unit);
@@ -152,7 +152,7 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();	
+	Module* module = m_parent->getModule ();
 
 	Unit* unit = getParentUnitImpl ();
 	if (unit)
