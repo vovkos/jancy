@@ -72,7 +72,13 @@ sleep (uint32_t msCount)
 	ASSERT (gcHeap);
 
 	gcHeap->enterWaitRegion ();
+
+#if (_AXL_OS_WIN)
+	::SleepEx (msCount, TRUE); // alertable wait (so we can abort with an APC)
+#else
 	axl::sys::sleep (msCount);
+#endif
+
 	gcHeap->leaveWaitRegion ();
 }
 
@@ -181,7 +187,7 @@ getSystemInfo ()
 	return &systemInfo;
 }
 
-DataPtr 
+DataPtr
 formatTimestamp_0 (
 	uint64_t timestamp,
 	DataPtr format
@@ -192,7 +198,7 @@ formatTimestamp_0 (
 	return strDup (string);
 }
 
-DataPtr 
+DataPtr
 formatTimestamp_1 (
 	uint64_t timestamp,
 	int timeZone,
