@@ -113,8 +113,6 @@ UnitMgr::createUnit (
 		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile (unit->m_fileName, unit->m_dir);
 
 	m_unitList.insertTail (unit);
-	m_currentUnit = unit;
-
 	return unit;
 }
 

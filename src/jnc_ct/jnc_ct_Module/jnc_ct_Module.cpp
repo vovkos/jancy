@@ -424,7 +424,8 @@ Module::parse (
 {
 	bool result;
 
-	m_unitMgr.createUnit (lib, fileName);
+	Unit* unit = m_unitMgr.createUnit (lib, fileName);
+	m_unitMgr.setCurrentUnit (unit);
 
 	Lexer lexer;
 	lexer.create (fileName, source);
