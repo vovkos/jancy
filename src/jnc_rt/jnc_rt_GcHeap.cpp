@@ -1223,7 +1223,7 @@ GcHeap::resumeTheWorld (size_t handshakeCount)
 		{
 			bool result;
 
-			threadIt = m_mutatorThreadList.getHead ();
+			MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
 			for (; threadIt; threadIt++)
 			{
 				if (threadIt->m_isSafePoint)
