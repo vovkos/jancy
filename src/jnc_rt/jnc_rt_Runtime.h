@@ -71,6 +71,12 @@ public:
 		return &m_gcHeap;
 	}
 
+	bool
+	isAborted ()
+	{
+		return m_gcHeap.isAborted ();
+	}
+
 	size_t
 	getStackSizeLimit ()
 	{

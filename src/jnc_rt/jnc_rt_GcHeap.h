@@ -132,6 +132,12 @@ public:
 		return m_allocBoxArray.isEmpty ();
 	}
 
+	bool
+	isAborted ()
+	{
+		return (m_flags & Flag_Abort) != 0;
+	}
+
 	Runtime*
 	getRuntime ()
 	{
