@@ -174,20 +174,14 @@ public:
 	read (
 		DataPtr ptr,
 		size_t size
-		)
-	{
-		return bufferedRead (ptr, size);
-	}
+		);
 
 	size_t
 	JNC_CDECL
 	write (
 		DataPtr ptr,
 		size_t size
-		)
-	{
-		return bufferedWrite (ptr, size);
-	}
+		);
 
 	handle_t
 	JNC_CDECL

@@ -210,6 +210,38 @@ FileStream::clear ()
 	return true;
 }
 
+size_t
+JNC_CDECL
+FileStream::read (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	if (m_openFlags & axl::io::FileFlag_WriteOnly)
+	{
+		err::setError (err::SystemErrorCode_AccessDenied);
+		return -1;
+	}
+
+	return bufferedRead (ptr, size);
+}
+
+size_t
+JNC_CDECL
+FileStream::write (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	if (m_openFlags & axl::io::FileFlag_ReadOnly)
+	{
+		err::setError (err::SystemErrorCode_AccessDenied);
+		return -1;
+	}
+
+	return bufferedWrite (ptr, size);
+}
+
 #if (_JNC_OS_WIN)
 
 void
@@ -412,6 +444,9 @@ FileStream::ioThreadFunc ()
 
 	readBlock.setCount (Def_ReadBlockSize);
 
+	bool isReadOnly = (m_openFlags & axl::io::FileFlag_ReadOnly) != 0;
+	bool isWriteOnly = (m_openFlags & axl::io::FileFlag_WriteOnly) != 0;
+
 	bool canReadFile = false;
 	bool canWriteFile = false;
 
@@ -424,10 +459,10 @@ FileStream::ioThreadFunc ()
 
 		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
 
-		if (!canReadFile)
+		if (!canReadFile && !isWriteOnly)
 			FD_SET (m_file.m_file, &readSet);
 
-		if (!canWriteFile)
+		if (!canWriteFile && !isReadOnly)
 			FD_SET (m_file.m_file, &writeSet);
 
 		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
