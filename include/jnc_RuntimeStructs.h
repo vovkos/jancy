@@ -246,7 +246,7 @@ struct jnc_GcMutatorThread
 	jnc_ListLink m_link;
 	uint64_t m_threadId;
 	volatile int m_isSafePoint;
-	size_t m_waitRegionLevel;
+	volatile size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
