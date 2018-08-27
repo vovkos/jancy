@@ -469,7 +469,7 @@ struct jnc_Typedef: jnc_ModuleItem
 //..............................................................................
 
 JNC_INLINE
-int
+bool_t
 jnc_isCharPtrType (jnc_Type* type)
 {
 	return
@@ -478,7 +478,7 @@ jnc_isCharPtrType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isArrayRefType (jnc_Type* type)
 {
 	return
@@ -487,7 +487,7 @@ jnc_isArrayRefType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isDataPtrType (
 	jnc_Type* type,
 	jnc_DataPtrTypeKind kind
@@ -701,21 +701,21 @@ getDataPtrTypeKindString (DataPtrTypeKind ptrTypeKind)
 //..............................................................................
 
 inline
-int
+bool
 isCharPtrType (Type* type)
 {
 	return jnc_isCharPtrType (type);
 }
 
 inline
-int
+bool
 isArrayRefType (Type* type)
 {
 	return jnc_isArrayRefType (type);
 }
 
 inline
-int
+bool
 isDataPtrType (
 	Type* type,
 	DataPtrTypeKind kind

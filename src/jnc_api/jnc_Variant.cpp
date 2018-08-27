@@ -25,7 +25,7 @@
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_cast (
 	const jnc_Variant* variant,
 	jnc_Type* type,
@@ -37,7 +37,7 @@ jnc_Variant_cast (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_unaryOperator (
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
@@ -49,7 +49,7 @@ jnc_Variant_unaryOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_binaryOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
@@ -62,12 +62,12 @@ jnc_Variant_binaryOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_relationalOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
-	int* result
+	bool_t* result
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_relationalOperatorFunc (variant, variant2, opKind, result);
@@ -75,7 +75,7 @@ jnc_Variant_relationalOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_getMember (
 	const jnc_Variant* variant,
 	const char* name,
@@ -87,7 +87,7 @@ jnc_Variant_getMember (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_setMember (
 	jnc_Variant* variant,
 	const char* name,
@@ -99,7 +99,7 @@ jnc_Variant_setMember (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_getElement (
 	const jnc_Variant* variant,
 	size_t index,
@@ -111,7 +111,7 @@ jnc_Variant_getElement (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_setElement (
 	jnc_Variant* variant,
 	size_t index,
@@ -133,7 +133,7 @@ jnc_Variant_hash (const jnc_Variant* variant)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_cast (
 	const jnc_Variant* variant,
 	jnc_Type* type,
@@ -152,7 +152,7 @@ jnc_Variant_cast (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_unaryOperator (
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
@@ -191,7 +191,7 @@ jnc_Variant_unaryOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_binaryOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
@@ -248,12 +248,12 @@ jnc_Variant_binaryOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_relationalOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
-	int* resultBool
+	bool_t* resultBool
 	)
 {
 	using namespace jnc;
@@ -307,7 +307,7 @@ jnc_Variant_relationalOperator (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_getMember (
 	const jnc_Variant* variant,
 	const char* name,
@@ -339,7 +339,7 @@ jnc_Variant_getMember (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_setMember (
 	jnc_Variant* variant,
 	const char* name,
@@ -377,7 +377,7 @@ jnc_Variant_setMember (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_getElement (
 	const jnc_Variant* variant,
 	size_t index,
@@ -421,7 +421,7 @@ jnc_Variant_getElement (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Variant_setElement (
 	jnc_Variant* variant,
 	size_t index,
@@ -493,7 +493,7 @@ jnc::Variant::relationalOperator (
 	bool* result
 	) const
 {
-	int intResult;
+	bool_t intResult;
 	if (!jnc_Variant_relationalOperator (this, variant2, opKind, &intResult))
 		return false;
 

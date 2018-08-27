@@ -245,7 +245,7 @@ struct jnc_GcMutatorThread
 {
 	jnc_ListLink m_link;
 	uint64_t m_threadId;
-	volatile int m_isSafePoint;
+	volatile bool_t m_isSafePoint;
 	volatile size_t m_waitRegionLevel;
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
@@ -267,7 +267,7 @@ struct jnc_OpaqueClassTypeInfo
 {
 	size_t m_size;
 	jnc_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
-	int m_isNonCreatable;
+	bool_t m_isNonCreatable;
 };
 
 //..............................................................................

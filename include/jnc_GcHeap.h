@@ -141,7 +141,7 @@ JNC_EXTERN_C
 void
 jnc_GcHeap_leaveNoCollectRegion (
 	jnc_GcHeap* gcHeap,
-	int canCollectNow
+	bool_t canCollectNow
 	);
 
 JNC_EXTERN_C

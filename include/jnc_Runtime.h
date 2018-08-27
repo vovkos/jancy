@@ -74,18 +74,22 @@ jnc_GcHeap*
 jnc_Runtime_getGcHeap (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
+bool_t
+jnc_Runtime_isAborted (jnc_Runtime* runtime);
+
+JNC_EXTERN_C
 size_t
 jnc_Runtime_getStackSizeLimit (jnc_Runtime* runtime);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Runtime_setStackSizeLimit (
 	jnc_Runtime* runtime,
 	size_t sizeLimit
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Runtime_startup (
 	jnc_Runtime* runtime,
 	jnc_Module* module
@@ -163,6 +167,12 @@ struct jnc_Runtime
 	getGcHeap ()
 	{
 		return jnc_Runtime_getGcHeap (this);
+	}
+
+	bool
+	isAborted ()
+	{
+		return jnc_Runtime_isAborted (this) != 0;
 	}
 
 	size_t

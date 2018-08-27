@@ -170,6 +170,7 @@ EXPORTS
 	jnc_Runtime_getStackSizeLimit
 	jnc_Runtime_getUserData
 	jnc_Runtime_initializeCallSite
+	jnc_Runtime_isAborted
 	jnc_Runtime_setSjljFrame
 	jnc_Runtime_setStackSizeLimit
 	jnc_Runtime_setUserData

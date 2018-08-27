@@ -47,7 +47,7 @@ void
 jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc (jnc_Module* module);
 
 typedef
-int
+bool_t
 jnc_ExtensionLib_MapAddressesFunc (jnc_Module* module);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -104,7 +104,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	void \
 	LibPrefix##_addOpaqueClassTypeInfos (jnc_Module* module); \
 	JNC_EXTERN_C \
-	int \
+	bool_t \
 	LibPrefix##_mapAddresses (jnc_Module* module); \
 	JNC_EXTERN_C \
 	JNC_EXPORT_O \
@@ -163,10 +163,10 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_BEGIN_LIB_FUNCTION_MAP(LibPrefix) \
 	JNC_EXTERN_C \
-	int \
+	bool_t \
 	LibPrefix##_mapAddresses (jnc_Module* module) \
 	{ \
-		int result = 1; \
+		bool_t result = 1; \
 		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
@@ -188,10 +188,10 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JncType* \
 	TypePrefix##_getType (jnc_Module* module); \
 	JNC_EXTERN_C \
-	int \
+	bool_t \
 	TypePrefix##_mapAddresses ( \
 		jnc_Module* module, \
-		int isRequired \
+		bool_t isRequired \
 		);
 
 #define JNC_DECLARE_TYPE(TypePrefix) \
@@ -345,13 +345,13 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_TYPE_FUNCTION_MAP(TypePrefix) \
-	int \
+	bool_t \
 	TypePrefix##_mapAddresses ( \
 		jnc_Module* module, \
-		int isRequired \
+		bool_t isRequired \
 		) \
 	{ \
-		int result = 1; \
+		bool_t result = 1; \
 		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \

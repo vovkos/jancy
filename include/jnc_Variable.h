@@ -38,7 +38,7 @@
 //..............................................................................
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variable_hasInitializer (jnc_Variable* variable);
 
 JNC_EXTERN_C
@@ -51,10 +51,10 @@ jnc_Variable_getInitializerString_v (jnc_Variable* variable);
 
 struct jnc_Variable: jnc_ModuleItem
 {
-	int
+	bool
 	hasInitializer ()
 	{
-		return jnc_Variable_hasInitializer (this);
+		return jnc_Variable_hasInitializer (this) != 0;
 	}
 
 	const char*

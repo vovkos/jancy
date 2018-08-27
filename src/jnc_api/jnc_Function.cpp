@@ -116,7 +116,7 @@ jnc_Function_getFunctionKind (jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Function_isMember (jnc_Function* function)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isMemberFunc (function);
@@ -124,7 +124,7 @@ jnc_Function_isMember (jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Function_isOverloaded (jnc_Function* function)
 {
 	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isOverloadedFunc (function);
@@ -169,7 +169,7 @@ jnc_Function_getFunctionKind (jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Function_isMember (jnc_Function* function)
 {
 	return function->isMember ();
@@ -177,7 +177,7 @@ jnc_Function_isMember (jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Function_isOverloaded (jnc_Function* function)
 {
 	return function->isOverloaded ();

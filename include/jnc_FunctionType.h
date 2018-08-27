@@ -78,7 +78,7 @@ jnc_getFunctionPtrTypeKindString (jnc_FunctionPtrTypeKind ptrTypeKind);
 //..............................................................................
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg);
 
 JNC_EXTERN_C

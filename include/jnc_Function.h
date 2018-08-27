@@ -101,11 +101,11 @@ jnc_Function_getType (jnc_Function* function)
 }
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Function_isMember (jnc_Function* function);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Function_isOverloaded (jnc_Function* function);
 
 JNC_EXTERN_C

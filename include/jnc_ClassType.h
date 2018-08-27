@@ -295,7 +295,7 @@ struct jnc_McSnapshotClassType: jnc_ClassType
 //..............................................................................
 
 JNC_INLINE
-int
+bool_t
 jnc_isClassType (
 	jnc_Type* type,
 	jnc_ClassTypeKind classTypeKind
@@ -307,7 +307,7 @@ jnc_isClassType (
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isOpaqueClassType (jnc_Type* type)
 {
 	return
@@ -316,7 +316,7 @@ jnc_isOpaqueClassType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isClosureClassType (jnc_Type* type)
 {
 	return
@@ -325,7 +325,7 @@ jnc_isClosureClassType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isDestructibleClassType (jnc_Type* type)
 {
 	return

@@ -58,7 +58,7 @@ jnc_Module_findItem (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_mapVariable (
 	jnc_Module* module,
 	jnc_Variable* variable,
@@ -70,7 +70,7 @@ jnc_Module_mapVariable (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_mapFunction (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -216,7 +216,7 @@ jnc_Module_findItem (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_mapVariable (
 	jnc_Module* module,
 	jnc_Variable* variable,
@@ -228,7 +228,7 @@ jnc_Module_mapVariable (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_mapFunction (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -310,7 +310,7 @@ jnc_Module_addStaticLib (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_parse (
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
@@ -324,7 +324,7 @@ jnc_Module_parse (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_parseFile (
 	jnc_Module* module,
 	const char* fileName
@@ -335,7 +335,7 @@ jnc_Module_parseFile (
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_parseImports (jnc_Module* module)
 {
 	return module->parseImports ();
@@ -343,7 +343,7 @@ jnc_Module_parseImports (jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_link (jnc_Module* module)
 {
 	return module->link ();
@@ -351,7 +351,7 @@ jnc_Module_link (jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_calcLayout (jnc_Module* module)
 {
 	return module->calcLayout ();
@@ -359,7 +359,7 @@ jnc_Module_calcLayout (jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_compile (jnc_Module* module)
 {
 	return module->compile ();
@@ -367,7 +367,7 @@ jnc_Module_compile (jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_jit (jnc_Module* module)
 {
 	return module->jit ();
@@ -383,7 +383,7 @@ jnc_Module_getLlvmIrString_v (jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_Module_generateDocumentation (
 	jnc_Module* module,
 	const char* outputDir

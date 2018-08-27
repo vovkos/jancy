@@ -341,11 +341,11 @@ jnc_FunctionKind
 jnc_Function_GetFunctionKindFunc (jnc_Function* function);
 
 typedef
-int
+bool_t
 jnc_Function_IsMemberFunc (jnc_Function* function);
 
 typedef
-int
+bool_t
 jnc_Function_IsOverloadedFunc (jnc_Function* function);
 
 typedef
@@ -864,7 +864,7 @@ struct jnc_PropertyPtrTypeFuncTable
 // Variant
 
 typedef
-int
+bool_t
 jnc_Variant_CastFunc (
 	const jnc_Variant* variant,
 	jnc_Type* type,
@@ -872,7 +872,7 @@ jnc_Variant_CastFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_UnaryOperatorFunc (
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
@@ -880,7 +880,7 @@ jnc_Variant_UnaryOperatorFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_BinaryOperatorFunc (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
@@ -889,16 +889,16 @@ jnc_Variant_BinaryOperatorFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_RelationalOperatorFunc (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
-	int* result
+	bool_t* result
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_GetMemberFunc (
 	const jnc_Variant* variant,
 	const char* name,
@@ -906,7 +906,7 @@ jnc_Variant_GetMemberFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_SetMemberFunc (
 	jnc_Variant* variant,
 	const char* name,
@@ -914,7 +914,7 @@ jnc_Variant_SetMemberFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_GetElementFunc (
 	const jnc_Variant* variant,
 	size_t index,
@@ -922,7 +922,7 @@ jnc_Variant_GetElementFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Variant_SetElementFunc (
 	jnc_Variant* variant,
 	size_t index,
@@ -1003,7 +1003,7 @@ jnc_Module_FindItemFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Module_MapVariableFunc (
 	jnc_Module* module,
 	jnc_Variable* variable,
@@ -1011,7 +1011,7 @@ jnc_Module_MapVariableFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Module_MapFunctionFunc (
 	jnc_Module* module,
 	jnc_Function* function,
@@ -1058,7 +1058,7 @@ jnc_Module_AddStaticLibFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Module_ParseFunc (
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
@@ -1068,26 +1068,26 @@ jnc_Module_ParseFunc (
 	);
 
 typedef
-int
+bool_t
 jnc_Module_ParseFileFunc (
 	jnc_Module* module,
 	const char* fileName
 	);
 
 typedef
-int
+bool_t
 jnc_Module_ParseImportsFunc (jnc_Module* module);
 
 typedef
-int
+bool_t
 jnc_Module_CalcLayoutFunc (jnc_Module* module);
 
 typedef
-int
+bool_t
 jnc_Module_CompileFunc (jnc_Module* module);
 
 typedef
-int
+bool_t
 jnc_Module_JitFunc (jnc_Module* module);
 
 typedef
@@ -1143,18 +1143,22 @@ jnc_GcHeap*
 jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
 
 typedef
+bool_t
+jnc_Runtime_IsAbortedFunc (jnc_Runtime* runtime);
+
+typedef
 size_t
 jnc_Runtime_GetStackSizeLimitFunc (jnc_Runtime* runtime);
 
 typedef
-int
+bool_t
 jnc_Runtime_SetStackSizeLimitFunc (
 	jnc_Runtime* runtime,
 	size_t sizeLimit
 	);
 
 typedef
-int
+bool_t
 jnc_Runtime_StartupFunc (
 	jnc_Runtime* runtime,
 	jnc_Module* module
@@ -1216,15 +1220,6 @@ typedef
 void
 jnc_DynamicThrowFunc ();
 
-#if (_JNC_OS_WIN)
-typedef
-int
-jnc_HandleSehExceptionFunc (
-	uint_t code,
-	EXCEPTION_POINTERS* exceptionPointers
-	);
-#endif
-
 typedef
 void
 jnc_PrimeClassFunc (
@@ -1261,6 +1256,7 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_DestroyFunc* m_destroyFunc;
 	jnc_Runtime_GetModuleFunc* m_getModuleFunc;
 	jnc_Runtime_GetGcHeapFunc* m_getGcHeapFunc;
+	jnc_Runtime_IsAbortedFunc* m_isAbortedFunc;
 	jnc_Runtime_GetStackSizeLimitFunc* m_getStackSizeLimitFunc;
 	jnc_Runtime_SetStackSizeLimitFunc* m_setStackSizeLimitFunc;
 	jnc_Runtime_StartupFunc* m_startupFunc;
@@ -1322,7 +1318,7 @@ typedef
 void
 jnc_GcHeap_LeaveNoCollectRegionFunc (
 	jnc_GcHeap* gcHeap,
-	int canCollectNow
+	bool_t canCollectNow
 	);
 
 typedef

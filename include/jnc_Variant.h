@@ -31,7 +31,7 @@ typedef struct jnc_Variant jnc_Variant;
 //..............................................................................
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_cast (
 	const jnc_Variant* variant,
 	jnc_Type* type,
@@ -39,7 +39,7 @@ jnc_Variant_cast (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_unaryOperator (
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
@@ -47,7 +47,7 @@ jnc_Variant_unaryOperator (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_binaryOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
@@ -56,16 +56,16 @@ jnc_Variant_binaryOperator (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_relationalOperator (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
-	int* result
+	bool_t* result
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_getMember (
 	const jnc_Variant* variant,
 	const char* name,
@@ -73,7 +73,7 @@ jnc_Variant_getMember (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_setMember (
 	jnc_Variant* variant,
 	const char* name,
@@ -81,7 +81,7 @@ jnc_Variant_setMember (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_getElement (
 	const jnc_Variant* variant,
 	size_t index,
@@ -89,7 +89,7 @@ jnc_Variant_getElement (
 	);
 
 JNC_EXTERN_C
-int
+bool_t
 jnc_Variant_setElement (
 	jnc_Variant* variant,
 	size_t index,
@@ -97,13 +97,13 @@ jnc_Variant_setElement (
 	);
 
 JNC_INLINE
-int
+bool_t
 jnc_Variant_isEqual (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2
 	)
 {
-	int result = 0;
+	bool_t result = 0;
 	return jnc_Variant_relationalOperator (variant, variant2, jnc_BinOpKind_Eq, &result) && result;
 }
 

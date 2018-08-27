@@ -86,7 +86,7 @@ JNC_EXPORT_O
 void
 jnc_GcHeap_leaveNoCollectRegion (
 	jnc_GcHeap* gcHeap,
-	int canCollectNow
+	bool_t canCollectNow
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_leaveNoCollectRegionFunc (gcHeap, canCollectNow);
@@ -336,7 +336,7 @@ JNC_EXPORT_O
 void
 jnc_GcHeap_leaveNoCollectRegion (
 	jnc_GcHeap* gcHeap,
-	int canCollectNow
+	bool_t canCollectNow
 	)
 {
 	gcHeap->leaveNoCollectRegion (canCollectNow != 0);

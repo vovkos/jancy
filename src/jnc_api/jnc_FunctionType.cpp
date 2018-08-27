@@ -114,7 +114,7 @@ jnc_FunctionPtrType_getTargetType (jnc_FunctionPtrType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
+bool_t
 jnc_FunctionArg_hasDefaultValue (jnc_FunctionArg* arg)
 {
 	return !arg->getInitializer ().isEmpty ();

@@ -86,7 +86,7 @@ struct jnc_ArrayType: jnc_Type
 /// @{
 
 JNC_INLINE
-int
+bool_t
 jnc_isAutoSizeArrayType (jnc_Type* type)
 {
 	return
@@ -95,7 +95,7 @@ jnc_isAutoSizeArrayType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isCharArrayType (jnc_Type* type)
 {
 	return
@@ -104,7 +104,7 @@ jnc_isCharArrayType (jnc_Type* type)
 }
 
 JNC_INLINE
-int
+bool_t
 jnc_isCharArrayRefType (jnc_Type* type)
 {
 	return
