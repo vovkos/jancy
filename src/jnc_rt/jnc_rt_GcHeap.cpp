@@ -125,9 +125,9 @@ GcHeap::startup (ct::Module* module)
 
 #if (_AXL_OS_WIN)
 static
-void
-JNC_STDCALL
-abortApc (uintptr_t context)
+VOID
+CALLBACK
+abortApc (ULONG_PTR context)
 {
 }
 #endif
@@ -149,7 +149,7 @@ GcHeap::abort ()
 			continue;
 
 #if (_AXL_OS_WIN)
-		HANDLE h = ::OpenThread (THREAD_ALL_ACCESS, FALSE, (DWORD) threadIt->m_threadId);
+		handle_t h = ::OpenThread (THREAD_ALL_ACCESS, false, (dword_t) threadIt->m_threadId);
 		if (!h)
 			continue;
 
