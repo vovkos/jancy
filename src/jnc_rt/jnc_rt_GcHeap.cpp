@@ -140,23 +140,25 @@ GcHeap::abort ()
 
 	m_flags |= Flag_Abort;
 
-	// try to interrupt all blocked threads
+	// try to interrupt all blocked threads (not guaranteed to succeed)
 
-#if (_AXL_OS_WIN)
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead ();
 	for (; threadIt; threadIt++)
 	{
 		if (!threadIt->m_waitRegionLevel)
 			continue;
 
+#if (_AXL_OS_WIN)
 		HANDLE h = ::OpenThread (THREAD_ALL_ACCESS, FALSE, (DWORD) threadIt->m_threadId);
 		if (!h)
 			continue;
 
 		::QueueUserAPC (abortApc, h, 0);
 		::CloseHandle (h);
-	}
+#elif (_AXL_OS_POSIX)
+		::pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1);
 #endif
+	}
 
 	resumeTheWorld (handshakeCount);
 
@@ -1227,7 +1229,7 @@ GcHeap::resumeTheWorld (size_t handshakeCount)
 			for (; threadIt; threadIt++)
 			{
 				if (threadIt->m_isSafePoint)
-					pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1); // resume
+					::pthread_kill ((pthread_t) threadIt->m_threadId, SIGUSR1); // resume
 			}
 
 			result = m_handshakeSem.wait (200); // wait just a bit and retry sending signal
