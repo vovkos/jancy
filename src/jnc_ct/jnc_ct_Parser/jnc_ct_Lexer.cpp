@@ -18,6 +18,21 @@ namespace ct {
 
 //..............................................................................
 
+inline
+bool
+isByteStringSep (uchar_t c)
+{
+	switch (c)
+	{
+	case ' ': case '\t':
+	case '.': case ',': case ';': case ':':
+		return true;
+
+	default:
+		return false;
+	}
+}
+
 size_t
 decodeByteString (
 	sl::Array <char>* buffer,
@@ -29,11 +44,11 @@ decodeByteString (
 
 	enum State
 	{
-		State_Space = 0,
+		State_Sep = 0,
 		State_Byte,
 	};
 
-	State state = State_Space;
+	State state = State_Sep;
 
 	buffer->clear ();
 	buffer->reserve (string.getLength () / 2); // good estimate no matter the radix
@@ -50,23 +65,24 @@ decodeByteString (
 	const char* end = string.getEnd ();
 	for (; p < end; p++)
 	{
-		bool_t isSpace = isspace(*p);
+		uchar_t c = *p;
+		bool_t isSep = isByteStringSep (c);
 
 		switch (state)
 		{
-		case State_Space:
-			if (isSpace)
+		case State_Sep:
+			if (isSep)
 				break;
 
-			byteBuffer [0] = *p;
+			byteBuffer [0] = c;
 			byteLength = 1;
 			state = State_Byte;
 			break;
 
 		case State_Byte:
-			if (!isSpace)
+			if (!isSep)
 			{
-				byteBuffer [byteLength++] = *p;
+				byteBuffer [byteLength++] = c;
 				if (byteLength < maxByteLength)
 					break;
 			}
@@ -77,9 +93,9 @@ decodeByteString (
 			if (byteEnd == &byteBuffer [byteLength])
 				buffer->append (x);
 			else
-				p = end; // not a propert byte string anymore, break the loop
+				p = end; // not a proper byte string anymore, break the loop
 
-			state = State_Space;
+			state = State_Sep;
 			break;
 		}
 	}
