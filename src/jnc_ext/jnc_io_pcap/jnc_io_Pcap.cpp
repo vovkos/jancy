@@ -217,6 +217,22 @@ Pcap::read (
 	return result;
 }
 
+size_t
+JNC_CDECL
+Pcap::write (
+	DataPtr ptr,
+	size_t size
+	)
+{
+	if (!m_isOpen)
+	{
+		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
+		return -1;
+	}
+
+	return m_pcap.write (ptr.m_p, size);
+}
+
 void
 Pcap::ioThreadFunc ()
 {

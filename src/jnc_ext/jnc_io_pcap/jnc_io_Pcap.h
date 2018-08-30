@@ -42,7 +42,7 @@ struct PcapHdr: IfaceHdr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Pcap: 
+class Pcap:
 	public PcapHdr,
 	public AsyncIoDevice
 {
@@ -144,10 +144,7 @@ public:
 	write (
 		DataPtr ptr,
 		size_t size
-		)
-	{
-		return bufferedWrite (ptr, size);
-	}
+		);
 
 	handle_t
 	JNC_CDECL
