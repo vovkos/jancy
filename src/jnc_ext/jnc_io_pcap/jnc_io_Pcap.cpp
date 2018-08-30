@@ -33,7 +33,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Pcap)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Pcap>)
 
 	JNC_MAP_AUTOGET_PROPERTY ("m_readBufferSize",  &Pcap::setReadBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &Pcap::setWriteBufferSize)
 
 	JNC_MAP_FUNCTION ("openDevice",   &Pcap::openDevice)
 	JNC_MAP_FUNCTION ("openFile",     &Pcap::openFile)
@@ -75,10 +74,7 @@ JNC_END_TYPE_FUNCTION_MAP ()
 Pcap::Pcap ()
 {
 	m_readBufferSize = Def_ReadBufferSize;
-	m_writeBufferSize = Def_WriteBufferSize;
-
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
-	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
 }
 
 bool

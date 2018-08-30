@@ -35,8 +35,6 @@ struct PcapHdr: IfaceHdr
 	bool m_isPromiscious;
 	uint_t m_readTimeout;
 	size_t m_readBufferSize;
-	size_t m_writeBufferSize;
-
 	DataPtr m_filterPtr;
 };
 
@@ -52,7 +50,6 @@ protected:
 	enum Def
 	{
 		Def_ReadBufferSize  = 16 * 1024,
-		Def_WriteBufferSize = 16 * 1024,
 	};
 
 	class IoThread: public sys::ThreadImpl <IoThread>
@@ -118,13 +115,6 @@ public:
 	setReadBufferSize (size_t size)
 	{
 		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
-	}
-
-	bool
-	JNC_CDECL
-	setWriteBufferSize (size_t size)
-	{
-		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool

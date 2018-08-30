@@ -52,13 +52,6 @@ bitflag enum PcapEvents
 	ReadBufferFull,
 
 	/**
-		Pcap device transmit buffer is ready to accept more data; it's OK to
-		issue more `io.Pcap.write` requests.
-	*/
-
-	WriteBufferReady,
-
-	/**
 		End-of-file was reached on the Pcap file.
 	*/
 
@@ -204,7 +197,6 @@ opaque class Pcap
 	uint_t readonly m_readTimeout;
 
 	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
 
 	/**
 		Holds currently specified capture filter [#f4]_.
