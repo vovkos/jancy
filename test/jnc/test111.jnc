@@ -1,0 +1,44 @@
+// this test was used to test std.Guid comparison operators
+
+int main ()
+{
+	std.setErrno (2);
+	std.Error const* error = std.getLastError ();
+	printf ("error: %s\n", error.m_description);
+
+	if (error.m_guid == std.g_errnoGuid)
+		printf ("error.m_guid == std.g_errnoGuid\n");
+	else
+		printf ("error.m_guid != std.g_errnoGuid\n");
+
+	std.Guid guid1 = std.g_errnoGuid;
+	std.Guid guid2 = std.g_winErrorGuid;
+	std.Guid guid3 = std.g_ntStatusGuid;
+
+	if (guid1 == std.g_errnoGuid)
+		printf ("guid1 == std.g_errnoGuid\n");
+	else
+		printf ("guid1 != std.g_errnoGuid\n");
+
+	if (guid2 == std.g_winErrorGuid)
+		printf ("guid2 == std.g_winErrorGuid\n");
+	else
+		printf ("guid3 != std.g_winErrorGuid\n");
+
+	if (guid3 == std.g_ntStatusGuid)
+		printf ("guid3 == std.g_ntStatusGuid\n");
+	else
+		printf ("guid3 != std.g_ntStatusGuid\n");
+
+	if (guid1 == std.g_winErrorGuid)
+		printf ("guid1 == std.g_winErrorGuid\n");
+	else
+		printf ("guid1 != std.g_winErrorGuid\n");
+
+	if (guid1 == std.g_ntStatusGuid)
+		printf ("guid1 == std.g_ntStatusGuid\n");
+	else
+		printf ("guid1 != std.g_ntStatusGuid\n");
+
+	return 0;
+}

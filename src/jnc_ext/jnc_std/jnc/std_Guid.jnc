@@ -68,6 +68,21 @@ struct Guid
 	*/
 
 	uint8_t m_data4 [8];
+
+	bool isEqual (Guid const* op) const
+	{
+		return memcmp (this, op, sizeof (Guid)) == 0;
+	}
+
+	bool operator == (Guid const* op) const
+	{
+		return isEqual (op);
+	}
+
+	bool operator != (Guid const* op) const
+	{
+		return !isEqual (op);
+	}
 }
 
 //..............................................................................

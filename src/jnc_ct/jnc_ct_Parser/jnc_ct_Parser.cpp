@@ -277,7 +277,7 @@ Parser::setDeclarationBody (sl::BoxList <Token>* tokenList)
 		err::setFormatStringError ("declaration without declarator cannot have a body");
 		return false;
 	}
-	
+
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
 	Function* function;
 	Orphan* orphan;
