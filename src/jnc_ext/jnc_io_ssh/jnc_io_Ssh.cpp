@@ -43,7 +43,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (SshChannel)
 	JNC_MAP_FUNCTION ("open",         &SshChannel::open_0)
 	JNC_MAP_OVERLOAD (&SshChannel::open_1)
 	JNC_MAP_FUNCTION ("close",        &SshChannel::close)
-	JNC_MAP_FUNCTION ("connect",      &SshChannel::connect)
+	JNC_MAP_FUNCTION ("connect",      &SshChannel::connect_0)
+	JNC_MAP_OVERLOAD (&SshChannel::connect_1)
 	JNC_MAP_FUNCTION ("authenticate", &SshChannel::authenticate)
 	JNC_MAP_FUNCTION ("resizePty",    &SshChannel::resizePty)
 	JNC_MAP_FUNCTION ("read",         &SshChannel::read)
@@ -126,7 +127,7 @@ SshChannel::close ()
 
 bool
 JNC_CDECL
-SshChannel::connect (
+SshChannel::connect_0 (
 	DataPtr addressPtr,
 	DataPtr userNamePtr,
 	DataPtr privateKeyPtr,
@@ -135,6 +136,66 @@ SshChannel::connect (
 	DataPtr channelTypePtr,
 	DataPtr processTypePtr,
 	DataPtr ptyTypePtr,
+	uint_t ptyWidth,
+	uint_t ptyHeight
+	)
+{
+	return connectImpl (
+		(const SocketAddress*) addressPtr.m_p,
+		(const char*) userNamePtr.m_p,
+		privateKeyPtr.m_p,
+		privateKeySize,
+		(const char*) passwordPtr.m_p,
+		(const char*) channelTypePtr.m_p,
+		NULL,
+		0,
+		(const char*) processTypePtr.m_p,
+		NULL,
+		0,
+		(const char*) ptyTypePtr.m_p,
+		ptyWidth,
+		ptyHeight
+		);
+}
+
+bool
+JNC_CDECL
+SshChannel::connect_1 (DataPtr paramPtr)
+{
+	SshConnectParams* params = (SshConnectParams*) paramPtr.m_p;
+
+	return connectImpl (
+		&params->m_address,
+		(const char*) params->m_userNamePtr.m_p,
+		params->m_privateKeyPtr.m_p,
+		params->m_privateKeySize,
+		(const char*) params->m_passwordPtr.m_p,
+		(const char*) params->m_channelTypePtr.m_p,
+		params->m_channelExtraPtr.m_p,
+		params->m_channelExtraSize,
+		(const char*) params->m_processTypePtr.m_p,
+		params->m_processExtraPtr.m_p,
+		params->m_processExtraSize,
+		(const char*) params->m_ptyTypePtr.m_p,
+		params->m_ptyWidth,
+		params->m_ptyHeight
+		);
+}
+
+bool
+SshChannel::connectImpl (
+	const SocketAddress* address,
+	const char* userName,
+	const void* privateKey,
+	size_t privateKeySize,
+	const char* password,
+	const char* channelType,
+	const void* channelExtra,
+	size_t channelExtraSize,
+	const char* processType,
+	const void* processExtra,
+	size_t processExtraSize,
+	const char* ptyType,
 	uint_t ptyWidth,
 	uint_t ptyHeight
 	)
@@ -152,20 +213,28 @@ SshChannel::connect (
 
 	ASSERT (!m_connectParams);
 	m_connectParams = AXL_MEM_NEW (ConnectParams);
-	m_connectParams->m_userName    = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
+	m_connectParams->m_userName = userName ? userName : "anonymous";
 
-	if (privateKeyPtr.m_p && privateKeySize)
-		m_connectParams->m_privateKey.copy ((char*) privateKeyPtr.m_p, privateKeySize);
+	if (privateKey && privateKeySize)
+		m_connectParams->m_privateKey.copy ((char*) privateKey, privateKeySize);
 
-	m_connectParams->m_password    = (const char*) passwordPtr.m_p;
-	m_connectParams->m_channelType = channelTypePtr.m_p ? (const char*) channelTypePtr.m_p : "session";
-	m_connectParams->m_processType = processTypePtr.m_p ? (const char*) processTypePtr.m_p : "shell";
-	m_connectParams->m_ptyType     = ptyTypePtr.m_p ? (const char*) ptyTypePtr.m_p : "ansi";
+	m_connectParams->m_password = password;
+	m_connectParams->m_channelType = channelType ? channelType: "session";
+
+	if (channelExtra && channelExtraSize)
+		m_connectParams->m_channelExtra.copy ((char*) channelExtra, channelExtraSize);
+
+	m_connectParams->m_processType = processType ? processType : "shell";
+
+	if (processExtra && processExtraSize)
+		m_connectParams->m_processExtra.copy ((char*) processExtra, processExtraSize);
+
+	m_connectParams->m_ptyType = ptyType ? ptyType : "ansi";
 	m_ptyWidth = ptyWidth;
 	m_ptyHeight = ptyHeight;
 	m_lock.unlock ();
 
-	m_remoteAddress = *(jnc::io::SocketAddress*) addressPtr.m_p;
+	m_remoteAddress = *address;
 	result = m_socket.connect (m_remoteAddress.getSockAddr ());
 	if (!result)
 		return false;
@@ -437,7 +506,8 @@ SshChannel::sshConnect ()
 			m_connectParams->m_channelType.getLength (),
 			LIBSSH2_CHANNEL_WINDOW_DEFAULT,
 			LIBSSH2_CHANNEL_PACKET_DEFAULT,
-			NULL, 0
+			m_connectParams->m_channelExtra,
+			m_connectParams->m_channelExtra.getCount ()
 			);
 
 		result = channel ? 0 : sshAsyncLoop (::libssh2_session_last_errno (m_sshSession));
@@ -483,7 +553,8 @@ SshChannel::sshConnect ()
 			m_sshChannel,
 			m_connectParams->m_processType,
 			m_connectParams->m_processType.getLength (),
-			NULL, 0
+			m_connectParams->m_processExtra,
+			m_connectParams->m_processExtra.getCount ()
 			);
 
 		result = sshAsyncLoop (result);

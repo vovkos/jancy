@@ -41,6 +41,26 @@ enum SshEvent
 		SshEvent_SshConnectCompleted,
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SshConnectParams
+{
+	SocketAddress m_address;
+	DataPtr m_userNamePtr;
+	DataPtr m_privateKeyPtr;
+	size_t m_privateKeySize;
+	DataPtr m_passwordPtr;
+	DataPtr m_channelTypePtr;  // session, direct-tcpip, tcpip-forward, etc
+	DataPtr m_channelExtraPtr;
+	size_t m_channelExtraSize;
+	DataPtr m_processTypePtr;  // shell, exec, subsystem, etc
+	DataPtr m_processExtraPtr;
+	size_t m_processExtraSize;
+	DataPtr m_ptyTypePtr;      // vanilla, ansi, xterm, vt102, etc
+	uint_t m_ptyWidth;
+	uint_t m_ptyHeight;
+};
+
 //..............................................................................
 
 class FreeLibSsh2Session
@@ -119,7 +139,9 @@ protected:
 		sl::Array <char> m_privateKey;
 		sl::String m_password; // or private key passphrase
 		sl::String m_channelType;
+		sl::Array <char> m_channelExtra;
 		sl::String m_processType;
+		sl::Array <char> m_processExtra;
 		sl::String m_ptyType;
 	};
 
@@ -208,7 +230,7 @@ public:
 
 	bool
 	JNC_CDECL
-	connect (
+	connect_0 (
 		DataPtr addressPtr,
 		DataPtr userNamePtr,
 		DataPtr privateKeyPtr,
@@ -220,6 +242,10 @@ public:
 		uint_t ptyWidth,
 		uint_t ptyHeight
 		);
+
+	bool
+	JNC_CDECL
+	connect_1 (DataPtr paramPtr);
 
 	bool
 	JNC_CDECL
@@ -285,6 +311,24 @@ public:
 	}
 
 protected:
+	bool
+	connectImpl (
+		const SocketAddress* address,
+		const char* userName,
+		const void* privateKey,
+		size_t privateKeySize,
+		const char* password,
+		const char* channelType,
+		const void* channelExtra,
+		size_t channelExtraSize,
+		const char* processType,
+		const void* processExtra,
+		size_t processExtraSize,
+		const char* ptyType,
+		uint_t ptyWidth,
+		uint_t ptyHeight
+		);
+
 	void
 	ioThreadFunc ();
 
