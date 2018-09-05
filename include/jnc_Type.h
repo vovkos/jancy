@@ -704,14 +704,14 @@ inline
 bool
 isCharPtrType (Type* type)
 {
-	return jnc_isCharPtrType (type);
+	return jnc_isCharPtrType (type) != 0;
 }
 
 inline
 bool
 isArrayRefType (Type* type)
 {
-	return jnc_isArrayRefType (type);
+	return jnc_isArrayRefType (type) != 0;
 }
 
 inline
@@ -721,7 +721,7 @@ isDataPtrType (
 	DataPtrTypeKind kind
 	)
 {
-	return jnc_isDataPtrType (type, kind);
+	return jnc_isDataPtrType (type, kind) != 0;
 }
 
 //..............................................................................
