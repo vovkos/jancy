@@ -24,7 +24,7 @@ isByteStringSep (uchar_t c)
 {
 	switch (c)
 	{
-	case ' ': case '\t':
+	case ' ': case '\t': case '\r': case '\n':
 	case '.': case ',': case ';': case ':':
 		return true;
 
