@@ -94,7 +94,7 @@ createNetworkAdapterDescList (
 {
 	Runtime* runtime = getCurrentThreadRuntime ();
 
-	sl::StdList <axl::io::NetworkAdapterDesc> adapterList;
+	sl::List <axl::io::NetworkAdapterDesc> adapterList;
 	size_t adapterCount = axl::io::createNetworkAdapterDescList (&adapterList);
 
 	if (adapterList.isEmpty ())

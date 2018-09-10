@@ -39,7 +39,7 @@ protected:
 protected:
 	sl::Array <GlobalNamespace*> m_globalNamespaceArray;
 	sl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
-	sl::StdList <ImportNamespace> m_importNamespaceList;
+	sl::List <ImportNamespace> m_importNamespaceList;
 
 public:
 	void

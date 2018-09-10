@@ -86,7 +86,7 @@ Members
 	struct Literal
 	{
 		sl::Array <char> m_binData;
-		sl::StdList <FmtSite> m_fmtSiteList;
+		sl::List <FmtSite> m_fmtSiteList;
 		bool m_isZeroTerminated;
 	};
 
@@ -123,7 +123,7 @@ Members
 	DoxyParser m_doxyParser;
 
 	ReactorClassType* m_reactorType;
-	sl::StdList <Reaction> m_reactionList;
+	sl::List <Reaction> m_reactionList;
 	sl::BoxList <Value> m_reactionBindSiteList;
 	sl::SimpleHashTable <llvm::Value*, bool> m_reactionBindSiteMap;
 	size_t m_reactionBindSiteCount;

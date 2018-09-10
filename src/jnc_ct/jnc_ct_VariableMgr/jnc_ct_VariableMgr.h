@@ -29,7 +29,7 @@ class VariableMgr
 protected:
 	Module* m_module;
 
-	sl::StdList <Variable> m_variableList;
+	sl::List <Variable> m_variableList;
 	sl::Array <Variable*> m_staticVariableArray;
 	sl::Array <Variable*> m_staticGcRootArray;
 	sl::Array <Variable*> m_globalStaticVariableArray;

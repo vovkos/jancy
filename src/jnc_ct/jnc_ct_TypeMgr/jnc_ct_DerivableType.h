@@ -133,7 +133,7 @@ protected:
 	// base types
 
 	sl::StringHashTable <BaseTypeSlot*> m_baseTypeMap;
-	sl::StdList <BaseTypeSlot> m_baseTypeList;
+	sl::List <BaseTypeSlot> m_baseTypeList;
 	sl::Array <BaseTypeSlot*> m_baseTypeArray;
 	sl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
 	sl::Array <BaseTypeSlot*> m_baseTypeConstructArray;

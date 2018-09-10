@@ -82,7 +82,7 @@ NamedPipe::open (DataPtr namePtr)
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE :
 		PIPE_TYPE_BYTE | PIPE_READMODE_BYTE;
 
-	sl::StdList <OverlappedConnect> pipeList;
+	sl::List <OverlappedConnect> pipeList;
 	for (size_t i = 0; i < m_backLogLimit; i++)
 	{
 		axl::io::win::NamedPipe pipe;

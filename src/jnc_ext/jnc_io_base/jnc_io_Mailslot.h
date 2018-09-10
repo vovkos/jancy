@@ -62,7 +62,7 @@ protected:
 	struct OverlappedIo
 	{
 		mem::Pool <OverlappedRead> m_overlappedReadPool;
-		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+		sl::List <OverlappedRead> m_activeOverlappedReadList;
 	};
 
 protected:

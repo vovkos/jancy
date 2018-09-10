@@ -96,7 +96,7 @@ protected:
 	struct OverlappedIo
 	{
 		mem::Pool <OverlappedRead> m_overlappedReadPool;
-		sl::StdList <OverlappedRead> m_activeOverlappedReadList;
+		sl::List <OverlappedRead> m_activeOverlappedReadList;
 		axl::io::win::StdOverlapped m_serialWaitOverlapped;
 		axl::io::win::StdOverlapped m_writeOverlapped;
 		sl::Array <char> m_writeBlock;

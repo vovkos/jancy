@@ -47,7 +47,7 @@ protected:
 protected:
 	sys::Lock m_lock;
 	sl::DuckTypeHashTable <Key, Entry*> m_map;
-	sl::StdList <Entry> m_list;
+	sl::List <Entry> m_list;
 
 public:
 	static 

@@ -99,7 +99,7 @@ class UnitMgr
 {
 protected:
 	Module* m_module;
-	sl::StdList <Unit> m_unitList;
+	sl::List <Unit> m_unitList;
 	Unit* m_currentUnit;
 	Unit* m_coreLibUnit;
 

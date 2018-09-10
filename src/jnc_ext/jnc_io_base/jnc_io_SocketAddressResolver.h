@@ -57,8 +57,8 @@ protected:
 	sys::Lock m_lock;
 	uint_t m_ioThreadFlags;
 	IoThread m_ioThread;
-	sl::StdList <Req> m_pendingReqList;
-	sl::StdList <Req> m_activeReqList;
+	sl::List <Req> m_pendingReqList;
+	sl::List <Req> m_activeReqList;
 	sl::HandleTable <Req*> m_reqMap;
 
 #if (_JNC_OS_WIN)

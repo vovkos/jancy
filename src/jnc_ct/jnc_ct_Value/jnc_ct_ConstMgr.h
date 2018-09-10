@@ -58,8 +58,8 @@ protected:
 	Module* m_module;
 
 	sl::BoxList <Value> m_valueList;
-	sl::StdList <Const> m_constList;
-	sl::StdList <ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
+	sl::List <Const> m_constList;
+	sl::List <ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
 
 public:
 	ConstMgr ();

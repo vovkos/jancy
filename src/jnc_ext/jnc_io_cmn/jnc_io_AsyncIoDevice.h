@@ -77,8 +77,8 @@ protected:
 	sys::Lock m_lock;
 	volatile uint_t m_ioThreadFlags;
 	sl::AuxList <SyncWait> m_syncWaitList;
-	sl::StdList <AsyncWait> m_asyncWaitList;
-	sl::StdList <AsyncWait> m_pendingAsyncWaitList;
+	sl::List <AsyncWait> m_asyncWaitList;
+	sl::List <AsyncWait> m_pendingAsyncWaitList;
 	sl::HandleTable <AsyncWait*> m_asyncWaitMap;
 
 #if (_JNC_OS_WIN)
@@ -93,9 +93,9 @@ protected:
 	sl::CircularBuffer m_writeBuffer;
 	sl::Array <char> m_readOverflowBuffer;
 
-	sl::StdList <ReadWriteMeta> m_readMetaList;
-	sl::StdList <ReadWriteMeta> m_writeMetaList;
-	sl::StdList <ReadWriteMeta> m_freeReadWriteMetaList;
+	sl::List <ReadWriteMeta> m_readMetaList;
+	sl::List <ReadWriteMeta> m_writeMetaList;
+	sl::List <ReadWriteMeta> m_freeReadWriteMetaList;
 
 public:
 	AsyncIoDevice ();

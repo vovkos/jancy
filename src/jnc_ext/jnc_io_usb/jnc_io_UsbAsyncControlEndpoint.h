@@ -57,8 +57,8 @@ protected:
 	sys::NotificationEvent m_idleEvent;
 
 	mem::Pool <Transfer> m_transferPool;
-	sl::StdList <Transfer> m_activeTransferList;
-	sl::StdList <Transfer> m_completedTransferList;
+	sl::List <Transfer> m_activeTransferList;
+	sl::List <Transfer> m_completedTransferList;
 
 public:
 	UsbAsyncControlEndpoint (axl::io::UsbDevice* device);

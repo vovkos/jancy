@@ -36,12 +36,12 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::StdList <DoxyBlock> m_blockList;
-	sl::StdList <DoxyGroup> m_groupList;
-	sl::StdList <DoxyFootnote> m_footnoteList;
+	sl::List <DoxyBlock> m_blockList;
+	sl::List <DoxyGroup> m_groupList;
+	sl::List <DoxyFootnote> m_footnoteList;
 	sl::StringHashTable <size_t> m_refIdMap;
 	sl::StringHashTable <DoxyGroup*> m_groupMap;
-	sl::StdList <Target> m_targetList;
+	sl::List <Target> m_targetList;
 
 public:
 	DoxyMgr ();

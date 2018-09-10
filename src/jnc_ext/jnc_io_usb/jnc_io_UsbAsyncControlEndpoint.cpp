@@ -232,7 +232,7 @@ UsbAsyncControlEndpoint::cancelAllActiveTransfers_l ()
 void
 UsbAsyncControlEndpoint::finalizeTransfers_l ()
 {
-	sl::StdList <Transfer> transferList;
+	sl::List <Transfer> transferList;
 	sl::takeOver (&transferList, &m_completedTransferList);
 	m_lock.unlock ();
 

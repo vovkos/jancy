@@ -52,7 +52,7 @@ class AttributeBlock:
 protected:
 	ModuleItem* m_parentItem;
 
-	sl::StdList <Attribute> m_attributeList;
+	sl::List <Attribute> m_attributeList;
 	sl::Array <Attribute*> m_attributeArray;
 	sl::StringHashTable <Attribute*> m_attributeMap;
 

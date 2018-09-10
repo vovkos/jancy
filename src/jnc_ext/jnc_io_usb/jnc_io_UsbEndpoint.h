@@ -79,8 +79,8 @@ protected:
 	IoThread m_ioThread;
 
 	mem::Pool <Transfer> m_transferPool;
-	sl::StdList <Transfer> m_activeTransferList;
-	sl::StdList <Transfer> m_completedTransferList;
+	sl::List <Transfer> m_activeTransferList;
+	sl::List <Transfer> m_completedTransferList;
 	sl::Array <char> m_writeBlock;
 
 public:

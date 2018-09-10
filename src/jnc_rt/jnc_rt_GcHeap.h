@@ -75,7 +75,7 @@ protected:
 	volatile uint_t m_flags;
 	GcStats m_stats;
 	sys::NotificationEvent m_idleEvent;
-	sl::StdList <StaticDestructor> m_staticDestructorList;
+	sl::List <StaticDestructor> m_staticDestructorList;
 	sl::Array <IfaceHdr*> m_dynamicDestructArray;
 
 	DestructThread m_destructThread;

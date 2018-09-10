@@ -27,7 +27,7 @@ class AttributeMgr
 protected:
 	Module* m_module;
 
-	sl::StdList <AttributeBlock> m_attributeBlockList;
+	sl::List <AttributeBlock> m_attributeBlockList;
 
 public:
 	AttributeMgr ();

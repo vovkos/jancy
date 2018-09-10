@@ -141,7 +141,7 @@ ControlFlowMgr::deleteUnreachableBlocks ()
 {
 	// llvm blocks may have references even when they are unreachable
 
-	sl::StdList <BasicBlock> pendingDeleteList;
+	sl::List <BasicBlock> pendingDeleteList;
 
 	sl::Iterator <BasicBlock> it = m_blockList.getHead ();
 	while (it)

@@ -66,8 +66,8 @@ protected:
 	size_t m_maxSubMatchCount;
 	sl::Array <uintptr_t> m_transitionTable;
 	sl::Array <DfaStateInfo> m_stateInfoTable;
-	sl::StdList <DfaAcceptInfo> m_acceptInfoList;
-	sl::StdList <DfaGroupSet> m_groupSetList;
+	sl::List <DfaAcceptInfo> m_acceptInfoList;
+	sl::List <DfaGroupSet> m_groupSetList;
 
 public:
 	Dfa ();
@@ -127,7 +127,7 @@ class RegexMgr
 
 protected:
 	Module* m_module;
-	sl::StdList <Dfa> m_dfaList;
+	sl::List <Dfa> m_dfaList;
 
 public:
 	RegexMgr ();

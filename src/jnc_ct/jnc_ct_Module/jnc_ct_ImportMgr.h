@@ -51,7 +51,7 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::StdList <Import> m_importList;
+	sl::List <Import> m_importList;
 	sl::StringHashTable <bool> m_ignoredImportSet;
 	sl::StringHashTable <bool> m_importFilePathMap;
 

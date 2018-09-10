@@ -93,7 +93,7 @@ class EnumType: public NamedType
 
 protected:
 	Type* m_baseType;
-	sl::StdList <EnumConst> m_constList;
+	sl::List <EnumConst> m_constList;
 	sl::Array <EnumConst*> m_constArray;
 
 public:

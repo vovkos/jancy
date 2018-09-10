@@ -84,8 +84,8 @@ protected:
 	struct OverlappedIo
 	{
 		mem::Pool <OverlappedConnect> m_overlappedConnectPool;
-		sl::StdList <OverlappedConnect> m_pipeList;
-		sl::StdList <OverlappedConnect> m_activeOverlappedConnectList;
+		sl::List <OverlappedConnect> m_pipeList;
+		sl::List <OverlappedConnect> m_activeOverlappedConnectList;
 	};
 
 protected:
@@ -93,7 +93,7 @@ protected:
 
 	sl::String_w m_pipeName;
 	mem::Pool <IncomingConnection> m_incomingConnectionPool;
-	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
+	sl::List <IncomingConnection> m_pendingIncomingConnectionList;
 	OverlappedIo* m_overlappedIo;
 
 public:

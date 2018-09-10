@@ -50,11 +50,11 @@ protected:
 protected:
 	ct::Module* m_module;
 	sl::Array <ExtensionLib*> m_libArray;
-	sl::StdList <DynamicLibEntry> m_dynamicLibList;
-	sl::StdList <SourceFile> m_sourceFileList;
+	sl::List <DynamicLibEntry> m_dynamicLibList;
+	sl::List <SourceFile> m_sourceFileList;
 	sl::StringHashTable <SourceFile*> m_sourceFileMap;
 	sl::StringHashTable <const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
-	sl::StdList <ItemCacheEntry> m_itemCache;
+	sl::List <ItemCacheEntry> m_itemCache;
 	ItemCacheMap m_itemCacheMap;
 
 public:

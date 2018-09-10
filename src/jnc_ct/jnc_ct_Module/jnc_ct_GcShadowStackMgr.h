@@ -111,7 +111,7 @@ class GcShadowStackMgr
 protected:
 	Module* m_module;
 
-	sl::StdList <GcShadowStackFrameMap> m_frameMapList;
+	sl::List <GcShadowStackFrameMap> m_frameMapList;
 	Value m_gcRootArrayValue;
 
 	sl::Array <GcShadowStackFrameMap*> m_functionFrameMapArray;

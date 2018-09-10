@@ -93,7 +93,7 @@ protected:
 	struct OverlappedIo
 	{
 		mem::Pool <OverlappedRecv> m_overlappedRecvPool;
-		sl::StdList <OverlappedRecv> m_activeOverlappedRecvList;
+		sl::List <OverlappedRecv> m_activeOverlappedRecvList;
 		axl::io::win::StdOverlapped m_sendOverlapped;
 		sl::Array <char> m_sendBlock;
 		sl::Array <char> m_sendToParams;
@@ -104,7 +104,7 @@ protected:
 	IoThread m_ioThread;
 
 	mem::Pool <IncomingConnection> m_incomingConnectionPool;
-	sl::StdList <IncomingConnection> m_pendingIncomingConnectionList;
+	sl::List <IncomingConnection> m_pendingIncomingConnectionList;
 
 #if (_AXL_OS_WIN)
 	OverlappedIo* m_overlappedIo;

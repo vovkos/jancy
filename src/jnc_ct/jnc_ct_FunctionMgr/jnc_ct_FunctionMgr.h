@@ -36,14 +36,14 @@ class FunctionMgr
 protected:
 	Module* m_module;
 
-	sl::StdList <Function> m_functionList;
-	sl::StdList <Property> m_propertyList;
-	sl::StdList <PropertyTemplate> m_propertyTemplateList;
-	sl::StdList <ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
-	sl::StdList <ThunkFunction> m_thunkFunctionList;
-	sl::StdList <ThunkProperty> m_thunkPropertyList;
-	sl::StdList <DataThunkProperty> m_dataThunkPropertyList;
-	sl::StdList <LazyStdFunction> m_lazyStdFunctionList;
+	sl::List <Function> m_functionList;
+	sl::List <Property> m_propertyList;
+	sl::List <PropertyTemplate> m_propertyTemplateList;
+	sl::List <ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
+	sl::List <ThunkFunction> m_thunkFunctionList;
+	sl::List <ThunkProperty> m_thunkPropertyList;
+	sl::List <DataThunkProperty> m_dataThunkPropertyList;
+	sl::List <LazyStdFunction> m_lazyStdFunctionList;
 	sl::StringHashTable <Function*> m_thunkFunctionMap;
 	sl::StringHashTable <Property*> m_thunkPropertyMap;
 	sl::StringHashTable <Function*> m_scheduleLauncherFunctionMap;

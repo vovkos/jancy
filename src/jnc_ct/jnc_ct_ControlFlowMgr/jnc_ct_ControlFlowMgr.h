@@ -52,7 +52,7 @@ struct ReSwitchStmt
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::StdList <ReSwitchAcceptContext> m_acceptContextList;
+	sl::List <ReSwitchAcceptContext> m_acceptContextList;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,7 +110,7 @@ class ControlFlowMgr
 protected:
 	Module* m_module;
 
-	sl::StdList <BasicBlock> m_blockList;
+	sl::List <BasicBlock> m_blockList;
 	sl::Array <BasicBlock*> m_returnBlockArray;
 	sl::Array <BasicBlock*> m_landingPadBlockArray;
 	BasicBlock* m_currentBlock;

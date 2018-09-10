@@ -43,12 +43,12 @@ protected:
 	Module* m_module;
 
 	GlobalNamespace m_stdNamespaceArray [StdNamespace__Count];
-	sl::StdList <GlobalNamespace> m_globalNamespaceList;
-	sl::StdList <ExtensionNamespace> m_extensionNamespaceList;
-	sl::StdList <DynamicLibNamespace> m_dynamicLibNamespaceList;
-	sl::StdList <Scope> m_scopeList;
-	sl::StdList <Orphan> m_orphanList;
-	sl::StdList <Alias> m_aliasList;
+	sl::List <GlobalNamespace> m_globalNamespaceList;
+	sl::List <ExtensionNamespace> m_extensionNamespaceList;
+	sl::List <DynamicLibNamespace> m_dynamicLibNamespaceList;
+	sl::List <Scope> m_scopeList;
+	sl::List <Orphan> m_orphanList;
+	sl::List <Alias> m_aliasList;
 
 	sl::Array <NamespaceStackEntry> m_namespaceStack;
 	sl::Array <UsingSet*> m_importUsingSetArray;

@@ -835,7 +835,7 @@ createSerialPortDesc (
 DataPtr
 createSerialPortDescList (DataPtr countPtr)
 {
-	sl::StdList <axl::io::SerialPortDesc> portList;
+	sl::List <axl::io::SerialPortDesc> portList;
 	axl::io::createSerialPortDescList (&portList);
 
 	if (portList.isEmpty ())

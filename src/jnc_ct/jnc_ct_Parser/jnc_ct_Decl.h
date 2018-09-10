@@ -415,8 +415,8 @@ protected:
 	AttributeBlock* m_attributeBlock;
 	DoxyBlock* m_doxyBlock;
 
-	sl::StdList <DeclPointerPrefix> m_pointerPrefixList;
-	sl::StdList <DeclSuffix> m_suffixList;
+	sl::List <DeclPointerPrefix> m_pointerPrefixList;
+	sl::List <DeclSuffix> m_suffixList;
 	sl::BoxList <Token> m_constructor;
 	sl::BoxList <Token> m_initializer;
 

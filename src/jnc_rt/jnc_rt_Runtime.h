@@ -42,7 +42,7 @@ protected:
 	State m_state;
 	sys::NotificationEvent m_noThreadEvent;
 	size_t m_tlsSize;
-	sl::StdList <Tls, GetTlsLink> m_tlsList;
+	sl::List <Tls, GetTlsLink> m_tlsList;
 
 	size_t m_stackSizeLimit; // adjustable limits
 
