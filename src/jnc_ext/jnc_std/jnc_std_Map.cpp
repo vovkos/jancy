@@ -47,9 +47,12 @@ Map::add (const sl::MapIterator <Variant, DataPtr>& it)
 	DataPtr entryPtr = runtime->getGcHeap ()->allocateData (entryType);
 	MapEntry* entry = (MapEntry*) entryPtr.m_p;
 
-	entry->m_key = it->m_key;
-	entry->m_prevPtr = it->m_prev ? ((sl::MapEntry <Variant, DataPtr>*) it->m_prev)->m_value : g_nullPtr;
-	entry->m_nextPtr = it->m_next ? ((sl::MapEntry <Variant, DataPtr>*) it->m_next)->m_value : g_nullPtr;
+	sl::MapEntry <Variant, DataPtr>* next = (sl::MapEntry <Variant, DataPtr>*) it->getNext ();
+	sl::MapEntry <Variant, DataPtr>* prev = (sl::MapEntry <Variant, DataPtr>*) it->getPrev ();
+
+	entry->m_key = it->getKey ();
+	entry->m_nextPtr = next ? next->m_value : g_nullPtr;
+	entry->m_prevPtr = prev ? prev->m_value : g_nullPtr;
 	entry->m_map = this;
 	entry->m_mapEntry = it.getEntry ();
 

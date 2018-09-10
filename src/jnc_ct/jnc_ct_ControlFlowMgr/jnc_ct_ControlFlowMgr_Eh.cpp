@@ -416,7 +416,7 @@ void ControlFlowMgr::finalizeFinallyScope (Scope* scope)
 	{
 		ASSERT (i < count);
 
-		routeIdxArray [i] = it->m_key;
+		routeIdxArray [i] = it->getKey ();
 		blockArray [i] = it->m_value;
 		it->m_value->markReachable ();
 	}

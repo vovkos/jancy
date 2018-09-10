@@ -370,7 +370,7 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer (const sl::ConstBoxList <Token
 {
 	size_t elementCount = 0;
 
-	sl::BoxIterator <Token> token = initializerTokenList.getHead ();
+	sl::ConstBoxIterator <Token> token = initializerTokenList.getHead ();
 	for (; token; token++)
 	{
 		switch (token->m_token)
@@ -403,7 +403,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer (
 	bool isCharArray = arrayType->getElementType ()->getTypeKind () == TypeKind_Char;
 	bool isElement = false;
 
-	sl::BoxIterator <Token> token = initializerTokenList.getHead ();
+	sl::ConstBoxIterator <Token> token = initializerTokenList.getHead ();
 	for (; token; token++)
 	{
 		switch (token->m_token)

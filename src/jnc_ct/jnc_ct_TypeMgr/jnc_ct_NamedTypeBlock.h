@@ -53,79 +53,79 @@ public:
 	NamedTypeBlock (ModuleItem* parent);
 
 	sl::Array <Variable*>
-	getStaticFieldArray ()
+	getStaticFieldArray () const
 	{
 		return m_staticFieldArray;
 	}
 
 	sl::Array <StructField*>
-	getMemberFieldArray ()
+	getMemberFieldArray () const
 	{
 		return m_memberFieldArray;
 	}
 
 	sl::Array <Function*>
-	getMemberMethodArray ()
+	getMemberMethodArray () const
 	{
 		return m_memberMethodArray;
 	}
 
 	sl::Array <Property*>
-	getMemberPropertyArray ()
+	getMemberPropertyArray () const
 	{
 		return m_memberPropertyArray;
 	}
 
 	sl::Array <Variable*>
-	getInitializedStaticFieldArray ()
+	getInitializedStaticFieldArray () const
 	{
 		return m_initializedStaticFieldArray;
 	}
 
 	sl::Array <StructField*>
-	getInitializedMemberFieldArray ()
+	getInitializedMemberFieldArray () const
 	{
 		return m_initializedMemberFieldArray;
 	}
 
 	sl::Array <StructField*>
-	getUnnamedFieldArray ()
+	getUnnamedFieldArray () const
 	{
 		return m_unnamedFieldArray;
 	}
 
 	sl::Array <StructField*>
-	getGcRootMemberFieldArray ()
+	getGcRootMemberFieldArray () const
 	{
 		return m_gcRootMemberFieldArray;
 	}
 
 	Function*
-	getPreConstructor ()
+	getPreConstructor () const
 	{
 		return m_preconstructor;
 	}
 
 	Function*
-	getConstructor ()
+	getConstructor () const
 	{
 		return m_constructor;
 	}
 
 	Function*
-	getDestructor ()
+	getDestructor () const
 	{
 		return m_destructor;
 	}
 
 	Function*
-	getStaticConstructor ()
+	getStaticConstructor () const
 	{
 		return m_staticConstructor;
 	}
 
 	Function*
-	getStaticDestructor ()
+	getStaticDestructor () const
 	{
 		return m_staticDestructor;
 	}

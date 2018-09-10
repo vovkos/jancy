@@ -110,7 +110,7 @@ Namespace::findItem (const QualifiedName& name)
 	if (!item)
 		return NULL;
 
-	sl::BoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
+	sl::ConstBoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
 	for (; nameIt; nameIt++)
 	{
 		Namespace* nspace = item->getNamespace ();
@@ -136,7 +136,7 @@ Namespace::findItemTraverse (
 	if (!item)
 		return NULL;
 
-	sl::BoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
+	sl::ConstBoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
 	for (; nameIt; nameIt++)
 	{
 		Namespace* nspace = item->getNamespace ();
@@ -314,7 +314,7 @@ Namespace::generateMemberDocumentation (
 
 				for (i++; i < count; i++)
 				{
-					item = m_itemArray [i];				
+					item = m_itemArray [i];
 					if (item->getItemKind () != ModuleItemKind_EnumConst ||
 						((EnumConst*) item)->getParentEnumType () != enumType)
 						break;
@@ -475,7 +475,7 @@ GlobalNamespace::generateDocumentation (
 
 //..............................................................................
 
-bool 
+bool
 ExtensionNamespace::addMethod (Function* function)
 {
 	if (function->isVirtual ())
@@ -493,7 +493,7 @@ ExtensionNamespace::addMethod (Function* function)
 	bool result = addItem (function);
 	if (!result)
 		return false;
-	
+
 	if (m_type->getTypeKindFlags () & TypeKindFlag_Derivable)
 		fixupMethod (function);
 	else
@@ -502,7 +502,7 @@ ExtensionNamespace::addMethod (Function* function)
 	return true;
 }
 
-bool 
+bool
 ExtensionNamespace::addProperty (Property* prop)
 {
 	if (prop->isVirtual ())
@@ -510,7 +510,7 @@ ExtensionNamespace::addProperty (Property* prop)
 		err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
 		return false;
 	}
-	
+
 	bool result = addItem (prop);
 	if (!result)
 		return false;
@@ -523,7 +523,7 @@ ExtensionNamespace::addProperty (Property* prop)
 	return true;
 }
 
-bool 
+bool
 ExtensionNamespace::calcLayout ()
 {
 	if (!(m_type->getTypeKindFlags () & TypeKindFlag_Derivable))

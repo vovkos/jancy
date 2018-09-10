@@ -150,10 +150,10 @@ LlvmDiBuilder::setStructTypeBody (StructType* structType)
 
 	size_t i = 0;
 
-	sl::Iterator <BaseTypeSlot> baseTypeIt = baseTypeList.getHead ();
+	sl::ConstIterator <BaseTypeSlot> baseTypeIt = baseTypeList.getHead ();
 	for (; baseTypeIt; i++, baseTypeIt++)
 	{
-		BaseTypeSlot* baseType = *baseTypeIt;
+		const BaseTypeSlot* baseType = *baseTypeIt;
 		sl::String name = baseType->getType ()->getQualifiedName ();
 
 		fieldTypeArray [i] = m_llvmDiBuilder->createMemberType (

@@ -893,7 +893,7 @@ OperatorMgr::getArgCastKind (
 
 	CastKind worstCastKind = CastKind_Identitiy;
 
-	sl::BoxIterator <Value> arg = argList.getHead ();
+	sl::ConstBoxIterator <Value> arg = argList.getHead ();
 	for (size_t i = 0; i < argCount; i++, arg++)
 	{
 		Type* formalArgType = formalArgArray [i]->getType ();

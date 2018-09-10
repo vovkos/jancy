@@ -45,13 +45,13 @@ public:
 	}
 
 	Unit*
-	getParentUnit ()
+	getParentUnit () const
 	{
 		return m_parentUnit;
 	}
 
 	const Token::Pos*
-	getPos ()
+	getPos () const
 	{
 		return &m_pos;
 	}

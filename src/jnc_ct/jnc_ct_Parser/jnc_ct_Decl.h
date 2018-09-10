@@ -183,7 +183,7 @@ public:
 	}
 
 	int
-	getTypeModifiers ()
+	getTypeModifiers () const
 	{
 		return m_typeModifiers;
 	}
@@ -278,13 +278,13 @@ public:
 	}
 
 	DeclSuffixKind
-	getSuffixKind ()
+	getSuffixKind () const
 	{
 		return m_suffixKind;
 	}
 
 	Declarator*
-	getDeclarator ()
+	getDeclarator () const
 	{
 		return m_declarator;
 	}

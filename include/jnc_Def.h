@@ -180,11 +180,11 @@ typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-#	ifdef _AXL_SL_LISTBASE_H
+#	ifdef _AXL_SL_LIST_H
 
 typedef axl::sl::ListLink jnc_ListLink;
 
-#	else // _AXL_SL_LISTBASE_H
+#	else // _AXL_SL_LIST_H
 
 typedef struct jnc_ListLink jnc_ListLink;
 
@@ -226,7 +226,7 @@ struct jnc_ListLink
 	jnc_ListLink* m_prev; ///< Holds a pointer to the *previous* list entry on the list or ``NULL`` if this is the *first* entry.
 };
 
-#	endif // _AXL_SL_LISTBASE_H
+#	endif // _AXL_SL_LIST_H
 
 #	ifdef _AXL_SL_GUID_H
 

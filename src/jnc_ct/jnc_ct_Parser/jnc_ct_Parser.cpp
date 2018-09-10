@@ -64,7 +64,7 @@ Parser::parseTokenList (
 
 	create (symbol, isBuildingAst);
 
-	sl::BoxIterator <Token> token = tokenList.getHead ();
+	sl::ConstBoxIterator <Token> token = tokenList.getHead ();
 	for (; token; token++)
 	{
 		result = parseToken (&*token);
@@ -451,7 +451,7 @@ Parser::openGlobalNamespace (
 		return NULL;
 	}
 
-	sl::BoxIterator <sl::String> it = name.getNameList ().getHead ();
+	sl::ConstBoxIterator <sl::String> it = name.getNameList ().getHead ();
 	for (; it; it++)
 	{
 		nspace = getGlobalNamespace (nspace, *it, pos);
@@ -505,7 +505,7 @@ Parser::useNamespace (
 		&m_module->m_namespaceMgr :
 		NULL;
 
-	sl::BoxIterator <QualifiedName> it = nameList.getHead ();
+	sl::ConstBoxIterator <QualifiedName> it = nameList.getHead ();
 	for (; it; it++)
 	{
 		result = nspace->m_usingSet.addNamespace (importNamespaceMgr, nspace, namespaceKind, *it);

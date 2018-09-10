@@ -1363,7 +1363,7 @@ GcHeap::collect_l (bool isMutatorThread)
 	{
 		nextIt = it.getNext ();
 
-		if (it->m_key->m_flags & BoxFlag_WeakMark)
+		if (it->getKey ()->m_flags & BoxFlag_WeakMark)
 			markClass (it->m_value->m_box); // simple mark is enough -- DynamicLayout is a primitive opaque class
 		else
 			m_dynamicLayoutMap.erase (it);

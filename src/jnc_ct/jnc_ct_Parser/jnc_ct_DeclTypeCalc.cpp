@@ -33,8 +33,8 @@ DeclTypeCalc::calcType (
 	Type* type = baseType;
 	m_module = type->getModule ();
 
-	sl::Iterator <DeclSuffix> firstSuffix = suffixList.getHead ();
-	sl::Iterator <DeclSuffix> suffixEnd;
+	sl::ConstIterator <DeclSuffix> firstSuffix = suffixList.getHead ();
+	sl::ConstIterator <DeclSuffix> suffixEnd;
 
 	// strip non-const array suffix if any
 
@@ -64,7 +64,7 @@ DeclTypeCalc::calcType (
 
 	// pointer prefixes
 
-	sl::Iterator <DeclPointerPrefix> pointerPrefix = pointerPrefixList.getHead ();
+	sl::ConstIterator <DeclPointerPrefix> pointerPrefix = pointerPrefixList.getHead ();
 	for (; pointerPrefix; pointerPrefix++)
 	{
 		TypeKind typeKind = type->getTypeKind ();

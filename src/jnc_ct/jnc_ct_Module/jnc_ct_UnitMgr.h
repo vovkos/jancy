@@ -39,43 +39,43 @@ protected:
 
 public:
 	Module*
-	getModule ()
+	getModule () const
 	{
 		return m_module;
 	}
 
 	ExtensionLib*
-	getLib ()
+	getLib () const
 	{
 		return m_lib;
 	}
 
 	const sl::String&
-	getFilePath ()
+	getFilePath () const
 	{
 		return m_filePath;
 	}
 
 	const sl::String&
-	getFileName ()
+	getFileName () const
 	{
 		return m_fileName;
 	}
 
 	const sl::String&
-	getDir ()
+	getDir () const
 	{
 		return m_dir;
 	}
 
 	llvm::DIFile_vn
-	getLlvmDiFile ()
+	getLlvmDiFile () const
 	{
 		return m_llvmDiFile;
 	}
 
 	Function*
-	getConstructor ()
+	getConstructor () const
 	{
 		return m_constructor;
 	}
@@ -84,7 +84,7 @@ public:
 	setConstructor (Function* function);
 
 	Function*
-	getDestructor ()
+	getDestructor () const
 	{
 		return m_destructor;
 	}

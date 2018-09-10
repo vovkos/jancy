@@ -34,7 +34,7 @@ class DeclTypeCalc: protected TypeModifiers
 {
 protected:
 	Module* m_module;
-	sl::Iterator <DeclSuffix> m_suffix;
+	sl::ConstIterator <DeclSuffix> m_suffix;
 
 public:
 	DeclTypeCalc ()

@@ -41,7 +41,7 @@ UsingSet::append (
 		if (m_importNamespaceList.isEmpty ())
 			importNamespaceMgr->addImportUsingSet (this);
 
-		sl::Iterator <ImportNamespace> it = src->m_importNamespaceList.getHead ();
+		sl::ConstIterator <ImportNamespace> it = src->m_importNamespaceList.getHead ();
 		for (; it; it++)
 		{
 			ImportNamespace* importNamespace = AXL_MEM_NEW (ImportNamespace);
@@ -150,8 +150,8 @@ UsingSet::resolveImportNamespaces ()
 	{
 		ImportNamespace* importNamespace = m_importNamespaceList.removeHead ();
 		addNamespace (
-			NULL, 
-			importNamespace->m_anchorNamespace, 
+			NULL,
+			importNamespace->m_anchorNamespace,
 			importNamespace->m_namespaceKind,
 			importNamespace->m_name
 			);

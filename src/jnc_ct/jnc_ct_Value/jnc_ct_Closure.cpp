@@ -75,7 +75,7 @@ Closure::append (const sl::ConstBoxList <Value>& argValueList)
 	ASSERT (!argValueList.isEmpty ());
 
 	sl::BoxIterator <Value> internalArg = m_argValueList.getHead ();
-	sl::BoxIterator <Value> externalArg = argValueList.getHead ();
+	sl::ConstBoxIterator <Value> externalArg = argValueList.getHead ();
 
 	for (;;)
 	{
@@ -106,7 +106,7 @@ Closure::apply (sl::BoxList <Value>* argValueList)
 	if (m_argValueList.isEmpty ())
 		return true;
 
-	sl::BoxIterator <Value> closureArg = m_argValueList.getHead ();
+	sl::ConstBoxIterator <Value> closureArg = m_argValueList.getHead ();
 	sl::BoxIterator <Value> targetArg = argValueList->getHead ();
 
 	for (size_t i = 0; closureArg; closureArg++, i++)

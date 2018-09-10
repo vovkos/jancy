@@ -78,7 +78,7 @@ LlvmIrBuilder::createSwitch (
 	sl::HashTableIterator <intptr_t, BasicBlock*> caseIt = firstCase;
 	for (; caseIt; caseIt++)
 	{
-		Value constValue (caseIt->m_key, type);
+		Value constValue (caseIt->getKey (), type);
 		BasicBlock* block = caseIt->m_value;
 
 		inst->addCase ((llvm::ConstantInt*) constValue.getLlvmValue (), block->getLlvmBlock ());
@@ -370,7 +370,7 @@ LlvmIrBuilder::createCall (
 	sl::Array <llvm::Value*> llvmArgValueArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	llvmArgValueArray.setCount (argCount);
 
-	sl::BoxIterator <Value> it = argValueList.getHead ();
+	sl::ConstBoxIterator <Value> it = argValueList.getHead ();
 	for (size_t i = 0; i < argCount; i++, it++)
 	{
 		ASSERT (it);

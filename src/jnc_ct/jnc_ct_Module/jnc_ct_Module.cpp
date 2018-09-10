@@ -518,7 +518,7 @@ bool
 Module::parseImports ()
 {
 	sl::ConstList <Import> importList = m_importMgr.getImportList ();
-	sl::Iterator <Import> importIt = importList.getHead ();
+	sl::ConstIterator <Import> importIt = importList.getHead ();
 
 	for (; importIt; importIt++)
 	{
@@ -745,7 +745,7 @@ Module::createConstructorDestructor ()
 
 	m_functionMgr.callStaticConstructors ();
 
-	sl::Iterator <Unit> it = unitList.getHead ();
+	sl::ConstIterator <Unit> it = unitList.getHead ();
 	for (; it; it++)
 	{
 		Function* constructor = it->getConstructor ();

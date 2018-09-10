@@ -1143,7 +1143,7 @@ static
 void
 mapMulticastMethods (
 	Module* module,
-	MulticastClassType* multicastType
+	const MulticastClassType* multicastType
 	)
 {
 	static void* multicastMethodTable [FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1] =
@@ -1190,7 +1190,7 @@ bool
 mapAllMulticastMethods (Module* module)
 {
 	sl::ConstList <ct::MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList ();
-	sl::Iterator <ct::MulticastClassType> mcType = mcTypeList.getHead ();
+	sl::ConstIterator <ct::MulticastClassType> mcType = mcTypeList.getHead ();
 	for (; mcType; mcType++)
 		mapMulticastMethods (module, *mcType);
 

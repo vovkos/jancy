@@ -74,7 +74,7 @@ createNetworkAdapterDesc (
 	if (addressList.isEmpty ())
 		return adapterPtr;
 
-	sl::Iterator <axl::io::NetworkAdapterAddress> it = addressList.getHead ();
+	sl::ConstIterator <axl::io::NetworkAdapterAddress> it = addressList.getHead ();
 
 	DataPtr addressPtr = createNetworkAdapterAddress (runtime, *it, NULL);
 	adapter->m_addressPtr = addressPtr;

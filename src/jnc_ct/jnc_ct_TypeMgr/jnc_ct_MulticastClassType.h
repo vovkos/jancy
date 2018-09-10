@@ -34,33 +34,33 @@ public:
 	MulticastClassType ();
 
 	FunctionPtrType*
-	getTargetType ()
+	getTargetType () const
 	{
 		return m_targetType;
 	}
 
 	FunctionType*
-	getFunctionType ()
+	getFunctionType () const
 	{
 		return m_targetType->getTargetType ();
 	}
 
 	StructField*
-	getField (MulticastFieldKind field)
+	getField (MulticastFieldKind field) const
 	{
 		ASSERT (field < MulticastFieldKind__Count);
 		return m_fieldArray [field];
 	}
 
 	Function*
-	getMethod (MulticastMethodKind method)
+	getMethod (MulticastMethodKind method) const
 	{
 		ASSERT (method < MulticastMethodKind__Count);
 		return m_methodArray [method];
 	}
 
 	McSnapshotClassType*
-	getSnapshotType ()
+	getSnapshotType () const
 	{
 		return m_snapshotType;
 	}

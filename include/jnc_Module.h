@@ -530,19 +530,19 @@ public:
 			jnc_Module_destroy (m_module);
 	}
 
-	operator Module* ()
+	operator Module* () const
 	{
 		return m_module;
 	}
 
 	Module*
-	operator -> ()
+	operator -> () const
 	{
 		return m_module;
 	}
 
 	Module*
-	p ()
+	p () const
 	{
 		return m_module;
 	}

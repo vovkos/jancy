@@ -632,19 +632,19 @@ public:
 			jnc_Runtime_destroy (m_runtime);
 	}
 
-	operator Runtime* ()
+	operator Runtime* () const
 	{
 		return m_runtime;
 	}
 
 	Runtime*
-	operator -> ()
+	operator -> () const
 	{
 		return m_runtime;
 	}
 
 	Runtime*
-	p ()
+	p () const
 	{
 		return m_runtime;
 	}

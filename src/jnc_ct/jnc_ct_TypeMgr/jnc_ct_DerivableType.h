@@ -45,31 +45,31 @@ public:
 	BaseTypeSlot ();
 
 	uint_t
-	getFlags ()
+	getFlags () const
 	{
 		return m_flags;
 	}
 
 	DerivableType*
-	getType ()
+	getType () const
 	{
 		return m_type;
 	}
 
 	size_t
-	getOffset ()
+	getOffset () const
 	{
 		return m_offset;
 	}
 
 	size_t
-	getVTableIndex ()
+	getVTableIndex () const
 	{
 		return m_vtableIndex;
 	}
 
 	uint_t
-	getLlvmIndex ()
+	getLlvmIndex () const
 	{
 		return m_llvmIndex;
 	}

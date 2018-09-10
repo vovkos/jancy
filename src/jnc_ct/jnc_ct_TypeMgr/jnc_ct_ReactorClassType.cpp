@@ -141,7 +141,7 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 	if (!result)
 		return false;
 
-	sl::Iterator <Reaction> reaction = reactionList.getHead ();
+	sl::ConstIterator <Reaction> reaction = reactionList.getHead ();
 	size_t reactionIdx = 0;
 	size_t bindSiteIdx = 0;
 	for (; reaction; reaction++, reactionIdx++)
@@ -149,7 +149,7 @@ ReactorClassType::subscribe (const sl::ConstList <Reaction>& reactionList)
 		Function* function = reaction->m_function;
 		function->m_reactionIndex = reactionIdx;
 
-		sl::BoxIterator <Value> value = reaction->m_bindSiteList.getHead ();
+		sl::ConstBoxIterator <Value> value = reaction->m_bindSiteList.getHead ();
 		for (; value; value++, bindSiteIdx++)
 		{
 			Value eventValue = *value;

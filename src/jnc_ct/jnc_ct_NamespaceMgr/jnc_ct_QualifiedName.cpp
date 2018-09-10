@@ -51,7 +51,7 @@ QualifiedName::getFullName () const
 		return m_first;
 
 	sl::String name = m_first;
-	sl::BoxIterator <sl::String> it = m_list.getHead ();
+	sl::ConstBoxIterator <sl::String> it = m_list.getHead ();
 	for (; it; it++)
 	{
 		name.append ('.');
@@ -87,7 +87,7 @@ QualifiedName::copy (const QualifiedName& name)
 	m_first = name.m_first;
 	m_list.clear ();
 
-	sl::BoxIterator <sl::String> it = name.m_list.getHead ();
+	sl::ConstBoxIterator <sl::String> it = name.m_list.getHead ();
 	for (; it; it++)
 		m_list.insertTail (*it);
 }
