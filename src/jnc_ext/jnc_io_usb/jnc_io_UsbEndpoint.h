@@ -23,6 +23,13 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbEndpoint)
 
 //..............................................................................
 
+enum UsbEndpointEvent
+{
+	UsbEndpointEvent_WriteCompleted = 0x0010,
+};
+
+//..............................................................................
+
 struct UsbEndpointHdr: IfaceHdr
 {
 	UsbInterface* m_parentInterface;

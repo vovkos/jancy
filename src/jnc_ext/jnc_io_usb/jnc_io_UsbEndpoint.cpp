@@ -121,7 +121,20 @@ UsbEndpoint::write (
 		return -1;
 	}
 
-	return bufferedWrite (ptr, size);
+	size_t result = bufferedWrite (ptr, size);
+
+	// clear write-completed event
+
+	AXL_TODO ("combine into a single atomic operation (need to implement AsyncIoDevice::bufferWriteImpl_l)")
+
+	m_lock.lock ();
+
+	if (!m_writeBuffer.isEmpty () || !m_activeTransferList.isEmpty ())
+		m_activeEvents &= ~UsbEndpointEvent_WriteCompleted;
+
+	m_lock.unlock ();
+
+	return result;
 }
 
 void
@@ -326,6 +339,11 @@ UsbEndpoint::writeLoop ()
 		m_activeEvents = 0;
 
 		updateReadWriteBufferEvents ();
+
+		if (m_writeBuffer.isEmpty () && m_activeTransferList.isEmpty ())
+			m_activeEvents |= UsbEndpointEvent_WriteCompleted;
+		else
+			m_activeEvents &= ~UsbEndpointEvent_WriteCompleted;
 
 		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l ();

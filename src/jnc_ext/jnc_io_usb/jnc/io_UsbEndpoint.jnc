@@ -86,18 +86,26 @@ bitflag enum UsbEndpointEvents
 	IncomingData,
 
 	/**
-		IO USB endpoint receive buffer is full; upcoming data may be dropped
+		IN-endpoint receive buffer is full; upcoming data may be dropped
 		(depending on the endpoint transfer type).
 	*/
 
 	ReadBufferFull,
 
 	/**
-		USB endpoint transmit buffer is ready to accept more data; it's OK to
+		OUT-endpoint transmit buffer is ready to accept more data; it's OK to
 		issue more `io.UsbEndpoint.write` requests.
 	*/
 
 	WriteBufferReady,
+
+	/**
+		OUT-endpoint has no active or pending USB transfers. Useful when you
+		need to wait for all outbound transfers to complete before closing an
+		endpoint.
+	*/
+
+	WriteCompleted,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
