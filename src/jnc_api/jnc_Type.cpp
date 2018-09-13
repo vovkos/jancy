@@ -117,7 +117,8 @@ jnc_getTypeKindFlags (jnc_TypeKind typeKind)
 
 		jnc_TypeKindFlag_Named |        // jnc_TypeKind_Enum
 		jnc_TypeKindFlag_Integer |
-		jnc_TypeKindFlag_Numeric,
+		jnc_TypeKindFlag_Numeric |
+		jnc_TypeKindFlag_ErrorCode,
 
 		jnc_TypeKindFlag_Aggregate |    // jnc_TypeKind_Struct
 		jnc_TypeKindFlag_Derivable |
