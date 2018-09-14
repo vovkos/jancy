@@ -49,7 +49,7 @@ public:
 	JNC_CDECL
 	setSize (uint64_t size)
 	{
-		return m_file.m_file.setSize (size);
+		return m_file.setSize (size);
 	}
 
 	bool
