@@ -1157,6 +1157,7 @@ GcHeap::stopTheWorld_l (bool isMutatorThread)
 
 	if (!handshakeCount)
 	{
+		m_state = State_StopTheWorld;
 		m_idleEvent.reset ();
 		m_lock.unlock ();
 	}
@@ -1257,7 +1258,6 @@ GcHeap::collect_l (bool isMutatorThread)
 	// the world is stopped, mark (no lock is needed)
 
 	m_state = State_Mark;
-
 	m_currentMarkRootArrayIdx = 0;
 	m_markRootArray [0].clear ();
 
