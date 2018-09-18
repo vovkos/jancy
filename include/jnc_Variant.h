@@ -98,6 +98,10 @@ jnc_Variant_setElement (
 
 JNC_INLINE
 bool_t
+jnc_Variant_isNull (const jnc_Variant* variant);
+
+JNC_INLINE
+bool_t
 jnc_Variant_isEqual (
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2
@@ -146,6 +150,12 @@ struct jnc_Variant
 	jnc_Type* m_type;
 
 #ifdef __cplusplus
+	bool
+	isNull () const
+	{
+		return jnc_Variant_isNull (this) != 0;
+	}
+
 	bool
 	cast (
 		jnc_Type* type,
@@ -253,6 +263,13 @@ struct jnc_Variant
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_INLINE
+bool_t
+jnc_Variant_isNull (const jnc_Variant* variant)
+{
+	return variant->m_type == NULL;
+}
 
 JNC_SELECT_ANY jnc_Variant jnc_g_nullVariant = { 0 };
 
