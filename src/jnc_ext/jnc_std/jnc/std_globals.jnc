@@ -313,6 +313,17 @@ void memcpy (
 	);
 
 /**
+	Moves memory block ``src:size`` [#f2]_ to the (possibly overlapping) buffer
+	pointed to by ``dst``.
+*/
+
+void memmove (
+	void* dst,
+	void const* src,
+	size_t size
+	);
+
+/**
 	Copies character ``c`` to each of the first ``size`` bytes of memory block
 	pointed to by ``p``.
 */

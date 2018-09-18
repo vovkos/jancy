@@ -220,6 +220,17 @@ memCpy (
 }
 
 void
+memMove (
+	DataPtr dstPtr,
+	DataPtr srcPtr,
+	size_t size
+	)
+{
+	if (dstPtr.m_p && srcPtr.m_p)
+		memmove (dstPtr.m_p, srcPtr.m_p, size);
+}
+
+void
 memSet (
 	DataPtr ptr,
 	int c,
@@ -617,6 +628,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("memchr",   memChr)
 	JNC_MAP_FUNCTION ("memmem",   memMem)
 	JNC_MAP_FUNCTION ("memcpy",   memCpy)
+	JNC_MAP_FUNCTION ("memmove",  memMove)
 	JNC_MAP_FUNCTION ("memset",   memSet)
 	JNC_MAP_FUNCTION ("memcat",   memCat)
 	JNC_MAP_FUNCTION ("memdup",   memDup)

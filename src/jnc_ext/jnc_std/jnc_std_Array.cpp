@@ -41,8 +41,7 @@ void
 JNC_CDECL
 Array::clear ()
 {
-	Variant* p = (Variant*) m_ptr.m_p;
-	memset (p, 0, m_count * sizeof (Variant));
+	memset (m_ptr.m_p, 0, m_count * sizeof (Variant));
 	m_count = 0;
 }
 

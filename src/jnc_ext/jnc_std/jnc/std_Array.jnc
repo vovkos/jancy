@@ -45,10 +45,10 @@ class Array
 
 	detach ()
 	{
-		m_p = null;	
+		m_p = null;
 		m_count = 0;
 		m_maxCount = 0;
-	}	
+	}
 
 	bool errorcode setCount (size_t count);
 	bool errorcode reserve (size_t count);
