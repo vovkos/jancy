@@ -229,9 +229,14 @@ UsbEndpoint::readLoop ()
 		size_t activeReadCount = m_activeTransferList.getCount ();
 		if (!m_readBuffer.isFull () && activeReadCount < m_readParallelism)
 		{
-			uint_t timeout = m_transferTimeout;
-			size_t readBlockSize = m_readBlockSize;
+			// it seems like libusb might have troubles if transfer size is not
+			// a multiple of the endpoint max packet size
+
+			UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
+			size_t readBlockSize = sl::align (endpointDesc->m_maxPacketSize, endpointDesc->m_maxPacketSize);
 			size_t newReadCount = m_readParallelism - activeReadCount;
+			uint_t timeout = m_transferTimeout;
+
 			for (size_t i = 0; i < newReadCount; i++)
 			{
 				Transfer* transfer = m_transferPool.get ();
