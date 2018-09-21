@@ -76,7 +76,7 @@ Array::reserve (size_t count)
 		return true;
 
 	Type* type = m_box->m_type->getModule ()->getPrimitiveType (TypeKind_Variant);
-	size_t maxCount = sl::getHiBit (count);
+	size_t maxCount = sl::getAllocSize (count);
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	DataPtr ptr = gcHeap->tryAllocateArray (type, maxCount);

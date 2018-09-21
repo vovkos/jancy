@@ -49,7 +49,7 @@ StringBuilder::reserve (size_t length)
 	if (length <= m_maxLength)
 		return true;
 
-	size_t size = sl::getHiBit (length + 1); // reserve space for null
+	size_t size = sl::getAllocSize (length + 1); // reserve space for null
 	ASSERT (size > length);
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();

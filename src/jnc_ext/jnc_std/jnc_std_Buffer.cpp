@@ -66,7 +66,7 @@ Buffer::reserve (size_t size)
 	if (size <= m_maxSize)
 		return true;
 
-	size_t maxSize = sl::getHiBit (size);
+	size_t maxSize = sl::getAllocSize (size);
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	DataPtr ptr = gcHeap->tryAllocateBuffer (maxSize);
