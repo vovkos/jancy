@@ -160,6 +160,7 @@ getLlvmTypeString (llvm::Type* llvmType);
 
 struct TypeStringTuple
 {
+	sl::String m_typeString;
 	sl::String m_typeStringPrefix;
 	sl::String m_typeStringSuffix;
 	sl::String m_doxyTypeString;
@@ -239,7 +240,7 @@ public:
 		return m_signature;
 	}
 
-	sl::String
+	const sl::String&
 	getTypeString ();
 
 	const sl::String&

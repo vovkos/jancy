@@ -218,24 +218,24 @@ Type::getTypeStringTuple ()
 	return m_typeStringTuple;
 }
 
-sl::String
+const sl::String&
 Type::getTypeString ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
-	if (tuple->m_typeStringPrefix.isEmpty ())
-	{
-		prepareTypeString ();
-		ASSERT (!tuple->m_typeStringPrefix.isEmpty ());
-	}
+	if (!tuple->m_typeString.isEmpty ())
+		return tuple->m_typeString;
 
-	sl::String string = tuple->m_typeStringPrefix;
+	prepareTypeString ();
+	ASSERT (!tuple->m_typeStringPrefix.isEmpty ());
+
+	tuple->m_typeString = tuple->m_typeStringPrefix;
 	if (!tuple->m_typeStringSuffix.isEmpty ())
 	{
-		string += ' ';
-		string += tuple->m_typeStringSuffix;
+		tuple->m_typeString += ' ';
+		tuple->m_typeString += tuple->m_typeStringSuffix;
 	}
 
-	return string;
+	return tuple->m_typeString;
 }
 
 const sl::String&
