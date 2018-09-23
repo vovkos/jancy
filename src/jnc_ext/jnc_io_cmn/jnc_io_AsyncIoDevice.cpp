@@ -79,11 +79,29 @@ AsyncIoDevice::close ()
 
 bool
 AsyncIoDevice::setReadBufferSize (
-	size_t* p,
+	size_t* targetField,
 	size_t size
 	)
 {
 	m_lock.lock ();
+
+	if (m_readBuffer.getBufferSize () == size)
+	{
+		m_lock.unlock ();
+		return true;
+	}
+
+	// the easiest way to ensure buffer consistency on resize is just to drop everything
+
+	m_readMetaList.clear ();
+	m_readBuffer.clear ();
+	m_readOverflowBuffer.clear ();
+
+	if (m_activeEvents & (AsyncIoEvent_ReadBufferFull | AsyncIoEvent_IncomingData))
+	{
+		m_activeEvents &= ~(AsyncIoEvent_ReadBufferFull | AsyncIoEvent_IncomingData);
+		wakeIoThread ();
+	}
 
 	bool result = m_readBuffer.setBufferSize (size);
 	if (!result)
@@ -92,18 +110,32 @@ AsyncIoDevice::setReadBufferSize (
 		return false;
 	}
 
-	*p = size;
+	*targetField = size;
 	m_lock.unlock ();
 	return true;
 }
 
 bool
 AsyncIoDevice::setWriteBufferSize (
-	size_t* p,
+	size_t* targetField,
 	size_t size
 	)
 {
 	m_lock.lock ();
+
+	if (m_writeBuffer.getBufferSize () == size)
+	{
+		m_lock.unlock ();
+		return true;
+	}
+
+	// the easiest way to ensure buffer consistency on resize is just to drop everything
+
+	m_writeMetaList.clear ();
+	m_writeBuffer.clear ();
+
+	if (!(m_activeEvents & AsyncIoEvent_WriteBufferReady)) // set active events in IO thread
+		wakeIoThread ();
 
 	bool result = m_writeBuffer.setBufferSize (size);
 	if (!result)
@@ -112,7 +144,7 @@ AsyncIoDevice::setWriteBufferSize (
 		return false;
 	}
 
-	*p = size;
+	*targetField = size;
 	m_lock.unlock ();
 	return true;
 }
@@ -325,21 +357,37 @@ AsyncIoDevice::setErrorEvent (
 	JNC_END_CALL_SITE ()
 }
 
+size_t
+AsyncIoDevice::getMetaListDataSize (const sl::ConstList <ReadWriteMeta>& metaList)
+{
+	size_t size = 0;
+
+	sl::ConstIterator <ReadWriteMeta> it = metaList.getHead ();
+	for (; it; it++)
+		size += it->m_dataSize;
+
+	return size;
+}
+
 bool
 AsyncIoDevice::isReadBufferValid ()
 {
+	size_t metaListDataSize = getMetaListDataSize (m_readMetaList);
+
 	return
 		m_readBuffer.isValid () &&
-		m_readBuffer.getDataSize () >= m_readMetaList.getCount () &&
-		(m_readOverflowBuffer.isEmpty () || m_readBuffer.isFull ());
+		(m_readBuffer.isFull () || m_readOverflowBuffer.isEmpty ()) &&
+		m_readBuffer.getDataSize () + m_readOverflowBuffer.getCount () == metaListDataSize;
 }
 
 bool
 AsyncIoDevice::isWriteBufferValid ()
 {
+	size_t metaListDataSize = getMetaListDataSize (m_writeMetaList);
+
 	return
 		m_writeBuffer.isValid () &&
-		m_writeBuffer.getDataSize () >= m_writeMetaList.getCount ();
+		m_writeBuffer.getDataSize () == metaListDataSize;
 }
 
 size_t
@@ -355,32 +403,10 @@ AsyncIoDevice::bufferedRead (
 		return -1;
 	}
 
+	size_t result;
+	char* p = (char*) ptr.m_p;
+
 	m_lock.lock ();
-	if (m_readMetaList.isEmpty () ||
-		m_readMetaList.getHead ()->m_dataSize <= size ||
-		!(m_ioThreadFlags & IoThreadFlag_Datagram))
-		return bufferedReadImpl_l (ptr.m_p, size, params);
-
-	// datagrams must be removed as a whole even if user buffer is not big enough
-
-	size_t datagramSize = m_readMetaList.getHead ()->m_dataSize;
-	char datagramBuffer [256];
-	sl::Array <char> datagram (ref::BufKind_Stack, datagramBuffer, sizeof (datagramBuffer));
-	datagram.setCount (datagramSize);
-
-	size_t result = bufferedReadImpl_l (datagram, datagramSize, params);
-	memcpy (ptr.m_p, datagram, size);
-	return result;
-}
-
-size_t
-AsyncIoDevice::bufferedReadImpl_l (
-	void* p0,
-	size_t size,
-	sl::Array <char>* params
-	)
-{
-	char* p = (char*) p0;
 	if (m_readMetaList.isEmpty ())
 	{
 		if (params)
@@ -392,37 +418,53 @@ AsyncIoDevice::bufferedReadImpl_l (
 		if (params)
 			params->copy ((char*) (meta + 1), meta->m_paramSize);
 
-		if (size < meta->m_dataSize)
-		{
-			meta->m_dataSize -= size;
-		}
-		else
+		if (size >= meta->m_dataSize)
 		{
 			size = meta->m_dataSize;
 			m_readMetaList.remove (meta);
 			m_freeReadWriteMetaList.insertHead (meta);
 		}
+		else if (m_ioThreadFlags & IoThreadFlag_Datagram)
+		{
+			m_readMetaList.remove (meta);
+			m_freeReadWriteMetaList.insertHead (meta);
+		}
+		else
+		{
+			meta->m_dataSize -= size;
+		}
 	}
 
-	size_t result = m_readBuffer.read (p, size);
-	if (!m_readOverflowBuffer.isEmpty ())
-	{
-		p += result;
-		size -= result;
-
-		size_t overflowSize = m_readOverflowBuffer.getCount ();
-		size_t extraSize = AXL_MIN (overflowSize, size);
-
-		memcpy (p, m_readOverflowBuffer, extraSize);
-		result += extraSize;
-
-		size_t movedSize = m_readBuffer.write (m_readOverflowBuffer + extraSize, overflowSize - extraSize);
-		m_readOverflowBuffer.remove (0, extraSize + movedSize);
-	}
+	result = m_readBuffer.read (p, size);
 
 	if (result)
 	{
-		if (!m_readBuffer.isFull ()) // may have been refilled from read-overflow-buffer
+		if (!m_readOverflowBuffer.isEmpty ())
+		{
+			size_t overflowSize = m_readOverflowBuffer.getCount ();
+
+			if (!m_readBuffer.isEmpty ()) // refill the main buffer first
+			{
+				size_t movedSize = m_readBuffer.write (m_readOverflowBuffer, overflowSize);
+				m_readOverflowBuffer.remove (0, movedSize);
+			}
+			else // we can read some extra data directly from the overflow buffer
+			{
+				p += result;
+				size -= result;
+
+				size_t extraSize = AXL_MIN (overflowSize, size);
+				memcpy (p, m_readOverflowBuffer, extraSize);
+				result += extraSize;
+
+				// pump the remainder into the main buffer
+
+				size_t movedSize = m_readBuffer.write (m_readOverflowBuffer + extraSize, overflowSize - extraSize);
+				m_readOverflowBuffer.remove (0, extraSize + movedSize);
+			}
+		}
+
+		if (!m_readBuffer.isFull ())
 			m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
 
 		if (m_readBuffer.isEmpty ())

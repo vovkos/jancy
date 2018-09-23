@@ -152,13 +152,13 @@ protected:
 
 	bool
 	setReadBufferSize (
-		size_t* p,
+		size_t* targetField,
 		size_t size
 		);
 
 	bool
 	setWriteBufferSize (
-		size_t* p,
+		size_t* targetField,
 		size_t size
 		);
 
@@ -218,6 +218,10 @@ protected:
 		setErrorEvent (AsyncIoEvent_IoError, err::getLastError ());
 	}
 
+	static
+	size_t
+	getMetaListDataSize (const sl::ConstList <ReadWriteMeta>& metaList);
+
 	bool
 	isReadBufferValid ();
 
@@ -227,13 +231,6 @@ protected:
 	size_t
 	bufferedRead (
 		DataPtr ptr,
-		size_t size,
-		sl::Array <char>* params = NULL
-		);
-
-	size_t
-	bufferedReadImpl_l (
-		void* p,
 		size_t size,
 		sl::Array <char>* params = NULL
 		);
