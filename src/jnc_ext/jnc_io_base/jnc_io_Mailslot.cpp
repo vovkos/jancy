@@ -153,7 +153,7 @@ Mailslot::ioThreadFunc ()
 			result = read->m_overlapped.m_completionEvent.wait (0);
 			if (!result)
 				break;
-			 
+
 			dword_t actualSize;
 			result = m_file.m_file.getOverlappedResult (&read->m_overlapped, &actualSize);
 			if (!result)

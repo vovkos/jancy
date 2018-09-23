@@ -233,7 +233,7 @@ UsbEndpoint::readLoop ()
 			// a multiple of the endpoint max packet size
 
 			UsbEndpointDesc* endpointDesc = (UsbEndpointDesc*) m_endpointDescPtr.m_p;
-			size_t readBlockSize = sl::align (endpointDesc->m_maxPacketSize, endpointDesc->m_maxPacketSize);
+			size_t readBlockSize = sl::align (m_readBlockSize, endpointDesc->m_maxPacketSize);
 			size_t newReadCount = m_readParallelism - activeReadCount;
 			uint_t timeout = m_transferTimeout;
 
