@@ -372,22 +372,20 @@ AsyncIoDevice::getMetaListDataSize (const sl::ConstList <ReadWriteMeta>& metaLis
 bool
 AsyncIoDevice::isReadBufferValid ()
 {
-	size_t metaListDataSize = getMetaListDataSize (m_readMetaList);
-
 	return
 		m_readBuffer.isValid () &&
 		(m_readBuffer.isFull () || m_readOverflowBuffer.isEmpty ()) &&
-		m_readBuffer.getDataSize () + m_readOverflowBuffer.getCount () == metaListDataSize;
+		(m_readMetaList.isEmpty () ||
+		m_readBuffer.getDataSize () + m_readOverflowBuffer.getCount () == getMetaListDataSize (m_readMetaList));
 }
 
 bool
 AsyncIoDevice::isWriteBufferValid ()
 {
-	size_t metaListDataSize = getMetaListDataSize (m_writeMetaList);
-
 	return
 		m_writeBuffer.isValid () &&
-		m_writeBuffer.getDataSize () == metaListDataSize;
+		(m_writeMetaList.isEmpty () ||
+		m_writeBuffer.getDataSize () == getMetaListDataSize (m_writeMetaList));
 }
 
 size_t
@@ -513,6 +511,7 @@ AsyncIoDevice::bufferedWrite (
 	}
 
 	ASSERT (isWriteBufferValid ());
+	isWriteBufferValid ();
 	m_lock.unlock ();
 
 	return result;
