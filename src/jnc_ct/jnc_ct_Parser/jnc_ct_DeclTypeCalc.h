@@ -113,9 +113,6 @@ protected:
 	getBindableDataType (Type* dataType);
 
 	ClassType*
-	getReactorType (Type* returnType);
-
-	ClassType*
 	getMulticastType (Type* leftType);
 
 	DataPtrType*

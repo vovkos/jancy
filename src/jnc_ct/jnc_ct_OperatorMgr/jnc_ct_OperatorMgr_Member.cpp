@@ -56,15 +56,16 @@ OperatorMgr::getThisValue (
 	{
 		ClassType* classType = ((ClassPtrType*) thisValue.getType ())->getTargetType ();
 		ReactorClassType* reactorType = (ReactorClassType*) classType;
-		if (reactorType->getField (ReactorFieldKind_Parent))
-		{
-			StructField* parentField = reactorType->getField (ReactorFieldKind_Parent);
-			bool result =
-				m_module->m_operatorMgr.getField (&thisValue, parentField) &&
-				m_module->m_operatorMgr.prepareOperand (&thisValue);
+		ClassType* parentType = reactorType->getParentType ();
 
-			if (!result)
-				return false;
+		if (parentType)
+		{
+			size_t parentOffset = reactorType->getParentOffset ();
+			ASSERT (parentOffset);
+
+			m_module->m_llvmIrBuilder.createBitCast (thisValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &thisValue);
+			m_module->m_llvmIrBuilder.createGep2 (thisValue, -parentOffset, NULL, &thisValue);
+			m_module->m_llvmIrBuilder.createBitCast (thisValue, parentType->getClassPtrType (), &thisValue);
 		}
 	}
 
@@ -91,11 +92,10 @@ OperatorMgr::getThisValueType (
 	{
 		ClassType* classType = ((ClassPtrType*) thisType)->getTargetType ();
 		ReactorClassType* reactorType = (ReactorClassType*) classType;
-		if (reactorType->getField (ReactorFieldKind_Parent))
-		{
-			StructField* parentField = reactorType->getField (ReactorFieldKind_Parent);
-			thisType = parentField->getType ();
-		}
+		ClassType* parentType = reactorType->getParentType ();
+
+		if (parentType)
+			thisType = parentType->getClassPtrType ();
 	}
 
 	value->setType (thisType);

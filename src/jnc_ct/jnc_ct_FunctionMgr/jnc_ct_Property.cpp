@@ -597,7 +597,7 @@ Property::calcLayout ()
 		err::setFormatStringError ("incomplete property: no 'get' method or 'autoget' field");
 		return false;
 	}
-	
+
 	if (!m_type)
 		createType ();
 

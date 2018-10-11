@@ -28,16 +28,6 @@ struct FmtLiteral
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char reactorBindSiteTypeSrc [] =
-
-struct ReactorBindSite
-{
-	event* m_event ();
-	intptr m_cookie;
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 ///; static char int64Int64TypeSrc [] =
 
 struct Int64Int64

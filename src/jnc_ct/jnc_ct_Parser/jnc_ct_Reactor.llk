@@ -11,30 +11,31 @@
 
 start
 reactor_body
-	: '{' reactor_stmt+ '}'
-		{
-			return finalizeReactor ();
-		}
-	;
-
-reactor_stmt
-	:	reactor_declaration_or_expression_stmt_pass1
-	|	reactor_onevent_stmt
-	|	';'
-	;
-
-reactor_declaration_or_expression_stmt_pass1
-	:	expression_pass1 ';'
+	local
+	{
+		SwitchStmt $stmt;
+	}
+	:	'{'
 			{
-				$1.m_tokenList.insertTail ($2);
-				return reactorDeclarationOrExpressionStmt (&$1.m_tokenList);
+				m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
+				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, m_reactionIdxArgValue, $1.m_pos);
+			}
+		(reactor_stmt <&$stmt> | ';')+
+		'}'
+			{
+				m_module->m_controlFlowMgr.switchStmt_Follow (&$stmt);
 			}
 	;
 
-start
-reactor_declaration_or_expression_stmt
+reactor_stmt <SwitchStmt* $stmt>
+	enter
+	{
+		Value value (m_reactionIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+		return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, value, m_currentToken.m_pos, 0);
+	}
 	:	local_item_declaration
 	|	expression_stmt
+	|	reactor_onevent_stmt
 	;
 
 reactor_onevent_stmt
@@ -44,7 +45,7 @@ reactor_onevent_stmt
 	}
 	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator> declaration_body_pass1
 			{
-				reactorOnEventStmt (&$2.m_valueList, &$declarator, &$4.m_tokenList);
+				reactorOnEventStmt ($2.m_valueList, &$declarator, &$4.m_tokenList);
 			}
 	;
 
@@ -56,6 +57,16 @@ reactor_event_name
 	local
 	{
 		sl::BoxList <Token> $tokenList;
+	}
+	enter
+	{
+		ASSERT (m_stage == Stage_Reaction);
+		m_stage = Stage_Pass2; // don't add implicit bindings to bindable properties inside 'onevent'
+ 	}
+	leave
+	{
+		ASSERT (m_stage == Stage_Pass2);
+		m_stage = Stage_Reaction; // restore
 	}
 	:	'(' expression_list ')'
 			{
@@ -85,21 +96,17 @@ reactor_event_name
 
 start
 reactor_body_0
-	:	'{' reactor_stmt_0+ '}'
+	:	'{' (reactor_stmt_0 | ';')+ '}'
 	;
 
 reactor_stmt_0
+	leave
+	{
+		m_reactionIdx++;
+	}
 	:	local_item_declaration
-	|	reactor_expression_stmt_0
+	|	expression_0 ';'
 	|	reactor_onevent_stmt_0
-	|	';'
-	;
-
-reactor_expression_stmt_0
-	:	expression_0 ';'
-			{
-				return countReactionBindSites ();
-			}
 	;
 
 reactor_onevent_stmt_0
@@ -107,15 +114,8 @@ reactor_onevent_stmt_0
 	{
 		Declarator $declarator;
 	}
-	enter
-	{
-		resetReactorBindSites (); // clear bindsite list before processing expression list
-	}
 	:	TokenKind_OnEvent reactor_event_name_0 function_suffix <&$declarator>
 		reactor_compound_stmt_0
-			{
-				m_reactionCount++;
-			}
 	;
 
 reactor_compound_stmt_0
@@ -124,17 +124,8 @@ reactor_compound_stmt_0
 
 reactor_event_name_0
 	:	'(' expression_list_0 ')'
-			{
-				m_reactorTotalBindSiteCount += $2.m_valueList.getCount ();
-			}
 	|	TokenKind_BindingOf '(' expression_0 ')'
-			{
-				m_reactorTotalBindSiteCount++;
-			}
 	|	any+ // anything until '('
-			{
-				m_reactorTotalBindSiteCount++;
-			}
 	;
 
 //..............................................................................

@@ -212,16 +212,15 @@ Orphan::adoptOrphanReactor (ModuleItem* item)
 	}
 
 	ReactorClassType* originType = (ReactorClassType*) itemType ;
-	Function* originStart = originType->getMethod (ReactorMethodKind_Start);
+	Function* originReaction = originType->getReaction ();
 
 	copySrcPos (originType);
-	copySrcPos (originStart);
-	originStart->addUsingSet (&m_usingSet);
+	copySrcPos (originReaction);
+	originReaction->addUsingSet (&m_usingSet);
 
 	return
-		copyArgNames (originStart->getType ()) &&
 		originType->setBody (&m_body) &&
-		verifyStorageKind (originStart);
+		verifyStorageKind (originReaction);
 }
 
 bool

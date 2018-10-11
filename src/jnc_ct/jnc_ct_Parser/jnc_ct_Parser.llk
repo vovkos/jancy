@@ -50,10 +50,9 @@ Members
 {
 	enum Stage
 	{
-		Stage_Pass1,          // global declarations (before linkage)
-		Stage_Pass2,          // statements and expressions (after linkage & calclayout)
-		Stage_ReactorScan,    // scan reactor body to build bind site map (after linkage but before calclayout)
-		Stage_ReactorStarter, // evaluate expression and save bindable event pointers
+		Stage_Pass1,    // global declarations (before linkage)
+		Stage_Pass2,    // statements and expressions (after linkage & calclayout)
+		Stage_Reaction, // compiling the 'reaction' method of a reactor (like Pass2, but with implicit bindings)
 	};
 
 	enum Flag
@@ -123,12 +122,9 @@ Members
 	DoxyParser m_doxyParser;
 
 	ReactorClassType* m_reactorType;
-	sl::List <Reaction> m_reactionList;
-	sl::BoxList <Value> m_reactionBindSiteList;
-	sl::SimpleHashTable <llvm::Value*, bool> m_reactionBindSiteMap;
-	size_t m_reactionBindSiteCount;
-	size_t m_reactorTotalBindSiteCount;
-	size_t m_reactionCount;
+	Value m_reactionIdxArgValue;
+	size_t m_reactionIdx;
+	bool m_isOnEvent;
 
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
@@ -292,10 +288,7 @@ Members2
 	declare (Declarator* declarator);
 
 	bool
-	declareInReactorScan (Declarator* declarator);
-
-	bool
-	declareInReactorStarter (Declarator* declarator);
+	declareInReaction (Declarator* declarator);
 
 	bool
 	declareTypedef (
@@ -336,7 +329,6 @@ Members2
 	bool
 	declareReactor (
 		Declarator* declarator,
-		ClassType* type,
 		uint_t ptrTypeFlags
 		);
 
@@ -415,30 +407,23 @@ Members2
 		);
 
 	bool
-	addReactorBindSite (const Value& value);
-
-	void
-	resetReactorBindSites ()
-	{
-		m_reactionBindSiteList.clear ();
-		m_reactionBindSiteMap.clear ();
-	}
+	addReactionBinding (const Value& value);
 
 	bool
-	finalizeReactor ();
+	resetReactionBindings ();
 
-	void
+	bool
 	reactorOnEventStmt (
-		sl::BoxList <Value>* valueList,
+		const sl::ConstBoxList <Value>& valueList,
 		Declarator* declarator,
 		sl::BoxList <Token>* tokenList
 		);
 
 	bool
-	reactorDeclarationOrExpressionStmt (sl::BoxList <Token>* tokenList);
+	initializeReaction ();
 
 	bool
-	countReactionBindSites ();
+	finalizeReaction ();
 
 	bool
 	callBaseTypeMemberConstructor (

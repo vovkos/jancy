@@ -13,6 +13,7 @@
 #include "jnc_rtl_DynamicLib.h"
 #include "jnc_rtl_DynamicLayout.h"
 #include "jnc_rtl_Multicast.h"
+#include "jnc_rtl_Reactor.h"
 #include "jnc_rtl_Regex.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
@@ -1219,6 +1220,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexState)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexDfa)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (DynamicLayout)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (ReactorImpl)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
@@ -1312,6 +1314,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_TYPE (StdType_RegexDfa,      RegexDfa)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
+	JNC_MAP_STD_TYPE (StdType_ReactorBase,   ReactorImpl)
 
 JNC_END_LIB_FUNCTION_MAP ()
 

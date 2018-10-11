@@ -46,7 +46,6 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 		"operator_cdecl_vararg",    // jnc_FunctionKind_OperatorCdeclVararg,
 		"internal",                 // jnc_FunctionKind_Internal,
 		"thunk",                    // jnc_FunctionKind_Thunk,
-		"reaction",                 // jnc_FunctionKind_Reaction,
 		"schedule-launcher",        // jnc_FunctionKind_ScheduleLauncher,
 	};
 
@@ -95,7 +94,6 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 		jnc_FunctionKindFlag_NoArgs,
 		0,                                  // jnc_FunctionKind_Internal,
 		0,                                  // jnc_FunctionKind_Thunk,
-		0,                                  // jnc_FunctionKind_Reaction,
 		0,                                  // jnc_FunctionKind_ScheduleLauncher,
 	};
 

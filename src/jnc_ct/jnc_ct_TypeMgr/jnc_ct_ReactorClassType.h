@@ -18,76 +18,57 @@ namespace ct {
 
 //..............................................................................
 
-enum ReactorFieldKind
-{
-	ReactorFieldKind_Parent,
-	ReactorFieldKind_Lock,
-	ReactorFieldKind_State,
-	ReactorFieldKind_BindSiteArray,
-	ReactorFieldKind_ReactionStateArray,
-
-	ReactorFieldKind__Count,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum ReactorMethodKind
-{
-	ReactorMethodKind_Start,
-	ReactorMethodKind_Stop,
-	ReactorMethodKind__Count,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct Reaction: sl::ListLink
-{
-	sl::BoxList <Value> m_bindSiteList;
-	Function* m_function;
-};
-
-//..............................................................................
-
 class ReactorClassType: public ClassType
 {
 	friend class TypeMgr;
+	friend class ClassType;
 	friend class Parser;
 
 protected:
-	StructField* m_fieldArray [ReactorFieldKind__Count];
-	Function* m_methodArray [ReactorMethodKind__Count];
-	sl::Iterator <StructField> m_firstArgField;
-	size_t m_bindSiteCount;
+	ClassType* m_parentType;
+	size_t m_parentOffset;
 	size_t m_reactionCount;
+	Function* m_reaction;
+	sl::HashTable <size_t, Function*, sl::HashId <size_t> > m_onEventMap;
 	sl::BoxList <Token> m_body;
 
 public:
 	ReactorClassType ();
 
-	StructField*
-	getField (ReactorFieldKind field)
+	ClassType*
+	getParentType ()
 	{
-		ASSERT (field < ReactorFieldKind__Count);
-		return m_fieldArray [field];
-	}
-
-	Function*
-	getMethod (ReactorMethodKind method)
-	{
-		ASSERT (method < ReactorMethodKind__Count);
-		return m_methodArray [method];
+		return m_parentType;
 	}
 
 	size_t
-	getBindSiteCount ()
+	getParentOffset ()
 	{
-		return m_bindSiteCount;
+		return m_parentOffset;
 	}
 
 	size_t
 	getReactionCount ()
 	{
 		return m_reactionCount;
+	}
+
+	Function*
+	getReaction ()
+	{
+		return m_reaction;
+	}
+
+	Function*
+	createOnEventHandler (
+		size_t reactionIdx,
+		FunctionType* type
+		);
+
+	Function*
+	findOnEventHandler (size_t reactionIdx)
+	{
+		return m_onEventMap.findValue (reactionIdx, NULL);
 	}
 
 	bool
@@ -105,59 +86,24 @@ public:
 	bool
 	setBody (sl::BoxList <Token>* tokenList);
 
-	bool
-	subscribe (const sl::ConstList <Reaction>& reactionList);
-
-	virtual
-	bool
-	compile ()
-	{
-		// do not call CClass::Compile (it compiles default-constructor and default-destructor)
-
-		return
-			compileStartMethod () &&
-			compileStopMethod () &&
-			compileConstructor () &&
-			compileDestructor ();
-	}
-
 protected:
-	virtual
-	void
-	prepareTypeString ();
-
-	virtual
-	void
-	prepareDoxyLinkedText ();
-
 	virtual
 	bool
 	calcLayout ();
 
+	virtual
 	bool
-	callStopMethod ();
-
-	bool
-	compileConstructor ();
-
-	bool
-	compileDestructor ();
-
-	bool
-	compileStartMethod ();
-
-	bool
-	compileStopMethod ();
+	compile ();
 };
 
 //..............................................................................
 
-inline 
-bool 
+inline
+bool
 isReactorClassTypeMember (ModuleItemDecl* itemDecl)
 {
 	Namespace* nspace = itemDecl->getParentNamespace ();
-	return 
+	return
 		nspace->getNamespaceKind () == NamespaceKind_Type &&
 		isClassType ((ClassType*) nspace, ClassTypeKind_Reactor);
 }

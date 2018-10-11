@@ -27,7 +27,6 @@ namespace ct {
 class DerivableType;
 class ClassType;
 class PropertyType;
-class ReactorClassType;
 class Property;
 class Scope;
 
@@ -116,7 +115,6 @@ class Function:
 	friend class StructType;
 	friend class ClassType;
 	friend class ArrayType;
-	friend class ReactorClassType;
 	friend class Property;
 	friend class ExtensionNamespace;
 	friend class Orphan;
@@ -146,12 +144,6 @@ protected:
 	// for property gettes/setters
 
 	Property* m_property;
-
-	union
-	{
-		size_t m_propertyVTableIndex;
-		size_t m_reactionIndex;
-	};
 
 	ExtensionNamespace* m_extensionNamespace;
 
@@ -261,12 +253,6 @@ public:
 	getProperty ()
 	{
 		return m_property;
-	}
-
-	size_t
-	getPropertyVTableIndex ()
-	{
-		return m_propertyVTableIndex;
 	}
 
 	void
@@ -446,9 +432,6 @@ public:
 protected:
 	bool
 	compileConstructorBody ();
-
-	bool
-	compileReactionBody ();
 
 	bool
 	compileNormalBody ();

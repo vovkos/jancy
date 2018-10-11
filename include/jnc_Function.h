@@ -57,7 +57,6 @@ enum jnc_FunctionKind
 	jnc_FunctionKind_OperatorCdeclVararg,
 	jnc_FunctionKind_Internal,
 	jnc_FunctionKind_Thunk,
-	jnc_FunctionKind_Reaction,
 	jnc_FunctionKind_ScheduleLauncher,
 	jnc_FunctionKind__Count
 };
@@ -204,7 +203,6 @@ const FunctionKind
 	FunctionKind_OperatorCdeclVararg = jnc_FunctionKind_OperatorCdeclVararg,
 	FunctionKind_Internal            = jnc_FunctionKind_Internal,
 	FunctionKind_Thunk               = jnc_FunctionKind_Thunk,
-	FunctionKind_Reaction            = jnc_FunctionKind_Reaction,
 	FunctionKind_ScheduleLauncher    = jnc_FunctionKind_ScheduleLauncher,
 	FunctionKind__Count              = jnc_FunctionKind__Count;
 

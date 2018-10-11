@@ -16,8 +16,6 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_rtl_Regex.h"
 
-// #define _NO_BINDLESS_REACTIONS 1
-
 namespace jnc {
 namespace ct {
 
@@ -38,9 +36,7 @@ Parser::Parser (Module* module):
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
 	m_reactorType = NULL;
-	m_reactionBindSiteCount = 0;
-	m_reactorTotalBindSiteCount = 0;
-	m_reactionCount = 0;
+	m_reactionIdx = 0;
 	m_dynamicLibFunctionCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
@@ -250,8 +246,8 @@ Parser::preDeclaration ()
 bool
 Parser::bodylessDeclaration ()
 {
-	if (m_stage == Stage_ReactorStarter)
-		return true; // declarations are processed at Stage_ReactorScan
+	if (m_stage == Stage_Reaction)
+		return true; // reactor declarations are already processed at this stage
 
 	ASSERT (m_lastDeclaredItem);
 
@@ -525,30 +521,9 @@ Parser::popAttributeBlock ()
 }
 
 bool
-Parser::declareInReactorScan (Declarator* declarator)
+Parser::declareInReaction (Declarator* declarator)
 {
-	ASSERT (m_reactorType);
-
-	if (declarator->m_initializer.isEmpty ())
-		return true;
-
-	Parser parser (m_module);
-	parser.m_stage = Stage_ReactorScan;
-	parser.m_reactorType = m_reactorType;
-
-	bool result = parser.parseTokenList (SymbolKind_expression_0, declarator->m_initializer);
-	if (!result)
-		return false;
-
-	m_reactorTotalBindSiteCount += parser.m_reactionBindSiteCount;
-	m_reactionCount++;
-	return true;
-}
-
-bool
-Parser::declareInReactorStarter (Declarator* declarator)
-{
-	ASSERT (m_reactorType);
+	ASSERT (m_stage == Stage_Reaction && m_reactorType);
 
 	if (!declarator->isSimple ())
 	{
@@ -567,6 +542,8 @@ Parser::declareInReactorStarter (Declarator* declarator)
 	if (declarator->m_initializer.isEmpty ())
 		return true;
 
+	// modify initializer so it looks like an assignment expression: name = <initializer>;
+
 	Token token;
 	token.m_pos = declarator->m_initializer.getTail ()->m_pos;
 	token.m_tokenKind = (TokenKind) ';';
@@ -580,23 +557,19 @@ Parser::declareInReactorStarter (Declarator* declarator)
 	token.m_data.m_string = name;
 	declarator->m_initializer.insertHead (token);
 
-	return reactorDeclarationOrExpressionStmt (&declarator->m_initializer);
+	Parser parser (m_module);
+	parser.m_stage = Stage_Reaction;
+	parser.m_reactorType = m_reactorType;
+	parser.m_reactionIdx = m_reactionIdx;
+
+	return parser.parseTokenList (SymbolKind_expression, declarator->m_initializer);
 }
 
 bool
 Parser::declare (Declarator* declarator)
 {
-	bool result;
-
-	if (m_stage == Stage_ReactorStarter)
-		return declareInReactorStarter (declarator);
-
-	if (m_stage == Stage_ReactorScan)
-	{
-		result = declareInReactorScan (declarator);
-		if (!result)
-			return false;
-	}
+	if (m_stage == Stage_Reaction)
+		return declareInReaction (declarator);
 
 	m_lastDeclaredItem = NULL;
 
@@ -659,8 +632,8 @@ Parser::declare (Declarator* declarator)
 			return declareProperty (declarator, (PropertyType*) type, declFlags);
 
 		default:
-			return isClassType (type, ClassTypeKind_ReactorIface) ?
-				declareReactor (declarator, (ClassType*) type, declFlags) :
+			return type->getStdType () == StdType_ReactorBase ?
+				declareReactor (declarator, declFlags) :
 				declareData (declarator, type, declFlags);
 		}
 	}
@@ -737,21 +710,9 @@ Parser::declareTypedef (
 	ModuleItem* item;
 	ModuleItemDecl* decl;
 
-	if (isClassType (type, ClassTypeKind_ReactorIface))
-	{
-		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ClassType*) type, NULL);
-		item = type;
-		decl = (ClassType*) type;
-	}
-	else
-	{
-		Typedef* tdef = m_module->m_typeMgr.createTypedef (name, qualifiedName, type);
-		item = tdef;
-		decl = tdef;
-	}
-
-	if (!item)
-		return false;
+	Typedef* tdef = m_module->m_typeMgr.createTypedef (name, qualifiedName, type);
+	item = tdef;
+	decl = tdef;
 
 	assignDeclarationAttributes (item, decl, declarator);
 
@@ -1299,7 +1260,6 @@ Parser::finalizeLastProperty (bool hasBody)
 bool
 Parser::declareReactor (
 	Declarator* declarator,
-	ClassType* type,
 	uint_t ptrTypeFlags
 	)
 {
@@ -1338,16 +1298,13 @@ Parser::declareReactor (
 
 	if (declarator->isQualified ())
 	{
-		Function* start = type->getVirtualMethodArray () [0];
-		ASSERT (start->getName () == "start");
-
-		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Reactor, start->getType ());
+		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan (OrphanKind_Reactor, NULL);
 		oprhan->m_declaratorName = *declarator->getName ();
 		assignDeclarationAttributes (oprhan, oprhan, declarator);
 	}
 	else
 	{
-		type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ReactorClassType*) type, (ClassType*) parentType);
+		ReactorClassType* type = m_module->m_typeMgr.createReactorType (name, qualifiedName, (ClassType*) parentType);
 		assignDeclarationAttributes (type, type, declarator);
 		result = declareData (declarator, type, ptrTypeFlags);
 		if (!result)
@@ -1994,135 +1951,67 @@ Parser::finalizeDynamicLibType ()
 }
 
 bool
-Parser::countReactionBindSites ()
+Parser::addReactionBinding (const Value& value)
 {
-	ASSERT (m_stage == Stage_ReactorScan && m_reactorType);
+	ASSERT (m_stage == Stage_Reaction && m_reactorType);
 
-#if (_NO_BINDLESS_REACTIONS)
-	if (!m_reactionBindSiteCount)
-	{
-		err::setFormatStringError ("no bindable properties found");
-		return false;
-	}
-#endif
+	ClassType* reactorType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_ReactorBase);
+	Function* addBindingFunc = reactorType->getMemberMethodArray () [2];
+	ASSERT (addBindingFunc->getName () == "!addOnChangedBinding");
 
-	m_reactorTotalBindSiteCount += m_reactionBindSiteCount;
-	m_reactionBindSiteCount = 0;
-	m_reactionCount++;
-	return true;
-}
-
-bool
-Parser::addReactorBindSite (const Value& value)
-{
-	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
-
-	bool result;
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
 	Value onChangedValue;
-	result = m_module->m_operatorMgr.getPropertyOnChanged (value, &onChangedValue);
-	if (!result)
-		return false;
 
-	// prevent redundant subscriptions
-
-	llvm::Value* llvmValue = onChangedValue.getLlvmValue ();
-	ASSERT (llvmValue);
-
-	sl::HashTableIterator <llvm::Value*, bool> it = m_reactionBindSiteMap.visit (llvmValue);
-	if (it->m_value)
-		return true;
-
-	it->m_value = true;
-
-	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleEventPtr);
-	Variable* variable = m_module->m_variableMgr.createSimpleStackVariable ("onChanged", type);
-	result = m_module->m_operatorMgr.storeDataRef (variable, onChangedValue);
-	if (!result)
-		return false;
-
-	m_reactionBindSiteList.insertTail (variable);
-	return true;
+	return
+		m_module->m_operatorMgr.getPropertyOnChanged (value, &onChangedValue) &&
+		m_module->m_operatorMgr.callOperator (addBindingFunc, thisValue, onChangedValue);
 }
 
 bool
-Parser::finalizeReactor ()
+Parser::resetReactionBindings ()
 {
-	ASSERT (m_reactorType);
-	ASSERT (!m_reactionList.isEmpty ());
+	ClassType* reactorType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_ReactorBase);
+	Function* resetBindingsFunc = reactorType->getMemberMethodArray () [4];
+	ASSERT (resetBindingsFunc->getName () == "!resetOnChangedBindings");
 
-	bool result = m_reactorType->subscribe (m_reactionList);
-	if (!result)
-		return false;
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	m_reactionList.clear ();
-	return true;
+	return m_module->m_operatorMgr.callOperator (resetBindingsFunc, thisValue);
 }
 
-void
+bool
 Parser::reactorOnEventStmt (
-	sl::BoxList <Value>* valueList,
+	const sl::ConstBoxList <Value>& valueList,
 	Declarator* declarator,
 	sl::BoxList <Token>* tokenList
 	)
 {
-	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
+	ASSERT (m_stage == Stage_Reaction && m_reactorType);
 
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix ();
 	ASSERT (suffix);
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (suffix->getArgArray ());
-	Reaction* reaction = AXL_MEM_NEW (Reaction);
-	reaction->m_function = m_reactorType->createUnnamedMethod (
-		StorageKind_Member,
-		FunctionKind_Internal,
-		functionType
-		);
+	Function* handler = m_reactorType->createOnEventHandler (m_reactionIdx, functionType);
+	handler->setBody (tokenList);
 
-	reaction->m_function->setBody (tokenList);
-	sl::takeOver (&reaction->m_bindSiteList, valueList);
-	m_reactionList.insertTail (reaction);
-}
+	Function* addBindingFunc = m_reactorType->getMemberMethodArray () [3];
+	ASSERT (addBindingFunc->getName () == "!addOnEventBinding");
 
-bool
-Parser::reactorDeclarationOrExpressionStmt (sl::BoxList <Token>* tokenList)
-{
-	ASSERT (m_stage == Stage_ReactorStarter && m_reactorType);
-	ASSERT (!tokenList->isEmpty ());
+	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	ASSERT (thisValue);
 
-	bool result;
-
-	ASSERT (m_reactorType);
-
-	Parser parser (m_module);
-	parser.m_stage = Stage_ReactorStarter;
-	parser.m_reactorType = m_reactorType;
-
-	result = parser.parseTokenList (SymbolKind_reactor_declaration_or_expression_stmt, *tokenList);
-	if (!result)
-		return false;
-
-	if (parser.m_lastDeclaredItem)
+	sl::ConstBoxIterator <Value> it = valueList.getHead ();
+	for (; it; it++)
 	{
-		m_reactionList.insertListTail (&parser.m_reactionList);
-		return true;
+		bool result = m_module->m_operatorMgr.callOperator (addBindingFunc, thisValue, *it);
+		if (!result)
+			return false;
 	}
 
-#if (_NO_BINDLESS_REACTIONS)
-	if (parser.m_reactionBindSiteList.isEmpty ())
-	{
-		err::setFormatStringError ("no bindable properties found");
-		return false;
-	}
-#endif
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType ();
-
-	Reaction* reaction = AXL_MEM_NEW (Reaction);
-	reaction->m_function = m_reactorType->createUnnamedMethod (StorageKind_Member, FunctionKind_Reaction, functionType);
-	reaction->m_function->setBody (tokenList);
-	sl::takeOver (&reaction->m_bindSiteList, &parser.m_reactionBindSiteList);
-	m_reactionList.insertTail (reaction);
 	return true;
 }
 

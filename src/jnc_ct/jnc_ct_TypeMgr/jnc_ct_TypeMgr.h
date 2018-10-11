@@ -721,15 +721,17 @@ public:
 	getMulticastType (FunctionPtrType* functionPtrType);
 
 	ClassType*
-	getReactorIfaceType (FunctionType* startMethodType);
+	createReactorBaseType ();
 
 	ReactorClassType*
 	createReactorType (
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		ClassType* ifaceType,
 		ClassType* parentType
 		);
+
+	FunctionClosureClassType*
+	createReactorClosureType ();
 
 	FunctionClosureClassType*
 	getFunctionClosureClassType (

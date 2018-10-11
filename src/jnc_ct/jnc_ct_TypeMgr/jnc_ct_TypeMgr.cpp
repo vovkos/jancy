@@ -253,8 +253,15 @@ TypeMgr::getStdType (StdType stdType)
 			type = parseStdType (stdType);
 		break;
 
+	case StdType_ReactorBase:
+		type = createReactorBaseType ();
+		break;
+
+	case StdType_ReactorClosure:
+		type = createReactorClosureType ();
+		break;
+
 	case StdType_FmtLiteral:
-	case StdType_ReactorBindSite:
 	case StdType_Int64Int64:
 	case StdType_Fp64Fp64:
 	case StdType_Int64Fp64:
@@ -1533,33 +1540,23 @@ TypeMgr::getMulticastType (FunctionPtrType* functionPtrType)
 }
 
 ClassType*
-TypeMgr::getReactorIfaceType (FunctionType* startMethodType)
+TypeMgr::createReactorBaseType ()
 {
-	Type* returnType = startMethodType->getReturnType ();
-	if (returnType->getTypeKind () != TypeKind_Void)
-	{
-		err::setFormatStringError ("reactor must return 'void', not '%s'", returnType->getTypeString ().sz ());
-		return NULL;
-	}
+	Type* voidType = getPrimitiveType (TypeKind_Void);
+	Type* eventPtrType = getStdType (StdType_SimpleEventPtr);
+	FunctionType* simpleFunctionType = (FunctionType*) getStdType (StdType_SimpleFunction);
+	FunctionType* addBindingType = getFunctionType (voidType, &eventPtrType, 1);
 
-	sl::String signature;
-	signature.format ("CA%s", startMethodType->getSignature ().sz ());
+	ClassType* type = createClassType ("ReactorBase", "jnc.ReactorBase");
+	type->createField ("m_activationCountLimit", getPrimitiveType (TypeKind_SizeT));
 
-	sl::StringHashTableIterator <Type*> it = m_typeMap.visit (signature);
-	if (it->m_value)
-	{
-		ClassType* type = (ClassType*) it->m_value;
-		ASSERT (type->m_signature == signature && type->getClassTypeKind () == ClassTypeKind_ReactorIface);
-		return type;
-	}
-
-	ClassType* type = createUnnamedClassType (ClassTypeKind_ReactorIface);
-	type->m_signature = signature;
-	Function* starter = type->createMethod (StorageKind_Abstract, "start", startMethodType);
-	Function* stopper = type->createMethod (StorageKind_Abstract, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
-	type->m_callOperator = starter;
-
-	it->m_value = type;
+	type->createDefaultMethod (FunctionKind_Constructor);
+	type->createDefaultMethod (FunctionKind_Destructor);
+	type->createMethod (StorageKind_Member, "start", simpleFunctionType);
+	type->createMethod (StorageKind_Member, "stop", simpleFunctionType);
+	type->createMethod (StorageKind_Member, "!addOnChangedBinding", addBindingType);
+	type->createMethod (StorageKind_Member, "!addOnEventBinding", addBindingType);
+	type->createMethod (StorageKind_Member, "!resetOnChangedBindings", simpleFunctionType);
 
 	return type;
 }
@@ -1568,63 +1565,42 @@ ReactorClassType*
 TypeMgr::createReactorType (
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	ClassType* ifaceType,
 	ClassType* parentType
 	)
 {
 	ReactorClassType* type = (ReactorClassType*) createClassType (ClassTypeKind_Reactor, name, qualifiedName);
 
-	type->addBaseType (ifaceType);
+	type->addBaseType (getStdType (StdType_ReactorBase));
+	type->m_parentType = parentType;
 
-	// fields
+	Type* voidType = getPrimitiveType (TypeKind_Void);
+	Type* sizeType = getPrimitiveType (TypeKind_SizeT);
+	FunctionType* reactionType;
 
-	type->m_fieldArray [ReactorFieldKind_Lock]  = type->createField ("!m_lock", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
-	type->m_fieldArray [ReactorFieldKind_State] = type->createField ("!m_state", m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
-
-	sl::Array <Function*> virtualMethodArray = ifaceType->getVirtualMethodArray ();
-	ASSERT (virtualMethodArray.getCount () == 2);
-
-	FunctionType* startMethodType = virtualMethodArray [0]->getType ()->getShortType ();
-	sl::Array <FunctionArg*> argArray = startMethodType->getArgArray ();
-
-	size_t argCount = argArray.getCount ();
-	for (size_t i = 0; i < argCount; i++)
+	if (!parentType)
 	{
-		FunctionArg* arg = argArray [i];
-		StructField* field = type->createField (arg->getName (), arg->getType ());
-		if (!field)
-			return NULL;
-
-		if (i == 0)
-			type->m_firstArgField = field;
-	}
-
-	// constructor & destructor
-
-	if (parentType)
-	{
-		ClassPtrType* parentPtrType = parentType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-
-		type->m_flags |= ClassTypeFlag_Child;
-		type->m_fieldArray [ReactorFieldKind_Parent] = type->createField ("!m_parent", parentPtrType);
-
-		Type* voidType = &m_primitiveTypeArray [TypeKind_Void];
-		FunctionType* constructorType = getFunctionType (voidType, (Type**) &parentPtrType, 1);
-		Function* constructor = m_module->m_functionMgr.createFunction (FunctionKind_Constructor, constructorType);
-		type->addMethod (constructor);
+		reactionType = getFunctionType (voidType, (Type**) &sizeType, 1);
 	}
 	else
 	{
-		type->createDefaultMethod (FunctionKind_Constructor);
+		Type* argTypeArray [] = { parentType->getClassPtrType (), sizeType };
+		reactionType = getFunctionType (voidType, argTypeArray, 2);
 	}
 
-	type->createDefaultMethod (FunctionKind_Destructor);
+	type->m_reaction = type->createMethod (StorageKind_Member, "!reaction", reactionType);
 
-	// methods
+	m_module->markForCompile (type);
+	return type;
+}
 
-	type->m_methodArray [ReactorMethodKind_Start] = type->createMethod (StorageKind_Override, "start", startMethodType);
-	type->m_methodArray [ReactorMethodKind_Stop]  = type->createMethod (StorageKind_Override, "stop", (FunctionType*) getStdType (StdType_SimpleFunction));
-	type->m_callOperator = type->m_methodArray [ReactorMethodKind_Start];
+FunctionClosureClassType*
+TypeMgr::createReactorClosureType ()
+{
+	FunctionClosureClassType* type = (FunctionClosureClassType*) createUnnamedClassType (ClassTypeKind_FunctionClosure);
+	type->m_thisArgFieldIdx = 0;
+	type->createField ("m_self", type->getClassPtrType ());
+	type->createField ("m_event", getStdType (StdType_BytePtr));
+	type->ensureLayout ();
 	return type;
 }
 

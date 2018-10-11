@@ -214,12 +214,6 @@ ClassType::addMethod (Function* function)
 		target = &indexerProperty->m_setter;
 		break;
 
-	case FunctionKind_Reaction:
-		if (m_classTypeKind == ClassTypeKind_Reactor)
-			return true;
-
-		// else fall through and fail
-
 	default:
 		err::setFormatStringError (
 			"invalid %s in '%s'",
@@ -404,6 +398,9 @@ ClassType::calcLayout ()
 				err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().sz ());
 				return false;
 			}
+
+			if (classType->getClassTypeKind () == ClassTypeKind_Reactor)
+				((ReactorClassType*) classType)->m_parentOffset = field->getOffset ();
 
 			m_classMemberFieldArray.append (field);
 		}

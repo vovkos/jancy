@@ -50,7 +50,6 @@ enum jnc_ClassTypeKind
 	jnc_ClassTypeKind_Multicast,
 	jnc_ClassTypeKind_McSnapshot,
 	jnc_ClassTypeKind_Reactor,
-	jnc_ClassTypeKind_ReactorIface,
 	jnc_ClassTypeKind_FunctionClosure,
 	jnc_ClassTypeKind_PropertyClosure,
 	jnc_ClassTypeKind_DataClosure,
@@ -66,7 +65,6 @@ enum jnc_ClassTypeFlag
 	jnc_ClassTypeFlag_Closure            = 0x020000,
 	jnc_ClassTypeFlag_Opaque             = 0x040000,
 	jnc_ClassTypeFlag_OpaqueNonCreatable = 0x080000,
-	jnc_ClassTypeFlag_Child              = 0x100000, // constructor has an implicit 'parent' arg
 };
 
 typedef enum jnc_ClassTypeFlag jnc_ClassTypeFlag;
@@ -359,7 +357,6 @@ const ClassTypeKind
 	ClassTypeKind_Multicast       = jnc_ClassTypeKind_Multicast,
 	ClassTypeKind_McSnapshot      = jnc_ClassTypeKind_McSnapshot,
 	ClassTypeKind_Reactor         = jnc_ClassTypeKind_Reactor,
-	ClassTypeKind_ReactorIface    = jnc_ClassTypeKind_ReactorIface,
 	ClassTypeKind_FunctionClosure = jnc_ClassTypeKind_FunctionClosure,
 	ClassTypeKind_PropertyClosure = jnc_ClassTypeKind_PropertyClosure,
 	ClassTypeKind_DataClosure     = jnc_ClassTypeKind_DataClosure;
@@ -372,8 +369,7 @@ const ClassTypeFlag
 	ClassTypeFlag_HasAbstractMethods = jnc_ClassTypeFlag_HasAbstractMethods,
 	ClassTypeFlag_Closure            = jnc_ClassTypeFlag_Closure,
 	ClassTypeFlag_Opaque             = jnc_ClassTypeFlag_Opaque,
-	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable,
-	ClassTypeFlag_Child              = jnc_ClassTypeFlag_Child;
+	ClassTypeFlag_OpaqueNonCreatable = jnc_ClassTypeFlag_OpaqueNonCreatable;
 
 //..............................................................................
 

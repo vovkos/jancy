@@ -271,12 +271,6 @@ conditional_expr <Value* $value>
 		)?
 	;
 
-// important note: || and && operators are handled differently in reactor starter
-// this is done not to skip bind-sites due to short-circuit evaluation
-// however, this is a temporary solution: short circuit evaluation should be restored.
-// bind-sites which can be potentially skipped during reactor starter should be 'flagged'
-// and if they are really skipped, then binding should be delayed until they are finally executed
-
 logical_or_expr <Value* $value>
 	local
 	{
@@ -288,24 +282,15 @@ logical_or_expr <Value* $value>
 		(
 			TokenKind_LogOr
 				{
-					if (m_stage != Stage_ReactorStarter)
-					{
-						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
-						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
-						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
-						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-							$opBlock2->markReachable ();
-					}
+					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
+					$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
+					m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
+					if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
+						$opBlock2->markReachable ();
 				}
 			logical_and_expr <&$opValue2>
 				{
-					if (m_stage != Stage_ReactorStarter)
-						return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
-					else
-						return
-							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
-							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
-							m_module->m_operatorMgr.binaryOperator (BinOpKind_BwOr, $value, $opValue2);
+					return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
 				}
 		)*
 	;
@@ -321,24 +306,15 @@ logical_and_expr <Value* $value>
 		(
 			TokenKind_LogAnd
 				{
-					if (m_stage != Stage_ReactorStarter)
-					{
-						$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
-						$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
-						m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
-						if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-							$opBlock2->markReachable ();
-					}
+					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
+					$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
+					m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
+					if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
+						$opBlock2->markReachable ();
 				}
 			inclusive_or_expr <&$opValue2>
 				{
-					if (m_stage != Stage_ReactorStarter)
-						return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
-					else
-						return
-							m_module->m_operatorMgr.castOperator ($value, TypeKind_Bool) &&
-							m_module->m_operatorMgr.castOperator (&$opValue2, TypeKind_Bool) &&
-							m_module->m_operatorMgr.binaryOperator (BinOpKind_BwAnd, $value, $opValue2);
+					return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
 				}
 		)*
 	;
@@ -558,8 +534,8 @@ assignment_operator_expr <Value* $value>
 	}
 	enter
 	{
-		if (m_stage == Stage_ReactorStarter)  // reset on assignment
-			resetReactorBindSites ();
+		if (m_stage == Stage_Reaction)  // reset on assignment (actually, not sure if it's the right thing to do)
+			return resetReactionBindings ();
 	}
 	:	assignment_operator $o conditional_expr <&$opValue2>
 			{
@@ -635,8 +611,8 @@ unary_expr <Value* $value>
 unary_operator_expr <Value* $value>
 	leave
 	{
-		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
-			return addReactorBindSite (*$value);
+		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
+			return addReactionBinding (*$value);
 	}
 	:	'+' unary_expr <$value>
 			{
@@ -751,8 +727,8 @@ postfix_expr <Value* $value>
 postfix_operator <Value* $value>
 	leave
 	{
-		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
-			addReactorBindSite (*$value);
+		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
+			return addReactionBinding (*$value);
 	}
 	:	'(' expression_or_empty_list ')'
 			{
@@ -803,8 +779,8 @@ member_operator <Value* $value>
 primary_expr <Value* $value>
 	leave
 	{
-		if (m_stage == Stage_ReactorStarter && isBindableType ($value->getType ()))
-			return addReactorBindSite (*$value);
+		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
+			return addReactionBinding (*$value);
 	}
 	:	'(' conditional_expr <$value> ')'
 	|	literal <$value>

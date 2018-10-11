@@ -210,26 +210,10 @@ NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
 		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable);
 		DerivableType* type = (DerivableType*) field->getType ();
 
-		Function* constructor;
+		Function* constructor = type->getDefaultConstructor ();
+		ASSERT (constructor); // otherwise, would not be on member-field-construct array
 
-		sl::BoxList <Value> argList;
-		argList.insertTail (fieldValue);
-
-		if (type->getTypeKind () != TypeKind_Class || !(type->getFlags () & ClassTypeFlag_Child))
-		{
-			constructor = type->getDefaultConstructor ();
-			if (!constructor)
-				return false;
-		}
-		else
-		{
-			constructor = type->getConstructor ();
-			ASSERT (constructor && !constructor->isOverloaded ());
-
-			argList.insertTail (thisValue);
-		}
-
-		result = module->m_operatorMgr.callOperator (constructor, &argList);
+		result = module->m_operatorMgr.callOperator (constructor, fieldValue);
 		if (!result)
 			return false;
 	}

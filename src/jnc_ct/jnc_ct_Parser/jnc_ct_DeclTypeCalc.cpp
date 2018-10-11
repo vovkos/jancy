@@ -104,11 +104,8 @@ DeclTypeCalc::calcType (
 		}
 		else if (m_typeModifiers & TypeModifier_Reactor)
 		{
-			ClassType* classType = getReactorType (type);
-			if (!classType)
-				return NULL;
-
-			type = getClassPtrType (classType);
+			type = m_module->m_typeMgr.getStdType (StdType_ReactorBase);
+			m_typeModifiers &= ~TypeModifier_Reactor;
 		}
 		else switch (typeKind)
 		{
@@ -178,9 +175,8 @@ DeclTypeCalc::calcType (
 	}
 	else if (m_typeModifiers & TypeModifier_Reactor)
 	{
-		type = getReactorType (type);
-		if (!type)
-			return NULL;
+		type = m_module->m_typeMgr.getStdType (StdType_ReactorBase);
+		m_typeModifiers &= ~TypeModifier_Reactor;
 	}
 
 	while (m_suffix != suffixEnd)
@@ -209,11 +205,7 @@ DeclTypeCalc::calcType (
 			// fall through
 
 		case DeclSuffixKind_Function:
-			if (m_typeModifiers & TypeModifier_Reactor)
-				type = getReactorType (type);
-			else
-				type = getFunctionType (type);
-
+			type = getFunctionType (type);
 			if (!type)
 				return NULL;
 
@@ -667,17 +659,6 @@ DeclTypeCalc::getBindableDataType (Type* dataType)
 
 	m_typeModifiers &= ~TypeModifierMaskKind_Property;
 	return m_module->m_typeMgr.getSimplePropertyType (callConv, dataType, PropertyTypeFlag_Bindable);
-}
-
-ClassType*
-DeclTypeCalc::getReactorType (Type* returnType)
-{
-	FunctionType* startMethodType = getFunctionType (returnType);
-	if (!startMethodType)
-		return NULL;
-
-	m_typeModifiers &= ~TypeModifier_Reactor;
-	return m_module->m_typeMgr.getReactorIfaceType (startMethodType);
 }
 
 ClassType*

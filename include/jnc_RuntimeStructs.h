@@ -37,7 +37,7 @@ typedef struct jnc_PropertyPtr jnc_PropertyPtr;
 typedef struct jnc_IfaceHdr jnc_IfaceHdr;
 typedef struct jnc_Multicast jnc_Multicast;
 typedef struct jnc_McSnapshot jnc_McSnapshot;
-typedef struct jnc_ReactorBindSite jnc_ReactorBindSite;
+typedef struct jnc_Reactor jnc_Reactor;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
 typedef struct jnc_GcShadowStackFrameMapBuffer jnc_GcShadowStackFrameMapBuffer;
@@ -200,12 +200,23 @@ struct jnc_McSnapshot
 
 //..............................................................................
 
-// structure backing up reactor bind site in reactor class
+// each reactor is represented by this class:
 
-struct jnc_ReactorBindSite
+struct jnc_Reactor
 {
-	jnc_IfaceHdr* m_onChanged;
-	intptr_t m_cookie;
+	jnc_IfaceHdr m_ifaceHdr;
+	size_t m_activationCountLimit; // freely adjustible
+
+	// implementation is opaque (see jnc::rtl::ReactorImpl)
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_ReactorClosure
+{
+	jnc_IfaceHdr m_ifaceHdr;
+	jnc_Reactor* m_self;
+	void* m_binding; // jnc::rtl::ReactorImpl::Binding*
 };
 
 //..............................................................................
@@ -367,7 +378,8 @@ typedef jnc_PropertyPtr PropertyPtr;
 typedef jnc_IfaceHdr IfaceHdr;
 typedef jnc_Multicast Multicast;
 typedef jnc_McSnapshot McSnapshot;
-typedef jnc_ReactorBindSite ReactorBindSite;
+typedef jnc_Reactor Reactor;
+typedef jnc_ReactorClosure ReactorClosure;
 typedef jnc_FmtLiteral FmtLiteral;
 typedef jnc_GcShadowStackFrame GcShadowStackFrame;
 typedef jnc_GcShadowStackFrameMapBuffer GcShadowStackFrameMapBuffer;

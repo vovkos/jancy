@@ -50,8 +50,8 @@ protected:
 	sl::List <Entry> m_list;
 
 public:
-	static 
-	ClassType* 
+	static
+	ClassType*
 	getType (Module* module);
 
 	size_t

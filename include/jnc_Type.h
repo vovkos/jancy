@@ -248,7 +248,6 @@ enum jnc_StdType
 	jnc_StdType_SimpleMulticast,
 	jnc_StdType_SimpleEventPtr,
 	jnc_StdType_Binder,
-	jnc_StdType_ReactorBindSite,
 	jnc_StdType_Scheduler,
 	jnc_StdType_RegexMatch,
 	jnc_StdType_RegexState,
@@ -268,6 +267,8 @@ enum jnc_StdType
 	jnc_StdType_VariantStruct,
 	jnc_StdType_GcShadowStackFrame,
 	jnc_StdType_SjljFrame,
+	jnc_StdType_ReactorBase,
+	jnc_StdType_ReactorClosure,
 	jnc_StdType__Count,
 };
 
@@ -657,7 +658,6 @@ const StdType
 	StdType_SimpleMulticast     = jnc_StdType_SimpleMulticast,
 	StdType_SimpleEventPtr      = jnc_StdType_SimpleEventPtr,
 	StdType_Binder              = jnc_StdType_Binder,
-	StdType_ReactorBindSite     = jnc_StdType_ReactorBindSite,
 	StdType_Scheduler           = jnc_StdType_Scheduler,
 	StdType_RegexMatch          = jnc_StdType_RegexMatch,
 	StdType_RegexState          = jnc_StdType_RegexState,
@@ -677,6 +677,8 @@ const StdType
 	StdType_VariantStruct       = jnc_StdType_VariantStruct,
 	StdType_GcShadowStackFrame  = jnc_StdType_GcShadowStackFrame,
 	StdType_SjljFrame           = jnc_StdType_SjljFrame,
+	StdType_ReactorBase         = jnc_StdType_ReactorBase,
+	StdType_ReactorClosure      = jnc_StdType_ReactorClosure,
 	StdType__Count              = jnc_StdType__Count;
 
 //..............................................................................

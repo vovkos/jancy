@@ -13,7 +13,6 @@
 #include "jnc_ct_Function.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ClassType.h"
-#include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -35,8 +34,6 @@ Function::Function ()
 	m_property = NULL;
 	m_extensionNamespace = NULL;
 	m_classVTableIndex = -1;
-	m_propertyVTableIndex = -1;
-	m_reactionIndex = -1;
 	m_allocaBlock = NULL;
 	m_prologueBlock = NULL;
 	m_scope = NULL;
@@ -175,9 +172,8 @@ Function::compile ()
 		m_module->m_functionMgr.prologue (this, beginPos);
 		m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (NULL, &m_usingSet);
 
-		result =
-			m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
-			m_functionKind == FunctionKind_Reaction ? compileReactionBody () :
+		result = m_functionKind == FunctionKind_Constructor ?
+			compileConstructorBody () :
 			compileNormalBody ();
 
 		if (!result)
@@ -270,63 +266,6 @@ Function::compileConstructorBody ()
 		parser.m_constructorProperty = (Property*) m_parentNamespace;
 
 	return parser.parseTokenList (SymbolKind_constructor_compound_stmt, m_body, true);
-}
-
-bool
-Function::compileReactionBody ()
-{
-	bool result;
-
-	ClassPtrType* thisArgType = (ClassPtrType*) m_type->getThisArgType ();
-	ASSERT (thisArgType->getTypeKindFlags () & TypeKindFlag_ClassPtr);
-
-	ReactorClassType* reactorType = (ReactorClassType*) thisArgType->getTargetType ();
-	ASSERT (isClassType (reactorType, ClassTypeKind_Reactor));
-
-	StructField* stateField = reactorType->getField (ReactorFieldKind_ReactionStateArray);
-
-	Value thisValue = m_module->m_functionMgr.getThisValue ();
-	ASSERT (thisValue);
-
-	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock ("follow_block");
-	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock ("return_block");
-
-	Value stateValue;
-	Value stateCmpValue;
-
-	ASSERT (m_reactionIndex != -1);
-
-	result =
-		m_module->m_operatorMgr.getField (thisValue, stateField, NULL, &stateValue) &&
-		m_module->m_operatorMgr.binaryOperator (
-			BinOpKind_Idx,
-			&stateValue,
-			Value (m_reactionIndex, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT))
-			) &&
-		m_module->m_controlFlowMgr.conditionalJump (stateValue, returnBlock, followBlock, followBlock) &&
-		m_module->m_operatorMgr.storeDataRef (
-			stateValue,
-			Value (1, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
-			);
-
-	if (!result)
-		return false;
-
-	Parser parser (m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-
-	result =
-		parser.parseTokenList (SymbolKind_expression_stmt, m_body) &&
-		m_module->m_operatorMgr.storeDataRef (
-			stateValue,
-			Value ((int64_t) 0, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32))
-			);
-
-	if (!result)
-		return false;
-
-	m_module->m_controlFlowMgr.follow (returnBlock);
-	return true;
 }
 
 bool
