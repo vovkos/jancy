@@ -400,7 +400,7 @@ ClassType::calcLayout ()
 			}
 
 			if (classType->getClassTypeKind () == ClassTypeKind_Reactor)
-				((ReactorClassType*) classType)->m_parentOffset = field->getOffset ();
+				((ReactorClassType*) classType)->m_parentOffset = field->getOffset () + sizeof (Box); // reactor's box
 
 			m_classMemberFieldArray.append (field);
 		}

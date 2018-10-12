@@ -103,11 +103,12 @@ Parser::isTypeSpecified ()
 	// checking for 'property' is required for full property syntax e.g.:
 	// property foo { int get (); }
 	// here 'foo' should be a declarator, not import-type-specifier
+	// the same logic applies to 'reactor'
 
 	TypeSpecifier* typeSpecifier = m_typeSpecifierStack.getBack ();
 	return
 		typeSpecifier->getType () != NULL ||
-		typeSpecifier->getTypeModifiers () & (TypeModifier_Unsigned | TypeModifier_Property);
+		typeSpecifier->getTypeModifiers () & (TypeModifier_Unsigned | TypeModifier_Property | TypeModifier_Reactor);
 }
 
 NamedImportType*
@@ -1955,9 +1956,7 @@ Parser::addReactionBinding (const Value& value)
 {
 	ASSERT (m_stage == Stage_Reaction && m_reactorType);
 
-	ClassType* reactorType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_ReactorBase);
-	Function* addBindingFunc = reactorType->getMemberMethodArray () [2];
-	ASSERT (addBindingFunc->getName () == "!addOnChangedBinding");
+	Function* addBindingFunc = getReactorMethod (m_module, ReactorMethod_AddOnChangedBinding);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	ASSERT (thisValue);
@@ -1972,9 +1971,7 @@ Parser::addReactionBinding (const Value& value)
 bool
 Parser::resetReactionBindings ()
 {
-	ClassType* reactorType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_ReactorBase);
-	Function* resetBindingsFunc = reactorType->getMemberMethodArray () [4];
-	ASSERT (resetBindingsFunc->getName () == "!resetOnChangedBindings");
+	Function* resetBindingsFunc = getReactorMethod (m_module, ReactorMethod_ResetOnChangedBindings);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	ASSERT (thisValue);
@@ -1998,8 +1995,7 @@ Parser::reactorOnEventStmt (
 	Function* handler = m_reactorType->createOnEventHandler (m_reactionIdx, functionType);
 	handler->setBody (tokenList);
 
-	Function* addBindingFunc = m_reactorType->getMemberMethodArray () [3];
-	ASSERT (addBindingFunc->getName () == "!addOnEventBinding");
+	Function* addBindingFunc = getReactorMethod (m_module, ReactorMethod_AddOnEventBinding);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue ();
 	ASSERT (thisValue);

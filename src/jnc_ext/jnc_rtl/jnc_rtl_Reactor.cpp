@@ -57,7 +57,7 @@ ReactorImpl_getOpaqueClassTypeInfo ()
 }
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (ReactorImpl)
-	JNC_MAP_CONSTRUCTOR (&jnc::destruct <ReactorImpl>)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <ReactorImpl>)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <ReactorImpl>)
 	JNC_MAP_FUNCTION ("start", &ReactorImpl::start);
 	JNC_MAP_FUNCTION ("stop", &ReactorImpl::stop);
@@ -83,6 +83,8 @@ ReactorImpl::ReactorImpl ()
 
 	for (size_t i = 0; i < reactionCount; i++)
 		m_reactionArray [i] = AXL_MEM_NEW (Reaction);
+
+	m_pendingReactionMap.setBitCount (reactionCount);
 }
 
 void
@@ -179,7 +181,7 @@ ReactorImpl::reactionLoop ()
 		// get the next pending reaction
 
 		size_t i = m_pendingReactionMap.findBit (0);
-		if (i == -1)
+		if (i >= reactionCount)
 			break;
 
 		m_pendingReactionMap.setBit (i, false);
@@ -227,7 +229,7 @@ ReactorImpl::reactionLoop ()
 
 			if (!binding->m_reactionMap.getBit (i))
 			{
-				binding->m_reactionMap.setBit (i);
+				binding->m_reactionMap.setBitResize (i);
 
 				ASSERT (reaction->m_bindingArray.find (binding) == -1);
 				reaction->m_bindingArray.append (binding);
@@ -263,7 +265,7 @@ ReactorImpl::reactionLoop ()
 			size_t bindingCount = m_pendingOnEventBindingArray.getCount ();
 			for (size_t j = 0; j < bindingCount; j++)
 			{
-				Multicast* multicast = m_pendingOnChangedBindingArray [j];
+				Multicast* multicast = m_pendingOnEventBindingArray [j];
 				Binding* binding = subscribe (multicast, onEventPtr);
 				reaction->m_bindingArray.append (binding);
 			}

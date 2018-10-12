@@ -64,7 +64,7 @@ OperatorMgr::getThisValue (
 			ASSERT (parentOffset);
 
 			m_module->m_llvmIrBuilder.createBitCast (thisValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &thisValue);
-			m_module->m_llvmIrBuilder.createGep2 (thisValue, -parentOffset, NULL, &thisValue);
+			m_module->m_llvmIrBuilder.createGep (thisValue, -parentOffset, NULL, &thisValue);
 			m_module->m_llvmIrBuilder.createBitCast (thisValue, parentType->getClassPtrType (), &thisValue);
 		}
 	}

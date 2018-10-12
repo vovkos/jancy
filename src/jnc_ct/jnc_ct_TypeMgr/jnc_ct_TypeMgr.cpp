@@ -1544,18 +1544,21 @@ TypeMgr::createReactorBaseType ()
 {
 	Type* voidType = getPrimitiveType (TypeKind_Void);
 	Type* eventPtrType = getStdType (StdType_SimpleEventPtr);
-	FunctionType* simpleFunctionType = (FunctionType*) getStdType (StdType_SimpleFunction);
-	FunctionType* addBindingType = getFunctionType (voidType, &eventPtrType, 1);
+	Type* abstractPtrType = getStdType (StdType_AbstractClassPtr); // onevent statement can have different event types
 
-	ClassType* type = createClassType ("ReactorBase", "jnc.ReactorBase");
+	FunctionType* simpleFunctionType = (FunctionType*) getStdType (StdType_SimpleFunction);
+	FunctionType* addOnChangedBindingType = getFunctionType (voidType, &eventPtrType, 1);
+	FunctionType* addOnEventBindingType = getFunctionType (voidType, &abstractPtrType, 1);
+
+	ClassType* type = createClassType ("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->createField ("m_activationCountLimit", getPrimitiveType (TypeKind_SizeT));
 
 	type->createDefaultMethod (FunctionKind_Constructor);
 	type->createDefaultMethod (FunctionKind_Destructor);
 	type->createMethod (StorageKind_Member, "start", simpleFunctionType);
 	type->createMethod (StorageKind_Member, "stop", simpleFunctionType);
-	type->createMethod (StorageKind_Member, "!addOnChangedBinding", addBindingType);
-	type->createMethod (StorageKind_Member, "!addOnEventBinding", addBindingType);
+	type->createMethod (StorageKind_Member, "!addOnChangedBinding", addOnChangedBindingType);
+	type->createMethod (StorageKind_Member, "!addOnEventBinding", addOnEventBindingType);
 	type->createMethod (StorageKind_Member, "!resetOnChangedBindings", simpleFunctionType);
 
 	return type;

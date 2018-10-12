@@ -19,6 +19,32 @@ namespace ct {
 
 //..............................................................................
 
+Function*
+getReactorMethod (
+	Module* module,
+	ReactorMethod method
+	)
+{
+	static const char* nameTable [] =
+	{
+		"start",                   // ReactorMethod_Start,
+		"stop",                    // ReactorMethod_Stop,
+		"!addOnChangedBinding",    // ReactorMethod_AddOnChangedBinding,
+		"!addOnEventBinding",      // ReactorMethod_AddOnEventBinding,
+		"!resetOnChangedBindings", // ReactorMethod_ResetOnChangedBindings,
+	};
+
+	ASSERT (method < countof (nameTable));
+
+	ClassType* reactorType = (ClassType*) module->m_typeMgr.getStdType (StdType_ReactorBase);
+	Function* function = reactorType->getMemberMethodArray () [method];
+	ASSERT (function->getName () == nameTable [method]);
+
+	return function;
+}
+
+//..............................................................................
+
 ReactorClassType::ReactorClassType ()
 {
 	m_classTypeKind = ClassTypeKind_Reactor;
@@ -75,6 +101,7 @@ ReactorClassType::calcLayout ()
 	parser.m_stage = Parser::Stage_Pass2;
 	parser.m_reactorType = this;
 
+	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction (m_reaction); // we need some method for OperatorMgr::getThisValueType to work
 	m_module->m_namespaceMgr.openNamespace (this);
 
 	result = parser.parseTokenList (SymbolKind_reactor_body_0, m_body, false);
@@ -82,6 +109,7 @@ ReactorClassType::calcLayout ()
 		return false;
 
 	m_module->m_namespaceMgr.closeNamespace ();
+	m_module->m_functionMgr.setCurrentFunction (prevFunction);
 
 	if (!parser.m_reactionIdx)
 	{
@@ -97,23 +125,24 @@ ReactorClassType::calcLayout ()
 bool
 ReactorClassType::compile ()
 {
-	bool result;
+	bool result = ClassType::compile (); // compile default constructor & destructor
+	if (!result)
+		return false;
 
-	Value argValue;
-	m_module->m_functionMgr.internalPrologue (m_reaction, &argValue, 1);
-
-	Value thisValue = m_module->m_functionMgr.getThisValue ();
-	ASSERT (thisValue);
+	Value argValueArray [2];
+	m_module->m_functionMgr.internalPrologue (m_reaction, argValueArray, countof (argValueArray));
+	m_module->m_namespaceMgr.openNamespace (this);
 
 	Parser parser (m_module);
 	parser.m_stage = Parser::Stage_Reaction;
 	parser.m_reactorType = this;
-	parser.m_reactionIdxArgValue = argValue;
+	parser.m_reactionIdxArgValue = argValueArray [1];
 
 	result = parser.parseTokenList (SymbolKind_reactor_body, m_body, true);
 	if (!result)
 		return false;
 
+	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.internalEpilogue ();
 	return true;
 }

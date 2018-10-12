@@ -20,7 +20,7 @@ reactor_body
 				m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
 				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, m_reactionIdxArgValue, $1.m_pos);
 			}
-		(reactor_stmt <&$stmt> | ';')+
+		(reactor_stmt <&$stmt> | ';')*
 		'}'
 			{
 				m_module->m_controlFlowMgr.switchStmt_Follow (&$stmt);
@@ -30,8 +30,12 @@ reactor_body
 reactor_stmt <SwitchStmt* $stmt>
 	enter
 	{
-		Value value (m_reactionIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
-		return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, value, m_currentToken.m_pos, 0);
+		return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, m_reactionIdx, m_currentToken.m_pos, 0);
+	}
+	leave
+	{
+		m_reactionIdx++;
+		return m_module->m_controlFlowMgr.breakJump (1);
 	}
 	:	local_item_declaration
 	|	expression_stmt
@@ -45,7 +49,7 @@ reactor_onevent_stmt
 	}
 	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator> declaration_body_pass1
 			{
-				reactorOnEventStmt ($2.m_valueList, &$declarator, &$4.m_tokenList);
+				return reactorOnEventStmt ($2.m_valueList, &$declarator, &$4.m_tokenList);
 			}
 	;
 
@@ -96,7 +100,7 @@ reactor_event_name
 
 start
 reactor_body_0
-	:	'{' (reactor_stmt_0 | ';')+ '}'
+	:	'{' (reactor_stmt_0 | ';')* '}'
 	;
 
 reactor_stmt_0

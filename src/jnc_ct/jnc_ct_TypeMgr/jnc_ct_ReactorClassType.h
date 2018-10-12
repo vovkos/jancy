@@ -18,6 +18,25 @@ namespace ct {
 
 //..............................................................................
 
+enum ReactorMethod
+{
+	ReactorMethod_Start,
+	ReactorMethod_Stop,
+	ReactorMethod_AddOnChangedBinding,
+	ReactorMethod_AddOnEventBinding,
+	ReactorMethod_ResetOnChangedBindings,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Function*
+getReactorMethod (
+	Module* module,
+	ReactorMethod method
+	);
+
+//..............................................................................
+
 class ReactorClassType: public ClassType
 {
 	friend class TypeMgr;
