@@ -1553,8 +1553,8 @@ TypeMgr::createReactorBaseType ()
 	ClassType* type = createClassType ("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
 	type->createField ("m_activationCountLimit", getPrimitiveType (TypeKind_SizeT));
 
-	type->createDefaultMethod (FunctionKind_Constructor);
-	type->createDefaultMethod (FunctionKind_Destructor);
+	type->createDefaultMethod (FunctionKind_Constructor, StorageKind_Member, ModuleItemFlag_User); // no need to auto-generate ctor
+	type->createDefaultMethod (FunctionKind_Destructor, StorageKind_Member, ModuleItemFlag_User); // no need to auto-generate dtor
 	type->createMethod (StorageKind_Member, "start", simpleFunctionType);
 	type->createMethod (StorageKind_Member, "stop", simpleFunctionType);
 	type->createMethod (StorageKind_Member, "!addOnChangedBinding", addOnChangedBindingType);
