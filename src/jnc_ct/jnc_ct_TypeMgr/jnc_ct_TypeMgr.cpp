@@ -1557,6 +1557,7 @@ TypeMgr::createReactorBaseType ()
 	type->createDefaultMethod (FunctionKind_Destructor, StorageKind_Member, ModuleItemFlag_User); // no need to auto-generate dtor
 	type->createMethod (StorageKind_Member, "start", simpleFunctionType);
 	type->createMethod (StorageKind_Member, "stop", simpleFunctionType);
+	type->createMethod (StorageKind_Member, "restart", simpleFunctionType);
 	type->createMethod (StorageKind_Member, "!addOnChangedBinding", addOnChangedBindingType);
 	type->createMethod (StorageKind_Member, "!addOnEventBinding", addOnEventBindingType);
 	type->createMethod (StorageKind_Member, "!resetOnChangedBindings", simpleFunctionType);
@@ -1593,13 +1594,14 @@ TypeMgr::createReactorType (
 	type->m_reaction = type->createMethod (StorageKind_Member, "!reaction", reactionType);
 
 	m_module->markForCompile (type);
+	getStdType (StdType_ReactorClosure); // ensure closure type is created
 	return type;
 }
 
 FunctionClosureClassType*
 TypeMgr::createReactorClosureType ()
 {
-	FunctionClosureClassType* type = (FunctionClosureClassType*) createUnnamedClassType (ClassTypeKind_FunctionClosure);
+	FunctionClosureClassType* type = (FunctionClosureClassType*) createClassType (ClassTypeKind_FunctionClosure, "ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField ("m_self", type->getClassPtrType ());
 	type->createField ("m_event", getStdType (StdType_BytePtr));
