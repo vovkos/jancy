@@ -543,13 +543,9 @@ Parser::declareInReaction (Declarator* declarator)
 	if (declarator->m_initializer.isEmpty ())
 		return true;
 
-	// modify initializer so it looks like an assignment expression: name = <initializer>;
+	// modify initializer so it looks like an assignment expression: name = <initializer>
 
 	Token token;
-	token.m_pos = declarator->m_initializer.getTail ()->m_pos;
-	token.m_tokenKind = (TokenKind) ';';
-	declarator->m_initializer.insertTail (token);
-
 	token.m_pos = declarator->m_initializer.getHead ()->m_pos;
 	token.m_tokenKind = (TokenKind) '=';
 	declarator->m_initializer.insertHead (token);
