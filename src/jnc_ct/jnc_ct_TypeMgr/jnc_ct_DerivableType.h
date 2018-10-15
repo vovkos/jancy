@@ -314,10 +314,11 @@ protected:
 	ModuleItem*
 	findItemInExtensionNamespaces (const sl::StringRef& name);
 
-	bool
+	Function*
 	createDefaultMethod (
 		FunctionKind functionKind,
-		StorageKind storageKind = StorageKind_Member
+		StorageKind storageKind = StorageKind_Member,
+		uint_t flags = 0
 		);
 
 	bool

@@ -405,23 +405,25 @@ DerivableType::addProperty (Property* prop)
 	return true;
 }
 
-bool
+Function*
 DerivableType::createDefaultMethod (
 	FunctionKind functionKind,
-	StorageKind storageKind
+	StorageKind storageKind,
+	uint_t flags
 	)
 {
 	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
 	Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
 	function->m_storageKind = storageKind;
 	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_flags |= flags;
 
 	bool result = addMethod (function);
 	if (!result)
-		return false;
+		return NULL;
 
 	m_module->markForCompile (this);
-	return true;
+	return function;
 }
 
 bool
