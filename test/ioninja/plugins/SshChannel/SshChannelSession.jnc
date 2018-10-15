@@ -112,7 +112,7 @@ protected:
 	onConsoleSizeChanged ();
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -582,7 +582,7 @@ catch:
 	handleConnectError (std.getLastError ());
 }
 
-reactor SshChannelSession.m_uiReactor ()
+reactor SshChannelSession.m_uiReactor
 {
 	m_title = $"SSH $(m_addressCombo.m_currentText)";
 	m_isTransmitEnabled = m_state == State.Connected;

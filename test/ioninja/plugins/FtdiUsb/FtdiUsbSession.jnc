@@ -155,7 +155,7 @@ protected:
 	onEndpoint82Event (io.UsbEndpointEventParams const* params);
 
 	createGui ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -477,7 +477,7 @@ catch:
 	writeLogLastError (UsbRecordCode.IoError);
 }
 
-reactor FtdiUsbSession.m_uiReactor ()
+reactor FtdiUsbSession.m_uiReactor
 {
 	m_title = $"FTDI USB $(m_deviceCombo.m_currentText)";
 	m_actionTable [ActionId.Open].m_text = m_state ? "Close Device" : "Open Device";

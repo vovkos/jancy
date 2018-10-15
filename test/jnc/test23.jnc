@@ -13,7 +13,7 @@ class C1
 {
 	int m_Int;
 
-	reactor m_MyAutoEv ()
+	reactor m_MyAutoEv
 	{
 		m_Int = gx_MyProp * 2;
 	}

@@ -8,7 +8,7 @@ bool g_b;
 
 class C1
 {
-	reactor m_reactor ()
+	reactor m_reactor
 	{
 		g_b = g_p;
 	}
@@ -16,7 +16,7 @@ class C1
 
 class C2
 {
-	reactor m_reactor ()
+	reactor m_reactor
 	{
 		g_b = g_p;
 	}

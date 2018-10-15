@@ -90,7 +90,7 @@ protected:
 	onConnectionPipeEvent (io.FileStreamEventParams const* params);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -316,7 +316,7 @@ PipeListenerSession.onConnectionPipeEvent (io.FileStreamEventParams const* param
 	}
 }
 
-reactor PipeListenerSession.m_uiReactor ()
+reactor PipeListenerSession.m_uiReactor
 {
 	m_title = $"Pipe $(m_pipeNameCombo.m_editText)";
 	m_isTransmitEnabled = m_connectionState == State.Opened;

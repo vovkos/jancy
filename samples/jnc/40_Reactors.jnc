@@ -63,6 +63,7 @@ updateCyan (
 int bindable g_red;
 int bindable g_green;
 int bindable g_blue;
+int bindable g_alpha;
 
 // this variable will be automatically updated by g_colorReactor
 
@@ -80,11 +81,11 @@ int g_rgb;
 // if the required logic cannot be expressed by a simple expression, the
 // 'onevent' statement can be used (see the next sample)
 
-reactor g_colorReactor (int alpha)
+reactor g_colorReactor
 {
-	updatePurple (g_red, g_blue, alpha);
-	updateYellow (g_red, g_green, alpha);
-	updateCyan (g_green, g_blue, alpha);
+	updatePurple (g_red, g_blue, g_alpha);
+	updateYellow (g_red, g_green, g_alpha);
+	updateCyan (g_green, g_blue, g_alpha);
 
 	g_rgb = (g_red << 16) + (g_green << 8) + g_blue;
 }
@@ -100,7 +101,7 @@ int main ()
 	// starting the reactor executes all expressions in this reactor block one
 	// time
 
-	g_colorReactor.start (5);
+	g_colorReactor.start ();
 
 	printf ("changing g_red...\n");
 	g_red = 0xab;
@@ -115,6 +116,9 @@ int main ()
 
 	printf ("changing g_blue...\n");
 	g_blue = 0xef;
+
+	printf ("changing g_alpha...\n");
+	g_blue = 0xff;
 
 	printf ("g_rgb = #%06x\n", g_rgb);
 

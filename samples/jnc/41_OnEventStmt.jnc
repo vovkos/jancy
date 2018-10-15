@@ -32,7 +32,7 @@ event g_onApplyIpSettings ();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-reactor g_ipReactor ()
+reactor g_ipReactor
 {
 	onevent bindingof (g_useDhcp) ()
 	{

@@ -141,7 +141,7 @@ protected:
 		);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -760,7 +760,7 @@ TcpFlowMonSession.decodeTcpPacket (
 	}
 }
 
-reactor TcpFlowMonSession.m_uiReactor ()
+reactor TcpFlowMonSession.m_uiReactor
 {
 	m_title = $"TCP Mon $(m_filterCombo.m_currentText)";
 	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";

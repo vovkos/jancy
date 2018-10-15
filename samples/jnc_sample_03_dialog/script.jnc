@@ -173,7 +173,7 @@ int calcColorVolume (int color)
 		((color >> 16) & 0xff);
 }
 
-reactor g_uiReactor ()
+reactor g_uiReactor
 {
 	g_color =
 		(g_redSlider.m_value << 16) |

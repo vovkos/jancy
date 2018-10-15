@@ -104,7 +104,7 @@ protected:
 		);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -425,7 +425,7 @@ SnifferSession.processPacket (
 	}
 }
 
-reactor SnifferSession.m_uiReactor ()
+reactor SnifferSession.m_uiReactor
 {
 	m_title = $"Pcap $(m_deviceCombo.m_currentText)";
 	m_isTransmitEnabled = m_state == State.Capturing;

@@ -76,7 +76,7 @@ protected:
 	setFileId (intptr_t loFileId);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -295,7 +295,7 @@ PipeMonSession.onReadyRead (uint_t syncId)
 	}
 }
 
-reactor PipeMonSession.m_uiReactor ()
+reactor PipeMonSession.m_uiReactor
 {
 	m_title = $"Mon $(m_nameCombo.m_currentText)";
 	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";

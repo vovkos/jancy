@@ -82,7 +82,7 @@ protected:
 	onReadyRead (uint_t syncId);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -369,7 +369,7 @@ SerialMonSession.onReadyRead (uint_t syncId)
 	}
 }
 
-reactor SerialMonSession.m_uiReactor ()
+reactor SerialMonSession.m_uiReactor
 {
 	m_title = $"Mon $(m_portCombo.m_currentText)";
 	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";

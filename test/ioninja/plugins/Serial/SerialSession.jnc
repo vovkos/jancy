@@ -141,7 +141,7 @@ protected:
 	setDelayedWriteTimer ();
 	flushDelayedWrite ();
 
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -723,7 +723,7 @@ SerialSession.onRtsChanged ()
 	writeLog (SerialLogRecordCode.RtsChanged, &value, sizeof (value));
 }
 
-reactor SerialSession.m_uiReactor ()
+reactor SerialSession.m_uiReactor
 {
 	m_actionTable [ActionId.Open].m_text = m_state ? "Close" : "Open";
 	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state ? IconId.Close : IconId.Open];

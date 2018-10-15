@@ -22,7 +22,7 @@ int bindable g_a;
 int bindable g_b;
 int g_c;
 
-reactor g_reactor ()
+reactor g_reactor
 {
 	g_c = g_a + g_b;
 

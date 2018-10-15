@@ -102,7 +102,7 @@ protected:
 	onResolverEvent (io.SocketAddressResolverEventParams const* params);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -474,7 +474,7 @@ TcpConnectionSession.onResolverEvent (io.SocketAddressResolverEventParams const*
 	}
 }
 
-reactor TcpConnectionSession.m_uiReactor ()
+reactor TcpConnectionSession.m_uiReactor
 {
 	m_title = $"TCP $(m_addressCombo.m_editText)";
 	m_adapterProp.m_isEnabled = m_useLocalAddressProp.m_value;

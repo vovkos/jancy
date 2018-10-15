@@ -100,7 +100,7 @@ protected:
 	onConnectionSocketEvent (io.SocketEventParams const* params);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -433,7 +433,7 @@ TcpListenerSession.onConnectionSocketEvent (io.SocketEventParams const* params)
 	}
 }
 
-reactor TcpListenerSession.m_uiReactor ()
+reactor TcpListenerSession.m_uiReactor
 {
 	m_title = $"TCP @ $(m_portCombo.m_editText)";
 	m_isTransmitEnabled = m_connectionState == ConnectionState.Connected;

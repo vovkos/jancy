@@ -1,0 +1,122 @@
+// this test was used to debug the new reactor design
+
+int bindable autoget property g_a;
+int bindable autoget property g_b;
+
+g_a.set (int x)
+{
+	printf ("g_a.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+g_b.set (int x)
+{
+	printf ("g_b.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+event g_onClicked (
+	int x,
+	int y
+	);
+
+reactor g_reactor
+{
+	g_a = g_b + 1;
+	g_b = g_a + 1;
+
+	onevent g_onClicked (
+		int x,
+		int y
+		)
+	{
+		printf ("g_onClicked (%d, %d)\n", x, y);
+	}
+}
+
+class C
+{
+	event m_onClicked (
+		int x,
+		int y
+		);
+
+	construct ()
+	{
+		printf ("C.construct (this: %p)\n", this);
+	}
+
+	reactor m_reactor
+	{
+		printf ("C.m_reactor (this: %p)\n", this);
+
+		m_a = m_b + 1;
+		m_b = m_a + 1;
+
+		onevent m_onClicked (
+			int x,
+			int y
+			)
+		{
+			printf ("m_onClicked (%d, %d)\n", x, y);
+		}
+	}
+
+	int bindable autoget property m_a;
+	int bindable autoget property m_b;
+
+	fireOnClickedEvent (
+		int x,
+		int y
+		) // we can't fire from the outside
+	{
+		m_onClicked (x, y);
+	}
+}
+
+C.m_a.set (int x)
+{
+	printf ("C.m_a.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+C.m_b.set (int x)
+{
+	printf ("C.m_b.set (%d)\n", x);
+	m_value = x;
+	m_onChanged ();
+}
+
+int main ()
+{
+	printf ("main ()\n");
+
+	g_reactor.start ();
+
+	g_a = 10;
+	g_b = 20;
+
+	g_onClicked (100, 200);
+
+	g_reactor.stop ();
+
+	g_a = 30;
+	g_b = 40;
+
+	C c;
+	c.m_reactor.start ();
+
+	c.m_a = 100;
+	c.m_b = 200;
+	c.fireOnClickedEvent (1000, 2000);
+
+	c.m_reactor.stop ();
+
+	c.m_a = 300;
+	c.m_b = 400;
+
+	return 0;
+}

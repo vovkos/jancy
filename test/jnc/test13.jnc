@@ -15,10 +15,10 @@ class C
 	char const* m_s;
 	int m_x;
 
-	reactor m_reactor ();
+	reactor m_reactor;
 }
 
-reactor C.m_reactor ()
+reactor C.m_reactor
 {
 	m_s = $"state = $m_state";
 }

@@ -115,7 +115,7 @@ protected:
 	onResolverEvent (io.SocketAddressResolverEventParams const* params);
 
 	createGui ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -461,7 +461,7 @@ UdpSession.onResolverEvent (io.SocketAddressResolverEventParams const* params)
 	}
 }
 
-reactor UdpSession.m_uiReactor ()
+reactor UdpSession.m_uiReactor
 {
 	m_title = $"UDP @ $(m_localPortCombo.m_editText) -> $(m_remoteAddressCombo.m_editText)";
 	m_isTransmitEnabled = m_state == State.Opened;

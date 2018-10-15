@@ -76,7 +76,7 @@ protected:
 	setFileId (intptr_t loFileId);
 
 	createUi ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -282,7 +282,7 @@ MailslotMonSession.onReadyRead (uint_t syncId)
 	}
 }
 
-reactor MailslotMonSession.m_uiReactor ()
+reactor MailslotMonSession.m_uiReactor
 {
 	m_title = $"Mon $(m_nameCombo.m_currentText)";
 	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";

@@ -6,13 +6,13 @@ int g_all;
 
 class C
 {
-	reactor m_testReactor (int a)
+	reactor m_testReactor
 	{
-		int x = a; // bindless 
+		int x = 10000; // bindless (evaluated once during reactor.start ())
 
-		bindable int z = g_red * 2;
+		int bindable y = g_red * 3;
 
-		g_all = g_green + g_blue + a + z + x;
+		g_all = g_green + g_blue + x + y;
 	}
 }
 
@@ -21,10 +21,10 @@ int main ()
 	printf ("main ()\n");
 	
 	C c;
-	c.m_testReactor.start (2000);
+	c.m_testReactor.start ();
 	
 	g_red = 1;
-	g_green = 10;
+	g_green = 20;
 	g_blue = 100;
 
 	printf ("g_out = %d\n", g_all);

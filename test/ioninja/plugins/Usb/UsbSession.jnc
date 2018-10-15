@@ -103,7 +103,7 @@ protected:
 	onInEndpointEvent (io.UsbEndpointEventParams const* params);
 
 	createGui ();
-	reactor m_uiReactor ();
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -469,7 +469,7 @@ UsbSession.onInEndpointEvent (io.UsbEndpointEventParams const* params)
 	}
 }
 
-reactor UsbSession.m_uiReactor ()
+reactor UsbSession.m_uiReactor
 {
 	m_title = $"USB $(m_deviceCombo.m_currentText)";
 

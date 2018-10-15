@@ -1,0 +1,10 @@
+int main ()
+{
+	uint_t x;
+	uint_t y;
+	uint_t z;
+
+	z = x & ((1 << y) - 1);
+
+	return 0;
+}

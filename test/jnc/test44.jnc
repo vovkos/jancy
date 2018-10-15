@@ -26,7 +26,7 @@ g_b.set (int x)
 	m_onChanged ();
 }
 
-reactor g_myReactor ()
+reactor g_myReactor
 {
 	g_a = g_b + 1;
 	g_b = g_a + 1;
