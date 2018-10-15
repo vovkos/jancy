@@ -79,6 +79,14 @@ public:
 
 	void
 	JNC_CDECL
+	restart ()
+	{
+		stop ();
+		start ();
+	}
+
+	void
+	JNC_CDECL
 	addOnChangedBinding (Multicast* multicast)
 	{
 		ASSERT (m_state == State_Reacting);

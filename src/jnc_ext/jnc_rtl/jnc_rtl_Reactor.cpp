@@ -61,6 +61,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (ReactorImpl)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <ReactorImpl>)
 	JNC_MAP_FUNCTION ("start", &ReactorImpl::start);
 	JNC_MAP_FUNCTION ("stop", &ReactorImpl::stop);
+	JNC_MAP_FUNCTION ("restart", &ReactorImpl::restart);
 	JNC_MAP_FUNCTION ("!addOnChangedBinding", &ReactorImpl::addOnChangedBinding);
 	JNC_MAP_FUNCTION ("!addOnEventBinding", &ReactorImpl::addOnEventBinding);
 	JNC_MAP_FUNCTION ("!resetOnChangedBindings", &ReactorImpl::resetOnChangedBindings);
