@@ -470,7 +470,7 @@ OperatorMgr::getNamedTypeMember (
 	if (!result)
 		return false;
 
-	if (memberKind == ModuleItemKind_StructField || decl->getStorageKind () == StorageKind_Static)
+	if (decl->getStorageKind () == StorageKind_Static)
 		return true;
 
 	AXL_TODO ("remove explicit addr operator and instead allow implicit cast named_type& -> named_type*")

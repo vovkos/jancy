@@ -136,9 +136,6 @@ public:
 			default:
 				ASSERT (false);
 			}
-
-			if (!result)
-				return false;
 		}
 
 		return true;

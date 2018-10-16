@@ -21,6 +21,13 @@ AsyncIoDevice::AsyncIoDevice ()
 {
 	m_runtime = getCurrentThreadRuntime ();
 	ASSERT (m_runtime);
+
+	m_options = 0;
+	m_activeEvents = 0;
+	m_ioErrorPtr = g_nullPtr;
+	m_ioThreadFlags = 0;
+
+	m_isOpen = false;
 }
 
 void

@@ -48,6 +48,10 @@ DeviceMonitor::DeviceMonitor ()
 	m_pendingNotifySizeLimit = Def_PendingNotifySizeLimit;
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
 }
 
 bool

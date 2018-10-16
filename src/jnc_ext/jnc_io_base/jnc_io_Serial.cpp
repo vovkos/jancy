@@ -91,6 +91,10 @@ Serial::Serial ()
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
 }
 
 #if (_AXL_OS_WIN)

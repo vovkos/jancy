@@ -41,6 +41,8 @@ SocketAddressResolver::SocketAddressResolver ()
 {
 	m_runtime = getCurrentThreadRuntime ();
 	ASSERT (m_runtime);
+
+	m_ioThreadFlags = 0;
 }
 
 SocketAddressResolver::~SocketAddressResolver ()

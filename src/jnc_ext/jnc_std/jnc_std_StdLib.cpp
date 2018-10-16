@@ -88,12 +88,10 @@ strtol (
 	int radix
 	)
 {
-	long result;
-	char* end;
+	long result = 0;
+	char* end = (char*) ptr.m_p;
 	if (ptr.m_p)
-	{
 		result = ::strtol ((char*) ptr.m_p, &end, radix);
-	}
 
 	if (endPtr.m_p)
 	{

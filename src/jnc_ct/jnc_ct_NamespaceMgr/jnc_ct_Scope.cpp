@@ -29,8 +29,8 @@ Scope::Scope ()
 	m_finallyBlock = NULL;
 	m_tryExpr = NULL;
 	m_firstStackVariable = NULL;
+	m_disposeLevelVariable = NULL;
 	m_gcShadowStackFrameMap = NULL;
-	m_firstStackVariable = NULL;
 	m_sjljFrameIdx = -1;
 }
 
@@ -43,7 +43,7 @@ Scope::canStaticThrow ()
 		(m_function->getType ()->getFlags () & FunctionTypeFlag_ErrorCode);
 }
 
-GcShadowStackFrameMap* 
+GcShadowStackFrameMap*
 Scope::findGcShadowStackFrameMap ()
 {
 	if (m_flags & ScopeFlag_FrameMapCached)

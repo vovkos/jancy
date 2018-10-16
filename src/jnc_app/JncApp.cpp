@@ -167,11 +167,11 @@ JncApp::runFunction (int* returnValue)
 
 	if (returnTypeKind == jnc::TypeKind_Int)
 	{
-		jnc::callFunction (m_runtime, function, returnValue);
+		result = jnc::callFunction (m_runtime, function, returnValue);
 	}
 	else
 	{
-		jnc::callVoidFunction (m_runtime, function);
+		result = jnc::callVoidFunction (m_runtime, function);
 		*returnValue = 0;
 	}
 

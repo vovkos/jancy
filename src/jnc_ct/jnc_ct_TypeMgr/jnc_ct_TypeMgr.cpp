@@ -1999,7 +1999,6 @@ TypeMgr::getNamedImportType (
 	type->m_name = name;
 	type->m_anchorNamespace = anchorNamespace;
 	type->m_anchorName = anchorName;
-	type->m_module = m_module;
 
 	if (anchorName.isEmpty ())
 	{

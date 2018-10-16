@@ -409,21 +409,13 @@ ControlFlowMgr::escapeScope (
 		return;
 	}
 
-	BasicBlock* followBlock = NULL;
-
-	if (!targetBlock)
-	{
-		followBlock = createBlock ("finally_follow");
-		targetBlock = followBlock;
-	}
-
 	prevFinallyBlock->m_finallyRouteMap [routeIdx] = targetBlock;
 
 	Variable* routeIdxVariable = getFinallyRouteIdxVariable ();
 	Value routeIdxValue (routeIdx, m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr));
 	m_module->m_llvmIrBuilder.createStore (routeIdxValue, routeIdxVariable);
 
-	jump (firstFinallyBlock, followBlock);
+	jump (firstFinallyBlock);
 }
 
 bool

@@ -60,6 +60,12 @@ FileStream::FileStream ()
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+
+	m_openFlags = 0;
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
 }
 
 bool

@@ -65,6 +65,10 @@ SshChannel::SshChannel ()
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+
+	m_connectParams = NULL;
+	m_ptyWidth = 0;
+	m_ptyHeight = 0;
 }
 
 bool

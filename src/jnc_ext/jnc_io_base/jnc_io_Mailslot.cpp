@@ -55,6 +55,10 @@ Mailslot::Mailslot ()
 	m_options = Def_Options;
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
 }
 
 bool

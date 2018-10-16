@@ -71,6 +71,10 @@ Socket::Socket ()
 
 	m_readBuffer.setBufferSize (Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize (Def_WriteBufferSize);
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
 }
 
 bool
@@ -141,14 +145,10 @@ Socket::connect (DataPtr addressPtr)
 	if (!result)
 		return false;
 
-	if (result)
-	{
-		m_lock.lock ();
-		m_ioThreadFlags |= IoThreadFlag_Connecting;
-		wakeIoThread ();
-		m_lock.unlock ();
-	}
-
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Connecting;
+	wakeIoThread ();
+	m_lock.unlock ();
 	return result;
 }
 
@@ -160,14 +160,10 @@ Socket::listen (size_t backLogLimit)
 	if (!result)
 		return false;
 
-	if (result)
-	{
-		m_lock.lock ();
-		m_ioThreadFlags |= IoThreadFlag_Listening;
-		wakeIoThread ();
-		m_lock.unlock ();
-	}
-
+	m_lock.lock ();
+	m_ioThreadFlags |= IoThreadFlag_Listening;
+	wakeIoThread ();
+	m_lock.unlock ();
 	return true;
 }
 
