@@ -388,8 +388,11 @@ GcHeap::tryAllocateData (ct::Type* type)
 		return g_nullPtr;
 	}
 
+	memset (box + 1, 0, size);
+
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_box.m_rootOffset = 0;
 	box->m_validator.m_validatorBox = (Box*) box;
 	box->m_validator.m_targetBox = (Box*) box;
 	box->m_validator.m_rangeBegin = box + 1;
@@ -435,8 +438,11 @@ GcHeap::tryAllocateArray (
 		return g_nullPtr;
 	}
 
+	memset (box + 1, 0, size);
+
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_box.m_rootOffset = 0;
 	box->m_count = count;
 	box->m_validator.m_validatorBox = (Box*) box;
 	box->m_validator.m_targetBox = (Box*) box;

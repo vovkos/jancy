@@ -230,8 +230,8 @@ enum jnc_StdType
 {
 	jnc_StdType_BytePtr,
 	jnc_StdType_CharConstPtr,
-	jnc_StdType_SimpleIfaceHdr,
-	jnc_StdType_SimpleIfaceHdrPtr,
+	jnc_StdType_IfaceHdr,
+	jnc_StdType_IfaceHdrPtr,
 	jnc_StdType_Box,
 	jnc_StdType_BoxPtr,
 	jnc_StdType_DataBox,
@@ -640,8 +640,8 @@ typedef jnc_StdType StdType;
 const StdType
 	StdType_BytePtr             = jnc_StdType_BytePtr,
 	StdType_CharConstPtr        = jnc_StdType_CharConstPtr,
-	StdType_SimpleIfaceHdr      = jnc_StdType_SimpleIfaceHdr,
-	StdType_SimpleIfaceHdrPtr   = jnc_StdType_SimpleIfaceHdrPtr,
+	StdType_IfaceHdr            = jnc_StdType_IfaceHdr,
+	StdType_IfaceHdrPtr         = jnc_StdType_IfaceHdrPtr,
 	StdType_Box                 = jnc_StdType_Box,
 	StdType_BoxPtr              = jnc_StdType_BoxPtr,
 	StdType_DataBox             = jnc_StdType_DataBox,

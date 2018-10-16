@@ -207,7 +207,7 @@ ExtensionLibMgr::findItem (
 
 	size_t count = entry->m_itemArray.getCount ();
 	if (count <= cacheSlot)
-		entry->m_itemArray.setCount (cacheSlot + 1);
+		entry->m_itemArray.setCountZeroConstruct (cacheSlot + 1);
 
 	ModuleItem* item = entry->m_itemArray [cacheSlot];
 	if (item)

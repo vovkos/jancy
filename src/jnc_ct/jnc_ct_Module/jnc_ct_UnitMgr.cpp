@@ -18,6 +18,14 @@ namespace ct {
 
 //..............................................................................
 
+Unit::Unit ()
+{
+	m_module = NULL;
+	m_lib = NULL;
+	m_constructor = NULL;
+	m_destructor = NULL;
+}
+
 bool
 Unit::setConstructor (Function* function)
 {

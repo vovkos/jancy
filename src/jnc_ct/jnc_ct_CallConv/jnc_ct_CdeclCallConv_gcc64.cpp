@@ -39,7 +39,7 @@ CdeclCallConv_gcc64::prepareFunctionType (FunctionType* functionType)
 	char buffer [256];
 	sl::Array <llvm::Type*> llvmArgTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 	llvmArgTypeArray.setCount (argCount);
-	functionType->m_argFlagArray.setCount (argCount);
+	functionType->m_argFlagArray.setCountZeroConstruct (argCount);
 
 	size_t j = 0;
 

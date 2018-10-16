@@ -22,9 +22,11 @@ enum ReactorMethod
 {
 	ReactorMethod_Start,
 	ReactorMethod_Stop,
+	ReactorMethod_Restart,
 	ReactorMethod_AddOnChangedBinding,
 	ReactorMethod_AddOnEventBinding,
 	ReactorMethod_ResetOnChangedBindings,
+	ReactorMethod__Count,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

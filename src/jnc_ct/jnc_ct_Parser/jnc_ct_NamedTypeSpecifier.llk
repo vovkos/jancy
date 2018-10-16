@@ -63,7 +63,7 @@ class
 enum_specifier
 	enter
 	{
-		m_flags = 0;
+		$.m_flags = 0;
 	}
 	leave
 	{

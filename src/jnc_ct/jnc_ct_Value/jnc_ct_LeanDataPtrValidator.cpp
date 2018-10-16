@@ -150,7 +150,7 @@ LeanDataPtrValidator::createClassFieldValidator ()
 	else
 	{
 		Value tmpValue;
-		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_SimpleIfaceHdrPtr), &tmpValue);
+		module->m_llvmIrBuilder.createBitCast (m_originValue, module->m_typeMgr.getStdType (StdType_IfaceHdrPtr), &tmpValue);
 		module->m_llvmIrBuilder.createGep2 (tmpValue, 1, NULL, &tmpValue);
 		module->m_llvmIrBuilder.createLoad (tmpValue, module->m_typeMgr.getStdType (StdType_BoxPtr), &boxValue);
 	}

@@ -30,8 +30,8 @@ getStdTypeSource (StdType stdType)
 	{
 		{ NULL },                            // StdType_BytePtr,
 		{ NULL },                            // StdType_CharConstPtr,
-		{ NULL },                            // StdType_SimpleIfaceHdr,
-		{ NULL },                            // StdType_SimpleIfaceHdrPtr,
+		{ NULL },                            // StdType_IfaceHdr,
+		{ NULL },                            // StdType_IfaceHdrPtr,
 		{ NULL },                            // StdType_Box,
 		{ NULL },                            // StdType_BoxPtr,
 		{ NULL },                            // StdType_DataBox,

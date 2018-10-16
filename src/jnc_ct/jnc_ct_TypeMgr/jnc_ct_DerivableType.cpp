@@ -290,14 +290,14 @@ DerivableType::addMethod (Function* function)
 
 	case FunctionKind_UnaryOperator:
 		if (m_unaryOperatorTable.isEmpty ())
-			m_unaryOperatorTable.setCount (UnOpKind__Count);
+			m_unaryOperatorTable.setCountZeroConstruct (UnOpKind__Count);
 
 		target = &m_unaryOperatorTable [function->getUnOpKind ()];
 		break;
 
 	case FunctionKind_BinaryOperator:
 		if (m_binaryOperatorTable.isEmpty ())
-			m_binaryOperatorTable.setCount (BinOpKind__Count);
+			m_binaryOperatorTable.setCountZeroConstruct (BinOpKind__Count);
 
 		target = &m_binaryOperatorTable [function->getBinOpKind ()];
 		break;

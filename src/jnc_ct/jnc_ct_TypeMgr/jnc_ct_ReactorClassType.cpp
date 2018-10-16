@@ -25,10 +25,11 @@ getReactorMethod (
 	ReactorMethod method
 	)
 {
-	static const char* nameTable [] =
+	static const char* nameTable [ReactorMethod__Count] =
 	{
 		"start",                   // ReactorMethod_Start,
 		"stop",                    // ReactorMethod_Stop,
+		"restart",                 // ReactorMethod_Restart,
 		"!addOnChangedBinding",    // ReactorMethod_AddOnChangedBinding,
 		"!addOnEventBinding",      // ReactorMethod_AddOnEventBinding,
 		"!resetOnChangedBindings", // ReactorMethod_ResetOnChangedBindings,

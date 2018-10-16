@@ -38,6 +38,8 @@ protected:
 	Function* m_destructor;
 
 public:
+	Unit ();
+
 	Module*
 	getModule () const
 	{

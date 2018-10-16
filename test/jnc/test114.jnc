@@ -1,3 +1,5 @@
+// this sample demonstrates a bug in legacy JIT in LLVM-3.4.2 (at least, on Windows)
+
 int main ()
 {
 	uint_t x;

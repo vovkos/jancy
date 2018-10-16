@@ -79,6 +79,7 @@ StructField::generateDocumentation (
 StructType::StructType ()
 {
 	m_typeKind = TypeKind_Struct;
+	m_structTypeKind = StructTypeKind_Normal;
 	m_flags = TypeFlag_Pod | TypeFlag_StructRet;
 	m_fieldAlignment = 8;
 	m_fieldActualSize = 0;

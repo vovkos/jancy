@@ -88,6 +88,12 @@ protected:
 		axl::io::SockAddr m_sockAddr;
 		socklen_t m_sockAddrSize;
 		dword_t m_flags;
+
+		OverlappedRecv ()
+		{
+			m_sockAddrSize = 0;
+			m_flags = 0;
+		}
 	};
 
 	struct OverlappedIo

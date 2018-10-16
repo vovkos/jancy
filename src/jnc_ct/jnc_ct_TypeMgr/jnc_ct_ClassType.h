@@ -162,11 +162,7 @@ public:
 	}
 
 	StructType*
-	getVTableStructType ()
-	{
-		ASSERT (m_vtableStructType);
-		return m_vtableStructType;
-	}
+	getVTableStructType ();
 
 	Variable*
 	getVTableVariable ()
