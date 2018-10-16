@@ -177,13 +177,18 @@ ReactorImpl::reactionLoop ()
 
 	// the main loop
 
+	size_t i = -1;
 	for (;;)
 	{
 		// get the next pending reaction
 
-		size_t i = m_pendingReactionMap.findBit (0);
+		i = m_pendingReactionMap.findBit (i + 1);
 		if (i >= reactionCount)
-			break;
+		{
+			i = m_pendingReactionMap.findBit (0); // wrap
+			if (i >= reactionCount)
+				break;
+		}
 
 		m_pendingReactionMap.setBit (i, false);
 
