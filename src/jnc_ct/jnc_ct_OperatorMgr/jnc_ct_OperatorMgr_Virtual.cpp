@@ -25,15 +25,17 @@ OperatorMgr::getClassVTable (
 	Value* resultValue
 	)
 {
+	StructType* vtableType = classType->getVTableStructType ();
+	ASSERT (vtableType);
+
 	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr)
 		checkNullPtr (opValue);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createBitCast (opValue, classType->getIfaceHdrPtrType (), &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (opValue, m_module->m_typeMgr.getStdType (StdType_IfaceHdrPtr), &ptrValue);
 	m_module->m_llvmIrBuilder.createGep2 (ptrValue, 0, NULL, &ptrValue);
-
-	DataPtrType* resultType = classType->getVTableStructType ()->getDataPtrType_c ();
-	m_module->m_llvmIrBuilder.createLoad (ptrValue, resultType, resultValue);
+	m_module->m_llvmIrBuilder.createLoad (ptrValue, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createBitCast (ptrValue, vtableType->getDataPtrType_c (), resultValue);
 	return true;
 }
 

@@ -38,10 +38,9 @@ class ClassType: public DerivableType
 protected:
 	ClassTypeKind m_classTypeKind;
 
-	StructType* m_ifaceHdrStructType;
+	StructType* m_vtableStructType;
 	StructType* m_ifaceStructType;
 	StructType* m_classStructType;
-	StructType* m_vtableStructType;
 
 	sl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
 	sl::Array <StructField*> m_classMemberFieldArray;
@@ -64,20 +63,6 @@ public:
 	getClassTypeKind ()
 	{
 		return m_classTypeKind;
-	}
-
-	StructType*
-	getIfaceHdrStructType ()
-	{
-		ASSERT (m_ifaceHdrStructType);
-		return m_ifaceHdrStructType;
-	}
-
-	DataPtrType*
-	getIfaceHdrPtrType ()
-	{
-		ASSERT (m_ifaceHdrStructType);
-		return m_ifaceHdrStructType->getDataPtrType_c ();
 	}
 
 	StructType*

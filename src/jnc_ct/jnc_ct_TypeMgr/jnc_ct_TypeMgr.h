@@ -929,7 +929,7 @@ protected:
 	createAbstractDataType ();
 
 	StructType*
-	createSimpleIfaceHdrType ();
+	createIfaceHdrType ();
 
 	StructType*
 	createBoxType ();

@@ -476,7 +476,11 @@ jnc_primeClass (
 	ASSERT (root <= box);
 
 	if (!vtable)
-		vtable = type->getVTableVariable ()->getStaticData ();
+	{
+		jnc_Variable* vtableVariable = type->getVTableVariable ();
+		if (vtableVariable)
+			vtable = vtableVariable->getStaticData ();
+	}
 
 	memset (box, 0, type->getSize ());
 

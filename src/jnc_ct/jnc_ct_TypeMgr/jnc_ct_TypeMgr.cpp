@@ -847,14 +847,6 @@ TypeMgr::createClassType (
 
 	m_module->markForLayout (type, true); // before child structs
 
-	StructType* vtableStructType = createUnnamedStructType ();
-	vtableStructType->m_tag.format ("%s.VTable", type->m_tag.sz ());
-
-	StructType* ifaceHdrStructType = createUnnamedStructType (fieldAlignment);
-	ifaceHdrStructType->m_tag.format ("%s.IfaceHdr", type->m_tag.sz ());
-	ifaceHdrStructType->createField ("!m_vtable", vtableStructType->getDataPtrType_c ());
-	ifaceHdrStructType->createField ("!m_box", getStdType (StdType_BoxPtr));
-
 	StructType* ifaceStructType = createUnnamedStructType (fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
 	ifaceStructType->m_tag.format ("%s.Iface", type->m_tag.sz ());
@@ -872,7 +864,6 @@ TypeMgr::createClassType (
 	type->m_module = m_module;
 	type->m_flags |= flags;
 	type->m_classTypeKind = classTypeKind;
-	type->m_ifaceHdrStructType = ifaceHdrStructType;
 	type->m_ifaceStructType = ifaceStructType;
 	type->m_classStructType = classStructType;
 	return type;
@@ -2477,9 +2468,9 @@ TypeMgr::createAbstractDataType ()
 }
 
 StructType*
-TypeMgr::createSimpleIfaceHdrType ()
+TypeMgr::createIfaceHdrType ()
 {
-	StructType* type = createStructType ("SimpleIfaceHdr", "jnc.SimpleIfaceHdr");
+	StructType* type = createStructType ("IfaceHdr", "jnc.IfaceHdr");
 	type->createField ("!m_vtable", getStdType (StdType_BytePtr));
 	type->createField ("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout ();

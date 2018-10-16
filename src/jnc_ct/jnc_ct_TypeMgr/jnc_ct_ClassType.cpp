@@ -23,7 +23,6 @@ ClassType::ClassType ()
 {
 	m_typeKind = TypeKind_Class;
 	m_flags = TypeFlag_NoStack;
-	m_ifaceHdrStructType = NULL;
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
 	m_vtableStructType = NULL;
@@ -48,6 +47,8 @@ ClassType::getVTableStructType ()
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
+	m_vtableStructType = m_module->m_typeMgr.createUnnamedStructType ();
+	m_vtableStructType->m_tag.format ("%s.VTable",m_tag.sz ());
 	return m_vtableStructType;
 }
 
@@ -306,7 +307,7 @@ ClassType::calcLayout ()
 	if (m_baseTypeList.isEmpty () ||
 		m_baseTypeList.getHead ()->getType ()->getTypeKind () != TypeKind_Class)
 	{
-		m_ifaceStructType->addBaseType (m_ifaceHdrStructType);
+		m_ifaceStructType->addBaseType (m_module->m_typeMgr.getStdType (StdType_IfaceHdr));
 	}
 
 	size_t baseTypeCount = m_baseTypeList.getCount ();
@@ -368,7 +369,9 @@ ClassType::calcLayout ()
 		ifaceBaseTypeArray [i] = m_ifaceStructType->addBaseType (baseClassType->getIfaceStructType ());
 		slot->m_vtableIndex = m_vtable.getCount ();
 		m_vtable.append (baseClassType->m_vtable);
-		m_vtableStructType->append (baseClassType->m_vtableStructType);
+
+		if (baseClassType->m_vtableStructType)
+			getVTableStructType ()->append (baseClassType->m_vtableStructType);
 
 		m_baseTypePrimeArray.append (slot);
 
@@ -442,7 +445,12 @@ ClassType::calcLayout ()
 		slot->m_offset = ifaceSlot->m_offset;
 	}
 
+	m_classStructType->ensureLayout ();
+
 	// layout virtual properties
+
+	if (!m_virtualPropertyArray.isEmpty () || !m_virtualMethodArray.isEmpty ())
+		getVTableStructType (); // ensure VTable struct
 
 	count = m_virtualPropertyArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -495,13 +503,14 @@ ClassType::calcLayout ()
 			return false;
 	}
 
-	result = m_vtableStructType->ensureLayout ();
-	if (!result)
-		return false;
+	if (m_vtableStructType)
+	{
+		result = m_vtableStructType->ensureLayout ();
+		if (!result)
+			return false;
 
-	m_classStructType->ensureLayout ();
-
-	createVTableVariable ();
+		createVTableVariable ();
+	}
 
 	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 	{
@@ -546,7 +555,7 @@ ClassType::addVirtualFunction (Function* function)
 	function->m_classVTableIndex = m_vtable.getCount ();
 
 	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
-	m_vtableStructType->createField (pointerType);
+	getVTableStructType ()->createField (pointerType);
 	m_vtable.append (function);
 }
 
@@ -673,6 +682,8 @@ ClassType::overrideVirtualFunction (Function* function)
 void
 ClassType::createVTableVariable ()
 {
+	ASSERT (m_vtableStructType);
+
 	char buffer [256];
 	sl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
 
