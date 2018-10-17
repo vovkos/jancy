@@ -111,13 +111,6 @@ ReactorClassType::calcLayout ()
 
 	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.setCurrentFunction (prevFunction);
-
-	if (!parser.m_reactionIdx)
-	{
-		err::setFormatStringError ("reactor '%s' has no reactions", m_tag.sz ());
-		return false;
-	}
-
 	m_reactionCount = parser.m_reactionIdx;
 
 	return ClassType::calcLayout ();

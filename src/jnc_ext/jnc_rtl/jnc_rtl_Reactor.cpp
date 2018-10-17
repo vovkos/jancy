@@ -78,10 +78,8 @@ ReactorImpl::ReactorImpl ()
 
 	ct::ReactorClassType* reactorType = (ct::ReactorClassType*) m_ifaceHdr.m_box->m_type;
 	size_t reactionCount = reactorType->getReactionCount ();
-	ASSERT (reactionCount);
 
 	m_reactionArray.setCount (reactionCount);
-
 	for (size_t i = 0; i < reactionCount; i++)
 		m_reactionArray [i] = AXL_MEM_NEW (Reaction);
 
@@ -296,7 +294,7 @@ ReactorImpl::subscribe (Multicast* multicast)
 	closure->m_binding = binding;
 
 	FunctionPtr functionPtr;
-	functionPtr.m_p = onChangedThunk;
+	functionPtr.m_p = jnc_pvoid_cast (onChangedThunk);
 	functionPtr.m_closure = &closure->m_ifaceHdr;
 
 	binding->m_handler = ((MulticastImpl*) multicast)->addHandler (functionPtr);
