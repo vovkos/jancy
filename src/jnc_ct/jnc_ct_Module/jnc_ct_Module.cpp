@@ -42,6 +42,7 @@ Module::Module ()
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 
+	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
@@ -57,6 +58,9 @@ Module::clear ()
 		delete m_llvmExecutionEngine;
 	else if (m_llvmModule)
 		delete m_llvmModule;
+
+	if (m_llvmContext)
+		delete m_llvmContext;
 
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
@@ -81,6 +85,7 @@ Module::clear ()
 	m_filePathSet.clear ();
 	m_functionMap.clear ();
 
+	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
@@ -111,8 +116,8 @@ Module::initialize (
 	m_compileFlags = compileFlags;
 	m_compileState = ModuleCompileState_Idle;
 
-	llvm::LLVMContext* llvmContext = new llvm::LLVMContext;
-	m_llvmModule = new llvm::Module ("jncModule", *llvmContext);
+	m_llvmContext = new llvm::LLVMContext;
+	m_llvmModule = new llvm::Module ("jncModule", *m_llvmContext);
 
 	m_llvmIrBuilder.create ();
 

@@ -79,6 +79,7 @@ protected:
 	sl::StringHashTable <bool> m_filePathSet;
 	sl::StringHashTable <void*> m_functionMap;
 
+	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
