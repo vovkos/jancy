@@ -16,6 +16,10 @@ int main ()
 		print ($"a [$i] = $(a [i])\n");
 
 	return 0;
+
+catch:
+	printf ("error caught: %s\n", std.getLastErrorDescription ());
+	return 1;
 }
 
 //..............................................................................

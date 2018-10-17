@@ -45,6 +45,10 @@ int main ()
 	printf ("result = %d\n", result);
 	return 0;
 
+catch:
+	printf ("main-catch: %s\n", std.getLastErrorDescription ());
+	return 1;
+
 finally:
 	printf ("main-finally\n");
 }
