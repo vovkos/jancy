@@ -47,7 +47,17 @@ reactor_onevent_stmt
 	{
 		Declarator $declarator;
 	}
-	:	TokenKind_OnEvent reactor_event_name function_suffix <&$declarator> declaration_body_pass1
+	leave
+	{
+		postDeclarator (&$declarator);
+	}
+	:	TokenKind_OnEvent
+		reactor_event_name
+			{
+				postDeclaratorName (&$declarator);
+			}
+		function_suffix <&$declarator>
+		declaration_body_pass1
 			{
 				return reactorOnEventStmt ($2.m_valueList, &$declarator, &$4.m_tokenList);
 			}
@@ -118,7 +128,16 @@ reactor_onevent_stmt_0
 	{
 		Declarator $declarator;
 	}
-	:	TokenKind_OnEvent reactor_event_name_0 function_suffix <&$declarator>
+	leave
+	{
+		postDeclarator (&$declarator);
+	}
+	:	TokenKind_OnEvent
+		reactor_event_name_0
+			{
+				postDeclaratorName (&$declarator);
+			}
+		function_suffix <&$declarator>
 		reactor_compound_stmt_0
 	;
 
