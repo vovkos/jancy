@@ -71,7 +71,8 @@ main (
 
 	bool result;
 
-	jnc::initialize ("jnc_app");
+	g::getModule ()->setTag ("jnc_app");
+	jnc::initialize ("jnc_dll:jnc_app");
 	jnc::setErrorRouter (err::getErrorMgr ());
 	lex::registerParseErrorProvider ();
 
