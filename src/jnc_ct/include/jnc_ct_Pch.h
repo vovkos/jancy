@@ -23,11 +23,11 @@
 #	ifndef _CRT_SECURE_NO_WARNINGS
 #		define _CRT_SECURE_NO_WARNINGS 1
 #	endif
-#
+
 #	ifndef _SCL_SECURE_NO_WARNINGS
 #		define _SCL_SECURE_NO_WARNINGS 1
 #	endif
-#
+
 #	ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #		define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 #	endif
@@ -92,7 +92,7 @@
 #		include "llvm/ExecutionEngine/JIT.h"
 #		include "llvm/ExecutionEngine/JITMemoryManager.h"
 #	endif
-#
+
 #	include "llvm/ExecutionEngine/JITEventListener.h"
 #	include "llvm/ExecutionEngine/MCJIT.h"
 #endif

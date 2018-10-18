@@ -132,7 +132,7 @@
 #	ifndef _CRT_SECURE_NO_WARNINGS
 #		define _CRT_SECURE_NO_WARNINGS 1 // useless warnings about "unsafe" string functions
 #	endif
-#
+
 #	ifndef _CRT_SECURE_NO_WARNINGS
 #		define _SCL_SECURE_NO_WARNINGS 1 // useless warnings about "unsafe" iterator operations
 #	endif
@@ -162,10 +162,10 @@
 #	ifndef _WIN32_WINNT
 #		define _WIN32_WINNT 0x0600 // Windows Vista
 #	endif
-#
+
 #	define WIN32_LEAN_AND_MEAN // prevent winsock.h vs winsock2.h conflict
 #	define NOMINMAX            // prevent min/max macro conflicts
-#
+
 #	include <windows.h>
 #	include <crtdbg.h>
 #elif (_JNC_OS_POSIX)
@@ -259,7 +259,7 @@ typedef wchar_t           utf32_t;
 #	define JNC_STDCALL     __stdcall
 #	define JNC_SELECT_ANY  __declspec (selectany)
 #	define JNC_EXPORT      __declspec (dllexport)
-#
+
 #	define JNC_GCC_ALIGN(n)
 #	define JNC_GCC_MSC_STRUCT
 #	define JNC_GCC_NO_ASAN
@@ -273,10 +273,10 @@ typedef wchar_t           utf32_t;
 #	endif
 #	define JNC_SELECT_ANY  __attribute__ ((weak))
 #	define JNC_EXPORT      __attribute__ ((visibility ("default")))
-#
+
 #	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
 #	define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
-#
+
 #	ifdef __has_feature
 #		if (__has_feature (address_sanitizer))
 #	 		define _JNC_GCC_ASAN 1
@@ -284,7 +284,7 @@ typedef wchar_t           utf32_t;
 #	elif (defined (__SANITIZE_ADDRESS__))
 # 		define _JNC_GCC_ASAN 1
 #	endif
-#
+
 #	define JNC_GCC_NO_ASAN __attribute__((no_sanitize_address))
 #endif
 
