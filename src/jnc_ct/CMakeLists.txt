@@ -503,6 +503,7 @@ include_directories (
 	${AXL_INC_DIR}
 	${GRACO_INC_DIR}
 	${JANCY_INC_DIR}
+	${CMAKE_CURRENT_LIST_DIR} # for pch.h
 	${JANCY_SRC_DIR}/jnc_rt
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl
