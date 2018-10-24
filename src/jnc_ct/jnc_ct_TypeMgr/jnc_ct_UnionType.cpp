@@ -146,7 +146,7 @@ UnionType::calcLayout ()
 
 	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 	{
-		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
+		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
 		if (!result)
 			return false;
 	}
@@ -155,7 +155,7 @@ UnionType::calcLayout ()
 		(m_preconstructor ||
 		!m_initializedMemberFieldArray.isEmpty ()))
 	{
-		result = createDefaultMethod (FunctionKind_Constructor);
+		result = createDefaultMethod (FunctionKind_Constructor) != NULL;
 		if (!result)
 			return false;
 	}

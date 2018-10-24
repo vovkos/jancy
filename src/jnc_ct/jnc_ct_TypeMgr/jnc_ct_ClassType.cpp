@@ -514,7 +514,7 @@ ClassType::calcLayout ()
 
 	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
 	{
-		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static);
+		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
 		if (!result)
 			return false;
 	}
@@ -526,7 +526,7 @@ ClassType::calcLayout ()
 		!m_initializedMemberFieldArray.isEmpty () ||
 		!m_memberPropertyConstructArray.isEmpty ()))
 	{
-		result = createDefaultMethod (FunctionKind_Constructor);
+		result = createDefaultMethod (FunctionKind_Constructor) != NULL;
 		if (!result)
 			return false;
 	}
@@ -535,7 +535,7 @@ ClassType::calcLayout ()
 		(!m_baseTypeDestructArray.isEmpty () ||
 		!m_memberPropertyDestructArray.isEmpty ()))
 	{
-		result = createDefaultMethod (FunctionKind_Destructor);
+		result = createDefaultMethod (FunctionKind_Destructor) != NULL;
 		if (!result)
 			return false;
 	}
