@@ -123,9 +123,15 @@ ReactorClassType::compile ()
 	if (!result)
 		return false;
 
+	ASSERT (!m_body.isEmpty ());
+	const Token::Pos* pos = &m_body.getHead ()->m_pos;
+
+	if (m_parentUnit)
+		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+
 	Value argValueArray [2];
-	m_module->m_functionMgr.internalPrologue (m_reaction, argValueArray, countof (argValueArray));
 	m_module->m_namespaceMgr.openNamespace (this);
+	m_module->m_functionMgr.internalPrologue (m_reaction, argValueArray, countof (argValueArray), pos);
 
 	Parser parser (m_module);
 	parser.m_stage = Parser::Stage_Reaction;
@@ -136,8 +142,8 @@ ReactorClassType::compile ()
 	if (!result)
 		return false;
 
-	m_module->m_namespaceMgr.closeNamespace ();
 	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_namespaceMgr.closeNamespace ();
 	return true;
 }
 
