@@ -50,6 +50,11 @@ JNC_EXPORT
 jnc_ExtensionLib*
 jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
 {
+#if (_JNC_OS_WIN)
+	WSADATA WsaData;
+	WSAStartup (0x0202, &WsaData);
+#endif
+
 	g::getModule ()->setTag ("jnc_io_ssh");
 	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
