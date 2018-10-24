@@ -226,7 +226,8 @@ public:
 	internalPrologue (
 		Function* function,
 		Value* argValueArray = NULL,
-		size_t argCount = 0
+		size_t argCount = 0,
+		const Token::Pos* pos = NULL
 		);
 
 	void

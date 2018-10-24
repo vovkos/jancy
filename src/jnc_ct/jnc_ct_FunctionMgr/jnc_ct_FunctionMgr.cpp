@@ -416,7 +416,8 @@ void
 FunctionMgr::internalPrologue (
 	Function* function,
 	Value* argValueArray,
-	size_t argCount
+	size_t argCount,
+	const Token::Pos* pos
 	)
 {
 	m_currentFunction = function;
@@ -433,7 +434,9 @@ FunctionMgr::internalPrologue (
 	m_module->m_llvmIrBuilder.setAllocaBlock (function->m_allocaBlock);
 	m_module->m_controlFlowMgr.setCurrentBlock (function->m_prologueBlock);
 
-	function->m_scope = m_module->m_namespaceMgr.openInternalScope ();
+	function->m_scope = pos ?
+		m_module->m_namespaceMgr.openScope (*pos) :
+		m_module->m_namespaceMgr.openInternalScope ();
 
 	if (function->isMember ())
 		createThisValue ();
