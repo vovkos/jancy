@@ -54,14 +54,6 @@ Module::Module ()
 void
 Module::clear ()
 {
-	if (m_llvmExecutionEngine)
-		delete m_llvmExecutionEngine;
-	else if (m_llvmModule)
-		delete m_llvmModule;
-
-	if (m_llvmContext)
-		delete m_llvmContext;
-
 	m_typeMgr.clear ();
 	m_namespaceMgr.clear ();
 	m_functionMgr.clear ();
@@ -93,6 +85,14 @@ Module::clear ()
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+
+	if (m_llvmExecutionEngine)
+		delete m_llvmExecutionEngine;
+	else if (m_llvmModule)
+		delete m_llvmModule;
+
+	if (m_llvmContext)
+		delete m_llvmContext;
 }
 
 void
