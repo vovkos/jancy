@@ -148,8 +148,6 @@ Runtime::initializeCallSite (jnc_CallSite* callSite)
 
 	// not found, create a new one
 
-	size_t size = sizeof (Tls) + m_tlsSize;
-
 	Tls* tls = AXL_MEM_NEW_EXTRA (Tls, m_tlsSize);
 	m_gcHeap.registerMutatorThread (&tls->m_gcMutatorThread); // register with GC heap first
 	tls->m_prevTls = prevTls;
