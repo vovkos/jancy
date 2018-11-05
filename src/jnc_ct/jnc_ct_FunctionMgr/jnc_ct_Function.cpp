@@ -79,7 +79,7 @@ Function::addUsingSet (UsingSet* usingSet)
 		&m_module->m_namespaceMgr :
 		NULL;
 
-	m_usingSet.append (NULL, usingSet);
+	m_usingSet.append (importNamespaceMgr, usingSet);
 }
 
 llvm::Function*
