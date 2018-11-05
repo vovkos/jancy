@@ -44,13 +44,21 @@ else ()
 		jnc_dll.version
 		)
 
+	if (CMAKE_GENERATOR MATCHES "Xcode")
+		set (
+			DLL_SRC_LIST
+			${DLL_SRC_LIST}
+			xcode.c
+			)
+	endif ()
+
 	if (NOT APPLE)
 		set (
 			DLL_SRC_LIST
 			${DLL_SRC_LIST}
 			jnc_dll.version
 			)
-		endif ()
+	endif ()
 endif ()
 
 source_group (
