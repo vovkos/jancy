@@ -77,6 +77,14 @@ Module::clear ()
 	m_filePathSet.clear ();
 	m_functionMap.clear ();
 
+	if (m_llvmExecutionEngine)
+		delete m_llvmExecutionEngine;
+	else if (m_llvmModule)
+		delete m_llvmModule;
+
+	if (m_llvmContext)
+		delete m_llvmContext;
+
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
@@ -85,14 +93,6 @@ Module::clear ()
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-
-	if (m_llvmExecutionEngine)
-		delete m_llvmExecutionEngine;
-	else if (m_llvmModule)
-		delete m_llvmModule;
-
-	if (m_llvmContext)
-		delete m_llvmContext;
 }
 
 void
@@ -183,8 +183,8 @@ Module::createLlvmExecutionEngine ()
 
 #if (JNC_PTR_BITS == 32)
 #	if (_JNC_OS_POSIX)
-		m_functionMap ["__divdi3"]  = (void*) __divdi3;
-		m_functionMap ["__moddi3"]  = (void*) __moddi3;
+		m_functionMap ["__divdi3"] = (void*) __divdi3;
+		m_functionMap ["__moddi3"] = (void*) __moddi3;
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
 #	elif (_JNC_OS_WIN)

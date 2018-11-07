@@ -72,6 +72,7 @@
 #	include "llvm/IR/Verifier.h"
 #endif
 
+#include <llvm/Support/CommandLine.h>
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/ManagedStatic.h"
@@ -79,6 +80,7 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "llvm/ADT/StringExtras.h"
+#include <llvm/ADT/StringMap.h>
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/ExecutionEngine/SectionMemoryManager.h"
