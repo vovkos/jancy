@@ -138,6 +138,15 @@ extern "C" int64_t __divdi3 (int64_t, int64_t);
 extern "C" int64_t __moddi3 (int64_t, int64_t);
 extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
 extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
+#		if (_JNC_CPU_ARM32)
+struct DivModRetVal
+{
+	uint64_t m_quotient;
+	uint64_t m_remainder;
+};
+extern "C" DivModRetVal __aeabi_ldivmod (uint64_t, uint64_t);
+extern "C" DivModRetVal __aeabi_uldivmod (uint64_t, uint64_t);
+#		endif
 #	elif (_JNC_OS_WIN)
 extern "C" int64_t _alldiv (int64_t, int64_t);
 extern "C" int64_t _allrem (int64_t, int64_t);
@@ -155,6 +164,18 @@ Module::createLlvmExecutionEngine ()
 	llvm::EngineBuilder engineBuilder (m_llvmModule);
 #else
 	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
+#endif
+
+#if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
+	// disable the GlobalMerge pass (on by default) on ARM because
+	// it will dangle GlobalVariable::m_llvmVariable pointers
+
+	llvm::StringMap <llvm::cl::Option*> options;
+	llvm::cl::getRegisteredOptions (options);
+	llvm::cl::opt <bool>* enableMerge = (llvm::cl::opt <bool>*) options.find ("global-merge")->second;
+	ASSERT (llvm::isa <llvm::cl::opt <bool> > (enableMerge));
+
+	enableMerge->setValue (false);
 #endif
 
 	std::string errorString;
@@ -187,6 +208,10 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["__moddi3"] = (void*) __moddi3;
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
+#		if (_JNC_CPU_ARM32)
+		m_functionMap ["__aeabi_ldivmod"] = (void*) __aeabi_ldivmod;
+		m_functionMap ["__aeabi_uldivmod"] = (void*) __aeabi_uldivmod;
+#		endif
 #	elif (_JNC_OS_WIN)
 		m_functionMap ["_alldiv"] = (void*) _alldiv;
 		m_functionMap ["_allrem"] = (void*) _allrem;
