@@ -66,14 +66,22 @@
 #endif
 
 #if (_JNC_CPU_X86)
+#	define JNC_CPU_STRING "x86"
 #	define JNC_PTR_SIZE 4
-#	define JNC_PTR_BITS 32 // often times it's more natural to use bit size
 #elif (_JNC_CPU_AMD64)
+#	define JNC_CPU_STRING "amd64"
 #	define JNC_PTR_SIZE 8
-#	define JNC_PTR_BITS 64 // often times it's more natural to use bit size
+#elif (_JNC_CPU_ARM32)
+#	define JNC_CPU_STRING "arm32"
+#	define JNC_PTR_SIZE 4
+#elif (_JNC_CPU_ARM64)
+#	define JNC_CPU_STRING "arm64"
+#	define JNC_PTR_SIZE 8
 #else
 #	error unsupported CPU architecture
 #endif
+
+#define JNC_PTR_BITS (JNC_PTR_SIZE * 8) // often times it's more natural to use bit size
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -275,7 +283,12 @@ typedef wchar_t           utf32_t;
 #	define JNC_EXPORT      __attribute__ ((visibility ("default")))
 
 #	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
-#	define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
+#
+#	if (defined (__has_attribute) && __has_attribute (ms_struct))
+#		define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
+#   else
+#		define JNC_GCC_MSC_STRUCT
+#   endif
 
 #	ifdef __has_feature
 #		if (__has_feature (address_sanitizer))
