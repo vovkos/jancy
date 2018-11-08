@@ -151,6 +151,21 @@ funcStruct128 (
 	return retval;
 }
 
+variant
+funcVariant (
+	variant v1,
+	variant v2,
+	variant v3,
+	variant v4
+	)
+{
+	assert (v1 == -1);
+	assert (v2 == -2);
+	assert (v3 == -3);
+	assert (v4 == -4);
+
+	return v1 + v2 + v3 + v4;
+}
 //..............................................................................
 
 } // namespace c2jnc
@@ -215,6 +230,14 @@ funcStruct128 (
 	struct128 s4
 	);
 
+variant
+funcVariant (
+	variant v1,
+	variant v2,
+	variant v3,
+	variant v4
+	);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 testInt32 ()
@@ -268,6 +291,17 @@ testStruct128 ()
 
 	struct128 retval = funcStruct128 (s1, s2, s3, s4);
 	assert (retval.m_a == -16 && retval.m_b == -20);
+}
+
+testVariant ()
+{
+	variant v1 = -1;
+	variant v2 = -2;
+	variant v3 = -3;
+	variant v4 = -4;
+
+	variant retval = funcVariant (v1, v2, v3, v4);
+	assert (retval == -10);
 }
 
 //..............................................................................

@@ -104,6 +104,32 @@ testStruct128 (jnc::Module* module)
 	ASSERT (retval.m_a == -16 && retval.m_b == -20);
 }
 
+void
+testVariant (jnc::Module* module)
+{
+	printf ("Running c2jnc.testVariant...\n");
+
+	jnc::Type* type = module->getPrimitiveType (jnc::TypeKind_Int);
+
+	jnc::Variant v [4] = { 0 };
+
+	v [0].m_type = type;
+	v [0].m_int32 = -1;
+	v [1].m_type = type;
+	v [1].m_int32 = -2;
+	v [2].m_type = type;
+	v [2].m_int32 = -3;
+	v [3].m_type = type;
+	v [3].m_int32 = -4;
+
+	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcVariant");
+	ASSERT (jncFunc);
+
+	FuncVariant* funcPtr = (FuncVariant*) jncFunc->getMachineCode ();;
+	jnc::Variant retval = funcPtr (v [0], v [1], v [2], v [3]);
+	ASSERT (retval.m_type->getTypeKind () == jnc::TypeKind_Int && retval.m_int32 == -10);
+}
+
 //..............................................................................
 
 } // namespace c2jnc
@@ -243,6 +269,25 @@ funcStruct128 (
 	return retval;
 }
 
+jnc::Variant
+funcVariant (
+	jnc::Variant v1,
+	jnc::Variant v2,
+	jnc::Variant v3,
+	jnc::Variant v4
+	)
+{
+	ASSERT (v1.m_type->getTypeKind () == jnc::TypeKind_Int && v1.m_int32 == -1);
+	ASSERT (v2.m_type->getTypeKind () == jnc::TypeKind_Int && v2.m_int32 == -2);
+	ASSERT (v3.m_type->getTypeKind () == jnc::TypeKind_Int && v3.m_int32 == -3);
+	ASSERT (v4.m_type->getTypeKind () == jnc::TypeKind_Int && v4.m_int32 == -4);
+
+	jnc::Variant retval = { 0 };
+	retval.m_int32 = v1.m_int32 + v2.m_int32 + v3.m_int32 + v4.m_int32;
+	retval.m_type = v1.m_type;
+	return retval;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -279,6 +324,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct32",  &jnc2c::funcStruct32)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct64",  &jnc2c::funcStruct64)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct128", &jnc2c::funcStruct128)
+	JNC_MAP_FUNCTION ("jnc2c.funcVariant",   &jnc2c::funcVariant)
 JNC_END_LIB_FUNCTION_MAP ()
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (TestLib)

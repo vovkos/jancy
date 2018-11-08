@@ -85,11 +85,14 @@ main (
 	c2jnc::testStruct32 (module);
 	c2jnc::testStruct64 (module);
 	c2jnc::testStruct128 (module);
+	c2jnc::testVariant (module);
+
 	jnc2c::test (module, "jnc2c.testInt32");
 	jnc2c::test (module, "jnc2c.testInt64");
 	jnc2c::test (module, "jnc2c.testStruct32");
 	jnc2c::test (module, "jnc2c.testStruct64");
 	jnc2c::test (module, "jnc2c.testStruct128");
+	jnc2c::test (module, "jnc2c.testVariant");
 
 	JNC_CALL_SITE_CATCH ()
 

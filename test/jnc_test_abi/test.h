@@ -87,6 +87,15 @@ FuncStruct128 (
 	);
 
 typedef
+jnc::Variant
+FuncVariant (
+	jnc::Variant v1,
+	jnc::Variant v2,
+	jnc::Variant v3,
+	jnc::Variant v4
+	);
+
+typedef
 void
 TestFunc ();
 
@@ -108,6 +117,9 @@ testStruct64 (jnc::Module* module);
 
 void
 testStruct128 (jnc::Module* module);
+
+void
+testVariant (jnc::Module* module);
 
 //..............................................................................
 
