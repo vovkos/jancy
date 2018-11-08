@@ -11,6 +11,7 @@
 
 add_subdirectory (jnc)
 add_subdirectory (ioninja)
+add_subdirectory (jnc_test_abi)
 
 if (WIN32)
 	option (
@@ -24,7 +25,7 @@ if (WIN32)
 	endif ()
 endif ()
 
-if (${QT_FOUND})
+if (QT_FOUND)
 	option (
 		BUILD_JNC_TEST_QT
 		"Build jnc_test_qt"
