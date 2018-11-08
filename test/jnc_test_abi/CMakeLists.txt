@@ -90,12 +90,6 @@ axl_set_pch (
 	${PCH_CPP}
 	)
 
-set_target_properties (
-	jnc_test_abi
-	PROPERTIES
-	OUTPUT_NAME jancy
-	)
-
 if (BUILD_JNC_DLL)
 	add_dependencies (
 		jnc_test_abi
@@ -148,5 +142,13 @@ elseif (UNIX)
 			)
 	endif ()
 endif ()
+
+#...............................................................................
+
+add_test (
+	NAME "jnc-test-abi"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	COMMAND jnc_test_abi main.jnc
+	)
 
 #...............................................................................

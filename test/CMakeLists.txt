@@ -9,9 +9,9 @@
 #
 #...............................................................................
 
+add_subdirectory (jnc_test_abi)
 add_subdirectory (jnc)
 add_subdirectory (ioninja)
-add_subdirectory (jnc_test_abi)
 
 if (WIN32)
 	option (
