@@ -21,12 +21,18 @@ namespace ct {
 class CdeclCallConv_arm: public CallConv
 {
 protected:
-	Type* m_argType;
+	enum ArgFlag
+	{
+		ArgFlag_Coerced = 0x01,
+	};
+
+protected:
+	Type* m_regType;
 
 public:
 	CdeclCallConv_arm ()
 	{
-		m_argType = NULL;
+		m_regType = NULL;
 	}
 
 	virtual
@@ -54,6 +60,14 @@ public:
 	ret (
 		Function* function,
 		const Value& value
+		);
+
+	virtual
+	Value
+	getArgValue (
+		llvm::Value* llvmValue,
+		FunctionType* functionType,
+		size_t argIdx
 		);
 
 	virtual

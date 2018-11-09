@@ -21,13 +21,12 @@ namespace ct {
 
 class CdeclCallConv_gcc64: public CallConv
 {
-public:
+protected:
 	enum ArgFlag
 	{
 		ArgFlag_ByVal   = 0x01,
 		ArgFlag_Coerced = 0x02,
 	};
-
 
 public:
 	CdeclCallConv_gcc64 ()
@@ -64,15 +63,15 @@ public:
 
 	virtual
 	Value
+	getThisArgValue (Function* function);
+
+	virtual
+	Value
 	getArgValue (
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
 		);
-
-	virtual
-	Value
-	getThisArgValue (Function* function);
 
 	virtual
 	void

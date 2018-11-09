@@ -39,6 +39,7 @@ class FunctionType: public Type
 	friend class CallConv_gcc32;
 	friend class CdeclCallConv_msc64;
 	friend class CdeclCallConv_gcc64;
+	friend class CdeclCallConv_arm;
 
 protected:
 	CallConv* m_callConv;
