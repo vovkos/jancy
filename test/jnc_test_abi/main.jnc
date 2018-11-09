@@ -110,15 +110,6 @@ funcStruct64 (
 	struct64 s8
 	)
 {
-	printf ("s1.m_a: %lld\n", s1.m_a);
-	printf ("s2.m_a: %lld\n", s2.m_a);
-	printf ("s3.m_a: %lld\n", s3.m_a);
-	printf ("s4.m_a: %lld\n", s4.m_a);
-	printf ("s5.m_a: %lld\n", s5.m_a);
-	printf ("s6.m_a: %lld\n", s6.m_a);
-	printf ("s7.m_a: %lld\n", s7.m_a);
-	printf ("s8.m_a: %lld\n", s8.m_a);
-
 	assert (s1.m_a == -1);
 	assert (s2.m_a == -2);
 	assert (s3.m_a == -3);
@@ -197,14 +188,14 @@ funcInt32 (
 
 int64_t
 funcInt64 (
-	int32_t a1,
-	int32_t a2,
-	int32_t a3,
-	int32_t a4,
-	int32_t a5,
-	int32_t a6,
-	int32_t a7,
-	int32_t a8
+	int64_t a1,
+	int64_t a2,
+	int64_t a3,
+	int64_t a4,
+	int64_t a5,
+	int64_t a6,
+	int64_t a7,
+	int64_t a8
 	);
 
 struct32
