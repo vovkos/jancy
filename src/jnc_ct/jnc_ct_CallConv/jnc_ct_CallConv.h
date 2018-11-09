@@ -32,10 +32,14 @@ enum CallConvKind
 	CallConvKind_Jnccall_msc64,
 	CallConvKind_Jnccall_gcc32,
 	CallConvKind_Jnccall_gcc64,
+	CallConvKind_Jnccall_arm32,
+	CallConvKind_Jnccall_arm64,
 	CallConvKind_Cdecl_msc32,
 	CallConvKind_Cdecl_msc64,
 	CallConvKind_Cdecl_gcc32,
 	CallConvKind_Cdecl_gcc64,
+	CallConvKind_Cdecl_arm32,
+	CallConvKind_Cdecl_arm64,
 	CallConvKind_Stdcall_msc32,
 	CallConvKind_Stdcall_gcc32,
 	CallConvKind_Thiscall_msc32,
@@ -52,7 +56,13 @@ enum CallConvKind
 	CallConvKind_Thiscall = CallConvKind_Thiscall_msc32,
 #	endif
 #else
-#	if (_JNC_CPU_AMD64)
+#	if (_JNC_CPU_ARM64)
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_arm64,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_arm64,
+#	elif (_JNC_CPU_ARM32)
+	CallConvKind_Jnccall  = CallConvKind_Jnccall_arm32,
+	CallConvKind_Cdecl    = CallConvKind_Cdecl_arm32,
+#	elif (_JNC_CPU_AMD64)
 	CallConvKind_Jnccall  = CallConvKind_Jnccall_gcc64,
 	CallConvKind_Cdecl    = CallConvKind_Cdecl_gcc64,
 #	else

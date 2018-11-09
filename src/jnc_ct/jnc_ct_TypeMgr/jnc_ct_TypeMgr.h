@@ -73,10 +73,14 @@ protected:
 	JnccallCallConv_msc64 m_jnccallCallConv_msc64;
 	JnccallCallConv_gcc32 m_jnccallCallConv_gcc32;
 	JnccallCallConv_gcc64 m_jnccallCallConv_gcc64;
+	JnccallCallConv_arm32 m_jnccallCallConv_arm32;
+	JnccallCallConv_arm64 m_jnccallCallConv_arm64;
 	CdeclCallConv_msc32 m_cdeclCallConv_msc32;
 	CdeclCallConv_msc64 m_cdeclCallConv_msc64;
 	CdeclCallConv_gcc32 m_cdeclCallConv_gcc32;
 	CdeclCallConv_gcc64 m_cdeclCallConv_gcc64;
+	CdeclCallConv_gcc32 m_cdeclCallConv_arm32;
+	CdeclCallConv_gcc64 m_cdeclCallConv_arm64;
 	StdcallCallConv_msc32 m_stdcallCallConv_msc32;
 	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
 	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;

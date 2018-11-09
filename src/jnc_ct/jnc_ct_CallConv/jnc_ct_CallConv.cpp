@@ -22,20 +22,24 @@ namespace ct {
 llvm::CallingConv::ID
 getLlvmCallConv (CallConvKind callConvKind)
 {
-	llvm::CallingConv::ID llvmCallConvTable [] =
+	llvm::CallingConv::ID llvmCallConvTable [CallConvKind__Count] =
 	{
-		llvm::CallingConv::C,            // ECallConv_Undefined = 0,
-		llvm::CallingConv::C,            // ECallConv_Jnccall_msc32,
-		llvm::CallingConv::C,            // ECallConv_Jnccall_msc64,
-		llvm::CallingConv::C,            // ECallConv_Jnccall_gcc32,
-		llvm::CallingConv::C,            // ECallConv_Jnccall_gcc64,
-		llvm::CallingConv::C,            // ECallConv_Cdecl_msc32,
-		llvm::CallingConv::C,            // ECallConv_Cdecl_msc64,
-		llvm::CallingConv::C,            // ECallConv_Cdecl_gcc32,
-		llvm::CallingConv::C,            // ECallConv_Cdecl_gcc64,
-		llvm::CallingConv::X86_StdCall,  // ECallConv_Stdcall_msc32,
-		llvm::CallingConv::X86_StdCall,  // ECallConv_Stdcall_gcc32,
-		llvm::CallingConv::X86_ThisCall, // ECallConv_Thiscall_msc32,
+		llvm::CallingConv::C,            // CallConvKind_Undefined = 0,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_msc32,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_msc64,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_gcc32,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_gcc64,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_arm32,
+		llvm::CallingConv::C,            // CallConvKind_Jnccall_arm64,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_msc32,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_msc64,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_gcc32,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_gcc64,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_arm32,
+		llvm::CallingConv::C,            // CallConvKind_Cdecl_arm64,
+		llvm::CallingConv::X86_StdCall,  // CallConvKind_Stdcall_msc32,
+		llvm::CallingConv::X86_StdCall,  // CallConvKind_Stdcall_gcc32,
+		llvm::CallingConv::X86_ThisCall, // CallConvKind_Thiscall_msc32,
 	};
 
 	return (size_t) callConvKind < countof (llvmCallConvTable) ?
@@ -46,35 +50,45 @@ getLlvmCallConv (CallConvKind callConvKind)
 uint_t
 getCallConvFlags (CallConvKind callConvKind)
 {
-	uint_t flagTable [] =
+	uint_t flagTable [CallConvKind__Count] =
 	{
-		0,                      // ECallConv_Undefined = 0,
-		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc32,
-		CallConvFlag_Jnccall,   // ECallConv_Jnccall_msc64,
-		CallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc32,
-		CallConvFlag_Jnccall,   // ECallConv_Jnccall_gcc64,
+		0,                      // CallConvKind_Undefined = 0,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_msc32,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_msc64,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_gcc32,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_gcc64,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_arm32,
+		CallConvFlag_Jnccall,   // CallConvKind_Jnccall_arm64,
 
-		CallConvFlag_Cdecl |    // ECallConv_Cdecl_msc32,
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_msc32,
 		CallConvFlag_Msc |
 		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlag_Cdecl |    // ECallConv_Cdecl_msc64,
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_msc64,
 		CallConvFlag_Msc |
 		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc32,
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_gcc32,
 		CallConvFlag_Gcc |
 		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlag_Cdecl |    // ECallConv_Cdecl_gcc64,
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_gcc64,
 		CallConvFlag_Gcc |
 		CallConvFlag_UnsafeVarArg,
 
-		CallConvFlag_Stdcall |  // ECallConv_Stdcall_msc32,
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_arm32,
+		CallConvFlag_Gcc |
+		CallConvFlag_UnsafeVarArg,
+
+		CallConvFlag_Cdecl |    // CallConvKind_Cdecl_arm64,
+		CallConvFlag_Gcc |
+		CallConvFlag_UnsafeVarArg,
+
+		CallConvFlag_Stdcall |  // CallConvKind_Stdcall_msc32,
 		CallConvFlag_Msc |
 		CallConvFlag_NoVarArg,
 
-		CallConvFlag_Stdcall |  // ECallConv_Stdcall_gcc32,
+		CallConvFlag_Stdcall |  // CallConvKind_Stdcall_gcc32,
 		CallConvFlag_Gcc |
 		CallConvFlag_NoVarArg,
 	};
@@ -87,19 +101,23 @@ getCallConvFlags (CallConvKind callConvKind)
 const char*
 getCallConvString (CallConvKind callConvKind)
 {
-	static const char* stringTable [] =
+	static const char* stringTable [CallConvKind__Count] =
 	{
-		"undefinded-call-conv",  // ECallConv_Undefined = 0,
-		"jnccall-msc32",         // ECallConv_Jnccall_msc32,
-		"jnccall-msc64",         // ECallConv_Jnccall_msc64,
-		"jnccall-gcc32",         // ECallConv_Jnccall_gcc32,
-		"jnccall-gcc64",         // ECallConv_Jnccall_gcc64,
-		"cdecl-msc32",           // ECallConv_Cdecl_msc32,
-		"cdecl-msc64",           // ECallConv_Cdecl_msc64,
-		"cdecl-gcc32",           // ECallConv_Cdecl_gcc32,
-		"cdecl-gcc64",           // ECallConv_Cdecl_gcc64,
-		"stdcall-msc32",         // ECallConv_Stdcall_msc32,
-		"stdcall-gcc32",         // ECallConv_Stdcall_gcc32,
+		"undefinded-call-conv",  // CallConvKind_Undefined = 0,
+		"jnccall-msc32",         // CallConvKind_Jnccall_msc32,
+		"jnccall-msc64",         // CallConvKind_Jnccall_msc64,
+		"jnccall-gcc32",         // CallConvKind_Jnccall_gcc32,
+		"jnccall-gcc64",         // CallConvKind_Jnccall_gcc64,
+		"jnccall-arm32",         // CallConvKind_Jnccall_arm32,
+		"jnccall-arm64",         // CallConvKind_Jnccall_arm64,
+		"cdecl-msc32",           // CallConvKind_Cdecl_msc32,
+		"cdecl-msc64",           // CallConvKind_Cdecl_msc64,
+		"cdecl-gcc32",           // CallConvKind_Cdecl_gcc32,
+		"cdecl-gcc64",           // CallConvKind_Cdecl_gcc64,
+		"cdecl-arm32",           // CallConvKind_Cdecl_gcc32,
+		"cdecl-arm64",           // CallConvKind_Cdecl_gcc64,
+		"stdcall-msc32",         // CallConvKind_Stdcall_msc32,
+		"stdcall-gcc32",         // CallConvKind_Stdcall_gcc32,
 	};
 
 	return (size_t) callConvKind < countof (stringTable) ?
@@ -110,19 +128,23 @@ getCallConvString (CallConvKind callConvKind)
 const char*
 getCallConvDisplayString (CallConvKind callConvKind)
 {
-	static const char* stringTable [] =
+	static const char* stringTable [CallConvKind__Count] =
 	{
-		"undefinded-call-conv",  // ECallConv_Undefined = 0,
-		"jnccall",               // ECallConv_Jnccall_msc32,
-		"jnccall",               // ECallConv_Jnccall_msc64,
-		"jnccall",               // ECallConv_Jnccall_gcc32,
-		"jnccall",               // ECallConv_Jnccall_gcc64,
-		"cdecl",                 // ECallConv_Cdecl_msc32,
-		"cdecl",                 // ECallConv_Cdecl_msc64,
-		"cdecl",                 // ECallConv_Cdecl_gcc32,
-		"cdecl",                 // ECallConv_Cdecl_gcc64,
-		"stdcall",               // ECallConv_Stdcall_msc32,
-		"stdcall",               // ECallConv_Stdcall_gcc32,
+		"undefinded-call-conv",  // CallConvKind_Undefined = 0,
+		"jnccall",               // CallConvKind_Jnccall_msc32,
+		"jnccall",               // CallConvKind_Jnccall_msc64,
+		"jnccall",               // CallConvKind_Jnccall_gcc32,
+		"jnccall",               // CallConvKind_Jnccall_gcc64,
+		"jnccall",               // CallConvKind_Jnccall_arm32,
+		"jnccall",               // CallConvKind_Jnccall_arm64,
+		"cdecl",                 // CallConvKind_Cdecl_msc32,
+		"cdecl",                 // CallConvKind_Cdecl_msc64,
+		"cdecl",                 // CallConvKind_Cdecl_gcc32,
+		"cdecl",                 // CallConvKind_Cdecl_gcc64,
+		"cdecl",                 // CallConvKind_Cdecl_arm32,
+		"cdecl",                 // CallConvKind_Cdecl_arm64,
+		"stdcall",               // CallConvKind_Stdcall_msc32,
+		"stdcall",               // CallConvKind_Stdcall_gcc32,
 	};
 
 	return (size_t) callConvKind < countof (stringTable) ?
@@ -133,20 +155,24 @@ getCallConvDisplayString (CallConvKind callConvKind)
 const char*
 getCallConvSignature (CallConvKind callConvKind)
 {
-	static const char* stringTable [] =
+	static const char* stringTable [CallConvKind__Count] =
 	{
-		"CC0",    // ECallConv_Undefined = 0,
-		"JM4",    // ECallConv_Jnccall_msc32,
-		"JM8",    // ECallConv_Jnccall_msc64,
-		"JG4",    // ECallConv_Jnccall_gcc32,
-		"JG8",    // ECallConv_Jnccall_gcc64,
-		"CM4",    // ECallConv_Cdecl_msc32,
-		"CM8",    // ECallConv_Cdecl_msc64,
-		"CG4",    // ECallConv_Cdecl_gcc32,
-		"CG8",    // ECallConv_Cdecl_gcc64,
-		"SM4",    // ECallConv_Stdcall_msc32,
-		"SG4",    // ECallConv_Stdcall_gcc32,
-		"TM4",    // ECallConv_Thiscall_msc32,
+		"CC0",    // CallConvKind_Undefined = 0,
+		"JM4",    // CallConvKind_Jnccall_msc32,
+		"JM8",    // CallConvKind_Jnccall_msc64,
+		"JG4",    // CallConvKind_Jnccall_gcc32,
+		"JG8",    // CallConvKind_Jnccall_gcc64,
+		"JA4",    // CallConvKind_Jnccall_gcc32,
+		"JA8",    // CallConvKind_Jnccall_gcc64,
+		"CM4",    // CallConvKind_Cdecl_msc32,
+		"CM8",    // CallConvKind_Cdecl_msc64,
+		"CG4",    // CallConvKind_Cdecl_gcc32,
+		"CG8",    // CallConvKind_Cdecl_gcc64,
+		"CA4",    // CallConvKind_Cdecl_arm32,
+		"CA8",    // CallConvKind_Cdecl_arm64,
+		"SM4",    // CallConvKind_Stdcall_msc32,
+		"SG4",    // CallConvKind_Stdcall_gcc32,
+		"TM4",    // CallConvKind_Thiscall_msc32,
 	};
 
 	return (size_t) callConvKind < countof (stringTable) ?

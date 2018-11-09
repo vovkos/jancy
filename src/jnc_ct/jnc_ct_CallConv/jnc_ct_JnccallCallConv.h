@@ -15,6 +15,7 @@
 #include "jnc_ct_CallConv_gcc32.h"
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
+#include "jnc_ct_CdeclCallConv_arm.h"
 
 namespace jnc {
 namespace ct {
@@ -63,6 +64,28 @@ public:
 	JnccallCallConv_gcc64 ()
 	{
 		m_callConvKind = CallConvKind_Jnccall_gcc64;
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class JnccallCallConv_arm32: public CdeclCallConv_arm32
+{
+public:
+	JnccallCallConv_arm32 ()
+	{
+		m_callConvKind = CallConvKind_Jnccall_arm32;
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class JnccallCallConv_arm64: public CdeclCallConv_arm64
+{
+public:
+	JnccallCallConv_arm64 ()
+	{
+		m_callConvKind = CallConvKind_Jnccall_arm64;
 	}
 };
 

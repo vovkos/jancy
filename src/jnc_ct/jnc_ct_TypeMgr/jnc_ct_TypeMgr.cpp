@@ -2301,10 +2301,14 @@ TypeMgr::setupCallConvArray ()
 	m_callConvArray [CallConvKind_Jnccall_msc64]  = &m_jnccallCallConv_msc64;
 	m_callConvArray [CallConvKind_Jnccall_gcc32]  = &m_jnccallCallConv_gcc32;
 	m_callConvArray [CallConvKind_Jnccall_gcc64]  = &m_jnccallCallConv_gcc64;
+	m_callConvArray [CallConvKind_Jnccall_arm32]  = &m_jnccallCallConv_arm32;
+	m_callConvArray [CallConvKind_Jnccall_arm64]  = &m_jnccallCallConv_arm64;
 	m_callConvArray [CallConvKind_Cdecl_msc32]    = &m_cdeclCallConv_msc32;
 	m_callConvArray [CallConvKind_Cdecl_msc64]    = &m_cdeclCallConv_msc64;
 	m_callConvArray [CallConvKind_Cdecl_gcc32]    = &m_cdeclCallConv_gcc32;
 	m_callConvArray [CallConvKind_Cdecl_gcc64]    = &m_cdeclCallConv_gcc64;
+	m_callConvArray [CallConvKind_Cdecl_arm32]    = &m_cdeclCallConv_arm32;
+	m_callConvArray [CallConvKind_Cdecl_arm64]    = &m_cdeclCallConv_arm64;
 	m_callConvArray [CallConvKind_Stdcall_msc32]  = &m_stdcallCallConv_msc32;
 	m_callConvArray [CallConvKind_Stdcall_gcc32]  = &m_stdcallCallConv_gcc32;
 	m_callConvArray [CallConvKind_Thiscall_msc32] = &m_thiscallCallConv_msc32;
