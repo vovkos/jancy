@@ -52,12 +52,14 @@ main (
 	jnc::AutoRuntime runtime;
 
 	module->initialize ("jnc_module");
+	module->addStaticLib (jnc::StdLib_getLib ());
 	module->addStaticLib (TestLib_getLib ());
 
 	printf ("Compiling...\n");
 
 	result =
 		module->parseFile (sourcefileName) &&
+		module->parseImports () &&
 		module->compile () &&
 		module->jit ();
 

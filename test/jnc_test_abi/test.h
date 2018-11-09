@@ -41,14 +41,14 @@ FuncInt32 (
 typedef
 int64_t
 FuncInt64 (
-	int32_t a1,
-	int32_t a2,
-	int32_t a3,
-	int32_t a4,
-	int32_t a5,
-	int32_t a6,
-	int32_t a7,
-	int32_t a8
+	int64_t a1,
+	int64_t a2,
+	int64_t a3,
+	int64_t a4,
+	int64_t a5,
+	int64_t a6,
+	int64_t a7,
+	int64_t a8
 	);
 
 typedef
@@ -143,14 +143,14 @@ funcInt32 (
 
 int64_t
 funcInt64 (
-	int32_t a1,
-	int32_t a2,
-	int32_t a3,
-	int32_t a4,
-	int32_t a5,
-	int32_t a6,
-	int32_t a7,
-	int32_t a8
+	int64_t a1,
+	int64_t a2,
+	int64_t a3,
+	int64_t a4,
+	int64_t a5,
+	int64_t a6,
+	int64_t a7,
+	int64_t a8
 	);
 
 struct32
