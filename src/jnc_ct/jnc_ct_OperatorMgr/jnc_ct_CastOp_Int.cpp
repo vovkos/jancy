@@ -61,7 +61,7 @@ Cast_IntExt::constCast (
 
 	char* src = (char*) opValue.getConstData ();
 
-	if (src [srcSize - 1] < 0)
+	if (src [srcSize - 1] & 0x80)
 		memset (dst, -1, dstSize);
 	else
 		memset (dst, 0, dstSize);
