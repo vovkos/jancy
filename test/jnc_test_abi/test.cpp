@@ -288,6 +288,15 @@ funcVariant (
 	return retval;
 }
 
+jnc::DataPtr
+funcPtr (
+	jnc::DataPtr p1,
+	char* p2
+	)
+{
+	return p1;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -325,6 +334,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct64",  &jnc2c::funcStruct64)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct128", &jnc2c::funcStruct128)
 	JNC_MAP_FUNCTION ("jnc2c.funcVariant",   &jnc2c::funcVariant)
+	JNC_MAP_FUNCTION ("jnc2c.funcPtr",       &jnc2c::funcPtr)
 JNC_END_LIB_FUNCTION_MAP ()
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (TestLib)

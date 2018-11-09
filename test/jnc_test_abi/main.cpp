@@ -95,6 +95,7 @@ main (
 	jnc2c::test (module, "jnc2c.testStruct64");
 	jnc2c::test (module, "jnc2c.testStruct128");
 	jnc2c::test (module, "jnc2c.testVariant");
+	jnc2c::test (module, "jnc2c.testPtr");
 
 	JNC_CALL_SITE_CATCH ()
 

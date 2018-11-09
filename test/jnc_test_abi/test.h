@@ -96,6 +96,13 @@ FuncVariant (
 	);
 
 typedef
+jnc::DataPtr
+FuncPtr (
+	jnc::DataPtr p1,
+	char* p2
+	);
+
+typedef
 void
 TestFunc ();
 
@@ -128,64 +135,6 @@ testVariant (jnc::Module* module);
 namespace jnc2c {
 
 //..............................................................................
-
-int32_t
-funcInt32 (
-	int32_t a1,
-	int32_t a2,
-	int32_t a3,
-	int32_t a4,
-	int32_t a5,
-	int32_t a6,
-	int32_t a7,
-	int32_t a8
-	);
-
-int64_t
-funcInt64 (
-	int64_t a1,
-	int64_t a2,
-	int64_t a3,
-	int64_t a4,
-	int64_t a5,
-	int64_t a6,
-	int64_t a7,
-	int64_t a8
-	);
-
-struct32
-funcStruct32 (
-	struct32 s1,
-	struct32 s2,
-	struct32 s3,
-	struct32 s4,
-	struct32 s5,
-	struct32 s6,
-	struct32 s7,
-	struct32 s8
-	);
-
-struct64
-funcStruct64 (
-	struct64 s1,
-	struct64 s2,
-	struct64 s3,
-	struct64 s4,
-	struct64 s5,
-	struct64 s6,
-	struct64 s7,
-	struct64 s8
-	);
-
-struct128
-funcStruct128 (
-	struct128 s1,
-	struct128 s2,
-	struct128 s3,
-	struct128 s4
-	);
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
 test (

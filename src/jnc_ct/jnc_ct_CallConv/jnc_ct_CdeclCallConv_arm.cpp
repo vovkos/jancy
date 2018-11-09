@@ -22,16 +22,28 @@ Type*
 CdeclCallConv_arm::getArgCoerceType (Type* type)
 {
 	size_t size = type->getSize ();
-	size_t regSize = m_regType->getSize ();
+	size_t atomSize = m_regType->getSize ();
 
-	if (size <= regSize)
+	if (size <= atomSize)
 		return m_regType;
 
-	size_t elementCount = size / regSize;
-	if (size % regSize)
-		elementCount++;
+	Type* atomType;
 
-	return m_regType->getArrayType (elementCount);
+	if (type->getAlignment () <= atomSize)
+	{
+		atomType = m_regType;
+	}
+	else
+	{
+		atomType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64);
+		atomSize = sizeof (int64_t);
+	}
+
+	size_t atomCount = size / atomSize;
+	if (size % atomSize)
+		atomCount++;
+
+	return atomType->getArrayType (atomCount);
 }
 
 void

@@ -166,6 +166,7 @@ funcVariant (
 
 	return v1 + v2 + v3 + v4;
 }
+
 //..............................................................................
 
 } // namespace c2jnc
@@ -238,6 +239,12 @@ funcVariant (
 	variant v4
 	);
 
+char*
+funcPtr (
+	char* p1,
+	char thin* p2
+	);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 testInt32 ()
@@ -302,6 +309,12 @@ testVariant ()
 
 	variant retval = funcVariant (v1, v2, v3, v4);
 	assert (retval == -10);
+}
+
+testPtr ()
+{
+	char* retval = funcPtr ("ab", "cd");
+	assert (retval [0] == 'a' && retval [1] == 'b');
 }
 
 //..............................................................................
