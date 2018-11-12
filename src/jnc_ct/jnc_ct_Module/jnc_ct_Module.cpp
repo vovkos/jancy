@@ -144,8 +144,19 @@ struct DivModRetVal
 	uint64_t m_quotient;
 	uint64_t m_remainder;
 };
-extern "C" DivModRetVal __aeabi_ldivmod (uint64_t, uint64_t);
+extern "C" int32_t __aeabi_idiv (int32_t);
+extern "C" uint32_t __aeabi_uidiv (uint32_t);
+extern "C" DivModRetVal __aeabi_ldivmod (int64_t, int64_t);
 extern "C" DivModRetVal __aeabi_uldivmod (uint64_t, uint64_t);
+
+extern "C" float __aeabi_i2f (int32_t);
+extern "C" float __aeabi_l2f (int64_t);
+extern "C" float __aeabi_ui2f (uint32_t);
+extern "C" float __aeabi_ul2f (uint64_t);
+extern "C" double __aeabi_i2d (int32_t);
+extern "C" double __aeabi_l2d (int64_t);
+extern "C" double __aeabi_ui2d (uint32_t);
+extern "C" double __aeabi_ul2d (uint64_t);
 #		endif
 #	elif (_JNC_OS_WIN)
 extern "C" int64_t _alldiv (int64_t, int64_t);
@@ -213,8 +224,18 @@ Module::createLlvmExecutionEngine ()
 		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
 		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
 #		if (_JNC_CPU_ARM32)
+		m_functionMap ["__aeabi_idiv"] = (void*) __aeabi_idiv;
+		m_functionMap ["__aeabi_uidiv"] = (void*) __aeabi_uidiv;
 		m_functionMap ["__aeabi_ldivmod"] = (void*) __aeabi_ldivmod;
 		m_functionMap ["__aeabi_uldivmod"] = (void*) __aeabi_uldivmod;
+		m_functionMap ["__aeabi_i2f"] = (void*) __aeabi_i2f;
+		m_functionMap ["__aeabi_l2f"] = (void*) __aeabi_l2f;
+		m_functionMap ["__aeabi_ui2f"] = (void*) __aeabi_ui2f;
+		m_functionMap ["__aeabi_ul2f"] = (void*) __aeabi_ul2f;
+		m_functionMap ["__aeabi_i2d"] = (void*) __aeabi_i2d;
+		m_functionMap ["__aeabi_l2d"] = (void*) __aeabi_l2d;
+		m_functionMap ["__aeabi_ui2d"] = (void*) __aeabi_ui2d;
+		m_functionMap ["__aeabi_ul2d"] = (void*) __aeabi_ul2d;
 #		endif
 #	elif (_JNC_OS_WIN)
 		m_functionMap ["_alldiv"] = (void*) _alldiv;
