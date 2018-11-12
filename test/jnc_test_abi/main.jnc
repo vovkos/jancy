@@ -167,6 +167,30 @@ funcVariant (
 	return v1 + v2 + v3 + v4;
 }
 
+float
+funcFloat (
+	float x,
+	float y
+	)
+{
+	assert (x > (float) 3.1414 && x < (float) 3.1416);
+	assert (y > (float) 2.7181 && y < (float) 2.7183);
+
+	return (x + y) / 2;
+}
+
+double
+funcDouble (
+	double x,
+	double y
+	)
+{
+	assert (x > 3.1414 && x < 3.1416);
+	assert (y > 2.7181 && y < 2.7183);
+
+	return (x + y) / 2;
+}
+
 //..............................................................................
 
 } // namespace c2jnc
@@ -245,6 +269,18 @@ funcPtr (
 	char thin* p2
 	);
 
+float
+funcFloat (
+	float x,
+	float y
+	);
+
+double
+funcDouble (
+	double x,
+	double y
+	);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 testInt32 ()
@@ -313,8 +349,20 @@ testVariant ()
 
 testPtr ()
 {
-	char* retval = funcPtr ("ab", "cd");
-	assert (retval [0] == 'a' && retval [1] == 'b');
+	char* retval = funcPtr ("abc", "def");
+	assert (strcmp (retval, "abc") == 0);
+}
+
+testFloat ()
+{
+	float retval = funcFloat ((float) 3.1415, (float) 2.7182);
+	assert (retval > (float) 2.7182 && retval < (float) 3.1415)
+}
+
+testDouble ()
+{
+	double retval = funcDouble (3.1415, 2.7182);
+	assert (retval > 2.7182 && retval < 3.1415)
 }
 
 //..............................................................................

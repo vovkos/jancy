@@ -130,6 +130,32 @@ testVariant (jnc::Module* module)
 	ASSERT (retval.m_type->getTypeKind () == jnc::TypeKind_Int && retval.m_int32 == -10);
 }
 
+void
+testFloat (jnc::Module* module)
+{
+	printf ("Running c2jnc.testFloat...\n");
+
+	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcFloat");
+	ASSERT (jncFunc);
+
+	FuncFloat* funcPtr = (FuncFloat*) jncFunc->getMachineCode ();;
+	float retval = funcPtr (3.1415f, 2.7182f);
+	ASSERT (retval > 2.7182f && retval < 3.1415f);
+}
+
+void
+testDouble (jnc::Module* module)
+{
+	printf ("Running c2jnc.testDouble...\n");
+
+	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcDouble");
+	ASSERT (jncFunc);
+
+	FuncDouble* funcPtr = (FuncDouble*) jncFunc->getMachineCode ();;
+	double retval = funcPtr (3.1415, 2.7182);
+	ASSERT (retval > 2.7182 && retval < 3.1415);
+}
+
 //..............................................................................
 
 } // namespace c2jnc
@@ -294,7 +320,34 @@ funcPtr (
 	char* p2
 	)
 {
+	ASSERT (strcmp ((char*) p1.m_p, "abc") == 0);
+	ASSERT (strcmp (p2, "def") == 0);
+
 	return p1;
+}
+
+float
+funcFloat (
+	float x,
+	float y
+	)
+{
+	ASSERT (x > 3.1414 && x < 3.1416);
+	ASSERT (y > 2.7181 && y < 2.7183);
+
+	return (x + y) / 2;
+}
+
+double
+funcDouble (
+	double x,
+	double y
+	)
+{
+	ASSERT (x > 3.1414 && x < 3.1416);
+	ASSERT (y > 2.7181 && y < 2.7183);
+
+	return (x + y) / 2;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -335,6 +388,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
 	JNC_MAP_FUNCTION ("jnc2c.funcStruct128", &jnc2c::funcStruct128)
 	JNC_MAP_FUNCTION ("jnc2c.funcVariant",   &jnc2c::funcVariant)
 	JNC_MAP_FUNCTION ("jnc2c.funcPtr",       &jnc2c::funcPtr)
+	JNC_MAP_FUNCTION ("jnc2c.funcFloat",     &jnc2c::funcFloat)
+	JNC_MAP_FUNCTION ("jnc2c.funcDouble",    &jnc2c::funcDouble)
 JNC_END_LIB_FUNCTION_MAP ()
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE (TestLib)

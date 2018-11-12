@@ -88,6 +88,8 @@ main (
 	c2jnc::testStruct64 (module);
 	c2jnc::testStruct128 (module);
 	c2jnc::testVariant (module);
+	c2jnc::testFloat (module);
+	c2jnc::testDouble (module);
 
 	jnc2c::test (module, "jnc2c.testInt32");
 	jnc2c::test (module, "jnc2c.testInt64");
@@ -96,6 +98,8 @@ main (
 	jnc2c::test (module, "jnc2c.testStruct128");
 	jnc2c::test (module, "jnc2c.testVariant");
 	jnc2c::test (module, "jnc2c.testPtr");
+	jnc2c::test (module, "jnc2c.testFloat");
+	jnc2c::test (module, "jnc2c.testDouble");
 
 	JNC_CALL_SITE_CATCH ()
 

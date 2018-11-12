@@ -160,12 +160,6 @@ Module::createLlvmExecutionEngine ()
 {
 	ASSERT (!m_llvmExecutionEngine);
 
-#if (LLVM_VERSION < 0x0306)
-	llvm::EngineBuilder engineBuilder (m_llvmModule);
-#else
-	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
-#endif
-
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
 	// disable the GlobalMerge pass (on by default) on ARM because
 	// it will dangle GlobalVariable::m_llvmVariable pointers
@@ -178,11 +172,21 @@ Module::createLlvmExecutionEngine ()
 	enableMerge->setValue (false);
 #endif
 
+#if (LLVM_VERSION < 0x0306)
+	llvm::EngineBuilder engineBuilder (m_llvmModule);
+#else
+	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
+#endif
+
 	std::string errorString;
 	engineBuilder.setErrorStr (&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
 
 	llvm::TargetOptions targetOptions;
+
+#if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
+	targetOptions.FloatABIType = llvm::FloatABI::Hard;
+#endif
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{

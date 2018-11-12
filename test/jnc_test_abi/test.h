@@ -103,6 +103,20 @@ FuncPtr (
 	);
 
 typedef
+float
+FuncFloat (
+	float x,
+	float y
+	);
+
+typedef
+double
+FuncDouble (
+	double x,
+	double y
+	);
+
+typedef
 void
 TestFunc ();
 
@@ -127,6 +141,12 @@ testStruct128 (jnc::Module* module);
 
 void
 testVariant (jnc::Module* module);
+
+void
+testFloat (jnc::Module* module);
+
+void
+testDouble (jnc::Module* module);
 
 //..............................................................................
 
