@@ -13,6 +13,7 @@
 #include "test.h"
 
 #if (_JNC_OS_WIN)
+int
 wmain (
 	int argc,
 	wchar_t* argv []
@@ -37,7 +38,11 @@ main (
 		return -1;
 	}
 
+#if (_JNC_OS_WIN)
 	sl::String sourcefileName = argv [1];
+#else
+	sl::StringRef sourcefileName = argv [1];
+#endif
 
 	bool result;
 
