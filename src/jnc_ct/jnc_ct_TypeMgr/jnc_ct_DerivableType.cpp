@@ -665,14 +665,10 @@ DerivableType::findItemTraverseImpl (
 		for (; slotIt; slotIt++)
 		{
 			BaseTypeSlot* slot = *slotIt;
+			if (slot->m_type->getTypeKindFlags () & TypeKindFlag_Import) // unresolved yet
+				continue;
 
 			DerivableType* baseType = slot->m_type;
-			if (baseType->getTypeKindFlags () & TypeKindFlag_Import)
-			{
-				ASSERT (false);
-				return NULL;
-			}
-
 			item = baseType->findItemTraverseImpl (name, coord, modFlags, nextLevel);
 			if (item)
 			{
