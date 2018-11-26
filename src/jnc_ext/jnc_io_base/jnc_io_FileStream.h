@@ -95,6 +95,12 @@ protected:
 		sl::Array <char> m_writeBlock;
 		uint64_t m_readOffset;
 		uint64_t m_writeOffset;
+
+		OverlappedIo ()
+		{
+			m_readOffset = 0;
+			m_writeOffset = 0;
+		}
 	};
 #endif
 

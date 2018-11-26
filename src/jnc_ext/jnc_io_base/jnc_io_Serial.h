@@ -101,6 +101,11 @@ protected:
 		axl::io::win::StdOverlapped m_writeOverlapped;
 		sl::Array <char> m_writeBlock;
 		dword_t m_serialEvents;
+
+		OverlappedIo ()
+		{
+			m_serialEvents = 0;
+		}
 	};
 #endif
 
