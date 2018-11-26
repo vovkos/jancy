@@ -39,9 +39,9 @@ main (
 	}
 
 #if (_JNC_OS_WIN)
-	sl::String sourcefileName = argv [1];
+	sl::String sourceFileName = argv [1]; // utf16 -> utf8
 #else
-	sl::StringRef sourcefileName = argv [1];
+	const char* sourceFileName = argv [1];
 #endif
 
 	bool result;
@@ -63,7 +63,7 @@ main (
 	printf ("Compiling...\n");
 
 	result =
-		module->parseFile (sourcefileName) &&
+		module->parseFile (sourceFileName) &&
 		module->parseImports () &&
 		module->compile () &&
 		module->jit ();
