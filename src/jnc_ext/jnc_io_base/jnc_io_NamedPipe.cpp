@@ -160,7 +160,7 @@ NamedPipe::setOptions (uint_t options)
 		return true;
 	}
 
-	if ((options & FileStreamOption_MessageNamedPipe) != 
+	if ((options & FileStreamOption_MessageNamedPipe) !=
 		(m_options & FileStreamOption_MessageNamedPipe))
 	{
 		err::setError (err::SystemErrorCode_InvalidDeviceState);
@@ -200,7 +200,7 @@ NamedPipe::accept ()
 	fileStream->setWriteBufferSize (m_writeBufferSize);
 	fileStream->setOptions (m_options);
 	fileStream->m_overlappedIo = AXL_MEM_NEW (FileStream::OverlappedIo);
-	fileStream->m_isOpen = true; 
+	fileStream->m_isOpen = true;
 	fileStream->m_ioThread.start ();
 	return fileStream;
 }
@@ -301,8 +301,8 @@ NamedPipe::ioThreadFunc ()
 		else
 			m_lock.unlock ();
 
-		size_t backLogCount = 
-			m_pendingIncomingConnectionList.getCount () + 
+		size_t backLogCount =
+			m_pendingIncomingConnectionList.getCount () +
 			m_overlappedIo->m_activeOverlappedConnectList.getCount ();
 
 		if (backLogCount < backLogLimit)

@@ -75,14 +75,14 @@ protected:
 
 	Type*
 	getDerivableTypeIndexResultType (
-		DerivableType* derivableType, 
+		DerivableType* derivableType,
 		const Value& opValue1,
 		const Value& opValue2
 		);
 
 	bool
 	derivableTypeIndexOperator (
-		DerivableType* derivableType, 
+		DerivableType* derivableType,
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue

@@ -34,7 +34,7 @@ Alias::calcLayout ()
 
 	Parser parser (m_module);
 	result = parser.parseTokenList (SymbolKind_qualified_name_save_name, m_initializer);
-	if (!result)	
+	if (!result)
 		return false;
 
 	m_targetItem = m_parentNamespace->findItemTraverse (parser.m_qualifiedName);

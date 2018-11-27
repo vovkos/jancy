@@ -324,15 +324,15 @@ public:
 		return m_type;
 	}
 
-	bool 
+	bool
 	addMethod (Function* function);
 
-	bool 
+	bool
 	addProperty (Property* prop);
 
 protected:
 	virtual
-	bool 
+	bool
 	calcLayout ();
 
 	void

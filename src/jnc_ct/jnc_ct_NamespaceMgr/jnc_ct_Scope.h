@@ -87,7 +87,7 @@ public:
 		return m_parentNamespace && m_parentNamespace->getNamespaceKind () == NamespaceKind_Scope ? (Scope*) m_parentNamespace : NULL;
 	}
 
-	GcShadowStackFrameMap* 
+	GcShadowStackFrameMap*
 	findGcShadowStackFrameMap ();
 
 	Variable*

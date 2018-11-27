@@ -34,7 +34,7 @@ DoxyParser::popBlock ()
 	// only pick up unassigned non-group blocks
 
 	DoxyBlock* doxyBlock = NULL;
-	
+
 	if (m_block && !m_blockTargetKind)
 	{
 		if (m_block->getBlockKind () == DoxyBlockKind_Footnote)
@@ -92,7 +92,7 @@ DoxyParser::setBlockTarget (
 	}
 
 	m_module->m_doxyMgr.setBlockTarget (m_block, tokenKind, name, m_overloadIdx);
-	m_blockTargetKind = m_block == m_parentBlock ? 
+	m_blockTargetKind = m_block == m_parentBlock ?
 		BlockTargetKind_Compound :
 		BlockTargetKind_Member;
 }

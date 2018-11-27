@@ -44,7 +44,7 @@ protected:
 public:
 	void
 	clear ();
-	
+
 	void
 	append (
 		NamespaceMgr* importNamespaceMgr,

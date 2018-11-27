@@ -367,8 +367,8 @@ void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias)
 {
 	QString name;
 	name.sprintf (
-		"alias %s = %s", 
-		alias->getDecl ()->getName (), 
+		"alias %s = %s",
+		alias->getDecl ()->getName (),
 		alias->getTargetItem ()->getDecl ()->getQualifiedName ()
 		);
 

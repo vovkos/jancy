@@ -81,10 +81,10 @@ GcShadowStackMgr::markGcRoot (
 {
 	if (!m_frameVariable)
 		preCreateFrame ();
-	
+
 	Variable* variableBeingLifted = m_module->m_variableMgr.getCurrentLiftedStackVariable ();
-	Scope* scope = variableBeingLifted ? 
-		variableBeingLifted->getScope () : 
+	Scope* scope = variableBeingLifted ?
+		variableBeingLifted->getScope () :
 		m_module->m_namespaceMgr.getCurrentScope ();
 
 	GcShadowStackFrameMap* frameMap = openFrameMap (scope);

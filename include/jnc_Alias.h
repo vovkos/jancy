@@ -32,7 +32,7 @@ struct jnc_Alias: jnc_ModuleItem
 {
 	jnc_ModuleItem*
 	getTargetItem ()
-	{	
+	{
 		return jnc_Alias_getTargetItem (this);
 	}
 };

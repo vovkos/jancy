@@ -54,7 +54,7 @@ DoxyBlock::getDescriptionString ()
 		string.append ("</para></briefdescription>\n");
 	}
 
-	if (!m_detailedDescription.isEmpty () || 
+	if (!m_detailedDescription.isEmpty () ||
 		!m_seeAlsoDescription.isEmpty () ||
 		!m_internalDescription.isEmpty ()
 		)

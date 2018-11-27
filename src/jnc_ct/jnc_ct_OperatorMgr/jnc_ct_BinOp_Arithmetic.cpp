@@ -107,14 +107,14 @@ dataPtrIncrementOperator (
 			return false;
 		}
 
-		Type* ptrType = module->m_typeMgr.getStdType (StdType_BytePtr);		
+		Type* ptrType = module->m_typeMgr.getStdType (StdType_BytePtr);
 
 		Function* getDynamicFieldFunc = module->m_functionMgr.getStdFunction (StdFunc_GetDynamicField);
 
 		Value ptrValue;
 		result = module->m_operatorMgr.callOperator (
-			getDynamicFieldFunc, 
-			opValue1, 
+			getDynamicFieldFunc,
+			opValue1,
 			Value (&targetType, ptrType),
 			ptrType->getZeroValue (), // field = null
 			&ptrValue

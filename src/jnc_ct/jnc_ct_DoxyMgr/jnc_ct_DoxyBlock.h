@@ -128,7 +128,7 @@ public:
 		m_parent = NULL;
 	}
 
-	DoxyBlock* 
+	DoxyBlock*
 	getParent ()
 	{
 		return m_parent;

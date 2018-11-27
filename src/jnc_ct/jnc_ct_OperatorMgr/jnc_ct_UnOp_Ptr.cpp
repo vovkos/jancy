@@ -29,7 +29,7 @@ UnOp_Addr::getResultType (const Value& opValue)
 		FunctionPtrType* m_functionPtrType;
 		PropertyPtrType* m_propertyPtrType;
 	} t = { opValue.getType () };
-	
+
 	TypeKind opTypeKind = t.m_type->getTypeKind ();
 	switch (opTypeKind)
 	{
@@ -94,7 +94,7 @@ UnOp_Indir::getResultType (const Value& opValue)
 		FunctionPtrType* m_functionPtrType;
 		PropertyPtrType* m_propertyPtrType;
 	} t = { opValue.getType () };
-	
+
 	TypeKind opTypeKind = t.m_type->getTypeKind ();
 	switch (opTypeKind)
 	{

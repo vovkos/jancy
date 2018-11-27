@@ -61,7 +61,7 @@ public:
 		return m_prev;
 	}
 
-	GcShadowStackFrameMapKind 
+	GcShadowStackFrameMapKind
 	getMapKind ()
 	{
 		return m_mapKind;

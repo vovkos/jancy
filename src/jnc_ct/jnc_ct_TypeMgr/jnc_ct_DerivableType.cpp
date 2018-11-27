@@ -753,7 +753,7 @@ DerivableType::generateDocumentation (
 		Unit* unit = baseType->getParentUnit ();
 		ExtensionLib* lib = unit ? unit->getLib () : NULL;
 		if (lib)
-			itemXml->appendFormat ("<basecompoundref importid='%s/%s'>", lib->m_guid->getGuidString ().sz (), refId.sz ());
+			itemXml->appendFormat ("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz (), refId.sz ());
 		else
 			itemXml->appendFormat ("<basecompoundref refid='%s'>", refId.sz ());
 

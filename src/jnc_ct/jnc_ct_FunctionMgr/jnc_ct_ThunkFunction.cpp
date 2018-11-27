@@ -59,7 +59,7 @@ ThunkFunction::compile ()
 		Value* argValue = targetArgValueList.insertTail ().p ();
 
 		result = m_module->m_operatorMgr.castOperator (
-			thunkArgValueArray [j], 
+			thunkArgValueArray [j],
 			targetArgArray [i]->getType (),
 			argValue
 			);

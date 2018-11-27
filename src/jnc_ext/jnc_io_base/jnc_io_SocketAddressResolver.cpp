@@ -186,8 +186,8 @@ SocketAddressResolver::cancel (uintptr_t id)
 	m_activeReqList.insertTail (req);
 	m_lock.unlock ();
 
-	callCompletionFunc (req->m_completionFuncPtr, err::SystemErrorCode_Cancelled); 
-		
+	callCompletionFunc (req->m_completionFuncPtr, err::SystemErrorCode_Cancelled);
+
 	m_lock.lock ();
 	m_activeReqList.erase (req);
 	m_lock.unlock ();
@@ -210,8 +210,8 @@ SocketAddressResolver::cancelAll ()
 		m_activeReqList.insertTail (req);
 		m_lock.unlock ();
 
-		callCompletionFunc (req->m_completionFuncPtr, error); 
-		
+		callCompletionFunc (req->m_completionFuncPtr, error);
+
 		m_lock.lock ();
 		m_activeReqList.erase (req);
 	}

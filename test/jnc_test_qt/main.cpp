@@ -25,7 +25,8 @@ int main (int argc, char* argv [])
 	setvbuf (stdout, NULL, _IOLBF, 1024);
 #endif
 
-	jnc::initialize ("jnc_test_qt");
+	g::getModule ()->setTag ("jnc_app");
+	jnc::initialize ("jnc_dll:jnc_test_qt");
 	jnc::setErrorRouter (err::getErrorMgr ());
 	lex::registerParseErrorProvider ();
 
@@ -42,7 +43,7 @@ int main (int argc, char* argv [])
 
 	MainWindow mainWindow;
 	mainWindow.showMaximized();
-	
+
 	return app.exec ();
 }
 

@@ -412,10 +412,10 @@ Value::setEnumConst (EnumConst* enumConst)
 	if (enumType->getBaseType ()->getTypeKindFlags () & TypeKindFlag_BigEndian)
 	{
 		enumValue = sl::swapByteOrder64 (enumValue);
-			
+
 		size_t size = enumType->getSize ();
 		if (size < 8)
-			enumValue >>= (8 - size) * 8; 
+			enumValue >>= (8 - size) * 8;
 	}
 
 	createConst (&enumValue, enumType);
