@@ -203,7 +203,7 @@ NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
 		}
 
 		Value fieldValue;
-		result = module->m_operatorMgr.getClassField (thisValue, field, NULL, &fieldValue);
+		result = module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue);
 		if (!result)
 			return false;
 
