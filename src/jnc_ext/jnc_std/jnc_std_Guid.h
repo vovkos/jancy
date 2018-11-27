@@ -23,6 +23,22 @@ JNC_DECLARE_TYPE (Guid)
 struct Guid: sl::Guid
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS (Guid)
+
+	static
+	DataPtr
+	JNC_CDECL
+	getString (
+		DataPtr selfPtr,
+		uint_t flags
+		);
+
+	static
+	bool
+	JNC_CDECL
+	parse (
+		DataPtr selfPtr,
+		DataPtr stringPtr
+		);
 };
 
 //..............................................................................
