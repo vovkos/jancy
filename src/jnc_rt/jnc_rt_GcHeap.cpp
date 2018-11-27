@@ -322,7 +322,6 @@ GcHeap::addClassBox_l (Box* box)
 
 	addBaseTypeClassFieldBoxes_l (classType, ifaceHdr);
 	addClassFieldBoxes_l (classType, ifaceHdr);
-
 	m_classBoxArray.append (box); // after all the fields
 
 	if (classType->getDestructor ())
@@ -373,6 +372,77 @@ GcHeap::addClassFieldBoxes_l (
 			childBox->m_type == field->getType ());
 
 		addClassBox_l (childBox);
+	}
+}
+
+
+void
+GcHeap::addStaticClassDestructor_l (
+	DestructFunc* func,
+	IfaceHdr* iface
+	)
+{
+	ASSERT (iface->m_box->m_type->getTypeKind () == TypeKind_Class);
+	ct::ClassType* classType = (ct::ClassType*) iface->m_box->m_type;
+
+	StaticDestructor* destruct = AXL_MEM_NEW (StaticDestructor);
+	destruct->m_destructFunc = func;
+	destruct->m_iface = iface;
+
+	addStaticBaseTypeClassFieldDestructors_l (classType, iface);
+	addStaticClassFieldDestructors_l (classType, iface);
+	m_staticDestructorList.insertTail (destruct); // after all the fields
+}
+
+void
+GcHeap::addStaticBaseTypeClassFieldDestructors_l (
+	ClassType* type,
+	IfaceHdr* ifaceHdr
+	)
+{
+	char* p = (char*) ifaceHdr;
+
+	sl::Array <ct::BaseTypeSlot*> baseTypeArray = type->getBaseTypeArray ();
+	size_t count = baseTypeArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		ct::BaseTypeSlot* slot = baseTypeArray [i];
+		ct::Type* baseType = slot->getType ();
+		if (baseType->getTypeKind () != TypeKind_Class)
+			continue;
+
+		ct::ClassType* baseClassType = (ct::ClassType*) baseType;
+		IfaceHdr* baseIfaceHdr = (IfaceHdr*) (p + slot->getOffset ());
+		addStaticBaseTypeClassFieldDestructors_l (baseClassType, baseIfaceHdr);
+		addStaticClassFieldDestructors_l (baseClassType, baseIfaceHdr);
+	}
+}
+
+void
+GcHeap::addStaticClassFieldDestructors_l (
+	ClassType* type,
+	IfaceHdr* ifaceHdr
+	)
+{
+	char* p = (char*) ifaceHdr;
+
+	sl::Array <ct::StructField*> classFieldArray = type->getClassMemberFieldArray ();
+	size_t count = classFieldArray.getCount ();
+	for (size_t i = 0; i < count; i++)
+	{
+		ct::StructField* field = classFieldArray [i];
+		ct::ClassType* fieldType = (ct::ClassType*) field->getType ();
+		ASSERT (fieldType->getTypeKind () == TypeKind_Class);
+
+		ct::Function* destructor = fieldType->getDestructor ();
+		if (!destructor)
+			continue;
+
+		DestructFunc* destructFunc = (DestructFunc*) destructor->getMachineCode ();
+
+		Box* childBox = (Box*) (p + field->getOffset ());
+		ASSERT (childBox->m_type == fieldType);
+		addStaticClassDestructor_l (destructFunc, (IfaceHdr*) (childBox + 1));
 	}
 }
 
@@ -740,12 +810,8 @@ GcHeap::addStaticClassDestructor (
 	IfaceHdr* iface
 	)
 {
-	StaticDestructor* destruct = AXL_MEM_NEW (StaticDestructor);
-	destruct->m_destructFunc = func;
-	destruct->m_iface = iface;
-
 	waitIdleAndLock ();
-	m_staticDestructorList.insertTail (destruct);
+	addStaticClassDestructor_l (func, iface);
 	m_lock.unlock ();
 }
 

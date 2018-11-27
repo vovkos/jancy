@@ -1,0 +1,55 @@
+// this test was used to debug destruct-sequence bug 
+// in globally-allocated variables
+
+int g_objectCount;
+
+class A
+{
+	construct ()
+	{
+		printf ("A.construct (%p)\n", this);
+		g_objectCount++;
+	}
+
+	destruct ()
+	{
+		printf ("A.destruct (%p)\n", this);
+		g_objectCount--;
+	}
+}
+
+class B: A
+{
+	A m_a;
+
+	construct ()
+	{
+		printf ("B.construct (%p)\n", this);
+		g_objectCount++;
+	}
+
+	destruct ()
+	{
+		printf ("B.destruct (%p)\n", this);
+		g_objectCount--;
+	}
+}
+
+B g_b;
+	
+int main ()
+{
+	printf ("static B b\n");
+	static B b;
+
+	printf ("B b\n");
+	B b2;
+
+	return 0;
+}
+
+destruct ()
+{
+	printf ("module.destruct: g_counter: %d\n", g_objectCount);
+	assert (g_objectCount == 0);
+}

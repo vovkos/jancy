@@ -369,6 +369,24 @@ protected:
 		);
 
 	void
+	addStaticClassDestructor_l (
+		DestructFunc* destructFunc,
+		IfaceHdr* iface
+		);
+
+	void
+	addStaticBaseTypeClassFieldDestructors_l (
+		ClassType* type,
+		IfaceHdr* ifaceHdr
+		);
+
+	void
+	addStaticClassFieldDestructors_l (
+		ClassType* type,
+		IfaceHdr* ifaceHdr
+		);
+
+	void
 	markClassFields (Box* box);
 
 	void

@@ -387,6 +387,8 @@ ClassType::calcLayout ()
 
 	// scan members for gcroots, constructors & destructors
 
+	bool hasClassFieldDestructors = false;
+
 	size_t count = m_memberFieldArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -405,6 +407,9 @@ ClassType::calcLayout ()
 		if (type->getTypeKind () == TypeKind_Class)
 		{
 			ClassType* classType = (ClassType*) type;
+			if (classType->getDestructor ())
+				hasClassFieldDestructors = true;
+
 			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
 			{
 				err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().sz ());
@@ -533,7 +538,8 @@ ClassType::calcLayout ()
 
 	if (!m_destructor &&
 		(!m_baseTypeDestructArray.isEmpty () ||
-		!m_memberPropertyDestructArray.isEmpty ()))
+		!m_memberPropertyDestructArray.isEmpty () ||
+		hasClassFieldDestructors))
 	{
 		result = createDefaultMethod (FunctionKind_Destructor) != NULL;
 		if (!result)
