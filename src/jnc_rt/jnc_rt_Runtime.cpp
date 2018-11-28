@@ -24,6 +24,7 @@ Runtime::Runtime ()
 	m_stackSizeLimit = RuntimeDef_StackSizeLimit;
 	m_tlsSize = 0;
 	m_state = State_Idle;
+	m_module = NULL;
 	m_userData = NULL;
 	m_noThreadEvent.signal ();
 }
