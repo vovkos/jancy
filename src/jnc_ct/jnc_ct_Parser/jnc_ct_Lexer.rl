@@ -282,6 +282,10 @@ main := |*
 '@='             { createToken (TokenKind_AtAssign); };
 '...'            { createToken (TokenKind_Ellipsis); };
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+# literals
+
 [$fF] '"'        { preCreateFmtLiteralToken (); fcall lit_fmt; };
 '"""' (ws? '\r'? nl)?
 				 { preCreateMlLiteralToken (); fgoto lit_ml; };
@@ -290,6 +294,13 @@ main := |*
 '0' [oO] '"""'   { preCreateMlLiteralToken (8); fgoto lit_ml; };
 '0' [bB] '"""'   { preCreateMlLiteralToken (2); fgoto lit_ml; };
 '0' [nNdD] '"""' { preCreateMlLiteralToken (10); fgoto lit_ml; };
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+# lexer-time constants
+
+'__FILE__'       { createSourceFileToken (); };
+'__DIR__'        { createSourceDirToken (); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

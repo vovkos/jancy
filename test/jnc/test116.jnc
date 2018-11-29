@@ -39,6 +39,9 @@ B g_b;
 	
 int main ()
 {
+	printf ("file: " __FILE__ "\n");
+	printf ("dir: " __DIR__ "\n");
+
 	printf ("static B b\n");
 	static B b;
 

@@ -153,6 +153,27 @@ Lexer::createStringToken (
 }
 
 Token*
+Lexer::createSourceFileToken ()
+{
+	Token* token = createToken (TokenKind_Literal);
+	token->m_data.m_string = m_filePath;
+	return token;
+}
+
+Token*
+Lexer::createSourceDirToken ()
+{
+	if (m_dir.isEmpty ())
+		m_dir = m_filePath.isEmpty () ?
+			io::getCurrentDir () :
+			io::getDir (m_filePath);
+
+	Token* token = createToken (TokenKind_Literal);
+	token->m_data.m_string = m_dir;
+	return token;
+}
+
+Token*
 Lexer::createBinLiteralToken (int radix)
 {
 	Token* token = createToken (TokenKind_BinLiteral);

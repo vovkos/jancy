@@ -406,6 +406,7 @@ protected:
 	Token* m_mlLiteralToken;
 	int m_mlBinLiteralTokenRadix;
 	sl::Array <intptr_t> m_parenthesesLevelStack;
+	sl::String m_dir;
 
 public:
 	Lexer ();
@@ -424,6 +425,12 @@ protected:
 		size_t right = 0,
 		bool useEscapeEncoding = false
 		);
+
+	Token*
+	createSourceFileToken ();
+
+	Token*
+	createSourceDirToken ();
 
 	Token*
 	createBinLiteralToken (int radix);
