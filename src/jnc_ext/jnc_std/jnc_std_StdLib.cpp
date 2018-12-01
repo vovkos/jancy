@@ -141,7 +141,13 @@ setErrno (int code)
 }
 
 void
-setError (DataPtr stringPtr)
+setError_0 (DataPtr errorPtr)
+{
+	err::setError ((const err::ErrorHdr*) errorPtr.m_p);
+}
+
+void
+setError_1 (DataPtr stringPtr)
 {
 	err::setError ((const char*) stringPtr.m_p);
 }
@@ -604,7 +610,8 @@ JNC_DEFINE_LIB (
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("std.getLastError",       getLastError)
 	JNC_MAP_FUNCTION ("std.setErrno",           setErrno)
-	JNC_MAP_FUNCTION ("std.setError",           setError)
+	JNC_MAP_FUNCTION ("std.setError",           setError_0)
+	JNC_MAP_OVERLOAD (setError_1)
 	JNC_MAP_FUNCTION ("std.format",             format)
 	JNC_MAP_FUNCTION ("std.resetDynamicLayout", resetDynamicLayout)
 

@@ -110,6 +110,14 @@ char const* getLastErrorDescription ()
 	return getLastError ().m_description;
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	Sets the last error of the current thread.
+*/
+
+setError (Error const* error);
+
 /**
 	Sets ``errno`` error as the last error of the current thread.
 */
