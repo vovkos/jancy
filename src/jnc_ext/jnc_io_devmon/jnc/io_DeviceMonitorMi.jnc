@@ -1,0 +1,65 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup devmon
+//! @{
+
+//..............................................................................
+
+enum DeviceMonitorMiMsgCode
+{
+	Error,
+	Start,
+	Notification,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorMiMsgHdr
+{
+	uint32_t m_code;
+	uint32_t m_paramSize;
+};
+
+//..............................................................................
+
+bitflag enum DeviceMonitorMiStartFlags
+{
+	Windows,
+	Posix,
+	Linux,
+	Bsd,
+	Darwin,
+
+	X86 = 0x0100,
+	Amd64,
+	Arm32,
+	Arm64,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorMiStartParams
+{
+	uint32_t m_version;
+	uint32_t m_flags;
+
+	// followed by device name
+	// on linux, it may be followed by module name (if detected successfully)
+};
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

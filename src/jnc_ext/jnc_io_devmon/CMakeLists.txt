@@ -41,6 +41,7 @@ set (
 	JNC_LIST
 	jnc/.forced.jnc
 	jnc/io_DeviceMonitor.jnc
+	jnc/io_DeviceMonitorMi.jnc
 	jnc/io_win_DeviceMonitorNotify.jnc
 	jnc/io_lnx_DeviceMonitorNotify.jnc
 	)
