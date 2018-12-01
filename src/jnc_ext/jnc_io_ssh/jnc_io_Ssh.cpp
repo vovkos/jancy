@@ -228,12 +228,12 @@ SshChannel::connectImpl (
 	if (channelExtra && channelExtraSize)
 		m_connectParams->m_channelExtra.copy ((char*) channelExtra, channelExtraSize);
 
-	m_connectParams->m_processType = processType ? processType : "shell";
+	m_connectParams->m_processType = processType;
 
 	if (processExtra && processExtraSize)
 		m_connectParams->m_processExtra.copy ((char*) processExtra, processExtraSize);
 
-	m_connectParams->m_ptyType = ptyType ? ptyType : "ansi";
+	m_connectParams->m_ptyType = ptyType;
 	m_ptyWidth = ptyWidth;
 	m_ptyHeight = ptyHeight;
 	m_lock.unlock ();
@@ -528,46 +528,52 @@ SshChannel::sshConnect ()
 
 	setEvents (SshEvent_SshChannelOpened);
 
-	do
+	if (!m_connectParams->m_ptyType.isEmpty ())
 	{
-		result = ::libssh2_channel_request_pty_ex (
-			m_sshChannel,
-			m_connectParams->m_ptyType,
-			m_connectParams->m_ptyType.getLength (),
-			NULL, 0,
-			m_ptyWidth,
-			m_ptyHeight,
-			0, 0
-			);
+		do
+		{
+			result = ::libssh2_channel_request_pty_ex (
+				m_sshChannel,
+				m_connectParams->m_ptyType,
+				m_connectParams->m_ptyType.getLength (),
+				NULL, 0,
+				m_ptyWidth,
+				m_ptyHeight,
+				0, 0
+				);
 
-		result = sshAsyncLoop (result);
-	} while (result == LIBSSH2_ERROR_EAGAIN);
+			result = sshAsyncLoop (result);
+		} while (result == LIBSSH2_ERROR_EAGAIN);
 
-	if (result)
-	{
-		setIoErrorEvent (getSshLastError (m_sshSession));
-		return false;
+		if (result)
+		{
+			setIoErrorEvent (getSshLastError (m_sshSession));
+			return false;
+		}
 	}
 
 	setEvents (SshEvent_SshPtyRequestCompleted);
 
-	do
+	if (!m_connectParams->m_processType.isEmpty ())
 	{
-		result = ::libssh2_channel_process_startup (
-			m_sshChannel,
-			m_connectParams->m_processType,
-			m_connectParams->m_processType.getLength (),
-			m_connectParams->m_processExtra,
-			m_connectParams->m_processExtra.getCount ()
-			);
+		do
+		{
+			result = ::libssh2_channel_process_startup (
+				m_sshChannel,
+				m_connectParams->m_processType,
+				m_connectParams->m_processType.getLength (),
+				m_connectParams->m_processExtra,
+				m_connectParams->m_processExtra.getCount ()
+				);
 
-		result = sshAsyncLoop (result);
-	} while (result == LIBSSH2_ERROR_EAGAIN);
+			result = sshAsyncLoop (result);
+		} while (result == LIBSSH2_ERROR_EAGAIN);
 
-	if (result)
-	{
-		setIoErrorEvent (getSshLastError (m_sshSession));
-		return false;
+		if (result)
+		{
+			setIoErrorEvent (getSshLastError (m_sshSession));
+			return false;
+		}
 	}
 
 	setEvents (SshEvent_SshConnectCompleted);
