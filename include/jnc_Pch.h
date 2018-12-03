@@ -283,7 +283,7 @@ typedef wchar_t           utf32_t;
 #	define JNC_EXPORT      __attribute__ ((visibility ("default")))
 
 #	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
-#
+
 #	if (defined (__has_attribute) && __has_attribute (ms_struct))
 #		define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
 #   else
