@@ -250,7 +250,7 @@ conditional_expr <Value* $value>
 					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock ("cond_then");
 					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock ("cond_else");
 					$.m_phiBlock = m_module->m_controlFlowMgr.createBlock ("cond_phi");
-					m_module->m_controlFlowMgr.conditionalJump (*$value, $.m_thenBlock, $.m_elseBlock);
+					return m_module->m_controlFlowMgr.conditionalJump (*$value, $.m_thenBlock, $.m_elseBlock);
 				}
 			'?'
 			conditional_expr <&$.m_trueValue>
