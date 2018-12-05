@@ -32,7 +32,7 @@ using namespace axl;
 #	include "dm_lnx_Pch.h"
 #	include "dm_lnx_Monitor.h"
 #else
-#	error Your OS is not currently supported
+#	error This OS is not currently supported
 #endif
 
 // Jancy

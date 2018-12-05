@@ -10,6 +10,48 @@
 #...............................................................................
 
 #
+# shortcut -- protocol-only io_devmon.jncx
+#
+
+if (NOT DEVMON_FOUND)
+	set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+
+	configure_file (
+		${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-proto.jnc
+		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+		COPYONLY
+		)
+
+	add_custom_target (
+		jnc_io_devmon_jncx
+		ALL
+		COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_devmon.jncx
+		COMMAND
+			${7Z_EXE} a -tzip -y
+			${DLL_DIR}/io_devmon.jncx
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_DeviceMonitorMi.jnc
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_DeviceMonitorNotify.jnc
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_win_DeviceMonitorNotify.jnc
+			${CMAKE_CURRENT_LIST_DIR}/jnc/io_lnx_DeviceMonitorNotify.jnc
+			${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+		)
+
+	set_target_properties (
+		jnc_io_devmon_jncx
+		PROPERTIES
+		FOLDER extensions
+		)
+
+	install (
+		FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_devmon.jncx
+		DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
+		)
+
+	return ()
+endif ()
+
+#...............................................................................
+#
 # lib folder
 #
 
@@ -66,6 +108,9 @@ source_group (
 	${PCH_H}
 	${PCH_CPP}
 	)
+
+if (NOT DEVMON_FOUND)
+
 
 #...............................................................................
 #
@@ -165,11 +210,22 @@ set_target_properties (
 
 set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
+configure_file (
+	${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-full.jnc
+	${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+	COPYONLY
+	)
+
 add_custom_target (
 	jnc_io_devmon_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_devmon.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_devmon.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_devmon-${TARGET_CPU}.bin
+	COMMAND
+		${7Z_EXE} a -tzip -y
+		${DLL_DIR}/io_devmon.jncx
+		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
+		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
+		${DLL_DIR}/io_devmon-${TARGET_CPU}.bin
 	DEPENDS
 	jnc_io_devmon
 	)

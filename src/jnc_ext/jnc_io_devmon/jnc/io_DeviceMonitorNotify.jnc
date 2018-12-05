@@ -1,0 +1,76 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_win_DeviceMonitorNotify.jnc"
+import "io_lnx_DeviceMonitorNotify.jnc"
+
+namespace io {
+
+//! \addtogroup devmon
+//! @{
+
+namespace psx {
+
+//..............................................................................
+
+bitflag enum DeviceMonitorIoctlFlags
+{
+	HasArgSizeField,
+	ArgSizeField8,
+	ArgSizeField16,
+	ArgSizeFieldBigEndian,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorIoctlDesc
+{
+	uint32_t m_code;
+	uint32_t m_argFixedSize;
+	uint32_t m_argSizeFieldOffset;
+	DeviceMonitorIoctlFlags m_flags;
+};
+
+//..............................................................................
+
+} // namespace psx
+
+enum
+{
+	DeviceMonitorNotifyHdrSignature = 'nomt',
+}
+
+bitflag enum DeviceMonitorNotifyFlags: uint16_t
+{
+	DataDropped = 0x02, // one or more notifications after this one were dropped
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceMonitorNotifyHdr
+{
+	uint32_t m_signature;
+	uint16_t m_code;
+	uint16_t m_flags;
+	int32_t m_ntStatus;
+	uint32_t m_paramSize;
+	uint32_t m_processId;
+	uint32_t m_threadId;
+	uint64_t m_timestamp;
+
+	// followed by params
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

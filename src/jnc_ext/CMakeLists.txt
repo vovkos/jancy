@@ -63,16 +63,16 @@ if (LIBUSB_FOUND)
 	endif ()
 endif ()
 
-if (DEVMON_FOUND)
-	option (
-		BUILD_JNC_IO_DEVMON
-		"Build jancy IO device monitoring extension library"
-		ON
-		)
+# build io_devmon.jncx even if devmon is not available (we can now use SSH for remote monitoring)
 
-	if (BUILD_JNC_IO_DEVMON)
-		add_subdirectory (jnc_io_devmon)
-	endif ()
+option (
+	BUILD_JNC_IO_DEVMON
+	"Build jancy IO device monitoring extension library"
+	ON
+	)
+
+if (BUILD_JNC_IO_DEVMON)
+	add_subdirectory (jnc_io_devmon)
 endif ()
 
 #...............................................................................
