@@ -34,13 +34,18 @@ ExtensionLibMgr::clear ()
 	{
 		DynamicLibEntry* entry = m_dynamicLibList.removeHead ();
 
-		DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*) entry->m_dynamicLib.getFunction (jnc_g_dynamicExtensionLibUnloadFuncName);
-		if (!unloadFunc || unloadFunc ())
-			entry->m_dynamicLib.close ();
-		else
-			entry->m_dynamicLib.detach (); // don't unload
+		if (entry->m_dynamicLib.isOpen ())
+		{
+			DynamicExtensionLibUnloadFunc* unloadFunc = (DynamicExtensionLibUnloadFunc*) entry->m_dynamicLib.getFunction (jnc_g_dynamicExtensionLibUnloadFuncName);
+			if (!unloadFunc || unloadFunc ())
+				entry->m_dynamicLib.close ();
+			else
+				entry->m_dynamicLib.detach (); // don't unload
+		}
 
-		io::deleteFile (entry->m_dynamicLibFilePath);
+		if (!entry->m_dynamicLibFilePath.isEmpty ())
+			io::deleteFile (entry->m_dynamicLibFilePath);
+
 		AXL_MEM_DELETE (entry);
 	}
 
@@ -74,8 +79,11 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 	if (!result)
 		return false;
 
-	size_t dynamicLibFileIdx;
+	size_t dynamicLibFileIdx = -1;
 	sl::String dynamicLibFileName;
+
+	char buffer [256];
+	sl::Array <size_t> forcedImportIdxArray (ref::BufKind_Stack, buffer, sizeof (buffer));
 
 	sl::Iterator <SourceFile> sourceFileIt = m_sourceFileList.getTail (); // save source file iterator
 
@@ -91,21 +99,37 @@ ExtensionLibMgr::loadDynamicLib (const sl::StringRef& fileName)
 			dynamicLibFileName = fileName;
 			dynamicLibFileIdx = i;
 		}
-		else if (fileName [0] != '.' && fileName.isSuffix (jncExt))
+		else if (fileName.isSuffix (jncExt))
 		{
-			SourceFile* sourceFile = AXL_MEM_NEW (SourceFile);
-			sourceFile->m_fileName = fileName;
-			sourceFile->m_zipReader = &entry->m_zipReader;
-			sourceFile->m_zipIndex = i;
-			m_sourceFileList.insertTail (sourceFile);
-			m_sourceFileMap [fileName] = sourceFile;
+			if (fileName [0] == '.')
+			{
+				forcedImportIdxArray.append (i);
+			}
+			else
+			{
+				SourceFile* sourceFile = AXL_MEM_NEW (SourceFile);
+				sourceFile->m_fileName = fileName;
+				sourceFile->m_zipReader = &entry->m_zipReader;
+				sourceFile->m_zipIndex = i;
+				m_sourceFileList.insertTail (sourceFile);
+				m_sourceFileMap [fileName] = sourceFile;
+			}
 		}
 	}
 
-	if (dynamicLibFileIdx == -1)
+	if (dynamicLibFileIdx == -1) // source-only extension
 	{
-		err::setFormatStringError ("'%s' does not contain a dynamic library binary (*.bin)", fileName.sz ());
-		return false;
+		size_t count = forcedImportIdxArray.getCount ();
+		for (size_t i = 0; i < count; i++)
+		{
+			size_t j = forcedImportIdxArray [i];
+			sl::Array <char> contents = entry->m_zipReader.extractFileToMem (j);
+			sl::StringRef source (contents.getHdr (), contents.cp (), contents.getCount ());
+
+			m_module->m_importMgr.addImport (entry->m_lib, NULL, source);
+		}
+
+		return true;
 	}
 
 	entry->m_dynamicLibFilePath.format ("%s/%llx-%s", m_dynamicLibraryDir.sz (), sys::getTimestamp (), dynamicLibFileName.sz ());

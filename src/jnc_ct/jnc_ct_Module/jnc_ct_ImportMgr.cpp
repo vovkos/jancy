@@ -86,9 +86,14 @@ ImportMgr::addImport (
 	const sl::StringRef& source
 	)
 {
-	sl::StringHashTableIterator <bool> it = m_importFilePathMap.visit (filePath);
-	if (it->m_value)
-		return; // already added
+	sl::StringHashTableIterator <bool> it;
+
+	if (!filePath.isEmpty ())
+	{
+		it = m_importFilePathMap.visit (filePath);
+		if (it->m_value)
+			return; // already added
+	}
 
 	Import* import = AXL_MEM_NEW (Import);
 	import->m_lib = lib;
@@ -96,7 +101,9 @@ ImportMgr::addImport (
 	import->m_filePath = filePath;
 	import->m_source = source;
 	m_importList.insertTail (import);
-	it->m_value = true;
+
+	if (it)
+		it->m_value = true;
 }
 
 ImportMgr::FindResult
