@@ -81,7 +81,8 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/.forced.jnc
+	jnc/.forced-full.jnc
+	jnc/.forced-proto.jnc
 	jnc/io_DeviceMonitor.jnc
 	jnc/io_DeviceMonitorMi.jnc
 	jnc/io_win_DeviceMonitorNotify.jnc
@@ -108,9 +109,6 @@ source_group (
 	${PCH_H}
 	${PCH_CPP}
 	)
-
-if (NOT DEVMON_FOUND)
-
 
 #...............................................................................
 #
