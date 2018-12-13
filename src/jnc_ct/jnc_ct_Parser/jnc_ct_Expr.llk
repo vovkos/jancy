@@ -913,10 +913,7 @@ curly_initializer
 	enter
 	{
 		ASSERT (m_curlyInitializerTargetValue);
-
 		$initializer.m_targetValue = m_curlyInitializerTargetValue;
-		$initializer.m_index = 0;
-		$initializer.m_count = 0;
 	}
 	:	'{' curly_initializer_item <&$initializer> (',' curly_initializer_item <&$initializer>)* '}'
 			{

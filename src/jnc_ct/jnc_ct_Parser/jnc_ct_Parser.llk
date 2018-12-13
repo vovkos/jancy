@@ -72,6 +72,12 @@ Members
 		Value m_memberValue;
 		size_t m_index;
 		size_t m_count;
+
+		CurlyInitializer ()
+		{
+			m_index = 0;
+			m_count = 0;
+		}
 	};
 
 	struct FmtSite: sl::ListLink
@@ -80,6 +86,12 @@ Members
 		size_t m_index;
 		Value m_value;
 		sl::String m_fmtSpecifierString;
+
+		FmtSite ()
+		{
+			m_offset = 0;
+			m_index = 0;
+		}
 	};
 
 	struct Literal
@@ -87,6 +99,11 @@ Members
 		sl::Array <char> m_binData;
 		sl::List <FmtSite> m_fmtSiteList;
 		bool m_isZeroTerminated;
+
+		Literal ()
+		{
+			m_isZeroTerminated = false;
+		}
 	};
 
 	struct Literal_0
@@ -94,12 +111,24 @@ Members
 		size_t m_length;
 		bool m_isZeroTerminated;
 		bool m_isFmtLiteral;
+
+		Literal_0 ()
+		{
+			m_length = 0;
+			m_isZeroTerminated = false;
+			m_isFmtLiteral = false;
+		}
 	};
 
 	struct StmtPass1
 	{
 		sl::BoxList <Token> m_tokenList;
 		Token* m_scopeAnchorToken;
+
+		StmtPass1 ()
+		{
+			m_scopeAnchorToken = NULL;
+		}
 	};
 
 	Module* m_module;
@@ -124,7 +153,6 @@ Members
 	ReactorClassType* m_reactorType;
 	Value m_reactionIdxArgValue;
 	size_t m_reactionIdx;
-	bool m_isOnEvent;
 
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
