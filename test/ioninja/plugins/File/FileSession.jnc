@@ -5,7 +5,15 @@
 
 import "io_base.jncx"
 import "io_FileStream.jnc"
-import "doc_Plugin.jnc"
+import "io_BufferUi.jnc"
+import "std_Buffer.jnc"
+import "doc_Session.jnc"
+import "gui_History.jnc"
+import "gui_StdSessionInfo.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+
+using extension gui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -51,6 +59,8 @@ protected:
 
 	State bindable m_state;
 	io.FileStream m_file;
+	std.Buffer m_readBuffer;
+	uint_t m_syncId;
 
 	// toolbar, status bar & menu
 
@@ -58,11 +68,23 @@ protected:
 	gui.Icon* m_iconTable [IconId._Count];
 	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
 	gui.ComboBox* m_fileNameCombo;
+	gui.ComboBox* m_accessCombo;
 
 	// property grid
 
 	gui.StringProperty* m_fileNameProp;
 	gui.EnumProperty* m_accessProp;
+	io.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	gui.StdSessionInfoSet m_stdSessionInfoSet;
+	log.ThroughputInfoSet m_throughputInfoSet;
+	log.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
 
 public:
 	construct (doc.PluginHost* pluginHost);
@@ -83,12 +105,24 @@ public:
 		);
 
 protected:
+	onOpen ()
+	{
+		m_state ? close () : try open ();
+	}
+
+	onFileNameComboEnter ()
+	{
+		try open ();
+	}
+
+	onFileStreamEvent (
+		uint_t syncId,
+		io.FileStreamEvents triggeredEvents
+		);
+
+	io.FileStreamOptions getFileStreamOptions ();
+	waitFileStreamEvents ();
 	createUi ();
-
-	onOpen ();
-	onFileStreamEvent (io.FileStreamEventParams const* params);
-
-	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,22 +131,30 @@ FileSession.construct (doc.PluginHost* pluginHost)
 {
 	basetype.construct (pluginHost);
 
-	pluginHost.m_log.m_representerFunc = representFileLog;
-
-	m_state = State.Closed;
-	m_file.m_onFileStreamEvent += onFileStreamEvent @ pluginHost.m_mainThreadScheduler;
-
 	createUi ();
+
+	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
 }
 
 FileSession.createUi ()
 {
+	static gui.EnumPropertyOption accessModeTable [] =
+	{
+		{ "Read/Write",  Access.ReadWrite },
+		{ "Read-only",   Access.ReadOnly  },
+		{ "Write-only",  Access.WriteOnly },
+	}
+
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel ("File:");
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
 	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onEnter += open;
+	m_fileNameCombo.m_onEnter += onFileNameComboEnter;
+
+	m_accessCombo = m_pluginHost.m_toolBar.addComboBox ("Access:", accessModeTable, countof (accessModeTable));
 
 	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
 	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
@@ -131,34 +173,38 @@ FileSession.createUi ()
 
 	// property grid
 
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+		"Connection",
+		"File stream-specific connection settings"
+		);
+
 	m_fileNameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		group,,
 		"File name",
 		"Specify the file name to open"
 		);
 
-	static gui.EnumPropertyOption accessModeTable [] =
-	{
-		{ "Read/Write",  Access.ReadWrite },
-		{ "Read-only",   Access.ReadOnly  },
-		{ "Write-only",  Access.WriteOnly },
-	}
-
 	m_accessProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
 		"Access mode",
 		"Access mode for the file",
 		accessModeTable,
 		countof (accessModeTable)
 		);
 
-	m_uiReactor.start ();
-}
+	m_bufferPropertySet.createPropertiesGrouped (m_pluginHost.m_propertyGrid);
 
-FileSession.onOpen ()
-{
-	if (m_state)
-		close ();
-	else
-		try	open ();
+	// information grid
+
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("File session");
+
+	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents ();
+
+	m_uiReactor.start ();
 }
 
 bool errorcode FileSession.open ()
@@ -170,16 +216,25 @@ bool errorcode FileSession.open ()
 
 	char const* fileName = m_fileNameCombo.m_editText;
 
-	Access access = (Access) m_accessProp.m_value;
+	Access access = m_accessCombo.m_currentData;
+
 	io.FileOpenFlags openFlags =
 		access == Access.ReadOnly ? io.FileOpenFlags.ReadOnly :
 		access == Access.WriteOnly ? io.FileOpenFlags.WriteOnly : 0;
 
+	m_file.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_file.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_file.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_file.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	m_file.m_options = getFileStreamOptions ();
 	m_file.open (fileName, openFlags);
 
 	char const* p = $"$(m_file.m_kind; B)$fileName";
 	writeLog (FileLogRecordCode.Opened, p, dynamic sizeof (p));
 	m_state = State.Opened;
+
+	waitFileStreamEvents ();
+	m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
@@ -202,6 +257,8 @@ FileSession.close ()
 	writeLog (FileLogRecordCode.Closed);
 	m_file.close ();
 	m_state = State.Closed;
+	m_syncId++;
+	m_stdSessionInfoSet.endSession ();
 }
 
 FileSession.clear ()
@@ -210,35 +267,82 @@ FileSession.clear ()
 		return;
 
 	try m_file.clear ();
+	writeLog (FileLogRecordCode.Cleared);
+}
+
+io.FileStreamOptions FileSession.getFileStreamOptions ()
+{
+	io.FileStreamOptions options;
+
+	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
+		options |= io.FileStreamOptions.KeepReadBlockSize;
+
+	if (m_bufferPropertySet.m_keepWriteBlockSizeProp.m_value)
+		options |= io.FileStreamOptions.KeepWriteBlockSize;
+
+	return options;
+}
+
+FileSession.waitFileStreamEvents ()
+{
+	io.FileStreamEvents eventMask =
+		io.FileStreamEvents.IoError |
+		io.FileStreamEvents.ReadBufferFull |
+		io.FileStreamEvents.IncomingData |
+		io.FileStreamEvents.Eof;
+
+	if (!m_isTransmitEnabled)
+		eventMask |= io.FileStreamEvents.WriteBufferReady;
+
+	m_file.wait (eventMask, onFileStreamEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 void FileSession.load (doc.Storage* storage)
 {
+	m_fileNameCombo.loadHistory (storage, "fileNameHistory");
 	m_fileNameCombo.m_editText = storage.readString ("fileName");
-	m_accessProp.m_value = storage.readInt ("access");
+	m_accessCombo.m_currentData = storage.readInt ("access");
+
+	m_bufferPropertySet.load (storage);
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
 void FileSession.save (doc.Storage* storage)
 {
+	m_bufferPropertySet.save (storage);
+
+	m_fileNameCombo.saveHistory (storage, "fileNameHistory");
 	storage.writeString ("fileName", m_fileNameCombo.m_editText);
-	storage.writeInt ("access", m_accessProp.m_value);
+	storage.writeInt ("access", m_accessCombo.m_currentData);
 }
 
 void FileSession.updateProperties ()
 {
 	m_fileNameProp.m_value = m_fileNameCombo.m_editText;
+	m_accessProp.m_value = m_accessCombo.m_currentData;
 }
 
 bool errorcode FileSession.applyProperties ()
 {
 	m_fileNameCombo.m_editText = m_fileNameProp.m_value;
+	m_accessCombo.m_currentData = m_accessProp.m_value;
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	if (!m_file.m_isOpen)
+		return true;
+
+	m_file.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_file.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_file.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_file.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	m_file.m_options = getFileStreamOptions ();
 	return true;
 }
 
 void FileSession.restoreDefaultProperties ()
 {
-	m_fileNameProp.m_value = "\\\\.\\pipe\\mypipe0";
 	m_accessProp.m_value = Access.ReadWrite;
+	m_bufferPropertySet.restoreDefaults ();
 }
 
 size_t errorcode FileSession.transmit (
@@ -256,42 +360,60 @@ size_t errorcode FileSession.transmit (
 	return result;
 }
 
-FileSession.onFileStreamEvent (io.FileStreamEventParams const* params)
+FileSession.onFileStreamEvent (
+	uint_t syncId,
+	io.FileStreamEvents triggeredEvents
+	)
 {
-	if (params.m_syncId != m_file.m_syncId)
+	if (syncId != m_syncId)
 		return;
 
-	switch (params.m_eventCode)
+	if (triggeredEvents & io.FileStreamEvents.IoError)
 	{
-	case io.FileStreamEventCode.IncomingData:
-		static char buffer [512];
-		size_t result = try m_file.read (buffer, sizeof (buffer));
-		if (result != -1)
-			writeLog (log.StdRecordCode.Rx, buffer, result);
-		break;
-
-	case io.FileStreamEventCode.Eof:
-		writeLog (FileLogRecordCode.Eof);
-
-		if (m_file.m_kind != io.FileStreamKind.Disk)
-			close ();
-		break;
-
-	case io.FileStreamEventCode.TransmitBufferReady:
-		m_isTransmitEnabled = true;
-		break;
-
-	case io.FileStreamEventCode.IoError:
-		writeLog (log.StdRecordCode.Error, params.m_error, params.m_error.m_size);
+		writeLog (log.StdRecordCode.Error, m_file.m_ioError, m_file.m_ioError.m_size);
 		close ();
-		break;
+		return;
 	}
+
+	if ((triggeredEvents & io.FileStreamEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		writeLog (log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.FileStreamEvents.IncomingData)
+	{
+		size_t result = m_file.read (m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			writeLog (log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+	}
+
+	if (triggeredEvents & io.FileStreamEvents.Eof)
+	{
+		for (;;) // read all the buffered data
+		{
+			size_t result = m_file.read (m_readBuffer.m_p, m_readBuffer.m_size);
+			if (!result)
+				break;
+
+			writeLog (log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+		}
+
+		writeLog (FileLogRecordCode.Eof);
+		close ();
+		return;
+	}
+
+	if (io.FileStreamEvents.WriteBufferReady)
+		m_isTransmitEnabled = true;
+
+	waitFileStreamEvents ();
 }
 
 reactor FileSession.m_uiReactor
 {
 	m_title = $"File $(m_fileNameCombo.m_editText)";
 	m_isTransmitEnabled = m_state == State.Opened;
+	m_accessCombo.m_isEnabled = !m_state;
+	m_accessProp.m_isEnabled = !m_state;
 	m_actionTable [ActionId.Open].m_text = m_state ? "Close" : "Open";
 	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state ? IconId.Close : IconId.Open];
 	m_actionTable [ActionId.Clear].m_isEnabled = m_state && m_file.m_kind == io.FileStreamKind.Disk;

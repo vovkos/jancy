@@ -3,7 +3,7 @@
 // Echo layer
 //
 
-import "doc_Plugin.jnc"
+import "doc_Layer.jnc"
 
 //..............................................................................
 
@@ -12,13 +12,12 @@ class EchoLayer: doc.Layer
 	construct (doc.PluginHost* pluginHost)
 	{
 		basetype.construct (pluginHost);
-		pluginHost.m_log.attachListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
-
+		pluginHost.m_log.addListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
 	}
 
 	onLogRecord (
 		uint64_t timestamp,
-		uint_t recordCode,
+		uint64_t recordCode,
 		void const* p,
 		size_t size
 		)

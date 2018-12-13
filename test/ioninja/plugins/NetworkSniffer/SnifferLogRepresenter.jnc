@@ -1,0 +1,144 @@
+//..............................................................................
+//
+// Sniffer log representer
+//
+
+import "log_Representer.jnc"
+import "io_TcpIp.jnc"
+import "SnifferLogRecordCode.jnc"
+
+//..............................................................................
+
+enum SnifferLogHdrColor
+{
+	Ethernet   = gui.StdColor.Green,
+	Arp        = gui.StdColor.Cyan,
+	Ip         = gui.StdColor.Cyan,
+	IpOptions  = gui.StdColor.Purple,
+	Ip6        = gui.StdColor.Cyan,
+	Tcp        = gui.StdColor.Blue,
+	TcpOptions = gui.StdColor.Purple,
+	Udp        = gui.StdColor.Blue,
+	Icmp       = gui.StdColor.Blue,
+}
+
+//..............................................................................
+
+bool representSnifferLog (
+	log.RepresenterTarget* target,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case SnifferLogRecordCode.Packet:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representPacket (target, p, size, foldFlags);
+		break;
+
+	case SnifferLogRecordCode.InjectedPacket:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representPacket (target, p, size, foldFlags);
+		break;
+
+	case SnifferLogRecordCode.DefragmentedIp:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representDefragmentedIp (target, p, size, foldFlags);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+representPacket (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	// TODO: add data link switch, currently we support ethernet only
+
+	representEthernet (target, p, size, foldFlags);
+}
+
+representColorizedBin (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t const* hdrSizeTable,
+	uint_t const* hdrColorTable,
+	size_t hdrCount
+	)
+{
+	target.m_lineAttr.m_textColor = gui.StdColor.Gray;
+	target.m_lineAttr.m_backColor = gui.ColorFlags.Transparent;
+	target.addBin (p, size);
+
+	gui.TextAttr attr;
+	attr.m_backColor = gui.ColorFlags.Transparent;
+
+	intptr_t retroOffset = -size;
+	for (size_t i = 0; i < hdrCount; i++)
+	{
+		size_t size = hdrSizeTable [i];
+		attr.m_textColor = hdrColorTable [i];
+		target.retroColorize (retroOffset, size, attr);
+		retroOffset += size;
+	}
+}
+
+representDefragmentedIp (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	target.m_lineAttr.m_backColor = gui.StdColor.PastelCyan;
+	target.addPlainText ("Defragmented IP packet");
+
+	if (foldFlags)
+	{
+		target.addHyperText ("[\e^-1\e[34m-\e[m]");
+
+		size_t hdrSizeTable [8];
+		uint_t hdrColorTable [8];
+
+		size_t hdrCount = representIpHdr (target, p, size, 0, hdrSizeTable, hdrColorTable, 0);
+		representColorizedBin (target, p, size, hdrSizeTable, hdrColorTable, hdrCount);
+	}
+	else
+	{
+		representIp (target, p, size, 0);
+	}
+}
+
+representPacketData (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	size_t length
+	)
+{
+	if (baseOffset >= size)
+		return;
+
+	if (length == -1 || baseOffset + length >= size)
+		length = size - baseOffset;
+
+	target.m_lineAttr.m_textColor = gui.StdColor.Gray;
+	target.m_lineAttr.m_backColor = gui.ColorFlags.Transparent;
+	target.addBin (p + baseOffset, length);
+}
+
+//..............................................................................

@@ -1,0 +1,541 @@
+//..............................................................................
+//
+// Modbus PDU log record representation
+//
+
+import "log_Representer.jnc"
+import "io_Modbus.jnc"
+import "std_String.jnc"
+
+//..............................................................................
+
+enum
+{
+	MaxDigestValueCount = 4
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getModbusCoilsDigest (
+	uint8_t const* p,
+	size_t count
+	)
+{
+	switch (count)
+	{
+	case 0:
+		return "[\e[31mNONE\e[m]";
+
+	case 1:
+		return $"\e[34m$(*p & 1)\e[m" ;
+	}
+
+	std.StringBuilder digest;
+	digest.append ("{");
+
+	size_t digestCount = count < MaxDigestValueCount ? count : MaxDigestValueCount;
+	for (size_t i = 0; i < digestCount; i++)
+	{
+		bool value = (*p & (1 << i)) != 0;
+		digest.append ($" \e[34m$value\e[m");
+	}
+
+	if (count > MaxDigestValueCount)
+		digest.append (" ...");
+
+	digest.append (" }");
+	return digest.detachString ();
+}
+
+representModbusCoils (
+	log.RepresenterTarget* target,
+	uint8_t const* p,
+	size_t count,
+	size_t baseOffset,
+	size_t offsetMultiplier,
+	uint_t foldFlags
+	)
+{
+	switch (count)
+	{
+	case 0:
+		target.addHyperText ("    Value:     [\e[31mNONE\e[m]");
+		return;
+
+	case 1:
+		target.addHyperText (
+			$"    Value:     \e^!%1,%2\e[34m%3\e[m" (
+			baseOffset,
+			sizeof (uint8_t) * offsetMultiplier,
+			*p & 1
+			));
+		return;
+	}
+
+
+	if (foldFlags & 2)
+	{
+		target.addHyperText ($"    [\e^-2\e[34m-\e[m] Values [$count]");
+		representModbusCoilValues (target, p, count, baseOffset, offsetMultiplier);
+	}
+	else
+	{
+		target.addHyperText ($"    [\e^+2\e[34m+\e[m] Values [$count]");
+		target.addHyperText ($"        $(getModbusCoilsDigest (p, count))");
+	}
+}
+
+size_t getDecimalLength (uint8_t n)
+{
+	return n < 10 ? 1 : n < 100 ? 2 : 3;
+}
+
+representModbusCoilValues (
+	log.RepresenterTarget* target,
+	uint8_t const* p,
+	size_t count,
+	size_t baseOffset,
+	size_t offsetMultiplier
+	)
+{
+	char padding [] = "        ";
+	size_t basePaddingLength = getDecimalLength (count - 1) + 1;
+
+	size_t size = count / 8;
+	if (count & 7)
+		size++;
+
+	size_t i = 0;
+	for (size_t j = 0; i < count && j < size; j++)
+	{
+		uint8_t c = p [j];
+
+		for (uint8_t mask = 1; i < count && mask; i++, mask <<= 1)
+		{
+			size_t indexLength = getDecimalLength (i);
+			padding [basePaddingLength - indexLength] = 0;
+
+			bool value = (c & mask) != 0;
+			target.addHyperText (
+				$"        [%1]:$padding\e^!%2,%3\e[34m%4\e[m" (
+				i,
+				baseOffset + j * offsetMultiplier,
+				sizeof (uint8_t) * offsetMultiplier,
+				value
+				));
+		}
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getModbusRegistersDigest (
+	bigendian uint16_t const* p,
+	size_t count
+	)
+{
+	enum
+	{
+		MaxCount = 4
+	}
+
+	switch (count)
+	{
+	case 0:
+		return "[\e[31mNONE\e[m]";
+
+	case 1:
+		return $"\e[34m$(*p)\e[m" ;
+	}
+
+	std.StringBuilder digest;
+	digest.append ($"{");
+
+	size_t digestCount = count < MaxDigestValueCount ? count : MaxDigestValueCount;
+	for (size_t i = 0; i < digestCount; i++)
+	{
+		uint16_t value = p [i];
+		digest.append ($" \e[34m$value\e[m");
+	}
+
+	if (count > MaxDigestValueCount)
+		digest.append (" ...");
+
+	digest.append (" }");
+	return digest.detachString ();
+}
+
+representModbusRegisters (
+	log.RepresenterTarget* target,
+	bigendian uint16_t const* p,
+	size_t count,
+	size_t baseOffset,
+	size_t offsetMultiplier,
+	uint_t foldFlags
+	)
+{
+	switch (count)
+	{
+	case 0:
+		target.addHyperText ("    Value:     [\e[31mNONE\e[m]");
+		return;
+
+	case 1:
+		target.addHyperText (
+			$"    Value:     \e^!%1,%2\e[34m0x%(3; 04x) (%3)\e[m" (
+			baseOffset,
+			sizeof (uint16_t) * offsetMultiplier,
+			p [0]
+			));
+		return;
+	}
+
+	if (foldFlags & 2)
+	{
+		target.addHyperText ($"    [\e^-2\e[34m-\e[m] Values [$count]");
+		representModbusRegisterValues (target, p, count, baseOffset, offsetMultiplier);
+	}
+	else
+	{
+		target.addHyperText ($"    [\e^+2\e[34m+\e[m] Values [$count]");
+		target.addHyperText ($"        $(getModbusRegistersDigest (p, count))");
+	}
+}
+
+representModbusRegisterValues (
+	log.RepresenterTarget* target,
+	bigendian uint16_t const* p,
+	size_t count,
+	size_t baseOffset,
+	size_t offsetMultiplier
+	)
+{
+	char padding [] = "        ";
+	size_t basePaddingLength = getDecimalLength (count - 1) + 1;
+
+	for (size_t i = 0; i < count; i++)
+	{
+		size_t indexLength = getDecimalLength (i);
+		padding [basePaddingLength - indexLength] = 0;
+
+		target.addHyperText (
+			$"        [%1]:$padding\e^!%2,%3\e[34m0x%(4; 04x) (%4)\e[m" (
+			i,
+			baseOffset + i * sizeof (uint16_t) * offsetMultiplier,
+			sizeof (uint16_t) * offsetMultiplier,
+			p [i]
+			));
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatModbusFuncDescription (
+	io.ModbusRole role,
+	io.ModbusFunc func
+	)
+{
+	return (func & io.ModbusFunc.ExceptionFlag) ?
+		$"%1 (\e[34mEXCEPTION\e[m)" (
+			io.getModbusFuncString ((io.ModbusFunc) (func & ~io.ModbusFunc.ExceptionFlag))
+			) :
+		$"%1 (\e[90m%2\e[m)" (
+			io.getModbusFuncString (func),
+			role == io.ModbusRole.Master ? "Request" : "Reply"
+			);
+
+}
+
+representModbusPdu (
+	log.RepresenterTarget* target,
+	io.ModbusRole role,
+	io.ModbusPduHdr const* hdr,
+	size_t baseOffset,
+	size_t offsetMultiplier = 1,
+	uint_t foldFlags
+	)
+{
+	target.addHyperText (
+		"\e[1mPDU\e[m\n"
+		$"    Function:  \e^!%1,%2\e[34m%3\e[m %4" (
+		baseOffset + offsetof (hdr.m_func) * offsetMultiplier,
+		sizeof (hdr.m_func) * offsetMultiplier,
+		hdr.m_func,
+		formatModbusFuncDescription (role, hdr.m_func)
+		));
+
+	switch (hdr.m_func)
+	{
+	case io.ModbusFunc.ReadCoils:
+	case io.ModbusFunc.ReadDiscreteInputs:
+	case io.ModbusFunc.ReadHoldingRegisters:
+	case io.ModbusFunc.ReadInputRegisters:
+		if (role == io.ModbusRole.Master)
+		{
+			io.ModbusReadPdu const* pdu = (io.ModbusReadPdu const*) hdr;
+			target.addHyperText (
+				$"    Address:   \e^!%1,%2\e[34m0x%(3; 04x)\e[m\n"
+				$"    Count:     \e^!%4,%5\e[34m%6\e[m" (
+
+				baseOffset + offsetof (pdu.m_address) * offsetMultiplier,
+				sizeof (pdu.m_address) * offsetMultiplier,
+				pdu.m_address,
+
+				baseOffset + offsetof (pdu.m_count) * offsetMultiplier,
+				sizeof (pdu.m_count) * offsetMultiplier,
+				pdu.m_count
+				));
+		}
+		else
+		{
+			io.ModbusReadReplyPdu const* pdu = (io.ModbusReadReplyPdu const*) hdr;
+
+			if (hdr.m_func <= io.ModbusFunc.ReadDiscreteInputs)
+			{
+				target.addHyperText (
+					$"    Size:      \e^!%1,%2\e[34m%3\e[m" (
+					baseOffset + offsetof (pdu.m_size) * offsetMultiplier,
+					sizeof (pdu.m_size) * offsetMultiplier,
+					pdu.m_size
+					));
+
+				representModbusCoils (
+					target,
+					(uint8_t const*) (pdu + 1),
+					pdu.m_size * 8,
+					baseOffset + sizeof (io.ModbusReadReplyPdu) * offsetMultiplier,
+					offsetMultiplier,
+					foldFlags
+					);
+			}
+			else
+			{
+				target.addHyperText (
+					$"    Size:      \e^!%1,%2\e[34m%3\e[m%4" (
+					baseOffset + offsetof (pdu.m_size) * offsetMultiplier,
+					sizeof (pdu.m_size) * offsetMultiplier,
+					pdu.m_size,
+					(pdu.m_size & 1) ? " [\e[31mINVALID\e[m] \e[90m(expected: a multiple of 2)" : ""
+					));
+
+				representModbusRegisters (
+					target, (bigendian uint16_t const*) (pdu + 1),
+					pdu.m_size / 2,
+					baseOffset + sizeof (io.ModbusReadReplyPdu) * offsetMultiplier,
+					offsetMultiplier,
+					foldFlags
+					);
+			}
+		}
+		break;
+
+	case io.ModbusFunc.WriteCoil:
+	case io.ModbusFunc.WriteRegister:
+		io.ModbusWritePdu const* pdu = (io.ModbusWritePdu const*) hdr;
+		target.addHyperText (
+			$"    Address:   \e^!%1,%2\e[34m0x%(3; 04x)\e[m\n"
+			$"    Value:     \e^!%4,%5\e[34m0x%(6; 04x) (%6)\e[m" (
+
+			baseOffset + offsetof (pdu.m_address) * offsetMultiplier,
+			sizeof (pdu.m_address) * offsetMultiplier,
+			pdu.m_address,
+
+			baseOffset + offsetof (pdu.m_value) * offsetMultiplier,
+			sizeof (pdu.m_value) * offsetMultiplier,
+			pdu.m_value
+			));
+		break;
+
+	case io.ModbusFunc.WriteMultipleCoils:
+	case io.ModbusFunc.WriteMultipleRegisters:
+		if (role == io.ModbusRole.Master)
+		{
+			io.ModbusWriteMultiplePdu const* pdu = (io.ModbusWriteMultiplePdu const*) hdr;
+			target.addHyperText (
+				$"    Address:   \e^!%1,%2\e[34m0x%(3; 04x)\e[m\n"
+				$"    Count:     \e^!%4,%5\e[34m%6\e[m\n"
+				$"    Size:      \e^!%7,%8\e[34m%9\e[m" (
+
+				baseOffset + offsetof (pdu.m_address) * offsetMultiplier,
+				sizeof (pdu.m_address) * offsetMultiplier,
+				pdu.m_address,
+
+				baseOffset + offsetof (pdu.m_count) * offsetMultiplier,
+				sizeof (pdu.m_count) * offsetMultiplier,
+				pdu.m_count,
+
+				baseOffset + offsetof (pdu.m_size) * offsetMultiplier,
+				sizeof (pdu.m_size) * offsetMultiplier,
+				pdu.m_size
+				));
+
+			if (hdr.m_func == io.ModbusFunc.WriteMultipleCoils)
+				representModbusCoils (
+					target,
+					(uint8_t const*) (pdu + 1),
+					pdu.m_count,
+					baseOffset + sizeof (io.ModbusWriteMultiplePdu) * offsetMultiplier,
+					offsetMultiplier,
+					foldFlags
+					);
+			else
+				representModbusRegisters (
+					target,
+					(bigendian uint16_t const*) (pdu + 1),
+					pdu.m_count,
+					baseOffset + sizeof (io.ModbusWriteMultiplePdu) * offsetMultiplier,
+					offsetMultiplier,
+					foldFlags
+					);
+		}
+		else
+		{
+			io.ModbusWriteMultipleReplyPdu const* pdu = (io.ModbusWriteMultipleReplyPdu const*) hdr;
+			target.addHyperText (
+				$"    Address:   \e^!%1,%2\e[34m0x%(3; 04x)\n"
+				$"    Count:     \e^!%4,%5\e[34m%6" (
+
+				baseOffset + offsetof (pdu.m_address) * offsetMultiplier,
+				sizeof (pdu.m_address) * offsetMultiplier,
+				pdu.m_address,
+
+				baseOffset + offsetof (pdu.m_count) * offsetMultiplier,
+				sizeof (pdu.m_count) * offsetMultiplier,
+				pdu.m_count
+				));
+		}
+		break;
+
+	case io.ModbusFunc.ReadExceptionStatus:
+	case io.ModbusFunc.Diagnostics:
+	case io.ModbusFunc.GetCommEventCounter:
+	case io.ModbusFunc.GetCommEventLog:
+	case io.ModbusFunc.ReportServerId:
+	case io.ModbusFunc.ReadFileRecord:
+	case io.ModbusFunc.WriteFileRecord:
+	case io.ModbusFunc.MaskWriteRegister:
+	case io.ModbusFunc.ReadWriteMultipleRegisters:
+	case io.ModbusFunc.ReadFifoQueue:
+	case io.ModbusFunc.EncapsulatedInterface:
+		break; // not supported yet
+
+	default:
+		if (hdr.m_func & io.ModbusFunc.ExceptionFlag)
+		{
+			io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*) hdr;
+
+			target.addHyperText (
+				$"    Exception: \e^!%1,%2\e[31m%3\e[m - %4" (
+				baseOffset + offsetof (pdu.m_exception) * offsetMultiplier,
+				sizeof (pdu.m_exception) * offsetMultiplier,
+				pdu.m_exception,
+				io.getModbusExceptionString (pdu.m_exception)
+				));
+		}
+	}
+}
+
+char const* getModbusPduDigest (
+	io.ModbusRole role,
+	io.ModbusPduHdr const* hdr
+	)
+{
+	std.StringBuilder digest;
+
+	digest.append ($"Fn: \e[34m%1\e[m %2" (
+		hdr.m_func,
+		formatModbusFuncDescription (role, hdr.m_func)
+		));
+
+	switch (hdr.m_func)
+	{
+	case io.ModbusFunc.ReadCoils:
+	case io.ModbusFunc.ReadDiscreteInputs:
+	case io.ModbusFunc.ReadHoldingRegisters:
+	case io.ModbusFunc.ReadInputRegisters:
+		if (role == io.ModbusRole.Master)
+		{
+			io.ModbusReadPdu const* pdu = (io.ModbusReadPdu const*) hdr;
+			digest.append ($" Addr: \e[34m0x$(pdu.m_address; 04x)\e[m");
+			if (pdu.m_count > 1)
+				digest.append ($" N: \e[34m$(pdu.m_count)\e[m");
+		}
+		else
+		{
+			io.ModbusReadReplyPdu const* pdu = (io.ModbusReadReplyPdu const*) hdr;
+			digest.append (" ");
+
+			if (hdr.m_func <= io.ModbusFunc.ReadDiscreteInputs)
+				digest.append (getModbusCoilsDigest (
+					(uint8_t const*) (pdu + 1),
+					pdu.m_size * 8
+					));
+			else
+				digest.append (getModbusRegistersDigest (
+					(bigendian uint16_t const*) (pdu + 1),
+					pdu.m_size / 2
+					));
+		}
+		break;
+
+	case io.ModbusFunc.WriteCoil:
+	case io.ModbusFunc.WriteRegister:
+		io.ModbusWritePdu const* pdu = (io.ModbusWritePdu const*) hdr;
+		digest.append ($" Addr: \e[34m0x$(pdu.m_address; 04x)\e[m Val: \e[34m$(pdu.m_value)\e[m");
+		break;
+
+	case io.ModbusFunc.WriteMultipleCoils:
+	case io.ModbusFunc.WriteMultipleRegisters:
+		if (role == io.ModbusRole.Master)
+		{
+			io.ModbusWriteMultiplePdu const* pdu = (io.ModbusWriteMultiplePdu const*) hdr;
+			digest.append ($" Addr: \e[34m0x$(pdu.m_address; 04x)\e[m ");
+
+			if (hdr.m_func == io.ModbusFunc.WriteMultipleCoils)
+				digest.append (getModbusCoilsDigest (
+					(uint8_t const*) (pdu + 1),
+					pdu.m_count
+					));
+			else
+				digest.append (getModbusRegistersDigest (
+					(bigendian uint16_t const*) (pdu + 1),
+					pdu.m_count
+					));
+		}
+		else
+		{
+			io.ModbusWriteMultipleReplyPdu const* pdu = (io.ModbusWriteMultipleReplyPdu const*) hdr;
+			digest.append ($"Addr: \e[34m0x$(pdu.m_address; 04x) N: \e[34m$(pdu.m_count)\e[m");
+		}
+		break;
+
+	case io.ModbusFunc.ReadExceptionStatus:
+	case io.ModbusFunc.Diagnostics:
+	case io.ModbusFunc.GetCommEventCounter:
+	case io.ModbusFunc.GetCommEventLog:
+	case io.ModbusFunc.ReportServerId:
+	case io.ModbusFunc.ReadFileRecord:
+	case io.ModbusFunc.WriteFileRecord:
+	case io.ModbusFunc.MaskWriteRegister:
+	case io.ModbusFunc.ReadWriteMultipleRegisters:
+	case io.ModbusFunc.ReadFifoQueue:
+	case io.ModbusFunc.EncapsulatedInterface:
+		break; // not supported yet
+
+	default:
+		if (hdr.m_func & io.ModbusFunc.ExceptionFlag)
+		{
+			io.ModbusExceptionPdu const* pdu = (io.ModbusExceptionPdu const*) hdr;
+
+			digest.append (
+				$" Err: \e[31m%1\e[m %2" (
+				pdu.m_exception,
+				io.getModbusExceptionString (pdu.m_exception)
+				));
+		}
+	}
+
+	return digest.detachString ();
+}
+
+//..............................................................................

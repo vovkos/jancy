@@ -1,0 +1,29 @@
+#...............................................................................
+#
+#  SPI Tap log representer plugin
+#
+
+[plugin]
+
+name        = SPI Tap Log
+description = "SPI Tap log representer"
+group       = serial
+guid        = db8c8923-a699-46cc-be7c-f0bcd523082b
+
+log-representer-func = representSpiTapLog
+
+[scripts]
+
+SpiTapLogRecordCode.jnc
+SpiTapLogRepresenter.jnc
+
+[records]
+
+81d487b3c025af1c  # TapOpened
+01d487b3c025af1d  # TapOpenError
+01d487b3c025af1e  # TapClosed
+01d487b3c025af1f  # FrequencyChanged
+01d487b3c025af20  # ModeChanged
+01d487b3c025af21  # DataBitsChanged
+01d487b3c025af22  # EndiannessChanged
+01d487b3c025af23  # TxRxOutOfSync

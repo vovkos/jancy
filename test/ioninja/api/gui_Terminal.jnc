@@ -1,0 +1,20 @@
+//..............................................................................
+//
+// Ninja GUI - terminal
+//
+
+namespace gui {
+
+//..............................................................................
+
+class Terminal
+{
+	uint_t readonly m_consoleWidth;
+	uint_t readonly m_consoleHeight;
+
+	event m_onConsoleSizeChanged ();
+}
+
+//..............................................................................
+
+} // namespace doc {

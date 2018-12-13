@@ -1,0 +1,20 @@
+#...............................................................................
+
+[plugin]
+
+name        = "Cypress EZ-USB FX2 Uploader"
+description = "Uploads files over the Cypress EZ-USB FX2 chip"
+id          = cypress-uploader
+group       = usb
+monitor     = true
+log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # usb
+icon        = images/usb.png
+small-icon  = images/usb-16x16.png
+
+session-class = CypressUploaderSession
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[scripts]
+
+CypressUploaderSession.jnc

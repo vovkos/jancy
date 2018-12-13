@@ -1,0 +1,33 @@
+import "std_String.jnc"
+
+// both functions return mutable pointers
+
+char* formatIntegerWithThousandSep (
+	uint64_t value,
+	char sep = ','
+	)
+{
+	std.StringBuilder string = $"$value";
+
+	intptr_t i = string.m_length - 3;
+	for (; i > 0; i -= 3)
+		string.insert (i, sep);
+
+	return string.detachString ();
+}
+
+char* formatFileSize (uint64_t size)
+{
+	enum
+	{
+		KB = 1024,
+		MB = 1024 * KB,
+		GB = 1024 * MB,
+	};
+
+	return
+		size >= GB ? $"$((double) size / GB; .2f) GB" :
+		size >= MB ? $"$((double) size / MB; .2f) MB" :
+		size > 9999 ? $"$(size / KB) KB" :
+		$"$(formatIntegerWithThousandSep (size)) B";
+}

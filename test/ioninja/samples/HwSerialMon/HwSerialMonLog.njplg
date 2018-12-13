@@ -1,0 +1,34 @@
+#...............................................................................
+#
+#  Hardware Serial Monitor log representer plugin
+#
+
+[plugin]
+
+name        = "Hardware Serial Monitor"
+description = "Hardware Serial Monitor log representer"
+group       = serial
+guid        = db8c8923-a699-46cc-be7c-f0bcd523082b
+
+log-representer-func = representHwSerialMonLog
+
+[scripts]
+
+HwSerialMonLogRecordCode.jnc
+HwSerialMonLogRepresenter.jnc
+
+[records]
+
+01d487bf52f4c9f6  # CaptureStarted
+01d487bf52f4c9f7  # CaptureStopped
+01d487bf52f4c9f8  # RawPacket
+01d487bf52f4c9f9  # UartRtsChanged
+01d487bf52f4c9fa  # UartCtsChanged
+01d487bf52f4c9fb  # UartFramingError
+01d487bf52f4c9fc  # UartParityError
+01d487bf52f4c9fd  # I2cEmptyMessage
+01d487bf52f4c9fe  # I2cPreemptiveStart
+01d487bf52f4c9ff  # I2cPreemptiveStop
+01d487bf52f4ca00  # I2cCharNack
+01d487bf52f4ca01  # SpiFramingError
+01d487bf52f4ca02  # SpiEmptyMessage

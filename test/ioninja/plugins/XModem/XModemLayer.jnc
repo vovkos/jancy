@@ -1,6 +1,6 @@
 import "io_base.jncx"
 import "io_MappedFile.jnc"
-import "doc_Plugin.jnc"
+import "doc_Layer.jnc"
 import "gui_Dialog.jnc"
 
 //..............................................................................
@@ -48,7 +48,7 @@ protected:
 
 	onLogRecord (
 		uint64_t timestamp,
-		uint_t recordCode,
+		uint64_t recordCode,
 		void const* p,
 		size_t size
 		);
@@ -67,7 +67,7 @@ XModemLayer.construct (doc.PluginHost* pluginHost)
 
 	m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
-	pluginHost.m_log.attachListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
+	pluginHost.m_log.addListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
 
 	m_state = State.Idle;
 
@@ -121,7 +121,7 @@ XModemLayer.cancelFileTranfer ()
 		break;
 
 	case State.Receiving:
-		m_transmitter.cancel ();
+		m_receiver.cancel ();
 		break;
 	}
 
@@ -185,7 +185,7 @@ XModemLayer.onProgressDlgButtonClicked (gui.StdDlgButton button)
 
 XModemLayer.onLogRecord (
 	uint64_t timestamp,
-	uint_t recordCode,
+	uint64_t recordCode,
 	void const* p,
 	size_t size
 	)

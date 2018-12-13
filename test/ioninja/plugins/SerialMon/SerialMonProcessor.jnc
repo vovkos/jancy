@@ -1,0 +1,31 @@
+//..............................................................................
+//
+// Serial Monitor notification processor (base class)
+//
+
+import "io_devmon.jncx"
+
+//..............................................................................
+
+class SerialMonProcessor
+{
+protected:
+	log.Writer* m_logWriter;
+	io.SerialStatusLines m_statusLines;
+
+public:
+	construct (log.Writer* logWriter)
+	{
+		m_logWriter = logWriter;
+		reset ();
+	}
+
+	reset ()
+	{
+		m_statusLines = (io.SerialStatusLines) -1; // special meaning: unintitalized
+	}
+
+	abstract processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr);
+}
+
+//..............................................................................

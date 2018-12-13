@@ -1,14 +1,13 @@
-//..............................................................................
-//
-// XModem layer plugin
-//
+#...............................................................................
+#
+#  XModem layer plugin
+#
 
 [plugin]
 
 name        = XModem
 description = "Implements XModem protocol for file transmit/receive"
 id          = xmodem
-group       = transfer-protocols
 guid        = 16f59fa1-177a-48ae-a8e3-190c9be0821e
 icon        = images/xmodem.png
 small-icon  = images/xmodem-16x16.png

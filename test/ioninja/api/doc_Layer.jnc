@@ -1,0 +1,44 @@
+//..............................................................................
+//
+// Ninja document model - layers
+//
+
+import "doc_Plugin.jnc"
+
+namespace doc {
+
+//..............................................................................
+
+class Layer: Plugin
+{
+	bool bindable const property m_isTransmitEnabled; // to be notified when a session enables/disables transmission
+
+	construct (PluginHost* host)
+	{
+		basetype.construct (host);
+	}
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		)
+	{
+		return transmitNext (p, size);
+	}
+
+	size_t transmitNext (
+		void const* p,
+		size_t size
+		);
+
+	size_t transmitToNext (
+		void const* p,
+		size_t size,
+		void const* address,
+		size_t addressSize
+		);
+}
+
+//..............................................................................
+
+} // namespace doc {

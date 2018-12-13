@@ -1,0 +1,21 @@
+#...............................................................................
+#
+#  Serial Tap session plugin
+#
+
+[plugin]
+
+name        = "Serial Tap"
+description = "Monitor serial communication through a Serial Tap device from Tibbo"
+id          = serial-tap
+group       = serial
+monitor     = true
+log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial log
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SerialTapSession
+
+[scripts]
+
+SerialTapSession.jnc

@@ -1,0 +1,247 @@
+//..............................................................................
+//
+// Some standard stats collected via selection processors
+//
+
+import "gui_InformationGrid.jnc"
+import "formatInteger.jnc"
+
+namespace log {
+
+//..............................................................................
+
+class ThroughputInfoSet
+{
+	bitflag enum InfoId
+	{
+		TimeSpan,
+		TxTotalSize,
+		TxThroughput,
+		RxTotalSize,
+		RxThroughput,
+		TotalSize,
+		TotalThroughput,
+
+		Default =
+			TimeSpan |
+			TxTotalSize |
+			TxThroughput |
+			RxTotalSize |
+			RxThroughput,
+	}
+
+	gui.InformationValue* m_timeSpanInfo;
+	gui.InformationValue* m_txTotalSizeInfo;
+	gui.InformationValue* m_txThroughputInfo;
+	gui.InformationValue* m_rxTotalSizeInfo;
+	gui.InformationValue* m_rxThroughputInfo;
+	gui.InformationValue* m_totalSizeInfo;
+	gui.InformationValue* m_totalThroughputInfo;
+
+	createInformationValues (
+		gui.InformationGrid* informationGrid,
+		gui.InformationGroup* group = null,
+		gui.InformationValue* insertBefore = null,
+		InfoId mask = InfoId.Default
+		);
+
+	createInformationValuesGrouped (
+		gui.InformationGrid* informationGrid,
+		gui.InformationGroup* group = null,
+		gui.InformationValue* insertBefore = null,
+		InfoId mask = InfoId.Default
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ThroughputInfoSet.createInformationValues (
+	gui.InformationGrid* informationGrid,
+	gui.InformationGroup* group,
+	gui.InformationValue* insertBefore,
+	InfoId mask
+	)
+{
+	if (mask & InfoId.TimeSpan)
+		m_timeSpanInfo = informationGrid.createValue (group, insertBefore, true, "Time span");
+
+	if (mask & InfoId.TxTotalSize)
+		m_txTotalSizeInfo = informationGrid.createValue (group, insertBefore, true, "TX total bytes");
+
+	if (mask & InfoId.TxThroughput)
+		m_txThroughputInfo = informationGrid.createValue (group, insertBefore, true, "TX throughput");
+
+	if (mask & InfoId.RxTotalSize)
+		m_rxTotalSizeInfo = informationGrid.createValue (group, insertBefore, true, "RX total bytes");
+
+	if (mask & InfoId.RxThroughput)
+		m_rxThroughputInfo = informationGrid.createValue (group, insertBefore, true, "RX throughput");
+
+	if (mask & InfoId.TotalSize)
+		m_totalSizeInfo = informationGrid.createValue (group, insertBefore, true, "Total bytes");
+
+	if (mask & InfoId.TotalThroughput)
+		m_totalThroughputInfo = informationGrid.createValue (group, insertBefore, true, "Total throughput");
+}
+
+ThroughputInfoSet.createInformationValuesGrouped (
+	gui.InformationGrid* informationGrid,
+	gui.InformationGroup* group,
+	gui.InformationValue* insertBefore,
+	InfoId mask
+	)
+{
+	gui.InformationGroup* subGroup = informationGrid.createGroup (
+		group,
+		insertBefore,
+		"Throughput calculator",
+		"Make a selection in the log to calculate throughput"
+		);
+
+	createInformationValues (informationGrid, subGroup,, mask);
+}
+
+//..............................................................................
+
+class ThroughputCalcRangeProcessor: RangeProcessor
+{
+protected:
+	ThroughputInfoSet* m_infoSet;
+	uint64_t m_startTimestamp;
+	uint64_t m_txTotalSize;
+	uint64_t m_rxTotalSize;
+	uint64_t m_totalSize;
+
+public:
+	static ThroughputCalcRangeProcessor* factory (ThroughputInfoSet* infoSet)
+	{
+		return new ThroughputCalcRangeProcessor (infoSet);
+	}
+
+protected:
+	construct (ThroughputInfoSet* infoSet)
+	{
+		m_infoSet = infoSet;
+	}
+
+	override processText (
+		uint64_t partCode,
+		char const* text
+		);
+
+	override processBin (
+		uint64_t partCode,
+		void const* p,
+		size_t size
+		);
+
+	override processDualBin (
+		uint64_t partCode,
+		void const* p1,
+		void const* p2,
+		size_t size
+		);
+
+	override processEndOfRange ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ThroughputCalcRangeProcessor.processText (
+	uint64_t partCode,
+	char const* text
+	)
+{
+	if (!m_startTimestamp)
+		m_startTimestamp = m_timestamp;
+}
+
+ThroughputCalcRangeProcessor.processBin (
+	uint64_t partCode,
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_startTimestamp)
+		m_startTimestamp = m_timestamp;
+
+	switch (partCode)
+	{
+	case StdRecordCode.Tx:
+		m_txTotalSize += size;
+		break;
+
+	case StdRecordCode.Rx:
+		m_rxTotalSize += size;
+		break;
+	}
+
+	m_totalSize += size;
+}
+
+ThroughputCalcRangeProcessor.processDualBin (
+	uint64_t partCode,
+	void const* p1,
+	void const* p2,
+	size_t size
+	)
+{
+	if (!m_startTimestamp)
+		m_startTimestamp = m_timestamp;
+
+	switch (partCode)
+	{
+	case StdRecordCode.TxRx:
+		m_txTotalSize += size;
+		m_rxTotalSize += size;
+		break;
+	}
+
+	m_totalSize += size * 2;
+}
+
+ThroughputCalcRangeProcessor.processEndOfRange ()
+{
+	uint64_t timeSpan = m_timestamp - m_startTimestamp;
+
+	if (m_infoSet.m_timeSpanInfo)
+		m_infoSet.m_timeSpanInfo.m_value = $"$(sys.formatTimestamp (timeSpan, 0, "%h:%m:%s.%l"))";
+
+	if (m_infoSet.m_txTotalSizeInfo)
+		m_infoSet.m_txTotalSizeInfo.m_value = formatIntegerWithThousandSep (m_txTotalSize);
+
+	if (m_infoSet.m_rxTotalSizeInfo)
+		m_infoSet.m_rxTotalSizeInfo.m_value = formatIntegerWithThousandSep (m_rxTotalSize);
+
+	if (m_infoSet.m_totalSizeInfo)
+		m_infoSet.m_totalSizeInfo.m_value = formatIntegerWithThousandSep (m_totalSize);
+
+	if (timeSpan)
+	{
+		if (m_infoSet.m_txThroughputInfo)
+			m_infoSet.m_txThroughputInfo.m_value = formatIntegerWithThousandSep (m_txTotalSize * 10000000 / timeSpan);
+
+		if (m_infoSet.m_rxThroughputInfo)
+			m_infoSet.m_rxThroughputInfo.m_value = formatIntegerWithThousandSep (m_rxTotalSize * 10000000 / timeSpan);
+
+		if (m_infoSet.m_totalThroughputInfo)
+			m_infoSet.m_totalThroughputInfo.m_value = formatIntegerWithThousandSep (m_totalSize * 10000000 / timeSpan);
+	}
+	else
+	{
+		char const* text = "insufficient time span";
+
+		if (m_infoSet.m_txThroughputInfo)
+			m_infoSet.m_txThroughputInfo.m_disabledValue = text;
+
+		if (m_infoSet.m_rxThroughputInfo)
+			m_infoSet.m_rxThroughputInfo.m_disabledValue = text;
+
+		if (m_infoSet.m_totalThroughputInfo)
+			m_infoSet.m_totalThroughputInfo.m_disabledValue = text;
+	}
+}
+
+//..............................................................................
+
+} // namespace log

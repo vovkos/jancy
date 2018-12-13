@@ -1,0 +1,46 @@
+uint16_t calcIp4Checksum (
+	void const* p0,
+	size_t size,
+	uint16_t seed = 0,
+	bool isOddSeed = false
+	)
+{
+	if (!size)
+		return seed;
+
+	uint_t checksum = seed;
+
+	if (isOddSeed)
+	{
+		checksum += *(uint8_t const*) p0 << 8;
+		if (checksum & 0x10000)
+			checksum -= 0xffff;
+
+		p0++;
+		size--;
+	}
+
+	uint16_t const* p = (uint16_t const*) p0;
+	void const* end = p0 + (size & ~1);
+
+	for (; p < end; p++)
+	{
+		checksum += *p;
+		if (checksum & 0x10000)
+			checksum -= 0xffff;
+	}
+
+	if (size & 1)
+	{
+		checksum += *(uint8_t const*) p;
+		if (checksum & 0x10000)
+			checksum -= 0xffff;
+	}
+
+	return checksum;
+}
+
+uint16_t finalizeIp4Checksum (uint16_t checksum)
+{
+	return ~((checksum >> 8) | ((checksum & 0xff) << 8));
+}

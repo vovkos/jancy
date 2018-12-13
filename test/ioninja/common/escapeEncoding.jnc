@@ -1,0 +1,167 @@
+import "std_String.jnc"
+
+// port of axl_enc_EscapeEncoding.cpp
+
+//..............................................................................
+
+char findEscapeReplaceChar (char x)
+{
+	switch (x)
+	{
+	case '0':
+		return '\0';
+
+	case 'a':
+		return '\a';
+
+	case 'b':
+		return '\b';
+
+	case 't':
+		return '\t';
+
+	case 'n':
+		return '\n';
+
+	case 'f':
+		return '\f';
+
+	case 'v':
+		return '\v';
+
+	case 'r':
+		return '\r';
+
+	case 'e':
+		return '\x1b';
+
+	default:
+		return x;
+	};
+}
+
+size_t decodeEscapeString (
+	std.StringBuilder* string,
+	char const* source,
+	size_t length = -1
+	)
+{
+	enum State
+	{
+		Normal = 0,
+		Escape,
+		Hex,
+	};
+
+	State state = State.Normal;
+
+	if (length == -1)
+		length = strlen (source);
+
+	string.clear ();
+	string.reserve (length / 2);
+
+	char hexCodeString [16];
+	size_t hexCodeLen;
+	size_t hexCodeMaxLen;
+	uint32_t hexCode;
+
+	char replace;
+
+	char const* p = source;
+	char const* end = source + length;
+	char const* base = p;
+
+	for (; p < end; p++)
+	{
+		switch (state)
+		{
+		case State.Normal:
+			if (*p == '\\')
+			{
+				string.append (base, p - base);
+				state = State.Escape;
+			}
+
+			break;
+
+		case State.Escape:
+			switch (*p)
+			{
+			case 'x':
+				state = State.Hex;
+				hexCodeLen = 0;
+				hexCodeMaxLen = 2;
+				break;
+
+			case 'u':
+				state = State.Hex;
+				hexCodeLen = 0;
+				hexCodeMaxLen = 4;
+				break;
+
+			case 'U':
+				state = State.Hex;
+				hexCodeLen = 0;
+				hexCodeMaxLen = 8;
+				break;
+
+			default:
+				replace = findEscapeReplaceChar (*p);
+				if (replace != *p)
+				{
+					string.append (replace);
+					base = p + 1;
+				}
+				else
+				{
+					base = p;
+				}
+
+				state = State.Normal;
+			}
+
+			break;
+
+		case State.Hex:
+			char c = *p;
+			if (c >= '0' && c <= '9' ||
+				c >= 'a' && c <= 'f' ||
+				c >= 'A' && c <= 'F')
+			{
+				hexCodeString [hexCodeLen++] = c;
+				if (hexCodeLen < hexCodeMaxLen)
+					break;
+
+				base = p + 1;
+			}
+			else
+			{
+				base = p;
+			}
+
+			if (!hexCodeLen)
+			{
+				string.append ('?');
+			}
+			else
+			{
+				hexCodeString [hexCodeLen] = 0;
+				hexCode = strtol (hexCodeString, null, 16);
+
+				if (hexCodeMaxLen == 2) // \x
+					string.append ((char const*) &hexCode, 1);
+				else // \u or \U
+					string.append (hexCode);
+			}
+
+			state = State.Normal;
+			break;
+		}
+	}
+
+	string.append (base, p - base);
+	return string.m_length;
+}
+
+//..............................................................................

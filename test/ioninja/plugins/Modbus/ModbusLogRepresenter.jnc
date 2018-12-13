@@ -1,0 +1,67 @@
+//..............................................................................
+//
+// Modbus RTU log record declarations and representer
+//
+
+import "log_Representer.jnc"
+import "io_Modbus.jnc"
+import "ModbusLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representModbusLog (
+	log.RepresenterTarget* target,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case ModbusLogRecordCode.MasterPacket_Rtu:
+		representModbusRtuAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Rtu:
+		representModbusRtuAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.MasterPacket_Ascii:
+		representModbusAsciiAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Ascii:
+		representModbusAsciiAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.MasterPacket_Tcp:
+		representModbusTcpAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.SlavePacket_Tcp:
+		representModbusTcpAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		break;
+
+	case ModbusLogRecordCode.InvalidFunction: // legacy
+		uint8_t code = *(uint8_t const*) p;
+		target.m_lineAttr.m_backColor = gui.StdColor.PastelYellow;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.addHyperText ($"Invalid or unsupported Modbus function: \e[31m0x%(1; 02x)/%1\e[m" (code));
+		return true;
+
+	case ModbusLogRecordCode.ParseError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_backColor = gui.StdColor.PastelYellow;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.addHyperText ($"Modbus parse error: $(error.m_description)");
+		return true;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

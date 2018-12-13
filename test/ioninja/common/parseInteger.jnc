@@ -1,0 +1,15 @@
+long parseInteger (
+	char const* p,
+	size_t length = -1
+	)
+{
+	if (length == -1)
+		length = strlen (p);
+
+	int radix =
+		length >= 2 && p [0] == '0' ?
+		length >= 3 && (p [1] == 'x' || p [1] == 'X') ?
+		16 : 8 : 10;
+
+	return strtol (p, null, radix);
+}

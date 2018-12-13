@@ -1,0 +1,221 @@
+//..............................................................................
+//
+// UART timestamp-based signal-edge decoding
+//
+
+import "io_base.jncx"
+import "io_Serial.jnc"
+
+namespace io {
+
+//..............................................................................
+
+enum UartDecodeResult
+{
+	Continue,
+	Char,
+	FramingError,
+	ParityError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class UartSignalDecoder
+{
+protected:
+	enum State
+	{
+		Idle,
+		Start,
+		MainLoop, // data, parity, stop
+	}
+
+protected:
+	uint64_t m_baudTime;
+	uint_t m_dataBits;
+	uint_t m_frameBitCount;
+	io.SerialParity m_parity;
+
+	State m_state;
+	bool m_lastLineState;
+	uint_t m_frame; // frame minus stop bit
+
+public:
+	uint64_t readonly m_startEdgeTimestamp;
+	uchar_t m_char;
+
+public:
+	start (
+		uint_t baudRate,
+		uint_t dataBits,
+		io.SerialStopBits stopBits,
+		io.SerialParity parity
+		);
+
+	UartDecodeResult add (
+		uint64_t timestamp,
+		bool lineState
+		);
+
+	UartDecodeResult onTimer ();
+
+protected:
+	UartDecodeResult finalizeFrame ();
+	bool checkParity ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UartSignalDecoder.start (
+	uint_t baudRate,
+	uint_t dataBits,
+	io.SerialStopBits stopBits,
+	io.SerialParity parity
+	)
+{
+	m_baudTime = 10000000 / baudRate;
+	m_dataBits = dataBits;
+	m_parity = parity;
+	m_frameBitCount = dataBits + 2; // start, stop
+
+	if (parity)
+		m_frameBitCount++;
+
+	if (stopBits == io.SerialStopBits._2)
+		m_frameBitCount++;
+
+	m_state = State.Idle;
+}
+
+UartDecodeResult UartSignalDecoder.add (
+	uint64_t timestamp,
+	bool lineState
+	)
+{
+	if (m_state == State.Idle)
+	{
+		if (lineState)
+			return UartDecodeResult.Continue;
+
+		m_state = State.Start;
+		m_startEdgeTimestamp = timestamp;
+		m_lastLineState = false; // space
+		return UartDecodeResult.Continue;
+	}
+
+	if (timestamp < m_startEdgeTimestamp) // wat
+		return UartDecodeResult.Continue;
+
+	uint_t bit = (timestamp - m_startEdgeTimestamp + m_baudTime / 2) / m_baudTime;
+	if (m_state == State.Start)
+	{
+		if (!bit)
+		{
+			m_lastLineState = lineState;
+			return UartDecodeResult.Continue;
+		}
+
+		if (m_lastLineState) // invalid start bit
+		{
+			if (lineState)
+			{
+				m_state = State.Idle;
+			}
+			else
+			{
+				m_startEdgeTimestamp = timestamp; // assume this is a new start bit
+				m_lastLineState = false; // space
+			}
+
+			return UartDecodeResult.Continue;
+		}
+
+		m_state = State.MainLoop;
+		m_frame = 0;
+	}
+
+	if (bit < m_frameBitCount)
+	{
+		if (lineState == m_lastLineState)
+			return UartDecodeResult.Continue;
+
+		uint_t mask = ~((1 << (bit - 1)) - 1);
+
+		if (lineState)
+			m_frame |= mask;
+		else
+			m_frame &= ~mask;
+
+		m_lastLineState = lineState;
+		return UartDecodeResult.Continue;
+	}
+
+	UartDecodeResult result = finalizeFrame ();
+	add (timestamp, lineState);
+	return result;
+}
+
+UartDecodeResult UartSignalDecoder.onTimer ()
+{
+	if (m_state != State.MainLoop)
+		return UartDecodeResult.Continue;
+
+	uint64_t timestamp = sys.getTimestamp ();
+	if (timestamp < m_startEdgeTimestamp) // wat
+		return UartDecodeResult.Continue;
+
+	uint_t bit = (timestamp - m_startEdgeTimestamp + m_baudTime / 2) / m_baudTime;
+	return bit >= m_frameBitCount * 2 ? // 2 frame allowance
+		finalizeFrame () :
+		UartDecodeResult.Continue;
+}
+
+UartDecodeResult UartSignalDecoder.finalizeFrame ()
+{
+	UartDecodeResult result =
+		!m_lastLineState ? UartDecodeResult.FramingError :
+		m_parity && !checkParity () ? UartDecodeResult.ParityError :
+		UartDecodeResult.Char;
+
+	m_char = m_frame & ((1 << m_dataBits) - 1); // drop parity & stop bits
+	m_state = State.Idle;
+	return result;
+}
+
+bool isEvenNonZeroBitCount (uint_t c)
+{
+	size_t count = 0;
+
+	for (; c; c >>= 1)
+		if (c & 1)
+			count++;
+
+	return (count & 1) == 0;
+}
+
+bool UartSignalDecoder.checkParity ()
+{
+	switch (m_parity)
+	{
+	case io.SerialParity.Mark:
+		return m_frame & (1 << m_dataBits);
+
+	case io.SerialParity.Space:
+		return !(m_frame & (1 << m_dataBits));
+
+	case io.SerialParity.Even:
+		uint_t bits = m_frame & ((1 << (m_dataBits + 1)) - 1); // data + parity
+		return isEvenNonZeroBitCount (bits);
+
+	case io.SerialParity.Odd:
+		uint_t bits = m_frame & ((1 << (m_dataBits + 1)) - 1); // data + parity
+		return !isEvenNonZeroBitCount (bits);
+
+	default:
+		return true;
+	}
+}
+
+//..............................................................................
+
+} // namespace io

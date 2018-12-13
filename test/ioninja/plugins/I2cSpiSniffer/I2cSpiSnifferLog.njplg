@@ -1,0 +1,48 @@
+#...............................................................................
+#
+#  I2C/SPI Sniffer log representer plugin
+#
+
+[plugin]
+
+name        = "I2C/SPI Sniffer Log"
+description = "I2C/SPI Sniffer log representer"
+group       = serial
+guid        = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327
+
+log-representer-func = representDeviceMonLog
+
+[scripts]
+
+I2cSpiSnifferLogRecordCode.jnc
+I2cSpiSnifferLogRepresenter.jnc
+
+[records]
+
+01d487bb6423b7fd  # DeviceOpened
+01d487bb6423b7fe  # InterfaceClaimed
+01d487bb6423b7ff  # InEndpointOpened
+01d487bb6423b800  # OutEndpointOpened
+01d487bb6423b801  # CaptureStarted
+01d487bb6423b802  # CaptureStopped
+01d487bb6423b803  # CaptureError
+01d487bb6423b804  # UnexpectedCode
+01d487bb6423b805  # IncompleteByte
+01d487bb6423b806  # BufferOverflow
+01d487bb6423b807  # StillWaiting
+01d487bb6423b808  # FpgaDisabled
+01d487bb6423b809  # FirmwareUpToDate
+01d487bb6423b80a  # FirmwareUpdateRequired
+01d487bb6423b80b  # ErasingFlash
+01d487bb6423b80c  # UploadingFirmware
+01d487bb6423b80d  # EnablingFpga
+01d487bb6423b80e  # FpgaReady
+01d487bb6423b80f  # I2cStart
+01d487bb6423b810  # I2cFinalizeStart7Bit
+01d487bb6423b811  # I2cFinalizeStart10Bit
+01d487bb6423b812  # I2cStop
+01d487bb6423b813  # I2cStopOutOfTransaction
+01d487bb6423b814  # I2cTxNack
+01d487bb6423b815  # I2cRxNack
+01d487bb6423b816  # SpiStart
+01d487bb6423b817  # SpiStop

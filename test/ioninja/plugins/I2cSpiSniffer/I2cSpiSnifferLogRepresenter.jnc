@@ -1,0 +1,222 @@
+//..............................................................................
+//
+// I2C sniffer log representer
+//
+
+import "log_Representer.jnc"
+import "I2cSpiSnifferLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representI2cSpiSnifferLog (
+	log.RepresenterTarget* target,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case I2cSpiSnifferLogRecordCode.DeviceOpened:
+		char const* name = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Sniffer device \e[34m$name\e[m opened");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.InterfaceClaimed:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Interface \e[34m#0\e[m claimed");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.InEndpointOpened:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"In endpoint \e[34m#86\e[m opened");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.OutEndpointOpened:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Out endpoint \e[34m#2\e[m opened");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.CaptureStarted:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText ($"Capture started");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.CaptureStopped:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ("Capture stopped");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.CaptureError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Cannot open sniffer: $(error.m_description)");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.UnexpectedCode:
+		uint_t code = ((uint_t const*) p) [0];
+		uint_t state = ((uint_t const*) p) [1];
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Unexpected code from sniffer (code: $code, decoder state: $state)");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.IncompleteByte:
+		uint_t bitCount = *(uint_t const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText ($"Incomplete byte received ($(bitCount) bits)");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.BufferOverflow:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText ("FPGA buffer overflow");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.StillWaiting:
+		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
+		target.addHyperText ("...still waiting...");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.FpgaDisabled:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("FPGA disabled");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.FirmwareUpToDate:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("FPGA firmware up-to-date");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.FirmwareUpdateRequired:
+		uint_t version = *(uint_t const*) p;
+		char const* fileName = (char const*) ((uint_t const*) p + 1);
+
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText (
+			$"FPGA firmware update required: file \e[34m%1\e[m version \e[34m%2.%3.%4\e[m" (
+			fileName,
+			(version >> 16) & 0xff,
+			(version >> 8) & 0xff,
+			version & 0xff
+			));
+		break;
+
+	case I2cSpiSnifferLogRecordCode.ErasingFlash:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("Erasing flash memory...");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.UploadingFirmware:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("Uploading FPGA firmware...");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.EnablingFpga:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("Enabling FPGA...");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.FpgaReady:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("FPGA ready");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cStart:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText (I2cSpiSnifferLogPartCode.I2cStartBegin, "I2C \e[32mstart\e[m");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cFinalizeStart7Bit:
+		uchar_t hdr = *(const uchar_t*) p;
+
+		target.addHyperText (
+			I2cSpiSnifferLogPartCode.I2cStartEnd,
+			$"\x15I2C \e[32mstart\e[m, %1 \e[34m@%(2; 02x)\e[m" (
+				(hdr & 0x01) ? "read from" : "write to",
+				hdr >> 1
+				)
+			);
+
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cFinalizeStart10Bit:
+		uint16_t hdr = *(const uint16_t*) p;
+
+		target.addHyperText (
+			I2cSpiSnifferLogPartCode.I2cStartEnd,
+			$"\x15I2C \e[32mstart\e[m, %1 \e[34m@%(2; 03x)\e[m" (
+				(hdr & 0x100) ? "read" : "write",
+				(hdr & 0xff) | ((hdr & 0x60) >> 1)
+				)
+			);
+
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cStop:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("I2C \e[31mstop\e[m");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cStopOutOfTransaction:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText ("I2C \e[31mstop\e[m out-of-transaction");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cTxNack:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Tx;
+		target.m_lineAttr.m_textColor = log.StdLogColor.Tx;
+		target.m_lineAttr.m_fontFlags = gui.FontFlags.Strikeout;
+		target.addBin (log.StdRecordCode.Tx, p, size);
+		break;
+
+	case I2cSpiSnifferLogRecordCode.I2cRxNack:
+		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Rx;
+		target.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+		target.m_lineAttr.m_fontFlags = gui.FontFlags.Strikeout;
+		target.addBin (log.StdRecordCode.Rx, p, size);
+		break;
+
+	case I2cSpiSnifferLogRecordCode.SpiStart:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("SPI SS \e[32mlow\e[m");
+		break;
+
+	case I2cSpiSnifferLogRecordCode.SpiStop:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ("SPI SS \e[31mhigh\e[m");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
+

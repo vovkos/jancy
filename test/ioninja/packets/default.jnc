@@ -1,0 +1,63 @@
+//..............................................................................
+//
+// Use this script to define your packet templates in Jancy language.
+//
+// If you are not familar with Jancy, no worries -- on the surface, you can 
+// think of it simply as a safe scripting dialect of C. Most C structs will
+// compile just fine (you can use sub-structs, unions, arrays, bitfields, etc),
+// and you also can make use of the native support of big-endian integers.
+//
+// Besides struct fields, you can also define *actions* -- special methods which 
+// will take existing packet and modify in a certain way. Good examples of what
+// actions can be used for are: initializing the packet fields with some default 
+// valid values, calculating checksums, updating the length-field, etc
+// 
+//..............................................................................
+
+import "crc16.jnc"
+
+enum MyEnum: int8_t
+{
+	Value1,
+	Value2,
+	Value3,
+}
+
+alignment (1);
+
+struct MyPacket
+{
+	MyEnum m_field1;
+	int16_t m_field2;
+	bigendian int32_t m_field3;
+	char m_name [8];
+
+	uint16_t m_length;
+	uint16_t m_checksum;
+
+	[ packetTemplateAction ]
+	void initialize (char const* name)
+	{
+		m_field1 = MyEnum.Value1;
+		m_field2 = 2;
+		m_field3 = 3;
+
+		size_t size = strlen (name) + 1;
+		if (size > sizeof (m_name))
+			size = sizeof (m_name);
+
+		memcpy (m_name, name, size);
+	}
+
+	[ packetTemplateAction ]
+	void updateLength ()
+	{
+		m_length = dynamic sizeof (this);
+	}
+
+	[ packetTemplateAction ]
+	void calcChecksum ()
+	{
+		m_checksum = crc16_ansi (this, dynamic sizeof (this));
+	}
+}

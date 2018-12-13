@@ -1,23 +1,21 @@
-//..............................................................................
-//
-// SSH Channel session plugin
-//
+#...............................................................................
+#
+#  SSH Channel session plugin
+#
 
 [plugin]
 
 name        = SSH Channel
 description = "Establishes SSH channel over TCP socket"
 id          = ssh
-group       = clients
-guid        = 8ec96e77-89df-4dd8-bc14-b995b85de45d
+group       = net
+log-guid    = 8ec96e77-89df-4dd8-bc14-b995b85de45d  # ssh
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/ssh.png
 small-icon  = images/ssh-16x16.png
 
-session-class        = SshChannelSession
-log-representer-func = representSshChannelLog
+session-class = SshChannelSession
 
 [scripts]
 
 SshChannelSession.jnc
-SshChannelLog.jnc
-../../common/io_SocketUi.jnc

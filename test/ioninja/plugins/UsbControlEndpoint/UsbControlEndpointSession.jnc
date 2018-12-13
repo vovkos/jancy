@@ -1,0 +1,531 @@
+//..............................................................................
+//
+// USB Control Endpoint terminal session
+//
+
+import "io_usb.jncx"
+import "io_UsbDb.jnc"
+import "io_BufferUi.jnc"
+import "std_Buffer.jnc"
+import "doc_Session.jnc"
+import "gui_StdSessionInfo.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "parseInteger.jnc"
+
+//..............................................................................
+
+class UsbControlEndpointSession: doc.Session
+{
+protected:
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum ActionId
+	{
+		Refresh,
+		Open,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Open,
+		Close,
+		Refresh,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// usb
+
+	State bindable m_state;
+
+	io.UsbDevice* m_device;
+	uint_t m_syncId;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.ComboBox* m_deviceCombo;
+	gui.ComboBox* m_reqDirectionCombo;
+	gui.ComboBox* m_reqRecipientCombo;
+	gui.ComboBox* m_reqTypeCombo;
+	gui.ComboBox* m_reqCodeCombo;
+	gui.ComboBox* m_reqValueCombo;
+	gui.ComboBox* m_reqIndexCombo;
+
+	// property grid
+
+	gui.EnumProperty* m_deviceProp;
+	gui.BoolProperty* m_autoDetachKernelDriverProp;
+	gui.EnumProperty* m_reqDirectionProp;
+	gui.EnumProperty* m_reqRecipientProp;
+	gui.EnumProperty* m_reqTypeProp;
+	gui.ComboProperty* m_reqCodeProp;
+	gui.StringProperty* m_reqValueProp;
+	gui.StringProperty* m_reqIndexProp;
+
+	// information grid
+
+	gui.StdSessionInfoSet m_stdSessionInfoSet;
+	log.ThroughputInfoSet m_throughputInfoSet;
+	log.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool openDevice ();
+	void closeDevice ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override errorcode bool applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onOpenDevice ();
+
+	onTransferCompleted (
+		uint_t syncId,
+		uint_t type,
+		uint_t code,
+		uint_t value,
+		uint_t index,
+		void const* p,
+		size_t size,
+		std.Error const* error
+		);
+
+	createUi ();
+	enumerateDevices ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+UsbControlEndpointSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	createUi ();
+
+	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
+}
+
+UsbControlEndpointSession.createUi ()
+{
+	static gui.EnumPropertyOption reqDirectionTable [] =
+	{
+		{ "Out", 0x00 },
+		{ "In",  0x80 },
+	}
+
+	static gui.EnumPropertyOption reqTypeTable [] =
+	{
+		{ "Standard", 0x00 << 5 },
+		{ "Class",    0x01 << 5 },
+		{ "Vendor",   0x02 << 5 },
+		{ "Reserved", 0x03 << 5 },
+	}
+
+	static gui.EnumPropertyOption reqRecipientTable [] =
+	{
+		{ "Device",    0x00 },
+		{ "Interface", 0x01 },
+		{ "Endpoint",  0x02 },
+		{ "Other",     0x03 },
+	}
+
+	static gui.EnumPropertyOption reqIdTable [] =
+	{
+		{ "Get Status",        "0x00" },
+		{ "Clear Feature",     "0x01" },
+		{ "Set Feature",       "0x03" },
+		{ "Set Address",       "0x05" },
+		{ "Get Descriptor",    "0x06" },
+		{ "Set Descriptor",    "0x07" },
+		{ "Get Configuration", "0x08" },
+		{ "Set Configuration", "0x09" },
+		{ "Get Interface",     "0x0a" },
+		{ "Set Interface",     "0x0b" },
+	}
+
+	// toolbar
+
+	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
+	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
+	m_iconTable [IconId.Refresh] = new gui.Icon ("images/refresh.png");
+
+	m_pluginHost.m_toolBar.addLabel ("Device:");
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+
+	m_actionTable [ActionId.Refresh]  = createAction ("Re-enumerate devices", m_iconTable [IconId.Refresh]);
+	m_actionTable [ActionId.Refresh].m_onTriggered += enumerateDevices;
+
+	m_actionTable [ActionId.Open] = createAction("Open device", m_iconTable [IconId.Open]);
+	m_actionTable [ActionId.Open].m_onTriggered += onOpenDevice;
+
+	m_reqDirectionCombo = m_pluginHost.m_toolBar.addComboBox (
+		"Direction:",
+		reqDirectionTable,
+		countof (reqDirectionTable)
+		);
+
+	m_reqRecipientCombo = m_pluginHost.m_toolBar.addComboBox (
+		"Recipient:",
+		reqRecipientTable,
+		countof (reqRecipientTable)
+		);
+
+	m_reqTypeCombo = m_pluginHost.m_toolBar.addComboBox (
+		"Type:",
+		reqTypeTable,
+		countof (reqTypeTable)
+		);
+
+	m_reqCodeCombo = m_pluginHost.m_toolBar.addComboBox (
+		"Request:",
+		reqIdTable,
+		countof (reqIdTable)
+		);
+
+	m_reqCodeCombo.m_isEditable = true;
+
+	m_pluginHost.m_toolBar.addLabel ("Value:");
+	m_reqValueCombo = m_pluginHost.m_toolBar.addComboBox ();
+	m_reqValueCombo.m_isEditable = true;
+
+	m_pluginHost.m_toolBar.addLabel ("Index:");
+	m_reqIndexCombo = m_pluginHost.m_toolBar.addComboBox ();
+	m_reqIndexCombo.m_isEditable = true;
+
+	// status bar
+
+	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// property grid
+
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+		"Connection",
+		"USB-specific connection settings"
+		);
+
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Device",
+		"Target USB device",
+		null, 0
+		);
+
+	m_autoDetachKernelDriverProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		group,,
+		"Auto-detach",
+		"Auto detach kernel driver (if present)"
+		);
+
+	m_reqDirectionProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Direction",
+		"Direction of the USB control transfer",
+		reqDirectionTable,
+		countof (reqDirectionTable)
+		);
+
+	m_reqRecipientProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Recipient",
+		"Target of the USB control transfer",
+		reqRecipientTable,
+		countof (reqRecipientTable)
+		);
+
+	m_reqTypeProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Type",
+		"Class of the USB control request code",
+		reqTypeTable,
+		countof (reqTypeTable)
+		);
+
+	m_reqCodeProp = m_pluginHost.m_propertyGrid.createComboProperty (
+		group,,
+		"Request",
+		"Code of the USB control request",
+		reqIdTable,
+		countof (reqIdTable)
+		);
+
+	m_reqValueProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		group,,
+		"Value",
+		"The 1st ('value') parameter of the USB control request"
+		);
+
+	m_reqIndexProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		group,,
+		"Index",
+		"The 2nd ('index') parameter of the USB control request"
+		);
+
+	// information grid
+
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("USB connection");
+
+	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+
+	m_uiReactor.start ();
+
+	enumerateDevices ();
+}
+
+UsbControlEndpointSession.onOpenDevice ()
+{
+	if (m_state >= State.Opened)
+		closeDevice ();
+	else
+		openDevice ();
+}
+
+UsbControlEndpointSession.enumerateDevices ()
+{
+	m_deviceCombo.clear ();
+
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray ();
+	size_t count = dynamic countof (deviceArray);
+
+	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption [count];
+
+	io.UsbDb* usbDb = io.getStdUsbDb ();
+
+	for (size_t i = 0; i < count; i++)
+	{
+		io.UsbDevice* device = deviceArray [i];
+		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbVendor const* vendor = usbDb.findVendor (deviceDesc.m_vendorId);
+		io.UsbProduct const* product = vendor ? vendor.findProduct (deviceDesc.m_productId) : null;
+
+		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
+			device.m_bus,
+			device.m_address,
+			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
+			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
+			);
+
+		m_deviceCombo.addItem (text, device);
+
+		optionTable [i].m_text = text;
+		optionTable [i].m_value = device;
+	}
+
+	m_deviceProp.setOptions (optionTable, count);
+}
+
+bool UsbControlEndpointSession.openDevice ()
+{
+	if (m_deviceCombo.m_currentIndex == -1)
+		return false;
+
+	closeDevice ();
+	startSession ();
+
+	m_device = m_deviceCombo.m_currentData;
+
+	io.UsbDeviceDesc const* deviceDesc = m_device.m_deviceDesc;
+
+	m_device.open ();
+
+	DeviceParams params;
+	params.m_bus = m_device.m_bus;
+	params.m_address = m_device.m_address;
+	params.m_productId = deviceDesc.m_productId;
+	params.m_vendorId = deviceDesc.m_vendorId;
+
+	writeLog (UsbLogRecordCode.DeviceOpened, &params, sizeof (params));
+	m_state = State.Opened;
+	return true;
+
+catch:
+	writeLogLastError (UsbLogRecordCode.DeviceOpenError);
+	return false;
+}
+
+UsbControlEndpointSession.closeDevice ()
+{
+	if (m_state == State.Closed)
+		return;
+
+	m_device.close ();
+	m_device = null;
+
+	writeLog (UsbLogRecordCode.DeviceClosed);
+	m_state = State.Closed;
+	m_syncId++;
+}
+
+UsbControlEndpointSession.load (doc.Storage* storage)
+{
+	m_deviceCombo.m_currentIndex  = storage.readInt ("deviceIdx");
+	m_autoDetachKernelDriverProp.m_value = storage.readBool ("autoDetachKernelDriver");
+	m_reqDirectionCombo.m_currentIndex = storage.readInt ("reqDirection");
+	m_reqRecipientCombo.m_currentIndex = storage.readInt ("reqRecipient");
+	m_reqTypeCombo.m_currentIndex = storage.readInt ("reqType");
+	m_reqCodeCombo.m_editText = storage.readString ("reqCode", "0x00");
+	m_reqValueCombo.m_editText = storage.readString ("reqValue", "0x0000");
+	m_reqIndexCombo.m_editText = storage.readString ("reqIndex", "0x0000");
+}
+
+UsbControlEndpointSession.save (doc.Storage* storage)
+{
+	storage.writeInt ("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeBool ("autoDetachKernelDriver", m_autoDetachKernelDriverProp.m_value);
+	storage.writeInt ("reqDirection", m_reqDirectionCombo.m_currentIndex);
+	storage.writeInt ("reqRecipient", m_reqRecipientCombo.m_currentIndex);
+	storage.writeInt ("reqType", m_reqTypeCombo.m_currentIndex);
+	storage.writeString ("reqCode", m_reqCodeCombo.m_editText);
+	storage.writeString ("reqValue", m_reqValueCombo.m_editText);
+	storage.writeString ("reqIndex", m_reqIndexCombo.m_editText);
+}
+
+UsbControlEndpointSession.updateProperties ()
+{
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+	m_reqDirectionProp.m_currentIndex = m_reqDirectionCombo.m_currentIndex;
+	m_reqRecipientProp.m_currentIndex = m_reqRecipientCombo.m_currentIndex;
+	m_reqTypeProp.m_currentIndex = m_reqTypeCombo.m_currentIndex;
+	m_reqCodeProp.m_value = m_reqCodeCombo.m_editText;
+	m_reqValueProp.m_value = m_reqValueCombo.m_editText;
+	m_reqIndexProp.m_value = m_reqIndexCombo.m_editText;
+}
+
+bool errorcode UsbControlEndpointSession.applyProperties ()
+{
+	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	m_reqDirectionCombo.m_currentIndex = m_reqDirectionProp.m_currentIndex;
+	m_reqRecipientCombo.m_currentIndex = m_reqRecipientProp.m_currentIndex;
+	m_reqTypeCombo.m_currentIndex = m_reqTypeProp.m_currentIndex;
+	m_reqCodeCombo.m_editText = m_reqCodeProp.m_value;
+	m_reqValueCombo.m_editText = m_reqValueProp.m_value;
+	m_reqIndexCombo.m_editText = m_reqIndexProp.m_value;
+
+	return true;
+}
+
+UsbControlEndpointSession.restoreDefaultProperties ()
+{
+	m_deviceProp.m_currentIndex = 0;
+	m_autoDetachKernelDriverProp.m_value = true;
+	m_reqDirectionCombo.m_currentIndex = 0;
+	m_reqRecipientCombo.m_currentIndex = 0;
+	m_reqTypeCombo.m_currentIndex = 0;
+	m_reqCodeCombo.m_editText = "0x00";
+	m_reqValueCombo.m_editText = "0x0000";
+	m_reqIndexCombo.m_editText = "0x0000";
+}
+
+size_t errorcode UsbControlEndpointSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	if (m_state != State.Opened)
+		return -1;
+
+	uint_t direction = m_reqDirectionCombo.m_currentData;
+	uint_t recipient = m_reqRecipientCombo.m_currentData;
+	uint_t type = m_reqTypeCombo.m_currentData | direction | recipient;
+	uint_t code = parseInteger (m_reqCodeCombo.m_editText);;
+	uint_t value = parseInteger (m_reqValueCombo.m_editText);
+	uint_t index = parseInteger (m_reqIndexCombo.m_editText);
+
+	char* buffer = new char [size];
+	if (!direction)
+		memcpy (buffer, p, size);
+
+	m_device.controlTransfer (
+		type,
+		code,
+		value,
+		index,
+		buffer,
+		size,
+		-1,
+		onTransferCompleted ~(
+			m_syncId,
+			type,
+			code,
+			value,
+			index,
+			buffer
+			) @ m_pluginHost.m_mainThreadScheduler
+		);
+
+	return size;
+
+catch:
+	writeLogLastError (log.StdRecordCode.Error);
+	return -1;
+}
+
+UsbControlEndpointSession.onTransferCompleted (
+	uint_t syncId,
+	uint_t type,
+	uint_t code,
+	uint_t value,
+	uint_t index,
+	void const* p,
+	size_t size,
+	std.Error const* error
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	ControlTransferParams params;
+	params.m_type = type;
+	params.m_code = code;
+	params.m_value = value;
+	params.m_index = index;
+
+	writeLog (UsbLogRecordCode.ControlTransfer, &params, sizeof (params));
+
+	if (error)
+		writeLogError (log.StdRecordCode.Error, error);
+	else
+		writeLog ((type & 0x80) ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, size);
+}
+
+reactor UsbControlEndpointSession.m_uiReactor
+{
+	m_title = $"USB $(m_deviceCombo.m_currentText)";
+	m_actionTable [ActionId.Open].m_text = m_state ? "Close Device" : "Open Device";
+	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state];
+	m_isTransmitEnabled = m_state;
+	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
+}
+
+//..............................................................................

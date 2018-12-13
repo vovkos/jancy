@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja property grid
+// Ninja GUI - property grid
 //
 
 namespace gui {
@@ -11,7 +11,22 @@ opaque class Property
 {
 	char const* autoget property m_name;
 	char const* autoget property m_toolTipText;
+	char const* autoget property m_valueToolTipText;
 	bool autoget property m_isEnabled;
+
+	addChildProperty (
+		Property* prop,
+		Property* beforeProp = null
+		);
+
+	removeChildProperty (Property* prop);
+}
+
+//..............................................................................
+
+opaque class GroupProperty: Property
+{
+	construct (char const* name);
 }
 
 //..............................................................................
@@ -20,7 +35,7 @@ opaque class BoolProperty: Property
 {
 	construct (char const* name);
 
-	bool autoget bindable property m_value;
+	bool bindable autoget property m_value;
 }
 
 //..............................................................................
@@ -29,7 +44,10 @@ opaque class IntProperty: Property
 {
 	construct (char const* name);
 
-	int autoget bindable property m_value;
+	int bindable autoget property m_value;
+	int autoget property m_minValue;
+	int autoget property m_maxValue;
+	int autoget property m_spinBoxStep;
 }
 
 //..............................................................................
@@ -38,7 +56,7 @@ opaque class StringProperty: Property
 {
 	construct (char const* name);
 
-	char const* autoget bindable property m_value;
+	char const* bindable autoget property m_value;
 	bool autoget property m_isPassword;
 }
 
@@ -68,6 +86,12 @@ opaque class EnumProperty: Property
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
+	property m_currentText
+	{
+		char const* get ();
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
 	construct (char const* name);
 	destruct ();
 
@@ -79,44 +103,120 @@ opaque class EnumProperty: Property
 	event m_onChanged ();
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class ComboProperty: Property
+{
+	char const* bindable autoget property m_value;
+
+	construct (char const* name);
+	destruct ();
+
+	setOptions (
+		EnumPropertyOption const* optionArray, // option.value should be 'null' or string value
+		size_t count
+		);
+
+	selectOption (size_t index);
+}
+
 //..............................................................................
 
-opaque class GroupProperty
+struct FlagPropertyOption
+{
+	char const* m_text;
+	uint_t m_value;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class FlagProperty: Property
+{
+	uint_t bindable autoget property m_value;
+
+	construct (char const* name);
+	destruct ();
+
+	setOptions (
+		FlagPropertyOption const* optionArray,
+		size_t count
+		);
+}
+
+//..............................................................................
+
+opaque class ColorProperty: Property
 {
 	construct (char const* name);
 
-	addProperty (Property* prop);
+	uint_t bindable autoget property m_value;
+}
 
-	BoolProperty* createBoolProperty (
-		char const* name,
-		char const* toolTipText
-		);
+//..............................................................................
 
-	IntProperty* createIntProperty (
-		char const* name,
-		char const* toolTipText
-		);
+opaque class ActionProperty: Property
+{
+	construct (char const* name);
 
-	StringProperty* createStringProperty (
-		char const* name,
-		char const* toolTipText
-		);
+	function* m_onAction ();
+}
 
-	EnumProperty* createEnumProperty (
-		char const* name,
-		char const* toolTipText,
-		EnumPropertyOption const* optionArray,
-		size_t count
-		);
+//..............................................................................
+
+opaque class FileProperty: Property
+{
+	construct (char const* name);
+
+	char const* bindable autoget property m_value;
+	char const* autoget property m_fileDialogCaption;
+	char const* autoget property m_initialDirectory;
+	char const* autoget property m_filter;
 }
 
 //..............................................................................
 
 opaque class PropertyGrid
 {
-	addProperty (Property* prop);
+	addProperty (
+		Property* prop,
+		Property* beforeProp = null
+		);
+
+	removeProperty (Property* prop);
+
+	GroupProperty* createGroupProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText
+		);
+
+	GroupProperty* createGroupProperty (
+		char const* name,
+		char const* toolTipText
+		)
+	{
+		return createGroupProperty (,, name, toolTipText);
+	}
 
 	BoolProperty* createBoolProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText
+		);
+
+	BoolProperty* createBoolProperty (
+		char const* name,
+		char const* toolTipText
+		)
+	{
+		return createBoolProperty (,, name, toolTipText);
+	}
+
+	IntProperty* createIntProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
 		);
@@ -124,11 +224,33 @@ opaque class PropertyGrid
 	IntProperty* createIntProperty (
 		char const* name,
 		char const* toolTipText
+		)
+	{
+		return createIntProperty (,, name, toolTipText);
+	}
+
+	StringProperty* createStringProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText
 		);
 
 	StringProperty* createStringProperty (
 		char const* name,
 		char const* toolTipText
+		)
+	{
+		return createStringProperty (,, name, toolTipText);
+	}
+
+	EnumProperty* createEnumProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText,
+		EnumPropertyOption const* optionArray,
+		size_t count
 		);
 
 	EnumProperty* createEnumProperty (
@@ -136,50 +258,168 @@ opaque class PropertyGrid
 		char const* toolTipText,
 		EnumPropertyOption const* optionArray,
 		size_t count
+		)
+	{
+		return createEnumProperty (,, name, toolTipText, optionArray, count);
+	}
+
+	ComboProperty* createComboProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText,
+		EnumPropertyOption const* optionArray = null,
+		size_t count = 0
 		);
 
-	EnumProperty* createNetworkAdapterProperty (
+	ComboProperty* createComboProperty (
+		char const* name,
+		char const* toolTipText,
+		EnumPropertyOption const* optionArray = null,
+		size_t count = 0
+		)
+	{
+		return createComboProperty (,, name, toolTipText, optionArray, count);
+	}
+
+	FlagProperty* createFlagProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText,
+		FlagPropertyOption const* optionArray,
+		size_t count
+		);
+
+	FlagProperty* createFlagProperty (
+		char const* name,
+		char const* toolTipText,
+		FlagPropertyOption const* optionArray,
+		size_t count
+		)
+	{
+		return createFlagProperty (,, name, toolTipText, optionArray, count);
+	}
+
+	ColorProperty* createColorProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
 		char const* name,
 		char const* toolTipText
 		);
+
+	ColorProperty* createColorProperty (
+		char const* name,
+		char const* toolTipText
+		)
+	{
+		return createColorProperty (,, name, toolTipText);
+	}
+
+	ActionProperty* createActionProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText
+		);
+
+	ActionProperty* createActionProperty (
+		char const* name,
+		char const* toolTipText
+		)
+	{
+		return createActionProperty (,, name, toolTipText);
+	}
+
+	FileProperty* createFileProperty (
+		Property* parentProp = null,
+		Property* beforeProp = null,
+		char const* name,
+		char const* toolTipText
+		);
+
+	FileProperty* createFileProperty (
+		char const* name,
+		char const* toolTipText
+		)
+	{
+		return createFileProperty (,, name, toolTipText);
+	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+GroupProperty* PropertyGrid.createGroupProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	GroupProperty* prop = new GroupProperty (name);
+	prop.m_toolTipText = toolTipText;
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
 BoolProperty* PropertyGrid.createBoolProperty (
+	Property* parentProp,
+	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
 	)
 {
 	BoolProperty* prop = new BoolProperty (name);
 	prop.m_toolTipText = toolTipText;
-	addProperty (prop);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
 	return prop;
 }
 
 IntProperty* PropertyGrid.createIntProperty (
+	Property* parentProp,
+	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
 	)
 {
 	IntProperty* prop = new IntProperty (name);
 	prop.m_toolTipText = toolTipText;
-	addProperty (prop);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
 	return prop;
 }
 
 StringProperty* PropertyGrid.createStringProperty (
+	Property* parentProp,
+	Property* beforeProp,
 	char const* name,
 	char const* toolTipText
 	)
 {
 	StringProperty* prop = new StringProperty (name);
 	prop.m_toolTipText = toolTipText;
-	addProperty (prop);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
 	return prop;
 }
 
 EnumProperty* PropertyGrid.createEnumProperty (
+	Property* parentProp,
+	Property* beforeProp,
 	char const* name,
 	char const* toolTipText,
 	EnumPropertyOption const* optionArray,
@@ -189,7 +429,104 @@ EnumProperty* PropertyGrid.createEnumProperty (
 	EnumProperty* prop = new EnumProperty (name);
 	prop.m_toolTipText = toolTipText;
 	prop.setOptions (optionArray, count);
-	addProperty (prop);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
+ComboProperty* PropertyGrid.createComboProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText,
+	EnumPropertyOption const* optionArray,
+	size_t count
+	)
+{
+	ComboProperty* prop = new ComboProperty (name);
+	prop.m_toolTipText = toolTipText;
+
+	if (count)
+		prop.setOptions (optionArray, count);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
+FlagProperty* PropertyGrid.createFlagProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText,
+	FlagPropertyOption const* optionArray,
+	size_t count
+	)
+{
+	FlagProperty* prop = new FlagProperty (name);
+	prop.m_toolTipText = toolTipText;
+	prop.setOptions (optionArray, count);
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
+ColorProperty* PropertyGrid.createColorProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	ColorProperty* prop = new ColorProperty (name);
+	prop.m_toolTipText = toolTipText;
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
+ActionProperty* PropertyGrid.createActionProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	ActionProperty* prop = new ActionProperty (name);
+	prop.m_toolTipText = toolTipText;
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
+	return prop;
+}
+
+FileProperty* PropertyGrid.createFileProperty (
+	Property* parentProp,
+	Property* beforeProp,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	FileProperty* prop = new FileProperty (name);
+	prop.m_toolTipText = toolTipText;
+
+	parentProp ?
+		parentProp.addChildProperty (prop, beforeProp) :
+		addProperty (prop, beforeProp);
+
 	return prop;
 }
 

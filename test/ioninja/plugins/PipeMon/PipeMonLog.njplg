@@ -1,0 +1,35 @@
+#...............................................................................
+#
+#  Pipe Monitor log representer plugin
+#
+
+[plugin]
+
+name        = "Pipe Monitor Log"
+description = "Pipe Monitor log representer"
+group       = fs
+guid        = 8D4114D9-5020-4E0D-8D6A-98C8C29E76F0
+
+log-representer-func = representPipeMonLog
+
+[scripts]
+
+PipeMonLogRecordCode.jnc
+PipeMonLogRepresenter.jnc
+
+[records]
+
+01d48717897030a1  # ServerFileOpened_old
+01d48717897030a2  # ServerFileOpenError_old
+01d48717897030a3  # ClientFileOpened_old
+01d48717897030a4  # ClientFileOpenError_old
+01d48717897030a5  # FileClosed
+01d48717897030a6  # ConnectionAccepted
+01d48717897030a7  # ConnectionClosed
+01d48717897030a8  # Transaction
+01d48717897030a9  # FileIdChanged_old
+01d48717897030aa  # ServerFileOpened
+01d48717897030ab  # ServerFileOpenError
+01d48717897030ac  # ClientFileOpened
+01d48717897030ad  # ClientFileOpenError
+01d48717897030ae  # FileIdChanged

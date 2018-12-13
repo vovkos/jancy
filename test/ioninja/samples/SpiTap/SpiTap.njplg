@@ -1,0 +1,21 @@
+#...............................................................................
+#
+#  SPI Tap session plugin
+#
+
+[plugin]
+
+name        = "SPI Tap"
+description = "Monitor SPI communication through an SPI tap device from Tibbo"
+id          = spi-tap
+group       = serial
+monitor     = true
+log-guid    = 73714778-bed7-4a4f-ad6a-6c5128f5bb4d  # spi tap
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SpiTapSession
+
+[scripts]
+
+SpiTapSession.jnc

@@ -51,7 +51,7 @@ XModemReceiver.start ()
 	m_parent.m_progressDlg.m_status = "Receiving XModem data blocks...";
 	m_state = State.Data;
 	m_offset = 0;
-	m_parent.m_file.m_size = 0;
+	m_parent.m_file.setSize (0);
 }
 
 XModemReceiver.cancel ()
@@ -69,10 +69,12 @@ XModemReceiver.cancel ()
 
 XModemReceiver.complete ()
 {
+	m_parent.m_progressDlg.m_buttons = gui.StdDlgButtons.Ok;
+	m_parent.m_file.unmapAllViews ();
+	m_parent.m_file.setSize (m_offset);
+	m_parent.m_file.close ();
 	m_state = State.Idle;
 	m_offset = 0;
-	m_parent.m_progressDlg.m_buttons = gui.StdDlgButtons.Ok;
-	m_parent.m_file.close ();
 }
 
 XModemReceiver.onRx (
@@ -131,7 +133,6 @@ XModemReceiver.onRx_Data (XModemBlock const* block)
 	void* p = m_parent.m_file.view (m_offset, XModemBlockSize);
 	memcpy (p, block.m_data, XModemBlockSize);
 	m_offset += XModemBlockSize;
-	m_parent.m_file.m_size = m_offset;
 
 catch:
 	m_parent.m_progressDlg.m_status = std.getLastError ().m_description;

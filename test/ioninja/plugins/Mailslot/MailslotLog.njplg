@@ -1,0 +1,24 @@
+#...............................................................................
+#
+#  Mailslot log representer plugin
+#
+
+[plugin]
+
+name        = "SSH Log"
+description = "SSH log representer"
+group       = fs
+guid        = 8383248D-607F-431A-9414-178C23FD9603
+
+log-representer-func = representMailslotLog
+
+[scripts]
+
+MailslotLogRecordCode.jnc
+MailslotLogRepresenter.jnc
+
+[records]
+
+01d48562dc4294c7  # Opened
+01d48562dc4294c8  # OpenError
+01d48562dc4294c9  # Closed

@@ -1,0 +1,275 @@
+//..............................................................................
+//
+// Sniffer log ARP/InARP packets handling
+//
+
+//..............................................................................
+
+size_t
+representArpHdr (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	size_t* hdrSizeTable,
+	uint_t* hdrColorTable,
+	size_t hdrIdx
+	)
+{
+	io.ArpHdr const* arpHdr = (io.ArpHdr const*) (p + baseOffset);
+
+	size_t srcHardwareAddrOffset = baseOffset + sizeof (io.ArpHdr);
+	size_t srcProtocolAddrOffset = srcHardwareAddrOffset + arpHdr.m_hardwareLength;
+	size_t dstHardwareAddrOffset = srcProtocolAddrOffset + arpHdr.m_protocolLength;
+	size_t dstProtocolAddrOffset = dstHardwareAddrOffset + arpHdr.m_hardwareLength;
+
+	size_t arpSize = sizeof (io.ArpHdr) + (arpHdr.m_hardwareLength + arpHdr.m_protocolLength) * 2;
+
+	target.addHyperText (std.format (
+		"\e[1mARP\n"
+		"   \e[90mHARDWARE: \e^!%d,%d\e[34m%04x\e[m - %s\n"
+		"   \e[90mPROTOCOL: \e^!%d,%d\e[34m%04x\e[m - %s\n"
+		"   \e[90mHADDRLEN: \e^!%d,%d\e[34m%d\n"
+		"   \e[90mPADDRLEN: \e^!%d,%d\e[34m%d\n"
+		"   \e[90mOPCODE:   \e^!%d,%d\e[34m%d\e[m - %s\n"
+		"   \e[90mSRCHADDR: \e^!%d,%d\e[34m%s\e[m\n"
+		"   \e[90mSRCPADDR: \e^!%d,%d\e[34m%s\e[m\n"
+		"   \e[90mDSTHADDR: \e^!%d,%d\e[34m%s\e[m\n"
+		"   \e[90mDSTPADDR: \e^!%d,%d\e[34m%s\e[m",
+
+		baseOffset + offsetof (arpHdr.m_hardwareType),
+		sizeof (arpHdr.m_hardwareType),
+		arpHdr.m_hardwareType,
+		getArpHardwareTypeString (arpHdr.m_hardwareType),
+
+		baseOffset + offsetof (arpHdr.m_protocolType),
+		sizeof (arpHdr.m_protocolType),
+		arpHdr.m_protocolType,
+		getArpProtocolTypeString (arpHdr.m_protocolType),
+
+		baseOffset + offsetof (arpHdr.m_hardwareLength),
+		sizeof (arpHdr.m_hardwareLength),
+		arpHdr.m_hardwareLength,
+
+		baseOffset + offsetof (arpHdr.m_protocolLength),
+		sizeof (arpHdr.m_protocolLength),
+		arpHdr.m_protocolLength,
+
+		baseOffset + offsetof (arpHdr.m_opcode),
+		sizeof (arpHdr.m_opcode),
+		arpHdr.m_opcode,
+		getArpOpcodeString (arpHdr.m_opcode),
+
+		srcHardwareAddrOffset,
+		arpHdr.m_hardwareLength,
+		getArpHardwareAddressString (
+			arpHdr.m_hardwareType,
+			p + srcHardwareAddrOffset,
+			arpHdr.m_hardwareLength
+			),
+
+		srcProtocolAddrOffset,
+		arpHdr.m_protocolLength,
+		getArpProtocolAddressString (
+			arpHdr.m_protocolType,
+			p + srcProtocolAddrOffset,
+			arpHdr.m_protocolLength
+			),
+
+		dstHardwareAddrOffset,
+		arpHdr.m_hardwareLength,
+		getArpHardwareAddressString (
+			arpHdr.m_hardwareType,
+			p + dstHardwareAddrOffset,
+			arpHdr.m_hardwareLength
+			),
+
+		dstProtocolAddrOffset,
+		arpHdr.m_protocolLength,
+		getArpProtocolAddressString (
+			arpHdr.m_protocolType,
+			p + dstProtocolAddrOffset,
+			arpHdr.m_protocolLength
+			)
+		));
+
+	hdrSizeTable [hdrIdx] = arpSize;
+	hdrColorTable [hdrIdx] = SnifferLogHdrColor.Arp;
+
+	return hdrIdx + 1;
+}
+
+representArp (
+	log.RepresenterTarget* target,
+	void const* p,
+	size_t size,
+	size_t baseOffset
+	)
+{
+	if (baseOffset + sizeof (io.ArpHdr) > size)
+	{
+		target.addHyperText ($"[\e^+1\e[34m+\e[m] \e[1mARP\e[m INVALID SIZE: \e[34m$size");
+		return;
+	}
+
+	io.ArpHdr const* arpHdr = (io.ArpHdr const*) (p + baseOffset);
+	size_t arpSize = sizeof (io.ArpHdr) + 2 * (arpHdr.m_hardwareLength + arpHdr.m_protocolLength);
+	if (baseOffset + arpSize > size)
+	{
+		target.addHyperText ($"[\e^+1\e[34m+\e[m] \e[1mARP\e[m INVALID SIZE: \e[34m$size");
+		return;
+	}
+
+	size_t srcHardwareAddrOffset = baseOffset + sizeof (io.ArpHdr);
+	size_t srcProtocolAddrOffset = srcHardwareAddrOffset + arpHdr.m_hardwareLength;
+	size_t dstHardwareAddrOffset = srcProtocolAddrOffset + arpHdr.m_protocolLength;
+	size_t dstProtocolAddrOffset = dstHardwareAddrOffset + arpHdr.m_hardwareLength;
+
+	switch (arpHdr.m_opcode)
+	{
+	case io.ArpOpcode.Request:
+		target.addHyperText (
+			$"[\e^+1\e[34m+\e[m] \e[1mARP\e[m REQUEST: who-has \e[34m%1\e[m reply-to \e[34m%2" (
+			getArpProtocolAddressString (
+				arpHdr.m_protocolType,
+				p + dstProtocolAddrOffset,
+				arpHdr.m_protocolLength
+				),
+			getArpProtocolAddressString (
+				arpHdr.m_protocolType,
+				p + srcProtocolAddrOffset,
+				arpHdr.m_protocolLength
+				)
+			));
+		break;
+
+	case io.ArpOpcode.Reply:
+		target.addHyperText (
+			$"[\e^+1\e[34m+\e[m] \e[1mARP\e[m REPLY: \e[34m%1\e[m is-at \e[34m%2" (
+			getArpProtocolAddressString (
+				arpHdr.m_protocolType,
+				p + srcProtocolAddrOffset,
+				arpHdr.m_protocolLength
+				),
+			getArpHardwareAddressString (
+				arpHdr.m_hardwareType,
+				p + srcHardwareAddrOffset,
+				arpHdr.m_hardwareLength
+				)
+			));
+		break;
+
+	case io.ArpOpcode.RequestReverse:
+		target.addHyperText (
+			$"[\e^+1\e[34m+\e[m] \e[1mARP-INV\e[m REQUEST-INV: who-has \e[34m%1\e[m reply-to \e[34m%2" (
+			getArpHardwareAddressString (
+				arpHdr.m_hardwareType,
+				p + dstHardwareAddrOffset,
+				arpHdr.m_hardwareLength
+				),
+			getArpProtocolAddressString (
+				arpHdr.m_protocolType,
+				p + srcProtocolAddrOffset,
+				arpHdr.m_protocolLength
+				)
+			));
+
+	case io.ArpOpcode.ReplyReverese:
+		target.addHyperText (
+			$"[\e^+1\e[34m+\e[m] \e[1mARP-INV\e[m REPLY-INV: \e[34m%1\e[m is-at \e[34m%2" (
+			getArpHardwareAddressString (
+				arpHdr.m_hardwareType,
+				p + srcHardwareAddrOffset,
+				arpHdr.m_hardwareLength
+				),
+			getArpProtocolAddressString (
+				arpHdr.m_protocolType,
+				p + srcProtocolAddrOffset,
+				arpHdr.m_protocolLength
+				)
+			));
+
+	default:
+		target.addHyperText ($"[\e^+1\e[34m+\e[m] \e[1mARP\e[m INVALID OPCODE \e[34m$(arpHdr.m_opcode)");
+	}
+}
+
+char const* getArpHardwareTypeString (io.ArpHardwareType type)
+{
+	switch (type)
+	{
+	case io.ArpHardwareType.Ethernet:
+		return "ETHERNET";
+
+	default:
+		return "<unknown>";
+	}
+}
+
+char const* getArpProtocolTypeString (io.ArpProtocolType type)
+{
+	switch (type)
+	{
+	case io.ArpProtocolType.Ip:
+		return "IP";
+
+	default:
+		return "<unknown>";
+	}
+}
+
+char const* getArpOpcodeString (io.ArpOpcode opcode)
+{
+	static char const* opcodeStringTable [] =
+	{
+		"<unknown>",
+		"REQUEST",
+		"REPLY",
+		"REQUEST-INV",
+		"REPLY-INV",
+	}
+
+	return opcodeStringTable [opcode < countof (opcodeStringTable) ? opcode : 0];
+}
+
+char const* getArpHardwareAddressString (
+	io.ArpHardwareType type,
+	void const* p,
+	size_t size
+	)
+{
+	switch (type)
+	{
+	case io.ArpHardwareType.Ethernet:
+		uint8_t const* mac = p;
+
+		return size >= 6 ?
+			$"$(mac [0]; 02x):$(mac [1]; 02x):$(mac [2]; 02x):"
+			$"$(mac [3]; 02x):$(mac [4]; 02x):$(mac [5]; 02x)" :
+			"INVALID-MAC";
+
+	default:
+		return "<unknown>";
+	}
+}
+
+char const* getArpProtocolAddressString (
+	io.ArpProtocolType type,
+	void const* p,
+	size_t size
+	)
+{
+	switch (type)
+	{
+	case io.ArpProtocolType.Ip:
+		return size >= 4 ?
+			formatIpString (*(bigendian uint32_t const*) p) :
+			"INVALID-IP";
+
+	default:
+		return "<unknown>";
+	}
+}
+
+//..............................................................................
+

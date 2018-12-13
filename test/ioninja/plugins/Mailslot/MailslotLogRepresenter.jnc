@@ -1,0 +1,48 @@
+//..............................................................................
+//
+// Mailslot log representer
+//
+
+import "log_Representer.jnc"
+import "MailslotLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representMailslotLog (
+	log.RepresenterTarget* target,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case MailslotLogRecordCode.Opened:
+		char const* fileName = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText ($"Opened mailslot \e[34m$fileName");
+		break;
+
+	case MailslotLogRecordCode.OpenError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Cannot open mailslot: $(error.m_description)");
+		break;
+
+	case MailslotLogRecordCode.Closed:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ($"Mailslot closed");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

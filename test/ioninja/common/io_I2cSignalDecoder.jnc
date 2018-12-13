@@ -1,0 +1,114 @@
+//..............................................................................
+//
+// SPI clock-based signal-edge decoding
+//
+
+namespace io {
+
+//..............................................................................
+
+enum I2cDecodeResult
+{
+	Continue,
+	Start,
+	Stop,
+	EmptyMessage,
+	PreemptiveStart,
+	PreemptiveStop,
+	CharAck,
+	CharNack,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class I2cSignalDecoder
+{
+protected:
+	bool m_lastScl;
+	bool m_lastSda;
+
+	uint_t m_bit;
+
+public:
+	uchar_t readonly m_char;
+
+public:
+	start ();
+
+	I2cDecodeResult add (
+		bool scl,
+		bool sda
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+I2cSignalDecoder.start ()
+{
+	m_lastScl = true;
+	m_lastSda = true;
+	m_bit = 0x80;
+}
+
+I2cDecodeResult I2cSignalDecoder.add (
+	bool scl,
+	bool sda
+	)
+{
+	bool lastScl = m_lastScl;
+	bool lastSda = m_lastSda;
+
+	m_lastScl = scl;
+	m_lastSda = sda;
+
+	if (!scl) // SCL low -- no actions to take
+		return I2cDecodeResult.Continue;
+
+	if (lastScl) // SCL steady high
+	{
+		if (lastSda && !sda) // start
+		{
+			if (m_bit == 0x80)
+				return I2cDecodeResult.Start;
+
+			m_bit = 0x80; // reset
+			return I2cDecodeResult.PreemptiveStart;
+		}
+
+		if (!lastSda && sda) // stop
+		{
+			I2cDecodeResult result =
+				m_bit == 0x80 ? I2cDecodeResult.EmptyMessage :
+				m_bit == 0x40 ? I2cDecodeResult.Stop :
+				I2cDecodeResult.PreemptiveStop;
+
+			m_bit = 0x80; // reset
+			return result;
+		}
+
+		return I2cDecodeResult.Continue;
+	}
+
+	// SCL raised
+
+	switch (m_bit)
+	{
+	case 0:
+		m_bit = 0x80;
+		return sda ? I2cDecodeResult.CharNack : I2cDecodeResult.CharAck;
+
+	case 0x80:
+		m_char = 0;
+		break;
+	}
+
+	if (sda)
+		m_char |= m_bit;
+
+	m_bit >>= 1;
+	return I2cDecodeResult.Continue;
+}
+
+//..............................................................................
+
+} // namespace io

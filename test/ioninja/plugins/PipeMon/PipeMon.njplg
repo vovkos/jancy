@@ -1,23 +1,23 @@
-//..............................................................................
-//
-// Pipe Monitor plugin
-//
+#...............................................................................
+#
+#  Pipe Monitor plugin
+#
 
 [plugin]
 
-name                  = Pipe Monitor
-description           = "Monitor named pipe communications"
-id                    = pipemon
-group                 = monitors
-monitor               = true
-guid                  = 8D4114D9-5020-4E0D-8D6A-98C8C29E76F0
-icon                  = images/pipemon.png
-small-icon            = images/pipemon-16x16.png
+name        = "Pipe Monitor"
+description = "Monitor named pipe communications"
+id          = pipemon
+group       = fs
+monitor     = true
+log-guid    = 8D4114D9-5020-4E0D-8D6A-98C8C29E76F0  # pipe monitor
+log-guid    = 323abaeb-7859-48bc-8e24-f8c082b04ff7  # device monitor
+icon        = images/pipemon.png
+small-icon  = images/pipemon-16x16.png
 
-session-class         = PipeMonSession
-log-representer-func  = representPipeMonLog
+session-class = PipeMonSession
 
 [scripts]
 
-PipeMonLog.jnc
 PipeMonSession.jnc
+PipeMonitor.jnc

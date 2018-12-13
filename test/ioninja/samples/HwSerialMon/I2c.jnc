@@ -1,0 +1,95 @@
+//..............................................................................
+//
+// I2C monitor
+//
+
+import "io_I2cSignalDecoder.jnc"
+
+//..............................................................................
+
+class I2c: SerialIface
+{
+protected:
+	bitflag enum I2cLines: uint16_t
+	{
+		Scl = 0x0100,
+		Sda = 0x0200,
+
+		All = -1
+	}
+
+	io.I2cSignalDecoder m_decoder;
+
+public:
+	construct (doc.PluginHost* pluginHost)
+	{
+		basetype.construct (pluginHost);
+		m_name = "I\u00b2C";
+	}
+
+	override start ()
+	{
+		m_decoder.start ();
+	}
+
+	override processSignal (
+		uint64_t timestamp,
+		uint16_t lines
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+override I2c.processSignal (
+	uint64_t timestamp,
+	uint16_t lines
+	)
+{
+	io.I2cDecodeResult result = m_decoder.add (
+		lines & I2cLines.Scl,
+		lines & I2cLines.Sda
+		);
+
+	switch (result)
+	{
+	case io.I2cDecodeResult.Continue:
+	case io.I2cDecodeResult.Start:
+		break;
+
+	case io.I2cDecodeResult.Stop:
+		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.Break);
+		break;
+
+	case io.I2cDecodeResult.CharAck:
+		m_pluginHost.m_log.m_writer.write (
+			timestamp,
+			log.StdRecordCode.Rx,
+			&m_decoder.m_char,
+			1
+			);
+		break;
+
+	case io.I2cDecodeResult.CharNack:
+		m_pluginHost.m_log.m_writer.write (
+			timestamp,
+			HwSerialMonRecordCode.I2cCharNack,
+			&m_decoder.m_char,
+			1
+			);
+		break;
+
+	case io.I2cDecodeResult.PreemptiveStart:
+		m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.I2cPreemptiveStart);
+		break;
+
+	case io.I2cDecodeResult.PreemptiveStop:
+		m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.I2cPreemptiveStop);
+		break;
+
+	case io.I2cDecodeResult.EmptyMessage:
+		m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.I2cEmptyMessage);
+		break;
+	}
+}
+
+//..............................................................................

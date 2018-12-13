@@ -1,17 +1,17 @@
 //..............................................................................
 //
-// Packet header definitions for ModBus
+// Packet header definitions for Modbus
 //
 
-import "io_ModBus.jnc"
+import "io_Modbus.jnc"
 import "crc16.jnc"
 
 //..............................................................................
 
-struct ModBusReadFrame
+struct ModbusReadFrame
 {
 	uint8_t m_deviceAddress;
-	io.ModBusReadPdu m_read;
+	io.ModbusReadPdu m_read;
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
@@ -19,23 +19,23 @@ struct ModBusReadFrame
 	{
 		*this = null;
 		m_deviceAddress = 1;
-		m_read.m_func = io.ModBusFunc.ReadHoldingRegisters;
+		m_read.m_func = io.ModbusFunc.ReadHoldingRegisters;
 		m_read.m_count = 1;
 	}
 
 	[ packetTemplateAction ]
 	calcChecksum ()
 	{
-		updateModBusChecksum (this);
+		updateModbusChecksum (this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModBusWriteFrame
+struct ModbusWriteFrame
 {
 	uint8_t m_deviceAddress;
-	io.ModBusWritePdu m_write;
+	io.ModbusWritePdu m_write;
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
@@ -43,42 +43,42 @@ struct ModBusWriteFrame
 	{
 		*this = null;
 		m_deviceAddress = 1;
-		m_write.m_func = io.ModBusFunc.WriteRegister;
+		m_write.m_func = io.ModbusFunc.WriteRegister;
 	}
 
 	[ packetTemplateAction ]
 	calcChecksum ()
 	{
-		updateModBusChecksum (this);
+		updateModbusChecksum (this);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-struct ModBusWriteMultipleFrame
+struct ModbusWriteMultipleFrame
 {
 	uint8_t m_deviceAddress;
-	io.ModBusWriteMultiplePdu m_write;
+	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
 	initialize ()
 	{
 		*this = null;
 		m_deviceAddress = 1;
-		m_write.m_func = io.ModBusFunc.WriteMultipleRegisters;
+		m_write.m_func = io.ModbusFunc.WriteMultipleRegisters;
 		m_write.m_count = 1;
 	}
 
 	[ packetTemplateAction ]
 	calcChecksum ()
 	{
-		updateModBusChecksum (this);
+		updateModbusChecksum (this);
 	}
 }
 
 //..............................................................................
 
-updateModBusChecksum (void* p)
+updateModbusChecksum (void* p)
 {
 	size_t size = dynamic sizeof (p);
 	if (size < 2)

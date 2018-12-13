@@ -1,0 +1,24 @@
+#...............................................................................
+#
+#  Tibbo Modbus Gateway Monitor log representer plugin
+#
+
+[plugin]
+
+name        = Tibbo Modbus Gateway Monitor Log
+description = "Tibbo Modbus Gateway Monitor log representer"
+group       = net
+guid        = 075eb3ef-43e2-460c-9301-a72810de9689
+
+log-representer-func = representModbusGatewayMonLog
+
+[scripts]
+
+ModbusGatewayMonLogRecordCode.jnc
+ModbusGatewayMonLogRepresenter.jnc
+
+[records]
+
+01d486364a3fbd00  # CommandError
+81d486364a3fbd01  # DumpPacket
+01d486364a3fbd02  # Log

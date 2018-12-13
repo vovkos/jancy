@@ -1,0 +1,65 @@
+//..............................................................................
+//
+// Ninja log - main log engine api
+//
+
+import "gui_Icon.jnc"
+import "log_Writer.jnc"
+import "log_Converter.jnc"
+import "log_Filter.jnc"
+import "log_Listener.jnc"
+import "log_RangeProcessor.jnc"
+
+namespace log {
+
+//..............................................................................
+
+opaque class Log
+{
+	size_t property m_leafLineCountLimit;
+	size_t property m_cacheUpdateScrollRateLimit;
+
+	gui.Icon* property m_iconTable (size_t i);
+
+	Writer* readonly m_writer;
+	uint64_t autoget property m_baseTimestamp;
+
+	destruct ();
+
+	suspend ();
+	resume ();
+
+	addConverter (
+		Converter* converter,
+		std.Guid const* classGuidArray,
+		size_t classCount
+		);
+
+	addConverter (Converter* converter)
+	{
+		addConverter (converter, null, 0);
+	}
+
+	addConverter (
+		Converter* converter,
+		std.Guid const* classGuid
+		)
+	{
+		addConverter (converter, classGuid, 1);
+	}
+
+	removeAllConverters ();
+
+	addFilter (Filter* filter);
+	removeAllFilters ();
+
+	addListener (ListenerFunc* listenerFunc);
+	removeAllListeners ();
+
+	addSelectionProcessor (RangeProcessorFactoryFunc* factoryFunc);
+	removeAllSelectionProcessors ();
+}
+
+//..............................................................................
+
+} // namespace log {

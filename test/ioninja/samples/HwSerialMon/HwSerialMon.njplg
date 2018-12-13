@@ -1,0 +1,26 @@
+#..............................................................................
+#
+#  Hardware Serial Monitor plugin
+#
+
+[plugin]
+
+name        = "Hardware Serial Monitor"
+description = "Cypress EZ-USB FX3-powered Serial Monitor"
+id          = hw-serialmon
+group       = serial
+monitor     = true
+log-guid    = d6d46d35-892d-42ad-bdc2-958c83a45843  # hw-serial monitor
+log-guid    = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73  # usb
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = HwSerialMonSession
+
+[scripts]
+
+HwSerialMonSession.jnc
+SerialIface.jnc
+Uart.jnc
+Spi.jnc
+I2c.jnc

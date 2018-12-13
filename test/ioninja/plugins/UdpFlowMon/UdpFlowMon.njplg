@@ -1,25 +1,23 @@
-//..............................................................................
-//
-// UDP Flow Monitor plugin
-//
+#...............................................................................
+#
+#  UDP Flow Monitor session plugin
+#
 
 [plugin]
 
-name                  = UDP Flow Monitor
-description           = "Monitors UDP communication and produces clean data flow"
-id                    = udp-flow-mon
-group                 = monitors
-monitor               = true
-guid                  = 275d0959-ad5b-4f9c-9439-25993ac35b93
-icon                  = images/udpmon.png
-small-icon            = images/udpmon-16x16.png
+name        = "UDP Flow Monitor"
+description = "Monitors UDP communication and produces clean data flow"
+id          = udp-flow-mon
+group       = net
+monitor     = true
+log-guid    = 275d0959-ad5b-4f9c-9439-25993ac35b93  # udp flow monitor
+log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/udpmon.png
+small-icon  = images/udpmon-16x16.png
 
-session-class         = UdpFlowMonSession
-log-representer-func  = representUdpFlowMonLog
+session-class = UdpFlowMonSession
 
 [scripts]
 
 UdpFlowMonSession.jnc
-UdpFlowMonLog.jnc
-../../common/io_IpDefragmenter.jnc
-../../common/io_PcapDeviceUi.jnc

@@ -1,0 +1,91 @@
+import "std_Buffer.jnc"
+
+// port of axl_enc_HexEncoding.cpp
+
+//..............................................................................
+
+static bool isspace (char c) // we don't have these in the Jancy stdlib yet
+{
+	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
+}
+
+size_t decodeHexString (
+	std.Buffer* buffer,
+	char const* source,
+	size_t length = -1
+	)
+{
+	enum State
+	{
+		Normal = 0,
+		Hex
+	};
+
+	if (length == -1)
+		length = strlen (source);
+
+	State state = State.Normal;
+
+	buffer.clear ();
+	buffer.setSize (length / 2); // enough to hold everything
+
+	char hexCodeString [4] = { 0 };
+	char const* hexCodeEnd;
+	size_t hexCodeLen;
+
+	uchar_t x;
+
+	char const* p = source;
+	char const* end = source + length;
+
+	size_t size = 0;
+	for (; p < end; p++)
+	{
+		bool isSpace = isspace (*p);
+
+		switch (state)
+		{
+		case State.Normal:
+			if (isSpace)
+				break;
+
+			hexCodeString [0] = *p;
+			hexCodeLen = 1;
+			state = State.Hex;
+			break;
+
+		case State.Hex:
+			if (!isSpace)
+			{
+				hexCodeString [hexCodeLen++] = *p;
+				if (hexCodeLen < 2)
+					break;
+			}
+
+			hexCodeString [hexCodeLen] = 0;
+			x = (uchar_t) strtol (hexCodeString, &hexCodeEnd, 16);
+
+			if (hexCodeEnd == &hexCodeString [hexCodeLen])
+				buffer [size++] = x;
+			else
+				p = end; // not a hex string anymore, break the loop
+
+			state = State.Normal;
+			break;
+		}
+	}
+
+	if (state == State.Hex)
+	{
+		hexCodeString [hexCodeLen] = 0;
+		x = (uchar_t) strtol (hexCodeString, &hexCodeEnd, 16);
+
+		if (hexCodeEnd == &hexCodeString [hexCodeLen])
+			buffer [size++] = x;
+	}
+
+	buffer.setSize (size); // adjust size
+	return size;
+}
+
+//..............................................................................

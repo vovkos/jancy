@@ -1,0 +1,65 @@
+//..............................................................................
+//
+// Ninja log - standard record codes and record params
+//
+
+import "gui_TextAttr.jnc"
+
+namespace log {
+
+//..............................................................................
+
+// foldable records must be marked to avoid unintentional merging with neighbors
+
+bitflag enum RecordCodeFlags: uint64_t
+{
+	Foldable = 0x8000000000000000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PartCodeFlags: uint64_t
+{
+	MergeableBackward = 0x2000000000000000, // don't interfere with RecordCodeFlags
+	MergeableForward  = 0x4000000000000000,
+	Mergeable         = 0x6000000000000000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StdRecordCode: uint64_t
+{
+    Tx                = 0x01d47ff1fc334a10 | PartCodeFlags.Mergeable,
+	Rx                = 0x01d47ff1fc334a11 | PartCodeFlags.Mergeable,
+	TxRx              = 0x01d47ff1fc334a12 | PartCodeFlags.Mergeable,
+	PlainText         = 0x01d47ff1fc334a13 | PartCodeFlags.Mergeable,
+	HyperText         = 0x01d47ff1fc334a14 | PartCodeFlags.Mergeable,
+	Bin               = 0x01d47ff1fc334a15 | PartCodeFlags.Mergeable,
+	Error             = 0x01d47ff1fc334a16,
+	RetroColorize     = 0x01d47ff1fc334a17,
+	SessionStarted    = 0x01d47ff1fc334a18,
+	Break             = 0x01d47ff1fc334a19,
+	RxBufferFull      = 0x01d47ff1fc334a1a,
+	RxBufferFullLossy = 0x01d47ff1fc334a1b,
+}
+
+//..............................................................................
+
+bitflag enum RetroColorizeFlags
+{
+	Aux
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RetroColorizeParams
+{
+	int m_retroOffset;
+	uint_t m_length;
+	gui.TextAttr m_attr;
+	RetroColorizeFlags m_flags;
+}
+
+//..............................................................................
+
+} // namespace log {

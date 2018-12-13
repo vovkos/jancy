@@ -1,0 +1,327 @@
+//..............................................................................
+//
+// Serial Monitor notification processing for Windows
+//
+
+import "SerialMonProcessor.jnc"
+
+// excerpt from ntddser.h
+
+namespace wdk {
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum
+{
+	FILE_DEVICE_SERIAL_PORT = 0x001b0000,
+
+	IOCTL_SERIAL_SET_BAUD_RATE      = FILE_DEVICE_SERIAL_PORT | (1 << 2),
+	IOCTL_SERIAL_SET_QUEUE_SIZE     = FILE_DEVICE_SERIAL_PORT | (2 << 2),
+	IOCTL_SERIAL_SET_LINE_CONTROL   = FILE_DEVICE_SERIAL_PORT | (3 << 2),
+	IOCTL_SERIAL_SET_BREAK_ON       = FILE_DEVICE_SERIAL_PORT | (4 << 2),
+	IOCTL_SERIAL_SET_BREAK_OFF      = FILE_DEVICE_SERIAL_PORT | (5 << 2),
+	IOCTL_SERIAL_IMMEDIATE_CHAR     = FILE_DEVICE_SERIAL_PORT | (6 << 2),
+	IOCTL_SERIAL_SET_TIMEOUTS       = FILE_DEVICE_SERIAL_PORT | (7 << 2),
+	IOCTL_SERIAL_GET_TIMEOUTS       = FILE_DEVICE_SERIAL_PORT | (8 << 2),
+	IOCTL_SERIAL_SET_DTR            = FILE_DEVICE_SERIAL_PORT | (9 << 2),
+	IOCTL_SERIAL_CLR_DTR            = FILE_DEVICE_SERIAL_PORT | (10 << 2),
+	IOCTL_SERIAL_RESET_DEVICE       = FILE_DEVICE_SERIAL_PORT | (11 << 2),
+	IOCTL_SERIAL_SET_RTS            = FILE_DEVICE_SERIAL_PORT | (12 << 2),
+	IOCTL_SERIAL_CLR_RTS            = FILE_DEVICE_SERIAL_PORT | (13 << 2),
+	IOCTL_SERIAL_SET_XOFF           = FILE_DEVICE_SERIAL_PORT | (14 << 2),
+	IOCTL_SERIAL_SET_XON            = FILE_DEVICE_SERIAL_PORT | (15 << 2),
+	IOCTL_SERIAL_GET_WAIT_MASK      = FILE_DEVICE_SERIAL_PORT | (16 << 2),
+	IOCTL_SERIAL_SET_WAIT_MASK      = FILE_DEVICE_SERIAL_PORT | (17 << 2),
+	IOCTL_SERIAL_WAIT_ON_MASK       = FILE_DEVICE_SERIAL_PORT | (18 << 2),
+	IOCTL_SERIAL_PURGE              = FILE_DEVICE_SERIAL_PORT | (19 << 2),
+	IOCTL_SERIAL_GET_BAUD_RATE      = FILE_DEVICE_SERIAL_PORT | (20 << 2),
+	IOCTL_SERIAL_GET_LINE_CONTROL   = FILE_DEVICE_SERIAL_PORT | (21 << 2),
+	IOCTL_SERIAL_GET_CHARS          = FILE_DEVICE_SERIAL_PORT | (22 << 2),
+	IOCTL_SERIAL_SET_CHARS          = FILE_DEVICE_SERIAL_PORT | (23 << 2),
+	IOCTL_SERIAL_GET_HANDFLOW       = FILE_DEVICE_SERIAL_PORT | (24 << 2),
+	IOCTL_SERIAL_SET_HANDFLOW       = FILE_DEVICE_SERIAL_PORT | (25 << 2),
+	IOCTL_SERIAL_GET_MODEMSTATUS    = FILE_DEVICE_SERIAL_PORT | (26 << 2),
+	IOCTL_SERIAL_GET_COMMSTATUS     = FILE_DEVICE_SERIAL_PORT | (27 << 2),
+	IOCTL_SERIAL_XOFF_COUNTER       = FILE_DEVICE_SERIAL_PORT | (28 << 2),
+	IOCTL_SERIAL_GET_PROPERTIES     = FILE_DEVICE_SERIAL_PORT | (29 << 2),
+	IOCTL_SERIAL_GET_DTRRTS         = FILE_DEVICE_SERIAL_PORT | (30 << 2),
+
+	SERIAL_CTS_HANDSHAKE = 0x08,
+	SERIAL_AUTO_TRANSMIT = 0x01,
+	SERIAL_AUTO_RECEIVE  = 0x02,
+	SERIAL_RTS_MASK      = 0xc0,
+	SERIAL_RTS_CONTROL   = 0x40,
+	SERIAL_RTS_HANDSHAKE = 0x80,
+
+	SERIAL_MSR_DCTS      = 0x01,
+	SERIAL_MSR_DDSR      = 0x02,
+	SERIAL_MSR_TERI      = 0x04,
+	SERIAL_MSR_DDCD      = 0x08,
+	SERIAL_MSR_CTS       = 0x10,
+	SERIAL_MSR_DSR       = 0x20,
+	SERIAL_MSR_RI        = 0x40,
+	SERIAL_MSR_DCD       = 0x80,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SERIAL_LINE_CONTROL
+{
+    uint8_t StopBits;
+    uint8_t Parity;
+    uint8_t WordLength;
+}
+
+struct SERIAL_HANDFLOW
+{
+    uint32_t ControlHandShake;
+    uint32_t FlowReplace;
+    uint32_t XonLimit;
+    uint32_t XoffLimit;
+}
+
+} // namespace wdk
+
+//..............................................................................
+
+class SerialMonProcessor_win: SerialMonProcessor
+{
+	construct (log.Writer* logWriter)
+	{
+		basetype.construct (logWriter);
+	}
+
+	override processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr);
+
+protected:
+	processIoctlNotification (
+		int ntStatus,
+		uint64_t timestamp,
+		uint_t code,
+		const void* inData,
+		size_t inDataSize,
+		const void* outData,
+		size_t outDataSize
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SerialMonProcessor_win.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
+{
+	switch (notifyHdr.m_code)
+	{
+	case io.win.DeviceMonitorNotifyCode.Create:
+		m_logWriter.write (
+			notifyHdr.m_timestamp,
+			SerialMonLogRecordCode.DeviceOpened,
+			&notifyHdr.m_processId,
+			sizeof (notifyHdr. m_processId)
+			);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Close:
+		m_logWriter.write (notifyHdr.m_timestamp, SerialMonLogRecordCode.DeviceClosed);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Read:
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+
+		if (params.m_dataSize)
+			m_logWriter.write (
+				notifyHdr.m_timestamp,
+				log.StdRecordCode.Rx,
+				params + 1,
+				params.m_dataSize
+				);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Write:
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+
+		if (params.m_dataSize)
+			m_logWriter.write (
+				notifyHdr.m_timestamp,
+				log.StdRecordCode.Tx,
+				params + 1,
+				params.m_dataSize
+				);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Ioctl:
+		io.win.DeviceMonitorIoctlNotifyParams const* params = (io.win.DeviceMonitorIoctlNotifyParams const*) (notifyHdr + 1);
+
+		void const* p = params + 1;
+
+		processIoctlNotification (
+			notifyHdr.m_ntStatus,
+			notifyHdr.m_timestamp,
+			params.m_code,
+			p,
+			params.m_inDataSize,
+			p + params.m_inDataSize,
+			params.m_outDataSize
+			);
+
+		break;
+	}
+}
+
+SerialMonProcessor_win.processIoctlNotification (
+	int ntStatus,
+	uint64_t timestamp,
+	uint_t code,
+	const void* inData,
+	size_t inDataSize,
+	const void* outData,
+	size_t outDataSize
+	)
+{
+	switch (code)
+	{
+	case wdk.IOCTL_SERIAL_SET_BAUD_RATE:
+		if (inDataSize < sizeof (uint32_t))
+			break;
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.BaudRateChanged,
+			inData,
+			sizeof (uint32_t)
+			);
+		break;
+
+	case wdk.IOCTL_SERIAL_SET_LINE_CONTROL:
+		if (inDataSize < sizeof (wdk.SERIAL_LINE_CONTROL))
+			break;
+
+		wdk.SERIAL_LINE_CONTROL const* p = (wdk.SERIAL_LINE_CONTROL const*) inData;
+
+		uint_t dataBits = p->WordLength;
+		uint_t stopBits = p->StopBits;
+		uint_t parity = p->Parity;
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.DataBitsChanged,
+			&dataBits,
+			sizeof (dataBits)
+			);
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.StopBitsChanged,
+			&stopBits,
+			sizeof (stopBits)
+			);
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.ParityChanged,
+			&parity,
+			sizeof (parity)
+			);
+
+		break;
+
+	case wdk.IOCTL_SERIAL_SET_HANDFLOW:
+		if (inDataSize < sizeof (wdk.SERIAL_HANDFLOW))
+			break;
+
+		wdk.SERIAL_HANDFLOW const* p = (wdk.SERIAL_HANDFLOW const*) inData;
+
+		io.SerialFlowControl flowControl =
+			(p->ControlHandShake & wdk.SERIAL_CTS_HANDSHAKE) && (p->FlowReplace & wdk.SERIAL_RTS_HANDSHAKE) ?
+				io.SerialFlowControl.RtsCts :
+			(p->ControlHandShake & wdk.SERIAL_AUTO_RECEIVE) && (p->ControlHandShake & wdk.SERIAL_AUTO_TRANSMIT) ?
+				flowControl = io.SerialFlowControl.XonXoff :
+				flowControl = io.SerialFlowControl.None;
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.FlowControlChanged,
+			&flowControl,
+			sizeof (flowControl)
+			);
+
+		break;
+
+	case wdk.IOCTL_SERIAL_GET_MODEMSTATUS:
+		if (outDataSize < sizeof (uint_t))
+			break;
+
+		io.SerialStatusLines lines = 0;
+		uint_t wdkLines = *(uint_t const*) outData;
+
+		if (wdkLines & wdk.SERIAL_MSR_CTS)
+			lines |= io.SerialStatusLines.Cts;
+
+		if (wdkLines & wdk.SERIAL_MSR_DSR)
+			lines |= io.SerialStatusLines.Dsr;
+
+		if (wdkLines & wdk.SERIAL_MSR_RI)
+			lines |= io.SerialStatusLines.Ring;
+
+		if (wdkLines & wdk.SERIAL_MSR_DCD)
+			lines |= io.SerialStatusLines.Dcd;
+
+		io.SerialStatusLines mask = m_statusLines;
+		m_statusLines = lines;
+
+		if (mask != -1)
+			mask ^= lines;
+
+		if (mask)
+		{
+			SerialStatusLineChangedParams params = { lines, mask };
+
+			m_logWriter.write (
+				timestamp,
+				SerialLogRecordCode.StatusLineChanged,
+				&params,
+				sizeof (params)
+				);
+		}
+
+		break;
+
+	case wdk.IOCTL_SERIAL_IMMEDIATE_CHAR:
+		if (inDataSize < sizeof (char))
+			break;
+
+		m_logWriter.write (
+			timestamp,
+			log.StdRecordCode.Tx,
+			inData,
+			inDataSize
+			);
+
+		break;
+
+	case wdk.IOCTL_SERIAL_SET_DTR:
+	case wdk.IOCTL_SERIAL_CLR_DTR:
+		bool dtr = code == wdk.IOCTL_SERIAL_SET_DTR;
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.DtrChanged,
+			&dtr,
+			sizeof (dtr)
+			);
+		break;
+
+	case wdk.IOCTL_SERIAL_SET_RTS:
+	case wdk.IOCTL_SERIAL_CLR_RTS:
+		bool rts = code == wdk.IOCTL_SERIAL_SET_RTS;
+
+		m_logWriter.write (
+			timestamp,
+			SerialLogRecordCode.RtsChanged,
+			&rts,
+			sizeof (rts)
+			);
+		break;
+	}
+}
+
+//..............................................................................

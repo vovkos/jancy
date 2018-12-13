@@ -1,23 +1,20 @@
-//..............................................................................
-//
-// TCP Connection session plugin
-//
+#...............................................................................
+#
+#  TCP Connection session plugin
+#
 
 [plugin]
 
 name        = TCP Connection Socket
 description = "Establishes connection over TCP socket"
 id          = tcp
-group       = clients
-guid        = db8c8923-a699-46cc-be7c-f0bcd523082b
+group       = net
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/tcp.png
 small-icon  = images/tcp-16x16.png
 
-session-class        = TcpConnectionSession
-log-representer-func = representTcpConnectionLog
+session-class = TcpConnectionSession
 
 [scripts]
 
 TcpConnectionSession.jnc
-TcpConnectionLog.jnc
-../../common/io_SocketUi.jnc

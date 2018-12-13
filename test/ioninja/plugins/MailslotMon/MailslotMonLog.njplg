@@ -1,0 +1,32 @@
+#...............................................................................
+#
+#  Mailslot Monitor log representer plugin
+#
+
+[plugin]
+
+name        = Mailslot Monitor Log
+description = "Mailslot Monitor log representer"
+group       = fs
+guid        = 8B4D1156-4C00-40FF-8B24-015C7DF2FD80
+
+log-representer-func = representMailslotMonLog
+
+[scripts]
+
+MailslotMonLogRecordCode.jnc
+MailslotMonLogRepresenter.jnc
+
+[records]
+
+01d4871750ac2a7b  # ServerFileOpened_old
+01d4871750ac2a7c  # ServerFileOpenError_old
+01d4871750ac2a7d  # ClientFileOpened_old
+01d4871750ac2a7e  # ClientFileOpenError_old
+01d4871750ac2a7f  # FileClosed
+01d4871750ac2a80  # FileIdChanged_old
+01d4871750ac2a81  # ServerFileOpened
+01d4871750ac2a82  # ServerFileOpenError
+01d4871750ac2a83  # ClientFileOpened
+01d4871750ac2a84  # ClientFileOpenError
+01d4871750ac2a85  # FileIdChanged

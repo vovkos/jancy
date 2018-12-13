@@ -1,0 +1,26 @@
+//..............................................................................
+//
+// UDP Flow Monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum UdpFlowMonLogRecordCode: uint64_t
+{
+	TxPacket = 0x01d487c65087ebc9,
+	RxPacket = 0x01d487c65087ebca,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct UdpFlowMonPacketParams
+{
+	io.SocketAddress m_srcAddress;
+	io.SocketAddress m_dstAddress;
+	uint32_t m_size;
+	bool m_isFragmented;
+}
+
+//..............................................................................

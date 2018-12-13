@@ -1,0 +1,391 @@
+//..............................................................................
+//
+// TX Modifier plugin for performing transmit-receive tests
+//
+
+import "doc_Layer.jnc"
+import "sys_Timer.jnc"
+import "std_Buffer.jnc"
+import "std_String.jnc"
+import "std_List.jnc"
+import "escapeEncoding.jnc"
+
+//..............................................................................
+
+class TxModifierLayer: doc.Layer
+{
+protected:
+	enum Defaults
+	{
+		IsPrefixEnabled = true,
+		IsSuffixEnabled = true,
+		IsInterCharDelayEnabled = false,
+		InterCharDelay  = 200,
+		IsRetansmitEnabled = true,
+		RetransmitCount = 2,
+		RetransmitDelay = 1000,
+	}
+
+	static char m_defaultPrefix [] = "\\x02";
+	static char m_defaultSuffix [] = "\\r";
+
+	struct DelayedWrite
+	{
+		void const* m_start;
+		void const* m_end;
+		void const* m_p;
+	}
+
+protected:
+	// inter-char delay
+
+	sys.Timer m_delayedWriteTimer;
+	std.List m_delayedWriteList;
+	uint64_t m_lastWriteTimestamp;
+
+	// re-transmission
+
+	sys.Timer m_retransmitTimer;
+	void const* m_retransmitPacket;
+	size_t m_retransmitPacketSize;
+	size_t m_retransmitNumber;
+
+	// properties
+
+	gui.BoolProperty* m_isPrefixEnabledProp;
+	gui.StringProperty* m_prefixProp;
+	gui.BoolProperty* m_isSuffixEnabledProp;
+	gui.StringProperty* m_suffixProp;
+	gui.BoolProperty* m_isRetransmitEnabledProp;
+	gui.IntProperty* m_retransmitCountProp;
+	gui.IntProperty* m_retransmitDelayProp;
+	gui.BoolProperty* m_isInterCharDelayEnabledProp;
+	gui.IntProperty* m_interCharDelayProp;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	size_t write (
+		void const* p,
+		size_t size
+		);
+
+	flushDelayedWriteList ();
+	setDelayedWriteTimer ();
+	onDelayedWriteTimer ();
+
+	scheduleRetransmission (
+		void const* p,
+		size_t size
+		);
+
+	cancelRetransmission ();
+	onRetransmitTimer ();
+	onTransmitEnabledChanged ();
+
+	createUi ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TxModifierLayer.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+	createUi ();
+}
+
+TxModifierLayer.createUi ()
+{
+	m_isPrefixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Append prefix",
+		"Prefix each TX packet with the specified char sequence"
+		);
+
+	m_prefixProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		m_isPrefixEnabledProp,,
+		"Prefix data",
+		"Specify the prefix char sequence (C-escapes are supported)"
+		);
+
+	m_isSuffixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Append suffix",
+		"Suffix each TX packet with the specified char sequence"
+		);
+
+	m_suffixProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		m_isSuffixEnabledProp,,
+		"Suffix data",
+		"Specify the suffix char sequence (C-escapes are supported)"
+		);
+
+	m_isInterCharDelayEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Insert inter-char delays",
+		"Insert inter-character delays during transmission"
+		);
+
+	m_interCharDelayProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		m_isInterCharDelayEnabledProp,,
+		"Inter-char delay (ms)",
+		"Transmission inter-character delay (in millisceonds)"
+		);
+
+	m_isRetransmitEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Re-transmission",
+		"Re-transmit TX packet N times with the specified delay"
+		);
+
+	m_retransmitCountProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		m_isRetransmitEnabledProp,,
+		"Re-transmit count",
+		"How many extra times to re-send the packet"
+		);
+
+	m_retransmitDelayProp = m_pluginHost.m_propertyGrid.createIntProperty (
+		m_isRetransmitEnabledProp,,
+		"Re-transmit delay (ms)",
+		"Specify the delay between re-transmissions (in milliseconds)"
+		);
+
+	bindingof (m_isTransmitEnabled) += onTransmitEnabledChanged;
+	m_uiReactor.start ();
+}
+
+void TxModifierLayer.load (doc.Storage* storage)
+{
+	m_isPrefixEnabledProp.m_value = storage.readBool ("isPrefixEnabled", Defaults.IsPrefixEnabled);
+	m_prefixProp.m_value = storage.readString ("prefix", m_defaultPrefix);
+	m_isSuffixEnabledProp.m_value = storage.readBool ("isSuffixEnabled", Defaults.IsSuffixEnabled);
+	m_suffixProp.m_value = storage.readString ("suffix", m_defaultSuffix);
+	m_isInterCharDelayEnabledProp.m_value = storage.readBool ("isInterCharDelayEnabled", Defaults.IsInterCharDelayEnabled);
+	m_interCharDelayProp.m_value = storage.readInt ("interCharDelay", Defaults.InterCharDelay);
+	m_isRetransmitEnabledProp.m_value = storage.readBool ("isRetransmitEnabled", Defaults.IsRetansmitEnabled);
+	m_retransmitCountProp.m_value = storage.readInt ("retransmitCount", Defaults.RetransmitCount);
+	m_retransmitDelayProp.m_value = storage.readInt ("retransmitDelay", Defaults.RetransmitDelay);
+}
+
+void TxModifierLayer.save (doc.Storage* storage)
+{
+	storage.writeBool ("isPrefixEnabled", m_isPrefixEnabledProp.m_value);
+	storage.writeString ("prefix", m_prefixProp.m_value);
+	storage.writeBool ("isSuffixEnabled", m_isSuffixEnabledProp.m_value);
+	storage.writeString ("suffix", m_suffixProp.m_value);
+	storage.writeBool ("isInterCharDelayEnabled", m_isInterCharDelayEnabledProp.m_value);
+	storage.writeInt ("interCharDelay", m_interCharDelayProp.m_value);
+	storage.writeBool ("isRetransmitEnabled", m_isRetransmitEnabledProp.m_value);
+	storage.writeInt ("retransmitCount", m_retransmitCountProp.m_value);
+	storage.writeInt ("retransmitDelay", m_retransmitDelayProp.m_value);
+}
+
+bool errorcode TxModifierLayer.applyProperties ()
+{
+	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value)
+		flushDelayedWriteList ();
+	else if (m_delayedWriteList.m_count)
+		setDelayedWriteTimer ();
+
+	return true;
+}
+
+void TxModifierLayer.restoreDefaultProperties ()
+{
+	m_isPrefixEnabledProp.m_value = Defaults.IsPrefixEnabled;
+	m_prefixProp.m_value = m_defaultPrefix;
+	m_isSuffixEnabledProp.m_value = Defaults.IsSuffixEnabled;
+	m_suffixProp.m_value = m_defaultSuffix;
+	m_isRetransmitEnabledProp.m_value = Defaults.IsRetansmitEnabled;
+	m_retransmitCountProp.m_value = Defaults.RetransmitCount;
+	m_retransmitDelayProp.m_value = Defaults.RetransmitDelay;
+	m_isInterCharDelayEnabledProp.m_value = Defaults.IsInterCharDelayEnabled;
+	m_interCharDelayProp.m_value = Defaults.InterCharDelay;
+}
+
+size_t errorcode TxModifierLayer.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	void const* packet;
+	size_t packetSize;
+
+	if (!m_isPrefixEnabledProp.m_value && !m_isSuffixEnabledProp.m_value)
+	{
+		packet = p;
+		packetSize = size;
+	}
+	else
+	{
+		std.Buffer buffer;
+		std.StringBuilder string;
+
+		if (m_isPrefixEnabledProp.m_value)
+		{
+			decodeEscapeString (&string, m_prefixProp.m_value);
+			buffer.append (string.m_p, string.m_length);
+		}
+
+		buffer.append (p, size);
+
+		if (m_isSuffixEnabledProp.m_value)
+		{
+			decodeEscapeString (&string, m_suffixProp.m_value);
+			buffer.append (string.m_p, string.m_length);
+		}
+
+		packet = buffer.m_p;
+		packetSize = buffer.m_size;
+	}
+
+	cancelRetransmission ();
+
+	return write (packet, packetSize);
+}
+
+size_t TxModifierLayer.write (
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_isInterCharDelayEnabledProp.m_value || !m_interCharDelayProp.m_value)
+	{
+		size_t result = transmitNext (p, size);
+		m_lastWriteTimestamp = sys.getTimestamp ();
+		scheduleRetransmission (p, size);
+		return result;
+	}
+
+	DelayedWrite* delayedWrite = new DelayedWrite;
+	delayedWrite.m_start = p;
+	delayedWrite.m_end = p + size;
+	delayedWrite.m_p = p;
+	m_delayedWriteList.add (delayedWrite);
+
+	uint64_t timestamp = sys.getTimestamp ();
+	if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelayProp.m_value)
+		onDelayedWriteTimer (); // send 1st char now
+
+	if (m_delayedWriteList.m_count == 1)
+		setDelayedWriteTimer ();
+
+	return size;
+}
+
+TxModifierLayer.flushDelayedWriteList ()
+{
+	while (m_delayedWriteList.m_count)
+	{
+		DelayedWrite* delayedWrite = m_delayedWriteList.removeHead ();
+		size_t size = delayedWrite.m_end - delayedWrite.m_p;
+		transmitNext (delayedWrite.m_p, size);
+
+		if (!m_delayedWriteList.m_count)
+			scheduleRetransmission (delayedWrite.m_start, delayedWrite.m_end - delayedWrite.m_start);
+	}
+
+	m_lastWriteTimestamp = sys.getTimestamp ();
+}
+
+TxModifierLayer.setDelayedWriteTimer ()
+{
+	m_delayedWriteTimer.startPeriodicTimer (
+		onDelayedWriteTimer @ m_pluginHost.m_mainThreadScheduler,
+		m_interCharDelayProp.m_value
+		);
+}
+
+TxModifierLayer.onDelayedWriteTimer ()
+{
+	if (!m_delayedWriteList.m_count)
+	{
+		uint64_t timestamp = sys.getTimestamp ();
+		if ((timestamp - m_lastWriteTimestamp) / 10000 >= m_interCharDelayProp.m_value)
+			m_delayedWriteTimer.stop ();
+
+		return;
+	}
+
+	DelayedWrite* delayedWrite = m_delayedWriteList.m_head.m_data;
+	transmitNext (delayedWrite.m_p, 1);
+	delayedWrite.m_p++;
+
+	if (delayedWrite.m_p >= delayedWrite.m_end)
+	{
+		m_delayedWriteList.removeHead ();
+
+		if (!m_delayedWriteList.m_count)
+			scheduleRetransmission (delayedWrite.m_start, delayedWrite.m_end - delayedWrite.m_start);
+	}
+
+	m_lastWriteTimestamp = sys.getTimestamp ();
+}
+
+TxModifierLayer.scheduleRetransmission (
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_isRetransmitEnabledProp.m_value || m_retransmitNumber >= m_retransmitCountProp.m_value)
+	{
+		m_retransmitTimer.stop ();
+		return;
+	}
+
+	m_retransmitPacket = p;
+	m_retransmitPacketSize = size;
+
+	m_retransmitTimer.startSingleShotTimer (
+		onRetransmitTimer @ m_pluginHost.m_mainThreadScheduler,
+		m_retransmitDelayProp.m_value
+		);
+}
+
+TxModifierLayer.cancelRetransmission ()
+{
+	m_retransmitNumber = 0;
+	m_retransmitPacket = null;
+	m_retransmitTimer.stop ();
+}
+
+TxModifierLayer.onRetransmitTimer ()
+{
+	if (!m_retransmitPacket) // cancelled
+		return;
+
+	m_retransmitNumber++;
+	write (m_retransmitPacket, m_retransmitPacketSize);
+}
+
+TxModifierLayer.onTransmitEnabledChanged ()
+{
+	if (m_isTransmitEnabled)
+		return;
+
+	m_delayedWriteList.clear ();
+	m_delayedWriteTimer.stop ();
+	m_retransmitTimer.stop ();
+}
+
+reactor TxModifierLayer.m_uiReactor
+{
+	m_prefixProp.m_isEnabled = m_isPrefixEnabledProp.m_value;
+	m_suffixProp.m_isEnabled = m_isSuffixEnabledProp.m_value;
+	m_retransmitCountProp.m_isEnabled = m_isRetransmitEnabledProp.m_value;
+	m_retransmitDelayProp.m_isEnabled = m_isRetransmitEnabledProp.m_value;
+	m_interCharDelayProp.m_isEnabled = m_isInterCharDelayEnabledProp.m_value;
+}
+
+//..............................................................................

@@ -1,0 +1,32 @@
+#...............................................................................
+#
+#  UDP log representer plugin
+#
+
+[plugin]
+
+name        = "UDP Log"
+description = "UDP log representer"
+group       = net
+guid        = 7827807e-2ea8-4e86-9344-f016aa77621e
+
+log-representer-func = representUdpLog
+
+[scripts]
+
+UdpLogRecordCode.jnc
+UdpLogRepresenter.jnc
+
+[records]
+
+01d48410b3c4e600  # TxPacket
+01d48410b3c4e601  # RxPacket
+
+[filter]
+
+id          = udp-hdr
+name        = "UDP packet headers"
+description = "Show/hide UDP packet headers"
+
+01d48410b3c4e600  # TxPacket
+01d48410b3c4e601  # RxPacket

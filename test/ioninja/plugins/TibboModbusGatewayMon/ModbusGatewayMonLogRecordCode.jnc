@@ -1,0 +1,17 @@
+//..............................................................................
+//
+// Tibbo Modbus gateay monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum ModbusGatewayMonLogRecordCode: uint64_t
+{
+	CommandError = 0x01d486364a3fbd00,
+	DumpPacket   = 0x01d486364a3fbd01 | log.RecordCodeFlags.Foldable,
+	Log          = 0x01d486364a3fbd02,
+}
+
+//..............................................................................

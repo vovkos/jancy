@@ -1,23 +1,20 @@
-//..............................................................................
-//
-// TCP Listener Socket session plugin
-//
+#...............................................................................
+#
+#  TCP Listener Socket session plugin
+#
 
 [plugin]
 
 name        = TCP Listener Socket
 description = "Listens for connection over TCP socket"
 id          = tcp-listener
-group       = servers
-guid        = 8f4c23c9-834b-4ad5-bf25-a05fa070e87d
+group       = net
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
-session-class        = TcpListenerSession
-log-representer-func = representTcpListenerLog
+session-class = TcpListenerSession
 
 [scripts]
 
 TcpListenerSession.jnc
-TcpListenerLog.jnc
-../../common/io_SocketUi.jnc

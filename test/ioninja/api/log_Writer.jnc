@@ -1,0 +1,109 @@
+//..............................................................................
+//
+// Ninja log - writer
+//
+
+import "log_RecordCode.jnc"
+
+namespace log {
+
+//..............................................................................
+
+opaque class Writer
+{
+	write (
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p = null,
+		size_t size = 0
+		);
+
+	write (
+		uint64_t recordCode,
+		void const* p = null,
+		size_t size = 0
+		)
+	{
+		write (sys.getPreciseTimestamp (), recordCode, p, size);
+	}
+
+	writeString (
+		uint64_t timestamp,
+		uint64_t recordCode,
+		char const* p
+		)
+	{
+		write (timestamp, recordCode, p, strlen (p));
+	}
+
+	writeString (
+		uint64_t recordCode,
+		char const* p
+		)
+	{
+		writeString (sys.getPreciseTimestamp (), recordCode, p);
+	}
+
+	writeError (
+		uint64_t timestamp,
+		uint64_t recordCode,
+		std.Error const* error
+		)
+	{
+		write (timestamp, recordCode, error, error.m_size);
+	}
+
+	writeError (
+		uint64_t recordCode,
+		std.Error const* error
+		)
+	{
+		writeError (sys.getPreciseTimestamp (), recordCode, error);
+	}
+
+	writeLastError (
+		uint64_t timestamp,
+		uint64_t recordCode
+		)
+	{
+		writeError (timestamp, recordCode, std.getLastError ());
+	}
+
+	writeLastError (uint64_t recordCode)
+	{
+		writeLastError (sys.getPreciseTimestamp (), recordCode);
+	}
+
+	retroColorize (
+		intptr_t retroOffset,
+		size_t length,
+		gui.TextAttr attr,
+		RetroColorizeFlags flags = 0
+		)
+	{
+		RetroColorizeParams params;
+		params.m_retroOffset = retroOffset;
+		params.m_length = length;
+		params.m_attr = attr;
+		params.m_flags = flags;
+
+		write (StdRecordCode.RetroColorize, &params, sizeof (params));
+	}
+
+	retroColorize (
+		intptr_t retroOffset,
+		size_t length,
+		uint_t color
+		)
+	{
+		gui.TextAttr attr;
+		attr.m_textColor = color;
+		attr.m_backColor = gui.ColorFlags.Transparent;
+
+		retroColorize (retroOffset, length, attr);
+	}
+}
+
+//..............................................................................
+
+} // namespace log {

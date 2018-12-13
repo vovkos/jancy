@@ -1,0 +1,57 @@
+//..............................................................................
+//
+// Ninja log - range processor
+//
+
+namespace log {
+
+//..............................................................................
+
+class RangeProcessor
+{
+	uint64_t m_timestamp;
+	uint64_t m_recordCode;
+	uint64_t m_zoneOffset;
+
+	bool readonly m_isFinished; // set to 'true' to indicate we are done
+
+	virtual processNewZone ()
+	{
+	}
+
+	virtual processText (
+		uint64_t partCode,
+		char const* text
+		)
+	{
+	}
+
+	virtual processBin (
+		uint64_t partCode,
+		void const* p,
+		size_t size
+		)
+	{
+	}
+
+	virtual processDualBin (
+		uint64_t partCode,
+		void const* p1,
+		void const* p2,
+		size_t size
+		)
+	{
+	}
+
+	virtual processEndOfRange ()
+	{
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef RangeProcessor* RangeProcessorFactoryFunc ();
+
+//..............................................................................
+
+} // namespace log {

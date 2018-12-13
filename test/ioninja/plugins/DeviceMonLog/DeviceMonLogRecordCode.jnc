@@ -1,0 +1,18 @@
+//..............................................................................
+//
+// Device Monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum DeviceMonLogRecordCode: uint64_t
+{
+	CaptureStarted_name   = 0x01d48710873f2c7a,
+	CaptureStarted_filter = 0x01d48710873f2c7b,
+	CaptureStopped        = 0x01d48710873f2c7c,
+	CaptureError          = 0x01d48710873f2c7d,
+}
+
+//..............................................................................

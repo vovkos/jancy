@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  USB log representer plugin
+#
+
+[plugin]
+
+name        = USB Log
+description = "USB log representer"
+group       = net
+guid        = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73
+
+log-representer-func = representUsbLog
+
+[scripts]
+
+UsbLogRecordCode.jnc
+UsbLogRepresenter.jnc
+
+[records]
+
+01d485f4acbf80b7  # DeviceOpened
+01d485f4acbf80b8  # DeviceOpenError
+01d485f4acbf80b9  # DeviceClosed
+01d485f4acbf80ba  # KernelDriverDetached
+01d485f4acbf80bb  # InterfaceClaimed
+01d485f4acbf80bc  # InterfaceClaimError
+01d485f4acbf80bd  # InterfaceReleased
+01d485f4acbf80be  # ReadingStarted
+01d485f4acbf80bf  # ReadingStopped
+01d485f4acbf80c0  # EndpointOpenError
+01d485f4acbf80c1  # ControlTransfer
+

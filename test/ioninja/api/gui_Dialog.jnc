@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Ninja standard dialogs
+// Ninja GUI - standard dialogs
 //
 
 namespace gui {
@@ -67,12 +67,24 @@ opaque class FileDlg
 
 //..............................................................................
 
+enum AuthenticationMethod
+{
+	Password,
+	PrivateKey,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class LoginDlg
 {
 	char const* autoget property m_title;
 	char const* autoget property m_message;
 	char const* autoget property m_userName;
+
+	AuthenticationMethod autoget property m_authenticationMethod;
 	char const* autoget property m_password;
+	char const* autoget property m_privateKeyFileName;
+	char const* autoget property m_privateKeyPassphrase;
 
 	event m_onCompleted (StdDlgButton button);
 

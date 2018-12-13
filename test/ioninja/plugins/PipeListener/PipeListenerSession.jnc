@@ -6,13 +6,28 @@
 import "io_base.jncx"
 import "io_NamedPipe.jnc"
 import "io_FileStream.jnc"
-import "doc_Plugin.jnc"
+import "io_BufferUi.jnc"
+import "std_Buffer.jnc"
+import "doc_Session.jnc"
+import "gui_History.jnc"
+import "gui_StdSessionInfo.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+
+using extension gui.ComboBoxHistory;
 
 //..............................................................................
 
 class PipeListenerSession: doc.Session
 {
 protected:
+	enum Defaults
+	{
+		MessageMode        = false,
+		OverrideConnection = true,
+		ConnectParallelism = 2,
+	}
+
 	enum State
 	{
 		Closed,
@@ -47,12 +62,14 @@ protected:
 	State bindable m_listenerState;
 	io.NamedPipe m_listenerPipe;
 	char const* m_pipeName;
+	uint_t m_listenerSyncId;
 
 	// connection
 
 	State bindable m_connectionState;
-	uint_t m_connectionSyncId;
 	io.FileStream* m_connectionPipe;
+	std.Buffer m_readBuffer;
+	uint_t m_connectionSyncId;
 
 	// toolbar, status bar & menu
 
@@ -64,7 +81,19 @@ protected:
 	// property grid
 
 	gui.StringProperty* m_pipeNameProp;
+	gui.BoolProperty* m_messageModeProp;
 	gui.BoolProperty* m_overrideOldConnectionProp;
+	io.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	gui.StdSessionInfoSet m_stdSessionInfoSet;
+	log.ThroughputInfoSet m_throughputInfoSet;
+	log.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
 
 public:
 	construct (doc.PluginHost* pluginHost);
@@ -85,12 +114,30 @@ public:
 		);
 
 protected:
-	onListen ();
-	onIncomingConnection (uint_t syncId);
-	onConnectionPipeEvent (io.FileStreamEventParams const* params);
+	onListen ()
+	{
+		m_listenerState ? stopListen () : try listen ();
+	}
 
+	onPipeNameComboEnter ()
+	{
+		try listen ();
+	}
+
+	onListenerPipeEvent (
+		uint_t syncId,
+		io.NamedPipeEvents triggeredEvents
+		);
+
+	onConnectionPipeEvent (
+		uint_t syncId,
+		io.FileStreamEvents triggeredEvents
+		);
+
+	io.FileStreamOptions getFileStreamOptions ();
+	waitListenerPipeEvents ();
+	waitConnectionPipeEvents ();
 	createUi ();
-	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -99,13 +146,11 @@ PipeListenerSession.construct (doc.PluginHost* pluginHost)
 {
 	basetype.construct (pluginHost);
 
-	pluginHost.m_log.m_representerFunc = representPipeListenerLog;
-
-	m_connectionState = State.Closed;
-	m_listenerState = State.Closed;
-	m_listenerPipe.m_onIncomingConnection += onIncomingConnection @ pluginHost.m_mainThreadScheduler;
-
 	createUi ();
+
+	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
 }
 
 PipeListenerSession.createUi ()
@@ -115,7 +160,7 @@ PipeListenerSession.createUi ()
 	m_pluginHost.m_toolBar.addLabel ("Name:");
 	m_pipeNameCombo = m_pluginHost.m_toolBar.addComboBox (-1);
 	m_pipeNameCombo.m_isEditable = true;
-	m_pipeNameCombo.m_onEnter += listen;
+	m_pipeNameCombo.m_onEnter += onPipeNameComboEnter;
 
 	m_iconTable [IconId.Listen] = new gui.Icon ("images/listen.png");
 	m_iconTable [IconId.StopListen] = new gui.Icon ("images/pause.png");
@@ -134,25 +179,42 @@ PipeListenerSession.createUi ()
 
 	// property grid
 
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+		"Connection",
+		"Named pipe-specific connection settings"
+		);
+
 	m_pipeNameProp = m_pluginHost.m_propertyGrid.createStringProperty (
+		group,,
 		"Pipe name",
 		"Specify pipe name to listen on"
 		);
 
+	m_messageModeProp =  m_pluginHost.m_propertyGrid.createBoolProperty (
+		group,,
+		"Message mode",
+		"Read and write using the named pipe message mode"
+		);
+
 	m_overrideOldConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		group,,
 		"Override connections",
 		"Accept incoming connection even if already connected"
 		);
 
-	m_uiReactor.start ();
-}
+	m_bufferPropertySet.createPropertiesGrouped (m_pluginHost.m_propertyGrid);
 
-PipeListenerSession.onListen ()
-{
-	if (m_listenerState)
-		stopListen ();
-	else
-		try listen ();
+	// information grid
+
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("Pipe listener");
+
+	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents ();
+
+	m_uiReactor.start ();
 }
 
 bool errorcode PipeListenerSession.listen ()
@@ -163,6 +225,17 @@ bool errorcode PipeListenerSession.listen ()
 	m_pipeNameCombo.addEditTextToHistory ();
 
 	char const* name = m_pipeNameCombo.m_editText;
+
+	io.FileStreamOptions options = getFileStreamOptions ();
+
+	if (m_messageModeProp.m_value)
+		options |= io.FileStreamOptions.MessageNamedPipe;
+
+	m_listenerPipe.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_listenerPipe.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_listenerPipe.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_listenerPipe.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	m_listenerPipe.m_options = options;
 	m_listenerPipe.open (name);
 
 	writeLog (
@@ -173,6 +246,9 @@ bool errorcode PipeListenerSession.listen ()
 
 	m_pipeName = name;
 	m_listenerState = State.Opened;
+
+	waitListenerPipeEvents ();
+	m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
@@ -200,6 +276,8 @@ PipeListenerSession.stopListen ()
 
 	m_listenerPipe.close ();
 	m_listenerState = State.Closed;
+	m_listenerSyncId++;
+	m_stdSessionInfoSet.endSession ();
 }
 
 PipeListenerSession.disconnect ()
@@ -214,15 +292,60 @@ PipeListenerSession.disconnect ()
 	m_connectionSyncId++;
 }
 
+io.FileStreamOptions PipeListenerSession.getFileStreamOptions ()
+{
+	io.FileStreamOptions options;
+
+	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
+		options |= io.FileStreamOptions.KeepReadBlockSize;
+
+	if (m_bufferPropertySet.m_keepWriteBlockSizeProp.m_value)
+		options |= io.FileStreamOptions.KeepWriteBlockSize;
+
+	return options;
+}
+
+PipeListenerSession.waitListenerPipeEvents ()
+{
+	io.NamedPipeEvents eventMask =
+		io.NamedPipeEvents.IoError |
+		io.NamedPipeEvents.IncomingConnection;
+
+	m_listenerPipe.wait (eventMask, onListenerPipeEvent ~(++m_listenerSyncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+PipeListenerSession.waitConnectionPipeEvents ()
+{
+	io.FileStreamEvents eventMask =
+		io.FileStreamEvents.IoError |
+		io.FileStreamEvents.ReadBufferFull |
+		io.FileStreamEvents.IncomingData |
+		io.FileStreamEvents.Eof;
+
+	if (!m_isTransmitEnabled)
+		eventMask |= io.FileStreamEvents.WriteBufferReady;
+
+	m_connectionPipe.wait (eventMask, onConnectionPipeEvent ~(++m_connectionSyncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
 void PipeListenerSession.load (doc.Storage* storage)
 {
+	m_pipeNameCombo.loadHistory (storage, "pipeNameHistory");
 	m_pipeNameCombo.m_editText = storage.readString ("pipeName");
-	m_overrideOldConnectionProp.m_value = storage.readBool ("overrideOldConnection");
+	m_messageModeProp.m_value = storage.readBool ("messageMode", Defaults.MessageMode);
+	m_overrideOldConnectionProp.m_value = storage.readBool ("overrideOldConnection", Defaults.OverrideConnection);
+
+	m_bufferPropertySet.load (storage);
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
 void PipeListenerSession.save (doc.Storage* storage)
 {
+	m_bufferPropertySet.save (storage);
+
+	m_pipeNameCombo.saveHistory (storage, "pipeNameHistory");
 	storage.writeString ("pipeName", m_pipeNameCombo.m_editText);
+	storage.writeBool ("messageMode", m_messageModeProp.m_value);
 	storage.writeBool ("overrideOldConnection", m_overrideOldConnectionProp.m_value);
 }
 
@@ -234,13 +357,35 @@ void PipeListenerSession.updateProperties ()
 bool errorcode PipeListenerSession.applyProperties ()
 {
 	m_pipeNameCombo.m_editText = m_pipeNameProp.m_value;
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	io.FileStreamOptions options = getFileStreamOptions ();
+
+	if (m_listenerPipe.m_isOpen)
+	{
+		m_listenerPipe.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+		m_listenerPipe.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+		m_listenerPipe.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+		m_listenerPipe.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+		m_listenerPipe.m_options = options;
+	}
+
+	if (m_connectionPipe)
+	{
+		m_connectionPipe.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+		m_connectionPipe.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+		m_connectionPipe.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+		m_connectionPipe.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+		m_connectionPipe.m_options = options;
+	}
+
 	return true;
 }
 
 void PipeListenerSession.restoreDefaultProperties ()
 {
-	m_pipeNameProp.m_value = "\\\\.\\pipe\\mypipe0";
-	m_overrideOldConnectionProp.m_value = true;
+	m_overrideOldConnectionProp.m_value = Defaults.OverrideConnection;
+	m_bufferPropertySet.restoreDefaults ();
 }
 
 size_t errorcode PipeListenerSession.transmit (
@@ -258,62 +403,81 @@ size_t errorcode PipeListenerSession.transmit (
 	return result;
 }
 
-PipeListenerSession.onIncomingConnection (uint_t syncId)
+PipeListenerSession.onListenerPipeEvent (
+	uint_t syncId,
+	io.NamedPipeEvents triggeredEvents
+	)
 {
-	if (syncId != m_listenerPipe.m_syncId)
+	if (syncId != m_listenerSyncId)
 		return;
 
-	io.FileStream* pipe = try m_listenerPipe.accept ();
-	if (!pipe)
-		return;
-
-	if (m_connectionState == State.Opened && !m_overrideOldConnectionProp.m_value)
+	if (triggeredEvents & io.NamedPipeEvents.IoError)
 	{
-		pipe.close ();
-		writeLog (PipeListenerLogRecordCode.ClientRejected);
+		writeLog (log.StdRecordCode.Error, m_listenerPipe.m_ioError, m_listenerPipe.m_ioError.m_size);
+		stopListen ();
 		return;
 	}
 
-	disconnect ();
+	if (triggeredEvents & io.NamedPipeEvents.IncomingConnection)
+	{
+		io.FileStream* pipe = m_listenerPipe.accept ();
 
-	writeLog (PipeListenerLogRecordCode.ClientConnected);
+		if (m_connectionState == State.Opened && !m_overrideOldConnectionProp.m_value)
+		{
+			pipe.close ();
+			writeLog (PipeListenerLogRecordCode.ClientRejected);
+		}
+		else
+		{
+			disconnect ();
 
-	pipe.m_syncId = m_connectionSyncId;
-	pipe.m_onFileStreamEvent += onConnectionPipeEvent @ m_pluginHost.m_mainThreadScheduler;
+			writeLog (PipeListenerLogRecordCode.ClientConnected);
 
-	m_connectionPipe = pipe;
-	m_connectionState = State.Opened;
+			m_connectionPipe = pipe;
+			m_connectionState = State.Opened;
+			waitConnectionPipeEvents ();
+		}
+	}
 
-	pipe.m_isFileStreamEventEnabled = true;
+	waitListenerPipeEvents ();
 }
 
-PipeListenerSession.onConnectionPipeEvent (io.FileStreamEventParams const* params)
+PipeListenerSession.onConnectionPipeEvent (
+	uint_t syncId,
+	io.FileStreamEvents triggeredEvents
+	)
 {
-	if (params.m_syncId != m_connectionSyncId)
+	if (syncId != m_connectionSyncId)
 		return;
 
-	switch (params.m_eventCode)
+	if (triggeredEvents & io.FileStreamEvents.IoError)
 	{
-	case io.FileStreamEventCode.Eof:
+		writeLog (log.StdRecordCode.Error, m_connectionPipe.m_ioError, m_connectionPipe.m_ioError.m_size);
 		disconnect ();
-		break;
-
-	case io.FileStreamEventCode.TransmitBufferReady:
-		m_isTransmitEnabled = true;
-		break;
-
-	case io.FileStreamEventCode.IoError:
-		writeLog (log.StdRecordCode.Error, params.m_error, params.m_error.m_size);
-		disconnect ();
-		break;
-
-	case io.FileStreamEventCode.IncomingData:
-		static char buffer [512];
-		size_t result = try m_connectionPipe.read (buffer, sizeof (buffer));
-		if (result != -1)
-			writeLog (log.StdRecordCode.Rx, buffer, result);
-		break;
+		return;
 	}
+
+	if ((triggeredEvents & io.FileStreamEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		writeLog (log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.FileStreamEvents.IncomingData)
+	{
+		size_t result = m_connectionPipe.read (m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			writeLog (log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+	}
+
+	if (triggeredEvents & io.FileStreamEvents.Eof)
+	{
+		disconnect ();
+		return;
+	}
+
+	if (io.FileStreamEvents.WriteBufferReady)
+		m_isTransmitEnabled = true;
+
+	waitConnectionPipeEvents ();
 }
 
 reactor PipeListenerSession.m_uiReactor

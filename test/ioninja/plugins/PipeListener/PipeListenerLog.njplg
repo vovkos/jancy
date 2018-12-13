@@ -1,0 +1,27 @@
+#...............................................................................
+#
+#  Pipe listener log representer plugin
+#
+
+[plugin]
+
+name        = Pipe Listener Log
+description = "Pipe Listener log representer"
+group       = fs
+guid        = d74419a1-789c-4d9a-8d92-bd44ee19c971
+
+log-representer-func = representPipeListenerLog
+
+[scripts]
+
+PipeListenerLogRecordCode.jnc
+PipeListenerLogRepresenter.jnc
+
+[records]
+
+01d48560deefaf00  # Listening
+01d48560deefaf01  # ListenError
+01d48560deefaf02  # ListenStopped
+01d48560deefaf03  # ClientConnected
+01d48560deefaf04  # ClientDisconnected
+01d48560deefaf05  # ClientRejected

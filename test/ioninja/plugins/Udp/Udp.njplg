@@ -1,25 +1,21 @@
-//..............................................................................
-//
-//  UDP Socket session plugin
-//
+#...............................................................................
+#
+#   UDP Socket session plugin
+#
 
 [plugin]
 
 name        = UDP Socket
 description = "UDP socket without \"connection\" notation"
 id          = udp
-group       = clients
-guid        = 7827807e-2ea8-4e86-9344-f016aa77621e
+group       = net
+log-guid    = 7827807e-2ea8-4e86-9344-f016aa77621e  # udp
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/udp.png
 small-icon  = images/udp-16x16.png
 
-session-class        = UdpSession
-log-representer-func = representUdpLog
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+session-class = UdpSession
 
 [scripts]
 
 UdpSession.jnc
-UdpLog.jnc
-../../common/io_SocketUi.jnc

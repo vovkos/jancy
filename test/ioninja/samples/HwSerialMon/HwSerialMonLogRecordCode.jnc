@@ -1,0 +1,27 @@
+//..............................................................................
+//
+// Hardware Serial Monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum HwSerialMonRecordCode: uint64_t
+{
+	CaptureStarted     = 0x01d487bf52f4c9f6,
+	CaptureStopped     = 0x01d487bf52f4c9f7,
+	RawPacket          = 0x01d487bf52f4c9f8,
+	UartRtsChanged     = 0x01d487bf52f4c9f9,
+	UartCtsChanged     = 0x01d487bf52f4c9fa,
+	UartFramingError   = 0x01d487bf52f4c9fb,
+	UartParityError    = 0x01d487bf52f4c9fc,
+	I2cEmptyMessage    = 0x01d487bf52f4c9fd,
+	I2cPreemptiveStart = 0x01d487bf52f4c9fe,
+	I2cPreemptiveStop  = 0x01d487bf52f4c9ff,
+	I2cCharNack        = 0x01d487bf52f4ca00,
+	SpiFramingError    = 0x01d487bf52f4ca01,
+	SpiEmptyMessage    = 0x01d487bf52f4ca02,
+}
+
+//..............................................................................

@@ -1,0 +1,32 @@
+#...............................................................................
+#
+#  Modbus log plugin
+#
+
+[plugin]
+
+name        = Modbus Log
+description = "Modbus log representer"
+guid        = 53603C98-34BC-46EF-BA08-D3274F1057B4
+
+log-representer-func = representModbusLog
+
+[scripts]
+
+ModbusLogRecordCode.jnc
+ModbusLogRepresenter.jnc
+ModbusLog_Pdu.jnc
+ModbusLog_Rtu.jnc
+ModbusLog_Ascii.jnc
+ModbusLog_Tcp.jnc
+
+[records]
+
+81d485febc418db8  # MasterPacket_Rtu
+81d485febc418db9  # SlavePacket_Rtu
+81d485febc418dba  # MasterPacket_Ascii
+81d485febc418dbb  # SlavePacket_Ascii
+01d485febc418dbc  # InvalidFunction
+01d485febc418dbd  # ParseError
+81d485febc418dbe  # MasterPacket_Tcp
+81d485febc418dbf  # SlavePacket_Tcp

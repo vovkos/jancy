@@ -1,24 +1,21 @@
-//..............................................................................
-//
-// TCP Proxy session plugin
-//
+#...............................................................................
+#
+#  TCP Proxy session plugin
+#
 
 [plugin]
 
 name        = TCP Proxy
 description = "Passes-through data between a TCP client and a TCP server"
 id          = tcp-proxy
-group       = servers
-guid        = 83857838-f1ad-46b1-94f4-7883a1415368
+group       = net
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/proxy.png
 small-icon  = images/proxy-16x16.png
 monitor     = true
 
-session-class        = TcpProxySession
-log-representer-func = representTcpProxyLog
+session-class = TcpProxySession
 
 [scripts]
 
 TcpProxySession.jnc
-TcpProxyLog.jnc
-../../common/io_SocketUi.jnc

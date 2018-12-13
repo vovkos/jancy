@@ -1,0 +1,127 @@
+//..............................................................................
+//
+// Regex Colorizer syntax highlighter
+// by default it uses C programming language syntax
+//
+
+import "std_Array.jnc"
+
+//..............................................................................
+
+class RegexColorizerHighlighter
+{
+protected:
+	enum StickyMode
+	{
+		None = 0,
+		SlComment,
+		MlComment,
+		SqLiteral,
+		DqLiteral,
+	}
+
+protected:
+	jnc.RegexState m_regexState;
+	jnc.RegexDfa m_regexDfa;
+	std.Array m_attrArray;
+
+public:
+	log.RetroColorizeFlags m_retroColorizerFlags;
+
+public:
+	construct ()
+	{
+		m_regexState.m_isIncremental = true;
+	}
+
+	// xxx_s functions are called in the main thread while log is suspended
+
+	clearRegex_s ();
+
+	bool errorcode addRegexPattern_s (
+		char const* regexString,
+		gui.TextAttr attr
+		);
+
+	bool errorcode finalizeRegex_s ();
+
+	// xxx_l functions are called in a log converter thread
+
+	write_l (
+		log.Writer* writer,
+		void const* p,
+		size_t size
+		);
+
+	finalizeWrite_l (log.Writer* writer)
+	{
+		write_l (writer, null, 0); // send eof
+		m_regexState.reset ();
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+RegexColorizerHighlighter.clearRegex_s ()
+{
+	m_regexDfa.clear ();
+	m_attrArray.clear ();
+}
+
+bool errorcode RegexColorizerHighlighter.addRegexPattern_s (
+	char const* regexString,
+	gui.TextAttr attr
+	)
+{
+	m_regexDfa.incrementalCompile (regexString);
+	m_attrArray.append (attr);
+	return true;
+}
+
+bool errorcode RegexColorizerHighlighter.finalizeRegex_s ()
+{
+	if (m_attrArray.m_count)
+	{
+		m_regexDfa.incrementalCompile (".");
+		m_regexDfa.finalize ();
+	}
+
+	m_regexState.reset ();
+	return true;
+}
+
+RegexColorizerHighlighter.write_l (
+	log.Writer* writer,
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_attrArray.m_count)
+		return;
+
+	m_regexState.m_currentOffset = -size;
+
+	void const* end = p + size;
+
+	size_t result;
+
+	do
+	{
+		size_t length = end - p;
+
+		result = try m_regexDfa.match (m_regexState, p, length);
+		if (result < m_attrArray.m_count)
+		{
+			writer.retroColorize (
+				m_regexState.m_match.m_offset,
+				m_regexState.m_match.m_length,
+				(gui.TextAttr) m_attrArray [result],
+				m_retroColorizerFlags
+				);
+		}
+
+		p += m_regexState.m_consumedLength;
+	} while (result != -1);
+}
+
+//..............................................................................

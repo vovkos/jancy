@@ -1,0 +1,25 @@
+#...............................................................................
+#
+#  Device Monitor log representer plugin
+#
+
+[plugin]
+
+name        = "Device Monitor Log"
+description = "Device Monitor log representer"
+group       = fs
+guid        = 323abaeb-7859-48bc-8e24-f8c082b04ff7
+
+log-representer-func = representDeviceMonLog
+
+[scripts]
+
+DeviceMonLogRecordCode.jnc
+DeviceMonLogRepresenter.jnc
+
+[records]
+
+01d48710873f2c7a  # CaptureStarted_name
+01d48710873f2c7b  # CaptureStarted_filter
+01d48710873f2c7c  # CaptureStopped
+01d48710873f2c7d  # CaptureError

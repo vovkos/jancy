@@ -1,0 +1,67 @@
+//..............................................................................
+//
+// Pipe listener log representer
+//
+
+import "log_Representer.jnc"
+import "PipeListenerLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representPipeListenerLog  (
+	log.RepresenterTarget* target,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case PipeListenerLogRecordCode.Listening:
+		char const* name = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Listening on \e[34m$name");
+		break;
+
+	case PipeListenerLogRecordCode.ListenError:
+		std.Error const* error = (std.Error const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		target.addHyperText ($"Cannot listen: $(error.m_description)");
+		break;
+
+	case PipeListenerLogRecordCode.ListenStopped:
+		char const* name = (char const*) p;
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		target.addHyperText ($"Stopped listening on \e[34m$name");
+		break;
+
+	case PipeListenerLogRecordCode.ClientConnected:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		target.addHyperText ("Client connected");
+		break;
+
+	case PipeListenerLogRecordCode.ClientDisconnected:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		target.addHyperText ("Client disconnected");
+		break;
+
+	case PipeListenerLogRecordCode.ClientRejected:
+		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		target.addHyperText ("Client connected and rejected ");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

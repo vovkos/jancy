@@ -1,0 +1,159 @@
+//..............................................................................
+//
+// SPI monitor
+//
+
+import "io_SpiSignalDecoder.jnc"
+
+//..............................................................................
+
+class Spi: SerialIface
+{
+protected:
+	bitflag enum Lines: uint16_t
+	{
+		Sclk = 0x0100,
+		Mosi = 0x0200,
+		Miso = 0x0400,
+		Ss   = 0x0800,
+	}
+
+	gui.EnumProperty* m_modeProp;
+	gui.EnumProperty* m_endiannessProp;
+
+	io.SpiSignalDecoder m_decoder;
+
+public:
+	construct (doc.PluginHost* pluginHost)
+	{
+		basetype.construct (pluginHost);
+		m_name = "SPI";
+	}
+
+	override createProperties (
+		gui.GroupProperty* group = null,
+		gui.Property* beforeProp = null
+		);
+
+	override loadProperties (doc.Storage* storage);
+	override saveProperties (doc.Storage* storage);
+	override restoreDefaultProperties ();
+
+	override start ()
+	{
+		m_decoder.start (m_modeProp.m_value, m_endiannessProp.m_value);
+	}
+
+	override processSignal (
+		uint64_t timestamp,
+		uint16_t lines
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Spi.createProperties (
+	gui.GroupProperty* group,
+	gui.Property* beforeProp
+	)
+{
+	static gui.EnumPropertyOption modeTable [] =
+	{
+		{ "SPI 0 (CPOL 0, CPHA 0)",  0 },
+		{ "SPI 1 (CPOL 0, CPHA 1)",  1 },
+		{ "SPI 2 (CPOL 1, CPHA 0)",  2 },
+		{ "SPI 3 (CPOL 1, CPHA 1)",  3 },
+	}
+
+	static gui.EnumPropertyOption endiannessTable [] =
+	{
+		{ "Big-endian (MSBit first)",    false },
+		{ "Little-endian (LSBit first)", true },
+	}
+
+	m_groupProp = m_pluginHost.m_propertyGrid.createGroupProperty (
+		group,
+		beforeProp,
+		"SPI",
+		"SPI (Serial Peripherial Interface Bus)"
+		);
+
+	m_modeProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		m_groupProp,,
+		"Mode",
+		"SPI mode (CPOL & CPHA)",
+		modeTable,
+		countof (modeTable)
+		);
+
+	m_endiannessProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		m_groupProp,,
+		"Endianness",
+		"SPI endianness (most/least significant bit first)",
+		endiannessTable,
+		countof (endiannessTable)
+		);
+}
+
+Spi.loadProperties (doc.Storage* storage)
+{
+	m_modeProp.m_currentIndex = storage.readInt ("spiMode");
+	m_endiannessProp.m_currentIndex = storage.readInt ("spiEndianness");
+}
+
+Spi.saveProperties (doc.Storage* storage)
+{
+	storage.writeInt ("spiMode", m_modeProp.m_currentIndex);
+	storage.writeInt ("spiEndianness", m_endiannessProp.m_currentIndex);
+}
+
+Spi.restoreDefaultProperties ()
+{
+	m_modeProp.m_value = 0;
+	m_endiannessProp.m_value = false;
+}
+
+Spi.processSignal (
+	uint64_t timestamp,
+	uint16_t lines
+	)
+{
+	io.SpiDecodeResult result = m_decoder.add (
+		lines & Lines.Sclk,
+		lines & Lines.Mosi,
+		lines & Lines.Miso,
+		lines & Lines.Ss
+		);
+
+	switch (result)
+	{
+	case io.SpiDecodeResult.Continue:
+	case io.SpiDecodeResult.Start:
+		break;
+
+	case io.SpiDecodeResult.Stop:
+		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.Break);
+		break;
+
+	case io.SpiDecodeResult.Char:
+		char buffer [2] = { m_decoder.m_mosiChar, m_decoder.m_misoChar }
+
+		m_pluginHost.m_log.m_writer.write (
+			timestamp,
+			log.StdRecordCode.TxRx,
+			buffer,
+			sizeof (buffer)
+			);
+		break;
+
+	case io.SpiDecodeResult.FramingError:
+		m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.SpiFramingError);
+		break;
+
+	case io.SpiDecodeResult.EmptyMessage:
+		m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.SpiEmptyMessage);
+		break;
+	}
+}
+
+//..............................................................................

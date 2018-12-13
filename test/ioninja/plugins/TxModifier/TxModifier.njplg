@@ -1,0 +1,21 @@
+#..............................................................................
+#
+#  TX Modifier plugin
+#
+
+[plugin]
+
+name        = "TX Modifier"
+description = "Implements TX modifications (re-transmission, prefixing, suffixing, inter-char delays, etc)"
+id          = tx-modifier
+group       =
+monitor     = false
+guid        = ecb5300b-4be8-45fe-aecc-62f1d6405cff
+icon        = images/packet.png
+small-icon  = images/packet-16x16.png
+
+layer-class = TxModifierLayer
+
+[scripts]
+
+TxModifierLayer.jnc

@@ -1,0 +1,256 @@
+//..............................................................................
+//
+// IO Buffer configuration user interface
+//
+
+import "gui_PropertyGrid.jnc"
+
+namespace io {
+
+//..............................................................................
+
+class BufferPropertySet
+{
+	enum Defaults
+	{
+		ReadParallelism      = 4,
+		ReadBlockSize        = 4 * 1024,
+		ReadBufferSize       = 16 * 1024,
+		WriteBufferSize      = 16 * 1024,
+		KeepReadBlockSize    = false,
+		KeepWriteBlockSize   = false,
+		NotifyReadBufferFull = false,
+	}
+
+	bitflag enum PropertyId
+	{
+		ReadParallelism,
+		ReadBlockSize,
+		ReadBufferSize,
+		WriteBufferSize,
+		KeepReadBlockSize,
+		KeepWriteBlockSize,
+		NotifyReadBufferFull,
+
+		All =
+			ReadParallelism |
+			ReadBlockSize |
+			ReadBufferSize |
+			WriteBufferSize |
+			KeepReadBlockSize |
+			KeepWriteBlockSize |
+			NotifyReadBufferFull,
+	}
+
+	gui.IntProperty* m_readParallelismProp;
+	gui.IntProperty* m_readBlockSizeProp;
+	gui.IntProperty* m_readBufferSizeProp;
+	gui.IntProperty* m_writeBufferSizeProp;
+	gui.BoolProperty* m_keepReadBlockSizeProp;
+	gui.BoolProperty* m_keepWriteBlockSizeProp;
+	gui.BoolProperty* m_notifyReadBufferFullProp;
+
+	createProperties (
+		gui.PropertyGrid* propertyGrid,
+		gui.GroupProperty* group = null,
+		gui.Property* insertBefore = null,
+		PropertyId mask = PropertyId.All
+		);
+
+	createPropertiesGrouped (
+		gui.PropertyGrid* propertyGrid,
+		gui.GroupProperty* group = null,
+		gui.Property* insertBefore = null,
+		PropertyId mask = PropertyId.All
+		);
+
+	load (doc.Storage* storage);
+	save (doc.Storage* storage);
+	restoreDefaults ();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+BufferPropertySet.createProperties (
+	gui.PropertyGrid* propertyGrid,
+	gui.GroupProperty* group,
+	gui.Property* insertBefore,
+	PropertyId mask
+	)
+{
+	// read parallelism is only applicable on Windows (simultaneous OVERLAPPED read requests)
+	// still, we want a valid m_readParallelismProp pointer, so there's less checking in plugins
+
+	if (mask & PropertyId.ReadParallelism)
+		if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows)
+		{
+			m_readParallelismProp  = propertyGrid.createIntProperty (
+				group,
+				insertBefore,
+				"Read parallelism",
+				"Maximum number of read requests to issue in parallel (affects throughput)"
+				);
+
+			m_readParallelismProp.m_minValue = 1;
+		}
+		else
+		{
+			m_readParallelismProp  = new gui.IntProperty (null);
+		}
+
+	if (mask & PropertyId.ReadBlockSize)
+	{
+		m_readBlockSizeProp = propertyGrid.createIntProperty (
+			group,
+			insertBefore,
+			"Read block size (B)",
+			"Size of each individual read block passed to the driver (affects throughput)"
+			);
+
+		m_readBlockSizeProp.m_minValue = 1;
+		m_readBlockSizeProp.m_spinBoxStep = 1024; // 1K step
+	}
+
+	if (mask & PropertyId.ReadBufferSize)
+	{
+		m_readBufferSizeProp = propertyGrid.createIntProperty (
+			group,
+			insertBefore,
+			"RX buffer size (B)",
+			"Total size of the read buffer (increase if data is dropped)"
+			);
+
+		m_readBufferSizeProp.m_minValue = 1;
+		m_readBufferSizeProp.m_spinBoxStep = 1024; // 1K step
+	}
+
+	if (mask & PropertyId.WriteBufferSize)
+	{
+		m_writeBufferSizeProp = propertyGrid.createIntProperty (
+			group,
+			insertBefore,
+			"TX buffer size (B)",
+			"Total size of the write buffer"
+			);
+
+		m_writeBufferSizeProp.m_minValue = 1;
+		m_writeBufferSizeProp.m_spinBoxStep = 1024; // 1K step
+	}
+
+	if (mask & PropertyId.KeepReadBlockSize)
+		m_keepReadBlockSizeProp = propertyGrid.createBoolProperty (
+			group,
+			insertBefore,
+			"Keep read block size",
+			"Don't merge read blocks in RX buffer (keep the original size returned by lower IO provider)"
+			);
+
+	if (mask & PropertyId.KeepWriteBlockSize)
+		m_keepWriteBlockSizeProp = propertyGrid.createBoolProperty (
+			group,
+			insertBefore,
+			"Keep write block size",
+			"Don't merge write blocks in TX buffer (submit the original size to lower IO provider)"
+			);
+
+	if (mask & PropertyId.NotifyReadBufferFull)
+		m_notifyReadBufferFullProp = propertyGrid.createBoolProperty (
+			group,
+			insertBefore,
+			"RX buffer full notifications",
+			"Write warnings in log whenever RX buffer gets completely full"
+			);
+}
+
+BufferPropertySet.createPropertiesGrouped (
+	gui.PropertyGrid* propertyGrid,
+	gui.GroupProperty* group,
+	gui.Property* insertBefore,
+	PropertyId mask
+	)
+{
+	gui.GroupProperty* subGroup = propertyGrid.createGroupProperty (
+		group,
+		insertBefore,
+		"Buffering",
+		"Advanced buffering options affecting throughtput and compatibility"
+		);
+
+	createProperties (propertyGrid, subGroup,, mask);
+}
+
+BufferPropertySet.load (doc.Storage* storage)
+{
+	if (m_readParallelismProp)
+		m_readParallelismProp.m_value = storage.readInt ("readParallelism", Defaults.ReadParallelism);
+
+	if (m_readBlockSizeProp)
+		m_readBlockSizeProp.m_value = storage.readInt ("readBlockSize", Defaults.ReadBlockSize);
+
+	if (m_readBufferSizeProp)
+		m_readBufferSizeProp.m_value = storage.readInt ("readBufferSize", Defaults.ReadBufferSize);
+
+	if (m_writeBufferSizeProp)
+		m_writeBufferSizeProp.m_value = storage.readInt ("writeBufferSize", Defaults.WriteBufferSize);
+
+	if (m_keepReadBlockSizeProp)
+		m_keepReadBlockSizeProp.m_value = storage.readBool ("keepReadBlockSize", Defaults.KeepReadBlockSize);
+
+	if (m_keepWriteBlockSizeProp)
+		m_keepWriteBlockSizeProp.m_value = storage.readBool ("keepWriteBlockSize", Defaults.KeepWriteBlockSize);
+
+	if (m_notifyReadBufferFullProp)
+		m_notifyReadBufferFullProp.m_value = storage.readBool ("notifyReadBufferFull", Defaults.NotifyReadBufferFull);
+}
+
+BufferPropertySet.save (doc.Storage* storage)
+{
+	if (m_readParallelismProp)
+		storage.writeInt ("readParallelism", m_readParallelismProp.m_value);
+
+	if (m_readBlockSizeProp)
+		storage.writeInt ("readBlockSize", m_readBlockSizeProp.m_value);
+
+	if (m_readBufferSizeProp)
+		storage.writeInt ("readBufferSize", m_readBufferSizeProp.m_value);
+
+	if (m_writeBufferSizeProp)
+		storage.writeInt ("writeBufferSize", m_writeBufferSizeProp.m_value);
+
+	if (m_keepReadBlockSizeProp)
+		storage.writeBool ("keepReadBlockSize", m_keepReadBlockSizeProp.m_value);
+
+	if (m_keepWriteBlockSizeProp)
+		storage.writeBool ("keepWriteBlockSize", m_keepWriteBlockSizeProp.m_value);
+
+	if (m_notifyReadBufferFullProp)
+		storage.writeBool ("notifyReadBufferFull", m_notifyReadBufferFullProp.m_value);
+}
+
+BufferPropertySet.restoreDefaults ()
+{
+	if (m_readParallelismProp)
+		m_readParallelismProp.m_value = Defaults.ReadParallelism;
+
+	if (m_readBlockSizeProp)
+		m_readBlockSizeProp.m_value = Defaults.ReadBlockSize;
+
+	if (m_readBufferSizeProp)
+		m_readBufferSizeProp.m_value = Defaults.ReadBufferSize;
+
+	if (m_writeBufferSizeProp)
+		m_writeBufferSizeProp.m_value = Defaults.WriteBufferSize;
+
+	if (m_keepReadBlockSizeProp)
+		m_keepReadBlockSizeProp.m_value = Defaults.KeepReadBlockSize;
+
+	if (m_keepWriteBlockSizeProp)
+		m_keepWriteBlockSizeProp.m_value = Defaults.KeepWriteBlockSize;
+
+	if (m_notifyReadBufferFullProp)
+		m_notifyReadBufferFullProp.m_value = Defaults.NotifyReadBufferFull;
+}
+
+//..............................................................................
+
+} // namespace io {

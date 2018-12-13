@@ -1,23 +1,20 @@
-//..............................................................................
-//
-// File Stream session plugin
-//
+#...............................................................................
+#
+#  File Stream session plugin
+#
 
 [plugin]
 
-name        = File Stream
+name        = "File Stream"
 description = "Perform reads or/and writes to a generic file stream"
 id          = file
-group       = clients
-guid        = 1dfd5eb0-9560-11e3-a5e2-0800200c9a66
+group       = fs
+log-guid    = 1dfd5eb0-9560-11e3-a5e2-0800200c9a66  # file
 icon        = images/file.png
 small-icon  = images/file-16x16.png
 
-session-class        = FileSession
-log-representer-func = representFileLog
+session-class = FileSession
 
 [scripts]
 
 FileSession.jnc
-FileLog.jnc
-

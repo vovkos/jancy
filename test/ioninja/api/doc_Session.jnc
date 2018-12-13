@@ -1,0 +1,40 @@
+//..............................................................................
+//
+// Ninja document model - sessions
+//
+
+import "doc_Plugin.jnc"
+
+namespace doc {
+
+//..............................................................................
+
+class Session: Plugin
+{
+	char const* autoget property m_title;
+	bool autoget property m_isTransmitEnabled;
+
+	construct (PluginHost* host)
+	{
+		basetype.construct (host);
+	}
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		)
+	{
+		return size;
+	}
+
+	startSession ()
+	{
+		uint64_t timestamp = sys.getPreciseTimestamp ();
+		m_pluginHost.m_log.m_baseTimestamp = timestamp;
+		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.SessionStarted);
+	}
+}
+
+//..............................................................................
+
+} // namespace doc {

@@ -3,7 +3,7 @@
 // Pcap device user interface
 //
 
-import "gui_Base.jnc"
+import "gui_ComboBox.jnc"
 import "gui_PropertyGrid.jnc"
 import "io_pcap.jncx"
 
@@ -45,6 +45,8 @@ gui.EnumPropertyOption const* createPcapDeviceOptionArray (bool canOpenFile = tr
 
 gui.EnumProperty* createPcapDeviceProperty (
 	gui.PropertyGrid* propertyGrid,
+	gui.GroupProperty* group = null,
+	gui.Property* beforeProp = null,
 	bool canOpenFile = true,
 	char const* name,
 	char const* toolTipText
@@ -54,6 +56,8 @@ gui.EnumProperty* createPcapDeviceProperty (
 	size_t optionCount = dynamic countof (optionArray);
 
 	return propertyGrid.createEnumProperty (
+		group,
+		beforeProp,
 		name,
 		toolTipText,
 		optionArray,

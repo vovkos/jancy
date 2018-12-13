@@ -1,0 +1,53 @@
+//..............................................................................
+//
+// USB log packet declarations and representer
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum UsbLogRecordCode: uint64_t
+{
+	DeviceOpened         = 0x01d485f4acbf80b7,
+	DeviceOpenError      = 0x01d485f4acbf80b8,
+	DeviceClosed         = 0x01d485f4acbf80b9,
+	KernelDriverDetached = 0x01d485f4acbf80ba,
+	InterfaceClaimed     = 0x01d485f4acbf80bb,
+	InterfaceClaimError  = 0x01d485f4acbf80bc,
+	InterfaceReleased    = 0x01d485f4acbf80bd,
+	ReadingStarted       = 0x01d485f4acbf80be,
+	ReadingStopped       = 0x01d485f4acbf80bf,
+	EndpointOpenError    = 0x01d485f4acbf80c0,
+	ControlTransfer      = 0x01d485f4acbf80c1,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DeviceParams
+{
+	uint8_t m_bus;
+	uint8_t m_address;
+	uint16_t m_vendorId;
+	uint16_t m_productId;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct InterfaceParams
+{
+	uint8_t m_interfaceId;
+	uint8_t m_altSettingId;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ControlTransferParams
+{
+	uint8_t m_type;
+	uint8_t m_code;
+	uint16_t m_value;
+	uint16_t m_index;
+}
+
+//..............................................................................

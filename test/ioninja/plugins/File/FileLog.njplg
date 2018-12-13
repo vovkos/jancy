@@ -1,0 +1,26 @@
+#...............................................................................
+#
+#  File log plugin
+#
+
+[plugin]
+
+name        = "File Log"
+description = "File log representer"
+group       = fs
+guid        = 1dfd5eb0-9560-11e3-a5e2-0800200c9a66
+
+log-representer-func = representFileLog
+
+[scripts]
+
+FileLogRecordCode.jnc
+FileLogRepresenter.jnc
+
+[records]
+
+01d485548790df29  # Opened
+01d485548790df2a  # OpenError
+01d485548790df2b  # Closed
+01d485548790df2c  # Eof
+01d485548790df2d  # Cleared

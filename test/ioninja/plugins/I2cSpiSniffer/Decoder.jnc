@@ -1,0 +1,66 @@
+//..............................................................................
+//
+// I2C protocol decoder
+//
+
+import "std_Buffer.jnc"
+
+//..............................................................................
+
+class Decoder
+{
+	enum Defaults
+	{
+		BufferSize = 1024,
+	}
+
+protected:
+	log.Writer* m_logWriter;
+	std.Buffer m_buffer;
+	size_t m_size;
+
+public:
+	construct (log.Writer* logWriter)
+	{
+		m_logWriter = logWriter;
+		m_buffer.setSize (Defaults.BufferSize);
+	}
+
+	abstract reset ();
+
+	abstract decode (
+		void const thin* p,
+		size_t size
+		);
+
+protected:
+	writeLogUnexpectedCode (
+		uint64_t timestamp,
+		uint_t code,
+		uint_t state
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Decoder.writeLogUnexpectedCode (
+	uint64_t timestamp,
+	uint_t code,
+	uint_t state
+	)
+{
+	struct Params
+	{
+		uint_t m_code;
+		uint_t m_state;
+	}
+
+	Params params;
+	params.m_code = code;
+	params.m_state = state;
+
+	m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.UnexpectedCode, &params, sizeof (params));
+}
+
+//..............................................................................
+

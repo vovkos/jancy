@@ -1,0 +1,30 @@
+#...............................................................................
+#
+#  Network Sniffer log plugin
+#
+
+[plugin]
+
+name        = "Network Sniffer Log"
+description = "Network Sniffer log representer"
+group       = net
+guid        = b0a872b3-de4b-4f15-88bd-8de55eba7a78
+
+log-representer-func = representSnifferLog
+
+[scripts]
+
+SnifferLogRecordCode.jnc
+SnifferLogRepresenter.jnc
+SnifferLog_Ethernet.jnc
+SnifferLog_Arp.jnc
+SnifferLog_Ip.jnc
+SnifferLog_Icmp.jnc
+SnifferLog_Tcp.jnc
+SnifferLog_Udp.jnc
+
+[records]
+
+81d4856b81a408c7  # Packet
+81d4856b81a408c8  # InjectedPacket
+81d4856b81a408c9  # DefragmentedIp

@@ -1,0 +1,162 @@
+//..............................................................................
+//
+// SPI clock-based signal-edge decoding
+//
+
+namespace io {
+
+//..............................................................................
+
+enum SpiDecodeResult
+{
+	Continue,
+	Start,
+	Stop,
+	EmptyMessage,
+	FramingError,
+	Char,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class SpiSignalDecoder
+{
+protected:
+	bool m_cpol;
+	bool m_cpha;
+	bool m_isLittleEndian;
+
+	bool m_lastSclk;
+	bool m_lastSs;
+	uint8_t m_bit;
+
+public:
+	uint8_t m_mosiChar;
+	uint8_t m_misoChar;
+
+public:
+	start (
+		uint_t spiMode,
+		bool isLittleEndian
+		);
+
+	SpiDecodeResult add (
+		bool sclk,
+		bool mosi,
+		bool miso,
+		bool ss
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SpiSignalDecoder.start (
+	uint_t spiMode,
+	bool isLittleEndian
+	)
+{
+	m_cpol = spiMode > 1;
+	m_cpha = spiMode & 1;
+	m_isLittleEndian = isLittleEndian;
+	m_lastSs = true;
+}
+
+SpiDecodeResult SpiSignalDecoder.add (
+	bool sclk,
+	bool mosi,
+	bool miso,
+	bool ss
+	)
+{
+	static bool spiSelectorTable [2] [2] [2] =
+	{
+		// CPOL 0
+		{
+			// CPHA 0
+			{
+				false, // SCLK 0
+				true,  // SCLK 1
+			},
+
+			// CPHA 1
+			{
+				true,  // SCLK 0
+				false, // SCLK 1
+			},
+		},
+
+		// CPOL 1
+		{
+			// CPHA 0
+			{
+				true,  // SCLK 0
+				false, // SCLK 1
+			},
+
+			// CPHA 1
+			{
+				false, // SCLK 0
+				true,  // SCLK 1
+			},
+		},
+	}
+
+	if (ss)
+	{
+		if (m_lastSs)
+			return SpiDecodeResult.Continue;
+
+		m_lastSs = true;
+		return
+			m_bit == 0 ? SpiDecodeResult.Stop :
+			m_bit == (m_isLittleEndian ? 0x01 : 0x80) ? SpiDecodeResult.EmptyMessage :
+			SpiDecodeResult.FramingError;
+	}
+
+	SpiDecodeResult result = SpiDecodeResult.Continue;
+
+	if (m_lastSs)
+	{
+		m_lastSs = false;
+		m_lastSclk = m_cpol;
+		m_bit = m_isLittleEndian ? 0x01 : 0x80;
+		m_mosiChar = 0;
+		m_misoChar = 0;
+		result = SpiDecodeResult.Start;
+	}
+
+	if (sclk == m_lastSclk)
+		return result;
+
+	m_lastSclk = sclk;
+
+	if (spiSelectorTable [m_cpol] [m_cpha] [sclk])
+	{
+		if (!m_bit)
+		{
+			m_bit = m_isLittleEndian ? 0x01 : 0x80;
+			m_mosiChar = 0;
+			m_misoChar = 0;
+		}
+
+		if (mosi)
+			m_mosiChar |= m_bit;
+
+		if (miso)
+			m_misoChar |= m_bit;
+
+		if (m_isLittleEndian)
+			m_bit <<= 1;
+		else
+			m_bit >>= 1;
+
+		if (!m_bit)
+			result = SpiDecodeResult.Char;
+	}
+
+	return result;
+}
+
+//..............................................................................
+
+} // namespace io

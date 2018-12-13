@@ -56,7 +56,7 @@ class Plugin
 	}
 
 	writeLog (
-		uint_t recordCode,
+		uint64_t recordCode,
 		void const* p,
 		size_t size
 		)
@@ -64,13 +64,13 @@ class Plugin
 		m_pluginHost.m_log.m_writer.write (recordCode, p, size);
 	}
 
-	writeLog (uint_t recordCode)
+	writeLog (uint64_t recordCode)
 	{
 		m_pluginHost.m_log.m_writer.write (recordCode, null, 0);
 	}
 
 	writeLogString (
-		uint_t recordCode,
+		uint64_t recordCode,
 		char const* p
 		)
 	{
@@ -78,14 +78,14 @@ class Plugin
 	}
 
 	writeLogError (
-		uint_t recordCode,
+		uint64_t recordCode,
 		std.Error const* error
 		)
 	{
 		m_pluginHost.m_log.m_writer.write (recordCode, error, error.m_size);
 	}
 
-	writeLogLastError (uint_t recordCode)
+	writeLogLastError (uint64_t recordCode)
 	{
 		writeLogError (recordCode, std.getLastError ());
 	}
@@ -129,64 +129,4 @@ gui.Action* Plugin.createAction (
 
 //..............................................................................
 
-class Session: Plugin
-{
-	char const* autoget property m_title;
-	bool autoget property m_isTransmitEnabled;
-
-	construct (PluginHost* host)
-	{
-		basetype.construct (host);
-	}
-
-	override size_t errorcode transmit (
-		void const* p,
-		size_t size
-		)
-	{
-		return size;
-	}
-
-	startSession ()
-	{
-		uint64_t timestamp = sys.getTimestamp ();
-		m_pluginHost.m_log.m_baseTimestamp = timestamp;
-		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.SessionStarted);
-	}
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class Layer: Plugin
-{
-	construct (PluginHost* host)
-	{
-		basetype.construct (host);
-	}
-
-	override size_t errorcode transmit (
-		void const* p,
-		size_t size
-		)
-	{
-		return transmitNext (p, size);
-	}
-
-	size_t transmitNext (
-		void const* p,
-		size_t size
-		);
-
-	size_t transmitToNext (
-		void const* p,
-		size_t size,
-		void const* address,
-		size_t addressSize
-		);
-}
-
-//..............................................................................
-
 } // namespace doc {
-
-trace (char const* p);

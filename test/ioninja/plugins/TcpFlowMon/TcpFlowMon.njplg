@@ -1,25 +1,22 @@
-//..............................................................................
-//
-// TCP Flow Monitor plugin
-//
+#...............................................................................
+#
+#  TCP Flow Monitor session plugin
+#
 
 [plugin]
 
-name                  = TCP Flow Monitor
-description           = "Monitors TCP communication and produces clean data flow"
-id                    = tcp-flow-mon
-group                 = monitors
-guid                  = 5a6cc363-3ace-4db8-9224-3d972d16b30d
-icon                  = images/tcpmon.png
-small-icon            = images/tcpmon-16x16.png
+name        = "TCP Flow Monitor"
+description = "Monitors TCP communication and produces clean data flow"
+id          = tcp-flow-mon
+group       = net
+guid        = 5a6cc363-3ace-4db8-9224-3d972d16b30d  # tcp flow monitor
+log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/tcpmon.png
+small-icon  = images/tcpmon-16x16.png
 
-session-class         = TcpFlowMonSession
-log-representer-func  = representTcpFlowMonLog
+session-class = TcpFlowMonSession
 
 [scripts]
 
 TcpFlowMonSession.jnc
-TcpFlowMonLog.jnc
-../../common/io_IpDefragmenter.jnc
-../../common/io_TcpSequencer.jnc
-../../common/io_PcapDeviceUi.jnc

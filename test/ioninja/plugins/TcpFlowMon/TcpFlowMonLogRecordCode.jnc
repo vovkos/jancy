@@ -1,0 +1,27 @@
+//..............................................................................
+//
+// TCP Monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum TcpFlowMonLogRecordCode: uint64_t
+{
+	Connecting            = 0x01d487c96e3d5259,
+	ConnectCompleted      = 0x01d487c96e3d525a,
+	ConnectionPickedUp    = 0x01d487c96e3d525b,
+	Disconnected          = 0x01d487c96e3d525c,
+	OutOfOrderDataDropped = 0x01d487c96e3d525d,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum TcpFlowMonLogPartCode: uint64_t
+{
+	Connecting       = 0x01d487c96e3d5259 | log.PartCodeFlags.MergeableForward,
+	ConnectCompleted = 0x01d487c96e3d5259 | log.PartCodeFlags.MergeableBackward,
+}
+
+//..............................................................................

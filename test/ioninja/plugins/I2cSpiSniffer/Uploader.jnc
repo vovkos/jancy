@@ -1,0 +1,419 @@
+//..............................................................................
+//
+// Cypress EZ-USB uploader
+//
+
+import "io_base.jncx"
+import "io_MappedFile.jnc"
+import "sys_Timer.jnc"
+import "gui_Dialog.jnc"
+import "parseVersion.jnc"
+
+//..............................................................................
+
+struct LatticeHdr
+{
+	enum
+	{
+		Signature  = 0x00ff,
+		Signature2 = 0xff00,
+	}
+
+	uint16_t m_signature;  // FF 00
+	char m_tag [0x4c];
+	uint16_t m_signature2; // 00 FF
+
+	bool isValid () const
+	{
+		return
+			m_signature == Signature &&
+			m_signature2 == Signature2;
+	}
+
+	char const* getId () const
+	{
+		return m_tag;
+	}
+
+	uint_t getVersion () const
+	{
+		char const* p = memchr (m_tag, 0, countof (m_tag));
+		return p ? parseVersion (p + 1) : 0;
+	}
+}
+
+//..............................................................................
+
+class Uploader
+{
+protected:
+	enum State
+	{
+		Idle,
+		ErasingFlash,
+		UploadingFile,
+		EnablingFpga,
+	}
+
+	enum UsbControlReqType
+	{
+		VendorIn  = 0x80,
+		VendorOut = 0x40,
+	}
+
+	enum UsbControlReqCode
+	{
+		GetFlashStatus   = 0xaa,
+		ReadFlash        = 0xa9,
+		WriteFlash       = 0xa8,
+		EraseAllFlash    = 0xad,
+		EraseFlashSector = 0xac,
+
+		GetFpgaStatus    = 0xfa,
+		DisableFpga      = 0xfd,
+		EnableFpga       = 0xfe,
+	}
+
+	enum
+	{
+		FlashSectorSize          = 0x10000,
+		FlashBlockSize           = 64,
+		FlashStatusCheckInterval = 500,
+		FpgaStatusCheckInterval  = 200,
+		FpgaCheckRetryCount      = 5, // 1 sec total -- more than enough to start FPGA
+	}
+
+protected:
+	State m_state;
+	log.Writer* m_logWriter;
+	jnc.Scheduler* m_mainThreadScheduler;
+	io.UsbDevice* m_device;
+	io.MappedFile m_firmwareFile;
+	gui.ProgressDlg m_progressDlg;
+	sys.Timer m_timer;
+	std.Buffer m_block;
+	Protocol m_protocol;
+	size_t m_offset;
+	size_t m_fpgaCheckRetryNum;
+	uint_t m_syncId;
+
+	static char const* const m_firmwareIdTable [] =
+	{
+		"lattice-fpga-spi",
+		"lattice-fpga-i2c",
+	}
+
+	static char const* const m_firmwareFileNameTable [] =
+	{
+		"firmware/spi.bin",
+		"firmware/i2c.bin",
+	}
+
+public:
+	event m_onUpdateCompleted (bool result);
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	cancel ();
+
+	bool errorcode update (
+		io.UsbDevice* device,
+		Protocol protocol
+		);
+
+protected:
+	bool errorcode enableFpga ();
+	bool errorcode eraseNextFlashSector ();
+	bool errorcode sendNextBlock ();
+
+	bool checkStatus (UsbControlReqCode code);
+
+	onFlashStatusTimer (uint_t syncId);
+	onFpgaStatusTimer (uint_t syncId);
+	onProgressDlgButtonClicked (gui.StdDlgButton button);
+
+	onTransferCompleted (
+		uint_t syncId,
+		size_t size,
+		std.Error const* error
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Uploader.construct (doc.PluginHost* pluginHost)
+{
+	m_logWriter = pluginHost.m_log.m_writer;
+	m_mainThreadScheduler = pluginHost.m_mainThreadScheduler;
+	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
+}
+
+Uploader.cancel ()
+{
+	if (!m_state)
+		return;
+
+	m_progressDlg.hide ();
+	m_timer.stop ();
+	m_state = State.Idle;
+	m_syncId++;
+
+	m_onUpdateCompleted (false);
+}
+
+bool errorcode Uploader.update (
+	io.UsbDevice* device,
+	Protocol protocol
+	)
+{
+	cancel ();
+
+	m_device = device;
+	m_protocol = protocol;
+
+	m_device.controlTransfer (
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.DisableFpga,
+		0,
+		0,
+		null,
+		0
+		);
+
+	m_logWriter.write (I2cSpiSnifferLogRecordCode.FpgaDisabled);
+
+	char const* fileName = m_firmwareFileNameTable [m_protocol];
+	m_firmwareFile.open (fileName, io.FileOpenFlags.ReadOnly);
+	LatticeHdr const* fileHdr = (LatticeHdr const*) m_firmwareFile.view (0, sizeof (LatticeHdr));
+	uint_t fileVersion = fileHdr.getVersion ();;
+
+	LatticeHdr deviceHdr;
+
+	m_device.controlTransfer (
+		UsbControlReqType.VendorIn,
+		UsbControlReqCode.ReadFlash,
+		0,
+		0,
+		&deviceHdr,
+		sizeof (deviceHdr)
+		);
+
+	bool isUpToDate =
+		deviceHdr.isValid () &&
+		strcmp (deviceHdr.getId (), fileHdr.getId ()) == 0 &&
+		deviceHdr.getVersion () >= fileVersion;
+
+	if (isUpToDate)
+	{
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.FirmwareUpToDate);
+		enableFpga ();
+	}
+	else
+	{
+		char const* params = $"$(fileVersion; B)$fileName";
+
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.FirmwareUpdateRequired, params, dynamic sizeof (params));
+
+		m_progressDlg.m_title = "Updating FPGA Firmware";
+		m_progressDlg.m_status = "Erasing flash memory...";
+		m_progressDlg.m_progress = 0;
+		m_progressDlg.m_buttons = gui.StdDlgButtons.Abort;
+		m_progressDlg.show ();
+
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.ErasingFlash);
+		m_state = State.ErasingFlash;
+		m_offset = 0;
+		eraseNextFlashSector ();
+
+		m_timer.startPeriodicTimer (
+			onFlashStatusTimer  ~(m_syncId) @ m_mainThreadScheduler,
+			FlashStatusCheckInterval
+			);
+	}
+
+	return true;
+}
+
+bool errorcode Uploader.enableFpga ()
+{
+	m_logWriter.write (I2cSpiSnifferLogRecordCode.EnablingFpga);
+	m_progressDlg.m_status = "Enabling FPGA...";
+	m_state = State.EnablingFpga;
+	m_fpgaCheckRetryNum = 0;
+
+	m_device.controlTransfer (
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.EnableFpga,
+		0,
+		0,
+		null,
+		0
+		);
+
+	m_timer.startPeriodicTimer (
+		onFpgaStatusTimer ~(m_syncId) @ m_mainThreadScheduler,
+		FpgaStatusCheckInterval
+		);
+
+	return true;
+}
+
+bool errorcode Uploader.eraseNextFlashSector ()
+{
+	m_device.controlTransfer (
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.EraseFlashSector,
+		0,
+		m_offset / FlashSectorSize,
+		null,
+		0
+		);
+
+	m_offset += FlashSectorSize;
+	return true;
+}
+
+bool errorcode Uploader.sendNextBlock ()
+{
+	size_t size = FlashBlockSize;
+	uint64_t fileSize = m_firmwareFile.m_size;
+
+	size_t leftover = m_offset >= fileSize ? 0 : fileSize - m_offset;
+	if (size > leftover)
+		size = leftover;
+
+	void const* p = m_firmwareFile.view (m_offset, size);
+
+	m_block.setSize (size);
+	memcpy (m_block.m_p, p, size);
+
+	if (!size)
+		return enableFpga ();
+
+	m_device.controlTransfer (
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.WriteFlash,
+		m_offset,
+		m_offset >> 16,
+		m_block.m_p,
+		size,,
+		onTransferCompleted ~(m_syncId) @ m_mainThreadScheduler
+		);
+
+	m_offset += size;
+	m_progressDlg.m_progress = m_offset * 100 / fileSize;
+	return true;
+}
+
+bool Uploader.checkStatus (UsbControlReqCode code)
+{
+	char status = -1;
+
+	try m_device.controlTransfer (
+		UsbControlReqType.VendorIn,
+		code,
+		0,
+		0,
+		&status,
+		sizeof (status)
+		);
+
+	return status == 0;
+}
+
+Uploader.onFlashStatusTimer (uint_t syncId)
+{
+	if (syncId != m_syncId)
+		return;
+
+	bool result = checkStatus (UsbControlReqCode.GetFlashStatus);
+	if (!result)
+	{
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.StillWaiting);
+	}
+	else if (m_offset < m_firmwareFile.m_size)
+	{
+		eraseNextFlashSector ();
+	}
+	else
+	{
+		m_timer.stop ();
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.UploadingFirmware);
+		m_progressDlg.m_status = "Uploading firmware file...";
+		m_state = State.UploadingFile;
+		m_offset = 0;
+		sendNextBlock ();
+	}
+
+catch:
+	m_logWriter.writeLastError (log.StdRecordCode.Error);
+	cancel ();
+}
+
+Uploader.onFpgaStatusTimer (uint_t syncId)
+{
+	if (syncId != m_syncId)
+		return;
+
+	bool result = checkStatus (UsbControlReqCode.GetFpgaStatus);
+	if (result)
+	{
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.FpgaReady);
+		m_timer.stop ();
+		m_progressDlg.hide ();
+		m_state = State.Idle;
+		m_onUpdateCompleted (true);
+	}
+	else if (++m_fpgaCheckRetryNum < FpgaCheckRetryCount)
+	{
+		m_logWriter.write (I2cSpiSnifferLogRecordCode.StillWaiting);
+	}
+	else
+	{
+		std.setError ("Can't start FPGA");
+		m_logWriter.writeLastError (log.StdRecordCode.Error);
+		cancel ();
+	}
+
+catch:
+	m_logWriter.writeLastError (log.StdRecordCode.Error);
+	cancel ();
+}
+
+Uploader.onProgressDlgButtonClicked (gui.StdDlgButton button)
+{
+	switch (button)
+	{
+	case gui.StdDlgButton.Cancel:
+	case gui.StdDlgButton.Abort:
+		cancel ();
+		break;
+	}
+}
+
+Uploader.onTransferCompleted (
+	uint_t syncId,
+	size_t size,
+	std.Error const* error
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (error)
+	{
+		m_logWriter.writeError (log.StdRecordCode.Error, error);
+		cancel ();
+	}
+	else
+	{
+		sendNextBlock ();
+	}
+
+catch:
+	m_logWriter.writeLastError (log.StdRecordCode.Error);
+	cancel ();
+}
+
+//..............................................................................

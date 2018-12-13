@@ -1,0 +1,303 @@
+//..............................................................................
+//
+// Pipe Monitor
+//
+
+import "io_Monitor.jnc"
+import "io_FileIdMgr.jnc"
+import "std_String.jnc"
+
+namespace wdk {
+
+// excerpt from ntifs.h
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum
+{
+	FILE_DEVICE_NAMED_PIPE  = 0x00110000,
+
+	FILE_READ_DATA          = 1,
+	FILE_WRITE_DATA         = 2,
+	FILE_READ_WRITE_DATA    = FILE_READ_DATA | FILE_WRITE_DATA,
+
+	METHOD_NEITHER          = 3,
+
+	FSCTL_PIPE_DISCONNECT   = FILE_DEVICE_NAMED_PIPE | (1 << 2),
+	FSCTL_PIPE_LISTEN       = FILE_DEVICE_NAMED_PIPE | (2 << 2),
+	FSCTL_PIPE_TRANSCEIVE   = FILE_DEVICE_NAMED_PIPE | (5 << 2) | METHOD_NEITHER | (FILE_READ_WRITE_DATA << 14),
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+} // namespace wdk
+
+class PipeMonitor: io.Monitor
+{
+protected:
+	PipeMonSession* m_session;
+
+public:
+	construct (PipeMonSession* session);
+
+protected:
+	override processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr);
+	override processError (std.Error const* error);
+
+	setFileId (
+		uint64_t timestamp,
+		uint64_t loFileId,
+		uint32_t processId
+		);
+
+	processFsctlNotification (
+		int ntStatus,
+		uint64_t timestamp,
+		uint64_t loFileId,
+		uint32_t processId,
+		uint_t code,
+		const void* inData,
+		size_t inDataSize,
+		const void* outData,
+		size_t outDataSize
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+PipeMonitor.construct (PipeMonSession* session)
+{
+	basetype.construct (session.m_pluginHost);
+	m_session = session;
+}
+
+PipeMonitor.setFileId (
+	uint64_t timestamp,
+	uint64_t loFileId,
+	uint32_t processId
+	)
+{
+	uint32_t lastFileId = m_fileIdMgr.m_lastHiFileId;
+	uint32_t fileId = m_fileIdMgr.getHiFileId (loFileId);
+
+	if (fileId != lastFileId)
+	{
+		uint32_t ids [] = { fileId, processId }
+		m_pluginHost.m_log.m_writer.write (timestamp, PipeMonLogRecordCode.FileIdChanged, ids, sizeof (ids));
+	}
+}
+
+PipeMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
+{
+	switch (notifyHdr.m_code)
+	{
+	case io.win.DeviceMonitorNotifyCode.Create:
+		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*) (notifyHdr + 1);
+
+		uint64_t recordCode;
+		std.Buffer logParams;
+
+		if (notifyHdr.m_ntStatus == 0)
+		{
+			recordCode = PipeMonLogRecordCode.ClientFileOpened;
+			uint32_t fileId = m_fileIdMgr.getHiFileId (params.m_fileId);
+			logParams.append (&fileId, sizeof (fileId));
+			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+		}
+		else
+		{
+			recordCode = PipeMonLogRecordCode.ClientFileOpenError;
+
+			std.Error error;
+			error.m_size = sizeof (error);
+			error.m_guid = std.g_ntStatusGuid;
+			error.m_code = notifyHdr.m_ntStatus;
+
+			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+			logParams.append (&error, error.m_size);
+		}
+
+		std.StringBuilder name;
+		name.copy ((utf16_t const*) (params + 1));
+		logParams.append (name.m_sz, name.m_length + 1);
+
+		m_pluginHost.m_log.m_writer.write (
+			notifyHdr.m_timestamp,
+			recordCode,
+			logParams.m_p,
+			logParams.m_size
+			);
+
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.CreateNamedPipe:
+		io.win.DeviceMonitorCreateNamedPipeNotifyParams const* params = (io.win.DeviceMonitorCreateNamedPipeNotifyParams const*) (notifyHdr + 1);
+
+		uint64_t recordCode;
+		std.Buffer logParams;
+
+		if (notifyHdr.m_ntStatus == 0)
+		{
+			recordCode = PipeMonLogRecordCode.ServerFileOpened;
+			uint32_t fileId = m_fileIdMgr.getHiFileId (params.m_fileId);
+			logParams.append (&fileId, sizeof (fileId));
+			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+		}
+		else
+		{
+			recordCode = PipeMonLogRecordCode.ServerFileOpenError;
+
+			std.Error error;
+			error.m_size = sizeof (error);
+			error.m_guid = std.g_ntStatusGuid;
+			error.m_code = notifyHdr.m_ntStatus;
+
+			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+			logParams.append (&error, error.m_size);
+		}
+
+		std.StringBuilder name;
+		name.copy ((utf16_t const*) (params + 1));
+		logParams.append (name.m_sz, name.m_length + 1);
+
+		m_pluginHost.m_log.m_writer.write (
+			notifyHdr.m_timestamp,
+			recordCode,
+			logParams.m_p,
+			logParams.m_size
+			);
+
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Close:
+		io.win.DeviceMonitorCloseNotifyParams const* params = (io.win.DeviceMonitorCloseNotifyParams const*) (notifyHdr + 1);
+		setFileId (notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
+		m_fileIdMgr.removeLowFileId (params.m_fileId);
+		m_pluginHost.m_log.m_writer.write (notifyHdr.m_timestamp, PipeMonLogRecordCode.FileClosed);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Read:
+	case io.win.DeviceMonitorNotifyCode.FastIoRead:
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		if (!params.m_dataSize)
+			break;
+
+		setFileId (notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
+
+		m_pluginHost.m_log.m_writer.write (
+			notifyHdr.m_timestamp,
+			log.StdRecordCode.Rx,
+			params + 1,
+			params.m_dataSize
+			);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Write:
+	case io.win.DeviceMonitorNotifyCode.FastIoWrite:
+		io.win.DeviceMonitorReadWriteNotifyParams const* params = (io.win.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+		if (!params.m_dataSize)
+			break;
+
+		setFileId (notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
+
+		m_pluginHost.m_log.m_writer.write (
+			notifyHdr.m_timestamp,
+			log.StdRecordCode.Tx,
+			params + 1,
+			params.m_dataSize
+			);
+		break;
+
+	case io.win.DeviceMonitorNotifyCode.Fsctl:
+		io.win.DeviceMonitorIoctlNotifyParams const* params = (io.win.DeviceMonitorIoctlNotifyParams const*) (notifyHdr + 1);
+
+		void const* p = params + 1;
+
+		processFsctlNotification (
+			notifyHdr.m_ntStatus,
+			notifyHdr.m_timestamp,
+			params.m_fileId,
+			notifyHdr.m_processId,
+			params.m_code,
+			p,
+			params.m_inDataSize,
+			p + params.m_inDataSize,
+			params.m_outDataSize
+			);
+
+		break;
+	}
+}
+
+PipeMonitor.processFsctlNotification (
+	int ntStatus,
+	uint64_t timestamp,
+	uint64_t loFileId,
+	uint32_t processId,
+	uint_t code,
+	const void* inData,
+	size_t inDataSize,
+	const void* outData,
+	size_t outDataSize
+	)
+{
+	switch (code)
+	{
+	case wdk.FSCTL_PIPE_LISTEN:
+		if (ntStatus != 0)
+			break;
+
+		setFileId (timestamp, loFileId, processId);
+		m_pluginHost.m_log.m_writer.write (timestamp, PipeMonLogRecordCode.ConnectionAccepted);
+		break;
+
+	case wdk.FSCTL_PIPE_DISCONNECT:
+		setFileId (timestamp, loFileId, processId);
+		m_pluginHost.m_log.m_writer.write (timestamp, PipeMonLogRecordCode.ConnectionClosed);
+		break;
+
+	case wdk.FSCTL_PIPE_TRANSCEIVE:
+		if (!inDataSize && !outDataSize)
+			break;
+
+		PipeMonLogTransactionParams transactionParams;
+		transactionParams.m_fileId  = m_fileIdMgr.getHiFileId (loFileId);
+		transactionParams.m_txDataSize = inDataSize;
+		transactionParams.m_rxDataSize = outDataSize;
+
+		setFileId (timestamp, loFileId, processId);
+
+		m_pluginHost.m_log.m_writer.write (
+			timestamp,
+			PipeMonLogRecordCode.Transaction,
+			&transactionParams,
+			 sizeof (transactionParams)
+			);
+
+		if (inDataSize)
+			m_pluginHost.m_log.m_writer.write (
+				timestamp,
+				log.StdRecordCode.Tx,
+				inData,
+				inDataSize
+				);
+
+		if (outDataSize)
+			m_pluginHost.m_log.m_writer.write (
+				timestamp,
+				log.StdRecordCode.Rx,
+				outData,
+				outDataSize
+				);
+
+		break;
+	}
+}
+
+PipeMonitor.processError (std.Error const* error)
+{
+	m_pluginHost.m_log.m_writer.write (log.StdRecordCode.Error, error, error.m_size);
+	m_session.close ();
+}
+
+//..............................................................................

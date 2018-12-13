@@ -1,0 +1,22 @@
+#..............................................................................
+#
+#  Regex Colorizer plugin
+#
+
+[plugin]
+
+name        = Regex Colorizer
+description = "Colorizes RX/TX according to preset regex patterns"
+id          = regex-colorizer
+monitor     = false
+guid        = c8e98303-15cf-4cbf-9553-39cd24715046
+icon        = images/plugin.png
+small-icon  = images/plugin-16x16.png
+
+layer-class = RegexColorizerLayer
+
+[scripts]
+
+RegexPattern.jnc
+RegexColorizerLayer.jnc
+RegexColorizerHighlighter.jnc

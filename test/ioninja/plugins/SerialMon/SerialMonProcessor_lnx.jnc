@@ -1,0 +1,457 @@
+//..............................................................................
+//
+// Serial Monitor notification processing for Linux
+//
+
+import "SerialMonProcessor.jnc"
+
+// excerpt from termios.h
+
+namespace psx {
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum
+{
+	// termios IOCTL codes
+
+	TCSETS    = 0x5402,
+	TCSETSW   = 0x5403,
+	TCSETSF   = 0x5404,
+	TCSETA    = 0x5406,
+	TCSETAW   = 0x5407,
+	TCSETAF   = 0x5408,
+	TIOCMGET  = 0x5415,
+	TIOCMBIS  = 0x5416,
+	TIOCMBIC  = 0x5417,
+
+	// modem lines
+
+	TIOCM_DTR = 0x002,
+	TIOCM_RTS = 0x004,
+	TIOCM_CTS = 0x020,
+	TIOCM_CAR = 0x040,
+	TIOCM_RNG = 0x080,
+	TIOCM_DSR = 0x100,
+
+	// baud rates
+
+	CBAUD     = 0010017,
+	CBAUDEX   = 0010000,
+
+	B0        = 0000000,
+	B50       = 0000001,
+	B75       = 0000002,
+	B110      = 0000003,
+	B134      = 0000004,
+	B150      = 0000005,
+	B200      = 0000006,
+	B300      = 0000007,
+	B600      = 0000010,
+	B1200     = 0000011,
+	B1800     = 0000012,
+	B2400     = 0000013,
+	B4800     = 0000014,
+	B9600     = 0000015,
+	B19200    = 0000016,
+	B38400    = 0000017,
+	B57600    = 0010001,
+	B115200   = 0010002,
+	B230400   = 0010003,
+	B460800   = 0010004,
+	B500000   = 0010005,
+	B576000   = 0010006,
+	B921600   = 0010007,
+	B1000000  = 0010010,
+	B1152000  = 0010011,
+	B1500000  = 0010012,
+	B2000000  = 0010013,
+	B2500000  = 0010014,
+	B3000000  = 0010015,
+	B3500000  = 0010016,
+	B4000000  = 0010017,
+
+	// data bits
+
+	CSIZE     = 0000060,
+	CS5       = 0000000,
+	CS6       = 0000020,
+	CS7       = 0000040,
+	CS8       = 0000060,
+
+	// stop bits
+
+	CSTOPB    = 0000100,
+
+	// parity
+
+	PARENB    = 0000400,
+	PARODD    = 0001000,
+	CMSPAR    = 010000000000,
+
+	// flow control
+
+	IXON      = 0002000,
+	IXOFF     = 0010000,
+	CRTSCTS   = 020000000000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef unsigned char cc_t;
+typedef unsigned int speed_t;
+typedef unsigned int tcflag_t;
+
+enum
+{
+	NCC  = 8,
+	NCCS = 32
+}
+
+struct termio
+{
+	unsigned short c_iflag;
+	unsigned short c_oflag;
+	unsigned short c_cflag;
+	unsigned short c_lflag;
+	unsigned char c_line;
+	unsigned char c_cc [NCC];
+}
+
+struct termios
+{
+	tcflag_t c_iflag;
+	tcflag_t c_oflag;
+	tcflag_t c_cflag;
+	tcflag_t c_lflag;
+	cc_t c_line;
+	cc_t c_cc [NCCS];
+	speed_t c_ispeed;
+	speed_t c_ospeed;
+}
+
+} // namespace psx
+
+//..............................................................................
+
+class SerialMonProcessor_lnx: SerialMonProcessor
+{
+	construct (log.Writer* logWriter)
+	{
+		basetype.construct (logWriter);
+	}
+
+	override processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr);
+
+protected:
+	processIoctlNotification (
+		int result,
+		uint64_t timestamp,
+		uint_t code,
+		long arg,
+		const void* argData,
+		size_t argDataSize
+		);
+
+	processTermiosSetAttr (
+		uint64_t timestamp,
+		uint_t cflags,
+		uint_t iflags,
+		uint_t ospeed
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SerialMonProcessor_lnx.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
+{
+	switch (notifyHdr.m_code)
+	{
+	case io.lnx.DeviceMonitorNotifyCode.Open:
+		m_logWriter.write (
+			notifyHdr.m_timestamp,
+			SerialMonLogRecordCode.DeviceOpened,
+			&notifyHdr.m_processId,
+			sizeof (notifyHdr. m_processId)
+			);
+		break;
+
+	case io.lnx.DeviceMonitorNotifyCode.Close:
+		m_logWriter.write (notifyHdr.m_timestamp, SerialMonLogRecordCode.DeviceClosed);
+		break;
+
+	case io.lnx.DeviceMonitorNotifyCode.Read:
+		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+
+		if (params.m_dataSize)
+			m_logWriter.write (
+				notifyHdr.m_timestamp,
+				log.StdRecordCode.Rx,
+				params + 1,
+				params.m_dataSize
+				);
+		break;
+
+	case io.lnx.DeviceMonitorNotifyCode.Write:
+		io.lnx.DeviceMonitorReadWriteNotifyParams const* params = (io.lnx.DeviceMonitorReadWriteNotifyParams const*) (notifyHdr + 1);
+
+		if (params.m_dataSize)
+			m_logWriter.write (
+				notifyHdr.m_timestamp,
+				log.StdRecordCode.Tx,
+				params + 1,
+				params.m_dataSize
+				);
+		break;
+
+
+	case io.lnx.DeviceMonitorNotifyCode.UnlockedIoctl:
+	case io.lnx.DeviceMonitorNotifyCode.CompatIoctl:
+		io.lnx.DeviceMonitorIoctlNotifyParams const* params = (io.lnx.DeviceMonitorIoctlNotifyParams const*) (notifyHdr + 1);
+
+		processIoctlNotification (
+			notifyHdr.m_ntStatus,
+			notifyHdr.m_timestamp,
+			params.m_code,
+			params.m_arg,
+			params + 1,
+			params.m_argSize
+			);
+
+		break;
+	}
+}
+
+SerialMonProcessor_lnx.processIoctlNotification (
+	int result,
+	uint64_t timestamp,
+	uint_t code,
+	long arg,
+	const void* argData,
+	size_t argDataSize
+	)
+{
+	switch (code)
+	{
+	case psx.TCSETA:
+	case psx.TCSETAW:
+	case psx.TCSETAF:
+		if (argDataSize < sizeof (psx.termio))
+			break;
+
+		psx.termio const* attr = (psx.termio const*) argData;
+		processTermiosSetAttr (timestamp, attr.c_cflag, attr.c_iflag, 0);
+		break;
+
+	case psx.TCSETS:
+	case psx.TCSETSW:
+	case psx.TCSETSF:
+		if (argDataSize < sizeof (psx.termios))
+			break;
+
+		psx.termios const* attr = (psx.termios const*) argData;
+		processTermiosSetAttr (timestamp, attr.c_cflag, attr.c_iflag, attr.c_ospeed);
+		break;
+
+	case psx.TIOCMGET:
+		if (argDataSize < sizeof (uint_t))
+			break;
+
+		uint_t posixLines = *(uint_t const*) argData;
+		io.SerialStatusLines lines = 0;
+
+		if (posixLines & psx.TIOCM_CTS)
+			lines |= io.SerialStatusLines.Cts;
+
+		if (posixLines & psx.TIOCM_DSR)
+			lines |= io.SerialStatusLines.Dsr;
+
+		if (posixLines & psx.TIOCM_CAR)
+			lines |= io.SerialStatusLines.Dcd;
+
+		io.SerialStatusLines mask = m_statusLines;
+		m_statusLines = lines;
+
+		if (mask != -1)
+			mask ^= lines;
+
+		if (mask)
+		{
+			SerialStatusLineChangedParams params = { lines, mask };
+
+			m_logWriter.write (
+				timestamp,
+				SerialLogRecordCode.StatusLineChanged,
+				&params,
+				sizeof (params)
+				);
+		}
+
+		break;
+
+	case psx.TIOCMBIS:
+	case psx.TIOCMBIC:
+		if (argDataSize < sizeof (uint_t))
+			break;
+
+		uint_t lines = *(uint_t const*) argData;
+		bool value = code == psx.TIOCMBIS;
+
+		if (lines & psx.TIOCM_DTR)
+			m_logWriter.write (
+				timestamp,
+				SerialLogRecordCode.DtrChanged,
+				&value,
+				sizeof (value)
+				);
+
+		if (lines & psx.TIOCM_RTS)
+			m_logWriter.write (
+				timestamp,
+				SerialLogRecordCode.RtsChanged,
+				&value,
+				sizeof (value)
+				);
+
+		break;
+	};
+}
+
+SerialMonProcessor_lnx.processTermiosSetAttr (
+	uint64_t timestamp,
+	uint_t cflags,
+	uint_t iflags,
+	uint_t ospeed
+	)
+{
+	uint_t baudRate;
+	uint_t dataBits;
+	uint_t stopBits;
+	uint_t parity;
+	uint_t flowControl;
+
+	uint_t speed = cflags & (psx.CBAUD | psx.CBAUDEX);
+	switch (speed)
+	{
+	case psx.B110:
+		baudRate = 110;
+		break;
+
+	case psx.B300:
+		baudRate = 300;
+		break;
+
+	case psx.B600:
+		baudRate = 600;
+		break;
+
+	case psx.B1200:
+		baudRate = 1200;
+		break;
+
+	case psx.B2400:
+		baudRate = 2400;
+		break;
+
+	case psx.B4800:
+		baudRate = 4800;
+		break;
+
+	case psx.B9600:
+		baudRate = 9600;
+		break;
+
+	case psx.B19200:
+		baudRate = 19200;
+		break;
+
+	case psx.B38400:
+		baudRate = 38400;
+		break;
+
+	case psx.B57600:
+		baudRate = 57600;
+		break;
+
+	case psx.B115200:
+		baudRate = 115200;
+		break;
+
+	default:
+		baudRate = ospeed;
+	}
+
+	uint_t byteSize = cflags & psx.CSIZE;
+	switch (byteSize)
+	{
+	case psx.CS5:
+		dataBits = 5;
+		break;
+
+	case psx.CS6:
+		dataBits = 6;
+		break;
+
+	case psx.CS7:
+		dataBits = 7;
+		break;
+
+	case psx.CS8:
+	default:
+		dataBits = 8;
+		break;
+	}
+
+	stopBits = (cflags & psx.CSTOPB) ?
+		io.SerialStopBits._2 :
+		io.SerialStopBits._1;
+
+	parity =
+		(cflags & psx.PARENB) ?
+			(cflags & psx.CMSPAR)  ?
+				(cflags & psx.PARODD) ? io.SerialParity.Mark : io.SerialParity.Space :
+				(cflags & psx.PARODD) ? io.SerialParity.Odd : io.SerialParity.Even :
+		io.SerialParity.None;
+
+	flowControl =
+		(cflags & psx.CRTSCTS) ? io.SerialFlowControl.RtsCts :
+		(iflags & (psx.IXON | psx.IXOFF)) ? io.SerialFlowControl.XonXoff : io.SerialFlowControl.None;
+
+
+	m_logWriter.write (
+		timestamp,
+		SerialLogRecordCode.BaudRateChanged,
+		&baudRate,
+		sizeof (baudRate)
+		);
+
+	m_logWriter.write (
+		timestamp,
+		SerialLogRecordCode.DataBitsChanged,
+		&dataBits,
+		sizeof (dataBits)
+		);
+
+	m_logWriter.write (
+		timestamp,
+		SerialLogRecordCode.StopBitsChanged,
+		&stopBits,
+		sizeof (stopBits)
+		);
+
+	m_logWriter.write (
+		timestamp,
+		SerialLogRecordCode.ParityChanged,
+		&parity,
+		sizeof (parity)
+		);
+
+	m_logWriter.write (
+		timestamp,
+		SerialLogRecordCode.FlowControlChanged,
+		&flowControl,
+		sizeof (flowControl)
+		);
+}
+
+//..............................................................................

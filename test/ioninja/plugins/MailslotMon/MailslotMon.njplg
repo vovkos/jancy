@@ -1,23 +1,23 @@
-//..............................................................................
-//
-// Mailslot Monitor plugin
-//
+#...............................................................................
+#
+#  Mailslot Monitor plugin
+#
 
 [plugin]
 
-name                  = Mailslot Monitor
-description           = "Monitor mailslot communications"
-id                    = mailslotmon
-group                 = monitors
-monitor               = true
-guid                  = 8B4D1156-4C00-40FF-8B24-015C7DF2FD80
-icon                  = images/mailslotmon.png
-small-icon            = images/mailslotmon-16x16.png
+name        = "Mailslot Monitor"
+description = "Monitor mailslot communications"
+id          = mailslotmon
+group       = fs
+monitor     = true
+log-guid    = 8B4D1156-4C00-40FF-8B24-015C7DF2FD80  # mailslot monitor
+log-guid    = 323abaeb-7859-48bc-8e24-f8c082b04ff7  # device monitor
+icon        = images/mailslotmon.png
+small-icon  = images/mailslotmon-16x16.png
 
-session-class         = MailslotMonSession
-log-representer-func  = representMailslotMonLog
+session-class = MailslotMonSession
 
 [scripts]
 
-MailslotMonLog.jnc
 MailslotMonSession.jnc
+MailslotMonitor.jnc

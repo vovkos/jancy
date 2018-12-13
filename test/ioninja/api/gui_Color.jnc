@@ -1,0 +1,59 @@
+//..............................................................................
+//
+// Ninja GUI - standard colors
+//
+
+namespace gui {
+
+//..............................................................................
+
+bitflag enum ColorFlags
+{
+	Transparent  = 0x80000000,
+	Index        = 0x40000000,
+	IndexMask    = 0x0fffffff,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StdColor
+{
+	Black        = 0x000000,
+	White        = 0xffffff,
+	Gray         = 0x808080,
+	Red          = 0x800000,
+	Green        = 0x008000,
+	Blue         = 0x000080,
+	Purple       = 0x800080,
+	Cyan         = 0x008080,
+
+	LightRed     = 0xff0000,
+	LightGreen   = 0x00ff00,
+	LightBlue    = 0x0000ff,
+	LightPurple  = 0xff00ff,
+	LightCyan    = 0x00ffff,
+
+	PastelGray   = 0xefefef,
+	PastelRed    = 0xffe4e1,
+	PastelOrange = 0xfffacd,
+	PastelYellow = 0xffffc0,
+	PastelGreen  = 0xe1fada,
+	PastelCyan   = 0xcdfaff,
+	PastelBlue   = 0xe2edff,
+	PastelPurple = 0xe2dafd,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+uint_t rgb (
+	uint8_t r,
+	uint8_t g,
+	uint8_t b
+	)
+{
+	return (r << 16) + (g << 8) + b;
+}
+
+//..............................................................................
+
+} // namespace gui {

@@ -1,0 +1,23 @@
+//..............................................................................
+//
+// SSH log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum SshLogRecordCode: uint64_t
+{
+	TcpConnectCompleted   = 0x01d4840c424a4d00,
+	SshHandshakeCompleted = 0x01d4840c424a4d01,
+	SshAuthenticating     = 0x01d4840c424a4d02,
+	SshAuthCompleted      = 0x01d4840c424a4d03,
+	SshChannelOpened      = 0x01d4840c424a4d04,
+	SshPtyRequested       = 0x01d4840c424a4d05,
+	SshProcessStarted     = 0x01d4840c424a4d06,
+	ConnectCompleted      = 0x01d4840c424a4d07,
+	Reconnecting          = 0x01d4840c424a4d09,
+}
+
+//..............................................................................

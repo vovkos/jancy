@@ -1,0 +1,83 @@
+import "doc_Layer.jnc"
+
+//..............................................................................
+
+class TxRxFilterLayer:
+	doc.Layer,
+	log.Filter
+{
+	gui.BoolProperty* m_isTxVisibleProp;
+	gui.BoolProperty* m_isRxVisibleProp;
+
+	construct (doc.PluginHost* pluginHost);
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void restoreDefaultProperties ();
+
+	override bool filter (
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TxRxFilterLayer.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	m_isTxVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Show TX",
+		"Display TX data log records"
+		);
+
+	m_isRxVisibleProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		"Show RX",
+		"Display RX data log records"
+		);
+
+	pluginHost.m_log.addFilter (this);
+}
+
+void TxRxFilterLayer.load (doc.Storage* storage)
+{
+	m_isTxVisibleProp.m_value = storage.readBool ("isTxVisibleProp", true);
+	m_isRxVisibleProp.m_value = storage.readBool ("isRxVisibleProp", true);
+}
+
+void TxRxFilterLayer.save (doc.Storage* storage)
+{
+	storage.writeBool ("isTxVisibleProp", m_isTxVisibleProp.m_value);
+	storage.writeBool ("isRxVisibleProp", m_isRxVisibleProp.m_value);
+}
+
+void TxRxFilterLayer.restoreDefaultProperties ()
+{
+	m_isTxVisibleProp.m_value = true;
+	m_isRxVisibleProp.m_value = true;
+}
+
+bool TxRxFilterLayer.filter (
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	switch (recordCode)
+	{
+	case log.StdRecordCode.Tx:
+		return m_isTxVisibleProp.m_value;
+
+	case log.StdRecordCode.Rx:
+		return m_isRxVisibleProp.m_value;
+
+	default:
+		return true; // everything else is visible
+	}
+}
+
+//..............................................................................

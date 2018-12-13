@@ -1,0 +1,22 @@
+#..............................................................................
+#
+#  Tibbo Modbus Gateway Monitor plugin
+#
+
+[plugin]
+
+name        = Tibbo Modbus Gateway Monitor
+description = "Tibbo Modbus Gateway Monitor plugin"
+id          = modbus-gateway-mon
+group       = net
+monitor     = true
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 075eb3ef-43e2-460c-9301-a72810de9689  # modbus-gateway-mon
+icon        = images/modbus.png
+small-icon  = images/modbus-16x16.png
+
+session-class = ModbusGatewayMonSession
+
+[scripts]
+
+ModbusGatewayMonSession.jnc

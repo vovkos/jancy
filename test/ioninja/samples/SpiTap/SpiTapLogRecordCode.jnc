@@ -1,0 +1,34 @@
+//..............................................................................
+//
+// SPI tap log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum SpiTapLogRecordCode: uint64_t
+{
+	TapOpened         = 0x01d487b3c025af1c | log.RecordCodeFlags.Foldable,
+	TapOpenError      = 0x01d487b3c025af1d,
+	TapClosed         = 0x01d487b3c025af1e,
+	FrequencyChanged  = 0x01d487b3c025af1f,
+	ModeChanged       = 0x01d487b3c025af20,
+	DataBitsChanged   = 0x01d487b3c025af21,
+	EndiannessChanged = 0x01d487b3c025af22,
+	TxRxOutOfSync     = 0x01d487b3c025af23,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct SpiTapOpenParams
+{
+	uint_t m_frequency;
+	uint_t m_mode;
+	uint_t m_dataBits;
+	uint_t m_endianness;
+
+	// followed by device name
+}
+
+//..............................................................................

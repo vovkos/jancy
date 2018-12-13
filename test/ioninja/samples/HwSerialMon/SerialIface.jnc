@@ -1,0 +1,56 @@
+//..............................................................................
+//
+// Hardware Serial Monitor session
+//
+
+import "doc_PluginHost.jnc"
+
+//..............................................................................
+
+class SerialIface
+{
+protected:
+	doc.PluginHost* m_pluginHost;
+
+public:
+	char const* readonly m_name;
+	gui.GroupProperty* readonly m_groupProp;
+
+public:
+	construct (doc.PluginHost* pluginHost)
+	{
+		m_pluginHost = pluginHost;
+	}
+
+	virtual createProperties (
+		gui.GroupProperty* group = null,
+		gui.Property* beforeProp = null
+		)
+	{
+	}
+
+	virtual loadProperties (doc.Storage* storage)
+	{
+	}
+
+	virtual saveProperties (doc.Storage* storage)
+	{
+	}
+
+	virtual restoreDefaultProperties ()
+	{
+	}
+
+	abstract start ();
+
+	virtual stop ()
+	{
+	}
+
+	abstract processSignal (
+		uint64_t timestamp,
+		uint16_t lines
+		);
+}
+
+//..............................................................................

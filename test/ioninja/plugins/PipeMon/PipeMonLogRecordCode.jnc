@@ -1,0 +1,45 @@
+//..............................................................................
+//
+// Pipe Monitor log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum PipeMonLogRecordCode: uint64_t
+{
+	ServerFileOpened_old    = 0x01d48717897030a1,
+	ServerFileOpenError_old = 0x01d48717897030a2,
+	ClientFileOpened_old    = 0x01d48717897030a3,
+	ClientFileOpenError_old = 0x01d48717897030a4,
+	FileClosed              = 0x01d48717897030a5,
+	ConnectionAccepted      = 0x01d48717897030a6,
+	ConnectionClosed        = 0x01d48717897030a7,
+	Transaction             = 0x01d48717897030a8,
+	FileIdChanged_old       = 0x01d48717897030a9,
+	ServerFileOpened        = 0x01d48717897030aa,
+	ServerFileOpenError     = 0x01d48717897030ab,
+	ClientFileOpened        = 0x01d48717897030ac,
+	ClientFileOpenError     = 0x01d48717897030ad,
+	FileIdChanged           = 0x01d48717897030ae,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum PipeMonLogPartCode: uint64_t
+{
+	Prefix = 0x01d48717897030ae | log.PartCodeFlags.MergeableForward,
+	Suffix = 0x01d48717897030ae | log.PartCodeFlags.MergeableBackward,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PipeMonLogTransactionParams
+{
+	uint32_t m_fileId;
+	uint32_t m_txDataSize;
+	uint32_t m_rxDataSize;
+}
+
+//..............................................................................

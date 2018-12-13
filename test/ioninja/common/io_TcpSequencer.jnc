@@ -177,4 +177,4 @@ TcpSequencer.writeAlignedOutOfSeqSegments ()
 
 //..............................................................................
 
-} // namespace io {
+} // namespace io

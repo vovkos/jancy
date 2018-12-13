@@ -1,0 +1,28 @@
+#...............................................................................
+#
+#  Pcap log plugin
+#
+
+[plugin]
+
+name        = "Pcap Log"
+description = "Pcap log representer"
+group       = net
+guid        = 074c3414-2622-418a-885d-edfeca2b79e7
+
+log-representer-func = representPcapLog
+
+[scripts]
+
+PcapLogRecordCode.jnc
+PcapLogRepresenter.jnc
+
+[records]
+
+01d485681832d000  # StartingCapture
+01d485681832d001  # CaptureStarted
+01d485681832d002  # CaptureError
+01d485681832d003  # CaptureStopped
+01d485681832d004  # ChangingFilter
+01d485681832d005  # FilterChanged
+01d485681832d006  # FilterError

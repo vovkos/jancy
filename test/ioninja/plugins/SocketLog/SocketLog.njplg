@@ -1,0 +1,41 @@
+#...............................................................................
+#
+#  Socket log representer plugin
+#
+
+[plugin]
+
+name        = "Socket Log"
+description = "Socket log representer"
+group       = net
+guid        = db8c8923-a699-46cc-be7c-f0bcd523082b
+
+log-representer-func = representSocketLog
+
+[scripts]
+
+SocketLogRecordCode.jnc
+SocketLogRepresenter.jnc
+
+[records]
+
+01d483f3e69da200  # Open
+01d483f3e69da201  # OpenError
+01d483f3e69da202  # Close
+
+01d483f3e69da203  # Resolving
+01d483f3e69da204  # Connecting
+01d483f3e69da205  # ConnectingFrom
+01d483f3e69da206  # ResolveCompleted
+01d483f3e69da207  # ConnectCompleted
+01d483f3e69da208  # ConnectCancelled/ResolveCancelled
+01d483f3e69da209  # ConnectError/ResolveError
+01d483f3e69da20a  # Disconnected
+01d483f3e69da20b  # Disconnected_old
+
+01d483f3e69da20c  # Listening
+01d483f3e69da20d  # ListenError
+01d483f3e69da20e  # ListenStopped
+01d483f3e69da20f  # ClientConnected
+01d483f3e69da210  # ClientDisconnected
+01d483f3e69da211  # ClientRejected

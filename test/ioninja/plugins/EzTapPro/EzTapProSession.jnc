@@ -1,0 +1,938 @@
+//..............................................................................
+//
+// Serial session
+//
+
+import "io_base.jncx"
+import "io_Serial.jnc"
+import "io_SerialUi.jnc"
+import "io_BufferUi.jnc"
+import "std_List.jnc"
+import "std_Buffer.jnc"
+import "sys_Timer.jnc"
+import "doc_Session.jnc"
+import "gui_StdSessionInfo.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+
+//..............................................................................
+
+class EzTapProSession: doc.Session
+{
+protected:
+	enum Defaults
+	{
+		Parity         = io.SerialParity.None,
+		SignalLevel    = 0,
+		ReadMode       = SerialReadMode.WaitFirstChar,
+		ReadInterval   = 10,
+	}
+
+	enum State
+	{
+		Closed,
+		Opened,
+	}
+
+	enum ActionId
+	{
+		Refresh,
+		Capture,
+		Flip,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum InfoId
+	{
+		Dtr,
+		Rts,
+		Dsr,
+		Cts,
+		_Count,
+	}
+
+protected:
+	// serial port
+
+	State bindable m_state;
+	io.Serial m_serial;
+	char const* m_portName;
+	uint_t bindable m_baudRate;
+	uint_t m_dataBits;
+	io.SerialStopBits m_stopBits;
+	io.SerialParity m_parity;
+	io.SerialStatusLines bindable m_dteControlLines;
+	io.SerialStatusLines bindable m_dceControlLines;
+	std.Buffer m_readBuffer;
+	uint_t m_syncId;
+
+	// response decode
+
+	size_t m_responseSize;
+	std.Buffer m_responseBuffer;
+
+	// common serial ui
+
+	io.SerialSettingUi m_serialSettingUi;
+
+	// toolbar, status bar & menu
+
+	gui.Action* m_actionTable [ActionId._Count];
+	gui.Icon* m_iconTable [IconId._Count];
+	gui.StatusPane* m_statusPane;
+	gui.ComboBox* m_portCombo;
+
+	// serial property grid
+
+	gui.ComboProperty* m_portProp;
+	gui.EnumProperty* m_parityProp;
+	gui.EnumProperty* m_signalLevelProp;
+	gui.BoolProperty* m_flipProp;
+	gui.EnumProperty* m_readModeProp;
+	gui.IntProperty* m_readIntervalProp;
+	io.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	gui.InformationValue* m_infoTable [InfoId._Count];
+	gui.StdSessionInfoSet m_stdSessionInfoSet;
+	log.ThroughputInfoSet m_throughputInfoSet;
+	log.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct (doc.PluginHost* pluginHost);
+
+	bool errorcode capture ();
+	stopCapture ();
+
+	override void load (doc.Storage* storage);
+	override void save (doc.Storage* storage);
+	override void updateProperties ();
+	override bool errorcode applyProperties ();
+	override void restoreDefaultProperties ();
+
+	override size_t errorcode transmit (
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onCapture ()
+	{
+		m_state ? stopCapture () : try capture ();
+	}
+
+	onPortComboEnter ()
+	{
+		try capture ();
+	}
+
+	onBaudRateChanged ();
+
+	onSerialEvent (
+		uint_t syncId,
+		io.SerialEvents triggeredEvents
+		);
+
+	createUi ();
+	enumeratePorts ();
+	flipDteDce ();
+
+	gui.ComboBox* createSerialSettingComboBox (
+		char const* labelText,
+		gui.EnumPropertyOption const* optionTable,
+		size_t optionCount,
+		function* onChanged ()
+		);
+
+	waitSerialEvents ();
+	io.SerialOptions getSerialOptions ();
+
+	uint_t getReadInterval ()
+	{
+		return
+			sys.g_systemInfo.m_osKind != sys.OsKind.Windows ||
+			m_readModeProp.m_value != SerialReadMode.IntervalBased ? 0 : m_readIntervalProp.m_value;
+	}
+
+	bool errorcode resetAcquisition ();
+	bool errorcode startAcquisition ();
+	bool errorcode configureSerial ();
+	bool errorcode getControlLines ();
+
+	bool errorcode decodeResponse (
+		void const* p,
+		size_t size
+		);
+
+	updateDteControlLines (
+		bool dtr,
+		bool rts
+		);
+
+	updateDceControlLines (
+		bool dsr,
+		bool cts
+		);
+
+	updateLineInfoValue (
+		InfoId infoId,
+		bool line
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+EzTapProSession.construct (doc.PluginHost* pluginHost)
+{
+	basetype.construct (pluginHost);
+
+	m_readBuffer.setSize (io.BufferPropertySet.Defaults.ReadBufferSize);
+
+	createUi ();
+
+	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
+}
+
+EzTapProSession.createUi ()
+{
+	static gui.EnumPropertyOption parityTable [] =
+	{
+		{ "None",   io.SerialParity.None },
+		{ "Odd",    io.SerialParity.Odd },
+		{ "Even",   io.SerialParity.Even },
+		{ "Mark",   io.SerialParity.Mark },
+		{ "Space",  io.SerialParity.Space },
+		{ "Ignore", EzTapParity.Ignore },
+	}
+
+	static gui.EnumPropertyOption signalLevelTable [] =
+	{
+		{ "RS232/TTL",          EzTapSignalLevel.Rs232OrTtl },
+		{ "RS422/485",          EzTapSignalLevel.Rs422Or485 },
+		{ "Inverted RS232/TTL", EzTapSignalLevel.InvertedRs232OrTtl },
+	}
+
+	static gui.EnumPropertyOption readModeTable [] =
+	{
+		{ "Check COMSTAT.cbInQue", SerialReadMode.CheckComstat },
+		{ "Wait for the 1st char", SerialReadMode.WaitFirstChar },
+		{ "Interval-based",        SerialReadMode.IntervalBased },
+	}
+
+	// toolbar
+
+	m_iconTable [IconId.Capture] = new gui.Icon ("images/capture.png");
+	m_iconTable [IconId.StopCapture] = new gui.Icon ("images/pause.png");
+
+	m_pluginHost.m_toolBar.addLabel ("Port:");
+	m_portCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_portCombo.m_isEditable = true;
+	m_portCombo.m_onEnter += onPortComboEnter;
+
+	m_actionTable [ActionId.Refresh] = createAction ("Refresh port list", "images/refresh.png");
+	m_actionTable [ActionId.Refresh].m_onTriggered += enumeratePorts;
+
+	m_actionTable [ActionId.Capture]  = createAction ("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable [ActionId.Capture].m_onTriggered += onCapture;
+
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+		"Connection",
+		"Serial port-specific connection settings"
+		);
+
+	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty (
+		group,,
+		"Port",
+		"Specify serial port to use"
+		);
+
+	m_serialSettingUi.create (
+		m_pluginHost.m_toolBar,
+		m_pluginHost.m_propertyGrid,
+		group,
+		io.SerialSettingUi.SettingId.BaudRate,
+		io.SerialSettingUi.SettingId.BaudRate |
+		io.SerialSettingUi.SettingId.DataBits |
+		io.SerialSettingUi.SettingId.StopBits // no parity -- we handle parity manually
+		);
+
+	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
+	bindingof (m_serialSettingUi.m_baudRateCombo.m_currentIndex) += onBaudRateChanged;
+
+	m_pluginHost.m_menu.addSeparator ();
+
+	m_actionTable [ActionId.Flip] = createAction ("Flip DTE/DCE", "images/flip.png");
+	m_actionTable [ActionId.Flip].m_isCheckable = true;
+	m_actionTable [ActionId.Flip].m_onTriggered = flipDteDce;
+
+	// status bar (only one pane)
+
+	m_statusPane = m_pluginHost.m_statusBar.addPane (, 80);
+
+	// serial property grid
+
+	m_parityProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Parity",
+		"Serial parity check",
+		parityTable,
+		countof (parityTable)
+		);
+
+	m_signalLevelProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+		group,,
+		"Signal level",
+		"Serial link signal level",
+		signalLevelTable,
+		countof (signalLevelTable)
+		);
+
+	m_flipProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+		group,,
+		"Flip DTE/DCE",
+		"Flip logical sides of the tap cable"
+		);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty (
+		"Buffering & compatibility",
+		"Advanced options controlling performance, throughtput and compatibility"
+		);
+
+	if (sys.g_systemInfo.m_osKind == sys.OsKind.Windows)
+	{
+		// these settings only make sense on Windows
+
+		m_readModeProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+			group,,
+			"Read mode",
+			"Advanced read request-specific options",
+			readModeTable,
+			countof (readModeTable)
+			);
+
+		m_readIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty (
+			group,,
+			"Read max inter-char interval (ms)",
+			"Maximum inter-character delay during read request (in millisceonds)"
+			);
+
+		m_readIntervalProp.m_minValue = 1;
+	}
+	else
+	{
+		// still, we want valid property pointers, so there's less checking
+
+		m_readModeProp = new gui.EnumProperty (null);
+		m_readIntervalProp = new gui.IntProperty (null);
+	}
+
+	m_bufferPropertySet.createProperties (
+		m_pluginHost.m_propertyGrid,
+		group,,
+		io.BufferPropertySet.PropertyId.All &
+		~io.BufferPropertySet.PropertyId.WriteBufferSize &
+		~io.BufferPropertySet.PropertyId.KeepWriteBlockSize &
+		~io.BufferPropertySet.PropertyId.KeepReadBlockSize
+		);
+
+	// information grid
+
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("Serial");
+
+	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
+
+	m_infoTable [InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "DTR");
+	m_infoTable [InfoId.Rts] = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "RTS");
+	m_infoTable [InfoId.Dsr] = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "DSR");
+	m_infoTable [InfoId.Cts] = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "CTS");
+
+	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents ();
+
+	enumeratePorts ();
+	m_uiReactor.start ();
+}
+
+gui.ComboBox* EzTapProSession.createSerialSettingComboBox (
+	char const* labelText,
+	gui.EnumPropertyOption const* optionTable,
+	size_t optionCount,
+	function* onChanged ()
+	)
+{
+	m_pluginHost.m_toolBar.addLabel (labelText);
+	gui.ComboBox* comboBox = m_pluginHost.m_toolBar.addComboBox ();
+
+	for (size_t i = 0; i < optionCount; i++)
+		comboBox.addItem (optionTable [i].m_text, optionTable [i].m_value);
+
+	comboBox.adjustSizeToContents ();
+	comboBox.m_onChanged += onChanged;
+
+	return comboBox;
+}
+
+EzTapProSession.enumeratePorts ()
+{
+	char const* name = m_portCombo.m_currentText;
+	m_portCombo.clear ();
+
+	size_t count;
+	io.SerialPortDesc const* portList = io.createSerialPortDescList (&count);
+	io.SerialPortDesc const* port = portList;
+
+	gui.EnumPropertyOption* optionArray = new gui.EnumPropertyOption [count];
+	gui.EnumPropertyOption* option = optionArray;
+
+	for (; port; port = port.m_next, option++)
+	{
+		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
+		m_portCombo.addItem (description, port.m_deviceName);
+		option.m_text = description;
+		option.m_value = port.m_deviceName;
+	}
+
+	m_portCombo.m_editText = name; // preserve current text
+	m_portProp.setOptions (optionArray, count);
+}
+
+EzTapProSession.flipDteDce ()
+{
+	if (!m_state)
+		return;
+
+	io.SerialStatusLines tmp = m_dteControlLines;
+	m_dteControlLines = m_dceControlLines;
+	m_dceControlLines = tmp;
+}
+
+io.SerialOptions EzTapProSession.getSerialOptions ()
+{
+	io.SerialOptions options = io.SerialOptions.KeepWriteBlockSize;
+
+	if (m_readModeProp.m_value == SerialReadMode.WaitFirstChar)
+		options |= io.SerialOptions.WinReadWaitFirstChar;
+	else if (m_readModeProp.m_value == SerialReadMode.CheckComstat)
+		options |= io.SerialOptions.WinReadCheckComstat;
+
+	return options;
+}
+
+bool errorcode EzTapProSession.capture ()
+{
+	stopCapture ();
+	startSession ();
+
+	char const* portName = m_portCombo.m_currentText;
+
+	// configure and open
+
+	m_serial.m_readInterval = getReadInterval ();
+	m_serial.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_serial.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_serial.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_serial.m_options = getSerialOptions ();
+
+	m_serial.open (portName);
+
+	m_portName = portName;
+	m_baudRate = m_serialSettingUi.m_baudRate;
+	m_dataBits = m_serialSettingUi.m_dataBits;
+	m_stopBits = m_serialSettingUi.m_stopBits;
+	m_parity = m_parityProp.m_value;
+	m_dteControlLines = 0;
+	m_dceControlLines = 0;
+
+	SerialOpenParams params;
+	params.m_baudRate = m_baudRate;
+	params.m_dataBits = m_dataBits;
+	params.m_stopBits = m_stopBits;
+	params.m_parity = m_parity;
+	params.m_flowControl = io.SerialFlowControl.None;
+	params.m_readInterval = m_serial.m_readInterval;
+	params.m_dtr = false; // will read control lines later
+	params.m_rts = false; // will read control lines later
+	params.m_statusLines = 0; // will read status lines later
+	params.m_options = m_serial.m_options;
+	params.m_osKind = sys.g_systemInfo.m_osKind;
+
+	char const* p = $"$(params; B)$portName";
+	writeLog (SerialLogRecordCode.PortOpened, p, dynamic sizeof (p));
+
+	m_responseSize = 0;
+	m_responseBuffer.clear ();
+	m_state = State.Opened;
+
+	resetAcquisition ();
+	configureSerial ();
+	startAcquisition ();
+	getControlLines ();
+
+	m_isTransmitEnabled = true;
+
+	waitSerialEvents ();
+	m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
+	return true;
+
+catch:
+	std.Error const* error = std.getLastError ();
+
+	writeLog (
+		SerialLogRecordCode.PortOpenError,
+		error,
+		error.m_size
+		);
+
+	m_serial.close ();
+	return false;
+}
+
+EzTapProSession.stopCapture ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	resetAcquisition ();
+
+	writeLogString (SerialLogRecordCode.PortClosed, m_portName);
+	m_stdSessionInfoSet.endSession ();
+	m_serial.close ();
+	m_state = State.Closed;
+	m_syncId++;
+}
+
+bool errorcode EzTapProSession.resetAcquisition ()
+{
+	EzTapAcquisitionParams params;
+	params.m_code = EzTapCommandCode.AcquisitionControl;
+	params.m_reset = true;
+	m_serial.write (&params, sizeof (params));
+	return true;
+}
+
+bool errorcode EzTapProSession.startAcquisition ()
+{
+	EzTapAcquisitionParams params;
+	params.m_code = EzTapCommandCode.AcquisitionControl;
+	params.m_signalLevel = m_signalLevelProp.m_value;
+	params.m_dceData = true;
+	params.m_dceControlLines = true;
+	params.m_dteData = true;
+	params.m_dteControlLines = true;
+	m_serial.write (&params, sizeof (params));
+	return true;
+}
+
+bool errorcode EzTapProSession.configureSerial ()
+{
+	uint_t baudRate = m_serialSettingUi.m_baudRate;
+	uint_t dataBits = m_serialSettingUi.m_dataBits;
+	io.SerialStopBits stopBits = m_serialSettingUi.m_stopBits;
+	io.SerialParity parity = (io.SerialParity) m_parityProp.m_value;
+
+	if (m_baudRate != baudRate)
+	{
+		writeLog (SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof (baudRate));
+		m_baudRate = baudRate;
+	}
+
+	if (m_dataBits != dataBits)
+	{
+		writeLog (SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof (dataBits));
+		m_dataBits = dataBits;
+	}
+
+	if (m_stopBits != stopBits)
+	{
+		writeLog (SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof (stopBits));
+		m_stopBits = stopBits;
+	}
+
+	if (m_parity != parity)
+	{
+		writeLog (SerialLogRecordCode.ParityChanged, &parity, sizeof (parity));
+		m_parity = parity;
+	}
+
+	EzTapUartParams params;
+	params.m_code = EzTapCommandCode.SetDteUartParams;
+	params.m_dataBits = dataBits - 5; // EzTapDataBits start with 5 bits
+	params.m_stopBits = stopBits;
+	params.m_parity = parity;
+
+	if (baudRate <= 115200)
+	{
+		params.m_baudRateDivisor = 44000000 / 16 / baudRate - 1;
+	}
+	else
+	{
+		params.m_highSpeed = true;
+		params.m_baudRateDivisor = 44000000 / baudRate - 1;
+	}
+
+	m_serial.write (&params, sizeof (params));
+
+	params.m_code = EzTapCommandCode.SetDceUartParams;
+	m_serial.write (&params, sizeof (params));
+	return true;
+}
+
+bool errorcode EzTapProSession.getControlLines ()
+{
+	EzTapGenericCommandParams params;
+	params.m_code = EzTapCommandCode.GetControlLines;
+	m_serial.write (&params, sizeof (params));
+	return true;
+}
+
+void EzTapProSession.updateDteControlLines (
+	bool dtr,
+	bool rts
+	)
+{
+	io.SerialStatusLines lines;
+
+	if (dtr)
+		lines |= io.SerialStatusLines.Dsr;
+
+	if (rts)
+		lines |= io.SerialStatusLines.Cts;
+
+	io.SerialStatusLines mask = lines ^ m_dteControlLines;
+	if (mask)
+	{
+		SerialStatusLineChangedParams params = { lines, mask }
+		writeLog (SerialLogRecordCode.ControlLineChanged, params, sizeof (params));
+		m_dteControlLines = lines;
+	}
+}
+
+void EzTapProSession.updateDceControlLines (
+	bool dsr,
+	bool cts
+	)
+{
+	io.SerialStatusLines lines;
+
+	if (dsr)
+		lines |= io.SerialStatusLines.Dsr;
+
+	if (cts)
+		lines |= io.SerialStatusLines.Cts;
+
+	io.SerialStatusLines mask = lines ^ m_dceControlLines;
+	if (mask)
+	{
+		SerialStatusLineChangedParams params = { lines, mask }
+		writeLog (SerialLogRecordCode.StatusLineChanged, params, sizeof (params));
+		m_dceControlLines = lines;
+	}
+}
+
+bool errorcode EzTapProSession.decodeResponse (
+	void const* p,
+	size_t size
+	)
+{
+	while (size)
+	{
+		if (m_responseSize == 0)
+		{
+			uint_t code = *(uint8_t const*) p & EzTapResponseCode.Mask;
+
+			m_responseSize = g_ezTapResponseSizeMap [code];
+			if (!m_responseSize)
+			{
+				std.setError ("invalid packet from EZ-Tap Pro");
+				return false;
+			}
+
+			m_responseBuffer.clear ();
+			m_responseBuffer.reserve (m_responseSize);
+		}
+
+		size_t missing = m_responseSize - m_responseBuffer.m_size;
+		if (size < missing)
+		{
+			m_responseBuffer.append (p, size);
+			break;
+		}
+
+		m_responseBuffer.append (p, missing);
+
+		p += missing;
+		size -= missing;
+
+		uint_t code = m_responseBuffer [0] & EzTapResponseCode.Mask;
+		switch (code)
+		{
+		case EzTapResponseCode.ClockMsbsChanged:
+			// currently ignored -- we timestamp on PC side for now
+			break;
+
+		case EzTapResponseCode.DteData:
+		case EzTapResponseCode.DceData:
+			EzTapDataParams const* params = (EzTapDataParams const*) m_responseBuffer.m_p;
+
+			uint64_t recordCode = code == EzTapResponseCode.DteData != m_actionTable [ActionId.Flip].m_isChecked ?
+				log.StdRecordCode.Tx :
+				log.StdRecordCode.Rx;
+
+			writeLog (recordCode, &params.m_data, 1);
+			break;
+
+		case EzTapResponseCode.DteControlLineChanged:
+		case EzTapResponseCode.DceControlLineChanged:
+			EzTapControlLineChangedParams const* params = (EzTapControlLineChangedParams const*) m_responseBuffer.m_p;
+
+			if (code == EzTapResponseCode.DteControlLineChanged != m_actionTable [ActionId.Flip].m_isChecked)
+				updateDteControlLines (params.m_dsr, params.m_cts);
+			else
+				updateDceControlLines (params.m_dsr, params.m_cts);
+			break;
+
+		case EzTapResponseCode.GenericReply:
+			EzTapGenericReplyParams const* params = (EzTapGenericReplyParams const*) m_responseBuffer.m_p;
+
+			// TODO: handle errors
+			break;
+
+		case EzTapResponseCode.GetControlLinesReply:
+			EzTapGetContorlLinesReplyParams const* params = (EzTapGetContorlLinesReplyParams const*) m_responseBuffer.m_p;
+
+			if (m_actionTable [ActionId.Flip].m_isChecked)
+			{
+				updateDteControlLines (params.m_dsr, params.m_cts);
+				updateDceControlLines (params.m_dtr, params.m_rts);
+			}
+			else
+			{
+				updateDteControlLines (params.m_dtr, params.m_rts);
+				updateDceControlLines (params.m_dsr, params.m_cts);
+			}
+
+			break;
+
+		case EzTapResponseCode.Error:
+			EzTapErrorParams const* params = (EzTapErrorParams const*) m_responseBuffer.m_p;
+			if (params.m_error == EzTapErrorCode.BufferOverflow)
+			{
+				writeLog (log.StdRecordCode.RxBufferFullLossy);
+			}
+			else
+			{
+				std.setError ("invalid error code from EZ-Tap Pro");
+				return false;
+			}
+
+			break;
+
+		default:
+			assert (false, "invalid response code"); // should have been checked earlier
+		}
+
+		m_responseSize = 0;
+	}
+
+	return true;
+}
+
+size_t errorcode EzTapProSession.transmit (
+	void const* p,
+	size_t size
+	)
+{
+	size_t result = m_serial.write (p, size);
+	writeLog (log.StdRecordCode.Tx, p, result);
+	return result;
+}
+
+void EzTapProSession.load (doc.Storage* storage)
+{
+	m_serialSettingUi.load (storage);
+
+	m_portCombo.m_editText = storage.readString ("portName");
+	m_parityProp.m_currentIndex = storage.readInt ("parity");
+	m_signalLevelProp.m_currentIndex = storage.readInt ("signalLevel");
+	m_actionTable [ActionId.Flip].m_isChecked = storage.readBool ("flipDteDce");
+
+	m_readModeProp.m_value = storage.readBool ("readMode", Defaults.ReadMode);
+	m_readIntervalProp.m_value = storage.readInt ("readInterval", Defaults.ReadInterval);
+
+	m_bufferPropertySet.load (storage);
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+}
+
+void EzTapProSession.save (doc.Storage* storage)
+{
+	m_serialSettingUi.save (storage);
+
+	storage.writeString ("portName", m_portCombo.m_editText);
+	storage.writeInt ("parity", m_parityProp.m_currentIndex);
+	storage.writeInt ("signalLevel", m_signalLevelProp.m_currentIndex);
+	storage.writeBool ("flipDteDce", m_actionTable [ActionId.Flip].m_isChecked);
+
+	storage.writeInt ("readMode", m_readModeProp.m_value);
+	storage.writeInt ("readInterval", m_readIntervalProp.m_value);
+
+	m_bufferPropertySet.save (storage);
+}
+
+void EzTapProSession.updateProperties ()
+{
+	m_serialSettingUi.updateProperties ();
+
+	m_portProp.m_value = m_portCombo.m_editText;
+	m_flipProp.m_value = m_actionTable [ActionId.Flip].m_isChecked;
+}
+
+bool errorcode EzTapProSession.applyProperties ()
+{
+	m_serialSettingUi.applyProperties ();
+
+	m_portCombo.m_editText = m_portProp.m_value;
+	m_actionTable [ActionId.Flip].m_isChecked = m_flipProp.m_value;
+	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	if (m_state != State.Opened)
+		return true;
+
+	io.SerialOptions options = getSerialOptions ();
+	uint_t readInterval = getReadInterval ();
+	EzTapSignalLevel signalLevel = m_signalLevelProp.m_value;
+
+	io.SerialOptions optionMask = m_serial.m_options ^ options;
+	if (optionMask & (io.SerialOptions.WinReadCheckComstat | io.SerialOptions.WinReadWaitFirstChar))
+	{
+		uint_t mode = m_readModeProp.m_value;
+		writeLog (SerialLogRecordCode.ReadModeChanged, &mode, sizeof (mode));
+	}
+
+	if (m_serial.m_readInterval != readInterval)
+		writeLog (SerialLogRecordCode.ReadIntervalChanged, &readInterval, sizeof (readInterval));
+
+	m_serial.m_options = options;
+	m_serial.m_readInterval = readInterval;
+	m_serial.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_serial.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_serial.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+
+	configureSerial ();
+	return true;
+}
+
+void EzTapProSession.restoreDefaultProperties ()
+{
+	m_serialSettingUi.restoreDefaultProperties ();
+
+	m_parityProp.m_value = Defaults.Parity;
+	m_signalLevelProp.m_value = Defaults.SignalLevel;
+	m_flipProp.m_value = false;
+
+	m_readModeProp.m_value = Defaults.ReadMode;
+	m_readIntervalProp.m_value = Defaults.ReadInterval;
+
+	m_bufferPropertySet.restoreDefaults ();
+}
+
+EzTapProSession.waitSerialEvents ()
+{
+	io.SerialEvents eventMask =
+		io.SerialEvents.IoError |
+		io.SerialEvents.ReadBufferFull |
+		io.SerialEvents.IncomingData;
+
+	m_serial.wait (eventMask, onSerialEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+EzTapProSession.onSerialEvent (
+	uint_t syncId,
+	io.SerialEvents triggeredEvents
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.SerialEvents.IoError)
+	{
+		writeLog (log.StdRecordCode.Error, &m_serial.m_ioError, m_serial.m_ioError.m_size);
+		stopCapture ();
+		return;
+	}
+
+	if ((triggeredEvents & io.SerialEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		writeLog (log.StdRecordCode.RxBufferFullLossy);
+
+	if (triggeredEvents & io.SerialEvents.IncomingData)
+	{
+		size_t result = m_serial.read (m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			decodeResponse (m_readBuffer.m_p, result);
+	}
+
+	waitSerialEvents ();
+
+catch:
+	writeLogLastError (log.StdRecordCode.Error);
+	stopCapture ();
+}
+
+EzTapProSession.onBaudRateChanged ()
+{
+	if (m_state != State.Opened)
+		return;
+
+	configureSerial ();
+}
+
+EzTapProSession.updateLineInfoValue (
+	InfoId infoId,
+	bool line
+	)
+{
+	m_infoTable [infoId].m_value = line ? "on" : "off";
+	m_infoTable [infoId].m_valueColor = line ? gui.StdColor.LightRed : gui.StdColor.Gray;
+}
+
+reactor EzTapProSession.m_uiReactor
+{
+	m_title = m_state ?
+		$"EZ-Tap $m_portName $(m_baudRate)" :
+		$"EZ-Tap $(m_portCombo.m_currentText) $(m_serialSettingUi.m_baudRateCombo.m_currentText)";
+
+	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
+	m_actionTable [ActionId.Capture].m_icon = m_iconTable [m_state ? IconId.StopCapture : IconId.Capture];
+	m_bufferPropertySet.m_readParallelismProp.m_isEnabled = m_readModeProp.m_value != SerialReadMode.CheckComstat;
+	m_signalLevelProp.m_isEnabled = !m_state;
+	m_readIntervalProp.m_isEnabled = m_readModeProp.m_value == SerialReadMode.IntervalBased;
+	m_statusPane.m_text = m_state ? m_portName : "Port closed";
+	m_statusPane.m_color = m_state ? gui.StdColor.Blue : gui.StdColor.Gray;
+	m_infoTable [InfoId.Dtr].m_isEnabled = m_state;
+	m_infoTable [InfoId.Rts].m_isEnabled = m_state;
+	m_infoTable [InfoId.Dsr].m_isEnabled = m_state;
+	m_infoTable [InfoId.Cts].m_isEnabled = m_state;
+
+	updateLineInfoValue (InfoId.Dtr, m_dteControlLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue (InfoId.Rts, m_dteControlLines & io.SerialStatusLines.Cts);
+	updateLineInfoValue (InfoId.Dsr, m_dceControlLines & io.SerialStatusLines.Dsr);
+	updateLineInfoValue (InfoId.Cts, m_dceControlLines & io.SerialStatusLines.Cts);
+}
+
+//..............................................................................

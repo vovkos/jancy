@@ -1,0 +1,120 @@
+//..............................................................................
+//
+// Modbus RTU log record declarations and representer
+//
+
+import "log_Representer.jnc"
+import "io_Modbus.jnc"
+import "hexEncoding.jnc"
+
+//..............................................................................
+
+uint8_t lrc (
+	void const* p,
+	size_t size
+	)
+{
+	uint8_t const* b = (uint8_t const*) p;
+	int result = 0;
+
+	for (; size; size--)
+		result += *b++;
+
+	return (result ^ 0xff) + 1;
+}
+
+representModbusAsciiAdu (
+	log.RepresenterTarget* target,
+	io.ModbusRole role,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	assert (size > 3);
+
+	std.Buffer aduBuffer;
+	decodeHexString (&aduBuffer, p + 1, size - 3); // exclude ':' and "\r\n"
+
+	// after decoding, we can use the RTU ADU hdr
+	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) aduBuffer.m_p;
+	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
+
+	target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
+	target.m_lineAttr.m_iconIdx = role == io.ModbusRole.Master ?
+		log.StdLogIcon.TxPacket :
+		log.StdLogIcon.RxPacket;
+
+	size_t checksumOffset = aduBuffer.m_size - 1; // last byte is LRC
+	uint8_t actualChecksum = aduBuffer.m_p [checksumOffset];
+	uint16_t expectedChecksum = lrc (aduBuffer.m_p, checksumOffset);
+
+	if (!(foldFlags & 1))
+	{
+		target.addHyperText (
+			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-ASCII\e[m Dev: \e[34m%1\e[m %2" (
+			aduHdr.m_deviceAddress,
+			actualChecksum == expectedChecksum ?
+				getModbusPduDigest (role, pduHdr) :
+				"[\e[31mLRC ERROR\e[m]"
+			));
+	}
+	else
+	{
+		target.addHyperText (
+			"[\e^-1\e[34m-\e[m]\n"
+			"\e[1mADU-ASCII\e[m\n"
+			$"    Device:    \e^!%1,%2\e[34m%3\e[m" (
+			1,
+			2,
+			aduHdr.m_deviceAddress
+			));
+
+		if (actualChecksum == expectedChecksum)
+		{
+			target.addHyperText (
+				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[32mOK\e[m]" (
+				size - 4, // xx\r\n
+				2,
+				actualChecksum
+				));
+		}
+		else
+		{
+			target.addHyperText (
+				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X))\e[m" (
+				checksumOffset,
+				2,
+				actualChecksum,
+				expectedChecksum
+				));
+		}
+
+		representModbusPdu (
+			target,
+			role,
+			pduHdr,
+			1 + sizeof (io.ModbusRtuAduHdr) * 2,
+			2,
+			foldFlags
+			);
+
+		target.m_lineAttr.m_backColor = gui.ColorFlags.Transparent;
+		target.m_lineAttr.m_textColor = gui.StdColor.Gray;
+		target.addBin (p, size);
+
+		gui.TextAttr attr;
+		attr.m_backColor = gui.ColorFlags.Transparent;
+		attr.m_textColor = gui.StdColor.Purple;
+
+		target.retroColorize (-size, 1, attr); // :
+		target.retroColorize (-2, 2, attr);    // \r\n
+
+		attr.m_textColor = gui.StdColor.Cyan;
+
+		target.retroColorize (-size + 1, sizeof (io.ModbusAsciiAduHdr), attr);
+		target.retroColorize (-4, 2, attr); // LRC8 (hex)
+	}
+}
+
+//..............................................................................

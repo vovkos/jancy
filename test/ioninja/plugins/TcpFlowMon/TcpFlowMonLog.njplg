@@ -1,0 +1,26 @@
+#...............................................................................
+#
+# TCP Flow Monitor log representer plugin
+#
+
+[plugin]
+
+name        = "TCP Flow Monitor Log"
+description = "TCP Flow Monitor log representer"
+group       = net
+guid        = 5a6cc363-3ace-4db8-9224-3d972d16b30d
+
+log-representer-func = representTcpFlowMonLog
+
+[scripts]
+
+TcpFlowMonLogRecordCode.jnc
+TcpFlowMonLogRepresenter.jnc
+
+[records]
+
+01d487c96e3d5259  # Connecting
+01d487c96e3d525a  # ConnectCompleted
+01d487c96e3d525b  # ConnectionPickedUp
+01d487c96e3d525c  # Disconnected
+01d487c96e3d525d  # OutOfOrderDataDropped

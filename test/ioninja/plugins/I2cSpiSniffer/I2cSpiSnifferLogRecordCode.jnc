@@ -1,0 +1,50 @@
+//..............................................................................
+//
+// I2C sniffer log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum I2cSpiSnifferLogRecordCode: uint64_t
+{
+	DeviceOpened            = 0x01d487bb6423b7fd,
+	InterfaceClaimed        = 0x01d487bb6423b7fe,
+	InEndpointOpened        = 0x01d487bb6423b7ff,
+	OutEndpointOpened       = 0x01d487bb6423b800,
+	CaptureStarted          = 0x01d487bb6423b801,
+	CaptureStopped          = 0x01d487bb6423b802,
+	CaptureError            = 0x01d487bb6423b803,
+	UnexpectedCode          = 0x01d487bb6423b804,
+	IncompleteByte          = 0x01d487bb6423b805,
+	BufferOverflow          = 0x01d487bb6423b806,
+
+	StillWaiting            = 0x01d487bb6423b807,
+	FpgaDisabled            = 0x01d487bb6423b808,
+	FirmwareUpToDate        = 0x01d487bb6423b809,
+	FirmwareUpdateRequired  = 0x01d487bb6423b80a,
+	ErasingFlash            = 0x01d487bb6423b80b,
+	UploadingFirmware       = 0x01d487bb6423b80c,
+	EnablingFpga            = 0x01d487bb6423b80d,
+	FpgaReady               = 0x01d487bb6423b80e,
+
+	I2cStart                = 0x01d487bb6423b80f,
+	I2cFinalizeStart7Bit    = 0x01d487bb6423b810,
+	I2cFinalizeStart10Bit   = 0x01d487bb6423b811,
+	I2cStop                 = 0x01d487bb6423b812,
+	I2cStopOutOfTransaction = 0x01d487bb6423b813,
+	I2cTxNack               = 0x01d487bb6423b814,
+	I2cRxNack               = 0x01d487bb6423b815,
+
+	SpiStart                = 0x01d487bb6423b816,
+	SpiStop                 = 0x01d487bb6423b817,
+}
+
+enum I2cSpiSnifferLogPartCode: uint64_t
+{
+	I2cStartBegin = I2cSpiSnifferLogRecordCode.I2cStart | log.PartCodeFlags.MergeableForward,
+	I2cStartEnd   = I2cSpiSnifferLogRecordCode.I2cStart | log.PartCodeFlags.MergeableBackward,
+}
+
+//..............................................................................
