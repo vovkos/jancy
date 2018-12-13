@@ -95,11 +95,11 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_Jit:
-		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_Jit;
+		m_cmdLine->m_flags |= JncFlag_Jit;
 		break;
 
 	case CmdLineSwitch_McJit:
-		m_cmdLine->m_flags |= JncFlag_Compile | JncFlag_Jit | JncFlag_McJit;
+		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_McJit;
 		break;
 
 	case CmdLineSwitch_LlvmIr:
@@ -112,6 +112,7 @@ CmdLineParser::onSwitch (
 
 	case CmdLineSwitch_CompileOnly:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
+		m_cmdLine->m_flags |= JncFlag_Compile;
 		break;
 
 	case CmdLineSwitch_Documentation:
@@ -168,6 +169,10 @@ CmdLineParser::onSwitch (
 
 	case CmdLineSwitch_IgnoreImport:
 		m_cmdLine->m_ignoredImportList.insertTail (value);
+		break;
+
+	case CmdLineSwitch_IgnoreOpaqueClassTypeInfo:
+		m_cmdLine->m_flags |= JncFlag_IgnoreOpaqueClassTypeInfo;
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:
@@ -244,6 +249,9 @@ CmdLineParser::finalize ()
 
 	if (m_cmdLine->m_flags & JncFlag_Run)
 		m_cmdLine->m_flags |= JncFlag_Jit;
+
+	if (m_cmdLine->m_flags & JncFlag_Jit)
+		m_cmdLine->m_flags |= JncFlag_Compile;
 
 	return true;
 }

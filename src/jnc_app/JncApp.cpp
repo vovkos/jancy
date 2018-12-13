@@ -53,6 +53,9 @@ JncApp::JncApp (CmdLine* cmdLine)
 	if (cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
+	if (cmdLine->m_flags & JncFlag_IgnoreOpaqueClassTypeInfo)
+		compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+
 	if (cmdLine->m_flags & JncFlag_Documentation)
 	{
 		compileFlags |= jnc::ModuleCompileFlag_Documentation;

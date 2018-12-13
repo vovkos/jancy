@@ -15,19 +15,20 @@
 
 enum JncFlag
 {
-	JncFlag_Help              = 0x0001,
-	JncFlag_Version           = 0x0002,
-	JncFlag_LlvmIr            = 0x0004,
-	JncFlag_Compile           = 0x0008,
-	JncFlag_Jit               = 0x0010,
-	JncFlag_McJit             = 0x0020,
-	JncFlag_SimpleGcSafePoint = 0x0040,
-	JncFlag_Run               = 0x0080,
-	JncFlag_Documentation     = 0x0100,
-	JncFlag_DebugInfo         = 0x0200,
-	JncFlag_StdInSrc          = 0x0400,
-	JncFlag_PrintReturnValue  = 0x0800,
-	JncFlag_StdLibDoc         = 0x1000,
+	JncFlag_Help                      = 0x0001,
+	JncFlag_Version                   = 0x0002,
+	JncFlag_LlvmIr                    = 0x0004,
+	JncFlag_Compile                   = 0x0008,
+	JncFlag_Jit                       = 0x0010,
+	JncFlag_McJit                     = 0x0020,
+	JncFlag_SimpleGcSafePoint         = 0x0040,
+	JncFlag_Run                       = 0x0080,
+	JncFlag_Documentation             = 0x0100,
+	JncFlag_DebugInfo                 = 0x0200,
+	JncFlag_StdInSrc                  = 0x0400,
+	JncFlag_PrintReturnValue          = 0x0800,
+	JncFlag_StdLibDoc                 = 0x1000,
+	JncFlag_IgnoreOpaqueClassTypeInfo = 0x2000,
 };
 
 struct CmdLine
@@ -66,6 +67,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_SourceDir,
 	CmdLineSwitch_ImportDir,
 	CmdLineSwitch_IgnoreImport,
+	CmdLineSwitch_IgnoreOpaqueClassTypeInfo,
 	CmdLineSwitch_PrintReturnValue,
 	CmdLineSwitch_LlvmIr,
 	CmdLineSwitch_DebugInfo,
@@ -136,6 +138,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE (CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_IgnoreImport,
 		"ignore-import", "<file>",
 		"Ignore imports of a specific file (for documentation)"
+		)
+	AXL_SL_CMD_LINE_SWITCH (
+		CmdLineSwitch_IgnoreOpaqueClassTypeInfo,
+		"ignore-opaque", NULL,
+		"Ignore opaque class type information (for testing)"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2 (
 		CmdLineSwitch_LlvmIr,
