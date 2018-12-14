@@ -284,8 +284,12 @@ typedef wchar_t           utf32_t;
 
 #	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
 
-#	if (defined (__has_attribute) && __has_attribute (ms_struct))
-#		define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
+#	ifdef __has_attribute
+#		if (__has_attribute (ms_struct))
+#			define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
+#   	else
+#			define JNC_GCC_MSC_STRUCT
+#		endif
 #   else
 #		define JNC_GCC_MSC_STRUCT
 #   endif
