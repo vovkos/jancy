@@ -90,6 +90,12 @@ axl_set_pch (
 	${PCH_CPP}
 	)
 
+set_target_properties (
+	jnc_test_abi
+	PROPERTIES
+	FOLDER test
+	)
+
 if (BUILD_JNC_DLL)
 	add_dependencies (
 		jnc_test_abi

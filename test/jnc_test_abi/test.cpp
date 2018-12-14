@@ -59,7 +59,7 @@ testStruct32 (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct32");
 	ASSERT (jncFunc);
 
-	FuncStruct32* funcPtr = (FuncStruct32*) jncFunc->getMachineCode ();;
+	FuncStruct32* funcPtr = (FuncStruct32*) jncFunc->getMachineCode ();
 	struct32 retval = funcPtr(s1, s2, s3, s4, s5, s6, s7, s8);
 	ASSERT (retval.m_a == -36);
 }
@@ -81,7 +81,7 @@ testStruct64 (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct64");
 	ASSERT (jncFunc);
 
-	FuncStruct64* funcPtr = (FuncStruct64*) jncFunc->getMachineCode ();;
+	FuncStruct64* funcPtr = (FuncStruct64*) jncFunc->getMachineCode ();
 	struct64 retval = funcPtr (s1, s2, s3, s4, s5, s6, s7, s8);
 	ASSERT (retval.m_a == -36);
 }
@@ -99,7 +99,7 @@ testStruct128 (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct128");
 	ASSERT (jncFunc);
 
-	FuncStruct128* funcPtr = (FuncStruct128*) jncFunc->getMachineCode ();;
+	FuncStruct128* funcPtr = (FuncStruct128*) jncFunc->getMachineCode ();
 	struct128 retval = funcPtr (s1, s2, s3, s4);
 	ASSERT (retval.m_a == -16 && retval.m_b == -20);
 }
@@ -125,7 +125,7 @@ testVariant (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcVariant");
 	ASSERT (jncFunc);
 
-	FuncVariant* funcPtr = (FuncVariant*) jncFunc->getMachineCode ();;
+	FuncVariant* funcPtr = (FuncVariant*) jncFunc->getMachineCode ();
 	jnc::Variant retval = funcPtr (v [0], v [1], v [2], v [3]);
 	ASSERT (retval.m_type->getTypeKind () == jnc::TypeKind_Int && retval.m_int32 == -10);
 }
@@ -138,7 +138,7 @@ testFloat (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcFloat");
 	ASSERT (jncFunc);
 
-	FuncFloat* funcPtr = (FuncFloat*) jncFunc->getMachineCode ();;
+	FuncFloat* funcPtr = (FuncFloat*) jncFunc->getMachineCode ();
 	float retval = funcPtr (3.1415f, 2.7182f);
 	ASSERT (retval > 2.7182f && retval < 3.1415f);
 }
@@ -151,7 +151,7 @@ testDouble (jnc::Module* module)
 	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcDouble");
 	ASSERT (jncFunc);
 
-	FuncDouble* funcPtr = (FuncDouble*) jncFunc->getMachineCode ();;
+	FuncDouble* funcPtr = (FuncDouble*) jncFunc->getMachineCode ();
 	double retval = funcPtr (3.1415, 2.7182);
 	ASSERT (retval > 2.7182 && retval < 3.1415);
 }
