@@ -16,11 +16,59 @@
 namespace jnc {
 namespace ct {
 
-// surpisingly enough, by default LLVM produces MSC-compatible (not GCC!) callconv
+//..............................................................................
+
+class CallConv_msc32: public CallConv
+{
+public:
+	virtual
+	void
+	prepareFunctionType (FunctionType* functionType);
+
+	virtual
+	llvm::Function*
+	createLlvmFunction (
+		FunctionType* functionType,
+		const sl::StringRef& tag
+		);
+
+	virtual
+	void
+	call (
+		const Value& calleeValue,
+		FunctionType* functionType,
+		sl::BoxList <Value>* argValueList,
+		Value* resultValue
+		);
+
+	virtual
+	void
+	ret (
+		Function* function,
+		const Value& value
+		);
+
+	virtual
+	Value
+	getThisArgValue (Function* function);
+
+	virtual
+	void
+	createArgVariables (Function* function);
+
+protected:
+	bool
+	isStructRet (Type* type)
+	{
+		return
+			(type->getFlags () & TypeFlag_StructRet) &&
+			type->getSize () > sizeof (uint64_t);
+	}
+};
 
 //..............................................................................
 
-class CdeclCallConv_msc32: public CallConv
+class CdeclCallConv_msc32: public CallConv_msc32
 {
 public:
 	CdeclCallConv_msc32 ()
@@ -31,7 +79,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class StdcallCallConv_msc32: public CallConv
+class StdcallCallConv_msc32: public CallConv_msc32
 {
 public:
 	StdcallCallConv_msc32 ()
@@ -42,7 +90,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ThiscallCallConv_msc32: public CallConv
+class ThiscallCallConv_msc32: public CallConv_msc32
 {
 public:
 	ThiscallCallConv_msc32 ()
