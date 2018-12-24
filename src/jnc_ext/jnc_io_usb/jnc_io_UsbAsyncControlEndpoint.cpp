@@ -242,7 +242,7 @@ UsbAsyncControlEndpoint::finalizeTransfers_l ()
 		switch (it->m_usbTransfer->status)
 		{
 		case LIBUSB_TRANSFER_COMPLETED:
-			ASSERT (it->m_usbTransfer->actual_length <= it->m_buffer.getSize () - sizeof (libusb_control_setup));
+			ASSERT ((size_t) it->m_usbTransfer->actual_length <= it->m_buffer.getSize () - sizeof (libusb_control_setup));
 
 			if (it->m_inBufferPtr.m_p)
 				memcpy (it->m_inBufferPtr.m_p, it->m_buffer + 1, it->m_usbTransfer->actual_length);
