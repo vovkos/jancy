@@ -759,8 +759,13 @@ ClassType::markGcRoots (
 	Box* box = (Box*) p;
 	IfaceHdr* iface = (IfaceHdr*) (box + 1);
 
-	ASSERT (iface->m_box == box && box->m_type == this);
+	if (!iface->m_box) // an unprimed static -- better make a shortcut exit
+	{
+		ASSERT (!iface->m_vtable);
+		return;
+	}
 
+	ASSERT (iface->m_box == box && box->m_type == this);
 	markGcRootsImpl (iface, gcHeap);
 }
 
