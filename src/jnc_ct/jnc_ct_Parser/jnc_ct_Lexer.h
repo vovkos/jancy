@@ -436,9 +436,6 @@ protected:
 	createBinLiteralToken (int radix);
 
 	Token*
-	createRawLiteralToken ();
-
-	Token*
 	createCharToken (
 		int tokenKind,
 		size_t left,

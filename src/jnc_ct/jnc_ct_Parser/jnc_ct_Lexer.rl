@@ -310,7 +310,7 @@ id               { createStringToken (TokenKind_Identifier); };
 lit_sq           { createCharToken (TokenKind_Integer, 1, 1, true); };
 lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
 [rR] raw_lit_sq  { createCharToken (TokenKind_Integer, 2, 1, false); };
-[rR] raw_lit_dq  { createRawLiteralToken (); };
+[rR] raw_lit_dq  { createStringToken (TokenKind_Literal, 2, 1, false); };
 '0' oct+         { createIntegerToken (8); };
 dec+             { createIntegerToken (10); };
 '0' [xX] hex+    { createIntegerToken (16, 2); };

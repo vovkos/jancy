@@ -76,7 +76,7 @@ int main ()
 {
 	char buffer [] =
 	{
-		r"ABCD",            // 00: m_signature
+		"ABCD" 0x"",        // 00: m_signature
 		3,  0, 0, 0,        // 04: m_sectionCount
 		0,  0, 0, 0,        // 08: m_sectionTable [0].m_offset
 		10, 0, 0, 0,        // 12: m_sectionTable [0].m_size

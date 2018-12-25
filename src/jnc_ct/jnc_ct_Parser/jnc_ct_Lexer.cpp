@@ -183,15 +183,6 @@ Lexer::createBinLiteralToken (int radix)
 }
 
 Token*
-Lexer::createRawLiteralToken ()
-{
-	Token* token = createToken (TokenKind_BinLiteral);
-	ASSERT (token->m_pos.m_length >= 3);
-	token->m_data.m_binData.copy (ts + 2, token->m_pos.m_length - 3);
-	return token;
-}
-
-Token*
 Lexer::createCharToken (
 	int tokenKind,
 	size_t left,
