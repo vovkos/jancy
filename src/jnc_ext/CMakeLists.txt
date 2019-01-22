@@ -75,4 +75,10 @@ if (BUILD_JNC_IO_DEVMON)
 	add_subdirectory (jnc_io_devmon)
 endif ()
 
+option (
+	BUILD_IDE_STDLIB
+	"Build jancy base IO (sockets, serial ports, files) extension library "
+	ON
+	)
+
 #...............................................................................

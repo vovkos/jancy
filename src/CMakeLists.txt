@@ -26,6 +26,12 @@ option (
 	ON
 	)
 
+option (
+	BUILD_JNC_STDLIB
+	"Build jnc_stdlib.jncx (for IDE)"
+	ON
+	)
+
 if (BUILD_JNC_APP)
 	add_subdirectory (jnc_app)
 endif ()
@@ -35,6 +41,10 @@ if (BUILD_JNC_DLL)
 	add_subdirectory (jnc_dll)
 else ()
 	set (JNC_LIBRARY_OBJECT)
+endif ()
+
+if (BUILD_JNC_STDLIB)
+	add_subdirectory (jnc_stdlib)
 endif ()
 
 #...............................................................................

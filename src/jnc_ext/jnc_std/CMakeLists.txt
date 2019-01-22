@@ -55,7 +55,6 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/.forced.jnc
 	jnc/std_globals.jnc
 	jnc/std_Guid.jnc
 	jnc/std_Error.jnc

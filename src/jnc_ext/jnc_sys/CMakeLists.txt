@@ -47,7 +47,6 @@ source_group (
 
 set (
 	JNC_LIST
-	jnc/.forced.jnc
 	jnc/sys_globals.jnc
 	jnc/sys_Lock.jnc
 	jnc/sys_Event.jnc
