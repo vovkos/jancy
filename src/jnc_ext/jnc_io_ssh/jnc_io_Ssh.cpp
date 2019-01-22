@@ -600,8 +600,8 @@ SshChannel::sshReadWriteLoop ()
 	sl::Array <char> readBlock;
 	sl::Array <char> writeBlock;
 
-	bool canReadSocket = false;
-	bool canWriteSocket = false;
+	bool canReadSocket = true;
+	bool canWriteSocket = true;
 
 	uint_t prevSocketEventMask = 0;
 
@@ -776,8 +776,8 @@ SshChannel::sshReadWriteLoop ()
 	sl::Array <char> writeParams (ref::BufKind_Stack, buffer, sizeof (buffer));
 	writeParams.setCount (sizeof (SocketAddress));
 
-	bool canReadSocket = false;
-	bool canWriteSocket = false;
+	bool canReadSocket = true;
+	bool canWriteSocket = true;
 
 	for (;;)
 	{
