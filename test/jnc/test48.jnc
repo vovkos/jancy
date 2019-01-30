@@ -45,7 +45,7 @@ bool errorcode scanCommand (
 		}
 
 		p += state.m_consumedLength;
-	} while (p < end)
+	} while (p < end || state.m_replayLength)
 
 	return true;
 }
