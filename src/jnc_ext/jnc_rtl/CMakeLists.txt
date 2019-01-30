@@ -41,6 +41,27 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# jnc folder
+#
+
+set (
+	JNC_LIST
+	jnc/jnc_DynamicLib.jnc
+	jnc/jnc_Regex.jnc
+	jnc/jnc_Scheduler.jnc
+	jnc/jnc_StdFunctions.jnc
+	jnc/jnc_StdTypes.jnc
+	jnc/jnc_StdTypedefs.jnc
+	)
+
+source_group (
+	jnc
+	FILES
+	${JNC_LIST}
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # pch folder
 #
 
@@ -75,6 +96,7 @@ add_library (
 	${PCH_CPP}
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
+	${JNC_LIST}
 	)
 
 axl_set_pch (

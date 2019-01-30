@@ -127,8 +127,8 @@ struct RegexMatch
 						state.m_consumedLength == end - p);
 				}
 
-				p += state.m_consumedLength; // advance to the next lexeme
-			} while (p < end)
+				p += state.m_consumedLength;
+			} while (p < end || state.m_replayLength);
 
 			return true;
 		}
@@ -203,6 +203,16 @@ opaque class RegexState
 	size_t readonly m_consumedLength;
 
 	/**
+		Holds the length of buffered *replay data*. During incremental
+		recognition, replay data will be processed prior to any user-supplied
+		data.
+
+		Replays can only happen after a successful match.
+	*/
+
+	size_t readonly m_replayLength;
+
+	/**
 		\subgroup
 
 		These fields hold information about the matched lexeme and, possibly,
@@ -218,7 +228,7 @@ opaque class RegexState
 
 public:
 	/**
-		Constructor of ``jnc.Recognizer`` class. Accepts a single optional
+		Constructor of ``jnc.RegexState`` class. Accepts a single optional
 		argument ``automatonFunc`` which, if supplied, will be written to
 		``m_automatonFunc`` and used for subsequent scanning.
 	*/

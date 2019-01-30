@@ -339,24 +339,6 @@ source_group (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# jnc folder
-#
-
-file (
-	GLOB
-	JNC_LIST
-	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-	jnc/*.jnc
-	)
-
-source_group (
-	jnc
-	FILES
-	${JNC_LIST}
-	)
-
-#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
 # perl folder
 #
 
@@ -376,6 +358,7 @@ source_group (
 # gen folder
 #
 
+set (JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl/jnc)
 set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 file (MAKE_DIRECTORY ${GEN_DIR})
 
@@ -383,31 +366,31 @@ axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step (
 	jnc_StdTypes.jnc.cpp
-	jnc/jnc_StdTypes.jnc
+	${JNC_DIR}/jnc_StdTypes.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_StdFunctions.jnc.cpp
-	jnc/jnc_StdFunctions.jnc
+	${JNC_DIR}/jnc_StdFunctions.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_DynamicLib.jnc.cpp
-	jnc/jnc_DynamicLib.jnc
+	${JNC_DIR}/jnc_DynamicLib.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_Regex.jnc.cpp
-	jnc/jnc_Regex.jnc
+	${JNC_DIR}/jnc_Regex.jnc
 	${JNC2CPP_PL}
 	)
 
 add_perl_step (
 	jnc_Scheduler.jnc.cpp
-	jnc/jnc_Scheduler.jnc
+	${JNC_DIR}/jnc_Scheduler.jnc
 	${JNC2CPP_PL}
 	)
 
@@ -540,7 +523,6 @@ add_library (
 	${PARSER_CPP_LIST}
 	${PARSER_RL_LIST}
 	${PARSER_LLK_LIST}
-	${JNC_LIST}
 	${PERL_PL_LIST}
 	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
