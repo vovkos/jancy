@@ -55,6 +55,7 @@ public:
 	size_t m_matchLengthLimit;
 	size_t m_currentOffset;
 	size_t m_consumedLength;
+	size_t m_replayLength;
 
 	RegexMatch m_match;
 	DataPtr m_subMatchArrayPtr;
@@ -71,7 +72,6 @@ protected:
 	size_t m_matchOffset;
 	size_t m_matchLength;
 	size_t m_replayBufferOffset;
-	size_t m_replayLength;
 
 	DataPtr m_groupOffsetArrayPtr;
 	size_t m_groupCount;

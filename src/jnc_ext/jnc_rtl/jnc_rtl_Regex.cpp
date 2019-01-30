@@ -165,6 +165,8 @@ RegexState::exec (
 
 	if (m_replayLength) // replay is only available after a match
 	{
+		ASSERT (m_isIncremental);
+
 		size_t replayBufferOffset = m_replayBufferOffset;
 		size_t replayLength = m_replayLength;
 
@@ -186,7 +188,7 @@ RegexState::exec (
 			m_consumedLength = 0;
 			return RegexResult_Error;
 
-		default:
+		default: // match
 			size_t consumedLength = m_currentOffset + m_replayLength - prevOffset;
 			if ((intptr_t) consumedLength < 0)
 				consumedLength = 0;
@@ -230,10 +232,15 @@ RegexState::exec (
 		m_replayLength = 0;
 		softReset ();
 	}
+	else if (!m_isIncremental)
+	{
+		m_replayBufferOffset = 0;
+		m_replayLength = 0;
+	}
 
 	m_consumedLength = m_currentOffset + m_replayLength - prevOffset;
 	if ((intptr_t) m_consumedLength < 0)
-			m_consumedLength = 0;
+		m_consumedLength = 0;
 
 	return result;
 }
