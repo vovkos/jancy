@@ -260,10 +260,12 @@ ReactorImpl::reactionLoop ()
 			Function* onEvent = reactorType->findOnEventHandler (i);
 			ASSERT (onEvent);
 
+			AXL_TODO ("currently, onevent handlers adjust 'this' internally -- need to clean that up and pass 'parent' directly")
+
 			FunctionPtr onEventPtr =
 			{
 				onEvent->getMachineCode (),
-				parent
+				&m_ifaceHdr
 			};
 
 			size_t bindingCount = m_pendingOnEventBindingArray.getCount ();
