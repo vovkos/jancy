@@ -92,8 +92,8 @@ main := |*
 'multicast'       |
 'event'           |
 'reactor'         |
+'async'           |
 
-'auto'            |
 'anydata'         |
 'void'            |
 'variant'         |
@@ -142,6 +142,7 @@ main := |*
 'finally'         |
 'nestedscope'     |
 'assert'          |
+'await'           |
 
 'basetype' [1-9]? |
 'this'            |
