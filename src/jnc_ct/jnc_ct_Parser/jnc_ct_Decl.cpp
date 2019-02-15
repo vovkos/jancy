@@ -49,6 +49,7 @@ getTypeModifierString (TypeModifier modifier)
 		"unsafe",       // TypeModifier_Unsafe      = 0x00400000,
 		"errorcode",    // TypeModifier_ErrorCode   = 0x00800000,
 		"cmut",         // TypeModifier_CMut        = 0x01000000,
+		"async",        // TypeModifier_Async       = 0x02000000,
 	};
 
 	size_t i = sl::getLoBitIdx32 (modifier);
@@ -115,6 +116,7 @@ TypeModifiers::addTypeModifier (TypeModifier modifier)
 		TypeModifier_Safe,              // TypeModifier_Unsafe     = 0x00400000,
 		0,                              // TypeModifier_ErrorCode  = 0x00800000,
 		TypeModifierMaskKind_Const,     // TypeModifier_CMut       = 0x01000000,
+		0,                              // TypeModifier_Async      = 0x02000000,
 	};
 
 	// check duplicates

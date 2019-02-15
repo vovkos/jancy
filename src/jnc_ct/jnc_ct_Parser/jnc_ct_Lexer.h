@@ -88,10 +88,10 @@ enum TokenKind
 	TokenKind_Multicast,
 	TokenKind_Event,
 	TokenKind_Reactor,
+	TokenKind_Async,
 
 	// type specifiers
 
-	TokenKind_Auto,
 	TokenKind_Void,
 	TokenKind_Variant,
 	TokenKind_Bool,
@@ -146,6 +146,7 @@ enum TokenKind
 	TokenKind_Finally,
 	TokenKind_NestedScope,
 	TokenKind_Assert,
+	TokenKind_Await,
 
 	// pre-defined values
 
@@ -278,10 +279,10 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
 	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
 	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
+	AXL_LEX_TOKEN_NAME (TokenKind_Async,        "async")
 
 	// type specifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Auto,         "auto")
 	AXL_LEX_TOKEN_NAME (TokenKind_AnyData,      "anydata")
 	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
 	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
@@ -336,6 +337,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
 	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
 	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")
 	AXL_LEX_TOKEN_NAME (TokenKind_Assert,       "assert")
+	AXL_LEX_TOKEN_NAME (TokenKind_Await,        "await")
 
 	// pre-defined values
 

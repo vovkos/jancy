@@ -50,6 +50,7 @@ enum TypeModifier
 	TypeModifier_Unsafe      = 0x00400000,
 	TypeModifier_ErrorCode   = 0x00800000,
 	TypeModifier_CMut        = 0x01000000,
+	TypeModifier_Async       = 0x02000000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

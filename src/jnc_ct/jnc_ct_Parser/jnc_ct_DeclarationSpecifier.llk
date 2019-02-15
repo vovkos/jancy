@@ -191,11 +191,6 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double);
 			}
-	|	TokenKind_Auto
-			{
-				err::setError ("'auto' type specifier is not yet supported");
-				return false;
-			}
 	|	resolver (TokenKind_Property '{')
 		property_template_specifier $t
 			{
@@ -393,6 +388,10 @@ type_modifier
 	|	TokenKind_ErrorCode
 			{
 				$.m_typeModifier = TypeModifier_ErrorCode;
+			}
+	|	TokenKind_Async
+			{
+				$.m_typeModifier = TypeModifier_Async;
 			}
 	;
 

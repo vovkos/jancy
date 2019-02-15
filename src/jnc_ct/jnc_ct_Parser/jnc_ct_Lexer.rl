@@ -160,12 +160,12 @@ main := |*
 'multicast'      { createToken (TokenKind_Multicast); };
 'event'          { createToken (TokenKind_Event); };
 'reactor'        { createToken (TokenKind_Reactor); };
+'async'          { createToken (TokenKind_Async); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 # type specifiers
 
-'auto'           { createToken (TokenKind_Auto); };
 'anydata'        { createToken (TokenKind_AnyData); };
 'void'           { createToken (TokenKind_Void); };
 'variant'        { createToken (TokenKind_Variant); };
@@ -240,6 +240,7 @@ main := |*
 'finally'        { createToken (TokenKind_Finally); };
 'nestedscope'    { createToken (TokenKind_NestedScope); };
 'assert'         { createToken (TokenKind_Assert); };
+'await'          { createToken (TokenKind_Await); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
