@@ -23,18 +23,18 @@ getUnOpKindString (UnOpKind opKind)
 {
 	static const char* stringTable [UnOpKind__Count] =
 	{
-		"undefined-unary-operator",  // EUnOp_Undefined = 0,
-		"+",                         // EUnOp_Plus,
-		"-",                         // EUnOp_Minus,
-		"~",                         // EUnOp_BwNot,
-		"&",                         // EUnOp_Addr,
-		"*",                         // EUnOp_Indir,
-		"!",                         // EUnOp_LogNot,
-		"++",                        // EUnOp_PreInc,
-		"--",                        // EUnOp_PreDec,
-		"postfix ++",                // EUnOp_PostInc,
-		"postfix --",                // EUnOp_PostDec,
-		"->",                        // EUnOp_Ptr,
+		"undefined-unary-operator",  // UnOpKind_Undefined = 0,
+		"+",                         // UnOpKind_Plus,
+		"-",                         // UnOpKind_Minus,
+		"~",                         // UnOpKind_BwNot,
+		"&",                         // UnOpKind_Addr,
+		"*",                         // UnOpKind_Indir,
+		"!",                         // UnOpKind_LogNot,
+		"++",                        // UnOpKind_PreInc,
+		"--",                        // UnOpKind_PreDec,
+		"postfix ++",                // UnOpKind_PostInc,
+		"postfix --",                // UnOpKind_PostDec,
+		"->",                        // UnOpKind_Ptr,
 	};
 
 	return (size_t) opKind < UnOpKind__Count ?

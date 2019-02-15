@@ -188,7 +188,7 @@ public:
 
 //..............................................................................
 
-// function ref (EUnOp_Indir => function ptr cast => EUnOp_Addr)
+// function ref (UnOpKind_Indir => function ptr cast => UnOpKind_Addr)
 
 class Cast_FunctionRef: public CastOperator
 {
