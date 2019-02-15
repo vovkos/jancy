@@ -179,7 +179,12 @@ AsyncIoDevice::blockingWait (
 	m_syncWaitList.insertTail (&wait);
 	m_lock.unlock ();
 
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	gcHeap->enterWaitRegion ();
 	event.wait (timeout);
+	gcHeap->leaveWaitRegion ();
 
 	m_lock.lock ();
 	triggeredEvents = eventMask & m_activeEvents;
