@@ -30,6 +30,8 @@ UsbAsyncControlEndpoint::UsbAsyncControlEndpoint (axl::io::UsbDevice* device)
 void
 UsbAsyncControlEndpoint::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 {
+	m_lock.lock ();
+
 	sl::Iterator <Transfer> it = m_activeTransferList.getHead ();
 	for (; it; it++)
 		markTransferGcRoots (gcHeap, *it);
@@ -37,6 +39,8 @@ UsbAsyncControlEndpoint::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
 	it = m_completedTransferList.getHead ();
 	for (; it; it++)
 		markTransferGcRoots (gcHeap, *it);
+
+	m_lock.unlock ();
 }
 
 void
