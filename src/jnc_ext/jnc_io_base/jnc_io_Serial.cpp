@@ -47,14 +47,15 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Serial)
 	JNC_MAP_AUTOGET_PROPERTY ("m_writeBufferSize", &Serial::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY ("m_options",         &Serial::setOptions)
 
-	JNC_MAP_FUNCTION ("open",         &Serial::open)
-	JNC_MAP_FUNCTION ("close",        &Serial::close)
-	JNC_MAP_FUNCTION ("read",         &Serial::read)
-	JNC_MAP_FUNCTION ("write",        &Serial::write)
-	JNC_MAP_FUNCTION ("setupDevice",  &Serial::setupDevice)
-	JNC_MAP_FUNCTION ("wait",         &Serial::wait)
-	JNC_MAP_FUNCTION ("cancelWait",   &Serial::cancelWait)
-	JNC_MAP_FUNCTION ("blockingWait", &Serial::blockingWait)
+	JNC_MAP_FUNCTION ("open",            &Serial::open)
+	JNC_MAP_FUNCTION ("close",           &Serial::close)
+	JNC_MAP_FUNCTION ("clearLineErrors", &Serial::clearLineErrors)
+	JNC_MAP_FUNCTION ("read",            &Serial::read)
+	JNC_MAP_FUNCTION ("write",           &Serial::write)
+	JNC_MAP_FUNCTION ("setupDevice",     &Serial::setupDevice)
+	JNC_MAP_FUNCTION ("wait",            &Serial::wait)
+	JNC_MAP_FUNCTION ("cancelWait",      &Serial::cancelWait)
+	JNC_MAP_FUNCTION ("blockingWait",    &Serial::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -143,6 +144,7 @@ Serial::open (DataPtr namePtr)
 
 	ASSERT (!m_overlappedIo);
 	m_overlappedIo = AXL_MEM_NEW (OverlappedIo);
+	m_lineErrors = 0;
 #endif
 
 	AsyncIoDevice::open ();
@@ -447,6 +449,21 @@ Serial::setupDevice (
 	return true;
 }
 
+uint_t
+JNC_CDECL
+Serial::clearLineErrors ()
+{
+	m_lock.lock ();
+
+	uint_t lineErrors = m_lineErrors;
+	m_lineErrors = 0;
+	m_activeEvents &= ~SerialEvent_LineError;
+
+	m_lock.unlock ();
+
+	return lineErrors;
+}
+
 #if (_JNC_OS_WIN)
 
 void
@@ -538,6 +555,8 @@ Serial::ioThreadFunc ()
 			isWaitingSerial = false;
 		}
 
+		dword_t errors;
+		m_serial.m_serial.clearError (&errors, NULL);
 		uint_t statusLines = m_serial.getStatusLines ();
 
 		m_lock.lock ();
@@ -573,6 +592,18 @@ Serial::ioThreadFunc ()
 		else
 			m_activeEvents |= SerialEvent_RingOff;
 
+		if (errors & CE_FRAME)
+			m_lineErrors |= SerialLineError_FramingError;
+
+		if (errors & CE_RXPARITY)
+			m_lineErrors |= SerialLineError_ParityError;
+
+		if (errors & CE_BREAK)
+			m_lineErrors |= SerialLineError_BreakError;
+
+		if (m_lineErrors)
+			m_activeEvents |= SerialEvent_LineError;
+
 		// take snapshots before releasing the lock
 
 		bool isReadBufferFull = m_readBuffer.isFull ();
@@ -585,7 +616,7 @@ Serial::ioThreadFunc ()
 		else
 			m_lock.unlock ();
 
-		uint_t serialEventMask = EV_CTS | EV_DSR | EV_RING | EV_RLSD;
+		uint_t serialEventMask = EV_CTS | EV_DSR | EV_RING | EV_RLSD | EV_ERR;
 		if (options & SerialOption_WinReadCheckComstat)
 			serialEventMask |= EV_RXCHAR;
 

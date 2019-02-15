@@ -247,6 +247,17 @@ bitflag enum SerialEvents
 	RingOff,
 	DcdOn,
 	DcdOff,
+
+	LineError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum SerialLineErrors
+{
+	FramingError,
+	ParityError,
+	BreakError,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -531,6 +542,8 @@ opaque class Serial
 		bool dtr = false,
 		bool rts = false
 		);
+
+	SerialLineErrors clearLineErrors ();
 
 	/**
 		Attempts to read up to ``size`` bytes from the serial port into the

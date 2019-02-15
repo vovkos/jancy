@@ -40,6 +40,16 @@ enum SerialEvent
 	SerialEvent_DcdOn          = 0x0400,
 	SerialEvent_DcdOff         = 0x0800,
 	SerialEvent_StatusLineMask = 0x0ff0,
+	SerialEvent_LineError      = 0x1000,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum SerialLineError
+{
+	SerialLineError_FramingError = 0x01,
+	SerialLineError_ParityError  = 0x02,
+	SerialLineError_BreakError   = 0x04,
 };
 
 //..............................................................................
@@ -116,6 +126,8 @@ protected:
 #if (_AXL_OS_WIN)
 	OverlappedIo* m_overlappedIo;
 #endif
+
+	uint_t m_lineErrors;
 
 public:
 	Serial ();
@@ -223,6 +235,10 @@ public:
 		bool dtr,
 		bool rts
 		);
+
+	uint_t
+	JNC_CDECL
+	clearLineErrors ();
 
 	size_t
 	JNC_CDECL
