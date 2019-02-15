@@ -15,20 +15,22 @@
 
 set (
 	LIB_H_LIST
-	jnc_rtl_Multicast.h
-	jnc_rtl_Reactor.h
 	jnc_rtl_DynamicLib.h
 	jnc_rtl_DynamicLayout.h
+	jnc_rtl_Multicast.h
+	jnc_rtl_Promise.h
+	jnc_rtl_Reactor.h
 	jnc_rtl_Regex.h
 	)
 
 set (
 	LIB_CPP_LIST
 	jnc_rtl_CoreLib.cpp
-	jnc_rtl_Multicast.cpp
-	jnc_rtl_Reactor.cpp
 	jnc_rtl_DynamicLib.cpp
 	jnc_rtl_DynamicLayout.cpp
+	jnc_rtl_Multicast.cpp
+	jnc_rtl_Promise.cpp
+	jnc_rtl_Reactor.cpp
 	jnc_rtl_Regex.cpp
 	)
 
@@ -47,6 +49,7 @@ source_group (
 set (
 	JNC_LIST
 	jnc/jnc_DynamicLib.jnc
+	jnc/jnc_Promise.jnc
 	jnc/jnc_Regex.jnc
 	jnc/jnc_Scheduler.jnc
 	jnc/jnc_StdFunctions.jnc

@@ -15,6 +15,7 @@
 #include "jnc_rtl_Multicast.h"
 #include "jnc_rtl_Reactor.h"
 #include "jnc_rtl_Regex.h"
+#include "jnc_rtl_Promise.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
 #include "jnc_CallSite.h"
@@ -1315,6 +1316,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
 	JNC_MAP_STD_TYPE (StdType_ReactorBase,   ReactorImpl)
+//	JNC_MAP_STD_TYPE (StdType_Promise,       Promise)
 
 JNC_END_LIB_FUNCTION_MAP ()
 

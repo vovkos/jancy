@@ -1,0 +1,62 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+//..............................................................................
+
+///; static char promiseTypeSrc [] =
+
+opaque class Promise
+{
+public:
+	intptr errorcode wait (function* handler (
+		variant result,
+		std.Error const* error
+		));
+
+	bool errorcode cancelWait (intptr handle);
+	bool errorcode blockingWait (variant* result);
+	variant async asyncWait ();
+}
+
+///;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class Promisifier: Promise
+{
+	// pass those as completion routines
+
+	void complete ();
+	void complete (std.Error const* error);
+
+	void complete (
+		variant result,
+		std.Error const* error
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Promise* createMultiPromise (
+	Promise* const* promiseArray,
+	size_t count,
+	bool waitAll = true
+	);
+
+//..............................................................................
+
+///---
+
+} // namespace jnc
