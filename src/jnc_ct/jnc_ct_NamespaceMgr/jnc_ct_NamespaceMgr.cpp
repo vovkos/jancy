@@ -105,6 +105,8 @@ NamespaceMgr::addStdItems ()
 		jnc->addItem ("RegexMatch", m_module->m_typeMgr.getLazyStdType (StdType_RegexMatch)) &&
 		jnc->addItem ("RegexState", m_module->m_typeMgr.getLazyStdType (StdType_RegexState)) &&
 		jnc->addItem ("RegexDfa", m_module->m_typeMgr.getLazyStdType (StdType_RegexDfa)) &&
+		jnc->addItem ("Promise", m_module->m_typeMgr.getLazyStdType (StdType_Promise)) &&
+		jnc->addItem ("Promisifier", m_module->m_typeMgr.getLazyStdType (StdType_Promisifier)) &&
 		jnc->addItem ("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
 
 	ASSERT (result);

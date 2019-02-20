@@ -29,7 +29,7 @@ while (chomp (my $s = <>))
 			next;
 		}
 	}
-	
+
 	if ($s =~ m/\/\/\//)
 	{
 		$body = $';
@@ -52,20 +52,20 @@ while (chomp (my $s = <>))
 	elsif ($state == 1)
 	{
 		# get rid of comments (don't bother handling multiple /**/ per line)
-	
+
 		if ($s =~ m/\/[\/*]/)
 		{
 			if ($& eq "/*")
 			{
 				$state = 2;
-				next;				
+				next;
 			}
 			else
 			{
 				$s = $`;
 			}
 		}
-	
+
 		# if not an empty line or all-space line, make it C-literal
 
 		if ($s !~ m/^[ \t]*$/)

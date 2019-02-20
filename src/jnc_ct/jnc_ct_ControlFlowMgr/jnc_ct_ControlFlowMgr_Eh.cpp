@@ -21,14 +21,17 @@ namespace ct {
 BasicBlock*
 ControlFlowMgr::getDynamicThrowBlock ()
 {
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	ASSERT (function->getFunctionKind () != FunctionKind_Async); // async functions always can static-throw
+
 	if (m_dynamicThrowBlock)
 		return m_dynamicThrowBlock;
 
 	m_dynamicThrowBlock = createBlock ("dynamic_throw_block", BasicBlockFlag_Reachable);
 	BasicBlock* prevBlock = setCurrentBlock (m_dynamicThrowBlock);
 
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicThrow);
-	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
+	Function* throwFunc = m_module->m_functionMgr.getStdFunction (StdFunc_DynamicThrow);
+	m_module->m_llvmIrBuilder.createCall (throwFunc, throwFunc->getType (), NULL);
 	m_module->m_llvmIrBuilder.createUnreachable ();
 
 	setCurrentBlock (prevBlock);

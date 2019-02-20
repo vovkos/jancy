@@ -278,7 +278,7 @@ DerivableType::addMethod (Function* function)
 		target = &m_staticDestructor;
 		break;
 
-	case FunctionKind_Named:
+	case FunctionKind_Normal:
 		overloadIdx = addFunction (function);
 		if (overloadIdx == -1)
 			return false;

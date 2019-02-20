@@ -524,122 +524,122 @@ Type::prepareLlvmDiType ()
 
 	LlvmDiType llvmDiTypeTable [TypeKind__PrimitiveTypeCount] =
 	{
-		{ 0 }, // EType_Void,
-		{ 0 }, // EType_Variant,
+		{ 0 }, // TypeKind_Void,
+		{ 0 }, // TypeKind_Variant,
 
-		// EType_Bool,
+		// TypeKind_Bool,
 		{
 			"bool",
 			llvm::dwarf::DW_ATE_boolean,
 			1,
 		},
 
-		// EType_Int8,
+		// TypeKind_Int8,
 		{
 			"char",
 			llvm::dwarf::DW_ATE_signed_char,
 			1,
 		},
 
-		// EType_Int8_u,
+		// TypeKind_Int8_u,
 		{
 			"unsigned char",
 			llvm::dwarf::DW_ATE_unsigned_char,
 			1,
 		},
 
-		// EType_Int16,
+		// TypeKind_Int16,
 		{
 			"int16",
 			llvm::dwarf::DW_ATE_signed,
 			2,
 		},
 
-		// EType_Int16_u,
+		// TypeKind_Int16_u,
 		{
 			"unsigned int16",
 			llvm::dwarf::DW_ATE_unsigned,
 			2,
 		},
 
-		// EType_Int32,
+		// TypeKind_Int32,
 		{
 			"int",
 			llvm::dwarf::DW_ATE_signed,
 			4,
 		},
 
-		// EType_Int32_u,
+		// TypeKind_Int32_u,
 		{
 			"unsigned int",
 			llvm::dwarf::DW_ATE_unsigned,
 			4,
 		},
 
-		// EType_Int64,
+		// TypeKind_Int64,
 		{
 			"unsigned int64",
 			llvm::dwarf::DW_ATE_signed,
 			8,
 		},
 
-		// EType_Int64_u,
+		// TypeKind_Int64_u,
 		{
 			"unsigned int64",
 			llvm::dwarf::DW_ATE_unsigned,
 			8,
 		},
 
-		// EType_Int16_be,
+		// TypeKind_Int16_be,
 		{
 			"bigendian int16",
 			llvm::dwarf::DW_ATE_signed,
 			2,
 		},
 
-		// EType_Int16_beu,
+		// TypeKind_Int16_beu,
 		{
 			"unsigned bigendian int16",
 			llvm::dwarf::DW_ATE_unsigned,
 			2,
 		},
 
-		// EType_Int32_be,
+		// TypeKind_Int32_be,
 		{
 			"bigendian int16",
 			llvm::dwarf::DW_ATE_signed,
 			4,
 		},
 
-		// EType_Int32_beu,
+		// TypeKind_Int32_beu,
 		{
 			"unsigned bigendian int16",
 			llvm::dwarf::DW_ATE_unsigned,
 			4,
 		},
 
-		// EType_Int64_be,
+		// TypeKind_Int64_be,
 		{
 			"bigendian int16",
 			llvm::dwarf::DW_ATE_signed,
 			8,
 		},
 
-		// EType_Int64_beu,
+		// TypeKind_Int64_beu,
 		{
 			"unsigned bigendian int64",
 			llvm::dwarf::DW_ATE_unsigned,
 			8,
 		},
 
-		// EType_Float,
+		// TypeKind_Float,
 		{
 			"float",
 			llvm::dwarf::DW_ATE_float,
 			4,
 		},
 
-		// EType_Double,
+		// TypeKind_Double,
 		{
 			"double",
 			llvm::dwarf::DW_ATE_float,

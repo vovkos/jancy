@@ -878,7 +878,7 @@ Parser::declareFunction (
 
 	switch (functionKind)
 	{
-	case FunctionKind_Named:
+	case FunctionKind_Normal:
 		functionItemDecl->m_name = declarator->getName ()->getShortName ();
 		functionItemDecl->m_qualifiedName = nspace->createQualifiedName (functionItemDecl->m_name);
 		functionItem->m_tag = functionItemDecl->m_qualifiedName;
@@ -976,7 +976,7 @@ Parser::declareFunction (
 			return function->getParentUnit ()->setDestructor (function);
 		}
 
-	if (functionKind != FunctionKind_Named)
+	if (functionKind != FunctionKind_Normal)
 	{
 		err::setFormatStringError (
 			"invalid '%s' at '%s' namespace",

@@ -19,20 +19,31 @@ namespace jnc {
 
 opaque class Promise
 {
+protected:
+	size_t m_state;
+	variant m_result;
+	std.Error const* m_error;
+
 public:
+	construct ();
+	destruct ();
+
 	intptr errorcode wait (function* handler (
 		variant result,
 		std.Error const* error
 		));
 
 	bool errorcode cancelWait (intptr handle);
-	bool errorcode blockingWait (variant* result);
+
+	variant blockingWait ();
 	variant async asyncWait ();
 }
 
 ///;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char promisifierTypeSrc [] =
 
 class Promisifier: Promise
 {
@@ -47,13 +58,7 @@ class Promisifier: Promise
 		);
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-Promise* createMultiPromise (
-	Promise* const* promiseArray,
-	size_t count,
-	bool waitAll = true
-	);
+///;
 
 //..............................................................................
 

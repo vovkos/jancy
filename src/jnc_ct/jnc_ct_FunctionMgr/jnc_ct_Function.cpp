@@ -172,8 +172,9 @@ Function::compile ()
 		m_module->m_functionMgr.prologue (this, beginPos);
 		m_module->m_namespaceMgr.getCurrentScope ()->getUsingSet ()->append (NULL, &m_usingSet);
 
-		result = m_functionKind == FunctionKind_Constructor ?
-			compileConstructorBody () :
+		result =
+			(m_type->getFlags () & FunctionTypeFlag_Async) ? compileAsyncLauncher () :
+			m_functionKind == FunctionKind_Constructor ? compileConstructorBody () :
 			compileNormalBody ();
 
 		if (!result)
@@ -275,6 +276,37 @@ Function::compileNormalBody ()
 	parser.m_stage = Parser::Stage_Pass2;
 
 	return parser.parseTokenList (SymbolKind_compound_stmt, m_body, true);
+}
+
+bool
+Function::compileAsyncLauncher ()
+{
+	bool result;
+
+	ClassType* promiseType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Promise);
+
+	Value promiseValue;
+	result = m_module->m_operatorMgr.newOperator (promiseType, &promiseValue);
+	if (!result)
+		return false;
+
+	Type* argType = m_module->m_typeMgr.getStdType (StdType_PromisePtr);
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (&argType, 1);
+
+	Function* sequencerFunc = m_module->m_functionMgr.createFunction (
+		FunctionKind_Async,
+		m_tag + "_sequencer",
+		functionType
+		);
+
+	sequencerFunc->m_asyncLauncher = this;
+	sequencerFunc->m_parentUnit = m_parentUnit;
+	sequencerFunc->m_parentNamespace = m_parentNamespace;
+	sequencerFunc->setBody (&m_body);
+
+	m_module->m_operatorMgr.callOperator (sequencerFunc, promiseValue);
+
+	return m_module->m_controlFlowMgr.ret (promiseValue);
 }
 
 bool

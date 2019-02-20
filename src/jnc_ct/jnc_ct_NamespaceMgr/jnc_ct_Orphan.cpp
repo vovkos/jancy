@@ -137,7 +137,7 @@ Orphan::adoptOrphanFunction (ModuleItem* item)
 
 	ModuleItemKind itemKind = item->getItemKind ();
 
-	if (m_functionKind == FunctionKind_Named)
+	if (m_functionKind == FunctionKind_Normal)
 	{
 		if (itemKind != ModuleItemKind_Function)
 		{

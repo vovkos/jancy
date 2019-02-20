@@ -816,6 +816,10 @@ primary_expr <Value* $value>
 			{
 				$value->setNull (m_module);
 			}
+	|	TokenKind_Await expression $e
+			{
+				return m_module->m_operatorMgr.awaitOperator ($e.m_value, $value);
+			}
 	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
 				return m_module->m_operatorMgr.sizeofOperator (OperatorDynamism_Static, $t.m_value, $value);

@@ -25,6 +25,7 @@ getStdTypeSource (StdType stdType)
 	#include "jnc_Scheduler.jnc.cpp"
 	#include "jnc_DynamicLib.jnc.cpp"
 	#include "jnc_Regex.jnc.cpp"
+	#include "jnc_Promise.jnc.cpp"
 
 	static StdItemSource sourceTable [StdType__Count] =
 	{
@@ -66,6 +67,17 @@ getStdTypeSource (StdType stdType)
 		{                                    // StdType_RegexDfa,
 			regexDfaTypeSrc,
 			lengthof (regexDfaTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{                                    // StdType_Promise,
+			promiseTypeSrc,
+			lengthof (promiseTypeSrc),
+			StdNamespace_Jnc,
+		},
+		{ NULL},                             // StdType_PromisePtr,
+		{                                    // StdType_Promisifier,
+			promisifierTypeSrc,
+			lengthof (promisifierTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_DynamicLib,

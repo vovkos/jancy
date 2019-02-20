@@ -78,7 +78,7 @@ DeclTypeCalc::calcType (
 
 			type = getDataPtrType (arrayType);
 		}
-		else if (m_typeModifiers & TypeModifier_Function)
+		else if (m_typeModifiers & (TypeModifier_Function | TypeModifier_Async))
 		{
 			FunctionType* functionType = getFunctionType (type);
 			if (!functionType)
@@ -574,6 +574,9 @@ DeclTypeCalc::getFunctionType (Type* returnType)
 		}
 	}
 
+	if (m_typeModifiers & TypeModifier_Async)
+		typeFlags |= FunctionTypeFlag_Async;
+
 	m_typeModifiers &= ~TypeModifierMaskKind_Function;
 
 	return m_module->m_typeMgr.createUserFunctionType (
@@ -738,8 +741,6 @@ DeclTypeCalc::getFunctionPtrType (FunctionType* functionType)
 		(m_typeModifiers & TypeModifier_Weak) ? FunctionPtrTypeKind_Weak :
 		(m_typeModifiers & TypeModifier_Thin) ? FunctionPtrTypeKind_Thin : FunctionPtrTypeKind_Normal;
 
-	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
-
 	m_typeModifiers &= ~TypeModifierMaskKind_FunctionPtr;
 	return functionType->getFunctionPtrType (ptrTypeKind);
 }
@@ -750,8 +751,6 @@ DeclTypeCalc::getPropertyPtrType (PropertyType* propertyType)
 	PropertyPtrTypeKind ptrTypeKind =
 		(m_typeModifiers & TypeModifier_Weak) ? PropertyPtrTypeKind_Weak :
 		(m_typeModifiers & TypeModifier_Thin) ? PropertyPtrTypeKind_Thin : PropertyPtrTypeKind_Normal;
-
-	uint_t typeFlags = getPtrTypeFlagsFromModifiers (m_typeModifiers);
 
 	m_typeModifiers &= ~TypeModifierMaskKind_PropertyPtr;
 	return propertyType->getPropertyPtrType (ptrTypeKind);

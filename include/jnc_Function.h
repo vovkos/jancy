@@ -40,7 +40,7 @@
 enum jnc_FunctionKind
 {
 	jnc_FunctionKind_Undefined = 0,
-	jnc_FunctionKind_Named,
+	jnc_FunctionKind_Normal,
 	jnc_FunctionKind_Getter,
 	jnc_FunctionKind_Setter,
 	jnc_FunctionKind_Binder,
@@ -58,6 +58,7 @@ enum jnc_FunctionKind
 	jnc_FunctionKind_Internal,
 	jnc_FunctionKind_Thunk,
 	jnc_FunctionKind_ScheduleLauncher,
+	jnc_FunctionKind_Async,
 	jnc_FunctionKind__Count
 };
 
@@ -186,7 +187,7 @@ typedef jnc_FunctionKind FunctionKind;
 
 const FunctionKind
 	FunctionKind_Undefined           = jnc_FunctionKind_Undefined,
-	FunctionKind_Named               = jnc_FunctionKind_Named,
+	FunctionKind_Normal              = jnc_FunctionKind_Normal,
 	FunctionKind_Getter              = jnc_FunctionKind_Getter,
 	FunctionKind_Setter              = jnc_FunctionKind_Setter,
 	FunctionKind_Binder              = jnc_FunctionKind_Binder,
@@ -204,6 +205,7 @@ const FunctionKind
 	FunctionKind_Internal            = jnc_FunctionKind_Internal,
 	FunctionKind_Thunk               = jnc_FunctionKind_Thunk,
 	FunctionKind_ScheduleLauncher    = jnc_FunctionKind_ScheduleLauncher,
+	FunctionKind_Async               = jnc_FunctionKind_Async,
 	FunctionKind__Count              = jnc_FunctionKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

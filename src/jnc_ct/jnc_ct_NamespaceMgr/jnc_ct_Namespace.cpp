@@ -484,7 +484,7 @@ ExtensionNamespace::addMethod (Function* function)
 		return false;
 	}
 
-	if (function->getFunctionKind () != FunctionKind_Named)
+	if (function->getFunctionKind () != FunctionKind_Normal)
 	{
 		err::setFormatStringError ("'%s' cannot be a part of type extension", getFunctionKindString (function->getFunctionKind ()));
 		return false;

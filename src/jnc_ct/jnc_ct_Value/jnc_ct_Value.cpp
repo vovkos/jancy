@@ -77,19 +77,19 @@ getValueKindString (ValueKind valueKind)
 {
 	static const char* stringTable [ValueKind__Count] =
 	{
-		"void",                   // EValue_Void = 0,
-		"null",                   // EValue_Null,
-		"namespace",              // EValue_Namespace,
-		"type",                   // EValue_Type,
-		"const",                  // EValue_Const,
-		"variable",               // EValue_Variable,
-		"function",               // EValue_Function,
-		"function-type-overload", // EValue_FunctionTypeOverload,
-		"property",               // EValue_Property,
-		"llvm-register",          // EValue_LlvmRegister,
-		"bool-not",               // EValue_BoolNot,
-		"bool-and",               // EValue_BoolAnd,
-		"bool-or",                // EValue_BoolOr,
+		"void",                   // ValueKind_Void = 0,
+		"null",                   // ValueKind_Null,
+		"namespace",              // ValueKind_Namespace,
+		"type",                   // ValueKind_Type,
+		"const",                  // ValueKind_Const,
+		"variable",               // ValueKind_Variable,
+		"function",               // ValueKind_Function,
+		"function-type-overload", // ValueKind_FunctionTypeOverload,
+		"property",               // ValueKind_Property,
+		"llvm-register",          // ValueKind_LlvmRegister,
+		"bool-not",               // ValueKind_BoolNot,
+		"bool-and",               // ValueKind_BoolAnd,
+		"bool-or",                // ValueKind_BoolOr,
 	};
 
 	return (size_t) valueKind < ValueKind__Count ?

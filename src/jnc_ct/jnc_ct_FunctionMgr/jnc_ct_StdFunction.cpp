@@ -86,6 +86,8 @@ getStdFunctionSource (StdFunc stdFunc)
 
 		{ NULL },                                // StdFunc_SetJmp,
 		{ NULL },                                // StdFunc_DynamicThrow,
+		{ NULL },                                // StdFunc_AsyncRet,
+		{ NULL },                                // StdFunc_AsyncThrow,
 
 		{ NULL },                                // StdFunc_VariantUnaryOperator,
 		{ NULL },                                // StdFunc_VariantBinaryOperator,

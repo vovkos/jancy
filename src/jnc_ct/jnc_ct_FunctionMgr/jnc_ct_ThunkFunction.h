@@ -23,7 +23,6 @@ class ThunkFunction: public Function
 	friend class FunctionMgr;
 
 protected:
-	sl::String m_signature;
 	Function* m_targetFunction;
 
 public:

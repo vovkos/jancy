@@ -71,6 +71,7 @@ enum TypeModifierMaskKind
 		TypeModifier_Function |
 		TypeModifier_Unsafe |
 		TypeModifier_ErrorCode |
+		TypeModifier_Async |
 		TypeModifierMaskKind_CallConv,
 
 	TypeModifierMaskKind_Property =

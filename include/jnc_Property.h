@@ -37,6 +37,32 @@
 
 //..............................................................................
 
+enum jnc_PropertyKind
+{
+	jnc_PropertyKind_Undefined = 0,
+	jnc_PropertyKind_Normal,
+	jnc_PropertyKind_Thunk,
+	jnc_PropertyKind_DataThunk,
+	jnc_PropertyKind_Internal,
+	jnc_PropertyKind__Count
+};
+
+typedef enum jnc_PropertyKind jnc_PropertyKind;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_PropertyFlag
+{
+	jnc_PropertyFlag_Const    = 0x010000,
+	jnc_PropertyFlag_Bindable = 0x020000,
+	jnc_PropertyFlag_AutoGet  = 0x100000,
+	jnc_PropertyFlag_AutoSet  = 0x200000,
+};
+
+typedef enum jnc_PropertyFlag jnc_PropertyFlag;
+
+//..............................................................................
+
 JNC_INLINE
 jnc_PropertyType*
 jnc_Property_getType (jnc_Property* prop)
@@ -79,6 +105,38 @@ struct jnc_Property: jnc_ModuleItem
 
 #endif // _JNC_CORE
 
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#ifdef __cplusplus
+
+namespace jnc {
+
 //..............................................................................
+
+typedef jnc_PropertyKind PropertyKind;
+
+const PropertyKind
+	PropertyKind_Undefined = jnc_PropertyKind_Undefined,
+	PropertyKind_Normal    = jnc_PropertyKind_Normal,
+	PropertyKind_Thunk     = jnc_PropertyKind_Thunk,
+	PropertyKind_DataThunk = jnc_PropertyKind_DataThunk,
+	PropertyKind_Internal  = jnc_PropertyKind_Internal,
+	PropertyKind__Count    = jnc_PropertyKind__Count;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef enum jnc_PropertyFlag PropertyFlag;
+
+const PropertyFlag
+	PropertyFlag_Const    = jnc_PropertyFlag_Const,
+	PropertyFlag_Bindable =	jnc_PropertyFlag_Bindable,
+	PropertyFlag_AutoGet  = jnc_PropertyFlag_AutoGet,
+	PropertyFlag_AutoSet  = jnc_PropertyFlag_AutoSet;
+
+//..............................................................................
+
+} // namespace jnc
+
+#endif // __cplusplus
 
 /// @}

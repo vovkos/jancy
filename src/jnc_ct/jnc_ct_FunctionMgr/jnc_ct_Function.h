@@ -46,6 +46,7 @@ protected:
 		UnOpKind m_unOpKind;
 		BinOpKind m_binOpKind;
 		Type* m_castOpType;
+		Function* m_asyncLauncher;
 	};
 
 	QualifiedName m_declaratorName;
@@ -83,6 +84,13 @@ public:
 	{
 		ASSERT (m_functionKind == FunctionKind_CastOperator);
 		return m_castOpType;
+	}
+
+	Function*
+	getAsyncLauncher ()
+	{
+		ASSERT (m_functionKind == FunctionKind_Async);
+		return m_asyncLauncher;
 	}
 
 	const QualifiedName*
@@ -435,6 +443,9 @@ protected:
 
 	bool
 	compileNormalBody ();
+
+	bool
+	compileAsyncLauncher ();
 };
 
 //..............................................................................

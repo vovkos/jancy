@@ -12,24 +12,27 @@
 #include "pch.h"
 #include "jnc_rtl_Promise.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rt_GcHeap.h"
+#include "jnc_rt_Runtime.h"
 #include "jnc_CallSite.h"
 
 namespace jnc {
 namespace rtl {
 
-#if 0
-
 //..............................................................................
 
-JNC_DEFINE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	Promise,
 	"jnc.Promise",
 	sl::g_nullGuid,
-	-1
+	-1,
+	Promise,
+	&Promise::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP (Promise)
+	JNC_MAP_CONSTRUCTOR (&jnc::construct <Promise>)
+	JNC_MAP_DESTRUCTOR (&jnc::destruct <Promise>)
+
 	JNC_MAP_FUNCTION ("asyncWait",    &Promise::asyncWait)
 	JNC_MAP_FUNCTION ("blockingWait", &Promise::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
@@ -65,36 +68,23 @@ Promise::markOpaqueGcRoots (GcHeap* gcHeap)
 		if (it->m_handlerPtr.m_closure)
 			gcHeap->markClass (it->m_handlerPtr.m_closure->m_box);
 
-	it = m_pendingAsyncWaitList.getHead ();
-	for (; it; it++)
-		if (it->m_handlerPtr.m_closure)
-			gcHeap->markClass (it->m_handlerPtr.m_closure->m_box);
-
 	m_lock.unlock ();
 }
 
-intptr_t
+handle_t
 JNC_CDECL
 Promise::wait (FunctionPtr handlerPtr)
 {
-	if (!m_isOpen)
-	{
-		jnc::setError (err::Error (err::SystemErrorCode_InvalidDeviceState));
-		return (handle_t) (intptr_t) -1;
-	}
-
 	m_lock.lock ();
 
-	uint_t triggeredEvents = eventMask & m_activeEvents;
-	if (triggeredEvents)
+	if (m_state == State_Completed)
 	{
 		m_lock.unlock ();
-		callVoidFunctionPtr (handlerPtr, triggeredEvents);
+		callVoidFunctionPtr (handlerPtr, m_result, m_errorPtr);
 		return 0; // not added
 	}
 
 	AsyncWait* wait = AXL_MEM_NEW (AsyncWait);
-	wait->m_mask = eventMask;
 	wait->m_handlerPtr = handlerPtr;
 	m_asyncWaitList.insertTail (wait);
 	handle_t handle = (handle_t) m_asyncWaitMap.add (wait);
@@ -106,7 +96,7 @@ Promise::wait (FunctionPtr handlerPtr)
 
 bool
 JNC_CDECL
-Promise::cancelWait (intptr_t handle)
+Promise::cancelWait (handle_t handle)
 {
 	m_lock.lock ();
 
@@ -114,7 +104,7 @@ Promise::cancelWait (intptr_t handle)
 	if (!it)
 	{
 		m_lock.unlock ();
-		jnc::setError (err::Error (err::SystemErrorCode_InvalidParameter));
+		err::setError (err::Error (err::SystemErrorCode_InvalidParameter));
 		return false; // not found
 	}
 
@@ -126,21 +116,21 @@ Promise::cancelWait (intptr_t handle)
 }
 
 Variant
-Promise::blockingWait (Promise* self)
+Promise::blockingWaitImpl ()
 {
-	self->m_lock.lock ();
-	if (self->m_isCompleted)
+	m_lock.lock ();
+	if (m_state == State_Completed)
 	{
-		self->m_lock.unlock ();
-		return self->m_result;
+		m_lock.unlock ();
+		return m_result;
 	}
 
 	sys::Event event;
 
 	SyncWait wait;
 	wait.m_event = &event;
-	self->m_syncWaitList.insertTail (&wait);
-	self->m_lock.unlock ();
+	m_syncWaitList.insertTail (&wait);
+	m_lock.unlock ();
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap ();
 	ASSERT (gcHeap);
@@ -149,11 +139,19 @@ Promise::blockingWait (Promise* self)
 	event.wait ();
 	gcHeap->leaveWaitRegion ();
 
-	self->m_lock.lock ();
-	self->m_syncWaitList.remove (&wait);
-	self->m_lock.unlock ();
+	m_lock.lock ();
+	m_syncWaitList.remove (&wait);
+	ASSERT (m_state == State_Completed);
+	m_lock.unlock ();
 
-	return self->m_result;
+	if (m_errorPtr.m_p)
+	{
+		err::setError ((const err::ErrorHdr*) m_errorPtr.m_p);
+		gcHeap->getRuntime ()->dynamicThrow ();
+		ASSERT (false);
+	}
+
+	return m_result;
 }
 
 //..............................................................................
@@ -166,7 +164,7 @@ Promisifier::complete_2 (
 	)
 {
 	m_lock.lock ();
-	if (m_isCompleted)
+	if (m_state == State_Completed)
 	{
 		m_lock.unlock ();
 		TRACE ("-- WARNING: ignoring repetitve completion for jnc.Promise: %p\n", this);
@@ -175,26 +173,27 @@ Promisifier::complete_2 (
 
 	m_result = result;
 	m_errorPtr = errorPtr;
-	m_isCompleted = true;
+	m_state = State_Completed;
+
+	sl::Iterator <SyncWait> syncIt = m_syncWaitList.getHead ();
+	for (; syncIt; syncIt++)
+		syncIt->m_event->signal ();
+
+	while (!m_asyncWaitList.isEmpty ())
+	{
+		AsyncWait* wait = *m_asyncWaitList.getHead ();
+		m_lock.unlock ();
+
+		callVoidFunctionPtr (wait->m_handlerPtr, m_result, m_errorPtr);
+
+		m_lock.lock ();
+		m_asyncWaitList.erase (wait);
+	}
 
 	m_lock.unlock ();
 }
 
 //..............................................................................
-
-Promise*
-createMultiPromise (
-	DataPtr promiseArrayPtr,
-	size_t count,
-	bool waitAll
-	)
-{
-	return NULL;
-}
-
-//..............................................................................
-
-#endif
 
 } // namespace rtl
 } // namespace jnc

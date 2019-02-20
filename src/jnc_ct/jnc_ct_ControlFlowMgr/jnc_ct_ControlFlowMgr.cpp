@@ -38,6 +38,7 @@ void
 ControlFlowMgr::clear ()
 {
 	m_blockList.clear ();
+	m_asyncBlockArray.clear ();
 	m_returnBlockArray.clear ();
 	m_landingPadBlockArray.clear ();
 	m_currentBlock = NULL;
@@ -59,6 +60,7 @@ ControlFlowMgr::finalizeFunction ()
 	if (m_sjljFrameArrayValue)
 		finalizeSjljFrameArray ();
 
+	m_asyncBlockArray.clear ();
 	m_returnBlockArray.clear ();
 	m_landingPadBlockArray.clear ();
 	m_currentBlock = NULL;
@@ -90,6 +92,14 @@ ControlFlowMgr::createBlock (
 		);
 
 	m_blockList.insertTail (block);
+	return block;
+}
+
+BasicBlock*
+ControlFlowMgr::createAsyncBlock ()
+{
+	BasicBlock* block = createBlock ("async_block");
+	m_asyncBlockArray.append (block);
 	return block;
 }
 
@@ -229,7 +239,22 @@ ControlFlowMgr::getReturnBlock ()
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	FunctionType* functionType = function->getType ();
-	if (functionType->getReturnType ()->getTypeKind () == TypeKind_Void)
+
+	if (function->getFunctionKind () == FunctionKind_Async)
+	{
+		Type* returnType = function->getAsyncLauncher ()->getType ()->getAsyncReturnType ();
+		Value returnValue = returnType->getTypeKind () == TypeKind_Void ?
+			m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant)->getZeroValue () :
+			getReturnValueVariable ();
+
+		Function* retFunc = m_module->m_functionMgr.getStdFunction (StdFunc_AsyncRet);
+		Value promiseValue = m_module->m_functionMgr.getPromiseValue ();
+		bool result = m_module->m_operatorMgr.callOperator (retFunc, promiseValue, returnValue);
+		ASSERT (result);
+
+		m_module->m_llvmIrBuilder.createRet ();
+	}
+	else if (functionType->getReturnType ()->getTypeKind () == TypeKind_Void)
 	{
 		m_module->m_llvmIrBuilder.createRet ();
 	}
@@ -254,7 +279,10 @@ ControlFlowMgr::getReturnValueVariable ()
 		return m_returnValueVariable;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	Type* returnType = function->getType ()->getReturnType ();
+	Type* returnType = function->getFunctionKind () == FunctionKind_Async ?
+		function->getAsyncLauncher ()->getType ()->getAsyncReturnType () :
+		function->getType ()->getReturnType ();
+
 	ASSERT (returnType->getTypeKind () != TypeKind_Void);
 
 	BasicBlock* prevBlock = setCurrentBlock (function->getPrologueBlock ());
@@ -418,20 +446,41 @@ ControlFlowMgr::escapeScope (
 	jump (firstFinallyBlock);
 }
 
+void
+ControlFlowMgr::asyncRet (BasicBlock* nextBlock)
+{
+	if (nextBlock)
+	{
+		ASSERT (m_module->m_namespaceMgr.getCurrentScope ()->m_sjljFrameIdx != -1);
+		setSjljFrame (-1);
+	}
+
+	m_module->m_llvmIrBuilder.createRet ();
+
+	ASSERT (!(m_currentBlock->m_flags & BasicBlockFlag_Return));
+	m_currentBlock->m_flags |= BasicBlockFlag_Return;
+	m_returnBlockArray.append (m_currentBlock);
+	setCurrentBlock (nextBlock ? nextBlock : getUnreachableBlock ());
+}
+
 bool
 ControlFlowMgr::ret (const Value& value)
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
 	ASSERT (function);
 
+	bool isAsync = function->getFunctionKind () == FunctionKind_Async;
 	FunctionType* functionType = function->getType ();
-	Type* returnType = functionType->getReturnType ();
+
+	Type* returnType = isAsync ?
+		function->getAsyncLauncher ()->getType ()->getAsyncReturnType () :
+		functionType->getReturnType ();
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
 
 	if (!value)
 	{
-		if (functionType->getReturnType ()->getTypeKind () != TypeKind_Void)
+		if (returnType->getTypeKind () != TypeKind_Void)
 		{
 			err::setFormatStringError (
 				"function '%s' must return a '%s' value",
@@ -441,7 +490,7 @@ ControlFlowMgr::ret (const Value& value)
 			return false;
 		}
 
-		if (scope->m_flags & ScopeFlag_Finalizable)
+		if ((scope->m_flags & ScopeFlag_Finalizable) || isAsync)
 		{
 			escapeScope (function->getScope (), getReturnBlock ());
 			return true;
@@ -452,7 +501,7 @@ ControlFlowMgr::ret (const Value& value)
 	}
 	else
 	{
-		if (functionType->getReturnType ()->getTypeKind () == TypeKind_Void)
+		if (returnType->getTypeKind () == TypeKind_Void)
 		{
 			err::setFormatStringError (
 				"void function '%s' returning a '%s' value",
@@ -467,7 +516,7 @@ ControlFlowMgr::ret (const Value& value)
 		if (!result)
 			return false;
 
-		if (scope->getFlags () & ScopeFlag_Finalizable)
+		if ((scope->getFlags () & ScopeFlag_Finalizable) || isAsync)
 		{
 			m_module->m_llvmIrBuilder.createStore (returnValue, getReturnValueVariable ());
 			escapeScope (function->getScope (), getReturnBlock ());
@@ -475,6 +524,7 @@ ControlFlowMgr::ret (const Value& value)
 		}
 
 		escapeScope (NULL, NULL);
+
 		functionType->getCallConv ()->ret (function, returnValue);
 	}
 
@@ -492,7 +542,17 @@ ControlFlowMgr::checkReturn ()
 		return true;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction ();
-	Type* returnType = function->getType ()->getReturnType ();
+	Type* returnType;
+
+	if (function->getFunctionKind () == FunctionKind_Async)
+	{
+		function = function->getAsyncLauncher ();
+		returnType = function->getType ()->getAsyncReturnType ();
+	}
+	else
+	{
+		returnType = function->getType ()->getReturnType ();
+	}
 
 	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
 	{

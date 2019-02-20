@@ -15,33 +15,12 @@
 #include "jnc_ct_PropertyVerifier.h"
 #include "jnc_ct_Function.h"
 #include "jnc_ct_NamedTypeBlock.h"
+#include "jnc_Property.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
-
-enum PropertyKind
-{
-	PropertyKind_Undefined = 0,
-	PropertyKind_Normal,
-	PropertyKind_Thunk,
-	PropertyKind_DataThunk,
-	PropertyKind_Internal,
-	PropertyKind__Count
-};
-
-//..............................................................................
-
-enum PropertyFlag
-{
-	PropertyFlag_Const    = 0x010000,
-	PropertyFlag_Bindable = 0x020000,
-	PropertyFlag_AutoGet  = 0x100000,
-	PropertyFlag_AutoSet  = 0x200000,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class Property:
 	public ModuleItem,

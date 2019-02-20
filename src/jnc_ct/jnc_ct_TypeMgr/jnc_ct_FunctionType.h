@@ -44,6 +44,7 @@ class FunctionType: public Type
 protected:
 	CallConv* m_callConv;
 	Type* m_returnType;
+	Type* m_asyncReturnType; // until we have generics (e.g. Promise<T>)
 	sl::Array <FunctionArg*> m_argArray;
 	sl::Array <uint_t> m_argFlagArray; // args can be shared between func types
 	sl::String m_argSignature;
@@ -65,6 +66,13 @@ public:
 	getReturnType ()
 	{
 		return m_returnType;
+	}
+
+	Type*
+	getAsyncReturnType ()
+	{
+		ASSERT (m_flags & FunctionTypeFlag_Async);
+		return m_asyncReturnType;
 	}
 
 	sl::Array <FunctionArg*>

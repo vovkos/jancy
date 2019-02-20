@@ -1,0 +1,36 @@
+import "sys_Timer.jnc"
+
+int async asyncBar ()
+{
+	sys.Timer timer;
+
+	jnc.Promisifier promise;
+	timer.startSingleShotTimer (promise.complete, 1000);
+
+	printf ("+bar: tid: %p\n", sys.getCurrentThreadId ());
+
+	await promise.asyncWait ();
+
+	printf ("-bar: tid: %p\n", sys.getCurrentThreadId ());
+
+	return 1000;
+}
+
+int async asyncFoo ()
+{
+	printf ("+foo: tid: %p\n", sys.getCurrentThreadId ());
+
+	int result = await asyncBar ();
+
+	printf ("-foo: tid: %p, result: %d\n", sys.getCurrentThreadId (), result);
+
+	return result;
+}
+
+int main ()
+{
+	printf ("+main: tid: %p\n", sys.getCurrentThreadId ());
+	asyncFoo ();
+	printf ("-main: tid: %p\n", sys.getCurrentThreadId ());
+	return 0; // -1000;
+}

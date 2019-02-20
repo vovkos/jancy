@@ -700,6 +700,20 @@ public:
 		return offsetofOperator (*value, value);
 	}
 
+	// async/await
+
+	bool
+	awaitOperator (
+		const Value& value,
+		Value* resultValue
+		);
+
+	bool
+	awaitOperator (Value* value)
+	{
+		return awaitOperator (*value, value);
+	}
+
 	void
 	zeroInitialize (const Value& value);
 

@@ -16,7 +16,7 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_CLASS_TYPE (Promise)
+JNC_DECLARE_OPAQUE_CLASS_TYPE (Promise)
 JNC_DECLARE_CLASS_TYPE (Promisifier)
 
 //..............................................................................
@@ -24,6 +24,12 @@ JNC_DECLARE_CLASS_TYPE (Promisifier)
 class Promise: public IfaceHdr
 {
 protected:
+	enum State
+	{
+		State_Initial   = 0,
+		State_Completed = -1,
+	};
+
 	struct SyncWait: sl::ListLink
 	{
 		sys::Event* m_event;
@@ -35,34 +41,37 @@ protected:
 		handle_t m_handle;
 	};
 
+public:
+	size_t m_state;
+	Variant m_result;
+	DataPtr m_errorPtr;
+
 protected:
 	sys::Lock m_lock;
 
 	sl::AuxList <SyncWait> m_syncWaitList;
 	sl::List <AsyncWait> m_asyncWaitList;
-	sl::List <AsyncWait> m_pendingAsyncWaitList;
 	sl::HandleTable <AsyncWait*> m_asyncWaitMap;
-
-	Variant m_result;
-	DataPtr m_errorPtr;
-	bool m_isCompleted;
 
 public:
 	void
 	JNC_CDECL
 	markOpaqueGcRoots (GcHeap* gcHeap);
 
-	intptr_t
+	handle_t
 	JNC_CDECL
 	wait (FunctionPtr handlerPtr);
 
 	bool
 	JNC_CDECL
-	cancelWait (intptr_t handle);
+	cancelWait (handle_t handle);
 
 	static
 	Variant
-	blockingWait (Promise* self);
+	blockingWait (Promise* self)
+	{
+		return self->blockingWaitImpl ();
+	}
 
 	Promise*
 	JNC_CDECL
@@ -70,6 +79,10 @@ public:
 	{
 		return this;
 	}
+
+protected:
+	Variant
+	blockingWaitImpl ();
 };
 
 //..............................................................................
@@ -77,6 +90,13 @@ public:
 class Promisifier: public Promise
 {
 public:
+	void
+	JNC_CDECL
+	markOpaqueGcRoots (GcHeap* gcHeap)
+	{
+		Promise::markOpaqueGcRoots (gcHeap);
+	}
+
 	void
 	JNC_CDECL
 	complete_0 ()
@@ -98,15 +118,6 @@ public:
 		DataPtr errorPtr
 		);
 };
-
-//..............................................................................
-
-Promise*
-createMultiPromise (
-	DataPtr promiseArrayPtr,
-	size_t count,
-	bool waitAll
-	);
 
 //..............................................................................
 

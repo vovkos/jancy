@@ -111,6 +111,7 @@ protected:
 	Module* m_module;
 
 	sl::List <BasicBlock> m_blockList;
+	sl::Array <BasicBlock*> m_asyncBlockArray;
 	sl::Array <BasicBlock*> m_returnBlockArray;
 	sl::Array <BasicBlock*> m_landingPadBlockArray;
 	BasicBlock* m_currentBlock;
@@ -142,6 +143,9 @@ public:
 		const sl::StringRef& name,
 		uint_t flags = 0
 		);
+
+	BasicBlock*
+	createAsyncBlock ();
 
 	BasicBlock*
 	getCurrentBlock ()
@@ -213,6 +217,9 @@ public:
 	{
 		return ret (Value ());
 	}
+
+	void
+	asyncRet (BasicBlock* nextBlock);
 
 	bool
 	checkReturn ();

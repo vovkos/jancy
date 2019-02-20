@@ -33,6 +33,7 @@ jnc_getFunctionTypeFlagString (jnc_FunctionTypeFlag flag)
 		"byval",      // jnc_FunctionTypeFlag_ByValArgs   = 0x040000,
 		"coerced",    // jnc_FunctionTypeFlag_CoercedArgs = 0x040000,
 		"unsafe",     // jnc_FunctionTypeFlag_Unsafe      = 0x100000,
+		"async",      // jnc_FunctionTypeFlag_Async       = 0x200000,
 	};
 
 	size_t i = axl::sl::getLoBitIdx32 (flag >> 16);

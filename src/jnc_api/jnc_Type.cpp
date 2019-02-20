@@ -198,9 +198,9 @@ jnc_getDataPtrTypeKindString (jnc_DataPtrTypeKind ptrTypeKind)
 {
 	static const char* stringTable [jnc_DataPtrTypeKind__Count] =
 	{
-		"normal", // EDataPtrType_Normal = 0,
-		"lean",   // EDataPtrType_Lean,
-		"thin",   // EDataPtrType_Thin,
+		"normal", // DataPtrTypeKind_Normal = 0,
+		"lean",   // DataPtrTypeKind_Lean,
+		"thin",   // DataPtrTypeKind_Thin,
 	};
 
 	return (size_t) ptrTypeKind < jnc_DataPtrTypeKind__Count ?

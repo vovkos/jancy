@@ -23,6 +23,7 @@ FunctionType::FunctionType ()
 	m_typeKind = TypeKind_Function;
 	m_callConv = NULL;
 	m_returnType = NULL;
+	m_asyncReturnType = NULL;
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
 	m_functionPtrTypeTuple = NULL;
@@ -165,6 +166,9 @@ FunctionType::createFlagSignature (uint_t flags)
 	if (flags & FunctionTypeFlag_Unsafe)
 		string += 'U';
 
+	if (flags & FunctionTypeFlag_Async)
+		string += 'A';
+
 	return string;
 }
 
@@ -219,6 +223,9 @@ FunctionType::getTypeModifierString ()
 	if (m_flags & FunctionTypeFlag_Unsafe)
 		string += "unsafe ";
 
+	if (m_flags & FunctionTypeFlag_Async)
+		string += "async ";
+
 	if (!string.isEmpty ())
 		string.chop (1);
 
@@ -229,8 +236,9 @@ void
 FunctionType::prepareTypeString ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
+	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
 
-	tuple->m_typeStringPrefix = m_returnType->getTypeStringPrefix ();
+	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
 
 	sl::String modifierString = getTypeModifierString ();
 	if (!modifierString.isEmpty ())
@@ -261,15 +269,16 @@ FunctionType::prepareTypeString ()
 	else
 		tuple->m_typeStringSuffix += "...)";
 
-	tuple->m_typeStringSuffix += m_returnType->getTypeStringSuffix ();
+	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
 }
 
 void
 FunctionType::prepareDoxyLinkedText ()
 {
 	TypeStringTuple* tuple = getTypeStringTuple ();
+	Type* returnType = (m_flags & FunctionTypeFlag_Async) ? m_asyncReturnType : m_returnType;
 
-	tuple->m_doxyLinkedTextPrefix = m_returnType->getDoxyLinkedTextPrefix ();
+	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
 
 	sl::String modifierString = getTypeModifierString ();
 	if (!modifierString.isEmpty ())
@@ -302,7 +311,7 @@ FunctionType::prepareDoxyLinkedText ()
 	else
 		tuple->m_doxyLinkedTextSuffix += "...)";
 
-	tuple->m_doxyLinkedTextSuffix += m_returnType->getDoxyLinkedTextSuffix ();
+	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
 }
 
 void

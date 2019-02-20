@@ -172,7 +172,7 @@ ClassType::addMethod (Function* function)
 		target = &m_staticDestructor;
 		break;
 
-	case FunctionKind_Named:
+	case FunctionKind_Normal:
 		overloadIdx = addFunction (function);
 		if (overloadIdx == -1)
 			return false;
@@ -595,7 +595,7 @@ ClassType::overrideVirtualFunction (Function* function)
 	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
-		if (functionKind != FunctionKind_Named)
+		if (functionKind != FunctionKind_Normal)
 		{
 			err::setFormatStringError (
 				"cannot override '%s': function kind mismatch",
@@ -775,6 +775,9 @@ ClassType::markGcRootsImpl (
 	rt::GcHeap* gcHeap
 	)
 {
+	ClassType* boxType = (ClassType*) iface->m_box->m_type;
+	ASSERT (boxType == this || boxType->findBaseTypeTraverse (this));
+
 	char* p = (char*) iface;
 
 	size_t count = m_gcRootBaseTypeArray.getCount ();
@@ -801,12 +804,7 @@ ClassType::markGcRootsImpl (
 	}
 
 	if (m_markOpaqueGcRootsFunc)
-	{
-		ClassType* boxType = (ClassType*) iface->m_box->m_type;
-		ASSERT (isOpaqueClassType (boxType) && (boxType == this || boxType->findBaseTypeTraverse (this)));
-
 		m_markOpaqueGcRootsFunc (iface, gcHeap);
-	}
 }
 
 //..............................................................................

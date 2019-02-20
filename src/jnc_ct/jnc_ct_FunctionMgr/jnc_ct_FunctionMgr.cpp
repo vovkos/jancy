@@ -53,6 +53,7 @@ FunctionMgr::clear ()
 	memset (m_stdPropertyArray, 0, sizeof (m_stdPropertyArray));
 
 	m_thisValue.clear ();
+	m_promiseValue.clear ();
 	m_currentFunction = NULL;
 }
 
@@ -110,6 +111,11 @@ FunctionMgr::createFunction (
 	case FunctionKind_ScheduleLauncher:
 		function = AXL_MEM_NEW (ScheduleLauncherFunction);
 		m_scheduleLauncherFunctionList.insertTail ((ScheduleLauncherFunction*) function);
+		break;
+
+	case FunctionKind_Async:
+		function = AXL_MEM_NEW (AsyncFunction);
+		m_asyncFunctionList.insertTail ((AsyncFunction*) function);
 		break;
 
 	default:
@@ -409,6 +415,7 @@ FunctionMgr::finalizeFunction (
 		function->m_tlsVariableArray [i].m_variable->m_llvmValue = NULL;
 
 	m_thisValue.clear ();
+	m_promiseValue.clear ();
 	m_currentFunction = NULL;
 }
 
@@ -519,7 +526,6 @@ FunctionMgr::getDirectThunkFunction (
 	ThunkFunction* thunkFunction = (ThunkFunction*) createFunction (FunctionKind_Thunk, thunkFunctionType);
 	thunkFunction->m_storageKind = StorageKind_Static;
 	thunkFunction->m_tag = "directThunkFunction";
-	thunkFunction->m_signature = signature;
 	thunkFunction->m_targetFunction = targetFunction;
 
 	thunk->m_value = thunkFunction;
@@ -630,7 +636,6 @@ FunctionMgr::getScheduleLauncherFunction (
 	ScheduleLauncherFunction* launcherFunction = (ScheduleLauncherFunction*) createFunction (FunctionKind_ScheduleLauncher, launcherType);
 	launcherFunction->m_storageKind = StorageKind_Static;
 	launcherFunction->m_tag = "scheduleLauncherFunction";
-	launcherFunction->m_signature = signature;
 
 	thunk->m_value = launcherFunction;
 
@@ -926,6 +931,21 @@ FunctionMgr::getStdFunction (StdFunc func)
 		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType (returnType, NULL, 0);
 		function = createFunction (FunctionKind_Internal, "jnc.dynamicThrow", functionType);
+		break;
+
+	case StdFunc_AsyncRet:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_PromisePtr);
+		argTypeArray [1] = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 2);
+		function = createFunction (FunctionKind_Internal, "jnc.asyncRet", functionType);
+		break;
+
+	case StdFunc_AsyncThrow:
+		returnType = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		argTypeArray [0] = m_module->m_typeMgr.getStdType (StdType_PromisePtr);
+		functionType = m_module->m_typeMgr.getFunctionType (returnType, argTypeArray, 1);
+		function = createFunction (FunctionKind_Internal, "jnc.asyncThrow", functionType);
 		break;
 
 	case StdFunc_VariantUnaryOperator:

@@ -24,8 +24,8 @@ getPropertyTypeFlagString (PropertyTypeFlag flag)
 {
 	static const char* stringTable [] =
 	{
-		"const",     // EPropertyTypeFlag_Const    = 0x010000,
-		"bindable",  // EPropertyTypeFlag_Bindable = 0x020000,
+		"const",     // PropertyTypeFlag_Const    = 0x010000,
+		"bindable",  // PropertyTypeFlag_Bindable = 0x020000,
 	};
 
 	size_t i = sl::getLoBitIdx32 (flag >> 16);

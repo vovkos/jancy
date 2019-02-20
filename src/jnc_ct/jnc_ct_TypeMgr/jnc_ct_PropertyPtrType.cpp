@@ -24,9 +24,9 @@ getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind)
 {
 	static const char* stringTable [PropertyPtrTypeKind__Count] =
 	{
-		"closure",  // EPropertyPtrType_Normal = 0,
-		"weak",     // EPropertyPtrType_Weak,
-		"thin",     // EPropertyPtrType_Thin,
+		"closure",  // PropertyPtrTypeKind_Normal = 0,
+		"weak",     // PropertyPtrTypeKind_Weak,
+		"thin",     // PropertyPtrTypeKind_Thin,
 	};
 
 	return (size_t) ptrTypeKind < PropertyPtrTypeKind__Count ?

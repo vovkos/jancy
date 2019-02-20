@@ -241,6 +241,22 @@ TypeMgr::getStdType (StdType stdType)
 			type = parseStdType (stdType);
 		break;
 
+	case StdType_Promise:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("Promise");
+		if (!type)
+			type = parseStdType (stdType);
+		break;
+
+	case StdType_PromisePtr:
+		type = ((ClassType*) getStdType (StdType_Promise))->getClassPtrType (ClassPtrTypeKind_Normal);
+		break;
+
+	case StdType_Promisifier:
+		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("Promisifier");
+		if (!type)
+			type = parseStdType (stdType);
+		break;
+
 	case StdType_DynamicLib:
 		type = (Type*) m_module->m_namespaceMgr.getStdNamespace (StdNamespace_Jnc)->findItemByName ("DynamicLib");
 		if (!type)
@@ -1104,6 +1120,13 @@ TypeMgr::createUserFunctionType (
 	type->m_module = m_module;
 	type->m_signature = signature;
 	type->m_callConv = callConv;
+
+	if (flags & FunctionTypeFlag_Async)
+	{
+		type->m_asyncReturnType = returnType;
+		returnType = m_module->m_typeMgr.getStdType (StdType_PromisePtr);
+	}
+
 	type->m_returnType = returnType;
 	type->m_flags = flags | ModuleItemFlag_User;
 	type->m_argArray = argArray;
@@ -1886,7 +1909,7 @@ TypeMgr::getFunctionPtrType (
 	m_functionPtrTypeList.insertTail (type);
 	tuple->m_ptrTypeArray [i1] [i2] [i3] = type;
 
-	if (!m_module->m_namespaceMgr.getCurrentScope ())
+	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope ())
 	{
 		m_module->markForLayout (type, true);
 	}

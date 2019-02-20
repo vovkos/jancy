@@ -14,6 +14,7 @@
 #include "jnc_ct_Function.h"
 #include "jnc_ct_Property.h"
 #include "jnc_ct_ScheduleLauncherFunction.h"
+#include "jnc_ct_AsyncFunction.h"
 #include "jnc_ct_ThunkFunction.h"
 #include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_PropertyTemplate.h"
@@ -32,6 +33,7 @@ class FunctionMgr
 	friend class ClassType;
 	friend class Function;
 	friend class Parser;
+	friend class AsyncFunction;
 
 protected:
 	Module* m_module;
@@ -40,6 +42,7 @@ protected:
 	sl::List <Property> m_propertyList;
 	sl::List <PropertyTemplate> m_propertyTemplateList;
 	sl::List <ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
+	sl::List <AsyncFunction> m_asyncFunctionList;
 	sl::List <ThunkFunction> m_thunkFunctionList;
 	sl::List <ThunkProperty> m_thunkPropertyList;
 	sl::List <DataThunkProperty> m_dataThunkPropertyList;
@@ -55,6 +58,7 @@ protected:
 
 	Function* m_currentFunction;
 	Value m_thisValue;
+	Value m_promiseValue;
 
 public:
 	FunctionMgr ();
@@ -84,6 +88,12 @@ public:
 	getThisValue ()
 	{
 		return m_thisValue;
+	}
+
+	Value
+	getPromiseValue ()
+	{
+		return m_promiseValue;
 	}
 
 	Value
@@ -172,7 +182,7 @@ public:
 		FunctionType* type
 		)
 	{
-		return createFunction (FunctionKind_Named, name, qualifiedName, qualifiedName, type);
+		return createFunction (FunctionKind_Normal, name, qualifiedName, qualifiedName, type);
 	}
 
 	Property*

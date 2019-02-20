@@ -284,10 +284,37 @@ getTls ()
 }
 
 void
-dynamicThrow()
+dynamicThrow ()
 {
 	jnc::dynamicThrow ();
 	ASSERT (false);
+}
+
+void
+asyncRet (
+	IfaceHdr* promise,
+	Variant result
+	)
+{
+	// jnc.Promisifier ONLY uses jnc.Promise fields to complete the promise
+	// so it's OK to cast -- even though the actual class is NOT jnc.Promisifier
+
+	((Promisifier*) promise)->complete_2 (result, g_nullPtr);
+}
+
+void
+asyncThrow (IfaceHdr* promise)
+{
+	err::Error error = err::getLastError ();
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap ();
+	ASSERT (gcHeap);
+
+	DataPtr errorPtr = gcHeap->tryAllocateBuffer (error->m_size);
+	if (errorPtr.m_p)
+		memcpy (errorPtr.m_p, error, error->m_size);
+
+	((Promisifier*) promise)->complete_2 (g_nullVariant, errorPtr);
 }
 
 jnc_Variant
@@ -1222,6 +1249,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_CoreLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (RegexDfa)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (DynamicLayout)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (ReactorImpl)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Promise)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
 
 JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
@@ -1271,6 +1299,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_SetJmp,       ::setjmp)
 	JNC_MAP_STD_FUNCTION (ct::StdFunc_DynamicThrow, dynamicThrow)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AsyncRet,     asyncRet)
+	JNC_MAP_STD_FUNCTION (ct::StdFunc_AsyncThrow,   asyncThrow)
 
 	// runtime checks
 
@@ -1316,7 +1346,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_CoreLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLib,    DynamicLib)
 	JNC_MAP_STD_TYPE (StdType_DynamicLayout, DynamicLayout)
 	JNC_MAP_STD_TYPE (StdType_ReactorBase,   ReactorImpl)
-//	JNC_MAP_STD_TYPE (StdType_Promise,       Promise)
+	JNC_MAP_STD_TYPE (StdType_Promise,       Promise)
+	JNC_MAP_STD_TYPE (StdType_Promisifier,   Promisifier)
 
 JNC_END_LIB_FUNCTION_MAP ()
 

@@ -29,7 +29,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 	static const char* stringTable [jnc_FunctionKind__Count] =
 	{
 		"undefined-function-kind",  // jnc_FunctionKind_Undefined,
-		"named-function",           // jnc_FunctionKind_Named,
+		"normal-function",          // jnc_FunctionKind_Normal,
 		"get",                      // jnc_FunctionKind_Getter,
 		"set",                      // jnc_FunctionKind_Setter,
 		"bindingof",                // jnc_FunctionKind_Binder,
@@ -47,6 +47,7 @@ jnc_getFunctionKindString (jnc_FunctionKind functionKind)
 		"internal",                 // jnc_FunctionKind_Internal,
 		"thunk",                    // jnc_FunctionKind_Thunk,
 		"schedule-launcher",        // jnc_FunctionKind_ScheduleLauncher,
+		"async",                    // jnc_FunctionKind_Async,
 	};
 
 	return (size_t) functionKind < jnc_FunctionKind__Count ?
@@ -64,7 +65,7 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 	static int flagTable [jnc_FunctionKind__Count] =
 	{
 		0,                                  // jnc_FunctionKind_Undefined,
-		0,                                  // jnc_FunctionKind_Named,
+		0,                                  // jnc_FunctionKind_Normal,
 		jnc_FunctionKindFlag_NoOverloads,   // jnc_FunctionKind_Getter,
 		0,                                  // jnc_FunctionKind_Setter,
 		jnc_FunctionKindFlag_NoOverloads |  // jnc_FunctionKind_Binder,
@@ -95,6 +96,7 @@ jnc_getFunctionKindFlags (jnc_FunctionKind functionKind)
 		0,                                  // jnc_FunctionKind_Internal,
 		0,                                  // jnc_FunctionKind_Thunk,
 		0,                                  // jnc_FunctionKind_ScheduleLauncher,
+		0,                                  // jnc_FunctionKind_Async,
 	};
 
 	return (size_t) functionKind < jnc_FunctionKind__Count ? flagTable [functionKind] : 0;

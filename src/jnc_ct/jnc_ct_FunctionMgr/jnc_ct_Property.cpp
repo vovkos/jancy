@@ -485,7 +485,7 @@ Property::addMethod (Function* function)
 		target = &m_binder;
 		break;
 
-	case FunctionKind_Named:
+	case FunctionKind_Normal:
 		return addFunction (function) != -1;
 
 	default:

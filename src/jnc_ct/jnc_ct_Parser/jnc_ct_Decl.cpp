@@ -303,14 +303,14 @@ Declarator::setTypeSpecifier (
 bool
 Declarator::addName (sl::String name)
 {
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
 		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
 	m_declaratorKind = DeclaratorKind_Name;
-	m_functionKind = FunctionKind_Named;
+	m_functionKind = FunctionKind_Normal;
 	m_name.addName (name);
 	return true;
 }
@@ -318,7 +318,7 @@ Declarator::addName (sl::String name)
 bool
 Declarator::addUnnamedMethod (FunctionKind functionKind)
 {
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
 		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
@@ -344,7 +344,7 @@ Declarator::addUnaryBinaryOperator (
 	BinOpKind binOpKind
 	)
 {
-	if (m_functionKind && m_functionKind != FunctionKind_Named)
+	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
 		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;

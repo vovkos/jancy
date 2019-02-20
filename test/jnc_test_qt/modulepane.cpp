@@ -338,7 +338,7 @@ void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::Function* functi
 {
 	jnc::FunctionType* type = function->getType ();
 
-	const char* name = function->getFunctionKind () == jnc::FunctionKind_Named ?
+	const char* name = function->getFunctionKind () == jnc::FunctionKind_Normal ?
 		function->getDecl ()->getName () :
 		jnc::getFunctionKindString (function->getFunctionKind ());
 

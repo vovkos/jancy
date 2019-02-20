@@ -63,7 +63,7 @@ NamedTypeBlock::createMethod (
 {
 	sl::String qualifiedName = getParentNamespaceImpl ()->createQualifiedName (name);
 
-	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (FunctionKind_Named, shortType);
+	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (FunctionKind_Normal, shortType);
 	function->m_storageKind = storageKind;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;

@@ -24,9 +24,9 @@ getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind)
 {
 	static const char* stringTable [FunctionPtrTypeKind__Count] =
 	{
-		"closure",  // EFunctionPtrType_Normal = 0,
-		"weak",     // EFunctionPtrType_Weak,
-		"thin",     // EFunctionPtrType_Thin,
+		"closure",  // FunctionPtrTypeKind_Normal = 0,
+		"weak",     // FunctionPtrTypeKind_Weak,
+		"thin",     // FunctionPtrTypeKind_Thin,
 	};
 
 	return (size_t) ptrTypeKind < FunctionPtrTypeKind__Count ?

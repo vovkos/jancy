@@ -45,6 +45,8 @@ enum StdFunc
 
 	StdFunc_SetJmp,
 	StdFunc_DynamicThrow,
+	StdFunc_AsyncRet,
+	StdFunc_AsyncThrow,
 
 	StdFunc_VariantUnaryOperator,
 	StdFunc_VariantBinaryOperator,

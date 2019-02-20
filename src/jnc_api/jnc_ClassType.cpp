@@ -28,8 +28,8 @@ jnc_getClassPtrTypeKindString (jnc_ClassPtrTypeKind ptrTypeKind)
 {
 	static const char* stringTable [jnc_ClassPtrTypeKind__Count] =
 	{
-		"strong", // EClassPtrType_Normal = 0,
-		"weak",   // EClassPtrType_Weak,
+		"strong", // ClassPtrTypeKind_Normal = 0,
+		"weak",   // ClassPtrTypeKind_Weak,
 	};
 
 	return (size_t) ptrTypeKind < jnc_ClassPtrTypeKind__Count ?

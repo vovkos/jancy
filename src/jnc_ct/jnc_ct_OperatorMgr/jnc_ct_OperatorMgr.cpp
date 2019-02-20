@@ -1402,6 +1402,48 @@ OperatorMgr::prepareOperand (
 	return true;
 }
 
+
+bool
+OperatorMgr::awaitOperator (
+	const Value& value,
+	Value* resultValue
+	)
+{
+	Function* function = m_module->m_functionMgr.getCurrentFunction ();
+	if (function->getFunctionKind () != FunctionKind_Async)
+	{
+		err::setError ("await can only be used in async functions");
+		return false;
+	}
+
+	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue ();
+	ASSERT (thisPromiseValue);
+
+	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock ();
+
+	Value opPromiseValue;
+	Value waitValue;
+	Value resumeValue = function;
+
+	bool result =
+		castOperator (value, m_module->m_typeMgr.getStdType (StdType_PromisePtr), &opPromiseValue) &&
+		memberOperator (opPromiseValue, "wait", &waitValue) &&
+		closureOperator (function, thisPromiseValue, &resumeValue);
+
+	if (!result)
+		return false;
+
+	// TODO: call wait, return from the function
+
+	m_module->m_controlFlowMgr.asyncRet (block);
+
+	// blocking-wait will return immediately now (promise should be complete)
+
+	return
+		memberOperator (opPromiseValue, "blockingWait", &waitValue) &&
+		callOperator (waitValue, resultValue);
+}
+
 //..............................................................................
 
 } // namespace ct
