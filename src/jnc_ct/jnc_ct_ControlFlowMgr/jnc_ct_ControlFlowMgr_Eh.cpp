@@ -653,12 +653,15 @@ ControlFlowMgr::finalizeSjljFrameArray ()
 	// if this function has no gc shadow stack frame, we must also manually restore
 	// previous gc shadow stack frame pointer on exception landing pads
 
-	Variable* gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
+	Variable* gcShadowStackTopVariable;
 	Value prevGcShadowStackFrameValue;
 
-	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame ();
+	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame () && function->getFunctionKind () != FunctionKind_Async;
 	if (!hasGcShadowStackFrame)
+	{
+		gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
 		m_module->m_llvmIrBuilder.createLoad (gcShadowStackTopVariable, NULL, &prevGcShadowStackFrameValue);
+	}
 
 	// restore sjlj frame at every landing pad
 

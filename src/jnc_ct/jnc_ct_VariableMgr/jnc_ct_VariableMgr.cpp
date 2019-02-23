@@ -38,6 +38,7 @@ VariableMgr::clear ()
 	m_staticGcRootArray.clear ();
 	m_globalStaticVariableArray.clear ();
 	m_liftedStackVariableArray.clear ();
+	m_argVariableArray.clear ();
 	m_tlsVariableArray.clear ();
 	m_currentLiftedStackVariable = NULL;
 	m_tlsStructType = NULL;
@@ -174,6 +175,7 @@ VariableMgr::createVariable (
 
 		if (variable->m_scope && !variable->m_scope->m_firstStackVariable)
 			variable->m_scope->m_firstStackVariable = variable;
+
 		break;
 
 	case StorageKind_Heap:
@@ -181,6 +183,9 @@ VariableMgr::createVariable (
 		if (!result)
 			return NULL;
 		break;
+
+	case StorageKind_Member:
+		break; // nothing to do -- llvmValue will be a GEP
 
 	default:
 		ASSERT (false);
@@ -563,7 +568,7 @@ VariableMgr::liftStackVariable (Variable* variable)
 }
 
 void
-VariableMgr::finalizeLiftedStackVariables ()
+VariableMgr::finalizeFunction ()
 {
 	size_t count = m_liftedStackVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
@@ -576,6 +581,7 @@ VariableMgr::finalizeLiftedStackVariables ()
 	}
 
 	m_liftedStackVariableArray.clear ();
+	m_argVariableArray.clear ();
 }
 
 Variable*
@@ -606,6 +612,21 @@ VariableMgr::createArgVariable (
 	if (variable->m_type->getFlags () & TypeFlag_GcRoot)
 		m_module->m_gcShadowStackMgr.markGcRoot (variable, variable->m_type);
 
+	m_argVariableArray.append (variable);
+	return variable;
+}
+
+Variable*
+VariableMgr::createAsyncArgVariable (
+	const sl::StringRef& name,
+	Type* type,
+	const Value& value
+	)
+{
+	ASSERT (value.getLlvmValue ());
+	Variable* variable = createVariable (StorageKind_Member, name, name, type);
+	variable->m_flags |= ModuleItemFlag_User | VariableFlag_Arg;
+	variable->m_llvmValue = value.getLlvmValue ();
 	return variable;
 }
 

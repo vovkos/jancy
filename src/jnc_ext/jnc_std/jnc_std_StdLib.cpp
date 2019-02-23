@@ -562,6 +562,12 @@ print (DataPtr ptr)
 }
 
 size_t
+print_u (const char* s)
+{
+	return s ? g_printOutFunc (s, strlen (s)) : 0;
+}
+
+size_t
 perror (DataPtr ptr)
 {
 	size_t length = strLen (ptr);
@@ -645,6 +651,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP (jnc_StdLib)
 	JNC_MAP_FUNCTION ("tolower",  toLower)
 	JNC_MAP_FUNCTION ("gets",     jnc::std::gets)
 	JNC_MAP_FUNCTION ("print",    jnc::std::print)
+	JNC_MAP_FUNCTION ("print_u",  print_u)
 	JNC_MAP_FUNCTION ("perror",   jnc::std::perror)
 	JNC_MAP_FUNCTION ("printf",   jnc::std::printf)
 

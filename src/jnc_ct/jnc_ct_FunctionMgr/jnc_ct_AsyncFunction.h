@@ -22,15 +22,28 @@ class AsyncFunction: public Function
 {
 	friend class FunctionMgr;
 
+protected:
+	ClassType* m_promiseType;
+
 public:
 	AsyncFunction ()
 	{
 		m_functionKind = FunctionKind_Async;
+		m_promiseType = NULL;
+	}
+
+	ClassType*
+	getPromiseType ()
+	{
+		m_promiseType;
 	}
 
 	virtual
 	bool
 	compile ();
+
+	void
+	replaceAllocas ();
 };
 
 //..............................................................................

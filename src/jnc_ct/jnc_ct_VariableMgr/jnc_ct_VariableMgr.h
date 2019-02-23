@@ -34,6 +34,7 @@ protected:
 	sl::Array <Variable*> m_staticGcRootArray;
 	sl::Array <Variable*> m_globalStaticVariableArray;
 	sl::Array <Variable*> m_liftedStackVariableArray;
+	sl::Array <Variable*> m_argVariableArray;
 	sl::Array <Variable*> m_tlsVariableArray;
 	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
@@ -56,7 +57,7 @@ public:
 	createStdVariables ();
 
 	void
-	finalizeLiftedStackVariables ();
+	finalizeFunction ();
 
 	Variable*
 	getStdVariable (StdVariable variable);
@@ -77,6 +78,12 @@ public:
 	getGlobalStaticVariableArray ()
 	{
 		return m_globalStaticVariableArray;
+	}
+
+	sl::Array <Variable*>
+	getArgVariableArray ()
+	{
+		return m_argVariableArray;
 	}
 
 	sl::Array <Variable*>
@@ -138,6 +145,13 @@ public:
 	createArgVariable (
 		FunctionArg* arg,
 		size_t argIdx
+		);
+
+	Variable*
+	createAsyncArgVariable (
+		const sl::StringRef& name,
+		Type* type,
+		const Value& value
 		);
 
 	bool

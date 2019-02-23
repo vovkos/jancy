@@ -60,6 +60,25 @@ OperatorMgr::getField (
 }
 
 bool
+OperatorMgr::getPromiseField (
+	const Value& promiseValue,
+	const sl::String& name,
+	Value* resultValue
+	)
+{
+	ASSERT (((ClassPtrType*) promiseValue.getType ())->getTargetType ()->getBaseTypeArray () [0]->getType ()->getStdType () == StdType_Promise);
+
+	ClassType* promiseType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Promise);
+	StructField* stateField = (StructField*) promiseType->findItemByName (name);
+	ASSERT (stateField);
+
+	MemberCoord coord;
+	coord.m_llvmIndexArray.append (0); // account for base type jnc.Promise
+
+	return getField (promiseValue, stateField, &coord, resultValue);
+}
+
+bool
 OperatorMgr::getFieldPtrImpl (
 	const Value& opValueRaw,
 	MemberCoord* coord,

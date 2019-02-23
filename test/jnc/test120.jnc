@@ -1,36 +1,50 @@
 import "sys_Timer.jnc"
 
-int async asyncBar ()
+int async asyncBar (int x, int y)
 {
+	printf ("+bar (%d, %d): tid: %p\n", x, y, sys.getCurrentThreadId ());
+
+	char const* s = $"(x: $x, y: $y)";
+	printf ("s: %s\n", s);
+
 	sys.Timer timer;
-
 	jnc.Promisifier promise;
-	timer.startSingleShotTimer (promise.complete, 1000);
 
-	printf ("+bar: tid: %p\n", sys.getCurrentThreadId ());
+	timer.startSingleShotTimer (promise.complete, 1000);
 
 	await promise.asyncWait ();
 
-	printf ("-bar: tid: %p\n", sys.getCurrentThreadId ());
+	printf ("-bar (%d, %d): tid: %p, s: %s\n", x, y, sys.getCurrentThreadId (), s);
 
-	return 1000;
+	return x + y;
 }
 
-int async asyncFoo ()
+int async asyncFoo (int x, int y) 
 {
-	printf ("+foo: tid: %p\n", sys.getCurrentThreadId ());
+	printf ("+foo (%d, %d): tid: %p\n", x, y, sys.getCurrentThreadId ());
 
-	int result = await asyncBar ();
+	char const* s = $"(x: $x, y: $y)";
+	printf ("s: %s\n", s);
 
-	printf ("-foo: tid: %p, result: %d\n", sys.getCurrentThreadId (), result);
+	int result1 = await asyncBar (3, 4);
 
-	return result;
+	printf ("~foo (%d, %d): tid: %p, result: %d, s: %s\n", x, y, sys.getCurrentThreadId (), result1, s);
+
+	int result2 = await asyncBar (5, 6);
+
+	printf ("-foo (%d, %d): tid: %p, result: %d, prev: %d, s: %s\n", x, y, sys.getCurrentThreadId (), result2, result1, s);
+
+	return x + y + result1 + result2;
 }
 
 int main ()
 {
 	printf ("+main: tid: %p\n", sys.getCurrentThreadId ());
-	asyncFoo ();
-	printf ("-main: tid: %p\n", sys.getCurrentThreadId ());
-	return 0; // -1000;
+
+	jnc.Promise* promise = asyncFoo (1, 2);
+	int result = promise.blockingWait ();
+	assert (result == 21);
+	
+	printf ("-main: tid: %p, result: %d\n", sys.getCurrentThreadId (), result);
+	return 0;
 }

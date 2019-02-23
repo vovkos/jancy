@@ -2611,6 +2611,7 @@ TypeMgr::createSjljFrameType ()
 	StructType* type = createStructType ("SjljFrame", "jnc.SjljFrame");
 	type->createField ("!m_jmpBuf", arrayType);
 	type->ensureLayout ();
+	type->m_alignment = 16; // override alignment
 	return type;
 }
 

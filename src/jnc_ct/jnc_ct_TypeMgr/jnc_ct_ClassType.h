@@ -34,6 +34,7 @@ class ClassType: public DerivableType
 	friend class Parser;
 	friend class Property;
 	friend class StructType;
+	friend class AsyncFunction;
 
 protected:
 	ClassTypeKind m_classTypeKind;

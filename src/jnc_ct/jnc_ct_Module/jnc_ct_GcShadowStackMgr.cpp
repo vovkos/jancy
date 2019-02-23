@@ -205,21 +205,7 @@ GcShadowStackMgr::finalizeFrame ()
 	llvmAlloca->eraseFromParent ();
 	m_gcRootArrayValue = gcRootArrayValue;
 
-	// get prev shadow stack top
-
-	Value prevStackTopValue;
-	Variable* stackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
-	m_module->m_llvmIrBuilder.createLoad (stackTopVariable , NULL, &prevStackTopValue);
-
 	// initialize frame
-
-	Value srcValue;
-	Value dstValue;
-
-	// GcShadowStackFrame.m_prev
-
-	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 0, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (prevStackTopValue, dstValue);
 
 	// GcShadowStackFrame.m_map
 
@@ -230,30 +216,60 @@ GcShadowStackMgr::finalizeFrame ()
 
 	// GcShadowStackFrame.m_gcRootArray
 
-	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 2, NULL, &dstValue);
-	m_module->m_llvmIrBuilder.createStore (gcRootArrayValue, dstValue);
+	Value gcRootArrayFieldValue;
+	m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 2, NULL, &gcRootArrayFieldValue);
+	m_module->m_llvmIrBuilder.createStore (gcRootArrayValue, gcRootArrayFieldValue);
 
-	// set new frame as the new stack top
+	Variable* stackTopVariable;
+	bool isAsync = function->getFunctionKind () == FunctionKind_Async;
 
-	m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
-
-	// restore previous stack top before every ret
-
-	sl::Array <BasicBlock*> returnBlockArray = m_module->m_controlFlowMgr.getReturnBlockArray ();
-	size_t count = returnBlockArray.getCount ();
-	for (size_t i = 0; i < count; i++)
+	if (isAsync)
 	{
-		BasicBlock* block = returnBlockArray [i];
-		llvm::TerminatorInst* llvmRet = block->getLlvmBlock ()->getTerminator ();
-		ASSERT (llvm::isa <llvm::ReturnInst> (llvmRet));
+		Value promiseValue = m_module->m_functionMgr.getPromiseValue ();
+		ASSERT (promiseValue);
 
-		m_module->m_llvmIrBuilder.setInsertPoint (llvmRet);
-		m_module->m_llvmIrBuilder.createStore (prevStackTopValue, stackTopVariable);
+		Value frameFieldValue;
+		bool result = m_module->m_operatorMgr.getPromiseField (promiseValue, "m_gcShadowStackFrame", &frameFieldValue);
+		ASSERT (result);
+
+		Value frameValue;
+		m_module->m_llvmIrBuilder.createBitCast (m_frameVariable, m_module->m_typeMgr.getStdType (StdType_BytePtr), &frameValue);
+		m_module->m_llvmIrBuilder.createStore (frameValue, frameFieldValue);
+	}
+	else
+	{
+		Value prevStackTopValue;
+		stackTopVariable = m_module->m_variableMgr.getStdVariable (StdVariable_GcShadowStackTop);
+		m_module->m_llvmIrBuilder.createLoad (stackTopVariable, NULL, &prevStackTopValue);
+
+		// GcShadowStackFrame.m_prev
+
+		Value prevFieldValue;
+		m_module->m_llvmIrBuilder.createGep2 (m_frameVariable, 0, NULL, &prevFieldValue);
+		m_module->m_llvmIrBuilder.createStore (prevStackTopValue, prevFieldValue);
+
+		// set new frame as the new stack top
+
+		m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
+
+		// restore previous stack top before every ret
+
+		sl::Array <BasicBlock*> returnBlockArray = m_module->m_controlFlowMgr.getReturnBlockArray ();
+		size_t count = returnBlockArray.getCount ();
+		for (size_t i = 0; i < count; i++)
+		{
+			BasicBlock* block = returnBlockArray [i];
+			llvm::TerminatorInst* llvmRet = block->getLlvmBlock ()->getTerminator ();
+			ASSERT (llvm::isa <llvm::ReturnInst> (llvmRet));
+
+			m_module->m_llvmIrBuilder.setInsertPoint (llvmRet);
+			m_module->m_llvmIrBuilder.createStore (prevStackTopValue, stackTopVariable);
+		}
 	}
 
 	// calculate frame map m_prev field
 
-	count = m_functionFrameMapArray.getCount ();
+	size_t count = m_functionFrameMapArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 	{
 		GcShadowStackFrameMap* map = m_functionFrameMapArray [i];
@@ -275,7 +291,7 @@ GcShadowStackMgr::finalizeFrame ()
 
 		// on exception landing pads we must restore frame pointer
 
-		if (block->getLandingPadKind () == LandingPadKind_Exception)
+		if (block->getLandingPadKind () == LandingPadKind_Exception && !isAsync)
 			m_module->m_llvmIrBuilder.createStore (m_frameVariable, stackTopVariable);
 
 		GcShadowStackFrameMap* map = scope->findGcShadowStackFrameMap ();

@@ -18,6 +18,7 @@ namespace ct {
 
 //..............................................................................
 
+#if (_JNC_DEBUG)
 void
 OperatorMgr::callTraceFunction (
 	const sl::StringRef& functionName,
@@ -32,6 +33,28 @@ OperatorMgr::callTraceFunction (
 		m_module->m_operatorMgr.callOperator ((Function*) item, literalValue);
 	}
 }
+
+void
+OperatorMgr::traceBlock (BasicBlock* block)
+{
+	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
+	llvm::BasicBlock::iterator it = llvmBlock->begin ();
+
+	m_module->m_llvmIrBuilder.setInsertPoint (it);
+	m_module->m_operatorMgr.callTraceFunction ("print_u", block->getName () + "\n------------\n");
+
+	for (; it != llvmBlock->end () && !it->isTerminator (); it++)
+	{
+		std::string s;
+		llvm::raw_string_ostream stream (s);
+		it->print (stream);
+		s += '\n';
+
+		m_module->m_llvmIrBuilder.setInsertPoint (it);
+		m_module->m_operatorMgr.callTraceFunction ("print_u", s.c_str ());
+	}
+}
+#endif
 
 Type*
 OperatorMgr::getFunctionType (

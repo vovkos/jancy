@@ -29,6 +29,7 @@ printToOutput (
 	size_t length
 	)
 {
+	fwrite (p, length, 1, stdout);
 	return (int) getMainWindow ()->writeOutputDirect (QString::fromUtf8 ((const char*) p, length));
 }
 

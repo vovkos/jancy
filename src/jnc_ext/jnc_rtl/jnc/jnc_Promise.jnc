@@ -21,12 +21,18 @@ opaque class Promise
 {
 protected:
 	size_t m_state;
+	intptr_t m_scheduler;
+	Promise* m_pendingPromise;
 	variant m_result;
 	std.Error const* m_error;
+	void thin* m_gcShadowStackFrame;
 
 public:
 	construct ();
 	destruct ();
+
+	intptr errorcode wait (function* handler ());
+	intptr errorcode wait (function* handler (std.Error const* error));
 
 	intptr errorcode wait (function* handler (
 		variant result,

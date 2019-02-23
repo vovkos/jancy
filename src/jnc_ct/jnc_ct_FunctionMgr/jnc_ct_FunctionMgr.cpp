@@ -41,6 +41,7 @@ FunctionMgr::clear ()
 	m_propertyList.clear ();
 	m_propertyTemplateList.clear ();
 	m_scheduleLauncherFunctionList.clear ();
+	m_asyncFunctionList.clear ();
 	m_thunkFunctionList.clear ();
 	m_thunkPropertyList.clear ();
 	m_dataThunkPropertyList.clear ();
@@ -406,7 +407,7 @@ FunctionMgr::finalizeFunction (
 		m_module->m_namespaceMgr.closeNamespace ();
 
 	m_module->m_operatorMgr.resetUnsafeRgn ();
-	m_module->m_variableMgr.finalizeLiftedStackVariables ();
+	m_module->m_variableMgr.finalizeFunction ();
 	m_module->m_gcShadowStackMgr.finalizeFunction ();
 	m_module->m_controlFlowMgr.finalizeFunction ();
 
@@ -643,34 +644,28 @@ FunctionMgr::getScheduleLauncherFunction (
 	return launcherFunction;
 }
 
-bool
+void
 FunctionMgr::injectTlsPrologues ()
 {
-	sl::Iterator <Function> functionIt = m_functionList.getHead ();
-	for (; functionIt; functionIt++)
-	{
-		Function* function = *functionIt;
-		if (function->getPrologueBlock () && function->isTlsRequired ())
-			injectTlsPrologue (function);
-	}
+	sl::Iterator <Function> it = m_functionList.getHead ();
+	for (; it; it++)
+		if (it->getPrologueBlock () && it->isTlsRequired ())
+			injectTlsPrologue (*it);
 
-	sl::Iterator <ThunkFunction> thunkFunctionIt = m_thunkFunctionList.getHead ();
-	for (; thunkFunctionIt; thunkFunctionIt++)
-	{
-		Function* function = *thunkFunctionIt;
-		if (function->isTlsRequired ())
-			injectTlsPrologue (function);
-	}
+	it = m_thunkFunctionList.getHead ();
+	for (; it; it++)
+		if (it->isTlsRequired ())
+			injectTlsPrologue (*it);
 
-	sl::Iterator <ScheduleLauncherFunction> scheduleLauncherFunctionIt = m_scheduleLauncherFunctionList.getHead ();
-	for (; scheduleLauncherFunctionIt; scheduleLauncherFunctionIt++)
-	{
-		Function* function = *scheduleLauncherFunctionIt;
-		if (function->isTlsRequired ())
-			injectTlsPrologue (function);
-	}
+	it = m_scheduleLauncherFunctionList.getHead ();
+	for (; it; it++)
+		if (it->isTlsRequired ())
+			injectTlsPrologue (*it);
 
-	return true;
+	it = m_asyncFunctionList.getHead ();
+	for (; it; it++)
+		if (it->isTlsRequired ())
+			injectTlsPrologue (*it);
 }
 
 void
@@ -707,6 +702,14 @@ FunctionMgr::injectTlsPrologue (Function* function)
 	count = tlsVariableArray.getCount ();
 	for (size_t i = 0; i < count; i++)
 		tlsVariableArray [i].m_llvmAlloca->eraseFromParent ();
+}
+
+void
+FunctionMgr::replaceAsyncAllocas ()
+{
+	sl::Iterator <AsyncFunction> it = m_asyncFunctionList.getHead ();
+	for (; it; it++)
+		it->replaceAllocas ();
 }
 
 void

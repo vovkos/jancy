@@ -96,9 +96,13 @@ ControlFlowMgr::createBlock (
 }
 
 BasicBlock*
-ControlFlowMgr::createAsyncBlock ()
+ControlFlowMgr::createAsyncBlock (Scope* scope)
 {
 	BasicBlock* block = createBlock ("async_block");
+	block->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
+	block->m_landingPadKind = LandingPadKind_Exception;
+	block->m_landingPadScope = scope;
+	m_landingPadBlockArray.append (block);
 	m_asyncBlockArray.append (block);
 	return block;
 }

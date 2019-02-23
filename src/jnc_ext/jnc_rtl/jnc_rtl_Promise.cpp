@@ -34,6 +34,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP (Promise)
 	JNC_MAP_DESTRUCTOR (&jnc::destruct <Promise>)
 
 	JNC_MAP_FUNCTION ("asyncWait",    &Promise::asyncWait)
+	JNC_MAP_FUNCTION ("wait",         &Promise::wait_0)
+	JNC_MAP_OVERLOAD (&Promise::wait_1)
+	JNC_MAP_OVERLOAD (&Promise::wait_2)
 	JNC_MAP_FUNCTION ("blockingWait", &Promise::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP ()
 
@@ -68,35 +71,57 @@ Promise::markOpaqueGcRoots (GcHeap* gcHeap)
 		if (it->m_handlerPtr.m_closure)
 			gcHeap->markClass (it->m_handlerPtr.m_closure->m_box);
 
+	if (m_gcShadowStackFrame)
+		gcHeap->addShadowStackFrame (m_gcShadowStackFrame);
+
 	m_lock.unlock ();
 }
 
-handle_t
+uintptr_t
 JNC_CDECL
-Promise::wait (FunctionPtr handlerPtr)
+Promise::wait_0 (FunctionPtr handlerPtr)
 {
 	m_lock.lock ();
 
-	if (m_state == State_Completed)
-	{
-		m_lock.unlock ();
-		callVoidFunctionPtr (handlerPtr, m_result, m_errorPtr);
-		return 0; // not added
-	}
+	if (m_state != State_Completed)
+		return addAsyncWait_l (AsyncWaitKind_NoArgs, handlerPtr);
 
-	AsyncWait* wait = AXL_MEM_NEW (AsyncWait);
-	wait->m_handlerPtr = handlerPtr;
-	m_asyncWaitList.insertTail (wait);
-	handle_t handle = (handle_t) m_asyncWaitMap.add (wait);
-	wait->m_handle = handle;
 	m_lock.unlock ();
+	callVoidFunctionPtr (handlerPtr);
+	return 0; // not added
+}
 
-	return handle;
+uintptr_t
+JNC_CDECL
+Promise::wait_1 (FunctionPtr handlerPtr)
+{
+	m_lock.lock ();
+
+	if (m_state != State_Completed)
+		return addAsyncWait_l (AsyncWaitKind_ErrorArg, handlerPtr);
+
+	m_lock.unlock ();
+	callVoidFunctionPtr (handlerPtr, m_errorPtr);
+	return 0; // not added
+}
+
+uintptr_t
+JNC_CDECL
+Promise::wait_2 (FunctionPtr handlerPtr)
+{
+	m_lock.lock ();
+
+	if (m_state != State_Completed)
+		return addAsyncWait_l (AsyncWaitKind_ResultErrorArgs, handlerPtr);
+
+	m_lock.unlock ();
+	callVoidFunctionPtr (handlerPtr, m_result, m_errorPtr);
+	return 0; // not added
 }
 
 bool
 JNC_CDECL
-Promise::cancelWait (handle_t handle)
+Promise::cancelWait (uintptr_t handle)
 {
 	m_lock.lock ();
 
@@ -115,10 +140,27 @@ Promise::cancelWait (handle_t handle)
 	return true;
 }
 
+uintptr_t
+Promise::addAsyncWait_l (
+	AsyncWaitKind waitKind,
+	FunctionPtr handlerPtr
+	)
+{
+	AsyncWait* wait = AXL_MEM_NEW (AsyncWait);
+	wait->m_waitKind = waitKind;
+	wait->m_handlerPtr = handlerPtr;
+	m_asyncWaitList.insertTail (wait);
+	uintptr_t handle = m_asyncWaitMap.add (wait);
+	wait->m_handle = handle;
+	m_lock.unlock ();
+
+	return handle;
+}
+
 Variant
 Promise::blockingWaitImpl ()
 {
-	m_lock.lock ();
+ 	m_lock.lock ();
 	if (m_state == State_Completed)
 	{
 		m_lock.unlock ();
@@ -182,6 +224,7 @@ Promisifier::complete_2 (
 	while (!m_asyncWaitList.isEmpty ())
 	{
 		AsyncWait* wait = *m_asyncWaitList.getHead ();
+		m_asyncWaitMap.eraseKey (wait->m_handle);
 		m_lock.unlock ();
 
 		callVoidFunctionPtr (wait->m_handlerPtr, m_result, m_errorPtr);

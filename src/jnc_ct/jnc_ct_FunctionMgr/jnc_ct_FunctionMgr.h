@@ -243,8 +243,11 @@ public:
 	void
 	internalEpilogue ();
 
-	bool
+	void
 	injectTlsPrologues ();
+
+	void
+	replaceAsyncAllocas ();
 
 	bool
 	jitFunctions ();

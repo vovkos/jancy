@@ -1371,43 +1371,7 @@ GcHeap::collect_l (bool isMutatorThread)
 		TlsVariableTable* tlsVariableTable = (TlsVariableTable*) (thread + 1);
 		GcShadowStackFrame* frame = tlsVariableTable->m_gcShadowStackTop;
 		for (; frame; frame = frame->m_prev)
-		{
-			GcShadowStackFrameMap* frameMap = frame->m_map;
-			for (; frameMap; frameMap = frameMap->getPrev ())
-			{
-				size_t gcRootCount = frameMap->getGcRootCount ();
-				if (!gcRootCount)
-					continue;
-
-				ct::GcShadowStackFrameMapKind mapKind = frameMap->getMapKind ();
-				if (mapKind == ct::GcShadowStackFrameMapKind_Dynamic)
-				{
-					Box* const* boxArray = frameMap->getBoxArray ();
-					for (size_t i = 0; i < gcRootCount; i++)
-					{
-						Box* box = boxArray [i];
-						if (box->m_type->getTypeKind () == TypeKind_Class)
-							markClass (box);
-						else
-							markData (box);
-					}
-				}
-				else
-				{
-					ASSERT (mapKind == ct::GcShadowStackFrameMapKind_Static);
-					Type* const* typeArray = frameMap->getGcRootTypeArray ();
-
-					const size_t* indexArray = frameMap->getGcRootIndexArray ();
-					for (size_t i = 0; i < gcRootCount; i++)
-					{
-						size_t j = indexArray [i];
-						void* p = frame->m_gcRootArray [j];
-						if (p)
-							addRoot (p, typeArray [i]);
-					}
-				}
-			}
-		}
+			addShadowStackFrame (frame);
 
 		// tls roots
 
@@ -1552,6 +1516,46 @@ GcHeap::collect_l (bool isMutatorThread)
 	m_lock.unlock ();
 
 	JNC_TRACE_GC_COLLECT ("--- GcHeap::collect_l ()\n");
+}
+
+void
+GcHeap::addShadowStackFrame (GcShadowStackFrame* frame)
+{
+	GcShadowStackFrameMap* frameMap = frame->m_map;
+	for (; frameMap; frameMap = frameMap->getPrev ())
+	{
+		size_t gcRootCount = frameMap->getGcRootCount ();
+		if (!gcRootCount)
+			continue;
+
+		ct::GcShadowStackFrameMapKind mapKind = frameMap->getMapKind ();
+		if (mapKind == ct::GcShadowStackFrameMapKind_Dynamic)
+		{
+			Box* const* boxArray = frameMap->getBoxArray ();
+			for (size_t i = 0; i < gcRootCount; i++)
+			{
+				Box* box = boxArray [i];
+				if (box->m_type->getTypeKind () == TypeKind_Class)
+					markClass (box);
+				else
+					markData (box);
+			}
+		}
+		else
+		{
+			ASSERT (mapKind == ct::GcShadowStackFrameMapKind_Static);
+			Type* const* typeArray = frameMap->getGcRootTypeArray ();
+
+			const size_t* indexArray = frameMap->getGcRootIndexArray ();
+			for (size_t i = 0; i < gcRootCount; i++)
+			{
+				size_t j = indexArray [i];
+				void* p = frame->m_gcRootArray [j];
+				if (p)
+					addRoot (p, typeArray [i]);
+			}
+		}
+	}
 }
 
 void

@@ -645,32 +645,20 @@ Module::compile ()
 			return false;
 	}
 
-	result = createConstructorDestructor ();
-	if (!result)
-		return false;
-
-	// compile the rest
-
-	result = processCompileArray ();
-	if (!result)
-		return false;
-
-	// deal with tls
-
 	result =
-		m_variableMgr.createTlsStructType () &&
-		m_functionMgr.injectTlsPrologues ();
+		createConstructorDestructor () &&
+		processCompileArray () &&
+		m_variableMgr.createTlsStructType ();
 
 	if (!result)
 		return false;
 
-	// delete unreachable blocks
+	m_functionMgr.injectTlsPrologues ();
+	m_functionMgr.replaceAsyncAllocas ();
 
 	result = m_controlFlowMgr.deleteUnreachableBlocks ();
 	if (!result)
 		return false;
-
-	// finalize debug information
 
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.finalize ();

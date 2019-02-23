@@ -30,21 +30,32 @@ protected:
 		State_Completed = -1,
 	};
 
+	enum AsyncWaitKind
+	{
+		AsyncWaitKind_NoArgs,
+		AsyncWaitKind_ErrorArg,
+		AsyncWaitKind_ResultErrorArgs,
+	};
+
+	struct AsyncWait: sl::ListLink
+	{
+		AsyncWaitKind m_waitKind;
+		FunctionPtr m_handlerPtr;
+		uintptr_t m_handle;
+	};
+
 	struct SyncWait: sl::ListLink
 	{
 		sys::Event* m_event;
 	};
 
-	struct AsyncWait: sl::ListLink
-	{
-		FunctionPtr m_handlerPtr;
-		handle_t m_handle;
-	};
-
 public:
 	size_t m_state;
+	intptr_t m_scheduler;
+	Promise* m_pendingPromise;
 	Variant m_result;
 	DataPtr m_errorPtr;
+	GcShadowStackFrame* m_gcShadowStackFrame;
 
 protected:
 	sys::Lock m_lock;
@@ -58,13 +69,21 @@ public:
 	JNC_CDECL
 	markOpaqueGcRoots (GcHeap* gcHeap);
 
-	handle_t
+	uintptr_t
 	JNC_CDECL
-	wait (FunctionPtr handlerPtr);
+	wait_0 (FunctionPtr handlerPtr);
+
+	uintptr_t
+	JNC_CDECL
+	wait_1 (FunctionPtr handlerPtr);
+
+	uintptr_t
+	JNC_CDECL
+	wait_2 (FunctionPtr handlerPtr);
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle);
+	cancelWait (uintptr_t handle);
 
 	static
 	Variant
@@ -81,6 +100,12 @@ public:
 	}
 
 protected:
+	uintptr_t
+	addAsyncWait_l (
+		AsyncWaitKind waitKind,
+		FunctionPtr handlerPtr
+		);
+
 	Variant
 	blockingWaitImpl ();
 };

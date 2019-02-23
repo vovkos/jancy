@@ -930,6 +930,18 @@ public:
 	llvm::Value*
 	createBitCast (
 		const Value& opValue,
+		llvm::Type* type,
+		Value* resultValue
+		)
+	{
+		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast (opValue.getLlvmValue (), type, "bitcast");
+		resultValue->setLlvmValue (inst, NULL);
+		return inst;
+	}
+
+	llvm::Value*
+	createBitCast (
+		const Value& opValue,
 		Type* type,
 		Value* resultValue
 		)

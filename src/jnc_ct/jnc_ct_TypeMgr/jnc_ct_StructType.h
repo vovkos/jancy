@@ -118,6 +118,7 @@ class StructType: public DerivableType
 	friend class ClassType;
 	friend class UnionType;
 	friend class Property;
+	friend class AsyncFunction;
 
 protected:
 	StructTypeKind m_structTypeKind;

@@ -975,11 +975,16 @@ public:
 
 	// call operators
 
+#if (_JNC_DEBUG)
 	void
 	callTraceFunction (
 		const sl::StringRef& functionName,
 		const sl::StringRef& string
 		);
+
+	void
+	traceBlock (BasicBlock* block);
+#endif
 
 	Type*
 	getCallOperatorResultType (
@@ -1468,6 +1473,13 @@ public:
 	{
 		return getField (*value, member, NULL, value);
 	}
+
+	bool
+	getPromiseField (
+		const Value& promiseValue,
+		const sl::String& name,
+		Value* resultValue
+		);
 
 	// impl
 

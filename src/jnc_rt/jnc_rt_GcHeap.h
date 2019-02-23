@@ -325,6 +325,9 @@ public:
 	bool
 	addBoxIfDynamicFrame (Box* box);
 
+	void
+	addShadowStackFrame (GcShadowStackFrame* frame);
+
 protected:
 	void
 	destructThreadFunc ();

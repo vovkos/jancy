@@ -145,7 +145,7 @@ public:
 		);
 
 	BasicBlock*
-	createAsyncBlock ();
+	createAsyncBlock (Scope* scope);
 
 	BasicBlock*
 	getCurrentBlock ()
@@ -168,6 +168,12 @@ public:
 
 	bool
 	deleteUnreachableBlocks ();
+
+	sl::Array <BasicBlock*>
+	getAsyncBlockArray ()
+	{
+		return m_asyncBlockArray;
+	}
 
 	sl::Array <BasicBlock*>
 	getReturnBlockArray ()

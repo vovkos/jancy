@@ -1419,27 +1419,38 @@ OperatorMgr::awaitOperator (
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue ();
 	ASSERT (thisPromiseValue);
 
-	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock ();
-
+	Value stateFieldValue;
+	Value stateIdValue;
+	Value pendingPromiseFieldValue;
 	Value opPromiseValue;
 	Value waitValue;
-	Value resumeValue = function;
+	Value resumeValue;
+
+	size_t stateId = m_module->m_controlFlowMgr.getAsyncBlockArray ().getCount ();
+	stateIdValue.setConstSizeT (stateId, m_module);
 
 	bool result =
 		castOperator (value, m_module->m_typeMgr.getStdType (StdType_PromisePtr), &opPromiseValue) &&
 		memberOperator (opPromiseValue, "wait", &waitValue) &&
-		closureOperator (function, thisPromiseValue, &resumeValue);
+		getPromiseField (thisPromiseValue, "m_state", &stateFieldValue);
+		storeDataRef (stateFieldValue, stateIdValue) &&
+		getPromiseField (thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
+		storeDataRef (pendingPromiseFieldValue, opPromiseValue) &&
+		closureOperator (function, thisPromiseValue, &resumeValue) &&
+		callOperator (waitValue, resumeValue);
 
 	if (!result)
 		return false;
 
-	// TODO: call wait, return from the function
-
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
+	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock (scope);
 	m_module->m_controlFlowMgr.asyncRet (block);
 
-	// blocking-wait will return immediately now (promise should be complete)
+	// blocking-wait will return immediately now (promise is completed)
 
 	return
+		getPromiseField (thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
+		loadDataRef (pendingPromiseFieldValue, &opPromiseValue) &&
 		memberOperator (opPromiseValue, "blockingWait", &waitValue) &&
 		callOperator (waitValue, resultValue);
 }

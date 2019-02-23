@@ -283,19 +283,53 @@ Function::compileAsyncLauncher ()
 {
 	bool result;
 
-	ClassType* promiseType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Promise);
+	sl::String promiseName = m_tag + "_Promise";
+	sl::String sequencerName = m_tag + "_sequencer";
+
+	ClassType* promiseType = m_module->m_typeMgr.createClassType (promiseName, promiseName);
+	promiseType->addBaseType (m_module->m_typeMgr.getStdType (StdType_Promise));
+
+	sl::Array <Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray ();
+	size_t argCount = argVariableArray.getCount ();
+
+	for (size_t i = 0; i < argCount; i++)
+	{
+		Variable* argVar = argVariableArray [i];
+		promiseType->createField (argVar->getName (), argVar->getType ());
+	}
+
+	sl::Array <StructField*> argFieldArray = promiseType->getMemberFieldArray ();
+	ASSERT (argFieldArray.getCount () == argCount);
+
+	promiseType->ensureLayout ();
 
 	Value promiseValue;
 	result = m_module->m_operatorMgr.newOperator (promiseType, &promiseValue);
 	if (!result)
 		return false;
 
-	Type* argType = m_module->m_typeMgr.getStdType (StdType_PromisePtr);
+	ASSERT (argFieldArray.getCount () == argVariableArray.getCount ());
+	for (size_t i = 0; i < argCount; i++)
+	{
+		Variable* argVar = argVariableArray [i];
+		StructField* argField = argFieldArray [i];
+
+		Value argFieldValue;
+
+		result =
+			m_module->m_operatorMgr.getField (promiseValue, argField, &argFieldValue) &&
+			m_module->m_operatorMgr.storeDataRef (argFieldValue, argVar);
+
+		if (!result)
+			return false;
+	}
+
+	Type* argType = promiseType->getClassPtrType (ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType (&argType, 1);
 
 	Function* sequencerFunc = m_module->m_functionMgr.createFunction (
 		FunctionKind_Async,
-		m_tag + "_sequencer",
+		sequencerName,
 		functionType
 		);
 

@@ -458,6 +458,8 @@ char* gets ();
 */
 
 size_t print (char const* text);
+size_t print_u (char const thin* text);
+
 
 /**
 	Prints error message to the standard error stream.
