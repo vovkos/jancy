@@ -30,20 +30,20 @@
 #endif
 
 int
-StdLib_printf (
+StdLib_printf(
 	const char* pFormat,
 	...
 	)
 {
-	AXL_VA_DECL (va, pFormat);
+	AXL_VA_DECL(va, pFormat);
 
 	rtl::CString Text;
-	Text.Format_va (pFormat, va);
+	Text.Format_va(pFormat, va);
 
-	CMainFrame* pMainFrame = GetMainFrame ();
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace_0 (Text);
+	CMainFrame* pMainFrame = GetMainFrame();
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace_0(Text);
 
-	return Text.GetLength ();
+	return Text.GetLength();
 }
 
 
@@ -69,22 +69,22 @@ CAstDoc::~CAstDoc()
 
 void CAstDoc::OnFileCompile()
 {
-	Compile ();
+	Compile();
 }
 
-void CAstDoc::OnFileRun ()
+void CAstDoc::OnFileRun()
 {
-	Run ();
+	Run();
 }
 
 bool
-CAstDoc::Compile ()
+CAstDoc::Compile()
 {
-	DoFileSave ();
+	DoFileSave();
 
 	bool Result;
 
-	CMainFrame* pMainFrame = GetMainFrame ();
+	CMainFrame* pMainFrame = GetMainFrame();
 
 	if (m_pLlvmExecutionEngine)
 	{
@@ -92,58 +92,58 @@ CAstDoc::Compile ()
 		m_pLlvmExecutionEngine = NULL;
 	}
 
-	rtl::CString FilePath = GetPathName ();
+	rtl::CString FilePath = GetPathName();
 
 	llvm::LLVMContext* pLlvmContext = new llvm::LLVMContext;
-	llvm::Module* pLlvmModule = new llvm::Module (FilePath.cc (), *pLlvmContext);
-	m_Module.Create (FilePath, pLlvmModule);
+	llvm::Module* pLlvmModule = new llvm::Module(FilePath.cc(), *pLlvmContext);
+	m_Module.Create(FilePath, pLlvmModule);
 
-	llvm::EngineBuilder EngineBuilder (pLlvmModule);
+	llvm::EngineBuilder EngineBuilder(pLlvmModule);
 	std::string ErrorString;
-	EngineBuilder.setErrorStr (&ErrorString);
+	EngineBuilder.setErrorStr(&ErrorString);
 	EngineBuilder.setUseMCJIT(true);
 
-	m_pLlvmExecutionEngine = EngineBuilder.create ();
+	m_pLlvmExecutionEngine = EngineBuilder.create();
 	if (!m_pLlvmExecutionEngine)
 	{
-		pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Error creating a JITter (%s)\n", ErrorString.c_str ());
+		pMainFrame->m_OutputPane.m_LogCtrl.Trace("Error creating a JITter (%s)\n", ErrorString.c_str ());
 		return false;
 	}
 
-	jnc::CScopeThreadModule ScopeModule (&m_Module);
+	jnc::CScopeThreadModule ScopeModule(&m_Module);
 
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Parsing...\n");
-	pMainFrame->m_GlobalAstPane.Clear ();
-	pMainFrame->m_ModulePane.Clear ();
-	pMainFrame->m_LlvmIrPane.Clear ();
-	pMainFrame->m_DasmPane.Clear ();
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("Parsing...\n");
+	pMainFrame->m_GlobalAstPane.Clear();
+	pMainFrame->m_ModulePane.Clear();
+	pMainFrame->m_LlvmIrPane.Clear();
+	pMainFrame->m_DasmPane.Clear();
 
 	CStringW SourceText_w;
-	GetView ()->GetWindowTextW (SourceText_w);
+	GetView()->GetWindowTextW(SourceText_w);
 
 	rtl::CString SourceText = SourceText_w;
 
 	jnc::CLexer Lexer;
-	Lexer.Create (
+	Lexer.Create(
 		FilePath,
 		SourceText,
-		SourceText.GetLength ()
+		SourceText.GetLength()
 		);
 
 	jnc::CParser Parser;
-	Parser.Create (jnc::CParser::StartSymbol, true);
+	Parser.Create(jnc::CParser::StartSymbol, true);
 
 	for (;;)
 	{
-		const jnc::CToken* pToken = Lexer.GetToken ();
+		const jnc::CToken* pToken = Lexer.GetToken();
 		if (pToken->m_Token == jnc::EToken_Eof)
 			break;
 
-		Result = Parser.ParseToken (pToken);
+		Result = Parser.ParseToken(pToken);
 		if (!Result)
 		{
-			rtl::CString Text = err::GetError ()->GetDescription ();
-			pMainFrame->m_OutputPane.m_LogCtrl.Trace (
+			rtl::CString Text = err::GetError()->GetDescription();
+			pMainFrame->m_OutputPane.m_LogCtrl.Trace(
 				"%s(%d,%d): %s\n",
 				FilePath,
 				pToken->m_Pos.m_Line + 1,
@@ -153,67 +153,67 @@ CAstDoc::Compile ()
 			return false;
 		}
 
-		Lexer.NextToken ();
+		Lexer.NextToken();
 	}
 
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Compiling...\n");
-	Result = m_Module.Compile ();
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("Compiling...\n");
+	Result = m_Module.Compile();
 
 	// show module contents nevetheless
 
-	pMainFrame->m_GlobalAstPane.Build (Parser.GetAst ());
-	pMainFrame->m_ModulePane.Build (&m_Module);
-	pMainFrame->m_LlvmIrPane.Build (&m_Module);
+	pMainFrame->m_GlobalAstPane.Build(Parser.GetAst());
+	pMainFrame->m_ModulePane.Build(&m_Module);
+	pMainFrame->m_LlvmIrPane.Build(&m_Module);
 
 	if (!Result)
 	{
-		pMainFrame->m_OutputPane.m_LogCtrl.Trace ("%s\n", err::GetError ()->GetDescription ());
+		pMainFrame->m_OutputPane.m_LogCtrl.Trace("%s\n", err::GetError ()->GetDescription ());
 		return false;
 	}
 
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("JITting...\n");
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("JITting...\n");
 
-	jnc::CStdLib::Export (&m_Module, m_pLlvmExecutionEngine);
-	m_Module.SetFunctionPointer (m_pLlvmExecutionEngine, "printf", (void*) StdLib_printf);
+	jnc::CStdLib::Export(&m_Module, m_pLlvmExecutionEngine);
+	m_Module.SetFunctionPointer(m_pLlvmExecutionEngine, "printf", (void*) StdLib_printf);
 
-	Result = m_Module.m_FunctionMgr.JitFunctions (m_pLlvmExecutionEngine);
+	Result = m_Module.m_FunctionMgr.JitFunctions(m_pLlvmExecutionEngine);
 	if (!Result)
 	{
-		pMainFrame->m_OutputPane.m_LogCtrl.Trace ("%s\n", err::GetError ()->GetDescription ());
+		pMainFrame->m_OutputPane.m_LogCtrl.Trace("%s\n", err::GetError ()->GetDescription ());
 		return false;
 	}
 
-	pMainFrame->m_DasmPane.Build (&m_Module);
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Done.\n");
+	pMainFrame->m_DasmPane.Build(&m_Module);
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("Done.\n");
 	return true;
 }
 
 bool
-CAstDoc::RunFunction (
+CAstDoc::RunFunction(
 	jnc::CFunction* pFunction,
 	int* pReturnValue
 	)
 {
-	typedef int (*FFunction) ();
-	FFunction pf = (FFunction) pFunction->GetMachineCode ();
-	ASSERT (pf);
+	typedef int(*FFunction) ();
+	FFunction pf = (FFunction)pFunction->GetMachineCode();
+	ASSERT(pf);
 
 	bool Result = true;
 
 	try
 	{
-		int ReturnValue = pf ();
+		int ReturnValue = pf();
 		if (pReturnValue)
 			*pReturnValue = ReturnValue;
 	}
-	catch (err::CError Error)
+	catch(err::CError Error)
 	{
-		GetMainFrame ()->m_OutputPane.m_LogCtrl.Trace ("ERROR: %s\n", Error.GetDescription ());
+		GetMainFrame()->m_OutputPane.m_LogCtrl.Trace("ERROR: %s\n", Error.GetDescription ());
 		Result = false;
 	}
-	catch (...)
+	catch(...)
 	{
-		GetMainFrame ()->m_OutputPane.m_LogCtrl.Trace ("UNKNOWN EXCEPTION\n");
+		GetMainFrame()->m_OutputPane.m_LogCtrl.Trace("UNKNOWN EXCEPTION\n");
 		Result = false;
 	}
 
@@ -221,69 +221,69 @@ CAstDoc::RunFunction (
 }
 
 bool
-CAstDoc::Run ()
+CAstDoc::Run()
 {
 	bool Result;
 
-	CMainFrame* pMainFrame = GetMainFrame ();
+	CMainFrame* pMainFrame = GetMainFrame();
 
-	if (IsModified ())
+	if (IsModified())
 	{
-		Result = Compile ();
+		Result = Compile();
 		if (!Result)
 			return false;
 	}
 
-	jnc::CFunction* pMainFunction = FindGlobalFunction ("main");
+	jnc::CFunction* pMainFunction = FindGlobalFunction("main");
 	if (!pMainFunction)
 	{
-		pMainFrame->m_OutputPane.m_LogCtrl.Trace ("'main' is not found or not a function\n");
+		pMainFrame->m_OutputPane.m_LogCtrl.Trace("'main' is not found or not a function\n");
 		return false;
 	}
 
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Running...\n");
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("Running...\n");
 
-	jnc::CScopeThreadRuntime ScopeRuntime (&m_Runtime);
+	jnc::CScopeThreadRuntime ScopeRuntime(&m_Runtime);
 
-	m_Runtime.Startup ();
+	m_Runtime.Startup();
 
-	jnc::CFunction* pConstructor = m_Module.GetConstructor ();
+	jnc::CFunction* pConstructor = m_Module.GetConstructor();
 	if (pConstructor)
 	{
-		Result = RunFunction (pConstructor);
+		Result = RunFunction(pConstructor);
 		if (!Result)
 			return false;
 	}
 
-	Result = RunFunction (pMainFunction);
+	Result = RunFunction(pMainFunction);
 	if (!Result)
 		return false;
 
-	jnc::CFunction* pDestructor = m_Module.GetDestructor ();
+	jnc::CFunction* pDestructor = m_Module.GetDestructor();
 	if (pDestructor)
 	{
-		Result = RunFunction (pDestructor);
+		Result = RunFunction(pDestructor);
 		if (!Result)
 			return false;
 	}
 
-	m_Runtime.Shutdown ();
+	m_Runtime.Shutdown();
 
-	pMainFrame->m_OutputPane.m_LogCtrl.Trace ("Done (retval = %d).\n", Result);
+	pMainFrame->m_OutputPane.m_LogCtrl.Trace("Done (retval = %d).\n", Result);
 	return true;
 }
 
 jnc::CFunction*
-CAstDoc::FindGlobalFunction (const char* pName)
+CAstDoc::FindGlobalFunction(const char* pName)
 {
-	jnc::CModuleItem* pItem = m_Module.m_NamespaceMgr.GetGlobalNamespace ()->FindItem (pName);
+	jnc::CModuleItem* pItem = m_Module.m_NamespaceMgr.GetGlobalNamespace()->FindItem(pName);
 	if (!pItem)
 		return NULL;
 
-	if (pItem->GetItemKind () != jnc::EModuleItem_Function)
+	if (pItem->GetItemKind() != jnc::EModuleItem_Function)
 		return NULL;
 
-	return (jnc::CFunction*) pItem;
+	return (jnc::CFunction*)pItem;
 }
 
 BOOL CAstDoc::OnNewDocument()
@@ -291,7 +291,7 @@ BOOL CAstDoc::OnNewDocument()
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-	GetView ()->SetFont (&theApp.m_Font);
+	GetView()->SetFont(&theApp.m_Font);
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
@@ -302,21 +302,21 @@ BOOL CAstDoc::OnNewDocument()
 BOOL CAstDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
 	CFile File;
-	BOOL Result = File.Open (lpszPathName, CFile::modeRead | CFile::shareDenyWrite);
+	BOOL Result = File.Open(lpszPathName, CFile::modeRead | CFile::shareDenyWrite);
 	if (!Result)
 		return FALSE;
 
-	size_t Size = (size_t) File.GetLength ();
-	rtl::CArrayT <char> Buffer;
-	Buffer.SetCount (Size + 1);
-	Buffer [Size] = 0;
-	File.Read (Buffer, Size);
+	size_t Size = (size_t)File.GetLength();
+	rtl::CArrayT<char> Buffer;
+	Buffer.SetCount(Size + 1);
+	Buffer[Size] = 0;
+	File.Read(Buffer, Size);
 
-	GetView ()->SetWindowText (rtl::CString_w (Buffer));
+	GetView()->SetWindowText(rtl::CString_w(Buffer));
 
 	m_strPathName = lpszPathName;
 
-	Compile ();
+	Compile();
 
 	SetModifiedFlag(FALSE);
 	return TRUE;
@@ -325,18 +325,18 @@ BOOL CAstDoc::OnOpenDocument(LPCTSTR lpszPathName)
 BOOL CAstDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	CFile File;
-	BOOL Result = File.Open (lpszPathName, CFile::modeWrite | CFile::shareDenyWrite);
+	BOOL Result = File.Open(lpszPathName, CFile::modeWrite | CFile::shareDenyWrite);
 	if (!Result)
 		return FALSE;
 
 	CString String_w;
-	GetView ()->GetWindowText (String_w);
+	GetView()->GetWindowText(String_w);
 
 	rtl::CString String = String_w;
-	size_t Length = String.GetLength ();
+	size_t Length = String.GetLength();
 
-	File.Write (String, Length);
-	File.SetLength (Length);
+	File.Write(String, Length);
+	File.SetLength(Length);
 
 	SetModifiedFlag(FALSE);
 	return TRUE;
@@ -353,7 +353,7 @@ void CAstDoc::OnDrawThumbnail(CDC& dc, LPRECT lprcBounds)
 	CString strText = "TODO: implement thumbnail drawing here";
 	LOGFONT lf;
 
-	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
+	CFont* pDefaultGUIFont = CFont::FromHandle((HFONT)GetStockObject(DEFAULT_GUI_FONT));
 	pDefaultGUIFont->GetLogFont(&lf);
 	lf.lfHeight = 36;
 

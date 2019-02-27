@@ -37,25 +37,25 @@ class Resource
 {
 	protected int m_resource;
 
-	construct (int resource)
+	construct(int resource)
 	{
 		if (resource)
-			printf ("acquire resource #%d...\n", resource);
+			printf("acquire resource #%d...\n", resource);
 
 		m_resource = resource;
 	}
 
-	destruct ()
+	destruct()
 	{
-		release ();
+		release();
 	}
 
-	release ()
+	release()
 	{
 		if (!m_resource)
 			return;
 
-		printf ("release resource #%d...\n", m_resource);
+		printf("release resource #%d...\n", m_resource);
 		m_resource = 0;
 	}
 
@@ -64,29 +64,29 @@ class Resource
 
 //..............................................................................
 
-foo ()
+foo()
 {
-	printf ("foo is about to throw...\n");
+	printf("foo is about to throw...\n");
 	throw;
 }
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	disposable Resource resource1 (1);
-	disposable Resource resource2 (2);
+	disposable Resource resource1(1);
+	disposable Resource resource2(2);
 
-	Resource resource3 (3); // this resource will be released non-deterministically
+	Resource resource3(3); // this resource will be released non-deterministically
 
-	foo ();
+	foo();
 
 	return 0;
 
 catch:
-	printf ("exception caught in main\n");
+	printf("exception caught in main\n");
 	return -1;
 }
 

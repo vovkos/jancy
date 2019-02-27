@@ -36,51 +36,51 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::List <DoxyBlock> m_blockList;
-	sl::List <DoxyGroup> m_groupList;
-	sl::List <DoxyFootnote> m_footnoteList;
-	sl::StringHashTable <size_t> m_refIdMap;
-	sl::StringHashTable <DoxyGroup*> m_groupMap;
-	sl::List <Target> m_targetList;
+	sl::List<DoxyBlock> m_blockList;
+	sl::List<DoxyGroup> m_groupList;
+	sl::List<DoxyFootnote> m_footnoteList;
+	sl::StringHashTable<size_t> m_refIdMap;
+	sl::StringHashTable<DoxyGroup*> m_groupMap;
+	sl::List<Target> m_targetList;
 
 public:
-	DoxyMgr ();
+	DoxyMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
-	sl::ConstList <DoxyBlock>
-	getBlockList ()
+	sl::ConstList<DoxyBlock>
+	getBlockList()
 	{
 		return m_blockList;
 	}
 
-	sl::ConstList <DoxyGroup>
-	getGroupList ()
+	sl::ConstList<DoxyGroup>
+	getGroupList()
 	{
 		return m_groupList;
 	}
 
 	DoxyGroup*
-	getGroup (const sl::StringRef& name);
+	getGroup(const sl::StringRef& name);
 
 	DoxyBlock*
-	createBlock ();
+	createBlock();
 
 	DoxyFootnote*
-	createFootnote ();
+	createFootnote();
 
 	sl::String
-	adjustRefId (const sl::StringRef& refId);
+	adjustRefId(const sl::StringRef& refId);
 
 	void
-	setBlockTarget (
+	setBlockTarget(
 		DoxyBlock* block,
 		DoxyTokenKind tokenKind,
 		const sl::StringRef& itemName,
@@ -88,13 +88,13 @@ public:
 		);
 
 	bool
-	resolveBlockTargets ();
+	resolveBlockTargets();
 
 	void
-	deleteEmptyGroups ();
+	deleteEmptyGroups();
 
 	bool
-	generateGroupDocumentation (
+	generateGroupDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* indexXml
 		);

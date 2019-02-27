@@ -46,7 +46,7 @@ bitflag enum FileOpenFlags
 		``access violation`` system error.
 
 		Note that certain files and devices could *only* be opened in write-only
-		mode (e.g., client mailslot files on Windows)
+		mode(e.g., client mailslot files on Windows)
 	*/
 
 	WriteOnly,
@@ -56,7 +56,7 @@ bitflag enum FileOpenFlags
 
 		If file specified by ``name`` argument to ``open`` method does not
 		exist, ``open`` method should fail rather than try to create a new
-		empty file with such a name (which would be the default option).
+		empty file with such a name(which would be the default option).
 	*/
 
 	OpenExisting,
@@ -73,7 +73,7 @@ bitflag enum FileOpenFlags
 	/**
 		Allow multiple threads or processes to open the same file for writing.
 		This overrides the default behaviour -- normally, only one write-access
-		handle to the file is allowed at the same time (subsequent attempts to
+		handle to the file is allowed at the same time(subsequent attempts to
 		open the file for writing will fail with the ``access violation`` system
 		error)
 	*/
@@ -102,7 +102,7 @@ bitflag enum FileOpenFlags
 	and writing to files or devices.
 
 	All the methods of this class are mapped directly to underlying Operating
-	System API (not to the C-runtime library). A typical sequence of steps when
+	System API(not to the C-runtime library). A typical sequence of steps when
 	working with a file usually looks like this:
 
 	* Open a file with ``open`` method;
@@ -120,11 +120,11 @@ bitflag enum FileOpenFlags
 
 	.. ref-code-block::
 
-		foo (void const* data)
+		foo(void const* data)
 		{
 			disposable io.File file;
-			file.open ("data.txt");
-			file.write (data, dynamic sizeof (data));
+			file.open("data.txt");
+			file.write(data, dynamic sizeof(data));
 			// ...
 
 		catch:
@@ -157,17 +157,17 @@ opaque class File
 		This property is used for getting and setting file size.
 
 		Reading from this property returns current size of the file; writing to
-		it sets new size [#f3]_.
+		it sets new size[#f3]_.
 	*/
 
 	uint64_t const property m_size;
 
 	/**
-		This property is used for getting and setting [#f3]_ current file
+		This property is used for getting and setting[#f3]_ current file
 		position, i.e. the offset at which file contents will be accessed by
 		``read`` and ``write`` methods.
 
-		Accessing this property for sequential devices (which do not support
+		Accessing this property for sequential devices(which do not support
 		access at random-offset) likely results in exception being thrown
 		(unless the underlying OS silently ignores position read/write and does
 		not return any IO error).
@@ -175,8 +175,8 @@ opaque class File
 
 	uint64_t property m_position;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens or creates a file or device.
@@ -191,7 +191,7 @@ opaque class File
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode open (
+	bool errorcode open(
 		char const* name,
 		FileOpenFlags flags = 0
 		);
@@ -204,15 +204,15 @@ opaque class File
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.File`` a *disposable* class [#f2]_.
+		Effectively makes ``io.File`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
 
-	bool errorcode setSize (uint64_t size);
+	bool errorcode setSize(uint64_t size);
 
 	/**
 		Attempts to read up to ``size`` bytes from file into the buffer pointed
@@ -227,7 +227,7 @@ opaque class File
 		device, it blocks until either the data arrives, or the file is closed.
 	*/
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
@@ -241,17 +241,17 @@ opaque class File
 		set and then the function returns ``-1`` [#f1]_.
 	*/
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	bool errorcode flush ();
+	bool errorcode flush();
 }
 
 //..............................................................................
 
-char const* getSymbolicLinkTarget (char const* name);
+char const* getSymbolicLinkTarget(char const* name);
 
 //..............................................................................
 

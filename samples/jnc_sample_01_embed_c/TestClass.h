@@ -13,13 +13,13 @@
 
 #include "MyLib.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (TestClass)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(TestClass)
 
 //..............................................................................
 
 typedef
 void
-OnNegativeEventFunc (jnc_Multicast* multicast);
+OnNegativeEventFunc(jnc_Multicast* multicast);
 
 struct TestClass
 {
@@ -39,7 +39,7 @@ struct TestClass
 
 	int m_internalValue;
 	jnc_IfaceHdr* m_internalObject;
-	char m_internalData [256];
+	char m_internalData[256];
 };
 
 typedef struct TestClass TestClass;
@@ -47,49 +47,49 @@ typedef struct TestClass TestClass;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-TestClass_construct (
+TestClass_construct(
 	TestClass* self,
 	int value
 	);
 
 void
-TestClass_destruct (TestClass* self);
+TestClass_destruct(TestClass* self);
 
 void
-TestClass_markOpaqueGcRoots (
+TestClass_markOpaqueGcRoots(
 	TestClass* self,
 	jnc_GcHeap* gcHeap
 	);
 
 int
-TestClass_addAssign (
+TestClass_addAssign(
 	TestClass* self,
 	int delta
 	);
 
 int
-TestClass_subAssign (
+TestClass_subAssign(
 	TestClass* self,
 	int delta
 	);
 
 int
-TestClass_foo_0 (TestClass* self);
+TestClass_foo_0(TestClass* self);
 
 int
-TestClass_foo_1 (
+TestClass_foo_1(
 	TestClass* self,
 	int value
 	);
 
 int
-TestClass_foo_2 (
+TestClass_foo_2(
 	TestClass* self,
 	TestClass* src
 	);
 
 void
-TestClass_setProp (
+TestClass_setProp(
 	TestClass* self,
 	jnc_DataPtr ptr
 	);

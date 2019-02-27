@@ -18,71 +18,71 @@ namespace io {
 
 //..............................................................................
 
-UsbAsyncControlEndpoint::UsbAsyncControlEndpoint (axl::io::UsbDevice* device)
+UsbAsyncControlEndpoint::UsbAsyncControlEndpoint(axl::io::UsbDevice* device)
 {
-	m_runtime = getCurrentThreadRuntime ();
-	ASSERT (m_runtime);
+	m_runtime = getCurrentThreadRuntime();
+	ASSERT(m_runtime);
 
 	m_device = device;
 	m_flags = 0;
 }
 
 void
-UsbAsyncControlEndpoint::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+UsbAsyncControlEndpoint::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 {
-	m_lock.lock ();
+	m_lock.lock();
 
-	sl::Iterator <Transfer> it = m_activeTransferList.getHead ();
+	sl::Iterator<Transfer> it = m_activeTransferList.getHead();
 	for (; it; it++)
-		markTransferGcRoots (gcHeap, *it);
+		markTransferGcRoots(gcHeap, *it);
 
-	it = m_completedTransferList.getHead ();
+	it = m_completedTransferList.getHead();
 	for (; it; it++)
-		markTransferGcRoots (gcHeap, *it);
+		markTransferGcRoots(gcHeap, *it);
 
-	m_lock.unlock ();
+	m_lock.unlock();
 }
 
 void
-UsbAsyncControlEndpoint::markTransferGcRoots (
+UsbAsyncControlEndpoint::markTransferGcRoots(
 	GcHeap* gcHeap,
 	Transfer* transfer
 	)
 {
-	gcHeap->markClass (transfer->m_completionFuncPtr.m_closure->m_box);
+	gcHeap->markClass(transfer->m_completionFuncPtr.m_closure->m_box);
 
 	if (transfer->m_inBufferPtr.m_validator)
 	{
-		gcHeap->weakMark (transfer->m_inBufferPtr.m_validator->m_validatorBox);
-		gcHeap->markData (transfer->m_inBufferPtr.m_validator->m_targetBox);
+		gcHeap->weakMark(transfer->m_inBufferPtr.m_validator->m_validatorBox);
+		gcHeap->markData(transfer->m_inBufferPtr.m_validator->m_targetBox);
 	}
 }
 
 bool
-UsbAsyncControlEndpoint::start ()
+UsbAsyncControlEndpoint::start()
 {
-	ASSERT (isIdle ());
+	ASSERT(isIdle());
 
 	m_flags = 0;
-	m_idleEvent.signal ();
+	m_idleEvent.signal();
 
-	return m_completionThread.start ();
+	return m_completionThread.start();
 }
 
 void
-UsbAsyncControlEndpoint::stop ()
+UsbAsyncControlEndpoint::stop()
 {
-	m_lock.lock ();
+	m_lock.lock();
 	m_flags |= Flag_Stop;
-	m_event.signal ();
-	m_lock.unlock ();
+	m_event.signal();
+	m_lock.unlock();
 
-	m_completionThread.waitAndClose ();
+	m_completionThread.waitAndClose();
 }
 
 bool
 JNC_CDECL
-UsbAsyncControlEndpoint::transfer (
+UsbAsyncControlEndpoint::transfer(
 	uint_t requestType,
 	uint_t requestCode,
 	uint_t value,
@@ -95,24 +95,24 @@ UsbAsyncControlEndpoint::transfer (
 {
 	bool result;
 
-	m_lock.lock ();
-	ASSERT (!m_flags & Flag_Stop);
-	Transfer* transfer = m_transferPool.get ();
-	m_lock.unlock ();
+	m_lock.lock();
+	ASSERT(!m_flags & Flag_Stop);
+	Transfer* transfer = m_transferPool.get();
+	m_lock.unlock();
 
-	result = transfer->m_usbTransfer.create ();
-	libusb_control_setup* setup = transfer->m_buffer.createBuffer (sizeof (libusb_control_setup) + size);
+	result = transfer->m_usbTransfer.create();
+	libusb_control_setup* setup = transfer->m_buffer.createBuffer(sizeof(libusb_control_setup) + size);
 
 	if (!result || !setup)
 	{
-		m_lock.lock ();
-		m_transferPool.put (transfer);
-		m_lock.unlock ();
-		callCompletionFunc (completionFuncPtr, -1, err::getLastError ());
+		m_lock.lock();
+		m_transferPool.put(transfer);
+		m_lock.unlock();
+		callCompletionFunc(completionFuncPtr, -1, err::getLastError());
 		return false;
 	}
 
-	transfer->m_usbTransfer.fillControlSetup (
+	transfer->m_usbTransfer.fillControlSetup(
 		setup,
 		requestType,
 		requestCode,
@@ -121,8 +121,8 @@ UsbAsyncControlEndpoint::transfer (
 		size
 		);
 
-	transfer->m_usbTransfer.fillControlTransfer (
-		m_device->getOpenHandle (),
+	transfer->m_usbTransfer.fillControlTransfer(
+		m_device->getOpenHandle(),
 		setup,
 		onTransferCompleted,
 		transfer,
@@ -136,130 +136,130 @@ UsbAsyncControlEndpoint::transfer (
 	else
 	{
 		transfer->m_inBufferPtr = g_nullPtr;
-		memcpy (setup + 1, ptr.m_p, size);
+		memcpy(setup + 1, ptr.m_p, size);
 	}
 
 	transfer->m_completionFuncPtr = completionFuncPtr;
 
-	m_lock.lock ();
+	m_lock.lock();
 
-	if (isIdle ())
-		m_idleEvent.reset ();
+	if (isIdle())
+		m_idleEvent.reset();
 
-	m_activeTransferList.insertTail (transfer);
-	m_lock.unlock ();
+	m_activeTransferList.insertTail(transfer);
+	m_lock.unlock();
 
 	transfer->m_self = this;
 
-	result = transfer->m_usbTransfer.submit ();
+	result = transfer->m_usbTransfer.submit();
 	if (result)
 		return true;
 
-	m_lock.lock ();
-	m_activeTransferList.remove (transfer);
-	m_transferPool.put (transfer);
-	m_lock.unlock ();
-	callCompletionFunc (completionFuncPtr, -1, err::getLastError ());
+	m_lock.lock();
+	m_activeTransferList.remove(transfer);
+	m_transferPool.put(transfer);
+	m_lock.unlock();
+	callCompletionFunc(completionFuncPtr, -1, err::getLastError());
 	return false;
 }
 
 void
-UsbAsyncControlEndpoint::cancelTransfers ()
+UsbAsyncControlEndpoint::cancelTransfers()
 {
-	char buffer [256];
-	sl::Array <Transfer*> activeTransferArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	char buffer[256];
+	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-	m_lock.lock ();
-	ASSERT (!m_flags & Flag_Stop);
+	m_lock.lock();
+	ASSERT(!m_flags & Flag_Stop);
 	m_flags |= Flag_CancelTransfers;
-	m_event.signal ();
-	m_lock.unlock ();
+	m_event.signal();
+	m_lock.unlock();
 
-	m_idleEvent.wait ();
+	m_idleEvent.wait();
 }
 
 void
-UsbAsyncControlEndpoint::completionThreadFunc ()
+UsbAsyncControlEndpoint::completionThreadFunc()
 {
 	for (;;)
 	{
-		m_event.wait ();
+		m_event.wait();
 
-		m_lock.lock ();
+		m_lock.lock();
 		if (m_flags & Flag_Stop)
 			break;
 
 		if (m_flags & Flag_CancelTransfers)
 		{
 			m_flags &= ~Flag_CancelTransfers;
-			cancelAllActiveTransfers_l ();
+			cancelAllActiveTransfers_l();
 		}
 		else
 		{
-			finalizeTransfers_l ();
+			finalizeTransfers_l();
 		}
 	}
 
-	cancelAllActiveTransfers_l ();
+	cancelAllActiveTransfers_l();
 }
 
 void
-UsbAsyncControlEndpoint::cancelAllActiveTransfers_l ()
+UsbAsyncControlEndpoint::cancelAllActiveTransfers_l()
 {
-	char buffer [256];
-	sl::Array <Transfer*> activeTransferArray (ref::BufKind_Stack, buffer, sizeof (buffer));
+	char buffer[256];
+	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-	sl::Iterator <Transfer> it = m_activeTransferList.getHead ();
+	sl::Iterator<Transfer> it = m_activeTransferList.getHead();
 	for (; it; it++)
-		activeTransferArray.append (*it);
+		activeTransferArray.append(*it);
 
-	m_lock.unlock ();
+	m_lock.unlock();
 
-	size_t count = activeTransferArray.getCount ();
+	size_t count = activeTransferArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		activeTransferArray [i]->m_usbTransfer.cancel (); // may fail if already completed
+		activeTransferArray[i]->m_usbTransfer.cancel(); // may fail if already completed
 
 	// wait for all transfers to complete
 
-	m_lock.lock ();
+	m_lock.lock();
 
-	while (!m_activeTransferList.isEmpty ())
+	while (!m_activeTransferList.isEmpty())
 	{
-		m_lock.unlock ();
-		m_event.wait ();
-		m_lock.lock ();
+		m_lock.unlock();
+		m_event.wait();
+		m_lock.lock();
 	}
 
-	finalizeTransfers_l ();
+	finalizeTransfers_l();
 }
 
 void
-UsbAsyncControlEndpoint::finalizeTransfers_l ()
+UsbAsyncControlEndpoint::finalizeTransfers_l()
 {
-	sl::List <Transfer> transferList;
-	sl::takeOver (&transferList, &m_completedTransferList);
-	m_lock.unlock ();
+	sl::List<Transfer> transferList;
+	sl::takeOver(&transferList, &m_completedTransferList);
+	m_lock.unlock();
 
-	sl::Iterator <Transfer> it = transferList.getHead ();
+	sl::Iterator<Transfer> it = transferList.getHead();
 	for (; it; it++)
 	{
-		switch (it->m_usbTransfer->status)
+		switch(it->m_usbTransfer->status)
 		{
 		case LIBUSB_TRANSFER_COMPLETED:
-			ASSERT ((size_t) it->m_usbTransfer->actual_length <= it->m_buffer.getSize () - sizeof (libusb_control_setup));
+			ASSERT((size_t)it->m_usbTransfer->actual_length <= it->m_buffer.getSize() - sizeof(libusb_control_setup));
 
 			if (it->m_inBufferPtr.m_p)
-				memcpy (it->m_inBufferPtr.m_p, it->m_buffer + 1, it->m_usbTransfer->actual_length);
+				memcpy(it->m_inBufferPtr.m_p, it->m_buffer + 1, it->m_usbTransfer->actual_length);
 
-			callCompletionFunc (it->m_completionFuncPtr, it->m_usbTransfer->actual_length);
+			callCompletionFunc(it->m_completionFuncPtr, it->m_usbTransfer->actual_length);
 			break;
 
 		case LIBUSB_TRANSFER_CANCELLED:
-			callCompletionFunc (it->m_completionFuncPtr, -1, err::SystemErrorCode_Cancelled);
+			callCompletionFunc(it->m_completionFuncPtr, -1, err::SystemErrorCode_Cancelled);
 			break;
 
 		default:
-			callCompletionFunc (it->m_completionFuncPtr, -1, axl::io::UsbError (LIBUSB_ERROR_IO));
+			callCompletionFunc(it->m_completionFuncPtr, -1, axl::io::UsbError(LIBUSB_ERROR_IO));
 			break;
 		}
 
@@ -267,16 +267,16 @@ UsbAsyncControlEndpoint::finalizeTransfers_l ()
 		it->m_completionFuncPtr = g_nullFunctionPtr;
 	}
 
-	m_lock.lock ();
-	m_transferPool.put (&transferList);
+	m_lock.lock();
+	m_transferPool.put(&transferList);
 
-	if (isIdle ())
-		m_idleEvent.signal ();
-	m_lock.unlock ();
+	if (isIdle())
+		m_idleEvent.signal();
+	m_lock.unlock();
 }
 
 bool
-UsbAsyncControlEndpoint::callCompletionFunc (
+UsbAsyncControlEndpoint::callCompletionFunc(
 	FunctionPtr completionFuncPtr,
 	size_t resultSize,
 	const err::ErrorRef& error
@@ -284,39 +284,39 @@ UsbAsyncControlEndpoint::callCompletionFunc (
 {
 	bool result = true;
 
-	JNC_BEGIN_CALL_SITE (m_runtime)
+	JNC_BEGIN_CALL_SITE(m_runtime)
 
 	DataPtr errorPtr = g_nullPtr;
 
 	if (error)
-		errorPtr = jnc::memDup (error, error->m_size);
+		errorPtr = jnc::memDup(error, error->m_size);
 
-	jnc::callVoidFunctionPtr (completionFuncPtr, resultSize, errorPtr);
+	jnc::callVoidFunctionPtr(completionFuncPtr, resultSize, errorPtr);
 
-	JNC_CALL_SITE_CATCH ()
+	JNC_CALL_SITE_CATCH()
 
-	AXL_TRACE ("USB completion func failed: %s\n", err::getLastErrorDescription ().sz ());
+	AXL_TRACE("USB completion func failed: %s\n", err::getLastErrorDescription ().sz ());
 	result = false;
 
-	JNC_END_CALL_SITE ()
+	JNC_END_CALL_SITE()
 
 	return result;
 }
 
 void
 LIBUSB_CALL
-UsbAsyncControlEndpoint::onTransferCompleted (libusb_transfer* usbTransfer)
+UsbAsyncControlEndpoint::onTransferCompleted(libusb_transfer* usbTransfer)
 {
-	Transfer* transfer = (Transfer*) usbTransfer->user_data;
-	ASSERT (transfer->m_usbTransfer == usbTransfer);
+	Transfer* transfer = (Transfer*)usbTransfer->user_data;
+	ASSERT(transfer->m_usbTransfer == usbTransfer);
 
 	UsbAsyncControlEndpoint* self = transfer->m_self;
 
-	self->m_lock.lock ();
-	self->m_activeTransferList.remove (transfer);
-	self->m_completedTransferList.insertTail (transfer);
-	self->m_event.signal ();
-	self->m_lock.unlock ();
+	self->m_lock.lock();
+	self->m_activeTransferList.remove(transfer);
+	self->m_completedTransferList.insertTail(transfer);
+	self->m_event.signal();
+	self->m_lock.unlock();
 }
 
 //..............................................................................

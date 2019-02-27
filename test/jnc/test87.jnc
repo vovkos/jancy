@@ -2,14 +2,14 @@ struct Foo
 {
 	alias dispose = close;
 
-	construct ()
+	construct()
 	{
-		printf ("Foo.construct (%p)\n", this);
+		printf("Foo.construct (%p)\n", this);
 	}
 
-	close ()
+	close()
 	{
-		printf ("Foo.close (%p)\n", this);
+		printf("Foo.close (%p)\n", this);
 	}
 }
 
@@ -17,21 +17,21 @@ class Bar
 {
 	alias dispose = close;
 
-	construct ()
+	construct()
 	{
-		printf ("Bar.construct (%p)\n", this);
+		printf("Bar.construct (%p)\n", this);
 	}
 
-	close ()
+	close()
 	{
-		printf ("Bar.close (%p)\n", this);
+		printf("Bar.close (%p)\n", this);
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("before\n");
-	
+	printf("before\n");
+
 	{
 		disposable Foo* foo = new Foo;
 		disposable Foo* bar;
@@ -42,7 +42,7 @@ int main ()
 		disposable Bar baz2;
 	}
 
-	printf ("after\n");
-	
+	printf("after\n");
+
 	return 0;
 }

@@ -14,7 +14,7 @@ class D
 {
 }
 
-int main ()
+int main()
 {
 	C c;
 
@@ -24,14 +24,14 @@ int main ()
 	B* b = v;
 	D* d = v;
 
-	printf (
+	printf(
 		"c = %p\n\n"
 		"a = %p\n"
 		"b = %p\n"
-		"d = %p\n", 
+		"d = %p\n",
 		c, a, b, d
 		);
 
-	assert (a == c && b != c && d == null);
+	assert(a == c && b != c && d == null);
 	return 0;
 }

@@ -17,7 +17,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (SshChannel)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(SshChannel)
 
 //..............................................................................
 
@@ -70,7 +70,7 @@ public:
 	operator () (LIBSSH2_SESSION* session)
 	{
 		if (session)
-			libssh2_session_free (session);
+			libssh2_session_free(session);
 	}
 };
 
@@ -83,14 +83,14 @@ public:
 	operator () (LIBSSH2_CHANNEL* channel)
 	{
 		if (channel)
-			libssh2_channel_free (channel);
+			libssh2_channel_free(channel);
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef sl::Handle <LIBSSH2_SESSION*, FreeLibSsh2Session> SshSessionHandle;
-typedef sl::Handle <LIBSSH2_CHANNEL*, FreeLibSsh2Channel> SshChannelHandle;
+typedef sl::Handle<LIBSSH2_SESSION*, FreeLibSsh2Session> SshSessionHandle;
+typedef sl::Handle<LIBSSH2_CHANNEL*, FreeLibSsh2Channel> SshChannelHandle;
 
 //..............................................................................
 
@@ -123,25 +123,25 @@ protected:
 		IoFlag_ResizePty = 0x0010,
 	};
 
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, SshChannel, m_ioThread)->ioThreadFunc ();
+			containerof(this, SshChannel, m_ioThread)->ioThreadFunc();
 		}
 	};
 
 	struct ConnectParams
 	{
 		sl::String m_userName;
-		sl::Array <char> m_privateKey;
+		sl::Array<char> m_privateKey;
 		sl::String m_password; // or private key passphrase
 		sl::String m_channelType;
-		sl::Array <char> m_channelExtra;
+		sl::Array<char> m_channelExtra;
 		sl::String m_processType;
-		sl::Array <char> m_processExtra;
+		sl::Array<char> m_processExtra;
 		sl::String m_ptyType;
 	};
 
@@ -157,80 +157,80 @@ protected:
 	volatile uint_t m_ptyHeight;
 
 public:
-	SshChannel ();
+	SshChannel();
 
-	~SshChannel ()
+	~SshChannel()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	{
-		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getAddress (SshChannel* self)
+	getAddress(SshChannel* self)
 	{
-		return self->SocketBase::getAddress ();
+		return self->SocketBase::getAddress();
 	}
 
 	static
 	SocketAddress
 	JNC_CDECL
-	getPeerAddress (SshChannel* self)
+	getPeerAddress(SshChannel* self)
 	{
-		return self->SocketBase::getPeerAddress ();
+		return self->SocketBase::getPeerAddress();
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize (size_t size)
+	setReadBlockSize(size_t size)
 	{
-		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize (size_t size)
+	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize (size_t size)
+	setWriteBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setOptions (uint_t flags)
+	setOptions(uint_t flags)
 	{
-		return SocketBase::setOptions (flags);
+		return SocketBase::setOptions(flags);
 	}
 
 
 	bool
 	JNC_CDECL
-	open_0 (uint16_t family);
+	open_0(uint16_t family);
 
 	bool
 	JNC_CDECL
-	open_1 (DataPtr addressPtr);
+	open_1(DataPtr addressPtr);
 
 	void
 	JNC_CDECL
-	close ();
+	close();
 
 	bool
 	JNC_CDECL
-	connect_0 (
+	connect_0(
 		DataPtr addressPtr,
 		DataPtr userNamePtr,
 		DataPtr privateKeyPtr,
@@ -245,11 +245,11 @@ public:
 
 	bool
 	JNC_CDECL
-	connect_1 (DataPtr paramPtr);
+	connect_1(DataPtr paramPtr);
 
 	bool
 	JNC_CDECL
-	authenticate (
+	authenticate(
 		DataPtr userNamePtr,
 		DataPtr privateKeyPtr,
 		size_t privateKeySize,
@@ -258,61 +258,61 @@ public:
 
 	bool
 	JNC_CDECL
-	resizePty (
+	resizePty(
 		uint_t ptyWidth,
 		uint_t ptyHeight
 		);
 
 	size_t
 	JNC_CDECL
-	read (
+	read(
 		DataPtr ptr,
 		size_t size
 		)
 	{
-		return bufferedRead (ptr, size);
+		return bufferedRead(ptr, size);
 	}
 
 	size_t
 	JNC_CDECL
-	write (
+	write(
 		DataPtr ptr,
 		size_t size
 		)
 	{
-		return bufferedWrite (ptr, size);
+		return bufferedWrite(ptr, size);
 	}
 
 	handle_t
 	JNC_CDECL
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		)
 	{
-		return AsyncIoDevice::wait (eventMask, handlerPtr);
+		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle)
+	cancelWait(handle_t handle)
 	{
-		return AsyncIoDevice::cancelWait (handle);
+		return AsyncIoDevice::cancelWait(handle);
 	}
 
 	uint_t
 	JNC_CDECL
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		)
 	{
-		return AsyncIoDevice::blockingWait (eventMask, timeout);
+		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 protected:
 	bool
-	connectImpl (
+	connectImpl(
 		const SocketAddress* address,
 		const char* userName,
 		const void* privateKey,
@@ -330,19 +330,19 @@ protected:
 		);
 
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 
 	err::Error
-	getLastSshError ();
+	getLastSshError();
 
 	int
-	sshAsyncLoop (int result);
+	sshAsyncLoop(int result);
 
 	bool
-	sshConnect ();
+	sshConnect();
 
 	void
-	sshReadWriteLoop ();
+	sshReadWriteLoop();
 };
 
 //..............................................................................

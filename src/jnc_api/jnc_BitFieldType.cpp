@@ -14,7 +14,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined (_JNC_CORE)
+#elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -26,25 +26,25 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_BitFieldType_getBaseType (jnc_BitFieldType* type)
+jnc_BitFieldType_getBaseType(jnc_BitFieldType* type)
 {
-	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBaseTypeFunc (type);
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBaseTypeFunc(type);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BitFieldType_getBitOffset (jnc_BitFieldType* type)
+jnc_BitFieldType_getBitOffset(jnc_BitFieldType* type)
 {
-	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitOffsetFunc (type);
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitOffsetFunc(type);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BitFieldType_getBitCount (jnc_BitFieldType* type)
+jnc_BitFieldType_getBitCount(jnc_BitFieldType* type)
 {
-	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitCountFunc (type);
+	return jnc_g_dynamicExtensionLibHost->m_bitFieldTypeFuncTable->m_getBitCountFunc(type);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -52,25 +52,25 @@ jnc_BitFieldType_getBitCount (jnc_BitFieldType* type)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_BitFieldType_getBaseType (jnc_BitFieldType* type)
+jnc_BitFieldType_getBaseType(jnc_BitFieldType* type)
 {
-	return type->getBaseType ();
+	return type->getBaseType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BitFieldType_getBitOffset (jnc_BitFieldType* type)
+jnc_BitFieldType_getBitOffset(jnc_BitFieldType* type)
 {
-	return type->getBitOffset ();
+	return type->getBitOffset();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BitFieldType_getBitCount (jnc_BitFieldType* type)
+jnc_BitFieldType_getBitCount(jnc_BitFieldType* type)
 {
-	return type->getBitCount ();
+	return type->getBitCount();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

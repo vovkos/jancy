@@ -4,34 +4,34 @@ class C
 {
 	std.HashTable m_hashTable;
 
-	construct ()
+	construct()
 	{
-		printf ("C.construct (%p)\n", this);
+		printf("C.construct (%p)\n", this);
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C.destruct (%p)\n", this);
+		printf("C.destruct (%p)\n", this);
 	}
 }
 
-foo ()
+foo()
 {
 	static C staticC;
 }
 
 static C g_globalC;
 
-int main ()
+int main()
 {
-	int* p = new int;	
+	int* p = new int;
 
-	printf ("main ()\n");
-	foo ();
+	printf("main ()\n");
+	foo();
 	return 0;
 }
 
-construct ()
+construct()
 {
-	printf ("module.construct ()\n");
+	printf("module.construct ()\n");
 }

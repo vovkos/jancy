@@ -19,14 +19,14 @@ namespace ct {
 //..............................................................................
 
 bool
-Cast_BoolFromZeroCmp::constCast (
+Cast_BoolFromZeroCmp::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	const char* p = (const char*) opValue.getConstData ();
-	const char* end = p + opValue.getType ()->getSize ();
+	const char* p = (const char*) opValue.getConstData();
+	const char* end = p + opValue.getType()->getSize();
 
 	bool result = false;
 
@@ -39,80 +39,80 @@ Cast_BoolFromZeroCmp::constCast (
 		}
 	}
 
-	*(bool*) dst = result;
+	*(bool*)dst = result;
 	return true;
 }
 
 bool
-Cast_BoolFromZeroCmp::llvmCast (
+Cast_BoolFromZeroCmp::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	Value zeroValue = opValue.getType ()->getZeroValue ();
-	return m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, opValue, zeroValue, resultValue);
+	Value zeroValue = opValue.getType()->getZeroValue();
+	return m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, opValue, zeroValue, resultValue);
 }
 
 //..............................................................................
 
 bool
-Cast_BoolFromPtr::llvmCast (
+Cast_BoolFromPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	if (opValue.getType ()->getSize () == sizeof (void*))
-		return Cast_BoolFromZeroCmp::llvmCast (opValue, type, resultValue);
+	if (opValue.getType()->getSize() == sizeof(void*))
+		return Cast_BoolFromZeroCmp::llvmCast(opValue, type, resultValue);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
-	return Cast_BoolFromZeroCmp::llvmCast (ptrValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
+	return Cast_BoolFromZeroCmp::llvmCast(ptrValue, type, resultValue);
 }
 
 
 //..............................................................................
 
 bool
-Cast_IntFromBool::constCast (
+Cast_IntFromBool::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Bool);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
 
-	memset (dst, 0, type->getSize ());
+	memset(dst, 0, type->getSize());
 
-	if (*(bool*) opValue.getConstData ())
-		*(char*) dst = 1;
+	if (*(bool*)opValue.getConstData())
+		*(char*)dst = 1;
 
 	return true;
 }
 
 bool
-Cast_IntFromBool::llvmCast (
+Cast_IntFromBool::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Bool);
-	m_module->m_llvmIrBuilder.createExt_u (opValue, type, resultValue);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Bool);
+	m_module->m_llvmIrBuilder.createExt_u(opValue, type, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 CastOperator*
-Cast_Bool::getCastOperator (
+Cast_Bool::getCastOperator(
 	const Value& opValue,
 	Type* type
 	)
 {
-	TypeKind srcTypeKind = opValue.getType ()->getTypeKind ();
-	switch (srcTypeKind)
+	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
+	switch(srcTypeKind)
 	{
 	case TypeKind_Bool:
 	case TypeKind_Int8:

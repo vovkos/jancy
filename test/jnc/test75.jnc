@@ -18,16 +18,16 @@ struct Foo
 {
 	int m_foo;
 
-	char const* foo ()
+	char const* foo()
 	{
-		printf ("+Foo.m_foo = %d\n", m_foo);
-		sys.collectGarbage (); // <-- Foo was collected due to incorrect gc grame map
-		printf ("-Foo.m_foo = %d\n", m_foo);
+		printf("+Foo.m_foo = %d\n", m_foo);
+		sys.collectGarbage(); // <-- Foo was collected due to incorrect gc grame map
+		printf("-Foo.m_foo = %d\n", m_foo);
 		return null;
 	}
 }
 
-foo ()
+foo()
 {
 	Foo foo;
 	foo.m_foo = 137;
@@ -39,13 +39,13 @@ foo ()
 	// the solution is to propagate frame map down the stack after lift
 
 	{{{
-		foo.foo ();
+		foo.foo();
 	}}}
 }
 
 io.Address_ip4 g_address = { 0x7f000001 }
 
-bar ()
+bar()
 {
 	io.SocketAddress address;
 	address.m_family = io.AddressFamily.Ip4;
@@ -54,17 +54,17 @@ bar ()
 
 	for (int i = 0; i <= 255; i++)
 	{
-		address.m_ip4.m_address.m_i8 [3] = i;
-		printf ($"probing $(address.getString ())...\n");
+		address.m_ip4.m_address.m_i8[3] = i;
+		printf($"probing $(address.getString ())...\n");
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	foo ();
-	bar ();
+	foo();
+	bar();
 
 	return 0;
 }

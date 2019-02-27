@@ -33,9 +33,9 @@ public:
 	uchar_t readonly m_char;
 
 public:
-	start ();
+	start();
 
-	I2cDecodeResult add (
+	I2cDecodeResult add(
 		bool scl,
 		bool sda
 		);
@@ -43,14 +43,14 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-I2cSignalDecoder.start ()
+I2cSignalDecoder.start()
 {
 	m_lastScl = true;
 	m_lastSda = true;
 	m_bit = 0x80;
 }
 
-I2cDecodeResult I2cSignalDecoder.add (
+I2cDecodeResult I2cSignalDecoder.add(
 	bool scl,
 	bool sda
 	)
@@ -91,7 +91,7 @@ I2cDecodeResult I2cSignalDecoder.add (
 
 	// SCL raised
 
-	switch (m_bit)
+	switch(m_bit)
 	{
 	case 0:
 		m_bit = 0x80;

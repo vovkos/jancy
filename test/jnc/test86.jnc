@@ -16,22 +16,22 @@ class C
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
-	
+	printf("main ()\n");
+
 	C c;
-	c.m_testReactor.start ();
-	
+	c.m_testReactor.start();
+
 	g_red = 1;
 	g_green = 20;
 	g_blue = 100;
 
-	printf ("g_out = %d\n", g_all);
+	printf("g_out = %d\n", g_all);
 
 	g_red = 2;
-	
-	printf ("g_out = %d\n", g_all);
+
+	printf("g_out = %d\n", g_all);
 
 	return 0;
 }

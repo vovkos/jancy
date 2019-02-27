@@ -15,7 +15,7 @@
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyCheckBox,
 	"CheckBox",
 	g_myLibGuid,
@@ -24,28 +24,28 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (MyCheckBox)
-	JNC_MAP_CONSTRUCTOR (&(jnc::construct <MyCheckBox, jnc::DataPtr>))
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <MyCheckBox>)
-	JNC_MAP_AUTOGET_PROPERTY ("m_text", &MyCheckBox::setText)
-	JNC_MAP_PROPERTY ("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(MyCheckBox)
+	JNC_MAP_CONSTRUCTOR(&(jnc::construct<MyCheckBox, jnc::DataPtr>))
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<MyCheckBox>)
+	JNC_MAP_AUTOGET_PROPERTY("m_text", &MyCheckBox::setText)
+	JNC_MAP_PROPERTY("m_isChecked", &MyCheckBox::isChecked, &MyCheckBox::setChecked)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-MyCheckBox::MyCheckBox (jnc::DataPtr textPtr):
-	MyWidget (new QCheckBox)
+MyCheckBox::MyCheckBox(jnc::DataPtr textPtr):
+	MyWidget(new QCheckBox)
 {
-	m_qtCheckBox = (QCheckBox*) m_handle;
-	setText (textPtr);
+	m_qtCheckBox = (QCheckBox*)m_handle;
+	setText(textPtr);
 
 	m_onIsCheckedChangedBridge = new QtSignalBridge;
-	m_onIsCheckedChangedBridge->connect (m_qtCheckBox, SIGNAL (stateChanged (int)), m_onIsCheckedChanged);
+	m_onIsCheckedChangedBridge->connect(m_qtCheckBox, SIGNAL(stateChanged(int)), m_onIsCheckedChanged);
 }
 
-MyCheckBox::~MyCheckBox ()
+MyCheckBox::~MyCheckBox()
 {
-	if (!m_qtCheckBox->parent ())
+	if (!m_qtCheckBox->parent())
 		delete m_qtCheckBox;
 
 	delete m_onIsCheckedChangedBridge;

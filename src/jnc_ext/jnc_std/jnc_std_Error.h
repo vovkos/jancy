@@ -16,22 +16,22 @@
 namespace jnc {
 namespace std {
 
-JNC_DECLARE_TYPE (Error)
+JNC_DECLARE_TYPE(Error)
 
 //..............................................................................
 
 struct Error: err::ErrorHdr
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (Error)
+	JNC_DECLARE_TYPE_STATIC_METHODS(Error)
 
 	DataPtr
-	getDescription ();
+	getDescription();
 
 	static
 	DataPtr
-	getDescription_s (DataPtr selfPtr)
+	getDescription_s(DataPtr selfPtr)
 	{
-		return ((Error*) selfPtr.m_p)->getDescription ();
+		return ((Error*)selfPtr.m_p)->getDescription();
 	}
 };
 

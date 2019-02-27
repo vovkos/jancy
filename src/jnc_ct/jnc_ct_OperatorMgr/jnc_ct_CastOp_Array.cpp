@@ -19,33 +19,33 @@ namespace ct {
 //..............................................................................
 
 CastKind
-Cast_Array::getCastKind (
+Cast_Array::getCastKind(
 	const Value& opValue,
 	Type* type
 	)
 {
-	ASSERT (type->getTypeKind () == TypeKind_Array);
-	ArrayType* dstArrayType = (ArrayType*) type;
-	Type* dstElementType = dstArrayType->getElementType ();
-	size_t dstElementCount = dstArrayType->getElementCount ();
+	ASSERT(type->getTypeKind() == TypeKind_Array);
+	ArrayType* dstArrayType = (ArrayType*)type;
+	Type* dstElementType = dstArrayType->getElementType();
+	size_t dstElementCount = dstArrayType->getElementCount();
 
-	Type* opType = opValue.getType ();
+	Type* opType = opValue.getType();
 
-	if (opType->getTypeKind () == TypeKind_DataRef)
-		opType = ((DataPtrType*) opType)->getTargetType ();
+	if (opType->getTypeKind() == TypeKind_DataRef)
+		opType = ((DataPtrType*)opType)->getTargetType();
 
-	if (opType->getTypeKind () != TypeKind_Array)
+	if (opType->getTypeKind() != TypeKind_Array)
 		return CastKind_None;
 
-	ArrayType* srcArrayType = (ArrayType*) opType;
-	Type* srcElementType = srcArrayType->getElementType ();
-	size_t srcElementCount = srcArrayType->getElementCount ();
+	ArrayType* srcArrayType = (ArrayType*)opType;
+	Type* srcElementType = srcArrayType->getElementType();
+	size_t srcElementCount = srcArrayType->getElementCount();
 
 	return
-		dstElementType->cmp (srcElementType) == 0 ||
-		(dstElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
-		(srcElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
-		dstElementType->getSize () == srcElementType->getSize() ?
+		dstElementType->cmp(srcElementType) == 0 ||
+		(dstElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		(srcElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		dstElementType->getSize() == srcElementType->getSize() ?
 		srcElementCount <= dstElementCount ?
 		CastKind_Implicit :
 		CastKind_Explicit :
@@ -53,32 +53,32 @@ Cast_Array::getCastKind (
 }
 
 bool
-Cast_Array::constCast (
+Cast_Array::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	ASSERT (type->getTypeKind () == TypeKind_Array);
-	ArrayType* dstArrayType = (ArrayType*) type;
-	Type* dstElementType = dstArrayType->getElementType ();
+	ASSERT(type->getTypeKind() == TypeKind_Array);
+	ArrayType* dstArrayType = (ArrayType*)type;
+	Type* dstElementType = dstArrayType->getElementType();
 
-	Type* opType = opValue.getType ();
+	Type* opType = opValue.getType();
 
-	if (opType->getTypeKind () != TypeKind_Array)
+	if (opType->getTypeKind() != TypeKind_Array)
 		return false;
 
-	ArrayType* srcArrayType = (ArrayType*) opType;
-	Type* srcElementType = srcArrayType->getElementType ();
+	ArrayType* srcArrayType = (ArrayType*)opType;
+	Type* srcElementType = srcArrayType->getElementType();
 
-	if (dstElementType->cmp (srcElementType) == 0 ||
-		(dstElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
-		(srcElementType->getTypeKindFlags () & TypeKindFlag_Integer) &&
-		dstElementType->getSize () == srcElementType->getSize())
+	if (dstElementType->cmp(srcElementType) == 0 ||
+		(dstElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		(srcElementType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		dstElementType->getSize() == srcElementType->getSize())
 	{
-		size_t dstSize = type->getSize ();
-		size_t srcSize = srcArrayType->getSize ();
-		memcpy (dst, opValue.getConstData (), AXL_MIN (srcSize, dstSize));
+		size_t dstSize = type->getSize();
+		size_t srcSize = srcArrayType->getSize();
+		memcpy(dst, opValue.getConstData(), AXL_MIN(srcSize, dstSize));
 		return true;
 	}
 
@@ -86,13 +86,13 @@ Cast_Array::constCast (
 }
 
 bool
-Cast_Array::llvmCast (
+Cast_Array::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	err::setFormatStringError ("CCast_Array::LlvmCast is not yet implemented");
+	err::setFormatStringError("CCast_Array::LlvmCast is not yet implemented");
 	return false;
 }
 

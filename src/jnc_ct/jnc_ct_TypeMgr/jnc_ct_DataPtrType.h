@@ -27,47 +27,47 @@ protected:
 	Type* m_targetType;
 
 public:
-	DataPtrType ();
+	DataPtrType();
 
 	DataPtrTypeKind
-	getPtrTypeKind ()
+	getPtrTypeKind()
 	{
 		return m_ptrTypeKind;
 	}
 
 	Type*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	DataPtrType*
-	getCheckedPtrType ()
+	getCheckedPtrType()
 	{
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
-	getUnCheckedPtrType ()
+	getUnCheckedPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	DataPtrType*
-	getUnConstPtrType ()
+	getUnConstPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Const) ?
-			m_targetType->getDataPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
+			m_targetType->getDataPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
 			this;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		Type* baseType,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
@@ -76,7 +76,7 @@ public:
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
@@ -84,36 +84,36 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	Type*
-	calcFoldedDualType (
+	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
 		);
 
 	sl::String
-	getPointerStringSuffix ();
+	getPointerStringSuffix();
 };
 
 //..............................................................................
 
 struct DataPtrTypeTuple: sl::ListLink
 {
-	DataPtrType* m_ptrTypeArray [2] [3] [3] [2] [2]; // ref x kind x const x volatile x safe
+	DataPtrType* m_ptrTypeArray[2] [3] [3] [2] [2]; // ref x kind x const x volatile x safe
 };
 
 //..............................................................................

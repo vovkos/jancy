@@ -9,7 +9,7 @@ import "UsbLogRecordCode.jnc"
 
 //..............................................................................
 
-char const* formatDeviceString (DeviceParams const* params)
+char const* formatDeviceString(DeviceParams const* params)
 {
 	char const* string = $"bus \e[34m%(1;03d):%(2;03d)\e[m ID \e[34m%(3;04x):%(4;04x)\e[m" (
 		params.m_bus,
@@ -18,9 +18,9 @@ char const* formatDeviceString (DeviceParams const* params)
 		params.m_productId
 		);
 
-	io.UsbDb* db = io.getStdUsbDb ();
-	io.UsbVendor const* vendor = db.findVendor (params.m_vendorId);
-	io.UsbProduct const* product = vendor ? vendor.findProduct (params.m_productId) : null;
+	io.UsbDb* db = io.getStdUsbDb();
+	io.UsbVendor const* vendor = db.findVendor(params.m_vendorId);
+	io.UsbProduct const* product = vendor ? vendor.findProduct(params.m_productId) : null;
 
 	if (vendor)
 	{
@@ -37,7 +37,7 @@ char const* formatDeviceString (DeviceParams const* params)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool representUsbLog (
+bool representUsbLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -45,7 +45,7 @@ bool representUsbLog (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case UsbLogRecordCode.DeviceOpened:
 		DeviceParams const* params = (DeviceParams const*) p;

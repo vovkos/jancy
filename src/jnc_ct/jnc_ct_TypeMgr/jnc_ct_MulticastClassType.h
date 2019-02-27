@@ -25,79 +25,79 @@ class MulticastClassType: public ClassType
 protected:
 	FunctionPtrType* m_targetType;
 	McSnapshotClassType* m_snapshotType;
-	StructField* m_fieldArray [MulticastFieldKind__Count];
-	Function* m_methodArray [MulticastMethodKind__Count];
+	StructField* m_fieldArray[MulticastFieldKind__Count];
+	Function* m_methodArray[MulticastMethodKind__Count];
 
 	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
 
 public:
-	MulticastClassType ();
+	MulticastClassType();
 
 	FunctionPtrType*
-	getTargetType () const
+	getTargetType() const
 	{
 		return m_targetType;
 	}
 
 	FunctionType*
-	getFunctionType () const
+	getFunctionType() const
 	{
-		return m_targetType->getTargetType ();
+		return m_targetType->getTargetType();
 	}
 
 	StructField*
-	getField (MulticastFieldKind field) const
+	getField(MulticastFieldKind field) const
 	{
-		ASSERT (field < MulticastFieldKind__Count);
-		return m_fieldArray [field];
+		ASSERT(field < MulticastFieldKind__Count);
+		return m_fieldArray[field];
 	}
 
 	Function*
-	getMethod (MulticastMethodKind method) const
+	getMethod(MulticastMethodKind method) const
 	{
-		ASSERT (method < MulticastMethodKind__Count);
-		return m_methodArray [method];
+		ASSERT(method < MulticastMethodKind__Count);
+		return m_methodArray[method];
 	}
 
 	McSnapshotClassType*
-	getSnapshotType () const
+	getSnapshotType() const
 	{
 		return m_snapshotType;
 	}
 
 	virtual
 	bool
-	compile ()
+	compile()
 	{
 		return
-			ClassType::compile () &&
-			compileCallMethod ();
+			ClassType::compile() &&
+			compileCallMethod();
 	}
 
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	bool
-	calcLayout ()
+	calcLayout()
 	{
 		return
-			ClassType::calcLayout () &&
-			m_snapshotType->ensureLayout ();
+			ClassType::calcLayout() &&
+			m_snapshotType->ensureLayout();
 	}
 
 	bool
-	compileCallMethod ();
+	compileCallMethod();
 };
 
 //..............................................................................

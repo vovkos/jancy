@@ -29,13 +29,13 @@ protected:
 	Value m_value;
 
 public:
-	Const ()
+	Const()
 	{
 		m_itemKind = ModuleItemKind_Const;
 	}
 
 	Value
-	getValue ()
+	getValue()
 	{
 		return m_value;
 	}
@@ -57,41 +57,41 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::BoxList <Value> m_valueList;
-	sl::List <Const> m_constList;
-	sl::List <ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
+	sl::BoxList<Value> m_valueList;
+	sl::List<Const> m_constList;
+	sl::List<ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
 
 public:
-	ConstMgr ();
+	ConstMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	Const*
-	createConst (
+	createConst(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		const Value& value
 		);
 
 	const Value&
-	saveValue (const Value& value)
+	saveValue(const Value& value)
 	{
-		sl::BoxIterator <Value> it = m_valueList.insertTail (value);
+		sl::BoxIterator<Value> it = m_valueList.insertTail(value);
 		return *it;
 	}
 
 	const Value&
-	saveLiteral (const sl::StringRef& string);
+	saveLiteral(const sl::StringRef& string);
 
 	DataPtrValidator*
-	createConstDataPtrValidator (
+	createConstDataPtrValidator(
 		const void* p,
 		Type* type
 		);

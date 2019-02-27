@@ -1,4 +1,4 @@
-event g_event ();
+event g_event();
 
 C* g_c;
 
@@ -6,38 +6,38 @@ class C
 {
 	int m_x;
 
-	construct ()
+	construct()
 	{
-		printf ("C.construct: this: %p\n", this);
+		printf("C.construct: this: %p\n", this);
 		g_c = this;
 	}
 
 	reactor m_reactor;
 
-	int foo ()
+	int foo()
 	{
-		printf ("C.foo: this: %p\n", this);
-		assert (this == g_c);
+		printf("C.foo: this: %p\n", this);
+		assert(this == g_c);
 		return 0;
 	}
 }
 
 reactor C.m_reactor
 {
-	m_x = foo ();
+	m_x = foo();
 
-	onevent g_event ()
+	onevent g_event()
 	{
-		printf ("C.m_reactor.onevent: this: %p\n", this);
-		assert (this == g_c);
+		printf("C.m_reactor.onevent: this: %p\n", this);
+		assert(this == g_c);
 	}
 }
 
-int main ()
+int main()
 {
 	C c;
-	c.m_reactor.start ();
-	g_event ();
+	c.m_reactor.start();
+	g_event();
 
 	return 0;
 }

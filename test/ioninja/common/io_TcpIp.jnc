@@ -18,8 +18,8 @@ enum EthernetType: bigendian uint16_t
 
 struct EthernetHdr
 {
-	uint8_t m_dstAddress [6];
-	uint8_t m_srcAddress [6];
+	uint8_t m_dstAddress[6];
+	uint8_t m_srcAddress[6];
 	EthernetType m_type;
 }
 
@@ -95,8 +95,8 @@ struct Ip6Hdr
 	bigendian uint16_t m_payloadLength;
 	uint8_t m_nextHeader;
 	uint8_t m_hopLimit;
-	uint16_t m_srcAddress [8];
-	uint16_t m_dstAddress [8];
+	uint16_t m_srcAddress[8];
+	uint16_t m_dstAddress[8];
 }
 
 struct IpPseudoHdr

@@ -31,9 +31,9 @@ class C1
 
 	// event field declared with the dual modifier event
 
-	event m_onCompleted ();
+	event m_onCompleted();
 
-	work ()
+	work()
 	{
 		// insiders have write-access to m_progress
 
@@ -43,25 +43,25 @@ class C1
 		{
 			// insiders have multicast-access to m_onCompleted
 
-			m_onCompleted ();
+			m_onCompleted();
 		}
 	}
 }
 
 //..............................................................................
 
-onCompleted ()
+onCompleted()
 {
-	printf ("onCompleted () -- work is finished\n");
+	printf("onCompleted () -- work is finished\n");
 }
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	C1 c;
 
@@ -75,11 +75,11 @@ int main ()
 
 	while (c.m_progress < 100)
 	{
-		c.work ();
+		c.work();
 
 		// outsiders have read-access to C1.m_x...
 
-		printf ("progress = %d%%\n", c.m_progress);
+		printf("progress = %d%%\n", c.m_progress);
 	}
 
 	// ...but no write-access

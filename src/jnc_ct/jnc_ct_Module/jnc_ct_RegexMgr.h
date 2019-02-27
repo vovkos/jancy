@@ -35,8 +35,8 @@ struct ReSwitchAcceptContext: sl::ListLink
 
 struct DfaGroupSet: sl::ListLink
 {
-	sl::Array <size_t> m_openArray;
-	sl::Array <size_t> m_closeArray;
+	sl::Array<size_t> m_openArray;
+	sl::Array<size_t> m_closeArray;
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -64,16 +64,16 @@ protected:
 	size_t m_stateCount;
 	size_t m_groupCount;
 	size_t m_maxSubMatchCount;
-	sl::Array <uintptr_t> m_transitionTable;
-	sl::Array <DfaStateInfo> m_stateInfoTable;
-	sl::List <DfaAcceptInfo> m_acceptInfoList;
-	sl::List <DfaGroupSet> m_groupSetList;
+	sl::Array<uintptr_t> m_transitionTable;
+	sl::Array<DfaStateInfo> m_stateInfoTable;
+	sl::List<DfaAcceptInfo> m_acceptInfoList;
+	sl::List<DfaGroupSet> m_groupSetList;
 
 public:
-	Dfa ();
+	Dfa();
 
 	bool
-	isEmpty ()
+	isEmpty()
 	{
 		return m_stateCount == 0;
 	}
@@ -85,37 +85,37 @@ public:
 	}
 
 	size_t
-	getGroupCount ()
+	getGroupCount()
 	{
 		return m_groupCount;
 	}
 
 	size_t
-	getMaxSubMatchCount ()
+	getMaxSubMatchCount()
 	{
 		return m_maxSubMatchCount;
 	}
 
 	void
-	clear ();
+	clear();
 
 	bool
-	build (fsm::Regex* regex);
+	build(fsm::Regex* regex);
 
 	uintptr_t
-	getTransition (
+	getTransition(
 		uintptr_t stateId,
 		uchar_t c
 		)
 	{
-		ASSERT (stateId < m_stateCount);
-		return m_transitionTable [stateId * 256 + c];
+		ASSERT(stateId < m_stateCount);
+		return m_transitionTable[stateId * 256 + c];
 	}
 
 	DfaStateInfo*
-	getStateInfo (uintptr_t stateId)
+	getStateInfo(uintptr_t stateId)
 	{
-		return &m_stateInfoTable [stateId];
+		return &m_stateInfoTable[stateId];
 	}
 };
 
@@ -127,25 +127,25 @@ class RegexMgr
 
 protected:
 	Module* m_module;
-	sl::List <Dfa> m_dfaList;
+	sl::List<Dfa> m_dfaList;
 
 public:
-	RegexMgr ();
+	RegexMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ()
+	clear()
 	{
-		m_dfaList.clear ();
+		m_dfaList.clear();
 	}
 
 	Dfa*
-	createDfa ();
+	createDfa();
 };
 
 //..............................................................................

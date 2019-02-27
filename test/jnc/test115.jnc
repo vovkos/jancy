@@ -1,15 +1,15 @@
 // this test was used to debug string <-> guid conversions
 
-int main ()
+int main()
 {
-	std.Guid guid ("{d74419a1-789c-4d9a-8d92-bd44ee19c971}");
-	printf ("guid: %s\n", guid.getString ());
+	std.Guid guid("{d74419a1-789c-4d9a-8d92-bd44ee19c971}");
+	printf("guid: %s\n", guid.getString ());
 
 	std.Guid guid2 = "53603C98-34BC-46EF-BA08-D3274F1057B4";
-	printf ("guid: %s\n", guid2.getString ());
+	printf("guid: %s\n", guid2.getString ());
 
 	guid = " { 074c3414-2622-418a-885d-edfeca2b79e7 } ";
-	printf ("guid: %s\n", guid.getString (std.GuidStringFlags.CurlyBraces | std.GuidStringFlags.UpperCase));
+	printf("guid: %s\n", guid.getString (std.GuidStringFlags.CurlyBraces | std.GuidStringFlags.UpperCase));
 
 	return 0;
 }

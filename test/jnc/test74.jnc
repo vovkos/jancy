@@ -9,37 +9,37 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	variant v;
 
 	v = false;
-	printf ($"v = $v\n");
+	printf($"v = $v\n");
 
 	if (v)
-		printf ("if (v)\n");
+		printf("if (v)\n");
 	else
-		printf ("else (v)\n");
+		printf("else (v)\n");
 
 	if (!v)
-		printf ("if (!v)\n");
+		printf("if (!v)\n");
 	else
-		printf ("else (!v)\n");
+		printf("else (!v)\n");
 
 	v = 2;
-	printf ($"v = $v\n");
+	printf($"v = $v\n");
 
 	if (v)
-		printf ("if (v)\n");
+		printf("if (v)\n");
 	else
-		printf ("else (v)\n");
+		printf("else (v)\n");
 
 	if (!v)
-		printf ("if (!v)\n");
+		printf("if (!v)\n");
 	else
-		printf ("else (!v)\n");
+		printf("else (!v)\n");
 
 	return 0;
 }

@@ -35,12 +35,12 @@ public:
 	uint8_t m_misoChar;
 
 public:
-	start (
+	start(
 		uint_t spiMode,
 		bool isLittleEndian
 		);
 
-	SpiDecodeResult add (
+	SpiDecodeResult add(
 		bool sclk,
 		bool mosi,
 		bool miso,
@@ -50,7 +50,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SpiSignalDecoder.start (
+SpiSignalDecoder.start(
 	uint_t spiMode,
 	bool isLittleEndian
 	)
@@ -61,14 +61,14 @@ SpiSignalDecoder.start (
 	m_lastSs = true;
 }
 
-SpiDecodeResult SpiSignalDecoder.add (
+SpiDecodeResult SpiSignalDecoder.add(
 	bool sclk,
 	bool mosi,
 	bool miso,
 	bool ss
 	)
 {
-	static bool spiSelectorTable [2] [2] [2] =
+	static bool spiSelectorTable[2] [2] [2] =
 	{
 		// CPOL 0
 		{
@@ -130,7 +130,7 @@ SpiDecodeResult SpiSignalDecoder.add (
 
 	m_lastSclk = sclk;
 
-	if (spiSelectorTable [m_cpol] [m_cpha] [sclk])
+	if (spiSelectorTable[m_cpol] [m_cpha] [sclk])
 	{
 		if (!m_bit)
 		{

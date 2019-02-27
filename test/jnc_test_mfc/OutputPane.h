@@ -23,7 +23,7 @@ public:
 protected:
 	virtual
 	BOOL
-	PreTranslateMessage (MSG* pMsg);
+	PreTranslateMessage(MSG* pMsg);
 
 	BOOL OnLButtonDblClk();
 

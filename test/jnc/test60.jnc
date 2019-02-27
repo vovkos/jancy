@@ -23,7 +23,7 @@ struct NonPod
 
 //..............................................................................
 
-int main ()
+int main()
 {
 	Pod pod;
 	NonPod nonPod;
@@ -31,10 +31,10 @@ int main ()
 	void* p0 = &pod;
 	anydata* p2 = &nonPod;
 
-	Pod* p3 = dynamic (Pod*) p2;
-	NonPod* p4 = dynamic (NonPod*) p2;
+	Pod* p3 = dynamic(Pod*)p2;
+	NonPod* p4 = dynamic(NonPod*)p2;
 
-	printf ("p0 = %p, p2 = %p, p3 = %p, p4 = %p\n", p0, p2, p3, p4);
+	printf("p0 = %p, p2 = %p, p3 = %p, p4 = %p\n", p0, p2, p3, p4);
 
 	return 0;
 }

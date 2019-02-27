@@ -16,38 +16,38 @@ bool representDeviceMonLog  (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case DeviceMonLogRecordCode.CaptureStarted_name:
 		char const* name = (char const*) p;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText ($"Capture started on \e[34m$name");
+		target.addHyperText($"Capture started on \e[34m$name");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStarted_filter:
 		char const* nameFilter = (char const*) p;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText ($"Capture started with filter \e[34m$nameFilter");
+		target.addHyperText($"Capture started with filter \e[34m$nameFilter");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStopped:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText ("Capture stopped");
+		target.addHyperText("Capture stopped");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureError:
 		std.Error const* error = (std.Error const*) p;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText ($"Cannot start capture: $(error.m_description)");
+		target.addHyperText($"Cannot start capture: $(error.m_description)");
 
 		char const* url;
 
 		if (error.m_guid == std.g_winErrorGuid)
-			switch (error.m_code)
+			switch(error.m_code)
 			{
 			case 2: // ERROR_FILE_NOT_FOUND
 				url = "http://ioninja.com/doc/kb/tdevmon_windows_file_not_found.html";
@@ -58,7 +58,7 @@ bool representDeviceMonLog  (
 				break;
 			}
 		else if (error.m_guid == std.g_errnoGuid)
-			switch (error.m_code)
+			switch(error.m_code)
 			{
 			case 2: // ENOENT
 				url = "http://ioninja.com/doc/kb/tdevmon_linux_enoent.html";
@@ -70,7 +70,7 @@ bool representDeviceMonLog  (
 			}
 
 		if (url)
-			target.addHyperText ($"Read this \e^$url\e[4;34mKB article\e[m for more details");
+			target.addHyperText($"Read this \e^$url\e[4;34mKB article\e[m for more details");
 
 		break;
 

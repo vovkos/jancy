@@ -13,7 +13,7 @@
 
 #include "MyWidget.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MyCheckBox)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MyCheckBox)
 
 //..............................................................................
 
@@ -21,36 +21,36 @@ class MyCheckBox: public MyWidget
 {
 public:
 	jnc::DataPtr m_text;
-	jnc::ClassBox <jnc::Multicast> m_onIsCheckedChanged;
+	jnc::ClassBox<jnc::Multicast> m_onIsCheckedChanged;
 
 public:
 	QCheckBox* m_qtCheckBox;
 	QtSignalBridge* m_onIsCheckedChangedBridge;
 
 public:
-	MyCheckBox (jnc::DataPtr textPtr);
-	~MyCheckBox ();
+	MyCheckBox(jnc::DataPtr textPtr);
+	~MyCheckBox();
 
 	void
 	JNC_CDECL
-	setText (jnc::DataPtr textPtr)
+	setText(jnc::DataPtr textPtr)
 	{
 		m_text = textPtr;
-		m_qtCheckBox->setText ((const char*) textPtr.m_p);
+		m_qtCheckBox->setText((const char*) textPtr.m_p);
 	}
 
 	bool
 	JNC_CDECL
-	isChecked ()
+	isChecked()
 	{
-		return m_qtCheckBox->isChecked ();
+		return m_qtCheckBox->isChecked();
 	}
 
 	void
 	JNC_CDECL
-	setChecked (bool value)
+	setChecked(bool value)
 	{
-		m_qtCheckBox->setChecked (value);
+		m_qtCheckBox->setChecked(value);
 	}
 };
 

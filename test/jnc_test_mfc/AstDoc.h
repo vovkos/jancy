@@ -27,19 +27,19 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CEditView* GetView ()
+	CEditView* GetView()
 	{
-		POSITION Pos = GetFirstViewPosition ();
-		return (CEditView*) GetNextView (Pos);
+		POSITION Pos = GetFirstViewPosition();
+		return (CEditView*)GetNextView(Pos);
 	}
 
 // Operations
 public:
 	bool
-	Compile ();
+	Compile();
 
 	bool
-	Run ();
+	Run();
 
 // Overrides
 public:
@@ -62,13 +62,13 @@ public:
 
 protected:
 	bool
-	RunFunction (
+	RunFunction(
 		jnc::CFunction* pFunction,
 		int* pReturnValue = NULL
 		);
 
 	jnc::CFunction*
-	FindGlobalFunction (const char* pName);
+	FindGlobalFunction(const char* pName);
 
 // Generated message map functions
 protected:

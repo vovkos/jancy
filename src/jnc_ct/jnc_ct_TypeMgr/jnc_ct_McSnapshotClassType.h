@@ -25,62 +25,62 @@ class McSnapshotClassType: public ClassType
 
 protected:
 	FunctionPtrType* m_targetType;
-	StructField* m_fieldArray [McSnapshotFieldKind__Count];
-	Function* m_methodArray [McSnapshotMethodKind__Count];
+	StructField* m_fieldArray[McSnapshotFieldKind__Count];
+	Function* m_methodArray[McSnapshotMethodKind__Count];
 
 public:
-	McSnapshotClassType ();
+	McSnapshotClassType();
 
 	FunctionPtrType*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	FunctionType*
-	getFunctionType ()
+	getFunctionType()
 	{
-		return m_targetType->getTargetType ();
+		return m_targetType->getTargetType();
 	}
 
 	StructField*
-	getField (McSnapshotFieldKind field)
+	getField(McSnapshotFieldKind field)
 	{
-		ASSERT (field < McSnapshotFieldKind__Count);
-		return m_fieldArray [field];
+		ASSERT(field < McSnapshotFieldKind__Count);
+		return m_fieldArray[field];
 	}
 
 	Function*
-	getMethod (McSnapshotMethodKind method)
+	getMethod(McSnapshotMethodKind method)
 	{
-		ASSERT (method < McSnapshotMethodKind__Count);
-		return m_methodArray [method];
+		ASSERT(method < McSnapshotMethodKind__Count);
+		return m_methodArray[method];
 	}
 
 	virtual
 	bool
-	compile ()
+	compile()
 	{
 		return
-			ClassType::compile () &&
-			compileCallMethod ();
+			ClassType::compile() &&
+			compileCallMethod();
 	}
 
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	bool
-	compileCallMethod ();
+	compileCallMethod();
 };
 
 //..............................................................................

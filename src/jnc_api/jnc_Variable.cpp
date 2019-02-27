@@ -14,7 +14,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined (_JNC_CORE)
+#elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -28,17 +28,17 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Variable_hasInitializer (jnc_Variable* variable)
+jnc_Variable_hasInitializer(jnc_Variable* variable)
 {
-	return !variable->getInitializer ().isEmpty ();
+	return !variable->getInitializer().isEmpty();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Variable_getInitializerString_v (jnc_Variable* variable)
+jnc_Variable_getInitializerString_v(jnc_Variable* variable)
 {
-	return *jnc::getTlsStringBuffer () = variable->getInitializerString ();
+	return *jnc::getTlsStringBuffer() = variable->getInitializerString();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

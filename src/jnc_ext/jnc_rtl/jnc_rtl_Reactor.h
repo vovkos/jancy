@@ -17,7 +17,7 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (ReactorImpl)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(ReactorImpl)
 
 //..............................................................................
 
@@ -35,99 +35,99 @@ protected:
 	{
 		Multicast* m_multicast;
 		handle_t m_handler;
-		sl::HashTableIterator <Multicast*, Binding*> m_bindingMapIt;
+		sl::HashTableIterator<Multicast*, Binding*> m_bindingMapIt;
 		sl::BitMap m_reactionMap;
 	};
 
 	struct Reaction
 	{
 		size_t m_activationCount;
-		sl::Array <Binding*> m_bindingArray;
+		sl::Array<Binding*> m_bindingArray;
 	};
 
 	typedef
 	void
-	ReactionFunc (
+	ReactionFunc(
 		Reactor* reactor,
 		size_t index
 		);
 
 protected:
 	State m_state;
-	sl::AutoPtrArray <Reaction> m_reactionArray;
+	sl::AutoPtrArray<Reaction> m_reactionArray;
 	sl::BitMap m_pendingReactionMap;
-	sl::Array <Multicast*> m_pendingOnChangedBindingArray;
-	sl::Array <Multicast*> m_pendingOnEventBindingArray;
-	sl::List <Binding> m_bindingList;
-	sl::HashTable <Multicast*, Binding*, sl::HashId <Multicast*> > m_bindingMap;
+	sl::Array<Multicast*> m_pendingOnChangedBindingArray;
+	sl::Array<Multicast*> m_pendingOnEventBindingArray;
+	sl::List<Binding> m_bindingList;
+	sl::HashTable<Multicast*, Binding*, sl::HashId<Multicast*> > m_bindingMap;
 
 public:
-	ReactorImpl ();
+	ReactorImpl();
 
-	~ReactorImpl ()
+	~ReactorImpl()
 	{
-		stop ();
+		stop();
 	}
 
 	void
 	JNC_CDECL
-	start ();
+	start();
 
 	void
 	JNC_CDECL
-	stop ();
+	stop();
 
 	void
 	JNC_CDECL
-	restart ()
+	restart()
 	{
-		stop ();
-		start ();
+		stop();
+		start();
 	}
 
 	void
 	JNC_CDECL
-	addOnChangedBinding (Multicast* multicast)
+	addOnChangedBinding(Multicast* multicast)
 	{
-		ASSERT (m_state == State_Reacting);
-		m_pendingOnChangedBindingArray.append (multicast);
+		ASSERT(m_state == State_Reacting);
+		m_pendingOnChangedBindingArray.append(multicast);
 	}
 
 	void
 	JNC_CDECL
-	addOnEventBinding (Multicast* multicast)
+	addOnEventBinding(Multicast* multicast)
 	{
-		ASSERT (m_state == State_Reacting);
-		m_pendingOnEventBindingArray.append (multicast);
+		ASSERT(m_state == State_Reacting);
+		m_pendingOnEventBindingArray.append(multicast);
 	}
 
 	void
 	JNC_CDECL
-	resetOnChangedBindings ()
+	resetOnChangedBindings()
 	{
-		ASSERT (m_state == State_Reacting);
-		m_pendingOnChangedBindingArray.clear ();
+		ASSERT(m_state == State_Reacting);
+		m_pendingOnChangedBindingArray.clear();
 	}
 
 protected:
 	void
-	reactionLoop ();
+	reactionLoop();
 
 	void
-	onChanged (Binding* binding);
+	onChanged(Binding* binding);
 
 	static
 	void
-	onChangedThunk (ReactorClosure* closure)
+	onChangedThunk(ReactorClosure* closure)
 	{
-		((ReactorImpl*) closure->m_self)->onChanged ((Binding*) closure->m_binding);
+		((ReactorImpl*)closure->m_self)->onChanged((Binding*)closure->m_binding);
 	}
 
 	Binding*
-	subscribe (Multicast* multicast);
+	subscribe(Multicast* multicast);
 
 	Binding*
-	subscribe (
+	subscribe(
 		Multicast* multicast,
 		FunctionPtr functionPtr
 		);

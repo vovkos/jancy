@@ -20,7 +20,7 @@ namespace jnc {
 namespace rtl {
 
 size_t
-dynamicTypeSizeOf (
+dynamicTypeSizeOf(
 	DataPtr ptr,
 	DerivableType* type
 	);
@@ -31,45 +31,45 @@ dynamicTypeSizeOf (
 
 JNC_EXTERN_C
 jnc_ClassType*
-DynamicLayout_getType (jnc_Module* module)
+DynamicLayout_getType(jnc_Module* module)
 {
-	return (jnc_ClassType*) module->m_typeMgr.getStdType (StdType_DynamicLayout);
+	return (jnc_ClassType*)module->m_typeMgr.getStdType(StdType_DynamicLayout);
 }
 
 JNC_EXTERN_C
 const char*
-DynamicLayout_getQualifiedName ()
+DynamicLayout_getQualifiedName()
 {
 	return "jnc.DynamicLayout";
 }
 
 JNC_EXTERN_C
 const jnc_OpaqueClassTypeInfo*
-DynamicLayout_getOpaqueClassTypeInfo ()
+DynamicLayout_getOpaqueClassTypeInfo()
 {
 	static jnc_OpaqueClassTypeInfo typeInfo =
 	{
-		sizeof (DynamicLayout), // m_size
+		sizeof(DynamicLayout), // m_size
 		NULL,                   // m_markOpaqueGcRootsFunc
 		false,                  // m_isNonCreatable
 	};
 	return &typeInfo;
 }
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (DynamicLayout)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <DynamicLayout>)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(DynamicLayout)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<DynamicLayout>)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 ClassType*
-DynamicLayout::getType (Module* module)
+DynamicLayout::getType(Module* module)
 {
-	return (ClassType*) module->m_typeMgr.getStdType (StdType_DynamicLayout);
+	return (ClassType*)module->m_typeMgr.getStdType(StdType_DynamicLayout);
 }
 
 size_t
-DynamicLayout::getDynamicFieldSize (
+DynamicLayout::getDynamicFieldSize(
 	DataPtr ptr,
 	size_t offset,
 	StructField* field
@@ -77,37 +77,37 @@ DynamicLayout::getDynamicFieldSize (
 {
 	size_t size = 0;
 
-	Type* type = field->getType ();
-	ASSERT (type->getFlags () & TypeFlag_Dynamic);
+	Type* type = field->getType();
+	ASSERT(type->getFlags() & TypeFlag_Dynamic);
 
-	if (type->getTypeKindFlags () & TypeKindFlag_Derivable)
+	if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
 	{
-		ptr.m_p = (char*) ptr.m_p + offset;
-		size = dynamicTypeSizeOf (ptr, (DerivableType*) type);
+		ptr.m_p = (char*)ptr.m_p + offset;
+		size = dynamicTypeSizeOf(ptr, (DerivableType*)type);
 	}
-	else if (type->getTypeKind () == TypeKind_Array)
+	else if (type->getTypeKind() == TypeKind_Array)
 	{
-		Function* getDynamicSizeFunc = ((ArrayType*) type)->getGetDynamicSizeFunction ();
-		ASSERT (getDynamicSizeFunc);
+		Function* getDynamicSizeFunc = ((ArrayType*)type)->getGetDynamicSizeFunction();
+		ASSERT(getDynamicSizeFunc);
 
 		typedef
 		size_t
-		GetDynamicSize (DataPtr ptr);
+		GetDynamicSize(DataPtr ptr);
 
-		GetDynamicSize* getDynamicSize = (GetDynamicSize*) getDynamicSizeFunc->getMachineCode ();
-		size = getDynamicSize (ptr);
+		GetDynamicSize* getDynamicSize = (GetDynamicSize*)getDynamicSizeFunc->getMachineCode();
+		size = getDynamicSize(ptr);
 	}
 	else
 	{
-		err::setFormatStringError ("invalid dynamic type: %s", type->getTypeString ().sz ());
-		dynamicThrow ();
+		err::setFormatStringError("invalid dynamic type: %s", type->getTypeString ().sz ());
+		dynamicThrow();
 	}
 
 	return size;
 }
 
 size_t
-DynamicLayout::getDynamicFieldEndOffset (
+DynamicLayout::getDynamicFieldEndOffset(
 	DataPtr ptr,
 	DerivableType* type,
 	size_t fieldIndex // dynamic
@@ -117,55 +117,55 @@ DynamicLayout::getDynamicFieldEndOffset (
 
 	Entry* entry;
 
-	m_lock.lock ();
-	sl::MapIterator <Key, Entry*> it = m_map.visit (key);
+	m_lock.lock();
+	sl::MapIterator<Key, Entry*> it = m_map.visit(key);
 	if (it->m_value)
 	{
 		entry = it->m_value;
 	}
 	else
 	{
-		entry = AXL_MEM_NEW (Entry);
-		m_list.insertTail (entry);
+		entry = AXL_MEM_NEW(Entry);
+		m_list.insertTail(entry);
 		it->m_value = entry;
 	}
 
-	TypeKind typeKind = type->getTypeKind ();
-	ASSERT (typeKind == TypeKind_Struct);
+	TypeKind typeKind = type->getTypeKind();
+	ASSERT(typeKind == TypeKind_Struct);
 
-	sl::Array <StructField*> dynamicFieldArray = ((StructType*) type)->getDynamicFieldArray ();
+	sl::Array<StructField*> dynamicFieldArray = ((StructType*)type)->getDynamicFieldArray();
 
 	size_t offset;
 
-	size_t count = entry->m_endOffsetArray.getCount ();
+	size_t count = entry->m_endOffsetArray.getCount();
 	if (fieldIndex < count)
 	{
-		offset = entry->m_endOffsetArray [fieldIndex];
-		m_lock.unlock ();
+		offset = entry->m_endOffsetArray[fieldIndex];
+		m_lock.unlock();
 
 		return offset;
 	}
 
-	entry->m_endOffsetArray.reserve (dynamicFieldArray.getCount ());
-	offset = count ? entry->m_endOffsetArray [count - 1] : 0;
+	entry->m_endOffsetArray.reserve(dynamicFieldArray.getCount());
+	offset = count ? entry->m_endOffsetArray[count - 1] : 0;
 
 	for (size_t i = count; i <= fieldIndex; i++)
 	{
-		m_lock.unlock ();
+		m_lock.unlock();
 
-		StructField* field = dynamicFieldArray [i];
-		offset += field->getOffset ();
+		StructField* field = dynamicFieldArray[i];
+		offset += field->getOffset();
 
-		size_t size = getDynamicFieldSize (ptr, offset, field);
+		size_t size = getDynamicFieldSize(ptr, offset, field);
 		offset += size;
 
-		m_lock.lock ();
+		m_lock.lock();
 
-		entry->m_endOffsetArray.ensureCount (i + 1);
-		entry->m_endOffsetArray [i] = offset;
+		entry->m_endOffsetArray.ensureCount(i + 1);
+		entry->m_endOffsetArray[i] = offset;
 	}
 
-	m_lock.unlock ();
+	m_lock.unlock();
 
 	return offset;
 }

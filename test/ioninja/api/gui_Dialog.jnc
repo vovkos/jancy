@@ -58,11 +58,11 @@ opaque class FileDlg
 	char const* autoget property m_filter;
 	char const* autoget property m_filePath;
 
-	event m_onCompleted (StdDlgButton button);
+	event m_onCompleted(StdDlgButton button);
 
-	construct ();
+	construct();
 
-	show ();
+	show();
 }
 
 //..............................................................................
@@ -86,11 +86,11 @@ opaque class LoginDlg
 	char const* autoget property m_privateKeyFileName;
 	char const* autoget property m_privateKeyPassphrase;
 
-	event m_onCompleted (StdDlgButton button);
+	event m_onCompleted(StdDlgButton button);
 
-	construct ();
+	construct();
 
-	show ();
+	show();
 }
 
 //..............................................................................
@@ -102,11 +102,11 @@ opaque class MessageDlg
 	StdDlgIcon autoget property m_icon;
 	StdDlgButtons autoget property m_buttons;
 
-	event m_onCompleted (StdDlgButton button);
+	event m_onCompleted(StdDlgButton button);
 
-	construct ();
+	construct();
 
-	show ();
+	show();
 }
 
 //..............................................................................
@@ -119,12 +119,12 @@ opaque class ProgressDlg
 	StdDlgIcon autoget property m_icon;
 	StdDlgButtons autoget property m_buttons;
 
-	event m_onButtonClicked (StdDlgButton button);
+	event m_onButtonClicked(StdDlgButton button);
 
-	construct ();
+	construct();
 
-	show ();
-	hide ();
+	show();
+	hide();
 }
 
 //..............................................................................

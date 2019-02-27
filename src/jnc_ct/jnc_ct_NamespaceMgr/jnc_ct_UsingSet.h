@@ -37,22 +37,22 @@ protected:
 	};
 
 protected:
-	sl::Array <GlobalNamespace*> m_globalNamespaceArray;
-	sl::Array <ExtensionNamespace*> m_extensionNamespaceArray;
-	sl::List <ImportNamespace> m_importNamespaceList;
+	sl::Array<GlobalNamespace*> m_globalNamespaceArray;
+	sl::Array<ExtensionNamespace*> m_extensionNamespaceArray;
+	sl::List<ImportNamespace> m_importNamespaceList;
 
 public:
 	void
-	clear ();
+	clear();
 
 	void
-	append (
+	append(
 		NamespaceMgr* importNamespaceMgr,
 		const UsingSet* src
 		);
 
 	bool
-	addNamespace (
+	addNamespace(
 		NamespaceMgr* importNamespaceMgr,
 		Namespace* anchorNamespace,
 		NamespaceKind namespaceKind,
@@ -60,25 +60,25 @@ public:
 		);
 
 	void
-	addGlobalNamespace (GlobalNamespace* nspace)
+	addGlobalNamespace(GlobalNamespace* nspace)
 	{
-		m_globalNamespaceArray.append (nspace);
+		m_globalNamespaceArray.append(nspace);
 	}
 
 	void
-	addExtensionNamespace (ExtensionNamespace* nspace)
+	addExtensionNamespace(ExtensionNamespace* nspace)
 	{
-		m_extensionNamespaceArray.append (nspace);
+		m_extensionNamespaceArray.append(nspace);
 	}
 
 	bool
-	resolveImportNamespaces ();
+	resolveImportNamespaces();
 
 	ModuleItem*
-	findItem (const sl::StringRef& name);
+	findItem(const sl::StringRef& name);
 
 	ModuleItem*
-	findExtensionItem (
+	findExtensionItem(
 		NamedType* type,
 		const sl::StringRef& name
 		);

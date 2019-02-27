@@ -9,11 +9,11 @@
 //
 //..............................................................................
 
-typedef char EthernetAddress [6];
+typedef char EthernetAddress[6];
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	EthernetAddress a = { 1, 2, 3, 4, 5, 6 };
 	EthernetAddress* p = &a;
@@ -21,7 +21,7 @@ int main ()
 
 	size_t i = 5;
 	char x = (*p) [i];
-	assert (x == 6);
+	assert(x == 6);
 
 	return 0;
 }

@@ -19,23 +19,23 @@ namespace ct {
 //..............................................................................
 
 void
-OperatorMgr::checkPtr (
+OperatorMgr::checkPtr(
 	StdFunc stdCheckFunction,
 	StdFunc stdTryCheckFunction,
 	const Value* argValueArray,
 	size_t argCount
 	)
 {
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope ();
-	ASSERT (scope);
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	ASSERT(scope);
 
-	if (!scope->canStaticThrow ())
+	if (!scope->canStaticThrow())
 	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdCheckFunction);
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction(stdCheckFunction);
 
-		m_module->m_llvmIrBuilder.createCall (
+		m_module->m_llvmIrBuilder.createCall(
 			checkFunction,
-			checkFunction->getType (),
+			checkFunction->getType(),
 			argValueArray,
 			argCount,
 			NULL
@@ -43,11 +43,11 @@ OperatorMgr::checkPtr (
 	}
 	else
 	{
-		Function* checkFunction = m_module->m_functionMgr.getStdFunction (stdTryCheckFunction);
-		FunctionType* checkFunctionType = checkFunction->getType ();
+		Function* checkFunction = m_module->m_functionMgr.getStdFunction(stdTryCheckFunction);
+		FunctionType* checkFunctionType = checkFunction->getType();
 
 		Value returnValue;
-		m_module->m_llvmIrBuilder.createCall (
+		m_module->m_llvmIrBuilder.createCall(
 			checkFunction,
 			checkFunctionType,
 			argValueArray,
@@ -55,120 +55,120 @@ OperatorMgr::checkPtr (
 			&returnValue
 			);
 
-		bool result = m_module->m_controlFlowMgr.throwExceptionIf (returnValue, checkFunctionType);
-		ASSERT (result);
+		bool result = m_module->m_controlFlowMgr.throwExceptionIf(returnValue, checkFunctionType);
+		ASSERT(result);
 	}
 }
 
 bool
-OperatorMgr::checkDataPtrRange (const Value& value)
+OperatorMgr::checkDataPtrRange(const Value& value)
 {
-	ASSERT (value.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr);
+	ASSERT(value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
-	DataPtrType* type = (DataPtrType*) value.getType ();
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
+	DataPtrType* type = (DataPtrType*)value.getType();
+	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
 
-	if (m_module->m_operatorMgr.isUnsafeRgn () ||
-		(type->getFlags () & PtrTypeFlag_Safe) ||
+	if (m_module->m_operatorMgr.isUnsafeRgn() ||
+		(type->getFlags() & PtrTypeFlag_Safe) ||
 		ptrTypeKind == DataPtrTypeKind_Thin)
 		return true;
 
-	size_t targetSize = type->getTargetType ()->getSize ();
+	size_t targetSize = type->getTargetType()->getSize();
 
 	Value ptrValue;
 	Value validatorValue;
 
 	if (ptrTypeKind == DataPtrTypeKind_Normal)
 	{
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createExtractValue (value, 1, NULL, &validatorValue);
+		m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(value, 1, NULL, &validatorValue);
 	}
 	else
 	{
-		ASSERT (ptrTypeKind == DataPtrTypeKind_Lean);
+		ASSERT(ptrTypeKind == DataPtrTypeKind_Lean);
 
-		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
 
-		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator ();
-		if (validator->isDynamicRange () || validator->hasValidatorValue ())
+		LeanDataPtrValidator* validator = value.getLeanDataPtrValidator();
+		if (validator->isDynamicRange() || validator->hasValidatorValue())
 		{
-			validatorValue = validator->getValidatorValue ();
+			validatorValue = validator->getValidatorValue();
 		}
 		else
 		{
-			size_t rangeLength = validator->getRangeLength ();
+			size_t rangeLength = validator->getRangeLength();
 			if (rangeLength < targetSize)
 			{
-				err::setFormatStringError ("'%s' fails range check", type->getTypeString ().sz ());
+				err::setFormatStringError("'%s' fails range check", type->getTypeString ().sz ());
 				return false;
 			}
 
 			rangeLength -= targetSize;
 
-			Value rangeBeginValue = validator->getRangeBeginValue ();
-			m_module->m_llvmIrBuilder.createBitCast (rangeBeginValue, m_module->m_typeMgr.getStdType (StdType_BytePtr), &rangeBeginValue);
+			Value rangeBeginValue = validator->getRangeBeginValue();
+			m_module->m_llvmIrBuilder.createBitCast(rangeBeginValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &rangeBeginValue);
 
-			Value argValueArray [] =
+			Value argValueArray[] =
 			{
 				ptrValue,
 				rangeBeginValue,
-				Value (rangeLength, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+				Value(rangeLength, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
 			};
 
-			checkPtr (
+			checkPtr(
 				StdFunc_CheckDataPtrRangeDirect,
 				StdFunc_TryCheckDataPtrRangeDirect,
 				argValueArray,
-				countof (argValueArray)
+				countof(argValueArray)
 				);
 			return true;
 		}
 	}
 
-	Value argValueArray [] =
+	Value argValueArray[] =
 	{
 		ptrValue,
-		Value (targetSize, m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT)),
+		Value(targetSize, m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)),
 		validatorValue,
 	};
 
-	checkPtr (
+	checkPtr(
 		StdFunc_CheckDataPtrRangeIndirect,
 		StdFunc_TryCheckDataPtrRangeIndirect,
 		argValueArray,
-		countof (argValueArray)
+		countof(argValueArray)
 		);
 
 	return true;
 }
 
 void
-OperatorMgr::checkNullPtr (const Value& value)
+OperatorMgr::checkNullPtr(const Value& value)
 {
-	Type* type = value.getType ();
+	Type* type = value.getType();
 
-	if (m_module->m_operatorMgr.isUnsafeRgn () || (type->getFlags () & PtrTypeFlag_Safe))
+	if (m_module->m_operatorMgr.isUnsafeRgn() || (type->getFlags() & PtrTypeFlag_Safe))
 		return;
 
-	TypeKind typeKind = type->getTypeKind ();
+	TypeKind typeKind = type->getTypeKind();
 
-	if (!(m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr))
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_SimpleCheckNullPtr))
 	{
-		ASSERT (typeKind == TypeKind_ClassPtr || typeKind == TypeKind_ClassRef);
+		ASSERT(typeKind == TypeKind_ClassPtr || typeKind == TypeKind_ClassRef);
 
 		// use a static sink to avoid load being optimized out
-		Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable (StdVariable_NullPtrCheckSink);
+		Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
 
 		Value tmpValue;
-		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &tmpValue);
-		m_module->m_llvmIrBuilder.createLoad (tmpValue, NULL, &tmpValue);
-		m_module->m_llvmIrBuilder.createStore (tmpValue, nullPtrCheckSink);
+		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &tmpValue);
+		m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
 		return;
 	}
 
 	bool isThin;
 
-	switch (typeKind)
+	switch(typeKind)
 	{
 	case TypeKind_ClassPtr:
 	case TypeKind_ClassRef:
@@ -177,38 +177,38 @@ OperatorMgr::checkNullPtr (const Value& value)
 
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:
-		isThin = ((FunctionPtrType*) type)->getPtrTypeKind () == FunctionPtrTypeKind_Thin;
+		isThin = ((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Thin;
 		break;
 
 	case TypeKind_PropertyPtr:
 	case TypeKind_PropertyRef:
-		isThin = ((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Thin;
+		isThin = ((PropertyPtrType*)type)->getPtrTypeKind() == PropertyPtrTypeKind_Thin;
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 		return;
 	}
 
 	Value ptrValue;
-	Value typeKindValue (typeKind, m_module->m_typeMgr.getPrimitiveType (TypeKind_Int));
+	Value typeKindValue(typeKind, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
 
 	if (isThin)
-		m_module->m_llvmIrBuilder.createBitCast (value, m_module->m_typeMgr.getStdType (StdType_BytePtr), &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
 	else
-		m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, &ptrValue);
 
-	Value argValueArray [] =
+	Value argValueArray[] =
 	{
 		ptrValue,
 		typeKindValue,
 	};
 
-	checkPtr (
+	checkPtr(
 		StdFunc_CheckNullPtr,
 		StdFunc_TryCheckNullPtr,
 		argValueArray,
-		countof (argValueArray)
+		countof(argValueArray)
 		);
 }
 

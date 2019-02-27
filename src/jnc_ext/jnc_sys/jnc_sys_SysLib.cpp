@@ -30,34 +30,34 @@ namespace sys {
 //..............................................................................
 
 intptr_t
-getCurrentThreadId ()
+getCurrentThreadId()
 {
-	return (intptr_t) axl::sys::getCurrentThreadId ();
+	return (intptr_t)axl::sys::getCurrentThreadId();
 }
 
 DataPtr
-getEnv (DataPtr namePtr)
+getEnv(DataPtr namePtr)
 {
 	if (!namePtr.m_p)
 		return g_nullPtr;
 
-	const char* value = getenv ((const char*) namePtr.m_p);
-	return strDup (value);
+	const char* value = getenv((const char*) namePtr.m_p);
+	return strDup(value);
 }
 
 void
-setEnv (
+setEnv(
 	DataPtr namePtr,
 	DataPtr valuePtr
 	)
 {
 #if (_AXL_OS_WIN)
-	char buffer [256];
-	sl::String envString (ref::BufKind_Stack, buffer, sizeof (buffer));
-	envString.format ("%s=%s", namePtr.m_p, valuePtr.m_p ? valuePtr.m_p : "");
-	_putenv (envString);
+	char buffer[256];
+	sl::String envString(ref::BufKind_Stack, buffer, sizeof(buffer));
+	envString.format("%s=%s", namePtr.m_p, valuePtr.m_p ? valuePtr.m_p : "");
+	_putenv(envString);
 #else
-	setenv (
+	setenv(
 		(const char*) namePtr.m_p,
 		(const char*) valuePtr.m_p,
 		true
@@ -66,64 +66,64 @@ setEnv (
 }
 
 void
-sleep (uint32_t msCount)
+sleep(uint32_t msCount)
 {
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
-	gcHeap->enterWaitRegion ();
+	gcHeap->enterWaitRegion();
 
 #if (_AXL_OS_WIN)
-	::SleepEx (msCount, TRUE); // alertable wait (so we can abort with an APC)
+	::SleepEx(msCount, TRUE); // alertable wait (so we can abort with an APC)
 #else
-	axl::sys::sleep (msCount);
+	axl::sys::sleep(msCount);
 #endif
 
-	gcHeap->leaveWaitRegion ();
+	gcHeap->leaveWaitRegion();
 }
 
 void
-collectGarbage ()
+collectGarbage()
 {
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
-	gcHeap->collect ();
+	gcHeap->collect();
 }
 
 GcStats
-getGcStats ()
+getGcStats()
 {
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
 	GcStats stats;
-	gcHeap->getStats (&stats);
+	gcHeap->getStats(&stats);
 	return stats;
 }
 
 GcSizeTriggers
-getGcTriggers ()
+getGcTriggers()
 {
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
 	GcSizeTriggers triggers;
-	gcHeap->getSizeTriggers (&triggers);
+	gcHeap->getSizeTriggers(&triggers);
 	return triggers;
 }
 
 void
-setGcTriggers (GcSizeTriggers triggers)
+setGcTriggers(GcSizeTriggers triggers)
 {
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
-	gcHeap->setSizeTriggers (&triggers);
+	gcHeap->setSizeTriggers(&triggers);
 }
 
 void
-initSystemInfo (SystemInfo* systemInfo)
+initSystemInfo(SystemInfo* systemInfo)
 {
 #if (_JNC_CPU_X86)
 	systemInfo->m_cpuKind = CpuKind_Ia32;
@@ -172,7 +172,7 @@ initSystemInfo (SystemInfo* systemInfo)
 #	error unsupported C++ compiler
 #endif
 
-	const g::SystemInfo* axlSystemInfo = g::getModule ()->getSystemInfo ();
+	const g::SystemInfo* axlSystemInfo = g::getModule()->getSystemInfo();
 	systemInfo->m_processorCount = axlSystemInfo->m_processorCount;
 	systemInfo->m_pageSize = axlSystemInfo->m_pageSize;
 	systemInfo->m_mappingAlignFactor = axlSystemInfo->m_mappingAlignFactor;
@@ -180,34 +180,34 @@ initSystemInfo (SystemInfo* systemInfo)
 
 inline
 SystemInfo*
-getSystemInfo ()
+getSystemInfo()
 {
 	static SystemInfo systemInfo;
-	axl::sl::callOnce (initSystemInfo, &systemInfo);
+	axl::sl::callOnce(initSystemInfo, &systemInfo);
 	return &systemInfo;
 }
 
 DataPtr
-formatTimestamp_0 (
+formatTimestamp_0(
 	uint64_t timestamp,
 	DataPtr format
 	)
 {
-	axl::sys::Time time (timestamp);
-	sl::String string = time.format ((const char*) format.m_p);
-	return strDup (string);
+	axl::sys::Time time(timestamp);
+	sl::String string = time.format((const char*) format.m_p);
+	return strDup(string);
 }
 
 DataPtr
-formatTimestamp_1 (
+formatTimestamp_1(
 	uint64_t timestamp,
 	int timeZone,
 	DataPtr format
 	)
 {
-	axl::sys::Time time (timestamp, timeZone);
-	sl::String string = time.format ((const char*) format.m_p);
-	return strDup (string);
+	axl::sys::Time time(timestamp, timeZone);
+	sl::String string = time.format((const char*) format.m_p);
+	return strDup(string);
 }
 
 //..............................................................................
@@ -217,49 +217,49 @@ formatTimestamp_1 (
 
 using namespace jnc::sys;
 
-JNC_DEFINE_LIB (
+JNC_DEFINE_LIB(
 	jnc_SysLib,
 	g_sysLibGuid,
 	"SysLib",
 	"Jancy standard extension library"
 	)
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (jnc_SysLib)
-	JNC_LIB_SOURCE_FILE ("sys_globals.jnc", g_sys_globalsSrc)
-	JNC_LIB_SOURCE_FILE ("sys_Lock.jnc",    g_sys_LockSrc)
-	JNC_LIB_SOURCE_FILE ("sys_Event.jnc",   g_sys_EventSrc)
-	JNC_LIB_SOURCE_FILE ("sys_NotificationEvent.jnc", g_sys_NotificationEventSrc)
-	JNC_LIB_SOURCE_FILE ("sys_Thread.jnc",  g_sys_ThreadSrc)
-	JNC_LIB_SOURCE_FILE ("sys_Timer.jnc",   g_sys_TimerSrc)
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_SysLib)
+	JNC_LIB_SOURCE_FILE("sys_globals.jnc", g_sys_globalsSrc)
+	JNC_LIB_SOURCE_FILE("sys_Lock.jnc",    g_sys_LockSrc)
+	JNC_LIB_SOURCE_FILE("sys_Event.jnc",   g_sys_EventSrc)
+	JNC_LIB_SOURCE_FILE("sys_NotificationEvent.jnc", g_sys_NotificationEventSrc)
+	JNC_LIB_SOURCE_FILE("sys_Thread.jnc",  g_sys_ThreadSrc)
+	JNC_LIB_SOURCE_FILE("sys_Timer.jnc",   g_sys_TimerSrc)
 
-	JNC_LIB_IMPORT ("sys_globals.jnc")
-JNC_END_LIB_SOURCE_FILE_TABLE ()
+	JNC_LIB_IMPORT("sys_globals.jnc")
+JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (jnc_SysLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Lock)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Event)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NotificationEvent)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Thread)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Timer)
-JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_SysLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Lock)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Event)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NotificationEvent)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Thread)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Timer)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
-JNC_BEGIN_LIB_FUNCTION_MAP (jnc_SysLib)
-	JNC_MAP_FUNCTION ("sys.getCurrentThreadId",  getCurrentThreadId)
-	JNC_MAP_FUNCTION ("sys.getTimestamp",        axl::sys::getTimestamp)
-	JNC_MAP_FUNCTION ("sys.getPreciseTimestamp", axl::sys::getPreciseTimestamp)
-	JNC_MAP_FUNCTION ("sys.formatTimestamp",     formatTimestamp_0)
-	JNC_MAP_OVERLOAD (formatTimestamp_1)
-	JNC_MAP_FUNCTION ("sys.sleep",               jnc::sys::sleep)
-	JNC_MAP_FUNCTION ("sys.collectGarbage",      collectGarbage)
-	JNC_MAP_FUNCTION ("sys.getGcStats",          getGcStats)
-	JNC_MAP_PROPERTY ("sys.g_gcTriggers",        getGcTriggers, setGcTriggers)
-	JNC_MAP_PROPERTY ("sys.g_env",               getEnv, setEnv)
-	JNC_MAP_VARIABLE ("sys.g_systemInfo",        getSystemInfo ())
+JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
+	JNC_MAP_FUNCTION("sys.getCurrentThreadId",  getCurrentThreadId)
+	JNC_MAP_FUNCTION("sys.getTimestamp",        axl::sys::getTimestamp)
+	JNC_MAP_FUNCTION("sys.getPreciseTimestamp", axl::sys::getPreciseTimestamp)
+	JNC_MAP_FUNCTION("sys.formatTimestamp",     formatTimestamp_0)
+	JNC_MAP_OVERLOAD(formatTimestamp_1)
+	JNC_MAP_FUNCTION("sys.sleep",               jnc::sys::sleep)
+	JNC_MAP_FUNCTION("sys.collectGarbage",      collectGarbage)
+	JNC_MAP_FUNCTION("sys.getGcStats",          getGcStats)
+	JNC_MAP_PROPERTY("sys.g_gcTriggers",        getGcTriggers, setGcTriggers)
+	JNC_MAP_PROPERTY("sys.g_env",               getEnv, setEnv)
+	JNC_MAP_VARIABLE("sys.g_systemInfo",        getSystemInfo ())
 
-	JNC_MAP_TYPE (Lock)
-	JNC_MAP_TYPE (Event)
-	JNC_MAP_TYPE (Thread)
-	JNC_MAP_TYPE (Timer)
-JNC_END_LIB_FUNCTION_MAP ()
+	JNC_MAP_TYPE(Lock)
+	JNC_MAP_TYPE(Event)
+	JNC_MAP_TYPE(Thread)
+	JNC_MAP_TYPE(Timer)
+JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

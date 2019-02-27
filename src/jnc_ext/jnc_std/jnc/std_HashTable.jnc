@@ -22,9 +22,9 @@ namespace std {
 
 //..............................................................................
 
-typedef size_t HashFunc (variant key);
+typedef size_t HashFunc(variant key);
 
-typedef bool IsEqualFunc (
+typedef bool IsEqualFunc(
 	variant key1,
 	variant key2
 	);
@@ -43,11 +43,11 @@ typedef bool IsEqualFunc (
 	A typical sequence of steps when working with a hash table usually looks
 	like this:
 
-	* Add ``(key; value)`` pairs using ``add`` method (or by accessing the
+	* Add ``(key; value)`` pairs using ``add`` method(or by accessing the
 	  *indexer* property);
 	* Remove ``(key; value)`` pairs using ``remove`` or ``removeKey`` methods;
 	* Find ``value`` associated with a ``key`` using ``find``, ``findValue``
-	  method (or by accessing the *indexer* property).
+	  method(or by accessing the *indexer* property).
 
 	.. rubric:: Sample code:
 
@@ -63,13 +63,13 @@ typedef bool IsEqualFunc (
 
 		std.HashTable hashTable;
 
-		hashTable [State.Idle] = "idle";
-		hashTable [State.Running] = "running";
-		hashTable [State.Stopping] = "stopping";
+		hashTable[State.Idle] = "idle";
+		hashTable[State.Running] = "running";
+		hashTable[State.Stopping] = "stopping";
 
-		State state = (State) (rand () % State._Count);
+		State state = (State)(rand() % State._Count);
 
-		printf ($"state: $(hashTable [state])\n");
+		printf($"state: $(hashTable [state])\n");
 */
 
 opaque class HashTable
@@ -78,12 +78,12 @@ opaque class HashTable
 	MapEntry cmut* readonly m_tail;
 	size_t readonly m_count;
 
-	construct (
+	construct(
 		HashFunc thin* hashFunc = null,
 		IsEqualFunc thin* isEqualFunc = null
 		);
 
-	destruct ();
+	destruct();
 
 	/**
 		Returns ``true`` if hash table is empty; ``false`` otherwise.
@@ -91,7 +91,7 @@ opaque class HashTable
 
 	bool const property m_isEmpty;
 
-	bool m_isEmpty.get ()
+	bool m_isEmpty.get()
 	{
 		return m_count == 0;
 	}
@@ -102,26 +102,26 @@ opaque class HashTable
 		results in calling ``insert`` method.
 	*/
 
-	variant get (variant key)
+	variant get(variant key)
 	{
-		return findValue (key, null);
+		return findValue(key, null);
 	}
 
-	set (
+	set(
 		variant key,
 		variant value
 		)
 	{
-		add (key, value);
+		add(key, value);
 	}
 
 	/**
 		Remove all entries from the hash table.
 	*/
 
-	clear ();
+	clear();
 
-	MapEntry* errorcode visit (variant key);
+	MapEntry* errorcode visit(variant key);
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -132,7 +132,7 @@ opaque class HashTable
 		Returns ``false`` if key ``key`` is not found.
 	*/
 
-	MapEntry cmut* find (variant key) const;
+	MapEntry cmut* find(variant key) const;
 
 	/**
 		Looks up a value associated with the key ``key``.
@@ -143,12 +143,12 @@ opaque class HashTable
 		in the hash table so it can be used as a *key-not-found* token.
 	*/
 
-	variant findValue (
+	variant findValue(
 		variant key,
 		variant undefinedValue = null
 		) const
 	{
-		MapEntry* entry = find (key);
+		MapEntry* entry = find(key);
 		return entry ? entry.m_value : undefinedValue;
 	}
 
@@ -160,17 +160,17 @@ opaque class HashTable
 		argument.
 	*/
 
-	MapEntry* errorcode add (
+	MapEntry* errorcode add(
 		variant key,
 		variant value
 		)
 	{
-		MapEntry* entry = visit (key);
+		MapEntry* entry = visit(key);
 		entry.m_value = value;
 		return entry;
 	}
 
-	void remove (MapEntry* entry);
+	void remove(MapEntry* entry);
 
 	/**
 		Finds and deletes ``key`` from the hash table.
@@ -181,13 +181,13 @@ opaque class HashTable
 		Returns ``false`` if ``key`` was not found.
 	*/
 
-	bool removeKey (variant key)
+	bool removeKey(variant key)
 	{
-		MapEntry* entry = find (key);
+		MapEntry* entry = find(key);
 		if (!entry)
 			return false;
 
-		remove (entry);
+		remove(entry);
 		return true;
 	}
 }
@@ -196,17 +196,17 @@ opaque class HashTable
 
 class StringHashTable: HashTable
 {
-	construct ()
+	construct()
 	{
-		basetype.construct (strdjb2, streq);
+		basetype.construct(strdjb2, streq);
 	}
 }
 
 class StringHashTableIgnoreCase: HashTable
 {
-	construct ()
+	construct()
 	{
-		basetype.construct (stridjb2, strieq);
+		basetype.construct(stridjb2, strieq);
 	}
 }
 

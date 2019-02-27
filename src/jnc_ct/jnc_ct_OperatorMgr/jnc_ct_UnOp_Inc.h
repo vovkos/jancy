@@ -21,18 +21,18 @@ namespace ct {
 class UnOp_PreInc: public UnaryOperator
 {
 public:
-	UnOp_PreInc ()
+	UnOp_PreInc()
 	{
 		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual
 	Type*
-	getResultType (const Value& opValue);
+	getResultType(const Value& opValue);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		);
@@ -43,18 +43,18 @@ public:
 class UnOp_PostInc: public UnaryOperator
 {
 public:
-	UnOp_PostInc ()
+	UnOp_PostInc()
 	{
 		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual
 	Type*
-	getResultType (const Value& opValue);
+	getResultType(const Value& opValue);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		);

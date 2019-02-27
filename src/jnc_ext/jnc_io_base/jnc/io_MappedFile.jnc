@@ -28,7 +28,7 @@ namespace io {
 	From the programmer's point of view, ``io.MappedFile`` exposes the most
 	natural interface imaginable. You just tell: I want to access a region of
 	the file at *this* offset, and of *this* length. And you get a pointer to
-	this region (or ``null`` if this could not be done). That's it! Actual
+	this region(or ``null`` if this could not be done). That's it! Actual
 	mapping operations, aligning offsets and maintaining a database of
 	previously mapped views is happening behind the stage.
 
@@ -36,9 +36,9 @@ namespace io {
 	A pointer to a permanent view, as the name suggests, remains valid *all the
 	time* while the file is open. Pointers to *dynamic* views, on the other
 	hand, do expire. You can only access ``m_dynamicViewLimit`` views at the
-	same time. Expiration queue is organized in FIFO (first-in-first-out)
+	same time. Expiration queue is organized in FIFO(first-in-first-out)
 	manner, but it is readjusted each time user requests access to the region
-	with ``view`` method (last accessed view is moved to the tail of the
+	with ``view`` method(last accessed view is moved to the tail of the
 	expiration queue).
 
 	.. rubric:: Sample code:
@@ -59,27 +59,27 @@ namespace io {
 			uint64_t m_size;
 		}
 
-		foo (char const* fileName)
+		foo(char const* fileName)
 		{
 			disposable io.MappedFile file;
-			file.open (fileName, `io.FileOpenFlags.ReadOnly`);
+			file.open(fileName, `io.FileOpenFlags.ReadOnly`);
 
 			// permanent view of header
-			Hdr const* hdr = file.view (0, sizeof (Hdr), true);
+			Hdr const* hdr = file.view(0, sizeof(Hdr), true);
 
-			size_t offset = sizeof (Hdr);
+			size_t offset = sizeof(Hdr);
 			for (
 				size_t i = 0;
 				i < hdr.m_sectionCount;
-				i++, offset += sizeof (SectionDesc)
+				i++, offset += sizeof(SectionDesc)
 				)
 			{
-				SectionDesc const* sectionDesc = file.view (
+				SectionDesc const* sectionDesc = file.view(
 					offset,
-					sizeof (SectionDesc)
+					sizeof(SectionDesc)
 					);
 
-				void const* section = file.view (
+				void const* section = file.view(
 					sectionDesc.m_offset,
 					sectionDesc.m_size
 					);
@@ -133,8 +133,8 @@ opaque class MappedFile
 
 	uint64_t const property m_size;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens or creates a file, but no mappings are created.
@@ -148,7 +148,7 @@ opaque class MappedFile
 		set and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (
+	bool errorcode open(
 		char const* name,
 		FileOpenFlags flags = 0
 		);
@@ -161,15 +161,15 @@ opaque class MappedFile
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.MappedFile`` a *disposable* class [#f2]_.
+		Effectively makes ``io.MappedFile`` a *disposable* class[#f2]_.
 	*/
 
 	alias void dispose = close;
 
-	bool errorcode setSize (uint64_t size);
+	bool errorcode setSize(uint64_t size);
 
 	/**
 		Provides access to the region of the file at ``offset`` and ``size``
@@ -177,16 +177,16 @@ opaque class MappedFile
 		requested view should be *permanent* or *dynamic*.
 
 		Returns a pointer to the requested region, or ``null`` if mapping
-		operation failed [#f1]_.
+		operation failed[#f1]_.
 	*/
 
-	void* errorcode view (
+	void* errorcode view(
 		uint64_t offset,
 		size_t size,
 		bool isPermanent = false
 		);
 
-	void unmapAllViews ();
+	void unmapAllViews();
 }
 
 //..............................................................................

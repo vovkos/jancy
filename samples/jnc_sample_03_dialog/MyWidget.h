@@ -13,7 +13,7 @@
 
 #include "QtSignalBridge.h"
 
-JNC_DECLARE_CLASS_TYPE (MyWidget)
+JNC_DECLARE_CLASS_TYPE(MyWidget)
 
 //..............................................................................
 
@@ -27,22 +27,22 @@ public:
 	bool m_isEnabled;
 
 public:
-	MyWidget (QWidget* widget);
+	MyWidget(QWidget* widget);
 
 	void
 	JNC_CDECL
-	setSizePolicy (
+	setSizePolicy(
 		QSizePolicy::Policy hpolicy,
 		QSizePolicy::Policy vpolicy
 		);
 
 	void
 	JNC_CDECL
-	setVisible (bool value);
+	setVisible(bool value);
 
 	void
 	JNC_CDECL
-	setEnabled (bool value);
+	setEnabled(bool value);
 };
 
 //..............................................................................

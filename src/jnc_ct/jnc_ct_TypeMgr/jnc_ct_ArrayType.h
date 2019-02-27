@@ -30,64 +30,64 @@ protected:
 	Type* m_rootType;
 	size_t m_elementCount;
 
-	sl::BoxList <Token> m_elementCountInitializer;
+	sl::BoxList<Token> m_elementCountInitializer;
 	Function* m_getDynamicSizeFunction;
 
 	Unit* m_parentUnit;
 	Namespace* m_parentNamespace;
 
 public:
-	ArrayType ();
+	ArrayType();
 
 	Type*
-	getElementType ()
+	getElementType()
 	{
 		return m_elementType;
 	}
 
 	Type*
-	getRootType ();
+	getRootType();
 
 	size_t
-	getElementCount ()
+	getElementCount()
 	{
 		return m_elementCount;
 	}
 
-	sl::ConstBoxList <Token>
-	getElementCountInitializer ()
+	sl::ConstBoxList<Token>
+	getElementCountInitializer()
 	{
 		return m_elementCountInitializer;
 	}
 
-	Function* getGetDynamicSizeFunction ()
+	Function* getGetDynamicSizeFunction()
 	{
 		return m_getDynamicSizeFunction;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		Type* elementType,
 		size_t elementCount
 		)
 	{
-		return sl::formatString (
+		return sl::formatString(
 			"A%d%s",
 			elementCount,
-			elementType->getSignature ().sz ()
+			elementType->getSignature().sz()
 			);
 	}
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
 
 	bool
-	ensureDynamicLayout (
+	ensureDynamicLayout(
 		StructType* dynamicStruct,
 		StructField* dynamicField
 		);
@@ -95,43 +95,43 @@ public:
 protected:
 	virtual
 	bool
-	calcLayout ()
+	calcLayout()
 	{
-		return calcLayoutImpl (NULL, NULL);
+		return calcLayoutImpl(NULL, NULL);
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	bool
-	calcLayoutImpl (
+	calcLayoutImpl(
 		StructType* dynamicStruct,
 		StructField* dynamicField
 		);
 
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	sl::String
-	createDimensionString ();
+	createDimensionString();
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		ASSERT (m_elementCount != -1);
-		m_llvmType = llvm::ArrayType::get (m_elementType->getLlvmType (), m_elementCount);
+		ASSERT(m_elementCount != -1);
+		m_llvmType = llvm::ArrayType::get(m_elementType->getLlvmType(), m_elementCount);
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 };
 
 //..............................................................................

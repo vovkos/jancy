@@ -19,47 +19,47 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_CLASS_TYPE (
+JNC_DEFINE_CLASS_TYPE(
 	Array,
 	"std.Array",
 	g_stdLibGuid,
 	StdLibCacheSlot_Array
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Array)
-	JNC_MAP_FUNCTION ("clear", &Array::clear)
-	JNC_MAP_FUNCTION ("setCount", &Array::setCount)
-	JNC_MAP_FUNCTION ("reserve", &Array::reserve)
-	JNC_MAP_FUNCTION ("copy", &Array::copy)
-	JNC_MAP_FUNCTION ("insert", &Array::insert)
-	JNC_MAP_FUNCTION ("remove", &Array::remove)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Array)
+	JNC_MAP_FUNCTION("clear", &Array::clear)
+	JNC_MAP_FUNCTION("setCount", &Array::setCount)
+	JNC_MAP_FUNCTION("reserve", &Array::reserve)
+	JNC_MAP_FUNCTION("copy", &Array::copy)
+	JNC_MAP_FUNCTION("insert", &Array::insert)
+	JNC_MAP_FUNCTION("remove", &Array::remove)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 void
 JNC_CDECL
-Array::clear ()
+Array::clear()
 {
-	memset (m_ptr.m_p, 0, m_count * sizeof (Variant));
+	memset(m_ptr.m_p, 0, m_count * sizeof(Variant));
 	m_count = 0;
 }
 
 bool
 JNC_CDECL
-Array::setCount (size_t count)
+Array::setCount(size_t count)
 {
 	if (count == m_count)
 		return true;
 
 	if (count < m_count)
 	{
-		Variant* p = (Variant*) m_ptr.m_p;
-		memset (p + count, 0, (m_count - count) * sizeof (Variant));
+		Variant* p = (Variant*)m_ptr.m_p;
+		memset(p + count, 0, (m_count - count) * sizeof(Variant));
 	}
 	else if (count > m_maxCount)
 	{
-		bool result = reserve (count);
+		bool result = reserve(count);
 		if (!result)
 			return false;
 	}
@@ -70,20 +70,20 @@ Array::setCount (size_t count)
 
 bool
 JNC_CDECL
-Array::reserve (size_t count)
+Array::reserve(size_t count)
 {
 	if (count <= m_maxCount)
 		return true;
 
-	Type* type = m_box->m_type->getModule ()->getPrimitiveType (TypeKind_Variant);
-	size_t maxCount = sl::getAllocSize (count);
+	Type* type = m_box->m_type->getModule()->getPrimitiveType(TypeKind_Variant);
+	size_t maxCount = sl::getAllocSize(count);
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	DataPtr ptr = gcHeap->tryAllocateArray (type, maxCount);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	DataPtr ptr = gcHeap->tryAllocateArray(type, maxCount);
 	if (!ptr.m_p)
 		return false;
 
-	memcpy (ptr.m_p, m_ptr.m_p, m_count * sizeof (Variant));
+	memcpy(ptr.m_p, m_ptr.m_p, m_count * sizeof(Variant));
 	m_ptr = ptr;
 	m_maxCount = maxCount;
 	return true;
@@ -91,49 +91,49 @@ Array::reserve (size_t count)
 
 size_t
 JNC_CDECL
-Array::copy (
+Array::copy(
 	DataPtr ptr,
 	size_t count
 	)
 {
-	bool result = reserve (count);
+	bool result = reserve(count);
 	if (!result)
 		return -1;
 
-	memcpy (m_ptr.m_p, ptr.m_p, count * sizeof (Variant));
+	memcpy(m_ptr.m_p, ptr.m_p, count * sizeof(Variant));
 	m_count = count;
 	return count;
 }
 
 size_t
 JNC_CDECL
-Array::insert (
+Array::insert(
 	size_t index,
 	DataPtr ptr,
 	size_t count
 	)
 {
 	size_t newCount = m_count + count;
-	bool result = reserve (newCount);
+	bool result = reserve(newCount);
 	if (!result)
 		return -1;
 
 	if (index > m_count)
 		index = m_count;
 
-	Variant* p = (Variant*) m_ptr.m_p;
+	Variant* p = (Variant*)m_ptr.m_p;
 
 	if (index < m_count)
-		memmove (p + index + count, p + index, (m_count - index) * sizeof (Variant));
+		memmove(p + index + count, p + index, (m_count - index) * sizeof(Variant));
 
-	memcpy (p + index, ptr.m_p, count * sizeof (Variant));
+	memcpy(p + index, ptr.m_p, count * sizeof(Variant));
 	m_count = newCount;
 	return newCount;
 }
 
 size_t
 JNC_CDECL
-Array::remove (
+Array::remove(
 	size_t index,
 	size_t count
 	)
@@ -150,9 +150,9 @@ Array::remove (
 
 	size_t newCount = m_count - count;
 	size_t tailIdx = index + count;
-	Variant* p = (Variant*) m_ptr.m_p;
-	memmove (p + index, p + tailIdx, (m_count - tailIdx) * sizeof (Variant));
-	memset (p + newCount, 0, count * sizeof (Variant));
+	Variant* p = (Variant*)m_ptr.m_p;
+	memmove(p + index, p + tailIdx, (m_count - tailIdx) * sizeof(Variant));
+	memset(p + newCount, 0, count * sizeof(Variant));
 	m_count = newCount;
 	return newCount;
 }

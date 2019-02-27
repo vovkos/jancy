@@ -11,7 +11,7 @@ namespace log {
 
 class Converter
 {
-	abstract bool convert (
+	abstract bool convert(
 		Writer* writer,
 		uint64_t timestamp,
 		uint64_t recordCode,
@@ -19,7 +19,7 @@ class Converter
 		size_t size
 		);
 
-	virtual reset ()
+	virtual reset()
 	{
 	}
 }

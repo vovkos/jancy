@@ -6,7 +6,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (DeviceMonitor)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(DeviceMonitor)
 
 //..............................................................................
 
@@ -47,21 +47,21 @@ public:
 	};
 
 protected:
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, DeviceMonitor, m_ioThread)->ioThreadFunc ();
+			containerof(this, DeviceMonitor, m_ioThread)->ioThreadFunc();
 		}
 	};
 
 #if (_AXL_OS_WIN)
 	struct OverlappedIo
 	{
-		mem::Pool <OverlappedRead> m_overlappedReadPool;
-		sl::List <OverlappedRead> m_activeOverlappedReadList;
+		mem::Pool<OverlappedRead> m_overlappedReadPool;
+		sl::List<OverlappedRead> m_activeOverlappedReadList;
 	};
 #endif
 
@@ -74,115 +74,115 @@ protected:
 #endif
 
 public:
-	DeviceMonitor ();
+	DeviceMonitor();
 
-	~DeviceMonitor ()
+	~DeviceMonitor()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (GcHeap* gcHeap)
+	markOpaqueGcRoots(GcHeap* gcHeap)
 	{
-		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	void
 	JNC_CDECL
-	setReadParallelism (uint_t count)
+	setReadParallelism(uint_t count)
 	{
-		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize (size_t size)
+	setReadBlockSize(size_t size)
 	{
-		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize (size_t size)
+	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setPendingNotifySizeLimit (size_t limit);
+	setPendingNotifySizeLimit(size_t limit);
 
 	bool
 	JNC_CDECL
-	setFileNameFilter (DataPtr filterPtr);
+	setFileNameFilter(DataPtr filterPtr);
 
 	bool
 	JNC_CDECL
-	setEnabled (bool isEnabled);
+	setEnabled(bool isEnabled);
 
 	bool
 	JNC_CDECL
-	open ();
+	open();
 
 	void
 	JNC_CDECL
-	close ();
+	close();
 
 	bool
 	JNC_CDECL
-	connect (DataPtr deviceNamePtr);
+	connect(DataPtr deviceNamePtr);
 
 	bool
 	JNC_CDECL
-	setIoctlDescTable (
+	setIoctlDescTable(
 		DataPtr ioctlDescPtr,
 		size_t count
 		);
 
 	size_t
 	JNC_CDECL
-	read (
+	read(
 		DataPtr ptr,
 		size_t size
 		)
 	{
-		return bufferedRead (ptr, size);
+		return bufferedRead(ptr, size);
 	}
 
 	handle_t
 	JNC_CDECL
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		)
 	{
-		return AsyncIoDevice::wait (eventMask, handlerPtr);
+		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle)
+	cancelWait(handle_t handle)
 	{
-		return AsyncIoDevice::cancelWait (handle);
+		return AsyncIoDevice::cancelWait(handle);
 	}
 
 	uint_t
 	JNC_CDECL
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		)
 	{
-		return AsyncIoDevice::blockingWait (eventMask, timeout);
+		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 protected:
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 
 	bool
-	connectLoop ();
+	connectLoop();
 };
 
 //..............................................................................

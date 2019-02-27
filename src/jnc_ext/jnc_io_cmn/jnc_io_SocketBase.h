@@ -28,26 +28,26 @@ protected:
 
 protected:
 	SocketAddress
-	getAddress ();
+	getAddress();
 
 	SocketAddress
-	getPeerAddress ();
+	getPeerAddress();
 
 	bool
-	setOptions (uint_t options);
+	setOptions(uint_t options);
 
 	bool
-	open (
+	open(
 		uint16_t family,
 		int protocol,
 		const SocketAddress* address
 		);
 
 	void
-	close ();
+	close();
 
 	bool
-	tcpConnect (uint_t connectCompletedEvent);
+	tcpConnect(uint_t connectCompletedEvent);
 };
 
 //..............................................................................

@@ -27,15 +27,15 @@ class C1
 	// threadlocal int m_threadField2 = 3; // <-- error
 	// threadlocal int m_threadField3 [4]; // <-- error
 
-	construct (int x)
+	construct(int x)
 	{
-		printf ("C1.construct (%d)\n", x);
+		printf("C1.construct (%d)\n", x);
 		m_memberField = x;
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C1.destruct (%d)\n", m_memberField);
+		printf("C1.destruct (%d)\n", m_memberField);
 	}
 }
 
@@ -48,19 +48,19 @@ class C2
 
 	C1 m_classField;
 
-	construct (int x)
+	construct(int x)
 	{
 		// if a member field requires construction this must be done in the
 		// beginning of the constructor (much like with base type constructors)
 
-		m_classField.construct (x);
+		m_classField.construct(x);
 
-		printf ("C2.construct (%d)\n", x);
+		printf("C2.construct (%d)\n", x);
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C2.destruct (%d)\n", m_classField.m_memberField);
+		printf("C2.destruct (%d)\n", m_classField.m_memberField);
 	}
 }
 
@@ -82,15 +82,15 @@ threadlocal int g_threadGlobal;
 // therefore, cannot resolve constructor call vs. function declaration grammar
 // conflict in the most general case (i.e. 'A B (C)').
 
-C1 g_classGlobal construct (10);
+C1 g_classGlobal construct(10);
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// for local non-class variables the default storage is 'stack'
 
@@ -107,12 +107,12 @@ int main ()
 
 	// for local class variables the default storage is 'heap'
 
-	C2 c1 (1000);
-	static C2 c2 (2000);
+	C2 c1(1000);
+	static C2 c2(2000);
 
 	// new operator uses 'heap' storage (allocates on gc-heap)
 
-	C2* c4 = new C2 (4000);
+	C2* c4 = new C2(4000);
 
 	return 0;
 }

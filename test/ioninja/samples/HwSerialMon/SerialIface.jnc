@@ -17,37 +17,37 @@ public:
 	gui.GroupProperty* readonly m_groupProp;
 
 public:
-	construct (doc.PluginHost* pluginHost)
+	construct(doc.PluginHost* pluginHost)
 	{
 		m_pluginHost = pluginHost;
 	}
 
-	virtual createProperties (
+	virtual createProperties(
 		gui.GroupProperty* group = null,
 		gui.Property* beforeProp = null
 		)
 	{
 	}
 
-	virtual loadProperties (doc.Storage* storage)
+	virtual loadProperties(doc.Storage* storage)
 	{
 	}
 
-	virtual saveProperties (doc.Storage* storage)
+	virtual saveProperties(doc.Storage* storage)
 	{
 	}
 
-	virtual restoreDefaultProperties ()
+	virtual restoreDefaultProperties()
 	{
 	}
 
-	abstract start ();
+	abstract start();
 
-	virtual stop ()
+	virtual stop()
 	{
 	}
 
-	abstract processSignal (
+	abstract processSignal(
 		uint64_t timestamp,
 		uint16_t lines
 		);

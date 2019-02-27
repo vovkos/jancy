@@ -1,48 +1,48 @@
 import "std_RbTree.jnc"
 
-int cmpVariant (
-	variant v1, 
+int cmpVariant(
+	variant v1,
 	variant v2
 	)
 {
 	return v1 < v2 ? -1 : v1 > v2 ? 1 : 0;
 }
 
-int main ()
+int main()
 {
-	std.RbTree rbTree (cmpVariant);
+	std.RbTree rbTree(cmpVariant);
 
-	int a [10];
+	int a[10];
 
-	for (int i = 0; i < countof (a); i++)
+	for (int i = 0; i < countof(a); i++)
 	{
-		int n = rand () % 100;
-		a [i] = n;
-		
-		print ($"adding $n...\n");
-		rbTree.add (n, n);
+		int n = rand() % 100;
+		a[i] = n;
+
+		print($"adding $n...\n");
+		rbTree.add(n, n);
 	}
 
-	printf ("ascending order:\n");
+	printf("ascending order:\n");
 
 	std.MapEntry* entry = rbTree.m_head;
 	for (; entry; entry = entry.m_next)
-		print ($"key: $(entry.m_key) value: $(entry.m_value)\n");
+		print($"key: $(entry.m_key) value: $(entry.m_value)\n");
 
-	printf ("descending order:\n");
+	printf("descending order:\n");
 
 	entry = rbTree.m_tail;
 	for (; entry; entry = entry.m_prev)
-		print ($"key: $(entry.m_key) value: $(entry.m_value)\n");
+		print($"key: $(entry.m_key) value: $(entry.m_value)\n");
 
-	printf ("validating...\n");
-	for (int i = 0; i < countof (a); i++)
+	printf("validating...\n");
+	for (int i = 0; i < countof(a); i++)
 	{
-		int n = a [i];
-		std.MapEntry* entry = rbTree.find (n);
-		assert (entry && entry.m_key == n && entry.m_value == n);
+		int n = a[i];
+		std.MapEntry* entry = rbTree.find(n);
+		assert(entry && entry.m_key == n && entry.m_value == n);
 	}
 
-	printf ("done.\n");
+	printf("done.\n");
 	return 0;
 }

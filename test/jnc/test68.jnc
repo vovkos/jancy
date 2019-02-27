@@ -15,33 +15,33 @@ struct FooBar
 	int m_b;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	int x = 0;
 
-	switch (x)
+	switch(x)
 	{
 	case 0:
-		printf ("x -- case 0\n");
+		printf("x -- case 0\n");
 
-		printf ("collect garbage #1\n");
-		sys.collectGarbage ();
+		printf("collect garbage #1\n");
+		sys.collectGarbage();
 		break;
 
 	case 1:
 		FooBar fooBar;
 		FooBar* p = &fooBar;
-		printf ("x -- case 1\n");
+		printf("x -- case 1\n");
 		break;
 
 	default:
-		printf ("x -- default\n");
+		printf("x -- default\n");
 	}
 
-	printf ("collect garbage #2\n");
-	sys.collectGarbage ();
+	printf("collect garbage #2\n");
+	sys.collectGarbage();
 	return 0;
 }
 

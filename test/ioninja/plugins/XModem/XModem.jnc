@@ -24,11 +24,11 @@ struct XModemBlock
 	uchar_t m_code;
 	uchar_t m_blockNumber;
 	uchar_t m_complement;
-	uchar_t m_data [XModemBlockSize];
+	uchar_t m_data[XModemBlockSize];
 	uchar_t m_checksum;
 }
 
-uchar_t calcXModemChecksum (void const* p)
+uchar_t calcXModemChecksum(void const* p)
 {
 	int checksum = 0;
 
@@ -36,7 +36,7 @@ uchar_t calcXModemChecksum (void const* p)
 	for (; p < end; p++)
 		checksum += *(uchar_t const*) p;
 
-	return (uchar_t) checksum;
+	return (uchar_t)checksum;
 }
 
 //..............................................................................

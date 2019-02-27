@@ -51,57 +51,57 @@ protected:
 	uint_t m_opFlags;
 
 public:
-	UnaryOperator ();
+	UnaryOperator();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	UnOpKind
-	getOpKind ()
+	getOpKind()
 	{
 		return m_opKind;
 	}
 
 	int
-	getOpFlags ()
+	getOpFlags()
 	{
 		return m_opFlags;
 	}
 
 	bool
-	getResultType (
+	getResultType(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	virtual
 	Type*
-	getResultType (const Value& opValue) = 0;
+	getResultType(const Value& opValue) = 0;
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		) = 0;
 
 	err::Error
-	setOperatorError (Type* opType)
+	setOperatorError(Type* opType)
 	{
-		return err::setFormatStringError (
+		return err::setFormatStringError(
 			"unary '%s' cannot be applied to '%s'",
-			getUnOpKindString (m_opKind),
-			opType->getTypeString ().sz ()
+			getUnOpKindString(m_opKind),
+			opType->getTypeString().sz()
 			);
 	}
 
 	err::Error
-	setOperatorError (const Value& opValue)
+	setOperatorError(const Value& opValue)
 	{
-		return setOperatorError (opValue.getType ());
+		return setOperatorError(opValue.getType());
 	}
 };
 

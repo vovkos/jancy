@@ -51,29 +51,29 @@ enum TypeSizeLimit
 
 JNC_INLINE
 PtrTypeFlag
-getFirstPtrTypeFlag (uint_t flags)
+getFirstPtrTypeFlag(uint_t flags)
 {
-	return (PtrTypeFlag) (1 << sl::getLoBitIdx (flags));
+	return (PtrTypeFlag)(1 << sl::getLoBitIdx(flags));
 }
 
 const char*
-getPtrTypeFlagString (PtrTypeFlag flag);
+getPtrTypeFlagString(PtrTypeFlag flag);
 
 sl::String
-getPtrTypeFlagString (uint_t flags);
+getPtrTypeFlagString(uint_t flags);
 
 sl::String
-getPtrTypeFlagSignature (uint_t flags);
+getPtrTypeFlagSignature(uint_t flags);
 
 JNC_INLINE
 const char*
-getFirstPtrTypeFlagString (uint_t flags)
+getFirstPtrTypeFlagString(uint_t flags)
 {
-	return getPtrTypeFlagString (getFirstPtrTypeFlag (flags));
+	return getPtrTypeFlagString(getFirstPtrTypeFlag(flags));
 }
 
 uint_t
-getPtrTypeFlagsFromModifiers (uint_t modifiers);
+getPtrTypeFlagsFromModifiers(uint_t modifiers);
 
 //..............................................................................
 
@@ -92,69 +92,69 @@ enum VariantField
 // integer type utils
 
 TypeKind
-getInt32TypeKind (int32_t integer);
+getInt32TypeKind(int32_t integer);
 
 TypeKind
-getInt32TypeKind_u (uint32_t integer);
+getInt32TypeKind_u(uint32_t integer);
 
 TypeKind
-getInt64TypeKind (int64_t integer);
+getInt64TypeKind(int64_t integer);
 
 TypeKind
-getInt64TypeKind_u (uint64_t integer);
+getInt64TypeKind_u(uint64_t integer);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 TypeKind
-getBigEndianIntegerTypeKind (TypeKind typeKind)
+getBigEndianIntegerTypeKind(TypeKind typeKind)
 {
-	return !(getTypeKindFlags (typeKind) & TypeKindFlag_BigEndian) ?
-		(TypeKind) (typeKind + TypeKind__EndianDelta) :
+	return !(getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
+		(TypeKind)(typeKind + TypeKind__EndianDelta) :
 		typeKind;
 }
 
 JNC_INLINE
 TypeKind
-getLittleEndianIntegerTypeKind (TypeKind typeKind)
+getLittleEndianIntegerTypeKind(TypeKind typeKind)
 {
-	return (getTypeKindFlags (typeKind) & TypeKindFlag_BigEndian) ?
-		(TypeKind) (typeKind - TypeKind__EndianDelta) :
+	return (getTypeKindFlags(typeKind) & TypeKindFlag_BigEndian) ?
+		(TypeKind)(typeKind - TypeKind__EndianDelta) :
 		typeKind;
 }
 
 JNC_INLINE
 TypeKind
-getUnsignedIntegerTypeKind (TypeKind typeKind)
+getUnsignedIntegerTypeKind(TypeKind typeKind)
 {
-	return !(getTypeKindFlags (typeKind) & TypeKindFlag_Unsigned) ?
-		(TypeKind) (typeKind + 1) :
+	return !(getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
+		(TypeKind)(typeKind + 1) :
 		typeKind;
 }
 
 JNC_INLINE
 TypeKind
-getSignedIntegerTypeKind (TypeKind typeKind)
+getSignedIntegerTypeKind(TypeKind typeKind)
 {
-	return (getTypeKindFlags (typeKind) & TypeKindFlag_Unsigned) ?
-		(TypeKind) (typeKind - 1) :
+	return (getTypeKindFlags(typeKind) & TypeKindFlag_Unsigned) ?
+		(TypeKind)(typeKind - 1) :
 		typeKind;
 }
 
 JNC_INLINE
 bool
-isEquivalentIntegerTypeKind (
+isEquivalentIntegerTypeKind(
 	TypeKind typeKind1,
 	TypeKind typeKind2
 	)
 {
-	return getSignedIntegerTypeKind (typeKind1) == getSignedIntegerTypeKind (typeKind2);
+	return getSignedIntegerTypeKind(typeKind1) == getSignedIntegerTypeKind(typeKind2);
 }
 
 //..............................................................................
 
 sl::String
-getLlvmTypeString (llvm::Type* llvmType);
+getLlvmTypeString(llvm::Type* llvmType);
 
 //..............................................................................
 
@@ -172,7 +172,7 @@ struct TypeStringTuple
 
 struct DualTypeTuple: sl::ListLink
 {
-	Type* m_typeArray [2] [2]; // alien-friend x container-const-non-const
+	Type* m_typeArray[2] [2]; // alien-friend x container-const-non-const
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -187,7 +187,7 @@ protected:
 	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignment;
-	sl::StringHashTableIterator <Type*> m_typeMapIt;
+	sl::StringHashTableIterator<Type*> m_typeMapIt;
 	sl::String m_signature;
 
 	llvm::Type* m_llvmType;
@@ -200,174 +200,174 @@ protected:
 	DualTypeTuple* m_dualTypeTuple;
 
 public:
-	Type ();
-	~Type ();
+	Type();
+	~Type();
 
 	TypeKind
-	getTypeKind ()
+	getTypeKind()
 	{
 		return m_typeKind;
 	}
 
 	uint_t
-	getTypeKindFlags ()
+	getTypeKindFlags()
 	{
-		return jnc::getTypeKindFlags (m_typeKind);
+		return jnc::getTypeKindFlags(m_typeKind);
 	}
 
 	StdType
-	getStdType ()
+	getStdType()
 	{
 		return m_stdType;
 	}
 
 	size_t
-	getSize ()
+	getSize()
 	{
 		return m_size;
 	}
 
 	size_t
-	getAlignment ()
+	getAlignment()
 	{
 		return m_alignment;
 	}
 
 	const sl::String&
-	getSignature ()
+	getSignature()
 	{
 		return m_signature;
 	}
 
 	const sl::String&
-	getTypeString ();
+	getTypeString();
 
 	const sl::String&
-	getTypeStringPrefix ();
+	getTypeStringPrefix();
 
 	const sl::String&
-	getTypeStringSuffix ();
+	getTypeStringSuffix();
 
 	const sl::String&
-	getDoxyTypeString ();
+	getDoxyTypeString();
 
 	const sl::String&
-	getDoxyLinkedTextPrefix ();
+	getDoxyLinkedTextPrefix();
 
 	const sl::String&
-	getDoxyLinkedTextSuffix ();
+	getDoxyLinkedTextSuffix();
 
 	sl::String
-	getLlvmTypeString ()
+	getLlvmTypeString()
 	{
-		return ct::getLlvmTypeString (getLlvmType ());
+		return ct::getLlvmTypeString(getLlvmType());
 	}
 
 	llvm::Type*
-	getLlvmType ();
+	getLlvmType();
 
 	llvm::DIType_vn
-	getLlvmDiType ();
+	getLlvmDiType();
 
 	Value
-	getUndefValue ();
+	getUndefValue();
 
 	Value
-	getZeroValue ();
+	getZeroValue();
 
 	Value
-	getErrorCodeValue ();
+	getErrorCodeValue();
 
 	int
-	cmp (Type* type)
+	cmp(Type* type)
 	{
-		return type != this ? m_signature.cmp (type->m_signature) : 0;
+		return type != this ? m_signature.cmp(type->m_signature) : 0;
 	}
 
 	ArrayType*
-	getArrayType (size_t elementCount);
+	getArrayType(size_t elementCount);
 
 	DataPtrType*
-	getDataPtrType (
+	getDataPtrType(
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
 
 	DataPtrType*
-	getDataPtrType (
+	getDataPtrType(
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getDataPtrType (TypeKind_DataPtr, ptrTypeKind, flags);
+		return getDataPtrType(TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	DataPtrType*
-	getDataPtrType_c (
+	getDataPtrType_c(
 		TypeKind typeKind = TypeKind_DataPtr,
 		uint_t flags = 0
 		)
 	{
-		return getDataPtrType (typeKind, DataPtrTypeKind_Thin, flags);
+		return getDataPtrType(typeKind, DataPtrTypeKind_Thin, flags);
 	}
 
 	FunctionArg*
-	getSimpleFunctionArg (uint_t ptrTypeFlags = 0);
+	getSimpleFunctionArg(uint_t ptrTypeFlags = 0);
 
 	Type*
-	foldDualType (
+	foldDualType(
 		bool isAlien,
 		bool isContainerConst
 		);
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
 
 protected:
 	TypeStringTuple*
-	getTypeStringTuple ();
+	getTypeStringTuple();
 
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	bool
-	calcLayout ()
+	calcLayout()
 	{
-		ASSERT (m_size && m_alignment);
+		ASSERT(m_size && m_alignment);
 		return true;
 	}
 
 	virtual
 	Type*
-	calcFoldedDualType (
+	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
 		)
 	{
-		ASSERT (false);
+		ASSERT(false);
 		return this;
 	}
 };
@@ -381,7 +381,7 @@ class NamedType:
 	friend class Parser;
 
 public:
-	NamedType ()
+	NamedType()
 	{
 		m_namespaceKind = NamespaceKind_Type;
 	}
@@ -389,14 +389,14 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ()
+	prepareTypeString()
 	{
-		getTypeStringTuple ()->m_typeStringPrefix = m_tag;
+		getTypeStringTuple()->m_typeStringPrefix = m_tag;
 	}
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 };
 
 //..............................................................................
@@ -412,20 +412,20 @@ protected:
 	TypedefShadowType* m_shadowType;
 
 public:
-	Typedef ();
+	Typedef();
 
 	Type*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	TypedefShadowType*
-	getShadowType ();
+	getShadowType();
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -444,14 +444,14 @@ protected:
 	Typedef* m_typedef;
 
 public:
-	TypedefShadowType ()
+	TypedefShadowType()
 	{
 		m_typeKind = TypeKind_TypedefShadow;
 		m_typedef = NULL;
 	}
 
 	Typedef*
-	getTypedef ()
+	getTypedef()
 	{
 		return m_typedef;
 	}
@@ -459,53 +459,53 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ()
+	prepareTypeString()
 	{
-		getTypeStringTuple ()->m_typeStringPrefix = m_tag;
+		getTypeStringTuple()->m_typeStringPrefix = m_tag;
 	}
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ()
+	prepareLlvmDiType()
 	{
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................
 
 Type*
-getSimpleType (
+getSimpleType(
 	TypeKind typeKind,
 	Module* module
 	);
 
 Type*
-getSimpleType (
+getSimpleType(
 	StdType stdType,
 	Module* module
 	);
 
 Type*
-getModuleItemType (ModuleItem* item);
+getModuleItemType(ModuleItem* item);
 
 Type*
-getDirectRefType (
+getDirectRefType(
 	Type* type,
 	uint_t ptrTypeFlags = 0
 	); // returns class ref or lean data ref
@@ -514,25 +514,25 @@ getDirectRefType (
 
 inline
 bool
-isDualType (Type* type)
+isDualType(Type* type)
 {
-	return (type->getFlags () & PtrTypeFlag__Dual) != 0;
+	return (type->getFlags() & PtrTypeFlag__Dual) != 0;
 }
 
 bool
-isDisposableType (Type* type);
+isDisposableType(Type* type);
 
 bool
-isWeakPtrType (Type* type);
+isWeakPtrType(Type* type);
 
 bool
-isSafePtrType (Type* type);
+isSafePtrType(Type* type);
 
 bool
-isWeakPtrType (Type* type);
+isWeakPtrType(Type* type);
 
 Type*
-getWeakPtrType (Type* type);
+getWeakPtrType(Type* type);
 
 //..............................................................................
 

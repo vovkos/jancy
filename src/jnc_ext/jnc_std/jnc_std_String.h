@@ -18,7 +18,7 @@ namespace std {
 
 class StringBuilder;
 
-JNC_DECLARE_CLASS_TYPE (StringBuilder)
+JNC_DECLARE_CLASS_TYPE(StringBuilder)
 
 //..............................................................................
 
@@ -32,39 +32,39 @@ public:
 public:
 	void
 	JNC_CDECL
-	clear ()
+	clear()
 	{
 		m_length = 0;
 	}
 
 	bool
 	JNC_CDECL
-	reserve (size_t size);
+	reserve(size_t size);
 
 	size_t
 	JNC_CDECL
-	copy_utf8 (
+	copy_utf8(
 		DataPtr ptr,
 		size_t length
 		);
 
 	size_t
 	JNC_CDECL
-	copy_utf16 (
+	copy_utf16(
 		DataPtr ptr,
 		size_t length
 		);
 
 	size_t
 	JNC_CDECL
-	copy_utf32 (
+	copy_utf32(
 		DataPtr ptr,
 		size_t length
 		);
 
 	size_t
 	JNC_CDECL
-	insert_utf8 (
+	insert_utf8(
 		size_t offset,
 		DataPtr ptr,
 		size_t length
@@ -72,7 +72,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	insert_utf16 (
+	insert_utf16(
 		size_t offset,
 		DataPtr ptr,
 		size_t length
@@ -80,7 +80,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	insert_utf32 (
+	insert_utf32(
 		size_t offset,
 		DataPtr ptr,
 		size_t length
@@ -88,28 +88,28 @@ public:
 
 	size_t
 	JNC_CDECL
-	remove (
+	remove(
 		size_t offset,
 		size_t length
 		);
 
 	static
 	DataPtr
-	detachString (StringBuilder* self);
+	detachString(StringBuilder* self);
 
 	static
 	DataPtr
-	cloneString (StringBuilder* self);
+	cloneString(StringBuilder* self);
 
 protected:
 	size_t
-	copyImpl (
+	copyImpl(
 		const char* p,
 		size_t length
 		);
 
 	size_t
-	insertImpl (
+	insertImpl(
 		size_t offset,
 		const char* p,
 		size_t length

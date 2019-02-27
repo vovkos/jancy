@@ -18,23 +18,23 @@ class C1
 {
 	int m_x = -1;
 
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
+		printf("C1.construct ()\n");
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C1.destruct ()\n");
+		printf("C1.destruct ()\n");
 	}
 
-	foo (
+	foo(
 		int a,
 		int b,
 		int c
 		)
 	{
-		printf ("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
+		printf("C1.foo (%d, %d, %d) { m_x = %d }\n", a, b, c, m_x);
 	}
 }
 
@@ -42,13 +42,13 @@ class C1
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	C1* c = new C1;
 
-	function weak* wf (int, int) = c.foo ~(,, 3);
+	function weak* wf(int, int) = c.foo ~(,, 3);
 
 	// weak function pointers cannot be called
 
@@ -59,20 +59,20 @@ int main ()
 
 	// c = null;
 
-	printf ("gc run...\n");
-	sys.collectGarbage ();
+	printf("gc run...\n");
+	sys.collectGarbage();
 
 	// try to recover the strong pointer
 
-	function* f (int, int) = wf;
+	function* f(int, int) = wf;
 	if (f)
 	{
-		printf ("object survived the GC run\n");
-		f (1, 2);
+		printf("object survived the GC run\n");
+		f(1, 2);
 	}
 	else
 	{
-		printf ("object was collected during the GC run\n");
+		printf("object was collected during the GC run\n");
 	}
 
 	return 0;

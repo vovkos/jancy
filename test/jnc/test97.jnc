@@ -8,28 +8,28 @@ class C
 	{
 	};
 
-	S1 foo ();
-	bar (S1 a);
-	S1 baz (S1 a, S2 b);
+	S1 foo();
+	bar(S1 a);
+	S1 baz(S1 a, S2 b);
 }
 
-C.bar (S1 a)
+C.bar(S1 a)
 {
 }
 
-S1 C.foo ()
-{
-	S1 s;
-	return s;
-}
-
-S1 C.baz (S1 a, S2 b)
+S1 C.foo()
 {
 	S1 s;
 	return s;
 }
 
-int main ()
+S1 C.baz(S1 a, S2 b)
+{
+	S1 s;
+	return s;
+}
+
+int main()
 {
 	return 0;
 }

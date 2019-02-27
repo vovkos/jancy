@@ -17,20 +17,20 @@
 namespace jnc {
 namespace sys {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (Timer)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Timer)
 
 //..............................................................................
 
 class Timer: public IfaceHdr
 {
 protected:
-	class ThreadImpl: public axl::sys::ThreadImpl <ThreadImpl>
+	class ThreadImpl: public axl::sys::ThreadImpl<ThreadImpl>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, Timer, m_thread)->threadFunc ();
+			containerof(this, Timer, m_thread)->threadFunc();
 		}
 	};
 
@@ -45,20 +45,20 @@ protected:
 	uint_t m_interval;
 
 public:
-	Timer ()
+	Timer()
 	{
-		m_runtime = getCurrentThreadRuntime ();
-		ASSERT (m_runtime);
+		m_runtime = getCurrentThreadRuntime();
+		ASSERT(m_runtime);
 	}
 
-	~Timer ()
+	~Timer()
 	{
-		stop ();
+		stop();
 	}
 
 	bool
 	JNC_CDECL
-	start (
+	start(
 		FunctionPtr ptr,
 		uint64_t dueTime,
 		uint_t interval
@@ -66,11 +66,11 @@ public:
 
 	void
 	JNC_CDECL
-	stop ();
+	stop();
 
 protected:
 	void
-	threadFunc ();
+	threadFunc();
 };
 
 

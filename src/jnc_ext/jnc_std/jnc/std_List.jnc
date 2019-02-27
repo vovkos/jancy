@@ -85,10 +85,10 @@ struct ListEntry
 
 		// add items...
 
-		int a [] = { 10, 20, 30, 40, 50, }
+		int a[] = { 10, 20, 30, 40, 50, }
 
-		for (size_t i = 0; i < countof (a); i++)
-			list.insertTail (a [i]);
+		for (size_t i = 0; i < countof(a); i++)
+			list.insertTail(a[i]);
 
 		// iterate over list...
 
@@ -127,7 +127,7 @@ class List
 		Removes all elements from the lists.
 	*/
 
-	clear ();
+	clear();
 
 	/**
 		Moves all the elements from the source list ``list`` to this list.
@@ -140,7 +140,7 @@ class List
 		first and then adding all the items from the source list in a loop.
 	*/
 
-	takeOver (List* list);
+	takeOver(List* list);
 
 	/**
 		Adds item ``data``  to the list.
@@ -150,9 +150,9 @@ class List
 		Equivalent to ``insertTail``.
 	*/
 
-	ListEntry* errorcode add (variant data)
+	ListEntry* errorcode add(variant data)
 	{
-		return insertTail (data);
+		return insertTail(data);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertHead (variant data);
+	ListEntry* errorcode insertHead(variant data);
 
 	/**
 		Inserts item ``data`` to the tail of the list.
@@ -169,7 +169,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertTail (variant data);
+	ListEntry* errorcode insertTail(variant data);
 
 	/**
 		Inserts item ``data`` before the item entry pointed to by ``entry``
@@ -180,7 +180,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertBefore (
+	ListEntry* errorcode insertBefore(
 		variant item,
 		ListEntry* before
 		);
@@ -194,7 +194,7 @@ class List
 		Returns a pointer to the new `std.ListEntry`.
 	*/
 
-	ListEntry* errorcode insertAfter (
+	ListEntry* errorcode insertAfter(
 		variant item,
 		ListEntry* before
 		);
@@ -205,7 +205,7 @@ class List
 		After this call ``m_head`` will be pointing to ``entry``.
 	*/
 
-	moveToHead (ListEntry* entry);
+	moveToHead(ListEntry* entry);
 
 	/**
 		Moves item entry pointed to by  ``entry`` to the tail of the list.
@@ -213,7 +213,7 @@ class List
 		After this call ``m_tail`` will be pointing to ``entry``.
 	*/
 
-	moveToTail (ListEntry* entry);
+	moveToTail(ListEntry* entry);
 
 	/**
 		Moves item entry pointed to by ``entry`` before item entry pointed to
@@ -222,7 +222,7 @@ class List
 		If ``entry == null`` then this method is equivalent to ``moveToTail``.
 	*/
 
-	moveBefore (
+	moveBefore(
 		ListEntry* entry,
 		ListEntry* before
 		);
@@ -234,7 +234,7 @@ class List
 		If ``after == null`` then this method is equivalent to ``moveToHead``.
 	*/
 
-	moveAfter (
+	moveAfter(
 		ListEntry* entry,
 		ListEntry* before
 		);
@@ -249,7 +249,7 @@ class List
 		``null``.
 	*/
 
-	variant removeHead ();
+	variant removeHead();
 
 	/**
 		Removes tail item entry.
@@ -261,7 +261,7 @@ class List
 		``null``.
 	*/
 
-	variant removeTail ();
+	variant removeTail();
 
 	/**
 		Removes item entry pointed to by ``entry``.
@@ -269,7 +269,7 @@ class List
 		Returns the value of ``entry.m_data`` field.
 	*/
 
-	variant remove (ListEntry* entry);
+	variant remove(ListEntry* entry);
 }
 
 //..............................................................................

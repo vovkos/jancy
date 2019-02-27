@@ -17,9 +17,9 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getUnOpKindString (jnc_UnOpKind opKind)
+jnc_getUnOpKindString(jnc_UnOpKind opKind)
 {
-	static const char* stringTable [jnc_UnOpKind__Count] =
+	static const char* stringTable[jnc_UnOpKind__Count] =
 	{
 		"undefined-unary-operator",  // jnc_UnOpKind_Undefined = 0,
 		"+",                         // jnc_UnOpKind_Plus,
@@ -35,17 +35,17 @@ jnc_getUnOpKindString (jnc_UnOpKind opKind)
 		"->",                        // jnc_UnOpKind_Ptr,
 	};
 
-	return (size_t) opKind < jnc_UnOpKind__Count ?
-		stringTable [opKind] :
-		stringTable [jnc_UnOpKind_Undefined];
+	return (size_t)opKind < jnc_UnOpKind__Count ?
+		stringTable[opKind] :
+		stringTable[jnc_UnOpKind_Undefined];
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_getBinOpKindString (jnc_BinOpKind opKind)
+jnc_getBinOpKindString(jnc_BinOpKind opKind)
 {
-	static const char* stringTable [jnc_BinOpKind__Count] =
+	static const char* stringTable[jnc_BinOpKind__Count] =
 	{
 		"undefined-binary-operator",  // jnc_BinOpKind_Undefined = 0,
 		"+",                          // jnc_BinOpKind_Add,
@@ -83,9 +83,9 @@ jnc_getBinOpKindString (jnc_BinOpKind opKind)
 		"@=",                         // jnc_BinOpKind_AtAssign,
 	};
 
-	return (size_t) opKind < jnc_BinOpKind__Count ?
-		stringTable [opKind] :
-		stringTable [jnc_BinOpKind_Undefined];
+	return (size_t)opKind < jnc_BinOpKind__Count ?
+		stringTable[opKind] :
+		stringTable[jnc_BinOpKind_Undefined];
 }
 
 //..............................................................................

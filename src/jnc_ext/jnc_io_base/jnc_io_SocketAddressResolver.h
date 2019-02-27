@@ -16,7 +16,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (SocketAddressResolver)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(SocketAddressResolver)
 
 //..............................................................................
 
@@ -25,13 +25,13 @@ class SocketAddressResolver: public IfaceHdr
 	friend class IoThread;
 
 protected:
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, SocketAddressResolver, m_ioThread)->ioThreadFunc ();
+			containerof(this, SocketAddressResolver, m_ioThread)->ioThreadFunc();
 		}
 	};
 
@@ -57,9 +57,9 @@ protected:
 	sys::Lock m_lock;
 	uint_t m_ioThreadFlags;
 	IoThread m_ioThread;
-	sl::List <Req> m_pendingReqList;
-	sl::List <Req> m_activeReqList;
-	sl::HandleTable <Req*> m_reqMap;
+	sl::List<Req> m_pendingReqList;
+	sl::List<Req> m_activeReqList;
+	sl::HandleTable<Req*> m_reqMap;
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
@@ -68,16 +68,16 @@ protected:
 #endif
 
 public:
-	SocketAddressResolver ();
-	~SocketAddressResolver ();
+	SocketAddressResolver();
+	~SocketAddressResolver();
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	uintptr_t
 	JNC_CDECL
-	resolve (
+	resolve(
 		DataPtr namePtr,
 		uint16_t addrFamily,
 		FunctionPtr completionFuncPtr
@@ -85,15 +85,15 @@ public:
 
 	bool
 	JNC_CDECL
-	cancel (uintptr_t id);
+	cancel(uintptr_t id);
 
 	void
 	JNC_CDECL
-	cancelAll ();
+	cancelAll();
 
 protected:
 	void
-	callCompletionFunc (
+	callCompletionFunc(
 		FunctionPtr completionFuncPtr,
 		const axl::io::SockAddr* addressTable,
 		size_t addressCount,
@@ -101,25 +101,25 @@ protected:
 		);
 
 	void
-	callCompletionFunc (
+	callCompletionFunc(
 		FunctionPtr completionFuncPtr,
 		const err::Error& error
 		)
 	{
-		callCompletionFunc (completionFuncPtr, NULL, 0, error);
+		callCompletionFunc(completionFuncPtr, NULL, 0, error);
 	}
 
 	void
-	processReq (Req* req);
+	processReq(Req* req);
 
 	void
-	stopIoThread ();
+	stopIoThread();
 
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 
 	void
-	wakeIoThread ();
+	wakeIoThread();
 };
 
 //..............................................................................

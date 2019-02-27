@@ -9,20 +9,20 @@ struct S // not going to fit in variant in-place
 	int64_t m_c;
 };
 
-int main ()
+int main()
 {
 	std.Array a;
 
 	for (size_t i = 0; i < 10; i++)
 	{
 		S s = { i, i * 10, i * 100 };
-		a.append (s);
+		a.append(s);
 	}
 
 	for (size_t i = 0; i < a.m_count; i++)
 	{
-		S s = a [i];
-		printf ("s = { %lld, %lld, %lld }\n", s.m_a, s.m_b, s.m_c);
+		S s = a[i];
+		printf("s = { %lld, %lld, %lld }\n", s.m_a, s.m_b, s.m_c);
 	}
 
 	return 0;

@@ -20,21 +20,21 @@ protected:
 	size_t m_size;
 
 public:
-	construct (log.Writer* logWriter)
+	construct(log.Writer* logWriter)
 	{
 		m_logWriter = logWriter;
-		m_buffer.setSize (Defaults.BufferSize);
+		m_buffer.setSize(Defaults.BufferSize);
 	}
 
-	abstract reset ();
+	abstract reset();
 
-	abstract decode (
+	abstract decode(
 		void const thin* p,
 		size_t size
 		);
 
 protected:
-	writeLogUnexpectedCode (
+	writeLogUnexpectedCode(
 		uint64_t timestamp,
 		uint_t code,
 		uint_t state
@@ -43,7 +43,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Decoder.writeLogUnexpectedCode (
+Decoder.writeLogUnexpectedCode(
 	uint64_t timestamp,
 	uint_t code,
 	uint_t state
@@ -59,7 +59,7 @@ Decoder.writeLogUnexpectedCode (
 	params.m_code = code;
 	params.m_state = state;
 
-	m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.UnexpectedCode, &params, sizeof (params));
+	m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.UnexpectedCode, &params, sizeof(params));
 }
 
 //..............................................................................

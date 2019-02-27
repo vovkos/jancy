@@ -22,12 +22,12 @@ struct Point
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-transpose (
+transpose(
 	Point* dst,
 	Point const* src
 	)
 {
-	printf ("transpose (%d, %d)\n", src.m_x, src.m_y);
+	printf("transpose (%d, %d)\n", src.m_x, src.m_y);
 
 	int x = src.m_x;
 	dst.m_x = src.m_y;
@@ -51,27 +51,27 @@ class C1
 
 	// Jancy uses C++ syntax for declaring const methods
 
-	foo () const
+	foo() const
 	{
-		printf ("C1.foo () { m_field = %d }\n", m_field);
+		printf("C1.foo () { m_field = %d }\n", m_field);
 	}
 
-	bar (int x)
+	bar(int x)
 	{
-		printf ("C1.bar (%d)\n", x);
+		printf("C1.bar (%d)\n", x);
 		m_field = x;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-baz (C1 const* p)
+baz(C1 const* p)
 {
-	printf ("p.m_x = %d\n", p.m_field);
+	printf("p.m_x = %d\n", p.m_field);
 
 	// OK to call const methods via a const pointer
 
-	p.foo ();
+	p.foo();
 
 	// OK to modify mutable fields via a const pointer
 
@@ -87,26 +87,26 @@ baz (C1 const* p)
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	Point srcPoint = { 10, 20 }
 	Point dstPoint;
 
 	// we can be sure 'srcPoint' is not going to change
 
-	transpose (&dstPoint, &srcPoint);
+	transpose(&dstPoint, &srcPoint);
 
 	C1 c;
 
 	// no problem to call non-const method via non-const C1 pointer
 
-	c.bar (10);
+	c.bar(10);
 
 	// we can be sure 'c' is not going to change
 
-	baz (&c);
+	baz(&c);
 
 	return 0;
 }

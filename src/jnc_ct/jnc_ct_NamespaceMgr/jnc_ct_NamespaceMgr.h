@@ -42,16 +42,16 @@ protected:
 protected:
 	Module* m_module;
 
-	GlobalNamespace m_stdNamespaceArray [StdNamespace__Count];
-	sl::List <GlobalNamespace> m_globalNamespaceList;
-	sl::List <ExtensionNamespace> m_extensionNamespaceList;
-	sl::List <DynamicLibNamespace> m_dynamicLibNamespaceList;
-	sl::List <Scope> m_scopeList;
-	sl::List <Orphan> m_orphanList;
-	sl::List <Alias> m_aliasList;
+	GlobalNamespace m_stdNamespaceArray[StdNamespace__Count];
+	sl::List<GlobalNamespace> m_globalNamespaceList;
+	sl::List<ExtensionNamespace> m_extensionNamespaceList;
+	sl::List<DynamicLibNamespace> m_dynamicLibNamespaceList;
+	sl::List<Scope> m_scopeList;
+	sl::List<Orphan> m_orphanList;
+	sl::List<Alias> m_aliasList;
 
-	sl::Array <NamespaceStackEntry> m_namespaceStack;
-	sl::Array <UsingSet*> m_importUsingSetArray;
+	sl::Array<NamespaceStackEntry> m_namespaceStack;
+	sl::Array<UsingSet*> m_importUsingSetArray;
 
 	Namespace* m_currentNamespace;
 	Scope* m_currentScope;
@@ -62,162 +62,162 @@ protected:
 	Value m_staticObjectValue;
 
 public:
-	NamespaceMgr ();
+	NamespaceMgr();
 
-	~NamespaceMgr ()
+	~NamespaceMgr()
 	{
-		clear ();
+		clear();
 	}
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	void
-	addStdItems ();
+	addStdItems();
 
 	Orphan*
-	createOrphan (
+	createOrphan(
 		OrphanKind orphanKind,
 		FunctionType* functionType
 		);
 
 	bool
-	resolveOrphans ();
+	resolveOrphans();
 
 	Alias*
-	createAlias (
+	createAlias(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* type,
 		uint_t ptrTypeFlags,
-		sl::BoxList <Token>* initializer
+		sl::BoxList<Token>* initializer
 		);
 
 	void
-	addImportUsingSet (UsingSet* usingSet)
+	addImportUsingSet(UsingSet* usingSet)
 	{
-		m_importUsingSetArray.append (usingSet);
+		m_importUsingSetArray.append(usingSet);
 	}
 
 	bool
-	resolveImportUsingSets ();
+	resolveImportUsingSets();
 
 	void
-	lockSourcePos ()
+	lockSourcePos()
 	{
 		m_sourcePosLockCount++;
 	}
 
 	void
-	unlockSourcePos ()
+	unlockSourcePos()
 	{
 		m_sourcePosLockCount--;
 	}
 
 	void
-	setSourcePos (const Token::Pos& pos);
+	setSourcePos(const Token::Pos& pos);
 
 	GlobalNamespace*
-	getGlobalNamespace ()
+	getGlobalNamespace()
 	{
-		return &m_stdNamespaceArray [StdNamespace_Global];
+		return &m_stdNamespaceArray[StdNamespace_Global];
 	}
 
 	GlobalNamespace*
-	getStdNamespace (StdNamespace stdNamespace)
+	getStdNamespace(StdNamespace stdNamespace)
 	{
-		ASSERT (stdNamespace < StdNamespace__Count);
-		return &m_stdNamespaceArray [stdNamespace];
+		ASSERT(stdNamespace < StdNamespace__Count);
+		return &m_stdNamespaceArray[stdNamespace];
 	}
 
 	bool
-	isGlobalNamespace ()
+	isGlobalNamespace()
 	{
 		return m_currentNamespace->m_namespaceKind == NamespaceKind_Global;
 	}
 
 	Namespace*
-	getCurrentNamespace ()
+	getCurrentNamespace()
 	{
 		return m_currentNamespace;
 	}
 
 	Scope*
-	getCurrentScope ()
+	getCurrentScope()
 	{
 		return m_currentScope;
 	}
 
 	AccessKind
-	getCurrentAccessKind ()
+	getCurrentAccessKind()
 	{
 		return m_currentAccessKind;
 	}
 
 	void
-	openNamespace (Namespace* nspace);
+	openNamespace(Namespace* nspace);
 
 	void
-	openStdNamespace (StdNamespace stdNamepace)
+	openStdNamespace(StdNamespace stdNamepace)
 	{
-		ASSERT (stdNamepace < StdNamespace__Count);
-		openNamespace (&m_stdNamespaceArray [stdNamepace]);
+		ASSERT(stdNamepace < StdNamespace__Count);
+		openNamespace(&m_stdNamespaceArray[stdNamepace]);
 	}
 
 	void
-	closeNamespace ();
+	closeNamespace();
 
 	Scope*
-	openInternalScope ();
+	openInternalScope();
 
 	Scope*
-	openScope (
+	openScope(
 		const Token::Pos& pos,
 		uint_t flags = 0
 		);
 
 	void
-	closeScope ();
+	closeScope();
 
 	AccessKind
-	getAccessKind (Namespace* nspace);
+	getAccessKind(Namespace* nspace);
 
 	sl::String
-	createQualifiedName (const sl::StringRef& name)
+	createQualifiedName(const sl::StringRef& name)
 	{
-		return m_currentNamespace->createQualifiedName (name);
+		return m_currentNamespace->createQualifiedName(name);
 	}
 
 	GlobalNamespace*
-	createGlobalNamespace (
+	createGlobalNamespace(
 		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
 		);
 
 	ExtensionNamespace*
-	createExtensionNamespace (
+	createExtensionNamespace(
 		const sl::StringRef& name,
 		Type* type,
 		Namespace* parentNamespace = NULL
 		);
 
 	DynamicLibNamespace*
-	createDynamicLibNamespace (ClassType* dynamicLibType);
+	createDynamicLibNamespace(ClassType* dynamicLibType);
 
 	Scope*
-	findBreakScope (size_t level);
+	findBreakScope(size_t level);
 
 	Scope*
-	findContinueScope (size_t level);
+	findContinueScope(size_t level);
 
 	Scope*
-	findCatchScope ();
+	findCatchScope();
 };
 
 //..............................................................................

@@ -18,7 +18,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	SocketAddressResolver,
 	"io.SocketAddressResolver",
 	g_ioLibGuid,
@@ -27,79 +27,79 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	&SocketAddressResolver::markOpaqueGcRoots
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddressResolver)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <SocketAddressResolver>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <SocketAddressResolver>)
-	JNC_MAP_FUNCTION ("resolve",   &SocketAddressResolver::resolve)
-	JNC_MAP_FUNCTION ("cancel",    &SocketAddressResolver::cancel)
-	JNC_MAP_FUNCTION ("cancelAll", &SocketAddressResolver::cancelAll)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddressResolver)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<SocketAddressResolver>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<SocketAddressResolver>)
+	JNC_MAP_FUNCTION("resolve",   &SocketAddressResolver::resolve)
+	JNC_MAP_FUNCTION("cancel",    &SocketAddressResolver::cancel)
+	JNC_MAP_FUNCTION("cancelAll", &SocketAddressResolver::cancelAll)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-SocketAddressResolver::SocketAddressResolver ()
+SocketAddressResolver::SocketAddressResolver()
 {
-	m_runtime = getCurrentThreadRuntime ();
-	ASSERT (m_runtime);
+	m_runtime = getCurrentThreadRuntime();
+	ASSERT(m_runtime);
 
 	m_ioThreadFlags = 0;
 }
 
-SocketAddressResolver::~SocketAddressResolver ()
+SocketAddressResolver::~SocketAddressResolver()
 {
-	cancelAll ();
-	stopIoThread ();
+	cancelAll();
+	stopIoThread();
 }
 
 void
 JNC_CDECL
-SocketAddressResolver::markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+SocketAddressResolver::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 {
 	if (!m_runtime) // not constructed yet
 		return;
 
-	m_lock.lock ();
+	m_lock.lock();
 
-	sl::Iterator <Req> it = m_pendingReqList.getHead ();
+	sl::Iterator<Req> it = m_pendingReqList.getHead();
 	for (; it; it++)
 		if (it->m_completionFuncPtr.m_closure)
-			gcHeap->markClass (it->m_completionFuncPtr.m_closure->m_box);
+			gcHeap->markClass(it->m_completionFuncPtr.m_closure->m_box);
 
-	it = m_activeReqList.getHead ();
+	it = m_activeReqList.getHead();
 	for (; it; it++)
 		if (it->m_completionFuncPtr.m_closure)
-			gcHeap->markClass (it->m_completionFuncPtr.m_closure->m_box);
+			gcHeap->markClass(it->m_completionFuncPtr.m_closure->m_box);
 
-	m_lock.unlock ();
+	m_lock.unlock();
 }
 
 void
-SocketAddressResolver::stopIoThread ()
+SocketAddressResolver::stopIoThread()
 {
-	m_lock.lock ();
+	m_lock.lock();
 	m_ioThreadFlags |= IoThreadFlag_Closing;
-	wakeIoThread ();
-	m_lock.unlock ();
+	wakeIoThread();
+	m_lock.unlock();
 
-	GcHeap* gcHeap = m_runtime->getGcHeap ();
-	gcHeap->enterWaitRegion ();
-	m_ioThread.waitAndClose ();
-	gcHeap->leaveWaitRegion ();
+	GcHeap* gcHeap = m_runtime->getGcHeap();
+	gcHeap->enterWaitRegion();
+	m_ioThread.waitAndClose();
+	gcHeap->leaveWaitRegion();
 }
 
 void
-SocketAddressResolver::wakeIoThread ()
+SocketAddressResolver::wakeIoThread()
 {
 #if (_JNC_OS_WIN)
-	m_ioThreadEvent.signal ();
+	m_ioThreadEvent.signal();
 #else
-	m_selfPipe.write (" ", 1);
+	m_selfPipe.write(" ", 1);
 #endif
 }
 
 uintptr_t
 JNC_CDECL
-SocketAddressResolver::resolve (
+SocketAddressResolver::resolve(
 	DataPtr namePtr,
 	uint16_t addrFamily,
 	FunctionPtr completionFuncPtr
@@ -108,17 +108,17 @@ SocketAddressResolver::resolve (
 	const char* name = (const char*) namePtr.m_p;
 
 	axl::io::SockAddr sockAddr;
-	bool result = sockAddr.parse (name);
+	bool result = sockAddr.parse(name);
 	if (result)
 	{
-		callCompletionFunc (completionFuncPtr, &sockAddr, 1);
+		callCompletionFunc(completionFuncPtr, &sockAddr, 1);
 		return 0;
 	}
 
 	sl::String nameString;
 	uint_t port;
 
-	const char* p = strchr (name, ':');
+	const char* p = strchr(name, ':');
 	if (!p)
 	{
 		nameString = name;
@@ -127,188 +127,188 @@ SocketAddressResolver::resolve (
 	else
 	{
 		char* end;
-		port = (ushort_t) strtol (p + 1, &end, 10);
+		port = (ushort_t)strtol(p + 1, &end, 10);
 		if (end == p)
 		{
-			callCompletionFunc (completionFuncPtr, "invalid port string");
+			callCompletionFunc(completionFuncPtr, "invalid port string");
 			return -1;
 		}
 
-		nameString.copy (name, p - name);
+		nameString.copy(name, p - name);
 	}
 
-	Req* req = AXL_MEM_NEW (Req);
+	Req* req = AXL_MEM_NEW(Req);
 	req->m_name = nameString;
 	req->m_port = port;
 	req->m_addrFamily = addrFamily;
 	req->m_completionFuncPtr = completionFuncPtr;
 
-	m_lock.lock ();
+	m_lock.lock();
 
-	uintptr_t id = m_reqMap.add (req);
-	m_pendingReqList.insertTail (req);
+	uintptr_t id = m_reqMap.add(req);
+	m_pendingReqList.insertTail(req);
 	req->m_id = id;
 
 	if (m_ioThreadFlags & IoThreadFlag_Running)
 	{
-		wakeIoThread ();
+		wakeIoThread();
 	}
 	else
 	{
 		m_ioThreadFlags |= IoThreadFlag_Running;
 
 #if (_JNC_OS_POSIX)
-		m_selfPipe.create ();
+		m_selfPipe.create();
 #endif
-		m_ioThread.start ();
+		m_ioThread.start();
 	}
 
-	m_lock.unlock ();
+	m_lock.unlock();
 
 	return id;
 }
 
 bool
 JNC_CDECL
-SocketAddressResolver::cancel (uintptr_t id)
+SocketAddressResolver::cancel(uintptr_t id)
 {
-	m_lock.lock ();
+	m_lock.lock();
 
-	Req* req = m_reqMap.findValue (id, NULL);
+	Req* req = m_reqMap.findValue(id, NULL);
 	if (!req)
 	{
-		m_lock.unlock ();
+		m_lock.unlock();
 		return false;
 	}
 
-	ASSERT (req->m_id == id);
-	m_reqMap.eraseKey (req->m_id);
-	m_activeReqList.insertTail (req);
-	m_lock.unlock ();
+	ASSERT(req->m_id == id);
+	m_reqMap.eraseKey(req->m_id);
+	m_activeReqList.insertTail(req);
+	m_lock.unlock();
 
-	callCompletionFunc (req->m_completionFuncPtr, err::SystemErrorCode_Cancelled);
+	callCompletionFunc(req->m_completionFuncPtr, err::SystemErrorCode_Cancelled);
 
-	m_lock.lock ();
-	m_activeReqList.erase (req);
-	m_lock.unlock ();
+	m_lock.lock();
+	m_activeReqList.erase(req);
+	m_lock.unlock();
 
 	return true;
 }
 
 void
 JNC_CDECL
-SocketAddressResolver::cancelAll ()
+SocketAddressResolver::cancelAll()
 {
-	err::Error error (err::SystemErrorCode_Cancelled);
+	err::Error error(err::SystemErrorCode_Cancelled);
 
-	m_lock.lock ();
+	m_lock.lock();
 
-	while (!m_activeReqList.isEmpty ())
+	while (!m_activeReqList.isEmpty())
 	{
-		Req* req = m_pendingReqList.removeTail ();
-		m_reqMap.eraseKey (req->m_id);
-		m_activeReqList.insertTail (req);
-		m_lock.unlock ();
+		Req* req = m_pendingReqList.removeTail();
+		m_reqMap.eraseKey(req->m_id);
+		m_activeReqList.insertTail(req);
+		m_lock.unlock();
 
-		callCompletionFunc (req->m_completionFuncPtr, error);
+		callCompletionFunc(req->m_completionFuncPtr, error);
 
-		m_lock.lock ();
-		m_activeReqList.erase (req);
+		m_lock.lock();
+		m_activeReqList.erase(req);
 	}
 
-	m_lock.unlock ();
+	m_lock.unlock();
 }
 
 void
-SocketAddressResolver::ioThreadFunc ()
+SocketAddressResolver::ioThreadFunc()
 {
 	for (;;)
 	{
-		m_lock.lock ();
-		while (!m_pendingReqList.isEmpty ())
+		m_lock.lock();
+		while (!m_pendingReqList.isEmpty())
 		{
 			if (m_ioThreadFlags & IoThreadFlag_Closing)
 				break;
 
-			Req* req = m_pendingReqList.removeHead ();
-			m_reqMap.eraseKey (req->m_id);
-			m_activeReqList.insertTail (req);
-			m_lock.unlock ();
+			Req* req = m_pendingReqList.removeHead();
+			m_reqMap.eraseKey(req->m_id);
+			m_activeReqList.insertTail(req);
+			m_lock.unlock();
 
-			processReq (req);
+			processReq(req);
 
-			m_lock.lock ();
-			m_activeReqList.erase (req);
+			m_lock.lock();
+			m_activeReqList.erase(req);
 		}
 
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
 			m_ioThreadFlags &= ~IoThreadFlag_Running;
-			m_lock.unlock ();
+			m_lock.unlock();
 			break;
 		}
 
-		m_lock.unlock ();
+		m_lock.unlock();
 
 #if (_JNC_OS_WIN)
-		m_ioThreadEvent.wait ();
+		m_ioThreadEvent.wait();
 #elif (_JNC_OS_POSIX)
-		char buffer [256];
-		m_selfPipe.read (buffer, sizeof (buffer));
+		char buffer[256];
+		m_selfPipe.read(buffer, sizeof(buffer));
 #endif
 	}
 
-	cancelAll ();
+	cancelAll();
 }
 
 void
-SocketAddressResolver::callCompletionFunc (
+SocketAddressResolver::callCompletionFunc(
 	FunctionPtr completionFuncPtr,
 	const axl::io::SockAddr* addressTable,
 	size_t addressCount,
 	const err::ErrorHdr* error
 	)
 {
-	JNC_BEGIN_CALL_SITE (m_runtime);
+	JNC_BEGIN_CALL_SITE(m_runtime);
 
 	DataPtr addressTablePtr = g_nullPtr;
 
 	if (addressCount)
 	{
-		Type* addressType = SocketAddress::getType (m_runtime->getModule ());
-		addressTablePtr = m_runtime->getGcHeap ()->allocateArray (addressType, addressCount);
+		Type* addressType = SocketAddress::getType(m_runtime->getModule());
+		addressTablePtr = m_runtime->getGcHeap()->allocateArray(addressType, addressCount);
 
-		SocketAddress* dst = (SocketAddress*) addressTablePtr.m_p;
+		SocketAddress* dst = (SocketAddress*)addressTablePtr.m_p;
 		const axl::io::SockAddr* src = addressTable;
 		for (size_t i = 0; i < addressCount; i++, dst++, src++)
-			dst->setSockAddr (*src);
+			dst->setSockAddr(*src);
 	}
 
-	DataPtr errorPtr = error ? memDup (error, error->m_size) : g_nullPtr;
+	DataPtr errorPtr = error ? memDup(error, error->m_size) : g_nullPtr;
 
-	callVoidFunctionPtr (completionFuncPtr, addressTablePtr, addressCount, errorPtr);
+	callVoidFunctionPtr(completionFuncPtr, addressTablePtr, addressCount, errorPtr);
 
-	JNC_END_CALL_SITE ();
+	JNC_END_CALL_SITE();
 }
 
 void
-SocketAddressResolver::processReq (Req* req)
+SocketAddressResolver::processReq(Req* req)
 {
-	sl::Array <axl::io::SockAddr> addrArray;
-	bool result = axl::io::resolveHostName (&addrArray, req->m_name, req->m_addrFamily);
+	sl::Array<axl::io::SockAddr> addrArray;
+	bool result = axl::io::resolveHostName(&addrArray, req->m_name, req->m_addrFamily);
 	if (!result)
 	{
-		callCompletionFunc (req->m_completionFuncPtr, err::getLastError ());
+		callCompletionFunc(req->m_completionFuncPtr, err::getLastError());
 		return;
 	}
 
-	uint_t port = sl::swapByteOrder16 (req->m_port);
+	uint_t port = sl::swapByteOrder16(req->m_port);
 
-	size_t count = addrArray.getCount ();
+	size_t count = addrArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		addrArray [i].m_addr_ip4.sin_port = port;
+		addrArray[i].m_addr_ip4.sin_port = port;
 
-	callCompletionFunc (req->m_completionFuncPtr, addrArray, count);
+	callCompletionFunc(req->m_completionFuncPtr, addrArray, count);
 }
 
 //..............................................................................

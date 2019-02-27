@@ -82,18 +82,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	UINT Style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_FLOAT_MULTI;
 
-	m_GlobalAstPane.Create (L"Global AST", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_GLOBALASTPANE, Style | CBRS_LEFT);
-	m_ModulePane.Create (L"Module", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_MODULEPANE, Style | CBRS_LEFT);
-	m_LlvmIrPane.Create (L"LLVM IR", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_LLVMIRPANE, Style | CBRS_LEFT);
-	m_DasmPane.Create (L"Disassembly", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_DASMPANE, Style | CBRS_LEFT);
-	m_OutputPane.Create (L"Output", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_OUTPUTPANE, Style | CBRS_LEFT);
+	m_GlobalAstPane.Create(L"Global AST", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_GLOBALASTPANE, Style | CBRS_LEFT);
+	m_ModulePane.Create(L"Module", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_MODULEPANE, Style | CBRS_LEFT);
+	m_LlvmIrPane.Create(L"LLVM IR", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_LLVMIRPANE, Style | CBRS_LEFT);
+	m_DasmPane.Create(L"Disassembly", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_DASMPANE, Style | CBRS_LEFT);
+	m_OutputPane.Create(L"Output", this, CRect (0, 0, 300, 300), TRUE, ID_VIEW_OUTPUTPANE, Style | CBRS_LEFT);
 
 	EnableDocking(CBRS_ALIGN_ANY);
-	DockPane (&m_OutputPane, AFX_IDW_DOCKBAR_BOTTOM);
-	DockPane (&m_GlobalAstPane, AFX_IDW_DOCKBAR_LEFT);
-	DockPane (&m_ModulePane, AFX_IDW_DOCKBAR_RIGHT);
-	m_LlvmIrPane.DockToWindow (&m_ModulePane, CBRS_ALIGN_BOTTOM);
-	m_DasmPane.AttachToTabWnd (&m_LlvmIrPane, DM_SHOW, FALSE);
+	DockPane(&m_OutputPane, AFX_IDW_DOCKBAR_BOTTOM);
+	DockPane(&m_GlobalAstPane, AFX_IDW_DOCKBAR_LEFT);
+	DockPane(&m_ModulePane, AFX_IDW_DOCKBAR_RIGHT);
+	m_LlvmIrPane.DockToWindow(&m_ModulePane, CBRS_ALIGN_BOTTOM);
+	m_DasmPane.AttachToTabWnd(&m_LlvmIrPane, DM_SHOW, FALSE);
 
 	return 0;
 }
@@ -131,7 +131,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 
 	theApp.m_nAppLook = id;
 
-	switch (theApp.m_nAppLook)
+	switch(theApp.m_nAppLook)
 	{
 	case ID_VIEW_APPLOOK_WIN_2000:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
@@ -174,7 +174,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 		break;
 
 	default:
-		switch (theApp.m_nAppLook)
+		switch(theApp.m_nAppLook)
 		{
 		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
@@ -227,7 +227,7 @@ void CMainFrame::OnFilePrint()
 
 void CMainFrame::OnClearOutput()
 {
-	m_OutputPane.m_LogCtrl.Clear ();
+	m_OutputPane.m_LogCtrl.Clear();
 
 }
 

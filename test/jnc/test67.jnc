@@ -21,16 +21,16 @@ struct MultiPoint
 	Point m_b;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	MultiPoint* p = new MultiPoint;
 
-	printf (
+	printf(
 		"sizeof (a) = %d; sizeof (b) = %d\n",
-		dynamic sizeof (&p.m_a),
-		dynamic sizeof (&p.m_b)
+		dynamic sizeof(&p.m_a),
+		dynamic sizeof(&p.m_b)
 		);
 
 	return 0;

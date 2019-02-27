@@ -35,54 +35,54 @@ protected:
 	Value m_validatorValue;
 
 public:
-	LeanDataPtrValidator ()
+	LeanDataPtrValidator()
 	{
 		m_rangeLength = 0;
 	}
 
 	bool
-	isDynamicRange ()
+	isDynamicRange()
 	{
 		return m_rangeLength == 0;
 	}
 
 	bool
-	hasValidatorValue ()
+	hasValidatorValue()
 	{
 		return m_validatorValue;
 	}
 
 	Value
-	getOriginValue ()
+	getOriginValue()
 	{
 		return m_originValue;
 	}
 
 	Value
-	getRangeBeginValue ()
+	getRangeBeginValue()
 	{
 		return m_rangeBeginValue;
 	}
 
 	size_t
-	getRangeLength ()
+	getRangeLength()
 	{
-		ASSERT (m_rangeLength); // should be checked with isDynamicRange ()
+		ASSERT(m_rangeLength); // should be checked with isDynamicRange ()
 		return m_rangeLength;
 	}
 
 	Value
-	getValidatorValue ();
+	getValidatorValue();
 
 protected:
 	void
-	createValidator ();
+	createValidator();
 
 	void
-	createValidator (const Value& boxValue);
+	createValidator(const Value& boxValue);
 
 	void
-	createClassFieldValidator ();
+	createClassFieldValidator();
 };
 
 //..............................................................................

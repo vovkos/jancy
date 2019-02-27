@@ -11,47 +11,47 @@
 
 dynamiclib User32
 {
-	int stdcall MessageBoxA (
+	int stdcall MessageBoxA(
 		intptr_t hwnd,
 		char const thin* text,
 		char const thin* caption,
 		int flags
 		);
 
-	int stdcall MessageBeep (int type);
+	int stdcall MessageBeep(int type);
 }
 
 dynamiclib Msvcrt
 {
-	int cdecl printf (
+	int cdecl printf(
 		char const thin* format,
 		...
 		);
 }
 
-foo (Msvcrt* msvcrt)
+foo(Msvcrt* msvcrt)
 {
-	msvcrt.lib.printf ("hui govno i muravei!\n");
+	msvcrt.lib.printf("hui govno i muravei!\n");
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	User32 user32;
-	user32.open ("user32.dll");
+	user32.open("user32.dll");
 //	user32.lib.MessageBoxA (0, "Message Text", "Message Caption", 0x00000040); // MB_ICONINFORMATION
-	user32.lib.MessageBeep (0x00000030); // MB_ICONEXCLAMATION
+	user32.lib.MessageBeep(0x00000030); // MB_ICONEXCLAMATION
 
 	Msvcrt msvcrt;
-	msvcrt.open ("msvcrt.dll");
+	msvcrt.open("msvcrt.dll");
 
-	foo (msvcrt);
+	foo(msvcrt);
 
 	return 0;
 
 catch:
-	printf ("error caught: %s\n", std.getLastError ().m_description);
+	printf("error caught: %s\n", std.getLastError ().m_description);
 	return -1;
 }
 

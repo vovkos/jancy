@@ -19,17 +19,17 @@ namespace jnc {
 //..............................................................................
 
 axl::sl::String*
-getTlsStringBuffer ()
+getTlsStringBuffer()
 {
 	static int32_t flag = 0;
-	sys::TlsSlot* slot = sl::getSimpleSingleton <sys::TlsSlot> (&flag);
+	sys::TlsSlot* slot = sl::getSimpleSingleton<sys::TlsSlot> (&flag);
 
-	sl::String* oldStringBuffer = (sl::String*) sys::getTlsMgr ()->getSlotValue (*slot).p ();
+	sl::String* oldStringBuffer = (sl::String*)sys::getTlsMgr()->getSlotValue(*slot).p();
 	if (oldStringBuffer)
 		return oldStringBuffer;
 
-	ref::Ptr <sl::String> newStringBuffer = AXL_REF_NEW (ref::Box <sl::String>);
-	sys::getTlsMgr ()->setSlotValue (*slot, newStringBuffer);
+	ref::Ptr<sl::String> newStringBuffer = AXL_REF_NEW(ref::Box<sl::String>);
+	sys::getTlsMgr()->setSlotValue(*slot, newStringBuffer);
 	return newStringBuffer;
 }
 
@@ -37,7 +37,7 @@ namespace ct {
 
 //..............................................................................
 
-Module::Module ()
+Module::Module()
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -48,34 +48,34 @@ Module::Module ()
 	m_constructor = NULL;
 	m_destructor = NULL;
 
-	finalizeConstruction ();
+	finalizeConstruction();
 }
 
 void
-Module::clear ()
+Module::clear()
 {
-	m_typeMgr.clear ();
-	m_namespaceMgr.clear ();
-	m_functionMgr.clear ();
-	m_variableMgr.clear ();
-	m_constMgr.clear ();
-	m_controlFlowMgr.clear ();
-	m_operatorMgr.clear ();
-	m_gcShadowStackMgr.clear ();
-	m_regexMgr.clear ();
-	m_unitMgr.clear ();
-	m_importMgr.clear ();
-	m_extensionLibMgr.clear ();
-	m_doxyMgr.clear ();
+	m_typeMgr.clear();
+	m_namespaceMgr.clear();
+	m_functionMgr.clear();
+	m_variableMgr.clear();
+	m_constMgr.clear();
+	m_controlFlowMgr.clear();
+	m_operatorMgr.clear();
+	m_gcShadowStackMgr.clear();
+	m_regexMgr.clear();
+	m_unitMgr.clear();
+	m_importMgr.clear();
+	m_extensionLibMgr.clear();
+	m_doxyMgr.clear();
 
-	m_name.clear ();
-	m_llvmIrBuilder.clear ();
-	m_llvmDiBuilder.clear ();
-	m_calcLayoutArray.clear ();
-	m_compileArray.clear ();
-	m_sourceList.clear ();
-	m_filePathSet.clear ();
-	m_functionMap.clear ();
+	m_name.clear();
+	m_llvmIrBuilder.clear();
+	m_llvmDiBuilder.clear();
+	m_calcLayoutArray.clear();
+	m_compileArray.clear();
+	m_sourceList.clear();
+	m_filePathSet.clear();
+	m_functionMap.clear();
 
 	if (m_llvmExecutionEngine)
 		delete m_llvmExecutionEngine;
@@ -96,12 +96,12 @@ Module::clear ()
 }
 
 void
-Module::initialize (
+Module::initialize(
 	const sl::StringRef& name,
 	uint_t compileFlags
 	)
 {
-	clear ();
+	clear();
 
 #if (_AXL_GCC_ASAN)
 	// GC guard page safe points do not work with address sanitizer
@@ -117,18 +117,18 @@ Module::initialize (
 	m_compileState = ModuleCompileState_Idle;
 
 	m_llvmContext = new llvm::LLVMContext;
-	m_llvmModule = new llvm::Module ("jncModule", *m_llvmContext);
+	m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
 
-	m_llvmIrBuilder.create ();
+	m_llvmIrBuilder.create();
 
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
-		m_llvmDiBuilder.create ();
+		m_llvmDiBuilder.create();
 
 	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
 	{
-		m_extensionLibMgr.addStaticLib (jnc_CoreLib_getLib ());
-		m_variableMgr.createStdVariables ();
-		m_namespaceMgr.addStdItems ();
+		m_extensionLibMgr.addStaticLib(jnc_CoreLib_getLib());
+		m_variableMgr.createStdVariables();
+		m_namespaceMgr.addStdItems();
 	}
 }
 
@@ -167,30 +167,30 @@ extern "C" int64_t _aullrem (int64_t, int64_t);
 #endif
 
 bool
-Module::createLlvmExecutionEngine ()
+Module::createLlvmExecutionEngine()
 {
-	ASSERT (!m_llvmExecutionEngine);
+	ASSERT(!m_llvmExecutionEngine);
 
 #if (_JNC_CPU_ARM32 || _JNC_CPU_ARM64)
 	// disable the GlobalMerge pass (on by default) on ARM because
 	// it will dangle GlobalVariable::m_llvmVariable pointers
 
-	llvm::StringMap <llvm::cl::Option*> options;
-	llvm::cl::getRegisteredOptions (options);
-	llvm::cl::opt <bool>* enableMerge = (llvm::cl::opt <bool>*) options.find ("global-merge")->second;
-	ASSERT (llvm::isa <llvm::cl::opt <bool> > (enableMerge));
+	llvm::StringMap<llvm::cl::Option*> options;
+	llvm::cl::getRegisteredOptions(options);
+	llvm::cl::opt<bool>* enableMerge = (llvm::cl::opt<bool>*) options.find("global-merge")->second;
+	ASSERT(llvm::isa<llvm::cl::opt<bool> > (enableMerge));
 
-	enableMerge->setValue (false);
+	enableMerge->setValue(false);
 #endif
 
 #if (LLVM_VERSION < 0x0306)
-	llvm::EngineBuilder engineBuilder (m_llvmModule);
+	llvm::EngineBuilder engineBuilder(m_llvmModule);
 #else
-	llvm::EngineBuilder engineBuilder (std::move (std::unique_ptr <llvm::Module> (m_llvmModule)));
+	llvm::EngineBuilder engineBuilder(std::move(std::unique_ptr<llvm::Module> (m_llvmModule)));
 #endif
 
 	std::string errorString;
-	engineBuilder.setErrorStr (&errorString);
+	engineBuilder.setErrorStr(&errorString);
 	engineBuilder.setEngineKind(llvm::EngineKind::JIT);
 
 	llvm::TargetOptions targetOptions;
@@ -201,54 +201,54 @@ Module::createLlvmExecutionEngine ()
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr (this);
+		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr(this);
 #if (LLVM_VERSION < 0x0306)
-		engineBuilder.setUseMCJIT (true);
-		engineBuilder.setMCJITMemoryManager (jitMemoryMgr);
+		engineBuilder.setUseMCJIT(true);
+		engineBuilder.setMCJITMemoryManager(jitMemoryMgr);
 		targetOptions.JITEmitDebugInfo = true;
 #elif (LLVM_VERSION < 0x0307)
-		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
+		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
 		targetOptions.JITEmitDebugInfo = true;
 #else
-		engineBuilder.setMCJITMemoryManager (std::move (std::unique_ptr <JitMemoryMgr> (jitMemoryMgr)));
+		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
 #endif
 
-		m_functionMap ["memset"] = (void*) memset;
-		m_functionMap ["memcpy"] = (void*) memcpy;
-		m_functionMap ["memmove"] = (void*) memmove;
+		m_functionMap["memset"] = (void*) memset;
+		m_functionMap["memcpy"] = (void*) memcpy;
+		m_functionMap["memmove"] = (void*) memmove;
 
 #if (JNC_PTR_BITS == 32)
 #	if (_JNC_OS_POSIX)
-		m_functionMap ["__divdi3"] = (void*) __divdi3;
-		m_functionMap ["__moddi3"] = (void*) __moddi3;
-		m_functionMap ["__udivdi3"] = (void*) __udivdi3;
-		m_functionMap ["__umoddi3"] = (void*) __umoddi3;
+		m_functionMap["__divdi3"] = (void*) __divdi3;
+		m_functionMap["__moddi3"] = (void*) __moddi3;
+		m_functionMap["__udivdi3"] = (void*) __udivdi3;
+		m_functionMap["__umoddi3"] = (void*) __umoddi3;
 #		if (_JNC_CPU_ARM32)
-		m_functionMap ["__aeabi_idiv"] = (void*) __aeabi_idiv;
-		m_functionMap ["__aeabi_uidiv"] = (void*) __aeabi_uidiv;
-		m_functionMap ["__aeabi_ldivmod"] = (void*) __aeabi_ldivmod;
-		m_functionMap ["__aeabi_uldivmod"] = (void*) __aeabi_uldivmod;
-		m_functionMap ["__aeabi_i2f"] = (void*) __aeabi_i2f;
-		m_functionMap ["__aeabi_l2f"] = (void*) __aeabi_l2f;
-		m_functionMap ["__aeabi_ui2f"] = (void*) __aeabi_ui2f;
-		m_functionMap ["__aeabi_ul2f"] = (void*) __aeabi_ul2f;
-		m_functionMap ["__aeabi_i2d"] = (void*) __aeabi_i2d;
-		m_functionMap ["__aeabi_l2d"] = (void*) __aeabi_l2d;
-		m_functionMap ["__aeabi_ui2d"] = (void*) __aeabi_ui2d;
-		m_functionMap ["__aeabi_ul2d"] = (void*) __aeabi_ul2d;
+		m_functionMap["__aeabi_idiv"] = (void*) __aeabi_idiv;
+		m_functionMap["__aeabi_uidiv"] = (void*) __aeabi_uidiv;
+		m_functionMap["__aeabi_ldivmod"] = (void*) __aeabi_ldivmod;
+		m_functionMap["__aeabi_uldivmod"] = (void*) __aeabi_uldivmod;
+		m_functionMap["__aeabi_i2f"] = (void*) __aeabi_i2f;
+		m_functionMap["__aeabi_l2f"] = (void*) __aeabi_l2f;
+		m_functionMap["__aeabi_ui2f"] = (void*) __aeabi_ui2f;
+		m_functionMap["__aeabi_ul2f"] = (void*) __aeabi_ul2f;
+		m_functionMap["__aeabi_i2d"] = (void*) __aeabi_i2d;
+		m_functionMap["__aeabi_l2d"] = (void*) __aeabi_l2d;
+		m_functionMap["__aeabi_ui2d"] = (void*) __aeabi_ui2d;
+		m_functionMap["__aeabi_ul2d"] = (void*) __aeabi_ul2d;
 #		endif
 #	elif (_JNC_OS_WIN)
-		m_functionMap ["_alldiv"] = (void*) _alldiv;
-		m_functionMap ["_allrem"] = (void*) _allrem;
-		m_functionMap ["_aulldiv"] = (void*) _aulldiv;
-		m_functionMap ["_aullrem"] = (void*) _aullrem;
+		m_functionMap["_alldiv"] = (void*) _alldiv;
+		m_functionMap["_allrem"] = (void*) _allrem;
+		m_functionMap["_aulldiv"] = (void*) _aulldiv;
+		m_functionMap["_aullrem"] = (void*) _aullrem;
 #	endif
 #endif
 	}
 	else
 	{
 #if (LLVM_VERSION >= 0x0306) // legacy JIT is gone in LLVM 3.6
-		ASSERT (false); // should have been checked earlier
+		ASSERT(false); // should have been checked earlier
 #else
 #	if (_JNC_OS_WIN && _JNC_CPU_AMD64)
 		// legacy JIT uses relative call to __chkstk
@@ -261,48 +261,48 @@ Module::createLlvmExecutionEngine ()
 		// therefore, a simple workaround is used: allocate a proxy for __chkstk
 		// which would reside close enough to the generated code
 
-		void* chkstk = ::GetProcAddress (::GetModuleHandleA ("ntdll.dll"), "__chkstk");
+		void* chkstk = ::GetProcAddress(::GetModuleHandleA("ntdll.dll"), "__chkstk");
 		if (!chkstk)
 		{
-			err::setFormatStringError ("__chkstk is not found");
+			err::setFormatStringError("__chkstk is not found");
 			return false;
 		}
 
-		llvm::JITMemoryManager* jitMemoryMgr = llvm::JITMemoryManager::CreateDefaultMemManager ();
-		engineBuilder.setJITMemoryManager (jitMemoryMgr);
-		uchar_t* p = jitMemoryMgr->allocateCodeSection (128, 0, 0, llvm::StringRef ());
+		llvm::JITMemoryManager* jitMemoryMgr = llvm::JITMemoryManager::CreateDefaultMemManager();
+		engineBuilder.setJITMemoryManager(jitMemoryMgr);
+		uchar_t* p = jitMemoryMgr->allocateCodeSection(128, 0, 0, llvm::StringRef());
 
 		// mov r11, __chkstk
 
-		p [0] = 0x49;
-		p [1] = 0xbb;
+		p[0] = 0x49;
+		p[1] = 0xbb;
 		*(void**) (p + 2) = chkstk;
 
 		// jmp r11
 
-		p [10] = 0x41;
-		p [11] = 0xff;
-		p [12] = 0xe3;
+		p[10] = 0x41;
+		p[11] = 0xff;
+		p[12] = 0xe3;
 
-		llvm::sys::DynamicLibrary::AddSymbol ("__chkstk", p);
+		llvm::sys::DynamicLibrary::AddSymbol("__chkstk", p);
 #	endif
 
-		engineBuilder.setUseMCJIT (false);
+		engineBuilder.setUseMCJIT(false);
 #endif
 	}
 
-	engineBuilder.setTargetOptions (targetOptions);
+	engineBuilder.setTargetOptions(targetOptions);
 
 #if (_JNC_CPU_X86)
-	engineBuilder.setMArch ("x86");
+	engineBuilder.setMArch("x86");
 #endif
 
-	sys::ScopedTlsPtrSlot <Module> scopeModule (this); // for GcShadowStack
+	sys::ScopedTlsPtrSlot<Module> scopeModule(this); // for GcShadowStack
 
-	m_llvmExecutionEngine = engineBuilder.create ();
+	m_llvmExecutionEngine = engineBuilder.create();
 	if (!m_llvmExecutionEngine)
 	{
-		err::setFormatStringError ("cannot create execution engine: %s", errorString.c_str());
+		err::setFormatStringError("cannot create execution engine: %s", errorString.c_str());
 		return false;
 	}
 
@@ -310,43 +310,43 @@ Module::createLlvmExecutionEngine ()
 }
 
 bool
-Module::mapVariable (
+Module::mapVariable(
 	Variable* variable,
 	void* p
 	)
 {
-	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable ();
+	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable();
 	if (!llvmVariable)
 	{
-		err::setFormatStringError ("attempt to map non-global variable: %s", variable->getQualifiedName ().sz ());
+		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName ().sz ());
 		return false;
 	}
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		std::string name = llvmVariable->getName ();
+		std::string name = llvmVariable->getName();
 		name += ".mapping";
 
-		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable (
+		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable(
 			*m_llvmModule,
-			variable->getType ()->getLlvmType (),
+			variable->getType()->getLlvmType(),
 			false,
 			llvm::GlobalVariable::ExternalWeakLinkage,
 			NULL,
 			name
 			);
 
-		llvmVariable->replaceAllUsesWith (llvmMapping);
-		llvmVariable->eraseFromParent ();
+		llvmVariable->replaceAllUsesWith(llvmMapping);
+		llvmVariable->eraseFromParent();
 
 #if (LLVM_VERSION >= 0x0400)
-		ASSERT (m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping (llvmMapping, p);
+		ASSERT(m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping(llvmMapping, p);
 #else
-		sl::StringHashTableIterator <void*> it = m_functionMap.visit (llvmMapping->getName ().data ());
+		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmMapping->getName().data());
 		if (it->m_value)
 		{
-			err::setFormatStringError ("attempt to re-map variable: %s", variable->getQualifiedName ().sz ());
+			err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName ().sz ());
 			return false;
 		}
 
@@ -355,27 +355,27 @@ Module::mapVariable (
 	}
 	else
 	{
-		ASSERT (m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping (llvmVariable, p);
+		ASSERT(m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping(llvmVariable, p);
 	}
 
 	return true;
 }
 
 bool
-Module::mapFunction (
+Module::mapFunction(
 	Function* function,
 	void* p
 	)
 {
-	llvm::Function* llvmFunction = function->getLlvmFunction ();
+	llvm::Function* llvmFunction = function->getLlvmFunction();
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		sl::StringHashTableIterator <void*> it = m_functionMap.visit (llvmFunction->getName ().data ());
+		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
 		if (it->m_value)
 		{
-			err::setFormatStringError ("attempt to re-map function: %s", function->getQualifiedName ().sz ());
+			err::setFormatStringError("attempt to re-map function: %s", function->getQualifiedName ().sz ());
 			return false;
 		}
 
@@ -383,8 +383,8 @@ Module::mapFunction (
 	}
 	else
 	{
-		ASSERT (m_llvmExecutionEngine);
-		m_llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
+		ASSERT(m_llvmExecutionEngine);
+		m_llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
 	}
 
 	function->m_machineCode = p;
@@ -392,63 +392,63 @@ Module::mapFunction (
 }
 
 void*
-Module::findFunctionMapping (const sl::StringRef& name)
+Module::findFunctionMapping(const sl::StringRef& name)
 {
-	sl::StringHashTableIterator <void*> it;
+	sl::StringHashTableIterator<void*> it;
 
 #if (_JNC_OS_WIN && _JNC_CPU_X86)
-	bool isUnderscorePrefix = name.isPrefix (sl::StringRef ("_", 1, true));
+	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_", 1, true));
 #else
-	bool isUnderscorePrefix = name.isPrefix (sl::StringRef ("_?", 2, true));
+	bool isUnderscorePrefix = name.isPrefix(sl::StringRef("_?", 2, true));
 #endif
 
 	it = isUnderscorePrefix ?
-		m_functionMap.find (name.getSubString (1)) :
-		m_functionMap.find (name);
+		m_functionMap.find(name.getSubString(1)) :
+		m_functionMap.find(name);
 
 	return it ? it->m_value : NULL;
 }
 
 bool
-Module::setFunctionPointer (
+Module::setFunctionPointer(
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const sl::StringRef& name,
 	void* p
 	)
 {
-	Function* function = m_namespaceMgr.getGlobalNamespace ()->getFunctionByName (name);
+	Function* function = m_namespaceMgr.getGlobalNamespace()->getFunctionByName(name);
 	if (!function)
 		return false;
 
-	llvm::Function* llvmFunction = function->getLlvmFunction ();
+	llvm::Function* llvmFunction = function->getLlvmFunction();
 	if (!llvmFunction)
 		return false;
 
-	llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
+	llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
 	return true;
 }
 
 bool
-Module::setFunctionPointer (
+Module::setFunctionPointer(
 	llvm::ExecutionEngine* llvmExecutionEngine,
 	const QualifiedName& name,
 	void* p
 	)
 {
-	ModuleItem* item = m_namespaceMgr.getGlobalNamespace ()->findItem (name);
-	if (!item || item->getItemKind () != ModuleItemKind_Function)
+	ModuleItem* item = m_namespaceMgr.getGlobalNamespace()->findItem(name);
+	if (!item || item->getItemKind() != ModuleItemKind_Function)
 		return false;
 
-	llvm::Function* llvmFunction = ((Function*) item)->getLlvmFunction ();
+	llvm::Function* llvmFunction = ((Function*)item)->getLlvmFunction();
 	if (!llvmFunction)
 		return false;
 
-	llvmExecutionEngine->addGlobalMapping (llvmFunction, p);
+	llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
 	return true;
 }
 
 void
-Module::markForLayout (
+Module::markForLayout(
 	ModuleItem* item,
 	bool isForced
 	)
@@ -457,21 +457,21 @@ Module::markForLayout (
 		return;
 
 	item->m_flags |= ModuleItemFlag_NeedLayout;
-	m_calcLayoutArray.append (item);
+	m_calcLayoutArray.append(item);
 }
 
 void
-Module::markForCompile (ModuleItem* item)
+Module::markForCompile(ModuleItem* item)
 {
 	if (item->m_flags & ModuleItemFlag_NeedCompile)
 		return;
 
 	item->m_flags |= ModuleItemFlag_NeedCompile;
-	m_compileArray.append (item);
+	m_compileArray.append(item);
 }
 
 bool
-Module::parse (
+Module::parse(
 	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& source
@@ -479,26 +479,26 @@ Module::parse (
 {
 	bool result;
 
-	Unit* unit = m_unitMgr.createUnit (lib, fileName);
-	m_unitMgr.setCurrentUnit (unit);
+	Unit* unit = m_unitMgr.createUnit(lib, fileName);
+	m_unitMgr.setCurrentUnit(unit);
 
 	Lexer lexer;
-	lexer.create (fileName, source);
+	lexer.create(fileName, source);
 
 	if (m_compileFlags & ModuleCompileFlag_Documentation)
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
 
-	Parser parser (this);
-	parser.create (Parser::StartSymbol, true);
+	Parser parser(this);
+	parser.create(Parser::StartSymbol, true);
 
 	for (;;)
 	{
-		const Token* token = lexer.getToken ();
-		switch (token->m_token)
+		const Token* token = lexer.getToken();
+		switch(token->m_token)
 		{
 		case TokenKind_Error:
-			err::setFormatStringError ("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-			lex::pushSrcPosError (fileName, token->m_pos);
+			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+			lex::pushSrcPosError(fileName, token->m_pos);
 			return false;
 
 		case TokenKind_DoxyComment1:
@@ -511,13 +511,13 @@ Module::parse (
 				bool isSingleLine = token->m_token <= TokenKind_DoxyComment2;
 				ModuleItem* lastDeclaredItem = NULL;
 
-				if (isSingleLine && !comment.isEmpty () && comment [0] == '<')
+				if (isSingleLine && !comment.isEmpty() && comment[0] == '<')
 				{
 					lastDeclaredItem = parser.m_lastDeclaredItem;
-					comment = comment.getSubString (1);
+					comment = comment.getSubString(1);
 				}
 
-				parser.m_doxyParser.addComment (
+				parser.m_doxyParser.addComment(
 					comment,
 					token->m_pos,
 					isSingleLine,
@@ -527,10 +527,10 @@ Module::parse (
 			break;
 
 		default:
-			result = parser.parseToken (token);
+			result = parser.parseToken(token);
 			if (!result)
 			{
-				lex::ensureSrcPosError (fileName, token->m_pos);
+				lex::ensureSrcPosError(fileName, token->m_pos);
 				return false;
 			}
 		}
@@ -538,52 +538,52 @@ Module::parse (
 		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
 			break;
 
-		lexer.nextToken ();
+		lexer.nextToken();
 	}
 
-	m_namespaceMgr.getGlobalNamespace ()->getUsingSet ()->clear ();
+	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();
 
 	return true;
 }
 
 bool
-Module::parseFile (const sl::StringRef& fileName)
+Module::parseFile(const sl::StringRef& fileName)
 {
-	sl::String filePath = io::getFullFilePath (fileName);
+	sl::String filePath = io::getFullFilePath(fileName);
 
-	sl::StringHashTableIterator <bool> it = m_filePathSet.find (filePath);
+	sl::StringHashTableIterator<bool> it = m_filePathSet.find(filePath);
 	if (it)
 		return true; // already parsed
 
 	io::SimpleMappedFile file;
-	bool result = file.open (filePath, io::FileFlag_ReadOnly);
+	bool result = file.open(filePath, io::FileFlag_ReadOnly);
 	if (!result)
 		return false;
 
-	size_t length = file.getMappingSize ();
-	sl::String source ((const char*) file.p (), length);
+	size_t length = file.getMappingSize();
+	sl::String source((const char*) file.p(), length);
 
-	m_sourceList.insertTail (source);
-	m_filePathSet.visit (filePath);
+	m_sourceList.insertTail(source);
+	m_filePathSet.visit(filePath);
 
-	return parse (NULL, filePath, source);
+	return parse(NULL, filePath, source);
 }
 
 bool
-Module::parseImports ()
+Module::parseImports()
 {
-	sl::ConstList <Import> importList = m_importMgr.getImportList ();
-	sl::ConstIterator <Import> importIt = importList.getHead ();
+	sl::ConstList<Import> importList = m_importMgr.getImportList();
+	sl::ConstIterator<Import> importIt = importList.getHead();
 
 	for (; importIt; importIt++)
 	{
 		bool result = importIt->m_importKind == ImportKind_Source ?
-			parse (
+			parse(
 				importIt->m_lib,
 				importIt->m_filePath,
 				importIt->m_source
 				) :
-			parseFile (importIt->m_filePath);
+			parseFile(importIt->m_filePath);
 
 		if (!result)
 			return false;
@@ -593,16 +593,16 @@ Module::parseImports ()
 }
 
 bool
-Module::link ()
+Module::link()
 {
 	bool result;
 
-	ASSERT (m_compileState < ModuleCompileState_Linked);
+	ASSERT(m_compileState < ModuleCompileState_Linked);
 
 	result =
-		m_typeMgr.resolveImportTypes () &&
-		m_namespaceMgr.resolveImportUsingSets () &&
-		m_namespaceMgr.resolveOrphans ();
+		m_typeMgr.resolveImportTypes() &&
+		m_namespaceMgr.resolveImportUsingSets() &&
+		m_namespaceMgr.resolveOrphans();
 
 	if (!result)
 		return false;
@@ -612,19 +612,19 @@ Module::link ()
 }
 
 bool
-Module::calcLayout ()
+Module::calcLayout()
 {
 	bool result;
 
-	ASSERT (m_compileState < ModuleCompileState_LayoutCalculated);
+	ASSERT(m_compileState < ModuleCompileState_LayoutCalculated);
 	if (m_compileState < ModuleCompileState_Linked)
 	{
-		result = link ();
+		result = link();
 		if (!result)
 			return false;
 	}
 
-	result = processCalcLayoutArray ();
+	result = processCalcLayoutArray();
 	if (!result)
 		return false;
 
@@ -633,57 +633,57 @@ Module::calcLayout ()
 }
 
 bool
-Module::compile ()
+Module::compile()
 {
 	bool result;
 
-	ASSERT (m_compileState < ModuleCompileState_Compiled);
+	ASSERT(m_compileState < ModuleCompileState_Compiled);
 	if (m_compileState < ModuleCompileState_LayoutCalculated)
 	{
-		result = calcLayout ();
+		result = calcLayout();
 		if (!result)
 			return false;
 	}
 
 	result =
-		createConstructorDestructor () &&
-		processCompileArray () &&
-		m_variableMgr.createTlsStructType ();
+		createConstructorDestructor() &&
+		processCompileArray() &&
+		m_variableMgr.createTlsStructType();
 
 	if (!result)
 		return false;
 
-	m_functionMgr.injectTlsPrologues ();
-	m_functionMgr.replaceAsyncAllocas ();
+	m_functionMgr.injectTlsPrologues();
+	m_functionMgr.replaceAsyncAllocas();
 
-	result = m_controlFlowMgr.deleteUnreachableBlocks ();
+	result = m_controlFlowMgr.deleteUnreachableBlocks();
 	if (!result)
 		return false;
 
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
-		m_llvmDiBuilder.finalize ();
+		m_llvmDiBuilder.finalize();
 
 	m_compileState = ModuleCompileState_Compiled;
 	return true;
 }
 
 bool
-Module::jit ()
+Module::jit()
 {
 	bool result;
 
-	ASSERT (m_compileState < ModuleCompileState_Jitted);
+	ASSERT(m_compileState < ModuleCompileState_Jitted);
 	if (m_compileState < ModuleCompileState_Compiled)
 	{
-		result = compile ();
+		result = compile();
 		if (!result)
 			return false;
 	}
 
 	result =
-		createLlvmExecutionEngine () &&
-		m_extensionLibMgr.mapAddresses () &&
-		m_functionMgr.jitFunctions ();
+		createLlvmExecutionEngine() &&
+		m_extensionLibMgr.mapAddresses() &&
+		m_functionMgr.jitFunctions();
 
 	if (!result)
 		return false;
@@ -693,19 +693,19 @@ Module::jit ()
 }
 
 bool
-Module::processCalcLayoutArray ()
+Module::processCalcLayoutArray()
 {
 	bool result;
 
-	while (!m_calcLayoutArray.isEmpty ()) // new items could be added in process
+	while (!m_calcLayoutArray.isEmpty()) // new items could be added in process
 	{
-		sl::Array <ModuleItem*> calcLayoutArray = m_calcLayoutArray;
-		m_calcLayoutArray.clear ();
+		sl::Array<ModuleItem*> calcLayoutArray = m_calcLayoutArray;
+		m_calcLayoutArray.clear();
 
-		size_t count = calcLayoutArray.getCount ();
-		for (size_t i = 0; i < calcLayoutArray.getCount (); i++)
+		size_t count = calcLayoutArray.getCount();
+		for (size_t i = 0; i < calcLayoutArray.getCount(); i++)
 		{
-			result = calcLayoutArray [i]->ensureLayout ();
+			result = calcLayoutArray[i]->ensureLayout();
 			if (!result)
 				return false;
 		}
@@ -715,23 +715,23 @@ Module::processCalcLayoutArray ()
 }
 
 bool
-Module::processCompileArray ()
+Module::processCompileArray()
 {
 	bool result;
 
-	while (!m_compileArray.isEmpty ()) // new items could be added in process
+	while (!m_compileArray.isEmpty()) // new items could be added in process
 	{
-		sl::Array <ModuleItem*> compileArray = m_compileArray;
-		m_compileArray.clear ();
+		sl::Array<ModuleItem*> compileArray = m_compileArray;
+		m_compileArray.clear();
 
-		size_t count = compileArray.getCount ();
-		for (size_t i = 0; i < compileArray.getCount (); i++)
+		size_t count = compileArray.getCount();
+		for (size_t i = 0; i < compileArray.getCount(); i++)
 		{
-			result = compileArray [i]->compile ();
+			result = compileArray[i]->compile();
 			if (!result)
 				return false;
 
-			ASSERT (!m_namespaceMgr.getCurrentScope ());
+			ASSERT(!m_namespaceMgr.getCurrentScope());
 		}
 	}
 
@@ -739,21 +739,21 @@ Module::processCompileArray ()
 }
 
 bool
-Module::postParseStdItem ()
+Module::postParseStdItem()
 {
-	bool result = m_typeMgr.resolveImportTypes ();
+	bool result = m_typeMgr.resolveImportTypes();
 	if (!result)
 		return false;
 
 	if (m_compileState >= ModuleCompileState_LayoutCalculated)
 	{
-		result = processCalcLayoutArray ();
+		result = processCalcLayoutArray();
 		if (!result)
 			return false;
 
 		if (m_compileState >= ModuleCompileState_Compiled)
 		{
-			result = processCompileArray ();
+			result = processCompileArray();
 			if (!result)
 				return false;
 		}
@@ -762,78 +762,78 @@ Module::postParseStdItem ()
 	return true;
 }
 bool
-Module::createConstructorDestructor ()
+Module::createConstructorDestructor()
 {
-	ASSERT (!m_constructor && !m_destructor);
+	ASSERT(!m_constructor && !m_destructor);
 
 	bool result;
 
 	bool hasDestructors = false;
-	sl::ConstList <Unit> unitList = m_unitMgr.getUnitList ();
+	sl::ConstList<Unit> unitList = m_unitMgr.getUnitList();
 
 	// create constructor unconditionally -- static variable might appear during compilation
 
-	FunctionType* type = (FunctionType*) m_typeMgr.getStdType (StdType_SimpleFunction);
-	Function* function = m_functionMgr.createFunction (FunctionKind_StaticConstructor, type);
+	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
+	Function* function = m_functionMgr.createFunction(FunctionKind_StaticConstructor, type);
 	function->m_storageKind = StorageKind_Static;
 	function->m_tag = "module.construct";
 
 	m_constructor = function;
 
-	m_functionMgr.internalPrologue (function);
+	m_functionMgr.internalPrologue(function);
 
-	result = m_variableMgr.allocateInitializeGlobalVariables ();
+	result = m_variableMgr.allocateInitializeGlobalVariables();
 	if (!result)
 		return false;
 
-	m_functionMgr.callStaticConstructors ();
+	m_functionMgr.callStaticConstructors();
 
-	sl::ConstIterator <Unit> it = unitList.getHead ();
+	sl::ConstIterator<Unit> it = unitList.getHead();
 	for (; it; it++)
 	{
-		Function* constructor = it->getConstructor ();
-		Function* destructor = it->getDestructor ();
+		Function* constructor = it->getConstructor();
+		Function* destructor = it->getDestructor();
 
 		if (destructor)
 			hasDestructors = true;
 
 		if (constructor)
-			m_llvmIrBuilder.createCall (constructor, constructor->getType (), NULL);
+			m_llvmIrBuilder.createCall(constructor, constructor->getType(), NULL);
 	}
 
-	m_functionMgr.internalEpilogue ();
+	m_functionMgr.internalEpilogue();
 
 	if (!hasDestructors)
 		return true;
 
-	function = m_functionMgr.createFunction (FunctionKind_StaticDestructor, type);
+	function = m_functionMgr.createFunction(FunctionKind_StaticDestructor, type);
 	function->m_storageKind = StorageKind_Static;
 	function->m_tag = "module.destruct";
 
 	m_destructor = function;
 
-	m_functionMgr.internalPrologue (function);
+	m_functionMgr.internalPrologue(function);
 
-	it = unitList.getTail ();
+	it = unitList.getTail();
 	for (; it; it--)
 	{
-		Function* destructor = it->getDestructor ();
+		Function* destructor = it->getDestructor();
 		if (destructor)
-			m_llvmIrBuilder.createCall (destructor, destructor->getType (), NULL);
+			m_llvmIrBuilder.createCall(destructor, destructor->getType(), NULL);
 	}
 
-	m_functionMgr.internalEpilogue ();
+	m_functionMgr.internalEpilogue();
 
 	return true;
 }
 
 sl::String
-Module::getLlvmIrString ()
+Module::getLlvmIrString()
 {
 	::std::string string;
-	llvm::raw_string_ostream stream (string);
-	m_llvmModule->print (stream, NULL);
-	return string.c_str ();
+	llvm::raw_string_ostream stream(string);
+	m_llvmModule->print(stream, NULL);
+	return string.c_str();
 }
 
 //..............................................................................

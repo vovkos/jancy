@@ -15,7 +15,7 @@
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	MyTextEdit,
 	"TextEdit",
 	g_myLibGuid,
@@ -23,23 +23,23 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	MyTextEdit,
 	NULL)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (MyTextEdit)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <MyTextEdit>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <MyTextEdit>)
-	JNC_MAP_PROPERTY ("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(MyTextEdit)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<MyTextEdit>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<MyTextEdit>)
+	JNC_MAP_PROPERTY("m_text", &MyTextEdit::getText, &MyTextEdit::setText)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-MyTextEdit::MyTextEdit ():
-	MyWidget (new QLineEdit)
+MyTextEdit::MyTextEdit():
+	MyWidget(new QLineEdit)
 {
-	m_qtLineEdit = (QLineEdit*) m_handle;
+	m_qtLineEdit = (QLineEdit*)m_handle;
 }
 
-MyTextEdit::~MyTextEdit ()
+MyTextEdit::~MyTextEdit()
 {
-	if (!m_qtLineEdit->parent ())
+	if (!m_qtLineEdit->parent())
 		delete m_qtLineEdit;
 
 	delete m_onTextChangedBridge;

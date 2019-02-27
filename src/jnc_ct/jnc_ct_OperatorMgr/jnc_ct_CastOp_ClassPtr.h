@@ -23,14 +23,14 @@ class Cast_ClassPtr: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -38,7 +38,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

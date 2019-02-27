@@ -11,9 +11,9 @@
 
 class Foo
 {
-	close ()
+	close()
 	{
-		printf ("Foo.close ()\n");
+		printf("Foo.close ()\n");
 	}
 
 	alias dispose = close;
@@ -21,9 +21,9 @@ class Foo
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	disposable Foo foo;
 

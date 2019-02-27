@@ -13,27 +13,27 @@
 
 class C1
 {
-	virtual foo ()
+	virtual foo()
 	{
-		printf ("C1.foo ()\n");
+		printf("C1.foo ()\n");
 	}
 }
 
 class C2: C1
 {
-	override foo ()
+	override foo()
 	{
-		basetype1.foo ();
-		printf ("C2.foo ()\n");
+		basetype1.foo();
+		printf("C2.foo ()\n");
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	C2 c;
-	c.foo ();
+	c.foo();
 
 	return 0;
 }

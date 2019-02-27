@@ -36,14 +36,14 @@ enum CastKind
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 err::Error
-setCastError (
+setCastError(
 	const Value& opValue,
 	Type* type,
 	CastKind castKind = CastKind_None
 	);
 
 err::Error
-setUnsafeCastError (
+setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
 	);
@@ -53,7 +53,7 @@ setUnsafeCastError (
 // these are sometimes needed for inlining casts before jnc_Module.h is include
 
 bool
-castOperator (
+castOperator(
 	Module* module,
 	const Value& opValue,
 	Type* type,
@@ -62,13 +62,13 @@ castOperator (
 
 JNC_INLINE
 bool
-castOperator (
+castOperator(
 	Module* module,
 	Value* opValue,
 	Type* type
 	)
 {
-	return castOperator (module, *opValue, type, opValue);
+	return castOperator(module, *opValue, type, opValue);
 }
 
 //..............................................................................
@@ -82,30 +82,30 @@ protected:
 	uint_t m_opFlags;
 
 public:
-	CastOperator ();
+	CastOperator();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	int
-	getOpFlags ()
+	getOpFlags()
 	{
 		return m_opFlags;
 	}
 
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		) = 0;
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -116,14 +116,14 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
 		) = 0;
 
 	bool
-	cast (
+	cast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -139,7 +139,7 @@ class Cast_Default: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -149,13 +149,13 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
 		)
 	{
-		setCastError (opValue, type);
+		setCastError(opValue, type);
 		return false;
 	}
 };
@@ -169,17 +169,17 @@ class Cast_Void: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
 	{
-		return opValue.getType ()->cmp (type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
+		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -190,13 +190,13 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
 		)
 	{
-		resultValue->setVoid (m_module);
+		resultValue->setVoid(m_module);
 		return true;
 	}
 };
@@ -210,17 +210,17 @@ class Cast_Copy: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
 	{
-		return opValue.getType ()->cmp (type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
+		return opValue.getType()->cmp(type) == 0 ? CastKind_Identitiy : CastKind_Implicit;
 	}
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -228,7 +228,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -244,14 +244,14 @@ class Cast_Master: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -259,7 +259,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -267,7 +267,7 @@ public:
 
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		) = 0;
@@ -282,14 +282,14 @@ class Cast_SuperMaster: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -297,7 +297,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -305,7 +305,7 @@ public:
 
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** operator1,

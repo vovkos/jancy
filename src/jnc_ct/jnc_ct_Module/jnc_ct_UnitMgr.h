@@ -38,61 +38,61 @@ protected:
 	Function* m_destructor;
 
 public:
-	Unit ();
+	Unit();
 
 	Module*
-	getModule () const
+	getModule() const
 	{
 		return m_module;
 	}
 
 	ExtensionLib*
-	getLib () const
+	getLib() const
 	{
 		return m_lib;
 	}
 
 	const sl::String&
-	getFilePath () const
+	getFilePath() const
 	{
 		return m_filePath;
 	}
 
 	const sl::String&
-	getFileName () const
+	getFileName() const
 	{
 		return m_fileName;
 	}
 
 	const sl::String&
-	getDir () const
+	getDir() const
 	{
 		return m_dir;
 	}
 
 	llvm::DIFile_vn
-	getLlvmDiFile () const
+	getLlvmDiFile() const
 	{
 		return m_llvmDiFile;
 	}
 
 	Function*
-	getConstructor () const
+	getConstructor() const
 	{
 		return m_constructor;
 	}
 
 	bool
-	setConstructor (Function* function);
+	setConstructor(Function* function);
 
 	Function*
-	getDestructor () const
+	getDestructor() const
 	{
 		return m_destructor;
 	}
 
 	bool
-	setDestructor (Function* function);
+	setDestructor(Function* function);
 };
 
 //..............................................................................
@@ -101,42 +101,42 @@ class UnitMgr
 {
 protected:
 	Module* m_module;
-	sl::List <Unit> m_unitList;
+	sl::List<Unit> m_unitList;
 	Unit* m_currentUnit;
 	Unit* m_coreLibUnit;
 
 public:
-	UnitMgr ();
+	UnitMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
-	sl::ConstList <Unit>
-	getUnitList ()
+	sl::ConstList<Unit>
+	getUnitList()
 	{
 		return m_unitList;
 	}
 
 	Unit*
-	getCurrentUnit ()
+	getCurrentUnit()
 	{
 		return m_currentUnit;
 	}
 
 	Unit*
-	setCurrentUnit (Unit* unit);
+	setCurrentUnit(Unit* unit);
 
 	Unit*
-	getCoreLibUnit ();
+	getCoreLibUnit();
 
 	Unit*
-	createUnit (
+	createUnit(
 		ExtensionLib* lib,
 		const sl::StringRef& filePath
 		);

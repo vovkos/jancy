@@ -19,17 +19,17 @@ namespace ct {
 
 //..............................................................................
 
-ClassPtrType::ClassPtrType ()
+ClassPtrType::ClassPtrType()
 {
 	m_typeKind = TypeKind_ClassPtr;
 	m_ptrTypeKind = ClassPtrTypeKind_Normal;
 	m_targetType = NULL;
-	m_size = sizeof (void*);
-	m_alignment = sizeof (void*);
+	m_size = sizeof(void*);
+	m_alignment = sizeof(void*);
 }
 
 sl::String
-ClassPtrType::createSignature (
+ClassPtrType::createSignature(
 	ClassType* classType,
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
@@ -41,18 +41,18 @@ ClassPtrType::createSignature (
 	if (ptrTypeKind == ClassPtrTypeKind_Weak)
 		signature += 'w';
 
-	signature += getPtrTypeFlagSignature (flags);
-	signature += classType->getSignature ();
+	signature += getPtrTypeFlagSignature(flags);
+	signature += classType->getSignature();
 	return signature;
 }
 
 sl::String
-ClassPtrType::getPointerStringSuffix ()
+ClassPtrType::getPointerStringSuffix()
 {
 	sl::String string;
 
-	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
-	if (!ptrTypeFlagString.isEmpty ())
+	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+	if (!ptrTypeFlagString.isEmpty())
 	{
 		string += ' ';
 		string += ptrTypeFlagString;
@@ -61,7 +61,7 @@ ClassPtrType::getPointerStringSuffix ()
 	if (m_ptrTypeKind != ClassPtrTypeKind_Normal)
 	{
 		string += ' ';
-		string += getClassPtrTypeKindString (m_ptrTypeKind);
+		string += getClassPtrTypeKindString(m_ptrTypeKind);
 	}
 
 	string += m_typeKind == TypeKind_ClassRef ? "&" : "*";
@@ -69,19 +69,19 @@ ClassPtrType::getPointerStringSuffix ()
 }
 
 void
-ClassPtrType::prepareLlvmType ()
+ClassPtrType::prepareLlvmType()
 {
-	m_llvmType = llvm::PointerType::get (m_targetType->getIfaceStructType ()->getLlvmType (), 0);
+	m_llvmType = llvm::PointerType::get(m_targetType->getIfaceStructType()->getLlvmType(), 0);
 }
 
 void
-ClassPtrType::prepareLlvmDiType ()
+ClassPtrType::prepareLlvmDiType()
 {
-	m_llvmDiType = m_module->m_llvmDiBuilder.createPointerType (m_targetType->getIfaceStructType ());
+	m_llvmDiType = m_module->m_llvmDiBuilder.createPointerType(m_targetType->getIfaceStructType());
 }
 
 void
-ClassPtrType::markGcRoots (
+ClassPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 	)
@@ -91,18 +91,18 @@ ClassPtrType::markGcRoots (
 		return;
 
 	if (m_ptrTypeKind == ClassPtrTypeKind_Weak)
-		gcHeap->weakMark (iface->m_box);
+		gcHeap->weakMark(iface->m_box);
 	else
-		gcHeap->markClass (iface->m_box);
+		gcHeap->markClass(iface->m_box);
 }
 
 Type*
-ClassPtrType::calcFoldedDualType (
+ClassPtrType::calcFoldedDualType(
 	bool isAlien,
 	bool isContainerConst
 	)
 {
-	ASSERT (isDualType (this));
+	ASSERT(isDualType(this));
 
 	uint_t flags = m_flags & ~(PtrTypeFlag_ReadOnly | PtrTypeFlag_CMut | PtrTypeFlag_DualEvent);
 
@@ -118,7 +118,7 @@ ClassPtrType::calcFoldedDualType (
 	if ((m_flags & PtrTypeFlag_CMut) && isContainerConst)
 		flags |= PtrTypeFlag_Const;
 
-	return m_module->m_typeMgr.getClassPtrType (m_targetType, m_typeKind, m_ptrTypeKind, flags);
+	return m_module->m_typeMgr.getClassPtrType(m_targetType, m_typeKind, m_ptrTypeKind, flags);
 }
 
 //..............................................................................

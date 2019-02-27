@@ -18,7 +18,7 @@ namespace jnc {
 namespace rtl {
 
 bool
-tryCheckDataPtrRangeIndirect (
+tryCheckDataPtrRangeIndirect(
 	const void* p,
 	size_t size,
 	DataPtrValidator* validator
@@ -31,108 +31,108 @@ namespace ct {
 //..............................................................................
 
 bool
-OperatorMgr::prepareDataPtr (
+OperatorMgr::prepareDataPtr(
 	const Value& value,
 	Value* resultValue
 	)
 {
-	ASSERT (value.getType ()->getTypeKind () == TypeKind_DataPtr || value.getType ()->getTypeKind () == TypeKind_DataRef);
+	ASSERT(value.getType()->getTypeKind() == TypeKind_DataPtr || value.getType()->getTypeKind() == TypeKind_DataRef);
 
-	bool result = checkDataPtrRange (value);
+	bool result = checkDataPtrRange(value);
 	if (!result)
 		return false;
 
-	DataPtrType* type = (DataPtrType*) value.getType ();
-	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
-	DataPtrType* resultType = type->getTargetType ()->getDataPtrType_c ();
+	DataPtrType* type = (DataPtrType*)value.getType();
+	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
+	DataPtrType* resultType = type->getTargetType()->getDataPtrType_c();
 
-	switch (ptrTypeKind)
+	switch(ptrTypeKind)
 	{
 	case DataPtrTypeKind_Thin:
 	case DataPtrTypeKind_Lean:
-		resultValue->overrideType (value, resultType);
+		resultValue->overrideType(value, resultType);
 		break;
 
 	case DataPtrTypeKind_Normal:
-		if (value.getValueKind () == ValueKind_Const)
+		if (value.getValueKind() == ValueKind_Const)
 		{
-			void* p = ((DataPtr*) value.getConstData ())->m_p;
-			resultValue->createConst (&p, resultType);
+			void* p = ((DataPtr*)value.getConstData())->m_p;
+			resultValue->createConst(&p, resultType);
 		}
 		else
 		{
-			m_module->m_llvmIrBuilder.createExtractValue (value, 0, NULL, resultValue);
-			m_module->m_llvmIrBuilder.createBitCast (*resultValue, resultType, resultValue);
+			m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, resultValue);
+			m_module->m_llvmIrBuilder.createBitCast(*resultValue, resultType, resultValue);
 		}
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	return true;
 }
 
 bool
-OperatorMgr::loadDataRef (
+OperatorMgr::loadDataRef(
 	const Value& opValue,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataRef);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataRef);
 
 	bool result;
 
-	DataPtrType* type = (DataPtrType*) opValue.getType ();
-	Type* targetType = type->getTargetType ();
+	DataPtrType* type = (DataPtrType*)opValue.getType();
+	Type* targetType = type->getTargetType();
 
-	if (targetType->getFlags () & TypeFlag_Dynamic)
+	if (targetType->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
 		return false;
 	}
 
-	if (opValue.getValueKind () != ValueKind_Const)
+	if (opValue.getValueKind() != ValueKind_Const)
 	{
 		Value ptrValue;
-		result = prepareDataPtr (opValue, &ptrValue);
+		result = prepareDataPtr(opValue, &ptrValue);
 		if (!result)
 			return false;
 
-		m_module->m_llvmIrBuilder.createLoad (
+		m_module->m_llvmIrBuilder.createLoad(
 			ptrValue,
 			targetType,
 			resultValue,
-			(type->getFlags () & PtrTypeFlag_Volatile) != 0
+			(type->getFlags() & PtrTypeFlag_Volatile) != 0
 			);
 	}
 	else
 	{
 		const void* p;
 
-		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind ();
+		DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
 		if (ptrTypeKind != DataPtrTypeKind_Normal)
 		{
-			p = *(void**) opValue.getConstData ();
+			p = *(void**) opValue.getConstData();
 		}
 		else
 		{
-			DataPtr* ptr = (DataPtr*) opValue.getConstData ();
-			result = rtl::tryCheckDataPtrRangeIndirect (ptr->m_p, targetType->getSize (), ptr->m_validator);
+			DataPtr* ptr = (DataPtr*)opValue.getConstData();
+			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
 				return false;
 
 			p = ptr->m_p;
 		}
 
-		resultValue->createConst (p, targetType);
+		resultValue->createConst(p, targetType);
 	}
 
-	if (targetType->getTypeKind () == TypeKind_BitField)
+	if (targetType->getTypeKind() == TypeKind_BitField)
 	{
-		result = extractBitField (
+		result = extractBitField(
 			*resultValue,
-			(BitFieldType*) targetType,
+			(BitFieldType*)targetType,
 			resultValue
 			);
 
@@ -144,66 +144,66 @@ OperatorMgr::loadDataRef (
 }
 
 bool
-OperatorMgr::storeDataRef (
+OperatorMgr::storeDataRef(
 	const Value& dstValue,
 	const Value& rawSrcValue
 	)
 {
-	ASSERT (dstValue.getType ()->getTypeKind () == TypeKind_DataRef);
+	ASSERT(dstValue.getType()->getTypeKind() == TypeKind_DataRef);
 
 	bool result;
 
-	DataPtrType* dstType = (DataPtrType*) dstValue.getType ();
-	if (dstType->getFlags () & PtrTypeFlag_Const)
+	DataPtrType* dstType = (DataPtrType*)dstValue.getType();
+	if (dstType->getFlags() & PtrTypeFlag_Const)
 	{
-		err::setError ("cannot store into const location");
+		err::setError("cannot store into const location");
 		return false;
 	}
 
-	Type* targetType = dstType->getTargetType ();
-	if (targetType->getFlags () & TypeFlag_Dynamic)
+	Type* targetType = dstType->getTargetType();
+	if (targetType->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError ("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
 		return false;
 	}
 
-	TypeKind targetTypeKind = targetType->getTypeKind ();
+	TypeKind targetTypeKind = targetType->getTypeKind();
 
 	Type* castType = (targetTypeKind == TypeKind_BitField) ?
-		((BitFieldType*) targetType)->getBaseType () :
+		((BitFieldType*)targetType)->getBaseType() :
 		targetType;
 
 	Value srcValue;
 	Value bfShadowValue;
 
 	result =
-		checkCastKind (rawSrcValue, castType) &&
-		castOperator (rawSrcValue, castType, &srcValue);
+		checkCastKind(rawSrcValue, castType) &&
+		castOperator(rawSrcValue, castType, &srcValue);
 
 	if (!result)
 		return false;
 
-	if (srcValue.getValueKind () != ValueKind_Const ||
-		dstValue.getValueKind () != ValueKind_Const)
+	if (srcValue.getValueKind() != ValueKind_Const ||
+		dstValue.getValueKind() != ValueKind_Const)
 	{
 		Value ptrValue;
-		result = prepareDataPtr (dstValue, &ptrValue);
+		result = prepareDataPtr(dstValue, &ptrValue);
 		if (!result)
 			return false;
 
 		if (targetTypeKind == TypeKind_BitField)
 		{
-			m_module->m_llvmIrBuilder.createLoad (
+			m_module->m_llvmIrBuilder.createLoad(
 				ptrValue,
 				castType,
 				&bfShadowValue,
-				(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
+				(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
 				);
 
-			result = mergeBitField (
+			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
-				(BitFieldType*) targetType,
+				(BitFieldType*)targetType,
 				&srcValue
 				);
 
@@ -211,25 +211,25 @@ OperatorMgr::storeDataRef (
 				return false;
 		}
 
-		m_module->m_llvmIrBuilder.createStore (
+		m_module->m_llvmIrBuilder.createStore(
 			srcValue,
 			ptrValue,
-			(dstType->getFlags () & PtrTypeFlag_Volatile) != 0
+			(dstType->getFlags() & PtrTypeFlag_Volatile) != 0
 			);
 	}
 	else
 	{
 		void* p;
 
-		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind ();
+		DataPtrTypeKind ptrTypeKind = dstType->getPtrTypeKind();
 		if (ptrTypeKind != DataPtrTypeKind_Normal)
 		{
-			p = *(void**) dstValue.getConstData ();
+			p = *(void**) dstValue.getConstData();
 		}
 		else
 		{
-			DataPtr* ptr = (DataPtr*) dstValue.getConstData ();
-			result = rtl::tryCheckDataPtrRangeIndirect (ptr->m_p, targetType->getSize (), ptr->m_validator);
+			DataPtr* ptr = (DataPtr*)dstValue.getConstData();
+			result = rtl::tryCheckDataPtrRangeIndirect(ptr->m_p, targetType->getSize(), ptr->m_validator);
 			if (!result)
 				return false;
 
@@ -238,11 +238,11 @@ OperatorMgr::storeDataRef (
 
 		if (targetTypeKind == TypeKind_BitField)
 		{
-			bfShadowValue.createConst (p, castType);
-			result = mergeBitField (
+			bfShadowValue.createConst(p, castType);
+			result = mergeBitField(
 				srcValue,
 				bfShadowValue,
-				(BitFieldType*) targetType,
+				(BitFieldType*)targetType,
 				&srcValue
 				);
 
@@ -250,14 +250,14 @@ OperatorMgr::storeDataRef (
 				return false;
 		}
 
-		memcpy (p, srcValue.getConstData (), targetType->getSize ());
+		memcpy(p, srcValue.getConstData(), targetType->getSize());
 	}
 
 	return true;
 }
 
 bool
-OperatorMgr::extractBitField (
+OperatorMgr::extractBitField(
 	const Value& rawValue,
 	BitFieldType* bitFieldType,
 	Value* resultValue
@@ -265,48 +265,48 @@ OperatorMgr::extractBitField (
 {
 	bool result;
 
-	Type* baseType = bitFieldType->getBaseType ();
-	size_t bitOffset = bitFieldType->getBitOffset ();
-	size_t bitCount = bitFieldType->getBitCount ();
+	Type* baseType = bitFieldType->getBaseType();
+	size_t bitOffset = bitFieldType->getBitOffset();
+	size_t bitCount = bitFieldType->getBitCount();
 
-	TypeKind typeKind = baseType->getSize () <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
-	Type* type = m_module->m_typeMgr.getPrimitiveType (typeKind);
+	TypeKind typeKind = baseType->getSize() <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
+	Type* type = m_module->m_typeMgr.getPrimitiveType(typeKind);
 	int64_t mask = ((int64_t) 1 << bitCount) - 1;
 
-	Value value (rawValue, baseType);
-	Value maskValue (mask, type);
-	Value offsetValue (bitOffset, type);
+	Value value(rawValue, baseType);
+	Value maskValue(mask, type);
+	Value offsetValue(bitOffset, type);
 
 	result =
-		binaryOperator (BinOpKind_Shr, &value, offsetValue) &&
-		binaryOperator (BinOpKind_BwAnd, &value, maskValue);
+		binaryOperator(BinOpKind_Shr, &value, offsetValue) &&
+		binaryOperator(BinOpKind_BwAnd, &value, maskValue);
 
 	if (!result)
 		return false;
 
-	if (!(baseType->getTypeKindFlags () & TypeKindFlag_Unsigned)) // extend with sign bit
+	if (!(baseType->getTypeKindFlags() & TypeKindFlag_Unsigned)) // extend with sign bit
 	{
 		int64_t signBit = (int64_t) 1 << (bitCount - 1);
 
-		Value signBitValue (signBit, type);
-		Value oneValue (1, type);
+		Value signBitValue(signBit, type);
+		Value oneValue(1, type);
 
 		Value signExtValue;
 		result =
-			binaryOperator (BinOpKind_BwAnd, &signBitValue, value) &&
-			binaryOperator (BinOpKind_Sub, signBitValue, oneValue, &signExtValue) &&
-			unaryOperator (UnOpKind_BwNot, &signExtValue) &&
-			binaryOperator (BinOpKind_BwOr, &value, signExtValue);
+			binaryOperator(BinOpKind_BwAnd, &signBitValue, value) &&
+			binaryOperator(BinOpKind_Sub, signBitValue, oneValue, &signExtValue) &&
+			unaryOperator(UnOpKind_BwNot, &signExtValue) &&
+			binaryOperator(BinOpKind_BwOr, &value, signExtValue);
 
 		if (!result)
 			return false;
 	}
 
-	return castOperator (value, baseType, resultValue);
+	return castOperator(value, baseType, resultValue);
 }
 
 bool
-OperatorMgr::mergeBitField (
+OperatorMgr::mergeBitField(
 	const Value& rawValue,
 	const Value& rawShadowValue,
 	BitFieldType* bitFieldType,
@@ -315,33 +315,33 @@ OperatorMgr::mergeBitField (
 {
 	bool result;
 
-	Type* baseType = bitFieldType->getBaseType ();
-	size_t bitOffset = bitFieldType->getBitOffset ();
-	size_t bitCount = bitFieldType->getBitCount ();
+	Type* baseType = bitFieldType->getBaseType();
+	size_t bitOffset = bitFieldType->getBitOffset();
+	size_t bitCount = bitFieldType->getBitCount();
 
-	TypeKind typeKind = baseType->getSize () <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
-	Type* type = m_module->m_typeMgr.getPrimitiveType (typeKind);
+	TypeKind typeKind = baseType->getSize() <= 4 ? TypeKind_Int32_u : TypeKind_Int64_u;
+	Type* type = m_module->m_typeMgr.getPrimitiveType(typeKind);
 	int64_t mask = (((int64_t) 1 << bitCount) - 1) << bitOffset;
 
-	Value value (rawValue, baseType);
-	Value shadowValue (rawShadowValue, baseType);
-	Value maskValue (mask, type);
-	Value offsetValue (bitOffset, type);
+	Value value(rawValue, baseType);
+	Value shadowValue(rawShadowValue, baseType);
+	Value maskValue(mask, type);
+	Value offsetValue(bitOffset, type);
 
 	result =
-		binaryOperator (BinOpKind_Shl, &value, offsetValue) &&
-		binaryOperator (BinOpKind_BwAnd, value, maskValue, resultValue);
+		binaryOperator(BinOpKind_Shl, &value, offsetValue) &&
+		binaryOperator(BinOpKind_BwAnd, value, maskValue, resultValue);
 
 	if (!result)
 		return false;
 
 	mask = ~((((uint64_t) 1 << bitCount) - 1) << bitOffset);
-	maskValue.setConstInt64 (mask, type);
+	maskValue.setConstInt64(mask, type);
 
 	return
-		binaryOperator (BinOpKind_BwAnd, &shadowValue, maskValue) &&
-		binaryOperator (BinOpKind_BwOr, &value, shadowValue) &&
-		castOperator (value, baseType, resultValue);
+		binaryOperator(BinOpKind_BwAnd, &shadowValue, maskValue) &&
+		binaryOperator(BinOpKind_BwOr, &value, shadowValue) &&
+		castOperator(value, baseType, resultValue);
 }
 
 //..............................................................................

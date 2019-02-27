@@ -21,7 +21,7 @@ namespace ct {
 //..............................................................................
 
 const StdItemSource*
-getStdTypeSource (StdType stdType);
+getStdTypeSource(StdType stdType);
 
 //..............................................................................
 
@@ -62,14 +62,14 @@ protected:
 	StdType m_stdType;
 
 public:
-	LazyStdType ()
+	LazyStdType()
 	{
 		m_stdType = (StdType) -1;
 	}
 
 	virtual
 	ModuleItem*
-	getActualItem ();
+	getActualItem();
 };
 
 //..............................................................................

@@ -28,7 +28,7 @@ namespace ct {
 class JnccallCallConv_msc32: public CdeclCallConv_msc32
 {
 public:
-	JnccallCallConv_msc32 ()
+	JnccallCallConv_msc32()
 	{
 		m_callConvKind = CallConvKind_Jnccall_msc32;
 	}
@@ -39,7 +39,7 @@ public:
 class JnccallCallConv_msc64: public CdeclCallConv_msc64
 {
 public:
-	JnccallCallConv_msc64 ()
+	JnccallCallConv_msc64()
 	{
 		m_callConvKind = CallConvKind_Jnccall_msc64;
 	}
@@ -50,7 +50,7 @@ public:
 class JnccallCallConv_gcc32: public CdeclCallConv_gcc32
 {
 public:
-	JnccallCallConv_gcc32 ()
+	JnccallCallConv_gcc32()
 	{
 		m_callConvKind = CallConvKind_Jnccall_gcc32;
 	}
@@ -61,7 +61,7 @@ public:
 class JnccallCallConv_gcc64: public CdeclCallConv_gcc64
 {
 public:
-	JnccallCallConv_gcc64 ()
+	JnccallCallConv_gcc64()
 	{
 		m_callConvKind = CallConvKind_Jnccall_gcc64;
 	}
@@ -72,7 +72,7 @@ public:
 class JnccallCallConv_arm32: public CdeclCallConv_arm32
 {
 public:
-	JnccallCallConv_arm32 ()
+	JnccallCallConv_arm32()
 	{
 		m_callConvKind = CallConvKind_Jnccall_arm32;
 	}
@@ -83,7 +83,7 @@ public:
 class JnccallCallConv_arm64: public CdeclCallConv_arm64
 {
 public:
-	JnccallCallConv_arm64 ()
+	JnccallCallConv_arm64()
 	{
 		m_callConvKind = CallConvKind_Jnccall_arm64;
 	}

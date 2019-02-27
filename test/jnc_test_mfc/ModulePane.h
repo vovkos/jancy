@@ -20,56 +20,56 @@ protected:
 
 public:
 	bool
-	Build (jnc::CModule* pModule);
+	Build(jnc::CModule* pModule);
 
 	void
-	Clear ();
+	Clear();
 
 protected:
 	bool
-	AddItemAttributes (
+	AddItemAttributes(
 		HTREEITEM hParent,
 		jnc::CModuleItem* pItem
 		);
 
 	void
-	AddNamespace (
+	AddNamespace(
 		HTREEITEM hParent,
 		jnc::CGlobalNamespace* pNamespace
 		);
 
 	void
-	AddItem (
+	AddItem(
 		HTREEITEM hParent,
 		jnc::CModuleItem* pItem
 		);
 
 	void
-	AddType (
+	AddType(
 		HTREEITEM hParent,
 		jnc::CType* pType
 		);
 
 	void
-	AddTypedef (
+	AddTypedef(
 		HTREEITEM hParent,
 		jnc::CTypedef* pTypedef
 		);
 
 	void
-	AddVariable (
+	AddVariable(
 		HTREEITEM hParent,
 		jnc::CVariable* pVariable
 		);
 
 	void
-	AddEnumConst (
+	AddEnumConst(
 		HTREEITEM hParent,
 		jnc::CEnumConst* pMember
 		);
 
 	void
-	AddValue (
+	AddValue(
 		HTREEITEM hParent,
 		const char* pName,
 		jnc::CType* pType,
@@ -77,64 +77,64 @@ protected:
 		);
 
 	void
-	AddFunction (
+	AddFunction(
 		HTREEITEM hParent,
 		jnc::CFunction* pFunction
 		);
 
 	void
-	AddFunctionImpl (
+	AddFunctionImpl(
 		HTREEITEM hParent,
 		jnc::CFunction* pFunction
 		);
 
 	void
-	AddProperty (
+	AddProperty(
 		HTREEITEM hParent,
 		jnc::CProperty* pProperty
 		);
 
 	void
-	AddEnumTypeMembers (
+	AddEnumTypeMembers(
 		HTREEITEM hParent,
 		jnc::CEnumType* pType
 		);
 
 	void
-	AddStructTypeMembers (
+	AddStructTypeMembers(
 		HTREEITEM hParent,
 		jnc::CStructType* pType
 		);
 
 	void
-	AddStructField (
+	AddStructField(
 		HTREEITEM hParent,
 		jnc::CStructField* pMember
 		)
 	{
-		AddValue (hParent, pMember->GetName (), pMember->GetType (), pMember);
+		AddValue(hParent, pMember->GetName(), pMember->GetType(), pMember);
 	}
 
 	void
-	AddUnionTypeMembers (
+	AddUnionTypeMembers(
 		HTREEITEM hParent,
 		jnc::CUnionType* pType
 		);
 
 	void
-	AddClassTypeMembers (
+	AddClassTypeMembers(
 		HTREEITEM hParent,
 		jnc::CClassType* pType
 		);
 
 	void
-	AddPropertyTypeMembers (
+	AddPropertyTypeMembers(
 		HTREEITEM hParent,
 		jnc::CPropertyType* pType
 		);
 
 	rtl::CString
-	GetItemTip (jnc::CModuleItem* pItem);
+	GetItemTip(jnc::CModuleItem* pItem);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

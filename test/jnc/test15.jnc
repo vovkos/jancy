@@ -9,20 +9,20 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("allocating...\n");
+	printf("allocating...\n");
 
 	int count = 10;
-	int* x = new int [count];
+	int* x = new int[count];
 
-	printf ("assigning [0]...\n");
+	printf("assigning [0]...\n");
 	*x = 0;
 
-	printf ("assigning [1]...\n");
+	printf("assigning [1]...\n");
 	*x = 1;
 
-	printf ("done\n");
+	printf("done\n");
 	return 0;
 }
 

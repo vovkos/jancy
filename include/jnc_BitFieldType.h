@@ -41,15 +41,15 @@
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_BitFieldType_getBaseType (jnc_BitFieldType* type);
+jnc_BitFieldType_getBaseType(jnc_BitFieldType* type);
 
 JNC_EXTERN_C
 size_t
-jnc_BitFieldType_getBitOffset (jnc_BitFieldType* type);
+jnc_BitFieldType_getBitOffset(jnc_BitFieldType* type);
 
 JNC_EXTERN_C
 size_t
-jnc_BitFieldType_getBitCount (jnc_BitFieldType* type);
+jnc_BitFieldType_getBitCount(jnc_BitFieldType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -58,21 +58,21 @@ jnc_BitFieldType_getBitCount (jnc_BitFieldType* type);
 struct jnc_BitFieldType: jnc_Type
 {
 	jnc_Type*
-	getBaseType ()
+	getBaseType()
 	{
-		return jnc_BitFieldType_getBaseType (this);
+		return jnc_BitFieldType_getBaseType(this);
 	}
 
 	size_t
-	getBitOffset ()
+	getBitOffset()
 	{
-		return jnc_BitFieldType_getBitOffset (this);
+		return jnc_BitFieldType_getBitOffset(this);
 	}
 
 	size_t
-	getBitCount ()
+	getBitCount()
 	{
-		return jnc_BitFieldType_getBitCount (this);
+		return jnc_BitFieldType_getBitCount(this);
 	}
 };
 

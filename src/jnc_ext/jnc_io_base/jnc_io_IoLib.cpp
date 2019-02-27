@@ -31,61 +31,61 @@ namespace io {
 
 //..............................................................................
 
-DataPtr getSymbolicLinkTarget (DataPtr namePtr)
+DataPtr getSymbolicLinkTarget(DataPtr namePtr)
 {
 	sl::String linkTarget;
-	bool result = axl::io::getSymbolicLinkTarget (&linkTarget, (const char*) namePtr.m_p);
+	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, (const char*) namePtr.m_p);
 	if (!result)
 		return g_nullPtr;
 
-	return strDup (linkTarget);
+	return strDup(linkTarget);
 }
 
 //..............................................................................
 
-JNC_DEFINE_LIB (
+JNC_DEFINE_LIB(
 	IoLib,
 	g_ioLibGuid,
 	"IoLib",
 	"Jancy standard IO extension library"
 	)
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (IoLib)
-JNC_END_LIB_SOURCE_FILE_TABLE ()
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(IoLib)
+JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (IoLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (File)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (MappedFile)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (FileStream)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Serial)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Socket)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (SocketAddressResolver)
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(IoLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(File)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(MappedFile)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FileStream)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Serial)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Socket)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SocketAddressResolver)
 #if (_JNC_OS_WIN)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (NamedPipe)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (Mailslot)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedPipe)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Mailslot)
 #endif
-JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
-JNC_BEGIN_LIB_FUNCTION_MAP (IoLib)
-	JNC_MAP_TYPE (File)
-	JNC_MAP_TYPE (FileStream)
-	JNC_MAP_TYPE (MappedFile)
-	JNC_MAP_TYPE (Serial)
-	JNC_MAP_TYPE (Socket)
-	JNC_MAP_TYPE (Address_ip4)
-	JNC_MAP_TYPE (Address_ip6)
-	JNC_MAP_TYPE (SocketAddress_ip4)
-	JNC_MAP_TYPE (SocketAddress_ip6)
-	JNC_MAP_TYPE (SocketAddress)
-	JNC_MAP_TYPE (SocketAddressResolver)
+JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
+	JNC_MAP_TYPE(File)
+	JNC_MAP_TYPE(FileStream)
+	JNC_MAP_TYPE(MappedFile)
+	JNC_MAP_TYPE(Serial)
+	JNC_MAP_TYPE(Socket)
+	JNC_MAP_TYPE(Address_ip4)
+	JNC_MAP_TYPE(Address_ip6)
+	JNC_MAP_TYPE(SocketAddress_ip4)
+	JNC_MAP_TYPE(SocketAddress_ip6)
+	JNC_MAP_TYPE(SocketAddress)
+	JNC_MAP_TYPE(SocketAddressResolver)
 #if (_JNC_OS_WIN)
-	JNC_MAP_TYPE (NamedPipe)
-	JNC_MAP_TYPE (Mailslot)
+	JNC_MAP_TYPE(NamedPipe)
+	JNC_MAP_TYPE(Mailslot)
 #endif
-	JNC_MAP_FUNCTION ("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
-	JNC_MAP_FUNCTION ("io.createSerialPortDescList",     createSerialPortDescList)
-	JNC_MAP_FUNCTION ("io.getSymbolicLinkTarget",        getSymbolicLinkTarget)
-JNC_END_LIB_FUNCTION_MAP ()
+	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
+	JNC_MAP_FUNCTION("io.createSerialPortDescList",     createSerialPortDescList)
+	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget",        getSymbolicLinkTarget)
+JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
@@ -97,17 +97,17 @@ jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
-jncDynamicExtensionLibMain (jnc_DynamicExtensionLibHost* host)
+jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 #if (_JNC_OS_WIN)
 	WSADATA WsaData;
-	WSAStartup (0x0202, &WsaData);
+	WSAStartup(0x0202, &WsaData);
 #endif
 
-	g::getModule ()->setTag ("jnc_io_base");
-	err::getErrorMgr ()->setForwardRouter (host->m_errorRouter);
+	g::getModule()->setTag("jnc_io_base");
+	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-	return jnc::io::IoLib_getLib ();
+	return jnc::io::IoLib_getLib();
 }
 
 //..............................................................................

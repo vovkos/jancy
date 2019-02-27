@@ -8,7 +8,7 @@ int g_x;
 
 class Foo
 {
-	foo ()
+	foo()
 	{
 		g_x = 10;
 	}
@@ -25,13 +25,13 @@ int g_y;
 
 class Bar: a.b.Foo
 {
-	bar ()
+	bar()
 	{
 		b.g_y = 20;
 	}
 }
 
-int main ()
+int main()
 {
 	return 0;
 }

@@ -19,28 +19,28 @@ namespace ct {
 //..............................................................................
 
 err::Error
-setCastError (
+setCastError(
 	const Value& opValue,
 	Type* dstType,
 	CastKind castKind
 	)
 {
-	Type* srcType = opValue.getType ();
+	Type* srcType = opValue.getType();
 	if (!srcType)
 	{
-		ASSERT (opValue.getValueKind () == ValueKind_Function);
-		Function* function = opValue.getFunction ();
+		ASSERT(opValue.getValueKind() == ValueKind_Function);
+		Function* function = opValue.getFunction();
 
-		return err::setFormatStringError (
+		return err::setFormatStringError(
 			"not enough information to select one of %d overloads of '%s'",
-			function->getOverloadCount (),
-			function->m_tag.sz ()
+			function->getOverloadCount(),
+			function->m_tag.sz()
 			);
 	}
 
 	const char* format;
 
-	switch (castKind)
+	switch(castKind)
 	{
 	case CastKind_Explicit:
 		format = "explicit cast is needed to convert from '%s' to '%s'";
@@ -55,205 +55,205 @@ setCastError (
 		break;
 	}
 
-	return err::setFormatStringError (
+	return err::setFormatStringError(
 		format,
-		opValue.getValueKind () == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (),
-		dstType->getTypeString ().sz ()
+		opValue.getValueKind() == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (),
+		dstType->getTypeString().sz()
 		);
 }
 
 err::Error
-setUnsafeCastError (
+setUnsafeCastError(
 	Type* srcType,
 	Type* dstType
 	)
 {
-	return err::setFormatStringError (
+	return err::setFormatStringError(
 		"'%s' to '%s' cast is only permitted in unsafe regions",
-		srcType->getTypeString ().sz (),
-		dstType->getTypeString ().sz ()
+		srcType->getTypeString().sz(),
+		dstType->getTypeString().sz()
 		);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool
-castOperator (
+castOperator(
 	Module* module,
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	return module->m_operatorMgr.castOperator (opValue, type, resultValue);
+	return module->m_operatorMgr.castOperator(opValue, type, resultValue);
 }
 
 //..............................................................................
 
 CastOperator::CastOperator()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 
 	m_opFlags = 0;
 }
 
 bool
-CastOperator::cast (
+CastOperator::cast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	if (opValue.getValueKind () != ValueKind_Const)
-		return llvmCast (opValue, type, resultValue);
+	if (opValue.getValueKind() != ValueKind_Const)
+		return llvmCast(opValue, type, resultValue);
 
-	if (type->getTypeKind () == TypeKind_Void)
+	if (type->getTypeKind() == TypeKind_Void)
 	{
-		resultValue->setVoid (m_module);
+		resultValue->setVoid(m_module);
 		return true;
 	}
 
-	char buffer [256];
-	sl::Array <char> constData (ref::BufKind_Stack, buffer, sizeof (buffer));
-	constData.setCount (type->getSize ());
+	char buffer[256];
+	sl::Array<char> constData(ref::BufKind_Stack, buffer, sizeof(buffer));
+	constData.setCount(type->getSize());
 
-	bool result = constCast (opValue, type, constData);
+	bool result = constCast(opValue, type, constData);
 	if (result)
 	{
-		resultValue->createConst (constData, type);
+		resultValue->createConst(constData, type);
 		return true;
 	}
 
 	// if const-cast is not available or fails, try full cast -- but only at compile-time!
 
-	if (m_module->getCompileState () < ModuleCompileState_Compiled)
-		return llvmCast (opValue, type, resultValue);
+	if (m_module->getCompileState() < ModuleCompileState_Compiled)
+		return llvmCast(opValue, type, resultValue);
 
-	setCastError (opValue, type);
+	setCastError(opValue, type);
 	return false;
 }
 
 //..............................................................................
 
 bool
-Cast_Copy::constCast (
+Cast_Copy::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	size_t srcSize = opValue.getType ()->getSize ();
-	size_t dstSize = type->getSize ();
+	size_t srcSize = opValue.getType()->getSize();
+	size_t dstSize = type->getSize();
 
-	ASSERT (srcSize == dstSize);
+	ASSERT(srcSize == dstSize);
 
-	memcpy (dst, opValue.getConstData (), dstSize);
+	memcpy(dst, opValue.getConstData(), dstSize);
 	return true;
 }
 
 bool
-Cast_Copy::llvmCast (
+Cast_Copy::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	m_module->m_llvmIrBuilder.createBitCast (opValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createBitCast(opValue, type, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 CastKind
-Cast_Master::getCastKind (
+Cast_Master::getCastKind(
 	const Value& rawOpValue,
 	Type* type
 	)
 {
-	if (!rawOpValue.getType ())
+	if (!rawOpValue.getType())
 		return CastKind_None;
 
-	CastOperator* op = getCastOperator (rawOpValue, type);
+	CastOperator* op = getCastOperator(rawOpValue, type);
 	if (!op)
 		return CastKind_None;
 
 	Value opValue = rawOpValue;
 
-	uint_t opFlags = op->getOpFlags ();
+	uint_t opFlags = op->getOpFlags();
 	if (opFlags != m_opFlags)
-		m_module->m_operatorMgr.prepareOperandType (&opValue, opFlags);
+		m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags);
 
-	return op->getCastKind (opValue, type);
+	return op->getCastKind(opValue, type);
 }
 
 bool
-Cast_Master::constCast (
+Cast_Master::constCast(
 	const Value& rawOpValue,
 	Type* type,
 	void* dst
 	)
 {
-	CastOperator* op = getCastOperator (rawOpValue, type);
+	CastOperator* op = getCastOperator(rawOpValue, type);
 	if (!op)
 		return false;
 
 	Value opValue = rawOpValue;
 
-	uint_t opFlags = op->getOpFlags ();
+	uint_t opFlags = op->getOpFlags();
 	if (opFlags != m_opFlags)
 	{
-		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags);
+		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags);
 		if (!result)
 			return false;
 	}
 
-	return op->constCast (opValue, type, dst);
+	return op->constCast(opValue, type, dst);
 }
 
 bool
-Cast_Master::llvmCast (
+Cast_Master::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	CastOperator* op = getCastOperator (rawOpValue, type);
+	CastOperator* op = getCastOperator(rawOpValue, type);
 	if (!op)
 	{
-		setCastError (rawOpValue, type);
+		setCastError(rawOpValue, type);
 		return false;
 	}
 
 	Value opValue = rawOpValue;
 
-	uint_t opFlags = op->getOpFlags ();
+	uint_t opFlags = op->getOpFlags();
 	if (opFlags != m_opFlags)
 	{
-		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags);
+		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags);
 		if (!result)
 			return false;
 	}
 
-	return op->llvmCast (opValue, type, resultValue);
+	return op->llvmCast(opValue, type, resultValue);
 }
 
 //..............................................................................
 
 CastKind
-Cast_SuperMaster::getCastKind (
+Cast_SuperMaster::getCastKind(
 	const Value& rawOpValue,
 	Type* type
 	)
 {
-	if (!rawOpValue.getType ())
+	if (!rawOpValue.getType())
 		return CastKind_None;
 
 	CastOperator* operator1 = NULL;
 	CastOperator* operator2 = NULL;
 	Type* intermediateType = NULL;
 
-	bool result = getCastOperators (
+	bool result = getCastOperators(
 		rawOpValue,
 		type,
 		&operator1,
@@ -264,24 +264,24 @@ Cast_SuperMaster::getCastKind (
 	if (!result)
 		return CastKind_None;
 
-	ASSERT (operator1);
+	ASSERT(operator1);
 
 	Value opValue = rawOpValue;
 
-	uint_t opFlags1 = operator1->getOpFlags ();
+	uint_t opFlags1 = operator1->getOpFlags();
 	if (opFlags1 != m_opFlags)
-		m_module->m_operatorMgr.prepareOperandType (&opValue, opFlags1);
+		m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags1);
 
 	if (!operator2)
-		return operator1->getCastKind (opValue, type);
+		return operator1->getCastKind(opValue, type);
 
-	CastKind castKind1 = operator1->getCastKind (opValue, intermediateType);
-	CastKind castKind2 = operator2->getCastKind (intermediateType, type);
-	return AXL_MIN (castKind1, castKind2);
+	CastKind castKind1 = operator1->getCastKind(opValue, intermediateType);
+	CastKind castKind2 = operator2->getCastKind(intermediateType, type);
+	return AXL_MIN(castKind1, castKind2);
 }
 
 bool
-Cast_SuperMaster::constCast (
+Cast_SuperMaster::constCast(
 	const Value& rawOpValue,
 	Type* type,
 	void* dst
@@ -291,7 +291,7 @@ Cast_SuperMaster::constCast (
 	CastOperator* operator2 = NULL;
 	Type* intermediateType = NULL;
 
-	bool result = getCastOperators (
+	bool result = getCastOperators(
 		rawOpValue,
 		type,
 		&operator1,
@@ -302,30 +302,30 @@ Cast_SuperMaster::constCast (
 	if (!result)
 		return false;
 
-	ASSERT (operator1);
+	ASSERT(operator1);
 
 	Value srcValue = rawOpValue;
 
-	uint_t opFlags1 = operator1->getOpFlags ();
+	uint_t opFlags1 = operator1->getOpFlags();
 	if (opFlags1 != m_opFlags)
 	{
-		bool result = m_module->m_operatorMgr.prepareOperand (&srcValue, opFlags1);
+		bool result = m_module->m_operatorMgr.prepareOperand(&srcValue, opFlags1);
 		if (!result)
 			return false;
 	}
 
 	if (!operator2)
-		return operator1->constCast (srcValue, type, dst);
+		return operator1->constCast(srcValue, type, dst);
 
 	Value tmpValue;
 	return
-		tmpValue.createConst (NULL, intermediateType) &&
-		operator1->constCast (srcValue, intermediateType, tmpValue.getConstData ()) &&
-		operator2->constCast (tmpValue, type, dst);
+		tmpValue.createConst(NULL, intermediateType) &&
+		operator1->constCast(srcValue, intermediateType, tmpValue.getConstData()) &&
+		operator2->constCast(tmpValue, type, dst);
 }
 
 bool
-Cast_SuperMaster::llvmCast (
+Cast_SuperMaster::llvmCast(
 	const Value& rawOpValue,
 	Type* type,
 	Value* resultValue
@@ -335,7 +335,7 @@ Cast_SuperMaster::llvmCast (
 	CastOperator* operator2 = NULL;
 	Type* intermediateType = NULL;
 
-	bool result = getCastOperators (
+	bool result = getCastOperators(
 		rawOpValue,
 		type,
 		&operator1,
@@ -345,29 +345,29 @@ Cast_SuperMaster::llvmCast (
 
 	if (!result)
 	{
-		setCastError (rawOpValue, type);
+		setCastError(rawOpValue, type);
 		return false;
 	}
 
-	ASSERT (operator1);
+	ASSERT(operator1);
 
 	Value opValue = rawOpValue;
 
-	uint_t opFlags1 = operator1->getOpFlags ();
+	uint_t opFlags1 = operator1->getOpFlags();
 	if (opFlags1 != m_opFlags)
 	{
-		bool result = m_module->m_operatorMgr.prepareOperand (&opValue, opFlags1);
+		bool result = m_module->m_operatorMgr.prepareOperand(&opValue, opFlags1);
 		if (!result)
 			return false;
 	}
 
 	if (!operator2)
-		return operator1->llvmCast (opValue, type, resultValue);
+		return operator1->llvmCast(opValue, type, resultValue);
 
 	Value tmpValue;
 	return
-		operator1->llvmCast (opValue, intermediateType, &tmpValue) &&
-		operator2->llvmCast (tmpValue, type, resultValue);
+		operator1->llvmCast(opValue, intermediateType, &tmpValue) &&
+		operator2->llvmCast(tmpValue, type, resultValue);
 }
 
 //..............................................................................

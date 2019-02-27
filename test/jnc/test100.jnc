@@ -1,45 +1,45 @@
-int main ()
+int main()
 {
-	printf ("compiling\n");	
-	
+	printf("compiling\n");
+
 	jnc.RegexState state;
 	state.m_isIncremental = true;
-	
+
 	jnc.RegexDfa dfa;
-	dfa.incrementalCompile (r"\x02[^\r]+\r");
-	dfa.incrementalCompile (r"[a-z]+");
-	dfa.incrementalCompile (r"[0-9]+");
-	dfa.incrementalCompile (r".");
-	dfa.finalize ();
-	
-	printf ("matching\n");		
+	dfa.incrementalCompile(r"\x02[^\r]+\r");
+	dfa.incrementalCompile(r"[a-z]+");
+	dfa.incrementalCompile(r"[0-9]+");
+	dfa.incrementalCompile(r".");
+	dfa.finalize();
 
-	size_t result;	
+	printf("matching\n");
 
-	result = try dfa.match (state, "\x02ab123cdef45678\xff");
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	size_t result;
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = try dfa.match(state, "\x02ab123cdef45678\xff");
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
 
-	result = try dfa.match (state, null, 0);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+
+	result = try dfa.match(state, null, 0);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+
 	return 0;
-	
+
 catch:
-	printf ($"error: $!\n");
+	printf($"error: $!\n");
 	return -1;
 }

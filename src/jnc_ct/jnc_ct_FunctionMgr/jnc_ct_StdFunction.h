@@ -101,7 +101,7 @@ enum StdFunc
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const StdItemSource*
-getStdFunctionSource (StdFunc stdFunction);
+getStdFunctionSource(StdFunc stdFunction);
 
 //..............................................................................
 
@@ -113,14 +113,14 @@ protected:
 	StdFunc m_func;
 
 public:
-	LazyStdFunction ()
+	LazyStdFunction()
 	{
 		m_func = (StdFunc) -1;
 	}
 
 	virtual
 	ModuleItem*
-	getActualItem ();
+	getActualItem();
 };
 
 //..............................................................................

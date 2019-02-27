@@ -25,26 +25,26 @@ class FunctionTypeOverload
 protected:
 	uint_t m_flags;
 	FunctionType* m_type;
-	sl::Array <FunctionType*> m_overloadArray;
+	sl::Array<FunctionType*> m_overloadArray;
 
 public:
-	FunctionTypeOverload ()
+	FunctionTypeOverload()
 	{
 		m_flags = 0;
 		m_type = NULL;
 	}
 
-	FunctionTypeOverload (FunctionType* type)
+	FunctionTypeOverload(FunctionType* type)
 	{
 		m_type = type;
 	}
 
-	FunctionTypeOverload (
+	FunctionTypeOverload(
 		FunctionType* const* typeArray,
 		size_t count
 		)
 	{
-		copy (typeArray, count);
+		copy(typeArray, count);
 	}
 
 	operator FunctionType* ()
@@ -56,97 +56,97 @@ public:
 	operator = (FunctionType* type)
 	{
 		m_type = type;
-		m_overloadArray.clear ();
+		m_overloadArray.clear();
 		return *this;
 	}
 
 	bool
-	isEmpty () const
+	isEmpty() const
 	{
 		return m_type == NULL;
 	}
 
 	bool
-	isOverloaded () const
+	isOverloaded() const
 	{
-		return !m_overloadArray.isEmpty ();
+		return !m_overloadArray.isEmpty();
 	}
 
 	size_t
-	getOverloadCount () const
+	getOverloadCount() const
 	{
-		return m_type ? m_overloadArray.getCount () + 1 : 0;
+		return m_type ? m_overloadArray.getCount() + 1 : 0;
 	}
 
 	FunctionType*
-	getOverload (size_t overloadIdx = 0) const
+	getOverload(size_t overloadIdx = 0) const
 	{
 		return
 			overloadIdx == 0 ? m_type :
-			overloadIdx <= m_overloadArray.getCount () ? m_overloadArray [overloadIdx - 1] : NULL;
+			overloadIdx <= m_overloadArray.getCount() ? m_overloadArray[overloadIdx - 1] : NULL;
 	}
 
 	size_t
-	findOverload (FunctionType* type) const;
+	findOverload(FunctionType* type) const;
 
 	size_t
-	findShortOverload (FunctionType* type) const;
+	findShortOverload(FunctionType* type) const;
 
 	size_t
-	chooseOverload (
+	chooseOverload(
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	chooseOverload (
+	chooseOverload(
 		const Value* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	chooseOverload (
-		const sl::Array <FunctionArg*>& argArray,
+	chooseOverload(
+		const sl::Array<FunctionArg*>& argArray,
 		CastKind* castKind = NULL
 		) const
 	{
-		return chooseOverload (argArray, argArray.getCount (), castKind);
+		return chooseOverload(argArray, argArray.getCount(), castKind);
 	}
 
 	size_t
-	chooseOverload (
-		const sl::ConstBoxList <Value>& argList,
+	chooseOverload(
+		const sl::ConstBoxList<Value>& argList,
 		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	chooseSetterOverload (
+	chooseSetterOverload(
 		const Value& argValue,
 		CastKind* castKind = NULL
 		) const;
 
 	size_t
-	chooseSetterOverload (
+	chooseSetterOverload(
 		FunctionType* functionType,
 		CastKind* castKind = NULL
 		) const
 	{
-		return chooseSetterOverload (functionType->getArgArray ().getBack ()->getType (), castKind);
+		return chooseSetterOverload(functionType->getArgArray().getBack()->getType(), castKind);
 	}
 
 	size_t
-	addOverload (FunctionType* type);
+	addOverload(FunctionType* type);
 
 	void
-	copy (
+	copy(
 		FunctionType* const* typeArray,
 		size_t count
 		);
 
 	bool
-	ensureLayout ();
+	ensureLayout();
 };
 
 //..............................................................................

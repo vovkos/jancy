@@ -1,38 +1,38 @@
 import "std_HashTable.jnc"
 
-size_t hashString_i (variant v)
+size_t hashString_i(variant v)
 {
 	char const* p = v;
-	char const* end = p + strlen (p);
+	char const* end = p + strlen(p);
 
 	size_t hash = 5381;
 
 	for (; p < end; p++)
-		hash = ((hash << 5) + hash) + tolower (*p); // hash * 33 + c
+		hash = ((hash << 5) + hash) + tolower(*p); // hash * 33 + c
 
 	return hash;
 }
 
-bool isEqualString_i (
-	variant v1, 
+bool isEqualString_i(
+	variant v1,
 	variant v2
 	)
 {
-	return stricmp (v1, v2) == 0;
+	return stricmp(v1, v2) == 0;
 }
 
-int main ()
+int main()
 {
 	std.HashTable hashTable;
-	hashTable [1] = 100;
-	hashTable [2] = 200;
-	print ($"1 => %1 2 => %2\n" (hashTable [1], hashTable [2]));
+	hashTable[1] = 100;
+	hashTable[2] = 200;
+	print($"1 => %1 2 => %2\n" (hashTable [1], hashTable [2]));
 
-	std.HashTable hashTable2 (hashString_i, isEqualString_i);
-	hashTable2 ["user"] = "John Doe";
-	hashTable2 ["pass"] = "qwerty";
+	std.HashTable hashTable2(hashString_i, isEqualString_i);
+	hashTable2["user"] = "John Doe";
+	hashTable2["pass"] = "qwerty";
 
-	print ($"user: %1 password: %2\n" (hashTable2 ["USER"], hashTable2 ["PASS"]));
+	print($"user: %1 password: %2\n" (hashTable2 ["USER"], hashTable2 ["PASS"]));
 
 	return 0;
 }

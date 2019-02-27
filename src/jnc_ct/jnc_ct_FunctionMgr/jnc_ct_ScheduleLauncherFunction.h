@@ -23,14 +23,14 @@ class ScheduleLauncherFunction: public Function
 	friend class FunctionMgr;
 
 public:
-	ScheduleLauncherFunction ()
+	ScheduleLauncherFunction()
 	{
 		m_functionKind = FunctionKind_ScheduleLauncher;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 };
 
 //..............................................................................

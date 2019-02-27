@@ -9,30 +9,30 @@
 //
 //..............................................................................
 
-typedef int stdcall SndPlaySound (
+typedef int stdcall SndPlaySound(
 	char const thin* name,
 	int flags
 	);
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	jnc.DynamicLib lib;
-	lib.open ("winmm.dll");
+	lib.open("winmm.dll");
 
 	SndPlaySound thin* sndPlaySound;
 
 	unsafe
 	{
-		sndPlaySound = (SndPlaySound thin*) lib.getFunction ("sndPlaySoundA");
+		sndPlaySound = (SndPlaySound thin*) lib.getFunction("sndPlaySoundA");
 	}
 
-	sndPlaySound ("c:/windows/media/tada.wav", 0);
+	sndPlaySound("c:/windows/media/tada.wav", 0);
 	return 0;
 
 catch:
-	printf ("error caught: %s\n", std.getLastError ().m_description);
+	printf("error caught: %s\n", std.getLastError ().m_description);
 	return -1;
 }
 

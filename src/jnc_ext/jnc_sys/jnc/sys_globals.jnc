@@ -29,7 +29,7 @@ namespace sys {
 	``_putenv`` on Windows.
 */
 
-char const* property g_env (char const* name);
+char const* property g_env(char const* name);
 
 enum CpuKind
 {
@@ -88,13 +88,13 @@ SystemInfo const g_systemInfo;
 //! @{
 
 /**
-	Returns the thread identifier (TID) of the current thread.
+	Returns the thread identifier(TID)of the current thread.
 
 	Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on
 	POSIX.
 */
 
-uintptr_t getCurrentThreadId ();
+uintptr_t getCurrentThreadId();
 
 /**
 	Creates a new thead and executes ``threadFunc`` in the context of the newly
@@ -103,7 +103,7 @@ uintptr_t getCurrentThreadId ();
 	If you need to pass extra context parameters to the ``threadFunc``, use
 	partial application as such::
 
-		myThreadFunc (
+		myThreadFunc(
 			int intContext,
 			char const* stringContext
 			)
@@ -112,11 +112,11 @@ uintptr_t getCurrentThreadId ();
 
 		// ...
 
-		sys.createThread (myThreadFunc ~(100, "string-context"));
+		sys.createThread(myThreadFunc ~(100, "string-context"));
 
 */
 
-bool createThread (function* threadFunc ());
+bool createThread(function* threadFunc());
 
 //! @}
 
@@ -128,7 +128,7 @@ bool createThread (function* threadFunc ());
 	elapses. ``timeout`` is expressed in milliseconds.
 */
 
-void sleep (uint32_t timeout);
+void sleep(uint32_t timeout);
 
 /**
 	Returns current system timestamp. Timestamp is expressed as a 64-bit value
@@ -144,7 +144,7 @@ void sleep (uint32_t timeout);
 	\sa `sys.getPreciseTimestamp`
 */
 
-uint64_t getTimestamp ();
+uint64_t getTimestamp();
 
 /**
 	Returns current system high-precision timestamp. Timestamp is expressed as a
@@ -159,41 +159,41 @@ uint64_t getTimestamp ();
 	\sa `sys.getTimestamp`
 */
 
-uint64_t getPreciseTimestamp ();
+uint64_t getPreciseTimestamp();
 
 /**
 	\subgroup
 
 	Returns string representation of the timestamp.
 
-	%h -- hour in 24-hour format (00..24)
-	%H -- hour in 12-hour format (1..12)
-	%m -- minutes (00..59)
-	%s -- seconds (00..59)
-	%l -- milliseconds (0..999)
-	%c -- microseconds (0..999)
-	%p -- AM / PM designition lower case (a / p)
-	%p -- AM / PM designition upper case (A / P)
-	%y -- year, last 2-digit format (0..99)
+	%h -- hour in 24-hour format(00..24)
+	%H -- hour in 12-hour format(1..12)
+	%m -- minutes(00..59)
+	%s -- seconds(00..59)
+	%l -- milliseconds(0..999)
+	%c -- microseconds(0..999)
+	%p -- AM / PM designition lower case(a / p)
+	%p -- AM / PM designition upper case(A / P)
+	%y -- year, last 2-digit format(0..99)
 	%Y -- year, all digits
-	%D -- day of month, leading zero (01..31)
-	%d -- day of month, no leading zero (1..31)
-	%M -- month index, leading zero (01..12)
-	%o -- month index, no leading zero (1..12)
-	%n -- month short name (Jan..Dec)
-	%N -- month full name (January..December)
-	%w -- week day short name (Sun..Sat)
-	%W -- week day full name (Sunday..Saturday)
+	%D -- day of month, leading zero(01..31)
+	%d -- day of month, no leading zero(1..31)
+	%M -- month index, leading zero(01..12)
+	%o -- month index, no leading zero(1..12)
+	%n -- month short name(Jan..Dec)
+	%N -- month full name(January..December)
+	%w -- week day short name(Sun..Sat)
+	%W -- week day full name(Sunday..Saturday)
 
 	\sa `sys.getTimestamp`, `sys.getPreciseTimestamp`
 */
 
-char const* formatTimestamp (
+char const* formatTimestamp(
 	uint64_t timestamp,
 	char const* format
 	);
 
-char const* formatTimestamp (
+char const* formatTimestamp(
 	uint64_t timestamp,
 	int timeZone,
 	char const* format
@@ -217,7 +217,7 @@ struct GcStats
 	uint64_t m_totalCollectTimeTaken;
 }
 
-GcStats getGcStats ();
+GcStats getGcStats();
 
 struct GcTriggers
 {
@@ -231,7 +231,7 @@ GcTriggers property g_gcTriggers;
 	Forces a full cycle of garbage collection.
 */
 
-void collectGarbage ();
+void collectGarbage();
 
 //! @}
 

@@ -42,24 +42,24 @@ namespace sys {
 		sys.Lock g_event;
 		int g_resource;
 
-		thread1 ()
+		thread1()
 		{
 			// ...
 
-			g_lock.lock ();   // acquire the lock
+			g_lock.lock();   // acquire the lock
 			g_resource++;     // we can safely access the resource now
-			g_lock.unlock (); // let others get access, too
+			g_lock.unlock(); // let others get access, too
 
 			// continue...
 		}
 
-		thread2 ()
+		thread2()
 		{
 			// ...
 
-			g_lock.lock ();   // acquire the lock
+			g_lock.lock();   // acquire the lock
 			g_resource--;     // we can safely access the resource now
-			g_lock.unlock (); // let others get access, too
+			g_lock.unlock(); // let others get access, too
 
 			// continue...
 		}
@@ -69,8 +69,8 @@ namespace sys {
 
 opaque class Lock
 {
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		*Acquires* the lock. If the lock is already acquired by another thread,
@@ -78,14 +78,14 @@ opaque class Lock
 		released by other thread(s), the current thread acquires it.
 	*/
 
-	lock ();
+	lock();
 
 	/**
 		*Releases* the lock. If other threads are waiting for the lock at the
 		moment, the first one in the wait queue *acquires* the lock.
 	*/
 
-	unlock ();
+	unlock();
 }
 
 //..............................................................................

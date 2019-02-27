@@ -31,7 +31,7 @@
 
 	Opaque structure used as a handle to Jancy garbage-collected heap.
 
-	Use functions from the :ref:`Garbage-Collected Heap <cid-gc-heap>` group to access and manage the contents of this structure.
+	Use functions from the :ref:`Garbage-Collected Heap<cid-gc-heap>` group to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -99,66 +99,66 @@ struct jnc_GcSizeTriggers
 
 JNC_EXTERN_C
 jnc_Runtime*
-jnc_GcHeap_getRuntime (jnc_GcHeap* gcHeap);
+jnc_GcHeap_getRuntime(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_getStats (
+jnc_GcHeap_getStats(
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_getSizeTriggers (
+jnc_GcHeap_getSizeTriggers(
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_setSizeTriggers (
+jnc_GcHeap_setSizeTriggers(
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_getStats (
+jnc_GcHeap_getStats(
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_collect (jnc_GcHeap* gcHeap);
+jnc_GcHeap_collect(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_enterNoCollectRegion (jnc_GcHeap* gcHeap);
+jnc_GcHeap_enterNoCollectRegion(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_leaveNoCollectRegion (
+jnc_GcHeap_leaveNoCollectRegion(
 	jnc_GcHeap* gcHeap,
 	bool_t canCollectNow
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_enterWaitRegion (jnc_GcHeap* gcHeap);
+jnc_GcHeap_enterWaitRegion(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_leaveWaitRegion (jnc_GcHeap* gcHeap);
+jnc_GcHeap_leaveWaitRegion(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_safePoint (jnc_GcHeap* gcHeap);
+jnc_GcHeap_safePoint(jnc_GcHeap* gcHeap);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_setFrameMap (
+jnc_GcHeap_setFrameMap(
 	jnc_GcHeap* gcHeap,
 	jnc_GcShadowStackFrame* frame,
 	jnc_GcShadowStackFrameMap* map,
@@ -167,14 +167,14 @@ jnc_GcHeap_setFrameMap (
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_addStaticDestructor (
+jnc_GcHeap_addStaticDestructor(
 	jnc_GcHeap* gcHeap,
 	jnc_StaticDestructFunc* destructFunc
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_addStaticClassDestructor (
+jnc_GcHeap_addStaticClassDestructor(
 	jnc_GcHeap* gcHeap,
 	jnc_DestructFunc* destructFunc,
 	jnc_IfaceHdr* iface
@@ -182,7 +182,7 @@ jnc_GcHeap_addStaticClassDestructor (
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_addStaticRoot (
+jnc_GcHeap_addStaticRoot(
 	jnc_GcHeap* gcHeap,
 	const void* p,
 	jnc_Type* type
@@ -190,35 +190,35 @@ jnc_GcHeap_addStaticRoot (
 
 JNC_EXTERN_C
 jnc_IfaceHdr*
-jnc_GcHeap_allocateClass (
+jnc_GcHeap_allocateClass(
 	jnc_GcHeap* gcHeap,
 	jnc_ClassType* type
 	);
 
 JNC_EXTERN_C
 jnc_IfaceHdr*
-jnc_GcHeap_tryAllocateClass (
+jnc_GcHeap_tryAllocateClass(
 	jnc_GcHeap* gcHeap,
 	jnc_ClassType* type
 	);
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_allocateData (
+jnc_GcHeap_allocateData(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type
 	);
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_tryAllocateData (
+jnc_GcHeap_tryAllocateData(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type
 	);
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_allocateArray (
+jnc_GcHeap_allocateArray(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t count
@@ -226,7 +226,7 @@ jnc_GcHeap_allocateArray (
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_tryAllocateArray (
+jnc_GcHeap_tryAllocateArray(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t count
@@ -234,21 +234,21 @@ jnc_GcHeap_tryAllocateArray (
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_allocateBuffer (
+jnc_GcHeap_allocateBuffer(
 	jnc_GcHeap* gcHeap,
 	size_t size
 	);
 
 JNC_EXTERN_C
 jnc_DataPtr
-jnc_GcHeap_tryAllocateBuffer (
+jnc_GcHeap_tryAllocateBuffer(
 	jnc_GcHeap* gcHeap,
 	size_t size
 	);
 
 JNC_EXTERN_C
 jnc_DataPtrValidator*
-jnc_GcHeap_createDataPtrValidator (
+jnc_GcHeap_createDataPtrValidator(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
@@ -257,42 +257,42 @@ jnc_GcHeap_createDataPtrValidator (
 
 JNC_EXTERN_C
 jnc_IfaceHdr*
-jnc_GcHeap_getDynamicLayout (
+jnc_GcHeap_getDynamicLayout(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_resetDynamicLayout (
+jnc_GcHeap_resetDynamicLayout(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_weakMark (
+jnc_GcHeap_weakMark(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_markData (
+jnc_GcHeap_markData(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_markClass (
+jnc_GcHeap_markClass(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_addRoot (
+jnc_GcHeap_addRoot(
 	jnc_GcHeap* gcHeap,
 	const void* p,
 	jnc_Type* type
@@ -300,213 +300,213 @@ jnc_GcHeap_addRoot (
 
 JNC_EXTERN_C
 void
-jnc_GcHeap_addBoxToCallSite (jnc_Box* box);
+jnc_GcHeap_addBoxToCallSite(jnc_Box* box);
 
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_GcHeap
 {
 	jnc_Runtime*
-	getRuntime ()
+	getRuntime()
 	{
-		return jnc_GcHeap_getRuntime (this);
+		return jnc_GcHeap_getRuntime(this);
 	}
 
 	void
-	getSizeTriggers (jnc_GcSizeTriggers* triggers)
+	getSizeTriggers(jnc_GcSizeTriggers* triggers)
 	{
-		jnc_GcHeap_getSizeTriggers (this, triggers);
+		jnc_GcHeap_getSizeTriggers(this, triggers);
 	}
 
 	void
-	setSizeTriggers (const jnc_GcSizeTriggers* triggers)
+	setSizeTriggers(const jnc_GcSizeTriggers* triggers)
 	{
-		jnc_GcHeap_setSizeTriggers (this, triggers);
+		jnc_GcHeap_setSizeTriggers(this, triggers);
 	}
 
 	void
-	getStats (jnc_GcStats* stats)
+	getStats(jnc_GcStats* stats)
 	{
-		jnc_GcHeap_getStats (this, stats);
+		jnc_GcHeap_getStats(this, stats);
 	}
 
 	void
-	collect ()
+	collect()
 	{
-		jnc_GcHeap_collect (this);
+		jnc_GcHeap_collect(this);
 	}
 
 	void
-	enterNoCollectRegion ()
+	enterNoCollectRegion()
 	{
-		jnc_GcHeap_enterNoCollectRegion (this);
+		jnc_GcHeap_enterNoCollectRegion(this);
 	}
 
 	void
-	leaveNoCollectRegion (bool canCollectNow = true)
+	leaveNoCollectRegion(bool canCollectNow = true)
 	{
-		jnc_GcHeap_leaveNoCollectRegion (this, canCollectNow);
+		jnc_GcHeap_leaveNoCollectRegion(this, canCollectNow);
 	}
 
 	void
-	enterWaitRegion ()
+	enterWaitRegion()
 	{
-		jnc_GcHeap_enterWaitRegion (this);
+		jnc_GcHeap_enterWaitRegion(this);
 	}
 
 	void
-	leaveWaitRegion ()
+	leaveWaitRegion()
 	{
-		jnc_GcHeap_leaveWaitRegion (this);
+		jnc_GcHeap_leaveWaitRegion(this);
 	}
 
 	void
-	safePoint ()
+	safePoint()
 	{
-		jnc_GcHeap_safePoint (this);
+		jnc_GcHeap_safePoint(this);
 	}
 
 	void
-	setFrameMap (
+	setFrameMap(
 		jnc_GcShadowStackFrame* frame,
 		jnc_GcShadowStackFrameMap* map,
 		jnc_GcShadowStackFrameMapOp op
 		)
 	{
-		jnc_GcHeap_setFrameMap (this, frame, map, op);
+		jnc_GcHeap_setFrameMap(this, frame, map, op);
 	}
 
 	void
-	addStaticDestructor (jnc_StaticDestructFunc* destructFunc)
+	addStaticDestructor(jnc_StaticDestructFunc* destructFunc)
 	{
-		jnc_GcHeap_addStaticDestructor (this, destructFunc);
+		jnc_GcHeap_addStaticDestructor(this, destructFunc);
 	}
 
 	void
-	addStaticClassDestructor (
+	addStaticClassDestructor(
 		jnc_DestructFunc* destructFunc,
 		jnc_IfaceHdr* iface
 		)
 	{
-		jnc_GcHeap_addStaticClassDestructor (this, destructFunc, iface);
+		jnc_GcHeap_addStaticClassDestructor(this, destructFunc, iface);
 	}
 
 	void
-	addStaticRoot (
+	addStaticRoot(
 		const void* p,
 		jnc_Type* type
 		)
 	{
-		jnc_GcHeap_addStaticRoot (this, p, type);
+		jnc_GcHeap_addStaticRoot(this, p, type);
 	}
 
 	jnc_IfaceHdr*
-	allocateClass (jnc_ClassType* type)
+	allocateClass(jnc_ClassType* type)
 	{
-		return jnc_GcHeap_allocateClass (this, type);
+		return jnc_GcHeap_allocateClass(this, type);
 	}
 
 	jnc_IfaceHdr*
-	tryAllocateClass (jnc_ClassType* type)
+	tryAllocateClass(jnc_ClassType* type)
 	{
-		return jnc_GcHeap_tryAllocateClass (this, type);
+		return jnc_GcHeap_tryAllocateClass(this, type);
 	}
 
 	jnc_DataPtr
-	allocateData (jnc_Type* type)
+	allocateData(jnc_Type* type)
 	{
-		return jnc_GcHeap_allocateData (this, type);
+		return jnc_GcHeap_allocateData(this, type);
 	}
 
 	jnc_DataPtr
-	tryAllocateData (jnc_Type* type)
+	tryAllocateData(jnc_Type* type)
 	{
-		return jnc_GcHeap_tryAllocateData (this, type);
+		return jnc_GcHeap_tryAllocateData(this, type);
 	}
 
 	jnc_DataPtr
-	allocateArray (
+	allocateArray(
 		jnc_Type* type,
 		size_t count
 		)
 	{
-		return jnc_GcHeap_allocateArray (this, type, count);
+		return jnc_GcHeap_allocateArray(this, type, count);
 	}
 
 	jnc_DataPtr
-	tryAllocateArray (
+	tryAllocateArray(
 		jnc_Type* type,
 		size_t count
 		)
 	{
-		return jnc_GcHeap_tryAllocateArray (this, type, count);
+		return jnc_GcHeap_tryAllocateArray(this, type, count);
 	}
 
 	jnc_DataPtr
-	allocateBuffer (size_t size)
+	allocateBuffer(size_t size)
 	{
-		return jnc_GcHeap_allocateBuffer (this, size);
+		return jnc_GcHeap_allocateBuffer(this, size);
 	}
 
 	jnc_DataPtr
-	tryAllocateBuffer (size_t size)
+	tryAllocateBuffer(size_t size)
 	{
-		return jnc_GcHeap_tryAllocateBuffer (this, size);
+		return jnc_GcHeap_tryAllocateBuffer(this, size);
 	}
 
 	jnc_DataPtrValidator*
-	createDataPtrValidator (
+	createDataPtrValidator(
 		jnc_Box* box,
 		void* rangeBegin,
 		size_t rangeLength
 		)
 	{
-		return jnc_GcHeap_createDataPtrValidator (this, box, rangeBegin, rangeLength);
+		return jnc_GcHeap_createDataPtrValidator(this, box, rangeBegin, rangeLength);
 	}
 
 	jnc_IfaceHdr*
-	getDynamicLayout (jnc_Box* box)
+	getDynamicLayout(jnc_Box* box)
 	{
-		return jnc_GcHeap_getDynamicLayout (this, box);
+		return jnc_GcHeap_getDynamicLayout(this, box);
 	}
 
 	void
-	resetDynamicLayout (jnc_Box* box)
+	resetDynamicLayout(jnc_Box* box)
 	{
-		jnc_GcHeap_resetDynamicLayout (this, box);
+		jnc_GcHeap_resetDynamicLayout(this, box);
 	}
 
 	void
-	weakMark (jnc_Box* box)
+	weakMark(jnc_Box* box)
 	{
-		jnc_GcHeap_weakMark (this, box);
+		jnc_GcHeap_weakMark(this, box);
 	}
 
 	void
-	markData (jnc_Box* box)
+	markData(jnc_Box* box)
 	{
-		jnc_GcHeap_markData (this, box);
+		jnc_GcHeap_markData(this, box);
 	}
 
 	void
-	markClass (jnc_Box* box)
+	markClass(jnc_Box* box)
 	{
-		jnc_GcHeap_markClass (this, box);
+		jnc_GcHeap_markClass(this, box);
 	}
 
 	void
-	addRoot (
+	addRoot(
 		const void* p,
 		jnc_Type* type
 		)
 	{
-		jnc_GcHeap_addRoot (this, p, type);
+		jnc_GcHeap_addRoot(this, p, type);
 	}
 
 	static
 	void
-	addBoxToCallSite (jnc_Box* box)
+	addBoxToCallSite(jnc_Box* box)
 	{
-		jnc_GcHeap_addBoxToCallSite (box);
+		jnc_GcHeap_addBoxToCallSite(box);
 	}
 };
 #endif // _JNC_CORE

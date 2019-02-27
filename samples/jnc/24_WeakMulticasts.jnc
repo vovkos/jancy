@@ -23,19 +23,19 @@ class C1
 {
 	int m_x = -1;
 
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
+		printf("C1.construct ()\n");
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C1.destruct ()\n");
+		printf("C1.destruct ()\n");
 	}
 
-	foo ()
+	foo()
 	{
-		printf ("C1.foo () { m_x = %d }\n", m_x);
+		printf("C1.foo () { m_x = %d }\n", m_x);
 	}
 }
 
@@ -43,11 +43,11 @@ class C1
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	weak multicast wm ();
+	weak multicast wm();
 
 	C1* c = new C1;
 
@@ -58,15 +58,15 @@ int main ()
 
 	// c = null;
 
-	printf ("gc run...\n");
-	sys.collectGarbage ();
+	printf("gc run...\n");
+	sys.collectGarbage();
 
 	// if the object was collected during the GC run, the corresponding entry
 	// in the weak multicast will be automatically removed when getting the
 	// next snapshot (this is done during the 'mulicast.call' execution)
 
-	printf ("calling weak multicast...\n");
-	wm ();
+	printf("calling weak multicast...\n");
+	wm();
 
 	return 0;
 }

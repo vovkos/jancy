@@ -25,7 +25,7 @@ class Cast_FpTrunc: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -35,19 +35,19 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
 		)
 	{
-		*(float*) dst = (float) *(double*) opValue.getConstData ();
+		*(float*)dst = (float)*(double*)opValue.getConstData();
 		return true;
 	}
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -63,7 +63,7 @@ class Cast_FpExt: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -73,19 +73,19 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
 		)
 	{
-		*(double*) dst = *(float*) opValue.getConstData ();
+		*(double*)dst = *(float*)opValue.getConstData();
 		return true;
 	}
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -101,17 +101,17 @@ class Cast_FpFromInt: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
 	{
-		return opValue.getType ()->getSize () < type->getSize () ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
+		return opValue.getType()->getSize() < type->getSize() ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -119,7 +119,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -127,13 +127,13 @@ public:
 
 protected:
 	void
-	constCast_Fp32 (
+	constCast_Fp32(
 		const Value& srcValue,
 		float* fp32
 		);
 
 	void
-	constCast_Fp64 (
+	constCast_Fp64(
 		const Value& srcValue,
 		double* fp64
 		);
@@ -148,17 +148,17 @@ class Cast_FpFromInt_u: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
 	{
-		return opValue.getType ()->getSize () < type->getSize () ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
+		return opValue.getType()->getSize() < type->getSize() ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -166,7 +166,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -174,13 +174,13 @@ public:
 
 protected:
 	void
-	constCast_Fp32 (
+	constCast_Fp32(
 		const Value& srcValue,
 		float* fp32
 		);
 
 	void
-	constCast_Fp64 (
+	constCast_Fp64(
 		const Value& srcValue,
 		double* fp64
 		);
@@ -195,7 +195,7 @@ class Cast_FpFromBeInt: public Cast_SuperMaster
 public:
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -213,7 +213,7 @@ class Cast_FpFromEnum: public Cast_SuperMaster
 public:
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -239,7 +239,7 @@ protected:
 public:
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		);

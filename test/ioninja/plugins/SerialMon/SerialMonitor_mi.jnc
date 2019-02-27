@@ -20,33 +20,33 @@ protected:
 	size_t m_expectedMsgSize;
 
 public:
-	construct (log.Writer* logWriter)
+	construct(log.Writer* logWriter)
 	{
 		m_logWriter = logWriter;
-		reset ();
+		reset();
 	}
 
-	reset ();
+	reset();
 
-	bool errorcode write (
+	bool errorcode write(
 		void const* p,
 		size_t size
 		);
 
 protected:
-	bool errorcode processMsg (io.DeviceMonitorMiMsgHdr const* hdr);
+	bool errorcode processMsg(io.DeviceMonitorMiMsgHdr const* hdr);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMonitor_mi.reset ()
+SerialMonitor_mi.reset()
 {
-	m_expectedMsgSize = sizeof (io.DeviceMonitorMiMsgHdr);
-	m_buffer.clear ();
+	m_expectedMsgSize = sizeof(io.DeviceMonitorMiMsgHdr);
+	m_buffer.clear();
 	m_processor = null;
 }
 
-bool errorcode SerialMonitor_mi.write (
+bool errorcode SerialMonitor_mi.write(
 	void const* p,
 	size_t size
 	)
@@ -58,62 +58,62 @@ bool errorcode SerialMonitor_mi.write (
 			size_t leftover = m_expectedMsgSize - m_buffer.m_size;
 			if (size < leftover)
 			{
-				m_buffer.append (p, size);
+				m_buffer.append(p, size);
 				break;
 			}
 
-			m_buffer.append (p, leftover);
+			m_buffer.append(p, leftover);
 			p += leftover;
 			size -= leftover;
 		}
 
 		io.DeviceMonitorMiMsgHdr const* hdr = (io.DeviceMonitorMiMsgHdr const*) m_buffer.m_p;
-		size_t msgSize = sizeof (io.DeviceMonitorMiMsgHdr) + hdr.m_paramSize;
+		size_t msgSize = sizeof(io.DeviceMonitorMiMsgHdr) + hdr.m_paramSize;
 		if (m_expectedMsgSize < msgSize)
 		{
 			m_expectedMsgSize = msgSize;
 			continue;
 		}
 
-		processMsg (hdr);
-		m_expectedMsgSize = sizeof (io.DeviceMonitorMiMsgHdr);
-		m_buffer.clear ();
+		processMsg(hdr);
+		m_expectedMsgSize = sizeof(io.DeviceMonitorMiMsgHdr);
+		m_buffer.clear();
 	}
 
 	return true;
 }
 
-bool errorcode SerialMonitor_mi.processMsg (io.DeviceMonitorMiMsgHdr const* hdr)
+bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 {
-	switch (hdr.m_code)
+	switch(hdr.m_code)
 	{
 	case io.DeviceMonitorMiMsgCode.Error:
 		std.Error const* error = (std.Error const*) (hdr + 1);
-		if (hdr.m_paramSize < sizeof (std.Error) ||
+		if (hdr.m_paramSize < sizeof(std.Error) ||
 			hdr.m_paramSize < error.m_size)
 		{
-			std.setError ("machine interface error: ERROR message too small");
+			std.setError("machine interface error: ERROR message too small");
 			return false;
 		}
 
-		std.setError (error);
+		std.setError(error);
 		return false;
 
 	case io.DeviceMonitorMiMsgCode.Start:
-		if (hdr.m_paramSize < sizeof (io.DeviceMonitorMiStartParams))
+		if (hdr.m_paramSize < sizeof(io.DeviceMonitorMiStartParams))
 		{
-			std.setError ("machine interface error: START message too small");
+			std.setError("machine interface error: START message too small");
 			return false;
 		}
 
 		io.DeviceMonitorMiStartParams const* params = (io.DeviceMonitorMiStartParams const*) (hdr + 1);
 		if (params.m_flags & io.DeviceMonitorMiStartFlags.Windows)
-			m_processor = new SerialMonProcessor_win (m_logWriter);
+			m_processor = new SerialMonProcessor_win(m_logWriter);
 		else if (params.m_flags & io.DeviceMonitorMiStartFlags.Linux)
-			m_processor = new SerialMonProcessor_lnx (m_logWriter);
+			m_processor = new SerialMonProcessor_lnx(m_logWriter);
 		else
 		{
-			std.setError ("unsupported target OS");
+			std.setError("unsupported target OS");
 			return false;
 		}
 
@@ -122,23 +122,23 @@ bool errorcode SerialMonitor_mi.processMsg (io.DeviceMonitorMiMsgHdr const* hdr)
 	case io.DeviceMonitorMiMsgCode.Notification:
 		if (!m_processor)
 		{
-			std.setError ("machine interface error: NOTIFY before START");
+			std.setError("machine interface error: NOTIFY before START");
 			return false;
 		}
 
 		io.DeviceMonitorNotifyHdr const* notifyHdr = (io.DeviceMonitorNotifyHdr const*) (hdr + 1);
-		if (hdr.m_paramSize < sizeof (io.DeviceMonitorNotifyHdr) ||
-			hdr.m_paramSize < sizeof (io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize)
+		if (hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) ||
+			hdr.m_paramSize < sizeof(io.DeviceMonitorNotifyHdr) + notifyHdr.m_paramSize)
 		{
-			std.setError ("machine interface error: NOTIFY message too small");
+			std.setError("machine interface error: NOTIFY message too small");
 			return false;
 		}
 
-		m_processor.processNotification (notifyHdr);
+		m_processor.processNotification(notifyHdr);
 		break;
 
 	default:
-		std.setError ("machine interface error: undefined message code");
+		std.setError("machine interface error: undefined message code");
 		return false;
 	}
 

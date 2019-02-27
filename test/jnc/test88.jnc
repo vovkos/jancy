@@ -4,16 +4,16 @@ struct Point
 	int m_y;
 }
 
-int main ()
+int main()
 {
-	int a [4] = { 10, 20, 30, 40 }
+	int a[4] = { 10, 20, 30, 40 }
 
-	variant v1 = &a [0];
-	variant v2 = &a [2];
+	variant v1 = &a[0];
+	variant v2 = &a[2];
 	variant v3 = *v1;
 	variant v4 = v2 - v1;
 
-	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
+	printf($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 
 	Point point = { 10, 20 }
 
@@ -23,27 +23,27 @@ int main ()
 	v.m_x = 100;
 	v.m_y = 200;
 
-	printf ($"v.m_x = %1, v.m_y = %2\n" (v.m_x, v.m_y));
+	printf($"v.m_x = %1, v.m_y = %2\n" (v.m_x, v.m_y));
 
 	v = { 1000, 2000 };
 
-	printf ($"v.m_x = %1, v.m_y = %2\n" (v.m_x, v.m_y));
+	printf($"v.m_x = %1, v.m_y = %2\n" (v.m_x, v.m_y));
 
-	printf ("point.m_x = %d, point.m_y = %d\n", point.m_x, point.m_y);
+	printf("point.m_x = %d, point.m_y = %d\n", point.m_x, point.m_y);
 
 	v = a;
-	v [0] = 100;
-	v [1] = 200;
-	v [2] = 300;
-	v [3] = 400;
+	v[0] = 100;
+	v[1] = 200;
+	v[2] = 300;
+	v[3] = 400;
 
-	printf ($"v = { %1, %2, %3, %4 }\n" (v [0], v [1], v [2], v [3]));
+	printf($"v = { %1, %2, %3, %4 }\n" (v [0], v [1], v [2], v [3]));
 
 	v = { 1000, 2000, 3000, 4000 };
 
-	printf ($"v = { %1, %2, %3, %4 }\n" (v [0], v [1], v [2], v [3]));
+	printf($"v = { %1, %2, %3, %4 }\n" (v [0], v [1], v [2], v [3]));
 
-	printf ($"a = { %1, %2, %3, %4 }\n" (a [0], a [1], a [2], a [3]));
+	printf($"a = { %1, %2, %3, %4 }\n" (a [0], a [1], a [2], a [3]));
 
 	return 0;
 }

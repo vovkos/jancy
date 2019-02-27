@@ -26,7 +26,7 @@ ModulePane::ModulePane(QWidget *parent)
 		this, SLOT(onItemDoubleClicked(QTreeWidgetItem *, int)));
 }
 
-bool ModulePane::build (jnc::Module* module, MdiChild* document)
+bool ModulePane::build(jnc::Module* module, MdiChild* document)
 {
 	clear();
 
@@ -50,11 +50,11 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column)
 	if(variant.isNull())
 		return;
 
-	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*) variant.value <void*> ();
+	jnc::ModuleItemDecl* decl = (jnc::ModuleItemDecl*)variant.value<void*> ();
 	if (!decl)
 		return;
 
-	document->selectLine(decl->getLine (), true);
+	document->selectLine(decl->getLine(), true);
 	document->setFocus();
 }
 
@@ -81,14 +81,14 @@ bool ModulePane::addItemAttributes(QTreeWidgetItem *parent,
 
 	QTreeWidgetItem *attributes = insertItem("attributes", parent);
 
-	size_t count = attributeBlock->getAttributeCount ();
+	size_t count = attributeBlock->getAttributeCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::Attribute* attribute = attributeBlock->getAttribute (i);
-		jnc::ModuleItemDecl* decl = attribute->getDecl ();
+		jnc::Attribute* attribute = attributeBlock->getAttribute(i);
+		jnc::ModuleItemDecl* decl = attribute->getDecl();
 
-		QTreeWidgetItem *item = insertItem (decl->getName (), attributes);
-		item->setData(0, Qt::UserRole, qVariantFromValue((void*) decl));
+		QTreeWidgetItem *item = insertItem(decl->getName(), attributes);
+		item->setData(0, Qt::UserRole, qVariantFromValue((void*)decl));
 	}
 
 	expandItem(attributes);
@@ -106,7 +106,7 @@ void ModulePane::addNamespace(QTreeWidgetItem *parent,
 	{
 		treeItem = insertItem("scope", parent);
 	}
-	else if (!globalNamespace->getDecl ()->getParentNamespace())
+	else if (!globalNamespace->getDecl()->getParentNamespace())
 	{
 		treeItem = insertItem("global", parent);
 	}
@@ -114,17 +114,17 @@ void ModulePane::addNamespace(QTreeWidgetItem *parent,
 	{
 		QString text;
 		text.sprintf("namespace %s",
-			(const char *)globalNamespace->getDecl ()->getName());
+			(const char *)globalNamespace->getDecl()->getName());
 
 		treeItem = insertItem(text, parent);
 	}
 
-	treeItem->setData(0, Qt::UserRole, qVariantFromValue((void*) globalNamespace->getDecl ()));
+	treeItem->setData(0, Qt::UserRole, qVariantFromValue((void*)globalNamespace->getDecl()));
 
-	jnc::Namespace* nspace = globalNamespace->getNamespace ();
+	jnc::Namespace* nspace = globalNamespace->getNamespace();
 	size_t count = nspace->getItemCount();
 	for (size_t i = 0; i < count; i++) {
-		jnc::ModuleItem *child = nspace->getItem (i);
+		jnc::ModuleItem *child = nspace->getItem(i);
 		addItem(treeItem, child);
 	}
 
@@ -138,38 +138,38 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 	QString name;
 	QTreeWidgetItem* treeItem;
 
-	switch (itemKind)
+	switch(itemKind)
 	{
 	case jnc::ModuleItemKind_Namespace:
-		addNamespace (parent, (jnc::GlobalNamespace*) item);
+		addNamespace(parent, (jnc::GlobalNamespace*)item);
 		break;
 
 	case jnc::ModuleItemKind_Type:
-		addType (parent, (jnc::Type*) item);
+		addType(parent, (jnc::Type*)item);
 		break;
 
 	case jnc::ModuleItemKind_Typedef:
-		addTypedef (parent, (jnc::Typedef*) item);
+		addTypedef(parent, (jnc::Typedef*)item);
 		break;
 
 	case jnc::ModuleItemKind_Variable:
-		addVariable (parent, (jnc::Variable*) item);
+		addVariable(parent, (jnc::Variable*)item);
 		break;
 
 	case jnc::ModuleItemKind_Function:
-		addFunction (parent, (jnc::Function*) item);
+		addFunction(parent, (jnc::Function*)item);
 		break;
 
 	case jnc::ModuleItemKind_Property:
-		addProperty (parent, (jnc::Property*) item);
+		addProperty(parent, (jnc::Property*)item);
 		break;
 
 	case jnc::ModuleItemKind_EnumConst:
-		addEnumConst (parent, (jnc::EnumConst*) item);
+		addEnumConst(parent, (jnc::EnumConst*)item);
 		break;
 
 	case jnc::ModuleItemKind_StructField:
-		addStructField (parent, (jnc::StructField*) item);
+		addStructField(parent, (jnc::StructField*)item);
 		break;
 
 	case jnc::ModuleItemKind_Lazy:
@@ -177,7 +177,7 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 		break;
 
 	case jnc::ModuleItemKind_Alias:
-		addAlias (parent, (jnc::Alias*) item);
+		addAlias(parent, (jnc::Alias*)item);
 		break;
 
 	default:
@@ -194,184 +194,184 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 
-	QString toolTip = QString ("%1 (sizeof = %2)").arg (type->getTypeString ()).arg (type->getSize ());
-	item->setToolTip (0, toolTip);
+	QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString ()).arg (type->getSize ());
+	item->setToolTip(0, toolTip);
 
 	jnc::ModuleItemDecl* decl = NULL;
 	jnc::TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
+	switch(typeKind)
 	{
 	case jnc::TypeKind_Enum:
-		decl = ((jnc::EnumType *)type)->getDecl ();
-		addItemAttributes (item, decl);
+		decl = ((jnc::EnumType *)type)->getDecl();
+		addItemAttributes(item, decl);
 		addEnumTypeMembers(item, (jnc::EnumType *)type);
 		break;
 
 	case jnc::TypeKind_Struct:
 	case jnc::TypeKind_Union:
 	case jnc::TypeKind_Class:
-		decl = ((jnc::DerivableType *)type)->getDecl ();
-		addItemAttributes (item, decl);
+		decl = ((jnc::DerivableType *)type)->getDecl();
+		addItemAttributes(item, decl);
 		addDerivableTypeMembers(item, (jnc::DerivableType *)type);
 		break;
 	}
 
-	item->setData(0, Qt::UserRole, qVariantFromValue ((void*) decl));
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)decl));
 }
 
-void ModulePane::addTypedef (QTreeWidgetItem *parent, jnc::Typedef* tdef)
+void ModulePane::addTypedef(QTreeWidgetItem *parent, jnc::Typedef* tdef)
 {
 	QString name;
-	name.sprintf ("typedef %s %s %s",
-		tdef->getType ()->getTypeStringPrefix(),
-		tdef->getDecl ()->getName (),
-		tdef->getType ()->getTypeStringSuffix()
+	name.sprintf("typedef %s %s %s",
+		tdef->getType()->getTypeStringPrefix(),
+		tdef->getDecl()->getName(),
+		tdef->getType()->getTypeStringSuffix()
 		);
 
-	QTreeWidgetItem *item = insertItem (name, parent);
-	item->setData (0, Qt::UserRole, qVariantFromValue((void*) tdef->getDecl ()));
+	QTreeWidgetItem *item = insertItem(name, parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)tdef->getDecl()));
 }
 
 void ModulePane::addVariable(QTreeWidgetItem *parent, jnc::Variable *variable)
 {
-	addValue (parent, variable->getDecl ()->getName(), variable->getType(), variable);
+	addValue(parent, variable->getDecl()->getName(), variable->getType(), variable);
 }
 
 void ModulePane::addEnumConst(QTreeWidgetItem *parent, jnc::EnumConst *member)
 {
-	QTreeWidgetItem *item = insertItem((const char*) member->getDecl ()->getName(), parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void*) member->getDecl ()));
+	QTreeWidgetItem *item = insertItem((const char*) member->getDecl()->getName(), parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)member->getDecl()));
 }
 
-void ModulePane::addValue (QTreeWidgetItem *parent, const QString& name, jnc::Type* type, jnc::ModuleItem* moduleItem)
+void ModulePane::addValue(QTreeWidgetItem *parent, const QString& name, jnc::Type* type, jnc::ModuleItem* moduleItem)
 {
-	QString itemName = QString ("%1 %2 %3").arg (type->getTypeStringPrefix ()).arg (name).arg (type->getTypeStringSuffix ());
+	QString itemName = QString("%1 %2 %3").arg (type->getTypeStringPrefix ()).arg (name).arg (type->getTypeStringSuffix ());
 	QTreeWidgetItem *item = insertItem(itemName, parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void*) moduleItem->getDecl ()));
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)moduleItem->getDecl()));
 
-	if (jnc::isClassType (type, jnc::ClassTypeKind_Reactor))
-		addDerivableTypeMembers (item, (jnc::ClassType*) type);
+	if (jnc::isClassType(type, jnc::ClassTypeKind_Reactor))
+		addDerivableTypeMembers(item, (jnc::ClassType*)type);
 }
 
-void ModulePane::addEnumTypeMembers (QTreeWidgetItem *parent, jnc::EnumType* type)
+void ModulePane::addEnumTypeMembers(QTreeWidgetItem *parent, jnc::EnumType* type)
 {
-	size_t count = type->getConstCount ();
+	size_t count = type->getConstCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::EnumConst* member = type->getConst (i);
-		addEnumConst (parent, member);
+		jnc::EnumConst* member = type->getConst(i);
+		addEnumConst(parent, member);
 	}
 
-	expandItem (parent);
+	expandItem(parent);
 }
 
 void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::DerivableType *type)
 {
-	size_t count = type->getMemberFieldCount ();
+	size_t count = type->getMemberFieldCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::StructField* field = type->getMemberField (i);
-		addStructField (parent, field);
+		jnc::StructField* field = type->getMemberField(i);
+		addStructField(parent, field);
 	}
 
-	if (type->getStaticConstructor ())
-		addItem (parent, type->getStaticConstructor ());
+	if (type->getStaticConstructor())
+		addItem(parent, type->getStaticConstructor());
 
-	if (type->getStaticDestructor ())
-		addItem (parent, type->getStaticDestructor ());
+	if (type->getStaticDestructor())
+		addItem(parent, type->getStaticDestructor());
 
-	if (type->getPreConstructor ())
-		addItem (parent, type->getPreConstructor ());
+	if (type->getPreConstructor())
+		addItem(parent, type->getPreConstructor());
 
-	if (type->getConstructor ())
-		addItem (parent, type->getConstructor ());
+	if (type->getConstructor())
+		addItem(parent, type->getConstructor());
 
-	if (type->getDestructor ())
-		addItem (parent, type->getDestructor ());
+	if (type->getDestructor())
+		addItem(parent, type->getDestructor());
 
-	count = type->getMemberPropertyCount ();
+	count = type->getMemberPropertyCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::Property* prop = type->getMemberProperty (i);
-		addProperty (parent, prop);
+		jnc::Property* prop = type->getMemberProperty(i);
+		addProperty(parent, prop);
 	}
 
-	count = type->getMemberMethodCount ();
+	count = type->getMemberMethodCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc::Function* function = type->getMemberMethod (i);
-		addFunction (parent, function);
+		jnc::Function* function = type->getMemberMethod(i);
+		addFunction(parent, function);
 	}
 
-	expandItem (parent);
+	expandItem(parent);
 }
 
-void ModulePane::addFunction (QTreeWidgetItem *parent, jnc::Function* function)
+void ModulePane::addFunction(QTreeWidgetItem *parent, jnc::Function* function)
 {
-	if (!function->isOverloaded ())
+	if (!function->isOverloaded())
 	{
-		addFunctionImpl (parent, function);
+		addFunctionImpl(parent, function);
 	}
 	else
 	{
-		size_t count = function->getOverloadCount ();
+		size_t count = function->getOverloadCount();
 
 		QString itemName;
-		itemName.sprintf (
+		itemName.sprintf(
 			"%s (%d overloads)",
-			function->getDecl ()->getName (),
+			function->getDecl()->getName(),
 			count
 			);
 
-		QTreeWidgetItem *item = insertItem (itemName, parent);
+		QTreeWidgetItem *item = insertItem(itemName, parent);
 		for (size_t i = 0; i < count; i++)
 		{
-			jnc::Function* pOverload = function->getOverload (i);
-			addFunctionImpl (item, pOverload);
+			jnc::Function* pOverload = function->getOverload(i);
+			addFunctionImpl(item, pOverload);
 		}
 
-		expandItem (item);
+		expandItem(item);
 	}
 }
 
-void ModulePane::addFunctionImpl (QTreeWidgetItem *parent, jnc::Function* function)
+void ModulePane::addFunctionImpl(QTreeWidgetItem *parent, jnc::Function* function)
 {
-	jnc::FunctionType* type = function->getType ();
+	jnc::FunctionType* type = function->getType();
 
-	const char* name = function->getFunctionKind () == jnc::FunctionKind_Normal ?
-		function->getDecl ()->getName () :
-		jnc::getFunctionKindString (function->getFunctionKind ());
+	const char* name = function->getFunctionKind() == jnc::FunctionKind_Normal ?
+		function->getDecl()->getName() :
+		jnc::getFunctionKindString(function->getFunctionKind());
 
-	QString itemName = QString ("%1 %2 %3").arg (type->getTypeStringPrefix (), name, type->getTypeStringSuffix ());
-	QTreeWidgetItem *item = insertItem (itemName, parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void*) function->getDecl ()));
+	QString itemName = QString("%1 %2 %3").arg (type->getTypeStringPrefix (), name, type->getTypeStringSuffix ());
+	QTreeWidgetItem *item = insertItem(itemName, parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)function->getDecl()));
 }
 
-void ModulePane::addProperty (QTreeWidgetItem *parent, jnc::Property* prop)
+void ModulePane::addProperty(QTreeWidgetItem *parent, jnc::Property* prop)
 {
-	QTreeWidgetItem *item = insertItem (prop->getDecl ()->getName (), parent);
-	item->setData(0, Qt::UserRole, qVariantFromValue((void*) prop->getDecl ()));
+	QTreeWidgetItem *item = insertItem(prop->getDecl()->getName(), parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)prop->getDecl()));
 
-	jnc::Function* getter = prop->getGetter ();
-	jnc::Function* setter = prop->getSetter ();
+	jnc::Function* getter = prop->getGetter();
+	jnc::Function* setter = prop->getSetter();
 
-	addFunction (item, getter);
+	addFunction(item, getter);
 
 	if (setter)
-		addFunction (item, setter);
+		addFunction(item, setter);
 
-	expandItem (item);
+	expandItem(item);
 }
 
 void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias)
 {
 	QString name;
-	name.sprintf (
+	name.sprintf(
 		"alias %s = %s",
-		alias->getDecl ()->getName (),
-		alias->getTargetItem ()->getDecl ()->getQualifiedName ()
+		alias->getDecl()->getName(),
+		alias->getTargetItem()->getDecl()->getQualifiedName()
 		);
 
-	QTreeWidgetItem *item = insertItem (name, parent);
-	item->setData (0, Qt::UserRole, qVariantFromValue((void*) alias->getDecl ()));
+	QTreeWidgetItem *item = insertItem(name, parent);
+	item->setData(0, Qt::UserRole, qVariantFromValue((void*)alias->getDecl()));
 }

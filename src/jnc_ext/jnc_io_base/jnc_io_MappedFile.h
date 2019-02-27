@@ -14,7 +14,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MappedFile)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MappedFile)
 
 //..............................................................................
 
@@ -32,47 +32,47 @@ protected:
 	axl::io::MappedFile m_file;
 
 public:
-	MappedFile ();
+	MappedFile();
 
 	void
 	JNC_CDECL
-	setDynamicViewLimit (size_t limit);
+	setDynamicViewLimit(size_t limit);
 
 	uint64_t
 	JNC_CDECL
-	getSize ()
+	getSize()
 	{
-		return m_file.getSize ();
+		return m_file.getSize();
 	}
 
 	bool
 	JNC_CDECL
-	setSize (uint64_t size)
+	setSize(uint64_t size)
 	{
-		return m_file.setSize (size);
+		return m_file.setSize(size);
 	}
 
 	bool
 	JNC_CDECL
-	open (
+	open(
 		DataPtr namePtr,
 		uint_t flags
 		)
 	{
-		return m_file.open ((const char*) namePtr.m_p, flags);
+		return m_file.open((const char*) namePtr.m_p, flags);
 	}
 
 	void
 	JNC_CDECL
-	close ()
+	close()
 	{
-		m_file.close ();
+		m_file.close();
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	view (
+	view(
 		MappedFile* self,
 		uint64_t offset,
 		size_t size,
@@ -81,9 +81,9 @@ public:
 
 	void
 	JNC_CDECL
-	unmapAllViews ()
+	unmapAllViews()
 	{
-		m_file.unmapAllViews ();
+		m_file.unmapAllViews();
 	}
 };
 

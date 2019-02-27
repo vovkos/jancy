@@ -19,41 +19,41 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	Guid,
 	"std.Guid",
 	g_stdLibGuid,
 	StdLibCacheSlot_Guid
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Guid)
-	JNC_MAP_FUNCTION ("getString", &Guid::getString)
-	JNC_MAP_FUNCTION ("parse",     &Guid::parse)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Guid)
+	JNC_MAP_FUNCTION("getString", &Guid::getString)
+	JNC_MAP_FUNCTION("parse",     &Guid::parse)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
 JNC_CDECL
-Guid::getString (
+Guid::getString(
 	DataPtr selfPtr,
 	uint_t flags
 	)
 {
-	Guid* self = (Guid*) selfPtr.m_p;
-	sl::String string = self->sl::Guid::getString (flags);
-	return strDup (string);
+	Guid* self = (Guid*)selfPtr.m_p;
+	sl::String string = self->sl::Guid::getString(flags);
+	return strDup(string);
 }
 
 bool
 JNC_CDECL
-Guid::parse (
+Guid::parse(
 	DataPtr selfPtr,
 	DataPtr stringPtr
 	)
 {
-	Guid* self = (Guid*) selfPtr.m_p;
-	return self->sl::Guid::parse ((const char*) stringPtr.m_p);
+	Guid* self = (Guid*)selfPtr.m_p;
+	return self->sl::Guid::parse((const char*) stringPtr.m_p);
 }
 
 //..............................................................................

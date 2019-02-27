@@ -11,7 +11,7 @@
 
 // test for unions and unnamed structs
 
-alignment (2);
+alignment(2);
 
 //..............................................................................
 
@@ -38,7 +38,7 @@ struct SocketAddress_Ip4
 	union
 	{
 		bigendian uint32_t m_ip32;
-		uint8_t m_ip8 [4];
+		uint8_t m_ip8[4];
 	}
 }
 
@@ -51,8 +51,8 @@ struct SocketAddress_Ip6
 
 	union
 	{
-		bigendian uint16_t m_ip16 [8];
-		uint8_t m_ip8 [16];
+		bigendian uint16_t m_ip16[8];
+		uint8_t m_ip8[16];
 	}
 }
 
@@ -73,17 +73,17 @@ struct SocketAddress
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	SocketAddress address = { AddressFamily.Ip4, { { 1001, { 0x7f000001 } } } }
-	printf (
+	printf(
 		"addr = %d.%d.%d.%d:%d\n",
-		address.m_ip4.m_ip8 [0],
-		address.m_ip4.m_ip8 [1],
-		address.m_ip4.m_ip8 [2],
-		address.m_ip4.m_ip8 [3],
+		address.m_ip4.m_ip8[0],
+		address.m_ip4.m_ip8[1],
+		address.m_ip4.m_ip8[2],
+		address.m_ip4.m_ip8[3],
 		address.m_ip4.m_port
 		);
 

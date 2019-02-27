@@ -19,20 +19,20 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	MapEntry,
 	"std.MapEntry",
 	g_stdLibGuid,
 	StdLibCacheSlot_MapEntry
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (MapEntry)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(MapEntry)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 void
-Map::clear ()
+Map::clear()
 {
 	m_headPtr = g_nullPtr;
 	m_tailPtr = g_nullPtr;
@@ -40,29 +40,29 @@ Map::clear ()
 }
 
 DataPtr
-Map::add (const sl::MapIterator <Variant, DataPtr>& it)
+Map::add(const sl::MapIterator<Variant, DataPtr>& it)
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	Type* entryType = MapEntry::getType (runtime->getModule ());
-	DataPtr entryPtr = runtime->getGcHeap ()->allocateData (entryType);
-	MapEntry* entry = (MapEntry*) entryPtr.m_p;
+	Runtime* runtime = getCurrentThreadRuntime();
+	Type* entryType = MapEntry::getType(runtime->getModule());
+	DataPtr entryPtr = runtime->getGcHeap()->allocateData(entryType);
+	MapEntry* entry = (MapEntry*)entryPtr.m_p;
 
-	sl::MapEntry <Variant, DataPtr>* next = (sl::MapEntry <Variant, DataPtr>*) it->getNext ();
-	sl::MapEntry <Variant, DataPtr>* prev = (sl::MapEntry <Variant, DataPtr>*) it->getPrev ();
+	sl::MapEntry<Variant, DataPtr>* next = (sl::MapEntry<Variant, DataPtr>*) it->getNext();
+	sl::MapEntry<Variant, DataPtr>* prev = (sl::MapEntry<Variant, DataPtr>*) it->getPrev();
 
-	entry->m_key = it->getKey ();
+	entry->m_key = it->getKey();
 	entry->m_nextPtr = next ? next->m_value : g_nullPtr;
 	entry->m_prevPtr = prev ? prev->m_value : g_nullPtr;
 	entry->m_map = this;
-	entry->m_mapEntry = it.getEntry ();
+	entry->m_mapEntry = it.getEntry();
 
 	if (entry->m_prevPtr.m_p)
-		((MapEntry*) entry->m_prevPtr.m_p)->m_nextPtr = entryPtr;
+		((MapEntry*)entry->m_prevPtr.m_p)->m_nextPtr = entryPtr;
 	else
 		m_headPtr = entryPtr;
 
 	if (entry->m_nextPtr.m_p)
-		((MapEntry*) entry->m_nextPtr.m_p)->m_prevPtr = entryPtr;
+		((MapEntry*)entry->m_nextPtr.m_p)->m_prevPtr = entryPtr;
 	else
 		m_tailPtr = entryPtr;
 
@@ -72,19 +72,19 @@ Map::add (const sl::MapIterator <Variant, DataPtr>& it)
 }
 
 void
-Map::remove (MapEntry* entry)
+Map::remove(MapEntry* entry)
 {
-	ASSERT (entry->m_map == this);
-	ASSERT (entry->m_prevPtr.m_p || m_headPtr.m_p == entry);
-	ASSERT (entry->m_nextPtr.m_p || m_tailPtr.m_p == entry);
+	ASSERT(entry->m_map == this);
+	ASSERT(entry->m_prevPtr.m_p || m_headPtr.m_p == entry);
+	ASSERT(entry->m_nextPtr.m_p || m_tailPtr.m_p == entry);
 
 	if (entry->m_prevPtr.m_p)
-		((MapEntry*) entry->m_prevPtr.m_p)->m_nextPtr = entry->m_nextPtr;
+		((MapEntry*)entry->m_prevPtr.m_p)->m_nextPtr = entry->m_nextPtr;
 	else
 		m_headPtr = entry->m_nextPtr;
 
 	if (entry->m_nextPtr.m_p)
-		((MapEntry*) entry->m_nextPtr.m_p)->m_prevPtr = entry->m_prevPtr;
+		((MapEntry*)entry->m_nextPtr.m_p)->m_prevPtr = entry->m_prevPtr;
 	else
 		m_tailPtr = entry->m_prevPtr;
 

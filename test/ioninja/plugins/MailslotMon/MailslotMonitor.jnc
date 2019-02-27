@@ -15,13 +15,13 @@ protected:
 	MailslotMonSession* m_session;
 
 public:
-	construct (MailslotMonSession* session);
+	construct(MailslotMonSession* session);
 
 protected:
-	override processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr);
-	override processError (std.Error const* error);
+	override processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
+	override processError(std.Error const* error);
 
-	setFileId (
+	setFileId(
 		uint64_t timestamp,
 		uint64_t loFileId,
 		uint32_t processId
@@ -30,31 +30,31 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MailslotMonitor.construct (MailslotMonSession* session)
+MailslotMonitor.construct(MailslotMonSession* session)
 {
-	basetype.construct (session.m_pluginHost);
+	basetype.construct(session.m_pluginHost);
 	m_session = session;
 }
 
-MailslotMonitor.setFileId (
+MailslotMonitor.setFileId(
 	uint64_t timestamp,
 	uint64_t loFileId,
 	uint32_t processId
 	)
 {
 	uint32_t lastFileId = m_fileIdMgr.m_lastHiFileId;
-	uint32_t fileId = m_fileIdMgr.getHiFileId (loFileId);
+	uint32_t fileId = m_fileIdMgr.getHiFileId(loFileId);
 
 	if (fileId != lastFileId)
 	{
-		uint32_t ids [] = { fileId, processId }
-		m_pluginHost.m_log.m_writer.write (timestamp, MailslotMonLogRecordCode.FileIdChanged, ids, sizeof (ids));
+		uint32_t ids[] = { fileId, processId }
+		m_pluginHost.m_log.m_writer.write(timestamp, MailslotMonLogRecordCode.FileIdChanged, ids, sizeof(ids));
 	}
 }
 
-MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
+MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
-	switch (notifyHdr.m_code)
+	switch(notifyHdr.m_code)
 	{
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*) (notifyHdr + 1);
@@ -65,28 +65,28 @@ MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
 		if (notifyHdr.m_ntStatus == 0)
 		{
 			recordCode = MailslotMonLogRecordCode.ClientFileOpened;
-			uint32_t fileId = m_fileIdMgr.getHiFileId (params.m_fileId);
-			logParams.append (&fileId, sizeof (fileId));
-			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+			uint32_t fileId = m_fileIdMgr.getHiFileId(params.m_fileId);
+			logParams.append(&fileId, sizeof(fileId));
+			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 		}
 		else
 		{
 			recordCode = MailslotMonLogRecordCode.ClientFileOpenError;
 
 			std.Error error;
-			error.m_size = sizeof (error);
+			error.m_size = sizeof(error);
 			error.m_guid = std.g_ntStatusGuid;
 			error.m_code = notifyHdr.m_ntStatus;
 
-			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
-			logParams.append (&error, error.m_size);
+			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
+			logParams.append(&error, error.m_size);
 		}
 
 		std.StringBuilder name;
-		name.copy ((utf16_t const*) (params + 1));
-		logParams.append (name.m_sz, name.m_length + 1);
+		name.copy((utf16_t const*) (params + 1));
+		logParams.append(name.m_sz, name.m_length + 1);
 
-		m_pluginHost.m_log.m_writer.write (
+		m_pluginHost.m_log.m_writer.write(
 			notifyHdr.m_timestamp,
 			recordCode,
 			logParams.m_p,
@@ -104,28 +104,28 @@ MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
 		if (notifyHdr.m_ntStatus == 0)
 		{
 			recordCode = MailslotMonLogRecordCode.ServerFileOpened;
-			uint32_t fileId = m_fileIdMgr.getHiFileId (params.m_fileId);
-			logParams.append (&fileId, sizeof (fileId));
-			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
+			uint32_t fileId = m_fileIdMgr.getHiFileId(params.m_fileId);
+			logParams.append(&fileId, sizeof(fileId));
+			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
 		}
 		else
 		{
 			recordCode = MailslotMonLogRecordCode.ServerFileOpenError;
 
 			std.Error error;
-			error.m_size = sizeof (error);
+			error.m_size = sizeof(error);
 			error.m_guid = std.g_ntStatusGuid;
 			error.m_code = notifyHdr.m_ntStatus;
 
-			logParams.append (&notifyHdr.m_processId, sizeof (notifyHdr.m_processId));
-			logParams.append (&error, error.m_size);
+			logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
+			logParams.append(&error, error.m_size);
 		}
 
 		std.StringBuilder name;
-		name.copy ((utf16_t const*) (params + 1));
-		logParams.append (name.m_sz, name.m_length + 1);
+		name.copy((utf16_t const*) (params + 1));
+		logParams.append(name.m_sz, name.m_length + 1);
 
-		m_pluginHost.m_log.m_writer.write (
+		m_pluginHost.m_log.m_writer.write(
 			notifyHdr.m_timestamp,
 			recordCode,
 			logParams.m_p,
@@ -136,9 +136,9 @@ MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
 
 	case io.win.DeviceMonitorNotifyCode.Close:
 		io.win.DeviceMonitorCloseNotifyParams const* params = (io.win.DeviceMonitorCloseNotifyParams const*) (notifyHdr + 1);
-		setFileId (notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
-		m_fileIdMgr.removeLowFileId (params.m_fileId);
-		m_pluginHost.m_log.m_writer.write (notifyHdr.m_timestamp, MailslotMonLogRecordCode.FileClosed);
+		setFileId(notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
+		m_fileIdMgr.removeLowFileId(params.m_fileId);
+		m_pluginHost.m_log.m_writer.write(notifyHdr.m_timestamp, MailslotMonLogRecordCode.FileClosed);
 		break;
 
 	case io.win.DeviceMonitorNotifyCode.Read:
@@ -147,9 +147,9 @@ MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
 		if (!params.m_dataSize)
 			break;
 
-		setFileId (notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
+		setFileId(notifyHdr.m_timestamp, params.m_fileId, notifyHdr.m_processId);
 
-		m_pluginHost.m_log.m_writer.write (
+		m_pluginHost.m_log.m_writer.write(
 			notifyHdr.m_timestamp,
 			log.StdRecordCode.Rx,
 			params + 1,
@@ -159,10 +159,10 @@ MailslotMonitor.processNotification (io.DeviceMonitorNotifyHdr const* notifyHdr)
 	}
 }
 
-MailslotMonitor.processError (std.Error const* error)
+MailslotMonitor.processError(std.Error const* error)
 {
-	m_pluginHost.m_log.m_writer.write (log.StdRecordCode.Error, error, error.m_size);
-	m_session.close ();
+	m_pluginHost.m_log.m_writer.write(log.StdRecordCode.Error, error, error.m_size);
+	m_session.close();
 }
 
 //..............................................................................

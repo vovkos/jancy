@@ -13,7 +13,7 @@
 
 #include "MyWidget.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MyLabel)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MyLabel)
 
 //..............................................................................
 
@@ -29,44 +29,44 @@ public:
 	QLabel* m_qtLabel;
 
 public:
-	MyLabel (jnc::DataPtr textPtr);
-	~MyLabel ();
+	MyLabel(jnc::DataPtr textPtr);
+	~MyLabel();
 
 	void
 	JNC_CDECL
-	setText (jnc::DataPtr textPtr)
+	setText(jnc::DataPtr textPtr)
 	{
 		m_text = textPtr;
-		m_qtLabel->setText ((const char*) textPtr.m_p);
+		m_qtLabel->setText((const char*) textPtr.m_p);
 	}
 
 	void
 	JNC_CDECL
-	setColor (int color)
+	setColor(int color)
 	{
 		m_color = color;
-		updateStyleSheet ();
+		updateStyleSheet();
 	}
 
 	void
 	JNC_CDECL
-	setBackColor (int color)
+	setBackColor(int color)
 	{
 		m_backColor = color;
-		updateStyleSheet ();
+		updateStyleSheet();
 	}
 
 	void
 	JNC_CDECL
-	setAlignment (Qt::Alignment alignment)
+	setAlignment(Qt::Alignment alignment)
 	{
 		m_alignment = alignment;
-		m_qtLabel->setAlignment (alignment);
+		m_qtLabel->setAlignment(alignment);
 	}
 
 protected:
 	void
-	updateStyleSheet ();
+	updateStyleSheet();
 };
 
 //..............................................................................

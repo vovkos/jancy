@@ -9,48 +9,48 @@
 //
 //..............................................................................
 
-foo (bool isError)
+foo(bool isError)
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 
 	if (isError)
 	{
-		printf ("foo is about to throw...\n");
-		std.setError ("foo-error");
+		printf("foo is about to throw...\n");
+		std.setError("foo-error");
 		throw;
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	bool result = try foo (true);
-	printf ("result = %d\n", result);
+	bool result = try foo(true);
+	printf("result = %d\n", result);
 
 	try
 	{
-		printf ("before calling foo...\n");
-		foo (false);
-		foo (false);
-		foo (true);
+		printf("before calling foo...\n");
+		foo(false);
+		foo(false);
+		foo(true);
 
 		result = true;
 
 	finally:
-		printf ("try-finally\n", result);
-		foo (true);
+		printf("try-finally\n", result);
+		foo(true);
 	}
 
-	printf ("result = %d\n", result);
+	printf("result = %d\n", result);
 	return 0;
 
 catch:
-	printf ("main-catch: %s\n", std.getLastErrorDescription ());
+	printf("main-catch: %s\n", std.getLastErrorDescription ());
 	return 1;
 
 finally:
-	printf ("main-finally\n");
+	printf("main-finally\n");
 }
 
 //..............................................................................

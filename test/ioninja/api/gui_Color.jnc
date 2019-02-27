@@ -45,7 +45,7 @@ enum StdColor
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-uint_t rgb (
+uint_t rgb(
 	uint8_t r,
 	uint8_t g,
 	uint8_t b

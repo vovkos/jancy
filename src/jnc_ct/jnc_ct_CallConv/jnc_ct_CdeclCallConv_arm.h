@@ -30,41 +30,41 @@ protected:
 	Type* m_regType;
 
 public:
-	CdeclCallConv_arm ()
+	CdeclCallConv_arm()
 	{
 		m_regType = NULL;
 	}
 
 	virtual
 	void
-	prepareFunctionType (FunctionType* functionType);
+	prepareFunctionType(FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	createLlvmFunction (
+	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& tag
 		);
 
 	virtual
 	void
-	call (
+	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	virtual
 	void
-	ret (
+	ret(
 		Function* function,
 		const Value& value
 		);
 
 	virtual
 	Value
-	getArgValue (
+	getArgValue(
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
@@ -72,15 +72,15 @@ public:
 
 	virtual
 	Value
-	getThisArgValue (Function* function);
+	getThisArgValue(Function* function);
 
 	virtual
 	void
-	createArgVariables (Function* function);
+	createArgVariables(Function* function);
 
 protected:
 	Type*
-	getArgCoerceType (Type* type);
+	getArgCoerceType(Type* type);
 };
 
 //..............................................................................
@@ -88,7 +88,7 @@ protected:
 class CdeclCallConv_arm32: public CdeclCallConv_arm
 {
 public:
-	CdeclCallConv_arm32 ();
+	CdeclCallConv_arm32();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -96,7 +96,7 @@ public:
 class CdeclCallConv_arm64: public CdeclCallConv_arm
 {
 public:
-	CdeclCallConv_arm64 ();
+	CdeclCallConv_arm64();
 };
 
 //..............................................................................

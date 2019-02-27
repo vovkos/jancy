@@ -13,7 +13,7 @@
 
 #include "MyLib.h"
 
-JNC_DECLARE_TYPE (TestStruct)
+JNC_DECLARE_TYPE(TestStruct)
 
 //..............................................................................
 
@@ -28,27 +28,27 @@ typedef struct TestStruct TestStruct;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-TestStruct_construct_0 (jnc_DataPtr selfPtr);
+TestStruct_construct_0(jnc_DataPtr selfPtr);
 
 void
-TestStruct_construct_1 (
+TestStruct_construct_1(
 	jnc_DataPtr selfPtr,
 	int x,
 	int y
 	);
 
 void
-TestStruct_foo_0 (jnc_DataPtr selfPtr);
+TestStruct_foo_0(jnc_DataPtr selfPtr);
 
 void
-TestStruct_foo_1 (
+TestStruct_foo_1(
 	jnc_DataPtr selfPtr,
 	int x,
 	int y
 	);
 
 void
-TestStruct_foo_2 (
+TestStruct_foo_2(
 	jnc_DataPtr selfPtr,
 	jnc_DataPtr srcPtr
 	);

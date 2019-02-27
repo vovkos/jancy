@@ -22,28 +22,28 @@ class C1
 int bindable gx_MyProp;
 
 int
-main ()
+main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	C1 c;
-	c.m_MyAutoEv.start ();
+	c.m_MyAutoEv.start();
 
 	gx_MyProp = 12;
 
-	printf ("c.m_Int = %d\n", c.m_Int);
+	printf("c.m_Int = %d\n", c.m_Int);
 
 	return 10;
 }
 
-foo ()
+foo()
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 }
 
-bar ()
+bar()
 {
-	printf ("bar ()\n");
+	printf("bar ()\n");
 }
 
 //..............................................................................

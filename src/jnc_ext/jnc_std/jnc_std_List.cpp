@@ -19,49 +19,49 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	ListEntry,
 	"std.ListEntry",
 	g_stdLibGuid,
 	StdLibCacheSlot_ListEntry
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (ListEntry)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(ListEntry)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_CLASS_TYPE (
+JNC_DEFINE_CLASS_TYPE(
 	List,
 	"std.List",
 	g_stdLibGuid,
 	StdLibCacheSlot_List
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (List)
-	JNC_MAP_FUNCTION ("clear", &List::clear)
-	JNC_MAP_FUNCTION ("takeOver", &List::takeOver)
-	JNC_MAP_FUNCTION ("insertHead", &List::insertHead)
-	JNC_MAP_FUNCTION ("insertTail", &List::insertTail)
-	JNC_MAP_FUNCTION ("insertBefore", &List::insertBefore)
-	JNC_MAP_FUNCTION ("insertAfter", &List::insertAfter)
-	JNC_MAP_FUNCTION ("moveToHead", &List::moveToHead)
-	JNC_MAP_FUNCTION ("moveToTail", &List::moveToTail)
-	JNC_MAP_FUNCTION ("moveBefore", &List::moveBefore)
-	JNC_MAP_FUNCTION ("moveAfter", &List::moveAfter)
-	JNC_MAP_FUNCTION ("removeHead", &List::removeHead)
-	JNC_MAP_FUNCTION ("removeTail", &List::removeTail)
-	JNC_MAP_FUNCTION ("remove", &List::remove)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(List)
+	JNC_MAP_FUNCTION("clear", &List::clear)
+	JNC_MAP_FUNCTION("takeOver", &List::takeOver)
+	JNC_MAP_FUNCTION("insertHead", &List::insertHead)
+	JNC_MAP_FUNCTION("insertTail", &List::insertTail)
+	JNC_MAP_FUNCTION("insertBefore", &List::insertBefore)
+	JNC_MAP_FUNCTION("insertAfter", &List::insertAfter)
+	JNC_MAP_FUNCTION("moveToHead", &List::moveToHead)
+	JNC_MAP_FUNCTION("moveToTail", &List::moveToTail)
+	JNC_MAP_FUNCTION("moveBefore", &List::moveBefore)
+	JNC_MAP_FUNCTION("moveAfter", &List::moveAfter)
+	JNC_MAP_FUNCTION("removeHead", &List::removeHead)
+	JNC_MAP_FUNCTION("removeTail", &List::removeTail)
+	JNC_MAP_FUNCTION("remove", &List::remove)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 void
 JNC_CDECL
-List::clear ()
+List::clear()
 {
-	ListEntry* entry = (ListEntry*) m_headPtr.m_p;
-	for (; entry; entry = (ListEntry*) entry->m_nextPtr.m_p)
+	ListEntry* entry = (ListEntry*)m_headPtr.m_p;
+	for (; entry; entry = (ListEntry*)entry->m_nextPtr.m_p)
 		entry->m_list = NULL;
 
 	m_headPtr = g_nullPtr;
@@ -71,16 +71,16 @@ List::clear ()
 
 void
 JNC_CDECL
-List::takeOver (List* list)
+List::takeOver(List* list)
 {
 	if (!list)
 	{
-		clear ();
+		clear();
 		return;
 	}
 
-	ListEntry* entry = (ListEntry*) list->m_headPtr.m_p;
-	for (; entry; entry = (ListEntry*) entry->m_nextPtr.m_p)
+	ListEntry* entry = (ListEntry*)list->m_headPtr.m_p;
+	for (; entry; entry = (ListEntry*)entry->m_nextPtr.m_p)
 		entry->m_list = this;
 
 	m_headPtr = list->m_headPtr;
@@ -93,128 +93,128 @@ List::takeOver (List* list)
 }
 
 DataPtr
-List::insertHead (
+List::insertHead(
 	List* self,
 	Variant data
 	)
 {
-	DataPtr entryPtr = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	DataPtr entryPtr = allocateListEntry();
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-	self->insertHeadImpl (entryPtr);
+	self->insertHeadImpl(entryPtr);
 	return entryPtr;
 }
 
 DataPtr
-List::insertTail (
+List::insertTail(
 	List* self,
 	Variant data
 	)
 {
-	DataPtr entryPtr = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	DataPtr entryPtr = allocateListEntry();
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-	self->insertTailImpl (entryPtr);
+	self->insertTailImpl(entryPtr);
 	return entryPtr;
 }
 
 DataPtr
-List::insertBefore (
+List::insertBefore(
 	List* self,
 	Variant data,
 	DataPtr beforePtr
 	)
 {
-	DataPtr entryPtr = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	DataPtr entryPtr = allocateListEntry();
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-	self->insertBeforeImpl (entryPtr, beforePtr);
+	self->insertBeforeImpl(entryPtr, beforePtr);
 	return entryPtr;
 }
 
 DataPtr
-List::insertAfter (
+List::insertAfter(
 	List* self,
 	Variant data,
 	DataPtr afterPtr
 	)
 {
-	DataPtr entryPtr = allocateListEntry ();
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	DataPtr entryPtr = allocateListEntry();
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	entry->m_list = self;
 	entry->m_data = data;
-	self->insertAfterImpl (entryPtr, afterPtr);
+	self->insertAfterImpl(entryPtr, afterPtr);
 	return entryPtr;
 }
 
 void
 JNC_CDECL
-List::moveToHead (DataPtr entryPtr)
+List::moveToHead(DataPtr entryPtr)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	if (!entry || entry->m_list != this)
 		return;
 
-	removeImpl (entry);
-	insertHeadImpl (entryPtr);
+	removeImpl(entry);
+	insertHeadImpl(entryPtr);
 }
 
 void
 JNC_CDECL
-List::moveToTail (DataPtr entryPtr)
+List::moveToTail(DataPtr entryPtr)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	if (!entry || entry->m_list != this)
 		return;
 
-	removeImpl (entry);
-	insertTailImpl (entryPtr);
+	removeImpl(entry);
+	insertTailImpl(entryPtr);
 }
 
 void
 JNC_CDECL
-List::moveBefore (
+List::moveBefore(
 	DataPtr entryPtr,
 	DataPtr beforePtr
 	)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	if (!entry || entry->m_list != this)
 		return;
 
-	removeImpl (entry);
-	insertBeforeImpl (entryPtr, beforePtr);
+	removeImpl(entry);
+	insertBeforeImpl(entryPtr, beforePtr);
 }
 
 void
 JNC_CDECL
-List::moveAfter (
+List::moveAfter(
 	DataPtr entryPtr,
 	DataPtr afterPtr
 	)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	if (!entry || entry->m_list != this)
 		return;
 
-	removeImpl (entry);
-	insertAfterImpl (entryPtr, afterPtr);
+	removeImpl(entry);
+	insertAfterImpl(entryPtr, afterPtr);
 }
 
 Variant
-List::remove (
+List::remove(
 	List* self,
 	DataPtr entryPtr
 	)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	if (!entry || entry->m_list != self)
 		return g_nullVariant;
 
-	self->removeImpl (entry);
+	self->removeImpl(entry);
 
 	entry->m_prevPtr = g_nullPtr;
 	entry->m_nextPtr = g_nullPtr;
@@ -226,25 +226,25 @@ List::remove (
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-List::allocateListEntry ()
+List::allocateListEntry()
 {
-	Runtime* runtime = getCurrentThreadRuntime ();
-	ASSERT (runtime);
+	Runtime* runtime = getCurrentThreadRuntime();
+	ASSERT(runtime);
 
-	return createData <ListEntry> (runtime);
+	return createData<ListEntry> (runtime);
 }
 
 void
-List::insertHeadImpl (DataPtr entryPtr)
+List::insertHeadImpl(DataPtr entryPtr)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
-	ASSERT (entry->m_list == this);
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
+	ASSERT(entry->m_list == this);
 
 	entry->m_prevPtr = g_nullPtr;
 	entry->m_nextPtr = m_headPtr;
 
 	if (m_headPtr.m_p)
-		((ListEntry*) m_headPtr.m_p)->m_prevPtr = entryPtr;
+		((ListEntry*)m_headPtr.m_p)->m_prevPtr = entryPtr;
 	else
 		m_tailPtr = entryPtr;
 
@@ -253,16 +253,16 @@ List::insertHeadImpl (DataPtr entryPtr)
 }
 
 void
-List::insertTailImpl (DataPtr entryPtr)
+List::insertTailImpl(DataPtr entryPtr)
 {
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
-	ASSERT (entry->m_list == this);
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
+	ASSERT(entry->m_list == this);
 
 	entry->m_prevPtr = m_tailPtr;
 	entry->m_nextPtr = g_nullPtr;
 
 	if (m_tailPtr.m_p)
-		((ListEntry*) m_tailPtr.m_p)->m_nextPtr = entryPtr;
+		((ListEntry*)m_tailPtr.m_p)->m_nextPtr = entryPtr;
 	else
 		m_headPtr = entryPtr;
 
@@ -271,19 +271,19 @@ List::insertTailImpl (DataPtr entryPtr)
 }
 
 void
-List::insertBeforeImpl (
+List::insertBeforeImpl(
 	DataPtr entryPtr,
 	DataPtr beforePtr
 	)
 {
 	if (!beforePtr.m_p)
-		return insertTailImpl (entryPtr);
+		return insertTailImpl(entryPtr);
 
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
-	ListEntry* before = (ListEntry*) beforePtr.m_p;
-	ListEntry* prev = (ListEntry*) before->m_prevPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
+	ListEntry* before = (ListEntry*)beforePtr.m_p;
+	ListEntry* prev = (ListEntry*)before->m_prevPtr.m_p;
 
-	ASSERT (entry->m_list == this);
+	ASSERT(entry->m_list == this);
 
 	entry->m_prevPtr = before->m_prevPtr;
 	entry->m_nextPtr = beforePtr;
@@ -298,19 +298,19 @@ List::insertBeforeImpl (
 }
 
 void
-List::insertAfterImpl (
+List::insertAfterImpl(
 	DataPtr entryPtr,
 	DataPtr afterPtr
 	)
 {
 	if (!afterPtr.m_p)
-		return insertHeadImpl (entryPtr);
+		return insertHeadImpl(entryPtr);
 
-	ListEntry* entry = (ListEntry*) entryPtr.m_p;
-	ListEntry* after = (ListEntry*) afterPtr.m_p;
-	ListEntry* next = (ListEntry*) after->m_nextPtr.m_p;
+	ListEntry* entry = (ListEntry*)entryPtr.m_p;
+	ListEntry* after = (ListEntry*)afterPtr.m_p;
+	ListEntry* next = (ListEntry*)after->m_nextPtr.m_p;
 
-	ASSERT (entry->m_list == this);
+	ASSERT(entry->m_list == this);
 
 	entry->m_prevPtr = afterPtr;
 	entry->m_nextPtr = after->m_nextPtr;
@@ -325,12 +325,12 @@ List::insertAfterImpl (
 }
 
 void
-List::removeImpl (ListEntry* entry)
+List::removeImpl(ListEntry* entry)
 {
-	ASSERT (entry->m_list == this);
+	ASSERT(entry->m_list == this);
 
-	ListEntry* next = (ListEntry*) entry->m_nextPtr.m_p;
-	ListEntry* prev = (ListEntry*) entry->m_prevPtr.m_p;
+	ListEntry* next = (ListEntry*)entry->m_nextPtr.m_p;
+	ListEntry* prev = (ListEntry*)entry->m_prevPtr.m_p;
 
 	if (prev)
 		prev->m_nextPtr = entry->m_nextPtr;

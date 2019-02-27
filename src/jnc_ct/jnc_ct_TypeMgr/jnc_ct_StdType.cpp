@@ -19,7 +19,7 @@ namespace ct {
 //..............................................................................
 
 const StdItemSource*
-getStdTypeSource (StdType stdType)
+getStdTypeSource(StdType stdType)
 {
 	#include "jnc_StdTypes.jnc.cpp"
 	#include "jnc_Scheduler.jnc.cpp"
@@ -27,7 +27,7 @@ getStdTypeSource (StdType stdType)
 	#include "jnc_Regex.jnc.cpp"
 	#include "jnc_Promise.jnc.cpp"
 
-	static StdItemSource sourceTable [StdType__Count] =
+	static StdItemSource sourceTable[StdType__Count] =
 	{
 		{ NULL },                            // StdType_BytePtr,
 		{ NULL },                            // StdType_CharConstPtr,
@@ -51,82 +51,82 @@ getStdTypeSource (StdType stdType)
 		{ NULL },                            // StdType_Binder,
 		{                                    // StdType_Scheduler,
 			schedulerTypeSrc,
-			lengthof (schedulerTypeSrc),
+			lengthof(schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_RegexMatch,
 			regexMatchTypeSrc,
-			lengthof (regexMatchTypeSrc),
+			lengthof(regexMatchTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_RegexState,
 			regexStateTypeSrc,
-			lengthof (regexStateTypeSrc),
+			lengthof(regexStateTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_RegexDfa,
 			regexDfaTypeSrc,
-			lengthof (regexDfaTypeSrc),
+			lengthof(regexDfaTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_Promise,
 			promiseTypeSrc,
-			lengthof (promiseTypeSrc),
+			lengthof(promiseTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{ NULL},                             // StdType_PromisePtr,
 		{                                    // StdType_Promisifier,
 			promisifierTypeSrc,
-			lengthof (promisifierTypeSrc),
+			lengthof(promisifierTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_DynamicLib,
 			dynamicLibTypeSrc,
-			lengthof (dynamicLibTypeSrc),
+			lengthof(dynamicLibTypeSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_DynamicLayout,
 			dynamicLayoutTypeSrc,
-			lengthof (dynamicLayoutTypeSrc),
+			lengthof(dynamicLayoutTypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_FmtLiteral,
 			fmtLiteralTypeSrc,
-			lengthof (fmtLiteralTypeSrc),
+			lengthof(fmtLiteralTypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Int64Int64,
 			int64Int64TypeSrc,
-			lengthof (int64Int64TypeSrc),
+			lengthof(int64Int64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Fp64Fp64,
 			fp64Fp64TypeSrc,
-			lengthof (fp64Fp64TypeSrc),
+			lengthof(fp64Fp64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Int64Fp64,
 			int64Fp64TypeSrc,
-			lengthof (int64Fp64TypeSrc),
+			lengthof(int64Fp64TypeSrc),
 			StdNamespace_Internal,
 		},
 		{                                    // StdType_Fp64Int64,
 			fp64Int64TypeSrc,
-			lengthof (fp64Int64TypeSrc),
+			lengthof(fp64Int64TypeSrc),
 			StdNamespace_Internal,
 		},
 	};
 
-	ASSERT ((size_t) stdType < StdType__Count);
-	return &sourceTable [stdType];
+	ASSERT((size_t)stdType < StdType__Count);
+	return &sourceTable[stdType];
 }
 
 //..............................................................................
 
 ModuleItem*
-LazyStdType::getActualItem ()
+LazyStdType::getActualItem()
 {
-	return m_module->m_typeMgr.getStdType (m_stdType);
+	return m_module->m_typeMgr.getStdType(m_stdType);
 }
 
 //..............................................................................

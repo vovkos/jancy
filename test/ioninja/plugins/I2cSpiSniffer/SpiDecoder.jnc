@@ -43,14 +43,14 @@ public:
 	uint_t m_dataBits;
 
 public:
-	construct (log.Writer* logWriter);
+	construct(log.Writer* logWriter);
 
-	override reset ()
+	override reset()
 	{
 		m_state = State.Idle;
 	}
 
-	override decode (
+	override decode(
 		void const thin* p,
 		size_t size
 		);
@@ -58,19 +58,19 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SpiDecoder.construct (log.Writer* logWriter)
+SpiDecoder.construct(log.Writer* logWriter)
 {
-	basetype.construct (logWriter);
-	m_misoBuffer.setSize (m_buffer.m_size / 2);
+	basetype.construct(logWriter);
+	m_misoBuffer.setSize(m_buffer.m_size / 2);
 	m_bitCount = new uint_t;
 }
 
-SpiDecoder.decode (
+SpiDecoder.decode(
 	void const thin* p0,
 	size_t size
 	)
 {
-	uint64_t timestamp = sys.getTimestamp ();
+	uint64_t timestamp = sys.getTimestamp();
 	uchar_t const thin* p = p0;
 	uchar_t const thin* end = p + size;
 
@@ -82,25 +82,25 @@ SpiDecoder.decode (
 	{
 		uchar_t c = *p;
 
-		switch (c)
+		switch(c)
 		{
 		case Code.Padding:
 			continue;
 
 		case Code.BufferOverflow:
-			m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.BufferOverflow);
+			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.BufferOverflow);
 			continue;
 		}
 
 		uchar_t code = (c & 0xf0) >> 4;
-		switch (code)
+		switch(code)
 		{
 		case Code.Start:
-			size_t size = mosi - (uchar_t*) m_buffer.m_p;
+			size_t size = mosi - (uchar_t*)m_buffer.m_p;
 			if (size)
 			{
-				memcpy (m_buffer.m_p + size, m_misoBuffer.m_p, size);
-				m_logWriter.write (timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
+				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
+				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
 				mosi = m_buffer.m_p;
 				miso = m_misoBuffer.m_p;
 			}
@@ -109,16 +109,16 @@ SpiDecoder.decode (
 			if (bitCount)
 			{
 				*m_bitCount = bitCount;
-				m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof (uint_t));
+				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
 			}
 
-			m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.SpiStart, null, 0);
+			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.SpiStart, null, 0);
 			m_state = State.Transaction;
 			break;
 
 		case Code.MosiDataHi:
 			if (m_state >= State.MosiDataHi)
-				writeLogUnexpectedCode (timestamp, code, m_state);
+				writeLogUnexpectedCode(timestamp, code, m_state);
 
 			if (m_isBigEndian)
 				m_mosi = c << 4;
@@ -130,7 +130,7 @@ SpiDecoder.decode (
 
 		case Code.MosiDataLo:
 			if (m_state != State.MisoDataHi)
-				writeLogUnexpectedCode (timestamp, code, m_state);
+				writeLogUnexpectedCode(timestamp, code, m_state);
 
 			if (m_isBigEndian)
 				m_mosi |= c & 0x0f;
@@ -143,7 +143,7 @@ SpiDecoder.decode (
 
 		case Code.MisoDataHi:
 			if (m_state != State.MosiDataHi)
-				writeLogUnexpectedCode (timestamp, code, m_state);
+				writeLogUnexpectedCode(timestamp, code, m_state);
 
 			if (m_isBigEndian)
 				m_miso = c << 4;
@@ -155,7 +155,7 @@ SpiDecoder.decode (
 
 		case Code.MisoDataLo:
 			if (m_state != State.MosiDataLo)
-				writeLogUnexpectedCode (timestamp, code, m_state);
+				writeLogUnexpectedCode(timestamp, code, m_state);
 
 			if (m_isBigEndian)
 				m_miso |= c & 0x0f;
@@ -171,9 +171,9 @@ SpiDecoder.decode (
 			}
 			else
 			{
-				size_t size = mosi - (uchar_t*) m_buffer.m_p;
-				memcpy (m_buffer.m_p + size, m_misoBuffer.m_p, size);
-				m_logWriter.write (timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
+				size_t size = mosi - (uchar_t*)m_buffer.m_p;
+				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
+				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
 				mosi = m_buffer.m_p;
 				miso = m_misoBuffer.m_p;
 			}
@@ -182,11 +182,11 @@ SpiDecoder.decode (
 			break;
 
 		case Code.Stop:
-			size_t size = mosi - (uchar_t*) m_buffer.m_p;
+			size_t size = mosi - (uchar_t*)m_buffer.m_p;
 			if (size)
 			{
-				memcpy (m_buffer.m_p + size, m_misoBuffer.m_p, size);
-				m_logWriter.write (timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
+				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
+				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
 				mosi = m_buffer.m_p;
 				miso = m_misoBuffer.m_p;
 			}
@@ -198,16 +198,16 @@ SpiDecoder.decode (
 			if (bitCount)
 			{
 				*m_bitCount = bitCount;
-				m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof (uint_t));
+				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
 			}
 
-			m_logWriter.write (timestamp, I2cSpiSnifferLogRecordCode.SpiStop, null, 0);
+			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.SpiStop, null, 0);
 			m_state = State.Idle;
 			break;
 		}
 	}
 
-	m_size = mosi - (uchar_t*) m_buffer.m_p;
+	m_size = mosi - (uchar_t*)m_buffer.m_p;
 }
 
 //..............................................................................

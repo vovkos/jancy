@@ -35,28 +35,28 @@ protected:
 	uint_t m_typeFlags; // before the type is calculated
 
 public:
-	PropertyTemplate ();
+	PropertyTemplate();
 
 	FunctionType*
-	getGetterType ()
+	getGetterType()
 	{
 		return m_getterType;
 	}
 
 	FunctionTypeOverload*
-	getSetterType ()
+	getSetterType()
 	{
 		return &m_setterType;
 	}
 
 	bool
-	addMethod (
+	addMethod(
 		FunctionKind functionKind,
 		FunctionType* functionType
 		);
 
 	PropertyType*
-	calcType ();
+	calcType();
 };
 
 //..............................................................................

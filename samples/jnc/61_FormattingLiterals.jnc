@@ -16,7 +16,7 @@
 
 // entry point
 
-int main ()
+int main()
 {
 	struct Color
 	{
@@ -24,7 +24,7 @@ int main ()
 		uint_t m_value;
 	}
 
-	static Color colorTable [] =
+	static Color colorTable[] =
 	{
 		{ "black",   0x000000 },
 		{ "red",     0x800000 },
@@ -36,39 +36,39 @@ int main ()
 		{ "white",   0xc0c0c0 },
 	}
 
-	for (size_t i = 0; i < countof (colorTable); i++)
+	for (size_t i = 0; i < countof(colorTable); i++)
 	{
-		char const* colorName = colorTable [i].m_name;
+		char const* colorName = colorTable[i].m_name;
 
 		// formatting literal produces a dynamic char array in gc-heap
 
-		printf ($"color $i = $colorName\n");
+		printf($"color $i = $colorName\n");
 	}
 
-	size_t i = rand () % countof (colorTable);
+	size_t i = rand() % countof(colorTable);
 
 	// it's OK to use expressions in formatting literals
 
-	printf ($"random color = $(colorTable [i].m_name)\n");
+	printf($"random color = $(colorTable [i].m_name)\n");
 
 	// printf-style formatting specifiers are also supported
 
-	printf ($"color value  = #$(colorTable [i].m_value; 06x)\n");
+	printf($"color value  = #$(colorTable [i].m_value; 06x)\n");
 
 	// it's also OK to specify some of injected values (or all of them) in the
 	// argument list of the formatting literal and reference them by index
 
-	printf (
+	printf(
 		$"rgb dec = (%1, %2, %3)\nrgb hex = (%(1;x), %(2;x), %(3;x))\n" (
-			(colorTable [i].m_value & 0xff0000) >> 16,
-			(colorTable [i].m_value & 0x00ff00) >> 8,
-			(colorTable [i].m_value & 0x0000ff)
+			(colorTable[i].m_value & 0xff0000) >> 16,
+			(colorTable[i].m_value & 0x00ff00) >> 8,
+			(colorTable[i].m_value & 0x0000ff)
 			)
 		);
 
 	// last but not least, it's OK to concatenate all kinds of literals
 
-	printf (
+	printf(
 		"stats\n"
 		0x"e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 e29480 0d"
 		$"size  = $(sizeof (colorTable))\n"

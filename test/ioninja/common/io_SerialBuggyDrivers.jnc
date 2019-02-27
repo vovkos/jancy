@@ -11,29 +11,29 @@ namespace io {
 
 //..............................................................................
 
-char const* detectSerialBuggyDriver (char const* portName)
+char const* detectSerialBuggyDriver(char const* portName)
 {
 	if (sys.g_systemInfo.m_osKind != sys.OsKind.Windows)
 		return null;
 
 	char const* linkName =
-		portName [0] != '\\' ? (char const*) $"\\??\\$portName" :
-		strncmp (portName, "\\\\.\\", 4) == 0 ? (char const*) $"\\??\\$(portName + 4)" :
+		portName[0] != '\\' ? (char const*) $"\\??\\$portName" :
+		strncmp(portName, "\\\\.\\", 4) == 0 ? (char const*) $"\\??\\$(portName + 4)" :
 		portName;
 
-	char const* deviceName = try io.getSymbolicLinkTarget (linkName);
+	char const* deviceName = try io.getSymbolicLinkTarget(linkName);
 
-	printf ("link name: %s, device name: %s\n", linkName, deviceName);
+	printf("link name: %s, device name: %s\n", linkName, deviceName);
 
 	char const* driverName;
 
 	return
 		!deviceName ? "<unknown-driver>" : // be conservative when we can't detect
-		stristr (deviceName, "prolific") ? "Prolific" : // prolific drivers are... just... BAD
+		stristr(deviceName, "prolific") ? "Prolific" : // prolific drivers are... just... BAD
 		null;
 }
 
-void setConservativeSerialSettings (io.Serial* serial)
+void setConservativeSerialSettings(io.Serial* serial)
 {
 	io.SerialOptions options = serial.m_options;
 	options &= io.SerialOptions.WinReadWaitFirstChar;

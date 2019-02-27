@@ -24,14 +24,14 @@ class Cast_FunctionPtr_FromMulticast: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -45,14 +45,14 @@ class Cast_FunctionPtr_FromDataPtr: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -66,7 +66,7 @@ class Cast_FunctionPtr_Base: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
@@ -79,7 +79,7 @@ class Cast_FunctionPtr_FromFat: public Cast_FunctionPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -93,7 +93,7 @@ class Cast_FunctionPtr_Weak2Normal: public Cast_FunctionPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -107,7 +107,7 @@ class Cast_FunctionPtr_Thin2Fat: public Cast_FunctionPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -115,7 +115,7 @@ public:
 
 protected:
 	bool
-	llvmCast_NoThunkSimpleClosure (
+	llvmCast_NoThunkSimpleClosure(
 		const Value& opValue,
 		const Value& simpleClosureObjValue,
 		FunctionType* srcFunctionType,
@@ -124,14 +124,14 @@ protected:
 		);
 
 	bool
-	llvmCast_DirectThunkNoClosure (
+	llvmCast_DirectThunkNoClosure(
 		Function* function,
 		FunctionPtrType* dstPtrType,
 		Value* resultValue
 		);
 
 	bool
-	llvmCast_DirectThunkSimpleClosure (
+	llvmCast_DirectThunkSimpleClosure(
 		Function* function,
 		const Value& simpleClosureObjValue,
 		FunctionPtrType* dstPtrType,
@@ -139,7 +139,7 @@ protected:
 		);
 
 	bool
-	llvmCast_FullClosure (
+	llvmCast_FullClosure(
 		const Value& opValue,
 		FunctionType* srcFunctionType,
 		FunctionPtrType* dstPtrType,
@@ -154,7 +154,7 @@ class Cast_FunctionPtr_Thin2Thin: public Cast_FunctionPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -173,14 +173,14 @@ protected:
 	Cast_FunctionPtr_Thin2Fat m_thin2Fat;
 	Cast_FunctionPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable [FunctionPtrTypeKind__Count] [FunctionPtrTypeKind__Count];
+	CastOperator* m_operatorTable[FunctionPtrTypeKind__Count] [FunctionPtrTypeKind__Count];
 
 public:
-	Cast_FunctionPtr ();
+	Cast_FunctionPtr();
 
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		);
@@ -195,14 +195,14 @@ class Cast_FunctionRef: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

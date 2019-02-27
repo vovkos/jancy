@@ -51,7 +51,7 @@ typedef enum jnc_EnumTypeFlag jnc_EnumTypeFlag;
 
 JNC_EXTERN_C
 int64_t
-jnc_EnumConst_getValue (jnc_EnumConst* enumConst);
+jnc_EnumConst_getValue(jnc_EnumConst* enumConst);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -60,9 +60,9 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst);
 struct jnc_EnumConst: jnc_ModuleItem
 {
 	int64_t
-	getValue ()
+	getValue()
 	{
-		return jnc_EnumConst_getValue (this);
+		return jnc_EnumConst_getValue(this);
 	}
 };
 
@@ -72,15 +72,15 @@ struct jnc_EnumConst: jnc_ModuleItem
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_EnumType_getBaseType (jnc_EnumType* type);
+jnc_EnumType_getBaseType(jnc_EnumType* type);
 
 JNC_EXTERN_C
 size_t
-jnc_EnumType_getConstCount (jnc_EnumType* type);
+jnc_EnumType_getConstCount(jnc_EnumType* type);
 
 JNC_EXTERN_C
 jnc_EnumConst*
-jnc_EnumType_getConst (
+jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
 	);
@@ -90,21 +90,21 @@ jnc_EnumType_getConst (
 struct jnc_EnumType: jnc_NamedType
 {
 	jnc_Type*
-	getBaseType ()
+	getBaseType()
 	{
-		return jnc_EnumType_getBaseType (this);
+		return jnc_EnumType_getBaseType(this);
 	}
 
 	size_t
-	getConstCount ()
+	getConstCount()
 	{
-		return jnc_EnumType_getConstCount (this);
+		return jnc_EnumType_getConstCount(this);
 	}
 
 	jnc_EnumConst*
-	getConst (size_t index)
+	getConst(size_t index)
 	{
-		return jnc_EnumType_getConst (this, index);
+		return jnc_EnumType_getConst(this, index);
 	}
 };
 

@@ -13,7 +13,7 @@
 
 #include "MyWidget.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MyTextEdit)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MyTextEdit)
 
 //..............................................................................
 
@@ -24,23 +24,23 @@ public:
 	QtSignalBridge* m_onTextChangedBridge;
 
 public:
-	MyTextEdit ();
-	~MyTextEdit ();
+	MyTextEdit();
+	~MyTextEdit();
 
 	static
 	jnc::DataPtr
 	JNC_CDECL
-	getText (MyTextEdit* self)
+	getText(MyTextEdit* self)
 	{
-		QByteArray text = self->m_qtLineEdit->text ().toUtf8 ();
-		return jnc::strDup (text, text.length ());
+		QByteArray text = self->m_qtLineEdit->text().toUtf8();
+		return jnc::strDup(text, text.length());
 	}
 
 	void
 	JNC_CDECL
-	setText (jnc::DataPtr textPtr)
+	setText(jnc::DataPtr textPtr)
 	{
-		m_qtLineEdit->setText ((const char*) textPtr.m_p);
+		m_qtLineEdit->setText((const char*) textPtr.m_p);
 	}
 };
 

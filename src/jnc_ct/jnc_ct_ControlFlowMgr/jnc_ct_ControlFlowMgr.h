@@ -37,7 +37,7 @@ struct SwitchStmt
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::SimpleHashTable <intptr_t, BasicBlock*> m_caseMap;
+	sl::SimpleHashTable<intptr_t, BasicBlock*> m_caseMap;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -52,7 +52,7 @@ struct ReSwitchStmt
 	BasicBlock* m_switchBlock;
 	BasicBlock* m_defaultBlock;
 	BasicBlock* m_followBlock;
-	sl::List <ReSwitchAcceptContext> m_acceptContextList;
+	sl::List<ReSwitchAcceptContext> m_acceptContextList;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,10 +110,10 @@ class ControlFlowMgr
 protected:
 	Module* m_module;
 
-	sl::List <BasicBlock> m_blockList;
-	sl::Array <BasicBlock*> m_asyncBlockArray;
-	sl::Array <BasicBlock*> m_returnBlockArray;
-	sl::Array <BasicBlock*> m_landingPadBlockArray;
+	sl::List<BasicBlock> m_blockList;
+	sl::Array<BasicBlock*> m_asyncBlockArray;
+	sl::Array<BasicBlock*> m_returnBlockArray;
+	sl::Array<BasicBlock*> m_landingPadBlockArray;
 	BasicBlock* m_currentBlock;
 	BasicBlock* m_unreachableBlock;
 	BasicBlock* m_catchFinallyFollowBlock;
@@ -127,82 +127,82 @@ protected:
 	Value m_prevSjljFrameValue;
 
 public:
-	ControlFlowMgr ();
+	ControlFlowMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	BasicBlock*
-	createBlock (
+	createBlock(
 		const sl::StringRef& name,
 		uint_t flags = 0
 		);
 
 	BasicBlock*
-	createAsyncBlock (Scope* scope);
+	createAsyncBlock(Scope* scope);
 
 	BasicBlock*
-	getCurrentBlock ()
+	getCurrentBlock()
 	{
 		return m_currentBlock;
 	}
 
 	BasicBlock*
-	setCurrentBlock (BasicBlock* block); // returns prev
+	setCurrentBlock(BasicBlock* block); // returns prev
 
 	void
-	markUnreachable (BasicBlock* block);
+	markUnreachable(BasicBlock* block);
 
 	void
-	markLandingPad (
+	markLandingPad(
 		BasicBlock* block,
 		Scope* scope,
 		LandingPadKind landingPadKind
 		);
 
 	bool
-	deleteUnreachableBlocks ();
+	deleteUnreachableBlocks();
 
-	sl::Array <BasicBlock*>
-	getAsyncBlockArray ()
+	sl::Array<BasicBlock*>
+	getAsyncBlockArray()
 	{
 		return m_asyncBlockArray;
 	}
 
-	sl::Array <BasicBlock*>
-	getReturnBlockArray ()
+	sl::Array<BasicBlock*>
+	getReturnBlockArray()
 	{
 		return m_returnBlockArray;
 	}
 
-	sl::Array <BasicBlock*>
-	getLandingPadBlockArray ()
+	sl::Array<BasicBlock*>
+	getLandingPadBlockArray()
 	{
 		return m_landingPadBlockArray;
 	}
 
 	void
-	finalizeFunction ();
+	finalizeFunction();
 
 	// jumps
 
 	void
-	jump (
+	jump(
 		BasicBlock* block,
 		BasicBlock* followBlock = NULL
 		);
 
 	void
-	follow (BasicBlock* block);
+	follow(BasicBlock* block);
 
 	bool
-	conditionalJump (
+	conditionalJump(
 		const Value& value,
 		BasicBlock* thenBlock,
 		BasicBlock* elseBlock,
@@ -210,114 +210,114 @@ public:
 		);
 
 	bool
-	breakJump (size_t level);
+	breakJump(size_t level);
 
 	bool
-	continueJump (size_t level);
+	continueJump(size_t level);
 
 	bool
-	ret (const Value& value);
+	ret(const Value& value);
 
 	bool
-	ret ()
+	ret()
 	{
-		return ret (Value ());
+		return ret(Value());
 	}
 
 	void
-	asyncRet (BasicBlock* nextBlock);
+	asyncRet(BasicBlock* nextBlock);
 
 	bool
-	checkReturn ();
+	checkReturn();
 
 	// exception handling
 
 	void
-	beginTryOperator (TryExpr* tryExpr);
+	beginTryOperator(TryExpr* tryExpr);
 
 	bool
-	endTryOperator (
+	endTryOperator(
 		TryExpr* tryExpr,
 		Value* value
 		);
 
 	void
-	throwException ();
+	throwException();
 
 	bool
-	throwExceptionIf (
+	throwExceptionIf(
 		const Value& returnValue,
 		FunctionType* type
 		);
 
 	void
-	setJmp (
+	setJmp(
 		BasicBlock* catchBlock,
 		size_t sjljFrameIdx
 		);
 
 	void
-	setJmpFinally (
+	setJmpFinally(
 		BasicBlock* finallyBlock,
 		size_t sjljFrameIdx
 		);
 
 	void
-	finalizeTryScope (Scope* scope);
+	finalizeTryScope(Scope* scope);
 
 	bool
-	catchLabel (const Token::Pos& pos);
+	catchLabel(const Token::Pos& pos);
 
 	void
-	finalizeCatchScope (Scope* scope);
+	finalizeCatchScope(Scope* scope);
 
 	bool
-	finallyLabel (const Token::Pos& pos);
+	finallyLabel(const Token::Pos& pos);
 
 	void
-	finalizeFinallyScope (Scope* scope);
+	finalizeFinallyScope(Scope* scope);
 
 	void
-	finalizeDisposableScope (Scope* scope);
+	finalizeDisposableScope(Scope* scope);
 
 	bool
-	disposeVariable (Variable* variable);
+	disposeVariable(Variable* variable);
 
 	// if stmt
 
 	void
-	ifStmt_Create (IfStmt* stmt);
+	ifStmt_Create(IfStmt* stmt);
 
 	bool
-	ifStmt_Condition (
+	ifStmt_Condition(
 		IfStmt* stmt,
 		const Value& value,
 		const Token::Pos& pos
 		);
 
 	void
-	ifStmt_Else (
+	ifStmt_Else(
 		IfStmt* stmt,
 		const Token::Pos& pos
 		);
 
 	void
-	ifStmt_Follow (IfStmt* stmt);
+	ifStmt_Follow(IfStmt* stmt);
 
 	// switch stmt
 
 	void
-	switchStmt_Create (SwitchStmt* stmt);
+	switchStmt_Create(SwitchStmt* stmt);
 
 	bool
-	switchStmt_Condition (
+	switchStmt_Condition(
 		SwitchStmt* stmt,
 		const Value& value,
 		const Token::Pos& pos
 		);
 
 	bool
-	switchStmt_Case (
+	switchStmt_Case(
 		SwitchStmt* stmt,
 		intptr_t value,
 		const Token::Pos& pos,
@@ -325,22 +325,22 @@ public:
 		);
 
 	bool
-	switchStmt_Default (
+	switchStmt_Default(
 		SwitchStmt* stmt,
 		const Token::Pos& pos,
 		uint_t scopeFlags
 		);
 
 	void
-	switchStmt_Follow (SwitchStmt* stmt);
+	switchStmt_Follow(SwitchStmt* stmt);
 
 	// regex switch stmt
 
 	void
-	reSwitchStmt_Create (ReSwitchStmt* stmt);
+	reSwitchStmt_Create(ReSwitchStmt* stmt);
 
 	bool
-	reSwitchStmt_Condition (
+	reSwitchStmt_Condition(
 		ReSwitchStmt* stmt,
 		const Value& regexStateValue,
 		const Value& dataValue,
@@ -349,7 +349,7 @@ public:
 		);
 
 	bool
-	reSwitchStmt_Case (
+	reSwitchStmt_Case(
 		ReSwitchStmt* stmt,
 		const sl::StringRef& regexSource,
 		const Token::Pos& pos,
@@ -357,46 +357,46 @@ public:
 		);
 
 	bool
-	reSwitchStmt_Default (
+	reSwitchStmt_Default(
 		ReSwitchStmt* stmt,
 		const Token::Pos& pos,
 		uint_t scopeFlags
 		);
 
 	bool
-	reSwitchStmt_Finalize (ReSwitchStmt* stmt);
+	reSwitchStmt_Finalize(ReSwitchStmt* stmt);
 
 	// while stmt
 
 	void
-	whileStmt_Create (WhileStmt* stmt);
+	whileStmt_Create(WhileStmt* stmt);
 
 	bool
-	whileStmt_Condition (
+	whileStmt_Condition(
 		WhileStmt* stmt,
 		const Value& value,
 		const Token::Pos& pos
 		);
 
 	void
-	whileStmt_Follow (WhileStmt* stmt);
+	whileStmt_Follow(WhileStmt* stmt);
 
 	// do stmt
 
 	void
-	doStmt_Create (DoStmt* stmt);
+	doStmt_Create(DoStmt* stmt);
 
 	void
-	doStmt_PreBody (
+	doStmt_PreBody(
 		DoStmt* stmt,
 		const Token::Pos& pos
 		);
 
 	void
-	doStmt_PostBody (DoStmt* stmt);
+	doStmt_PostBody(DoStmt* stmt);
 
 	bool
-	doStmt_Condition (
+	doStmt_Condition(
 		DoStmt* stmt,
 		const Value& value
 		);
@@ -404,101 +404,101 @@ public:
 	// for stmt
 
 	void
-	forStmt_Create (ForStmt* stmt);
+	forStmt_Create(ForStmt* stmt);
 
 	void
-	forStmt_PreInit (
+	forStmt_PreInit(
 		ForStmt* stmt,
 		const Token::Pos& pos
 		);
 
 	void
-	forStmt_NoCondition (ForStmt* stmt);
+	forStmt_NoCondition(ForStmt* stmt);
 
 	void
-	forStmt_PreCondition (ForStmt* stmt);
+	forStmt_PreCondition(ForStmt* stmt);
 
 	bool
-	forStmt_PostCondition (
+	forStmt_PostCondition(
 		ForStmt* stmt,
 		const Value& value
 		);
 
 	void
-	forStmt_PreLoop (ForStmt* stmt);
+	forStmt_PreLoop(ForStmt* stmt);
 
 	void
-	forStmt_PostLoop (ForStmt* stmt);
+	forStmt_PostLoop(ForStmt* stmt);
 
 	void
-	forStmt_PreBody (ForStmt* stmt);
+	forStmt_PreBody(ForStmt* stmt);
 
 	void
-	forStmt_PostBody (ForStmt* stmt);
+	forStmt_PostBody(ForStmt* stmt);
 
 	// once stmt
 
 	bool
-	onceStmt_Create (
+	onceStmt_Create(
 		OnceStmt* stmt,
 		const Token::Pos& pos,
 		StorageKind storageKind = StorageKind_Static
 		);
 
 	void
-	onceStmt_Create (
+	onceStmt_Create(
 		OnceStmt* stmt,
 		Variable* flagVariable
 		);
 
 	bool
-	onceStmt_PreBody (
+	onceStmt_PreBody(
 		OnceStmt* stmt,
 		const Token::Pos& pos
 		);
 
 	void
-	onceStmt_PostBody (
+	onceStmt_PostBody(
 		OnceStmt* stmt,
 		const Token::Pos& pos
 		);
 
 	Variable*
-	getFinallyRouteIdxVariable ();
+	getFinallyRouteIdxVariable();
 
 protected:
 	void
-	addBlock (BasicBlock* block);
+	addBlock(BasicBlock* block);
 
 	void
-	escapeScope (
+	escapeScope(
 		Scope* targetScope,
 		BasicBlock* targetBlock
 		);
 
 	BasicBlock*
-	getUnreachableBlock ();
+	getUnreachableBlock();
 
 	BasicBlock*
-	getReturnBlock ();
+	getReturnBlock();
 
 	BasicBlock*
-	getDynamicThrowBlock ();
+	getDynamicThrowBlock();
 
 	Variable*
-	getReturnValueVariable ();
+	getReturnValueVariable();
 
 	void
-	normalFinallyFlow ();
+	normalFinallyFlow();
 
 	void
-	preCreateSjljFrameArray ();
+	preCreateSjljFrameArray();
 
 	void
-	finalizeSjljFrameArray ();
+	finalizeSjljFrameArray();
 
 	void
-	setSjljFrame (size_t index);
+	setSjljFrame(size_t index);
 };
 
 //..............................................................................

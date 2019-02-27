@@ -18,78 +18,78 @@ namespace ct {
 //..............................................................................
 
 void
-QualifiedName::addName (const sl::StringRef& name)
+QualifiedName::addName(const sl::StringRef& name)
 {
-	if (m_first.isEmpty ())
+	if (m_first.isEmpty())
 		m_first = name;
 	else
-		m_list.insertTail (name);
+		m_list.insertTail(name);
 }
 
 sl::String
-QualifiedName::removeLastName ()
+QualifiedName::removeLastName()
 {
 	sl::String name;
 
-	if (m_list.isEmpty ())
+	if (m_list.isEmpty())
 	{
 		name = m_first;
-		m_first.clear ();
+		m_first.clear();
 	}
 	else
 	{
-		name = m_list.removeTail ();
+		name = m_list.removeTail();
 	}
 
 	return name;
 }
 
 sl::String
-QualifiedName::getFullName () const
+QualifiedName::getFullName() const
 {
-	if (m_list.isEmpty ())
+	if (m_list.isEmpty())
 		return m_first;
 
 	sl::String name = m_first;
-	sl::ConstBoxIterator <sl::String> it = m_list.getHead ();
+	sl::ConstBoxIterator<sl::String> it = m_list.getHead();
 	for (; it; it++)
 	{
-		name.append ('.');
-		name.append (*it);
+		name.append('.');
+		name.append(*it);
 	}
 
 	return name;
 }
 
 void
-QualifiedName::parse (const sl::StringRef& name0)
+QualifiedName::parse(const sl::StringRef& name0)
 {
-	clear ();
+	clear();
 
-	const char* name = name0.sz ();
+	const char* name = name0.sz();
 	for (;;)
 	{
-		const char* dot = strchr (name, '.');
+		const char* dot = strchr(name, '.');
 		if (!dot)
 		{
-			addName (name);
+			addName(name);
 			break;
 		}
 
-		addName (sl::StringRef (name, dot - name));
+		addName(sl::StringRef(name, dot - name));
 		name = dot + 1;
 	}
 }
 
 void
-QualifiedName::copy (const QualifiedName& name)
+QualifiedName::copy(const QualifiedName& name)
 {
 	m_first = name.m_first;
-	m_list.clear ();
+	m_list.clear();
 
-	sl::ConstBoxIterator <sl::String> it = name.m_list.getHead ();
+	sl::ConstBoxIterator<sl::String> it = name.m_list.getHead();
 	for (; it; it++)
-		m_list.insertTail (*it);
+		m_list.insertTail(*it);
 }
 
 //..............................................................................

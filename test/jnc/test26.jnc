@@ -16,7 +16,7 @@ bitflag enum OpenFlags
 	Temporary,
 }
 
-int main ()
+int main()
 {
 	OpenFlags flags = OpenFlags.ReadOnly | OpenFlags.Exclusive;
 

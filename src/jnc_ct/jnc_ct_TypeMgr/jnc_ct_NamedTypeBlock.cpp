@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
+NamedTypeBlock::NamedTypeBlock(ModuleItem* parent)
 {
 	m_parent = parent;
 	m_staticConstructor = NULL;
@@ -29,48 +29,48 @@ NamedTypeBlock::NamedTypeBlock (ModuleItem* parent)
 }
 
 Namespace*
-NamedTypeBlock::getParentNamespaceImpl ()
+NamedTypeBlock::getParentNamespaceImpl()
 {
-	ASSERT (
-		m_parent->getItemKind () == ModuleItemKind_Property ||
-		m_parent->getItemKind () == ModuleItemKind_Type &&
-		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
+	ASSERT(
+		m_parent->getItemKind() == ModuleItemKind_Property ||
+		m_parent->getItemKind() == ModuleItemKind_Type &&
+		(((Type*)m_parent)->getTypeKindFlags() & TypeKindFlag_Derivable));
 
-	return  m_parent->getItemKind () == ModuleItemKind_Property ?
-		(Namespace*) (Property*) m_parent :
-		(Namespace*) (DerivableType*) m_parent;
+	return  m_parent->getItemKind() == ModuleItemKind_Property ?
+		(Namespace*)(Property*)m_parent :
+		(Namespace*)(DerivableType*)m_parent;
 }
 
 Unit*
-NamedTypeBlock::getParentUnitImpl ()
+NamedTypeBlock::getParentUnitImpl()
 {
-	ASSERT (
-		m_parent->getItemKind () == ModuleItemKind_Property ||
-		m_parent->getItemKind () == ModuleItemKind_Type &&
-		(((Type*) m_parent)->getTypeKindFlags () & TypeKindFlag_Derivable));
+	ASSERT(
+		m_parent->getItemKind() == ModuleItemKind_Property ||
+		m_parent->getItemKind() == ModuleItemKind_Type &&
+		(((Type*)m_parent)->getTypeKindFlags() & TypeKindFlag_Derivable));
 
-	return  m_parent->getItemKind () == ModuleItemKind_Property ?
-		((Property*) m_parent)->getParentUnit () :
-		((DerivableType*) m_parent)->getParentUnit ();
+	return  m_parent->getItemKind() == ModuleItemKind_Property ?
+		((Property*)m_parent)->getParentUnit() :
+		((DerivableType*)m_parent)->getParentUnit();
 }
 
 Function*
-NamedTypeBlock::createMethod (
+NamedTypeBlock::createMethod(
 	StorageKind storageKind,
 	const sl::StringRef& name,
 	FunctionType* shortType
 	)
 {
-	sl::String qualifiedName = getParentNamespaceImpl ()->createQualifiedName (name);
+	sl::String qualifiedName = getParentNamespaceImpl()->createQualifiedName(name);
 
-	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (FunctionKind_Normal, shortType);
+	Function* function = m_parent->getModule()->m_functionMgr.createFunction(FunctionKind_Normal, shortType);
 	function->m_storageKind = storageKind;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
 	function->m_declaratorName = name;
 	function->m_tag = qualifiedName;
 
-	bool result = addMethod (function);
+	bool result = addMethod(function);
 	if (!result)
 		return NULL;
 
@@ -78,21 +78,21 @@ NamedTypeBlock::createMethod (
 }
 
 Function*
-NamedTypeBlock::createUnnamedMethod (
+NamedTypeBlock::createUnnamedMethod(
 	StorageKind storageKind,
 	FunctionKind functionKind,
 	FunctionType* shortType
 	)
 {
-	Function* function = m_parent->getModule ()->m_functionMgr.createFunction (functionKind, shortType);
+	Function* function = m_parent->getModule()->m_functionMgr.createFunction(functionKind, shortType);
 	function->m_storageKind = storageKind;
-	function->m_tag.format (
+	function->m_tag.format(
 		"%s.%s",
-		getParentNamespaceImpl ()->getQualifiedName ().sz (),
-		getFunctionKindString (functionKind)
+		getParentNamespaceImpl()->getQualifiedName().sz(),
+		getFunctionKindString(functionKind)
 		);
 
-	bool result = addMethod (function);
+	bool result = addMethod(function);
 	if (!result)
 		return NULL;
 
@@ -100,19 +100,19 @@ NamedTypeBlock::createUnnamedMethod (
 }
 
 Property*
-NamedTypeBlock::createProperty (
+NamedTypeBlock::createProperty(
 	StorageKind storageKind,
 	const sl::StringRef& name,
 	PropertyType* shortType
 	)
 {
-	sl::String qualifiedName = getParentNamespaceImpl ()->createQualifiedName (name);
+	sl::String qualifiedName = getParentNamespaceImpl()->createQualifiedName(name);
 
-	Property* prop = m_parent->getModule ()->m_functionMgr.createProperty (name, qualifiedName);
+	Property* prop = m_parent->getModule()->m_functionMgr.createProperty(name, qualifiedName);
 
 	bool result =
-		addProperty (prop) &&
-		prop->create (shortType);
+		addProperty(prop) &&
+		prop->create(shortType);
 
 	if (!result)
 		return NULL;
@@ -121,56 +121,56 @@ NamedTypeBlock::createProperty (
 }
 
 bool
-NamedTypeBlock::initializeStaticFields ()
+NamedTypeBlock::initializeStaticFields()
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
+	Module* module = m_parent->getModule();
 
-	Unit* unit = getParentUnitImpl ();
+	Unit* unit = getParentUnitImpl();
 	if (unit)
-		module->m_unitMgr.setCurrentUnit (unit);
+		module->m_unitMgr.setCurrentUnit(unit);
 
-	module->m_namespaceMgr.openNamespace (getParentNamespaceImpl ());
+	module->m_namespaceMgr.openNamespace(getParentNamespaceImpl());
 
-	size_t count = m_initializedStaticFieldArray.getCount ();
+	size_t count = m_initializedStaticFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Variable* staticField = m_initializedStaticFieldArray [i];
-		result = module->m_variableMgr.initializeVariable (staticField);
+		Variable* staticField = m_initializedStaticFieldArray[i];
+		result = module->m_variableMgr.initializeVariable(staticField);
 		if (!result)
 			return false;
 	}
 
-	module->m_namespaceMgr.closeNamespace ();
+	module->m_namespaceMgr.closeNamespace();
 
 	return true;
 }
 
 bool
-NamedTypeBlock::initializeMemberFields (const Value& thisValue)
+NamedTypeBlock::initializeMemberFields(const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
+	Module* module = m_parent->getModule();
 
-	Unit* unit = getParentUnitImpl ();
+	Unit* unit = getParentUnitImpl();
 	if (unit)
-		module->m_unitMgr.setCurrentUnit (unit);
+		module->m_unitMgr.setCurrentUnit(unit);
 
-	module->m_namespaceMgr.openNamespace (getParentNamespaceImpl ());
+	module->m_namespaceMgr.openNamespace(getParentNamespaceImpl());
 
-	size_t count = m_initializedMemberFieldArray.getCount ();
+	size_t count = m_initializedMemberFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_initializedMemberFieldArray [i];
+		StructField* field = m_initializedMemberFieldArray[i];
 
 		Value fieldValue;
-		result = module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue);
+		result = module->m_operatorMgr.getField(thisValue, field, NULL, &fieldValue);
 		if (!result)
 			return false;
 
-		result = module->m_operatorMgr.parseInitializer (
+		result = module->m_operatorMgr.parseInitializer(
 			fieldValue,
 			field->m_constructor,
 			field->m_initializer
@@ -180,22 +180,22 @@ NamedTypeBlock::initializeMemberFields (const Value& thisValue)
 			return false;
 	}
 
-	module->m_namespaceMgr.closeNamespace ();
+	module->m_namespaceMgr.closeNamespace();
 
 	return true;
 }
 
 bool
-NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
+NamedTypeBlock::callMemberFieldConstructors(const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
+	Module* module = m_parent->getModule();
 
-	size_t count = m_memberFieldConstructArray.getCount ();
+	size_t count = m_memberFieldConstructArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_memberFieldConstructArray [i];
+		StructField* field = m_memberFieldConstructArray[i];
 		if (field->m_flags & ModuleItemFlag_Constructed)
 		{
 			field->m_flags &= ~ModuleItemFlag_Constructed;
@@ -203,17 +203,17 @@ NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
 		}
 
 		Value fieldValue;
-		result = module->m_operatorMgr.getField (thisValue, field, NULL, &fieldValue);
+		result = module->m_operatorMgr.getField(thisValue, field, NULL, &fieldValue);
 		if (!result)
 			return false;
 
-		ASSERT (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable);
-		DerivableType* type = (DerivableType*) field->getType ();
+		ASSERT(field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable);
+		DerivableType* type = (DerivableType*)field->getType();
 
-		Function* constructor = type->getDefaultConstructor ();
-		ASSERT (constructor); // otherwise, would not be on member-field-construct array
+		Function* constructor = type->getDefaultConstructor();
+		ASSERT(constructor); // otherwise, would not be on member-field-construct array
 
-		result = module->m_operatorMgr.callOperator (constructor, fieldValue);
+		result = module->m_operatorMgr.callOperator(constructor, fieldValue);
 		if (!result)
 			return false;
 	}
@@ -222,26 +222,26 @@ NamedTypeBlock::callMemberFieldConstructors (const Value& thisValue)
 }
 
 bool
-NamedTypeBlock::callMemberPropertyConstructors (const Value& thisValue)
+NamedTypeBlock::callMemberPropertyConstructors(const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
+	Module* module = m_parent->getModule();
 
-	size_t count = m_memberPropertyConstructArray.getCount ();
+	size_t count = m_memberPropertyConstructArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Property* prop = m_memberPropertyConstructArray [i];
+		Property* prop = m_memberPropertyConstructArray[i];
 		if (prop->m_flags & ModuleItemFlag_Constructed)
 		{
 			prop->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
-		Function* constructor = prop->getConstructor ();
-		ASSERT (constructor);
+		Function* constructor = prop->getConstructor();
+		ASSERT(constructor);
 
-		result = module->m_operatorMgr.callOperator (constructor, thisValue);
+		result = module->m_operatorMgr.callOperator(constructor, thisValue);
 		if (!result)
 			return false;
 	}
@@ -250,21 +250,21 @@ NamedTypeBlock::callMemberPropertyConstructors (const Value& thisValue)
 }
 
 bool
-NamedTypeBlock::callMemberPropertyDestructors (const Value& thisValue)
+NamedTypeBlock::callMemberPropertyDestructors(const Value& thisValue)
 {
 	bool result;
 
-	Module* module = m_parent->getModule ();
+	Module* module = m_parent->getModule();
 
-	size_t count = m_memberPropertyDestructArray.getCount ();
+	size_t count = m_memberPropertyDestructArray.getCount();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		Property* prop = m_memberPropertyDestructArray [i];
+		Property* prop = m_memberPropertyDestructArray[i];
 
-		Function* destructor = prop->getDestructor ();
-		ASSERT (destructor);
+		Function* destructor = prop->getDestructor();
+		ASSERT(destructor);
 
-		result = module->m_operatorMgr.callOperator (destructor, thisValue);
+		result = module->m_operatorMgr.callOperator(destructor, thisValue);
 		if (!result)
 			return false;
 	}

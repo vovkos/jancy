@@ -51,50 +51,50 @@ protected:
 protected:
 	Module* m_module;
 
-	sl::List <Import> m_importList;
-	sl::StringHashTable <bool> m_ignoredImportSet;
-	sl::StringHashTable <bool> m_importFilePathMap;
+	sl::List<Import> m_importList;
+	sl::StringHashTable<bool> m_ignoredImportSet;
+	sl::StringHashTable<bool> m_importFilePathMap;
 
 public:
-	sl::BoxList <sl::String> m_importDirList;
+	sl::BoxList<sl::String> m_importDirList;
 
 public:
-	ImportMgr ();
+	ImportMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
-	sl::ConstList <Import>
-	getImportList ()
+	sl::ConstList<Import>
+	getImportList()
 	{
 		return m_importList;
 	}
 
 	bool
-	addImport (const sl::StringRef& fileName);
+	addImport(const sl::StringRef& fileName);
 
 	void
-	addImport (
+	addImport(
 		ExtensionLib* lib,
 		const sl::StringRef& filePath,
 		const sl::StringRef& source
 		);
 
 	void
-	addIgnoredImport (const sl::StringRef& fileName)
+	addIgnoredImport(const sl::StringRef& fileName)
 	{
-		m_ignoredImportSet.visit (fileName);
+		m_ignoredImportSet.visit(fileName);
 	}
 
 protected:
 	FindResult
-	findImportFile (
+	findImportFile(
 		const sl::StringRef& fileName,
 		sl::String* filePath
 		);

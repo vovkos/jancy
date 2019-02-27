@@ -31,64 +31,64 @@ public:
 	size_t m_outOfSeqLimit;
 	uint32_t readonly m_seqNumber;
 
-	function* m_onData (
+	function* m_onData(
 		void const* p,
 		size_t size
 		);
 
-	function* m_onDataDrop ();
+	function* m_onDataDrop();
 
 public:
-	reset (uint32_t seqNumber);
+	reset(uint32_t seqNumber);
 
-	write (
+	write(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
 protected:
-	addOutOfSeqSegment (
+	addOutOfSeqSegment(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
-	writeInSeqSegment (
+	writeInSeqSegment(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
-	writeAlignedOutOfSeqSegments ();
+	writeAlignedOutOfSeqSegments();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TcpSequencer.reset (uint32_t seqNumber)
+TcpSequencer.reset(uint32_t seqNumber)
 {
 	m_outOfSeqLimit = DefOutOfSeqLimit;
 	m_seqNumber = seqNumber;
 }
 
-TcpSequencer.write (
+TcpSequencer.write(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
 	)
 {
-	if ((intptr_t) (seqNumber - m_seqNumber) > 0)
+	if ((intptr_t)(seqNumber - m_seqNumber) > 0)
 	{
-		addOutOfSeqSegment (seqNumber, p, size);
+		addOutOfSeqSegment(seqNumber, p, size);
 	}
 	else
 	{
-		writeInSeqSegment (seqNumber, p, size);
-		writeAlignedOutOfSeqSegments ();
+		writeInSeqSegment(seqNumber, p, size);
+		writeAlignedOutOfSeqSegments();
 	}
 }
 
-TcpSequencer.addOutOfSeqSegment (
+TcpSequencer.addOutOfSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -104,9 +104,9 @@ TcpSequencer.addOutOfSeqSegment (
 		{
 			if (size > segment.m_size)
 			{
-				segment.m_p = new char [size];
+				segment.m_p = new char[size];
 				segment.m_size = size;
-				memcpy (segment.m_p, p, size);
+				memcpy(segment.m_p, p, size);
 			}
 
 			return;
@@ -118,35 +118,35 @@ TcpSequencer.addOutOfSeqSegment (
 
 	OutOfSeqSegment* segment = new OutOfSeqSegment;
 	segment.m_seqNumber = seqNumber;
-	segment.m_p = new char [size];
+	segment.m_p = new char[size];
 	segment.m_size = size;
-	memcpy (segment.m_p, p, size);
+	memcpy(segment.m_p, p, size);
 
-	m_outOfSeqList.insertBefore (segment, it);
+	m_outOfSeqList.insertBefore(segment, it);
 	if (m_outOfSeqList.m_count < m_outOfSeqLimit)
 		return;
 
 	if (m_onDataDrop)
-		m_onDataDrop ();
+		m_onDataDrop();
 
 	// maintain out-of-seq limit
 
 	while (m_outOfSeqList.m_count > m_outOfSeqLimit)
 	{
-		OutOfSeqSegment* segment = m_outOfSeqList.removeHead ();
-		writeInSeqSegment (segment.m_seqNumber, segment.m_p, segment.m_size);
+		OutOfSeqSegment* segment = m_outOfSeqList.removeHead();
+		writeInSeqSegment(segment.m_seqNumber, segment.m_p, segment.m_size);
 	}
 
-	writeAlignedOutOfSeqSegments ();
+	writeAlignedOutOfSeqSegments();
 }
 
-TcpSequencer.writeInSeqSegment (
+TcpSequencer.writeInSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
 	)
 {
-	if ((intptr_t) (m_seqNumber - seqNumber) > 0) // retransmission
+	if ((intptr_t)(m_seqNumber - seqNumber) > 0) // retransmission
 	{
 		size_t skip = m_seqNumber - seqNumber;
 		if (skip >= size)
@@ -157,12 +157,12 @@ TcpSequencer.writeInSeqSegment (
 	}
 
 	if (m_onData)
-		m_onData (p, size);
+		m_onData(p, size);
 
-	m_seqNumber = seqNumber + (uint32_t) size;
+	m_seqNumber = seqNumber + (uint32_t)size;
 }
 
-TcpSequencer.writeAlignedOutOfSeqSegments ()
+TcpSequencer.writeAlignedOutOfSeqSegments()
 {
 	while (m_outOfSeqList.m_count)
 	{
@@ -170,8 +170,8 @@ TcpSequencer.writeAlignedOutOfSeqSegments ()
 		if (segment.m_seqNumber > m_seqNumber)
 			break;
 
-		m_outOfSeqList.removeHead ();
-		writeInSeqSegment (segment.m_seqNumber, segment.m_p, segment.m_size);
+		m_outOfSeqList.removeHead();
+		writeInSeqSegment(segment.m_seqNumber, segment.m_p, segment.m_size);
 	}
 }
 

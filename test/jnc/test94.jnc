@@ -4,7 +4,7 @@ struct MapEntry
 	variant m_value;
 }
 
-variant findValue (
+variant findValue(
 	variant key,
 	variant undefinedValue = null
 	)
@@ -17,8 +17,8 @@ variant findValue (
 	return entry ? entry.m_value : undefinedValue;
 }
 
-int main ()
+int main()
 {
-	findValue (100);
+	findValue(100);
 	return 0;
 }

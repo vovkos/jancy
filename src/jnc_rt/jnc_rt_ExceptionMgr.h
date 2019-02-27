@@ -23,21 +23,21 @@ namespace rt {
 class ExceptionMgr
 {
 protected:
-	struct sigaction m_prevSigActionTable [32]; // we will get a compile-time error if not enough
+	struct sigaction m_prevSigActionTable[32]; // we will get a compile-time error if not enough
 
 public:
-	ExceptionMgr ()
+	ExceptionMgr()
 	{
-		memset (m_prevSigActionTable, 0, sizeof (m_prevSigActionTable));
+		memset(m_prevSigActionTable, 0, sizeof(m_prevSigActionTable));
 	}
 
 	void
-	install ();
+	install();
 
 protected:
 	static
 	void
-	signalHandler (
+	signalHandler(
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
@@ -45,14 +45,14 @@ protected:
 
 	static
 	void
-	signalHandler_SIGUSR (
+	signalHandler_SIGUSR(
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
 		);
 
 	void
-	invokePrevSignalHandler (
+	invokePrevSignalHandler(
 		int signal,
 		siginfo_t* signalInfo,
 		void* context
@@ -65,13 +65,13 @@ class ExceptionMgr
 {
 public:
 	void
-	install ();
+	install();
 
 protected:
 	static
 	LONG
 	WINAPI
-	vectoredExceptionHandler (EXCEPTION_POINTERS* exceptionPointers);
+	vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers);
 };
 
 #endif

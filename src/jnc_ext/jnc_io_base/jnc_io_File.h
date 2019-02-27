@@ -14,7 +14,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (File)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(File)
 
 //..............................................................................
 
@@ -30,82 +30,82 @@ protected:
 	axl::io::File m_file;
 
 public:
-	File ();
+	File();
 
 	void
 	JNC_CDECL
-	setDynamicViewLimit (size_t limit);
+	setDynamicViewLimit(size_t limit);
 
 	uint64_t
 	JNC_CDECL
-	getSize ()
+	getSize()
 	{
-		return m_file.getSize ();
+		return m_file.getSize();
 	}
 
 	bool
 	JNC_CDECL
-	setSize (uint64_t size)
+	setSize(uint64_t size)
 	{
-		return m_file.setSize (size);
+		return m_file.setSize(size);
 	}
 
 	uint64_t
 	JNC_CDECL
-	getPosition ()
+	getPosition()
 	{
-		return m_file.getPosition ();
+		return m_file.getPosition();
 	}
 
 	bool
 	JNC_CDECL
-	setPosition (uint64_t offset)
+	setPosition(uint64_t offset)
 	{
-		return m_file.setPosition (offset);
+		return m_file.setPosition(offset);
 	}
 
 	bool
 	JNC_CDECL
-	open (
+	open(
 		DataPtr namePtr,
 		uint_t flags
 		)
 	{
-		return m_file.open ((const char*) namePtr.m_p, flags);
+		return m_file.open((const char*) namePtr.m_p, flags);
 	}
 
 	void
 	JNC_CDECL
-	close ()
+	close()
 	{
-		m_file.close ();
+		m_file.close();
 	}
 
 	size_t
 	JNC_CDECL
-	read (
+	read(
 		DataPtr ptr,
 		size_t size
 		)
 	{
-		return m_file.read (ptr.m_p, size);
+		return m_file.read(ptr.m_p, size);
 	}
 
 	size_t
 	JNC_CDECL
-	write (
+	write(
 		DataPtr ptr,
 		size_t size
 		)
 	{
-		return m_file.write (ptr.m_p, size);
+		return m_file.write(ptr.m_p, size);
 	}
 
 	bool
 	JNC_CDECL
-	flush ()
+	flush()
 	{
-		return m_file.flush ();
+		return m_file.flush();
 	}
 };
 

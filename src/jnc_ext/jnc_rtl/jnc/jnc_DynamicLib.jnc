@@ -25,25 +25,25 @@ namespace jnc {
 	You can use ``jnc.DynamicLib`` in one of the two ways.
 
 	One way is to explicitly load a dynamic library by file name, resolve
-	function names to pointers, (unsafely) cast these pointers to appropriate
+	function names to pointers, (unsafely)cast these pointers to appropriate
 	function pointer types, and then call these function pointers:
 
 	.. ref-code-block::
 
-		void foo ()
+		void foo()
 		{
 			jnc.DynamicLib lib;
-			lib.open ("libname"); // load library
-			void thin* p = lib.getFunction ("foo"); // resolve function by name
+			lib.open("libname"); // load library
+			void thin* p = lib.getFunction("foo"); // resolve function by name
 
-			typedef void stdcall FooFunc (int); // specify function type
+			typedef void stdcall FooFunc(int); // specify function type
 
 			unsafe
 			{
 				FooFunc thin* foo = (FooFunc thin*) p; // cast to the proper type
 			}
 
-			foo (100); // call this function
+			foo(100); // call this function
 
 		catch:
 			// handle error...
@@ -64,20 +64,20 @@ namespace jnc {
 
 		dynamiclib MyLib // will use jnc.DynamicLib behind the scene
 		{
-			void stdcall foo (int);
+			void stdcall foo(int);
 		}
 
-		void foo ()
+		void foo()
 		{
 			MyLib myLib;
-			myLib.open ("libname"); // load library
-			myLib.lib.foo (100); // resolve, cache and call
+			myLib.open("libname"); // load library
+			myLib.lib.foo(100); // resolve, cache and call
 
 		catch:
 			// handle error...
 		}
 
-	Please note that when accessing functions from the dynamic library (``foo``
+	Please note that when accessing functions from the dynamic library(``foo``
 	in the example above), you need to prefix it with ``lib.`` qualifier -- this
 	design was chosen to avoid conflicts between library functions and
 	``jnc.DynamicLib`` members.
@@ -94,7 +94,7 @@ namespace jnc {
 class DynamicLib
 {
 	/**
-		This field holds the native handle of the dynamic library (``HMODULE``
+		This field holds the native handle of the dynamic library(``HMODULE``
 		returned by  ``LoadLibraryW`` on Windows, ``void*`` returned by
 		``dlopen`` on POSIX)
 
@@ -111,19 +111,19 @@ class DynamicLib
 
 	property m_isOpen
 	{
-		bool get ()
+		bool get()
 		{
 			return m_handle != null;
 		}
 	}
 
-	destruct ()
+	destruct()
 	{
-		close ();
+		close();
 	}
 
 	/**
-		Opens (loads) a dynamic library.
+		Opens(loads)a dynamic library.
 
 		The function accepts a single ``fileName`` argument, which specifies the
 		name of the library-containing file.
@@ -133,20 +133,20 @@ class DynamicLib
 		and then the function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (char const* fileName);
+	bool errorcode open(char const* fileName);
 
 	/**
-		Closes (releases) a previously loaded dynamic library, does nothing if
+		Closes(releases)a previously loaded dynamic library, does nothing if
 		no library is loaded. This function always succeeds.
 
 		Sometimes it may be convenient to use *disposable* pattern to ensure
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``jnc.DynamicLib`` a *disposable* class [#f2]_.
+		Effectively makes ``jnc.DynamicLib`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
@@ -159,8 +159,8 @@ class DynamicLib
 		should be properly *mangled*. On the other hand, ``C`` functions do
 		not have to be prefixed with underscore character ``_``.
 
-		Returns abstract pointer (``void thin*``), which then has to be cast
-		to a ``thin`` function pointer of the proper type (e.g., ``void thin
+		Returns abstract pointer(``void thin*``), which then has to be cast
+		to a ``thin`` function pointer of the proper type(e.g., ``void thin
 		function* (int)``.
 
 		If the function name could not be resolved, IO error supplied by the
@@ -168,7 +168,7 @@ class DynamicLib
 		returns ``null`` [#f1]_.
 	*/
 
-	void thin* errorcode getFunction (char const* fileName);
+	void thin* errorcode getFunction(char const* fileName);
 }
 
 ///;

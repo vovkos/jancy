@@ -21,7 +21,7 @@ namespace ct {
 class BinOp_Assign: public BinaryOperator
 {
 public:
-	BinOp_Assign ()
+	BinOp_Assign()
 	{
 		m_opKind = BinOpKind_Assign;
 		m_opFlags1 = OpFlag_KeepRef;
@@ -30,17 +30,17 @@ public:
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		return opValue1.getType ();
+		return opValue1.getType();
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
@@ -52,7 +52,7 @@ public:
 class BinOp_OpAssign: public BinaryOperator
 {
 public:
-	BinOp_OpAssign ()
+	BinOp_OpAssign()
 	{
 		m_opFlags1 = OpFlag_KeepRef;
 		m_opFlags2 = OpFlag_KeepEnum;
@@ -60,17 +60,17 @@ public:
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		return opValue1.getType ();
+		return opValue1.getType();
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
@@ -82,7 +82,7 @@ public:
 class BinOp_RefAssign: public BinaryOperator
 {
 public:
-	BinOp_RefAssign ()
+	BinOp_RefAssign()
 	{
 		m_opKind = BinOpKind_RefAssign;
 		m_opFlags1 = OpFlag_KeepRef;
@@ -90,24 +90,24 @@ public:
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
 		return NULL;
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
 		)
 	{
-		err::setFormatStringError ("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString ().sz ());
 		return false;
 	}
 };

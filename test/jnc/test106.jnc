@@ -8,15 +8,15 @@ class Foo
 	int m_value = Defaults.Value; // BUG: undeclared identifier
 }
 
-foo ()
+foo()
 {
 	return (void) -1;
 }
 
 
-int main ()
+int main()
 {
 	Foo f;
-	printf ("f.m_value = %d\n", f.m_value);
+	printf("f.m_value = %d\n", f.m_value);
 	return 0;
 }

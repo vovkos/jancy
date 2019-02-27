@@ -19,9 +19,9 @@ namespace ct {
 //..............................................................................
 
 const char*
-getUnOpKindString (UnOpKind opKind)
+getUnOpKindString(UnOpKind opKind)
 {
-	static const char* stringTable [UnOpKind__Count] =
+	static const char* stringTable[UnOpKind__Count] =
 	{
 		"undefined-unary-operator",  // UnOpKind_Undefined = 0,
 		"+",                         // UnOpKind_Plus,
@@ -37,33 +37,33 @@ getUnOpKindString (UnOpKind opKind)
 		"->",                        // UnOpKind_Ptr,
 	};
 
-	return (size_t) opKind < UnOpKind__Count ?
-		stringTable [opKind] :
-		stringTable [UnOpKind_Undefined];
+	return (size_t)opKind < UnOpKind__Count ?
+		stringTable[opKind] :
+		stringTable[UnOpKind_Undefined];
 }
 
 //..............................................................................
 
-UnaryOperator::UnaryOperator ()
+UnaryOperator::UnaryOperator()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 
 	m_opKind = UnOpKind_Undefined;
 	m_opFlags = 0;
 }
 
 bool
-UnaryOperator::getResultType (
+UnaryOperator::getResultType(
 	const Value& opValue,
 	Value* resultValue
 	)
 {
-	Type* type = getResultType (opValue);
+	Type* type = getResultType(opValue);
 	if (!type)
 		return false;
 
-	resultValue->setType (type);
+	resultValue->setType(type);
 	return true;
 }
 

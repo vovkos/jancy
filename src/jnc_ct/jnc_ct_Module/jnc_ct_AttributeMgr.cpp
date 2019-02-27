@@ -18,18 +18,18 @@ namespace ct {
 
 //..............................................................................
 
-AttributeMgr::AttributeMgr ()
+AttributeMgr::AttributeMgr()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 }
 
 AttributeBlock*
-AttributeMgr::createAttributeBlock ()
+AttributeMgr::createAttributeBlock()
 {
-	AttributeBlock* attributeBlock = AXL_MEM_NEW (AttributeBlock);
+	AttributeBlock* attributeBlock = AXL_MEM_NEW(AttributeBlock);
 	attributeBlock->m_module = m_module;
-	m_attributeBlockList.insertTail (attributeBlock);
+	m_attributeBlockList.insertTail(attributeBlock);
 	return attributeBlock;
 }
 

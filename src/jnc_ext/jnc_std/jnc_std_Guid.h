@@ -16,18 +16,18 @@
 namespace jnc {
 namespace std {
 
-JNC_DECLARE_TYPE (Guid)
+JNC_DECLARE_TYPE(Guid)
 
 //..............................................................................
 
 struct Guid: sl::Guid
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (Guid)
+	JNC_DECLARE_TYPE_STATIC_METHODS(Guid)
 
 	static
 	DataPtr
 	JNC_CDECL
-	getString (
+	getString(
 		DataPtr selfPtr,
 		uint_t flags
 		);
@@ -35,7 +35,7 @@ struct Guid: sl::Guid
 	static
 	bool
 	JNC_CDECL
-	parse (
+	parse(
 		DataPtr selfPtr,
 		DataPtr stringPtr
 		);

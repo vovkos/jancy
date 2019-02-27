@@ -16,7 +16,7 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (DynamicLayout)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(DynamicLayout)
 
 //..............................................................................
 
@@ -28,12 +28,12 @@ protected:
 		void* m_base;
 		DerivableType* m_type;
 
-		size_t hash () const
+		size_t hash() const
 		{
-			return sl::djb2 (this, sizeof (Key));
+			return sl::djb2(this, sizeof(Key));
 		}
 
-		bool isEqual (const Key& key) const
+		bool isEqual(const Key& key) const
 		{
 			return m_base == key.m_base && m_type == key.m_type;
 		}
@@ -41,28 +41,28 @@ protected:
 
 	struct Entry: sl::ListLink
 	{
-		sl::Array <size_t> m_endOffsetArray;
+		sl::Array<size_t> m_endOffsetArray;
 	};
 
 protected:
 	sys::Lock m_lock;
-	sl::DuckTypeHashTable <Key, Entry*> m_map;
-	sl::List <Entry> m_list;
+	sl::DuckTypeHashTable<Key, Entry*> m_map;
+	sl::List<Entry> m_list;
 
 public:
 	static
 	ClassType*
-	getType (Module* module);
+	getType(Module* module);
 
 	size_t
-	getDynamicFieldSize (
+	getDynamicFieldSize(
 		DataPtr ptr,
 		size_t offset,
 		StructField* field
 		);
 
 	size_t
-	getDynamicFieldEndOffset (
+	getDynamicFieldEndOffset(
 		DataPtr ptr,
 		DerivableType* type,
 		size_t fieldIndex // dynamic

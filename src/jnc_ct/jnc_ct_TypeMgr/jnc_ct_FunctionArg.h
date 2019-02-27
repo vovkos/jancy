@@ -36,32 +36,32 @@ protected:
 	uint_t m_ptrTypeFlags;
 
 public:
-	FunctionArg ();
+	FunctionArg();
 
 	Type*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	uint_t
-	getPtrTypeFlags ()
+	getPtrTypeFlags()
 	{
 		return m_ptrTypeFlags;
 	}
 
 	sl::String
-	getArgString ();
+	getArgString();
 
 	sl::String
-	getArgDoxyLinkedText ();
+	getArgDoxyLinkedText();
 };
 
 //..............................................................................
 
 struct FunctionArgTuple: sl::ListLink
 {
-	FunctionArg* m_argArray [2] [2] [2]; // this x const x volatile
+	FunctionArg* m_argArray[2] [2] [2]; // this x const x volatile
 };
 
 //..............................................................................

@@ -206,222 +206,222 @@ enum TokenChannelMask
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-AXL_LEX_BEGIN_TOKEN_NAME_MAP (TokenName)
+AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 
 	// common tokens
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Eof,          "eof")
-	AXL_LEX_TOKEN_NAME (TokenKind_Error,        "error")
-	AXL_LEX_TOKEN_NAME (TokenKind_Identifier,   "identifier")
-	AXL_LEX_TOKEN_NAME (TokenKind_Integer,      "integer-constant")
-	AXL_LEX_TOKEN_NAME (TokenKind_Fp,           "floating-point-constant")
+	AXL_LEX_TOKEN_NAME(TokenKind_Eof,          "eof")
+	AXL_LEX_TOKEN_NAME(TokenKind_Error,        "error")
+	AXL_LEX_TOKEN_NAME(TokenKind_Identifier,   "identifier")
+	AXL_LEX_TOKEN_NAME(TokenKind_Integer,      "integer-constant")
+	AXL_LEX_TOKEN_NAME(TokenKind_Fp,           "floating-point-constant")
 
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment1, "///")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment2, "//!")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment3, "/**")
-	AXL_LEX_TOKEN_NAME (TokenKind_DoxyComment4, "/*!")
+	AXL_LEX_TOKEN_NAME(TokenKind_DoxyComment1, "///")
+	AXL_LEX_TOKEN_NAME(TokenKind_DoxyComment2, "//!")
+	AXL_LEX_TOKEN_NAME(TokenKind_DoxyComment3, "/**")
+	AXL_LEX_TOKEN_NAME(TokenKind_DoxyComment4, "/*!")
 
 	// literal tokens
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Literal,      "string-literal")
-	AXL_LEX_TOKEN_NAME (TokenKind_BinLiteral,   "bin-literal")
-	AXL_LEX_TOKEN_NAME (TokenKind_FmtLiteral,   "fmt-literal")
-	AXL_LEX_TOKEN_NAME (TokenKind_FmtSpecifier, "fmt-specifier")
+	AXL_LEX_TOKEN_NAME(TokenKind_Literal,      "string-literal")
+	AXL_LEX_TOKEN_NAME(TokenKind_BinLiteral,   "bin-literal")
+	AXL_LEX_TOKEN_NAME(TokenKind_FmtLiteral,   "fmt-literal")
+	AXL_LEX_TOKEN_NAME(TokenKind_FmtSpecifier, "fmt-specifier")
 
 	// special declarations
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Import,       "import")
-	AXL_LEX_TOKEN_NAME (TokenKind_Namespace,    "namespace")
-	AXL_LEX_TOKEN_NAME (TokenKind_Extension,    "extension")
-	AXL_LEX_TOKEN_NAME (TokenKind_DynamicLib,   "dynamiclib")
-	AXL_LEX_TOKEN_NAME (TokenKind_Using,        "using")
-	AXL_LEX_TOKEN_NAME (TokenKind_Friend,       "friend")
-	AXL_LEX_TOKEN_NAME (TokenKind_Public,       "public")
-	AXL_LEX_TOKEN_NAME (TokenKind_Protected,    "protected")
-	AXL_LEX_TOKEN_NAME (TokenKind_Alignment,    "alignment")
-	AXL_LEX_TOKEN_NAME (TokenKind_SetAs,        "setas")
+	AXL_LEX_TOKEN_NAME(TokenKind_Import,       "import")
+	AXL_LEX_TOKEN_NAME(TokenKind_Namespace,    "namespace")
+	AXL_LEX_TOKEN_NAME(TokenKind_Extension,    "extension")
+	AXL_LEX_TOKEN_NAME(TokenKind_DynamicLib,   "dynamiclib")
+	AXL_LEX_TOKEN_NAME(TokenKind_Using,        "using")
+	AXL_LEX_TOKEN_NAME(TokenKind_Friend,       "friend")
+	AXL_LEX_TOKEN_NAME(TokenKind_Public,       "public")
+	AXL_LEX_TOKEN_NAME(TokenKind_Protected,    "protected")
+	AXL_LEX_TOKEN_NAME(TokenKind_Alignment,    "alignment")
+	AXL_LEX_TOKEN_NAME(TokenKind_SetAs,        "setas")
 
 	// storage specifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Typedef,      "typedef")
-	AXL_LEX_TOKEN_NAME (TokenKind_Alias,        "alias")
-	AXL_LEX_TOKEN_NAME (TokenKind_Static,       "static")
-	AXL_LEX_TOKEN_NAME (TokenKind_ThreadLocal,  "threadlocal")
-	AXL_LEX_TOKEN_NAME (TokenKind_Abstract,     "abstract")
-	AXL_LEX_TOKEN_NAME (TokenKind_Virtual,      "virtual")
-	AXL_LEX_TOKEN_NAME (TokenKind_Override,     "override")
-	AXL_LEX_TOKEN_NAME (TokenKind_Mutable,      "mutable")
-	AXL_LEX_TOKEN_NAME (TokenKind_Disposable,   "disposable")
+	AXL_LEX_TOKEN_NAME(TokenKind_Typedef,      "typedef")
+	AXL_LEX_TOKEN_NAME(TokenKind_Alias,        "alias")
+	AXL_LEX_TOKEN_NAME(TokenKind_Static,       "static")
+	AXL_LEX_TOKEN_NAME(TokenKind_ThreadLocal,  "threadlocal")
+	AXL_LEX_TOKEN_NAME(TokenKind_Abstract,     "abstract")
+	AXL_LEX_TOKEN_NAME(TokenKind_Virtual,      "virtual")
+	AXL_LEX_TOKEN_NAME(TokenKind_Override,     "override")
+	AXL_LEX_TOKEN_NAME(TokenKind_Mutable,      "mutable")
+	AXL_LEX_TOKEN_NAME(TokenKind_Disposable,   "disposable")
 
 	// type modifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Unsigned,     "unsigned")
-	AXL_LEX_TOKEN_NAME (TokenKind_BigEndian,    "bigendian")
-	AXL_LEX_TOKEN_NAME (TokenKind_Const,        "const")
-	AXL_LEX_TOKEN_NAME (TokenKind_ReadOnly,     "readonly")
-	AXL_LEX_TOKEN_NAME (TokenKind_CMut,         "cmut")
-	AXL_LEX_TOKEN_NAME (TokenKind_Volatile,     "volatile")
-	AXL_LEX_TOKEN_NAME (TokenKind_Weak,         "weak")
-	AXL_LEX_TOKEN_NAME (TokenKind_Thin,         "thin")
-	AXL_LEX_TOKEN_NAME (TokenKind_Safe,         "safe")
-	AXL_LEX_TOKEN_NAME (TokenKind_Unsafe,       "unsafe")
-	AXL_LEX_TOKEN_NAME (TokenKind_ErrorCode,    "errorcode")
-	AXL_LEX_TOKEN_NAME (TokenKind_Cdecl,        "cdecl")
-	AXL_LEX_TOKEN_NAME (TokenKind_Stdcall,      "stdcall")
-	AXL_LEX_TOKEN_NAME (TokenKind_Thiscall,     "thiscall")
-	AXL_LEX_TOKEN_NAME (TokenKind_Jnccall,      "jnccall")
-	AXL_LEX_TOKEN_NAME (TokenKind_Array,        "array")
-	AXL_LEX_TOKEN_NAME (TokenKind_Function,     "function")
-	AXL_LEX_TOKEN_NAME (TokenKind_Property,     "property")
-	AXL_LEX_TOKEN_NAME (TokenKind_Bindable,     "bindable")
-	AXL_LEX_TOKEN_NAME (TokenKind_AutoGet,      "autoget")
-	AXL_LEX_TOKEN_NAME (TokenKind_Indexed,      "indexed")
-	AXL_LEX_TOKEN_NAME (TokenKind_Multicast,    "multicast")
-	AXL_LEX_TOKEN_NAME (TokenKind_Event,        "event")
-	AXL_LEX_TOKEN_NAME (TokenKind_Reactor,      "reactor")
-	AXL_LEX_TOKEN_NAME (TokenKind_Async,        "async")
+	AXL_LEX_TOKEN_NAME(TokenKind_Unsigned,     "unsigned")
+	AXL_LEX_TOKEN_NAME(TokenKind_BigEndian,    "bigendian")
+	AXL_LEX_TOKEN_NAME(TokenKind_Const,        "const")
+	AXL_LEX_TOKEN_NAME(TokenKind_ReadOnly,     "readonly")
+	AXL_LEX_TOKEN_NAME(TokenKind_CMut,         "cmut")
+	AXL_LEX_TOKEN_NAME(TokenKind_Volatile,     "volatile")
+	AXL_LEX_TOKEN_NAME(TokenKind_Weak,         "weak")
+	AXL_LEX_TOKEN_NAME(TokenKind_Thin,         "thin")
+	AXL_LEX_TOKEN_NAME(TokenKind_Safe,         "safe")
+	AXL_LEX_TOKEN_NAME(TokenKind_Unsafe,       "unsafe")
+	AXL_LEX_TOKEN_NAME(TokenKind_ErrorCode,    "errorcode")
+	AXL_LEX_TOKEN_NAME(TokenKind_Cdecl,        "cdecl")
+	AXL_LEX_TOKEN_NAME(TokenKind_Stdcall,      "stdcall")
+	AXL_LEX_TOKEN_NAME(TokenKind_Thiscall,     "thiscall")
+	AXL_LEX_TOKEN_NAME(TokenKind_Jnccall,      "jnccall")
+	AXL_LEX_TOKEN_NAME(TokenKind_Array,        "array")
+	AXL_LEX_TOKEN_NAME(TokenKind_Function,     "function")
+	AXL_LEX_TOKEN_NAME(TokenKind_Property,     "property")
+	AXL_LEX_TOKEN_NAME(TokenKind_Bindable,     "bindable")
+	AXL_LEX_TOKEN_NAME(TokenKind_AutoGet,      "autoget")
+	AXL_LEX_TOKEN_NAME(TokenKind_Indexed,      "indexed")
+	AXL_LEX_TOKEN_NAME(TokenKind_Multicast,    "multicast")
+	AXL_LEX_TOKEN_NAME(TokenKind_Event,        "event")
+	AXL_LEX_TOKEN_NAME(TokenKind_Reactor,      "reactor")
+	AXL_LEX_TOKEN_NAME(TokenKind_Async,        "async")
 
 	// type specifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_AnyData,      "anydata")
-	AXL_LEX_TOKEN_NAME (TokenKind_Void,         "void")
-	AXL_LEX_TOKEN_NAME (TokenKind_Variant,      "variant")
-	AXL_LEX_TOKEN_NAME (TokenKind_Bool,         "bool")
-	AXL_LEX_TOKEN_NAME (TokenKind_Int,          "int")
-	AXL_LEX_TOKEN_NAME (TokenKind_IntPtr,       "intptr")
-	AXL_LEX_TOKEN_NAME (TokenKind_Char,         "char")
-	AXL_LEX_TOKEN_NAME (TokenKind_Short,        "short")
-	AXL_LEX_TOKEN_NAME (TokenKind_Long,         "long")
-	AXL_LEX_TOKEN_NAME (TokenKind_Float,        "float")
-	AXL_LEX_TOKEN_NAME (TokenKind_Double,       "double")
+	AXL_LEX_TOKEN_NAME(TokenKind_AnyData,      "anydata")
+	AXL_LEX_TOKEN_NAME(TokenKind_Void,         "void")
+	AXL_LEX_TOKEN_NAME(TokenKind_Variant,      "variant")
+	AXL_LEX_TOKEN_NAME(TokenKind_Bool,         "bool")
+	AXL_LEX_TOKEN_NAME(TokenKind_Int,          "int")
+	AXL_LEX_TOKEN_NAME(TokenKind_IntPtr,       "intptr")
+	AXL_LEX_TOKEN_NAME(TokenKind_Char,         "char")
+	AXL_LEX_TOKEN_NAME(TokenKind_Short,        "short")
+	AXL_LEX_TOKEN_NAME(TokenKind_Long,         "long")
+	AXL_LEX_TOKEN_NAME(TokenKind_Float,        "float")
+	AXL_LEX_TOKEN_NAME(TokenKind_Double,       "double")
 
 	// named type specifiers
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Enum,         "enum")
-	AXL_LEX_TOKEN_NAME (TokenKind_Struct,       "struct")
-	AXL_LEX_TOKEN_NAME (TokenKind_Union,        "union")
-	AXL_LEX_TOKEN_NAME (TokenKind_Class,        "class")
-	AXL_LEX_TOKEN_NAME (TokenKind_Opaque,       "opaque")
-	AXL_LEX_TOKEN_NAME (TokenKind_Exposed,      "exposed")
-	AXL_LEX_TOKEN_NAME (TokenKind_BitFlag,      "bitflag")
+	AXL_LEX_TOKEN_NAME(TokenKind_Enum,         "enum")
+	AXL_LEX_TOKEN_NAME(TokenKind_Struct,       "struct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Union,        "union")
+	AXL_LEX_TOKEN_NAME(TokenKind_Class,        "class")
+	AXL_LEX_TOKEN_NAME(TokenKind_Opaque,       "opaque")
+	AXL_LEX_TOKEN_NAME(TokenKind_Exposed,      "exposed")
+	AXL_LEX_TOKEN_NAME(TokenKind_BitFlag,      "bitflag")
 
 	// special members
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Get,          "get")
-	AXL_LEX_TOKEN_NAME (TokenKind_Set,          "set")
-	AXL_LEX_TOKEN_NAME (TokenKind_PreConstruct, "preconstruct")
-	AXL_LEX_TOKEN_NAME (TokenKind_Construct,    "construct")
-	AXL_LEX_TOKEN_NAME (TokenKind_Destruct,     "destruct")
-	AXL_LEX_TOKEN_NAME (TokenKind_Operator,     "operator")
-	AXL_LEX_TOKEN_NAME (TokenKind_Postfix,      "postfix")
+	AXL_LEX_TOKEN_NAME(TokenKind_Get,          "get")
+	AXL_LEX_TOKEN_NAME(TokenKind_Set,          "set")
+	AXL_LEX_TOKEN_NAME(TokenKind_PreConstruct, "preconstruct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Construct,    "construct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,     "destruct")
+	AXL_LEX_TOKEN_NAME(TokenKind_Operator,     "operator")
+	AXL_LEX_TOKEN_NAME(TokenKind_Postfix,      "postfix")
 
 	// statements
 
-	AXL_LEX_TOKEN_NAME (TokenKind_If,           "if")
-	AXL_LEX_TOKEN_NAME (TokenKind_Else,         "else")
-	AXL_LEX_TOKEN_NAME (TokenKind_For,          "for")
-	AXL_LEX_TOKEN_NAME (TokenKind_While,        "while")
-	AXL_LEX_TOKEN_NAME (TokenKind_Do,           "do")
-	AXL_LEX_TOKEN_NAME (TokenKind_Break,        "break")
-	AXL_LEX_TOKEN_NAME (TokenKind_Continue,     "continue")
-	AXL_LEX_TOKEN_NAME (TokenKind_Return,       "return")
-	AXL_LEX_TOKEN_NAME (TokenKind_Switch,       "switch")
-	AXL_LEX_TOKEN_NAME (TokenKind_ReSwitch,     "reswitch")
-	AXL_LEX_TOKEN_NAME (TokenKind_Case,         "case")
-	AXL_LEX_TOKEN_NAME (TokenKind_Default,      "default")
-	AXL_LEX_TOKEN_NAME (TokenKind_Once,         "once")
-	AXL_LEX_TOKEN_NAME (TokenKind_OnEvent,      "onevent")
-	AXL_LEX_TOKEN_NAME (TokenKind_Try,          "try")
-	AXL_LEX_TOKEN_NAME (TokenKind_Throw,        "throw")
-	AXL_LEX_TOKEN_NAME (TokenKind_Catch,        "catch")
-	AXL_LEX_TOKEN_NAME (TokenKind_Finally,      "finally")
-	AXL_LEX_TOKEN_NAME (TokenKind_NestedScope,  "nestedscope")
-	AXL_LEX_TOKEN_NAME (TokenKind_Assert,       "assert")
-	AXL_LEX_TOKEN_NAME (TokenKind_Await,        "await")
+	AXL_LEX_TOKEN_NAME(TokenKind_If,           "if")
+	AXL_LEX_TOKEN_NAME(TokenKind_Else,         "else")
+	AXL_LEX_TOKEN_NAME(TokenKind_For,          "for")
+	AXL_LEX_TOKEN_NAME(TokenKind_While,        "while")
+	AXL_LEX_TOKEN_NAME(TokenKind_Do,           "do")
+	AXL_LEX_TOKEN_NAME(TokenKind_Break,        "break")
+	AXL_LEX_TOKEN_NAME(TokenKind_Continue,     "continue")
+	AXL_LEX_TOKEN_NAME(TokenKind_Return,       "return")
+	AXL_LEX_TOKEN_NAME(TokenKind_Switch,       "switch")
+	AXL_LEX_TOKEN_NAME(TokenKind_ReSwitch,     "reswitch")
+	AXL_LEX_TOKEN_NAME(TokenKind_Case,         "case")
+	AXL_LEX_TOKEN_NAME(TokenKind_Default,      "default")
+	AXL_LEX_TOKEN_NAME(TokenKind_Once,         "once")
+	AXL_LEX_TOKEN_NAME(TokenKind_OnEvent,      "onevent")
+	AXL_LEX_TOKEN_NAME(TokenKind_Try,          "try")
+	AXL_LEX_TOKEN_NAME(TokenKind_Throw,        "throw")
+	AXL_LEX_TOKEN_NAME(TokenKind_Catch,        "catch")
+	AXL_LEX_TOKEN_NAME(TokenKind_Finally,      "finally")
+	AXL_LEX_TOKEN_NAME(TokenKind_NestedScope,  "nestedscope")
+	AXL_LEX_TOKEN_NAME(TokenKind_Assert,       "assert")
+	AXL_LEX_TOKEN_NAME(TokenKind_Await,        "await")
 
 	// pre-defined values
 
-	AXL_LEX_TOKEN_NAME (TokenKind_BaseType,     "basetype")
-	AXL_LEX_TOKEN_NAME (TokenKind_This,         "this")
-	AXL_LEX_TOKEN_NAME (TokenKind_True,         "true")
-	AXL_LEX_TOKEN_NAME (TokenKind_False,        "false")
-	AXL_LEX_TOKEN_NAME (TokenKind_Null,         "null")
+	AXL_LEX_TOKEN_NAME(TokenKind_BaseType,     "basetype")
+	AXL_LEX_TOKEN_NAME(TokenKind_This,         "this")
+	AXL_LEX_TOKEN_NAME(TokenKind_True,         "true")
+	AXL_LEX_TOKEN_NAME(TokenKind_False,        "false")
+	AXL_LEX_TOKEN_NAME(TokenKind_Null,         "null")
 
 	// keyword operators
 
-	AXL_LEX_TOKEN_NAME (TokenKind_New,          "new")
-	AXL_LEX_TOKEN_NAME (TokenKind_SizeOf,       "sizeof")
-	AXL_LEX_TOKEN_NAME (TokenKind_CountOf,      "countof")
-	AXL_LEX_TOKEN_NAME (TokenKind_OffsetOf,     "offsetof")
-	AXL_LEX_TOKEN_NAME (TokenKind_TypeOf,       "typeof")
-	AXL_LEX_TOKEN_NAME (TokenKind_BindingOf,    "bindingof")
-	AXL_LEX_TOKEN_NAME (TokenKind_Dynamic,      "dynamic")
+	AXL_LEX_TOKEN_NAME(TokenKind_New,          "new")
+	AXL_LEX_TOKEN_NAME(TokenKind_SizeOf,       "sizeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_CountOf,      "countof")
+	AXL_LEX_TOKEN_NAME(TokenKind_OffsetOf,     "offsetof")
+	AXL_LEX_TOKEN_NAME(TokenKind_TypeOf,       "typeof")
+	AXL_LEX_TOKEN_NAME(TokenKind_BindingOf,    "bindingof")
+	AXL_LEX_TOKEN_NAME(TokenKind_Dynamic,      "dynamic")
 
 	// symbol tokens
 
-	AXL_LEX_TOKEN_NAME (TokenKind_Inc,          "++")
-	AXL_LEX_TOKEN_NAME (TokenKind_Dec,          "--")
-	AXL_LEX_TOKEN_NAME (TokenKind_Ptr,          "->")
-	AXL_LEX_TOKEN_NAME (TokenKind_Imply,        "=>")
-	AXL_LEX_TOKEN_NAME (TokenKind_Shl,          "<<")
-	AXL_LEX_TOKEN_NAME (TokenKind_Shr,          ">>")
-	AXL_LEX_TOKEN_NAME (TokenKind_LogAnd,       "&&")
-	AXL_LEX_TOKEN_NAME (TokenKind_LogOr,        "||")
-	AXL_LEX_TOKEN_NAME (TokenKind_Eq,           "==")
-	AXL_LEX_TOKEN_NAME (TokenKind_Ne,           "!=")
-	AXL_LEX_TOKEN_NAME (TokenKind_Le,           "<=")
-	AXL_LEX_TOKEN_NAME (TokenKind_Ge,           ">=")
-	AXL_LEX_TOKEN_NAME (TokenKind_RefAssign,    ":=")
-	AXL_LEX_TOKEN_NAME (TokenKind_AddAssign,    "+=")
-	AXL_LEX_TOKEN_NAME (TokenKind_SubAssign,    "-=")
-	AXL_LEX_TOKEN_NAME (TokenKind_MulAssign,    "*=")
-	AXL_LEX_TOKEN_NAME (TokenKind_DivAssign,    "/=")
-	AXL_LEX_TOKEN_NAME (TokenKind_ModAssign,    "%=")
-	AXL_LEX_TOKEN_NAME (TokenKind_ShlAssign,    "<<=")
-	AXL_LEX_TOKEN_NAME (TokenKind_ShrAssign,    ">>=")
-	AXL_LEX_TOKEN_NAME (TokenKind_AndAssign,    "&=")
-	AXL_LEX_TOKEN_NAME (TokenKind_XorAssign,    "^=")
-	AXL_LEX_TOKEN_NAME (TokenKind_OrAssign,     "|=")
-	AXL_LEX_TOKEN_NAME (TokenKind_AtAssign,     "@=")
-	AXL_LEX_TOKEN_NAME (TokenKind_Ellipsis,     "...")
+	AXL_LEX_TOKEN_NAME(TokenKind_Inc,          "++")
+	AXL_LEX_TOKEN_NAME(TokenKind_Dec,          "--")
+	AXL_LEX_TOKEN_NAME(TokenKind_Ptr,          "->")
+	AXL_LEX_TOKEN_NAME(TokenKind_Imply,        "=>")
+	AXL_LEX_TOKEN_NAME(TokenKind_Shl,          "<<")
+	AXL_LEX_TOKEN_NAME(TokenKind_Shr,          ">>")
+	AXL_LEX_TOKEN_NAME(TokenKind_LogAnd,       "&&")
+	AXL_LEX_TOKEN_NAME(TokenKind_LogOr,        "||")
+	AXL_LEX_TOKEN_NAME(TokenKind_Eq,           "==")
+	AXL_LEX_TOKEN_NAME(TokenKind_Ne,           "!=")
+	AXL_LEX_TOKEN_NAME(TokenKind_Le,           "<=")
+	AXL_LEX_TOKEN_NAME(TokenKind_Ge,           ">=")
+	AXL_LEX_TOKEN_NAME(TokenKind_RefAssign,    ":=")
+	AXL_LEX_TOKEN_NAME(TokenKind_AddAssign,    "+=")
+	AXL_LEX_TOKEN_NAME(TokenKind_SubAssign,    "-=")
+	AXL_LEX_TOKEN_NAME(TokenKind_MulAssign,    "*=")
+	AXL_LEX_TOKEN_NAME(TokenKind_DivAssign,    "/=")
+	AXL_LEX_TOKEN_NAME(TokenKind_ModAssign,    "%=")
+	AXL_LEX_TOKEN_NAME(TokenKind_ShlAssign,    "<<=")
+	AXL_LEX_TOKEN_NAME(TokenKind_ShrAssign,    ">>=")
+	AXL_LEX_TOKEN_NAME(TokenKind_AndAssign,    "&=")
+	AXL_LEX_TOKEN_NAME(TokenKind_XorAssign,    "^=")
+	AXL_LEX_TOKEN_NAME(TokenKind_OrAssign,     "|=")
+	AXL_LEX_TOKEN_NAME(TokenKind_AtAssign,     "@=")
+	AXL_LEX_TOKEN_NAME(TokenKind_Ellipsis,     "...")
 
-AXL_LEX_END_TOKEN_NAME_MAP ();
+AXL_LEX_END_TOKEN_NAME_MAP();
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class TokenData: public lex::StdTokenData
 {
 public:
-	sl::Array <char> m_binData;
+	sl::Array<char> m_binData;
 };
 
-typedef lex::RagelToken <TokenKind, TokenName, TokenData> Token;
+typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Lexer: public lex::RagelLexer <Lexer, Token>
+class Lexer: public lex::RagelLexer<Lexer, Token>
 {
-	friend class lex::RagelLexer <Lexer, Token>;
+	friend class lex::RagelLexer<Lexer, Token>;
 
 protected:
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
 	int m_mlBinLiteralTokenRadix;
-	sl::Array <intptr_t> m_parenthesesLevelStack;
+	sl::Array<intptr_t> m_parenthesesLevelStack;
 	sl::String m_dir;
 
 public:
-	Lexer ();
+	Lexer();
 
 protected:
 	Token*
-	createKeywordTokenEx (
+	createKeywordTokenEx(
 		int tokenKind,
 		int param
 		);
 
 	Token*
-	createStringToken (
+	createStringToken(
 		int tokenKind,
 		size_t left = 0,
 		size_t right = 0,
@@ -429,16 +429,16 @@ protected:
 		);
 
 	Token*
-	createSourceFileToken ();
+	createSourceFileToken();
 
 	Token*
-	createSourceDirToken ();
+	createSourceDirToken();
 
 	Token*
-	createBinLiteralToken (int radix);
+	createBinLiteralToken(int radix);
 
 	Token*
-	createCharToken (
+	createCharToken(
 		int tokenKind,
 		size_t left,
 		size_t right,
@@ -446,73 +446,73 @@ protected:
 		);
 
 	Token*
-	createIntegerToken (
+	createIntegerToken(
 		int radix = 10,
 		size_t left = 0
 		);
 
 	Token*
-	createFpToken ();
+	createFpToken();
 
 	Token*
-	createConstIntegerToken (int value);
+	createConstIntegerToken(int value);
 
 	// multi-line literals
 
 	Token*
-	preCreateMlLiteralToken (int radix = 0);
+	preCreateMlLiteralToken(int radix = 0);
 
 	Token*
-	createMlLiteralToken ();
+	createMlLiteralToken();
 
 	// formatting literals
 
 	Token*
-	preCreateFmtLiteralToken ();
+	preCreateFmtLiteralToken();
 
 	Token*
-	createFmtLiteralToken (
+	createFmtLiteralToken(
 		int tokenKind,
 		int param = 0
 		);
 
 	void
-	createFmtSimpleIdentifierTokens ();
+	createFmtSimpleIdentifierTokens();
 
 	void
-	createFmtLastErrorDescriptionTokens ();
+	createFmtLastErrorDescriptionTokens();
 
 	void
-	createFmtIndexTokens ();
+	createFmtIndexTokens();
 
 	Token*
-	createFmtSpecifierToken ();
+	createFmtSpecifierToken();
 
 	Token*
-	createDoxyCommentToken (TokenKind tokenKind);
+	createDoxyCommentToken(TokenKind tokenKind);
 
 	void
-	onLeftParentheses ();
+	onLeftParentheses();
 
 	bool
-	onRightParentheses ();
+	onRightParentheses();
 
 	bool
-	onSemicolon ();
+	onSemicolon();
 
 	void
-	terminateFmtSpecifier ();
+	terminateFmtSpecifier();
 
 	void
-	terminateFmtLiteral ();
+	terminateFmtLiteral();
 
 	// implemented in *.rl
 
 	void
-	init ();
+	init();
 
 	void
-	exec ();
+	exec();
 };
 
 //..............................................................................

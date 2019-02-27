@@ -1,24 +1,24 @@
 import "std_Array.jnc"
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	std.Array a;
-	a.setCount (100);
+	a.setCount(100);
 
-	print ("filling array\n");
+	print("filling array\n");
 	for (int i = 0; i < a.m_count; i++)
-		a [i] = i * 10;
+		a[i] = i * 10;
 
-	print ("printing array\n");
+	print("printing array\n");
 	for (int i = 0; i < a.m_count + 1; i++)
-		print ($"a [$i] = $(a [i])\n");
+		print($"a [$i] = $(a [i])\n");
 
 	return 0;
 
 catch:
-	printf ("error caught: %s\n", std.getLastErrorDescription ());
+	printf("error caught: %s\n", std.getLastErrorDescription ());
 	return 1;
 }
 

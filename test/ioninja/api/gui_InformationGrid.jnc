@@ -13,26 +13,26 @@ opaque class InformationItem
 	char const* autoget property m_toolTipText;
 	bool autoget property m_isEnabled;
 
-	addChildItem (
+	addChildItem(
 		InformationItem* item,
 		InformationItem* beforeItem = null
 		);
 
-	removeChildItem (InformationItem* item);
+	removeChildItem(InformationItem* item);
 }
 
 //..............................................................................
 
 opaque class InformationGroup: InformationItem
 {
-	construct (char const* name);
+	construct(char const* name);
 }
 
 //..............................................................................
 
 opaque class InformationValue: InformationItem
 {
-	construct (char const* name);
+	construct(char const* name);
 
 	char const* autoget property m_value;
 	char const* autoget property m_disabledValue;
@@ -45,29 +45,29 @@ opaque class InformationValue: InformationItem
 
 opaque class InformationGrid
 {
-	addItem (
+	addItem(
 		InformationItem* item,
 		InformationItem* beforeItem = null
 		);
 
-	removeItem (InformationItem* item);
+	removeItem(InformationItem* item);
 
-	InformationGroup* createGroup (
+	InformationGroup* createGroup(
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
 		char const* name,
 		char const* toolTipText = null
 		);
 
-	InformationGroup* createGroup (
+	InformationGroup* createGroup(
 		char const* name,
 		char const* toolTipText = null
 		)
 	{
-		return createGroup (,, name, toolTipText);
+		return createGroup(,, name, toolTipText);
 	}
 
-	InformationValue* createValue (
+	InformationValue* createValue(
 		InformationItem* parentItem = null,
 		InformationItem* beforeItem = null,
 		bool isSelectionDependent = false,
@@ -75,37 +75,37 @@ opaque class InformationGrid
 		char const* toolTipText = null
 		);
 
-	 InformationValue* createValue (
+	 InformationValue* createValue(
 		char const* name,
 		char const* toolTipText = null
 		)
 	{
-		return createValue (,,, name, toolTipText);
+		return createValue(,,, name, toolTipText);
 	}
 
-	resizeNameColumnToContents ();
+	resizeNameColumnToContents();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-InformationGroup* InformationGrid.createGroup (
+InformationGroup* InformationGrid.createGroup(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	char const* name,
 	char const* toolTipText
 	)
 {
-	InformationGroup* item = new InformationGroup (name);
+	InformationGroup* item = new InformationGroup(name);
 	item.m_toolTipText = toolTipText;
 
 	parentItem ?
-		parentItem.addChildItem (item, beforeItem) :
-		addItem (item, beforeItem);
+		parentItem.addChildItem(item, beforeItem) :
+		addItem(item, beforeItem);
 
 	return item;
 }
 
-InformationValue* InformationGrid.createValue (
+InformationValue* InformationGrid.createValue(
 	InformationItem* parentItem,
 	InformationItem* beforeItem,
 	bool isSelectionDependent,
@@ -113,13 +113,13 @@ InformationValue* InformationGrid.createValue (
 	char const* toolTipText
 	)
 {
-	InformationValue* item = new InformationValue (name);
+	InformationValue* item = new InformationValue(name);
 	item.m_toolTipText = toolTipText;
 	item.m_isSelectionDependent = isSelectionDependent;
 
 	parentItem ?
-		parentItem.addChildItem (item, beforeItem) :
-		addItem (item, beforeItem);
+		parentItem.addChildItem(item, beforeItem) :
+		addItem(item, beforeItem);
 
 	return item;
 }

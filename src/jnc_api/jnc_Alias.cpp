@@ -14,7 +14,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined (_JNC_CORE)
+#elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -28,9 +28,9 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItem*
-jnc_Alias_getTargetItem (jnc_Alias* alias)
+jnc_Alias_getTargetItem(jnc_Alias* alias)
 {
-	return alias->getTargetItem ();
+	return alias->getTargetItem();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

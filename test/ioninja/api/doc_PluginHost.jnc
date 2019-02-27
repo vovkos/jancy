@@ -17,7 +17,7 @@ namespace doc {
 
 opaque class MainThreadScheduler: jnc.Scheduler
 {
-	override schedule (function* f ());
+	override schedule(function* f());
 }
 
 //..............................................................................
@@ -35,11 +35,11 @@ opaque class PluginHost
 
 	char const* const property m_pluginDir;
 
-	destruct ();
+	destruct();
 }
 
 //..............................................................................
 
 } // namespace doc {
 
-trace (char const* p);
+trace(char const* p);

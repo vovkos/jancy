@@ -28,75 +28,75 @@ protected:
 	ClassType* m_multicastType;
 
 public:
-	FunctionPtrType ();
+	FunctionPtrType();
 
 	FunctionPtrTypeKind
-	getPtrTypeKind ()
+	getPtrTypeKind()
 	{
 		return m_ptrTypeKind;
 	}
 
 	FunctionType*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	bool
-	hasClosure ()
+	hasClosure()
 	{
 		return m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak;
 	}
 
 	FunctionPtrType*
-	getCheckedPtrType ()
+	getCheckedPtrType()
 	{
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnCheckedPtrType ()
+	getUnCheckedPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getFunctionPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getFunctionPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	FunctionPtrType*
-	getNormalPtrType ()
+	getNormalPtrType()
 	{
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Normal) ?
-			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Normal, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	FunctionPtrType*
-	getWeakPtrType ()
+	getWeakPtrType()
 	{
 		return (m_ptrTypeKind != FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Weak, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	FunctionPtrType*
-	getUnWeakPtrType ()
+	getUnWeakPtrType()
 	{
 		return (m_ptrTypeKind == FunctionPtrTypeKind_Weak) ?
-			m_targetType->getFunctionPtrType (FunctionPtrTypeKind_Normal, m_flags) :
+			m_targetType->getFunctionPtrType(FunctionPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	ClassType*
-	getMulticastType ();
+	getMulticastType();
 
 	sl::String
-	getTypeModifierString ();
+	getTypeModifierString();
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		FunctionType* functionType,
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind,
@@ -105,7 +105,7 @@ public:
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
@@ -113,34 +113,34 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................
 
 struct FunctionPtrTypeTuple: sl::ListLink
 {
-	FunctionPtrType* m_ptrTypeArray [2] [3] [2]; // ref x kind x checked
+	FunctionPtrType* m_ptrTypeArray[2] [3] [2]; // ref x kind x checked
 };
 
 //..............................................................................

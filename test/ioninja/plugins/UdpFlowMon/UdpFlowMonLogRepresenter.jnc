@@ -10,7 +10,7 @@ import "UdpFlowMonLogRecordCode.jnc"
 
 //..............................................................................
 
-bool representUdpFlowMonLog (
+bool representUdpFlowMonLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -18,7 +18,7 @@ bool representUdpFlowMonLog (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case UdpFlowMonLogRecordCode.TxPacket:
 	case UdpFlowMonLogRecordCode.RxPacket:
@@ -30,15 +30,15 @@ bool representUdpFlowMonLog (
 		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
 
 		char const* text = $"From \e[34m%1\e[m to \e[34m%2\e[m (%3 B)" (
-			params.m_srcAddress.getString (),
-			params.m_dstAddress.getString (),
+			params.m_srcAddress.getString(),
+			params.m_dstAddress.getString(),
 			params.m_size
 			);
 
 		if (params.m_isFragmented)
 			text = $"$text \e[31mfragmented";
 
-		target.addHyperText (text);
+		target.addHyperText(text);
 		break;
 
 	default:

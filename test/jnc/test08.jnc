@@ -17,9 +17,9 @@ struct IpHdr
 
 typedef unsigned char uint8_t;
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 	return 0;
 }
 

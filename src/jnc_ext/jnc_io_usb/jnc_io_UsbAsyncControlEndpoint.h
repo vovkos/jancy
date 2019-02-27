@@ -25,7 +25,7 @@ protected:
 	{
 		UsbAsyncControlEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
-		axl::ref::Buf <libusb_control_setup> m_buffer;
+		axl::ref::Buf<libusb_control_setup> m_buffer;
 		jnc::DataPtr m_inBufferPtr;
 		jnc::FunctionPtr m_completionFuncPtr;
 	};
@@ -36,13 +36,13 @@ protected:
 		Flag_CancelTransfers = 0x02,
 	};
 
-	class CompletionThread: public sys::ThreadImpl <CompletionThread>
+	class CompletionThread: public sys::ThreadImpl<CompletionThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, UsbAsyncControlEndpoint, m_completionThread)->completionThreadFunc ();
+			containerof(this, UsbAsyncControlEndpoint, m_completionThread)->completionThreadFunc();
 		}
 	};
 
@@ -56,30 +56,30 @@ protected:
 	sys::Event m_event;
 	sys::NotificationEvent m_idleEvent;
 
-	mem::Pool <Transfer> m_transferPool;
-	sl::List <Transfer> m_activeTransferList;
-	sl::List <Transfer> m_completedTransferList;
+	mem::Pool<Transfer> m_transferPool;
+	sl::List<Transfer> m_activeTransferList;
+	sl::List<Transfer> m_completedTransferList;
 
 public:
-	UsbAsyncControlEndpoint (axl::io::UsbDevice* device);
+	UsbAsyncControlEndpoint(axl::io::UsbDevice* device);
 
-	~UsbAsyncControlEndpoint ()
+	~UsbAsyncControlEndpoint()
 	{
-		stop ();
+		stop();
 	}
 
 	bool
-	start ();
+	start();
 
 	void
-	stop ();
+	stop();
 
 	void
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	bool
 	JNC_CDECL
-	transfer (
+	transfer(
 		uint_t requestType,
 		uint_t requestCode,
 		uint_t value,
@@ -91,42 +91,42 @@ public:
 		);
 
 	void
-	cancelTransfers ();
+	cancelTransfers();
 
 protected:
 	bool
-	isIdle ()
+	isIdle()
 	{
-		return m_activeTransferList.isEmpty () && m_completedTransferList.isEmpty ();
+		return m_activeTransferList.isEmpty() && m_completedTransferList.isEmpty();
 	}
 
 	static
 	void
-	markTransferGcRoots (
+	markTransferGcRoots(
 		GcHeap* gcHeap,
 		Transfer* transfer
 		);
 
 	void
-	completionThreadFunc ();
+	completionThreadFunc();
 
 	void
-	cancelAllActiveTransfers_l ();
+	cancelAllActiveTransfers_l();
 
 	void
-	finalizeTransfers_l ();
+	finalizeTransfers_l();
 
 	bool
-	callCompletionFunc (
+	callCompletionFunc(
 		FunctionPtr completionFuncPtr,
 		size_t resultSize,
-		const err::ErrorRef& error = err::ErrorRef ()
+		const err::ErrorRef& error = err::ErrorRef()
 		);
 
 	static
 	void
 	LIBUSB_CALL
-	onTransferCompleted (libusb_transfer* transfer);
+	onTransferCompleted(libusb_transfer* transfer);
 };
 
 //..............................................................................

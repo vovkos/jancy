@@ -18,7 +18,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	File,
 	"io.File",
 	g_ioLibGuid,
@@ -27,24 +27,24 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (File)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <File>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <File>)
-	JNC_MAP_CONST_PROPERTY ("m_size", &File::getSize)
-	JNC_MAP_PROPERTY ("m_position", &File::getPosition, &File::setPosition)
-	JNC_MAP_FUNCTION ("open",  &File::open)
-	JNC_MAP_FUNCTION ("close", &File::close)
-	JNC_MAP_FUNCTION ("setSize", &File::setSize)
-	JNC_MAP_FUNCTION ("read",  &File::read)
-	JNC_MAP_FUNCTION ("write", &File::write)
-	JNC_MAP_FUNCTION ("flush", &File::flush)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(File)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<File>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<File>)
+	JNC_MAP_CONST_PROPERTY("m_size", &File::getSize)
+	JNC_MAP_PROPERTY("m_position", &File::getPosition, &File::setPosition)
+	JNC_MAP_FUNCTION("open",  &File::open)
+	JNC_MAP_FUNCTION("close", &File::close)
+	JNC_MAP_FUNCTION("setSize", &File::setSize)
+	JNC_MAP_FUNCTION("read",  &File::read)
+	JNC_MAP_FUNCTION("write", &File::write)
+	JNC_MAP_FUNCTION("flush", &File::flush)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-File::File ()
+File::File()
 {
-	m_runtime = getCurrentThreadRuntime ();
+	m_runtime = getCurrentThreadRuntime();
 	m_isOpen = false;
 }
 

@@ -47,14 +47,14 @@ class ChecksumInfoSet
 	gui.InformationValue* m_sum16Info_be;
 	gui.InformationValue* m_ip4ChecksumInfo;
 
-	createInformationValues (
+	createInformationValues(
 		gui.InformationGrid* informationGrid,
 		gui.InformationGroup* group = null,
 		gui.InformationValue* insertBefore = null,
 		InfoId mask = InfoId.All
 		);
 
-	createInformationValuesGrouped (
+	createInformationValuesGrouped(
 		gui.InformationGrid* informationGrid,
 		gui.InformationGroup* group = null,
 		gui.InformationValue* insertBefore = null,
@@ -62,7 +62,7 @@ class ChecksumInfoSet
 		);
 }
 
-ChecksumInfoSet.createInformationValues (
+ChecksumInfoSet.createInformationValues(
 	gui.InformationGrid* informationGrid,
 	gui.InformationGroup* group,
 	gui.InformationValue* insertBefore,
@@ -70,7 +70,7 @@ ChecksumInfoSet.createInformationValues (
 	)
 {
 	if (mask & InfoId.Crc16_ansi)
-		m_crc16Info_ansi = informationGrid.createValue (
+		m_crc16Info_ansi = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -79,7 +79,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Crc16_modbus)
-		m_crc16Info_modbus = informationGrid.createValue (
+		m_crc16Info_modbus = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -88,7 +88,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Crc16_xmodem)
-		m_crc16Info_xmodem = informationGrid.createValue (
+		m_crc16Info_xmodem = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -97,7 +97,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Crc16_usb)
-		m_crc16Info_usb = informationGrid.createValue (
+		m_crc16Info_usb = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -106,7 +106,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Crc32)
-		m_crc32Info = informationGrid.createValue (
+		m_crc32Info = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -114,7 +114,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Ip4Checksum)
-		m_ip4ChecksumInfo = informationGrid.createValue (
+		m_ip4ChecksumInfo = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -124,7 +124,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Sum8)
-		m_sum8Info = informationGrid.createValue (
+		m_sum8Info = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -133,7 +133,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Sum16_le)
-		m_sum16Info_le = informationGrid.createValue (
+		m_sum16Info_le = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -142,7 +142,7 @@ ChecksumInfoSet.createInformationValues (
 			);
 
 	if (mask & InfoId.Sum16_be)
-		m_sum16Info_be = informationGrid.createValue (
+		m_sum16Info_be = informationGrid.createValue(
 			group,
 			insertBefore,
 			true,
@@ -151,21 +151,21 @@ ChecksumInfoSet.createInformationValues (
 			);
 }
 
-ChecksumInfoSet.createInformationValuesGrouped (
+ChecksumInfoSet.createInformationValuesGrouped(
 	gui.InformationGrid* informationGrid,
 	gui.InformationGroup* group,
 	gui.InformationValue* insertBefore,
 	InfoId mask
 	)
 {
-	gui.InformationGroup* subGroup = informationGrid.createGroup (
+	gui.InformationGroup* subGroup = informationGrid.createGroup(
 		group,
 		insertBefore,
 		"Checksum calculator",
 		"Selection a range in the log to calculate checksums"
 		);
 
-	createInformationValues (informationGrid, subGroup,, mask);
+	createInformationValues(informationGrid, subGroup,, mask);
 }
 
 //..............................................................................
@@ -185,41 +185,41 @@ protected:
 	size_t m_totalSize;
 
 public:
-	static ChecksumCalcRangeProcessor* factory (ChecksumInfoSet* infoSet)
+	static ChecksumCalcRangeProcessor* factory(ChecksumInfoSet* infoSet)
 	{
-		return new ChecksumCalcRangeProcessor (infoSet);
+		return new ChecksumCalcRangeProcessor(infoSet);
 	}
 
 protected:
-	construct (ChecksumInfoSet* infoSet)
+	construct(ChecksumInfoSet* infoSet)
 	{
 		m_infoSet = infoSet;
 		m_crc16_modbus = -1;
 	}
 
-	override processBin (
+	override processBin(
 		uint64_t partCode,
 		void const* p,
 		size_t size
 		);
 
-	override processEndOfRange ();
+	override processEndOfRange();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ChecksumCalcRangeProcessor.processBin (
+ChecksumCalcRangeProcessor.processBin(
 	uint64_t partCode,
 	void const* p,
 	size_t size
 	)
 {
-	m_sum8 = sum8 (p, size, m_sum8);
+	m_sum8 = sum8(p, size, m_sum8);
 
-	m_crc16_ansi = crc16_ansi (p, size, m_crc16_ansi);
-	m_crc16_modbus = crc16_ansi (p, size, m_crc16_modbus);
-	m_crc16_xmodem = crc16_ccitt (p, size, m_crc16_xmodem);
-	m_crc32 = crc32 (p, size, m_crc32);
+	m_crc16_ansi = crc16_ansi(p, size, m_crc16_ansi);
+	m_crc16_modbus = crc16_ansi(p, size, m_crc16_modbus);
+	m_crc16_xmodem = crc16_ccitt(p, size, m_crc16_xmodem);
+	m_crc32 = crc32(p, size, m_crc32);
 
 	// do all 16-bit calculations in a single loop
 
@@ -270,7 +270,7 @@ ChecksumCalcRangeProcessor.processBin (
 	m_totalSize += size;
 }
 
-ChecksumCalcRangeProcessor.processEndOfRange ()
+ChecksumCalcRangeProcessor.processEndOfRange()
 {
 	if (m_infoSet.m_crc16Info_ansi)
 		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; %04x)";
@@ -304,7 +304,7 @@ ChecksumCalcRangeProcessor.processEndOfRange ()
 
 // simple helper
 
-uint64_t sum8 (
+uint64_t sum8(
 	void const* p,
 	size_t size,
 	uint64_t seed = 0

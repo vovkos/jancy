@@ -9,13 +9,13 @@ import "doc_Layer.jnc"
 
 class EchoLayer: doc.Layer
 {
-	construct (doc.PluginHost* pluginHost)
+	construct(doc.PluginHost* pluginHost)
 	{
-		basetype.construct (pluginHost);
-		pluginHost.m_log.addListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
+		basetype.construct(pluginHost);
+		pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
 	}
 
-	onLogRecord (
+	onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
@@ -23,7 +23,7 @@ class EchoLayer: doc.Layer
 		)
 	{
 		if (recordCode == log.StdRecordCode.Rx)
-			try transmit (p, size);
+			try transmit(p, size);
 	}
 }
 

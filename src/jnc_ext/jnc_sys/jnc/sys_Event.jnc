@@ -38,20 +38,20 @@ namespace sys {
 
 		sys.Event g_event;
 
-		thread1 ()
+		thread1()
 		{
 			// ...
 
-			g_event.wait (); // thread sleeps here until event is signalled
+			g_event.wait(); // thread sleeps here until event is signalled
 
 			// continue...
 		}
 
-		thread2 ()
+		thread2()
 		{
 			// ...
 
-			g_event.signal (); // thread1 wakes up and continues;
+			g_event.signal(); // thread1 wakes up and continues;
 			                   // g_event goes back to non-signalled state
 		}
 
@@ -60,21 +60,21 @@ namespace sys {
 
 opaque class Event
 {
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Sets event to *signalled* state. When the first waiting thread in the
 		queue wakes up, the event goes back to *idle* state.
 	*/
 
-	signal ();
+	signal();
 
 	/**
 		Forcefully returns event to *idle* state.
 	*/
 
-	reset ();
+	reset();
 
 	/**
 		Waits until event goes to *signalled* state. When it happens, ``wait``
@@ -85,7 +85,7 @@ opaque class Event
 		``wait`` return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
-	bool wait (uint_t timeout = -1);
+	bool wait(uint_t timeout = -1);
 }
 
 //..............................................................................

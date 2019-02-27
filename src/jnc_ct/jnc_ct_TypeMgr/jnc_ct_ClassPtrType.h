@@ -27,71 +27,71 @@ protected:
 	ClassType* m_targetType;
 
 public:
-	ClassPtrType ();
+	ClassPtrType();
 
 	ClassPtrTypeKind
-	getPtrTypeKind ()
+	getPtrTypeKind()
 	{
 		return m_ptrTypeKind;
 	}
 
 	ClassType*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	ClassPtrType*
-	getCheckedPtrType ()
+	getCheckedPtrType()
 	{
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnCheckedPtrType ()
+	getUnCheckedPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnConstPtrType ()
+	getUnConstPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Const) ?
-			m_targetType->getClassPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
+			m_targetType->getClassPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Const) :
 			this;
 	}
 
 	ClassPtrType*
-	getNormalPtrType ()
+	getNormalPtrType()
 	{
 		return (m_ptrTypeKind != ClassPtrTypeKind_Normal) ?
-			m_targetType->getClassPtrType (ClassPtrTypeKind_Normal, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	ClassPtrType*
-	getWeakPtrType ()
+	getWeakPtrType()
 	{
 		return (m_ptrTypeKind != ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType (ClassPtrTypeKind_Weak, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	ClassPtrType*
-	getUnWeakPtrType ()
+	getUnWeakPtrType()
 	{
 		return (m_ptrTypeKind == ClassPtrTypeKind_Weak) ?
-			m_targetType->getClassPtrType (ClassPtrTypeKind_Normal, m_flags) :
+			m_targetType->getClassPtrType(ClassPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		ClassType* classType,
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind,
@@ -100,7 +100,7 @@ public:
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
@@ -108,56 +108,56 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ()
+	prepareTypeString()
 	{
-		getTypeStringTuple ()->m_typeStringPrefix = m_targetType->getTypeString () + getPointerStringSuffix ();
+		getTypeStringTuple()->m_typeStringPrefix = m_targetType->getTypeString() + getPointerStringSuffix();
 	}
 
 	virtual
 	void
-	prepareDoxyLinkedText ()
+	prepareDoxyLinkedText()
 	{
-		getTypeStringTuple ()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix () + getPointerStringSuffix ();
+		getTypeStringTuple()->m_doxyLinkedTextPrefix = m_targetType->getDoxyLinkedTextPrefix() + getPointerStringSuffix();
 	}
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	Type*
-	calcFoldedDualType (
+	calcFoldedDualType(
 		bool isAlien,
 		bool isContainerConst
 		);
 
 	sl::String
-	getPointerStringSuffix ();
+	getPointerStringSuffix();
 };
 
 //..............................................................................
 
 struct ClassPtrTypeTuple: sl::ListLink
 {
-	ClassPtrType* m_ptrTypeArray [2] [2] [3] [2] [2]; // ref x kind x const x volatile x checked
+	ClassPtrType* m_ptrTypeArray[2] [2] [3] [2] [2]; // ref x kind x const x volatile x checked
 };
 
 //..............................................................................
 
 JNC_INLINE
 bool
-isClassPtrType (
+isClassPtrType(
 	Type* type,
 	ClassTypeKind classTypeKind
 	)
 {
 	return
-		(type->getTypeKindFlags () & TypeKindFlag_ClassPtr) &&
-		((ClassPtrType*) type)->getTargetType ()->getClassTypeKind () == classTypeKind;
+		(type->getTypeKindFlags() & TypeKindFlag_ClassPtr) &&
+		((ClassPtrType*)type)->getTargetType()->getClassTypeKind() == classTypeKind;
 }
 
 //..............................................................................

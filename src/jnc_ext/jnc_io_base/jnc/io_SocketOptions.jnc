@@ -66,7 +66,7 @@ bitflag enum SocketOptions
 
 	/**
 		This option is used for allowing the *broadcast* transmission over
-		datagram-oriented protocols (such as ``UDP``). When this option is set,
+		datagram-oriented protocols(such as ``UDP``). When this option is set,
 		the socket is allowed to send broadcast packets into the network.
 	*/
 
@@ -75,7 +75,7 @@ bitflag enum SocketOptions
 	/**
 		This option is used for setting the ``IP_HDRINCL`` flag for ``RAW``
 		sockets. When this property is set to ``true``, the application must
-		provide ``IP`` header together with the rest of the packet (however,
+		provide ``IP`` header together with the rest of the packet(however,
 		the kernel may still overwrite certain fields, such as ``checksum``).
 
 		For detailed description of raw sockets refer to:

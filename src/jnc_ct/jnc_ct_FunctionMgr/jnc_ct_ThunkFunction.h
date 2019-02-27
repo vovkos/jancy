@@ -26,11 +26,11 @@ protected:
 	Function* m_targetFunction;
 
 public:
-	ThunkFunction ();
+	ThunkFunction();
 
 	virtual
 	bool
-	compile ();
+	compile();
 };
 
 //..............................................................................

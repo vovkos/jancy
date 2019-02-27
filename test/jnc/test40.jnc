@@ -9,30 +9,30 @@
 //
 //..............................................................................
 
-bool errorcode bar ()
+bool errorcode bar()
 {
-	printf ("bar ()\n");
+	printf("bar ()\n");
 	return false;
 }
 
-foo ()
+foo()
 {
 	try
 	{
-		bar ();
-		bar ();
-		bar ();
+		bar();
+		bar();
+		bar();
 
 	finally:
-		printf ("finally\n");
+		printf("finally\n");
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main\n");
+	printf("main\n");
 
-	foo ();
+	foo();
 
 	return 2;
 }

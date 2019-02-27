@@ -34,62 +34,62 @@ class ImportType: public Type
 
 protected:
 	Type* m_actualType;
-	sl::Array <Type**> m_fixupArray;
+	sl::Array<Type**> m_fixupArray;
 
 public:
-	ImportType ()
+	ImportType()
 	{
 		m_actualType = NULL;
 	}
 
 	bool
-	isResolved ()
+	isResolved()
 	{
 		return m_actualType != NULL;
 	}
 
 	Type*
-	getActualType ()
+	getActualType()
 	{
-		ASSERT (m_actualType);
+		ASSERT(m_actualType);
 		return m_actualType;
 	}
 
-	sl::Array <Type**>
-	getFixupArray ()
+	sl::Array<Type**>
+	getFixupArray()
 	{
 		return m_fixupArray;
 	}
 
 	void
-	addFixup (Type** type)
+	addFixup(Type** type)
 	{
-		m_fixupArray.append (type);
+		m_fixupArray.append(type);
 	}
 
 	void
-	applyFixups ();
+	applyFixups();
 
 protected:
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ()
+	prepareLlvmDiType()
 	{
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	virtual
 	bool
-	calcLayout ()
+	calcLayout()
 	{
-		ASSERT (false);
+		ASSERT(false);
 		return true;
 	}
 };
@@ -109,44 +109,44 @@ protected:
 	sl::String m_qualifiedName;
 
 public:
-	NamedImportType ();
+	NamedImportType();
 
 	const QualifiedName&
-	getName ()
+	getName()
 	{
 		return m_name;
 	}
 
 	Namespace*
-	getAnchorNamespace ()
+	getAnchorNamespace()
 	{
 		return m_anchorNamespace;
 	}
 
 	const QualifiedName&
-	getAnchorName ()
+	getAnchorName()
 	{
 		return m_anchorName;
 	}
 
 	NamedImportType*
-	setAnchorName (const QualifiedName& name);
+	setAnchorName(const QualifiedName& name);
 
 	const sl::String&
-	getQualifiedName ()
+	getQualifiedName()
 	{
 		return m_qualifiedName;
 	}
 
 	ImportPtrType*
-	getImportPtrType (
+	getImportPtrType(
 		uint_t typeModifiers = 0,
 		uint_t flags = 0
 		);
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
 		const QualifiedName& orphanName
@@ -155,9 +155,9 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ()
+	prepareTypeString()
 	{
-		getTypeStringTuple ()->m_typeStringPrefix.format ("import %s", getQualifiedName ().sz ());
+		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName ().sz ());
 	}
 };
 
@@ -172,47 +172,47 @@ protected:
 	uint_t m_typeModifiers;
 
 public:
-	ImportPtrType ();
+	ImportPtrType();
 
 	NamedImportType*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	uint_t
-	getTypeModifiers ()
+	getTypeModifiers()
 	{
 		return m_typeModifiers;
 	}
 
 	ImportPtrType*
-	getCheckedPtrType ()
+	getCheckedPtrType()
 	{
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getImportPtrType (m_typeModifiers, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getImportPtrType(m_typeModifiers, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	ImportPtrType*
-	getUnCheckedPtrType ()
+	getUnCheckedPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getImportPtrType (m_typeModifiers, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getImportPtrType(m_typeModifiers, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		NamedImportType* importType,
 		uint_t typeModifiers,
 		uint_t flags
 		)
 	{
-		return sl::formatString (
+		return sl::formatString(
 			"ZP%s:%d:%d",
-			importType->getQualifiedName ().sz (),
+			importType->getQualifiedName().sz(),
 			typeModifiers,
 			flags
 			);
@@ -221,7 +221,7 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 };
 
 //..............................................................................
@@ -235,31 +235,31 @@ protected:
 	uint_t m_typeModifiers; // unsigned, bigendian
 
 public:
-	ImportIntModType ();
+	ImportIntModType();
 
 	NamedImportType*
-	getImportType ()
+	getImportType()
 	{
 		return m_importType;
 	}
 
 	uint_t
-	getTypeModifiers ()
+	getTypeModifiers()
 	{
 		return m_typeModifiers;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		NamedImportType* importType,
 		uint_t typeModifiers,
 		uint_t flags
 		)
 	{
-		return sl::formatString (
+		return sl::formatString(
 			"ZI%s:%d:%d",
-			importType->getQualifiedName ().sz (),
+			importType->getQualifiedName().sz(),
 			typeModifiers,
 			flags
 			);
@@ -268,7 +268,7 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 };
 
 //..............................................................................

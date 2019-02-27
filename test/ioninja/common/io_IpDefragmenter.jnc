@@ -47,38 +47,38 @@ public:
 	uint_t m_timeout;
 
 public:
-	construct ();
+	construct();
 
-	reset ();
+	reset();
 
-	io.IpHdr const* defragment (
+	io.IpHdr const* defragment(
 		io.IpHdr const* ipHdr,
 		size_t size
 		);
 
 protected:
-	io.IpHdr const* assembleChain (Chain* chain);
-	removeTimedOutChains ();
+	io.IpHdr const* assembleChain(Chain* chain);
+	removeTimedOutChains();
 }
 
-IpDefragmenter.construct ()
+IpDefragmenter.construct()
 {
 	m_fragmentLimit = DefIpFragmentLimit;
 	m_timeout = DefIpFragmentTimeout; // 3 sec
 }
 
-IpDefragmenter.reset ()
+IpDefragmenter.reset()
 {
-	m_chainHashTable.clear ();
+	m_chainHashTable.clear();
 }
 
-io.IpHdr const* IpDefragmenter.defragment (
+io.IpHdr const* IpDefragmenter.defragment(
 	io.IpHdr const* ipHdr,
 	size_t size
 	)
 {
 	size_t ipHdrSize = ipHdr.m_headerLength * 4;
-	if (ipHdrSize < sizeof (io.IpHdr) ||
+	if (ipHdrSize < sizeof(io.IpHdr) ||
 		ipHdrSize > ipHdr.m_totalLength ||
 		ipHdr.m_totalLength > size)
 		return null;
@@ -86,22 +86,22 @@ io.IpHdr const* IpDefragmenter.defragment (
 	void const* payload = (char const*) ipHdr + ipHdrSize;
 	size = ipHdr.m_totalLength - ipHdrSize;
 
-	uint64_t timestamp = sys.getTimestamp ();
-	uint64_t key = (uint64_t) ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
-	Chain* chain = m_chainHashTable [key];
+	uint64_t timestamp = sys.getTimestamp();
+	uint64_t key = (uint64_t)ipHdr.m_srcAddress | (ipHdr.m_identification << 32);
+	Chain* chain = m_chainHashTable[key];
 	if (!chain)
 	{
 		chain = new Chain;
 		chain.m_key = key;
-		chain.m_listEntry = m_chainList.insertTail (chain);
-		m_chainHashTable [key] = chain;
+		chain.m_listEntry = m_chainList.insertTail(chain);
+		m_chainHashTable[key] = chain;
 	}
 	else if (
 		chain.m_deadlineTimestamp < timestamp || // chain timed out
 		chain.m_fragmentList.m_count >= m_fragmentLimit) // too many fragments in chain
 	{
-		m_chainList.remove (chain.m_listEntry);
-		m_chainHashTable.removeKey (chain.m_key);
+		m_chainList.remove(chain.m_listEntry);
+		m_chainHashTable.removeKey(chain.m_key);
 		return null;
 	}
 
@@ -124,19 +124,19 @@ io.IpHdr const* IpDefragmenter.defragment (
 
 	Fragment* fragment = new Fragment;
 	fragment.m_offset = offset;
-	fragment.m_payload = new char [size];
+	fragment.m_payload = new char[size];
 	fragment.m_size = size;
-	memcpy (fragment.m_payload, payload, size);
-	chain.m_fragmentList.insertBefore (fragment, it);
+	memcpy(fragment.m_payload, payload, size);
+	chain.m_fragmentList.insertBefore(fragment, it);
 
 	if (!(ipHdr.m_flags & io.IpFlags.Mf)) // last fragment, prepare chain buffer
 	{
 		size_t payloadSize = fragment.m_offset + fragment.m_size;
-		size_t bufferSize = sizeof (io.IpHdr) + payloadSize;
+		size_t bufferSize = sizeof(io.IpHdr) + payloadSize;
 
-		io.IpHdr* newIpHdr = (io.IpHdr*) new char [bufferSize];
+		io.IpHdr* newIpHdr = (io.IpHdr*) new char[bufferSize];
 		*newIpHdr = *ipHdr;
-		newIpHdr.m_headerLength = sizeof (io.IpHdr) / 4;
+		newIpHdr.m_headerLength = sizeof(io.IpHdr) / 4;
 		newIpHdr.m_totalLength = bufferSize;
 		newIpHdr.m_flags = 0;
 		newIpHdr.m_fragmentOffset = 0;
@@ -149,24 +149,24 @@ io.IpHdr const* IpDefragmenter.defragment (
 	// reset chain timer
 
 	chain.m_deadlineTimestamp = timestamp + m_timeout * 10000;
-	m_chainList.moveToTail (chain.m_listEntry);
+	m_chainList.moveToTail(chain.m_listEntry);
 
-	io.IpHdr const* result = chain.m_ipHdr ? assembleChain (chain) : null;
+	io.IpHdr const* result = chain.m_ipHdr ? assembleChain(chain) : null;
 
-	removeTimedOutChains ();
+	removeTimedOutChains();
 	return result;
 }
 
-io.IpHdr const* IpDefragmenter.assembleChain (IpDefragmenter.Chain* chain)
+io.IpHdr const* IpDefragmenter.assembleChain(IpDefragmenter.Chain* chain)
 {
-	char* p = (char*) (chain.m_ipHdr + 1) + chain.m_offset;
+	char* p = (char*)(chain.m_ipHdr + 1) + chain.m_offset;
 	while (chain.m_fragmentList.m_count)
 	{
 		Fragment* fragment = chain.m_fragmentList.m_head.m_data;
 		if (fragment.m_offset > chain.m_offset)
 			return null;
 
-		chain.m_fragmentList.removeHead ();
+		chain.m_fragmentList.removeHead();
 
 		if (fragment.m_offset < chain.m_offset)	// overlapping fragment
 		{
@@ -178,19 +178,19 @@ io.IpHdr const* IpDefragmenter.assembleChain (IpDefragmenter.Chain* chain)
 			fragment.m_size -= skip;
 		}
 
-		memcpy (p, fragment.m_payload, fragment.m_size);
+		memcpy(p, fragment.m_payload, fragment.m_size);
 		p += fragment.m_size;
 		chain.m_offset += fragment.m_size;
 	}
 
-	m_chainList.remove (chain.m_listEntry);
-	m_chainHashTable.removeKey (chain.m_key);
+	m_chainList.remove(chain.m_listEntry);
+	m_chainHashTable.removeKey(chain.m_key);
 	return chain.m_ipHdr;
 }
 
-IpDefragmenter.removeTimedOutChains ()
+IpDefragmenter.removeTimedOutChains()
 {
-	uint64_t timestamp = sys.getTimestamp ();
+	uint64_t timestamp = sys.getTimestamp();
 
 	while (m_chainList.m_count)
 	{
@@ -198,8 +198,8 @@ IpDefragmenter.removeTimedOutChains ()
 		if (timestamp < chain.m_deadlineTimestamp)
 			break;
 
-		m_chainList.remove (chain.m_listEntry);
-		m_chainHashTable.removeKey (chain.m_key);
+		m_chainList.remove(chain.m_listEntry);
+		m_chainHashTable.removeKey(chain.m_key);
 	}
 }
 

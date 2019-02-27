@@ -23,23 +23,23 @@ namespace io {
 //..............................................................................
 
 SocketAddress
-SocketBase::getAddress ()
+SocketBase::getAddress()
 {
 	axl::io::SockAddr sockAddr;
-	m_socket.getAddress (&sockAddr);
-	return SocketAddress::fromSockAddr (sockAddr);
+	m_socket.getAddress(&sockAddr);
+	return SocketAddress::fromSockAddr(sockAddr);
 }
 
 SocketAddress
-SocketBase::getPeerAddress ()
+SocketBase::getPeerAddress()
 {
 	axl::io::SockAddr sockAddr;
-	m_socket.getPeerAddress (&sockAddr);
-	return SocketAddress::fromSockAddr (sockAddr);
+	m_socket.getPeerAddress(&sockAddr);
+	return SocketAddress::fromSockAddr(sockAddr);
 }
 
 bool
-SocketBase::setOptions (uint_t options)
+SocketBase::setOptions(uint_t options)
 {
 	bool result;
 
@@ -52,7 +52,7 @@ SocketBase::setOptions (uint_t options)
 	if ((options & SocketOption_TcpNagle) != (m_options & SocketOption_TcpNagle))
 	{
 		int value = !(options & SocketOption_TcpNagle);
-		result = m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &value, sizeof (value));
+		result = m_socket.setOption(IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
 		if (!result)
 			return false;
 	}
@@ -63,7 +63,7 @@ SocketBase::setOptions (uint_t options)
 		value.l_onoff = (options & SocketOption_TcpReset) != 0;
 		value.l_linger = 0;
 
-		result = m_socket.setOption (SOL_SOCKET, SO_LINGER, &value, sizeof (value));
+		result = m_socket.setOption(SOL_SOCKET, SO_LINGER, &value, sizeof(value));
 		if (!result)
 			return false;
 	}
@@ -72,25 +72,25 @@ SocketBase::setOptions (uint_t options)
 	{
 		int value = (m_options & SocketOption_UdpBroadcast) != 0;
 
-		result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &value, sizeof (value));
+		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &value, sizeof(value));
 		if (!result)
 			return false;
 	}
 
-	m_lock.lock ();
+	m_lock.lock();
 
 	if (m_ioThreadFlags & IoThreadFlag_Datagram)
 		options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
 
 	m_options = options;
-	wakeIoThread ();
-	m_lock.unlock ();
+	wakeIoThread();
+	m_lock.unlock();
 
 	return true;
 }
 
 bool
-SocketBase::open (
+SocketBase::open(
 	uint16_t family_jnc,
 	int protocol,
 	const SocketAddress* address
@@ -98,7 +98,7 @@ SocketBase::open (
 {
 	bool result;
 
-	close ();
+	close();
 
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
 	int socketKind =
@@ -106,19 +106,19 @@ SocketBase::open (
 		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
 
 #if (_AXL_OS_WIN)
-	result = m_socket.m_socket.wsaOpen (family_s, socketKind, protocol, WSA_FLAG_OVERLAPPED);
+	result = m_socket.m_socket.wsaOpen(family_s, socketKind, protocol, WSA_FLAG_OVERLAPPED);
 #else
-	result = m_socket.m_socket.open (family_s, socketKind, protocol);
+	result = m_socket.m_socket.open(family_s, socketKind, protocol);
 #endif
 
 	if (!result)
 		return false;
 
-	result = m_socket.setBlockingMode (false);
+	result = m_socket.setBlockingMode(false);
 	if (!result)
 		return false;
 
-	switch (protocol)
+	switch(protocol)
 	{
 		int tcpNoDelayValue;
 		int tcpKeepAlive;
@@ -133,21 +133,21 @@ SocketBase::open (
 		lingerValue.l_linger = 0;
 
 		result =
-			m_socket.setOption (IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof (tcpNoDelayValue)) &&
-			m_socket.setOption (SOL_SOCKET, SO_KEEPALIVE, &tcpKeepAlive, sizeof (tcpKeepAlive)) &&
-			m_socket.setOption (SOL_SOCKET, SO_LINGER, &lingerValue, sizeof (lingerValue));
+			m_socket.setOption(IPPROTO_TCP, TCP_NODELAY, &tcpNoDelayValue, sizeof(tcpNoDelayValue)) &&
+			m_socket.setOption(SOL_SOCKET, SO_KEEPALIVE, &tcpKeepAlive, sizeof(tcpKeepAlive)) &&
+			m_socket.setOption(SOL_SOCKET, SO_LINGER, &lingerValue, sizeof(lingerValue));
 		break;
 
 	case IPPROTO_UDP:
 		udpBroadcastValue = (m_options & SocketOption_UdpBroadcast) != 0;
-		result = m_socket.setOption (SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof (udpBroadcastValue));
+		result = m_socket.setOption(SOL_SOCKET, SO_BROADCAST, &udpBroadcastValue, sizeof(udpBroadcastValue));
 		break;
 
 	case IPPROTO_RAW:
 		rawHdrInclValue = (m_options & SocketOption_RawHdrIncl) != 0;
 		result = family_s == AF_INET6 ?
-			m_socket.setOption (IPPROTO_IPV6, IPV6_HDRINCL, &rawHdrInclValue, sizeof (rawHdrInclValue)) :
-			m_socket.setOption (IPPROTO_IP, IP_HDRINCL, &rawHdrInclValue, sizeof (rawHdrInclValue));
+			m_socket.setOption(IPPROTO_IPV6, IPV6_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue)) :
+			m_socket.setOption(IPPROTO_IP, IP_HDRINCL, &rawHdrInclValue, sizeof(rawHdrInclValue));
 		break;
 	}
 
@@ -159,14 +159,14 @@ SocketBase::open (
 		int reuseAddrValue = (m_options & SocketOption_ReuseAddr) != 0;
 
 		result =
-			m_socket.setOption (SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof (reuseAddrValue)) &&
-			m_socket.bind (address->getSockAddr ());
+			m_socket.setOption(SOL_SOCKET, SO_REUSEADDR, &reuseAddrValue, sizeof(reuseAddrValue)) &&
+			m_socket.bind(address->getSockAddr());
 
 		if (!result)
 			return false;
 	}
 
-	AsyncIoDevice::open ();
+	AsyncIoDevice::open();
 
 	m_family = family_jnc;
 
@@ -180,27 +180,27 @@ SocketBase::open (
 }
 
 void
-SocketBase::close ()
+SocketBase::close()
 {
-	AsyncIoDevice::close ();
-	m_socket.close ();
+	AsyncIoDevice::close();
+	m_socket.close();
 }
 
 #if (_JNC_OS_WIN)
 
 bool
-SocketBase::tcpConnect (uint_t connectCompletedEvent)
+SocketBase::tcpConnect(uint_t connectCompletedEvent)
 {
 	sys::Event socketEvent;
 
-	bool result = m_socket.m_socket.wsaEventSelect (socketEvent.m_event, FD_CONNECT);
+	bool result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, FD_CONNECT);
 	if (!result)
 	{
-		setIoErrorEvent (err::getLastError ());
+		setIoErrorEvent(err::getLastError());
 		return false;
 	}
 
-	HANDLE waitTable [] =
+	HANDLE waitTable[] =
 	{
 		m_ioThreadEvent.m_event,
 		socketEvent.m_event,
@@ -208,44 +208,44 @@ SocketBase::tcpConnect (uint_t connectCompletedEvent)
 
 	for (;;)
 	{
-		DWORD waitResult = ::WaitForMultipleObjects (countof (waitTable), waitTable, false, INFINITE);
-		switch (waitResult)
+		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
+		switch(waitResult)
 		{
 		case WAIT_FAILED:
-			setIoErrorEvent (err::getLastSystemErrorCode ());
+			setIoErrorEvent(err::getLastSystemErrorCode());
 			return false;
 
 		case WAIT_OBJECT_0:
-			m_lock.lock ();
+			m_lock.lock();
 			if (m_ioThreadFlags & IoThreadFlag_Closing)
 			{
-				m_lock.unlock ();
+				m_lock.unlock();
 				return false;
 			}
 
-			m_lock.unlock ();
+			m_lock.unlock();
 			break;
 
 		case WAIT_OBJECT_0 + 1:
 			WSANETWORKEVENTS networkEvents;
-			result = m_socket.m_socket.wsaEnumEvents (&networkEvents);
+			result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
 			if (!result)
 			{
-				setIoErrorEvent ();
+				setIoErrorEvent();
 				return false;
 			}
 
 			if (networkEvents.lNetworkEvents & FD_CONNECT)
 			{
-				int error = networkEvents.iErrorCode [FD_CONNECT_BIT];
+				int error = networkEvents.iErrorCode[FD_CONNECT_BIT];
 				if (error)
 				{
-					setIoErrorEvent (error);
+					setIoErrorEvent(error);
 					return false;
 				}
 				else
 				{
-					setEvents (connectCompletedEvent);
+					setEvents(connectCompletedEvent);
 					return true;
 				}
 			}
@@ -258,10 +258,10 @@ SocketBase::tcpConnect (uint_t connectCompletedEvent)
 #elif (_JNC_OS_POSIX)
 
 bool
-SocketBase::tcpConnect (uint_t connectCompletedEvent)
+SocketBase::tcpConnect(uint_t connectCompletedEvent)
 {
 	int result;
-	int selectFd = AXL_MAX (m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
 
 	// connection loop
 
@@ -270,42 +270,42 @@ SocketBase::tcpConnect (uint_t connectCompletedEvent)
 		fd_set readSet = { 0 };
 		fd_set writeSet = { 0 };
 
-		FD_SET (m_ioThreadSelfPipe.m_readFile, &readSet);
-		FD_SET (m_socket.m_socket, &writeSet);
+		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
+		FD_SET(m_socket.m_socket, &writeSet);
 
-		result = ::select (selectFd, &readSet, &writeSet, NULL, NULL);
+		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
 		{
-			setIoErrorEvent (err::Error (errno));
+			setIoErrorEvent(err::Error(errno));
 			return false;
 		}
 
-		if (FD_ISSET (m_ioThreadSelfPipe.m_readFile, &readSet))
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
 		{
-			char buffer [256];
-			m_ioThreadSelfPipe.read (buffer, sizeof (buffer));
+			char buffer[256];
+			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
 
-			m_lock.lock ();
+			m_lock.lock();
 			if (m_ioThreadFlags & IoThreadFlag_Closing)
 			{
-				m_lock.unlock ();
+				m_lock.unlock();
 				return false;
 			}
 
-			m_lock.unlock ();
+			m_lock.unlock();
 		}
 
-		if (FD_ISSET (m_socket.m_socket, &writeSet))
+		if (FD_ISSET(m_socket.m_socket, &writeSet))
 		{
-			int error = m_socket.getError ();
+			int error = m_socket.getError();
 			if (error)
 			{
-				setIoErrorEvent (err::Errno (error));
+				setIoErrorEvent(err::Errno(error));
 				return false;
 			}
 			else
 			{
-				setEvents (connectCompletedEvent);
+				setEvents(connectCompletedEvent);
 				return true;
 			}
 		}

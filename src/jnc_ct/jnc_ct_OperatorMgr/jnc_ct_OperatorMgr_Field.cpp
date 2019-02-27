@@ -19,81 +19,81 @@ namespace ct {
 //..............................................................................
 
 bool
-OperatorMgr::getField (
+OperatorMgr::getField(
 	const Value& opValue,
 	StructField* field,
 	MemberCoord* coord,
 	Value* resultValue
 	)
 {
-	Type* type = opValue.getType ();
+	Type* type = opValue.getType();
 
-	if (type->getTypeKindFlags () & TypeKindFlag_DataPtr)
-		type = ((DataPtrType*) type)->getTargetType ();
-	else if (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr)
-		type = ((ClassPtrType*) opValue.getType ())->getTargetType ();
+	if (type->getTypeKindFlags() & TypeKindFlag_DataPtr)
+		type = ((DataPtrType*)type)->getTargetType();
+	else if (opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr)
+		type = ((ClassPtrType*)opValue.getType())->getTargetType();
 
-	if (type->getFlags () & TypeFlag_Dynamic)
+	if (type->getFlags() & TypeFlag_Dynamic)
 	{
-		ASSERT (type->getTypeKindFlags () & TypeKindFlag_Derivable);
-		return getDynamicStructField (opValue, (DerivableType*) type, field, resultValue);
+		ASSERT(type->getTypeKindFlags() & TypeKindFlag_Derivable);
+		return getDynamicStructField(opValue, (DerivableType*)type, field, resultValue);
 	}
 
-	TypeKind typeKind = type->getTypeKind ();
-	switch (typeKind)
+	TypeKind typeKind = type->getTypeKind();
+	switch(typeKind)
 	{
 	case TypeKind_Struct:
-		return getStructField (opValue, field, coord, resultValue);
+		return getStructField(opValue, field, coord, resultValue);
 
 	case TypeKind_Union:
 		return coord ?
-			getStructField (opValue, field, coord, resultValue) :
-			getUnionField (opValue, field, resultValue);
+			getStructField(opValue, field, coord, resultValue) :
+			getUnionField(opValue, field, resultValue);
 
 	case TypeKind_Class:
-		return getClassField (opValue, field, coord, resultValue);
+		return getClassField(opValue, field, coord, resultValue);
 
 	default:
-		err::setFormatStringError ("cannot get a field '%s' of '%s'", field->getName ().sz (), type->getTypeString ().sz ());
+		err::setFormatStringError("cannot get a field '%s' of '%s'", field->getName ().sz (), type->getTypeString ().sz ());
 		return false;
 	}
 }
 
 bool
-OperatorMgr::getPromiseField (
+OperatorMgr::getPromiseField(
 	const Value& promiseValue,
 	const sl::String& name,
 	Value* resultValue
 	)
 {
-	ASSERT (((ClassPtrType*) promiseValue.getType ())->getTargetType ()->getBaseTypeArray () [0]->getType ()->getStdType () == StdType_Promise);
+	ASSERT(((ClassPtrType*)promiseValue.getType())->getTargetType()->getBaseTypeArray() [0]->getType()->getStdType() == StdType_Promise);
 
-	ClassType* promiseType = (ClassType*) m_module->m_typeMgr.getStdType (StdType_Promise);
-	StructField* stateField = (StructField*) promiseType->findItemByName (name);
-	ASSERT (stateField);
+	ClassType* promiseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise);
+	StructField* stateField = (StructField*)promiseType->findItemByName(name);
+	ASSERT(stateField);
 
 	MemberCoord coord;
-	coord.m_llvmIndexArray.append (0); // account for base type jnc.Promise
+	coord.m_llvmIndexArray.append(0); // account for base type jnc.Promise
 
-	return getField (promiseValue, stateField, &coord, resultValue);
+	return getField(promiseValue, stateField, &coord, resultValue);
 }
 
 bool
-OperatorMgr::getFieldPtrImpl (
+OperatorMgr::getFieldPtrImpl(
 	const Value& opValueRaw,
 	MemberCoord* coord,
 	Type* resultType,
 	Value* resultValue
 	)
 {
-	AXL_TODO ("double check multiple levels of nested unnamed structs/unions")
+	AXL_TODO("double check multiple levels of nested unnamed structs/unions")
 
-	if (coord->m_unionCoordArray.isEmpty ())
+	if (coord->m_unionCoordArray.isEmpty())
 	{
-		m_module->m_llvmIrBuilder.createGep (
+		m_module->m_llvmIrBuilder.createGep(
 			opValueRaw,
 			coord->m_llvmIndexArray,
-			coord->m_llvmIndexArray.getCount (),
+			coord->m_llvmIndexArray.getCount(),
 			resultType,
 			resultValue
 			);
@@ -106,19 +106,19 @@ OperatorMgr::getFieldPtrImpl (
 	Value opValue = opValueRaw;
 
 	int32_t* llvmIndex = coord->m_llvmIndexArray;
-	int32_t* llvmIndexEnd = llvmIndex + coord->m_llvmIndexArray.getCount ();
+	int32_t* llvmIndexEnd = llvmIndex + coord->m_llvmIndexArray.getCount();
 	intptr_t unionLevel = -1; // take into account initial 0 in LlvmIndexArray
 
-	size_t unionCount = coord->m_unionCoordArray.getCount ();
+	size_t unionCount = coord->m_unionCoordArray.getCount();
 	UnionCoord* unionCoord = coord->m_unionCoordArray;
 	for (size_t i = 0; i < unionCount; i++, unionCoord++)
 	{
-		ASSERT (unionCoord->m_level >= unionLevel);
+		ASSERT(unionCoord->m_level >= unionLevel);
 		size_t llvmIndexDelta = unionCoord->m_level - unionLevel;
 
 		if (llvmIndexDelta)
 		{
-			m_module->m_llvmIrBuilder.createGep (
+			m_module->m_llvmIrBuilder.createGep(
 				opValue,
 				llvmIndex,
 				llvmIndexDelta,
@@ -127,10 +127,10 @@ OperatorMgr::getFieldPtrImpl (
 				);
 		}
 
-		StructField* field = unionCoord->m_type->getFieldByIndex (llvmIndex [llvmIndexDelta]);
-		Type* type = field->getType ()->getDataPtrType_c ();
+		StructField* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
+		Type* type = field->getType()->getDataPtrType_c();
 
-		m_module->m_llvmIrBuilder.createBitCast (opValue, type, &opValue);
+		m_module->m_llvmIrBuilder.createBitCast(opValue, type, &opValue);
 
 		llvmIndex += llvmIndexDelta + 1;
 		unionLevel = unionCoord->m_level + 1;
@@ -138,12 +138,12 @@ OperatorMgr::getFieldPtrImpl (
 
 	if (llvmIndexEnd > llvmIndex)
 	{
-		ASSERT (llvmIndex > coord->m_llvmIndexArray);
+		ASSERT(llvmIndex > coord->m_llvmIndexArray);
 
 		llvmIndex--;
 		*llvmIndex = 0; // create initial 0
 
-		m_module->m_llvmIrBuilder.createGep (
+		m_module->m_llvmIrBuilder.createGep(
 			opValue,
 			llvmIndex,
 			llvmIndexEnd - llvmIndex,
@@ -153,14 +153,14 @@ OperatorMgr::getFieldPtrImpl (
 	}
 	else
 	{
-		resultValue->overrideType (opValue, resultType);
+		resultValue->overrideType(opValue, resultType);
 	}
 
 	return true;
 }
 
 bool
-OperatorMgr::getStructField (
+OperatorMgr::getStructField(
 	const Value& opValue,
 	StructField* field,
 	MemberCoord* coord,
@@ -171,125 +171,125 @@ OperatorMgr::getStructField (
 	if (!coord)
 		coord = &dummyCoord;
 
-	coord->m_llvmIndexArray.append (field->getLlvmIndex ());
-	coord->m_offset += field->getOffset ();
+	coord->m_llvmIndexArray.append(field->getLlvmIndex());
+	coord->m_offset += field->getOffset();
 
-	ValueKind opValueKind = opValue.getValueKind ();
+	ValueKind opValueKind = opValue.getValueKind();
 	if (opValueKind == ValueKind_Const)
 	{
-		Type* type = opValue.getType ();
-		if (!(type->getTypeKindFlags () & TypeKindFlag_Ptr))
+		Type* type = opValue.getType();
+		if (!(type->getTypeKindFlags() & TypeKindFlag_Ptr))
 		{
-			resultValue->createConst (
-				(char*) opValue.getConstData () + coord->m_offset,
-				field->getType ()
+			resultValue->createConst(
+				(char*)opValue.getConstData() + coord->m_offset,
+				field->getType()
 				);
 		}
 		else
 		{
-			ASSERT (type->getTypeKindFlags () & TypeKindFlag_DataPtr);
+			ASSERT(type->getTypeKindFlags() & TypeKindFlag_DataPtr);
 
-			DataPtrType* ptrType = (DataPtrType*) type;
-			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind ();
+			DataPtrType* ptrType = (DataPtrType*)type;
+			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
 			if (ptrTypeKind == DataPtrTypeKind_Normal)
 			{
-				DataPtr ptr = *(DataPtr*) opValue.getConstData ();
-				ptr.m_p = (char*) ptr.m_p + field->getOffset ();
-				resultValue->createConst (&ptr, field->getType ()->getDataPtrType (TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags ()));
+				DataPtr ptr = *(DataPtr*)opValue.getConstData();
+				ptr.m_p = (char*)ptr.m_p + field->getOffset();
+				resultValue->createConst(&ptr, field->getType()->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, type->getFlags()));
 			}
 			else
 			{
-				ASSERT (ptrTypeKind == DataPtrTypeKind_Thin);
-				char* p = *(char**) opValue.getConstData ();
-				p += field->getOffset ();
-				resultValue->createConst (&p, field->getType ()->getDataPtrType_c (TypeKind_DataRef, type->getFlags ()));
+				ASSERT(ptrTypeKind == DataPtrTypeKind_Thin);
+				char* p = *(char**) opValue.getConstData();
+				p += field->getOffset();
+				resultValue->createConst(&p, field->getType()->getDataPtrType_c(TypeKind_DataRef, type->getFlags()));
 			}
 		}
 
 		return true;
 	}
 
-	if (!(opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr))
+	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr))
 	{
-		if (!coord->m_unionCoordArray.isEmpty ())
+		if (!coord->m_unionCoordArray.isEmpty())
 		{
-			err::setFormatStringError ("union member operator on registers is not implemented yet");
+			err::setFormatStringError("union member operator on registers is not implemented yet");
 			return false;
 		}
 
-		m_module->m_llvmIrBuilder.createExtractValue (
+		m_module->m_llvmIrBuilder.createExtractValue(
 			opValue,
 			coord->m_llvmIndexArray,
-			coord->m_llvmIndexArray.getCount (),
-			field->getType (),
+			coord->m_llvmIndexArray.getCount(),
+			field->getType(),
 			resultValue
 			);
 
 		return true;
 	}
 
-	DataPtrType* opType = (DataPtrType*) opValue.getType ();
-	coord->m_llvmIndexArray.insert (0, 0);
+	DataPtrType* opType = (DataPtrType*)opValue.getType();
+	coord->m_llvmIndexArray.insert(0, 0);
 
-	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
-	if (field->getStorageKind () == StorageKind_Mutable)
+	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		DataPtrType* resultType = field->getType ()->getDataPtrType (
+		DataPtrType* resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Thin,
 			ptrTypeFlags
 			);
 
-		getFieldPtrImpl (opValue, coord, resultType, resultValue);
+		getFieldPtrImpl(opValue, coord, resultType, resultValue);
 		return true;
 	}
 
 	Value ptrValue;
 	if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		getFieldPtrImpl (opValue, coord, NULL, &ptrValue);
+		getFieldPtrImpl(opValue, coord, NULL, &ptrValue);
 	}
 	else
 	{
-		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast (ptrValue, opType->getTargetType ()->getDataPtrType_c (), &ptrValue);
-		getFieldPtrImpl (ptrValue, coord, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(ptrValue, opType->getTargetType()->getDataPtrType_c(), &ptrValue);
+		getFieldPtrImpl(ptrValue, coord, NULL, &ptrValue);
 	}
 
-	if (opType->getTargetType ()->getFlags () & TypeFlag_Pod)
+	if (opType->getTargetType()->getFlags() & TypeFlag_Pod)
 	{
-		DataPtrType* resultType = field->getType ()->getDataPtrType (
+		DataPtrType* resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
 			);
 
-		resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
+		resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
 	}
 	else
 	{
-		bool result = checkDataPtrRange (opValue);
+		bool result = checkDataPtrRange(opValue);
 		if (!result)
 			return false;
 
 		ptrTypeFlags |= PtrTypeFlag_Safe;
-		DataPtrType* resultType = field->getType ()->getDataPtrType (
+		DataPtrType* resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
 			);
 
-		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (),
+		resultValue->setLeanDataPtr(
+			ptrValue.getLlvmValue(),
 			resultType,
 			opValue,
 			ptrValue,
-			field->getType ()->getSize ()
+			field->getType()->getSize()
 			);
 	}
 
@@ -297,7 +297,7 @@ OperatorMgr::getStructField (
 }
 
 bool
-OperatorMgr::getDynamicStructField (
+OperatorMgr::getDynamicStructField(
 	const Value& opValue,
 	DerivableType* type,
 	StructField* field,
@@ -306,12 +306,12 @@ OperatorMgr::getDynamicStructField (
 {
 	bool result;
 
-	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction (StdFunc_GetDynamicField);
-	Value typeValue (&type, m_module->m_typeMgr.getStdType (StdType_BytePtr));
-	Value fieldValue (&field, m_module->m_typeMgr.getStdType (StdType_BytePtr));
+	Function* getDynamicFieldFunc = m_module->m_functionMgr.getStdFunction(StdFunc_GetDynamicField);
+	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+	Value fieldValue(&field, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 
 	Value ptrValue;
-	result = m_module->m_operatorMgr.callOperator (
+	result = m_module->m_operatorMgr.callOperator(
 		getDynamicFieldFunc,
 		opValue,
 		typeValue,
@@ -322,58 +322,58 @@ OperatorMgr::getDynamicStructField (
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_DataPtr); // otherwise, getDynamicFieldFunc fails
-	DataPtrType* opType = (DataPtrType*) opValue.getType ();
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr); // otherwise, getDynamicFieldFunc fails
+	DataPtrType* opType = (DataPtrType*)opValue.getType();
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
-	ASSERT (ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
+	ASSERT(ptrTypeKind != DataPtrTypeKind_Thin); // otherwise, getDynamicFieldFunc fails
 
-	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
-	if (field->getStorageKind () == StorageKind_Mutable)
+	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	ASSERT (opType->getTargetType ()->getFlags () & TypeFlag_Pod); // dynamic struct must be POD
-	DataPtrType* resultType = field->getType ()->getDataPtrType (
+	ASSERT(opType->getTargetType()->getFlags() & TypeFlag_Pod); // dynamic struct must be POD
+	DataPtrType* resultType = field->getType()->getDataPtrType(
 		TypeKind_DataRef,
 		DataPtrTypeKind_Lean,
 		ptrTypeFlags
 		);
 
-	m_module->m_llvmIrBuilder.createBitCast (ptrValue, resultType, &ptrValue);
-	resultValue->setLeanDataPtr (ptrValue.getLlvmValue (), resultType, opValue);
-	resultValue->setDynamicFieldInfo (opValue, type, field);
+	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, &ptrValue);
+	resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);
+	resultValue->setDynamicFieldInfo(opValue, type, field);
 	return true;
 }
 
 bool
-OperatorMgr::getUnionField (
+OperatorMgr::getUnionField(
 	const Value& opValue,
 	StructField* field,
 	Value* resultValue
 	)
 {
-	ValueKind opValueKind = opValue.getValueKind ();
+	ValueKind opValueKind = opValue.getValueKind();
 	if (opValueKind == ValueKind_Const)
 	{
-		resultValue->createConst (opValue.getConstData (), field->getType ());
+		resultValue->createConst(opValue.getConstData(), field->getType());
 		return true;
 	}
 
-	if (opValue.getType ()->getTypeKind () != TypeKind_DataRef)
+	if (opValue.getType()->getTypeKind() != TypeKind_DataRef)
 	{
-		err::setFormatStringError ("union member operator on registers is not implemented yet");
+		err::setFormatStringError("union member operator on registers is not implemented yet");
 		return false;
 	}
 
-	DataPtrType* opType = (DataPtrType*) opValue.getType ();
+	DataPtrType* opType = (DataPtrType*)opValue.getType();
 
-	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags ();
-	if (field->getStorageKind () == StorageKind_Mutable)
+	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
+	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind ();
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 
-	DataPtrType* ptrType = field->getType ()->getDataPtrType (
+	DataPtrType* ptrType = field->getType()->getDataPtrType(
 		TypeKind_DataRef,
 		ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
 		ptrTypeFlags
@@ -381,25 +381,25 @@ OperatorMgr::getUnionField (
 
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		m_module->m_llvmIrBuilder.createBitCast (opValue, ptrType, resultValue);
+		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
 	}
 	else if (ptrTypeKind == DataPtrTypeKind_Lean)
 	{
-		m_module->m_llvmIrBuilder.createBitCast (opValue, ptrType, resultValue);
+		m_module->m_llvmIrBuilder.createBitCast(opValue, ptrType, resultValue);
 
-		if (opValue.getValueKind () == ValueKind_Variable)
-			resultValue->setLeanDataPtrValidator (opValue);
+		if (opValue.getValueKind() == ValueKind_Variable)
+			resultValue->setLeanDataPtrValidator(opValue);
 		else
-			resultValue->setLeanDataPtrValidator (opValue.getLeanDataPtrValidator ());
+			resultValue->setLeanDataPtrValidator(opValue.getLeanDataPtrValidator());
 	}
 	else
 	{
 		Value ptrValue;
-		m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast (opValue, field->getType ()->getDataPtrType_c (), &ptrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createBitCast(opValue, field->getType()->getDataPtrType_c(), &ptrValue);
 
-		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (),
+		resultValue->setLeanDataPtr(
+			ptrValue.getLlvmValue(),
 			ptrType,
 			opValue
 			);
@@ -409,7 +409,7 @@ OperatorMgr::getUnionField (
 }
 
 bool
-OperatorMgr::getClassField (
+OperatorMgr::getClassField(
 	const Value& rawOpValue,
 	StructField* field,
 	MemberCoord* coord,
@@ -417,64 +417,64 @@ OperatorMgr::getClassField (
 	)
 {
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue);
+	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
 		return false;
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_ClassPtr);
-	ClassPtrType* opType = (ClassPtrType*) opValue.getType ();
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
+	ClassPtrType* opType = (ClassPtrType*)opValue.getType();
 
-	checkNullPtr (opValue);
+	checkNullPtr(opValue);
 
-	ClassType* classType = (ClassType*) field->getParentNamespace ();
+	ClassType* classType = (ClassType*)field->getParentNamespace();
 
 	MemberCoord dummyCoord;
 	if (!coord)
 		coord = &dummyCoord;
 
-	coord->m_llvmIndexArray.insert (0, 0);
-	coord->m_llvmIndexArray.append (field->getLlvmIndex ());
+	coord->m_llvmIndexArray.insert(0, 0);
+	coord->m_llvmIndexArray.append(field->getLlvmIndex());
 
-	if (field->getType ()->getTypeKind () == TypeKind_Class)
-		coord->m_llvmIndexArray.append (1);
+	if (field->getType()->getTypeKind() == TypeKind_Class)
+		coord->m_llvmIndexArray.append(1);
 
 	Value ptrValue;
-	m_module->m_llvmIrBuilder.createGep (
+	m_module->m_llvmIrBuilder.createGep(
 		opValue,
 		coord->m_llvmIndexArray,
-		coord->m_llvmIndexArray.getCount (),
+		coord->m_llvmIndexArray.getCount(),
 		NULL,
 		&ptrValue
 		);
 
-	uint_t ptrTypeFlags = opType->getFlags () | field->getPtrTypeFlags () | PtrTypeFlag_Safe;
-	if (field->getStorageKind () == StorageKind_Mutable)
+	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe;
+	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	if (field->getType ()->getTypeKind () == TypeKind_Class)
+	if (field->getType()->getTypeKind() == TypeKind_Class)
 	{
-		ClassPtrType* ptrType = ((ClassType*) field->getType ())->getClassPtrType (
+		ClassPtrType* ptrType = ((ClassType*)field->getType())->getClassPtrType(
 			TypeKind_ClassRef,
 			ClassPtrTypeKind_Normal,
 			ptrTypeFlags
 			);
 
-		resultValue->setLlvmValue (ptrValue.getLlvmValue (), ptrType);
+		resultValue->setLlvmValue(ptrValue.getLlvmValue(), ptrType);
 	}
 	else
 	{
-		DataPtrType* ptrType = field->getType ()->getDataPtrType (
+		DataPtrType* ptrType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
 			);
 
-		resultValue->setLeanDataPtr (
-			ptrValue.getLlvmValue (),
+		resultValue->setLeanDataPtr(
+			ptrValue.getLlvmValue(),
 			ptrType,
 			opValue,
 			ptrValue,
-			field->getType ()->getSize ()
+			field->getType()->getSize()
 			);
 	}
 
@@ -482,64 +482,64 @@ OperatorMgr::getClassField (
 }
 
 bool
-OperatorMgr::getPropertyField (
+OperatorMgr::getPropertyField(
 	const Value& opValue,
 	ModuleItem* member,
 	Value* resultValue
 	)
 {
-	ModuleItemKind itemKind = member->getItemKind ();
+	ModuleItemKind itemKind = member->getItemKind();
 
-	switch (itemKind)
+	switch(itemKind)
 	{
 	case ModuleItemKind_StructField:
 		break;
 
 	case ModuleItemKind_Variable:
-		resultValue->setVariable ((Variable*) member);
+		resultValue->setVariable((Variable*)member);
 		return true;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 
-	ASSERT (opValue.getValueKind () == ValueKind_Property);
-	ASSERT (member->getItemKind () == ModuleItemKind_StructField);
+	ASSERT(opValue.getValueKind() == ValueKind_Property);
+	ASSERT(member->getItemKind() == ModuleItemKind_StructField);
 
-	Property* prop = opValue.getProperty ();
+	Property* prop = opValue.getProperty();
 
-	Closure* closure = opValue.getClosure ();
-	ASSERT (closure);
+	Closure* closure = opValue.getClosure();
+	ASSERT(closure);
 
-	Value parentValue = *closure->getArgValueList ()->getHead ();
-	Type* parentValueType = parentValue.getType ();
+	Value parentValue = *closure->getArgValueList()->getHead();
+	Type* parentValueType = parentValue.getType();
 
-	DerivableType* parentType = prop->getParentType ();
-	ASSERT (parentType);
+	DerivableType* parentType = prop->getParentType();
+	ASSERT(parentType);
 
 	Type* parentPtrType;
-	if (parentType->getTypeKind () == TypeKind_Class)
+	if (parentType->getTypeKind() == TypeKind_Class)
 	{
-		parentPtrType = ((ClassType*) parentType)->getClassPtrType (
+		parentPtrType = ((ClassType*)parentType)->getClassPtrType(
 			ClassPtrTypeKind_Normal,
-			parentValueType->getFlags ()
+			parentValueType->getFlags()
 			);
 	}
 	else
 	{
-		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags () & TypeKindFlag_DataPtr) ?
-			((DataPtrType*) parentValueType)->getPtrTypeKind () :
+		DataPtrTypeKind ptrTypeKind = (parentValueType->getTypeKindFlags() & TypeKindFlag_DataPtr) ?
+			((DataPtrType*)parentValueType)->getPtrTypeKind() :
 			DataPtrTypeKind_Normal;
 
-		parentPtrType = parentType->getDataPtrType (
+		parentPtrType = parentType->getDataPtrType(
 			ptrTypeKind,
-			parentValueType->getFlags ()
+			parentValueType->getFlags()
 			);
 	}
 
 	return
-		castOperator (&parentValue, parentPtrType) &&
-		getField (parentValue, (StructField*) member, resultValue);
+		castOperator(&parentValue, parentPtrType) &&
+		getField(parentValue, (StructField*)member, resultValue);
 }
 
 //..............................................................................

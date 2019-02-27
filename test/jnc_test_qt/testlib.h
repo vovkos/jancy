@@ -16,7 +16,7 @@
 
 // {384498AC-90AF-4634-B083-2A9B02D62680}
 
-JNC_DEFINE_GUID (
+JNC_DEFINE_GUID(
 	g_testLibGuid,
 	0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
 	);
@@ -49,11 +49,11 @@ public:
 public:
 	void
 	JNC_CDECL
-	destruct ();
+	destruct();
 
 	void
 	JNC_CDECL
-	foo (int x);
+	foo(int x);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -61,16 +61,16 @@ public:
 class TestClassB: public jnc::IfaceHdr
 {
 public:
-	char m_data [256];
+	char m_data[256];
 
 public:
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	bool
 	JNC_CDECL
-	bar (
+	bar(
 		jnc::DataPtr ptr1,
 		jnc::DataPtr ptr2,
 		jnc::DataPtr ptr3,
@@ -92,12 +92,12 @@ public:
 	static
 	void
 	JNC_CDECL
-	construct_0 (jnc::DataPtr selfPtr);
+	construct_0(jnc::DataPtr selfPtr);
 
 	static
 	void
 	JNC_CDECL
-	construct_1 (
+	construct_1(
 		jnc::DataPtr selfPtr,
 		int x
 		);
@@ -105,7 +105,7 @@ public:
 	static
 	void
 	JNC_CDECL
-	construct_2 (
+	construct_2(
 		jnc::DataPtr selfPtr,
 		double y
 		);
@@ -113,12 +113,12 @@ public:
 	static
 	void
 	JNC_CDECL
-	foo_0 (jnc::DataPtr selfPtr);
+	foo_0(jnc::DataPtr selfPtr);
 
 	static
 	void
 	JNC_CDECL
-	foo_1 (
+	foo_1(
 		jnc::DataPtr selfPtr,
 		int x
 		);
@@ -126,7 +126,7 @@ public:
 	static
 	void
 	JNC_CDECL
-	foo_2 (
+	foo_2(
 		jnc::DataPtr selfPtr,
 		double y
 		);
@@ -134,6 +134,6 @@ public:
 
 //..............................................................................
 
-JNC_DECLARE_LIB (TestLib)
+JNC_DECLARE_LIB(TestLib)
 
 #endif

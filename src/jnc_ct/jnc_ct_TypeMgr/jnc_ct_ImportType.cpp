@@ -20,72 +20,72 @@ namespace ct {
 //..............................................................................
 
 void
-ImportType::applyFixups ()
+ImportType::applyFixups()
 {
-	ASSERT (m_actualType);
+	ASSERT(m_actualType);
 
-	size_t count = m_fixupArray.getCount ();
+	size_t count = m_fixupArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		*m_fixupArray [i] = m_actualType;
+		*m_fixupArray[i] = m_actualType;
 }
 
 //..............................................................................
 
-NamedImportType::NamedImportType ()
+NamedImportType::NamedImportType()
 {
 	m_typeKind = TypeKind_NamedImport;
 	m_anchorNamespace = NULL;
 }
 
 ImportPtrType*
-NamedImportType::getImportPtrType (
+NamedImportType::getImportPtrType(
 	uint_t typeModifiers,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getImportPtrType (this, typeModifiers, flags);
+	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers, flags);
 }
 
 sl::String
-NamedImportType::createSignature (
+NamedImportType::createSignature(
 	const QualifiedName& name,
 	Namespace* anchorNamespace,
 	const QualifiedName& orphanName
 	)
 {
-	sl::String signature = sl::formatString ("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
+	sl::String signature = sl::formatString("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
 
-	if (!orphanName.isEmpty ())
+	if (!orphanName.isEmpty())
 	{
 		signature += '-';
-		signature += orphanName.getFullName ();
+		signature += orphanName.getFullName();
 	}
 
 	return signature;
 }
 
 NamedImportType*
-NamedImportType::setAnchorName (const QualifiedName& name)
+NamedImportType::setAnchorName(const QualifiedName& name)
 {
-	if (!m_fixupArray.isEmpty ())
-		return m_module->m_typeMgr.getNamedImportType (m_name, m_anchorNamespace, name);
+	if (!m_fixupArray.isEmpty())
+		return m_module->m_typeMgr.getNamedImportType(m_name, m_anchorNamespace, name);
 
-	ASSERT (m_anchorName.isEmpty ());
+	ASSERT(m_anchorName.isEmpty());
 	m_anchorName = name;
 	m_typeStringTuple = NULL;
 
-	m_qualifiedName = m_anchorNamespace->createQualifiedName (name);
+	m_qualifiedName = m_anchorNamespace->createQualifiedName(name);
 	m_qualifiedName += '.';
-	m_qualifiedName += m_name.getFullName ();
+	m_qualifiedName += m_name.getFullName();
 
-	sl::String signature = createSignature (m_name, m_anchorNamespace, m_anchorName);
-	m_module->m_typeMgr.updateTypeSignature (this, signature);
+	sl::String signature = createSignature(m_name, m_anchorNamespace, m_anchorName);
+	m_module->m_typeMgr.updateTypeSignature(this, signature);
 	return this;
 }
 
 //..............................................................................
 
-ImportPtrType::ImportPtrType ()
+ImportPtrType::ImportPtrType()
 {
 	m_typeKind = TypeKind_ImportPtr;
 	m_targetType = NULL;
@@ -93,15 +93,15 @@ ImportPtrType::ImportPtrType ()
 }
 
 void
-ImportPtrType::prepareTypeString ()
+ImportPtrType::prepareTypeString()
 {
-	ASSERT (m_targetType);
-	TypeStringTuple* tuple = getTypeStringTuple ();
+	ASSERT(m_targetType);
+	TypeStringTuple* tuple = getTypeStringTuple();
 
 	if (m_actualType)
 	{
-		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix ();
-		tuple->m_typeStringSuffix = m_actualType->getTypeStringSuffix ();
+		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
+		tuple->m_typeStringSuffix = m_actualType->getTypeStringSuffix();
 		return;
 	}
 
@@ -109,17 +109,17 @@ ImportPtrType::prepareTypeString ()
 
 	if (m_typeModifiers)
 	{
-		tuple->m_typeStringPrefix += getTypeModifierString (m_typeModifiers);
+		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
 		tuple->m_typeStringPrefix += ' ';
 	}
 
-	tuple->m_typeStringPrefix += m_targetType->getQualifiedName ();
+	tuple->m_typeStringPrefix += m_targetType->getQualifiedName();
 	tuple->m_typeStringPrefix += '*';
 }
 
 //..............................................................................
 
-ImportIntModType::ImportIntModType ()
+ImportIntModType::ImportIntModType()
 {
 	m_typeKind = TypeKind_ImportPtr;
 	m_importType = NULL;
@@ -127,13 +127,13 @@ ImportIntModType::ImportIntModType ()
 }
 
 void
-ImportIntModType::prepareTypeString ()
+ImportIntModType::prepareTypeString()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
+	TypeStringTuple* tuple = getTypeStringTuple();
 
 	if (m_actualType)
 	{
-		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix ();
+		tuple->m_typeStringPrefix = m_actualType->getTypeStringPrefix();
 		return;
 	}
 
@@ -141,11 +141,11 @@ ImportIntModType::prepareTypeString ()
 
 	if (m_typeModifiers)
 	{
-		tuple->m_typeStringPrefix += getTypeModifierString (m_typeModifiers);
+		tuple->m_typeStringPrefix += getTypeModifierString(m_typeModifiers);
 		tuple->m_typeStringPrefix += ' ';
 	}
 
-	tuple->m_typeStringPrefix += m_importType->getQualifiedName ();
+	tuple->m_typeStringPrefix += m_importType->getQualifiedName();
 }
 
 //..............................................................................

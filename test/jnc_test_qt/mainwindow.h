@@ -47,10 +47,10 @@ private slots:
 	void clearOutput();
 	bool compile();
 	bool run();
-	void outputSlot ();
+	void outputSlot();
 
 signals:
-	void outputSignal ();
+	void outputSignal();
 
 private:
 	void createActions();
@@ -103,7 +103,7 @@ private:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_INLINE MainWindow* getMainWindow ()
+JNC_INLINE MainWindow* getMainWindow()
 {
 	extern MainWindow* g_mainWindow;
 	return g_mainWindow;

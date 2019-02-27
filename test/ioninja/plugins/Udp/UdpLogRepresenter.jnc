@@ -10,7 +10,7 @@ import "io_SocketAddress.jnc"
 
 //..............................................................................
 
-bool representUdpLog (
+bool representUdpLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -18,20 +18,20 @@ bool representUdpLog (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case UdpLogRecordCode.TxPacket:
-		char const* remoteAddress = ((io.SocketAddress const*) p).getString ();
+		char const* remoteAddress = ((io.SocketAddress const*) p).getString();
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
 		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-		target.addHyperText ($"To \e[34m$remoteAddress");
+		target.addHyperText($"To \e[34m$remoteAddress");
 		break;
 
 	case UdpLogRecordCode.RxPacket:
-		char const* remoteAddress = ((io.SocketAddress const*) p).getString ();
+		char const* remoteAddress = ((io.SocketAddress const*) p).getString();
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
 		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-		target.addHyperText ($"From \e[34m$remoteAddress");
+		target.addHyperText($"From \e[34m$remoteAddress");
 		break;
 
 	default:

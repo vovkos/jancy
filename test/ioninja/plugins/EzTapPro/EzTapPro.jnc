@@ -5,7 +5,7 @@
 
 import "std_HashTable.jnc"
 
-alignment (1)
+alignment(1)
 
 //..............................................................................
 
@@ -159,20 +159,20 @@ struct EzTapErrorParams
 
 //..............................................................................
 
-alignment (default)
+alignment(default)
 
 std.HashTable g_ezTapResponseSizeMap;
 
-construct ()
+construct()
 {
-	g_ezTapResponseSizeMap [EzTapResponseCode.ClockMsbsChanged] = sizeof (EzTapClockMsbsChangedParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.DceData] = sizeof (EzTapDataParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.DceControlLineChanged] = sizeof (EzTapControlLineChangedParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.DteData] = sizeof (EzTapDataParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.DteControlLineChanged] = sizeof (EzTapControlLineChangedParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.GenericReply] = sizeof (EzTapGenericReplyParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.GetControlLinesReply] = sizeof (EzTapGetContorlLinesReplyParams);
-	g_ezTapResponseSizeMap [EzTapResponseCode.Error] = sizeof (EzTapErrorParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.ClockMsbsChanged] = sizeof(EzTapClockMsbsChangedParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.DceData] = sizeof(EzTapDataParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.DceControlLineChanged] = sizeof(EzTapControlLineChangedParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.DteData] = sizeof(EzTapDataParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.DteControlLineChanged] = sizeof(EzTapControlLineChangedParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.GenericReply] = sizeof(EzTapGenericReplyParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.GetControlLinesReply] = sizeof(EzTapGetContorlLinesReplyParams);
+	g_ezTapResponseSizeMap[EzTapResponseCode.Error] = sizeof(EzTapErrorParams);
 }
 
 //..............................................................................

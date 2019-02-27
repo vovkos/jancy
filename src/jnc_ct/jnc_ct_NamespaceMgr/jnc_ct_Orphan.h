@@ -40,57 +40,57 @@ class Orphan:
 protected:
 	OrphanKind m_orphanKind;
 	FunctionType* m_functionType;
-	sl::BoxList <Token> m_body;
+	sl::BoxList<Token> m_body;
 	UsingSet m_usingSet;
 
 public:
-	Orphan ();
+	Orphan();
 
 	OrphanKind
-	getOrphanKind ()
+	getOrphanKind()
 	{
 		return m_orphanKind;
 	}
 
 	FunctionType*
-	getFunctionType ()
+	getFunctionType()
 	{
 		return m_functionType;
 	}
 
-	sl::ConstBoxList <Token>
-	getBody ()
+	sl::ConstBoxList<Token>
+	getBody()
 	{
 		return m_body;
 	}
 
 	bool
-	setBody (sl::BoxList <Token>* tokenList);
+	setBody(sl::BoxList<Token>* tokenList);
 
 	void
-	addUsingSet (Namespace* anchorNamespace);
+	addUsingSet(Namespace* anchorNamespace);
 
 	bool
-	resolveOrphan ();
+	resolveOrphan();
 
 protected:
 	bool
-	adoptOrphanFunction (ModuleItem* item);
+	adoptOrphanFunction(ModuleItem* item);
 
 	bool
-	adoptOrphanReactor (ModuleItem* item);
+	adoptOrphanReactor(ModuleItem* item);
 
 	bool
-	verifyStorageKind (ModuleItemDecl* targetDecl);
+	verifyStorageKind(ModuleItemDecl* targetDecl);
 
 	void
-	copySrcPos (ModuleItemDecl* targetDecl);
+	copySrcPos(ModuleItemDecl* targetDecl);
 
 	bool
-	copyArgNames (FunctionType* targetFunctionType);
+	copyArgNames(FunctionType* targetFunctionType);
 
 	Function*
-	getItemUnnamedMethod (ModuleItem* item);
+	getItemUnnamedMethod(ModuleItem* item);
 };
 
 //..............................................................................

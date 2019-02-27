@@ -63,7 +63,7 @@ struct TaggedTransform: Transform
 
 //..............................................................................
 
-foo (TaggedTransform* taggedTransform)
+foo(TaggedTransform* taggedTransform)
 {
 	// upcasts are always OK, no cast operator is needed
 
@@ -80,7 +80,7 @@ foo (TaggedTransform* taggedTransform)
 
 	char const* c = (char const*) taggedTransform;
 
-	printf (
+	printf(
 		"foo (taggedTransform = %x)\n"
 		"{\n"
 		"	transform = %x;\n"
@@ -98,15 +98,15 @@ foo (TaggedTransform* taggedTransform)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bar (Vector* vector)
+bar(Vector* vector)
 {
 	// POD types can be cast to each other using the cast operator...
 
-	Transform* transform1 = (Transform*) vector;
+	Transform* transform1 = (Transform*)vector;
 
 	// ...even if they aren't related via the base-child hierarchy
 
-	EulerAngles* angles1 = (EulerAngles*) vector;
+	EulerAngles* angles1 = (EulerAngles*)vector;
 
 	// non-POD types cannot be cast to (unless it's an upcast, of course)
 
@@ -114,14 +114,14 @@ bar (Vector* vector)
 
 	// dynamic cast operator is available for performing safe dynamic downcasts
 
-	TaggedTransform* taggedTransform = dynamic (TaggedTransform*) vector;
+	TaggedTransform* taggedTransform = dynamic(TaggedTransform*)vector;
 
 	// dynamic cast is also applicable to POD types
 
-	Transform* transform2 = dynamic (Transform*) vector;
-	EulerAngles* angles2 = dynamic (EulerAngles*) vector;
+	Transform* transform2 = dynamic(Transform*)vector;
+	EulerAngles* angles2 = dynamic(EulerAngles*)vector;
 
-	printf (
+	printf(
 		"bar (vector = %x)\n"
 		"{\n"
 		"	transform1 = %x;\n"
@@ -143,19 +143,19 @@ bar (Vector* vector)
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	TaggedTransform taggedTransform;
-	foo (taggedTransform);
-	bar (taggedTransform);
+	foo(taggedTransform);
+	bar(taggedTransform);
 
 	Transform transform;
-	bar (transform);
+	bar(transform);
 
 	Vector vector;
-	bar (vector);
+	bar(vector);
 
 	return 0;
 }

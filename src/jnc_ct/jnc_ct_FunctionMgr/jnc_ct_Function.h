@@ -53,54 +53,54 @@ protected:
 	uint_t m_thisArgTypeFlags;
 
 public:
-	FunctionName ()
+	FunctionName()
 	{
 		m_functionKind = FunctionKind_Undefined;
 		m_castOpType = NULL;
 	}
 
 	FunctionKind
-	getFunctionKind ()
+	getFunctionKind()
 	{
 		return m_functionKind;
 	}
 
 	UnOpKind
-	getUnOpKind ()
+	getUnOpKind()
 	{
-		ASSERT (m_functionKind == FunctionKind_UnaryOperator);
+		ASSERT(m_functionKind == FunctionKind_UnaryOperator);
 		return m_unOpKind;
 	}
 
 	BinOpKind
-	getBinOpKind ()
+	getBinOpKind()
 	{
-		ASSERT (m_functionKind == FunctionKind_BinaryOperator);
+		ASSERT(m_functionKind == FunctionKind_BinaryOperator);
 		return m_binOpKind;
 	}
 
 	Type*
-	getCastOpType ()
+	getCastOpType()
 	{
-		ASSERT (m_functionKind == FunctionKind_CastOperator);
+		ASSERT(m_functionKind == FunctionKind_CastOperator);
 		return m_castOpType;
 	}
 
 	Function*
-	getAsyncLauncher ()
+	getAsyncLauncher()
 	{
-		ASSERT (m_functionKind == FunctionKind_Async);
+		ASSERT(m_functionKind == FunctionKind_Async);
 		return m_asyncLauncher;
 	}
 
 	const QualifiedName*
-	getDeclaratorName ()
+	getDeclaratorName()
 	{
 		return &m_declaratorName;
 	}
 
 	uint_t
-	getThisArgTypeFlags ()
+	getThisArgTypeFlags()
 	{
 		return m_thisArgTypeFlags;
 	}
@@ -131,7 +131,7 @@ class Function:
 protected:
 	FunctionType* m_type;
 	FunctionTypeOverload m_typeOverload;
-	sl::Array <Function*> m_overloadArray;
+	sl::Array<Function*> m_overloadArray;
 
 	// for non-static member methods
 
@@ -155,7 +155,7 @@ protected:
 
 	ExtensionNamespace* m_extensionNamespace;
 
-	sl::BoxList <Token> m_body;
+	sl::BoxList<Token> m_body;
 	UsingSet m_usingSet;
 
 	BasicBlock* m_allocaBlock;
@@ -165,273 +165,273 @@ protected:
 	llvm::Function* m_llvmFunction;
 	llvm::DISubprogram_vn m_llvmDiSubprogram;
 
-	sl::Array <TlsVariable> m_tlsVariableArray;
+	sl::Array<TlsVariable> m_tlsVariableArray;
 
 	void* m_machineCode; // native machine code
 
 public:
-	Function ();
+	Function();
 
 	FunctionType*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	FunctionTypeOverload*
-	getTypeOverload ()
+	getTypeOverload()
 	{
 		return &m_typeOverload;
 	}
 
 	bool
-	isTlsRequired ()
+	isTlsRequired()
 	{
-		return !m_tlsVariableArray.isEmpty ();
+		return !m_tlsVariableArray.isEmpty();
 	}
 
 	bool
-	isAccessor ()
+	isAccessor()
 	{
 		return m_functionKind == FunctionKind_Getter || m_functionKind == FunctionKind_Setter;
 	}
 
 	bool
-	isVoid ()
+	isVoid()
 	{
-		return m_type->getReturnType ()->getTypeKind () == TypeKind_Void;
+		return m_type->getReturnType()->getTypeKind() == TypeKind_Void;
 	}
 
 	bool
-	isMember ()
+	isMember()
 	{
 		return m_thisType != NULL;
 	}
 
 	bool
-	isVirtual ()
+	isVirtual()
 	{
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
 	ClassType*
-	getVirtualOriginClassType ()
+	getVirtualOriginClassType()
 	{
 		return m_virtualOriginClassType;
 	}
 
 	DerivableType*
-	getParentType ()
+	getParentType()
 	{
-		return m_parentNamespace->getNamespaceKind () == NamespaceKind_Type ?
-			(DerivableType*) (NamedType*) m_parentNamespace : NULL;
+		return m_parentNamespace->getNamespaceKind() == NamespaceKind_Type ?
+			(DerivableType*)(NamedType*)m_parentNamespace : NULL;
 	}
 
 	Type*
-	getThisArgType ()
+	getThisArgType()
 	{
 		return m_thisArgType;
 	}
 
 	Type*
-	getThisType ()
+	getThisType()
 	{
 		return m_thisType;
 	}
 
 	intptr_t
-	getThisArgDelta ()
+	getThisArgDelta()
 	{
 		return m_thisArgDelta;
 	}
 
 	size_t
-	getClassVTableIndex ()
+	getClassVTableIndex()
 	{
 		return m_classVTableIndex;
 	}
 
 	size_t
-	getLibraryTableIndex ()
+	getLibraryTableIndex()
 	{
 		return m_libraryTableIndex;
 	}
 
 	Property*
-	getProperty ()
+	getProperty()
 	{
 		return m_property;
 	}
 
 	void
-	convertToMemberMethod (DerivableType* parentType);
+	convertToMemberMethod(DerivableType* parentType);
 
 	bool
-	hasBody ()
+	hasBody()
 	{
-		return !m_body.isEmpty ();
+		return !m_body.isEmpty();
 	}
 
-	sl::ConstBoxList <Token>
-	getBody ()
+	sl::ConstBoxList<Token>
+	getBody()
 	{
 		return m_body;
 	}
 
 	bool
-	setBody (sl::BoxList <Token>* tokenList);
+	setBody(sl::BoxList<Token>* tokenList);
 
 	void
-	addUsingSet (UsingSet* usingSet);
+	addUsingSet(UsingSet* usingSet);
 
 	void
-	addUsingSet (Namespace* anchorNamespace);
+	addUsingSet(Namespace* anchorNamespace);
 
 	Scope*
-	getScope ()
+	getScope()
 	{
 		return m_scope;
 	}
 
 	BasicBlock*
-	getAllocaBlock ()
+	getAllocaBlock()
 	{
 		return m_allocaBlock;
 	}
 
 	BasicBlock*
-	getPrologueBlock ()
+	getPrologueBlock()
 	{
 		return m_prologueBlock;
 	}
 
 	llvm::Function*
-	getLlvmFunction ();
+	getLlvmFunction();
 
 	llvm::DISubprogram_vn
-	getLlvmDiSubprogram ();
+	getLlvmDiSubprogram();
 
 	void*
-	getMachineCode ()
+	getMachineCode()
 	{
 		return m_machineCode;
 	}
 
-	sl::Array <TlsVariable>
-	getTlsVariableArray ()
+	sl::Array<TlsVariable>
+	getTlsVariableArray()
 	{
 		return m_tlsVariableArray;
 	}
 
 	void
-	addTlsVariable (Variable* variable);
+	addTlsVariable(Variable* variable);
 
 	bool
-	isOverloaded ()
+	isOverloaded()
 	{
-		return !m_overloadArray.isEmpty ();
+		return !m_overloadArray.isEmpty();
 	}
 
 	size_t
-	getOverloadCount ()
+	getOverloadCount()
 	{
-		return m_overloadArray.getCount () + 1;
+		return m_overloadArray.getCount() + 1;
 	}
 
 	Function*
-	getOverload (size_t overloadIdx)
+	getOverload(size_t overloadIdx)
 	{
 		return
 			overloadIdx == 0 ? this :
-			overloadIdx <= m_overloadArray.getCount () ? m_overloadArray [overloadIdx - 1] : NULL;
+			overloadIdx <= m_overloadArray.getCount() ? m_overloadArray[overloadIdx - 1] : NULL;
 	}
 
 	Function*
-	findOverload (FunctionType* type)
+	findOverload(FunctionType* type)
 	{
-		size_t i = m_typeOverload.findOverload (type);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.findOverload(type);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	findShortOverload (FunctionType* type)
+	findShortOverload(FunctionType* type)
 	{
-		size_t i = m_typeOverload.findShortOverload (type);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.findShortOverload(type);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseOverload (
+	chooseOverload(
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseOverload (argArray, argCount, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseOverload(argArray, argCount, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseOverload (
+	chooseOverload(
 		const Value* argValueArray,
 		size_t argCount,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseOverload (argValueArray, argCount, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseOverload(argValueArray, argCount, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseOverload (
-		const sl::ConstBoxList <Value>& argList,
+	chooseOverload(
+		const sl::ConstBoxList<Value>& argList,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseOverload (argList, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseOverload(argList, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseSetterOverload (
+	chooseSetterOverload(
 		Type* argType,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseSetterOverload (argType, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload(argType, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseSetterOverload (
+	chooseSetterOverload(
 		const Value& argValue,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseSetterOverload (argValue, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload(argValue, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	Function*
-	chooseSetterOverload (
+	chooseSetterOverload(
 		FunctionType* functionType,
 		CastKind* castKind = NULL
 		)
 	{
-		size_t i = m_typeOverload.chooseSetterOverload (functionType, castKind);
-		return i != -1 ? getOverload (i) : NULL;
+		size_t i = m_typeOverload.chooseSetterOverload(functionType, castKind);
+		return i != -1 ? getOverload(i) : NULL;
 	}
 
 	size_t
-	addOverload (Function* function);
+	addOverload(Function* function);
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -439,13 +439,13 @@ public:
 
 protected:
 	bool
-	compileConstructorBody ();
+	compileConstructorBody();
 
 	bool
-	compileNormalBody ();
+	compileNormalBody();
 
 	bool
-	compileAsyncLauncher ();
+	compileAsyncLauncher();
 };
 
 //..............................................................................

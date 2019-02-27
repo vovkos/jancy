@@ -1,23 +1,23 @@
-uint_t parseVersion (
+uint_t parseVersion(
 	char const* p,
 	size_t length = -1
 	)
 {
 	if (length == -1)
-		length = strlen (p);
+		length = strlen(p);
 
 	char const* end;
-	uint_t version = strtol (p, &end) << 16;
+	uint_t version = strtol(p, &end) << 16;
 
 	if (end != p && *end == '.')
 	{
 		p = end + 1;
-		version |= strtol (p, &end) << 8;
+		version |= strtol(p, &end) << 8;
 
 		if (end != p && *end == '.')
 		{
 			p = end + 1;
-			version |= strtol (p, &end);
+			version |= strtol(p, &end);
 		}
 	}
 

@@ -56,7 +56,7 @@ class Scope:
 protected:
 	Function* m_function;
 	Variable* m_disposeLevelVariable;
-	sl::Array <Variable*> m_disposableVariableArray;
+	sl::Array<Variable*> m_disposableVariableArray;
 	llvm::DIScope_vn m_llvmDiScope;
 
 public:
@@ -73,50 +73,50 @@ public:
 	Variable* m_firstStackVariable; // we have to set frame map BEFORE the very first stack variable lift point
 
 public:
-	Scope ();
+	Scope();
 
 	Function*
-	getFunction ()
+	getFunction()
 	{
 		return m_function;
 	}
 
 	Scope*
-	getParentScope ()
+	getParentScope()
 	{
-		return m_parentNamespace && m_parentNamespace->getNamespaceKind () == NamespaceKind_Scope ? (Scope*) m_parentNamespace : NULL;
+		return m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope ? (Scope*)m_parentNamespace : NULL;
 	}
 
 	GcShadowStackFrameMap*
-	findGcShadowStackFrameMap ();
+	findGcShadowStackFrameMap();
 
 	Variable*
-	getDisposeLevelVariable ()
+	getDisposeLevelVariable()
 	{
 		return m_disposeLevelVariable;
 	}
 
-	sl::Array <Variable*>
-	getDisposableVariableArray ()
+	sl::Array<Variable*>
+	getDisposableVariableArray()
 	{
 		return m_disposableVariableArray;
 	}
 
 	size_t
-	addDisposableVariable (Variable* variable)
+	addDisposableVariable(Variable* variable)
 	{
-		m_disposableVariableArray.append (variable);
-		return m_disposableVariableArray.getCount ();
+		m_disposableVariableArray.append(variable);
+		return m_disposableVariableArray.getCount();
 	}
 
 	llvm::DIScope_vn
-	getLlvmDiScope ()
+	getLlvmDiScope()
 	{
 		return m_llvmDiScope;
 	}
 
 	bool
-	canStaticThrow ();
+	canStaticThrow();
 };
 
 //..............................................................................

@@ -26,24 +26,24 @@ protected:
 
 public:
 	bool
-	checkGetter (FunctionType* functionType)
+	checkGetter(FunctionType* functionType)
 	{
-		return checkIndexSignature (FunctionKind_Getter, functionType);
+		return checkIndexSignature(FunctionKind_Getter, functionType);
 	}
 
 	bool
-	checkSetter (FunctionType* functionType);
+	checkSetter(FunctionType* functionType);
 
 protected:
 	bool
-	checkIndexSignature (
+	checkIndexSignature(
 		FunctionKind functionKind,
 		FunctionType* functionType
 		);
 
 	static
 	sl::String
-	createIndexArgSignature (
+	createIndexArgSignature(
 		FunctionKind functionKind,
 		FunctionType* functionType
 		);

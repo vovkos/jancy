@@ -9,31 +9,31 @@
 //
 //..............................................................................
 
-bool errorcode scanPacket (
+bool errorcode scanPacket(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
 	)
 {
 	if (length == -1)
-		length = strlen (p);
+		length = strlen(p);
 
 	char const* end = p + length;
 
 	do
 	{
-		reswitch (state, p, end - p)
+		reswitch(state, p, end - p)
 		{
 		case r"open[ \t]*\d*[\r\n]":
-			printf ("command = open\n%s\n", state.m_match.m_text);
+			printf("command = open\n%s\n", state.m_match.m_text);
 			break;
 
 		case r"close[ \t]*\d*[\r\n]":
-			printf ("command = close\n%s\n", state.m_match.m_text);
+			printf("command = close\n%s\n", state.m_match.m_text);
 			break;
 
 		case r"connect[ \t]*\d*[\r\n]":
-			printf ("command = connect\n%s\n", state.m_match.m_text);
+			printf("command = connect\n%s\n", state.m_match.m_text);
 			break;
 
 		case r"\s+":
@@ -43,7 +43,7 @@ bool errorcode scanPacket (
 			if (!state.m_consumedLength)
 				return false;
 
-			assert (state.m_consumedLength == end - p);
+			assert(state.m_consumedLength == end - p);
 		}
 
 		p += state.m_consumedLength;
@@ -52,25 +52,25 @@ bool errorcode scanPacket (
 	return true;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	jnc.RegexState state (true); // incremental recognizer
+	jnc.RegexState state(true); // incremental recognizer
 
 	try
 	{
-		scanPacket (state, "op");
-		scanPacket (state, "en 12\ncon");
-		scanPacket (state, "nect5\r cl");
-		scanPacket (state, "ose\t7777");
+		scanPacket(state, "op");
+		scanPacket(state, "en 12\ncon");
+		scanPacket(state, "nect5\r cl");
+		scanPacket(state, "ose\t7777");
 
-		printf ("the following will fail ('close' has no [\\r\\n]\n");
+		printf("the following will fail ('close' has no [\\r\\n]\n");
 
-		scanPacket (state, null);
+		scanPacket(state, null);
 
 	catch:
-		printf ("recognition error\n");
+		printf("recognition error\n");
 		return -1;
 	}
 

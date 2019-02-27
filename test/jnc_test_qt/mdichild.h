@@ -33,12 +33,12 @@ public:
 
 	QString file();
 
-	bool isCompilationNeeded ()
+	bool isCompilationNeeded()
 	{
 		return isCompilationNeeded_;
 	}
 
-	void setCompilationNeeded (bool isNeeded = true)
+	void setCompilationNeeded(bool isNeeded = true)
 	{
 		isCompilationNeeded_ = isNeeded;
 	}
@@ -78,11 +78,11 @@ private:
 class LineNumberMargin : public QWidget
 {
 public:
-	LineNumberMargin(MdiChild *editor) : QWidget (editor)
+	LineNumberMargin(MdiChild *editor) : QWidget(editor)
 		{ this->editor = editor; }
 
 	QSize sizeHint() const
-		{ return QSize (editor->lineNumberMarginWidth, 0); }
+		{ return QSize(editor->lineNumberMarginWidth, 0); }
 
 protected:
 	void paintEvent(QPaintEvent *e)

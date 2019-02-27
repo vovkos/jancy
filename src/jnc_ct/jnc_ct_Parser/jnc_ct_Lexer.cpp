@@ -20,9 +20,9 @@ namespace ct {
 
 inline
 bool
-isByteStringSep (uchar_t c)
+isByteStringSep(uchar_t c)
 {
-	switch (c)
+	switch(c)
 	{
 	case ' ': case '\t': case '\r': case '\n':
 	case '.': case ',': case ';': case ':':
@@ -34,13 +34,13 @@ isByteStringSep (uchar_t c)
 }
 
 size_t
-decodeByteString (
-	sl::Array <char>* buffer,
+decodeByteString(
+	sl::Array<char>* buffer,
 	int radix, // must be 2, 8, 10 or 16
 	const sl::StringRef& string
 	)
 {
-	ASSERT (radix == 2 || radix == 8 || radix == 10 || radix == 16);
+	ASSERT(radix == 2 || radix == 8 || radix == 10 || radix == 16);
 
 	enum State
 	{
@@ -50,10 +50,10 @@ decodeByteString (
 
 	State state = State_Sep;
 
-	buffer->clear ();
-	buffer->reserve (string.getLength () / 2); // good estimate no matter the radix
+	buffer->clear();
+	buffer->reserve(string.getLength() / 2); // good estimate no matter the radix
 
-	char byteBuffer [16] = { 0 }; // big enough to fit byte in any radix
+	char byteBuffer[16] = { 0 }; // big enough to fit byte in any radix
 	char* byteEnd;
 	size_t byteLength;
 
@@ -61,20 +61,20 @@ decodeByteString (
 
 	uchar_t x;
 
-	const char* p = string.cp ();
-	const char* end = string.getEnd ();
+	const char* p = string.cp();
+	const char* end = string.getEnd();
 	for (; p < end; p++)
 	{
 		uchar_t c = *p;
-		bool_t isSep = isByteStringSep (c);
+		bool_t isSep = isByteStringSep(c);
 
-		switch (state)
+		switch(state)
 		{
 		case State_Sep:
 			if (isSep)
 				break;
 
-			byteBuffer [0] = c;
+			byteBuffer[0] = c;
 			byteLength = 1;
 			state = State_Byte;
 			break;
@@ -82,16 +82,16 @@ decodeByteString (
 		case State_Byte:
 			if (!isSep)
 			{
-				byteBuffer [byteLength++] = c;
+				byteBuffer[byteLength++] = c;
 				if (byteLength < maxByteLength)
 					break;
 			}
 
-			byteBuffer [byteLength] = 0;
-			x = (uchar_t) strtoul (byteBuffer, &byteEnd, radix);
+			byteBuffer[byteLength] = 0;
+			x = (uchar_t)strtoul(byteBuffer, &byteEnd, radix);
 
-			if (byteEnd == &byteBuffer [byteLength])
-				buffer->append (x);
+			if (byteEnd == &byteBuffer[byteLength])
+				buffer->append(x);
 			else
 				p = end; // not a proper byte string anymore, break the loop
 
@@ -102,19 +102,19 @@ decodeByteString (
 
 	if (state == State_Byte)
 	{
-		byteBuffer [byteLength] = 0;
-		x = (uchar_t) strtoul (byteBuffer, &byteEnd, radix);
+		byteBuffer[byteLength] = 0;
+		x = (uchar_t)strtoul(byteBuffer, &byteEnd, radix);
 
-		if (byteEnd == &byteBuffer [byteLength])
-			buffer->append (x);
+		if (byteEnd == &byteBuffer[byteLength])
+			buffer->append(x);
 	}
 
-	return buffer->getCount ();
+	return buffer->getCount();
 }
 
 //..............................................................................
 
-Lexer::Lexer ()
+Lexer::Lexer()
 {
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
@@ -122,81 +122,81 @@ Lexer::Lexer ()
 }
 
 Token*
-Lexer::createKeywordTokenEx (
+Lexer::createKeywordTokenEx(
 	int tokenKind,
 	int param
 	)
 {
-	Token* token = createToken (tokenKind);
+	Token* token = createToken(tokenKind);
 	token->m_data.m_integer = param;
 	return token;
 }
 
 Token*
-Lexer::createStringToken (
+Lexer::createStringToken(
 	int tokenKind,
 	size_t left,
 	size_t right,
 	bool useEscapeEncoding
 	)
 {
-	Token* token = createToken (tokenKind);
-	ASSERT (token->m_pos.m_length >= left + right);
+	Token* token = createToken(tokenKind);
+	ASSERT(token->m_pos.m_length >= left + right);
 
 	size_t length = token->m_pos.m_length - (left + right);
 	if (useEscapeEncoding)
-		token->m_data.m_string = enc::EscapeEncoding::decode (sl::StringRef (ts + left, length));
+		token->m_data.m_string = enc::EscapeEncoding::decode(sl::StringRef(ts + left, length));
 	else
-		token->m_data.m_string = sl::StringRef (ts + left, length);
+		token->m_data.m_string = sl::StringRef(ts + left, length);
 
 	return token;
 }
 
 Token*
-Lexer::createSourceFileToken ()
+Lexer::createSourceFileToken()
 {
-	Token* token = createToken (TokenKind_Literal);
+	Token* token = createToken(TokenKind_Literal);
 	token->m_data.m_string = m_filePath;
 	return token;
 }
 
 Token*
-Lexer::createSourceDirToken ()
+Lexer::createSourceDirToken()
 {
-	if (m_dir.isEmpty ())
-		m_dir = m_filePath.isEmpty () ?
-			io::getCurrentDir () :
-			io::getDir (m_filePath);
+	if (m_dir.isEmpty())
+		m_dir = m_filePath.isEmpty() ?
+			io::getCurrentDir() :
+			io::getDir(m_filePath);
 
-	Token* token = createToken (TokenKind_Literal);
+	Token* token = createToken(TokenKind_Literal);
 	token->m_data.m_string = m_dir;
 	return token;
 }
 
 Token*
-Lexer::createBinLiteralToken (int radix)
+Lexer::createBinLiteralToken(int radix)
 {
-	Token* token = createToken (TokenKind_BinLiteral);
-	ASSERT (token->m_pos.m_length >= 4);
-	decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (ts + 3, token->m_pos.m_length - 4));
+	Token* token = createToken(TokenKind_BinLiteral);
+	ASSERT(token->m_pos.m_length >= 4);
+	decodeByteString(&token->m_data.m_binData, radix, sl::StringRef(ts + 3, token->m_pos.m_length - 4));
 	return token;
 }
 
 Token*
-Lexer::createCharToken (
+Lexer::createCharToken(
 	int tokenKind,
 	size_t left,
 	size_t right,
 	bool useEscapeEncoding
 	)
 {
-	Token* token = createToken (tokenKind);
-	ASSERT (token->m_pos.m_length >= 2);
+	Token* token = createToken(tokenKind);
+	ASSERT(token->m_pos.m_length >= 2);
 
 	size_t length = token->m_pos.m_length - (left + right);
 
-	char buffer [256];
-	sl::String string (ref::BufKind_Stack, buffer, sizeof (buffer));
+	char buffer[256];
+	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
 
 	const char* p;
 
@@ -206,13 +206,13 @@ Lexer::createCharToken (
 	}
 	else
 	{
-		enc::EscapeEncoding::decode (&string, sl::StringRef (ts + left, length));
+		enc::EscapeEncoding::decode(&string, sl::StringRef(ts + left, length));
 		p = string;
-		length = string.getLength ();
+		length = string.getLength();
 	}
 
-	if (length > sizeof (int))
-		length = sizeof (int);
+	if (length > sizeof(int))
+		length = sizeof(int);
 
 	int result = 0;
 	int shift = 8 * (length - 1);
@@ -226,28 +226,28 @@ Lexer::createCharToken (
 }
 
 Token*
-Lexer::createIntegerToken (
+Lexer::createIntegerToken(
 	int radix,
 	size_t left
 	)
 {
-	Token* token = createToken (TokenKind_Integer);
-	token->m_data.m_int64_u = _strtoui64 (ts + left, NULL, radix);
+	Token* token = createToken(TokenKind_Integer);
+	token->m_data.m_int64_u = _strtoui64(ts + left, NULL, radix);
 	return token;
 }
 
 Token*
-Lexer::createFpToken ()
+Lexer::createFpToken()
 {
-	Token* token = createToken (TokenKind_Fp);
-	token->m_data.m_double = strtod (ts, NULL);
+	Token* token = createToken(TokenKind_Fp);
+	token->m_data.m_double = strtod(ts, NULL);
 	return token;
 }
 
 Token*
-Lexer::createConstIntegerToken (int value)
+Lexer::createConstIntegerToken(int value)
 {
-	Token* token = createToken (TokenKind_Integer);
+	Token* token = createToken(TokenKind_Integer);
 	token->m_data.m_integer = value;
 	return token;
 }
@@ -255,19 +255,19 @@ Lexer::createConstIntegerToken (int value)
 // multi-line literals
 
 Token*
-Lexer::preCreateMlLiteralToken (int radix)
+Lexer::preCreateMlLiteralToken(int radix)
 {
-	ASSERT (!m_mlLiteralToken);
-	m_mlLiteralToken = preCreateToken (0);
+	ASSERT(!m_mlLiteralToken);
+	m_mlLiteralToken = preCreateToken(0);
 	m_mlBinLiteralTokenRadix = radix;
 	return m_mlLiteralToken;
 }
 
 size_t
-getWsPrefixLength (const sl::StringRef& string)
+getWsPrefixLength(const sl::StringRef& string)
 {
-	const char* p = string.cp ();
-	const char* end = string.getEnd ();
+	const char* p = string.cp();
+	const char* end = string.getEnd();
 	const char* p0 = p;
 
 	for (; p < end; p++)
@@ -281,47 +281,47 @@ getWsPrefixLength (const sl::StringRef& string)
 }
 
 bool
-normalizeMlLiteral (
+normalizeMlLiteral(
 	sl::String* string,
 	const sl::StringRef& source,
 	const sl::StringRef& prefix
 	)
 {
-	size_t prefixLength = prefix.getLength ();
-	ASSERT (source.getLength () >= prefixLength);
+	size_t prefixLength = prefix.getLength();
+	ASSERT(source.getLength() >= prefixLength);
 
-	string->clear ();
+	string->clear();
 
-	const char* p = source.cp ();
-	const char* end = source.getEnd ();
+	const char* p = source.cp();
+	const char* end = source.getEnd();
 	while (p < end)
 	{
 		size_t chunkLength = end - p;
-		ASSERT (chunkLength > prefixLength);
+		ASSERT(chunkLength > prefixLength);
 
-		size_t linePrefixLength = getWsPrefixLength (sl::StringRef (p, chunkLength));
+		size_t linePrefixLength = getWsPrefixLength(sl::StringRef(p, chunkLength));
 
-		bool isEmpty = p [linePrefixLength] == '\n';
+		bool isEmpty = p[linePrefixLength] == '\n';
 		if (isEmpty)
 		{
-			if (linePrefixLength && p [linePrefixLength - 1] == '\r')
-				string->append ("\r\n", 2);
+			if (linePrefixLength && p[linePrefixLength - 1] == '\r')
+				string->append("\r\n", 2);
 			else
-				string->append ('\n');
+				string->append('\n');
 
 			p += linePrefixLength + 1;
 		}
 		else
 		{
-			if (linePrefixLength < prefixLength || memcmp (p, prefix.cp (), prefixLength) != 0)
+			if (linePrefixLength < prefixLength || memcmp(p, prefix.cp(), prefixLength) != 0)
 				return false;
 
 			p += prefixLength;
 
-			const char* nl = strchr (p, '\n');
-			ASSERT (nl);
+			const char* nl = strchr(p, '\n');
+			ASSERT(nl);
 
-			string->append (p, nl - p + 1);
+			string->append(p, nl - p + 1);
 			p = nl + 1;
 		}
 	}
@@ -330,9 +330,9 @@ normalizeMlLiteral (
 }
 
 Token*
-Lexer::createMlLiteralToken ()
+Lexer::createMlLiteralToken()
 {
-	ASSERT (m_mlLiteralToken);
+	ASSERT(m_mlLiteralToken);
 	Token* token = m_mlLiteralToken;
 	int radix = m_mlBinLiteralTokenRadix;
 
@@ -343,7 +343,7 @@ Lexer::createMlLiteralToken ()
 	size_t right = te - ts;
 
 	token->m_pos.m_length = te - token->m_pos.m_p;
-	ASSERT (token->m_pos.m_length >= left + right);
+	ASSERT(token->m_pos.m_length >= left + right);
 
 	const char* p = token->m_pos.m_p + left;
 	size_t length = token->m_pos.m_length - (left + right);
@@ -351,17 +351,17 @@ Lexer::createMlLiteralToken ()
 	if (radix)
 	{
 		token->m_token = TokenKind_BinLiteral;
-		decodeByteString (&token->m_data.m_binData, radix, sl::StringRef (p, length));
+		decodeByteString(&token->m_data.m_binData, radix, sl::StringRef(p, length));
 	}
 	else
 	{
 		token->m_token = TokenKind_Literal;
-		token->m_data.m_string = sl::StringRef (p, length);
+		token->m_data.m_string = sl::StringRef(p, length);
 
-		if (right > 3 && ts [-1] == '\n')
+		if (right > 3 && ts[-1] == '\n')
 		{
 			sl::String normalizedString;
-			bool hasCommonPrefix = normalizeMlLiteral (&normalizedString, sl::StringRef (p, length), sl::StringRef (ts, right - 3));
+			bool hasCommonPrefix = normalizeMlLiteral(&normalizedString, sl::StringRef(p, length), sl::StringRef(ts, right - 3));
 			if (hasCommonPrefix)
 				token->m_data.m_string = normalizedString;
 		}
@@ -373,20 +373,20 @@ Lexer::createMlLiteralToken ()
 // formatting literals
 
 Token*
-Lexer::preCreateFmtLiteralToken ()
+Lexer::preCreateFmtLiteralToken()
 {
-	ASSERT (!m_fmtLiteralToken);
-	m_fmtLiteralToken = preCreateToken (0);
+	ASSERT(!m_fmtLiteralToken);
+	m_fmtLiteralToken = preCreateToken(0);
 	return m_fmtLiteralToken;
 }
 
 Token*
-Lexer::createFmtLiteralToken (
+Lexer::createFmtLiteralToken(
 	int tokenKind,
 	int param
 	)
 {
-	ASSERT (m_fmtLiteralToken);
+	ASSERT(m_fmtLiteralToken);
 	Token* token = m_fmtLiteralToken;
 	m_fmtLiteralToken = NULL;
 
@@ -394,10 +394,10 @@ Lexer::createFmtLiteralToken (
 	size_t right = te - ts;
 
 	token->m_pos.m_length = te - token->m_pos.m_p;
-	ASSERT (token->m_pos.m_length >= left + right);
+	ASSERT(token->m_pos.m_length >= left + right);
 
 	token->m_token = tokenKind;
-	token->m_data.m_string = enc::EscapeEncoding::decode (sl::StringRef (
+	token->m_data.m_string = enc::EscapeEncoding::decode(sl::StringRef(
 		token->m_pos.m_p + left,
 		token->m_pos.m_length - (left + right)
 		));
@@ -406,149 +406,149 @@ Lexer::createFmtLiteralToken (
 }
 
 void
-Lexer::createFmtSimpleIdentifierTokens ()
+Lexer::createFmtSimpleIdentifierTokens()
 {
-	createFmtLiteralToken (TokenKind_FmtLiteral, false);
+	createFmtLiteralToken(TokenKind_FmtLiteral, false);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	createStringToken (TokenKind_Identifier, 1, 0);
+	createStringToken(TokenKind_Identifier, 1, 0);
 
 	m_tokenizeLimit = prevTokenizeLimit;
 
-	preCreateFmtLiteralToken ();
+	preCreateFmtLiteralToken();
 }
 
 void
-Lexer::createFmtLastErrorDescriptionTokens ()
+Lexer::createFmtLastErrorDescriptionTokens()
 {
-	createFmtLiteralToken (TokenKind_FmtLiteral, false);
+	createFmtLiteralToken(TokenKind_FmtLiteral, false);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	Token* token = createToken (TokenKind_Identifier);
+	Token* token = createToken(TokenKind_Identifier);
 	token->m_data.m_string = "std";
-	createToken ('.');
-	token = createToken (TokenKind_Identifier);
+	createToken('.');
+	token = createToken(TokenKind_Identifier);
 	token->m_data.m_string = "getLastError";
-	createToken ('(');
-	createToken (')');
-	createToken ('.');
-	token = createToken (TokenKind_Identifier);
+	createToken('(');
+	createToken(')');
+	createToken('.');
+	token = createToken(TokenKind_Identifier);
 	token->m_data.m_string = "m_description";
 
 	m_tokenizeLimit = prevTokenizeLimit;
 
-	preCreateFmtLiteralToken ();
+	preCreateFmtLiteralToken();
 }
 
 void
-Lexer::createFmtIndexTokens ()
+Lexer::createFmtIndexTokens()
 {
-	createFmtLiteralToken (TokenKind_FmtLiteral, true);
+	createFmtLiteralToken(TokenKind_FmtLiteral, true);
 
 	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
 
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	createIntegerToken (10, 1);
+	createIntegerToken(10, 1);
 
 	m_tokenizeLimit = prevTokenizeLimit;
 
-	preCreateFmtLiteralToken ();
+	preCreateFmtLiteralToken();
 }
 
 Token*
-Lexer::createFmtSpecifierToken ()
+Lexer::createFmtSpecifierToken()
 {
-	ASSERT (*ts == ';');
+	ASSERT(*ts == ';');
 	ts++;
 
 	while (ts < te && (*ts == ' ' || *ts == '\t'))
 		ts++;
 
-	return ts < te ? createStringToken (TokenKind_FmtSpecifier) : NULL;
+	return ts < te ? createStringToken(TokenKind_FmtSpecifier) : NULL;
 }
 
 Token*
-Lexer::createDoxyCommentToken (TokenKind tokenKind)
+Lexer::createDoxyCommentToken(TokenKind tokenKind)
 {
-	ASSERT (te - ts >= 3 && *ts == '/');
+	ASSERT(te - ts >= 3 && *ts == '/');
 
 	size_t right = 0;
 
 	if (tokenKind >= TokenKind_DoxyComment3) // multiline c-style: /** or /*!
 	{
-		ASSERT (ts [1] == '*' && te [-1] == '/' && te [-2] == '*');
+		ASSERT(ts[1] == '*' && te[-1] == '/' && te[-2] == '*');
 		right = 2;
 	}
 
-	Token* token = createStringToken (tokenKind, 3, right);
+	Token* token = createStringToken(tokenKind, 3, right);
 	token->m_channelMask = TokenChannelMask_DoxyComment;
 	return token;
 }
 
 void
-Lexer::onLeftParentheses ()
+Lexer::onLeftParentheses()
 {
-	if (!m_parenthesesLevelStack.isEmpty ())
-		m_parenthesesLevelStack [m_parenthesesLevelStack.getCount () - 1]++;
+	if (!m_parenthesesLevelStack.isEmpty())
+		m_parenthesesLevelStack[m_parenthesesLevelStack.getCount() - 1]++;
 
-	createToken ('(');
+	createToken('(');
 }
 
 bool
-Lexer::onRightParentheses ()
+Lexer::onRightParentheses()
 {
-	if (!m_parenthesesLevelStack.isEmpty ())
+	if (!m_parenthesesLevelStack.isEmpty())
 	{
-		size_t i = m_parenthesesLevelStack.getCount () - 1;
-		if (m_parenthesesLevelStack [i] == 1)
+		size_t i = m_parenthesesLevelStack.getCount() - 1;
+		if (m_parenthesesLevelStack[i] == 1)
 		{
-			m_parenthesesLevelStack.pop ();
-			preCreateFmtLiteralToken ();
+			m_parenthesesLevelStack.pop();
+			preCreateFmtLiteralToken();
 			return false;
 		}
 
-		m_parenthesesLevelStack [i]--;
+		m_parenthesesLevelStack[i]--;
 	}
 
-	createToken (')');
+	createToken(')');
 	return true;
 }
 
 bool
-Lexer::onSemicolon ()
+Lexer::onSemicolon()
 {
-	ASSERT (*ts == ';');
+	ASSERT(*ts == ';');
 
-	if (!m_parenthesesLevelStack.isEmpty ())
+	if (!m_parenthesesLevelStack.isEmpty())
 	{
-		size_t i = m_parenthesesLevelStack.getCount () - 1;
-		if (m_parenthesesLevelStack [i] == 1)
+		size_t i = m_parenthesesLevelStack.getCount() - 1;
+		if (m_parenthesesLevelStack[i] == 1)
 		{
 			p = ts - 1; // need to reparse semicolon with 'fmt_spec' machine
 			return false;
 		}
 	}
 
-	createToken (';');
+	createToken(';');
 	return true;
 }
 
 void
-Lexer::terminateFmtSpecifier ()
+Lexer::terminateFmtSpecifier()
 {
-	ASSERT (!m_parenthesesLevelStack.isEmpty () && m_fmtLiteralToken == NULL);
-	m_parenthesesLevelStack.pop ();
-	preCreateFmtLiteralToken ();
+	ASSERT(!m_parenthesesLevelStack.isEmpty() && m_fmtLiteralToken == NULL);
+	m_parenthesesLevelStack.pop();
+	preCreateFmtLiteralToken();
 }
 
 //..............................................................................

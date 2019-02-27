@@ -28,21 +28,21 @@ protected:
 	void thin* m_gcShadowStackFrame;
 
 public:
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	intptr errorcode wait (function* handler ());
-	intptr errorcode wait (function* handler (std.Error const* error));
+	intptr errorcode wait(function* handler());
+	intptr errorcode wait(function* handler(std.Error const* error));
 
-	intptr errorcode wait (function* handler (
+	intptr errorcode wait(function* handler(
 		variant result,
 		std.Error const* error
 		));
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	variant blockingWait ();
-	variant async asyncWait ();
+	variant blockingWait();
+	variant async asyncWait();
 }
 
 ///;
@@ -55,10 +55,10 @@ class Promisifier: Promise
 {
 	// pass those as completion routines
 
-	void complete ();
-	void complete (std.Error const* error);
+	void complete();
+	void complete(std.Error const* error);
 
-	void complete (
+	void complete(
 		variant result,
 		std.Error const* error
 		);

@@ -19,7 +19,7 @@ namespace sys {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	Event,
 	"sys.Event",
 	g_sysLibGuid,
@@ -28,28 +28,28 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Event)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <Event>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <Event>)
-	JNC_MAP_FUNCTION ("signal", &Event::signal)
-	JNC_MAP_FUNCTION ("reset", &Event::reset)
-	JNC_MAP_FUNCTION ("wait", &Event::wait)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Event)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<Event>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<Event>)
+	JNC_MAP_FUNCTION("signal", &Event::signal)
+	JNC_MAP_FUNCTION("reset", &Event::reset)
+	JNC_MAP_FUNCTION("wait", &Event::wait)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 bool
 JNC_CDECL
-Event::wait (uint_t timeout)
+Event::wait(uint_t timeout)
 {
 	bool result;
 
-	GcHeap* gcHeap = getCurrentThreadGcHeap ();
-	ASSERT (gcHeap);
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
 
-	gcHeap->enterWaitRegion ();
-	result = m_event.wait (timeout);
-	gcHeap->leaveWaitRegion ();
+	gcHeap->enterWaitRegion();
+	result = m_event.wait(timeout);
+	gcHeap->leaveWaitRegion();
 
 	return result;
 }

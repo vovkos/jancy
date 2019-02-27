@@ -20,81 +20,81 @@ class QualifiedName
 {
 protected:
 	sl::String m_first;
-	sl::BoxList <sl::String> m_list;
+	sl::BoxList<sl::String> m_list;
 
 public:
-	QualifiedName ()
+	QualifiedName()
 	{
 	}
 
-	QualifiedName (const sl::StringRef& name)
+	QualifiedName(const sl::StringRef& name)
 	{
 		m_first = name;
 	}
 
-	QualifiedName (const QualifiedName& name)
+	QualifiedName(const QualifiedName& name)
 	{
-		copy (name);
+		copy(name);
 	}
 
 	QualifiedName&
 	operator = (const QualifiedName& name)
 	{
-		copy (name);
+		copy(name);
 		return *this;
 	}
 
 	void
-	clear ()
+	clear()
 	{
-		m_first.clear ();
-		m_list.clear ();
+		m_first.clear();
+		m_list.clear();
 	}
 
 	void
-	parse (const sl::StringRef& name);
+	parse(const sl::StringRef& name);
 
 	void
-	addName (const sl::StringRef& name);
+	addName(const sl::StringRef& name);
 
 	sl::String
-	removeLastName ();
+	removeLastName();
 
 	bool
-	isEmpty () const
+	isEmpty() const
 	{
-		return m_first.isEmpty ();
+		return m_first.isEmpty();
 	}
 
 	bool
-	isSimple () const
+	isSimple() const
 	{
-		return m_list.isEmpty ();
+		return m_list.isEmpty();
 	}
 
 	const sl::String&
-	getFirstName () const
+	getFirstName() const
 	{
 		return m_first;
 	}
 
-	sl::ConstBoxList <sl::String>
-	getNameList () const
+	sl::ConstBoxList<sl::String>
+	getNameList() const
 	{
 		return m_list;
 	}
 
 	const sl::String&
-	getShortName () const
+	getShortName() const
 	{
-		return !m_list.isEmpty () ? *m_list.getTail () : m_first;
+		return !m_list.isEmpty() ? *m_list.getTail() : m_first;
 	}
 
 	sl::String
-	getFullName () const;
+	getFullName() const;
 
 	void
-	copy (const QualifiedName& name);
+	copy(const QualifiedName& name);
 };
 
 //..............................................................................

@@ -23,44 +23,44 @@ struct LlvmIrInsertPoint
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::Instruction* m_llvmInstruction;
 
-	LlvmIrInsertPoint ()
+	LlvmIrInsertPoint()
 	{
-		clear ();
+		clear();
 	}
 
-	LlvmIrInsertPoint (
+	LlvmIrInsertPoint(
 		llvm::BasicBlock* llvmBlock,
 		llvm::Instruction* llvmInstruction = NULL
 		)
 	{
-		setup (llvmBlock, llvmInstruction);
+		setup(llvmBlock, llvmInstruction);
 	}
 
-	operator bool () const
+	operator bool() const
 	{
-		return !isEmpty ();
+		return !isEmpty();
 	}
 
 	bool
 	operator == (const LlvmIrInsertPoint& insertPoint) const
 	{
-		return isEqual (insertPoint);
+		return isEqual(insertPoint);
 	}
 
 	bool
 	operator != (const LlvmIrInsertPoint& insertPoint) const
 	{
-		return !isEqual (insertPoint);
+		return !isEqual(insertPoint);
 	}
 
 	bool
-	isEmpty () const
+	isEmpty() const
 	{
 		return m_llvmBlock == NULL;
 	}
 
 	bool
-	isEqual (const LlvmIrInsertPoint& insertPoint) const
+	isEqual(const LlvmIrInsertPoint& insertPoint) const
 	{
 		return
 			m_llvmBlock == insertPoint.m_llvmBlock &&
@@ -68,13 +68,13 @@ struct LlvmIrInsertPoint
 	}
 
 	void
-	clear ()
+	clear()
 	{
-		setup (NULL, NULL);
+		setup(NULL, NULL);
 	}
 
 	void
-	setup (
+	setup(
 		llvm::BasicBlock* llvmBlock,
 		llvm::Instruction* llvmInstruction
 		)

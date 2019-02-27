@@ -18,60 +18,60 @@ namespace ct {
 
 //..............................................................................
 
-ConstMgr::ConstMgr ()
+ConstMgr::ConstMgr()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 }
 
 void
-ConstMgr::clear ()
+ConstMgr::clear()
 {
-	m_valueList.clear ();
-	m_constList.clear ();
-	m_constDataPtrValidatorList.clear ();
+	m_valueList.clear();
+	m_constList.clear();
+	m_constDataPtrValidatorList.clear();
 }
 
 Const*
-ConstMgr::createConst (
+ConstMgr::createConst(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	const Value& value
 	)
 {
-	Const* cnst = AXL_MEM_NEW (Const);
+	Const* cnst = AXL_MEM_NEW(Const);
 	cnst->m_name = name;
 	cnst->m_qualifiedName = qualifiedName;
 	cnst->m_tag = qualifiedName;
 	cnst->m_value = value;
-	m_constList.insertTail (cnst);
+	m_constList.insertTail(cnst);
 
 	return cnst;
 }
 
 const Value&
-ConstMgr::saveLiteral (const sl::StringRef& string)
+ConstMgr::saveLiteral(const sl::StringRef& string)
 {
 	Value value;
-	value.setCharArray (string, m_module);
-	return saveValue (value);
+	value.setCharArray(string, m_module);
+	return saveValue(value);
 }
 
 DataPtrValidator*
-ConstMgr::createConstDataPtrValidator (
+ConstMgr::createConstDataPtrValidator(
 	const void* p,
 	Type* type
 	)
 {
-	ConstDataPtrValidatorEntry* entry = AXL_MEM_NEW (ConstDataPtrValidatorEntry);
+	ConstDataPtrValidatorEntry* entry = AXL_MEM_NEW(ConstDataPtrValidatorEntry);
 	entry->m_box.m_box.m_flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
 	entry->m_box.m_box.m_type = type;
-	entry->m_box.m_p = (void*) p;
+	entry->m_box.m_p = (void*)p;
 	entry->m_validator.m_validatorBox = &entry->m_box.m_box;
 	entry->m_validator.m_targetBox = &entry->m_box.m_box;
 	entry->m_validator.m_rangeBegin = p;
-	entry->m_validator.m_rangeEnd = (char*) p + type->getSize ();
-	m_constDataPtrValidatorList.insertTail (entry);
+	entry->m_validator.m_rangeEnd = (char*)p + type->getSize();
+	m_constDataPtrValidatorList.insertTail(entry);
 
 	return &entry->m_validator;
 }

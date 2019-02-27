@@ -52,9 +52,9 @@ namespace io {
 			io.SocketAddressResolver m_resolver;
 			uint_t m_syncId;
 
-			resolve (char const* hostName);
+			resolve(char const* hostName);
 
-			onResolverEvent (
+			onResolverEvent(
 				uint_t syncId,
 				`io.SocketAddress` const* addressTable,
 				size_t addressCount,
@@ -62,9 +62,9 @@ namespace io {
 				);
 		}
 
-		MyDialog.resolve (char const* hostName)
+		MyDialog.resolve(char const* hostName)
 		{
-			bool result = try m_resolver.resolve (
+			bool result = try m_resolver.resolve(
 				hostName,
 				onResolveCompleted ~(++m_syncId) @ g_mainThreadScheduler
 				);
@@ -75,7 +75,7 @@ namespace io {
 			}
 		}
 
-		MyDialog.onResolveCompleted (
+		MyDialog.onResolveCompleted(
 			uint_t syncId,
 			`io.SocketAddress` const* addressTable,
 			size_t addressCount,
@@ -112,14 +112,14 @@ namespace io {
 
 opaque class SocketAddressResolver
 {
-	typedef CompletionFunc (
+	typedef CompletionFunc(
 		SocketAddress const* addressTable,
 		size_t addressCount,
 		std.Error const* error
 		);
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Starts a new resolve request, bumps ``m_syncId`` and assigns it to the
@@ -130,18 +130,18 @@ opaque class SocketAddressResolver
 		returns ``false`` [#f1]_.
 	*/
 
-	uintptr_t errorcode resolve (
+	uintptr_t errorcode resolve(
 		char const* name,
 		AddressFamily family,
 		CompletionFunc* completionFunc
 		);
 
-	uintptr_t errorcode resolve (
+	uintptr_t errorcode resolve(
 		char const* name,
 		CompletionFunc* completionFunc
 		)
 	{
-		return resolve (name, AddressFamily.Undefined, completionFunc);
+		return resolve(name, AddressFamily.Undefined, completionFunc);
 	}
 
 	/**
@@ -149,7 +149,7 @@ opaque class SocketAddressResolver
 		nothing is ``syncId`` request is not found.
 	*/
 
-	bool cancel (uintptr_t id);
+	bool cancel(uintptr_t id);
 
 	/**
 		Cancels all on-going resolve requests.
@@ -158,7 +158,7 @@ opaque class SocketAddressResolver
 		timely invokation of ``cancelAll`` [#f2]_.
 	*/
 
-	void cancelAll ();
+	void cancelAll();
 
 	/**
 		Effectively makes ``io.SocketAddressResolver`` a *disposable* class

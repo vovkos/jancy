@@ -43,174 +43,174 @@ protected:
 	StructType* m_ifaceStructType;
 	StructType* m_classStructType;
 
-	sl::Array <BaseTypeSlot*> m_baseTypePrimeArray;
-	sl::Array <StructField*> m_classMemberFieldArray;
+	sl::Array<BaseTypeSlot*> m_baseTypePrimeArray;
+	sl::Array<StructField*> m_classMemberFieldArray;
 
 	MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
 
-	sl::Array <Function*> m_virtualMethodArray;
-	sl::Array <Function*> m_overrideMethodArray;
-	sl::Array <Property*> m_virtualPropertyArray;
+	sl::Array<Function*> m_virtualMethodArray;
+	sl::Array<Function*> m_overrideMethodArray;
+	sl::Array<Property*> m_virtualPropertyArray;
 
-	sl::Array <Function*> m_vtable;
+	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
 
 	ClassPtrTypeTuple* m_classPtrTypeTuple;
 
 public:
-	ClassType ();
+	ClassType();
 
 	ClassTypeKind
-	getClassTypeKind ()
+	getClassTypeKind()
 	{
 		return m_classTypeKind;
 	}
 
 	StructType*
-	getIfaceStructType ()
+	getIfaceStructType()
 	{
-		ASSERT (m_ifaceStructType);
+		ASSERT(m_ifaceStructType);
 		return m_ifaceStructType;
 	}
 
 	StructType*
-	getClassStructType ()
+	getClassStructType()
 	{
-		ASSERT (m_classStructType);
+		ASSERT(m_classStructType);
 		return m_classStructType;
 	}
 
 	ClassPtrType*
-	getClassPtrType (
+	getClassPtrType(
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
 
 	ClassPtrType*
-	getClassPtrType (
+	getClassPtrType(
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getClassPtrType (TypeKind_ClassPtr, ptrTypeKind, flags);
+		return getClassPtrType(TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
 	virtual
 	Type*
-	getThisArgType (uint_t ptrTypeFlags)
+	getThisArgType(uint_t ptrTypeFlags)
 	{
-		return (Type*) getClassPtrType (ClassPtrTypeKind_Normal, ptrTypeFlags);
+		return (Type*)getClassPtrType(ClassPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
 	MarkOpaqueGcRootsFunc*
-	getMarkOpaqueGcRootsFunc ()
+	getMarkOpaqueGcRootsFunc()
 	{
 		return m_markOpaqueGcRootsFunc;
 	}
 
 	virtual
 	bool
-	addMethod (Function* function);
+	addMethod(Function* function);
 
 	virtual
 	bool
-	addProperty (Property* prop);
+	addProperty(Property* prop);
 
 	bool
-	hasVTable ()
+	hasVTable()
 	{
-		return !m_vtable.isEmpty ();
+		return !m_vtable.isEmpty();
 	}
 
-	sl::Array <BaseTypeSlot*>
-	getBaseTypePrimeArray ()
+	sl::Array<BaseTypeSlot*>
+	getBaseTypePrimeArray()
 	{
 		return m_baseTypePrimeArray;
 	}
 
-	sl::Array <StructField*>
-	getClassMemberFieldArray ()
+	sl::Array<StructField*>
+	getClassMemberFieldArray()
 	{
 		return m_classMemberFieldArray;
 	}
 
-	sl::Array <Function*>
-	getVirtualMethodArray ()
+	sl::Array<Function*>
+	getVirtualMethodArray()
 	{
 		return m_virtualMethodArray;
 	}
 
-	sl::Array <Property*>
-	getVirtualPropertyArray ()
+	sl::Array<Property*>
+	getVirtualPropertyArray()
 	{
 		return m_virtualPropertyArray;
 	}
 
 	StructType*
-	getVTableStructType ();
+	getVTableStructType();
 
 	Variable*
-	getVTableVariable ()
+	getVTableVariable()
 	{
 		return m_vtableVariable;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
 
 protected:
 	void
-	markGcRootsImpl (
+	markGcRootsImpl(
 		IfaceHdr* iface,
 		rt::GcHeap* gcHeap
 		);
 
 	virtual
 	StructField*
-	createFieldImpl (
+	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		m_llvmType = getClassStructType ()->getLlvmType ();
+		m_llvmType = getClassStructType()->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ()
+	prepareLlvmDiType()
 	{
-		m_llvmDiType = getClassStructType ()->getLlvmDiType ();
+		m_llvmDiType = getClassStructType()->getLlvmDiType();
 	}
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 
 	void
-	addVirtualFunction (Function* function);
+	addVirtualFunction(Function* function);
 
 	bool
-	overrideVirtualFunction (Function* function);
+	overrideVirtualFunction(Function* function);
 
 	void
-	createVTableVariable ();
+	createVTableVariable();
 };
 
 //..............................................................................

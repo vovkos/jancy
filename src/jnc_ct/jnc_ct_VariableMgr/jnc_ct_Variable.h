@@ -54,11 +54,11 @@ class Variable:
 protected:
 	Type* m_type;
 	uint_t m_ptrTypeFlags;
-	sl::BoxList <Token> m_constructor;
+	sl::BoxList<Token> m_constructor;
 	Scope* m_scope;
 	StructField* m_tlsField;
 	void* m_staticData;
-	ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
 	llvm::Value* m_llvmValue;       // GlobalVariable* / AllocaInst* / GEPInst* / CallInst*
 	llvm::DIVariable_vn m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
@@ -69,66 +69,66 @@ public:
 	LlvmIrInsertPoint m_liftInsertPoint;
 
 public:
-	Variable ();
+	Variable();
 
 	Type*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	uint_t
-	getPtrTypeFlags ()
+	getPtrTypeFlags()
 	{
 		return m_ptrTypeFlags;
 	}
 
-	sl::ConstBoxList <Token>
-	getConstructor ()
+	sl::ConstBoxList<Token>
+	getConstructor()
 	{
 		return m_constructor;
 	}
 
 	Scope*
-	getScope ()
+	getScope()
 	{
 		return m_scope;
 	}
 
 	StructField*
-	getTlsField ()
+	getTlsField()
 	{
-		ASSERT (m_storageKind == StorageKind_Tls);
+		ASSERT(m_storageKind == StorageKind_Tls);
 		return m_tlsField;
 	}
 
 	void*
-	getStaticData ();
+	getStaticData();
 
 	LeanDataPtrValidator*
-	getLeanDataPtrValidator ();
+	getLeanDataPtrValidator();
 
 	llvm::GlobalVariable*
-	getLlvmGlobalVariable ()
+	getLlvmGlobalVariable()
 	{
 		return m_llvmGlobalVariable;
 	}
 
 	llvm::Value*
-	getLlvmValue ();
+	getLlvmValue();
 
 	llvm::DIVariable_vn
-	getLlvmDiDescriptor ()
+	getLlvmDiDescriptor()
 	{
 		return m_llvmDiDescriptor;
 	}
 
 	bool
-	isInitializationNeeded ();
+	isInitializationNeeded();
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml

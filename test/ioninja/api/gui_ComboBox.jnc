@@ -16,37 +16,37 @@ opaque class ComboBox
 	property m_editText
 	{
 		char const* autoget m_value;
-		set (char const* value);
+		set(char const* value);
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
 	char const* autoget property m_toolTipText;
 	uint_t autoget property m_backgroundColor;
 
-	destruct ();
+	destruct();
 
-	void adjustSizeToContents ();
+	void adjustSizeToContents();
 
-	size_t addItem (
+	size_t addItem(
 		char const* text,
 		variant data = null
 		)
 	{
-		return insertItem (-1, text, data);
+		return insertItem(-1, text, data);
 	}
 
-	size_t insertItem (
+	size_t insertItem(
 		size_t index,
 		char const* text,
 		variant data = null
 		);
 
-	bool removeItem (size_t index);
+	bool removeItem(size_t index);
 
-	void clear ();
+	void clear();
 
-	char const* property m_itemText (size_t index);
-	variant property m_itemData (size_t index);
+	char const* property m_itemText(size_t index);
+	variant property m_itemData(size_t index);
 
 	size_t m_itemCount;
 
@@ -54,19 +54,19 @@ opaque class ComboBox
 
 	property m_currentText
 	{
-		char const* get ();
+		char const* get();
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
 	property m_currentData
 	{
-		variant get ();
-		set (variant value);
+		variant get();
+		set(variant value);
 		bindable alias m_onPropChanged = m_onChanged;
 	}
 
-	event m_onChanged ();
-	event m_onEnter ();
+	event m_onChanged();
+	event m_onEnter();
 }
 
 //..............................................................................

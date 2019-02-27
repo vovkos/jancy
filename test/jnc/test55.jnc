@@ -16,14 +16,14 @@ bitflag enum FileFlags
 	DeleteOnClose
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	FileFlags flags = FileFlags.ReadOnly | FileFlags.Exclusive;
 	if (flags.ReadOnly)
 	{
-		printf ("read-only is true\n");
+		printf("read-only is true\n");
 	}
 
 	return 0;

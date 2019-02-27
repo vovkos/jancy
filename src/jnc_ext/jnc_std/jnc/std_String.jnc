@@ -28,130 +28,130 @@ class StringBuilder
 
 	property m_sz
 	{
-		char const* get ()
+		char const* get()
 		{
 			return m_p ? m_p : "";
 		}
 	}
 
-	char get (size_t offset)
+	char get(size_t offset)
 	{
-		boundsCheck (offset);
-		return m_p [offset];
+		boundsCheck(offset);
+		return m_p[offset];
 	}
 
-	set (
+	set(
 		size_t offset,
 		char e
 		)
 	{
-		boundsCheck (offset);
-		m_p [offset] = e;
+		boundsCheck(offset);
+		m_p[offset] = e;
 	}
 
 	size_t errorcode operator := (char const* p)
 	{
-		return copy (p);
+		return copy(p);
 	}
 
 	size_t errorcode operator += (char const* p)
 	{
-		return append (p);
+		return append(p);
 	}
 
-	clear ();
+	clear();
 
-	bool errorcode reserve (size_t length);
+	bool errorcode reserve(size_t length);
 
-	size_t errorcode copy (
+	size_t errorcode copy(
 		char const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode copy (
+	size_t errorcode copy(
 		utf16_t const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode copy (
+	size_t errorcode copy(
 		utf32_t const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode copy (utf32_t c)
+	size_t errorcode copy(utf32_t c)
 	{
-		return copy (&c, 1);
+		return copy(&c, 1);
 	}
 
-	size_t errorcode append (
+	size_t errorcode append(
 		char const* p,
 		size_t length = -1
 		)
 	{
-		return insert (-1, p, length);
+		return insert(-1, p, length);
 	}
 
-	size_t errorcode append (
+	size_t errorcode append(
 		utf16_t const* p,
 		size_t length = -1
 		)
 	{
-		return insert (-1, p, length);
+		return insert(-1, p, length);
 	}
 
-	size_t errorcode append (
+	size_t errorcode append(
 		utf32_t const* p,
 		size_t length = -1
 		)
 	{
-		return insert (-1, p, length);
+		return insert(-1, p, length);
 	}
 
-	size_t errorcode append (utf32_t c)
+	size_t errorcode append(utf32_t c)
 	{
-		return insert (-1, &c, 1);
+		return insert(-1, &c, 1);
 	}
 
-	size_t errorcode insert (
+	size_t errorcode insert(
 		size_t offset,
 		char const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode insert (
+	size_t errorcode insert(
 		size_t offset,
 		utf16_t const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode insert (
+	size_t errorcode insert(
 		size_t offset,
 		utf32_t const* p,
 		size_t length = -1
 		);
 
-	size_t errorcode insert (
+	size_t errorcode insert(
 		size_t offset,
 		utf32_t c
 		)
 	{
-		return insert (offset, &c, 1);
+		return insert(offset, &c, 1);
 	}
 
-	size_t remove (
+	size_t remove(
 		size_t offset,
 		size_t length = 1
 		);
 
-	char* errorcode detachString ();
-	char* errorcode cloneString ();
+	char* errorcode detachString();
+	char* errorcode cloneString();
 
 protected:
-	boundsCheck (size_t offset)
+	boundsCheck(size_t offset)
 	{
 		if (offset >= m_length)
 		{
-			std.setError ($"attempt to access out-of-bounds offset $offset (length: $m_length)");
+			std.setError($"attempt to access out-of-bounds offset $offset (length: $m_length)");
 			throw;
 		}
 	}

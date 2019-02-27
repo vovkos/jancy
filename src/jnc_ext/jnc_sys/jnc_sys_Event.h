@@ -16,7 +16,7 @@
 namespace jnc {
 namespace sys {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (Event)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Event)
 
 //..............................................................................
 
@@ -28,21 +28,21 @@ public:
 public:
 	void
 	JNC_CDECL
-	signal ()
+	signal()
 	{
-		m_event.signal ();
+		m_event.signal();
 	}
 
 	void
 	JNC_CDECL
-	reset ()
+	reset()
 	{
-		m_event.reset ();
+		m_event.reset();
 	}
 
 	bool
 	JNC_CDECL
-	wait (uint_t timeout);
+	wait(uint_t timeout);
 };
 
 //..............................................................................

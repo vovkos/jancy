@@ -17,11 +17,11 @@ bitflag enum Foo
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	int x = rand () % 3;
+	int x = rand() % 3;
 	Foo foo =
 		x == 1 ? Foo.Foo1 :
 		x == 2 ? Foo.Foo2 : 0;

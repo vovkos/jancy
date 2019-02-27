@@ -15,14 +15,14 @@ struct Test
 	bigendian uint16_t m_offset: 13;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	char buffer [] = 0x"03 9d";
-	Test* test = (Test*) buffer;
+	char buffer[] = 0x"03 9d";
+	Test* test = (Test*)buffer;
 
-	printf ("flags = %d; offset = %d\n", test.m_flags, test.m_offset * 8);
+	printf("flags = %d; offset = %d\n", test.m_flags, test.m_offset * 8);
 
 	return 0;
 }

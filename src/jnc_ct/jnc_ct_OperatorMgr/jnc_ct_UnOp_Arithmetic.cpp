@@ -19,11 +19,11 @@ namespace ct {
 //..............................................................................
 
 Type*
-getArithmeticOperatorResultType (Type* opType)
+getArithmeticOperatorResultType(Type* opType)
 {
-	TypeKind typeKind = opType->getTypeKind ();
+	TypeKind typeKind = opType->getTypeKind();
 
-	switch (typeKind)
+	switch(typeKind)
 	{
 	case TypeKind_Int8:
 	case TypeKind_Int16:
@@ -57,47 +57,47 @@ getArithmeticOperatorResultType (Type* opType)
 		break;
 
 	case TypeKind_Enum:
-		return getArithmeticOperatorResultType (((EnumType*) opType)->getBaseType ());
+		return getArithmeticOperatorResultType(((EnumType*)opType)->getBaseType());
 
 	default:
 		return NULL;
 	}
 
-	return opType->getModule ()->m_typeMgr.getPrimitiveType (typeKind);
+	return opType->getModule()->m_typeMgr.getPrimitiveType(typeKind);
 }
 
 //..............................................................................
 
 llvm::Value*
-UnOp_Minus::llvmOpInt (
+UnOp_Minus::llvmOpInt(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
 	)
 {
-	return m_module->m_llvmIrBuilder.createNeg_i (opValue, resultType, resultValue);
+	return m_module->m_llvmIrBuilder.createNeg_i(opValue, resultType, resultValue);
 }
 
 llvm::Value*
-UnOp_Minus::llvmOpFp (
+UnOp_Minus::llvmOpFp(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
 	)
 {
-	return m_module->m_llvmIrBuilder.createNeg_f (opValue, resultType, resultValue);
+	return m_module->m_llvmIrBuilder.createNeg_f(opValue, resultType, resultValue);
 }
 
 //..............................................................................
 
 llvm::Value*
-UnOp_BwNot::llvmOpInt (
+UnOp_BwNot::llvmOpInt(
 	const Value& opValue,
 	Type* resultType,
 	Value* resultValue
 	)
 {
-	return m_module->m_llvmIrBuilder.createNot (opValue, resultType, resultValue);
+	return m_module->m_llvmIrBuilder.createNot(opValue, resultType, resultValue);
 }
 
 //..............................................................................

@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy property.
 
-	Use functions from the :ref:`Property <cid-property>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Property<cid-property>` to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -65,18 +65,18 @@ typedef enum jnc_PropertyFlag jnc_PropertyFlag;
 
 JNC_INLINE
 jnc_PropertyType*
-jnc_Property_getType (jnc_Property* prop)
+jnc_Property_getType(jnc_Property* prop)
 {
-	return (jnc_PropertyType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) prop);
+	return (jnc_PropertyType*)jnc_ModuleItem_getType((jnc_ModuleItem*)prop);
 }
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_Property_getGetter (jnc_Property* prop);
+jnc_Property_getGetter(jnc_Property* prop);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_Property_getSetter (jnc_Property* prop);
+jnc_Property_getSetter(jnc_Property* prop);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -85,21 +85,21 @@ jnc_Property_getSetter (jnc_Property* prop);
 struct jnc_Property: jnc_ModuleItem
 {
 	jnc_PropertyType*
-	getType ()
+	getType()
 	{
-		return jnc_Property_getType (this);
+		return jnc_Property_getType(this);
 	}
 
 	jnc_Function*
-	getGetter ()
+	getGetter()
 	{
-		return jnc_Property_getGetter (this);
+		return jnc_Property_getGetter(this);
 	}
 
 	jnc_Function*
-	getSetter ()
+	getSetter()
 	{
-		return jnc_Property_getSetter (this);
+		return jnc_Property_getSetter(this);
 	}
 };
 

@@ -22,7 +22,7 @@ Output::Output(QWidget *parent)
 {
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-	setLineWrapMode (QPlainTextEdit::NoWrap);
+	setLineWrapMode(QPlainTextEdit::NoWrap);
 }
 
 void Output::mouseDoubleClickEvent(QMouseEvent *e)
@@ -67,8 +67,8 @@ bool Output::parseLine(
 		return false;
 
 	filePath = text.left(pos);
-	QString lineNumber = regexp.capturedTexts ().at (1);
-	QString colNumber = regexp.capturedTexts ().at (2);
+	QString lineNumber = regexp.capturedTexts().at(1);
+	QString colNumber = regexp.capturedTexts().at(2);
 
 	documentLine = lineNumber.toInt() - 1;
 	documentCol = colNumber.toInt() - 1;

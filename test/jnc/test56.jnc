@@ -23,12 +23,12 @@ bitflag enum Flags
 	All = ReadOnly | Exclusive
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	printf ("State.Bridged = %d\n", State.Bridged);
-	printf ("Flags.All = 0x%x\n", Flags.All);
+	printf("State.Bridged = %d\n", State.Bridged);
+	printf("Flags.All = 0x%x\n", Flags.All);
 
 	return 0;
 }

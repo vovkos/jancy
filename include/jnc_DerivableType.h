@@ -42,18 +42,18 @@
 
 JNC_INLINE
 jnc_DerivableType*
-jnc_BaseTypeSlot_getType (jnc_BaseTypeSlot* baseType)
+jnc_BaseTypeSlot_getType(jnc_BaseTypeSlot* baseType)
 {
-	return (jnc_DerivableType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) baseType);
+	return (jnc_DerivableType*)jnc_ModuleItem_getType((jnc_ModuleItem*)baseType);
 }
 
 JNC_EXTERN_C
 size_t
-jnc_BaseTypeSlot_getOffset (jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType);
 
 JNC_EXTERN_C
 size_t
-jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_getVTableIndex(jnc_BaseTypeSlot* baseType);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -62,21 +62,21 @@ jnc_BaseTypeSlot_getVTableIndex (jnc_BaseTypeSlot* baseType);
 struct jnc_BaseTypeSlot: jnc_ModuleItem
 {
 	jnc_DerivableType*
-	getType ()
+	getType()
 	{
-		return jnc_BaseTypeSlot_getType (this);
+		return jnc_BaseTypeSlot_getType(this);
 	}
 
 	size_t
-	getOffset ()
+	getOffset()
 	{
-		return jnc_BaseTypeSlot_getOffset (this);
+		return jnc_BaseTypeSlot_getOffset(this);
 	}
 
 	size_t
-	getVTableIndex ()
+	getVTableIndex()
 	{
-		return jnc_BaseTypeSlot_getVTableIndex (this);
+		return jnc_BaseTypeSlot_getVTableIndex(this);
 	}
 };
 
@@ -86,96 +86,96 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getStaticConstructor (jnc_DerivableType* type);
+jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getStaticDestructor (jnc_DerivableType* type);
+jnc_DerivableType_getStaticDestructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getPreConstructor (jnc_DerivableType* type);
+jnc_DerivableType_getPreConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getConstructor (jnc_DerivableType* type);
+jnc_DerivableType_getConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getDestructor (jnc_DerivableType* type);
+jnc_DerivableType_getDestructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getUnaryOperator (
+jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
 	);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getBinaryOperator (
+jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
 	);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getCallOperator (jnc_DerivableType* type);
+jnc_DerivableType_getCallOperator(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getCastOperator (
+jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,
 	size_t idx
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getBaseTypeCount (jnc_DerivableType* type);
+jnc_DerivableType_getBaseTypeCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_BaseTypeSlot*
-jnc_DerivableType_getBaseType (
+jnc_DerivableType_getBaseType(
 	jnc_DerivableType* type,
 	size_t index
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_findBaseTypeOffset (
+jnc_DerivableType_findBaseTypeOffset(
 	jnc_DerivableType* type,
 	jnc_Type* baseType
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberFieldCount (jnc_DerivableType* type);
+jnc_DerivableType_getMemberFieldCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_StructField*
-jnc_DerivableType_getMemberField (
+jnc_DerivableType_getMemberField(
 	jnc_DerivableType* type,
 	size_t index
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberMethodCount (jnc_DerivableType* type);
+jnc_DerivableType_getMemberMethodCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getMemberMethod (
+jnc_DerivableType_getMemberMethod(
 	jnc_DerivableType* type,
 	size_t index
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberPropertyCount (jnc_DerivableType* type);
+jnc_DerivableType_getMemberPropertyCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Property*
-jnc_DerivableType_getMemberProperty (
+jnc_DerivableType_getMemberProperty(
 	jnc_DerivableType* type,
 	size_t index
 	);
@@ -187,111 +187,111 @@ jnc_DerivableType_getMemberProperty (
 struct jnc_DerivableType: jnc_NamedType
 {
 	jnc_Function*
-	getStaticConstructor ()
+	getStaticConstructor()
 	{
-		return jnc_DerivableType_getStaticConstructor (this);
+		return jnc_DerivableType_getStaticConstructor(this);
 	}
 
 	jnc_Function*
-	getStaticDestructor ()
+	getStaticDestructor()
 	{
-		return jnc_DerivableType_getStaticDestructor (this);
+		return jnc_DerivableType_getStaticDestructor(this);
 	}
 
 	jnc_Function*
-	getPreConstructor ()
+	getPreConstructor()
 	{
-		return jnc_DerivableType_getPreConstructor (this);
+		return jnc_DerivableType_getPreConstructor(this);
 	}
 
 	jnc_Function*
-	getConstructor ()
+	getConstructor()
 	{
-		return jnc_DerivableType_getConstructor (this);
+		return jnc_DerivableType_getConstructor(this);
 	}
 
 	jnc_Function*
-	getDestructor ()
+	getDestructor()
 	{
-		return jnc_DerivableType_getDestructor (this);
+		return jnc_DerivableType_getDestructor(this);
 	}
 
 	jnc_Function*
-	getUnaryOperator (jnc_UnOpKind opKind)
+	getUnaryOperator(jnc_UnOpKind opKind)
 	{
-		return jnc_DerivableType_getUnaryOperator (this, opKind);
+		return jnc_DerivableType_getUnaryOperator(this, opKind);
 	}
 
 	jnc_Function*
-	getBinaryOperator (jnc_BinOpKind opKind)
+	getBinaryOperator(jnc_BinOpKind opKind)
 	{
-		return jnc_DerivableType_getBinaryOperator (this, opKind);
+		return jnc_DerivableType_getBinaryOperator(this, opKind);
 	}
 
 	jnc_Function*
-	getCallOperator ()
+	getCallOperator()
 	{
-		return jnc_DerivableType_getCallOperator (this);
+		return jnc_DerivableType_getCallOperator(this);
 	}
 
 	jnc_Function*
-	getCastOperator (size_t idx)
+	getCastOperator(size_t idx)
 	{
-		return jnc_DerivableType_getCastOperator (this, idx);
+		return jnc_DerivableType_getCastOperator(this, idx);
 	}
 
 	size_t
-	getBaseTypeCount ()
+	getBaseTypeCount()
 	{
-		return jnc_DerivableType_getBaseTypeCount (this);
+		return jnc_DerivableType_getBaseTypeCount(this);
 	}
 
 	jnc_BaseTypeSlot*
-	getBaseType (size_t index)
+	getBaseType(size_t index)
 	{
-		return jnc_DerivableType_getBaseType (this, index);
+		return jnc_DerivableType_getBaseType(this, index);
 	}
 
 	size_t
-	findBaseTypeOffset (jnc_Type* baseType)
+	findBaseTypeOffset(jnc_Type* baseType)
 	{
-		return jnc_DerivableType_findBaseTypeOffset (this, baseType);
+		return jnc_DerivableType_findBaseTypeOffset(this, baseType);
 	}
 
 	size_t
-	getMemberFieldCount ()
+	getMemberFieldCount()
 	{
-		return jnc_DerivableType_getMemberFieldCount (this);
+		return jnc_DerivableType_getMemberFieldCount(this);
 	}
 
 	jnc_StructField*
-	getMemberField (size_t index)
+	getMemberField(size_t index)
 	{
-		return jnc_DerivableType_getMemberField (this, index);
+		return jnc_DerivableType_getMemberField(this, index);
 	}
 
 	size_t
-	getMemberMethodCount ()
+	getMemberMethodCount()
 	{
-		return jnc_DerivableType_getMemberMethodCount (this);
+		return jnc_DerivableType_getMemberMethodCount(this);
 	}
 
 	jnc_Function*
-	getMemberMethod (size_t index)
+	getMemberMethod(size_t index)
 	{
-		return jnc_DerivableType_getMemberMethod (this, index);
+		return jnc_DerivableType_getMemberMethod(this, index);
 	}
 
 	size_t
-	getMemberPropertyCount ()
+	getMemberPropertyCount()
 	{
-		return jnc_DerivableType_getMemberPropertyCount (this);
+		return jnc_DerivableType_getMemberPropertyCount(this);
 	}
 
 	jnc_Property*
-	getMemberProperty (size_t index)
+	getMemberProperty(size_t index)
 	{
-		return jnc_DerivableType_getMemberProperty (this, index);
+		return jnc_DerivableType_getMemberProperty(this, index);
 	}
 };
 

@@ -11,70 +11,70 @@ namespace log {
 
 opaque class Writer
 {
-	write (
+	write(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p = null,
 		size_t size = 0
 		);
 
-	write (
+	write(
 		uint64_t recordCode,
 		void const* p = null,
 		size_t size = 0
 		)
 	{
-		write (sys.getPreciseTimestamp (), recordCode, p, size);
+		write(sys.getPreciseTimestamp(), recordCode, p, size);
 	}
 
-	writeString (
+	writeString(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		char const* p
 		)
 	{
-		write (timestamp, recordCode, p, strlen (p));
+		write(timestamp, recordCode, p, strlen(p));
 	}
 
-	writeString (
+	writeString(
 		uint64_t recordCode,
 		char const* p
 		)
 	{
-		writeString (sys.getPreciseTimestamp (), recordCode, p);
+		writeString(sys.getPreciseTimestamp(), recordCode, p);
 	}
 
-	writeError (
+	writeError(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		std.Error const* error
 		)
 	{
-		write (timestamp, recordCode, error, error.m_size);
+		write(timestamp, recordCode, error, error.m_size);
 	}
 
-	writeError (
+	writeError(
 		uint64_t recordCode,
 		std.Error const* error
 		)
 	{
-		writeError (sys.getPreciseTimestamp (), recordCode, error);
+		writeError(sys.getPreciseTimestamp(), recordCode, error);
 	}
 
-	writeLastError (
+	writeLastError(
 		uint64_t timestamp,
 		uint64_t recordCode
 		)
 	{
-		writeError (timestamp, recordCode, std.getLastError ());
+		writeError(timestamp, recordCode, std.getLastError());
 	}
 
-	writeLastError (uint64_t recordCode)
+	writeLastError(uint64_t recordCode)
 	{
-		writeLastError (sys.getPreciseTimestamp (), recordCode);
+		writeLastError(sys.getPreciseTimestamp(), recordCode);
 	}
 
-	retroColorize (
+	retroColorize(
 		intptr_t retroOffset,
 		size_t length,
 		gui.TextAttr attr,
@@ -87,10 +87,10 @@ opaque class Writer
 		params.m_attr = attr;
 		params.m_flags = flags;
 
-		write (StdRecordCode.RetroColorize, &params, sizeof (params));
+		write(StdRecordCode.RetroColorize, &params, sizeof(params));
 	}
 
-	retroColorize (
+	retroColorize(
 		intptr_t retroOffset,
 		size_t length,
 		uint_t color
@@ -100,7 +100,7 @@ opaque class Writer
 		attr.m_textColor = color;
 		attr.m_backColor = gui.ColorFlags.Transparent;
 
-		retroColorize (retroOffset, length, attr);
+		retroColorize(retroOffset, length, attr);
 	}
 }
 

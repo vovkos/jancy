@@ -21,15 +21,15 @@ class C1
 
 	int m_member = 500;
 
-	foo (
+	foo(
 		int x = Def.X,
-		int y = bar ()
+		int y = bar()
 		)
 	{
-		printf ("C1.foo (%d, %d)\n", x, y);
+		printf("C1.foo (%d, %d)\n", x, y);
 	}
 
-	int bar ()
+	int bar()
 	{
 		return m_member;
 	}
@@ -38,43 +38,43 @@ class C1
 class C2
 {
 	int m_classValue;
-	event m_classOnChanged ();
+	event m_classOnChanged();
 
 	property m_prop
 	{
-		int get ()
+		int get()
 		{
 			return m_classValue;
 		}
-		
-		set (int x)
+
+		set(int x)
 		{
 			m_classValue = x;
-			m_classOnChanged ();
+			m_classOnChanged();
 		}
 
-		event* getbinding () ()
+		event* getbinding() ()
 		{
 			return &m_classOnChanged;
 		}
 	}
 }
 
-foo ()
+foo()
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 }
 
-int main ()
+int main()
 {
 	C1 c1;
-	c1.foo (1);
+	c1.foo(1);
 
 	C2 c2;
 	c2.m_classOnChanged += foo;
 	c2.m_prop = 555;
 
-	printf ("m_classValue = %d\n", c2.m_classValue);
+	printf("m_classValue = %d\n", c2.m_classValue);
 
 	return 0;
 }

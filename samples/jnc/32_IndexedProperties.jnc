@@ -19,14 +19,14 @@
 
 // simple indexed property declaration syntax
 
-int property g_simpleProp (size_t i);
+int property g_simpleProp(size_t i);
 
 // the above declaration yields the same results as:
 //
 //    int indexed property g_simpleProp (size_t i);
 //
-// here you don't need 'indexed' modifier as there is no ambiguity; 
-// when declaring pointers to indexed properties on the other hand, 'indexed' 
+// here you don't need 'indexed' modifier as there is no ambiguity;
+// when declaring pointers to indexed properties on the other hand, 'indexed'
 // modifier is a must:
 //
 //    int indexed property* indexedPropPtr (size_t i);
@@ -35,26 +35,26 @@ int property g_simpleProp (size_t i);
 
 // accessors implementation
 
-int g_simpleProp.get (size_t i)
+int g_simpleProp.get(size_t i)
 {
-	printf ("g_simpleProp.get (%d)\n", i);
-	return g_x [i];
+	printf("g_simpleProp.get (%d)\n", i);
+	return g_x[i];
 }
 
-g_simpleProp.set (
+g_simpleProp.set(
 	size_t i,
 	int x
 	)
 {
-	printf ("g_simpleProp.set (%d, %d)\n", i, x);
-	g_x [i] = x;
+	printf("g_simpleProp.set (%d, %d)\n", i, x);
+	g_x[i] = x;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // a global variable to store the property value
 
-int g_x [2];
+int g_x[2];
 
 //..............................................................................
 
@@ -62,41 +62,41 @@ int g_x [2];
 
 property g_prop
 {
-	int m_x [2] [2];
+	int m_x[2] [2];
 
 	// more than one index argument can be used...
 
-	int get (
+	int get(
 		size_t i,
 		size_t j
 		)
 	{
-		printf ("g_prop.get (%d, %d)\n", i, j);
-		return m_x [i] [j];
+		printf("g_prop.get (%d, %d)\n", i, j);
+		return m_x[i] [j];
 	}
 
 	// ... but all accessors should have the same index arguments
 
-	set (
+	set(
 		size_t i,
 		size_t j,
 		int x
 		)
 	{
-		printf ("g_prop.set (%d, %d, int %d)\n", i, j, x);
-		m_x [i] [j] = x;
+		printf("g_prop.set (%d, %d, int %d)\n", i, j, x);
+		m_x[i] [j] = x;
 	}
 
 	// setters of indexed properties can be overloaded
 
-	set (
+	set(
 		size_t i,
 		size_t j,
 		double x
 		)
 	{
-		printf ("g_prop.set (%d, %d, double %f)\n", i, j, x);
-		m_x [i] [j] = (int) x;
+		printf("g_prop.set (%d, %d, double %f)\n", i, j, x);
+		m_x[i] [j] = (int)x;
 	}
 }
 
@@ -104,22 +104,22 @@ property g_prop
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	int x = g_simpleProp [0];
+	int x = g_simpleProp[0];
 
-	g_simpleProp [0] = 100;
-	g_simpleProp [1] = 200;
+	g_simpleProp[0] = 100;
+	g_simpleProp[1] = 200;
 	// g_simpleProp [2] = 300; // <-- runtime error
 
 	// to access a property with multiple index arguments use the same syntax as
 	// for accessing multi-dimensional arrays
 
-	x = g_prop [1] [1];
-	g_prop [0] [1] = 500;
-	g_prop [1] [0] = 1.5;
+	x = g_prop[1] [1];
+	g_prop[0] [1] = 500;
+	g_prop[1] [0] = 1.5;
 
 	return 0;
 }

@@ -17,4 +17,4 @@
 #include "jnc_ExtensionLib.h"
 #include "jnc_Error.h"
 
-#pragma warning (disable: 4477) // warning C4477: 'printf' : format string '...' requires an argument of type '...', but variadic argument ... has type '...'
+#pragma warning(disable: 4477) // warning C4477: 'printf' : format string '...' requires an argument of type '...', but variadic argument ... has type '...'

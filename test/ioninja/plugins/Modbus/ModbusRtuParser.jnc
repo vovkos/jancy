@@ -19,12 +19,12 @@ protected:
 	size_t m_expectedSize;
 
 public:
-	construct ()
+	construct()
 	{
 		m_protocol = io.ModbusProtocol.Rtu;
 	}
 
-	override parse (
+	override parse(
 		log.Writer* writer,
 		uint64_t timestamp,
 		uint64_t originalRecordCode,
@@ -32,10 +32,10 @@ public:
 		size_t size
 		);
 
-	override reset ();
+	override reset();
 
 protected:
-	ModbusLogRecordCode getPacketRecordCode ()
+	ModbusLogRecordCode getPacketRecordCode()
 	{
 		return m_modbusRole == io.ModbusRole.Master ?
 			ModbusLogRecordCode.MasterPacket_Rtu :
@@ -45,7 +45,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusRtuParser.parse (
+ModbusRtuParser.parse(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t originalRecordCode,
@@ -55,43 +55,43 @@ ModbusRtuParser.parse (
 {
 	if (m_dataBuffer.m_size && timestamp - m_lastTimestamp > MinInterFrameDelay)
 	{
-		std.setError (
+		std.setError(
 			$"Incomplete Modbus RTU packet: \e[31m%1\e[m out of \e[31m%2\e[m bytes" (
 			m_dataBuffer.m_size,
 			m_expectedSize
 			));
 
-		writer.writeLastError (timestamp, ModbusLogRecordCode.ParseError);
-		reset ();
+		writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+		reset();
 	}
 
-	updateLastTimestamp (timestamp);
+	updateLastTimestamp(timestamp);
 
 	// write the original data first
 
-	writer.write (timestamp, originalRecordCode, p, size);
+	writer.write(timestamp, originalRecordCode, p, size);
 
-	ModbusLogRecordCode recordCode = getPacketRecordCode ();
+	ModbusLogRecordCode recordCode = getPacketRecordCode();
 
 	while (size)
 	{
 		if (!m_expectedSize)
-			m_expectedSize = io.getModbusRtuAduSize (m_modbusRole, (io.ModbusRtuAduHdr const*) p, size);
+			m_expectedSize = io.getModbusRtuAduSize(m_modbusRole, (io.ModbusRtuAduHdr const*) p, size);
 
 		size_t leftoverSize = m_expectedSize - m_dataBuffer.m_size;
 		if (size < leftoverSize)
 		{
-			m_dataBuffer.append (p, size);
+			m_dataBuffer.append(p, size);
 			break;
 		}
 
-		m_dataBuffer.append (p, leftoverSize);
+		m_dataBuffer.append(p, leftoverSize);
 		p += leftoverSize;
 		size -= leftoverSize;
 
 		// check ADU size once again (as we have appended some data)
 
-		size_t expectedSize = io.getModbusRtuAduSize (
+		size_t expectedSize = io.getModbusRtuAduSize(
 			m_modbusRole,
 			(io.ModbusRtuAduHdr const*) m_dataBuffer.m_p,
 			m_dataBuffer.m_size
@@ -105,26 +105,26 @@ ModbusRtuParser.parse (
 
 		// ADU completed
 
-		writer.write (timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
 
-		m_dataBuffer.clear ();
+		m_dataBuffer.clear();
 		m_expectedSize = 0;
 
 		if (m_mode == ModbusParserMode.HalfDuplex)
 		{
 			m_modbusRole = (io.ModbusRole) !m_modbusRole;
-			recordCode = getPacketRecordCode ();
+			recordCode = getPacketRecordCode();
 		}
 	}
 
 catch:
-	writer.writeLastError (timestamp, ModbusLogRecordCode.ParseError);
-	reset ();
+	writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+	reset();
 }
 
-ModbusRtuParser.reset ()
+ModbusRtuParser.reset()
 {
-	m_dataBuffer.clear ();
+	m_dataBuffer.clear();
 	m_expectedSize = 0;
 
 	if (m_mode == ModbusParserMode.HalfDuplex)

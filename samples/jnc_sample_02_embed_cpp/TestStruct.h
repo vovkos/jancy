@@ -13,7 +13,7 @@
 
 #include "MyLib.h"
 
-JNC_DECLARE_TYPE (TestStruct)
+JNC_DECLARE_TYPE(TestStruct)
 
 //..............................................................................
 
@@ -26,11 +26,11 @@ public:
 public:
 	static
 	void
-	construct_0 (jnc::DataPtr selfPtr);
+	construct_0(jnc::DataPtr selfPtr);
 
 	static
 	void
-	construct_1 (
+	construct_1(
 		jnc::DataPtr selfPtr,
 		int x,
 		int y
@@ -38,11 +38,11 @@ public:
 
 	static
 	void
-	foo_0 (jnc::DataPtr selfPtr);
+	foo_0(jnc::DataPtr selfPtr);
 
 	static
 	void
-	foo_1 (
+	foo_1(
 		jnc::DataPtr selfPtr,
 		int x,
 		int y
@@ -50,7 +50,7 @@ public:
 
 	static
 	void
-	foo_2 (
+	foo_2(
 		jnc::DataPtr selfPtr,
 		jnc::DataPtr srcPtr
 		);

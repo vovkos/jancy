@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-Unit::Unit ()
+Unit::Unit()
 {
 	m_module = NULL;
 	m_lib = NULL;
@@ -27,17 +27,17 @@ Unit::Unit ()
 }
 
 bool
-Unit::setConstructor (Function* function)
+Unit::setConstructor(Function* function)
 {
-	if (!function->getType ()->getArgArray ().isEmpty ())
+	if (!function->getType()->getArgArray().isEmpty())
 	{
-		err::setFormatStringError ("unit 'construct' cannot have arguments");
+		err::setFormatStringError("unit 'construct' cannot have arguments");
 		return false;
 	}
 
 	if (m_constructor)
 	{
-		err::setFormatStringError ("unit already has 'construct' method");
+		err::setFormatStringError("unit already has 'construct' method");
 		return false;
 	}
 
@@ -49,13 +49,13 @@ Unit::setConstructor (Function* function)
 }
 
 bool
-Unit::setDestructor (Function* function)
+Unit::setDestructor(Function* function)
 {
-	ASSERT (function->getType ()->getArgArray ().isEmpty ());
+	ASSERT(function->getType()->getArgArray().isEmpty());
 
 	if (m_destructor)
 	{
-		err::setFormatStringError ("unit already has 'destruct' method");
+		err::setFormatStringError("unit already has 'destruct' method");
 		return false;
 	}
 
@@ -68,27 +68,27 @@ Unit::setDestructor (Function* function)
 
 //..............................................................................
 
-UnitMgr::UnitMgr ()
+UnitMgr::UnitMgr()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 
 	m_currentUnit = NULL;
 	m_coreLibUnit = NULL;
 }
 
 void
-UnitMgr::clear ()
+UnitMgr::clear()
 {
-	m_unitList.clear ();
+	m_unitList.clear();
 	m_currentUnit = NULL;
 	m_coreLibUnit = NULL;
 }
 
 Unit*
-UnitMgr::setCurrentUnit (Unit* unit)
+UnitMgr::setCurrentUnit(Unit* unit)
 {
-	ASSERT (unit);
+	ASSERT(unit);
 
 	Unit* prevUnit = m_currentUnit;
 	m_currentUnit = unit;
@@ -96,31 +96,31 @@ UnitMgr::setCurrentUnit (Unit* unit)
 }
 
 Unit*
-UnitMgr::getCoreLibUnit ()
+UnitMgr::getCoreLibUnit()
 {
 	if (!m_coreLibUnit)
-		m_coreLibUnit = createUnit (jnc_CoreLib_getLib (), "jnc_rtl.jnc");
+		m_coreLibUnit = createUnit(jnc_CoreLib_getLib(), "jnc_rtl.jnc");
 
 	return m_coreLibUnit;
 }
 
 Unit*
-UnitMgr::createUnit (
+UnitMgr::createUnit(
 	ExtensionLib* lib,
 	const sl::StringRef& filePath
 	)
 {
-	Unit* unit = AXL_MEM_NEW (Unit);
+	Unit* unit = AXL_MEM_NEW(Unit);
 
 	unit->m_lib = lib;
 	unit->m_filePath = filePath;
-	unit->m_fileName = io::getFileName (filePath);
+	unit->m_fileName = io::getFileName(filePath);
 	unit->m_dir = io::getDir  (filePath);
 
-	if (m_module->getCompileFlags () & ModuleCompileFlag_DebugInfo)
-		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile (unit->m_fileName, unit->m_dir);
+	if (m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo)
+		unit->m_llvmDiFile = m_module->m_llvmDiBuilder.createFile(unit->m_fileName, unit->m_dir);
 
-	m_unitList.insertTail (unit);
+	m_unitList.insertTail(unit);
 	return unit;
 }
 

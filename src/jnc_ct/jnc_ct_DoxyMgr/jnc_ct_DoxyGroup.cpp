@@ -19,81 +19,81 @@ namespace ct {
 //..............................................................................
 
 bool
-DoxyGroup::generateDocumentation (
+DoxyGroup::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	indexXml->appendFormat (
+	indexXml->appendFormat(
 		"<compound kind='group' refid='%s'><name>%s</name></compound>\n",
-		m_refId.sz (),
-		m_name.sz ()
+		m_refId.sz(),
+		m_name.sz()
 		);
 
-	itemXml->format (
+	itemXml->format(
 		"<compounddef kind='group' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n"
 		"<title>",
-		m_refId.sz (),
-		m_name.sz ()
+		m_refId.sz(),
+		m_name.sz()
 		);
 
-	appendXmlElementContents (itemXml, m_title);
-	itemXml->append ("</title>\n");
+	appendXmlElementContents(itemXml, m_title);
+	itemXml->append("</title>\n");
 
 	sl::String sectionDef;
 
-	size_t count = m_itemArray.getCount ();
+	size_t count = m_itemArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ModuleItem* item = m_itemArray [i];
-		ModuleItemDecl* decl = item->getDecl ();
+		ModuleItem* item = m_itemArray[i];
+		ModuleItemDecl* decl = item->getDecl();
 		if (!decl)
 			continue;
 
-		ModuleItemKind itemKind = item->getItemKind ();
+		ModuleItemKind itemKind = item->getItemKind();
 
 		bool isCompoundFile =
 			itemKind == ModuleItemKind_Namespace ||
-			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
+			itemKind == ModuleItemKind_Type && ((Type*)item)->getTypeKind() != TypeKind_Enum;
 
-		sl::String refId = item->getDoxyBlock ()->getRefId ();
+		sl::String refId = item->getDoxyBlock()->getRefId();
 
 		if (!isCompoundFile)
 		{
-			sectionDef.appendFormat ("<memberdef id='%s'/>", refId.sz ());
-			sectionDef.append ('\n');
+			sectionDef.appendFormat("<memberdef id='%s'/>", refId.sz ());
+			sectionDef.append('\n');
 		}
 		else
 		{
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			sl::String refId = item->getDoxyBlock ()->getRefId ();
-			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.sz ());
-			itemXml->append ('\n');
+			sl::String refId = item->getDoxyBlock()->getRefId();
+			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz ());
+			itemXml->append('\n');
 		}
 	}
 
-	sectionDef += getFootnoteString ();
+	sectionDef += getFootnoteString();
 
-	if (!sectionDef.isEmpty ())
+	if (!sectionDef.isEmpty())
 	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (sectionDef);
-		itemXml->append ("</sectiondef>\n");
+		itemXml->append("<sectiondef>\n");
+		itemXml->append(sectionDef);
+		itemXml->append("</sectiondef>\n");
 	}
 
-	sl::BoxIterator <DoxyGroup*> groupIt = m_groupList.getHead ();
+	sl::BoxIterator<DoxyGroup*> groupIt = m_groupList.getHead();
 	for (; groupIt; groupIt++)
 	{
 		DoxyGroup* group = *groupIt;
-		itemXml->appendFormat ("<innergroup refid='%s'/>", group->m_refId.sz ());
-		itemXml->append ('\n');
+		itemXml->appendFormat("<innergroup refid='%s'/>", group->m_refId.sz ());
+		itemXml->append('\n');
 	}
 
-	itemXml->append (getImportString ());
-	itemXml->append (getDescriptionString ());
-	itemXml->append ("</compounddef>\n");
+	itemXml->append(getImportString());
+	itemXml->append(getDescriptionString());
+	itemXml->append("</compounddef>\n");
 
 	return true;
 }

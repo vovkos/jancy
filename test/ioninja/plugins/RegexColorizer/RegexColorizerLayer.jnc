@@ -30,13 +30,13 @@ protected:
 	reactor m_uiReactor;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	override void load (doc.Storage* storage);
-	override void save (doc.Storage* storage);
-	override bool errorcode applyProperties ();
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override bool errorcode applyProperties();
 
-	override bool convert (
+	override bool convert(
 		log.Writer* writer,
 		uint64_t timestamp,
 		uint64_t recordCode,
@@ -45,156 +45,156 @@ public:
 		);
 
 protected:
-	createUi ();
+	createUi();
 
-	onAddPattern ();
-	onRemoveLastPattern ();
-	onRemoveAllExtraPatterns ();
+	onAddPattern();
+	onRemoveLastPattern();
+	onRemoveAllExtraPatterns();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-RegexColorizerLayer.construct (doc.PluginHost* pluginHost)
+RegexColorizerLayer.construct(doc.PluginHost* pluginHost)
 {
-	basetype1.construct (pluginHost);
-	pluginHost.m_log.addConverter (this);
+	basetype1.construct(pluginHost);
+	pluginHost.m_log.addConverter(this);
 
-	createUi ();
-	onAddPattern (); // add pattern #1
+	createUi();
+	onAddPattern(); // add pattern #1
 }
 
-RegexColorizerLayer.createUi ()
+RegexColorizerLayer.createUi()
 {
-	m_addPatternProp = m_pluginHost.m_propertyGrid.createActionProperty (
+	m_addPatternProp = m_pluginHost.m_propertyGrid.createActionProperty(
 		"Add extra regex pattern",
 		"Add an extra regular expression pattern to search and colorize"
 		);
 
 	m_addPatternProp.m_onAction = onAddPattern;
 
-	m_removeLastPatternProp = m_pluginHost.m_propertyGrid.createActionProperty (
+	m_removeLastPatternProp = m_pluginHost.m_propertyGrid.createActionProperty(
 		"Remove last regex pattern",
 		"Removes the last added extra regular expression pattern"
 		);
 
 	m_removeLastPatternProp.m_onAction = onRemoveLastPattern;
 
-	m_removeAllExtraPatternsProp = m_pluginHost.m_propertyGrid.createActionProperty (
+	m_removeAllExtraPatternsProp = m_pluginHost.m_propertyGrid.createActionProperty(
 		"Remove all extra regex patterns",
 		"Remove all regular expression patterns except the main one (Pattern #1)"
 		);
 
 	m_removeAllExtraPatternsProp.m_onAction = onRemoveAllExtraPatterns;
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 }
 
-RegexColorizerLayer.onAddPattern ()
+RegexColorizerLayer.onAddPattern()
 {
-	RegexPattern* pattern = new RegexPattern (
+	RegexPattern* pattern = new RegexPattern(
 		m_pluginHost.m_propertyGrid,
 		m_addPatternProp,
 		m_patternArray.m_count
 		);
 
-	m_patternArray.append (pattern);
+	m_patternArray.append(pattern);
 	m_hasExtraPatterns = true;
 }
 
-RegexColorizerLayer.onRemoveLastPattern ()
+RegexColorizerLayer.onRemoveLastPattern()
 {
 	if (m_patternArray.m_count < 2)
 		return;
 
-	RegexPattern* pattern = m_patternArray [m_patternArray.m_count - 1];
-	m_pluginHost.m_propertyGrid.removeProperty (pattern.m_groupProp);
-	m_patternArray.setCount (m_patternArray.m_count - 1);
+	RegexPattern* pattern = m_patternArray[m_patternArray.m_count - 1];
+	m_pluginHost.m_propertyGrid.removeProperty(pattern.m_groupProp);
+	m_patternArray.setCount(m_patternArray.m_count - 1);
 	m_hasExtraPatterns = m_patternArray.m_count > 1;
 }
 
-RegexColorizerLayer.onRemoveAllExtraPatterns ()
+RegexColorizerLayer.onRemoveAllExtraPatterns()
 {
 	for (size_t i = 1; i < m_patternArray.m_count; i++)
 	{
-		RegexPattern* pattern = m_patternArray [i];
-		m_pluginHost.m_propertyGrid.removeProperty (pattern.m_groupProp);
+		RegexPattern* pattern = m_patternArray[i];
+		m_pluginHost.m_propertyGrid.removeProperty(pattern.m_groupProp);
 	}
 
-	m_patternArray.setCount (1);
+	m_patternArray.setCount(1);
 	m_hasExtraPatterns = false;
 }
 
-void RegexColorizerLayer.load (doc.Storage* storage)
+void RegexColorizerLayer.load(doc.Storage* storage)
 {
 	storage.m_directory = "pattern0";
-	((RegexPattern*) m_patternArray [0]).load (storage);
-	m_patternArray.setCount (1); // drop the rest
+	((RegexPattern*)m_patternArray[0]).load(storage);
+	m_patternArray.setCount(1); // drop the rest
 
 	for (size_t i = 1;; i++)
 	{
 		storage.m_directory = $"pattern$i";
 
-		char const* regexString = storage.readString ("regex");
-		if (!strlen (regexString))
+		char const* regexString = storage.readString("regex");
+		if (!strlen(regexString))
 			break;
 
-		RegexPattern* pattern = new RegexPattern (
+		RegexPattern* pattern = new RegexPattern(
 			m_pluginHost.m_propertyGrid,
 			m_addPatternProp,
 			m_patternArray.m_count
 			);
 
-		pattern.load (storage);
-		m_patternArray.append (pattern);
+		pattern.load(storage);
+		m_patternArray.append(pattern);
 	}
 
 	m_hasExtraPatterns = m_patternArray.m_count > 1;
-	applyProperties ();
+	applyProperties();
 }
 
-void RegexColorizerLayer.save (doc.Storage* storage)
+void RegexColorizerLayer.save(doc.Storage* storage)
 {
 	for (size_t i = 0; i < m_patternArray.m_count; i++)
 	{
-		RegexPattern* pattern = m_patternArray [i];
+		RegexPattern* pattern = m_patternArray[i];
 		storage.m_directory = $"pattern$i";
-		pattern.save (storage);
+		pattern.save(storage);
 	}
 }
 
-bool errorcode RegexColorizerLayer.applyProperties ()
+bool errorcode RegexColorizerLayer.applyProperties()
 {
-	m_pluginHost.m_log.suspend ();
+	m_pluginHost.m_log.suspend();
 
-	m_txHighlighter.clearRegex_s ();
-	m_rxHighlighter.clearRegex_s ();
+	m_txHighlighter.clearRegex_s();
+	m_rxHighlighter.clearRegex_s();
 
 	for (size_t i = 0; i < m_patternArray.m_count; i++)
 	{
-		RegexPattern* pattern = m_patternArray [i];
+		RegexPattern* pattern = m_patternArray[i];
 
 		char const* regexString = pattern.m_regexProp.m_value;
-		if (!strlen (regexString))
+		if (!strlen(regexString))
 			continue;
 
-		gui.TextAttr attr = pattern.buildTextAttr ();
+		gui.TextAttr attr = pattern.buildTextAttr();
 
 		if (pattern.m_isTxEnabledProp.m_value)
-			m_txHighlighter.addRegexPattern_s (regexString, attr);
+			m_txHighlighter.addRegexPattern_s(regexString, attr);
 
 		if (pattern.m_isRxEnabledProp.m_value)
-			m_rxHighlighter.addRegexPattern_s (regexString, attr);
+			m_rxHighlighter.addRegexPattern_s(regexString, attr);
 	}
 
-	m_txHighlighter.finalizeRegex_s ();
-	m_rxHighlighter.finalizeRegex_s ();
+	m_txHighlighter.finalizeRegex_s();
+	m_rxHighlighter.finalizeRegex_s();
 	return true;
 
 finally:
-	m_pluginHost.m_log.resume ();
+	m_pluginHost.m_log.resume();
 }
 
-bool RegexColorizerLayer.convert (
+bool RegexColorizerLayer.convert(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t recordCode,
@@ -202,34 +202,34 @@ bool RegexColorizerLayer.convert (
 	size_t size
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case log.StdRecordCode.Tx:
-		m_rxHighlighter.finalizeWrite_l (writer);
-		writer.write (timestamp, recordCode, p, size);
-		m_txHighlighter.write_l (writer, p, size);
+		m_rxHighlighter.finalizeWrite_l(writer);
+		writer.write(timestamp, recordCode, p, size);
+		m_txHighlighter.write_l(writer, p, size);
 		break;
 
 	case log.StdRecordCode.Rx:
-		m_txHighlighter.finalizeWrite_l (writer);
-		writer.write (timestamp, recordCode, p, size);
+		m_txHighlighter.finalizeWrite_l(writer);
+		writer.write(timestamp, recordCode, p, size);
 		m_rxHighlighter.m_retroColorizerFlags = 0;
-		m_rxHighlighter.write_l (writer, p, size);
+		m_rxHighlighter.write_l(writer, p, size);
 		break;
 
 	case log.StdRecordCode.TxRx:
 		size_t halfSize = size / 2;
 
-		writer.write (timestamp, recordCode, p, size);
-		m_txHighlighter.write_l (writer, p, halfSize);
+		writer.write(timestamp, recordCode, p, size);
+		m_txHighlighter.write_l(writer, p, halfSize);
 		m_rxHighlighter.m_retroColorizerFlags = log.RetroColorizeFlags.Aux;
-		m_rxHighlighter.write_l (writer, p + halfSize, halfSize);
+		m_rxHighlighter.write_l(writer, p + halfSize, halfSize);
 		break;
 
 	default:
-		m_txHighlighter.finalizeWrite_l (writer);
-		m_rxHighlighter.finalizeWrite_l (writer);
-		writer.write (timestamp, recordCode, p, size);
+		m_txHighlighter.finalizeWrite_l(writer);
+		m_rxHighlighter.finalizeWrite_l(writer);
+		writer.write(timestamp, recordCode, p, size);
 	}
 
 	return true;

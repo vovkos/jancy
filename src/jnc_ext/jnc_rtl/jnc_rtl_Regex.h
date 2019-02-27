@@ -20,8 +20,8 @@ namespace rtl {
 class RegexState;
 class RegexDfa;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (RegexState)
-JNC_DECLARE_OPAQUE_CLASS_TYPE (RegexDfa)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexState)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RegexDfa)
 
 //..............................................................................
 
@@ -80,27 +80,27 @@ protected:
 public:
 	void
 	JNC_CDECL
-	construct (bool isIncremental);
+	construct(bool isIncremental);
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (GcHeap* gcHeap);
+	markOpaqueGcRoots(GcHeap* gcHeap);
 
 	void
 	JNC_CDECL
-	setMatchLengthLimit (size_t length);
+	setMatchLengthLimit(size_t length);
 
 	void
 	JNC_CDECL
-	setCurrentOffset (size_t offset);
+	setCurrentOffset(size_t offset);
 
 	void
 	JNC_CDECL
-	reset ();
+	reset();
 
 	size_t
 	JNC_CDECL
-	exec (
+	exec(
 		ct::Dfa* dfa,
 		DataPtr ptr,
 		size_t length
@@ -108,34 +108,34 @@ public:
 
 protected:
 	void
-	processGroupSet (ct::DfaGroupSet* groupSet);
+	processGroupSet(ct::DfaGroupSet* groupSet);
 
 	void
-	setDfa (ct::Dfa* dfa);
+	setDfa(ct::Dfa* dfa);
 
 	void
-	softReset ();
+	softReset();
 
 	size_t
-	eof ();
+	eof();
 
 	size_t
-	writeData (
+	writeData(
 		uchar_t* p,
 		size_t length
 		);
 
 	size_t
-	writeChar (uchar_t c);
+	writeChar(uchar_t c);
 
 	size_t
-	gotoState (size_t stateId);
+	gotoState(size_t stateId);
 
 	void
-	match (size_t stateId);
+	match(size_t stateId);
 
 	void
-	rollback ();
+	rollback();
 };
 
 //..............................................................................
@@ -144,28 +144,28 @@ class RegexDfa: public IfaceHdr
 {
 protected:
 	fsm::Regex m_regex;
-	sl::List <ct::ReSwitchAcceptContext> m_acceptContextList;
+	sl::List<ct::ReSwitchAcceptContext> m_acceptContextList;
 	ct::Dfa m_dfa;
 
 public:
 	void
 	JNC_CDECL
-	clear ();
+	clear();
 
 	bool
 	JNC_CDECL
-	incrementalCompile (
+	incrementalCompile(
 		DataPtr regexStringPtr,
 		size_t length
 		);
 
 	bool
 	JNC_CDECL
-	finalize ();
+	finalize();
 
 	size_t
 	JNC_CDECL
-	match (
+	match(
 		RegexState* state,
 		DataPtr ptr,
 		size_t length

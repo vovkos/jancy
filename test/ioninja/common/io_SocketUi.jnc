@@ -22,19 +22,19 @@ enum NetworkAdapterUsage
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-gui.EnumPropertyOption const* createNetworkAdapterOptionArray (NetworkAdapterUsage usage)
+gui.EnumPropertyOption const* createNetworkAdapterOptionArray(NetworkAdapterUsage usage)
 {
 	size_t addressCount;
-	io.NetworkAdapterDesc const* adapterList = io.createNetworkAdapterDescList (null, &addressCount);
+	io.NetworkAdapterDesc const* adapterList = io.createNetworkAdapterDescList(null, &addressCount);
 
 	gui.EnumPropertyOption* optionArray;
 	gui.EnumPropertyOption* option;
 
-	switch (usage)
+	switch(usage)
 	{
 	case NetworkAdapterUsage.Connection:
 		addressCount++; // include 'Auto'
-		optionArray = new gui.EnumPropertyOption [addressCount];
+		optionArray = new gui.EnumPropertyOption[addressCount];
 		option = optionArray;
 
 		option.m_text = "Auto";
@@ -47,7 +47,7 @@ gui.EnumPropertyOption const* createNetworkAdapterOptionArray (NetworkAdapterUsa
 		static io.SocketAddress autoAddress_ip6 = { m_family = io.AddressFamily.Ip6 }
 
 		addressCount += 2; // include 'All IPv4/IPv6 adapters'
-		optionArray = new gui.EnumPropertyOption [addressCount];
+		optionArray = new gui.EnumPropertyOption[addressCount];
 		option = optionArray;
 
 		option.m_text = "All IPv4 adapters";
@@ -68,7 +68,7 @@ gui.EnumPropertyOption const* createNetworkAdapterOptionArray (NetworkAdapterUsa
 		{
 			option.m_text = $"%1 - %2" (
 				adapter.m_description,
-				address.m_address.getString ()
+				address.m_address.getString()
 				);
 
 			option.m_value = &address.m_address;
@@ -80,7 +80,7 @@ gui.EnumPropertyOption const* createNetworkAdapterOptionArray (NetworkAdapterUsa
 
 //..............................................................................
 
-gui.EnumProperty* createNetworkAdapterProperty (
+gui.EnumProperty* createNetworkAdapterProperty(
 	gui.PropertyGrid* propertyGrid,
 	gui.GroupProperty* group = null,
 	gui.Property* insertBefore = null,
@@ -89,10 +89,10 @@ gui.EnumProperty* createNetworkAdapterProperty (
 	char const* toolTipText
 	)
 {
-	gui.EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray (usage);
-	size_t optionCount = dynamic countof (optionArray);
+	gui.EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray(usage);
+	size_t optionCount = dynamic countof(optionArray);
 
-	return propertyGrid.createEnumProperty (
+	return propertyGrid.createEnumProperty(
 		group,
 		insertBefore,
 		name,
@@ -102,34 +102,34 @@ gui.EnumProperty* createNetworkAdapterProperty (
 		);
 }
 
-gui.EnumProperty* createNetworkAdapterProperty (
+gui.EnumProperty* createNetworkAdapterProperty(
 	gui.PropertyGrid* propertyGrid,
 	NetworkAdapterUsage usage,
 	char const* name,
 	char const* toolTipText
 	)
 {
-	return createNetworkAdapterProperty (propertyGrid,,, usage, name, toolTipText);
+	return createNetworkAdapterProperty(propertyGrid,,, usage, name, toolTipText);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 gui.ComboBox*
-createNetworkAdapterComboBox (
+createNetworkAdapterComboBox(
 	gui.ToolBar* toolBar,
 	NetworkAdapterUsage usage,
 	uint_t width = -1
 	)
 {
-	gui.EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray (usage);
-	size_t optionCount = dynamic countof (optionArray);
+	gui.EnumPropertyOption const* optionArray = createNetworkAdapterOptionArray(usage);
+	size_t optionCount = dynamic countof(optionArray);
 
-	gui.ComboBox* comboBox = toolBar.addComboBox (width);
+	gui.ComboBox* comboBox = toolBar.addComboBox(width);
 
 	for (size_t i = 0; i < optionCount; i++)
-		comboBox.addItem (
-			optionArray [i].m_text,
-			optionArray [i].m_value
+		comboBox.addItem(
+			optionArray[i].m_text,
+			optionArray[i].m_value
 			);
 
 	return comboBox;
@@ -191,7 +191,7 @@ class SocketPropertySet
 		UdpBroadcast = true,
 	}
 
-	static char DefaultRemoteAddress [] = "ioninja.com";
+	static char DefaultRemoteAddress[] = "ioninja.com";
 
 	gui.StringProperty* m_remoteAddressProp;
 	gui.IntProperty* m_remotePortProp;
@@ -207,21 +207,21 @@ class SocketPropertySet
 	uint16_t m_defaultRemotePort = Defaults.RemotePort;
 	uint16_t m_defaultLocalPort = Defaults.LocalPort;
 
-	createProperties (
+	createProperties(
 		gui.PropertyGrid* propertyGrid,
 		gui.GroupProperty* group = null,
 		gui.Property* insertBefore = null,
 		PropertyId mask = PropertyId.AllTcpClient
 		);
 
-	load (doc.Storage* storage);
-	save (doc.Storage* storage);
-	restoreDefaults ();
+	load(doc.Storage* storage);
+	save(doc.Storage* storage);
+	restoreDefaults();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SocketPropertySet.createProperties (
+SocketPropertySet.createProperties(
 	gui.PropertyGrid* propertyGrid,
 	gui.GroupProperty* group,
 	gui.Property* insertBefore,
@@ -229,7 +229,7 @@ SocketPropertySet.createProperties (
 	)
 {
 	if (mask & PropertyId.RemoteAddress)
-		m_remoteAddressProp = propertyGrid.createStringProperty (
+		m_remoteAddressProp = propertyGrid.createStringProperty(
 			group,
 			insertBefore,
 			"Remote address",
@@ -237,7 +237,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.RemotePort)
-		m_remotePortProp = propertyGrid.createIntProperty (
+		m_remotePortProp = propertyGrid.createIntProperty(
 			group,
 			insertBefore,
 			"Remote port (default)",
@@ -245,7 +245,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.UseLocalAddress)
-		m_useLocalAddressProp = propertyGrid.createBoolProperty (
+		m_useLocalAddressProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"Use local address",
@@ -253,7 +253,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & (PropertyId.ClientAdapter | PropertyId.ServerAdapter))
-		m_adapterProp = io.createNetworkAdapterProperty (
+		m_adapterProp = io.createNetworkAdapterProperty(
 			propertyGrid,
 			group,
 			insertBefore,
@@ -265,14 +265,14 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.LocalPort)
-		m_localPortProp = propertyGrid.createIntProperty (
+		m_localPortProp = propertyGrid.createIntProperty(
 			group,,
 			"Local port",
 			"Local port to bind to"
 			);
 
 	if (mask & PropertyId.ReuseLocalAddress)
-		m_reuseLocalAddressProp = propertyGrid.createBoolProperty (
+		m_reuseLocalAddressProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"Reuse address",
@@ -280,7 +280,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.TcpKeepAlive)
-		m_tcpKeepAliveProp = propertyGrid.createBoolProperty (
+		m_tcpKeepAliveProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"TCP keep-alives",
@@ -288,7 +288,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.TcpNagle)
-		m_tcpNagleProp = propertyGrid.createBoolProperty (
+		m_tcpNagleProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"TCP Nagle algorithm",
@@ -296,7 +296,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.TcpReset)
-		m_tcpResetProp = propertyGrid.createBoolProperty (
+		m_tcpResetProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"TCP reset",
@@ -304,7 +304,7 @@ SocketPropertySet.createProperties (
 			);
 
 	if (mask & PropertyId.UdpBroadcast)
-		m_udpBroadcastProp = propertyGrid.createBoolProperty (
+		m_udpBroadcastProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
 			"UDP broadcast",
@@ -312,73 +312,73 @@ SocketPropertySet.createProperties (
 			);
 }
 
-SocketPropertySet.load (doc.Storage* storage)
+SocketPropertySet.load(doc.Storage* storage)
 {
 	if (m_remoteAddressProp)
-		m_remoteAddressProp.m_value = storage.readString ("address", DefaultRemoteAddress);
+		m_remoteAddressProp.m_value = storage.readString("address", DefaultRemoteAddress);
 
 	if (m_remotePortProp)
-		m_remotePortProp.m_value = storage.readInt ("remotePort", m_defaultRemotePort);
+		m_remotePortProp.m_value = storage.readInt("remotePort", m_defaultRemotePort);
 
 	if (m_useLocalAddressProp)
-		m_useLocalAddressProp.m_value = storage.readBool ("useLocalAddress");
+		m_useLocalAddressProp.m_value = storage.readBool("useLocalAddress");
 
 	if (m_adapterProp)
-		m_adapterProp.m_currentIndex = storage.readInt ("adapterIdx");
+		m_adapterProp.m_currentIndex = storage.readInt("adapterIdx");
 
 	if (m_localPortProp)
-		m_localPortProp.m_value = storage.readInt ("localPort", m_defaultLocalPort);
+		m_localPortProp.m_value = storage.readInt("localPort", m_defaultLocalPort);
 
 	if (m_reuseLocalAddressProp)
-		m_reuseLocalAddressProp.m_value = storage.readBool ("reuseLocalAddress", false);
+		m_reuseLocalAddressProp.m_value = storage.readBool("reuseLocalAddress", false);
 
 	if (m_tcpKeepAliveProp)
-		m_tcpKeepAliveProp.m_value = storage.readBool ("tcpKeepAlive", Defaults.TcpKeepAlive);
+		m_tcpKeepAliveProp.m_value = storage.readBool("tcpKeepAlive", Defaults.TcpKeepAlive);
 
 	if (m_tcpNagleProp)
-		m_tcpNagleProp.m_value = storage.readBool ("isNagleEnabled", Defaults.TcpNagle);
+		m_tcpNagleProp.m_value = storage.readBool("isNagleEnabled", Defaults.TcpNagle);
 
 	if (m_tcpResetProp)
-		m_tcpResetProp.m_value = storage.readBool ("closeKind", Defaults.TcpReset);
+		m_tcpResetProp.m_value = storage.readBool("closeKind", Defaults.TcpReset);
 
 	if (m_udpBroadcastProp)
-		m_udpBroadcastProp.m_value = storage.readBool ("udpBroadcast", Defaults.UdpBroadcast);
+		m_udpBroadcastProp.m_value = storage.readBool("udpBroadcast", Defaults.UdpBroadcast);
 }
 
-SocketPropertySet.save (doc.Storage* storage)
+SocketPropertySet.save(doc.Storage* storage)
 {
 	if (m_remoteAddressProp)
-		storage.writeString ("address", m_remoteAddressProp.m_value);
+		storage.writeString("address", m_remoteAddressProp.m_value);
 
 	if (m_remotePortProp)
-		storage.writeInt ("remotePort", m_remotePortProp.m_value);
+		storage.writeInt("remotePort", m_remotePortProp.m_value);
 
 	if (m_useLocalAddressProp)
-		storage.writeBool ("useLocalAddress", m_useLocalAddressProp.m_value);
+		storage.writeBool("useLocalAddress", m_useLocalAddressProp.m_value);
 
 	if (m_adapterProp)
-		storage.writeInt ("adapterIdx", (int) m_adapterProp.m_currentIndex);
+		storage.writeInt("adapterIdx", (int) m_adapterProp.m_currentIndex);
 
 	if (m_localPortProp)
-		storage.writeInt ("localPort", m_localPortProp.m_value);
+		storage.writeInt("localPort", m_localPortProp.m_value);
 
 	if (m_reuseLocalAddressProp)
-		storage.writeBool ("reuseLocalAddress", m_reuseLocalAddressProp.m_value);
+		storage.writeBool("reuseLocalAddress", m_reuseLocalAddressProp.m_value);
 
 	if (m_tcpKeepAliveProp)
-		storage.writeBool ("tcpKeepAlive", m_tcpKeepAliveProp.m_value);
+		storage.writeBool("tcpKeepAlive", m_tcpKeepAliveProp.m_value);
 
 	if (m_tcpNagleProp)
-		storage.writeBool ("isNagleEnabled", m_tcpNagleProp.m_value);
+		storage.writeBool("isNagleEnabled", m_tcpNagleProp.m_value);
 
 	if (m_tcpResetProp)
-		storage.writeBool ("closeKind", m_tcpResetProp.m_value);
+		storage.writeBool("closeKind", m_tcpResetProp.m_value);
 
 	if (m_udpBroadcastProp)
-		storage.writeBool ("udpBroadcast", m_udpBroadcastProp.m_value);
+		storage.writeBool("udpBroadcast", m_udpBroadcastProp.m_value);
 }
 
-SocketPropertySet.restoreDefaults ()
+SocketPropertySet.restoreDefaults()
 {
 	if (m_remotePortProp)
 		m_remotePortProp.m_value = m_defaultRemotePort;
@@ -410,7 +410,7 @@ SocketPropertySet.restoreDefaults ()
 
 //..............................................................................
 
-io.SocketOptions getSocketOptions (
+io.SocketOptions getSocketOptions(
 	io.SocketPropertySet* socketPropSet,
 	io.BufferPropertySet* bufferPropSet
 	)

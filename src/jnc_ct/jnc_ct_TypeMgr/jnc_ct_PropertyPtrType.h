@@ -28,69 +28,69 @@ protected:
 	PropertyType* m_targetType;
 
 public:
-	PropertyPtrType ();
+	PropertyPtrType();
 
 	PropertyPtrTypeKind
-	getPtrTypeKind ()
+	getPtrTypeKind()
 	{
 		return m_ptrTypeKind;
 	}
 
 	PropertyType*
-	getTargetType ()
+	getTargetType()
 	{
 		return m_targetType;
 	}
 
 	bool
-	hasClosure ()
+	hasClosure()
 	{
 		return m_ptrTypeKind == PropertyPtrTypeKind_Normal || m_ptrTypeKind == PropertyPtrTypeKind_Weak;
 	}
 
 	PropertyPtrType*
-	getCheckedPtrType ()
+	getCheckedPtrType()
 	{
 		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags | PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnCheckedPtrType ()
+	getUnCheckedPtrType()
 	{
 		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getPropertyPtrType (m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
+			m_targetType->getPropertyPtrType(m_typeKind, m_ptrTypeKind, m_flags & ~PtrTypeFlag_Safe) :
 			this;
 	}
 
 	PropertyPtrType*
-	getNormalPtrType ()
+	getNormalPtrType()
 	{
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Normal) ?
-			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Normal, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	PropertyPtrType*
-	getWeakPtrType ()
+	getWeakPtrType()
 	{
 		return (m_ptrTypeKind != PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Weak, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Weak, m_flags) :
 			this;
 	}
 
 	PropertyPtrType*
-	getUnWeakPtrType ()
+	getUnWeakPtrType()
 	{
 		return (m_ptrTypeKind == PropertyPtrTypeKind_Weak) ?
-			m_targetType->getPropertyPtrType (PropertyPtrTypeKind_Normal, m_flags) :
+			m_targetType->getPropertyPtrType(PropertyPtrTypeKind_Normal, m_flags) :
 			this;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		PropertyType* propertyType,
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind,
@@ -99,7 +99,7 @@ public:
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
@@ -107,41 +107,41 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 };
 
 //..............................................................................
 
 struct PropertyPtrTypeTuple: sl::ListLink
 {
-	PropertyPtrType* m_ptrTypeArray [2] [3] [3]; // ref x kind x unsafe / checked
+	PropertyPtrType* m_ptrTypeArray[2] [3] [3]; // ref x kind x unsafe / checked
 };
 
 //..............................................................................
 
 JNC_INLINE
 bool
-isBindableType (Type* type)
+isBindableType(Type* type)
 {
 	return
-		type->getTypeKind () == TypeKind_PropertyRef &&
-		(((PropertyPtrType*) type)->getTargetType ()->getFlags () & PropertyTypeFlag_Bindable) != 0;
+		type->getTypeKind() == TypeKind_PropertyRef &&
+		(((PropertyPtrType*)type)->getTargetType()->getFlags() & PropertyTypeFlag_Bindable) != 0;
 }
 
 //..............................................................................

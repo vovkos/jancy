@@ -17,15 +17,15 @@ struct Foo
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bar (
+bar(
 	char const* a,
 	char const* b
 	)
 {
-	printf ("a = %s; b = %s\n", a, b);
+	printf("a = %s; b = %s\n", a, b);
 }
 
-baz ()
+baz()
 {
 	Foo* foo = new Foo;
 	foo.m_name = "name";
@@ -33,7 +33,7 @@ baz ()
 
 	bool b = true;
 
-	bar (
+	bar(
 		b ? foo.m_name : foo.m_description,
 		b ? foo.m_description : foo.m_name
 		);
@@ -43,11 +43,11 @@ baz ()
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	baz ();
+	baz();
 
 	return 0;
 }

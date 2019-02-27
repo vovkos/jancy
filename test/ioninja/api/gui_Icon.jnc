@@ -11,7 +11,7 @@ namespace gui {
 
 opaque class Icon
 {
-	construct (char const* fileName);
+	construct(char const* fileName);
 }
 
 //..............................................................................

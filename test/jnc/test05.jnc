@@ -13,16 +13,16 @@
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	int a = 5, b = 2, c = 3;
 
 	if (a < c || b < c)
-		printf ("yuppie!\n");
+		printf("yuppie!\n");
 	else
-		printf ("oh-oh!\n");
+		printf("oh-oh!\n");
 
 	return 0;
 }

@@ -41,7 +41,7 @@
 
 JNC_EXTERN_C
 size_t
-jnc_StructField_getOffset (jnc_StructField* field);
+jnc_StructField_getOffset(jnc_StructField* field);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -50,9 +50,9 @@ jnc_StructField_getOffset (jnc_StructField* field);
 struct jnc_StructField: jnc_ModuleItem
 {
 	size_t
-	getOffset ()
+	getOffset()
 	{
-		return jnc_StructField_getOffset (this);
+		return jnc_StructField_getOffset(this);
 	}
 };
 

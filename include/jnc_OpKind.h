@@ -50,7 +50,7 @@ typedef enum jnc_UnOpKind jnc_UnOpKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getUnOpKindString (jnc_UnOpKind opKind);
+jnc_getUnOpKindString(jnc_UnOpKind opKind);
 
 //..............................................................................
 
@@ -118,7 +118,7 @@ typedef enum jnc_BinOpKind jnc_BinOpKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getBinOpKindString (jnc_BinOpKind opKind);
+jnc_getBinOpKindString(jnc_BinOpKind opKind);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -188,16 +188,16 @@ const BinOpKind
 
 inline
 const char*
-getUnOpKindString (UnOpKind opKind)
+getUnOpKindString(UnOpKind opKind)
 {
-	return jnc_getUnOpKindString (opKind);
+	return jnc_getUnOpKindString(opKind);
 }
 
 inline
 const char*
-getBinOpKindString (BinOpKind opKind)
+getBinOpKindString(BinOpKind opKind)
 {
-	return jnc_getBinOpKindString (opKind);
+	return jnc_getBinOpKindString(opKind);
 }
 
 //..............................................................................

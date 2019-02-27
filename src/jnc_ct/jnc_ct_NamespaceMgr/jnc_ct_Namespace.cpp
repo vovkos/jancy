@@ -21,51 +21,51 @@ namespace ct {
 //..............................................................................
 
 void
-Namespace::clear ()
+Namespace::clear()
 {
-	m_itemArray.clear ();
-	m_itemMap.clear ();
-	m_friendSet.clear ();
-	m_dualPtrTypeTupleMap.clear ();
-	m_usingSet.clear ();
+	m_itemArray.clear();
+	m_itemMap.clear();
+	m_friendSet.clear();
+	m_dualPtrTypeTupleMap.clear();
+	m_usingSet.clear();
 }
 
 sl::String
-Namespace::createQualifiedName (const sl::StringRef& name)
+Namespace::createQualifiedName(const sl::StringRef& name)
 {
-	if (m_qualifiedName.isEmpty ())
+	if (m_qualifiedName.isEmpty())
 		return name;
 
 	sl::String qualifiedName = m_qualifiedName;
 
-	if (!name.isEmpty ())
+	if (!name.isEmpty())
 	{
-		qualifiedName.append ('.');
-		qualifiedName.append (name);
+		qualifiedName.append('.');
+		qualifiedName.append(name);
 	}
 
 	return qualifiedName;
 }
 
 ModuleItem*
-Namespace::findItemByName (const sl::StringRef& name)
+Namespace::findItemByName(const sl::StringRef& name)
 {
-	if (name.find ('.') == -1)
-		return findItem (name);
+	if (name.find('.') == -1)
+		return findItem(name);
 
 	QualifiedName qualifiedName;
-	qualifiedName.parse (name);
-	return findItem (qualifiedName);
+	qualifiedName.parse(name);
+	return findItem(qualifiedName);
 }
 
 ModuleItem*
-Namespace::getItemByName (const sl::StringRef& name)
+Namespace::getItemByName(const sl::StringRef& name)
 {
-	ModuleItem* item = findItemByName (name);
+	ModuleItem* item = findItemByName(name);
 
 	if (!item)
 	{
-		err::setFormatStringError ("'%s' not found", name.sz ());
+		err::setFormatStringError("'%s' not found", name.sz ());
 		return NULL;
 	}
 
@@ -73,51 +73,51 @@ Namespace::getItemByName (const sl::StringRef& name)
 }
 
 ModuleItem*
-Namespace::findItem (const sl::StringRef& name)
+Namespace::findItem(const sl::StringRef& name)
 {
-	sl::StringHashTableIterator <ModuleItem*> it = m_itemMap.find (name);
+	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.find(name);
 	if (!it)
 		return NULL;
 
 	ModuleItem* item = it->m_value;
-	if (!item || item->getItemKind () != ModuleItemKind_Lazy)
+	if (!item || item->getItemKind() != ModuleItemKind_Lazy)
 		return item;
 
-	LazyModuleItem* lazyItem = (LazyModuleItem*) item;
-	ASSERT (!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
+	LazyModuleItem* lazyItem = (LazyModuleItem*)item;
+	ASSERT(!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
 
 	it->m_value = NULL; // many lazy std-types are parsed, so remove it from namespace
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 
-	item = lazyItem->getActualItem ();
+	item = lazyItem->getActualItem();
 	if (!item)
 		return NULL;
 
 	if (!it->m_value)
 	{
-		m_itemArray.append (item);
+		m_itemArray.append(item);
 		it->m_value = item;
 	}
 
-	ASSERT (it->m_value == item);
+	ASSERT(it->m_value == item);
 	return item;
 }
 
 ModuleItem*
-Namespace::findItem (const QualifiedName& name)
+Namespace::findItem(const QualifiedName& name)
 {
-	ModuleItem* item = findItem (name.getFirstName ());
+	ModuleItem* item = findItem(name.getFirstName());
 	if (!item)
 		return NULL;
 
-	sl::ConstBoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
+	sl::ConstBoxIterator<sl::String> nameIt = name.getNameList().getHead();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = item->getNamespace ();
+		Namespace* nspace = item->getNamespace();
 		if (!nspace)
 			return NULL;
 
-		item = nspace->findItem (*nameIt);
+		item = nspace->findItem(*nameIt);
 		if (!item)
 			return NULL;
 	}
@@ -126,24 +126,24 @@ Namespace::findItem (const QualifiedName& name)
 }
 
 ModuleItem*
-Namespace::findItemTraverse (
+Namespace::findItemTraverse(
 	const QualifiedName& name,
 	MemberCoord* coord,
 	uint_t flags
 	)
 {
-	ModuleItem* item = findItemTraverse (name.getFirstName (), coord, flags);
+	ModuleItem* item = findItemTraverse(name.getFirstName(), coord, flags);
 	if (!item)
 		return NULL;
 
-	sl::ConstBoxIterator <sl::String> nameIt = name.getNameList ().getHead ();
+	sl::ConstBoxIterator<sl::String> nameIt = name.getNameList().getHead();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = item->getNamespace ();
+		Namespace* nspace = item->getNamespace();
 		if (!nspace)
 			return NULL;
 
-		item = nspace->findItem (*nameIt);
+		item = nspace->findItem(*nameIt);
 		if (!item)
 			return NULL;
 	}
@@ -152,7 +152,7 @@ Namespace::findItemTraverse (
 }
 
 ModuleItem*
-Namespace::findItemTraverseImpl (
+Namespace::findItemTraverseImpl(
 	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags
@@ -162,21 +162,21 @@ Namespace::findItemTraverseImpl (
 
 	if (!(flags & TraverseKind_NoThis))
 	{
-		item = findItem (name);
+		item = findItem(name);
 		if (item)
 			return item;
 	}
 
 	if (!(flags & TraverseKind_NoUsingNamespaces))
 	{
-		item = m_usingSet.findItem (name);
+		item = m_usingSet.findItem(name);
 		if (item)
 			return item;
 	}
 
 	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		item = m_parentNamespace->findItemTraverse (name, coord, flags & ~TraverseKind_NoThis);
+		item = m_parentNamespace->findItemTraverse(name, coord, flags & ~TraverseKind_NoThis);
 		if (item)
 			return item;
 	}
@@ -185,57 +185,57 @@ Namespace::findItemTraverseImpl (
 }
 
 bool
-Namespace::addItem (
+Namespace::addItem(
 	const sl::StringRef& name,
 	ModuleItem* item
 	)
 {
-	sl::StringHashTableIterator <ModuleItem*> it = m_itemMap.visit (name);
+	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.visit(name);
 	if (it->m_value)
 	{
-		setRedefinitionError (name);
+		setRedefinitionError(name);
 		return false;
 	}
 
-	if (item->getItemKind () != ModuleItemKind_Lazy)
-		m_itemArray.append (item);
+	if (item->getItemKind() != ModuleItemKind_Lazy)
+		m_itemArray.append(item);
 
 	it->m_value = item;
 	return true;
 }
 
 size_t
-Namespace::addFunction (Function* function)
+Namespace::addFunction(Function* function)
 {
-	ModuleItem* oldItem = findItem (function->m_name);
+	ModuleItem* oldItem = findItem(function->m_name);
 	if (!oldItem)
 	{
-		addItem (function);
+		addItem(function);
 		return 0;
 	}
 
-	if (oldItem->getItemKind () != ModuleItemKind_Function)
+	if (oldItem->getItemKind() != ModuleItemKind_Function)
 	{
-		setRedefinitionError (function->m_name);
+		setRedefinitionError(function->m_name);
 		return -1;
 	}
 
-	return ((Function*) oldItem)->addOverload (function);
+	return ((Function*)oldItem)->addOverload(function);
 }
 
 Const*
-Namespace::createConst (
+Namespace::createConst(
 	const sl::StringRef& name,
 	const Value& value
 	)
 {
-	ASSERT (value.getValueKind () == ValueKind_Const && value.getType ());
+	ASSERT(value.getValueKind() == ValueKind_Const && value.getType());
 
-	Module* module = value.getType ()->getModule ();
-	sl::String qualifiedName = createQualifiedName (name);
+	Module* module = value.getType()->getModule();
+	sl::String qualifiedName = createQualifiedName(name);
 
-	Const* cnst = module->m_constMgr.createConst (name, qualifiedName, value);
-	bool result = addItem (cnst);
+	Const* cnst = module->m_constMgr.createConst(name, qualifiedName, value);
+	bool result = addItem(cnst);
 	if (!result)
 		return NULL;
 
@@ -243,17 +243,17 @@ Namespace::createConst (
 }
 
 bool
-Namespace::exposeEnumConsts (EnumType* type)
+Namespace::exposeEnumConsts(EnumType* type)
 {
 	bool result;
 
-	sl::Array <EnumConst*> constArray = type->getConstArray ();
+	sl::Array<EnumConst*> constArray = type->getConstArray();
 
-	size_t count = constArray.getCount ();
+	size_t count = constArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		EnumConst* enumConst = constArray [i];
-		result = addItem (enumConst);
+		EnumConst* enumConst = constArray[i];
+		result = addItem(enumConst);
 		if (!result)
 			return false;
 	}
@@ -262,7 +262,7 @@ Namespace::exposeEnumConsts (EnumType* type)
 }
 
 bool
-Namespace::generateMemberDocumentation (
+Namespace::generateMemberDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml,
@@ -271,52 +271,52 @@ Namespace::generateMemberDocumentation (
 {
 	bool result;
 
-	static char compoundFileHdr [] =
+	static char compoundFileHdr[] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygen>\n";
 
-	static char compoundFileTerm [] = "</doxygen>\n";
+	static char compoundFileTerm[] = "</doxygen>\n";
 
-	itemXml->clear ();
+	itemXml->clear();
 
 	sl::String sectionDef;
 	sl::String memberXml;
 
-	sl::Array <EnumType*> unnamedEnumTypeArray;
+	sl::Array<EnumType*> unnamedEnumTypeArray;
 
-	size_t count = m_itemArray.getCount ();
+	size_t count = m_itemArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ModuleItem* item = m_itemArray [i];
-		ModuleItemDecl* decl = item->getDecl ();
+		ModuleItem* item = m_itemArray[i];
+		ModuleItemDecl* decl = item->getDecl();
 		if (!decl)
 			continue;
 
-		Unit* unit = decl->getParentUnit ();
-		if (!unit || unit->getLib ()) // don't document imported libraries
+		Unit* unit = decl->getParentUnit();
+		if (!unit || unit->getLib()) // don't document imported libraries
 			continue;
 
-		Namespace* itemNamespace = item->getNamespace ();
+		Namespace* itemNamespace = item->getNamespace();
 		if (itemNamespace == this)
 			continue;
 
-		if (item->getItemKind () == ModuleItemKind_EnumConst)
+		if (item->getItemKind() == ModuleItemKind_EnumConst)
 		{
-			EnumType* enumType = ((EnumConst*) item)->getParentEnumType ();
+			EnumType* enumType = ((EnumConst*)item)->getParentEnumType();
 			if (enumType != this) // otherwise, we are being called on behalf of EnumType
 			{
-				if (!enumType->getName ().isEmpty ()) // exposed enum, not unnamed
+				if (!enumType->getName().isEmpty()) // exposed enum, not unnamed
 					continue;
 
-				unnamedEnumTypeArray.append (enumType);
+				unnamedEnumTypeArray.append(enumType);
 
 				// skip all other enum consts of this unnamed enum
 
 				for (i++; i < count; i++)
 				{
-					item = m_itemArray [i];
-					if (item->getItemKind () != ModuleItemKind_EnumConst ||
-						((EnumConst*) item)->getParentEnumType () != enumType)
+					item = m_itemArray[i];
+					if (item->getItemKind() != ModuleItemKind_EnumConst ||
+						((EnumConst*)item)->getParentEnumType() != enumType)
 						break;
 				}
 
@@ -325,72 +325,72 @@ Namespace::generateMemberDocumentation (
 			}
 		}
 
-		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
+		result = item->generateDocumentation(outputDir, &memberXml, indexXml);
 		if (!result)
 			return false;
 
-		if (memberXml.isEmpty ())
+		if (memberXml.isEmpty())
 			continue;
 
-		DoxyBlock* doxyBlock = item->getDoxyBlock ();
-		DoxyGroup* doxyGroup = doxyBlock->getGroup ();
+		DoxyBlock* doxyBlock = item->getDoxyBlock();
+		DoxyGroup* doxyGroup = doxyBlock->getGroup();
 		if (doxyGroup)
-			doxyGroup->addItem (item);
+			doxyGroup->addItem(item);
 
-		ModuleItemKind itemKind = item->getItemKind ();
+		ModuleItemKind itemKind = item->getItemKind();
 		bool isCompoundFile =
 			itemKind == ModuleItemKind_Namespace ||
-			itemKind == ModuleItemKind_Type && ((Type*) item)->getTypeKind () != TypeKind_Enum;
+			itemKind == ModuleItemKind_Type && ((Type*)item)->getTypeKind() != TypeKind_Enum;
 
 		if (!isCompoundFile)
 		{
-			sectionDef.append (memberXml);
-			sectionDef.append ('\n');
+			sectionDef.append(memberXml);
+			sectionDef.append('\n');
 		}
 		else
 		{
-			sl::String refId = doxyBlock->getRefId ();
-			sl::String fileName = sl::String (outputDir) + "/" + refId + ".xml";
+			sl::String refId = doxyBlock->getRefId();
+			sl::String fileName = sl::String(outputDir) + "/" + refId + ".xml";
 
 			io::File compoundFile;
 			result =
-				compoundFile.open (fileName, io::FileFlag_Clear) &&
-				compoundFile.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
-				compoundFile.write (memberXml, memberXml.getLength ()) != -1 &&
-				compoundFile.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1;
+				compoundFile.open(fileName, io::FileFlag_Clear) &&
+				compoundFile.write(compoundFileHdr, lengthof(compoundFileHdr)) != -1 &&
+				compoundFile.write(memberXml, memberXml.getLength()) != -1 &&
+				compoundFile.write(compoundFileTerm, lengthof(compoundFileTerm)) != -1;
 
 			if (!result)
 				return false;
 
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			itemXml->appendFormat ("<%s refid='%s'/>", elemName, refId.sz ());
-			itemXml->append ('\n');
+			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz ());
+			itemXml->append('\n');
 		}
 	}
 
-	count = unnamedEnumTypeArray.getCount ();
+	count = unnamedEnumTypeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ModuleItem* item = unnamedEnumTypeArray [i];
-		result = item->generateDocumentation (outputDir, &memberXml, indexXml);
+		ModuleItem* item = unnamedEnumTypeArray[i];
+		result = item->generateDocumentation(outputDir, &memberXml, indexXml);
 		if (!result)
 			return false;
 
-		ASSERT (!memberXml.isEmpty ());
-		sectionDef.append (memberXml);
-		sectionDef.append ('\n');
+		ASSERT(!memberXml.isEmpty());
+		sectionDef.append(memberXml);
+		sectionDef.append('\n');
 	}
 
-	if (!sectionDef.isEmpty ())
+	if (!sectionDef.isEmpty())
 		if (!useSectionDef)
 		{
-			itemXml->append (sectionDef);
+			itemXml->append(sectionDef);
 		}
 		else
 		{
-			itemXml->append ("<sectiondef>\n");
-			itemXml->append (sectionDef);
-			itemXml->append ("</sectiondef>\n");
+			itemXml->append("<sectiondef>\n");
+			itemXml->append(sectionDef);
+			itemXml->append("</sectiondef>\n");
 		}
 
 	return true;
@@ -399,36 +399,36 @@ Namespace::generateMemberDocumentation (
 //..............................................................................
 
 sl::String
-GlobalNamespace::createDoxyRefId ()
+GlobalNamespace::createDoxyRefId()
 {
 	sl::String refId;
 
-	if (this == m_module->m_namespaceMgr.getGlobalNamespace ())
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
 	{
 		refId = "global_namespace";
 	}
 	else
 	{
-		refId.format ("namespace_%s", m_qualifiedName.sz ());
-		refId.makeLowerCase ();
+		refId.format("namespace_%s", m_qualifiedName.sz ());
+		refId.makeLowerCase();
 	}
 
-	return m_module->m_doxyMgr.adjustRefId (refId);
+	return m_module->m_doxyMgr.adjustRefId(refId);
 }
 
 bool
-GlobalNamespace::generateDocumentation (
+GlobalNamespace::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock ();
+	DoxyBlock* doxyBlock = getDoxyBlock();
 
 	const char* kind;
 	const char* name;
 
-	if (this == m_module->m_namespaceMgr.getGlobalNamespace ())
+	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
 	{
 		kind = "file";
 		name = "global";
@@ -436,39 +436,39 @@ GlobalNamespace::generateDocumentation (
 	else
 	{
 		kind = "namespace";
-		name = getQualifiedName ();
+		name = getQualifiedName();
 	}
 
-	indexXml->appendFormat (
+	indexXml->appendFormat(
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		doxyBlock->getRefId ().sz (),
+		doxyBlock->getRefId().sz(),
 		name
 		);
 
-	itemXml->format (
+	itemXml->format(
 		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n",
 		kind,
-		doxyBlock->getRefId ().sz (),
+		doxyBlock->getRefId().sz(),
 		name
 		);
 
 	sl::String memberXml;
-	Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
-	itemXml->append (memberXml);
+	Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, true);
+	itemXml->append(memberXml);
 
-	sl::String footnoteXml = doxyBlock->getFootnoteString ();
-	if (!footnoteXml.isEmpty ())
+	sl::String footnoteXml = doxyBlock->getFootnoteString();
+	if (!footnoteXml.isEmpty())
 	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (footnoteXml);
-		itemXml->append ("</sectiondef>\n");
+		itemXml->append("<sectiondef>\n");
+		itemXml->append(footnoteXml);
+		itemXml->append("</sectiondef>\n");
 	}
 
-	itemXml->append (doxyBlock->getDescriptionString ());
-	itemXml->append (getDoxyLocationString ());
-	itemXml->append ("</compounddef>\n");
+	itemXml->append(doxyBlock->getDescriptionString());
+	itemXml->append(getDoxyLocationString());
+	itemXml->append("</compounddef>\n");
 
 	return true;
 }
@@ -476,87 +476,87 @@ GlobalNamespace::generateDocumentation (
 //..............................................................................
 
 bool
-ExtensionNamespace::addMethod (Function* function)
+ExtensionNamespace::addMethod(Function* function)
 {
-	if (function->isVirtual ())
+	if (function->isVirtual())
 	{
-		err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (function->getStorageKind ()));
+		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString (function->getStorageKind ()));
 		return false;
 	}
 
-	if (function->getFunctionKind () != FunctionKind_Normal)
+	if (function->getFunctionKind() != FunctionKind_Normal)
 	{
-		err::setFormatStringError ("'%s' cannot be a part of type extension", getFunctionKindString (function->getFunctionKind ()));
+		err::setFormatStringError("'%s' cannot be a part of type extension", getFunctionKindString (function->getFunctionKind ()));
 		return false;
 	}
 
-	bool result = addItem (function);
+	bool result = addItem(function);
 	if (!result)
 		return false;
 
-	if (m_type->getTypeKindFlags () & TypeKindFlag_Derivable)
-		fixupMethod (function);
+	if (m_type->getTypeKindFlags() & TypeKindFlag_Derivable)
+		fixupMethod(function);
 	else
-		m_fixupMethodArray.append (function);
+		m_fixupMethodArray.append(function);
 
 	return true;
 }
 
 bool
-ExtensionNamespace::addProperty (Property* prop)
+ExtensionNamespace::addProperty(Property* prop)
 {
-	if (prop->isVirtual ())
+	if (prop->isVirtual())
 	{
-		err::setFormatStringError ("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
+		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
 		return false;
 	}
 
-	bool result = addItem (prop);
+	bool result = addItem(prop);
 	if (!result)
 		return false;
 
-	if (m_type->getTypeKindFlags () & TypeKindFlag_Derivable)
-		fixupProperty (prop);
+	if (m_type->getTypeKindFlags() & TypeKindFlag_Derivable)
+		fixupProperty(prop);
 	else
-		m_fixupPropertyArray.append (prop);
+		m_fixupPropertyArray.append(prop);
 
 	return true;
 }
 
 bool
-ExtensionNamespace::calcLayout ()
+ExtensionNamespace::calcLayout()
 {
-	if (!(m_type->getTypeKindFlags () & TypeKindFlag_Derivable))
+	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' cannot have a type extension", m_type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString ().sz ());
 		return false;
 	}
 
-	sl::String qualifiedName = ((DerivableType*) m_type)->createQualifiedName (m_name);
+	sl::String qualifiedName = ((DerivableType*)m_type)->createQualifiedName(m_name);
 	m_qualifiedName = qualifiedName;
 	m_tag = qualifiedName;
 
-	size_t count = m_fixupMethodArray.getCount ();
+	size_t count = m_fixupMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		fixupMethod (m_fixupMethodArray [i]);
+		fixupMethod(m_fixupMethodArray[i]);
 
-	count = m_fixupPropertyArray.getCount ();
+	count = m_fixupPropertyArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		fixupProperty (m_fixupPropertyArray [i]);
+		fixupProperty(m_fixupPropertyArray[i]);
 
 	return true;
 }
 
 void
-ExtensionNamespace::fixupMethod (Function* function)
+ExtensionNamespace::fixupMethod(Function* function)
 {
-	ASSERT (m_type->getTypeKindFlags () & TypeKindFlag_Derivable);
-	DerivableType* derivableType = (DerivableType*) m_type;
+	ASSERT(m_type->getTypeKindFlags() & TypeKindFlag_Derivable);
+	DerivableType* derivableType = (DerivableType*)m_type;
 
 	if (function->m_storageKind != StorageKind_Static)
 	{
 		function->m_storageKind = StorageKind_Member;
-		function->convertToMemberMethod (derivableType);
+		function->convertToMemberMethod(derivableType);
 	}
 
 	function->m_parentNamespace = derivableType;
@@ -564,10 +564,10 @@ ExtensionNamespace::fixupMethod (Function* function)
 }
 
 void
-ExtensionNamespace::fixupProperty (Property* prop)
+ExtensionNamespace::fixupProperty(Property* prop)
 {
-	ASSERT (m_type->getTypeKindFlags () & TypeKindFlag_Derivable);
-	DerivableType* derivableType = (DerivableType*) m_type;
+	ASSERT(m_type->getTypeKindFlags() & TypeKindFlag_Derivable);
+	DerivableType* derivableType = (DerivableType*)m_type;
 
 	if (prop->m_storageKind != StorageKind_Static)
 	{

@@ -19,43 +19,43 @@ namespace ct {
 //..............................................................................
 
 bool
-Attribute::calcLayout ()
+Attribute::calcLayout()
 {
-	ASSERT (!m_initializer.isEmpty ());
+	ASSERT(!m_initializer.isEmpty());
 
 	if (m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
-	return m_module->m_operatorMgr.parseConstExpression (m_initializer, &m_value);
+	return m_module->m_operatorMgr.parseConstExpression(m_initializer, &m_value);
 }
 
 //..............................................................................
 
 Attribute*
-AttributeBlock::createAttribute (
+AttributeBlock::createAttribute(
 	const sl::StringRef& name,
-	sl::BoxList <Token>* initializer
+	sl::BoxList<Token>* initializer
 	)
 {
-	sl::StringHashTableIterator <Attribute*> it = m_attributeMap.visit (name);
+	sl::StringHashTableIterator<Attribute*> it = m_attributeMap.visit(name);
 	if (it->m_value)
 	{
-		err::setFormatStringError ("redefinition of attribute '%s'", name.sz ());
+		err::setFormatStringError("redefinition of attribute '%s'", name.sz ());
 		return NULL;
 	}
 
-	Attribute* attribute = AXL_MEM_NEW (Attribute);
+	Attribute* attribute = AXL_MEM_NEW(Attribute);
 	attribute->m_module = m_module;
 	attribute->m_name = name;
 
 	if (initializer)
 	{
-		sl::takeOver (&attribute->m_initializer, initializer);
-		m_module->markForLayout (attribute);
+		sl::takeOver(&attribute->m_initializer, initializer);
+		m_module->markForLayout(attribute);
 	}
 
-	m_attributeList.insertTail (attribute);
-	m_attributeArray.append (attribute);
+	m_attributeList.insertTail(attribute);
+	m_attributeArray.append(attribute);
 	it->m_value = attribute;
 	return attribute;
 }

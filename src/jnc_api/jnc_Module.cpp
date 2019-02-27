@@ -14,7 +14,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined (_JNC_CORE)
+#elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_rt_ExceptionMgr.h"
 #	include "jnc_ct_Module.h"
@@ -27,63 +27,63 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_GlobalNamespace*
-jnc_Module_getGlobalNamespace (jnc_Module* module)
+jnc_Module_getGlobalNamespace(jnc_Module* module)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getGlobalNamespaceFunc (module);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getGlobalNamespaceFunc(module);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_Module_getPrimitiveType (
+jnc_Module_getPrimitiveType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getPrimitiveTypeFunc (module, typeKind);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getPrimitiveTypeFunc(module, typeKind);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItem*
-jnc_Module_findItem (
+jnc_Module_findItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_findItemFunc (module, name, libGuid, itemCacheSlot);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_findItemFunc(module, name, libGuid, itemCacheSlot);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_mapVariable (
+jnc_Module_mapVariable(
 	jnc_Module* module,
 	jnc_Variable* variable,
 	void* p
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_mapVariableFunc (module, variable, p);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_mapVariableFunc(module, variable, p);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_mapFunction (
+jnc_Module_mapFunction(
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_mapFunctionFunc (module, function, p);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_mapFunctionFunc(module, function, p);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addSource (
+jnc_Module_addSource(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -91,30 +91,30 @@ jnc_Module_addSource (
 	size_t size
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc (module, lib, fileName, source, size);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc(module, lib, fileName, source, size);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addImport (
+jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addImportFunc (module, fileName);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addImportFunc(module, fileName);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addOpaqueClassTypeInfo (
+jnc_Module_addOpaqueClassTypeInfo(
 	jnc_Module* module,
 	const char* qualifiedName,
 	const jnc_OpaqueClassTypeInfo* info
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addOpaqueClassTypeInfoFunc (module, qualifiedName, info);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addOpaqueClassTypeInfoFunc(module, qualifiedName, info);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -122,126 +122,126 @@ jnc_Module_addOpaqueClassTypeInfo (
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Module*
-jnc_Module_create ()
+jnc_Module_create()
 {
-	return AXL_MEM_NEW (jnc_Module);
+	return AXL_MEM_NEW(jnc_Module);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_destroy (jnc_Module* module)
+jnc_Module_destroy(jnc_Module* module)
 {
-	AXL_MEM_DELETE (module);
+	AXL_MEM_DELETE(module);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_clear (jnc_Module* module)
+jnc_Module_clear(jnc_Module* module)
 {
-	module->clear ();
+	module->clear();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_initialize (
+jnc_Module_initialize(
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
 	)
 {
-	module->initialize (tag, compileFlags);
+	module->initialize(tag, compileFlags);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
-jnc_Module_getCompileFlags (jnc_Module* module)
+jnc_Module_getCompileFlags(jnc_Module* module)
 {
-	return module->getCompileFlags ();
+	return module->getCompileFlags();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleCompileState
-jnc_Module_getCompileState (jnc_Module* module)
+jnc_Module_getCompileState(jnc_Module* module)
 {
-	return module->getCompileState ();
+	return module->getCompileState();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_GlobalNamespace*
-jnc_Module_getGlobalNamespace (jnc_Module* module)
+jnc_Module_getGlobalNamespace(jnc_Module* module)
 {
-	return module->m_namespaceMgr.getGlobalNamespace ();
+	return module->m_namespaceMgr.getGlobalNamespace();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_Module_getPrimitiveType (
+jnc_Module_getPrimitiveType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind
 	)
 {
-	return module->m_typeMgr.getPrimitiveType (typeKind);
+	return module->m_typeMgr.getPrimitiveType(typeKind);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_Module_getStdType (
+jnc_Module_getStdType(
 	jnc_Module* module,
 	jnc_StdType stdType
 	)
 {
-	return module->m_typeMgr.getStdType (stdType);
+	return module->m_typeMgr.getStdType(stdType);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_ModuleItem*
-jnc_Module_findItem (
+jnc_Module_findItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	)
 {
-	return module->m_extensionLibMgr.findItem (name, *libGuid, itemCacheSlot);
+	return module->m_extensionLibMgr.findItem(name, *libGuid, itemCacheSlot);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_mapVariable (
+jnc_Module_mapVariable(
 	jnc_Module* module,
 	jnc_Variable* variable,
 	void* p
 	)
 {
-	return module->mapVariable (variable, p);
+	return module->mapVariable(variable, p);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_mapFunction (
+jnc_Module_mapFunction(
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
 	)
 {
-	return module->mapFunction (function, p);
+	return module->mapFunction(function, p);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addSource (
+jnc_Module_addSource(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -249,69 +249,69 @@ jnc_Module_addSource (
 	size_t length
 	)
 {
-	module->m_extensionLibMgr.addSource (lib, fileName, axl::sl::StringRef (source, length));
+	module->m_extensionLibMgr.addSource(lib, fileName, axl::sl::StringRef(source, length));
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addImportDir (
+jnc_Module_addImportDir(
 	jnc_Module* module,
 	const char* dir
 	)
 {
-	module->m_importMgr.m_importDirList.insertTail (dir);
+	module->m_importMgr.m_importDirList.insertTail(dir);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addImport (
+jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
 	)
 {
-	module->m_importMgr.addImport (fileName);
+	module->m_importMgr.addImport(fileName);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addIgnoredImport (
+jnc_Module_addIgnoredImport(
 	jnc_Module* module,
 	const char* fileName
 	)
 {
-	module->m_importMgr.addIgnoredImport (fileName);
+	module->m_importMgr.addIgnoredImport(fileName);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addOpaqueClassTypeInfo (
+jnc_Module_addOpaqueClassTypeInfo(
 	jnc_Module* module,
 	const char* qualifiedName,
 	const jnc_OpaqueClassTypeInfo* info
 	)
 {
-	module->m_extensionLibMgr.addOpaqueClassTypeInfo (qualifiedName, info);
+	module->m_extensionLibMgr.addOpaqueClassTypeInfo(qualifiedName, info);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_Module_addStaticLib (
+jnc_Module_addStaticLib(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib
 	)
 {
-	module->m_extensionLibMgr.addStaticLib (lib);
+	module->m_extensionLibMgr.addStaticLib(lib);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_parse (
+jnc_Module_parse(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -319,98 +319,98 @@ jnc_Module_parse (
 	size_t length
 	)
 {
-	return module->parse (lib, fileName, sl::StringRef (source, length));
+	return module->parse(lib, fileName, sl::StringRef(source, length));
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_parseFile (
+jnc_Module_parseFile(
 	jnc_Module* module,
 	const char* fileName
 	)
 {
-	return module->parseFile (fileName);
+	return module->parseFile(fileName);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_parseImports (jnc_Module* module)
+jnc_Module_parseImports(jnc_Module* module)
 {
-	return module->parseImports ();
+	return module->parseImports();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_link (jnc_Module* module)
+jnc_Module_link(jnc_Module* module)
 {
-	return module->link ();
+	return module->link();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_calcLayout (jnc_Module* module)
+jnc_Module_calcLayout(jnc_Module* module)
 {
-	return module->calcLayout ();
+	return module->calcLayout();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_compile (jnc_Module* module)
+jnc_Module_compile(jnc_Module* module)
 {
-	return module->compile ();
+	return module->compile();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_jit (jnc_Module* module)
+jnc_Module_jit(jnc_Module* module)
 {
-	return module->jit ();
+	return module->jit();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 const char*
-jnc_Module_getLlvmIrString_v (jnc_Module* module)
+jnc_Module_getLlvmIrString_v(jnc_Module* module)
 {
-	return *jnc::getTlsStringBuffer () = module->getLlvmIrString ();
+	return *jnc::getTlsStringBuffer() = module->getLlvmIrString();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
-jnc_Module_generateDocumentation (
+jnc_Module_generateDocumentation(
 	jnc_Module* module,
 	const char* outputDir
 	)
 {
-	static char indexFileHdr [] =
+	static char indexFileHdr[] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygenindex>\n";
 
-	static char indexFileTerm [] = "</doxygenindex>\n";
+	static char indexFileTerm[] = "</doxygenindex>\n";
 
-	static char compoundFileHdr [] =
+	static char compoundFileHdr[] =
 		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
 		"<doxygen>\n";
 
-	static char compoundFileTerm [] = "</doxygen>\n";
+	static char compoundFileTerm[] = "</doxygen>\n";
 
 	bool result;
 
 	result =
-		module->link () &&
-		io::ensureDirExists (outputDir);
+		module->link() &&
+		io::ensureDirExists(outputDir);
 
 	if (!result)
 		return false;
 
-	result = module->m_doxyMgr.resolveBlockTargets ();
+	result = module->m_doxyMgr.resolveBlockTargets();
 	if (!result)
 	{
 		// generate a warning about orphan doxy blocks?
@@ -419,57 +419,57 @@ jnc_Module_generateDocumentation (
 	sl::String nspaceXml;
 	sl::String indexXml;
 
-	jnc::GlobalNamespace* nspace = module->m_namespaceMgr.getGlobalNamespace ();
+	jnc::GlobalNamespace* nspace = module->m_namespaceMgr.getGlobalNamespace();
 
-	result = nspace->generateDocumentation (outputDir, &nspaceXml, &indexXml);
+	result = nspace->generateDocumentation(outputDir, &nspaceXml, &indexXml);
 	if (!result)
 		return false;
 
-	if (nspaceXml.isEmpty ())
+	if (nspaceXml.isEmpty())
 	{
-		err::setError ("module does not contain any documentable items");
+		err::setError("module does not contain any documentable items");
 		return false;
 	}
 
-	module->m_doxyMgr.deleteEmptyGroups ();
+	module->m_doxyMgr.deleteEmptyGroups();
 
-	result = module->m_doxyMgr.generateGroupDocumentation (outputDir, &indexXml);
+	result = module->m_doxyMgr.generateGroupDocumentation(outputDir, &indexXml);
 	if (!result)
 		return false;
 
-	sl::String refId = nspace->getDoxyBlock ()->getRefId ();
-	sl::String nspaceFileName = sl::String (outputDir) + "/" + refId + ".xml";
-	sl::String indexFileName = sl::String (outputDir) + "/index.xml";
+	sl::String refId = nspace->getDoxyBlock()->getRefId();
+	sl::String nspaceFileName = sl::String(outputDir) + "/" + refId + ".xml";
+	sl::String indexFileName = sl::String(outputDir) + "/index.xml";
 
 	io::File file;
 	return
-		file.open (nspaceFileName, io::FileFlag_Clear) &&
-		file.write (compoundFileHdr, lengthof (compoundFileHdr)) != -1 &&
-		file.write (nspaceXml, nspaceXml.getLength ()) != -1 &&
-		file.write (compoundFileTerm, lengthof (compoundFileTerm)) != -1 &&
+		file.open(nspaceFileName, io::FileFlag_Clear) &&
+		file.write(compoundFileHdr, lengthof(compoundFileHdr)) != -1 &&
+		file.write(nspaceXml, nspaceXml.getLength()) != -1 &&
+		file.write(compoundFileTerm, lengthof(compoundFileTerm)) != -1 &&
 
-		file.open (indexFileName, io::FileFlag_Clear) &&
-		file.write (indexFileHdr, lengthof (indexFileHdr)) != -1 &&
-		file.write (indexXml, indexXml.getLength ()) != -1 &&
-		file.write (indexFileTerm, lengthof (indexFileTerm)) != -1;
+		file.open(indexFileName, io::FileFlag_Clear) &&
+		file.write(indexFileHdr, lengthof(indexFileHdr)) != -1 &&
+		file.write(indexXml, indexXml.getLength()) != -1 &&
+		file.write(indexFileTerm, lengthof(indexFileTerm)) != -1;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
-jnc_initialize (const char* tag)
+jnc_initialize(const char* tag)
 {
 #if 0
 	// orginally there was no llvm_shutdown in ioninja-server
 	// so have to make sure it's not going to crash if we add it
 
-	atexit (llvm::llvm_shutdown);
+	atexit(llvm::llvm_shutdown);
 #endif
 
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmParser();
+	llvm::InitializeNativeTargetAsmPrinter();
+	llvm::InitializeNativeTargetDisassembler();
 
 #if (LLVM_VERSION < 0x0306)
 	LLVMLinkInJIT();
@@ -477,14 +477,14 @@ jnc_initialize (const char* tag)
 	LLVMLinkInMCJIT();
 
 	if (tag)
-		g::getModule ()->setTag (tag);
+		g::getModule()->setTag(tag);
 
-	sl::getSimpleSingleton <jnc::rt::ExceptionMgr> ()->install ();
+	sl::getSimpleSingleton<jnc::rt::ExceptionMgr> ()->install();
 
-	lex::registerParseErrorProvider ();
+	lex::registerParseErrorProvider();
 
 #if (_JNC_IO_USB)
-	io::registerUsbErrorProvider ();
+	io::registerUsbErrorProvider();
 #endif
 }
 

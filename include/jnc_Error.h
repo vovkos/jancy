@@ -42,7 +42,7 @@
 
 JNC_EXTERN_C
 void
-jnc_setErrorRouter (jnc_ErrorRouter* router);
+jnc_setErrorRouter(jnc_ErrorRouter* router);
 
 #endif
 
@@ -50,7 +50,7 @@ jnc_setErrorRouter (jnc_ErrorRouter* router);
 
 JNC_EXTERN_C
 const jnc_Error*
-jnc_getLastError ();
+jnc_getLastError();
 
 /**
 	\subgroup
@@ -67,15 +67,15 @@ jnc_getLastError ();
 
 JNC_EXTERN_C
 void
-jnc_setError (const jnc_Error* error);
+jnc_setError(const jnc_Error* error);
 
 JNC_EXTERN_C
 void
-jnc_setErrno (int code);
+jnc_setErrno(int code);
 
 JNC_EXTERN_C
 void
-jnc_setStringError (const char* string);
+jnc_setStringError(const char* string);
 
 /**
 	\subgroup
@@ -89,7 +89,7 @@ jnc_setStringError (const char* string);
 
 	.. code-block:: c
 
-		jnc_getErrorDescription_v (jnc_getLastError ())
+		jnc_getErrorDescription_v(jnc_getLastError())
 
 	.. rubric:: Sample:
 
@@ -97,20 +97,20 @@ jnc_setStringError (const char* string);
 
 		// try to compile some Jancy code, and it fails...
 
-		printf ("error: %s\n", jnc_getLastErrorDescription_v ());
+		printf("error: %s\n", jnc_getLastErrorDescription_v ());
 
 	\endverbatim
 */
 
 JNC_EXTERN_C
 const char*
-jnc_getErrorDescription_v (const jnc_Error* error);
+jnc_getErrorDescription_v(const jnc_Error* error);
 
 JNC_INLINE
 const char*
-jnc_getLastErrorDescription_v ()
+jnc_getLastErrorDescription_v()
 {
-	return jnc_getErrorDescription_v (jnc_getLastError ());
+	return jnc_getErrorDescription_v(jnc_getLastError());
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -125,53 +125,53 @@ namespace jnc {
 
 inline
 void
-setErrorRouter (jnc_ErrorRouter* router)
+setErrorRouter(jnc_ErrorRouter* router)
 {
-	jnc_setErrorRouter (router);
+	jnc_setErrorRouter(router);
 }
 
 #endif
 
 inline
 const jnc_Error*
-getLastError ()
+getLastError()
 {
-	return jnc_getLastError ();
+	return jnc_getLastError();
 }
 
 inline
 void
-setError (const jnc_Error* error)
+setError(const jnc_Error* error)
 {
-	jnc_setError (error);
+	jnc_setError(error);
 }
 
 inline
 void
-setErrno (int code)
+setErrno(int code)
 {
-	jnc_setErrno (code);
+	jnc_setErrno(code);
 }
 
 inline
 void
-setStringError (const char* string)
+setStringError(const char* string)
 {
-	jnc_setStringError (string);
+	jnc_setStringError(string);
 }
 
 inline
 const char*
-getErrorDescription_v (const jnc_Error* error)
+getErrorDescription_v(const jnc_Error* error)
 {
-	return jnc_getErrorDescription_v (error);
+	return jnc_getErrorDescription_v(error);
 }
 
 inline
 const char*
-getLastErrorDescription_v ()
+getLastErrorDescription_v()
 {
-	return jnc_getLastErrorDescription_v ();
+	return jnc_getLastErrorDescription_v();
 }
 
 //..............................................................................

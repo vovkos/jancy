@@ -9,21 +9,21 @@
 //
 //..............................................................................
 
-unsigned int errorcode foo (int x)
+unsigned int errorcode foo(int x)
 {
 	return x;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	foo (-1);
+	foo(-1);
 
 	return 10;
 
 catch:
-	printf ("exception!\n");
+	printf("exception!\n");
 	return -1;
 }
 

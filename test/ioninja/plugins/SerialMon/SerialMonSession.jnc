@@ -56,9 +56,9 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable [ActionId._Count];
-	gui.Icon* m_iconTable [IconId._Count];
-	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.Action* m_actionTable[ActionId._Count];
+	gui.Icon* m_iconTable[IconId._Count];
+	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	gui.ComboBox* m_portCombo;
 
 	// serial mon property grid
@@ -78,87 +78,87 @@ protected:
 	reactor m_uiReactor;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	bool errorcode capture ();
-	close ();
+	bool errorcode capture();
+	close();
 
-	override void load (doc.Storage* storage);
-	override void save (doc.Storage* storage);
-	override void updateProperties ();
-	override bool errorcode applyProperties ();
-	override void restoreDefaultProperties ();
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
 
 protected:
-	onCapture ()
+	onCapture()
 	{
-		m_state ? close () : try capture ();
+		m_state ? close() : try capture();
 	}
 
-	onPortComboEnter ()
+	onPortComboEnter()
 	{
-		try capture ();
+		try capture();
 	}
 
-	createUi ();
-	enumeratePorts ();
+	createUi();
+	enumeratePorts();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMonSession.construct (doc.PluginHost* pluginHost)
+SerialMonSession.construct(doc.PluginHost* pluginHost)
 {
-	basetype.construct (pluginHost);
-	m_monitor.construct (this);
+	basetype.construct(pluginHost);
+	m_monitor.construct(this);
 
-	createUi ();
+	createUi();
 
-	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SerialMonSession.createUi ()
+SerialMonSession.createUi()
 {
 	// toolbar
 
-	m_pluginHost.m_toolBar.addLabel ("Port:");
-	m_portCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_pluginHost.m_toolBar.addLabel("Port:");
+	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onEnter += onPortComboEnter;
 
-	m_actionTable [ActionId.Refresh] = createAction ("Refresh port list", "images/refresh.png");
-	m_actionTable [ActionId.Refresh].m_onTriggered += enumeratePorts;
+	m_actionTable[ActionId.Refresh] = createAction("Refresh port list", "images/refresh.png");
+	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
 
-	m_iconTable [IconId.Capture] = new gui.Icon ("images/capture.png");
-	m_iconTable [IconId.StopCapture] = new gui.Icon ("images/pause.png");
+	m_iconTable[IconId.Capture] = new gui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new gui.Icon("images/pause.png");
 
-	m_actionTable [ActionId.Capture] = createAction ("Capture", m_iconTable [IconId.Capture]);
-	m_actionTable [ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar
 
-	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Device",
 		"Serial port monitor target device settings"
 		);
 
-	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty (
+	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"Port",
 		"Specify serial port to monitor"
 		);
 
-	group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering & compatibility",
 		"Advanced options controlling performance, throughtput and compatibility"
 		);
 
-	m_bufferPropertySet.createProperties (
+	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
 		io.BufferPropertySet.PropertyId.ReadParallelism |
@@ -167,7 +167,7 @@ SerialMonSession.createUi ()
 		io.BufferPropertySet.PropertyId.NotifyReadBufferFull
 		);
 
-	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty (
+	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		group,,
 		"Pending notification limit",
 		"Set the maximum size of kernel notification queue (exceeding notification will be dropped)"
@@ -180,64 +180,64 @@ SerialMonSession.createUi ()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("Serial monitor");
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial monitor");
 
-	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
-	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
-	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
-	m_pluginHost.m_informationGrid.resizeNameColumnToContents ();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
-	enumeratePorts ();
-	m_uiReactor.start ();
+	enumeratePorts();
+	m_uiReactor.start();
 }
 
-SerialMonSession.enumeratePorts ()
+SerialMonSession.enumeratePorts()
 {
 	char const* name = m_portCombo.m_currentText;
-	m_portCombo.clear ();
+	m_portCombo.clear();
 
 	size_t count;
-	io.SerialPortDesc const* portList = io.createSerialPortDescList (&count);
+	io.SerialPortDesc const* portList = io.createSerialPortDescList(&count);
 	io.SerialPortDesc const* port = portList;
 
-	gui.EnumPropertyOption* optionArray = new gui.EnumPropertyOption [count];
+	gui.EnumPropertyOption* optionArray = new gui.EnumPropertyOption[count];
 	gui.EnumPropertyOption* option = optionArray;
 
 	for (; port; port = port.m_next, option++)
 	{
 		char const* description = $"$(port.m_deviceName) - $(port.m_description)";
-		m_portCombo.addItem (description, port.m_deviceName);
+		m_portCombo.addItem(description, port.m_deviceName);
 		option.m_text = description;
 		option.m_value = port.m_deviceName;
 	}
 
 	m_portCombo.m_editText = name; // preserve current text
-	m_portProp.setOptions (optionArray, count);
+	m_portProp.setOptions(optionArray, count);
 }
 
-bool errorcode SerialMonSession.capture ()
+bool errorcode SerialMonSession.capture()
 {
-	close ();
-	startSession ();
+	close();
+	startSession();
 
 	char const* name = m_portCombo.m_currentText;
 
-	m_monitor.applyProperties (m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
-	m_monitor.capture (name);
+	m_monitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
+	m_monitor.capture(name);
 
-	writeLogString (DeviceMonLogRecordCode.CaptureStarted_name, name);
+	writeLogString(DeviceMonLogRecordCode.CaptureStarted_name, name);
 
 	m_portName = name;
 	m_state = State.Opened;
-	m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
-	m_monitor.close ();
+	m_monitor.close();
 
-	std.Error const* error = std.getLastError ();
-	writeLog (
+	std.Error const* error = std.getLastError();
+	writeLog(
 		DeviceMonLogRecordCode.CaptureError,
 		error,
 		error.m_size
@@ -245,55 +245,55 @@ catch:
 	return false;
 }
 
-SerialMonSession.close ()
+SerialMonSession.close()
 {
 	if (m_state != State.Opened)
 		return;
 
-	writeLog (DeviceMonLogRecordCode.CaptureStopped);
+	writeLog(DeviceMonLogRecordCode.CaptureStopped);
 
-	m_monitor.close ();
+	m_monitor.close();
 	m_state = State.Closed;
-	m_stdSessionInfoSet.endSession ();
+	m_stdSessionInfoSet.endSession();
 }
 
-void SerialMonSession.load (doc.Storage* storage)
+void SerialMonSession.load(doc.Storage* storage)
 {
-	m_portCombo.m_editText = storage.readString ("portName");
-	m_pendingNotifySizeLimitProp.m_value = storage.readInt ("pendingNotifySizeLimit", Defaults.PendingNotifySizeLimit);
+	m_portCombo.m_editText = storage.readString("portName");
+	m_pendingNotifySizeLimitProp.m_value = storage.readInt("pendingNotifySizeLimit", Defaults.PendingNotifySizeLimit);
 
-	m_bufferPropertySet.load (storage);
-	m_monitor.setReadBufferSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+	m_bufferPropertySet.load(storage);
+	m_monitor.setReadBufferSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void SerialMonSession.save (doc.Storage* storage)
+void SerialMonSession.save(doc.Storage* storage)
 {
-	storage.writeString ("portName", m_portCombo.m_editText);
-	storage.writeInt ("pendingNotifySizeLimit", m_pendingNotifySizeLimitProp.m_value);
+	storage.writeString("portName", m_portCombo.m_editText);
+	storage.writeInt("pendingNotifySizeLimit", m_pendingNotifySizeLimitProp.m_value);
 
-	m_bufferPropertySet.save (storage);
+	m_bufferPropertySet.save(storage);
 }
 
-void SerialMonSession.updateProperties ()
+void SerialMonSession.updateProperties()
 {
 	m_portProp.m_value = m_portCombo.m_editText;
 }
 
-bool errorcode SerialMonSession.applyProperties ()
+bool errorcode SerialMonSession.applyProperties()
 {
 	m_portCombo.m_editText = m_portProp.m_value;
 
 	if (m_state != State.Opened)
 		return true;
 
-	m_monitor.applyProperties (m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
+	m_monitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	return true;
 }
 
-void SerialMonSession.restoreDefaultProperties ()
+void SerialMonSession.restoreDefaultProperties()
 {
 	m_pendingNotifySizeLimitProp.m_value = Defaults.PendingNotifySizeLimit;
-	m_bufferPropertySet.restoreDefaults ();
+	m_bufferPropertySet.restoreDefaults();
 }
 
 reactor SerialMonSession.m_uiReactor
@@ -302,9 +302,9 @@ reactor SerialMonSession.m_uiReactor
 		$"Monitor $m_portName" :
 		$"Monitor $(m_portCombo.m_currentText)";
 
-	m_actionTable [ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
-	m_actionTable [ActionId.Capture].m_icon = m_iconTable [m_state ? IconId.StopCapture : IconId.Capture];
-	m_statusPaneTable [StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
+	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Capturing" : "Closed";
 }
 
 //..............................................................................

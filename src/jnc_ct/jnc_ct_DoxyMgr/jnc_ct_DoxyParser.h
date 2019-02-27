@@ -50,7 +50,7 @@ protected:
 
 	DoxyBlock* m_block;
 	DoxyBlock* m_parentBlock;
-	sl::Array <GroupStackEntry> m_groupStack;
+	sl::Array<GroupStackEntry> m_groupStack;
 	BlockTargetKind m_blockTargetKind;
 	DescriptionKind m_descriptionKind;
 	sl::String m_firstIndent;
@@ -59,13 +59,13 @@ protected:
 	size_t m_overloadIdx;
 
 public:
-	DoxyParser (Module* module);
+	DoxyParser(Module* module);
 
 	DoxyBlock*
-	popBlock ();
+	popBlock();
 
 	void
-	addComment (
+	addComment(
 		const sl::StringRef& comment,
 		const lex::LineCol& lineCol,
 		bool canAppend,
@@ -74,7 +74,7 @@ public:
 
 protected:
 	void
-	setBlockTarget (
+	setBlockTarget(
 		DoxyTokenKind token,
 		const sl::StringRef& name
 		);

@@ -15,9 +15,9 @@ struct Point
 	int m_y;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	Point point = null;
 
@@ -31,7 +31,7 @@ int main ()
 
 	Point const* p = v5;
 
-	printf ($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
+	printf($"v1 = $v1; v2 = $v2; v3 = $v3; v4 = $v4\n");
 
 	return 0;
 }

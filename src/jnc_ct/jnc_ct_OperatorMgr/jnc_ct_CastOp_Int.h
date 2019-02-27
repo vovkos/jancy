@@ -25,7 +25,7 @@ class Cast_IntTrunc: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -35,7 +35,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -43,7 +43,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -59,7 +59,7 @@ class Cast_IntExt: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -69,7 +69,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -77,7 +77,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -91,7 +91,7 @@ class Cast_IntExt_u: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -101,7 +101,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -109,7 +109,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -125,7 +125,7 @@ class Cast_SwapByteOrder: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -135,7 +135,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -143,7 +143,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -157,7 +157,7 @@ class Cast_IntFromBeInt: public Cast_SuperMaster
 public:
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -173,7 +173,7 @@ class Cast_BeInt: public Cast_SuperMaster
 public:
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -191,7 +191,7 @@ class Cast_IntFromFp: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -201,7 +201,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -215,7 +215,7 @@ class Cast_IntFromFp32: public Cast_IntFromFp
 public:
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -229,7 +229,7 @@ class Cast_IntFromFp64: public Cast_IntFromFp
 public:
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -245,7 +245,7 @@ class Cast_IntFromEnum: public Cast_SuperMaster
 public:
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -259,21 +259,21 @@ public:
 class Cast_Enum: public Cast_SuperMaster
 {
 public:
-	Cast_Enum ()
+	Cast_Enum()
 	{
 		m_opFlags = OpFlag_KeepEnum;
 	}
 
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	getCastOperators (
+	getCastOperators(
 		const Value& opValue,
 		Type* type,
 		CastOperator** firstOperator,
@@ -291,18 +291,18 @@ class Cast_IntFromPtr: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
 	{
-		ASSERT (opValue.getType ()->getSize () >= sizeof (intptr_t));
+		ASSERT(opValue.getType()->getSize() >= sizeof(intptr_t));
 		return CastKind_Explicit;
 	}
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -310,7 +310,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -324,7 +324,7 @@ class Cast_PtrFromInt: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -334,7 +334,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -342,7 +342,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -368,7 +368,7 @@ protected:
 public:
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		);

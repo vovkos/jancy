@@ -17,9 +17,9 @@
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	enum Language
 	{
@@ -29,22 +29,22 @@ int main ()
 
 	Language language = Language.Foo;
 
-	char s [] = "foo 'bar \\' bar' foo";
+	char s[] = "foo 'bar \\' bar' foo";
 
 	char* p = s;
-	char* end = p + countof (s) - 1;
+	char* end = p + countof(s) - 1;
 
 	jnc.RegexState state;
 
 	while (p < end)
 	{
-		switch (language)
+		switch(language)
 		{
 		case Language.Foo:
-			reswitch (state, p, end - p)
+			reswitch(state, p, end - p)
 			{
 			case "foo":
-				printf ("lexeme found: foo\n");
+				printf("lexeme found: foo\n");
 				break;
 
 			case "'":
@@ -58,10 +58,10 @@ int main ()
 			break;
 
 		case Language.Bar:
-			reswitch (state, p, end - p)
+			reswitch(state, p, end - p)
 			{
 			case "bar":
-				printf ("lexeme found: bar\n");
+				printf("lexeme found: bar\n");
 				break;
 
 			case r"\\'":
@@ -79,12 +79,12 @@ int main ()
 			break;
 
 		default:
-			assert (false);
+			assert(false);
 		}
 
 		if (!state.m_consumedLength)
 		{
-			printf ("recognition error\n");
+			printf("recognition error\n");
 			return -1;
 		}
 

@@ -62,32 +62,32 @@ opaque class DeviceMonitor
 	std.Error const* readonly volatile m_ioError;
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	bool errorcode open ();
-	bool errorcode connect (char const* deviceName);
-	void close ();
+	bool errorcode open();
+	bool errorcode connect(char const* deviceName);
+	void close();
 
 
-	void setIoctlDescTable (
+	void setIoctlDescTable(
 		psx.DeviceMonitorIoctlDesc const* ioctlDesc,
 		size_t count
 		);
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		DeviceMonitorEvents eventMask,
-		function* handler (DeviceMonitorEvents triggeredEvents)
+		function* handler(DeviceMonitorEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	DeviceMonitorEvents errorcode blockingWait (
+	DeviceMonitorEvents errorcode blockingWait(
 		DeviceMonitorEvents eventMask,
 		uint_t timeout
 		);

@@ -27,9 +27,9 @@ int autoget property g_simpleProp;
 
 // setter implementation (no getter needed)
 
-g_simpleProp.set (int x)
+g_simpleProp.set(int x)
 {
-	printf ("g_simpleProp.set (%d)\n", x);
+	printf("g_simpleProp.set (%d)\n", x);
 
 	// by default, the name of a compiler-generated field is 'm_value'
 
@@ -47,18 +47,18 @@ property g_prop
 
 	int autoget m_x;
 
-	set (int x)
+	set(int x)
 	{
-		printf ("g_prop.set (int %d)\n", x);
+		printf("g_prop.set (int %d)\n", x);
 		m_x = x;
 	}
 
 	// setters of autoget properties can be overloaded
 
-	set (double x)
+	set(double x)
 	{
-		printf ("g_prop.set (double %f)\n", x);
-		m_x = (int) x;
+		printf("g_prop.set (double %f)\n", x);
+		m_x = (int)x;
 	}
 }
 
@@ -66,18 +66,18 @@ property g_prop
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	g_simpleProp = 100;
 	int x = g_simpleProp;
-	printf ("x = %d\n", x);
+	printf("x = %d\n", x);
 
 	g_prop = 500;
 	g_prop = 2.5;
 	x = g_prop;
-	printf ("x = %d\n", x);
+	printf("x = %d\n", x);
 
 	return 0;
 }

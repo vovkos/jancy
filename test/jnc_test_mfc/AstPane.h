@@ -17,18 +17,18 @@ class CAstPane : public CDockablePane
 {
 protected:
 	CTreeCtrl m_TreeCtrl;
-	ref::CBufT <jnc::CParser::CAst> m_Ast;
+	ref::CBufT<jnc::CParser::CAst> m_Ast;
 
 public:
 	bool
-	Build (ref::CBufT <jnc::CParser::CAst> Ast);
+	Build(ref::CBufT<jnc::CParser::CAst> Ast);
 
 	void
-	Clear ();
+	Clear();
 
 protected:
 	HTREEITEM
-	AddAst (
+	AddAst(
 		HTREEITEM hParent,
 		jnc::CParser::CAstNode* pAstNode
 		);

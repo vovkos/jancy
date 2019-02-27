@@ -19,14 +19,14 @@ namespace std {
 
 class List;
 
-JNC_DECLARE_TYPE (ListEntry)
-JNC_DECLARE_CLASS_TYPE (List)
+JNC_DECLARE_TYPE(ListEntry)
+JNC_DECLARE_CLASS_TYPE(List)
 
 //..............................................................................
 
 struct ListEntry
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (ListEntry)
+	JNC_DECLARE_TYPE_STATIC_METHODS(ListEntry)
 
 	DataPtr m_nextPtr;
 	DataPtr m_prevPtr;
@@ -47,29 +47,29 @@ public:
 public:
 	void
 	JNC_CDECL
-	clear ();
+	clear();
 
 	void
 	JNC_CDECL
-	takeOver (List* list);
+	takeOver(List* list);
 
 	static
 	DataPtr
-	insertHead (
+	insertHead(
 		List* self,
 		Variant data
 		);
 
 	static
 	DataPtr
-	insertTail (
+	insertTail(
 		List* self,
 		Variant data
 		);
 
 	static
 	DataPtr
-	insertBefore (
+	insertBefore(
 		List* self,
 		Variant data,
 		DataPtr beforePtr
@@ -77,7 +77,7 @@ public:
 
 	static
 	DataPtr
-	insertAfter (
+	insertAfter(
 		List* self,
 		Variant data,
 		DataPtr afterPtr
@@ -85,43 +85,43 @@ public:
 
 	void
 	JNC_CDECL
-	moveToHead (DataPtr entryPtr);
+	moveToHead(DataPtr entryPtr);
 
 	void
 	JNC_CDECL
-	moveToTail (DataPtr entryPtr);
+	moveToTail(DataPtr entryPtr);
 
 	void
 	JNC_CDECL
-	moveBefore (
+	moveBefore(
 		DataPtr entryPtr,
 		DataPtr beforePtr
 		);
 
 	void
 	JNC_CDECL
-	moveAfter (
+	moveAfter(
 		DataPtr entryPtr,
 		DataPtr afterPtr
 		);
 
 	static
 	Variant
-	removeHead (List* self)
+	removeHead(List* self)
 	{
-		return remove (self, self->m_headPtr);
+		return remove(self, self->m_headPtr);
 	}
 
 	static
 	Variant
-	removeTail (List* self)
+	removeTail(List* self)
 	{
-		return remove (self, self->m_tailPtr);
+		return remove(self, self->m_tailPtr);
 	}
 
 	static
 	Variant
-	remove (
+	remove(
 		List* self,
 		DataPtr entryPtr
 		);
@@ -129,28 +129,28 @@ public:
 protected:
 	static
 	DataPtr
-	allocateListEntry ();
+	allocateListEntry();
 
 	void
-	insertHeadImpl (DataPtr entryPtr);
+	insertHeadImpl(DataPtr entryPtr);
 
 	void
-	insertTailImpl (DataPtr entryPtr);
+	insertTailImpl(DataPtr entryPtr);
 
 	void
-	insertBeforeImpl (
+	insertBeforeImpl(
 		DataPtr entryPtr,
 		DataPtr beforePtr
 		);
 
 	void
-	insertAfterImpl (
+	insertAfterImpl(
 		DataPtr entryPtr,
 		DataPtr afterPtr
 		);
 
 	void
-	removeImpl (ListEntry* entry);
+	removeImpl(ListEntry* entry);
 };
 
 //..............................................................................

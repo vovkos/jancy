@@ -15,18 +15,18 @@ class RangeProcessor
 
 	bool readonly m_isFinished; // set to 'true' to indicate we are done
 
-	virtual processNewZone ()
+	virtual processNewZone()
 	{
 	}
 
-	virtual processText (
+	virtual processText(
 		uint64_t partCode,
 		char const* text
 		)
 	{
 	}
 
-	virtual processBin (
+	virtual processBin(
 		uint64_t partCode,
 		void const* p,
 		size_t size
@@ -34,7 +34,7 @@ class RangeProcessor
 	{
 	}
 
-	virtual processDualBin (
+	virtual processDualBin(
 		uint64_t partCode,
 		void const* p1,
 		void const* p2,
@@ -43,14 +43,14 @@ class RangeProcessor
 	{
 	}
 
-	virtual processEndOfRange ()
+	virtual processEndOfRange()
 	{
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef RangeProcessor* RangeProcessorFactoryFunc ();
+typedef RangeProcessor* RangeProcessorFactoryFunc();
 
 //..............................................................................
 

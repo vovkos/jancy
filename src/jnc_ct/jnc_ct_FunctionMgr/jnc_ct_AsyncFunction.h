@@ -26,24 +26,24 @@ protected:
 	ClassType* m_promiseType;
 
 public:
-	AsyncFunction ()
+	AsyncFunction()
 	{
 		m_functionKind = FunctionKind_Async;
 		m_promiseType = NULL;
 	}
 
 	ClassType*
-	getPromiseType ()
+	getPromiseType()
 	{
 		m_promiseType;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	void
-	replaceAllocas ();
+	replaceAllocas();
 };
 
 //..............................................................................

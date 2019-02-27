@@ -43,60 +43,60 @@ protected:
 	llvm::DIBuilder* m_llvmDiBuilder;
 
 public:
-	LlvmDiBuilder ();
+	LlvmDiBuilder();
 
-	~LlvmDiBuilder ()
+	~LlvmDiBuilder()
 	{
-		clear ();
+		clear();
 	}
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	llvm::DIBuilder*
-	getLlvmDiBuilder ()
+	getLlvmDiBuilder()
 	{
 		return m_llvmDiBuilder;
 	}
 
 	void
-	create ();
+	create();
 
 	void
-	clear ();
+	clear();
 
 	void
-	finalize ()
+	finalize()
 	{
-		m_llvmDiBuilder->finalize ();
+		m_llvmDiBuilder->finalize();
 	}
 
 	llvm::DebugLoc
-	getDebugLoc (
+	getDebugLoc(
 		Scope* scope,
 		const Token::Pos& pos
 		)
 	{
-		return llvm::DebugLoc::get (pos.m_line + 1, 0, scope->getLlvmDiScope ());
+		return llvm::DebugLoc::get(pos.m_line + 1, 0, scope->getLlvmDiScope());
 	}
 
 	llvm::DebugLoc
-	getEmptyDebugLoc ();
+	getEmptyDebugLoc();
 
 	llvm::DIFile_vn
-	createFile (
+	createFile(
 		const sl::StringRef& fileName,
 		const sl::StringRef& dir
 		)
 	{
-		return m_llvmDiBuilder->createFile (fileName >> toLlvm, dir >> toLlvm);
+		return m_llvmDiBuilder->createFile(fileName >> toLlvm, dir >> toLlvm);
 	}
 
 	llvm::DIType_vn
-	createBasicType (
+	createBasicType(
 		const sl::StringRef& name,
 		size_t size,
 		size_t alignment,
@@ -104,56 +104,56 @@ public:
 		)
 	{
 #if (LLVM_VERSION < 0x0400)
-		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, alignment * 8, code);
+		return m_llvmDiBuilder->createBasicType(name >> toLlvm, size * 8, alignment * 8, code);
 #else
-		return m_llvmDiBuilder->createBasicType (name >> toLlvm, size * 8, code);
+		return m_llvmDiBuilder->createBasicType(name >> toLlvm, size * 8, code);
 #endif
 	}
 
 	llvm::DISubroutineType_vn
-	createSubroutineType (FunctionType* functionType);
+	createSubroutineType(FunctionType* functionType);
 
 	llvm::DIType_vn
-	createEmptyStructType (StructType* structType);
+	createEmptyStructType(StructType* structType);
 
 	void
-	setStructTypeBody (StructType* structType);
+	setStructTypeBody(StructType* structType);
 
 	llvm::DIType_vn
-	createEmptyUnionType (UnionType* unionType);
+	createEmptyUnionType(UnionType* unionType);
 
 	void
-	setUnionTypeBody (UnionType* unionType);
+	setUnionTypeBody(UnionType* unionType);
 
 	llvm::DIType_vn
-	createArrayType (ArrayType* arrayType);
+	createArrayType(ArrayType* arrayType);
 
 	llvm::DIType_vn
-	createPointerType (Type* type);
+	createPointerType(Type* type);
 
 #if (LLVM_VERSION < 0x0400)
 	// this method requires some serious porting on LLVM 4, but it's not used now anyway, so...
 	llvm::DIGlobalVariable_vn
-	createGlobalVariable (Variable* variable);
+	createGlobalVariable(Variable* variable);
 #endif
 
 	llvm::DIVariable_vn
-	createParameterVariable (
+	createParameterVariable(
 		Variable* variable,
 		size_t argIdx
 		);
 
 	llvm::DISubprogram_vn
-	createFunction (Function* function);
+	createFunction(Function* function);
 
 	llvm::DILexicalBlock_vn
-	createLexicalBlock (
+	createLexicalBlock(
 		Scope* parentScope,
 		const Token::Pos& pos
 		);
 
 	llvm::Instruction*
-	createDeclare (Variable* variable);
+	createDeclare(Variable* variable);
 };
 
 //..............................................................................

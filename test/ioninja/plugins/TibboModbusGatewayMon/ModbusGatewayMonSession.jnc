@@ -29,7 +29,7 @@ protected:
 		Connected,
 	}
 
-	static char const* m_stateStringTable [] =
+	static char const* m_stateStringTable[] =
 	{
 		"Closed",
 		"Resolving...",
@@ -75,9 +75,9 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable [ActionId._Count];
-	gui.Icon* m_iconTable [IconId._Count];
-	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.Action* m_actionTable[ActionId._Count];
+	gui.Icon* m_iconTable[IconId._Count];
+	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	gui.ComboBox* m_addressCombo;
 
 	// property grid
@@ -99,145 +99,145 @@ protected:
 	static char const* m_telnetCommand = "\x2Y\n\r";
 
 	// Incoming data buffer
-	static uint8_t m_bufferIncoming [512];
+	static uint8_t m_bufferIncoming[512];
 	size_t m_bufferIncomingLength;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	bool errorcode connect ();
-	bool errorcode connect (io.SocketAddress const* address);
-	disconnect ();
+	bool errorcode connect();
+	bool errorcode connect(io.SocketAddress const* address);
+	disconnect();
 
-	override void load (doc.Storage* storage);
-	override void save (doc.Storage* storage);
-	override void updateProperties ();
-	override bool errorcode applyProperties ();
-	override void restoreDefaultProperties ();
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
 
 protected:
-	handleConnectError (std.Error const* error);
+	handleConnectError(std.Error const* error);
 
-	onConnect ();
+	onConnect();
 
-	onResolveCompleted (
+	onResolveCompleted(
 		uint_t syncId,
 		io.SocketAddress const* addressTable,
 		size_t addressCount,
 		std.Error const* error
 		);
 
-	onSocketEvent (
+	onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
-	waitSocketEvents ();
+	waitSocketEvents();
 
-	createUi ();
+	createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusGatewayMonSession.construct (doc.PluginHost* pluginHost)
+ModbusGatewayMonSession.construct(doc.PluginHost* pluginHost)
 {
-	basetype.construct (pluginHost);
+	basetype.construct(pluginHost);
 
 	m_state = State.Closed;
 
 	m_bufferIncomingLength = 0;
 
-	createUi ();
+	createUi();
 
-	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-ModbusGatewayMonSession.createUi ()
+ModbusGatewayMonSession.createUi()
 {
 	// toolbar
 
-	m_pluginHost.m_toolBar.addLabel ("Modbus Gateway Address:");
-	m_addressCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_pluginHost.m_toolBar.addLabel("Modbus Gateway Address:");
+	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
 	m_addressCombo.m_onEnter += connect;
 
-	m_iconTable [IconId.Connect] = new gui.Icon ("images/connect.png");
-	m_iconTable [IconId.Disconnect] = new gui.Icon ("images/disconnect.png");
+	m_iconTable[IconId.Connect] = new gui.Icon("images/connect.png");
+	m_iconTable[IconId.Disconnect] = new gui.Icon("images/disconnect.png");
 
-	m_actionTable [ActionId.Connect] = createAction ("Connect", m_iconTable [IconId.Connect]);
-	m_actionTable [ActionId.Connect].m_onTriggered += onConnect;
+	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable [IconId.Connect]);
+	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
 
 	// status bar
 
-	m_statusPaneTable [StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane (, 100);
-	m_statusPaneTable [StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
-	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
-	m_statusPaneTable [StatusPaneId.Temp] = m_pluginHost.m_statusBar.addPane (, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+	m_statusPaneTable[StatusPaneId.Temp] = m_pluginHost.m_statusBar.addPane(, 100);
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"TCP-specific connection settings"
 		);
 
     m_socketPropertySet.m_defaultRemotePort = 23;
     //io.SocketPropertySet.PropertyId mask = io.SocketPropertySet.PropertyId.AllTcpClient & ~io.SocketPropertySet.PropertyId.RemotePort;
-	m_socketPropertySet.createProperties (m_pluginHost.m_propertyGrid, group); //,, mask);
+	m_socketPropertySet.createProperties(m_pluginHost.m_propertyGrid, group); //,, mask);
 
-	group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Buffering",
 		"Advanced buffering options affecting throughtput and compatibility"
 		);
 
-	m_bufferPropertySet.createProperties (m_pluginHost.m_propertyGrid, group);
+	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("Modbus Gateway Connection");
-	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Modbus Gateway Connection");
+	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 
-	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
-	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 }
 
-ModbusGatewayMonSession.onConnect ()
+ModbusGatewayMonSession.onConnect()
 {
 	if (m_state)
-		disconnect ();
+		disconnect();
 	else
-		try connect ();
+		try connect();
 }
 
-bool errorcode ModbusGatewayMonSession.connect ()
+bool errorcode ModbusGatewayMonSession.connect()
 {
-	disconnect ();
+	disconnect();
 
-	startSession ();
+	startSession();
 
 	char const* addressString = m_addressCombo.m_editText;
-	m_addressCombo.addEditTextToHistory ();
+	m_addressCombo.addEditTextToHistory();
 
 	io.SocketAddress address;
-	bool isDirectAddress = try address.parse (addressString);
+	bool isDirectAddress = try address.parse(addressString);
 	if (isDirectAddress)
 	{
 		if (address.m_ip4.m_port == 0)
 			address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
-		return try connect (&address);
+		return try connect(&address);
 	}
 
 	m_state = State.Resolving;
 
-	writeLog (
+	writeLog(
 		SocketLogRecordCode.Resolving,
 		addressString,
-		strlen (addressString)
+		strlen(addressString)
 		);
 
 	io.AddressFamily addressFamily = io.AddressFamily.Undefined;
@@ -248,17 +248,17 @@ bool errorcode ModbusGatewayMonSession.connect ()
 			addressFamily = adapterAddress.m_family;
 	}
 
-	m_resolver.resolve (addressString, addressFamily, onResolveCompleted ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_resolver.resolve(addressString, addressFamily, onResolveCompleted ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
-	handleConnectError (std.getLastError ());
+	handleConnectError(std.getLastError());
 	return false;
 }
 
-bool errorcode ModbusGatewayMonSession.connect (io.SocketAddress const* remoteAddress)
+bool errorcode ModbusGatewayMonSession.connect(io.SocketAddress const* remoteAddress)
 {
-	disconnect ();
+	disconnect();
 
 	io.SocketAddress localAddress;
 
@@ -267,11 +267,11 @@ nestedscope:
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions (m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
 	{
-		m_socket.open (remoteAddress.m_family, io.Protocol.Tcp);
+		m_socket.open(remoteAddress.m_family, io.Protocol.Tcp);
 	}
 	else
 
@@ -282,60 +282,60 @@ nestedscope:
 		else
 			localAddress.m_family = remoteAddress.m_family;
 
-		localAddress.m_ip4.m_port = (uint16_t) m_socketPropertySet.m_localPortProp.m_value; // same for IPv4/IPv6
+		localAddress.m_ip4.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value; // same for IPv4/IPv6
 
-		m_socket.open (io.Protocol.Tcp, &localAddress);
+		m_socket.open(io.Protocol.Tcp, &localAddress);
 	}
 
 	m_remoteAddress = *remoteAddress;
 	m_state = State.Connecting;
-	m_socket.connect (remoteAddress);
+	m_socket.connect(remoteAddress);
 
 	localAddress = m_socket.m_address;
 
 	char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
-	writeLog (SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof (p));
+	writeLog(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 
-	waitSocketEvents ();
+	waitSocketEvents();
 	return true;
 
 catch:
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
 	{
-		writeLog (SocketLogRecordCode.Connecting, remoteAddress, sizeof (io.SocketAddress));
+		writeLog(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
 	}
 	else
 	{
 		char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
-		writeLog (SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof (p));
+		writeLog(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
 
-	handleConnectError (std.getLastError ());
+	handleConnectError(std.getLastError());
 	return false;
 }
 
-ModbusGatewayMonSession.handleConnectError (std.Error const* error)
+ModbusGatewayMonSession.handleConnectError(std.Error const* error)
 {
-	writeLog (
+	writeLog(
 		SocketLogRecordCode.ConnectError,
 		error,
 		error.m_size
 		);
 
-	m_socket.close ();
+	m_socket.close();
 	m_state = State.Closed;
 }
 
-ModbusGatewayMonSession.disconnect ()
+ModbusGatewayMonSession.disconnect()
 {
-	switch (m_state)
+	switch(m_state)
 	{
 	case State.Closed:
 		return;
 
 	case State.Resolving:
 	case State.Connecting:
-		writeLog (SocketLogRecordCode.ConnectCancelled);
+		writeLog(SocketLogRecordCode.ConnectCancelled);
 		break;
 
 	case State.Connected:
@@ -346,46 +346,46 @@ ModbusGatewayMonSession.disconnect ()
 		if (m_socketPropertySet.m_tcpResetProp.m_value)
 			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-		writeLog (
+		writeLog(
 			SocketLogRecordCode.Disconnected,
 			&params,
-			sizeof (params)
+			sizeof(params)
 			);
 
 		m_isTransmitEnabled = false;
-		m_stdSessionInfoSet.endSession ();
+		m_stdSessionInfoSet.endSession();
 		break;
 	}
 
-	m_socket.close ();
+	m_socket.close();
 	m_state = State.Closed;
 	m_bufferIncomingLength = 0;
 }
 
-void ModbusGatewayMonSession.load (doc.Storage* storage)
+void ModbusGatewayMonSession.load(doc.Storage* storage)
 {
-	m_addressCombo.loadHistory (storage, "addressHistory");
-	m_addressCombo.m_editText = storage.readString ("address");
+	m_addressCombo.loadHistory(storage, "addressHistory");
+	m_addressCombo.m_editText = storage.readString("address");
 
-	m_socketPropertySet.load (storage);
-	m_bufferPropertySet.load (storage);
+	m_socketPropertySet.load(storage);
+	m_bufferPropertySet.load(storage);
 }
 
-void ModbusGatewayMonSession.save (doc.Storage* storage)
+void ModbusGatewayMonSession.save(doc.Storage* storage)
 {
-	m_socketPropertySet.save (storage);
-	m_bufferPropertySet.save (storage);
+	m_socketPropertySet.save(storage);
+	m_bufferPropertySet.save(storage);
 
-	m_addressCombo.saveHistory (storage, "addressHistory");
-	storage.writeString ("address", m_addressCombo.m_editText); // overwrite
+	m_addressCombo.saveHistory(storage, "addressHistory");
+	storage.writeString("address", m_addressCombo.m_editText); // overwrite
 }
 
-void ModbusGatewayMonSession.updateProperties ()
+void ModbusGatewayMonSession.updateProperties()
 {
 	m_socketPropertySet.m_remoteAddressProp.m_value = m_addressCombo.m_editText;
 }
 
-bool errorcode ModbusGatewayMonSession.applyProperties ()
+bool errorcode ModbusGatewayMonSession.applyProperties()
 {
 	m_addressCombo.m_editText = m_socketPropertySet.m_remoteAddressProp.m_value;
 
@@ -396,22 +396,22 @@ bool errorcode ModbusGatewayMonSession.applyProperties ()
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions (m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	return true;
 }
 
-void ModbusGatewayMonSession.restoreDefaultProperties ()
+void ModbusGatewayMonSession.restoreDefaultProperties()
 {
-	m_socketPropertySet.restoreDefaults ();
+	m_socketPropertySet.restoreDefaults();
 	m_socketPropertySet.m_remotePortProp.m_value = 23;
-	m_bufferPropertySet.restoreDefaults ();
+	m_bufferPropertySet.restoreDefaults();
 }
 
-ModbusGatewayMonSession.waitSocketEvents ()
+ModbusGatewayMonSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
-	switch (m_state)
+	switch(m_state)
 	{
 	case State.Connecting:
 		eventMask |= io.SocketEvents.Connected;
@@ -426,10 +426,10 @@ ModbusGatewayMonSession.waitSocketEvents ()
 		break;
 	}
 
-	m_socket.wait (eventMask, onSocketEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_socket.wait(eventMask, onSocketEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-ModbusGatewayMonSession.onSocketEvent (
+ModbusGatewayMonSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
@@ -439,20 +439,20 @@ ModbusGatewayMonSession.onSocketEvent (
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		handleConnectError (m_socket.m_ioError);
+		handleConnectError(m_socket.m_ioError);
 		return;
 	}
 
 	if (triggeredEvents & io.SocketEvents.Connected)
 	{
-		writeLog (SocketLogRecordCode.ConnectCompleted);
+		writeLog(SocketLogRecordCode.ConnectCompleted);
 		m_state = State.Connected;
 		m_isTransmitEnabled = true;
-		m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
+		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 
-		size_t sz = m_socket.write (m_telnetCommand, 4);
+		size_t sz = m_socket.write(m_telnetCommand, 4);
 		if (sz != 4) {
-			writeLog (ModbusGatewayMonLogRecordCode.CommandError);
+			writeLog(ModbusGatewayMonLogRecordCode.CommandError);
 		}
 	}
 
@@ -460,11 +460,11 @@ ModbusGatewayMonSession.onSocketEvent (
 	{
 		for (;;) // read all the buffered data
 		{
-			size_t result = m_socket.read (m_bufferIncoming, sizeof (m_bufferIncoming));
+			size_t result = m_socket.read(m_bufferIncoming, sizeof(m_bufferIncoming));
 			if (!result)
 				break;
 
-			writeLog (log.StdRecordCode.Rx, m_bufferIncoming, result);
+			writeLog(log.StdRecordCode.Rx, m_bufferIncoming, result);
 		}
 
 		TcpDisconnectLogRecordParams recordParams;
@@ -474,22 +474,22 @@ ModbusGatewayMonSession.onSocketEvent (
 		if (triggeredEvents & io.SocketEvents.Reset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-		writeLog (
+		writeLog(
 			SocketLogRecordCode.Disconnected,
 			&recordParams,
-			sizeof (recordParams)
+			sizeof(recordParams)
 			);
 
-		m_socket.close ();
+		m_socket.close();
 		m_state = State.Closed;
 		m_isTransmitEnabled = false;
-		m_stdSessionInfoSet.endSession ();
+		m_stdSessionInfoSet.endSession();
 		return;
 	}
 
 	if ((triggeredEvents & io.SocketEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog (log.StdRecordCode.RxBufferFull);
+		writeLog(log.StdRecordCode.RxBufferFull);
 
 	if (triggeredEvents & io.SocketEvents.IncomingData)
 	{
@@ -497,7 +497,7 @@ ModbusGatewayMonSession.onSocketEvent (
 		bool bigdata = true;
 
 		while (bigdata == true) {
-			result = try m_socket.read (&m_bufferIncoming + m_bufferIncomingLength, sizeof(m_bufferIncoming) - m_bufferIncomingLength);
+			result = try m_socket.read(&m_bufferIncoming + m_bufferIncomingLength, sizeof(m_bufferIncoming) - m_bufferIncomingLength);
 			if (result == -1) {
 				bigdata = false;
 			} else {
@@ -530,7 +530,7 @@ ModbusGatewayMonSession.onSocketEvent (
 						else
 							if (sizePacket + 2 <= m_bufferIncomingLength) {
 								// Packet receiving complete
-								writeLog (ModbusGatewayMonLogRecordCode.DumpPacket, &m_bufferIncoming[4], sizePacket - 2);
+								writeLog(ModbusGatewayMonLogRecordCode.DumpPacket, &m_bufferIncoming[4], sizePacket - 2);
 								//writeLog (log.StdRecordCode.Rx, m_bufferIncoming, 64);
 								m_bufferIncomingLength -= sizePacket + 2;
 								if (m_bufferIncomingLength > 0)
@@ -540,8 +540,8 @@ ModbusGatewayMonSession.onSocketEvent (
 					} else {    // Wrong Header
 						uint8_t _buf0 = m_bufferIncoming[0];
 						char const* str = $"Wrong packet header. Length:$m_bufferIncomingLength [0]:$_buf0";
-						writeLog (ModbusGatewayMonLogRecordCode.Log, str, dynamic sizeof(str));
-						writeLog (log.StdRecordCode.Rx, m_bufferIncoming, 128);
+						writeLog(ModbusGatewayMonLogRecordCode.Log, str, dynamic sizeof(str));
+						writeLog(log.StdRecordCode.Rx, m_bufferIncoming, 128);
 						m_bufferIncomingLength = 0;
 					}
 				}
@@ -549,10 +549,10 @@ ModbusGatewayMonSession.onSocketEvent (
 		}
 	}
 
-	waitSocketEvents ();
+	waitSocketEvents();
 }
 
-ModbusGatewayMonSession.onResolveCompleted (
+ModbusGatewayMonSession.onResolveCompleted(
 	uint_t syncId,
 	io.SocketAddress const* addressTable,
 	size_t addressCount,
@@ -564,23 +564,23 @@ ModbusGatewayMonSession.onResolveCompleted (
 
 	if (error)
 	{
-		handleConnectError (error);
+		handleConnectError(error);
 		return;
 	}
 
-	writeLog (
+	writeLog(
 		SocketLogRecordCode.ResolveCompleted,
 		addressTable,
-		sizeof (io.SocketAddress)
+		sizeof(io.SocketAddress)
 		);
 
 	m_state = State.Closed;
 
-	io.SocketAddress address = addressTable [0];
+	io.SocketAddress address = addressTable[0];
 	if (!address.m_ip4.m_port) // IPv4 & IPv6 share the same port location
 		address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
-	connect (address);
+	connect(address);
 }
 
 reactor ModbusGatewayMonSession.m_uiReactor
@@ -589,11 +589,11 @@ reactor ModbusGatewayMonSession.m_uiReactor
 	m_socketPropertySet.m_adapterProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
 	m_socketPropertySet.m_localPortProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
 	m_socketPropertySet.m_reuseLocalAddressProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
-	m_actionTable [ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
-	m_actionTable [ActionId.Connect].m_icon = m_iconTable [m_state ? IconId.Disconnect : IconId.Connect];
-	m_statusPaneTable [StatusPaneId.State].m_text = m_stateStringTable [m_state];
-	m_statusPaneTable [StatusPaneId.RemoteAddress].m_text = m_state > State.Resolving ? m_remoteAddress.getString () : "<peer-address>";
-	m_statusPaneTable [StatusPaneId.RemoteAddress].m_isVisible = m_state > State.Resolving;
+	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
+	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_state > State.Resolving ? m_remoteAddress.getString() : "<peer-address>";
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_state > State.Resolving;
 }
 
 //..............................................................................

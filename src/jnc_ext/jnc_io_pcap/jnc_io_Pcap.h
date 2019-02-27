@@ -16,9 +16,9 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (Pcap)
-JNC_DECLARE_TYPE (PcapAddress)
-JNC_DECLARE_TYPE (PcapDeviceDesc)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Pcap)
+JNC_DECLARE_TYPE(PcapAddress)
+JNC_DECLARE_TYPE(PcapDeviceDesc)
 
 //..............................................................................
 
@@ -52,13 +52,13 @@ protected:
 		Def_ReadBufferSize  = 16 * 1024,
 	};
 
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, Pcap, m_ioThread)->ioThreadFunc ();
+			containerof(this, Pcap, m_ioThread)->ioThreadFunc();
 		}
 	};
 
@@ -75,23 +75,23 @@ protected:
 	IoThread m_ioThread;
 
 public:
-	Pcap ();
+	Pcap();
 
-	~Pcap ()
+	~Pcap()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	{
-		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	bool
 	JNC_CDECL
-	openDevice (
+	openDevice(
 		DataPtr deviceNamePtr,
 		DataPtr filterPtr,
 		uint_t snapshotSize,
@@ -101,29 +101,29 @@ public:
 
 	bool
 	JNC_CDECL
-	openFile (
+	openFile(
 		DataPtr fileNamePtr,
 		DataPtr filterPtr
 		);
 
 	void
 	JNC_CDECL
-	close ();
+	close();
 
 	bool
 	JNC_CDECL
-	setReadBufferSize (size_t size)
+	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setFilter (DataPtr filter);
+	setFilter(DataPtr filter);
 
 	size_t
 	JNC_CDECL
-	read (
+	read(
 		DataPtr dataPtr,
 		size_t size,
 		DataPtr timestampPtr
@@ -131,44 +131,44 @@ public:
 
 	size_t
 	JNC_CDECL
-	write (
+	write(
 		DataPtr ptr,
 		size_t size
 		);
 
 	handle_t
 	JNC_CDECL
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		)
 	{
-		return AsyncIoDevice::wait (eventMask, handlerPtr);
+		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle)
+	cancelWait(handle_t handle)
 	{
-		return AsyncIoDevice::cancelWait (handle);
+		return AsyncIoDevice::cancelWait(handle);
 	}
 
 	uint_t
 	JNC_CDECL
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		)
 	{
-		return AsyncIoDevice::blockingWait (eventMask, timeout);
+		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 protected:
 	bool
-	finishOpen ();
+	finishOpen();
 
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 };
 
 //..............................................................................
@@ -196,7 +196,7 @@ struct PcapDeviceDesc
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DataPtr
-createPcapDeviceDescList (DataPtr countPtr);
+createPcapDeviceDescList(DataPtr countPtr);
 
 //..............................................................................
 

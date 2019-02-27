@@ -28,37 +28,37 @@ protected:
 	size_t m_bitCount;
 
 public:
-	BitFieldType ();
+	BitFieldType();
 
 	Type*
-	getBaseType ()
+	getBaseType()
 	{
 		return m_baseType;
 	}
 
 	size_t
-	getBitOffset ()
+	getBitOffset()
 	{
 		return m_bitOffset;
 	}
 
 	size_t
-	getBitCount ()
+	getBitCount()
 	{
 		return m_bitCount;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		Type* baseType,
 		size_t bitOffset,
 		size_t bitCount
 		)
 	{
-		return sl::formatString (
+		return sl::formatString(
 			"B%s:%d:%d",
-			baseType->getSignature ().sz (),
+			baseType->getSignature().sz(),
 			bitOffset,
 			bitOffset + bitCount
 			);
@@ -67,29 +67,29 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		m_llvmType = m_baseType->getLlvmType ();
+		m_llvmType = m_baseType->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ()
+	prepareLlvmDiType()
 	{
-		m_llvmDiType = m_baseType->getLlvmDiType ();
+		m_llvmDiType = m_baseType->getLlvmDiType();
 	}
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................

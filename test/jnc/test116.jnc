@@ -1,19 +1,19 @@
-// this test was used to debug destruct-sequence bug 
+// this test was used to debug destruct-sequence bug
 // in globally-allocated variables
 
 int g_objectCount;
 
 class A
 {
-	construct ()
+	construct()
 	{
-		printf ("A.construct (%p)\n", this);
+		printf("A.construct (%p)\n", this);
 		g_objectCount++;
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("A.destruct (%p)\n", this);
+		printf("A.destruct (%p)\n", this);
 		g_objectCount--;
 	}
 }
@@ -22,37 +22,37 @@ class B: A
 {
 	A m_a;
 
-	construct ()
+	construct()
 	{
-		printf ("B.construct (%p)\n", this);
+		printf("B.construct (%p)\n", this);
 		g_objectCount++;
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("B.destruct (%p)\n", this);
+		printf("B.destruct (%p)\n", this);
 		g_objectCount--;
 	}
 }
 
 B g_b;
-	
-int main ()
-{
-	printf ("file: " __FILE__ "\n");
-	printf ("dir: " __DIR__ "\n");
 
-	printf ("static B b\n");
+int main()
+{
+	printf("file: " __FILE__ "\n");
+	printf("dir: " __DIR__ "\n");
+
+	printf("static B b\n");
 	static B b;
 
-	printf ("B b\n");
+	printf("B b\n");
 	B b2;
 
 	return 0;
 }
 
-destruct ()
+destruct()
 {
-	printf ("module.destruct: g_counter: %d\n", g_objectCount);
-	assert (g_objectCount == 0);
+	printf("module.destruct: g_counter: %d\n", g_objectCount);
+	assert(g_objectCount == 0);
 }

@@ -1,13 +1,13 @@
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	std.setError ("something bad happened");
-		
-	printf ($"last error (method 1): $(std.getLastError ().m_description)\n");
-	printf ($"last error (method 2): $(std.getLastErrorDescription ())\n");
-	printf ($"last error (method 2): $!\n");
+	std.setError("something bad happened");
+
+	printf($"last error (method 1): $(std.getLastError ().m_description)\n");
+	printf($"last error (method 2): $(std.getLastErrorDescription ())\n");
+	printf($"last error (method 2): $!\n");
 
 	return 0;
 }

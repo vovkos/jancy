@@ -61,26 +61,26 @@ opaque class UsbDevice
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	bool errorcode open ();
-	void close ();
+	bool errorcode open();
+	void close();
 	alias void dispose = close;
 
-	char const* errorcode getStringDesc (uint8_t stringId);
+	char const* errorcode getStringDesc(uint8_t stringId);
 
 	bool autoget property m_isAutoDetachKernelDriverEnabled;
-	bool const property m_isKernelDriverActive (uint_t interfaceId);
-	bool errorcode attachKernelDriver (uint_t interfaceId);
-	bool errorcode detachKernelDriver (uint_t interfaceId);
+	bool const property m_isKernelDriverActive(uint_t interfaceId);
+	bool errorcode attachKernelDriver(uint_t interfaceId);
+	bool errorcode detachKernelDriver(uint_t interfaceId);
 
-	UsbInterface* errorcode claimInterface (
+	UsbInterface* errorcode claimInterface(
 		uint8_t interfaceId,
 		uint8_t altSettingId = 0
 		);
 
-	size_t errorcode controlTransfer (
+	size_t errorcode controlTransfer(
 		uint_t requestType,
 		uint_t requestCode,
 		uint_t value,
@@ -90,7 +90,7 @@ opaque class UsbDevice
 		uint_t timeout = -1
 		);
 
-	bool errorcode controlTransfer (
+	bool errorcode controlTransfer(
 		uint_t requestType,
 		uint_t requestCode,
 		uint_t value,
@@ -98,20 +98,20 @@ opaque class UsbDevice
 		void* p,
 		size_t size,
 		uint_t timeout = -1,
-		function* onCompleted (
+		function* onCompleted(
 			size_t size,
 			std.Error const* error
 			)
 		);
 
-	void cancelControlTransfers ();
+	void cancelControlTransfers();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbDevice* const* errorcode createUsbDeviceArray (size_t* count = null);
+UsbDevice* const* errorcode createUsbDeviceArray(size_t* count = null);
 
-UsbDevice* errorcode openUsbDevice (
+UsbDevice* errorcode openUsbDevice(
 	uint_t vendorId,
 	uint_t productId
 	);

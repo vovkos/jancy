@@ -25,7 +25,7 @@ reactor C.m_reactor
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int main ()
+int main()
 {
 	return 0;
 }

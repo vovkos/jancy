@@ -22,7 +22,7 @@
 
 JNC_EXTERN_C
 jnc_ModuleItem*
-jnc_Alias_getTargetItem (jnc_Alias* alias);
+jnc_Alias_getTargetItem(jnc_Alias* alias);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -31,9 +31,9 @@ jnc_Alias_getTargetItem (jnc_Alias* alias);
 struct jnc_Alias: jnc_ModuleItem
 {
 	jnc_ModuleItem*
-	getTargetItem ()
+	getTargetItem()
 	{
-		return jnc_Alias_getTargetItem (this);
+		return jnc_Alias_getTargetItem(this);
 	}
 };
 

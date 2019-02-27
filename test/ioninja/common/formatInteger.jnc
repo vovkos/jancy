@@ -2,7 +2,7 @@ import "std_String.jnc"
 
 // both functions return mutable pointers
 
-char* formatIntegerWithThousandSep (
+char* formatIntegerWithThousandSep(
 	uint64_t value,
 	char sep = ','
 	)
@@ -11,12 +11,12 @@ char* formatIntegerWithThousandSep (
 
 	intptr_t i = string.m_length - 3;
 	for (; i > 0; i -= 3)
-		string.insert (i, sep);
+		string.insert(i, sep);
 
-	return string.detachString ();
+	return string.detachString();
 }
 
-char* formatFileSize (uint64_t size)
+char* formatFileSize(uint64_t size)
 {
 	enum
 	{

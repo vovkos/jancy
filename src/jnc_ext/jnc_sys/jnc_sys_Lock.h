@@ -16,7 +16,7 @@
 namespace jnc {
 namespace sys {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (Lock)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Lock)
 
 //..............................................................................
 
@@ -28,13 +28,13 @@ public:
 public:
 	void
 	JNC_CDECL
-	lock ();
+	lock();
 
 	void
 	JNC_CDECL
-	unlock ()
+	unlock()
 	{
-		m_lock.unlock ();
+		m_lock.unlock();
 	}
 };
 

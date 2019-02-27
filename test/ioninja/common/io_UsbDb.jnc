@@ -30,20 +30,20 @@ public:
 	char const* m_name;
 
 public:
-	UsbProduct* addProduct (
+	UsbProduct* addProduct(
 		uint_t id,
 		char const* name
 		);
 
-	UsbProduct const* findProduct (uint_t productId) const
+	UsbProduct const* findProduct(uint_t productId) const
 	{
-		return m_productMap.findValue (productId);
+		return m_productMap.findValue(productId);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbProduct* UsbVendor.addProduct (
+UsbProduct* UsbVendor.addProduct(
 	uint_t id,
 	char const* name
 	)
@@ -52,7 +52,7 @@ UsbProduct* UsbVendor.addProduct (
 	product.m_id = id;
 	product.m_name = name;
 	product.m_vendor = this;
-	m_productMap [id] = product;
+	m_productMap[id] = product;
 
 	return product;
 }
@@ -65,31 +65,31 @@ protected:
 	std.HashTable m_vendorMap;
 
 public:
-	bool errorcode load (char const* fileName);
+	bool errorcode load(char const* fileName);
 
-	UsbVendor* addVendor (
+	UsbVendor* addVendor(
 		uint_t id,
 		char const* name
 		);
 
-	UsbVendor const* findVendor (uint_t vendorId) const
+	UsbVendor const* findVendor(uint_t vendorId) const
 	{
-		return m_vendorMap.findValue (vendorId);
+		return m_vendorMap.findValue(vendorId);
 	}
 
-	UsbProduct const* findProduct (
+	UsbProduct const* findProduct(
 		uint_t vendorId,
 		uint_t productId
 		)
 	{
-		UsbVendor* vendor =  m_vendorMap.findValue (vendorId);
-		return vendor ? vendor.findProduct (productId) : null;
+		UsbVendor* vendor =  m_vendorMap.findValue(vendorId);
+		return vendor ? vendor.findProduct(productId) : null;
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbDb* getStdUsbDb ()
+UsbDb* getStdUsbDb()
 {
 	static UsbDb usbDb;
 
@@ -106,7 +106,7 @@ UsbDb* getStdUsbDb ()
 			sys.g_gcTriggers = triggers;
 		}
 
-		try usbDb.load (__DIR__ "/usb.ids"); // ignore result
+		try usbDb.load(__DIR__ "/usb.ids"); // ignore result
 	}
 
 	return &usbDb;
@@ -114,7 +114,7 @@ UsbDb* getStdUsbDb ()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UsbVendor* UsbDb.addVendor (
+UsbVendor* UsbDb.addVendor(
 	uint_t id,
 	char const* name
 	)
@@ -122,22 +122,22 @@ UsbVendor* UsbDb.addVendor (
 	UsbVendor* vendor = new UsbVendor;
 	vendor.m_id = id;
 	vendor.m_name = name;
-	m_vendorMap [id] = vendor;
+	m_vendorMap[id] = vendor;
 
 	return vendor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool errorcode UsbDb.load (char const* fileName)
+bool errorcode UsbDb.load(char const* fileName)
 {
-	m_vendorMap.clear ();
+	m_vendorMap.clear();
 
 	disposable io.MappedFile file;
-	file.open (fileName, io.FileOpenFlags.ReadOnly);
+	file.open(fileName, io.FileOpenFlags.ReadOnly);
 
 	size_t size = file.m_size;
-	char const* p = file.view (0, size, false);
+	char const* p = file.view(0, size, false);
 	char const* end = p + size;
 
 	jnc.RegexState state;
@@ -145,25 +145,25 @@ bool errorcode UsbDb.load (char const* fileName)
 
 	while (p < end)
 	{
-		reswitch (state, p, end - p)
+		reswitch(state, p, end - p)
 		{
 		case r"(\h{4})\s+([^\n]+[^\s])[ \t\r]*\n":
-			vendor = addVendor (
-				strtol (state.m_subMatchArray [0].m_text,, 16),
-				state.m_subMatchArray [1].m_text
+			vendor = addVendor(
+				strtol(state.m_subMatchArray[0].m_text,, 16),
+				state.m_subMatchArray[1].m_text
 				);
 			break;
 
 		case r"\t(\h{4})\s+([^\n]+[^\s])[ \t\r]*\n":
 			if (!vendor)
 			{
-				std.setError ("invalid USB database file format");
+				std.setError("invalid USB database file format");
 				return false;
 			}
 
-			vendor.addProduct (
-				strtol (state.m_subMatchArray [0].m_text,, 16),
-				state.m_subMatchArray [1].m_text
+			vendor.addProduct(
+				strtol(state.m_subMatchArray[0].m_text,, 16),
+				state.m_subMatchArray[1].m_text
 				);
 			break;
 

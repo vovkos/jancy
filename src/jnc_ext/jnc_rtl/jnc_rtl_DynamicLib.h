@@ -16,7 +16,7 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_CLASS_TYPE (DynamicLib)
+JNC_DECLARE_CLASS_TYPE(DynamicLib)
 
 //..............................................................................
 
@@ -28,35 +28,35 @@ public:
 public:
 	bool
 	JNC_CDECL
-	open (DataPtr fileNamePtr)
+	open(DataPtr fileNamePtr)
 	{
-		return openImpl ((const char*) fileNamePtr.m_p);
+		return openImpl((const char*) fileNamePtr.m_p);
 	}
 
 	bool
-	openImpl (const sl::StringRef& fileName);
+	openImpl(const sl::StringRef& fileName);
 
 	void
 	JNC_CDECL
-	close ()
+	close()
 	{
-		getDynamicLibrary ()->close ();
+		getDynamicLibrary()->close();
 	}
 
 	void*
 	JNC_CDECL
-	getFunction (DataPtr namePtr)
+	getFunction(DataPtr namePtr)
 	{
-		return getFunctionImpl ((const char*) namePtr.m_p);
+		return getFunctionImpl((const char*) namePtr.m_p);
 	}
 
 	void*
-	getFunctionImpl (const sl::StringRef& name);
+	getFunctionImpl(const sl::StringRef& name);
 
 	sys::DynamicLibrary*
-	getDynamicLibrary ()
+	getDynamicLibrary()
 	{
-		ASSERT (sizeof (sys::DynamicLibrary) == sizeof (m_handle));
+		ASSERT(sizeof(sys::DynamicLibrary) == sizeof(m_handle));
 		return (sys::DynamicLibrary*) &m_handle;
 	}
 };

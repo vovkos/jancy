@@ -19,237 +19,237 @@ namespace ct {
 //..............................................................................
 
 bool
-Cast_FpTrunc::llvmCast (
+Cast_FpTrunc::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	m_module->m_llvmIrBuilder.createTrunc_f (opValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createTrunc_f(opValue, type, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 bool
-Cast_FpExt::llvmCast (
+Cast_FpExt::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	m_module->m_llvmIrBuilder.createExt_f (opValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createExt_f(opValue, type, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 bool
-Cast_FpFromInt::llvmCast (
+Cast_FpFromInt::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	m_module->m_llvmIrBuilder.createIntToFp (opValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createIntToFp(opValue, type, resultValue);
 	return true;
 }
 
 bool
-Cast_FpFromInt::constCast (
+Cast_FpFromInt::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	TypeKind dstTypeKind = type->getTypeKind ();
-	switch (dstTypeKind)
+	TypeKind dstTypeKind = type->getTypeKind();
+	switch(dstTypeKind)
 	{
 	case TypeKind_Float:
-		constCast_Fp32 (opValue, (float*) dst);
+		constCast_Fp32(opValue, (float*)dst);
 		break;
 
 	case TypeKind_Double:
-		constCast_Fp64 (opValue, (double*) dst);
+		constCast_Fp64(opValue, (double*)dst);
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	return true;
 }
 
 void
-Cast_FpFromInt::constCast_Fp32 (
+Cast_FpFromInt::constCast_Fp32(
 	const Value& opValue,
 	float* fp32
 	)
 {
-	const void* src = opValue.getConstData ();
+	const void* src = opValue.getConstData();
 
-	size_t srcSize = opValue.getType ()->getSize ();
-	switch (srcSize)
+	size_t srcSize = opValue.getType()->getSize();
+	switch(srcSize)
 	{
 	case 1:
-		*fp32 = *(char*) src;
+		*fp32 = *(char*)src;
 		break;
 
 	case 2:
-		*fp32 = *(short*) src;
+		*fp32 = *(short*)src;
 		break;
 
 	case 4:
-		*fp32 = (float) *(int32_t*) src;
+		*fp32 = (float)*(int32_t*)src;
 		break;
 
 	case 8:
-		*fp32 = (float) *(int64_t*) src;
+		*fp32 = (float)*(int64_t*)src;
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 };
 
 void
-Cast_FpFromInt::constCast_Fp64 (
+Cast_FpFromInt::constCast_Fp64(
 	const Value& opValue,
 	double* fp64
 	)
 {
-	const void* src = opValue.getConstData ();
+	const void* src = opValue.getConstData();
 
-	size_t srcSize = opValue.getType ()->getSize ();
-	switch (srcSize)
+	size_t srcSize = opValue.getType()->getSize();
+	switch(srcSize)
 	{
 	case 1:
-		*fp64 = *(char*) src;
+		*fp64 = *(char*)src;
 		break;
 
 	case 2:
-		*fp64 = *(short*) src;
+		*fp64 = *(short*)src;
 		break;
 
 	case 4:
-		*fp64 = *(int32_t*) src;
+		*fp64 = *(int32_t*)src;
 		break;
 
 	case 8:
-		*fp64 = (double) *(int64_t*) src;
+		*fp64 = (double)*(int64_t*)src;
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 };
 
 //..............................................................................
 
 bool
-Cast_FpFromInt_u::llvmCast (
+Cast_FpFromInt_u::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	m_module->m_llvmIrBuilder.createIntToFp_u (opValue, type, resultValue);
+	m_module->m_llvmIrBuilder.createIntToFp_u(opValue, type, resultValue);
 	return true;
 }
 
 bool
-Cast_FpFromInt_u::constCast (
+Cast_FpFromInt_u::constCast(
 	const Value& opValue,
 	Type* type,
 	void* dst
 	)
 {
-	TypeKind dstTypeKind = type->getTypeKind ();
-	switch (dstTypeKind)
+	TypeKind dstTypeKind = type->getTypeKind();
+	switch(dstTypeKind)
 	{
 	case TypeKind_Float:
-		constCast_Fp32 (opValue, (float*) dst);
+		constCast_Fp32(opValue, (float*)dst);
 		break;
 
 	case TypeKind_Double:
-		constCast_Fp64 (opValue, (double*) dst);
+		constCast_Fp64(opValue, (double*)dst);
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 
 	return true;
 }
 
 void
-Cast_FpFromInt_u::constCast_Fp32 (
+Cast_FpFromInt_u::constCast_Fp32(
 	const Value& opValue,
 	float* fp32
 	)
 {
-	const void* src = opValue.getConstData ();
+	const void* src = opValue.getConstData();
 
-	size_t srcSize = opValue.getType ()->getSize ();
-	switch (srcSize)
+	size_t srcSize = opValue.getType()->getSize();
+	switch(srcSize)
 	{
 	case 1:
-		*fp32 = *(uint8_t*) src;
+		*fp32 = *(uint8_t*)src;
 		break;
 
 	case 2:
-		*fp32 = *(uint16_t*) src;
+		*fp32 = *(uint16_t*)src;
 		break;
 
 	case 4:
-		*fp32 = (float) *(uint32_t*) src;
+		*fp32 = (float)*(uint32_t*)src;
 		break;
 
 	case 8:
-		*fp32 = (float) *(uint64_t*) src;
+		*fp32 = (float)*(uint64_t*)src;
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 };
 
 void
-Cast_FpFromInt_u::constCast_Fp64 (
+Cast_FpFromInt_u::constCast_Fp64(
 	const Value& opValue,
 	double* fp64
 	)
 {
-	const void* src = opValue.getConstData ();
+	const void* src = opValue.getConstData();
 
-	size_t srcSize = opValue.getType ()->getSize ();
-	switch (srcSize)
+	size_t srcSize = opValue.getType()->getSize();
+	switch(srcSize)
 	{
 	case 1:
-		*fp64 = *(uint8_t*) src;
+		*fp64 = *(uint8_t*)src;
 		break;
 
 	case 2:
-		*fp64 = *(uint16_t*) src;
+		*fp64 = *(uint16_t*)src;
 		break;
 
 	case 4:
-		*fp64 = *(uint32_t*) src;
+		*fp64 = *(uint32_t*)src;
 		break;
 
 	case 8:
-		*fp64 = (double) *(uint64_t*) src;
+		*fp64 = (double)*(uint64_t*)src;
 		break;
 
 	default:
-		ASSERT (false);
+		ASSERT(false);
 	}
 };
 
 //..............................................................................
 
 bool
-Cast_FpFromBeInt::getCastOperators (
+Cast_FpFromBeInt::getCastOperators(
 	const Value& opValue,
 	Type* type,
 	CastOperator** firstOperator,
@@ -257,20 +257,20 @@ Cast_FpFromBeInt::getCastOperators (
 	Type** intermediateType
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_BigEndian);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_BigEndian);
 
-	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind (opValue.getType ()->getTypeKind ());
+	TypeKind intermediateTypeKind = getLittleEndianIntegerTypeKind(opValue.getType()->getTypeKind());
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_SwapByteOrder);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Fp);
-	*intermediateType = m_module->m_typeMgr.getPrimitiveType (intermediateTypeKind);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_SwapByteOrder);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Fp);
+	*intermediateType = m_module->m_typeMgr.getPrimitiveType(intermediateTypeKind);
 	return true;
 }
 
 //..............................................................................
 
 bool
-Cast_FpFromEnum::getCastOperators (
+Cast_FpFromEnum::getCastOperators(
 	const Value& opValue,
 	Type* type,
 	CastOperator** firstOperator,
@@ -278,12 +278,12 @@ Cast_FpFromEnum::getCastOperators (
 	Type** intermediateType_o
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_Enum);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Enum);
 
-	Type* intermediateType = ((EnumType*) opValue.getType ())->getBaseType ();
+	Type* intermediateType = ((EnumType*)opValue.getType())->getBaseType();
 
-	*firstOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy);
-	*secondOperator = m_module->m_operatorMgr.getStdCastOperator (StdCast_Fp);
+	*firstOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy);
+	*secondOperator = m_module->m_operatorMgr.getStdCastOperator(StdCast_Fp);
 	*intermediateType_o = intermediateType;
 	return true;
 }
@@ -291,22 +291,22 @@ Cast_FpFromEnum::getCastOperators (
 //..............................................................................
 
 CastOperator*
-Cast_Fp::getCastOperator (
+Cast_Fp::getCastOperator(
 	const Value& opValue,
 	Type* type
 	)
 {
-	Type* srcType = opValue.getType ();
+	Type* srcType = opValue.getType();
 
-	TypeKind srcTypeKind = srcType->getTypeKind ();
-	TypeKind dstTypeKind = type->getTypeKind ();
+	TypeKind srcTypeKind = srcType->getTypeKind();
+	TypeKind dstTypeKind = type->getTypeKind();
 
-	size_t srcSize = srcType->getSize ();
-	size_t dstSize = type->getSize ();
+	size_t srcSize = srcType->getSize();
+	size_t dstSize = type->getSize();
 
-	ASSERT (dstTypeKind == TypeKind_Float || dstTypeKind == TypeKind_Double);
+	ASSERT(dstTypeKind == TypeKind_Float || dstTypeKind == TypeKind_Double);
 
-	switch (srcTypeKind)
+	switch(srcTypeKind)
 	{
 	case TypeKind_Int8:
 	case TypeKind_Int16:
@@ -332,7 +332,7 @@ Cast_Fp::getCastOperator (
 	case TypeKind_Float:
 	case TypeKind_Double:
 		return
-			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator (StdCast_Copy) :
+			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy) :
 			srcSize > dstSize ? (CastOperator*) &m_trunc :
 			(CastOperator*) &m_ext;
 

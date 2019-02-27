@@ -45,8 +45,8 @@ protected:
 	CallConv* m_callConv;
 	Type* m_returnType;
 	Type* m_asyncReturnType; // until we have generics (e.g. Promise<T>)
-	sl::Array <FunctionArg*> m_argArray;
-	sl::Array <uint_t> m_argFlagArray; // args can be shared between func types
+	sl::Array<FunctionArg*> m_argArray;
+	sl::Array<uint_t> m_argFlagArray; // args can be shared between func types
 	sl::String m_argSignature;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
@@ -54,100 +54,100 @@ protected:
 	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
 
 public:
-	FunctionType ();
+	FunctionType();
 
 	CallConv*
-	getCallConv ()
+	getCallConv()
 	{
 		return m_callConv;
 	}
 
 	Type*
-	getReturnType ()
+	getReturnType()
 	{
 		return m_returnType;
 	}
 
 	Type*
-	getAsyncReturnType ()
+	getAsyncReturnType()
 	{
-		ASSERT (m_flags & FunctionTypeFlag_Async);
+		ASSERT(m_flags & FunctionTypeFlag_Async);
 		return m_asyncReturnType;
 	}
 
-	sl::Array <FunctionArg*>
-	getArgArray ()
+	sl::Array<FunctionArg*>
+	getArgArray()
 	{
 		return m_argArray;
 	}
 
-	sl::Array <uint_t>
-	getArgFlagArray ()
+	sl::Array<uint_t>
+	getArgFlagArray()
 	{
 		return m_argFlagArray;
 	}
 
 	const sl::String&
-	getArgSignature ();
+	getArgSignature();
 
 	sl::String
-	getTypeModifierString ();
+	getTypeModifierString();
 
 	bool
-	isMemberMethodType ()
+	isMemberMethodType()
 	{
-		return !m_argArray.isEmpty () && m_argArray [0]->getStorageKind () == StorageKind_This;
+		return !m_argArray.isEmpty() && m_argArray[0]->getStorageKind() == StorageKind_This;
 	}
 
 	Type*
-	getThisArgType ()
+	getThisArgType()
 	{
-		return isMemberMethodType () ? m_argArray [0]->getType () : NULL;
+		return isMemberMethodType() ? m_argArray[0]->getType() : NULL;
 	}
 
 	DerivableType*
-	getThisTargetType ();
+	getThisTargetType();
 
 	FunctionType*
-	getShortType ()
+	getShortType()
 	{
 		return m_shortType;
 	}
 
 	FunctionType*
-	getMemberMethodType (
+	getMemberMethodType(
 		DerivableType* type,
 		uint_t thisArgFlags = 0
 		);
 
 	FunctionType*
-	getStdObjectMemberMethodType ();
+	getStdObjectMemberMethodType();
 
 	Function*
-	getAbstractFunction ();
+	getAbstractFunction();
 
 	FunctionPtrType*
-	getFunctionPtrType (
+	getFunctionPtrType(
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
 
 	FunctionPtrType*
-	getFunctionPtrType (
+	getFunctionPtrType(
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionPtrType (TypeKind_FunctionPtr, ptrTypeKind, flags);
+		return getFunctionPtrType(TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
 	ClassType*
-	getMulticastType ();
+	getMulticastType();
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		CallConv* callConv,
 		Type* returnType,
 		Type* const* argTypeArray,
@@ -157,7 +157,7 @@ public:
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		CallConv* callConv,
 		Type* returnType,
 		FunctionArg* const* argArray,
@@ -167,11 +167,11 @@ public:
 
 	static
 	sl::String
-	createFlagSignature (uint_t flags);
+	createFlagSignature(uint_t flags);
 
 	static
 	sl::String
-	createArgSignature (
+	createArgSignature(
 		Type* const* argTypeArray,
 		size_t argCount,
 		uint_t flags
@@ -179,49 +179,49 @@ public:
 
 	static
 	sl::String
-	createArgSignature (
+	createArgSignature(
 		FunctionArg* const* argArray,
 		size_t argCount,
 		uint_t flags
 		);
 
 	sl::String
-	createArgSignature ()
+	createArgSignature()
 	{
-		return createArgSignature (m_argArray, m_argArray.getCount (), m_flags);
+		return createArgSignature(m_argArray, m_argArray.getCount(), m_flags);
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	sl::String
-	getDoxyArgString ();
+	getDoxyArgString();
 
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................

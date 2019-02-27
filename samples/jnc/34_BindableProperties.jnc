@@ -26,9 +26,9 @@ int autoget bindable property g_simpleProp;
 
 // setter implementation
 
-g_simpleProp.set (int x)
+g_simpleProp.set(int x)
 {
-	printf ("g_simpleProp.set (%d)\n", x);
+	printf("g_simpleProp.set (%d)\n", x);
 
 	if (m_value == x)
 		return;
@@ -37,7 +37,7 @@ g_simpleProp.set (int x)
 
 	// by default, the name of compiler-generated event is 'm_onChanged'
 
-	m_onChanged ();
+	m_onChanged();
 }
 
 //..............................................................................
@@ -54,36 +54,36 @@ property g_prop
 	// declaring an event with 'bindable' modifier implicitly makes the whole
 	// property bindable
 
-	bindable event m_e ();
+	bindable event m_e();
 
-	set (int x);
-	set (double x);
+	set(int x);
+	set(double x);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // setters implementation
 
-g_prop.set (int x)
+g_prop.set(int x)
 {
-	printf ("g_prop.set (int %d)\n", x);
+	printf("g_prop.set (int %d)\n", x);
 
 	if (m_x == x)
 		return;
 
 	m_x = x;
-	m_e ();
+	m_e();
 }
 
-g_prop.set (double x)
+g_prop.set(double x)
 {
-	printf ("g_prop.set (double %f)\n", x);
+	printf("g_prop.set (double %f)\n", x);
 
-	if (m_x == (int) x)
+	if (m_x == (int)x)
 		return;
 
-	m_x = (int) x;
-	m_e ();
+	m_x = (int)x;
+	m_e();
 }
 
 //..............................................................................
@@ -97,34 +97,34 @@ int bindable g_data;
 
 // onChanged event handlers
 
-onSimplePropChanged ()
+onSimplePropChanged()
 {
-	printf ("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
+	printf("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
 }
 
-onPropChanged ()
+onPropChanged()
 {
-	printf ("g_prop has changed (new value = %d)\n", g_prop);
+	printf("g_prop has changed (new value = %d)\n", g_prop);
 }
 
-onDataChanged ()
+onDataChanged()
 {
-	printf ("g_data has changed (new value = %d)\n", g_data);
+	printf("g_data has changed (new value = %d)\n", g_data);
 }
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// use 'bindingof' to access a bindable event of a property
 
-	bindingof (g_simpleProp) += onSimplePropChanged;
-	bindingof (g_prop) += onPropChanged;
-	bindingof (g_data) += onDataChanged;
+	bindingof(g_simpleProp) += onSimplePropChanged;
+	bindingof(g_prop) += onPropChanged;
+	bindingof(g_data) += onDataChanged;
 
 	g_simpleProp = 100;
 	g_simpleProp = 100; // bindable event is not going to get fired

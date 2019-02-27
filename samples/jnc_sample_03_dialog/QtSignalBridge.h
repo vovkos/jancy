@@ -22,33 +22,33 @@ protected:
 	jnc::Multicast* m_jncEvent;
 
 public:
-	QtSignalBridge (QObject* parent = NULL);
+	QtSignalBridge(QObject* parent = NULL);
 
-	QtSignalBridge (
+	QtSignalBridge(
 		QObject* sender,
 		const char* signal,
 		jnc::Multicast* jncEvent,
 		QObject* parent = NULL
 		):
-		QObject (parent)
+		QObject(parent)
 	{
-		connect (sender, signal, jncEvent);
+		connect(sender, signal, jncEvent);
 	}
 
 	void
-	connect (
+	connect(
 		QObject* sender,
 		const char* signal,
 		jnc::Multicast* jncEvent
 		)
 	{
 		m_jncEvent = jncEvent;
-		QObject::connect (sender, signal, this, SLOT (onQtSignal ()));
+		QObject::connect(sender, signal, this, SLOT(onQtSignal()));
 	}
 
 public slots:
 	void
-	onQtSignal ();
+	onQtSignal();
 };
 
 //..............................................................................

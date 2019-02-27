@@ -32,7 +32,7 @@ enum ReactorMethod
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Function*
-getReactorMethod (
+getReactorMethod(
 	Module* module,
 	ReactorMethod method
 	);
@@ -50,83 +50,83 @@ protected:
 	size_t m_parentOffset;
 	size_t m_reactionCount;
 	Function* m_reaction;
-	sl::HashTable <size_t, Function*, sl::HashId <size_t> > m_onEventMap;
-	sl::BoxList <Token> m_body;
+	sl::HashTable<size_t, Function*, sl::HashId<size_t> > m_onEventMap;
+	sl::BoxList<Token> m_body;
 
 public:
-	ReactorClassType ();
+	ReactorClassType();
 
 	ClassType*
-	getParentType ()
+	getParentType()
 	{
 		return m_parentType;
 	}
 
 	size_t
-	getParentOffset ()
+	getParentOffset()
 	{
 		return m_parentOffset;
 	}
 
 	size_t
-	getReactionCount ()
+	getReactionCount()
 	{
 		return m_reactionCount;
 	}
 
 	Function*
-	getReaction ()
+	getReaction()
 	{
 		return m_reaction;
 	}
 
 	Function*
-	createOnEventHandler (
+	createOnEventHandler(
 		size_t reactionIdx,
 		FunctionType* type
 		);
 
 	Function*
-	findOnEventHandler (size_t reactionIdx)
+	findOnEventHandler(size_t reactionIdx)
 	{
-		return m_onEventMap.findValue (reactionIdx, NULL);
+		return m_onEventMap.findValue(reactionIdx, NULL);
 	}
 
 	bool
-	hasBody ()
+	hasBody()
 	{
-		return !m_body.isEmpty ();
+		return !m_body.isEmpty();
 	}
 
-	sl::ConstBoxList <Token>
-	getBody ()
+	sl::ConstBoxList<Token>
+	getBody()
 	{
 		return m_body;
 	}
 
 	bool
-	setBody (sl::BoxList <Token>* tokenList);
+	setBody(sl::BoxList<Token>* tokenList);
 
 protected:
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 
 	virtual
 	bool
-	compile ();
+	compile();
 };
 
 //..............................................................................
 
 inline
 bool
-isReactorClassTypeMember (ModuleItemDecl* itemDecl)
+isReactorClassTypeMember(ModuleItemDecl* itemDecl)
 {
-	Namespace* nspace = itemDecl->getParentNamespace ();
+	Namespace* nspace = itemDecl->getParentNamespace();
 	return
-		nspace->getNamespaceKind () == NamespaceKind_Type &&
-		isClassType ((ClassType*) nspace, ClassTypeKind_Reactor);
+		nspace->getNamespaceKind() == NamespaceKind_Type &&
+		isClassType((ClassType*)nspace, ClassTypeKind_Reactor);
 }
 
 //.............................................................................

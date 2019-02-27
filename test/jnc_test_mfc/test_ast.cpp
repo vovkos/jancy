@@ -40,7 +40,7 @@ END_MESSAGE_MAP()
 
 CAstApp::CAstApp()
 {
-	m_Font.CreatePointFont (80, L"Lucida Console");
+	m_Font.CreatePointFont(80, L"Lucida Console");
 
 	m_bHiColorIcons = TRUE;
 
@@ -70,16 +70,16 @@ CAstApp theApp;
 
 BOOL CAstApp::InitInstance()
 {
-	g::getModule ()->setTag ("jnc_test_mfc");
+	g::getModule()->setTag("jnc_test_mfc");
 
 //	_crtBreakAlloc = 401;
 
-	llvm::InitializeNativeTarget ();
-	llvm::InitializeNativeTargetAsmParser ();
-	llvm::InitializeNativeTargetAsmPrinter ();
-	llvm::InitializeNativeTargetDisassembler ();
+	llvm::InitializeNativeTarget();
+	llvm::InitializeNativeTargetAsmParser();
+	llvm::InitializeNativeTargetAsmPrinter();
+	llvm::InitializeNativeTargetDisassembler();
 
-	err::CParseErrorProvider::Register ();
+	err::CParseErrorProvider::Register();
 
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
@@ -160,7 +160,7 @@ BOOL CAstApp::InitInstance()
 	// written by cretins MFC kills accelerator table
 	// restore it now
 
-	GetMainFrame ()->m_hAccelTable = LoadAccelerators (m_hInstance, MAKEINTRESOURCE (IDR_MAINFRAME));
+	GetMainFrame()->m_hAccelTable = LoadAccelerators(m_hInstance, MAKEINTRESOURCE(IDR_MAINFRAME));
 
 	// The one and only window has been initialized, so show and update it
 

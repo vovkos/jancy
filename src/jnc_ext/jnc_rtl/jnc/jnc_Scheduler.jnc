@@ -23,7 +23,7 @@ namespace jnc {
 	function pointers.
 
 	Often times it is necessary to postpone execution of a certain callback
-	function (e.g. IO completion routine or other event handler). A realistic
+	function(e.g. IO completion routine or other event handler). A realistic
 	example would be this: IO completion event gets fired in some worker IO
 	thread context, but we want to conveniently process it in the context of
 	the main UI thread. Should you write this code in C, Java or any other
@@ -31,7 +31,7 @@ namespace jnc {
 	approach:
 
 	1) allocate some struct;
-	2) use it to store IO completion event parameters (e.g. completion status,
+	2) use it to store IO completion event parameters(e.g. completion status,
 	   received data size, remote node address etc);
 	3) add this struct to some *request* list;
 	4) send some kind of UI message to wake up the main thread;
@@ -64,35 +64,35 @@ namespace jnc {
 		{
 			sys.Lock* m_lock;
 
-			override schedule (void function* f ())
+			override schedule(void function* f())
 			{
-				m_lock.lock ();
-				f ();
-				m_lock.unlock ();
+				m_lock.lock();
+				f();
+				m_lock.unlock();
 			}
 		}
 
 		sys.Lock g_lock;
-		typedef OnComplete (int x);
+		typedef OnComplete(int x);
 
-		work (OnComplete* onComplete)
+		work(OnComplete* onComplete)
 		{
 			// ...
-			onComplete (100);
+			onComplete(100);
 		}
 
-		bar (int a, int b, int c)
+		bar(int a, int b, int c)
 		{
-			printf ($"bar ($a, $b, $c) -- MUST be called under g_lock");
+			printf($"bar ($a, $b, $c) -- MUST be called under g_lock");
 		}
 
-		foo ()
+		foo()
 		{
 			LockScheduler scheduler;
 			scheduler.m_lock = g_lock; // initialize scheduler
 
 			(bar @ scheduler) (1, 2, 3); // schedule immediatly
-			work (bar ~(10, 20) @ scheduler); // pass as completion routine
+			work(bar ~(10, 20) @ scheduler); // pass as completion routine
 		}
 */
 
@@ -105,7 +105,7 @@ class Scheduler
 		handling function pointers of *any* type
 	*/
 
-	abstract schedule (function* proc ());
+	abstract schedule(function* proc());
 }
 
 ///;

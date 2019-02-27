@@ -16,13 +16,13 @@
 namespace jnc {
 namespace std {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (RbTree)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(RbTree)
 
 //..............................................................................
 
 typedef
 int
-CmpFunc (
+CmpFunc(
 	Variant key1,
 	Variant key2
 	);
@@ -30,7 +30,7 @@ CmpFunc (
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int
-cmpVariant (
+cmpVariant(
 	Variant key1,
 	Variant key2
 	);
@@ -43,7 +43,7 @@ protected:
 	CmpFunc* m_func;
 
 public:
-	CmpIndirect (CmpFunc* func = NULL)
+	CmpIndirect(CmpFunc* func = NULL)
 	{
 		m_func = func ? func : cmpVariant;
 	}
@@ -54,8 +54,8 @@ public:
 		const Variant& key2
 		) const
 	{
-		ASSERT (m_func);
-		return m_func (key1, key2);
+		ASSERT(m_func);
+		return m_func(key1, key2);
 	}
 };
 
@@ -67,60 +67,60 @@ public:
 	Map m_map;
 
 protected:
-	sl::RbTree <Variant, DataPtr, CmpIndirect> m_rbTree;
+	sl::RbTree<Variant, DataPtr, CmpIndirect> m_rbTree;
 
 public:
-	RbTree (CmpFunc* cmpFunc):
-		m_rbTree (CmpIndirect (cmpFunc))
+	RbTree(CmpFunc* cmpFunc):
+		m_rbTree(CmpIndirect(cmpFunc))
 	{
 	}
 
 	void
 	JNC_CDECL
-	clear ()
+	clear()
 	{
-		m_map.clear ();
-		m_rbTree.clear ();
+		m_map.clear();
+		m_rbTree.clear();
 	}
 
 	static
 	DataPtr
-	visit (
+	visit(
 		RbTree* self,
 		Variant key
 		)
 	{
-		return self->visitImpl (key);
+		return self->visitImpl(key);
 	}
 
 	static
 	DataPtr
-	find (
+	find(
 		RbTree* self,
 		Variant key
 		)
 	{
-		return self->m_rbTree.findValue (key, g_nullPtr);
+		return self->m_rbTree.findValue(key, g_nullPtr);
 	}
 
 	static
 	DataPtr
-	findEx (
+	findEx(
 		RbTree* self,
 		sl::BinTreeFindRelOp relOp,
 		Variant key
 		)
 	{
-		return self->m_rbTree.findValue (key, relOp, g_nullPtr);
+		return self->m_rbTree.findValue(key, relOp, g_nullPtr);
 	}
 
 	void
 	JNC_CDECL
-	remove (DataPtr entryPtr);
+	remove(DataPtr entryPtr);
 
 protected:
 	DataPtr
-	visitImpl (Variant key);
+	visitImpl(Variant key);
 };
 
 //..............................................................................

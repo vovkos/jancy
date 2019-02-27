@@ -1,28 +1,28 @@
-foo ()
+foo()
 {
-	print ("foo\n");
+	print("foo\n");
 }
 
-int bar ()
+int bar()
 {
-	print ("bar\n");
+	print("bar\n");
 	return 0;
 }
 
-int main ()
+int main()
 {
 	uint64_t x = 0x12345678abcdef0a;
-	print ($"$(x; 02llx)\n");
+	print($"$(x; 02llx)\n");
 
-	print ("I\u00b2C\n");
+	print("I\u00b2C\n");
 
 	int i = 0;
 
-	i ? foo () : bar ();
+	i ? foo() : bar();
 
 	i++;
 
-	i ? foo () : bar ();
+	i ? foo() : bar();
 
 	return 0;
 }

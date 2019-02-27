@@ -25,7 +25,7 @@ namespace io {
 	\brief This enumeration contains all possible values for the underlying type
 	of of `io.FileStream` object.
 
-	Currently, this functionality is only available on Windows (via the WinAPI
+	Currently, this functionality is only available on Windows(via the WinAPI
 	function ``GetFileType``).
 */
 
@@ -53,14 +53,14 @@ enum FileStreamKind
 /**
 
 	Returns string representation of the ``kind`` argument. In case ``kind``
-	does not correspond to any known file stream kind (e.g. you have casted a
+	does not correspond to any known file stream kind(e.g. you have casted a
 	random integer number to `io.FileStreamKind` enumeration type), string
 	``unknown device`` is returned.
 */
 
-char const* getFileStreamKindString (FileStreamKind kind)
+char const* getFileStreamKindString(FileStreamKind kind)
 {
-	static char const* stringTable [] =
+	static char const* stringTable[] =
 	{
 		"unknown device", // FileStreamKind.Unknown,
 		"disk file",      // FileStreamKind.Disk,
@@ -68,9 +68,9 @@ char const* getFileStreamKindString (FileStreamKind kind)
 		"pipe",           // FileStreamKind.Pipe,
 	}
 
-	return kind < countof (stringTable) ?
-		stringTable [kind] :
-		stringTable [0];
+	return kind < countof(stringTable) ?
+		stringTable[kind] :
+		stringTable[0];
 }
 
 //..............................................................................
@@ -153,7 +153,7 @@ bitflag enum FileStreamEvents
 	* Open a file stream with ``open`` method;
 	* Assign IO event handler with ``wait`` method. You would probably also
 	  want to *schedule* your event handler to be run in particular
-	  environment (e.g., in a specific thread) and partially apply some
+	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
 	* When `io.FileStreamEvents.IncomingData` event is fired, read from the file
 	  using ``read`` method;
@@ -173,53 +173,53 @@ bitflag enum FileStreamEvents
 			io.FileStream m_fileStream;
 			uint_t m_syncId;
 
-			open (char const* fileName);
-			close ();
-			waitFileStreamEvents ();
+			open(char const* fileName);
+			close();
+			waitFileStreamEvents();
 
-			onWriteButtonClicked ();
+			onWriteButtonClicked();
 
-			onFileStreamEvent (
+			onFileStreamEvent(
 				uint_t syncId,
 				`io.FileStreamEvents` triggeredEvents
 				);
 		}
 
-		MyDialog.open (char const* fileName)
+		MyDialog.open(char const* fileName)
 		{
-			bool result = try m_fileStream.open (fileName);
+			bool result = try m_fileStream.open(fileName);
 			if (!result)
 			{
-				char const* errorString = std.getLastError ().m_description;
+				char const* errorString = std.getLastError().m_description;
 				// ...
 			}
 
-			waitFileStreamEvents ();
+			waitFileStreamEvents();
 		}
 
-		MyDialog.close ()
+		MyDialog.close()
 		{
-			m_fileStream.close ();
+			m_fileStream.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitFileStreamEvent ()
+		MyDialog.waitFileStreamEvent()
 		{
 			`io.FileStreamEvents` eventMask =
 				`io.FileStreamEvents.IoError` |
 				`io.FileStreamEvents.IncomingData`;
 
-			m_fileStream.wait (eventMask, onFileStreamEvent ~(++m_syncId) @
+			m_fileStream.wait(eventMask, onFileStreamEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked ()
+		MyDialog.onWriteButtonClicked()
 		{
-			static char data [] = "a quick brown fox jumps over the lazy dog";
-			m_fileStream.write (data, sizeof (data));
+			static char data[] = "a quick brown fox jumps over the lazy dog";
+			m_fileStream.write(data, sizeof(data));
 		}
 
-		MyDialog.onFileStreamEvent (
+		MyDialog.onFileStreamEvent(
 			uint_t syncId,
 			`io.FileStreamEvents` triggeredEvents
 			)
@@ -235,12 +235,12 @@ bitflag enum FileStreamEvents
 
 			if (triggeredEvents & `io.FileStreamEvents.IncomingData`)
 			{
-				char buffer [256];
-				size_t size = m_fileStream.read (buffer, sizeof (buffer));
+				char buffer[256];
+				size_t size = m_fileStream.read(buffer, sizeof(buffer));
 				// ...
 			}
 
-			waitFileStreamEvents (); // restart wait
+			waitFileStreamEvents(); // restart wait
 		}
 
 	\sa `io.FileStreamEvents`, `io.File`, `io.NamedPipe`, `io.Mailslot`
@@ -261,7 +261,7 @@ bitflag enum FileStreamEvents
 opaque class FileStream
 {
 	/**
-		Specifies the type of the file stream (regular disk file, serial port
+		Specifies the type of the file stream(regular disk file, serial port
 		etc). For the full list of supported file stream types, refer to
 		`io.FileStreamKind`.
 
@@ -288,8 +288,8 @@ opaque class FileStream
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens or creates a file stream.
@@ -304,7 +304,7 @@ opaque class FileStream
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode open (
+	bool errorcode open(
 		char const* name,
 		FileOpenFlags flags = 0
 		);
@@ -317,10 +317,10 @@ opaque class FileStream
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.FileStream`` a *disposable* class [#f2]_.
+		Effectively makes ``io.FileStream`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
@@ -334,7 +334,7 @@ opaque class FileStream
 		returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode clear ();
+	bool errorcode clear();
 
 	/**
 		Attempts to read up to ``size`` bytes from the file strean into the
@@ -350,7 +350,7 @@ opaque class FileStream
 		is closed.
 	*/
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
@@ -369,19 +369,19 @@ opaque class FileStream
 		event is fired and transmission could be resumed.
 	*/
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		FileStreamEvents eventMask,
-		function* handler (FileStreamEvents triggeredEvents)
+		function* handler(FileStreamEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	FileStreamEvents errorcode blockingWait (
+	FileStreamEvents errorcode blockingWait(
 		FileStreamEvents eventMask,
 		uint_t timeout
 		);

@@ -27,28 +27,28 @@ class AttributeMgr
 protected:
 	Module* m_module;
 
-	sl::List <AttributeBlock> m_attributeBlockList;
+	sl::List<AttributeBlock> m_attributeBlockList;
 
 public:
-	AttributeMgr ();
+	AttributeMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ()
+	clear()
 	{
-		m_attributeBlockList.clear ();
+		m_attributeBlockList.clear();
 	}
 
 	AttributeBlock*
-	createAttributeBlock ();
+	createAttributeBlock();
 
 	Attribute*
-	createAttribute (
+	createAttribute(
 		const sl::StringRef& name,
 		Value* value = NULL
 		);

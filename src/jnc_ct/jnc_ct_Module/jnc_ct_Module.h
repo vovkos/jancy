@@ -38,25 +38,25 @@ namespace ct {
 class PreModule
 {
 protected:
-	PreModule ()
+	PreModule()
 	{
-		Module* prevModule = sys::setTlsPtrSlotValue <Module> ((Module*) this);
-		ASSERT (prevModule == NULL);
+		Module* prevModule = sys::setTlsPtrSlotValue<Module> ((Module*)this);
+		ASSERT(prevModule == NULL);
 	}
 
 public:
 	static
 	Module*
-	getCurrentConstructedModule ()
+	getCurrentConstructedModule()
 	{
-		return sys::getTlsPtrSlotValue <Module> ();
+		return sys::getTlsPtrSlotValue<Module> ();
 	}
 
 protected:
 	void
-	finalizeConstruction ()
+	finalizeConstruction()
 	{
-		sys::setTlsPtrSlotValue <Module> (NULL);
+		sys::setTlsPtrSlotValue<Module> (NULL);
 	}
 };
 
@@ -73,11 +73,11 @@ protected:
 	Function* m_constructor;
 	Function* m_destructor;
 
-	sl::Array <ModuleItem*> m_calcLayoutArray;
-	sl::Array <ModuleItem*> m_compileArray;
-	sl::BoxList <sl::String> m_sourceList; // need to keep all sources in-memory during compilation
-	sl::StringHashTable <bool> m_filePathSet;
-	sl::StringHashTable <void*> m_functionMap;
+	sl::Array<ModuleItem*> m_calcLayoutArray;
+	sl::Array<ModuleItem*> m_compileArray;
+	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
+	sl::StringHashTable<bool> m_filePathSet;
+	sl::StringHashTable<void*> m_functionMap;
 
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
@@ -102,174 +102,174 @@ public:
 	LlvmDiBuilder m_llvmDiBuilder;
 
 public:
-	Module ();
+	Module();
 
-	~Module ()
+	~Module()
 	{
-		clear ();
+		clear();
 	}
 
 	const sl::String&
-	getName ()
+	getName()
 	{
 		return m_name;
 	}
 
 	uint_t
-	getCompileFlags ()
+	getCompileFlags()
 	{
 		return m_compileFlags;
 	}
 
 	ModuleCompileState
-	getCompileState ()
+	getCompileState()
 	{
 		return m_compileState;
 	}
 
 	llvm::LLVMContext*
-	getLlvmContext ()
+	getLlvmContext()
 	{
-		ASSERT (m_llvmModule);
-		return &m_llvmModule->getContext ();
+		ASSERT(m_llvmModule);
+		return &m_llvmModule->getContext();
 	}
 
 	llvm::Module*
-	getLlvmModule ()
+	getLlvmModule()
 	{
-		ASSERT (m_llvmModule);
+		ASSERT(m_llvmModule);
 		return m_llvmModule;
 	}
 
 	llvm::ExecutionEngine*
-	getLlvmExecutionEngine ()
+	getLlvmExecutionEngine()
 	{
-		ASSERT (m_llvmExecutionEngine);
+		ASSERT(m_llvmExecutionEngine);
 		return m_llvmExecutionEngine;
 	}
 
 	Function*
-	getConstructor ()
+	getConstructor()
 	{
 		return m_constructor;
 	}
 
 	Function*
-	getDestructor ()
+	getDestructor()
 	{
 		return m_destructor;
 	}
 
 	void
-	setFunctionPointer (
+	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		Function* function,
 		void* p
 		)
 	{
-		llvmExecutionEngine->addGlobalMapping (function->getLlvmFunction (), p);
+		llvmExecutionEngine->addGlobalMapping(function->getLlvmFunction(), p);
 	}
 
 	void
-	setFunctionPointer (
+	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		StdFunc funcKind,
 		void* p
 		)
 	{
-		setFunctionPointer (llvmExecutionEngine, m_functionMgr.getStdFunction (funcKind), p);
+		setFunctionPointer(llvmExecutionEngine, m_functionMgr.getStdFunction(funcKind), p);
 	}
 
 	bool
-	setFunctionPointer (
+	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const sl::StringRef& name,
 		void* p
 		);
 
 	bool
-	setFunctionPointer (
+	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		const QualifiedName& name,
 		void* p
 		);
 
 	void
-	markForLayout (
+	markForLayout(
 		ModuleItem* item,
 		bool isForced = false
 		);
 
 	void
-	markForCompile (ModuleItem* item);
+	markForCompile(ModuleItem* item);
 
 	void
-	initialize (
+	initialize(
 		const sl::StringRef& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
 	void
-	clear ();
+	clear();
 
 	bool
-	parse (
+	parse(
 		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
 		);
 
 	bool
-	parseFile (const sl::StringRef& fileName);
+	parseFile(const sl::StringRef& fileName);
 
 	bool
-	parseImports ();
+	parseImports();
 
 	bool
-	link ();
+	link();
 
 	bool
-	calcLayout ();
+	calcLayout();
 
 	bool
-	compile ();
+	compile();
 
 	bool
-	jit ();
+	jit();
 
 	bool
-	postParseStdItem ();
+	postParseStdItem();
 
 	bool
-	mapVariable (
+	mapVariable(
 		Variable* variable,
 		void* p
 		);
 
 	bool
-	mapFunction (
+	mapFunction(
 		Function* function,
 		void* p
 		);
 
 	void*
-	findFunctionMapping (const sl::StringRef& name);
+	findFunctionMapping(const sl::StringRef& name);
 
 	sl::String
-	getLlvmIrString ();
+	getLlvmIrString();
 
 protected:
 	bool
-	createLlvmExecutionEngine ();
+	createLlvmExecutionEngine();
 
 	bool
-	createConstructorDestructor ();
+	createConstructorDestructor();
 
 	bool
-	processCalcLayoutArray ();
+	processCalcLayoutArray();
 
 	bool
-	processCompileArray ();
+	processCompileArray();
 };
 
 //..............................................................................

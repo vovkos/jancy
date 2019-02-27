@@ -13,7 +13,7 @@
 
 BOOL
 WINAPI
-DllMain (
+DllMain(
 	HINSTANCE hModule,
 	DWORD reason,
 	LPVOID reserved

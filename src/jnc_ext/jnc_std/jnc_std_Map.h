@@ -19,13 +19,13 @@ namespace std {
 
 struct Map;
 
-JNC_DECLARE_TYPE (MapEntry)
+JNC_DECLARE_TYPE(MapEntry)
 
 //..............................................................................
 
 struct MapEntry
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS (MapEntry)
+	JNC_DECLARE_TYPE_STATIC_METHODS(MapEntry)
 
 	DataPtr m_nextPtr;
 	DataPtr m_prevPtr;
@@ -34,7 +34,7 @@ struct MapEntry
 	Variant m_value;
 
 	Map* m_map;
-	sl::MapEntry <Variant, DataPtr>* m_mapEntry;
+	sl::MapEntry<Variant, DataPtr>* m_mapEntry;
 };
 
 //..............................................................................
@@ -46,13 +46,13 @@ struct Map
 	size_t m_count;
 
 	void
-	clear ();
+	clear();
 
 	DataPtr
-	add (const sl::MapIterator <Variant, DataPtr>& it);
+	add(const sl::MapIterator<Variant, DataPtr>& it);
 
 	void
-	remove (MapEntry* entry);
+	remove(MapEntry* entry);
 };
 
 //..............................................................................

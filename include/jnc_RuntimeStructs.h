@@ -246,8 +246,8 @@ struct jnc_GcShadowStackFrameMapBuffer
 	jnc_ListLink m_link;
 	jnc_GcShadowStackFrameMap* m_prev;
 	intptr_t m_mapKind;
-	intptr_t m_gcRootArray [3];
-	intptr_t m_gcRootTypeArray [3];
+	intptr_t m_gcRootArray[3];
+	intptr_t m_gcRootTypeArray[3];
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -267,7 +267,7 @@ struct jnc_GcMutatorThread
 
 typedef
 void
-jnc_MarkOpaqueGcRootsFunc (
+jnc_MarkOpaqueGcRootsFunc(
 	jnc_IfaceHdr* iface,
 	jnc_GcHeap* gcHeap
 	);
@@ -328,15 +328,15 @@ struct jnc_CallSite
 
 typedef
 void
-jnc_StaticConstructFunc ();
+jnc_StaticConstructFunc();
 
 typedef
 void
-jnc_StaticDestructFunc ();
+jnc_StaticDestructFunc();
 
 typedef
 void
-jnc_DestructFunc (jnc_IfaceHdr* iface);
+jnc_DestructFunc(jnc_IfaceHdr* iface);
 
 //..............................................................................
 
@@ -433,76 +433,76 @@ template <typename T>
 class ClassBoxBase: public Box
 {
 public:
-	T* p ()
+	T* p()
 	{
-		return (T*) (this + 1);
+		return (T*)(this + 1);
 	}
 
 	operator T* ()
 	{
-		return p ();
+		return p();
 	}
 
 	T* operator -> ()
 	{
-		return p ();
+		return p();
 	}
 };
 
-#pragma pack (push, 1)
+#pragma pack(push, 1)
 
 template <typename T>
-class ClassBox_align1: public ClassBoxBase <T>
+class ClassBox_align1: public ClassBoxBase<T>
 {
 protected:
-	char m_buffer [sizeof (T)];
+	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
 
-#pragma pack (2)
+#pragma pack(2)
 
 template <typename T>
-class ClassBox_align2: public ClassBoxBase <T>
+class ClassBox_align2: public ClassBoxBase<T>
 {
 protected:
-	char m_buffer [sizeof (T)];
+	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
 
-#pragma pack (4)
+#pragma pack(4)
 
 template <typename T>
-class ClassBox_align4: public ClassBoxBase <T>
+class ClassBox_align4: public ClassBoxBase<T>
 {
 protected:
-	char m_buffer [sizeof (T)];
+	char m_buffer[sizeof(T)];
 } JNC_GCC_MSC_STRUCT;
 
-#pragma pack (8)
+#pragma pack(8)
 
 template <typename T>
-class ClassBox_align8: public ClassBoxBase <T>
+class ClassBox_align8: public ClassBoxBase<T>
 {
 protected:
 #if (JNC_PTR_SIZE == 8) // 8-byte alignment will be forced by Box/IfaceHdr
-	char m_buffer [sizeof (T)];
+	char m_buffer[sizeof(T)];
 #else
 	union
 	{
 		/// \unnamed{union}
-		char m_buffer [sizeof (T)];
+		char m_buffer[sizeof(T)];
 		int64_t m_align8; // otherwise, we need an 8-byte field
 	} JNC_GCC_MSC_STRUCT;
 #endif
 } JNC_GCC_MSC_STRUCT;
 
-#pragma pack (pop)
+#pragma pack(pop)
 
 // default alignment
 
 template <typename T>
-class ClassBox: public ClassBoxBase <T>
+class ClassBox: public ClassBoxBase<T>
 {
 protected:
-	char m_buffer [sizeof (T)];
+	char m_buffer[sizeof(T)];
 };
 
 //..............................................................................

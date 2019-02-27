@@ -9,9 +9,9 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main\n");
+	printf("main\n");
 
 	int a = 10;
 	int b = 20;
@@ -28,7 +28,7 @@ int main ()
 			);
 
 
-	printf ("s = '%s'\n", s);
+	printf("s = '%s'\n", s);
 
 	return 10;
 }

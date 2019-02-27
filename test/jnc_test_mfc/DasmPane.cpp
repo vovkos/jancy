@@ -37,7 +37,7 @@ int CDasmPane::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST));
 
 	m_LogCtrl.ModifyStyleEx(0, WS_EX_CLIENTEDGE);
-	m_LogCtrl.SetFont (&theApp.m_Font);
+	m_LogCtrl.SetFont(&theApp.m_Font);
 
 	EnableDocking(CBRS_ALIGN_ANY);
 
@@ -50,34 +50,34 @@ void CDasmPane::OnSize(UINT nType, int cx, int cy)
 }
 
 bool
-CDasmPane::Build (jnc::CModule* pModule)
+CDasmPane::Build(jnc::CModule* pModule)
 {
 	jnc::CDisassembler Dasm;
 
-	rtl::CIteratorT <jnc::CFunction> Function = pModule->m_FunctionMgr.GetFunctionList ().GetHead ();
+	rtl::CIteratorT<jnc::CFunction> Function = pModule->m_FunctionMgr.GetFunctionList().GetHead();
 	for (; Function; Function++)
 	{
-		jnc::CFunctionType* pFunctionType = Function->GetType ();
+		jnc::CFunctionType* pFunctionType = Function->GetType();
 
-		m_LogCtrl.Trace (
+		m_LogCtrl.Trace(
 			"%s %s %s %s\r\n",
-			pFunctionType->GetReturnType ()->GetTypeString (),
-			pFunctionType->GetCallConv ()->GetCallConvString (),
+			pFunctionType->GetReturnType()->GetTypeString(),
+			pFunctionType->GetCallConv()->GetCallConvString(),
 			Function->m_Tag,
-			pFunctionType->GetArgString ()
+			pFunctionType->GetArgString()
 			);
 
-		void* pf = Function->GetMachineCode ();
-		size_t Size = Function->GetMachineCodeSize ();
+		void* pf = Function->GetMachineCode();
+		size_t Size = Function->GetMachineCodeSize();
 
 		if (pf)
 		{
-			rtl::CString s = Dasm.Disassemble (pf, Size).cc ();
-			m_LogCtrl.Trace ("\r\n%s", s);
+			rtl::CString s = Dasm.Disassemble(pf, Size).cc();
+			m_LogCtrl.Trace("\r\n%s", s);
 		}
 
 
-		m_LogCtrl.Trace ("\r\n........................................\r\n\r\n");
+		m_LogCtrl.Trace("\r\n........................................\r\n\r\n");
 	}
 
 	return true;

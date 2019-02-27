@@ -42,34 +42,34 @@ protected:
 	uint_t m_llvmIndex;
 
 public:
-	BaseTypeSlot ();
+	BaseTypeSlot();
 
 	uint_t
-	getFlags () const
+	getFlags() const
 	{
 		return m_flags;
 	}
 
 	DerivableType*
-	getType () const
+	getType() const
 	{
 		return m_type;
 	}
 
 	size_t
-	getOffset () const
+	getOffset() const
 	{
 		return m_offset;
 	}
 
 	size_t
-	getVTableIndex () const
+	getVTableIndex() const
 	{
 		return m_vtableIndex;
 	}
 
 	uint_t
-	getLlvmIndex () const
+	getLlvmIndex() const
 	{
 		return m_llvmIndex;
 	}
@@ -79,19 +79,19 @@ public:
 
 class BaseTypeCoord
 {
-	AXL_DISABLE_COPY (BaseTypeCoord)
+	AXL_DISABLE_COPY(BaseTypeCoord)
 
 protected:
-	char m_buffer [256];
+	char m_buffer[256];
 
 public:
 	DerivableType* m_type;
 	size_t m_offset;
-	sl::Array <int32_t> m_llvmIndexArray;
+	sl::Array<int32_t> m_llvmIndexArray;
 	size_t m_vtableIndex;
 
 public:
-	BaseTypeCoord ();
+	BaseTypeCoord();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -110,13 +110,13 @@ struct UnionCoord
 class MemberCoord: public BaseTypeCoord
 {
 protected:
-	char m_buffer [256];
+	char m_buffer[256];
 
 public:
-	sl::Array <UnionCoord> m_unionCoordArray;
+	sl::Array<UnionCoord> m_unionCoordArray;
 
-	MemberCoord ():
-		m_unionCoordArray (ref::BufKind_Field, m_buffer, sizeof (m_buffer))
+	MemberCoord():
+		m_unionCoordArray(ref::BufKind_Field, m_buffer, sizeof(m_buffer))
 	{
 	}
 };
@@ -132,176 +132,176 @@ class DerivableType:
 protected:
 	// base types
 
-	sl::StringHashTable <BaseTypeSlot*> m_baseTypeMap;
-	sl::List <BaseTypeSlot> m_baseTypeList;
-	sl::Array <BaseTypeSlot*> m_baseTypeArray;
-	sl::Array <BaseTypeSlot*> m_gcRootBaseTypeArray;
-	sl::Array <BaseTypeSlot*> m_baseTypeConstructArray;
-	sl::Array <BaseTypeSlot*> m_baseTypeDestructArray;
+	sl::StringHashTable<BaseTypeSlot*> m_baseTypeMap;
+	sl::List<BaseTypeSlot> m_baseTypeList;
+	sl::Array<BaseTypeSlot*> m_baseTypeArray;
+	sl::Array<BaseTypeSlot*> m_gcRootBaseTypeArray;
+	sl::Array<BaseTypeSlot*> m_baseTypeConstructArray;
+	sl::Array<BaseTypeSlot*> m_baseTypeDestructArray;
 
 	Type* m_setAsType;
 	Function* m_defaultConstructor;
 
 	// overloaded operators
 
-	sl::Array <Function*> m_unaryOperatorTable;
-	sl::Array <Function*> m_binaryOperatorTable;
-	sl::Array <Function*> m_castOperatorTable;
-	sl::StringHashTable <Function*> m_castOperatorMap;
+	sl::Array<Function*> m_unaryOperatorTable;
+	sl::Array<Function*> m_binaryOperatorTable;
+	sl::Array<Function*> m_castOperatorTable;
+	sl::StringHashTable<Function*> m_castOperatorMap;
 	Function* m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
-	sl::StringHashTable <Property*> m_indexerPropertyMap;
+	sl::StringHashTable<Property*> m_indexerPropertyMap;
 
 public:
-	DerivableType ();
+	DerivableType();
 
 	virtual
 	Type*
-	getThisArgType (uint_t ptrTypeFlags)
+	getThisArgType(uint_t ptrTypeFlags)
 	{
-		return (Type*) getDataPtrType (DataPtrTypeKind_Normal, ptrTypeFlags);
+		return (Type*)getDataPtrType(DataPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
 	FunctionType*
-	getMemberMethodType (
+	getMemberMethodType(
 		FunctionType* shortType,
 		uint_t thisArgTypeFlags = 0
 		);
 
 	PropertyType*
-	getMemberPropertyType (PropertyType* shortType);
+	getMemberPropertyType(PropertyType* shortType);
 
-	sl::ConstList <BaseTypeSlot>
-	getBaseTypeList ()
+	sl::ConstList<BaseTypeSlot>
+	getBaseTypeList()
 	{
 		return m_baseTypeList;
 	}
 
-	sl::Array <BaseTypeSlot*>
-	getBaseTypeArray ()
+	sl::Array<BaseTypeSlot*>
+	getBaseTypeArray()
 	{
 		return m_baseTypeArray;
 	}
 
 	BaseTypeSlot*
-	getBaseTypeByIndex (size_t index);
+	getBaseTypeByIndex(size_t index);
 
 	BaseTypeSlot*
-	addBaseType (Type* type);
+	addBaseType(Type* type);
 
 	BaseTypeSlot*
-	findBaseType (Type* type)
+	findBaseType(Type* type)
 	{
-		sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 		return it ? it->m_value : NULL;
 	}
 
 	bool
-	findBaseTypeTraverse (
+	findBaseTypeTraverse(
 		Type* type,
 		BaseTypeCoord* coord = NULL
 		)
 	{
-		return findBaseTypeTraverseImpl (type, coord, 0);
+		return findBaseTypeTraverseImpl(type, coord, 0);
 	}
 
 	size_t
-	findBaseTypeOffset (Type* type);
+	findBaseTypeOffset(Type* type);
 
-	sl::Array <BaseTypeSlot*>
-	getGcRootBaseTypeArray ()
+	sl::Array<BaseTypeSlot*>
+	getGcRootBaseTypeArray()
 	{
 		return m_gcRootBaseTypeArray;
 	}
 
 	Type*
-	getSetAsType ()
+	getSetAsType()
 	{
 		return m_setAsType;
 	}
 
 	Function*
-	getPreConstructor ()
+	getPreConstructor()
 	{
 		return m_preconstructor;
 	}
 
 	Function*
-	getDefaultConstructor ();
+	getDefaultConstructor();
 
 	Function*
-	getUnaryOperator (UnOpKind opKind)
+	getUnaryOperator(UnOpKind opKind)
 	{
-		return (size_t) opKind < m_unaryOperatorTable.getCount () ? m_unaryOperatorTable [opKind] : NULL;
+		return (size_t)opKind < m_unaryOperatorTable.getCount() ? m_unaryOperatorTable[opKind] : NULL;
 	}
 
 	Function*
-	getBinaryOperator (BinOpKind opKind)
+	getBinaryOperator(BinOpKind opKind)
 	{
-		return (size_t) opKind < m_binaryOperatorTable.getCount () ? m_binaryOperatorTable [opKind] : NULL;
+		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : NULL;
 	}
 
 	Function*
-	getCastOperator (size_t i)
+	getCastOperator(size_t i)
 	{
-		return i < m_castOperatorTable.getCount () ? m_castOperatorTable [i] : NULL;
+		return i < m_castOperatorTable.getCount() ? m_castOperatorTable[i] : NULL;
 	}
 
 	Function*
-	getCastOperator (Type* type)
+	getCastOperator(Type* type)
 	{
-		sl::StringHashTableIterator <Function*> it = m_castOperatorMap.find (type->getSignature ());
+		sl::StringHashTableIterator<Function*> it = m_castOperatorMap.find(type->getSignature());
 		return it ? it->m_value : NULL;
 	}
 
 	Function*
-	getCallOperator ()
+	getCallOperator()
 	{
 		return m_callOperator;
 	}
 
 	Function*
-	getOperatorVararg ()
+	getOperatorVararg()
 	{
 		return m_operatorVararg;
 	}
 
 	Function*
-	getOperatorCdeclVararg ()
+	getOperatorCdeclVararg()
 	{
 		return m_operatorCdeclVararg;
 	}
 
 	bool
-	hasIndexerProperties ()
+	hasIndexerProperties()
 	{
-		return !m_indexerPropertyMap.isEmpty ();
+		return !m_indexerPropertyMap.isEmpty();
 	}
 
 	Property*
-	chooseIndexerProperty (const Value& opValue);
+	chooseIndexerProperty(const Value& opValue);
 
 	StructField*
-	getFieldByIndex (size_t index);
+	getFieldByIndex(size_t index);
 
 	virtual
 	bool
-	addMethod (Function* function);
+	addMethod(Function* function);
 
 	virtual
 	bool
-	addProperty (Property* prop);
+	addProperty(Property* prop);
 
 	bool
-	callBaseTypeConstructors (const Value& thisValue);
+	callBaseTypeConstructors(const Value& thisValue);
 
 	bool
-	callBaseTypeDestructors (const Value& thisValue);
+	callBaseTypeDestructors(const Value& thisValue);
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -309,29 +309,29 @@ public:
 
 protected:
 	Property*
-	getIndexerProperty (Type* argType);
+	getIndexerProperty(Type* argType);
 
 	ModuleItem*
-	findItemInExtensionNamespaces (const sl::StringRef& name);
+	findItemInExtensionNamespaces(const sl::StringRef& name);
 
 	Function*
-	createDefaultMethod (
+	createDefaultMethod(
 		FunctionKind functionKind,
 		StorageKind storageKind = StorageKind_Member,
 		uint_t flags = 0
 		);
 
 	bool
-	compileDefaultStaticConstructor ();
+	compileDefaultStaticConstructor();
 
 	bool
-	compileDefaultConstructor ();
+	compileDefaultConstructor();
 
 	bool
-	compileDefaultDestructor ();
+	compileDefaultDestructor();
 
 	bool
-	findBaseTypeTraverseImpl (
+	findBaseTypeTraverseImpl(
 		Type* type,
 		BaseTypeCoord* coord,
 		size_t level
@@ -339,17 +339,17 @@ protected:
 
 	virtual
 	ModuleItem*
-	findItemTraverseImpl (
+	findItemTraverseImpl(
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		)
 	{
-		return findItemTraverseImpl (name, coord, flags, 0);
+		return findItemTraverseImpl(name, coord, flags, 0);
 	}
 
 	ModuleItem*
-	findItemTraverseImpl (
+	findItemTraverseImpl(
 		const sl::StringRef& name,
 		MemberCoord* coord,
 		uint_t flags,
@@ -361,11 +361,11 @@ protected:
 
 JNC_INLINE
 bool
-isConstructibleType (Type* type)
+isConstructibleType(Type* type)
 {
 	return
-		(type->getTypeKindFlags () & TypeKindFlag_Derivable) &&
-		((DerivableType*) type)->getConstructor () != NULL;
+		(type->getTypeKindFlags() & TypeKindFlag_Derivable) &&
+		((DerivableType*)type)->getConstructor() != NULL;
 }
 
 //..............................................................................

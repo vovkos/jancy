@@ -17,7 +17,7 @@ namespace io {
 //..............................................................................
 
 // {2cc2fe82-652f-4fe4-9573-5da7d5d53b72}
-JNC_DEFINE_GUID (
+JNC_DEFINE_GUID(
 	g_usbLibGuid,
 	0x2cc2fe82, 0x652f, 0x4fe4, 0x95, 0x73, 0x5d, 0xa7, 0xd5, 0xd5, 0x3b, 0x72
 	);

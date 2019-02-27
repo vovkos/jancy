@@ -67,16 +67,16 @@ enum NetworkAdapterType
 		denoting the total count  of adapter types. Should you need a table
 		indexed by adapter type, you could write something like::
 
-			char const* getNetworkAdapterTypeString (io.NetworkAdapterType type)
+			char const* getNetworkAdapterTypeString(io.NetworkAdapterType type)
 			{
-				static char const stringTable [io.NetworkAdapterType._Count] =
+				static char const stringTable[io.NetworkAdapterType._Count] =
 				{
 					"<unknown>",
 					"loopback",
 					// ...
 				}
 
-				return stringTable [type];
+				return stringTable[type];
 			}
 	*/
 
@@ -221,11 +221,11 @@ struct NetworkAdapterDesc
 	NetworkAdapterFlags m_flags;
 
 	/**
-		Holds the hardware Media Access Control (MAC) address of the network
+		Holds the hardware Media Access Control(MAC)address of the network
 		adapter.
 	*/
 
-	uint8_t m_mac [6];
+	uint8_t m_mac[6];
 
 	/**
 		Holds a pointer to the head of the list of addresses assigned to this
@@ -258,14 +258,14 @@ struct NetworkAdapterDesc
 	.. ref-code-block::
 
 		`io.NetworkAdapterDesc` const* adapterDesc =
-			io.createNetworkAdapterDescList ();
+			io.createNetworkAdapterDescList();
 		for (; adapterDesc; adapterDesc = adapterDesc.m_next)
 		{
 			// add adapter to the combo box...
 		}
 */
 
-NetworkAdapterDesc const* createNetworkAdapterDescList (
+NetworkAdapterDesc const* createNetworkAdapterDescList(
 	size_t* adapterCount = null,
 	size_t* addressCount = null
 	);

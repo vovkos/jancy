@@ -1,80 +1,80 @@
 import "io_usb.jncx"
 
-printUsbEndpointDesc (io.UsbEndpointDesc const* endpointDesc)
+printUsbEndpointDesc(io.UsbEndpointDesc const* endpointDesc)
 {
-	printf ("      Endpoint:   0x%02x\n", endpointDesc.m_endpointId);
-	printf ("      Direction:  %s\n", (endpointDesc.m_endpointId & 0x80) ? "IN" : "OUT");
-	printf ("      Type:       %s\n", io.getUsbTransferTypeString (endpointDesc.m_transferType));
-	printf ("      Max packet: %d\n", endpointDesc.m_maxPacketSize);
+	printf("      Endpoint:   0x%02x\n", endpointDesc.m_endpointId);
+	printf("      Direction:  %s\n", (endpointDesc.m_endpointId & 0x80) ? "IN" : "OUT");
+	printf("      Type:       %s\n", io.getUsbTransferTypeString (endpointDesc.m_transferType));
+	printf("      Max packet: %d\n", endpointDesc.m_maxPacketSize);
 }
 
-printUsbIfaceDesc (io.UsbInterfaceDesc const* ifaceDesc)
+printUsbIfaceDesc(io.UsbInterfaceDesc const* ifaceDesc)
 {
-	printf ("    Interface:   %d\n", ifaceDesc.m_interfaceId);
-	printf ("    Alt setting: %d\n", ifaceDesc.m_altSettingId);
-	printf ("    Class:       %02x/%02x (%s)\n", ifaceDesc.m_class, ifaceDesc.m_subClass, io.getUsbClassString (ifaceDesc.m_class));
-	printf ("    Protocol:    %d\n", ifaceDesc.m_protocol);
-	printf ("    Endpoints:   %d\n", ifaceDesc.m_endpointCount);
+	printf("    Interface:   %d\n", ifaceDesc.m_interfaceId);
+	printf("    Alt setting: %d\n", ifaceDesc.m_altSettingId);
+	printf("    Class:       %02x/%02x (%s)\n", ifaceDesc.m_class, ifaceDesc.m_subClass, io.getUsbClassString (ifaceDesc.m_class));
+	printf("    Protocol:    %d\n", ifaceDesc.m_protocol);
+	printf("    Endpoints:   %d\n", ifaceDesc.m_endpointCount);
 
 	for (size_t i = 0; i < ifaceDesc.m_endpointCount; i++)
 	{
-		printf ("\n");
-		printUsbEndpointDesc (&ifaceDesc.m_endpointTable [i]);
+		printf("\n");
+		printUsbEndpointDesc(&ifaceDesc.m_endpointTable[i]);
 	}
 }
 
-printUsbConfigurationDesc (io.UsbConfigurationDesc const* configDesc)
+printUsbConfigurationDesc(io.UsbConfigurationDesc const* configDesc)
 {
-	printf ("  Configuration: %d\n", configDesc.m_configurationId);
-	printf ("  Max power:     %d x(2|8) mA\n", configDesc.m_maxPower);
-	printf ("  Interfaces:    %d\n", configDesc.m_interfaceCount);
+	printf("  Configuration: %d\n", configDesc.m_configurationId);
+	printf("  Max power:     %d x(2|8) mA\n", configDesc.m_maxPower);
+	printf("  Interfaces:    %d\n", configDesc.m_interfaceCount);
 
 	for (size_t i = 0; i < configDesc.m_interfaceCount; i++)
 	{
-		io.UsbInterfaceDesc const* ifaceDesc = &configDesc.m_interfaceTable [i];
+		io.UsbInterfaceDesc const* ifaceDesc = &configDesc.m_interfaceTable[i];
 		for (; ifaceDesc; ifaceDesc = ifaceDesc.m_nextAltSettingInterface)
 		{
-			printf ("\n");
-			printUsbIfaceDesc (ifaceDesc);
+			printf("\n");
+			printUsbIfaceDesc(ifaceDesc);
 		}
 	}
 }
 
-printUsbDevice (io.UsbDevice* device)
+printUsbDevice(io.UsbDevice* device)
 {
 	bool result;
 
 	io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 
-	printf ("Vendor:  %04x %s\n", deviceDesc.m_vendorId, try device.getStringDesc (deviceDesc.m_vendorStringId));
-	printf ("Product: %04x %s\n", deviceDesc.m_productId, try device.getStringDesc (deviceDesc.m_productStringId));
-	printf ("Class:   %02x/%02x (%s)\n", deviceDesc.m_class, deviceDesc.m_subClass, io.getUsbClassString (deviceDesc.m_class));
-	printf ("Serial:  %s\n", try device.getStringDesc (deviceDesc.m_serialStringId));
-	printf ("Bus:     %d\n", device.m_bus);
-	printf ("Address: %d\n", device.m_address);
-	printf ("Speed:   %s\n", io.getUsbSpeedString (device.m_speed));
+	printf("Vendor:  %04x %s\n", deviceDesc.m_vendorId, try device.getStringDesc (deviceDesc.m_vendorStringId));
+	printf("Product: %04x %s\n", deviceDesc.m_productId, try device.getStringDesc (deviceDesc.m_productStringId));
+	printf("Class:   %02x/%02x (%s)\n", deviceDesc.m_class, deviceDesc.m_subClass, io.getUsbClassString (deviceDesc.m_class));
+	printf("Serial:  %s\n", try device.getStringDesc (deviceDesc.m_serialStringId));
+	printf("Bus:     %d\n", device.m_bus);
+	printf("Address: %d\n", device.m_address);
+	printf("Speed:   %s\n", io.getUsbSpeedString (device.m_speed));
 
-	printf ("Configs: %d\n", deviceDesc.m_configurationCount);
+	printf("Configs: %d\n", deviceDesc.m_configurationCount);
 
 	for (size_t i = 0; i < deviceDesc.m_configurationCount; i++)
 	{
-		printf ("\n");
-		printUsbConfigurationDesc (&deviceDesc.m_configurationTable [i]);
+		printf("\n");
+		printUsbConfigurationDesc(&deviceDesc.m_configurationTable[i]);
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("Enumerating USB devices...\n");
+	printf("Enumerating USB devices...\n");
 
 	size_t count;
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray (&count);
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray(&count);
 	for (size_t i = 0; i < count; i++)
 	{
-		io.UsbDevice* device = deviceArray [i];
-		try device.open ();
-		printUsbDevice (device);
-		printf ("\n");
+		io.UsbDevice* device = deviceArray[i];
+		try device.open();
+		printUsbDevice(device);
+		printf("\n");
 	}
 
 	return 0;

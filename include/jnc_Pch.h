@@ -265,27 +265,27 @@ typedef wchar_t           utf32_t;
 #if (_JNC_CPP_MSC)
 #	define JNC_CDECL       __cdecl
 #	define JNC_STDCALL     __stdcall
-#	define JNC_SELECT_ANY  __declspec (selectany)
-#	define JNC_EXPORT      __declspec (dllexport)
+#	define JNC_SELECT_ANY  __declspec(selectany)
+#	define JNC_EXPORT      __declspec(dllexport)
 
 #	define JNC_GCC_ALIGN(n)
 #	define JNC_GCC_MSC_STRUCT
 #	define JNC_GCC_NO_ASAN
 #elif (_JNC_CPP_GCC)
 #	if (_JNC_CPU_X86)
-#		define JNC_CDECL   __attribute__ ((cdecl))
-#		define JNC_STDCALL __attribute__ ((stdcall))
+#		define JNC_CDECL   __attribute__((cdecl))
+#		define JNC_STDCALL __attribute__((stdcall))
 #	else
 #		define JNC_CDECL
 #		define JNC_STDCALL
 #	endif
-#	define JNC_SELECT_ANY  __attribute__ ((weak))
-#	define JNC_EXPORT      __attribute__ ((visibility ("default")))
+#	define JNC_SELECT_ANY  __attribute__((weak))
+#	define JNC_EXPORT      __attribute__((visibility("default")))
 
-#	define JNC_GCC_ALIGN(n) __attribute__((aligned (n)))
+#	define JNC_GCC_ALIGN(n) __attribute__((aligned(n)))
 
 #	ifdef __has_attribute
-#		if (__has_attribute (ms_struct))
+#		if (__has_attribute(ms_struct))
 #			define JNC_GCC_MSC_STRUCT __attribute__((ms_struct))
 #   	else
 #			define JNC_GCC_MSC_STRUCT
@@ -295,10 +295,10 @@ typedef wchar_t           utf32_t;
 #   endif
 
 #	ifdef __has_feature
-#		if (__has_feature (address_sanitizer))
+#		if (__has_feature(address_sanitizer))
 #	 		define _JNC_GCC_ASAN 1
 #		endif
-#	elif (defined (__SANITIZE_ADDRESS__))
+#	elif (defined(__SANITIZE_ADDRESS__))
 # 		define _JNC_GCC_ASAN 1
 #	endif
 
@@ -334,7 +334,7 @@ typedef wchar_t           utf32_t;
 
 		test_cpp: /home/user/test_cpp/main.cpp:100: int main(int, char**): Assertion `line < lineCount' failed.
 
-	On ``Release`` builds, this macro does nothing (expands to an empty sequence).
+	On ``Release`` builds, this macro does nothing(expands to an empty sequence).
 
 	\endverbatim
 */

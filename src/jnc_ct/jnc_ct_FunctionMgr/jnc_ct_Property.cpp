@@ -18,8 +18,8 @@ namespace ct {
 
 //..............................................................................
 
-Property::Property ():
-	NamedTypeBlock (this)
+Property::Property():
+	NamedTypeBlock(this)
 {
 	m_itemKind = ModuleItemKind_Property;
 	m_namespaceKind = NamespaceKind_Property;
@@ -41,27 +41,27 @@ Property::Property ():
 }
 
 bool
-Property::compile ()
+Property::compile()
 {
 	bool result;
 
 	if (m_flags & PropertyFlag_AutoGet)
 	{
-		result = compileAutoGetter ();
+		result = compileAutoGetter();
 		if (!result)
 			return false;
 	}
 
 	if (m_flags & PropertyFlag_AutoSet)
 	{
-		result = compileAutoSetter ();
+		result = compileAutoSetter();
 		if (!result)
 			return false;
 	}
 
-	if (m_type->getFlags () & PropertyTypeFlag_Bindable)
+	if (m_type->getFlags() & PropertyTypeFlag_Bindable)
 	{
-		result = compileBinder ();
+		result = compileBinder();
 		if (!result)
 			return false;
 	}
@@ -70,7 +70,7 @@ Property::compile ()
 }
 
 bool
-Property::create (PropertyType* type)
+Property::create(PropertyType* type)
 {
 	bool result;
 
@@ -88,225 +88,225 @@ Property::create (PropertyType* type)
 			setterFlags |= ModuleItemFlag_User;
 	}
 
-	if (type->getFlags () & PropertyTypeFlag_Bindable)
+	if (type->getFlags() & PropertyTypeFlag_Bindable)
 	{
-		result = createOnChanged ();
+		result = createOnChanged();
 		if (!result)
 			return false;
 	}
 
-	FunctionType* getterType = type->getGetterType ();
+	FunctionType* getterType = type->getGetterType();
 
 	if (m_flags & PropertyFlag_AutoGet)
 	{
-		result = createAutoGetValue (getterType->getReturnType ());
+		result = createAutoGetValue(getterType->getReturnType());
 		if (!result)
 			return false;
 	}
 	else
 	{
-		Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, getterType);
+		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
 		getter->m_storageKind = storageKind;
 		getter->m_flags |= getterFlags;
 
 		if (m_parentType)
 			getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
-		result = addMethod (getter);
+		result = addMethod(getter);
 		if (!result)
 			return false;
 	}
 
-	size_t setterTypeOverloadCount = type->getSetterType ()->getOverloadCount ();
+	size_t setterTypeOverloadCount = type->getSetterType()->getOverloadCount();
 	for (size_t i = 0; i < setterTypeOverloadCount; i++)
 	{
-		FunctionType* setterType = type->getSetterType ()->getOverload (i);
-		Function* setter = m_module->m_functionMgr.createFunction (FunctionKind_Setter, setterType);
+		FunctionType* setterType = type->getSetterType()->getOverload(i);
+		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
 		setter->m_storageKind = storageKind;
 		setter->m_flags |= setterFlags;
 
-		result = addMethod (setter);
+		result = addMethod(setter);
 		if (!result)
 			return false;
 	}
 
-	m_type = m_parentType ? m_parentType->getMemberPropertyType (type) : type;
+	m_type = m_parentType ? m_parentType->getMemberPropertyType(type) : type;
 
 	if (m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
-		m_module->markForCompile (this);
+		m_module->markForCompile(this);
 
 	return true;
 }
 
 bool
-Property::setOnChanged (
+Property::setOnChanged(
 	ModuleItem* item,
 	bool isForced
 	)
 {
 	if (m_onChanged && !isForced)
 	{
-		err::setFormatStringError ("'%s' already has 'bindable %s'", m_tag.sz (), m_onChanged->m_tag.sz ());
+		err::setFormatStringError("'%s' already has 'bindable %s'", m_tag.sz (), m_onChanged->m_tag.sz ());
 		return false;
 	}
 
 	m_onChanged = item;
 	m_flags |= PropertyFlag_Bindable;
 
-	if (item->getItemKind () == ModuleItemKind_Alias)
+	if (item->getItemKind() == ModuleItemKind_Alias)
 		return true; // will be fixed up later
 
-	Type* type = getModuleItemType (item);
+	Type* type = getModuleItemType(item);
 	if (!type)
 	{
-		err::setFormatStringError ("invalid bindable item");
+		err::setFormatStringError("invalid bindable item");
 		return false;
 	}
 
-	FunctionType* binderType = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_Binder);
-	Function* binder = m_module->m_functionMgr.createFunction (FunctionKind_Binder, binderType);
+	FunctionType* binderType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_Binder);
+	Function* binder = m_module->m_functionMgr.createFunction(FunctionKind_Binder, binderType);
 	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
 		binder->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
-	m_module->markForCompile (this);
+	m_module->markForCompile(this);
 
-	return addMethod (binder);
+	return addMethod(binder);
 }
 
 bool
-Property::createOnChanged ()
+Property::createOnChanged()
 {
 	sl::String name = "m_onChanged";
 
-	Type* type = m_module->m_typeMgr.getStdType (StdType_SimpleMulticast);
+	Type* type = m_module->m_typeMgr.getStdType(StdType_SimpleMulticast);
 
 	if (m_parentType)
 	{
-		StructField* field = createField (name, type);
+		StructField* field = createField(name, type);
 		return
 			field != NULL &&
-			setOnChanged (field);
+			setOnChanged(field);
 	}
 	else
 	{
-		Variable* variable = m_module->m_variableMgr.createVariable (
+		Variable* variable = m_module->m_variableMgr.createVariable(
 			StorageKind_Static,
 			name,
-			createQualifiedName (name),
+			createQualifiedName(name),
 			type
 			);
 
 		return
 			variable != NULL &&
-			addItem (variable) &&
-			setOnChanged (variable);
+			addItem(variable) &&
+			setOnChanged(variable);
 	}
 }
 
 bool
-Property::setAutoGetValue (
+Property::setAutoGetValue(
 	ModuleItem* item,
 	bool isForced
 	)
 {
 	if (m_autoGetValue && !isForced)
 	{
-		err::setFormatStringError ("'%s' already has 'autoget %s'", m_tag.sz (), m_autoGetValue->m_tag.sz ());
+		err::setFormatStringError("'%s' already has 'autoget %s'", m_tag.sz (), m_autoGetValue->m_tag.sz ());
 		return false;
 	}
 
 	m_autoGetValue = item;
 	m_flags |= PropertyFlag_AutoGet;
 
-	if (item->getItemKind () == ModuleItemKind_Alias)
+	if (item->getItemKind() == ModuleItemKind_Alias)
 		return true; // will be fixed up later
 
-	Type* type = getModuleItemType (item);
+	Type* type = getModuleItemType(item);
 	if (!type)
 	{
-		err::setFormatStringError ("invalid autoget item");
+		err::setFormatStringError("invalid autoget item");
 		return false;
 	}
 
-	FunctionType* getterType = m_module->m_typeMgr.getFunctionType (type, NULL, 0, 0);
+	FunctionType* getterType = m_module->m_typeMgr.getFunctionType(type, NULL, 0, 0);
 
 	if (m_getter)
 	{
-		if (m_getter->getType ()->getReturnType ()->cmp (type) != 0)
+		if (m_getter->getType()->getReturnType()->cmp(type) != 0)
 		{
-			err::setFormatStringError ("'autoget %s' does not match property declaration", type->getTypeString ().sz ());
+			err::setFormatStringError("'autoget %s' does not match property declaration", type->getTypeString ().sz ());
 			return false;
 		}
 
 		return true;
 	}
 
-	Function* getter = m_module->m_functionMgr.createFunction (FunctionKind_Getter, getterType);
+	Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
 	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
 		getter->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
-	m_module->markForCompile (this);
+	m_module->markForCompile(this);
 
-	return addMethod (getter);
+	return addMethod(getter);
 }
 
 bool
-Property::createAutoGetValue (Type* type)
+Property::createAutoGetValue(Type* type)
 {
 	sl::String name = "m_value";
 
 	if (m_parentType)
 	{
-		StructField* field = createField (name, type);
+		StructField* field = createField(name, type);
 		return
 			field != NULL &&
-			setAutoGetValue (field);
+			setAutoGetValue(field);
 	}
 	else
 	{
-		Variable* variable = m_module->m_variableMgr.createVariable (
+		Variable* variable = m_module->m_variableMgr.createVariable(
 			StorageKind_Static,
 			name,
-			createQualifiedName (name),
+			createQualifiedName(name),
 			type
 			);
 
 		return
 			variable != NULL &&
-			addItem (variable) &&
-			setAutoGetValue (variable);
+			addItem(variable) &&
+			setAutoGetValue(variable);
 	}
 }
 
 StructField*
-Property::createFieldImpl (
+Property::createFieldImpl(
 	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
-	sl::BoxList <Token>* constructor,
-	sl::BoxList <Token>* initializer
+	sl::BoxList<Token>* constructor,
+	sl::BoxList<Token>* initializer
 	)
 {
-	ASSERT (m_parentType);
+	ASSERT(m_parentType);
 
-	if (!(m_parentType->getTypeKindFlags () & TypeKindFlag_Derivable))
+	if (!(m_parentType->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' cannot have field members", m_parentType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot have field members", m_parentType->getTypeString ().sz ());
 		return NULL;
 	}
 
-	DerivableType* parentType = (DerivableType*) m_parentType;
+	DerivableType* parentType = (DerivableType*)m_parentType;
 
 	bool result;
 
 	// don't add field to parent namespace
 
-	StructField* field = parentType->createField (sl::String (), type, bitCount, ptrTypeFlags, constructor, initializer);
+	StructField* field = parentType->createField(sl::String(), type, bitCount, ptrTypeFlags, constructor, initializer);
 	if (!field)
 		return NULL;
 
@@ -315,9 +315,9 @@ Property::createFieldImpl (
 	field->m_parentNamespace = this;
 	field->m_name = name;
 
-	if (!name.isEmpty ())
+	if (!name.isEmpty())
 	{
-		result = addItem (field);
+		result = addItem(field);
 		if (!result)
 			return NULL;
 	}
@@ -326,24 +326,24 @@ Property::createFieldImpl (
 }
 
 bool
-Property::addMethod (Function* function)
+Property::addMethod(Function* function)
 {
 	bool result;
 
-	StorageKind storageKind = function->getStorageKind ();
-	FunctionKind functionKind = function->getFunctionKind ();
-	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
+	StorageKind storageKind = function->getStorageKind();
+	FunctionKind functionKind = function->getFunctionKind();
+	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
 	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
-	bool hasArgs = !function->getType ()->getArgArray ().isEmpty ();
+	bool hasArgs = !function->getType()->getArgArray().isEmpty();
 
 	if (m_parentType)
 	{
-		switch (storageKind)
+		switch(storageKind)
 		{
 		case StorageKind_Static:
 			if (thisArgTypeFlags)
 			{
-				err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 				return false;
 			}
 
@@ -357,7 +357,7 @@ Property::addMethod (Function* function)
 			if (functionKind == FunctionKind_Getter)
 				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
 
-			function->convertToMemberMethod (m_parentType);
+			function->convertToMemberMethod(m_parentType);
 			break;
 
 		case StorageKind_Abstract:
@@ -366,32 +366,32 @@ Property::addMethod (Function* function)
 			if (functionKind == FunctionKind_Getter)
 				function->m_thisArgTypeFlags |= PtrTypeFlag_Const;
 
-			if (m_parentType->getTypeKind () != TypeKind_Class)
+			if (m_parentType->getTypeKind() != TypeKind_Class)
 			{
-				err::setFormatStringError ("virtual method cannot be added to '%s'", m_parentType->getTypeString ().sz ());
+				err::setFormatStringError("virtual method cannot be added to '%s'", m_parentType->getTypeString ().sz ());
 				return false;
 			}
 
-			if (m_parentType->getFlags () & ModuleItemFlag_Sealed)
+			if (m_parentType->getFlags() & ModuleItemFlag_Sealed)
 			{
-				err::setFormatStringError ("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().sz ());
+				err::setFormatStringError("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().sz ());
 				return false;
 			}
 
-			if (!function->isAccessor ())
-				((ClassType*) m_parentType)->m_virtualMethodArray.append (function); // otherwise we are already on VirtualPropertyArray
+			if (!function->isAccessor())
+				((ClassType*)m_parentType)->m_virtualMethodArray.append(function); // otherwise we are already on VirtualPropertyArray
 
-			function->convertToMemberMethod (m_parentType);
+			function->convertToMemberMethod(m_parentType);
 			break;
 
 		default:
-			err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 			return false;
 		}
 	}
 	else
 	{
-		switch (storageKind)
+		switch(storageKind)
 		{
 		case StorageKind_Undefined:
 			function->m_storageKind = StorageKind_Static;
@@ -401,13 +401,13 @@ Property::addMethod (Function* function)
 			break;
 
 		default:
-			err::setFormatStringError ("invalid storage specifier '%s' for static property member", getStorageKindString (storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for static property member", getStorageKindString (storageKind));
 			return false;
 		}
 
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError ("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 			return false;
 		}
 
@@ -419,12 +419,12 @@ Property::addMethod (Function* function)
 
 	Function** target = NULL;
 
-	switch (functionKind)
+	switch(functionKind)
 	{
 	case FunctionKind_Constructor:
 		if (hasArgs)
 		{
-			err::setFormatStringError ("property constructor cannot have arguments");
+			err::setFormatStringError("property constructor cannot have arguments");
 			return false;
 		}
 
@@ -460,7 +460,7 @@ Property::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Getter:
-		result = m_verifier.checkGetter (function->getType ());
+		result = m_verifier.checkGetter(function->getType());
 		if (!result)
 			return false;
 
@@ -470,11 +470,11 @@ Property::addMethod (Function* function)
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const)
 		{
-			err::setFormatStringError ("const property '%s' cannot have setters", m_tag.sz ());
+			err::setFormatStringError("const property '%s' cannot have setters", m_tag.sz ());
 			return false;
 		}
 
-		result = m_verifier.checkSetter (function->getType ());
+		result = m_verifier.checkSetter(function->getType());
 		if (!result)
 			return false;
 
@@ -486,18 +486,18 @@ Property::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Normal:
-		return addFunction (function) != -1;
+		return addFunction(function) != -1;
 
 	default:
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"invalid %s in '%s'",
-			getFunctionKindString (functionKind),
-			m_tag.sz ()
+			getFunctionKindString(functionKind),
+			m_tag.sz()
 			);
 		return false;
 	}
 
-	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -505,7 +505,7 @@ Property::addMethod (Function* function)
 	}
 	else
 	{
-		result = (*target)->addOverload (function) != -1;
+		result = (*target)->addOverload(function) != -1;
 		if (!result)
 			return false;
 	}
@@ -514,10 +514,10 @@ Property::addMethod (Function* function)
 }
 
 bool
-Property::addProperty (Property* prop)
+Property::addProperty(Property* prop)
 {
-	ASSERT (prop->isNamed ());
-	bool result = addItem (prop);
+	ASSERT(prop->isNamed());
+	bool result = addItem(prop);
 	if (!result)
 		return false;
 
@@ -526,8 +526,8 @@ Property::addProperty (Property* prop)
 	if (!m_parentType)
 		return true;
 
-	StorageKind storageKind = prop->getStorageKind ();
-	switch (storageKind)
+	StorageKind storageKind = prop->getStorageKind();
+	switch(storageKind)
 	{
 	case StorageKind_Static:
 		break;
@@ -543,22 +543,22 @@ Property::addProperty (Property* prop)
 	case StorageKind_Abstract:
 	case StorageKind_Virtual:
 	case StorageKind_Override:
-		if (m_parentType->getTypeKind () != TypeKind_Class)
+		if (m_parentType->getTypeKind() != TypeKind_Class)
 		{
-			err::setFormatStringError (
+			err::setFormatStringError(
 				"'%s' property cannot be part of '%s'",
-				getStorageKindString (storageKind),
-				m_parentType->getTypeString ().sz ()
+				getStorageKindString(storageKind),
+				m_parentType->getTypeString().sz()
 				);
 			return false;
 		}
 
-		((ClassType*) m_parentType)->m_virtualPropertyArray.append (prop);
+		((ClassType*)m_parentType)->m_virtualPropertyArray.append(prop);
 		prop->m_parentType = m_parentType;
 		break;
 
 	default:
-		err::setFormatStringError ("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
 		return false;
 	}
 
@@ -566,91 +566,91 @@ Property::addProperty (Property* prop)
 }
 
 bool
-Property::calcLayout ()
+Property::calcLayout()
 {
 	bool result;
 
-	ASSERT (m_storageKind && m_vtable.isEmpty ());
+	ASSERT(m_storageKind && m_vtable.isEmpty());
 
-	if (m_autoGetValue && m_autoGetValue->getItemKind () == ModuleItemKind_Alias)
+	if (m_autoGetValue && m_autoGetValue->getItemKind() == ModuleItemKind_Alias)
 	{
-		Alias* alias = (Alias*) m_autoGetValue;
-		result = alias->ensureLayout () && setAutoGetValue (alias->getTargetItem (), true);
+		Alias* alias = (Alias*)m_autoGetValue;
+		result = alias->ensureLayout() && setAutoGetValue(alias->getTargetItem(), true);
 		if (!result)
 			return false;
 
-		ASSERT (m_autoGetValue->getItemKind () != ModuleItemKind_Alias);
+		ASSERT(m_autoGetValue->getItemKind() != ModuleItemKind_Alias);
 	}
 
-	if (m_onChanged && m_onChanged->getItemKind () == ModuleItemKind_Alias)
+	if (m_onChanged && m_onChanged->getItemKind() == ModuleItemKind_Alias)
 	{
-		Alias* alias = (Alias*) m_onChanged;
-		result = alias->ensureLayout () && setOnChanged (alias->getTargetItem (), true);
+		Alias* alias = (Alias*)m_onChanged;
+		result = alias->ensureLayout() && setOnChanged(alias->getTargetItem(), true);
 		if (!result)
 			return false;
 
-		ASSERT (m_onChanged->getItemKind () != ModuleItemKind_Alias);
+		ASSERT(m_onChanged->getItemKind() != ModuleItemKind_Alias);
 	}
 
 	if (!m_getter)
 	{
-		err::setFormatStringError ("incomplete property: no 'get' method or 'autoget' field");
+		err::setFormatStringError("incomplete property: no 'get' method or 'autoget' field");
 		return false;
 	}
 
 	if (!m_type)
-		createType ();
+		createType();
 
-	size_t setterCount = m_setter ? m_setter->getOverloadCount () : 0;
+	size_t setterCount = m_setter ? m_setter->getOverloadCount() : 0;
 
-	m_vtable.reserve (2 + setterCount);
+	m_vtable.reserve(2 + setterCount);
 
 	if (m_binder)
 	{
-		result = m_binder->getType ()->ensureLayout ();
+		result = m_binder->getType()->ensureLayout();
 		if (!result)
 			return false;
 
-		m_vtable.append (m_binder);
+		m_vtable.append(m_binder);
 	}
 
-	result = m_getter->getType ()->ensureLayout ();
+	result = m_getter->getType()->ensureLayout();
 	if (!result)
 		return false;
 
-	m_vtable.append (m_getter);
+	m_vtable.append(m_getter);
 
 	for (size_t i = 0; i < setterCount; i++)
 	{
-		Function* setter = m_setter->getOverload (i);
-		result = setter->getType ()->ensureLayout ();
+		Function* setter = m_setter->getOverload(i);
+		result = setter->getType()->ensureLayout();
 		if (!result)
 			return false;
 
-		m_vtable.append (setter);
+		m_vtable.append(setter);
 	}
 
-	createVTableVariable ();
+	createVTableVariable();
 	return true;
 }
 
 PropertyType*
-Property::createType ()
+Property::createType()
 {
-	ASSERT (!m_type);
+	ASSERT(!m_type);
 
 	uint_t typeFlags = 0;
 	if (m_onChanged)
 		typeFlags |= PropertyTypeFlag_Bindable;
 
 	m_type = m_setter ?
-		m_module->m_typeMgr.getPropertyType (
-			m_getter->getType (),
-			*m_setter->getTypeOverload (),
+		m_module->m_typeMgr.getPropertyType(
+			m_getter->getType(),
+			*m_setter->getTypeOverload(),
 			typeFlags
 			) :
-		m_module->m_typeMgr.getPropertyType (
-			m_getter->getType (),
+		m_module->m_typeMgr.getPropertyType(
+			m_getter->getType(),
 			NULL,
 			typeFlags
 			);
@@ -659,174 +659,174 @@ Property::createType ()
 }
 
 void
-Property::createVTableVariable ()
+Property::createVTableVariable()
 {
-	char buffer [256];
-	sl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
+	char buffer[256];
+	sl::Array<llvm::Constant*> llvmVTable(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-	size_t count = m_vtable.getCount ();
-	llvmVTable.setCount (count);
+	size_t count = m_vtable.getCount();
+	llvmVTable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_vtable [i];
+		Function* function = m_vtable[i];
 
-		if (function->getStorageKind () == StorageKind_Abstract)
-			function = function->getType ()->getAbstractFunction ();
+		if (function->getStorageKind() == StorageKind_Abstract)
+			function = function->getType()->getAbstractFunction();
 
-		llvmVTable [i] = function->getLlvmFunction ();
+		llvmVTable[i] = function->getLlvmFunction();
 	}
 
-	StructType* vtableStructType = m_type->getVTableStructType ();
+	StructType* vtableStructType = m_type->getVTableStructType();
 
-	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get (
-		(llvm::StructType*) vtableStructType->getLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
+	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get(
+		(llvm::StructType*)vtableStructType->getLlvmType(),
+		llvm::ArrayRef<llvm::Constant*> (llvmVTable, count)
 		);
 
-	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable (
+	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		"m_vtable",
 		m_qualifiedName + ".m_vtable",
 		vtableStructType,
-		Value (llvmVTableConst, vtableStructType)
+		Value(llvmVTableConst, vtableStructType)
 		);
 }
 
 bool
-Property::compileAutoGetter ()
+Property::compileAutoGetter()
 {
-	ASSERT (m_getter);
+	ASSERT(m_getter);
 
 	bool result;
 
-	m_module->m_functionMgr.internalPrologue (m_getter);
+	m_module->m_functionMgr.internalPrologue(m_getter);
 
 	Value autoGetValue;
 	result =
-		m_module->m_operatorMgr.getPropertyAutoGetValue (getAutoAccessorPropertyValue (), &autoGetValue) &&
-		m_module->m_controlFlowMgr.ret (autoGetValue);
+		m_module->m_operatorMgr.getPropertyAutoGetValue(getAutoAccessorPropertyValue(), &autoGetValue) &&
+		m_module->m_controlFlowMgr.ret(autoGetValue);
 
 	if (!result)
 		return false;
 
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 bool
-Property::compileAutoSetter ()
+Property::compileAutoSetter()
 {
-	ASSERT (m_setter && !m_setter->isOverloaded ());
-	ASSERT (m_type->getFlags () & PropertyTypeFlag_Bindable);
+	ASSERT(m_setter && !m_setter->isOverloaded());
+	ASSERT(m_type->getFlags() & PropertyTypeFlag_Bindable);
 
 	bool result;
 
 	Value srcValue;
 
-	if (isMember ())
+	if (isMember())
 	{
-		Value argValueArray [2];
-		m_module->m_functionMgr.internalPrologue (m_setter, argValueArray, 2);
-		srcValue = argValueArray [1];
+		Value argValueArray[2];
+		m_module->m_functionMgr.internalPrologue(m_setter, argValueArray, 2);
+		srcValue = argValueArray[1];
 	}
 	else
 	{
-		m_module->m_functionMgr.internalPrologue (m_setter, &srcValue, 1);
+		m_module->m_functionMgr.internalPrologue(m_setter, &srcValue, 1);
 	}
 
-	BasicBlock* assignBlock = m_module->m_controlFlowMgr.createBlock ("assign_block");
-	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock ("return_block");
+	BasicBlock* assignBlock = m_module->m_controlFlowMgr.createBlock("assign_block");
+	BasicBlock* returnBlock = m_module->m_controlFlowMgr.createBlock("return_block");
 
 	Value autoGetValue;
 	Value cmpValue;
 
 	result =
-		m_module->m_operatorMgr.getPropertyAutoGetValue (getAutoAccessorPropertyValue (), &autoGetValue) &&
-		m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, autoGetValue, srcValue, &cmpValue) &&
-		m_module->m_controlFlowMgr.conditionalJump (cmpValue, assignBlock, returnBlock) &&
-		m_module->m_operatorMgr.storeDataRef (autoGetValue, srcValue) &&
-		m_module->m_functionMgr.fireOnChanged ();
+		m_module->m_operatorMgr.getPropertyAutoGetValue(getAutoAccessorPropertyValue(), &autoGetValue) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, autoGetValue, srcValue, &cmpValue) &&
+		m_module->m_controlFlowMgr.conditionalJump(cmpValue, assignBlock, returnBlock) &&
+		m_module->m_operatorMgr.storeDataRef(autoGetValue, srcValue) &&
+		m_module->m_functionMgr.fireOnChanged();
 
 	if (!result)
 		return false;
 
-	m_module->m_controlFlowMgr.follow (returnBlock);
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_controlFlowMgr.follow(returnBlock);
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 bool
-Property::compileBinder ()
+Property::compileBinder()
 {
-	ASSERT (m_binder);
+	ASSERT(m_binder);
 
 	bool result;
 
-	m_module->m_functionMgr.internalPrologue (m_binder);
+	m_module->m_functionMgr.internalPrologue(m_binder);
 
 	Value onChangedValue;
 	result =
-		m_module->m_operatorMgr.getPropertyOnChanged (getAutoAccessorPropertyValue (), &onChangedValue) &&
-		m_module->m_controlFlowMgr.ret (onChangedValue);
+		m_module->m_operatorMgr.getPropertyOnChanged(getAutoAccessorPropertyValue(), &onChangedValue) &&
+		m_module->m_controlFlowMgr.ret(onChangedValue);
 
 	if (!result)
 		return false;
 
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 Value
-Property::getAutoAccessorPropertyValue ()
+Property::getAutoAccessorPropertyValue()
 {
-	if (!isMember ())
+	if (!isMember())
 		return this;
 
-	Value thisValue = m_module->m_functionMgr.getThisValue ();
+	Value thisValue = m_module->m_functionMgr.getThisValue();
 	Value propertyValue = this;
-	Closure* closure = propertyValue.createClosure ();
-	closure->insertThisArgValue (thisValue);
+	Closure* closure = propertyValue.createClosure();
+	closure->insertThisArgValue(thisValue);
 	return propertyValue;
 }
 
 bool
-Property::generateDocumentation (
+Property::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock ();
+	DoxyBlock* doxyBlock = getDoxyBlock();
 
-	itemXml->format ("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz ());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat (" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
-		itemXml->append (" static='yes'");
+		itemXml->append(" static='yes'");
 
-	if (isVirtual ())
-		itemXml->appendFormat (" virt='%s'", getStorageKindString (m_storageKind));
+	if (isVirtual())
+		itemXml->appendFormat(" virt='%s'", getStorageKindString (m_storageKind));
 
-	itemXml->appendFormat (">\n<name>%s</name>\n", m_name.sz ());
-	itemXml->append (m_type->getDoxyTypeString ());
+	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->append(m_type->getDoxyTypeString());
 
 	sl::String modifierString; // type modifiers are already encoded in <type>
 
 	if (m_flags & PropertyFlag_AutoGet)
-		modifierString.append (" autoget");
+		modifierString.append(" autoget");
 
 	if (m_flags & PropertyFlag_AutoSet)
-		modifierString.append (" autoset");
+		modifierString.append(" autoset");
 
-	if (!modifierString.isEmpty ())
-		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
+	if (!modifierString.isEmpty())
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
 
-	itemXml->append (doxyBlock->getImportString ());
-	itemXml->append (doxyBlock->getDescriptionString ());
-	itemXml->append (getDoxyLocationString ());
-	itemXml->append ("</memberdef>\n");
+	itemXml->append(doxyBlock->getImportString());
+	itemXml->append(doxyBlock->getDescriptionString());
+	itemXml->append(getDoxyLocationString());
+	itemXml->append("</memberdef>\n");
 
 	return true;
 }

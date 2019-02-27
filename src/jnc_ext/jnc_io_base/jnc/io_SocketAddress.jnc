@@ -54,7 +54,7 @@ enum AddressFamily: uint16_t
 	that can be used with sockets.
 
 	When opening a socket using `io.Socket.open` method you have to specify the
-	protocol to use (all overloads of `io.Socket.open` methods require a
+	protocol to use(all overloads of `io.Socket.open` methods require a
 	``protocol`` argument).
 
 	\sa `io.Socket`
@@ -111,7 +111,7 @@ union Address_ip4
 		Holds four 8-bit bytes of ``IP4`` address.
 	*/
 
-	uint8_t m_i8 [4];
+	uint8_t m_i8[4];
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -121,13 +121,13 @@ union Address_ip4
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse (char const* string);
+	bool errorcode parse(char const* string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString () const;
+	char const* getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -153,13 +153,13 @@ union Address_ip6
 		Holds eight 16-bit words of ``IP6`` address.
 	*/
 
-	bigendian uint16_t m_i16 [8];
+	bigendian uint16_t m_i16[8];
 
 	/**
 		Holds sixteen 8-bit bytes of ``IP6`` address.
 	*/
 
-	uint8_t m_i8 [16];
+	uint8_t m_i8[16];
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -169,18 +169,18 @@ union Address_ip6
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse (char const* string);
+	bool errorcode parse(char const* string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString () const;
+	char const* getString() const;
 }
 
 //..............................................................................
 
-alignment (2);
+alignment(2);
 
 /**
 	\import io_base.jncx
@@ -226,14 +226,14 @@ struct SocketAddress_ip4
 		Extra padding to ensure binary compatibility wiht ``sockaddr_in``.
 	*/
 
-	char m_padding [8];
+	char m_padding[8];
 
 	/**
 		Checks two ``IP4`` socket addresses for *equality*; returns ``true`` if
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual (SocketAddress_ip4 const* address);
+	bool isEqual(SocketAddress_ip4 const* address);
 
 	/**
 		Checks two ``IP4`` socket addresses for *matching*. The term matching
@@ -249,7 +249,7 @@ struct SocketAddress_ip4
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch (SocketAddress_ip4 const* filterAddress);
+	bool isMatch(SocketAddress_ip4 const* filterAddress);
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -259,13 +259,13 @@ struct SocketAddress_ip4
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse (char const* string);
+	bool errorcode parse(char const* string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString () const;
+	char const* getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -327,7 +327,7 @@ struct SocketAddress_ip6
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual (SocketAddress_ip6 const* address);
+	bool isEqual(SocketAddress_ip6 const* address);
 
 	/**
 		Checks two ``IP6`` socket addresses for *matching*. The term *matching*
@@ -343,7 +343,7 @@ struct SocketAddress_ip6
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch (SocketAddress_ip6 const* filterAddress);
+	bool isMatch(SocketAddress_ip6 const* filterAddress);
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -353,13 +353,13 @@ struct SocketAddress_ip6
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse (char const* string);
+	bool errorcode parse(char const* string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString () const;
+	char const* getString() const;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -405,7 +405,7 @@ union SocketAddress
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual (SocketAddress const* addr);
+	bool isEqual(SocketAddress const* addr);
 
 	/**
 		Checks two socket addresses for *matching*. See
@@ -415,7 +415,7 @@ union SocketAddress
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch (SocketAddress const* filterAddress);
+	bool isMatch(SocketAddress const* filterAddress);
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -425,16 +425,16 @@ union SocketAddress
 		sets the description of parsing error and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode parse (char const* string);
+	bool errorcode parse(char const* string);
 
 	/**
 		Creates and returns a string representation of the address.
 	*/
 
-	char const* getString () const;
+	char const* getString() const;
 }
 
-alignment (default);
+alignment(default);
 
 //..............................................................................
 

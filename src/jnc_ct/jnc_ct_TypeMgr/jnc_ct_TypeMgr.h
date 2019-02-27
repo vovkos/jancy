@@ -63,11 +63,11 @@ class TypeMgr
 protected:
 	Module* m_module;
 
-	Type m_primitiveTypeArray [TypeKind__PrimitiveTypeCount];
-	Type* m_stdTypeArray [StdType__Count];
-	Typedef m_stdTypedefArray [StdTypedef__Count];
-	LazyStdType* m_lazyStdTypeArray [StdType__Count];
-	CallConv* m_callConvArray [CallConvKind__Count];
+	Type m_primitiveTypeArray[TypeKind__PrimitiveTypeCount];
+	Type* m_stdTypeArray[StdType__Count];
+	Typedef m_stdTypedefArray[StdTypedef__Count];
+	LazyStdType* m_lazyStdTypeArray[StdType__Count];
+	CallConv* m_callConvArray[CallConvKind__Count];
 
 	JnccallCallConv_msc32 m_jnccallCallConv_msc32;
 	JnccallCallConv_msc64 m_jnccallCallConv_msc64;
@@ -85,47 +85,47 @@ protected:
 	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
 	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;
 
-	sl::List <ArrayType> m_arrayTypeList;
-	sl::List <BitFieldType> m_bitFieldTypeList;
-	sl::List <EnumType> m_enumTypeList;
-	sl::List <StructType> m_structTypeList;
-	sl::List <UnionType> m_unionTypeList;
-	sl::List <ClassType> m_classTypeList;
-	sl::List <FunctionType> m_functionTypeList;
-	sl::List <PropertyType> m_propertyTypeList;
-	sl::List <DataPtrType> m_dataPtrTypeList;
-	sl::List <ClassPtrType> m_classPtrTypeList;
-	sl::List <FunctionPtrType> m_functionPtrTypeList;
-	sl::List <PropertyPtrType> m_propertyPtrTypeList;
-	sl::List <NamedImportType> m_namedImportTypeList;
-	sl::List <ImportPtrType> m_importPtrTypeList;
-	sl::List <ImportIntModType> m_importIntModTypeList;
-	sl::List <ReactorClassType> m_reactorClassTypeList;
-	sl::List <FunctionClosureClassType> m_functionClosureClassTypeList;
-	sl::List <PropertyClosureClassType> m_propertyClosureClassTypeList;
-	sl::List <DataClosureClassType> m_dataClosureClassTypeList;
-	sl::List <MulticastClassType> m_multicastClassTypeList;
-	sl::List <McSnapshotClassType> m_mcSnapshotClassTypeList;
-	sl::List <TypedefShadowType> m_typedefShadowTypeList;
+	sl::List<ArrayType> m_arrayTypeList;
+	sl::List<BitFieldType> m_bitFieldTypeList;
+	sl::List<EnumType> m_enumTypeList;
+	sl::List<StructType> m_structTypeList;
+	sl::List<UnionType> m_unionTypeList;
+	sl::List<ClassType> m_classTypeList;
+	sl::List<FunctionType> m_functionTypeList;
+	sl::List<PropertyType> m_propertyTypeList;
+	sl::List<DataPtrType> m_dataPtrTypeList;
+	sl::List<ClassPtrType> m_classPtrTypeList;
+	sl::List<FunctionPtrType> m_functionPtrTypeList;
+	sl::List<PropertyPtrType> m_propertyPtrTypeList;
+	sl::List<NamedImportType> m_namedImportTypeList;
+	sl::List<ImportPtrType> m_importPtrTypeList;
+	sl::List<ImportIntModType> m_importIntModTypeList;
+	sl::List<ReactorClassType> m_reactorClassTypeList;
+	sl::List<FunctionClosureClassType> m_functionClosureClassTypeList;
+	sl::List<PropertyClosureClassType> m_propertyClosureClassTypeList;
+	sl::List<DataClosureClassType> m_dataClosureClassTypeList;
+	sl::List<MulticastClassType> m_multicastClassTypeList;
+	sl::List<McSnapshotClassType> m_mcSnapshotClassTypeList;
+	sl::List<TypedefShadowType> m_typedefShadowTypeList;
 
-	sl::List <Typedef> m_typedefList;
-	sl::List <LazyStdType> m_lazyStdTypeList;
-	sl::List <FunctionArg> m_functionArgList;
-	sl::List <StructField> m_structFieldList;
+	sl::List<Typedef> m_typedefList;
+	sl::List<LazyStdType> m_lazyStdTypeList;
+	sl::List<FunctionArg> m_functionArgList;
+	sl::List<StructField> m_structFieldList;
 
-	sl::List <SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
-	sl::List <FunctionArgTuple> m_functionArgTupleList;
-	sl::List <DataPtrTypeTuple> m_dataPtrTypeTupleList;
-	sl::List <ClassPtrTypeTuple> m_classPtrTypeTupleList;
-	sl::List <FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
-	sl::List <PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
-	sl::List <DualTypeTuple> m_dualTypeTupleList;
+	sl::List<SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
+	sl::List<FunctionArgTuple> m_functionArgTupleList;
+	sl::List<DataPtrTypeTuple> m_dataPtrTypeTupleList;
+	sl::List<ClassPtrTypeTuple> m_classPtrTypeTupleList;
+	sl::List<FunctionPtrTypeTuple> m_functionPtrTypeTupleList;
+	sl::List<PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
+	sl::List<DualTypeTuple> m_dualTypeTupleList;
 
-	sl::StringHashTable <Type*> m_typeMap;
+	sl::StringHashTable<Type*> m_typeMap;
 
-	sl::Array <NamedImportType*> m_unresolvedNamedImportTypeArray;
-	sl::Array <ImportPtrType*> m_unresolvedImportPtrTypeArray;
-	sl::Array <ImportIntModType*> m_unresolvedImportIntModTypeArray;
+	sl::Array<NamedImportType*> m_unresolvedNamedImportTypeArray;
+	sl::Array<ImportPtrType*> m_unresolvedImportPtrTypeArray;
+	sl::Array<ImportIntModType*> m_unresolvedImportIntModTypeArray;
 
 	size_t m_unnamedEnumTypeCounter;
 	size_t m_unnamedStructTypeCounter;
@@ -135,243 +135,243 @@ protected:
 	size_t m_parseStdTypeLevel;
 
 public:
-	TypeMgr ();
+	TypeMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	bool
-	resolveImportTypes ();
+	resolveImportTypes();
 
 	void
-	updateTypeSignature (
+	updateTypeSignature(
 		Type* type,
 		const sl::StringRef& signature
 		);
 
-	sl::ConstList <ArrayType>
-	getArrayTypeList ()
+	sl::ConstList<ArrayType>
+	getArrayTypeList()
 	{
 		return m_arrayTypeList;
 	}
 
-	sl::ConstList <BitFieldType>
-	getBitFieldTypeList ()
+	sl::ConstList<BitFieldType>
+	getBitFieldTypeList()
 	{
 		return m_bitFieldTypeList;
 	}
 
-	sl::ConstList <EnumType>
-	getEnumTypeList ()
+	sl::ConstList<EnumType>
+	getEnumTypeList()
 	{
 		return m_enumTypeList;
 	}
 
-	sl::ConstList <StructType>
-	getStructTypeList ()
+	sl::ConstList<StructType>
+	getStructTypeList()
 	{
 		return m_structTypeList;
 	}
 
-	sl::ConstList <UnionType>
-	getUnionTypeList ()
+	sl::ConstList<UnionType>
+	getUnionTypeList()
 	{
 		return m_unionTypeList;
 	}
 
-	sl::ConstList <ClassType>
-	getClassTypeList ()
+	sl::ConstList<ClassType>
+	getClassTypeList()
 	{
 		return m_classTypeList;
 	}
 
-	sl::ConstList <FunctionType>
-	getFunctionTypeList ()
+	sl::ConstList<FunctionType>
+	getFunctionTypeList()
 	{
 		return m_functionTypeList;
 	}
 
-	sl::ConstList <PropertyType>
-	getPropertyTypeList ()
+	sl::ConstList<PropertyType>
+	getPropertyTypeList()
 	{
 		return m_propertyTypeList;
 	}
 
-	sl::ConstList <DataPtrType>
-	getDataPtrTypeList ()
+	sl::ConstList<DataPtrType>
+	getDataPtrTypeList()
 	{
 		return m_dataPtrTypeList;
 	}
 
-	sl::ConstList <ClassPtrType>
-	getClassPtrTypeList ()
+	sl::ConstList<ClassPtrType>
+	getClassPtrTypeList()
 	{
 		return m_classPtrTypeList;
 	}
 
-	sl::ConstList <FunctionPtrType>
-	getFunctionPtrTypeList ()
+	sl::ConstList<FunctionPtrType>
+	getFunctionPtrTypeList()
 	{
 		return m_functionPtrTypeList;
 	}
 
-	sl::ConstList <PropertyPtrType>
-	getPropertyPtrTypeList ()
+	sl::ConstList<PropertyPtrType>
+	getPropertyPtrTypeList()
 	{
 		return m_propertyPtrTypeList;
 	}
 
-	sl::ConstList <NamedImportType>
-	getNamedImportTypeList ()
+	sl::ConstList<NamedImportType>
+	getNamedImportTypeList()
 	{
 		return m_namedImportTypeList;
 	}
 
-	sl::ConstList <ImportPtrType>
-	getImportPtrTypeList ()
+	sl::ConstList<ImportPtrType>
+	getImportPtrTypeList()
 	{
 		return m_importPtrTypeList;
 	}
 
-	sl::ConstList <ImportIntModType>
-	getImportIntModTypeList ()
+	sl::ConstList<ImportIntModType>
+	getImportIntModTypeList()
 	{
 		return m_importIntModTypeList;
 	}
 
-	sl::ConstList <ReactorClassType>
-	getReactorClassTypeList ()
+	sl::ConstList<ReactorClassType>
+	getReactorClassTypeList()
 	{
 		return m_reactorClassTypeList;
 	}
 
-	sl::ConstList <FunctionClosureClassType>
-	getFunctionClosureClassTypeList ()
+	sl::ConstList<FunctionClosureClassType>
+	getFunctionClosureClassTypeList()
 	{
 		return m_functionClosureClassTypeList;
 	}
 
-	sl::ConstList <PropertyClosureClassType>
-	getPropertyClosureClassTypeList ()
+	sl::ConstList<PropertyClosureClassType>
+	getPropertyClosureClassTypeList()
 	{
 		return m_propertyClosureClassTypeList;
 	}
 
-	sl::ConstList <DataClosureClassType>
-	getDataClosureClassTypeList ()
+	sl::ConstList<DataClosureClassType>
+	getDataClosureClassTypeList()
 	{
 		return m_dataClosureClassTypeList;
 	}
 
-	sl::ConstList <MulticastClassType>
-	getMulticastClassTypeList ()
+	sl::ConstList<MulticastClassType>
+	getMulticastClassTypeList()
 	{
 		return m_multicastClassTypeList;
 	}
 
-	sl::ConstList <McSnapshotClassType>
-	getMcSnapshotClassTypeList ()
+	sl::ConstList<McSnapshotClassType>
+	getMcSnapshotClassTypeList()
 	{
 		return m_mcSnapshotClassTypeList;
 	}
 
-	sl::ConstList <Typedef>
-	getTypedefList ()
+	sl::ConstList<Typedef>
+	getTypedefList()
 	{
 		return m_typedefList;
 	}
 
 	Type*
-	getPrimitiveType (TypeKind typeKind)
+	getPrimitiveType(TypeKind typeKind)
 	{
-		ASSERT (typeKind < TypeKind__PrimitiveTypeCount);
-		return &m_primitiveTypeArray [typeKind];
+		ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
+		return &m_primitiveTypeArray[typeKind];
 	}
 
 	bool
-	isStdTypeUsed (StdType stdType)
+	isStdTypeUsed(StdType stdType)
 	{
-		ASSERT (stdType < StdType__Count);
-		return m_stdTypeArray [stdType] != NULL;
+		ASSERT(stdType < StdType__Count);
+		return m_stdTypeArray[stdType] != NULL;
 	}
 
 	Type*
-	getStdType (StdType stdType);
+	getStdType(StdType stdType);
 
 	LazyStdType*
-	getLazyStdType (StdType stdType);
+	getLazyStdType(StdType stdType);
 
 	Typedef*
-	getStdTypedef (StdTypedef stdTypedef)
+	getStdTypedef(StdTypedef stdTypedef)
 	{
-		ASSERT (stdTypedef < StdTypedef__Count);
-		return &m_stdTypedefArray [stdTypedef];
+		ASSERT(stdTypedef < StdTypedef__Count);
+		return &m_stdTypedefArray[stdTypedef];
 	}
 
 	Type*
-	getInt32Type (int32_t integer)
+	getInt32Type(int32_t integer)
 	{
-		return getPrimitiveType (getInt32TypeKind (integer));
+		return getPrimitiveType(getInt32TypeKind(integer));
 	}
 
 	Type*
-	getUInt32Type (uint32_t integer)
+	getUInt32Type(uint32_t integer)
 	{
-		return getPrimitiveType (getInt32TypeKind_u (integer));
+		return getPrimitiveType(getInt32TypeKind_u(integer));
 	}
 
 	Type*
-	getInt64Type (int64_t integer)
+	getInt64Type(int64_t integer)
 	{
-		return getPrimitiveType (getInt64TypeKind (integer));
+		return getPrimitiveType(getInt64TypeKind(integer));
 	}
 
 	Type*
-	getInt64Type_u (uint64_t integer)
+	getInt64Type_u(uint64_t integer)
 	{
-		return getPrimitiveType (getInt64TypeKind_u (integer));
+		return getPrimitiveType(getInt64TypeKind_u(integer));
 	}
 
 	BitFieldType*
-	getBitFieldType (
+	getBitFieldType(
 		Type* baseType,
 		size_t bitOffset,
 		size_t bitCount
 		);
 
 	ArrayType*
-	createAutoSizeArrayType (Type* elementType);
+	createAutoSizeArrayType(Type* elementType);
 
 	ArrayType*
-	createArrayType (
+	createArrayType(
 		Type* elementType,
-		sl::BoxList <Token>* elementCountInitializer
+		sl::BoxList<Token>* elementCountInitializer
 		);
 
 	ArrayType*
-	getArrayType (
+	getArrayType(
 		Type* elementType,
 		size_t elementCount
 		);
 
 	Typedef*
-	createTypedef (
+	createTypedef(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* type
 		);
 
 	TypedefShadowType*
-	createTypedefShadowType (Typedef* tdef);
+	createTypedefShadowType(Typedef* tdef);
 
 	EnumType*
-	createEnumType (
+	createEnumType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* baseType = NULL,
@@ -379,16 +379,16 @@ public:
 		);
 
 	EnumType*
-	createUnnamedEnumType (
+	createUnnamedEnumType(
 		Type* baseType = NULL,
 		uint_t flags = 0
 		)
 	{
-		return createEnumType (sl::String (), sl::String (), baseType, flags);
+		return createEnumType(sl::String(), sl::String(), baseType, flags);
 	}
 
 	StructType*
-	createStructType (
+	createStructType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
@@ -396,16 +396,16 @@ public:
 		);
 
 	StructType*
-	createUnnamedStructType (
+	createUnnamedStructType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createStructType (sl::String (), sl::String (), fieldAlignment, flags);
+		return createStructType(sl::String(), sl::String(), fieldAlignment, flags);
 	}
 
 	UnionType*
-	createUnionType (
+	createUnionType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
@@ -413,16 +413,16 @@ public:
 		);
 
 	UnionType*
-	createUnnamedUnionType (
+	createUnnamedUnionType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createUnionType (sl::String (), sl::String (), fieldAlignment, flags);
+		return createUnionType(sl::String(), sl::String(), fieldAlignment, flags);
 	}
 
 	ClassType*
-	createClassType (
+	createClassType(
 		ClassTypeKind classTypeKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
@@ -431,110 +431,110 @@ public:
 		);
 
 	ClassType*
-	createClassType (
+	createClassType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (ClassTypeKind_Normal, name, qualifiedName, fieldAlignment, flags);
+		return createClassType(ClassTypeKind_Normal, name, qualifiedName, fieldAlignment, flags);
 	}
 
 	ClassType*
-	createUnnamedClassType (
+	createUnnamedClassType(
 		ClassTypeKind classTypeKind,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (classTypeKind,	sl::String (), sl::String (), fieldAlignment, flags);
+		return createClassType(classTypeKind,	sl::String(), sl::String(), fieldAlignment, flags);
 	}
 
 	ClassType*
-	createUnnamedClassType (
+	createUnnamedClassType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType (ClassTypeKind_Normal, sl::String (), sl::String (), fieldAlignment, flags);
+		return createClassType(ClassTypeKind_Normal, sl::String(), sl::String(), fieldAlignment, flags);
 	}
 
 	FunctionArg*
-	createFunctionArg (
+	createFunctionArg(
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	FunctionArg*
-	getSimpleFunctionArg (
+	getSimpleFunctionArg(
 		StorageKind storageKind,
 		Type* type,
 		uint_t ptrTypeFlags = 0
 		);
 
 	FunctionArg*
-	getSimpleFunctionArg (
+	getSimpleFunctionArg(
 		Type* type,
 		uint_t ptrTypeFlags = 0
 		)
 	{
-		return getSimpleFunctionArg (StorageKind_Stack, type, ptrTypeFlags);
+		return getSimpleFunctionArg(StorageKind_Stack, type, ptrTypeFlags);
 	}
 
 	StructField*
-	createStructField (
+	createStructField(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	CallConv*
-	getCallConv (CallConvKind callConvKind)
+	getCallConv(CallConvKind callConvKind)
 	{
-		ASSERT (callConvKind < CallConvKind__Count);
-		return m_callConvArray [callConvKind];
+		ASSERT(callConvKind < CallConvKind__Count);
+		return m_callConvArray[callConvKind];
 	}
 
 	FunctionType*
-	getFunctionType (
+	getFunctionType(
 		CallConv* callConv,
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		);
 
 	FunctionType*
-	getFunctionType (
+	getFunctionType(
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (m_callConvArray [CallConvKind_Default], returnType, argArray, flags);
+		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argArray, flags);
 	}
 
 	FunctionType*
-	getFunctionType (
-		const sl::Array <FunctionArg*>& argArray,
+	getFunctionType(
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (
-			m_callConvArray [CallConvKind_Default],
-			&m_primitiveTypeArray [TypeKind_Void],
+		return getFunctionType(
+			m_callConvArray[CallConvKind_Default],
+			&m_primitiveTypeArray[TypeKind_Void],
 			argArray,
 			flags
 			);
 	}
 
 	FunctionType*
-	getFunctionType (
+	getFunctionType(
 		CallConv* callConv,
 		Type* returnType,
 		Type* const* argType,
@@ -543,26 +543,26 @@ public:
 		);
 
 	FunctionType*
-	getFunctionType (
+	getFunctionType(
 		Type* returnType,
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (m_callConvArray [CallConvKind_Default], returnType, argType, argCount, flags);
+		return getFunctionType(m_callConvArray[CallConvKind_Default], returnType, argType, argCount, flags);
 	}
 
 	FunctionType*
-	getFunctionType (
+	getFunctionType(
 		Type* const* argType,
 		size_t argCount,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionType (
-			m_callConvArray [CallConvKind_Default],
-			&m_primitiveTypeArray [TypeKind_Void],
+		return getFunctionType(
+			m_callConvArray[CallConvKind_Default],
+			&m_primitiveTypeArray[TypeKind_Void],
 			argType,
 			argCount,
 			flags
@@ -570,82 +570,82 @@ public:
 	}
 
 	FunctionType*
-	getFunctionType ()
+	getFunctionType()
 	{
-		return (FunctionType*) getStdType (StdType_SimpleFunction);
+		return (FunctionType*)getStdType(StdType_SimpleFunction);
 	}
 
 	FunctionType*
-	createUserFunctionType (
+	createUserFunctionType(
 		CallConv* callConv,
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		);
 
 	FunctionType*
-	createUserFunctionType (
+	createUserFunctionType(
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return createUserFunctionType (m_callConvArray [CallConvKind_Default], returnType, argArray, flags);
+		return createUserFunctionType(m_callConvArray[CallConvKind_Default], returnType, argArray, flags);
 	}
 
 	FunctionType*
-	createUserFunctionType (
-		const sl::Array <FunctionArg*>& argArray,
+	createUserFunctionType(
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return createUserFunctionType (
-			m_callConvArray [CallConvKind_Default],
-			&m_primitiveTypeArray [TypeKind_Void],
+		return createUserFunctionType(
+			m_callConvArray[CallConvKind_Default],
+			&m_primitiveTypeArray[TypeKind_Void],
 			argArray,
 			flags
 			);
 	}
 
 	FunctionType*
-	getMemberMethodType (
+	getMemberMethodType(
 		DerivableType* parentType,
 		FunctionType* functionType,
 		uint_t thisArgPtrTypeFlags = 0
 		);
 
 	FunctionType*
-	getStdObjectMemberMethodType (FunctionType* functionType);
+	getStdObjectMemberMethodType(FunctionType* functionType);
 
 	PropertyType*
-	getPropertyType (
+	getPropertyType(
 		FunctionType* getterType,
 		const FunctionTypeOverload& setterType,
 		uint_t flags = 0
 		);
 
 	PropertyType*
-	getSimplePropertyType (
+	getSimplePropertyType(
 		CallConv* callConv,
 		Type* returnType,
 		uint_t flags = 0
 		);
 
 	PropertyType*
-	getSimplePropertyType (
+	getSimplePropertyType(
 		Type* returnType,
 		uint_t flags = 0
 		)
 	{
-		return getSimplePropertyType (
-			m_callConvArray [CallConvKind_Default],
+		return getSimplePropertyType(
+			m_callConvArray[CallConvKind_Default],
 			returnType,
 			flags
 			);
 	}
 
 	PropertyType*
-	getIndexedPropertyType (
+	getIndexedPropertyType(
 		CallConv* callConv,
 		Type* returnType,
 		Type* const* indexArgType,
@@ -654,91 +654,91 @@ public:
 		);
 
 	PropertyType*
-	getIndexedPropertyType (
+	getIndexedPropertyType(
 		Type* returnType,
 		Type* const* indexArgType,
 		size_t indexArgCount,
 		uint_t flags = 0
 		)
 	{
-		return getIndexedPropertyType (NULL, returnType, indexArgType, indexArgCount, flags);
+		return getIndexedPropertyType(NULL, returnType, indexArgType, indexArgCount, flags);
 	}
 
 	PropertyType*
-	getIndexedPropertyType (
+	getIndexedPropertyType(
 		CallConv* callConv,
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		);
 
 	PropertyType*
-	getIndexedPropertyType (
+	getIndexedPropertyType(
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return getIndexedPropertyType (NULL, returnType, argArray, flags);
+		return getIndexedPropertyType(NULL, returnType, argArray, flags);
 	}
 
 	PropertyType*
-	createIndexedPropertyType (
+	createIndexedPropertyType(
 		CallConv* callConv,
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		);
 
 	PropertyType*
-	createIndexedPropertyType (
+	createIndexedPropertyType(
 		Type* returnType,
-		const sl::Array <FunctionArg*>& argArray,
+		const sl::Array<FunctionArg*>& argArray,
 		uint_t flags = 0
 		)
 	{
-		return createIndexedPropertyType (NULL, returnType, argArray, flags);
+		return createIndexedPropertyType(NULL, returnType, argArray, flags);
 	}
 
 	PropertyType*
-	getMemberPropertyType (
+	getMemberPropertyType(
 		DerivableType* parentType,
 		PropertyType* propertyType
 		);
 
 	PropertyType*
-	getStdObjectMemberPropertyType (PropertyType* propertyType);
+	getStdObjectMemberPropertyType(PropertyType* propertyType);
 
 	PropertyType*
-	getShortPropertyType (PropertyType* propertyType);
+	getShortPropertyType(PropertyType* propertyType);
 
 	ClassType*
-	getMulticastType (
+	getMulticastType(
 		FunctionType* functionType,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal
 		)
 	{
-		return getMulticastType (getFunctionPtrType (functionType, ptrTypeKind));
+		return getMulticastType(getFunctionPtrType(functionType, ptrTypeKind));
 	}
 
 	ClassType*
-	getMulticastType (FunctionPtrType* functionPtrType);
+	getMulticastType(FunctionPtrType* functionPtrType);
 
 	ClassType*
-	createReactorBaseType ();
+	createReactorBaseType();
 
 	ReactorClassType*
-	createReactorType (
+	createReactorType(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		ClassType* parentType
 		);
 
 	FunctionClosureClassType*
-	createReactorClosureType ();
+	createReactorClosureType();
 
 	FunctionClosureClassType*
-	getFunctionClosureClassType (
+	getFunctionClosureClassType(
 		FunctionType* targetType,
 		FunctionType* thunkType,
 		Type* const* argTypeArray,
@@ -748,7 +748,7 @@ public:
 		);
 
 	PropertyClosureClassType*
-	getPropertyClosureClassType (
+	getPropertyClosureClassType(
 		PropertyType* targetType,
 		PropertyType* thunkType,
 		Type* const* argTypeArray,
@@ -758,13 +758,13 @@ public:
 		);
 
 	DataClosureClassType*
-	getDataClosureClassType (
+	getDataClosureClassType(
 		Type* targetType,
 		PropertyType* thunkType
 		);
 
 	DataPtrType*
-	getDataPtrType (
+	getDataPtrType(
 		Type* targetType,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
@@ -772,17 +772,17 @@ public:
 		);
 
 	DataPtrType*
-	getDataPtrType (
+	getDataPtrType(
 		Type* targetType,
 		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getDataPtrType (targetType, TypeKind_DataPtr, ptrTypeKind, flags);
+		return getDataPtrType(targetType, TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	ClassPtrType*
-	getClassPtrType (
+	getClassPtrType(
 		ClassType* targetType,
 		TypeKind typeKind,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
@@ -790,17 +790,17 @@ public:
 		);
 
 	ClassPtrType*
-	getClassPtrType (
+	getClassPtrType(
 		ClassType* targetType,
 		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getClassPtrType (targetType, TypeKind_ClassPtr, ptrTypeKind, flags);
+		return getClassPtrType(targetType, TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 
 	FunctionPtrType*
-	getFunctionPtrType (
+	getFunctionPtrType(
 		FunctionType* targetType,
 		TypeKind typeKind,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
@@ -808,17 +808,17 @@ public:
 		);
 
 	FunctionPtrType*
-	getFunctionPtrType (
+	getFunctionPtrType(
 		FunctionType* targetType,
 		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getFunctionPtrType (targetType, TypeKind_FunctionPtr, ptrTypeKind, flags);
+		return getFunctionPtrType(targetType, TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
 	PropertyPtrType*
-	getPropertyPtrType (
+	getPropertyPtrType(
 		PropertyType* targetType,
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
@@ -826,44 +826,44 @@ public:
 		);
 
 	PropertyPtrType*
-	getPropertyPtrType (
+	getPropertyPtrType(
 		PropertyType* targetType,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getPropertyPtrType (targetType, TypeKind_PropertyPtr, ptrTypeKind, flags);
+		return getPropertyPtrType(targetType, TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
 	StructType*
-	getPropertyVTableStructType (PropertyType* propertyType);
+	getPropertyVTableStructType(PropertyType* propertyType);
 
 	NamedImportType*
-	getNamedImportType (
+	getNamedImportType(
 		const QualifiedName& name,
 		Namespace* anchorNamespace,
-		const QualifiedName& anchorName = QualifiedName ()
+		const QualifiedName& anchorName = QualifiedName()
 		);
 
 	ImportPtrType*
-	getImportPtrType (
+	getImportPtrType(
 		NamedImportType* importType,
 		uint_t typeModifiers = 0,
 		uint_t flags = 0
 		);
 
 	ImportIntModType*
-	getImportIntModType (
+	getImportIntModType(
 		NamedImportType* importType,
 		uint_t typeModifiers = 0,
 		uint_t flags = 0
 		);
 
 	Type*
-	getCheckedPtrType (Type* type);
+	getCheckedPtrType(Type* type);
 
 	Type*
-	foldDualType (
+	foldDualType(
 		Type* type,
 		bool isAlien,
 		bool isContainerConst
@@ -871,99 +871,99 @@ public:
 
 protected:
 	DualTypeTuple*
-	getDualTypeTuple (Type* type);
+	getDualTypeTuple(Type* type);
 
 	SimplePropertyTypeTuple*
-	getSimplePropertyTypeTuple (Type* type);
+	getSimplePropertyTypeTuple(Type* type);
 
 	FunctionArgTuple*
-	getFunctionArgTuple (Type* type);
+	getFunctionArgTuple(Type* type);
 
 	DataPtrTypeTuple*
-	getDataPtrTypeTuple (Type* type);
+	getDataPtrTypeTuple(Type* type);
 
 	ClassPtrTypeTuple*
-	getClassPtrTypeTuple (ClassType* classType);
+	getClassPtrTypeTuple(ClassType* classType);
 
 	ClassPtrTypeTuple*
-	getEventClassPtrTypeTuple (MulticastClassType* classType);
+	getEventClassPtrTypeTuple(MulticastClassType* classType);
 
 	FunctionPtrTypeTuple*
-	getFunctionPtrTypeTuple (FunctionType* functionType);
+	getFunctionPtrTypeTuple(FunctionType* functionType);
 
 	PropertyPtrTypeTuple*
-	getPropertyPtrTypeTuple (PropertyType* propertyType);
+	getPropertyPtrTypeTuple(PropertyType* propertyType);
 
 	void
-	setupAllPrimitiveTypes ();
+	setupAllPrimitiveTypes();
 
 	void
-	setupStdTypedefArray ();
+	setupStdTypedefArray();
 
 	void
-	setupCallConvArray ();
+	setupCallConvArray();
 
 	void
-	setupPrimitiveType (
+	setupPrimitiveType(
 		TypeKind typeKind,
 		size_t size,
 		const sl::StringRef& signature
 		);
 
 	void
-	setupStdTypedef (
+	setupStdTypedef(
 		StdTypedef stdTypedef,
 		TypeKind typeKind,
 		const sl::StringRef& name
 		);
 
 	NamedType*
-	parseStdType (StdType stdType);
+	parseStdType(StdType stdType);
 
 	NamedType*
-	parseStdType (
+	parseStdType(
 		StdNamespace stdNamespace,
 		const sl::StringRef& source
 		);
 
 	ClassType*
-	createAbstractClassType ();
+	createAbstractClassType();
 
 	StructType*
-	createAbstractDataType ();
+	createAbstractDataType();
 
 	StructType*
-	createIfaceHdrType ();
+	createIfaceHdrType();
 
 	StructType*
-	createBoxType ();
+	createBoxType();
 
 	StructType*
-	createDataBoxType ();
+	createDataBoxType();
 
 	StructType*
-	createDynamicArrayBoxType ();
+	createDynamicArrayBoxType();
 
 	StructType*
-	createStaticDataBoxType ();
+	createStaticDataBoxType();
 
 	StructType*
-	createDataPtrValidatorType ();
+	createDataPtrValidatorType();
 
 	StructType*
-	createDataPtrStructType ();
+	createDataPtrStructType();
 
 	StructType*
-	createFunctionPtrStructType ();
+	createFunctionPtrStructType();
 
 	StructType*
-	createVariantStructType ();
+	createVariantStructType();
 
 	StructType*
-	createGcShadowStackFrameType ();
+	createGcShadowStackFrameType();
 
 	StructType*
-	createSjljFrameType ();
+	createSjljFrameType();
 };
 
 //..............................................................................

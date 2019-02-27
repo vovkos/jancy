@@ -18,117 +18,117 @@ namespace ct {
 
 //..............................................................................
 
-ImportMgr::ImportMgr ()
+ImportMgr::ImportMgr()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 }
 
 void
-ImportMgr::clear ()
+ImportMgr::clear()
 {
-	m_importList.clear ();
-	m_importFilePathMap.clear ();
-	m_ignoredImportSet.clear ();
+	m_importList.clear();
+	m_importFilePathMap.clear();
+	m_ignoredImportSet.clear();
 }
 
 bool
-ImportMgr::addImport (const sl::StringRef& fileName)
+ImportMgr::addImport(const sl::StringRef& fileName)
 {
 	sl::String filePath;
 
-	if (m_ignoredImportSet.find (fileName))
+	if (m_ignoredImportSet.find(fileName))
 		return true;
 
-	bool isExtensionLib = fileName.isSuffix (".jncx");
+	bool isExtensionLib = fileName.isSuffix(".jncx");
 	if (isExtensionLib)
 	{
-		FindResult findResult = findImportFile (fileName, &filePath);
+		FindResult findResult = findImportFile(fileName, &filePath);
 		if (findResult == FindResult_NotFound)
 			return false;
 		else if (findResult == FindResult_AlreadyImported)
 			return true;
 
-		return m_module->m_extensionLibMgr.loadDynamicLib (filePath);
+		return m_module->m_extensionLibMgr.loadDynamicLib(filePath);
 	}
 
 	// source. search extension libs first
 
 	ExtensionLib* lib;
 	sl::StringRef source;
-	bool isFound = m_module->m_extensionLibMgr.findSourceFileContents (fileName, &lib, &source);
+	bool isFound = m_module->m_extensionLibMgr.findSourceFileContents(fileName, &lib, &source);
 	if (isFound)
 	{
-		addImport (lib, fileName, source);
+		addImport(lib, fileName, source);
 		return true;
 	}
 
 	// not found, now search the file system
 
-	FindResult findResult = findImportFile (fileName, &filePath);
+	FindResult findResult = findImportFile(fileName, &filePath);
 	if (findResult == FindResult_NotFound)
 		return false;
 	else if (findResult == FindResult_AlreadyImported)
 		return true;
 
-	Import* import = AXL_MEM_NEW (Import);
+	Import* import = AXL_MEM_NEW(Import);
 	import->m_lib = NULL;
 	import->m_importKind = ImportKind_File;
 	import->m_filePath = filePath;
-	m_importList.insertTail (import);
+	m_importList.insertTail(import);
 	return true;
 }
 
 void
-ImportMgr::addImport (
+ImportMgr::addImport(
 	ExtensionLib* lib,
 	const sl::StringRef& filePath,
 	const sl::StringRef& source
 	)
 {
-	sl::StringHashTableIterator <bool> it;
+	sl::StringHashTableIterator<bool> it;
 
-	if (!filePath.isEmpty ())
+	if (!filePath.isEmpty())
 	{
-		it = m_importFilePathMap.visit (filePath);
+		it = m_importFilePathMap.visit(filePath);
 		if (it->m_value)
 			return; // already added
 	}
 
-	Import* import = AXL_MEM_NEW (Import);
+	Import* import = AXL_MEM_NEW(Import);
 	import->m_lib = lib;
 	import->m_importKind = ImportKind_Source;
 	import->m_filePath = filePath;
 	import->m_source = source;
-	m_importList.insertTail (import);
+	m_importList.insertTail(import);
 
 	if (it)
 		it->m_value = true;
 }
 
 ImportMgr::FindResult
-ImportMgr::findImportFile (
+ImportMgr::findImportFile(
 	const sl::StringRef& fileName,
 	sl::String* filePath_o
 	)
 {
-	Unit* unit = m_module->m_unitMgr.getCurrentUnit ();
-	ASSERT (unit);
+	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+	ASSERT(unit);
 
-	sl::String filePath = io::findFilePath (
+	sl::String filePath = io::findFilePath(
 		fileName,
-		unit->getDir (),
+		unit->getDir(),
 		&m_importDirList,
 		false
 		);
 
-	if (filePath.isEmpty ())
+	if (filePath.isEmpty())
 	{
-		err::setFormatStringError ("import '%s' not found", fileName.sz ());
+		err::setFormatStringError("import '%s' not found", fileName.sz ());
 		return FindResult_NotFound;
 	}
 
-	sl::StringHashTableIterator <bool> it = m_importFilePathMap.visit (filePath);
+	sl::StringHashTableIterator<bool> it = m_importFilePathMap.visit(filePath);
 	if (it->m_value) // already
 		return FindResult_AlreadyImported;
 

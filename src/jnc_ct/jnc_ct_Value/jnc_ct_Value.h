@@ -51,7 +51,7 @@ enum ValueKind
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 const char*
-getValueKindString (ValueKind valueKind);
+getValueKindString(ValueKind valueKind);
 
 //..............................................................................
 
@@ -76,420 +76,420 @@ protected:
 		StructField* m_field;
 	};
 
-	sl::Array <char> m_constData;
-	ref::Ptr <Closure> m_closure;
-	ref::Ptr <DynamicFieldValueInfo> m_dynamicFieldInfo;
-	mutable ref::Ptr <LeanDataPtrValidator> m_leanDataPtrValidator;
+	sl::Array<char> m_constData;
+	ref::Ptr<Closure> m_closure;
+	ref::Ptr<DynamicFieldValueInfo> m_dynamicFieldInfo;
+	mutable ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	mutable llvm::Value* m_llvmValue;
 
 public:
-	Value ()
+	Value()
 	{
-		init ();
+		init();
 	}
 
-	Value (
+	Value(
 		const Value& value,
 		Type* type
 		)
 	{
-		init ();
-		overrideType (value, type);
+		init();
+		overrideType(value, type);
 	}
 
-	Value (
+	Value(
 		int64_t value,
 		Type* type
 		)
 	{
-		init ();
-		createConst (&value, type);
+		init();
+		createConst(&value, type);
 	}
 
-	Value (
+	Value(
 		const void* p,
 		Type* type
 		)
 	{
-		init ();
-		createConst (p, type);
+		init();
+		createConst(p, type);
 	}
 
-	Value (Type* type)
+	Value(Type* type)
 	{
-		init ();
-		setType (type);
+		init();
+		setType(type);
 	}
 
-	Value (GlobalNamespace* nspace)
+	Value(GlobalNamespace* nspace)
 	{
-		init ();
-		setNamespace (nspace);
+		init();
+		setNamespace(nspace);
 	}
 
-	Value (Variable* variable)
+	Value(Variable* variable)
 	{
-		init ();
-		setVariable (variable);
+		init();
+		setVariable(variable);
 	}
 
-	Value (Function* function)
+	Value(Function* function)
 	{
-		init ();
-		setFunction (function);
+		init();
+		setFunction(function);
 	}
 
-	Value (FunctionTypeOverload* functionTypeOverload)
+	Value(FunctionTypeOverload* functionTypeOverload)
 	{
-		init ();
-		setFunctionTypeOverload (functionTypeOverload);
+		init();
+		setFunctionTypeOverload(functionTypeOverload);
 	}
 
-	Value (Property* prop)
+	Value(Property* prop)
 	{
-		init ();
-		setProperty (prop);
+		init();
+		setProperty(prop);
 	}
 
-	Value (
+	Value(
 		llvm::Value* llvmValue,
 		Type* type = NULL,
 		ValueKind valueKind = ValueKind_LlvmRegister
 		)
 	{
-		init ();
-		setLlvmValue (llvmValue, type, valueKind);
+		init();
+		setLlvmValue(llvmValue, type, valueKind);
 	}
 
-	operator bool () const
+	operator bool() const
 	{
-		return !isEmpty ();
+		return !isEmpty();
 	}
 
 	ValueKind
-	getValueKind () const
+	getValueKind() const
 	{
 		return m_valueKind;
 	}
 
 	bool
-	isEmpty () const
+	isEmpty() const
 	{
 		return m_valueKind == ValueKind_Void;
 	}
 
 	Type*
-	getType () const
+	getType() const
 	{
 		return m_type;
 	}
 
 	Namespace*
-	getNamespace () const
+	getNamespace() const
 	{
-		ASSERT (m_valueKind == ValueKind_Namespace);
+		ASSERT(m_valueKind == ValueKind_Namespace);
 		return m_namespace;
 	}
 
 	Variable*
-	getVariable () const
+	getVariable() const
 	{
-		ASSERT (m_valueKind == ValueKind_Variable);
+		ASSERT(m_valueKind == ValueKind_Variable);
 		return m_variable;
 	}
 
 	Function*
-	getFunction () const
+	getFunction() const
 	{
-		ASSERT (m_valueKind == ValueKind_Function);
+		ASSERT(m_valueKind == ValueKind_Function);
 		return m_function;
 	}
 
 	FunctionTypeOverload*
-	getFunctionTypeOverload () const
+	getFunctionTypeOverload() const
 	{
-		ASSERT (m_valueKind == ValueKind_FunctionTypeOverload);
+		ASSERT(m_valueKind == ValueKind_FunctionTypeOverload);
 		return m_functionTypeOverload;
 	}
 
 	Property*
-	getProperty () const
+	getProperty() const
 	{
-		ASSERT (m_valueKind == ValueKind_Property);
+		ASSERT(m_valueKind == ValueKind_Property);
 		return m_property;
 	}
 
 	StructField*
-	getField () const
+	getField() const
 	{
-		ASSERT (m_valueKind == ValueKind_Field);
+		ASSERT(m_valueKind == ValueKind_Field);
 		return m_field;
 	}
 
-	sl::Array <char>
-	getConstDataArray () const
+	sl::Array<char>
+	getConstDataArray() const
 	{
 		return m_constData;
 	}
 
 	const void*
-	getConstData () const
+	getConstData() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
-		return m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const || m_valueKind == ValueKind_Field);
+		return m_constData.cp();
 	}
 
 	void*
-	getConstData ()
+	getConstData()
 	{
-		ASSERT (m_valueKind == ValueKind_Const);
-		return m_constData.p ();
+		ASSERT(m_valueKind == ValueKind_Const);
+		return m_constData.p();
 	}
 
 	bool
-	getBool () const
+	getBool() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (bool));
-		return *(const bool*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(bool));
+		return *(const bool*) m_constData.cp();
 	}
 
 	int
-	getInt () const
+	getInt() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int));
-		return *(const int*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int));
+		return *(const int*) m_constData.cp();
 	}
 
 	intptr_t
-	getIntPtr () const
+	getIntPtr() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (intptr_t));
-		return *(const intptr_t*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(intptr_t));
+		return *(const intptr_t*) m_constData.cp();
 	}
 
 	int32_t
-	getInt32 () const
+	getInt32() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int32_t));
-		return *(const int32_t*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int32_t));
+		return *(const int32_t*) m_constData.cp();
 	}
 
 	int64_t
-	getInt64 () const
+	getInt64() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (int64_t));
-		return *(const int64_t*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int64_t));
+		return *(const int64_t*) m_constData.cp();
 	}
 
 	size_t
-	getSizeT () const
+	getSizeT() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (size_t));
-		return *(const size_t*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(size_t));
+		return *(const size_t*) m_constData.cp();
 	}
 
 	float
-	getFloat () const
+	getFloat() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (float));
-		return *(const float*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(float));
+		return *(const float*) m_constData.cp();
 	}
 
 	double
-	getDouble () const
+	getDouble() const
 	{
-		ASSERT (m_valueKind == ValueKind_Const && m_type->getSize () >= sizeof (double));
-		return *(const double*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(double));
+		return *(const double*) m_constData.cp();
 	}
 
 	size_t
-	getFieldOffset () const
+	getFieldOffset() const
 	{
-		ASSERT (m_valueKind == ValueKind_Field && m_constData.getCount () >= sizeof (size_t));
-		return *(const size_t*) m_constData.cp ();
+		ASSERT(m_valueKind == ValueKind_Field && m_constData.getCount() >= sizeof(size_t));
+		return *(const size_t*) m_constData.cp();
 	}
 
 	bool
-	hasLlvmValue () const
+	hasLlvmValue() const
 	{
 		return m_llvmValue != NULL || m_valueKind == ValueKind_Const;
 	}
 
 	llvm::Value*
-	getLlvmValue () const;
+	getLlvmValue() const;
 
 	sl::String
-	getLlvmTypeString () const
+	getLlvmTypeString() const
 	{
-		llvm::Value* llvmValue = getLlvmValue ();
-		return llvmValue ? ct::getLlvmTypeString (llvmValue->getType ()) : sl::String ();
+		llvm::Value* llvmValue = getLlvmValue();
+		return llvmValue ? ct::getLlvmTypeString(llvmValue->getType()) : sl::String();
 	}
 
 	static
 	llvm::Constant*
-	getLlvmConst (
+	getLlvmConst(
 		Type* type,
 		const void* p
 		);
 
 	Closure*
-	getClosure () const
+	getClosure() const
 	{
 		return m_closure;
 	}
 
 	Closure*
-	createClosure ();
+	createClosure();
 
 	void
-	setClosure (Closure* closure);
+	setClosure(Closure* closure);
 
 	void
-	clearClosure ()
+	clearClosure()
 	{
 		m_closure = ref::g_nullPtr;
 	}
 
 	Type*
-	getClosureAwareType () const;
+	getClosureAwareType() const;
 
 	DynamicFieldValueInfo*
-	getDynamicFieldInfo () const
+	getDynamicFieldInfo() const
 	{
 		return m_dynamicFieldInfo;
 	}
 
 	void
-	setDynamicFieldInfo (
+	setDynamicFieldInfo(
 		const Value& parentValue,
 		DerivableType* parentType,
 		StructField* field
 		);
 
 	void
-	clearDynamicFieldInfo ()
+	clearDynamicFieldInfo()
 	{
 		m_closure = ref::g_nullPtr;
 	}
 
 	void
-	overrideType (Type* type)
+	overrideType(Type* type)
 	{
 		m_type = type;
 	}
 
 	void
-	overrideType (
+	overrideType(
 		const Value& value,
 		Type* type
 		)
 	{
 		*this = value;
-		overrideType (type);
+		overrideType(type);
 	}
 
 	void
-	clear ();
+	clear();
 
 	bool
-	isZero () const
+	isZero() const
 	{
 		return
 			m_valueKind == ValueKind_Const &&
-			m_type->getTypeKind () == TypeKind_Int8 &&
-			*(char*) m_constData.cp () == 0;
+			m_type->getTypeKind() == TypeKind_Int8 &&
+			*(char*)m_constData.cp() == 0;
 	}
 
 	void
-	setVoid (Module* module);
+	setVoid(Module* module);
 
 	void
-	setNull (Module* module);
+	setNull(Module* module);
 
 	void
-	setNamespace (GlobalNamespace* nspace);
+	setNamespace(GlobalNamespace* nspace);
 
 	void
-	setNamespace (NamedType* type);
+	setNamespace(NamedType* type);
 
 	void
-	setType (Type* type);
+	setType(Type* type);
 
 	void
-	setVariable (Variable* variable);
+	setVariable(Variable* variable);
 
 	void
-	setFunction (Function* function);
+	setFunction(Function* function);
 
 	void
-	setFunctionTypeOverload (FunctionTypeOverload* functionTypeOverload);
+	setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload);
 
 	void
-	setProperty (Property* prop);
+	setProperty(Property* prop);
 
 	void
-	setEnumConst (EnumConst* enumConst);
+	setEnumConst(EnumConst* enumConst);
 
 	void
-	setField (
+	setField(
 		StructField* field,
 		Type* type,
 		size_t baseOffset
 		);
 
 	void
-	setField (
+	setField(
 		StructField* field,
 		size_t baseOffset
 		);
 
 	void
-	setLlvmValue (
+	setLlvmValue(
 		llvm::Value* llvmValue,
 		Type* type,
 		ValueKind valueKind = ValueKind_LlvmRegister
 		);
 
 	LeanDataPtrValidator*
-	getLeanDataPtrValidator () const;
+	getLeanDataPtrValidator() const;
 
 	void
-	setLeanDataPtrValidator (LeanDataPtrValidator* validator);
+	setLeanDataPtrValidator(LeanDataPtrValidator* validator);
 
 	void
-	setLeanDataPtrValidator (const Value& originValue);
+	setLeanDataPtrValidator(const Value& originValue);
 
 	void
-	setLeanDataPtrValidator (
+	setLeanDataPtrValidator(
 		const Value& originValue,
 		const Value& rangeBeginValue,
 		size_t rangeLength
 		);
 
 	void
-	setLeanDataPtr (
+	setLeanDataPtr(
 		llvm::Value* llvmValue,
 		DataPtrType* type,
 		LeanDataPtrValidator* validator
 		)
 	{
-		setLlvmValue (llvmValue, (Type*) type);
-		setLeanDataPtrValidator (validator);
+		setLlvmValue(llvmValue, (Type*)type);
+		setLeanDataPtrValidator(validator);
 	}
 
 	void
-	setLeanDataPtr (
+	setLeanDataPtr(
 		llvm::Value* llvmValue,
 		DataPtrType* type,
 		const Value& originValue
 		)
 	{
-		setLlvmValue (llvmValue, (Type*) type);
-		setLeanDataPtrValidator (originValue);
+		setLlvmValue(llvmValue, (Type*)type);
+		setLeanDataPtrValidator(originValue);
 	}
 
 	void
-	setLeanDataPtr (
+	setLeanDataPtr(
 		llvm::Value* llvmValue,
 		DataPtrType* type,
 		const Value& originValue,
@@ -497,139 +497,139 @@ public:
 		size_t rangeLength
 		)
 	{
-		setLlvmValue (llvmValue, (Type*) type);
-		setLeanDataPtrValidator (originValue, rangeBeginValue, rangeLength);
+		setLlvmValue(llvmValue, (Type*)type);
+		setLeanDataPtrValidator(originValue, rangeBeginValue, rangeLength);
 	}
 
 	bool
-	createConst (
+	createConst(
 		const void* p,
 		Type* type
 		);
 
 	void
-	setConstBool (
+	setConstBool(
 		bool value,
 		Module* module
 		)
 	{
-		createConst (&value, getSimpleType (TypeKind_Bool, module));
+		createConst(&value, getSimpleType(TypeKind_Bool, module));
 	}
 
 	void
-	setConstInt32 (
+	setConstInt32(
 		int32_t value,
 		Type* type
 		)
 	{
-		createConst (&value, type);
+		createConst(&value, type);
 	}
 
 	void
-	setConstInt32 (
+	setConstInt32(
 		int32_t value,
 		Module* module
 		)
 	{
-		Type* type = getSimpleType (getInt32TypeKind (value), module);
-		setConstInt32 (value, type);
+		Type* type = getSimpleType(getInt32TypeKind(value), module);
+		setConstInt32(value, type);
 	}
 
 	void
-	setConstInt32_u (
+	setConstInt32_u(
 		uint32_t value,
 		Module* module
 		)
 	{
-		Type* type = getSimpleType (getInt32TypeKind_u (value), module);
-		setConstInt32 (value, type);
+		Type* type = getSimpleType(getInt32TypeKind_u(value), module);
+		setConstInt32(value, type);
 	}
 
 	void
-	setConstInt64 (
+	setConstInt64(
 		int64_t value,
 		Type* type
 		)
 	{
-		createConst (&value, type);
+		createConst(&value, type);
 	}
 
 	void
-	setConstInt64 (
+	setConstInt64(
 		int64_t value,
 		Module* module
 		)
 	{
-		Type* type = getSimpleType (getInt64TypeKind (value), module);
-		setConstInt64 (value, type);
+		Type* type = getSimpleType(getInt64TypeKind(value), module);
+		setConstInt64(value, type);
 	}
 
 	void
-	setConstInt64_u (
+	setConstInt64_u(
 		uint64_t value,
 		Module* module
 		)
 	{
-		Type* type = getSimpleType (getInt64TypeKind_u (value), module);
-		setConstInt64 (value, type);
+		Type* type = getSimpleType(getInt64TypeKind_u(value), module);
+		setConstInt64(value, type);
 	}
 
 	void
-	setConstSizeT (
+	setConstSizeT(
 		size_t value,
 		Type* type
 		)
 	{
-		createConst (&value, type);
+		createConst(&value, type);
 	}
 
 	void
-	setConstSizeT (
+	setConstSizeT(
 		size_t value,
 		Module* module
 		)
 	{
-		createConst (&value, getSimpleType (TypeKind_SizeT, module));
+		createConst(&value, getSimpleType(TypeKind_SizeT, module));
 	}
 
 	void
-	setConstFloat (
+	setConstFloat(
 		float value,
 		Module* module
 		)
 	{
-		createConst (&value, getSimpleType (TypeKind_Float, module));
+		createConst(&value, getSimpleType(TypeKind_Float, module));
 	}
 
 	void
-	setConstDouble (
+	setConstDouble(
 		double value,
 		Module* module
 		)
 	{
-		createConst (&value, getSimpleType (TypeKind_Double, module));
+		createConst(&value, getSimpleType(TypeKind_Double, module));
 	}
 
 	void
-	setEmptyCharArray (Module* module)
+	setEmptyCharArray(Module* module)
 	{
-		setCharArray ("", 1, module);
+		setCharArray("", 1, module);
 	}
 
 	void
-	setCharArray (
+	setCharArray(
 		const sl::StringRef& string,
 		Module* module
 		)
 	{
-		if (string.isEmpty ())
-			setEmptyCharArray (module);
+		if (string.isEmpty())
+			setEmptyCharArray(module);
 		else
-			setCharArray (string.sz (), string.getLength () + 1, module);
+			setCharArray(string.sz(), string.getLength() + 1, module);
 	}
 
 	void
-	setCharArray (
+	setCharArray(
 		const void* p,
 		size_t count,
 		Module* module
@@ -637,7 +637,7 @@ public:
 
 protected:
 	void
-	init ();
+	init();
 };
 
 //..............................................................................

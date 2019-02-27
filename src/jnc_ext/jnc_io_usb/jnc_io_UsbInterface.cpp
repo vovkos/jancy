@@ -22,7 +22,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	UsbInterface,
 	"io.UsbInterface",
 	g_usbLibGuid,
@@ -31,16 +31,16 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (UsbInterface)
-	JNC_MAP_CONSTRUCTOR (&jnc::construct <UsbInterface>)
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <UsbInterface>)
-	JNC_MAP_FUNCTION ("release", &UsbInterface::release)
+JNC_BEGIN_TYPE_FUNCTION_MAP(UsbInterface)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<UsbInterface>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<UsbInterface>)
+	JNC_MAP_FUNCTION("release", &UsbInterface::release)
 	JNC_MAP_FUNCTION  ("openEndpoint", &UsbInterface::openEndpoint)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-UsbInterface::UsbInterface ()
+UsbInterface::UsbInterface()
 {
 	m_parentDevice = NULL;
 	m_interfaceDescPtr = g_nullPtr;
@@ -49,46 +49,46 @@ UsbInterface::UsbInterface ()
 
 void
 JNC_CDECL
-UsbInterface::release ()
+UsbInterface::release()
 {
 	if (!m_isClaimed)
 		return;
 
-	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*) m_interfaceDescPtr.m_p;
-	bool result = m_parentDevice->m_device.releaseInterface (interfaceDesc->m_interfaceId);
+	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
+	bool result = m_parentDevice->m_device.releaseInterface(interfaceDesc->m_interfaceId);
 	if (result)
 		m_isClaimed = false;
 }
 
 UsbEndpoint*
 JNC_CDECL
-UsbInterface::openEndpoint (uint8_t endpointId)
+UsbInterface::openEndpoint(uint8_t endpointId)
 {
-	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*) m_interfaceDescPtr.m_p;
-	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc (endpointId);
+	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
+	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc(endpointId);
 	if (!endpointDesc)
 	{
-		err::setError (err::SystemErrorCode_ObjectNameNotFound);
+		err::setError(err::SystemErrorCode_ObjectNameNotFound);
 		return NULL;
 	}
 
-	Runtime* runtime = getCurrentThreadRuntime ();
-	GcHeap* gcHeap = runtime->getGcHeap ();
+	Runtime* runtime = getCurrentThreadRuntime();
+	GcHeap* gcHeap = runtime->getGcHeap();
 	gcHeap->enterNoCollectRegion();
 
-	UsbEndpoint* endpoint = createClass <UsbEndpoint> (runtime);
+	UsbEndpoint* endpoint = createClass<UsbEndpoint> (runtime);
 	endpoint->m_parentInterface = this;
 	endpoint->m_endpointDescPtr.m_p = endpointDesc;
 
-	endpoint->m_endpointDescPtr.m_validator = runtime->getGcHeap ()->createDataPtrValidator (
+	endpoint->m_endpointDescPtr.m_validator = runtime->getGcHeap()->createDataPtrValidator(
 		m_interfaceDescPtr.m_validator->m_targetBox,
 		endpointDesc,
-		sizeof (UsbEndpointDesc)
+		sizeof(UsbEndpointDesc)
 		);
 
-	gcHeap->leaveNoCollectRegion (false);
+	gcHeap->leaveNoCollectRegion(false);
 
-	endpoint->open ();
+	endpoint->open();
 
 	return endpoint;
 }

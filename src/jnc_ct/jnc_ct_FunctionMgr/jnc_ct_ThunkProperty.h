@@ -27,10 +27,10 @@ protected:
 	Property* m_targetProperty;
 
 public:
-	ThunkProperty ();
+	ThunkProperty();
 
 	bool
-	create (
+	create(
 		Property* targetProperty,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure
@@ -48,18 +48,18 @@ protected:
 	Variable* m_targetVariable;
 
 public:
-	DataThunkProperty ();
+	DataThunkProperty();
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 protected:
 	bool
-	compileGetter ();
+	compileGetter();
 
 	bool
-	compileSetter (Function* setter);
+	compileSetter(Function* setter);
 };
 
 //..............................................................................

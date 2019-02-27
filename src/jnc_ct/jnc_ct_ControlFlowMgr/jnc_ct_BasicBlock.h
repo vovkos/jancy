@@ -53,86 +53,86 @@ protected:
 	llvm::BasicBlock* m_llvmBlock;
 	llvm::DebugLoc m_llvmDebugLoc;
 
-	sl::SimpleHashTable <size_t, BasicBlock*> m_finallyRouteMap;
+	sl::SimpleHashTable<size_t, BasicBlock*> m_finallyRouteMap;
 
 	LandingPadKind m_landingPadKind;
 	Scope* m_landingPadScope;
 
 public:
-	BasicBlock ();
+	BasicBlock();
 
 	int
-	getFlags ()
+	getFlags()
 	{
 		return m_flags;
 	}
 
 	bool
-	isEmpty ()
+	isEmpty()
 	{
-		return m_llvmBlock->getInstList ().empty ();
+		return m_llvmBlock->getInstList().empty();
 	}
 
 	size_t
-	getInstructionCount ()
+	getInstructionCount()
 	{
-		return m_llvmBlock->getInstList ().size ();
+		return m_llvmBlock->getInstList().size();
 	}
 
 	bool
-	hasTerminator ()
+	hasTerminator()
 	{
-		return m_llvmBlock->getTerminator () != NULL;
+		return m_llvmBlock->getTerminator() != NULL;
 	}
 
 	bool
-	hasReturn ()
+	hasReturn()
 	{
-		llvm::TerminatorInst* inst = m_llvmBlock->getTerminator ();
-		return inst && inst->getOpcode () == llvm::Instruction::Ret;
+		llvm::TerminatorInst* inst = m_llvmBlock->getTerminator();
+		return inst && inst->getOpcode() == llvm::Instruction::Ret;
 	}
 
 	const sl::String&
-	getName ()
+	getName()
 	{
 		return m_name;
 	}
 
 	Function*
-	getFunction ()
+	getFunction()
 	{
 		return m_function;
 	}
 
 	LandingPadKind
-	getLandingPadKind ()
+	getLandingPadKind()
 	{
 		return m_landingPadKind;
 	}
 
 	Scope*
-	getLandingPadScope ()
+	getLandingPadScope()
 	{
 		return m_landingPadScope;
 	}
 
 	llvm::BasicBlock*
-	getLlvmBlock ()
+	getLlvmBlock()
 	{
 		return m_llvmBlock;
 	}
 
 	Value
-	getBlockAddressValue ();
+	getBlockAddressValue();
 
 	void
-	markEntry ()
+	markEntry()
 	{
 		m_flags |= (BasicBlockFlag_Entry | BasicBlockFlag_Reachable);
 	}
 
 	void
-	markReachable ()
+	markReachable()
 	{
 		m_flags |= BasicBlockFlag_Reachable;
 	}

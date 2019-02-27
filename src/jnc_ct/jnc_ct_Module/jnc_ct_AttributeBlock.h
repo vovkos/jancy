@@ -30,7 +30,7 @@ protected:
 
 public:
 	Value
-	getValue ()
+	getValue()
 	{
 		return m_value;
 	}
@@ -38,7 +38,7 @@ public:
 protected:
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................
@@ -52,39 +52,39 @@ class AttributeBlock:
 protected:
 	ModuleItem* m_parentItem;
 
-	sl::List <Attribute> m_attributeList;
-	sl::Array <Attribute*> m_attributeArray;
-	sl::StringHashTable <Attribute*> m_attributeMap;
+	sl::List<Attribute> m_attributeList;
+	sl::Array<Attribute*> m_attributeArray;
+	sl::StringHashTable<Attribute*> m_attributeMap;
 
 public:
-	AttributeBlock ()
+	AttributeBlock()
 	{
 		m_parentItem = NULL;
 	}
 
 	ModuleItem*
-	getParentItem ()
+	getParentItem()
 	{
 		return m_parentItem;
 	}
 
-	sl::Array <Attribute*>
-	getAttributeArray ()
+	sl::Array<Attribute*>
+	getAttributeArray()
 	{
 		return m_attributeArray;
 	}
 
 	Attribute*
-	findAttribute (const sl::StringRef& name)
+	findAttribute(const sl::StringRef& name)
 	{
-		sl::StringHashTableIterator <Attribute*> it = m_attributeMap.find (name);
+		sl::StringHashTableIterator<Attribute*> it = m_attributeMap.find(name);
 		return it ? it->m_value : NULL;
 	}
 
 	Attribute*
-	createAttribute (
+	createAttribute(
 		const sl::StringRef& name,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* initializer = NULL
 		);
 };
 

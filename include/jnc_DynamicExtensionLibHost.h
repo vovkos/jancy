@@ -64,23 +64,23 @@ typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 typedef
 const jnc_Error*
-jnc_GetLastErrorFunc ();
+jnc_GetLastErrorFunc();
 
 typedef
 void
-jnc_SetErrorFunc (const jnc_Error* error);
+jnc_SetErrorFunc(const jnc_Error* error);
 
 typedef
 void
-jnc_SetErrnoFunc (int code);
+jnc_SetErrnoFunc(int code);
 
 typedef
 void
-jnc_SetStringErrorFunc (const char* string);
+jnc_SetStringErrorFunc(const char* string);
 
 typedef
 const char*
-jnc_GetErrorDescriptionFunc (const jnc_Error* error);
+jnc_GetErrorDescriptionFunc(const jnc_Error* error);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -100,43 +100,43 @@ struct jnc_ErrorFuncTable
 
 typedef
 const char*
-jnc_ModuleItemDecl_GetNameFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetNameFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 const char*
-jnc_ModuleItemDecl_GetQualifiedNameFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetQualifiedNameFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 jnc_StorageKind
-jnc_ModuleItemDecl_GetStorageKindFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetStorageKindFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 jnc_AccessKind
-jnc_ModuleItemDecl_GetAccessKindFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetAccessKindFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 jnc_AttributeBlock*
-jnc_ModuleItemDecl_GetAttributeBlockFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetAttributeBlockFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 jnc_Namespace*
-jnc_ModuleItemDecl_GetParentNamespaceFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetParentNamespaceFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 jnc_Unit*
-jnc_ModuleItemDecl_GetParentUnitFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetParentUnitFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 int
-jnc_ModuleItemDecl_GetLineFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetLineFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 int
-jnc_ModuleItemDecl_GetColFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetColFunc(jnc_ModuleItemDecl* decl);
 
 typedef
 size_t
-jnc_ModuleItemDecl_GetOffsetFunc (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_GetOffsetFunc(jnc_ModuleItemDecl* decl);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -161,38 +161,38 @@ struct jnc_ModuleItemDeclFuncTable
 
 typedef
 jnc_Module*
-jnc_ModuleItem_GetModuleFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetModuleFunc(jnc_ModuleItem* item);
 
 typedef
 jnc_ModuleItemKind
-jnc_ModuleItem_GetItemKindFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetItemKindFunc(jnc_ModuleItem* item);
 
 typedef
 uint_t
-jnc_ModuleItem_GetFlagsFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetFlagsFunc(jnc_ModuleItem* item);
 
 typedef
 jnc_ModuleItemDecl*
-jnc_ModuleItem_GetDeclFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetDeclFunc(jnc_ModuleItem* item);
 
 typedef
 jnc_Namespace*
-jnc_ModuleItem_GetNamespaceFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetNamespaceFunc(jnc_ModuleItem* item);
 
 typedef
 jnc_Type*
-jnc_ModuleItem_GetTypeFunc (jnc_ModuleItem* item);
+jnc_ModuleItem_GetTypeFunc(jnc_ModuleItem* item);
 
 typedef
 jnc_DerivableType*
-jnc_VerifyModuleItemIsDerivableTypeFunc (
+jnc_VerifyModuleItemIsDerivableTypeFunc(
 	jnc_ModuleItem* item,
 	const char* name
 	);
 
 typedef
 jnc_ClassType*
-jnc_VerifyModuleItemIsClassTypeFunc (
+jnc_VerifyModuleItemIsClassTypeFunc(
 	jnc_ModuleItem* item,
 	const char* name
 	);
@@ -228,18 +228,18 @@ struct jnc_AttributeFuncTable
 
 typedef
 size_t
-jnc_AttributeBlock_GetAttributeCountFunc (jnc_AttributeBlock* block);
+jnc_AttributeBlock_GetAttributeCountFunc(jnc_AttributeBlock* block);
 
 typedef
 jnc_Attribute*
-jnc_AttributeBlock_GetAttributeFunc (
+jnc_AttributeBlock_GetAttributeFunc(
 	jnc_AttributeBlock* block,
 	size_t index
 	);
 
 typedef
 jnc_Attribute*
-jnc_AttributeBlock_FindAttributeFunc (
+jnc_AttributeBlock_FindAttributeFunc(
 	jnc_AttributeBlock* block,
 	const char* name
 	);
@@ -260,18 +260,18 @@ struct jnc_AttributeBlockFuncTable
 
 typedef
 size_t
-jnc_Namespace_GetItemCountFunc (jnc_Namespace* nspace);
+jnc_Namespace_GetItemCountFunc(jnc_Namespace* nspace);
 
 typedef
 jnc_ModuleItem*
-jnc_Namespace_GetItemFunc (
+jnc_Namespace_GetItemFunc(
 	jnc_Namespace* nspace,
 	size_t index
 	);
 
 typedef
 jnc_Variable*
-jnc_Namespace_FindVariableFunc (
+jnc_Namespace_FindVariableFunc(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -279,7 +279,7 @@ jnc_Namespace_FindVariableFunc (
 
 typedef
 jnc_Function*
-jnc_Namespace_FindFunctionFunc (
+jnc_Namespace_FindFunctionFunc(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -287,7 +287,7 @@ jnc_Namespace_FindFunctionFunc (
 
 typedef
 jnc_Property*
-jnc_Namespace_FindPropertyFunc (
+jnc_Namespace_FindPropertyFunc(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -295,7 +295,7 @@ jnc_Namespace_FindPropertyFunc (
 
 typedef
 jnc_ClassType*
-jnc_Namespace_FindClassTypeFunc (
+jnc_Namespace_FindClassTypeFunc(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -338,30 +338,30 @@ struct jnc_VariableFuncTable
 
 typedef
 jnc_FunctionKind
-jnc_Function_GetFunctionKindFunc (jnc_Function* function);
+jnc_Function_GetFunctionKindFunc(jnc_Function* function);
 
 typedef
 bool_t
-jnc_Function_IsMemberFunc (jnc_Function* function);
+jnc_Function_IsMemberFunc(jnc_Function* function);
 
 typedef
 bool_t
-jnc_Function_IsOverloadedFunc (jnc_Function* function);
+jnc_Function_IsOverloadedFunc(jnc_Function* function);
 
 typedef
 size_t
-jnc_Function_GetOverloadCountFunc (jnc_Function* function);
+jnc_Function_GetOverloadCountFunc(jnc_Function* function);
 
 typedef
 jnc_Function*
-jnc_Function_GetOverloadFunc (
+jnc_Function_GetOverloadFunc(
 	jnc_Function* function,
 	size_t overloadIdx
 	);
 
 typedef
 void*
-jnc_Function_GetMachineCodeFunc (jnc_Function* function);
+jnc_Function_GetMachineCodeFunc(jnc_Function* function);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -382,11 +382,11 @@ struct jnc_FunctionFuncTable
 
 typedef
 jnc_Function*
-jnc_Property_GetGetterFunc (jnc_Property* prop);
+jnc_Property_GetGetterFunc(jnc_Property* prop);
 
 typedef
 jnc_Function*
-jnc_Property_GetSetterFunc (jnc_Property* prop);
+jnc_Property_GetSetterFunc(jnc_Property* prop);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -412,26 +412,26 @@ struct jnc_TypedefFuncTable
 
 typedef
 jnc_TypeKind
-jnc_Type_GetTypeKindFunc (jnc_Type* type);
+jnc_Type_GetTypeKindFunc(jnc_Type* type);
 
 typedef
 size_t
-jnc_Type_GetSizeFunc (jnc_Type* type);
+jnc_Type_GetSizeFunc(jnc_Type* type);
 
 typedef
 const char*
-jnc_Type_GetTypeStringFunc (jnc_Type* type);
+jnc_Type_GetTypeStringFunc(jnc_Type* type);
 
 typedef
 int
-jnc_Type_CmpFunc (
+jnc_Type_CmpFunc(
 	jnc_Type* type,
 	jnc_Type* type2
 	);
 
 typedef
 jnc_DataPtrType*
-jnc_Type_GetDataPtrTypeFunc (
+jnc_Type_GetDataPtrTypeFunc(
 	jnc_Type* type,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -439,7 +439,7 @@ jnc_Type_GetDataPtrTypeFunc (
 
 typedef
 void
-jnc_Type_MarkGcRootsFunc (
+jnc_Type_MarkGcRootsFunc(
 	jnc_Type* type,
 	const void* p,
 	jnc_GcHeap* gcHeap
@@ -473,11 +473,11 @@ struct jnc_NamedTypeFuncTable
 
 typedef
 size_t
-jnc_BaseTypeSlot_GetOffsetFunc (jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_GetOffsetFunc(jnc_BaseTypeSlot* baseType);
 
 typedef
 size_t
-jnc_BaseTypeSlot_GetVTableIndexFunc (jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_GetVTableIndexFunc(jnc_BaseTypeSlot* baseType);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -494,25 +494,25 @@ struct jnc_BaseTypeSlotFuncTable
 
 typedef
 jnc_Function*
-jnc_DerivableType_GetMemberMethodFunc (jnc_DerivableType* type);
+jnc_DerivableType_GetMemberMethodFunc(jnc_DerivableType* type);
 
 typedef
 jnc_Function*
-jnc_DerivableType_GetUnaryOperatorFunc (
+jnc_DerivableType_GetUnaryOperatorFunc(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
 	);
 
 typedef
 jnc_Function*
-jnc_DerivableType_GetBinaryOperatorFunc (
+jnc_DerivableType_GetBinaryOperatorFunc(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
 	);
 
 typedef
 jnc_Function*
-jnc_DerivableType_GetCastOperatorFunc (
+jnc_DerivableType_GetCastOperatorFunc(
 	jnc_DerivableType* type,
 	size_t idx
 	);
@@ -539,11 +539,11 @@ struct jnc_DerivableTypeFuncTable
 
 typedef
 jnc_Type*
-jnc_ArrayType_GetElementTypeFunc (jnc_ArrayType* type);
+jnc_ArrayType_GetElementTypeFunc(jnc_ArrayType* type);
 
 typedef
 size_t
-jnc_ArrayType_GetElementCountFunc (jnc_ArrayType* type);
+jnc_ArrayType_GetElementCountFunc(jnc_ArrayType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -560,15 +560,15 @@ struct jnc_ArrayTypeFuncTable
 
 typedef
 jnc_Type*
-jnc_BitFieldType_GetBaseTypeFunc (jnc_BitFieldType* type);
+jnc_BitFieldType_GetBaseTypeFunc(jnc_BitFieldType* type);
 
 typedef
 size_t
-jnc_BitFieldType_GetBitOffsetFunc (jnc_BitFieldType* type);
+jnc_BitFieldType_GetBitOffsetFunc(jnc_BitFieldType* type);
 
 typedef
 size_t
-jnc_BitFieldType_GetBitCountFunc (jnc_BitFieldType* type);
+jnc_BitFieldType_GetBitCountFunc(jnc_BitFieldType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -595,22 +595,22 @@ struct jnc_FunctionArgFuncTable
 
 typedef
 jnc_Type*
-jnc_FunctionType_GetReturnTypeFunc (jnc_FunctionType* type);
+jnc_FunctionType_GetReturnTypeFunc(jnc_FunctionType* type);
 
 typedef
 size_t
-jnc_FunctionType_GetArgCountFunc (jnc_FunctionType* type);
+jnc_FunctionType_GetArgCountFunc(jnc_FunctionType* type);
 
 typedef
 jnc_FunctionArg*
-jnc_FunctionType_GetArgFunc (
+jnc_FunctionType_GetArgFunc(
 	jnc_FunctionType* type,
 	size_t index
 	);
 
 typedef
 jnc_FunctionPtrType*
-jnc_FunctionType_GetFunctionPtrTypeFunc (
+jnc_FunctionType_GetFunctionPtrTypeFunc(
 	jnc_FunctionType* type,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -618,7 +618,7 @@ jnc_FunctionType_GetFunctionPtrTypeFunc (
 
 typedef
 jnc_FunctionType*
-jnc_FunctionType_GetShortTypeFunc (jnc_FunctionType* type);
+jnc_FunctionType_GetShortTypeFunc(jnc_FunctionType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -648,7 +648,7 @@ struct jnc_PropertyTypeFuncTable
 
 typedef
 int64_t
-jnc_EnumConst_GetValueFunc (jnc_EnumConst* enumConst);
+jnc_EnumConst_GetValueFunc(jnc_EnumConst* enumConst);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -664,15 +664,15 @@ struct jnc_EnumConstFuncTable
 
 typedef
 jnc_Type*
-jnc_EnumType_GetBaseTypeFunc (jnc_EnumType* type);
+jnc_EnumType_GetBaseTypeFunc(jnc_EnumType* type);
 
 typedef
 size_t
-jnc_EnumType_GetConstCountFunc (jnc_EnumType* type);
+jnc_EnumType_GetConstCountFunc(jnc_EnumType* type);
 
 typedef
 jnc_EnumConst*
-jnc_EnumType_GetConstFunc (
+jnc_EnumType_GetConstFunc(
 	jnc_EnumType* type,
 	size_t index
 	);
@@ -693,7 +693,7 @@ struct jnc_EnumTypeFuncTable
 
 typedef
 size_t
-jnc_StructField_GetOffsetFunc (jnc_StructField* field);
+jnc_StructField_GetOffsetFunc(jnc_StructField* field);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -727,15 +727,15 @@ struct jnc_UnionTypeFuncTable
 
 typedef
 jnc_ClassTypeKind
-jnc_ClassType_GetClassTypeKindFunc (jnc_ClassType* type);
+jnc_ClassType_GetClassTypeKindFunc(jnc_ClassType* type);
 
 typedef
 jnc_StructType*
-jnc_ClassType_GetIfaceStructTypeFunc (jnc_ClassType* type);
+jnc_ClassType_GetIfaceStructTypeFunc(jnc_ClassType* type);
 
 typedef
 jnc_ClassPtrType*
-jnc_ClassType_GetClassPtrTypeFunc (
+jnc_ClassType_GetClassPtrTypeFunc(
 	jnc_ClassType* type,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -757,11 +757,11 @@ struct jnc_ClassTypeFuncTable
 
 typedef
 jnc_FunctionPtrType*
-jnc_MulticastClassType_GetTargetTypeFunc (jnc_MulticastClassType* type);
+jnc_MulticastClassType_GetTargetTypeFunc(jnc_MulticastClassType* type);
 
 typedef
 jnc_Function*
-jnc_MulticastClassType_GetMethodFunc (
+jnc_MulticastClassType_GetMethodFunc(
 	jnc_MulticastClassType* type,
 	jnc_MulticastMethodKind method
 	);
@@ -781,11 +781,11 @@ struct jnc_MulticastClassTypeFuncTable
 
 typedef
 jnc_FunctionPtrType*
-jnc_McSnapshotClassType_GetTargetTypeFunc (jnc_McSnapshotClassType* type);
+jnc_McSnapshotClassType_GetTargetTypeFunc(jnc_McSnapshotClassType* type);
 
 typedef
 jnc_Function*
-jnc_McSnapshotClassType_GetMethodFunc (
+jnc_McSnapshotClassType_GetMethodFunc(
 	jnc_McSnapshotClassType* type,
 	jnc_McSnapshotMethodKind method
 	);
@@ -805,11 +805,11 @@ struct jnc_McSnapshotClassTypeFuncTable
 
 typedef
 jnc_DataPtrTypeKind
-jnc_DataPtrType_GetPtrTypeKindFunc (jnc_DataPtrType* type);
+jnc_DataPtrType_GetPtrTypeKindFunc(jnc_DataPtrType* type);
 
 typedef
 jnc_Type*
-jnc_DataPtrType_GetTargetTypeFunc (jnc_DataPtrType* type);
+jnc_DataPtrType_GetTargetTypeFunc(jnc_DataPtrType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -835,11 +835,11 @@ struct jnc_ClassPtrTypeFuncTable
 
 typedef
 jnc_FunctionPtrTypeKind
-jnc_FunctionPtrType_GetPtrTypeKindFunc (jnc_FunctionPtrType* type);
+jnc_FunctionPtrType_GetPtrTypeKindFunc(jnc_FunctionPtrType* type);
 
 typedef
 jnc_FunctionType*
-jnc_FunctionPtrType_GetTargetTypeFunc (jnc_FunctionPtrType* type);
+jnc_FunctionPtrType_GetTargetTypeFunc(jnc_FunctionPtrType* type);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -865,7 +865,7 @@ struct jnc_PropertyPtrTypeFuncTable
 
 typedef
 bool_t
-jnc_Variant_CastFunc (
+jnc_Variant_CastFunc(
 	const jnc_Variant* variant,
 	jnc_Type* type,
 	void* buffer
@@ -873,7 +873,7 @@ jnc_Variant_CastFunc (
 
 typedef
 bool_t
-jnc_Variant_UnaryOperatorFunc (
+jnc_Variant_UnaryOperatorFunc(
 	const jnc_Variant* variant,
 	jnc_UnOpKind opKind,
 	jnc_Variant* result
@@ -881,7 +881,7 @@ jnc_Variant_UnaryOperatorFunc (
 
 typedef
 bool_t
-jnc_Variant_BinaryOperatorFunc (
+jnc_Variant_BinaryOperatorFunc(
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
@@ -890,7 +890,7 @@ jnc_Variant_BinaryOperatorFunc (
 
 typedef
 bool_t
-jnc_Variant_RelationalOperatorFunc (
+jnc_Variant_RelationalOperatorFunc(
 	const jnc_Variant* variant,
 	const jnc_Variant* variant2,
 	jnc_BinOpKind opKind,
@@ -899,7 +899,7 @@ jnc_Variant_RelationalOperatorFunc (
 
 typedef
 bool_t
-jnc_Variant_GetMemberFunc (
+jnc_Variant_GetMemberFunc(
 	const jnc_Variant* variant,
 	const char* name,
 	jnc_Variant* result
@@ -907,7 +907,7 @@ jnc_Variant_GetMemberFunc (
 
 typedef
 bool_t
-jnc_Variant_SetMemberFunc (
+jnc_Variant_SetMemberFunc(
 	jnc_Variant* variant,
 	const char* name,
 	jnc_Variant value
@@ -915,7 +915,7 @@ jnc_Variant_SetMemberFunc (
 
 typedef
 bool_t
-jnc_Variant_GetElementFunc (
+jnc_Variant_GetElementFunc(
 	const jnc_Variant* variant,
 	size_t index,
 	jnc_Variant* result
@@ -923,7 +923,7 @@ jnc_Variant_GetElementFunc (
 
 typedef
 bool_t
-jnc_Variant_SetElementFunc (
+jnc_Variant_SetElementFunc(
 	jnc_Variant* variant,
 	size_t index,
 	jnc_Variant value
@@ -931,7 +931,7 @@ jnc_Variant_SetElementFunc (
 
 typedef
 size_t
-jnc_Variant_HashFunc (const jnc_Variant* variant);
+jnc_Variant_HashFunc(const jnc_Variant* variant);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -964,19 +964,19 @@ struct jnc_UnitFuncTable
 
 typedef
 jnc_Module*
-jnc_Module_CreateFunc ();
+jnc_Module_CreateFunc();
 
 typedef
 void
-jnc_Module_DestroyFunc (jnc_Module* module);
+jnc_Module_DestroyFunc(jnc_Module* module);
 
 typedef
 void
-jnc_Module_ClearFunc (jnc_Module* module);
+jnc_Module_ClearFunc(jnc_Module* module);
 
 typedef
 void
-jnc_Module_InitializeFunc (
+jnc_Module_InitializeFunc(
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
@@ -984,18 +984,18 @@ jnc_Module_InitializeFunc (
 
 typedef
 jnc_GlobalNamespace*
-jnc_Module_GetGlobalNamespaceFunc (jnc_Module* module);
+jnc_Module_GetGlobalNamespaceFunc(jnc_Module* module);
 
 typedef
 jnc_Type*
-jnc_Module_GetPrimitiveTypeFunc (
+jnc_Module_GetPrimitiveTypeFunc(
 	jnc_Module* module,
 	jnc_TypeKind typeKind
 	);
 
 typedef
 jnc_ModuleItem*
-jnc_Module_FindItemFunc (
+jnc_Module_FindItemFunc(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
@@ -1004,7 +1004,7 @@ jnc_Module_FindItemFunc (
 
 typedef
 bool_t
-jnc_Module_MapVariableFunc (
+jnc_Module_MapVariableFunc(
 	jnc_Module* module,
 	jnc_Variable* variable,
 	void* p
@@ -1012,7 +1012,7 @@ jnc_Module_MapVariableFunc (
 
 typedef
 bool_t
-jnc_Module_MapFunctionFunc (
+jnc_Module_MapFunctionFunc(
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
@@ -1020,7 +1020,7 @@ jnc_Module_MapFunctionFunc (
 
 typedef
 void
-jnc_Module_AddSourceFunc (
+jnc_Module_AddSourceFunc(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -1030,21 +1030,21 @@ jnc_Module_AddSourceFunc (
 
 typedef
 void
-jnc_Module_AddImportDirFunc (
+jnc_Module_AddImportDirFunc(
 	jnc_Module* module,
 	const char* dir
 	);
 
 typedef
 void
-jnc_Module_AddImportFunc (
+jnc_Module_AddImportFunc(
 	jnc_Module* module,
 	const char* fileName
 	);
 
 typedef
 void
-jnc_Module_AddOpaqueClassTypeInfoFunc (
+jnc_Module_AddOpaqueClassTypeInfoFunc(
 	jnc_Module* module,
 	const char* qualifiedName,
 	const jnc_OpaqueClassTypeInfo* info
@@ -1052,14 +1052,14 @@ jnc_Module_AddOpaqueClassTypeInfoFunc (
 
 typedef
 void
-jnc_Module_AddStaticLibFunc (
+jnc_Module_AddStaticLibFunc(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib
 	);
 
 typedef
 bool_t
-jnc_Module_ParseFunc (
+jnc_Module_ParseFunc(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -1069,30 +1069,30 @@ jnc_Module_ParseFunc (
 
 typedef
 bool_t
-jnc_Module_ParseFileFunc (
+jnc_Module_ParseFileFunc(
 	jnc_Module* module,
 	const char* fileName
 	);
 
 typedef
 bool_t
-jnc_Module_ParseImportsFunc (jnc_Module* module);
+jnc_Module_ParseImportsFunc(jnc_Module* module);
 
 typedef
 bool_t
-jnc_Module_CalcLayoutFunc (jnc_Module* module);
+jnc_Module_CalcLayoutFunc(jnc_Module* module);
 
 typedef
 bool_t
-jnc_Module_CompileFunc (jnc_Module* module);
+jnc_Module_CompileFunc(jnc_Module* module);
 
 typedef
 bool_t
-jnc_Module_JitFunc (jnc_Module* module);
+jnc_Module_JitFunc(jnc_Module* module);
 
 typedef
 const char*
-jnc_Module_getLlvmIrStringFunc (jnc_Module* module);
+jnc_Module_getLlvmIrStringFunc(jnc_Module* module);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -1128,101 +1128,101 @@ struct jnc_ModuleFuncTable
 
 typedef
 jnc_Runtime*
-jnc_Runtime_CreateFunc ();
+jnc_Runtime_CreateFunc();
 
 typedef
 void
-jnc_Runtime_DestroyFunc (jnc_Runtime* runtime);
+jnc_Runtime_DestroyFunc(jnc_Runtime* runtime);
 
 typedef
 jnc_Module*
-jnc_Runtime_GetModuleFunc (jnc_Runtime* runtime);
+jnc_Runtime_GetModuleFunc(jnc_Runtime* runtime);
 
 typedef
 jnc_GcHeap*
-jnc_Runtime_GetGcHeapFunc (jnc_Runtime* runtime);
+jnc_Runtime_GetGcHeapFunc(jnc_Runtime* runtime);
 
 typedef
 bool_t
-jnc_Runtime_IsAbortedFunc (jnc_Runtime* runtime);
+jnc_Runtime_IsAbortedFunc(jnc_Runtime* runtime);
 
 typedef
 size_t
-jnc_Runtime_GetStackSizeLimitFunc (jnc_Runtime* runtime);
+jnc_Runtime_GetStackSizeLimitFunc(jnc_Runtime* runtime);
 
 typedef
 bool_t
-jnc_Runtime_SetStackSizeLimitFunc (
+jnc_Runtime_SetStackSizeLimitFunc(
 	jnc_Runtime* runtime,
 	size_t sizeLimit
 	);
 
 typedef
 bool_t
-jnc_Runtime_StartupFunc (
+jnc_Runtime_StartupFunc(
 	jnc_Runtime* runtime,
 	jnc_Module* module
 	);
 
 typedef
 void
-jnc_Runtime_ShutdownFunc (jnc_Runtime* runtime);
+jnc_Runtime_ShutdownFunc(jnc_Runtime* runtime);
 
 typedef
 void
-jnc_Runtime_AbortFunc (jnc_Runtime* runtime);
+jnc_Runtime_AbortFunc(jnc_Runtime* runtime);
 
 typedef
 void
-jnc_Runtime_InitializeCallSiteFunc (
+jnc_Runtime_InitializeCallSiteFunc(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
 	);
 
 typedef
 void
-jnc_Runtime_UninitializeCallSiteFunc (
+jnc_Runtime_UninitializeCallSiteFunc(
 	jnc_Runtime* runtime,
 	jnc_CallSite* callSite
 	);
 
 typedef
 jnc_SjljFrame*
-jnc_Runtime_SetSjljFrameFunc (
+jnc_Runtime_SetSjljFrameFunc(
 	jnc_Runtime* runtime,
 	jnc_SjljFrame* frame
 	);
 
 typedef
 void*
-jnc_Runtime_GetUserDataFunc (jnc_Runtime* runtime);
+jnc_Runtime_GetUserDataFunc(jnc_Runtime* runtime);
 
 typedef
 void*
-jnc_Runtime_SetUserDataFunc (
+jnc_Runtime_SetUserDataFunc(
 	jnc_Runtime* runtime,
 	void* data
 	);
 
 typedef
 void
-jnc_Runtime_CheckStackOverflowFunc (jnc_Runtime* runtime);
+jnc_Runtime_CheckStackOverflowFunc(jnc_Runtime* runtime);
 
 typedef
 jnc_Runtime*
-jnc_GetCurrentThreadRuntimeFunc ();
+jnc_GetCurrentThreadRuntimeFunc();
 
 typedef
 jnc_Tls*
-jnc_GetCurrentThreadTlsFunc ();
+jnc_GetCurrentThreadTlsFunc();
 
 typedef
 void
-jnc_DynamicThrowFunc ();
+jnc_DynamicThrowFunc();
 
 typedef
 void
-jnc_PrimeClassFunc (
+jnc_PrimeClassFunc(
 	jnc_Box* box,
 	jnc_Box* root,
 	jnc_ClassType* type,
@@ -1231,18 +1231,18 @@ jnc_PrimeClassFunc (
 
 typedef
 size_t
-jnc_StrLenFunc (jnc_DataPtr ptr);
+jnc_StrLenFunc(jnc_DataPtr ptr);
 
 typedef
 jnc_DataPtr
-jnc_StrDupFunc (
+jnc_StrDupFunc(
 	const char* p,
 	size_t length
 	);
 
 typedef
 jnc_DataPtr
-jnc_MemDupFunc (
+jnc_MemDupFunc(
 	const void* p,
 	size_t size
 	);
@@ -1283,69 +1283,69 @@ struct jnc_RuntimeFuncTable
 
 typedef
 jnc_Runtime*
-jnc_GcHeap_GetRuntimeFunc (jnc_GcHeap* gcHeap);
+jnc_GcHeap_GetRuntimeFunc(jnc_GcHeap* gcHeap);
 
 typedef
 void
-jnc_GcHeap_GetStatsFunc (
+jnc_GcHeap_GetStatsFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_GcStats* stats
 	);
 
 typedef
 void
-jnc_GcHeap_GetSizeTriggersFunc (
+jnc_GcHeap_GetSizeTriggersFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_GcSizeTriggers* triggers
 	);
 
 typedef
 void
-jnc_GcHeap_SetSizeTriggersFunc (
+jnc_GcHeap_SetSizeTriggersFunc(
 	jnc_GcHeap* gcHeap,
 	const jnc_GcSizeTriggers* triggers
 	);
 
 typedef
 void
-jnc_GcHeap_CollectFunc (jnc_GcHeap* gcHeap);
+jnc_GcHeap_CollectFunc(jnc_GcHeap* gcHeap);
 
 typedef
 void
-jnc_GcHeap_EnterNoCollectRegionFunc (jnc_GcHeap* gcHeap);
+jnc_GcHeap_EnterNoCollectRegionFunc(jnc_GcHeap* gcHeap);
 
 typedef
 void
-jnc_GcHeap_LeaveNoCollectRegionFunc (
+jnc_GcHeap_LeaveNoCollectRegionFunc(
 	jnc_GcHeap* gcHeap,
 	bool_t canCollectNow
 	);
 
 typedef
 void
-jnc_GcHeap_EnterWaitRegionFunc (jnc_GcHeap* gcHeap);
+jnc_GcHeap_EnterWaitRegionFunc(jnc_GcHeap* gcHeap);
 
 typedef
 void
-jnc_GcHeap_LeaveWaitRegionFunc (jnc_GcHeap* gcHeap);
+jnc_GcHeap_LeaveWaitRegionFunc(jnc_GcHeap* gcHeap);
 
 typedef
 jnc_IfaceHdr*
-jnc_GcHeap_AllocateClassFunc (
+jnc_GcHeap_AllocateClassFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_ClassType* type
 	);
 
 typedef
 jnc_DataPtr
-jnc_GcHeap_AllocateDataFunc (
+jnc_GcHeap_AllocateDataFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type
 	);
 
 typedef
 jnc_DataPtr
-jnc_GcHeap_AllocateArrayFunc (
+jnc_GcHeap_AllocateArrayFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t count
@@ -1353,14 +1353,14 @@ jnc_GcHeap_AllocateArrayFunc (
 
 typedef
 jnc_DataPtr
-jnc_GcHeap_AllocateBufferFunc (
+jnc_GcHeap_AllocateBufferFunc(
 	jnc_GcHeap* gcHeap,
 	size_t size
 	);
 
 typedef
 jnc_DataPtrValidator*
-jnc_GcHeap_CreateDataPtrValidatorFunc (
+jnc_GcHeap_CreateDataPtrValidatorFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
 	void* rangeBegin,
@@ -1369,42 +1369,42 @@ jnc_GcHeap_CreateDataPtrValidatorFunc (
 
 typedef
 jnc_IfaceHdr*
-jnc_GcHeap_GetDynamicLayoutFunc (
+jnc_GcHeap_GetDynamicLayoutFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_GcHeap_ResetDynamicLayoutFunc (
+jnc_GcHeap_ResetDynamicLayoutFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_GcHeap_WeakMarkFunc (
+jnc_GcHeap_WeakMarkFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_GcHeap_MarkDataFunc (
+jnc_GcHeap_MarkDataFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_GcHeap_MarkClassFunc (
+jnc_GcHeap_MarkClassFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
 	);
 
 typedef
 void
-jnc_GcHeap_AddBoxToCallSiteFunc (jnc_Box* box);
+jnc_GcHeap_AddBoxToCallSiteFunc(jnc_Box* box);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

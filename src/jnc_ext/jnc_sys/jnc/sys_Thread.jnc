@@ -44,7 +44,7 @@ namespace sys {
 
 		import "sys_Thread.jnc"
 
-		workerThread (
+		workerThread(
 			int param1,
 			int param2
 			)
@@ -52,15 +52,15 @@ namespace sys {
 			// ...
 		}
 
-		int main ()
+		int main()
 		{
 			// ...
 
 			sys.Thread thread1;
 			sys.Thread thread2;
 
-			thread1.start (workerThread ~(1, 2));
-			thread2.start (workerThread ~(3, 4));
+			thread1.start(workerThread ~(1, 2));
+			thread2.start(workerThread ~(3, 4));
 		}
 
 	\sa `sys.Event`, `sys.NotificationEvent`, `sys.Lock`
@@ -72,10 +72,10 @@ namespace sys {
 
 opaque class Thread
 {
-	protected function* m_threadFunc ();
+	protected function* m_threadFunc();
 
 	/**
-		Holds native TID (thread identifier) of the thread controlled by
+		Holds native TID(thread identifier) of the thread controlled by
 		``sys.Thread`` object. The field is updated in ``start`` method;
 		accessing it when the thread has not been started yet or *closed*
 		yields ``0``.
@@ -83,8 +83,8 @@ opaque class Thread
 
 	uintptr_t readonly m_threadId;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Attempt to start a new thread with a thread function pointed to by
@@ -98,7 +98,7 @@ opaque class Thread
 		Calling this method on a non-closed thread fails immediatly.
 	*/
 
-	bool errorcode start (function* func ());
+	bool errorcode start(function* func());
 
 	/**
 		Waits until thread finishes. When it happens, ``wait`` returns ``true``,
@@ -110,7 +110,7 @@ opaque class Thread
 		return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
-	bool wait (uint_t timeout = -1);
+	bool wait(uint_t timeout = -1);
 
 	/**
 		Waits until event thread finishes. When it happens, ``waitAndClose``
@@ -122,7 +122,7 @@ opaque class Thread
 		return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
-	void waitAndClose (uint_t timeout = -1);
+	void waitAndClose(uint_t timeout = -1);
 
 	/**
 		Forcefully terminates thread.
@@ -137,7 +137,7 @@ opaque class Thread
 		`sys.NotificationEvent`).
 	*/
 
-	bool terminate ();
+	bool terminate();
 }
 
 //..............................................................................

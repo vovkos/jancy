@@ -21,7 +21,7 @@ namespace ct {
 class BinOp_Idx: public BinaryOperator
 {
 public:
-	BinOp_Idx ()
+	BinOp_Idx()
 	{
 		m_opKind = BinOpKind_Idx;
 		m_opFlags1 = OpFlag_KeepPropertyRef | OpFlag_KeepVariantRef;
@@ -29,14 +29,14 @@ public:
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -44,14 +44,14 @@ public:
 
 	static
 	Type*
-	getPropertyIndexResultType (
+	getPropertyIndexResultType(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2
 		);
 
 protected:
 	bool
-	arrayIndexOperator (
+	arrayIndexOperator(
 		const Value& rawOpValue1,
 		ArrayType* arrayType,
 		const Value& rawOpValue2,
@@ -59,7 +59,7 @@ protected:
 		);
 
 	bool
-	variantIndexOperator (
+	variantIndexOperator(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -67,21 +67,21 @@ protected:
 
 	static
 	bool
-	propertyIndexOperator (
+	propertyIndexOperator(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
 		);
 
 	Type*
-	getDerivableTypeIndexResultType (
+	getDerivableTypeIndexResultType(
 		DerivableType* derivableType,
 		const Value& opValue1,
 		const Value& opValue2
 		);
 
 	bool
-	derivableTypeIndexOperator (
+	derivableTypeIndexOperator(
 		DerivableType* derivableType,
 		const Value& opValue1,
 		const Value& opValue2,
@@ -89,7 +89,7 @@ protected:
 		);
 
 	Property*
-	getDerivableTypeIndexerProperty (
+	getDerivableTypeIndexerProperty(
 		DerivableType* derivableType,
 		const Value& opValue2
 		);

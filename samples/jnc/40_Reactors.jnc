@@ -29,31 +29,31 @@
 
 // update functions that need to be called when bindable properties change
 
-updatePurple (
+updatePurple(
 	int red,
 	int blue,
 	int alpha
 	)
 {
-	printf ("updatePurple (%x, %x, %x)\n", red, blue, alpha);
+	printf("updatePurple (%x, %x, %x)\n", red, blue, alpha);
 }
 
-updateYellow (
+updateYellow(
 	int red,
 	int green,
 	int alpha
 	)
 {
-	printf ("updateYellow (%x, %x, %x)\n", red, green, alpha);
+	printf("updateYellow (%x, %x, %x)\n", red, green, alpha);
 }
 
-updateCyan (
+updateCyan(
 	int green,
 	int blue,
 	int alpha
 	)
 {
-	printf ("updateCyan (%x, %x, %x)\n", green, blue, alpha);
+	printf("updateCyan (%x, %x, %x)\n", green, blue, alpha);
 }
 
 //..............................................................................
@@ -83,9 +83,9 @@ int g_rgb;
 
 reactor g_colorReactor
 {
-	updatePurple (g_red, g_blue, g_alpha);
-	updateYellow (g_red, g_green, g_alpha);
-	updateCyan (g_green, g_blue, g_alpha);
+	updatePurple(g_red, g_blue, g_alpha);
+	updateYellow(g_red, g_green, g_alpha);
+	updateCyan(g_green, g_blue, g_alpha);
 
 	g_rgb = (g_red << 16) + (g_green << 8) + g_blue;
 }
@@ -94,19 +94,19 @@ reactor g_colorReactor
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// starting the reactor executes all expressions in this reactor block one
 	// time
 
-	g_colorReactor.start ();
+	g_colorReactor.start();
 
-	printf ("changing g_red...\n");
+	printf("changing g_red...\n");
 	g_red = 0xab;
 
-	printf ("changing g_green...\n");
+	printf("changing g_green...\n");
 	g_green = 0xcd;
 
 	// if the reactor is stopped now then the change of 'g_blue' below will not
@@ -114,13 +114,13 @@ int main ()
 
 	// g_colorReactor.stop ();
 
-	printf ("changing g_blue...\n");
+	printf("changing g_blue...\n");
 	g_blue = 0xef;
 
-	printf ("changing g_alpha...\n");
+	printf("changing g_alpha...\n");
 	g_blue = 0xff;
 
-	printf ("g_rgb = #%06x\n", g_rgb);
+	printf("g_rgb = #%06x\n", g_rgb);
 
 	return 0;
 }

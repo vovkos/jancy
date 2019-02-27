@@ -20,36 +20,36 @@ public:
 	uint32_t readonly m_lastHiFileId;
 
 public:
-	reset ();
+	reset();
 
-	uint32_t getHiFileId (intptr_t loFileId);
+	uint32_t getHiFileId(intptr_t loFileId);
 	removeLowFileId  (intptr_t loFileId);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-FileIdMgr.reset ()
+FileIdMgr.reset()
 {
-	m_fileIdMap.clear ();
+	m_fileIdMap.clear();
 	m_lastLoFileId = 0;
 	m_lastHiFileId = 0;
 	m_hiFileIdCounter = 0;
 }
 
-uint32_t FileIdMgr.getHiFileId (intptr_t loFileId)
+uint32_t FileIdMgr.getHiFileId(intptr_t loFileId)
 {
 	if (loFileId == m_lastLoFileId)
 		return m_lastHiFileId;
 
-	uint32_t hiFileId = m_fileIdMap.findValue (loFileId, 0);
+	uint32_t hiFileId = m_fileIdMap.findValue(loFileId, 0);
 	if (!hiFileId)
 	{
 		m_hiFileIdCounter++;
 		if (!m_hiFileIdCounter)
 			m_hiFileIdCounter++; // never 0
-	
+
 		hiFileId = m_hiFileIdCounter;
-		m_fileIdMap [loFileId] = hiFileId;
+		m_fileIdMap[loFileId] = hiFileId;
 	}
 
 	m_lastLoFileId = loFileId;
@@ -65,7 +65,7 @@ FileIdMgr.removeLowFileId  (intptr_t lowFileId)
 		m_lastHiFileId = 0;
 	}
 
-	m_fileIdMap.removeKey (lowFileId);
+	m_fileIdMap.removeKey(lowFileId);
 }
 
 //..............................................................................

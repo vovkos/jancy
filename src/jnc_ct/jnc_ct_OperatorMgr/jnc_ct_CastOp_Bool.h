@@ -25,7 +25,7 @@ class Cast_BoolFromZeroCmp: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -35,7 +35,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -43,7 +43,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -59,7 +59,7 @@ class Cast_BoolFromPtr: public Cast_BoolFromZeroCmp
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -75,7 +75,7 @@ class Cast_IntFromBool: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		)
@@ -85,7 +85,7 @@ public:
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -93,7 +93,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -111,14 +111,14 @@ protected:
 	Cast_BoolFromPtr m_fromPtr;
 
 public:
-	Cast_Bool ()
+	Cast_Bool()
 	{
 		m_opFlags = OpFlag_KeepBool;
 	}
 
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		);

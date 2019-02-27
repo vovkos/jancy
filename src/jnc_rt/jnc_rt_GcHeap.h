@@ -55,17 +55,17 @@ protected:
 		IfaceHdr* m_iface;
 	};
 
-	class DestructThread: public axl::sys::ThreadImpl <DestructThread>
+	class DestructThread: public axl::sys::ThreadImpl<DestructThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, GcHeap, m_destructThread)->destructThreadFunc ();
+			containerof(this, GcHeap, m_destructThread)->destructThreadFunc();
 		}
 	};
 
-	typedef sl::AuxList <GcMutatorThread, GetGcMutatorThreadLink> MutatorThreadList;
+	typedef sl::AuxList<GcMutatorThread, GetGcMutatorThreadLink> MutatorThreadList;
 
 protected:
 	Runtime* m_runtime;
@@ -75,8 +75,8 @@ protected:
 	volatile uint_t m_flags;
 	GcStats m_stats;
 	sys::NotificationEvent m_idleEvent;
-	sl::List <StaticDestructor> m_staticDestructorList;
-	sl::Array <IfaceHdr*> m_dynamicDestructArray;
+	sl::List<StaticDestructor> m_staticDestructorList;
+	sl::Array<IfaceHdr*> m_dynamicDestructArray;
 
 	DestructThread m_destructThread;
 
@@ -101,15 +101,15 @@ protected:
 #	endif
 #endif
 
-	sl::Array <Box*> m_allocBoxArray;
-	sl::Array <Box*> m_classBoxArray;
-	sl::Array <Box*> m_destructibleClassBoxArray;
-	sl::Array <Box*> m_postponeFreeBoxArray;
-	sl::Array <Root> m_staticRootArray;
-	sl::Array <Root> m_markRootArray [2];
+	sl::Array<Box*> m_allocBoxArray;
+	sl::Array<Box*> m_classBoxArray;
+	sl::Array<Box*> m_destructibleClassBoxArray;
+	sl::Array<Box*> m_postponeFreeBoxArray;
+	sl::Array<Root> m_staticRootArray;
+	sl::Array<Root> m_markRootArray[2];
 	size_t m_currentMarkRootArrayIdx;
 
-	sl::HashTable <Box*, IfaceHdr*, sl::HashId <Box*> > m_dynamicLayoutMap;
+	sl::HashTable<Box*, IfaceHdr*, sl::HashId<Box*> > m_dynamicLayoutMap;
 
 	// adjustable triggers
 
@@ -117,35 +117,35 @@ protected:
 	size_t m_periodSizeTrigger;
 
 public:
-	GcHeap ();
+	GcHeap();
 
-	~GcHeap ()
+	~GcHeap()
 	{
-		ASSERT (isEmpty ()); // should be collected during runtime shutdown
+		ASSERT(isEmpty()); // should be collected during runtime shutdown
 	}
 
 	// informational methods
 
 	bool
-	isEmpty ()
+	isEmpty()
 	{
-		return m_allocBoxArray.isEmpty ();
+		return m_allocBoxArray.isEmpty();
 	}
 
 	bool
-	isAborted ()
+	isAborted()
 	{
 		return (m_flags & Flag_Abort) != 0;
 	}
 
 	Runtime*
-	getRuntime ()
+	getRuntime()
 	{
 		return m_runtime;
 	}
 
 	void*
-	getGuardPage ()
+	getGuardPage()
 	{
 		return m_guardPage;
 	}
@@ -153,37 +153,37 @@ public:
 	// allocation methods
 
 	IfaceHdr*
-	tryAllocateClass (ct::ClassType* type);
+	tryAllocateClass(ct::ClassType* type);
 
 	IfaceHdr*
-	allocateClass (ct::ClassType* type);
+	allocateClass(ct::ClassType* type);
 
 	DataPtr
-	tryAllocateData (ct::Type* type);
+	tryAllocateData(ct::Type* type);
 
 	DataPtr
-	allocateData (ct::Type* type);
+	allocateData(ct::Type* type);
 
 	DataPtr
-	tryAllocateArray (
+	tryAllocateArray(
 		ct::Type* type,
 		size_t count
 		);
 
 	DataPtr
-	allocateArray (
+	allocateArray(
 		ct::Type* type,
 		size_t count
 		);
 
 	DataPtr
-	tryAllocateBuffer (size_t size);
+	tryAllocateBuffer(size_t size);
 
 	DataPtr
-	allocateBuffer (size_t size);
+	allocateBuffer(size_t size);
 
 	DataPtrValidator*
-	createDataPtrValidator (
+	createDataPtrValidator(
 		Box* box,
 		void* rangeBegin,
 		size_t rangeLength
@@ -192,100 +192,100 @@ public:
 	// dynamic layout methods
 
 	IfaceHdr*
-	getDynamicLayout (Box* box);
+	getDynamicLayout(Box* box);
 
 	void
-	resetDynamicLayout (Box* box);
+	resetDynamicLayout(Box* box);
 
 	// management methods
 
 	void
-	getStats (GcStats* stats);
+	getStats(GcStats* stats);
 
 	void
-	getSizeTriggers (GcSizeTriggers* triggers)
+	getSizeTriggers(GcSizeTriggers* triggers)
 	{
 		triggers->m_allocSizeTrigger = m_allocSizeTrigger;
 		triggers->m_periodSizeTrigger = m_periodSizeTrigger;
 	}
 
 	void
-	setSizeTriggers (
+	setSizeTriggers(
 		size_t allocSizeTrigger,
 		size_t periodSizeTrigger
 		);
 
 	void
-	setSizeTriggers (const GcSizeTriggers& triggers)
+	setSizeTriggers(const GcSizeTriggers& triggers)
 	{
-		setSizeTriggers (triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
+		setSizeTriggers(triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
 	}
 
 	bool
-	startup (ct::Module* module);
+	startup(ct::Module* module);
 
 	void
-	abort ();
+	abort();
 
 	void
-	beginShutdown ();
+	beginShutdown();
 
 	void
-	finalizeShutdown ();
+	finalizeShutdown();
 
 	void
-	registerMutatorThread (GcMutatorThread* thread);
+	registerMutatorThread(GcMutatorThread* thread);
 
 	void
-	unregisterMutatorThread (GcMutatorThread* thread);
+	unregisterMutatorThread(GcMutatorThread* thread);
 
 	void
-	addStaticRootVariables (
+	addStaticRootVariables(
 		ct::Variable* const* variableArray,
 		size_t count
 		);
 
 	void
-	addStaticRootVariables (const sl::Array <ct::Variable*>& variableArray)
+	addStaticRootVariables(const sl::Array<ct::Variable*>& variableArray)
 	{
-		addStaticRootVariables (variableArray, variableArray.getCount ());
+		addStaticRootVariables(variableArray, variableArray.getCount());
 	}
 
 	void
-	addStaticRoot (
+	addStaticRoot(
 		const void* p,
 		ct::Type* type
 		);
 
 	void
-	addStaticDestructor (StaticDestructFunc* destructFunc);
+	addStaticDestructor(StaticDestructFunc* destructFunc);
 
 	void
-	addStaticClassDestructor (
+	addStaticClassDestructor(
 		DestructFunc* destructFunc,
 		IfaceHdr* iface
 		);
 
 	void
-	enterWaitRegion ();
+	enterWaitRegion();
 
 	void
-	leaveWaitRegion ();
+	leaveWaitRegion();
 
 	void
-	enterNoCollectRegion ();
+	enterNoCollectRegion();
 
 	void
-	leaveNoCollectRegion (bool canCollectNow);
+	leaveNoCollectRegion(bool canCollectNow);
 
 	void
-	safePoint ();
+	safePoint();
 
 	void
-	collect ();
+	collect();
 
 	void
-	setFrameMap (
+	setFrameMap(
 		GcShadowStackFrame* frame,
 		GcShadowStackFrameMap* map,
 		GcShadowStackFrameMapOp op
@@ -294,118 +294,118 @@ public:
 	// marking
 
 	void
-	weakMark (Box* box);
+	weakMark(Box* box);
 
 	void
-	markData (Box* box);
+	markData(Box* box);
 
 	void
-	markClass (Box* box);
+	markClass(Box* box);
 
 	void
-	weakMarkClosureClass (Box* box);
+	weakMarkClosureClass(Box* box);
 
 	void
-	addRoot (
+	addRoot(
 		const void* p,
 		ct::Type* type
 		);
 
 	void
-	addRootArray (
+	addRootArray(
 		const void* p,
 		ct::Type* type,
 		size_t count
 		);
 
 	void
-	handleGuardPageHit (GcMutatorThread* thread);
+	handleGuardPageHit(GcMutatorThread* thread);
 
 	static
 	bool
-	addBoxIfDynamicFrame (Box* box);
+	addBoxIfDynamicFrame(Box* box);
 
 	void
-	addShadowStackFrame (GcShadowStackFrame* frame);
+	addShadowStackFrame(GcShadowStackFrame* frame);
 
 protected:
 	void
-	destructThreadFunc ();
+	destructThreadFunc();
 
 	GcMutatorThread*
-	getCurrentGcMutatorThread ();
+	getCurrentGcMutatorThread();
 
 	bool
-	isCollectionTriggered_l ();
+	isCollectionTriggered_l();
 
 	bool
-	waitIdleAndLock (); // return true if this thread is registered mutator thread
+	waitIdleAndLock(); // return true if this thread is registered mutator thread
 
 	void
-	incrementAllocSizeAndLock (size_t size);
+	incrementAllocSizeAndLock(size_t size);
 
 	void
-	incrementAllocSize_l (size_t size);
+	incrementAllocSize_l(size_t size);
 
 	size_t
-	stopTheWorld_l (bool isMutatorThread);
+	stopTheWorld_l(bool isMutatorThread);
 
 	void
-	resumeTheWorld (size_t handshakeCount);
+	resumeTheWorld(size_t handshakeCount);
 
 	void
-	collect_l (bool isMutatorThread);
+	collect_l(bool isMutatorThread);
 
 	void
-	addClassBox_l (Box* box);
+	addClassBox_l(Box* box);
 
 	void
-	addBaseTypeClassFieldBoxes_l (
+	addBaseTypeClassFieldBoxes_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
 		);
 
 	void
-	addClassFieldBoxes_l (
+	addClassFieldBoxes_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
 		);
 
 	void
-	addStaticClassDestructor_l (
+	addStaticClassDestructor_l(
 		DestructFunc* destructFunc,
 		IfaceHdr* iface
 		);
 
 	void
-	addStaticBaseTypeClassFieldDestructors_l (
+	addStaticBaseTypeClassFieldDestructors_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
 		);
 
 	void
-	addStaticClassFieldDestructors_l (
+	addStaticClassFieldDestructors_l(
 		ClassType* type,
 		IfaceHdr* ifaceHdr
 		);
 
 	void
-	markClassFields (Box* box);
+	markClassFields(Box* box);
 
 	void
-	runMarkCycle ();
+	runMarkCycle();
 
 	void
-	runDestructCycle_l ();
+	runDestructCycle_l();
 
 	void
-	parkAtSafePoint (GcMutatorThread* thread);
+	parkAtSafePoint(GcMutatorThread* thread);
 
 	void
-	parkAtSafePoint ();
+	parkAtSafePoint();
 
 	void
-	abortThrow ();
+	abortThrow();
 };
 
 //..............................................................................

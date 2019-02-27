@@ -14,7 +14,7 @@
 
 //..............................................................................
 
-CmdLine::CmdLine ()
+CmdLine::CmdLine()
 {
 	m_flags = JncFlag_Run;
 	m_doxyCommentFlags = 0;
@@ -28,18 +28,18 @@ CmdLine::CmdLine ()
 //..............................................................................
 
 size_t
-parseSizeString (const sl::StringRef& string)
+parseSizeString(const sl::StringRef& string)
 {
-	size_t length = string.getLength ();
+	size_t length = string.getLength();
 	if (!length)
 		return 0;
 
 	size_t multiplier = 1;
 
-	char c = string [length - 1];
-	if (isalpha (c))
+	char c = string[length - 1];
+	if (isalpha(c))
 	{
-		switch (c)
+		switch(c)
 		{
 		case 'K':
 			multiplier = 1024;
@@ -54,25 +54,25 @@ parseSizeString (const sl::StringRef& string)
 		}
 	}
 
-	return strtoul (string.cp (), NULL, 10) * multiplier;
+	return strtoul(string.cp(), NULL, 10) * multiplier;
 }
 
 //..............................................................................
 
 bool
-CmdLineParser::onValue (const sl::StringRef& value)
+CmdLineParser::onValue(const sl::StringRef& value)
 {
-	m_cmdLine->m_fileNameList.insertTail (value);
+	m_cmdLine->m_fileNameList.insertTail(value);
 	return true;
 }
 
 bool
-CmdLineParser::onSwitch (
+CmdLineParser::onSwitch(
 	SwitchKind switchKind,
 	const sl::StringRef& value
 	)
 {
-	switch (switchKind)
+	switch(switchKind)
 	{
 	case CmdLineSwitch_Help:
 		m_cmdLine->m_flags |= JncFlag_Help;
@@ -138,25 +138,25 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_GcAllocSizeTrigger:
-		m_cmdLine->m_gcSizeTriggers.m_allocSizeTrigger = parseSizeString (value);
+		m_cmdLine->m_gcSizeTriggers.m_allocSizeTrigger = parseSizeString(value);
 		break;
 
 	case CmdLineSwitch_GcPeriodSizeTrigger:
-		m_cmdLine->m_gcSizeTriggers.m_periodSizeTrigger = parseSizeString (value);
+		m_cmdLine->m_gcSizeTriggers.m_periodSizeTrigger = parseSizeString(value);
 		break;
 
 	case CmdLineSwitch_StackSizeLimit:
-		m_cmdLine->m_stackSizeLimit = parseSizeString (value);
+		m_cmdLine->m_stackSizeLimit = parseSizeString(value);
 		if (!m_cmdLine->m_stackSizeLimit)
 		{
-			err::setFormatStringError ("invalid stack size '%s'", value.sz ());
+			err::setFormatStringError("invalid stack size '%s'", value.sz ());
 			return false;
 		}
 
 		break;
 
 	case CmdLineSwitch_SourceDir:
-		m_cmdLine->m_sourceDirList.insertTail (value);
+		m_cmdLine->m_sourceDirList.insertTail(value);
 		break;
 
 	case CmdLineSwitch_OutputDir:
@@ -164,11 +164,11 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_ImportDir:
-		m_cmdLine->m_importDirList.insertTail (value);
+		m_cmdLine->m_importDirList.insertTail(value);
 		break;
 
 	case CmdLineSwitch_IgnoreImport:
-		m_cmdLine->m_ignoredImportList.insertTail (value);
+		m_cmdLine->m_ignoredImportList.insertTail(value);
 		break;
 
 	case CmdLineSwitch_IgnoreOpaqueClassTypeInfo:
@@ -176,7 +176,7 @@ CmdLineParser::onSwitch (
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:
-		DoxyCommentMap::Iterator it = DoxyCommentMap::find (value);
+		DoxyCommentMap::Iterator it = DoxyCommentMap::find(value);
 		if (it)
 			m_cmdLine->m_doxyCommentFlags |= it->m_value;
 		break;
@@ -186,52 +186,52 @@ CmdLineParser::onSwitch (
 }
 
 bool
-CmdLineParser::finalize ()
+CmdLineParser::finalize()
 {
-	static char jncSuffix [] = ".jnc";
-	static char doxSuffix [] = ".dox";
+	static char jncSuffix[] = ".jnc";
+	static char doxSuffix[] = ".dox";
 
 	enum
 	{
-		SuffixLength = lengthof (jncSuffix)
+		SuffixLength = lengthof(jncSuffix)
 	};
 
 	bool includeDox = (m_cmdLine->m_flags & JncFlag_Documentation) != 0;
 
-	sl::BoxIterator <sl::String> it = m_cmdLine->m_sourceDirList.getHead ();
+	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
 	for (; it; it++)
 	{
 		sl::String dir = *it;
-		if (dir.isEmpty ())
+		if (dir.isEmpty())
 			continue;
 
-		if (dir [dir.getLength () - 1])
+		if (dir[dir.getLength() - 1])
 			dir += '/';
 
 		io::FileEnumerator fileEnum;
-		bool result = fileEnum.openDir (dir);
+		bool result = fileEnum.openDir(dir);
 		if (!result)
 		{
-			printf ("warning: %s\n", err::getLastErrorDescription ().sz ());
+			printf("warning: %s\n", err::getLastErrorDescription ().sz ());
 			continue;
 		}
 
-		while (fileEnum.hasNextFile ())
+		while (fileEnum.hasNextFile())
 		{
-			sl::String filePath = dir + fileEnum.getNextFileName ();
-			if (io::isDir (filePath))
+			sl::String filePath = dir + fileEnum.getNextFileName();
+			if (io::isDir(filePath))
 				continue;
 
-			size_t length = filePath.getLength ();
+			size_t length = filePath.getLength();
 			if (length < SuffixLength)
 				continue;
 
-			const char* suffix = filePath.sz () + length - SuffixLength;
+			const char* suffix = filePath.sz() + length - SuffixLength;
 
-			if (memcmp (suffix, jncSuffix, SuffixLength) == 0 ||
-				includeDox && memcmp (suffix, doxSuffix, SuffixLength) == 0)
+			if (memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
+				includeDox && memcmp(suffix, doxSuffix, SuffixLength) == 0)
 			{
-				m_cmdLine->m_fileNameList.insertTail (filePath);
+				m_cmdLine->m_fileNameList.insertTail(filePath);
 			}
 		}
 	}
@@ -241,9 +241,9 @@ CmdLineParser::finalize ()
 		JncFlag_Version |
 		JncFlag_StdInSrc
 		)) &&
-		m_cmdLine->m_fileNameList.isEmpty ())
+		m_cmdLine->m_fileNameList.isEmpty())
 	{
-		err::setFormatStringError ("missing input (file-name or --stdin)");
+		err::setFormatStringError("missing input (file-name or --stdin)");
 		return false;
 	}
 

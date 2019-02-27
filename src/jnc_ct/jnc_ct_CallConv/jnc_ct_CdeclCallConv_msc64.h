@@ -21,34 +21,34 @@ namespace ct {
 class CdeclCallConv_msc64: public CallConv
 {
 public:
-	CdeclCallConv_msc64 ()
+	CdeclCallConv_msc64()
 	{
 		m_callConvKind = CallConvKind_Cdecl_msc64;
 	}
 
 	virtual
 	void
-	prepareFunctionType (FunctionType* functionType);
+	prepareFunctionType(FunctionType* functionType);
 
 	virtual
 	void
-	call (
+	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	virtual
 	void
-	ret (
+	ret(
 		Function* function,
 		const Value& value
 		);
 
 	virtual
 	Value
-	getArgValue (
+	getArgValue(
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
@@ -56,11 +56,11 @@ public:
 
 	virtual
 	Value
-	getThisArgValue (Function* function);
+	getThisArgValue(Function* function);
 
 	virtual
 	void
-	createArgVariables (Function* function);
+	createArgVariables(Function* function);
 };
 
 //..............................................................................

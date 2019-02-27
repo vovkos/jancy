@@ -20,39 +20,39 @@ namespace ct {
 //..............................................................................
 
 const char*
-getFunctionPtrTypeKindString (FunctionPtrTypeKind ptrTypeKind)
+getFunctionPtrTypeKindString(FunctionPtrTypeKind ptrTypeKind)
 {
-	static const char* stringTable [FunctionPtrTypeKind__Count] =
+	static const char* stringTable[FunctionPtrTypeKind__Count] =
 	{
 		"closure",  // FunctionPtrTypeKind_Normal = 0,
 		"weak",     // FunctionPtrTypeKind_Weak,
 		"thin",     // FunctionPtrTypeKind_Thin,
 	};
 
-	return (size_t) ptrTypeKind < FunctionPtrTypeKind__Count ?
-		stringTable [ptrTypeKind] :
+	return (size_t)ptrTypeKind < FunctionPtrTypeKind__Count ?
+		stringTable[ptrTypeKind] :
 		"undefined-function-ptr-kind";
 }
 
 //..............................................................................
 
-FunctionPtrType::FunctionPtrType ()
+FunctionPtrType::FunctionPtrType()
 {
 	m_typeKind = TypeKind_FunctionPtr;
 	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
-	m_size = sizeof (FunctionPtr);
+	m_size = sizeof(FunctionPtr);
 	m_targetType = NULL;
 	m_multicastType = NULL;
 }
 
 ClassType*
-FunctionPtrType::getMulticastType ()
+FunctionPtrType::getMulticastType()
 {
-	return m_module->m_typeMgr.getMulticastType (this);
+	return m_module->m_typeMgr.getMulticastType(this);
 }
 
 sl::String
-FunctionPtrType::createSignature (
+FunctionPtrType::createSignature(
 	FunctionType* functionType,
 	TypeKind typeKind,
 	FunctionPtrTypeKind ptrTypeKind,
@@ -61,7 +61,7 @@ FunctionPtrType::createSignature (
 {
 	sl::String signature = typeKind == TypeKind_FunctionRef ? "RF" : "PF";
 
-	switch (ptrTypeKind)
+	switch(ptrTypeKind)
 	{
 	case FunctionPtrTypeKind_Thin:
 		signature += 't';
@@ -72,18 +72,18 @@ FunctionPtrType::createSignature (
 		break;
 	}
 
-	signature += getPtrTypeFlagSignature (flags);
-	signature += functionType->getSignature ();
+	signature += getPtrTypeFlagSignature(flags);
+	signature += functionType->getSignature();
 	return signature;
 }
 
 sl::String
-FunctionPtrType::getTypeModifierString ()
+FunctionPtrType::getTypeModifierString()
 {
 	sl::String string;
 
-	sl::String ptrTypeFlagString = getPtrTypeFlagString (m_flags);
-	if (!ptrTypeFlagString.isEmpty ())
+	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
+	if (!ptrTypeFlagString.isEmpty())
 	{
 		string += ' ';
 		string += ptrTypeFlagString;
@@ -91,26 +91,26 @@ FunctionPtrType::getTypeModifierString ()
 
 	if (m_ptrTypeKind != FunctionPtrTypeKind_Normal)
 	{
-		string += getFunctionPtrTypeKindString (m_ptrTypeKind);
+		string += getFunctionPtrTypeKindString(m_ptrTypeKind);
 		string += ' ';
 	}
 
-	if (!string.isEmpty ())
-		string.chop (1);
+	if (!string.isEmpty())
+		string.chop(1);
 
 	return string;
 }
 
 void
-FunctionPtrType::prepareTypeString ()
+FunctionPtrType::prepareTypeString()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
-	Type* returnType = m_targetType->getReturnType ();
+	TypeStringTuple* tuple = getTypeStringTuple();
+	Type* returnType = m_targetType->getReturnType();
 
-	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
+	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
 
-	sl::String modifierString = getTypeModifierString ();
-	if (!modifierString.isEmpty ())
+	sl::String modifierString = getTypeModifierString();
+	if (!modifierString.isEmpty())
 	{
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += modifierString;
@@ -118,20 +118,20 @@ FunctionPtrType::prepareTypeString ()
 
 	tuple->m_typeStringPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
 
-	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix ();
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
+	tuple->m_typeStringSuffix = m_targetType->getTypeStringSuffix();
+	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
 }
 
 void
-FunctionPtrType::prepareDoxyLinkedText ()
+FunctionPtrType::prepareDoxyLinkedText()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
-	Type* returnType = m_targetType->getReturnType ();
+	TypeStringTuple* tuple = getTypeStringTuple();
+	Type* returnType = m_targetType->getReturnType();
 
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
+	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
-	sl::String modifierString = getTypeModifierString ();
-	if (!modifierString.isEmpty ())
+	sl::String modifierString = getTypeModifierString();
+	if (!modifierString.isEmpty())
 	{
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += modifierString;
@@ -139,71 +139,71 @@ FunctionPtrType::prepareDoxyLinkedText ()
 
 	tuple->m_doxyLinkedTextPrefix += m_typeKind == TypeKind_FunctionRef ? " function&" : " function*";
 
-	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix ();
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
+	tuple->m_doxyLinkedTextSuffix = m_targetType->getDoxyLinkedTextSuffix();
+	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
 }
 
 void
-FunctionPtrType::prepareDoxyTypeString ()
+FunctionPtrType::prepareDoxyTypeString()
 {
-	Type::prepareDoxyTypeString ();
-	getTypeStringTuple ()->m_doxyTypeString += m_targetType->getDoxyArgString ();
+	Type::prepareDoxyTypeString();
+	getTypeStringTuple()->m_doxyTypeString += m_targetType->getDoxyArgString();
 }
 
 void
-FunctionPtrType::prepareLlvmType ()
+FunctionPtrType::prepareLlvmType()
 {
 	m_llvmType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
-		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmType () :
-		llvm::PointerType::get (m_targetType->getLlvmType (), 0);
+		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmType() :
+		llvm::PointerType::get(m_targetType->getLlvmType(), 0);
 }
 
 void
-FunctionPtrType::prepareLlvmDiType ()
+FunctionPtrType::prepareLlvmDiType()
 {
 	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
-		m_module->m_typeMgr.getStdType (StdType_FunctionPtrStruct)->getLlvmDiType () :
-		m_module->m_llvmDiBuilder.createPointerType (m_targetType);
+		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmDiType() :
+		m_module->m_llvmDiBuilder.createPointerType(m_targetType);
 }
 
 void
-FunctionPtrType::markGcRoots (
+FunctionPtrType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 	)
 {
-	ASSERT (m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak);
+	ASSERT(m_ptrTypeKind == FunctionPtrTypeKind_Normal || m_ptrTypeKind == FunctionPtrTypeKind_Weak);
 
-	FunctionPtr* ptr = (FunctionPtr*) p;
+	FunctionPtr* ptr = (FunctionPtr*)p;
 	if (!ptr->m_closure)
 		return;
 
 	Box* box = ptr->m_closure->m_box;
 	if (m_ptrTypeKind == FunctionPtrTypeKind_Normal)
-		gcHeap->markClass (box);
-	else if (isClassType (box->m_type, ClassTypeKind_FunctionClosure))
-		gcHeap->weakMarkClosureClass (box);
+		gcHeap->markClass(box);
+	else if (isClassType(box->m_type, ClassTypeKind_FunctionClosure))
+		gcHeap->weakMarkClosureClass(box);
 	else  // simple weak closure
-		gcHeap->weakMark (box);
+		gcHeap->weakMark(box);
 }
 
 bool
-FunctionPtrType::calcLayout ()
+FunctionPtrType::calcLayout()
 {
-	bool result = m_targetType->ensureLayout ();
+	bool result = m_targetType->ensureLayout();
 	if (!result)
 		return false;
 
 	// update signature
 
-	sl::String signature = createSignature (
+	sl::String signature = createSignature(
 		m_targetType,
 		m_typeKind,
 		m_ptrTypeKind,
 		m_flags
 		);
 
-	m_module->m_typeMgr.updateTypeSignature (this, signature);
+	m_module->m_typeMgr.updateTypeSignature(this, signature);
 	return true;
 }
 

@@ -11,7 +11,7 @@ enum Protocol
 	I2c,
 }
 
-static char const* const g_protocolNameTable [] =
+static char const* const g_protocolNameTable[] =
 {
 	"SPI",
 	"I2C"

@@ -9,30 +9,30 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	char const* packet = "_[0.36.119.81.150.141]PC|12345";
 
 	jnc.RegexState state;
-	reswitch (state, packet)
+	reswitch(state, packet)
 	{
 	case r"_\?":
-		printf ("echo\n");
+		printf("echo\n");
 		break;
 
 	case r"_\[(\d+\.)*\d+\]":
-		printf ("MAC: %s\n", state.m_match.m_text);
+		printf("MAC: %s\n", state.m_match.m_text);
 
-		reswitch (state, packet + state.m_consumedLength)
+		reswitch(state, packet + state.m_consumedLength)
 		{
 		case r"X(\|.*)?":
-			printf ("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
+			printf("<IONJ-3.4.0>/ec8ec901-bb4b-4468-bfb9-bf482589cc17/test!\n");
 			break;
 
 		case r"PC(\|.*)?":
-			printf ("A*R*/00/&h A:0000,B:0000,PC:00000000,SP:00,FL:Z**/65535\n");
+			printf("A*R*/00/&h A:0000,B:0000,PC:00000000,SP:00,FL:Z**/65535\n");
 			break;
 
 		default:
@@ -48,7 +48,7 @@ int main ()
 	return 0;
 
 catch:
-	printf ("recognition error\n");
+	printf("recognition error\n");
 	return -1;
 }
 

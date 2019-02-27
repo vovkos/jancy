@@ -11,41 +11,41 @@ opaque class Storage
 {
 	char const* autoget property m_directory;
 
-	destruct ();
-	void clear ();
+	destruct();
+	void clear();
 
-	bool readBool (
+	bool readBool(
 		char const* name,
 		bool defaultValue = false
 		)
 	{
-		return readInt (name, defaultValue) != 0;
+		return readInt(name, defaultValue) != 0;
 	}
 
-	void writeBool (
+	void writeBool(
 		char const* name,
 		bool value
 		)
 	{
-		return writeInt (name, value);
+		return writeInt(name, value);
 	}
 
-	int readInt (
+	int readInt(
 		char const* name,
 		int defaultValue = 0
 		);
 
-	void writeInt (
+	void writeInt(
 		char const* name,
 		int value
 		);
 
-	char const* readString (
+	char const* readString(
 		char const* name,
 		char const* defaultValue = null
 		);
 
-	void writeString (
+	void writeString(
 		char const* name,
 		char const* value
 		);

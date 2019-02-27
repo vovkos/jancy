@@ -49,7 +49,7 @@ bitflag enum NamedPipeEvents
 
 	\brief This class provides high-level asynchronous interface for the
 	*server* side of Windows named pipes. Windows named pipes are widely
-	used for IPC (Inter-Process Communications) between applications,
+	used for IPC(Inter-Process Communications) between applications,
 	services and drivers on Windows platform.
 
 	For working from the *client* side of a named pipe, please use `io.File`
@@ -61,7 +61,7 @@ bitflag enum NamedPipeEvents
 	* Open a server-side named pipe with ``open`` method;
 	* Assign IO event handler with ``wait`` method. You would probably also
 	  want to *schedule* your event handler to be run in particular
-	  environment (e.g., in a specific thread) and partially apply some
+	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
 	* When `io.NamedPipeEvents.IncomingConnection` event is fired, accept a
 	  client connection using ``accept`` method;
@@ -104,8 +104,8 @@ opaque class NamedPipe
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens server-side named pipe(s), effectively starting a named pipe
@@ -123,7 +123,7 @@ opaque class NamedPipe
 		function returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (char const* name);
+	bool errorcode open(char const* name);
 
 	/**
 		Closes all previously opened server-side named pipes in the backlog;
@@ -134,10 +134,10 @@ opaque class NamedPipe
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.NamedPipe`` a *disposable* class [#f2]_.
+		Effectively makes ``io.NamedPipe`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
@@ -148,19 +148,19 @@ opaque class NamedPipe
 		client connection, issue ``close`` method on the client file stream
 		object.
 
-		If method fails, ``null`` value is returned [#f1]_.
+		If method fails, ``null`` value is returned[#f1]_.
 	*/
 
-	FileStream* accept ();
+	FileStream* accept();
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		NamedPipeEvents eventMask,
-		function* handler (NamedPipeEvents triggeredEvents)
+		function* handler(NamedPipeEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	NamedPipeEvents errorcode blockingWait (
+	NamedPipeEvents errorcode blockingWait(
 		NamedPipeEvents eventMask,
 		uint_t timeout
 		);

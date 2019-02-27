@@ -11,27 +11,27 @@
 
 class Resource
 {
-	construct ()
+	construct()
 	{
-		printf ("Resource.construct (%p)\n", this);
+		printf("Resource.construct (%p)\n", this);
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("Resource.destruct (%p)\n", this);
+		printf("Resource.destruct (%p)\n", this);
 	}
 
-	close ()
+	close()
 	{
-		printf ("Resource.close (%p)\n", this);
+		printf("Resource.close (%p)\n", this);
 	}
 
 	alias dispose = close;
 }
 
-int main ()
+int main()
 {
-	printf ("main\n");
+	printf("main\n");
 
 	try
 	{
@@ -43,13 +43,13 @@ int main ()
 			return -1;
 
 	catch:
-		printf ("catch 1\n");
+		printf("catch 1\n");
 
 	finally:
-		printf ("finally 1\n");
+		printf("finally 1\n");
 	}
 
-	printf ("hmmm\n");
+	printf("hmmm\n");
 	return 0;
 }
 

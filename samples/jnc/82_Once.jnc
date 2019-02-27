@@ -26,34 +26,34 @@ class C1
 {
 	int m_x;
 
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
-		m_x = rand () % 10;
+		printf("C1.construct ()\n");
+		m_x = rand() % 10;
 	}
 }
 
 //..............................................................................
 
-int foo ()
+int foo()
 {
-	printf ("foo ()\n");
-	return rand () % 10;
+	printf("foo ()\n");
+	return rand() % 10;
 }
 
-initSomethingElse ()
+initSomethingElse()
 {
-	printf ("initSomethingElse ()\n");
+	printf("initSomethingElse ()\n");
 }
 
-baz (int x)
+baz(int x)
 {
-	printf ("baz (%d)\n", x);
+	printf("baz (%d)\n", x);
 }
 
-bar ()
+bar()
 {
-	printf ("bar ()\n");
+	printf("bar ()\n");
 
 	// static variable construction
 
@@ -61,48 +61,48 @@ bar ()
 
 	// static variable initialization
 
-	static int x = foo ();
+	static int x = foo();
 
 	// static variable initialization with 'once' statement
 
-	static int a [3];
+	static int a[3];
 
 	once
 	{
-		printf ("foo.static once\n");
-		for (size_t i = 0; i < countof (a); i++)
-			a [i] = (int) i * 10;
+		printf("foo.static once\n");
+		for (size_t i = 0; i < countof(a); i++)
+			a[i] = (int)i * 10;
 	}
 
 	// call initialization procedure once
 
-	once initSomethingElse ();
+	once initSomethingElse();
 
 	// print values of static variables
 
-	printf ("c.m_x = %d\n", c.m_x);
+	printf("c.m_x = %d\n", c.m_x);
 
-	printf ("x = %d\n", x);
+	printf("x = %d\n", x);
 
-	printf ("a = { ");
+	printf("a = { ");
 
-	for (size_t i = 0; i < countof (a); i++)
-		printf ("%d, ", a [i]);
+	for (size_t i = 0; i < countof(a); i++)
+		printf("%d, ", a [i]);
 
-	printf ("}\n");
+	printf("}\n");
 }
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	bar ();
-	bar ();
-	bar ();
+	bar();
+	bar();
+	bar();
 
 	return 0;
 }

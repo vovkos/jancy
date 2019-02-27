@@ -44,8 +44,8 @@ using namespace axl;
 #include "jnc_Error.h"
 
 #if (_AXL_OS_WIN)
-#	pragma comment (lib, "setupapi.lib")
-#	pragma comment (lib, "iphlpapi.lib")
+#	pragma comment(lib, "setupapi.lib")
+#	pragma comment(lib, "iphlpapi.lib")
 #	include <winioctl.h>
 #elif (_AXL_OS_POSIX)
 #	include <ifaddrs.h>

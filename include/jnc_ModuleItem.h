@@ -41,7 +41,7 @@
 
 	Opaque structure used as a handle to Jancy module item declaration.
 
-	Use functions from the :ref:`Module Item Declaration <cid-module-item-decl>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Module Item Declaration<cid-module-item-decl>` to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -80,7 +80,7 @@ typedef enum jnc_ModuleItemKind jnc_ModuleItemKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getModuleItemKindString (jnc_ModuleItemKind itemKind);
+jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 
 //..............................................................................
 
@@ -128,7 +128,7 @@ typedef enum jnc_StorageKind jnc_StorageKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getStorageKindString (jnc_StorageKind storageKind);
+jnc_getStorageKindString(jnc_StorageKind storageKind);
 
 //..............................................................................
 
@@ -146,49 +146,49 @@ typedef enum jnc_AccessKind jnc_AccessKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getAccessKindString (jnc_AccessKind accessKind);
+jnc_getAccessKindString(jnc_AccessKind accessKind);
 
 //..............................................................................
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItemDecl_getName (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 const char*
-jnc_ModuleItemDecl_getQualifiedName (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 jnc_StorageKind
-jnc_ModuleItemDecl_getStorageKind (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 jnc_AccessKind
-jnc_ModuleItemDecl_getAccessKind (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 jnc_AttributeBlock*
-jnc_ModuleItemDecl_getAttributeBlock (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 jnc_Namespace*
-jnc_ModuleItemDecl_getParentNamespace (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 jnc_Unit*
-jnc_ModuleItemDecl_getParentUnit (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 int
-jnc_ModuleItemDecl_getLine (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 int
-jnc_ModuleItemDecl_getCol (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl);
 
 JNC_EXTERN_C
 size_t
-jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl);
+jnc_ModuleItemDecl_getOffset(jnc_ModuleItemDecl* decl);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -197,63 +197,63 @@ jnc_ModuleItemDecl_getOffset (jnc_ModuleItemDecl* decl);
 struct jnc_ModuleItemDecl
 {
 	const char*
-	getName ()
+	getName()
 	{
-		return jnc_ModuleItemDecl_getName (this);
+		return jnc_ModuleItemDecl_getName(this);
 	}
 
 	const char*
-	getQualifiedName ()
+	getQualifiedName()
 	{
-		return jnc_ModuleItemDecl_getQualifiedName (this);
+		return jnc_ModuleItemDecl_getQualifiedName(this);
 	}
 
 	jnc_StorageKind
-	getStorageKind (jnc_ModuleItemDecl* decl)
+	getStorageKind(jnc_ModuleItemDecl* decl)
 	{
-		return jnc_ModuleItemDecl_getStorageKind (this);
+		return jnc_ModuleItemDecl_getStorageKind(this);
 	}
 
 	jnc_AccessKind
-	getAccessKind ()
+	getAccessKind()
 	{
-		return jnc_ModuleItemDecl_getAccessKind (this);
+		return jnc_ModuleItemDecl_getAccessKind(this);
 	}
 
 	jnc_AttributeBlock*
-	getAttributeBlock ()
+	getAttributeBlock()
 	{
-		return jnc_ModuleItemDecl_getAttributeBlock (this);
+		return jnc_ModuleItemDecl_getAttributeBlock(this);
 	}
 
 	jnc_Namespace*
-	getParentNamespace ()
+	getParentNamespace()
 	{
-		return jnc_ModuleItemDecl_getParentNamespace (this);
+		return jnc_ModuleItemDecl_getParentNamespace(this);
 	}
 
 	jnc_Unit*
-	getParentUnit ()
+	getParentUnit()
 	{
-		return jnc_ModuleItemDecl_getParentUnit (this);
+		return jnc_ModuleItemDecl_getParentUnit(this);
 	}
 
 	int
-	getLine ()
+	getLine()
 	{
-		return jnc_ModuleItemDecl_getLine (this);
+		return jnc_ModuleItemDecl_getLine(this);
 	}
 
 	int
-	getCol ()
+	getCol()
 	{
-		return jnc_ModuleItemDecl_getCol (this);
+		return jnc_ModuleItemDecl_getCol(this);
 	}
 
 	size_t
-	getOffset ()
+	getOffset()
 	{
-		return jnc_ModuleItemDecl_getOffset (this);
+		return jnc_ModuleItemDecl_getOffset(this);
 	}
 
 };
@@ -268,27 +268,27 @@ struct jnc_ModuleItemDecl
 
 JNC_EXTERN_C
 jnc_Module*
-jnc_ModuleItem_getModule (jnc_ModuleItem* item);
+jnc_ModuleItem_getModule(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 jnc_ModuleItemKind
-jnc_ModuleItem_getItemKind (jnc_ModuleItem* item);
+jnc_ModuleItem_getItemKind(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 uint_t
-jnc_ModuleItem_getFlags (jnc_ModuleItem* item);
+jnc_ModuleItem_getFlags(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 jnc_ModuleItemDecl*
-jnc_ModuleItem_getDecl (jnc_ModuleItem* item);
+jnc_ModuleItem_getDecl(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 jnc_Namespace*
-jnc_ModuleItem_getNamespace (jnc_ModuleItem* item);
+jnc_ModuleItem_getNamespace(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_ModuleItem_getType (jnc_ModuleItem* item);
+jnc_ModuleItem_getType(jnc_ModuleItem* item);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -297,39 +297,39 @@ jnc_ModuleItem_getType (jnc_ModuleItem* item);
 struct jnc_ModuleItem
 {
 	jnc_Module*
-	getModule ()
+	getModule()
 	{
-		return jnc_ModuleItem_getModule (this);
+		return jnc_ModuleItem_getModule(this);
 	}
 
 	jnc_ModuleItemKind
-	getItemKind ()
+	getItemKind()
 	{
-		return jnc_ModuleItem_getItemKind (this);
+		return jnc_ModuleItem_getItemKind(this);
 	}
 
 	uint_t
-	getFlags ()
+	getFlags()
 	{
-		return jnc_ModuleItem_getFlags (this);
+		return jnc_ModuleItem_getFlags(this);
 	}
 
 	jnc_ModuleItemDecl*
-	getDecl ()
+	getDecl()
 	{
-		return jnc_ModuleItem_getDecl (this);
+		return jnc_ModuleItem_getDecl(this);
 	}
 
 	jnc_Namespace*
-	getNamespace ()
+	getNamespace()
 	{
-		return jnc_ModuleItem_getNamespace (this);
+		return jnc_ModuleItem_getNamespace(this);
 	}
 
 	jnc_Type*
-	getType ()
+	getType()
 	{
-		return jnc_ModuleItem_getType (this);
+		return jnc_ModuleItem_getType(this);
 	}
 };
 
@@ -339,14 +339,14 @@ struct jnc_ModuleItem
 
 JNC_EXTERN_C
 jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType (
+jnc_verifyModuleItemIsDerivableType(
 	jnc_ModuleItem* item,
 	const char* name
 	);
 
 JNC_EXTERN_C
 jnc_ClassType*
-jnc_verifyModuleItemIsClassType (
+jnc_verifyModuleItemIsClassType(
 	jnc_ModuleItem* item,
 	const char* name
 	);
@@ -385,9 +385,9 @@ const ModuleItemKind
 
 inline
 const char*
-getModuleItemKindString (ModuleItemKind itemKind)
+getModuleItemKindString(ModuleItemKind itemKind)
 {
-	return jnc_getModuleItemKindString (itemKind);
+	return jnc_getModuleItemKindString(itemKind);
 }
 
 //..............................................................................
@@ -428,9 +428,9 @@ const StorageKind
 
 inline
 const char*
-getStorageKindString (StorageKind storageKind)
+getStorageKindString(StorageKind storageKind)
 {
-	return jnc_getStorageKindString (storageKind);
+	return jnc_getStorageKindString(storageKind);
 }
 
 //..............................................................................
@@ -447,31 +447,31 @@ const AccessKind
 
 inline
 const char*
-getAccessKindString (AccessKind accessKind)
+getAccessKindString(AccessKind accessKind)
 {
-	return jnc_getAccessKindString (accessKind);
+	return jnc_getAccessKindString(accessKind);
 }
 
 //..............................................................................
 
 inline
 jnc_DerivableType*
-verifyModuleItemIsDerivableType (
+verifyModuleItemIsDerivableType(
 	ModuleItem* item,
 	const char* name
 	)
 {
-	return jnc_verifyModuleItemIsDerivableType (item, name);
+	return jnc_verifyModuleItemIsDerivableType(item, name);
 }
 
 inline
 jnc_ClassType*
-verifyModuleItemIsClassType (
+verifyModuleItemIsClassType(
 	ModuleItem* item,
 	const char* name
 	)
 {
-	return jnc_verifyModuleItemIsClassType (item, name);
+	return jnc_verifyModuleItemIsClassType(item, name);
 }
 
 //..............................................................................

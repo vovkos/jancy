@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy namespace.
 
-	Use functions from the :ref:`Namespace <cid-namespace>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Namespace<cid-namespace>` to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -56,24 +56,24 @@ typedef enum jnc_NamespaceKind jnc_NamespaceKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getNamespaceKindString (jnc_NamespaceKind namespaceKind);
+jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind);
 
 //..............................................................................
 
 JNC_EXTERN_C
 size_t
-jnc_Namespace_getItemCount (jnc_Namespace* nspace);
+jnc_Namespace_getItemCount(jnc_Namespace* nspace);
 
 JNC_EXTERN_C
 jnc_ModuleItem*
-jnc_Namespace_getItem (
+jnc_Namespace_getItem(
 	jnc_Namespace* nspace,
 	size_t index
 	);
 
 JNC_EXTERN_C
 jnc_Variable*
-jnc_Namespace_findVariable (
+jnc_Namespace_findVariable(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -81,7 +81,7 @@ jnc_Namespace_findVariable (
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_Namespace_findFunction (
+jnc_Namespace_findFunction(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -89,7 +89,7 @@ jnc_Namespace_findFunction (
 
 JNC_EXTERN_C
 jnc_Property*
-jnc_Namespace_findProperty (
+jnc_Namespace_findProperty(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequired
@@ -97,7 +97,7 @@ jnc_Namespace_findProperty (
 
 JNC_EXTERN_C
 jnc_ClassType*
-jnc_Namespace_findClassType (
+jnc_Namespace_findClassType(
 	jnc_Namespace* nspace,
 	const char* name,
 	bool_t isRequire
@@ -109,51 +109,51 @@ jnc_Namespace_findClassType (
 struct jnc_Namespace
 {
 	size_t
-	getItemCount ()
+	getItemCount()
 	{
-		return jnc_Namespace_getItemCount (this);
+		return jnc_Namespace_getItemCount(this);
 	}
 
 	jnc_ModuleItem*
-	getItem (size_t index)
+	getItem(size_t index)
 	{
-		return jnc_Namespace_getItem (this, index);
+		return jnc_Namespace_getItem(this, index);
 	}
 
 	jnc_Variable*
-	findVariable (
+	findVariable(
 		const char* name,
 		bool isRequired = false
 		)
 	{
-		return jnc_Namespace_findVariable (this, name, isRequired);
+		return jnc_Namespace_findVariable(this, name, isRequired);
 	}
 
 	jnc_Function*
-	findFunction (
+	findFunction(
 		const char* name,
 		bool isRequired = false
 		)
 	{
-		return jnc_Namespace_findFunction (this, name, isRequired);
+		return jnc_Namespace_findFunction(this, name, isRequired);
 	}
 
 	jnc_Property*
-	findProperty (
+	findProperty(
 		const char* name,
 		bool isRequired = false
 		)
 	{
-		return jnc_Namespace_findProperty (this, name, isRequired);
+		return jnc_Namespace_findProperty(this, name, isRequired);
 	}
 
 	jnc_ClassType*
-	findClassType (
+	findClassType(
 		const char* name,
 		bool isRequired = false
 		)
 	{
-		return jnc_Namespace_findClassType (this, name, isRequired);
+		return jnc_Namespace_findClassType(this, name, isRequired);
 	}
 };
 #endif // _JNC_CORE
@@ -191,9 +191,9 @@ const NamespaceKind
 
 inline
 const char*
-getNamespaceKindString (NamespaceKind namespaceKind)
+getNamespaceKindString(NamespaceKind namespaceKind)
 {
-	return jnc_getNamespaceKindString (namespaceKind);
+	return jnc_getNamespaceKindString(namespaceKind);
 }
 
 //..............................................................................

@@ -20,17 +20,17 @@ opaque class StatusPane
 
 opaque class StatusBar
 {
-	destruct ();
+	destruct();
 
-	displayMessage (
+	displayMessage(
 		char const* text,
 		uint_t timeout = 3000
 		);
 
 	size_t readonly m_paneCount;
-	StatusPane* const property m_pane (size_t index);
+	StatusPane* const property m_pane(size_t index);
 
-	StatusPane* addPane (
+	StatusPane* addPane(
 		char const* text = null,
 		uint_t width = 0 // 0 = default
 		);

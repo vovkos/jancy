@@ -33,9 +33,9 @@ struct Params
 		int64_t m_d;
 	}
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	Params params;
 	int64_t d = params.m_d;

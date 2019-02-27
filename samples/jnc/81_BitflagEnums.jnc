@@ -63,9 +63,9 @@ bitflag enum OpenFlags: uint8_t
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// enum members must be qualified (unqualified names are not visible)
 
@@ -75,7 +75,7 @@ int main ()
 
 	// color = 0; // <-- error
 
-	printf ("color = %d\n", color);
+	printf("color = %d\n", color);
 
 	// exposed enum members need not be qualified...
 
@@ -89,7 +89,7 @@ int main ()
 
 	// state = 100; // <-- error
 
-	printf ("state = %d\n", state);
+	printf("state = %d\n", state);
 
 	// you can bitwise OR bitflag enum members together
 
@@ -98,7 +98,7 @@ int main ()
 		OpenFlags.Exclusive |
 		OpenFlags.DeleteOnClose;
 
-	printf ("flags = 0x%x\n", flags);
+	printf("flags = 0x%x\n", flags);
 
 	// cast int -> bitflag enum must be explicit...
 

@@ -31,55 +31,55 @@ protected:
 	StructType* m_structType;
 
 public:
-	UnionType ();
+	UnionType();
 
 	StructType*
-	getStructType ()
+	getStructType()
 	{
-		ASSERT (m_structType);
+		ASSERT(m_structType);
 		return m_structType;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		)
 	{
-		ASSERT (false); // unions are POD and hence are never GC roots
+		ASSERT(false); // unions are POD and hence are never GC roots
 	}
 
 protected:
 	virtual
 	StructField*
-	createFieldImpl (
+	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		m_llvmType = getStructType ()->getLlvmType ();
+		m_llvmType = getStructType()->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................

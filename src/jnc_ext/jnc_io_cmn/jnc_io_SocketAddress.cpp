@@ -19,28 +19,28 @@ namespace io {
 //..............................................................................
 
 bool
-SocketAddress::parse (
+SocketAddress::parse(
 	DataPtr selfPtr,
 	DataPtr stringPtr
 	)
 {
 	axl::io::SockAddr sockAddr;
 
-	bool result = sockAddr.parse ((const char*) stringPtr.m_p);
+	bool result = sockAddr.parse((const char*) stringPtr.m_p);
 	if (!result)
 		return false;
 
-	((SocketAddress*) selfPtr.m_p)->setSockAddr (sockAddr);
+	((SocketAddress*)selfPtr.m_p)->setSockAddr(sockAddr);
 	return true;
 }
 
 axl::io::SockAddr
-SocketAddress::getSockAddr () const
+SocketAddress::getSockAddr() const
 {
 	axl::io::SockAddr sockAddr;
 
-	ASSERT (sizeof (SocketAddress) == sizeof (sockAddr));
-	memcpy (&sockAddr, this, sizeof (sockAddr));
+	ASSERT(sizeof(SocketAddress) == sizeof(sockAddr));
+	memcpy(&sockAddr, this, sizeof(sockAddr));
 
 	*(uint16_t*) &sockAddr = 0;
 	sockAddr.m_addr.sa_family = m_family == AddressFamily_Ip6 ?
@@ -51,10 +51,10 @@ SocketAddress::getSockAddr () const
 }
 
 void
-SocketAddress::setSockAddr (const axl::io::SockAddr& sockAddr)
+SocketAddress::setSockAddr(const axl::io::SockAddr& sockAddr)
 {
-	ASSERT (sizeof (SocketAddress) == sizeof (sockAddr));
-	memcpy (this, &sockAddr, sizeof (SocketAddress));
+	ASSERT(sizeof(SocketAddress) == sizeof(sockAddr));
+	memcpy(this, &sockAddr, sizeof(SocketAddress));
 
 	m_family = sockAddr.m_addr.sa_family == AF_INET6 ?
 		AddressFamily_Ip6 :
@@ -62,88 +62,88 @@ SocketAddress::setSockAddr (const axl::io::SockAddr& sockAddr)
 }
 
 SocketAddress
-SocketAddress::fromSockAddr (const axl::io::SockAddr& sockAddr)
+SocketAddress::fromSockAddr(const axl::io::SockAddr& sockAddr)
 {
 	SocketAddress socketAddress;
-	socketAddress.setSockAddr (sockAddr);
+	socketAddress.setSockAddr(sockAddr);
 	return socketAddress;
 }
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	Address_ip4,
 	"io.Address_ip4",
 	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip4
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip4)
-	JNC_MAP_FUNCTION ("parse",     &Address_ip4::parse)
-	JNC_MAP_FUNCTION ("getString", &Address_ip4::getString)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip4)
+	JNC_MAP_FUNCTION("parse",     &Address_ip4::parse)
+	JNC_MAP_FUNCTION("getString", &Address_ip4::getString)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	Address_ip6,
 	"io.Address_ip6",
 	g_ioLibGuid,
 	IoLibCacheSlot_Address_ip6
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Address_ip6)
-	JNC_MAP_FUNCTION ("parse",     &Address_ip6::parse)
-	JNC_MAP_FUNCTION ("getString", &Address_ip6::getString)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Address_ip6)
+	JNC_MAP_FUNCTION("parse",     &Address_ip6::parse)
+	JNC_MAP_FUNCTION("getString", &Address_ip6::getString)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	SocketAddress_ip4,
 	"io.SocketAddress_ip4",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip4
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip4)
-	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip4::isEqual)
-	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip4::isMatch)
-	JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip4::parse)
-	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip4::getString)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip4)
+	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip4::isEqual)
+	JNC_MAP_FUNCTION("isMatch",   &SocketAddress_ip4::isMatch)
+	JNC_MAP_FUNCTION("parse",     &SocketAddress_ip4::parse)
+	JNC_MAP_FUNCTION("getString", &SocketAddress_ip4::getString)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	SocketAddress_ip6,
 	"io.SocketAddress_ip6",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress_ip6
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress_ip6)
-	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress_ip6::isEqual)
-	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress_ip6::isMatch)
-	JNC_MAP_FUNCTION ("parse",     &SocketAddress_ip6::parse)
-	JNC_MAP_FUNCTION ("getString", &SocketAddress_ip6::getString)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress_ip6)
+	JNC_MAP_FUNCTION("isEqual",   &SocketAddress_ip6::isEqual)
+	JNC_MAP_FUNCTION("isMatch",   &SocketAddress_ip6::isMatch)
+	JNC_MAP_FUNCTION("parse",     &SocketAddress_ip6::parse)
+	JNC_MAP_FUNCTION("getString", &SocketAddress_ip6::getString)
+JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	SocketAddress,
 	"io.SocketAddress",
 	g_ioLibGuid,
 	IoLibCacheSlot_SocketAddress
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (SocketAddress)
-	JNC_MAP_FUNCTION ("isEqual",   &SocketAddress::isEqual)
-	JNC_MAP_FUNCTION ("isMatch",   &SocketAddress::isMatch)
-	JNC_MAP_FUNCTION ("parse",     &SocketAddress::parse)
-	JNC_MAP_FUNCTION ("getString", &SocketAddress::getString)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(SocketAddress)
+	JNC_MAP_FUNCTION("isEqual",   &SocketAddress::isEqual)
+	JNC_MAP_FUNCTION("isMatch",   &SocketAddress::isMatch)
+	JNC_MAP_FUNCTION("parse",     &SocketAddress::parse)
+	JNC_MAP_FUNCTION("getString", &SocketAddress::getString)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 

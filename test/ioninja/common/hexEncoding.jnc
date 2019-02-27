@@ -4,12 +4,12 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-static bool isspace (char c) // we don't have these in the Jancy stdlib yet
+static bool isspace(char c) // we don't have these in the Jancy stdlib yet
 {
 	return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 }
 
-size_t decodeHexString (
+size_t decodeHexString(
 	std.Buffer* buffer,
 	char const* source,
 	size_t length = -1
@@ -22,14 +22,14 @@ size_t decodeHexString (
 	};
 
 	if (length == -1)
-		length = strlen (source);
+		length = strlen(source);
 
 	State state = State.Normal;
 
-	buffer.clear ();
-	buffer.setSize (length / 2); // enough to hold everything
+	buffer.clear();
+	buffer.setSize(length / 2); // enough to hold everything
 
-	char hexCodeString [4] = { 0 };
+	char hexCodeString[4] = { 0 };
 	char const* hexCodeEnd;
 	size_t hexCodeLen;
 
@@ -41,15 +41,15 @@ size_t decodeHexString (
 	size_t size = 0;
 	for (; p < end; p++)
 	{
-		bool isSpace = isspace (*p);
+		bool isSpace = isspace(*p);
 
-		switch (state)
+		switch(state)
 		{
 		case State.Normal:
 			if (isSpace)
 				break;
 
-			hexCodeString [0] = *p;
+			hexCodeString[0] = *p;
 			hexCodeLen = 1;
 			state = State.Hex;
 			break;
@@ -57,16 +57,16 @@ size_t decodeHexString (
 		case State.Hex:
 			if (!isSpace)
 			{
-				hexCodeString [hexCodeLen++] = *p;
+				hexCodeString[hexCodeLen++] = *p;
 				if (hexCodeLen < 2)
 					break;
 			}
 
-			hexCodeString [hexCodeLen] = 0;
-			x = (uchar_t) strtol (hexCodeString, &hexCodeEnd, 16);
+			hexCodeString[hexCodeLen] = 0;
+			x = (uchar_t)strtol(hexCodeString, &hexCodeEnd, 16);
 
-			if (hexCodeEnd == &hexCodeString [hexCodeLen])
-				buffer [size++] = x;
+			if (hexCodeEnd == &hexCodeString[hexCodeLen])
+				buffer[size++] = x;
 			else
 				p = end; // not a hex string anymore, break the loop
 
@@ -77,14 +77,14 @@ size_t decodeHexString (
 
 	if (state == State.Hex)
 	{
-		hexCodeString [hexCodeLen] = 0;
-		x = (uchar_t) strtol (hexCodeString, &hexCodeEnd, 16);
+		hexCodeString[hexCodeLen] = 0;
+		x = (uchar_t)strtol(hexCodeString, &hexCodeEnd, 16);
 
-		if (hexCodeEnd == &hexCodeString [hexCodeLen])
-			buffer [size++] = x;
+		if (hexCodeEnd == &hexCodeString[hexCodeLen])
+			buffer[size++] = x;
 	}
 
-	buffer.setSize (size); // adjust size
+	buffer.setSize(size); // adjust size
 	return size;
 }
 

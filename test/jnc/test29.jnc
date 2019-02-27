@@ -11,40 +11,40 @@
 
 class C1
 {
-	static int m_table [] =
+	static int m_table[] =
 	{
 		10,
 		20,
 		30,
 	}
 
-	static construct ()
+	static construct()
 	{
-		printf ("C1.static construct ()\n");
+		printf("C1.static construct ()\n");
 	}
 
-	preconstruct ()
+	preconstruct()
 	{
-		printf ("C1.preconstruct ()\n");
+		printf("C1.preconstruct ()\n");
 	}
 
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
+		printf("C1.construct ()\n");
 	}
 
-	foo ()
+	foo()
 	{
-		printf ("m_table [0] = %d\n", m_table [0]);
+		printf("m_table [0] = %d\n", m_table [0]);
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	C1 c;
-	c.foo ();
+	c.foo();
 
 	return 0;
 }

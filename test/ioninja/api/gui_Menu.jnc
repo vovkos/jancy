@@ -11,10 +11,10 @@ namespace gui {
 
 opaque class Menu
 {
-	addAction (Action* action);
-	addSeparator ();
+	addAction(Action* action);
+	addSeparator();
 
-	destruct ();
+	destruct();
 }
 
 //..............................................................................

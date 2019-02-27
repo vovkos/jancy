@@ -13,9 +13,9 @@
 // warning suppression (GCC loses warning suppression set up from precompiled headers)
 
 #if (_JNC_CPP_MSC)
-#	pragma warning (disable: 4146) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
-#	pragma warning (disable: 4267) // warning C4267: 'var' : conversion from 'size_t' to 'type', possible loss of data
-#	pragma warning (disable: 4355) // warning C4355: 'this' : used in base member initializer list
+#	pragma warning(disable: 4146) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#	pragma warning(disable: 4267) // warning C4267: 'var' : conversion from 'size_t' to 'type', possible loss of data
+#	pragma warning(disable: 4355) // warning C4355: 'this' : used in base member initializer list
 #endif
 
 #if (_JNC_CPP_GCC)

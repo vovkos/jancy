@@ -21,21 +21,21 @@ namespace ct {
 class BinOp_At: public BinaryOperator
 {
 public:
-	BinOp_At ()
+	BinOp_At()
 	{
 		m_opKind = BinOpKind_At;
 	}
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue

@@ -37,14 +37,14 @@
 
 // LLVM
 
-#pragma warning (disable: 4141) // warning C4141: 'inline' : used more than once
-#pragma warning (disable: 4146) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
-#pragma warning (disable: 4291) // warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
-#pragma warning (disable: 4244) // warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
-#pragma warning (disable: 4267) // warning C4267: 'var' : conversion from 'size_t' to 'type', possible loss of data
-#pragma warning (disable: 4355) // warning C4355: 'this' : used in base member initializer list
-#pragma warning (disable: 4624) // warning C4624: destructor could not be generated because a base class destructor is inaccessible
-#pragma warning (disable: 4800) // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning(disable: 4141) // warning C4141: 'inline' : used more than once
+#pragma warning(disable: 4146) // warning C4146: unary minus operator applied to unsigned type, result still unsigned
+#pragma warning(disable: 4291) // warning C4291: no matching operator delete found; memory will not be freed if initialization throws an exception
+#pragma warning(disable: 4244) // warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
+#pragma warning(disable: 4267) // warning C4267: 'var' : conversion from 'size_t' to 'type', possible loss of data
+#pragma warning(disable: 4355) // warning C4355: 'this' : used in base member initializer list
+#pragma warning(disable: 4624) // warning C4624: destructor could not be generated because a base class destructor is inaccessible
+#pragma warning(disable: 4800) // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
 
 #include "llvm/Config/llvm-config.h"
 
@@ -99,14 +99,14 @@
 #	include "llvm/ExecutionEngine/MCJIT.h"
 #endif
 
-#pragma warning (default: 4141)
-#pragma warning (default: 4146)
-#pragma warning (default: 4291)
-#pragma warning (default: 4244)
-#pragma warning (default: 4267)
-#pragma warning (default: 4355)
-#pragma warning (default: 4624)
-#pragma warning (default: 4800)
+#pragma warning(default: 4141)
+#pragma warning(default: 4146)
+#pragma warning(default: 4291)
+#pragma warning(default: 4244)
+#pragma warning(default: 4267)
+#pragma warning(default: 4355)
+#pragma warning(default: 4624)
+#pragma warning(default: 4800)
 
 //..............................................................................
 
@@ -120,17 +120,17 @@ protected:
 	T* m_p;
 
 public:
-	InitializedPtr ()
+	InitializedPtr()
 	{
 		m_p = NULL;
 	}
 
-	InitializedPtr (T* p)
+	InitializedPtr(T* p)
 	{
 		m_p = p;
 	}
 
-	operator bool () const
+	operator bool() const
 	{
 		return m_p != NULL;
 	}
@@ -138,7 +138,7 @@ public:
 	template <typename T2>
 	operator T2* () const
 	{
-		return (T2*) m_p;
+		return (T2*)m_p;
 	}
 
 	T*
@@ -182,16 +182,16 @@ typedef DIFile DIFile_vn;
 
 #else
 
-typedef InitializedPtr <DIType> DIType_vn;
-typedef InitializedPtr <DICompositeType> DICompositeType_vn;
-typedef InitializedPtr <DISubroutineType> DISubroutineType_vn;
-typedef InitializedPtr <DIGlobalVariable> DIGlobalVariable_vn;
-typedef InitializedPtr <DILocalVariable> DILocalVariable_vn;
-typedef InitializedPtr <DIVariable> DIVariable_vn;
-typedef InitializedPtr <DISubprogram> DISubprogram_vn;
-typedef InitializedPtr <DILexicalBlock> DILexicalBlock_vn;
-typedef InitializedPtr <DIScope> DIScope_vn;
-typedef InitializedPtr <DIFile> DIFile_vn;
+typedef InitializedPtr<DIType> DIType_vn;
+typedef InitializedPtr<DICompositeType> DICompositeType_vn;
+typedef InitializedPtr<DISubroutineType> DISubroutineType_vn;
+typedef InitializedPtr<DIGlobalVariable> DIGlobalVariable_vn;
+typedef InitializedPtr<DILocalVariable> DILocalVariable_vn;
+typedef InitializedPtr<DIVariable> DIVariable_vn;
+typedef InitializedPtr<DISubprogram> DISubprogram_vn;
+typedef InitializedPtr<DILexicalBlock> DILexicalBlock_vn;
+typedef InitializedPtr<DIScope> DIScope_vn;
+typedef InitializedPtr<DIFile> DIFile_vn;
 
 #endif
 
@@ -285,7 +285,7 @@ operator >> (
 	const ToStl*
 	)
 {
-	return std::string (string.cp (), string.getLength ());
+	return std::string(string.cp(), string.getLength());
 }
 
 inline
@@ -295,7 +295,7 @@ operator >> (
 	const ToLlvm*
 	)
 {
-	return llvm::StringRef (string.cp (), string.getLength ());
+	return llvm::StringRef(string.cp(), string.getLength());
 }
 
 //..............................................................................

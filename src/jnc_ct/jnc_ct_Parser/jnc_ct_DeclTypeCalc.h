@@ -34,107 +34,107 @@ class DeclTypeCalc: protected TypeModifiers
 {
 protected:
 	Module* m_module;
-	sl::ConstIterator <DeclSuffix> m_suffix;
+	sl::ConstIterator<DeclSuffix> m_suffix;
 
 public:
-	DeclTypeCalc ()
+	DeclTypeCalc()
 	{
 		m_module = NULL;
 	}
 
 	Type*
-	calcType (
+	calcType(
 		Declarator* declarator,
 		Value* elementCountValue,
 		uint_t* flags
 		)
 	{
-		return calcType (
-			declarator->getBaseType (),
+		return calcType(
+			declarator->getBaseType(),
 			declarator,
-			declarator->getPointerPrefixList (),
-			declarator->getSuffixList (),
+			declarator->getPointerPrefixList(),
+			declarator->getSuffixList(),
 			elementCountValue,
 			flags
 			);
 	}
 
 	Type*
-	calcType (
+	calcType(
 		Type* baseType,
 		TypeModifiers* typeModifiers,
-		const sl::ConstList <DeclPointerPrefix>& pointerPrefixList,
-		const sl::ConstList <DeclSuffix>& suffixList,
+		const sl::ConstList<DeclPointerPrefix>& pointerPrefixList,
+		const sl::ConstList<DeclSuffix>& suffixList,
 		Value* elementCountValue,
 		uint_t* flags
 		);
 
 	Type*
-	calcPtrType (
+	calcPtrType(
 		Type* type,
 		uint_t typeModifiers
 		);
 
 	Type*
-	calcIntModType (
+	calcIntModType(
 		Type* type,
 		uint_t typeModifiers
 		);
 
 	FunctionType*
-	calcPropertyGetterType (Declarator* declarator);
+	calcPropertyGetterType(Declarator* declarator);
 
 protected:
 	bool
-	checkUnusedModifiers ();
+	checkUnusedModifiers();
 
 	bool
-	getPtrTypeFlags (
+	getPtrTypeFlags(
 		Type* type,
 		uint_t* flags
 		);
 
 	uint_t
-	getPropertyFlags ();
+	getPropertyFlags();
 
 	Type*
-	getIntegerType (Type* type);
+	getIntegerType(Type* type);
 
 	ArrayType*
-	getArrayType (Type* elementType);
+	getArrayType(Type* elementType);
 
 	FunctionType*
-	getFunctionType (Type* returnType);
+	getFunctionType(Type* returnType);
 
 	PropertyType*
-	getPropertyType (Type* returnType);
+	getPropertyType(Type* returnType);
 
 	PropertyType*
-	getBindableDataType (Type* dataType);
+	getBindableDataType(Type* dataType);
 
 	ClassType*
-	getMulticastType (Type* leftType);
+	getMulticastType(Type* leftType);
 
 	DataPtrType*
-	getDataPtrType (Type* dataType);
+	getDataPtrType(Type* dataType);
 
 	ClassPtrType*
-	getClassPtrType (ClassType* classType);
+	getClassPtrType(ClassType* classType);
 
 	FunctionPtrType*
-	getFunctionPtrType (FunctionType* functionType);
+	getFunctionPtrType(FunctionType* functionType);
 
 	PropertyPtrType*
-	getPropertyPtrType (PropertyType* propertyType);
+	getPropertyPtrType(PropertyType* propertyType);
 
 	ImportPtrType*
-	getImportPtrType (NamedImportType* importType);
+	getImportPtrType(NamedImportType* importType);
 
 	ImportIntModType*
-	getImportIntModType (NamedImportType* importType);
+	getImportIntModType(NamedImportType* importType);
 
 	Type*
-	prepareReturnType (Type* type);
+	prepareReturnType(Type* type);
 };
 
 //..............................................................................

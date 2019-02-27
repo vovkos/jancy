@@ -21,37 +21,37 @@ namespace ct {
 class UnOp_LogNot: public UnaryOperator
 {
 public:
-	UnOp_LogNot ()
+	UnOp_LogNot()
 	{
 		m_opKind = UnOpKind_LogNot;
 	}
 
 	virtual
 	Type*
-	getResultType (const Value& opValue);
+	getResultType(const Value& opValue);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 protected:
 	bool
-	zeroCmpOperator (
+	zeroCmpOperator(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	ptrOperator (
+	ptrOperator(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	variantOperator (
+	variantOperator(
 		const Value& opValue,
 		Value* resultValue
 		);

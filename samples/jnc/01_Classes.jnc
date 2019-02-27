@@ -20,7 +20,7 @@ class C1
 	// default access mode is public; access can be specified in C++ style...
 
 protected:
-	static int m_table [10];
+	static int m_table[10];
 
 	// ...or in java-style;	in-place field initialization is supported
 
@@ -32,31 +32,31 @@ public:
 
 	// static constructors / destructors
 
-	static construct ();
+	static construct();
 
 	// preconstructors are called before each constructor overload
 	// (similar to Java initializer blocks)
 
-	preconstruct ()
+	preconstruct()
 	{
-		printf ("C1.preconstruct ()\n");
+		printf("C1.preconstruct ()\n");
 	}
 
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
+		printf("C1.construct ()\n");
 	}
 
 	// overloaded constructor
 
-	construct (
+	construct(
 		int x,
 		int y
 		);
 
-	destruct ()
+	destruct()
 	{
-		printf ("C1.destruct ()\n");
+		printf("C1.destruct ()\n");
 	}
 
 	// overloaded '+=' operator
@@ -68,27 +68,27 @@ public:
 
 // implementation of member methods can be out-of-class (like in C++)
 
-C1.static construct ()
+C1.static construct()
 {
-	printf ("C1.static construct ()\n");
+	printf("C1.static construct ()\n");
 
-	for (int i = 0; i < countof (m_table); i++)
-		m_table [i] = i;
+	for (int i = 0; i < countof(m_table); i++)
+		m_table[i] = i;
 }
 
-C1.construct (
+C1.construct(
 	int x,
 	int y
 	)
 {
-	printf ("C1.construct (%d, %d)\n", x, y);
+	printf("C1.construct (%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
 }
 
 C1.operator += (int d)
 {
-	printf ("C1.operator += (%d)\n", d);
+	printf("C1.operator += (%d)\n", d);
 
 	m_x += d;
 	m_y += d;
@@ -98,18 +98,18 @@ C1.operator += (int d)
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// Jancy does not distinguish between reference-types and value-types.
 	// Unlike in Java, when Jancy programmer declares a class variable or a
 	// field he creates an actual object, not a pointer to this object.
 
-	C1 c (100, 200);
+	C1 c(100, 200);
 	c += 1;
 
-	printf ("c = { %d, %d }\n", c.m_x, c.m_y);
+	printf("c = { %d, %d }\n", c.m_x, c.m_y);
 
 	// in Jancy what *is* a pointer, must *look like* a pointer
 

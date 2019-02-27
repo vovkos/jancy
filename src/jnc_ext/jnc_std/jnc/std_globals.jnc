@@ -31,7 +31,7 @@
 		range of string pointer, Jancy string functions behave just like if
 		``0`` was found at the very next byte after the end of allowed range.
 		In other words, it is always assumed that ``0`` could be found at the
-		location ``p + dynamic sizeof (p)`` -- even if the actual byte at this
+		location ``p + dynamic sizeof(p)`` -- even if the actual byte at this
 		location isn't really ``0``.
 
 	\footnote f2
@@ -40,7 +40,7 @@
 		of ``size`` bytes long.
 
 	\footnote f3
-		Note that this function uses ``C`` vararg calling convention (and
+		Note that this function uses ``C`` vararg calling convention(and
 		actually maps directly to libc ``snprintf``). As such, it is
 		**not safe**. It is recommended to use formatting literals instead.
 */
@@ -51,12 +51,12 @@
 /**
 	Calculates and returns the length of the string pointed to by ``p``
 	argument. The length of the string is defined as the number of bytes between
-	the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
+	the beginning of the string ``p`` and the very first ``0`` byte[#f1]_.
 
 	Returns ``0`` if ``p == null``.
 */
 
-size_t strlen (char const* p);
+size_t strlen(char const* p);
 
 /**
 	Performs a case-sensitive lexicographic comparison of two null-terminated
@@ -70,12 +70,12 @@ size_t strlen (char const* p);
 	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
 */
 
-int strcmp (
+int strcmp(
 	char const* p1,
 	char const* p2
 	);
 
-int strncmp (
+int strncmp(
 	char const* p1,
 	char const* p2,
 	size_t length
@@ -93,12 +93,12 @@ int strncmp (
 	Returns ``1`` if ``p1`` appears after ``p2`` in lexographical order.
 */
 
-int stricmp (
+int stricmp(
 	char const* p1,
 	char const* p2
 	);
 
-int strnicmp (
+int strnicmp(
 	char const* p1,
 	char const* p2,
 	size_t length
@@ -121,21 +121,21 @@ int strnicmp (
 	are equal and ``false`` otherwise.
 */
 
-bool streq (
+bool streq(
 	char const* p1,
 	char const* p2
 	)
 {
-	return strcmp (p1, p2) == 0;
+	return strcmp(p1, p2) == 0;
 }
 
-bool strneq (
+bool strneq(
 	char const* p1,
 	char const* p2,
 	size_t length
 	)
 {
-	return strncmp (p1, p2, length) == 0;
+	return strncmp(p1, p2, length) == 0;
 }
 
 /**
@@ -146,29 +146,29 @@ bool strneq (
 	are equal and ``false`` otherwise.
 */
 
-bool strieq (
+bool strieq(
 	char const* p1,
 	char const* p2
 	)
 {
-	return stricmp (p1, p2) == 0;
+	return stricmp(p1, p2) == 0;
 }
 
-bool strnieq (
+bool strnieq(
 	char const* p1,
 	char const* p2,
 	size_t length
 	)
 {
-	return strnicmp (p1, p2, length) == 0;
+	return strnicmp(p1, p2, length) == 0;
 }
 
-char const* strchr (
+char const* strchr(
 	char const* p,
 	char c
 	);
 
-char const* strichr (
+char const* strichr(
 	char const* p,
 	char c
 	);
@@ -184,12 +184,12 @@ char const* strichr (
 	Uses Boyer-Moore algorithm for substring search.
 */
 
-char const* strstr (
+char const* strstr(
 	char const* p1,
 	char const* p2
 	);
 
-char const* stristr (
+char const* stristr(
 	char const* p1,
 	char const* p2
 	);
@@ -198,7 +198,7 @@ char const* stristr (
 	Copies null-terminated string ``src`` to the buffer pointed to by ``dst``.
 */
 
-void strcpy (
+void strcpy(
 	char* dst,
 	char const* src
 	);
@@ -212,7 +212,7 @@ void strcpy (
 	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* errorcode strcat (
+char const* errorcode strcat(
 	char const* p1,
 	char const* p2
 	);
@@ -225,7 +225,7 @@ char const* errorcode strcat (
 	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* errorcode strdup (
+char const* errorcode strdup(
 	char const* p,
 	size_t length = -1
 	);
@@ -234,9 +234,9 @@ char const* errorcode strdup (
 	Calculates a DJB2 hash of null-terminated string ``p``.
 */
 
-size_t strdjb2 (char const* p)
+size_t strdjb2(char const* p)
 {
-	return memdjb2 (p, strlen (p));
+	return memdjb2(p, strlen(p));
 }
 
 /**
@@ -246,7 +246,7 @@ size_t strdjb2 (char const* p)
 	converted to lower-case via `tolower`.
 */
 
-size_t stridjb2 (char const* p);
+size_t stridjb2(char const* p);
 
 /**
 	Performs a case-sensitive lexicographic comparison of two memory blocks
@@ -262,7 +262,7 @@ size_t stridjb2 (char const* p);
 	order.
 */
 
-int memcmp (
+int memcmp(
 	void const* p1,
 	void const* p2,
 	size_t size
@@ -277,7 +277,7 @@ int memcmp (
 	Returns ``null`` if ``c`` is not found.
 */
 
-void const* memchr (
+void const* memchr(
 	void const* p,
 	int c,
 	size_t size
@@ -295,7 +295,7 @@ void const* memchr (
 	Uses Boyer-Moore algorithm for memory block search.
 */
 
-void const* memmem (
+void const* memmem(
 	void const* p1,
 	size_t size1,
 	void const* p2,
@@ -306,18 +306,18 @@ void const* memmem (
 	Copies memory block ``src:size`` [#f2]_ to the buffer pointed to by ``dst``.
 */
 
-void memcpy (
+void memcpy(
 	void* dst,
 	void const* src,
 	size_t size
 	);
 
 /**
-	Moves memory block ``src:size`` [#f2]_ to the (possibly overlapping) buffer
+	Moves memory block ``src:size`` [#f2]_ to the(possibly overlapping) buffer
 	pointed to by ``dst``.
 */
 
-void memmove (
+void memmove(
 	void* dst,
 	void const* src,
 	size_t size
@@ -328,7 +328,7 @@ void memmove (
 	pointed to by ``p``.
 */
 
-void memset (
+void memset(
 	void* p,
 	int c,
 	size_t size
@@ -344,7 +344,7 @@ void memset (
 	allocated.
 */
 
-void* errorcode memcat (
+void* errorcode memcat(
 	void const* p1,
 	size_t size1,
 	void const* p2,
@@ -360,7 +360,7 @@ void* errorcode memcat (
 	allocated.
 */
 
-void* errorcode memdup (
+void* errorcode memdup(
 	void const* p,
 	size_t size
 	);
@@ -369,7 +369,7 @@ void* errorcode memdup (
 	Calculates a DJB2 hash of memory block ``p:size`` [#f2]_.
 */
 
-size_t memdjb2 (
+size_t memdjb2(
 	void const* p,
 	size_t size
 	);
@@ -381,7 +381,7 @@ size_t memdjb2 (
 	Maps directly to standard C function ``rand``.
 */
 
-int rand ();
+int rand();
 
 /**
 	Converts Unicode codepoint ``c`` to upper case.
@@ -389,7 +389,7 @@ int rand ();
 	Returns the resulting Unicode codepoint.
 */
 
-uint32_t toupper (uint32_t c);
+uint32_t toupper(uint32_t c);
 
 /**
 	Converts Unicode codepoint ``c`` to lower case.
@@ -397,7 +397,7 @@ uint32_t toupper (uint32_t c);
 	Returns the resulting Unicode codepoint.
 */
 
-uint32_t tolower (uint32_t c);
+uint32_t tolower(uint32_t c);
 
 /**
 	Parses a string representation of an integer.
@@ -412,7 +412,7 @@ uint32_t tolower (uint32_t c);
 	Returns ``0`` if ``p == null``.
 */
 
-int atoi (char const* p);
+int atoi(char const* p);
 
 /**
 	Parses a string representation of an integer.
@@ -431,7 +431,7 @@ int atoi (char const* p);
 	Returns ``0`` if ``p == null``.
 */
 
-long strtol (
+long strtol(
 	char const* p,
 	char const** end = null,
 	int radix = 10
@@ -445,11 +445,11 @@ long strtol (
 	Length of the string can be discovered using `strlen` or, better, with
 	``dynamic sizeof``::
 
-		char* s = gets ();
-		size_t length = dynamic sizeof (s) - 1;
+		char* s = gets();
+		size_t length = dynamic sizeof(s) - 1;
 */
 
-char* gets ();
+char* gets();
 
 /**
 	Prints text to the standard output stream.
@@ -457,8 +457,8 @@ char* gets ();
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 */
 
-size_t print (char const* text);
-size_t print_u (char const thin* text);
+size_t print(char const* text);
+size_t print_u(char const thin* text);
 
 
 /**
@@ -471,10 +471,10 @@ size_t print_u (char const thin* text);
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 */
 
-size_t perror (char const* text);
+size_t perror(char const* text);
 
 /**
-	Prints formatted output to the standard output stream [#f3]_.
+	Prints formatted output to the standard output stream[#f3]_.
 
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 
@@ -483,7 +483,7 @@ size_t perror (char const* text);
 
 */
 
-intptr_t cdecl printf (
+intptr_t cdecl printf(
 	char const thin* fmtSpecifier,
 	...
 	);
@@ -500,7 +500,7 @@ namespace std {
 /**
 	Composes a string with the same text that would be printed if
 	``fmtSpecifier`` was used in `printf` function, but instead of being
-	printed, the content is stored in a memory buffer [#f3]_.
+	printed, the content is stored in a memory buffer[#f3]_.
 
 	Returns a pointer to null-terminated string containing the newly formatted
 	text.
@@ -510,7 +510,7 @@ namespace std {
 
 */
 
-char const* cdecl errorcode format (
+char const* cdecl errorcode format(
 	char const* fmtSpecifier,
 	...
 	);
@@ -523,7 +523,7 @@ char const* cdecl errorcode format (
 
 	Jancy runtime optimizes access to dynamic structures by caching the
 	calucated offsets of dynamic fields. The cache is stored inside a buffer
-	itself (as part of jnc.Box, not as part of a dynamic pointer). Therefore,
+	itself(as part of jnc.Box, not as part of a dynamic pointer). Therefore,
 	it's necessary to drop this cache if you are about to re-use the same buffer
 	by re-writing it with another block of memory and analyzing it agani with
 	dynamic structures.
@@ -546,21 +546,21 @@ char const* cdecl errorcode format (
 			// ...
 		};
 
-		char buffer [1024];
+		char buffer[1024];
 
-		file.read (buffer, sizeof (buffer));
+		file.read(buffer, sizeof(buffer));
 
 		HeaderA const* a = (HeaderA const*) buffer;
 
 		// access the buffer via dynamic struct A...
 
-		file.read (buffer, sizeof (buffer));
+		file.read(buffer, sizeof(buffer));
 
 		// we need to drop the previous cache -- otherwise,
 		// Jancy runtime will re-use pre-calculated offsets.
 		// that, obviously, will yield wrong resultts (the data is different)
 
-		std.resetDynamicLayout (buffer);
+		std.resetDynamicLayout(buffer);
 
 		HeaderA const* a = (HeaderA const*) buffer;
 
@@ -573,7 +573,7 @@ char const* cdecl errorcode format (
 
 */
 
-void resetDynamicLayout (void const* p);
+void resetDynamicLayout(void const* p);
 
 //..............................................................................
 

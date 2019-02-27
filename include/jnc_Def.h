@@ -134,7 +134,7 @@ typedef jnc::ct::GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
 namespace jnc {
 
 axl::sl::String*
-getTlsStringBuffer ();
+getTlsStringBuffer();
 
 } // namespace jnc
 
@@ -192,7 +192,7 @@ typedef struct jnc_ListLink jnc_ListLink;
 	\brief This struct holds information about a single entry of a doubly linked list.
 	\verbatim
 
-	Whenever something needs to be put on a Jancy list, it must be represented as a struct with ``jnc_ListLink`` memeber field in it. If a list contains entries of non-aggregate type (such as ``int``, or ``void*``), then we have to *box* entry in a struct as such:
+	Whenever something needs to be put on a Jancy list, it must be represented as a struct with ``jnc_ListLink`` memeber field in it. If a list contains entries of non-aggregate type(such as ``int``, or ``void*``), then we have to *box* entry in a struct as such:
 
 	.. code-block:: c
 
@@ -239,7 +239,7 @@ typedef axl::sl::Guid jnc_Guid;
 typedef struct jnc_Guid jnc_Guid;
 
 /**
-	\brief This struct describes a globally unique identifier (GUID).
+	\brief This struct describes a globally unique identifier(GUID).
 	\verbatim
 
 	GUIDs are 128-bit values often used as permanent labels which uniquely identify some sort of information. Creation of GUIDs does not require any significant central coordination.
@@ -271,7 +271,7 @@ struct jnc_Guid
 			uint32_t m_data1;
 			uint16_t m_data2;
 			uint16_t m_data3;
-			uint8_t m_data4 [8];
+			uint8_t m_data4[8];
 		};
 
 		struct
@@ -319,7 +319,7 @@ struct jnc_Guid
 
 		// {384498AC-90AF-4634-B083-2A9B02D62680}
 
-		JNC_DEFINE_GUID (
+		JNC_DEFINE_GUID(
 			g_testLibGuid,
 			0x384498ac, 0x90af, 0x4634, 0xb0, 0x83, 0x2a, 0x9b, 0x2, 0xd6, 0x26, 0x80
 			);
@@ -329,7 +329,7 @@ struct jnc_Guid
 
 #		define JNC_DEFINE_GUID(n, l, s1, s2, b1, b2, b3, b4, b5, b6, b7, b8) \
 			JNC_GUID_SPECIFIER jnc_Guid n = \
-			JNC_GUID_INITIALIZER (l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
+			JNC_GUID_INITIALIZER(l, s1, s2, b1, b2,  b3,  b4,  b5,  b6,  b7,  b8)
 #	endif // _AXL_SL_GUID_H
 
 #	ifdef _AXL_ERR_ERROR_H
@@ -371,7 +371,7 @@ typedef struct jnc_GcSizeTriggers jnc_GcSizeTriggers;
 
 JNC_EXTERN_C
 void
-jnc_initialize (const char* tag);
+jnc_initialize(const char* tag);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -429,9 +429,9 @@ typedef jnc_GcSizeTriggers GcSizeTriggers;
 
 inline
 void
-initialize (const char* tag = NULL)
+initialize(const char* tag = NULL)
 {
-	jnc_initialize (tag);
+	jnc_initialize(tag);
 }
 
 //..............................................................................

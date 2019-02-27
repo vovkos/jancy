@@ -16,38 +16,38 @@
 namespace jnc {
 namespace std {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (HashTable)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(HashTable)
 
 //..............................................................................
 
 typedef
 size_t
-HashFunc (Variant key);
+HashFunc(Variant key);
 
 inline
 size_t
-hashVariant (Variant key)
+hashVariant(Variant key)
 {
-	return key.hash ();
+	return key.hash();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef
 bool
-IsEqualFunc (
+IsEqualFunc(
 	Variant key1,
 	Variant key2
 	);
 
 inline
 bool
-isEqualVariant (
+isEqualVariant(
 	Variant key1,
 	Variant key2
 	)
 {
-	return key1.isEqual (key2);
+	return key1.isEqual(key2);
 }
 
 //..............................................................................
@@ -58,7 +58,7 @@ protected:
 	HashFunc* m_func;
 
 public:
-	HashIndirect (HashFunc* func = NULL)
+	HashIndirect(HashFunc* func = NULL)
 	{
 		m_func = func ? func : hashVariant;
 	}
@@ -66,8 +66,8 @@ public:
 	size_t
 	operator () (const Variant& key) const
 	{
-		ASSERT (m_func);
-		return m_func (key);
+		ASSERT(m_func);
+		return m_func(key);
 	}
 };
 
@@ -79,7 +79,7 @@ protected:
 	IsEqualFunc* m_func;
 
 public:
-	IsEqualIndirect (IsEqualFunc* func = NULL)
+	IsEqualIndirect(IsEqualFunc* func = NULL)
 	{
 		m_func = func ? func : isEqualVariant;
 	}
@@ -90,8 +90,8 @@ public:
 		const Variant& key2
 		) const
 	{
-		ASSERT (m_func);
-		return m_func (key1, key2);
+		ASSERT(m_func);
+		return m_func(key1, key2);
 	}
 };
 
@@ -103,52 +103,52 @@ public:
 	Map m_map;
 
 protected:
-	sl::HashTable <Variant, DataPtr, HashIndirect, IsEqualIndirect> m_hashTable;
+	sl::HashTable<Variant, DataPtr, HashIndirect, IsEqualIndirect> m_hashTable;
 
 public:
-	HashTable (
+	HashTable(
 		HashFunc* hashFunc,
 		IsEqualFunc* isEqualFunc
 		):
-		m_hashTable (HashIndirect (hashFunc), IsEqualIndirect (isEqualFunc))
+		m_hashTable(HashIndirect(hashFunc), IsEqualIndirect(isEqualFunc))
 	{
 	}
 
 	void
 	JNC_CDECL
-	clear ()
+	clear()
 	{
-		m_map.clear ();
-		m_hashTable.clear ();
+		m_map.clear();
+		m_hashTable.clear();
 	}
 
 	static
 	DataPtr
-	visit (
+	visit(
 		HashTable* self,
 		Variant key
 		)
 	{
-		return self->visitImpl (key);
+		return self->visitImpl(key);
 	}
 
 	static
 	DataPtr
-	find (
+	find(
 		HashTable* self,
 		Variant key
 		)
 	{
-		return self->m_hashTable.findValue (key, g_nullPtr);
+		return self->m_hashTable.findValue(key, g_nullPtr);
 	}
 
 	void
 	JNC_CDECL
-	remove (DataPtr entryPtr);
+	remove(DataPtr entryPtr);
 
 protected:
 	DataPtr
-	visitImpl (Variant key);
+	visitImpl(Variant key);
 };
 
 //..............................................................................

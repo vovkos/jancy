@@ -42,95 +42,95 @@ protected:
 	struct ItemCacheEntry: sl::ListLink
 	{
 		sl::Guid m_libGuid;
-		sl::Array <ct::ModuleItem*> m_itemArray;
+		sl::Array<ct::ModuleItem*> m_itemArray;
 	};
 
-	typedef sl::DuckTypeHashTable <sl::Guid, ItemCacheEntry*> ItemCacheMap;
+	typedef sl::DuckTypeHashTable<sl::Guid, ItemCacheEntry*> ItemCacheMap;
 
 protected:
 	ct::Module* m_module;
-	sl::Array <ExtensionLib*> m_libArray;
-	sl::List <DynamicLibEntry> m_dynamicLibList;
-	sl::List <SourceFile> m_sourceFileList;
-	sl::StringHashTable <SourceFile*> m_sourceFileMap;
-	sl::StringHashTable <const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
-	sl::List <ItemCacheEntry> m_itemCache;
+	sl::Array<ExtensionLib*> m_libArray;
+	sl::List<DynamicLibEntry> m_dynamicLibList;
+	sl::List<SourceFile> m_sourceFileList;
+	sl::StringHashTable<SourceFile*> m_sourceFileMap;
+	sl::StringHashTable<const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
+	sl::List<ItemCacheEntry> m_itemCache;
 	ItemCacheMap m_itemCacheMap;
 
 public:
 	sl::String m_dynamicLibraryDir;
 
 public:
-	ExtensionLibMgr ();
+	ExtensionLibMgr();
 
-	~ExtensionLibMgr ()
+	~ExtensionLibMgr()
 	{
-		clear ();
+		clear();
 	}
 
 	ct::Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	void
-	addStaticLib (ExtensionLib* lib);
+	addStaticLib(ExtensionLib* lib);
 
 	bool
-	loadDynamicLib (const sl::StringRef& fileName);
+	loadDynamicLib(const sl::StringRef& fileName);
 
 	bool
-	mapAddresses ();
+	mapAddresses();
 
 	bool
-	findSourceFileContents (
+	findSourceFileContents(
 		const sl::StringRef& fileName,
 		ExtensionLib** lib,
 		sl::StringRef* contents
 		);
 
 	const OpaqueClassTypeInfo*
-	findOpaqueClassTypeInfo (const sl::StringRef& qualifiedName)
+	findOpaqueClassTypeInfo(const sl::StringRef& qualifiedName)
 	{
-		sl::StringHashTableIterator <const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find (qualifiedName);
+		sl::StringHashTableIterator<const OpaqueClassTypeInfo*> it = m_opaqueClassTypeInfoMap.find(qualifiedName);
 		return it ? it->m_value : NULL;
 	}
 
 	ct::ModuleItem*
-	findItem (
+	findItem(
 		const sl::StringRef& name,
 		const sl::Guid& libGuid,
 		size_t cacheSlot
 		);
 
 	void
-	addSource (
+	addSource(
 		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& contents
 		);
 
 	void
-	addOpaqueClassTypeInfo (
+	addOpaqueClassTypeInfo(
 		const sl::StringRef& qualifiedName,
 		const OpaqueClassTypeInfo* info
 		)
 	{
-		m_opaqueClassTypeInfoMap [qualifiedName] = info;
+		m_opaqueClassTypeInfoMap[qualifiedName] = info;
 	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ExtensionLib*
-getStdLib ();
+getStdLib();
 
 ExtensionLib*
-getSysLib ();
+getSysLib();
 
 //..............................................................................
 

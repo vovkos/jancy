@@ -38,117 +38,117 @@ class FunctionMgr
 protected:
 	Module* m_module;
 
-	sl::List <Function> m_functionList;
-	sl::List <Property> m_propertyList;
-	sl::List <PropertyTemplate> m_propertyTemplateList;
-	sl::List <ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
-	sl::List <AsyncFunction> m_asyncFunctionList;
-	sl::List <ThunkFunction> m_thunkFunctionList;
-	sl::List <ThunkProperty> m_thunkPropertyList;
-	sl::List <DataThunkProperty> m_dataThunkPropertyList;
-	sl::List <LazyStdFunction> m_lazyStdFunctionList;
-	sl::StringHashTable <Function*> m_thunkFunctionMap;
-	sl::StringHashTable <Property*> m_thunkPropertyMap;
-	sl::StringHashTable <Function*> m_scheduleLauncherFunctionMap;
-	sl::Array <NamedTypeBlock*> m_staticConstructArray;
+	sl::List<Function> m_functionList;
+	sl::List<Property> m_propertyList;
+	sl::List<PropertyTemplate> m_propertyTemplateList;
+	sl::List<ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
+	sl::List<AsyncFunction> m_asyncFunctionList;
+	sl::List<ThunkFunction> m_thunkFunctionList;
+	sl::List<ThunkProperty> m_thunkPropertyList;
+	sl::List<DataThunkProperty> m_dataThunkPropertyList;
+	sl::List<LazyStdFunction> m_lazyStdFunctionList;
+	sl::StringHashTable<Function*> m_thunkFunctionMap;
+	sl::StringHashTable<Property*> m_thunkPropertyMap;
+	sl::StringHashTable<Function*> m_scheduleLauncherFunctionMap;
+	sl::Array<NamedTypeBlock*> m_staticConstructArray;
 
-	Function* m_stdFunctionArray [StdFunc__Count];
-	LazyStdFunction* m_lazyStdFunctionArray [StdFunc__Count];
-	Property* m_stdPropertyArray [StdProp__Count];
+	Function* m_stdFunctionArray[StdFunc__Count];
+	LazyStdFunction* m_lazyStdFunctionArray[StdFunc__Count];
+	Property* m_stdPropertyArray[StdProp__Count];
 
 	Function* m_currentFunction;
 	Value m_thisValue;
 	Value m_promiseValue;
 
 public:
-	FunctionMgr ();
+	FunctionMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	Function*
-	getCurrentFunction ()
+	getCurrentFunction()
 	{
 		return m_currentFunction;
 	}
 
 	Function*
-	setCurrentFunction (Function* function);
+	setCurrentFunction(Function* function);
 
 	Property*
-	getCurrentProperty ()
+	getCurrentProperty()
 	{
-		return m_currentFunction ? m_currentFunction->getProperty () : NULL;
+		return m_currentFunction ? m_currentFunction->getProperty() : NULL;
 	}
 
 	Value
-	getThisValue ()
+	getThisValue()
 	{
 		return m_thisValue;
 	}
 
 	Value
-	getPromiseValue ()
+	getPromiseValue()
 	{
 		return m_promiseValue;
 	}
 
 	Value
-	overrideThisValue (const Value& value);
+	overrideThisValue(const Value& value);
 
 	void
-	clear ();
+	clear();
 
-	sl::ConstList <Function>
-	getFunctionList ()
+	sl::ConstList<Function>
+	getFunctionList()
 	{
 		return m_functionList;
 	}
 
-	sl::ConstList <Property>
-	getPropertyList ()
+	sl::ConstList<Property>
+	getPropertyList()
 	{
 		return m_propertyList;
 	}
 
-	sl::ConstList <ThunkFunction>
-	getThunkFunctionList ()
+	sl::ConstList<ThunkFunction>
+	getThunkFunctionList()
 	{
 		return m_thunkFunctionList;
 	}
 
-	sl::ConstList <ThunkProperty>
-	getThunkPropertyList ()
+	sl::ConstList<ThunkProperty>
+	getThunkPropertyList()
 	{
 		return m_thunkPropertyList;
 	}
 
-	sl::ConstList <DataThunkProperty>
-	getDataThunkPropertyList ()
+	sl::ConstList<DataThunkProperty>
+	getDataThunkPropertyList()
 	{
 		return m_dataThunkPropertyList;
 	}
 
-	sl::Array <NamedTypeBlock*>
-	getStaticConstructor ()
+	sl::Array<NamedTypeBlock*>
+	getStaticConstructor()
 	{
 		return m_staticConstructArray;
 	}
 
 	void
-	addStaticConstructor (NamedTypeBlock* namedTypeBlock)
+	addStaticConstructor(NamedTypeBlock* namedTypeBlock)
 	{
-		m_staticConstructArray.append (namedTypeBlock);
+		m_staticConstructArray.append(namedTypeBlock);
 	}
 
 	void
-	callStaticConstructors ();
+	callStaticConstructors();
 
 	Function*
-	createFunction (
+	createFunction(
 		FunctionKind functionKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
@@ -157,36 +157,36 @@ public:
 		);
 
 	Function*
-	createFunction (
+	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
 		)
 	{
-		return createFunction (functionKind, sl::String (), sl::String (), sl::String (), type);
+		return createFunction(functionKind, sl::String(), sl::String(), sl::String(), type);
 	}
 
 	Function*
-	createFunction (
+	createFunction(
 		FunctionKind functionKind,
 		const sl::StringRef& tag,
 		FunctionType* type
 		)
 	{
-		return createFunction (functionKind, sl::String (), sl::String (), tag, type);
+		return createFunction(functionKind, sl::String(), sl::String(), tag, type);
 	}
 
 	Function*
-	createFunction (
+	createFunction(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		FunctionType* type
 		)
 	{
-		return createFunction (FunctionKind_Normal, name, qualifiedName, qualifiedName, type);
+		return createFunction(FunctionKind_Normal, name, qualifiedName, qualifiedName, type);
 	}
 
 	Property*
-	createProperty (
+	createProperty(
 		PropertyKind propertyKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
@@ -194,46 +194,46 @@ public:
 		);
 
 	Property*
-	createProperty (PropertyKind propertyKind)
+	createProperty(PropertyKind propertyKind)
 	{
-		return createProperty (propertyKind, sl::String (), sl::String (), sl::String ());
+		return createProperty(propertyKind, sl::String(), sl::String(), sl::String());
 	}
 
 	Property*
-	createProperty (
+	createProperty(
 		PropertyKind propertyKind,
 		const sl::StringRef& tag
 		)
 	{
-		return createProperty (propertyKind, sl::String (), sl::String (), tag);
+		return createProperty(propertyKind, sl::String(), sl::String(), tag);
 	}
 
 	Property*
-	createProperty (
+	createProperty(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
 		)
 	{
-		return createProperty (PropertyKind_Normal, name, qualifiedName, qualifiedName);
+		return createProperty(PropertyKind_Normal, name, qualifiedName, qualifiedName);
 	}
 
 	PropertyTemplate*
-	createPropertyTemplate ();
+	createPropertyTemplate();
 
 	void
-	prologue (
+	prologue(
 		Function* function,
 		const Token::Pos& pos
 		);
 
 	bool
-	epilogue ();
+	epilogue();
 
 	bool
-	fireOnChanged ();
+	fireOnChanged();
 
 	void
-	internalPrologue (
+	internalPrologue(
 		Function* function,
 		Value* argValueArray = NULL,
 		size_t argCount = 0,
@@ -241,77 +241,77 @@ public:
 		);
 
 	void
-	internalEpilogue ();
+	internalEpilogue();
 
 	void
-	injectTlsPrologues ();
+	injectTlsPrologues();
 
 	void
-	replaceAsyncAllocas ();
+	replaceAsyncAllocas();
 
 	bool
-	jitFunctions ();
+	jitFunctions();
 
 	// std functions
 
 	bool
-	isStdFunctionUsed (StdFunc func)
+	isStdFunctionUsed(StdFunc func)
 	{
-		ASSERT (func < StdFunc__Count);
-		return m_stdFunctionArray [func] != NULL;
+		ASSERT(func < StdFunc__Count);
+		return m_stdFunctionArray[func] != NULL;
 	}
 
 	Function*
-	getStdFunction (StdFunc func);
+	getStdFunction(StdFunc func);
 
 	LazyStdFunction*
-	getLazyStdFunction (StdFunc func);
+	getLazyStdFunction(StdFunc func);
 
 	Property*
-	getStdProperty (StdProp prop);
+	getStdProperty(StdProp prop);
 
 	Function*
-	getDirectThunkFunction (
+	getDirectThunkFunction(
 		Function* targetFunction,
 		FunctionType* thunkFunctionType,
 		bool hasUnusedClosure = false
 		);
 
 	Property*
-	getDirectThunkProperty (
+	getDirectThunkProperty(
 		Property* targetProperty,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure = false
 		);
 
 	Property*
-	getDirectDataThunkProperty (
+	getDirectDataThunkProperty(
 		Variable* targetVariable,
 		PropertyType* thunkPropertyType,
 		bool hasUnusedClosure = false
 		);
 
 	Function*
-	getScheduleLauncherFunction (
+	getScheduleLauncherFunction(
 		FunctionPtrType* targetFunctionPtrType,
 		ClassPtrTypeKind schedulerPtrTypeKind = ClassPtrTypeKind_Normal
 		);
 
 	void
-	createThisValue ();
+	createThisValue();
 
 protected:
 	void
-	injectTlsPrologue (Function* function);
+	injectTlsPrologue(Function* function);
 
 	void
-	finalizeFunction (
+	finalizeFunction(
 		Function* function,
 		bool wasNamespaceOpened
 		);
 
 	Function*
-	parseStdFunction (
+	parseStdFunction(
 		StdNamespace stdNamespace,
 		const sl::StringRef& source
 		);

@@ -17,7 +17,7 @@ namespace ct {
 
 //..............................................................................
 
-FunctionArg::FunctionArg ()
+FunctionArg::FunctionArg()
 {
 	m_itemKind = ModuleItemKind_FunctionArg;
 	m_type = NULL;
@@ -25,66 +25,66 @@ FunctionArg::FunctionArg ()
 }
 
 sl::String
-FunctionArg::getArgString ()
+FunctionArg::getArgString()
 {
 	sl::String string;
 
-	string = m_type->getTypeStringPrefix ();
+	string = m_type->getTypeStringPrefix();
 
 	if (m_storageKind == StorageKind_This)
 	{
 		string += " this";
 	}
-	else if (!m_name.isEmpty ())
+	else if (!m_name.isEmpty())
 	{
 		string += ' ';
 		string += m_name;
 	}
 
-	sl::String suffix = m_type->getTypeStringSuffix ();
-	if (!suffix.isEmpty ())
+	sl::String suffix = m_type->getTypeStringSuffix();
+	if (!suffix.isEmpty())
 	{
 		string += ' ';
 		string += suffix;
 	}
 
-	if (!m_initializer.isEmpty ())
+	if (!m_initializer.isEmpty())
 	{
 		string += ' ';
-		string += getInitializerString ();
+		string += getInitializerString();
 	}
 
 	return string;
 }
 
 sl::String
-FunctionArg::getArgDoxyLinkedText ()
+FunctionArg::getArgDoxyLinkedText()
 {
 	sl::String string;
 
-	string = m_type->getDoxyLinkedTextPrefix ();
+	string = m_type->getDoxyLinkedTextPrefix();
 
 	if (m_storageKind == StorageKind_This)
 	{
 		string += " this";
 	}
-	else if (!m_name.isEmpty ())
+	else if (!m_name.isEmpty())
 	{
 		string += ' ';
 		string += m_name;
 	}
 
-	sl::String suffix = m_type->getDoxyLinkedTextSuffix ();
-	if (!suffix.isEmpty ())
+	sl::String suffix = m_type->getDoxyLinkedTextSuffix();
+	if (!suffix.isEmpty())
 	{
 		string += ' ';
 		string += suffix;
 	}
 
-	if (!m_initializer.isEmpty ())
+	if (!m_initializer.isEmpty())
 	{
 		string += ' ';
-		string += getInitializerString ();
+		string += getInitializerString();
 	}
 
 	return string;

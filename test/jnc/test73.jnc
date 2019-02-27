@@ -9,16 +9,16 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	for (int i = 0; i < 10; i++)
 	{
 		if (i & 1)
 			continue;
 
-		printf ("i = %d\n", i);
+		printf("i = %d\n", i);
 	}
 
 	return 0;

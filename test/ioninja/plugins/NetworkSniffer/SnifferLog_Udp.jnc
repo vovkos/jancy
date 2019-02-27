@@ -6,7 +6,7 @@
 //..............................................................................
 
 size_t
-representUdpHdr (
+representUdpHdr(
 	log.RepresenterTarget* target,
 	void const* p,
 	size_t size,
@@ -18,36 +18,36 @@ representUdpHdr (
 {
 	io.UdpHdr const* udpHdr = (io.UdpHdr const*) (p + baseOffset);
 
-	target.addHyperText (std.format (
+	target.addHyperText(std.format(
 		"\e[1mUDP\n"
 		"   \e[90mSRC:      \e^!%d,%d\e[34m%d\n"
 		"   \e[90mDST:      \e^!%d,%d\e[34m%d\n"
 		"   \e[90mLENGTH:   \e^!%d,%d\e[34m%d\n"
 		"   \e[90mCHECKSUM: \e^!%d,%d\e[34m%04Xh",
 
-		baseOffset + offsetof (udpHdr.m_srcPort),
-		sizeof (udpHdr.m_srcPort),
+		baseOffset + offsetof(udpHdr.m_srcPort),
+		sizeof(udpHdr.m_srcPort),
 		udpHdr.m_srcPort,
 
-		baseOffset + offsetof (udpHdr.m_dstPort),
-		sizeof (udpHdr.m_dstPort),
+		baseOffset + offsetof(udpHdr.m_dstPort),
+		sizeof(udpHdr.m_dstPort),
 		udpHdr.m_dstPort,
 
-		baseOffset + offsetof (udpHdr.m_length),
-		sizeof (udpHdr.m_length),
+		baseOffset + offsetof(udpHdr.m_length),
+		sizeof(udpHdr.m_length),
 		udpHdr.m_length,
 
-		baseOffset + offsetof (udpHdr.m_checksum),
-		sizeof (udpHdr.m_checksum),
+		baseOffset + offsetof(udpHdr.m_checksum),
+		sizeof(udpHdr.m_checksum),
 		udpHdr.m_checksum
 		));
 
-	hdrSizeTable [hdrIdx] = sizeof (io.UdpHdr);
-	hdrColorTable [hdrIdx] = SnifferLogHdrColor.Udp;
+	hdrSizeTable[hdrIdx] = sizeof(io.UdpHdr);
+	hdrColorTable[hdrIdx] = SnifferLogHdrColor.Udp;
 	return hdrIdx + 1;
 }
 
-representUdp (
+representUdp(
 	log.RepresenterTarget* target,
 	io.IpHdr const* ipHdr,
 	void const* p,
@@ -57,10 +57,10 @@ representUdp (
 {
 	if (baseOffset + sizeof(io.UdpHdr) > size)
 	{
-		target.addHyperText (std.format (
+		target.addHyperText(std.format(
 			"[\e^+1\e[34m+\e[m] \e[1mUDP \e[10;34m%s\e[m > \e[34m%s\e[m [INVALID SIZE:%d]",
-			formatIpString (ipHdr.m_srcAddress),
-			formatIpString (ipHdr.m_dstAddress),
+			formatIpString(ipHdr.m_srcAddress),
+			formatIpString(ipHdr.m_dstAddress),
 			size
 			));
 
@@ -68,8 +68,8 @@ representUdp (
 	}
 
 	io.UdpHdr const* udpHdr = (io.UdpHdr const*) (p + baseOffset);
-	size_t dataSize = udpHdr.m_length - sizeof (io.UdpHdr);
-	baseOffset += sizeof (io.UdpHdr);
+	size_t dataSize = udpHdr.m_length - sizeof(io.UdpHdr);
+	baseOffset += sizeof(io.UdpHdr);
 
 	char const* lengthString;
 
@@ -83,16 +83,16 @@ representUdp (
 		dataSize = size - baseOffset;
 	}
 
-	target.addHyperText (std.format (
+	target.addHyperText(std.format(
 		"[\e^+1\e[34m+\e[m] \e[1mUDP \e[10;34m%s:%d\e[m > \e[34m%s:%d\e[m (%s)",
-		formatIpString (ipHdr.m_srcAddress),
+		formatIpString(ipHdr.m_srcAddress),
 		udpHdr.m_srcPort,
-		formatIpString (ipHdr.m_dstAddress),
+		formatIpString(ipHdr.m_dstAddress),
 		udpHdr.m_dstPort,
 		lengthString
 		));
 
-	representPacketData (target, p, size, baseOffset, dataSize);
+	representPacketData(target, p, size, baseOffset, dataSize);
 }
 
 //..............................................................................

@@ -26,54 +26,54 @@ class DoxyGroup: public DoxyBlock
 
 protected:
 	sl::String m_name;
-	sl::Array <ModuleItem*> m_itemArray;
-	sl::BoxList <DoxyGroup*> m_groupList;
-	sl::BoxIterator <DoxyGroup*> m_parentGroupListIt;
+	sl::Array<ModuleItem*> m_itemArray;
+	sl::BoxList<DoxyGroup*> m_groupList;
+	sl::BoxIterator<DoxyGroup*> m_parentGroupListIt;
 
 public:
-	DoxyGroup ()
+	DoxyGroup()
 	{
 		m_blockKind = DoxyBlockKind_Group;
 	}
 
 	bool
-	isEmpty ()
+	isEmpty()
 	{
-		return m_itemArray.isEmpty () && m_groupList.isEmpty ();
+		return m_itemArray.isEmpty() && m_groupList.isEmpty();
 	}
 
 	const sl::String&
-	getName ()
+	getName()
 	{
 		return m_name;
 	}
 
-	sl::Array <ModuleItem*>
-	getItemArray ()
+	sl::Array<ModuleItem*>
+	getItemArray()
 	{
 		return m_itemArray;
 	}
 
-	sl::ConstBoxList <DoxyGroup*>
-	getGroupList ()
+	sl::ConstBoxList<DoxyGroup*>
+	getGroupList()
 	{
 		return m_groupList;
 	}
 
 	void
-	addItem (ModuleItem* item)
+	addItem(ModuleItem* item)
 	{
-		m_itemArray.append (item);
+		m_itemArray.append(item);
 	}
 
-	sl::BoxIterator <DoxyGroup*>
-	addGroup (DoxyGroup* group)
+	sl::BoxIterator<DoxyGroup*>
+	addGroup(DoxyGroup* group)
 	{
-		return m_groupList.insertTail (group);
+		return m_groupList.insertTail(group);
 	}
 
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml

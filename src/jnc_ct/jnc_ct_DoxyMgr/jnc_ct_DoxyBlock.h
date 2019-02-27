@@ -45,71 +45,71 @@ protected:
 	sl::String m_detailedDescription;
 	sl::String m_seeAlsoDescription;
 	sl::String m_internalDescription;
-	sl::BoxList <sl::String> m_importList;
-	sl::Array <DoxyBlock*> m_footnoteArray;
+	sl::BoxList<sl::String> m_importList;
+	sl::Array<DoxyBlock*> m_footnoteArray;
 
 public:
-	DoxyBlock ();
+	DoxyBlock();
 
 	DoxyBlockKind
-	getBlockKind ()
+	getBlockKind()
 	{
 		return m_blockKind;
 	}
 
 	DoxyGroup*
-	getGroup ()
+	getGroup()
 	{
 		return m_group;
 	}
 
 	ModuleItem*
-	getItem ()
+	getItem()
 	{
 		return m_item;
 	}
 
 	const sl::String&
-	getRefId ();
+	getRefId();
 
 	const sl::String&
-	getTitle ()
+	getTitle()
 	{
 		return m_title;
 	}
 
 	const sl::String&
-	getBriefDescription ()
+	getBriefDescription()
 	{
 		return m_briefDescription;
 	}
 
 	const sl::String&
-	getDetailedDescription ()
+	getDetailedDescription()
 	{
 		return m_detailedDescription;
 	}
 
 	const sl::String&
-	getSeeAlsoDescription ()
+	getSeeAlsoDescription()
 	{
 		return m_seeAlsoDescription;
 	}
 
 	bool
-	isDescriptionEmpty ()
+	isDescriptionEmpty()
 	{
-		return m_briefDescription.isEmpty () && m_detailedDescription.isEmpty ();
+		return m_briefDescription.isEmpty() && m_detailedDescription.isEmpty();
 	}
 
 	sl::String
-	getDescriptionString ();
+	getDescriptionString();
 
 	sl::String
-	getFootnoteString ();
+	getFootnoteString();
 
 	sl::String
-	getImportString ();
+	getImportString();
 };
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -122,14 +122,14 @@ protected:
 	DoxyBlock* m_parent;
 
 public:
-	DoxyFootnote ()
+	DoxyFootnote()
 	{
 		m_blockKind = DoxyBlockKind_Footnote;
 		m_parent = NULL;
 	}
 
 	DoxyBlock*
-	getParent ()
+	getParent()
 	{
 		return m_parent;
 	}
@@ -138,7 +138,7 @@ public:
 //..............................................................................
 
 void
-appendXmlElementContents (
+appendXmlElementContents(
 	sl::String* string,
 	const sl::StringRef& contents
 	);

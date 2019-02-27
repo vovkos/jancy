@@ -21,7 +21,7 @@ namespace ct {
 class UnOp_Addr: public UnaryOperator
 {
 public:
-	UnOp_Addr ()
+	UnOp_Addr()
 	{
 		m_opKind = UnOpKind_Addr;
 		m_opFlags = OpFlag_KeepRef;
@@ -29,11 +29,11 @@ public:
 
 	virtual
 	Type*
-	getResultType (const Value& opValue);
+	getResultType(const Value& opValue);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		);
@@ -44,18 +44,18 @@ public:
 class UnOp_Indir: public UnaryOperator
 {
 public:
-	UnOp_Indir ()
+	UnOp_Indir()
 	{
 		m_opKind = UnOpKind_Indir;
 	}
 
 	virtual
 	Type*
-	getResultType (const Value& opValue);
+	getResultType(const Value& opValue);
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue,
 		Value* resultValue
 		);

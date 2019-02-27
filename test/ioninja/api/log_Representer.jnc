@@ -87,81 +87,81 @@ opaque class RepresenterTarget
 	LineAttr m_lineAttr;
 	gui.TextAttr m_auxTextAttr; // for dual bin
 
-	void addPart (
+	void addPart(
 		PartKind partKind,
 		uint64_t partCode,
 		void const* p,
 		size_t size
 		);
 
-	void retroColorize (
+	void retroColorize(
 		intptr_t retroOffset,
 		size_t length,
 		gui.TextAttr attr,
 		RetroColorizeFlags flags = 0
 		);
 
-	void addPlainText (
+	void addPlainText(
 		uint64_t partCode,
 		char const* text
 		)
 	{
-		addPart (PartKind.PlainText, partCode, text, strlen (text));
+		addPart(PartKind.PlainText, partCode, text, strlen(text));
 	}
 
-	void addPlainText (char const* text)
+	void addPlainText(char const* text)
 	{
-		addPart (PartKind.PlainText, m_recordCode, text, strlen (text));
+		addPart(PartKind.PlainText, m_recordCode, text, strlen(text));
 	}
 
-	void addHyperText (
+	void addHyperText(
 		uint64_t partCode,
 		char const* text
 		)
 	{
-		addPart (PartKind.HyperText, partCode, text, strlen (text));
+		addPart(PartKind.HyperText, partCode, text, strlen(text));
 	}
 
-	void addHyperText (char const* text)
+	void addHyperText(char const* text)
 	{
-		addPart (PartKind.HyperText, m_recordCode, text, strlen (text));
+		addPart(PartKind.HyperText, m_recordCode, text, strlen(text));
 	}
 
-	void addBin (
+	void addBin(
 		uint64_t partCode,
 		void const* p,
 		size_t size
 		)
 	{
-		addPart (PartKind.Bin, partCode, p, size);
+		addPart(PartKind.Bin, partCode, p, size);
 	}
 
-	void addBin (
+	void addBin(
 		void const* p,
 		size_t size
 		)
 	{
-		addPart (PartKind.Bin, m_recordCode, p, size);
+		addPart(PartKind.Bin, m_recordCode, p, size);
 	}
 
-	void addDualBin (
+	void addDualBin(
 		uint64_t partCode,
 		void const* p1,
 		void const* p2,
 		size_t size
 		)
 	{
-		void const* p = memcat (p1, size, p2, size);
-		addPart (PartKind.DualBin, partCode, p, size * 2);
+		void const* p = memcat(p1, size, p2, size);
+		addPart(PartKind.DualBin, partCode, p, size * 2);
 	}
 
-	void addDualBin (
+	void addDualBin(
 		void const* p1,
 		void const* p2,
 		size_t size
 		)
 	{
-		addDualBin (m_recordCode, p1, p2, size);
+		addDualBin(m_recordCode, p1, p2, size);
 	}
 }
 
@@ -169,7 +169,7 @@ opaque class RepresenterTarget
 
 // each representer must be a pure stateless function (depend ONLY on params)
 
-typedef bool RepresenterFunc (
+typedef bool RepresenterFunc(
 	RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,

@@ -11,47 +11,47 @@
 
 class C
 {
-	construct ()
+	construct()
 	{
-		printf ("C.construct (%p)\n", this);
+		printf("C.construct (%p)\n", this);
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C.destruct (%p)\n", this);
+		printf("C.destruct (%p)\n", this);
 	}
 
-	dispose ()
+	dispose()
 	{
-		printf ("C.dispose (%p)\n", this);
+		printf("C.dispose (%p)\n", this);
 	}
 }
 
-foo ()
+foo()
 {
-	printf ("foo () is about to throw...\n");
-	std.setError ("foo error");
+	printf("foo () is about to throw...\n");
+	std.setError("foo error");
 	throw;
 }
 
-int main ()
+int main()
 {
-	printf ("main\n");
+	printf("main\n");
 
 	disposable C c1;
 
-	foo ();
+	foo();
 
 	disposable C c2;
 
 	return 0;
 
 catch:
-	printf ("main catch\n");
+	printf("main catch\n");
 	return -1;
 
 finally:
-	printf ("main finally\n");
+	printf("main finally\n");
 }
 
 //..............................................................................

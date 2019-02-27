@@ -30,9 +30,9 @@ int autoget property g_foo;
 
 // accessor implementation
 
-g_foo.set (int x)
+g_foo.set(int x)
 {
-	printf ("g_foo.set (%d)\n", x);
+	printf("g_foo.set (%d)\n", x);
 	m_value = x;
 }
 
@@ -40,7 +40,7 @@ g_foo.set (int x)
 
 // simple indexed property
 
-int property g_baz (
+int property g_baz(
 	size_t i,
 	size_t j
 	);
@@ -49,30 +49,30 @@ int property g_baz (
 
 // accessors implementation
 
-int g_baz.get (
+int g_baz.get(
 	size_t i,
 	size_t j
 	)
 {
-	printf ("g_baz.get (%d, %d)\n", i, j);
-	return g_bazTable [i] [j];
+	printf("g_baz.get (%d, %d)\n", i, j);
+	return g_bazTable[i] [j];
 }
 
-g_baz.set (
+g_baz.set(
 	size_t i,
 	size_t j,
 	int x
 	)
 {
-	printf ("g_baz.set (%d, %d, %d)\n", i, j, x);
-	g_bazTable [i] [j] = x;
+	printf("g_baz.set (%d, %d, %d)\n", i, j, x);
+	g_bazTable[i] [j] = x;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // global variable to store the property value
 
-int g_bazTable [2] [2];
+int g_bazTable[2] [2];
 
 //..............................................................................
 
@@ -83,9 +83,9 @@ class C1
 {
 	int autoget property m_bar;
 
-	m_bar.set (int x)
+	m_bar.set(int x)
 	{
-		printf ("C1.m_bar.set (%d)\n", x);
+		printf("C1.m_bar.set (%d)\n", x);
 		m_value = x;
 	}
 }
@@ -94,9 +94,9 @@ class C1
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// thin property pointer is a pointer to the property accessor table
 
@@ -124,12 +124,12 @@ int main ()
 	// use an index operator to capture index arguments in the closure, thus
 	// reducing dimensions of an indexed property or completely de-indexing it
 
-	int property* p4 = &(g_baz [0] [1]);
+	int property* p4 = &(g_baz[0] [1]);
 	*p4 = 300;
 
 	// like with function pointers, it's OK to skip indexes when capturing
 
-	int indexed property* p5 (size_t) = &(g_baz [] [0]);
+	int indexed property* p5(size_t) = &(g_baz[] [0]);
 	(*p5) [1] = 400;
 
 	return 0;

@@ -15,7 +15,7 @@ struct ModbusReadFrame
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	initialize ()
+	initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -24,9 +24,9 @@ struct ModbusReadFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum ()
+	calcChecksum()
 	{
-		updateModbusChecksum (this);
+		updateModbusChecksum(this);
 	}
 }
 
@@ -39,7 +39,7 @@ struct ModbusWriteFrame
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	initialize ()
+	initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -47,9 +47,9 @@ struct ModbusWriteFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum ()
+	calcChecksum()
 	{
-		updateModbusChecksum (this);
+		updateModbusChecksum(this);
 	}
 }
 
@@ -61,7 +61,7 @@ struct ModbusWriteMultipleFrame
 	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
-	initialize ()
+	initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -70,22 +70,22 @@ struct ModbusWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum ()
+	calcChecksum()
 	{
-		updateModbusChecksum (this);
+		updateModbusChecksum(this);
 	}
 }
 
 //..............................................................................
 
-updateModbusChecksum (void* p)
+updateModbusChecksum(void* p)
 {
-	size_t size = dynamic sizeof (p);
+	size_t size = dynamic sizeof(p);
 	if (size < 2)
 		return;
 
 	size -= 2;
-	*(uint16_t*) (p + size) = crc16_ansi (p, size, 0xffff);
+	*(uint16_t*)(p + size) = crc16_ansi(p, size, 0xffff);
 }
 
 //..............................................................................

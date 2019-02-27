@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy variable.
 
-	Use functions from the :ref:`Variable <cid-variable>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Variable<cid-variable>` to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -39,11 +39,11 @@
 
 JNC_EXTERN_C
 bool_t
-jnc_Variable_hasInitializer (jnc_Variable* variable);
+jnc_Variable_hasInitializer(jnc_Variable* variable);
 
 JNC_EXTERN_C
 const char*
-jnc_Variable_getInitializerString_v (jnc_Variable* variable);
+jnc_Variable_getInitializerString_v(jnc_Variable* variable);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -52,15 +52,15 @@ jnc_Variable_getInitializerString_v (jnc_Variable* variable);
 struct jnc_Variable: jnc_ModuleItem
 {
 	bool
-	hasInitializer ()
+	hasInitializer()
 	{
-		return jnc_Variable_hasInitializer (this) != 0;
+		return jnc_Variable_hasInitializer(this) != 0;
 	}
 
 	const char*
-	getInitializerString_v ()
+	getInitializerString_v()
 	{
-		return jnc_Variable_getInitializerString_v (this);
+		return jnc_Variable_getInitializerString_v(this);
 	}
 };
 

@@ -9,7 +9,7 @@ import "ModbusLogRecordCode.jnc"
 
 //..............................................................................
 
-bool representModbusLog (
+bool representModbusLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -17,44 +17,44 @@ bool representModbusLog (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case ModbusLogRecordCode.MasterPacket_Rtu:
-		representModbusRtuAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		representModbusRtuAdu(target, io.ModbusRole.Master, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.SlavePacket_Rtu:
-		representModbusRtuAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		representModbusRtuAdu(target, io.ModbusRole.Slave, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.MasterPacket_Ascii:
-		representModbusAsciiAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		representModbusAsciiAdu(target, io.ModbusRole.Master, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.SlavePacket_Ascii:
-		representModbusAsciiAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		representModbusAsciiAdu(target, io.ModbusRole.Slave, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.MasterPacket_Tcp:
-		representModbusTcpAdu (target, io.ModbusRole.Master, p, size, foldFlags);
+		representModbusTcpAdu(target, io.ModbusRole.Master, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.SlavePacket_Tcp:
-		representModbusTcpAdu (target, io.ModbusRole.Slave, p, size, foldFlags);
+		representModbusTcpAdu(target, io.ModbusRole.Slave, p, size, foldFlags);
 		break;
 
 	case ModbusLogRecordCode.InvalidFunction: // legacy
 		uint8_t code = *(uint8_t const*) p;
 		target.m_lineAttr.m_backColor = gui.StdColor.PastelYellow;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.addHyperText ($"Invalid or unsupported Modbus function: \e[31m0x%(1; 02x)/%1\e[m" (code));
+		target.addHyperText($"Invalid or unsupported Modbus function: \e[31m0x%(1; 02x)/%1\e[m" (code));
 		return true;
 
 	case ModbusLogRecordCode.ParseError:
 		std.Error const* error = (std.Error const*) p;
 		target.m_lineAttr.m_backColor = gui.StdColor.PastelYellow;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.addHyperText ($"Modbus parse error: $(error.m_description)");
+		target.addHyperText($"Modbus parse error: $(error.m_description)");
 		return true;
 
 	default:

@@ -174,47 +174,47 @@ protected:
 
 	// tables
 
-	UnaryOperator* m_unaryOperatorTable [UnOpKind__Count];
-	BinaryOperator* m_binaryOperatorTable [BinOpKind__Count];
-	CastOperator* m_castOperatorTable [TypeKind__Count];
-	CastOperator* m_stdCastOperatorTable [StdCast__Count];
+	UnaryOperator* m_unaryOperatorTable[UnOpKind__Count];
+	BinaryOperator* m_binaryOperatorTable[BinOpKind__Count];
+	CastOperator* m_castOperatorTable[TypeKind__Count];
+	CastOperator* m_stdCastOperatorTable[StdCast__Count];
 
 	// unsafe blocks
 
 	intptr_t m_unsafeEnterCount;
 
 public:
-	OperatorMgr ();
+	OperatorMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	void
-	enterUnsafeRgn ()
+	enterUnsafeRgn()
 	{
 		m_unsafeEnterCount++;
 	}
 
 	void
-	leaveUnsafeRgn ()
+	leaveUnsafeRgn()
 	{
 		m_unsafeEnterCount--;
 	}
 
 	void
-	resetUnsafeRgn ()
+	resetUnsafeRgn()
 	{
 		m_unsafeEnterCount = 0;
 	}
 
 	bool
-	isUnsafeRgn ()
+	isUnsafeRgn()
 	{
 		return m_unsafeEnterCount > 0;
 	}
@@ -222,121 +222,121 @@ public:
 	// load reference, get property, enum->int, bool->int, array->ptr -- unless specified otherwise with Flags
 
 	void
-	prepareOperandType (
+	prepareOperandType(
 		const Value& opValue,
 		Value* resultValue,
 		uint_t opFlags = 0
 		);
 
 	void
-	prepareOperandType (
+	prepareOperandType(
 		Value* opValue,
 		uint_t opFlags = 0
 		)
 	{
-		prepareOperandType (*opValue, opValue, opFlags);
+		prepareOperandType(*opValue, opValue, opFlags);
 	}
 
 	Type*
-	prepareOperandType (
+	prepareOperandType(
 		const Value& opValue,
 		uint_t opFlags = 0
 		);
 
 	bool
-	prepareOperand (
+	prepareOperand(
 		const Value& opValue,
 		Value* resultValue,
 		uint_t opFlags = 0
 		);
 
 	bool
-	prepareOperand (
+	prepareOperand(
 		Value* opValue,
 		uint_t opFlags = 0
 		)
 	{
-		return prepareOperand (*opValue, opValue, opFlags);
+		return prepareOperand(*opValue, opValue, opFlags);
 	}
 
 	bool
-	prepareArgumentReturnValue (Value* value);
+	prepareArgumentReturnValue(Value* value);
 
 	bool
-	prepareDataPtr (
+	prepareDataPtr(
 		const Value& value,
 		Value* resultValue
 		);
 
 	bool
-	prepareDataPtr (Value* value)
+	prepareDataPtr(Value* value)
 	{
-		return prepareDataPtr (*value, value);
+		return prepareDataPtr(*value, value);
 	}
 
 	void
-	prepareArrayRef (
+	prepareArrayRef(
 		const Value& value,
 		Value* resultValue
 		);
 
 	void
-	prepareArrayRef (Value* value)
+	prepareArrayRef(Value* value)
 	{
-		prepareArrayRef (*value, value);
+		prepareArrayRef(*value, value);
 	}
 
 	// unary operators
 
 	Type*
-	getUnaryOperatorResultType (
+	getUnaryOperatorResultType(
 		UnOpKind opKind,
 		const Value& opValue
 		);
 
 	bool
-	getUnaryOperatorResultType (
+	getUnaryOperatorResultType(
 		UnOpKind opKind,
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getUnaryOperatorResultType (
+	getUnaryOperatorResultType(
 		UnOpKind opKind,
 		Value* value
 		)
 	{
-		return getUnaryOperatorResultType (opKind, *value, value);
+		return getUnaryOperatorResultType(opKind, *value, value);
 	}
 
 	bool
-	unaryOperator (
+	unaryOperator(
 		UnOpKind opKind,
 		const Value& opValue,
 		Value* resultValue = NULL
 		);
 
 	bool
-	unaryOperator (
+	unaryOperator(
 		UnOpKind opKind,
 		Value* value
 		)
 	{
-		return unaryOperator (opKind, *value, value);
+		return unaryOperator(opKind, *value, value);
 	}
 
 	// binary operators
 
 	Type*
-	getBinaryOperatorResultType (
+	getBinaryOperatorResultType(
 		BinOpKind opKind,
 		const Value& opValue1,
 		const Value& opValue2
 		);
 
 	bool
-	getBinaryOperatorResultType (
+	getBinaryOperatorResultType(
 		BinOpKind opKind,
 		const Value& opValue1,
 		const Value& opValue2,
@@ -344,17 +344,17 @@ public:
 		);
 
 	bool
-	getBinaryOperatorResultType (
+	getBinaryOperatorResultType(
 		BinOpKind opKind,
 		Value* value,
 		const Value& opValue2
 		)
 	{
-		return getBinaryOperatorResultType (opKind, *value, opValue2, value);
+		return getBinaryOperatorResultType(opKind, *value, opValue2, value);
 	}
 
 	bool
-	binaryOperator (
+	binaryOperator(
 		BinOpKind opKind,
 		const Value& opValue1,
 		const Value& opValue2,
@@ -362,16 +362,7 @@ public:
 		);
 
 	bool
-	logicalOrOperator (
-		BasicBlock* opBlock1,
-		BasicBlock* opBlock2,
-		const Value& opValue1,
-		const Value& opValue2,
-		Value* resultValue = NULL
-		);
-
-	bool
-	logicalAndOperator (
+	logicalOrOperator(
 		BasicBlock* opBlock1,
 		BasicBlock* opBlock2,
 		const Value& opValue1,
@@ -380,54 +371,63 @@ public:
 		);
 
 	bool
-	binaryOperator (
+	logicalAndOperator(
+		BasicBlock* opBlock1,
+		BasicBlock* opBlock2,
+		const Value& opValue1,
+		const Value& opValue2,
+		Value* resultValue = NULL
+		);
+
+	bool
+	binaryOperator(
 		BinOpKind opKind,
 		Value* value,
 		const Value& opValue2
 		)
 	{
-		return binaryOperator (opKind, *value, opValue2, value);
+		return binaryOperator(opKind, *value, opValue2, value);
 	}
 
 	bool
-	logicalOrOperator (
+	logicalOrOperator(
 		BasicBlock* opBlock1,
 		BasicBlock* opBlock2,
 		Value* value,
 		const Value& opValue2
 		)
 	{
-		return logicalOrOperator (opBlock1, opBlock2, *value, opValue2, value);
+		return logicalOrOperator(opBlock1, opBlock2, *value, opValue2, value);
 	}
 
 	bool
-	logicalAndOperator (
+	logicalAndOperator(
 		BasicBlock* opBlock1,
 		BasicBlock* opBlock2,
 		Value* value,
 		const Value& opValue2
 		)
 	{
-		return logicalAndOperator (opBlock1, opBlock2, *value, opValue2, value);
+		return logicalAndOperator(opBlock1, opBlock2, *value, opValue2, value);
 	}
 
 	// conditional operator
 
 	Type*
-	getConditionalOperatorResultType (
+	getConditionalOperatorResultType(
 		const Value& trueValue,
 		const Value& falseValue
 		);
 
 	bool
-	getConditionalOperatorResultType (
+	getConditionalOperatorResultType(
 		const Value& trueValue,
 		const Value& falseValue,
 		Value* resultValue
 		);
 
 	bool
-	conditionalOperator (
+	conditionalOperator(
 		const Value& trueValue,
 		const Value& falseValue,
 		BasicBlock* thenBlock,
@@ -438,83 +438,83 @@ public:
 	// cast operators
 
 	void
-	forceCast (
+	forceCast(
 		const Value& value,
 		Type* type,
 		Value* resultValue
 		);
 
 	void
-	forceCast (
+	forceCast(
 		Value* value,
 		Type* type
 		)
 	{
-		forceCast (*value, type, value);
+		forceCast(*value, type, value);
 	}
 
 	CastOperator*
-	getStdCastOperator (StdCast castKind)
+	getStdCastOperator(StdCast castKind)
 	{
-		ASSERT ((size_t) castKind < StdCast__Count);
-		return m_stdCastOperatorTable [castKind];
+		ASSERT((size_t)castKind < StdCast__Count);
+		return m_stdCastOperatorTable[castKind];
 	}
 
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	bool
-	checkCastKind (
+	checkCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	CastKind
-	getArgCastKind (
+	getArgCastKind(
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
 		size_t argCount
 		);
 
 	CastKind
-	getArgCastKind (
+	getArgCastKind(
 		FunctionType* functionType,
 		const Value* argValueArray,
 		size_t argCount
 		);
 
 	CastKind
-	getArgCastKind (
+	getArgCastKind(
 		FunctionType* functionType,
-		const sl::Array <FunctionArg*>& argArray
+		const sl::Array<FunctionArg*>& argArray
 		)
 	{
-		return getArgCastKind (functionType, argArray, argArray.getCount ());
+		return getArgCastKind(functionType, argArray, argArray.getCount());
 	}
 
 	CastKind
-	getArgCastKind (
+	getArgCastKind(
 		FunctionType* functionType,
-		const sl::ConstBoxList <Value>& argValueList
+		const sl::ConstBoxList<Value>& argValueList
 		);
 
 	CastKind
-	getFunctionCastKind (
+	getFunctionCastKind(
 		FunctionType* srcType,
 		FunctionType* dstType
 		);
 
 	CastKind
-	getPropertyCastKind (
+	getPropertyCastKind(
 		PropertyType* srcType,
 		PropertyType* dstType
 		);
 
 	bool
-	castOperator (
+	castOperator(
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Type* type,
@@ -522,17 +522,17 @@ public:
 		);
 
 	bool
-	castOperator (
+	castOperator(
 		OperatorDynamism dynamism,
 		Value* value,
 		Type* type
 		)
 	{
-		return castOperator (dynamism, *value, type, value);
+		return castOperator(dynamism, *value, type, value);
 	}
 
 	bool
-	castOperator (
+	castOperator(
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		TypeKind typeKind,
@@ -540,185 +540,185 @@ public:
 		);
 
 	bool
-	castOperator (
+	castOperator(
 		OperatorDynamism dynamism,
 		Value* value,
 		TypeKind typeKind
 		)
 	{
-		return castOperator (dynamism, *value, typeKind, value);
+		return castOperator(dynamism, *value, typeKind, value);
 	}
 
 	bool
-	castOperator (
+	castOperator(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue = NULL
 		)
 	{
-		return castOperator (OperatorDynamism_Static, opValue, type, resultValue);
+		return castOperator(OperatorDynamism_Static, opValue, type, resultValue);
 	}
 
 	bool
-	castOperator (
+	castOperator(
 		Value* value,
 		Type* type
 		)
 	{
-		return castOperator (OperatorDynamism_Static, *value, type, value);
+		return castOperator(OperatorDynamism_Static, *value, type, value);
 	}
 
 	bool
-	castOperator (
+	castOperator(
 		const Value& opValue,
 		TypeKind typeKind,
 		Value* resultValue = NULL
 		)
 	{
-		return castOperator (OperatorDynamism_Static, opValue, typeKind, resultValue);
+		return castOperator(OperatorDynamism_Static, opValue, typeKind, resultValue);
 	}
 
 	bool
-	castOperator (
+	castOperator(
 		Value* value,
 		TypeKind typeKind
 		)
 	{
-		return castOperator (OperatorDynamism_Static, *value, typeKind, value);
+		return castOperator(OperatorDynamism_Static, *value, typeKind, value);
 	}
 
 	// sizeof
 
 	bool
-	sizeofOperator (
+	sizeofOperator(
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
 		);
 
 	bool
-	sizeofOperator (
+	sizeofOperator(
 		OperatorDynamism dynamism,
 		Value* value
 		)
 	{
-		return sizeofOperator (dynamism, *value, value);
+		return sizeofOperator(dynamism, *value, value);
 	}
 
 	bool
-	sizeofOperator (
+	sizeofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
 	{
-		return sizeofOperator (OperatorDynamism_Static, opValue, resultValue);
+		return sizeofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	sizeofOperator (Value* value)
+	sizeofOperator(Value* value)
 	{
-		return sizeofOperator (OperatorDynamism_Static, *value, value);
+		return sizeofOperator(OperatorDynamism_Static, *value, value);
 	}
 
 	// countof
 
 	bool
-	countofOperator (
+	countofOperator(
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
 		);
 
 	bool
-	countofOperator (
+	countofOperator(
 		OperatorDynamism dynamism,
 		Value* value
 		)
 	{
-		return countofOperator (dynamism, *value, value);
+		return countofOperator(dynamism, *value, value);
 	}
 
 	bool
-	countofOperator (
+	countofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
 	{
-		return countofOperator (OperatorDynamism_Static, opValue, resultValue);
+		return countofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	countofOperator (Value* value)
+	countofOperator(Value* value)
 	{
-		return countofOperator (OperatorDynamism_Static, *value, value);
+		return countofOperator(OperatorDynamism_Static, *value, value);
 	}
 
 	// typeof
 
 	bool
-	typeofOperator (
+	typeofOperator(
 		OperatorDynamism dynamism,
 		const Value& opValue,
 		Value* resultValue = NULL
 		);
 
 	bool
-	typeofOperator (
+	typeofOperator(
 		OperatorDynamism dynamism,
 		Value* value
 		)
 	{
-		return typeofOperator (dynamism, *value, value);
+		return typeofOperator(dynamism, *value, value);
 	}
 
 	bool
-	typeofOperator (
+	typeofOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
 	{
-		return typeofOperator (OperatorDynamism_Static, opValue, resultValue);
+		return typeofOperator(OperatorDynamism_Static, opValue, resultValue);
 	}
 
 	bool
-	typeofOperator (Value* value)
+	typeofOperator(Value* value)
 	{
-		return typeofOperator (OperatorDynamism_Static, *value, value);
+		return typeofOperator(OperatorDynamism_Static, *value, value);
 	}
 
 	// offsetof
 
 	bool
-	offsetofOperator (
+	offsetofOperator(
 		const Value& value,
 		Value* resultValue
 		);
 
 	bool
-	offsetofOperator (Value* value)
+	offsetofOperator(Value* value)
 	{
-		return offsetofOperator (*value, value);
+		return offsetofOperator(*value, value);
 	}
 
 	// async/await
 
 	bool
-	awaitOperator (
+	awaitOperator(
 		const Value& value,
 		Value* resultValue
 		);
 
 	bool
-	awaitOperator (Value* value)
+	awaitOperator(Value* value)
 	{
-		return awaitOperator (*value, value);
+		return awaitOperator(*value, value);
 	}
 
 	void
-	zeroInitialize (const Value& value);
+	zeroInitialize(const Value& value);
 
 	bool
-	memSet (
+	memSet(
 		const Value& value,
 		char c,
 		size_t size,
@@ -727,7 +727,7 @@ public:
 		);
 
 	bool
-	memCpy (
+	memCpy(
 		StdFunc stdFunc,
 		const Value& dstValue,
 		const Value& srcValue,
@@ -737,7 +737,7 @@ public:
 		);
 
 	bool
-	memCpy (
+	memCpy(
 		const Value& dstValue,
 		const Value& srcValue,
 		size_t size,
@@ -745,11 +745,11 @@ public:
 		bool isVolatile = false
 		)
 	{
-		return memCpy (StdFunc_LlvmMemcpy, dstValue, srcValue, size, alignment, isVolatile);
+		return memCpy(StdFunc_LlvmMemcpy, dstValue, srcValue, size, alignment, isVolatile);
 	}
 
 	bool
-	memMove (
+	memMove(
 		const Value& dstValue,
 		const Value& srcValue,
 		size_t size,
@@ -757,311 +757,311 @@ public:
 		bool isVolatile = false
 		)
 	{
-		return memCpy (StdFunc_LlvmMemmove, dstValue, srcValue, size, alignment, isVolatile);
+		return memCpy(StdFunc_LlvmMemmove, dstValue, srcValue, size, alignment, isVolatile);
 	}
 
 	bool
-	construct (
+	construct(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList = NULL
+		sl::BoxList<Value>* argValueList = NULL
 		);
 
 	bool
-	parseInitializer (
+	parseInitializer(
 		const Value& value,
-		const sl::ConstBoxList <Token>& constructorTokenList,
-		const sl::ConstBoxList <Token>& initializerTokenList
+		const sl::ConstBoxList<Token>& constructorTokenList,
+		const sl::ConstBoxList<Token>& initializerTokenList
 		);
 
 	bool
-	parseFunctionArgDefaultValue (
+	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
-		const sl::ConstBoxList <Token> tokenList,
+		const sl::ConstBoxList<Token> tokenList,
 		Value* resultValue
 		);
 
 	bool
-	parseFunctionArgDefaultValue (
+	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		const Value& thisValue,
-		const sl::ConstBoxList <Token> tokenList,
+		const sl::ConstBoxList<Token> tokenList,
 		Value* resultValue
 		);
 
 	bool
-	parseFunctionArgDefaultValue (
+	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		Closure* closure,
-		const sl::ConstBoxList <Token> tokenList,
+		const sl::ConstBoxList<Token> tokenList,
 		Value* resultValue
 		)
 	{
-		return closure && closure->isMemberClosure () ?
-			parseFunctionArgDefaultValue (decl, closure->getThisArgValue (), tokenList, resultValue) :
-			parseFunctionArgDefaultValue (decl, Value (), tokenList, resultValue);
+		return closure && closure->isMemberClosure() ?
+			parseFunctionArgDefaultValue(decl, closure->getThisArgValue(), tokenList, resultValue) :
+			parseFunctionArgDefaultValue(decl, Value(), tokenList, resultValue);
 	}
 
 	bool
-	parseExpression (
-		const sl::ConstBoxList <Token>& expressionTokenList,
+	parseExpression(
+		const sl::ConstBoxList<Token>& expressionTokenList,
 		uint_t parserFlags,
 		Value* resultValue
 		);
 
 	bool
-	parseExpression (
-		const sl::ConstBoxList <Token>& expressionTokenList,
+	parseExpression(
+		const sl::ConstBoxList<Token>& expressionTokenList,
 		Value* resultValue
 		)
 	{
-		return parseExpression (expressionTokenList, 0, resultValue);
+		return parseExpression(expressionTokenList, 0, resultValue);
 	}
 
 	bool
-	parseConstExpression (
-		const sl::ConstBoxList <Token>& expressionTokenList,
+	parseConstExpression(
+		const sl::ConstBoxList<Token>& expressionTokenList,
 		Value* resultValue
 		);
 
 	bool
-	parseConstIntegerExpression (
-		const sl::ConstBoxList <Token>& expressionTokenList,
+	parseConstIntegerExpression(
+		const sl::ConstBoxList<Token>& expressionTokenList,
 		int64_t* integer
 		);
 
 	size_t
-	parseAutoSizeArrayInitializer (
+	parseAutoSizeArrayInitializer(
 		ArrayType* arrayType,
-		const sl::ConstBoxList <Token>& initializerTokenList
+		const sl::ConstBoxList<Token>& initializerTokenList
 		);
 
 	size_t
-	parseAutoSizeArrayLiteralInitializer (const sl::ConstBoxList <Token>& initializerTokenList);
+	parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>& initializerTokenList);
 
 	size_t
-	parseAutoSizeArrayCurlyInitializer (
+	parseAutoSizeArrayCurlyInitializer(
 		ArrayType* arrayType,
-		const sl::ConstBoxList <Token>& initializerTokenList
+		const sl::ConstBoxList<Token>& initializerTokenList
 		);
 
 	Type*
-	getNewOperatorResultType (Type* type)
+	getNewOperatorResultType(Type* type)
 	{
-		return type->getTypeKind () == TypeKind_Class ?
-			(Type*) ((ClassType*) type)->getClassPtrType () :
-			type->getDataPtrType ();
+		return type->getTypeKind() == TypeKind_Class ?
+			(Type*)((ClassType*)type)->getClassPtrType() :
+			type->getDataPtrType();
 	}
 
 	bool
-	gcHeapAllocate (
+	gcHeapAllocate(
 		Type* type,
 		const Value& rawElementCountValue,
 		Value* resultValue
 		);
 
 	bool
-	gcHeapAllocate (
+	gcHeapAllocate(
 		Type* type,
 		Value* resultValue
 		)
 	{
-		return gcHeapAllocate (type, Value (), resultValue);
+		return gcHeapAllocate(type, Value(), resultValue);
 	}
 
 	bool
-	newOperator (
+	newOperator(
 		Type* type,
 		const Value& elementCountValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	newOperator (
+	newOperator(
 		Type* type,
 		Value* resultValue
 		)
 	{
-		return newOperator (type, Value (), NULL, resultValue);
+		return newOperator(type, Value(), NULL, resultValue);
 	}
 
 	bool
-	newOperator (
+	newOperator(
 		Type* type,
 		const Value& elementCountValue,
 		Value* resultValue
 		)
 	{
-		return newOperator (type, elementCountValue, NULL, resultValue);
+		return newOperator(type, elementCountValue, NULL, resultValue);
 	}
 
 	bool
-	newOperator (
+	newOperator(
 		Type* type,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		)
 	{
-		return newOperator (type, Value (), argValueList, resultValue);
+		return newOperator(type, Value(), argValueList, resultValue);
 	}
 
 	// member operators
 
 	bool
-	createMemberClosure (
+	createMemberClosure(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
 		);
 
 	bool
-	getThisValue (
+	getThisValue(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
 		);
 
 	bool
-	getThisValueType (
+	getThisValueType(
 		Value* value,
 		ModuleItemDecl* itemDecl = NULL
 		);
 
 	bool
-	memberOperator (
+	memberOperator(
 		const Value& opValue,
 		size_t index,
 		Value* resultValue
 		);
 
 	bool
-	memberOperator (
+	memberOperator(
 		Value* value,
 		size_t index
 		)
 	{
-		return memberOperator (*value, index, value);
+		return memberOperator(*value, index, value);
 	}
 
 	bool
-	getMemberOperatorResultType (
+	getMemberOperatorResultType(
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
-	getMemberOperatorResultType (
+	getMemberOperatorResultType(
 		Value* value,
 		const sl::StringRef& name
 		)
 	{
-		return getMemberOperatorResultType (*value, name, value);
+		return getMemberOperatorResultType(*value, name, value);
 	}
 
 	bool
-	memberOperator (
+	memberOperator(
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
-	memberOperator (
+	memberOperator(
 		Value* value,
 		const sl::StringRef& name
 		)
 	{
-		return memberOperator (*value, name, value);
+		return memberOperator(*value, name, value);
 	}
 
 	// call operators
 
 #if (_JNC_DEBUG)
 	void
-	callTraceFunction (
+	callTraceFunction(
 		const sl::StringRef& functionName,
 		const sl::StringRef& string
 		);
 
 	void
-	traceBlock (BasicBlock* block);
+	traceBlock(BasicBlock* block);
 #endif
 
 	Type*
-	getCallOperatorResultType (
+	getCallOperatorResultType(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		);
 
 	bool
-	getCallOperatorResultType (
+	getCallOperatorResultType(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	getCallOperatorResultType (
+	getCallOperatorResultType(
 		Value* value,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		)
 	{
-		return getCallOperatorResultType (*value, argValueList, value);
+		return getCallOperatorResultType(*value, argValueList, value);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue = NULL
 		);
 
 	bool
-	callOperator (
+	callOperator(
 		Value* value,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		)
 	{
-		return callOperator (*value, argValueList, value);
+		return callOperator(*value, argValueList, value);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
 		Value* resultValue = NULL
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		return callOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		return callOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue = NULL
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue);
-		return callOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue);
+		return callOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
 		const Value& argValue1,
 		const Value& argValue2,
 		Value* resultValue = NULL
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue1);
-		argValueList.insertTail (argValue2);
-		return callOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue1);
+		argValueList.insertTail(argValue2);
+		return callOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
 		const Value& argValue1,
 		const Value& argValue2,
@@ -1069,15 +1069,15 @@ public:
 		Value* resultValue = NULL
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue1);
-		argValueList.insertTail (argValue2);
-		argValueList.insertTail (argValue3);
-		return callOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue1);
+		argValueList.insertTail(argValue2);
+		argValueList.insertTail(argValue3);
+		return callOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	callOperator (
+	callOperator(
 		const Value& opValue,
 		const Value& argValue1,
 		const Value& argValue2,
@@ -1086,101 +1086,101 @@ public:
 		Value* resultValue = NULL
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue1);
-		argValueList.insertTail (argValue2);
-		argValueList.insertTail (argValue3);
-		argValueList.insertTail (argValue4);
-		return callOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue1);
+		argValueList.insertTail(argValue2);
+		argValueList.insertTail(argValue3);
+		argValueList.insertTail(argValue4);
+		return callOperator(opValue, &argValueList, resultValue);
 	}
 
 	void
-	gcSafePoint ();
+	gcSafePoint();
 
 	void
-	checkStackOverflow ();
+	checkStackOverflow();
 
 	void
-	checkDivByZero (const Value& value);
+	checkDivByZero(const Value& value);
 
 	// closure operators
 
 	Type*
-	getClosureOperatorResultType (
+	getClosureOperatorResultType(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		);
 
 	bool
-	getClosureOperatorResultType (
+	getClosureOperatorResultType(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	getClosureOperatorResultType (
+	getClosureOperatorResultType(
 		Value* value,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		)
 	{
-		return getClosureOperatorResultType (*value,  argValueList, value);
+		return getClosureOperatorResultType(*value,  argValueList, value);
 	}
 
 	bool
-	closureOperator (
+	closureOperator(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	closureOperator (
+	closureOperator(
 		Value* value,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		)
 	{
-		return closureOperator (*value,  argValueList, value);
+		return closureOperator(*value,  argValueList, value);
 	}
 
 	bool
-	closureOperator (
+	closureOperator(
 		const Value& opValue,
 		Value* resultValue
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		return closureOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		return closureOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	closureOperator (
+	closureOperator(
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue);
-		return closureOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue);
+		return closureOperator(opValue, &argValueList, resultValue);
 	}
 
 	bool
-	closureOperator2 (
+	closureOperator2(
 		const Value& opValue,
 		const Value& argValue1,
 		const Value& argValue2,
 		Value* resultValue
 		)
 	{
-		sl::BoxList <Value> argValueList;
-		argValueList.insertTail (argValue1);
-		argValueList.insertTail (argValue2);
-		return closureOperator (opValue, &argValueList, resultValue);
+		sl::BoxList<Value> argValueList;
+		argValueList.insertTail(argValue1);
+		argValueList.insertTail(argValue2);
+		return closureOperator(opValue, &argValueList, resultValue);
 	}
 
 	Type*
-	getFunctionType (
+	getFunctionType(
 		const Value& opValue,
 		FunctionType* functionType
 		);
@@ -1188,209 +1188,209 @@ public:
 	// property getter
 
 	Type*
-	getPropertyGetterType (const Value& opValue);
+	getPropertyGetterType(const Value& opValue);
 
 	bool
-	getPropertyGetterType (
+	getPropertyGetterType(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyGetterType (Value* value)
+	getPropertyGetterType(Value* value)
 	{
-		return getPropertyGetterType (*value, value);
+		return getPropertyGetterType(*value, value);
 	}
 
 	bool
-	getPropertyGetter (
+	getPropertyGetter(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyGetter (Value* value)
+	getPropertyGetter(Value* value)
 	{
-		return getPropertyGetter (*value, value);
+		return getPropertyGetter(*value, value);
 	}
 
 	// property setter
 
 	Type*
-	getPropertySetterType (
+	getPropertySetterType(
 		const Value& opValue,
 		const Value& argValue
 		);
 
 	bool
-	getPropertySetterType (
+	getPropertySetterType(
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertySetterType (
+	getPropertySetterType(
 		Value* value,
 		const Value& argValue
 		)
 	{
-		return getPropertySetterType (*value, argValue, value);
+		return getPropertySetterType(*value, argValue, value);
 	}
 
 	bool
-	getPropertySetter (
+	getPropertySetter(
 		const Value& opValue,
 		const Value& argValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertySetter (
+	getPropertySetter(
 		Value* value,
 		const Value& argValue
 		)
 	{
-		return getPropertySetter (*value, argValue, value);
+		return getPropertySetter(*value, argValue, value);
 	}
 
 	Type*
-	getPropertySetterType (const Value& opValue)
+	getPropertySetterType(const Value& opValue)
 	{
-		return getPropertySetterType (opValue, Value ());
+		return getPropertySetterType(opValue, Value());
 	}
 
 	bool
-	getPropertySetterType (
+	getPropertySetterType(
 		const Value& opValue,
 		Value* resultValue
 		)
 	{
-		return getPropertySetterType (opValue, Value (), resultValue);
+		return getPropertySetterType(opValue, Value(), resultValue);
 	}
 
 	bool
-	getPropertySetterType (Value* value)
+	getPropertySetterType(Value* value)
 	{
-		return getPropertySetterType (*value, Value (), value);
+		return getPropertySetterType(*value, Value(), value);
 	}
 
 	bool
-	getPropertySetter (
+	getPropertySetter(
 		const Value& opValue,
 		Value* resultValue
 		)
 	{
-		return getPropertySetter (opValue, Value (), resultValue);
+		return getPropertySetter(opValue, Value(), resultValue);
 	}
 
 	bool
-	getPropertySetter (Value* value)
+	getPropertySetter(Value* value)
 	{
-		return getPropertySetter (*value, Value (), value);
+		return getPropertySetter(*value, Value(), value);
 	}
 
 	// property binder
 
 	Type*
-	getPropertyBinderType (const Value& opValue);
+	getPropertyBinderType(const Value& opValue);
 
 	bool
-	getPropertyBinderType (
+	getPropertyBinderType(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyBinderType (Value* value)
+	getPropertyBinderType(Value* value)
 	{
-		return getPropertyBinderType (*value, value);
+		return getPropertyBinderType(*value, value);
 	}
 
 	bool
-	getPropertyBinder (
+	getPropertyBinder(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyBinder (Value* value)
+	getPropertyBinder(Value* value)
 	{
-		return getPropertyBinder (*value, value);
+		return getPropertyBinder(*value, value);
 	}
 
 	// autoget & onchanged
 
 	Type*
-	getPropertyAutoGetValueType (const Value& opValue);
+	getPropertyAutoGetValueType(const Value& opValue);
 
 	bool
-	getPropertyAutoGetValueType (
+	getPropertyAutoGetValueType(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyAutoGetValueType (Value* value)
+	getPropertyAutoGetValueType(Value* value)
 	{
-		return getPropertyAutoGetValueType (*value, value);
+		return getPropertyAutoGetValueType(*value, value);
 	}
 
 	bool
-	getPropertyAutoGetValue (
+	getPropertyAutoGetValue(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyAutoGetValue (Value* value)
+	getPropertyAutoGetValue(Value* value)
 	{
-		return getPropertyAutoGetValue (*value, value);
+		return getPropertyAutoGetValue(*value, value);
 	}
 
 	Type*
-	getPropertyOnChangedType (const Value& opValue);
+	getPropertyOnChangedType(const Value& opValue);
 
 	bool
-	getPropertyOnChangedType (
+	getPropertyOnChangedType(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyOnChangedType (Value* value)
+	getPropertyOnChangedType(Value* value)
 	{
-		return getPropertyOnChangedType (*value, value);
+		return getPropertyOnChangedType(*value, value);
 	}
 
 	bool
-	getPropertyOnChanged (
+	getPropertyOnChanged(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyOnChanged (Value* value)
+	getPropertyOnChanged(Value* value)
 	{
-		return getPropertyOnChanged (*value, value);
+		return getPropertyOnChanged(*value, value);
 	}
 
 	// misc property functions
 
 	bool
-	getProperty (
+	getProperty(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	setProperty (
+	setProperty(
 		const Value& opValue,
 		const Value& srcValue
 		);
 
 	bool
-	getPropertyThinPtr (
+	getPropertyThinPtr(
 		Property* prop,
 		Closure* closure,
 		PropertyPtrType* ptrType,
@@ -1398,29 +1398,29 @@ public:
 		);
 
 	bool
-	getPropertyThinPtr (
+	getPropertyThinPtr(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
 		)
 	{
-		return getPropertyThinPtr (
+		return getPropertyThinPtr(
 			prop,
 			closure,
-			prop->getType ()->getPropertyPtrType (PropertyPtrTypeKind_Thin),
+			prop->getType()->getPropertyPtrType(PropertyPtrTypeKind_Thin),
 			resultValue
 			);
 	}
 
 	bool
-	getPropertyVTable (
+	getPropertyVTable(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyVTable (
+	getPropertyVTable(
 		const Value& opValue,
 		Value* resultValue
 		);
@@ -1428,19 +1428,19 @@ public:
 	// load & store operators
 
 	bool
-	loadDataRef (
+	loadDataRef(
 		const Value& opValue,
 		Value* resultValue
 		);
 
 	bool
-	loadDataRef (Value* value)
+	loadDataRef(Value* value)
 	{
-		return loadDataRef (*value, value);
+		return loadDataRef(*value, value);
 	}
 
 	bool
-	storeDataRef (
+	storeDataRef(
 		const Value& dstValue,
 		const Value& srcValue
 		);
@@ -1448,7 +1448,7 @@ public:
 	// fields
 
 	bool
-	getField (
+	getField(
 		const Value& opValue,
 		StructField* member,
 		MemberCoord* coord,
@@ -1456,26 +1456,26 @@ public:
 		);
 
 	bool
-	getField (
+	getField(
 		const Value& opValue,
 		StructField* member,
 		Value* resultValue
 		)
 	{
-		return getField (opValue, member, NULL, resultValue);
+		return getField(opValue, member, NULL, resultValue);
 	}
 
 	bool
-	getField (
+	getField(
 		Value* value,
 		StructField* member
 		)
 	{
-		return getField (*value, member, NULL, value);
+		return getField(*value, member, NULL, value);
 	}
 
 	bool
-	getPromiseField (
+	getPromiseField(
 		const Value& promiseValue,
 		const sl::String& name,
 		Value* resultValue
@@ -1484,7 +1484,7 @@ public:
 	// impl
 
 	bool
-	getFieldPtrImpl (
+	getFieldPtrImpl(
 		const Value& opValue,
 		MemberCoord* coord,
 		Type* resultType,
@@ -1492,7 +1492,7 @@ public:
 		);
 
 	bool
-	getStructField (
+	getStructField(
 		const Value& opValue,
 		StructField* field,
 		MemberCoord* coord,
@@ -1500,7 +1500,7 @@ public:
 		);
 
 	bool
-	getDynamicStructField (
+	getDynamicStructField(
 		const Value& opValue,
 		DerivableType* type,
 		StructField* field,
@@ -1508,14 +1508,14 @@ public:
 		);
 
 	bool
-	getUnionField (
+	getUnionField(
 		const Value& opValue,
 		StructField* field,
 		Value* resultValue
 		);
 
 	bool
-	getClassField (
+	getClassField(
 		const Value& opValue,
 		StructField* field,
 		MemberCoord* coord,
@@ -1523,7 +1523,7 @@ public:
 		);
 
 	bool
-	getPropertyField (
+	getPropertyField(
 		const Value& opValue,
 		ModuleItem* member,
 		Value* resultValue
@@ -1532,14 +1532,14 @@ public:
 	// misc
 
 	bool
-	getVirtualMethod (
+	getVirtualMethod(
 		Function* function,
 		Closure* closure,
 		Value* resultValue
 		);
 
 	bool
-	getVirtualProperty (
+	getVirtualProperty(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
@@ -1548,7 +1548,7 @@ public:
 	// closures
 
 	bool
-	createClosureObject (
+	createClosureObject(
 		const Value& opValue, // thin function or property ptr with closure
 		Type* thunkType, // function or property type
 		bool isWeak,
@@ -1556,7 +1556,7 @@ public:
 		);
 
 	bool
-	createDataClosureObject (
+	createDataClosureObject(
 		const Value& opValue, // data ptr
 		PropertyType* thunkType, // function or property type
 		Value* resultValue
@@ -1565,7 +1565,7 @@ public:
 	// pointer checks
 
 	void
-	checkPtr (
+	checkPtr(
 		StdFunc stdCheckFunction,
 		StdFunc stdTryCheckFunction,
 		const Value* argValueArray,
@@ -1573,27 +1573,27 @@ public:
 		);
 
 	bool
-	checkDataPtrRange (const Value& value);
+	checkDataPtrRange(const Value& value);
 
 	void
-	checkNullPtr (const Value& value);
+	checkNullPtr(const Value& value);
 
 	// access check
 
 	bool
-	checkAccess (ModuleItemDecl* decl);
+	checkAccess(ModuleItemDecl* decl);
 
 protected:
 	// overloaded operators
 
 	Function*
-	getOverloadedUnaryOperator (
+	getOverloadedUnaryOperator(
 		UnOpKind opKind,
 		const Value& opValue
 		);
 
 	Function*
-	getOverloadedBinaryOperator (
+	getOverloadedBinaryOperator(
 		BinOpKind opKind,
 		const Value& opValue1
 		);
@@ -1601,14 +1601,14 @@ protected:
 	// bit fields
 
 	bool
-	extractBitField (
+	extractBitField(
 		const Value& value,
 		BitFieldType* bitFieldType,
 		Value* resultValue
 		);
 
 	bool
-	mergeBitField (
+	mergeBitField(
 		const Value& value,
 		const Value& shadowValue,
 		BitFieldType* bitFieldType,
@@ -1618,21 +1618,21 @@ protected:
 	// member operators
 
 	bool
-	getNamespaceMemberType (
+	getNamespaceMemberType(
 		Namespace* nspace,
 		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
-	getNamespaceMember (
+	getNamespaceMember(
 		Namespace* nspace,
 		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
-	getNamedTypeMemberType (
+	getNamedTypeMemberType(
 		const Value& opValue,
 		NamedType* namedType,
 		const sl::StringRef& name,
@@ -1640,7 +1640,7 @@ protected:
 		);
 
 	bool
-	getNamedTypeMember (
+	getNamedTypeMember(
 		const Value& opValue,
 		NamedType* namedType,
 		const sl::StringRef& name,
@@ -1648,7 +1648,7 @@ protected:
 		);
 
 	bool
-	getEnumTypeMemberType (
+	getEnumTypeMemberType(
 		const Value& opValue,
 		EnumType* enumType,
 		const sl::StringRef& name,
@@ -1656,7 +1656,7 @@ protected:
 		);
 
 	bool
-	getEnumTypeMember (
+	getEnumTypeMember(
 		const Value& opValue,
 		EnumType* enumType,
 		const sl::StringRef& name,
@@ -1664,21 +1664,21 @@ protected:
 		);
 
 	bool
-	getVariantMember (
+	getVariantMember(
 		const Value& opValue,
 		size_t index,
 		Value* resultValue
 		);
 
 	bool
-	getVariantMember (
+	getVariantMember(
 		const Value& opValue,
 		const sl::StringRef& name,
 		Value* resultValue
 		);
 
 	bool
-	getLibraryMember (
+	getLibraryMember(
 		DynamicLibNamespace* library,
 		Closure* closure,
 		const sl::StringRef& name,
@@ -1686,46 +1686,46 @@ protected:
 		);
 
 	bool
-	finalizeMemberOperator (
+	finalizeMemberOperator(
 		const Value& opValue,
 		ModuleItemDecl* decl,
 		Value* resultValue
 		);
 
 	bool
-	getClassVTable (
+	getClassVTable(
 		const Value& opValue,
 		ClassType* classType,
 		Value* resultValue
 		);
 
 	bool
-	callImpl (
+	callImpl(
 		const Value& pfnValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	callClosureFunctionPtr (
+	callClosureFunctionPtr(
 		const Value& opValue,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	bool
-	castArgValueList (
+	castArgValueList(
 		FunctionType* functionType,
 		Closure* closure,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		);
 
 	Type*
-	getCdeclVarArgType (Type* type);
+	getCdeclVarArgType(Type* type);
 
 	bool
-	callOperatorVararg (
+	callOperatorVararg(
 		Function* operatorVararg,
 		DerivableType* type,
 		const Value& value,
@@ -1733,30 +1733,30 @@ protected:
 		);
 
 	bool
-	callOperatorVararg (
+	callOperatorVararg(
 		Function* operatorVararg,
 		DerivableType* type,
 		Value* value
 		)
 	{
-		return callOperatorVararg (operatorVararg, type, *value, value);
+		return callOperatorVararg(operatorVararg, type, *value, value);
 	}
 
 	bool
-	deleteDataPtr (const Value& opValue);
+	deleteDataPtr(const Value& opValue);
 
 	bool
-	deleteClassPtr (const Value& opValue);
+	deleteClassPtr(const Value& opValue);
 
 	bool
-	dynamicCastDataPtr (
+	dynamicCastDataPtr(
 		const Value& opValue,
 		DataPtrType* type,
 		Value* resultValue
 		);
 
 	bool
-	dynamicCastClassPtr (
+	dynamicCastClassPtr(
 		const Value& opValue,
 		ClassPtrType* type,
 		Value* resultValue

@@ -4,9 +4,9 @@ import "std_String.jnc"
 
 //..............................................................................
 
-char findEscapeReplaceChar (char x)
+char findEscapeReplaceChar(char x)
 {
-	switch (x)
+	switch(x)
 	{
 	case '0':
 		return '\0';
@@ -40,7 +40,7 @@ char findEscapeReplaceChar (char x)
 	};
 }
 
-size_t decodeEscapeString (
+size_t decodeEscapeString(
 	std.StringBuilder* string,
 	char const* source,
 	size_t length = -1
@@ -56,12 +56,12 @@ size_t decodeEscapeString (
 	State state = State.Normal;
 
 	if (length == -1)
-		length = strlen (source);
+		length = strlen(source);
 
-	string.clear ();
-	string.reserve (length / 2);
+	string.clear();
+	string.reserve(length / 2);
 
-	char hexCodeString [16];
+	char hexCodeString[16];
 	size_t hexCodeLen;
 	size_t hexCodeMaxLen;
 	uint32_t hexCode;
@@ -74,19 +74,19 @@ size_t decodeEscapeString (
 
 	for (; p < end; p++)
 	{
-		switch (state)
+		switch(state)
 		{
 		case State.Normal:
 			if (*p == '\\')
 			{
-				string.append (base, p - base);
+				string.append(base, p - base);
 				state = State.Escape;
 			}
 
 			break;
 
 		case State.Escape:
-			switch (*p)
+			switch(*p)
 			{
 			case 'x':
 				state = State.Hex;
@@ -107,10 +107,10 @@ size_t decodeEscapeString (
 				break;
 
 			default:
-				replace = findEscapeReplaceChar (*p);
+				replace = findEscapeReplaceChar(*p);
 				if (replace != *p)
 				{
-					string.append (replace);
+					string.append(replace);
 					base = p + 1;
 				}
 				else
@@ -129,7 +129,7 @@ size_t decodeEscapeString (
 				c >= 'a' && c <= 'f' ||
 				c >= 'A' && c <= 'F')
 			{
-				hexCodeString [hexCodeLen++] = c;
+				hexCodeString[hexCodeLen++] = c;
 				if (hexCodeLen < hexCodeMaxLen)
 					break;
 
@@ -142,17 +142,17 @@ size_t decodeEscapeString (
 
 			if (!hexCodeLen)
 			{
-				string.append ('?');
+				string.append('?');
 			}
 			else
 			{
-				hexCodeString [hexCodeLen] = 0;
-				hexCode = strtol (hexCodeString, null, 16);
+				hexCodeString[hexCodeLen] = 0;
+				hexCode = strtol(hexCodeString, null, 16);
 
 				if (hexCodeMaxLen == 2) // \x
-					string.append ((char const*) &hexCode, 1);
+					string.append((char const*) &hexCode, 1);
 				else // \u or \U
-					string.append (hexCode);
+					string.append(hexCode);
 			}
 
 			state = State.Normal;
@@ -160,7 +160,7 @@ size_t decodeEscapeString (
 		}
 	}
 
-	string.append (base, p - base);
+	string.append(base, p - base);
 	return string.m_length;
 }
 

@@ -36,15 +36,15 @@ protected:
 	reactor m_uiReactor;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	override void load (doc.Storage* storage);
-	override void save (doc.Storage* storage);
-	override void updateProperties ();
-	override bool errorcode applyProperties ();
-	override void restoreDefaultProperties ();
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
 
-	override bool convert (
+	override bool convert(
 		log.Writer* writer,
 		uint64_t timestamp,
 		uint64_t recordCode,
@@ -53,21 +53,21 @@ public:
 		);
 
 protected:
-	createUi ();
+	createUi();
 
-	onStreamRoleComboChanged ()
+	onStreamRoleComboChanged()
 	{
-		setStreamRoles (m_streamRoleCombo.m_currentData);
+		setStreamRoles(m_streamRoleCombo.m_currentData);
 	}
 
-	setStreamRoles (ModbusParserMode txMode);
+	setStreamRoles(ModbusParserMode txMode);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusLayer.construct (doc.PluginHost* pluginHost)
+ModbusLayer.construct(doc.PluginHost* pluginHost)
 {
-	basetype1.construct (pluginHost);
+	basetype1.construct(pluginHost);
 
 	m_txParser = new ModbusRtuParser;
 	m_rxParser = new ModbusRtuParser;
@@ -75,55 +75,55 @@ ModbusLayer.construct (doc.PluginHost* pluginHost)
 	m_txParser.m_mode = ModbusParserMode.Master;
 	m_rxParser.m_mode = ModbusParserMode.Slave;
 
-	pluginHost.m_log.addConverter (this, &m_logGuid);
+	pluginHost.m_log.addConverter(this, &m_logGuid);
 
-	createUi ();
+	createUi();
 }
 
-ModbusLayer.createUi ()
+ModbusLayer.createUi()
 {
-	static gui.EnumPropertyOption protocolTable [] =
+	static gui.EnumPropertyOption protocolTable[] =
 	{
 		{ "Modbus RTU",   io.ModbusProtocol.Rtu },
 		{ "Modbus ASCII", io.ModbusProtocol.Ascii },
 		{ "Modbus TCP",   io.ModbusProtocol.Tcp },
 	}
 
-	static gui.EnumPropertyOption streamRoleTable [] =
+	static gui.EnumPropertyOption streamRoleTable[] =
 	{
 		{ "TX - Master; RX - Slave", ModbusParserMode.Master },
 		{ "TX - Slave; RX - Master", ModbusParserMode.Slave },
 		{ "Half-duplex",             ModbusParserMode.HalfDuplex },
 	}
 
-	m_streamRoleCombo = m_pluginHost.m_toolBar.addComboBox (
+	m_streamRoleCombo = m_pluginHost.m_toolBar.addComboBox(
 		"Modbus roles:",
 		streamRoleTable,
-		countof (streamRoleTable)
+		countof(streamRoleTable)
 		);
 
 	m_streamRoleCombo.m_onChanged += onStreamRoleComboChanged;
 
-	m_protocolProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+	m_protocolProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		"Protocol",
 		"Specify the flavor of Modbus protocol",
 		protocolTable,
-		countof (protocolTable)
+		countof(protocolTable)
 		);
 
-	m_streamRoleProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+	m_streamRoleProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		"Stream roles",
 		"Specify the roles of IO streams",
 		streamRoleTable,
-		countof (streamRoleTable)
+		countof(streamRoleTable)
 		);
 
-	m_halfDuplexTimeoutProp = m_pluginHost.m_propertyGrid.createIntProperty (
+	m_halfDuplexTimeoutProp = m_pluginHost.m_propertyGrid.createIntProperty(
 		"Half-duplex timeout (ms)",
 		"Reset the current Modbus role to 'master' after this delay"
 		);
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 }
 
 reactor ModbusLayer.m_uiReactor
@@ -131,34 +131,34 @@ reactor ModbusLayer.m_uiReactor
 	m_halfDuplexTimeoutProp.m_isEnabled = m_streamRoleProp.m_value == ModbusParserMode.HalfDuplex;
 }
 
-void ModbusLayer.load (doc.Storage* storage)
+void ModbusLayer.load(doc.Storage* storage)
 {
-	m_streamRoleCombo.m_currentData = storage.readInt ("streamRole", Def.StreamRole);
-	m_protocolProp.m_value = storage.readInt ("protocol", Def.Protocol);
-	m_halfDuplexTimeoutProp.m_value = storage.readInt ("halfDuplexTimeout", Def.HalfDuplexTimeout);
+	m_streamRoleCombo.m_currentData = storage.readInt("streamRole", Def.StreamRole);
+	m_protocolProp.m_value = storage.readInt("protocol", Def.Protocol);
+	m_halfDuplexTimeoutProp.m_value = storage.readInt("halfDuplexTimeout", Def.HalfDuplexTimeout);
 
-	applyProperties ();
+	applyProperties();
 }
 
-void ModbusLayer.save (doc.Storage* storage)
+void ModbusLayer.save(doc.Storage* storage)
 {
-	storage.writeInt ("streamRole", m_streamRoleCombo.m_currentData);
-	storage.writeInt ("protocol", m_protocolProp.m_value);
-	storage.writeInt ("halfDuplexTimeout", m_halfDuplexTimeoutProp.m_value);
+	storage.writeInt("streamRole", m_streamRoleCombo.m_currentData);
+	storage.writeInt("protocol", m_protocolProp.m_value);
+	storage.writeInt("halfDuplexTimeout", m_halfDuplexTimeoutProp.m_value);
 }
 
-void ModbusLayer.updateProperties ()
+void ModbusLayer.updateProperties()
 {
 	m_streamRoleProp.m_value = m_streamRoleCombo.m_currentData;
 }
 
-bool errorcode ModbusLayer.applyProperties ()
+bool errorcode ModbusLayer.applyProperties()
 {
-	m_pluginHost.m_log.suspend ();
+	m_pluginHost.m_log.suspend();
 
 	if (m_protocolProp.m_value != m_txParser.m_protocol)
 	{
-		switch (m_protocolProp.m_value)
+		switch(m_protocolProp.m_value)
 		{
 		case io.ModbusProtocol.Rtu:
 			m_txParser = new ModbusRtuParser;
@@ -179,20 +179,20 @@ bool errorcode ModbusLayer.applyProperties ()
 
 	ModbusParserMode mode = m_streamRoleProp.m_value;
 	m_streamRoleCombo.m_currentData = mode;
-	setStreamRoles (mode);
+	setStreamRoles(mode);
 
-	m_pluginHost.m_log.resume ();
+	m_pluginHost.m_log.resume();
 	return true;
 }
 
-void ModbusLayer.restoreDefaultProperties ()
+void ModbusLayer.restoreDefaultProperties()
 {
 	m_protocolProp.m_value = Def.Protocol;
 	m_streamRoleProp.m_value = Def.StreamRole;
 	m_halfDuplexTimeoutProp.m_value = Def.HalfDuplexTimeout;
 }
 
-bool ModbusLayer.convert (
+bool ModbusLayer.convert(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t recordCode,
@@ -202,7 +202,7 @@ bool ModbusLayer.convert (
 {
 	ModbusParserBase* parser;
 
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case log.StdRecordCode.Tx:
 		parser = m_txParser;
@@ -216,11 +216,11 @@ bool ModbusLayer.convert (
 		return false;
 	}
 
-	parser.parse (writer, timestamp, recordCode, p, size);
+	parser.parse(writer, timestamp, recordCode, p, size);
 	return true;
 }
 
-void ModbusLayer.setStreamRoles (ModbusParserMode mode)
+void ModbusLayer.setStreamRoles(ModbusParserMode mode)
 {
 	m_txParser.m_mode = mode;
 
@@ -232,7 +232,7 @@ void ModbusLayer.setStreamRoles (ModbusParserMode mode)
 	{
 		m_rxParser.m_mode = ModbusParserMode.HalfDuplex;
 
-		uint64_t timeout = (uint64_t) m_halfDuplexTimeoutProp.m_value * 10000;
+		uint64_t timeout = (uint64_t)m_halfDuplexTimeoutProp.m_value * 10000;
 		m_txParser.m_halfDuplexTimeout = timeout;
 		m_rxParser.m_halfDuplexTimeout = timeout;
 	}

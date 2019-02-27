@@ -19,24 +19,24 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_TYPE (
+JNC_DEFINE_TYPE(
 	Error,
 	"std.Error",
 	g_stdLibGuid,
 	StdLibCacheSlot_Error
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (Error)
-	JNC_MAP_CONST_PROPERTY ("m_description", Error::getDescription_s)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(Error)
+	JNC_MAP_CONST_PROPERTY("m_description", Error::getDescription_s)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 DataPtr
-Error::getDescription ()
+Error::getDescription()
 {
-	sl::String string = err::ErrorHdr::getDescription ();
-	return strDup (string, string.getLength ());
+	sl::String string = err::ErrorHdr::getDescription();
+	return strDup(string, string.getLength());
 }
 
 //..............................................................................

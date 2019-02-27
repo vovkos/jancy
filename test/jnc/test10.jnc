@@ -9,17 +9,17 @@
 //
 //..............................................................................
 
-int main ()
+int main()
 {
-	char a [] = "abc";
-	char b [] = "defghi";
+	char a[] = "abc";
+	char b[] = "defghi";
 
-	void* c = memcat (a, 3, b, 7);
-	printf ("memcat = %s\n", c);
+	void* c = memcat(a, 3, b, 7);
+	printf("memcat = %s\n", c);
 
-	char d [4];
-	memcpy (d, a, 4);
-	printf ("memcpy = %s\n", d);
+	char d[4];
+	memcpy(d, a, 4);
+	printf("memcpy = %s\n", d);
 
 	return 0;
 }

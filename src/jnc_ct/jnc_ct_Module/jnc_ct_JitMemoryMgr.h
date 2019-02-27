@@ -27,21 +27,21 @@ protected:
 	Module* m_module;
 
 public:
-	JitMemoryMgr (Module* module)
+	JitMemoryMgr(Module* module)
 	{
 		m_module = module;
 	}
 
 	virtual
 	void*
-	getPointerToNamedFunction (
+	getPointerToNamedFunction(
 		const std::string &name,
 		bool abortOnFailure
 		);
 
 	virtual
 	uint64_t
-	getSymbolAddress (const std::string &name);
+	getSymbolAddress(const std::string &name);
 };
 
 //..............................................................................

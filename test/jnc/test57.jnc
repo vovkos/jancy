@@ -9,23 +9,23 @@
 //
 //..............................................................................
 
-foo (char const* const* table)
+foo(char const* const* table)
 {
-	printf ("dynamic countof = %d\n", dynamic countof (table));
+	printf("dynamic countof = %d\n", dynamic countof (table));
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	char const* a [] =
+	char const* a[] =
 	{
 		"a",
 		"b",
 		"c",
 	}
 
-	foo (a);
+	foo(a);
 
 	return 0;
 }

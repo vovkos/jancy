@@ -1,15 +1,15 @@
 import "io_base.jncx"
 import "io_Socket.jnc"
 
-foo (io.Protocol proto, io.SocketAddress const* a)
+foo(io.Protocol proto, io.SocketAddress const* a)
 {
-	printf ("foo: address: %s\n", a.getString ());
-	std.setErrno (5);
+	printf("foo: address: %s\n", a.getString ());
+	std.setErrno(5);
 	throw;
 }
 
 
-openSocket ()
+openSocket()
 {
 	io.SocketAddress address;
 
@@ -22,31 +22,31 @@ nestedscope:
 	address.m_ip4.m_port = 10; // (uint16_t) atoi (portString); // same for IPv4/IPv6
 	address.m_ip4.m_address.m_i32 = 0x7f000001;
 
-	printf ("openSocket - pre foo: address: %s\n", address.getString ());
+	printf("openSocket - pre foo: address: %s\n", address.getString ());
 
-	foo (io.Protocol.Udp, &address);
+	foo(io.Protocol.Udp, &address);
 
-/*	m_socket.open (io.Protocol.Udp, &address);
+/*	m_socket.open(io.Protocol.Udp, &address);
 
-/*	printf ("openSocket - 5\n");
+/*	printf("openSocket - 5\n");
 
 	address = m_socket.m_address;
 
-	printf ("openSocket - 6\n");
+	printf("openSocket - 6\n");
 
-	writeLog (UdpRecordCode.Open, &address, sizeof (address));
+	writeLog(UdpRecordCode.Open, &address, sizeof(address));
 
-	printf ("openSocket - 7\n");
+	printf("openSocket - 7\n");
 
 	m_state = State.Opened;
-	waitSocketEvents (); */
+	waitSocketEvents(); */
 
 catch:
-	std.Error const* error = std.getLastError ();
-	printf ("openSocket - catch: address: %s, error: %s\n", address.getString (), error.m_description);
+	std.Error const* error = std.getLastError();
+	printf("openSocket - catch: address: %s, error: %s\n", address.getString (), error.m_description);
 }
 
-foo ()
+foo()
 {
 	int x = 10;
 
@@ -60,10 +60,10 @@ foo ()
 	}
 }
 
-int main ()
+int main()
 {
-	openSocket ();
-	foo ();
+	openSocket();
+	foo();
 
 	for (int i = 0; i < 10; i++)
 		$"i = $i";

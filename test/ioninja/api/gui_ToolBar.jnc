@@ -14,37 +14,37 @@ namespace gui {
 
 opaque class ToolBar
 {
-	destruct ();
+	destruct();
 
-	addAction (Action* action);
-	addLabel (char const* pText);
+	addAction(Action* action);
+	addLabel(char const* pText);
 
-	ComboBox* addComboBox (uint_t width = 0);  // 0 = default, -1 = stretch
+	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
 
-	ComboBox* addComboBox (
+	ComboBox* addComboBox(
 		const char* labelText,
 		gui.EnumPropertyOption const* optionTable,
 		size_t optionCount
 		);  // 0 = default, -1 = stretch
 
-	addSeparator ();
+	addSeparator();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ComboBox* ToolBar.addComboBox (
+ComboBox* ToolBar.addComboBox(
 	const char* labelText,
 	gui.EnumPropertyOption const* optionTable,
 	size_t optionCount
 	)
 {
-	addLabel (labelText);
-	gui.ComboBox* comboBox = addComboBox ();
+	addLabel(labelText);
+	gui.ComboBox* comboBox = addComboBox();
 
 	for (size_t i = 0; i < optionCount; i++)
-		comboBox.addItem (optionTable [i].m_text, optionTable [i].m_value);
+		comboBox.addItem(optionTable[i].m_text, optionTable[i].m_value);
 
-	comboBox.adjustSizeToContents ();
+	comboBox.adjustSizeToContents();
 	return comboBox;
 }
 

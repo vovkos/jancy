@@ -12,28 +12,28 @@
 char const* g_data;
 size_t g_dataOffset;
 
-bool errorcode scanCommand (
+bool errorcode scanCommand(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
 	)
 {
 	if (length == -1)
-		length = strlen (p);
+		length = strlen(p);
 
 	char const* end = p + length;
 
 	do
 	{
-		reswitch (state, p, end - p)
+		reswitch(state, p, end - p)
 		{
 		case "<[^>]+>":
 			size_t length = state.m_currentOffset - g_dataOffset;
 
-			char const* chunk = strdup (g_data, length);
+			char const* chunk = strdup(g_data, length);
 
-			printf ("%s\n", chunk);
-			printf ("inband '%s'\n", state.m_match.m_text);
+			printf("%s\n", chunk);
+			printf("inband '%s'\n", state.m_match.m_text);
 
 			g_data += length;
 			g_dataOffset += length;
@@ -50,52 +50,52 @@ bool errorcode scanCommand (
 	return true;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	jnc.RegexState state (true);
+	jnc.RegexState state(true);
 
 	try
 	{
 		g_data = "abc <ab";
 		g_dataOffset = 0;
-		scanCommand (state, g_data, strlen (g_data));
+		scanCommand(state, g_data, strlen(g_data));
 
 		size_t length = state.m_currentOffset - g_dataOffset;
-		char const* chunk = strdup (g_data, length);
-		printf ("%s", chunk);
+		char const* chunk = strdup(g_data, length);
+		printf("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "out> <gr> rr";
-		scanCommand (state, g_data, strlen (g_data));
+		scanCommand(state, g_data, strlen(g_data));
 
 		length = state.m_currentOffset - g_dataOffset;
-		chunk = strdup (g_data, length);
-		printf ("%s", chunk);
+		chunk = strdup(g_data, length);
+		printf("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "ab <versi";
-		scanCommand (state, g_data, strlen (g_data));
+		scanCommand(state, g_data, strlen(g_data));
 
 		length = state.m_currentOffset - g_dataOffset;
-		chunk = strdup (g_data, length);
-		printf ("%s", chunk);
+		chunk = strdup(g_data, length);
+		printf("%s", chunk);
 		g_dataOffset += length;
 
 		g_data = "on> aboutb";
-		scanCommand (state, g_data, strlen (g_data));
+		scanCommand(state, g_data, strlen(g_data));
 
 		length = state.m_currentOffset - g_dataOffset;
-		chunk = strdup (g_data, length);
-		printf ("%s", chunk);
+		chunk = strdup(g_data, length);
+		printf("%s", chunk);
 		g_dataOffset += length;
 
 	catch:
-		printf ("recognition error\n");
+		printf("recognition error\n");
 	}
 
-	printf ("\n");
+	printf("\n");
 	return 0;
 }
 

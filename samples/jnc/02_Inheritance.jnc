@@ -23,21 +23,21 @@ class I1
 	// virtual methods are declared using traditional keywords 'virtual',
 	// 'abstract' and 'override'
 
-	abstract foo ();
+	abstract foo();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class C1: I1
 {
-	construct (int a)
+	construct(int a)
 	{
-		printf ("C1.construct (%d)\n", a);
+		printf("C1.construct (%d)\n", a);
 	}
 
-	override foo ()
+	override foo()
 	{
-		printf ("C1.foo ()\n");
+		printf("C1.foo ()\n");
 	}
 }
 
@@ -45,9 +45,9 @@ class C1: I1
 
 class I2
 {
-	abstract bar ();
+	abstract bar();
 
-	abstract baz (
+	abstract baz(
 		int x,
 		int y
 		);
@@ -57,22 +57,22 @@ class I2
 
 class C2: I2
 {
-	construct (int a)
+	construct(int a)
 	{
-		printf ("C2.construct (%d)\n", a);
+		printf("C2.construct (%d)\n", a);
 	}
 
-	override bar ()
+	override bar()
 	{
-		printf ("C2.bar ()\n");
+		printf("C2.bar ()\n");
 	}
 
-	override baz (
+	override baz(
 		int x,
 		int y
 		)
 	{
-		printf ("C2.baz (%d, %d)\n", x, y);
+		printf("C2.baz (%d, %d)\n", x, y);
 	}
 }
 
@@ -110,9 +110,9 @@ class C3:
 	C2,
 	Point
 {
-	construct (int a);
+	construct(int a);
 
-	override baz (
+	override baz(
 		int x,
 		int y
 		);
@@ -120,7 +120,7 @@ class C3:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-C3.construct (int a)
+C3.construct(int a)
 {
 	// if a base type requires construction this must be done in the beginning
 	// of the derived type constructor
@@ -128,24 +128,24 @@ C3.construct (int a)
 	// keywords 'basetype', 'basetype1'..'basetype9' could be used to reference
 	// base types ('basetype' is equivalent to 'basetype1')
 
-	basetype1.construct (a * 10);
+	basetype1.construct(a * 10);
 
 	// traditional reference by name works too
 
-	C2.construct (a * 100);
+	C2.construct(a * 100);
 
-	printf ("C3.construct (%d)\n", a);
+	printf("C3.construct (%d)\n", a);
 }
 
 // it's OK to use storage specifier in an out-of-class method implementation
 // (it must match the original one, of course)
 
-override C3.baz (
+override C3.baz(
 	int x,
 	int y
 	)
 {
-	printf ("C3.baz (%d, %d)\n", x, y);
+	printf("C3.baz (%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
 }
@@ -154,16 +154,16 @@ override C3.baz (
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	C3 c (7);
-	c.foo ();
-	c.bar ();
-	c.baz (20, 30);
+	C3 c(7);
+	c.foo();
+	c.bar();
+	c.baz(20, 30);
 
-	printf ("c = { %d, %d }\n", c.m_x, c.m_y);
+	printf("c = { %d, %d }\n", c.m_x, c.m_y);
 
 	return 0;
 }

@@ -23,16 +23,16 @@ class EnumType;
 
 JNC_INLINE
 EnumTypeFlag
-getFirstEnumTypeFlag (uint_t flags)
+getFirstEnumTypeFlag(uint_t flags)
 {
-	return (EnumTypeFlag) (1 << sl::getLoBitIdx (flags));
+	return (EnumTypeFlag)(1 << sl::getLoBitIdx(flags));
 }
 
 const char*
-getEnumTypeFlagString (EnumTypeFlag flag);
+getEnumTypeFlagString(EnumTypeFlag flag);
 
 sl::String
-getEnumTypeFlagString (uint_t flags);
+getEnumTypeFlagString(uint_t flags);
 
 //..............................................................................
 
@@ -56,7 +56,7 @@ protected:
 	int64_t m_value;
 
 public:
-	EnumConst ()
+	EnumConst()
 	{
 		m_itemKind = ModuleItemKind_EnumConst;
 		m_parentEnumType = NULL;
@@ -64,20 +64,20 @@ public:
 	}
 
 	EnumType*
-	getParentEnumType ()
+	getParentEnumType()
 	{
 		return m_parentEnumType;
 	}
 
 	int64_t
-	getValue ()
+	getValue()
 	{
 		return m_value;
 	}
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -93,33 +93,33 @@ class EnumType: public NamedType
 
 protected:
 	Type* m_baseType;
-	sl::List <EnumConst> m_constList;
-	sl::Array <EnumConst*> m_constArray;
+	sl::List<EnumConst> m_constList;
+	sl::Array<EnumConst*> m_constArray;
 
 public:
-	EnumType ();
+	EnumType();
 
 	Type*
-	getBaseType ()
+	getBaseType()
 	{
 		return m_baseType;
 	}
 
-	sl::Array <EnumConst*>
-	getConstArray ()
+	sl::Array<EnumConst*>
+	getConstArray()
 	{
 		return m_constArray;
 	}
 
 	EnumConst*
-	createConst (
+	createConst(
 		const sl::StringRef& name,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -128,32 +128,32 @@ public:
 protected:
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		m_llvmType = m_baseType->getLlvmType ();
+		m_llvmType = m_baseType->getLlvmType();
 	}
 
 	virtual
 	void
-	prepareLlvmDiType ()
+	prepareLlvmDiType()
 	{
-		m_llvmDiType = m_baseType->getLlvmDiType ();
+		m_llvmDiType = m_baseType->getLlvmDiType();
 	}
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................
 
 JNC_INLINE
 bool
-isBitFlagEnumType (Type* type)
+isBitFlagEnumType(Type* type)
 {
 	return
-		type->getTypeKind () == TypeKind_Enum &&
-		(((EnumType*) type)->getFlags () & EnumTypeFlag_BitFlag);
+		type->getTypeKind() == TypeKind_Enum &&
+		(((EnumType*)type)->getFlags() & EnumTypeFlag_BitFlag);
 }
 
 //..............................................................................

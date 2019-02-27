@@ -23,7 +23,7 @@
 
 \brief Property type defines a signature of a property and is represented by a tuple of one or more function types.
 
-Each property in Jancy has one getter and zero or more setters. Property type has information about function type for each and every accessor (getter or setter) a property of this type provides.
+Each property in Jancy has one getter and zero or more setters. Property type has information about function type for each and every accessor(getter or setter) a property of this type provides.
 
 \addtogroup property-type
 @{

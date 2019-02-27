@@ -34,10 +34,10 @@ struct XxxErrorEventParams: XxxEventParams
 	std.Error const* m_error;
 }
 
-int main ()
+int main()
 {
 	XxxEventParams const* params;
-	dynamic (XxxErrorEventParams const*) params;
+	dynamic(XxxErrorEventParams const*) params;
 
 	return 0;
 }

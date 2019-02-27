@@ -30,9 +30,9 @@ enum JncError
 //..............................................................................
 
 void
-printVersion ()
+printVersion()
 {
-	printf (
+	printf(
 		"Jancy v%d.%d.%d (%s%s)\n",
 		VERSION_MAJOR,
 		VERSION_MINOR,
@@ -43,107 +43,107 @@ printVersion ()
 }
 
 void
-printUsage ()
+printUsage()
 {
-	printVersion ();
+	printVersion();
 
-	sl::String helpString = CmdLineSwitchTable::getHelpString ();
-	printf ("Usage: jancy [<options>...] <source_file>\n%s", helpString.sz ());
+	sl::String helpString = CmdLineSwitchTable::getHelpString();
+	printf("Usage: jancy [<options>...] <source_file>\n%s", helpString.sz ());
 }
 
 #if (_JNC_OS_WIN)
 int
-wmain (
+wmain(
 	int argc,
-	wchar_t* argv []
+	wchar_t* argv[]
 	)
 #else
 int
-main (
+main(
 	int argc,
-	char* argv []
+	char* argv[]
 	)
 #endif
 {
 #if _AXL_OS_POSIX
-	setvbuf (stdout, NULL, _IOLBF, 1024);
+	setvbuf(stdout, NULL, _IOLBF, 1024);
 #endif
 
 	bool result;
 
-	g::getModule ()->setTag ("jnc_app");
-	jnc::initialize ("jnc_dll:jnc_app");
-	jnc::setErrorRouter (err::getErrorMgr ());
-	lex::registerParseErrorProvider ();
+	g::getModule()->setTag("jnc_app");
+	jnc::initialize("jnc_dll:jnc_app");
+	jnc::setErrorRouter(err::getErrorMgr());
+	lex::registerParseErrorProvider();
 
-	srand ((int) sys::getTimestamp ());
+	srand((int)sys::getTimestamp());
 
 	CmdLine cmdLine;
-	CmdLineParser parser (&cmdLine);
+	CmdLineParser parser(&cmdLine);
 
 #ifdef _JNCC_PRINT_USAGE_IF_NO_ARGUMENTS
 	if (argc < 2)
 	{
-		printUsage ();
+		printUsage();
 		return 0;
 	}
 #endif
 
-	result = parser.parse (argc, argv);
+	result = parser.parse(argc, argv);
 	if (!result)
 	{
-		printf ("error parsing command line: %s\n", err::getLastErrorDescription ().sz ());
+		printf("error parsing command line: %s\n", err::getLastErrorDescription ().sz ());
 		return JncError_InvalidCmdLine;
 	}
 
 	if (cmdLine.m_flags & JncFlag_Help)
 	{
-		printUsage ();
+		printUsage();
 	}
 	else if (cmdLine.m_flags & JncFlag_Version)
 	{
-		printVersion ();
+		printVersion();
 	}
 	else
 	{
-		JncApp app (&cmdLine);
+		JncApp app(&cmdLine);
 
-		result = app.parse ();
+		result = app.parse();
 		if (!result)
 		{
-			printf ("%s\n", err::getLastErrorDescription ().sz ());
+			printf("%s\n", err::getLastErrorDescription ().sz ());
 			return JncError_CompileFailure;
 		}
 
 		if (cmdLine.m_flags & JncFlag_Documentation)
 		{
-			result = app.generateDocumentation ();
+			result = app.generateDocumentation();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().sz ());
+				printf("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
 
 		if (cmdLine.m_flags & JncFlag_Compile)
 		{
-			result = app.compile ();
+			result = app.compile();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().sz ());
+				printf("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
 
 		if (cmdLine.m_flags & JncFlag_LlvmIr)
-			app.printLlvmIr ();
+			app.printLlvmIr();
 
 		if (cmdLine.m_flags & JncFlag_Jit)
 		{
-			result = app.jit ();
+			result = app.jit();
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().sz ());
+				printf("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_CompileFailure;
 			}
 		}
@@ -151,17 +151,17 @@ main (
 		if (cmdLine.m_flags & JncFlag_Run)
 		{
 			int returnValue;
-			result = app.runFunction (&returnValue);
+			result = app.runFunction(&returnValue);
 			if (!result)
 			{
-				printf ("%s\n", err::getLastErrorDescription ().sz ());
+				printf("%s\n", err::getLastErrorDescription ().sz ());
 				return JncError_RunFailure;
 			}
 
 			if (!(cmdLine.m_flags & JncFlag_PrintReturnValue))
 				return returnValue;
 
-			printf ("'%s' returned: %d\n", cmdLine.m_functionName.sz (), returnValue);
+			printf("'%s' returned: %d\n", cmdLine.m_functionName.sz (), returnValue);
 		}
 	}
 

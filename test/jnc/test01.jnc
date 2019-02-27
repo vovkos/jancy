@@ -21,26 +21,26 @@ struct Point
 
 class C
 {
-	bool errorcode foo (Point const* point)
+	bool errorcode foo(Point const* point)
 	{
-		printf ("foo ()\n");
+		printf("foo ()\n");
 		return true;
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("hello world!\n");
+	printf("hello world!\n");
 
 	Point point;
 
 	C c;
-	try c.foo (&point);
-	try c.foo (&point);
-	try c.foo (&point);
-	try c.foo (&point);
-	try c.foo (&point);
-	try c.foo (&point);
+	try c.foo(&point);
+	try c.foo(&point);
+	try c.foo(&point);
+	try c.foo(&point);
+	try c.foo(&point);
+	try c.foo(&point);
 
 	return 0;
 }

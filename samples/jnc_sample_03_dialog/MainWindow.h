@@ -27,32 +27,32 @@ protected:
 	MyLayout* m_layout;
 
 public:
-	MainWindow (QWidget* parent = NULL, Qt::WindowFlags flags = 0);
+	MainWindow(QWidget* parent = NULL, Qt::WindowFlags flags = 0);
 
 	QSize sizeHint() const
 	{
 		return QSize(800, 600);
 	}
 
-	bool runScript (const QString& fileName);
+	bool runScript(const QString& fileName);
 
-	int outputDirect (const QString& string);
-	int output_va (const char* format, va_list va);
-	int output (const char* format, ...);
+	int outputDirect(const QString& string);
+	int output_va(const char* format, va_list va);
+	int output(const char* format, ...);
 
-	QString readOutput ()
+	QString readOutput()
 	{
-		return m_output->toPlainText ();
+		return m_output->toPlainText();
 	}
 
 protected:
-	virtual void closeEvent (QCloseEvent* e);
+	virtual void closeEvent(QCloseEvent* e);
 
-	void createLayout ();
+	void createLayout();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-MainWindow* getMainWindow ();
+MainWindow* getMainWindow();
 
 //..............................................................................

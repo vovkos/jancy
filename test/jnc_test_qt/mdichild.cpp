@@ -58,9 +58,9 @@ bool MdiChild::loadFile(const QString& filePath)
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QByteArray data = file.readAll ();
+	QByteArray data = file.readAll();
 
-	setPlainText (QString::fromUtf8 (data));
+	setPlainText(QString::fromUtf8(data));
 
 	QApplication::restoreOverrideCursor();
 
@@ -177,8 +177,8 @@ bool MdiChild::saveFile(const QString& filePath)
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QByteArray data = toPlainText ().toUtf8 ();
-	file.write (data);
+	QByteArray data = toPlainText().toUtf8();
+	file.write(data);
 
 	QApplication::restoreOverrideCursor();
 

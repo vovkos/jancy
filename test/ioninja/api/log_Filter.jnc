@@ -9,14 +9,14 @@ namespace log {
 
 class Filter
 {
-	abstract bool filter (
+	abstract bool filter(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
 		);
 
-	virtual reset ()
+	virtual reset()
 	{
 	}
 }

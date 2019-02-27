@@ -19,7 +19,7 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE (
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	HashTable,
 	"std.HashTable",
 	g_stdLibGuid,
@@ -28,25 +28,25 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE (
 	NULL
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP (HashTable)
-	JNC_MAP_CONSTRUCTOR (&(jnc::construct <HashTable, HashFunc*, IsEqualFunc*>))
-	JNC_MAP_DESTRUCTOR (&jnc::destruct <HashTable>)
-	JNC_MAP_FUNCTION ("clear",  &HashTable::clear)
-	JNC_MAP_FUNCTION ("find", &HashTable::find)
-	JNC_MAP_FUNCTION ("visit", &HashTable::visit)
-	JNC_MAP_FUNCTION ("remove", &HashTable::remove)
-JNC_END_TYPE_FUNCTION_MAP ()
+JNC_BEGIN_TYPE_FUNCTION_MAP(HashTable)
+	JNC_MAP_CONSTRUCTOR(&(jnc::construct<HashTable, HashFunc*, IsEqualFunc*>))
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<HashTable>)
+	JNC_MAP_FUNCTION("clear",  &HashTable::clear)
+	JNC_MAP_FUNCTION("find", &HashTable::find)
+	JNC_MAP_FUNCTION("visit", &HashTable::visit)
+	JNC_MAP_FUNCTION("remove", &HashTable::remove)
+JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
 DataPtr
-HashTable::visitImpl (Variant key)
+HashTable::visitImpl(Variant key)
 {
-	sl::MapIterator <Variant, DataPtr> it = m_hashTable.visit (key);
+	sl::MapIterator<Variant, DataPtr> it = m_hashTable.visit(key);
 	if (!it->m_value.m_p)
 	{
-		it->m_value = m_map.add (it);
-		ASSERT (m_map.m_count == m_hashTable.getCount ());
+		it->m_value = m_map.add(it);
+		ASSERT(m_map.m_count == m_hashTable.getCount());
 	}
 
 	return it->m_value;
@@ -54,18 +54,18 @@ HashTable::visitImpl (Variant key)
 
 void
 JNC_CDECL
-HashTable::remove (DataPtr entryPtr)
+HashTable::remove(DataPtr entryPtr)
 {
-	MapEntry* entry = (MapEntry*) entryPtr.m_p;
+	MapEntry* entry = (MapEntry*)entryPtr.m_p;
 	if (!entry || entry->m_map != &m_map)
 	{
-		err::setError ("attempt to remove an invalid map entry from the hash table");
-		dynamicThrow ();
+		err::setError("attempt to remove an invalid map entry from the hash table");
+		dynamicThrow();
 	}
 
-	m_hashTable.erase ((sl::HashTableEntry <Variant, DataPtr>*) entry->m_mapEntry);
-	m_map.remove (entry);
-	ASSERT (m_map.m_count == m_hashTable.getCount ());
+	m_hashTable.erase((sl::HashTableEntry<Variant, DataPtr>*) entry->m_mapEntry);
+	m_map.remove(entry);
+	ASSERT(m_map.m_count == m_hashTable.getCount());
 }
 
 //..............................................................................

@@ -19,15 +19,15 @@ LlvmIr::LlvmIr(QWidget *parent)
 {
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-	setLineWrapMode (QPlainTextEdit::NoWrap);
+	setLineWrapMode(QPlainTextEdit::NoWrap);
 	setupHighlighter();
 }
 
 bool LlvmIr::build(jnc::Module* module)
 {
-	clear ();
+	clear();
 
-	appendText (module->getLlvmIrString_v ());
+	appendText(module->getLlvmIrString_v());
 
 	return true;
 }

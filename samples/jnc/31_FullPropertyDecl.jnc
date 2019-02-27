@@ -19,23 +19,23 @@ property g_prop
 {
 	int m_x = 5;
 
-	int get ()
+	int get()
 	{
-		printf ("g_prop.get ()\n");
+		printf("g_prop.get ()\n");
 		return m_x;
 	}
 
-	set (int x);
+	set(int x);
 
 	// overloaded setter
 
-	set (double x);
+	set(double x);
 
 	// helper method
 
-	update ()
+	update()
 	{
-		printf ("g_prop.update ()\n");
+		printf("g_prop.update ()\n");
 	}
 
 	// ...
@@ -46,29 +46,29 @@ property g_prop
 // like with classes, the implementation of methods may be placed outside of
 // the property body
 
-g_prop.set (int x)
+g_prop.set(int x)
 {
-	printf ("g_prop.set (int %d)\n", x);
+	printf("g_prop.set (int %d)\n", x);
 	m_x = x;
 
-	update ();
+	update();
 }
 
-g_prop.set (double x)
+g_prop.set(double x)
 {
-	printf ("g_prop.set (double %f)\n", x);
-	m_x = (int) x;
+	printf("g_prop.set (double %f)\n", x);
+	m_x = (int)x;
 
-	update ();
+	update();
 }
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	int x = g_prop;
 

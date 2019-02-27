@@ -29,7 +29,7 @@
 
 JNC_EXTERN_C
 jnc_ExtensionLib*
-jnc_Unit_getLib (jnc_Unit* unit);
+jnc_Unit_getLib(jnc_Unit* unit);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -38,9 +38,9 @@ jnc_Unit_getLib (jnc_Unit* unit);
 struct jnc_Unit
 {
 	jnc_ExtensionLib*
-	getLib ()
+	getLib()
 	{
-		return jnc_Unit_getLib (this);
+		return jnc_Unit_getLib(this);
 	}
 };
 

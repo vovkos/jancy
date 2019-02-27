@@ -9,7 +9,7 @@ import "io_Modbus.jnc"
 
 //..............................................................................
 
-representModbusTcpAdu (
+representModbusTcpAdu(
 	log.RepresenterTarget* target,
 	io.ModbusRole role,
 	void const* p,
@@ -25,62 +25,62 @@ representModbusTcpAdu (
 		log.StdLogIcon.TxPacket :
 		log.StdLogIcon.RxPacket;
 
-	size_t checksumOffset = size - sizeof (uint16_t);
+	size_t checksumOffset = size - sizeof(uint16_t);
 	uint16_t actualChecksum = *(uint16_t const*) (p + checksumOffset);
-	uint16_t expectedChecksum = crc16_ansi (p, checksumOffset, 0xffff);
+	uint16_t expectedChecksum = crc16_ansi(p, checksumOffset, 0xffff);
 
 	if (!(foldFlags & 1))
 	{
-		target.addHyperText (
+		target.addHyperText(
 			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-TCP\e[m TID: \e[34m%1\e[m Dev: \e[34m%2\e[m %3" (
 			aduHdr.m_transactionId,
 			aduHdr.m_deviceAddress,
-			getModbusPduDigest (role, pduHdr)
+			getModbusPduDigest(role, pduHdr)
 			));
 	}
 	else
 	{
-		target.addHyperText (
+		target.addHyperText(
 			"[\e^-1\e[34m-\e[m]\n"
 			"\e[1mADU-TCP\e[m\n"
 			$"    TID:       \e^!%1,%2\e[34m%3\e[m\n"
 			$"    Protocol:  \e^!%4,%5\e[34m%6\e[m\n"
 			$"    Length:    \e^!%7,%8\e[34m%9\e[m\n"
 			$"    Device:    \e^!%10,%11\e[34m%12\e[m" (
-			offsetof (aduHdr.m_transactionId),
-			sizeof (aduHdr.m_transactionId),
+			offsetof(aduHdr.m_transactionId),
+			sizeof(aduHdr.m_transactionId),
 			aduHdr.m_transactionId,
 
-			offsetof (aduHdr.m_protocol),
-			sizeof (aduHdr.m_protocol),
+			offsetof(aduHdr.m_protocol),
+			sizeof(aduHdr.m_protocol),
 			aduHdr.m_protocol,
 
-			offsetof (aduHdr.m_length),
-			sizeof (aduHdr.m_length),
+			offsetof(aduHdr.m_length),
+			sizeof(aduHdr.m_length),
 			aduHdr.m_length,
 
-			offsetof (aduHdr.m_deviceAddress),
-			sizeof (aduHdr.m_deviceAddress),
+			offsetof(aduHdr.m_deviceAddress),
+			sizeof(aduHdr.m_deviceAddress),
 			aduHdr.m_deviceAddress
 			));
 
-		representModbusPdu (
+		representModbusPdu(
 			target,
 			role,
 			pduHdr,
-			sizeof (io.ModbusTcpAduHdr),,
+			sizeof(io.ModbusTcpAduHdr),,
 			foldFlags
 			);
 
 		target.m_lineAttr.m_backColor = gui.ColorFlags.Transparent;
 		target.m_lineAttr.m_textColor = gui.StdColor.Gray;
-		target.addBin (p, size);
+		target.addBin(p, size);
 
 		gui.TextAttr attr;
 		attr.m_backColor = gui.ColorFlags.Transparent;
 		attr.m_textColor = gui.StdColor.Purple;
 
-		target.retroColorize (-size, sizeof (io.ModbusTcpAduHdr), attr);
+		target.retroColorize(-size, sizeof(io.ModbusTcpAduHdr), attr);
 	}
 }
 

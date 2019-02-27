@@ -39,7 +39,7 @@ class StructField:
 protected:
 	Type* m_type;
 	uint_t m_ptrTypeFlags;
-	sl::BoxList <Token> m_constructor;
+	sl::BoxList<Token> m_constructor;
 
 	Type* m_bitFieldBaseType;
 	size_t m_bitCount;
@@ -52,47 +52,47 @@ protected:
 	};
 
 public:
-	StructField ();
+	StructField();
 
 	Type*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	int
-	getPtrTypeFlags ()
+	getPtrTypeFlags()
 	{
 		return m_ptrTypeFlags;
 	}
 
-	sl::ConstBoxList <Token>
-	getConstructor ()
+	sl::ConstBoxList<Token>
+	getConstructor()
 	{
 		return m_constructor;
 	}
 
 	size_t
-	getOffset ()
+	getOffset()
 	{
 		return m_offset;
 	}
 
 	uint_t
-	getLlvmIndex ()
+	getLlvmIndex()
 	{
 		return m_llvmIndex;
 	}
 
 	size_t
-	getPrevDynamicFieldIndex ()
+	getPrevDynamicFieldIndex()
 	{
 		return m_prevDynamicFieldIndex;
 	}
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -127,54 +127,54 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
-	sl::Array <StructField*> m_dynamicFieldArray;
-	sl::Array <llvm::Type*> m_llvmFieldTypeArray;
+	sl::Array<StructField*> m_dynamicFieldArray;
+	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	BitFieldType* m_lastBitFieldType;
 	size_t m_lastBitFieldOffset;
 
 public:
-	StructType ();
+	StructType();
 
 	StructTypeKind
-	getStructTypeKind ()
+	getStructTypeKind()
 	{
 		return m_structTypeKind;
 	}
 
 	size_t
-	getFieldAlignment ()
+	getFieldAlignment()
 	{
 		return m_fieldAlignment;
 	}
 
 	size_t
-	getFieldActualSize ()
+	getFieldActualSize()
 	{
 		return m_fieldActualSize;
 	}
 
 	size_t
-	getFieldAlignedSize ()
+	getFieldAlignedSize()
 	{
 		return m_fieldAlignedSize;
 	}
 
-	sl::Array <StructField*>
-	getDynamicFieldArray ()
+	sl::Array<StructField*>
+	getDynamicFieldArray()
 	{
 		return m_dynamicFieldArray;
 	}
 
 	bool
-	append (StructType* type);
+	append(StructType* type);
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	virtual
 	void
-	markGcRoots (
+	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
@@ -182,32 +182,32 @@ public:
 protected:
 	virtual
 	StructField*
-	createFieldImpl (
+	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	virtual
 	void
-	prepareLlvmType ();
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType ();
+	prepareLlvmDiType();
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 
 	bool
-	layoutField (StructField* field);
+	layoutField(StructField* field);
 
 	bool
-	layoutField (
+	layoutField(
 		llvm::Type* llvmType,
 		size_t size,
 		size_t alignment,
@@ -216,25 +216,25 @@ protected:
 		);
 
 	bool
-	layoutField (
+	layoutField(
 		Type* type,
 		size_t* offset,
 		uint_t* llvmIndex
 		)
 	{
 		return
-			type->ensureLayout () &&
-			layoutField (
-				type->getLlvmType (),
-				type->getSize (),
-				type->getAlignment (),
+			type->ensureLayout() &&
+			layoutField(
+				type->getLlvmType(),
+				type->getSize(),
+				type->getAlignment(),
 				offset,
 				llvmIndex
 				);
 	}
 
 	bool
-	layoutBitField (
+	layoutBitField(
 		Type* baseType,
 		size_t bitCount,
 		Type** type,
@@ -243,13 +243,13 @@ protected:
 		);
 
 	size_t
-	getFieldOffset (size_t alignment);
+	getFieldOffset(size_t alignment);
 
 	size_t
-	setFieldActualSize (size_t size);
+	setFieldActualSize(size_t size);
 
 	ArrayType*
-	insertPadding (size_t size);
+	insertPadding(size_t size);
 };
 
 //..............................................................................

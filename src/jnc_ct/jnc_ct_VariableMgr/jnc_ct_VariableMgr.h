@@ -29,159 +29,159 @@ class VariableMgr
 protected:
 	Module* m_module;
 
-	sl::List <Variable> m_variableList;
-	sl::Array <Variable*> m_staticVariableArray;
-	sl::Array <Variable*> m_staticGcRootArray;
-	sl::Array <Variable*> m_globalStaticVariableArray;
-	sl::Array <Variable*> m_liftedStackVariableArray;
-	sl::Array <Variable*> m_argVariableArray;
-	sl::Array <Variable*> m_tlsVariableArray;
+	sl::List<Variable> m_variableList;
+	sl::Array<Variable*> m_staticVariableArray;
+	sl::Array<Variable*> m_staticGcRootArray;
+	sl::Array<Variable*> m_globalStaticVariableArray;
+	sl::Array<Variable*> m_liftedStackVariableArray;
+	sl::Array<Variable*> m_argVariableArray;
+	sl::Array<Variable*> m_tlsVariableArray;
 	Variable* m_currentLiftedStackVariable;
 	StructType* m_tlsStructType;
 
-	Variable* m_stdVariableArray [StdVariable__Count];
+	Variable* m_stdVariableArray[StdVariable__Count];
 
 public:
-	VariableMgr ();
+	VariableMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	void
-	clear ();
+	clear();
 
 	void
-	createStdVariables ();
+	createStdVariables();
 
 	void
-	finalizeFunction ();
+	finalizeFunction();
 
 	Variable*
-	getStdVariable (StdVariable variable);
+	getStdVariable(StdVariable variable);
 
-	sl::Array <Variable*>
-	getStaticVariableArray ()
+	sl::Array<Variable*>
+	getStaticVariableArray()
 	{
 		return m_staticVariableArray;
 	}
 
-	sl::Array <Variable*>
-	getStaticGcRootArray ()
+	sl::Array<Variable*>
+	getStaticGcRootArray()
 	{
 		return m_staticGcRootArray;
 	}
 
-	sl::Array <Variable*>
-	getGlobalStaticVariableArray ()
+	sl::Array<Variable*>
+	getGlobalStaticVariableArray()
 	{
 		return m_globalStaticVariableArray;
 	}
 
-	sl::Array <Variable*>
-	getArgVariableArray ()
+	sl::Array<Variable*>
+	getArgVariableArray()
 	{
 		return m_argVariableArray;
 	}
 
-	sl::Array <Variable*>
-	getTlsVariableArray ()
+	sl::Array<Variable*>
+	getTlsVariableArray()
 	{
 		return m_tlsVariableArray;
 	}
 
 	StructType*
-	getTlsStructType ()
+	getTlsStructType()
 	{
-		ASSERT (m_tlsStructType);
+		ASSERT(m_tlsStructType);
 		return m_tlsStructType;
 	}
 
 	Variable*
-	getCurrentLiftedStackVariable ()
+	getCurrentLiftedStackVariable()
 	{
 		return m_currentLiftedStackVariable;
 	}
 
 	Variable*
-	createVariable (
+	createVariable(
 		StorageKind storageKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* type,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	Variable*
-	createSimpleStackVariable (
+	createSimpleStackVariable(
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0
 		)
 	{
-		return createVariable (StorageKind_Stack, name, name, type, ptrTypeFlags);
+		return createVariable(StorageKind_Stack, name, name, type, ptrTypeFlags);
 	}
 
 	Variable*
-	createSimpleStaticVariable (
+	createSimpleStaticVariable(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		Type* type,
-		const Value& value = Value (),
+		const Value& value = Value(),
 		uint_t ptrTypeFlags = 0
 		);
 
 	Variable*
-	createOnceFlagVariable (StorageKind storageKind = StorageKind_Static);
+	createOnceFlagVariable(StorageKind storageKind = StorageKind_Static);
 
 	Variable*
-	createStaticDataPtrValidatorVariable (Variable* variable);
+	createStaticDataPtrValidatorVariable(Variable* variable);
 
 	Variable*
-	createArgVariable (
+	createArgVariable(
 		FunctionArg* arg,
 		size_t argIdx
 		);
 
 	Variable*
-	createAsyncArgVariable (
+	createAsyncArgVariable(
 		const sl::StringRef& name,
 		Type* type,
 		const Value& value
 		);
 
 	bool
-	createTlsStructType ();
+	createTlsStructType();
 
 	bool
-	allocateInitializeGlobalVariables ();
+	allocateInitializeGlobalVariables();
 
 	bool
-	initializeVariable (Variable* variable);
+	initializeVariable(Variable* variable);
 
 	void
-	liftStackVariable (Variable* variable);
+	liftStackVariable(Variable* variable);
 
 	bool
-	finalizeDisposableVariable (Variable* variable);
+	finalizeDisposableVariable(Variable* variable);
 
 protected:
 	llvm::GlobalVariable*
-	createLlvmGlobalVariable (
+	createLlvmGlobalVariable(
 		Type* type,
 		const sl::StringRef& tag,
-		const Value& initValue = Value ()
+		const Value& initValue = Value()
 		);
 
 	void
-	primeStaticClassVariable (Variable* variable);
+	primeStaticClassVariable(Variable* variable);
 
 	bool
-	allocateHeapVariable (Variable* variable);
+	allocateHeapVariable(Variable* variable);
 };
 
 //..............................................................................

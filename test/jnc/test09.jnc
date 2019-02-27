@@ -9,31 +9,31 @@
 //
 //..............................................................................
 
-bool foo ()
+bool foo()
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 	return false;
 }
 
-bool bar ()
+bool bar()
 {
-	printf ("bar ()\n");
+	printf("bar ()\n");
 	return true;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	if (foo () && bar ())
-		printf ("&& true\n");
+	if (foo() && bar())
+		printf("&& true\n");
 	else
-		printf ("&& false\n");
+		printf("&& false\n");
 
-	if (foo () || bar ())
-		printf ("|| true\n");
+	if (foo() || bar())
+		printf("|| true\n");
 	else
-		printf ("|| false\n");
+		printf("|| false\n");
 
 	return 0;
 }

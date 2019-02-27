@@ -24,21 +24,21 @@ protected:
 	bool m_recursionStopper;
 
 public:
-	Cast_Struct ()
+	Cast_Struct()
 	{
 		m_recursionStopper = false;
 	}
 
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -46,7 +46,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

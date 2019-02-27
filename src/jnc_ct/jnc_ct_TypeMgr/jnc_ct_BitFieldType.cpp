@@ -17,7 +17,7 @@ namespace ct {
 
 //..............................................................................
 
-BitFieldType::BitFieldType ()
+BitFieldType::BitFieldType()
 {
 	m_typeKind = TypeKind_BitField;
 	m_flags = TypeFlag_Pod;
@@ -27,35 +27,35 @@ BitFieldType::BitFieldType ()
 }
 
 void
-BitFieldType::prepareTypeString ()
+BitFieldType::prepareTypeString()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
+	TypeStringTuple* tuple = getTypeStringTuple();
 
-	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix ();
-	tuple->m_typeStringSuffix.format (":%d:%d", m_bitOffset, m_bitOffset + m_bitCount);
+	tuple->m_typeStringPrefix = m_baseType->getTypeStringPrefix();
+	tuple->m_typeStringSuffix.format(":%d:%d", m_bitOffset, m_bitOffset + m_bitCount);
 }
 
 void
-BitFieldType::prepareDoxyLinkedText ()
+BitFieldType::prepareDoxyLinkedText()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
+	TypeStringTuple* tuple = getTypeStringTuple();
 
-	tuple->m_typeStringPrefix = m_baseType->getDoxyLinkedTextPrefix ();
-	tuple->m_typeStringSuffix = getTypeStringSuffix ();
+	tuple->m_typeStringPrefix = m_baseType->getDoxyLinkedTextPrefix();
+	tuple->m_typeStringSuffix = getTypeStringSuffix();
 }
 
 bool
-BitFieldType::calcLayout ()
+BitFieldType::calcLayout()
 {
-	TypeKind typeKind = m_baseType->getTypeKind ();
+	TypeKind typeKind = m_baseType->getTypeKind();
 	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_beu)
 	{
-		err::setFormatStringError ("bit field can only be used with integer types");
+		err::setFormatStringError("bit field can only be used with integer types");
 		return false;
 	}
 
-	m_size = m_baseType->getSize ();
-	m_alignment = m_baseType->getAlignment ();
+	m_size = m_baseType->getSize();
+	m_alignment = m_baseType->getAlignment();
 	return true;
 }
 

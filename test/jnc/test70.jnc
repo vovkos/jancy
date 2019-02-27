@@ -56,14 +56,14 @@ enum NbnsQuestionClass
 struct NbnsQuestion
 {
 	uint8_t m_nameLength; // 32 (0x20)
-	char m_name [32];
+	char m_name[32];
 	char m_null;
 
 	bigendian uint16_t m_type;
 	bigendian uint16_t m_class;
 }
 
-encodeNetBiosName (
+encodeNetBiosName(
 	char* buffer,
 	const char* name
 	)
@@ -73,18 +73,18 @@ encodeNetBiosName (
 
 	for (; i < 16; i++)
 	{
-		uchar_t c = name [i];
+		uchar_t c = name[i];
 		if (!c)
 			break;
 
-		buffer [j++] = 'A' + (c >> 4);
-		buffer [j++] = 'A' + (c & 0x0f);
+		buffer[j++] = 'A' + (c >> 4);
+		buffer[j++] = 'A' + (c & 0x0f);
 	}
 
 	while (j < 32)
 	{
-		buffer [j++] = 'A' + (' ' >> 4);
-		buffer [j++] = 'A' + (' ' & 0x0f);
+		buffer[j++] = 'A' + (' ' >> 4);
+		buffer[j++] = 'A' + (' ' & 0x0f);
 	}
 }
 
@@ -94,7 +94,7 @@ struct NbnsNameQueryReq
 	NbnsQuestion m_question;
 
 	[ packetTemplateAction ]
-	void initialize (char const* name)
+	void initialize(char const* name)
 	{
 		m_hdr = null;
 		m_hdr.m_isResponse = true;
@@ -105,15 +105,15 @@ struct NbnsNameQueryReq
 		m_question.m_nameLength = 32;
 		m_question.m_type = NbnsQuestionType.General;
 		m_question.m_class = NbnsQuestionClass.Internet;
-		encodeNetBiosName (m_question.m_name, name);
+		encodeNetBiosName(m_question.m_name, name);
 	}
 }
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 	return 0;
 }
 

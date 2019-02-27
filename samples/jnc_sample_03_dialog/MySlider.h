@@ -13,7 +13,7 @@
 
 #include "MyWidget.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MySlider)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MySlider)
 
 //..............................................................................
 
@@ -23,48 +23,48 @@ public:
 	int m_minimum;
 	int m_maximum;
 
-	jnc::ClassBox <jnc::Multicast> m_onValueChanged;
+	jnc::ClassBox<jnc::Multicast> m_onValueChanged;
 
 public:
 	QSlider* m_qtSlider;
 	QtSignalBridge* m_onValueChangedBridge;
 
 public:
-	MySlider (
+	MySlider(
 		int minimum,
 		int maximum
 		);
 
-	~MySlider ();
+	~MySlider();
 
 	void
 	JNC_CDECL
-	setMinimum (int minimum)
+	setMinimum(int minimum)
 	{
 		m_minimum = minimum;
-		m_qtSlider->setMinimum (minimum);
+		m_qtSlider->setMinimum(minimum);
 	}
 
 	void
 	JNC_CDECL
-	setMaximum (int maximum)
+	setMaximum(int maximum)
 	{
 		m_maximum = maximum;
-		m_qtSlider->setMaximum (maximum);
+		m_qtSlider->setMaximum(maximum);
 	}
 
 	int
 	JNC_CDECL
-	getValue ()
+	getValue()
 	{
-		return m_qtSlider->value ();
+		return m_qtSlider->value();
 	}
 
 	void
 	JNC_CDECL
-	setValue (int value)
+	setValue(int value)
 	{
-		m_qtSlider->setValue (value);
+		m_qtSlider->setValue(value);
 	}
 };
 

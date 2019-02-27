@@ -100,22 +100,22 @@ enum CallConvFlag
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 llvm::CallingConv::ID
-getLlvmCallConv (CallConvKind callConvKind);
+getLlvmCallConv(CallConvKind callConvKind);
 
 uint_t
-getCallConvFlags (CallConvKind callConvKind);
+getCallConvFlags(CallConvKind callConvKind);
 
 const char*
-getCallConvString (CallConvKind callConvKind);
+getCallConvString(CallConvKind callConvKind);
 
 const char*
-getCallConvDisplayString (CallConvKind callConvKind);
+getCallConvDisplayString(CallConvKind callConvKind);
 
 const char*
-getCallConvSignature (CallConvKind callConvKind);
+getCallConvSignature(CallConvKind callConvKind);
 
 CallConvKind
-getCallConvKindFromModifiers (uint_t modifiers);
+getCallConvKindFromModifiers(uint_t modifiers);
 
 //..............................................................................
 
@@ -126,78 +126,78 @@ protected:
 	CallConvKind m_callConvKind;
 
 public:
-	CallConv ();
+	CallConv();
 
 	CallConvKind
-	getCallConvKind ()
+	getCallConvKind()
 	{
 		return m_callConvKind;
 	}
 
 	uint_t
-	getFlags ()
+	getFlags()
 	{
-		return ct::getCallConvFlags (m_callConvKind);
+		return ct::getCallConvFlags(m_callConvKind);
 	}
 
 	llvm::CallingConv::ID
-	getLlvmCallConv ()
+	getLlvmCallConv()
 	{
-		return ct::getLlvmCallConv (m_callConvKind);
+		return ct::getLlvmCallConv(m_callConvKind);
 	}
 
 	const char*
-	getCallConvString ()
+	getCallConvString()
 	{
-		return ct::getCallConvString (m_callConvKind);
+		return ct::getCallConvString(m_callConvKind);
 	}
 
 	const char*
-	getCallConvDisplayString ()
+	getCallConvDisplayString()
 	{
-		return ct::getCallConvDisplayString (m_callConvKind);
+		return ct::getCallConvDisplayString(m_callConvKind);
 	}
 
 	bool
-	isDefault ()
+	isDefault()
 	{
 		return m_callConvKind == CallConvKind_Default;
 	}
 
 	virtual
 	void
-	prepareFunctionType (FunctionType* functionType);
+	prepareFunctionType(FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	createLlvmFunction (
+	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& tag
 		);
 
 	virtual
 	void
-	call (
+	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	virtual
 	void
-	ret (
+	ret(
 		Function* function,
 		const Value& value
 		);
 
 	virtual
 	Value
-	getThisArgValue (Function* function);
+	getThisArgValue(Function* function);
 
 	virtual
 	Value
-	getArgValue (
+	getArgValue(
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
@@ -205,14 +205,14 @@ public:
 
 	virtual
 	void
-	createArgVariables (Function* function)
+	createArgVariables(Function* function)
 	{
-		createArgVariablesImpl (function, 0);
+		createArgVariablesImpl(function, 0);
 	}
 
 protected:
 	void
-	createArgVariablesImpl (
+	createArgVariablesImpl(
 		Function* function,
 		size_t baseLlvmArgIdx = 0
 		);

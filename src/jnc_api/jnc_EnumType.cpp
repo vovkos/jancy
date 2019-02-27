@@ -14,7 +14,7 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined (_JNC_CORE)
+#elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
 #	include "jnc_ct_Module.h"
 #endif
@@ -26,9 +26,9 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 int64_t
-jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
+jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 {
-	return jnc_g_dynamicExtensionLibHost->m_enumConstFuncTable->m_getValueFunc (enumConst);
+	return jnc_g_dynamicExtensionLibHost->m_enumConstFuncTable->m_getValueFunc(enumConst);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -36,28 +36,28 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_EnumType_getBaseType (jnc_EnumType* type)
+jnc_EnumType_getBaseType(jnc_EnumType* type)
 {
-	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getBaseTypeFunc (type);
+	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getBaseTypeFunc(type);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_EnumType_getConstCount (jnc_EnumType* type)
+jnc_EnumType_getConstCount(jnc_EnumType* type)
 {
-	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstCountFunc (type);
+	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstCountFunc(type);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_EnumConst*
-jnc_EnumType_getConst (
+jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstFunc (type, index);
+	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getConstFunc(type, index);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -65,9 +65,9 @@ jnc_EnumType_getConst (
 JNC_EXTERN_C
 JNC_EXPORT_O
 int64_t
-jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
+jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 {
-	return enumConst->getValue ();
+	return enumConst->getValue();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -75,28 +75,28 @@ jnc_EnumConst_getValue (jnc_EnumConst* enumConst)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Type*
-jnc_EnumType_getBaseType (jnc_EnumType* type)
+jnc_EnumType_getBaseType(jnc_EnumType* type)
 {
-	return type->getBaseType ();
+	return type->getBaseType();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_EnumType_getConstCount (jnc_EnumType* type)
+jnc_EnumType_getConstCount(jnc_EnumType* type)
 {
-	return type->getConstArray ().getCount ();
+	return type->getConstArray().getCount();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_EnumConst*
-jnc_EnumType_getConst (
+jnc_EnumType_getConst(
 	jnc_EnumType* type,
 	size_t index
 	)
 {
-	return type->getConstArray () [index];
+	return type->getConstArray() [index];
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

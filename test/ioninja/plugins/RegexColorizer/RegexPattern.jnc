@@ -13,58 +13,58 @@ class RegexPattern
 
 	reactor m_uiReactor;
 
-	construct (
+	construct(
 		gui.PropertyGrid* propertyGrid,
 		gui.Property* beforeProp,
 		size_t index
 		);
 
-	gui.TextAttr buildTextAttr ();
+	gui.TextAttr buildTextAttr();
 
-	void load (doc.Storage* storage);
-	void save (doc.Storage* storage);
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-RegexPattern.construct (
+RegexPattern.construct(
 	gui.PropertyGrid* propertyGrid,
 	gui.Property* beforeProp,
 	size_t index
 	)
 {
-	m_groupProp = propertyGrid.createGroupProperty (
+	m_groupProp = propertyGrid.createGroupProperty(
 		null,
 		beforeProp,
 		$"Pattern #$(index + 1)",
 		"Pattern properties"
 		);
 
-	m_isTxEnabledProp = propertyGrid.createBoolProperty (
+	m_isTxEnabledProp = propertyGrid.createBoolProperty(
 		m_groupProp,,
 		"Apply to TX",
 		"Select whether or not to search for this pattern in TX stream"
 		);
 
-	m_isRxEnabledProp = propertyGrid.createBoolProperty (
+	m_isRxEnabledProp = propertyGrid.createBoolProperty(
 		m_groupProp,,
 		"Apply to RX",
 		"Select whether or not to search for this pattern in RX stream"
 		);
 
-	m_regexProp = propertyGrid.createStringProperty (
+	m_regexProp = propertyGrid.createStringProperty(
 		m_groupProp,,
 		"Regular expression",
 		"Write a regular expression describing this pattern"
 		);
 
-	m_colorProp = propertyGrid.createColorProperty (
+	m_colorProp = propertyGrid.createColorProperty(
 		m_groupProp,,
 		"Color",
 		"Select a color to apply when this pattern is found"
 		);
 
-	gui.FlagPropertyOption fontFlagTable [] =
+	gui.FlagPropertyOption fontFlagTable[] =
 	{
 		{ "Bold",      gui.FontFlags.Bold },
 		{ "Italic",    gui.FontFlags.Italic },
@@ -72,12 +72,12 @@ RegexPattern.construct (
 		{ "Strikeout", gui.FontFlags.Strikeout },
 	}
 
-	m_fontFlagProp = propertyGrid.createFlagProperty (
+	m_fontFlagProp = propertyGrid.createFlagProperty(
 		m_groupProp,,
 		"Font",
 		"Specify font decorations to apply when this pattern is found",
 		fontFlagTable,
-		countof (fontFlagTable)
+		countof(fontFlagTable)
 		);
 
 	struct Initializer
@@ -86,24 +86,24 @@ RegexPattern.construct (
 		uint_t m_color;
 	}
 
-	static Initializer initializerTable [] =
+	static Initializer initializerTable[] =
 	{
 		{ r"[\x00-\x1f]+", gui.StdColor.LightRed },
 		{ "[0-9]+",        gui.StdColor.LightPurple },
 		{ "[A-Za-z]+",     gui.StdColor.LightBlue },
 	};
 
-	index %= countof (initializerTable);
+	index %= countof(initializerTable);
 
 	m_isTxEnabledProp.m_value = true;
 	m_isRxEnabledProp.m_value = true;
-	m_regexProp.m_value = initializerTable [index].m_regex;
-	m_colorProp.m_value = initializerTable [index].m_color;
+	m_regexProp.m_value = initializerTable[index].m_regex;
+	m_colorProp.m_value = initializerTable[index].m_color;
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 }
 
-gui.TextAttr RegexPattern.buildTextAttr ()
+gui.TextAttr RegexPattern.buildTextAttr()
 {
 	gui.TextAttr attr =
 	{
@@ -115,22 +115,22 @@ gui.TextAttr RegexPattern.buildTextAttr ()
 	return attr;
 }
 
-void RegexPattern.load (doc.Storage* storage)
+void RegexPattern.load(doc.Storage* storage)
 {
-	m_isTxEnabledProp.m_value = storage.readBool ("isTxEnabled");
-	m_isRxEnabledProp.m_value = storage.readBool ("isRxEnabled");
-	m_regexProp.m_value = storage.readString ("regex");
-	m_colorProp.m_value = storage.readInt ("color");
-	m_fontFlagProp.m_value = storage.readInt ("fontFlags");
+	m_isTxEnabledProp.m_value = storage.readBool("isTxEnabled");
+	m_isRxEnabledProp.m_value = storage.readBool("isRxEnabled");
+	m_regexProp.m_value = storage.readString("regex");
+	m_colorProp.m_value = storage.readInt("color");
+	m_fontFlagProp.m_value = storage.readInt("fontFlags");
 }
 
-void RegexPattern.save (doc.Storage* storage)
+void RegexPattern.save(doc.Storage* storage)
 {
-	storage.writeBool ("isTxEnabled", m_isTxEnabledProp.m_value);
-	storage.writeBool ("isRxEnabled", m_isRxEnabledProp.m_value);
-	storage.writeString ("regex", m_regexProp.m_value);
-	storage.writeInt ("color", m_colorProp.m_value);
-	storage.writeInt ("fontFlags", m_fontFlagProp.m_value);
+	storage.writeBool("isTxEnabled", m_isTxEnabledProp.m_value);
+	storage.writeBool("isRxEnabled", m_isRxEnabledProp.m_value);
+	storage.writeString("regex", m_regexProp.m_value);
+	storage.writeInt("color", m_colorProp.m_value);
+	storage.writeInt("fontFlags", m_fontFlagProp.m_value);
 }
 
 reactor RegexPattern.m_uiReactor

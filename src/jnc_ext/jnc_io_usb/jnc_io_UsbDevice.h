@@ -17,7 +17,7 @@ namespace io {
 class UsbInterface;
 class UsbAsyncControlEndpoint;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbDevice)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbDevice)
 
 //..............................................................................
 
@@ -26,7 +26,7 @@ class UsbDevice: public IfaceHdr
 	friend class UsbInterface;
 
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (UsbDevice)
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbDevice)
 
 protected:
 	bool m_isOpen;
@@ -37,135 +37,135 @@ protected:
 	UsbAsyncControlEndpoint* m_asyncControlEndpoint;
 
 public:
-	UsbDevice ();
+	UsbDevice();
 
-	~UsbDevice ()
+	~UsbDevice()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	axl::io::UsbDevice*
-	getDevice ()
+	getDevice()
 	{
 		return &m_device;
 	}
 
 	void
-	setDevice (libusb_device* srcDevice)
+	setDevice(libusb_device* srcDevice)
 	{
-		m_device.setDevice (srcDevice);
+		m_device.setDevice(srcDevice);
 	}
 
 	void
-	takeOver (axl::io::UsbDevice* srcDevice)
+	takeOver(axl::io::UsbDevice* srcDevice)
 	{
-		m_isOpen = srcDevice->isOpen ();
-		sl::takeOver (&m_device, srcDevice);
+		m_isOpen = srcDevice->isOpen();
+		sl::takeOver(&m_device, srcDevice);
 	}
 
 	void
 	JNC_CDECL
-	close ();
+	close();
 
 	bool
 	JNC_CDECL
-	open ();
+	open();
 
 	static
 	DataPtr
 	JNC_CDECL
-	getDeviceDesc (UsbDevice* self);
+	getDeviceDesc(UsbDevice* self);
 
 	static
 	DataPtr
 	JNC_CDECL
-	getActiveConfigurationDesc (UsbDevice* self);
+	getActiveConfigurationDesc(UsbDevice* self);
 
 	uint8_t
 	JNC_CDECL
-	getConfigurationId ()
+	getConfigurationId()
 	{
-		return m_isOpen ? m_device.getConfiguration () : 0;
+		return m_isOpen ? m_device.getConfiguration() : 0;
 	}
 
 	bool
 	JNC_CDECL
-	setConfigurationId (uint8_t configurationId)
+	setConfigurationId(uint8_t configurationId)
 	{
-		return m_isOpen ? m_device.setConfiguration (configurationId) : false;
+		return m_isOpen ? m_device.setConfiguration(configurationId) : false;
 	}
 
 	uint8_t
 	JNC_CDECL
-	getBus ()
+	getBus()
 	{
-		return m_device.getBusNumber ();
+		return m_device.getBusNumber();
 	}
 
 	uint8_t
 	JNC_CDECL
-	getAddress ()
+	getAddress()
 	{
-		return m_device.getDeviceAddress ();
+		return m_device.getDeviceAddress();
 	}
 
 	uint8_t
 	JNC_CDECL
-	getSpeed ()
+	getSpeed()
 	{
-		return m_device.getDeviceSpeed ();
+		return m_device.getDeviceSpeed();
 	}
 
 	static
 	DataPtr
 	JNC_CDECL
-	getStringDesc (
+	getStringDesc(
 		UsbDevice* self,
 		uint8_t stringId
 		);
 
 	bool
 	JNC_CDECL
-	setAutoDetachKernelDriverEnabled (bool isEnabled)
+	setAutoDetachKernelDriverEnabled(bool isEnabled)
 	{
-		return m_device.setAutoDetachKernelDriver (isEnabled);
+		return m_device.setAutoDetachKernelDriver(isEnabled);
 	}
 
 	bool
 	JNC_CDECL
-	isKernelDriverActive (uint_t interfaceId)
+	isKernelDriverActive(uint_t interfaceId)
 	{
-		return m_device.isKernelDriverActive (interfaceId);
+		return m_device.isKernelDriverActive(interfaceId);
 	}
 
 	bool
 	JNC_CDECL
-	attachKernelDriver (uint_t interfaceId)
+	attachKernelDriver(uint_t interfaceId)
 	{
-		return m_device.attachKernelDriver (interfaceId);
+		return m_device.attachKernelDriver(interfaceId);
 	}
 
 	bool
 	JNC_CDECL
-	detachKernelDriver (uint_t interfaceId)
+	detachKernelDriver(uint_t interfaceId)
 	{
-		return m_device.detachKernelDriver (interfaceId);
+		return m_device.detachKernelDriver(interfaceId);
 	}
 
 	UsbInterface*
 	JNC_CDECL
-	claimInterface (
+	claimInterface(
 		uint8_t interfaceId,
 		uint8_t altSettingId
 		);
 
 	size_t
 	JNC_CDECL
-	controlTransfer_0 (
+	controlTransfer_0(
 		uint_t requestType,
 		uint_t requestCode,
 		uint_t value,
@@ -177,7 +177,7 @@ public:
 
 	bool
 	JNC_CDECL
-	controlTransfer_1 (
+	controlTransfer_1(
 		uint_t requestType,
 		uint_t requestCode,
 		uint_t value,
@@ -190,16 +190,16 @@ public:
 
 	void
 	JNC_CDECL
-	cancelControlTransfers ();
+	cancelControlTransfers();
 };
 
 //..............................................................................
 
 DataPtr
-createUsbDeviceArray (DataPtr countPtr);
+createUsbDeviceArray(DataPtr countPtr);
 
 UsbDevice*
-openUsbDevice (
+openUsbDevice(
 	uint_t vendorId,
 	uint_t productId
 	);

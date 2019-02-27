@@ -47,7 +47,7 @@ bitflag enum SshEvents
 	IncomingData,
 
 	/**
-		Socket receive buffer is full (data is arriving faster than the
+		Socket receive buffer is full(data is arriving faster than the
 		application is able to read it).
 	*/
 
@@ -62,7 +62,7 @@ bitflag enum SshEvents
 
 	/**
 		``SSH`` channel has been closed by the remote server. Note that if
-		connection was terminated by the local node (using
+		connection was terminated by the local node(using
 		`io.SshChannel.close`), ``Disconnect`` event is **not** fired.
 	*/
 
@@ -98,21 +98,21 @@ bitflag enum SshEvents
 
 	/**
 		``SSH`` channel to the server has been opened successfully; a request
-		for a specific pseudo-terminal (such as ``xterm``) has been sent.
+		for a specific pseudo-terminal(such as ``xterm``) has been sent.
 	*/
 
 	SshChannelOpened,
 
 	/**
-		Request to the ``SSH`` server for a specific pseudo-terminal (such as
+		Request to the ``SSH`` server for a specific pseudo-terminal(such as
 		``xterm``) has been completed successfully; request to start a remote
-		process (such as ``shell``) has been sent.
+		process(such as ``shell``) has been sent.
 	*/
 
 	SshPtyRequestCompleted,
 
 	/**
-		A remote process (such as ``shell``) has been started; the full ``SSH``
+		A remote process(such as ``shell``) has been started; the full ``SSH``
 		connect sequence has been completed successfully. ``SSH`` channel is
 		ready to use.
 	*/
@@ -157,7 +157,7 @@ struct SshConnectParams
 	* Call ``connect`` method to initate connection to ``SSH`` server;
 	* Assign IO event handler with ``wait`` method. You would probably also
 	  want to *schedule* your event handler to be run in particular
-	  environment (e.g., in a specific thread) and partially apply some
+	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
 	* If `io.SshEvents.SshAuthenticateError` event is fired, you can
 	  re-authenticate using ``authenticate`` method;
@@ -181,49 +181,49 @@ struct SshConnectParams
 			io.SshChannel m_ssh;
 			uint_t m_syncId;
 
-			construct ();
+			construct();
 
-			open (
+			open(
 				char const* portName,
 				uint_t baudRate
 				);
 
-			close ();
-			waitSshEvents ();
+			close();
+			waitSshEvents();
 
-			onWriteButtonClicked ();
+			onWriteButtonClicked();
 
-			onSshEvent (
+			onSshEvent(
 				uint_t syncId,
 				`io.SshEvents` triggeredEvents
 				);
 		}
 
-		MyDialog.connect (
+		MyDialog.connect(
 			char const* addrString,
 			char const* userName,
 			char const* password
 			)
 		{
 			`io.SocketAddress` sockAddr;
-			sockAddr.parse (addrString);
+			sockAddr.parse(addrString);
 
-			m_ssh.open ();
-			m_ssh.connect (sockAddr, userName, password);
+			m_ssh.open();
+			m_ssh.connect(sockAddr, userName, password);
 
-			waitSshEvents ();
+			waitSshEvents();
 
 		catch:
 			// handle the error...
 		}
 
-		MyDialog.close ()
+		MyDialog.close()
 		{
-			m_serial.close ();
+			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitSshEvent ()
+		MyDialog.waitSshEvent()
 		{
 			`io.SshEvents` eventMask =
 				`io.SshEvents.IoError` |
@@ -233,17 +233,17 @@ struct SshConnectParams
 			if (!(m_ssh.m_activeEvents & `io.SshEvents.SshConnectCompleted`))
 				eventMask |= `io.SshEvents.SshConnectCompleted`;
 
-			m_ssh.wait (eventMask, onPcapEvent ~(++m_syncId) @
+			m_ssh.wait(eventMask, onPcapEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked ()
+		MyDialog.onWriteButtonClicked()
 		{
-			static char data [] = "a quick brown fox jumps over the lazy dog";
-			m_ssh.write (data, sizeof (data));
+			static char data[] = "a quick brown fox jumps over the lazy dog";
+			m_ssh.write(data, sizeof(data));
 		}
 
-		MyDialog.onSshEvent (
+		MyDialog.onSshEvent(
 			uint_t syncId,
 			`io.SshEvents` triggeredEvents
 			)
@@ -263,7 +263,7 @@ struct SshConnectParams
 				// ...
 				// ... then re-authenticate:
 
-				m_ssh.authenticate (userName, password);
+				m_ssh.authenticate(userName, password);
 			}
 
 			if (triggeredEvents & `io.SshEvents.SshConnectCompleted`)
@@ -273,12 +273,12 @@ struct SshConnectParams
 
 			if (triggeredEvents & `io.SshEvents.IncomingData`)
 			{
-				char buffer [256];
-				size_t size = m_ssh.read (buffer, sizeof (buffer));
+				char buffer[256];
+				size_t size = m_ssh.read(buffer, sizeof(buffer));
 				// ...
 			}
 
-			waitSshEvents (); // restart wait
+			waitSshEvents(); // restart wait
 		}
 
 	\sa `io.SshEvents`, `io.Socket`, `io.SocketAddress`,
@@ -330,8 +330,8 @@ opaque class SshChannel
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 
 	/**
@@ -342,7 +342,7 @@ opaque class SshChannel
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode open (AddressFamily family);
+	bool errorcode open(AddressFamily family);
 
 	/**
 		Opens a ``TCP`` socket this connection will use for transport.
@@ -352,7 +352,7 @@ opaque class SshChannel
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode open (SocketAddress const* address);
+	bool errorcode open(SocketAddress const* address);
 
 	/**
 		Closes ``SSH`` channel and underlying ``TCP`` socket; does nothing if
@@ -362,10 +362,10 @@ opaque class SshChannel
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.SshChannel`` a *disposable* class [#f2]_.
+		Effectively makes ``io.SshChannel`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
@@ -382,10 +382,10 @@ opaque class SshChannel
 		  (typically, ``session``; can also be ``direct-tcpip``,
 		  ``tcpip-forward``, etc);
 		* ``processType`` specifies what kind of process to run on the server
-		  side of this ``SSH`` channel (typically, ``shell``; can also be
+		  side of this ``SSH`` channel(typically, ``shell``; can also be
 		  ``exec``, ``subsystem`` etc);
 		* ``ptyType`` specifies what type of pseudo terminal kind of process to
-		  run on the server side of this ``SSH`` channel (typically, ``xterm``;
+		  run on the server side of this ``SSH`` channel(typically, ``xterm``;
 		  can also be ``ansi``, ``vanilla`` etc);
 		* ``ptyWidth`` and ``ptyHeight`` specify the size of the
 		  pseudo-terminal;
@@ -396,7 +396,7 @@ opaque class SshChannel
 		[#f1]_.
 	*/
 
-	bool errorcode connect (
+	bool errorcode connect(
 		SocketAddress const* address,
 		char const* userName,
 		void const* privateKey,
@@ -409,7 +409,7 @@ opaque class SshChannel
 		uint_t ptyHeight = 24
 		);
 
-	bool errorcode connect (SshConnectParams const* params);
+	bool errorcode connect(SshConnectParams const* params);
 
 	/**
 		Sends a request to SSH server to re-authenticate on ``AuthError`` event.
@@ -418,7 +418,7 @@ opaque class SshChannel
 		sent, returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode authenticate (
+	bool errorcode authenticate(
 		char const* userName,
 		void const* privateKey,
 		size_t privateKeySize,
@@ -435,7 +435,7 @@ opaque class SshChannel
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode resizePty (
+	bool errorcode resizePty(
 		uint_t width,
 		uint_t height
 		);
@@ -454,7 +454,7 @@ opaque class SshChannel
 		is closed.
 	*/
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
@@ -473,19 +473,19 @@ opaque class SshChannel
 		event is fired and transmission could be resumed.
 	*/
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		SshEvents eventMask,
-		function* handler (SshEvents triggeredEvents)
+		function* handler(SshEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	SshEvents errorcode blockingWait (
+	SshEvents errorcode blockingWait(
 		SshEvents eventMask,
 		uint_t timeout
 		);

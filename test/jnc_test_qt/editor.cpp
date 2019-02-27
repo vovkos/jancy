@@ -17,15 +17,15 @@ Editor::Editor(QWidget *parent)
 	: QPlainTextEdit(parent)
 {
 #if (_JNC_OS_DARWIN)
-	QFont font ("Menlo", 11);
+	QFont font("Menlo", 11);
 #else
-	QFont font ("Monospace", 9);
+	QFont font("Monospace", 9);
 #endif
-	font.setFixedPitch (true);
-	font.setKerning (false);
-	font.setStyleHint (
+	font.setFixedPitch(true);
+	font.setKerning(false);
+	font.setStyleHint(
 		QFont::Monospace,
-		(QFont::StyleStrategy) (QFont::NoFontMerging | QFont::ForceIntegerMetrics)
+		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
 		);
 
 	setFont(font);

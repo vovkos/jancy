@@ -22,12 +22,12 @@ protected:
 
 public:
 	bool
-	Build (jnc::CModule* pModule);
+	Build(jnc::CModule* pModule);
 
 	void
-	Clear ()
+	Clear()
 	{
-		m_LogCtrl.Clear ();
+		m_LogCtrl.Clear();
 	}
 
 protected:

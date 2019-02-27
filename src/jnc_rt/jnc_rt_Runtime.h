@@ -42,7 +42,7 @@ protected:
 	State m_state;
 	sys::NotificationEvent m_noThreadEvent;
 	size_t m_tlsSize;
-	sl::List <Tls, GetTlsLink> m_tlsList;
+	sl::List<Tls, GetTlsLink> m_tlsList;
 
 	size_t m_stackSizeLimit; // adjustable limits
 
@@ -52,80 +52,80 @@ public:
 	void* volatile m_userData;
 
 public:
-	Runtime ();
+	Runtime();
 
-	~Runtime ()
+	~Runtime()
 	{
-		shutdown ();
+		shutdown();
 	}
 
 	ct::Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	GcHeap*
-	getGcHeap ()
+	getGcHeap()
 	{
 		return &m_gcHeap;
 	}
 
 	bool
-	isAborted ()
+	isAborted()
 	{
-		return m_gcHeap.isAborted ();
+		return m_gcHeap.isAborted();
 	}
 
 	size_t
-	getStackSizeLimit ()
+	getStackSizeLimit()
 	{
 		return m_stackSizeLimit;
 	}
 
 	bool
-	setStackSizeLimit (size_t sizeLimit);
+	setStackSizeLimit(size_t sizeLimit);
 
 	bool
-	startup (ct::Module* module);
+	startup(ct::Module* module);
 
 	void
-	shutdown ();
+	shutdown();
 
 	void
-	abort ();
+	abort();
 
 	void
-	initializeCallSite (jnc_CallSite* callSite);
+	initializeCallSite(jnc_CallSite* callSite);
 
 	void
-	uninitializeCallSite (jnc_CallSite* callSite);
+	uninitializeCallSite(jnc_CallSite* callSite);
 
 	void
-	checkStackOverflow ();
+	checkStackOverflow();
 
 	SjljFrame*
-	setSjljFrame (SjljFrame* frame);
+	setSjljFrame(SjljFrame* frame);
 
 	static
 	void
-	dynamicThrow ();
+	dynamicThrow();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_INLINE
 Tls*
-getCurrentThreadTls ()
+getCurrentThreadTls()
 {
-	return sys::getTlsPtrSlotValue <Tls> ();
+	return sys::getTlsPtrSlotValue<Tls> ();
 }
 
 JNC_INLINE
 Runtime*
-getCurrentThreadRuntime ()
+getCurrentThreadRuntime()
 {
-	Tls* tls = getCurrentThreadTls ();
+	Tls* tls = getCurrentThreadTls();
 	return tls ? tls->m_runtime : NULL;
 }
 

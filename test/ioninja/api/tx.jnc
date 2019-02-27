@@ -6,7 +6,7 @@
 // no return value -- TX script is running in a dedicated thread, so we need
 // to reschedule transmission to be run in the main worker thread
 
-void transmit (
+void transmit(
 	void const* p,
 	size_t size = -1 // -1 -- use strlen
 	);

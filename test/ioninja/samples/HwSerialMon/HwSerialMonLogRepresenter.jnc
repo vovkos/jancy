@@ -8,14 +8,14 @@ import "HwSerialMonLogRecordCode.jnc"
 
 //..............................................................................
 
-char const* getLineString (uint_t line)
+char const* getLineString(uint_t line)
 {
 	return line ? "\e[31mon\e[m" : "\e[90moff\e[m";
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bool representHwSerialMonLog (
+bool representHwSerialMonLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -23,7 +23,7 @@ bool representHwSerialMonLog (
 	uint_t foldFlags
 	)
 {
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case HwSerialMonRecordCode.CaptureStarted:
 		char const* ifaceName = p;
@@ -41,73 +41,73 @@ bool representHwSerialMonLog (
 	case HwSerialMonRecordCode.RawPacket:
 //		target.m_lineAttr.m_iconIdx = -1;
 //		target.m_lineAttr.m_textColor = log.StdLogColor.Rx;
-		target.addBin (p, size);
+		target.addBin(p, size);
 		break;
 
 	case HwSerialMonRecordCode.UartRtsChanged:
 		bool rts = *(bool const*) p;
-		char const* rtsString = getLineString (rts);
+		char const* rtsString = getLineString(rts);
 
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText ($"RTS changed: $rtsString");
+		target.addHyperText($"RTS changed: $rtsString");
 		break;
 
 	case HwSerialMonRecordCode.UartCtsChanged:
 		bool dtr = *(bool const*) p;
-		char const* ctsString = getLineString (dtr);
+		char const* ctsString = getLineString(dtr);
 
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText ($"CTS changed: $ctsString");
+		target.addHyperText($"CTS changed: $ctsString");
 		break;
 
 	case HwSerialMonRecordCode.UartFramingError:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText ("UART framing error");
+		target.addHyperText("UART framing error");
 		break;
 
 	case HwSerialMonRecordCode.UartParityError:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText ("UART parity error");
+		target.addHyperText("UART parity error");
 		break;
 
 	case HwSerialMonRecordCode.I2cEmptyMessage:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText ("I\u00b2C empty message");
+		target.addHyperText("I\u00b2C empty message");
 		break;
 
 	case HwSerialMonRecordCode.I2cPreemptiveStart:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText ("I\u00b2C preemptive start bit");
+		target.addHyperText("I\u00b2C preemptive start bit");
 		break;
 
 	case HwSerialMonRecordCode.I2cPreemptiveStop:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText ("I\u00b2C preemptive stop bit");
+		target.addHyperText("I\u00b2C preemptive stop bit");
 		break;
 
 	case HwSerialMonRecordCode.I2cCharNack:
 		target.m_lineAttr.m_textColor = log.StdLogColor.Rx;
 		target.m_lineAttr.m_fontFlags = gui.FontFlags.Strikeout;
-		target.addBin (log.StdRecordCode.Rx, p, size);
+		target.addBin(log.StdRecordCode.Rx, p, size);
 		break;
 
 	case HwSerialMonRecordCode.SpiEmptyMessage:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText ("SPI empty message");
+		target.addHyperText("SPI empty message");
 		break;
 
 	case HwSerialMonRecordCode.SpiFramingError:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText ("SPI framing error");
+		target.addHyperText("SPI framing error");
 		break;
 
 	default:

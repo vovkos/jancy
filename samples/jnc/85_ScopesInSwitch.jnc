@@ -17,14 +17,14 @@
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	int result;
 
-	int a = rand () % 3;
-	switch (a)
+	int a = rand() % 3;
+	switch(a)
 	{
 	case 0:
 		int i = 10;
@@ -51,7 +51,7 @@ int main ()
 		result = i * 4;
 	}
 
-	printf ("a = %d, result = %d\n", a, result);
+	printf("a = %d, result = %d\n", a, result);
 	return 0;
 }
 

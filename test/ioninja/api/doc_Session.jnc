@@ -14,12 +14,12 @@ class Session: Plugin
 	char const* autoget property m_title;
 	bool autoget property m_isTransmitEnabled;
 
-	construct (PluginHost* host)
+	construct(PluginHost* host)
 	{
-		basetype.construct (host);
+		basetype.construct(host);
 	}
 
-	override size_t errorcode transmit (
+	override size_t errorcode transmit(
 		void const* p,
 		size_t size
 		)
@@ -27,11 +27,11 @@ class Session: Plugin
 		return size;
 	}
 
-	startSession ()
+	startSession()
 	{
-		uint64_t timestamp = sys.getPreciseTimestamp ();
+		uint64_t timestamp = sys.getPreciseTimestamp();
 		m_pluginHost.m_log.m_baseTimestamp = timestamp;
-		m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.SessionStarted);
+		m_pluginHost.m_log.m_writer.write(timestamp, log.StdRecordCode.SessionStarted);
 	}
 }
 

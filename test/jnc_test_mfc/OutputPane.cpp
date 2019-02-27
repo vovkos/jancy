@@ -22,7 +22,7 @@
 //..............................................................................
 
 BOOL
-ParseFileLineString (
+ParseFileLineString(
 	LPCTSTR buffer,
 	CString* pstrFile,
 	int* pnLine
@@ -51,14 +51,14 @@ ParseFileLineString (
 			break;
 	}
 
-	*pstrFile = CString(buffer, (int) (pLeft - buffer));
+	*pstrFile = CString(buffer, (int)(pLeft - buffer));
 	pstrFile->TrimLeft();
 	pstrFile->TrimRight();
 
 	if (pstrFile->IsEmpty())
 		return FALSE;
 
-	CString strLine(pLeft + 1, (int) (pRight - pLeft - 1));
+	CString strLine(pLeft + 1, (int)(pRight - pLeft - 1));
 	strLine.TrimLeft();
 	strLine.TrimRight();
 
@@ -67,7 +67,7 @@ ParseFileLineString (
 
 	TCHAR* pEnd;
 	*pnLine = _tcstol(strLine, &pEnd, 10);
-	if (pEnd == (LPCTSTR) strLine)
+	if (pEnd == (LPCTSTR)strLine)
 		return FALSE;
 
 	return TRUE;
@@ -91,7 +91,7 @@ int COutputPane::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST));
 
 	m_LogCtrl.ModifyStyleEx(0, WS_EX_CLIENTEDGE);
-	m_LogCtrl.SetFont (&theApp.m_Font);
+	m_LogCtrl.SetFont(&theApp.m_Font);
 
 	EnableDocking(CBRS_ALIGN_ANY);
 
@@ -103,39 +103,39 @@ void COutputPane::OnSize(UINT nType, int cx, int cy)
 	m_LogCtrl.MoveWindow(0, 0, cx, cy);
 }
 
-BOOL COutputPane::PreTranslateMessage (MSG* pMsg)
+BOOL COutputPane::PreTranslateMessage(MSG* pMsg)
 {
-	switch (pMsg->message)
+	switch(pMsg->message)
 	{
 	case WM_LBUTTONDBLCLK:
-		return OnLButtonDblClk ();
+		return OnLButtonDblClk();
 	}
 
-	return CDockablePane::PreTranslateMessage (pMsg);
+	return CDockablePane::PreTranslateMessage(pMsg);
 }
 
-BOOL COutputPane::OnLButtonDblClk ()
+BOOL COutputPane::OnLButtonDblClk()
 {
 	int StartChar, StopChar;
-	m_LogCtrl.GetSel (StartChar, StopChar);
+	m_LogCtrl.GetSel(StartChar, StopChar);
 
-	int Line = m_LogCtrl.LineFromChar (StartChar);
-	TCHAR Buffer [1024] = { 0 };
-	m_LogCtrl.GetLine (Line, Buffer, sizeof (Buffer) - 1);
+	int Line = m_LogCtrl.LineFromChar(StartChar);
+	TCHAR Buffer[1024] = { 0 };
+	m_LogCtrl.GetLine(Line, Buffer, sizeof(Buffer) - 1);
 
 	CString FilePath;
-	BOOL Result = ParseFileLineString (Buffer, &FilePath, &Line);
+	BOOL Result = ParseFileLineString(Buffer, &FilePath, &Line);
 	if (!Result)
 		return FALSE;
 
-	CEdit* pEditCtrl = &GetMainFrame ()->GetDocument ()->GetView ()->GetEditCtrl ();
-	StartChar = pEditCtrl->LineIndex (Line - 1);
+	CEdit* pEditCtrl = &GetMainFrame()->GetDocument()->GetView()->GetEditCtrl();
+	StartChar = pEditCtrl->LineIndex(Line - 1);
 	if (StartChar == -1)
 		return FALSE;
 
-	int Length = pEditCtrl->LineLength (StartChar);
+	int Length = pEditCtrl->LineLength(StartChar);
 	StopChar = StartChar + Length;
-	pEditCtrl->SetSel (StartChar, StopChar);
+	pEditCtrl->SetSel(StartChar, StopChar);
 	return TRUE;
 }
 

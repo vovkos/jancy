@@ -17,35 +17,35 @@
 namespace c2jnc {
 
 void
-testInt32 (jnc::Module* module)
+testInt32(jnc::Module* module)
 {
-	printf ("Running c2jnc.testInt32...\n");
+	printf("Running c2jnc.testInt32...\n");
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcInt32");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcInt32");
+	ASSERT(jncFunc);
 
-	FuncInt32* funcPtr = (FuncInt32*) jncFunc->getMachineCode ();
-	int32_t retval = funcPtr (-1, -2, -3, -4, -5, -6, -7, -8);
-	ASSERT (retval == -36);
+	FuncInt32* funcPtr = (FuncInt32*)jncFunc->getMachineCode();
+	int32_t retval = funcPtr(-1, -2, -3, -4, -5, -6, -7, -8);
+	ASSERT(retval == -36);
 }
 
 void
-testInt64 (jnc::Module* module)
+testInt64(jnc::Module* module)
 {
-	printf ("Running c2jnc.testInt64...\n");
+	printf("Running c2jnc.testInt64...\n");
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcInt64");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcInt64");
+	ASSERT(jncFunc);
 
-	FuncInt64* funcPtr = (FuncInt64*) jncFunc->getMachineCode ();
-	int64_t retval = funcPtr (-1, -2, -3, -4, -5, -6, -7, -8);
-	ASSERT (retval == -36);
+	FuncInt64* funcPtr = (FuncInt64*)jncFunc->getMachineCode();
+	int64_t retval = funcPtr(-1, -2, -3, -4, -5, -6, -7, -8);
+	ASSERT(retval == -36);
 }
 
 void
-testStruct32 (jnc::Module* module)
+testStruct32(jnc::Module* module)
 {
-	printf ("Running c2jnc.testStruct32...\n");
+	printf("Running c2jnc.testStruct32...\n");
 
 	struct32 s1 = { -1 };
 	struct32 s2 = { -2 };
@@ -56,18 +56,18 @@ testStruct32 (jnc::Module* module)
 	struct32 s7 = { -7 };
 	struct32 s8 = { -8 };
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct32");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcStruct32");
+	ASSERT(jncFunc);
 
-	FuncStruct32* funcPtr = (FuncStruct32*) jncFunc->getMachineCode ();
+	FuncStruct32* funcPtr = (FuncStruct32*)jncFunc->getMachineCode();
 	struct32 retval = funcPtr(s1, s2, s3, s4, s5, s6, s7, s8);
-	ASSERT (retval.m_a == -36);
+	ASSERT(retval.m_a == -36);
 }
 
 void
-testStruct64 (jnc::Module* module)
+testStruct64(jnc::Module* module)
 {
-	printf ("Running c2jnc.testStruct64...\n");
+	printf("Running c2jnc.testStruct64...\n");
 
 	struct64 s1 = { -1 };
 	struct64 s2 = { -2 };
@@ -78,82 +78,82 @@ testStruct64 (jnc::Module* module)
 	struct64 s7 = { -7 };
 	struct64 s8 = { -8 };
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct64");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcStruct64");
+	ASSERT(jncFunc);
 
-	FuncStruct64* funcPtr = (FuncStruct64*) jncFunc->getMachineCode ();
-	struct64 retval = funcPtr (s1, s2, s3, s4, s5, s6, s7, s8);
-	ASSERT (retval.m_a == -36);
+	FuncStruct64* funcPtr = (FuncStruct64*)jncFunc->getMachineCode();
+	struct64 retval = funcPtr(s1, s2, s3, s4, s5, s6, s7, s8);
+	ASSERT(retval.m_a == -36);
 }
 
 void
-testStruct128 (jnc::Module* module)
+testStruct128(jnc::Module* module)
 {
-	printf ("Running c2jnc.testStruct128...\n");
+	printf("Running c2jnc.testStruct128...\n");
 
 	struct128 s1 = { -1, -2 };
 	struct128 s2 = { -3, -4 };
 	struct128 s3 = { -5, -6 };
 	struct128 s4 = { -7, -8 };
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcStruct128");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcStruct128");
+	ASSERT(jncFunc);
 
-	FuncStruct128* funcPtr = (FuncStruct128*) jncFunc->getMachineCode ();
-	struct128 retval = funcPtr (s1, s2, s3, s4);
-	ASSERT (retval.m_a == -16 && retval.m_b == -20);
+	FuncStruct128* funcPtr = (FuncStruct128*)jncFunc->getMachineCode();
+	struct128 retval = funcPtr(s1, s2, s3, s4);
+	ASSERT(retval.m_a == -16 && retval.m_b == -20);
 }
 
 void
-testVariant (jnc::Module* module)
+testVariant(jnc::Module* module)
 {
-	printf ("Running c2jnc.testVariant...\n");
+	printf("Running c2jnc.testVariant...\n");
 
-	jnc::Type* type = module->getPrimitiveType (jnc::TypeKind_Int);
+	jnc::Type* type = module->getPrimitiveType(jnc::TypeKind_Int);
 
-	jnc::Variant v [4] = { 0 };
+	jnc::Variant v[4] = { 0 };
 
-	v [0].m_type = type;
-	v [0].m_int32 = -1;
-	v [1].m_type = type;
-	v [1].m_int32 = -2;
-	v [2].m_type = type;
-	v [2].m_int32 = -3;
-	v [3].m_type = type;
-	v [3].m_int32 = -4;
+	v[0].m_type = type;
+	v[0].m_int32 = -1;
+	v[1].m_type = type;
+	v[1].m_int32 = -2;
+	v[2].m_type = type;
+	v[2].m_int32 = -3;
+	v[3].m_type = type;
+	v[3].m_int32 = -4;
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcVariant");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcVariant");
+	ASSERT(jncFunc);
 
-	FuncVariant* funcPtr = (FuncVariant*) jncFunc->getMachineCode ();
-	jnc::Variant retval = funcPtr (v [0], v [1], v [2], v [3]);
-	ASSERT (retval.m_type->getTypeKind () == jnc::TypeKind_Int && retval.m_int32 == -10);
+	FuncVariant* funcPtr = (FuncVariant*)jncFunc->getMachineCode();
+	jnc::Variant retval = funcPtr(v[0], v[1], v[2], v[3]);
+	ASSERT(retval.m_type->getTypeKind() == jnc::TypeKind_Int && retval.m_int32 == -10);
 }
 
 void
-testFloat (jnc::Module* module)
+testFloat(jnc::Module* module)
 {
-	printf ("Running c2jnc.testFloat...\n");
+	printf("Running c2jnc.testFloat...\n");
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcFloat");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcFloat");
+	ASSERT(jncFunc);
 
-	FuncFloat* funcPtr = (FuncFloat*) jncFunc->getMachineCode ();
-	float retval = funcPtr (3.1415f, 2.7182f);
-	ASSERT (retval > 2.7182f && retval < 3.1415f);
+	FuncFloat* funcPtr = (FuncFloat*)jncFunc->getMachineCode();
+	float retval = funcPtr(3.1415f, 2.7182f);
+	ASSERT(retval > 2.7182f && retval < 3.1415f);
 }
 
 void
-testDouble (jnc::Module* module)
+testDouble(jnc::Module* module)
 {
-	printf ("Running c2jnc.testDouble...\n");
+	printf("Running c2jnc.testDouble...\n");
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction ("c2jnc.funcDouble");
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction("c2jnc.funcDouble");
+	ASSERT(jncFunc);
 
-	FuncDouble* funcPtr = (FuncDouble*) jncFunc->getMachineCode ();
-	double retval = funcPtr (3.1415, 2.7182);
-	ASSERT (retval > 2.7182 && retval < 3.1415);
+	FuncDouble* funcPtr = (FuncDouble*)jncFunc->getMachineCode();
+	double retval = funcPtr(3.1415, 2.7182);
+	ASSERT(retval > 2.7182 && retval < 3.1415);
 }
 
 //..............................................................................
@@ -165,7 +165,7 @@ namespace jnc2c {
 //..............................................................................
 
 int32_t
-funcInt32 (
+funcInt32(
 	int32_t a1,
 	int32_t a2,
 	int32_t a3,
@@ -176,20 +176,20 @@ funcInt32 (
 	int32_t a8
 	)
 {
-	ASSERT (a1 == -1);
-	ASSERT (a2 == -2);
-	ASSERT (a3 == -3);
-	ASSERT (a4 == -4);
-	ASSERT (a5 == -5);
-	ASSERT (a6 == -6);
-	ASSERT (a7 == -7);
-	ASSERT (a8 == -8);
+	ASSERT(a1 == -1);
+	ASSERT(a2 == -2);
+	ASSERT(a3 == -3);
+	ASSERT(a4 == -4);
+	ASSERT(a5 == -5);
+	ASSERT(a6 == -6);
+	ASSERT(a7 == -7);
+	ASSERT(a8 == -8);
 
 	return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
 }
 
 int64_t
-funcInt64 (
+funcInt64(
 	int64_t a1,
 	int64_t a2,
 	int64_t a3,
@@ -200,20 +200,20 @@ funcInt64 (
 	int64_t a8
 	)
 {
-	ASSERT (a1 == -1);
-	ASSERT (a2 == -2);
-	ASSERT (a3 == -3);
-	ASSERT (a4 == -4);
-	ASSERT (a5 == -5);
-	ASSERT (a6 == -6);
-	ASSERT (a7 == -7);
-	ASSERT (a8 == -8);
+	ASSERT(a1 == -1);
+	ASSERT(a2 == -2);
+	ASSERT(a3 == -3);
+	ASSERT(a4 == -4);
+	ASSERT(a5 == -5);
+	ASSERT(a6 == -6);
+	ASSERT(a7 == -7);
+	ASSERT(a8 == -8);
 
 	return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
 }
 
 struct32
-funcStruct32 (
+funcStruct32(
 	struct32 s1,
 	struct32 s2,
 	struct32 s3,
@@ -224,14 +224,14 @@ funcStruct32 (
 	struct32 s8
 	)
 {
-	ASSERT (s1.m_a == -1);
-	ASSERT (s2.m_a == -2);
-	ASSERT (s3.m_a == -3);
-	ASSERT (s4.m_a == -4);
-	ASSERT (s5.m_a == -5);
-	ASSERT (s6.m_a == -6);
-	ASSERT (s7.m_a == -7);
-	ASSERT (s8.m_a == -8);
+	ASSERT(s1.m_a == -1);
+	ASSERT(s2.m_a == -2);
+	ASSERT(s3.m_a == -3);
+	ASSERT(s4.m_a == -4);
+	ASSERT(s5.m_a == -5);
+	ASSERT(s6.m_a == -6);
+	ASSERT(s7.m_a == -7);
+	ASSERT(s8.m_a == -8);
 
 	struct32 retval;
 
@@ -243,7 +243,7 @@ funcStruct32 (
 }
 
 struct64
-funcStruct64 (
+funcStruct64(
 	struct64 s1,
 	struct64 s2,
 	struct64 s3,
@@ -254,14 +254,14 @@ funcStruct64 (
 	struct64 s8
 	)
 {
-	ASSERT (s1.m_a == -1);
-	ASSERT (s2.m_a == -2);
-	ASSERT (s3.m_a == -3);
-	ASSERT (s4.m_a == -4);
-	ASSERT (s5.m_a == -5);
-	ASSERT (s6.m_a == -6);
-	ASSERT (s7.m_a == -7);
-	ASSERT (s8.m_a == -8);
+	ASSERT(s1.m_a == -1);
+	ASSERT(s2.m_a == -2);
+	ASSERT(s3.m_a == -3);
+	ASSERT(s4.m_a == -4);
+	ASSERT(s5.m_a == -5);
+	ASSERT(s6.m_a == -6);
+	ASSERT(s7.m_a == -7);
+	ASSERT(s8.m_a == -8);
 
 	struct64 retval;
 
@@ -273,21 +273,21 @@ funcStruct64 (
 }
 
 struct128
-funcStruct128 (
+funcStruct128(
 	struct128 s1,
 	struct128 s2,
 	struct128 s3,
 	struct128 s4
 	)
 {
-	ASSERT (s1.m_a == -1);
-	ASSERT (s1.m_b == -2);
-	ASSERT (s2.m_a == -3);
-	ASSERT (s2.m_b == -4);
-	ASSERT (s3.m_a == -5);
-	ASSERT (s3.m_b == -6);
-	ASSERT (s4.m_a == -7);
-	ASSERT (s4.m_b == -8);
+	ASSERT(s1.m_a == -1);
+	ASSERT(s1.m_b == -2);
+	ASSERT(s2.m_a == -3);
+	ASSERT(s2.m_b == -4);
+	ASSERT(s3.m_a == -5);
+	ASSERT(s3.m_b == -6);
+	ASSERT(s4.m_a == -7);
+	ASSERT(s4.m_b == -8);
 
 	struct128 retval;
 	retval.m_a = s1.m_a + s2.m_a + s3.m_a + s4.m_a;
@@ -296,17 +296,17 @@ funcStruct128 (
 }
 
 jnc::Variant
-funcVariant (
+funcVariant(
 	jnc::Variant v1,
 	jnc::Variant v2,
 	jnc::Variant v3,
 	jnc::Variant v4
 	)
 {
-	ASSERT (v1.m_type->getTypeKind () == jnc::TypeKind_Int && v1.m_int32 == -1);
-	ASSERT (v2.m_type->getTypeKind () == jnc::TypeKind_Int && v2.m_int32 == -2);
-	ASSERT (v3.m_type->getTypeKind () == jnc::TypeKind_Int && v3.m_int32 == -3);
-	ASSERT (v4.m_type->getTypeKind () == jnc::TypeKind_Int && v4.m_int32 == -4);
+	ASSERT(v1.m_type->getTypeKind() == jnc::TypeKind_Int && v1.m_int32 == -1);
+	ASSERT(v2.m_type->getTypeKind() == jnc::TypeKind_Int && v2.m_int32 == -2);
+	ASSERT(v3.m_type->getTypeKind() == jnc::TypeKind_Int && v3.m_int32 == -3);
+	ASSERT(v4.m_type->getTypeKind() == jnc::TypeKind_Int && v4.m_int32 == -4);
 
 	jnc::Variant retval = { 0 };
 	retval.m_int32 = v1.m_int32 + v2.m_int32 + v3.m_int32 + v4.m_int32;
@@ -315,37 +315,37 @@ funcVariant (
 }
 
 jnc::DataPtr
-funcPtr (
+funcPtr(
 	jnc::DataPtr p1,
 	char* p2
 	)
 {
-	ASSERT (strcmp ((char*) p1.m_p, "abc") == 0);
-	ASSERT (strcmp (p2, "def") == 0);
+	ASSERT(strcmp((char*)p1.m_p, "abc") == 0);
+	ASSERT(strcmp(p2, "def") == 0);
 
 	return p1;
 }
 
 float
-funcFloat (
+funcFloat(
 	float x,
 	float y
 	)
 {
-	ASSERT (x > 3.1414 && x < 3.1416);
-	ASSERT (y > 2.7181 && y < 2.7183);
+	ASSERT(x > 3.1414 && x < 3.1416);
+	ASSERT(y > 2.7181 && y < 2.7183);
 
 	return (x + y) / 2;
 }
 
 double
-funcDouble (
+funcDouble(
 	double x,
 	double y
 	)
 {
-	ASSERT (x > 3.1414 && x < 3.1416);
-	ASSERT (y > 2.7181 && y < 2.7183);
+	ASSERT(x > 3.1414 && x < 3.1416);
+	ASSERT(y > 2.7181 && y < 2.7183);
 
 	return (x + y) / 2;
 }
@@ -353,18 +353,18 @@ funcDouble (
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
-test (
+test(
 	jnc::Module* module,
 	const char* funcName
 	)
 {
-	printf ("Running %s...\n", funcName);
+	printf("Running %s...\n", funcName);
 
-	jnc::Function* jncFunc = module->getGlobalNamespace ()->getNamespace ()->findFunction (funcName);
-	ASSERT (jncFunc);
+	jnc::Function* jncFunc = module->getGlobalNamespace()->getNamespace()->findFunction(funcName);
+	ASSERT(jncFunc);
 
-	TestFunc* funcPtr = (TestFunc*) jncFunc->getMachineCode ();
-	funcPtr ();
+	TestFunc* funcPtr = (TestFunc*)jncFunc->getMachineCode();
+	funcPtr();
 }
 
 //..............................................................................
@@ -373,29 +373,29 @@ test (
 
 //..............................................................................
 
-JNC_DEFINE_LIB (
+JNC_DEFINE_LIB(
 	TestLib,
 	sl::g_nullGuid,
 	"TestLib",
 	"Jancy ABI-compatibility test library"
 	)
 
-JNC_BEGIN_LIB_FUNCTION_MAP (TestLib)
-	JNC_MAP_FUNCTION ("jnc2c.funcInt32",     &jnc2c::funcInt32)
-	JNC_MAP_FUNCTION ("jnc2c.funcInt64",     &jnc2c::funcInt64)
-	JNC_MAP_FUNCTION ("jnc2c.funcStruct32",  &jnc2c::funcStruct32)
-	JNC_MAP_FUNCTION ("jnc2c.funcStruct64",  &jnc2c::funcStruct64)
-	JNC_MAP_FUNCTION ("jnc2c.funcStruct128", &jnc2c::funcStruct128)
-	JNC_MAP_FUNCTION ("jnc2c.funcVariant",   &jnc2c::funcVariant)
-	JNC_MAP_FUNCTION ("jnc2c.funcPtr",       &jnc2c::funcPtr)
-	JNC_MAP_FUNCTION ("jnc2c.funcFloat",     &jnc2c::funcFloat)
-	JNC_MAP_FUNCTION ("jnc2c.funcDouble",    &jnc2c::funcDouble)
-JNC_END_LIB_FUNCTION_MAP ()
+JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
+	JNC_MAP_FUNCTION("jnc2c.funcInt32",     &jnc2c::funcInt32)
+	JNC_MAP_FUNCTION("jnc2c.funcInt64",     &jnc2c::funcInt64)
+	JNC_MAP_FUNCTION("jnc2c.funcStruct32",  &jnc2c::funcStruct32)
+	JNC_MAP_FUNCTION("jnc2c.funcStruct64",  &jnc2c::funcStruct64)
+	JNC_MAP_FUNCTION("jnc2c.funcStruct128", &jnc2c::funcStruct128)
+	JNC_MAP_FUNCTION("jnc2c.funcVariant",   &jnc2c::funcVariant)
+	JNC_MAP_FUNCTION("jnc2c.funcPtr",       &jnc2c::funcPtr)
+	JNC_MAP_FUNCTION("jnc2c.funcFloat",     &jnc2c::funcFloat)
+	JNC_MAP_FUNCTION("jnc2c.funcDouble",    &jnc2c::funcDouble)
+JNC_END_LIB_FUNCTION_MAP()
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (TestLib)
-JNC_END_LIB_SOURCE_FILE_TABLE ()
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(TestLib)
+JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (TestLib)
-JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(TestLib)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 //..............................................................................

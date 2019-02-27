@@ -2,43 +2,43 @@ using extension E;
 
 class C2
 {
-	baz ();
+	baz();
 }
 
-C2.baz ()
+C2.baz()
 {
 	C c;
-	c.bar ();
+	c.bar();
 }
 
-int main ()
+int main()
 {
-	printf ("main\n");	
+	printf("main\n");
 
 	C c;
-	c.foo ();
-	c.bar ();
+	c.foo();
+	c.bar();
 
 	C2 c2;
-	c2.baz ();
+	c2.baz();
 	return 0;
 }
 
 extension E: C
 {
-	bar ();
+	bar();
 }
 
 class C
 {
-	foo ()
+	foo()
 	{
-		printf ("C.foo (%p)\n", this);
+		printf("C.foo (%p)\n", this);
 	}
 }
 
-E.bar ()
+E.bar()
 {
-	printf ("E.bar (%p)\n", this);
-	foo ();
+	printf("E.bar (%p)\n", this);
+	foo();
 }

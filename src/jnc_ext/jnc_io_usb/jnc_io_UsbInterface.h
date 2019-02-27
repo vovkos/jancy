@@ -17,14 +17,14 @@ namespace io {
 class UsbDevice;
 class UsbEndpoint;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbInterface)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbInterface)
 
 //..............................................................................
 
 class UsbInterface: public IfaceHdr
 {
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (UsbInterface)
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbInterface)
 
 public:
 	UsbDevice* m_parentDevice;
@@ -33,20 +33,20 @@ public:
 	bool m_isClaimed;
 
 public:
-	UsbInterface ();
+	UsbInterface();
 
-	~UsbInterface ()
+	~UsbInterface()
 	{
-		release ();
+		release();
 	}
 
 	void
 	JNC_CDECL
-	release ();
+	release();
 
 	UsbEndpoint*
 	JNC_CDECL
-	openEndpoint (uint8_t endpointId);
+	openEndpoint(uint8_t endpointId);
 };
 
 //..............................................................................

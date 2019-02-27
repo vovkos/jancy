@@ -21,33 +21,33 @@
 
 //..............................................................................
 
-bool errorcode fooBar (
+bool errorcode fooBar(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length = -1
 	)
 {
 	if (length == -1)
-		length = strlen (p);
+		length = strlen(p);
 
 	char const* end = p + length;
 
 	// post-condition loop allows passing 'null' as eof
 	do
 	{
-		reswitch (state, p, end - p)
+		reswitch(state, p, end - p)
 		{
 		case "foo":
-			printf ("lexeme found: foo\n");
+			printf("lexeme found: foo\n");
 			break;
 
 		case "bar":
-			printf ("lexeme found: bar\n");
+			printf("lexeme found: bar\n");
 			break;
 
 		case r"\d+":
 			// you can access matched lexeme via jnc.RegexState.m_match field
-			printf ("lexeme found: dec '%s'\n", state.m_match.m_text);
+			printf("lexeme found: dec '%s'\n", state.m_match.m_text);
 			break;
 
 		case r"\s+":
@@ -62,7 +62,7 @@ bool errorcode fooBar (
 			if (!state.m_consumedLength)
 				return false;
 
-			assert (state.m_isIncremental && state.m_consumedLength == end - p);
+			assert(state.m_isIncremental && state.m_consumedLength == end - p);
 		}
 
 		p += state.m_consumedLength; // advance to the next lexeme
@@ -75,42 +75,42 @@ bool errorcode fooBar (
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// you need a jnc.RegexState object to store the state of DFA
 
 	jnc.RegexState state;
 
 	char const* p = " foo bar 100 baz";
-	bool result = try fooBar (state, p);
+	bool result = try fooBar(state, p);
 	if (!result)
-		printf ("recognition error at: %s\n", p + state.m_currentOffset);
+		printf("recognition error at: %s\n", p + state.m_currentOffset);
 
 	// It's OK to perform recognition incrementally, chunk by chunk.
 	// This is cructial when analyzing protocols operating over stream
 	// transports like TCP or Serial, where it is not guaranteed that a message
 	// will be delivered as a whole and not as multiple segments.
 
-	state.reset ();
+	state.reset();
 	state.m_isIncremental = true; // turn on incremental matching
 
 	try
 	{
-		fooBar (state, " ba");
-		fooBar (state, "r f");
-		fooBar (state, "oo ");
-		fooBar (state, "100");
-		fooBar (state, "000");
+		fooBar(state, " ba");
+		fooBar(state, "r f");
+		fooBar(state, "oo ");
+		fooBar(state, "100");
+		fooBar(state, "000");
 
 		// Incremental recognizer must be notified about eof -- this
 		// can trigger actions or errors.
 
-		fooBar (state, null);
+		fooBar(state, null);
 
 	catch:
-		printf ("recognition error\n");
+		printf("recognition error\n");
 	}
 
 	return 0;

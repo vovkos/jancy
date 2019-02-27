@@ -26,63 +26,63 @@ class Buffer
 	size_t readonly m_size;
 	size_t readonly m_maxSize;
 
-	char get (size_t offset)
+	char get(size_t offset)
 	{
-		boundsCheck (offset);
-		return m_p [offset];
+		boundsCheck(offset);
+		return m_p[offset];
 	}
 
-	set (
+	set(
 		size_t offset,
 		char e
 		)
 	{
-		boundsCheck (offset);
-		m_p [offset] = e;
+		boundsCheck(offset);
+		m_p[offset] = e;
 	}
 
-	clear ();
+	clear();
 
-	detach ()
+	detach()
 	{
 		m_p = null;
 		m_size = 0;
 		m_maxSize = 0;
 	}
 
-	bool errorcode setSize (size_t size);
-	bool errorcode reserve (size_t size);
+	bool errorcode setSize(size_t size);
+	bool errorcode reserve(size_t size);
 
-	size_t errorcode copy (
+	size_t errorcode copy(
 		void const* p,
 		size_t size
 		);
 
-	size_t errorcode append (
+	size_t errorcode append(
 		void const* p,
 		size_t size
 		)
 	{
-		return insert (-1, p, size);
+		return insert(-1, p, size);
 	}
 
-	size_t errorcode insert (
+	size_t errorcode insert(
 		size_t offset,
 		void const* p,
 		size_t size
 		);
 
-	size_t errorcode remove (
+	size_t errorcode remove(
 		size_t offset,
 		size_t size
 		);
 
 protected:
-	boundsCheck (size_t offset)
+	boundsCheck(size_t offset)
 	{
 		if (offset >= m_size)
 		{
-			std.setError ($"attempt to access out-of-bounds offset $offset (size: $m_size)");
+			std.setError($"attempt to access out-of-bounds offset $offset (size: $m_size)");
 			throw;
 		}
 	}

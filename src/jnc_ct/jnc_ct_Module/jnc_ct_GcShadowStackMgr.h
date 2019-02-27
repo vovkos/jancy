@@ -45,60 +45,60 @@ protected:
 	};
 
 	GcShadowStackFrameMapKind m_mapKind;
-	sl::Array <intptr_t> m_gcRootArray;
-	sl::Array <Type*> m_gcRootTypeArray;
+	sl::Array<intptr_t> m_gcRootArray;
+	sl::Array<Type*> m_gcRootTypeArray;
 
 public:
-	GcShadowStackFrameMap ()
+	GcShadowStackFrameMap()
 	{
 		m_prev = NULL;
 		m_mapKind = GcShadowStackFrameMapKind_Static;
 	}
 
 	GcShadowStackFrameMap*
-	getPrev ()
+	getPrev()
 	{
 		return m_prev;
 	}
 
 	GcShadowStackFrameMapKind
-	getMapKind ()
+	getMapKind()
 	{
 		return m_mapKind;
 	}
 
 	size_t
-	getGcRootCount ()
+	getGcRootCount()
 	{
-		return m_gcRootArray.getCount ();
+		return m_gcRootArray.getCount();
 	}
 
 	const size_t*
-	getGcRootIndexArray ()
+	getGcRootIndexArray()
 	{
-		ASSERT (m_mapKind == GcShadowStackFrameMapKind_Static);
-		return (const size_t*) m_gcRootArray.cp ();
+		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Static);
+		return (const size_t*) m_gcRootArray.cp();
 	}
 
 	Type* const*
-	getGcRootTypeArray ()
+	getGcRootTypeArray()
 	{
-		ASSERT (m_mapKind == GcShadowStackFrameMapKind_Static);
-		return m_gcRootTypeArray.cp ();
+		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Static);
+		return m_gcRootTypeArray.cp();
 	}
 
 	Box* const*
-	getBoxArray ()
+	getBoxArray()
 	{
-		ASSERT (m_mapKind == GcShadowStackFrameMapKind_Dynamic);
-		return (Box* const*) m_gcRootArray.cp ();
+		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Dynamic);
+		return (Box* const*) m_gcRootArray.cp();
 	}
 
 	void
-	addBox (Box* box)
+	addBox(Box* box)
 	{
-		ASSERT (m_mapKind == GcShadowStackFrameMapKind_Dynamic);
-		m_gcRootArray.append ((intptr_t) box);
+		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Dynamic);
+		m_gcRootArray.append((intptr_t)box);
 	}
 };
 
@@ -111,60 +111,60 @@ class GcShadowStackMgr
 protected:
 	Module* m_module;
 
-	sl::List <GcShadowStackFrameMap> m_frameMapList;
+	sl::List<GcShadowStackFrameMap> m_frameMapList;
 	Value m_gcRootArrayValue;
 
-	sl::Array <GcShadowStackFrameMap*> m_functionFrameMapArray;
+	sl::Array<GcShadowStackFrameMap*> m_functionFrameMapArray;
 	Variable* m_frameVariable;
 	size_t m_gcRootCount;
 
 public:
-	GcShadowStackMgr ();
+	GcShadowStackMgr();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
-	bool hasFrame ()
+	bool hasFrame()
 	{
 		return m_frameVariable != NULL;
 	}
 
 	void
-	clear ();
+	clear();
 
 	void
-	finalizeFunction ();
+	finalizeFunction();
 
 	void
-	finalizeScope (Scope* scope);
+	finalizeScope(Scope* scope);
 
 	void
-	createTmpGcRoot (const Value& value);
+	createTmpGcRoot(const Value& value);
 
 	void
-	markGcRoot (
+	markGcRoot(
 		const Value& ptrValue,
 		Type* type
 		);
 
 protected:
 	GcShadowStackFrameMap*
-	openFrameMap (Scope* scope);
+	openFrameMap(Scope* scope);
 
 	void
-	setFrameMap (
+	setFrameMap(
 		GcShadowStackFrameMap* frameMap,
 		GcShadowStackFrameMapOp op
 		);
 
 	void
-	preCreateFrame ();
+	preCreateFrame();
 
 	void
-	finalizeFrame ();
+	finalizeFrame();
 };
 
 //..............................................................................

@@ -13,14 +13,14 @@
 
 #include "MyWidget.h"
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (MyLayout)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MyLayout)
 
 //..............................................................................
 
 class MyLayout: public jnc::IfaceHdr
 {
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (MyLayout)
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(MyLayout)
 
 	QBoxLayout::Direction m_direction;
 
@@ -28,28 +28,28 @@ public:
 	QBoxLayout* m_qtLayout;
 
 protected:
-	QList <MyWidget*> m_childWidgetList;
-	QList <MyLayout*> m_childLayoutList;
+	QList<MyWidget*> m_childWidgetList;
+	QList<MyLayout*> m_childLayoutList;
 
 public:
-	MyLayout (QBoxLayout::Direction direction);
-	~MyLayout ();
+	MyLayout(QBoxLayout::Direction direction);
+	~MyLayout();
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	void
 	JNC_CDECL
-	addWidget (MyWidget* widget);
+	addWidget(MyWidget* widget);
 
 	void
 	JNC_CDECL
-	addLayout (MyLayout* layout);
+	addLayout(MyLayout* layout);
 
 	void
 	JNC_CDECL
-	addSpacer ();
+	addSpacer();
 };
 
 //..............................................................................

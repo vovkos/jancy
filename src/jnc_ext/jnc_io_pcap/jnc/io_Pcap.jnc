@@ -38,7 +38,7 @@ bitflag enum PcapEvents
 	IoError,
 
 	/**
-		New packet(s) are available on the Pcap device or file; the next packet
+		New packet(s)are available on the Pcap device or file; the next packet
 		could be fetched with `io.Pcap.read` method.
 	*/
 
@@ -66,17 +66,17 @@ bitflag enum PcapEvents
 	\brief This class provides high-level asynchronous interface for the Pcap
 	(Packet Capture) library.
 
-	Pcap library (called WinPcap on Windows) is de-facto the standard tool for
+	Pcap library(called WinPcap on Windows) is de-facto the standard tool for
 	capturing and injecting low-level network traffic.
 
 	A typical sequence of steps when working with ``io.Pcap`` looks something
 	like this:
 
-	* Open a live capture using ``openDevice`` or a capture file (\*.pcap) using
+	* Open a live capture using ``openDevice`` or a capture file(\*.pcap) using
 	  ``openFile`` method;
 	* Assign IO event handler with ``wait`` method. You would probably also
 	  want to *schedule* your event handler to be run in particular
-	  environment (e.g., in a specific thread) and partially apply some
+	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
 	* When `io.PcapEvents.IncomingData` event is fired, read packet using
 	  ``read`` method;
@@ -95,51 +95,51 @@ bitflag enum PcapEvents
 			io.Pcap m_pcap;
 			uint_t m_syncId;
 
-			startCapture (
+			startCapture(
 				char const* device,
 				char const* filter = null
 				);
 
-			close ();
-			waitPcapEvents ();
+			close();
+			waitPcapEvents();
 
-			onPcapEvent (
+			onPcapEvent(
 				uint_t syncId,
 				`io.PcapEvents` triggeredEvents
 				);
 		}
 
-		MyDialog.startCapture (
+		MyDialog.startCapture(
 			char const* device,
 			char const* filter = null
 			)
 		{
-			bool result = try m_pcap.openDevice (device, filter);
+			bool result = try m_pcap.openDevice(device, filter);
 			if (!result)
 			{
 				// handle the error...
 			}
 
-			waitPcapEvents ();
+			waitPcapEvents();
 		}
 
-		MyDialog.close ()
+		MyDialog.close()
 		{
-			m_serial.close ();
+			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitPcapEvent ()
+		MyDialog.waitPcapEvent()
 		{
 			`io.PcapEvents` eventMask =
 				`io.PcapEvents.IoError` |
 				`io.PcapEvents.IncomingData`;
 
-			m_serial.wait (eventMask, onPcapEvent ~(++m_syncId) @
+			m_serial.wait(eventMask, onPcapEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onPcapEvent (
+		MyDialog.onPcapEvent(
 			uint_t syncId,
 			`io.PcapEvents` triggeredEvents
 			)
@@ -155,12 +155,12 @@ bitflag enum PcapEvents
 
 			if (triggeredEvents & `io.PcapEvents.IncomingData`)
 			{
-				char buffer [256];
-				size_t size = m_pcap.read (buffer, sizeof (buffer));
+				char buffer[256];
+				size_t size = m_pcap.read(buffer, sizeof(buffer));
 				// ...
 			}
 
-			waitPcapEvents (); // restart wait
+			waitPcapEvents(); // restart wait
 		}
 
 	\sa `io.PcapEvents`
@@ -199,7 +199,7 @@ opaque class Pcap
 	size_t autoget property m_readBufferSize;
 
 	/**
-		Holds currently specified capture filter [#f4]_.
+		Holds currently specified capture filter[#f4]_.
 	*/
 
 	char const* readonly m_filter;
@@ -216,8 +216,8 @@ opaque class Pcap
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens a network interface for Pcap capture.
@@ -240,7 +240,7 @@ opaque class Pcap
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode openDevice (
+	bool errorcode openDevice(
 		char const* deviceName,
 		char const* filter,
 		uint_t snapshotSize = Defaults.SnapshotSize,
@@ -253,13 +253,13 @@ opaque class Pcap
 		argument.
 
 		The second argument, ``filter``, has the same meaning as in
-		``openDevice`` method [#f4]_.
+		``openDevice`` method[#f4]_.
 
 		Returns ``true`` on success. If capture file could not be opened,
 		function sets the error reported by Pcap and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode openFile (
+	bool errorcode openFile(
 		char const* fileName,
 		char const* filter
 		);
@@ -272,10 +272,10 @@ opaque class Pcap
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.Pcap`` a *disposable* class [#f2]_.
+		Effectively makes ``io.Pcap`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
@@ -288,7 +288,7 @@ opaque class Pcap
 		function sets the error reported by Pcap and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode setFilter (char const* filter);
+	bool errorcode setFilter(char const* filter);
 
 	/**
 		Reads the next packet into the buffer pointed to by ``p`` and ``size``
@@ -305,7 +305,7 @@ opaque class Pcap
 		closed.
 	*/
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size,
 		uint64_t* timestamp = null
@@ -320,19 +320,19 @@ opaque class Pcap
 		returns ``-1`` [#f1]_.
 	*/
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		PcapEvents eventMask,
-		function* handler (PcapEvents triggeredEvents)
+		function* handler(PcapEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	PcapEvents errorcode blockingWait (
+	PcapEvents errorcode blockingWait(
 		PcapEvents eventMask,
 		uint_t timeout
 		);
@@ -441,14 +441,14 @@ struct PcapDeviceDesc
 
 	.. ref-code-block::
 
-		`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList ();
+		`io.PcapDeviceDesc` const* deviceDesc = io.createPcapDeviceDescList();
 		for (; deviceDesc; deviceDesc = deviceDesc.m_next)
 		{
 			// add device to the combo box...
 		}
 */
 
-PcapDeviceDesc const* createPcapDeviceDescList (size_t* count = null);
+PcapDeviceDesc const* createPcapDeviceDescList(size_t* count = null);
 
 //..............................................................................
 

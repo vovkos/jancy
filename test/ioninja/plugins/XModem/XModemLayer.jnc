@@ -26,7 +26,7 @@ protected:
 
 	State bindable m_state;
 
-	gui.Action* m_actionTable [ActionId._Count];
+	gui.Action* m_actionTable[ActionId._Count];
 	gui.FileDlg m_fileDlg;
 
 	XModemTransmitter m_transmitter;
@@ -37,100 +37,100 @@ public:
 	gui.ProgressDlg m_progressDlg;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	transmitFile ();
-	receiveFile ();
+	transmitFile();
+	receiveFile();
 	cancelFileTranfer  ();
 
 protected:
-	createUi ();
+	createUi();
 
-	onLogRecord (
+	onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
 		);
 
-	onFileDlgCompleted (gui.StdDlgButton button);
-	onProgressDlgButtonClicked (gui.StdDlgButton button);
+	onFileDlgCompleted(gui.StdDlgButton button);
+	onProgressDlgButtonClicked(gui.StdDlgButton button);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-XModemLayer.construct (doc.PluginHost* pluginHost)
+XModemLayer.construct(doc.PluginHost* pluginHost)
 {
-	basetype1.construct (pluginHost);
-	m_transmitter.construct (this);
-	m_receiver.construct (this);
+	basetype1.construct(pluginHost);
+	m_transmitter.construct(this);
+	m_receiver.construct(this);
 
 	m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
-	pluginHost.m_log.addListener (onLogRecord @ pluginHost.m_mainThreadScheduler);
+	pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
 
 	m_state = State.Idle;
 
-	createUi ();
+	createUi();
 }
 
-XModemLayer.createUi ()
+XModemLayer.createUi()
 {
-	m_pluginHost.m_toolBar.addSeparator ();
+	m_pluginHost.m_toolBar.addSeparator();
 
-	m_actionTable [ActionId.Transmit]  = createAction ("Transmit File with XModem", "images/transmit.png");
-	m_actionTable [ActionId.Transmit].m_onTriggered += transmitFile;
+	m_actionTable[ActionId.Transmit]  = createAction("Transmit File with XModem", "images/transmit.png");
+	m_actionTable[ActionId.Transmit].m_onTriggered += transmitFile;
 
-	m_actionTable [ActionId.Receive] = createAction ("Receive File with XModem", "images/receive.png");
-	m_actionTable [ActionId.Receive].m_onTriggered += receiveFile;
+	m_actionTable[ActionId.Receive] = createAction("Receive File with XModem", "images/receive.png");
+	m_actionTable[ActionId.Receive].m_onTriggered += receiveFile;
 }
 
-XModemLayer.transmitFile ()
+XModemLayer.transmitFile()
 {
-	cancelFileTranfer ();
+	cancelFileTranfer();
 
 	m_fileDlg.m_kind = gui.FileDlgKind.Open;
 	m_fileDlg.m_title = "Transmit File with XModem...";
 	m_fileDlg.m_filter = "All files (*.*)";
-	m_fileDlg.show ();
+	m_fileDlg.show();
 
 	m_state = State.TransmitFileDlg;
 }
 
-XModemLayer.receiveFile ()
+XModemLayer.receiveFile()
 {
-	cancelFileTranfer ();
+	cancelFileTranfer();
 
 	m_fileDlg.m_kind = gui.FileDlgKind.Save;
 	m_fileDlg.m_title = "Receive File with XModem...";
 	m_fileDlg.m_filter = "All files (*.*)";
-	m_fileDlg.show ();
+	m_fileDlg.show();
 
 	m_state = State.ReceiveFileDlg;
 }
 
-XModemLayer.cancelFileTranfer ()
+XModemLayer.cancelFileTranfer()
 {
-	switch (m_state)
+	switch(m_state)
 	{
 	case State.Idle:
 		return;
 
 	case State.Transmitting:
-		m_transmitter.cancel ();
+		m_transmitter.cancel();
 		break;
 
 	case State.Receiving:
-		m_receiver.cancel ();
+		m_receiver.cancel();
 		break;
 	}
 
 	m_state = State.Idle;
-	m_file.close ();
-	m_progressDlg.hide ();
+	m_file.close();
+	m_progressDlg.hide();
 }
 
-XModemLayer.onFileDlgCompleted (gui.StdDlgButton button)
+XModemLayer.onFileDlgCompleted(gui.StdDlgButton button)
 {
 	if (button != gui.StdDlgButton.Ok)
 	{
@@ -142,48 +142,48 @@ XModemLayer.onFileDlgCompleted (gui.StdDlgButton button)
 	m_progressDlg.m_status = "Initializing...";
 	m_progressDlg.m_progress = 0;
 	m_progressDlg.m_buttons = gui.StdDlgButtons.Abort;
-	m_progressDlg.show ();
+	m_progressDlg.show();
 
-	switch (m_state)
+	switch(m_state)
 	{
 	case State.TransmitFileDlg:
 		m_state = State.Transmitting;
-		m_file.open (
+		m_file.open(
 			m_fileDlg.m_filePath,
 			io.FileOpenFlags.OpenExisting | io.FileOpenFlags.ReadOnly
 			);
-		m_transmitter.start ();
+		m_transmitter.start();
 		break;
 
 	case State.ReceiveFileDlg:
 		m_state = State.Receiving;
-		m_file.open (m_fileDlg.m_filePath);
-		m_receiver.start ();
+		m_file.open(m_fileDlg.m_filePath);
+		m_receiver.start();
 		break;
 	}
 
 catch:
-	m_progressDlg.m_status = std.getLastError ().m_description;
+	m_progressDlg.m_status = std.getLastError().m_description;
 	m_progressDlg.m_buttons = gui.StdDlgButtons.Close;
 }
 
-XModemLayer.onProgressDlgButtonClicked (gui.StdDlgButton button)
+XModemLayer.onProgressDlgButtonClicked(gui.StdDlgButton button)
 {
-	switch (button)
+	switch(button)
 	{
 	case gui.StdDlgButton.Cancel:
 	case gui.StdDlgButton.Abort:
-		cancelFileTranfer ();
+		cancelFileTranfer();
 		break;
 
 	case gui.StdDlgButton.Ok:
 	case gui.StdDlgButton.Close:
-		m_progressDlg.hide ();
+		m_progressDlg.hide();
 		break;
 	}
 }
 
-XModemLayer.onLogRecord (
+XModemLayer.onLogRecord(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,
@@ -191,14 +191,14 @@ XModemLayer.onLogRecord (
 	)
 {
 	if (recordCode == log.StdRecordCode.Rx)
-		switch (m_state)
+		switch(m_state)
 		{
 		case State.Transmitting:
-			m_transmitter.onRx (p, size);
+			m_transmitter.onRx(p, size);
 			break;
 
 		case State.Receiving:
-			m_receiver.onRx (p, size);
+			m_receiver.onRx(p, size);
 			break;
 		}
 }

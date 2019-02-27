@@ -32,17 +32,17 @@ public:
 public:
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		return getArithmeticResultType (opValue1, opValue2);
+		return getArithmeticResultType(opValue1, opValue2);
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -50,7 +50,7 @@ public:
 	{
 		// BwOr overrides GetResultType, but here we need original one
 
-		Type* type = getArithmeticResultType (rawOpValue1, rawOpValue2);
+		Type* type = getArithmeticResultType(rawOpValue1, rawOpValue2);
 		if (!type)
 			return false;
 
@@ -58,24 +58,24 @@ public:
 		Value opValue2;
 
 		bool result =
-			castOperator (m_module, rawOpValue1, type, &opValue1) &&
-			castOperator (m_module, rawOpValue2, type, &opValue2);
+			castOperator(m_module, rawOpValue1, type, &opValue1) &&
+			castOperator(m_module, rawOpValue2, type, &opValue2);
 
 		if (!result)
 			return false;
 
-		if (opValue1.getValueKind () == ValueKind_Const && opValue2.getValueKind () == ValueKind_Const)
+		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const)
 		{
-			TypeKind typeKind = type->getTypeKind ();
-			switch (typeKind)
+			TypeKind typeKind = type->getTypeKind();
+			switch(typeKind)
 			{
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
-				resultValue->setConstInt32 (
-					T::constOpInt32 (
-						opValue1.getInt32 (),
-						opValue2.getInt32 (),
-						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
+				resultValue->setConstInt32(
+					T::constOpInt32(
+						opValue1.getInt32(),
+						opValue2.getInt32(),
+						(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
 						),
 					type
 					);
@@ -83,49 +83,49 @@ public:
 
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				resultValue->setConstInt64 (
-					T::constOpInt64 (
-						opValue1.getInt64 (),
-						opValue2.getInt64 (),
-						(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
+				resultValue->setConstInt64(
+					T::constOpInt64(
+						opValue1.getInt64(),
+						opValue2.getInt64(),
+						(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
 						),
 					type
 					);
 				break;
 
 			case TypeKind_Float:
-				resultValue->setConstFloat (T::constOpFp32 (opValue1.getFloat (), opValue2.getFloat ()), m_module);
+				resultValue->setConstFloat(T::constOpFp32(opValue1.getFloat(), opValue2.getFloat()), m_module);
 				break;
 
 			case TypeKind_Double:
-				resultValue->setConstDouble (T::constOpFp64 (opValue1.getDouble (), opValue2.getDouble ()), m_module);
+				resultValue->setConstDouble(T::constOpFp64(opValue1.getDouble(), opValue2.getDouble()), m_module);
 				break;
 
 			default:
-				ASSERT (false);
+				ASSERT(false);
 			}
 		}
 		else
 		{
-			TypeKind typeKind = type->getTypeKind ();
-			switch (typeKind)
+			TypeKind typeKind = type->getTypeKind();
+			switch(typeKind)
 			{
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
 			case TypeKind_Int64:
 			case TypeKind_Int64_u:
-				static_cast <T*> (this)->llvmOpInt (
+				static_cast<T*> (this)->llvmOpInt(
 					opValue1,
 					opValue2,
 					type,
 					resultValue,
-					(type->getTypeKindFlags () & TypeKindFlag_Unsigned) != 0
+					(type->getTypeKindFlags() & TypeKindFlag_Unsigned) != 0
 					);
 				break;
 
 			case TypeKind_Float:
 			case TypeKind_Double:
-				static_cast <T*> (this)->llvmOpFp (
+				static_cast<T*> (this)->llvmOpFp(
 					opValue1,
 					opValue2,
 					type,
@@ -134,7 +134,7 @@ public:
 				break;
 
 			default:
-				ASSERT (false);
+				ASSERT(false);
 			}
 		}
 
@@ -143,15 +143,15 @@ public:
 
 protected:
 	Type*
-	getArithmeticResultType (
+	getArithmeticResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		Type* type = getArithmeticOperatorResultType (opValue1, opValue2);
-		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags () & TypeKindFlag_Integer))
+		Type* type = getArithmeticOperatorResultType(opValue1, opValue2);
+		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags() & TypeKindFlag_Integer))
 		{
-			setOperatorError (opValue1, opValue2);
+			setOperatorError(opValue1, opValue2);
 			return NULL;
 		}
 
@@ -163,7 +163,7 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename T>
-class BinOp_IntegerOnly: public BinOp_Arithmetic <T>
+class BinOp_IntegerOnly: public BinOp_Arithmetic<T>
 {
 public:
 	enum
@@ -174,7 +174,7 @@ public:
 public:
 	static
 	float
-	constOpFp32 (
+	constOpFp32(
 		float opValue1,
 		float opValue2
 		)
@@ -184,7 +184,7 @@ public:
 
 	static
 	double
-	constOpFp64 (
+	constOpFp64(
 		double opValue1,
 		double opValue2
 		)
@@ -193,31 +193,31 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpFp (
+	llvmOpFp(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
 		Value* resultValue
 		)
 	{
-		ASSERT (false);
+		ASSERT(false);
 		return NULL;
 	}
 };
 
 //..............................................................................
 
-class BinOp_Add: public BinOp_Arithmetic <BinOp_Add>
+class BinOp_Add: public BinOp_Arithmetic<BinOp_Add>
 {
 public:
-	BinOp_Add ()
+	BinOp_Add()
 	{
 		m_opKind = BinOpKind_Add;
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
@@ -225,7 +225,7 @@ public:
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -236,7 +236,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -247,7 +247,7 @@ public:
 
 	static
 	float
-	constOpFp32 (
+	constOpFp32(
 		float opValue1,
 		float opValue2
 		)
@@ -257,7 +257,7 @@ public:
 
 	static
 	double
-	constOpFp64 (
+	constOpFp64(
 		double opValue1,
 		double opValue2
 		)
@@ -266,7 +266,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -275,7 +275,7 @@ public:
 		);
 
 	llvm::Value*
-	llvmOpFp (
+	llvmOpFp(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -285,17 +285,17 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Sub: public BinOp_Arithmetic <BinOp_Sub>
+class BinOp_Sub: public BinOp_Arithmetic<BinOp_Sub>
 {
 public:
-	BinOp_Sub ()
+	BinOp_Sub()
 	{
 		m_opKind = BinOpKind_Sub;
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& opValue1,
 		const Value& opValue2,
 		Value* resultValue
@@ -303,7 +303,7 @@ public:
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -314,7 +314,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -325,7 +325,7 @@ public:
 
 	static
 	float
-	constOpFp32 (
+	constOpFp32(
 		float opValue1,
 		float opValue2
 		)
@@ -335,7 +335,7 @@ public:
 
 	static
 	double
-	constOpFp64 (
+	constOpFp64(
 		double opValue1,
 		double opValue2
 		)
@@ -344,7 +344,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -353,7 +353,7 @@ public:
 		);
 
 	llvm::Value*
-	llvmOpFp (
+	llvmOpFp(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -363,17 +363,17 @@ public:
 
 //..............................................................................
 
-class BinOp_Mul: public BinOp_Arithmetic <BinOp_Mul>
+class BinOp_Mul: public BinOp_Arithmetic<BinOp_Mul>
 {
 public:
-	BinOp_Mul ()
+	BinOp_Mul()
 	{
 		m_opKind = BinOpKind_Mul;
 	}
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -384,7 +384,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -395,7 +395,7 @@ public:
 
 	static
 	float
-	constOpFp32 (
+	constOpFp32(
 		float opValue1,
 		float opValue2
 		)
@@ -405,7 +405,7 @@ public:
 
 	static
 	double
-	constOpFp64 (
+	constOpFp64(
 		double opValue1,
 		double opValue2
 		)
@@ -414,7 +414,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -423,7 +423,7 @@ public:
 		);
 
 	llvm::Value*
-	llvmOpFp (
+	llvmOpFp(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -433,39 +433,39 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Div: public BinOp_Arithmetic <BinOp_Div>
+class BinOp_Div: public BinOp_Arithmetic<BinOp_Div>
 {
 public:
-	BinOp_Div ()
+	BinOp_Div()
 	{
 		m_opKind = BinOpKind_Div;
 	}
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
 		)
 	{
-		return isUnsigned ? (uint32_t) opValue1 / (uint32_t) opValue2 : opValue1 / opValue2;
+		return isUnsigned ? (uint32_t)opValue1 / (uint32_t)opValue2 : opValue1 / opValue2;
 	}
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
 		)
 	{
-		return isUnsigned ? (uint64_t) opValue1 / (uint64_t) opValue2 : opValue1 / opValue2;
+		return isUnsigned ? (uint64_t)opValue1 / (uint64_t)opValue2 : opValue1 / opValue2;
 	}
 
 	static
 	float
-	constOpFp32 (
+	constOpFp32(
 		float opValue1,
 		float opValue2
 		)
@@ -475,7 +475,7 @@ public:
 
 	static
 	double
-	constOpFp64 (
+	constOpFp64(
 		double opValue1,
 		double opValue2
 		)
@@ -484,7 +484,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -493,7 +493,7 @@ public:
 		);
 
 	llvm::Value*
-	llvmOpFp (
+	llvmOpFp(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -503,38 +503,38 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Mod: public BinOp_IntegerOnly <BinOp_Mod>
+class BinOp_Mod: public BinOp_IntegerOnly<BinOp_Mod>
 {
 public:
-	BinOp_Mod ()
+	BinOp_Mod()
 	{
 		m_opKind = BinOpKind_Mod;
 	}
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
 		)
 	{
-		return isUnsigned ? (uint32_t) opValue1 % (uint32_t) opValue2 : opValue1 % opValue2;
+		return isUnsigned ? (uint32_t)opValue1 % (uint32_t)opValue2 : opValue1 % opValue2;
 	}
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
 		)
 	{
-		return isUnsigned ? (uint64_t) opValue1 % (uint64_t) opValue2 : opValue1 % opValue2;
+		return isUnsigned ? (uint64_t)opValue1 % (uint64_t)opValue2 : opValue1 % opValue2;
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -545,17 +545,17 @@ public:
 
 //..............................................................................
 
-class BinOp_Shl: public BinOp_IntegerOnly <BinOp_Shl>
+class BinOp_Shl: public BinOp_IntegerOnly<BinOp_Shl>
 {
 public:
-	BinOp_Shl ()
+	BinOp_Shl()
 	{
 		m_opKind = BinOpKind_Shl;
 	}
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -566,7 +566,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -576,7 +576,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -587,17 +587,17 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_Shr: public BinOp_IntegerOnly <BinOp_Shr>
+class BinOp_Shr: public BinOp_IntegerOnly<BinOp_Shr>
 {
 public:
-	BinOp_Shr ()
+	BinOp_Shr()
 	{
 		m_opKind = BinOpKind_Shr;
 	}
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -608,7 +608,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -618,7 +618,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -629,27 +629,27 @@ public:
 
 //..............................................................................
 
-class BinOp_BwAnd: public BinOp_IntegerOnly <BinOp_BwAnd>
+class BinOp_BwAnd: public BinOp_IntegerOnly<BinOp_BwAnd>
 {
 public:
-	BinOp_BwAnd ();
+	BinOp_BwAnd();
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
 		return
-			isBitFlagEnumType (opValue1.getType ()) ? opValue1.getType () :
-			isBitFlagEnumType (opValue2.getType ()) ? opValue2.getType () :
-			getArithmeticResultType (opValue1, opValue2);
+			isBitFlagEnumType(opValue1.getType()) ? opValue1.getType() :
+			isBitFlagEnumType(opValue2.getType()) ? opValue2.getType() :
+			getArithmeticResultType(opValue1, opValue2);
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -657,7 +657,7 @@ public:
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -668,7 +668,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -678,7 +678,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -691,36 +691,36 @@ public:
 
 inline
 bool
-isBitFlagEnumOpType (
+isBitFlagEnumOpType(
 	const Value& opValue1,
 	const Value& opValue2
 	)
 {
-	return opValue1.getType () == opValue2.getType () && isBitFlagEnumType (opValue1.getType ());
+	return opValue1.getType() == opValue2.getType() && isBitFlagEnumType(opValue1.getType());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_BwOr: public BinOp_IntegerOnly <BinOp_BwOr>
+class BinOp_BwOr: public BinOp_IntegerOnly<BinOp_BwOr>
 {
 public:
-	BinOp_BwOr ();
+	BinOp_BwOr();
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		return isBitFlagEnumOpType (opValue1, opValue2) ?
-			opValue1.getType () :
-			getArithmeticResultType (opValue1, opValue2);
+		return isBitFlagEnumOpType(opValue1, opValue2) ?
+			opValue1.getType() :
+			getArithmeticResultType(opValue1, opValue2);
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -728,7 +728,7 @@ public:
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -739,7 +739,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -749,7 +749,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,
@@ -760,26 +760,26 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class BinOp_BwXor: public BinOp_IntegerOnly <BinOp_BwXor>
+class BinOp_BwXor: public BinOp_IntegerOnly<BinOp_BwXor>
 {
 public:
-	BinOp_BwXor ();
+	BinOp_BwXor();
 
 	virtual
 	Type*
-	getResultType (
+	getResultType(
 		const Value& opValue1,
 		const Value& opValue2
 		)
 	{
-		return isBitFlagEnumOpType (opValue1, opValue2) ?
-			opValue1.getType () :
-			getArithmeticResultType (opValue1, opValue2);
+		return isBitFlagEnumOpType(opValue1, opValue2) ?
+			opValue1.getType() :
+			getArithmeticResultType(opValue1, opValue2);
 	}
 
 	virtual
 	bool
-	op (
+	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
@@ -787,7 +787,7 @@ public:
 
 	static
 	int32_t
-	constOpInt32 (
+	constOpInt32(
 		int32_t opValue1,
 		int32_t opValue2,
 		bool isUnsigned
@@ -798,7 +798,7 @@ public:
 
 	static
 	int64_t
-	constOpInt64 (
+	constOpInt64(
 		int64_t opValue1,
 		int64_t opValue2,
 		bool isUnsigned
@@ -808,7 +808,7 @@ public:
 	}
 
 	llvm::Value*
-	llvmOpInt (
+	llvmOpInt(
 		const Value& opValue1,
 		const Value& opValue2,
 		Type* resultType,

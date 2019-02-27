@@ -9,17 +9,17 @@
 //
 //..............................................................................
 
-construct ()
+construct()
 {
-	printf ("utils.jnc.construct ()\n");
+	printf("utils.jnc.construct ()\n");
 }
 
-destruct ()
+destruct()
 {
-	printf ("utils.jnc.destruct ()\n");
+	printf("utils.jnc.destruct ()\n");
 }
 
-utilsFoo ()
+utilsFoo()
 {
-	printf ("utilsFoo ()\n");
+	printf("utilsFoo ()\n");
 }

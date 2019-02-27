@@ -23,33 +23,33 @@ namespace sys {
 /**
 	\import sys_Timer.jnc
 
-	\brief This class provides facilities to manage both peridodic (repetitive)
-	and non-periodic (single-shot) timers.
+	\brief This class provides facilities to manage both peridodic(repetitive)
+	and non-periodic(single-shot) timers.
 
-	Each instance of ``sys.Timer`` manages a single timer (either periodic, or
+	Each instance of ``sys.Timer`` manages a single timer(either periodic, or
 	single-shot). You start the timer with ``start``, ``startDueTimer``,
 	``startSingleShotTimer``, ``startPeriodicTimer`` methods. When the timer is
 	due, it will call the function you have supplied as an argument to one of
 	aforementioned methods.
 
 	To stop the timer, invoke ``stop`` method. For local timers it is
-	recommended to use *disposable* pattern [#f1]_.
+	recommended to use *disposable* pattern[#f1]_.
 
 	Code sample::
 
 		import "sys_Timer.jnc"
 
-		onTimer (int param)
+		onTimer(int param)
 		{
 			// ...
 		}
 
-		int main ()
+		int main()
 		{
 			// ...
 
 			disposable sys.Timer timer;
-			timer.startPeriodic (onTimer ~(1, 2), 1000);
+			timer.startPeriodic(onTimer ~(1, 2), 1000);
 
 			// ...
 		} // <-- timer.stop will be called
@@ -67,10 +67,10 @@ namespace sys {
 
 opaque class Timer
 {
-	protected function* m_timerFunc ();
+	protected function* m_timerFunc();
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Starts a new peridodic or non-periodic timer.
@@ -90,8 +90,8 @@ opaque class Timer
 		previous timer first.
 	*/
 
-	bool errorcode start (
-		function* func (),
+	bool errorcode start(
+		function* func(),
 		uint64_t dueTime,
 		uint_t interval
 		);
@@ -100,13 +100,13 @@ opaque class Timer
 		Stops a previously started timer, does nothing if the timer is not
 		started. This function always succeeds.
 
-		For local timers it is recommended to use *disposable* pattern [#f1]_.
+		For local timers it is recommended to use *disposable* pattern[#f1]_.
 	*/
 
-	void stop ();
+	void stop();
 
 	/**
-		Effectively makes ``sys.Timer`` a *disposable* class [#f1]_.
+		Effectively makes ``sys.Timer`` a *disposable* class[#f1]_.
 	*/
 
 	alias dispose = stop;
@@ -119,12 +119,12 @@ opaque class Timer
 		with the last ``interval`` argument set to ``0``.
 	*/
 
-	bool errorcode startDueTimer (
-		function* func (),
+	bool errorcode startDueTimer(
+		function* func(),
 		uint64_t dueTime
 		)
 	{
-		return start (func, dueTime, 0);
+		return start(func, dueTime, 0);
 	}
 
 	/**
@@ -133,16 +133,16 @@ opaque class Timer
 
 		This is probably the most common type of timer. Technically calling
 		startDueTimer is equivalent to calling ``start`` with the ``dueTime``
-		argument calculated as ``sys.getTimestamp () + interval``.
+		argument calculated as ``sys.getTimestamp() + interval``.
 	*/
 
-	bool errorcode startPeriodicTimer (
-		function* func (),
+	bool errorcode startPeriodicTimer(
+		function* func(),
 		uint_t interval
 		)
 	{
-		uint64_t dueTime = sys.getTimestamp () + interval * 10000;
-		return start (func, dueTime, interval);
+		uint64_t dueTime = sys.getTimestamp() + interval * 10000;
+		return start(func, dueTime, interval);
 	}
 
 	/**
@@ -151,16 +151,16 @@ opaque class Timer
 
 		Technically calling startDueTimer is equivalent to calling ``start``
 		with the ``dueTime`` argument calculated as
-		``sys.getTimestamp () + interval`` and ``interval`` set to ``0``.
+		``sys.getTimestamp() + interval`` and ``interval`` set to ``0``.
 	*/
 
-	bool errorcode startSingleShotTimer (
-		function* func (),
+	bool errorcode startSingleShotTimer(
+		function* func(),
 		uint_t delay
 		)
 	{
-		uint64_t dueTime = sys.getTimestamp () + delay * 10000;
-		return start (func, dueTime, 0);
+		uint64_t dueTime = sys.getTimestamp() + delay * 10000;
+		return start(func, dueTime, 0);
 	}
 }
 

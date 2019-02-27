@@ -18,7 +18,7 @@ namespace std {
 
 class Buffer;
 
-JNC_DECLARE_CLASS_TYPE (Buffer)
+JNC_DECLARE_CLASS_TYPE(Buffer)
 
 //..............................................................................
 
@@ -32,29 +32,29 @@ public:
 public:
 	void
 	JNC_CDECL
-	clear ()
+	clear()
 	{
 		m_size = 0;
 	}
 
 	bool
 	JNC_CDECL
-	setSize (size_t size);
+	setSize(size_t size);
 
 	bool
 	JNC_CDECL
-	reserve (size_t size);
+	reserve(size_t size);
 
 	size_t
 	JNC_CDECL
-	copy (
+	copy(
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	JNC_CDECL
-	insert (
+	insert(
 		size_t offset,
 		DataPtr ptr,
 		size_t size
@@ -62,7 +62,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	remove (
+	remove(
 		size_t offset,
 		size_t size
 		);

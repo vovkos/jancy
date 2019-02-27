@@ -23,7 +23,7 @@ public:
 	uint64_t m_halfDuplexTimeout; // in 100-nsec intervals
 
 public:
-	abstract parse (
+	abstract parse(
 		log.Writer* writer,
 		uint64_t timestamp,
 		uint64_t originalRecordCode,
@@ -31,15 +31,15 @@ public:
 		size_t size
 		);
 
-	abstract reset ();
+	abstract reset();
 
 protected:
-	updateLastTimestamp (uint64_t timestamp);
+	updateLastTimestamp(uint64_t timestamp);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusParserBase.m_mode.set (ModbusParserMode mode)
+ModbusParserBase.m_mode.set(ModbusParserMode mode)
 {
 	if (mode == m_value)
 		return;
@@ -50,14 +50,14 @@ ModbusParserBase.m_mode.set (ModbusParserMode mode)
 		io.ModbusRole.Slave :
 		io.ModbusRole.Master;
 
-	reset ();
+	reset();
 }
 
-ModbusParserBase.updateLastTimestamp (uint64_t timestamp)
+ModbusParserBase.updateLastTimestamp(uint64_t timestamp)
 {
 	if (m_mode == ModbusParserMode.HalfDuplex &&
 		timestamp - m_lastTimestamp > m_halfDuplexTimeout)
-		reset ();
+		reset();
 
 	m_lastTimestamp = timestamp;
 }

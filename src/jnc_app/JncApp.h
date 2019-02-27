@@ -21,37 +21,37 @@ protected:
 	CmdLine* m_cmdLine;
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;
-	sl::Array <char> m_stdInBuffer;
+	sl::Array<char> m_stdInBuffer;
 
 public:
-	JncApp (CmdLine* cmdLine);
+	JncApp(CmdLine* cmdLine);
 
 	bool
-	parse ();
+	parse();
 
 	bool
-	compile ()
+	compile()
 	{
-		return m_module->compile ();
+		return m_module->compile();
 	}
 
 	bool
-	jit ()
+	jit()
 	{
-		return m_module->jit ();
+		return m_module->jit();
 	}
 
 	void
-	printLlvmIr ()
+	printLlvmIr()
 	{
-		printf ("%s", m_module->getLlvmIrString_v ());
+		printf("%s", m_module->getLlvmIrString_v ());
 	}
 
 	bool
-	generateDocumentation ();
+	generateDocumentation();
 
 	bool
-	runFunction (int* returnValue = NULL);
+	runFunction(int* returnValue = NULL);
 };
 
 //..............................................................................

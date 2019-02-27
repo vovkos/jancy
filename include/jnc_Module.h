@@ -45,7 +45,7 @@
 
 	Opaque structure used as a handle to Jancy module.
 
-	Use functions from the :ref:`Module <cid-module>` group to access and manage the contents of this structure.
+	Use functions from the :ref:`Module<cid-module>` group to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -101,19 +101,19 @@ typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
 JNC_EXTERN_C
 jnc_Module*
-jnc_Module_create ();
+jnc_Module_create();
 
 JNC_EXTERN_C
 void
-jnc_Module_destroy (jnc_Module* module);
+jnc_Module_destroy(jnc_Module* module);
 
 JNC_EXTERN_C
 void
-jnc_Module_clear (jnc_Module* module);
+jnc_Module_clear(jnc_Module* module);
 
 JNC_EXTERN_C
 void
-jnc_Module_initialize (
+jnc_Module_initialize(
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
@@ -121,33 +121,33 @@ jnc_Module_initialize (
 
 JNC_EXTERN_C
 uint_t
-jnc_Module_getCompileFlags (jnc_Module* module);
+jnc_Module_getCompileFlags(jnc_Module* module);
 
 JNC_EXTERN_C
 jnc_ModuleCompileState
-jnc_Module_getCompileState (jnc_Module* module);
+jnc_Module_getCompileState(jnc_Module* module);
 
 JNC_EXTERN_C
 jnc_GlobalNamespace*
-jnc_Module_getGlobalNamespace (jnc_Module* module);
+jnc_Module_getGlobalNamespace(jnc_Module* module);
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_Module_getPrimitiveType (
+jnc_Module_getPrimitiveType(
 	jnc_Module* module,
 	jnc_TypeKind typeKind
 	);
 
 JNC_EXTERN_C
 jnc_Type*
-jnc_Module_getStdType (
+jnc_Module_getStdType(
 	jnc_Module* module,
 	jnc_StdType stdType
 	);
 
 JNC_EXTERN_C
 jnc_ModuleItem*
-jnc_Module_findItem (
+jnc_Module_findItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
@@ -156,7 +156,7 @@ jnc_Module_findItem (
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_mapVariable (
+jnc_Module_mapVariable(
 	jnc_Module* module,
 	jnc_Variable* variable,
 	void* p
@@ -164,7 +164,7 @@ jnc_Module_mapVariable (
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_mapFunction (
+jnc_Module_mapFunction(
 	jnc_Module* module,
 	jnc_Function* function,
 	void* p
@@ -172,7 +172,7 @@ jnc_Module_mapFunction (
 
 JNC_EXTERN_C
 void
-jnc_Module_addSource (
+jnc_Module_addSource(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -182,28 +182,28 @@ jnc_Module_addSource (
 
 JNC_EXTERN_C
 void
-jnc_Module_addImportDir (
+jnc_Module_addImportDir(
 	jnc_Module* module,
 	const char* dir
 	);
 
 JNC_EXTERN_C
 void
-jnc_Module_addImport (
+jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
 	);
 
 JNC_EXTERN_C
 void
-jnc_Module_addIgnoredImport (
+jnc_Module_addIgnoredImport(
 	jnc_Module* module,
 	const char* fileName
 	);
 
 JNC_EXTERN_C
 void
-jnc_Module_addOpaqueClassTypeInfo (
+jnc_Module_addOpaqueClassTypeInfo(
 	jnc_Module* module,
 	const char* qualifiedName,
 	const jnc_OpaqueClassTypeInfo* info
@@ -211,14 +211,14 @@ jnc_Module_addOpaqueClassTypeInfo (
 
 JNC_EXTERN_C
 void
-jnc_Module_addStaticLib (
+jnc_Module_addStaticLib(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib
 	);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_parse (
+jnc_Module_parse(
 	jnc_Module* module,
 	jnc_ExtensionLib* lib,
 	const char* fileName,
@@ -228,41 +228,41 @@ jnc_Module_parse (
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_parseFile (
+jnc_Module_parseFile(
 	jnc_Module* module,
 	const char* fileName
 	);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_parseImports (jnc_Module* module);
+jnc_Module_parseImports(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_link (jnc_Module* module);
+jnc_Module_link(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_calcLayout (jnc_Module* module);
+jnc_Module_calcLayout(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_compile (jnc_Module* module);
+jnc_Module_compile(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_jit (jnc_Module* module);
+jnc_Module_jit(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
-jnc_Module_generateDocumentation (
+jnc_Module_generateDocumentation(
 	jnc_Module* module,
 	const char* outputDir
 	);
 
 JNC_EXTERN_C
 const char*
-jnc_Module_getLlvmIrString_v (jnc_Module* module);
+jnc_Module_getLlvmIrString_v(jnc_Module* module);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -271,201 +271,201 @@ struct jnc_Module
 {
 	static
 	jnc_Module*
-	create ()
+	create()
 	{
-		return jnc_Module_create ();
+		return jnc_Module_create();
 	}
 
 	void
-	destroy ()
+	destroy()
 	{
-		jnc_Module_destroy (this);
+		jnc_Module_destroy(this);
 	}
 
 	void
-	clear ()
+	clear()
 	{
-		jnc_Module_clear (this);
+		jnc_Module_clear(this);
 	}
 
 	void
-	initialize (
+	initialize(
 		const char* tag,
 		uint_t compileFlags = jnc_ModuleCompileFlag_StdFlags
 		)
 	{
-		jnc_Module_initialize (this, tag, compileFlags);
+		jnc_Module_initialize(this, tag, compileFlags);
 	}
 
 	uint_t
-	getCompileFlags ()
+	getCompileFlags()
 	{
-		return jnc_Module_getCompileFlags (this);
+		return jnc_Module_getCompileFlags(this);
 	}
 
 	jnc_ModuleCompileState
-	getCompileState ()
+	getCompileState()
 	{
-		return jnc_Module_getCompileState (this);
+		return jnc_Module_getCompileState(this);
 	}
 
 	jnc_GlobalNamespace*
-	getGlobalNamespace ()
+	getGlobalNamespace()
 	{
-		return jnc_Module_getGlobalNamespace (this);
+		return jnc_Module_getGlobalNamespace(this);
 	}
 
 	jnc_Type*
-	getPrimitiveType (jnc_TypeKind typeKind)
+	getPrimitiveType(jnc_TypeKind typeKind)
 	{
-		return jnc_Module_getPrimitiveType (this, typeKind);
+		return jnc_Module_getPrimitiveType(this, typeKind);
 	}
 
 	jnc_Type*
-	getStdType (jnc_StdType stdType)
+	getStdType(jnc_StdType stdType)
 	{
-		return jnc_Module_getStdType (this, stdType);
+		return jnc_Module_getStdType(this, stdType);
 	}
 
 	jnc_ModuleItem*
-	findItem (
+	findItem(
 		const char* name,
 		const jnc_Guid* libGuid = NULL,
 		size_t itemCacheSlot = -1
 		)
 	{
-		return jnc_Module_findItem (this, name, libGuid, itemCacheSlot);
+		return jnc_Module_findItem(this, name, libGuid, itemCacheSlot);
 	}
 
 	bool
-	mapVariable (
+	mapVariable(
 		jnc_Variable* variable,
 		void* p
 		)
 	{
-		return jnc_Module_mapVariable (this, variable, p) != 0;
+		return jnc_Module_mapVariable(this, variable, p) != 0;
 	}
 
 	bool
-	mapFunction (
+	mapFunction(
 		jnc_Function* function,
 		void* p
 		)
 	{
-		return jnc_Module_mapFunction (this, function, p) != 0;
+		return jnc_Module_mapFunction(this, function, p) != 0;
 	}
 
 	void
-	addSource (
+	addSource(
 		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		jnc_Module_addSource (this, lib, fileName, source, length);
+		jnc_Module_addSource(this, lib, fileName, source, length);
 	}
 
 	void
-	addImportDir (const char* dir)
+	addImportDir(const char* dir)
 	{
-		jnc_Module_addImportDir (this, dir);
+		jnc_Module_addImportDir(this, dir);
 	}
 
 	void
-	addImport (const char* fileName)
+	addImport(const char* fileName)
 	{
-		jnc_Module_addImport (this, fileName);
+		jnc_Module_addImport(this, fileName);
 	}
 
 	void
-	addIgnoredImport (const char* fileName)
+	addIgnoredImport(const char* fileName)
 	{
-		jnc_Module_addIgnoredImport (this, fileName);
+		jnc_Module_addIgnoredImport(this, fileName);
 	}
 
 	void
-	addOpaqueClassTypeInfo (
+	addOpaqueClassTypeInfo(
 		const char* qualifiedName,
 		const jnc_OpaqueClassTypeInfo* info
 		)
 	{
-		jnc_Module_addOpaqueClassTypeInfo (this, qualifiedName, info);
+		jnc_Module_addOpaqueClassTypeInfo(this, qualifiedName, info);
 	}
 
 	void
-	addStaticLib (jnc_ExtensionLib* lib)
+	addStaticLib(jnc_ExtensionLib* lib)
 	{
-		jnc_Module_addStaticLib (this, lib);
+		jnc_Module_addStaticLib(this, lib);
 	}
 
 	bool
-	parse (
+	parse(
 		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		return jnc_Module_parse (this, lib, fileName, source, length) != 0;
+		return jnc_Module_parse(this, lib, fileName, source, length) != 0;
 	}
 
 	bool
-	parse (
+	parse(
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		return jnc_Module_parse (this, NULL, fileName, source, length) != 0;
+		return jnc_Module_parse(this, NULL, fileName, source, length) != 0;
 	}
 
 	bool
-	parseFile (const char* fileName)
+	parseFile(const char* fileName)
 	{
-		return jnc_Module_parseFile (this, fileName) != 0;
+		return jnc_Module_parseFile(this, fileName) != 0;
 	}
 
 	bool
-	parseImports ()
+	parseImports()
 	{
-		return jnc_Module_parseImports (this) != 0;
+		return jnc_Module_parseImports(this) != 0;
 	}
 
 	bool
-	link ()
+	link()
 	{
-		return jnc_Module_link (this) != 0;
+		return jnc_Module_link(this) != 0;
 	}
 
 	bool
-	calcLayout ()
+	calcLayout()
 	{
-		return jnc_Module_calcLayout (this) != 0;
+		return jnc_Module_calcLayout(this) != 0;
 	}
 
 	bool
-	compile ()
+	compile()
 	{
-		return jnc_Module_compile (this) != 0;
+		return jnc_Module_compile(this) != 0;
 	}
 
 	bool
-	jit ()
+	jit()
 	{
-		return jnc_Module_jit (this) != 0;
+		return jnc_Module_jit(this) != 0;
 	}
 
 	const char*
-	getLlvmIrString_v ()
+	getLlvmIrString_v()
 	{
-		return jnc_Module_getLlvmIrString_v (this);
+		return jnc_Module_getLlvmIrString_v(this);
 	}
 
 	bool
-	generateDocumentation (const char* outputDir)
+	generateDocumentation(const char* outputDir)
 	{
-		return jnc_Module_generateDocumentation (this, outputDir) != 0;
+		return jnc_Module_generateDocumentation(this, outputDir) != 0;
 	}
 };
 #endif // _JNC_CORE
@@ -519,15 +519,15 @@ protected:
 	Module* m_module;
 
 public:
-	AutoModule ()
+	AutoModule()
 	{
-		m_module = jnc_Module_create ();
+		m_module = jnc_Module_create();
 	}
 
-	~AutoModule ()
+	~AutoModule()
 	{
 		if (m_module)
-			jnc_Module_destroy (m_module);
+			jnc_Module_destroy(m_module);
 	}
 
 	operator Module* () const
@@ -542,7 +542,7 @@ public:
 	}
 
 	Module*
-	p () const
+	p() const
 	{
 		return m_module;
 	}

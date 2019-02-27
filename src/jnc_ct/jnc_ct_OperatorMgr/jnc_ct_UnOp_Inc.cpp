@@ -19,22 +19,22 @@ namespace ct {
 //..............................................................................
 
 Type*
-UnOp_PreInc::getResultType (const Value& opValue)
+UnOp_PreInc::getResultType(const Value& opValue)
 {
-	return opValue.getType ();
+	return opValue.getType();
 }
 
 bool
-UnOp_PreInc::op (
+UnOp_PreInc::op(
 	const Value& opValue,
 	Value* resultValue
 	)
 {
 	Value oneValue;
-	oneValue.setConstInt32 (1, m_module);
+	oneValue.setConstInt32(1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PreInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 
-	bool result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
+	bool result = m_module->m_operatorMgr.binaryOperator(binOpKind, opValue, oneValue);
 	if (!result)
 		return false;
 
@@ -45,15 +45,15 @@ UnOp_PreInc::op (
 //..............................................................................
 
 Type*
-UnOp_PostInc::getResultType (const Value& opValue)
+UnOp_PostInc::getResultType(const Value& opValue)
 {
 	Value oldValue;
-	m_module->m_operatorMgr.prepareOperandType (opValue, &oldValue);
-	return oldValue.getType ();
+	m_module->m_operatorMgr.prepareOperandType(opValue, &oldValue);
+	return oldValue.getType();
 }
 
 bool
-UnOp_PostInc::op (
+UnOp_PostInc::op(
 	const Value& opValue,
 	Value* resultValue
 	)
@@ -61,15 +61,15 @@ UnOp_PostInc::op (
 	bool result;
 
 	Value oldValue;
-	result = m_module->m_operatorMgr.prepareOperand (opValue, &oldValue);
+	result = m_module->m_operatorMgr.prepareOperand(opValue, &oldValue);
 	if (!result)
 		return false;
 
 	Value oneValue;
-	oneValue.setConstInt32 (1, m_module);
+	oneValue.setConstInt32(1, m_module);
 	BinOpKind binOpKind = m_opKind == UnOpKind_PostInc ? BinOpKind_AddAssign : BinOpKind_SubAssign;
 
-	result = m_module->m_operatorMgr.binaryOperator (binOpKind, opValue, oneValue);
+	result = m_module->m_operatorMgr.binaryOperator(binOpKind, opValue, oneValue);
 	if (!result)
 		return false;
 

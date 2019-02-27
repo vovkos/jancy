@@ -27,46 +27,46 @@ struct Point
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	// classic C-style curly-initializers
 
-	int a [] = { 1, 2, 3 }
+	int a[] = { 1, 2, 3 }
 
-	printf ("a = { ");
+	printf("a = { ");
 
-	for (int i = 0; i < countof (a); i++)
-		printf ("%d, ", a [i]);
+	for (int i = 0; i < countof(a); i++)
+		printf("%d, ", a [i]);
 
-	printf ("}\n");
+	printf("}\n");
 
 	// it's OK to skip elements leaving them zero-initialized
 
-	int b [10] = { ,, 3, 4,,, 7 }
+	int b[10] = { ,, 3, 4,,, 7 }
 
-	printf ("b = { ");
+	printf("b = { ");
 
-	for (int i = 0; i < countof (b); i++)
-		printf ("%d, ", b [i]);
+	for (int i = 0; i < countof(b); i++)
+		printf("%d, ", b [i]);
 
-	printf ("}\n");
+	printf("}\n");
 
 	// both index- and name-based addressing modes are supported
 
 	Point point = { 10, m_z = 30 }
-	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
+	printf("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
 	// OK to use curly-initializers in assignment operators
 
 	point = { , 200, 300 };
-	printf ("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
+	printf("point = { %d, %d, %d }\n", point.m_x, point.m_y, point.m_z);
 
 	// OK to use curly-initializers in new operators
 
 	Point* point2 = new Point { m_y = 2000, m_z = 3000 };
-	printf ("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);
+	printf("point2 = { %d, %d, %d }\n", point2.m_x, point2.m_y, point2.m_z);
 
 	return 0;
 }

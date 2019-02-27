@@ -24,13 +24,13 @@
 //..............................................................................
 
 size_t
-printToOutput (
+printToOutput(
 	const void* p,
 	size_t length
 	)
 {
-	fwrite (p, length, 1, stdout);
-	return (int) getMainWindow ()->writeOutputDirect (QString::fromUtf8 ((const char*) p, length));
+	fwrite(p, length, 1, stdout);
+	return (int)getMainWindow()->writeOutputDirect(QString::fromUtf8((const char*) p, length));
 }
 
 //..............................................................................
@@ -40,35 +40,35 @@ MainWindow* g_mainWindow = NULL;
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QMainWindow(parent, flags)
 {
-	ASSERT (!g_mainWindow);
+	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
 
-	createMdiArea ();
-	setCentralWidget (m_mdiArea);
+	createMdiArea();
+	setCentralWidget(m_mdiArea);
 
-	createActions ();
-	createMenu ();
-	createToolBars ();
-	createPanes ();
-	createStatusBar ();
+	createActions();
+	createMenu();
+	createToolBars();
+	createPanes();
+	createStatusBar();
 
-	readSettings ();
+	readSettings();
 
-	connect (
-		this, SIGNAL (outputSignal ()),
-		this, SLOT (outputSlot ()),
+	connect(
+		this, SIGNAL(outputSignal()),
+		this, SLOT(outputSlot()),
 		Qt::QueuedConnection
 		);
 
-	jnc::StdLib_setStdIo (NULL, printToOutput, printToOutput);
+	jnc::StdLib_setStdIo(NULL, printToOutput, printToOutput);
 }
 
 void MainWindow::closeEvent(QCloseEvent* e)
 {
-	writeSettings ();
-	m_mdiArea->closeAllSubWindows ();
+	writeSettings();
+	m_mdiArea->closeAllSubWindows();
 
-	if (m_mdiArea->currentSubWindow ())
+	if (m_mdiArea->currentSubWindow())
 		e->ignore();
 	else
 		e->accept();
@@ -96,7 +96,7 @@ void MainWindow::openFile(QString filePath)
 	if (filePath.isEmpty())
 		return;
 
-	m_lastDir = QFileInfo (filePath).dir ().absolutePath ();
+	m_lastDir = QFileInfo(filePath).dir().absolutePath();
 
 	QMdiSubWindow* subWindow = findMdiSubWindow(filePath);
 	if (subWindow)
@@ -244,55 +244,55 @@ void MainWindow::writeStatus(const QString& text, int timeout)
 	statusBar()->showMessage(text, timeout);
 }
 
-size_t MainWindow::writeOutputDirect (const QString& string)
+size_t MainWindow::writeOutputDirect(const QString& string)
 {
-	if (QApplication::instance()->thread () == QThread::currentThread () && m_outputQueue.empty ())
+	if (QApplication::instance()->thread() == QThread::currentThread() && m_outputQueue.empty())
 	{
-		m_output->appendString (string);
-		m_output->repaint ();
+		m_output->appendString(string);
+		m_output->repaint();
 	}
 	else
 	{
-		m_outputMutex.lock ();
-		m_outputQueue.append (string);
-		m_outputMutex.unlock ();
+		m_outputMutex.lock();
+		m_outputQueue.append(string);
+		m_outputMutex.unlock();
 
-		emit outputSignal ();
+		emit outputSignal();
 	}
 
-	return string.length ();
+	return string.length();
 }
 
 size_t MainWindow::writeOutput_va(const char* format, va_list va)
 {
 	QString text;
-	text.vsprintf (format, va);
-	return writeOutputDirect (text);
+	text.vsprintf(format, va);
+	return writeOutputDirect(text);
 }
 
-size_t MainWindow::writeOutput (const char* format, ...)
+size_t MainWindow::writeOutput(const char* format, ...)
 {
 	va_list va;
-	va_start (va, format);
-	return writeOutput_va (format, va);
+	va_start(va, format);
+	return writeOutput_va(format, va);
 }
 
-void MainWindow::outputSlot ()
+void MainWindow::outputSlot()
 {
-	m_outputMutex.lock ();
+	m_outputMutex.lock();
 
-	while (!m_outputQueue.empty ())
+	while (!m_outputQueue.empty())
 	{
-		QString string = m_outputQueue.takeFirst ();
-		m_outputMutex.unlock ();
+		QString string = m_outputQueue.takeFirst();
+		m_outputMutex.unlock();
 
-		m_output->appendString (string);
-		m_output->repaint ();
+		m_output->appendString(string);
+		m_output->repaint();
 
-		m_outputMutex.lock ();
+		m_outputMutex.lock();
 	}
 
-	m_outputMutex.unlock ();
+	m_outputMutex.unlock();
 }
 
 MdiChild* MainWindow::findMdiChild(const QString& filePath)
@@ -310,10 +310,10 @@ void MainWindow::readSettings()
 {
 	QSettings s;
 
-	m_lastDir = s.value ("lastDir").toString ();
+	m_lastDir = s.value("lastDir").toString ();
 	QStringList files = s.value("filesOpened").toStringList();
 
-	foreach (QString file, files)
+	foreach(QString file, files)
 		openFile(file);
 }
 
@@ -322,18 +322,18 @@ void MainWindow::writeSettings()
 	QSettings s;
 
 	QStringList files;
-	foreach (QMdiSubWindow* subWindow, m_mdiArea->subWindowList())
+	foreach(QMdiSubWindow* subWindow, m_mdiArea->subWindowList())
 		if(MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget()))
 			files.append(child->file());
 
-	s.setValue ("filesOpened", files);
-	s.setValue ("lastDir", m_lastDir);
+	s.setValue("filesOpened", files);
+	s.setValue("lastDir", m_lastDir);
 }
 
 jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	return m_module->getGlobalNamespace()->getNamespace ()->findFunction (nameBytes.data());
+	return m_module->getGlobalNamespace()->getNamespace()->findFunction(nameBytes.data());
 }
 
 void MainWindow::clearOutput()
@@ -343,9 +343,9 @@ void MainWindow::clearOutput()
 
 //..............................................................................
 
-bool MainWindow::compile ()
+bool MainWindow::compile()
 {
-	qApp->setCursorFlashTime (0);
+	qApp->setCursorFlashTime(0);
 
 	bool result;
 
@@ -366,38 +366,38 @@ bool MainWindow::compile ()
 		// | jnc::ModuleCompileFlag_SimpleGcSafePoint
 		;
 
-	QByteArray sourceFilePath = child->file().toUtf8 ();
-	QByteArray appDir = qApp->applicationDirPath ().toUtf8 ();
+	QByteArray sourceFilePath = child->file().toUtf8();
+	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
-	m_module->initialize (sourceFilePath.data(), compileFlags);
-	m_module->addStaticLib (jnc::StdLib_getLib ());
-	m_module->addStaticLib (jnc::SysLib_getLib ());
-	m_module->addStaticLib (TestLib_getLib ());
+	m_module->initialize(sourceFilePath.data(), compileFlags);
+	m_module->addStaticLib(jnc::StdLib_getLib());
+	m_module->addStaticLib(jnc::SysLib_getLib());
+	m_module->addStaticLib(TestLib_getLib());
 
-	m_module->addImportDir (appDir.constData ());
+	m_module->addImportDir(appDir.constData());
 
 #if (_JNC_OS_POSIX)
 #	if (_JNC_DEBUG)
-	QString libDir = qApp->applicationDirPath () + "/../../lib/Debug";
+	QString libDir = qApp->applicationDirPath() + "/../../lib/Debug";
 #	else
-	QString libDir = qApp->applicationDirPath () + "/../../lib/Release";
+	QString libDir = qApp->applicationDirPath() + "/../../lib/Release";
 #	endif
-	m_module->addImportDir (libDir.toUtf8 ().constData ());
+	m_module->addImportDir(libDir.toUtf8().constData());
 #endif
 
 	writeOutput("Parsing...\n");
 
-	m_modulePane->clear ();
-	m_llvmIr->clear ();
+	m_modulePane->clear();
+	m_llvmIr->clear();
 
 	QByteArray source = child->toPlainText().toUtf8();
 
-	result = m_module->parse (
-		sourceFilePath.constData (),
-		source.constData (),
-		source.size ()
+	result = m_module->parse(
+		sourceFilePath.constData(),
+		source.constData(),
+		source.size()
 		) &&
-		m_module->parseImports ();
+		m_module->parseImports();
 
 	if (!result)
 	{
@@ -406,7 +406,7 @@ bool MainWindow::compile ()
 	}
 
 	writeOutput("Compiling...\n");
-	result = m_module->compile ();
+	result = m_module->compile();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
@@ -415,82 +415,82 @@ bool MainWindow::compile ()
 
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
 
-	m_modulePane->build (m_module, child);
-	m_llvmIr->build (m_module);
+	m_modulePane->build(m_module, child);
+	m_llvmIr->build(m_module);
 
 	writeOutput("JITting...\n");
 
-	result = m_module->jit ();
+	result = m_module->jit();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
-	writeOutput ("Done.\n");
-	child->setCompilationNeeded (false);
+	writeOutput("Done.\n");
+	child->setCompilationNeeded(false);
 	return true;
 }
 
 bool
-MainWindow::run ()
+MainWindow::run()
 {
 	bool result;
 
-	 MdiChild* mdiChild = activeMdiChild ();
+	 MdiChild* mdiChild = activeMdiChild();
 	 if (!mdiChild)
 		 return true;
 
-	if (mdiChild->isCompilationNeeded ())
+	if (mdiChild->isCompilationNeeded())
 	{
-		result = compile ();
+		result = compile();
 		if (!result)
 			return false;
 	}
 
-	jnc::Function* mainFunction = findGlobalFunction ("main");
+	jnc::Function* mainFunction = findGlobalFunction("main");
 	if (!mainFunction)
 	{
-		writeOutput ("'main' is not found or not a function\n");
+		writeOutput("'main' is not found or not a function\n");
 		return false;
 	}
 
-	writeOutput ("Running...\n");
+	writeOutput("Running...\n");
 
 #ifdef _NO_GC
 	jnc::GcSizeTriggers triggers;
 	triggers.m_allocSizeTrigger = -1;
 	triggers.m_periodSizeTrigger = -1;
-	m_runtime->getGcHeap ()->setSizeTriggers (&triggers);
+	m_runtime->getGcHeap()->setSizeTriggers(&triggers);
 #endif
 
-	result = m_runtime->startup (m_module);
+	result = m_runtime->startup(m_module);
 	if (!result)
 	{
-		writeOutput ("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().sz ());
 		return false;
 	}
 
 	int returnValue;
-	result = jnc::callFunction (m_runtime, mainFunction, &returnValue);
+	result = jnc::callFunction(m_runtime, mainFunction, &returnValue);
 	if (result)
-		writeOutput ("'main' returned %d.\n", returnValue);
+		writeOutput("'main' returned %d.\n", returnValue);
 	else
-		writeOutput ("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
 
 	if (result && returnValue == -1000) // for testing some async stuff with threads
 	{
-		writeOutput ("Staying resident...\n");
+		writeOutput("Staying resident...\n");
 		return true;
 	}
 
-	writeOutput ("Shutting down...\n");
-	m_runtime->shutdown ();
-	writeOutput ("Done.\n");
+	writeOutput("Shutting down...\n");
+	m_runtime->shutdown();
+	writeOutput("Done.\n");
 	return true;
 }
 
-MdiChild* MainWindow::createMdiChild ()
+MdiChild* MainWindow::createMdiChild()
 {
 	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
@@ -499,7 +499,7 @@ MdiChild* MainWindow::createMdiChild ()
 	return child;
 }
 
-MdiChild* MainWindow::activeMdiChild ()
+MdiChild* MainWindow::activeMdiChild()
 {
 	 QMdiSubWindow* activeSubWindow = m_mdiArea->activeSubWindow();
 
@@ -512,11 +512,11 @@ MdiChild* MainWindow::activeMdiChild ()
 	 return qobject_cast<MdiChild*>(activeSubWindow->widget());
 }
 
-QMdiSubWindow* MainWindow::findMdiSubWindow (const QString& filePath)
+QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath)
 {
 	QString canonicalFilePath = QFileInfo(filePath).canonicalFilePath();
 
-	foreach (QMdiSubWindow* subWindow, m_mdiArea->subWindowList()) {
+	foreach(QMdiSubWindow* subWindow, m_mdiArea->subWindowList()) {
 		MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget());
 		if(child && child->file() == canonicalFilePath)
 			return subWindow;

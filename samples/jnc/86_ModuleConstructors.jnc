@@ -16,14 +16,14 @@
 
 class C1
 {
-	construct ()
+	construct()
 	{
-		printf ("C1.construct ()\n");
+		printf("C1.construct ()\n");
 	}
 
-	destruct ()
+	destruct()
 	{
-		printf ("C1.destruct ()\n");
+		printf("C1.destruct ()\n");
 	}
 }
 
@@ -35,36 +35,36 @@ C1 g_c;
 
 // a global static variable with initializer
 
-int g_x = foo ();
+int g_x = foo();
 
-int foo ()
+int foo()
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 	return 100;
 }
 
 // the module constructor is called after all global static variables have been
 // constructed and initialized
 
-construct ()
+construct()
 {
-	printf ("module.construct ()\n");
+	printf("module.construct ()\n");
 }
 
 // the module destructor is called before the destruction of static variables
 
-destruct ()
+destruct()
 {
-	printf ("module.destruct ()\n");
+	printf("module.destruct ()\n");
 }
 
 //..............................................................................
 
 // entry point
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 	return 0;
 }
 

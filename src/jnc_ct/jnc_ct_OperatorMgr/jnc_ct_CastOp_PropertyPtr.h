@@ -24,14 +24,14 @@ class Cast_PropertyPtr_FromDataPtr: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -39,14 +39,14 @@ public:
 
 protected:
 	bool
-	llvmCast_DirectThunk (
+	llvmCast_DirectThunk(
 		Variable* variable,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
 		);
 
 	bool
-	llvmCast_FullClosure (
+	llvmCast_FullClosure(
 		const Value& opValue,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
@@ -60,7 +60,7 @@ class Cast_PropertyPtr_Base: public CastOperator
 public:
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
@@ -73,7 +73,7 @@ class Cast_PropertyPtr_FromFat: public Cast_PropertyPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -87,7 +87,7 @@ class Cast_PropertyPtr_Thin2Fat: public Cast_PropertyPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -95,7 +95,7 @@ public:
 
 protected:
 	bool
-	llvmCast_NoThunkSimpleClosure (
+	llvmCast_NoThunkSimpleClosure(
 		const Value& opValue,
 		const Value& simpleClosureObjValue,
 		PropertyType* srcPropertyType,
@@ -104,14 +104,14 @@ protected:
 		);
 
 	bool
-	llvmCast_DirectThunkNoClosure (
+	llvmCast_DirectThunkNoClosure(
 		Property* prop,
 		PropertyPtrType* dstPtrType,
 		Value* resultValue
 		);
 
 	bool
-	llvmCast_DirectThunkSimpleClosure (
+	llvmCast_DirectThunkSimpleClosure(
 		Property* prop,
 		const Value& simpleClosureObjValue,
 		PropertyPtrType* dstPtrType,
@@ -119,7 +119,7 @@ protected:
 		);
 
 	bool
-	llvmCast_FullClosure (
+	llvmCast_FullClosure(
 		const Value& opValue,
 		PropertyType* srcPropertyType,
 		PropertyPtrType* dstPtrType,
@@ -127,7 +127,7 @@ protected:
 		);
 
 	bool
-	createClosurePropertyPtr (
+	createClosurePropertyPtr(
 		Property* prop,
 		const Value& closureValue,
 		PropertyPtrType* ptrType,
@@ -142,7 +142,7 @@ class Cast_PropertyPtr_Weak2Normal: public Cast_PropertyPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -156,7 +156,7 @@ class Cast_PropertyPtr_Thin2Thin: public Cast_PropertyPtr_Base
 public:
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue
@@ -176,14 +176,14 @@ protected:
 	Cast_PropertyPtr_Thin2Fat m_thin2Fat;
 	Cast_PropertyPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable [PropertyPtrTypeKind__Count] [PropertyPtrTypeKind__Count];
+	CastOperator* m_operatorTable[PropertyPtrTypeKind__Count] [PropertyPtrTypeKind__Count];
 
 public:
-	Cast_PropertyPtr ();
+	Cast_PropertyPtr();
 
 	virtual
 	CastOperator*
-	getCastOperator (
+	getCastOperator(
 		const Value& opValue,
 		Type* type
 		);
@@ -196,21 +196,21 @@ public:
 class Cast_PropertyRef: public CastOperator
 {
 public:
-	Cast_PropertyRef ()
+	Cast_PropertyRef()
 	{
 		m_opFlags = OpFlag_KeepRef;
 	}
 
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

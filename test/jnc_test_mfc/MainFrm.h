@@ -59,9 +59,9 @@ public:  // control bar embedded members
 	CDasmPane m_DasmPane;
 	COutputPane m_OutputPane;
 
-	CAstDoc* GetDocument ()
+	CAstDoc* GetDocument()
 	{
-		return (CAstDoc*) GetActiveDocument ();
+		return (CAstDoc*)GetActiveDocument();
 	}
 
 
@@ -82,7 +82,7 @@ protected:
 
 inline
 CMainFrame*
-GetMainFrame ()
+GetMainFrame()
 {
-	return (CMainFrame*) AfxGetApp ()->GetMainWnd ();
+	return (CMainFrame*)AfxGetApp()->GetMainWnd();
 }

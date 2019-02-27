@@ -14,116 +14,116 @@ class Plugin
 {
 	PluginHost* readonly m_pluginHost;
 
-	construct (PluginHost* host)
+	construct(PluginHost* host)
 	{
 		m_pluginHost = host;
 	}
 
-	virtual void load (Storage* storage)
+	virtual void load(Storage* storage)
 	{
 	}
 
-	virtual void save (Storage* storage)
+	virtual void save(Storage* storage)
 	{
 	}
 
-	virtual void updateProperties ()
+	virtual void updateProperties()
 	{
 	}
 
-	virtual bool errorcode applyProperties ()
+	virtual bool errorcode applyProperties()
 	{
 		return true;
 	}
 
-	virtual void restoreDefaultProperties ()
+	virtual void restoreDefaultProperties()
 	{
 	}
 
-	abstract size_t errorcode transmit (
+	abstract size_t errorcode transmit(
 		void const* p,
 		size_t size
 		);
 
-	virtual size_t errorcode transmitTo (
+	virtual size_t errorcode transmitTo(
 		void const* p,
 		size_t size,
 		void const* address,
 		size_t addressSize
 		)
 	{
-		return transmit (p, size);
+		return transmit(p, size);
 	}
 
-	writeLog (
+	writeLog(
 		uint64_t recordCode,
 		void const* p,
 		size_t size
 		)
 	{
-		m_pluginHost.m_log.m_writer.write (recordCode, p, size);
+		m_pluginHost.m_log.m_writer.write(recordCode, p, size);
 	}
 
-	writeLog (uint64_t recordCode)
+	writeLog(uint64_t recordCode)
 	{
-		m_pluginHost.m_log.m_writer.write (recordCode, null, 0);
+		m_pluginHost.m_log.m_writer.write(recordCode, null, 0);
 	}
 
-	writeLogString (
+	writeLogString(
 		uint64_t recordCode,
 		char const* p
 		)
 	{
-		m_pluginHost.m_log.m_writer.write (recordCode, p, strlen (p));
+		m_pluginHost.m_log.m_writer.write(recordCode, p, strlen(p));
 	}
 
-	writeLogError (
+	writeLogError(
 		uint64_t recordCode,
 		std.Error const* error
 		)
 	{
-		m_pluginHost.m_log.m_writer.write (recordCode, error, error.m_size);
+		m_pluginHost.m_log.m_writer.write(recordCode, error, error.m_size);
 	}
 
-	writeLogLastError (uint64_t recordCode)
+	writeLogLastError(uint64_t recordCode)
 	{
-		writeLogError (recordCode, std.getLastError ());
+		writeLogError(recordCode, std.getLastError());
 	}
 
-	gui.Action* createAction (
+	gui.Action* createAction(
 		char const* text,
 		gui.Icon* icon = null,
 		bool isCheckable = false,
 		bool isChecked = false
 		);
 
-	gui.Action* createAction (
+	gui.Action* createAction(
 		char const* text,
 		char const* iconFileName,
 		bool isCheckable = false,
 		bool isChecked = false
 		)
 	{
-		return createAction (text, new gui.Icon (iconFileName), isCheckable, isChecked);
+		return createAction(text, new gui.Icon(iconFileName), isCheckable, isChecked);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-gui.Action* Plugin.createAction (
+gui.Action* Plugin.createAction(
 	char const* text,
 	gui.Icon* icon,
 	bool isCheckable,
 	bool isChecked
 	)
 {
-	gui.Action* action = new gui.Action (text, icon);
+	gui.Action* action = new gui.Action(text, icon);
 	action.m_isCheckable = isCheckable;
 	if (isCheckable)
 		action.m_isChecked = isChecked;
 
-	m_pluginHost.m_menu.addAction (action);
-	m_pluginHost.m_toolBar.addAction (action);
+	m_pluginHost.m_menu.addAction(action);
+	m_pluginHost.m_toolBar.addAction(action);
 	return action;
 }
 

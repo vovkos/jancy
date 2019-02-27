@@ -27,7 +27,7 @@ struct struct128
 
 typedef
 int32_t
-FuncInt32 (
+FuncInt32(
 	int32_t a1,
 	int32_t a2,
 	int32_t a3,
@@ -40,7 +40,7 @@ FuncInt32 (
 
 typedef
 int64_t
-FuncInt64 (
+FuncInt64(
 	int64_t a1,
 	int64_t a2,
 	int64_t a3,
@@ -53,7 +53,7 @@ FuncInt64 (
 
 typedef
 struct32
-FuncStruct32 (
+FuncStruct32(
 	struct32 s1,
 	struct32 s2,
 	struct32 s3,
@@ -66,7 +66,7 @@ FuncStruct32 (
 
 typedef
 struct64
-FuncStruct64 (
+FuncStruct64(
 	struct64 s1,
 	struct64 s2,
 	struct64 s3,
@@ -79,7 +79,7 @@ FuncStruct64 (
 
 typedef
 struct128
-FuncStruct128 (
+FuncStruct128(
 	struct128 s1,
 	struct128 s2,
 	struct128 s3,
@@ -88,7 +88,7 @@ FuncStruct128 (
 
 typedef
 jnc::Variant
-FuncVariant (
+FuncVariant(
 	jnc::Variant v1,
 	jnc::Variant v2,
 	jnc::Variant v3,
@@ -97,56 +97,56 @@ FuncVariant (
 
 typedef
 jnc::DataPtr
-FuncPtr (
+FuncPtr(
 	jnc::DataPtr p1,
 	char* p2
 	);
 
 typedef
 float
-FuncFloat (
+FuncFloat(
 	float x,
 	float y
 	);
 
 typedef
 double
-FuncDouble (
+FuncDouble(
 	double x,
 	double y
 	);
 
 typedef
 void
-TestFunc ();
+TestFunc();
 
 namespace c2jnc {
 
 //..............................................................................
 
 void
-testInt32 (jnc::Module* module);
+testInt32(jnc::Module* module);
 
 void
-testInt64 (jnc::Module* module);
+testInt64(jnc::Module* module);
 
 void
-testStruct32 (jnc::Module* module);
+testStruct32(jnc::Module* module);
 
 void
-testStruct64 (jnc::Module* module);
+testStruct64(jnc::Module* module);
 
 void
-testStruct128 (jnc::Module* module);
+testStruct128(jnc::Module* module);
 
 void
-testVariant (jnc::Module* module);
+testVariant(jnc::Module* module);
 
 void
-testFloat (jnc::Module* module);
+testFloat(jnc::Module* module);
 
 void
-testDouble (jnc::Module* module);
+testDouble(jnc::Module* module);
 
 //..............................................................................
 
@@ -157,7 +157,7 @@ namespace jnc2c {
 //..............................................................................
 
 void
-test (
+test(
 	jnc::Module* module,
 	const char* funcName
 	);
@@ -166,5 +166,5 @@ test (
 
 } // namespace jnc2c
 
-JNC_DECLARE_LIB (TestLib)
+JNC_DECLARE_LIB(TestLib)
 

@@ -33,7 +33,7 @@ enum BinTreeFindRelOp
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef int CmpFunc (
+typedef int CmpFunc(
 	variant key1,
 	variant key2
 	);
@@ -46,78 +46,78 @@ opaque class RbTree
 	MapEntry cmut* readonly m_tail;
 	size_t readonly m_count;
 
-	construct (CmpFunc thin* cmpFunc = null);
+	construct(CmpFunc thin* cmpFunc = null);
 
-	destruct ();
+	destruct();
 
 	bool const property m_isEmpty;
 
-	bool m_isEmpty.get ()
+	bool m_isEmpty.get()
 	{
 		return m_count == 0;
 	}
 
-	variant get (variant key)
+	variant get(variant key)
 	{
-		return findValue (key, null);
+		return findValue(key, null);
 	}
 
-	set (
+	set(
 		variant key,
 		variant value
 		)
 	{
-		add (key, value);
+		add(key, value);
 	}
 
-	clear ();
+	clear();
 
-	MapEntry* errorcode visit (variant key);
-	MapEntry cmut* find (variant key) const;
+	MapEntry* errorcode visit(variant key);
+	MapEntry cmut* find(variant key) const;
 
-	MapEntry cmut* find (
+	MapEntry cmut* find(
 		variant key,
 		BinTreeFindRelOp relOp
 		) const;
 
-	variant findValue (
+	variant findValue(
 		variant key,
 		variant undefinedValue = null
 		) const
 	{
-		MapEntry* entry = find (key);
+		MapEntry* entry = find(key);
 		return entry ? entry.m_value : undefinedValue;
 	}
 
-	variant findValue (
+	variant findValue(
 		variant key,
 		BinTreeFindRelOp relOp,
 		variant undefinedValue = null
 		) const
 	{
-		MapEntry* entry = find (key, relOp);
+		MapEntry* entry = find(key, relOp);
 		return entry ? entry.m_value : undefinedValue;
 	}
 
-	MapEntry* errorcode add (
+	MapEntry* errorcode add(
 		variant key,
 		variant value
 		)
 	{
-		MapEntry* entry = visit (key);
+		MapEntry* entry = visit(key);
 		entry.m_value = value;
 		return entry;
 	}
 
-	void remove (MapEntry* entry);
+	void remove(MapEntry* entry);
 
-	bool removeKey (variant key)
+	bool removeKey(variant key)
 	{
-		MapEntry* entry = find (key);
+		MapEntry* entry = find(key);
 		if (!entry)
 			return false;
 
-		remove (entry);
+		remove(entry);
 		return true;
 	}
 }

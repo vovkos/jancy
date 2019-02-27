@@ -19,192 +19,192 @@ namespace ct {
 //..............................................................................
 
 CastKind
-Cast_PropertyPtr_FromDataPtr::getCastKind (
+Cast_PropertyPtr_FromDataPtr::getCastKind(
 	const Value& opValue,
 	Type* type
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr && type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
-	DataPtrType* srcPtrType = (DataPtrType*) opValue.getType ();
-	PropertyPtrType* dstPtrType = (PropertyPtrType*) type;
-	PropertyType* propertyType = dstPtrType->getTargetType ();
+	DataPtrType* srcPtrType = (DataPtrType*)opValue.getType();
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
+	PropertyType* propertyType = dstPtrType->getTargetType();
 
-	return !propertyType->isIndexed ()  ?
-		m_module->m_operatorMgr.getCastKind (srcPtrType->getTargetType (), propertyType->getReturnType ()) :
+	return !propertyType->isIndexed()  ?
+		m_module->m_operatorMgr.getCastKind(srcPtrType->getTargetType(), propertyType->getReturnType()) :
 		CastKind_None;
 }
 
 bool
-Cast_PropertyPtr_FromDataPtr::llvmCast (
+Cast_PropertyPtr_FromDataPtr::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_DataPtr && type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_DataPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
-	PropertyPtrType* dstPtrType = (PropertyPtrType*) type;
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
 
-	if (opValue.getValueKind () == ValueKind_Variable &&
-		opValue.getVariable ()->getStorageKind () == StorageKind_Static &&
-		opValue.getLlvmValue () == opValue.getVariable ()->getLlvmValue ())
+	if (opValue.getValueKind() == ValueKind_Variable &&
+		opValue.getVariable()->getStorageKind() == StorageKind_Static &&
+		opValue.getLlvmValue() == opValue.getVariable()->getLlvmValue())
 	{
-		return llvmCast_DirectThunk (opValue.getVariable (), dstPtrType, resultValue);
+		return llvmCast_DirectThunk(opValue.getVariable(), dstPtrType, resultValue);
 	}
 
-	if (dstPtrType->getPtrTypeKind () == PropertyPtrTypeKind_Thin)
+	if (dstPtrType->getPtrTypeKind() == PropertyPtrTypeKind_Thin)
 	{
-		setCastError (opValue, type);
+		setCastError(opValue, type);
 		return false;
 	}
 
-	return llvmCast_FullClosure (opValue, dstPtrType, resultValue);
+	return llvmCast_FullClosure(opValue, dstPtrType, resultValue);
 }
 
 bool
-Cast_PropertyPtr_FromDataPtr::llvmCast_DirectThunk (
+Cast_PropertyPtr_FromDataPtr::llvmCast_DirectThunk(
 	Variable* variable,
 	PropertyPtrType* dstPtrType,
 	Value* resultValue
 	)
 {
-	Property* thunkProperty = m_module->m_functionMgr.getDirectDataThunkProperty (
+	Property* thunkProperty = m_module->m_functionMgr.getDirectDataThunkProperty(
 		variable,
-		dstPtrType->getTargetType (),
-		dstPtrType->hasClosure ()
+		dstPtrType->getTargetType(),
+		dstPtrType->hasClosure()
 		);
 
 	Value propertyValue = thunkProperty;
-	m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, &propertyValue);
+	m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, &propertyValue);
 
 	Value closureValue;
 
-	if (dstPtrType->hasClosure ())
+	if (dstPtrType->hasClosure())
 	{
-		closureValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
+		closureValue = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)->getZeroValue();
 
-		Closure* closure = propertyValue.createClosure ();
-		closure->insertThisArgValue (closureValue);
+		Closure* closure = propertyValue.createClosure();
+		closure->insertThisArgValue(closureValue);
 	}
 
-	return m_module->m_operatorMgr.castOperator (propertyValue, dstPtrType, resultValue);
+	return m_module->m_operatorMgr.castOperator(propertyValue, dstPtrType, resultValue);
 }
 
 bool
-Cast_PropertyPtr_FromDataPtr::llvmCast_FullClosure (
+Cast_PropertyPtr_FromDataPtr::llvmCast_FullClosure(
 	const Value& opValue,
 	PropertyPtrType* dstPtrType,
 	Value* resultValue
 	)
 {
 	Value closureValue;
-	bool result = m_module->m_operatorMgr.createDataClosureObject (
+	bool result = m_module->m_operatorMgr.createDataClosureObject(
 		opValue,
-		dstPtrType->getTargetType (),
+		dstPtrType->getTargetType(),
 		&closureValue
 		);
 
 	if (!result)
 		return false;
 
-	ASSERT (isClassPtrType (closureValue.getType (), ClassTypeKind_PropertyClosure));
+	ASSERT(isClassPtrType(closureValue.getType(), ClassTypeKind_PropertyClosure));
 
-	PropertyClosureClassType* closureType = (PropertyClosureClassType*) ((ClassPtrType*) closureValue.getType ())->getTargetType ();
-	m_module->m_llvmIrBuilder.createClosurePropertyPtr (closureType->getThunkProperty (), closureValue, dstPtrType, resultValue);
+	PropertyClosureClassType* closureType = (PropertyClosureClassType*)((ClassPtrType*)closureValue.getType())->getTargetType();
+	m_module->m_llvmIrBuilder.createClosurePropertyPtr(closureType->getThunkProperty(), closureValue, dstPtrType, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 CastKind
-Cast_PropertyPtr_Base::getCastKind (
+Cast_PropertyPtr_Base::getCastKind(
 	const Value& opValue,
 	Type* type
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyPtr && type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
-	PropertyPtrType* srcPtrType = (PropertyPtrType*) opValue.getClosureAwareType ();
-	PropertyPtrType* dstPtrType = (PropertyPtrType*) type;
+	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getClosureAwareType();
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
 
 	if (!srcPtrType)
 		return CastKind_None;
 
-	if ((srcPtrType->getFlags () & PtrTypeFlag_Const) &&
-		!(dstPtrType->getFlags () & PtrTypeFlag_Const))
+	if ((srcPtrType->getFlags() & PtrTypeFlag_Const) &&
+		!(dstPtrType->getFlags() & PtrTypeFlag_Const))
 		return CastKind_None;
 
-	return m_module->m_operatorMgr.getPropertyCastKind (
-		srcPtrType->getTargetType (),
-		dstPtrType->getTargetType ()
+	return m_module->m_operatorMgr.getPropertyCastKind(
+		srcPtrType->getTargetType(),
+		dstPtrType->getTargetType()
 		);
 }
 
 //..............................................................................
 
 bool
-Cast_PropertyPtr_FromFat::llvmCast (
+Cast_PropertyPtr_FromFat::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyPtr && type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
-	PropertyPtrType* srcPtrType = (PropertyPtrType*) opValue.getType ();
-	PropertyType* srcPropertyType = srcPtrType->getTargetType ();
+	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getType();
+	PropertyType* srcPropertyType = srcPtrType->getTargetType();
 
-	PropertyPtrType* thinPtrType = srcPropertyType->getStdObjectMemberPropertyType ()->getPropertyPtrType (PropertyPtrTypeKind_Thin);
+	PropertyPtrType* thinPtrType = srcPropertyType->getStdObjectMemberPropertyType()->getPropertyPtrType(PropertyPtrTypeKind_Thin);
 
 	Value pfnValue;
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, thinPtrType, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, thinPtrType, &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &closureValue);
 
-	Closure* closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure();
 	if (closure)
-		pfnValue.setClosure (closure);
+		pfnValue.setClosure(closure);
 	else
-		closure = pfnValue.createClosure ();
+		closure = pfnValue.createClosure();
 
-	closure->insertThisArgValue (closureValue);
+	closure->insertThisArgValue(closureValue);
 
-	return m_module->m_operatorMgr.castOperator (pfnValue, type, resultValue);
+	return m_module->m_operatorMgr.castOperator(pfnValue, type, resultValue);
 }
 
 //..............................................................................
 
 bool
-Cast_PropertyPtr_Thin2Fat::llvmCast (
+Cast_PropertyPtr_Thin2Fat::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyPtr && type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr && type->getTypeKind() == TypeKind_PropertyPtr);
 
-	PropertyPtrType* srcPtrType = (PropertyPtrType*) opValue.getType ();
-	PropertyPtrType* dstPtrType = (PropertyPtrType*) type;
+	PropertyPtrType* srcPtrType = (PropertyPtrType*)opValue.getType();
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
 
-	PropertyType* srcPropertyType = srcPtrType->getTargetType ();
-	PropertyType* dstPropertyType = dstPtrType->getTargetType ();
+	PropertyType* srcPropertyType = srcPtrType->getTargetType();
+	PropertyType* dstPropertyType = dstPtrType->getTargetType();
 
-	Closure* closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure();
 
 	Value simpleClosureObjValue;
 
-	bool isSimpleClosure = closure && closure->isSimpleClosure ();
+	bool isSimpleClosure = closure && closure->isSimpleClosure();
 	if (isSimpleClosure)
-		simpleClosureObjValue = *closure->getArgValueList ()->getHead ();
+		simpleClosureObjValue = *closure->getArgValueList()->getHead();
 
 	// case 1: no conversion required, no closure object needs to be created
 
 	if (isSimpleClosure &&
-		srcPropertyType->isMemberPropertyType () &&
-		srcPropertyType->getShortType ()->cmp (dstPropertyType) == 0)
+		srcPropertyType->isMemberPropertyType() &&
+		srcPropertyType->getShortType()->cmp(dstPropertyType) == 0)
 	{
-		return llvmCast_NoThunkSimpleClosure (
+		return llvmCast_NoThunkSimpleClosure(
 			opValue,
 			simpleClosureObjValue,
 			srcPropertyType,
@@ -213,14 +213,14 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 			);
 	}
 
-	if (opValue.getValueKind () == ValueKind_Property)
+	if (opValue.getValueKind() == ValueKind_Property)
 	{
-		Property* prop = opValue.getProperty ();
+		Property* prop = opValue.getProperty();
 
 		// case 2.1: conversion is required, but no closure object needs to be created (closure arg is null)
 
 		if (!closure)
-			return llvmCast_DirectThunkNoClosure (
+			return llvmCast_DirectThunkNoClosure(
 				prop,
 				dstPtrType,
 				resultValue
@@ -228,8 +228,8 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 
 		// case 2.2: same as above, but simple closure is passed as closure arg
 
-		if (isSimpleClosure && prop->getType ()->isMemberPropertyType ())
-			return llvmCast_DirectThunkSimpleClosure (
+		if (isSimpleClosure && prop->getType()->isMemberPropertyType())
+			return llvmCast_DirectThunkSimpleClosure(
 				prop,
 				simpleClosureObjValue,
 				dstPtrType,
@@ -239,7 +239,7 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 
 	// case 3: closure object needs to be created (so conversion is required even if Property signatures match)
 
-	return llvmCast_FullClosure (
+	return llvmCast_FullClosure(
 		opValue,
 		srcPropertyType,
 		dstPtrType,
@@ -248,7 +248,7 @@ Cast_PropertyPtr_Thin2Fat::llvmCast (
 }
 
 bool
-Cast_PropertyPtr_Thin2Fat::llvmCast_NoThunkSimpleClosure (
+Cast_PropertyPtr_Thin2Fat::llvmCast_NoThunkSimpleClosure(
 	const Value& opValue,
 	const Value& simpleClosureObjValue,
 	PropertyType* srcPropertyType,
@@ -256,64 +256,64 @@ Cast_PropertyPtr_Thin2Fat::llvmCast_NoThunkSimpleClosure (
 	Value* resultValue
 	)
 {
-	Type* thisArgType = srcPropertyType->getThisArgType ();
+	Type* thisArgType = srcPropertyType->getThisArgType();
 
 	Value thisArgValue;
-	bool result = m_module->m_operatorMgr.castOperator (simpleClosureObjValue, thisArgType, &thisArgValue);
+	bool result = m_module->m_operatorMgr.castOperator(simpleClosureObjValue, thisArgType, &thisArgValue);
 	if (!result)
 		return false;
 
-	if (opValue.getValueKind () == ValueKind_Property)
-		return createClosurePropertyPtr (opValue.getProperty (), thisArgValue, dstPtrType, resultValue);
+	if (opValue.getValueKind() == ValueKind_Property)
+		return createClosurePropertyPtr(opValue.getProperty(), thisArgValue, dstPtrType, resultValue);
 
-	m_module->m_llvmIrBuilder.createClosurePropertyPtr (opValue, thisArgValue, dstPtrType, resultValue);
+	m_module->m_llvmIrBuilder.createClosurePropertyPtr(opValue, thisArgValue, dstPtrType, resultValue);
 	return true;
 }
 
 bool
-Cast_PropertyPtr_Thin2Fat::llvmCast_DirectThunkNoClosure (
+Cast_PropertyPtr_Thin2Fat::llvmCast_DirectThunkNoClosure(
 	Property* prop,
 	PropertyPtrType* dstPtrType,
 	Value* resultValue
 	)
 {
-	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty (
+	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty(
 		prop,
-		((PropertyPtrType*) dstPtrType)->getTargetType (),
+		((PropertyPtrType*)dstPtrType)->getTargetType(),
 		true
 		);
 
-	Value nullValue = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr)->getZeroValue ();
+	Value nullValue = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)->getZeroValue();
 
-	return createClosurePropertyPtr (thunkProperty, nullValue, dstPtrType, resultValue);
+	return createClosurePropertyPtr(thunkProperty, nullValue, dstPtrType, resultValue);
 }
 
 bool
-Cast_PropertyPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure (
+Cast_PropertyPtr_Thin2Fat::llvmCast_DirectThunkSimpleClosure(
 	Property* prop,
 	const Value& simpleClosureObjValue,
 	PropertyPtrType* dstPtrType,
 	Value* resultValue
 	)
 {
-	Type* thisArgType = prop->getType ()->getThisArgType ();
-	DerivableType* thisTargetType = prop->getType ()->getThisTargetType ();
+	Type* thisArgType = prop->getType()->getThisArgType();
+	DerivableType* thisTargetType = prop->getType()->getThisTargetType();
 
 	Value thisArgValue;
-	bool result = m_module->m_operatorMgr.castOperator (simpleClosureObjValue, thisArgType, &thisArgValue);
+	bool result = m_module->m_operatorMgr.castOperator(simpleClosureObjValue, thisArgType, &thisArgValue);
 	if (!result)
 		return false;
 
-	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty (
+	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty(
 		prop,
-		m_module->m_typeMgr.getMemberPropertyType (thisTargetType, dstPtrType->getTargetType ())
+		m_module->m_typeMgr.getMemberPropertyType(thisTargetType, dstPtrType->getTargetType())
 		);
 
-	return createClosurePropertyPtr (thunkProperty, thisArgValue, dstPtrType, resultValue);
+	return createClosurePropertyPtr(thunkProperty, thisArgValue, dstPtrType, resultValue);
 }
 
 bool
-Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure (
+Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure(
 	const Value& opValue,
 	PropertyType* srcPropertyType,
 	PropertyPtrType* dstPtrType,
@@ -321,24 +321,24 @@ Cast_PropertyPtr_Thin2Fat::llvmCast_FullClosure (
 	)
 {
 	Value closureValue;
-	bool result = m_module->m_operatorMgr.createClosureObject (
+	bool result = m_module->m_operatorMgr.createClosureObject(
 		opValue,
-		dstPtrType->getTargetType (),
-		dstPtrType->getPtrTypeKind () == PropertyPtrTypeKind_Weak,
+		dstPtrType->getTargetType(),
+		dstPtrType->getPtrTypeKind() == PropertyPtrTypeKind_Weak,
 		&closureValue
 		);
 
 	if (!result)
 		return false;
 
-	ASSERT (isClassPtrType (closureValue.getType (), ClassTypeKind_PropertyClosure));
+	ASSERT(isClassPtrType(closureValue.getType(), ClassTypeKind_PropertyClosure));
 
-	PropertyClosureClassType* closureType = (PropertyClosureClassType*) ((ClassPtrType*) closureValue.getType ())->getTargetType ();
-	return createClosurePropertyPtr (closureType->getThunkProperty (), closureValue, dstPtrType, resultValue);
+	PropertyClosureClassType* closureType = (PropertyClosureClassType*)((ClassPtrType*)closureValue.getType())->getTargetType();
+	return createClosurePropertyPtr(closureType->getThunkProperty(), closureValue, dstPtrType, resultValue);
 }
 
 bool
-Cast_PropertyPtr_Thin2Fat::createClosurePropertyPtr (
+Cast_PropertyPtr_Thin2Fat::createClosurePropertyPtr(
 	Property* prop,
 	const Value& closureValue,
 	PropertyPtrType* ptrType,
@@ -346,67 +346,67 @@ Cast_PropertyPtr_Thin2Fat::createClosurePropertyPtr (
 	)
 {
 	Value thinPtrValue;
-	bool result = m_module->m_operatorMgr.getPropertyThinPtr (prop, NULL, &thinPtrValue);
+	bool result = m_module->m_operatorMgr.getPropertyThinPtr(prop, NULL, &thinPtrValue);
 	if (!result)
 		return false;
 
-	m_module->m_llvmIrBuilder.createClosurePropertyPtr (thinPtrValue, closureValue, ptrType, resultValue);
+	m_module->m_llvmIrBuilder.createClosurePropertyPtr(thinPtrValue, closureValue, ptrType, resultValue);
 	return true;
 }
 
 //..............................................................................
 
 bool
-Cast_PropertyPtr_Weak2Normal::llvmCast (
+Cast_PropertyPtr_Weak2Normal::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
-	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr && ((PropertyPtrType*) type)->getPtrTypeKind () == PropertyPtrTypeKind_Normal);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr && ((PropertyPtrType*)type)->getPtrTypeKind() == PropertyPtrTypeKind_Normal);
 
-	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock ();
-	BasicBlock* strengthenBlock = m_module->m_controlFlowMgr.createBlock ("strengthen");
-	BasicBlock* aliveBlock = m_module->m_controlFlowMgr.createBlock ("alive");
-	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock ("dead");
-	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock ("phi");
+	BasicBlock* initialBlock = m_module->m_controlFlowMgr.getCurrentBlock();
+	BasicBlock* strengthenBlock = m_module->m_controlFlowMgr.createBlock("strengthen");
+	BasicBlock* aliveBlock = m_module->m_controlFlowMgr.createBlock("alive");
+	BasicBlock* deadBlock = m_module->m_controlFlowMgr.createBlock("dead");
+	BasicBlock* phiBlock = m_module->m_controlFlowMgr.createBlock("phi");
 
-	Type* closureType = m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr);
-	Value nullClosureValue = closureType->getZeroValue ();
+	Type* closureType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
+	Value nullClosureValue = closureType->getZeroValue();
 
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, closureType, &closureValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, closureType, &closureValue);
 
 	Value cmpValue;
-	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, closureValue, nullClosureValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, strengthenBlock, phiBlock);
+	m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, closureValue, nullClosureValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump(cmpValue, strengthenBlock, phiBlock);
 
-	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction (StdFunc_StrengthenClassPtr);
+	Function* strengthenFunction = m_module->m_functionMgr.getStdFunction(StdFunc_StrengthenClassPtr);
 
 	Value strengthenedClosureValue;
-	m_module->m_llvmIrBuilder.createCall (
+	m_module->m_llvmIrBuilder.createCall(
 		strengthenFunction,
-		strengthenFunction->getType (),
+		strengthenFunction->getType(),
 		closureValue,
 		&strengthenedClosureValue
 		);
 
-	m_module->m_operatorMgr.binaryOperator (BinOpKind_Ne, strengthenedClosureValue, nullClosureValue, &cmpValue);
-	m_module->m_controlFlowMgr.conditionalJump (cmpValue, aliveBlock, deadBlock);
-	m_module->m_controlFlowMgr.follow (phiBlock);
+	m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, strengthenedClosureValue, nullClosureValue, &cmpValue);
+	m_module->m_controlFlowMgr.conditionalJump(cmpValue, aliveBlock, deadBlock);
+	m_module->m_controlFlowMgr.follow(phiBlock);
 
-	m_module->m_controlFlowMgr.setCurrentBlock (deadBlock);
-	m_module->m_controlFlowMgr.follow (phiBlock);
+	m_module->m_controlFlowMgr.setCurrentBlock(deadBlock);
+	m_module->m_controlFlowMgr.follow(phiBlock);
 
-	Value valueArray [3] =
+	Value valueArray[3] =
 	{
 		opValue,
 		opValue,
-		opValue.getType ()->getZeroValue ()
+		opValue.getType()->getZeroValue()
 	};
 
-	BasicBlock* blockArray [3] =
+	BasicBlock* blockArray[3] =
 	{
 		initialBlock,
 		aliveBlock,
@@ -414,122 +414,122 @@ Cast_PropertyPtr_Weak2Normal::llvmCast (
 	};
 
 	Value intermediateValue;
-	m_module->m_llvmIrBuilder.createPhi (valueArray, blockArray, 3, &intermediateValue);
+	m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, &intermediateValue);
 
-	PropertyPtrType* intermediateType = ((PropertyPtrType*) opValue.getType ())->getUnWeakPtrType ();
-	intermediateValue.overrideType (intermediateType);
-	return m_module->m_operatorMgr.castOperator (intermediateValue, type, resultValue);}
+	PropertyPtrType* intermediateType = ((PropertyPtrType*)opValue.getType())->getUnWeakPtrType();
+	intermediateValue.overrideType(intermediateType);
+	return m_module->m_operatorMgr.castOperator(intermediateValue, type, resultValue);}
 
 //..............................................................................
 
 bool
-Cast_PropertyPtr_Thin2Thin::llvmCast (
+Cast_PropertyPtr_Thin2Thin::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKind () == TypeKind_PropertyPtr);
-	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKind() == TypeKind_PropertyPtr);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
-	if (opValue.getClosure ())
+	if (opValue.getClosure())
 	{
-		err::setFormatStringError ("cannot create thin property pointer to a closure");
+		err::setFormatStringError("cannot create thin property pointer to a closure");
 		return false;
 	}
 
-	if (opValue.getValueKind () != ValueKind_Property)
+	if (opValue.getValueKind() != ValueKind_Property)
 	{
-		err::setFormatStringError ("can only create thin pointer thunk to a property, not a property pointer");
+		err::setFormatStringError("can only create thin pointer thunk to a property, not a property pointer");
 		return false;
 	}
 
-	PropertyPtrType* ptrType = (PropertyPtrType*) type;
-	PropertyType* targetType = ptrType->getTargetType ();
-	Property* prop = opValue.getProperty ();
+	PropertyPtrType* ptrType = (PropertyPtrType*)type;
+	PropertyType* targetType = ptrType->getTargetType();
+	Property* prop = opValue.getProperty();
 
-	if (prop->getType ()->cmp (targetType) == 0)
-		return m_module->m_operatorMgr.getPropertyThinPtr (prop, NULL, ptrType, resultValue);
+	if (prop->getType()->cmp(targetType) == 0)
+		return m_module->m_operatorMgr.getPropertyThinPtr(prop, NULL, ptrType, resultValue);
 
-	if (prop->getFlags () & PropertyTypeFlag_Bindable)
+	if (prop->getFlags() & PropertyTypeFlag_Bindable)
 	{
-		err::setFormatStringError ("bindable properties are not supported yet");
+		err::setFormatStringError("bindable properties are not supported yet");
 		return false;
 	}
 
-	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty (prop, targetType);
-	return m_module->m_operatorMgr.getPropertyThinPtr (thunkProperty, NULL, ptrType, resultValue);
+	Property* thunkProperty = m_module->m_functionMgr.getDirectThunkProperty(prop, targetType);
+	return m_module->m_operatorMgr.getPropertyThinPtr(thunkProperty, NULL, ptrType, resultValue);
 }
 
 //..............................................................................
 /*
 bool
-Cast_PropertyPtr_Thin2Weak::llvmCast (
+Cast_PropertyPtr_Thin2Weak::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	AXL_TODO ("will only work for simple closures. redesign Thin2Normal to support 'weak'")
+	AXL_TODO("will only work for simple closures. redesign Thin2Normal to support 'weak'")
 
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_PropertyPtr);
-	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
-	if (opValue.getClosure () && !opValue.getClosure ()->isSimpleClosure ())
+	if (opValue.getClosure() && !opValue.getClosure()->isSimpleClosure())
 	{
-		err::setFormatStringError ("full weak closures are not implemented yet");
+		err::setFormatStringError("full weak closures are not implemented yet");
 		return false;
 	}
 
-	PropertyPtrType* intermediateType = ((PropertyPtrType*) type)->getTargetType ()->getPropertyPtrType (PropertyPtrTypeKind_Normal);
-	bool result = m_module->m_operatorMgr.castOperator (opValue, intermediateType, resultValue);
+	PropertyPtrType* intermediateType = ((PropertyPtrType*)type)->getTargetType()->getPropertyPtrType(PropertyPtrTypeKind_Normal);
+	bool result = m_module->m_operatorMgr.castOperator(opValue, intermediateType, resultValue);
 	if (!result)
 		return false;
 
-	resultValue->overrideType (type);
+	resultValue->overrideType(type);
 	return true;
 }
 */
 
 //..............................................................................
 
-Cast_PropertyPtr::Cast_PropertyPtr ()
+Cast_PropertyPtr::Cast_PropertyPtr()
 {
-	memset (m_operatorTable, 0, sizeof (m_operatorTable));
+	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable [PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Normal] = &m_fromFat;
-	m_operatorTable [PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Weak]   = &m_fromFat;
-	m_operatorTable [PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Normal]   = &m_weak2Normal;
-	m_operatorTable [PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Weak]     = &m_fromFat;
-	m_operatorTable [PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Normal]   = &m_thin2Fat;
-	m_operatorTable [PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Weak]     = &m_thin2Fat;
-	m_operatorTable [PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
+	m_operatorTable[PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Normal] = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Weak]   = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Normal]   = &m_weak2Normal;
+	m_operatorTable[PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Weak]     = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Normal]   = &m_thin2Fat;
+	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Weak]     = &m_thin2Fat;
+	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
 CastOperator*
-Cast_PropertyPtr::getCastOperator (
+Cast_PropertyPtr::getCastOperator(
 	const Value& opValue,
 	Type* type
 	)
 {
-	ASSERT (type->getTypeKind () == TypeKind_PropertyPtr);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
 
-	PropertyPtrType* dstPtrType = (PropertyPtrType*) type;
-	PropertyPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind ();
-	ASSERT ((size_t) dstPtrTypeKind < PropertyPtrTypeKind__Count);
+	PropertyPtrType* dstPtrType = (PropertyPtrType*)type;
+	PropertyPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind();
+	ASSERT((size_t)dstPtrTypeKind < PropertyPtrTypeKind__Count);
 
-	TypeKind srcTypeKind = opValue.getType ()->getTypeKind ();
-	switch (srcTypeKind)
+	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
+	switch(srcTypeKind)
 	{
 	case TypeKind_DataPtr:
 		return &m_fromDataPtr;
 
 	case TypeKind_PropertyPtr:
 		{
-		PropertyPtrTypeKind srcPtrTypeKind = ((PropertyPtrType*) opValue.getType ())->getPtrTypeKind ();
-		ASSERT ((size_t) srcPtrTypeKind < PropertyPtrTypeKind__Count);
+		PropertyPtrTypeKind srcPtrTypeKind = ((PropertyPtrType*)opValue.getType())->getPtrTypeKind();
+		ASSERT((size_t)srcPtrTypeKind < PropertyPtrTypeKind__Count);
 
-		return m_operatorTable [srcPtrTypeKind] [dstPtrTypeKind];
+		return m_operatorTable[srcPtrTypeKind] [dstPtrTypeKind];
 		}
 
 	default:
@@ -540,49 +540,49 @@ Cast_PropertyPtr::getCastOperator (
 //..............................................................................
 
 CastKind
-Cast_PropertyRef::getCastKind (
+Cast_PropertyRef::getCastKind(
 	const Value& opValue,
 	Type* type
 	)
 {
-	ASSERT (type->getTypeKind () == TypeKind_PropertyRef);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyRef);
 
-	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, opValue);
+	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Addr, opValue);
 	if (!intermediateSrcType)
 		return CastKind_None;
 
-	PropertyPtrType* ptrType = (PropertyPtrType*) type;
-	PropertyPtrType* intermediateDstType = ptrType->getTargetType ()->getPropertyPtrType (
+	PropertyPtrType* ptrType = (PropertyPtrType*)type;
+	PropertyPtrType* intermediateDstType = ptrType->getTargetType()->getPropertyPtrType(
 		TypeKind_PropertyPtr,
-		ptrType->getPtrTypeKind (),
-		ptrType->getFlags ()
+		ptrType->getPtrTypeKind(),
+		ptrType->getFlags()
 		);
 
-	return m_module->m_operatorMgr.getCastKind (intermediateSrcType, intermediateDstType);
+	return m_module->m_operatorMgr.getCastKind(intermediateSrcType, intermediateDstType);
 }
 
 bool
-Cast_PropertyRef::llvmCast (
+Cast_PropertyRef::llvmCast(
 	const Value& opValue,
 	Type* type,
 	Value* resultValue
 	)
 {
-	ASSERT (type->getTypeKind () == TypeKind_PropertyRef);
+	ASSERT(type->getTypeKind() == TypeKind_PropertyRef);
 
-	PropertyPtrType* ptrType = (PropertyPtrType*) type;
-	PropertyPtrType* intermediateType = ptrType->getTargetType ()->getPropertyPtrType (
+	PropertyPtrType* ptrType = (PropertyPtrType*)type;
+	PropertyPtrType* intermediateType = ptrType->getTargetType()->getPropertyPtrType(
 		TypeKind_PropertyPtr,
-		ptrType->getPtrTypeKind (),
-		ptrType->getFlags ()
+		ptrType->getPtrTypeKind(),
+		ptrType->getFlags()
 		);
 
 	Value intermediateValue;
 
 	return
-		m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, opValue, &intermediateValue) &&
-		m_module->m_operatorMgr.castOperator (&intermediateValue, intermediateType) &&
-		m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, intermediateValue, resultValue);
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, opValue, &intermediateValue) &&
+		m_module->m_operatorMgr.castOperator(&intermediateValue, intermediateType) &&
+		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, intermediateValue, resultValue);
 }
 
 //..............................................................................

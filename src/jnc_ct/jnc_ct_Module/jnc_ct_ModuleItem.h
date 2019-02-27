@@ -39,19 +39,19 @@ protected:
 	Token::Pos m_pos;
 
 public:
-	ModuleItemPos ()
+	ModuleItemPos()
 	{
 		m_parentUnit = NULL;
 	}
 
 	Unit*
-	getParentUnit () const
+	getParentUnit() const
 	{
 		return m_parentUnit;
 	}
 
 	const Token::Pos*
-	getPos () const
+	getPos() const
 	{
 		return &m_pos;
 	}
@@ -64,18 +64,18 @@ class ModuleItemInitializer
 	friend class Parser;
 
 protected:
-	sl::BoxList <Token> m_initializer;
+	sl::BoxList<Token> m_initializer;
 	sl::String m_initializerString;
 
 public:
-	sl::ConstBoxList <Token>
-	getInitializer ()
+	sl::ConstBoxList<Token>
+	getInitializer()
 	{
 		return m_initializer;
 	}
 
 	const sl::String&
-	getInitializerString ();
+	getInitializerString();
 };
 
 //..............................................................................
@@ -96,56 +96,56 @@ protected:
 	AttributeBlock* m_attributeBlock;
 
 public:
-	ModuleItemDecl ();
+	ModuleItemDecl();
 
 	StorageKind
-	getStorageKind ()
+	getStorageKind()
 	{
 		return m_storageKind;
 	}
 
 	AccessKind
-	getAccessKind ()
+	getAccessKind()
 	{
 		return m_accessKind;
 	}
 
 	bool
-	isNamed ()
+	isNamed()
 	{
-		return !m_name.isEmpty ();
+		return !m_name.isEmpty();
 	}
 
 	const sl::String&
-	getName ()
+	getName()
 	{
 		return m_name;
 	}
 
 	const sl::String&
-	getQualifiedName ()
+	getQualifiedName()
 	{
 		return m_qualifiedName;
 	}
 
 	Namespace*
-	getParentNamespace ()
+	getParentNamespace()
 	{
 		return m_parentNamespace;
 	}
 
 	AttributeBlock*
-	getAttributeBlock ()
+	getAttributeBlock()
 	{
 		return m_attributeBlock;
 	}
 
 	void
-	pushSrcPosError ();
+	pushSrcPosError();
 
 protected:
 	sl::String
-	getDoxyLocationString ();
+	getDoxyLocationString();
 };
 
 //..............................................................................
@@ -166,49 +166,49 @@ public:
 	sl::String m_tag;
 
 public:
-	ModuleItem ();
+	ModuleItem();
 
 	Module*
-	getModule ()
+	getModule()
 	{
 		return m_module;
 	}
 
 	ModuleItemKind
-	getItemKind ()
+	getItemKind()
 	{
 		return m_itemKind;
 	}
 
 	uint_t
-	getFlags ()
+	getFlags()
 	{
 		return m_flags;
 	}
 
 	ModuleItemDecl*
-	getDecl ();
+	getDecl();
 
 	Namespace*
-	getNamespace ();
+	getNamespace();
 
 	Type*
-	getType ();
+	getType();
 
 	bool
-	ensureLayout ();
+	ensureLayout();
 
 	virtual
 	bool
-	compile ()
+	compile()
 	{
-		ASSERT (false);
+		ASSERT(false);
 		return true;
 	}
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -219,20 +219,20 @@ public:
 
 	virtual
 	sl::String
-	createDoxyRefId ();
+	createDoxyRefId();
 
 	DoxyBlock*
-	getDoxyBlock ();
+	getDoxyBlock();
 
 	DoxyBlock*
-	setDoxyBlock (DoxyBlock* block);
+	setDoxyBlock(DoxyBlock* block);
 
 protected:
 	virtual
 	bool
-	calcLayout ()
+	calcLayout()
 	{
-		ASSERT (false);
+		ASSERT(false);
 		return true;
 	}
 };
@@ -251,20 +251,20 @@ class LazyModuleItem: public ModuleItem
 	friend class Namespace;
 
 public:
-	LazyModuleItem ()
+	LazyModuleItem()
 	{
 		m_itemKind = ModuleItemKind_Lazy;
 	}
 
 	virtual
 	ModuleItem*
-	getActualItem () = 0;
+	getActualItem() = 0;
 };
 
 //..............................................................................
 
 ModuleItem*
-verifyModuleItemKind (
+verifyModuleItemKind(
 	ModuleItem* item,
 	ModuleItemKind itemKind,
 	const sl::StringRef& name
@@ -272,56 +272,56 @@ verifyModuleItemKind (
 
 JNC_INLINE
 Type*
-verifyModuleItemIsType (
+verifyModuleItemIsType(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 {
-	return (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+	return (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
 }
 
 DerivableType*
-verifyModuleItemIsDerivableType (
+verifyModuleItemIsDerivableType(
 	ModuleItem* item,
 	const sl::StringRef& name
 	);
 
 ClassType*
-verifyModuleItemIsClassType (
+verifyModuleItemIsClassType(
 	ModuleItem* item,
 	const sl::StringRef& name
 	);
 
 JNC_INLINE
 Variable*
-verifyModuleItemIsVariable (
+verifyModuleItemIsVariable(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 
 {
-	return (Variable*) verifyModuleItemKind (item, ModuleItemKind_Variable, name);
+	return (Variable*)verifyModuleItemKind(item, ModuleItemKind_Variable, name);
 }
 
 JNC_INLINE
 Function*
-verifyModuleItemIsFunction (
+verifyModuleItemIsFunction(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 
 {
-	return (Function*) verifyModuleItemKind (item, ModuleItemKind_Function, name);
+	return (Function*)verifyModuleItemKind(item, ModuleItemKind_Function, name);
 }
 
 JNC_INLINE
 Property*
-verifyModuleItemIsProperty (
+verifyModuleItemIsProperty(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 {
-	return (Property*) verifyModuleItemKind (item, ModuleItemKind_Property, name);
+	return (Property*)verifyModuleItemKind(item, ModuleItemKind_Property, name);
 }
 
 //..............................................................................

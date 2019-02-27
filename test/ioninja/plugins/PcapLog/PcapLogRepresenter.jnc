@@ -8,7 +8,7 @@ import "PcapLogRecordCode.jnc"
 
 //..............................................................................
 
-bool representPcapLog (
+bool representPcapLog(
 	log.RepresenterTarget* target,
 	uint64_t recordCode,
 	void const* p,
@@ -16,16 +16,16 @@ bool representPcapLog (
 	uint_t foldFlags
 	)
 {
-	printf ("representPcapLog (%llu)\n", recordCode);
+	printf("representPcapLog (%llu)\n", recordCode);
 
-	switch (recordCode)
+	switch(recordCode)
 	{
 	case PcapLogRecordCode.StartingCapture:
 		char const* filter = (char const*) p;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
-		target.addHyperText (
+		target.addHyperText(
 			PcapLogPartCode.StartingCapture,
 			*filter ?
 				$"Starting capture with filter '\e[34m$filter\e[m'..." :
@@ -38,7 +38,7 @@ bool representPcapLog (
 		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addPlainText (PcapLogPartCode.CaptureCompleted, "ok");
+		target.addPlainText(PcapLogPartCode.CaptureCompleted, "ok");
 		break;
 
 	case PcapLogRecordCode.CaptureError:
@@ -46,24 +46,24 @@ bool representPcapLog (
 		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addPlainText (PcapLogPartCode.CaptureCompleted, $"error: $(error.m_description)");
+		target.addPlainText(PcapLogPartCode.CaptureCompleted, $"error: $(error.m_description)");
 		break;
 
 	case PcapLogRecordCode.CaptureStopped:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addPlainText ("Capture stopped");
+		target.addPlainText("Capture stopped");
 		break;
 
 	case PcapLogRecordCode.ChangingFilter:
 		char const* filter = (char const*) p;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText (PcapLogPartCode.ChangingFilter, $"Changing capture filter to \e[34m$filter\e[m...");
+		target.addHyperText(PcapLogPartCode.ChangingFilter, $"Changing capture filter to \e[34m$filter\e[m...");
 		break;
 
 	case PcapLogRecordCode.FilterChanged:
-		target.addPlainText (PcapLogPartCode.FilterCompleted, "ok");
+		target.addPlainText(PcapLogPartCode.FilterCompleted, "ok");
 		break;
 
 	case PcapLogRecordCode.FilterError:
@@ -71,7 +71,7 @@ bool representPcapLog (
 		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addPlainText (PcapLogPartCode.FilterCompleted, $"error: $(error.m_description)");
+		target.addPlainText(PcapLogPartCode.FilterCompleted, $"error: $(error.m_description)");
 		break;
 
 	default:

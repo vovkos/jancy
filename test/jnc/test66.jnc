@@ -13,25 +13,25 @@
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	struct S
 	{
-		char a [128];
+		char a[128];
 	}
 
 	S s;
 	variant v0 = s;
-	printf ($"v0 = $v0\n");
+	printf($"v0 = $v0\n");
 
 	variant v1 = "hui govno i muravei, muravei govno i hui";
-	printf ($"v1 = $v1\n");
+	printf($"v1 = $v1\n");
 
-	char a [] = "hui govno i muravei, muravei govno i hui";
+	char a[] = "hui govno i muravei, muravei govno i hui";
 	variant v2 = a;
-	printf ($"v2 = $v2\n");
+	printf($"v2 = $v2\n");
 
 	return 0;
 }

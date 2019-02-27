@@ -24,7 +24,7 @@ protected:
 		Capturing,
 	}
 
-	static char const* m_stateStringTable [] =
+	static char const* m_stateStringTable[] =
 	{
 		"Closed",
 		"Opened",
@@ -78,9 +78,9 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable [ActionId._Count];
-	gui.Icon* m_iconTable [IconId._Count];
-	gui.StatusPane* m_statusPaneTable [StatusPaneId._Count];
+	gui.Action* m_actionTable[ActionId._Count];
+	gui.Icon* m_iconTable[IconId._Count];
+	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	gui.ComboBox* m_deviceCombo;
 
 	// property grid
@@ -109,124 +109,124 @@ protected:
 	uint_t m_usbThroughputTimerSyncId;
 
 public:
-	construct (doc.PluginHost* pluginHost);
+	construct(doc.PluginHost* pluginHost);
 
-	bool errorcode openDevice ();
-	void closeDevice ();
-	bool errorcode capture ();
-	bool errorcode stopCapture ();
+	bool errorcode openDevice();
+	void closeDevice();
+	bool errorcode capture();
+	bool errorcode stopCapture();
 
-	override void load (doc.Storage* storage);
-	override void save (doc.Storage* storage);
-	override void updateProperties ();
-	override errorcode bool applyProperties ();
-	override void restoreDefaultProperties ();
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override errorcode bool applyProperties();
+	override void restoreDefaultProperties();
 
 protected:
-	onOpenDevice ();
-	onCapture ();
-	onUsbThroughputTimer (uint_t syncId);
+	onOpenDevice();
+	onCapture();
+	onUsbThroughputTimer(uint_t syncId);
 
-	onInEndpointEvent (
+	onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	createUi ();
-	enumerateDevices ();
+	createUi();
+	enumerateDevices();
 
-	size_t errorcode writeOutEndpoint (
+	size_t errorcode writeOutEndpoint(
 		void const* p,
 		size_t size
 		);
 
-	waitInEndpointEvents ();
-	updateUsbThroughput (uint64_t timestamp = sys.getTimestamp ());
+	waitInEndpointEvents();
+	updateUsbThroughput(uint64_t timestamp = sys.getTimestamp());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-HwSerialMonSession.construct (doc.PluginHost* pluginHost)
+HwSerialMonSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 	m_uart.construct(pluginHost);
 	m_spi.construct(pluginHost);
 	m_i2c.construct(pluginHost);
 
-	createUi ();
+	createUi();
 
-	pluginHost.m_log.addSelectionProcessor (log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor (log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
-	m_stdSessionInfoSet.addLogListener (pluginHost.m_log);
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-HwSerialMonSession.createUi ()
+HwSerialMonSession.createUi()
 {
 	// toolbar
 
-	m_iconTable [IconId.Refresh] = new gui.Icon ("images/refresh.png");
-	m_iconTable [IconId.Open] = new gui.Icon ("images/open.png");
-	m_iconTable [IconId.Close] = new gui.Icon ("images/close.png");
-	m_iconTable [IconId.Capture] = new gui.Icon ("images/capture.png");
-	m_iconTable [IconId.StopCapture] = new gui.Icon ("images/pause.png");
+	m_iconTable[IconId.Refresh] = new gui.Icon("images/refresh.png");
+	m_iconTable[IconId.Open] = new gui.Icon("images/open.png");
+	m_iconTable[IconId.Close] = new gui.Icon("images/close.png");
+	m_iconTable[IconId.Capture] = new gui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new gui.Icon("images/pause.png");
 
-	m_pluginHost.m_toolBar.addLabel ("Sniffer:");
-	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox (-1);
+	m_pluginHost.m_toolBar.addLabel("Sniffer:");
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
-	m_actionTable [ActionId.Refresh] = createAction ("Re-enumerate Devices", m_iconTable [IconId.Refresh]);
-	m_actionTable [ActionId.Refresh].m_onTriggered += enumerateDevices;
-	m_actionTable [ActionId.Open] = createAction ("Open Sniffer Device", m_iconTable [IconId.Open]);
-	m_actionTable [ActionId.Open].m_onTriggered += onOpenDevice;
-	m_actionTable [ActionId.Capture] = createAction ("Capture", m_iconTable [IconId.Open]);
-	m_actionTable [ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate Devices", m_iconTable [IconId.Refresh]);
+	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
+	m_actionTable[ActionId.Open] = createAction("Open Sniffer Device", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open].m_onTriggered += onOpenDevice;
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
 
 	// status bar
 
-	m_statusPaneTable [StatusPaneId.State] = m_pluginHost.m_statusBar.addPane (, 80);
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Logic analyzer connection settings"
 		);
 
-	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty (
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Sniffer Device",
 		"Target USB device",
 		null, 0
 		);
 
-	group = m_pluginHost.m_propertyGrid.createGroupProperty (
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Decoding",
 		"Serial interface decoding settings"
 		);
 
-	m_showRawDataProp = m_pluginHost.m_propertyGrid.createBoolProperty (
+	m_showRawDataProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
 		"Show Raw Data",
 		"Show raw data packets from HW sniffer"
 		);
 
-	gui.EnumPropertyOption serialIfaceTable [] =
+	gui.EnumPropertyOption serialIfaceTable[] =
 	{
 		{ m_uart.m_name, m_uart },
 		{ m_spi.m_name,  m_spi },
 		{ m_i2c.m_name,  m_i2c },
 	}
 
-	m_serialIfaceProp  = m_pluginHost.m_propertyGrid.createEnumProperty (
+	m_serialIfaceProp  = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
 		"Serial Interface",
 		"Serial interface type",
 		serialIfaceTable,
-		countof (serialIfaceTable)
+		countof(serialIfaceTable)
 		);
 
-	m_uart.createProperties (group);
-	m_spi.createProperties (group);
-	m_i2c.createProperties (group);
+	m_uart.createProperties(group);
+	m_spi.createProperties(group);
+	m_i2c.createProperties(group);
 
 	io.BufferPropertySet.PropertyId ids =
 		io.BufferPropertySet.PropertyId.ReadParallelism |
@@ -234,61 +234,61 @@ HwSerialMonSession.createUi ()
 		io.BufferPropertySet.PropertyId.ReadBufferSize |
 		io.BufferPropertySet.PropertyId.NotifyReadBufferFull;
 
-	m_bufferPropertySet.createPropertiesGrouped (m_pluginHost.m_propertyGrid,,, ids);
+	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid,,, ids);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup ("Serial monitor");
+	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial monitor");
 
-	m_stdSessionInfoSet.createInformationValues (m_pluginHost.m_informationGrid, infoGroup);
-	m_throughputInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
-	m_checksumInfoSet.createInformationValuesGrouped (m_pluginHost.m_informationGrid);
+	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
-	m_usbTotalSizeInfo = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "USB total bytes");
+	m_usbTotalSizeInfo = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "USB total bytes");
 	m_usbTotalSizeInfo.m_isEnabled = false;
-	m_usbThroughputInfo = m_pluginHost.m_informationGrid.createValue (infoGroup,,, "USB throughput");
+	m_usbThroughputInfo = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "USB throughput");
 	m_usbThroughputInfo.m_isEnabled = false;
-	m_usbThroughputTimestamp = sys.getTimestamp ();
-	updateUsbThroughput (m_usbThroughputTimestamp);
+	m_usbThroughputTimestamp = sys.getTimestamp();
+	updateUsbThroughput(m_usbThroughputTimestamp);
 
-	m_pluginHost.m_informationGrid.resizeNameColumnToContents ();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
-	enumerateDevices ();
+	enumerateDevices();
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 }
 
-HwSerialMonSession.onOpenDevice ()
+HwSerialMonSession.onOpenDevice()
 {
 	if (m_state >= State.Opened)
-		closeDevice ();
+		closeDevice();
 	else
-		try openDevice ();
+		try openDevice();
 }
 
-HwSerialMonSession.onCapture ()
+HwSerialMonSession.onCapture()
 {
 	if (m_state >= State.Capturing)
-		stopCapture ();
+		stopCapture();
 	else
-		try capture ();
+		try capture();
 }
 
-HwSerialMonSession.enumerateDevices ()
+HwSerialMonSession.enumerateDevices()
 {
-	m_deviceCombo.clear ();
+	m_deviceCombo.clear();
 
-	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray ();
-	size_t count = dynamic countof (deviceArray);
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
+	size_t count = dynamic countof(deviceArray);
 
-	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption [count];
+	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption[count];
 
 	size_t ftdiCount = 0;
 	for (size_t i = 0; i < count; i++)
 	{
-		io.UsbDevice* device = deviceArray [i];
+		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
-		io.UsbProduct const* product = g_usbDb.findProduct (deviceDesc.m_vendorId, deviceDesc.m_productId);
+		io.UsbProduct const* product = g_usbDb.findProduct(deviceDesc.m_vendorId, deviceDesc.m_productId);
 		if (!product)
 			continue;
 
@@ -299,30 +299,30 @@ HwSerialMonSession.enumerateDevices ()
 			product.m_name
 			);
 
-		m_deviceCombo.addItem (text, device);
+		m_deviceCombo.addItem(text, device);
 
-		optionTable [ftdiCount].m_text = text;
-		optionTable [ftdiCount].m_value = device;
+		optionTable[ftdiCount].m_text = text;
+		optionTable[ftdiCount].m_value = device;
 		ftdiCount++;
 	}
 
-	m_deviceProp.setOptions (optionTable, ftdiCount);
+	m_deviceProp.setOptions(optionTable, ftdiCount);
 }
 
-bool errorcode HwSerialMonSession.openDevice ()
+bool errorcode HwSerialMonSession.openDevice()
 {
 	if (m_deviceCombo.m_currentIndex == -1)
 		return false;
 
-	closeDevice ();
-	startSession ();
+	closeDevice();
+	startSession();
 
 	m_device = m_deviceCombo.m_currentData;
 
-	m_device.open ();
-	m_iface = m_device.claimInterface (0);
-	m_outEndpoint = m_iface.openEndpoint (0x01);
-	m_inEndpoint = m_iface.openEndpoint (0x81);
+	m_device.open();
+	m_iface = m_device.claimInterface(0);
+	m_outEndpoint = m_iface.openEndpoint(0x01);
+	m_inEndpoint = m_iface.openEndpoint(0x81);
 	m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_inEndpoint.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
@@ -335,84 +335,84 @@ bool errorcode HwSerialMonSession.openDevice ()
 	params.m_productId = deviceDesc.m_productId;
 	params.m_vendorId = deviceDesc.m_vendorId;
 
-	writeLog (UsbLogRecordCode.DeviceOpened, &params, sizeof (params));
+	writeLog(UsbLogRecordCode.DeviceOpened, &params, sizeof(params));
 	m_state = State.Opened;
-	return capture ();
+	return capture();
 
 catch:
-	writeLogLastError (UsbLogRecordCode.DeviceOpenError);
-	closeDevice ();
+	writeLogLastError(UsbLogRecordCode.DeviceOpenError);
+	closeDevice();
 	return false;
 }
 
-HwSerialMonSession.closeDevice ()
+HwSerialMonSession.closeDevice()
 {
 	if (m_outEndpoint)
 	{
-		m_outEndpoint.close ();
+		m_outEndpoint.close();
 		m_outEndpoint = null;
 	}
 
 	if (m_inEndpoint)
 	{
-		m_inEndpoint.close ();
+		m_inEndpoint.close();
 		m_inEndpoint = null;
 	}
 
 	if (m_iface)
 	{
-		m_iface.release ();
+		m_iface.release();
 		m_iface = null;
 	}
 
 	if (m_device)
 	{
-		m_device.close ();
+		m_device.close();
 		m_device = null;
 	}
 
 	if (m_state)
 	{
-		writeLog (UsbLogRecordCode.DeviceClosed);
+		writeLog(UsbLogRecordCode.DeviceClosed);
 		m_state = State.Closed;
 	}
 }
 
-bool errorcode HwSerialMonSession.capture ()
+bool errorcode HwSerialMonSession.capture()
 {
-	static char packet [] = 0x"55 55 55 55";
-	writeOutEndpoint (packet, sizeof (packet));
-	m_captureBaseTime = sys.getTimestamp ();
+	static char packet[] = 0x"55 55 55 55";
+	writeOutEndpoint(packet, sizeof(packet));
+	m_captureBaseTime = sys.getTimestamp();
 
 	m_capturingSerialIface = m_serialIfaceProp.m_value;
-	m_capturingSerialIface.start ();
+	m_capturingSerialIface.start();
 
-	writeLogString (HwSerialMonRecordCode.CaptureStarted, m_capturingSerialIface.m_name);
+	writeLogString(HwSerialMonRecordCode.CaptureStarted, m_capturingSerialIface.m_name);
 	m_state = State.Capturing;
-	waitInEndpointEvents ();
-	m_stdSessionInfoSet.startSession (m_pluginHost.m_mainThreadScheduler);
+	waitInEndpointEvents();
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 
 	m_usbTotalSize = 0;
 	m_usbPrevTotalSize = 0;
 	m_usbTotalSizeInfo.m_isEnabled = true;
 	m_usbThroughputInfo.m_isEnabled = true;
-	m_usbThroughputTimer.startPeriodicTimer (onUsbThroughputTimer ~(++m_usbThroughputTimerSyncId) @ m_pluginHost.m_mainThreadScheduler, 1000);
-	m_usbThroughputTimestamp = sys.getTimestamp ();
-	updateUsbThroughput (m_usbThroughputTimestamp);
+	m_usbThroughputTimer.startPeriodicTimer(onUsbThroughputTimer ~(++m_usbThroughputTimerSyncId) @ m_pluginHost.m_mainThreadScheduler, 1000);
+	m_usbThroughputTimestamp = sys.getTimestamp();
+	updateUsbThroughput(m_usbThroughputTimestamp);
 	return true;
 }
 
-bool errorcode HwSerialMonSession.stopCapture ()
+bool errorcode HwSerialMonSession.stopCapture()
 {
-	static char packet [] = 0x"aa aa aa aa";
-	writeOutEndpoint (packet, sizeof (packet));
+	static char packet[] = 0x"aa aa aa aa";
+	writeOutEndpoint(packet, sizeof(packet));
 
-	m_capturingSerialIface.stop ();
+	m_capturingSerialIface.stop();
 	m_capturingSerialIface = null;
 
-	writeLog (HwSerialMonRecordCode.CaptureStopped);
-	m_stdSessionInfoSet.endSession ();
-	m_usbThroughputTimer.stop ();
+	writeLog(HwSerialMonRecordCode.CaptureStopped);
+	m_stdSessionInfoSet.endSession();
+	m_usbThroughputTimer.stop();
 	m_usbTotalSizeInfo.m_isEnabled = false;
 	m_usbThroughputInfo.m_isEnabled = false;
 	m_state = State.Opened;
@@ -428,39 +428,39 @@ HwSerialMonSession.waitInEndpointEvents  ()
 		io.UsbEndpointEvents.ReadBufferFull |
 		io.UsbEndpointEvents.IncomingData;
 
-	m_inEndpoint.wait (eventMask, onInEndpointEvent ~(++m_inEndpointSyncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_inEndpoint.wait(eventMask, onInEndpointEvent ~(++m_inEndpointSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-HwSerialMonSession.load (doc.Storage* storage)
+HwSerialMonSession.load(doc.Storage* storage)
 {
-	m_deviceCombo.m_currentIndex  = storage.readInt ("deviceIdx");
-	m_showRawDataProp.m_value = storage.readBool ("showRawData");
-	m_serialIfaceProp.m_currentIndex  = storage.readInt ("serialInterface");
-	m_uart.loadProperties (storage);
-	m_spi.loadProperties (storage);
-	m_bufferPropertySet.load (storage);
-	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
+	m_showRawDataProp.m_value = storage.readBool("showRawData");
+	m_serialIfaceProp.m_currentIndex  = storage.readInt("serialInterface");
+	m_uart.loadProperties(storage);
+	m_spi.loadProperties(storage);
+	m_bufferPropertySet.load(storage);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-HwSerialMonSession.save (doc.Storage* storage)
+HwSerialMonSession.save(doc.Storage* storage)
 {
-	m_bufferPropertySet.save (storage);
-	storage.writeInt ("deviceIdx", m_deviceCombo.m_currentIndex);
-	storage.writeBool ("showRawData", m_showRawDataProp.m_value);
-	storage.writeInt ("serialInterface", m_serialIfaceProp.m_currentIndex);
-	m_uart.saveProperties (storage);
-	m_spi.saveProperties (storage);
+	m_bufferPropertySet.save(storage);
+	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
+	storage.writeBool("showRawData", m_showRawDataProp.m_value);
+	storage.writeInt("serialInterface", m_serialIfaceProp.m_currentIndex);
+	m_uart.saveProperties(storage);
+	m_spi.saveProperties(storage);
 }
 
-HwSerialMonSession.updateProperties ()
+HwSerialMonSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 }
 
-bool errorcode HwSerialMonSession.applyProperties ()
+bool errorcode HwSerialMonSession.applyProperties()
 {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
-	m_readBuffer.setSize (m_bufferPropertySet.m_readBufferSizeProp.m_value);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
 	if (m_state != State.Capturing)
 		return true;
@@ -469,38 +469,38 @@ bool errorcode HwSerialMonSession.applyProperties ()
 	m_inEndpoint.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 
-	m_capturingSerialIface.start (); // restart capturing with the new parameters
+	m_capturingSerialIface.start(); // restart capturing with the new parameters
 	return true;
 }
 
-HwSerialMonSession.restoreDefaultProperties ()
+HwSerialMonSession.restoreDefaultProperties()
 {
 	m_deviceProp.m_currentIndex = 0;
 	m_serialIfaceProp.m_currentIndex = 0;
 
-	m_uart.restoreDefaultProperties ();
-	m_spi.restoreDefaultProperties ();
+	m_uart.restoreDefaultProperties();
+	m_spi.restoreDefaultProperties();
 }
 
-size_t errorcode HwSerialMonSession.writeOutEndpoint (
+size_t errorcode HwSerialMonSession.writeOutEndpoint(
 	void const* p,
 	size_t size
 	)
 {
-	size_t result = try m_outEndpoint.write (p, size);
+	size_t result = try m_outEndpoint.write(p, size);
 	if (result == -1)
-		writeLogLastError (log.StdRecordCode.Error);
+		writeLogLastError(log.StdRecordCode.Error);
 
 	return result;
 }
 
-HwSerialMonSession.onUsbThroughputTimer (uint_t syncId)
+HwSerialMonSession.onUsbThroughputTimer(uint_t syncId)
 {
 	if (syncId == m_usbThroughputTimerSyncId)
-		updateUsbThroughput ();
+		updateUsbThroughput();
 }
 
-HwSerialMonSession.updateUsbThroughput (uint64_t timestamp)
+HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
 {
 	uint64_t throughput;
 
@@ -516,7 +516,7 @@ HwSerialMonSession.updateUsbThroughput (uint64_t timestamp)
 	m_usbThroughputInfo.m_value = $"$(formatIntegerWithThousandSep (throughput))";
 }
 
-HwSerialMonSession.onInEndpointEvent (
+HwSerialMonSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
 	)
@@ -526,18 +526,18 @@ HwSerialMonSession.onInEndpointEvent (
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		writeLogError (log.StdRecordCode.Error, m_inEndpoint.m_ioError);
-		stopCapture ();
+		writeLogError(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
+		stopCapture();
 		return;
 	}
 
 	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
 	{
-		size_t size = m_inEndpoint.read (m_readBuffer.m_p, m_readBuffer.m_size);
+		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		m_usbTotalSize += size;
 
 		uint64_t const* p = (uint64_t const*) m_readBuffer.m_p;
-		uint64_t const* end = p + size / sizeof (uint64_t);
+		uint64_t const* end = p + size / sizeof(uint64_t);
 		for (; p < end; p++)
 		{
 			uint64_t frame = *p;
@@ -547,39 +547,39 @@ HwSerialMonSession.onInEndpointEvent (
 			uint64_t timestamp = m_captureBaseTime + frame / 655360;
 
 			if (m_showRawDataProp.m_value)
-				m_pluginHost.m_log.m_writer.write (timestamp, HwSerialMonRecordCode.RawPacket, p, sizeof (uint64_t));
+				m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.RawPacket, p, sizeof(uint64_t));
 
-			m_capturingSerialIface.processSignal (timestamp, frame);
+			m_capturingSerialIface.processSignal(timestamp, frame);
 		}
 	}
 
-	waitInEndpointEvents ();
+	waitInEndpointEvents();
 }
 
 reactor HwSerialMonSession.m_uiReactor
 {
 	m_title = $"HW Serial Mon $(m_deviceCombo.m_currentText)";
-	m_actionTable [ActionId.Open].m_text = m_state ? "Close Sniffer Device" : "Open Sniffer Device";
-	m_actionTable [ActionId.Open].m_icon = m_iconTable [m_state ? IconId.Close : IconId.Open];
-	m_actionTable [ActionId.Capture].m_text = m_state == State.Capturing ? "Stop Capture" : "Capture";
-	m_actionTable [ActionId.Capture].m_icon = m_iconTable [m_state == State.Capturing ? IconId.StopCapture : IconId.Capture];
-	m_actionTable [ActionId.Capture].m_isEnabled = m_state;
+	m_actionTable[ActionId.Open].m_text = m_state ? "Close Sniffer Device" : "Open Sniffer Device";
+	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
+	m_actionTable[ActionId.Capture].m_text = m_state == State.Capturing ? "Stop Capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state == State.Capturing ? IconId.StopCapture : IconId.Capture];
+	m_actionTable[ActionId.Capture].m_isEnabled = m_state;
 
 	m_serialIfaceProp.m_isEnabled = m_state < State.Capturing;
 	m_uart.m_groupProp.m_isEnabled = m_serialIfaceProp.m_value == m_uart;
 	m_spi.m_groupProp.m_isEnabled = m_serialIfaceProp.m_value == m_spi;
 
 	m_isTransmitEnabled = m_state;
-	m_statusPaneTable [StatusPaneId.State].m_text = m_stateStringTable [m_state];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];
 }
 
 //..............................................................................
 
 io.UsbDb g_usbDb;
 
-construct ()
+construct()
 {
-	try g_usbDb.load ("sniffers.ids");
+	try g_usbDb.load("sniffers.ids");
 }
 
 //..............................................................................

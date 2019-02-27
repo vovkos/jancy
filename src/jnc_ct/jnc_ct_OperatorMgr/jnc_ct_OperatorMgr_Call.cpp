@@ -20,184 +20,184 @@ namespace ct {
 
 #if (_JNC_DEBUG)
 void
-OperatorMgr::callTraceFunction (
+OperatorMgr::callTraceFunction(
 	const sl::StringRef& functionName,
 	const sl::StringRef& string
 	)
 {
-	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace ()->findItem (functionName);
-	if (item && item->getItemKind () == ModuleItemKind_Function)
+	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(functionName);
+	if (item && item->getItemKind() == ModuleItemKind_Function)
 	{
 		Value literalValue;
-		literalValue.setCharArray (string, m_module);
-		m_module->m_operatorMgr.callOperator ((Function*) item, literalValue);
+		literalValue.setCharArray(string, m_module);
+		m_module->m_operatorMgr.callOperator((Function*)item, literalValue);
 	}
 }
 
 void
-OperatorMgr::traceBlock (BasicBlock* block)
+OperatorMgr::traceBlock(BasicBlock* block)
 {
-	llvm::BasicBlock* llvmBlock = block->getLlvmBlock ();
-	llvm::BasicBlock::iterator it = llvmBlock->begin ();
+	llvm::BasicBlock* llvmBlock = block->getLlvmBlock();
+	llvm::BasicBlock::iterator it = llvmBlock->begin();
 
-	m_module->m_llvmIrBuilder.setInsertPoint (it);
-	m_module->m_operatorMgr.callTraceFunction ("print_u", block->getName () + "\n------------\n");
+	m_module->m_llvmIrBuilder.setInsertPoint(it);
+	m_module->m_operatorMgr.callTraceFunction("print_u", block->getName () + "\n------------\n");
 
-	for (; it != llvmBlock->end () && !it->isTerminator (); it++)
+	for (; it != llvmBlock->end() && !it->isTerminator(); it++)
 	{
 		std::string s;
-		llvm::raw_string_ostream stream (s);
-		it->print (stream);
+		llvm::raw_string_ostream stream(s);
+		it->print(stream);
 		s += '\n';
 
-		m_module->m_llvmIrBuilder.setInsertPoint (it);
-		m_module->m_operatorMgr.callTraceFunction ("print_u", s.c_str ());
+		m_module->m_llvmIrBuilder.setInsertPoint(it);
+		m_module->m_operatorMgr.callTraceFunction("print_u", s.c_str ());
 	}
 }
 #endif
 
 Type*
-OperatorMgr::getFunctionType (
+OperatorMgr::getFunctionType(
 	const Value& opValue,
 	FunctionType* functionType
 	)
 {
-	FunctionPtrType* functionPtrType = functionType->getFunctionPtrType (
+	FunctionPtrType* functionPtrType = functionType->getFunctionPtrType(
 		TypeKind_FunctionRef,
 		FunctionPtrTypeKind_Thin
 		);
 
-	Closure* closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure();
 	if (!closure)
 		return functionPtrType;
 
-	return getClosureOperatorResultType (functionPtrType, closure->getArgValueList ());
+	return getClosureOperatorResultType(functionPtrType, closure->getArgValueList());
 }
 
 Type*
-OperatorMgr::getClosureOperatorResultType (
+OperatorMgr::getClosureOperatorResultType(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList
+	sl::BoxList<Value>* argValueList
 	)
 {
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue);
+	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
 		return NULL;
 
-	TypeKind typeKind = opValue.getType ()->getTypeKind ();
+	TypeKind typeKind = opValue.getType()->getTypeKind();
 	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
 	{
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"closure operator cannot be applied to '%s'",
-			opValue.getType ()->getTypeString ().sz ()
+			opValue.getType()->getTypeString().sz()
 			);
 		return NULL;
 	}
 
-	ref::Ptr <Closure> closure = AXL_REF_NEW (Closure);
-	closure->append (*argValueList);
-	return closure->getClosureType (opValue.getType ());
+	ref::Ptr<Closure> closure = AXL_REF_NEW(Closure);
+	closure->append(*argValueList);
+	return closure->getClosureType(opValue.getType());
 }
 
 bool
-OperatorMgr::getClosureOperatorResultType (
+OperatorMgr::getClosureOperatorResultType(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
-	Type* resultType = getClosureOperatorResultType (rawOpValue, argValueList);
+	Type* resultType = getClosureOperatorResultType(rawOpValue, argValueList);
 	if (!resultType)
 		return false;
 
-	resultValue->setType (resultType);
+	resultValue->setType(resultType);
 	return true;
 }
 
 bool
-OperatorMgr::closureOperator (
+OperatorMgr::closureOperator(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
 	Value opValue;
-	bool result = prepareOperand (rawOpValue, &opValue);
+	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
 		return false;
 
-	TypeKind typeKind = opValue.getType ()->getTypeKind ();
+	TypeKind typeKind = opValue.getType()->getTypeKind();
 	if (typeKind != TypeKind_FunctionRef && typeKind != TypeKind_FunctionPtr)
 	{
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"closure operator cannot be applied to '%s'",
-			opValue.getType ()->getTypeString ().sz ()
+			opValue.getType()->getTypeString().sz()
 			);
 		return false;
 	}
 
 	*resultValue = opValue;
 
-	Closure* closure = resultValue->getClosure ();
+	Closure* closure = resultValue->getClosure();
 	if (!closure)
-		closure = resultValue->createClosure ();
+		closure = resultValue->createClosure();
 
-	closure->append (*argValueList);
+	closure->append(*argValueList);
 	return true;
 }
 
 Type*
-OperatorMgr::getCdeclVarArgType (Type* type)
+OperatorMgr::getCdeclVarArgType(Type* type)
 {
 	for (;;)
 	{
 		Type* prevType = type;
 
-		TypeKind typeKind = type->getTypeKind ();
-		switch (typeKind)
+		TypeKind typeKind = type->getTypeKind();
+		switch(typeKind)
 		{
 		case TypeKind_PropertyRef:
-			type = ((PropertyPtrType*) type)->getTargetType ()->getReturnType ();
+			type = ((PropertyPtrType*)type)->getTargetType()->getReturnType();
 			break;
 
 		case TypeKind_DataRef:
-			type = ((DataPtrType*) type)->getTargetType ();
+			type = ((DataPtrType*)type)->getTargetType();
 			break;
 
 		case TypeKind_ClassRef:
-			type = ((ClassPtrType*) type)->getTargetType ()->getClassPtrType (
-				((ClassPtrType*) type)->getPtrTypeKind (),
-				type->getFlags ()
+			type = ((ClassPtrType*)type)->getTargetType()->getClassPtrType(
+				((ClassPtrType*)type)->getPtrTypeKind(),
+				type->getFlags()
 				);
 			break;
 
 		case TypeKind_BitField:
-			type = ((BitFieldType*) type)->getBaseType ();
+			type = ((BitFieldType*)type)->getBaseType();
 			break;
 
 		case TypeKind_Enum:
-			type = ((EnumType*) type)->getBaseType ();
+			type = ((EnumType*)type)->getBaseType();
 			break;
 
 		case TypeKind_Float:
-			type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double);
+			type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Double);
 			break;
 
 		case TypeKind_Array:
-			type = ((ArrayType*) type)->getElementType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
+			type = ((ArrayType*)type)->getElementType()->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
 			break;
 
 		case TypeKind_DataPtr:
-			type = ((DataPtrType*) type)->getTargetType ()->getDataPtrType_c (TypeKind_DataPtr, PtrTypeFlag_Const);
+			type = ((DataPtrType*)type)->getTargetType()->getDataPtrType_c(TypeKind_DataPtr, PtrTypeFlag_Const);
 			break;
 
 		default:
-			if (type->getTypeKindFlags () & TypeKindFlag_Integer)
+			if (type->getTypeKindFlags() & TypeKindFlag_Integer)
 			{
-				type = type->getSize () > 4 ?
-					m_module->m_typeMgr.getPrimitiveType (TypeKind_Int64) :
-					m_module->m_typeMgr.getPrimitiveType (TypeKind_Int32);
+				type = type->getSize() > 4 ?
+					m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64) :
+					m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 			}
 		}
 
@@ -207,93 +207,93 @@ OperatorMgr::getCdeclVarArgType (Type* type)
 }
 
 Type*
-OperatorMgr::getCallOperatorResultType (
+OperatorMgr::getCallOperatorResultType(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList
+	sl::BoxList<Value>* argValueList
 	)
 {
 	bool result;
 
 	Value opValue;
-	prepareOperandType (rawOpValue, &opValue);
+	prepareOperandType(rawOpValue, &opValue);
 
-	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
+	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
 	{
-		Function* callOperator = ((ClassPtrType*) opValue.getType ())->getTargetType ()->getCallOperator ();
+		Function* callOperator = ((ClassPtrType*)opValue.getType())->getTargetType()->getCallOperator();
 		if (!callOperator)
 		{
-			err::setFormatStringError ("cannot call '%s'", opValue.getType ()->getTypeString ().sz ());
+			err::setFormatStringError("cannot call '%s'", opValue.getType ()->getTypeString ().sz ());
 			return NULL;
 		}
 
 		Value objValue = opValue;
-		opValue.setFunctionTypeOverload (callOperator->getTypeOverload ());
+		opValue.setFunctionTypeOverload(callOperator->getTypeOverload());
 
-		Closure* closure = opValue.createClosure ();
-		closure->insertThisArgValue (objValue);
+		Closure* closure = opValue.createClosure();
+		closure->insertThisArgValue(objValue);
 	}
 
-	Closure* closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure();
 	if (closure)
 	{
-		result = closure->apply (argValueList);
+		result = closure->apply(argValueList);
 		if (!result)
 			return NULL;
 	}
 
-	if (rawOpValue.getValueKind () == ValueKind_FunctionTypeOverload)
+	if (rawOpValue.getValueKind() == ValueKind_FunctionTypeOverload)
 	{
-		size_t i = rawOpValue.getFunctionTypeOverload ()->chooseOverload (*argValueList);
+		size_t i = rawOpValue.getFunctionTypeOverload()->chooseOverload(*argValueList);
 		if (i == -1)
 			return NULL;
 
-		FunctionType* functionType = rawOpValue.getFunctionTypeOverload ()->getOverload (i);
-		return functionType->getReturnType ();
+		FunctionType* functionType = rawOpValue.getFunctionTypeOverload()->getOverload(i);
+		return functionType->getReturnType();
 	}
 
 	FunctionType* functionType;
 
-	Type* opType = opValue.getType ();
-	TypeKind typeKind = opType->getTypeKind ();
+	Type* opType = opValue.getType();
+	TypeKind typeKind = opType->getTypeKind();
 
-	switch (typeKind)
+	switch(typeKind)
 	{
 	case TypeKind_Function:
-		functionType = (FunctionType*) opType;
+		functionType = (FunctionType*)opType;
 		break;
 
 	case TypeKind_FunctionRef:
 	case TypeKind_FunctionPtr:
-		functionType = ((FunctionPtrType*) opType)->getTargetType ();
+		functionType = ((FunctionPtrType*)opType)->getTargetType();
 		break;
 
 	default:
-		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().sz ());
+		err::setFormatStringError("cannot call '%s'", opType->getTypeString ().sz ());
 		return NULL;
 	}
 
-	return functionType->getReturnType ();
+	return functionType->getReturnType();
 }
 
 bool
-OperatorMgr::getCallOperatorResultType (
+OperatorMgr::getCallOperatorResultType(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
-	Type* resultType = getCallOperatorResultType (rawOpValue, argValueList);
+	Type* resultType = getCallOperatorResultType(rawOpValue, argValueList);
 	if (!resultType)
 		return false;
 
-	resultValue->setType (resultType);
+	resultValue->setType(resultType);
 	return true;
 }
 
 bool
-OperatorMgr::callOperator (
+OperatorMgr::callOperator(
 	const Value& rawOpValue,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
@@ -301,7 +301,7 @@ OperatorMgr::callOperator (
 
 	Value opValue;
 	Value unusedReturnValue;
-	sl::BoxList <Value> emptyArgValueList;
+	sl::BoxList<Value> emptyArgValueList;
 
 	if (!resultValue)
 		resultValue = &unusedReturnValue;
@@ -309,84 +309,84 @@ OperatorMgr::callOperator (
 	if (!argValueList)
 		argValueList = &emptyArgValueList;
 
-	result = prepareOperand (rawOpValue, &opValue, 0);
+	result = prepareOperand(rawOpValue, &opValue, 0);
 	if (!result)
 		return false;
 
-	if (opValue.getType ()->getTypeKind () == TypeKind_ClassPtr)
+	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
 	{
-		ClassPtrType* ptrType = (ClassPtrType*) opValue.getType ();
+		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
 
-		Function* callOperator = ptrType->getTargetType ()->getCallOperator ();
+		Function* callOperator = ptrType->getTargetType()->getCallOperator();
 		if (!callOperator)
 		{
-			err::setFormatStringError ("cannot call '%s'", ptrType->getTypeString ().sz ());
+			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString ().sz ());
 			return false;
 		}
 
-		if ((callOperator->getFlags () & MulticastMethodFlag_InaccessibleViaEventPtr) &&
-			(ptrType->getFlags () & PtrTypeFlag_Event))
+		if ((callOperator->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
+			(ptrType->getFlags() & PtrTypeFlag_Event))
 		{
-			err::setFormatStringError ("'call' is inaccessible via 'event' pointer");
+			err::setFormatStringError("'call' is inaccessible via 'event' pointer");
 			return false;
 		}
 
 		Value objValue = opValue;
 
-		opValue.setFunction (callOperator);
+		opValue.setFunction(callOperator);
 
-		Closure* closure = opValue.createClosure ();
-		closure->insertThisArgValue (objValue);
+		Closure* closure = opValue.createClosure();
+		closure->insertThisArgValue(objValue);
 	}
 
-	Closure* closure = opValue.getClosure ();
+	Closure* closure = opValue.getClosure();
 	if (closure)
 	{
-		result = closure->apply (argValueList);
+		result = closure->apply(argValueList);
 		if (!result)
 			return false;
 	}
 
-	if (opValue.getValueKind () == ValueKind_Function && opValue.getFunction ()->isOverloaded ())
+	if (opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isOverloaded())
 	{
-		Function* function = opValue.getFunction ()->chooseOverload (*argValueList);
+		Function* function = opValue.getFunction()->chooseOverload(*argValueList);
 		if (!function)
 			return false;
 
-		opValue.setFunction (function);
-		opValue.setClosure (closure);
+		opValue.setFunction(function);
+		opValue.setClosure(closure);
 	}
 
-	if (opValue.getValueKind () == ValueKind_Function)
+	if (opValue.getValueKind() == ValueKind_Function)
 	{
-		Function* function = opValue.getFunction ();
+		Function* function = opValue.getFunction();
 
-		if (function->isVirtual ())
+		if (function->isVirtual())
 		{
-			result = getVirtualMethod (function, closure, &opValue);
+			result = getVirtualMethod(function, closure, &opValue);
 			if (!result)
 				return false;
 		}
 
-		return callImpl (opValue, function->getType (), argValueList, resultValue);
+		return callImpl(opValue, function->getType(), argValueList, resultValue);
 	}
 
-	Type* opType = opValue.getType ();
-	if (!(opType->getTypeKindFlags () & TypeKindFlag_FunctionPtr) ||
-		((FunctionPtrType*) opType)->getPtrTypeKind () == FunctionPtrTypeKind_Weak)
+	Type* opType = opValue.getType();
+	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
+		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak)
 	{
-		err::setFormatStringError ("cannot call '%s'", opType->getTypeString ().sz ());
+		err::setFormatStringError("cannot call '%s'", opType->getTypeString ().sz ());
 		return false;
 	}
 
-	FunctionPtrType* functionPtrType = ((FunctionPtrType*) opType);
-	return functionPtrType->hasClosure () ?
-		callClosureFunctionPtr (opValue, argValueList, resultValue) :
-		callImpl (opValue, functionPtrType->getTargetType (), argValueList, resultValue);
+	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
+	return functionPtrType->hasClosure() ?
+		callClosureFunctionPtr(opValue, argValueList, resultValue) :
+		callImpl(opValue, functionPtrType->getTargetType(), argValueList, resultValue);
 }
 
 bool
-OperatorMgr::callOperatorVararg (
+OperatorMgr::callOperatorVararg(
 	Function* operatorVararg,
 	DerivableType* type,
 	const Value& value,
@@ -395,42 +395,42 @@ OperatorMgr::callOperatorVararg (
 {
 	Value tmpValue;
 
-	Type* valueType = value.getType ();
+	Type* valueType = value.getType();
 
-	if (valueType->getTypeKind () == TypeKind_DataRef &&
-		((DataPtrType*) valueType)->getTargetType () == type)
+	if (valueType->getTypeKind() == TypeKind_DataRef &&
+		((DataPtrType*)valueType)->getTargetType() == type)
 	{
 		return
-			unaryOperator (UnOpKind_Addr, value, &tmpValue) &&
-			callOperator (operatorVararg, tmpValue, resultValue);
+			unaryOperator(UnOpKind_Addr, value, &tmpValue) &&
+			callOperator(operatorVararg, tmpValue, resultValue);
 	}
 	else
 	{
-		Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable ("tmpStruct", type);
+		Variable* tmpVariable = m_module->m_variableMgr.createSimpleStackVariable("tmpStruct", type);
 
 		return
-			storeDataRef (tmpVariable, value) &&
-			unaryOperator (UnOpKind_Addr, tmpVariable, &tmpValue) &&
-			callOperator (operatorVararg, tmpValue, resultValue);
+			storeDataRef(tmpVariable, value) &&
+			unaryOperator(UnOpKind_Addr, tmpVariable, &tmpValue) &&
+			callOperator(operatorVararg, tmpValue, resultValue);
 	}
 }
 
 bool
-OperatorMgr::castArgValueList (
+OperatorMgr::castArgValueList(
 	FunctionType* functionType,
 	Closure* closure,
-	sl::BoxList <Value>* argValueList
+	sl::BoxList<Value>* argValueList
 	)
 {
 	bool result;
 
-	sl::Array <FunctionArg*> argArray = functionType->getArgArray ();
+	sl::Array<FunctionArg*> argArray = functionType->getArgArray();
 
-	size_t formalArgCount = argArray.getCount ();
-	size_t actualArgCount = argValueList->getCount ();
+	size_t formalArgCount = argArray.getCount();
+	size_t actualArgCount = argValueList->getCount();
 
-	bool isVarArg = (functionType->getFlags () & FunctionTypeFlag_VarArg) != 0;
-	bool isCdeclVarArg = (functionType->getCallConv ()->getFlags () & CallConvFlag_Cdecl) != 0;
+	bool isVarArg = (functionType->getFlags() & FunctionTypeFlag_VarArg) != 0;
+	bool isCdeclVarArg = (functionType->getCallConv()->getFlags() & CallConvFlag_Cdecl) != 0;
 
 	size_t commonArgCount;
 
@@ -444,12 +444,12 @@ OperatorMgr::castArgValueList (
 	}
 	else
 	{
-		err::setFormatStringError ("too many arguments in a call to '%s'", functionType->getTypeString ().sz ());
+		err::setFormatStringError("too many arguments in a call to '%s'", functionType->getTypeString ().sz ());
 		return false;
 	}
 
 	size_t i = 0;
-	sl::BoxIterator <Value> argValueIt = argValueList->getHead ();
+	sl::BoxIterator<Value> argValueIt = argValueList->getHead();
 
 	// common for both formal and actual
 
@@ -457,30 +457,30 @@ OperatorMgr::castArgValueList (
 	{
 		Value argValue = *argValueIt;
 
-		FunctionArg* arg = argArray [i];
-		if (argValue.isEmpty ())
+		FunctionArg* arg = argArray[i];
+		if (argValue.isEmpty())
 		{
-			sl::ConstBoxList <Token> initializer = arg->getInitializer ();
-			if (initializer.isEmpty ())
+			sl::ConstBoxList<Token> initializer = arg->getInitializer();
+			if (initializer.isEmpty())
 			{
-				err::setFormatStringError (
+				err::setFormatStringError(
 					"argument (%d) of '%s' has no default value",
 					i + 1,
-					functionType->getTypeString ().sz ()
+					functionType->getTypeString().sz()
 					);
 				return false;
 			}
 
-			result = parseFunctionArgDefaultValue (arg, closure, initializer, &argValue);
+			result = parseFunctionArgDefaultValue(arg, closure, initializer, &argValue);
 			if (!result)
 				return false;
 		}
 
-		Type* formalArgType = arg->getType ();
+		Type* formalArgType = arg->getType();
 
 		result =
-			checkCastKind (argValue, formalArgType) &&
-			castOperator (argValue, formalArgType, &*argValueIt); // store it in the same list entry
+			checkCastKind(argValue, formalArgType) &&
+			castOperator(argValue, formalArgType, &*argValueIt); // store it in the same list entry
 
 		if (!result)
 			return false;
@@ -492,32 +492,32 @@ OperatorMgr::castArgValueList (
 	{
 		Value argValue;
 
-		FunctionArg* arg = argArray [i];
-		sl::ConstBoxList <Token> initializer = arg->getInitializer ();
-		if (initializer.isEmpty ())
+		FunctionArg* arg = argArray[i];
+		sl::ConstBoxList<Token> initializer = arg->getInitializer();
+		if (initializer.isEmpty())
 		{
-			err::setFormatStringError (
+			err::setFormatStringError(
 				"argument (%d) of '%s' has no default value",
 				i + 1,
-				functionType->getTypeString ().sz ()
+				functionType->getTypeString().sz()
 				);
 			return false;
 		}
 
-		result = parseFunctionArgDefaultValue (arg, closure, initializer, &argValue);
+		result = parseFunctionArgDefaultValue(arg, closure, initializer, &argValue);
 		if (!result)
 			return false;
 
-		Type* formalArgType = arg->getType ();
+		Type* formalArgType = arg->getType();
 
 		result =
-			checkCastKind (argValue, formalArgType) &&
-			castOperator (&argValue, formalArgType);
+			checkCastKind(argValue, formalArgType) &&
+			castOperator(&argValue, formalArgType);
 
 		if (!result)
 			return false;
 
-		argValueList->insertTail (argValue);
+		argValueList->insertTail(argValue);
 	}
 
 	if (!isVarArg)
@@ -527,38 +527,38 @@ OperatorMgr::castArgValueList (
 
 	if (!isCdeclVarArg)
 	{
-		err::setFormatStringError ("only 'cdecl' vararg is currently supported");
+		err::setFormatStringError("only 'cdecl' vararg is currently supported");
 		return false;
 	}
 
 	for (; argValueIt; argValueIt++)
 	{
 		Value argValue = *argValueIt;
-		if (argValue.isEmpty ())
+		if (argValue.isEmpty())
 		{
-			err::setFormatStringError ("vararg arguments cannot be skipped");
+			err::setFormatStringError("vararg arguments cannot be skipped");
 			return false;
 		}
 
-		Type* type = prepareOperandType (argValue);
-		if (type->getTypeKindFlags () & TypeKindFlag_Derivable)
+		Type* type = prepareOperandType(argValue);
+		if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
 		{
-			DerivableType* derivableType = (DerivableType*) type;
+			DerivableType* derivableType = (DerivableType*)type;
 
-			Function* operatorVararg = derivableType->getOperatorCdeclVararg ();
+			Function* operatorVararg = derivableType->getOperatorCdeclVararg();
 			if (!operatorVararg)
-				operatorVararg = derivableType->getOperatorVararg ();
+				operatorVararg = derivableType->getOperatorVararg();
 
 			if (operatorVararg)
 			{
-				result = callOperatorVararg (operatorVararg, derivableType, &argValue);
+				result = callOperatorVararg(operatorVararg, derivableType, &argValue);
 				if (!result)
 					return false;
 			}
 		}
 
-		Type* formalArgType = getCdeclVarArgType (argValue.getType ());
-		result = castOperator (argValue, formalArgType, &*argValueIt); // store it in the same list entry
+		Type* formalArgType = getCdeclVarArgType(argValue.getType());
+		result = castOperator(argValue, formalArgType, &*argValueIt); // store it in the same list entry
 		if (!result)
 			return false;
 	}
@@ -567,65 +567,65 @@ OperatorMgr::castArgValueList (
 }
 
 bool
-OperatorMgr::callClosureFunctionPtr (
+OperatorMgr::callClosureFunctionPtr(
 	const Value& opValue,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
-	ASSERT (opValue.getType ()->getTypeKindFlags () & TypeKindFlag_FunctionPtr);
+	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 
-	FunctionPtrType* functionPtrType = (FunctionPtrType*) opValue.getType ();
-	FunctionType* functionType = functionPtrType->getTargetType ();
-	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType ();
-	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType (FunctionPtrTypeKind_Thin);
+	FunctionPtrType* functionPtrType = (FunctionPtrType*)opValue.getType();
+	FunctionType* functionType = functionPtrType->getTargetType();
+	FunctionType* abstractMethodType = functionType->getStdObjectMemberMethodType();
+	FunctionPtrType* functionThinPtrType = abstractMethodType->getFunctionPtrType(FunctionPtrTypeKind_Thin);
 
 	Value pfnValue;
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 0, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue (opValue, 1, m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr), &ifaceValue);
-	m_module->m_llvmIrBuilder.createBitCast (pfnValue, functionThinPtrType, &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &ifaceValue);
+	m_module->m_llvmIrBuilder.createBitCast(pfnValue, functionThinPtrType, &pfnValue);
 
-	argValueList->insertHead (ifaceValue);
-	return callImpl (pfnValue, abstractMethodType, argValueList, resultValue);
+	argValueList->insertHead(ifaceValue);
+	return callImpl(pfnValue, abstractMethodType, argValueList, resultValue);
 }
 
 bool
-OperatorMgr::callImpl (
+OperatorMgr::callImpl(
 	const Value& pfnValue,
 	FunctionType* functionType,
-	sl::BoxList <Value>* argValueList,
+	sl::BoxList<Value>* argValueList,
 	Value* resultValue
 	)
 {
-	uint_t flags = functionType->getFlags ();
+	uint_t flags = functionType->getFlags();
 
-	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn ())
+	if ((flags & FunctionTypeFlag_Unsafe) && !isUnsafeRgn())
 	{
-		err::setFormatStringError ("can only call unsafe functions from unsafe regions");
+		err::setFormatStringError("can only call unsafe functions from unsafe regions");
 		return false;
 	}
 
-	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleCheckNullPtr)
-		checkNullPtr (pfnValue);
+	if (m_module->getCompileFlags() & ModuleCompileFlag_SimpleCheckNullPtr)
+		checkNullPtr(pfnValue);
 
-	bool result = castArgValueList (functionType, pfnValue.getClosure (), argValueList);
+	bool result = castArgValueList(functionType, pfnValue.getClosure(), argValueList);
 	if (!result)
 		return false;
 
-	functionType->getCallConv ()->call (
+	functionType->getCallConv()->call(
 		pfnValue,
 		functionType,
 		argValueList,
 		resultValue
 		);
 
-	if (resultValue->getType ()->getFlags () & TypeFlag_GcRoot)
-		m_module->m_gcShadowStackMgr.createTmpGcRoot (*resultValue);
+	if (resultValue->getType()->getFlags() & TypeFlag_GcRoot)
+		m_module->m_gcShadowStackMgr.createTmpGcRoot(*resultValue);
 
-	if (functionType->getFlags () & FunctionTypeFlag_ErrorCode)
+	if (functionType->getFlags() & FunctionTypeFlag_ErrorCode)
 	{
-		result = m_module->m_controlFlowMgr.throwExceptionIf (*resultValue, functionType);
+		result = m_module->m_controlFlowMgr.throwExceptionIf(*resultValue, functionType);
 		if (!result)
 			return false;
 	}
@@ -634,21 +634,21 @@ OperatorMgr::callImpl (
 }
 
 void
-OperatorMgr::gcSafePoint ()
+OperatorMgr::gcSafePoint()
 {
-	if (m_module->getCompileFlags () & ModuleCompileFlag_SimpleGcSafePoint)
+	if (m_module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint)
 	{
-		Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_GcSafePoint);
-		m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
+		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_GcSafePoint);
+		m_module->m_llvmIrBuilder.createCall(function, function->getType(), NULL);
 	}
 	else
 	{
-		Variable* variable = m_module->m_variableMgr.getStdVariable (StdVariable_GcSafePointTrigger);
+		Variable* variable = m_module->m_variableMgr.getStdVariable(StdVariable_GcSafePointTrigger);
 
 		Value ptrValue;
-		Value value = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr)->getZeroValue ();
-		m_module->m_llvmIrBuilder.createLoad (variable, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createRmw (
+		Value value = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getZeroValue();
+		m_module->m_llvmIrBuilder.createLoad(variable, NULL, &ptrValue);
+		m_module->m_llvmIrBuilder.createRmw(
 			llvm::AtomicRMWInst::Xchg,
 			ptrValue,
 			value,
@@ -664,27 +664,27 @@ OperatorMgr::gcSafePoint ()
 }
 
 void
-OperatorMgr::checkStackOverflow ()
+OperatorMgr::checkStackOverflow()
 {
-	Function* function = m_module->m_functionMgr.getStdFunction (StdFunc_CheckStackOverflow);
-	m_module->m_llvmIrBuilder.createCall (function, function->getType (), NULL);
+	Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_CheckStackOverflow);
+	m_module->m_llvmIrBuilder.createCall(function, function->getType(), NULL);
 }
 
 void
-OperatorMgr::checkDivByZero (const Value& value)
+OperatorMgr::checkDivByZero(const Value& value)
 {
 	StdFunc checkFunc;
 
-	Type* type = value.getType ();
-	if (type->getTypeKindFlags () & TypeKindFlag_Integer)
+	Type* type = value.getType();
+	if (type->getTypeKindFlags() & TypeKindFlag_Integer)
 	{
-		checkFunc = type->getSize () <= sizeof (uint32_t) ?
+		checkFunc = type->getSize() <= sizeof(uint32_t) ?
 			StdFunc_CheckDivByZero_i32 :
 			StdFunc_CheckDivByZero_i64;
 	}
-	else if (type->getTypeKindFlags () & TypeKindFlag_Fp)
+	else if (type->getTypeKindFlags() & TypeKindFlag_Fp)
 	{
-		checkFunc = type->getSize () <= sizeof (float) ?
+		checkFunc = type->getSize() <= sizeof(float) ?
 			StdFunc_CheckDivByZero_f32 :
 			StdFunc_CheckDivByZero_f64;
 	}
@@ -693,9 +693,9 @@ OperatorMgr::checkDivByZero (const Value& value)
 		return;
 	}
 
-	Function* function = m_module->m_functionMgr.getStdFunction (checkFunc);
-	bool result = m_module->m_operatorMgr.callOperator (function, value);
-	ASSERT (result);
+	Function* function = m_module->m_functionMgr.getStdFunction(checkFunc);
+	bool result = m_module->m_operatorMgr.callOperator(function, value);
+	ASSERT(result);
 }
 
 //..............................................................................

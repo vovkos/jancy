@@ -35,10 +35,10 @@
 	jnc_SjljFrame __jncSjljFrame; \
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
-	JNC_ASSERT (runtime); \
-	jnc_Runtime_initializeCallSite (__jncRuntime, &__jncCallSite); \
-	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame (__jncRuntime, &__jncSjljFrame); \
-	__jncSjljBranch = setjmp (__jncSjljFrame.m_jmpBuf); \
+	JNC_ASSERT(runtime); \
+	jnc_Runtime_initializeCallSite(__jncRuntime, &__jncCallSite); \
+	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame(__jncRuntime, &__jncSjljFrame); \
+	__jncSjljBranch = setjmp(__jncSjljFrame.m_jmpBuf); \
 	if (!__jncSjljBranch) \
 	{
 
@@ -47,35 +47,35 @@
 	else \
 	{ \
 		{ \
-			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
-			JNC_ASSERT (prev == &__jncSjljFrame); \
+			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
+			JNC_ASSERT(prev == &__jncSjljFrame); \
 		}
 
 #define JNC_CALL_SITE_FINALLY() \
 	} \
 	{ \
 		{ \
-			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
-			JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
+			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
+			JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 		}
 
 #define JNC_END_CALL_SITE_IMPL() \
 	} \
 	{ \
-		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame (__jncRuntime, __jncSjljPrevFrame); \
-		JNC_ASSERT (prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
+		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
+		JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 	} \
 	__jncCallSite.m_result = __jncSjljBranch == 0; \
-	jnc_Runtime_uninitializeCallSite (__jncRuntime, &__jncCallSite);
+	jnc_Runtime_uninitializeCallSite(__jncRuntime, &__jncCallSite);
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_BEGIN_CALL_SITE(runtime) \
 	{ \
-	JNC_BEGIN_CALL_SITE_IMPL (runtime)
+	JNC_BEGIN_CALL_SITE_IMPL(runtime)
 
 #define JNC_END_CALL_SITE() \
-	JNC_END_CALL_SITE_IMPL () \
+	JNC_END_CALL_SITE_IMPL() \
 	}
 
 #define JNC_END_CALL_SITE_EX(result) \
@@ -93,13 +93,13 @@ namespace jnc {
 
 template <typename RetVal>
 RetVal
-callFunctionImpl_u (void* p)
+callFunctionImpl_u(void* p)
 {
 	typedef
 	RetVal
-	TargetFunc ();
+	TargetFunc();
 
-	return ((TargetFunc*) p) ();
+	return ((TargetFunc*)p) ();
 }
 
 template <
@@ -107,16 +107,16 @@ template <
 	typename Arg
 	>
 RetVal
-callFunctionImpl_u (
+callFunctionImpl_u(
 	void* p,
 	Arg arg
 	)
 {
 	typedef
 	RetVal
-	TargetFunc (Arg);
+	TargetFunc(Arg);
 
-	return ((TargetFunc*) p) (arg);
+	return ((TargetFunc*)p) (arg);
 }
 
 template <
@@ -125,7 +125,7 @@ template <
 	typename Arg2
 	>
 RetVal
-callFunctionImpl_u (
+callFunctionImpl_u(
 	void* p,
 	Arg1 arg1,
 	Arg2 arg2
@@ -133,12 +133,12 @@ callFunctionImpl_u (
 {
 	typedef
 	RetVal
-	TargetFunc (
+	TargetFunc(
 		Arg1,
 		Arg2
 		);
 
-	return ((TargetFunc*) p)  (arg1, arg2);
+	return ((TargetFunc*)p)  (arg1, arg2);
 }
 
 template <
@@ -148,7 +148,7 @@ template <
 	typename Arg3
 	>
 RetVal
-callFunctionImpl_u (
+callFunctionImpl_u(
 	void* p,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -157,13 +157,13 @@ callFunctionImpl_u (
 {
 	typedef
 	RetVal
-	TargetFunc (
+	TargetFunc(
 		Arg1,
 		Arg2,
 		Arg3
 		);
 
-	return ((TargetFunc*) p) (arg1, arg2, arg3);
+	return ((TargetFunc*)p) (arg1, arg2, arg3);
 }
 
 template <
@@ -174,7 +174,7 @@ template <
 	typename Arg4
 	>
 RetVal
-callFunctionImpl_u (
+callFunctionImpl_u(
 	void* p,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -184,14 +184,14 @@ callFunctionImpl_u (
 {
 	typedef
 	RetVal
-	TargetFunc (
+	TargetFunc(
 		Arg1,
 		Arg2,
 		Arg3,
 		Arg4
 		);
 
-	return ((TargetFunc*) p) (arg1, arg2, arg3, arg4);
+	return ((TargetFunc*)p) (arg1, arg2, arg3, arg4);
 }
 
 template <
@@ -203,7 +203,7 @@ template <
 	typename Arg5
 	>
 RetVal
-callFunctionImpl_u (
+callFunctionImpl_u(
 	void* p,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -214,7 +214,7 @@ callFunctionImpl_u (
 {
 	typedef
 	RetVal
-	TargetFunc (
+	TargetFunc(
 		Arg1,
 		Arg2,
 		Arg3,
@@ -222,14 +222,14 @@ callFunctionImpl_u (
 		Arg5
 		);
 
-	return ((TargetFunc*) p) (arg1, arg2, arg3, arg4, arg5);
+	return ((TargetFunc*)p) (arg1, arg2, arg3, arg4, arg5);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal
@@ -237,9 +237,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -249,7 +249,7 @@ template <
 	typename Arg
 	>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
@@ -258,9 +258,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p, arg);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p, arg);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -271,7 +271,7 @@ template <
 	typename Arg2
 	>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
@@ -281,9 +281,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -295,7 +295,7 @@ template <
 	typename Arg3
 	>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
@@ -306,9 +306,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -321,7 +321,7 @@ template <
 	typename Arg4
 	>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
@@ -333,9 +333,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -349,7 +349,7 @@ template <
 	typename Arg5
 	>
 bool
-callFunctionImpl_s (
+callFunctionImpl_s(
 	Runtime* runtime,
 	void* p,
 	RetVal* retVal,
@@ -362,9 +362,9 @@ callFunctionImpl_s (
 {
 	bool result;
 
-	JNC_BEGIN_CALL_SITE (runtime)
-	*retVal = callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4, arg5);
-	JNC_END_CALL_SITE_EX (&result)
+	JNC_BEGIN_CALL_SITE(runtime)
+	*retVal = callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4, arg5);
+	JNC_END_CALL_SITE_EX(&result)
 
 	return result;
 }
@@ -373,14 +373,14 @@ callFunctionImpl_s (
 
 template <typename RetVal>
 bool
-callFunction (
+callFunction(
 	Runtime* runtime,
 	Function* function,
 	RetVal* retVal
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, retVal);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, retVal);
 }
 
 template <
@@ -388,15 +388,15 @@ template <
 	typename Arg
 	>
 bool
-callFunction (
+callFunction(
 	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
 	Arg arg
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, retVal, arg);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, retVal, arg);
 }
 
 template <
@@ -405,7 +405,7 @@ template <
 	typename Arg2
 	>
 bool
-callFunction (
+callFunction(
 	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
@@ -413,8 +413,8 @@ callFunction (
 	Arg2 arg2
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, retVal, arg1, arg2);
 }
 
 template <
@@ -424,7 +424,7 @@ template <
 	typename Arg3
 	>
 bool
-callFunction (
+callFunction(
 	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
@@ -433,8 +433,8 @@ callFunction (
 	Arg3 arg3
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2, arg3);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, retVal, arg1, arg2, arg3);
 }
 
 template <
@@ -445,7 +445,7 @@ template <
 	typename Arg4
 	>
 bool
-callFunction (
+callFunction(
 	Runtime* runtime,
 	Function* function,
 	RetVal* retVal,
@@ -455,18 +455,18 @@ callFunction (
 	Arg4 arg4
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, retVal, arg1, arg2, arg3, arg4);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, retVal, arg1, arg2, arg3, arg4);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 RetVal
-callFunction (Function* function)
+callFunction(Function* function)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_u <RetVal> (p);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_u<RetVal> (p);
 }
 
 template <
@@ -474,13 +474,13 @@ template <
 	typename Arg
 	>
 RetVal
-callFunction (
+callFunction(
 	Function* function,
 	Arg arg
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_u <RetVal> (p, arg);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_u<RetVal> (p, arg);
 }
 
 template <
@@ -489,14 +489,14 @@ template <
 	typename Arg2
 	>
 RetVal
-callFunction (
+callFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_u <RetVal> (p, arg1, arg2);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_u<RetVal> (p, arg1, arg2);
 }
 
 template <
@@ -506,15 +506,15 @@ template <
 	typename Arg3
 	>
 RetVal
-callFunction (
+callFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3);
 }
 
 template <
@@ -525,7 +525,7 @@ template <
 	typename Arg4
 	>
 RetVal
-callFunction (
+callFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -533,35 +533,35 @@ callFunction (
 	Arg4 arg4
 	)
 {
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_u <RetVal> (p, arg1, arg2, arg3, arg4);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_u<RetVal> (p, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
 
 inline
 bool
-callVoidFunction (
+callVoidFunction(
 	Runtime* runtime,
 	Function* function
 	)
 {
 	int retVal;
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, &retVal);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, &retVal);
 }
 
 template <typename Arg>
 bool
-callVoidFunction (
+callVoidFunction(
 	Runtime* runtime,
 	Function* function,
 	Arg arg
 	)
 {
 	int retVal;
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, &retVal, arg);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, &retVal, arg);
 }
 
 template <
@@ -569,7 +569,7 @@ template <
 	typename Arg2
 	>
 bool
-callVoidFunction (
+callVoidFunction(
 	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
@@ -577,8 +577,8 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, &retVal, arg1, arg2);
 }
 
 template <
@@ -587,7 +587,7 @@ template <
 	typename Arg3
 	>
 bool
-callVoidFunction (
+callVoidFunction(
 	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
@@ -596,8 +596,8 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2, arg3);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, &retVal, arg1, arg2, arg3);
 }
 
 template <
@@ -607,7 +607,7 @@ template <
 	typename Arg4
 	>
 bool
-callVoidFunction (
+callVoidFunction(
 	Runtime* runtime,
 	Function* function,
 	Arg1 arg1,
@@ -617,29 +617,29 @@ callVoidFunction (
 	)
 {
 	int retVal;
-	void* p = function->getMachineCode ();
-	return callFunctionImpl_s (runtime, p, &retVal, arg1, arg2, arg3, arg4);
+	void* p = function->getMachineCode();
+	return callFunctionImpl_s(runtime, p, &retVal, arg1, arg2, arg3, arg4);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 void
-callVoidFunction (Function* function)
+callVoidFunction(Function* function)
 {
-	void* p = function->getMachineCode ();
-	callFunctionImpl_u <void> (p);
+	void* p = function->getMachineCode();
+	callFunctionImpl_u<void> (p);
 }
 
 template <typename Arg>
 void
-callVoidFunction (
+callVoidFunction(
 	Function* function,
 	Arg arg
 	)
 {
-	void* p = function->getMachineCode ();
-	callFunctionImpl_u <void> (p, arg);
+	void* p = function->getMachineCode();
+	callFunctionImpl_u<void> (p, arg);
 }
 
 template <
@@ -647,14 +647,14 @@ template <
 	typename Arg2
 	>
 void
-callVoidFunction (
+callVoidFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	void* p = function->getMachineCode ();
-	callFunctionImpl_u <void> (p, arg1, arg2);
+	void* p = function->getMachineCode();
+	callFunctionImpl_u<void> (p, arg1, arg2);
 }
 
 template <
@@ -663,15 +663,15 @@ template <
 	typename Arg3
 	>
 void
-callVoidFunction (
+callVoidFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	void* p = function->getMachineCode ();
-	callFunctionImpl_u <void> (p, arg1, arg2, arg3);
+	void* p = function->getMachineCode();
+	callFunctionImpl_u<void> (p, arg1, arg2, arg3);
 }
 
 template <
@@ -681,7 +681,7 @@ template <
 	typename Arg4
 	>
 void
-callVoidFunction (
+callVoidFunction(
 	Function* function,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -689,21 +689,21 @@ callVoidFunction (
 	Arg4 arg4
 	)
 {
-	void* p = function->getMachineCode ();
-	callFunctionImpl_u <void> (p, arg1, arg2, arg3, arg4);
+	void* p = function->getMachineCode();
+	callFunctionImpl_u<void> (p, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
 
 template <typename RetVal>
 bool
-callFunctionPtr (
+callFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal
 	)
 {
-	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure);
+	return callFunctionImpl_s(runtime, ptr.m_p, retVal, ptr.m_closure);
 }
 
 template <
@@ -711,14 +711,14 @@ template <
 	typename Arg
 	>
 bool
-callFunctionPtr (
+callFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg arg
 	)
 {
-	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg);
+	return callFunctionImpl_s(runtime, ptr.m_p, retVal, ptr.m_closure, arg);
 }
 
 template <
@@ -727,7 +727,7 @@ template <
 	typename Arg2
 	>
 bool
-callFunctionPtr (
+callFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
@@ -735,7 +735,7 @@ callFunctionPtr (
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_s(runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -745,7 +745,7 @@ template <
 	typename Arg3
 	>
 bool
-callFunctionPtr (
+callFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
@@ -754,7 +754,7 @@ callFunctionPtr (
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_s(runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -765,7 +765,7 @@ template <
 	typename Arg4
 	>
 bool
-callFunctionPtr (
+callFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	RetVal* retVal,
@@ -775,16 +775,16 @@ callFunctionPtr (
 	Arg4 arg4
 	)
 {
-	return callFunctionImpl_s (runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s(runtime, ptr.m_p, retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 template <typename RetVal>
 RetVal
-callFunctionPtr (FunctionPtr ptr)
+callFunctionPtr(FunctionPtr ptr)
 {
-	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure);
+	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure);
 }
 
 template <
@@ -792,13 +792,13 @@ template <
 	typename Arg
 	>
 RetVal
-callFunctionPtr (
+callFunctionPtr(
 	FunctionPtr ptr,
 	RetVal* retVal,
 	Arg arg
 	)
 {
-	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg);
+	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg);
 }
 
 template <
@@ -807,13 +807,13 @@ template <
 	typename Arg2
 	>
 RetVal
-callFunctionPtr (
+callFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -823,14 +823,14 @@ template <
 	typename Arg3
 	>
 RetVal
-callFunctionPtr (
+callFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -841,7 +841,7 @@ template <
 	typename Arg4
 	>
 RetVal
-callFunctionPtr (
+callFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -849,32 +849,32 @@ callFunctionPtr (
 	Arg4 arg4
 	)
 {
-	return callFunctionImpl_u <RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_u<RetVal> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
 
 inline
 bool
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr
 	)
 {
 	int retVal;
-	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure);
+	return callFunctionImpl_s(runtime, ptr.m_p, &retVal, ptr.m_closure);
 }
 
 template <typename Arg>
 bool
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg arg
 	)
 {
 	int retVal;
-	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg);
+	return callFunctionImpl_s(runtime, ptr.m_p, &retVal, ptr.m_closure, arg);
 }
 
 template <
@@ -882,7 +882,7 @@ template <
 	typename Arg2
 	>
 bool
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
@@ -890,7 +890,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2);
+	return callFunctionImpl_s(runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -899,7 +899,7 @@ template <
 	typename Arg3
 	>
 bool
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
@@ -908,7 +908,7 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3);
+	return callFunctionImpl_s(runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -918,7 +918,7 @@ template <
 	typename Arg4
 	>
 bool
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	Runtime* runtime,
 	FunctionPtr ptr,
 	Arg1 arg1,
@@ -928,26 +928,26 @@ callVoidFunctionPtr (
 	)
 {
 	int retVal;
-	return callFunctionImpl_s (runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
+	return callFunctionImpl_s(runtime, ptr.m_p, &retVal, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 void
-callVoidFunctionPtr (FunctionPtr ptr)
+callVoidFunctionPtr(FunctionPtr ptr)
 {
-	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure);
+	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure);
 }
 
 template <typename Arg>
 void
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	FunctionPtr ptr,
 	Arg arg
 	)
 {
-	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg);
+	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg);
 }
 
 template <
@@ -955,13 +955,13 @@ template <
 	typename Arg2
 	>
 void
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2);
+	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2);
 }
 
 template <
@@ -970,14 +970,14 @@ template <
 	typename Arg3
 	>
 void
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
+	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3);
 }
 
 template <
@@ -987,7 +987,7 @@ template <
 	typename Arg4
 	>
 void
-callVoidFunctionPtr (
+callVoidFunctionPtr(
 	FunctionPtr ptr,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -995,34 +995,34 @@ callVoidFunctionPtr (
 	Arg4 arg4
 	)
 {
-	callFunctionImpl_u <void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
+	callFunctionImpl_u<void> (ptr.m_p, ptr.m_closure, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................
 
 inline
 bool
-callMulticast (
+callMulticast(
 	Runtime* runtime,
 	Multicast* multicast
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	return callVoidFunctionPtr (runtime, ptr);
+	return callVoidFunctionPtr(runtime, ptr);
 }
 
 template <typename Arg>
 bool
-callMulticast (
+callMulticast(
 	Runtime* runtime,
 	Multicast* multicast,
 	Arg arg
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	return callVoidFunctionPtr (runtime, ptr, arg);
+	return callVoidFunctionPtr(runtime, ptr, arg);
 }
 
 template <
@@ -1030,16 +1030,16 @@ template <
 	typename Arg2
 	>
 bool
-callMulticast (
+callMulticast(
 	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	return callVoidFunctionPtr (runtime, ptr, arg1, arg2);
+	return callVoidFunctionPtr(runtime, ptr, arg1, arg2);
 }
 
 template <
@@ -1048,7 +1048,7 @@ template <
 	typename Arg3
 	>
 bool
-callMulticast (
+callMulticast(
 	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
@@ -1056,9 +1056,9 @@ callMulticast (
 	Arg3 arg3
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3);
+	return callVoidFunctionPtr(runtime, ptr, arg1, arg2, arg3);
 }
 
 template <
@@ -1068,7 +1068,7 @@ template <
 	typename Arg4
 	>
 bool
-callMulticast (
+callMulticast(
 	Runtime* runtime,
 	Multicast* multicast,
 	Arg1 arg1,
@@ -1077,32 +1077,32 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	return callVoidFunctionPtr (runtime, ptr, arg1, arg2, arg3, arg4);
+	return callVoidFunctionPtr(runtime, ptr, arg1, arg2, arg3, arg4);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 void
-callMulticast (Multicast* multicast)
+callMulticast(Multicast* multicast)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	callVoidFunctionPtr (ptr);
+	callVoidFunctionPtr(ptr);
 }
 
 template <typename Arg>
 void
-callMulticast (
+callMulticast(
 	Multicast* multicast,
 	Arg arg
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	callVoidFunctionPtr (ptr, arg);
+	callVoidFunctionPtr(ptr, arg);
 }
 
 template <
@@ -1110,15 +1110,15 @@ template <
 	typename Arg2
 	>
 void
-callMulticast (
+callMulticast(
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	callVoidFunctionPtr (ptr, arg1, arg2);
+	callVoidFunctionPtr(ptr, arg1, arg2);
 }
 
 template <
@@ -1127,16 +1127,16 @@ template <
 	typename Arg3
 	>
 void
-callMulticast (
+callMulticast(
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2,
 	Arg3 arg3
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	callVoidFunctionPtr (ptr, arg1, arg2, arg3);
+	callVoidFunctionPtr(ptr, arg1, arg2, arg3);
 }
 
 template <
@@ -1146,7 +1146,7 @@ template <
 	typename Arg4
 	>
 void
-callMulticast (
+callMulticast(
 	Multicast* multicast,
 	Arg1 arg1,
 	Arg2 arg2,
@@ -1154,9 +1154,9 @@ callMulticast (
 	Arg4 arg4
 	)
 {
-	void* p = getMulticastCallMethodMachineCode (multicast);
+	void* p = getMulticastCallMethodMachineCode(multicast);
 	FunctionPtr ptr = { p, &multicast->m_ifaceHdr };
-	callVoidFunctionPtr (ptr, arg1, arg2, arg3, arg4);
+	callVoidFunctionPtr(ptr, arg1, arg2, arg3, arg4);
 }
 
 //..............................................................................

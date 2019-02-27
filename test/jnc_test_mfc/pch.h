@@ -44,10 +44,10 @@
 
 // http://connect.microsoft.com/VisualStudio/feedback/details/621653/including-stdint-after-intsafe-generates-warnings
 // warning C4005: 'INT8_MIN' : macro redefinition
-#pragma warning (disable : 4005)
+#pragma warning(disable : 4005)
 #include <stdint.h>
 #include <intsafe.h>
-#pragma warning (default : 4005)
+#pragma warning(default : 4005)
 
 
 #if defined _M_IX86
@@ -69,10 +69,10 @@
 // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
 // warning C4244: 'return' : conversion from 'uint64_t' to 'unsigned int', possible loss of data
 
-#pragma warning (disable: 4146)
-#pragma warning (disable: 4355)
-#pragma warning (disable: 4800)
-#pragma warning (disable: 4244)
+#pragma warning(disable: 4146)
+#pragma warning(disable: 4355)
+#pragma warning(disable: 4800)
+#pragma warning(disable: 4244)
 
 #undef min
 #undef max
@@ -107,10 +107,10 @@
 
 #include "llvm/CodeGen/MachineCodeInfo.h"
 
-#pragma warning (default: 4146)
-#pragma warning (default: 4355)
-#pragma warning (default: 4800)
-#pragma warning (default: 4244)
+#pragma warning(default: 4146)
+#pragma warning(default: 4355)
+#pragma warning(default: 4800)
+#pragma warning(default: 4244)
 
 //..............................................................................
 
@@ -142,19 +142,19 @@ using namespace axl;
 #include <new>
 #include <typeinfo>
 
-__declspec (selectany)
+__declspec(selectany)
 class CClearTypeInfoCache
 {
 public:
-	CClearTypeInfoCache ()
+	CClearTypeInfoCache()
 	{
-		atexit (ClearTypeInfoCache);
+		atexit(ClearTypeInfoCache);
 	}
 
 protected:
 	static
 	void
-	ClearTypeInfoCache ()
+	ClearTypeInfoCache()
 	{
 	   __type_info_node* & node = __type_info_root_node._Next;
 	   while(node)

@@ -20,18 +20,18 @@
 //..............................................................................
 
 void
-CLogCtrl::Trace_va (
+CLogCtrl::Trace_va(
 	const char* pFormat,
 	axl_va_list va
 	)
 {
 	rtl::CString Text;
-	Text.Format_va (pFormat, va);
-	Trace_0 (Text);
+	Text.Format_va(pFormat, va);
+	Trace_0(Text);
 }
 
 void
-CLogCtrl::Trace_0 (const char* pText)
+CLogCtrl::Trace_0(const char* pText)
 {
 	// normalize CR-LF
 
@@ -43,18 +43,18 @@ CLogCtrl::Trace_0 (const char* pText)
 	for (; *p; p++)
 		if (*p == '\n' && (p == p0 || *(p - 1) != '\r'))
 		{
-			Text.Append (p0, p - p0);
-			Text.Append (L"\r\n");
+			Text.Append(p0, p - p0);
+			Text.Append(L"\r\n");
 			p0 = p + 1;
 		}
 
-	Text.Append (p0, p - p0);
+	Text.Append(p0, p - p0);
 
 	// add to edit control
 
-	size_t Length = GetWindowTextLength ();
-	SetSel ((int) Length, (int) Length);
-	ReplaceSel (Text);
+	size_t Length = GetWindowTextLength();
+	SetSel((int)Length, (int)Length);
+	ReplaceSel(Text);
 }
 
 //..............................................................................

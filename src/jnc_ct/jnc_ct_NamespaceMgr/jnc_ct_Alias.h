@@ -31,18 +31,18 @@ protected:
 	uint_t m_ptrTypeFlags;
 
 public:
-	Alias ();
+	Alias();
 
 	ModuleItem*
-	getTargetItem ()
+	getTargetItem()
 	{
-		ASSERT (m_targetItem);
+		ASSERT(m_targetItem);
 		return m_targetItem;
 	}
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -51,7 +51,7 @@ public:
 protected:
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 };
 
 //..............................................................................

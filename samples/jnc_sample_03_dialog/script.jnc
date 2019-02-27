@@ -41,7 +41,7 @@ class Widget
 	SizePolicy readonly m_hsizePolicy;
 	SizePolicy readonly m_vsizePolicy;
 
-	setSizePolicy (
+	setSizePolicy(
 		SizePolicy hpolicy,
 		SizePolicy vpolicy
 		);
@@ -64,12 +64,12 @@ opaque class Layout
 
 	Direction readonly m_direction;
 
-	addWidget (Widget* widget);
-	addLayout (Layout* layout);
-	addSpacer ();
+	addWidget(Widget* widget);
+	addLayout(Layout* layout);
+	addSpacer();
 
-	construct (Direction direction);
-	destruct ();
+	construct(Direction direction);
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -93,8 +93,8 @@ opaque class Label: Widget
 	int autoget property m_backColor;
 	Alignment autoget property m_alignment;
 
-	construct (char const* text);
-	destruct ();
+	construct(char const* text);
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -102,10 +102,10 @@ opaque class Label: Widget
 opaque class Button: Widget
 {
 	char const* autoget property m_text;
-	event m_onClicked ();
+	event m_onClicked();
 
-	construct (char const* text);
-	destruct ();
+	construct(char const* text);
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -115,8 +115,8 @@ opaque class CheckBox: Widget
 	char const* autoget property m_text;
 	bool bindable property m_isChecked;
 
-	construct (char const* text);
-	destruct ();
+	construct(char const* text);
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -125,8 +125,8 @@ opaque class TextEdit: Widget
 {
 	char const* property m_text;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -137,12 +137,12 @@ opaque class Slider: Widget
 	int autoget property m_maximum;
 	int bindable property m_value;
 
-	construct (
+	construct(
 		int minimum = 0,
 		int maximum = 100
 		);
 
-	destruct ();
+	destruct();
 }
 
 //..............................................................................
@@ -165,7 +165,7 @@ Button* g_printButton;
 
 // ui reactor
 
-int calcColorVolume (int color)
+int calcColorVolume(int color)
 {
 	return
 		(color & 0xff) +
@@ -182,14 +182,14 @@ reactor g_uiReactor
 
 	g_colorLabel.m_text = $"#$(g_color;06x)";
 	g_colorLabel.m_backColor = g_color;
-	g_colorLabel.m_color = calcColorVolume (g_color) > 0x180 ? 0x000000 : 0xffffff;
+	g_colorLabel.m_color = calcColorVolume(g_color) > 0x180 ? 0x000000 : 0xffffff;
 
 	g_textEdit.m_isEnabled = g_enablePrintCheckBox.m_isChecked;
 	g_printButton.m_isEnabled = g_enablePrintCheckBox.m_isChecked;
 
-	onevent g_printButton.m_onClicked ()
+	onevent g_printButton.m_onClicked()
 	{
-		printf ("> %s\n", g_textEdit.m_text);
+		printf("> %s\n", g_textEdit.m_text);
 	}
 }
 
@@ -197,45 +197,45 @@ reactor g_uiReactor
 
 // entry point
 
-int main (Layout* mainLayout)
+int main(Layout* mainLayout)
 {
-	printf ("Creating widgets...\n");
+	printf("Creating widgets...\n");
 
 	Layout* hlayout;
 	Layout* vlayout;
 
-	hlayout = new Layout (Layout.Direction.LeftToRight);
+	hlayout = new Layout(Layout.Direction.LeftToRight);
 
-	vlayout = new Layout (Layout.Direction.TopToBottom);
-	vlayout.addWidget (new Label ("Red:"));
-	vlayout.addWidget (new Label ("Green:"));
-	vlayout.addWidget (new Label ("Blue:"));
-	hlayout.addLayout (vlayout);
+	vlayout = new Layout(Layout.Direction.TopToBottom);
+	vlayout.addWidget(new Label("Red:"));
+	vlayout.addWidget(new Label("Green:"));
+	vlayout.addWidget(new Label("Blue:"));
+	hlayout.addLayout(vlayout);
 
-	vlayout = new Layout (Layout.Direction.TopToBottom);
-	vlayout.addWidget (g_redSlider = new Slider (0, 255));
-	vlayout.addWidget (g_greenSlider = new Slider (0, 255));
-	vlayout.addWidget (g_blueSlider = new Slider (0, 255));
-	hlayout.addLayout (vlayout);
+	vlayout = new Layout(Layout.Direction.TopToBottom);
+	vlayout.addWidget(g_redSlider = new Slider(0, 255));
+	vlayout.addWidget(g_greenSlider = new Slider(0, 255));
+	vlayout.addWidget(g_blueSlider = new Slider(0, 255));
+	hlayout.addLayout(vlayout);
 
-	mainLayout.addLayout (hlayout);
+	mainLayout.addLayout(hlayout);
 
-	g_colorLabel = new Label ("color-label");
+	g_colorLabel = new Label("color-label");
 	g_colorLabel.m_alignment = Label.Alignment.HCenter | Label.Alignment.VCenter;
-	g_colorLabel.setSizePolicy (Widget.SizePolicy.Expanding, Widget.SizePolicy.Expanding);
-	mainLayout.addWidget (g_colorLabel);
+	g_colorLabel.setSizePolicy(Widget.SizePolicy.Expanding, Widget.SizePolicy.Expanding);
+	mainLayout.addWidget(g_colorLabel);
 
-	mainLayout.addWidget (g_enablePrintCheckBox = new CheckBox ("Enable printing to output"));
-	hlayout = new Layout (Layout.Direction.LeftToRight);
-	hlayout.addWidget (new Label ("Text:"));
+	mainLayout.addWidget(g_enablePrintCheckBox = new CheckBox("Enable printing to output"));
+	hlayout = new Layout(Layout.Direction.LeftToRight);
+	hlayout.addWidget(new Label("Text:"));
 	g_textEdit = new TextEdit;
 	g_textEdit.m_text = "sample-text";
-	hlayout.addWidget (g_textEdit);
-	hlayout.addWidget (g_printButton = new Button ("Print"));
-	mainLayout.addLayout (hlayout);
+	hlayout.addWidget(g_textEdit);
+	hlayout.addWidget(g_printButton = new Button("Print"));
+	mainLayout.addLayout(hlayout);
 
-	printf ("Starting UI reactor...\n");
-	g_uiReactor.start ();
+	printf("Starting UI reactor...\n");
+	g_uiReactor.start();
 
 	return 0;
 }

@@ -34,15 +34,15 @@ dynamic struct FileHdr
 {
 	uint32_t m_signature;
 	uint32_t m_sectionCount;
-	Section m_sectionTable [m_sectionCount];
+	Section m_sectionTable[m_sectionCount];
 	uint32_t m_version;
-	char m_authorName [strlen (m_authorName) + 1];
-	char m_authorEmail [strlen (m_authorEmail) + 1];
+	char m_authorName[strlen(m_authorName) + 1];
+	char m_authorEmail[strlen(m_authorEmail) + 1];
 }
 
-printFileHdr (FileHdr const* hdr)
+printFileHdr(FileHdr const* hdr)
 {
-	printf (
+	printf(
 		"signature:   %.4s (0x%08x)\n"
 		"sections:    %d\n"
 		"version:     %d.%d.%d (0x%06x)\n"
@@ -58,7 +58,7 @@ printFileHdr (FileHdr const* hdr)
 		hdr.m_version,
 		hdr.m_authorName,
 		hdr.m_authorEmail,
-		dynamic sizeof (*hdr)
+		dynamic sizeof(*hdr)
 		);
 
 	// dynamic structs can only be incremented by 1 (one)
@@ -67,14 +67,14 @@ printFileHdr (FileHdr const* hdr)
 
 	for (size_t i = 0; i < hdr.m_sectionCount; i++)
 	{
-		char const* section = data + hdr.m_sectionTable [i].m_offset;
-		printf ("section [%d]: %s\n", i, section);
+		char const* section = data + hdr.m_sectionTable[i].m_offset;
+		printf("section [%d]: %s\n", i, section);
 	}
 }
 
-int main ()
+int main()
 {
-	char buffer [] =
+	char buffer[] =
 	{
 		"ABCD" 0x"",        // 00: m_signature
 		3,  0, 0, 0,        // 04: m_sectionCount
@@ -92,28 +92,28 @@ int main ()
 		"section-2",        // 84:
 	}
 
-	printf ("sizeof (buffer): %d\n", sizeof (buffer));
+	printf("sizeof (buffer): %d\n", sizeof (buffer));
 
-	printFileHdr ((FileHdr const*) buffer);
+	printFileHdr((FileHdr const*) buffer);
 
-	printf ("-----------------\n");
+	printf("-----------------\n");
 
 	// we will re-use the same buffer -- drop the dynamic layout cache
 
-	std.resetDynamicLayout (buffer);
+	std.resetDynamicLayout(buffer);
 
 	// you can also use dynamic structs for write-access
 	// in this case, be sure to set the fields from top to bottom
 
-	FileHdr* hdr = (FileHdr*) buffer;
+	FileHdr* hdr = (FileHdr*)buffer;
 	hdr.m_sectionCount = 1;   // now all the dynamic offsets will be  different
 	hdr.m_version = 0x020000; // 2.0.0
-	strcpy (hdr.m_authorName, "Jane Doe");
-	strcpy (hdr.m_authorEmail, "jane.doe@gmail.com");
+	strcpy(hdr.m_authorName, "Jane Doe");
+	strcpy(hdr.m_authorEmail, "jane.doe@gmail.com");
 
-	strcpy ((char*) (hdr + 1), "SECTION-0");
+	strcpy((char*)(hdr + 1), "SECTION-0");
 
-	printFileHdr (hdr);
+	printFileHdr(hdr);
 
 	return 0;
 }

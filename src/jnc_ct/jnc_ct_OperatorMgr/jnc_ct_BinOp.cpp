@@ -19,9 +19,9 @@ namespace ct {
 //..............................................................................
 
 const char*
-getBinOpKindString (BinOpKind opKind)
+getBinOpKindString(BinOpKind opKind)
 {
-	static const char* stringTable [BinOpKind__Count] =
+	static const char* stringTable[BinOpKind__Count] =
 	{
 		"undefined-binary-operator",  // BinOpKind_Undefined = 0,
 		"+",                          // BinOpKind_Add,
@@ -59,34 +59,34 @@ getBinOpKindString (BinOpKind opKind)
 		"@=",                         // BinOpKind_AtAssign,
 	};
 
-	return (size_t) opKind < BinOpKind__Count ?
-		stringTable [opKind] :
-		stringTable [BinOpKind_Undefined];
+	return (size_t)opKind < BinOpKind__Count ?
+		stringTable[opKind] :
+		stringTable[BinOpKind_Undefined];
 }
 
 //..............................................................................
 
 BinaryOperator::BinaryOperator()
 {
-	m_module = Module::getCurrentConstructedModule ();
-	ASSERT (m_module);
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
 
 	m_opKind = BinOpKind_Undefined;
 	m_opFlags1 = m_opFlags2 = 0;
 }
 
 bool
-BinaryOperator::getResultType (
+BinaryOperator::getResultType(
 	const Value& opValue1,
 	const Value& opValue2,
 	Value* resultValue
 	)
 {
-	Type* type = getResultType (opValue1, opValue2);
+	Type* type = getResultType(opValue1, opValue2);
 	if (!type)
 		return false;
 
-	resultValue->setType (type);
+	resultValue->setType(type);
 	return true;
 }
 

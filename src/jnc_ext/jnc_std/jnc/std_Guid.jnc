@@ -29,7 +29,7 @@ bitflag enum GuidStringFlags
 //..............................................................................
 
 /**
-	\brief This struct describes a globally unique identifier (GUID).
+	\brief This struct describes a globally unique identifier(GUID).
 
 	GUIDs are 128-bit values often used as permanent labels which uniquely
 	identify some sort of information. Creation of GUIDs does not require any
@@ -75,39 +75,39 @@ struct Guid
 		the final 12 hexadecimal digits of the GUID.
 	*/
 
-	uint8_t m_data4 [8];
+	uint8_t m_data4[8];
 
-	construct ()
+	construct()
 	{
 	}
 
-	construct (char const* string)
+	construct(char const* string)
 	{
-		parse (string);
+		parse(string);
 	}
 
-	bool isEqual (Guid const* op) const
+	bool isEqual(Guid const* op) const
 	{
-		return memcmp (this, op, sizeof (Guid)) == 0;
+		return memcmp(this, op, sizeof(Guid)) == 0;
 	}
 
 	bool operator == (Guid const* op) const
 	{
-		return isEqual (op);
+		return isEqual(op);
 	}
 
 	bool operator != (Guid const* op) const
 	{
-		return !isEqual (op);
+		return !isEqual(op);
 	}
 
 	void operator := (char const* string)
 	{
-		parse (string);
+		parse(string);
 	}
 
-	char const* getString (GuidStringFlags flags = 0);
-	bool errorcode parse (char const* string);
+	char const* getString(GuidStringFlags flags = 0);
+	bool errorcode parse(char const* string);
 }
 
 //..............................................................................

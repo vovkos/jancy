@@ -13,31 +13,31 @@ import "std_HashTable.jnc"
 
 //..............................................................................
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	std.StringHashTableIgnoreCase hashTable;
-	hashTable.add ("first-name", "Vladimir");
-	hashTable ["last-name"] = "Gladkov";
+	hashTable.add("first-name", "Vladimir");
+	hashTable["last-name"] = "Gladkov";
 
-	printf (
+	printf(
 		$"first-name = %1\nlast-name = %2\nmiddle-name found = %3\n" (
-			hashTable.findValue ("FIRST-NAME"),
-			hashTable ["LAST-NAME"],
-			(bool) hashTable.find ("MIDDLE-NAME")
+			hashTable.findValue("FIRST-NAME"),
+			hashTable["LAST-NAME"],
+			(bool)hashTable.find("MIDDLE-NAME")
 			)
 		);
 
 	std.HashTable hashTable2;
-	hashTable2.add (1, "Vladimir");
-	hashTable2 [2] = "Gladkov";
+	hashTable2.add(1, "Vladimir");
+	hashTable2[2] = "Gladkov";
 
-	printf (
+	printf(
 		$"[1] -> %1\n[2] -> %2\n[3] found = %3\n" (
-			hashTable2.findValue (1),
-			hashTable2 [2],
-			(bool) hashTable2.find (3)
+			hashTable2.findValue(1),
+			hashTable2[2],
+			(bool)hashTable2.find(3)
 			)
 		);
 

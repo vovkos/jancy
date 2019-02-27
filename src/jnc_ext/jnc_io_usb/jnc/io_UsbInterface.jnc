@@ -51,10 +51,10 @@ enum UsbSpeed: uint8_t
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 char const*
-getUsbClassString (UsbClass cls);
+getUsbClassString(UsbClass cls);
 
 char const*
-getUsbSpeedString (UsbSpeed speed);
+getUsbSpeedString(UsbSpeed speed);
 
 //..............................................................................
 
@@ -81,13 +81,13 @@ opaque class UsbInterface
 
 	bool readonly m_isClaimed;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	void release ();
+	void release();
 	alias void dispose = release;
 
-	UsbEndpoint* errorcode openEndpoint (uint8_t endpointId);
+	UsbEndpoint* errorcode openEndpoint(uint8_t endpointId);
 }
 
 //..............................................................................

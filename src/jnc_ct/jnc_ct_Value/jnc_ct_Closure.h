@@ -26,76 +26,76 @@ class PropertyPtrType;
 class Closure: public ref::RefCount
 {
 protected:
-	sl::BoxList <Value> m_argValueList;
+	sl::BoxList<Value> m_argValueList;
 	Value* m_thisArgValue;
 	size_t m_thisArgIdx;
 
 public:
-	Closure ()
+	Closure()
 	{
 		m_thisArgValue = NULL;
 		m_thisArgIdx = -1;
 	}
 
-	sl::BoxList <Value>*
-	getArgValueList ()
+	sl::BoxList<Value>*
+	getArgValueList()
 	{
 		return &m_argValueList;
 	}
 
 	bool
-	isMemberClosure ()
+	isMemberClosure()
 	{
 		return m_thisArgIdx != -1;
 	}
 
 	size_t
-	getThisArgIdx ()
+	getThisArgIdx()
 	{
 		return m_thisArgIdx;
 	}
 
 	Value
-	getThisArgValue ();
+	getThisArgValue();
 
 	void
-	setThisArgIdx (size_t thisArgIdx);
+	setThisArgIdx(size_t thisArgIdx);
 
 	void
-	insertThisArgValue (const Value& thisValue);
+	insertThisArgValue(const Value& thisValue);
 
 	bool
-	isSimpleClosure ()
+	isSimpleClosure()
 	{
-		return isMemberClosure () && m_argValueList.getCount () == 1;
+		return isMemberClosure() && m_argValueList.getCount() == 1;
 	}
 
 	size_t
-	append (const Value& argValue);
+	append(const Value& argValue);
 
 	size_t
-	append (const sl::ConstBoxList <Value>& argValueList);
+	append(const sl::ConstBoxList<Value>& argValueList);
 
 	bool
-	apply (sl::BoxList <Value>* argValueList);
+	apply(sl::BoxList<Value>* argValueList);
 
 	Type*
-	getClosureType (Type* type);
+	getClosureType(Type* type);
 
 	FunctionPtrType*
-	getFunctionClosureType (Function* function); // choose the best overload
+	getFunctionClosureType(Function* function); // choose the best overload
 
 	FunctionPtrType*
-	getFunctionClosureType (FunctionPtrType* ptrType);
+	getFunctionClosureType(FunctionPtrType* ptrType);
 
 	PropertyPtrType*
-	getPropertyClosureType (PropertyPtrType* ptrType);
+	getPropertyClosureType(PropertyPtrType* ptrType);
 
 protected:
 	bool
-	getArgTypeArray (
+	getArgTypeArray(
 		Module* module,
-		sl::Array <FunctionArg*>* argArray
+		sl::Array<FunctionArg*>* argArray
 		);
 };
 

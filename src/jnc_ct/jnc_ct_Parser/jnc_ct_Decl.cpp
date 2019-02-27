@@ -20,9 +20,9 @@ namespace ct {
 //..............................................................................
 
 const char*
-getTypeModifierString (TypeModifier modifier)
+getTypeModifierString(TypeModifier modifier)
 {
-	static const char* stringTable [] =
+	static const char* stringTable[] =
 	{
 		"unsigned",     // TypeModifier_Unsigned    = 0x00000001,
 		"bigendian",    // TypeModifier_BigEndian   = 0x00000002,
@@ -52,28 +52,28 @@ getTypeModifierString (TypeModifier modifier)
 		"async",        // TypeModifier_Async       = 0x02000000,
 	};
 
-	size_t i = sl::getLoBitIdx32 (modifier);
-	return i < countof (stringTable) ?
-		stringTable [i] :
+	size_t i = sl::getLoBitIdx32(modifier);
+	return i < countof(stringTable) ?
+		stringTable[i] :
 		"undefined-type-modifier";
 }
 
 sl::String
-getTypeModifierString (uint_t modifiers)
+getTypeModifierString(uint_t modifiers)
 {
 	if (!modifiers)
-		return sl::String ();
+		return sl::String();
 
-	TypeModifier modifier = getFirstTypeModifier (modifiers);
-	sl::String string = getTypeModifierString (modifier);
+	TypeModifier modifier = getFirstTypeModifier(modifiers);
+	sl::String string = getTypeModifierString(modifier);
 	modifiers &= ~modifier;
 
 	while (modifiers)
 	{
-		modifier = getFirstTypeModifier (modifiers);
+		modifier = getFirstTypeModifier(modifiers);
 
 		string += ' ';
-		string += getTypeModifierString (modifier);
+		string += getTypeModifierString(modifier);
 
 		modifiers &= ~modifier;
 	}
@@ -84,11 +84,11 @@ getTypeModifierString (uint_t modifiers)
 //..............................................................................
 
 bool
-TypeModifiers::addTypeModifier (TypeModifier modifier)
+TypeModifiers::addTypeModifier(TypeModifier modifier)
 {
 	static
 	uint_t
-	antiModifierTable [] =
+	antiModifierTable[] =
 	{
 		0,                              // TypeModifier_Unsigned   = 0x00000001,
 		0,                              // TypeModifier_BigEndian  = 0x00000002,
@@ -123,12 +123,12 @@ TypeModifiers::addTypeModifier (TypeModifier modifier)
 
 	if (m_typeModifiers & modifier)
 	{
-		err::setFormatStringError ("type modifier '%s' used more than once", getTypeModifierString (modifier));
+		err::setFormatStringError("type modifier '%s' used more than once", getTypeModifierString (modifier));
 		return false;
 	}
 
-	size_t i = sl::getLoBitIdx32 (modifier);
-	if (i >= countof (antiModifierTable))
+	size_t i = sl::getLoBitIdx32(modifier);
+	if (i >= countof(antiModifierTable))
 	{
 		m_typeModifiers |= modifier;
 		return true; // allow adding new modifiers without changing table
@@ -136,14 +136,14 @@ TypeModifiers::addTypeModifier (TypeModifier modifier)
 
 	// check anti-modifiers
 
-	uint_t antiModifiers = m_typeModifiers & antiModifierTable [i];
+	uint_t antiModifiers = m_typeModifiers & antiModifierTable[i];
 	if (antiModifiers)
 	{
-		TypeModifier antiModifier = getFirstTypeModifier (antiModifiers);
-		err::setFormatStringError (
+		TypeModifier antiModifier = getFirstTypeModifier(antiModifiers);
+		err::setFormatStringError(
 			"type modifiers '%s' and '%s' cannot be used together",
-			getTypeModifierString (antiModifier),
-			getTypeModifierString (modifier)
+			getTypeModifierString(antiModifier),
+			getTypeModifierString(modifier)
 			);
 
 		return false;
@@ -154,7 +154,7 @@ TypeModifiers::addTypeModifier (TypeModifier modifier)
 }
 
 int
-TypeModifiers::clearTypeModifiers (int modifierMask)
+TypeModifiers::clearTypeModifiers(int modifierMask)
 {
 	uint_t typeModifiers = m_typeModifiers & modifierMask;
 	m_typeModifiers &= ~modifierMask;
@@ -162,7 +162,7 @@ TypeModifiers::clearTypeModifiers (int modifierMask)
 }
 
 bool
-TypeModifiers::checkAntiTypeModifiers (int modifierMask)
+TypeModifiers::checkAntiTypeModifiers(int modifierMask)
 {
 	uint_t modifiers = m_typeModifiers;
 
@@ -170,18 +170,18 @@ TypeModifiers::checkAntiTypeModifiers (int modifierMask)
 	if (!modifiers)
 		return true;
 
-	TypeModifier firstModifier = getFirstTypeModifier (modifiers);
+	TypeModifier firstModifier = getFirstTypeModifier(modifiers);
 	modifiers &= ~firstModifier;
 	if (!modifiers)
 		return true;
 
 	// more than one
 
-	TypeModifier secondModifier = getFirstTypeModifier (modifiers);
-	err::setFormatStringError (
+	TypeModifier secondModifier = getFirstTypeModifier(modifiers);
+	err::setFormatStringError(
 		"type modifiers '%s' and '%s' cannot be used together",
-		getTypeModifierString (firstModifier),
-		getTypeModifierString (secondModifier)
+		getTypeModifierString(firstModifier),
+		getTypeModifierString(secondModifier)
 		);
 
 	return false;
@@ -190,14 +190,14 @@ TypeModifiers::checkAntiTypeModifiers (int modifierMask)
 //..............................................................................
 
 bool
-TypeSpecifier::setType (Type* type)
+TypeSpecifier::setType(Type* type)
 {
 	if (m_type)
 	{
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"more than one type specifiers ('%s' and '%s')",
-			m_type->getTypeString ().sz (),
-			type->getTypeString ().sz ()
+			m_type->getTypeString().sz(),
+			type->getTypeString().sz()
 			);
 
 		return false;
@@ -210,35 +210,35 @@ TypeSpecifier::setType (Type* type)
 //..............................................................................
 
 const char*
-getPostDeclaratorModifierString (PostDeclaratorModifier modifier)
+getPostDeclaratorModifierString(PostDeclaratorModifier modifier)
 {
-	static const char* stringTable [] =
+	static const char* stringTable[] =
 	{
 		"const",    // EPostDeclaratorModifier_Const  = 0x01,
 	};
 
-	size_t i  = sl::getLoBitIdx32 (modifier);
-	return i < countof (stringTable) ?
-		stringTable [i] :
+	size_t i  = sl::getLoBitIdx32(modifier);
+	return i < countof(stringTable) ?
+		stringTable[i] :
 		"undefined-post-declarator-modifier";
 }
 
 sl::String
-getPostDeclaratorModifierString (uint_t modifiers)
+getPostDeclaratorModifierString(uint_t modifiers)
 {
 	if (!modifiers)
-		return sl::String ();
+		return sl::String();
 
-	PostDeclaratorModifier modifier = getFirstPostDeclaratorModifier (modifiers);
-	sl::String string = getPostDeclaratorModifierString (modifier);
+	PostDeclaratorModifier modifier = getFirstPostDeclaratorModifier(modifiers);
+	sl::String string = getPostDeclaratorModifierString(modifier);
 	modifiers &= ~modifier;
 
 	while (modifiers)
 	{
-		modifier = getFirstPostDeclaratorModifier (modifiers);
+		modifier = getFirstPostDeclaratorModifier(modifiers);
 
 		string += ' ';
-		string += getPostDeclaratorModifierString (modifier);
+		string += getPostDeclaratorModifierString(modifier);
 
 		modifiers &= ~modifier;
 	}
@@ -249,11 +249,11 @@ getPostDeclaratorModifierString (uint_t modifiers)
 //..............................................................................
 
 bool
-DeclFunctionSuffix::addFunctionTypeFlag (FunctionTypeFlag flag)
+DeclFunctionSuffix::addFunctionTypeFlag(FunctionTypeFlag flag)
 {
 	if (m_functionTypeFlags & flag)
 	{
-		err::setFormatStringError ("function modifier '%s' used more than once", getFunctionTypeFlagString (flag));
+		err::setFormatStringError("function modifier '%s' used more than once", getFunctionTypeFlagString (flag));
 		return false;
 	}
 
@@ -263,7 +263,7 @@ DeclFunctionSuffix::addFunctionTypeFlag (FunctionTypeFlag flag)
 
 //..............................................................................
 
-Declarator::Declarator ()
+Declarator::Declarator()
 {
 	m_declaratorKind = DeclaratorKind_Undefined;
 	m_functionKind = FunctionKind_Undefined;
@@ -278,49 +278,49 @@ Declarator::Declarator ()
 }
 
 void
-Declarator::setTypeSpecifier (
+Declarator::setTypeSpecifier(
 	TypeSpecifier* typeSpecifier,
 	Module* module
 	)
 {
 	if (!typeSpecifier)
 	{
-		m_baseType = module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+		m_baseType = module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		return;
 	}
 
-	takeOverTypeModifiers (typeSpecifier);
+	takeOverTypeModifiers(typeSpecifier);
 
-	m_baseType = typeSpecifier->getType ();
+	m_baseType = typeSpecifier->getType();
 	if (!m_baseType)
 	{
 		m_baseType = (m_typeModifiers & TypeModifier_Unsigned) ?
-			module->m_typeMgr.getPrimitiveType (TypeKind_Int) :
-			module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+			module->m_typeMgr.getPrimitiveType(TypeKind_Int) :
+			module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 	}
 }
 
 bool
-Declarator::addName (sl::String name)
+Declarator::addName(sl::String name)
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
 	m_declaratorKind = DeclaratorKind_Name;
 	m_functionKind = FunctionKind_Normal;
-	m_name.addName (name);
+	m_name.addName(name);
 	return true;
 }
 
 bool
-Declarator::addUnnamedMethod (FunctionKind functionKind)
+Declarator::addUnnamedMethod(FunctionKind functionKind)
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
@@ -330,7 +330,7 @@ Declarator::addUnnamedMethod (FunctionKind functionKind)
 }
 
 bool
-Declarator::addCastOperator (Type* type)
+Declarator::addCastOperator(Type* type)
 {
 	m_declaratorKind = DeclaratorKind_UnnamedMethod;
 	m_functionKind = FunctionKind_CastOperator;
@@ -339,20 +339,20 @@ Declarator::addCastOperator (Type* type)
 }
 
 bool
-Declarator::addUnaryBinaryOperator (
+Declarator::addUnaryBinaryOperator(
 	UnOpKind unOpKind,
 	BinOpKind binOpKind
 	)
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError ("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
 		return false;
 	}
 
 	if (binOpKind == BinOpKind_Assign)
 	{
-		err::setFormatStringError ("assignment operator could not be overloaded");
+		err::setFormatStringError("assignment operator could not be overloaded");
 		return false;
 	}
 
@@ -364,11 +364,11 @@ Declarator::addUnaryBinaryOperator (
 }
 
 bool
-Declarator::setPostDeclaratorModifier (PostDeclaratorModifier modifier)
+Declarator::setPostDeclaratorModifier(PostDeclaratorModifier modifier)
 {
 	if (m_postDeclaratorModifiers & modifier)
 	{
-		err::setFormatStringError ("type modifier '%s' used more than once", getPostDeclaratorModifierString (modifier));
+		err::setFormatStringError("type modifier '%s' used more than once", getPostDeclaratorModifierString (modifier));
 		return false;
 	}
 
@@ -377,58 +377,58 @@ Declarator::setPostDeclaratorModifier (PostDeclaratorModifier modifier)
 }
 
 void
-Declarator::addPointerPrefix ()
+Declarator::addPointerPrefix()
 {
-	DeclPointerPrefix* prefix = AXL_MEM_NEW (DeclPointerPrefix);
-	prefix->takeOverTypeModifiers (this);
-	m_pointerPrefixList.insertTail (prefix);
+	DeclPointerPrefix* prefix = AXL_MEM_NEW(DeclPointerPrefix);
+	prefix->takeOverTypeModifiers(this);
+	m_pointerPrefixList.insertTail(prefix);
 }
 
 DeclArraySuffix*
-Declarator::addArraySuffix (sl::BoxList <Token>* elementCountInitializer)
+Declarator::addArraySuffix(sl::BoxList<Token>* elementCountInitializer)
 {
-	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	DeclArraySuffix* suffix = AXL_MEM_NEW(DeclArraySuffix);
 	suffix->m_declarator = this;
-	sl::takeOver (&suffix->m_elementCountInitializer, elementCountInitializer);
-	m_suffixList.insertTail (suffix);
+	sl::takeOver(&suffix->m_elementCountInitializer, elementCountInitializer);
+	m_suffixList.insertTail(suffix);
 	return suffix;
 }
 
 DeclArraySuffix*
-Declarator::addArraySuffix (size_t elementCount)
+Declarator::addArraySuffix(size_t elementCount)
 {
-	DeclArraySuffix* suffix = AXL_MEM_NEW (DeclArraySuffix);
+	DeclArraySuffix* suffix = AXL_MEM_NEW(DeclArraySuffix);
 	suffix->m_declarator = this;
 	suffix->m_elementCount = elementCount;
-	m_suffixList.insertTail (suffix);
+	m_suffixList.insertTail(suffix);
 	return suffix;
 }
 
 DeclFunctionSuffix*
-Declarator::addFunctionSuffix ()
+Declarator::addFunctionSuffix()
 {
-	DeclFunctionSuffix* suffix = AXL_MEM_NEW (DeclFunctionSuffix);
+	DeclFunctionSuffix* suffix = AXL_MEM_NEW(DeclFunctionSuffix);
 	suffix->m_declarator = this;
-	m_suffixList.insertTail (suffix);
+	m_suffixList.insertTail(suffix);
 	return suffix;
 }
 
 DeclFunctionSuffix*
-Declarator::addGetterSuffix ()
+Declarator::addGetterSuffix()
 {
-	DeclFunctionSuffix* suffix = AXL_MEM_NEW (DeclFunctionSuffix);
+	DeclFunctionSuffix* suffix = AXL_MEM_NEW(DeclFunctionSuffix);
 	suffix->m_suffixKind = DeclSuffixKind_Getter;
 	suffix->m_declarator = this;
-	m_suffixList.insertHead (suffix);
+	m_suffixList.insertHead(suffix);
 	return suffix;
 }
 
 bool
-Declarator::addBitFieldSuffix (size_t bitCount)
+Declarator::addBitFieldSuffix(size_t bitCount)
 {
-	if (m_bitCount || !m_suffixList.isEmpty () || !m_pointerPrefixList.isEmpty ())
+	if (m_bitCount || !m_suffixList.isEmpty() || !m_pointerPrefixList.isEmpty())
 	{
-		err::setFormatStringError ("bit field can only be applied to integer type");
+		err::setFormatStringError("bit field can only be applied to integer type");
 		return false;
 	}
 
@@ -437,13 +437,13 @@ Declarator::addBitFieldSuffix (size_t bitCount)
 }
 
 Type*
-Declarator::calcTypeImpl (
+Declarator::calcTypeImpl(
 	Value* elementCountValue,
 	uint_t* flags
 	)
 {
 	DeclTypeCalc typeCalc;
-	return typeCalc.calcType (this, elementCountValue, flags);
+	return typeCalc.calcType(this, elementCountValue, flags);
 }
 
 //..............................................................................

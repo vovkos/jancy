@@ -19,7 +19,7 @@ namespace ct {
 
 //..............................................................................
 
-ClassType::ClassType ()
+ClassType::ClassType()
 {
 	m_typeKind = TypeKind_Class;
 	m_flags = TypeFlag_NoStack;
@@ -32,43 +32,43 @@ ClassType::ClassType ()
 }
 
 ClassPtrType*
-ClassType::getClassPtrType (
+ClassType::getClassPtrType(
 	TypeKind typeKind,
 	ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getClassPtrType (this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getClassPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 StructType*
-ClassType::getVTableStructType ()
+ClassType::getVTableStructType()
 {
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
-	m_vtableStructType = m_module->m_typeMgr.createUnnamedStructType ();
-	m_vtableStructType->m_tag.format ("%s.VTable",m_tag.sz ());
+	m_vtableStructType = m_module->m_typeMgr.createUnnamedStructType();
+	m_vtableStructType->m_tag.format("%s.VTable",m_tag.sz ());
 	return m_vtableStructType;
 }
 
 StructField*
-ClassType::createFieldImpl (
+ClassType::createFieldImpl(
 	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
 	uint_t ptrTypeFlags,
-	sl::BoxList <Token>* constructor,
-	sl::BoxList <Token>* initializer
+	sl::BoxList<Token>* constructor,
+	sl::BoxList<Token>* initializer
 	)
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError ("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
 		return NULL;
 	}
 
-	StructField* field = m_ifaceStructType->createField (name, type, bitCount, ptrTypeFlags, constructor, initializer);
+	StructField* field = m_ifaceStructType->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	if (!field)
 		return NULL;
 
@@ -76,33 +76,33 @@ ClassType::createFieldImpl (
 
 	field->m_parentNamespace = this;
 
-	if (name.isEmpty ())
+	if (name.isEmpty())
 	{
-		m_unnamedFieldArray.append (field);
+		m_unnamedFieldArray.append(field);
 	}
-	else if (name [0] != '!') // internal field
+	else if (name[0] != '!') // internal field
 	{
-		bool result = addItem (field);
+		bool result = addItem(field);
 		if (!result)
 			return NULL;
 	}
 
-	if (!field->m_constructor.isEmpty () ||
-		!field->m_initializer.isEmpty ())
+	if (!field->m_constructor.isEmpty() ||
+		!field->m_initializer.isEmpty())
 	{
-		m_initializedMemberFieldArray.append (field);
+		m_initializedMemberFieldArray.append(field);
 	}
 
-	m_memberFieldArray.append (field);
+	m_memberFieldArray.append(field);
 	return field;
 }
 
 bool
-ClassType::addMethod (Function* function)
+ClassType::addMethod(Function* function)
 {
-	StorageKind storageKind = function->getStorageKind ();
-	FunctionKind functionKind = function->getFunctionKind ();
-	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
+	StorageKind storageKind = function->getStorageKind();
+	FunctionKind functionKind = function->getFunctionKind();
+	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
 	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
 
 	function->m_parentNamespace = this;
@@ -110,43 +110,43 @@ ClassType::addMethod (Function* function)
 	if (storageKind == StorageKind_Undefined)
 		storageKind = StorageKind_Member;
 
-	switch (storageKind)
+	switch(storageKind)
 	{
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 			return false;
 		}
 
 		break;
 
 	case StorageKind_Member:
-		function->convertToMemberMethod (this);
+		function->convertToMemberMethod(this);
 		break;
 
 	case StorageKind_Override:
-		m_overrideMethodArray.append (function);
-		function->convertToMemberMethod (this);
+		m_overrideMethodArray.append(function);
+		function->convertToMemberMethod(this);
 		break;
 
 	case StorageKind_Abstract:
 	case StorageKind_Virtual:
-		m_virtualMethodArray.append (function);
-		function->convertToMemberMethod (this);
+		m_virtualMethodArray.append(function);
+		function->convertToMemberMethod(this);
 		break;
 
 	default:
-		err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 		return false;
 	}
 
 	Property* indexerProperty;
-	sl::Array <FunctionArg*> argArray;
+	sl::Array<FunctionArg*> argArray;
 	Function** target = NULL;
 	size_t overloadIdx;
 
-	switch (functionKind)
+	switch(functionKind)
 	{
 	case FunctionKind_Internal:
 		return true;
@@ -165,7 +165,7 @@ ClassType::addMethod (Function* function)
 
 	case FunctionKind_StaticConstructor:
 		target = &m_staticConstructor;
-		m_module->m_functionMgr.addStaticConstructor (this);
+		m_module->m_functionMgr.addStaticConstructor(this);
 		break;
 
 	case FunctionKind_StaticDestructor:
@@ -173,27 +173,27 @@ ClassType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Normal:
-		overloadIdx = addFunction (function);
+		overloadIdx = addFunction(function);
 		if (overloadIdx == -1)
 			return false;
 
 		if (overloadIdx == 0)
-			m_memberMethodArray.append (function);
+			m_memberMethodArray.append(function);
 
 		return true;
 
 	case FunctionKind_UnaryOperator:
-		if (m_unaryOperatorTable.isEmpty ())
-			m_unaryOperatorTable.setCountZeroConstruct (UnOpKind__Count);
+		if (m_unaryOperatorTable.isEmpty())
+			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		target = &m_unaryOperatorTable [function->getUnOpKind ()];
+		target = &m_unaryOperatorTable[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
-		if (m_binaryOperatorTable.isEmpty ())
-			m_binaryOperatorTable.setCountZeroConstruct (BinOpKind__Count);
+		if (m_binaryOperatorTable.isEmpty())
+			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		target = &m_binaryOperatorTable [function->getBinOpKind ()];
+		target = &m_binaryOperatorTable[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
@@ -201,40 +201,40 @@ ClassType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Getter:
-		argArray = function->getType ()->getArgArray ();
-		if (argArray.getCount () < 2)
+		argArray = function->getType()->getArgArray();
+		if (argArray.getCount() < 2)
 		{
-			err::setFormatStringError ("indexer property getter should take at least one index argument");
+			err::setFormatStringError("indexer property getter should take at least one index argument");
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		indexerProperty = getIndexerProperty(argArray[1]->getType());
 		target = &indexerProperty->m_getter;
 		break;
 
 	case FunctionKind_Setter:
-		argArray = function->getType ()->getArgArray ();
-		if (argArray.getCount () < 3)
+		argArray = function->getType()->getArgArray();
+		if (argArray.getCount() < 3)
 		{
-			err::setFormatStringError ("indexer property setter should take at least one index argument");
+			err::setFormatStringError("indexer property setter should take at least one index argument");
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		indexerProperty = getIndexerProperty(argArray[1]->getType());
 		target = &indexerProperty->m_setter;
 		break;
 
 	default:
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"invalid %s in '%s'",
-			getFunctionKindString (functionKind),
-			getTypeString ().sz ()
+			getFunctionKindString(functionKind),
+			getTypeString().sz()
 			);
 		return false;
 	}
 
-	if (function->m_tag.isEmpty ())
-		function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	if (function->m_tag.isEmpty())
+		function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -242,16 +242,16 @@ ClassType::addMethod (Function* function)
 	}
 	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
 	{
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"'%s' already has '%s' method",
-			getTypeString ().sz (),
-			getFunctionKindString (functionKind)
+			getTypeString().sz(),
+			getFunctionKindString(functionKind)
 			);
 		return false;
 	}
 	else
 	{
-		bool result = (*target)->addOverload (function) != -1;
+		bool result = (*target)->addOverload(function) != -1;
 		if (!result)
 			return false;
 	}
@@ -260,19 +260,19 @@ ClassType::addMethod (Function* function)
 }
 
 bool
-ClassType::addProperty (Property* prop)
+ClassType::addProperty(Property* prop)
 {
-	if (prop->isNamed ())
+	if (prop->isNamed())
 	{
-		bool result = addItem (prop);
+		bool result = addItem(prop);
 		if (!result)
 			return false;
 	}
 
 	prop->m_parentNamespace = this;
 
-	StorageKind storageKind = prop->getStorageKind ();
-	switch (storageKind)
+	StorageKind storageKind = prop->getStorageKind();
+	switch(storageKind)
 	{
 	case StorageKind_Static:
 		break;
@@ -288,100 +288,100 @@ ClassType::addProperty (Property* prop)
 	case StorageKind_Abstract:
 	case StorageKind_Virtual:
 	case StorageKind_Override:
-		m_virtualPropertyArray.append (prop);
+		m_virtualPropertyArray.append(prop);
 		prop->m_parentType = this;
 		break;
 	}
 
-	m_memberPropertyArray.append (prop);
+	m_memberPropertyArray.append(prop);
 	return true;
 }
 
 bool
-ClassType::calcLayout ()
+ClassType::calcLayout()
 {
 	bool result;
 
 	// layout base types
 
-	if (m_baseTypeList.isEmpty () ||
-		m_baseTypeList.getHead ()->getType ()->getTypeKind () != TypeKind_Class)
+	if (m_baseTypeList.isEmpty() ||
+		m_baseTypeList.getHead()->getType()->getTypeKind() != TypeKind_Class)
 	{
-		m_ifaceStructType->addBaseType (m_module->m_typeMgr.getStdType (StdType_IfaceHdr));
+		m_ifaceStructType->addBaseType(m_module->m_typeMgr.getStdType(StdType_IfaceHdr));
 	}
 
-	size_t baseTypeCount = m_baseTypeList.getCount ();
+	size_t baseTypeCount = m_baseTypeList.getCount();
 
-	char buffer [256];
-	sl::Array <BaseTypeSlot*> ifaceBaseTypeArray (ref::BufKind_Stack, buffer, sizeof (buffer));
-	ifaceBaseTypeArray.setCount (baseTypeCount);
+	char buffer[256];
+	sl::Array<BaseTypeSlot*> ifaceBaseTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	ifaceBaseTypeArray.setCount(baseTypeCount);
 
-	sl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (size_t i = 0; slotIt; i++, slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-		if (!(slot->m_type->getTypeKindFlags () & TypeKindFlag_Derivable) ||
-			(slot->m_type->getFlags () & TypeFlag_Dynamic))
+		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) ||
+			(slot->m_type->getFlags() & TypeFlag_Dynamic))
 		{
-			err::setFormatStringError ("'%s' cannot be a base type of a class", slot->m_type->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString ().sz ());
 			return false;
 		}
 
-		sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.visit (slot->m_type->getSignature ());
+		sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.visit(slot->m_type->getSignature());
 		if (it->m_value)
 		{
-			err::setFormatStringError (
+			err::setFormatStringError(
 				"'%s' is already a base type",
-				slot->m_type->getTypeString ().sz ()
+				slot->m_type->getTypeString().sz()
 				);
 			return false;
 		}
 
 		it->m_value = slot;
 
-		DerivableType* type = slot->getType ();
-		result = type->ensureLayout ();
+		DerivableType* type = slot->getType();
+		result = type->ensureLayout();
 		if (!result)
 			return false;
 
-		if (slot->m_type->getFlags () & TypeFlag_GcRoot)
+		if (slot->m_type->getFlags() & TypeFlag_GcRoot)
 		{
-			m_gcRootBaseTypeArray.append (slot);
+			m_gcRootBaseTypeArray.append(slot);
 			m_flags |= TypeFlag_GcRoot;
 		}
 
-		if (slot->m_type->getConstructor ())
-			m_baseTypeConstructArray.append (slot);
+		if (slot->m_type->getConstructor())
+			m_baseTypeConstructArray.append(slot);
 
-		if (slot->m_type->getTypeKind () != TypeKind_Class)
+		if (slot->m_type->getTypeKind() != TypeKind_Class)
 		{
-			ifaceBaseTypeArray [i] = m_ifaceStructType->addBaseType (slot->m_type);
+			ifaceBaseTypeArray[i] = m_ifaceStructType->addBaseType(slot->m_type);
 			continue;
 		}
 
-		ClassType* baseClassType = (ClassType*) slot->m_type;
+		ClassType* baseClassType = (ClassType*)slot->m_type;
 		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable)
 		{
-			err::setFormatStringError ("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString ().sz ());
+			err::setFormatStringError("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString ().sz ());
 			return false;
 		}
 
-		ifaceBaseTypeArray [i] = m_ifaceStructType->addBaseType (baseClassType->getIfaceStructType ());
-		slot->m_vtableIndex = m_vtable.getCount ();
-		m_vtable.append (baseClassType->m_vtable);
+		ifaceBaseTypeArray[i] = m_ifaceStructType->addBaseType(baseClassType->getIfaceStructType());
+		slot->m_vtableIndex = m_vtable.getCount();
+		m_vtable.append(baseClassType->m_vtable);
 
 		if (baseClassType->m_vtableStructType)
-			getVTableStructType ()->append (baseClassType->m_vtableStructType);
+			getVTableStructType()->append(baseClassType->m_vtableStructType);
 
-		m_baseTypePrimeArray.append (slot);
+		m_baseTypePrimeArray.append(slot);
 
 		if (baseClassType->m_destructor)
-			m_baseTypeDestructArray.append (slot);
+			m_baseTypeDestructArray.append(slot);
 	}
 
 	// finalize iface layout
 
-	result = m_ifaceStructType->ensureLayout ();
+	result = m_ifaceStructType->ensureLayout();
 	if (!result)
 		return false;
 
@@ -389,90 +389,90 @@ ClassType::calcLayout ()
 
 	bool hasClassFieldDestructors = false;
 
-	size_t count = m_memberFieldArray.getCount ();
+	size_t count = m_memberFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_memberFieldArray [i];
-		Type* type = field->getType ();
+		StructField* field = m_memberFieldArray[i];
+		Type* type = field->getType();
 
-		if (type->getFlags () & TypeFlag_GcRoot)
+		if (type->getFlags() & TypeFlag_GcRoot)
 		{
-			m_gcRootMemberFieldArray.append (field);
+			m_gcRootMemberFieldArray.append(field);
 			m_flags |= TypeFlag_GcRoot;
 		}
 
-		if ((type->getTypeKindFlags () & TypeKindFlag_Derivable) && ((DerivableType*) type)->getConstructor ())
-			m_memberFieldConstructArray.append (field);
+		if ((type->getTypeKindFlags() & TypeKindFlag_Derivable) && ((DerivableType*)type)->getConstructor())
+			m_memberFieldConstructArray.append(field);
 
-		if (type->getTypeKind () == TypeKind_Class)
+		if (type->getTypeKind() == TypeKind_Class)
 		{
-			ClassType* classType = (ClassType*) type;
-			if (classType->getDestructor ())
+			ClassType* classType = (ClassType*)type;
+			if (classType->getDestructor())
 				hasClassFieldDestructors = true;
 
 			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
 			{
-				err::setFormatStringError ("cannot instantiate '%s'", type->getTypeString ().sz ());
+				err::setFormatStringError("cannot instantiate '%s'", type->getTypeString ().sz ());
 				return false;
 			}
 
-			if (classType->getClassTypeKind () == ClassTypeKind_Reactor)
-				((ReactorClassType*) classType)->m_parentOffset = field->getOffset () + sizeof (Box); // reactor's box
+			if (classType->getClassTypeKind() == ClassTypeKind_Reactor)
+				((ReactorClassType*)classType)->m_parentOffset = field->getOffset() + sizeof(Box); // reactor's box
 
-			m_classMemberFieldArray.append (field);
+			m_classMemberFieldArray.append(field);
 		}
 	}
 
-	count = m_memberPropertyArray.getCount ();
+	count = m_memberPropertyArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Property* prop = m_memberPropertyArray [i];
-		result = prop->ensureLayout ();
+		Property* prop = m_memberPropertyArray[i];
+		result = prop->ensureLayout();
 		if (!result)
 			return false;
 
-		if (prop->getConstructor ())
-			m_memberPropertyConstructArray.append (prop);
+		if (prop->getConstructor())
+			m_memberPropertyConstructArray.append(prop);
 
-		if (prop->getDestructor ())
-			m_memberPropertyDestructArray.append (prop);
+		if (prop->getDestructor())
+			m_memberPropertyDestructArray.append(prop);
 	}
 
 	// update base type llvm indexes & offsets
 
-	slotIt = m_baseTypeList.getHead ();
+	slotIt = m_baseTypeList.getHead();
 	for (size_t i = 0; slotIt; i++, slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-		BaseTypeSlot* ifaceSlot = ifaceBaseTypeArray [i];
+		BaseTypeSlot* ifaceSlot = ifaceBaseTypeArray[i];
 
 		slot->m_llvmIndex = ifaceSlot->m_llvmIndex;
 		slot->m_offset = ifaceSlot->m_offset;
 	}
 
-	m_classStructType->ensureLayout ();
+	m_classStructType->ensureLayout();
 
 	// layout virtual properties
 
-	if (!m_virtualPropertyArray.isEmpty () || !m_virtualMethodArray.isEmpty ())
-		getVTableStructType (); // ensure VTable struct
+	if (!m_virtualPropertyArray.isEmpty() || !m_virtualMethodArray.isEmpty())
+		getVTableStructType(); // ensure VTable struct
 
-	count = m_virtualPropertyArray.getCount ();
+	count = m_virtualPropertyArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Property* prop = m_virtualPropertyArray [i];
-		ASSERT (prop->m_storageKind == StorageKind_Abstract || prop->m_storageKind == StorageKind_Virtual);
+		Property* prop = m_virtualPropertyArray[i];
+		ASSERT(prop->m_storageKind == StorageKind_Abstract || prop->m_storageKind == StorageKind_Virtual);
 
-		size_t VTableIndex = m_vtable.getCount ();
+		size_t VTableIndex = m_vtable.getCount();
 
 		prop->m_parentClassVTableIndex = VTableIndex;
-		m_vtable.append (prop->m_vtable);
-		m_vtableStructType->append (prop->m_type->getVTableStructType ());
+		m_vtable.append(prop->m_vtable);
+		m_vtableStructType->append(prop->m_type->getVTableStructType());
 
-		size_t accessorCount = prop->m_vtable.getCount ();
+		size_t accessorCount = prop->m_vtable.getCount();
 		for (size_t j = 0; j < accessorCount; j++)
 		{
-			Function* accessor = prop->m_vtable [j];
+			Function* accessor = prop->m_vtable[j];
 			accessor->m_virtualOriginClassType = this;
 			accessor->m_classVTableIndex = VTableIndex + j;
 		}
@@ -480,101 +480,101 @@ ClassType::calcLayout ()
 
 	// layout virtual methods
 
-	count = m_virtualMethodArray.getCount ();
+	count = m_virtualMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_virtualMethodArray [i];
-		ASSERT (function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
+		Function* function = m_virtualMethodArray[i];
+		ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
 
-		result = function->getType ()->ensureLayout ();
+		result = function->getType()->ensureLayout();
 		if (!result)
 			return false;
 
-		addVirtualFunction (function);
+		addVirtualFunction(function);
 	}
 
-	count = m_overrideMethodArray.getCount ();
+	count = m_overrideMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_overrideMethodArray [i];
-		ASSERT (function->m_storageKind == StorageKind_Override);
+		Function* function = m_overrideMethodArray[i];
+		ASSERT(function->m_storageKind == StorageKind_Override);
 
-		result = function->getType ()->ensureLayout ();
+		result = function->getType()->ensureLayout();
 		if (!result)
 			return false;
 
-		result = overrideVirtualFunction (function);
+		result = overrideVirtualFunction(function);
 		if (!result)
 			return false;
 	}
 
 	if (m_vtableStructType)
 	{
-		result = m_vtableStructType->ensureLayout ();
+		result = m_vtableStructType->ensureLayout();
 		if (!result)
 			return false;
 
-		createVTableVariable ();
+		createVTableVariable();
 	}
 
-	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty ())
+	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty())
 	{
-		result = createDefaultMethod (FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
+		result = createDefaultMethod(FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
 		if (!result)
 			return false;
 	}
 
 	if (!m_constructor &&
 		(m_preconstructor ||
-		!m_baseTypeConstructArray.isEmpty () ||
-		!m_memberFieldConstructArray.isEmpty () ||
-		!m_initializedMemberFieldArray.isEmpty () ||
-		!m_memberPropertyConstructArray.isEmpty ()))
+		!m_baseTypeConstructArray.isEmpty() ||
+		!m_memberFieldConstructArray.isEmpty() ||
+		!m_initializedMemberFieldArray.isEmpty() ||
+		!m_memberPropertyConstructArray.isEmpty()))
 	{
-		result = createDefaultMethod (FunctionKind_Constructor) != NULL;
+		result = createDefaultMethod(FunctionKind_Constructor) != NULL;
 		if (!result)
 			return false;
 	}
 
 	if (!m_destructor &&
-		(!m_baseTypeDestructArray.isEmpty () ||
-		!m_memberPropertyDestructArray.isEmpty () ||
+		(!m_baseTypeDestructArray.isEmpty() ||
+		!m_memberPropertyDestructArray.isEmpty() ||
 		hasClassFieldDestructors))
 	{
-		result = createDefaultMethod (FunctionKind_Destructor) != NULL;
+		result = createDefaultMethod(FunctionKind_Destructor) != NULL;
 		if (!result)
 			return false;
 	}
 
-	m_size = m_classStructType->getSize ();
-	m_alignment = m_classStructType->getAlignment ();
+	m_size = m_classStructType->getSize();
+	m_alignment = m_classStructType->getAlignment();
 	return true;
 }
 
 void
-ClassType::addVirtualFunction (Function* function)
+ClassType::addVirtualFunction(Function* function)
 {
-	ASSERT (function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
-	ASSERT (function->m_virtualOriginClassType == NULL); // not layed out yet
+	ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
+	ASSERT(function->m_virtualOriginClassType == NULL); // not layed out yet
 
 	function->m_virtualOriginClassType = this;
-	function->m_classVTableIndex = m_vtable.getCount ();
+	function->m_classVTableIndex = m_vtable.getCount();
 
-	FunctionPtrType* pointerType = function->getType ()->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
-	getVTableStructType ()->createField (pointerType);
-	m_vtable.append (function);
+	FunctionPtrType* pointerType = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
+	getVTableStructType()->createField(pointerType);
+	m_vtable.append(function);
 }
 
 bool
-ClassType::overrideVirtualFunction (Function* function)
+ClassType::overrideVirtualFunction(Function* function)
 {
-	ASSERT (function->m_storageKind == StorageKind_Override);
-	ASSERT (function->m_virtualOriginClassType == NULL); // not layed out yet
+	ASSERT(function->m_storageKind == StorageKind_Override);
+	ASSERT(function->m_virtualOriginClassType == NULL); // not layed out yet
 
-	FunctionKind functionKind = function->getFunctionKind ();
+	FunctionKind functionKind = function->getFunctionKind();
 
 	MemberCoord coord;
-	ModuleItem* member = findItemTraverse (
+	ModuleItem* member = findItemTraverse(
 		function->m_declaratorName,
 		&coord,
 		TraverseKind_NoExtensionNamespaces |
@@ -585,92 +585,92 @@ ClassType::overrideVirtualFunction (Function* function)
 
 	if (!member)
 	{
-		err::setFormatStringError ("cannot override '%s': method not found", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method not found", function->m_tag.sz ());
 		return false;
 	}
 
 	Function* overridenFunction;
 
-	ModuleItemKind itemKind = member->getItemKind ();
-	switch (itemKind)
+	ModuleItemKind itemKind = member->getItemKind();
+	switch(itemKind)
 	{
 	case ModuleItemKind_Function:
 		if (functionKind != FunctionKind_Normal)
 		{
-			err::setFormatStringError (
+			err::setFormatStringError(
 				"cannot override '%s': function kind mismatch",
-				function->m_tag.sz ()
+				function->m_tag.sz()
 				);
 			return false;
 		}
 
-		overridenFunction = (Function*) member;
+		overridenFunction = (Function*)member;
 		break;
 
 	case ModuleItemKind_Property:
-		switch (functionKind)
+		switch(functionKind)
 		{
 		case FunctionKind_Getter:
-			overridenFunction = ((Property*) member)->getGetter ();
+			overridenFunction = ((Property*)member)->getGetter();
 			break;
 
 		case FunctionKind_Setter:
-			overridenFunction = ((Property*) member)->getSetter ();
+			overridenFunction = ((Property*)member)->getSetter();
 			if (!overridenFunction)
 			{
-				err::setFormatStringError ("cannot override '%s': property has no setter", function->m_tag.sz ());
+				err::setFormatStringError("cannot override '%s': property has no setter", function->m_tag.sz ());
 				return false;
 			}
 
 			break;
 
 		default:
-			err::setFormatStringError ("cannot override '%s': function kind mismatch", function->m_tag.sz ());
+			err::setFormatStringError("cannot override '%s': function kind mismatch", function->m_tag.sz ());
 			return false;
 		}
 
 		break;
 
 	default:
-		err::setFormatStringError ("cannot override '%s': not a method or property", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': not a method or property", function->m_tag.sz ());
 		return false;
 	}
 
-	overridenFunction = overridenFunction->findShortOverload (function->getType ()->getShortType ());
+	overridenFunction = overridenFunction->findShortOverload(function->getType()->getShortType());
 	if (!overridenFunction)
 	{
-		err::setFormatStringError ("cannot override '%s': method signature mismatch", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method signature mismatch", function->m_tag.sz ());
 		return false;
 	}
 
-	if (!overridenFunction->isVirtual ())
+	if (!overridenFunction->isVirtual())
 	{
-		err::setFormatStringError ("cannot override '%s': method is not virtual", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method is not virtual", function->m_tag.sz ());
 		return false;
 	}
 
-	AXL_TODO ("virtual multipliers")
+	AXL_TODO("virtual multipliers")
 
-	ClassPtrType* thisArgType = (ClassPtrType*) overridenFunction->m_type->getThisArgType ();
-	ASSERT (thisArgType->getTypeKind () == TypeKind_ClassPtr);
+	ClassPtrType* thisArgType = (ClassPtrType*)overridenFunction->m_type->getThisArgType();
+	ASSERT(thisArgType->getTypeKind() == TypeKind_ClassPtr);
 
-	FunctionArg* origThisArg = function->m_type->m_argArray [0];
-	FunctionArg* thisArg = m_module->m_typeMgr.getSimpleFunctionArg (StorageKind_This, thisArgType, origThisArg->getPtrTypeFlags ());
+	FunctionArg* origThisArg = function->m_type->m_argArray[0];
+	FunctionArg* thisArg = m_module->m_typeMgr.getSimpleFunctionArg(StorageKind_This, thisArgType, origThisArg->getPtrTypeFlags());
 
-	if (function->m_type->getFlags () & ModuleItemFlag_User)
+	if (function->m_type->getFlags() & ModuleItemFlag_User)
 	{
-		function->m_type->m_argArray [0] = thisArg;
+		function->m_type->m_argArray[0] = thisArg;
 	}
 	else
 	{
-		sl::Array <FunctionArg*> argArray = function->m_type->m_argArray;
-		argArray.ensureExclusive ();
-		argArray [0] = thisArg;
+		sl::Array<FunctionArg*> argArray = function->m_type->m_argArray;
+		argArray.ensureExclusive();
+		argArray[0] = thisArg;
 
-		function->m_type = m_module->m_typeMgr.getFunctionType (
-			function->m_type->getReturnType (),
+		function->m_type = m_module->m_typeMgr.getFunctionType(
+			function->m_type->getReturnType(),
 			argArray,
-			function->m_type->getFlags ()
+			function->m_type->getFlags()
 			);
 	}
 
@@ -680,69 +680,69 @@ ClassType::overrideVirtualFunction (Function* function)
 	function->m_classVTableIndex = overridenFunction->m_classVTableIndex;
 
 	size_t VTableIndex = coord.m_vtableIndex + overridenFunction->m_classVTableIndex;
-	ASSERT (VTableIndex < m_vtable.getCount ());
-	m_vtable [VTableIndex] = function;
+	ASSERT(VTableIndex < m_vtable.getCount());
+	m_vtable[VTableIndex] = function;
 	return true;
 }
 
 void
-ClassType::createVTableVariable ()
+ClassType::createVTableVariable()
 {
-	ASSERT (m_vtableStructType);
+	ASSERT(m_vtableStructType);
 
-	char buffer [256];
-	sl::Array <llvm::Constant*> llvmVTable (ref::BufKind_Stack, buffer, sizeof (buffer));
+	char buffer[256];
+	sl::Array<llvm::Constant*> llvmVTable(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-	size_t count = m_vtable.getCount ();
-	llvmVTable.setCount (count);
+	size_t count = m_vtable.getCount();
+	llvmVTable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)
 	{
-		Function* function = m_vtable [i];
-		if (function->getStorageKind () == StorageKind_Abstract)
+		Function* function = m_vtable[i];
+		if (function->getStorageKind() == StorageKind_Abstract)
 		{
-			function = function->getType ()->getAbstractFunction ();
+			function = function->getType()->getAbstractFunction();
 			m_flags |= ClassTypeFlag_HasAbstractMethods;
 		}
 
-		llvmVTable [i] = function->getLlvmFunction ();
+		llvmVTable[i] = function->getLlvmFunction();
 	}
 
-	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get (
-		(llvm::StructType*) m_vtableStructType->getLlvmType (),
-		llvm::ArrayRef <llvm::Constant*> (llvmVTable, count)
+	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get(
+		(llvm::StructType*)m_vtableStructType->getLlvmType(),
+		llvm::ArrayRef<llvm::Constant*> (llvmVTable, count)
 		);
 
-	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable (
+	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		"m_vtable",
 		m_tag + ".m_vtable",
 		m_vtableStructType,
-		Value (llvmVTableConst, m_vtableStructType)
+		Value(llvmVTableConst, m_vtableStructType)
 		);
 }
 
 bool
-ClassType::compile ()
+ClassType::compile()
 {
 	bool result;
 
-	if (m_staticConstructor && !(m_staticConstructor->getFlags () & ModuleItemFlag_User))
+	if (m_staticConstructor && !(m_staticConstructor->getFlags() & ModuleItemFlag_User))
 	{
-		result = compileDefaultStaticConstructor ();
+		result = compileDefaultStaticConstructor();
 		if (!result)
 			return false;
 	}
 
-	if (m_constructor && !(m_constructor->getFlags () & ModuleItemFlag_User))
+	if (m_constructor && !(m_constructor->getFlags() & ModuleItemFlag_User))
 	{
-		result = compileDefaultConstructor ();
+		result = compileDefaultConstructor();
 		if (!result)
 			return false;
 	}
 
-	if (m_destructor && !(m_destructor->getFlags () & ModuleItemFlag_User))
+	if (m_destructor && !(m_destructor->getFlags() & ModuleItemFlag_User))
 	{
-		result = compileDefaultDestructor ();
+		result = compileDefaultDestructor();
 		if (!result)
 			return false;
 	}
@@ -751,60 +751,60 @@ ClassType::compile ()
 }
 
 void
-ClassType::markGcRoots (
+ClassType::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 	)
 {
-	Box* box = (Box*) p;
-	IfaceHdr* iface = (IfaceHdr*) (box + 1);
+	Box* box = (Box*)p;
+	IfaceHdr* iface = (IfaceHdr*)(box + 1);
 
 	if (!iface->m_box) // an unprimed static -- better make a shortcut exit
 	{
-		ASSERT (!iface->m_vtable);
+		ASSERT(!iface->m_vtable);
 		return;
 	}
 
-	ASSERT (iface->m_box == box && box->m_type == this);
-	markGcRootsImpl (iface, gcHeap);
+	ASSERT(iface->m_box == box && box->m_type == this);
+	markGcRootsImpl(iface, gcHeap);
 }
 
 void
-ClassType::markGcRootsImpl (
+ClassType::markGcRootsImpl(
 	IfaceHdr* iface,
 	rt::GcHeap* gcHeap
 	)
 {
-	ClassType* boxType = (ClassType*) iface->m_box->m_type;
-	ASSERT (boxType == this || boxType->findBaseTypeTraverse (this));
+	ClassType* boxType = (ClassType*)iface->m_box->m_type;
+	ASSERT(boxType == this || boxType->findBaseTypeTraverse(this));
 
-	char* p = (char*) iface;
+	char* p = (char*)iface;
 
-	size_t count = m_gcRootBaseTypeArray.getCount ();
+	size_t count = m_gcRootBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		BaseTypeSlot* slot = m_gcRootBaseTypeArray [i];
-		Type* type = slot->getType ();
-		char* p2  = p + slot->getOffset ();
+		BaseTypeSlot* slot = m_gcRootBaseTypeArray[i];
+		Type* type = slot->getType();
+		char* p2  = p + slot->getOffset();
 
-		if (type->getTypeKind () == TypeKind_Class)
-			((ClassType*) type)->markGcRootsImpl ((IfaceHdr*) p2, gcHeap);
+		if (type->getTypeKind() == TypeKind_Class)
+			((ClassType*)type)->markGcRootsImpl((IfaceHdr*)p2, gcHeap);
 		else
-			type->markGcRoots (p2, gcHeap);
+			type->markGcRoots(p2, gcHeap);
 	}
 
-	count = m_gcRootMemberFieldArray.getCount ();
+	count = m_gcRootMemberFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_gcRootMemberFieldArray [i];
-		Type* type = field->getType ();
-		char* p2 = p + field->getOffset ();
+		StructField* field = m_gcRootMemberFieldArray[i];
+		Type* type = field->getType();
+		char* p2 = p + field->getOffset();
 
-		type->markGcRoots (p2, gcHeap);
+		type->markGcRoots(p2, gcHeap);
 	}
 
 	if (m_markOpaqueGcRootsFunc)
-		m_markOpaqueGcRootsFunc (iface, gcHeap);
+		m_markOpaqueGcRootsFunc(iface, gcHeap);
 }
 
 //..............................................................................

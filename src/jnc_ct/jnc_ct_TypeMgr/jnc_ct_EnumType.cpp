@@ -19,23 +19,23 @@ namespace ct {
 //..............................................................................
 
 const char*
-getEnumTypeFlagString (EnumTypeFlag flag)
+getEnumTypeFlagString(EnumTypeFlag flag)
 {
-	static const char* stringTable [] =
+	static const char* stringTable[] =
 	{
 		"exposed",   // EnumTypeFlag_Exposed = 0x0010000
 		"bitflag",   // EnumTypeFlag_BitFlag = 0x0020000
 	};
 
-	size_t i = sl::getLoBitIdx32 (flag >> 12);
+	size_t i = sl::getLoBitIdx32(flag >> 12);
 
-	return i < countof (stringTable) ?
-		stringTable [i] :
+	return i < countof(stringTable) ?
+		stringTable[i] :
 		"undefined-enum-type-flag";
 }
 
 sl::String
-getEnumTypeFlagString (uint_t flags)
+getEnumTypeFlagString(uint_t flags)
 {
 	sl::String string;
 
@@ -45,8 +45,8 @@ getEnumTypeFlagString (uint_t flags)
 	if (flags & EnumTypeFlag_BitFlag)
 		string += "bitflag ";
 
-	if (!string.isEmpty ())
-		string.chop (1);
+	if (!string.isEmpty())
+		string.chop(1);
 
 	return string;
 }
@@ -54,36 +54,36 @@ getEnumTypeFlagString (uint_t flags)
 //..............................................................................
 
 bool
-EnumConst::generateDocumentation (
+EnumConst::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock ();
+	DoxyBlock* doxyBlock = getDoxyBlock();
 
-	itemXml->format (
+	itemXml->format(
 		"<enumvalue id='%s'>\n"
 		"<name>%s</name>\n",
-		doxyBlock->getRefId ().sz (),
-		m_name.sz ()
+		doxyBlock->getRefId().sz(),
+		m_name.sz()
 		);
 
-	if (!m_initializer.isEmpty ())
-		itemXml->appendFormat (
+	if (!m_initializer.isEmpty())
+		itemXml->appendFormat(
 			"<initializer>= %s</initializer>\n",
-			getInitializerString ().sz ()
+			getInitializerString().sz()
 			);
 
-	itemXml->append (doxyBlock->getDescriptionString ());
-	itemXml->append ("</enumvalue>\n");
+	itemXml->append(doxyBlock->getDescriptionString());
+	itemXml->append("</enumvalue>\n");
 
 	return true;
 }
 
 //..............................................................................
 
-EnumType::EnumType ()
+EnumType::EnumType()
 {
 	m_typeKind = TypeKind_Enum;
 	m_flags = TypeFlag_Pod;
@@ -91,25 +91,25 @@ EnumType::EnumType ()
 }
 
 EnumConst*
-EnumType::createConst (
+EnumType::createConst(
 	const sl::StringRef& name,
-	sl::BoxList <Token>* initializer
+	sl::BoxList<Token>* initializer
 	)
 {
-	EnumConst* enumConst = AXL_MEM_NEW (EnumConst);
+	EnumConst* enumConst = AXL_MEM_NEW(EnumConst);
 	enumConst->m_module = m_module;
 	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;
 	enumConst->m_name = name;
-	enumConst->m_tag = m_tag.isEmpty () ? name : m_tag + "." + name;
+	enumConst->m_tag = m_tag.isEmpty() ? name : m_tag + "." + name;
 
 	if (initializer)
-		sl::takeOver (&enumConst->m_initializer, initializer);
+		sl::takeOver(&enumConst->m_initializer, initializer);
 
-	m_constList.insertTail (enumConst);
-	m_constArray.append (enumConst);
+	m_constList.insertTail(enumConst);
+	m_constArray.append(enumConst);
 
-	bool result = addItem (enumConst);
+	bool result = addItem(enumConst);
 	if (!result)
 		return NULL;
 
@@ -117,44 +117,44 @@ EnumType::createConst (
 }
 
 bool
-EnumType::calcLayout ()
+EnumType::calcLayout()
 {
 	bool result;
 
-	if (!(m_baseType->getTypeKindFlags () & TypeKindFlag_Integer))
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
-		err::setFormatStringError ("enum base type must be integer type");
+		err::setFormatStringError("enum base type must be integer type");
 		return false;
 	}
 
-	m_size = m_baseType->getSize ();
-	m_alignment = m_baseType->getAlignment ();
+	m_size = m_baseType->getSize();
+	m_alignment = m_baseType->getAlignment();
 
 	// assign values to consts
 
 	if (m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit (m_parentUnit);
+		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
-	m_module->m_namespaceMgr.openNamespace (this);
+	m_module->m_namespaceMgr.openNamespace(this);
 
 	if (m_flags & EnumTypeFlag_BitFlag)
 	{
 		int64_t value = 1;
 
-		sl::Iterator <EnumConst> constIt = m_constList.getHead ();
+		sl::Iterator<EnumConst> constIt = m_constList.getHead();
 		for (; constIt; constIt++)
 		{
-			if (!constIt->m_initializer.isEmpty ())
+			if (!constIt->m_initializer.isEmpty())
 			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression (constIt->m_initializer, &value);
+				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
 				if (!result)
 					return false;
 			}
 
 #if (JNC_PTR_SIZE == 4)
-			if (value > 0xffffffff && m_baseType->getSize () < 8)
+			if (value > 0xffffffff && m_baseType->getSize() < 8)
 			{
-				err::setFormatStringError ("enum const '%lld' is too big", value);
+				err::setFormatStringError("enum const '%lld' is too big", value);
 				return false;
 			}
 #endif
@@ -162,27 +162,27 @@ EnumType::calcLayout ()
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
 
-			value = value ? 2 << sl::getHiBitIdx64 (value) : 1;
+			value = value ? 2 << sl::getHiBitIdx64(value) : 1;
 		}
 	}
 	else
 	{
 		int64_t value = 0;
 
-		sl::Iterator <EnumConst> constIt = m_constList.getHead ();
+		sl::Iterator<EnumConst> constIt = m_constList.getHead();
 		for (; constIt; constIt++, value++)
 		{
-			if (!constIt->m_initializer.isEmpty ())
+			if (!constIt->m_initializer.isEmpty())
 			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression (constIt->m_initializer, &value);
+				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
 				if (!result)
 					return false;
 			}
 
 #if (JNC_PTR_SIZE == 4)
-			if (value > 0xffffffff && m_baseType->getSize () < 8)
+			if (value > 0xffffffff && m_baseType->getSize() < 8)
 			{
-				err::setFormatStringError ("enum const '%lld' is too big", value);
+				err::setFormatStringError("enum const '%lld' is too big", value);
 				return false;
 			}
 #endif
@@ -192,50 +192,50 @@ EnumType::calcLayout ()
 		}
 	}
 
-	m_module->m_namespaceMgr.closeNamespace ();
+	m_module->m_namespaceMgr.closeNamespace();
 
 	return true;
 }
 
 bool
-EnumType::generateDocumentation (
+EnumType::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock ();
+	DoxyBlock* doxyBlock = getDoxyBlock();
 
 	sl::String memberXml;
-	bool result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, false);
+	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, false);
 	if (!result)
 		return false;
 
-	itemXml->format (
+	itemXml->format(
 		"<memberdef kind='enum' id='%s'"
 		">\n<name>%s</name>\n",
-		doxyBlock->getRefId ().sz (),
-		m_name.sz ()
+		doxyBlock->getRefId().sz(),
+		m_name.sz()
 		);
 
 	uint_t flags = m_flags;
-	if (m_name.isEmpty ())
+	if (m_name.isEmpty())
 		flags &= ~EnumTypeFlag_Exposed; // unnamed enums imply 'exposed' anyway
 
-	sl::String modifierString = getEnumTypeFlagString (flags);
-	if (!modifierString.isEmpty ())
-		itemXml->appendFormat ("<modifiers>%s</modifiers>\n", modifierString.sz ());
+	sl::String modifierString = getEnumTypeFlagString(flags);
+	if (!modifierString.isEmpty())
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.sz ());
 
-	itemXml->append (memberXml);
+	itemXml->append(memberXml);
 
-	sl::String footnoteXml = doxyBlock->getFootnoteString ();
-	if (!footnoteXml.isEmpty ())
-		itemXml->append (footnoteXml);
+	sl::String footnoteXml = doxyBlock->getFootnoteString();
+	if (!footnoteXml.isEmpty())
+		itemXml->append(footnoteXml);
 
-	itemXml->append (doxyBlock->getImportString ());
-	itemXml->append (doxyBlock->getDescriptionString ());
-	itemXml->append (getDoxyLocationString ());
-	itemXml->append ("</memberdef>\n");
+	itemXml->append(doxyBlock->getImportString());
+	itemXml->append(doxyBlock->getDescriptionString());
+	itemXml->append(getDoxyLocationString());
+	itemXml->append("</memberdef>\n");
 
 	return true;
 }

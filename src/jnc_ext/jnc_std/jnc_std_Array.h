@@ -19,7 +19,7 @@ namespace std {
 
 class Array;
 
-JNC_DECLARE_CLASS_TYPE (Array)
+JNC_DECLARE_CLASS_TYPE(Array)
 
 //..............................................................................
 
@@ -33,26 +33,26 @@ public:
 public:
 	void
 	JNC_CDECL
-	clear ();
+	clear();
 
 	bool
 	JNC_CDECL
-	setCount (size_t count);
+	setCount(size_t count);
 
 	bool
 	JNC_CDECL
-	reserve (size_t count);
+	reserve(size_t count);
 
 	size_t
 	JNC_CDECL
-	copy (
+	copy(
 		DataPtr ptr,
 		size_t count
 		);
 
 	size_t
 	JNC_CDECL
-	insert (
+	insert(
 		size_t index,
 			DataPtr ptr,
 		size_t count
@@ -60,7 +60,7 @@ public:
 
 	size_t
 	JNC_CDECL
-	remove (
+	remove(
 		size_t index,
 		size_t count
 		);

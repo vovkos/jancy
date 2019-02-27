@@ -19,7 +19,7 @@ namespace io {
 
 class UsbInterface;
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (UsbEndpoint)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbEndpoint)
 
 //..............................................................................
 
@@ -51,7 +51,7 @@ class UsbEndpoint:
 	friend class IoThread;
 
 public:
-	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS (UsbEndpoint)
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbEndpoint)
 
 protected:
 	enum Def
@@ -64,13 +64,13 @@ protected:
 		Def_Options         = AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize,
 	};
 
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, UsbEndpoint, m_ioThread)->ioThreadFunc ();
+			containerof(this, UsbEndpoint, m_ioThread)->ioThreadFunc();
 		}
 	};
 
@@ -78,150 +78,150 @@ protected:
 	{
 		UsbEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
-		sl::Array <char> m_buffer;
+		sl::Array<char> m_buffer;
 		bool m_isCompletedOutOfOrder;
 	};
 
 protected:
 	IoThread m_ioThread;
 
-	mem::Pool <Transfer> m_transferPool;
-	sl::List <Transfer> m_activeTransferList;
-	sl::List <Transfer> m_completedTransferList;
-	sl::Array <char> m_writeBlock;
+	mem::Pool<Transfer> m_transferPool;
+	sl::List<Transfer> m_activeTransferList;
+	sl::List<Transfer> m_completedTransferList;
+	sl::Array<char> m_writeBlock;
 
 public:
-	UsbEndpoint ();
+	UsbEndpoint();
 
-	~UsbEndpoint ()
+	~UsbEndpoint()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	{
-		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
-	}
-
-	bool
-	open ();
-
-	void
-	JNC_CDECL
-	close ();
-
-	void
-	JNC_CDECL
-	setTransferTimeout (uint_t timeout)
-	{
-		AsyncIoDevice::setSetting (&m_transferTimeout, timeout ? timeout : Def_TransferTimeout);
-	}
-
-	void
-	JNC_CDECL
-	setReadParallelism (uint_t count)
-	{
-		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	bool
+	open();
+
+	void
 	JNC_CDECL
-	setReadBufferSize (size_t size)
+	close();
+
+	void
+	JNC_CDECL
+	setTransferTimeout(uint_t timeout)
 	{
-		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		AsyncIoDevice::setSetting(&m_transferTimeout, timeout ? timeout : Def_TransferTimeout);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize (size_t size)
+	setReadParallelism(uint_t count)
 	{
-		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize (size_t size)
+	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	void
 	JNC_CDECL
-	setOptions (uint_t options)
+	setReadBlockSize(size_t size)
 	{
-		AsyncIoDevice::setSetting (&m_options, options);
+		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
+	}
+
+	bool
+	JNC_CDECL
+	setWriteBufferSize(size_t size)
+	{
+		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+	}
+
+	void
+	JNC_CDECL
+	setOptions(uint_t options)
+	{
+		AsyncIoDevice::setSetting(&m_options, options);
 	}
 
 	size_t
 	JNC_CDECL
-	read (
+	read(
 		DataPtr ptr,
 		size_t size
 		);
 
 	size_t
 	JNC_CDECL
-	write (
+	write(
 		DataPtr ptr,
 		size_t size
 		);
 
 	handle_t
 	JNC_CDECL
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		)
 	{
-		return AsyncIoDevice::wait (eventMask, handlerPtr);
+		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle)
+	cancelWait(handle_t handle)
 	{
-		return AsyncIoDevice::cancelWait (handle);
+		return AsyncIoDevice::cancelWait(handle);
 	}
 
 	uint_t
 	JNC_CDECL
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		)
 	{
-		return AsyncIoDevice::blockingWait (eventMask, timeout);
+		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 protected:
 	bool
-	isInEndpoint ()
+	isInEndpoint()
 	{
-		return (((UsbEndpointDesc*) m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
+		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) != 0;
 	}
 
 	bool
-	isOutEndpoint ()
+	isOutEndpoint()
 	{
-		return (((UsbEndpointDesc*) m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
+		return (((UsbEndpointDesc*)m_endpointDescPtr.m_p)->m_endpointId & LIBUSB_ENDPOINT_IN) == 0;
 	}
 
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 
 	void
-	cancelAllActiveTransfers ();
+	cancelAllActiveTransfers();
 
 	void
-	readLoop ();
+	readLoop();
 
 	void
-	writeLoop ();
+	writeLoop();
 
 	bool
-	submitTransfer (
+	submitTransfer(
 		Transfer* transfer,
 		void* p,
 		size_t size,
@@ -231,7 +231,7 @@ protected:
 	static
 	void
 	LIBUSB_CALL
-	onTransferCompleted (libusb_transfer* transfer);
+	onTransferCompleted(libusb_transfer* transfer);
 };
 
 //..............................................................................

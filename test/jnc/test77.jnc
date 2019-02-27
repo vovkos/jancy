@@ -17,12 +17,12 @@ class TcpConnectionSession
 	io.Socket m_socket;
 	io.SocketAddress m_remoteAddress;
 
-	void foo (io.SocketAddress const* remoteAddress);
+	void foo(io.SocketAddress const* remoteAddress);
 }
 
-void TcpConnectionSession.foo (io.SocketAddress const* remoteAddress)
+void TcpConnectionSession.foo(io.SocketAddress const* remoteAddress)
 {
-	printf ("foo - 1\n");
+	printf("foo - 1\n");
 
 	{
 	io.SocketAddress localAddress;
@@ -31,35 +31,35 @@ void TcpConnectionSession.foo (io.SocketAddress const* remoteAddress)
 		int const* f;
 		localAddress.m_family = remoteAddress.m_family;
 
-		printf ("foo - 2\n");
+		printf("foo - 2\n");
 
-		m_socket.open (io.Protocol.Tcp, &localAddress);
+		m_socket.open(io.Protocol.Tcp, &localAddress);
 
-		printf ("foo - 3\n");
+		printf("foo - 3\n");
 	}
 
 	m_remoteAddress = *remoteAddress;
 
-	printf ("foo - 4\n");
+	printf("foo - 4\n");
 
-	char const* xxx = m_remoteAddress.getString ();
+	char const* xxx = m_remoteAddress.getString();
 	localAddress = m_socket.m_address;
 	}
 
-	printf ("foo - 5\n");
+	printf("foo - 5\n");
 	new int;
-	printf ("foo - 6\n");
+	printf("foo - 6\n");
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
 	io.SocketAddress remoteAddress;
 	remoteAddress.m_family = io.AddressFamily.Ip4;
 
 	TcpConnectionSession session;
-	session.foo (&remoteAddress);
+	session.foo(&remoteAddress);
 
 	return 0;
 }

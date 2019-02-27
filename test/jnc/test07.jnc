@@ -21,12 +21,12 @@ struct Line
 	Point m_b;
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	char const* p = std.format ("offset = %d\n", offsetof (Line.m_b.m_y));
-	printf ("s = %s\n", p);
+	char const* p = std.format("offset = %d\n", offsetof (Line.m_b.m_y));
+	printf("s = %s\n", p);
 
 	return 0;
 }

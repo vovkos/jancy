@@ -9,7 +9,7 @@
 #
 #...............................................................................
 
-set (
+set(
 	AXL_PATH_LIST
 
 	LLVM_INC_DIR
@@ -36,7 +36,7 @@ set (
 	PDFLATEX_EXE
 	)
 
-set (
+set(
 	AXL_IMPORT_LIST
 
 	REQUIRED
@@ -59,11 +59,11 @@ set (
 		latex
 	)
 
-if (UNIX AND NOT APPLE)
-	set (AXL_IMPORT_LIST ${AXL_IMPORT_LIST} OPTIONAL libudev)
-endif ()
+if(UNIX AND NOT APPLE)
+	set(AXL_IMPORT_LIST ${AXL_IMPORT_LIST} OPTIONAL libudev)
+endif()
 
-set (
+set(
 	AXL_IMPORT_DIR_LIST
 
 	${CMAKE_CURRENT_LIST_DIR}/cmake

@@ -53,153 +53,153 @@ class Namespace: public ModuleItemDecl
 protected:
 	NamespaceKind m_namespaceKind;
 
-	sl::Array <ModuleItem*> m_itemArray;
-	sl::StringHashTable <ModuleItem*> m_itemMap;
-	sl::StringHashTable <bool> m_friendSet;
-	sl::StringHashTable <DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
+	sl::Array<ModuleItem*> m_itemArray;
+	sl::StringHashTable<ModuleItem*> m_itemMap;
+	sl::StringHashTable<bool> m_friendSet;
+	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
 	UsingSet m_usingSet;
 
 public:
-	Namespace ()
+	Namespace()
 	{
 		m_namespaceKind = NamespaceKind_Undefined;
 	}
 
 	NamespaceKind
-	getNamespaceKind ()
+	getNamespaceKind()
 	{
 		return m_namespaceKind;
 	}
 
 	UsingSet*
-	getUsingSet ()
+	getUsingSet()
 	{
 		return &m_usingSet;
 	}
 
 	sl::String
-	createQualifiedName (const sl::StringRef& name);
+	createQualifiedName(const sl::StringRef& name);
 
 	sl::String
-	createQualifiedName (const QualifiedName& name)
+	createQualifiedName(const QualifiedName& name)
 	{
-		return createQualifiedName (name.getFullName ());
+		return createQualifiedName(name.getFullName());
 	}
 
 	bool
-	isFriend (Namespace* nspace)
+	isFriend(Namespace* nspace)
 	{
-		return m_friendSet.find (nspace->m_qualifiedName) != NULL;
+		return m_friendSet.find(nspace->m_qualifiedName) != NULL;
 	}
 
 	ModuleItem*
-	findItemByName (const sl::StringRef& name);
+	findItemByName(const sl::StringRef& name);
 
 	ModuleItem*
-	getItemByName (const sl::StringRef& name);
+	getItemByName(const sl::StringRef& name);
 
 	Type*
-	findTypeByName (const sl::StringRef& name)
+	findTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsType (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsType(item, name) : NULL;
 	}
 
 	Type*
-	getTypeByName (const sl::StringRef& name)
+	getTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsType (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsType(item, name) : NULL;
 	}
 
 	DerivableType*
-	findDerivableTypeByName (const sl::StringRef& name)
+	findDerivableTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsDerivableType(item, name) : NULL;
 	}
 
 	DerivableType*
-	getDerivableTypeByName (const sl::StringRef& name)
+	getDerivableTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsDerivableType (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsDerivableType(item, name) : NULL;
 	}
 
 	ClassType*
-	findClassTypeByName (const sl::StringRef& name)
+	findClassTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsClassType (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsClassType(item, name) : NULL;
 	}
 
 	ClassType*
-	getClassTypeByName (const sl::StringRef& name)
+	getClassTypeByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsClassType (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsClassType(item, name) : NULL;
 	}
 
 	Variable*
-	findVariableByName (const sl::StringRef& name)
+	findVariableByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsVariable (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsVariable(item, name) : NULL;
 	}
 
 	Variable*
-	getVariableByName (const sl::StringRef& name)
+	getVariableByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsVariable (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsVariable(item, name) : NULL;
 	}
 
 	Function*
-	findFunctionByName (const sl::StringRef& name)
+	findFunctionByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsFunction (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsFunction(item, name) : NULL;
 	}
 
 	Function*
-	getFunctionByName (const sl::StringRef& name)
+	getFunctionByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsFunction (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsFunction(item, name) : NULL;
 	}
 
 	Property*
-	findPropertyByName (const sl::StringRef& name)
+	findPropertyByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = findItemByName (name);
-		return item ? verifyModuleItemIsProperty (item, name) : NULL;
+		ModuleItem* item = findItemByName(name);
+		return item ? verifyModuleItemIsProperty(item, name) : NULL;
 	}
 
 	Property*
-	getPropertyByName (const sl::StringRef& name)
+	getPropertyByName(const sl::StringRef& name)
 	{
-		ModuleItem* item = getItemByName (name);
-		return item ? verifyModuleItemIsProperty (item, name) : NULL;
+		ModuleItem* item = getItemByName(name);
+		return item ? verifyModuleItemIsProperty(item, name) : NULL;
 	}
 
 	ModuleItem*
-	findItem (const sl::StringRef& name);
+	findItem(const sl::StringRef& name);
 
 	ModuleItem*
-	findItem (const QualifiedName& name);
+	findItem(const QualifiedName& name);
 
 	ModuleItem*
-	findItemTraverse (
+	findItemTraverse(
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		)
 	{
-		return findItemTraverseImpl (name, coord, flags);
+		return findItemTraverseImpl(name, coord, flags);
 	}
 
 	ModuleItem*
-	findItemTraverse (
+	findItemTraverse(
 		const QualifiedName& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
@@ -207,65 +207,65 @@ public:
 
 	template <typename T>
 	bool
-	addItem (T* item)
+	addItem(T* item)
 	{
-		return addItem (item->m_name, item);
+		return addItem(item->m_name, item);
 	}
 
 	void
-	replaceItem (
+	replaceItem(
 		const sl::StringRef& name,
 		ModuleItem* item
 		)
 	{
-		m_itemMap.visit (name)->m_value = item;
+		m_itemMap.visit(name)->m_value = item;
 	}
 
 	size_t
-	addFunction (Function* function); // returns overload idx or -1 on error
+	addFunction(Function* function); // returns overload idx or -1 on error
 
 	Const*
-	createConst (
+	createConst(
 		const sl::StringRef& name,
 		const Value& value
 		);
 
 	size_t
-	getItemCount ()
+	getItemCount()
 	{
-		return m_itemArray.getCount ();
+		return m_itemArray.getCount();
 	}
 
 	ModuleItem*
-	getItem (size_t index)
+	getItem(size_t index)
 	{
-		ASSERT (index < m_itemArray.getCount ());
-		return m_itemArray [index];
+		ASSERT(index < m_itemArray.getCount());
+		return m_itemArray[index];
 	}
 
 	bool
-	exposeEnumConsts (EnumType* member);
+	exposeEnumConsts(EnumType* member);
 
 protected:
 	void
-	clear ();
+	clear();
 
 	bool
-	addItem (
+	addItem(
 		const sl::StringRef& name,
 		ModuleItem* item
 		);
 
 	virtual
 	ModuleItem*
-	findItemTraverseImpl (
+	findItemTraverseImpl(
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		);
 
 	bool
-	generateMemberDocumentation (
+	generateMemberDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml,
@@ -282,7 +282,7 @@ class GlobalNamespace:
 	friend class NamespaceMgr;
 
 public:
-	GlobalNamespace ()
+	GlobalNamespace()
 	{
 		m_itemKind = ModuleItemKind_Namespace;
 		m_namespaceKind = NamespaceKind_Global;
@@ -290,11 +290,11 @@ public:
 
 	virtual
 	sl::String
-	createDoxyRefId ();
+	createDoxyRefId();
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -309,37 +309,37 @@ class ExtensionNamespace: public GlobalNamespace
 
 protected:
 	Type* m_type;
-	sl::Array <Function*> m_fixupMethodArray;
-	sl::Array <Property*> m_fixupPropertyArray;
+	sl::Array<Function*> m_fixupMethodArray;
+	sl::Array<Property*> m_fixupPropertyArray;
 
 public:
-	ExtensionNamespace ()
+	ExtensionNamespace()
 	{
 		m_namespaceKind = NamespaceKind_Extension;
 		m_type = NULL;
 	}
 
-	Type* getType ()
+	Type* getType()
 	{
 		return m_type;
 	}
 
 	bool
-	addMethod (Function* function);
+	addMethod(Function* function);
 
 	bool
-	addProperty (Property* prop);
+	addProperty(Property* prop);
 
 protected:
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 
 	void
-	fixupMethod (Function* function);
+	fixupMethod(Function* function);
 
 	void
-	fixupProperty (Property* prop);
+	fixupProperty(Property* prop);
 };
 
 //..............................................................................
@@ -352,13 +352,13 @@ protected:
 	ClassType* m_dynamicLibType;
 
 public:
-	DynamicLibNamespace ()
+	DynamicLibNamespace()
 	{
 		m_namespaceKind = NamespaceKind_DynamicLib;
 		m_dynamicLibType = NULL;
 	}
 
-	ClassType* getLibraryType ()
+	ClassType* getLibraryType()
 	{
 		return m_dynamicLibType;
 	}
@@ -368,9 +368,9 @@ public:
 
 JNC_INLINE
 err::Error
-setRedefinitionError (const sl::StringRef& name)
+setRedefinitionError(const sl::StringRef& name)
 {
-	return err::setFormatStringError ("redefinition of '%s'", name.sz ());
+	return err::setFormatStringError("redefinition of '%s'", name.sz ());
 }
 
 //..............................................................................

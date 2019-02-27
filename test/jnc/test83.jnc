@@ -1,40 +1,40 @@
 import "io_usb.jncx"
 
-onUsbEndpointEvent (
+onUsbEndpointEvent(
 	io.UsbEndpoint* endpoint,
 	io.UsbEndpointEvents triggeredEvents
 	)
 {
 	while (endpoint.m_activeEvents & io.UsbEndpointEvents.IncomingData)
 	{
-		static char buffer [1024];
-		size_t size = endpoint.read (buffer, sizeof (buffer));
-		printf ("  %d bytes read from the endpoint\n", size);
+		static char buffer[1024];
+		size_t size = endpoint.read(buffer, sizeof(buffer));
+		printf("  %d bytes read from the endpoint\n", size);
 	}
 
-	endpoint.wait (io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
+	endpoint.wait(io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
 }
 
-int main ()
+int main()
 {
-	printf ("Opening USB mouse...\n");
-	io.UsbDevice* device = io.openUsbDevice (0x046d, 0xc246);
+	printf("Opening USB mouse...\n");
+	io.UsbDevice* device = io.openUsbDevice(0x046d, 0xc246);
 	device.m_isAutoDetachKernelDriverEnabled = true;
 
-	printf ("Claiming interface #0...\n");
-	io.UsbInterface* iface = device.claimInterface (0);
+	printf("Claiming interface #0...\n");
+	io.UsbInterface* iface = device.claimInterface(0);
 
-	printf ("Opening IN endpoint #81...\n");
-	io.UsbEndpoint* endpoint = iface.openEndpoint (0x81);
-	endpoint.wait (io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
+	printf("Opening IN endpoint #81...\n");
+	io.UsbEndpoint* endpoint = iface.openEndpoint(0x81);
+	endpoint.wait(io.UsbEndpointEvents.IncomingData, onUsbEndpointEvent ~(endpoint));
 
-	printf ("Closing endpoint...\n");
-	endpoint.close ();
+	printf("Closing endpoint...\n");
+	endpoint.close();
 
-	printf ("Done.\n");
+	printf("Done.\n");
 	return 0;
 
 catch:
-	printf ($"Error: $!\n");
+	printf($"Error: $!\n");
 	return -1;
 }

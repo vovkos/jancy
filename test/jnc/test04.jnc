@@ -13,7 +13,7 @@
 
 //..............................................................................
 
-char g_a [Color.Count];
+char g_a[Color.Count];
 
 enum Color
 {
@@ -23,9 +23,9 @@ enum Color
 	Count
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 	return 0;
 }
 

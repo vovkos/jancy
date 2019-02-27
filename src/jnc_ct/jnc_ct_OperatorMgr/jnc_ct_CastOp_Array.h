@@ -23,21 +23,21 @@ namespace ct {
 class Cast_Array: public CastOperator
 {
 public:
-	Cast_Array ()
+	Cast_Array()
 	{
 		m_opFlags = OpFlag_LoadArrayRef;
 	}
 
 	virtual
 	CastKind
-	getCastKind (
+	getCastKind(
 		const Value& opValue,
 		Type* type
 		);
 
 	virtual
 	bool
-	constCast (
+	constCast(
 		const Value& opValue,
 		Type* type,
 		void* dst
@@ -45,7 +45,7 @@ public:
 
 	virtual
 	bool
-	llvmCast (
+	llvmCast(
 		const Value& opValue,
 		Type* type,
 		Value* resultValue

@@ -53,7 +53,7 @@ protected:
 
 	DerivableType* m_parentType;
 	size_t m_parentClassVTableIndex;
-	sl::Array <Function*> m_vtable;
+	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
 
 	ExtensionNamespace* m_extensionNamespace;
@@ -61,119 +61,119 @@ protected:
 	PropertyVerifier m_verifier;
 
 public:
-	Property ();
+	Property();
 
 	PropertyKind
-	getPropertyKind ()
+	getPropertyKind()
 	{
 		return m_propertyKind;
 	}
 
 	PropertyType*
-	getType ()
+	getType()
 	{
 		return m_type;
 	}
 
 	Function*
-	getGetter ()
+	getGetter()
 	{
 		return m_getter;
 	}
 
 	Function*
-	getSetter ()
+	getSetter()
 	{
 		return m_setter;
 	}
 
 	Function*
-	getBinder ()
+	getBinder()
 	{
 		return m_binder;
 	}
 
 	ModuleItem*
-	getOnChanged ()
+	getOnChanged()
 	{
 		return m_onChanged;
 	}
 
 	bool
-	setOnChanged (
+	setOnChanged(
 		ModuleItem* item,
 		bool isForced = false
 		);
 
 	bool
-	createOnChanged ();
+	createOnChanged();
 
 	ModuleItem*
-	getAutoGetValue ()
+	getAutoGetValue()
 	{
 		return m_autoGetValue;
 	}
 
 	bool
-	setAutoGetValue (
+	setAutoGetValue(
 		ModuleItem* item,
 		bool isForced = false
 		); // struct-field or variable
 
 	bool
-	createAutoGetValue (Type* type);
+	createAutoGetValue(Type* type);
 
 	DerivableType*
-	getParentType ()
+	getParentType()
 	{
 		return m_parentType;
 	}
 
 	bool
-	isMember ()
+	isMember()
 	{
 		return m_storageKind >= StorageKind_Member && m_storageKind <= StorageKind_Override;
 	}
 
 	bool
-	isVirtual ()
+	isVirtual()
 	{
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
 	}
 
 	size_t
-	getParentClassVTableIndex ()
+	getParentClassVTableIndex()
 	{
 		return m_parentClassVTableIndex;
 	}
 
 	bool
-	create (PropertyType* type);
+	create(PropertyType* type);
 
 	PropertyType*
-	createType ();
+	createType();
 
 	virtual
 	bool
-	addMethod (Function* function);
+	addMethod(Function* function);
 
 	virtual
 	bool
-	addProperty (Property* prop);
+	addProperty(Property* prop);
 
 	Variable*
-	getVTableVariable ()
+	getVTableVariable()
 	{
 		return m_vtableVariable;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 	virtual
 	bool
-	generateDocumentation (
+	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
@@ -182,33 +182,33 @@ public:
 protected:
 	virtual
 	StructField*
-	createFieldImpl (
+	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		);
 
 	virtual
 	bool
-	calcLayout ();
+	calcLayout();
 
 	void
-	createVTableVariable ();
+	createVTableVariable();
 
 	Value
-	getAutoAccessorPropertyValue ();
+	getAutoAccessorPropertyValue();
 
 	bool
-	compileAutoGetter ();
+	compileAutoGetter();
 
 	bool
-	compileAutoSetter ();
+	compileAutoSetter();
 
 	bool
-	compileBinder ();
+	compileBinder();
 };
 
 //..............................................................................

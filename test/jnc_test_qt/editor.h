@@ -28,29 +28,29 @@ public:
 
 	int posFromLine(int line);
 
-	void appendString (const QString &string)
+	void appendString(const QString &string)
 	{
-		moveCursor (QTextCursor::End);
-		insertPlainText (string);
+		moveCursor(QTextCursor::End);
+		insertPlainText(string);
 	}
 
-	void appendText (const sl::StringRef& text)
+	void appendText(const sl::StringRef& text)
 	{
-		appendString (QString::fromUtf8 (text.cp (), text.getLength ()));
+		appendString(QString::fromUtf8(text.cp(), text.getLength()));
 	}
 
-	void appendFormat_va (const char* format, va_list va)
+	void appendFormat_va(const char* format, va_list va)
 	{
 		QString string;
-		string.vsprintf (format, va);
-		appendString (string);
+		string.vsprintf(format, va);
+		appendString(string);
 	}
 
-	void appendFormat (const char* format, ...)
+	void appendFormat(const char* format, ...)
 	{
 		va_list va;
-		va_start (va, format);
-		appendFormat_va (format, va);
+		va_start(va, format);
+		appendFormat_va(format, va);
 	}
 };
 

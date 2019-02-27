@@ -11,7 +11,7 @@
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-int main ()
+int main()
 {
 //	printf ("main ()\n");
 
@@ -19,7 +19,7 @@ int main ()
 	void const* end = p + 4;
 
 	int x = end - p;
-	printf ("x = %d\n", x);
+	printf("x = %d\n", x);
 
 	return 0;
 }

@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy function.
 
-	Use functions from the :ref:`Function <cid-function>` to access and manage the contents of this structure.
+	Use functions from the :ref:`Function<cid-function>` to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -68,7 +68,7 @@ typedef enum jnc_FunctionKind jnc_FunctionKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getFunctionKindString (jnc_FunctionKind functionKind);
+jnc_getFunctionKindString(jnc_FunctionKind functionKind);
 
 //..............................................................................
 
@@ -85,36 +85,36 @@ typedef enum jnc_FunctionKindFlag jnc_FunctionKindFlag;
 
 JNC_EXTERN_C
 uint_t
-jnc_getFunctionKindFlags (jnc_FunctionKind functionKind);
+jnc_getFunctionKindFlags(jnc_FunctionKind functionKind);
 
 //..............................................................................
 
 JNC_EXTERN_C
 jnc_FunctionKind
-jnc_Function_getFunctionKind (jnc_Function* function);
+jnc_Function_getFunctionKind(jnc_Function* function);
 
 JNC_INLINE
 jnc_FunctionType*
-jnc_Function_getType (jnc_Function* function)
+jnc_Function_getType(jnc_Function* function)
 {
-	return (jnc_FunctionType*) jnc_ModuleItem_getType ((jnc_ModuleItem*) function);
+	return (jnc_FunctionType*)jnc_ModuleItem_getType((jnc_ModuleItem*)function);
 }
 
 JNC_EXTERN_C
 bool_t
-jnc_Function_isMember (jnc_Function* function);
+jnc_Function_isMember(jnc_Function* function);
 
 JNC_EXTERN_C
 bool_t
-jnc_Function_isOverloaded (jnc_Function* function);
+jnc_Function_isOverloaded(jnc_Function* function);
 
 JNC_EXTERN_C
 size_t
-jnc_Function_getOverloadCount (jnc_Function* function);
+jnc_Function_getOverloadCount(jnc_Function* function);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_Function_getOverload (
+jnc_Function_getOverload(
 	jnc_Function* function,
 	size_t index
 	);
@@ -122,7 +122,7 @@ jnc_Function_getOverload (
 
 JNC_EXTERN_C
 void*
-jnc_Function_getMachineCode (jnc_Function* function);
+jnc_Function_getMachineCode(jnc_Function* function);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -131,45 +131,45 @@ jnc_Function_getMachineCode (jnc_Function* function);
 struct jnc_Function: jnc_ModuleItem
 {
 	jnc_FunctionKind
-	getFunctionKind ()
+	getFunctionKind()
 	{
-		return jnc_Function_getFunctionKind (this);
+		return jnc_Function_getFunctionKind(this);
 	}
 
 	jnc_FunctionType*
-	getType ()
+	getType()
 	{
-		return jnc_Function_getType (this);
+		return jnc_Function_getType(this);
 	}
 
 	bool
-	isMember ()
+	isMember()
 	{
-		return jnc_Function_isMember (this) != 0;
+		return jnc_Function_isMember(this) != 0;
 	}
 
 	bool
-	isOverloaded ()
+	isOverloaded()
 	{
-		return jnc_Function_isOverloaded (this) != 0;
+		return jnc_Function_isOverloaded(this) != 0;
 	}
 
 	size_t
-	getOverloadCount ()
+	getOverloadCount()
 	{
-		return jnc_Function_getOverloadCount (this);
+		return jnc_Function_getOverloadCount(this);
 	}
 
 	jnc_Function*
-	getOverload (size_t index)
+	getOverload(size_t index)
 	{
-		return jnc_Function_getOverload (this, index);
+		return jnc_Function_getOverload(this, index);
 	}
 
 	void*
-	getMachineCode ()
+	getMachineCode()
 	{
-		return jnc_Function_getMachineCode (this);
+		return jnc_Function_getMachineCode(this);
 	}
 };
 
@@ -212,9 +212,9 @@ const FunctionKind
 
 inline
 const char*
-getFunctionKindString (FunctionKind functionKind)
+getFunctionKindString(FunctionKind functionKind)
 {
-	return jnc_getFunctionKindString (functionKind);
+	return jnc_getFunctionKindString(functionKind);
 }
 
 //..............................................................................
@@ -230,9 +230,9 @@ const FunctionKindFlag
 
 inline
 uint_t
-getFunctionKindFlags (FunctionKind functionKind)
+getFunctionKindFlags(FunctionKind functionKind)
 {
-	return jnc_getFunctionKindFlags (functionKind);
+	return jnc_getFunctionKindFlags(functionKind);
 }
 
 //..............................................................................

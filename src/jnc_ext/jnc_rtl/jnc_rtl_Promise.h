@@ -16,8 +16,8 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (Promise)
-JNC_DECLARE_CLASS_TYPE (Promisifier)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(Promise)
+JNC_DECLARE_CLASS_TYPE(Promisifier)
 
 //..............................................................................
 
@@ -60,54 +60,54 @@ public:
 protected:
 	sys::Lock m_lock;
 
-	sl::AuxList <SyncWait> m_syncWaitList;
-	sl::List <AsyncWait> m_asyncWaitList;
-	sl::HandleTable <AsyncWait*> m_asyncWaitMap;
+	sl::AuxList<SyncWait> m_syncWaitList;
+	sl::List<AsyncWait> m_asyncWaitList;
+	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
 
 public:
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (GcHeap* gcHeap);
+	markOpaqueGcRoots(GcHeap* gcHeap);
 
 	uintptr_t
 	JNC_CDECL
-	wait_0 (FunctionPtr handlerPtr);
+	wait_0(FunctionPtr handlerPtr);
 
 	uintptr_t
 	JNC_CDECL
-	wait_1 (FunctionPtr handlerPtr);
+	wait_1(FunctionPtr handlerPtr);
 
 	uintptr_t
 	JNC_CDECL
-	wait_2 (FunctionPtr handlerPtr);
+	wait_2(FunctionPtr handlerPtr);
 
 	bool
 	JNC_CDECL
-	cancelWait (uintptr_t handle);
+	cancelWait(uintptr_t handle);
 
 	static
 	Variant
-	blockingWait (Promise* self)
+	blockingWait(Promise* self)
 	{
-		return self->blockingWaitImpl ();
+		return self->blockingWaitImpl();
 	}
 
 	Promise*
 	JNC_CDECL
-	asyncWait ()
+	asyncWait()
 	{
 		return this;
 	}
 
 protected:
 	uintptr_t
-	addAsyncWait_l (
+	addAsyncWait_l(
 		AsyncWaitKind waitKind,
 		FunctionPtr handlerPtr
 		);
 
 	Variant
-	blockingWaitImpl ();
+	blockingWaitImpl();
 };
 
 //..............................................................................
@@ -117,28 +117,28 @@ class Promisifier: public Promise
 public:
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (GcHeap* gcHeap)
+	markOpaqueGcRoots(GcHeap* gcHeap)
 	{
-		Promise::markOpaqueGcRoots (gcHeap);
+		Promise::markOpaqueGcRoots(gcHeap);
 	}
 
 	void
 	JNC_CDECL
-	complete_0 ()
+	complete_0()
 	{
-		complete_2 (g_nullVariant, g_nullPtr);
+		complete_2(g_nullVariant, g_nullPtr);
 	}
 
 	void
 	JNC_CDECL
-	complete_1 (DataPtr errorPtr)
+	complete_1(DataPtr errorPtr)
 	{
-		complete_2 (g_nullVariant, errorPtr);
+		complete_2(g_nullVariant, errorPtr);
 	}
 
 	void
 	JNC_CDECL
-	complete_2 (
+	complete_2(
 		Variant result,
 		DataPtr errorPtr
 		);

@@ -21,103 +21,103 @@
 jnc_DataPtr g_propValue = { 0 };
 
 void
-foo_0 (int x)
+foo_0(int x)
 {
-	printf ("  foo_0 (%d)\n", x);
+	printf("  foo_0 (%d)\n", x);
 }
 
 void
-foo_1 (double x)
+foo_1(double x)
 {
-	printf ("  foo_1 (%f)\n", x);
+	printf("  foo_1 (%f)\n", x);
 }
 
 void
-foo_2 (jnc_DataPtr ptr)
+foo_2(jnc_DataPtr ptr)
 {
-	printf ("  foo_2 (%s)\n", ptr.m_p);
+	printf("  foo_2 (%s)\n", ptr.m_p);
 }
 
 static int g_simplePropValue = 0;
 
 int
-getSimpleProp ()
+getSimpleProp()
 {
-	printf ("  getSimpleProp () => %d\n", g_simplePropValue);
+	printf("  getSimpleProp () => %d\n", g_simplePropValue);
 	return g_simplePropValue;
 }
 
 void
-setSimpleProp (int x)
+setSimpleProp(int x)
 {
-	printf ("  setSimpleProp (%d)\n", x);
+	printf("  setSimpleProp (%d)\n", x);
 	g_simplePropValue = x;
 }
 
 jnc_DataPtr
-getProp ()
+getProp()
 {
-	printf ("  getProp () => %s\n", g_propValue.m_p);
+	printf("  getProp () => %s\n", g_propValue.m_p);
 	return g_propValue;
 }
 
 void
-setProp_0 (int x)
+setProp_0(int x)
 {
-	char buffer [32];
+	char buffer[32];
 	size_t length;
 
-	printf ("  setProp_0 (%d)\n", x);
+	printf("  setProp_0 (%d)\n", x);
 
-	length = sprintf (buffer, "%d", x);
-	g_propValue = jnc_strDup (buffer, length);
+	length = sprintf(buffer, "%d", x);
+	g_propValue = jnc_strDup(buffer, length);
 }
 
 void
-setProp_1 (double x)
+setProp_1(double x)
 {
-	char buffer [32];
+	char buffer[32];
 	size_t length;
 
-	printf ("  setProp_1 (%f)\n", x);
+	printf("  setProp_1 (%f)\n", x);
 
-	length = sprintf (buffer, "%f", x);
-	g_propValue = jnc_strDup (buffer, length);
+	length = sprintf(buffer, "%f", x);
+	g_propValue = jnc_strDup(buffer, length);
 }
 
 void
-setProp_2 (jnc_DataPtr ptr)
+setProp_2(jnc_DataPtr ptr)
 {
-	printf ("  setProp_2 (%s)\n", ptr.m_p);
+	printf("  setProp_2 (%s)\n", ptr.m_p);
 	g_propValue = ptr;
 }
 
 //..............................................................................
 
-JNC_DEFINE_LIB (
+JNC_DEFINE_LIB(
 	MyLib,
 	g_myLibGuid,
 	"MyLib",
 	"Sample extension library"
 	)
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE (MyLib)
-JNC_END_LIB_SOURCE_FILE_TABLE ()
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(MyLib)
+JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE (MyLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY (TestClass)
-JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE ()
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(MyLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(TestClass)
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
-JNC_BEGIN_LIB_FUNCTION_MAP (MyLib)
-	JNC_MAP_FUNCTION ("foo",    &foo_0)
-	JNC_MAP_OVERLOAD (&foo_1)
-	JNC_MAP_OVERLOAD (&foo_2)
-	JNC_MAP_PROPERTY ("g_simpleProp",  &getSimpleProp, &setSimpleProp)
-	JNC_MAP_PROPERTY ("g_prop",  &getProp, &setProp_0)
-	JNC_MAP_OVERLOAD (&setProp_1)
-	JNC_MAP_OVERLOAD (&setProp_2)
-	JNC_MAP_TYPE (TestStruct)
-	JNC_MAP_TYPE (TestClass)
-JNC_END_LIB_FUNCTION_MAP ()
+JNC_BEGIN_LIB_FUNCTION_MAP(MyLib)
+	JNC_MAP_FUNCTION("foo",    &foo_0)
+	JNC_MAP_OVERLOAD(&foo_1)
+	JNC_MAP_OVERLOAD(&foo_2)
+	JNC_MAP_PROPERTY("g_simpleProp",  &getSimpleProp, &setSimpleProp)
+	JNC_MAP_PROPERTY("g_prop",  &getProp, &setProp_0)
+	JNC_MAP_OVERLOAD(&setProp_1)
+	JNC_MAP_OVERLOAD(&setProp_2)
+	JNC_MAP_TYPE(TestStruct)
+	JNC_MAP_TYPE(TestClass)
+JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

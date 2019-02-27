@@ -28,20 +28,20 @@ class NamedTypeBlock
 protected:
 	ModuleItem* m_parent; // derivable type or property
 
-	sl::Array <Variable*> m_staticFieldArray;
-	sl::Array <StructField*> m_memberFieldArray;
-	sl::Array <Function*> m_memberMethodArray;
-	sl::Array <Property*> m_memberPropertyArray;
+	sl::Array<Variable*> m_staticFieldArray;
+	sl::Array<StructField*> m_memberFieldArray;
+	sl::Array<Function*> m_memberMethodArray;
+	sl::Array<Property*> m_memberPropertyArray;
 
-	sl::Array <StructField*> m_unnamedFieldArray;
-	sl::Array <StructField*> m_gcRootMemberFieldArray;
+	sl::Array<StructField*> m_unnamedFieldArray;
+	sl::Array<StructField*> m_gcRootMemberFieldArray;
 
-	sl::Array <Variable*> m_initializedStaticFieldArray;
-	sl::Array <StructField*> m_initializedMemberFieldArray;
+	sl::Array<Variable*> m_initializedStaticFieldArray;
+	sl::Array<StructField*> m_initializedMemberFieldArray;
 
-	sl::Array <StructField*> m_memberFieldConstructArray;
-	sl::Array <Property*> m_memberPropertyConstructArray;
-	sl::Array <Property*> m_memberPropertyDestructArray;
+	sl::Array<StructField*> m_memberFieldConstructArray;
+	sl::Array<Property*> m_memberPropertyConstructArray;
+	sl::Array<Property*> m_memberPropertyDestructArray;
 
 	Function* m_staticConstructor;
 	Function* m_staticDestructor;
@@ -50,125 +50,125 @@ protected:
 	Function* m_destructor;
 
 public:
-	NamedTypeBlock (ModuleItem* parent);
+	NamedTypeBlock(ModuleItem* parent);
 
-	sl::Array <Variable*>
-	getStaticFieldArray () const
+	sl::Array<Variable*>
+	getStaticFieldArray() const
 	{
 		return m_staticFieldArray;
 	}
 
-	sl::Array <StructField*>
-	getMemberFieldArray () const
+	sl::Array<StructField*>
+	getMemberFieldArray() const
 	{
 		return m_memberFieldArray;
 	}
 
-	sl::Array <Function*>
-	getMemberMethodArray () const
+	sl::Array<Function*>
+	getMemberMethodArray() const
 	{
 		return m_memberMethodArray;
 	}
 
-	sl::Array <Property*>
-	getMemberPropertyArray () const
+	sl::Array<Property*>
+	getMemberPropertyArray() const
 	{
 		return m_memberPropertyArray;
 	}
 
-	sl::Array <Variable*>
-	getInitializedStaticFieldArray () const
+	sl::Array<Variable*>
+	getInitializedStaticFieldArray() const
 	{
 		return m_initializedStaticFieldArray;
 	}
 
-	sl::Array <StructField*>
-	getInitializedMemberFieldArray () const
+	sl::Array<StructField*>
+	getInitializedMemberFieldArray() const
 	{
 		return m_initializedMemberFieldArray;
 	}
 
-	sl::Array <StructField*>
-	getUnnamedFieldArray () const
+	sl::Array<StructField*>
+	getUnnamedFieldArray() const
 	{
 		return m_unnamedFieldArray;
 	}
 
-	sl::Array <StructField*>
-	getGcRootMemberFieldArray () const
+	sl::Array<StructField*>
+	getGcRootMemberFieldArray() const
 	{
 		return m_gcRootMemberFieldArray;
 	}
 
 	Function*
-	getPreConstructor () const
+	getPreConstructor() const
 	{
 		return m_preconstructor;
 	}
 
 	Function*
-	getConstructor () const
+	getConstructor() const
 	{
 		return m_constructor;
 	}
 
 	Function*
-	getDestructor () const
+	getDestructor() const
 	{
 		return m_destructor;
 	}
 
 	Function*
-	getStaticConstructor () const
+	getStaticConstructor() const
 	{
 		return m_staticConstructor;
 	}
 
 	Function*
-	getStaticDestructor () const
+	getStaticDestructor() const
 	{
 		return m_staticDestructor;
 	}
 
 	StructField*
-	createField (
+	createField(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		)
 	{
-		return createFieldImpl (name, type, bitCount, ptrTypeFlags, constructor, initializer);
+		return createFieldImpl(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 	}
 
 	StructField*
-	createField (
+	createField(
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0
 		)
 	{
-		return createFieldImpl (sl::String (), type, bitCount, ptrTypeFlags);
+		return createFieldImpl(sl::String(), type, bitCount, ptrTypeFlags);
 	}
 
 	Function*
-	createMethod (
+	createMethod(
 		StorageKind storageKind,
 		const sl::StringRef& name,
 		FunctionType* shortType
 		);
 
 	Function*
-	createUnnamedMethod (
+	createUnnamedMethod(
 		StorageKind storageKind,
 		FunctionKind functionKind,
 		FunctionType* shortType
 		);
 
 	Property*
-	createProperty (
+	createProperty(
 		StorageKind storageKind,
 		const sl::StringRef& name,
 		PropertyType* shortType
@@ -176,43 +176,43 @@ public:
 
 	virtual
 	bool
-	addMethod (Function* function) = 0;
+	addMethod(Function* function) = 0;
 
 	virtual
 	bool
-	addProperty (Property* prop) = 0;
+	addProperty(Property* prop) = 0;
 
 	bool
-	initializeStaticFields ();
+	initializeStaticFields();
 
 	bool
-	initializeMemberFields (const Value& thisValue);
+	initializeMemberFields(const Value& thisValue);
 
 	bool
-	callMemberFieldConstructors (const Value& thisValue);
+	callMemberFieldConstructors(const Value& thisValue);
 
 	bool
-	callMemberPropertyConstructors (const Value& thisValue);
+	callMemberPropertyConstructors(const Value& thisValue);
 
 	bool
-	callMemberPropertyDestructors (const Value& thisValue);
+	callMemberPropertyDestructors(const Value& thisValue);
 
 protected:
 	Namespace*
-	getParentNamespaceImpl ();
+	getParentNamespaceImpl();
 
 	Unit*
-	getParentUnitImpl ();
+	getParentUnitImpl();
 
 	virtual
 	StructField*
-	createFieldImpl (
+	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
 		uint_t ptrTypeFlags = 0,
-		sl::BoxList <Token>* constructor = NULL,
-		sl::BoxList <Token>* initializer = NULL
+		sl::BoxList<Token>* constructor = NULL,
+		sl::BoxList<Token>* initializer = NULL
 		) = 0;
 };
 

@@ -21,12 +21,12 @@ struct TestStruct
 	char m_a7:1;
 }
 
-int main ()
+int main()
 {
 	TestStruct s;
 	s.m_a7 = 1;
 
-	printf ("s = 0x%02x\n", *(unsigned char*) &s);
+	printf("s = 0x%02x\n", *(unsigned char*) &s);
 
 	return 0;
 }

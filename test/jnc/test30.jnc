@@ -19,7 +19,7 @@ struct Point
 
 class OpaqueTest
 {
-/*	OpaqueTest* operator new (
+/*	OpaqueTest* operator new(
 		int x,
 		int y
 		); */
@@ -27,39 +27,39 @@ class OpaqueTest
 	int m_x;
 	int m_y;
 
-	construct (int x, int y)
+	construct(int x, int y)
 	{
 		m_x = x;
 		m_y = y;
 	}
 
-	foo ()
+	foo()
 	{
-		printf ("C1.foo () { m_x = %d, m_y = %d }\n", m_x, m_y);
+		printf("C1.foo () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}
 
-	Point thiscall bar (
+	Point thiscall bar(
 		int x,
 		int y
 		)
 	{
-		printf ("C1.bar (%d, %d) { m_x = %d, m_y = %d }\n", x, y, m_x, m_y);
+		printf("C1.bar (%d, %d) { m_x = %d, m_y = %d }\n", x, y, m_x, m_y);
 
 		Point point = { 100, 200, 300, 400 }
 		return point;
 	}
 }
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 
-	OpaqueTest* a = new OpaqueTest (1, 2);
+	OpaqueTest* a = new OpaqueTest(1, 2);
 
-	a.foo ();
-	Point point = a.bar (10, 20);
+	a.foo();
+	Point point = a.bar(10, 20);
 
-	printf (
+	printf(
 		"point = { %d, %d, %d, %d }\n",
 		point.m_x,
 		point.m_y,

@@ -39,7 +39,7 @@ struct Error
 {
 	/**
 		The full size of error-describing buffer. Should always be
-		``>= sizeof (std.Error)``.
+		``>= sizeof(std.Error)``.
 	*/
 
 	uint32_t m_size;
@@ -67,14 +67,14 @@ struct Error
 
 		.. ref-code-block::
 
-			printf ($"cannot open file: $!\n");
+			printf($"cannot open file: $!\n");
 
 		The code above is equivalent to:
 
 		.. ref-code-block::
 
 			char const* s = `std.getLastError` ().m_description;
-			printf ($"cannot open file: $s\n");
+			printf($"cannot open file: $s\n");
 	*/
 
 	char const* const property m_description;
@@ -87,12 +87,12 @@ struct Error
 	thread.
 
 	Currently this function allocates a new error buffer on every call. In the
-	future caching will be implemented (if ``AXL`` error has not changed since
+	future caching will be implemented(if ``AXL`` error has not changed since
 	the last invokation of ``getLastError`` then previously allocated error
 	buffer could be re-used).
 */
 
-Error const* getLastError ();
+Error const* getLastError();
 
 /**
 	Returns a human readable description of the the last error set in the
@@ -102,12 +102,12 @@ Error const* getLastError ();
 
 	.. ref-code-block::
 
-		std.getLastError ().:ref:`m_description<cid-std.error.m_description>`
+		std.getLastError().:ref:`m_description<cid-std.error.m_description>`
 */
 
-char const* getLastErrorDescription ()
+char const* getLastErrorDescription()
 {
-	return getLastError ().m_description;
+	return getLastError().m_description;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -116,13 +116,13 @@ char const* getLastErrorDescription ()
 	Sets the last error of the current thread.
 */
 
-setError (Error const* error);
+setError(Error const* error);
 
 /**
 	Sets ``errno`` error as the last error of the current thread.
 */
 
-setErrno (int errno);
+setErrno(int errno);
 
 /**
 	Sets string error described by a null-terminated string pointed to by
@@ -132,7 +132,7 @@ setErrno (int errno);
 	null-terminated string identical to ``string``.
 */
 
-setError (char const* string);
+setError(char const* string);
 
 //..............................................................................
 

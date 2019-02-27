@@ -28,7 +28,7 @@ namespace io {
 	faster than the receiving side is able to process it.
 
 	To adjust the flow control protocol, modify `io.Serial.m_flowControl`
-	property at any time (both pre-open and post-open modifications are
+	property at any time(both pre-open and post-open modifications are
 	supported).
 
 	\sa `io.Serial`
@@ -45,7 +45,7 @@ enum SerialFlowControl
 	None = 0,
 
 	/**
-		``RTS/CTS`` flow control (sometimes called **hardware** flow control).
+		``RTS/CTS`` flow control(sometimes called **hardware** flow control).
 		Remote side is only allowed to send the data if the ``RTS`` control line
 		is ``high``; likewise, the local side should only send data when ``CTS``
 		status line is ``high``.
@@ -54,7 +54,7 @@ enum SerialFlowControl
 	RtsCts,
 
 	/**
-		``XON/XOFF`` flow control (sometimes called **software** flow control).
+		``XON/XOFF`` flow control(sometimes called **software** flow control).
 		In this protocol, two special charaters are selected as ``XON``
 		(``0x11``) and ``XOFF`` (``0x13``). Note that current implementation of
 		``io.Serial`` class does not allow overriding these values.
@@ -76,7 +76,7 @@ enum SerialFlowControl
 	\brief This enumeration lists all possible values for stop bits setting of
 	the serial port.
 
-	Stop bits are auxillary (non-data) bits sent at the end of each character to
+	Stop bits are auxillary(non-data) bits sent at the end of each character to
 	re-synchronize the receiver; normally 1 stop bit is used.
 */
 
@@ -114,7 +114,7 @@ enum SerialStopBits
 	transmitted.
 
 	To adjust the parity protocol, modify `io.Serial.m_parity` property at any
-	time (both pre-open and post-open modifications are supported).
+	time(both pre-open and post-open modifications are supported).
 
 	\sa `io.Serial`
 */
@@ -128,14 +128,14 @@ enum SerialParity
 	None = 0,
 
 	/**
-		A parity bit is sent; **odd** parity check is used (total number of
+		A parity bit is sent; **odd** parity check is used(total number of
 		ones including data and parity bit should be *odd*).
 	*/
 
 	Odd,
 
 	/**
-		A parity bit is sent; **even** parity check is used (total number of
+		A parity bit is sent; **even** parity check is used(total number of
 		ones including data and parity bit should be *odd*).
 	*/
 
@@ -281,9 +281,9 @@ bitflag enum SerialLineErrors
 	* Open a serial port with ``open`` method;
 	* Assign IO event handler with ``wait`` method. You would probably also
 	  want to *schedule* your event handler to be run in particular
-	  environment (e.g., in a specific thread) and partially apply some
+	  environment(e.g., in a specific thread) and partially apply some
 	  syncrhonization ID to discard late events;
-	* Configure serial port settings (``m_baudRate``, ``m_dataBits`` etc)
+	* Configure serial port settings(``m_baudRate``, ``m_dataBits`` etc)
 	* When `io.SerialEvents.IncomingData` event is fired, read from the serial
 	  port using ``read`` method;
 	* Write to the serial port stream using ``write`` method;
@@ -302,62 +302,62 @@ bitflag enum SerialLineErrors
 			io.Serial m_serial;
 			uint_t m_syncId;
 
-			open (
+			open(
 				char const* portName,
 				uint_t baudRate
 				);
 
-			close ();
-			waitSerialEvents ();
+			close();
+			waitSerialEvents();
 
-			onWriteButtonClicked ();
+			onWriteButtonClicked();
 
-			onSerialEvent (
+			onSerialEvent(
 				uint_t syncId,
 				`io.SerialEvents` triggeredEvents
 				);
 		}
 
-		MyDialog.open (
+		MyDialog.open(
 			char const* portName,
 			uint_t baudRate
 			)
 		{
-			m_serial.open (portName);
+			m_serial.open(portName);
 			m_serial.m_baudRate = baudRate;
 			m_serial.m_dataBits = 8;
 			m_serial.m_stopBits = `io.SerialStopBits._1`;
 			// ...
 
-			waitSerialEvents ();
+			waitSerialEvents();
 
 		catch:
 			// handle the error...
 		}
 
-		MyDialog.close ()
+		MyDialog.close()
 		{
-			m_serial.close ();
+			m_serial.close();
 			m_syncId++; // events past this point will be discarded as 'late'
 		}
 
-		MyDialog.waitSerialEvent ()
+		MyDialog.waitSerialEvent()
 		{
 			`io.SerialEvents` eventMask =
 				`io.SerialEvents.IoError` |
 				`io.SerialEvents.IncomingData`;
 
-			m_serial.wait (eventMask, onSerialEvent ~(++m_syncId) @
+			m_serial.wait(eventMask, onSerialEvent ~(++m_syncId) @
 				g_mainThreadScheduler);
 		}
 
-		MyDialog.onWriteButtonClicked ()
+		MyDialog.onWriteButtonClicked()
 		{
-			static char data [] = "a quick brown fox jumps over the lazy dog";
-			m_serial.write (data, sizeof (data));
+			static char data[] = "a quick brown fox jumps over the lazy dog";
+			m_serial.write(data, sizeof(data));
 		}
 
-		MyDialog.onSerialEvent (
+		MyDialog.onSerialEvent(
 			uint_t syncId,
 			`io.SerialEvents` triggeredEvents
 			)
@@ -373,12 +373,12 @@ bitflag enum SerialLineErrors
 
 			if (triggeredEvents & `io.SerialEvents.IncomingData`)
 			{
-				char buffer [256];
-				size_t size = m_fileStream.read (buffer, sizeof (buffer));
+				char buffer[256];
+				size_t size = m_fileStream.read(buffer, sizeof(buffer));
 				// ...
 			}
 
-			waitSerialEvents (); // restart wait
+			waitSerialEvents(); // restart wait
 		}
 
 	\sa `io.SerialEvents`, `io.File`, `io.FileStream`
@@ -399,7 +399,7 @@ bitflag enum SerialLineErrors
 opaque class Serial
 {
 	/**
-		This property is used for getting and setting [#f4]_ baud rate, i.e. the
+		This property is used for getting and setting[#f4]_ baud rate, i.e. the
 		number of signal changes per second, which directly affects the speed of
 		data transmission.
 
@@ -411,7 +411,7 @@ opaque class Serial
 	uint_t autoget property m_baudRate;
 
 	/**
-		This property is used for getting and setting [#f4]_ flow control, i.e.
+		This property is used for getting and setting[#f4]_ flow control, i.e.
 		the protocol of attempted prevention of data loss during serial
 		transmission which may happen when transmission side sends data faster
 		than the receiving side is able to process it.
@@ -422,7 +422,7 @@ opaque class Serial
 	SerialFlowControl autoget property m_flowControl;
 
 	/**
-		This property is used for getting and setting [#f4]_ byte size, i.e. the
+		This property is used for getting and setting[#f4]_ byte size, i.e. the
 		number of bits in each character transmitted over the serial line. Valid
 		values range from ``5`` to ``8``; normally ``8`` data bits are used.
 	*/
@@ -430,8 +430,8 @@ opaque class Serial
 	uint_t autoget property m_dataBits; // typically 5..8
 
 	/**
-		This property is used for getting and setting [#f4]_ the number of
-		serial stop bits, i.e. auxillary (non-data) bits sent at the end of each
+		This property is used for getting and setting[#f4]_ the number of
+		serial stop bits, i.e. auxillary(non-data) bits sent at the end of each
 		character to re-synchronize the receiver; normally 1 stop bit is used
 		(designated by `io.SerialStopBits._1`)
 
@@ -441,7 +441,7 @@ opaque class Serial
 	SerialStopBits autoget property m_stopBits;
 
 	/**
-		This property is used for getting and setting [#f4]_ serial parity
+		This property is used for getting and setting[#f4]_ serial parity
 		control, i.e. the protocol of attempted error detection during serial
 		transmission. The idea is to send an extra *parity* bit so that the
 		total number of one's including data bits *and* this parity bit is
@@ -461,7 +461,7 @@ opaque class Serial
 		(``DSR``, ``CTS``, ``DCD``, ``RING``).
 
 		The returned value is a combination of `io.SerialStatusLines`
-		enumeration members, showing which status lines are high (or ``0`` if
+		enumeration members, showing which status lines are high(or ``0`` if
 		all are low).
 	*/
 
@@ -469,14 +469,14 @@ opaque class Serial
 
 
 	/**
-		This property is used for getting and setting [#f4]_ ``DTR``
+		This property is used for getting and setting[#f4]_ ``DTR``
 		(data-terminal-ready) serial control line.
 	*/
 
 	bool autoget property m_dtr;
 
 	/**
-		This property is used for getting and setting [#f4]_ ``RTS``
+		This property is used for getting and setting[#f4]_ ``RTS``
 		(ready-to-send) serial control line.
 	*/
 
@@ -500,8 +500,8 @@ opaque class Serial
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Opens a serial port.
@@ -514,7 +514,7 @@ opaque class Serial
 		returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode open (char const* name);
+	bool errorcode open(char const* name);
 
 	/**
 		Closes a previously opened serial port, does nothing if the port is
@@ -524,15 +524,15 @@ opaque class Serial
 		timely invokation of ``close`` [#f2]_.
 	*/
 
-	void close ();
+	void close();
 
 	/**
-		Effectively makes ``io.Serial`` a *disposable* class [#f2]_.
+		Effectively makes ``io.Serial`` a *disposable* class[#f2]_.
 	*/
 
 	alias dispose = close;
 
-	bool errorcode setupDevice (
+	bool errorcode setupDevice(
 		uint_t baudRate,
 		uint_t dataBits = 8,
 		SerialStopBits stopBits = SerialStopBits._1,
@@ -543,7 +543,7 @@ opaque class Serial
 		bool rts = false
 		);
 
-	SerialLineErrors clearLineErrors ();
+	SerialLineErrors clearLineErrors();
 
 	/**
 		Attempts to read up to ``size`` bytes from the serial port into the
@@ -559,7 +559,7 @@ opaque class Serial
 		port is closed.
 	*/
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
@@ -578,19 +578,19 @@ opaque class Serial
 		event is fired and transmission could be resumed.
 	*/
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		SerialEvents eventMask,
-		function* handler (SerialEvents triggeredEvents)
+		function* handler(SerialEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	SerialEvents errorcode blockingWait (
+	SerialEvents errorcode blockingWait(
 		SerialEvents eventMask,
 		uint_t timeout
 		);
@@ -647,14 +647,14 @@ struct SerialPortDesc
 
 	.. ref-code-block::
 
-		`io.SerialPortDesc` const* portDesc = io.createSerialPortDescList ();
+		`io.SerialPortDesc` const* portDesc = io.createSerialPortDescList();
 		for (; portDesc; portDesc = portDesc.m_next)
 		{
 			// add port to the combo box...
 		}
 */
 
-SerialPortDesc const* createSerialPortDescList (size_t* count = null);
+SerialPortDesc const* createSerialPortDescList(size_t* count = null);
 
 //..............................................................................
 

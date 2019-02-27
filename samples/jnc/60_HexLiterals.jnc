@@ -20,38 +20,38 @@
 
 // entry point
 
-int main ()
+int main()
 {
 	// hex literals produce static const char array (non-zero-terminated)
 
-	char a [] = 0x"61 62 63 64 65 66 67 68 00";
+	char a[] = 0x"61 62 63 64 65 66 67 68 00";
 
 	// the above line produces the same result as:
 	// char a [] = { 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x00  }
 
-	printf ("a = %s\n", a);
+	printf("a = %s\n", a);
 
 	// it's OK to use upper-case or lower-case and group hex codes with spaces
 	// to your liking (or not use spaces for grouping at all)
 
-	char b [] = 0x"696a 6b6c 6D6E 6F70 0000";
+	char b[] = 0x"696a 6b6c 6D6E 6F70 0000";
 
-	printf ("b = %s\n", b);
+	printf("b = %s\n", b);
 
 	// it's also OK to concatenate hex literals and C-literals in any
 	// combinations; the result is still a static char array (whether it will
 	// be zero-terminated or not depends on the last literal of concatenation)
 
-	char c [] = 0x"6a61 6e63 7920" "rocks!";
+	char c[] = 0x"6a61 6e63 7920" "rocks!";
 
-	printf ("c = %s\n", c);
+	printf("c = %s\n", c);
 
 	// concatenating hex and C-literals can also be used for removing trailing
 	// zeroes from a C-literals thus producing non-zero-terminated literals
 
-	char d [] = "non-zero-terminated" 0x"";
+	char d[] = "non-zero-terminated" 0x"";
 
-	printf ("sizeof (d) = %d\n", sizeof (d));
+	printf("sizeof (d) = %d\n", sizeof (d));
 
 	return 0;
 }

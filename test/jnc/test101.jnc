@@ -1,40 +1,40 @@
-int main ()
+int main()
 {
-	printf ("compiling\n");	
-	
+	printf("compiling\n");
+
 	jnc.RegexState state;
 	state.m_isIncremental = true;
 
 	jnc.RegexDfa dfa;
-	dfa.incrementalCompile (r"[0-9]+");
-	dfa.incrementalCompile (r".");
-	dfa.finalize ();
-	
-	printf ("matching\n");		
+	dfa.incrementalCompile(r"[0-9]+");
+	dfa.incrementalCompile(r".");
+	dfa.finalize();
 
-	size_t result;	
+	printf("matching\n");
+
+	size_t result;
 
 	state.m_currentOffset = -7;
 
-	result = try dfa.match (state, "\x2e123456\x2e");
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert (result == 1 && state.m_consumedLength == 1);
+	result = try dfa.match(state, "\x2e123456\x2e");
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	assert(result == 1 && state.m_consumedLength == 1);
 
-	result = try dfa.match (state, "123456\x2e");
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert (result == 0 && state.m_consumedLength == 7);
+	result = try dfa.match(state, "123456\x2e");
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	assert(result == 0 && state.m_consumedLength == 7);
 
-	result = try dfa.match (state, null);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert (result == 1 && state.m_consumedLength == 0);
+	result = try dfa.match(state, null);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	assert(result == 1 && state.m_consumedLength == 0);
 
-	result = try dfa.match (state, null);
-	printf ("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
-	assert (result == -1 && state.m_consumedLength == 0);
+	result = try dfa.match(state, null);
+	printf("regex result: %d, consumed length: %d, match offset: %d, match length: %d, match: %s\n", result, state.m_consumedLength, state.m_match.m_offset, state.m_match.m_length, state.m_match.m_text);
+	assert(result == -1 && state.m_consumedLength == 0);
 
 	return 0;
-	
+
 catch:
-	printf ($"error: $!\n");
+	printf($"error: $!\n");
 	return -1;
 }

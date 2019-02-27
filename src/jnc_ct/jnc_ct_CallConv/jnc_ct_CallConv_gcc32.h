@@ -23,38 +23,38 @@ class CallConv_gcc32: public CallConv
 public:
 	virtual
 	void
-	prepareFunctionType (FunctionType* functionType);
+	prepareFunctionType(FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	createLlvmFunction (
+	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& tag
 		);
 
 	virtual
 	void
-	call (
+	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	virtual
 	void
-	ret (
+	ret(
 		Function* function,
 		const Value& value
 		);
 
 	virtual
 	Value
-	getThisArgValue (Function* function);
+	getThisArgValue(Function* function);
 
 	virtual
 	void
-	createArgVariables (Function* function);
+	createArgVariables(Function* function);
 };
 
 //..............................................................................
@@ -62,7 +62,7 @@ public:
 class CdeclCallConv_gcc32: public CallConv_gcc32
 {
 public:
-	CdeclCallConv_gcc32 ()
+	CdeclCallConv_gcc32()
 	{
 		m_callConvKind = CallConvKind_Cdecl_gcc32;
 	}
@@ -73,7 +73,7 @@ public:
 class StdcallCallConv_gcc32: public CallConv_gcc32
 {
 public:
-	StdcallCallConv_gcc32 ()
+	StdcallCallConv_gcc32()
 	{
 		m_callConvKind = CallConvKind_Stdcall_gcc32;
 	}

@@ -20,37 +20,37 @@ namespace ct {
 //..............................................................................
 
 const char*
-getPropertyTypeFlagString (PropertyTypeFlag flag)
+getPropertyTypeFlagString(PropertyTypeFlag flag)
 {
-	static const char* stringTable [] =
+	static const char* stringTable[] =
 	{
 		"const",     // PropertyTypeFlag_Const    = 0x010000,
 		"bindable",  // PropertyTypeFlag_Bindable = 0x020000,
 	};
 
-	size_t i = sl::getLoBitIdx32 (flag >> 16);
+	size_t i = sl::getLoBitIdx32(flag >> 16);
 
-	return i < countof (stringTable) ?
-		stringTable [i] :
+	return i < countof(stringTable) ?
+		stringTable[i] :
 		"undefined-property-type-flag";
 }
 
 sl::String
-getPropertyTypeFlagString (uint_t flags)
+getPropertyTypeFlagString(uint_t flags)
 {
 	if (!flags)
-		return sl::String ();
+		return sl::String();
 
-	PropertyTypeFlag flag = getFirstPropertyTypeFlag (flags);
-	sl::String string = getPropertyTypeFlagString (flag);
+	PropertyTypeFlag flag = getFirstPropertyTypeFlag(flags);
+	sl::String string = getPropertyTypeFlagString(flag);
 	flags &= ~flag;
 
 	while (flags)
 	{
-		flag = getFirstPropertyTypeFlag (flags);
+		flag = getFirstPropertyTypeFlag(flags);
 
 		string += ' ';
-		string += getPropertyTypeFlagString (flag);
+		string += getPropertyTypeFlagString(flag);
 
 		flags &= ~flag;
 	}
@@ -59,7 +59,7 @@ getPropertyTypeFlagString (uint_t flags)
 }
 
 uint_t
-getPropertyTypeFlagsFromModifiers (uint_t modifiers)
+getPropertyTypeFlagsFromModifiers(uint_t modifiers)
 {
 	uint_t flags = 0;
 
@@ -74,7 +74,7 @@ getPropertyTypeFlagsFromModifiers (uint_t modifiers)
 
 //..............................................................................
 
-PropertyType::PropertyType ()
+PropertyType::PropertyType()
 {
 	m_typeKind = TypeKind_Property;
 
@@ -87,41 +87,41 @@ PropertyType::PropertyType ()
 }
 
 PropertyPtrType*
-PropertyType::getPropertyPtrType (
+PropertyType::getPropertyPtrType(
 	TypeKind typeKind,
 	PropertyPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return m_module->m_typeMgr.getPropertyPtrType (this, typeKind, ptrTypeKind, flags);
+	return m_module->m_typeMgr.getPropertyPtrType(this, typeKind, ptrTypeKind, flags);
 }
 
 PropertyType*
-PropertyType::getMemberPropertyType (ClassType* classType)
+PropertyType::getMemberPropertyType(ClassType* classType)
 {
-	return m_module->m_typeMgr.getMemberPropertyType (classType, this);
+	return m_module->m_typeMgr.getMemberPropertyType(classType, this);
 }
 
 PropertyType*
-PropertyType::getStdObjectMemberPropertyType ()
+PropertyType::getStdObjectMemberPropertyType()
 {
-	return m_module->m_typeMgr.getStdObjectMemberPropertyType (this);
+	return m_module->m_typeMgr.getStdObjectMemberPropertyType(this);
 }
 
 PropertyType*
 PropertyType::getShortType  ()
 {
-	return m_module->m_typeMgr.getShortPropertyType (this);
+	return m_module->m_typeMgr.getShortPropertyType(this);
 }
 
 StructType*
-PropertyType::getVTableStructType ()
+PropertyType::getVTableStructType()
 {
-	return m_module->m_typeMgr.getPropertyVTableStructType (this);
+	return m_module->m_typeMgr.getPropertyVTableStructType(this);
 }
 
 sl::String
-PropertyType::createSignature (
+PropertyType::createSignature(
 	FunctionType* getterType,
 	const FunctionTypeOverload& setterType,
 	uint_t flags
@@ -132,20 +132,20 @@ PropertyType::createSignature (
 	if (flags & PropertyTypeFlag_Bindable)
 		string += 'b';
 
-	string += getterType->getSignature ();
+	string += getterType->getSignature();
 
-	size_t overloadCount = setterType.getOverloadCount ();
+	size_t overloadCount = setterType.getOverloadCount();
 	for (size_t i = 0; i < overloadCount; i++)
 	{
-		FunctionType* overloadType = setterType.getOverload (i);
-		string += overloadType->getSignature ();
+		FunctionType* overloadType = setterType.getOverload(i);
+		string += overloadType->getSignature();
 	}
 
 	return string;
 }
 
 sl::String
-PropertyType::getTypeModifierString ()
+PropertyType::getTypeModifierString()
 {
 	sl::String string;
 
@@ -158,26 +158,26 @@ PropertyType::getTypeModifierString ()
 	// to make output cleaner: don't append 'indexed' to simple member properties
 	// -- even though they ARE indexed
 
-	size_t argCount = m_getterType->getArgArray ().getCount ();
-	if (argCount >= 2 || argCount == 1 && !m_getterType->isMemberMethodType ())
+	size_t argCount = m_getterType->getArgArray().getCount();
+	if (argCount >= 2 || argCount == 1 && !m_getterType->isMemberMethodType())
 		string += "indexed ";
 
-	if (!string.isEmpty ())
-		string.chop (1);
+	if (!string.isEmpty())
+		string.chop(1);
 
 	return string;
 }
 
 void
-PropertyType::prepareTypeString ()
+PropertyType::prepareTypeString()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
-	Type* returnType = getReturnType ();
+	TypeStringTuple* tuple = getTypeStringTuple();
+	Type* returnType = getReturnType();
 
-	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix ();
+	tuple->m_typeStringPrefix = returnType->getTypeStringPrefix();
 
-	sl::String modifierString = getTypeModifierString ();
-	if (!modifierString.isEmpty ())
+	sl::String modifierString = getTypeModifierString();
+	if (!modifierString.isEmpty())
 	{
 		tuple->m_typeStringPrefix += ' ';
 		tuple->m_typeStringPrefix += modifierString;
@@ -185,22 +185,22 @@ PropertyType::prepareTypeString ()
 
 	tuple->m_typeStringPrefix += " property";
 
-	if (isIndexed ())
-		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix ();
+	if (isIndexed())
+		tuple->m_typeStringSuffix = m_getterType->getTypeStringSuffix();
 
-	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix ();
+	tuple->m_typeStringSuffix += returnType->getTypeStringSuffix();
 }
 
 void
-PropertyType::prepareDoxyLinkedText ()
+PropertyType::prepareDoxyLinkedText()
 {
-	TypeStringTuple* tuple = getTypeStringTuple ();
-	Type* returnType = getReturnType ();
+	TypeStringTuple* tuple = getTypeStringTuple();
+	Type* returnType = getReturnType();
 
-	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix ();
+	tuple->m_doxyLinkedTextPrefix = returnType->getDoxyLinkedTextPrefix();
 
-	sl::String modifierString = getTypeModifierString ();
-	if (!modifierString.isEmpty ())
+	sl::String modifierString = getTypeModifierString();
+	if (!modifierString.isEmpty())
 	{
 		tuple->m_doxyLinkedTextPrefix += ' ';
 		tuple->m_doxyLinkedTextPrefix += modifierString;
@@ -208,19 +208,19 @@ PropertyType::prepareDoxyLinkedText ()
 
 	tuple->m_doxyLinkedTextPrefix += " property";
 
-	if (isIndexed ())
-		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix ();
+	if (isIndexed())
+		tuple->m_doxyLinkedTextSuffix = m_getterType->getDoxyLinkedTextSuffix();
 
-	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix ();
+	tuple->m_doxyLinkedTextSuffix += returnType->getDoxyLinkedTextSuffix();
 }
 
 void
-PropertyType::prepareDoxyTypeString ()
+PropertyType::prepareDoxyTypeString()
 {
-	Type::prepareDoxyTypeString ();
+	Type::prepareDoxyTypeString();
 
-	if (isIndexed ())
-		getTypeStringTuple ()->m_doxyTypeString += m_getterType->getDoxyArgString ();
+	if (isIndexed())
+		getTypeStringTuple()->m_doxyTypeString += m_getterType->getDoxyArgString();
 }
 
 //..............................................................................

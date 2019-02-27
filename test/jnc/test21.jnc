@@ -13,23 +13,23 @@
 
 class MyScheduler: jnc.Scheduler
 {
-	override schedule (function* f ())
+	override schedule(function* f())
 	{
-		printf ("MyScheduler.schedule ()\n");
-		f ();
+		printf("MyScheduler.schedule ()\n");
+		f();
 	}
 }
 
-foo (int x)
+foo(int x)
 {
-	printf ("foo (%d)\n", x);
+	printf("foo (%d)\n", x);
 }
 
-int main ()
+int main()
 {
 	static MyScheduler scheduler;
 
-	printf ("main ()\n");
+	printf("main ()\n");
 	(foo @ scheduler) (10);
 
 	return 0;

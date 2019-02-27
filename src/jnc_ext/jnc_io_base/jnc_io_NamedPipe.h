@@ -20,7 +20,7 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE (NamedPipe)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(NamedPipe)
 
 //..............................................................................
 
@@ -60,13 +60,13 @@ protected:
 		Def_Timeout         = 0,
 	};
 
-	class IoThread: public sys::ThreadImpl <IoThread>
+	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
 		void
-		threadFunc ()
+		threadFunc()
 		{
-			containerof (this, NamedPipe, m_ioThread)->ioThreadFunc ();
+			containerof(this, NamedPipe, m_ioThread)->ioThreadFunc();
 		}
 	};
 
@@ -83,115 +83,115 @@ protected:
 
 	struct OverlappedIo
 	{
-		mem::Pool <OverlappedConnect> m_overlappedConnectPool;
-		sl::List <OverlappedConnect> m_pipeList;
-		sl::List <OverlappedConnect> m_activeOverlappedConnectList;
+		mem::Pool<OverlappedConnect> m_overlappedConnectPool;
+		sl::List<OverlappedConnect> m_pipeList;
+		sl::List<OverlappedConnect> m_activeOverlappedConnectList;
 	};
 
 protected:
 	IoThread m_ioThread;
 
 	sl::String_w m_pipeName;
-	mem::Pool <IncomingConnection> m_incomingConnectionPool;
-	sl::List <IncomingConnection> m_pendingIncomingConnectionList;
+	mem::Pool<IncomingConnection> m_incomingConnectionPool;
+	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
 	OverlappedIo* m_overlappedIo;
 
 public:
-	NamedPipe ();
+	NamedPipe();
 
-	~NamedPipe ()
+	~NamedPipe()
 	{
-		close ();
+		close();
 	}
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap)
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	{
-		AsyncIoDevice::markOpaqueGcRoots (gcHeap);
+		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
 	bool
 	JNC_CDECL
-	open (DataPtr namePtr);
+	open(DataPtr namePtr);
 
 	void
 	JNC_CDECL
-	close ();
+	close();
 
 	void
 	JNC_CDECL
-	setBackLogLimit (uint_t limit)
+	setBackLogLimit(uint_t limit)
 	{
-		AsyncIoDevice::setSetting (&m_backLogLimit, limit ? limit : Def_BackLogLimit);
+		AsyncIoDevice::setSetting(&m_backLogLimit, limit ? limit : Def_BackLogLimit);
 	}
 
 	void
 	JNC_CDECL
-	setReadParallelism (uint_t count)
+	setReadParallelism(uint_t count)
 	{
-		AsyncIoDevice::setSetting (&m_readParallelism, count ? count : Def_ReadParallelism);
+		AsyncIoDevice::setSetting(&m_readParallelism, count ? count : Def_ReadParallelism);
 	}
 
 	void
 	JNC_CDECL
-	setReadBlockSize (size_t size)
+	setReadBlockSize(size_t size)
 	{
-		AsyncIoDevice::setSetting (&m_readBlockSize, size ? size : Def_ReadBlockSize);
+		AsyncIoDevice::setSetting(&m_readBlockSize, size ? size : Def_ReadBlockSize);
 	}
 
 	bool
 	JNC_CDECL
-	setReadBufferSize (size_t size)
+	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setReadBufferSize (&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setWriteBufferSize (size_t size)
+	setWriteBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setWriteBufferSize (&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
 	}
 
 	bool
 	JNC_CDECL
-	setOptions (uint_t options);
+	setOptions(uint_t options);
 
 	FileStream*
 	JNC_CDECL
-	accept ();
+	accept();
 
 	handle_t
 	JNC_CDECL
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		)
 	{
-		return AsyncIoDevice::wait (eventMask, handlerPtr);
+		return AsyncIoDevice::wait(eventMask, handlerPtr);
 	}
 
 	bool
 	JNC_CDECL
-	cancelWait (handle_t handle)
+	cancelWait(handle_t handle)
 	{
-		return AsyncIoDevice::cancelWait (handle);
+		return AsyncIoDevice::cancelWait(handle);
 	}
 
 	uint_t
 	JNC_CDECL
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		)
 	{
-		return AsyncIoDevice::blockingWait (eventMask, timeout);
+		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
 protected:
 	void
-	ioThreadFunc ();
+	ioThreadFunc();
 };
 
 //..............................................................................

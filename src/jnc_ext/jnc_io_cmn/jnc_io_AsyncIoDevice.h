@@ -76,10 +76,10 @@ protected:
 	Runtime* m_runtime;
 	sys::Lock m_lock;
 	volatile uint_t m_ioThreadFlags;
-	sl::AuxList <SyncWait> m_syncWaitList;
-	sl::List <AsyncWait> m_asyncWaitList;
-	sl::List <AsyncWait> m_pendingAsyncWaitList;
-	sl::HandleTable <AsyncWait*> m_asyncWaitMap;
+	sl::AuxList<SyncWait> m_syncWaitList;
+	sl::List<AsyncWait> m_asyncWaitList;
+	sl::List<AsyncWait> m_pendingAsyncWaitList;
+	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
 
 #if (_JNC_OS_WIN)
 	sys::Event m_ioThreadEvent;
@@ -91,49 +91,49 @@ protected:
 
 	sl::CircularBuffer m_readBuffer;
 	sl::CircularBuffer m_writeBuffer;
-	sl::Array <char> m_readOverflowBuffer;
+	sl::Array<char> m_readOverflowBuffer;
 
-	sl::List <ReadWriteMeta> m_readMetaList;
-	sl::List <ReadWriteMeta> m_writeMetaList;
-	sl::List <ReadWriteMeta> m_freeReadWriteMetaList;
+	sl::List<ReadWriteMeta> m_readMetaList;
+	sl::List<ReadWriteMeta> m_writeMetaList;
+	sl::List<ReadWriteMeta> m_freeReadWriteMetaList;
 
 public:
-	AsyncIoDevice ();
+	AsyncIoDevice();
 
 protected:
 	void
-	markOpaqueGcRoots (jnc::GcHeap* gcHeap);
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	handle_t
-	wait (
+	wait(
 		uint_t eventMask,
 		FunctionPtr handlerPtr
 		);
 
 	bool
-	cancelWait (handle_t handle);
+	cancelWait(handle_t handle);
 
 	uint_t
-	blockingWait (
+	blockingWait(
 		uint_t eventMask,
 		uint_t timeout
 		);
 
 	void
-	open ();
+	open();
 
 	void
-	close ();
+	close();
 
 	void
-	wakeIoThread ();
+	wakeIoThread();
 
 	void
-	sleepIoThread ();
+	sleepIoThread();
 
 	template <typename T>
 	void
-	setSetting (
+	setSetting(
 		T* p,
 		T value
 		)
@@ -144,99 +144,99 @@ protected:
 			return;
 		}
 
-		m_lock.lock ();
+		m_lock.lock();
 		*p = value;
-		wakeIoThread ();
-		m_lock.unlock ();
+		wakeIoThread();
+		m_lock.unlock();
 	}
 
 	bool
-	setReadBufferSize (
+	setReadBufferSize(
 		size_t* targetField,
 		size_t size
 		);
 
 	bool
-	setWriteBufferSize (
+	setWriteBufferSize(
 		size_t* targetField,
 		size_t size
 		);
 
 	void
-	cancelAllWaits ();
+	cancelAllWaits();
 
 	size_t
-	processWaitLists_l ();
+	processWaitLists_l();
 
 	void
-	setEvents_l (uint_t events);
+	setEvents_l(uint_t events);
 
 	void
-	setEvents (uint_t events)
+	setEvents(uint_t events)
 	{
-		m_lock.lock ();
-		setEvents_l (events);
+		m_lock.lock();
+		setEvents_l(events);
 	}
 
 	void
-	setErrorEvent_l (
+	setErrorEvent_l(
 		uint_t event,
 		const err::Error& error
 		)
 	{
-		m_lock.unlock ();
-		setErrorEvent (event, error);
+		m_lock.unlock();
+		setErrorEvent(event, error);
 	}
 
 	void
-	setIoErrorEvent_l (const err::Error& error)
+	setIoErrorEvent_l(const err::Error& error)
 	{
-		setErrorEvent_l (AsyncIoEvent_IoError, error);
+		setErrorEvent_l(AsyncIoEvent_IoError, error);
 	}
 
 	void
-	setIoErrorEvent_l ()
+	setIoErrorEvent_l()
 	{
-		setErrorEvent_l (AsyncIoEvent_IoError, err::getLastError ());
+		setErrorEvent_l(AsyncIoEvent_IoError, err::getLastError());
 	}
 
 	void
-	setErrorEvent (
+	setErrorEvent(
 		uint_t event,
 		const err::Error& error
 		);
 
 	void
-	setIoErrorEvent (const err::Error& error)
+	setIoErrorEvent(const err::Error& error)
 	{
-		setErrorEvent (AsyncIoEvent_IoError, error);
+		setErrorEvent(AsyncIoEvent_IoError, error);
 	}
 
 	void
-	setIoErrorEvent ()
+	setIoErrorEvent()
 	{
-		setErrorEvent (AsyncIoEvent_IoError, err::getLastError ());
+		setErrorEvent(AsyncIoEvent_IoError, err::getLastError());
 	}
 
 	static
 	size_t
-	getMetaListDataSize (const sl::ConstList <ReadWriteMeta>& metaList);
+	getMetaListDataSize(const sl::ConstList<ReadWriteMeta>& metaList);
 
 	bool
-	isReadBufferValid ();
+	isReadBufferValid();
 
 	bool
-	isWriteBufferValid ();
+	isWriteBufferValid();
 
 	size_t
-	bufferedRead (
+	bufferedRead(
 		DataPtr ptr,
 		size_t size,
-		sl::Array <char>* params = NULL
+		sl::Array<char>* params = NULL
 		);
 
 	size_t
-	bufferedWrite (
+	bufferedWrite(
 		DataPtr dataPtr,
 		size_t dataSize,
 		const void* params = NULL,
@@ -244,7 +244,7 @@ protected:
 		);
 
 	void
-	addToReadBuffer (
+	addToReadBuffer(
 		const void* p,
 		size_t dataSize,
 		const void* params = NULL,
@@ -252,16 +252,16 @@ protected:
 		);
 
 	void
-	getNextWriteBlock (
-		sl::Array <char>* data,
-		sl::Array <char>* params = NULL
+	getNextWriteBlock(
+		sl::Array<char>* data,
+		sl::Array<char>* params = NULL
 		);
 
 	void
-	updateReadWriteBufferEvents ();
+	updateReadWriteBufferEvents();
 
 	ReadWriteMeta*
-	createReadWriteMeta (
+	createReadWriteMeta(
 		size_t dataSize,
 		const void* params,
 		size_t paramSize
@@ -275,7 +275,7 @@ protected:
 struct OverlappedRead: sl::ListLink
 {
 	axl::io::win::StdOverlapped m_overlapped;
-	sl::Array <char> m_buffer;
+	sl::Array<char> m_buffer;
 };
 
 #endif

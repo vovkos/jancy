@@ -35,22 +35,22 @@ enum PropertyTypeFlag
 
 JNC_INLINE
 PropertyTypeFlag
-getFirstPropertyTypeFlag (uint_t flags)
+getFirstPropertyTypeFlag(uint_t flags)
 {
-	return (PropertyTypeFlag) (1 << sl::getLoBitIdx (flags));
+	return (PropertyTypeFlag)(1 << sl::getLoBitIdx(flags));
 }
 
 const char*
-getPropertyTypeFlagString (PropertyTypeFlag flag);
+getPropertyTypeFlagString(PropertyTypeFlag flag);
 
 sl::String
-getPropertyTypeFlagString (uint_t flags);
+getPropertyTypeFlagString(uint_t flags);
 
 JNC_INLINE
 const char*
-getFirstPropertyTypeFlagString (uint_t flags)
+getFirstPropertyTypeFlagString(uint_t flags)
 {
-	return getPropertyTypeFlagString (getFirstPropertyTypeFlag (flags));
+	return getPropertyTypeFlagString(getFirstPropertyTypeFlag(flags));
 }
 
 //..............................................................................
@@ -64,7 +64,7 @@ enum PropertyPtrTypeKind
 };
 
 const char*
-getPropertyPtrTypeKindString (PropertyPtrTypeKind ptrTypeKind);
+getPropertyPtrTypeKindString(PropertyPtrTypeKind ptrTypeKind);
 
 //..............................................................................
 
@@ -84,103 +84,103 @@ protected:
 	sl::String m_bindableEventName;
 
 public:
-	PropertyType ();
+	PropertyType();
 
 	bool
-	isReadOnly ()
+	isReadOnly()
 	{
-		return m_setterType.isEmpty ();
+		return m_setterType.isEmpty();
 	}
 
 	bool
-	isIndexed ()
+	isIndexed()
 	{
-		return !m_getterType->getArgArray ().isEmpty ();
+		return !m_getterType->getArgArray().isEmpty();
 	}
 
 	bool
-	isMemberPropertyType ()
+	isMemberPropertyType()
 	{
-		return m_getterType->isMemberMethodType ();
+		return m_getterType->isMemberMethodType();
 	}
 
 	Type*
-	getThisArgType ()
+	getThisArgType()
 	{
-		return m_getterType->getThisArgType ();
+		return m_getterType->getThisArgType();
 	}
 
 	DerivableType*
-	getThisTargetType ()
+	getThisTargetType()
 	{
-		return m_getterType->getThisTargetType ();
+		return m_getterType->getThisTargetType();
 	}
 
 	FunctionType*
-	getGetterType ()
+	getGetterType()
 	{
 		return m_getterType;
 	}
 
 	FunctionTypeOverload*
-	getSetterType ()
+	getSetterType()
 	{
 		return &m_setterType;
 	}
 
 	FunctionType*
-	getBinderType ()
+	getBinderType()
 	{
 		return m_binderType;
 	}
 
 	Type*
-	getReturnType ()
+	getReturnType()
 	{
-		ASSERT (m_getterType);
-		return m_getterType->getReturnType ();
+		ASSERT(m_getterType);
+		return m_getterType->getReturnType();
 	}
 
 	PropertyType*
-	getMemberPropertyType (ClassType* type);
+	getMemberPropertyType(ClassType* type);
 
 	PropertyType*
-	getStdObjectMemberPropertyType ();
+	getStdObjectMemberPropertyType();
 
 	PropertyType*
 	getShortType  ();
 
 	PropertyPtrType*
-	getPropertyPtrType (
+	getPropertyPtrType(
 		TypeKind typeKind,
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 		);
 
 	PropertyPtrType*
-	getPropertyPtrType (
+	getPropertyPtrType(
 		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return getPropertyPtrType (TypeKind_PropertyPtr, ptrTypeKind, flags);
+		return getPropertyPtrType(TypeKind_PropertyPtr, ptrTypeKind, flags);
 	}
 
 	StructType*
-	getVTableStructType ();
+	getVTableStructType();
 
 	const sl::String&
-	getBindableEventName ()
+	getBindableEventName()
 	{
 		return m_bindableEventName;
 	}
 
 	sl::String
-	getTypeModifierString ();
+	getTypeModifierString();
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		FunctionType* getterType,
 		const FunctionTypeOverload& setterType,
 		uint_t flags
@@ -189,21 +189,21 @@ public:
 protected:
 	virtual
 	void
-	prepareTypeString ();
+	prepareTypeString();
 
 	virtual
 	void
-	prepareDoxyLinkedText ();
+	prepareDoxyLinkedText();
 
 	virtual
 	void
-	prepareDoxyTypeString ();
+	prepareDoxyTypeString();
 
 	virtual
 	void
-	prepareLlvmType ()
+	prepareLlvmType()
 	{
-		ASSERT (false);
+		ASSERT(false);
 	}
 };
 
@@ -211,7 +211,7 @@ protected:
 
 struct SimplePropertyTypeTuple: sl::ListLink
 {
-	PropertyType* m_propertyTypeArray [3] [2] [2]; // call-conv-family x const x bindable
+	PropertyType* m_propertyTypeArray[3] [2] [2]; // call-conv-family x const x bindable
 };
 
 //..............................................................................

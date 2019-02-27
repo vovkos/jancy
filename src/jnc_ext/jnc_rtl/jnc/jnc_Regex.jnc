@@ -64,14 +64,14 @@ struct RegexMatch
 	.. ref-code-block::
 
 		jnc.RegexState state;
-		reswitch (state, p, length)
+		reswitch(state, p, length)
 		{
 		case "foo":
 			// ...
 			break;
 
 		case r"bar\(d+)":
-			print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+			print($"bar id: $(state.m_subMatchArray [0].m_text)\n");
 			break;
 
 		case r"\s+":
@@ -87,7 +87,7 @@ struct RegexMatch
 
 	.. ref-code-block::
 
-		bool errorcode match (
+		bool errorcode match(
 			jnc.RegexState* state,
 			const char* p,
 			size_t length
@@ -98,14 +98,14 @@ struct RegexMatch
 			// post-condition loop allows passing 'null' as eof
 			do
 			{
-				reswitch (state, p, end - p)
+				reswitch(state, p, end - p)
 				{
 				case "foo":
 					// ...
 					break;
 
 				case r"bar\(d+)":
-					print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+					print($"bar id: $(state.m_subMatchArray [0].m_text)\n");
 					break;
 
 				case r"\s+":
@@ -122,7 +122,7 @@ struct RegexMatch
 					if (!state.m_consumedLength)
 						return false;
 
-					assert (
+					assert(
 						state.m_isIncremental &&
 						state.m_consumedLength == end - p);
 				}
@@ -139,7 +139,7 @@ struct RegexMatch
 
 	.. ref-code-block::
 
-		jnc.RegexState state (true);  // turn on incremental matching
+		jnc.RegexState state(true);  // turn on incremental matching
 
 		// alternatively, assign:
 		// state.m_isIncremental = true;
@@ -148,15 +148,15 @@ struct RegexMatch
 
 	.. ref-code-block::
 
-		size_t length = getNextPortionOfData (buffer);
+		size_t length = getNextPortionOfData(buffer);
 
-		match (state, buffer, length);
+		match(state, buffer, length);
 
 	Pass zero-sized buffer to trigger ``eof`` processing:
 
 	.. ref-code-block::
 
-		match (state, null, 0);
+		match(state, null, 0);
 
 */
 
@@ -184,7 +184,7 @@ opaque class RegexState
 
 		Could be adjusted manually. For example, you can adjust
 		``m_currentOffset`` before starting recognition; when a lexeme is found,
-		``m_lexemeOffset`` will account for the initial offset (offset relative
+		``m_lexemeOffset`` will account for the initial offset(offset relative
 		the beginning of the stream plus initial offset set before starting
 		recognition).
 	*/
@@ -216,7 +216,7 @@ opaque class RegexState
 		\subgroup
 
 		These fields hold information about the matched lexeme and, possibly,
-		sub-lexemes (if capturing regular expressions groups were used).
+		sub-lexemes(if capturing regular expressions groups were used).
 
 		These fields should only be accessed from within **action** inside
 		``automaton`` function.
@@ -233,17 +233,17 @@ public:
 		``m_automatonFunc`` and used for subsequent scanning.
 	*/
 
-	construct (bool isIncremental = false);
+	construct(bool isIncremental = false);
 
 	/**
 		Resets state of recognizer including all offsets and captured lexeme
 		bytes.
 	*/
 
-	reset ();
+	reset();
 
 protected:
-	size_t exec (
+	size_t exec(
 		void thin* dfa,
 		char const* p,
 		size_t length
@@ -256,28 +256,28 @@ protected:
 
 opaque class RegexDfa
 {
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	clear ();
+	clear();
 
-	bool errorcode compile (
+	bool errorcode compile(
 		char const* regexString,
 		size_t length = -1
 		)
 	{
-		clear ();
-		return incrementalCompile (regexString, length) && finalize ();
+		clear();
+		return incrementalCompile(regexString, length) && finalize();
 	}
 
-	bool errorcode incrementalCompile (
+	bool errorcode incrementalCompile(
 		char const* regexString,
 		size_t length = -1
 		);
 
-	bool errorcode finalize ();
+	bool errorcode finalize();
 
-	size_t errorcode match (
+	size_t errorcode match(
 		RegexState* state,
 		char const* p,
 		size_t length = -1

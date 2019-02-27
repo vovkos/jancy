@@ -19,45 +19,45 @@ opaque class Log
 	size_t property m_leafLineCountLimit;
 	size_t property m_cacheUpdateScrollRateLimit;
 
-	gui.Icon* property m_iconTable (size_t i);
+	gui.Icon* property m_iconTable(size_t i);
 
 	Writer* readonly m_writer;
 	uint64_t autoget property m_baseTimestamp;
 
-	destruct ();
+	destruct();
 
-	suspend ();
-	resume ();
+	suspend();
+	resume();
 
-	addConverter (
+	addConverter(
 		Converter* converter,
 		std.Guid const* classGuidArray,
 		size_t classCount
 		);
 
-	addConverter (Converter* converter)
+	addConverter(Converter* converter)
 	{
-		addConverter (converter, null, 0);
+		addConverter(converter, null, 0);
 	}
 
-	addConverter (
+	addConverter(
 		Converter* converter,
 		std.Guid const* classGuid
 		)
 	{
-		addConverter (converter, classGuid, 1);
+		addConverter(converter, classGuid, 1);
 	}
 
-	removeAllConverters ();
+	removeAllConverters();
 
-	addFilter (Filter* filter);
-	removeAllFilters ();
+	addFilter(Filter* filter);
+	removeAllFilters();
 
-	addListener (ListenerFunc* listenerFunc);
-	removeAllListeners ();
+	addListener(ListenerFunc* listenerFunc);
+	removeAllListeners();
 
-	addSelectionProcessor (RangeProcessorFactoryFunc* factoryFunc);
-	removeAllSelectionProcessors ();
+	addSelectionProcessor(RangeProcessorFactoryFunc* factoryFunc);
+	removeAllSelectionProcessors();
 }
 
 //..............................................................................

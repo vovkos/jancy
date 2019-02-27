@@ -29,45 +29,45 @@ protected:
 	};
 
 public:
-	CdeclCallConv_gcc64 ()
+	CdeclCallConv_gcc64()
 	{
 		m_callConvKind = CallConvKind_Cdecl_gcc64;
 	}
 
 	virtual
 	void
-	prepareFunctionType (FunctionType* functionType);
+	prepareFunctionType(FunctionType* functionType);
 
 	virtual
 	llvm::Function*
-	createLlvmFunction (
+	createLlvmFunction(
 		FunctionType* functionType,
 		const sl::StringRef& tag
 		);
 
 	virtual
 	void
-	call (
+	call(
 		const Value& calleeValue,
 		FunctionType* functionType,
-		sl::BoxList <Value>* argValueList,
+		sl::BoxList<Value>* argValueList,
 		Value* resultValue
 		);
 
 	virtual
 	void
-	ret (
+	ret(
 		Function* function,
 		const Value& value
 		);
 
 	virtual
 	Value
-	getThisArgValue (Function* function);
+	getThisArgValue(Function* function);
 
 	virtual
 	Value
-	getArgValue (
+	getArgValue(
 		llvm::Value* llvmValue,
 		FunctionType* functionType,
 		size_t argIdx
@@ -75,11 +75,11 @@ public:
 
 	virtual
 	void
-	createArgVariables (Function* function);
+	createArgVariables(Function* function);
 
 protected:
 	Type*
-	getArgCoerceType (Type* type);
+	getArgCoerceType(Type* type);
 };
 
 //..............................................................................

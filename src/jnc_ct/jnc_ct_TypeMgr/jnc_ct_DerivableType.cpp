@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-BaseTypeSlot::BaseTypeSlot ()
+BaseTypeSlot::BaseTypeSlot()
 {
 	m_itemKind = ModuleItemKind_BaseTypeSlot;
 	m_type = NULL;
@@ -29,8 +29,8 @@ BaseTypeSlot::BaseTypeSlot ()
 
 //..............................................................................
 
-BaseTypeCoord::BaseTypeCoord ():
-	m_llvmIndexArray (ref::BufKind_Field, m_buffer, sizeof (m_buffer))
+BaseTypeCoord::BaseTypeCoord():
+	m_llvmIndexArray(ref::BufKind_Field, m_buffer, sizeof(m_buffer))
 {
 	m_type = NULL;
 	m_offset = 0;
@@ -39,8 +39,8 @@ BaseTypeCoord::BaseTypeCoord ():
 
 //..............................................................................
 
-DerivableType::DerivableType ():
-	NamedTypeBlock (this)
+DerivableType::DerivableType():
+	NamedTypeBlock(this)
 {
 	m_defaultConstructor = NULL;
 	m_callOperator = NULL;
@@ -50,31 +50,31 @@ DerivableType::DerivableType ():
 }
 
 FunctionType*
-DerivableType::getMemberMethodType (
+DerivableType::getMemberMethodType(
 	FunctionType* shortType,
 	uint_t thisArgTypeFlags
 	)
 {
-	return m_module->m_typeMgr.getMemberMethodType (this, shortType, thisArgTypeFlags);
+	return m_module->m_typeMgr.getMemberMethodType(this, shortType, thisArgTypeFlags);
 }
 
 PropertyType*
-DerivableType::getMemberPropertyType (PropertyType* shortType)
+DerivableType::getMemberPropertyType(PropertyType* shortType)
 {
-	return m_module->m_typeMgr.getMemberPropertyType (this, shortType);
+	return m_module->m_typeMgr.getMemberPropertyType(this, shortType);
 }
 
 ModuleItem*
-DerivableType::findItemInExtensionNamespaces (const sl::StringRef& name)
+DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name)
 {
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace ();
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	while (nspace)
 	{
-		ModuleItem* item = nspace->getUsingSet ()->findExtensionItem (this, name);
+		ModuleItem* item = nspace->getUsingSet()->findExtensionItem(this, name);
 		if (item)
 			return item;
 
-		nspace = nspace->getParentNamespace ();
+		nspace = nspace->getParentNamespace();
 	}
 
 	return NULL;
@@ -83,43 +83,43 @@ DerivableType::findItemInExtensionNamespaces (const sl::StringRef& name)
 StructField*
 DerivableType::getFieldByIndex(size_t index)
 {
-	if (!m_baseTypeList.isEmpty ())
+	if (!m_baseTypeList.isEmpty())
 	{
-		err::setFormatStringError ("'%s' has base types, cannot use indexed member operator", getTypeString ().sz ());
+		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString ().sz ());
 		return NULL;
 	}
 
-	size_t count = m_memberFieldArray.getCount ();
+	size_t count = m_memberFieldArray.getCount();
 	if (index >= count)
 	{
-		err::setFormatStringError ("index '%d' is out of bounds", index);
+		err::setFormatStringError("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	return m_memberFieldArray [index];
+	return m_memberFieldArray[index];
 }
 
 Function*
-DerivableType::getDefaultConstructor ()
+DerivableType::getDefaultConstructor()
 {
-	ASSERT (m_constructor);
+	ASSERT(m_constructor);
 	if (m_defaultConstructor)
 		return m_defaultConstructor;
 
-	Type* thisArgType = getThisArgType (PtrTypeFlag_Safe);
+	Type* thisArgType = getThisArgType(PtrTypeFlag_Safe);
 
 	// avoid allocations
 
-	sl::BoxListEntry <Value> thisArgValue;
-	thisArgValue.m_value.setType (thisArgType);
+	sl::BoxListEntry<Value> thisArgValue;
+	thisArgValue.m_value.setType(thisArgType);
 
-	sl::AuxList <sl::BoxListEntry <Value> > argList;
-	argList.insertTail (&thisArgValue);
+	sl::AuxList<sl::BoxListEntry<Value> > argList;
+	argList.insertTail(&thisArgValue);
 
-	m_defaultConstructor = m_constructor->chooseOverload (argList);
+	m_defaultConstructor = m_constructor->chooseOverload(argList);
 	if (!m_defaultConstructor)
 	{
-		err::setFormatStringError ("'%s' has no default constructor", getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no default constructor", getTypeString ().sz ());
 		return NULL;
 	}
 
@@ -127,34 +127,34 @@ DerivableType::getDefaultConstructor ()
 }
 
 Property*
-DerivableType::getIndexerProperty (Type* argType)
+DerivableType::getIndexerProperty(Type* argType)
 {
-	ASSERT (!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
 
-	sl::StringHashTableIterator <Property*> it = m_indexerPropertyMap.visit (argType->getSignature ());
+	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.visit(argType->getSignature());
 	if (it->m_value)
 		return it->m_value;
 
-	Property* prop = m_module->m_functionMgr.createProperty (PropertyKind_Internal, m_tag + ".m_indexer");
+	Property* prop = m_module->m_functionMgr.createProperty(PropertyKind_Internal, m_tag + ".m_indexer");
 	prop->m_storageKind = StorageKind_Member;
 	it->m_value = prop;
 	return prop;
 }
 
 Property*
-DerivableType::chooseIndexerProperty (const Value& opValue)
+DerivableType::chooseIndexerProperty(const Value& opValue)
 {
 	CastKind bestCastKind = CastKind_None;
 	Property* bestProperty = NULL;
 	bool isAmbiguous = false;
 
-	sl::StringHashTableIterator <Property*> it = m_indexerPropertyMap.getHead ();
+	sl::StringHashTableIterator<Property*> it = m_indexerPropertyMap.getHead();
 	for (; it; it++)
 	{
 		Property* prop = it->m_value;
 
-		FunctionArg* indexArg = prop->m_getter->getType ()->getArgArray () [1];
-		CastKind castKind = m_module->m_operatorMgr.getCastKind (opValue, indexArg->getType ());
+		FunctionArg* indexArg = prop->m_getter->getType()->getArgArray() [1];
+		CastKind castKind = m_module->m_operatorMgr.getCastKind(opValue, indexArg->getType());
 		if (!castKind)
 			continue;
 
@@ -171,13 +171,13 @@ DerivableType::chooseIndexerProperty (const Value& opValue)
 
 	if (!bestProperty)
 	{
-		err::setFormatStringError ("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount ());
+		err::setFormatStringError("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount ());
 		return NULL;
 	}
 
 	if (isAmbiguous)
 	{
-		err::setFormatStringError ("ambiguous call to overloaded function");
+		err::setFormatStringError("ambiguous call to overloaded function");
 		return NULL;
 	}
 
@@ -185,57 +185,57 @@ DerivableType::chooseIndexerProperty (const Value& opValue)
 }
 
 BaseTypeSlot*
-DerivableType::getBaseTypeByIndex (size_t index)
+DerivableType::getBaseTypeByIndex(size_t index)
 {
-	size_t count = m_baseTypeArray.getCount ();
+	size_t count = m_baseTypeArray.getCount();
 	if (index >= count)
 	{
-		err::setFormatStringError ("index '%d' is out of bounds", index);
+		err::setFormatStringError("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	return m_baseTypeArray [index];
+	return m_baseTypeArray[index];
 }
 
 BaseTypeSlot*
-DerivableType::addBaseType (Type* type)
+DerivableType::addBaseType(Type* type)
 {
-	BaseTypeSlot* slot = AXL_MEM_NEW (BaseTypeSlot);
+	BaseTypeSlot* slot = AXL_MEM_NEW(BaseTypeSlot);
 	slot->m_module = m_module;
-	slot->m_type = (DerivableType*) type;
+	slot->m_type = (DerivableType*)type;
 
-	if (type->getTypeKindFlags () & TypeKindFlag_Import)
-		((ImportType*) type)->addFixup ((Type**) &slot->m_type);
+	if (type->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)type)->addFixup((Type**) &slot->m_type);
 
-	m_baseTypeList.insertTail (slot);
-	m_baseTypeArray.append (slot);
+	m_baseTypeList.insertTail(slot);
+	m_baseTypeArray.append(slot);
 	return slot;
 }
 
 size_t
-DerivableType::findBaseTypeOffset (Type* type)
+DerivableType::findBaseTypeOffset(Type* type)
 {
 	jnc::ct::BaseTypeCoord coord;
-	bool result = findBaseTypeTraverse (type, &coord);
+	bool result = findBaseTypeTraverse(type, &coord);
 	return result ? coord.m_offset : -1;
 }
 
 bool
-DerivableType::addMethod (Function* function)
+DerivableType::addMethod(Function* function)
 {
-	StorageKind storageKind = function->getStorageKind ();
-	FunctionKind functionKind = function->getFunctionKind ();
-	uint_t functionKindFlags = getFunctionKindFlags (functionKind);
+	StorageKind storageKind = function->getStorageKind();
+	FunctionKind functionKind = function->getFunctionKind();
+	uint_t functionKindFlags = getFunctionKindFlags(functionKind);
 	uint_t thisArgTypeFlags = function->m_thisArgTypeFlags;
 
 	function->m_parentNamespace = this;
 
-	switch (storageKind)
+	switch(storageKind)
 	{
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError ("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
 			return false;
 		}
 
@@ -246,20 +246,20 @@ DerivableType::addMethod (Function* function)
 		// and fall through
 
 	case StorageKind_Member:
-		function->convertToMemberMethod (this);
+		function->convertToMemberMethod(this);
 		break;
 
 	default:
-		err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 		return false;
 	}
 
 	Property* indexerProperty;
-	sl::Array <FunctionArg*> argArray;
+	sl::Array<FunctionArg*> argArray;
 	Function** target = NULL;
 	size_t overloadIdx;
 
-	switch (functionKind)
+	switch(functionKind)
 	{
 	case FunctionKind_PreConstructor:
 		target = &m_preconstructor;
@@ -271,7 +271,7 @@ DerivableType::addMethod (Function* function)
 
 	case FunctionKind_StaticConstructor:
 		target = &m_staticConstructor;
-		m_module->m_functionMgr.addStaticConstructor (this);
+		m_module->m_functionMgr.addStaticConstructor(this);
 		break;
 
 	case FunctionKind_StaticDestructor:
@@ -279,27 +279,27 @@ DerivableType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Normal:
-		overloadIdx = addFunction (function);
+		overloadIdx = addFunction(function);
 		if (overloadIdx == -1)
 			return false;
 
 		if (overloadIdx == 0)
-			m_memberMethodArray.append (function);
+			m_memberMethodArray.append(function);
 
 		return true;
 
 	case FunctionKind_UnaryOperator:
-		if (m_unaryOperatorTable.isEmpty ())
-			m_unaryOperatorTable.setCountZeroConstruct (UnOpKind__Count);
+		if (m_unaryOperatorTable.isEmpty())
+			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		target = &m_unaryOperatorTable [function->getUnOpKind ()];
+		target = &m_unaryOperatorTable[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
-		if (m_binaryOperatorTable.isEmpty ())
-			m_binaryOperatorTable.setCountZeroConstruct (BinOpKind__Count);
+		if (m_binaryOperatorTable.isEmpty())
+			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		target = &m_binaryOperatorTable [function->getBinOpKind ()];
+		target = &m_binaryOperatorTable[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
@@ -315,39 +315,39 @@ DerivableType::addMethod (Function* function)
 		break;
 
 	case FunctionKind_Getter:
-		argArray = function->getType ()->getArgArray ();
-		if (argArray.getCount () < 2)
+		argArray = function->getType()->getArgArray();
+		if (argArray.getCount() < 2)
 		{
-			err::setFormatStringError ("indexer property getter should take at least one index argument");
+			err::setFormatStringError("indexer property getter should take at least one index argument");
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		indexerProperty = getIndexerProperty(argArray[1]->getType());
 		target = &indexerProperty->m_getter;
 		break;
 
 	case FunctionKind_Setter:
-		argArray = function->getType ()->getArgArray ();
-		if (argArray.getCount () < 3)
+		argArray = function->getType()->getArgArray();
+		if (argArray.getCount() < 3)
 		{
-			err::setFormatStringError ("indexer property setter should take at least one index argument");
+			err::setFormatStringError("indexer property setter should take at least one index argument");
 			return false;
 		}
 
-		indexerProperty = getIndexerProperty (argArray [1]->getType ());
+		indexerProperty = getIndexerProperty(argArray[1]->getType());
 		target = &indexerProperty->m_setter;
 		break;
 
 	default:
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"invalid %s in '%s'",
-			getFunctionKindString (functionKind),
-			getTypeString ().sz ()
+			getFunctionKindString(functionKind),
+			getTypeString().sz()
 			);
 		return false;
 	}
 
-	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -355,16 +355,16 @@ DerivableType::addMethod (Function* function)
 	}
 	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
 	{
-		err::setFormatStringError (
+		err::setFormatStringError(
 			"'%s' already has '%s' method",
-			getTypeString ().sz (),
-			getFunctionKindString (functionKind)
+			getTypeString().sz(),
+			getFunctionKindString(functionKind)
 			);
 		return false;
 	}
 	else
 	{
-		bool result = (*target)->addOverload (function) != -1;
+		bool result = (*target)->addOverload(function) != -1;
 		if (!result)
 			return false;
 	}
@@ -373,17 +373,17 @@ DerivableType::addMethod (Function* function)
 }
 
 bool
-DerivableType::addProperty (Property* prop)
+DerivableType::addProperty(Property* prop)
 {
-	ASSERT (prop->isNamed ());
-	bool result = addItem (prop);
+	ASSERT(prop->isNamed());
+	bool result = addItem(prop);
 	if (!result)
 		return false;
 
 	prop->m_parentNamespace = this;
 
-	StorageKind storageKind = prop->getStorageKind ();
-	switch (storageKind)
+	StorageKind storageKind = prop->getStorageKind();
+	switch(storageKind)
 	{
 	case StorageKind_Static:
 		break;
@@ -397,121 +397,121 @@ DerivableType::addProperty (Property* prop)
 		break;
 
 	default:
-		err::setFormatStringError ("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
 		return false;
 	}
 
-	m_memberPropertyArray.append (prop);
+	m_memberPropertyArray.append(prop);
 	return true;
 }
 
 Function*
-DerivableType::createDefaultMethod (
+DerivableType::createDefaultMethod(
 	FunctionKind functionKind,
 	StorageKind storageKind,
 	uint_t flags
 	)
 {
-	FunctionType* type = (FunctionType*) m_module->m_typeMgr.getStdType (StdType_SimpleFunction);
-	Function* function = m_module->m_functionMgr.createFunction (functionKind, type);
+	FunctionType* type = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
+	Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
 	function->m_storageKind = storageKind;
-	function->m_tag.format ("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 	function->m_flags |= flags;
 
-	bool result = addMethod (function);
+	bool result = addMethod(function);
 	if (!result)
 		return NULL;
 
-	m_module->markForCompile (this);
+	m_module->markForCompile(this);
 	return function;
 }
 
 bool
-DerivableType::compileDefaultStaticConstructor ()
+DerivableType::compileDefaultStaticConstructor()
 {
-	ASSERT (m_staticConstructor);
+	ASSERT(m_staticConstructor);
 
-	m_module->m_functionMgr.internalPrologue (m_staticConstructor);
+	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
 
-	bool result = initializeStaticFields ();
+	bool result = initializeStaticFields();
 	if (!result)
 		return false;
 
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 bool
-DerivableType::compileDefaultConstructor ()
+DerivableType::compileDefaultConstructor()
 {
-	ASSERT (m_constructor);
+	ASSERT(m_constructor);
 
 	bool result;
 
 	Value thisValue;
-	m_module->m_functionMgr.internalPrologue (m_constructor, &thisValue, 1);
+	m_module->m_functionMgr.internalPrologue(m_constructor, &thisValue, 1);
 
 	result =
-		callBaseTypeConstructors (thisValue) &&
-		callMemberFieldConstructors (thisValue) &&
-		initializeMemberFields (thisValue) &&
-		callMemberPropertyConstructors (thisValue);
+		callBaseTypeConstructors(thisValue) &&
+		callMemberFieldConstructors(thisValue) &&
+		initializeMemberFields(thisValue) &&
+		callMemberPropertyConstructors(thisValue);
 
 	if (!result)
 		return false;
 
 	if (m_preconstructor)
 	{
-		result = m_module->m_operatorMgr.callOperator (m_preconstructor, thisValue);
+		result = m_module->m_operatorMgr.callOperator(m_preconstructor, thisValue);
 		if (!result)
 			return false;
 	}
 
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 bool
-DerivableType::compileDefaultDestructor ()
+DerivableType::compileDefaultDestructor()
 {
-	ASSERT (m_destructor);
+	ASSERT(m_destructor);
 
 	bool result;
 
 	Value argValue;
-	m_module->m_functionMgr.internalPrologue (m_destructor, &argValue, 1);
+	m_module->m_functionMgr.internalPrologue(m_destructor, &argValue, 1);
 
 	result =
-		callMemberPropertyDestructors (argValue) &&
-		callBaseTypeDestructors (argValue);
+		callMemberPropertyDestructors(argValue) &&
+		callBaseTypeDestructors(argValue);
 
 	if (!result)
 		return false;
 
-	m_module->m_functionMgr.internalEpilogue ();
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 
 bool
-DerivableType::callBaseTypeConstructors (const Value& thisValue)
+DerivableType::callBaseTypeConstructors(const Value& thisValue)
 {
 	bool result;
 
-	size_t count = m_baseTypeConstructArray.getCount ();
+	size_t count = m_baseTypeConstructArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		BaseTypeSlot* slot = m_baseTypeConstructArray [i];
+		BaseTypeSlot* slot = m_baseTypeConstructArray[i];
 		if (slot->m_flags & ModuleItemFlag_Constructed)
 		{
 			slot->m_flags &= ~ModuleItemFlag_Constructed;
 			continue;
 		}
 
-		Function* constructor = slot->m_type->getDefaultConstructor ();
+		Function* constructor = slot->m_type->getDefaultConstructor();
 		if (!constructor)
 			return false;
 
-		result = m_module->m_operatorMgr.callOperator (constructor, thisValue);
+		result = m_module->m_operatorMgr.callOperator(constructor, thisValue);
 		if (!result)
 			return false;
 	}
@@ -520,18 +520,18 @@ DerivableType::callBaseTypeConstructors (const Value& thisValue)
 }
 
 bool
-DerivableType::callBaseTypeDestructors (const Value& thisValue)
+DerivableType::callBaseTypeDestructors(const Value& thisValue)
 {
 	bool result;
 
-	size_t count = m_baseTypeDestructArray.getCount ();
+	size_t count = m_baseTypeDestructArray.getCount();
 	for (intptr_t i = count - 1; i >= 0; i--)
 	{
-		BaseTypeSlot* slot = m_baseTypeDestructArray [i];
-		Function* destructor = slot->m_type->getDestructor ();
-		ASSERT (destructor);
+		BaseTypeSlot* slot = m_baseTypeDestructArray[i];
+		Function* destructor = slot->m_type->getDestructor();
+		ASSERT(destructor);
 
-		result = m_module->m_operatorMgr.callOperator (destructor, thisValue);
+		result = m_module->m_operatorMgr.callOperator(destructor, thisValue);
 		if (!result)
 			return false;
 	}
@@ -540,13 +540,13 @@ DerivableType::callBaseTypeDestructors (const Value& thisValue)
 }
 
 bool
-DerivableType::findBaseTypeTraverseImpl (
+DerivableType::findBaseTypeTraverseImpl(
 	Type* type,
 	BaseTypeCoord* coord,
 	size_t level
 	)
 {
-	sl::StringHashTableIterator <BaseTypeSlot*> it = m_baseTypeMap.find (type->getSignature ());
+	sl::StringHashTableIterator<BaseTypeSlot*> it = m_baseTypeMap.find(type->getSignature());
 	if (it)
 	{
 		if (!coord)
@@ -556,25 +556,25 @@ DerivableType::findBaseTypeTraverseImpl (
 		coord->m_type = slot->m_type;
 		coord->m_offset = slot->m_offset;
 		coord->m_vtableIndex = slot->m_vtableIndex;
-		coord->m_llvmIndexArray.setCount (level + 1);
-		coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
+		coord->m_llvmIndexArray.setCount(level + 1);
+		coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
 		return true;
 	}
 
-	sl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (; slotIt; slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
-		ASSERT (slot->m_type);
+		ASSERT(slot->m_type);
 
-		bool result = slot->m_type->findBaseTypeTraverseImpl (type, coord, level + 1);
+		bool result = slot->m_type->findBaseTypeTraverseImpl(type, coord, level + 1);
 		if (result)
 		{
 			if (coord)
 			{
 				coord->m_offset += slot->m_offset;
 				coord->m_vtableIndex += slot->m_vtableIndex;
-				coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
+				coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
 			}
 
 			return true;
@@ -585,7 +585,7 @@ DerivableType::findBaseTypeTraverseImpl (
 }
 
 ModuleItem*
-DerivableType::findItemTraverseImpl (
+DerivableType::findItemTraverseImpl(
 	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags,
@@ -596,20 +596,20 @@ DerivableType::findItemTraverseImpl (
 
 	if (!(flags & TraverseKind_NoThis))
 	{
-		item = findItem (name);
+		item = findItem(name);
 		if (item)
 		{
 			if (coord)
 			{
 				coord->m_type = this;
-				coord->m_llvmIndexArray.setCount (level);
+				coord->m_llvmIndexArray.setCount(level);
 
 				if (m_typeKind == TypeKind_Union)
 				{
 					UnionCoord unionCoord;
-					unionCoord.m_type = (UnionType*) this;
+					unionCoord.m_type = (UnionType*)this;
 					unionCoord.m_level = level;
-					coord->m_unionCoordArray.insert (0, unionCoord);
+					coord->m_unionCoordArray.insert(0, unionCoord);
 				}
 			}
 
@@ -619,27 +619,27 @@ DerivableType::findItemTraverseImpl (
 		uint_t modFlags = flags | TraverseKind_NoParentNamespace;
 		size_t nextLevel = level + 1;
 
-		size_t count = m_unnamedFieldArray.getCount ();
+		size_t count = m_unnamedFieldArray.getCount();
 		for	(size_t i = 0; i < count; i++)
 		{
-			StructField* field = m_unnamedFieldArray [i];
-			if (field->getType ()->getTypeKindFlags () & TypeKindFlag_Derivable)
+			StructField* field = m_unnamedFieldArray[i];
+			if (field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable)
 			{
-				DerivableType* type = (DerivableType*) field->getType ();
-				item = type->findItemTraverseImpl (name, coord, modFlags, nextLevel);
+				DerivableType* type = (DerivableType*)field->getType();
+				item = type->findItemTraverseImpl(name, coord, modFlags, nextLevel);
 				if (item)
 				{
 					if (coord && coord->m_type)
 					{
 						coord->m_offset += field->m_offset;
-						coord->m_llvmIndexArray [level] = field->m_llvmIndex;
+						coord->m_llvmIndexArray[level] = field->m_llvmIndex;
 
 						if (m_typeKind == TypeKind_Union)
 						{
 							UnionCoord unionCoord;
-							unionCoord.m_type = (UnionType*) this;
+							unionCoord.m_type = (UnionType*)this;
 							unionCoord.m_level = level;
-							coord->m_unionCoordArray.insert (0, unionCoord);
+							coord->m_unionCoordArray.insert(0, unionCoord);
 						}
 					}
 
@@ -651,7 +651,7 @@ DerivableType::findItemTraverseImpl (
 
 	if (!(flags & TraverseKind_NoExtensionNamespaces))
 	{
-		item = findItemInExtensionNamespaces (name);
+		item = findItemInExtensionNamespaces(name);
 		if (item)
 			return item;
 	}
@@ -661,21 +661,21 @@ DerivableType::findItemTraverseImpl (
 		uint_t modFlags = (flags & ~TraverseKind_NoThis) | TraverseKind_NoParentNamespace;
 		size_t nextLevel = level + 1;
 
-		sl::Iterator <BaseTypeSlot> slotIt = m_baseTypeList.getHead ();
+		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 		for (; slotIt; slotIt++)
 		{
 			BaseTypeSlot* slot = *slotIt;
-			if (slot->m_type->getTypeKindFlags () & TypeKindFlag_Import) // unresolved yet
+			if (slot->m_type->getTypeKindFlags() & TypeKindFlag_Import) // unresolved yet
 				continue;
 
 			DerivableType* baseType = slot->m_type;
-			item = baseType->findItemTraverseImpl (name, coord, modFlags, nextLevel);
+			item = baseType->findItemTraverseImpl(name, coord, modFlags, nextLevel);
 			if (item)
 			{
 				if (coord && coord->m_type)
 				{
 					coord->m_offset += slot->m_offset;
-					coord->m_llvmIndexArray [level] = slot->m_llvmIndex;
+					coord->m_llvmIndexArray[level] = slot->m_llvmIndex;
 					coord->m_vtableIndex += slot->m_vtableIndex;
 				}
 
@@ -686,7 +686,7 @@ DerivableType::findItemTraverseImpl (
 
 	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		item = m_parentNamespace->findItemTraverse (name, coord, flags);
+		item = m_parentNamespace->findItemTraverse(name, coord, flags);
 		if (item)
 			return item;
 	}
@@ -695,7 +695,7 @@ DerivableType::findItemTraverseImpl (
 }
 
 bool
-DerivableType::generateDocumentation (
+DerivableType::generateDocumentation(
 	const sl::StringRef& outputDir,
 	sl::String* itemXml,
 	sl::String* indexXml
@@ -703,85 +703,85 @@ DerivableType::generateDocumentation (
 {
 	bool result;
 
-	DoxyBlock* doxyBlock = getDoxyBlock ();
+	DoxyBlock* doxyBlock = getDoxyBlock();
 
 	const char* kind =
 		m_typeKind == TypeKind_Struct ? "struct" :
 		m_typeKind == TypeKind_Union ? "union" : "class";
 
-	indexXml->appendFormat (
+	indexXml->appendFormat(
 		"<compound kind='%s' refid='%s'><name>%s</name></compound>\n",
 		kind,
-		doxyBlock->getRefId ().sz (),
-		getQualifiedName ().sz ()
+		doxyBlock->getRefId().sz(),
+		getQualifiedName().sz()
 		);
 
 	sl::String constructorXml;
 	sl::String destructorXml;
 	if (m_constructor)
 	{
-		result = m_constructor->generateDocumentation (outputDir, &constructorXml, indexXml);
+		result = m_constructor->generateDocumentation(outputDir, &constructorXml, indexXml);
 		if (!result)
 			return false;
 	}
 
 	if (m_destructor)
 	{
-		result = m_destructor->generateDocumentation (outputDir, &destructorXml, indexXml);
+		result = m_destructor->generateDocumentation(outputDir, &destructorXml, indexXml);
 		if (!result)
 			return false;
 	}
 
 	sl::String memberXml;
-	result = Namespace::generateMemberDocumentation (outputDir, &memberXml, indexXml, true);
+	result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, true);
 	if (!result)
 		return false;
 
-	itemXml->format (
+	itemXml->format(
 		"<compounddef kind='%s' id='%s' language='Jancy'>\n"
 		"<compoundname>%s</compoundname>\n\n",
 		kind,
-		doxyBlock->getRefId ().sz (),
-		m_name.sz ()
+		doxyBlock->getRefId().sz(),
+		m_name.sz()
 		);
 
-	sl::Iterator <BaseTypeSlot> it = m_baseTypeList.getHead ();
+	sl::Iterator<BaseTypeSlot> it = m_baseTypeList.getHead();
 	for (; it; it++)
 	{
-		DerivableType* baseType = it->getType ();
-		sl::String refId = baseType->getDoxyBlock ()->getRefId ();
-		Unit* unit = baseType->getParentUnit ();
-		ExtensionLib* lib = unit ? unit->getLib () : NULL;
+		DerivableType* baseType = it->getType();
+		sl::String refId = baseType->getDoxyBlock()->getRefId();
+		Unit* unit = baseType->getParentUnit();
+		ExtensionLib* lib = unit ? unit->getLib() : NULL;
 		if (lib)
-			itemXml->appendFormat ("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz (), refId.sz ());
+			itemXml->appendFormat("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz (), refId.sz ());
 		else
-			itemXml->appendFormat ("<basecompoundref refid='%s'>", refId.sz ());
+			itemXml->appendFormat("<basecompoundref refid='%s'>", refId.sz ());
 
-		itemXml->appendFormat ("%s</basecompoundref>\n", baseType->getQualifiedName ().sz ());
+		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName ().sz ());
 	}
 
-	if (!constructorXml.isEmpty () || !destructorXml.isEmpty ())
+	if (!constructorXml.isEmpty() || !destructorXml.isEmpty())
 	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (constructorXml);
-		itemXml->append (destructorXml);
-		itemXml->append ("</sectiondef>\n\n");
+		itemXml->append("<sectiondef>\n");
+		itemXml->append(constructorXml);
+		itemXml->append(destructorXml);
+		itemXml->append("</sectiondef>\n\n");
 	}
 
-	itemXml->append (memberXml);
+	itemXml->append(memberXml);
 
-	sl::String footnoteXml = doxyBlock->getFootnoteString ();
-	if (!footnoteXml.isEmpty ())
+	sl::String footnoteXml = doxyBlock->getFootnoteString();
+	if (!footnoteXml.isEmpty())
 	{
-		itemXml->append ("<sectiondef>\n");
-		itemXml->append (footnoteXml);
-		itemXml->append ("</sectiondef>\n");
+		itemXml->append("<sectiondef>\n");
+		itemXml->append(footnoteXml);
+		itemXml->append("</sectiondef>\n");
 	}
 
-	itemXml->append (doxyBlock->getImportString ());
-	itemXml->append (doxyBlock->getDescriptionString ());
-	itemXml->append (getDoxyLocationString ());
-	itemXml->append ("</compounddef>\n");
+	itemXml->append(doxyBlock->getImportString());
+	itemXml->append(doxyBlock->getDescriptionString());
+	itemXml->append(getDoxyLocationString());
+	itemXml->append("</compounddef>\n");
 
 	return true;
 }

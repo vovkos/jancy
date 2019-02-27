@@ -12,19 +12,19 @@ namespace gui {
 
 extension ComboBoxHistory: ComboBox
 {
-	addEditTextToHistory ();
+	addEditTextToHistory();
 
-	addToHistory (
+	addToHistory(
 		char const* text,
 		size_t limit = 10
 		);
 
-	saveHistory (
+	saveHistory(
 		doc.Storage* storage,
 		char const* directory
 		);
 
-	loadHistory (
+	loadHistory(
 		doc.Storage* storage,
 		char const* directory
 		);
@@ -32,35 +32,35 @@ extension ComboBoxHistory: ComboBox
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ComboBoxHistory.addEditTextToHistory ()
+ComboBoxHistory.addEditTextToHistory()
 {
-	return addToHistory (m_editText);
+	return addToHistory(m_editText);
 }
 
-ComboBoxHistory.addToHistory (
+ComboBoxHistory.addToHistory(
 	char const* text,
 	size_t limit
 	)
 {
 	for (size_t i = 0; i < m_itemCount; i++)
 	{
-		if (strcmp (text, m_itemText [i]) == 0)
+		if (strcmp(text, m_itemText[i]) == 0)
 		{
 			if (!i)
 				return;
 
-			removeItem (i);
+			removeItem(i);
 			break;
 		}
 	}
 
-	insertItem (0, text);
+	insertItem(0, text);
 
 	while (m_itemCount > limit)
-		removeItem (limit);
+		removeItem(limit);
 }
 
-ComboBoxHistory.saveHistory (
+ComboBoxHistory.saveHistory(
 	doc.Storage* storage,
 	char const* directory
 	)
@@ -70,16 +70,16 @@ ComboBoxHistory.saveHistory (
 nestedscope:
 	storage.m_directory = directory;
 
-	storage.writeInt ("count", m_itemCount);
+	storage.writeInt("count", m_itemCount);
 
 	for (size_t i = 0; i < m_itemCount; i++)
-		storage.writeString ($"item$i", m_itemText [i]);
+		storage.writeString($"item$i", m_itemText [i]);
 
 finally:
 	storage.m_directory = prevDirectory;
 }
 
-ComboBoxHistory.loadHistory (
+ComboBoxHistory.loadHistory(
 	doc.Storage* storage,
 	char const* directory
 	)
@@ -89,11 +89,11 @@ ComboBoxHistory.loadHistory (
 nestedscope:
 	storage.m_directory = directory;
 
-	clear ();
+	clear();
 
-	size_t count = storage.readInt ("count");
+	size_t count = storage.readInt("count");
 	for (size_t i = 0; i < count; i++)
-		addItem (storage.readString ($"item$i"));
+		addItem(storage.readString($"item$i"));
 
 finally:
 	storage.m_directory = prevDirectory;

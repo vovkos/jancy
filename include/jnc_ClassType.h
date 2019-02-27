@@ -84,21 +84,21 @@ typedef enum jnc_ClassPtrTypeKind jnc_ClassPtrTypeKind;
 
 JNC_EXTERN_C
 const char*
-jnc_getClassPtrTypeKindString (jnc_ClassPtrTypeKind ptrTypeKind);
+jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind);
 
 //..............................................................................
 
 JNC_EXTERN_C
 jnc_ClassTypeKind
-jnc_ClassType_getClassTypeKind (jnc_ClassType* type);
+jnc_ClassType_getClassTypeKind(jnc_ClassType* type);
 
 JNC_EXTERN_C
 jnc_StructType*
-jnc_ClassType_getIfaceStructType (jnc_ClassType* type);
+jnc_ClassType_getIfaceStructType(jnc_ClassType* type);
 
 JNC_EXTERN_C
 jnc_ClassPtrType*
-jnc_ClassType_getClassPtrType (
+jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -111,24 +111,24 @@ jnc_ClassType_getClassPtrType (
 struct jnc_ClassType: jnc_DerivableType
 {
 	jnc_ClassTypeKind
-	getClassTypeKind ()
+	getClassTypeKind()
 	{
-		return jnc_ClassType_getClassTypeKind (this);
+		return jnc_ClassType_getClassTypeKind(this);
 	}
 
 	jnc_StructType*
-	getIfaceStructType ()
+	getIfaceStructType()
 	{
-		return jnc_ClassType_getIfaceStructType (this);
+		return jnc_ClassType_getIfaceStructType(this);
 	}
 
 	jnc_ClassPtrType*
-	getClassPtrType (
+	getClassPtrType(
 		jnc_ClassPtrTypeKind ptrTypeKind = jnc_ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return jnc_ClassType_getClassPtrType (this, ptrTypeKind, flags);
+		return jnc_ClassType_getClassPtrType(this, ptrTypeKind, flags);
 	}
 };
 
@@ -177,18 +177,18 @@ typedef enum jnc_MulticastMethodFlag jnc_MulticastMethodFlag;
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
-jnc_MulticastClassType_getTargetType (jnc_MulticastClassType* type);
+jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type);
 
 JNC_INLINE
 jnc_FunctionType*
-jnc_MulticastClassType_getFunctionType (jnc_MulticastClassType* type)
+jnc_MulticastClassType_getFunctionType(jnc_MulticastClassType* type)
 {
-	return jnc_FunctionPtrType_getTargetType (jnc_MulticastClassType_getTargetType (type));
+	return jnc_FunctionPtrType_getTargetType(jnc_MulticastClassType_getTargetType(type));
 }
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_MulticastClassType_getMethod (
+jnc_MulticastClassType_getMethod(
 	jnc_MulticastClassType* type,
 	jnc_MulticastMethodKind method
 	);
@@ -200,21 +200,21 @@ jnc_MulticastClassType_getMethod (
 struct jnc_MulticastClassType: jnc_ClassType
 {
 	jnc_FunctionPtrType*
-	getTargetType ()
+	getTargetType()
 	{
-		return jnc_MulticastClassType_getTargetType (this);
+		return jnc_MulticastClassType_getTargetType(this);
 	}
 
 	jnc_FunctionType*
-	getFunctionType ()
+	getFunctionType()
 	{
-		return jnc_MulticastClassType_getFunctionType (this);
+		return jnc_MulticastClassType_getFunctionType(this);
 	}
 
 	jnc_Function*
-	getMethod (jnc_MulticastMethodKind method)
+	getMethod(jnc_MulticastMethodKind method)
 	{
-		return jnc_MulticastClassType_getMethod (this, method);
+		return jnc_MulticastClassType_getMethod(this, method);
 	}
 };
 
@@ -247,18 +247,18 @@ typedef enum jnc_McSnapshotMethodKind jnc_McSnapshotMethodKind;
 
 JNC_EXTERN_C
 jnc_FunctionPtrType*
-jnc_McSnapshotClassType_getTargetType (jnc_McSnapshotClassType* type);
+jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type);
 
 JNC_INLINE
 jnc_FunctionType*
-jnc_McSnapshotClassType_getFunctionType (jnc_McSnapshotClassType* type)
+jnc_McSnapshotClassType_getFunctionType(jnc_McSnapshotClassType* type)
 {
-	return jnc_FunctionPtrType_getTargetType (jnc_McSnapshotClassType_getTargetType (type));
+	return jnc_FunctionPtrType_getTargetType(jnc_McSnapshotClassType_getTargetType(type));
 }
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_McSnapshotClassType_getMethod (
+jnc_McSnapshotClassType_getMethod(
 	jnc_McSnapshotClassType* type,
 	jnc_McSnapshotMethodKind method
 	);
@@ -270,21 +270,21 @@ jnc_McSnapshotClassType_getMethod (
 struct jnc_McSnapshotClassType: jnc_ClassType
 {
 	jnc_FunctionPtrType*
-	getTargetType ()
+	getTargetType()
 	{
-		return jnc_McSnapshotClassType_getTargetType (this);
+		return jnc_McSnapshotClassType_getTargetType(this);
 	}
 
 	jnc_FunctionType*
-	getFunctionType ()
+	getFunctionType()
 	{
-		return jnc_McSnapshotClassType_getFunctionType (this);
+		return jnc_McSnapshotClassType_getFunctionType(this);
 	}
 
 	jnc_Function*
-	getMethod (jnc_McSnapshotMethodKind method)
+	getMethod(jnc_McSnapshotMethodKind method)
 	{
-		return jnc_McSnapshotClassType_getMethod (this, method);
+		return jnc_McSnapshotClassType_getMethod(this, method);
 	}
 };
 
@@ -294,49 +294,49 @@ struct jnc_McSnapshotClassType: jnc_ClassType
 
 JNC_INLINE
 bool_t
-jnc_isClassType (
+jnc_isClassType(
 	jnc_Type* type,
 	jnc_ClassTypeKind classTypeKind
 	)
 {
 	return
-		jnc_Type_getTypeKind (type) == jnc_TypeKind_Class &&
-		jnc_ClassType_getClassTypeKind ((jnc_ClassType*) type) == classTypeKind;
+		jnc_Type_getTypeKind(type) == jnc_TypeKind_Class &&
+		jnc_ClassType_getClassTypeKind((jnc_ClassType*)type) == classTypeKind;
 }
 
 JNC_INLINE
 bool_t
-jnc_isOpaqueClassType (jnc_Type* type)
+jnc_isOpaqueClassType(jnc_Type* type)
 {
 	return
-		jnc_Type_getTypeKind (type) == jnc_TypeKind_Class &&
-		(jnc_ModuleItem_getFlags ((jnc_ModuleItem*) type) & jnc_ClassTypeFlag_Opaque);
+		jnc_Type_getTypeKind(type) == jnc_TypeKind_Class &&
+		(jnc_ModuleItem_getFlags((jnc_ModuleItem*)type) & jnc_ClassTypeFlag_Opaque);
 }
 
 JNC_INLINE
 bool_t
-jnc_isClosureClassType (jnc_Type* type)
+jnc_isClosureClassType(jnc_Type* type)
 {
 	return
-		jnc_Type_getTypeKind (type) == jnc_TypeKind_Class &&
-		(jnc_ModuleItem_getFlags ((jnc_ModuleItem*) type) & jnc_ClassTypeFlag_Closure);
+		jnc_Type_getTypeKind(type) == jnc_TypeKind_Class &&
+		(jnc_ModuleItem_getFlags((jnc_ModuleItem*)type) & jnc_ClassTypeFlag_Closure);
 }
 
 JNC_INLINE
 bool_t
-jnc_isDestructibleClassType (jnc_Type* type)
+jnc_isDestructibleClassType(jnc_Type* type)
 {
 	return
-		jnc_Type_getTypeKind (type) == jnc_TypeKind_Class &&
-		jnc_DerivableType_getDestructor ((jnc_DerivableType*) type) != NULL;
+		jnc_Type_getTypeKind(type) == jnc_TypeKind_Class &&
+		jnc_DerivableType_getDestructor((jnc_DerivableType*)type) != NULL;
 }
 
 JNC_INLINE
 void*
-jnc_getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
+jnc_getMulticastCallMethodMachineCode(jnc_Multicast* multicast)
 {
-	return jnc_Function_getMachineCode (jnc_MulticastClassType_getMethod (
-		(jnc_MulticastClassType*) multicast->m_ifaceHdr.m_box->m_type,
+	return jnc_Function_getMachineCode(jnc_MulticastClassType_getMethod(
+		(jnc_MulticastClassType*)multicast->m_ifaceHdr.m_box->m_type,
 		jnc_MulticastMethodKind_Call
 		));
 }
@@ -384,9 +384,9 @@ const ClassPtrTypeKind
 
 inline
 const char*
-getClassPtrTypeKindString (ClassPtrTypeKind ptrTypeKind)
+getClassPtrTypeKindString(ClassPtrTypeKind ptrTypeKind)
 {
-	return jnc_getClassPtrTypeKindString (ptrTypeKind);
+	return jnc_getClassPtrTypeKindString(ptrTypeKind);
 }
 
 //..............................................................................
@@ -433,40 +433,40 @@ const McSnapshotMethodKind
 
 inline
 bool
-isClassType (
+isClassType(
 	Type* type,
 	ClassTypeKind classTypeKind
 	)
 {
-	return jnc_isClassType (type, classTypeKind) != 0;
+	return jnc_isClassType(type, classTypeKind) != 0;
 }
 
 inline
 bool
-isOpaqueClassType (Type* type)
+isOpaqueClassType(Type* type)
 {
-	return jnc_isOpaqueClassType (type) != 0;
+	return jnc_isOpaqueClassType(type) != 0;
 }
 
 inline
 bool
-isClosureClassType (Type* type)
+isClosureClassType(Type* type)
 {
-	return jnc_isClosureClassType (type) != 0;
+	return jnc_isClosureClassType(type) != 0;
 }
 
 inline
 bool
-isDestructibleClassType (Type* type)
+isDestructibleClassType(Type* type)
 {
-	return jnc_isDestructibleClassType (type) != 0;
+	return jnc_isDestructibleClassType(type) != 0;
 }
 
 inline
 void*
-getMulticastCallMethodMachineCode (jnc_Multicast* multicast)
+getMulticastCallMethodMachineCode(jnc_Multicast* multicast)
 {
-	return jnc_getMulticastCallMethodMachineCode (multicast);
+	return jnc_getMulticastCallMethodMachineCode(multicast);
 }
 
 //..............................................................................

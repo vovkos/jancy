@@ -40,36 +40,36 @@ namespace sys {
 
 		sys.NotificationEvent g_event;
 
-		thread1 ()
+		thread1()
 		{
 			// ...
 
-			g_event.wait (); // thread sleeps here until event is signalled
+			g_event.wait(); // thread sleeps here until event is signalled
 
 			// continue...
 		}
 
-		thread2 ()
+		thread2()
 		{
 			// ...
 
-			g_event.wait (); // thread sleeps here until event is signalled
+			g_event.wait(); // thread sleeps here until event is signalled
 
 			// continue...
 		}
 
-		thread3 ()
+		thread3()
 		{
 			// ...
 
-			g_event.signal (); // thread1 and thread2 wake up and continue;
+			g_event.signal(); // thread1 and thread2 wake up and continue;
 			                    // g_event is still signalled
 
 			// ...
 			// if any other thread issues g_event.wait (), it will be satisfied
 			// immediatly
 
-			g_event.reset (); // not signalled anymore
+			g_event.reset(); // not signalled anymore
 		}
 
 	\sa `sys.Event`, `sys.Lock`, `sys.Thread`
@@ -77,21 +77,21 @@ namespace sys {
 
 opaque class NotificationEvent
 {
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
 	/**
 		Sets event to *signalled* state. All the waiting threads wake up, the
 		event remains in *signalled* state.
 	*/
 
-	signal ();
+	signal();
 
 	/**
 		Returns event to *idle* state.
 	*/
 
-	reset ();
+	reset();
 
 	/**
 		Waits until event goes to *signalled* state. When it happens, ``wait``
@@ -102,7 +102,7 @@ opaque class NotificationEvent
 		``wait`` return ``false``. Timeout is expressed in *milliseconds*.
 	*/
 
-	bool wait (uint_t timeout = -1);
+	bool wait(uint_t timeout = -1);
 }
 
 //..............................................................................

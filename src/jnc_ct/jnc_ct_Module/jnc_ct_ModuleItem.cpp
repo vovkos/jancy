@@ -19,17 +19,17 @@ namespace ct {
 //..............................................................................
 
 const sl::String&
-ModuleItemInitializer::getInitializerString ()
+ModuleItemInitializer::getInitializerString()
 {
-	if (!m_initializer.isEmpty () && m_initializerString.isEmpty ())
-		m_initializerString = Token::getTokenListString (m_initializer);
+	if (!m_initializer.isEmpty() && m_initializerString.isEmpty())
+		m_initializerString = Token::getTokenListString(m_initializer);
 
 	return m_initializerString;
 }
 
 //..............................................................................
 
-ModuleItemDecl::ModuleItemDecl ()
+ModuleItemDecl::ModuleItemDecl()
 {
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Public; // public by default
@@ -38,15 +38,15 @@ ModuleItemDecl::ModuleItemDecl ()
 }
 
 sl::String
-ModuleItemDecl::getDoxyLocationString ()
+ModuleItemDecl::getDoxyLocationString()
 {
 	if (!m_parentUnit)
-		return sl::String ();
+		return sl::String();
 
 	sl::String string;
 
-	string.format ("<location file='%s' line='%d' col='%d'/>\n",
-		m_parentUnit->getFileName ().sz (),
+	string.format("<location file='%s' line='%d' col='%d'/>\n",
+		m_parentUnit->getFileName().sz(),
 		m_pos.m_line + 1,
 		m_pos.m_col + 1
 		);
@@ -55,14 +55,14 @@ ModuleItemDecl::getDoxyLocationString ()
 }
 
 void
-ModuleItemDecl::pushSrcPosError ()
+ModuleItemDecl::pushSrcPosError()
 {
-	lex::pushSrcPosError (m_parentUnit->getFilePath (), m_pos);
+	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
 }
 
 //..............................................................................
 
-ModuleItem::ModuleItem ()
+ModuleItem::ModuleItem()
 {
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
@@ -71,56 +71,56 @@ ModuleItem::ModuleItem ()
 }
 
 ModuleItemDecl*
-ModuleItem::getDecl ()
+ModuleItem::getDecl()
 {
-	switch (m_itemKind)
+	switch(m_itemKind)
 	{
 	case ModuleItemKind_Namespace:
-		return (GlobalNamespace*) this;
+		return (GlobalNamespace*)this;
 
 	case ModuleItemKind_Scope:
-		return (Scope*) this;
+		return (Scope*)this;
 
 	case ModuleItemKind_Type:
-		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ?
-			(NamedType*) this :
+		return (((Type*)this)->getTypeKindFlags() & TypeKindFlag_Named) ?
+			(NamedType*)this :
 			NULL;
 
 	case ModuleItemKind_Typedef:
-		return (Typedef*) this;
+		return (Typedef*)this;
 
 	case ModuleItemKind_Alias:
-		return (Alias*) this;
+		return (Alias*)this;
 
 	case ModuleItemKind_Const:
-		return (Const*) this;
+		return (Const*)this;
 
 	case ModuleItemKind_Variable:
-		return (Variable*) this;
+		return (Variable*)this;
 
 	case ModuleItemKind_FunctionArg:
-		return (FunctionArg*) this;
+		return (FunctionArg*)this;
 
 	case ModuleItemKind_Function:
-		return (Function*) this;
+		return (Function*)this;
 
 	case ModuleItemKind_Property:
-		return (Property*) this;
+		return (Property*)this;
 
 	case ModuleItemKind_PropertyTemplate:
-		return (PropertyTemplate*) this;
+		return (PropertyTemplate*)this;
 
 	case ModuleItemKind_EnumConst:
-		return (EnumConst*) this;
+		return (EnumConst*)this;
 
 	case ModuleItemKind_StructField:
-		return (StructField*) this;
+		return (StructField*)this;
 
 	case ModuleItemKind_BaseTypeSlot:
-		return (BaseTypeSlot*) this;
+		return (BaseTypeSlot*)this;
 
 	case ModuleItemKind_Orphan:
-		return (Orphan*) this;
+		return (Orphan*)this;
 
 	default:
 		return NULL;
@@ -128,29 +128,29 @@ ModuleItem::getDecl ()
 }
 
 Namespace*
-ModuleItem::getNamespace ()
+ModuleItem::getNamespace()
 {
-	switch (m_itemKind)
+	switch(m_itemKind)
 	{
 	case ModuleItemKind_Namespace:
-		return (GlobalNamespace*) this;
+		return (GlobalNamespace*)this;
 
 	case ModuleItemKind_Scope:
-		return (Scope*) this;
+		return (Scope*)this;
 
 	case ModuleItemKind_Typedef:
-		return ((Typedef*) this)->getType ()->getNamespace ();
+		return ((Typedef*)this)->getType()->getNamespace();
 
 	case ModuleItemKind_Type:
-		return (((Type*) this)->getTypeKindFlags () & TypeKindFlag_Named) ?
-			(NamedType*) this :
+		return (((Type*)this)->getTypeKindFlags() & TypeKindFlag_Named) ?
+			(NamedType*)this :
 			NULL;
 
 	case ModuleItemKind_Property:
-		return (Property*) this;
+		return (Property*)this;
 
 	case ModuleItemKind_PropertyTemplate:
-		return (PropertyTemplate*) this;
+		return (PropertyTemplate*)this;
 
 	default:
 		return NULL;
@@ -158,50 +158,50 @@ ModuleItem::getNamespace ()
 }
 
 Type*
-ModuleItem::getType ()
+ModuleItem::getType()
 {
 	using namespace jnc;
 
-	switch (m_itemKind)
+	switch(m_itemKind)
 	{
 	case ModuleItemKind_Type:
-		return (ct::Type*) this;
+		return (ct::Type*)this;
 
 	case ModuleItemKind_Typedef:
-		return ((ct::Typedef*) this)->getType ();
+		return ((ct::Typedef*)this)->getType();
 
 	case ModuleItemKind_Const:
-		return ((ct::Const*) this)->getValue ().getType ();
+		return ((ct::Const*)this)->getValue().getType();
 
 	case ModuleItemKind_Variable:
-		return ((ct::Variable*) this)->getType ();
+		return ((ct::Variable*)this)->getType();
 
 	case ModuleItemKind_FunctionArg:
-		return ((ct::FunctionArg*) this)->getType ();
+		return ((ct::FunctionArg*)this)->getType();
 
 	case ModuleItemKind_Function:
-		return ((ct::Function*) this)->getType ();
+		return ((ct::Function*)this)->getType();
 
 	case ModuleItemKind_Property:
-		return ((ct::Property*) this)->getType ();
+		return ((ct::Property*)this)->getType();
 
 	case ModuleItemKind_PropertyTemplate:
-		return ((ct::PropertyTemplate*) this)->calcType ();
+		return ((ct::PropertyTemplate*)this)->calcType();
 
 	case ModuleItemKind_EnumConst:
-		return ((ct::EnumConst*) this)->getParentEnumType ();
+		return ((ct::EnumConst*)this)->getParentEnumType();
 
 	case ModuleItemKind_StructField:
-		return ((ct::StructField*) this)->getType ();
+		return ((ct::StructField*)this)->getType();
 
 	case ModuleItemKind_BaseTypeSlot:
-		return ((ct::BaseTypeSlot*) this)->getType ();
+		return ((ct::BaseTypeSlot*)this)->getType();
 
 	case ModuleItemKind_Orphan:
-		return ((ct::Orphan*) this)->getFunctionType ();
+		return ((ct::Orphan*)this)->getFunctionType();
 
 	case ModuleItemKind_Lazy:
-		return jnc_ModuleItem_getType (((ct::LazyModuleItem*) this)->getActualItem ());
+		return jnc_ModuleItem_getType(((ct::LazyModuleItem*)this)->getActualItem());
 
 	default:
 		return NULL;
@@ -209,7 +209,7 @@ ModuleItem::getType ()
 }
 
 bool
-ModuleItem::ensureLayout ()
+ModuleItem::ensureLayout()
 {
 	bool result;
 
@@ -218,13 +218,13 @@ ModuleItem::ensureLayout ()
 
 	if (m_flags & ModuleItemFlag_InCalcLayout)
 	{
-		err::setFormatStringError ("can't calculate layout of '%s' due to recursion", m_tag.sz ());
+		err::setFormatStringError("can't calculate layout of '%s' due to recursion", m_tag.sz ());
 		return false;
 	}
 
 	m_flags |= ModuleItemFlag_InCalcLayout;
 
-	result = calcLayout ();
+	result = calcLayout();
 
 	m_flags &= ~ModuleItemFlag_InCalcLayout;
 
@@ -236,18 +236,18 @@ ModuleItem::ensureLayout ()
 }
 
 DoxyBlock*
-ModuleItem::getDoxyBlock ()
+ModuleItem::getDoxyBlock()
 {
 	if (m_doxyBlock)
 		return m_doxyBlock;
 
-	m_doxyBlock = m_module->m_doxyMgr.createBlock ();
+	m_doxyBlock = m_module->m_doxyMgr.createBlock();
 	m_doxyBlock->m_item = this;
 	return m_doxyBlock;
 }
 
 DoxyBlock*
-ModuleItem::setDoxyBlock (DoxyBlock* block)
+ModuleItem::setDoxyBlock(DoxyBlock* block)
 {
 	DoxyBlock* prevBlock = m_doxyBlock;
 	m_doxyBlock = block;
@@ -259,34 +259,34 @@ ModuleItem::setDoxyBlock (DoxyBlock* block)
 }
 
 sl::String
-ModuleItem::createDoxyRefId ()
+ModuleItem::createDoxyRefId()
 {
-	sl::String refId = getModuleItemKindString (m_itemKind);
-	refId.replace ('-', '_');
+	sl::String refId = getModuleItemKindString(m_itemKind);
+	refId.replace('-', '_');
 
-	if (!m_tag.isEmpty ())
+	if (!m_tag.isEmpty())
 	{
-		refId.appendFormat ("_%s", m_tag.sz ());
-		refId.replace ('.', '_');
+		refId.appendFormat("_%s", m_tag.sz ());
+		refId.replace('.', '_');
 	}
 
-	refId.makeLowerCase ();
+	refId.makeLowerCase();
 
-	return m_module->m_doxyMgr.adjustRefId (refId);
+	return m_module->m_doxyMgr.adjustRefId(refId);
 }
 
 //..............................................................................
 
 ModuleItem*
-verifyModuleItemKind (
+verifyModuleItemKind(
 	ModuleItem* item,
 	ModuleItemKind itemKind,
 	const sl::StringRef& name
 	)
 {
-	if (item->getItemKind () != itemKind)
+	if (item->getItemKind() != itemKind)
 	{
-		err::setFormatStringError ("'%s' is not a %s", name.sz (), getModuleItemKindString (itemKind));
+		err::setFormatStringError("'%s' is not a %s", name.sz (), getModuleItemKindString (itemKind));
 		return NULL;
 	}
 
@@ -294,41 +294,41 @@ verifyModuleItemKind (
 }
 
 DerivableType*
-verifyModuleItemIsDerivableType (
+verifyModuleItemIsDerivableType(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 {
-	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+	Type* type = (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
 	if (!type)
 		return NULL;
 
-	if (!(type->getTypeKindFlags () & TypeKindFlag_Derivable))
+	if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError ("'%s' is not a derivable type", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a derivable type", type->getTypeString ().sz ());
 		return NULL;
 	}
 
-	return (DerivableType*) item;
+	return (DerivableType*)item;
 }
 
 ClassType*
-verifyModuleItemIsClassType (
+verifyModuleItemIsClassType(
 	ModuleItem* item,
 	const sl::StringRef& name
 	)
 {
-	Type* type = (Type*) verifyModuleItemKind (item, ModuleItemKind_Type, name);
+	Type* type = (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
 	if (!type)
 		return NULL;
 
-	if (type->getTypeKind () != TypeKind_Class)
+	if (type->getTypeKind() != TypeKind_Class)
 	{
-		err::setFormatStringError ("'%s' is not a class type", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a class type", type->getTypeString ().sz ());
 		return NULL;
 	}
 
-	return (ClassType*) item;
+	return (ClassType*)item;
 }
 
 //..............................................................................

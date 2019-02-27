@@ -50,190 +50,190 @@ void CModulePane::OnSize(UINT nType, int cx, int cy)
 }
 
 bool
-CModulePane::Build (jnc::CModule* pModule)
+CModulePane::Build(jnc::CModule* pModule)
 {
-	Clear ();
+	Clear();
 
-	jnc::CGlobalNamespace* pGlobalNamespace = pModule->m_NamespaceMgr.GetGlobalNamespace ();
-	AddNamespace (NULL, pGlobalNamespace);
+	jnc::CGlobalNamespace* pGlobalNamespace = pModule->m_NamespaceMgr.GetGlobalNamespace();
+	AddNamespace(NULL, pGlobalNamespace);
 
 	return true;
 }
 
 void
-CModulePane::Clear ()
+CModulePane::Clear()
 {
-	m_TreeCtrl.DeleteAllItems ();
+	m_TreeCtrl.DeleteAllItems();
 }
 
 bool
-CModulePane::AddItemAttributes (
+CModulePane::AddItemAttributes(
 	HTREEITEM hParent,
 	jnc::CModuleItem* pItem
 	)
 {
-	jnc::CModuleItemDecl* pDecl = pItem->GetItemDecl ();
+	jnc::CModuleItemDecl* pDecl = pItem->GetItemDecl();
 	if (!pDecl)
 		return false;
 
-	jnc::CAttributeBlock* pAttributeBlock = pDecl->GetAttributeBlock ();
+	jnc::CAttributeBlock* pAttributeBlock = pDecl->GetAttributeBlock();
 	if (!pAttributeBlock)
 		return false;
 
-	HTREEITEM hAttributes = m_TreeCtrl.InsertItem (L"attributes", hParent);
+	HTREEITEM hAttributes = m_TreeCtrl.InsertItem(L"attributes", hParent);
 
 	rtl::CString_w ItemName;
 
-	rtl::CIteratorT <jnc::CAttribute> Attribute = pAttributeBlock->GetAttributeList ().GetHead ();
+	rtl::CIteratorT<jnc::CAttribute> Attribute = pAttributeBlock->GetAttributeList().GetHead();
 	for (; Attribute; Attribute++)
 	{
-		jnc::CValue* pValue = Attribute->GetValue ();
+		jnc::CValue* pValue = Attribute->GetValue();
 
-		ItemName = Attribute->GetName ();
-		HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName, hAttributes);
+		ItemName = Attribute->GetName();
+		HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName, hAttributes);
 
-		m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) *Attribute);
+		m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)*Attribute);
 	}
 
-	m_TreeCtrl.Expand (hAttributes, TVE_EXPAND);
+	m_TreeCtrl.Expand(hAttributes, TVE_EXPAND);
 	return true;
 }
 
 void
-CModulePane::AddNamespace (
+CModulePane::AddNamespace(
 	HTREEITEM hParent,
 	jnc::CGlobalNamespace* pNamespace
 	)
 {
 	HTREEITEM hItem;
 
-	jnc::EModuleItem ItemKind = pNamespace->GetItemKind ();
+	jnc::EModuleItem ItemKind = pNamespace->GetItemKind();
 
 	if (ItemKind == jnc::EModuleItem_Scope)
 	{
-		hItem = m_TreeCtrl.InsertItem (L"scope", hParent);
+		hItem = m_TreeCtrl.InsertItem(L"scope", hParent);
 	}
-	else if (!pNamespace->GetParentNamespace ())
+	else if (!pNamespace->GetParentNamespace())
 	{
-		hItem = m_TreeCtrl.InsertItem (L"global", hParent);
+		hItem = m_TreeCtrl.InsertItem(L"global", hParent);
 	}
 	else
 	{
-		rtl::CString Name = rtl::CString::Format_s ("namespace %s", pNamespace->GetName ());
-		hItem = m_TreeCtrl.InsertItem (Name.cc2 (), hParent);
+		rtl::CString Name = rtl::CString::Format_s("namespace %s", pNamespace->GetName ());
+		hItem = m_TreeCtrl.InsertItem(Name.cc2(), hParent);
 	}
 
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pNamespace);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pNamespace);
 
-	size_t Count = pNamespace->GetItemCount ();
+	size_t Count = pNamespace->GetItemCount();
 	for (size_t i = 0; i < Count; i++)
 	{
-		jnc::CModuleItem* pItem = pNamespace->GetItem (i);
-		AddItem (hItem, pItem);
+		jnc::CModuleItem* pItem = pNamespace->GetItem(i);
+		AddItem(hItem, pItem);
 	}
 
-	m_TreeCtrl.Expand (hItem, TVE_EXPAND);
+	m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 }
 
 void
-CModulePane::AddItem (
+CModulePane::AddItem(
 	HTREEITEM hParent,
 	jnc::CModuleItem* pItem
 	)
 {
-	jnc::EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	jnc::EModuleItem ItemKind = pItem->GetItemKind();
+	switch(ItemKind)
 	{
 	case jnc::EModuleItem_Namespace:
-		AddNamespace (hParent, (jnc::CGlobalNamespace*) pItem);
+		AddNamespace(hParent, (jnc::CGlobalNamespace*)pItem);
 		break;
 
 	case jnc::EModuleItem_Type:
-		AddType (hParent, (jnc::CType*) pItem);
+		AddType(hParent, (jnc::CType*)pItem);
 		break;
 
 	case jnc::EModuleItem_Typedef:
-		AddTypedef (hParent, (jnc::CTypedef*) pItem);
+		AddTypedef(hParent, (jnc::CTypedef*)pItem);
 		break;
 
 	case jnc::EModuleItem_Variable:
-		AddVariable (hParent, (jnc::CVariable*) pItem);
+		AddVariable(hParent, (jnc::CVariable*)pItem);
 		break;
 
 	case jnc::EModuleItem_Function:
-		AddFunction (hParent, (jnc::CFunction*) pItem);
+		AddFunction(hParent, (jnc::CFunction*)pItem);
 		break;
 
 	case jnc::EModuleItem_Property:
-		AddProperty (hParent, (jnc::CProperty*) pItem);
+		AddProperty(hParent, (jnc::CProperty*)pItem);
 		break;
 
 	case jnc::EModuleItem_EnumConst:
-		AddEnumConst (hParent, (jnc::CEnumConst*) pItem);
+		AddEnumConst(hParent, (jnc::CEnumConst*)pItem);
 		break;
 
 	case jnc::EModuleItem_StructField:
-		AddStructField (hParent, (jnc::CStructField*) pItem);
+		AddStructField(hParent, (jnc::CStructField*)pItem);
 		break;
 
 	default:
 		rtl::CString Name;
-		Name.Format ("item %x of kind %d", pItem, ItemKind);
-		HTREEITEM hItem = m_TreeCtrl.InsertItem (Name.cc2 (), hParent);
-		m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pItem);
+		Name.Format("item %x of kind %d", pItem, ItemKind);
+		HTREEITEM hItem = m_TreeCtrl.InsertItem(Name.cc2(), hParent);
+		m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pItem);
 	}
 }
 
 void
-CModulePane::AddType (
+CModulePane::AddType(
 	HTREEITEM hParent,
 	jnc::CType* pType
 	)
 {
-	rtl::CString ItemName = pType->GetTypeString ();
+	rtl::CString ItemName = pType->GetTypeString();
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pType);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pType);
 
-	AddItemAttributes (hItem, pType);
+	AddItemAttributes(hItem, pType);
 
-	jnc::EType TypeKind = pType->GetTypeKind ();
-	switch (TypeKind)
+	jnc::EType TypeKind = pType->GetTypeKind();
+	switch(TypeKind)
 	{
 	case jnc::EType_Enum:
-		AddEnumTypeMembers (hItem, (jnc::CEnumType*) pType);
+		AddEnumTypeMembers(hItem, (jnc::CEnumType*)pType);
 		break;
 
 	case jnc::EType_Struct:
-		AddStructTypeMembers (hItem, (jnc::CStructType*) pType);
+		AddStructTypeMembers(hItem, (jnc::CStructType*)pType);
 		break;
 
 	case jnc::EType_Union:
-		AddUnionTypeMembers (hItem, (jnc::CUnionType*) pType);
+		AddUnionTypeMembers(hItem, (jnc::CUnionType*)pType);
 		break;
 
 	case jnc::EType_Class:
-		AddClassTypeMembers (hItem, (jnc::CClassType*) pType);
+		AddClassTypeMembers(hItem, (jnc::CClassType*)pType);
 		break;
 
 	case jnc::EType_Property:
-		AddPropertyTypeMembers (hItem, (jnc::CPropertyType*) pType);
+		AddPropertyTypeMembers(hItem, (jnc::CPropertyType*)pType);
 		break;
 	}
 }
 
 void
-CModulePane::AddEnumConst (
+CModulePane::AddEnumConst(
 	HTREEITEM hParent,
 	jnc::CEnumConst* pMember
 	)
 {
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (pMember->GetName ().cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pMember);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(pMember->GetName().cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pMember);
 }
 
 void
-CModulePane::AddValue (
+CModulePane::AddValue(
 	HTREEITEM hParent,
 	const char* pName,
 	jnc::CType* pType,
@@ -241,294 +241,294 @@ CModulePane::AddValue (
 	)
 {
 	rtl::CString ItemName;
-	ItemName.Format (
+	ItemName.Format(
 		"%s %s",
-		pType->GetTypeString (),
+		pType->GetTypeString(),
 		pName
 		);
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pItem);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pItem);
 }
 
 void
-CModulePane::AddEnumTypeMembers (
+CModulePane::AddEnumTypeMembers(
 	HTREEITEM hParent,
 	jnc::CEnumType* pType
 	)
 {
-	rtl::CIteratorT <jnc::CEnumConst> Member = pType->GetConstList ().GetHead ();
+	rtl::CIteratorT<jnc::CEnumConst> Member = pType->GetConstList().GetHead();
 	for (; Member; Member++)
-		AddEnumConst (hParent, *Member);
+		AddEnumConst(hParent, *Member);
 
-	m_TreeCtrl.Expand (hParent, TVE_EXPAND);
+	m_TreeCtrl.Expand(hParent, TVE_EXPAND);
 }
 /*
 void
-CModulePane::AddStructClassTypeMembers (
+CModulePane::AddStructClassTypeMembers(
 	HTREEITEM hParent,
 	jnc::CStructClassType* pType
 	)
 {
 	rtl::CString ItemName;
 
-	size_t Count = pType->GetBaseTypeCount ();
+	size_t Count = pType->GetBaseTypeCount();
 	if (Count)
 	{
-		HTREEITEM hInheritanceItem = m_TreeCtrl.InsertItem ("Inheritance", hParent);
+		HTREEITEM hInheritanceItem = m_TreeCtrl.InsertItem("Inheritance", hParent);
 
 		for (size_t i = 0; i < Count; i++)
 		{
-			jnc::CType* pBaseType = pType->GetBaseType (i);
+			jnc::CType* pBaseType = pType->GetBaseType(i);
 
-			ItemName = pBaseType->GetTypeString ();
-			HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName, hInheritanceItem);
-			m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pBaseType);
+			ItemName = pBaseType->GetTypeString();
+			HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName, hInheritanceItem);
+			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pBaseType);
 		}
 	}
 
-	Count = pType->GetGenericArgumentCount ();
+	Count = pType->GetGenericArgumentCount();
 	if (Count)
 	{
-		HTREEITEM hGenericItem = m_TreeCtrl.InsertItem ("Generic", hParent);
+		HTREEITEM hGenericItem = m_TreeCtrl.InsertItem("Generic", hParent);
 
 		for (size_t i = 0; i < Count; i++)
 		{
-			jnc::CImportType* pBaseType = pType->GetGenericArgument (i);
+			jnc::CImportType* pBaseType = pType->GetGenericArgument(i);
 
-			ItemName = pBaseType->GetTypeString ();
-			HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName, hGenericItem);
-			m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pBaseType);
+			ItemName = pBaseType->GetTypeString();
+			HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName, hGenericItem);
+			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pBaseType);
 		}
 	}
 
 }
 */
 void
-CModulePane::AddStructTypeMembers (
+CModulePane::AddStructTypeMembers(
 	HTREEITEM hParent,
 	jnc::CStructType* pType
 	)
 {
 //	AddStructClassTypeMembers (hParent, pType);
 
-	rtl::CIteratorT <jnc::CStructField> Member = pType->GetFieldList ().GetHead ();
+	rtl::CIteratorT<jnc::CStructField> Member = pType->GetFieldList().GetHead();
 	for (; Member; Member++)
-		AddStructField (hParent, *Member);
+		AddStructField(hParent, *Member);
 
-	m_TreeCtrl.Expand (hParent, TVE_EXPAND);
+	m_TreeCtrl.Expand(hParent, TVE_EXPAND);
 }
 
 void
-CModulePane::AddUnionTypeMembers (
+CModulePane::AddUnionTypeMembers(
 	HTREEITEM hParent,
 	jnc::CUnionType* pType
 	)
 {
 //	AddStructClassTypeMembers (hParent, pType);
 
-	rtl::CIteratorT <jnc::CStructField> Member = pType->GetFieldList ().GetHead ();
+	rtl::CIteratorT<jnc::CStructField> Member = pType->GetFieldList().GetHead();
 	for (; Member; Member++)
-		AddStructField (hParent, *Member);
+		AddStructField(hParent, *Member);
 
-	m_TreeCtrl.Expand (hParent, TVE_EXPAND);
+	m_TreeCtrl.Expand(hParent, TVE_EXPAND);
 }
 
 void
-CModulePane::AddClassTypeMembers (
+CModulePane::AddClassTypeMembers(
 	HTREEITEM hParent,
 	jnc::CClassType* pType
 	)
 {
 //	AddStructClassTypeMembers (hParent, pType);
 
-	size_t Count = pType->GetItemCount ();
+	size_t Count = pType->GetItemCount();
 	for (size_t i = 0; i < Count; i++)
 	{
-		jnc::CModuleItem* pMember = pType->GetItem (i);
-		AddItem (hParent, pMember);
+		jnc::CModuleItem* pMember = pType->GetItem(i);
+		AddItem(hParent, pMember);
 	}
 
-	m_TreeCtrl.Expand (hParent, TVE_EXPAND);
+	m_TreeCtrl.Expand(hParent, TVE_EXPAND);
 }
 
 void
-CModulePane::AddPropertyTypeMembers (
+CModulePane::AddPropertyTypeMembers(
 	HTREEITEM hParent,
 	jnc::CPropertyType* pType
 	)
 {
-	rtl::CString ItemName = pType->GetTypeString ();
+	rtl::CString ItemName = pType->GetTypeString();
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pType);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pType);
 
-	jnc::CFunctionType* pGetterType = pType->GetGetterType ();
-	jnc::CFunctionTypeOverload* pSetterType = pType->GetSetterType ();
+	jnc::CFunctionType* pGetterType = pType->GetGetterType();
+	jnc::CFunctionTypeOverload* pSetterType = pType->GetSetterType();
 
-	AddType (hItem, pGetterType);
+	AddType(hItem, pGetterType);
 
-	size_t SetterOverloadCount = pSetterType->GetOverloadCount ();
+	size_t SetterOverloadCount = pSetterType->GetOverloadCount();
 	for (size_t i = 0; i < SetterOverloadCount; i++)
 	{
-		jnc::CFunctionType* pOverload = pSetterType->GetOverload (i);
-		AddType (hItem, pOverload);
+		jnc::CFunctionType* pOverload = pSetterType->GetOverload(i);
+		AddType(hItem, pOverload);
 	}
 
-	m_TreeCtrl.Expand (hItem, TVE_EXPAND);
+	m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 }
 
 
 void
-CModulePane::AddTypedef (
+CModulePane::AddTypedef(
 	HTREEITEM hParent,
 	jnc::CTypedef* pTypedef
 	)
 {
 	rtl::CString ItemName;
-	ItemName.Format (
+	ItemName.Format(
 		"typedef %s %s",
-		pTypedef->GetType ()->GetTypeString (),
-		pTypedef->GetName ()
+		pTypedef->GetType()->GetTypeString(),
+		pTypedef->GetName()
 		);
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pTypedef);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pTypedef);
 }
 
 void
-CModulePane::AddVariable (
+CModulePane::AddVariable(
 	HTREEITEM hParent,
 	jnc::CVariable* pVariable
 	)
 {
 	rtl::CString ItemName;
-	ItemName.Format (
+	ItemName.Format(
 		"%s %s",
-		pVariable->GetType ()->GetTypeString (),
-		pVariable->GetName ()
+		pVariable->GetType()->GetTypeString(),
+		pVariable->GetName()
 		);
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pVariable);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pVariable);
 }
 
 void
-CModulePane::AddFunction (
+CModulePane::AddFunction(
 	HTREEITEM hParent,
 	jnc::CFunction* pFunction
 	)
 {
-	if (!pFunction->IsOverloaded ())
+	if (!pFunction->IsOverloaded())
 	{
-		AddFunctionImpl (hParent, pFunction);
+		AddFunctionImpl(hParent, pFunction);
 	}
 	else
 	{
-		size_t Count = pFunction->GetOverloadCount ();
+		size_t Count = pFunction->GetOverloadCount();
 
 		rtl::CString ItemName;
-		ItemName.Format (
+		ItemName.Format(
 			"function %s (%d overloads)",
 			pFunction->m_Tag,
 			Count
 			);
 
-		HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
+		HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
 		for (size_t i = 0; i < Count; i++)
 		{
-			jnc::CFunction* pOverload = pFunction->GetOverload (i);
-			AddFunctionImpl (hItem, pOverload);
+			jnc::CFunction* pOverload = pFunction->GetOverload(i);
+			AddFunctionImpl(hItem, pOverload);
 		}
 
-		m_TreeCtrl.Expand (hItem, TVE_EXPAND);
+		m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 	}
 }
 
 void
-CModulePane::AddFunctionImpl (
+CModulePane::AddFunctionImpl(
 	HTREEITEM hParent,
 	jnc::CFunction* pFunction
 	)
 {
-	jnc::CFunctionType* pType = pFunction->GetType ();
+	jnc::CFunctionType* pType = pFunction->GetType();
 
-	rtl::CString Name = pFunction->GetFunctionKind () == jnc::EFunction_Named ?
-		pFunction->GetName () :
-		jnc::GetFunctionKindString (pFunction->GetFunctionKind ());
+	rtl::CString Name = pFunction->GetFunctionKind() == jnc::EFunction_Named ?
+		pFunction->GetName() :
+		jnc::GetFunctionKindString(pFunction->GetFunctionKind());
 
 	rtl::CString ItemName;
-	ItemName.Format (
+	ItemName.Format(
 		"%s %s %s",
-		pType->GetReturnType ()->GetTypeString (),
+		pType->GetReturnType()->GetTypeString(),
 		Name,
-		pFunction->GetType ()->GetArgString ()
+		pFunction->GetType()->GetArgString()
 		);
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (ItemName.cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pFunction);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(ItemName.cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pFunction);
 }
 
 void
-CModulePane::AddProperty (
+CModulePane::AddProperty(
 	HTREEITEM hParent,
 	jnc::CProperty* pProperty
 	)
 {
-	HTREEITEM hItem = m_TreeCtrl.InsertItem (pProperty->GetName ().cc2 (), hParent);
-	m_TreeCtrl.SetItemData (hItem, (DWORD_PTR) (jnc::CModuleItem*) pProperty);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(pProperty->GetName().cc2(), hParent);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(jnc::CModuleItem*)pProperty);
 
-	jnc::CFunction* pGetter = pProperty->GetGetter ();
-	jnc::CFunction* pSetter = pProperty->GetSetter ();
+	jnc::CFunction* pGetter = pProperty->GetGetter();
+	jnc::CFunction* pSetter = pProperty->GetSetter();
 
-	AddFunction (hItem, pGetter);
+	AddFunction(hItem, pGetter);
 
 	if (pSetter)
-		AddFunction (hItem, pSetter);
+		AddFunction(hItem, pSetter);
 
-	m_TreeCtrl.Expand (hItem, TVE_EXPAND);
+	m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 }
 
 rtl::CString
-GetNamespaceTip (jnc::CGlobalNamespace* pNamespace)
+GetNamespaceTip(jnc::CGlobalNamespace* pNamespace)
 {
-	return rtl::CString::Format_s ("namespace %s", pNamespace->GetQualifiedName ());
+	return rtl::CString::Format_s("namespace %s", pNamespace->GetQualifiedName ());
 }
 
 rtl::CString
-GetVariableTip (jnc::CVariable* pVariable)
+GetVariableTip(jnc::CVariable* pVariable)
 {
-	jnc::CType* pType = pVariable->GetType ();
+	jnc::CType* pType = pVariable->GetType();
 
-	return rtl::CString::Format_s (
+	return rtl::CString::Format_s(
 		"%s %s (%d bytes)",
-		pType->GetTypeString (),
-		pVariable->GetQualifiedName (),
-		pType->GetSize ()
+		pType->GetTypeString(),
+		pVariable->GetQualifiedName(),
+		pType->GetSize()
 		);
 }
 
 rtl::CString
-GetFunctionTip (jnc::CFunction* pFunction)
+GetFunctionTip(jnc::CFunction* pFunction)
 {
-	jnc::CFunctionType* pType = pFunction->GetType ();
+	jnc::CFunctionType* pType = pFunction->GetType();
 
 	rtl::CString TipText;
-	TipText.Format (
+	TipText.Format(
 		"%s %s",
-		pType->GetReturnType ()->GetTypeString (),
-		pFunction->GetType ()->GetArgString ()
+		pType->GetReturnType()->GetTypeString(),
+		pFunction->GetType()->GetArgString()
 		);
 
-	jnc::CScope* pScope = pFunction->GetScope ();
+	jnc::CScope* pScope = pFunction->GetScope();
 	if (!pScope)
 		return TipText;
 
-	jnc::CToken::CPos Pos = *pScope->GetBeginPos ();
-	jnc::CToken::CPos PosEnd = *pScope->GetEndPos ();
+	jnc::CToken::CPos Pos = *pScope->GetBeginPos();
+	jnc::CToken::CPos PosEnd = *pScope->GetEndPos();
 
-	TipText.Append ("\n");
-	TipText.Append (
+	TipText.Append("\n");
+	TipText.Append(
 		Pos.m_p,
 		PosEnd.m_p - Pos.m_p + PosEnd.m_Length
 		);
@@ -537,49 +537,49 @@ GetFunctionTip (jnc::CFunction* pFunction)
 }
 
 rtl::CString
-GetPropertyTip (jnc::CProperty* pProperty)
+GetPropertyTip(jnc::CProperty* pProperty)
 {
-	jnc::CPropertyType* pType = pProperty->GetType ();
+	jnc::CPropertyType* pType = pProperty->GetType();
 
 	rtl::CString TipText;
-	TipText.Format (
+	TipText.Format(
 		"%s property %s",
-		pType->GetReturnType ()->GetTypeString (),
-		pProperty->GetName ()
+		pType->GetReturnType()->GetTypeString(),
+		pProperty->GetName()
 		);
 
 	return TipText;
 }
 
 rtl::CString
-GetStructFieldTip (jnc::CStructField* pMember)
+GetStructFieldTip(jnc::CStructField* pMember)
 {
-	jnc::CType* pType = pMember->GetType ();
+	jnc::CType* pType = pMember->GetType();
 
-	return rtl::CString::Format_s (
+	return rtl::CString::Format_s(
 		"%s %s.%s (%d bytes)",
-		pType->GetTypeString (),
-		pMember->GetParentNamespace ()->GetQualifiedName (),
-		pMember->GetName (),
-		pType->GetSize ()
+		pType->GetTypeString(),
+		pMember->GetParentNamespace()->GetQualifiedName(),
+		pMember->GetName(),
+		pType->GetSize()
 		);
 }
 
 rtl::CString
-GetEnumConstTip (jnc::CEnumConst* pMember)
+GetEnumConstTip(jnc::CEnumConst* pMember)
 {
-	rtl::CString TipText = pMember->GetName ();
+	rtl::CString TipText = pMember->GetName();
 
-	rtl::CConstBoxListT <jnc::CToken> Initializer = pMember->GetInitializer ();
+	rtl::CConstBoxListT<jnc::CToken> Initializer = pMember->GetInitializer();
 
-	if (Initializer.IsEmpty ())
+	if (Initializer.IsEmpty())
 		return TipText;
 
-	rtl::CBoxIteratorT <jnc::CToken> First = Initializer.GetHead ();
-	rtl::CBoxIteratorT <jnc::CToken> Last = Initializer.GetTail ();
+	rtl::CBoxIteratorT<jnc::CToken> First = Initializer.GetHead();
+	rtl::CBoxIteratorT<jnc::CToken> Last = Initializer.GetTail();
 
-	TipText.Append (" = ");
-	TipText.Append (
+	TipText.Append(" = ");
+	TipText.Append(
 		First->m_Pos.m_p,
 		Last->m_Pos.m_p - First->m_Pos.m_p + Last->m_Pos.m_Length
 		);
@@ -588,64 +588,64 @@ GetEnumConstTip (jnc::CEnumConst* pMember)
 }
 
 rtl::CString
-CModulePane::GetItemTip (jnc::CModuleItem* pItem)
+CModulePane::GetItemTip(jnc::CModuleItem* pItem)
 {
-	jnc::CProperty* pProperty = (jnc::CProperty*) pItem;
+	jnc::CProperty* pProperty = (jnc::CProperty*)pItem;
 
-	jnc::EModuleItem ItemKind = pItem->GetItemKind ();
-	switch (ItemKind)
+	jnc::EModuleItem ItemKind = pItem->GetItemKind();
+	switch(ItemKind)
 	{
 	case jnc::EModuleItem_Namespace:
-		return GetNamespaceTip ((jnc::CGlobalNamespace*) pItem);
+		return GetNamespaceTip((jnc::CGlobalNamespace*)pItem);
 
 	case jnc::EModuleItem_Variable:
-		return GetVariableTip ((jnc::CVariable*) pItem);
+		return GetVariableTip((jnc::CVariable*)pItem);
 
 	case jnc::EModuleItem_Function:
-		return GetFunctionTip ((jnc::CFunction*) pItem);
+		return GetFunctionTip((jnc::CFunction*)pItem);
 
 	case jnc::EModuleItem_Property:
-		return GetPropertyTip ((jnc::CProperty*) pItem);
+		return GetPropertyTip((jnc::CProperty*)pItem);
 
 	case jnc::EModuleItem_Type:
-		return ((jnc::CType*) pItem)->GetTypeString ();
+		return ((jnc::CType*)pItem)->GetTypeString();
 
 	case jnc::EModuleItem_Typedef:
-		return ((jnc::CTypedef*) pItem)->GetQualifiedName ();
+		return ((jnc::CTypedef*)pItem)->GetQualifiedName();
 
 	case jnc::EModuleItem_StructField:
-		return GetStructFieldTip ((jnc::CStructField*) pItem);
+		return GetStructFieldTip((jnc::CStructField*)pItem);
 
 	case jnc::EModuleItem_EnumConst:
-		return GetEnumConstTip ((jnc::CEnumConst*) pItem);
+		return GetEnumConstTip((jnc::CEnumConst*)pItem);
 
 	default:
-		return rtl::CString::Format_s ("item %x of kind %d", pItem, ItemKind);
+		return rtl::CString::Format_s("item %x of kind %d", pItem, ItemKind);
 	}
 }
 
 void
-CModulePane::OnDblClk (NMHDR* pNMHDR, LRESULT* pResult)
+CModulePane::OnDblClk(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	HTREEITEM hItem = m_TreeCtrl.GetSelectedItem ();
+	HTREEITEM hItem = m_TreeCtrl.GetSelectedItem();
 	if (!hItem)
 		return;
 
-	jnc::CModuleItem* pItem = (jnc::CModuleItem*) m_TreeCtrl.GetItemData (hItem);
+	jnc::CModuleItem* pItem = (jnc::CModuleItem*)m_TreeCtrl.GetItemData(hItem);
 	if (!pItem)
 		return;
 
-	jnc::CModuleItemDecl* pDecl = pItem->GetItemDecl ();
+	jnc::CModuleItemDecl* pDecl = pItem->GetItemDecl();
 	if (!pDecl)
 		return;
 
-	CEditView* pView = GetMainFrame ()->GetDocument ()->GetView ();
+	CEditView* pView = GetMainFrame()->GetDocument()->GetView();
 
-	int Offset1 = pView->GetEditCtrl ().LineIndex (pDecl->GetPos ()->m_Line);
-	int Offset2 = pView->GetEditCtrl ().LineIndex (pDecl->GetPos ()->m_Line + 1);
+	int Offset1 = pView->GetEditCtrl().LineIndex(pDecl->GetPos()->m_Line);
+	int Offset2 = pView->GetEditCtrl().LineIndex(pDecl->GetPos()->m_Line + 1);
 
-	pView->GetEditCtrl ().SetSel (Offset1, Offset1);
-	pView->GetEditCtrl ().SetSel (Offset1, Offset2);
+	pView->GetEditCtrl().SetSel(Offset1, Offset1);
+	pView->GetEditCtrl().SetSel(Offset1, Offset2);
 
 
 	*pResult = 0;
@@ -654,24 +654,24 @@ CModulePane::OnDblClk (NMHDR* pNMHDR, LRESULT* pResult)
 void
 CModulePane::OnGetInfoTip(NMHDR* pNMHDR, LRESULT* pResult)
 {
-	NMTVGETINFOTIP* pInfoTip = (NMTVGETINFOTIP*) pNMHDR;
-	jnc::CModuleItem* pItem = (jnc::CModuleItem*) pInfoTip->lParam;
+	NMTVGETINFOTIP* pInfoTip = (NMTVGETINFOTIP*)pNMHDR;
+	jnc::CModuleItem* pItem = (jnc::CModuleItem*)pInfoTip->lParam;
 	if (!pItem)
 		return;
 
-	rtl::CString_w Tip = GetItemTip (pItem);
+	rtl::CString_w Tip = GetItemTip(pItem);
 
-	size_t CopyLength = Tip.GetLength ();
-	if (CopyLength > (size_t) pInfoTip->cchTextMax)
+	size_t CopyLength = Tip.GetLength();
+	if (CopyLength > (size_t)pInfoTip->cchTextMax)
 		CopyLength = pInfoTip->cchTextMax;
 
-	wcsncpy (
+	wcsncpy(
 		pInfoTip->pszText,
 		Tip,
 		CopyLength
 		);
 
-	pInfoTip->pszText [CopyLength] = 0;
+	pInfoTip->pszText[CopyLength] = 0;
 }
 
 //..............................................................................

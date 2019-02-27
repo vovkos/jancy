@@ -15,51 +15,51 @@ class C2
 	{
 		autoget alias m_value = m_classValue;
 		bindable alias m_onChanged = m_classOnChanged;
-		
-		set (int x)
+
+		set(int x)
 		{
 			m_value = x;
-			m_onChanged ();
+			m_onChanged();
 		}
 	}
 
 	int m_classValue;
-	event m_classOnChanged ();
+	event m_classOnChanged();
 }
 
-foo ()
+foo()
 {
-	printf ("foo ()\n");
+	printf("foo ()\n");
 }
 
-int foo (int x)
+int foo(int x)
 {
-	printf ("foo (%d)\n", x);
+	printf("foo (%d)\n", x);
 	return 2 * x;
 }
 
 alias bar = foo;
-	
-int baz (int) = foo;
 
-baz ()
+int baz(int) = foo;
+
+baz()
 {
-	printf ("baz ()\n");
+	printf("baz ()\n");
 }
 
-int main ()
+int main()
 {
-	bar ();
-	bar (100);
+	bar();
+	bar(100);
 
 	C2 c2;
-	bindingof (c2.m_prop) += foo;
+	bindingof(c2.m_prop) += foo;
 	c2.m_prop = 555;
 
-	printf ("m_classValue = %d\n", c2.m_classValue);
+	printf("m_classValue = %d\n", c2.m_classValue);
 
-	baz ();
-	baz (255);
+	baz();
+	baz(255);
 
 	return 0;
 }

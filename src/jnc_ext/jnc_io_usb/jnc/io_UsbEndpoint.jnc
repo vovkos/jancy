@@ -43,7 +43,7 @@ enum UsbIsoUsage: uint8_t
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 char const*
-getUsbTransferTypeString (UsbTransferType type);
+getUsbTransferTypeString(UsbTransferType type);
 
 //..............................................................................
 
@@ -128,30 +128,30 @@ opaque class UsbEndpoint
 
 	bool readonly m_isOpen;
 
-	construct ();
-	destruct ();
+	construct();
+	destruct();
 
-	void close ();
+	void close();
 	alias void dispose = close;
 
-	size_t errorcode read (
+	size_t errorcode read(
 		void* p,
 		size_t size
 		);
 
-	size_t errorcode write (
+	size_t errorcode write(
 		void const* p,
 		size_t size
 		);
 
-	intptr errorcode wait (
+	intptr errorcode wait(
 		UsbEndpointEvents eventMask,
-		function* handler (UsbEndpointEvents triggeredEvents)
+		function* handler(UsbEndpointEvents triggeredEvents)
 		);
 
-	bool errorcode cancelWait (intptr handle);
+	bool errorcode cancelWait(intptr handle);
 
-	UsbEndpointEvents errorcode blockingWait (
+	UsbEndpointEvents errorcode blockingWait(
 		UsbEndpointEvents eventMask,
 		uint_t timeout = -1
 		);

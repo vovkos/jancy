@@ -17,20 +17,20 @@ class Hui
 
 //..............................................................................
 
-Hui* foo ()
+Hui* foo()
 {
 	return new Hui;
 }
 
-Hui* bar ()
+Hui* bar()
 {
-	return foo ();
+	return foo();
 }
 
 
-int main ()
+int main()
 {
-	printf ("main ()\n");
+	printf("main ()\n");
 	return 0;
 }
 

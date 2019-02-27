@@ -25,25 +25,25 @@ class ClosureClassType: public ClassType
 	friend class TypeMgr;
 
 public:
-	sl::Array <size_t> m_closureMap;
+	sl::Array<size_t> m_closureMap;
 	size_t m_thisArgFieldIdx;
 
 public:
-	ClosureClassType ()
+	ClosureClassType()
 	{
 		m_flags |= ClassTypeFlag_Closure;
 		m_thisArgFieldIdx = -1;
 	}
 
 	size_t
-	getThisArgFieldIdx ()
+	getThisArgFieldIdx()
 	{
 		return m_thisArgFieldIdx;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		Type* targetType, // function or property
 		Type* thunkType, // function or property
 		Type* const* argTypeArray,
@@ -54,18 +54,18 @@ public:
 
 	virtual
 	bool
-	compile () = 0;
+	compile() = 0;
 
 	IfaceHdr*
-	strengthen (IfaceHdr* p);
+	strengthen(IfaceHdr* p);
 
 protected:
 	void
-	buildArgValueList (
+	buildArgValueList(
 		const Value& closureValue,
 		const Value* thunkArgValueArray,
 		size_t thunkArgCount,
-		sl::BoxList <Value>* argValueList
+		sl::BoxList<Value>* argValueList
 		);
 };
 
@@ -79,17 +79,17 @@ protected:
 	Function* m_thunkFunction;
 
 public:
-	FunctionClosureClassType ();
+	FunctionClosureClassType();
 
 	Function*
-	getThunkFunction ()
+	getThunkFunction()
 	{
 		return m_thunkFunction;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 };
 
 //..............................................................................
@@ -102,21 +102,21 @@ protected:
 	Property* m_thunkProperty;
 
 public:
-	PropertyClosureClassType ();
+	PropertyClosureClassType();
 
 	Property*
-	getThunkProperty ()
+	getThunkProperty()
 	{
 		return m_thunkProperty;
 	}
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 protected:
 	bool
-	compileAccessor (Function* accessor);
+	compileAccessor(Function* accessor);
 };
 
 //..............................................................................
@@ -129,31 +129,31 @@ protected:
 	Property* m_thunkProperty;
 
 public:
-	DataClosureClassType ();
+	DataClosureClassType();
 
 	Property*
-	getThunkProperty ()
+	getThunkProperty()
 	{
 		return m_thunkProperty;
 	}
 
 	static
 	sl::String
-	createSignature (
+	createSignature(
 		Type* targetType,
 		PropertyType* thunkType
 		);
 
 	virtual
 	bool
-	compile ();
+	compile();
 
 protected:
 	bool
-	compileGetter (Function* getter);
+	compileGetter(Function* getter);
 
 	bool
-	compileSetter (Function* setter);
+	compileSetter(Function* setter);
 };
 
 //..............................................................................
