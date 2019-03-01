@@ -34,11 +34,11 @@
 #include "jnc_ct_CastOp_ClassPtr.h"
 #include "jnc_ct_CastOp_FunctionPtr.h"
 #include "jnc_ct_CastOp_PropertyPtr.h"
-#include "jnc_ct_StructType.h"
-#include "jnc_ct_UnionType.h"
+#include "jnc_ct_DataPtrType.h"
+#include "jnc_ct_ClassPtrType.h"
 #include "jnc_ct_ClassType.h"
-#include "jnc_ct_VariableMgr.h"
-#include "jnc_ct_FunctionMgr.h"
+#include "jnc_ct_StdFunction.h"
+#include "jnc_ct_Property.h"
 
 namespace jnc {
 namespace ct {
@@ -848,7 +848,7 @@ public:
 	getNewOperatorResultType(Type* type)
 	{
 		return type->getTypeKind() == TypeKind_Class ?
-			(Type*)((ClassType*)type)->getClassPtrType() :
+			(Type*) ((ClassType*)type)->getClassPtrType() :
 			type->getDataPtrType();
 	}
 
@@ -1096,12 +1096,6 @@ public:
 
 	void
 	gcSafePoint();
-
-	void
-	checkStackOverflow();
-
-	void
-	checkDivByZero(const Value& value);
 
 	// closure operators
 

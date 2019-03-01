@@ -13,6 +13,23 @@
 #include "jnc_ct_TypeMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_DeclTypeCalc.h"
+#include "jnc_ct_ArrayType.h"
+#include "jnc_ct_BitFieldType.h"
+#include "jnc_ct_EnumType.h"
+#include "jnc_ct_StructType.h"
+#include "jnc_ct_UnionType.h"
+#include "jnc_ct_ClassType.h"
+#include "jnc_ct_FunctionType.h"
+#include "jnc_ct_PropertyType.h"
+#include "jnc_ct_DataPtrType.h"
+#include "jnc_ct_ClassPtrType.h"
+#include "jnc_ct_FunctionPtrType.h"
+#include "jnc_ct_PropertyPtrType.h"
+#include "jnc_ct_ImportType.h"
+#include "jnc_ct_ReactorClassType.h"
+#include "jnc_ct_ClosureClassType.h"
+#include "jnc_ct_MulticastClassType.h"
+#include "jnc_ct_McSnapshotClassType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_Variant.h"
 
@@ -39,39 +56,18 @@ TypeMgr::TypeMgr()
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
 	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
 
-	m_unnamedEnumTypeCounter = 0;
-	m_unnamedStructTypeCounter = 0;
-	m_unnamedUnionTypeCounter = 0;
-	m_unnamedClassTypeCounter = 0;
-
+	m_unnamedTypeCounter = 0;
 	m_parseStdTypeLevel = 0;
 }
 
 void
 TypeMgr::clear()
 {
-	m_arrayTypeList.clear();
-	m_bitFieldTypeList.clear();
-	m_enumTypeList.clear();
-	m_structTypeList.clear();
-	m_unionTypeList.clear();
-	m_classTypeList.clear();
-	m_functionTypeList.clear();
-	m_propertyTypeList.clear();
-	m_dataPtrTypeList.clear();
-	m_classPtrTypeList.clear();
-	m_functionPtrTypeList.clear();
-	m_propertyPtrTypeList.clear();
-	m_namedImportTypeList.clear();
-	m_importPtrTypeList.clear();
-	m_importIntModTypeList.clear();
-	m_reactorClassTypeList.clear();
-	m_functionClosureClassTypeList.clear();
-	m_propertyClosureClassTypeList.clear();
-	m_dataClosureClassTypeList.clear();
-	m_multicastClassTypeList.clear();
-	m_mcSnapshotClassTypeList.clear();
-	m_typedefShadowTypeList.clear();
+	m_typeList.clear();
+	m_typedefList.clear();
+	m_lazyStdTypeList.clear();
+	m_functionArgList.clear();
+	m_structFieldList.clear();
 
 	m_simplePropertyTypeTupleList.clear();
 	m_functionArgTupleList.clear();
@@ -80,11 +76,6 @@ TypeMgr::clear()
 	m_functionPtrTypeTupleList.clear();
 	m_propertyPtrTypeTupleList.clear();
 	m_dualTypeTupleList.clear();
-
-	m_typedefList.clear();
-	m_lazyStdTypeList.clear();
-	m_functionArgList.clear();
-	m_structFieldList.clear();
 
 	m_typeMap.clear();
 
@@ -97,11 +88,7 @@ TypeMgr::clear()
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
 	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
 
-	m_unnamedEnumTypeCounter = 0;
-	m_unnamedStructTypeCounter = 0;
-	m_unnamedUnionTypeCounter = 0;
-	m_unnamedClassTypeCounter = 0;
-
+	m_unnamedTypeCounter = 0;
 	m_parseStdTypeLevel = 0;
 }
 
@@ -514,8 +501,7 @@ TypeMgr::getBitFieldType(
 	type->m_baseType = baseType;
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
-
-	m_bitFieldTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	it->m_value = type;
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
@@ -540,7 +526,7 @@ TypeMgr::createAutoSizeArrayType(Type* elementType)
 	type->m_flags |= ArrayTypeFlag_AutoSize;
 	type->m_module = m_module;
 	type->m_elementType = elementType;
-	m_arrayTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)elementType)->addFixup(&type->m_elementType);
@@ -563,7 +549,7 @@ TypeMgr::createArrayType(
 	sl::takeOver(&type->m_elementCountInitializer, elementCountInitializer);
 	type->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	type->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_arrayTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)elementType)->addFixup(&type->m_elementType);
@@ -604,7 +590,7 @@ TypeMgr::getArrayType(
 	type->m_typeMapIt = it;
 	type->m_elementType = elementType;
 	type->m_elementCount = elementCount;
-	m_arrayTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
 	{
@@ -656,7 +642,7 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 	type->m_attributeBlock = tdef->m_attributeBlock;
 	type->m_signature.format("T%s", tdef->m_qualifiedName.sz ());
 	type->m_typedef = tdef;
-	m_typedefShadowTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	return type;
 }
@@ -677,9 +663,9 @@ TypeMgr::createEnumType(
 
 	if (name.isEmpty())
 	{
-		m_unnamedEnumTypeCounter++;
-		type->m_signature.format("%s%d", signaturePrefix, m_unnamedEnumTypeCounter);
-		type->m_tag.format(".UnnamedEnum%d", m_unnamedEnumTypeCounter);
+		m_unnamedTypeCounter++;
+		type->m_signature.format("%s%d", signaturePrefix, m_unnamedTypeCounter);
+		type->m_tag.format(".UnnamedEnum%d", m_unnamedTypeCounter);
 	}
 	else
 	{
@@ -698,7 +684,7 @@ TypeMgr::createEnumType(
 	type->m_module = m_module;
 	type->m_baseType = baseType;
 	type->m_flags |= flags;
-	m_enumTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)baseType)->addFixup(&type->m_baseType);
@@ -719,9 +705,9 @@ TypeMgr::createStructType(
 
 	if (name.isEmpty())
 	{
-		m_unnamedStructTypeCounter++;
-		type->m_signature.format("S%d", m_unnamedStructTypeCounter);
-		type->m_tag.format(".UnnamedStruct%d", m_unnamedStructTypeCounter);
+		m_unnamedTypeCounter++;
+		type->m_signature.format("S%d", m_unnamedTypeCounter);
+		type->m_tag.format(".UnnamedStruct%d", m_unnamedTypeCounter);
 	}
 	else
 	{
@@ -739,8 +725,7 @@ TypeMgr::createStructType(
 	type->m_module = m_module;
 	type->m_fieldAlignment = fieldAlignment;
 	type->m_flags |= flags;
-
-	m_structTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	m_module->markForLayout(type, true);
 	return type;
 }
@@ -757,9 +742,9 @@ TypeMgr::createUnionType(
 
 	if (name.isEmpty())
 	{
-		m_unnamedUnionTypeCounter++;
-		type->m_signature.format("U%d", m_unnamedUnionTypeCounter);
-		type->m_tag.format(".UnamedUnion%d", m_unnamedUnionTypeCounter);
+		m_unnamedTypeCounter++;
+		type->m_signature.format("U%d", m_unnamedTypeCounter);
+		type->m_tag.format(".UnamedUnion%d", m_unnamedTypeCounter);
 	}
 	else
 	{
@@ -790,7 +775,7 @@ TypeMgr::createUnionType(
 		type->m_structType = unionStructType;
 	}
 
-	m_unionTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	return type;
 }
 
@@ -809,44 +794,40 @@ TypeMgr::createClassType(
 	{
 	case ClassTypeKind_Reactor:
 		type = AXL_MEM_NEW(ReactorClassType);
-		m_reactorClassTypeList.insertTail((ReactorClassType*)type);
 		break;
 
 	case ClassTypeKind_FunctionClosure:
 		type = AXL_MEM_NEW(FunctionClosureClassType);
-		m_functionClosureClassTypeList.insertTail((FunctionClosureClassType*)type);
 		break;
 
 	case ClassTypeKind_PropertyClosure:
 		type = AXL_MEM_NEW(PropertyClosureClassType);
-		m_propertyClosureClassTypeList.insertTail((PropertyClosureClassType*)type);
 		break;
 
 	case ClassTypeKind_DataClosure:
 		type = AXL_MEM_NEW(DataClosureClassType);
-		m_dataClosureClassTypeList.insertTail((DataClosureClassType*)type);
 		break;
 
 	case ClassTypeKind_Multicast:
 		type = AXL_MEM_NEW(MulticastClassType);
-		m_multicastClassTypeList.insertTail((MulticastClassType*)type);
+		m_multicastClassTypeArray.append((MulticastClassType*)type);
 		break;
 
 	case ClassTypeKind_McSnapshot:
 		type = AXL_MEM_NEW(McSnapshotClassType);
-		m_mcSnapshotClassTypeList.insertTail((McSnapshotClassType*)type);
 		break;
 
 	default:
 		type = AXL_MEM_NEW(ClassType);
-		m_classTypeList.insertTail(type);
 	}
+
+	m_typeList.insertTail(type);
 
 	if (name.isEmpty())
 	{
-		m_unnamedClassTypeCounter++;
-		type->m_signature.format("CC%d", m_unnamedClassTypeCounter);
-		type->m_tag.format(".UnnamedClass%d", m_unnamedClassTypeCounter);
+		m_unnamedTypeCounter++;
+		type->m_signature.format("CC%d", m_unnamedTypeCounter);
+		type->m_tag.format(".UnnamedClass%d", m_unnamedTypeCounter);
 	}
 	else
 	{
@@ -963,8 +944,8 @@ TypeMgr::getSimpleFunctionArg(
 	size_t i2 = (ptrTypeFlags & PtrTypeFlag_Const) != 0;
 	size_t i3 = (ptrTypeFlags & PtrTypeFlag_Volatile) != 0;
 
-	if (tuple->m_argArray[i1] [i2] [i3])
-		return tuple->m_argArray[i1] [i2] [i3];
+	if (tuple->m_argArray[i1][i2][i3])
+		return tuple->m_argArray[i1][i2][i3];
 
 	FunctionArg* arg = createFunctionArg(sl::String(), type, ptrTypeFlags);
 	if (!arg)
@@ -972,7 +953,7 @@ TypeMgr::getSimpleFunctionArg(
 
 	arg->m_storageKind = storageKind;
 
-	tuple->m_argArray[i1] [i2] [i3] = arg;
+	tuple->m_argArray[i1][i2][i3] = arg;
 	return arg;
 }
 
@@ -1010,8 +991,7 @@ TypeMgr::getFunctionType(
 	type->m_returnType = returnType;
 	type->m_flags = flags;
 	type->m_argArray = argArray;
-
-	m_functionTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
@@ -1077,8 +1057,7 @@ TypeMgr::getFunctionType(
 	type->m_returnType = returnType;
 	type->m_flags = flags;
 	type->m_argArray = argArray;
-
-	m_functionTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
@@ -1130,8 +1109,7 @@ TypeMgr::createUserFunctionType(
 	type->m_returnType = returnType;
 	type->m_flags = flags | ModuleItemFlag_User;
 	type->m_argArray = argArray;
-
-	m_functionTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
@@ -1242,8 +1220,7 @@ TypeMgr::getPropertyType(
 		type->m_binderType = binderType;
 	}
 
-	m_propertyTypeList.insertTail(type);
-
+	m_typeList.insertTail(type);
 	it->m_value = type;
 	return type;
 }
@@ -1266,8 +1243,8 @@ TypeMgr::getSimplePropertyType(
 	size_t i2 = (flags & PropertyTypeFlag_Const) != 0;
 	size_t i3 = (flags & PropertyTypeFlag_Bindable) != 0;
 
-	if (tuple->m_propertyTypeArray[i1] [i2] [i3])
-		return tuple->m_propertyTypeArray[i1] [i2] [i3];
+	if (tuple->m_propertyTypeArray[i1][i2][i3])
+		return tuple->m_propertyTypeArray[i1][i2][i3];
 
 	PropertyType* propertyType;
 
@@ -1283,7 +1260,7 @@ TypeMgr::getSimplePropertyType(
 		propertyType = getPropertyType(getterType, setterType, flags);
 	}
 
-	tuple->m_propertyTypeArray[i1] [i2] [i3] = propertyType;
+	tuple->m_propertyTypeArray[i1][i2][i3] = propertyType;
 	return propertyType;
 }
 
@@ -1797,8 +1774,8 @@ TypeMgr::getDataPtrType(
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 1 : 0;
 
-	if (tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5])
-		return tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5];
+	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
+		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
 	size_t size = ptrTypeKind == DataPtrTypeKind_Normal ? sizeof(DataPtr) : sizeof(void*);
 
@@ -1812,8 +1789,8 @@ TypeMgr::getDataPtrType(
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
-	m_dataPtrTypeList.insertTail(type);
-	tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5] = type;
+	m_typeList.insertTail(type);
+	tuple->m_ptrTypeArray[i1][i2][i3][i4][i5] = type;
 	return type;
 }
 
@@ -1850,8 +1827,8 @@ TypeMgr::getClassPtrType(
 	size_t i4 = (flags & PtrTypeFlag_Volatile) ? 0 : 1;
 	size_t i5 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
-	if (tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5])
-		return tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5];
+	if (tuple->m_ptrTypeArray[i1][i2][i3][i4][i5])
+		return tuple->m_ptrTypeArray[i1][i2][i3][i4][i5];
 
 	ClassPtrType* type = AXL_MEM_NEW(ClassPtrType);
 	type->m_module = m_module;
@@ -1861,8 +1838,8 @@ TypeMgr::getClassPtrType(
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
-	m_classPtrTypeList.insertTail(type);
-	tuple->m_ptrTypeArray[i1] [i2] [i3] [i4] [i5] = type;
+	m_typeList.insertTail(type);
+	tuple->m_ptrTypeArray[i1][i2][i3][i4][i5] = type;
 	return type;
 }
 
@@ -1891,8 +1868,8 @@ TypeMgr::getFunctionPtrType(
 	size_t i2 = ptrTypeKind;
 	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
-	if (tuple->m_ptrTypeArray[i1] [i2] [i3])
-		return tuple->m_ptrTypeArray[i1] [i2] [i3];
+	if (tuple->m_ptrTypeArray[i1][i2][i3])
+		return tuple->m_ptrTypeArray[i1][i2][i3];
 
 	size_t size = ptrTypeKind == FunctionPtrTypeKind_Thin ? sizeof(void*) : sizeof(FunctionPtr);
 
@@ -1906,8 +1883,8 @@ TypeMgr::getFunctionPtrType(
 	type->m_targetType = functionType;
 	type->m_flags = flags;
 
-	m_functionPtrTypeList.insertTail(type);
-	tuple->m_ptrTypeArray[i1] [i2] [i3] = type;
+	m_typeList.insertTail(type);
+	tuple->m_ptrTypeArray[i1][i2][i3] = type;
 
 	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope())
 	{
@@ -1945,8 +1922,8 @@ TypeMgr::getPropertyPtrType(
 	size_t i2 = ptrTypeKind;
 	size_t i3 = (flags & PtrTypeFlag_Safe) ? 0 : 1;
 
-	if (tuple->m_ptrTypeArray[i1] [i2] [i3])
-		return tuple->m_ptrTypeArray[i1] [i2] [i3];
+	if (tuple->m_ptrTypeArray[i1][i2][i3])
+		return tuple->m_ptrTypeArray[i1][i2][i3];
 
 	size_t size = ptrTypeKind == PropertyPtrTypeKind_Thin ? sizeof(void*) : sizeof(PropertyPtr);
 
@@ -1960,8 +1937,8 @@ TypeMgr::getPropertyPtrType(
 	type->m_targetType = propertyType;
 	type->m_flags = flags;
 
-	m_propertyPtrTypeList.insertTail(type);
-	tuple->m_ptrTypeArray[i1] [i2] [i3] = type;
+	m_typeList.insertTail(type);
+	tuple->m_ptrTypeArray[i1][i2][i3] = type;
 	return type;
 }
 
@@ -2034,7 +2011,7 @@ TypeMgr::getNamedImportType(
 		type->m_qualifiedName += name.getFullName();
 	}
 
-	m_namedImportTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	m_unresolvedNamedImportTypeArray.append(type);
 	it->m_value = type;
 
@@ -2070,7 +2047,7 @@ TypeMgr::getImportPtrType(
 	type->m_typeModifiers = typeModifiers;
 	type->m_flags = flags;
 
-	m_importPtrTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	m_unresolvedImportPtrTypeArray.append(type);
 	it->m_value = type;
 
@@ -2106,7 +2083,7 @@ TypeMgr::getImportIntModType(
 	type->m_typeModifiers = typeModifiers;
 	type->m_flags = flags;
 
-	m_importIntModTypeList.insertTail(type);
+	m_typeList.insertTail(type);
 	m_unresolvedImportIntModTypeArray.append(type);
 	it->m_value = type;
 
@@ -2150,11 +2127,11 @@ TypeMgr::foldDualType(
 	ASSERT(isDualType(type));
 
 	DualTypeTuple* tuple = getDualTypeTuple(type);
-	Type* foldedType = tuple->m_typeArray[isAlien] [isContainerConst];
+	Type* foldedType = tuple->m_typeArray[isAlien][isContainerConst];
 	if (!foldedType)
 	{
 		foldedType = type->calcFoldedDualType(isAlien, isContainerConst);
-		tuple->m_typeArray[isAlien] [isContainerConst] = foldedType;
+		tuple->m_typeArray[isAlien][isContainerConst] = foldedType;
 	}
 
 	return foldedType;

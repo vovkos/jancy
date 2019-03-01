@@ -14,9 +14,6 @@
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
-#elif defined(_JNC_CORE)
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_ct_Module.h"
 #endif
 
 //..............................................................................

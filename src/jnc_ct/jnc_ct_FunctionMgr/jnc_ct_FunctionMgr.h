@@ -13,13 +13,9 @@
 
 #include "jnc_ct_Function.h"
 #include "jnc_ct_Property.h"
-#include "jnc_ct_ScheduleLauncherFunction.h"
-#include "jnc_ct_AsyncFunction.h"
-#include "jnc_ct_ThunkFunction.h"
-#include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_PropertyTemplate.h"
 #include "jnc_ct_StdFunction.h"
-#include "jnc_ct_ClassType.h"
+#include "jnc_ClassType.h"
 
 namespace jnc {
 namespace ct {
@@ -41,15 +37,13 @@ protected:
 	sl::List<Function> m_functionList;
 	sl::List<Property> m_propertyList;
 	sl::List<PropertyTemplate> m_propertyTemplateList;
-	sl::List<ScheduleLauncherFunction> m_scheduleLauncherFunctionList;
-	sl::List<AsyncFunction> m_asyncFunctionList;
-	sl::List<ThunkFunction> m_thunkFunctionList;
-	sl::List<ThunkProperty> m_thunkPropertyList;
-	sl::List<DataThunkProperty> m_dataThunkPropertyList;
 	sl::List<LazyStdFunction> m_lazyStdFunctionList;
+
 	sl::StringHashTable<Function*> m_thunkFunctionMap;
 	sl::StringHashTable<Property*> m_thunkPropertyMap;
 	sl::StringHashTable<Function*> m_scheduleLauncherFunctionMap;
+
+	sl::Array<AsyncFunction*> m_asyncFunctionArray;
 	sl::Array<NamedTypeBlock*> m_staticConstructArray;
 
 	Function* m_stdFunctionArray[StdFunc__Count];
@@ -112,30 +106,6 @@ public:
 	getPropertyList()
 	{
 		return m_propertyList;
-	}
-
-	sl::ConstList<ThunkFunction>
-	getThunkFunctionList()
-	{
-		return m_thunkFunctionList;
-	}
-
-	sl::ConstList<ThunkProperty>
-	getThunkPropertyList()
-	{
-		return m_thunkPropertyList;
-	}
-
-	sl::ConstList<DataThunkProperty>
-	getDataThunkPropertyList()
-	{
-		return m_dataThunkPropertyList;
-	}
-
-	sl::Array<NamedTypeBlock*>
-	getStaticConstructor()
-	{
-		return m_staticConstructArray;
 	}
 
 	void

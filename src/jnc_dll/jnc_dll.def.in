@@ -162,7 +162,6 @@ EXPORTS
 	jnc_Module_parseImports
 	jnc_initialize
 	jnc_Runtime_abort
-	jnc_Runtime_checkStackOverflow
 	jnc_Runtime_create
 	jnc_Runtime_destroy
 	jnc_Runtime_getGcHeap

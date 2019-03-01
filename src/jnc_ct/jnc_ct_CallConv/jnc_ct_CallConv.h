@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_Value.h"
-#include "jnc_ct_FunctionArg.h"
 
 namespace jnc {
 namespace ct {

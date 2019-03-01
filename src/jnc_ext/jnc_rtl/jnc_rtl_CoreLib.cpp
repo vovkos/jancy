@@ -18,6 +18,8 @@
 #include "jnc_rtl_Promise.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ArrayType.h"
+#include "jnc_ct_MulticastClassType.h"
 #include "jnc_CallSite.h"
 
 #define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
@@ -507,99 +509,6 @@ checkDataPtrRangeIndirect(
 	bool result = tryCheckDataPtrRangeIndirect(p, size, validator);
 	if (!result)
 		dynamicThrow();
-}
-
-bool
-tryCheckNullPtr(
-	const void* p,
-	TypeKind typeKind
-	)
-{
-	if (p)
-		return true;
-
-	switch(typeKind)
-	{
-	case TypeKind_ClassPtr:
-	case TypeKind_ClassRef:
-		err::setError("null class pointer access");
-		break;
-
-	case TypeKind_FunctionPtr:
-	case TypeKind_FunctionRef:
-		err::setError("null function pointer access");
-		break;
-
-	case TypeKind_PropertyPtr:
-	case TypeKind_PropertyRef:
-		err::setError("null property pointer access");
-		break;
-
-	default:
-		err::setError("null pointer access");
-	}
-
-	return false;
-}
-
-void
-checkNullPtr(
-	const void* p,
-	TypeKind typeKind
-	)
-{
-	bool result = tryCheckNullPtr(p, typeKind);
-	if (!result)
-		dynamicThrow();
-}
-
-void
-checkStackOverflow()
-{
-	Runtime* runtime = getCurrentThreadRuntime();
-	ASSERT(runtime);
-
-	runtime->checkStackOverflow();
-}
-
-void
-checkDivByZero_i32(int32_t i)
-{
-	if (!i)
-	{
-		err::setError("integer division by zero");
-		dynamicThrow();
-	}
-}
-
-void
-checkDivByZero_i64(int64_t i)
-{
-	if (!i)
-	{
-		err::setError("integer division by zero");
-		dynamicThrow();
-	}
-}
-
-void
-checkDivByZero_f32(float f)
-{
-	if (!f)
-	{
-		err::setError("floating point division by zero");
-		dynamicThrow();
-	}
-}
-
-void
-checkDivByZero_f64(double f)
-{
-	if (!f)
-	{
-		err::setError("floating point division by zero");
-		dynamicThrow();
-	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1175,7 +1084,7 @@ mapMulticastMethods(
 	const MulticastClassType* multicastType
 	)
 {
-	static void* multicastMethodTable[FunctionPtrTypeKind__Count] [MulticastMethodKind__Count - 1] =
+	static void* multicastMethodTable[FunctionPtrTypeKind__Count][MulticastMethodKind__Count - 1] =
 	{
 		{
 			(void*)multicastClear,
@@ -1211,17 +1120,17 @@ mapMulticastMethods(
 	for (size_t i = 0; i < MulticastMethodKind__Count - 1; i++)
 	{
 		function = multicastType->getMethod((MulticastMethodKind)i);
-		module->mapFunction(function, multicastMethodTable[ptrTypeKind] [i]);
+		module->mapFunction(function, multicastMethodTable[ptrTypeKind][i]);
 	}
 }
 
 bool
 mapAllMulticastMethods(Module* module)
 {
-	sl::ConstList<ct::MulticastClassType> mcTypeList = module->m_typeMgr.getMulticastClassTypeList();
-	sl::ConstIterator<ct::MulticastClassType> mcType = mcTypeList.getHead();
-	for (; mcType; mcType++)
-		mapMulticastMethods(module, *mcType);
+	const sl::Array<ct::MulticastClassType*> mcTypeArray = module->m_typeMgr.getMulticastClassTypeArray();
+	size_t count = mcTypeArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		mapMulticastMethods(module, mcTypeArray[i]);
 
 	return true;
 }
@@ -1295,7 +1204,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_VariantIndexProperty_get,  variantIndexProperty_get)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_VariantIndexProperty_set,  variantIndexProperty_set)
 
-	// exceptions
+	// exceptions/async
 
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_SetJmp,       ::setjmp)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicThrow, dynamicThrow)
@@ -1309,13 +1218,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDataPtrRangeDirect,      checkDataPtrRangeDirect)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_TryCheckDataPtrRangeIndirect, tryCheckDataPtrRangeIndirect)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDataPtrRangeIndirect,    checkDataPtrRangeIndirect)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_TryCheckNullPtr,              tryCheckNullPtr)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckNullPtr,                 checkNullPtr)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckStackOverflow,           checkStackOverflow)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDivByZero_i32,           checkDivByZero_i32)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDivByZero_i64,           checkDivByZero_i64)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDivByZero_f32,           checkDivByZero_f32)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CheckDivByZero_f64,           checkDivByZero_f64)
 
 	// dynamic libs
 

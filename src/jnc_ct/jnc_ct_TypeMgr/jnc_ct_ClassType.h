@@ -12,11 +12,6 @@
 #pragma once
 
 #include "jnc_ct_DerivableType.h"
-#include "jnc_ct_StructType.h"
-#include "jnc_ct_Function.h"
-#include "jnc_ct_Property.h"
-#include "jnc_ct_UnOp.h"
-#include "jnc_ct_BinOp.h"
 #include "jnc_RuntimeStructs.h"
 #include "jnc_ClassType.h"
 
@@ -25,6 +20,9 @@ namespace ct {
 
 class ClassPtrType;
 struct ClassPtrTypeTuple;
+class StructType;
+class Function;
+class Property;
 
 //..............................................................................
 
@@ -187,17 +185,11 @@ protected:
 
 	virtual
 	void
-	prepareLlvmType()
-	{
-		m_llvmType = getClassStructType()->getLlvmType();
-	}
+	prepareLlvmType();
 
 	virtual
 	void
-	prepareLlvmDiType()
-	{
-		m_llvmDiType = getClassStructType()->getLlvmDiType();
-	}
+	prepareLlvmDiType();
 
 	virtual
 	bool

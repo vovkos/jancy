@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_FunctionArg.h"
+#include "jnc_ct_Type.h"
 
 namespace jnc {
 namespace ct {

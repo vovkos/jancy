@@ -41,6 +41,38 @@ Each property in Jancy has one getter and zero or more setters. Property type ha
 
 //..............................................................................
 
+enum jnc_PropertyTypeFlag
+{
+	jnc_PropertyTypeFlag_Const    = 0x010000,
+	jnc_PropertyTypeFlag_Bindable = 0x020000,
+};
+
+typedef enum jnc_PropertyTypeFlag jnc_PropertyTypeFlag;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+const char*
+jnc_getPropertyTypeFlagString(jnc_PropertyTypeFlag flag);
+
+//..............................................................................
+
+enum jnc_PropertyPtrTypeKind
+{
+	jnc_PropertyPtrTypeKind_Normal = 0,
+	jnc_PropertyPtrTypeKind_Weak,
+	jnc_PropertyPtrTypeKind_Thin,
+	jnc_PropertyPtrTypeKind__Count,
+};
+
+typedef enum jnc_PropertyPtrTypeKind jnc_PropertyPtrTypeKind;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+const char*
+jnc_getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind);
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -48,6 +80,40 @@ Each property in Jancy has one getter and zero or more setters. Property type ha
 namespace jnc {
 
 //..............................................................................
+
+typedef jnc_PropertyTypeFlag PropertyTypeFlag;
+
+const PropertyTypeFlag
+	PropertyTypeFlag_Const    = jnc_PropertyTypeFlag_Const,
+	PropertyTypeFlag_Bindable = jnc_PropertyTypeFlag_Bindable;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const char*
+getPropertyTypeFlagString(jnc_PropertyTypeFlag flag)
+{
+	return jnc_getPropertyTypeFlagString(flag);
+}
+
+//..............................................................................
+
+typedef jnc_PropertyPtrTypeKind PropertyPtrTypeKind;
+
+const PropertyPtrTypeKind
+	PropertyPtrTypeKind_Normal = jnc_PropertyPtrTypeKind_Normal,
+	PropertyPtrTypeKind_Weak   = jnc_PropertyPtrTypeKind_Weak,
+	PropertyPtrTypeKind_Thin   = jnc_PropertyPtrTypeKind_Thin,
+	PropertyPtrTypeKind__Count = jnc_PropertyPtrTypeKind__Count;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const char*
+getPropertyPtrTypeKindString(jnc_PropertyPtrTypeKind ptrTypeKind)
+{
+	return jnc_getPropertyPtrTypeKindString(ptrTypeKind);
+}
 
 //..............................................................................
 

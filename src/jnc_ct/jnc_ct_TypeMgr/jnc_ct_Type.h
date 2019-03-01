@@ -172,7 +172,7 @@ struct TypeStringTuple
 
 struct DualTypeTuple: sl::ListLink
 {
-	Type* m_typeArray[2] [2]; // alien-friend x container-const-non-const
+	Type* m_typeArray[2][2]; // alien-friend x container-const-non-const
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

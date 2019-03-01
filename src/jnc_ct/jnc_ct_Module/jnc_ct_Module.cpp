@@ -51,6 +51,11 @@ Module::Module()
 	finalizeConstruction();
 }
 
+Module::~Module()
+{
+	clear();
+}
+
 void
 Module::clear()
 {

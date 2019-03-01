@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_CastOp_ClassPtr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_MulticastClassType.h"
 
 namespace jnc {
 namespace ct {

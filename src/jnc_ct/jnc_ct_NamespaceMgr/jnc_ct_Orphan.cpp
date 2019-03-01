@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Orphan.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ReactorClassType.h"
 
 namespace jnc {
 namespace ct {

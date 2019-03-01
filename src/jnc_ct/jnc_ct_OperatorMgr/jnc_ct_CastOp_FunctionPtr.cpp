@@ -12,6 +12,8 @@
 #include "pch.h"
 #include "jnc_ct_CastOp_FunctionPtr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_MulticastClassType.h"
+#include "jnc_ct_ClosureClassType.h"
 
 namespace jnc {
 namespace ct {
@@ -465,13 +467,13 @@ Cast_FunctionPtr::Cast_FunctionPtr()
 {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable[FunctionPtrTypeKind_Normal] [FunctionPtrTypeKind_Normal] = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Normal] [FunctionPtrTypeKind_Weak]   = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Weak] [FunctionPtrTypeKind_Normal]   = &m_weak2Normal;
-	m_operatorTable[FunctionPtrTypeKind_Weak] [FunctionPtrTypeKind_Weak]     = &m_fromFat;
-	m_operatorTable[FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Normal]   = &m_thin2Fat;
-	m_operatorTable[FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Weak]     = &m_thin2Fat;
-	m_operatorTable[FunctionPtrTypeKind_Thin] [FunctionPtrTypeKind_Thin]     = &m_thin2Thin;
+	m_operatorTable[FunctionPtrTypeKind_Normal][FunctionPtrTypeKind_Normal] = &m_fromFat;
+	m_operatorTable[FunctionPtrTypeKind_Normal][FunctionPtrTypeKind_Weak]   = &m_fromFat;
+	m_operatorTable[FunctionPtrTypeKind_Weak][FunctionPtrTypeKind_Normal]   = &m_weak2Normal;
+	m_operatorTable[FunctionPtrTypeKind_Weak][FunctionPtrTypeKind_Weak]     = &m_fromFat;
+	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Normal]   = &m_thin2Fat;
+	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Weak]     = &m_thin2Fat;
+	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
 CastOperator*
@@ -491,7 +493,7 @@ Cast_FunctionPtr::getCastOperator(
 		ASSERT(opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isOverloaded());
 		ASSERT(dstPtrTypeKind >= 0 && dstPtrTypeKind < 2);
 
-		return m_operatorTable[FunctionPtrTypeKind_Thin] [dstPtrTypeKind];
+		return m_operatorTable[FunctionPtrTypeKind_Thin][dstPtrTypeKind];
 	}
 
 	TypeKind typeKind = srcType->getTypeKind();
@@ -519,7 +521,7 @@ Cast_FunctionPtr::getCastOperator(
 	ASSERT((size_t)srcPtrTypeKind < FunctionPtrTypeKind__Count);
 	ASSERT((size_t)dstPtrTypeKind < FunctionPtrTypeKind__Count);
 
-	return m_operatorTable[srcPtrTypeKind] [dstPtrTypeKind];
+	return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
 }
 
 //..............................................................................

@@ -154,7 +154,6 @@ Runtime::initializeCallSite(jnc_CallSite* callSite)
 	tls->m_prevTls = prevTls;
 	tls->m_runtime = this;
 	tls->m_initializeLevel = 1;
-	tls->m_stackEpoch = callSite;
 
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 
@@ -232,24 +231,6 @@ Runtime::uninitializeCallSite(jnc_CallSite* callSite)
 	sys::setTlsPtrSlotValue<Tls> (tls->m_prevTls);
 
 	AXL_MEM_DELETE(tls);
-}
-
-void
-Runtime::checkStackOverflow()
-{
-	Tls* tls = sys::getTlsPtrSlotValue<Tls> ();
-	ASSERT(tls && tls->m_runtime == this);
-
-	char* p = (char*)_alloca(1);
-	ASSERT((char*)tls->m_stackEpoch >= p);
-
-	size_t stackSize = (char*)tls->m_stackEpoch - p;
-	if (stackSize > m_stackSizeLimit)
-	{
-		err::setFormatStringError("stack overflow (%dB)", stackSize);
-		dynamicThrow();
-		ASSERT(false);
-	}
 }
 
 SjljFrame*

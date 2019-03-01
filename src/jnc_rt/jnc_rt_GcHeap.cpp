@@ -13,6 +13,7 @@
 #include "jnc_rt_GcHeap.h"
 #include "jnc_rt_Runtime.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ClosureClassType.h"
 #include "jnc_rtl_DynamicLayout.h"
 #include "jnc_CallSite.h"
 
@@ -1572,7 +1573,7 @@ GcHeap::runMarkCycle()
 		size_t count = m_markRootArray[prevGcRootArrayIdx].getCount();
 		for (size_t i = 0; i < count; i++)
 		{
-			const Root* root = &m_markRootArray[prevGcRootArrayIdx] [i];
+			const Root* root = &m_markRootArray[prevGcRootArrayIdx][i];
 			root->m_type->markGcRoots(root->m_p, this);
 		}
 	}

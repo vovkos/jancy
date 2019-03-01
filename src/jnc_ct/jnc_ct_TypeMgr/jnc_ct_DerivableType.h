@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "jnc_ct_ImportType.h"
-#include "jnc_ct_Function.h"
 #include "jnc_ct_NamedTypeBlock.h"
 
 namespace jnc {

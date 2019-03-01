@@ -176,7 +176,7 @@ protected:
 	Cast_PropertyPtr_Thin2Fat m_thin2Fat;
 	Cast_PropertyPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable[PropertyPtrTypeKind__Count] [PropertyPtrTypeKind__Count];
+	CastOperator* m_operatorTable[PropertyPtrTypeKind__Count][PropertyPtrTypeKind__Count];
 
 public:
 	Cast_PropertyPtr();

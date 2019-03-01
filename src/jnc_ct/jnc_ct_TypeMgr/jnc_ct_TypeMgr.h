@@ -12,33 +12,46 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
-#include "jnc_ct_ArrayType.h"
-#include "jnc_ct_BitFieldType.h"
-#include "jnc_ct_EnumType.h"
-#include "jnc_ct_StructType.h"
-#include "jnc_ct_UnionType.h"
-#include "jnc_ct_ClassType.h"
-#include "jnc_ct_FunctionType.h"
-#include "jnc_ct_PropertyType.h"
-#include "jnc_ct_DataPtrType.h"
-#include "jnc_ct_ClassPtrType.h"
-#include "jnc_ct_FunctionPtrType.h"
-#include "jnc_ct_PropertyPtrType.h"
-#include "jnc_ct_ImportType.h"
-#include "jnc_ct_ReactorClassType.h"
-#include "jnc_ct_ClosureClassType.h"
-#include "jnc_ct_McSnapshotClassType.h"
-#include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_JnccallCallConv.h"
 #include "jnc_ct_CallConv_msc32.h"
 #include "jnc_ct_CallConv_gcc32.h"
 #include "jnc_ct_CdeclCallConv_gcc64.h"
 #include "jnc_ct_CdeclCallConv_msc64.h"
+#include "jnc_ClassType.h"
+#include "jnc_PropertyType.h"
 
 namespace jnc {
 namespace ct {
 
 class Module;
+class ArrayType;
+class BitFieldType;
+class EnumType;
+class StructType;
+class UnionType;
+class ClassType;
+class FunctionType;
+class PropertyType;
+class DataPtrType;
+class ClassPtrType;
+class FunctionPtrType;
+class PropertyPtrType;
+class ImportType;
+class ReactorClassType;
+class ClosureClassType;
+class FunctionClosureClassType;
+class PropertyClosureClassType;
+class DataClosureClassType;
+class MulticastClassType;
+class McSnapshotClassType;
+class NamedImportType;
+class ImportPtrType;
+class ImportIntModType;
+
+struct DataPtrTypeTuple;
+struct ClassPtrTypeTuple;
+struct FunctionPtrTypeTuple;
+struct PropertyPtrTypeTuple;
 
 //..............................................................................
 
@@ -85,29 +98,7 @@ protected:
 	StdcallCallConv_gcc32 m_stdcallCallConv_gcc32;
 	ThiscallCallConv_msc32 m_thiscallCallConv_msc32;
 
-	sl::List<ArrayType> m_arrayTypeList;
-	sl::List<BitFieldType> m_bitFieldTypeList;
-	sl::List<EnumType> m_enumTypeList;
-	sl::List<StructType> m_structTypeList;
-	sl::List<UnionType> m_unionTypeList;
-	sl::List<ClassType> m_classTypeList;
-	sl::List<FunctionType> m_functionTypeList;
-	sl::List<PropertyType> m_propertyTypeList;
-	sl::List<DataPtrType> m_dataPtrTypeList;
-	sl::List<ClassPtrType> m_classPtrTypeList;
-	sl::List<FunctionPtrType> m_functionPtrTypeList;
-	sl::List<PropertyPtrType> m_propertyPtrTypeList;
-	sl::List<NamedImportType> m_namedImportTypeList;
-	sl::List<ImportPtrType> m_importPtrTypeList;
-	sl::List<ImportIntModType> m_importIntModTypeList;
-	sl::List<ReactorClassType> m_reactorClassTypeList;
-	sl::List<FunctionClosureClassType> m_functionClosureClassTypeList;
-	sl::List<PropertyClosureClassType> m_propertyClosureClassTypeList;
-	sl::List<DataClosureClassType> m_dataClosureClassTypeList;
-	sl::List<MulticastClassType> m_multicastClassTypeList;
-	sl::List<McSnapshotClassType> m_mcSnapshotClassTypeList;
-	sl::List<TypedefShadowType> m_typedefShadowTypeList;
-
+	sl::List<Type> m_typeList;
 	sl::List<Typedef> m_typedefList;
 	sl::List<LazyStdType> m_lazyStdTypeList;
 	sl::List<FunctionArg> m_functionArgList;
@@ -123,15 +114,12 @@ protected:
 
 	sl::StringHashTable<Type*> m_typeMap;
 
+	sl::Array<MulticastClassType*> m_multicastClassTypeArray;
 	sl::Array<NamedImportType*> m_unresolvedNamedImportTypeArray;
 	sl::Array<ImportPtrType*> m_unresolvedImportPtrTypeArray;
 	sl::Array<ImportIntModType*> m_unresolvedImportIntModTypeArray;
 
-	size_t m_unnamedEnumTypeCounter;
-	size_t m_unnamedStructTypeCounter;
-	size_t m_unnamedUnionTypeCounter;
-	size_t m_unnamedClassTypeCounter;
-
+	size_t m_unnamedTypeCounter;
 	size_t m_parseStdTypeLevel;
 
 public:
@@ -155,136 +143,22 @@ public:
 		const sl::StringRef& signature
 		);
 
-	sl::ConstList<ArrayType>
-	getArrayTypeList()
+	const sl::List<Type>&
+	getTypeList()
 	{
-		return m_arrayTypeList;
+		return m_typeList;
 	}
 
-	sl::ConstList<BitFieldType>
-	getBitFieldTypeList()
-	{
-		return m_bitFieldTypeList;
-	}
-
-	sl::ConstList<EnumType>
-	getEnumTypeList()
-	{
-		return m_enumTypeList;
-	}
-
-	sl::ConstList<StructType>
-	getStructTypeList()
-	{
-		return m_structTypeList;
-	}
-
-	sl::ConstList<UnionType>
-	getUnionTypeList()
-	{
-		return m_unionTypeList;
-	}
-
-	sl::ConstList<ClassType>
-	getClassTypeList()
-	{
-		return m_classTypeList;
-	}
-
-	sl::ConstList<FunctionType>
-	getFunctionTypeList()
-	{
-		return m_functionTypeList;
-	}
-
-	sl::ConstList<PropertyType>
-	getPropertyTypeList()
-	{
-		return m_propertyTypeList;
-	}
-
-	sl::ConstList<DataPtrType>
-	getDataPtrTypeList()
-	{
-		return m_dataPtrTypeList;
-	}
-
-	sl::ConstList<ClassPtrType>
-	getClassPtrTypeList()
-	{
-		return m_classPtrTypeList;
-	}
-
-	sl::ConstList<FunctionPtrType>
-	getFunctionPtrTypeList()
-	{
-		return m_functionPtrTypeList;
-	}
-
-	sl::ConstList<PropertyPtrType>
-	getPropertyPtrTypeList()
-	{
-		return m_propertyPtrTypeList;
-	}
-
-	sl::ConstList<NamedImportType>
-	getNamedImportTypeList()
-	{
-		return m_namedImportTypeList;
-	}
-
-	sl::ConstList<ImportPtrType>
-	getImportPtrTypeList()
-	{
-		return m_importPtrTypeList;
-	}
-
-	sl::ConstList<ImportIntModType>
-	getImportIntModTypeList()
-	{
-		return m_importIntModTypeList;
-	}
-
-	sl::ConstList<ReactorClassType>
-	getReactorClassTypeList()
-	{
-		return m_reactorClassTypeList;
-	}
-
-	sl::ConstList<FunctionClosureClassType>
-	getFunctionClosureClassTypeList()
-	{
-		return m_functionClosureClassTypeList;
-	}
-
-	sl::ConstList<PropertyClosureClassType>
-	getPropertyClosureClassTypeList()
-	{
-		return m_propertyClosureClassTypeList;
-	}
-
-	sl::ConstList<DataClosureClassType>
-	getDataClosureClassTypeList()
-	{
-		return m_dataClosureClassTypeList;
-	}
-
-	sl::ConstList<MulticastClassType>
-	getMulticastClassTypeList()
-	{
-		return m_multicastClassTypeList;
-	}
-
-	sl::ConstList<McSnapshotClassType>
-	getMcSnapshotClassTypeList()
-	{
-		return m_mcSnapshotClassTypeList;
-	}
-
-	sl::ConstList<Typedef>
+	const sl::List<Typedef>&
 	getTypedefList()
 	{
 		return m_typedefList;
+	}
+
+	const sl::Array<MulticastClassType*>&
+	getMulticastClassTypeArray()
+	{
+		return m_multicastClassTypeArray;
 	}
 
 	Type*

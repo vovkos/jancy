@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
 namespace ct {
@@ -151,65 +152,15 @@ OperatorMgr::checkNullPtr(const Value& value)
 		return;
 
 	TypeKind typeKind = type->getTypeKind();
+	ASSERT(typeKind == TypeKind_ClassPtr || typeKind == TypeKind_ClassRef);
 
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_SimpleCheckNullPtr))
-	{
-		ASSERT(typeKind == TypeKind_ClassPtr || typeKind == TypeKind_ClassRef);
+	// use a static sink to avoid load being optimized out
+	Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
 
-		// use a static sink to avoid load being optimized out
-		Variable* nullPtrCheckSink = m_module->m_variableMgr.getStdVariable(StdVariable_NullPtrCheckSink);
-
-		Value tmpValue;
-		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &tmpValue);
-		m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
-		m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
-		return;
-	}
-
-	bool isThin;
-
-	switch(typeKind)
-	{
-	case TypeKind_ClassPtr:
-	case TypeKind_ClassRef:
-		isThin = true;
-		break;
-
-	case TypeKind_FunctionPtr:
-	case TypeKind_FunctionRef:
-		isThin = ((FunctionPtrType*)type)->getPtrTypeKind() == FunctionPtrTypeKind_Thin;
-		break;
-
-	case TypeKind_PropertyPtr:
-	case TypeKind_PropertyRef:
-		isThin = ((PropertyPtrType*)type)->getPtrTypeKind() == PropertyPtrTypeKind_Thin;
-		break;
-
-	default:
-		ASSERT(false);
-		return;
-	}
-
-	Value ptrValue;
-	Value typeKindValue(typeKind, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
-
-	if (isThin)
-		m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
-	else
-		m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, &ptrValue);
-
-	Value argValueArray[] =
-	{
-		ptrValue,
-		typeKindValue,
-	};
-
-	checkPtr(
-		StdFunc_CheckNullPtr,
-		StdFunc_TryCheckNullPtr,
-		argValueArray,
-		countof(argValueArray)
-		);
+	Value tmpValue;
+	m_module->m_llvmIrBuilder.createBitCast(value, m_module->m_typeMgr.getStdType(StdType_BytePtr), &tmpValue);
+	m_module->m_llvmIrBuilder.createLoad(tmpValue, NULL, &tmpValue);
+	m_module->m_llvmIrBuilder.createStore(tmpValue, nullPtrCheckSink);
 }
 
 //..............................................................................

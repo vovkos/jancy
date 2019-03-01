@@ -11,13 +11,12 @@
 
 #pragma once
 
-#include "jnc_ct_ImportType.h"
-#include "jnc_ct_Scope.h"
+#include "jnc_ct_ModuleItem.h"
 
 namespace jnc {
 namespace ct {
 
-class Scope;
+class Type;
 
 //..............................................................................
 
@@ -61,7 +60,7 @@ public:
 
 struct FunctionArgTuple: sl::ListLink
 {
-	FunctionArg* m_argArray[2] [2] [2]; // this x const x volatile
+	FunctionArg* m_argArray[2][2][2]; // this x const x volatile
 };
 
 //..............................................................................

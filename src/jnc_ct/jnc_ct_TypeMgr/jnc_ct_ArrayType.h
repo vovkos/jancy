@@ -11,8 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_ImportType.h"
-#include "jnc_ct_DataPtrType.h"
+#include "jnc_ct_Type.h"
 #include "jnc_ArrayType.h"
 
 namespace jnc {

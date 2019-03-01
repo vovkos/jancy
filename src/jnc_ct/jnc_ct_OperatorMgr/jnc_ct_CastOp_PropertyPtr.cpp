@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_CastOp_PropertyPtr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ClosureClassType.h"
 
 namespace jnc {
 namespace ct {
@@ -497,13 +498,13 @@ Cast_PropertyPtr::Cast_PropertyPtr()
 {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable[PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Normal] = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Normal] [PropertyPtrTypeKind_Weak]   = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Normal]   = &m_weak2Normal;
-	m_operatorTable[PropertyPtrTypeKind_Weak] [PropertyPtrTypeKind_Weak]     = &m_fromFat;
-	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Normal]   = &m_thin2Fat;
-	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Weak]     = &m_thin2Fat;
-	m_operatorTable[PropertyPtrTypeKind_Thin] [PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
+	m_operatorTable[PropertyPtrTypeKind_Normal][PropertyPtrTypeKind_Normal] = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Normal][PropertyPtrTypeKind_Weak]   = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Weak][PropertyPtrTypeKind_Normal]   = &m_weak2Normal;
+	m_operatorTable[PropertyPtrTypeKind_Weak][PropertyPtrTypeKind_Weak]     = &m_fromFat;
+	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Normal]   = &m_thin2Fat;
+	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Weak]     = &m_thin2Fat;
+	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
 CastOperator*
@@ -529,7 +530,7 @@ Cast_PropertyPtr::getCastOperator(
 		PropertyPtrTypeKind srcPtrTypeKind = ((PropertyPtrType*)opValue.getType())->getPtrTypeKind();
 		ASSERT((size_t)srcPtrTypeKind < PropertyPtrTypeKind__Count);
 
-		return m_operatorTable[srcPtrTypeKind] [dstPtrTypeKind];
+		return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
 		}
 
 	default:

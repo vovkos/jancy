@@ -11,7 +11,12 @@
 
 #include "pch.h"
 #include "jnc_ct_FunctionMgr.h"
+#include "jnc_ct_ThunkFunction.h"
+#include "jnc_ct_ScheduleLauncherFunction.h"
+#include "jnc_ct_AsyncFunction.h"
+#include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
 // #define _JNC_NO_JIT    1
@@ -40,14 +45,10 @@ FunctionMgr::clear()
 	m_functionList.clear();
 	m_propertyList.clear();
 	m_propertyTemplateList.clear();
-	m_scheduleLauncherFunctionList.clear();
-	m_asyncFunctionList.clear();
-	m_thunkFunctionList.clear();
-	m_thunkPropertyList.clear();
-	m_dataThunkPropertyList.clear();
 	m_thunkFunctionMap.clear();
 	m_thunkPropertyMap.clear();
 	m_scheduleLauncherFunctionMap.clear();
+	m_asyncFunctionArray.clear();
 	m_staticConstructArray.clear();
 	memset(m_stdFunctionArray, 0, sizeof(m_stdFunctionArray));
 	memset(m_lazyStdFunctionArray, 0, sizeof(m_lazyStdFunctionArray));
@@ -106,22 +107,19 @@ FunctionMgr::createFunction(
 	{
 	case FunctionKind_Thunk:
 		function = AXL_MEM_NEW(ThunkFunction);
-		m_thunkFunctionList.insertTail((ThunkFunction*)function);
 		break;
 
 	case FunctionKind_ScheduleLauncher:
 		function = AXL_MEM_NEW(ScheduleLauncherFunction);
-		m_scheduleLauncherFunctionList.insertTail((ScheduleLauncherFunction*)function);
 		break;
 
 	case FunctionKind_Async:
 		function = AXL_MEM_NEW(AsyncFunction);
-		m_asyncFunctionList.insertTail((AsyncFunction*)function);
+		m_asyncFunctionArray.append((AsyncFunction*)function);
 		break;
 
 	default:
 		function = AXL_MEM_NEW(Function);
-		m_functionList.insertTail(function);
 	}
 
 	function->m_module = m_module;
@@ -131,6 +129,7 @@ FunctionMgr::createFunction(
 	function->m_tag = tag;
 	function->m_type = type;
 	function->m_typeOverload.addOverload(type);
+	m_functionList.insertTail(function);
 	return function;
 }
 
@@ -148,17 +147,14 @@ FunctionMgr::createProperty(
 	{
 	case PropertyKind_Thunk:
 		prop = AXL_MEM_NEW(ThunkProperty);
-		m_thunkPropertyList.insertTail((ThunkProperty*)prop);
 		break;
 
 	case PropertyKind_DataThunk:
 		prop = AXL_MEM_NEW(DataThunkProperty);
-		m_dataThunkPropertyList.insertTail((DataThunkProperty*)prop);
 		break;
 
 	default:
 		prop = AXL_MEM_NEW(Property);
-		m_propertyList.insertTail(prop);
 	}
 
 	prop->m_module = m_module;
@@ -167,6 +163,7 @@ FunctionMgr::createProperty(
 	prop->m_qualifiedName = qualifiedName;
 	prop->m_tag = tag;
 	m_module->markForLayout(prop, true);
+	m_propertyList.insertTail(prop);
 	return prop;
 }
 
@@ -257,12 +254,7 @@ FunctionMgr::prologue(
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("function_body");
 	m_module->m_controlFlowMgr.jump(bodyBlock, bodyBlock);
 
-	uint_t compileFlags = m_module->getCompileFlags();
-
-	if (compileFlags & ModuleCompileFlag_CheckStackOverflowInPrologue)
-		m_module->m_operatorMgr.checkStackOverflow();
-
-	if (compileFlags & ModuleCompileFlag_GcSafePointInPrologue)
+	if (m_module->getCompileFlags() & ModuleCompileFlag_GcSafePointInPrologue)
 		m_module->m_operatorMgr.gcSafePoint();
 
 	// 'this' arg
@@ -465,12 +457,7 @@ FunctionMgr::internalPrologue(
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("function_body");
 	m_module->m_controlFlowMgr.jump(bodyBlock, bodyBlock);
 
-	uint_t compileFlags = m_module->getCompileFlags();
-
-	if (compileFlags & ModuleCompileFlag_CheckStackOverflowInInternalPrologue)
-		m_module->m_operatorMgr.checkStackOverflow();
-
-	if (compileFlags & ModuleCompileFlag_GcSafePointInInternalPrologue)
+	if (m_module->getCompileFlags() & ModuleCompileFlag_GcSafePointInInternalPrologue)
 		m_module->m_operatorMgr.gcSafePoint();
 }
 
@@ -649,21 +636,6 @@ FunctionMgr::injectTlsPrologues()
 {
 	sl::Iterator<Function> it = m_functionList.getHead();
 	for (; it; it++)
-		if (it->getPrologueBlock() && it->isTlsRequired())
-			injectTlsPrologue(*it);
-
-	it = m_thunkFunctionList.getHead();
-	for (; it; it++)
-		if (it->isTlsRequired())
-			injectTlsPrologue(*it);
-
-	it = m_scheduleLauncherFunctionList.getHead();
-	for (; it; it++)
-		if (it->isTlsRequired())
-			injectTlsPrologue(*it);
-
-	it = m_asyncFunctionList.getHead();
-	for (; it; it++)
 		if (it->isTlsRequired())
 			injectTlsPrologue(*it);
 }
@@ -707,9 +679,9 @@ FunctionMgr::injectTlsPrologue(Function* function)
 void
 FunctionMgr::replaceAsyncAllocas()
 {
-	sl::Iterator<AsyncFunction> it = m_asyncFunctionList.getHead();
-	for (; it; it++)
-		it->replaceAllocas();
+	size_t count = m_asyncFunctionArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		m_asyncFunctionArray[i]->replaceAllocas();
 }
 
 void
@@ -1064,13 +1036,6 @@ FunctionMgr::getStdFunction(StdFunc func)
 	case StdFunc_AppendFmtLiteral_v:
 	case StdFunc_TryCheckDataPtrRangeDirect:
 	case StdFunc_CheckDataPtrRangeDirect:
-	case StdFunc_TryCheckNullPtr:
-	case StdFunc_CheckNullPtr:
-	case StdFunc_CheckStackOverflow:
-	case StdFunc_CheckDivByZero_i32:
-	case StdFunc_CheckDivByZero_i64:
-	case StdFunc_CheckDivByZero_f32:
-	case StdFunc_CheckDivByZero_f64:
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
 	case StdFunc_GetDynamicField:

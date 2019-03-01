@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ClassType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
@@ -295,6 +296,18 @@ ClassType::addProperty(Property* prop)
 
 	m_memberPropertyArray.append(prop);
 	return true;
+}
+
+void
+ClassType::prepareLlvmType()
+{
+	m_llvmType = getClassStructType()->getLlvmType();
+}
+
+void
+ClassType::prepareLlvmDiType()
+{
+	m_llvmDiType = getClassStructType()->getLlvmDiType();
 }
 
 bool

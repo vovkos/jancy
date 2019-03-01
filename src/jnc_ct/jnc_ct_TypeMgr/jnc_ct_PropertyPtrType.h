@@ -130,7 +130,7 @@ protected:
 
 struct PropertyPtrTypeTuple: sl::ListLink
 {
-	PropertyPtrType* m_ptrTypeArray[2] [3] [3]; // ref x kind x unsafe / checked
+	PropertyPtrType* m_ptrTypeArray[2][3][3]; // ref x kind x unsafe / checked
 };
 
 //..............................................................................

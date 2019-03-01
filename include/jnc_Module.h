@@ -60,8 +60,6 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_SimpleGcSafePoint                    = 0x00000004,
 	jnc_ModuleCompileFlag_GcSafePointInPrologue                = 0x00000010,
 	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x00000020,
-	jnc_ModuleCompileFlag_CheckStackOverflowInPrologue         = 0x00000040,
-	jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue = 0x00000080,
 	jnc_ModuleCompileFlag_Documentation                        = 0x00000200,
 	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x00000400,
 	jnc_ModuleCompileFlag_KeepTypedefShadow                    = 0x00000800,
@@ -70,13 +68,10 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_DisableDoxyComment2                  = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3                  = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4                  = 0x00010000,
-	jnc_ModuleCompileFlag_SimpleCheckDivByZero                 = 0x00100000,
-	jnc_ModuleCompileFlag_SimpleCheckNullPtr                   = 0x00200000,
 
 	jnc_ModuleCompileFlag_StdFlags =
 		jnc_ModuleCompileFlag_GcSafePointInPrologue |
-		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue |
-		jnc_ModuleCompileFlag_CheckStackOverflowInPrologue
+		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue
 #if (_JNC_OS_POSIX)
 		| jnc_ModuleCompileFlag_McJit
 #endif
@@ -497,8 +492,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_SimpleGcSafePoint                    = jnc_ModuleCompileFlag_SimpleGcSafePoint,
 	ModuleCompileFlag_GcSafePointInPrologue                = jnc_ModuleCompileFlag_GcSafePointInPrologue,
 	ModuleCompileFlag_GcSafePointInInternalPrologue        = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
-	ModuleCompileFlag_CheckStackOverflowInPrologue         = jnc_ModuleCompileFlag_CheckStackOverflowInPrologue,
-	ModuleCompileFlag_CheckStackOverflowInInternalPrologue = jnc_ModuleCompileFlag_CheckStackOverflowInInternalPrologue,
 	ModuleCompileFlag_Documentation                        = jnc_ModuleCompileFlag_Documentation,
 	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
 	ModuleCompileFlag_KeepTypedefShadow                    = jnc_ModuleCompileFlag_KeepTypedefShadow,
@@ -507,8 +500,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2                  = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3                  = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
-	ModuleCompileFlag_SimpleCheckDivByZero                 = jnc_ModuleCompileFlag_SimpleCheckDivByZero,
-	ModuleCompileFlag_SimpleCheckNullPtr                   = jnc_ModuleCompileFlag_SimpleCheckNullPtr,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //..............................................................................

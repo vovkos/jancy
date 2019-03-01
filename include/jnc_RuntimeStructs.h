@@ -296,7 +296,6 @@ struct jnc_Tls
 	jnc_Tls* m_prevTls;
 	jnc_Runtime* m_runtime;
 	size_t m_initializeLevel;
-	void* m_stackEpoch;
 	jnc_GcMutatorThread m_gcMutatorThread;
 
 	// followed by jnc_TlsVariableTable

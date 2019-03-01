@@ -140,7 +140,7 @@ protected:
 
 struct FunctionPtrTypeTuple: sl::ListLink
 {
-	FunctionPtrType* m_ptrTypeArray[2] [3] [2]; // ref x kind x checked
+	FunctionPtrType* m_ptrTypeArray[2][3][2]; // ref x kind x checked
 };
 
 //..............................................................................

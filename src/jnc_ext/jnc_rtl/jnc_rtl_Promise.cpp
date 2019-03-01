@@ -11,8 +11,8 @@
 
 #include "pch.h"
 #include "jnc_rtl_Promise.h"
-#include "jnc_ct_Module.h"
 #include "jnc_rt_Runtime.h"
+#include "jnc_ct_Module.h"
 #include "jnc_CallSite.h"
 
 namespace jnc {

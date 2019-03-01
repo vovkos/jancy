@@ -334,7 +334,6 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_Runtime_setSjljFrame,
 	jnc_Runtime_getUserData,
 	jnc_Runtime_setUserData,
-	jnc_Runtime_checkStackOverflow,
 	jnc_getCurrentThreadRuntime,
 	jnc_getCurrentThreadTls,
 	jnc_dynamicThrow,

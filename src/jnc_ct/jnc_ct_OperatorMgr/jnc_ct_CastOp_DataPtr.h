@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_CastOp.h"
-#include "jnc_ct_DataPtrType.h"
 
 namespace jnc {
 namespace ct {
@@ -279,7 +278,7 @@ protected:
 	Cast_DataPtr_Lean2Thin m_lean2Thin;
 	Cast_DataPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable[DataPtrTypeKind__Count] [DataPtrTypeKind__Count];
+	CastOperator* m_operatorTable[DataPtrTypeKind__Count][DataPtrTypeKind__Count];
 
 public:
 	Cast_DataPtr();

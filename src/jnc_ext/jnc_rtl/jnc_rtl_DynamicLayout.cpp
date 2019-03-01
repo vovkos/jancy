@@ -11,8 +11,9 @@
 
 #include "pch.h"
 #include "jnc_rtl_DynamicLayout.h"
-#include "jnc_ct_Module.h"
 #include "jnc_rt_Runtime.h"
+#include "jnc_ct_Module.h"
+#include "jnc_ct_ArrayType.h"
 #include "jnc_Runtime.h"
 #include "jnc_Construct.h"
 

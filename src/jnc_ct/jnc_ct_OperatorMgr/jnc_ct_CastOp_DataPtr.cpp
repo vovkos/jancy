@@ -12,6 +12,8 @@
 #include "pch.h"
 #include "jnc_ct_CastOp_DataPtr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ArrayType.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
 namespace ct {
@@ -627,11 +629,11 @@ Cast_DataPtr::Cast_DataPtr()
 {
 	memset(m_operatorTable, 0, sizeof(m_operatorTable));
 
-	m_operatorTable[DataPtrTypeKind_Normal] [DataPtrTypeKind_Normal] = &m_normal2Normal;
-	m_operatorTable[DataPtrTypeKind_Normal] [DataPtrTypeKind_Thin]   = &m_normal2Thin;
-	m_operatorTable[DataPtrTypeKind_Lean] [DataPtrTypeKind_Normal]   = &m_lean2Normal;
-	m_operatorTable[DataPtrTypeKind_Lean] [DataPtrTypeKind_Thin]     = &m_lean2Thin;
-	m_operatorTable[DataPtrTypeKind_Thin] [DataPtrTypeKind_Thin]     = &m_thin2Thin;
+	m_operatorTable[DataPtrTypeKind_Normal][DataPtrTypeKind_Normal] = &m_normal2Normal;
+	m_operatorTable[DataPtrTypeKind_Normal][DataPtrTypeKind_Thin]   = &m_normal2Thin;
+	m_operatorTable[DataPtrTypeKind_Lean][DataPtrTypeKind_Normal]   = &m_lean2Normal;
+	m_operatorTable[DataPtrTypeKind_Lean][DataPtrTypeKind_Thin]     = &m_lean2Thin;
+	m_operatorTable[DataPtrTypeKind_Thin][DataPtrTypeKind_Thin]     = &m_thin2Thin;
 
 	m_opFlags = OpFlag_KeepDerivableRef;
 }
@@ -688,7 +690,7 @@ Cast_DataPtr::getCastOperator(
 	ASSERT((size_t)srcPtrTypeKind < DataPtrTypeKind__Count);
 	ASSERT((size_t)dstPtrTypeKind < DataPtrTypeKind__Count);
 
-	return m_operatorTable[srcPtrTypeKind] [dstPtrTypeKind];
+	return m_operatorTable[srcPtrTypeKind][dstPtrTypeKind];
 }
 
 //..............................................................................

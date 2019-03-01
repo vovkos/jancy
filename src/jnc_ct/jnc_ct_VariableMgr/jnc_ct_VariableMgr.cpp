@@ -13,6 +13,7 @@
 #include "jnc_ct_VariableMgr.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
 namespace ct {

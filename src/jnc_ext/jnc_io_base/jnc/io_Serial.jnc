@@ -482,6 +482,13 @@ opaque class Serial
 
 	bool autoget property m_rts;
 
+	/**
+		This property is used for getting and setting[#f4]_ ``RTS``
+		(ready-to-send) serial control line.
+	*/
+
+	bool autoget property m_breakCondition;
+
 	uint_t autoget property m_readInterval;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;

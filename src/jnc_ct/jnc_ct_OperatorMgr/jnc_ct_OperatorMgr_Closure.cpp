@@ -13,6 +13,7 @@
 #include "jnc_ct_OperatorMgr.h"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ClosureClassType.h"
 
 namespace jnc {
 namespace ct {

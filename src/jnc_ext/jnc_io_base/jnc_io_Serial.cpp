@@ -31,14 +31,15 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Serial)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Serial>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Serial>)
 
-	JNC_MAP_AUTOGET_PROPERTY("m_baudRate",    &Serial::setBaudRate)
-	JNC_MAP_AUTOGET_PROPERTY("m_flowControl", &Serial::setFlowControl)
-	JNC_MAP_AUTOGET_PROPERTY("m_dataBits",    &Serial::setDataBits)
-	JNC_MAP_AUTOGET_PROPERTY("m_stopBits",    &Serial::setStopBits)
-	JNC_MAP_AUTOGET_PROPERTY("m_parity",      &Serial::setParity)
-	JNC_MAP_AUTOGET_PROPERTY("m_dtr",         &Serial::setDtr)
-	JNC_MAP_AUTOGET_PROPERTY("m_rts",         &Serial::setRts)
-	JNC_MAP_CONST_PROPERTY   ("m_statusLines", &Serial::getStatusLines)
+	JNC_MAP_AUTOGET_PROPERTY("m_baudRate",       &Serial::setBaudRate)
+	JNC_MAP_AUTOGET_PROPERTY("m_flowControl",    &Serial::setFlowControl)
+	JNC_MAP_AUTOGET_PROPERTY("m_dataBits",       &Serial::setDataBits)
+	JNC_MAP_AUTOGET_PROPERTY("m_stopBits",       &Serial::setStopBits)
+	JNC_MAP_AUTOGET_PROPERTY("m_parity",         &Serial::setParity)
+	JNC_MAP_AUTOGET_PROPERTY("m_dtr",            &Serial::setDtr)
+	JNC_MAP_AUTOGET_PROPERTY("m_rts",            &Serial::setRts)
+	JNC_MAP_AUTOGET_PROPERTY("m_breakCondition", &Serial::setBreakCondition)
+	JNC_MAP_CONST_PROPERTY  ("m_statusLines",    &Serial::getStatusLines)
 
 	JNC_MAP_AUTOGET_PROPERTY("m_readInterval",    &Serial::setReadInterval)
 	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &Serial::setReadParallelism)
@@ -388,6 +389,24 @@ Serial::setRts(bool rts)
 		return false;
 
 	m_rts = rts;
+	return true;
+}
+
+bool
+JNC_CDECL
+Serial::setBreakCondition(bool breakCondition)
+{
+	if (!m_isOpen)
+	{
+		m_breakCondition = breakCondition;
+		return true;
+	}
+
+	bool result = m_serial.m_serial.setBreakCondition(breakCondition);
+	if (!result)
+		return false;
+
+	m_breakCondition = breakCondition;
 	return true;
 }
 

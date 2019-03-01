@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_BinOp_At.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ClassType.h"
 
 namespace jnc {
 namespace ct {

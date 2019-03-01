@@ -64,6 +64,7 @@ struct SerialHdr: IfaceHdr
 
 	bool m_dtr;
 	bool m_rts;
+	bool m_breakCondition;
 
 	uint_t m_readInterval;
 	uint_t m_readParallelism;
@@ -222,6 +223,10 @@ public:
 	bool
 	JNC_CDECL
 	setRts(bool rts);
+
+	bool
+	JNC_CDECL
+	setBreakCondition(bool breakCondition);
 
 	bool
 	JNC_CDECL

@@ -13,9 +13,7 @@
 
 #include "jnc_ct_Value.h"
 #include "jnc_ct_BasicBlock.h"
-#include "jnc_ct_DataPtrType.h"
 #include "jnc_ct_FunctionType.h"
-#include "jnc_ct_PropertyType.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {

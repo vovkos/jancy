@@ -12,12 +12,9 @@
 #include "pch.h"
 #include "jnc_rtl_Multicast.h"
 #include "jnc_Type.h"
-
-#ifdef _JNC_CORE
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_ct_Module.h"
-#endif
-
+#include "jnc_rt_Runtime.h"
+#include "jnc_ct_Module.h"
+#include "jnc_ct_MulticastClassType.h"
 #include "jnc_Runtime.h"
 
 namespace jnc {

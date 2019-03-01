@@ -11,9 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_ImportType.h"
-#include "jnc_ct_Scope.h"
-#include "jnc_ct_LeanDataPtrValidator.h"
+#include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
@@ -21,6 +19,7 @@ namespace ct {
 
 class Scope;
 class StructField;
+class LeanDataPtrValidator;
 
 //..............................................................................
 

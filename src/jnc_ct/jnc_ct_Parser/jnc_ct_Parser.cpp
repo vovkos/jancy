@@ -10,11 +10,15 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_Parser.llk.h"
-#include "jnc_ct_Parser.llk.cpp"
+#include "jnc_ct_Module.h"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
+#include "jnc_ct_ArrayType.h"
+#include "jnc_ct_UnionType.h"
+#include "jnc_ct_ReactorClassType.h"
 #include "jnc_rtl_Regex.h"
+#include "jnc_ct_Parser.llk.h"
+#include "jnc_ct_Parser.llk.cpp"
 
 namespace jnc {
 namespace ct {
@@ -2844,7 +2848,7 @@ Parser::appendFmtLiteralValue(
 
 	if (typeKindFlags & TypeKindFlag_Integer)
 	{
-		static StdFunc funcTable[2] [2] =
+		static StdFunc funcTable[2][2] =
 		{
 			{ StdFunc_AppendFmtLiteral_i32, StdFunc_AppendFmtLiteral_ui32 },
 			{ StdFunc_AppendFmtLiteral_i64, StdFunc_AppendFmtLiteral_ui64 },
@@ -2853,7 +2857,7 @@ Parser::appendFmtLiteralValue(
 		size_t i1 = type->getSize() > 4;
 		size_t i2 = (typeKindFlags & TypeKindFlag_Unsigned) != 0;
 
-		appendFunc = funcTable[i1] [i2];
+		appendFunc = funcTable[i1][i2];
 	}
 	else if (typeKindFlags & TypeKindFlag_Fp)
 	{

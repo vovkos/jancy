@@ -1205,10 +1205,6 @@ jnc_Runtime_SetUserDataFunc(
 	);
 
 typedef
-void
-jnc_Runtime_CheckStackOverflowFunc(jnc_Runtime* runtime);
-
-typedef
 jnc_Runtime*
 jnc_GetCurrentThreadRuntimeFunc();
 
@@ -1267,7 +1263,6 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_SetSjljFrameFunc* m_setSjljFrameFunc;
 	jnc_Runtime_GetUserDataFunc* m_getUserDataFunc;
 	jnc_Runtime_SetUserDataFunc* m_setUserDataFunc;
-	jnc_Runtime_CheckStackOverflowFunc* m_checkStackOverflowFunc;
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
 	jnc_DynamicThrowFunc* m_dynamicThrowFunc;

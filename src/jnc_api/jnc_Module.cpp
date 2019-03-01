@@ -15,9 +15,8 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
-#	include "jnc_rt_Runtime.h"
-#	include "jnc_rt_ExceptionMgr.h"
 #	include "jnc_ct_Module.h"
+#	include "jnc_rt_ExceptionMgr.h"
 #endif
 
 //..............................................................................
@@ -479,7 +478,7 @@ jnc_initialize(const char* tag)
 	if (tag)
 		g::getModule()->setTag(tag);
 
-	sl::getSimpleSingleton<jnc::rt::ExceptionMgr> ()->install();
+	sl::getSimpleSingleton<jnc::rt::ExceptionMgr>()->install();
 
 	lex::registerParseErrorProvider();
 

@@ -12,8 +12,6 @@
 #pragma once
 
 #include "jnc_ct_ClassType.h"
-#include "jnc_ct_ThunkFunction.h"
-#include "jnc_ct_Closure.h"
 
 namespace jnc {
 namespace ct {

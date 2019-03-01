@@ -19,23 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-const char*
-getPropertyPtrTypeKindString(PropertyPtrTypeKind ptrTypeKind)
-{
-	static const char* stringTable[PropertyPtrTypeKind__Count] =
-	{
-		"closure",  // PropertyPtrTypeKind_Normal = 0,
-		"weak",     // PropertyPtrTypeKind_Weak,
-		"thin",     // PropertyPtrTypeKind_Thin,
-	};
-
-	return (size_t)ptrTypeKind < PropertyPtrTypeKind__Count ?
-		stringTable[ptrTypeKind] :
-		"undefined-property-ptr-kind";
-}
-
-//..............................................................................
-
 PropertyPtrType::PropertyPtrType()
 {
 	m_typeKind = TypeKind_PropertyPtr;

@@ -11,13 +11,14 @@
 
 #pragma once
 
-#include "jnc_ct_CallConv.h"
+#include "jnc_ct_Type.h"
 #include "jnc_ct_FunctionArg.h"
 #include "jnc_FunctionType.h"
 
 namespace jnc {
 namespace ct {
 
+class CallConv;
 class FunctionPtrType;
 class NamedType;
 class ClassType;

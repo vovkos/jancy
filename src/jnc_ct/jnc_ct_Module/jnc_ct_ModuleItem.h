@@ -168,6 +168,10 @@ public:
 public:
 	ModuleItem();
 
+	virtual ~ModuleItem ()
+	{
+	}
+
 	Module*
 	getModule()
 	{

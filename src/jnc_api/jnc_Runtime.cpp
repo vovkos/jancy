@@ -15,8 +15,9 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_rt_Runtime.h"
-#	include "jnc_rt_ExceptionMgr.h"
-#	include "jnc_ct_Module.h"
+#	include "jnc_ct_ClassType.h"
+#	include "jnc_ct_ClosureClassType.h"
+#	include "jnc_ct_StructType.h"
 #endif
 
 #include "jnc_Runtime.h"
@@ -161,14 +162,6 @@ jnc_Runtime_setUserData(
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setUserDataFunc(runtime, data);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-void
-jnc_Runtime_checkStackOverflow(jnc_Runtime* runtime)
-{
-	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_checkStackOverflowFunc(runtime);
 }
 
 JNC_EXTERN_C
@@ -376,14 +369,6 @@ jnc_Runtime_setUserData(
 	)
 {
 	return (void*)sys::atomicXchg((size_t volatile*) &runtime->m_userData, (size_t)data);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-void
-jnc_Runtime_checkStackOverflow(jnc_Runtime* runtime)
-{
-	return runtime->checkStackOverflow();
 }
 
 JNC_EXTERN_C

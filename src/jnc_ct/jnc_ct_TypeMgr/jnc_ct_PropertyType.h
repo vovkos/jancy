@@ -25,49 +25,6 @@ struct PropertyPtrTypeTuple;
 
 //..............................................................................
 
-enum PropertyTypeFlag
-{
-	PropertyTypeFlag_Const    = 0x010000,
-	PropertyTypeFlag_Bindable = 0x020000,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_INLINE
-PropertyTypeFlag
-getFirstPropertyTypeFlag(uint_t flags)
-{
-	return (PropertyTypeFlag)(1 << sl::getLoBitIdx(flags));
-}
-
-const char*
-getPropertyTypeFlagString(PropertyTypeFlag flag);
-
-sl::String
-getPropertyTypeFlagString(uint_t flags);
-
-JNC_INLINE
-const char*
-getFirstPropertyTypeFlagString(uint_t flags)
-{
-	return getPropertyTypeFlagString(getFirstPropertyTypeFlag(flags));
-}
-
-//..............................................................................
-
-enum PropertyPtrTypeKind
-{
-	PropertyPtrTypeKind_Normal = 0,
-	PropertyPtrTypeKind_Weak,
-	PropertyPtrTypeKind_Thin,
-	PropertyPtrTypeKind__Count,
-};
-
-const char*
-getPropertyPtrTypeKindString(PropertyPtrTypeKind ptrTypeKind);
-
-//..............................................................................
-
 class PropertyType: public Type
 {
 	friend class TypeMgr;
@@ -211,7 +168,7 @@ protected:
 
 struct SimplePropertyTypeTuple: sl::ListLink
 {
-	PropertyType* m_propertyTypeArray[3] [2] [2]; // call-conv-family x const x bindable
+	PropertyType* m_propertyTypeArray[3][2][2]; // call-conv-family x const x bindable
 };
 
 //..............................................................................

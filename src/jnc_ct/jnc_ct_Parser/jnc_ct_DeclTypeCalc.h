@@ -26,6 +26,8 @@ class PropertyType;
 class PropertyPtrType;
 class ReactorClassType;
 class ImportType;
+class NamedImportType;
+class ImportIntModType;
 class ImportPtrType;
 
 //..............................................................................

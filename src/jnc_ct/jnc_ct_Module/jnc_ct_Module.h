@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_AttributeMgr.h"
 #include "jnc_ct_TypeMgr.h"
+#include "jnc_ct_AttributeMgr.h"
 #include "jnc_ct_NamespaceMgr.h"
 #include "jnc_ct_FunctionMgr.h"
 #include "jnc_ct_VariableMgr.h"
@@ -22,11 +22,11 @@
 #include "jnc_ct_GcShadowStackMgr.h"
 #include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_UnitMgr.h"
-#include "jnc_ct_LlvmIrBuilder.h"
-#include "jnc_ct_LlvmDiBuilder.h"
 #include "jnc_ct_ImportMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
 #include "jnc_ct_DoxyMgr.h"
+#include "jnc_ct_LlvmIrBuilder.h"
+#include "jnc_ct_LlvmDiBuilder.h"
 
 namespace jnc {
 namespace ct {
@@ -103,11 +103,7 @@ public:
 
 public:
 	Module();
-
-	~Module()
-	{
-		clear();
-	}
+	~Module();
 
 	const sl::String&
 	getName()

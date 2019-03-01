@@ -19,61 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-const char*
-getPropertyTypeFlagString(PropertyTypeFlag flag)
-{
-	static const char* stringTable[] =
-	{
-		"const",     // PropertyTypeFlag_Const    = 0x010000,
-		"bindable",  // PropertyTypeFlag_Bindable = 0x020000,
-	};
-
-	size_t i = sl::getLoBitIdx32(flag >> 16);
-
-	return i < countof(stringTable) ?
-		stringTable[i] :
-		"undefined-property-type-flag";
-}
-
-sl::String
-getPropertyTypeFlagString(uint_t flags)
-{
-	if (!flags)
-		return sl::String();
-
-	PropertyTypeFlag flag = getFirstPropertyTypeFlag(flags);
-	sl::String string = getPropertyTypeFlagString(flag);
-	flags &= ~flag;
-
-	while (flags)
-	{
-		flag = getFirstPropertyTypeFlag(flags);
-
-		string += ' ';
-		string += getPropertyTypeFlagString(flag);
-
-		flags &= ~flag;
-	}
-
-	return string;
-}
-
-uint_t
-getPropertyTypeFlagsFromModifiers(uint_t modifiers)
-{
-	uint_t flags = 0;
-
-	if (modifiers & TypeModifier_Const)
-		flags |= PropertyTypeFlag_Const;
-
-	if (modifiers & TypeModifier_Bindable)
-		flags |= PropertyTypeFlag_Bindable;
-
-	return flags;
-}
-
-//..............................................................................
-
 PropertyType::PropertyType()
 {
 	m_typeKind = TypeKind_Property;

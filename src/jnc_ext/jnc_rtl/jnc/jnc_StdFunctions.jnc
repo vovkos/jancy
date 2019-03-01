@@ -176,40 +176,6 @@ void checkDataPtrRangeDirect(
 	size_t rangeLength
 	);
 
-///; static char tryCheckNullPtrSrc [] =
-
-bool errorcode tryCheckNullPtr(
-	void thin const* p,
-	int typeKind
-	);
-
-///; static char checkNullPtrSrc [] =
-
-void checkNullPtr(
-	void thin const* p,
-	int typeKind
-	);
-
-///; static char checkStackOverflowSrc [] =
-
-void checkStackOverflow();
-
-///; static char checkDivByZeroSrc_i32 [] =
-
-void checkDivByZero_i32(int32_t x);
-
-///; static char checkDivByZeroSrc_i64 [] =
-
-void checkDivByZero_i64(int64_t x);
-
-///; static char checkDivByZeroSrc_f32 [] =
-
-void checkDivByZero_f32(float x);
-
-///; static char checkDivByZeroSrc_f64 [] =
-
-void checkDivByZero_f64(double x);
-
 ///; static char tryLazyGetDynamicLibFunctionSrc [] =
 
 void thin* errorcode tryLazyGetDynamicLibFunction(

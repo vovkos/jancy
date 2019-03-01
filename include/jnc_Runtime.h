@@ -135,10 +135,6 @@ jnc_Runtime_setUserData(
 	void* data
 	);
 
-JNC_EXTERN_C
-void
-jnc_Runtime_checkStackOverflow(jnc_Runtime* runtime);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -227,12 +223,6 @@ struct jnc_Runtime
 	setUserData(void* data)
 	{
 		return jnc_Runtime_setUserData(this, data);
-	}
-
-	void
-	checkStackOverflow()
-	{
-		jnc_Runtime_checkStackOverflow(this);
 	}
 };
 #endif // _JNC_CORE

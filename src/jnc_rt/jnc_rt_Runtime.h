@@ -101,9 +101,6 @@ public:
 	void
 	uninitializeCallSite(jnc_CallSite* callSite);
 
-	void
-	checkStackOverflow();
-
 	SjljFrame*
 	setSjljFrame(SjljFrame* frame);
 

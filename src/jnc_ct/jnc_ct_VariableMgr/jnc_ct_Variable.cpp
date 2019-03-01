@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Variable.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
 namespace ct {

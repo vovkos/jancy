@@ -78,13 +78,6 @@ enum StdFunc
 	StdFunc_CheckDataPtrRangeDirect,
 	StdFunc_TryCheckDataPtrRangeIndirect,
 	StdFunc_CheckDataPtrRangeIndirect,
-	StdFunc_TryCheckNullPtr,
-	StdFunc_CheckNullPtr,
-	StdFunc_CheckStackOverflow,
-	StdFunc_CheckDivByZero_i32,
-	StdFunc_CheckDivByZero_i64,
-	StdFunc_CheckDivByZero_f32,
-	StdFunc_CheckDivByZero_f64,
 
 	StdFunc_TryLazyGetDynamicLibFunction,
 	StdFunc_LazyGetDynamicLibFunction,

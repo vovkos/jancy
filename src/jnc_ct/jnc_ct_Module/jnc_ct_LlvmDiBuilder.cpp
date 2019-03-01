@@ -12,6 +12,8 @@
 #include "pch.h"
 #include "jnc_ct_LlvmDiBuilder.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_ArrayType.h"
+#include "jnc_ct_UnionType.h"
 
 namespace jnc {
 namespace ct {

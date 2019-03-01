@@ -173,7 +173,7 @@ protected:
 	Cast_FunctionPtr_Thin2Fat m_thin2Fat;
 	Cast_FunctionPtr_Thin2Thin m_thin2Thin;
 
-	CastOperator* m_operatorTable[FunctionPtrTypeKind__Count] [FunctionPtrTypeKind__Count];
+	CastOperator* m_operatorTable[FunctionPtrTypeKind__Count][FunctionPtrTypeKind__Count];
 
 public:
 	Cast_FunctionPtr();
