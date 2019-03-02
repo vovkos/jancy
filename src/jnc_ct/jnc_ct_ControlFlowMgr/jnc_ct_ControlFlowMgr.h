@@ -11,9 +11,9 @@
 
 #pragma once
 
-#include "jnc_ct_BasicBlock.h"
+#include "jnc_ct_ReSwitchAcceptContext.h"
 #include "jnc_ct_Value.h"
-#include "jnc_ct_RegexMgr.h"
+#include "jnc_ct_BasicBlock.h"
 
 namespace jnc {
 namespace ct {
@@ -163,7 +163,7 @@ public:
 	markLandingPad(
 		BasicBlock* block,
 		Scope* scope,
-		LandingPadKind landingPadKind
+		uint_t flags
 		);
 
 	bool

@@ -332,7 +332,7 @@ Namespace::generateMemberDocumentation(
 		if (memberXml.isEmpty())
 			continue;
 
-		DoxyBlock* doxyBlock = item->getDoxyBlock();
+		DoxyBlock* doxyBlock = item->getModule()->m_doxyMgr.getDoxyBlock(item, decl);
 		DoxyGroup* doxyGroup = doxyBlock->getGroup();
 		if (doxyGroup)
 			doxyGroup->addItem(item);
@@ -423,7 +423,7 @@ GlobalNamespace::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	const char* kind;
 	const char* name;
@@ -534,7 +534,6 @@ ExtensionNamespace::calcLayout()
 
 	sl::String qualifiedName = ((DerivableType*)m_type)->createQualifiedName(m_name);
 	m_qualifiedName = qualifiedName;
-	m_tag = qualifiedName;
 
 	size_t count = m_fixupMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)

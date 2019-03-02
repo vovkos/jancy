@@ -46,13 +46,13 @@ Function::setBody(sl::BoxList<Token>* tokenList)
 {
 	if (!m_body.isEmpty())
 	{
-		err::setFormatStringError("'%s' already has a body", m_tag.sz ());
+		err::setFormatStringError("'%s' already has a body", m_qualifiedName.sz ());
 		return false;
 	}
 
 	if (m_storageKind == StorageKind_Abstract)
 	{
-		err::setFormatStringError("'%s' is abstract and hence cannot have a body", m_tag.sz ());
+		err::setFormatStringError("'%s' is abstract and hence cannot have a body", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -92,11 +92,11 @@ Function::getLlvmFunction()
 	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit)
 	{
 		llvmName = "?"; // as to avoid linking conflicts
-		llvmName += m_tag;
+		llvmName += m_qualifiedName;
 	}
 	else
 	{
-		llvmName = m_tag;
+		llvmName = m_qualifiedName;
 	}
 
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
@@ -283,8 +283,8 @@ Function::compileAsyncLauncher()
 {
 	bool result;
 
-	sl::String promiseName = m_tag + "_Promise";
-	sl::String sequencerName = m_tag + "_sequencer";
+	sl::String promiseName = m_qualifiedName + "_Promise";
+	sl::String sequencerName = m_qualifiedName + "_sequencer";
 
 	ClassType* promiseType = m_module->m_typeMgr.createClassType(promiseName, promiseName);
 	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
@@ -350,7 +350,7 @@ Function::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	itemXml->format("<memberdef kind='function' id='%s'", doxyBlock->getRefId ().sz ());
 

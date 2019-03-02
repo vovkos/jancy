@@ -19,20 +19,6 @@ class BasicBlock;
 
 //..............................................................................
 
-struct ReSwitchAcceptContext: sl::ListLink
-{
-	size_t m_firstGroupId;
-	size_t m_groupCount;
-
-	union
-	{
-		BasicBlock* m_actionBlock;
-		size_t m_actionIdx;
-	};
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct DfaGroupSet: sl::ListLink
 {
 	sl::Array<size_t> m_openArray;

@@ -58,8 +58,7 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column)
 	document->setFocus();
 }
 
-QTreeWidgetItem *ModulePane::insertItem(const QString &text,
-	QTreeWidgetItem *parent)
+QTreeWidgetItem *ModulePane::insertItem(const QString &text, QTreeWidgetItem *parent)
 {
 	QTreeWidgetItem *item = new QTreeWidgetItem;
 	item->setText(0, text);
@@ -72,8 +71,7 @@ QTreeWidgetItem *ModulePane::insertItem(const QString &text,
 	return item;
 }
 
-bool ModulePane::addItemAttributes(QTreeWidgetItem *parent,
-	jnc::ModuleItemDecl *decl)
+bool ModulePane::addItemAttributes(QTreeWidgetItem *parent, jnc::ModuleItemDecl *decl)
 {
 	jnc::AttributeBlock *attributeBlock = decl->getAttributeBlock();
 	if (!attributeBlock)

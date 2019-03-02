@@ -35,7 +35,6 @@ NamespaceMgr::NamespaceMgr()
 	jnc->m_parentNamespace = global;
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
-	jnc->m_tag = jncName;
 
 	if (!(m_module->getCompileFlags() & ModuleCompileFlag_StdLibDoc))
 		jnc->m_flags |= ModuleItemFlag_Sealed;
@@ -44,7 +43,6 @@ NamespaceMgr::NamespaceMgr()
 	internal->m_parentNamespace = global;
 	internal->m_name = jncName;
 	internal->m_qualifiedName = jncName;
-	internal->m_tag = jncName;
 
 	m_currentNamespace = global;
 	m_currentScope = NULL;
@@ -172,7 +170,6 @@ NamespaceMgr::createAlias(
 	alias->m_module = m_module;
 	alias->m_name = name;
 	alias->m_qualifiedName = qualifiedName;
-	alias->m_tag = qualifiedName;
 	alias->m_type = type;
 	alias->m_ptrTypeFlags = ptrTypeFlags;
 	sl::takeOver(&alias->m_initializer, initializer);
@@ -424,13 +421,10 @@ NamespaceMgr::createGlobalNamespace(
 	if (!parentNamespace)
 		parentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
 
-	sl::String qualifiedName = parentNamespace->createQualifiedName(name);
-
 	GlobalNamespace* nspace = AXL_MEM_NEW(GlobalNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
-	nspace->m_qualifiedName = qualifiedName;
-	nspace->m_tag = qualifiedName;
+	nspace->m_qualifiedName = parentNamespace->createQualifiedName(name);
 	nspace->m_parentNamespace = parentNamespace;
 	m_globalNamespaceList.insertTail(nspace);
 	return nspace;
@@ -449,7 +443,7 @@ NamespaceMgr::createExtensionNamespace(
 	ExtensionNamespace* nspace = AXL_MEM_NEW(ExtensionNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
-	nspace->m_tag = name;
+	nspace->m_qualifiedName = parentNamespace->createQualifiedName(name);
 	nspace->m_parentNamespace = parentNamespace;
 	nspace->m_type = (DerivableType*)type; // force-cast
 	m_extensionNamespaceList.insertTail(nspace);
@@ -472,14 +466,10 @@ NamespaceMgr::createExtensionNamespace(
 DynamicLibNamespace*
 NamespaceMgr::createDynamicLibNamespace(ClassType* dynamicLibType)
 {
-	sl::String name = "lib";
-	sl::String qualifiedName = dynamicLibType->getQualifiedName() + "." + name;
-
 	DynamicLibNamespace* nspace = AXL_MEM_NEW(DynamicLibNamespace);
 	nspace->m_module = m_module;
-	nspace->m_name = name;
-	nspace->m_qualifiedName = qualifiedName;
-	nspace->m_tag = qualifiedName;
+	nspace->m_name = "lib";
+	nspace->m_qualifiedName = dynamicLibType->getQualifiedName() + ".lib";
 	nspace->m_parentNamespace = dynamicLibType;
 	nspace->m_dynamicLibType = dynamicLibType;
 	m_dynamicLibNamespaceList.insertTail(nspace);

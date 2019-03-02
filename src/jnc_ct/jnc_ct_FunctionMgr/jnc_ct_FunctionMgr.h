@@ -122,27 +122,26 @@ public:
 		FunctionKind functionKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		const sl::StringRef& tag,
 		FunctionType* type
 		);
 
-	Function*
+/*	Function*
 	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
 		)
 	{
 		return createFunction(functionKind, sl::String(), sl::String(), sl::String(), type);
-	}
+	} */
 
 	Function*
 	createFunction(
 		FunctionKind functionKind,
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		FunctionType* type
 		)
 	{
-		return createFunction(functionKind, sl::String(), sl::String(), tag, type);
+		return createFunction(functionKind, name, name, type);
 	}
 
 	Function*
@@ -152,30 +151,29 @@ public:
 		FunctionType* type
 		)
 	{
-		return createFunction(FunctionKind_Normal, name, qualifiedName, qualifiedName, type);
+		return createFunction(FunctionKind_Normal, name, qualifiedName, type);
 	}
 
 	Property*
 	createProperty(
 		PropertyKind propertyKind,
 		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
-		const sl::StringRef& tag
+		const sl::StringRef& qualifiedName
 		);
 
-	Property*
+/*	Property*
 	createProperty(PropertyKind propertyKind)
 	{
 		return createProperty(propertyKind, sl::String(), sl::String(), sl::String());
-	}
+	} */
 
 	Property*
 	createProperty(
 		PropertyKind propertyKind,
-		const sl::StringRef& tag
+		const sl::StringRef& name
 		)
 	{
-		return createProperty(propertyKind, sl::String(), sl::String(), tag);
+		return createProperty(propertyKind, name, name);
 	}
 
 	Property*
@@ -184,7 +182,7 @@ public:
 		const sl::StringRef& qualifiedName
 		)
 	{
-		return createProperty(PropertyKind_Normal, name, qualifiedName, qualifiedName);
+		return createProperty(PropertyKind_Normal, name, qualifiedName);
 	}
 
 	PropertyTemplate*

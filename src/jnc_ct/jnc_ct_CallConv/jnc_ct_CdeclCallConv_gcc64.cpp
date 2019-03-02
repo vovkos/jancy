@@ -111,10 +111,10 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType)
 llvm::Function*
 CdeclCallConv_gcc64::createLlvmFunction(
 	FunctionType* functionType,
-	const sl::StringRef& tag
+	const sl::StringRef& name
 	)
 {
-	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, tag);
+	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, name);
 
 	Type* returnType = functionType->getReturnType();
 

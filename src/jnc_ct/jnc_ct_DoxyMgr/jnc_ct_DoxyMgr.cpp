@@ -62,6 +62,37 @@ DoxyMgr::createBlock()
 	return  block;
 }
 
+DoxyBlock*
+DoxyMgr::getDoxyBlock(
+	ModuleItem* item,
+	ModuleItemDecl* decl
+	)
+{
+	if (decl->m_doxyBlock)
+		return decl->m_doxyBlock;
+
+	DoxyBlock* block = createBlock();
+	block->m_item = item;
+	decl->m_doxyBlock = block;
+	return block;
+}
+
+DoxyBlock*
+DoxyMgr::setDoxyBlock(
+	ModuleItem* item,
+	ModuleItemDecl* decl,
+	DoxyBlock* block
+	)
+{
+	DoxyBlock* prevBlock = decl->m_doxyBlock;
+	decl->m_doxyBlock = block;
+
+	if (block)
+		block->m_item = item;
+
+	return prevBlock;
+}
+
 DoxyFootnote*
 DoxyMgr::createFootnote()
 {
@@ -166,10 +197,13 @@ DoxyMgr::resolveBlockTargets()
 				item = overload;
 		}
 
-		if (item->m_doxyBlock && item->m_doxyBlock->m_group && !target->m_block->m_group)
-			target->m_block->m_group = item->m_doxyBlock->m_group;
+		ModuleItemDecl* decl = item->getDecl();
+		ASSERT(decl);
 
-		item->setDoxyBlock(target->m_block);
+		if (decl->m_doxyBlock && decl->m_doxyBlock->m_group && !target->m_block->m_group)
+			target->m_block->m_group = decl->m_doxyBlock->m_group;
+
+		setDoxyBlock(item, decl, target->m_block);
 
 		if (item->getItemKind() != ModuleItemKind_Property)
 		{

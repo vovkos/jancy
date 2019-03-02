@@ -29,7 +29,7 @@ public:
 	llvm::Function*
 	createLlvmFunction(
 		FunctionType* functionType,
-		const sl::StringRef& tag
+		const sl::StringRef& name
 		);
 
 	virtual

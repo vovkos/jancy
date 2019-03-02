@@ -58,7 +58,8 @@ DoxyGroup::generateDocumentation(
 			itemKind == ModuleItemKind_Namespace ||
 			itemKind == ModuleItemKind_Type && ((Type*)item)->getTypeKind() != TypeKind_Enum;
 
-		sl::String refId = item->getDoxyBlock()->getRefId();
+		DoxyBlock* doxyBlock = item->getModule()->m_doxyMgr.getDoxyBlock(item, decl);
+		sl::String refId = doxyBlock->getRefId();
 
 		if (!isCompoundFile)
 		{
@@ -68,7 +69,6 @@ DoxyGroup::generateDocumentation(
 		else
 		{
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			sl::String refId = item->getDoxyBlock()->getRefId();
 			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz ());
 			itemXml->append('\n');
 		}

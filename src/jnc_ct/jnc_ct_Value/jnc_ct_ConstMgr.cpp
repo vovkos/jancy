@@ -42,7 +42,6 @@ ConstMgr::createConst(
 	Const* cnst = AXL_MEM_NEW(Const);
 	cnst->m_name = name;
 	cnst->m_qualifiedName = qualifiedName;
-	cnst->m_tag = qualifiedName;
 	cnst->m_value = value;
 	m_constList.insertTail(cnst);
 

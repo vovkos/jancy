@@ -51,7 +51,7 @@ UnionType::createFieldImpl(
 		);
 
 	field->m_parentNamespace = this;
-	field->m_tag = m_tag + "." + name;
+	field->m_qualifiedName = m_qualifiedName + "." + name;
 
 	if (!field->m_constructor.isEmpty() ||
 		!field->m_initializer.isEmpty())

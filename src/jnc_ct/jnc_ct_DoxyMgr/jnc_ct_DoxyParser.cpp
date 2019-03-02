@@ -114,7 +114,7 @@ DoxyParser::addComment(
 
 	if (lastDeclaredItem)
 	{
-		lastDeclaredItem->setDoxyBlock(m_block);
+		m_module->m_doxyMgr.setDoxyBlock(lastDeclaredItem, lastDeclaredItem->getDecl(), m_block);
 		m_blockTargetKind = BlockTargetKind_Member;
 	}
 

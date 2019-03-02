@@ -174,7 +174,7 @@ protected:
 	llvm::GlobalVariable*
 	createLlvmGlobalVariable(
 		Type* type,
-		const sl::StringRef& tag,
+		const sl::StringRef& name,
 		const Value& initValue = Value()
 		);
 

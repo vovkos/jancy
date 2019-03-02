@@ -13,6 +13,7 @@
 
 #include "jnc_ExtensionLib.h"
 #include "jnc_ct_RegexMgr.h"
+#include "jnc_ct_ReSwitchAcceptContext.h"
 
 namespace jnc {
 namespace rtl {
@@ -31,6 +32,8 @@ struct RegexMatch
 	size_t m_offset;
 	size_t m_length;
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum RegexResult
 {

@@ -99,8 +99,7 @@ BasicBlock*
 ControlFlowMgr::createAsyncBlock(Scope* scope)
 {
 	BasicBlock* block = createBlock("async_block");
-	block->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable;
-	block->m_landingPadKind = LandingPadKind_Exception;
+	block->m_flags |= BasicBlockFlag_Jumped | BasicBlockFlag_Reachable | BasicBlockFlag_AsyncLandingPad;
 	block->m_landingPadScope = scope;
 	m_landingPadBlockArray.append(block);
 	m_asyncBlockArray.append(block);
@@ -433,7 +432,7 @@ ControlFlowMgr::escapeScope(
 		return;
 	}
 
-	markLandingPad(targetBlock, targetScope, LandingPadKind_EscapeScope);
+	markLandingPad(targetBlock, targetScope, BasicBlockFlag_EscapeScopeLandingPad);
 
 	if (!firstFinallyBlock)
 	{
@@ -488,7 +487,7 @@ ControlFlowMgr::ret(const Value& value)
 		{
 			err::setFormatStringError(
 				"function '%s' must return a '%s' value",
-				function->m_tag.sz(),
+				function->getQualifiedName().sz(),
 				returnType->getTypeString().sz()
 				);
 			return false;
@@ -509,7 +508,7 @@ ControlFlowMgr::ret(const Value& value)
 		{
 			err::setFormatStringError(
 				"void function '%s' returning a '%s' value",
-				function->m_tag.sz(),
+				function->getQualifiedName().sz(),
 				value.getType()->getTypeString().sz()
 				);
 			return false;
@@ -570,7 +569,7 @@ ControlFlowMgr::checkReturn()
 	{
 		err::setFormatStringError(
 			"function '%s' must return a '%s' value",
-			function->m_tag.sz(),
+			function->getQualifiedName().sz(),
 			returnType->getTypeString().sz()
 			);
 		return false;
@@ -579,7 +578,7 @@ ControlFlowMgr::checkReturn()
 	{
 		err::setFormatStringError(
 			"not all control paths in function '%s' return a value",
-			function->m_tag.sz()
+			function->getQualifiedName().sz()
 			);
 		return false;
 	}

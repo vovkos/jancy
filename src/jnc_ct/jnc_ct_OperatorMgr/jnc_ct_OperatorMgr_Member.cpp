@@ -49,7 +49,11 @@ OperatorMgr::getThisValue(
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	if (!thisValue)
 	{
-		err::setFormatStringError("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.sz ());
+		err::setFormatStringError(
+			"function '%s' has no 'this' pointer",
+			m_module->m_functionMgr.getCurrentFunction ()->getQualifiedName().sz ()
+			);
+
 		return false;
 	}
 
@@ -84,7 +88,11 @@ OperatorMgr::getThisValueType(
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	if (!function->isMember())
 	{
-		err::setFormatStringError("function '%s' has no 'this' pointer", m_module->m_functionMgr.getCurrentFunction ()->m_tag.sz ());
+		err::setFormatStringError(
+			"function '%s' has no 'this' pointer",
+			m_module->m_functionMgr.getCurrentFunction()->getQualifiedName().sz ()
+			);
+
 		return false;
 	}
 
@@ -293,7 +301,7 @@ OperatorMgr::getNamespaceMember(
 		{
 			if (function->getStorageKind() == StorageKind_Abstract)
 			{
-				err::setFormatStringError("'%s' is abstract", function->m_tag.sz ());
+				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz ());
 				return false;
 			}
 

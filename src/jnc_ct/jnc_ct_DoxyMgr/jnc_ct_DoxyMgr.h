@@ -18,6 +18,8 @@
 namespace jnc {
 namespace ct {
 
+class ModuleItem;
+class ModuleItemDecl;
 class Module;
 
 //..............................................................................
@@ -72,6 +74,36 @@ public:
 
 	DoxyBlock*
 	createBlock();
+
+	DoxyBlock*
+	getDoxyBlock(
+		ModuleItem* item,
+		ModuleItemDecl* decl
+		);
+
+	template <typename T>
+	DoxyBlock*
+	getDoxyBlock(T* item)
+	{
+		return getDoxyBlock(item, item);
+	};
+
+	DoxyBlock*
+	setDoxyBlock(
+		ModuleItem* item,
+		ModuleItemDecl* decl,
+		DoxyBlock* block
+		);
+
+	template <typename T>
+	DoxyBlock*
+	setDoxyBlock(
+		T* item,
+		DoxyBlock* block
+		)
+	{
+		return setDoxyBlock(item, item, block);
+	};
 
 	DoxyFootnote*
 	createFootnote();

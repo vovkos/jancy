@@ -98,7 +98,6 @@ FunctionMgr::createFunction(
 	FunctionKind functionKind,
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	const sl::StringRef& tag,
 	FunctionType* type
 	)
 {
@@ -126,7 +125,6 @@ FunctionMgr::createFunction(
 	function->m_functionKind = functionKind;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
-	function->m_tag = tag;
 	function->m_type = type;
 	function->m_typeOverload.addOverload(type);
 	m_functionList.insertTail(function);
@@ -137,8 +135,7 @@ Property*
 FunctionMgr::createProperty(
 	PropertyKind propertyKind,
 	const sl::StringRef& name,
-	const sl::StringRef& qualifiedName,
-	const sl::StringRef& tag
+	const sl::StringRef& qualifiedName
 	)
 {
 	Property* prop;
@@ -161,7 +158,6 @@ FunctionMgr::createProperty(
 	prop->m_propertyKind = propertyKind;
 	prop->m_name = name;
 	prop->m_qualifiedName = qualifiedName;
-	prop->m_tag = tag;
 	m_module->markForLayout(prop, true);
 	m_propertyList.insertTail(prop);
 	return prop;
@@ -375,7 +371,7 @@ FunctionMgr::epilogue()
 	{
 		err::setFormatStringError(
 			"LLVM verification fail for '%s'",
-			function->m_tag.sz()
+			function->m_qualifiedName.sz()
 			);
 
 		return false;
@@ -511,9 +507,13 @@ FunctionMgr::getDirectThunkFunction(
 	if (thunk->m_value)
 		return thunk->m_value;
 
-	ThunkFunction* thunkFunction = (ThunkFunction*)createFunction(FunctionKind_Thunk, thunkFunctionType);
+	ThunkFunction* thunkFunction = (ThunkFunction*)createFunction(
+		FunctionKind_Thunk,
+		"directThunkFunction",
+		thunkFunctionType
+		);
+
 	thunkFunction->m_storageKind = StorageKind_Static;
-	thunkFunction->m_tag = "directThunkFunction";
 	thunkFunction->m_targetFunction = targetFunction;
 
 	thunk->m_value = thunkFunction;
@@ -544,10 +544,13 @@ FunctionMgr::getDirectThunkProperty(
 	if (thunk->m_value)
 		return thunk->m_value;
 
-	ThunkProperty* thunkProperty = (ThunkProperty*)createProperty(PropertyKind_Thunk);
+	ThunkProperty* thunkProperty = (ThunkProperty*)createProperty(
+		PropertyKind_Thunk,
+		"g_directThunkProperty"
+		);
+
 	thunkProperty->m_storageKind = StorageKind_Static;
 	thunkProperty->m_signature = signature;
-	thunkProperty->m_tag = "g_directThunkProperty";
 
 	bool result = thunkProperty->create(targetProperty, thunkPropertyType, hasUnusedClosure);
 	if (!result)
@@ -580,11 +583,14 @@ FunctionMgr::getDirectDataThunkProperty(
 	if (thunk->m_value)
 		return thunk->m_value;
 
-	DataThunkProperty* thunkProperty = (DataThunkProperty*)createProperty(PropertyKind_DataThunk);
+	DataThunkProperty* thunkProperty = (DataThunkProperty*)createProperty(
+		PropertyKind_DataThunk,
+		"g_directDataThunkProperty"
+		);
+
 	thunkProperty->m_storageKind = StorageKind_Static;
 	thunkProperty->m_signature = signature;
 	thunkProperty->m_targetVariable = targetVariable;
-	thunkProperty->m_tag = "g_directDataThunkProperty";
 
 	if (hasUnusedClosure)
 		thunkPropertyType = thunkPropertyType->getStdObjectMemberPropertyType();
@@ -621,9 +627,14 @@ FunctionMgr::getScheduleLauncherFunction(
 	argArray.insert(1, schedulerPtrType->getSimpleFunctionArg());
 
 	FunctionType* launcherType = m_module->m_typeMgr.getFunctionType(argArray);
-	ScheduleLauncherFunction* launcherFunction = (ScheduleLauncherFunction*)createFunction(FunctionKind_ScheduleLauncher, launcherType);
+
+	ScheduleLauncherFunction* launcherFunction = (ScheduleLauncherFunction*)createFunction(
+		FunctionKind_ScheduleLauncher,
+		"scheduleLauncherFunction",
+		launcherType
+		);
+
 	launcherFunction->m_storageKind = StorageKind_Static;
-	launcherFunction->m_tag = "scheduleLauncherFunction";
 
 	thunk->m_value = launcherFunction;
 
@@ -1136,7 +1147,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 	switch(stdProp)
 	{
 	case StdProp_VariantMember:
-		prop = createProperty(PropertyKind_Internal, "g_variantMember", "jnc.g_variantMember", "jnc.g_variantMember");
+		prop = createProperty(PropertyKind_Internal, "g_variantMember", "jnc.g_variantMember");
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantMemberProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantMemberProperty_set);
@@ -1144,7 +1155,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		break;
 
 	case StdProp_VariantIndex:
-		prop = createProperty(PropertyKind_Internal, "g_variantIndex", "jnc.g_variantIndex", "jnc.g_variantIndex");
+		prop = createProperty(PropertyKind_Internal, "g_variantIndex", "jnc.g_variantIndex");
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantIndexProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantIndexProperty_set);

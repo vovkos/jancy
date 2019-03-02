@@ -130,7 +130,6 @@ VariableMgr::createVariable(
 	variable->m_module = m_module;
 	variable->m_name = name;
 	variable->m_qualifiedName = qualifiedName;
-	variable->m_tag = qualifiedName;
 	variable->m_type = type;
 	variable->m_storageKind = storageKind;
 	variable->m_ptrTypeFlags = ptrTypeFlags;
@@ -213,7 +212,6 @@ VariableMgr::createSimpleStaticVariable(
 	variable->m_module = m_module;
 	variable->m_name = name;
 	variable->m_qualifiedName = qualifiedName;
-	variable->m_tag = qualifiedName;
 	variable->m_type = type;
 	variable->m_storageKind = StorageKind_Static;
 	variable->m_ptrTypeFlags = ptrTypeFlags;
@@ -321,7 +319,7 @@ VariableMgr::finalizeDisposableVariable(Variable* variable)
 llvm::GlobalVariable*
 VariableMgr::createLlvmGlobalVariable(
 	Type* type,
-	const sl::StringRef& tag,
+	const sl::StringRef& name,
 	const Value& initValue
 	)
 {
@@ -334,11 +332,11 @@ VariableMgr::createLlvmGlobalVariable(
 	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit)
 	{
 		llvmName = "?"; // as to avoid linking conflicts
-		llvmName += tag;
+		llvmName += name;
 	}
 	else
 	{
-		llvmName = tag;
+		llvmName = name;
 	}
 
 	return new llvm::GlobalVariable(
@@ -448,7 +446,7 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 3)
 		);
 
-	sl::String boxTag = variable->m_tag + ".box";
+	sl::String boxName = variable->m_qualifiedName + ".box";
 
 	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -456,7 +454,7 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmBoxConst,
-		boxTag.sz()
+		boxName.sz()
 		);
 
 	// now validator
@@ -482,7 +480,7 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
 		);
 
-	sl::String validatorTag = variable->m_tag + ".validator";
+	sl::String validatorName = variable->m_qualifiedName + ".validator";
 
 	llvm::GlobalVariable* llvmValidatorVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -490,14 +488,13 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		false,
 		llvm::GlobalVariable::InternalLinkage,
 		llvmValidatorConst,
-		validatorTag.sz()
+		validatorName.sz()
 		);
 
 	Variable* validatorVariable = AXL_MEM_NEW(Variable);
 	validatorVariable->m_module = m_module;
-	validatorVariable->m_name = validatorTag;
-	validatorVariable->m_qualifiedName = validatorTag;
-	validatorVariable->m_tag = validatorTag;
+	validatorVariable->m_name = validatorName;
+	validatorVariable->m_qualifiedName = validatorName;
 	validatorVariable->m_type = validatorType;
 	validatorVariable->m_storageKind = StorageKind_Static;
 	validatorVariable->m_ptrTypeFlags = 0;

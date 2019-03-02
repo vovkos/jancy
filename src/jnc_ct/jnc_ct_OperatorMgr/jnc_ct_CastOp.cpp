@@ -34,7 +34,7 @@ setCastError(
 		return err::setFormatStringError(
 			"not enough information to select one of %d overloads of '%s'",
 			function->getOverloadCount(),
-			function->m_tag.sz()
+			function->getQualifiedName().sz()
 			);
 	}
 

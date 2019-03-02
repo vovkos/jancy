@@ -436,7 +436,7 @@ jnc_Module_generateDocumentation(
 	if (!result)
 		return false;
 
-	sl::String refId = nspace->getDoxyBlock()->getRefId();
+	sl::String refId = module->m_doxyMgr.getDoxyBlock(nspace)->getRefId();
 	sl::String nspaceFileName = sl::String(outputDir) + "/" + refId + ".xml";
 	sl::String indexFileName = sl::String(outputDir) + "/index.xml";
 

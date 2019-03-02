@@ -779,10 +779,14 @@ Module::createConstructorDestructor()
 	// create constructor unconditionally -- static variable might appear during compilation
 
 	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
-	Function* function = m_functionMgr.createFunction(FunctionKind_StaticConstructor, type);
-	function->m_storageKind = StorageKind_Static;
-	function->m_tag = "module.construct";
+	Function* function = m_functionMgr.createFunction(
+		FunctionKind_StaticConstructor,
+		"construct",
+		"module.construct",
+		type
+		);
 
+	function->m_storageKind = StorageKind_Static;
 	m_constructor = function;
 
 	m_functionMgr.internalPrologue(function);
@@ -811,10 +815,14 @@ Module::createConstructorDestructor()
 	if (!hasDestructors)
 		return true;
 
-	function = m_functionMgr.createFunction(FunctionKind_StaticDestructor, type);
-	function->m_storageKind = StorageKind_Static;
-	function->m_tag = "module.destruct";
+	function = m_functionMgr.createFunction(
+		FunctionKind_StaticDestructor,
+		"destruct",
+		"module.destruct",
+		type
+		);
 
+	function->m_storageKind = StorageKind_Static;
 	m_destructor = function;
 
 	m_functionMgr.internalPrologue(function);

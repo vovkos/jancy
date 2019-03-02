@@ -61,14 +61,17 @@ NamedTypeBlock::createMethod(
 	FunctionType* shortType
 	)
 {
-	sl::String qualifiedName = getParentNamespaceImpl()->createQualifiedName(name);
+	sl::String qualifedName = getParentNamespaceImpl()->createQualifiedName(name);
 
-	Function* function = m_parent->getModule()->m_functionMgr.createFunction(FunctionKind_Normal, shortType);
+	Function* function = m_parent->getModule()->m_functionMgr.createFunction(
+		FunctionKind_Normal,
+		name,
+		qualifedName,
+		shortType
+		);
+
 	function->m_storageKind = storageKind;
-	function->m_name = name;
-	function->m_qualifiedName = qualifiedName;
 	function->m_declaratorName = name;
-	function->m_tag = qualifiedName;
 
 	bool result = addMethod(function);
 	if (!result)
@@ -84,13 +87,21 @@ NamedTypeBlock::createUnnamedMethod(
 	FunctionType* shortType
 	)
 {
-	Function* function = m_parent->getModule()->m_functionMgr.createFunction(functionKind, shortType);
-	function->m_storageKind = storageKind;
-	function->m_tag.format(
+	sl::String name = getFunctionKindString(functionKind);
+	sl::String qualifiedName = sl::formatString(
 		"%s.%s",
 		getParentNamespaceImpl()->getQualifiedName().sz(),
-		getFunctionKindString(functionKind)
+		name.sz()
 		);
+
+	Function* function = m_parent->getModule()->m_functionMgr.createFunction(
+		functionKind,
+		name,
+		qualifiedName,
+		shortType
+		);
+
+	function->m_storageKind = storageKind;
 
 	bool result = addMethod(function);
 	if (!result)

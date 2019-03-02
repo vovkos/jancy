@@ -153,16 +153,23 @@ ArrayType::calcLayoutImpl(
 			if (!dynamicStruct)
 				return false;
 
-			Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
-			FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction(FunctionKind_Internal, type);
-			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
-			m_getDynamicSizeFunction->m_tag.format(
+			sl::String qualifiedName = sl::formatString (
 				"%s.%s.getDynamicSize",
-				dynamicStruct->m_tag.sz(),
+				dynamicStruct->getQualifiedName().sz(),
 				dynamicField->getName().sz()
 				);
 
+			Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+			FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
+
+			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction(
+				FunctionKind_Internal,
+				"getDynamicSize",
+				qualifiedName,
+				type
+				);
+
+			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
 			m_getDynamicSizeFunction->convertToMemberMethod(dynamicStruct);
 			m_module->markForCompile(this);
 

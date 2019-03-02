@@ -31,7 +31,7 @@ Orphan::setBody(sl::BoxList<Token>* tokenList)
 {
 	if (!m_body.isEmpty())
 	{
-		err::setFormatStringError("'%s' already has a body", m_tag.sz ());
+		err::setFormatStringError("'%s' already has a body", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -56,7 +56,7 @@ Orphan::resolveOrphan()
 	ModuleItem* item = m_parentNamespace->findItemTraverse(m_declaratorName);
 	if (!item)
 	{
-		err::setFormatStringError("unresolved orphan '%s'", m_tag.sz ());
+		err::setFormatStringError("unresolved orphan '%s'", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -142,7 +142,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	{
 		if (itemKind != ModuleItemKind_Function)
 		{
-			err::setFormatStringError("'%s' is not a function", m_tag.sz ());
+			err::setFormatStringError("'%s' is not a function", m_qualifiedName.sz ());
 			return false;
 		}
 
@@ -153,7 +153,15 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 		originFunction = getItemUnnamedMethod(item);
 		if (!originFunction)
 		{
-			err::setFormatStringError("'%s' has no '%s'", item->m_tag.sz (), getFunctionKindString (m_functionKind));
+			ModuleItemDecl* decl = item->getDecl();
+			ASSERT(decl);
+
+			err::setFormatStringError(
+				"'%s' has no '%s'",
+				decl->getQualifiedName().sz (),
+				getFunctionKindString (m_functionKind)
+				);
+
 			return false;
 		}
 	}
@@ -168,13 +176,13 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	originFunction = originFunction->findShortOverload(m_functionType);
 	if (!originFunction)
 	{
-		err::setFormatStringError("'%s': overload not found", m_tag.sz ());
+		err::setFormatStringError("'%s': overload not found", m_qualifiedName.sz ());
 		return false;
 	}
 
 	if (!(originFunction->m_flags & ModuleItemFlag_User))
 	{
-		err::setFormatStringError("'%s' is a compiler-generated function", m_tag.sz ());
+		err::setFormatStringError("'%s' is a compiler-generated function", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -208,7 +216,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 
 	if (!itemType || !isClassType(itemType, ClassTypeKind_Reactor))
 	{
-		err::setFormatStringError("'%s' is not a reactor", m_tag.sz ());
+		err::setFormatStringError("'%s' is not a reactor", m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -253,7 +261,6 @@ Orphan::copyArgNames(FunctionType* targetFunctionType)
 
 		dstArg->m_name = srcArg->m_name;
 		dstArg->m_qualifiedName = srcArg->m_qualifiedName;
-		dstArg->m_tag = srcArg->m_tag;
 	}
 
 	return true;
@@ -265,7 +272,7 @@ Orphan::verifyStorageKind(ModuleItemDecl* targetDecl)
 	if (!m_storageKind || m_storageKind == targetDecl->getStorageKind())
 		return true;
 
-	err::setFormatStringError("storage specifier mismatch for orphan '%s'", m_tag.sz ());
+	err::setFormatStringError("storage specifier mismatch for orphan '%s'", m_qualifiedName.sz ());
 	return false;
 }
 

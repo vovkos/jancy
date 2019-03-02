@@ -30,6 +30,29 @@ class DoxyBlock;
 
 //..............................................................................
 
+class ModuleItemInitializer
+{
+	friend class Parser;
+
+protected:
+	sl::BoxList<Token> m_initializer;
+
+public:
+	sl::ConstBoxList<Token>
+	getInitializer()
+	{
+		return m_initializer;
+	}
+
+	sl::String
+	getInitializerString()
+	{
+		return Token::getTokenListString(m_initializer);
+	}
+};
+
+//..............................................................................
+
 class ModuleItemPos
 {
 	friend class Parser;
@@ -59,32 +82,13 @@ public:
 
 //..............................................................................
 
-class ModuleItemInitializer
-{
-	friend class Parser;
-
-protected:
-	sl::BoxList<Token> m_initializer;
-	sl::String m_initializerString;
-
-public:
-	sl::ConstBoxList<Token>
-	getInitializer()
-	{
-		return m_initializer;
-	}
-
-	const sl::String&
-	getInitializerString();
-};
-
-//..............................................................................
-
 class ModuleItemDecl: public ModuleItemPos
 {
+	friend class ModuleItem;
 	friend class Parser;
 	friend class Namespace;
 	friend class ControlFlowMgr;
+	friend class DoxyMgr;
 	friend class Orphan;
 
 protected:
@@ -94,6 +98,7 @@ protected:
 	sl::String m_qualifiedName;
 	Namespace* m_parentNamespace;
 	AttributeBlock* m_attributeBlock;
+	DoxyBlock* m_doxyBlock;
 
 public:
 	ModuleItemDecl();
@@ -154,21 +159,17 @@ class ModuleItem: public sl::ListLink
 {
 	friend class Module;
 	friend class Parser;
-	friend class DoxyMgr;
 
 protected:
 	Module* m_module;
 	ModuleItemKind m_itemKind;
-	DoxyBlock* m_doxyBlock;
 	uint_t m_flags;
-
-public:
-	sl::String m_tag;
 
 public:
 	ModuleItem();
 
-	virtual ~ModuleItem ()
+	virtual
+	~ModuleItem ()
 	{
 	}
 
@@ -224,12 +225,6 @@ public:
 	virtual
 	sl::String
 	createDoxyRefId();
-
-	DoxyBlock*
-	getDoxyBlock();
-
-	DoxyBlock*
-	setDoxyBlock(DoxyBlock* block);
 
 protected:
 	virtual

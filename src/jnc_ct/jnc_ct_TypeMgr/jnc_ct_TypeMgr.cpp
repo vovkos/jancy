@@ -619,7 +619,6 @@ TypeMgr::createTypedef(
 	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = qualifiedName;
-	tdef->m_tag = qualifiedName;
 	tdef->m_type = type;
 	m_typedefList.insertTail(tdef);
 
@@ -638,7 +637,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 	type->m_accessKind = tdef->m_accessKind;
 	type->m_name = tdef->m_name;
 	type->m_qualifiedName = tdef->m_qualifiedName;
-	type->m_tag = tdef->m_tag;
 	type->m_attributeBlock = tdef->m_attributeBlock;
 	type->m_signature.format("T%s", tdef->m_qualifiedName.sz ());
 	type->m_typedef = tdef;
@@ -665,14 +663,13 @@ TypeMgr::createEnumType(
 	{
 		m_unnamedTypeCounter++;
 		type->m_signature.format("%s%d", signaturePrefix, m_unnamedTypeCounter);
-		type->m_tag.format(".UnnamedEnum%d", m_unnamedTypeCounter);
+		type->m_qualifiedName.format(".UnnamedEnum%d", m_unnamedTypeCounter);
 	}
 	else
 	{
 		type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
-		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
 
 		type->addItem(type);
@@ -707,14 +704,13 @@ TypeMgr::createStructType(
 	{
 		m_unnamedTypeCounter++;
 		type->m_signature.format("S%d", m_unnamedTypeCounter);
-		type->m_tag.format(".UnnamedStruct%d", m_unnamedTypeCounter);
+		type->m_qualifiedName.format(".UnnamedStruct%d", m_unnamedTypeCounter);
 	}
 	else
 	{
 		type->m_signature.format("S%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
-		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
@@ -744,14 +740,13 @@ TypeMgr::createUnionType(
 	{
 		m_unnamedTypeCounter++;
 		type->m_signature.format("U%d", m_unnamedTypeCounter);
-		type->m_tag.format(".UnamedUnion%d", m_unnamedTypeCounter);
+		type->m_qualifiedName.format(".UnamedUnion%d", m_unnamedTypeCounter);
 	}
 	else
 	{
 		type->m_signature.format("U%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
-		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
@@ -770,7 +765,7 @@ TypeMgr::createUnionType(
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 		unionStructType->m_fieldAlignment = fieldAlignment;
-		unionStructType->m_tag.format("%s.Struct", type->m_tag.sz ());
+		unionStructType->m_qualifiedName.format("%s.Struct", type->m_qualifiedName.sz ());
 
 		type->m_structType = unionStructType;
 	}
@@ -827,14 +822,13 @@ TypeMgr::createClassType(
 	{
 		m_unnamedTypeCounter++;
 		type->m_signature.format("CC%d", m_unnamedTypeCounter);
-		type->m_tag.format(".UnnamedClass%d", m_unnamedTypeCounter);
+		type->m_qualifiedName.format(".UnnamedClass%d", m_unnamedTypeCounter);
 	}
 	else
 	{
 		type->m_signature.format("CC%s", qualifiedName.sz ());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
-		type->m_tag = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
@@ -846,14 +840,14 @@ TypeMgr::createClassType(
 
 	StructType* ifaceStructType = createUnnamedStructType(fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
-	ifaceStructType->m_tag.format("%s.Iface", type->m_tag.sz ());
+	ifaceStructType->m_qualifiedName.format("%s.Iface", type->m_qualifiedName.sz ());
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 	ifaceStructType->m_fieldAlignment = fieldAlignment;
 
 	StructType* classStructType = createUnnamedStructType(fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
-	classStructType->m_tag.format("%s.Class", type->m_tag.sz ());
+	classStructType->m_qualifiedName.format("%s.Class", type->m_qualifiedName.sz ());
 	classStructType->m_parentNamespace = type;
 	classStructType->createField("!m_box", getStdType (StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
@@ -878,7 +872,6 @@ TypeMgr::createFunctionArg(
 	functionArg->m_module = m_module;
 	functionArg->m_name = name;
 	functionArg->m_qualifiedName = name;
-	functionArg->m_tag = name;
 	functionArg->m_type = type;
 	functionArg->m_ptrTypeFlags = ptrTypeFlags;
 
@@ -1445,7 +1438,6 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 
 	methodType = getFunctionType();
 	method = type->createMethod(StorageKind_Member, "clear", methodType);
-	method->m_tag = "jnc.multicastClear";
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Clear] = method;
 
@@ -1454,25 +1446,21 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 	methodType = getFunctionType(returnType, &argType, 1);
 
 	method = type->createMethod(StorageKind_Member, "setup", methodType);
-	method->m_tag = isThin ? "jnc.multicastSet_t" : "jnc.multicastSet";
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Setup] = method;
 
 	method = type->createMethod(StorageKind_Member, "add", methodType);
-	method->m_tag = isThin ? "jnc.multicastAdd_t" : "jnc.multicastAdd";
 	type->m_methodArray[MulticastMethodKind_Add] = method;
 
 	returnType = functionPtrType;
 	argType = getPrimitiveType(TypeKind_IntPtr);
 	methodType = getFunctionType(returnType, &argType, 1);
 	method = type->createMethod(StorageKind_Member, "remove", methodType);
-	method->m_tag = isThin ? "jnc.multicastRemove_t" : "jnc.multicastRemove";
 	type->m_methodArray[MulticastMethodKind_Remove] = method;
 
 	returnType = functionPtrType->getNormalPtrType();
 	methodType = getFunctionType(returnType, NULL, 0);
 	method = type->createMethod(StorageKind_Member, "getSnapshot", methodType);
-	method->m_tag = "jnc.multicastGetSnapshot";
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_GetSnapshot] = method;
 
@@ -1949,7 +1937,7 @@ TypeMgr::getPropertyVTableStructType(PropertyType* propertyType)
 		return propertyType->m_vtableStructType;
 
 	StructType* type = createUnnamedStructType();
-	type->m_tag.format("%s.VTable", propertyType->getTypeString ().sz ());
+	type->m_qualifiedName.format("%s.VTable", propertyType->getTypeString ().sz ());
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
@@ -2356,7 +2344,6 @@ TypeMgr::setupStdTypedef(
 	tdef->m_module = m_module;
 	tdef->m_name = name;
 	tdef->m_qualifiedName = name;
-	tdef->m_tag = name;
 	tdef->m_type = &m_primitiveTypeArray[typeKind];
 }
 

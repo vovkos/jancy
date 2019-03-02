@@ -18,23 +18,19 @@ namespace ct {
 
 //..............................................................................
 
-const sl::String&
-ModuleItemInitializer::getInitializerString()
-{
-	if (!m_initializer.isEmpty() && m_initializerString.isEmpty())
-		m_initializerString = Token::getTokenListString(m_initializer);
-
-	return m_initializerString;
-}
-
-//..............................................................................
-
 ModuleItemDecl::ModuleItemDecl()
 {
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Public; // public by default
 	m_parentNamespace = NULL;
 	m_attributeBlock = NULL;
+	m_doxyBlock = NULL;
+}
+
+void
+ModuleItemDecl::pushSrcPosError()
+{
+	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
 }
 
 sl::String
@@ -54,19 +50,12 @@ ModuleItemDecl::getDoxyLocationString()
 	return string;
 }
 
-void
-ModuleItemDecl::pushSrcPosError()
-{
-	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
-}
-
 //..............................................................................
 
 ModuleItem::ModuleItem()
 {
 	m_module = NULL;
 	m_itemKind = ModuleItemKind_Undefined;
-	m_doxyBlock = NULL;
 	m_flags = 0;
 }
 
@@ -208,6 +197,26 @@ ModuleItem::getType()
 	}
 }
 
+sl::String
+ModuleItem::createDoxyRefId()
+{
+	sl::String refId = getModuleItemKindString(m_itemKind);
+	refId.replace('-', '_');
+
+	ModuleItemDecl* decl = getDecl();
+	ASSERT(decl);
+
+	if (!decl->m_qualifiedName.isEmpty())
+	{
+		refId.appendFormat("_%s", decl->m_qualifiedName.sz ());
+		refId.replace('.', '_');
+	}
+
+	refId.makeLowerCase();
+
+	return m_module->m_doxyMgr.adjustRefId(refId);
+}
+
 bool
 ModuleItem::ensureLayout()
 {
@@ -218,7 +227,10 @@ ModuleItem::ensureLayout()
 
 	if (m_flags & ModuleItemFlag_InCalcLayout)
 	{
-		err::setFormatStringError("can't calculate layout of '%s' due to recursion", m_tag.sz ());
+		ModuleItemDecl* decl = getDecl();
+		ASSERT(decl); // recursion is only possible with named types
+
+		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->m_qualifiedName.sz());
 		return false;
 	}
 
@@ -233,46 +245,6 @@ ModuleItem::ensureLayout()
 
 	m_flags |= ModuleItemFlag_LayoutReady;
 	return true;
-}
-
-DoxyBlock*
-ModuleItem::getDoxyBlock()
-{
-	if (m_doxyBlock)
-		return m_doxyBlock;
-
-	m_doxyBlock = m_module->m_doxyMgr.createBlock();
-	m_doxyBlock->m_item = this;
-	return m_doxyBlock;
-}
-
-DoxyBlock*
-ModuleItem::setDoxyBlock(DoxyBlock* block)
-{
-	DoxyBlock* prevBlock = m_doxyBlock;
-	m_doxyBlock = block;
-
-	if (block)
-		block->m_item = this;
-
-	return prevBlock;
-}
-
-sl::String
-ModuleItem::createDoxyRefId()
-{
-	sl::String refId = getModuleItemKindString(m_itemKind);
-	refId.replace('-', '_');
-
-	if (!m_tag.isEmpty())
-	{
-		refId.appendFormat("_%s", m_tag.sz ());
-		refId.replace('.', '_');
-	}
-
-	refId.makeLowerCase();
-
-	return m_module->m_doxyMgr.adjustRefId(refId);
 }
 
 //..............................................................................

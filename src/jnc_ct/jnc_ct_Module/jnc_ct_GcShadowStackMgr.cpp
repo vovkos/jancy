@@ -290,9 +290,9 @@ GcShadowStackMgr::finalizeFrame()
 
 		m_module->m_llvmIrBuilder.setInsertPoint(&*block->getLlvmBlock()->begin());
 
-		// on exception landing pads we must restore frame pointer
+		// on async & exception landing pads we must restore frame pointer
 
-		if (block->getLandingPadKind() == LandingPadKind_Exception && !isAsync)
+		if (!isAsync && (block->getFlags () & BasicBlockFlag_SjljLandingPadMask))
 			m_module->m_llvmIrBuilder.createStore(m_frameVariable, stackTopVariable);
 
 		GcShadowStackFrameMap* map = scope->findGcShadowStackFrameMap();

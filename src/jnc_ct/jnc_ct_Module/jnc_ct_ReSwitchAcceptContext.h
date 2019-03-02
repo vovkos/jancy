@@ -9,33 +9,26 @@
 //
 //..............................................................................
 
-#include "pch.h"
-#include "jnc_ct_BasicBlock.h"
-#include "jnc_ct_Module.h"
+#pragma once
 
 namespace jnc {
 namespace ct {
 
+class BasicBlock;
+
 //..............................................................................
 
-BasicBlock::BasicBlock()
+struct ReSwitchAcceptContext: sl::ListLink
 {
-	m_module = NULL;
-	m_flags = 0;
-	m_llvmBlock = NULL;
-	m_function = NULL;
-	m_landingPadScope = NULL;
-}
+	size_t m_firstGroupId;
+	size_t m_groupCount;
 
-Value
-BasicBlock::getBlockAddressValue()
-{
-	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get(m_function->getLlvmFunction(), m_llvmBlock);
-
-	Value value;
-	value.setLlvmValue(llvmAddress, m_module->m_typeMgr.getStdType(StdType_BytePtr));
-	return value;
-}
+	union
+	{
+		BasicBlock* m_actionBlock;
+		size_t m_actionIdx;
+	};
+};
 
 //..............................................................................
 

@@ -118,7 +118,7 @@ LlvmDiBuilder::createEmptyStructType(StructType* structType)
 
 	return m_llvmDiBuilder->createStructType(
 		unit->getLlvmDiFile(),
-		structType->m_tag.sz(),
+		structType->getQualifiedName().sz(),
 		unit->getLlvmDiFile(),
 		structType->getPos()->m_line + 1,
 		structType->getSize() * 8,
@@ -214,7 +214,7 @@ LlvmDiBuilder::createEmptyUnionType(UnionType* unionType)
 
 	return m_llvmDiBuilder->createUnionType(
 		unit->getLlvmDiFile(),
-		unionType->m_tag.sz(),
+		unionType->getQualifiedName().sz(),
 		unit->getLlvmDiFile(),
 		unionType->getPos()->m_line + 1,
 		unionType->getSize() * 8,
@@ -441,8 +441,8 @@ LlvmDiBuilder::createFunction(Function* function)
 
 	return m_llvmDiBuilder->createFunction(
 		unit->getLlvmDiFile(),
-		function->m_tag.sz(),
-		function->m_tag.sz(), // linkage name
+		function->getQualifiedName().sz(),
+		function->getQualifiedName().sz(), // linkage name
 		unit->getLlvmDiFile(),
 		declPos.m_line + 1,
 		llvmDiSubroutineType,
@@ -461,8 +461,8 @@ LlvmDiBuilder::createFunction(Function* function)
 
 	return m_llvmDiBuilder->createFunction(
 		NULL,
-		function->m_tag.sz(),
-		function->m_tag.sz(), // linkage name
+		function->getQualifiedName().sz(),
+		function->getQualifiedName().sz(), // linkage name
 		unit->getLlvmDiFile(),
 		declPos.m_line + 1,
 		llvmDiSubroutineType,

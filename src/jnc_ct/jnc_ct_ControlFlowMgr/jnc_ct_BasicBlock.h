@@ -26,15 +26,12 @@ enum BasicBlockFlag
 	BasicBlockFlag_Jumped     = 0x02,
 	BasicBlockFlag_Entry      = 0x04,
 	BasicBlockFlag_Return     = 0x08,
-};
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum LandingPadKind
-{
-	LandingPadKind_None,
-	LandingPadKind_EscapeScope,
-	LandingPadKind_Exception,
+	BasicBlockFlag_EscapeScopeLandingPad = 0x10,
+	BasicBlockFlag_ExceptionLandingPad   = 0x20,
+	BasicBlockFlag_AsyncLandingPad       = 0x40,
+	BasicBlockFlag_SjljLandingPadMask    = 0x60,
+	BasicBlockFlag_LandingPadMask        = 0xf0,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -54,8 +51,6 @@ protected:
 	llvm::DebugLoc m_llvmDebugLoc;
 
 	sl::SimpleHashTable<size_t, BasicBlock*> m_finallyRouteMap;
-
-	LandingPadKind m_landingPadKind;
 	Scope* m_landingPadScope;
 
 public:
@@ -102,12 +97,6 @@ public:
 	getFunction()
 	{
 		return m_function;
-	}
-
-	LandingPadKind
-	getLandingPadKind()
-	{
-		return m_landingPadKind;
 	}
 
 	Scope*

@@ -50,10 +50,10 @@ CallConv_gcc32::prepareFunctionType(FunctionType* functionType)
 llvm::Function*
 CallConv_gcc32::createLlvmFunction(
 	FunctionType* functionType,
-	const sl::StringRef& tag
+	const sl::StringRef& name
 	)
 {
-	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, tag);
+	llvm::Function* llvmFunction = CallConv::createLlvmFunction(functionType, name);
 
 	Type* returnType = functionType->getReturnType();
 	if (returnType->getFlags() & TypeFlag_StructRet)

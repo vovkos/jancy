@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_RegexMgr.h"
+#include "jnc_ct_ReSwitchAcceptContext.h"
 #include "jnc_ct_Module.h"
 #include "jnc_rtl_Regex.h"
 

@@ -263,7 +263,10 @@ Parser::bodylessDeclaration()
 		return finalizeLastProperty(false);
 
 	case ModuleItemKind_Orphan:
-		err::setFormatStringError("orphan '%s' without a body", m_lastDeclaredItem->m_tag.sz ());
+		err::setFormatStringError(
+			"orphan '%s' without a body",
+			m_lastDeclaredItem->getDecl()->getQualifiedName().sz ()
+			);
 		return false;
 	}
 
@@ -540,7 +543,7 @@ Parser::declareInReaction(Declarator* declarator)
 	m_lastDeclaredItem = m_reactorType->findItem(name);
 	if (!m_lastDeclaredItem)
 	{
-		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz (), m_reactorType->m_tag.sz ());
+		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz (), m_reactorType->m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -664,7 +667,7 @@ Parser::assignDeclarationAttributes(
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock();
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_Documentation)
-		item->setDoxyBlock(doxyBlock ? doxyBlock : m_doxyParser.popBlock());
+		m_module->m_doxyMgr.setDoxyBlock(item, decl, doxyBlock ? doxyBlock : m_doxyParser.popBlock());
 
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;
@@ -860,7 +863,7 @@ Parser::declareFunction(
 	}
 	else
 	{
-		Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
+		Function* function = m_module->m_functionMgr.createFunction(functionKind, sl::String(), type);
 		functionItem = function;
 		functionItemDecl = function;
 		functionName = function;
@@ -873,7 +876,6 @@ Parser::declareFunction(
 	}
 
 	functionName->m_declaratorName = *declarator->getName();
-	functionItem->m_tag = nspace->createQualifiedName(functionName->m_declaratorName);
 
 	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
 
@@ -884,28 +886,28 @@ Parser::declareFunction(
 	{
 	case FunctionKind_Normal:
 		functionItemDecl->m_name = declarator->getName()->getShortName();
-		functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
-		functionItem->m_tag = functionItemDecl->m_qualifiedName;
 		break;
 
 	case FunctionKind_UnaryOperator:
 		functionName->m_unOpKind = declarator->getUnOpKind();
-		functionItem->m_tag.appendFormat(".unary operator %s", getUnOpKindString (functionName->m_unOpKind));
+		functionItemDecl->m_name.format("unary operator %s", getUnOpKindString (functionName->m_unOpKind));
 		break;
 
 	case FunctionKind_BinaryOperator:
 		functionName->m_binOpKind = declarator->getBinOpKind();
-		functionItem->m_tag.appendFormat(".binary operator %s", getBinOpKindString (functionName->m_binOpKind));
+		functionItemDecl->m_name.format("binary operator %s", getBinOpKindString (functionName->m_binOpKind));
 		break;
 
 	case FunctionKind_CastOperator:
 		functionName->m_castOpType = declarator->getCastOpType();
-		functionItem->m_tag.appendFormat(".cast operator %s", functionName->m_castOpType->getTypeString ().sz ());
+		functionItemDecl->m_name.format("cast operator %s", functionName->m_castOpType->getTypeString ().sz ());
 		break;
 
 	default:
-		functionItem->m_tag.appendFormat(".%s", getFunctionKindString (functionKind));
+		functionItemDecl->m_name = getFunctionKindString (functionKind);
 	}
+
+	functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
 
 	if (functionItem->getItemKind() == ModuleItemKind_Orphan)
 	{
@@ -1187,7 +1189,7 @@ Parser::finalizeLastProperty(bool hasBody)
 			return false;
 		}
 
-		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, m_lastPropertyGetterType);
+		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", m_lastPropertyGetterType);
 		getter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(getter);
@@ -1213,7 +1215,7 @@ Parser::finalizeLastProperty(bool hasBody)
 		argArray.append(setterArgType->getSimpleFunctionArg());
 
 		FunctionType* setterType = m_module->m_typeMgr.getFunctionType(argArray);
-		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
+		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, "set", setterType);
 		setter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(setter);
@@ -2109,7 +2111,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_tag.sz ());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -2130,7 +2132,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_tag.sz ());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz ());
 		return false;
 	}
 

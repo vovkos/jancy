@@ -135,7 +135,12 @@ DerivableType::getIndexerProperty(Type* argType)
 	if (it->m_value)
 		return it->m_value;
 
-	Property* prop = m_module->m_functionMgr.createProperty(PropertyKind_Internal, m_tag + ".m_indexer");
+	Property* prop = m_module->m_functionMgr.createProperty(
+		PropertyKind_Internal,
+		"m_indexer",
+		m_qualifiedName + ".m_indexer"
+		);
+
 	prop->m_storageKind = StorageKind_Member;
 	it->m_value = prop;
 	return prop;
@@ -347,7 +352,7 @@ DerivableType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -412,10 +417,12 @@ DerivableType::createDefaultMethod(
 	uint_t flags
 	)
 {
+	sl::String name = getFunctionKindString (functionKind);
+	sl::String qualifiedName = sl::formatString("%s.%s", m_qualifiedName.sz (), name.sz());
+
 	FunctionType* type = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
-	Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
+	Function* function = m_module->m_functionMgr.createFunction(functionKind, name, qualifiedName, type);
 	function->m_storageKind = storageKind;
-	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
 	function->m_flags |= flags;
 
 	bool result = addMethod(function);
@@ -703,7 +710,7 @@ DerivableType::generateDocumentation(
 {
 	bool result;
 
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	const char* kind =
 		m_typeKind == TypeKind_Struct ? "struct" :
@@ -749,7 +756,8 @@ DerivableType::generateDocumentation(
 	for (; it; it++)
 	{
 		DerivableType* baseType = it->getType();
-		sl::String refId = baseType->getDoxyBlock()->getRefId();
+		DoxyBlock* baseTypeDoxyBlock = m_module->m_doxyMgr.getDoxyBlock(baseType);
+		sl::String refId = baseTypeDoxyBlock->getRefId();
 		Unit* unit = baseType->getParentUnit();
 		ExtensionLib* lib = unit ? unit->getLib() : NULL;
 		if (lib)

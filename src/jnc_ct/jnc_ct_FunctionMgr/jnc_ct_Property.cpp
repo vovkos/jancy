@@ -105,7 +105,7 @@ Property::create(PropertyType* type)
 	}
 	else
 	{
-		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
+		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", getterType);
 		getter->m_storageKind = storageKind;
 		getter->m_flags |= getterFlags;
 
@@ -121,7 +121,8 @@ Property::create(PropertyType* type)
 	for (size_t i = 0; i < setterTypeOverloadCount; i++)
 	{
 		FunctionType* setterType = type->getSetterType()->getOverload(i);
-		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
+
+		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, "set", setterType);
 		setter->m_storageKind = storageKind;
 		setter->m_flags |= setterFlags;
 
@@ -146,7 +147,12 @@ Property::setOnChanged(
 {
 	if (m_onChanged && !isForced)
 	{
-		err::setFormatStringError("'%s' already has 'bindable %s'", m_tag.sz (), m_onChanged->m_tag.sz ());
+		err::setFormatStringError(
+			"'%s' already has 'bindable %s'",
+			m_qualifiedName.sz (),
+			m_onChanged->getDecl()->getQualifiedName().sz ()
+			);
+
 		return false;
 	}
 
@@ -164,7 +170,8 @@ Property::setOnChanged(
 	}
 
 	FunctionType* binderType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_Binder);
-	Function* binder = m_module->m_functionMgr.createFunction(FunctionKind_Binder, binderType);
+
+	Function* binder = m_module->m_functionMgr.createFunction(FunctionKind_Binder, "bind", binderType);
 	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
@@ -213,7 +220,12 @@ Property::setAutoGetValue(
 {
 	if (m_autoGetValue && !isForced)
 	{
-		err::setFormatStringError("'%s' already has 'autoget %s'", m_tag.sz (), m_autoGetValue->m_tag.sz ());
+		err::setFormatStringError(
+			"'%s' already has 'autoget %s'",
+			m_qualifiedName.sz(),
+			m_autoGetValue->getDecl()->getQualifiedName().sz()
+			);
+
 		return false;
 	}
 
@@ -243,7 +255,7 @@ Property::setAutoGetValue(
 		return true;
 	}
 
-	Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
+	Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", getterType);
 	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
@@ -470,7 +482,7 @@ Property::addMethod(Function* function)
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const)
 		{
-			err::setFormatStringError("const property '%s' cannot have setters", m_tag.sz ());
+			err::setFormatStringError("const property '%s' cannot have setters", m_qualifiedName.sz ());
 			return false;
 		}
 
@@ -492,13 +504,12 @@ Property::addMethod(Function* function)
 		err::setFormatStringError(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
-			m_tag.sz()
+			m_qualifiedName.sz()
 			);
 		return false;
 	}
 
-	function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
-
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
 	if (!*target)
 	{
 		*target = function;
@@ -796,7 +807,7 @@ Property::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz ());
 

@@ -60,7 +60,7 @@ EnumConst::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	itemXml->format(
 		"<enumvalue id='%s'>\n"
@@ -101,7 +101,7 @@ EnumType::createConst(
 	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;
 	enumConst->m_name = name;
-	enumConst->m_tag = m_tag.isEmpty() ? name : m_tag + "." + name;
+	enumConst->m_qualifiedName = m_name.isEmpty() ? name : m_qualifiedName + "." + name;
 
 	if (initializer)
 		sl::takeOver(&enumConst->m_initializer, initializer);
@@ -204,7 +204,7 @@ EnumType::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	sl::String memberXml;
 	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, false);

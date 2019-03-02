@@ -49,7 +49,7 @@ ClassType::getVTableStructType()
 		return m_vtableStructType;
 
 	m_vtableStructType = m_module->m_typeMgr.createUnnamedStructType();
-	m_vtableStructType->m_tag.format("%s.VTable",m_tag.sz ());
+	m_vtableStructType->m_qualifiedName.format("%s.VTable", m_qualifiedName.sz ());
 	return m_vtableStructType;
 }
 
@@ -234,8 +234,7 @@ ClassType::addMethod(Function* function)
 		return false;
 	}
 
-	if (function->m_tag.isEmpty())
-		function->m_tag.format("%s.%s", m_tag.sz (), getFunctionKindString (functionKind));
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -598,7 +597,7 @@ ClassType::overrideVirtualFunction(Function* function)
 
 	if (!member)
 	{
-		err::setFormatStringError("cannot override '%s': method not found", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method not found", function->m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -612,7 +611,7 @@ ClassType::overrideVirtualFunction(Function* function)
 		{
 			err::setFormatStringError(
 				"cannot override '%s': function kind mismatch",
-				function->m_tag.sz()
+				function->m_qualifiedName.sz()
 				);
 			return false;
 		}
@@ -631,34 +630,34 @@ ClassType::overrideVirtualFunction(Function* function)
 			overridenFunction = ((Property*)member)->getSetter();
 			if (!overridenFunction)
 			{
-				err::setFormatStringError("cannot override '%s': property has no setter", function->m_tag.sz ());
+				err::setFormatStringError("cannot override '%s': property has no setter", function->m_qualifiedName.sz ());
 				return false;
 			}
 
 			break;
 
 		default:
-			err::setFormatStringError("cannot override '%s': function kind mismatch", function->m_tag.sz ());
+			err::setFormatStringError("cannot override '%s': function kind mismatch", function->m_qualifiedName.sz ());
 			return false;
 		}
 
 		break;
 
 	default:
-		err::setFormatStringError("cannot override '%s': not a method or property", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': not a method or property", function->m_qualifiedName.sz ());
 		return false;
 	}
 
 	overridenFunction = overridenFunction->findShortOverload(function->getType()->getShortType());
 	if (!overridenFunction)
 	{
-		err::setFormatStringError("cannot override '%s': method signature mismatch", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method signature mismatch", function->m_qualifiedName.sz ());
 		return false;
 	}
 
 	if (!overridenFunction->isVirtual())
 	{
-		err::setFormatStringError("cannot override '%s': method is not virtual", function->m_tag.sz ());
+		err::setFormatStringError("cannot override '%s': method is not virtual", function->m_qualifiedName.sz ());
 		return false;
 	}
 
@@ -728,7 +727,7 @@ ClassType::createVTableVariable()
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		"m_vtable",
-		m_tag + ".m_vtable",
+		m_qualifiedName + ".m_vtable",
 		m_vtableStructType,
 		Value(llvmVTableConst, m_vtableStructType)
 		);

@@ -38,7 +38,7 @@ StructField::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";
@@ -92,7 +92,7 @@ StructType::StructType()
 void
 StructType::prepareLlvmType()
 {
-	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), m_tag.sz());
+	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), m_qualifiedName.sz());
 }
 
 StructField*
@@ -121,7 +121,7 @@ StructType::createFieldImpl(
 		);
 
 	field->m_parentNamespace = this;
-	field->m_tag = m_tag + "." + name;
+	field->m_qualifiedName = m_qualifiedName + "." + name;
 
 	if (!field->m_constructor.isEmpty() ||
 		!field->m_initializer.isEmpty())

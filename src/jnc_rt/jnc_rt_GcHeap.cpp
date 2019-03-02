@@ -1597,7 +1597,7 @@ GcHeap::runDestructCycle_l()
 		{
 			TRACE(
 				"-- WARNING: runtime error in %s.destruct (): %s\n",
-				classType->m_tag.sz(),
+				classType->getQualifiedName().sz(),
 				err::getLastErrorDescription().sz()
 				);
 		}

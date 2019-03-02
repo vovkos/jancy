@@ -65,7 +65,7 @@ Alias::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = getDoxyBlock();
+	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
 	itemXml->format("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz ());
 

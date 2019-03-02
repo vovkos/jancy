@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_ct_Value.h"
-#include "jnc_ct_Value.h"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"

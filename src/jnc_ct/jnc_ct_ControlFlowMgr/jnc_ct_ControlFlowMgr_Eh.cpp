@@ -56,15 +56,15 @@ void
 ControlFlowMgr::markLandingPad(
 	BasicBlock* block,
 	Scope* scope,
-	LandingPadKind landingPadKind
+	uint_t flags
 	)
 {
-	ASSERT(landingPadKind >= block->m_landingPadKind); // escapeScope, then catchLabel/finallyLabel
+	ASSERT (flags >= (block->m_flags & BasicBlockFlag_LandingPadMask));
 
-	if (!block->m_landingPadKind)
+	if (!(block->m_flags & BasicBlockFlag_LandingPadMask))
 		m_landingPadBlockArray.append(block);
 
-	block->m_landingPadKind = landingPadKind;
+	block->m_flags |= flags;
 	block->m_landingPadScope = scope;
 }
 
@@ -191,7 +191,7 @@ ControlFlowMgr::endTryOperator(
 	setSjljFrame(tryExpr->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
 	jump(phiBlock, tryExpr->m_catchBlock);
 
-	markLandingPad(tryExpr->m_catchBlock, scope, LandingPadKind_Exception);
+	markLandingPad(tryExpr->m_catchBlock, scope, BasicBlockFlag_ExceptionLandingPad);
 	jump(phiBlock, phiBlock);
 
 	m_module->m_llvmIrBuilder.createPhi(*value, prevBlock, errorValue, tryExpr->m_catchBlock, value);
@@ -316,7 +316,7 @@ ControlFlowMgr::catchLabel(const Token::Pos& pos)
 
 	Scope* catchScope = m_module->m_namespaceMgr.openScope(pos, ScopeFlag_Catch);
 	catchScope->m_flags |= scope->m_flags & (ScopeFlag_Nested | ScopeFlag_FinallyAhead | ScopeFlag_Finalizable); // propagate
-	markLandingPad(scope->m_catchBlock, catchScope, LandingPadKind_Exception);
+	markLandingPad(scope->m_catchBlock, catchScope, BasicBlockFlag_ExceptionLandingPad);
 
 	if (scope->m_flags & ScopeFlag_FinallyAhead)
 	{
@@ -379,7 +379,7 @@ ControlFlowMgr::finallyLabel(const Token::Pos& pos)
 	finallyScope->m_flags |= scope->m_flags & ScopeFlag_Nested; // propagate
 	finallyScope->m_finallyBlock = scope->m_finallyBlock; // to access finally route map
 
-	markLandingPad(scope->m_finallyBlock, finallyScope, LandingPadKind_Exception);
+	markLandingPad(scope->m_finallyBlock, finallyScope, BasicBlockFlag_ExceptionLandingPad);
 
 	return true;
 }
@@ -677,7 +677,7 @@ ControlFlowMgr::finalizeSjljFrameArray()
 
 		// also restore prev gc shadow stack frame if GcShadowStackFrameMgr will not do it for us
 
-		if (!hasGcShadowStackFrame && block->m_landingPadKind == LandingPadKind_Exception)
+		if (!hasGcShadowStackFrame && (block->m_flags & BasicBlockFlag_SjljLandingPadMask))
 			m_module->m_llvmIrBuilder.createStore(prevGcShadowStackFrameValue, gcShadowStackTopVariable);
 	}
 
