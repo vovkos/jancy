@@ -39,7 +39,7 @@ DynamicLib::openImpl(const sl::StringRef& fileName)
 	if (!result)
 	{
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError("cannot open dynamiclib '%s'", fileName.sz ());
+		err::pushFormatStringError("cannot open dynamiclib '%s'", fileName.sz());
 #endif
 		return false;
 	}
@@ -62,7 +62,7 @@ DynamicLib::getFunctionImpl(const sl::StringRef& name)
 	if (!p)
 	{
 #if (_JNC_OS_WIN)
-		err::pushFormatStringError("cannot get dynamiclib function '%s'", name.sz ());
+		err::pushFormatStringError("cannot get dynamiclib function '%s'", name.sz());
 #endif
 		return NULL;
 	}

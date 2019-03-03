@@ -111,7 +111,7 @@ ArrayType::calcLayoutImpl(
 	if (m_elementType->getTypeKind() == TypeKind_Class ||
 		m_elementType->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot be an element of an array", m_elementType->getTypeString().sz());
 		return false;
 	}
 
@@ -164,7 +164,7 @@ ArrayType::calcLayoutImpl(
 
 			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction(
 				FunctionKind_Internal,
-				"getDynamicSize",
+				sl::String(),
 				qualifiedName,
 				type
 				);

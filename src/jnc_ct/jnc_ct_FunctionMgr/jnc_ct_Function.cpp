@@ -46,13 +46,13 @@ Function::setBody(sl::BoxList<Token>* tokenList)
 {
 	if (!m_body.isEmpty())
 	{
-		err::setFormatStringError("'%s' already has a body", m_qualifiedName.sz ());
+		err::setFormatStringError("'%s' already has a body", m_qualifiedName.sz());
 		return false;
 	}
 
 	if (m_storageKind == StorageKind_Abstract)
 	{
-		err::setFormatStringError("'%s' is abstract and hence cannot have a body", m_qualifiedName.sz ());
+		err::setFormatStringError("'%s' is abstract and hence cannot have a body", m_qualifiedName.sz());
 		return false;
 	}
 
@@ -194,13 +194,13 @@ Function::compile()
 	ModuleItem* item = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
 	if (!item)
 	{
-		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz ());
+		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
 	if (item->getItemKind() != ModuleItemKind_Function)
 	{
-		err::setFormatStringError("'%s' is not function", parser.m_qualifiedName.getFullName ().sz ());
+		err::setFormatStringError("'%s' is not function", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
@@ -329,6 +329,7 @@ Function::compileAsyncLauncher()
 
 	Function* sequencerFunc = m_module->m_functionMgr.createFunction(
 		FunctionKind_Async,
+		sl::String(),
 		sequencerName,
 		functionType
 		);
@@ -352,7 +353,7 @@ Function::generateDocumentation(
 {
 	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
-	itemXml->format("<memberdef kind='function' id='%s'", doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='function' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
@@ -367,7 +368,7 @@ Function::generateDocumentation(
 		itemXml->appendFormat(" virt='%s'", getStorageKindString (m_storageKind));
 
 	itemXml->appendFormat(">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
-	itemXml->appendFormat("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz () : getFunctionKindString (m_functionKind));
+	itemXml->appendFormat("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz() : getFunctionKindString (m_functionKind));
 
 	itemXml->append(m_type->getDoxyTypeString());
 	itemXml->append(doxyBlock->getImportString());

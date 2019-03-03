@@ -77,7 +77,7 @@ BinOp_Idx::getResultType(
 		if (opType1->getTypeKindFlags() & TypeKindFlag_Derivable)
 			return getDerivableTypeIndexResultType((DerivableType*)opType1, opValue1, opValue2);
 
-		err::setFormatStringError("cannot index '%s'", opType1->getTypeString ().sz ());
+		err::setFormatStringError("cannot index '%s'", opType1->getTypeString().sz());
 		return NULL;
 	}
 }
@@ -146,7 +146,7 @@ BinOp_Idx::op(
 		if (opType1->getTypeKindFlags() & TypeKindFlag_Derivable)
 			return derivableTypeIndexOperator((DerivableType*)opType1, opValue1, opValue2, resultValue);
 
-		err::setFormatStringError("cannot index '%s'", opType1->getTypeString ().sz ());
+		err::setFormatStringError("cannot index '%s'", opType1->getTypeString().sz());
 		return false;
 	}
 }
@@ -222,7 +222,7 @@ BinOp_Idx::arrayIndexOperator(
 			intptr_t i = idxValue.getSizeT();
 			if (i < 0 || i >= (intptr_t)arrayType->getElementCount())
 			{
-				err::setFormatStringError("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString ().sz ());
+				err::setFormatStringError("index '%d' is out of bounds in '%s'", i, arrayType->getTypeString().sz());
 				return false;
 			}
 		}
@@ -364,7 +364,7 @@ BinOp_Idx::getDerivableTypeIndexerProperty(
 			return baseType->chooseIndexerProperty(opValue2);
 	}
 
-	err::setFormatStringError("'%s' has no indexer properties", derivableType->getTypeString ().sz ());
+	err::setFormatStringError("'%s' has no indexer properties", derivableType->getTypeString().sz());
 	return NULL;
 }
 

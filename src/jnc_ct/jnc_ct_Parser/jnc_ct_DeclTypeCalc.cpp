@@ -327,7 +327,7 @@ DeclTypeCalc::checkUnusedModifiers()
 {
 	if (m_typeModifiers)
 	{
-		err::setFormatStringError("unused modifier '%s'", getTypeModifierString (m_typeModifiers).sz ());
+		err::setFormatStringError("unused modifier '%s'", getTypeModifierString (m_typeModifiers).sz());
 		return false;
 	}
 
@@ -355,7 +355,7 @@ DeclTypeCalc::getPtrTypeFlags(
 	{
 		if (type->getTypeKindFlags() & TypeKindFlag_Code)
 		{
-			err::setFormatStringError("'volatile' cannot be applied to '%s'", type->getTypeString ().sz ());
+			err::setFormatStringError("'volatile' cannot be applied to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -445,13 +445,13 @@ DeclTypeCalc::getArrayType(Type* elementType)
 	case TypeKind_Class:
 	case TypeKind_Function:
 	case TypeKind_Property:
-		err::setFormatStringError("cannot create array of '%s'", elementType->getTypeString ().sz () );
+		err::setFormatStringError("cannot create array of '%s'", elementType->getTypeString().sz() );
 		return NULL;
 
 	default:
 		if (isAutoSizeArrayType(elementType))
 		{
-			err::setFormatStringError("cannot create array of auto-size-array '%s'", elementType->getTypeString ().sz () );
+			err::setFormatStringError("cannot create array of auto-size-array '%s'", elementType->getTypeString().sz() );
 			return NULL;
 		}
 
@@ -505,7 +505,7 @@ DeclTypeCalc::prepareReturnType(Type* type)
 	default:
 		if (isAutoSizeArrayType(type))
 		{
-			err::setFormatStringError("function cannot return auto-size-array '%s'", type->getTypeString ().sz () );
+			err::setFormatStringError("function cannot return auto-size-array '%s'", type->getTypeString().sz() );
 			return NULL;
 		}
 
@@ -548,7 +548,7 @@ DeclTypeCalc::getFunctionType(Type* returnType)
 		if (returnType->getTypeKind() != TypeKind_NamedImport &&
 			!(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode))
 		{
-			err::setFormatStringError("'%s' cannot be used as error code", returnType->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be used as error code", returnType->getTypeString().sz());
 			return NULL;
 		}
 

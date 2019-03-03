@@ -109,7 +109,7 @@ Variable::generateDocumentation(
 	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";
 
-	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
@@ -122,15 +122,15 @@ Variable::generateDocumentation(
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
 		itemXml->append(" const='yes'");
 
-	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_ptrTypeFlags & ~PtrTypeFlag_DualEvent);
 	if (!ptrTypeFlagString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz ());
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 
 	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz ());
+		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz());
 
 	itemXml->append(doxyBlock->getImportString());
 	itemXml->append(doxyBlock->getDescriptionString());

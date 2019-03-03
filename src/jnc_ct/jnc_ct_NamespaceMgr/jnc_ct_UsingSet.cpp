@@ -97,7 +97,7 @@ UsingSet::addNamespace(
 	{
 		if (!importNamespaceMgr)
 		{
-			err::setFormatStringError("undeclared identifier '%s'", name.getFullName ().sz ());
+			err::setFormatStringError("undeclared identifier '%s'", name.getFullName ().sz());
 			return false;
 		}
 
@@ -114,14 +114,14 @@ UsingSet::addNamespace(
 
 	if (item->getItemKind() != ModuleItemKind_Namespace)
 	{
-		err::setFormatStringError("'%s' is not a namespace", name.getFullName ().sz ());
+		err::setFormatStringError("'%s' is not a namespace", name.getFullName ().sz());
 		return false;
 	}
 
 	GlobalNamespace* nspace = (GlobalNamespace*)item;
 	if (nspace->getNamespaceKind() != namespaceKind)
 	{
-		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz (), getNamespaceKindString (namespaceKind));
+		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString (namespaceKind));
 		return false;
 	}
 

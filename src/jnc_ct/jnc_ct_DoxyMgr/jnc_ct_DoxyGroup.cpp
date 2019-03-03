@@ -63,13 +63,13 @@ DoxyGroup::generateDocumentation(
 
 		if (!isCompoundFile)
 		{
-			sectionDef.appendFormat("<memberdef id='%s'/>", refId.sz ());
+			sectionDef.appendFormat("<memberdef id='%s'/>", refId.sz());
 			sectionDef.append('\n');
 		}
 		else
 		{
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz ());
+			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz());
 			itemXml->append('\n');
 		}
 	}
@@ -87,7 +87,7 @@ DoxyGroup::generateDocumentation(
 	for (; groupIt; groupIt++)
 	{
 		DoxyGroup* group = *groupIt;
-		itemXml->appendFormat("<innergroup refid='%s'/>", group->m_refId.sz ());
+		itemXml->appendFormat("<innergroup refid='%s'/>", group->m_refId.sz());
 		itemXml->append('\n');
 	}
 

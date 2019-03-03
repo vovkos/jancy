@@ -99,7 +99,7 @@ DoxyBlock::getFootnoteString()
 		DoxyBlock* footnote = m_footnoteArray[i];
 
 		string.append("<memberdef kind='footnote'>\n");
-		string.appendFormat("<name>%s</name>\n", footnote->getRefId ().sz ());
+		string.appendFormat("<name>%s</name>\n", footnote->getRefId ().sz());
 		string.append(footnote->getDescriptionString());
 		string.append("</memberdef>\n");
 	}

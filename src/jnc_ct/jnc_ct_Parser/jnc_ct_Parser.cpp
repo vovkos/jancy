@@ -203,11 +203,11 @@ Parser::getType(
 	if (!type)
 	{
 		if (baseTypeIdx == -1)
-			err::setFormatStringError("'%s' is not found or not a type", name.getFullName ().sz ());
+			err::setFormatStringError("'%s' is not found or not a type", name.getFullName ().sz());
 		else if (name.isEmpty())
 			err::setFormatStringError("'basetype%d' is not found", baseTypeIdx + 1);
 		else
-			err::setFormatStringError("'basetype%d.%s' is not found or not a type", baseTypeIdx + 1, name.getFullName ().sz ());
+			err::setFormatStringError("'basetype%d.%s' is not found or not a type", baseTypeIdx + 1, name.getFullName ().sz());
 
 		return NULL;
 	}
@@ -221,14 +221,14 @@ Parser::setSetAsType(Type* type)
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	if (nspace->getNamespaceKind() != NamespaceKind_Type)
 	{
-		err::setFormatStringError("invalid setas in '%s'", nspace->getQualifiedName ().sz ());
+		err::setFormatStringError("invalid setas in '%s'", nspace->getQualifiedName ().sz());
 		return false;
 	}
 
 	DerivableType* derivableType = (DerivableType*)(NamedType*)nspace;
 	if (derivableType->m_setAsType)
 	{
-		err::setFormatStringError("setas redefinition for '%s'", derivableType->getTypeString ().sz ());
+		err::setFormatStringError("setas redefinition for '%s'", derivableType->getTypeString().sz());
 		return false;
 	}
 
@@ -265,7 +265,7 @@ Parser::bodylessDeclaration()
 	case ModuleItemKind_Orphan:
 		err::setFormatStringError(
 			"orphan '%s' without a body",
-			m_lastDeclaredItem->getDecl()->getQualifiedName().sz ()
+			m_lastDeclaredItem->getDecl()->getQualifiedName().sz()
 			);
 		return false;
 	}
@@ -332,7 +332,7 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 
 	if (!isClassType(type, ClassTypeKind_Reactor))
 	{
-		err::setFormatStringError("only functions and reactors can have bodies, not '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("only functions and reactors can have bodies, not '%s'", type->getTypeString().sz());
 		return false;
 	}
 
@@ -422,7 +422,7 @@ Parser::getGlobalNamespace(
 	{
 		if (item->getItemKind() != ModuleItemKind_Namespace)
 		{
-			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).sz ());
+			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).sz());
 			return NULL;
 		}
 
@@ -451,7 +451,7 @@ Parser::openGlobalNamespace(
 
 	if (nspace->getFlags() & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().sz ());
+		err::setFormatStringError("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().sz());
 		return NULL;
 	}
 
@@ -543,7 +543,7 @@ Parser::declareInReaction(Declarator* declarator)
 	m_lastDeclaredItem = m_reactorType->findItem(name);
 	if (!m_lastDeclaredItem)
 	{
-		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz (), m_reactorType->m_qualifiedName.sz ());
+		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), m_reactorType->m_qualifiedName.sz());
 		return false;
 	}
 
@@ -610,7 +610,7 @@ Parser::declare(Declarator* declarator)
 
 	if (postModifiers != 0 && typeKind != TypeKind_Function)
 	{
-		err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz ());
+		err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
 		return false;
 	}
 
@@ -837,7 +837,7 @@ Parser::declareFunction(
 
 		if (postModifiers)
 		{
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz ());
+			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
 			return false;
 		}
 
@@ -863,7 +863,7 @@ Parser::declareFunction(
 	}
 	else
 	{
-		Function* function = m_module->m_functionMgr.createFunction(functionKind, sl::String(), type);
+		Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
 		functionItem = function;
 		functionItemDecl = function;
 		functionName = function;
@@ -886,34 +886,49 @@ Parser::declareFunction(
 	{
 	case FunctionKind_Normal:
 		functionItemDecl->m_name = declarator->getName()->getShortName();
+		functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
 		break;
 
 	case FunctionKind_UnaryOperator:
 		functionName->m_unOpKind = declarator->getUnOpKind();
-		functionItemDecl->m_name.format("unary operator %s", getUnOpKindString (functionName->m_unOpKind));
+		functionItemDecl->m_qualifiedName.format(
+			"%s.unary operator %s",
+			nspace->getQualifiedName().sz(),
+			getUnOpKindString(functionName->m_unOpKind)
+			);
 		break;
 
 	case FunctionKind_BinaryOperator:
 		functionName->m_binOpKind = declarator->getBinOpKind();
-		functionItemDecl->m_name.format("binary operator %s", getBinOpKindString (functionName->m_binOpKind));
+		functionItemDecl->m_qualifiedName.format(
+			"%s.binary operator %s",
+			nspace->getQualifiedName().sz(),
+			getBinOpKindString(functionName->m_binOpKind)
+			);
 		break;
 
 	case FunctionKind_CastOperator:
 		functionName->m_castOpType = declarator->getCastOpType();
-		functionItemDecl->m_name.format("cast operator %s", functionName->m_castOpType->getTypeString ().sz ());
+		functionItemDecl->m_qualifiedName.format(
+			"%s.cast operator %s",
+			nspace->getQualifiedName().sz(),
+			functionName->m_castOpType->getTypeString().sz()
+			);
 		break;
 
 	default:
-		functionItemDecl->m_name = getFunctionKindString (functionKind);
+		functionItemDecl->m_qualifiedName.format(
+			"%s.%s",
+			nspace->getQualifiedName().sz(),
+			getFunctionKindString(functionKind)
+			);
 	}
-
-	functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
 
 	if (functionItem->getItemKind() == ModuleItemKind_Orphan)
 	{
 		if (namespaceKind == NamespaceKind_DynamicLib)
 		{
-			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName ().sz ());
+			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName ().sz());
 			return false;
 		}
 
@@ -943,7 +958,7 @@ Parser::declareFunction(
 			return ((ClassType*)nspace)->addMethod(function);
 
 		default:
-			err::setFormatStringError("method members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString ().sz ());
+			err::setFormatStringError("method members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString().sz());
 			return false;
 		}
 
@@ -959,7 +974,7 @@ Parser::declareFunction(
 	default:
 		if (postModifiers)
 		{
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz ());
+			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
 			return false;
 		}
 
@@ -1100,7 +1115,7 @@ Parser::createProperty(Declarator* declarator)
 			break;
 
 		default:
-			err::setFormatStringError("property members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString ().sz ());
+			err::setFormatStringError("property members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString().sz());
 			return NULL;
 		}
 
@@ -1173,7 +1188,7 @@ Parser::finalizeLastProperty(bool hasBody)
 	{
 		if (m_lastPropertyGetterType && m_lastPropertyGetterType->cmp(prop->m_getter->getType()) != 0)
 		{
-			err::setFormatStringError("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString ().sz ());
+			err::setFormatStringError("getter type '%s' does not match property declaration", prop->m_getter->getType ()->getTypeString().sz());
 			return false;
 		}
 	}
@@ -1189,7 +1204,7 @@ Parser::finalizeLastProperty(bool hasBody)
 			return false;
 		}
 
-		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", m_lastPropertyGetterType);
+		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, m_lastPropertyGetterType);
 		getter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(getter);
@@ -1215,7 +1230,7 @@ Parser::finalizeLastProperty(bool hasBody)
 		argArray.append(setterArgType->getSimpleFunctionArg());
 
 		FunctionType* setterType = m_module->m_typeMgr.getFunctionType(argArray);
-		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, "set", setterType);
+		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
 		setter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(setter);
@@ -1292,7 +1307,7 @@ Parser::declareReactor(
 
 	if (parentType && parentType->getTypeKind() != TypeKind_Class)
 	{
-		err::setFormatStringError("'%s' cannot contain reactor members", parentType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot contain reactor members", parentType->getTypeString().sz());
 		return false;
 	}
 
@@ -1352,7 +1367,7 @@ Parser::declareData(
 	{
 		if (initializer->isEmpty())
 		{
-			err::setFormatStringError("auto-size array '%s' should have initializer", type->getTypeString ().sz ());
+			err::setFormatStringError("auto-size array '%s' should have initializer", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1373,7 +1388,7 @@ Parser::declareData(
 
 	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)))
 	{
-		err::setFormatStringError("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).sz ());
+		err::setFormatStringError("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).sz());
 		return false;
 	}
 
@@ -1440,7 +1455,7 @@ Parser::declareData(
 
 		if (!isDisposableType(type))
 		{
-			err::setFormatStringError("'%s' is not a disposable type", type->getTypeString ().sz ());
+			err::setFormatStringError("'%s' is not a disposable type", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1560,7 +1575,7 @@ Parser::declareData(
 				break;
 
 			default:
-				err::setFormatStringError("field members are not allowed in '%s'", namedType->getTypeString ().sz ());
+				err::setFormatStringError("field members are not allowed in '%s'", namedType->getTypeString().sz());
 				return false;
 			}
 		}
@@ -1625,7 +1640,7 @@ Parser::declareData(
 			break;
 
 		default:
-			err::setFormatStringError("field members are not allowed in '%s'", namedType->getTypeString ().sz ());
+			err::setFormatStringError("field members are not allowed in '%s'", namedType->getTypeString().sz());
 			return false;
 		}
 
@@ -1943,7 +1958,7 @@ Parser::finalizeDynamicLibType()
 
 	if (!m_dynamicLibFunctionCount)
 	{
-		err::setFormatStringError("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName ().sz ());
+		err::setFormatStringError("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName ().sz());
 		return false;
 	}
 
@@ -2025,7 +2040,7 @@ Parser::callBaseTypeMemberConstructor(
 	ModuleItem* item = nspace->findItemTraverse(name);
 	if (!item)
 	{
-		err::setFormatStringError("name '%s' is not found", name.getFullName ().sz ());
+		err::setFormatStringError("name '%s' is not found", name.getFullName ().sz());
 		return false;
 	}
 
@@ -2111,7 +2126,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz ());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz());
 		return false;
 	}
 
@@ -2132,7 +2147,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz ());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz());
 		return false;
 	}
 
@@ -2160,14 +2175,14 @@ Parser::callBaseTypeConstructorImpl(
 
 	if (baseTypeSlot->m_flags & ModuleItemFlag_Constructed)
 	{
-		err::setFormatStringError("'%s' is already constructed", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is already constructed", type->getTypeString().sz());
 		return false;
 	}
 
 	Function* constructor = type->getConstructor();
 	if (!constructor)
 	{
-		err::setFormatStringError("'%s' has no constructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
 		return false;
 	}
 
@@ -2215,14 +2230,14 @@ Parser::callFieldConstructor(
 
 	if (field->getFlags() & ModuleItemFlag_Constructed)
 	{
-		err::setFormatStringError("'%s' is already constructed", field->getName ().sz ());
+		err::setFormatStringError("'%s' is already constructed", field->getName ().sz());
 		return false;
 	}
 
 	if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable) ||
 		!((DerivableType*)field->getType())->getConstructor())
 	{
-		err::setFormatStringError("'%s' has no constructor", field->getName ().sz ());
+		err::setFormatStringError("'%s' has no constructor", field->getName ().sz());
 		return false;
 	}
 
@@ -2305,7 +2320,7 @@ Parser::lookupIdentifier(
 	item = nspace->findItemTraverse(name, &coord);
 	if (!item)
 	{
-		err::setFormatStringError("undeclared identifier '%s'", name.sz ());
+		err::setFormatStringError("undeclared identifier '%s'", name.sz());
 		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
 		return false;
 	}
@@ -2326,7 +2341,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
 			return false;
 		}
 
@@ -2340,7 +2355,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Variable:
 		if (m_flags & Flag_ConstExpression)
 		{
-			err::setFormatStringError("variable '%s' cannot be used in const expression", name.sz ());
+			err::setFormatStringError("variable '%s' cannot be used in const expression", name.sz());
 			return false;
 		}
 
@@ -2350,7 +2365,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Function:
 		if (m_flags & Flag_ConstExpression)
 		{
-			err::setFormatStringError("function '%s' cannot be used in const expression", name.sz ());
+			err::setFormatStringError("function '%s' cannot be used in const expression", name.sz());
 			return false;
 		}
 
@@ -2368,7 +2383,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Property:
 		if (m_flags & Flag_ConstExpression)
 		{
-			err::setFormatStringError("property '%s' cannot be used in const expression", name.sz ());
+			err::setFormatStringError("property '%s' cannot be used in const expression", name.sz());
 			return false;
 		}
 
@@ -2397,7 +2412,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_StructField:
 		if (m_flags & Flag_ConstExpression)
 		{
-			err::setFormatStringError("field '%s' cannot be used in const expression", name.sz ());
+			err::setFormatStringError("field '%s' cannot be used in const expression", name.sz());
 			return false;
 		}
 
@@ -2437,7 +2452,7 @@ Parser::lookupIdentifierType(
 	item = nspace->findItemTraverse(name);
 	if (!item)
 	{
-		err::setFormatStringError("undeclared identifier '%s'", name.sz ());
+		err::setFormatStringError("undeclared identifier '%s'", name.sz());
 		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
 		return false;
 	}
@@ -2456,7 +2471,7 @@ Parser::lookupIdentifierType(
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
 			return false;
 		}
 
@@ -2506,7 +2521,7 @@ Parser::lookupIdentifierType(
 		break;
 
 	default:
-		err::setFormatStringError("'%s' cannot be used as expression", name.sz ());
+		err::setFormatStringError("'%s' cannot be used as expression", name.sz());
 		return false;
 	};
 
@@ -2875,7 +2890,7 @@ Parser::appendFmtLiteralValue(
 	}
 	else
 	{
-		err::setFormatStringError("don't know how to format '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("don't know how to format '%s'", type->getTypeString().sz());
 		return false;
 	}
 

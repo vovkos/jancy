@@ -51,7 +51,7 @@ OperatorMgr::getThisValue(
 	{
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction ()->getQualifiedName().sz ()
+			m_module->m_functionMgr.getCurrentFunction ()->getQualifiedName().sz()
 			);
 
 		return false;
@@ -90,7 +90,7 @@ OperatorMgr::getThisValueType(
 	{
 		err::setFormatStringError(
 			"function '%s' has no 'this' pointer",
-			m_module->m_functionMgr.getCurrentFunction()->getQualifiedName().sz ()
+			m_module->m_functionMgr.getCurrentFunction()->getQualifiedName().sz()
 			);
 
 		return false;
@@ -119,7 +119,7 @@ OperatorMgr::checkAccess(ModuleItemDecl* decl)
 	if (decl->getAccessKind() != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public)
 	{
-		err::setFormatStringError("'%s.%s' is protected", nspace->getQualifiedName ().sz (), decl->getName ().sz ());
+		err::setFormatStringError("'%s.%s' is protected", nspace->getQualifiedName ().sz(), decl->getName ().sz());
 		return false;
 	}
 
@@ -162,7 +162,7 @@ OperatorMgr::getNamespaceMemberType(
 	ModuleItem* item = nspace->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), nspace->getQualifiedName ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName ().sz());
 		return false;
 	}
 
@@ -185,7 +185,7 @@ OperatorMgr::getNamespaceMemberType(
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
 			return false;
 		}
 
@@ -230,7 +230,7 @@ OperatorMgr::getNamespaceMemberType(
 		break;
 
 	default:
-		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name.sz ());
+		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz(), name.sz());
 		return false;
 	};
 
@@ -250,7 +250,7 @@ OperatorMgr::getNamespaceMember(
 	ModuleItem* item = nspace->findItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
 	if (!item)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), nspace->getQualifiedName ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName ().sz());
 		return false;
 	}
 
@@ -281,7 +281,7 @@ OperatorMgr::getNamespaceMember(
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
 			return false;
 		}
 
@@ -301,7 +301,7 @@ OperatorMgr::getNamespaceMember(
 		{
 			if (function->getStorageKind() == StorageKind_Abstract)
 			{
-				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz ());
+				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz());
 				return false;
 			}
 
@@ -343,7 +343,7 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	default:
-		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz (), name.sz ());
+		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName ().sz(), name.sz());
 		return false;
 	};
 
@@ -362,7 +362,7 @@ OperatorMgr::getNamedTypeMemberType(
 	ModuleItem* member = namedType->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), namedType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
 
@@ -442,7 +442,7 @@ OperatorMgr::getNamedTypeMember(
 	ModuleItem* member = namedType->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
 	if (!member)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), namedType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
 
@@ -499,7 +499,7 @@ OperatorMgr::getNamedTypeMember(
 		if ((member->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr) &&
 			(opValue.getType()->getFlags() & PtrTypeFlag_Event))
 		{
-			err::setFormatStringError("'%s' is inaccessible via 'event' pointer", name.sz ());
+			err::setFormatStringError("'%s' is inaccessible via 'event' pointer", name.sz());
 			return false;
 		}
 	}
@@ -520,7 +520,7 @@ OperatorMgr::getEnumTypeMemberType(
 	ModuleItem* member = enumType->findItem(name);
 	if (!member)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), enumType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
 		return false;
 	}
 
@@ -543,7 +543,7 @@ OperatorMgr::getEnumTypeMember(
 	ModuleItem* member = enumType->findItem(name);
 	if (!member)
 	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz (), enumType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
 		return false;
 	}
 
@@ -652,7 +652,7 @@ OperatorMgr::getMemberOperatorResultType(
 		return true;
 
 	default:
-		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
 		return false;
 	}
 }
@@ -702,7 +702,7 @@ OperatorMgr::memberOperator(
 			return getVariantMember(opValue, index, resultValue);
 
 		default:
-			err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString ().sz ());
+			err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -713,7 +713,7 @@ OperatorMgr::memberOperator(
 		return field && getClassField(opValue, field, NULL, resultValue);
 
 	default:
-		err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("indexed member operator cannot be applied to '%s'", type->getTypeString().sz());
 		return false;
 	}
 }
@@ -829,7 +829,7 @@ OperatorMgr::memberOperator(
 		return getVariantMember(opValue, name, resultValue);
 
 	default:
-		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
 		return false;
 	}
 }

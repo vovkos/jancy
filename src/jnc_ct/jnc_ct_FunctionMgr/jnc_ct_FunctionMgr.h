@@ -20,6 +20,8 @@
 namespace jnc {
 namespace ct {
 
+class AsyncFunction;
+
 //..............................................................................
 
 class FunctionMgr
@@ -125,14 +127,14 @@ public:
 		FunctionType* type
 		);
 
-/*	Function*
+	Function*
 	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
 		)
 	{
-		return createFunction(functionKind, sl::String(), sl::String(), sl::String(), type);
-	} */
+		return createFunction(functionKind, sl::String(), sl::String(), type);
+	}
 
 	Function*
 	createFunction(
@@ -160,12 +162,6 @@ public:
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
 		);
-
-/*	Property*
-	createProperty(PropertyKind propertyKind)
-	{
-		return createProperty(propertyKind, sl::String(), sl::String(), sl::String());
-	} */
 
 	Property*
 	createProperty(

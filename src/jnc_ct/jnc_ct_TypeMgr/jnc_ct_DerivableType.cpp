@@ -85,7 +85,7 @@ DerivableType::getFieldByIndex(size_t index)
 {
 	if (!m_baseTypeList.isEmpty())
 	{
-		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString ().sz ());
+		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString ().sz());
 		return NULL;
 	}
 
@@ -119,7 +119,7 @@ DerivableType::getDefaultConstructor()
 	m_defaultConstructor = m_constructor->chooseOverload(argList);
 	if (!m_defaultConstructor)
 	{
-		err::setFormatStringError("'%s' has no default constructor", getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no default constructor", getTypeString ().sz());
 		return NULL;
 	}
 
@@ -137,7 +137,7 @@ DerivableType::getIndexerProperty(Type* argType)
 
 	Property* prop = m_module->m_functionMgr.createProperty(
 		PropertyKind_Internal,
-		"m_indexer",
+		sl::String(),
 		m_qualifiedName + ".m_indexer"
 		);
 
@@ -240,7 +240,7 @@ DerivableType::addMethod(Function* function)
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -352,7 +352,7 @@ DerivableType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz(), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -417,11 +417,8 @@ DerivableType::createDefaultMethod(
 	uint_t flags
 	)
 {
-	sl::String name = getFunctionKindString (functionKind);
-	sl::String qualifiedName = sl::formatString("%s.%s", m_qualifiedName.sz (), name.sz());
-
 	FunctionType* type = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
-	Function* function = m_module->m_functionMgr.createFunction(functionKind, name, qualifiedName, type);
+	Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
 	function->m_storageKind = storageKind;
 	function->m_flags |= flags;
 
@@ -761,11 +758,11 @@ DerivableType::generateDocumentation(
 		Unit* unit = baseType->getParentUnit();
 		ExtensionLib* lib = unit ? unit->getLib() : NULL;
 		if (lib)
-			itemXml->appendFormat("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz (), refId.sz ());
+			itemXml->appendFormat("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz(), refId.sz());
 		else
-			itemXml->appendFormat("<basecompoundref refid='%s'>", refId.sz ());
+			itemXml->appendFormat("<basecompoundref refid='%s'>", refId.sz());
 
-		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName ().sz ());
+		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName ().sz());
 	}
 
 	if (!constructorXml.isEmpty() || !destructorXml.isEmpty())

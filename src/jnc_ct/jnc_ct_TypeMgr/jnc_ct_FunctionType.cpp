@@ -99,7 +99,13 @@ FunctionType::getAbstractFunction()
 	if (m_abstractFunction)
 		return m_abstractFunction;
 
-	Function* function = m_module->m_functionMgr.createFunction(FunctionKind_Internal, "abstractFunction", this);
+	Function* function = m_module->m_functionMgr.createFunction(
+		FunctionKind_Internal,
+		sl::String(),
+		"jnc.abstractFunction",
+		this
+		);
+
 	m_abstractFunction = function;
 	m_module->markForCompile(this);
 	return function;

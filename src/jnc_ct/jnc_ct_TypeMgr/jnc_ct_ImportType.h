@@ -157,7 +157,7 @@ protected:
 	void
 	prepareTypeString()
 	{
-		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName ().sz ());
+		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName ().sz());
 	}
 };
 

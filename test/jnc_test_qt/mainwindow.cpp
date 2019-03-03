@@ -401,7 +401,7 @@ bool MainWindow::compile()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("%s\n", err::getLastErrorDescription().sz());
 		return false;
 	}
 
@@ -409,7 +409,7 @@ bool MainWindow::compile()
 	result = m_module->compile();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("%s\n", err::getLastErrorDescription().sz());
 		return false;
 	}
 
@@ -423,7 +423,7 @@ bool MainWindow::compile()
 	result = m_module->jit();
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("%s\n", err::getLastErrorDescription().sz());
 		return false;
 	}
 
@@ -467,7 +467,7 @@ MainWindow::run()
 	result = m_runtime->startup(m_module);
 	if (!result)
 	{
-		writeOutput("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription().sz());
 		return false;
 	}
 
@@ -476,7 +476,7 @@ MainWindow::run()
 	if (result)
 		writeOutput("'main' returned %d.\n", returnValue);
 	else
-		writeOutput("Runtime error: %s\n", err::getLastErrorDescription ().sz ());
+		writeOutput("Runtime error: %s\n", err::getLastErrorDescription().sz());
 
 	if (result && returnValue == -1000) // for testing some async stuff with threads
 	{

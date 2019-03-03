@@ -70,7 +70,7 @@ main(
 
 	if (!result)
 	{
-		printf("Error: %s\n", err::getLastErrorDescription ().sz ());
+		printf("Error: %s\n", err::getLastErrorDescription().sz());
 		return -1;
 	}
 
@@ -79,7 +79,7 @@ main(
 	result = runtime->startup(module);
 	if (!result)
 	{
-		printf("Error: %s\n", err::getLastErrorDescription ().sz ());
+		printf("Error: %s\n", err::getLastErrorDescription().sz());
 		return -1;
 	}
 
@@ -108,7 +108,7 @@ main(
 
 	JNC_CALL_SITE_CATCH()
 
-	printf("Runtime exception caught: %s\n", err::getLastErrorDescription ().sz ());
+	printf("Runtime exception caught: %s\n", err::getLastErrorDescription().sz());
 	retval = -1;
 
 	JNC_END_CALL_SITE()

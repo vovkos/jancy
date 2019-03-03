@@ -55,7 +55,7 @@ OperatorMgr::getField(
 		return getClassField(opValue, field, coord, resultValue);
 
 	default:
-		err::setFormatStringError("cannot get a field '%s' of '%s'", field->getName ().sz (), type->getTypeString ().sz ());
+		err::setFormatStringError("cannot get a field '%s' of '%s'", field->getName ().sz(), type->getTypeString().sz());
 		return false;
 	}
 }

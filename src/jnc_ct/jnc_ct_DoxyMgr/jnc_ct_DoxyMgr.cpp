@@ -42,7 +42,7 @@ DoxyMgr::getGroup(const sl::StringRef& name)
 		return it->m_value;
 
 	sl::String refId;
-	refId.format("group_%s", name.sz ());
+	refId.format("group_%s", name.sz());
 	refId.replace('-', '_');
 
 	DoxyGroup* group = AXL_MEM_NEW(DoxyGroup);
@@ -112,7 +112,7 @@ DoxyMgr::adjustRefId(const sl::StringRef& refId)
 	}
 
 	sl::String adjustedRefId;
-	adjustedRefId.format("%s_%d", refId.sz (), it->m_value);
+	adjustedRefId.format("%s_%d", refId.sz(), it->m_value);
 
 	it->m_value++;
 	return adjustedRefId;

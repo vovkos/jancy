@@ -43,7 +43,7 @@ StructField::generateDocumentation(
 	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";
 
-	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
@@ -58,15 +58,15 @@ StructField::generateDocumentation(
 	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
 		itemXml->append(" readonly='yes'");
 
-	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());
 
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_ptrTypeFlags & ~PtrTypeFlag_DualEvent);
 	if (!ptrTypeFlagString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz ());
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 
 	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz ());
+		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz());
 
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append(getDoxyLocationString());
@@ -107,7 +107,7 @@ StructType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
 		return NULL;
 	}
 
@@ -186,7 +186,7 @@ StructType::calcLayout()
 			(slot->m_type->getFlags() & TypeFlag_Dynamic) ||
 			slot->m_type->getTypeKind() == TypeKind_Class)
 		{
-			err::setFormatStringError("'%s' cannot be a base type of a struct", slot->m_type->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be a base type of a struct", slot->m_type->getTypeString().sz());
 			return false;
 		}
 
@@ -236,7 +236,7 @@ StructType::calcLayout()
 
 	if ((m_flags & TypeFlag_Dynamic) && m_dynamicFieldArray.isEmpty())
 	{
-		err::setFormatStringError("dynamic struct '%s' has no dynamic fields", m_qualifiedName.sz ());
+		err::setFormatStringError("dynamic struct '%s' has no dynamic fields", m_qualifiedName.sz());
 		return false;
 	}
 
@@ -313,7 +313,7 @@ StructType::calcLayout()
 		const OpaqueClassTypeInfo* typeInfo = m_module->m_extensionLibMgr.findOpaqueClassTypeInfo(classType->getQualifiedName());
 		if (!typeInfo)
 		{
-			err::setFormatStringError("opaque class type info is missing for '%s'", classType->getTypeString ().sz ());
+			err::setFormatStringError("opaque class type info is missing for '%s'", classType->getTypeString().sz());
 			return false;
 		}
 
@@ -403,7 +403,7 @@ StructType::layoutField(StructField* field)
 
 	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind() == TypeKind_Class)
 	{
-		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString ().sz ());
+		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
 		field->pushSrcPosError();
 		return false;
 	}
@@ -451,7 +451,7 @@ StructType::layoutField(StructField* field)
 	}
 	else if (field->m_type->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError("dynamic '%s' cannot be a struct member", field->m_type->getTypeString ().sz ());
+		err::setFormatStringError("dynamic '%s' cannot be a struct member", field->m_type->getTypeString().sz());
 		field->pushSrcPosError();
 		return false;
 	}

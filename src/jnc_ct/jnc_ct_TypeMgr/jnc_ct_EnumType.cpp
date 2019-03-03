@@ -224,7 +224,7 @@ EnumType::generateDocumentation(
 
 	sl::String modifierString = getEnumTypeFlagString(flags);
 	if (!modifierString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.sz ());
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.sz());
 
 	itemXml->append(memberXml);
 

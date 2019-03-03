@@ -323,7 +323,7 @@ Module::mapVariable(
 	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable();
 	if (!llvmVariable)
 	{
-		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName ().sz ());
+		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName ().sz());
 		return false;
 	}
 
@@ -351,7 +351,7 @@ Module::mapVariable(
 		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmMapping->getName().data());
 		if (it->m_value)
 		{
-			err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName ().sz ());
+			err::setFormatStringError("attempt to re-map variable: %s", variable->getQualifiedName ().sz());
 			return false;
 		}
 
@@ -380,7 +380,7 @@ Module::mapFunction(
 		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
 		if (it->m_value)
 		{
-			err::setFormatStringError("attempt to re-map function: %s", function->getQualifiedName ().sz ());
+			err::setFormatStringError("attempt to re-map function: %s", function->getQualifiedName ().sz());
 			return false;
 		}
 
@@ -781,7 +781,7 @@ Module::createConstructorDestructor()
 	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
 	Function* function = m_functionMgr.createFunction(
 		FunctionKind_StaticConstructor,
-		"construct",
+		sl::String(),
 		"module.construct",
 		type
 		);
@@ -817,7 +817,7 @@ Module::createConstructorDestructor()
 
 	function = m_functionMgr.createFunction(
 		FunctionKind_StaticDestructor,
-		"destruct",
+		sl::String(),
 		"module.destruct",
 		type
 		);

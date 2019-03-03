@@ -147,7 +147,7 @@ JncApp::runFunction(int* returnValue)
 	jnc::ModuleItem* functionItem = m_module->findItem(m_cmdLine->m_functionName);
 	if (!functionItem || functionItem->getItemKind() != jnc::ModuleItemKind_Function)
 	{
-		err::setFormatStringError("'%s' is not found or not a function\n", m_cmdLine->m_functionName.sz ());
+		err::setFormatStringError("'%s' is not found or not a function\n", m_cmdLine->m_functionName.sz());
 		return false;
 	}
 
@@ -157,7 +157,7 @@ JncApp::runFunction(int* returnValue)
 	size_t argCount = functionType->getArgCount();
 	if (returnTypeKind != jnc::TypeKind_Void && returnTypeKind != jnc::TypeKind_Int || argCount)
 	{
-		err::setFormatStringError("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.sz (), functionType->getTypeString ());
+		err::setFormatStringError("'%s' has invalid signature: %s\n", m_cmdLine->m_functionName.sz(), functionType->getTypeString());
 		return false;
 	}
 

@@ -41,7 +41,7 @@ OperatorMgr::traceBlock(BasicBlock* block)
 	llvm::BasicBlock* llvmBlock = block->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmBlock->begin();
 
-	m_module->m_llvmIrBuilder.setInsertPoint(it);
+	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
 	m_module->m_operatorMgr.callTraceFunction("print_u", block->getName () + "\n------------\n");
 
 	for (; it != llvmBlock->end() && !it->isTerminator(); it++)
@@ -51,7 +51,7 @@ OperatorMgr::traceBlock(BasicBlock* block)
 		it->print(stream);
 		s += '\n';
 
-		m_module->m_llvmIrBuilder.setInsertPoint(it);
+		m_module->m_llvmIrBuilder.setInsertPoint(&*it);
 		m_module->m_operatorMgr.callTraceFunction("print_u", s.c_str ());
 	}
 }
@@ -223,7 +223,7 @@ OperatorMgr::getCallOperatorResultType(
 		Function* callOperator = ((ClassPtrType*)opValue.getType())->getTargetType()->getCallOperator();
 		if (!callOperator)
 		{
-			err::setFormatStringError("cannot call '%s'", opValue.getType ()->getTypeString ().sz ());
+			err::setFormatStringError("cannot call '%s'", opValue.getType ()->getTypeString().sz());
 			return NULL;
 		}
 
@@ -269,7 +269,7 @@ OperatorMgr::getCallOperatorResultType(
 		break;
 
 	default:
-		err::setFormatStringError("cannot call '%s'", opType->getTypeString ().sz ());
+		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
 		return NULL;
 	}
 
@@ -321,7 +321,7 @@ OperatorMgr::callOperator(
 		Function* callOperator = ptrType->getTargetType()->getCallOperator();
 		if (!callOperator)
 		{
-			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString ().sz ());
+			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString().sz());
 			return false;
 		}
 
@@ -376,7 +376,7 @@ OperatorMgr::callOperator(
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr) ||
 		((FunctionPtrType*)opType)->getPtrTypeKind() == FunctionPtrTypeKind_Weak)
 	{
-		err::setFormatStringError("cannot call '%s'", opType->getTypeString ().sz ());
+		err::setFormatStringError("cannot call '%s'", opType->getTypeString().sz());
 		return false;
 	}
 
@@ -445,7 +445,7 @@ OperatorMgr::castArgValueList(
 	}
 	else
 	{
-		err::setFormatStringError("too many arguments in a call to '%s'", functionType->getTypeString ().sz ());
+		err::setFormatStringError("too many arguments in a call to '%s'", functionType->getTypeString().sz());
 		return false;
 	}
 

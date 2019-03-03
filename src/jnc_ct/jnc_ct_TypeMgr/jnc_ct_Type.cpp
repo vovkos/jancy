@@ -684,7 +684,7 @@ NamedType::prepareDoxyLinkedText()
 
 	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 	sl::String refId = doxyBlock->getRefId();
-	getTypeStringTuple()->m_doxyLinkedTextPrefix.format("<ref refid=\"%s\">%s</ref>", refId.sz (), m_qualifiedName.sz ());
+	getTypeStringTuple()->m_doxyLinkedTextPrefix.format("<ref refid=\"%s\">%s</ref>", refId.sz(), m_qualifiedName.sz());
 }
 
 //..............................................................................
@@ -744,7 +744,7 @@ TypedefShadowType::prepareDoxyLinkedText()
 
 	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(m_typedef);
 	sl::String refId = doxyBlock->getRefId();
-	getTypeStringTuple()->m_doxyLinkedTextPrefix.format("<ref refid=\"%s\">%s</ref>", refId.sz (), m_qualifiedName.sz ());
+	getTypeStringTuple()->m_doxyLinkedTextPrefix.format("<ref refid=\"%s\">%s</ref>", refId.sz(), m_qualifiedName.sz());
 }
 
 bool

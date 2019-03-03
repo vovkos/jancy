@@ -57,7 +57,7 @@ setCastError(
 
 	return err::setFormatStringError(
 		format,
-		opValue.getValueKind() == ValueKind_Null ? "null" : opValue.getType ()->getTypeString ().sz (),
+		opValue.getValueKind() == ValueKind_Null ? "null" : opValue.getType ()->getTypeString().sz(),
 		dstType->getTypeString().sz()
 		);
 }

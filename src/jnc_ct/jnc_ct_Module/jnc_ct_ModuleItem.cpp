@@ -208,7 +208,7 @@ ModuleItem::createDoxyRefId()
 
 	if (!decl->m_qualifiedName.isEmpty())
 	{
-		refId.appendFormat("_%s", decl->m_qualifiedName.sz ());
+		refId.appendFormat("_%s", decl->m_qualifiedName.sz());
 		refId.replace('.', '_');
 	}
 
@@ -258,7 +258,7 @@ verifyModuleItemKind(
 {
 	if (item->getItemKind() != itemKind)
 	{
-		err::setFormatStringError("'%s' is not a %s", name.sz (), getModuleItemKindString (itemKind));
+		err::setFormatStringError("'%s' is not a %s", name.sz(), getModuleItemKindString (itemKind));
 		return NULL;
 	}
 
@@ -277,7 +277,7 @@ verifyModuleItemIsDerivableType(
 
 	if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError("'%s' is not a derivable type", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a derivable type", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -296,7 +296,7 @@ verifyModuleItemIsClassType(
 
 	if (type->getTypeKind() != TypeKind_Class)
 	{
-		err::setFormatStringError("'%s' is not a class type", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' is not a class type", type->getTypeString().sz());
 		return NULL;
 	}
 

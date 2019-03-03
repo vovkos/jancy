@@ -132,7 +132,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		return true;
 	}
 
-	entry->m_dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz (), sys::getTimestamp (), dynamicLibFileName.sz ());
+	entry->m_dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
 
 	result =
 		entry->m_zipReader.extractFileToFile(dynamicLibFileIdx, entry->m_dynamicLibFilePath) &&
@@ -148,7 +148,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 	ExtensionLib* lib = mainFunc(&jnc_g_dynamicExtensionLibHostImpl);
 	if (!lib)
 	{
-		err::setFormatStringError("cannot get extension lib in '%s'", fileName.sz ());
+		err::setFormatStringError("cannot get extension lib in '%s'", fileName.sz());
 		return false;
 	}
 

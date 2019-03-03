@@ -49,7 +49,7 @@ ClassType::getVTableStructType()
 		return m_vtableStructType;
 
 	m_vtableStructType = m_module->m_typeMgr.createUnnamedStructType();
-	m_vtableStructType->m_qualifiedName.format("%s.VTable", m_qualifiedName.sz ());
+	m_vtableStructType->m_qualifiedName.format("%s.VTable", m_qualifiedName.sz());
 	return m_vtableStructType;
 }
 
@@ -65,7 +65,7 @@ ClassType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
 		return NULL;
 	}
 
@@ -116,7 +116,7 @@ ClassType::addMethod(Function* function)
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -234,7 +234,7 @@ ClassType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz(), getFunctionKindString (functionKind));
 
 	if (!*target)
 	{
@@ -335,7 +335,7 @@ ClassType::calcLayout()
 		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) ||
 			(slot->m_type->getFlags() & TypeFlag_Dynamic))
 		{
-			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString ().sz ());
+			err::setFormatStringError("'%s' cannot be a base type of a class", slot->m_type->getTypeString().sz());
 			return false;
 		}
 
@@ -374,7 +374,7 @@ ClassType::calcLayout()
 		ClassType* baseClassType = (ClassType*)slot->m_type;
 		if (baseClassType->m_flags & ClassTypeFlag_OpaqueNonCreatable)
 		{
-			err::setFormatStringError("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString ().sz ());
+			err::setFormatStringError("cannot derive from non-creatable opaque '%s'", baseClassType->getTypeString().sz());
 			return false;
 		}
 
@@ -424,7 +424,7 @@ ClassType::calcLayout()
 
 			if (classType->m_flags & (ClassTypeFlag_HasAbstractMethods | ClassTypeFlag_OpaqueNonCreatable))
 			{
-				err::setFormatStringError("cannot instantiate '%s'", type->getTypeString ().sz ());
+				err::setFormatStringError("cannot instantiate '%s'", type->getTypeString().sz());
 				return false;
 			}
 
@@ -597,7 +597,7 @@ ClassType::overrideVirtualFunction(Function* function)
 
 	if (!member)
 	{
-		err::setFormatStringError("cannot override '%s': method not found", function->m_qualifiedName.sz ());
+		err::setFormatStringError("cannot override '%s': method not found", function->m_qualifiedName.sz());
 		return false;
 	}
 
@@ -630,34 +630,34 @@ ClassType::overrideVirtualFunction(Function* function)
 			overridenFunction = ((Property*)member)->getSetter();
 			if (!overridenFunction)
 			{
-				err::setFormatStringError("cannot override '%s': property has no setter", function->m_qualifiedName.sz ());
+				err::setFormatStringError("cannot override '%s': property has no setter", function->m_qualifiedName.sz());
 				return false;
 			}
 
 			break;
 
 		default:
-			err::setFormatStringError("cannot override '%s': function kind mismatch", function->m_qualifiedName.sz ());
+			err::setFormatStringError("cannot override '%s': function kind mismatch", function->m_qualifiedName.sz());
 			return false;
 		}
 
 		break;
 
 	default:
-		err::setFormatStringError("cannot override '%s': not a method or property", function->m_qualifiedName.sz ());
+		err::setFormatStringError("cannot override '%s': not a method or property", function->m_qualifiedName.sz());
 		return false;
 	}
 
 	overridenFunction = overridenFunction->findShortOverload(function->getType()->getShortType());
 	if (!overridenFunction)
 	{
-		err::setFormatStringError("cannot override '%s': method signature mismatch", function->m_qualifiedName.sz ());
+		err::setFormatStringError("cannot override '%s': method signature mismatch", function->m_qualifiedName.sz());
 		return false;
 	}
 
 	if (!overridenFunction->isVirtual())
 	{
-		err::setFormatStringError("cannot override '%s': method is not virtual", function->m_qualifiedName.sz ());
+		err::setFormatStringError("cannot override '%s': method is not virtual", function->m_qualifiedName.sz());
 		return false;
 	}
 

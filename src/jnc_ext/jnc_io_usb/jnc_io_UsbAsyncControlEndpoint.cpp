@@ -295,7 +295,7 @@ UsbAsyncControlEndpoint::callCompletionFunc(
 
 	JNC_CALL_SITE_CATCH()
 
-	AXL_TRACE("USB completion func failed: %s\n", err::getLastErrorDescription ().sz ());
+	AXL_TRACE("USB completion func failed: %s\n", err::getLastErrorDescription().sz());
 	result = false;
 
 	JNC_END_CALL_SITE()

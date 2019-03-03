@@ -65,7 +65,7 @@ Namespace::getItemByName(const sl::StringRef& name)
 
 	if (!item)
 	{
-		err::setFormatStringError("'%s' not found", name.sz ());
+		err::setFormatStringError("'%s' not found", name.sz());
 		return NULL;
 	}
 
@@ -363,7 +363,7 @@ Namespace::generateMemberDocumentation(
 				return false;
 
 			const char* elemName = itemKind == ModuleItemKind_Namespace ? "innernamespace" : "innerclass";
-			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz ());
+			itemXml->appendFormat("<%s refid='%s'/>", elemName, refId.sz());
 			itemXml->append('\n');
 		}
 	}
@@ -409,7 +409,7 @@ GlobalNamespace::createDoxyRefId()
 	}
 	else
 	{
-		refId.format("namespace_%s", m_qualifiedName.sz ());
+		refId.format("namespace_%s", m_qualifiedName.sz());
 		refId.makeLowerCase();
 	}
 
@@ -528,7 +528,7 @@ ExtensionNamespace::calcLayout()
 {
 	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString().sz());
 		return false;
 	}
 

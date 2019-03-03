@@ -71,7 +71,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	case StdVariable_SjljFrame:
 		variable = createVariable(
 			StorageKind_Tls,
-			"g_sjljFrame",
+			sl::String(),
 			"jnc.g_sjljFrame",
 			m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c()
 			);
@@ -80,7 +80,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	case StdVariable_GcShadowStackTop:
 		variable = createVariable(
 			StorageKind_Tls,
-			"g_gcShadowStackTop",
+			sl::String(),
 			"jnc.g_gcShadowStackTop",
 			m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c()
 			);
@@ -89,7 +89,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	case StdVariable_GcSafePointTrigger:
 		variable = createVariable(
 			StorageKind_Static,
-			"g_gcSafePointTrigger",
+			sl::String(),
 			"jnc.g_gcSafePointTrigger",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr)->getDataPtrType_c()
 			);
@@ -98,7 +98,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	case StdVariable_NullPtrCheckSink:
 		variable = createVariable(
 			StorageKind_Static,
-			"g_nullPtrCheckSink",
+			sl::String(),
 			"jnc.g_nullPtrCheckSink",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)
 			);
@@ -398,7 +398,7 @@ VariableMgr::createOnceFlagVariable(StorageKind storageKind)
 {
 	return createVariable(
 		storageKind,
-		"onceFlag",
+		sl::String(),
 		"onceFlag",
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32),
 		storageKind == StorageKind_Static ? PtrTypeFlag_Volatile : 0
@@ -642,7 +642,7 @@ VariableMgr::createTlsStructType()
 
 		if (variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate)
 		{
-			err::setFormatStringError("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString ().sz ());
+			err::setFormatStringError("'threadlocal' variables cannot have aggregate type '%s'",  variable->m_type->getTypeString().sz());
 			return false;
 		}
 

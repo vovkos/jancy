@@ -346,7 +346,7 @@ TypeMgr::resolveImportTypes()
 			ModuleItem* item = anchorNamespace ? anchorNamespace->findItemTraverse(importType->m_name) : NULL;
 			if (!item)
 			{
-				err::setFormatStringError("unresolved import '%s'", importType->getTypeString ().sz ());
+				err::setFormatStringError("unresolved import '%s'", importType->getTypeString().sz());
 				pushImportSrcPosError(importType);
 				return false;
 			}
@@ -368,7 +368,7 @@ TypeMgr::resolveImportTypes()
 				break;
 
 			default:
-				err::setFormatStringError("'%s' is not a type", importType->getTypeString ().sz ());
+				err::setFormatStringError("'%s' is not a type", importType->getTypeString().sz());
 				pushImportSrcPosError(importType);
 				return false;
 			}
@@ -390,7 +390,7 @@ TypeMgr::resolveImportTypes()
 				ImportType* importType = (ImportType*)type;
 				if (importType->m_flags & ImportTypeFlag_ImportLoop)
 				{
-					err::setFormatStringError("'%s': import loop detected", importType->getTypeString ().sz ());
+					err::setFormatStringError("'%s': import loop detected", importType->getTypeString().sz());
 					pushImportSrcPosError(superImportType);
 					return false;
 				}
@@ -638,7 +638,7 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 	type->m_name = tdef->m_name;
 	type->m_qualifiedName = tdef->m_qualifiedName;
 	type->m_attributeBlock = tdef->m_attributeBlock;
-	type->m_signature.format("T%s", tdef->m_qualifiedName.sz ());
+	type->m_signature.format("T%s", tdef->m_qualifiedName.sz());
 	type->m_typedef = tdef;
 	m_typeList.insertTail(type);
 
@@ -667,7 +667,7 @@ TypeMgr::createEnumType(
 	}
 	else
 	{
-		type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz ());
+		type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
@@ -708,7 +708,7 @@ TypeMgr::createStructType(
 	}
 	else
 	{
-		type->m_signature.format("S%s", qualifiedName.sz ());
+		type->m_signature.format("S%s", qualifiedName.sz());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
@@ -744,7 +744,7 @@ TypeMgr::createUnionType(
 	}
 	else
 	{
-		type->m_signature.format("U%s", qualifiedName.sz ());
+		type->m_signature.format("U%s", qualifiedName.sz());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
@@ -765,7 +765,7 @@ TypeMgr::createUnionType(
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 		unionStructType->m_fieldAlignment = fieldAlignment;
-		unionStructType->m_qualifiedName.format("%s.Struct", type->m_qualifiedName.sz ());
+		unionStructType->m_qualifiedName.format("%s.Struct", type->m_qualifiedName.sz());
 
 		type->m_structType = unionStructType;
 	}
@@ -826,7 +826,7 @@ TypeMgr::createClassType(
 	}
 	else
 	{
-		type->m_signature.format("CC%s", qualifiedName.sz ());
+		type->m_signature.format("CC%s", qualifiedName.sz());
 		type->m_name = name;
 		type->m_qualifiedName = qualifiedName;
 		type->m_flags |= TypeFlag_Named;
@@ -840,14 +840,14 @@ TypeMgr::createClassType(
 
 	StructType* ifaceStructType = createUnnamedStructType(fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
-	ifaceStructType->m_qualifiedName.format("%s.Iface", type->m_qualifiedName.sz ());
+	ifaceStructType->m_qualifiedName.format("%s.Iface", type->m_qualifiedName.sz());
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 	ifaceStructType->m_fieldAlignment = fieldAlignment;
 
 	StructType* classStructType = createUnnamedStructType(fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
-	classStructType->m_qualifiedName.format("%s.Class", type->m_qualifiedName.sz ());
+	classStructType->m_qualifiedName.format("%s.Class", type->m_qualifiedName.sz());
 	classStructType->m_parentNamespace = type;
 	classStructType->createField("!m_box", getStdType (StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
@@ -1405,7 +1405,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 	Type* returnType = functionPtrType->getTargetType()->getReturnType();
 	if (returnType->getTypeKind() != TypeKind_Void)
 	{
-		err::setFormatStringError("multicast cannot only return 'void', not '%s'", returnType->getTypeString ().sz ());
+		err::setFormatStringError("multicast cannot only return 'void', not '%s'", returnType->getTypeString().sz());
 		return NULL;
 	}
 
@@ -1630,7 +1630,13 @@ TypeMgr::getFunctionClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Function* thunkFunction = m_module->m_functionMgr.createFunction(FunctionKind_Internal, "thunkFunction", thunkType);
+	Function* thunkFunction = m_module->m_functionMgr.createFunction(
+		FunctionKind_Internal,
+		sl::String(),
+		"jnc.thunkFunction",
+		thunkType
+		);
+
 	type->addMethod(thunkFunction);
 	type->m_thunkFunction = thunkFunction;
 
@@ -1685,7 +1691,12 @@ TypeMgr::getPropertyClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Property* thunkProperty = m_module->m_functionMgr.createProperty(PropertyKind_Normal, "m_thunkProperty");
+	Property* thunkProperty = m_module->m_functionMgr.createProperty(
+		PropertyKind_Internal,
+		sl::String(),
+		type->m_qualifiedName + ".m_thunkProperty"
+		);
+
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
@@ -1720,7 +1731,12 @@ TypeMgr::getDataClosureClassType(
 	type->m_typeMapIt = it;
 	type->createField("!m_target", targetType->getDataPtrType ());
 
-	Property* thunkProperty = m_module->m_functionMgr.createProperty(PropertyKind_Normal, "m_thunkProperty");
+	Property* thunkProperty = m_module->m_functionMgr.createProperty(
+		PropertyKind_Internal,
+		sl::String(),
+		type->m_qualifiedName + ".m_thunkProperty"
+		);
+
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
@@ -1937,7 +1953,7 @@ TypeMgr::getPropertyVTableStructType(PropertyType* propertyType)
 		return propertyType->m_vtableStructType;
 
 	StructType* type = createUnnamedStructType();
-	type->m_qualifiedName.format("%s.VTable", propertyType->getTypeString ().sz ());
+	type->m_qualifiedName.format("%s.VTable", propertyType->getTypeString().sz());
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
@@ -2388,7 +2404,7 @@ TypeMgr::parseStdType(
 		result = parser.parseToken(token);
 		if (!result)
 		{
-			TRACE("parse std type error: %s\n", err::getLastErrorDescription ().sz ());
+			TRACE("parse std type error: %s\n", err::getLastErrorDescription().sz());
 			ASSERT(false);
 		}
 
@@ -2411,7 +2427,7 @@ TypeMgr::parseStdType(
 	{
 		result = m_module->postParseStdItem();
 		if (!result)
-			printf("error: %s\n", err::getLastErrorDescription ().sz ());
+			printf("error: %s\n", err::getLastErrorDescription().sz());
 
 		ASSERT(result);
 
@@ -2433,7 +2449,7 @@ TypeMgr::createAbstractClassType()
 {
 	static sl::String typeString = "class";
 
-	ClassType* type = createClassType(ClassTypeKind_Abstract, "AbstractClass", "jnc.AbstractClass");
+	ClassType* type = createClassType(ClassTypeKind_Abstract, sl::String(), "jnc.AbstractClass");
 	TypeStringTuple* tuple = type->getTypeStringTuple();
 	tuple->m_typeStringPrefix = typeString;
 	tuple->m_doxyLinkedTextPrefix = typeString;
@@ -2446,7 +2462,7 @@ TypeMgr::createAbstractDataType()
 {
 	static sl::String typeString = "anydata";
 
-	StructType* type = createStructType("AbstractData", "jnc.AbstractData");
+	StructType* type = createStructType(sl::String(), "jnc.AbstractData");
 	TypeStringTuple* tuple = type->getTypeStringTuple();
 	tuple->m_typeStringPrefix = typeString;
 	tuple->m_doxyLinkedTextPrefix = typeString;
@@ -2460,7 +2476,7 @@ TypeMgr::createAbstractDataType()
 StructType*
 TypeMgr::createIfaceHdrType()
 {
-	StructType* type = createStructType("IfaceHdr", "jnc.IfaceHdr");
+	StructType* type = createStructType(sl::String(), "jnc.IfaceHdr");
 	type->createField("!m_vtable", getStdType (StdType_BytePtr));
 	type->createField("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout();
@@ -2470,7 +2486,7 @@ TypeMgr::createIfaceHdrType()
 StructType*
 TypeMgr::createBoxType()
 {
-	StructType* type = createStructType("Box", "jnc.Box");
+	StructType* type = createStructType(sl::String(), "jnc.Box");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->ensureLayout();
@@ -2480,7 +2496,7 @@ TypeMgr::createBoxType()
 StructType*
 TypeMgr::createDataBoxType()
 {
-	StructType* type = createStructType("DataBox", "jnc.DataBox");
+	StructType* type = createStructType(sl::String(), "jnc.DataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
@@ -2491,7 +2507,7 @@ TypeMgr::createDataBoxType()
 StructType*
 TypeMgr::createDynamicArrayBoxType()
 {
-	StructType* type = createStructType("DynamicArrayBox", "jnc.DynamicArrayBox");
+	StructType* type = createStructType(sl::String(), "jnc.DynamicArrayBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_count", getPrimitiveType (TypeKind_Int64_u));
@@ -2503,7 +2519,7 @@ TypeMgr::createDynamicArrayBoxType()
 StructType*
 TypeMgr::createStaticDataBoxType()
 {
-	StructType* type = createStructType("StaticDataBox", "jnc.StaticDataBox");
+	StructType* type = createStructType(sl::String(), "jnc.StaticDataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_p", getStdType (StdType_BytePtr));
@@ -2514,7 +2530,7 @@ TypeMgr::createStaticDataBoxType()
 StructType*
 TypeMgr::createDataPtrValidatorType()
 {
-	StructType* type = createStructType("DataPtrValidator", "jnc.DataPtrValidator");
+	StructType* type = createStructType(sl::String(), "jnc.DataPtrValidator");
 	type->createField("!m_validatorBox", getStdType (StdType_BoxPtr));
 	type->createField("!m_targetBox", getStdType (StdType_BoxPtr));
 	type->createField("!m_rangeBegin", getStdType (StdType_BytePtr));
@@ -2526,7 +2542,7 @@ TypeMgr::createDataPtrValidatorType()
 StructType*
 TypeMgr::createDataPtrStructType()
 {
-	StructType* type = createStructType("DataPtr", "jnc.DataPtr");
+	StructType* type = createStructType(sl::String(), "jnc.DataPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidatorPtr));
 	type->ensureLayout();
@@ -2536,7 +2552,7 @@ TypeMgr::createDataPtrStructType()
 StructType*
 TypeMgr::createFunctionPtrStructType()
 {
-	StructType* type = createStructType("FunctionPtr", "jnc.FunctionPtr");
+	StructType* type = createStructType(sl::String(), "jnc.FunctionPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_closure", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout();
@@ -2546,7 +2562,7 @@ TypeMgr::createFunctionPtrStructType()
 StructType*
 TypeMgr::createVariantStructType()
 {
-	StructType* type = createStructType("Variant", "jnc.Variant");
+	StructType* type = createStructType(sl::String(), "jnc.Variant");
 	type->createField("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField("!m_data2", getPrimitiveType (TypeKind_IntPtr));
 #if (JNC_PTR_SIZE == 4)
@@ -2560,7 +2576,7 @@ TypeMgr::createVariantStructType()
 StructType*
 TypeMgr::createGcShadowStackFrameType()
 {
-	StructType* type = createStructType("GcShadowStackFrame", "jnc.GcShadowStackFrame");
+	StructType* type = createStructType(sl::String(), "jnc.GcShadowStackFrame");
 	type->createField("!m_prev", type->getDataPtrType_c ());
 	type->createField("!m_map", getStdType (StdType_BytePtr));
 	type->createField("!m_gcRootArray", getStdType (StdType_BytePtr)->getDataPtrType_c ());
@@ -2572,7 +2588,7 @@ StructType*
 TypeMgr::createSjljFrameType()
 {
 	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), sizeof(jmp_buf));
-	StructType* type = createStructType("SjljFrame", "jnc.SjljFrame");
+	StructType* type = createStructType(sl::String(), "jnc.SjljFrame");
 	type->createField("!m_jmpBuf", arrayType);
 	type->ensureLayout();
 	type->m_alignment = 16; // override alignment

@@ -100,7 +100,7 @@ DynamicLayout::getDynamicFieldSize(
 	}
 	else
 	{
-		err::setFormatStringError("invalid dynamic type: %s", type->getTypeString ().sz ());
+		err::setFormatStringError("invalid dynamic type: %s", type->getTypeString().sz());
 		dynamicThrow();
 	}
 

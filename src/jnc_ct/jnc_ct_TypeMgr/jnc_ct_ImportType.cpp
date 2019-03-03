@@ -53,7 +53,7 @@ NamedImportType::createSignature(
 	const QualifiedName& orphanName
 	)
 {
-	sl::String signature = sl::formatString("ZN%s", anchorNamespace->createQualifiedName (name).sz ());
+	sl::String signature = sl::formatString("ZN%s", anchorNamespace->createQualifiedName (name).sz());
 
 	if (!orphanName.isEmpty())
 	{

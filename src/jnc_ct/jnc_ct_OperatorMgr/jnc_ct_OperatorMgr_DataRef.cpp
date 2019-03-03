@@ -88,7 +88,7 @@ OperatorMgr::loadDataRef(
 
 	if (targetType->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
 		return false;
 	}
 
@@ -163,7 +163,7 @@ OperatorMgr::storeDataRef(
 	Type* targetType = dstType->getTargetType();
 	if (targetType->getFlags() & TypeFlag_Dynamic)
 	{
-		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString ().sz ());
+		err::setFormatStringError("invalid usage of dynamic type '%s'", targetType->getTypeString().sz());
 		return false;
 	}
 

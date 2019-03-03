@@ -105,7 +105,7 @@ Property::create(PropertyType* type)
 	}
 	else
 	{
-		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", getterType);
+		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
 		getter->m_storageKind = storageKind;
 		getter->m_flags |= getterFlags;
 
@@ -122,7 +122,7 @@ Property::create(PropertyType* type)
 	{
 		FunctionType* setterType = type->getSetterType()->getOverload(i);
 
-		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, "set", setterType);
+		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
 		setter->m_storageKind = storageKind;
 		setter->m_flags |= setterFlags;
 
@@ -149,8 +149,8 @@ Property::setOnChanged(
 	{
 		err::setFormatStringError(
 			"'%s' already has 'bindable %s'",
-			m_qualifiedName.sz (),
-			m_onChanged->getDecl()->getQualifiedName().sz ()
+			m_qualifiedName.sz(),
+			m_onChanged->getDecl()->getQualifiedName().sz()
 			);
 
 		return false;
@@ -171,7 +171,7 @@ Property::setOnChanged(
 
 	FunctionType* binderType = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_Binder);
 
-	Function* binder = m_module->m_functionMgr.createFunction(FunctionKind_Binder, "bind", binderType);
+	Function* binder = m_module->m_functionMgr.createFunction(FunctionKind_Binder, binderType);
 	binder->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
@@ -248,14 +248,14 @@ Property::setAutoGetValue(
 	{
 		if (m_getter->getType()->getReturnType()->cmp(type) != 0)
 		{
-			err::setFormatStringError("'autoget %s' does not match property declaration", type->getTypeString ().sz ());
+			err::setFormatStringError("'autoget %s' does not match property declaration", type->getTypeString().sz());
 			return false;
 		}
 
 		return true;
 	}
 
-	Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, "get", getterType);
+	Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, getterType);
 	getter->m_storageKind = m_storageKind == StorageKind_Abstract ? StorageKind_Virtual : m_storageKind;
 
 	if (m_parentType)
@@ -308,7 +308,7 @@ Property::createFieldImpl(
 
 	if (!(m_parentType->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
-		err::setFormatStringError("'%s' cannot have field members", m_parentType->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot have field members", m_parentType->getTypeString().sz());
 		return NULL;
 	}
 
@@ -355,7 +355,7 @@ Property::addMethod(Function* function)
 		case StorageKind_Static:
 			if (thisArgTypeFlags)
 			{
-				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
 				return false;
 			}
 
@@ -380,13 +380,13 @@ Property::addMethod(Function* function)
 
 			if (m_parentType->getTypeKind() != TypeKind_Class)
 			{
-				err::setFormatStringError("virtual method cannot be added to '%s'", m_parentType->getTypeString ().sz ());
+				err::setFormatStringError("virtual method cannot be added to '%s'", m_parentType->getTypeString().sz());
 				return false;
 			}
 
 			if (m_parentType->getFlags() & ModuleItemFlag_Sealed)
 			{
-				err::setFormatStringError("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString ().sz ());
+				err::setFormatStringError("'%s' is completed, cannot add virtual methods to it", m_parentType->getTypeString().sz());
 				return false;
 			}
 
@@ -419,7 +419,7 @@ Property::addMethod(Function* function)
 
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz ());
+			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -482,7 +482,7 @@ Property::addMethod(Function* function)
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const)
 		{
-			err::setFormatStringError("const property '%s' cannot have setters", m_qualifiedName.sz ());
+			err::setFormatStringError("const property '%s' cannot have setters", m_qualifiedName.sz());
 			return false;
 		}
 
@@ -509,7 +509,7 @@ Property::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz (), getFunctionKindString (functionKind));
+	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz(), getFunctionKindString (functionKind));
 	if (!*target)
 	{
 		*target = function;
@@ -809,7 +809,7 @@ Property::generateDocumentation(
 {
 	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
-	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
@@ -820,7 +820,7 @@ Property::generateDocumentation(
 	if (isVirtual())
 		itemXml->appendFormat(" virt='%s'", getStorageKindString (m_storageKind));
 
-	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());
 
 	sl::String modifierString; // type modifiers are already encoded in <type>
@@ -832,7 +832,7 @@ Property::generateDocumentation(
 		modifierString.append(" autoset");
 
 	if (!modifierString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz ());
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz());
 
 	itemXml->append(doxyBlock->getImportString());
 	itemXml->append(doxyBlock->getDescriptionString());

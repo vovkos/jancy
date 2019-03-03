@@ -37,7 +37,7 @@ UnionType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz ());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
 		return NULL;
 	}
 
@@ -108,13 +108,13 @@ UnionType::calcLayout()
 
 		if (!(fieldTypeFlags & TypeFlag_Pod))
 		{
-			err::setFormatStringError("non-POD '%s' cannot be a union member", field->m_type->getTypeString ().sz ());
+			err::setFormatStringError("non-POD '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
 		}
 		else if (fieldTypeFlags & TypeFlag_Dynamic)
 		{
-			err::setFormatStringError("dynamic '%s' cannot be a union member", field->m_type->getTypeString ().sz ());
+			err::setFormatStringError("dynamic '%s' cannot be a union member", field->m_type->getTypeString().sz());
 			field->pushSrcPosError();
 			return false;
 		}

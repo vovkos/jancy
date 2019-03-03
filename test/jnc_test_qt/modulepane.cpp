@@ -192,7 +192,7 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 
-	QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString ()).arg (type->getSize ());
+	QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString()).arg (type->getSize ());
 	item->setToolTip(0, toolTip);
 
 	jnc::ModuleItemDecl* decl = NULL;

@@ -131,13 +131,13 @@ AsyncFunction::replaceAllocas()
 {
 	// replace all alloca's with GEPs
 
-	llvm::Value* llvmPromiseValue = &m_llvmFunction->getArgumentList().front();
+	llvm::Value* llvmPromiseValue = m_llvmFunction->arg_begin();
 	llvm::BasicBlock* llvmAllocaBlock = m_allocaBlock->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
 	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule());
 
 	Value bufferValue;
-	m_module->m_llvmIrBuilder.setInsertPoint(it);
+	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
 	m_module->m_llvmIrBuilder.createBitCast(llvmPromiseValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &bufferValue);
 
 	size_t offset = m_promiseType->m_ifaceStructType->m_size;

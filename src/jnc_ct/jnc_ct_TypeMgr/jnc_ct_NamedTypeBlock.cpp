@@ -87,20 +87,7 @@ NamedTypeBlock::createUnnamedMethod(
 	FunctionType* shortType
 	)
 {
-	sl::String name = getFunctionKindString(functionKind);
-	sl::String qualifiedName = sl::formatString(
-		"%s.%s",
-		getParentNamespaceImpl()->getQualifiedName().sz(),
-		name.sz()
-		);
-
-	Function* function = m_parent->getModule()->m_functionMgr.createFunction(
-		functionKind,
-		name,
-		qualifiedName,
-		shortType
-		);
-
+	Function* function = m_parent->getModule()->m_functionMgr.createFunction(functionKind, shortType);
 	function->m_storageKind = storageKind;
 
 	bool result = addMethod(function);
@@ -118,7 +105,6 @@ NamedTypeBlock::createProperty(
 	)
 {
 	sl::String qualifiedName = getParentNamespaceImpl()->createQualifiedName(name);
-
 	Property* prop = m_parent->getModule()->m_functionMgr.createProperty(name, qualifiedName);
 
 	bool result =

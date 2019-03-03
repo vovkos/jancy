@@ -40,7 +40,7 @@ Alias::calcLayout()
 	m_targetItem = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
 	if (!m_targetItem)
 	{
-		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz ());
+		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
@@ -67,12 +67,12 @@ Alias::generateDocumentation(
 {
 	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
 
-	itemXml->format("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz ());
+	itemXml->format("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
 
-	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz ());
+	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 
 	itemXml->appendFormat(
 		"<initializer>= %s</initializer>\n",

@@ -183,7 +183,7 @@ ControlFlowMgr::endTryOperator(
 	}
 	else
 	{
-		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString().sz());
 		return false;
 	}
 

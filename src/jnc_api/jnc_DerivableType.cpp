@@ -149,7 +149,7 @@ jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 	jnc_Function* function = type->getStaticConstructor();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no static constructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no static constructor", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -164,7 +164,7 @@ jnc_DerivableType_getStaticDestructor(jnc_DerivableType* type)
 	jnc_Function* function = type->getStaticDestructor();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no static destructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no static destructor", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -179,7 +179,7 @@ jnc_DerivableType_getPreConstructor(jnc_DerivableType* type)
 	jnc_Function* function = type->getPreConstructor();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no preconstructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no preconstructor", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -194,7 +194,7 @@ jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 	jnc_Function* function = type->getConstructor();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no constructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -209,7 +209,7 @@ jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 	jnc_Function* function = type->getDestructor();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no destructor", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no destructor", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -227,7 +227,7 @@ jnc_DerivableType_getUnaryOperator(
 	jnc_Function* function = type->getUnaryOperator((jnc::UnOpKind)opKind);
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString ().sz (), jnc_getUnOpKindString (opKind));
+		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getUnOpKindString (opKind));
 		return NULL;
 	}
 
@@ -245,7 +245,7 @@ jnc_DerivableType_getBinaryOperator(
 	jnc_Function* function = type->getBinaryOperator((jnc::BinOpKind)opKind);
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString ().sz (), jnc_getBinOpKindString (opKind));
+		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getBinOpKindString (opKind));
 		return NULL;
 	}
 
@@ -260,7 +260,7 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 	jnc_Function* function = type->getCallOperator();
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no operator ()", type->getTypeString ().sz ());
+		err::setFormatStringError("'%s' has no operator ()", type->getTypeString().sz());
 		return NULL;
 	}
 
@@ -278,7 +278,7 @@ jnc_DerivableType_getCastOperator(
 	jnc_Function* function = type->getCastOperator(idx);
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no cast operator #%d", type->getTypeString ().sz (), idx);
+		err::setFormatStringError("'%s' has no cast operator #%d", type->getTypeString().sz(), idx);
 		return NULL;
 	}
 

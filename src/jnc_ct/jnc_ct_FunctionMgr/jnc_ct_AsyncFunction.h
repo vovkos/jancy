@@ -35,7 +35,7 @@ public:
 	ClassType*
 	getPromiseType()
 	{
-		m_promiseType;
+		return m_promiseType;
 	}
 
 	virtual

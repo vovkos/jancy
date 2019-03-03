@@ -39,7 +39,7 @@ ClosureClassType::createSignature(
 		);
 
 	for (size_t i = 0; i < argCount; i++)
-		signature.appendFormat("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().sz ());
+		signature.appendFormat("%d:%s", closureMap [i], argTypeArray [i]->getSignature ().sz());
 
 	signature.appendFormat("::%d)", thisArgIdx);
 	return signature;

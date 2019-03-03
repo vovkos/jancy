@@ -650,7 +650,7 @@ OperatorMgr::castOperator(
 		return dynamicCastClassPtr(opValue, (ClassPtrType*)type, resultValue);
 
 	default:
-		err::setFormatStringError("cannot dynamically cast to '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("cannot dynamically cast to '%s'", type->getTypeString().sz());
 		return false;
 	}
 }
@@ -1014,7 +1014,7 @@ OperatorMgr::sizeofOperator(
 		type = prepareOperandType(opValue);
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
-			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().sz ());
+			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1057,7 +1057,7 @@ OperatorMgr::countofOperator(
 			Type* fieldType = fieldInfo->m_field->getType();
 			if (fieldType->getTypeKind() != TypeKind_Array)
 			{
-				err::setFormatStringError("'dynamic countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().sz ());
+				err::setFormatStringError("'dynamic countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
 				return false;
 			}
 
@@ -1070,7 +1070,7 @@ OperatorMgr::countofOperator(
 		type = prepareOperandType(opValue);
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
-			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString ().sz ());
+			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1082,7 +1082,7 @@ OperatorMgr::countofOperator(
 
 	if (type->getTypeKind() != TypeKind_Array)
 	{
-		err::setFormatStringError("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString ().sz ());
+		err::setFormatStringError("'countof' operator is only applicable to arrays, not to '%s'", type->getTypeString().sz());
 		return false;
 	}
 
