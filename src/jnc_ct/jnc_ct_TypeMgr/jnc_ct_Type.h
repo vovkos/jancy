@@ -391,7 +391,7 @@ protected:
 	void
 	prepareTypeString()
 	{
-		getTypeStringTuple()->m_typeStringPrefix = m_qualifiedName;
+		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
 	}
 
 	virtual
@@ -461,7 +461,7 @@ protected:
 	void
 	prepareTypeString()
 	{
-		getTypeStringTuple()->m_typeStringPrefix = m_qualifiedName;
+		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
 	}
 
 	virtual

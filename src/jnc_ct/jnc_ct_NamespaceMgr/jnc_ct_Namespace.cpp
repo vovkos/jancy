@@ -33,10 +33,9 @@ Namespace::clear()
 sl::String
 Namespace::createQualifiedName(const sl::StringRef& name)
 {
-	if (m_qualifiedName.isEmpty())
+	sl::String qualifiedName = getQualifiedName();
+	if (qualifiedName.isEmpty())
 		return name;
-
-	sl::String qualifiedName = m_qualifiedName;
 
 	if (!name.isEmpty())
 	{
@@ -409,7 +408,7 @@ GlobalNamespace::createDoxyRefId()
 	}
 	else
 	{
-		refId.format("namespace_%s", m_qualifiedName.sz());
+		refId.format("namespace_%s", getQualifiedName().sz());
 		refId.makeLowerCase();
 	}
 
@@ -532,8 +531,8 @@ ExtensionNamespace::calcLayout()
 		return false;
 	}
 
-	sl::String qualifiedName = ((DerivableType*)m_type)->createQualifiedName(m_name);
-	m_qualifiedName = qualifiedName;
+	AXL_TODO("check if this m_qualifiedName adjustment is really necessary")
+	// m_qualifiedName = ((DerivableType*)m_type)->createQualifiedName(m_name);
 
 	size_t count = m_fixupMethodArray.getCount();
 	for (size_t i = 0; i < count; i++)

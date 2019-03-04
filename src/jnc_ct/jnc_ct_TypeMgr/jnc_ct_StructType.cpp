@@ -92,7 +92,7 @@ StructType::StructType()
 void
 StructType::prepareLlvmType()
 {
-	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), m_qualifiedName.sz());
+	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), getQualifiedName().sz());
 }
 
 StructField*
@@ -121,7 +121,6 @@ StructType::createFieldImpl(
 		);
 
 	field->m_parentNamespace = this;
-	field->m_qualifiedName = m_qualifiedName + "." + name;
 
 	if (!field->m_constructor.isEmpty() ||
 		!field->m_initializer.isEmpty())
@@ -236,7 +235,7 @@ StructType::calcLayout()
 
 	if ((m_flags & TypeFlag_Dynamic) && m_dynamicFieldArray.isEmpty())
 	{
-		err::setFormatStringError("dynamic struct '%s' has no dynamic fields", m_qualifiedName.sz());
+		err::setFormatStringError("dynamic struct '%s' has no dynamic fields", getQualifiedName().sz());
 		return false;
 	}
 

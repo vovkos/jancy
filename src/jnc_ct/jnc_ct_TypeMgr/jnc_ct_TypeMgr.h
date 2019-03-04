@@ -258,7 +258,12 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createEnumType(sl::String(), sl::String(), baseType, flags);
+		return createEnumType(
+			sl::String(),
+			sl::formatString("!Enum%d", ++m_unnamedTypeCounter),
+			baseType,
+			flags
+			);
 	}
 
 	StructType*
@@ -275,7 +280,12 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createStructType(sl::String(), sl::String(), fieldAlignment, flags);
+		return createStructType(
+			sl::String(),
+			sl::formatString("!Struct%d", ++m_unnamedTypeCounter),
+			fieldAlignment,
+			flags
+			);
 	}
 
 	UnionType*
@@ -292,7 +302,12 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createUnionType(sl::String(), sl::String(), fieldAlignment, flags);
+		return createUnionType(
+			sl::String(),
+			sl::formatString("!Union%d", ++m_unnamedTypeCounter),
+			fieldAlignment,
+			flags
+			);
 	}
 
 	ClassType*
@@ -322,7 +337,13 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createClassType(classTypeKind,	sl::String(), sl::String(), fieldAlignment, flags);
+		return createClassType(
+			classTypeKind,
+			sl::String(),
+			sl::formatString("!Class%d", ++m_unnamedTypeCounter),
+			fieldAlignment,
+			flags
+			);
 	}
 
 	ClassType*
@@ -331,7 +352,7 @@ public:
 		uint_t flags = 0
 		)
 	{
-		return createClassType(ClassTypeKind_Normal, sl::String(), sl::String(), fieldAlignment, flags);
+		return createUnnamedClassType(ClassTypeKind_Normal, fieldAlignment, flags);
 	}
 
 	FunctionArg*

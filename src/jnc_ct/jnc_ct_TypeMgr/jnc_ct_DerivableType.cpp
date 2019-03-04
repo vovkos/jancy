@@ -138,7 +138,7 @@ DerivableType::getIndexerProperty(Type* argType)
 	Property* prop = m_module->m_functionMgr.createProperty(
 		PropertyKind_Internal,
 		sl::String(),
-		m_qualifiedName + ".m_indexer"
+		createQualifiedName("m_indexer")
 		);
 
 	prop->m_storageKind = StorageKind_Member;
@@ -352,7 +352,7 @@ DerivableType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz(), getFunctionKindString (functionKind));
+	function->m_qualifiedName = createQualifiedName(getFunctionKindString (functionKind));
 
 	if (!*target)
 	{

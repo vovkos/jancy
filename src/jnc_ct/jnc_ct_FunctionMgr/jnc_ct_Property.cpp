@@ -149,7 +149,7 @@ Property::setOnChanged(
 	{
 		err::setFormatStringError(
 			"'%s' already has 'bindable %s'",
-			m_qualifiedName.sz(),
+			getQualifiedName().sz(),
 			m_onChanged->getDecl()->getQualifiedName().sz()
 			);
 
@@ -222,7 +222,7 @@ Property::setAutoGetValue(
 	{
 		err::setFormatStringError(
 			"'%s' already has 'autoget %s'",
-			m_qualifiedName.sz(),
+			getQualifiedName().sz(),
 			m_autoGetValue->getDecl()->getQualifiedName().sz()
 			);
 
@@ -482,7 +482,7 @@ Property::addMethod(Function* function)
 	case FunctionKind_Setter:
 		if (m_flags & PropertyFlag_Const)
 		{
-			err::setFormatStringError("const property '%s' cannot have setters", m_qualifiedName.sz());
+			err::setFormatStringError("const property '%s' cannot have setters", getQualifiedName().sz());
 			return false;
 		}
 
@@ -504,12 +504,12 @@ Property::addMethod(Function* function)
 		err::setFormatStringError(
 			"invalid %s in '%s'",
 			getFunctionKindString(functionKind),
-			m_qualifiedName.sz()
+			getQualifiedName().sz()
 			);
 		return false;
 	}
 
-	function->m_qualifiedName.format("%s.%s", m_qualifiedName.sz(), getFunctionKindString (functionKind));
+	function->m_qualifiedName = createQualifiedName(getFunctionKindString (functionKind));
 	if (!*target)
 	{
 		*target = function;
@@ -696,8 +696,8 @@ Property::createVTableVariable()
 		);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
-		"m_vtable",
-		m_qualifiedName + ".m_vtable",
+		sl::String(),
+		getQualifiedName() + ".m_vtable",
 		vtableStructType,
 		Value(llvmVTableConst, vtableStructType)
 		);

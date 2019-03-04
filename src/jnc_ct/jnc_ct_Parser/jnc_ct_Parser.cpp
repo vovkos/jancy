@@ -543,7 +543,7 @@ Parser::declareInReaction(Declarator* declarator)
 	m_lastDeclaredItem = m_reactorType->findItem(name);
 	if (!m_lastDeclaredItem)
 	{
-		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), m_reactorType->m_qualifiedName.sz());
+		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), m_reactorType->getQualifiedName().sz());
 		return false;
 	}
 
@@ -958,7 +958,7 @@ Parser::declareFunction(
 			return ((ClassType*)nspace)->addMethod(function);
 
 		default:
-			err::setFormatStringError("method members are not allowed in '%s'", ((NamedType*) nspace)->getTypeString().sz());
+			err::setFormatStringError("method members are not allowed in '%s'", ((NamedType*)nspace)->getTypeString().sz());
 			return false;
 		}
 
@@ -2126,7 +2126,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getQualifiedName().sz());
 		return false;
 	}
 
@@ -2147,7 +2147,7 @@ Parser::callBaseTypeConstructor(
 
 	if (m_constructorProperty)
 	{
-		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->m_qualifiedName.sz());
+		err::setFormatStringError("'%s.construct' cannot have base-type constructor calls", m_constructorProperty->getQualifiedName().sz());
 		return false;
 	}
 

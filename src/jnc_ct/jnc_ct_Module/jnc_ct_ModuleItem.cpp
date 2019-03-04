@@ -27,6 +27,18 @@ ModuleItemDecl::ModuleItemDecl()
 	m_doxyBlock = NULL;
 }
 
+const sl::String&
+ModuleItemDecl::getQualifiedName()
+{
+	if (!m_qualifiedName.isEmpty())
+		return m_qualifiedName;
+
+	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
+	ASSERT(!m_qualifiedName.isEmpty());
+
+	return m_qualifiedName;
+}
+
 void
 ModuleItemDecl::pushSrcPosError()
 {
@@ -206,9 +218,10 @@ ModuleItem::createDoxyRefId()
 	ModuleItemDecl* decl = getDecl();
 	ASSERT(decl);
 
-	if (!decl->m_qualifiedName.isEmpty())
+	sl::String name = decl->getQualifiedName();
+	if (!name.isEmpty())
 	{
-		refId.appendFormat("_%s", decl->m_qualifiedName.sz());
+		refId.appendFormat("_%s", name.sz());
 		refId.replace('.', '_');
 	}
 
@@ -230,7 +243,7 @@ ModuleItem::ensureLayout()
 		ModuleItemDecl* decl = getDecl();
 		ASSERT(decl); // recursion is only possible with named types
 
-		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->m_qualifiedName.sz());
+		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->getQualifiedName().sz());
 		return false;
 	}
 

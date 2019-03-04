@@ -371,7 +371,7 @@ FunctionMgr::epilogue()
 	{
 		err::setFormatStringError(
 			"LLVM verification fail for '%s'",
-			function->m_qualifiedName.sz()
+			function->getQualifiedName().sz()
 			);
 
 		return false;

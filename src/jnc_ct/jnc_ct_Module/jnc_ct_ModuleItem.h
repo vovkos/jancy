@@ -128,10 +128,7 @@ public:
 	}
 
 	const sl::String&
-	getQualifiedName()
-	{
-		return m_qualifiedName;
-	}
+	getQualifiedName();
 
 	Namespace*
 	getParentNamespace()

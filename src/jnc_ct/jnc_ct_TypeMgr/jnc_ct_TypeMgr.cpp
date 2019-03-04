@@ -630,6 +630,7 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 {
 	TypedefShadowType* type = AXL_MEM_NEW(TypedefShadowType);
 	type->m_module = m_module;
+	type->m_signature.format("T%s", tdef->getQualifiedName().sz());
 	type->m_parentUnit = tdef->m_parentUnit;
 	type->m_parentNamespace = tdef->m_parentNamespace;
 	type->m_pos = tdef->m_pos;
@@ -638,7 +639,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 	type->m_name = tdef->m_name;
 	type->m_qualifiedName = tdef->m_qualifiedName;
 	type->m_attributeBlock = tdef->m_attributeBlock;
-	type->m_signature.format("T%s", tdef->m_qualifiedName.sz());
 	type->m_typedef = tdef;
 	m_typeList.insertTail(type);
 
@@ -658,22 +658,14 @@ TypeMgr::createEnumType(
 		(flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
 
 	EnumType* type = AXL_MEM_NEW(EnumType);
+	type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz());
+	type->m_name = name;
+	type->m_qualifiedName = qualifiedName;
+	type->m_flags |= TypeFlag_Named;
 
-	if (name.isEmpty())
-	{
-		m_unnamedTypeCounter++;
-		type->m_signature.format("%s%d", signaturePrefix, m_unnamedTypeCounter);
-		type->m_qualifiedName.format(".UnnamedEnum%d", m_unnamedTypeCounter);
-	}
-	else
-	{
-		type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz());
-		type->m_name = name;
-		type->m_qualifiedName = qualifiedName;
-		type->m_flags |= TypeFlag_Named;
-
-		type->addItem(type);
-	}
+#ifdef _JNC_NAMED_TYPE_ADD_SELF
+	type->addItem(type);
+#endif
 
 	if (!baseType)
 		baseType = getPrimitiveType(TypeKind_Int);
@@ -699,24 +691,14 @@ TypeMgr::createStructType(
 	)
 {
 	StructType* type = AXL_MEM_NEW(StructType);
-
-	if (name.isEmpty())
-	{
-		m_unnamedTypeCounter++;
-		type->m_signature.format("S%d", m_unnamedTypeCounter);
-		type->m_qualifiedName.format(".UnnamedStruct%d", m_unnamedTypeCounter);
-	}
-	else
-	{
-		type->m_signature.format("S%s", qualifiedName.sz());
-		type->m_name = name;
-		type->m_qualifiedName = qualifiedName;
-		type->m_flags |= TypeFlag_Named;
+	type->m_signature.format("S%s", qualifiedName.sz());
+	type->m_name = name;
+	type->m_qualifiedName = qualifiedName;
+	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-		type->addItem(type);
+	type->addItem(type);
 #endif
-	}
 
 	type->m_module = m_module;
 	type->m_fieldAlignment = fieldAlignment;
@@ -735,24 +717,14 @@ TypeMgr::createUnionType(
 	)
 {
 	UnionType* type = AXL_MEM_NEW(UnionType);
-
-	if (name.isEmpty())
-	{
-		m_unnamedTypeCounter++;
-		type->m_signature.format("U%d", m_unnamedTypeCounter);
-		type->m_qualifiedName.format(".UnamedUnion%d", m_unnamedTypeCounter);
-	}
-	else
-	{
-		type->m_signature.format("U%s", qualifiedName.sz());
-		type->m_name = name;
-		type->m_qualifiedName = qualifiedName;
-		type->m_flags |= TypeFlag_Named;
+	type->m_signature.format("U%s", qualifiedName.sz());
+	type->m_name = name;
+	type->m_qualifiedName = qualifiedName;
+	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-		type->addItem(type);
+	type->addItem(type);
 #endif
-	}
 
 	m_module->markForLayout(type, true); // before child struct
 
@@ -765,7 +737,7 @@ TypeMgr::createUnionType(
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 		unionStructType->m_fieldAlignment = fieldAlignment;
-		unionStructType->m_qualifiedName.format("%s.Struct", type->m_qualifiedName.sz());
+		unionStructType->m_qualifiedName = type->createQualifiedName("Struct");
 
 		type->m_structType = unionStructType;
 	}
@@ -818,36 +790,27 @@ TypeMgr::createClassType(
 
 	m_typeList.insertTail(type);
 
-	if (name.isEmpty())
-	{
-		m_unnamedTypeCounter++;
-		type->m_signature.format("CC%d", m_unnamedTypeCounter);
-		type->m_qualifiedName.format(".UnnamedClass%d", m_unnamedTypeCounter);
-	}
-	else
-	{
-		type->m_signature.format("CC%s", qualifiedName.sz());
-		type->m_name = name;
-		type->m_qualifiedName = qualifiedName;
-		type->m_flags |= TypeFlag_Named;
+	type->m_signature.format("CC%s", qualifiedName.sz());
+	type->m_name = name;
+	type->m_qualifiedName = qualifiedName;
+	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-		type->addItem(type);
+	type->addItem(type);
 #endif
-	}
 
 	m_module->markForLayout(type, true); // before child structs
 
 	StructType* ifaceStructType = createUnnamedStructType(fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
-	ifaceStructType->m_qualifiedName.format("%s.Iface", type->m_qualifiedName.sz());
+	ifaceStructType->m_qualifiedName = type->createQualifiedName("Iface");
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 	ifaceStructType->m_fieldAlignment = fieldAlignment;
 
 	StructType* classStructType = createUnnamedStructType(fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
-	classStructType->m_qualifiedName.format("%s.Class", type->m_qualifiedName.sz());
+	classStructType->m_qualifiedName = type->createQualifiedName("Class");
 	classStructType->m_parentNamespace = type;
 	classStructType->createField("!m_box", getStdType (StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
@@ -1694,7 +1657,7 @@ TypeMgr::getPropertyClosureClassType(
 	Property* thunkProperty = m_module->m_functionMgr.createProperty(
 		PropertyKind_Internal,
 		sl::String(),
-		type->m_qualifiedName + ".m_thunkProperty"
+		type->createQualifiedName("m_thunkProperty")
 		);
 
 	type->addProperty(thunkProperty);
@@ -1734,7 +1697,7 @@ TypeMgr::getDataClosureClassType(
 	Property* thunkProperty = m_module->m_functionMgr.createProperty(
 		PropertyKind_Internal,
 		sl::String(),
-		type->m_qualifiedName + ".m_thunkProperty"
+		type->createQualifiedName("m_thunkProperty")
 		);
 
 	type->addProperty(thunkProperty);

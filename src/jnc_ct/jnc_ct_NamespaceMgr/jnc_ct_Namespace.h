@@ -89,7 +89,7 @@ public:
 	bool
 	isFriend(Namespace* nspace)
 	{
-		return m_friendSet.find(nspace->m_qualifiedName) != NULL;
+		return m_friendSet.find(nspace->getQualifiedName()) != NULL;
 	}
 
 	ModuleItem*

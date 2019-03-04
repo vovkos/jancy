@@ -43,8 +43,7 @@ Unit::setConstructor(Function* function)
 
 	function->m_functionKind = FunctionKind_StaticConstructor;
 	function->m_storageKind = StorageKind_Static;
-	function->m_name = "construct";
-	function->m_qualifiedName = "module.construct";
+	function->m_qualifiedName = "unit.construct";
 	m_constructor = function;
 	return true;
 }
@@ -62,8 +61,7 @@ Unit::setDestructor(Function* function)
 
 	function->m_functionKind = FunctionKind_StaticDestructor;
 	function->m_storageKind = StorageKind_Static;
-	function->m_name = "destruct";
-	function->m_qualifiedName = "module.destruct";
+	function->m_qualifiedName = "unit.destruct";
 	m_destructor = function;
 	return true;
 }

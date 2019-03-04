@@ -76,7 +76,7 @@ ReactorClassType::setBody(sl::BoxList<Token>* tokenList)
 {
 	if (!m_body.isEmpty())
 	{
-		err::setFormatStringError("'%s' already has a body", m_qualifiedName.sz());
+		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
 		return false;
 	}
 
@@ -92,7 +92,7 @@ ReactorClassType::calcLayout()
 
 	if (m_body.isEmpty())
 	{
-		err::setFormatStringError("reactor '%s' has no body", m_qualifiedName.sz());
+		err::setFormatStringError("reactor '%s' has no body", getQualifiedName().sz());
 		return false;
 	}
 

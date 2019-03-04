@@ -78,7 +78,7 @@ Variable::getLlvmValue()
 	Value ptrValue;
 	m_llvmValue = m_module->m_llvmIrBuilder.createAlloca(
 		m_type,
-		m_qualifiedName,
+		getQualifiedName(),
 		NULL,
 		&ptrValue
 		);

@@ -376,8 +376,8 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 				continue;
 
 			if (nspace == targetNamespace ||
-				targetNamespace->m_qualifiedName.cmp(nspace->m_qualifiedName) == 0 ||
-				targetNamespace->m_friendSet.find(nspace->m_qualifiedName))
+				targetNamespace->getQualifiedName().cmp(nspace->getQualifiedName()) == 0 ||
+				targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
 				return AccessKind_Protected;
 		}
 
@@ -392,8 +392,8 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 			continue;
 
 		if (nspace == targetNamespace ||
-			targetNamespace->m_qualifiedName.cmp(nspace->m_qualifiedName) == 0 ||
-			targetNamespace->m_friendSet.find(nspace->m_qualifiedName))
+			targetNamespace->getQualifiedName().cmp(nspace->getQualifiedName()) == 0 ||
+			targetNamespace->m_friendSet.find(nspace->getQualifiedName()))
 			return AccessKind_Protected;
 
 		if (nspace->m_namespaceKind == NamespaceKind_Type)
@@ -424,7 +424,6 @@ NamespaceMgr::createGlobalNamespace(
 	GlobalNamespace* nspace = AXL_MEM_NEW(GlobalNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
-	nspace->m_qualifiedName = parentNamespace->createQualifiedName(name);
 	nspace->m_parentNamespace = parentNamespace;
 	m_globalNamespaceList.insertTail(nspace);
 	return nspace;
@@ -443,7 +442,6 @@ NamespaceMgr::createExtensionNamespace(
 	ExtensionNamespace* nspace = AXL_MEM_NEW(ExtensionNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
-	nspace->m_qualifiedName = parentNamespace->createQualifiedName(name);
 	nspace->m_parentNamespace = parentNamespace;
 	nspace->m_type = (DerivableType*)type; // force-cast
 	m_extensionNamespaceList.insertTail(nspace);
@@ -469,7 +467,6 @@ NamespaceMgr::createDynamicLibNamespace(ClassType* dynamicLibType)
 	DynamicLibNamespace* nspace = AXL_MEM_NEW(DynamicLibNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = "lib";
-	nspace->m_qualifiedName = dynamicLibType->getQualifiedName() + ".lib";
 	nspace->m_parentNamespace = dynamicLibType;
 	nspace->m_dynamicLibType = dynamicLibType;
 	m_dynamicLibNamespaceList.insertTail(nspace);

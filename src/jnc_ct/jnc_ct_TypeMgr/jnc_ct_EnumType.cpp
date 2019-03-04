@@ -101,7 +101,6 @@ EnumType::createConst(
 	enumConst->m_parentUnit = m_parentUnit;
 	enumConst->m_parentEnumType = this;
 	enumConst->m_name = name;
-	enumConst->m_qualifiedName = m_name.isEmpty() ? name : m_qualifiedName + "." + name;
 
 	if (initializer)
 		sl::takeOver(&enumConst->m_initializer, initializer);

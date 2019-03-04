@@ -233,7 +233,7 @@ VariableMgr::initializeVariable(Variable* variable)
 	{
 		err::setFormatStringError(
 			"'%s' uses dynamic type '%s'",
-			variable->m_qualifiedName.sz(),
+			variable->getQualifiedName().sz(),
 			variable->m_type->getTypeString().sz()
 			);
 
@@ -446,7 +446,7 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 3)
 		);
 
-	sl::String boxName = variable->m_qualifiedName + ".box";
+	sl::String boxName = variable->getQualifiedName() + ".box";
 
 	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -480,7 +480,7 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
 		);
 
-	sl::String validatorName = variable->m_qualifiedName + ".validator";
+	sl::String validatorName = variable->getQualifiedName() + ".validator";
 
 	llvm::GlobalVariable* llvmValidatorVariable = new llvm::GlobalVariable(
 		*m_module->getLlvmModule(),
@@ -668,7 +668,7 @@ VariableMgr::allocateInitializeGlobalVariables()
 		Variable* variable = m_globalStaticVariableArray[i];
 		ASSERT(!variable->m_llvmValue);
 
-		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->m_qualifiedName);
+		variable->m_llvmGlobalVariable = createLlvmGlobalVariable(variable->m_type, variable->getQualifiedName());
 		variable->m_llvmValue = variable->m_llvmGlobalVariable;
 
 		if (variable->m_type->getFlags() & TypeFlag_GcRoot)
