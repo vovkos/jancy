@@ -303,39 +303,6 @@ Type::getDoxyLinkedTextSuffix()
 	return tuple->m_doxyLinkedTextSuffix;
 }
 
-llvm::Type*
-Type::getLlvmType()
-{
-	if (m_llvmType)
-		return m_llvmType;
-
-	prepareLlvmType();
-
-	ASSERT(m_llvmType);
-	return m_llvmType;
-}
-
-llvm::DIType_vn
-Type::getLlvmDiType()
-{
-	if (m_llvmDiType)
-		return m_llvmDiType;
-
-	if (m_typeKind == TypeKind_Void)
-	{
-#if (LLVM_VERSION < 0x0309)
-		return llvm::DIType_vn();
-#else
-		return NULL;
-#endif
-	}
-
-	prepareLlvmDiType();
-
-	ASSERT(m_llvmDiType);
-	return m_llvmDiType;
-}
-
 Value
 Type::getUndefValue()
 {
@@ -449,7 +416,7 @@ Type::prepareDoxyTypeString()
 void
 Type::prepareLlvmType()
 {
-	ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
+	ASSERT(!m_llvmType && m_typeKind < TypeKind__PrimitiveTypeCount);
 
 	switch(m_typeKind)
 	{
@@ -507,7 +474,7 @@ Type::prepareLlvmType()
 void
 Type::prepareLlvmDiType()
 {
-	ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
+	ASSERT(m_typeKind && m_typeKind < TypeKind__PrimitiveTypeCount);
 
 	if (m_typeKind == TypeKind_Variant)
 	{

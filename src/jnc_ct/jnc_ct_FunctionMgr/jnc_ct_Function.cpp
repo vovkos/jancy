@@ -82,11 +82,10 @@ Function::addUsingSet(UsingSet* usingSet)
 	m_usingSet.append(importNamespaceMgr, usingSet);
 }
 
-llvm::Function*
-Function::getLlvmFunction()
+void
+Function::prepareLlvmFunction()
 {
-	if (m_llvmFunction)
-		return m_llvmFunction;
+	ASSERT(!m_llvmFunction);
 
 	sl::String llvmName;
 	if (m_module->getCompileFlags() & ModuleCompileFlag_McJit)
@@ -100,17 +99,13 @@ Function::getLlvmFunction()
 	}
 
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
-	return m_llvmFunction;
 }
 
-llvm::DISubprogram_vn
-Function::getLlvmDiSubprogram()
+void
+Function::prepareLlvmDiSubprogram()
 {
-	if (m_llvmDiSubprogram)
-		return m_llvmDiSubprogram;
-
+	ASSERT(!m_llvmDiSubprogram);
 	m_llvmDiSubprogram = m_module->m_llvmDiBuilder.createFunction(this);
-	return m_llvmDiSubprogram;
 }
 
 void

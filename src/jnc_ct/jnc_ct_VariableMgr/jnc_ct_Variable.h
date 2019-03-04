@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_ModuleItem.h"
+#include "jnc_ct_Type.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
@@ -102,10 +102,16 @@ public:
 	}
 
 	void*
-	getStaticData();
+	getStaticData()
+	{
+		return m_staticData ? m_staticData : prepareStaticData(), m_staticData;
+	}
 
 	LeanDataPtrValidator*
-	getLeanDataPtrValidator();
+	getLeanDataPtrValidator()
+	{
+		return m_leanDataPtrValidator ? m_leanDataPtrValidator : prepareLeanDataPtrValidator(), m_leanDataPtrValidator;
+	}
 
 	llvm::GlobalVariable*
 	getLlvmGlobalVariable()
@@ -114,7 +120,10 @@ public:
 	}
 
 	llvm::Value*
-	getLlvmValue();
+	getLlvmValue()
+	{
+		return m_llvmValue ? m_llvmValue : prepareLlvmValue(), m_llvmValue;
+	}
 
 	llvm::DIVariable_vn
 	getLlvmDiDescriptor()
@@ -123,7 +132,13 @@ public:
 	}
 
 	bool
-	isInitializationNeeded();
+	isInitializationNeeded()
+	{
+		return
+			!m_constructor.isEmpty() ||
+			!m_initializer.isEmpty() ||
+			m_type->getTypeKind() == TypeKind_Class; // static class variable
+	}
 
 	virtual
 	bool
@@ -132,6 +147,16 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
+
+protected:
+	void
+	prepareLlvmValue();
+
+	void
+	prepareLeanDataPtrValidator();
+
+	void
+	prepareStaticData();
 };
 
 //..............................................................................

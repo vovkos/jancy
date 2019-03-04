@@ -316,7 +316,10 @@ public:
 	}
 
 	llvm::Value*
-	getLlvmValue() const;
+	getLlvmValue() const
+	{
+		return m_llvmValue ? m_llvmValue : prepareLlvmValue(), m_llvmValue;
+	}
 
 	sl::String
 	getLlvmTypeString() const
@@ -638,6 +641,13 @@ public:
 protected:
 	void
 	init();
+
+	void
+	prepareLlvmValue() const
+	{
+		ASSERT(!m_llvmValue && m_valueKind == ValueKind_Const);
+		m_llvmValue = getLlvmConst(m_type, getConstData()); // mutable
+	}
 };
 
 //..............................................................................

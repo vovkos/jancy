@@ -299,10 +299,16 @@ public:
 	}
 
 	llvm::Function*
-	getLlvmFunction();
+	getLlvmFunction()
+	{
+		return m_llvmFunction ? m_llvmFunction : prepareLlvmFunction(), m_llvmFunction;
+	}
 
 	llvm::DISubprogram_vn
-	getLlvmDiSubprogram();
+	getLlvmDiSubprogram()
+	{
+		return m_llvmDiSubprogram ? m_llvmDiSubprogram : prepareLlvmDiSubprogram(), m_llvmDiSubprogram;
+	}
 
 	void*
 	getMachineCode()
@@ -431,6 +437,12 @@ public:
 		);
 
 protected:
+	void
+	prepareLlvmFunction();
+
+	void
+	prepareLlvmDiSubprogram();
+
 	bool
 	compileConstructorBody();
 

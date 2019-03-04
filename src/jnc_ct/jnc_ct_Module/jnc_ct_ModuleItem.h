@@ -128,7 +128,10 @@ public:
 	}
 
 	const sl::String&
-	getQualifiedName();
+	getQualifiedName()
+	{
+		return !m_qualifiedName.isEmpty() ? m_qualifiedName : prepareQualifiedName(), m_qualifiedName;
+	}
 
 	Namespace*
 	getParentNamespace()
@@ -146,6 +149,9 @@ public:
 	pushSrcPosError();
 
 protected:
+	void
+	prepareQualifiedName();
+
 	sl::String
 	getDoxyLocationString();
 };

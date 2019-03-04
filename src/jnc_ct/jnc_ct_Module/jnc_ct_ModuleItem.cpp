@@ -27,13 +27,11 @@ ModuleItemDecl::ModuleItemDecl()
 	m_doxyBlock = NULL;
 }
 
-const sl::String&
-ModuleItemDecl::getQualifiedName()
+void
+ModuleItemDecl::prepareQualifiedName()
 {
-	if (m_qualifiedName.isEmpty())
-		m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
-
-	return m_qualifiedName;
+	ASSERT(m_qualifiedName.isEmpty());
+	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
 }
 
 void

@@ -32,44 +32,10 @@ Variable::Variable()
 	m_llvmPreLiftValue = NULL;
 }
 
-LeanDataPtrValidator*
-Variable::getLeanDataPtrValidator()
+void
+Variable::prepareLlvmValue()
 {
-	if (m_leanDataPtrValidator)
-		return m_leanDataPtrValidator;
-
-	Value originValue(this);
-	m_leanDataPtrValidator = AXL_REF_NEW(LeanDataPtrValidator);
-	m_leanDataPtrValidator->m_originValue = originValue;
-	m_leanDataPtrValidator->m_rangeBeginValue = originValue;
-	m_leanDataPtrValidator->m_rangeLength = m_type->getSize();
-	return m_leanDataPtrValidator;
-}
-
-void*
-Variable::getStaticData()
-{
-	ASSERT(m_storageKind == StorageKind_Static);
-
-	if (m_staticData)
-		return m_staticData;
-
-	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
-
-	m_staticData = (m_module->getCompileFlags() & ModuleCompileFlag_McJit) ?
-		(void*)llvmExecutionEngine->getGlobalValueAddress(m_llvmGlobalVariable->getName()) :
-		(void*)llvmExecutionEngine->getPointerToGlobal(m_llvmGlobalVariable);
-
-	return m_staticData;
-}
-
-llvm::Value*
-Variable::getLlvmValue()
-{
-	if (m_llvmValue)
-		return m_llvmValue;
-
-	ASSERT(m_storageKind == StorageKind_Tls);
+	ASSERT(!m_llvmValue && m_storageKind == StorageKind_Tls);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
@@ -85,16 +51,30 @@ Variable::getLlvmValue()
 
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
 	function->addTlsVariable(this);
-	return m_llvmValue;
 }
 
-bool
-Variable::isInitializationNeeded()
+void
+Variable::prepareLeanDataPtrValidator()
 {
-	return
-		!m_constructor.isEmpty() ||
-		!m_initializer.isEmpty() ||
-		m_type->getTypeKind() == TypeKind_Class; // static class variable
+	ASSERT(!m_leanDataPtrValidator);
+
+	Value originValue(this);
+	m_leanDataPtrValidator = AXL_REF_NEW(LeanDataPtrValidator);
+	m_leanDataPtrValidator->m_originValue = originValue;
+	m_leanDataPtrValidator->m_rangeBeginValue = originValue;
+	m_leanDataPtrValidator->m_rangeLength = m_type->getSize();
+}
+
+void
+Variable::prepareStaticData()
+{
+	ASSERT(!m_staticData && m_storageKind == StorageKind_Static);
+
+	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
+
+	m_staticData = (m_module->getCompileFlags() & ModuleCompileFlag_McJit) ?
+		(void*)llvmExecutionEngine->getGlobalValueAddress(m_llvmGlobalVariable->getName()) :
+		(void*)llvmExecutionEngine->getPointerToGlobal(m_llvmGlobalVariable);
 }
 
 bool

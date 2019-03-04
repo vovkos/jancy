@@ -119,18 +119,6 @@ Value::clear()
 	m_leanDataPtrValidator = ref::g_nullPtr;
 }
 
-llvm::Value*
-Value::getLlvmValue() const
-{
-	if (m_llvmValue)
-		return m_llvmValue;
-
-	ASSERT(m_valueKind == ValueKind_Const);
-
-	m_llvmValue = getLlvmConst(m_type, getConstData());
-	return m_llvmValue;
-}
-
 llvm::Constant*
 getLlvmPtrConst(
 	Type* type,

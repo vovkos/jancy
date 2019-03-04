@@ -264,10 +264,16 @@ public:
 	}
 
 	llvm::Type*
-	getLlvmType();
+	getLlvmType()
+	{
+		return m_llvmType ? m_llvmType : prepareLlvmType(), m_llvmType;
+	}
 
 	llvm::DIType_vn
-	getLlvmDiType();
+	getLlvmDiType()
+	{
+		return m_llvmDiType || !m_typeKind ? m_llvmDiType : prepareLlvmDiType(), m_llvmDiType;
+	}
 
 	Value
 	getUndefValue();
