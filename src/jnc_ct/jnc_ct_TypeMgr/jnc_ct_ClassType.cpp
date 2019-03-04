@@ -586,7 +586,7 @@ ClassType::overrideVirtualFunction(Function* function)
 
 	MemberCoord coord;
 	ModuleItem* member = findItemTraverse(
-		function->m_declaratorName,
+		function->m_name,
 		&coord,
 		TraverseKind_NoExtensionNamespaces |
 		TraverseKind_NoParentNamespace |

@@ -32,7 +32,7 @@ class Scope;
 
 //..............................................................................
 
-// shared between CFunction and COrphan
+// shared between Function and Orphan
 
 class FunctionName
 {
@@ -49,7 +49,6 @@ protected:
 		Function* m_asyncLauncher;
 	};
 
-	QualifiedName m_declaratorName;
 	uint_t m_thisArgTypeFlags;
 
 public:
@@ -91,12 +90,6 @@ public:
 	{
 		ASSERT(m_functionKind == FunctionKind_Async);
 		return m_asyncLauncher;
-	}
-
-	const QualifiedName*
-	getDeclaratorName()
-	{
-		return &m_declaratorName;
 	}
 
 	uint_t

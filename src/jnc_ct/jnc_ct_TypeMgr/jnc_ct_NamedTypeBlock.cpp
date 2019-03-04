@@ -71,7 +71,6 @@ NamedTypeBlock::createMethod(
 		);
 
 	function->m_storageKind = storageKind;
-	function->m_declaratorName = name;
 
 	bool result = addMethod(function);
 	if (!result)

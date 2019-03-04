@@ -39,6 +39,7 @@ class Orphan:
 
 protected:
 	OrphanKind m_orphanKind;
+	QualifiedName m_declaratorName;
 	FunctionType* m_functionType;
 	sl::BoxList<Token> m_body;
 	UsingSet m_usingSet;
@@ -50,6 +51,12 @@ public:
 	getOrphanKind()
 	{
 		return m_orphanKind;
+	}
+
+	const QualifiedName*
+	getDeclaratorName()
+	{
+		return &m_declaratorName;
 	}
 
 	FunctionType*

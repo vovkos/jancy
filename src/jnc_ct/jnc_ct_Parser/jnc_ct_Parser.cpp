@@ -857,6 +857,8 @@ Parser::declareFunction(
 	{
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, type);
 		orphan->m_functionKind = functionKind;
+		orphan->m_declaratorName = *declarator->getName();
+
 		functionItem = orphan;
 		functionItemDecl = orphan;
 		functionName = orphan;
@@ -874,8 +876,6 @@ Parser::declareFunction(
 			m_module->markForCompile(function);
 		}
 	}
-
-	functionName->m_declaratorName = *declarator->getName();
 
 	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
 
