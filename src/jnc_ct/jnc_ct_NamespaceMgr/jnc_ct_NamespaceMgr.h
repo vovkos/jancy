@@ -11,7 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_Namespace.h"
+#include "jnc_ct_GlobalNamespace.h"
+#include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_Scope.h"
 #include "jnc_ct_Orphan.h"
 #include "jnc_ct_Alias.h"

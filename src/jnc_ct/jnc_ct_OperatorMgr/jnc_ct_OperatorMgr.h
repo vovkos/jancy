@@ -44,6 +44,7 @@ namespace jnc {
 namespace ct {
 
 class Module;
+class DynamicLibNamespace;
 
 //..............................................................................
 

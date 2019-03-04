@@ -19,12 +19,8 @@
 namespace jnc {
 namespace ct {
 
-class Namespace;
-class GlobalNamespace;
-class ExtensionNamespace;
 class DerivableType;
 class EnumType;
-class EnumConst;
 class Const;
 class MemberCoord;
 class Value;
@@ -271,97 +267,6 @@ protected:
 		sl::String* indexXml,
 		bool useSectionDef
 		);
-};
-
-//..............................................................................
-
-class GlobalNamespace:
-	public ModuleItem,
-	public Namespace
-{
-	friend class NamespaceMgr;
-
-public:
-	GlobalNamespace()
-	{
-		m_itemKind = ModuleItemKind_Namespace;
-		m_namespaceKind = NamespaceKind_Global;
-	}
-
-	virtual
-	sl::String
-	createDoxyRefId();
-
-	virtual
-	bool
-	generateDocumentation(
-		const sl::StringRef& outputDir,
-		sl::String* itemXml,
-		sl::String* indexXml
-		);
-};
-
-//..............................................................................
-
-class ExtensionNamespace: public GlobalNamespace
-{
-	friend class NamespaceMgr;
-
-protected:
-	Type* m_type;
-	sl::Array<Function*> m_fixupMethodArray;
-	sl::Array<Property*> m_fixupPropertyArray;
-
-public:
-	ExtensionNamespace()
-	{
-		m_namespaceKind = NamespaceKind_Extension;
-		m_type = NULL;
-	}
-
-	Type* getType()
-	{
-		return m_type;
-	}
-
-	bool
-	addMethod(Function* function);
-
-	bool
-	addProperty(Property* prop);
-
-protected:
-	virtual
-	bool
-	calcLayout();
-
-	void
-	fixupMethod(Function* function);
-
-	void
-	fixupProperty(Property* prop);
-};
-
-//..............................................................................
-
-class DynamicLibNamespace: public GlobalNamespace
-{
-	friend class NamespaceMgr;
-
-protected:
-	ClassType* m_dynamicLibType;
-
-public:
-	DynamicLibNamespace()
-	{
-		m_namespaceKind = NamespaceKind_DynamicLib;
-		m_dynamicLibType = NULL;
-	}
-
-	ClassType* getLibraryType()
-	{
-		return m_dynamicLibType;
-	}
 };
 
 //..............................................................................
