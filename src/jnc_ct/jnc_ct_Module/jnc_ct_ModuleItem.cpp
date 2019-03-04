@@ -30,11 +30,8 @@ ModuleItemDecl::ModuleItemDecl()
 const sl::String&
 ModuleItemDecl::getQualifiedName()
 {
-	if (!m_qualifiedName.isEmpty())
-		return m_qualifiedName;
-
-	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
-	ASSERT(!m_qualifiedName.isEmpty());
+	if (m_qualifiedName.isEmpty())
+		m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
 
 	return m_qualifiedName;
 }
