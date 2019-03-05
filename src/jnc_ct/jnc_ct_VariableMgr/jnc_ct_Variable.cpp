@@ -92,7 +92,7 @@ Variable::generateDocumentation(
 	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
 		itemXml->append(" static='yes'");
@@ -110,7 +110,7 @@ Variable::generateDocumentation(
 		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 
 	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz());
+		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString().sz());
 
 	itemXml->append(doxyBlock->getImportString());
 	itemXml->append(doxyBlock->getDescriptionString());

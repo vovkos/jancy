@@ -99,7 +99,7 @@ CLlvmIrPane::Build(jnc::CModule* pModule)
 				{
 					pInst->setMetadata(CommentMdKind, pMdComment); // restore
 					llvm::MDString* pMdString = (llvm::MDString*)pMdComment->getOperand(0);
-					m_LogCtrl.Trace("\r\n; %s\r\n", pMdString->getString ().data ());
+					m_LogCtrl.Trace("\r\n; %s\r\n", pMdString->getString().data ());
 				}
 			}
 		}

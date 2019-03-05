@@ -42,7 +42,7 @@ OperatorMgr::traceBlock(BasicBlock* block)
 	llvm::BasicBlock::iterator it = llvmBlock->begin();
 
 	m_module->m_llvmIrBuilder.setInsertPoint(&*it);
-	m_module->m_operatorMgr.callTraceFunction("print_u", block->getName () + "\n------------\n");
+	m_module->m_operatorMgr.callTraceFunction("print_u", block->getName() + "\n------------\n");
 
 	for (; it != llvmBlock->end() && !it->isTerminator(); it++)
 	{

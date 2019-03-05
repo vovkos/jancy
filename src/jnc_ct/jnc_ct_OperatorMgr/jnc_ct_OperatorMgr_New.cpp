@@ -166,7 +166,7 @@ OperatorMgr::construct(
 	if (constructor->getAccessKind() != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind(derivableType) == AccessKind_Public)
 	{
-		err::setFormatStringError("'%s.construct' is protected", derivableType->getQualifiedName ().sz());
+		err::setFormatStringError("'%s.construct' is protected", derivableType->getQualifiedName().sz());
 		return false;
 	}
 

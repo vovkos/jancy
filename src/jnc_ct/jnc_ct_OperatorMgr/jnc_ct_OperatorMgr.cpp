@@ -358,7 +358,7 @@ OperatorMgr::binaryOperator(
 			if (opValue1.getType()->getTypeKind() == TypeKind_ClassPtr &&
 				(opValue1.getType()->getFlags() & PtrTypeFlag_Event))
 			{
-				err::setFormatStringError("'%s' is inaccessible via 'event' pointer", getBinOpKindString (function->getBinOpKind ()));
+				err::setFormatStringError("'%s' is inaccessible via 'event' pointer", getBinOpKindString(function->getBinOpKind ()));
 				return false;
 			}
 		}

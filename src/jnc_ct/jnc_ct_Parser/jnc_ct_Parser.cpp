@@ -221,7 +221,7 @@ Parser::setSetAsType(Type* type)
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	if (nspace->getNamespaceKind() != NamespaceKind_Type)
 	{
-		err::setFormatStringError("invalid setas in '%s'", nspace->getQualifiedName ().sz());
+		err::setFormatStringError("invalid setas in '%s'", nspace->getQualifiedName().sz());
 		return false;
 	}
 
@@ -326,7 +326,7 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 		return orphan->setBody(tokenList);
 
 	default:
-		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString (m_lastDeclaredItem->getItemKind ()));
+		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
 		return false;
 	}
 
@@ -441,7 +441,7 @@ Parser::openGlobalNamespace(
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	if (currentNamespace->getNamespaceKind() != NamespaceKind_Global)
 	{
-		err::setFormatStringError("cannot open global namespace in '%s'", getNamespaceKindString (currentNamespace->getNamespaceKind ()));
+		err::setFormatStringError("cannot open global namespace in '%s'", getNamespaceKindString(currentNamespace->getNamespaceKind ()));
 		return NULL;
 	}
 
@@ -451,7 +451,7 @@ Parser::openGlobalNamespace(
 
 	if (nspace->getFlags() & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("cannot extend sealed namespace '%s'", nspace->getQualifiedName ().sz());
+		err::setFormatStringError("cannot extend sealed namespace '%s'", nspace->getQualifiedName().sz());
 		return NULL;
 	}
 
@@ -610,7 +610,7 @@ Parser::declare(Declarator* declarator)
 
 	if (postModifiers != 0 && typeKind != TypeKind_Function)
 	{
-		err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
+		err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
 		return false;
 	}
 
@@ -810,13 +810,13 @@ Parser::declareFunction(
 
 	if ((functionKindFlags & FunctionKindFlag_NoStorage) && m_storageKind)
 	{
-		err::setFormatStringError("'%s' cannot have storage specifier", getFunctionKindString (functionKind));
+		err::setFormatStringError("'%s' cannot have storage specifier", getFunctionKindString(functionKind));
 		return false;
 	}
 
 	if ((functionKindFlags & FunctionKindFlag_NoArgs) && hasArgs)
 	{
-		err::setFormatStringError("'%s' cannot have arguments", getFunctionKindString (functionKind));
+		err::setFormatStringError("'%s' cannot have arguments", getFunctionKindString(functionKind));
 		return false;
 	}
 
@@ -831,13 +831,13 @@ Parser::declareFunction(
 	{
 		if (m_storageKind)
 		{
-			err::setFormatStringError("invalid storage '%s' in property template", getStorageKindString (m_storageKind));
+			err::setFormatStringError("invalid storage '%s' in property template", getStorageKindString(m_storageKind));
 			return false;
 		}
 
 		if (postModifiers)
 		{
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
+			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
 			return false;
 		}
 
@@ -928,7 +928,7 @@ Parser::declareFunction(
 	{
 		if (namespaceKind == NamespaceKind_DynamicLib)
 		{
-			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName ().sz());
+			err::setFormatStringError("illegal orphan in dynamiclib '%s'", nspace->getQualifiedName().sz());
 			return false;
 		}
 
@@ -974,13 +974,13 @@ Parser::declareFunction(
 	default:
 		if (postModifiers)
 		{
-			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString (postModifiers).sz());
+			err::setFormatStringError("unused post-declarator modifier '%s'", getPostDeclaratorModifierString(postModifiers).sz());
 			return false;
 		}
 
 		if (m_storageKind && m_storageKind != StorageKind_Static)
 		{
-			err::setFormatStringError("invalid storage specifier '%s' for a global function", getStorageKindString (m_storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for a global function", getStorageKindString(m_storageKind));
 			return false;
 		}
 	}
@@ -1134,7 +1134,7 @@ Parser::createProperty(Declarator* declarator)
 	default:
 		if (m_storageKind && m_storageKind != StorageKind_Static)
 		{
-			err::setFormatStringError("invalid storage specifier '%s' for a global property", getStorageKindString (m_storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for a global property", getStorageKindString(m_storageKind));
 			return NULL;
 		}
 
@@ -1354,7 +1354,7 @@ Parser::declareData(
 	{
 	case NamespaceKind_PropertyTemplate:
 	case NamespaceKind_Extension:
-		err::setFormatStringError("'%s' cannot have data fields", getNamespaceKindString (namespaceKind));
+		err::setFormatStringError("'%s' cannot have data fields", getNamespaceKindString(namespaceKind));
 		return false;
 	}
 
@@ -1388,7 +1388,7 @@ Parser::declareData(
 
 	if (namespaceKind != NamespaceKind_Property && (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)))
 	{
-		err::setFormatStringError("'%s' can only be used on property field", getPtrTypeFlagString (ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).sz());
+		err::setFormatStringError("'%s' can only be used on property field", getPtrTypeFlagString(ptrTypeFlags & (PtrTypeFlag_AutoGet | PtrTypeFlag_Bindable)).sz());
 		return false;
 	}
 
@@ -1472,7 +1472,7 @@ Parser::declareData(
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for variable", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for variable", getStorageKindString(storageKind));
 		return false;
 	}
 
@@ -1694,7 +1694,7 @@ Parser::createFormalArg(
 
 	if (m_storageKind)
 	{
-		err::setFormatStringError("invalid storage '%s' for argument", getStorageKindString (m_storageKind));
+		err::setFormatStringError("invalid storage '%s' for argument", getStorageKindString(m_storageKind));
 		return NULL;
 	}
 
@@ -1730,7 +1730,7 @@ Parser::addEnumFlag(
 {
 	if (*flags & flag)
 	{
-		err::setFormatStringError("modifier '%s' used more than once", getEnumTypeFlagString (flag));
+		err::setFormatStringError("modifier '%s' used more than once", getEnumTypeFlagString(flag));
 		return false;
 	}
 
@@ -1958,7 +1958,7 @@ Parser::finalizeDynamicLibType()
 
 	if (!m_dynamicLibFunctionCount)
 	{
-		err::setFormatStringError("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName ().sz());
+		err::setFormatStringError("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName().sz());
 		return false;
 	}
 
@@ -2230,14 +2230,14 @@ Parser::callFieldConstructor(
 
 	if (field->getFlags() & ModuleItemFlag_Constructed)
 	{
-		err::setFormatStringError("'%s' is already constructed", field->getName ().sz());
+		err::setFormatStringError("'%s' is already constructed", field->getName().sz());
 		return false;
 	}
 
 	if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable) ||
 		!((DerivableType*)field->getType())->getConstructor())
 	{
-		err::setFormatStringError("'%s' has no constructor", field->getName ().sz());
+		err::setFormatStringError("'%s' has no constructor", field->getName().sz());
 		return false;
 	}
 

@@ -23,13 +23,13 @@ ExtensionNamespace::addMethod(Function* function)
 {
 	if (function->isVirtual())
 	{
-		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString (function->getStorageKind ()));
+		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(function->getStorageKind ()));
 		return false;
 	}
 
 	if (function->getFunctionKind() != FunctionKind_Normal)
 	{
-		err::setFormatStringError("'%s' cannot be a part of type extension", getFunctionKindString (function->getFunctionKind ()));
+		err::setFormatStringError("'%s' cannot be a part of type extension", getFunctionKindString(function->getFunctionKind ()));
 		return false;
 	}
 
@@ -50,7 +50,7 @@ ExtensionNamespace::addProperty(Property* prop)
 {
 	if (prop->isVirtual())
 	{
-		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString (prop->m_storageKind));
+		err::setFormatStringError("invalid storage '%s' in type extension", getStorageKindString(prop->m_storageKind));
 		return false;
 	}
 

@@ -153,7 +153,7 @@ ArrayType::calcLayoutImpl(
 			if (!dynamicStruct)
 				return false;
 
-			sl::String qualifiedName = sl::formatString (
+			sl::String qualifiedName = sl::formatString(
 				"%s.%s.getDynamicSize",
 				dynamicStruct->getQualifiedName().sz(),
 				dynamicField->getName().sz()

@@ -121,7 +121,7 @@ UsingSet::addNamespace(
 	GlobalNamespace* nspace = (GlobalNamespace*)item;
 	if (nspace->getNamespaceKind() != namespaceKind)
 	{
-		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString (namespaceKind));
+		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString(namespaceKind));
 		return false;
 	}
 
@@ -136,7 +136,7 @@ UsingSet::addNamespace(
 		break;
 
 	default:
-		err::setFormatStringError("invalid using: %s", getNamespaceKindString (namespaceKind));
+		err::setFormatStringError("invalid using: %s", getNamespaceKindString(namespaceKind));
 		return false;
 	}
 

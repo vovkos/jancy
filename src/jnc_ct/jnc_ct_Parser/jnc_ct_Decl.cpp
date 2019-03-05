@@ -123,7 +123,7 @@ TypeModifiers::addTypeModifier(TypeModifier modifier)
 
 	if (m_typeModifiers & modifier)
 	{
-		err::setFormatStringError("type modifier '%s' used more than once", getTypeModifierString (modifier));
+		err::setFormatStringError("type modifier '%s' used more than once", getTypeModifierString(modifier));
 		return false;
 	}
 
@@ -253,7 +253,7 @@ DeclFunctionSuffix::addFunctionTypeFlag(FunctionTypeFlag flag)
 {
 	if (m_functionTypeFlags & flag)
 	{
-		err::setFormatStringError("function modifier '%s' used more than once", getFunctionTypeFlagString (flag));
+		err::setFormatStringError("function modifier '%s' used more than once", getFunctionTypeFlagString(flag));
 		return false;
 	}
 
@@ -305,7 +305,7 @@ Declarator::addName(sl::String name)
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
 		return false;
 	}
 
@@ -320,7 +320,7 @@ Declarator::addUnnamedMethod(FunctionKind functionKind)
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
 		return false;
 	}
 
@@ -346,7 +346,7 @@ Declarator::addUnaryBinaryOperator(
 {
 	if (m_functionKind && m_functionKind != FunctionKind_Normal)
 	{
-		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString (m_functionKind));
+		err::setFormatStringError("cannot further qualify '%s' declarator", getFunctionKindString(m_functionKind));
 		return false;
 	}
 
@@ -368,7 +368,7 @@ Declarator::setPostDeclaratorModifier(PostDeclaratorModifier modifier)
 {
 	if (m_postDeclaratorModifiers & modifier)
 	{
-		err::setFormatStringError("type modifier '%s' used more than once", getPostDeclaratorModifierString (modifier));
+		err::setFormatStringError("type modifier '%s' used more than once", getPostDeclaratorModifierString(modifier));
 		return false;
 	}
 

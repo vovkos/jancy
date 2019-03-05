@@ -282,7 +282,7 @@ Function::compileAsyncLauncher()
 	sl::String promiseName = qualifiedName + "_Promise";
 	sl::String sequencerName = qualifiedName + "_sequencer";
 
-	ClassType* promiseType = m_module->m_typeMgr.createClassType(sl::String (), promiseName);
+	ClassType* promiseType = m_module->m_typeMgr.createClassType(sl::String(), promiseName);
 	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
 
 	sl::Array<Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray();
@@ -352,7 +352,7 @@ Function::generateDocumentation(
 	itemXml->format("<memberdef kind='function' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
 		itemXml->append(" static='yes'");
@@ -361,10 +361,10 @@ Function::generateDocumentation(
 		itemXml->append(" const='yes'");
 
 	if (isVirtual())
-		itemXml->appendFormat(" virt='%s'", getStorageKindString (m_storageKind));
+		itemXml->appendFormat(" virt='%s'", getStorageKindString(m_storageKind));
 
-	itemXml->appendFormat(">\n<functionkind>%s</functionkind>\n", getFunctionKindString (m_functionKind));
-	itemXml->appendFormat("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz() : getFunctionKindString (m_functionKind));
+	itemXml->appendFormat(">\n<functionkind>%s</functionkind>\n", getFunctionKindString(m_functionKind));
+	itemXml->appendFormat("<name>%s</name>\n", !m_name.isEmpty () ? m_name.sz() : getFunctionKindString(m_functionKind));
 
 	itemXml->append(m_type->getDoxyTypeString());
 	itemXml->append(doxyBlock->getImportString());

@@ -327,7 +327,7 @@ DeclTypeCalc::checkUnusedModifiers()
 {
 	if (m_typeModifiers)
 	{
-		err::setFormatStringError("unused modifier '%s'", getTypeModifierString (m_typeModifiers).sz());
+		err::setFormatStringError("unused modifier '%s'", getTypeModifierString(m_typeModifiers).sz());
 		return false;
 	}
 
@@ -564,7 +564,7 @@ DeclTypeCalc::getFunctionType(Type* returnType)
 
 		if (callConvFlags & CallConvFlag_NoVarArg)
 		{
-			err::setFormatStringError("vararg cannot be used with '%s'", callConv->getCallConvDisplayString ());
+			err::setFormatStringError("vararg cannot be used with '%s'", callConv->getCallConvDisplayString());
 			return NULL;
 		}
 

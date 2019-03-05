@@ -355,7 +355,7 @@ Property::addMethod(Function* function)
 		case StorageKind_Static:
 			if (thisArgTypeFlags)
 			{
-				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
+				err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 				return false;
 			}
 
@@ -397,7 +397,7 @@ Property::addMethod(Function* function)
 			break;
 
 		default:
-			err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 			return false;
 		}
 	}
@@ -413,13 +413,13 @@ Property::addMethod(Function* function)
 			break;
 
 		default:
-			err::setFormatStringError("invalid storage specifier '%s' for static property member", getStorageKindString (storageKind));
+			err::setFormatStringError("invalid storage specifier '%s' for static property member", getStorageKindString(storageKind));
 			return false;
 		}
 
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
+			err::setFormatStringError("global property methods cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -509,7 +509,7 @@ Property::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString (functionKind));
+	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 	if (!*target)
 	{
 		*target = function;
@@ -569,7 +569,7 @@ Property::addProperty(Property* prop)
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for property member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for property member", getStorageKindString(storageKind));
 		return false;
 	}
 
@@ -812,13 +812,13 @@ Property::generateDocumentation(
 	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
 		itemXml->append(" static='yes'");
 
 	if (isVirtual())
-		itemXml->appendFormat(" virt='%s'", getStorageKindString (m_storageKind));
+		itemXml->appendFormat(" virt='%s'", getStorageKindString(m_storageKind));
 
 	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 	itemXml->append(m_type->getDoxyTypeString());
@@ -832,7 +832,7 @@ Property::generateDocumentation(
 		modifierString.append(" autoset");
 
 	if (!modifierString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString ().sz());
+		itemXml->appendFormat("<modifiers>%s</modifiers>\n", modifierString.getTrimmedString().sz());
 
 	itemXml->append(doxyBlock->getImportString());
 	itemXml->append(doxyBlock->getDescriptionString());

@@ -239,7 +239,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 		break;
 
 	default:
-		err::setFormatStringError("invalid property accessor '%s' in property closure", getFunctionKindString (accessorKind));
+		err::setFormatStringError("invalid property accessor '%s' in property closure", getFunctionKindString(accessorKind));
 		return false;
 	}
 

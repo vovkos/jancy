@@ -64,7 +64,7 @@ ClassType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString().sz());
 		return NULL;
 	}
 
@@ -115,7 +115,7 @@ ClassType::addMethod(Function* function)
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -137,7 +137,7 @@ ClassType::addMethod(Function* function)
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 		return false;
 	}
 
@@ -233,7 +233,7 @@ ClassType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString (functionKind));
+	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 
 	if (!*target)
 	{

@@ -85,7 +85,7 @@ DerivableType::getFieldByIndex(size_t index)
 {
 	if (!m_baseTypeList.isEmpty())
 	{
-		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString ().sz());
+		err::setFormatStringError("'%s' has base types, cannot use indexed member operator", getTypeString().sz());
 		return NULL;
 	}
 
@@ -119,7 +119,7 @@ DerivableType::getDefaultConstructor()
 	m_defaultConstructor = m_constructor->chooseOverload(argList);
 	if (!m_defaultConstructor)
 	{
-		err::setFormatStringError("'%s' has no default constructor", getTypeString ().sz());
+		err::setFormatStringError("'%s' has no default constructor", getTypeString().sz());
 		return NULL;
 	}
 
@@ -176,7 +176,7 @@ DerivableType::chooseIndexerProperty(const Value& opValue)
 
 	if (!bestProperty)
 	{
-		err::setFormatStringError("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount ());
+		err::setFormatStringError("none of the %d indexer properties accept the specified index argument", m_indexerPropertyMap.getCount());
 		return NULL;
 	}
 
@@ -240,7 +240,7 @@ DerivableType::addMethod(Function* function)
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
 		{
-			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString (thisArgTypeFlags).sz());
+			err::setFormatStringError("static method cannot be '%s'", getPtrTypeFlagString(thisArgTypeFlags).sz());
 			return false;
 		}
 
@@ -255,7 +255,7 @@ DerivableType::addMethod(Function* function)
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 		return false;
 	}
 
@@ -352,7 +352,7 @@ DerivableType::addMethod(Function* function)
 		return false;
 	}
 
-	function->m_qualifiedName = createQualifiedName(getFunctionKindString (functionKind));
+	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
 
 	if (!*target)
 	{
@@ -402,7 +402,7 @@ DerivableType::addProperty(Property* prop)
 		break;
 
 	default:
-		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString (storageKind));
+		err::setFormatStringError("invalid storage specifier '%s' for method member", getStorageKindString(storageKind));
 		return false;
 	}
 
@@ -758,11 +758,11 @@ DerivableType::generateDocumentation(
 		Unit* unit = baseType->getParentUnit();
 		ExtensionLib* lib = unit ? unit->getLib() : NULL;
 		if (lib)
-			itemXml->appendFormat("<basecompoundref importid='%s/%s'>", lib->m_guid->getString ().sz(), refId.sz());
+			itemXml->appendFormat("<basecompoundref importid='%s/%s'>", lib->m_guid->getString().sz(), refId.sz());
 		else
 			itemXml->appendFormat("<basecompoundref refid='%s'>", refId.sz());
 
-		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName ().sz());
+		itemXml->appendFormat("%s</basecompoundref>\n", baseType->getQualifiedName().sz());
 	}
 
 	if (!constructorXml.isEmpty() || !destructorXml.isEmpty())

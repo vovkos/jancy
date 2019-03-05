@@ -525,7 +525,7 @@ tryLazyGetDynamicLibFunction(
 
 	if (!lib->m_handle)
 	{
-		err::setFormatStringError("dynamiclib '%s' is not loaded yet", type->getQualifiedName ().sz());
+		err::setFormatStringError("dynamiclib '%s' is not loaded yet", type->getQualifiedName().sz());
 		return NULL;
 	}
 
@@ -534,7 +534,7 @@ tryLazyGetDynamicLibFunction(
 
 	if (index >= functionCount)
 	{
-		err::setFormatStringError("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName ().sz());
+		err::setFormatStringError("index #%d out of range for dynamiclib '%s'", index, type->getQualifiedName().sz());
 		return NULL;
 	}
 

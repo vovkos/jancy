@@ -526,7 +526,7 @@ ControlFlowMgr::onceStmt_Create(
 
 	if (storageKind != StorageKind_Static && storageKind != StorageKind_Tls)
 	{
-		err::setFormatStringError("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString (storageKind));
+		err::setFormatStringError("'%s once' is illegal (only 'static' or 'threadlocal' is allowed)", getStorageKindString(storageKind));
 		return false;
 	}
 

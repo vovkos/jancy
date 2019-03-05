@@ -37,7 +37,7 @@ UnionType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString().sz());
 		return NULL;
 	}
 

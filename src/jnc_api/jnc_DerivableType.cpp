@@ -227,7 +227,7 @@ jnc_DerivableType_getUnaryOperator(
 	jnc_Function* function = type->getUnaryOperator((jnc::UnOpKind)opKind);
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getUnOpKindString (opKind));
+		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getUnOpKindString(opKind));
 		return NULL;
 	}
 
@@ -245,7 +245,7 @@ jnc_DerivableType_getBinaryOperator(
 	jnc_Function* function = type->getBinaryOperator((jnc::BinOpKind)opKind);
 	if (!function)
 	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getBinOpKindString (opKind));
+		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getBinOpKindString(opKind));
 		return NULL;
 	}
 

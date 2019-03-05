@@ -310,7 +310,7 @@ void MainWindow::readSettings()
 {
 	QSettings s;
 
-	m_lastDir = s.value("lastDir").toString ();
+	m_lastDir = s.value("lastDir").toString();
 	QStringList files = s.value("filesOpened").toStringList();
 
 	foreach(QString file, files)

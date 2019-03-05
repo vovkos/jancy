@@ -738,7 +738,7 @@ FunctionMgr::jitFunctions()
 	}
 	catch(err::Error error)
 	{
-		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription ().sz());
+		err::setFormatStringError("LLVM jitting failed: %s", error->getDescription().sz());
 		return false;
 	}
 

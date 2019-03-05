@@ -46,7 +46,7 @@ StructField::generateDocumentation(
 	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
 	if (m_storageKind == StorageKind_Static)
 		itemXml->append(" static='yes'");
@@ -66,7 +66,7 @@ StructField::generateDocumentation(
 		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
 
 	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString ().sz());
+		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString().sz());
 
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append(getDoxyLocationString());
@@ -107,7 +107,7 @@ StructType::createFieldImpl(
 {
 	if (m_flags & ModuleItemFlag_Sealed)
 	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString ().sz());
+		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString().sz());
 		return NULL;
 	}
 

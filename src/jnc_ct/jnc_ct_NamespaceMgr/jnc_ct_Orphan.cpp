@@ -159,7 +159,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 			err::setFormatStringError(
 				"'%s' has no '%s'",
 				decl->getQualifiedName().sz(),
-				getFunctionKindString (m_functionKind)
+				getFunctionKindString(m_functionKind)
 				);
 
 			return false;

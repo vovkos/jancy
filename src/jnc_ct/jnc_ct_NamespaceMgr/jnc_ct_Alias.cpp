@@ -70,7 +70,7 @@ Alias::generateDocumentation(
 	itemXml->format("<memberdef kind='alias' id='%s'", doxyBlock->getRefId ().sz());
 
 	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString (m_accessKind));
+		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
 	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
 
