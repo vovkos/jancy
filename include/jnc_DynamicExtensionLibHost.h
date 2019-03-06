@@ -477,7 +477,7 @@ jnc_BaseTypeSlot_GetOffsetFunc(jnc_BaseTypeSlot* baseType);
 
 typedef
 size_t
-jnc_BaseTypeSlot_GetVTableIndexFunc(jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_GetVtableIndexFunc(jnc_BaseTypeSlot* baseType);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -485,7 +485,7 @@ struct jnc_BaseTypeSlotFuncTable
 {
 	size_t m_size;
 	jnc_BaseTypeSlot_GetOffsetFunc* m_getOffsetFunc;
-	jnc_BaseTypeSlot_GetVTableIndexFunc* m_getVTableIndexFunc;
+	jnc_BaseTypeSlot_GetVtableIndexFunc* m_getVtableIndexFunc;
 };
 
 //..............................................................................

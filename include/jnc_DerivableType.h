@@ -53,7 +53,7 @@ jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType);
 
 JNC_EXTERN_C
 size_t
-jnc_BaseTypeSlot_getVTableIndex(jnc_BaseTypeSlot* baseType);
+jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -74,9 +74,9 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem
 	}
 
 	size_t
-	getVTableIndex()
+	getVtableIndex()
 	{
-		return jnc_BaseTypeSlot_getVTableIndex(this);
+		return jnc_BaseTypeSlot_getVtableIndex(this);
 	}
 };
 

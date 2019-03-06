@@ -52,7 +52,7 @@ protected:
 	// parent type
 
 	DerivableType* m_parentType;
-	size_t m_parentClassVTableIndex;
+	size_t m_parentClassVtableIndex;
 	sl::Array<Function*> m_vtable;
 	Variable* m_vtableVariable;
 
@@ -142,9 +142,9 @@ public:
 	}
 
 	size_t
-	getParentClassVTableIndex()
+	getParentClassVtableIndex()
 	{
-		return m_parentClassVTableIndex;
+		return m_parentClassVtableIndex;
 	}
 
 	bool
@@ -162,7 +162,7 @@ public:
 	addProperty(Property* prop);
 
 	Variable*
-	getVTableVariable()
+	getVtableVariable()
 	{
 		return m_vtableVariable;
 	}
@@ -196,7 +196,7 @@ protected:
 	calcLayout();
 
 	void
-	createVTableVariable();
+	createVtableVariable();
 
 	Value
 	getAutoAccessorPropertyValue();

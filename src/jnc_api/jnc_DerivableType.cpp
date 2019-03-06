@@ -33,9 +33,9 @@ jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType)
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BaseTypeSlot_getVTableIndex(jnc_BaseTypeSlot* baseType)
+jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 {
-	return jnc_g_dynamicExtensionLibHost->m_baseTypeSlotFuncTable->m_getVTableIndexFunc(baseType);
+	return jnc_g_dynamicExtensionLibHost->m_baseTypeSlotFuncTable->m_getVtableIndexFunc(baseType);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -134,9 +134,9 @@ jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType)
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_BaseTypeSlot_getVTableIndex(jnc_BaseTypeSlot* baseType)
+jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 {
-	return baseType->getVTableIndex();
+	return baseType->getVtableIndex();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

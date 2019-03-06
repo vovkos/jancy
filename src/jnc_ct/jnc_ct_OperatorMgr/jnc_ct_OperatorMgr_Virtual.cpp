@@ -19,13 +19,13 @@ namespace ct {
 //..............................................................................
 
 bool
-OperatorMgr::getClassVTable(
+OperatorMgr::getClassVtable(
 	const Value& opValue,
 	ClassType* classType,
 	Value* resultValue
 	)
 {
-	StructType* vtableType = classType->getVTableStructType();
+	StructType* vtableType = classType->getVtableStructType();
 	ASSERT(vtableType);
 
 	Value ptrValue;
@@ -54,22 +54,22 @@ OperatorMgr::getVirtualMethod(
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();
 	ClassType* vtableType = function->getVirtualOriginClassType();
-	size_t VTableIndex = function->getClassVTableIndex();
+	size_t VtableIndex = function->getClassVtableIndex();
 
 	BaseTypeCoord coord;
 	classType->findBaseTypeTraverse(vtableType, &coord);
-	VTableIndex += coord.m_vtableIndex;
+	VtableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 
 	Value ptrValue;
-	getClassVTable(value, classType, &ptrValue);
+	getClassVtable(value, classType, &ptrValue);
 
 	// p*
 
 	m_module->m_llvmIrBuilder.createGep2(
 		ptrValue,
-		VTableIndex,
+		VtableIndex,
 		NULL,
 		&ptrValue
 		);
@@ -108,29 +108,29 @@ OperatorMgr::getVirtualProperty(
 
 	Value value = *closure->getArgValueList()->getHead();
 	ClassType* classType = ((ClassPtrType*)value.getType())->getTargetType();
-	size_t VTableIndex = prop->getParentClassVTableIndex();
+	size_t VtableIndex = prop->getParentClassVtableIndex();
 
 	BaseTypeCoord coord;
 	classType->findBaseTypeTraverse(prop->getParentType(), &coord);
-	VTableIndex += coord.m_vtableIndex;
+	VtableIndex += coord.m_vtableIndex;
 
 	// class.vtbl*
 
 	Value ptrValue;
-	getClassVTable(value, classType, &ptrValue);
+	getClassVtable(value, classType, &ptrValue);
 
 	// property.vtbl*
 
 	m_module->m_llvmIrBuilder.createGep2(
 		ptrValue,
-		VTableIndex,
+		VtableIndex,
 		NULL,
 		&ptrValue
 		);
 
 	m_module->m_llvmIrBuilder.createBitCast(
 		ptrValue,
-		prop->getType()->getVTableStructType()->getDataPtrType_c(),
+		prop->getType()->getVtableStructType()->getDataPtrType_c(),
 		&ptrValue
 		);
 

@@ -116,7 +116,7 @@ public:
 	addProperty(Property* prop);
 
 	bool
-	hasVTable()
+	hasVtable()
 	{
 		return !m_vtable.isEmpty();
 	}
@@ -146,10 +146,10 @@ public:
 	}
 
 	StructType*
-	getVTableStructType();
+	getVtableStructType();
 
 	Variable*
-	getVTableVariable()
+	getVtableVariable()
 	{
 		return m_vtableVariable;
 	}
@@ -202,7 +202,7 @@ protected:
 	overrideVirtualFunction(Function* function);
 
 	void
-	createVTableVariable();
+	createVtableVariable();
 };
 
 //..............................................................................

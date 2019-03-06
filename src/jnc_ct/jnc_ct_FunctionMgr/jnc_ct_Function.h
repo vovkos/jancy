@@ -138,7 +138,7 @@ protected:
 
 	union
 	{
-		size_t m_classVTableIndex;
+		size_t m_classVtableIndex;
 		size_t m_libraryTableIndex;
 	};
 
@@ -239,9 +239,9 @@ public:
 	}
 
 	size_t
-	getClassVTableIndex()
+	getClassVtableIndex()
 	{
-		return m_classVTableIndex;
+		return m_classVtableIndex;
 	}
 
 	size_t

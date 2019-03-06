@@ -60,9 +60,9 @@ PropertyType::getShortType  ()
 }
 
 StructType*
-PropertyType::getVTableStructType()
+PropertyType::getVtableStructType()
 {
-	return m_module->m_typeMgr.getPropertyVTableStructType(this);
+	return m_module->m_typeMgr.getPropertyVtableStructType(this);
 }
 
 sl::String

@@ -33,7 +33,7 @@ Function::Function()
 	m_virtualOriginClassType = NULL;
 	m_property = NULL;
 	m_extensionNamespace = NULL;
-	m_classVTableIndex = -1;
+	m_classVtableIndex = -1;
 	m_allocaBlock = NULL;
 	m_prologueBlock = NULL;
 	m_scope = NULL;

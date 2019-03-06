@@ -1420,14 +1420,14 @@ public:
 	}
 
 	bool
-	getPropertyVTable(
+	getPropertyVtable(
 		Property* prop,
 		Closure* closure,
 		Value* resultValue
 		);
 
 	bool
-	getPropertyVTable(
+	getPropertyVtable(
 		const Value& opValue,
 		Value* resultValue
 		);
@@ -1700,7 +1700,7 @@ protected:
 		);
 
 	bool
-	getClassVTable(
+	getClassVtable(
 		const Value& opValue,
 		ClassType* classType,
 		Value* resultValue

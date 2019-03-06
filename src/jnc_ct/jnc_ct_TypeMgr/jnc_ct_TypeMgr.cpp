@@ -1904,12 +1904,12 @@ TypeMgr::getPropertyPtrType(
 }
 
 StructType*
-TypeMgr::getPropertyVTableStructType(PropertyType* propertyType)
+TypeMgr::getPropertyVtableStructType(PropertyType* propertyType)
 {
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
-	StructType* type = createUnnamedStructType("PropertyVTable");
+	StructType* type = createUnnamedStructType("PropertyVtable");
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));

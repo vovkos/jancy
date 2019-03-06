@@ -357,7 +357,7 @@ primeClass(
 	Box* root
 	)
 {
-	jnc_primeClass(p, root, T::getType(module), T::getVTable());
+	jnc_primeClass(p, root, T::getType(module), T::getVtable());
 }
 
 template <typename T>
@@ -367,7 +367,7 @@ primeClass(
 	ClassBoxBase<T>* p
 	)
 {
-	primeClass(p, p, T::getType(module), T::getVTable());
+	primeClass(p, p, T::getType(module), T::getVtable());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

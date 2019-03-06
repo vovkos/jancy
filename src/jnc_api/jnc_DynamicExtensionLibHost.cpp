@@ -143,7 +143,7 @@ static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable =
 {
 	sizeof(jnc_BaseTypeSlotFuncTable),
 	jnc_BaseTypeSlot_getOffset,
-	jnc_BaseTypeSlot_getVTableIndex,
+	jnc_BaseTypeSlot_getVtableIndex,
 };
 
 static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =

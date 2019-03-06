@@ -57,7 +57,7 @@ EXPORTS
 	jnc_Type_markGcRoots
 	jnc_getDataPtrTypeKindString
 	jnc_BaseTypeSlot_getOffset
-	jnc_BaseTypeSlot_getVTableIndex
+	jnc_BaseTypeSlot_getVtableIndex
 	jnc_DerivableType_findBaseTypeOffset
 	jnc_DerivableType_getBaseType
 	jnc_DerivableType_getBaseTypeCount

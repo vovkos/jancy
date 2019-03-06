@@ -34,7 +34,7 @@ Property::Property():
 	m_onChanged = NULL;
 
 	m_parentType = NULL;
-	m_parentClassVTableIndex = -1;
+	m_parentClassVtableIndex = -1;
 
 	m_extensionNamespace = NULL;
 	m_vtableVariable = NULL;
@@ -641,7 +641,7 @@ Property::calcLayout()
 		m_vtable.append(setter);
 	}
 
-	createVTableVariable();
+	createVtableVariable();
 	return true;
 }
 
@@ -670,13 +670,13 @@ Property::createType()
 }
 
 void
-Property::createVTableVariable()
+Property::createVtableVariable()
 {
 	char buffer[256];
-	sl::Array<llvm::Constant*> llvmVTable(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Constant*> llvmVtable(ref::BufKind_Stack, buffer, sizeof(buffer));
 
 	size_t count = m_vtable.getCount();
-	llvmVTable.setCount(count);
+	llvmVtable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -685,21 +685,21 @@ Property::createVTableVariable()
 		if (function->getStorageKind() == StorageKind_Abstract)
 			function = function->getType()->getAbstractFunction();
 
-		llvmVTable[i] = function->getLlvmFunction();
+		llvmVtable[i] = function->getLlvmFunction();
 	}
 
-	StructType* vtableStructType = m_type->getVTableStructType();
+	StructType* vtableStructType = m_type->getVtableStructType();
 
-	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get(
+	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)vtableStructType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmVTable, count)
+		llvm::ArrayRef<llvm::Constant*> (llvmVtable, count)
 		);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		sl::String(),
 		getQualifiedName() + ".m_vtable",
 		vtableStructType,
-		Value(llvmVTableConst, vtableStructType)
+		Value(llvmVtableConst, vtableStructType)
 		);
 }
 

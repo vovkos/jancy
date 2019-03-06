@@ -762,7 +762,7 @@ public:
 	}
 
 	StructType*
-	getPropertyVTableStructType(PropertyType* propertyType);
+	getPropertyVtableStructType(PropertyType* propertyType);
 
 	NamedImportType*
 	getNamedImportType(

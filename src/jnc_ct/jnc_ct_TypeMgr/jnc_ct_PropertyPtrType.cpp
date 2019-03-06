@@ -125,7 +125,7 @@ PropertyPtrType::prepareLlvmType()
 {
 	m_llvmType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmType() :
-		m_targetType->getVTableStructType()->getDataPtrType_c()->getLlvmType();
+		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmType();
 }
 
 void
@@ -133,7 +133,7 @@ PropertyPtrType::prepareLlvmDiType()
 {
 	m_llvmDiType = m_ptrTypeKind != PropertyPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_PropertyPtrStruct)->getLlvmDiType() :
-		m_targetType->getVTableStructType()->getDataPtrType_c()->getLlvmDiType();
+		m_targetType->getVtableStructType()->getDataPtrType_c()->getLlvmDiType();
 }
 
 void

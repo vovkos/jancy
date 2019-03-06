@@ -124,7 +124,7 @@ public:
 	}
 
 	StructType*
-	getVTableStructType();
+	getVtableStructType();
 
 	const sl::String&
 	getBindableEventName()

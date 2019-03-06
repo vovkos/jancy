@@ -61,7 +61,7 @@ public:
 	}
 
 	size_t
-	getVTableIndex() const
+	getVtableIndex() const
 	{
 		return m_vtableIndex;
 	}

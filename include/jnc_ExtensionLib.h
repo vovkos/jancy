@@ -206,7 +206,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_ClassType \
 		) \
 	const void* \
-	TypePrefix##_getVTable();
+	TypePrefix##_getVtable();
 
 #define JNC_DECLARE_OPAQUE_CLASS_TYPE(TypePrefix) \
 	JNC_DECLARE_CLASS_TYPE(TypePrefix) \
@@ -310,9 +310,9 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		) \
 	static \
 	const void* \
-	getVTable() \
+	getVtable() \
 	{ \
-		return TypePrefix##_getVTable(); \
+		return TypePrefix##_getVtable(); \
 	}
 
 #define JNC_DECLARE_OPAQUE_CLASS_TYPE_STATIC_METHODS(TypePrefix) \
@@ -328,7 +328,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_BEGIN_CLASS_TYPE_VTABLE(TypePrefix) \
 	const void* \
-	TypePrefix##_getVTable() \
+	TypePrefix##_getVtable() \
 	{ \
 		static const void* const vtable[] = \
 		{

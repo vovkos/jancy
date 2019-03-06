@@ -424,7 +424,7 @@ primeIface(
 			root,
 			(IfaceHdr*)((char*)iface + slot->getOffset()),
 			(ct::ClassType*)slot->getType(),
-			(void**) vtable + slot->getVTableIndex()
+			(void**) vtable + slot->getVtableIndex()
 			);
 	}
 
@@ -462,7 +462,7 @@ jnc_primeClass(
 
 	if (!vtable)
 	{
-		jnc_Variable* vtableVariable = type->getVTableVariable();
+		jnc_Variable* vtableVariable = type->getVtableVariable();
 		if (vtableVariable)
 			vtable = vtableVariable->getStaticData();
 	}

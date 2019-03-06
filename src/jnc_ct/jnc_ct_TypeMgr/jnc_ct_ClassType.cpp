@@ -43,12 +43,12 @@ ClassType::getClassPtrType(
 }
 
 StructType*
-ClassType::getVTableStructType()
+ClassType::getVtableStructType()
 {
 	if (m_vtableStructType)
 		return m_vtableStructType;
 
-	m_vtableStructType = m_module->m_typeMgr.createStructType(sl::String(), createQualifiedName("VTable"));
+	m_vtableStructType = m_module->m_typeMgr.createStructType(sl::String(), createQualifiedName("Vtable"));
 	return m_vtableStructType;
 }
 
@@ -382,7 +382,7 @@ ClassType::calcLayout()
 		m_vtable.append(baseClassType->m_vtable);
 
 		if (baseClassType->m_vtableStructType)
-			getVTableStructType()->append(baseClassType->m_vtableStructType);
+			getVtableStructType()->append(baseClassType->m_vtableStructType);
 
 		m_baseTypePrimeArray.append(slot);
 
@@ -466,7 +466,7 @@ ClassType::calcLayout()
 	// layout virtual properties
 
 	if (!m_virtualPropertyArray.isEmpty() || !m_virtualMethodArray.isEmpty())
-		getVTableStructType(); // ensure VTable struct
+		getVtableStructType(); // ensure Vtable struct
 
 	count = m_virtualPropertyArray.getCount();
 	for (size_t i = 0; i < count; i++)
@@ -474,18 +474,18 @@ ClassType::calcLayout()
 		Property* prop = m_virtualPropertyArray[i];
 		ASSERT(prop->m_storageKind == StorageKind_Abstract || prop->m_storageKind == StorageKind_Virtual);
 
-		size_t VTableIndex = m_vtable.getCount();
+		size_t VtableIndex = m_vtable.getCount();
 
-		prop->m_parentClassVTableIndex = VTableIndex;
+		prop->m_parentClassVtableIndex = VtableIndex;
 		m_vtable.append(prop->m_vtable);
-		m_vtableStructType->append(prop->m_type->getVTableStructType());
+		m_vtableStructType->append(prop->m_type->getVtableStructType());
 
 		size_t accessorCount = prop->m_vtable.getCount();
 		for (size_t j = 0; j < accessorCount; j++)
 		{
 			Function* accessor = prop->m_vtable[j];
 			accessor->m_virtualOriginClassType = this;
-			accessor->m_classVTableIndex = VTableIndex + j;
+			accessor->m_classVtableIndex = VtableIndex + j;
 		}
 	}
 
@@ -525,7 +525,7 @@ ClassType::calcLayout()
 		if (!result)
 			return false;
 
-		createVTableVariable();
+		createVtableVariable();
 	}
 
 	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty())
@@ -569,10 +569,10 @@ ClassType::addVirtualFunction(Function* function)
 	ASSERT(function->m_virtualOriginClassType == NULL); // not layed out yet
 
 	function->m_virtualOriginClassType = this;
-	function->m_classVTableIndex = m_vtable.getCount();
+	function->m_classVtableIndex = m_vtable.getCount();
 
 	FunctionPtrType* pointerType = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
-	getVTableStructType()->createField(pointerType);
+	getVtableStructType()->createField(pointerType);
 	m_vtable.append(function);
 }
 
@@ -688,24 +688,24 @@ ClassType::overrideVirtualFunction(Function* function)
 	function->m_thisArgType = thisArgType;
 	function->m_thisArgDelta = overridenFunction->m_thisArgDelta - coord.m_offset;
 	function->m_virtualOriginClassType = overridenFunction->m_virtualOriginClassType;
-	function->m_classVTableIndex = overridenFunction->m_classVTableIndex;
+	function->m_classVtableIndex = overridenFunction->m_classVtableIndex;
 
-	size_t VTableIndex = coord.m_vtableIndex + overridenFunction->m_classVTableIndex;
-	ASSERT(VTableIndex < m_vtable.getCount());
-	m_vtable[VTableIndex] = function;
+	size_t VtableIndex = coord.m_vtableIndex + overridenFunction->m_classVtableIndex;
+	ASSERT(VtableIndex < m_vtable.getCount());
+	m_vtable[VtableIndex] = function;
 	return true;
 }
 
 void
-ClassType::createVTableVariable()
+ClassType::createVtableVariable()
 {
 	ASSERT(m_vtableStructType);
 
 	char buffer[256];
-	sl::Array<llvm::Constant*> llvmVTable(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Constant*> llvmVtable(ref::BufKind_Stack, buffer, sizeof(buffer));
 
 	size_t count = m_vtable.getCount();
-	llvmVTable.setCount(count);
+	llvmVtable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -716,19 +716,19 @@ ClassType::createVTableVariable()
 			m_flags |= ClassTypeFlag_HasAbstractMethods;
 		}
 
-		llvmVTable[i] = function->getLlvmFunction();
+		llvmVtable[i] = function->getLlvmFunction();
 	}
 
-	llvm::Constant* llvmVTableConst = llvm::ConstantStruct::get(
+	llvm::Constant* llvmVtableConst = llvm::ConstantStruct::get(
 		(llvm::StructType*)m_vtableStructType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmVTable, count)
+		llvm::ArrayRef<llvm::Constant*> (llvmVtable, count)
 		);
 
 	m_vtableVariable = m_module->m_variableMgr.createSimpleStaticVariable(
 		sl::String(),
 		createQualifiedName("m_vtable"),
 		m_vtableStructType,
-		Value(llvmVTableConst, m_vtableStructType)
+		Value(llvmVtableConst, m_vtableStructType)
 		);
 }
 

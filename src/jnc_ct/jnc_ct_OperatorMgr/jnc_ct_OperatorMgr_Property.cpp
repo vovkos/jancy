@@ -28,7 +28,7 @@ OperatorMgr::getPropertyThinPtr(
 {
 	ASSERT(prop->getType()->cmp(ptrType->getTargetType()) == 0);
 
-	bool result = getPropertyVTable(prop, closure, resultValue);
+	bool result = getPropertyVtable(prop, closure, resultValue);
 	if (!result)
 		return false;
 
@@ -37,7 +37,7 @@ OperatorMgr::getPropertyThinPtr(
 }
 
 bool
-OperatorMgr::getPropertyVTable(
+OperatorMgr::getPropertyVtable(
 	Property* prop,
 	Closure* closure,
 	Value* resultValue
@@ -46,12 +46,12 @@ OperatorMgr::getPropertyVTable(
 	if (prop->isVirtual())
 		return getVirtualProperty(prop, closure, resultValue);
 
-	*resultValue = prop->getVTableVariable();
+	*resultValue = prop->getVtableVariable();
 	return true;
 }
 
 bool
-OperatorMgr::getPropertyVTable(
+OperatorMgr::getPropertyVtable(
 	const Value& opValue,
 	Value* resultValue
 	)
@@ -72,7 +72,7 @@ OperatorMgr::getPropertyVTable(
 
 	case PropertyPtrTypeKind_Thin:
 		if (opValue.getValueKind() == ValueKind_Property)
-			return getPropertyVTable(opValue.getProperty(), opValue.getClosure(), resultValue);
+			return getPropertyVtable(opValue.getProperty(), opValue.getClosure(), resultValue);
 
 		*resultValue = opValue;
 		return true;
@@ -83,8 +83,8 @@ OperatorMgr::getPropertyVTable(
 
 	PropertyType* propertyType = ptrType->getTargetType();
 	PropertyType* stdObjectMemberPropertyType = propertyType->getStdObjectMemberPropertyType();
-	Type* vtableType = stdObjectMemberPropertyType->getVTableStructType()->getDataPtrType_c();
-	Type* resultType = propertyType->getVTableStructType()->getDataPtrType_c();
+	Type* vtableType = stdObjectMemberPropertyType->getVtableStructType()->getDataPtrType_c();
+	Type* resultType = propertyType->getVtableStructType()->getDataPtrType_c();
 	Type* closureType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 
 	Value vtableValue;
@@ -171,22 +171,22 @@ OperatorMgr::getPropertyGetter(
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
 		ptrType->getTargetType();
 
-	Value VTableValue;
-	result = getPropertyVTable(opValue, &VTableValue);
+	Value VtableValue;
+	result = getPropertyVtable(opValue, &VtableValue);
 	if (!result)
 		return false;
 
 	size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 1 : 0;
 
 	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2(VTableValue, index, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createGep2(VtableValue, index, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad(
 		pfnValue,
 		propertyType->getGetterType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
 		);
 
-	resultValue->setClosure(VTableValue.getClosure());
+	resultValue->setClosure(VtableValue.getClosure());
 	return true;
 }
 
@@ -316,7 +316,7 @@ OperatorMgr::getPropertySetter(
 	FunctionType* setterType = setterTypeOverload->getOverload(i);
 
 	Value vtableValue;
-	result = getPropertyVTable(opValue, &vtableValue);
+	result = getPropertyVtable(opValue, &vtableValue);
 	if (!result)
 		return false;
 
@@ -414,20 +414,20 @@ OperatorMgr::getPropertyBinder(
 	if (ptrType->hasClosure())
 		propertyType = propertyType->getStdObjectMemberPropertyType();
 
-	Value VTableValue;
-	result = getPropertyVTable(opValue, &VTableValue);
+	Value VtableValue;
+	result = getPropertyVtable(opValue, &VtableValue);
 	if (!result)
 		return false;
 
 	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2(VTableValue, 0, NULL, &pfnValue);
+	m_module->m_llvmIrBuilder.createGep2(VtableValue, 0, NULL, &pfnValue);
 	m_module->m_llvmIrBuilder.createLoad(
 		pfnValue,
 		propertyType->getBinderType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
 		resultValue
 		);
 
-	resultValue->setClosure(VTableValue.getClosure());
+	resultValue->setClosure(VtableValue.getClosure());
 	return true;
 }
 
