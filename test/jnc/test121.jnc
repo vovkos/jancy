@@ -1,0 +1,72 @@
+import "sys_Timer.jnc"
+
+class C
+{
+	int m_a;
+	int m_b;
+
+	construct(int a, int b)
+	{
+		printf(
+			"tid: %p C.construct(%d, %d) { this: %p }\n",
+			sys.getCurrentThreadId (),
+			a,
+			b,
+			this
+			);
+
+		m_a = a;
+		m_b = b;
+	}
+
+	int async asyncFoo(int x, int y)
+	{
+		printf(
+			"tid: %p +C.asyncFoo(%p, %d): { this: %p, m_a: %d, m_b: %d }\n",
+			sys.getCurrentThreadId (),
+			x,
+			y,
+			this,
+			m_a,
+			m_b
+			);
+
+		char const* s = $"(x: $x, y: $y)";
+		printf("  s: %s\n", s);
+
+		sys.Timer timer;
+		jnc.Promisifier promise;
+
+		timer.startSingleShotTimer(promise.complete, 1000);
+
+		printf("  waiting...\n");
+		await promise.asyncWait();
+
+		printf(
+			"tid: %p -C.asyncFoo(%d, %d): { this: %p, m_a: %d, m_b: %d } s: %s\n", 
+			sys.getCurrentThreadId (),
+			x,
+			y,
+			this,
+			m_a,
+			m_b, 
+			s
+			);
+
+		return x + y + m_a + m_b;
+	}
+}
+
+int main()
+{
+	printf("tid: %p +main()\n", sys.getCurrentThreadId ());
+
+	C c(1,2);
+
+	jnc.Promise* promise = c.asyncFoo(30, 40);
+	int result = promise.blockingWait();
+
+	printf("tid: %p -main() result: %d\n", sys.getCurrentThreadId (), result);
+	assert(result == 73);
+	return 0;
+}

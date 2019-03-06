@@ -287,6 +287,18 @@ public:
 		prepareArrayRef(*value, value);
 	}
 
+	void
+	makeLeanDataPtr(
+		const Value& value,
+		Value* resultValue
+		);
+
+	void
+	makeLeanDataPtr(Value* value)
+	{
+		makeLeanDataPtr(*value, value);
+	}
+
 	// unary operators
 
 	Type*

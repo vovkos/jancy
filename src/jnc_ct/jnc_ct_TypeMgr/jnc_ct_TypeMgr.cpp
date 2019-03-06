@@ -1094,37 +1094,31 @@ TypeMgr::getMemberMethodType(
 	if (!isClassType(parentType, ClassTypeKind_Abstract)) // std object members are miscellaneous closures
 		thisArgPtrTypeFlags |= PtrTypeFlag_Safe;
 
+	Type* returnType = (functionType->m_flags & FunctionTypeFlag_Async) ?
+		functionType->m_asyncReturnType :
+		functionType->m_returnType;
+
 	Type* thisArgType = parentType->getThisArgType(thisArgPtrTypeFlags);
 	FunctionArg* thisArg = getSimpleFunctionArg(StorageKind_This, thisArgType);
 
 	sl::Array<FunctionArg*> argArray = functionType->m_argArray;
 	argArray.insert(0, thisArg);
 
-	FunctionType* memberMethodType;
-
-	if (functionType->m_flags & ModuleItemFlag_User)
-	{
-		memberMethodType = createUserFunctionType(
+	FunctionType* memberMethodType = (functionType->m_flags & ModuleItemFlag_User) ?
+		createUserFunctionType(
 			functionType->m_callConv,
-			functionType->m_returnType,
+			returnType,
+			argArray,
+			functionType->m_flags
+			) :
+		getFunctionType(
+			functionType->m_callConv,
+			returnType,
 			argArray,
 			functionType->m_flags
 			);
 
-		memberMethodType->m_shortType = functionType;
-	}
-	else
-	{
-		memberMethodType = getFunctionType(
-			functionType->m_callConv,
-			functionType->m_returnType,
-			argArray,
-			functionType->m_flags
-			);
-
-		memberMethodType->m_shortType = functionType;
-	}
-
+	memberMethodType->m_shortType = functionType;
 	return memberMethodType;
 }
 

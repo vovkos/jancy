@@ -344,6 +344,28 @@ OperatorMgr::mergeBitField(
 		castOperator(value, baseType, resultValue);
 }
 
+void
+OperatorMgr::makeLeanDataPtr(
+	const Value& value,
+	Value* resultValue
+	)
+{
+	ASSERT(
+		value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr &&
+		((DataPtrType*)value.getType())->getPtrTypeKind() == DataPtrTypeKind_Normal);
+
+	DataPtrType* ptrType = ((DataPtrType*)value.getType());
+	ptrType = ptrType->getTargetType()->getDataPtrType(DataPtrTypeKind_Lean, ptrType->getFlags());
+	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
+
+	Value ptrValue;
+	Value validatorValue;
+	m_module->m_llvmIrBuilder.createExtractValue(value, 0, NULL, &ptrValue);
+	m_module->m_llvmIrBuilder.createExtractValue(value, 1, validatorType, &validatorValue);
+	m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
+	resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), ptrType, validatorValue);
+}
+
 //..............................................................................
 
 } // namespace ct

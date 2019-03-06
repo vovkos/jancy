@@ -48,7 +48,26 @@ AsyncFunction::compile()
 
 	sl::Array<StructField*> promiseFieldArray = m_promiseType->getMemberFieldArray();
 	size_t argCount = promiseFieldArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
+
+	size_t i = 0;
+
+	if (isMember())
+	{
+		StructField* argField = promiseFieldArray[0];
+		Value argFieldValue;
+
+		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
+		ASSERT(result);
+
+		m_module->m_llvmIrBuilder.createLoad(argFieldValue, m_thisType, &m_module->m_functionMgr.m_thisValue);
+
+		if (m_thisType->getTypeKind() == TypeKind_DataPtr)
+			m_module->m_operatorMgr.makeLeanDataPtr(&m_module->m_functionMgr.m_thisValue);
+
+		i = 1;
+	}
+
+	for (; i < argCount; i++)
 	{
 		StructField* argField = promiseFieldArray[i];
 
