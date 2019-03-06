@@ -733,12 +733,9 @@ TypeMgr::createUnionType(
 
 	if (!(flags & TypeFlag_Dynamic))
 	{
-		StructType* unionStructType = createUnnamedStructType();
+		StructType* unionStructType = createUnnamedStructType(type->createQualifiedName("Struct"), fieldAlignment);
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
-		unionStructType->m_fieldAlignment = fieldAlignment;
-		unionStructType->m_qualifiedName = type->createQualifiedName("Struct");
-
 		type->m_structType = unionStructType;
 	}
 
@@ -801,16 +798,13 @@ TypeMgr::createClassType(
 
 	m_module->markForLayout(type, true); // before child structs
 
-	StructType* ifaceStructType = createUnnamedStructType(fieldAlignment);
+	StructType* ifaceStructType = createUnnamedStructType(type->createQualifiedName("Iface"), fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
-	ifaceStructType->m_qualifiedName = type->createQualifiedName("Iface");
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
-	ifaceStructType->m_fieldAlignment = fieldAlignment;
 
-	StructType* classStructType = createUnnamedStructType(fieldAlignment);
+	StructType* classStructType = createUnnamedStructType(type->createQualifiedName("Class"), fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
-	classStructType->m_qualifiedName = type->createQualifiedName("Class");
 	classStructType->m_parentNamespace = type;
 	classStructType->createField("!m_box", getStdType (StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
@@ -1060,6 +1054,12 @@ TypeMgr::createUserFunctionType(
 	{
 		type->m_asyncReturnType = returnType;
 		returnType = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
+
+		if (flags & FunctionTypeFlag_ErrorCode)
+		{
+			flags &= ~FunctionTypeFlag_ErrorCode;
+			flags |= FunctionTypeFlag_AsyncErrorCode;
+		}
 	}
 
 	type->m_returnType = returnType;
@@ -1366,7 +1366,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 		return NULL;
 	}
 
-	MulticastClassType* type = (MulticastClassType*)createUnnamedClassType(ClassTypeKind_Multicast);
+	MulticastClassType* type = (MulticastClassType*)createUnnamedClassType(ClassTypeKind_Multicast, "Multicast");
 	type->m_targetType = functionPtrType;
 	type->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1436,7 +1436,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)
 
-	McSnapshotClassType* snapshotType = (McSnapshotClassType*)createUnnamedClassType(ClassTypeKind_McSnapshot);
+	McSnapshotClassType* snapshotType = (McSnapshotClassType*)createUnnamedClassType(ClassTypeKind_McSnapshot, "McSnapshot");
 	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType();
 	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1571,7 +1571,7 @@ TypeMgr::getFunctionClosureClassType(
 		return type;
 	}
 
-	FunctionClosureClassType* type = (FunctionClosureClassType*)createUnnamedClassType(ClassTypeKind_FunctionClosure);
+	FunctionClosureClassType* type = (FunctionClosureClassType*)createUnnamedClassType(ClassTypeKind_FunctionClosure, "FunctionClosure");
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->m_closureMap.copy(closureMap, argCount);
@@ -1632,7 +1632,7 @@ TypeMgr::getPropertyClosureClassType(
 		return type;
 	}
 
-	PropertyClosureClassType* type = (PropertyClosureClassType*)createUnnamedClassType(ClassTypeKind_PropertyClosure);
+	PropertyClosureClassType* type = (PropertyClosureClassType*)createUnnamedClassType(ClassTypeKind_PropertyClosure, "PropertyClosure");
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->m_closureMap.copy(closureMap, argCount);
@@ -1683,7 +1683,7 @@ TypeMgr::getDataClosureClassType(
 		return type;
 	}
 
-	DataClosureClassType* type = (DataClosureClassType*)createUnnamedClassType(ClassTypeKind_DataClosure);
+	DataClosureClassType* type = (DataClosureClassType*)createUnnamedClassType(ClassTypeKind_DataClosure, "DataClosure");
 	type->m_signature = signature;
 	type->m_typeMapIt = it;
 	type->createField("!m_target", targetType->getDataPtrType ());
@@ -1909,8 +1909,7 @@ TypeMgr::getPropertyVTableStructType(PropertyType* propertyType)
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
-	StructType* type = createUnnamedStructType();
-	type->m_qualifiedName.format("%s.VTable", propertyType->getTypeString().sz());
+	StructType* type = createUnnamedStructType("PropertyVTable");
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));

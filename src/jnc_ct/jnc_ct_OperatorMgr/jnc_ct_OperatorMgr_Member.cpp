@@ -766,8 +766,7 @@ OperatorMgr::getLibraryMember(
 		&ptrValue
 		);
 
-	result = m_module->m_controlFlowMgr.throwExceptionIf(ptrValue, getterFunctionType);
-	ASSERT(result);
+	m_module->m_controlFlowMgr.checkErrorCode(ptrValue, getterFunctionType->getReturnType());
 
 	Type* resultType = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, resultValue);

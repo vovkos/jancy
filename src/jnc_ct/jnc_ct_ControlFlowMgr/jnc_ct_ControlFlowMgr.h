@@ -244,10 +244,11 @@ public:
 	void
 	throwException();
 
-	bool
-	throwExceptionIf(
+	void
+	checkErrorCode(
 		const Value& returnValue,
-		FunctionType* type
+		Type* returnType,
+		BasicBlock* throwBlock = NULL
 		);
 
 	void

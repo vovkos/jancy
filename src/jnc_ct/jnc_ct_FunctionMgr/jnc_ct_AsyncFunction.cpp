@@ -19,6 +19,13 @@ namespace ct {
 
 //..............................................................................
 
+AsyncFunction::AsyncFunction()
+{
+	m_functionKind = FunctionKind_Async;
+	m_promiseType = NULL;
+	m_catchBlock = NULL;
+}
+
 bool
 AsyncFunction::compile()
 {
@@ -38,10 +45,7 @@ AsyncFunction::compile()
 		ScopeFlag_CatchAhead | ScopeFlag_HasCatch
 		);
 
-	// extract 'this' pointer and adjust m_thisValue
-	// m_module->m_functionMgr.m_thisValue = promiseValue;
-
-	// add arg fields to the scope
+	m_catchBlock = scope->m_catchBlock;
 
 	ASSERT(!m_promiseType);
 	m_promiseType = ((ClassPtrType*)promiseValue.getType())->getTargetType();
@@ -53,6 +57,8 @@ AsyncFunction::compile()
 
 	if (isMember())
 	{
+		// add this arg
+
 		StructField* argField = promiseFieldArray[0];
 		Value argFieldValue;
 
@@ -66,6 +72,8 @@ AsyncFunction::compile()
 
 		i = 1;
 	}
+
+	// add arg fields to the scope
 
 	for (; i < argCount; i++)
 	{
@@ -122,7 +130,7 @@ AsyncFunction::compile()
 
 	m_module->m_llvmIrBuilder.createSwitch(
 		stateValue,
-		scope->m_catchBlock,
+		m_catchBlock,
 		stateIdArray,
 		asyncBlockArray,
 		count

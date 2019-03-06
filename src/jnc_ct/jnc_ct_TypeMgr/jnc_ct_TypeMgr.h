@@ -260,7 +260,7 @@ public:
 	{
 		return createEnumType(
 			sl::String(),
-			sl::formatString("!Enum%d", ++m_unnamedTypeCounter),
+			sl::formatString("enum.%d", ++m_unnamedTypeCounter),
 			baseType,
 			flags
 			);
@@ -282,7 +282,22 @@ public:
 	{
 		return createStructType(
 			sl::String(),
-			sl::formatString("!Struct%d", ++m_unnamedTypeCounter),
+			sl::formatString("struct.%d", ++m_unnamedTypeCounter),
+			fieldAlignment,
+			flags
+			);
+	}
+
+	StructType*
+	createUnnamedStructType(
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createStructType(
+			sl::String(),
+			sl::formatString("struct.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
@@ -304,7 +319,7 @@ public:
 	{
 		return createUnionType(
 			sl::String(),
-			sl::formatString("!Union%d", ++m_unnamedTypeCounter),
+			sl::formatString("union.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
@@ -340,12 +355,28 @@ public:
 		return createClassType(
 			classTypeKind,
 			sl::String(),
-			sl::formatString("!Class%d", ++m_unnamedTypeCounter),
+			sl::formatString("class.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
 	}
 
+	ClassType*
+	createUnnamedClassType(
+		ClassTypeKind classTypeKind,
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createClassType(
+			classTypeKind,
+			sl::String(),
+			sl::formatString("class.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
+			fieldAlignment,
+			flags
+			);
+	}
 	ClassType*
 	createUnnamedClassType(
 		size_t fieldAlignment = 8,

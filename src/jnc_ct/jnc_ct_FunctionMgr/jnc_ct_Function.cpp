@@ -279,8 +279,8 @@ Function::compileAsyncLauncher()
 	bool result;
 
 	sl::String qualifiedName = getQualifiedName();
-	sl::String promiseName = qualifiedName + "_Promise";
-	sl::String sequencerName = qualifiedName + "_sequencer";
+	sl::String promiseName = qualifiedName + ".Promise";
+	sl::String sequencerName = qualifiedName + ".sequencer";
 
 	ClassType* promiseType = m_module->m_typeMgr.createClassType(sl::String(), promiseName);
 	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
@@ -336,7 +336,9 @@ Function::compileAsyncLauncher()
 	}
 
 	Type* argType = promiseType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1);
+	uint_t flags = m_type->getFlags() & FunctionTypeFlag_AsyncErrorCode;
+
+	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
 
 	Function* sequencerFunc = m_module->m_functionMgr.createFunction(
 		FunctionKind_Async,

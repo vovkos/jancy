@@ -160,35 +160,38 @@ Promise::addAsyncWait_l(
 Variant
 Promise::blockingWaitImpl()
 {
- 	m_lock.lock();
-	if (m_state == State_Completed)
+	m_lock.lock();
+
+	if (m_state != State_Completed)
 	{
+		sys::Event event;
+
+		SyncWait wait;
+		wait.m_event = &event;
+		m_syncWaitList.insertTail(&wait);
 		m_lock.unlock();
-		return m_result;
+
+		GcHeap* gcHeap = getCurrentThreadGcHeap();
+		ASSERT(gcHeap);
+
+		gcHeap->enterWaitRegion();
+		event.wait();
+		gcHeap->leaveWaitRegion();
+
+		m_lock.lock();
+		m_syncWaitList.remove(&wait);
 	}
 
-	sys::Event event;
-
-	SyncWait wait;
-	wait.m_event = &event;
-	m_syncWaitList.insertTail(&wait);
-	m_lock.unlock();
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->enterWaitRegion();
-	event.wait();
-	gcHeap->leaveWaitRegion();
-
-	m_lock.lock();
-	m_syncWaitList.remove(&wait);
 	ASSERT(m_state == State_Completed);
 	m_lock.unlock();
 
 	if (m_errorPtr.m_p)
 	{
 		err::setError((const err::ErrorHdr*) m_errorPtr.m_p);
+
+		GcHeap* gcHeap = getCurrentThreadGcHeap();
+		ASSERT(gcHeap);
+
 		gcHeap->getRuntime()->dynamicThrow();
 		ASSERT(false);
 	}

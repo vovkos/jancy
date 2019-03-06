@@ -24,18 +24,21 @@ class AsyncFunction: public Function
 
 protected:
 	ClassType* m_promiseType;
+	BasicBlock* m_catchBlock;
 
 public:
-	AsyncFunction()
-	{
-		m_functionKind = FunctionKind_Async;
-		m_promiseType = NULL;
-	}
+	AsyncFunction();
 
 	ClassType*
 	getPromiseType()
 	{
 		return m_promiseType;
+	}
+
+	BasicBlock*
+	getCatchBlock()
+	{
+		return m_catchBlock;
 	}
 
 	virtual

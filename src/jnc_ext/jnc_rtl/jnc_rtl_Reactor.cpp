@@ -48,6 +48,7 @@ ReactorImpl_getOpaqueClassTypeInfo()
 		NULL,                 // m_markOpaqueGcRootsFunc
 		false,                // m_isNonCreatable
 	};
+
 	return &typeInfo;
 }
 

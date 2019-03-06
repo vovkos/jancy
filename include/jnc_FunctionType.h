@@ -42,12 +42,13 @@
 
 enum jnc_FunctionTypeFlag
 {
-	jnc_FunctionTypeFlag_VarArg      = 0x010000,
-	jnc_FunctionTypeFlag_ErrorCode   = 0x020000,
-	jnc_FunctionTypeFlag_ByValArgs   = 0x040000,
-	jnc_FunctionTypeFlag_CoercedArgs = 0x080000,
-	jnc_FunctionTypeFlag_Unsafe      = 0x100000,
-	jnc_FunctionTypeFlag_Async       = 0x200000,
+	jnc_FunctionTypeFlag_VarArg         = 0x010000,
+	jnc_FunctionTypeFlag_ErrorCode      = 0x020000,
+	jnc_FunctionTypeFlag_ByValArgs      = 0x040000,
+	jnc_FunctionTypeFlag_CoercedArgs    = 0x080000,
+	jnc_FunctionTypeFlag_Unsafe         = 0x100000,
+	jnc_FunctionTypeFlag_Async          = 0x200000,
+	jnc_FunctionTypeFlag_AsyncErrorCode = 0x400000,
 };
 
 typedef enum jnc_FunctionTypeFlag jnc_FunctionTypeFlag;
@@ -220,12 +221,13 @@ namespace jnc {
 typedef jnc_FunctionTypeFlag FunctionTypeFlag;
 
 const FunctionTypeFlag
-	FunctionTypeFlag_VarArg      = jnc_FunctionTypeFlag_VarArg,
-	FunctionTypeFlag_ErrorCode   = jnc_FunctionTypeFlag_ErrorCode,
-	FunctionTypeFlag_ByValArgs   = jnc_FunctionTypeFlag_ByValArgs,
-	FunctionTypeFlag_CoercedArgs = jnc_FunctionTypeFlag_CoercedArgs,
-	FunctionTypeFlag_Unsafe      = jnc_FunctionTypeFlag_Unsafe,
-	FunctionTypeFlag_Async       = jnc_FunctionTypeFlag_Async;
+	FunctionTypeFlag_VarArg         = jnc_FunctionTypeFlag_VarArg,
+	FunctionTypeFlag_ErrorCode      = jnc_FunctionTypeFlag_ErrorCode,
+	FunctionTypeFlag_ByValArgs      = jnc_FunctionTypeFlag_ByValArgs,
+	FunctionTypeFlag_CoercedArgs    = jnc_FunctionTypeFlag_CoercedArgs,
+	FunctionTypeFlag_Unsafe         = jnc_FunctionTypeFlag_Unsafe,
+	FunctionTypeFlag_Async          = jnc_FunctionTypeFlag_Async,
+	FunctionTypeFlag_AsyncErrorCode = jnc_FunctionTypeFlag_AsyncErrorCode;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

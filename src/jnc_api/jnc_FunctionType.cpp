@@ -28,12 +28,13 @@ jnc_getFunctionTypeFlagString(jnc_FunctionTypeFlag flag)
 {
 	static const char* stringTable[] =
 	{
-		"vararg",     // jnc_FunctionTypeFlag_VarArg      = 0x010000,
-		"errorcode",  // jnc_FunctionTypeFlag_ErrorCode   = 0x020000,
-		"byval",      // jnc_FunctionTypeFlag_ByValArgs   = 0x040000,
-		"coerced",    // jnc_FunctionTypeFlag_CoercedArgs = 0x040000,
-		"unsafe",     // jnc_FunctionTypeFlag_Unsafe      = 0x100000,
-		"async",      // jnc_FunctionTypeFlag_Async       = 0x200000,
+		"vararg",     // jnc_FunctionTypeFlag_VarArg         = 0x010000,
+		"errorcode",  // jnc_FunctionTypeFlag_ErrorCode      = 0x020000,
+		"byval",      // jnc_FunctionTypeFlag_ByValArgs      = 0x040000,
+		"coerced",    // jnc_FunctionTypeFlag_CoercedArgs    = 0x040000,
+		"unsafe",     // jnc_FunctionTypeFlag_Unsafe         = 0x100000,
+		"async",      // jnc_FunctionTypeFlag_Async          = 0x200000,
+		"errorcode",  // jnc_FunctionTypeFlag_AsyncErrorCode = 0x400000,
 	};
 
 	size_t i = axl::sl::getLoBitIdx32(flag >> 16);

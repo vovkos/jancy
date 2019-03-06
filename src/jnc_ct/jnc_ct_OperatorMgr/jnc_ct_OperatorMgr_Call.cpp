@@ -622,11 +622,7 @@ OperatorMgr::callImpl(
 		m_module->m_gcShadowStackMgr.createTmpGcRoot(*resultValue);
 
 	if (functionType->getFlags() & FunctionTypeFlag_ErrorCode)
-	{
-		result = m_module->m_controlFlowMgr.throwExceptionIf(*resultValue, functionType);
-		if (!result)
-			return false;
-	}
+		m_module->m_controlFlowMgr.checkErrorCode(*resultValue, functionType->getReturnType());
 
 	return true;
 }

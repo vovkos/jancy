@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_AsyncFunction.h"
 
 namespace jnc {
 namespace ct {
@@ -518,6 +519,13 @@ ControlFlowMgr::ret(const Value& value)
 		bool result = m_module->m_operatorMgr.castOperator(value, returnType, &returnValue);
 		if (!result)
 			return false;
+
+		if (isAsync && (functionType->getFlags() & FunctionTypeFlag_AsyncErrorCode))
+			checkErrorCode(
+				returnValue,
+				returnType,
+				((AsyncFunction*) function)->getCatchBlock()
+				);
 
 		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync)
 		{

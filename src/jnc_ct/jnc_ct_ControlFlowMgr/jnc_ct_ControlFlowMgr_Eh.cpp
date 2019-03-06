@@ -200,18 +200,16 @@ ControlFlowMgr::endTryOperator(
 	return true;
 }
 
-bool
-ControlFlowMgr::throwExceptionIf(
+void
+ControlFlowMgr::checkErrorCode(
 	const Value& returnValue,
-	FunctionType* functionType
+	Type* returnType,
+	BasicBlock* throwBlock
 	)
 {
 	bool result;
 
-	Type* returnType = functionType->getReturnType();
-	ASSERT(
-		(functionType->getFlags() & FunctionTypeFlag_ErrorCode) &&
-		(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode));
+	ASSERT(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode);
 
 	Value indicatorValue;
 	if (returnType->getTypeKind() == TypeKind_Bool || !(returnType->getTypeKindFlags() & TypeKindFlag_Integer))
@@ -225,34 +223,36 @@ ControlFlowMgr::throwExceptionIf(
 		minusOneValue.createConst(&minusOne, returnType);
 
 		result = m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, returnValue, minusOneValue, &indicatorValue);
-		if (!result)
-			return false;
+		ASSERT (result);
 	}
 
 	BasicBlock* followBlock = createBlock("follow_block");
 
+	if (throwBlock)
+	{
+		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
+		ASSERT (result);
+		return;
+	}
+
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	if (!scope->canStaticThrow())
 	{
-		BasicBlock* throwBlock = getDynamicThrowBlock();
+		throwBlock = getDynamicThrowBlock();
 
-		result = conditionalJump(indicatorValue, followBlock, throwBlock, throwBlock);
-		if (!result)
-			return false;
+		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
+		ASSERT (result);
 	}
 	else
 	{
-		BasicBlock* throwBlock = createBlock("static_throw_block");
+		throwBlock = createBlock("static_throw_block");
 
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, throwBlock);
-		if (!result)
-			return false;
+		ASSERT (result);
 
 		throwException();
+		setCurrentBlock(followBlock);
 	}
-
-	setCurrentBlock(followBlock);
-	return true;
 }
 
 void

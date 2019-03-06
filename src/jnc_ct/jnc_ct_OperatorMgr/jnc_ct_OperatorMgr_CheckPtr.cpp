@@ -56,8 +56,7 @@ OperatorMgr::checkPtr(
 			&returnValue
 			);
 
-		bool result = m_module->m_controlFlowMgr.throwExceptionIf(returnValue, checkFunctionType);
-		ASSERT(result);
+		m_module->m_controlFlowMgr.checkErrorCode(returnValue, checkFunctionType->getReturnType());
 	}
 }
 

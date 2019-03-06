@@ -175,6 +175,9 @@ FunctionType::createFlagSignature(uint_t flags)
 	if (flags & FunctionTypeFlag_Async)
 		string += 'A';
 
+	if (flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
+		string += 'E';
+
 	return string;
 }
 
@@ -217,20 +220,20 @@ FunctionType::getTypeModifierString()
 {
 	sl::String string;
 
-	if (m_flags & FunctionTypeFlag_ErrorCode)
+	if (m_flags & (FunctionTypeFlag_ErrorCode | FunctionTypeFlag_AsyncErrorCode))
 		string += "errorcode ";
+
+	if (m_flags & FunctionTypeFlag_Async)
+		string += "async ";
+
+	if (m_flags & FunctionTypeFlag_Unsafe)
+		string += "unsafe ";
 
 	if (!m_callConv->isDefault())
 	{
 		string = m_callConv->getCallConvDisplayString();
 		string += ' ';
 	}
-
-	if (m_flags & FunctionTypeFlag_Unsafe)
-		string += "unsafe ";
-
-	if (m_flags & FunctionTypeFlag_Async)
-		string += "async ";
 
 	if (!string.isEmpty())
 		string.chop(1);
