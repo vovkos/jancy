@@ -88,7 +88,7 @@ public:
 	Function*
 	getAsyncLauncher()
 	{
-		ASSERT(m_functionKind == FunctionKind_Async);
+		ASSERT(m_functionKind == FunctionKind_AsyncSequencer);
 		return m_asyncLauncher;
 	}
 
@@ -448,9 +448,6 @@ protected:
 
 	bool
 	compileNormalBody();
-
-	bool
-	compileAsyncLauncher();
 };
 
 //..............................................................................

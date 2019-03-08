@@ -23,7 +23,7 @@ namespace ct {
 Function::Function()
 {
 	m_itemKind = ModuleItemKind_Function;
-	m_functionKind = FunctionKind_Undefined;
+	m_functionKind = FunctionKind_Normal;
 	m_type = NULL;
 	m_castOpType = NULL;
 	m_thisArgType = NULL;
@@ -167,9 +167,8 @@ Function::compile()
 		m_module->m_functionMgr.prologue(this, beginPos);
 		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(NULL, &m_usingSet);
 
-		result =
-			(m_type->getFlags() & FunctionTypeFlag_Async) ? compileAsyncLauncher() :
-			m_functionKind == FunctionKind_Constructor ? compileConstructorBody() :
+		result = m_functionKind == FunctionKind_Constructor ?
+			compileConstructorBody() :
 			compileNormalBody();
 
 		if (!result)
@@ -271,94 +270,6 @@ Function::compileNormalBody()
 	parser.m_stage = Parser::Stage_Pass2;
 
 	return parser.parseTokenList(SymbolKind_compound_stmt, m_body, true);
-}
-
-bool
-Function::compileAsyncLauncher()
-{
-	bool result;
-
-	sl::String qualifiedName = getQualifiedName();
-	sl::String promiseName = qualifiedName + ".Promise";
-	sl::String sequencerName = qualifiedName + ".sequencer";
-
-	ClassType* promiseType = m_module->m_typeMgr.createClassType(sl::String(), promiseName);
-	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
-
-	if (isMember())
-		promiseType->createField(m_thisType);
-
-	sl::Array<Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray();
-	size_t argCount = argVariableArray.getCount();
-
-	for (size_t i = 0; i < argCount; i++)
-	{
-		Variable* argVar = argVariableArray[i];
-		promiseType->createField(argVar->getName(), argVar->getType());
-	}
-
-	sl::Array<StructField*> argFieldArray = promiseType->getMemberFieldArray();
-	ASSERT(argFieldArray.getCount() == (isMember() ? argCount + 1 : argCount));
-
-	promiseType->ensureLayout();
-
-	Value promiseValue;
-	result = m_module->m_operatorMgr.newOperator(promiseType, &promiseValue);
-	ASSERT(result);
-
-	size_t j = 0;
-
-	if (isMember())
-	{
-		StructField* argField = argFieldArray[0];
-		Value argFieldValue;
-
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
-		ASSERT(result);
-
-		result = m_module->m_operatorMgr.storeDataRef(argFieldValue, m_module->m_functionMgr.getThisValue());
-		ASSERT(result);
-
-		j = 1;
-	}
-
-	for (size_t i = 0; i < argCount; i++, j++)
-	{
-		Variable* argVar = argVariableArray[i];
-		StructField* argField = argFieldArray[j];
-		Value argFieldValue;
-
-		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
-		ASSERT(result);
-
-		result = m_module->m_operatorMgr.storeDataRef(argFieldValue, argVar);
-		ASSERT(result);
-	}
-
-	Type* argType = promiseType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe);
-	uint_t flags = m_type->getFlags() & FunctionTypeFlag_AsyncErrorCode;
-
-	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
-
-	Function* sequencerFunc = m_module->m_functionMgr.createFunction(
-		FunctionKind_Async,
-		sl::String(),
-		sequencerName,
-		functionType
-		);
-
-	sequencerFunc->m_asyncLauncher = this;
-	sequencerFunc->m_parentUnit = m_parentUnit;
-	sequencerFunc->m_parentNamespace = m_parentNamespace;
-	sequencerFunc->m_thisArgType = m_thisArgType;
-	sequencerFunc->m_thisType = m_thisType;
-	sequencerFunc->m_thisArgDelta = m_thisArgDelta;
-
-	sequencerFunc->setBody(&m_body);
-
-	m_module->m_operatorMgr.callOperator(sequencerFunc, promiseValue);
-
-	return m_module->m_controlFlowMgr.ret(promiseValue);
 }
 
 bool

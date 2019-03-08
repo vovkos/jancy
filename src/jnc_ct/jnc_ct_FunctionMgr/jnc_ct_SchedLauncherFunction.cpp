@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_ScheduleLauncherFunction.h"
+#include "jnc_ct_SchedLauncherFunction.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -19,7 +19,7 @@ namespace ct {
 //..............................................................................
 
 bool
-ScheduleLauncherFunction::compile()
+SchedLauncherFunction::compile()
 {
 	bool result;
 

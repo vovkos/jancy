@@ -57,8 +57,9 @@ enum jnc_FunctionKind
 	jnc_FunctionKind_OperatorCdeclVararg,
 	jnc_FunctionKind_Internal,
 	jnc_FunctionKind_Thunk,
-	jnc_FunctionKind_ScheduleLauncher,
-	jnc_FunctionKind_Async,
+	jnc_FunctionKind_SchedLauncher,
+	jnc_FunctionKind_AsyncSchedLauncher,
+	jnc_FunctionKind_AsyncSequencer,
 	jnc_FunctionKind__Count
 };
 
@@ -69,6 +70,7 @@ typedef enum jnc_FunctionKind jnc_FunctionKind;
 JNC_EXTERN_C
 const char*
 jnc_getFunctionKindString(jnc_FunctionKind functionKind);
+
 
 //..............................................................................
 
@@ -204,8 +206,9 @@ const FunctionKind
 	FunctionKind_OperatorCdeclVararg = jnc_FunctionKind_OperatorCdeclVararg,
 	FunctionKind_Internal            = jnc_FunctionKind_Internal,
 	FunctionKind_Thunk               = jnc_FunctionKind_Thunk,
-	FunctionKind_ScheduleLauncher    = jnc_FunctionKind_ScheduleLauncher,
-	FunctionKind_Async               = jnc_FunctionKind_Async,
+	FunctionKind_SchedLauncher       = jnc_FunctionKind_SchedLauncher,
+	FunctionKind_AsyncSchedLauncher  = jnc_FunctionKind_AsyncSchedLauncher,
+	FunctionKind_AsyncSequencer      = jnc_FunctionKind_AsyncSequencer,
 	FunctionKind__Count              = jnc_FunctionKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

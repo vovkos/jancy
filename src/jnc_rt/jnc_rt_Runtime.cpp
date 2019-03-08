@@ -149,7 +149,7 @@ Runtime::initializeCallSite(jnc_CallSite* callSite)
 
 	// not found, create a new one
 
-	Tls* tls = AXL_MEM_NEW_EXTRA(Tls, m_tlsSize);
+	Tls* tls = AXL_MEM_ZERO_NEW_EXTRA(Tls, m_tlsSize);
 	m_gcHeap.registerMutatorThread(&tls->m_gcMutatorThread); // register with GC heap first
 	tls->m_prevTls = prevTls;
 	tls->m_runtime = this;
@@ -206,10 +206,7 @@ Runtime::uninitializeCallSite(jnc_CallSite* callSite)
 	((GcShadowStackFrameMap*) &callSite->m_gcShadowStackDynamicFrameMap)->~GcShadowStackFrameMap();
 
 	if (tls->m_initializeLevel) // this thread was nested-initialized
-	{
-		m_gcHeap.safePoint();
-		return;
-	}
+		return; // don't add safe-point, so it's OK to return locally-allocated objects
 
 	ASSERT(
 		!callSite->m_initializeLevel &&

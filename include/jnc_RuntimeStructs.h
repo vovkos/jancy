@@ -37,6 +37,8 @@ typedef struct jnc_PropertyPtr jnc_PropertyPtr;
 typedef struct jnc_IfaceHdr jnc_IfaceHdr;
 typedef struct jnc_Multicast jnc_Multicast;
 typedef struct jnc_McSnapshot jnc_McSnapshot;
+typedef struct jnc_Scheduler jnc_Scheduler;
+typedef struct jnc_SchedulerVtable jnc_SchedulerVtable;
 typedef struct jnc_Reactor jnc_Reactor;
 typedef struct jnc_FmtLiteral jnc_FmtLiteral;
 typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
@@ -200,6 +202,29 @@ struct jnc_McSnapshot
 
 //..............................................................................
 
+// scheduler
+
+typedef
+void
+jnc_Scheduler_ScheduleFunc(
+	jnc_Scheduler* scheduler,
+	jnc_FunctionPtr functionPtr
+	);
+
+struct jnc_SchedulerVtable
+{
+	jnc_Scheduler_ScheduleFunc* m_scheduleFunc;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_Scheduler
+{
+	jnc_IfaceHdr m_ifaceHdr;
+};
+
+//..............................................................................
+
 // each reactor is represented by this class:
 
 struct jnc_Reactor
@@ -307,6 +332,7 @@ struct jnc_TlsVariableTable
 {
 	jnc_SjljFrame* m_sjljFrame;
 	jnc_GcShadowStackFrame* m_gcShadowStackTop;
+	jnc_IfaceHdr* m_asyncScheduler;
 
 	// followed by user-defined TLS variables
 };
@@ -332,6 +358,10 @@ jnc_StaticConstructFunc();
 typedef
 void
 jnc_StaticDestructFunc();
+
+typedef
+void
+jnc_ConstructFunc(jnc_IfaceHdr* iface);
 
 typedef
 void
@@ -377,6 +407,8 @@ typedef jnc_PropertyPtr PropertyPtr;
 typedef jnc_IfaceHdr IfaceHdr;
 typedef jnc_Multicast Multicast;
 typedef jnc_McSnapshot McSnapshot;
+typedef jnc_Scheduler Scheduler;
+typedef jnc_SchedulerVtable SchedulerVtable;
 typedef jnc_Reactor Reactor;
 typedef jnc_ReactorClosure ReactorClosure;
 typedef jnc_FmtLiteral FmtLiteral;
@@ -391,6 +423,7 @@ typedef jnc_TlsVariableTable TlsVariableTable;
 typedef jnc_CallSite CallSite;
 typedef jnc_StaticConstructFunc StaticConstructFunc;
 typedef jnc_StaticDestructFunc StaticDestructFunc;
+typedef jnc_ConstructFunc ConstructFunc;
 typedef jnc_DestructFunc DestructFunc;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

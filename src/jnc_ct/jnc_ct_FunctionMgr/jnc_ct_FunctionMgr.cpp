@@ -11,9 +11,11 @@
 
 #include "pch.h"
 #include "jnc_ct_FunctionMgr.h"
+#include "jnc_ct_SchedLauncherFunction.h"
+#include "jnc_ct_AsyncLauncherFunction.h"
+#include "jnc_ct_AsyncSchedLauncherFunction.h"
+#include "jnc_ct_AsyncSequencerFunction.h"
 #include "jnc_ct_ThunkFunction.h"
-#include "jnc_ct_ScheduleLauncherFunction.h"
-#include "jnc_ct_AsyncFunction.h"
 #include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_MulticastClassType.h"
@@ -47,8 +49,8 @@ FunctionMgr::clear()
 	m_propertyTemplateList.clear();
 	m_thunkFunctionMap.clear();
 	m_thunkPropertyMap.clear();
-	m_scheduleLauncherFunctionMap.clear();
-	m_asyncFunctionArray.clear();
+	m_schedLauncherFunctionMap.clear();
+	m_asyncSequencerFunctionArray.clear();
 	m_staticConstructArray.clear();
 	memset(m_stdFunctionArray, 0, sizeof(m_stdFunctionArray));
 	memset(m_lazyStdFunctionArray, 0, sizeof(m_lazyStdFunctionArray));
@@ -108,21 +110,32 @@ FunctionMgr::createFunction(
 		function = AXL_MEM_NEW(ThunkFunction);
 		break;
 
-	case FunctionKind_ScheduleLauncher:
-		function = AXL_MEM_NEW(ScheduleLauncherFunction);
+	case FunctionKind_SchedLauncher:
+		function = AXL_MEM_NEW(SchedLauncherFunction);
 		break;
 
-	case FunctionKind_Async:
-		function = AXL_MEM_NEW(AsyncFunction);
-		m_asyncFunctionArray.append((AsyncFunction*)function);
+	case FunctionKind_AsyncSchedLauncher:
+		function = AXL_MEM_NEW(AsyncSchedLauncherFunction);
+		break;
+
+	case FunctionKind_AsyncSequencer:
+		function = AXL_MEM_NEW(AsyncSequencerFunction);
+		m_asyncSequencerFunctionArray.append((AsyncSequencerFunction*)function);
 		break;
 
 	default:
-		function = AXL_MEM_NEW(Function);
+		if (type->getFlags() & FunctionTypeFlag_Async)
+		{
+			function = AXL_MEM_NEW(AsyncLauncherFunction);
+		}
+		else
+		{
+			function = AXL_MEM_NEW(Function);
+			function->m_functionKind = functionKind;
+		}
 	}
 
 	function->m_module = m_module;
-	function->m_functionKind = functionKind;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
 	function->m_type = type;
@@ -417,7 +430,7 @@ FunctionMgr::internalPrologue(
 		m_module->m_namespaceMgr.openScope(*pos) :
 		m_module->m_namespaceMgr.openInternalScope();
 
-	if (function->isMember() && function->getFunctionKind() != FunctionKind_Async)
+	if (function->isMember() && function->getFunctionKind() != FunctionKind_AsyncSequencer)
 		createThisValue();
 
 	if (argCount)
@@ -486,9 +499,9 @@ FunctionMgr::getDirectThunkFunction(
 		thunkFunctionType->getSignature().sz()
 		);
 
-	sl::StringHashTableIterator<Function*> thunk = m_thunkFunctionMap.visit(signature);
-	if (thunk->m_value)
-		return thunk->m_value;
+	sl::StringHashTableIterator<Function*> it = m_thunkFunctionMap.visit(signature);
+	if (it->m_value)
+		return it->m_value;
 
 	ThunkFunction* thunkFunction = (ThunkFunction*)createFunction(
 		FunctionKind_Thunk,
@@ -500,7 +513,7 @@ FunctionMgr::getDirectThunkFunction(
 	thunkFunction->m_storageKind = StorageKind_Static;
 	thunkFunction->m_targetFunction = targetFunction;
 
-	thunk->m_value = thunkFunction;
+	it->m_value = thunkFunction;
 
 	m_module->markForCompile(thunkFunction);
 	return thunkFunction;
@@ -524,9 +537,9 @@ FunctionMgr::getDirectThunkProperty(
 		thunkPropertyType->getSignature().sz()
 		);
 
-	sl::StringHashTableIterator<Property*> thunk = m_thunkPropertyMap.visit(signature);
-	if (thunk->m_value)
-		return thunk->m_value;
+	sl::StringHashTableIterator<Property*> it = m_thunkPropertyMap.visit(signature);
+	if (it->m_value)
+		return it->m_value;
 
 	ThunkProperty* thunkProperty = (ThunkProperty*)createProperty(
 		PropertyKind_Thunk,
@@ -541,7 +554,7 @@ FunctionMgr::getDirectThunkProperty(
 	if (!result)
 		return NULL;
 
-	thunk->m_value = thunkProperty;
+	it->m_value = thunkProperty;
 
 	thunkProperty->ensureLayout();
 	return thunkProperty;
@@ -564,9 +577,9 @@ FunctionMgr::getDirectDataThunkProperty(
 		thunkPropertyType->getSignature().sz()
 		);
 
-	sl::StringHashTableIterator<Property*> thunk = m_thunkPropertyMap.visit(signature);
-	if (thunk->m_value)
-		return thunk->m_value;
+	sl::StringHashTableIterator<Property*> it = m_thunkPropertyMap.visit(signature);
+	if (it->m_value)
+		return it->m_value;
 
 	DataThunkProperty* thunkProperty = (DataThunkProperty*)createProperty(
 		PropertyKind_DataThunk,
@@ -585,7 +598,7 @@ FunctionMgr::getDirectDataThunkProperty(
 	if (!result)
 		return NULL;
 
-	thunk->m_value = thunkProperty;
+	it->m_value = thunkProperty;
 
 	thunkProperty->ensureLayout();
 	m_module->markForCompile(thunkProperty);
@@ -593,37 +606,48 @@ FunctionMgr::getDirectDataThunkProperty(
 }
 
 Function*
-FunctionMgr::getScheduleLauncherFunction(
-	FunctionPtrType* targetFunctionPtrType,
-	ClassPtrTypeKind schedulerPtrTypeKind
-	)
+FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 {
 	sl::String signature = targetFunctionPtrType->getSignature();
-	if (schedulerPtrTypeKind == ClassPtrTypeKind_Weak)
-		signature += ".w";
+	sl::StringHashTableIterator<Function*> it = m_schedLauncherFunctionMap.visit(signature);
+	if (it->m_value)
+		return it->m_value;
 
-	sl::StringHashTableIterator<Function*> thunk = m_scheduleLauncherFunctionMap.visit(signature);
-	if (thunk->m_value)
-		return thunk->m_value;
-
-	ClassPtrType* schedulerPtrType = ((ClassType*)m_module->m_typeMgr.getStdType(StdType_Scheduler))->getClassPtrType(schedulerPtrTypeKind);
-
-	sl::Array<FunctionArg*> argArray  = targetFunctionPtrType->getTargetType()->getArgArray();
+	Type* schedulerPtrType = m_module->m_typeMgr.getStdType(StdType_SchedulerPtr);
+	FunctionType* targetFunctionType = targetFunctionPtrType->getTargetType();
+	sl::Array<FunctionArg*> argArray  = targetFunctionType->getArgArray();
 	argArray.insert(0, targetFunctionPtrType->getSimpleFunctionArg());
 	argArray.insert(1, schedulerPtrType->getSimpleFunctionArg());
 
-	FunctionType* launcherType = m_module->m_typeMgr.getFunctionType(argArray);
+	Function* launcherFunction;
 
-	ScheduleLauncherFunction* launcherFunction = (ScheduleLauncherFunction*)createFunction(
-		FunctionKind_ScheduleLauncher,
-		sl::String(),
-		"jnc.scheduleLauncherFunction",
-		launcherType
-		);
+	if (targetFunctionType->getFlags() & FunctionTypeFlag_Async)
+	{
+		Type* returnType = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
+		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(returnType, argArray);
+
+		launcherFunction = createFunction(
+			FunctionKind_AsyncSchedLauncher,
+			sl::String(),
+			"jnc.asyncSchedLauncher",
+			launcherFunctionType
+			);
+	}
+	else
+	{
+		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(argArray);
+
+		launcherFunction = createFunction(
+			FunctionKind_SchedLauncher,
+			sl::String(),
+			"jnc.schedLauncher",
+			launcherFunctionType
+			);
+	}
 
 	launcherFunction->m_storageKind = StorageKind_Static;
 
-	thunk->m_value = launcherFunction;
+	it->m_value = launcherFunction;
 
 	m_module->markForCompile(launcherFunction);
 	return launcherFunction;
@@ -677,9 +701,9 @@ FunctionMgr::injectTlsPrologue(Function* function)
 void
 FunctionMgr::replaceAsyncAllocas()
 {
-	size_t count = m_asyncFunctionArray.getCount();
+	size_t count = m_asyncSequencerFunctionArray.getCount();
 	for (size_t i = 0; i < count; i++)
-		m_asyncFunctionArray[i]->replaceAllocas();
+		m_asyncSequencerFunctionArray[i]->replaceAllocas();
 }
 
 void

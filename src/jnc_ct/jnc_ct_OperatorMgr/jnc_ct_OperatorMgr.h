@@ -716,6 +716,9 @@ public:
 	// async/await
 
 	bool
+	awaitOperator(const Value& value);
+
+	bool
 	awaitOperator(
 		const Value& value,
 		Value* resultValue

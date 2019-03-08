@@ -57,6 +57,16 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+Promise::Promise()
+{
+	// claim scheduler (if any)
+
+	Tls* tls = getCurrentThreadTls();
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
+	m_scheduler = tlsVariableTable->m_asyncScheduler;
+	tlsVariableTable->m_asyncScheduler = NULL;
+}
+
 void
 JNC_CDECL
 Promise::markOpaqueGcRoots(GcHeap* gcHeap)

@@ -106,6 +106,7 @@ class Scheduler
 	*/
 
 	abstract schedule(function* proc());
+	async asyncWait();
 }
 
 ///;

@@ -1,3 +1,5 @@
+// async member function testing
+
 import "sys_Timer.jnc"
 
 class C

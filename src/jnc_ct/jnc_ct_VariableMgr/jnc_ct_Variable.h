@@ -29,6 +29,7 @@ enum StdVariable
 	StdVariable_GcShadowStackTop,
 	StdVariable_GcSafePointTrigger,
 	StdVariable_NullPtrCheckSink,
+	StdVariable_AsyncScheduler,
 	StdVariable__Count,
 };
 

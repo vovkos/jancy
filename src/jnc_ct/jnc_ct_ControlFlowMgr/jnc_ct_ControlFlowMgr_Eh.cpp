@@ -23,7 +23,7 @@ BasicBlock*
 ControlFlowMgr::getDynamicThrowBlock()
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	ASSERT(function->getFunctionKind() != FunctionKind_Async); // async functions always can static-throw
+	ASSERT(function->getFunctionKind() != FunctionKind_AsyncSequencer); // async functions always can static-throw
 
 	if (m_dynamicThrowBlock)
 		return m_dynamicThrowBlock;
@@ -657,7 +657,7 @@ ControlFlowMgr::finalizeSjljFrameArray()
 	Variable* gcShadowStackTopVariable;
 	Value prevGcShadowStackFrameValue;
 
-	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame() && function->getFunctionKind() != FunctionKind_Async;
+	bool hasGcShadowStackFrame = m_module->m_gcShadowStackMgr.hasFrame() && function->getFunctionKind() != FunctionKind_AsyncSequencer;
 	if (!hasGcShadowStackFrame)
 	{
 		gcShadowStackTopVariable = m_module->m_variableMgr.getStdVariable(StdVariable_GcShadowStackTop);

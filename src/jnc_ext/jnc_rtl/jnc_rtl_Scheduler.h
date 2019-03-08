@@ -11,45 +11,26 @@
 
 #pragma once
 
-#include "jnc_ct_Function.h"
+#include "jnc_ExtensionLib.h"
 
 namespace jnc {
-namespace ct {
+namespace rtl {
+
+class Promise;
+
+JNC_DECLARE_CLASS_TYPE(SchedulerImpl)
 
 //..............................................................................
 
-class AsyncFunction: public Function
+class SchedulerImpl: public Scheduler
 {
-	friend class FunctionMgr;
-
-protected:
-	ClassType* m_promiseType;
-	BasicBlock* m_catchBlock;
-
 public:
-	AsyncFunction();
-
-	ClassType*
-	getPromiseType()
-	{
-		return m_promiseType;
-	}
-
-	BasicBlock*
-	getCatchBlock()
-	{
-		return m_catchBlock;
-	}
-
-	virtual
-	bool
-	compile();
-
-	void
-	replaceAllocas();
+	Promise*
+	JNC_CDECL
+	asyncWait();
 };
 
 //..............................................................................
 
-} // namespace ct
+} // namespace rtl
 } // namespace jnc

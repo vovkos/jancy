@@ -1,3 +1,5 @@
+// initial async/await testing
+
 import "sys_Timer.jnc"
 
 int async asyncBar(int x, int y)

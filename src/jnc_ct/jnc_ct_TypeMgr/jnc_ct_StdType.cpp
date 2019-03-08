@@ -54,6 +54,7 @@ getStdTypeSource(StdType stdType)
 			lengthof(schedulerTypeSrc),
 			StdNamespace_Jnc,
 		},
+		{ NULL},                             // StdType_SchedulerPtr,
 		{                                    // StdType_RegexMatch,
 			regexMatchTypeSrc,
 			lengthof(regexMatchTypeSrc),

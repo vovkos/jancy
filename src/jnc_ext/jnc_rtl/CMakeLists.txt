@@ -18,6 +18,7 @@ set (
 	jnc_rtl_DynamicLib.h
 	jnc_rtl_DynamicLayout.h
 	jnc_rtl_Multicast.h
+	jnc_rtl_Scheduler.h
 	jnc_rtl_Promise.h
 	jnc_rtl_Reactor.h
 	jnc_rtl_Regex.h
@@ -29,7 +30,9 @@ set (
 	jnc_rtl_DynamicLib.cpp
 	jnc_rtl_DynamicLayout.cpp
 	jnc_rtl_Multicast.cpp
+	jnc_rtl_Scheduler.cpp
 	jnc_rtl_Promise.cpp
+	jnc_rtl_Reactor.cpp
 	jnc_rtl_Reactor.cpp
 	jnc_rtl_Regex.cpp
 	)

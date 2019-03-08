@@ -1403,19 +1403,11 @@ OperatorMgr::prepareOperand(
 	return true;
 }
 
-
 bool
-OperatorMgr::awaitOperator(
-	const Value& value,
-	Value* resultValue
-	)
+OperatorMgr::awaitOperator(const Value& value)
 {
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	if (function->getFunctionKind() != FunctionKind_Async)
-	{
-		err::setError("await can only be used in async functions");
-		return false;
-	}
+	ASSERT(function->getFunctionKind() == FunctionKind_AsyncSequencer);
 
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
 	ASSERT(thisPromiseValue);
@@ -1433,7 +1425,7 @@ OperatorMgr::awaitOperator(
 	bool result =
 		castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue) &&
 		memberOperator(opPromiseValue, "wait", &waitValue) &&
-		getPromiseField(thisPromiseValue, "m_state", &stateFieldValue);
+		getPromiseField(thisPromiseValue, "m_state", &stateFieldValue) &&
 		storeDataRef(stateFieldValue, stateIdValue) &&
 		getPromiseField(thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
 		storeDataRef(pendingPromiseFieldValue, opPromiseValue) &&
@@ -1446,10 +1438,31 @@ OperatorMgr::awaitOperator(
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock(scope);
 	m_module->m_controlFlowMgr.asyncRet(block);
+	return true;
+}
 
-	// blocking-wait will return immediately now (promise is completed)
+bool
+OperatorMgr::awaitOperator(
+	const Value& value,
+	Value* resultValue
+	)
+{
+	Function* function = m_module->m_functionMgr.getCurrentFunction();
+	if (function->getFunctionKind() != FunctionKind_AsyncSequencer)
+	{
+		err::setError("await can only be used in async functions");
+		return false;
+	}
+
+	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
+	ASSERT(thisPromiseValue);
+
+	Value pendingPromiseFieldValue;
+	Value opPromiseValue;
+	Value waitValue;
 
 	return
+		awaitOperator(value) &&
 		getPromiseField(thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
 		loadDataRef(pendingPromiseFieldValue, &opPromiseValue) &&
 		memberOperator(opPromiseValue, "blockingWait", &waitValue) &&

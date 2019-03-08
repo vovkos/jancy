@@ -15,6 +15,11 @@
 #include "jnc_CallSite.h"
 
 namespace jnc {
+namespace rtl {
+
+class Promise;
+
+} // namespace rtl
 namespace sys {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(Timer)

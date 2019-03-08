@@ -54,6 +54,7 @@ VariableMgr::createStdVariables()
 
 	getStdVariable(StdVariable_SjljFrame);
 	getStdVariable(StdVariable_GcShadowStackTop);
+	getStdVariable(StdVariable_AsyncScheduler);
 }
 
 Variable*
@@ -101,6 +102,15 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 			sl::String(),
 			"jnc.g_nullPtrCheckSink",
 			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)
+			);
+		break;
+
+	case StdVariable_AsyncScheduler:
+		variable = createVariable(
+			StorageKind_Tls,
+			sl::String(),
+			"jnc.g_asyncScheduler",
+			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr)
 			);
 		break;
 

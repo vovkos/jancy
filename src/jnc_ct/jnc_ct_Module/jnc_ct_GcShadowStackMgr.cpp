@@ -222,7 +222,7 @@ GcShadowStackMgr::finalizeFrame()
 	m_module->m_llvmIrBuilder.createStore(gcRootArrayValue, gcRootArrayFieldValue);
 
 	Variable* stackTopVariable;
-	bool isAsync = function->getFunctionKind() == FunctionKind_Async;
+	bool isAsync = function->getFunctionKind() == FunctionKind_AsyncSequencer;
 
 	if (isAsync)
 	{

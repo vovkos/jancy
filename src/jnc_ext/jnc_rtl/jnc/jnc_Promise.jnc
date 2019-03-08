@@ -21,7 +21,7 @@ opaque class Promise
 {
 protected:
 	size_t m_state;
-	intptr_t m_scheduler;
+	Scheduler* m_scheduler;
 	Promise* m_pendingPromise;
 	variant m_result;
 	std.Error const* m_error;

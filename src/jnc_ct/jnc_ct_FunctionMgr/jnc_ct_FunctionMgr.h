@@ -20,8 +20,6 @@
 namespace jnc {
 namespace ct {
 
-class AsyncFunction;
-
 //..............................................................................
 
 class FunctionMgr
@@ -31,7 +29,7 @@ class FunctionMgr
 	friend class ClassType;
 	friend class Function;
 	friend class Parser;
-	friend class AsyncFunction;
+	friend class AsyncSequencerFunction;
 
 protected:
 	Module* m_module;
@@ -43,9 +41,9 @@ protected:
 
 	sl::StringHashTable<Function*> m_thunkFunctionMap;
 	sl::StringHashTable<Property*> m_thunkPropertyMap;
-	sl::StringHashTable<Function*> m_scheduleLauncherFunctionMap;
+	sl::StringHashTable<Function*> m_schedLauncherFunctionMap;
 
-	sl::Array<AsyncFunction*> m_asyncFunctionArray;
+	sl::Array<AsyncSequencerFunction*> m_asyncSequencerFunctionArray;
 	sl::Array<NamedTypeBlock*> m_staticConstructArray;
 
 	Function* m_stdFunctionArray[StdFunc__Count];
@@ -256,10 +254,7 @@ public:
 		);
 
 	Function*
-	getScheduleLauncherFunction(
-		FunctionPtrType* targetFunctionPtrType,
-		ClassPtrTypeKind schedulerPtrTypeKind = ClassPtrTypeKind_Normal
-		);
+	getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType);
 
 	void
 	createThisValue();

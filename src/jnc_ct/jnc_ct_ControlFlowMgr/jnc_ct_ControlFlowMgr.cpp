@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_ControlFlowMgr.h"
 #include "jnc_ct_Module.h"
-#include "jnc_ct_AsyncFunction.h"
+#include "jnc_ct_AsyncSequencerFunction.h"
 
 namespace jnc {
 namespace ct {
@@ -244,7 +244,7 @@ ControlFlowMgr::getReturnBlock()
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	FunctionType* functionType = function->getType();
 
-	if (function->getFunctionKind() == FunctionKind_Async)
+	if (function->getFunctionKind() == FunctionKind_AsyncSequencer)
 	{
 		Type* returnType = function->getAsyncLauncher()->getType()->getAsyncReturnType();
 		Value returnValue = returnType->getTypeKind() == TypeKind_Void ?
@@ -283,7 +283,7 @@ ControlFlowMgr::getReturnValueVariable()
 		return m_returnValueVariable;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	Type* returnType = function->getFunctionKind() == FunctionKind_Async ?
+	Type* returnType = function->getFunctionKind() == FunctionKind_AsyncSequencer ?
 		function->getAsyncLauncher()->getType()->getAsyncReturnType() :
 		function->getType()->getReturnType();
 
@@ -473,7 +473,7 @@ ControlFlowMgr::ret(const Value& value)
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function);
 
-	bool isAsync = function->getFunctionKind() == FunctionKind_Async;
+	bool isAsync = function->getFunctionKind() == FunctionKind_AsyncSequencer;
 	FunctionType* functionType = function->getType();
 
 	Type* returnType = isAsync ?
@@ -524,7 +524,7 @@ ControlFlowMgr::ret(const Value& value)
 			checkErrorCode(
 				returnValue,
 				returnType,
-				((AsyncFunction*) function)->getCatchBlock()
+				((AsyncSequencerFunction*) function)->getCatchBlock()
 				);
 
 		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync)
@@ -555,7 +555,7 @@ ControlFlowMgr::checkReturn()
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	Type* returnType;
 
-	if (function->getFunctionKind() == FunctionKind_Async)
+	if (function->getFunctionKind() == FunctionKind_AsyncSequencer)
 	{
 		function = function->getAsyncLauncher();
 		returnType = function->getType()->getAsyncReturnType();

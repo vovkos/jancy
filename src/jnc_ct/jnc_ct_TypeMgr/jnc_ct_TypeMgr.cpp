@@ -230,8 +230,11 @@ TypeMgr::getStdType(StdType stdType)
 
 	case StdType_Promise:
 		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("Promise");
-		if (!type)
-			type = parseStdType(stdType);
+		if (type)
+			break;
+
+		type = parseStdType(stdType);
+		getStdType(StdType_Promisifier); // make sure Promisifier is also added
 		break;
 
 	case StdType_PromisePtr:
@@ -254,6 +257,10 @@ TypeMgr::getStdType(StdType stdType)
 		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("Scheduler");
 		if (!type)
 			type = parseStdType(stdType);
+		break;
+
+	case StdType_SchedulerPtr:
+		type = ((ClassType*)getStdType(StdType_Scheduler))->getClassPtrType(ClassPtrTypeKind_Normal);
 		break;
 
 	case StdType_ReactorBase:

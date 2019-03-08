@@ -45,8 +45,9 @@ jnc_getFunctionKindString(jnc_FunctionKind functionKind)
 		"operator_cdecl_vararg",    // jnc_FunctionKind_OperatorCdeclVararg,
 		"internal",                 // jnc_FunctionKind_Internal,
 		"thunk",                    // jnc_FunctionKind_Thunk,
-		"schedule-launcher",        // jnc_FunctionKind_ScheduleLauncher,
-		"async",                    // jnc_FunctionKind_Async,
+		"sched-launcher",           // jnc_FunctionKind_SchedLauncher,
+		"async-sched-launcher",     // jnc_FunctionKind_AsyncSchedLauncher,
+		"async-sequencer",          // jnc_FunctionKind_AsyncSequencer,
 	};
 
 	return (size_t)functionKind < jnc_FunctionKind__Count ?
@@ -94,8 +95,9 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind)
 		jnc_FunctionKindFlag_NoArgs,
 		0,                                  // jnc_FunctionKind_Internal,
 		0,                                  // jnc_FunctionKind_Thunk,
-		0,                                  // jnc_FunctionKind_ScheduleLauncher,
-		0,                                  // jnc_FunctionKind_Async,
+		0,                                  // jnc_FunctionKind_SchedLauncher,
+		0,                                  // jnc_FunctionKind_AsyncSchedLauncher,
+		0,                                  // jnc_FunctionKind_AsyncSequencer,
 	};
 
 	return (size_t)functionKind < jnc_FunctionKind__Count ? flagTable[functionKind] : 0;

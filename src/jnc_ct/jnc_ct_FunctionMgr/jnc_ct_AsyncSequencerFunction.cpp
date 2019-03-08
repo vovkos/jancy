@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_AsyncFunction.h"
+#include "jnc_ct_AsyncSequencerFunction.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Parser.llk.h"
 
@@ -19,15 +19,15 @@ namespace ct {
 
 //..............................................................................
 
-AsyncFunction::AsyncFunction()
+AsyncSequencerFunction::AsyncSequencerFunction()
 {
-	m_functionKind = FunctionKind_Async;
+	m_functionKind = FunctionKind_AsyncSequencer;
 	m_promiseType = NULL;
 	m_catchBlock = NULL;
 }
 
 bool
-AsyncFunction::compile()
+AsyncSequencerFunction::compile()
 {
 	ASSERT(m_parentUnit && m_parentNamespace);
 
@@ -95,6 +95,26 @@ AsyncFunction::compile()
 	BasicBlock* firstAsyncBlock = m_module->m_controlFlowMgr.createAsyncBlock(scope);
 	BasicBlock* switchBlock = m_module->m_controlFlowMgr.setCurrentBlock(firstAsyncBlock);
 
+	// check if we have a scheduler; if yes, async-wait on it
+
+	BasicBlock* schedulerBlock = m_module->m_controlFlowMgr.createBlock("scheduler_block");
+	BasicBlock* noSchedulerBlock = m_module->m_controlFlowMgr.createBlock("no_scheduler_block");
+
+	Value schedulerValue;
+	Value asyncWaitFuncValue;
+	Value asyncWaitPromiseValue;
+
+	result =
+		m_module->m_operatorMgr.getPromiseField(promiseValue, "m_scheduler", &schedulerValue) &&
+		m_module->m_controlFlowMgr.conditionalJump(schedulerValue, schedulerBlock, noSchedulerBlock, schedulerBlock) &&
+		m_module->m_operatorMgr.memberOperator(schedulerValue, "asyncWait", &asyncWaitFuncValue) &&
+		m_module->m_operatorMgr.callOperator(asyncWaitFuncValue, &asyncWaitPromiseValue) &&
+		m_module->m_operatorMgr.awaitOperator(asyncWaitPromiseValue);
+
+	ASSERT(result);
+
+	m_module->m_controlFlowMgr.follow(noSchedulerBlock);
+
 	// parse body
 
 	Parser parser(m_module);
@@ -112,10 +132,10 @@ AsyncFunction::compile()
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(switchBlock);
 
 	Value stateValue;
-	result = m_module->m_operatorMgr.getPromiseField(promiseValue, "m_state", &stateValue);
-	ASSERT(result);
+	result =
+		m_module->m_operatorMgr.getPromiseField(promiseValue, "m_state", &stateValue) &&
+		m_module->m_operatorMgr.loadDataRef(&stateValue);
 
-	result = m_module->m_operatorMgr.loadDataRef(&stateValue);
 	ASSERT(result);
 
 	sl::Array<BasicBlock*> asyncBlockArray = m_module->m_controlFlowMgr.getAsyncBlockArray();
@@ -154,7 +174,7 @@ AsyncFunction::compile()
 }
 
 void
-AsyncFunction::replaceAllocas()
+AsyncSequencerFunction::replaceAllocas()
 {
 	// replace all alloca's with GEPs
 

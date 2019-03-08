@@ -51,7 +51,7 @@ protected:
 
 public:
 	size_t m_state;
-	intptr_t m_scheduler;
+	IfaceHdr* m_scheduler;
 	Promise* m_pendingPromise;
 	Variant m_result;
 	DataPtr m_errorPtr;
@@ -65,6 +65,8 @@ protected:
 	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
 
 public:
+	Promise();
+
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(GcHeap* gcHeap);

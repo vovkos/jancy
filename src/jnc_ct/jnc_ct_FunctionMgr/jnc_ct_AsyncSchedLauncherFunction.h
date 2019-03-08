@@ -18,14 +18,14 @@ namespace ct {
 
 //..............................................................................
 
-class ScheduleLauncherFunction: public Function
+class AsyncSchedLauncherFunction: public Function
 {
 	friend class FunctionMgr;
 
 public:
-	ScheduleLauncherFunction()
+	AsyncSchedLauncherFunction()
 	{
-		m_functionKind = FunctionKind_ScheduleLauncher;
+		m_functionKind = FunctionKind_AsyncSchedLauncher;
 	}
 
 	virtual

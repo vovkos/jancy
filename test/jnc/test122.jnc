@@ -1,3 +1,5 @@
+// async errorcode/exception testing
+
 bool errorcode async asyncOpen(int x)
 {
 	printf("asyncOpen(%d)\n", x);

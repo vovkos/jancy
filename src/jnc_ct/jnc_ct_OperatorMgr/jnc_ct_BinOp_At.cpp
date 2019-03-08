@@ -40,7 +40,7 @@ BinOp_At::op(
 	Value schedulerValue;
 	result = m_module->m_operatorMgr.castOperator(
 		opValue2,
-		((ClassType*)m_module->m_typeMgr.getStdType(StdType_Scheduler))->getClassPtrType(),
+		m_module->m_typeMgr.getStdType(StdType_SchedulerPtr),
 		&schedulerValue
 		);
 
@@ -56,7 +56,7 @@ BinOp_At::op(
 
 	FunctionPtrType* targetPtrType = (FunctionPtrType*)opValue1.getType(); // not closure-aware!
 
-	Function* launcher = m_module->m_functionMgr.getScheduleLauncherFunction(targetPtrType);
+	Function* launcher = m_module->m_functionMgr.getSchedLauncherFunction(targetPtrType);
 	if (!launcher)
 		return false;
 
