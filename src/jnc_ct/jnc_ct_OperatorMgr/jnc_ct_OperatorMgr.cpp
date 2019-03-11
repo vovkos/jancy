@@ -1406,34 +1406,62 @@ OperatorMgr::prepareOperand(
 bool
 OperatorMgr::awaitOperator(const Value& value)
 {
+	bool result;
+
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function->getFunctionKind() == FunctionKind_AsyncSequencer);
 
 	Value thisPromiseValue = m_module->m_functionMgr.getPromiseValue();
 	ASSERT(thisPromiseValue);
 
+	// modify Promise (adjust state, save pending promise)
+
 	Value stateFieldValue;
 	Value stateIdValue;
 	Value pendingPromiseFieldValue;
 	Value opPromiseValue;
 	Value waitValue;
-	Value resumeValue;
 
 	size_t stateId = m_module->m_controlFlowMgr.getAsyncBlockArray().getCount();
 	stateIdValue.setConstSizeT(stateId, m_module);
 
-	bool result =
+	result =
 		castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue) &&
 		memberOperator(opPromiseValue, "wait", &waitValue) &&
 		getPromiseField(thisPromiseValue, "m_state", &stateFieldValue) &&
 		storeDataRef(stateFieldValue, stateIdValue) &&
 		getPromiseField(thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
-		storeDataRef(pendingPromiseFieldValue, opPromiseValue) &&
-		closureOperator(function, thisPromiseValue, &resumeValue) &&
-		callOperator(waitValue, resumeValue);
+		storeDataRef(pendingPromiseFieldValue, opPromiseValue);
 
 	if (!result)
 		return false;
+
+	// create and call resume function (either scheduled, or non-scheduled)
+
+	Value resumeFuncValue;
+	Value schedulerValue;
+
+	BasicBlock* schedulerBlock = m_module->m_controlFlowMgr.createBlock("scheduler_block");
+	BasicBlock* noSchedulerBlock = m_module->m_controlFlowMgr.createBlock("no_scheduler_block");
+	BasicBlock* followBlock = m_module->m_controlFlowMgr.createBlock("follow_block");
+
+	result =
+		m_module->m_operatorMgr.getPromiseField(thisPromiseValue, "m_scheduler", &schedulerValue) &&
+		m_module->m_operatorMgr.loadDataRef(&schedulerValue) &&
+		m_module->m_controlFlowMgr.conditionalJump(schedulerValue, schedulerBlock, noSchedulerBlock, schedulerBlock) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_At, function, schedulerValue, &resumeFuncValue) &&
+		closureOperator(resumeFuncValue, thisPromiseValue, &resumeFuncValue) &&
+		callOperator(waitValue, resumeFuncValue);
+
+	ASSERT(result);
+
+	m_module->m_controlFlowMgr.jump(followBlock, noSchedulerBlock);
+
+	result =
+		closureOperator(function, thisPromiseValue, &resumeFuncValue) &&
+		callOperator(waitValue, resumeFuncValue);
+
+	m_module->m_controlFlowMgr.follow(followBlock);
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	BasicBlock* block = m_module->m_controlFlowMgr.createAsyncBlock(scope);

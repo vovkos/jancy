@@ -92,28 +92,34 @@ AsyncSequencerFunction::compile()
 		scope->addItem(argVar);
 	}
 
-	BasicBlock* firstAsyncBlock = m_module->m_controlFlowMgr.createAsyncBlock(scope);
-	BasicBlock* switchBlock = m_module->m_controlFlowMgr.setCurrentBlock(firstAsyncBlock);
+	BasicBlock* asyncBlock0 = m_module->m_controlFlowMgr.createAsyncBlock(scope);
+	BasicBlock* asyncBlock1 = m_module->m_controlFlowMgr.createAsyncBlock(scope);
+	BasicBlock* switchBlock = m_module->m_controlFlowMgr.setCurrentBlock(asyncBlock0);
 
-	// check if we have a scheduler; if yes, async-wait on it
-
-	BasicBlock* schedulerBlock = m_module->m_controlFlowMgr.createBlock("scheduler_block");
-	BasicBlock* noSchedulerBlock = m_module->m_controlFlowMgr.createBlock("no_scheduler_block");
+	// if we have a scheduler, re-schedule this async sequencer
 
 	Value schedulerValue;
-	Value asyncWaitFuncValue;
-	Value asyncWaitPromiseValue;
+	Value resumeFuncValue;
+	Value stateIdValue;
+	Value stateValue;
+
+	stateIdValue.setConstSizeT(1, m_module);
+
+	BasicBlock* schedulerBlock = m_module->m_controlFlowMgr.createBlock("scheduler_block");
 
 	result =
+		m_module->m_operatorMgr.getPromiseField(promiseValue, "m_state", &stateValue) &&
+		m_module->m_operatorMgr.storeDataRef(stateValue, stateIdValue);
 		m_module->m_operatorMgr.getPromiseField(promiseValue, "m_scheduler", &schedulerValue) &&
-		m_module->m_controlFlowMgr.conditionalJump(schedulerValue, schedulerBlock, noSchedulerBlock, schedulerBlock) &&
-		m_module->m_operatorMgr.memberOperator(schedulerValue, "asyncWait", &asyncWaitFuncValue) &&
-		m_module->m_operatorMgr.callOperator(asyncWaitFuncValue, &asyncWaitPromiseValue) &&
-		m_module->m_operatorMgr.awaitOperator(asyncWaitPromiseValue);
+		m_module->m_operatorMgr.loadDataRef(&schedulerValue) &&
+		m_module->m_controlFlowMgr.conditionalJump(schedulerValue, schedulerBlock, asyncBlock1, schedulerBlock) &&
+		m_module->m_operatorMgr.binaryOperator(BinOpKind_At, this, schedulerValue, &resumeFuncValue) &&
+		m_module->m_operatorMgr.closureOperator(resumeFuncValue, promiseValue, &resumeFuncValue) &&
+		m_module->m_operatorMgr.callOperator(resumeFuncValue);
 
 	ASSERT(result);
 
-	m_module->m_controlFlowMgr.follow(noSchedulerBlock);
+	m_module->m_controlFlowMgr.asyncRet(asyncBlock1);
 
 	// parse body
 
@@ -131,7 +137,6 @@ AsyncSequencerFunction::compile()
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(switchBlock);
 
-	Value stateValue;
 	result =
 		m_module->m_operatorMgr.getPromiseField(promiseValue, "m_state", &stateValue) &&
 		m_module->m_operatorMgr.loadDataRef(&stateValue);
@@ -169,7 +174,6 @@ AsyncSequencerFunction::compile()
 	m_module->m_namespaceMgr.closeScope();
 	m_module->m_functionMgr.internalEpilogue();
 	m_module->m_namespaceMgr.closeNamespace();
-
 	return true;
 }
 
