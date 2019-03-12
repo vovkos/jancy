@@ -326,6 +326,16 @@ opaque class FileStream
 	alias dispose = close;
 
 	/**
+		Accepted named pipes may initially be suspended (so that the user has
+		a chance to configure reading options such as ``m_readBlockSize``)
+
+		Call ``start`` to awaken the accepted pipe after it has been
+		configured.
+	*/
+
+	void unsuspend();
+
+	/**
 		Clears the file, destroying all its contents. This function is only
 		applicable to regular disk file streams.
 

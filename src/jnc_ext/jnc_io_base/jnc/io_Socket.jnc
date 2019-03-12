@@ -359,14 +359,13 @@ opaque class Socket
 		to communicate with this particular client. To terminate a client
 		connection, issue ``close`` method on the client file stream object.
 
-		The new ``io.Socket`` is created with events disabled. Turn events back
-		on after assigning an event handler using ``m_isSocketEventEnabled``
-		property.
-
 		If method fails, ``null`` value is returned[#f1]_.
 	*/
 
-	Socket* errorcode accept(SocketAddress* address = null);
+	Socket* errorcode accept(
+		SocketAddress* address = null,
+		bool isSuspended = false
+		);
 
 	/**
 		Attempts to receive up to ``size`` bytes from the socket into the buffer
@@ -381,6 +380,16 @@ opaque class Socket
 		incoming data, it blocks until either the data arrives, or the socket is
 		closed.
 	*/
+
+	/**
+		Accepted sockets may initially be suspended (so that the user has a
+		chance to configure reading options such as ``m_readBlockSize``)
+
+		Call ``unsuspend`` to awaken the accepted socket after it has been
+		configured.
+	*/
+
+	void unsuspend();
 
 	size_t errorcode read(
 		void* p,

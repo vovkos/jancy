@@ -87,7 +87,10 @@ opaque class UsbInterface
 	void release();
 	alias void dispose = release;
 
-	UsbEndpoint* errorcode openEndpoint(uint8_t endpointId);
+	UsbEndpoint* errorcode openEndpoint(
+		uint8_t endpointId,
+		bool isSuspended = false
+		);
 }
 
 //..............................................................................

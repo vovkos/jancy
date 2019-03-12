@@ -62,7 +62,10 @@ UsbInterface::release()
 
 UsbEndpoint*
 JNC_CDECL
-UsbInterface::openEndpoint(uint8_t endpointId)
+UsbInterface::openEndpoint(
+	uint8_t endpointId,
+	bool isSuspended
+	)
 {
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
 	UsbEndpointDesc* endpointDesc = interfaceDesc->findEndpointDesc(endpointId);
@@ -88,7 +91,7 @@ UsbInterface::openEndpoint(uint8_t endpointId)
 
 	gcHeap->leaveNoCollectRegion(false);
 
-	endpoint->open();
+	endpoint->open(isSuspended);
 
 	return endpoint;
 }

@@ -46,7 +46,10 @@ public:
 
 	UsbEndpoint*
 	JNC_CDECL
-	openEndpoint(uint8_t endpointId);
+	openEndpoint(
+		uint8_t endpointId,
+		bool isSuspended
+		);
 };
 
 //..............................................................................

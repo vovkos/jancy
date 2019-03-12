@@ -42,6 +42,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbEndpoint)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &UsbEndpoint::setOptions)
 
 	JNC_MAP_FUNCTION("close",        &UsbEndpoint::close)
+	JNC_MAP_FUNCTION("unsuspend",    &UsbEndpoint::unsuspend)
 	JNC_MAP_FUNCTION("write",        &UsbEndpoint::write)
 	JNC_MAP_FUNCTION("read",         &UsbEndpoint::read)
 	JNC_MAP_FUNCTION("wait",         &UsbEndpoint::wait)
@@ -65,9 +66,13 @@ UsbEndpoint::UsbEndpoint()
 }
 
 bool
-UsbEndpoint::open()
+UsbEndpoint::open(bool isSuspended)
 {
 	AsyncIoDevice::open();
+
+	if (isSuspended)
+		m_ioThreadFlags |= IoThreadFlag_Suspended;
+
 	wakeIoThread();
 	return m_ioThread.start();
 }
@@ -206,6 +211,12 @@ UsbEndpoint::readLoop()
 		{
 			m_lock.unlock();
 			break;
+		}
+
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
 		}
 
 		while (!m_completedTransferList.isEmpty())

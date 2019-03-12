@@ -133,6 +133,7 @@ opaque class UsbEndpoint
 
 	void close();
 	alias void dispose = close;
+	void unsuspend();
 
 	size_t errorcode read(
 		void* p,

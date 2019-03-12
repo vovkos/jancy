@@ -269,6 +269,20 @@ AsyncIoDevice::sleepIoThread()
 }
 
 void
+AsyncIoDevice::suspendIoThread(bool isSuspended)
+{
+	m_lock.lock();
+
+	if (isSuspended)
+		m_ioThreadFlags |= IoThreadFlag_Suspended;
+	else
+		m_ioThreadFlags &= ~IoThreadFlag_Suspended;
+
+	wakeIoThread();
+	m_lock.unlock();
+}
+
+void
 AsyncIoDevice::cancelAllWaits()
 {
 	m_lock.lock();

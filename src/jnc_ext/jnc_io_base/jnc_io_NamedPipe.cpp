@@ -176,7 +176,7 @@ NamedPipe::setOptions(uint_t options)
 
 FileStream*
 JNC_CDECL
-NamedPipe::accept()
+NamedPipe::accept(bool isSuspended)
 {
 	m_lock.lock();
 	if (m_pendingIncomingConnectionList.isEmpty())
@@ -201,6 +201,10 @@ NamedPipe::accept()
 	fileStream->setOptions(m_options);
 	fileStream->m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
 	fileStream->m_isOpen = true;
+
+	if (isSuspended)
+		fileStream->m_ioThreadFlags |= IoThreadFlag_Suspended;
+
 	fileStream->m_ioThread.start();
 	return fileStream;
 }

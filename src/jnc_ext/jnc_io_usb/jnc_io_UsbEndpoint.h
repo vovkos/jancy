@@ -105,13 +105,6 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
-	bool
-	open();
-
-	void
-	JNC_CDECL
-	close();
-
 	void
 	JNC_CDECL
 	setTransferTimeout(uint_t timeout)
@@ -152,6 +145,20 @@ public:
 	setOptions(uint_t options)
 	{
 		AsyncIoDevice::setSetting(&m_options, options);
+	}
+
+	bool
+	open(bool isSuspended);
+
+	void
+	JNC_CDECL
+	close();
+
+	void
+	JNC_CDECL
+	unsuspend()
+	{
+		suspendIoThread(false);
 	}
 
 	size_t

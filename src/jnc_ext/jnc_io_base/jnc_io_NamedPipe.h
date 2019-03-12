@@ -160,7 +160,7 @@ public:
 
 	FileStream*
 	JNC_CDECL
-	accept();
+	accept(bool isSuspended);
 
 	handle_t
 	JNC_CDECL

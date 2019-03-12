@@ -47,6 +47,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Socket)
 	JNC_MAP_FUNCTION("open",          &Socket::open_0)
 	JNC_MAP_OVERLOAD(&Socket::open_1)
 	JNC_MAP_FUNCTION("close",         &Socket::close)
+	JNC_MAP_FUNCTION("unsuspend",     &Socket::unsuspend)
 	JNC_MAP_FUNCTION("connect",       &Socket::connect)
 	JNC_MAP_FUNCTION("listen",        &Socket::listen)
 	JNC_MAP_FUNCTION("accept",        &Socket::accept)
@@ -169,7 +170,10 @@ Socket::listen(size_t backLogLimit)
 
 Socket*
 JNC_CDECL
-Socket::accept(DataPtr addressPtr)
+Socket::accept(
+	DataPtr addressPtr,
+	bool isSuspended
+	)
 {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
 	Socket* connectionSocket = createClass<Socket> (m_runtime);
@@ -186,7 +190,10 @@ Socket::accept(DataPtr addressPtr)
 	sl::takeOver(&connectionSocket->m_socket.m_socket, &incomingConnection->m_socket.m_socket);
 	connectionSocket->setOptions(m_options);
 	connectionSocket->AsyncIoDevice::open();
-	connectionSocket->m_ioThreadFlags =	IoThreadFlag_IncomingConnection;
+	connectionSocket->m_ioThreadFlags = IoThreadFlag_IncomingConnection;
+
+	if (isSuspended)
+		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
 
 #if (_AXL_OS_WIN)
 	connectionSocket->m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
@@ -489,6 +496,12 @@ Socket::sendRecvLoop(
 			break;
 		}
 
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
+		}
+
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = baseEvents;
 
@@ -731,6 +744,12 @@ Socket::sendRecvLoop(
 		{
 			m_lock.unlock();
 			return;
+		}
+
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;

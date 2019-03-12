@@ -39,8 +39,9 @@ class AsyncIoDevice
 protected:
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Closing  = 0x0001,
-		IoThreadFlag_Datagram = 0x0002,
+		IoThreadFlag_Closing   = 0x0001,
+		IoThreadFlag_Suspended = 0x0002,
+		IoThreadFlag_Datagram  = 0x0004,
 	};
 
 	struct Wait: sl::ListLink
@@ -130,6 +131,9 @@ protected:
 
 	void
 	sleepIoThread();
+
+	void
+	suspendIoThread(bool isSuspended);
 
 	template <typename T>
 	void

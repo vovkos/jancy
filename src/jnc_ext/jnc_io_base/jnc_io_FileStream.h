@@ -128,17 +128,6 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
-	bool
-	JNC_CDECL
-	open(
-		DataPtr namePtr,
-		uint_t openFlags
-		);
-
-	void
-	JNC_CDECL
-	close();
-
 	void
 	JNC_CDECL
 	setReadParallelism(uint_t count)
@@ -170,6 +159,24 @@ public:
 	bool
 	JNC_CDECL
 	setOptions(uint_t options);
+
+	bool
+	JNC_CDECL
+	open(
+		DataPtr namePtr,
+		uint_t openFlags
+		);
+
+	void
+	JNC_CDECL
+	close();
+
+	void
+	JNC_CDECL
+	unsuspend()
+	{
+		suspendIoThread(false);
+	}
 
 	bool
 	JNC_CDECL

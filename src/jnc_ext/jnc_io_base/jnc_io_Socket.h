@@ -217,7 +217,17 @@ public:
 
 	Socket*
 	JNC_CDECL
-	accept(DataPtr addressPtr);
+	accept(
+		DataPtr addressPtr,
+		bool isSuspended
+		);
+
+	void
+	JNC_CDECL
+	unsuspend()
+	{
+		suspendIoThread(false);
+	}
 
 	size_t
 	JNC_CDECL

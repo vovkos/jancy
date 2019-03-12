@@ -39,6 +39,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(FileStream)
 
 	JNC_MAP_FUNCTION("open",         &FileStream::open)
 	JNC_MAP_FUNCTION("close",        &FileStream::close)
+	JNC_MAP_FUNCTION("unsuspend",    &FileStream::unsuspend)
 	JNC_MAP_FUNCTION("clear",        &FileStream::clear)
 	JNC_MAP_FUNCTION("read",         &FileStream::read)
 	JNC_MAP_FUNCTION("write",        &FileStream::write)
@@ -351,6 +352,12 @@ FileStream::ioThreadFunc()
 			break;
 		}
 
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
+		}
+
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
 
@@ -492,6 +499,12 @@ FileStream::ioThreadFunc()
 		{
 			m_lock.unlock();
 			return;
+		}
+
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;

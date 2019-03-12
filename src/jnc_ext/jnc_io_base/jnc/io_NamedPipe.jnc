@@ -151,7 +151,7 @@ opaque class NamedPipe
 		If method fails, ``null`` value is returned[#f1]_.
 	*/
 
-	FileStream* accept();
+	FileStream* accept(bool isSuspended = false);
 
 	intptr errorcode wait(
 		NamedPipeEvents eventMask,
