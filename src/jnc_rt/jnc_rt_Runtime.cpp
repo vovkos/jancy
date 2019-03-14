@@ -21,25 +21,11 @@ namespace rt {
 
 Runtime::Runtime()
 {
-	m_stackSizeLimit = RuntimeDef_StackSizeLimit;
 	m_tlsSize = 0;
 	m_state = State_Idle;
 	m_module = NULL;
 	m_userData = NULL;
 	m_noThreadEvent.signal();
-}
-
-bool
-Runtime::setStackSizeLimit(size_t sizeLimit)
-{
-	if (sizeLimit < RuntimeDef_MinStackSizeLimit)
-	{
-		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
-	}
-
-	m_stackSizeLimit = sizeLimit;
-	return true;
 }
 
 bool

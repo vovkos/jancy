@@ -324,8 +324,6 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_Runtime_getModule,
 	jnc_Runtime_getGcHeap,
 	jnc_Runtime_isAborted,
-	jnc_Runtime_getStackSizeLimit,
-	jnc_Runtime_setStackSizeLimit,
 	jnc_Runtime_startup,
 	jnc_Runtime_shutdown,
 	jnc_Runtime_abort,

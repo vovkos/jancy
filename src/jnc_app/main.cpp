@@ -115,7 +115,7 @@ main(
 			return JncError_CompileFailure;
 		}
 
-		if (cmdLine.m_flags & JncFlag_Documentation)
+		if (cmdLine.m_compileFlags & jnc::ModuleCompileFlag_Documentation)
 		{
 			result = app.generateDocumentation();
 			if (!result)

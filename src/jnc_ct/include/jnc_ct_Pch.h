@@ -46,44 +46,46 @@
 #pragma warning(disable: 4624) // warning C4624: destructor could not be generated because a base class destructor is inaccessible
 #pragma warning(disable: 4800) // warning C4800: 'unsigned int' : forcing value to bool 'true' or 'false' (performance warning)
 
-#include "llvm/Config/llvm-config.h"
+#include <llvm/Config/llvm-config.h>
 
 // make an easily comparable version like 0x0304
 
 #define LLVM_VERSION ((LLVM_VERSION_MAJOR << 8) | LLVM_VERSION_MINOR)
 
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Intrinsics.h"
-#include "llvm/IR/IntrinsicInst.h"
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Intrinsics.h>
+#include <llvm/IR/IntrinsicInst.h>
 
 // they moved things around in LLVM 3.5
 
 #if (LLVM_VERSION < 0x0305)
-#	include "llvm/PassManager.h"
-#	include "llvm/DIBuilder.h"
-#	include "llvm/DebugInfo.h"
-#	include "llvm/Analysis/Verifier.h"
+#	include <llvm/PassManager.h>
+#	include <llvm/DIBuilder.h>
+#	include <llvm/DebugInfo.h>
+#	include <llvm/Analysis/Verifier.h>
 #else
-#	include "llvm/IR/PassManager.h"
-#	include "llvm/IR/DIBuilder.h"
-#	include "llvm/IR/DebugInfo.h"
-#	include "llvm/IR/Verifier.h"
+#	include <llvm/IR/PassManager.h>
+#	include <llvm/IR/DIBuilder.h>
+#	include <llvm/IR/DebugInfo.h>
+#	include <llvm/IR/Verifier.h>
 #endif
 
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/CommandLine.h>
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/DynamicLibrary.h"
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/DynamicLibrary.h>
+#include <llvm/Support/raw_ostream.h>
 
-#include "llvm/ADT/StringExtras.h"
+#include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/StringMap.h>
-#include "llvm/Analysis/Passes.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/ExecutionEngine/SectionMemoryManager.h"
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/IPO.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 
 // LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
 // we want to be able to avoid that (i.e. if a libraries defines LLVM-dependent classes, but
@@ -91,12 +93,12 @@
 
 #ifndef _JNC_LLVM_NO_JIT
 #	if (LLVM_VERSION < 0x0306) // legacy JIT is gone in LLVM 3.6
-#		include "llvm/ExecutionEngine/JIT.h"
-#		include "llvm/ExecutionEngine/JITMemoryManager.h"
+#		include <llvm/ExecutionEngine/JIT.h>
+#		include <llvm/ExecutionEngine/JITMemoryManager.h>
 #	endif
 
-#	include "llvm/ExecutionEngine/JITEventListener.h"
-#	include "llvm/ExecutionEngine/MCJIT.h"
+#	include <llvm/ExecutionEngine/JITEventListener.h>
+#	include <llvm/ExecutionEngine/MCJIT.h>
 #endif
 
 #pragma warning(default: 4141)

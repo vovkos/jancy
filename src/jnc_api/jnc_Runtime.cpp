@@ -68,25 +68,6 @@ jnc_Runtime_isAborted(jnc_Runtime* runtime)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-size_t
-jnc_Runtime_getStackSizeLimit(jnc_Runtime* runtime)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_getStackSizeLimitFunc(runtime);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_Runtime_setStackSizeLimit(
-	jnc_Runtime* runtime,
-	size_t sizeLimit
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_setStackSizeLimitFunc(runtime, sizeLimit);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Runtime_startup(
 	jnc_Runtime* runtime,
@@ -271,25 +252,6 @@ bool_t
 jnc_Runtime_isAborted(jnc_Runtime* runtime)
 {
 	return runtime->isAborted();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_Runtime_getStackSizeLimit(jnc_Runtime* runtime)
-{
-	return runtime->getStackSizeLimit();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_Runtime_setStackSizeLimit(
-	jnc_Runtime* runtime,
-	size_t sizeLimit
-	)
-{
-	return runtime->setStackSizeLimit(sizeLimit);
 }
 
 JNC_EXTERN_C

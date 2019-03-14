@@ -42,21 +42,6 @@
 
 //..............................................................................
 
-enum jnc_RuntimeDef
-{
-#if (JNC_PTR_SIZE == 8)
-	jnc_RuntimeDef_StackSizeLimit    = 1 * 1024 * 1024, // 1MB std stack limit
-	jnc_RuntimeDef_MinStackSizeLimit = 32 * 1024,       // 32KB min stack
-#else
-	jnc_RuntimeDef_StackSizeLimit    = 512 * 1024,      // 512KB std stack
-	jnc_RuntimeDef_MinStackSizeLimit = 16 * 1024,       // 16KB min stack
-#endif
-};
-
-typedef enum jnc_RuntimeDef jnc_RuntimeDef;
-
-//..............................................................................
-
 JNC_EXTERN_C
 jnc_Runtime*
 jnc_Runtime_create();
@@ -76,17 +61,6 @@ jnc_Runtime_getGcHeap(jnc_Runtime* runtime);
 JNC_EXTERN_C
 bool_t
 jnc_Runtime_isAborted(jnc_Runtime* runtime);
-
-JNC_EXTERN_C
-size_t
-jnc_Runtime_getStackSizeLimit(jnc_Runtime* runtime);
-
-JNC_EXTERN_C
-bool_t
-jnc_Runtime_setStackSizeLimit(
-	jnc_Runtime* runtime,
-	size_t sizeLimit
-	);
 
 JNC_EXTERN_C
 bool_t
@@ -169,18 +143,6 @@ struct jnc_Runtime
 	isAborted()
 	{
 		return jnc_Runtime_isAborted(this) != 0;
-	}
-
-	size_t
-	getStackSizeLimit()
-	{
-		return jnc_Runtime_getStackSizeLimit(this);
-	}
-
-	bool
-	setStackSizeLimit(size_t sizeLimit)
-	{
-		return jnc_Runtime_setStackSizeLimit(this, sizeLimit) != 0;
 	}
 
 	bool
@@ -285,14 +247,6 @@ jnc_memDup(
 #ifdef __cplusplus
 
 namespace jnc {
-
-//..............................................................................
-
-typedef jnc_RuntimeDef RuntimeDef;
-
-const RuntimeDef
-	RuntimeDef_StackSizeLimit    = jnc_RuntimeDef_StackSizeLimit,
-	RuntimeDef_MinStackSizeLimit = jnc_RuntimeDef_MinStackSizeLimit;
 
 //..............................................................................
 

@@ -1147,17 +1147,6 @@ bool_t
 jnc_Runtime_IsAbortedFunc(jnc_Runtime* runtime);
 
 typedef
-size_t
-jnc_Runtime_GetStackSizeLimitFunc(jnc_Runtime* runtime);
-
-typedef
-bool_t
-jnc_Runtime_SetStackSizeLimitFunc(
-	jnc_Runtime* runtime,
-	size_t sizeLimit
-	);
-
-typedef
 bool_t
 jnc_Runtime_StartupFunc(
 	jnc_Runtime* runtime,
@@ -1253,8 +1242,6 @@ struct jnc_RuntimeFuncTable
 	jnc_Runtime_GetModuleFunc* m_getModuleFunc;
 	jnc_Runtime_GetGcHeapFunc* m_getGcHeapFunc;
 	jnc_Runtime_IsAbortedFunc* m_isAbortedFunc;
-	jnc_Runtime_GetStackSizeLimitFunc* m_getStackSizeLimitFunc;
-	jnc_Runtime_SetStackSizeLimitFunc* m_setStackSizeLimitFunc;
 	jnc_Runtime_StartupFunc* m_startupFunc;
 	jnc_Runtime_ShutdownFunc* m_shutdownFunc;
 	jnc_Runtime_AbortFunc* m_abortFunc;

@@ -15,27 +15,20 @@
 
 enum JncFlag
 {
-	JncFlag_Help                      = 0x0001,
-	JncFlag_Version                   = 0x0002,
-	JncFlag_LlvmIr                    = 0x0004,
-	JncFlag_Compile                   = 0x0008,
-	JncFlag_Jit                       = 0x0010,
-	JncFlag_McJit                     = 0x0020,
-	JncFlag_SimpleGcSafePoint         = 0x0040,
-	JncFlag_Run                       = 0x0080,
-	JncFlag_Documentation             = 0x0100,
-	JncFlag_DebugInfo                 = 0x0200,
-	JncFlag_StdInSrc                  = 0x0400,
-	JncFlag_PrintReturnValue          = 0x0800,
-	JncFlag_StdLibDoc                 = 0x1000,
-	JncFlag_IgnoreOpaqueClassTypeInfo = 0x2000,
+	JncFlag_Help                      = 0x000001,
+	JncFlag_Version                   = 0x000002,
+	JncFlag_LlvmIr                    = 0x000004,
+	JncFlag_Compile                   = 0x000008,
+	JncFlag_Jit                       = 0x000010,
+	JncFlag_Run                       = 0x000080,
+	JncFlag_StdInSrc                  = 0x000400,
+	JncFlag_PrintReturnValue          = 0x000800,
 };
 
 struct CmdLine
 {
 	uint_t m_flags;
-	uint_t m_doxyCommentFlags;
-	size_t m_stackSizeLimit;
+	uint_t m_compileFlags;
 	jnc::GcSizeTriggers m_gcSizeTriggers;
 
 	sl::String m_srcNameOverride;
@@ -80,7 +73,13 @@ enum CmdLineSwitch
 	CmdLineSwitch_RunFunction,
 	CmdLineSwitch_GcAllocSizeTrigger,
 	CmdLineSwitch_GcPeriodSizeTrigger,
-	CmdLineSwitch_StackSizeLimit,
+
+	CmdLineSwitch_Inline,
+	CmdLineSwitch_NoInline,
+	CmdLineSwitch_ScalarOpt,
+	CmdLineSwitch_NoScalarOpt,
+	CmdLineSwitch_GcSafePointInPrologue,
+
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -170,6 +169,31 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"Use simple GC safe-point call (rather than guard page)"
 		)
 	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_GcSafePointInPrologue,
+		"gc-safe-point-prologue", NULL,
+		"Add GC safe-points to function prologues"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_Inline,
+		"inline", NULL,
+		"Enable LLVM function inlining pass"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_NoInline,
+		"no-inline", NULL,
+		"Disable LLVM function inlining pass"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_ScalarOpt,
+		"scalar-opt", NULL,
+		"Enable LLVM scalar optimization passes"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_NoScalarOpt,
+		"no-scalar-opt", NULL,
+		"Disable LLVM scalar optimization passes"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_StdLibDoc,
 		"std-lib-doc", NULL,
 		"Enable documentation of standard libraries"
@@ -205,11 +229,6 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_GcPeriodSizeTrigger,
 		"gc-period-size-trigger", "<size>",
 		"Specify the GC period size trigger"
-		)
-	AXL_SL_CMD_LINE_SWITCH(
-		CmdLineSwitch_StackSizeLimit,
-		"stack-size-limit", "<size>",
-		"Specify the stack size limit"
 		)
 AXL_SL_END_CMD_LINE_SWITCH_TABLE()
 

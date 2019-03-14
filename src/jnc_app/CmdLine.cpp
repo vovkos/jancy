@@ -17,12 +17,11 @@
 CmdLine::CmdLine()
 {
 	m_flags = JncFlag_Run;
-	m_doxyCommentFlags = 0;
+	m_compileFlags = jnc::ModuleCompileFlag_StdFlags;
 	m_functionName = "main";
 	m_outputDir = ".";
 	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
 	m_gcSizeTriggers.m_periodSizeTrigger = jnc::GcDef_PeriodSizeTrigger;
-	m_stackSizeLimit = jnc::RuntimeDef_StackSizeLimit;
 }
 
 //..............................................................................
@@ -91,7 +90,7 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_DebugInfo:
-		m_cmdLine->m_flags |= JncFlag_DebugInfo;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 		break;
 
 	case CmdLineSwitch_Jit:
@@ -99,7 +98,8 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_McJit:
-		m_cmdLine->m_flags |= JncFlag_Jit | JncFlag_McJit;
+		m_cmdLine->m_flags |= JncFlag_Jit;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_McJit;
 		break;
 
 	case CmdLineSwitch_LlvmIr:
@@ -107,7 +107,7 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_SimpleGcSafePoint:
-		m_cmdLine->m_flags |= JncFlag_SimpleGcSafePoint;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 		break;
 
 	case CmdLineSwitch_CompileOnly:
@@ -117,11 +117,11 @@ CmdLineParser::onSwitch(
 
 	case CmdLineSwitch_Documentation:
 		m_cmdLine->m_flags &= ~JncFlag_Run;
-		m_cmdLine->m_flags |= JncFlag_Documentation;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_Documentation;
 		break;
 
 	case CmdLineSwitch_StdLibDoc:
-		m_cmdLine->m_flags |= JncFlag_StdLibDoc;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
 		break;
 
 	case CmdLineSwitch_Run:
@@ -145,14 +145,26 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_gcSizeTriggers.m_periodSizeTrigger = parseSizeString(value);
 		break;
 
-	case CmdLineSwitch_StackSizeLimit:
-		m_cmdLine->m_stackSizeLimit = parseSizeString(value);
-		if (!m_cmdLine->m_stackSizeLimit)
-		{
-			err::setFormatStringError("invalid stack size '%s'", value.sz());
-			return false;
-		}
+	case CmdLineSwitch_GcSafePointInPrologue:
+		m_cmdLine->m_compileFlags |=
+			jnc::ModuleCompileFlag_GcSafePointInPrologue |
+			jnc::ModuleCompileFlag_GcSafePointInInternalPrologue;
+		break;
 
+	case CmdLineSwitch_Inline:
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_InlineFunctions;
+		break;
+
+	case CmdLineSwitch_NoInline:
+		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_InlineFunctions;
+		break;
+
+	case CmdLineSwitch_ScalarOpt:
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_ScalarOptimizations;
+		break;
+
+	case CmdLineSwitch_NoScalarOpt:
+		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_ScalarOptimizations;
 		break;
 
 	case CmdLineSwitch_SourceDir:
@@ -172,13 +184,13 @@ CmdLineParser::onSwitch(
 		break;
 
 	case CmdLineSwitch_IgnoreOpaqueClassTypeInfo:
-		m_cmdLine->m_flags |= JncFlag_IgnoreOpaqueClassTypeInfo;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 		break;
 
 	case CmdLineSwitch_DisableDoxyComment:
 		DoxyCommentMap::Iterator it = DoxyCommentMap::find(value);
 		if (it)
-			m_cmdLine->m_doxyCommentFlags |= it->m_value;
+			m_cmdLine->m_compileFlags |= it->m_value;
 		break;
 	}
 
@@ -196,7 +208,7 @@ CmdLineParser::finalize()
 		SuffixLength = lengthof(jncSuffix)
 	};
 
-	bool includeDox = (m_cmdLine->m_flags & JncFlag_Documentation) != 0;
+	bool isDoc = (m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
 
 	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
 	for (; it; it++)
@@ -229,7 +241,7 @@ CmdLineParser::finalize()
 			const char* suffix = filePath.sz() + length - SuffixLength;
 
 			if (memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
-				includeDox && memcmp(suffix, doxSuffix, SuffixLength) == 0)
+				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0)
 			{
 				m_cmdLine->m_fileNameList.insertTail(filePath);
 			}
@@ -252,6 +264,12 @@ CmdLineParser::finalize()
 
 	if (m_cmdLine->m_flags & JncFlag_Jit)
 		m_cmdLine->m_flags |= JncFlag_Compile;
+
+	if (isDoc && !(m_cmdLine->m_flags & JncFlag_Compile))
+	{
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
+	}
 
 	return true;
 }

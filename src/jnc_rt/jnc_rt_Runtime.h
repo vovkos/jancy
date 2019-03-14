@@ -43,9 +43,6 @@ protected:
 	sys::NotificationEvent m_noThreadEvent;
 	size_t m_tlsSize;
 	sl::List<Tls, GetTlsLink> m_tlsList;
-
-	size_t m_stackSizeLimit; // adjustable limits
-
 	GcHeap m_gcHeap;
 
 public:
@@ -76,15 +73,6 @@ public:
 	{
 		return m_gcHeap.isAborted();
 	}
-
-	size_t
-	getStackSizeLimit()
-	{
-		return m_stackSizeLimit;
-	}
-
-	bool
-	setStackSizeLimit(size_t sizeLimit);
 
 	bool
 	startup(ct::Module* module);

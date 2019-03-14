@@ -55,26 +55,29 @@
 
 enum jnc_ModuleCompileFlag
 {
-	jnc_ModuleCompileFlag_DebugInfo                            = 0x00000001,
-	jnc_ModuleCompileFlag_McJit                                = 0x00000002,
-	jnc_ModuleCompileFlag_SimpleGcSafePoint                    = 0x00000004,
-	jnc_ModuleCompileFlag_GcSafePointInPrologue                = 0x00000010,
-	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue        = 0x00000020,
-	jnc_ModuleCompileFlag_Documentation                        = 0x00000200,
-	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = 0x00000400,
-	jnc_ModuleCompileFlag_KeepTypedefShadow                    = 0x00000800,
-	jnc_ModuleCompileFlag_StdLibDoc                            = 0x00001000,
-	jnc_ModuleCompileFlag_DisableDoxyComment1                  = 0x00002000,
-	jnc_ModuleCompileFlag_DisableDoxyComment2                  = 0x00004000,
-	jnc_ModuleCompileFlag_DisableDoxyComment3                  = 0x00008000,
-	jnc_ModuleCompileFlag_DisableDoxyComment4                  = 0x00010000,
+	jnc_ModuleCompileFlag_DebugInfo                     = 0x00000001,
+	jnc_ModuleCompileFlag_McJit                         = 0x00000002,
+	jnc_ModuleCompileFlag_SimpleGcSafePoint             = 0x00000004,
+	jnc_ModuleCompileFlag_GcSafePointInPrologue         = 0x00000010,
+	jnc_ModuleCompileFlag_GcSafePointInInternalPrologue = 0x00000020,
+	jnc_ModuleCompileFlag_Documentation                 = 0x00000200,
+	jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo     = 0x00000400,
+	jnc_ModuleCompileFlag_KeepTypedefShadow             = 0x00000800,
+	jnc_ModuleCompileFlag_StdLibDoc                     = 0x00001000,
+	jnc_ModuleCompileFlag_DisableDoxyComment1           = 0x00002000,
+	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
+	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
+	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
+	jnc_ModuleCompileFlag_InlineFunctions               = 0x00100000,
+	jnc_ModuleCompileFlag_ScalarOptimizations           = 0x00200000,
 
 	jnc_ModuleCompileFlag_StdFlags =
-		jnc_ModuleCompileFlag_GcSafePointInPrologue |
-		jnc_ModuleCompileFlag_GcSafePointInInternalPrologue
+		jnc_ModuleCompileFlag_InlineFunctions |
+		jnc_ModuleCompileFlag_ScalarOptimizations |
 #if (_JNC_OS_POSIX)
-		| jnc_ModuleCompileFlag_McJit
+		jnc_ModuleCompileFlag_McJit |
 #endif
+		0
 };
 
 typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
@@ -500,6 +503,8 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2                  = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3                  = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
+	ModuleCompileFlag_InlineFunctions                      = jnc_ModuleCompileFlag_InlineFunctions,
+	ModuleCompileFlag_ScalarOptimizations                  = jnc_ModuleCompileFlag_ScalarOptimizations,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //..............................................................................

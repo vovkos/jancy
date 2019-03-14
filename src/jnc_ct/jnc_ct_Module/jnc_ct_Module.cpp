@@ -153,7 +153,6 @@ extern "C" int32_t __aeabi_idiv (int32_t);
 extern "C" uint32_t __aeabi_uidiv (uint32_t);
 extern "C" DivModRetVal __aeabi_ldivmod (int64_t, int64_t);
 extern "C" DivModRetVal __aeabi_uldivmod (uint64_t, uint64_t);
-
 extern "C" float __aeabi_i2f (int32_t);
 extern "C" float __aeabi_l2f (int64_t);
 extern "C" float __aeabi_ui2f (uint32_t);
@@ -665,6 +664,9 @@ Module::compile()
 	if (!result)
 		return false;
 
+	if (m_compileFlags & ModuleCompileFlag_InlineFunctions)
+		m_functionMgr.inlineFunctions();
+
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.finalize();
 
@@ -685,8 +687,14 @@ Module::jit()
 			return false;
 	}
 
+	result = createLlvmExecutionEngine();
+	if (!result)
+		return false;
+
+	if (m_compileFlags & ModuleCompileFlag_ScalarOptimizations)
+		m_functionMgr.runScalarOptimizations();
+
 	result =
-		createLlvmExecutionEngine() &&
 		m_extensionLibMgr.mapAddresses() &&
 		m_functionMgr.jitFunctions();
 
@@ -789,7 +797,10 @@ Module::createConstructorDestructor()
 	function->m_storageKind = StorageKind_Static;
 	m_constructor = function;
 
+	uint_t prevFlags = m_compileFlags;
+	m_compileFlags &= ~ModuleCompileFlag_GcSafePointInInternalPrologue;
 	m_functionMgr.internalPrologue(function);
+	m_compileFlags = prevFlags;
 
 	result = m_variableMgr.allocateInitializeGlobalVariables();
 	if (!result)

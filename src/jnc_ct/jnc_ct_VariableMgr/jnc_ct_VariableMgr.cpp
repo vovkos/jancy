@@ -54,6 +54,7 @@ VariableMgr::createStdVariables()
 
 	getStdVariable(StdVariable_SjljFrame);
 	getStdVariable(StdVariable_GcShadowStackTop);
+	getStdVariable(StdVariable_GcSafePointTrigger);
 	getStdVariable(StdVariable_AsyncScheduler);
 }
 

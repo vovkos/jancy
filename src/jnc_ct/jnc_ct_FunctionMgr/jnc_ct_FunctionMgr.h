@@ -211,6 +211,12 @@ public:
 	void
 	replaceAsyncAllocas();
 
+	void
+	inlineFunctions();
+
+	void
+	runScalarOptimizations();
+
 	bool
 	jitFunctions();
 

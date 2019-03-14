@@ -204,7 +204,7 @@ add_jancy_tests
 	# ...
 	)
 
-	set (_FLAGS "--print-retval --import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>")
+	set (_FLAGS "--print-retval --import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION> --no-inline --no-scalar-opt --gc-safe-point-prologue")
 
 	if (UNIX)
 		set (_FLAGS "${_FLAGS} --debug-info")

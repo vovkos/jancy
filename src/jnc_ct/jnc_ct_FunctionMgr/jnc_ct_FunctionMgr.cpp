@@ -21,8 +21,9 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
-// #define _JNC_NO_JIT    1
-#define _JNC_NO_VERIFY 1
+// #define _JNC_LLVM_DEBUG 1
+// #define _JNC_LLVM_VERIFY 1
+// #define _JNC_LLVM_NO_JIT    1
 
 namespace jnc {
 namespace ct {
@@ -356,7 +357,7 @@ FunctionMgr::epilogue()
 
 	finalizeFunction(function, true);
 
-#if (defined(_JNC_DEBUG) && !defined(_JNC_NO_VERIFY))
+#if (_JNC_DEBUG && _JNC_LLVM_VERIFY)
 #	if (LLVM_VERSION < 0x0305)
 	bool isBroken = llvm::verifyFunction(*function->getLlvmFunction(), llvm::ReturnStatusAction);
 #	else
@@ -707,6 +708,36 @@ FunctionMgr::replaceAsyncAllocas()
 }
 
 void
+FunctionMgr::inlineFunctions()
+{
+	llvm::PassManager llvmPassMgr;
+	llvmPassMgr.add(llvm::createFunctionInliningPass());
+	llvmPassMgr.run(*m_module->getLlvmModule());
+}
+void
+FunctionMgr::runScalarOptimizations()
+{
+	llvm::FunctionPassManager llvmFunctionPassMgr(m_module->getLlvmModule());
+	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
+
+	llvmFunctionPassMgr.add(new llvm::DataLayout(*llvmExecutionEngine->getDataLayout()));
+	llvmFunctionPassMgr.add(llvm::createBasicAliasAnalysisPass());
+	llvmFunctionPassMgr.add(llvm::createPromoteMemoryToRegisterPass());
+	llvmFunctionPassMgr.add(llvm::createInstructionCombiningPass());
+	llvmFunctionPassMgr.add(llvm::createReassociatePass());
+	llvmFunctionPassMgr.add(llvm::createGVNPass());
+	llvmFunctionPassMgr.add(llvm::createDeadCodeEliminationPass());
+	llvmFunctionPassMgr.add(llvm::createCFGSimplificationPass());
+	llvmFunctionPassMgr.doInitialization();
+
+	sl::Iterator<Function> it = m_functionList.getHead();
+	for (; it; it++)
+		llvmFunctionPassMgr.run(*it->getLlvmFunction());
+
+	llvmFunctionPassMgr.doFinalization();
+}
+
+void
 llvmFatalErrorHandler(
 	void* context,
 	const std::string& errorString,
@@ -719,21 +750,24 @@ llvmFatalErrorHandler(
 bool
 FunctionMgr::jitFunctions()
 {
-#ifdef _JNC_NO_JIT
+#if (_JNC_LLVM_NO_JIT)
 	err::setFormatStringError("LLVM jitting is disabled");
 	return false;
 #endif
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
-
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
+
+#if (_JNC_LLVM_DEBUG_JIT)
+	llvm::DebugFlag = true;
+#endif
 
 	try
 	{
-		sl::Iterator<Function> functionIt = m_functionList.getHead();
-		for (; functionIt; functionIt++)
+		sl::Iterator<Function> it = m_functionList.getHead();
+		for (; it; it++)
 		{
-			Function* function = *functionIt;
+			Function* function = *it;
 			if (!function->getPrologueBlock())
 				continue;
 

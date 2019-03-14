@@ -42,38 +42,9 @@ JNC_END_LIB_FUNCTION_MAP()
 JncApp::JncApp(CmdLine* cmdLine)
 {
 	m_cmdLine = cmdLine;
+	m_module->initialize("jnc_module", cmdLine->m_compileFlags);
 
-	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
-	if (cmdLine->m_flags & JncFlag_DebugInfo)
-		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
-
-	if (cmdLine->m_flags & JncFlag_McJit)
-		compileFlags |= jnc::ModuleCompileFlag_McJit;
-
-	if (cmdLine->m_flags & JncFlag_SimpleGcSafePoint)
-		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
-
-	if (cmdLine->m_flags & JncFlag_IgnoreOpaqueClassTypeInfo)
-		compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
-
-	if (cmdLine->m_flags & JncFlag_Documentation)
-	{
-		compileFlags |= jnc::ModuleCompileFlag_Documentation;
-		compileFlags |= cmdLine->m_doxyCommentFlags;
-
-		if (cmdLine->m_flags & JncFlag_StdLibDoc)
-			compileFlags |= jnc::ModuleCompileFlag_StdLibDoc;
-
-		if (!(cmdLine->m_flags & JncFlag_Compile))
-		{
-			compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
-			compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
-		}
-	}
-
-	m_module->initialize("jnc_module", compileFlags);
-
-	if (!(cmdLine->m_flags & JncFlag_StdLibDoc))
+	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc))
 	{
 		m_module->addStaticLib(jnc::StdLib_getLib());
 		m_module->addStaticLib(jnc::SysLib_getLib());
@@ -161,7 +132,6 @@ JncApp::runFunction(int* returnValue)
 		return false;
 	}
 
-	m_runtime->setStackSizeLimit(m_cmdLine->m_stackSizeLimit);
 	m_runtime->getGcHeap()->setSizeTriggers(&m_cmdLine->m_gcSizeTriggers);
 
 	result = m_runtime->startup(m_module);

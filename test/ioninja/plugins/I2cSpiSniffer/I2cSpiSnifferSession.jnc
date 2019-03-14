@@ -139,7 +139,7 @@ public:
 	bool errorcode capture();
 	void stopCapture();
 
-	override size_t transmit(
+	override size_t errorcode transmit(
 		void const* p,
 		size_t size
 		);
@@ -341,7 +341,7 @@ I2cSpiSnifferSession.onTest()
 	m_decoder.decode(data1, sizeof(data1));
 }
 
-size_t I2cSpiSnifferSession.transmit(
+size_t errorcode I2cSpiSnifferSession.transmit(
 	void const* p,
 	size_t size
 	)
