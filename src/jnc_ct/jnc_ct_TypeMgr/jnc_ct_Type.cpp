@@ -145,11 +145,11 @@ getPtrTypeFlagSignature(uint_t flags)
 		signature += 's';
 
 	if (flags & PtrTypeFlag_Const)
-		signature += 'cn';
+		signature += 'c';
 	else if (flags & PtrTypeFlag_ReadOnly)
-		signature += "ro";
+		signature += 'r';
 	else if (flags & PtrTypeFlag_CMut)
-		signature += "cm";
+		signature += 'm';
 
 	if (flags & PtrTypeFlag_Volatile)
 		signature += 'v';
@@ -157,7 +157,7 @@ getPtrTypeFlagSignature(uint_t flags)
 	if (flags & PtrTypeFlag_Event)
 		signature += 'e';
 	else if (flags & PtrTypeFlag_DualEvent)
-		signature += "pe";
+		signature += 'd';
 
 	return signature;
 }
