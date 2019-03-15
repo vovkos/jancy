@@ -1,0 +1,23 @@
+// bug: import ptr type
+
+//..............................................................................
+
+foo(T* const* p) // ptr import 
+{
+}
+
+bar(T* p) // ptr import 
+{
+}
+
+int main()
+{
+	T* p;
+	T* const* pp;
+	foo(pp);
+	return 0;
+}
+
+class T
+{
+}

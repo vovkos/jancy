@@ -1723,7 +1723,7 @@ TypeMgr::getDataPtrType(
 	)
 {
 	ASSERT((size_t)ptrTypeKind < DataPtrTypeKind__Count);
-	ASSERT(targetType->getTypeKind() != TypeKind_NamedImport); // for imports, GetImportPtrType () should be called
+	ASSERT(targetType->getTypeKind() != TypeKind_NamedImport); // for imports, getImportPtrType() should be called
 	ASSERT(typeKind != TypeKind_DataRef || targetType->m_typeKind != TypeKind_DataRef); // double reference
 
 	if (ptrTypeKind == DataPtrTypeKind_Normal)
@@ -1756,6 +1756,9 @@ TypeMgr::getDataPtrType(
 	type->m_alignment = sizeof(void*);
 	type->m_targetType = targetType;
 	type->m_flags = flags;
+
+	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)targetType)->addFixup(&type->m_targetType);
 
 	m_typeList.insertTail(type);
 	tuple->m_ptrTypeArray[i1][i2][i3][i4][i5] = type;
