@@ -264,16 +264,10 @@ public:
 	}
 
 	llvm::Type*
-	getLlvmType()
-	{
-		return m_llvmType ? m_llvmType : prepareLlvmType(), m_llvmType;
-	}
+	getLlvmType();
 
 	llvm::DIType_vn
-	getLlvmDiType()
-	{
-		return m_llvmDiType || !m_typeKind ? m_llvmDiType : prepareLlvmDiType(), m_llvmDiType;
-	}
+	getLlvmDiType();
 
 	Value
 	getUndefValue();
@@ -377,6 +371,28 @@ protected:
 		return this;
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+llvm::Type*
+Type::getLlvmType()
+{
+	if (!m_llvmType)
+		prepareLlvmType();
+
+	return m_llvmType;
+}
+
+inline
+llvm::DIType_vn
+Type::getLlvmDiType()
+{
+	if (!m_llvmDiType && m_typeKind)
+		prepareLlvmDiType();
+
+	return m_llvmDiType;
+}
 
 //..............................................................................
 

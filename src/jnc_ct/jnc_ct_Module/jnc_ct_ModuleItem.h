@@ -128,10 +128,7 @@ public:
 	}
 
 	const sl::String&
-	getQualifiedName()
-	{
-		return !m_qualifiedName.isEmpty() ? m_qualifiedName : prepareQualifiedName(), m_qualifiedName;
-	}
+	getQualifiedName();
 
 	Namespace*
 	getParentNamespace()
@@ -155,6 +152,18 @@ protected:
 	sl::String
 	getDoxyLocationString();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const sl::String&
+ModuleItemDecl::getQualifiedName()
+{
+	if (m_qualifiedName.isEmpty())
+		prepareQualifiedName();
+
+	return m_qualifiedName;
+}
 
 //..............................................................................
 

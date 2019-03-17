@@ -103,16 +103,10 @@ public:
 	}
 
 	void*
-	getStaticData()
-	{
-		return m_staticData ? m_staticData : prepareStaticData(), m_staticData;
-	}
+	getStaticData();
 
 	LeanDataPtrValidator*
-	getLeanDataPtrValidator()
-	{
-		return m_leanDataPtrValidator ? m_leanDataPtrValidator : prepareLeanDataPtrValidator(), m_leanDataPtrValidator;
-	}
+	getLeanDataPtrValidator();
 
 	llvm::GlobalVariable*
 	getLlvmGlobalVariable()
@@ -121,10 +115,7 @@ public:
 	}
 
 	llvm::Value*
-	getLlvmValue()
-	{
-		return m_llvmValue ? m_llvmValue : prepareLlvmValue(), m_llvmValue;
-	}
+	getLlvmValue();
 
 	llvm::DIVariable_vn
 	getLlvmDiDescriptor()
@@ -159,6 +150,38 @@ protected:
 	void
 	prepareStaticData();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+void*
+Variable::getStaticData()
+{
+	if (!m_staticData)
+		prepareStaticData();
+
+	return m_staticData;
+}
+
+inline
+LeanDataPtrValidator*
+Variable::getLeanDataPtrValidator()
+{
+	if (!m_leanDataPtrValidator)
+		prepareLeanDataPtrValidator();
+
+	return m_leanDataPtrValidator;
+}
+
+inline
+llvm::Value*
+Variable::getLlvmValue()
+{
+	if (!m_llvmValue)
+		prepareLlvmValue();
+
+	return m_llvmValue;
+}
 
 //..............................................................................
 

@@ -299,16 +299,10 @@ public:
 	}
 
 	llvm::Function*
-	getLlvmFunction()
-	{
-		return m_llvmFunction ? m_llvmFunction : prepareLlvmFunction(), m_llvmFunction;
-	}
+	getLlvmFunction();
 
 	llvm::DISubprogram_vn
-	getLlvmDiSubprogram()
-	{
-		return m_llvmDiSubprogram ? m_llvmDiSubprogram : prepareLlvmDiSubprogram(), m_llvmDiSubprogram;
-	}
+	getLlvmDiSubprogram();
 
 	void*
 	getMachineCode()
@@ -449,6 +443,28 @@ protected:
 	bool
 	compileNormalBody();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+llvm::Function*
+Function::getLlvmFunction()
+{
+	if (!m_llvmFunction)
+		prepareLlvmFunction();
+
+	return m_llvmFunction;
+}
+
+inline
+llvm::DISubprogram_vn
+Function::getLlvmDiSubprogram()
+{
+	if (!m_llvmDiSubprogram)
+		prepareLlvmDiSubprogram();
+
+	return m_llvmDiSubprogram;
+}
 
 //..............................................................................
 

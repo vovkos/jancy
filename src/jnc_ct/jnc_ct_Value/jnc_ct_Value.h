@@ -316,10 +316,7 @@ public:
 	}
 
 	llvm::Value*
-	getLlvmValue() const
-	{
-		return m_llvmValue ? m_llvmValue : prepareLlvmValue(), m_llvmValue;
-	}
+	getLlvmValue() const;
 
 	sl::String
 	getLlvmTypeString() const
@@ -649,6 +646,18 @@ protected:
 		m_llvmValue = getLlvmConst(m_type, getConstData()); // mutable
 	}
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+llvm::Value*
+Value::getLlvmValue() const
+{
+	if (!m_llvmValue)
+		prepareLlvmValue();
+
+	return m_llvmValue;
+}
 
 //..............................................................................
 
