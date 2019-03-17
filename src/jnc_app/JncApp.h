@@ -11,7 +11,7 @@
 
 #pragma once
 
-struct CmdLine;
+#include "CmdLine.h"
 
 //..............................................................................
 
@@ -32,7 +32,7 @@ public:
 	bool
 	compile()
 	{
-		return m_module->compile();
+		return m_module->compile() && m_module->optimize(m_cmdLine->m_optLevel);
 	}
 
 	bool

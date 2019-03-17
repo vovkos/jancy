@@ -199,12 +199,22 @@ install (
 
 #...............................................................................
 
+axl_create_setting(
+	JANCY_TEST_OPT_LEVEL
+	DESCRIPTION "Optimization level to use when running tests"
+	DEFAULT "-O2"
+	"-O0"
+	"-O1"
+	"-O2"
+	"-O3"
+	)
+
 macro (
 add_jancy_tests
 	# ...
 	)
 
-	set (_FLAGS "--print-retval --import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION> --no-inline --no-scalar-opt --gc-safe-point-prologue")
+	set (_FLAGS "--print-retval --import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION> ${JANCY_TEST_OPT_LEVEL}")
 
 	if (UNIX)
 		set (_FLAGS "${_FLAGS} --debug-info")

@@ -29,6 +29,7 @@ struct CmdLine
 {
 	uint_t m_flags;
 	uint_t m_compileFlags;
+	uint_t m_optLevel;
 	jnc::GcSizeTriggers m_gcSizeTriggers;
 
 	sl::String m_srcNameOverride;
@@ -42,7 +43,6 @@ struct CmdLine
 	sl::BoxList<sl::String> m_ignoredImportList;
 
 	CmdLine();
-
 };
 
 //..............................................................................
@@ -73,13 +73,8 @@ enum CmdLineSwitch
 	CmdLineSwitch_RunFunction,
 	CmdLineSwitch_GcAllocSizeTrigger,
 	CmdLineSwitch_GcPeriodSizeTrigger,
-
-	CmdLineSwitch_Inline,
-	CmdLineSwitch_NoInline,
-	CmdLineSwitch_ScalarOpt,
-	CmdLineSwitch_NoScalarOpt,
 	CmdLineSwitch_GcSafePointInPrologue,
-
+	CmdLineSwitch_OptLevel,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -173,25 +168,10 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		"gc-safe-point-prologue", NULL,
 		"Add GC safe-points to function prologues"
 		)
-	AXL_SL_CMD_LINE_SWITCH(
-		CmdLineSwitch_Inline,
-		"inline", NULL,
-		"Enable LLVM function inlining pass"
-		)
-	AXL_SL_CMD_LINE_SWITCH(
-		CmdLineSwitch_NoInline,
-		"no-inline", NULL,
-		"Disable LLVM function inlining pass"
-		)
-	AXL_SL_CMD_LINE_SWITCH(
-		CmdLineSwitch_ScalarOpt,
-		"scalar-opt", NULL,
-		"Enable LLVM scalar optimization passes"
-		)
-	AXL_SL_CMD_LINE_SWITCH(
-		CmdLineSwitch_NoScalarOpt,
-		"no-scalar-opt", NULL,
-		"Disable LLVM scalar optimization passes"
+	AXL_SL_CMD_LINE_SWITCH_2(
+		CmdLineSwitch_OptLevel,
+		"O", "opt", "<n>",
+		"Enable LLVM optimization passes level <n> (0 to 3)"
 		)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_StdLibDoc,

@@ -18,6 +18,7 @@ CmdLine::CmdLine()
 {
 	m_flags = JncFlag_Run;
 	m_compileFlags = jnc::ModuleCompileFlag_StdFlags;
+	m_optLevel = 0;
 	m_functionName = "main";
 	m_outputDir = ".";
 	m_gcSizeTriggers.m_allocSizeTrigger = jnc::GcDef_AllocSizeTrigger;
@@ -151,20 +152,8 @@ CmdLineParser::onSwitch(
 			jnc::ModuleCompileFlag_GcSafePointInInternalPrologue;
 		break;
 
-	case CmdLineSwitch_Inline:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_InlineFunctions;
-		break;
-
-	case CmdLineSwitch_NoInline:
-		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_InlineFunctions;
-		break;
-
-	case CmdLineSwitch_ScalarOpt:
-		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_ScalarOptimizations;
-		break;
-
-	case CmdLineSwitch_NoScalarOpt:
-		m_cmdLine->m_compileFlags &= ~jnc::ModuleCompileFlag_ScalarOptimizations;
+	case CmdLineSwitch_OptLevel:
+		m_cmdLine->m_optLevel = atoi(value.sz());
 		break;
 
 	case CmdLineSwitch_SourceDir:
