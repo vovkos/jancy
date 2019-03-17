@@ -20,6 +20,9 @@
 namespace jnc {
 namespace ct {
 
+class DerivableType;
+class AsyncSequencerFunction;
+
 //..............................................................................
 
 class FunctionMgr
@@ -210,12 +213,6 @@ public:
 
 	void
 	replaceAsyncAllocas();
-
-	void
-	inlineFunctions();
-
-	void
-	runScalarOptimizations();
 
 	bool
 	jitFunctions();

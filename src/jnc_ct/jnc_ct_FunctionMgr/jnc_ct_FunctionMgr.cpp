@@ -708,36 +708,6 @@ FunctionMgr::replaceAsyncAllocas()
 }
 
 void
-FunctionMgr::inlineFunctions()
-{
-	llvm::PassManager llvmPassMgr;
-	llvmPassMgr.add(llvm::createFunctionInliningPass());
-	llvmPassMgr.run(*m_module->getLlvmModule());
-}
-void
-FunctionMgr::runScalarOptimizations()
-{
-	llvm::FunctionPassManager llvmFunctionPassMgr(m_module->getLlvmModule());
-	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
-
-	llvmFunctionPassMgr.add(new llvm::DataLayout(*llvmExecutionEngine->getDataLayout()));
-	llvmFunctionPassMgr.add(llvm::createBasicAliasAnalysisPass());
-	llvmFunctionPassMgr.add(llvm::createPromoteMemoryToRegisterPass());
-	llvmFunctionPassMgr.add(llvm::createInstructionCombiningPass());
-	llvmFunctionPassMgr.add(llvm::createReassociatePass());
-	llvmFunctionPassMgr.add(llvm::createGVNPass());
-	llvmFunctionPassMgr.add(llvm::createDeadCodeEliminationPass());
-	llvmFunctionPassMgr.add(llvm::createCFGSimplificationPass());
-	llvmFunctionPassMgr.doInitialization();
-
-	sl::Iterator<Function> it = m_functionList.getHead();
-	for (; it; it++)
-		llvmFunctionPassMgr.run(*it->getLlvmFunction());
-
-	llvmFunctionPassMgr.doFinalization();
-}
-
-void
 llvmFatalErrorHandler(
 	void* context,
 	const std::string& errorString,

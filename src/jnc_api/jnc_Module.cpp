@@ -367,6 +367,17 @@ jnc_Module_compile(jnc_Module* module)
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
+jnc_Module_optimize(
+	jnc_Module* module,
+	uint_t level
+	)
+{
+	return module->optimize(level);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
 jnc_Module_jit(jnc_Module* module)
 {
 	return module->jit();

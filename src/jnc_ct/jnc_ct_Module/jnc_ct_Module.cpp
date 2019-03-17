@@ -329,6 +329,9 @@ Module::mapVariable(
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		std::string name = llvmVariable->getName();
+		if (name.empty()) // variable was optimized out and will not be used by MCJIT
+			return true;
+
 		name += ".mapping";
 
 		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable(
@@ -376,10 +379,14 @@ Module::mapFunction(
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
+		std::string name = llvmFunction->getName();
+		if (name.empty()) // function was optimized out and will not be used by MCJIT
+			return true;
+
+		sl::StringHashTableIterator<void*> it = m_functionMap.visit(name.data());
 		if (it->m_value)
 		{
-			err::setFormatStringError("attempt to re-map function: %s", function->getQualifiedName().sz());
+			err::setFormatStringError("attempt to re-map function: %s/%s", function->getQualifiedName().sz(), llvmFunction->getName().data());
 			return false;
 		}
 
@@ -664,13 +671,41 @@ Module::compile()
 	if (!result)
 		return false;
 
-	if (m_compileFlags & ModuleCompileFlag_InlineFunctions)
-		m_functionMgr.inlineFunctions();
-
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.finalize();
 
 	m_compileState = ModuleCompileState_Compiled;
+	return true;
+}
+
+bool
+Module::optimize(uint_t level)
+{
+	llvm::PassManagerBuilder passManagerBuilder;
+	passManagerBuilder.OptLevel = level;
+	passManagerBuilder.SizeLevel = 0;
+	passManagerBuilder.Inliner = llvm::createFunctionInliningPass();
+
+	llvm::legacy::PassManager llvmModulePassMgr;
+	llvm::legacy::FunctionPassManager llvmFunctionPassMgr(m_llvmModule);
+	passManagerBuilder.populateModulePassManager(llvmModulePassMgr);
+	passManagerBuilder.populateFunctionPassManager(llvmFunctionPassMgr);
+
+	llvmModulePassMgr.run(*m_llvmModule);
+
+	llvmFunctionPassMgr.doInitialization();
+
+	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
+	for (; it; it++)
+	{
+		if (!it->hasBody())
+			continue;
+
+		printf("optimizing %s\n", it->getQualifiedName().sz());
+		llvmFunctionPassMgr.run(*it->getLlvmFunction());
+	}
+
+	llvmFunctionPassMgr.doFinalization();
 	return true;
 }
 
@@ -690,9 +725,6 @@ Module::jit()
 	result = createLlvmExecutionEngine();
 	if (!result)
 		return false;
-
-	if (m_compileFlags & ModuleCompileFlag_ScalarOptimizations)
-		m_functionMgr.runScalarOptimizations();
 
 	result =
 		m_extensionLibMgr.mapAddresses() &&

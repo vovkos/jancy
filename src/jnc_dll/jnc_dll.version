@@ -145,6 +145,7 @@
 		jnc_Module_link;
 		jnc_Module_mapFunction;
 		jnc_Module_mapVariable;
+		jnc_Module_optimize;
 		jnc_Module_parse;
 		jnc_Module_parseFile;
 		jnc_Module_parseImports;

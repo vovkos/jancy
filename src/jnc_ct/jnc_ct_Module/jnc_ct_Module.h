@@ -231,6 +231,9 @@ public:
 	compile();
 
 	bool
+	optimize(uint_t level = 2);
+
+	bool
 	jit();
 
 	bool

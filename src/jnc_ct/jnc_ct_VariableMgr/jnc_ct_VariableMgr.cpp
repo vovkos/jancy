@@ -354,7 +354,7 @@ VariableMgr::createLlvmGlobalVariable(
 		*m_module->getLlvmModule(),
 		type->getLlvmType(),
 		false,
-		llvm::GlobalVariable::InternalLinkage,
+		llvm::GlobalVariable::ExternalLinkage, //InternalLinkage,
 		llvmInitConstant,
 		llvmName >> toLlvm
 		);

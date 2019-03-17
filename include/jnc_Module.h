@@ -68,12 +68,8 @@ enum jnc_ModuleCompileFlag
 	jnc_ModuleCompileFlag_DisableDoxyComment2           = 0x00004000,
 	jnc_ModuleCompileFlag_DisableDoxyComment3           = 0x00008000,
 	jnc_ModuleCompileFlag_DisableDoxyComment4           = 0x00010000,
-	jnc_ModuleCompileFlag_InlineFunctions               = 0x00100000,
-	jnc_ModuleCompileFlag_ScalarOptimizations           = 0x00200000,
 
 	jnc_ModuleCompileFlag_StdFlags =
-		jnc_ModuleCompileFlag_InlineFunctions |
-		jnc_ModuleCompileFlag_ScalarOptimizations |
 #if (_JNC_OS_POSIX)
 		jnc_ModuleCompileFlag_McJit |
 #endif
@@ -246,6 +242,13 @@ jnc_Module_calcLayout(jnc_Module* module);
 JNC_EXTERN_C
 bool_t
 jnc_Module_compile(jnc_Module* module);
+
+JNC_EXTERN_C
+bool_t
+jnc_Module_optimize(
+	jnc_Module* module,
+	uint_t level
+	);
 
 JNC_EXTERN_C
 bool_t
@@ -449,6 +452,12 @@ struct jnc_Module
 	}
 
 	bool
+	optimize(uint_t level = 2)
+	{
+		return jnc_Module_optimize(this, level) != 0;
+	}
+
+	bool
 	jit()
 	{
 		return jnc_Module_jit(this) != 0;
@@ -503,8 +512,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment2                  = jnc_ModuleCompileFlag_DisableDoxyComment2,
 	ModuleCompileFlag_DisableDoxyComment3                  = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
-	ModuleCompileFlag_InlineFunctions                      = jnc_ModuleCompileFlag_InlineFunctions,
-	ModuleCompileFlag_ScalarOptimizations                  = jnc_ModuleCompileFlag_ScalarOptimizations,
 	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
 
 //..............................................................................

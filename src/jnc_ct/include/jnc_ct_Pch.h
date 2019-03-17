@@ -66,7 +66,7 @@
 #	include <llvm/DebugInfo.h>
 #	include <llvm/Analysis/Verifier.h>
 #else
-#	include <llvm/IR/PassManager.h>
+#	include <llvm/IR/LegacyPassManager.h>
 #	include <llvm/IR/DIBuilder.h>
 #	include <llvm/IR/DebugInfo.h>
 #	include <llvm/IR/Verifier.h>
@@ -83,8 +83,8 @@
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Analysis/Passes.h>
-#include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/IPO.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 #include <llvm/ExecutionEngine/SectionMemoryManager.h>
 
 // LLVM JIT forces linkage to LLVM libraries if JIT is merely included;
