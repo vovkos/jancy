@@ -413,6 +413,14 @@ bool MainWindow::compile()
 		return false;
 	}
 
+	writeOutput("Optimizing...\n");
+	result = m_module->optimize(1);
+	if (!result)
+	{
+		writeOutput("%s\n", err::getLastErrorDescription().sz());
+		return false;
+	}
+
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
 
 	m_modulePane->build(m_module, child);
