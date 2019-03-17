@@ -29,6 +29,7 @@ ExceptionMgr::install()
 	sigaddset(&signalMask, SIGSEGV);
 	sigaddset(&signalMask, SIGBUS);
 	sigaddset(&signalMask, SIGFPE);
+	sigaddset(&signalMask, SIGILL);
 
 	struct sigaction sigAction = { 0 };
 	sigAction.sa_flags = SA_SIGINFO;
@@ -42,6 +43,9 @@ ExceptionMgr::install()
 	ASSERT(result == 0);
 
 	result = sigaction(SIGFPE, &sigAction, &m_prevSigActionTable[SIGFPE]);
+	ASSERT(result == 0);
+
+	result = sigaction(SIGILL, &sigAction, &m_prevSigActionTable[SIGILL]);
 	ASSERT(result == 0);
 
 	sigAction.sa_sigaction = signalHandler_SIGUSR;
