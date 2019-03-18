@@ -50,6 +50,7 @@ class Variable:
 	friend class VariableMgr;
 	friend class FunctionMgr;
 	friend class Parser;
+	friend class Module;
 
 protected:
 	Type* m_type;

@@ -736,14 +736,8 @@ FunctionMgr::jitFunctions()
 	{
 		sl::Iterator<Function> it = m_functionList.getHead();
 		for (; it; it++)
-		{
-			Function* function = *it;
-			if (!function->getPrologueBlock())
-				continue;
-
-			llvm::Function* llvmFunction = function->getLlvmFunction();
-			function->m_machineCode = llvmExecutionEngine->getPointerToFunction(llvmFunction);
-		}
+			if (!it->isEmpty())
+				it->m_machineCode = llvmExecutionEngine->getPointerToFunction(it->getLlvmFunction());
 
 		llvmExecutionEngine->finalizeObject();
 	}

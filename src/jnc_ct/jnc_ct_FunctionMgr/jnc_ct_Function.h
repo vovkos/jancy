@@ -178,6 +178,12 @@ public:
 	}
 
 	bool
+	isEmpty()
+	{
+		return !m_prologueBlock;
+	}
+
+	bool
 	isTlsRequired()
 	{
 		return !m_tlsVariableArray.isEmpty();

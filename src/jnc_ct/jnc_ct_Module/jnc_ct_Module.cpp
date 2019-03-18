@@ -320,7 +320,10 @@ Module::mapVariable(
 	)
 {
 	if (variable->m_flags & ModuleItemFlag_Unused)
+	{
+		variable->m_staticData = p;
 		return true;
+	}
 
 	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable();
 	if (!llvmVariable)
@@ -366,6 +369,7 @@ Module::mapVariable(
 		m_llvmExecutionEngine->addGlobalMapping(llvmVariable, p);
 	}
 
+	variable->m_staticData = p;
 	return true;
 }
 
@@ -376,7 +380,10 @@ Module::mapFunction(
 	)
 {
 	if (function->m_flags & ModuleItemFlag_Unused)
+	{
+		function->m_machineCode = p;
 		return true;
+	}
 
 	llvm::Function* llvmFunction = function->getLlvmFunction();
 	if (m_compileFlags & ModuleCompileFlag_McJit)
@@ -711,7 +718,7 @@ Module::optimize(uint_t level)
 
 	it = m_functionMgr.m_functionList.getHead();
 	for (; it; it++)
-		if (it->hasBody())
+		if (!it->isEmpty())
 			llvmFunctionPassMgr.run(*it->getLlvmFunction());
 
 	llvmFunctionPassMgr.doFinalization();
