@@ -70,7 +70,8 @@ Variable::prepareStaticData()
 {
 	ASSERT(!m_staticData && m_storageKind == StorageKind_Static);
 
-	if (m_flags & ModuleItemFlag_Unused)
+	if (!m_llvmGlobalVariableName.isEmpty() &&
+		!m_module->getLlvmModule()->getGlobalVariable(m_llvmGlobalVariableName >> toLlvm)) // optimized out
 	{
 		Value value((void*) NULL, m_type);
 		m_module->m_constMgr.saveValue(value);

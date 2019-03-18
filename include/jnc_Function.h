@@ -71,7 +71,6 @@ JNC_EXTERN_C
 const char*
 jnc_getFunctionKindString(jnc_FunctionKind functionKind);
 
-
 //..............................................................................
 
 enum jnc_FunctionKindFlag

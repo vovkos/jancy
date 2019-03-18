@@ -155,6 +155,7 @@ protected:
 	BasicBlock* m_prologueBlock;
 	Scope* m_scope;
 
+	sl::String m_llvmFunctionName;
 	llvm::Function* m_llvmFunction;
 	llvm::DISubprogram_vn m_llvmDiSubprogram;
 

@@ -37,6 +37,15 @@
 
 //..............................................................................
 
+enum jnc_VariableFlag
+{
+	jnc_VariableFlag_Arg = 0x010000,
+};
+
+typedef enum jnc_VariableFlag jnc_VariableFlag;
+
+//..............................................................................
+
 JNC_EXTERN_C
 bool_t
 jnc_Variable_hasInitializer(jnc_Variable* variable);
@@ -66,6 +75,22 @@ struct jnc_Variable: jnc_ModuleItem
 
 #endif // _JNC_CORE
 
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#ifdef __cplusplus
+
+namespace jnc {
+
 //..............................................................................
+
+typedef enum jnc_VariableFlag VariableFlag;
+
+const VariableFlag VariableFlag_Arg = jnc_VariableFlag_Arg;
+
+//..............................................................................
+
+} // namespace jnc
+
+#endif // __cplusplus
 
 /// @}

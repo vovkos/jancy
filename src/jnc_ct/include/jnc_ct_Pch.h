@@ -277,6 +277,7 @@ using namespace axl;
 
 // converstions for axl::sl::StringRef
 
+AXL_SELECT_ANY struct ToAxl* toAxl;
 AXL_SELECT_ANY struct ToStl* toStl;
 AXL_SELECT_ANY struct ToLlvm* toLlvm;
 
@@ -298,6 +299,16 @@ operator >> (
 	)
 {
 	return llvm::StringRef(string.cp(), string.getLength());
+}
+
+inline
+sl::String
+operator >> (
+	llvm::StringRef& string,
+	const ToAxl*
+	)
+{
+	return sl::String(string.data(), string.size());
 }
 
 //..............................................................................

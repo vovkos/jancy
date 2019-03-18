@@ -319,17 +319,17 @@ Module::mapVariable(
 	void* p
 	)
 {
-	if (variable->m_flags & ModuleItemFlag_Unused)
-	{
-		variable->m_staticData = p;
-		return true;
-	}
-
-	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable();
-	if (!llvmVariable)
+	if (variable->getStorageKind() != StorageKind_Static)
 	{
 		err::setFormatStringError("attempt to map non-global variable: %s", variable->getQualifiedName().sz());
 		return false;
+	}
+
+	llvm::GlobalVariable* llvmVariable = m_llvmModule->getGlobalVariable(variable->m_llvmGlobalVariableName >> toLlvm);
+	if (!llvmVariable) // optimized out
+	{
+		variable->m_staticData = p;
+		return true;
 	}
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
@@ -379,13 +379,13 @@ Module::mapFunction(
 	void* p
 	)
 {
-	if (function->m_flags & ModuleItemFlag_Unused)
+	llvm::Function* llvmFunction = m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm);
+	if (!llvmFunction) // optimized out
 	{
 		function->m_machineCode = p;
 		return true;
 	}
 
-	llvm::Function* llvmFunction = function->getLlvmFunction();
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
@@ -686,20 +686,31 @@ Module::compile()
 bool
 Module::optimize(uint_t level)
 {
-	// before running LLVM optimization passes, mark unused functions and global variables
-	// later on, avoid accessing corresponding llvm::Function*/llvm::GlobalVariable* pointers
+	// before running LLVM optimization passes, save LLVM names of declarations --
+	// corresponding llvm::Function*/llvm::GlobalVariable* may be optimized out
+
+	// things would be much easier if we could just derive from llvm::Function
+	// and override eraseFromParent -- then we could update jnc::ct::Function when
+	// llvm::Function is optimized out
+
+	// alas, we can't -- the constructor of llvm::Function is private
 
 	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
 	for (; it; it++)
-		if (it->getLlvmFunction()->use_empty())
-			it->m_flags |= ModuleItemFlag_Unused;
+	{
+		Function* function = *it;
+		llvm::Function* llvmFunction = function->getLlvmFunction();
+		if (llvmFunction->isDeclaration())
+			it->m_llvmFunctionName = llvmFunction->getName() >> toAxl;
+	}
 
 	size_t count = m_variableMgr.m_globalStaticVariableArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = m_variableMgr.m_globalStaticVariableArray[i];
-		if (variable->getLlvmGlobalVariable()->use_empty())
-			variable->m_flags |= ModuleItemFlag_Unused;
+		llvm::GlobalVariable* llvmGlobalVariable = variable->getLlvmGlobalVariable();
+		if (llvmGlobalVariable->isDeclaration())
+			variable->m_llvmGlobalVariableName = llvmGlobalVariable->getName() >> toAxl;
 	}
 
 	llvm::PassManagerBuilder passManagerBuilder;
