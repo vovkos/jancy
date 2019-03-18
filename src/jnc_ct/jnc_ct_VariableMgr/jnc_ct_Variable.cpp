@@ -70,6 +70,14 @@ Variable::prepareStaticData()
 {
 	ASSERT(!m_staticData && m_storageKind == StorageKind_Static);
 
+	if (m_flags & ModuleItemFlag_Unused)
+	{
+		Value zeroValue;
+		zeroValue.createConst(NULL, m_type);
+		m_module->m_constMgr.saveValue(zeroValue);
+		m_staticData = zeroValue.getConstData();
+	}
+
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
 
 	m_staticData = (m_module->getCompileFlags() & ModuleCompileFlag_McJit) ?

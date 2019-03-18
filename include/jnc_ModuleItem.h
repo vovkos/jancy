@@ -89,6 +89,7 @@ enum jnc_ModuleItemFlag
 	jnc_ModuleItemFlag_User         = 0x01,
 	jnc_ModuleItemFlag_NeedLayout   = 0x02,
 	jnc_ModuleItemFlag_NeedCompile  = 0x04,
+	jnc_ModuleItemFlag_Unused       = 0x08, // likely to be optimized out by LLVM
 	jnc_ModuleItemFlag_InCalcLayout = 0x10,
 	jnc_ModuleItemFlag_LayoutReady  = 0x20,
 	jnc_ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
@@ -398,6 +399,7 @@ const ModuleItemFlag
 	ModuleItemFlag_User         = jnc_ModuleItemFlag_User,
 	ModuleItemFlag_NeedLayout   = jnc_ModuleItemFlag_NeedLayout,
 	ModuleItemFlag_NeedCompile  = jnc_ModuleItemFlag_NeedCompile,
+	ModuleItemFlag_Unused       = jnc_ModuleItemFlag_Unused,
 	ModuleItemFlag_InCalcLayout = jnc_ModuleItemFlag_InCalcLayout,
 	ModuleItemFlag_LayoutReady  = jnc_ModuleItemFlag_LayoutReady,
 	ModuleItemFlag_Constructed  = jnc_ModuleItemFlag_Constructed,

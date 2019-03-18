@@ -319,6 +319,9 @@ Module::mapVariable(
 	void* p
 	)
 {
+	if (variable->m_flags & ModuleItemFlag_Unused)
+		return true;
+
 	llvm::GlobalVariable* llvmVariable = variable->getLlvmGlobalVariable();
 	if (!llvmVariable)
 	{
@@ -329,9 +332,6 @@ Module::mapVariable(
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		std::string name = llvmVariable->getName();
-		if (name.empty()) // variable was optimized out and will not be used by MCJIT
-			return true;
-
 		name += ".mapping";
 
 		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable(
@@ -375,15 +375,13 @@ Module::mapFunction(
 	void* p
 	)
 {
-	llvm::Function* llvmFunction = function->getLlvmFunction();
+	if (function->m_flags & ModuleItemFlag_Unused)
+		return true;
 
+	llvm::Function* llvmFunction = function->getLlvmFunction();
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		std::string name = llvmFunction->getName();
-		if (name.empty()) // function was optimized out and will not be used by MCJIT
-			return true;
-
-		sl::StringHashTableIterator<void*> it = m_functionMap.visit(name.data());
+		sl::StringHashTableIterator<void*> it = m_functionMap.visit(llvmFunction->getName().data());
 		if (it->m_value)
 		{
 			err::setFormatStringError("attempt to re-map function: %s/%s", function->getQualifiedName().sz(), llvmFunction->getName().data());
@@ -681,6 +679,22 @@ Module::compile()
 bool
 Module::optimize(uint_t level)
 {
+	// before running LLVM optimization passes, mark unused functions and global variables
+	// later on, avoid accessing corresponding llvm::Function*/llvm::GlobalVariable* pointers
+
+	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
+	for (; it; it++)
+		if (it->getLlvmFunction()->use_empty())
+			it->m_flags |= ModuleItemFlag_Unused;
+
+	size_t count = m_variableMgr.m_globalStaticVariableArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = m_variableMgr.m_globalStaticVariableArray[i];
+		if (variable->getLlvmGlobalVariable()->use_empty())
+			variable->m_flags |= ModuleItemFlag_Unused;
+	}
+
 	llvm::PassManagerBuilder passManagerBuilder;
 	passManagerBuilder.OptLevel = level;
 	passManagerBuilder.SizeLevel = 0;
@@ -695,15 +709,10 @@ Module::optimize(uint_t level)
 
 	llvmFunctionPassMgr.doInitialization();
 
-	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
+	it = m_functionMgr.m_functionList.getHead();
 	for (; it; it++)
-	{
-		if (!it->hasBody())
-			continue;
-
-		printf("optimizing %s\n", it->getQualifiedName().sz());
-		llvmFunctionPassMgr.run(*it->getLlvmFunction());
-	}
+		if (it->hasBody())
+			llvmFunctionPassMgr.run(*it->getLlvmFunction());
 
 	llvmFunctionPassMgr.doFinalization();
 	return true;
