@@ -72,10 +72,10 @@ Variable::prepareStaticData()
 
 	if (m_flags & ModuleItemFlag_Unused)
 	{
-		Value zeroValue;
-		zeroValue.createConst(NULL, m_type);
-		m_module->m_constMgr.saveValue(zeroValue);
-		m_staticData = zeroValue.getConstData();
+		Value value((void*) NULL, m_type);
+		m_module->m_constMgr.saveValue(value);
+		m_staticData = value.getConstData();
+		return;
 	}
 
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
