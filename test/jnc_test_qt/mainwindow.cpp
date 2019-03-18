@@ -154,6 +154,14 @@ void MainWindow::createActions()
 	m_clearOutputAction = new QAction("&Clear Output", this);
 	QObject::connect(m_clearOutputAction, SIGNAL(triggered()), this, SLOT(clearOutput()));
 
+	m_optimizeAction = new QAction("&Optimize", this);
+	m_optimizeAction->setCheckable(true);
+	m_optimizeAction->setChecked(true);
+
+	m_jitAction = new QAction("&JIT", this);
+	m_jitAction->setCheckable(true);
+	m_jitAction->setChecked(true);
+
 	m_compileAction = new QAction(QIcon(":/Images/Compile"), "C&ompile", this);
 	m_compileAction->setShortcut(QKeySequence(Qt::Key_F7));
 	QObject::connect(m_compileAction, SIGNAL(triggered()), this, SLOT(compile()));
@@ -178,6 +186,9 @@ void MainWindow::createMenu()
 	m_editMenu->addAction(m_clearOutputAction);
 
 	m_debugMenu = menuBar()->addMenu("&Debug");
+	m_debugMenu->addAction(m_optimizeAction);
+	m_debugMenu->addAction(m_jitAction);
+	m_debugMenu->addSeparator();
 	m_debugMenu->addAction(m_compileAction);
 	m_debugMenu->addAction(m_runAction);
 
@@ -413,12 +424,15 @@ bool MainWindow::compile()
 		return false;
 	}
 
-	writeOutput("Optimizing...\n");
-	result = m_module->optimize(1);
-	if (!result)
+	if (m_optimizeAction->isChecked())
 	{
-		writeOutput("%s\n", err::getLastErrorDescription().sz());
-		return false;
+		writeOutput("Optimizing...\n");
+		result = m_module->optimize(1);
+		if (!result)
+		{
+			writeOutput("%s\n", err::getLastErrorDescription().sz());
+			return false;
+		}
 	}
 
 	// TODO: still try to show LLVM IR if calclayout succeeded (and compilation failed somewhere down the road)
@@ -426,13 +440,16 @@ bool MainWindow::compile()
 	m_modulePane->build(m_module, child);
 	m_llvmIr->build(m_module);
 
-	writeOutput("JITting...\n");
-
-	result = m_module->jit();
-	if (!result)
+	if (m_jitAction->isChecked())
 	{
-		writeOutput("%s\n", err::getLastErrorDescription().sz());
-		return false;
+		writeOutput("JITting...\n");
+
+		result = m_module->jit();
+		if (!result)
+		{
+			writeOutput("%s\n", err::getLastErrorDescription().sz());
+			return false;
+		}
 	}
 
 	writeOutput("Done.\n");

@@ -96,6 +96,8 @@ private:
 	QAction* m_clearOutputAction;
 	QAction* m_compileAction;
 	QAction* m_runAction;
+	QAction* m_optimizeAction;
+	QAction* m_jitAction;
 
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;
