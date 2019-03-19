@@ -70,8 +70,11 @@ Variable::prepareStaticData()
 {
 	ASSERT(!m_staticData && m_storageKind == StorageKind_Static);
 
-	if (!m_llvmGlobalVariableName.isEmpty() &&
-		!m_module->getLlvmModule()->getGlobalVariable(m_llvmGlobalVariableName >> toLlvm)) // optimized out
+	llvm::GlobalVariable* llvmGlobalVariable = !m_llvmGlobalVariableName.isEmpty() ?
+		m_module->getLlvmModule()->getGlobalVariable(m_llvmGlobalVariableName >> toLlvm) :
+		m_llvmGlobalVariable;
+
+	if (!llvmGlobalVariable) // optimized out
 	{
 		Value value((void*) NULL, m_type);
 		m_module->m_constMgr.saveValue(value);
@@ -82,8 +85,8 @@ Variable::prepareStaticData()
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
 
 	m_staticData = (m_module->getCompileFlags() & ModuleCompileFlag_McJit) ?
-		(void*)llvmExecutionEngine->getGlobalValueAddress(m_llvmGlobalVariable->getName()) :
-		(void*)llvmExecutionEngine->getPointerToGlobal(m_llvmGlobalVariable);
+		(void*)llvmExecutionEngine->getGlobalValueAddress(llvmGlobalVariable->getName()) :
+		(void*)llvmExecutionEngine->getPointerToGlobal(llvmGlobalVariable);
 }
 
 bool

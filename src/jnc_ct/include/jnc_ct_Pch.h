@@ -304,7 +304,7 @@ operator >> (
 inline
 sl::String
 operator >> (
-	llvm::StringRef& string,
+	const llvm::StringRef& string,
 	const ToAxl*
 	)
 {

@@ -325,7 +325,10 @@ Module::mapVariable(
 		return false;
 	}
 
-	llvm::GlobalVariable* llvmVariable = m_llvmModule->getGlobalVariable(variable->m_llvmGlobalVariableName >> toLlvm);
+	llvm::GlobalVariable* llvmVariable = !variable->m_llvmGlobalVariableName.isEmpty() ?
+		m_llvmModule->getGlobalVariable(variable->m_llvmGlobalVariableName >> toLlvm) :
+		variable->getLlvmGlobalVariable();
+
 	if (!llvmVariable) // optimized out
 	{
 		variable->m_staticData = p;
@@ -379,7 +382,10 @@ Module::mapFunction(
 	void* p
 	)
 {
-	llvm::Function* llvmFunction = m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm);
+	llvm::Function* llvmFunction = !function->m_llvmFunctionName.isEmpty() ?
+		m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm) :
+		function->getLlvmFunction();
+
 	if (!llvmFunction) // optimized out
 	{
 		function->m_machineCode = p;
