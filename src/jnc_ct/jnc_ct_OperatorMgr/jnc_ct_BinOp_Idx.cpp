@@ -31,7 +31,7 @@ BinOp_Idx::getResultType(
 		DataPtrType* ptrType = (DataPtrType*)opType1;
 		Type* targetType = ptrType->getTargetType();
 		TypeKind targetTypeKind = targetType->getTypeKind();
-		switch(targetTypeKind)
+		switch (targetTypeKind)
 		{
 		case TypeKind_Array:
 			return ((ArrayType*)targetType)->getElementType()->getDataPtrType(
@@ -50,7 +50,7 @@ BinOp_Idx::getResultType(
 	DataPtrType* ptrType;
 
 	TypeKind typeKind = opType1->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 		ptrType = (DataPtrType*)opType1;
@@ -99,7 +99,7 @@ BinOp_Idx::op(
 	{
 		Type* targetType = ((DataPtrType*)opType1)->getTargetType();
 		TypeKind targetTypeKind = targetType->getTypeKind();
-		switch(targetTypeKind)
+		switch (targetTypeKind)
 		{
 		case TypeKind_Array:
 			return
@@ -118,7 +118,7 @@ BinOp_Idx::op(
 	}
 
 	TypeKind typeKind = opType1->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 		return

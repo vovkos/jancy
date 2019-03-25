@@ -84,7 +84,7 @@ XModemReceiver.onRx(
 {
 	char c = *(char const*) p;
 
-	switch(c)
+	switch (c)
 	{
 	case XModemChar.Soh:
 		if (m_state == State.Data && size == sizeof(XModemBlock))

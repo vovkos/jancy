@@ -17,7 +17,7 @@ bool representSshLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SshLogRecordCode.TcpConnectCompleted:
 		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;

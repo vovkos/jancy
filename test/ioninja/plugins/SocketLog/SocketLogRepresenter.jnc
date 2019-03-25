@@ -18,7 +18,7 @@ bool representSocketLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SocketLogRecordCode.Open:
 		char const* addressString = ((io.SocketAddress const*) p).getString();

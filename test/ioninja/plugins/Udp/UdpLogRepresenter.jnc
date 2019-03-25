@@ -18,7 +18,7 @@ bool representUdpLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case UdpLogRecordCode.TxPacket:
 		char const* remoteAddress = ((io.SocketAddress const*) p).getString();

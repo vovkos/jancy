@@ -36,7 +36,7 @@ SerialMonitor.construct(SerialMonSession* session)
 	basetype.construct(session.m_pluginHost);
 	m_session = session;
 
-	switch(sys.g_systemInfo.m_osKind)
+	switch (sys.g_systemInfo.m_osKind)
 	{
 	case sys.OsKind.Windows:
 		m_processor = new SerialMonProcessor_win(m_session.m_pluginHost.m_log.m_writer);

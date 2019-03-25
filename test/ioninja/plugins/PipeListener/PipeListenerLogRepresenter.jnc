@@ -16,7 +16,7 @@ bool representPipeListenerLog  (
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case PipeListenerLogRecordCode.Listening:
 		char const* name = (char const*) p;

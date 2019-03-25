@@ -117,7 +117,7 @@ representIpHdr(
 		hdrIdx++;
 	}
 
-	switch(ipHdr.m_protocol)
+	switch (ipHdr.m_protocol)
 	{
 	case io.IpProtocol.Icmp:
 		return representIcmpHdr(target, p, size, baseOffset + ipHdrSize, hdrSizeTable, hdrColorTable, hdrIdx);
@@ -172,7 +172,7 @@ representIp(
 		return;
 	}
 
-	switch(ipHdr.m_protocol)
+	switch (ipHdr.m_protocol)
 	{
 	case io.IpProtocol.Icmp:
 		representIcmp(target, ipHdr, p, size, baseOffset + ipHdrSize);

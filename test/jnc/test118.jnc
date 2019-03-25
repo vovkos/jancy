@@ -8,7 +8,7 @@ scanStream(
 	char const* end = p + length;
 	while (p < end || state.m_replayLength)
 	{
-		reswitch(state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case "[0-9]+":
 			printf(

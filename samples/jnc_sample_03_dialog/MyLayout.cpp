@@ -88,7 +88,7 @@ MyLayout::addSpacer()
 	QSizePolicy::Policy hpolicy = QSizePolicy::Minimum;
 	QSizePolicy::Policy vpolicy = QSizePolicy::Minimum;
 
-	switch(m_direction)
+	switch (m_direction)
 	{
 	case QBoxLayout::LeftToRight:
 	case QBoxLayout::RightToLeft:

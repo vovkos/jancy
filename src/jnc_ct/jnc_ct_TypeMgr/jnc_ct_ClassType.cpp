@@ -110,7 +110,7 @@ ClassType::addMethod(Function* function)
 	if (storageKind == StorageKind_Undefined)
 		storageKind = StorageKind_Member;
 
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
@@ -146,7 +146,7 @@ ClassType::addMethod(Function* function)
 	Function** target = NULL;
 	size_t overloadIdx;
 
-	switch(functionKind)
+	switch (functionKind)
 	{
 	case FunctionKind_Internal:
 		return true;
@@ -271,7 +271,7 @@ ClassType::addProperty(Property* prop)
 	prop->m_parentNamespace = this;
 
 	StorageKind storageKind = prop->getStorageKind();
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		break;
@@ -603,7 +603,7 @@ ClassType::overrideVirtualFunction(Function* function)
 	Function* overridenFunction;
 
 	ModuleItemKind itemKind = member->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
 		if (functionKind != FunctionKind_Normal)
@@ -619,7 +619,7 @@ ClassType::overrideVirtualFunction(Function* function)
 		break;
 
 	case ModuleItemKind_Property:
-		switch(functionKind)
+		switch (functionKind)
 		{
 		case FunctionKind_Getter:
 			overridenFunction = ((Property*)member)->getGetter();

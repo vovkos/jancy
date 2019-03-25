@@ -37,7 +37,7 @@ PropertyPtrType::createSignature(
 {
 	sl::String signature = typeKind == TypeKind_PropertyRef ? "RX" : "PX";
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case PropertyPtrTypeKind_Thin:
 		signature += 't';

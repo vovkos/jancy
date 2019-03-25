@@ -29,7 +29,7 @@ BinOp_Assign::op(
 
 	TypeKind dstTypeKind = opValue1.getType()->getTypeKind();
 
-	switch(dstTypeKind)
+	switch (dstTypeKind)
 	{
 	case TypeKind_DataRef:
 		return m_module->m_operatorMgr.storeDataRef(opValue1, opValue2);

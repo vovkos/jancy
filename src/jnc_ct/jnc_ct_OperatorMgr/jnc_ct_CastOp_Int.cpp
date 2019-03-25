@@ -242,7 +242,7 @@ Cast_IntFromFp32::constCast(
 	float fp32 = *(float*)opValue.getConstData();
 
 	size_t dstSize = type->getSize();
-	switch(dstSize)
+	switch (dstSize)
 	{
 	case 1:
 		*(int8_t*)dst = (int8_t)fp32;
@@ -281,7 +281,7 @@ Cast_IntFromFp64::constCast(
 	double fp64 = *(double*)opValue.getConstData();
 
 	size_t dstSize = type->getSize();
-	switch(dstSize)
+	switch (dstSize)
 	{
 	case 1:
 		*(int8_t*)dst = (int8_t)fp64;
@@ -473,7 +473,7 @@ Cast_Int::getCastOperator(
 
 	ASSERT(dstTypeKind >= TypeKind_Int8 && dstTypeKind <= TypeKind_Int64_u);
 
-	switch(srcTypeKind)
+	switch (srcTypeKind)
 	{
 	case TypeKind_Bool:
 		return &m_ext_u; // 1 bit -- could only be extended

@@ -41,7 +41,7 @@ OperatorMgr::getField(
 	}
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Struct:
 		return getStructField(opValue, field, coord, resultValue);
@@ -491,7 +491,7 @@ OperatorMgr::getPropertyField(
 {
 	ModuleItemKind itemKind = member->getItemKind();
 
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_StructField:
 		break;

@@ -29,7 +29,7 @@ bool representSpiTapLog(
 		"Little-endian (LSBit first)",
 		"Big-endian (MSBit first)",
 	}
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SpiTapLogRecordCode.TapOpened:
 		SpiTapOpenParams const* params = (SpiTapOpenParams const*) p;

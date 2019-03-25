@@ -654,7 +654,7 @@ Cast_DataPtr::getCastOperator(
 		return &m_fromArray;
 
 	TypeKind typeKind = srcType->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:

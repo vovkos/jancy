@@ -118,7 +118,7 @@ SocketBase::open(
 	if (!result)
 		return false;
 
-	switch(protocol)
+	switch (protocol)
 	{
 		int tcpNoDelayValue;
 		int tcpKeepAlive;
@@ -209,7 +209,7 @@ SocketBase::tcpConnect(uint_t connectCompletedEvent)
 	for (;;)
 	{
 		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
-		switch(waitResult)
+		switch (waitResult)
 		{
 		case WAIT_FAILED:
 			setIoErrorEvent(err::getLastSystemErrorCode());

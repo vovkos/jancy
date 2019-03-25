@@ -46,7 +46,7 @@ OperatorMgr::prepareDataPtr(
 	DataPtrTypeKind ptrTypeKind = type->getPtrTypeKind();
 	DataPtrType* resultType = type->getTargetType()->getDataPtrType_c();
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case DataPtrTypeKind_Thin:
 	case DataPtrTypeKind_Lean:

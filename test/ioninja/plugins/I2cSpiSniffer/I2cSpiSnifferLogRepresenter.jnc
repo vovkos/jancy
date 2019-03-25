@@ -16,7 +16,7 @@ bool representI2cSpiSnifferLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case I2cSpiSnifferLogRecordCode.DeviceOpened:
 		char const* name = (char const*) p;

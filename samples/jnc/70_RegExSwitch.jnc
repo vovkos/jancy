@@ -35,7 +35,7 @@ bool errorcode fooBar(
 	// post-condition loop allows passing 'null' as eof
 	do
 	{
-		reswitch(state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case "foo":
 			printf("lexeme found: foo\n");

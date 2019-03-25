@@ -6,7 +6,7 @@ import "std_String.jnc"
 
 char findEscapeReplaceChar(char x)
 {
-	switch(x)
+	switch (x)
 	{
 	case '0':
 		return '\0';
@@ -74,7 +74,7 @@ size_t decodeEscapeString(
 
 	for (; p < end; p++)
 	{
-		switch(state)
+		switch (state)
 		{
 		case State.Normal:
 			if (*p == '\\')
@@ -86,7 +86,7 @@ size_t decodeEscapeString(
 			break;
 
 		case State.Escape:
-			switch(*p)
+			switch (*p)
 			{
 			case 'x':
 				state = State.Hex;

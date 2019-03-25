@@ -230,7 +230,7 @@ size_t errorcode getModbusPduSize(
 	if (size < sizeof(ModbusPduHdr))
 		return sizeof(ModbusPduHdr);
 
-	switch(pduHdr.m_func)
+	switch (pduHdr.m_func)
 	{
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:

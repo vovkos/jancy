@@ -520,7 +520,7 @@ Cast_PropertyPtr::getCastOperator(
 	ASSERT((size_t)dstPtrTypeKind < PropertyPtrTypeKind__Count);
 
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
-	switch(srcTypeKind)
+	switch (srcTypeKind)
 	{
 	case TypeKind_DataPtr:
 		return &m_fromDataPtr;

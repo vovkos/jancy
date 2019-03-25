@@ -108,7 +108,7 @@ DeclTypeCalc::calcType(
 			type = m_module->m_typeMgr.getStdType(StdType_ReactorBase);
 			m_typeModifiers &= ~TypeModifier_Reactor;
 		}
-		else switch(typeKind)
+		else switch (typeKind)
 		{
 		case TypeKind_Class:
 			type = getClassPtrType((ClassType*)type);
@@ -185,7 +185,7 @@ DeclTypeCalc::calcType(
 		DeclSuffix* suffix = (DeclSuffix*)*m_suffix;
 		DeclSuffixKind suffixKind = suffix->getSuffixKind();
 
-		switch(suffixKind)
+		switch (suffixKind)
 		{
 		case DeclSuffixKind_Array:
 			type = getArrayType(type);
@@ -249,7 +249,7 @@ DeclTypeCalc::calcPtrType(
 	m_typeModifiers = typeModifiers;
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Class:
 		type = getClassPtrType((ClassType*)type);
@@ -439,7 +439,7 @@ DeclTypeCalc::getArrayType(Type* elementType)
 	DeclArraySuffix* suffix = (DeclArraySuffix*)*m_suffix--;
 
 	TypeKind typeKind = elementType->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Void:
 	case TypeKind_Class:
@@ -491,7 +491,7 @@ DeclTypeCalc::prepareReturnType(Type* type)
 	}
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Class:
 	case TypeKind_Function:

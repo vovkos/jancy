@@ -54,7 +54,7 @@ MailslotMonitor.setFileId(
 
 MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
-	switch(notifyHdr.m_code)
+	switch (notifyHdr.m_code)
 	{
 	case io.win.DeviceMonitorNotifyCode.Create:
 		io.win.DeviceMonitorCreateNotifyParams const* params = (io.win.DeviceMonitorCreateNotifyParams const*) (notifyHdr + 1);

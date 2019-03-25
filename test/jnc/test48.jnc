@@ -25,7 +25,7 @@ bool errorcode scanCommand(
 
 	do
 	{
-		reswitch(state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case "<[^>]+>":
 			size_t length = state.m_currentOffset - g_dataOffset;

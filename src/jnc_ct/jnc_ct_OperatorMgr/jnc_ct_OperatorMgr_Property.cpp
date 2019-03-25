@@ -61,7 +61,7 @@ OperatorMgr::getPropertyVtable(
 	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
 	PropertyPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case PropertyPtrTypeKind_Normal:
 		break;

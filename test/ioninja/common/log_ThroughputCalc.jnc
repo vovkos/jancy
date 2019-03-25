@@ -165,7 +165,7 @@ ThroughputCalcRangeProcessor.processBin(
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
 
-	switch(partCode)
+	switch (partCode)
 	{
 	case StdRecordCode.Tx:
 		m_txTotalSize += size;
@@ -189,7 +189,7 @@ ThroughputCalcRangeProcessor.processDualBin(
 	if (!m_startTimestamp)
 		m_startTimestamp = m_timestamp;
 
-	switch(partCode)
+	switch (partCode)
 	{
 	case StdRecordCode.TxRx:
 		m_txTotalSize += size;

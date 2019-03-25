@@ -18,7 +18,7 @@ bool representUdpFlowMonLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case UdpFlowMonLogRecordCode.TxPacket:
 	case UdpFlowMonLogRecordCode.RxPacket:

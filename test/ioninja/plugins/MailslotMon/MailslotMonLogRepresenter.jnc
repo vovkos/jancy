@@ -16,7 +16,7 @@ bool representMailslotMonLog  (
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case MailslotMonLogRecordCode.ServerFileOpened_old:
 		uint32_t fileId = *(uint32_t const*) p;

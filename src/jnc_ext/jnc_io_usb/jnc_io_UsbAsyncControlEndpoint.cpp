@@ -243,7 +243,7 @@ UsbAsyncControlEndpoint::finalizeTransfers_l()
 	sl::Iterator<Transfer> it = transferList.getHead();
 	for (; it; it++)
 	{
-		switch(it->m_usbTransfer->status)
+		switch (it->m_usbTransfer->status)
 		{
 		case LIBUSB_TRANSFER_COMPLETED:
 			ASSERT((size_t)it->m_usbTransfer->actual_length <= it->m_buffer.getSize() - sizeof(libusb_control_setup));

@@ -125,7 +125,7 @@ UsingSet::addNamespace(
 		return false;
 	}
 
-	switch(namespaceKind)
+	switch (namespaceKind)
 	{
 	case NamespaceKind_Global:
 		m_globalNamespaceArray.append(nspace);

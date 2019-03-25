@@ -31,7 +31,7 @@ UnOp_Addr::getResultType(const Value& opValue)
 	} t = { opValue.getType() };
 
 	TypeKind opTypeKind = t.m_type->getTypeKind();
-	switch(opTypeKind)
+	switch (opTypeKind)
 	{
 	case TypeKind_DataRef:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(
@@ -96,7 +96,7 @@ UnOp_Indir::getResultType(const Value& opValue)
 	} t = { opValue.getType() };
 
 	TypeKind opTypeKind = t.m_type->getTypeKind();
-	switch(opTypeKind)
+	switch (opTypeKind)
 	{
 	case TypeKind_DataPtr:
 		return t.m_dataPtrType->getTargetType()->getDataPtrType(

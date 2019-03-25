@@ -112,7 +112,7 @@ Cast_Bool::getCastOperator(
 	)
 {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
-	switch(srcTypeKind)
+	switch (srcTypeKind)
 	{
 	case TypeKind_Bool:
 	case TypeKind_Int8:

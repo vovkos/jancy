@@ -18,7 +18,7 @@ bool representPcapLog(
 {
 	printf("representPcapLog (%llu)\n", recordCode);
 
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case PcapLogRecordCode.StartingCapture:
 		char const* filter = (char const*) p;

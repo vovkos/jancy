@@ -105,7 +105,7 @@ FunctionMgr::createFunction(
 	)
 {
 	Function* function;
-	switch(functionKind)
+	switch (functionKind)
 	{
 	case FunctionKind_Thunk:
 		function = AXL_MEM_NEW(ThunkFunction);
@@ -154,7 +154,7 @@ FunctionMgr::createProperty(
 {
 	Property* prop;
 
-	switch(propertyKind)
+	switch (propertyKind)
 	{
 	case PropertyKind_Thunk:
 		prop = AXL_MEM_NEW(ThunkProperty);
@@ -768,7 +768,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 	Function* function;
 	const StdItemSource* source;
 
-	switch(func)
+	switch (func)
 	{
 	case StdFunc_PrimeStaticClass:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
@@ -1153,7 +1153,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		return m_stdPropertyArray[stdProp];
 
 	Property* prop;
-	switch(stdProp)
+	switch (stdProp)
 	{
 	case StdProp_VariantMember:
 		prop = createProperty(PropertyKind_Internal, sl::String(), "jnc.g_variantMember");

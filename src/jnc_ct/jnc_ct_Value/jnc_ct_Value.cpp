@@ -151,7 +151,7 @@ Value::getLlvmConst(
 	Module* module = type->getModule();
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Bool:
 		integer = *(int8_t*)p != 0;

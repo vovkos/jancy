@@ -23,7 +23,7 @@ bool representHwSerialMonLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case HwSerialMonRecordCode.CaptureStarted:
 		char const* ifaceName = p;

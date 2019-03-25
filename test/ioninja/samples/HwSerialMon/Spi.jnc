@@ -125,7 +125,7 @@ Spi.processSignal(
 		lines & Lines.Ss
 		);
 
-	switch(result)
+	switch (result)
 	{
 	case io.SpiDecodeResult.Continue:
 	case io.SpiDecodeResult.Start:

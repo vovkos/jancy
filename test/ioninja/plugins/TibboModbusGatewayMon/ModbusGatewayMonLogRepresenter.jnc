@@ -18,7 +18,7 @@ bool representModbusGatewayMonLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case ModbusGatewayMonLogRecordCode.CommandError:
 		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
@@ -47,7 +47,7 @@ bool representModbusGatewayMonLog(
         if (((*(char const*)p) & 0x80) != 0)
             _inDir = true;
 
-		switch((*(char const*)p) & 0x7f) {
+		switch ((*(char const*)p) & 0x7f) {
 			case 0x00:  // TCP Request
 				_type = "TCP Req";
                 role = io.ModbusRole.Master;
@@ -396,7 +396,7 @@ representModbusCoils(
 	uint_t foldFlags
 	)
 {
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		target.addHyperText("Value:       [\e[31mNONE\e[m]");
@@ -473,7 +473,7 @@ representModbusRegisters(
 	uint_t foldFlags
 	)
 {
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		target.addHyperText("Value:       [\e[31mNONE\e[m]");
@@ -546,7 +546,7 @@ representModbusPdu(
 		io.getModbusFuncString(hdr.m_func)
 		));
 
-	switch(hdr.m_func)
+	switch (hdr.m_func)
 	{
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:

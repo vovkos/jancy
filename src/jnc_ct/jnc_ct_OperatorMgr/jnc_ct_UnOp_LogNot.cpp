@@ -31,7 +31,7 @@ UnOp_LogNot::op(
 	)
 {
 	TypeKind srcTypeKind = opValue.getType()->getTypeKind();
-	switch(srcTypeKind)
+	switch (srcTypeKind)
 	{
 	case TypeKind_Bool:
 	case TypeKind_Int8:

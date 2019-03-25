@@ -37,7 +37,7 @@ DataPtrType::createSignature(
 {
 	sl::String signature = typeKind == TypeKind_DataRef ? "RD" : "PD";
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case DataPtrTypeKind_Lean:
 		signature += 'l';

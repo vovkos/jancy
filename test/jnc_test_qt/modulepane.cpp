@@ -136,7 +136,7 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 	QString name;
 	QTreeWidgetItem* treeItem;
 
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case jnc::ModuleItemKind_Namespace:
 		addNamespace(parent, (jnc::GlobalNamespace*)item);
@@ -197,7 +197,7 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 
 	jnc::ModuleItemDecl* decl = NULL;
 	jnc::TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case jnc::TypeKind_Enum:
 		decl = ((jnc::EnumType *)type)->getDecl();

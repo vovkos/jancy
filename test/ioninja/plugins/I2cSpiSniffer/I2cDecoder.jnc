@@ -99,7 +99,7 @@ I2cDecoder.decode(
 	{
 		uchar_t c = *p;
 
-		switch(c)
+		switch (c)
 		{
 		case Code.Padding:
 			continue;
@@ -110,7 +110,7 @@ I2cDecoder.decode(
 		}
 
 		uchar_t code = (c & 0xf0) >> 4;
-		switch(code)
+		switch (code)
 		{
 		case Code.Start:
 			size_t size = data - (uchar_t*)m_buffer.m_p;
@@ -163,7 +163,7 @@ I2cDecoder.decode(
 
 			m_data |= (c & 0x0f);
 
-			switch(m_addressState)
+			switch (m_addressState)
 			{
 			case AddressState.Undefined:
 				m_isRead = m_data & 1;

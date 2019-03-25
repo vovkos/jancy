@@ -641,7 +641,7 @@ OperatorMgr::castOperator(
 		return op->cast(opValue, type, resultValue);
 
 	typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 		return dynamicCastDataPtr(opValue, (DataPtrType*)type, resultValue);
@@ -1132,7 +1132,7 @@ OperatorMgr::prepareOperandType(
 		Type* prevType = type;
 
 		TypeKind typeKind = type->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_DataRef:
 			if (!(opFlags & OpFlag_KeepDataRef))
@@ -1301,7 +1301,7 @@ OperatorMgr::prepareOperand(
 		Type* type = value.getType();
 
 		TypeKind typeKind = type->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_DataRef:
 			if (!(opFlags & OpFlag_KeepDataRef))

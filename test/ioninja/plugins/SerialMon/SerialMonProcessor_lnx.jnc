@@ -165,7 +165,7 @@ protected:
 
 SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
-	switch(notifyHdr.m_code)
+	switch (notifyHdr.m_code)
 	{
 	case io.lnx.DeviceMonitorNotifyCode.Open:
 		m_logWriter.write(
@@ -231,7 +231,7 @@ SerialMonProcessor_lnx.processIoctlNotification(
 	size_t argDataSize
 	)
 {
-	switch(code)
+	switch (code)
 	{
 	case psx.TCSETA:
 	case psx.TCSETAW:
@@ -331,7 +331,7 @@ SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint_t flowControl;
 
 	uint_t speed = cflags & (psx.CBAUD | psx.CBAUDEX);
-	switch(speed)
+	switch (speed)
 	{
 	case psx.B110:
 		baudRate = 110;
@@ -382,7 +382,7 @@ SerialMonProcessor_lnx.processTermiosSetAttr(
 	}
 
 	uint_t byteSize = cflags & psx.CSIZE;
-	switch(byteSize)
+	switch (byteSize)
 	{
 	case psx.CS5:
 		dataBits = 5;

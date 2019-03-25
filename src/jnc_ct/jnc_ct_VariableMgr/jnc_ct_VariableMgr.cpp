@@ -68,7 +68,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 
 	Variable* variable;
 
-	switch(stdVariable)
+	switch (stdVariable)
 	{
 	case StdVariable_SjljFrame:
 		variable = createVariable(
@@ -156,7 +156,7 @@ VariableMgr::createVariable(
 
 	Value ptrValue;
 
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		m_staticVariableArray.append(variable);
@@ -252,7 +252,7 @@ VariableMgr::initializeVariable(Variable* variable)
 		return false;
 	}
 
-	switch(variable->m_storageKind)
+	switch (variable->m_storageKind)
 	{
 	case StorageKind_Static:
 		if (variable->m_type->getTypeKind() == TypeKind_Class)

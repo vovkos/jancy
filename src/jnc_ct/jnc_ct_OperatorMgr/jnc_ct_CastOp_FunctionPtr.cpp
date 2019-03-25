@@ -497,7 +497,7 @@ Cast_FunctionPtr::getCastOperator(
 	}
 
 	TypeKind typeKind = srcType->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:

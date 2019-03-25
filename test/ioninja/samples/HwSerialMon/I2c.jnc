@@ -50,7 +50,7 @@ override I2c.processSignal(
 		lines & I2cLines.Sda
 		);
 
-	switch(result)
+	switch (result)
 	{
 	case io.I2cDecodeResult.Continue:
 	case io.I2cDecodeResult.Start:

@@ -610,7 +610,7 @@ bool errorcode CypressUploaderSession.nextBlock()
 
 	uint64_t fileSize;
 
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Downloading:
 		type = ReqType.VendorIn;
@@ -766,7 +766,7 @@ CypressUploaderSession.onTransferCompleted(
 
 CypressUploaderSession.onProgressDlgButtonClicked(gui.StdDlgButton button)
 {
-	switch(button)
+	switch (button)
 	{
 	case gui.StdDlgButton.Cancel:
 	case gui.StdDlgButton.Abort:

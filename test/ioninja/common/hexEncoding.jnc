@@ -43,7 +43,7 @@ size_t decodeHexString(
 	{
 		bool isSpace = isspace(*p);
 
-		switch(state)
+		switch (state)
 		{
 		case State.Normal:
 			if (isSpace)

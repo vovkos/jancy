@@ -174,7 +174,7 @@ RegexState::exec(
 		m_replayLength = 0;
 
 		result = writeData((uchar_t*)m_matchBufferPtr.m_p + replayBufferOffset, replayLength);
-		switch(result)
+		switch (result)
 		{
 		case RegexResult_Continue:
 			break;

@@ -109,7 +109,7 @@ protected:
 
 SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
-	switch(notifyHdr.m_code)
+	switch (notifyHdr.m_code)
 	{
 	case io.win.DeviceMonitorNotifyCode.Create:
 		m_logWriter.write(
@@ -177,7 +177,7 @@ SerialMonProcessor_win.processIoctlNotification(
 	size_t outDataSize
 	)
 {
-	switch(code)
+	switch (code)
 	{
 	case wdk.IOCTL_SERIAL_SET_BAUD_RATE:
 		if (inDataSize < sizeof(uint32_t))

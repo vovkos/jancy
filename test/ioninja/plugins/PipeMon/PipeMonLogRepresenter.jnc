@@ -16,7 +16,7 @@ bool representPipeMonLog  (
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case PipeMonLogRecordCode.ServerFileOpened_old:
 		uint32_t fileId = *(uint32_t const*) p;

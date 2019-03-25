@@ -418,7 +418,7 @@ Type::prepareLlvmType()
 {
 	ASSERT(!m_llvmType && m_typeKind < TypeKind__PrimitiveTypeCount);
 
-	switch(m_typeKind)
+	switch (m_typeKind)
 	{
 	case TypeKind_Void:
 		m_llvmType = llvm::Type::getVoidTy(*m_module->getLlvmContext());
@@ -756,7 +756,7 @@ Type*
 getModuleItemType(ModuleItem* item)
 {
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Type:
 		return (Type*)item;
@@ -830,7 +830,7 @@ isDisposableType(Type* type)
 	FunctionType* functionType;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
 		functionType = ((Function*)item)->getType();
@@ -872,7 +872,7 @@ bool
 isWeakPtrType(Type* type)
 {
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)type)->getPtrTypeKind() == ClassPtrTypeKind_Weak;
@@ -892,7 +892,7 @@ Type*
 getWeakPtrType(Type* type)
 {
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)type)->getWeakPtrType();

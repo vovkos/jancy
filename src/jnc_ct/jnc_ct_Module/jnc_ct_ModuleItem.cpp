@@ -69,7 +69,7 @@ ModuleItem::ModuleItem()
 ModuleItemDecl*
 ModuleItem::getDecl()
 {
-	switch(m_itemKind)
+	switch (m_itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		return (GlobalNamespace*)this;
@@ -126,7 +126,7 @@ ModuleItem::getDecl()
 Namespace*
 ModuleItem::getNamespace()
 {
-	switch(m_itemKind)
+	switch (m_itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		return (GlobalNamespace*)this;
@@ -158,7 +158,7 @@ ModuleItem::getType()
 {
 	using namespace jnc;
 
-	switch(m_itemKind)
+	switch (m_itemKind)
 	{
 	case ModuleItemKind_Type:
 		return (ct::Type*)this;

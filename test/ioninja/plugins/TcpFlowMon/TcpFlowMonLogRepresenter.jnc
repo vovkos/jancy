@@ -18,7 +18,7 @@ bool representTcpFlowMonLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case TcpFlowMonLogRecordCode.Connecting:
 		char const* srcAddressString = ((io.SocketAddress const*) p).getString();

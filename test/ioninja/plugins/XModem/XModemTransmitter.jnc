@@ -109,7 +109,7 @@ XModemTransmitter.onRx(
 	size_t size
 	)
 {
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.WaitNak:
 		onRx_WaitNak(*(char const*) p);
@@ -127,7 +127,7 @@ XModemTransmitter.onRx(
 
 XModemTransmitter.onRx_WaitNak(char c)
 {
-	switch(c)
+	switch (c)
 	{
 	case XModemChar.Nak:
 		m_parent.m_progressDlg.m_status = "Transferring XModem data blocks...";
@@ -143,7 +143,7 @@ XModemTransmitter.onRx_WaitNak(char c)
 
  XModemTransmitter.onRx_Data(char c)
 {
-	switch(c)
+	switch (c)
 	{
 	case XModemChar.Ack:
 		m_parent.m_progressDlg.m_progress = (int)(m_offset * 100 / m_parent.m_file.m_size);
@@ -179,7 +179,7 @@ XModemTransmitter.onRx_WaitNak(char c)
 
 XModemTransmitter.onRx_Eot(char c)
 {
-	switch(c)
+	switch (c)
 	{
 	case XModemChar.Ack:
 		m_parent.m_progressDlg.m_status = "XModem transfer completed successfully";

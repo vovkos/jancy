@@ -131,7 +131,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 
 	theApp.m_nAppLook = id;
 
-	switch(theApp.m_nAppLook)
+	switch (theApp.m_nAppLook)
 	{
 	case ID_VIEW_APPLOOK_WIN_2000:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
@@ -174,7 +174,7 @@ void CMainFrame::OnApplicationLook(UINT id)
 		break;
 
 	default:
-		switch(theApp.m_nAppLook)
+		switch (theApp.m_nAppLook)
 		{
 		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
 			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);

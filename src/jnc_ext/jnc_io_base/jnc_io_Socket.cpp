@@ -337,7 +337,7 @@ Socket::acceptLoop()
 	for (;;)
 	{
 		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
-		switch(waitResult)
+		switch (waitResult)
 		{
 		case WAIT_FAILED:
 			setIoErrorEvent(err::getLastSystemErrorCode());

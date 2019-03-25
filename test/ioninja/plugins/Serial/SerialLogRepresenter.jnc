@@ -87,7 +87,7 @@ bool representSerialLog(
 		"Interval-based",
 	}
 
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SerialLogRecordCode.PortOpened:
 		SerialOpenParams const* params = (SerialOpenParams const*) p;

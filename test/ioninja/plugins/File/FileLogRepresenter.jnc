@@ -18,7 +18,7 @@ bool representFileLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case FileLogRecordCode.Opened:
 		io.FileStreamKind const* kind = (io.FileStreamKind const*) p;

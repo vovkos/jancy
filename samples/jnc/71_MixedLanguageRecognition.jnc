@@ -38,10 +38,10 @@ int main()
 
 	while (p < end)
 	{
-		switch(language)
+		switch (language)
 		{
 		case Language.Foo:
-			reswitch(state, p, end - p)
+			reswitch (state, p, end - p)
 			{
 			case "foo":
 				printf("lexeme found: foo\n");
@@ -58,7 +58,7 @@ int main()
 			break;
 
 		case Language.Bar:
-			reswitch(state, p, end - p)
+			reswitch (state, p, end - p)
 			{
 			case "bar":
 				printf("lexeme found: bar\n");

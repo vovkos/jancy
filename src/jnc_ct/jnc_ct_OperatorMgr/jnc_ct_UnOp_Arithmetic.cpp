@@ -23,7 +23,7 @@ getArithmeticOperatorResultType(Type* opType)
 {
 	TypeKind typeKind = opType->getTypeKind();
 
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Int8:
 	case TypeKind_Int16:

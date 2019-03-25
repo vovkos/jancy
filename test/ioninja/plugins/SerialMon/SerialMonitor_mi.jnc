@@ -85,7 +85,7 @@ bool errorcode SerialMonitor_mi.write(
 
 bool errorcode SerialMonitor_mi.processMsg(io.DeviceMonitorMiMsgHdr const* hdr)
 {
-	switch(hdr.m_code)
+	switch (hdr.m_code)
 	{
 	case io.DeviceMonitorMiMsgCode.Error:
 		std.Error const* error = (std.Error const*) (hdr + 1);

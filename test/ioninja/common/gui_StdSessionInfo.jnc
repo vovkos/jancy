@@ -277,7 +277,7 @@ StdSessionInfoSet.onLogRecord(
 	size_t size
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case log.StdRecordCode.Tx:
 		addTxData(size);

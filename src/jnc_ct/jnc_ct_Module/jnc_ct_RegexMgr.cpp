@@ -107,7 +107,7 @@ Dfa::build(fsm::Regex* regex)
 		for (; transitionIt; transitionIt++)
 		{
 			fsm::DfaTransition* transition = *transitionIt;
-			switch(transition->m_matchCondition.m_conditionKind)
+			switch (transition->m_matchCondition.m_conditionKind)
 			{
 			case fsm::MatchConditionKind_Char:
 				ASSERT(transition->m_matchCondition.m_char < 256);

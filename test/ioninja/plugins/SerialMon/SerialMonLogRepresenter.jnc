@@ -16,7 +16,7 @@ bool representSerialMonLog  (
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SerialMonLogRecordCode.DeviceOpened_old:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;

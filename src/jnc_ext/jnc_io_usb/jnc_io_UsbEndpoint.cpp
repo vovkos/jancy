@@ -380,7 +380,7 @@ UsbEndpoint::submitTransfer(
 		return false;
 
 	axl::io::UsbDevice* device = m_parentInterface->m_parentDevice->getDevice();
-	switch(desc->m_transferType)
+	switch (desc->m_transferType)
 	{
 	case LIBUSB_TRANSFER_TYPE_BULK:
 		transfer->m_usbTransfer.fillBulkTransfer(

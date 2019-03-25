@@ -45,7 +45,7 @@ bool representUsbLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case UsbLogRecordCode.DeviceOpened:
 		DeviceParams const* params = (DeviceParams const*) p;

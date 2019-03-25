@@ -67,7 +67,7 @@ public:
 		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const)
 		{
 			TypeKind typeKind = type->getTypeKind();
-			switch(typeKind)
+			switch (typeKind)
 			{
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:
@@ -108,7 +108,7 @@ public:
 		else
 		{
 			TypeKind typeKind = type->getTypeKind();
-			switch(typeKind)
+			switch (typeKind)
 			{
 			case TypeKind_Int32:
 			case TypeKind_Int32_u:

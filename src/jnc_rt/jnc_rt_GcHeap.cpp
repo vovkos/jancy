@@ -1156,7 +1156,7 @@ GcHeap::setFrameMap(
 	GcShadowStackFrameMapOp op
 	)
 {
-	switch(op)
+	switch (op)
 	{
 		size_t count;
 		const size_t* indexArray;

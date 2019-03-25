@@ -67,7 +67,7 @@ bool TxRxFilterLayer.filter(
 	size_t size
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case log.StdRecordCode.Tx:
 		return m_isTxVisibleProp.m_value;

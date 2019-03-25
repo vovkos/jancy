@@ -22,7 +22,7 @@ inline
 bool
 isByteStringSep(uchar_t c)
 {
-	switch(c)
+	switch (c)
 	{
 	case ' ': case '\t': case '\r': case '\n':
 	case '.': case ',': case ';': case ':':
@@ -68,7 +68,7 @@ decodeByteString(
 		uchar_t c = *p;
 		bool_t isSep = isByteStringSep(c);
 
-		switch(state)
+		switch (state)
 		{
 		case State_Sep:
 			if (isSep)

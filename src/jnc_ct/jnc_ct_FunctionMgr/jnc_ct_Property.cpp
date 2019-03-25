@@ -350,7 +350,7 @@ Property::addMethod(Function* function)
 
 	if (m_parentType)
 	{
-		switch(storageKind)
+		switch (storageKind)
 		{
 		case StorageKind_Static:
 			if (thisArgTypeFlags)
@@ -403,7 +403,7 @@ Property::addMethod(Function* function)
 	}
 	else
 	{
-		switch(storageKind)
+		switch (storageKind)
 		{
 		case StorageKind_Undefined:
 			function->m_storageKind = StorageKind_Static;
@@ -431,7 +431,7 @@ Property::addMethod(Function* function)
 
 	Function** target = NULL;
 
-	switch(functionKind)
+	switch (functionKind)
 	{
 	case FunctionKind_Constructor:
 		if (hasArgs)
@@ -538,7 +538,7 @@ Property::addProperty(Property* prop)
 		return true;
 
 	StorageKind storageKind = prop->getStorageKind();
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		break;

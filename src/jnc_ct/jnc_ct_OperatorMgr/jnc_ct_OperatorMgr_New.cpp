@@ -118,7 +118,7 @@ OperatorMgr::construct(
 	Type* type = rawOpValue.getType();
 	TypeKind ptrTypeKind = type->getTypeKind();
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case TypeKind_DataRef:
 	case TypeKind_DataPtr:
@@ -139,7 +139,7 @@ OperatorMgr::construct(
 
 	Function* constructor = NULL;
 
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Struct:
 	case TypeKind_Union:
@@ -349,7 +349,7 @@ OperatorMgr::parseAutoSizeArrayInitializer(
 	)
 {
 	int firstToken = initializerTokenList.getHead()->m_token;
-	switch(firstToken)
+	switch (firstToken)
 	{
 	case TokenKind_Literal:
 	case TokenKind_BinLiteral:
@@ -374,7 +374,7 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>&
 	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
 	for (; token; token++)
 	{
-		switch(token->m_token)
+		switch (token->m_token)
 		{
 		case TokenKind_Literal:
 			elementCount += token->m_data.m_string.getLength();
@@ -407,7 +407,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	sl::ConstBoxIterator<Token> token = initializerTokenList.getHead();
 	for (; token; token++)
 	{
-		switch(token->m_token)
+		switch (token->m_token)
 		{
 		case '{':
 			if (level == 1)

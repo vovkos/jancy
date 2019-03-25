@@ -70,7 +70,7 @@ DoxyParser::setBlockTarget(
 	const sl::StringRef& name
 	)
 {
-	switch(tokenKind)
+	switch (tokenKind)
 	{
 	case DoxyTokenKind_Overload:
 		if (m_overloadName == name)
@@ -119,7 +119,7 @@ DoxyParser::addComment(
 	}
 
 	sl::String* description;
-	switch(m_descriptionKind)
+	switch (m_descriptionKind)
 	{
 	case DescriptionKind_Brief:
 		description = &m_block->m_briefDescription;
@@ -150,7 +150,7 @@ DoxyParser::addComment(
 		sl::StringRef name;
 		bool isParentBlock = false;
 
-		switch(token->m_token)
+		switch (token->m_token)
 		{
 		case DoxyTokenKind_Error:
 			m_block = NULL;

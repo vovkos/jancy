@@ -60,7 +60,7 @@ Orphan::resolveOrphan()
 		return false;
 	}
 
-	switch(m_orphanKind)
+	switch (m_orphanKind)
 	{
 	case OrphanKind_Function:
 		return adoptOrphanFunction(item);
@@ -80,7 +80,7 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 	if (item->getItemKind() == ModuleItemKind_Property)
 	{
 		Property* prop = (Property*)item;
-		switch(m_functionKind)
+		switch (m_functionKind)
 		{
 		case FunctionKind_Constructor:
 			return prop->getConstructor();
@@ -103,7 +103,7 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 		(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
 		DerivableType* type = (DerivableType*)item;
-		switch(m_functionKind)
+		switch (m_functionKind)
 		{
 		case FunctionKind_PreConstructor:
 			return type->getPreConstructor();
@@ -203,7 +203,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 	Type* itemType = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Variable:
 		itemType = ((Variable*)item)->getType();

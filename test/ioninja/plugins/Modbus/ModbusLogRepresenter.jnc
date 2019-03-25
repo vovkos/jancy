@@ -17,7 +17,7 @@ bool representModbusLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case ModbusLogRecordCode.MasterPacket_Rtu:
 		representModbusRtuAdu(target, io.ModbusRole.Master, p, size, foldFlags);

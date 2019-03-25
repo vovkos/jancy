@@ -158,7 +158,7 @@ bool errorcode ModbusLayer.applyProperties()
 
 	if (m_protocolProp.m_value != m_txParser.m_protocol)
 	{
-		switch(m_protocolProp.m_value)
+		switch (m_protocolProp.m_value)
 		{
 		case io.ModbusProtocol.Rtu:
 			m_txParser = new ModbusRtuParser;
@@ -202,7 +202,7 @@ bool ModbusLayer.convert(
 {
 	ModbusParserBase* parser;
 
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case log.StdRecordCode.Tx:
 		parser = m_txParser;

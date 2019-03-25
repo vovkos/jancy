@@ -156,7 +156,7 @@ OperatorMgr::getCdeclVarArgType(Type* type)
 		Type* prevType = type;
 
 		TypeKind typeKind = type->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_PropertyRef:
 			type = ((PropertyPtrType*)type)->getTargetType()->getReturnType();
@@ -257,7 +257,7 @@ OperatorMgr::getCallOperatorResultType(
 	Type* opType = opValue.getType();
 	TypeKind typeKind = opType->getTypeKind();
 
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Function:
 		functionType = (FunctionType*)opType;

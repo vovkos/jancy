@@ -308,7 +308,7 @@ TcpConnectionSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Connecting:
 		eventMask |= io.SocketEvents.Connected;
@@ -342,7 +342,7 @@ TcpConnectionSession.handleSocketError(std.Error const* error)
 
 TcpConnectionSession.disconnect()
 {
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Closed:
 		return;

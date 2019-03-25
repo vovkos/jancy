@@ -177,7 +177,7 @@ Parser::findType(
 	}
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Type:
 		return (Type*)item;
@@ -257,7 +257,7 @@ Parser::bodylessDeclaration()
 	ASSERT(m_lastDeclaredItem);
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Property:
 		return finalizeLastProperty(false);
@@ -288,7 +288,7 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 	Type* type;
 
 	ModuleItemKind itemKind = m_lastDeclaredItem->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Function:
 		if (nspace->getNamespaceKind() == NamespaceKind_DynamicLib)
@@ -614,7 +614,7 @@ Parser::declare(Declarator* declarator)
 		return false;
 	}
 
-	switch(m_storageKind)
+	switch (m_storageKind)
 	{
 	case StorageKind_Typedef:
 		return declareTypedef(declarator, type);
@@ -623,7 +623,7 @@ Parser::declare(Declarator* declarator)
 		return declareAlias(declarator, type, declFlags);
 
 	default:
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_Void:
 			err::setFormatStringError("illegal use of type 'void'");
@@ -882,7 +882,7 @@ Parser::declareFunction(
 	if (postModifiers & PostDeclaratorModifier_Const)
 		functionName->m_thisArgTypeFlags = PtrTypeFlag_Const;
 
-	switch(functionKind)
+	switch (functionKind)
 	{
 	case FunctionKind_Normal:
 		functionItemDecl->m_name = declarator->getName()->getShortName();
@@ -939,14 +939,14 @@ Parser::declareFunction(
 	Function* function = (Function*)functionItem;
 	TypeKind typeKind;
 
-	switch(namespaceKind)
+	switch (namespaceKind)
 	{
 	case NamespaceKind_Extension:
 		return ((ExtensionNamespace*)nspace)->addMethod(function);
 
 	case NamespaceKind_Type:
 		typeKind = ((NamedType*)nspace)->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_Struct:
 			return ((StructType*)nspace)->addMethod(function);
@@ -986,7 +986,7 @@ Parser::declareFunction(
 	}
 
 	if (!nspace->getParentNamespace()) // module constructor / destructor
-		switch(functionKind)
+		switch (functionKind)
 		{
 		case FunctionKind_Constructor:
 		case FunctionKind_StaticConstructor:
@@ -1089,7 +1089,7 @@ Parser::createProperty(Declarator* declarator)
 	assignDeclarationAttributes(prop, prop, declarator);
 
 	TypeKind typeKind;
-	switch(namespaceKind)
+	switch (namespaceKind)
 	{
 	case NamespaceKind_Extension:
 		result = ((ExtensionNamespace*)nspace)->addProperty(prop);
@@ -1100,7 +1100,7 @@ Parser::createProperty(Declarator* declarator)
 
 	case NamespaceKind_Type:
 		typeKind = ((NamedType*)nspace)->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_Struct:
 			result = ((StructType*)nspace)->addProperty(prop);
@@ -1294,7 +1294,7 @@ Parser::declareReactor(
 
 	NamedType* parentType = NULL;
 
-	switch(namespaceKind)
+	switch (namespaceKind)
 	{
 	case NamespaceKind_Property:
 		parentType = ((Property*)nspace)->getParentType();
@@ -1350,7 +1350,7 @@ Parser::declareData(
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	NamespaceKind namespaceKind = nspace->getNamespaceKind();
 
-	switch(namespaceKind)
+	switch (namespaceKind)
 	{
 	case NamespaceKind_PropertyTemplate:
 	case NamespaceKind_Extension:
@@ -1394,10 +1394,10 @@ Parser::declareData(
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	StorageKind storageKind = m_storageKind;
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Undefined:
-		switch(namespaceKind)
+		switch (namespaceKind)
 		{
 		case NamespaceKind_Scope:
 			storageKind = (type->getFlags() & TypeFlag_NoStack) ? StorageKind_Heap : StorageKind_Stack;
@@ -1430,7 +1430,7 @@ Parser::declareData(
 		break;
 
 	case StorageKind_Mutable:
-		switch(namespaceKind)
+		switch (namespaceKind)
 		{
 		case NamespaceKind_Type:
 			break;
@@ -1565,7 +1565,7 @@ Parser::declareData(
 			NamedType* namedType = (NamedType*)nspace;
 			TypeKind namedTypeKind = namedType->getTypeKind();
 
-			switch(namedTypeKind)
+			switch (namedTypeKind)
 			{
 			case TypeKind_Class:
 			case TypeKind_Struct:
@@ -1581,7 +1581,7 @@ Parser::declareData(
 		}
 		else if (scope)
 		{
-			switch(storageKind)
+			switch (storageKind)
 			{
 			case StorageKind_Stack:
 			case StorageKind_Heap:
@@ -1625,7 +1625,7 @@ Parser::declareData(
 
 		StructField* field;
 
-		switch(namedTypeKind)
+		switch (namedTypeKind)
 		{
 		case TypeKind_Class:
 			field = ((ClassType*)namedType)->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
@@ -1679,7 +1679,7 @@ Parser::createFormalArg(
 		return NULL;
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Void:
 	case TypeKind_Class:
@@ -2047,7 +2047,7 @@ Parser::callBaseTypeMemberConstructor(
 	Type* type = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Type:
 		return callBaseTypeConstructor((Type*)item, argList);
@@ -2328,7 +2328,7 @@ Parser::lookupIdentifier(
 	Value thisValue;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		value->setNamespace((GlobalNamespace*)item);
@@ -2458,7 +2458,7 @@ Parser::lookupIdentifierType(
 	}
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		value->setNamespace((GlobalNamespace*)item);

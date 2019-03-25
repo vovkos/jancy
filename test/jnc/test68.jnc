@@ -21,7 +21,7 @@ int main()
 
 	int x = 0;
 
-	switch(x)
+	switch (x)
 	{
 	case 0:
 		printf("x -- case 0\n");

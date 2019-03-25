@@ -30,7 +30,7 @@ gui.EnumPropertyOption const* createNetworkAdapterOptionArray(NetworkAdapterUsag
 	gui.EnumPropertyOption* optionArray;
 	gui.EnumPropertyOption* option;
 
-	switch(usage)
+	switch (usage)
 	{
 	case NetworkAdapterUsage.Connection:
 		addressCount++; // include 'Auto'

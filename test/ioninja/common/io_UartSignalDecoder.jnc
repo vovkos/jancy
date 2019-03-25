@@ -195,7 +195,7 @@ bool isEvenNonZeroBitCount(uint_t c)
 
 bool UartSignalDecoder.checkParity()
 {
-	switch(m_parity)
+	switch (m_parity)
 	{
 	case io.SerialParity.Mark:
 		return m_frame & (1 << m_dataBits);

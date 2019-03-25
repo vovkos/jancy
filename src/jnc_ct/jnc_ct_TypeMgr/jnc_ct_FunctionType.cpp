@@ -39,7 +39,7 @@ FunctionType::getThisTargetType()
 		return NULL;
 
 	TypeKind thisArgTypeKind = thisArgType->getTypeKind();
-	switch(thisArgTypeKind)
+	switch (thisArgTypeKind)
 	{
 	case TypeKind_ClassPtr:
 		return ((ClassPtrType*)thisArgType)->getTargetType();

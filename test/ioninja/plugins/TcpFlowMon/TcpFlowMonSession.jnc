@@ -712,7 +712,7 @@ bool TcpFlowMonSession.decodePacket(
 	io.SocketAddress srcAddress;
 	io.SocketAddress dstAddress;
 
-	switch(ethernetHdr.m_type)
+	switch (ethernetHdr.m_type)
 	{
 	case io.EthernetType.Ip:
 		if (size < sizeof(io.IpHdr))

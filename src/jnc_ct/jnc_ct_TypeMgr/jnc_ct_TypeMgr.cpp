@@ -100,7 +100,7 @@ TypeMgr::getStdType(StdType stdType)
 		return m_stdTypeArray[stdType];
 
 	Type* type;
-	switch(stdType)
+	switch (stdType)
 	{
 	case StdType_BytePtr:
 		type = getPrimitiveType(TypeKind_Int8_u)->getDataPtrType_c();
@@ -359,7 +359,7 @@ TypeMgr::resolveImportTypes()
 			}
 
 			ModuleItemKind itemKind = item->getItemKind();
-			switch(itemKind)
+			switch (itemKind)
 			{
 			case ModuleItemKind_Type:
 				importType->m_actualType = (Type*)item;
@@ -761,7 +761,7 @@ TypeMgr::createClassType(
 {
 	ClassType* type;
 
-	switch(classTypeKind)
+	switch (classTypeKind)
 	{
 	case ClassTypeKind_Reactor:
 		type = AXL_MEM_NEW(ReactorClassType);
@@ -2064,7 +2064,7 @@ Type*
 TypeMgr::getCheckedPtrType(Type* type)
 {
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 		return ((DataPtrType*)type)->getCheckedPtrType();

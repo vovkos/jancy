@@ -16,7 +16,7 @@ bool representMailslotLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case MailslotLogRecordCode.Opened:
 		char const* fileName = (char const*) p;

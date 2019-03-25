@@ -516,7 +516,7 @@ Module::parse(
 	for (;;)
 	{
 		const Token* token = lexer.getToken();
-		switch(token->m_token)
+		switch (token->m_token)
 		{
 		case TokenKind_Error:
 			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);

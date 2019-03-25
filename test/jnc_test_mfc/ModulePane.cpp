@@ -142,7 +142,7 @@ CModulePane::AddItem(
 	)
 {
 	jnc::EModuleItem ItemKind = pItem->GetItemKind();
-	switch(ItemKind)
+	switch (ItemKind)
 	{
 	case jnc::EModuleItem_Namespace:
 		AddNamespace(hParent, (jnc::CGlobalNamespace*)pItem);
@@ -198,7 +198,7 @@ CModulePane::AddType(
 	AddItemAttributes(hItem, pType);
 
 	jnc::EType TypeKind = pType->GetTypeKind();
-	switch(TypeKind)
+	switch (TypeKind)
 	{
 	case jnc::EType_Enum:
 		AddEnumTypeMembers(hItem, (jnc::CEnumType*)pType);
@@ -593,7 +593,7 @@ CModulePane::GetItemTip(jnc::CModuleItem* pItem)
 	jnc::CProperty* pProperty = (jnc::CProperty*)pItem;
 
 	jnc::EModuleItem ItemKind = pItem->GetItemKind();
-	switch(ItemKind)
+	switch (ItemKind)
 	{
 	case jnc::EModuleItem_Namespace:
 		return GetNamespaceTip((jnc::CGlobalNamespace*)pItem);

@@ -39,7 +39,7 @@ parseSizeString(const sl::StringRef& string)
 	char c = string[length - 1];
 	if (isalpha(c))
 	{
-		switch(c)
+		switch (c)
 		{
 		case 'K':
 			multiplier = 1024;
@@ -72,7 +72,7 @@ CmdLineParser::onSwitch(
 	const sl::StringRef& value
 	)
 {
-	switch(switchKind)
+	switch (switchKind)
 	{
 	case CmdLineSwitch_Help:
 		m_cmdLine->m_flags |= JncFlag_Help;

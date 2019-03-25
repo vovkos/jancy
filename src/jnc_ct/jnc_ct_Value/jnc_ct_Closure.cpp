@@ -134,7 +134,7 @@ Closure::getClosureType(Type* type)
 {
 	TypeKind typeKind = type->getTypeKind();
 
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:

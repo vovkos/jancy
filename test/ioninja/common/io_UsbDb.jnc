@@ -145,7 +145,7 @@ bool errorcode UsbDb.load(char const* fileName)
 
 	while (p < end)
 	{
-		reswitch(state, p, end - p)
+		reswitch (state, p, end - p)
 		{
 		case r"(\h{4})\s+([^\n]+[^\s])[ \t\r]*\n":
 			vendor = addVendor(

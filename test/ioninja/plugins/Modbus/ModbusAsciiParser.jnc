@@ -64,7 +64,7 @@ ModbusAsciiParser.parse(
 	void const* end = p + size;
 	while (p < end)
 	{
-		switch(m_state)
+		switch (m_state)
 		{
 		case State.Idle:
 			p = memchr(p, ':', end - p);

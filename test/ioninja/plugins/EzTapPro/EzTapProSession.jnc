@@ -680,7 +680,7 @@ bool errorcode EzTapProSession.decodeResponse(
 		size -= missing;
 
 		uint_t code = m_responseBuffer[0] & EzTapResponseCode.Mask;
-		switch(code)
+		switch (code)
 		{
 		case EzTapResponseCode.ClockMsbsChanged:
 			// currently ignored -- we timestamp on PC side for now

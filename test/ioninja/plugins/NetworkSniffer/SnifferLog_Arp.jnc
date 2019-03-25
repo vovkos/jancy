@@ -125,7 +125,7 @@ representArp(
 	size_t dstHardwareAddrOffset = srcProtocolAddrOffset + arpHdr.m_protocolLength;
 	size_t dstProtocolAddrOffset = dstHardwareAddrOffset + arpHdr.m_hardwareLength;
 
-	switch(arpHdr.m_opcode)
+	switch (arpHdr.m_opcode)
 	{
 	case io.ArpOpcode.Request:
 		target.addHyperText(
@@ -196,7 +196,7 @@ representArp(
 
 char const* getArpHardwareTypeString(io.ArpHardwareType type)
 {
-	switch(type)
+	switch (type)
 	{
 	case io.ArpHardwareType.Ethernet:
 		return "ETHERNET";
@@ -208,7 +208,7 @@ char const* getArpHardwareTypeString(io.ArpHardwareType type)
 
 char const* getArpProtocolTypeString(io.ArpProtocolType type)
 {
-	switch(type)
+	switch (type)
 	{
 	case io.ArpProtocolType.Ip:
 		return "IP";
@@ -238,7 +238,7 @@ char const* getArpHardwareAddressString(
 	size_t size
 	)
 {
-	switch(type)
+	switch (type)
 	{
 	case io.ArpHardwareType.Ethernet:
 		uint8_t const* mac = p;
@@ -259,7 +259,7 @@ char const* getArpProtocolAddressString(
 	size_t size
 	)
 {
-	switch(type)
+	switch (type)
 	{
 	case io.ArpProtocolType.Ip:
 		return size >= 4 ?

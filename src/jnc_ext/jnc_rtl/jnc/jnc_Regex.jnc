@@ -64,7 +64,7 @@ struct RegexMatch
 	.. ref-code-block::
 
 		jnc.RegexState state;
-		reswitch(state, p, length)
+		reswitch (state, p, length)
 		{
 		case "foo":
 			// ...
@@ -98,7 +98,7 @@ struct RegexMatch
 			// post-condition loop allows passing 'null' as eof
 			do
 			{
-				reswitch(state, p, end - p)
+				reswitch (state, p, end - p)
 				{
 				case "foo":
 					// ...

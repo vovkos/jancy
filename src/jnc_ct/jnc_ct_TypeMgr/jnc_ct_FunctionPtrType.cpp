@@ -61,7 +61,7 @@ FunctionPtrType::createSignature(
 {
 	sl::String signature = typeKind == TypeKind_FunctionRef ? "RF" : "PF";
 
-	switch(ptrTypeKind)
+	switch (ptrTypeKind)
 	{
 	case FunctionPtrTypeKind_Thin:
 		signature += 't';

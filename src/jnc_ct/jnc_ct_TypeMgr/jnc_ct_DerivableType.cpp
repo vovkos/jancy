@@ -235,7 +235,7 @@ DerivableType::addMethod(Function* function)
 
 	function->m_parentNamespace = this;
 
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		if (thisArgTypeFlags)
@@ -264,7 +264,7 @@ DerivableType::addMethod(Function* function)
 	Function** target = NULL;
 	size_t overloadIdx;
 
-	switch(functionKind)
+	switch (functionKind)
 	{
 	case FunctionKind_PreConstructor:
 		target = &m_preconstructor;
@@ -388,7 +388,7 @@ DerivableType::addProperty(Property* prop)
 	prop->m_parentNamespace = this;
 
 	StorageKind storageKind = prop->getStorageKind();
-	switch(storageKind)
+	switch (storageKind)
 	{
 	case StorageKind_Static:
 		break;

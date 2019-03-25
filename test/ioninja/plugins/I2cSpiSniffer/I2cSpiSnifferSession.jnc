@@ -431,7 +431,7 @@ bool errorcode I2cSpiSnifferSession.startCapture()
 
 	char startCode;
 
-	switch(m_protocolProp.m_value)
+	switch (m_protocolProp.m_value)
 	{
 	case Protocol.Spi:
 		m_spiDecoder.m_isBigEndian = m_endiannessProp.m_value;

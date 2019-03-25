@@ -61,7 +61,7 @@ representEthernet(
 		uint_t hdrColorTable[8] = { SnifferLogHdrColor.Ethernet }
 		size_t hdrCount = 1;
 
-		switch(ethernetHdr.m_type)
+		switch (ethernetHdr.m_type)
 		{
 		case io.EthernetType.Ip:
 			hdrCount = representIpHdr(target, p, size, sizeof(io.EthernetHdr), hdrSizeTable, hdrColorTable, 1);
@@ -76,7 +76,7 @@ representEthernet(
 	}
 	else
 	{
-		switch(ethernetHdr.m_type)
+		switch (ethernetHdr.m_type)
 		{
 		case io.EthernetType.Ip:
 			representIp(target, p, size, sizeof(io.EthernetHdr));

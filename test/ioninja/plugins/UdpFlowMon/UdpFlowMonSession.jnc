@@ -645,7 +645,7 @@ bool UdpFlowMonSession.decodePacket(
 	size -= sizeof(io.EthernetHdr);
 
 	UdpFlowMonPacketParams params;
-	switch(ethernetHdr.m_type)
+	switch (ethernetHdr.m_type)
 	{
 	case io.EthernetType.Ip:
 		if (size < sizeof(io.IpHdr))

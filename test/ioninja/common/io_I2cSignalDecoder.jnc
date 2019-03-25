@@ -91,7 +91,7 @@ I2cDecodeResult I2cSignalDecoder.add(
 
 	// SCL raised
 
-	switch(m_bit)
+	switch (m_bit)
 	{
 	case 0:
 		m_bit = 0x80;

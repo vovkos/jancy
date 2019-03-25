@@ -378,7 +378,7 @@ SshSerialMonSession.waitSshEvents()
 {
 	io.SshEvents eventMask = io.SshEvents.IoError;
 
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.TcpConnecting:
 		eventMask |= io.SshEvents.TcpConnectCompleted;
@@ -481,7 +481,7 @@ SshSerialMonSession.onLoginDlgCompleted(gui.StdDlgButton button)
 		writeLog(SshLogRecordCode.Reconnecting);
 	}
 
-	switch(m_loginDlg.m_authenticationMethod)
+	switch (m_loginDlg.m_authenticationMethod)
 	{
 	case gui.AuthenticationMethod.Password:
 		m_ssh.authenticate(m_loginDlg.m_userName, null, 0, m_loginDlg.m_password);
@@ -520,7 +520,7 @@ SshSerialMonSession.onConsoleSizeChanged()
 
 SshSerialMonSession.disconnect()
 {
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Closed:
 		return;

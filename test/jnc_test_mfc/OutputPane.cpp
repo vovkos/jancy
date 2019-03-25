@@ -105,7 +105,7 @@ void COutputPane::OnSize(UINT nType, int cx, int cy)
 
 BOOL COutputPane::PreTranslateMessage(MSG* pMsg)
 {
-	switch(pMsg->message)
+	switch (pMsg->message)
 	{
 	case WM_LBUTTONDBLCLK:
 		return OnLButtonDblClk();

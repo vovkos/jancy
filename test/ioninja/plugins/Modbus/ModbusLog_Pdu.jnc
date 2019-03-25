@@ -21,7 +21,7 @@ char const* getModbusCoilsDigest(
 	size_t count
 	)
 {
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		return "[\e[31mNONE\e[m]";
@@ -56,7 +56,7 @@ representModbusCoils(
 	uint_t foldFlags
 	)
 {
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		target.addHyperText("    Value:     [\e[31mNONE\e[m]");
@@ -139,7 +139,7 @@ char const* getModbusRegistersDigest(
 		MaxCount = 4
 	}
 
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		return "[\e[31mNONE\e[m]";
@@ -174,7 +174,7 @@ representModbusRegisters(
 	uint_t foldFlags
 	)
 {
-	switch(count)
+	switch (count)
 	{
 	case 0:
 		target.addHyperText("    Value:     [\e[31mNONE\e[m]");
@@ -264,7 +264,7 @@ representModbusPdu(
 		formatModbusFuncDescription(role, hdr.m_func)
 		));
 
-	switch(hdr.m_func)
+	switch (hdr.m_func)
 	{
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:
@@ -447,7 +447,7 @@ char const* getModbusPduDigest(
 		formatModbusFuncDescription(role, hdr.m_func)
 		));
 
-	switch(hdr.m_func)
+	switch (hdr.m_func)
 	{
 	case io.ModbusFunc.ReadCoils:
 	case io.ModbusFunc.ReadDiscreteInputs:

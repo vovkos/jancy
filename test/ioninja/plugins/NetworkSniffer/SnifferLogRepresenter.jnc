@@ -32,7 +32,7 @@ bool representSnifferLog(
 	uint_t foldFlags
 	)
 {
-	switch(recordCode)
+	switch (recordCode)
 	{
 	case SnifferLogRecordCode.Packet:
 		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;

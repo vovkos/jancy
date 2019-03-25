@@ -224,7 +224,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 	Value pfnValue;
 
 	FunctionKind accessorKind = accessor->getFunctionKind();
-	switch(accessorKind)
+	switch (accessorKind)
 	{
 	case FunctionKind_Binder:
 		result = m_module->m_operatorMgr.getPropertyBinder(propertyPtrValue, &pfnValue);

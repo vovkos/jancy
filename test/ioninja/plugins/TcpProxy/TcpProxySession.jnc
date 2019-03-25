@@ -375,7 +375,7 @@ TcpProxySession.stopListen()
 	m_serverPortCombo.m_backgroundColor = gui.StdColor.White;
 	m_clientAddressCombo.m_backgroundColor = gui.StdColor.White;
 
-	switch(m_listenerState)
+	switch (m_listenerState)
 	{
 		case ListenerState.Closed:
 			return;

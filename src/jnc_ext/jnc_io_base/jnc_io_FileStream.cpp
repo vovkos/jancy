@@ -86,7 +86,7 @@ FileStream::open(
 
 #if (_JNC_OS_WIN)
 	dword_t type = ::GetFileType(m_file.m_file);
-	switch(type)
+	switch (type)
 	{
 	case FILE_TYPE_CHAR:
 		m_fileStreamKind = FileStreamKind_Serial;

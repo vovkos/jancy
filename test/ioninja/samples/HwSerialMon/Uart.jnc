@@ -266,7 +266,7 @@ Uart.finalizeFrame(
 	// write data byte even in case of framing/parity errors
 	m_pluginHost.m_log.m_writer.write(timestamp, recordCode, &data, 1);
 
-	switch(result)
+	switch (result)
 	{
 	case io.UartDecodeResult.FramingError:
 		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.UartFramingError);

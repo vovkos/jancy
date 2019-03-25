@@ -328,7 +328,7 @@ ModbusGatewayMonSession.handleConnectError(std.Error const* error)
 
 ModbusGatewayMonSession.disconnect()
 {
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Closed:
 		return;
@@ -411,7 +411,7 @@ ModbusGatewayMonSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Connecting:
 		eventMask |= io.SocketEvents.Connected;

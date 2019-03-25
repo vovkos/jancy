@@ -40,7 +40,7 @@ setCastError(
 
 	const char* format;
 
-	switch(castKind)
+	switch (castKind)
 	{
 	case CastKind_Explicit:
 		format = "explicit cast is needed to convert from '%s' to '%s'";

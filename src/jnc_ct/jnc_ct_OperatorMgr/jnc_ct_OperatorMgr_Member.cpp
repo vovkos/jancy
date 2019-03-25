@@ -170,7 +170,7 @@ OperatorMgr::getNamespaceMemberType(
 	ModuleItemDecl* decl = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)item);
@@ -266,7 +266,7 @@ OperatorMgr::getNamespaceMember(
 		ASSERT(itemKind != ModuleItemKind_Alias); // should have been resolved at calclayout stage
 	}
 
-	switch(itemKind)
+	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)item);
@@ -369,7 +369,7 @@ OperatorMgr::getNamedTypeMemberType(
 	ModuleItemDecl* decl = NULL;
 
 	ModuleItemKind memberKind = member->getItemKind();
-	switch(memberKind)
+	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)member);
@@ -449,7 +449,7 @@ OperatorMgr::getNamedTypeMember(
 	ModuleItemDecl* decl = NULL;
 
 	ModuleItemKind memberKind = member->getItemKind();
-	switch(memberKind)
+	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
 		resultValue->setNamespace((GlobalNamespace*)member);
@@ -633,7 +633,7 @@ OperatorMgr::getMemberOperatorResultType(
 	}
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Struct:
 	case TypeKind_Union:
@@ -674,13 +674,13 @@ OperatorMgr::memberOperator(
 
 	StructField* field;
 
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_DataPtr:
 	case TypeKind_DataRef:
 		type = ((DataPtrType*)type)->getTargetType();
 		typeKind = type->getTypeKind();
-		switch(typeKind)
+		switch (typeKind)
 		{
 		case TypeKind_Array:
 			return binaryOperator(
@@ -808,7 +808,7 @@ OperatorMgr::memberOperator(
 	}
 
 	TypeKind typeKind = type->getTypeKind();
-	switch(typeKind)
+	switch (typeKind)
 	{
 	case TypeKind_Struct:
 	case TypeKind_Union:

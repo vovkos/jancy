@@ -111,7 +111,7 @@ XModemLayer.receiveFile()
 
 XModemLayer.cancelFileTranfer()
 {
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.Idle:
 		return;
@@ -144,7 +144,7 @@ XModemLayer.onFileDlgCompleted(gui.StdDlgButton button)
 	m_progressDlg.m_buttons = gui.StdDlgButtons.Abort;
 	m_progressDlg.show();
 
-	switch(m_state)
+	switch (m_state)
 	{
 	case State.TransmitFileDlg:
 		m_state = State.Transmitting;
@@ -169,7 +169,7 @@ catch:
 
 XModemLayer.onProgressDlgButtonClicked(gui.StdDlgButton button)
 {
-	switch(button)
+	switch (button)
 	{
 	case gui.StdDlgButton.Cancel:
 	case gui.StdDlgButton.Abort:
@@ -191,7 +191,7 @@ XModemLayer.onLogRecord(
 	)
 {
 	if (recordCode == log.StdRecordCode.Rx)
-		switch(m_state)
+		switch (m_state)
 		{
 		case State.Transmitting:
 			m_transmitter.onRx(p, size);

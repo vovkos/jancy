@@ -24,7 +24,7 @@ int main()
 	int result;
 
 	int a = rand() % 3;
-	switch(a)
+	switch (a)
 	{
 	case 0:
 		int i = 10;
