@@ -204,15 +204,11 @@ AsyncSequencerFunction::replaceAllocas()
 		llvm::AllocaInst* llvmAlloca = (llvm::AllocaInst*) &*it++;
 		llvm::Type* llvmPtrType = llvmAlloca->getType();
 		llvm::Type* llvmType = llvmAlloca->getAllocatedType();
-		size_t size = llvmDataLayout.getTypeAllocSize(llvmType);
+		size_t size = (size_t) llvmDataLayout.getTypeAllocSize(llvmType);
 		size_t typeAlign = llvmDataLayout.getPrefTypeAlignment(llvmType);
 		size_t allocaAlign = llvmAlloca->getAlignment();
 
 		offset = sl::align(offset, AXL_MAX(typeAlign, allocaAlign));
-
-		std::string s;
-		llvm::raw_string_ostream stream(s);
-		llvmAlloca->print(stream);
 
 		Value gepValue;
 		m_module->m_llvmIrBuilder.setInsertPoint(llvmAlloca);
