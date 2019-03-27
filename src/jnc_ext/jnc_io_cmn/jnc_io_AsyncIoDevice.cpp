@@ -141,7 +141,7 @@ AsyncIoDevice::setWriteBufferSize(
 	m_writeMetaList.clear();
 	m_writeBuffer.clear();
 
-	if (!(m_activeEvents & AsyncIoEvent_WriteBufferReady)) // set active events in IO thread
+	if (!(m_activeEvents & AsyncIoEvent_WriteBufferEmpty)) // set active events in IO thread
 		wakeIoThread();
 
 	bool result = m_writeBuffer.setBufferSize(size);
@@ -530,9 +530,7 @@ AsyncIoDevice::bufferedWrite(
 			m_writeMetaList.insertTail(meta);
 		}
 
-		if (m_writeBuffer.isFull())
-			m_activeEvents &= ~AsyncIoEvent_WriteBufferReady;
-
+		m_activeEvents &= ~AsyncIoEvent_WriteBufferEmpty;
 		wakeIoThread();
 	}
 
@@ -631,8 +629,8 @@ AsyncIoDevice::updateReadWriteBufferEvents()
 	if (m_readBuffer.isFull())
 		m_activeEvents |= AsyncIoEvent_ReadBufferFull;
 
-	if (!m_writeBuffer.isFull())
-		m_activeEvents |= AsyncIoEvent_WriteBufferReady;
+	if (m_writeBuffer.isEmpty())
+		m_activeEvents |= AsyncIoEvent_WriteBufferEmpty;
 }
 
 //..............................................................................

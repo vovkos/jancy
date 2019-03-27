@@ -119,11 +119,17 @@ bitflag enum FileStreamEvents
 	ReadBufferFull,
 
 	/**
+		File stream transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
 		File stream transmit buffer is ready to accept more data; it's OK to
 		issue more `io.FileStream.write` requests.
 	*/
 
-	WriteBufferReady,
+	WriteBufferReady = WriteBufferEmpty,
 
 	/**
 		End-of-file was reached on the file stream.

@@ -53,11 +53,17 @@ bitflag enum SocketEvents
 	ReadBufferFull,
 
 	/**
+		Socket transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
 		Socket transmit buffer is ready to accept more data; it's OK to issue
 		more `io.Socket.write` or `io.Socket.writeDatagram` requests.
 	*/
 
-	WriteBufferReady,
+	WriteBufferReady = WriteBufferEmpty,
 
 	/**
 		New incoming client connection is pending on the listening server

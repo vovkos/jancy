@@ -233,11 +233,17 @@ bitflag enum SerialEvents
 	ReadBufferFull,
 
 	/**
+		Serial port transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
 		Serial port transmit buffer is ready to accept more data; it's OK to
 		issue more `io.Serial.write` requests.
 	*/
 
-	WriteBufferReady,
+	WriteBufferReady = WriteBufferEmpty,
 
 	CtsOn,
 	CtsOff,

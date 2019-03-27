@@ -54,11 +54,17 @@ bitflag enum SshEvents
 	ReadBufferFull,
 
 	/**
+		Socket transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
 		Socket transmit buffer is ready to accept more data; it's OK to issue
 		more `io.SshChannel.write` requests.
 	*/
 
-	WriteBufferReady,
+	WriteBufferReady = WriteBufferEmpty,
 
 	/**
 		``SSH`` channel has been closed by the remote server. Note that if

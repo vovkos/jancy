@@ -93,11 +93,17 @@ bitflag enum UsbEndpointEvents
 	ReadBufferFull,
 
 	/**
+		OUT-endpoint transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
 		OUT-endpoint transmit buffer is ready to accept more data; it's OK to
 		issue more `io.UsbEndpoint.write` requests.
 	*/
 
-	WriteBufferReady,
+	WriteBufferReady = WriteBufferEmpty,
 
 	/**
 		OUT-endpoint has no active or pending USB transfers. Useful when you
