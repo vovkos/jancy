@@ -311,6 +311,11 @@ protected:
 		uint_t baseEvents,
 		bool isDatagram
 		);
+
+#if (_JNC_OS_WIN)
+	void
+	handleSendRecvError(bool isDatagram);
+#endif
 };
 
 //..............................................................................

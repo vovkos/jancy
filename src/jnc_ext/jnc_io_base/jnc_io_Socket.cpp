@@ -392,6 +392,24 @@ Socket::acceptLoop()
 }
 
 void
+Socket::handleSendRecvError(bool isDatagram)
+{
+	if (isDatagram)
+	{
+		setIoErrorEvent();
+		return;
+	}
+
+	err::Error error = err::getLastError();
+	ASSERT(error->m_guid == err::g_systemErrorGuid);
+
+	if (error->m_code == WSAECONNRESET)
+		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
+	else
+		setIoErrorEvent(error);
+}
+
+void
 Socket::sendRecvLoop(
 	uint_t baseEvents,
 	bool isDatagram
@@ -436,14 +454,7 @@ Socket::sendRecvLoop(
 			result = m_socket.m_socket.wsaGetOverlappedResult(&recv->m_overlapped, &actualSize);
 			if (!result)
 			{
-				err::Error error = err::getLastError();
-				ASSERT(error->m_guid == err::g_systemErrorGuid);
-
-				if (error->m_code == WSAECONNRESET)
-					setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
-				else
-					setIoErrorEvent(error);
-
+				handleSendRecvError(isDatagram);
 				return;
 			}
 
@@ -476,7 +487,7 @@ Socket::sendRecvLoop(
 			result = m_socket.m_socket.wsaGetOverlappedResult(&m_overlappedIo->m_sendOverlapped, &actualSize);
 			if (!result)
 			{
-				setIoErrorEvent();
+				handleSendRecvError(isDatagram);
 				break;
 			}
 
@@ -543,7 +554,7 @@ Socket::sendRecvLoop(
 
 			if (!result)
 			{
-				setIoErrorEvent();
+				handleSendRecvError(isDatagram);
 				break;
 			}
 
@@ -589,7 +600,7 @@ Socket::sendRecvLoop(
 
 				if (!result)
 				{
-					setIoErrorEvent();
+					handleSendRecvError(isDatagram);
 					return;
 				}
 
