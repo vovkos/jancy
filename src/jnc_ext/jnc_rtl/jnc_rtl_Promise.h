@@ -53,9 +53,9 @@ public:
 	size_t m_state;
 	IfaceHdr* m_scheduler;
 	Promise* m_pendingPromise;
+	GcShadowStackFrame* m_gcShadowStackFrame;
 	Variant m_result;
 	DataPtr m_errorPtr;
-	GcShadowStackFrame* m_gcShadowStackFrame;
 
 protected:
 	sys::Lock m_lock;
@@ -63,6 +63,10 @@ protected:
 	sl::AuxList<SyncWait> m_syncWaitList;
 	sl::List<AsyncWait> m_asyncWaitList;
 	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
+
+#if (JNC_PTR_SIZE == 4)
+	char m_padding[4]; // ensure the same layout regardless of pack factor
+#endif
 
 public:
 	Promise();

@@ -23,9 +23,9 @@ protected:
 	size_t m_state;
 	Scheduler* m_scheduler;
 	Promise* m_pendingPromise;
+	void thin* m_gcShadowStackFrame;
 	variant m_result;
 	std.Error const* m_error;
-	void thin* m_gcShadowStackFrame;
 
 public:
 	construct();
