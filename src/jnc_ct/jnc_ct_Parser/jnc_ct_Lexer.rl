@@ -53,7 +53,8 @@ nl     = '\n' @{ newLine (p + 1); };
 lc_nl  = '\\' '\r'? nl;
 esc    = '\\' [^\n];
 
-lit_dq     = '"' ([^"\n\\] | esc)* (["\\] | nl);
+lit_dq_wo_esc = '"' [^"\n\\]* (["\\] | nl);
+lit_dq_w_esc  = '"' ([^"\n\\] | esc)* (["\\] | nl);
 lit_sq     = "'" ([^'\n\\] | esc)* (['\\] | nl);
 raw_lit_dq = '"' [^"\n]* ('"' | nl);
 raw_lit_sq = "'" [^'\n]* ("'" | nl);
@@ -309,7 +310,8 @@ main := |*
 
 id               { createStringToken (TokenKind_Identifier); };
 lit_sq           { createCharToken (TokenKind_Integer, 1, 1, true); };
-lit_dq           { createStringToken (TokenKind_Literal, 1, 1, true); };
+lit_dq_wo_esc    { createStringToken (TokenKind_Literal, 1, 1, false); };
+lit_dq_w_esc     { createStringToken (TokenKind_Literal, 1, 1, true); };
 [rR] raw_lit_sq  { createCharToken (TokenKind_Integer, 2, 1, false); };
 [rR] raw_lit_dq  { createStringToken (TokenKind_Literal, 2, 1, false); };
 '0' oct+         { createIntegerToken (8); };
