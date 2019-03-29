@@ -24,7 +24,7 @@ JNC_DECLARE_TYPE(PcapDeviceDesc)
 
 enum PcapEvent
 {
-	PcapEvent_Eof = 0x0100,
+	PcapEvent_Eof = 0x010,
 };
 
 //..............................................................................

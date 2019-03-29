@@ -55,7 +55,7 @@ bitflag enum PcapEvents
 		End-of-file was reached on the Pcap file.
 	*/
 
-	Eof,
+	Eof = 0x10, // skip WriteBufferEmpty/WriteBufferReady (no write buffer in Pcap)
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
