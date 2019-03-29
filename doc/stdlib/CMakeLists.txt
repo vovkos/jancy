@@ -28,22 +28,29 @@ set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+set (_EXT_DIR ${JANCY_SRC_DIR}/jnc_ext)
+
 set (
 	JANCY_CMD_LINE
 	-d
 	--std-lib-doc
 	--no-doxy-comment ///
 	--ignore-import io_base.jncx
-	-O ${XML_DIR}
-	${JANCY_SRC_DIR}/jnc_ct/jnc/.forced.jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_std/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_sys/jnc
-	-I ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_base/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_ssh/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_pcap/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_usb/jnc
-	-S ${JANCY_SRC_DIR}/jnc_ext/jnc_io_devmon/jnc
+	-X ${XML_DIR}
+
+	${_EXT_DIR}/jnc_rtl/jnc/jnc_DynamicLib.jnc
+	${_EXT_DIR}/jnc_rtl/jnc/jnc_Promise.jnc
+	${_EXT_DIR}/jnc_rtl/jnc/jnc_Regex.jnc
+	${_EXT_DIR}/jnc_rtl/jnc/jnc_Scheduler.jnc
+	${_EXT_DIR}/jnc_rtl/jnc/jnc_StdTypedefs.jnc
+
+	-S ${_EXT_DIR}/jnc_std/jnc
+	-S ${_EXT_DIR}/jnc_sys/jnc
+	-I ${_EXT_DIR}/jnc_io_base/jnc
+	-S ${_EXT_DIR}/jnc_io_ssh/jnc
+	-S ${_EXT_DIR}/jnc_io_pcap/jnc
+	-S ${_EXT_DIR}/jnc_io_usb/jnc
+	-S ${_EXT_DIR}/jnc_io_devmon/jnc
 	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 	)
 

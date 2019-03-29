@@ -30,7 +30,7 @@ extensions = []
 html_add_permalinks = ''
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['${AXL_DOC_SHARE_DIR}/sphinx/templates/index']
+templates_path = ['${CMAKE_CURRENT_LIST_DIR}/templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
