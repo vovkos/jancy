@@ -115,18 +115,18 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_OutputDir,
-		"O", "output-dir", "<dir>",
-		"Specify output directory"
+		"X", "xml-dir", "<dir>",
+		"Specify the output XML directory (for documentation)"
 		)
 	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_SourceDir,
 		"S", "src-dir", "source-dir", "<dir>",
-		"Add the directory with source files"
+		"Add a directory with source files"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_ImportDir,
 		"I", "import-dir", "<dir>",
-		"Add import directory"
+		"Add an import directory"
 		)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_IgnoreImport,
