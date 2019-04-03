@@ -9,13 +9,13 @@
 #
 #...............................................................................
 
-add_subdirectory (index)
-add_subdirectory (language)
-add_subdirectory (extensions)
-add_subdirectory (compiler)
-add_subdirectory (grammar)
-add_subdirectory (build-guide)
-add_subdirectory (stdlib)
-add_subdirectory (api)
+add_subdirectory(index)
+add_subdirectory(language)
+add_subdirectory(extensions)
+add_subdirectory(compiler)
+add_subdirectory(grammar)
+add_subdirectory(build-guide)
+add_subdirectory(stdlib)
+add_subdirectory(api)
 
 #...............................................................................

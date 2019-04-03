@@ -9,32 +9,32 @@
 #
 #...............................................................................
 
-add_subdirectory (jnc_test_abi)
-add_subdirectory (jnc)
-add_subdirectory (ioninja)
+add_subdirectory(jnc_test_abi)
+add_subdirectory(jnc)
+add_subdirectory(ioninja)
 
-if (WIN32)
-	option (
+if(WIN32)
+	option(
 		BUILD_JNC_TEST_MFC
 		"Build jnc_test_mfc"
 		OFF
 		)
 
-	if (BUILD_JNC_TEST_MFC)
-		add_subdirectory (jnc_test_mfc)
-	endif ()
-endif ()
+	if(BUILD_JNC_TEST_MFC)
+		add_subdirectory(jnc_test_mfc)
+	endif()
+endif()
 
-if (QT_FOUND)
-	option (
+if(QT_FOUND)
+	option(
 		BUILD_JNC_TEST_QT
 		"Build jnc_test_qt"
 		ON
 		)
 
-	if (BUILD_JNC_TEST_QT)
-		add_subdirectory (jnc_test_qt)
-	endif ()
-endif ()
+	if(BUILD_JNC_TEST_QT)
+		add_subdirectory(jnc_test_qt)
+	endif()
+endif()
 
 #...............................................................................

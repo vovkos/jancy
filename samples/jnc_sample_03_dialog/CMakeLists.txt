@@ -13,7 +13,7 @@
 # app folder
 #
 
-set (
+set(
 	APP_H_LIST
 	MyLib.h
 	MyWidget.h
@@ -27,7 +27,7 @@ set (
 	MainWindow.h
 	)
 
-set (
+set(
 	APP_CPP_LIST
 	MyLib.cpp
 	MyWidget.cpp
@@ -42,12 +42,12 @@ set (
 	main.cpp
 	)
 
-set (
+set(
 	APP_JNC_LIST
 	script.jnc
 	)
 
-source_group (
+source_group(
 	app
 	FILES
 	${APP_H_LIST}
@@ -60,27 +60,27 @@ source_group (
 # gen folder
 #
 
-set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${GEN_DIR})
+set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file(MAKE_DIRECTORY ${GEN_DIR})
 
-set (
+set(
 	MOC_H_LIST
 	QtSignalBridge.h
 	MainWindow.h
 	)
 
-axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-qt5_wrap_cpp (
+qt5_wrap_cpp(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 	)
 
-axl_pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
-axl_exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+axl_exclude_from_build(${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
 
-source_group (
+source_group(
 	gen
 	FILES
 	${GEN_MOC_CPP_LIST}
@@ -91,10 +91,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -106,32 +106,32 @@ source_group (
 # jnc_sample_03_dialog sample
 #
 
-if (MSVC)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200")
-endif ()
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200")
+endif()
 
-include_directories (
+include_directories(
 	${JANCY_INC_DIR}
 	${GEN_DIR}
 	)
 
-link_directories (${AXL_LIB_DIR})
+link_directories(${AXL_LIB_DIR})
 
-if (BUILD_JNC_DLL)
-	link_directories (
+if(BUILD_JNC_DLL)
+	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
 		)
-else ()
-	link_directories (${LLVM_LIB_DIR})
-endif ()
+else()
+	link_directories(${LLVM_LIB_DIR})
+endif()
 
-add_definitions (
+add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
 	)
 
-add_executable (
+add_executable(
 	jnc_sample_03_dialog
 	${PCH_H}
 	${PCH_CPP}
@@ -141,33 +141,33 @@ add_executable (
 	${GEN_MOC_CPP_LIST}
 	)
 
-qt5_use_modules (jnc_sample_03_dialog Widgets)
+qt5_use_modules(jnc_sample_03_dialog Widgets)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_sample_03_dialog
 	${PCH_H}
 	${PCH_CPP}
 	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_sample_03_dialog
 	PROPERTIES
 	FOLDER samples
 	)
 
-if (BUILD_JNC_DLL)
-	add_dependencies (
+if(BUILD_JNC_DLL)
+	add_dependencies(
 		jnc_sample_03_dialog
 		jnc_dll
 		)
 
-	target_link_libraries (
+	target_link_libraries(
 		jnc_sample_03_dialog
 		${JANCY_DLL_NAME}
 		)
-else ()
-	target_link_libraries (
+else()
+	target_link_libraries(
 		jnc_sample_03_dialog
 		jnc_api_core
 		jnc_ct
@@ -178,10 +178,10 @@ else ()
 		jnc_api_core
 		)
 
-	target_link_llvm_jit_libraries (jnc_sample_03_dialog)
-endif ()
+	target_link_llvm_jit_libraries(jnc_sample_03_dialog)
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_sample_03_dialog
 	axl_zip
 	axl_fsm
@@ -190,26 +190,26 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX)
-	target_link_libraries (
+if(UNIX)
+	target_link_libraries(
 		jnc_sample_03_dialog
 		pthread
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_sample_03_dialog
 			rt
 			)
 
-		add_qt_rpath_link ()
-	endif ()
-endif ()
+		add_qt_rpath_link()
+	endif()
+endif()
 
-if (WIN32 AND QT_DLL_DIR)
-	set (_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
+if(WIN32 AND QT_DLL_DIR)
+	set(_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
 
-	add_custom_command (
+	add_custom_command(
 		TARGET jnc_sample_03_dialog
 		POST_BUILD
 		COMMAND
@@ -221,22 +221,22 @@ if (WIN32 AND QT_DLL_DIR)
 			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 		)
-endif ()
+endif()
 
 # only add this test on Windows and Linux native build --
 # it's a pain in the ass to install QT5 multilib on many Linux distros and
 # on Mac it will not link to QT unless QT is properly placed in Frameworks folder
 
-axl_detect_host_cpu (_CPU)
+axl_detect_host_cpu(_CPU)
 
-if (WIN32 OR (LINUX AND "${TARGET_CPU}" STREQUAL "${_CPU}"))
-	add_test (
+if(WIN32 OR(LINUX AND "${TARGET_CPU}" STREQUAL "${_CPU}"))
+	add_test(
 		NAME jnc_sample_03_dialog
 		COMMAND
 			$<TARGET_FILE:jnc_sample_03_dialog>
 			${CMAKE_CURRENT_LIST_DIR}/script.jnc
 			--test
 		)
-endif ()
+endif()
 
 #...............................................................................

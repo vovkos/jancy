@@ -13,14 +13,14 @@
 # app folder
 #
 
-set (
+set(
 	APP_H_LIST
 	MyLib.h
 	TestClass.h
 	TestStruct.h
 	)
 
-set (
+set(
 	APP_CPP_LIST
 	main.cpp
 	MyLib.cpp
@@ -28,12 +28,12 @@ set (
 	TestStruct.cpp
 	)
 
-set (
+set(
 	APP_JNC_LIST
 	script.jnc
 	)
 
-source_group (
+source_group(
 	app
 	FILES
 	${APP_H_LIST}
@@ -46,10 +46,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -61,19 +61,19 @@ source_group (
 # jnc_sample_02_embed_cpp sample
 #
 
-include_directories (${JANCY_INC_DIR})
-link_directories (${AXL_LIB_DIR})
+include_directories(${JANCY_INC_DIR})
+link_directories(${AXL_LIB_DIR})
 
-if (BUILD_JNC_DLL)
-	link_directories (
+if(BUILD_JNC_DLL)
+	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
 		)
-else ()
-	link_directories (${LLVM_LIB_DIR})
-endif ()
+else()
+	link_directories(${LLVM_LIB_DIR})
+endif()
 
-add_executable (
+add_executable(
 	jnc_sample_02_embed_cpp
 	${PCH_H}
 	${PCH_CPP}
@@ -82,30 +82,30 @@ add_executable (
 	${APP_JNC_LIST}
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_sample_02_embed_cpp
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_sample_02_embed_cpp
 	PROPERTIES
 	FOLDER samples
 	)
 
-if (BUILD_JNC_DLL)
-	add_dependencies (
+if(BUILD_JNC_DLL)
+	add_dependencies(
 		jnc_sample_02_embed_cpp
 		jnc_dll
 		)
 
-	target_link_libraries (
+	target_link_libraries(
 		jnc_sample_02_embed_cpp
 		${JANCY_DLL_NAME}
 		)
-else ()
-	target_link_libraries (
+else()
+	target_link_libraries(
 		jnc_sample_02_embed_cpp
 		jnc_api_core
 		jnc_ct
@@ -116,10 +116,10 @@ else ()
 		jnc_api_core
 		)
 
-	target_link_llvm_jit_libraries (jnc_sample_02_embed_cpp)
-endif ()
+	target_link_llvm_jit_libraries(jnc_sample_02_embed_cpp)
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_sample_02_embed_cpp
 	axl_zip
 	axl_fsm
@@ -128,21 +128,21 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX)
-	target_link_libraries (
+if(UNIX)
+	target_link_libraries(
 		jnc_sample_02_embed_cpp
 		pthread
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_sample_02_embed_cpp
 			rt
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-add_test (
+add_test(
 	NAME jnc_sample_02_embed_cpp
 	COMMAND
 		$<TARGET_FILE:jnc_sample_02_embed_cpp>

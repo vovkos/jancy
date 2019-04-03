@@ -9,25 +9,25 @@
 #
 #...............................................................................
 
-file (
+file(
 	GLOB
 	SAMPLE_JNC_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	*.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${SAMPLE_JNC_LIST}
 	)
 
-if (${BUILD_JNC_APP})
-	add_jancy_tests (
+if(${BUILD_JNC_APP})
+	add_jancy_tests(
 		NAME_PREFIX "jnc-sample-"
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 		${SAMPLE_JNC_LIST}
 		)
-endif ()
+endif()
 
 #...............................................................................

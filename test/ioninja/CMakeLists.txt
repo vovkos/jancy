@@ -9,11 +9,11 @@
 #
 #...............................................................................
 
-if (NOT ${BUILD_JNC_APP})
-	return ()
-endif ()
+if(NOT ${BUILD_JNC_APP})
+	return()
+endif()
 
-add_jancy_tests (
+add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-plugin-"
 	FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
 
@@ -151,8 +151,8 @@ add_jancy_tests (
 	END_FILE_LIST
 	)
 
-if (BUILD_JNC_IO_SSH)
-	add_jancy_tests (
+if(BUILD_JNC_IO_SSH)
+	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
 		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
 
@@ -165,10 +165,10 @@ if (BUILD_JNC_IO_SSH)
 			../SocketLog/SocketLogRepresenter.jnc
 		END_FILE_LIST
 		)
-endif ()
+endif()
 
-if (BUILD_JNC_IO_PCAP)
-	add_jancy_tests (
+if(BUILD_JNC_IO_PCAP)
+	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
 		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
 
@@ -209,10 +209,10 @@ if (BUILD_JNC_IO_PCAP)
 			../SocketLog/SocketLogRepresenter.jnc
 		END_FILE_LIST
 		)
-endif ()
+endif()
 
-if (BUILD_JNC_IO_USB)
-	add_jancy_tests (
+if(BUILD_JNC_IO_USB)
+	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
 		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
 
@@ -278,10 +278,10 @@ if (BUILD_JNC_IO_USB)
 			SpiTapLogRepresenter.jnc
 		END_FILE_LIST
 		)
-endif ()
+endif()
 
-if (BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
-	add_jancy_tests (
+if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
+	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
 		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
 
@@ -320,9 +320,9 @@ if (BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
 		END_FILE_LIST
 		)
-endif ()
+endif()
 
-add_jancy_tests (
+add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-packet-"
 	FLAGS "-c -I ../common"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/packets

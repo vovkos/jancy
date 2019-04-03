@@ -13,29 +13,29 @@
 # jnc_dll library
 #
 
-set (CMAKE_INSTALL_RPATH)
-set (CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
-link_directories (
+link_directories(
 	${LLVM_LIB_DIR}
 	${AXL_LIB_DIR}
 	)
 
-if (BUILD_JNC_IO_USB)
-	link_directories (${LIBUSB_LIB_DIR})
-endif ()
+if(BUILD_JNC_IO_USB)
+	link_directories(${LIBUSB_LIB_DIR})
+endif()
 
-if (WIN32)
-	configure_file (jnc_dll.def.in jnc_dll.def)
+if(WIN32)
+	configure_file(jnc_dll.def.in jnc_dll.def)
 
-	set (
+	set(
 		DLL_SRC_LIST
 		dllmain.c
 		jnc_dll.def.in
 		${CMAKE_CURRENT_BINARY_DIR}/jnc_dll.def
 		)
-else ()
-	set (
+else()
+	set(
 		DLL_SRC_LIST
 		$<TARGET_OBJECTS:jnc_api_core_o>
 		$<TARGET_OBJECTS:jnc_rtl_o>
@@ -44,64 +44,64 @@ else ()
 		jnc_dll.version
 		)
 
-	if (CMAKE_GENERATOR MATCHES "Xcode")
-		set (
+	if(CMAKE_GENERATOR MATCHES "Xcode")
+		set(
 			DLL_SRC_LIST
 			${DLL_SRC_LIST}
 			xcode.c
 			)
-	endif ()
+	endif()
 
-	if (NOT APPLE)
-		set (
+	if(NOT APPLE)
+		set(
 			DLL_SRC_LIST
 			${DLL_SRC_LIST}
 			jnc_dll.version
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-source_group (
+source_group(
 	dll
 	FILES
 	${DLL_SRC_LIST}
 	)
 
-add_library (
+add_library(
 	jnc_dll SHARED
 	${DLL_SRC_LIST}
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_dll
 		jnc_api_core
 		jnc_rtl
 		jnc_std
 		jnc_sys
 		)
-else ()
-	target_link_libraries (
+else()
+	target_link_libraries(
 		jnc_dll
 		pthread
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_dll
 			rt
 			)
 
-		set_property (
+		set_property(
 			TARGET jnc_dll
 			APPEND_STRING
 			PROPERTY LINK_FLAGS
 			" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_dll.version'"
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_dll
 	jnc_ct
 	jnc_rt
@@ -112,34 +112,34 @@ target_link_libraries (
 	axl_core
 	)
 
-target_link_llvm_jit_libraries (jnc_dll)
+target_link_llvm_jit_libraries(jnc_dll)
 
-if (BUILD_JNC_IO_USB)
-	target_link_libraries (
+if(BUILD_JNC_IO_USB)
+	target_link_libraries(
 		jnc_dll
 		${LIBUSB_LIB_NAME}
 		)
 
-	if (APPLE)
-		find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-		find_library (IOKIT_FRAMEWORK IOKit)
+	if(APPLE)
+		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library(IOKIT_FRAMEWORK IOKit)
 
-		target_link_libraries (
+		target_link_libraries(
 			jnc_dll
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
 			)
-	endif ()
+	endif()
 
-	if (LINUX)
-		target_link_libraries (
+	if(LINUX)
+		target_link_libraries(
 			jnc_dll
 			udev
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-set_target_properties (
+set_target_properties(
 	jnc_dll
 	PROPERTIES
 		LINKER_LANGUAGE CXX
@@ -150,7 +150,7 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	TARGETS jnc_dll
 	DESTINATION ${JANCY_INSTALL_DLL_SUBDIR}
 	)

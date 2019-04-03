@@ -9,32 +9,32 @@
 #
 #...............................................................................
 
-set (JANCY_BIN_BASE_DIR  "@JANCY_BIN_BASE_DIR@")
-set (JANCY_BIN_DIR       "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}")
-set (JANCY_DLL_BASE_DIR  "@JANCY_DLL_BASE_DIR@")
-set (JANCY_DLL_DIR       "@JANCY_DLL_BASE_DIR@/${CONFIGURATION}")
-set (JANCY_JNCX_BASE_DIR "@JANCY_DLL_BASE_DIR@")
-set (JANCY_JNCX_DIR      "@JANCY_DLL_BASE_DIR@/${CONFIGURATION}")
-set (JANCY_INC_DIR       "@JANCY_ROOT_DIR@/include")
-set (JANCY_LIB_BASE_DIR  "@JANCY_LIB_BASE_DIR@")
-set (JANCY_LIB_DIR       "@JANCY_LIB_BASE_DIR@/${CONFIGURATION}")
-set (JANCY_SPHINX_DIR    "@JANCY_ROOT_DIR@/sphinx")
+set(JANCY_BIN_BASE_DIR  "@JANCY_BIN_BASE_DIR@")
+set(JANCY_BIN_DIR       "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}")
+set(JANCY_DLL_BASE_DIR  "@JANCY_DLL_BASE_DIR@")
+set(JANCY_DLL_DIR       "@JANCY_DLL_BASE_DIR@/${CONFIGURATION}")
+set(JANCY_JNCX_BASE_DIR "@JANCY_DLL_BASE_DIR@")
+set(JANCY_JNCX_DIR      "@JANCY_DLL_BASE_DIR@/${CONFIGURATION}")
+set(JANCY_INC_DIR       "@JANCY_ROOT_DIR@/include")
+set(JANCY_LIB_BASE_DIR  "@JANCY_LIB_BASE_DIR@")
+set(JANCY_LIB_DIR       "@JANCY_LIB_BASE_DIR@/${CONFIGURATION}")
+set(JANCY_SPHINX_DIR    "@JANCY_ROOT_DIR@/sphinx")
 
-set (JANCY_EXE           "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}/jancy")
-set (JNC2CPP_PL          "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
+set(JANCY_EXE           "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}/jancy")
+set(JNC2CPP_PL          "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
 
-if (WIN32)
-	set (JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
-else ()
-	set (JANCY_DLL_NAME jancy)
-endif ()
+if(WIN32)
+	set(JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
+else()
+	set(JANCY_DLL_NAME jancy)
+endif()
 
-set (
+set(
 	JANCY_CMAKE_DIR
 	"@CMAKE_CURRENT_LIST_DIR@"
 	"@CMAKE_CURRENT_BINARY_DIR@"
 	)
 
-include ("@JANCY_ROOT_DIR@/version.cmake")
+include("@JANCY_ROOT_DIR@/version.cmake")
 
 #...............................................................................

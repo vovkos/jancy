@@ -13,19 +13,19 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_io_Pcap.h
 	jnc_io_PcapLib.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_io_Pcap.cpp
 	jnc_io_PcapLib.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -37,12 +37,12 @@ source_group (
 # jnc folder
 #
 
-set (
+set(
 	JNC_LIST
 	jnc/io_Pcap.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -53,10 +53,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -68,19 +68,19 @@ source_group (
 # jnc_io_pcap library
 #
 
-include_directories (
+include_directories(
 	${PCAP_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
 	)
 
-link_directories (
+link_directories(
 	${PCAP_LIB_DIR}
 	${AXL_LIB_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_io_pcap
 	SHARED
 	${PCH_H}
@@ -90,35 +90,35 @@ add_library (
 	${JNC_LIST}
 	)
 
-if (GCC AND NOT APPLE)
-	axl_set_export_version_script_gcc (
+if(GCC AND NOT APPLE)
+	axl_set_export_version_script_gcc(
 		jnc_io_pcap
 		jncDynamicExtensionLibMain
 		)
-endif ()
+endif()
 
-target_compile_definitions (
+target_compile_definitions(
 	jnc_io_pcap
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_io_pcap
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set (CMAKE_SHARED_LIBRARY_PREFIX)
+set(CMAKE_SHARED_LIBRARY_PREFIX)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_pcap
 	PROPERTIES
 	OUTPUT_NAME io_pcap-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_pcap
 	jnc_io_cmn
 	jnc_api_ext
@@ -126,27 +126,27 @@ target_link_libraries (
 	axl_core
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_io_pcap
 		wpcap
 		)
-elseif (UNIX)
-	target_link_libraries (
+elseif(UNIX)
+	target_link_libraries(
 		jnc_io_pcap
 		pthread
 		pcap
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_io_pcap
 			rt
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-set_target_properties (
+set_target_properties(
 	jnc_io_pcap
 	PROPERTIES
 	FOLDER extensions
@@ -157,9 +157,9 @@ set_target_properties (
 # io_pcap.jncx archive
 #
 
-set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-add_custom_target (
+add_custom_target(
 	jnc_io_pcap_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_pcap.jncx
@@ -168,7 +168,7 @@ add_custom_target (
 	jnc_io_pcap
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_pcap_jncx
 	PROPERTIES
 	FOLDER extensions
@@ -176,7 +176,7 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_pcap.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)

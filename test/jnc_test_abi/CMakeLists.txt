@@ -13,23 +13,23 @@
 # app folder
 #
 
-set (
+set(
 	APP_H_LIST
 	test.h
 	)
 
-set (
+set(
 	APP_CPP_LIST
 	main.cpp
 	test.cpp
 	)
 
-set (
+set(
 	APP_JNC_LIST
 	main.jnc
 	)
 
-source_group (
+source_group(
 	app
 	FILES
 	${APP_H_LIST}
@@ -42,10 +42,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -57,23 +57,23 @@ source_group (
 # jnc_test_abi (ABI-compatibility test)
 #
 
-include_directories (
+include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	)
 
-link_directories (${AXL_LIB_DIR})
+link_directories(${AXL_LIB_DIR})
 
-if (BUILD_JNC_DLL)
-	link_directories (
+if(BUILD_JNC_DLL)
+	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
 		)
-else ()
-	link_directories (${LLVM_LIB_DIR})
-endif ()
+else()
+	link_directories(${LLVM_LIB_DIR})
+endif()
 
-add_executable (
+add_executable(
 	jnc_test_abi
 	${PCH_H}
 	${PCH_CPP}
@@ -84,30 +84,30 @@ add_executable (
 	${GEN_H_LIST}
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_test_abi
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_test_abi
 	PROPERTIES
 	FOLDER test
 	)
 
-if (BUILD_JNC_DLL)
-	add_dependencies (
+if(BUILD_JNC_DLL)
+	add_dependencies(
 		jnc_test_abi
 		jnc_dll
 		)
 
-	target_link_libraries (
+	target_link_libraries(
 		jnc_test_abi
 		${JANCY_DLL_NAME}
 		)
-else ()
-	target_link_libraries (
+else()
+	target_link_libraries(
 		jnc_test_abi
 		jnc_api_core
 		jnc_ct
@@ -118,10 +118,10 @@ else ()
 		jnc_api_core
 		)
 
-	target_link_llvm_jit_libraries (jnc_test_abi)
-endif ()
+	target_link_llvm_jit_libraries(jnc_test_abi)
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_test_abi
 	axl_zip
 	axl_fsm
@@ -130,28 +130,28 @@ target_link_libraries (
 	axl_core
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_test_abi
 		ws2_32
 		)
-elseif (UNIX)
-	target_link_libraries (
+elseif(UNIX)
+	target_link_libraries(
 		jnc_test_abi
 		pthread
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_test_abi
 			rt
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
 #...............................................................................
 
-add_test (
+add_test(
 	NAME "jnc-test-abi"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
 	COMMAND jnc_test_abi main.jnc

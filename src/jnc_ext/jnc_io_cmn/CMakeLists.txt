@@ -13,7 +13,7 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_io_AsyncIoDevice.h
 	jnc_io_SocketAddress.h
@@ -21,14 +21,14 @@ set (
 	jnc_io_SocketBase.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_io_AsyncIoDevice.cpp
 	jnc_io_SocketAddress.cpp
 	jnc_io_SocketBase.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -40,10 +40,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -55,12 +55,12 @@ source_group (
 # jnc_io_cmn library
 #
 
-include_directories (
+include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_io_cmn
 	${PCH_H}
 	${PCH_CPP}
@@ -68,19 +68,19 @@ add_library (
 	${LIB_CPP_LIST}
 	)
 
-target_compile_definitions (
+target_compile_definitions(
 	jnc_io_cmn
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_io_cmn
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_cmn
 	PROPERTIES
 	FOLDER extensions

@@ -13,14 +13,14 @@
 # include folder
 #
 
-file (
+file(
 	GLOB
 	INC_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	include/*.h
 	)
 
-source_group (
+source_group(
 	include
 	FILES
 	${INC_H_LIST}
@@ -31,21 +31,21 @@ source_group (
 # jnc_ct_CallConv folder
 #
 
-file (
+file(
 	GLOB
 	CALLCONV_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_CallConv/*.h
 	)
 
-file (
+file(
 	GLOB
 	CALLCONV_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_CallConv/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_CallConv
 	FILES
 	${CALLCONV_H_LIST}
@@ -57,21 +57,21 @@ source_group (
 # jnc_ct_ControlFlowMgr folder
 #
 
-file (
+file(
 	GLOB
 	CONTROLFLOWMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_ControlFlowMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	CONTROLFLOWMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_ControlFlowMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_ControlFlowMgr
 	FILES
 	${CONTROLFLOWMGR_H_LIST}
@@ -83,28 +83,28 @@ source_group (
 # jnc_ct_DoxyMgr folder
 #
 
-file (
+file(
 	GLOB
 	DOXYMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_DoxyMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	DOXYMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_DoxyMgr/*.cpp
 	)
 
-file (
+file(
 	GLOB
 	DOXYMGR_RL_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_DoxyMgr/*.rl
 	)
 
-source_group (
+source_group(
 	jnc_ct_DoxyMgr
 	FILES
 	${DOXYMGR_H_LIST}
@@ -117,21 +117,21 @@ source_group (
 # jnc_ct_FunctionMgr folder
 #
 
-file (
+file(
 	GLOB
 	FUNCTIONMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_FunctionMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	FUNCTIONMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_FunctionMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_FunctionMgr
 	FILES
 	${FUNCTIONMGR_H_LIST}
@@ -143,21 +143,21 @@ source_group (
 # jnc_ct_NamespaceMgr folder
 #
 
-file (
+file(
 	GLOB
 	NAMESPACEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_NamespaceMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	NAMESPACEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_NamespaceMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_NamespaceMgr
 	FILES
 	${NAMESPACEMGR_H_LIST}
@@ -169,21 +169,21 @@ source_group (
 # jnc_ct_OperatorMgr folder
 #
 
-file (
+file(
 	GLOB
 	OPERATORMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_OperatorMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	OPERATORMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_OperatorMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_OperatorMgr
 	FILES
 	${OPERATORMGR_H_LIST}
@@ -195,21 +195,21 @@ source_group (
 # jnc_ct_TypeMgr folder
 #
 
-file (
+file(
 	GLOB
 	TYPEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_TypeMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	TYPEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_TypeMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_TypeMgr
 	FILES
 	${TYPEMGR_H_LIST}
@@ -221,21 +221,21 @@ source_group (
 # jnc_ct_VariableMgr folder
 #
 
-file (
+file(
 	GLOB
 	VARIABLEMGR_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_VariableMgr/*.h
 	)
 
-file (
+file(
 	GLOB
 	VARIABLEMGR_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_VariableMgr/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_VariableMgr
 	FILES
 	${VARIABLEMGR_H_LIST}
@@ -247,21 +247,21 @@ source_group (
 # jnc_ct_Value folder
 #
 
-file (
+file(
 	GLOB
 	VALUE_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Value/*.h
 	)
 
-file (
+file(
 	GLOB
 	VALUE_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Value/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_Value
 	FILES
 	${VALUE_H_LIST}
@@ -273,21 +273,21 @@ source_group (
 # jnc_ct_Module folder
 #
 
-file (
+file(
 	GLOB
 	MODULE_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Module/*.h
 	)
 
-file (
+file(
 	GLOB
 	MODULE_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Module/*.cpp
 	)
 
-source_group (
+source_group(
 	jnc_ct_Module
 	FILES
 	${MODULE_H_LIST}
@@ -299,35 +299,35 @@ source_group (
 # jnc_ct_Parser folder
 #
 
-file (
+file(
 	GLOB
 	PARSER_H_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.h
 	)
 
-file (
+file(
 	GLOB
 	PARSER_CPP_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.cpp
 	)
 
-file (
+file(
 	GLOB
 	PARSER_RL_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.rl
 	)
 
-file (
+file(
 	GLOB
 	PARSER_LLK_LIST
 	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
 	jnc_ct_Parser/*.llk
 	)
 
-source_group (
+source_group(
 	jnc_ct_Parser
 	FILES
 	${PARSER_H_LIST}
@@ -341,12 +341,12 @@ source_group (
 # perl folder
 #
 
-set (
+set(
 	PERL_PL_LIST
 	${JNC2CPP_PL}
 	)
 
-source_group (
+source_group(
 	perl
 	FILES
 	${PERL_PL_LIST}
@@ -357,9 +357,9 @@ source_group (
 # jnc folder
 #
 
-set (JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl/jnc)
+set(JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl/jnc)
 
-set (
+set(
 	JNC_LIST
 	${JNC_DIR}/jnc_StdTypes.jnc
 	${JNC_DIR}/jnc_StdFunctions.jnc
@@ -369,7 +369,7 @@ set (
 	${JNC_DIR}/jnc_Scheduler.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -380,58 +380,58 @@ source_group (
 # gen folder
 #
 
-set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${GEN_DIR})
+set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file(MAKE_DIRECTORY ${GEN_DIR})
 
-axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-add_perl_step (
+add_perl_step(
 	jnc_StdTypes.jnc.cpp
 	${JNC_DIR}/jnc_StdTypes.jnc
 	${JNC2CPP_PL}
 	)
 
-add_perl_step (
+add_perl_step(
 	jnc_StdFunctions.jnc.cpp
 	${JNC_DIR}/jnc_StdFunctions.jnc
 	${JNC2CPP_PL}
 	)
 
-add_perl_step (
+add_perl_step(
 	jnc_DynamicLib.jnc.cpp
 	${JNC_DIR}/jnc_DynamicLib.jnc
 	${JNC2CPP_PL}
 	)
 
-add_perl_step (
+add_perl_step(
 	jnc_Regex.jnc.cpp
 	${JNC_DIR}/jnc_Regex.jnc
 	${JNC2CPP_PL}
 	)
 
-add_perl_step (
+add_perl_step(
 	jnc_Promise.jnc.cpp
 	${JNC_DIR}/jnc_Promise.jnc
 	${JNC2CPP_PL}
 	)
 
-add_perl_step (
+add_perl_step(
 	jnc_Scheduler.jnc.cpp
 	${JNC_DIR}/jnc_Scheduler.jnc
 	${JNC2CPP_PL}
 	)
 
-add_ragel_step (
+add_ragel_step(
 	jnc_ct_DoxyLexer.rl.cpp
 	jnc_ct_DoxyMgr/jnc_ct_DoxyLexer.rl
 	)
 
-add_ragel_step (
+add_ragel_step(
 	jnc_ct_Lexer.rl.cpp
 	jnc_ct_Parser/jnc_ct_Lexer.rl
 	)
 
-add_graco_double_step (
+add_graco_double_step(
 	jnc_ct_Parser.llk.h
 	jnc_ct_Parser.llk.cpp
 	CppParser.h.in
@@ -448,9 +448,9 @@ add_graco_double_step (
 	jnc_ct_Parser/jnc_ct_Stmt.llk
 	)
 
-axl_pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
-set (
+set(
 	GEN_JNC_CPP_LIST
 	${GEN_DIR}/jnc_StdTypes.jnc.cpp
 	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
@@ -460,27 +460,27 @@ set (
 	${GEN_DIR}/jnc_Promise.jnc.cpp
 	)
 
-set (
+set(
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jnc_ct_Lexer.rl.cpp
 	${GEN_DIR}/jnc_ct_DoxyLexer.rl.cpp
 	)
 
-set (
+set(
 	GEN_LLK_H_LIST
 	${GEN_DIR}/jnc_ct_Parser.llk.h
 	)
 
-set (
+set(
 	GEN_LLK_CPP_LIST
 	${GEN_DIR}/jnc_ct_Parser.llk.cpp
 	)
 
-axl_exclude_from_build (${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
-axl_exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
-axl_exclude_from_build (${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
+axl_exclude_from_build(${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually
+axl_exclude_from_build(${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+axl_exclude_from_build(${GEN_LLK_CPP_LIST}) # include "*.llk.cpp" manually
 
-source_group (
+source_group(
 	gen
 	FILES
 	${GEN_JNC_CPP_LIST}
@@ -494,10 +494,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -509,7 +509,7 @@ source_group (
 # jnc_ct library
 #
 
-include_directories (
+include_directories(
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${GRACO_INC_DIR}
@@ -521,7 +521,7 @@ include_directories (
 	${GEN_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_ct
 	${PCH_H}
 	${PCH_CPP}
@@ -559,7 +559,7 @@ add_library (
 	# ${GEN_LLK_CPP_LIST} # currently, cmake can't handle double-file output
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_ct
 	${PCH_H}
 	${PCH_CPP}
@@ -567,7 +567,7 @@ axl_set_pch (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	TARGETS jnc_ct
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)

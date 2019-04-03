@@ -13,7 +13,7 @@
 # src folder
 #
 
-set (
+set(
 	SRC_H_LIST
 	AstDoc.h
 	AstPane.h
@@ -27,7 +27,7 @@ set (
 	test_ast.h
 	)
 
-set (
+set(
 	SRC_CPP_LIST
 	AstDoc.cpp
 	AstPane.cpp
@@ -40,7 +40,7 @@ set (
 	test_ast.cpp
 	)
 
-source_group (
+source_group(
 	src
 	FILES
 	${SRC_H_LIST}
@@ -52,7 +52,7 @@ source_group (
 # res folder
 #
 
-set (
+set(
 	RES_BMP_LIST
 	res/buttons.bmp
 	res/filelarge.bmp
@@ -71,24 +71,24 @@ set (
 	res/writesmall.bmp
 	)
 
-set (
+set(
 	RES_ICO_LIST
 	res/test_ast.ico
 	res/test_astDoc.ico
 	)
 
-set (
+set(
 	RES_XML_LIST
 	res/ribbon.mfcribbon-ms
 	)
 
-set (
+set(
 	RES_RC_LIST
 	test_ast.rc
 	res/test_ast.rc2
 	)
 
-source_group (
+source_group(
 	res
 	FILES
 	${RES_BMP_LIST}
@@ -102,10 +102,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -117,12 +117,12 @@ source_group (
 # jnc_test_mfc compiler test
 #
 
-include_directories (${PATH_LLVM_INC_DIR})
-link_directories (${PATH_LLVM_LIB_DIR}/$(Configuation))
+include_directories(${PATH_LLVM_INC_DIR})
+link_directories(${PATH_LLVM_LIB_DIR}/$(Configuation))
 
-set (CMAKE_MFC_FLAG 1)
+set(CMAKE_MFC_FLAG 1)
 
-add_executable (
+add_executable(
 	jnc_test_mfc WIN32
 	${PCH_H}
 	${PCH_CPP}
@@ -134,14 +134,14 @@ add_executable (
 	${RES_RC_LIST}
 	)
 
-llvm_map_components_to_libraries (
+llvm_map_components_to_libraries(
 	LLVM_LIB_LIST
 	jit
 	native
 	MCDisassembler
 	)
 
-target_link_libraries (
+target_link_libraries(
 	jnc_test_mfc
 	jnc_ct
 	jnc_rt
@@ -152,13 +152,13 @@ target_link_libraries (
 	${LLVM_LIB_LIST}
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_test_mfc
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_test_mfc
 	PROPERTIES
 	FOLDER test

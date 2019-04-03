@@ -13,7 +13,7 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_rtl_DynamicLib.h
 	jnc_rtl_DynamicLayout.h
@@ -23,7 +23,7 @@ set (
 	jnc_rtl_Regex.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_rtl_CoreLib.cpp
 	jnc_rtl_DynamicLib.cpp
@@ -35,7 +35,7 @@ set (
 	jnc_rtl_Regex.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -47,7 +47,7 @@ source_group (
 # jnc folder
 #
 
-set (
+set(
 	JNC_LIST
 	jnc/jnc_DynamicLib.jnc
 	jnc/jnc_Promise.jnc
@@ -58,7 +58,7 @@ set (
 	jnc/jnc_StdTypedefs.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -69,11 +69,11 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
-set (PCH_O_CPP pch_o.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
+set(PCH_O_CPP pch_o.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -85,7 +85,7 @@ source_group (
 # jnc_rtl library
 #
 
-include_directories (
+include_directories(
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
@@ -94,7 +94,7 @@ include_directories (
 	${GEN_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_rtl
 	${PCH_H}
 	${PCH_CPP}
@@ -103,13 +103,13 @@ add_library (
 	${JNC_LIST}
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_rtl
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_rtl
 	PROPERTIES
 	FOLDER extensions
@@ -119,8 +119,8 @@ set_target_properties (
 
 # object library to be re-used as sources for the jancy shared/dylib
 
-if (UNIX)
-	add_library (
+if(UNIX)
+	add_library(
 		jnc_rtl_o OBJECT
 		${PCH_H}
 		${PCH_O_CPP}
@@ -128,28 +128,28 @@ if (UNIX)
 		${LIB_CPP_LIST}
 		)
 
-	target_compile_definitions (
+	target_compile_definitions(
 		jnc_rtl_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
 		)
 
-	axl_set_pch (
+	axl_set_pch(
 		jnc_rtl_o
 		${PCH_H}
 		${PCH_O_CPP}
 		)
 
-	set_target_properties (
+	set_target_properties(
 		jnc_rtl_o
 		PROPERTIES
 		FOLDER extensions
 		)
-endif ()
+endif()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	TARGETS jnc_rtl
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)

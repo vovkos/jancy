@@ -13,19 +13,19 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_io_Ssh.h
 	jnc_io_SshLib.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_io_Ssh.cpp
 	jnc_io_SshLib.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -37,12 +37,12 @@ source_group (
 # jnc folder
 #
 
-set (
+set(
 	JNC_LIST
 	jnc/io_Ssh.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -53,10 +53,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -68,7 +68,7 @@ source_group (
 # jnc_io_ssh library
 #
 
-include_directories (
+include_directories(
 	${LIBSSH2_INC_DIR}
 	${OPENSSL_INC_DIR}
 	${AXL_INC_DIR}
@@ -76,13 +76,13 @@ include_directories (
 	../jnc_io_cmn
 	)
 
-link_directories (
+link_directories(
 	${LIBSSH2_LIB_DIR}
 	${OPENSSL_LIB_DIR}
 	${AXL_LIB_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_io_ssh
 	SHARED
 	${PCH_H}
@@ -93,35 +93,35 @@ add_library (
 	${GEN_JNC_CPP_LIST}
 	)
 
-target_compile_definitions (
+target_compile_definitions(
 	jnc_io_ssh
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
-if (GCC AND NOT APPLE)
-	axl_set_export_version_script_gcc (
+if(GCC AND NOT APPLE)
+	axl_set_export_version_script_gcc(
 		jnc_io_ssh
 		jncDynamicExtensionLibMain
 		)
-endif ()
+endif()
 
-axl_set_pch (
+axl_set_pch(
 	jnc_io_ssh
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set (CMAKE_SHARED_LIBRARY_PREFIX)
+set(CMAKE_SHARED_LIBRARY_PREFIX)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_ssh
 	PROPERTIES
 	OUTPUT_NAME io_ssh-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_ssh
 	jnc_io_cmn
 	jnc_api_ext
@@ -131,45 +131,45 @@ target_link_libraries (
 	${OPENSSL_SSL_LIB_NAME}
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_io_ssh
 		libssh2
 		)
-elseif (UNIX)
-	target_link_libraries (
+elseif(UNIX)
+	target_link_libraries(
 		jnc_io_ssh
 		ssh2
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_io_ssh
 			crypto
 			rt
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-set_target_properties (
+set_target_properties(
 	jnc_io_ssh
 	PROPERTIES
 	FOLDER extensions
 	)
 
-if (WIN32)
-	set (_DLL_LIST)
+if(WIN32)
+	set(_DLL_LIST)
 
-	if (LIBSSH2_DLL_DIR)
-		list (APPEND _DLL_LIST ${LIBSSH2_DLL_DIR}/libssh2.dll)
-	endif ()
+	if(LIBSSH2_DLL_DIR)
+		list(APPEND _DLL_LIST ${LIBSSH2_DLL_DIR}/libssh2.dll)
+	endif()
 
-	if (OPENSSL_DLL_DIR)
-		list (APPEND _DLL_LIST ${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll)
-	endif ()
+	if(OPENSSL_DLL_DIR)
+		list(APPEND _DLL_LIST ${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll)
+	endif()
 
-	if (_DLL_LIST)
-		add_custom_command (
+	if(_DLL_LIST)
+		add_custom_command(
 			TARGET jnc_io_ssh
 			POST_BUILD
 			COMMAND
@@ -179,17 +179,17 @@ if (WIN32)
 				${_DLL_LIST}
 				${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
 #...............................................................................
 #
 # io_ssh.jncx archive
 #
 
-set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-add_custom_target (
+add_custom_target(
 	jnc_io_ssh_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_ssh.jncx
@@ -198,7 +198,7 @@ add_custom_target (
 	jnc_io_ssh
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_ssh_jncx
 	PROPERTIES
 	FOLDER extensions
@@ -206,7 +206,7 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_ssh.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)

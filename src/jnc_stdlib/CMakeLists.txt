@@ -13,9 +13,9 @@
 # jnc_stdlib.jncx archive
 #
 
-set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-add_custom_target (
+add_custom_target(
 	jnc_stdlib_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/jnc_stdlib.jncx
@@ -29,7 +29,7 @@ add_custom_target (
 		${CMAKE_CURRENT_LIST_DIR}/.forced.jnc
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_stdlib_jncx
 	PROPERTIES
 	FOLDER extensions

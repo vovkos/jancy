@@ -13,16 +13,16 @@
 # shortcut -- protocol-only io_devmon.jncx
 #
 
-if (NOT DEVMON_FOUND)
-	set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+if(NOT DEVMON_FOUND)
+	set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-	configure_file (
+	configure_file(
 		${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-proto.jnc
 		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
 		COPYONLY
 		)
 
-	add_custom_target (
+	add_custom_target(
 		jnc_io_devmon_jncx
 		ALL
 		COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_devmon.jncx
@@ -36,38 +36,38 @@ if (NOT DEVMON_FOUND)
 			${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
 		)
 
-	set_target_properties (
+	set_target_properties(
 		jnc_io_devmon_jncx
 		PROPERTIES
 		FOLDER extensions
 		)
 
-	install (
+	install(
 		FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_devmon.jncx
 		DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 		)
 
-	return ()
-endif ()
+	return()
+endif()
 
 #...............................................................................
 #
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_io_DevMonLib.h
 	jnc_io_DeviceMonitor.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_io_DevMonLib.cpp
 	jnc_io_DeviceMonitor.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -79,7 +79,7 @@ source_group (
 # jnc folder
 #
 
-set (
+set(
 	JNC_LIST
 	jnc/.forced-full.jnc
 	jnc/.forced-proto.jnc
@@ -89,7 +89,7 @@ set (
 	jnc/io_lnx_DeviceMonitorNotify.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -100,10 +100,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -115,23 +115,23 @@ source_group (
 # jnc_io_devmon library
 #
 
-if (NOT WIN32 AND NOT LINUX)
-	message (FATAL "jnc_io_devmon is currently Windows/Linux only")
-endif ()
+if(NOT WIN32 AND NOT LINUX)
+	message(FATAL "jnc_io_devmon is currently Windows/Linux only")
+endif()
 
-include_directories (
+include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${DEVMON_INC_DIR}
 	../jnc_io_cmn
 	)
 
-link_directories (
+link_directories(
 	${AXL_LIB_DIR}
 	${DEVMON_LIB_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_io_devmon
 	SHARED
 	${PCH_H}
@@ -141,61 +141,61 @@ add_library (
 	${JNC_LIST}
 	)
 
-target_compile_definitions (
+target_compile_definitions(
 	jnc_io_devmon
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
-if (GCC AND NOT APPLE)
-	axl_set_export_version_script_gcc (
+if(GCC AND NOT APPLE)
+	axl_set_export_version_script_gcc(
 		jnc_io_devmon
 		jncDynamicExtensionLibMain
 		)
-endif ()
+endif()
 
-axl_set_pch (
+axl_set_pch(
 	jnc_io_devmon
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set (CMAKE_SHARED_LIBRARY_PREFIX)
+set(CMAKE_SHARED_LIBRARY_PREFIX)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_devmon
 	PROPERTIES
 	OUTPUT_NAME io_devmon-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_devmon
 	jnc_io_cmn
 	jnc_api_ext
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_io_devmon
 		dm_win_lib
 		)
-elseif (LINUX)
-	target_link_libraries (
+elseif(LINUX)
+	target_link_libraries(
 		jnc_io_devmon
 		dm_lnx_lib
 		pthread
 		rt
 		)
-endif ()
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_devmon
 	axl_io
 	axl_core
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_devmon
 	PROPERTIES
 	FOLDER extensions
@@ -206,15 +206,15 @@ set_target_properties (
 # io_devmon.jncx archive
 #
 
-set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-configure_file (
+configure_file(
 	${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-full.jnc
 	${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
 	COPYONLY
 	)
 
-add_custom_target (
+add_custom_target(
 	jnc_io_devmon_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_devmon.jncx
@@ -228,7 +228,7 @@ add_custom_target (
 	jnc_io_devmon
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_devmon_jncx
 	PROPERTIES
 	FOLDER extensions
@@ -236,7 +236,7 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_devmon.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)

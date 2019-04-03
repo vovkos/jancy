@@ -9,28 +9,28 @@
 #
 #...............................................................................
 
-set (DOC_NAME "Jancy Standard Library Reference")
+set(DOC_NAME "Jancy Standard Library Reference")
 
-set (TEX_BASE_NAME jancy-stdlib-${JANCY_VERSION_FILE_SUFFIX})
-set (TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
-set (PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
+set(TEX_BASE_NAME jancy-stdlib-${JANCY_VERSION_FILE_SUFFIX})
+set(TEX_FILE_NAME ${TEX_BASE_NAME}.tex)
+set(PDF_FILE_NAME ${TEX_BASE_NAME}.pdf)
 
-set (STATIC_RST_DIR ${CMAKE_CURRENT_LIST_DIR}/rst)
+set(STATIC_RST_DIR ${CMAKE_CURRENT_LIST_DIR}/rst)
 
-set (XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
-set (RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
-set (TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
-set (TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
-set (HTML_DIR ${JANCY_DOC_DIR}/html/stdlib)
-set (PDF_DIR  ${JANCY_DOC_DIR}/pdf)
+set(XML_DIR  ${CMAKE_CURRENT_BINARY_DIR}/xml)
+set(RST_DIR  ${CMAKE_CURRENT_BINARY_DIR}/rst)
+set(TEX_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tex)
+set(TMP_DIR  ${CMAKE_CURRENT_BINARY_DIR}/tmp)
+set(HTML_DIR ${JANCY_DOC_DIR}/html/stdlib)
+set(PDF_DIR  ${JANCY_DOC_DIR}/pdf)
 
-set (SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
+set(SPHINX_HTML_THEME ${AXL_SPHINX_HTML_THEME})
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-set (_EXT_DIR ${JANCY_SRC_DIR}/jnc_ext)
+set(_EXT_DIR ${JANCY_SRC_DIR}/jnc_ext)
 
-set (
+set(
 	JANCY_CMD_LINE
 	-d
 	--std-lib-doc
@@ -54,10 +54,10 @@ set (
 	-S ${CMAKE_CURRENT_LIST_DIR}/dox
 	)
 
-set (XMLGEN_EXE ${JANCY_EXE})
-set (XMLGEN_CMD_LINE ${JANCY_CMD_LINE})
+set(XMLGEN_EXE ${JANCY_EXE})
+set(XMLGEN_CMD_LINE ${JANCY_CMD_LINE})
 
-set (
+set(
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
 	-o ${RST_DIR}/index.rst
@@ -69,7 +69,7 @@ set (
 	-f c_index.rst.in
 	)
 
-set (
+set(
 	SPHINX_HTML_CMD_LINE
 	-b html
 	-d ${TMP_DIR}/sphinx-doctrees
@@ -78,7 +78,7 @@ set (
 	${HTML_DIR}
 	)
 
-set (
+set(
 	SPHINX_TEX_CMD_LINE
 	-b latex
 	-d ${TMP_DIR}/sphinx-doctrees
@@ -87,7 +87,7 @@ set (
 	${TEX_DIR}
 	)
 
-set (
+set(
 	PDFLATEX_MIKTEX_CMD_LINE
 	-quiet
 	-output-directory=${PDF_DIR}
@@ -95,7 +95,7 @@ set (
 	${TEX_FILE_NAME}
 	)
 
-set (
+set(
 	PDFLATEX_TEXLIVE_CMD_LINE
 	-interaction=batchmode
 	-output-directory=${TMP_DIR}
@@ -104,7 +104,7 @@ set (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-set (
+set(
 	CMD_LINE_VAR_LIST
 
 	XMLGEN_CMD_LINE
@@ -115,47 +115,47 @@ set (
 	PDFLATEX_TEXLIVE_CMD_LINE
 	)
 
-foreach (_VAR ${CMD_LINE_VAR_LIST})
-	string (
+foreach(_VAR ${CMD_LINE_VAR_LIST})
+	string(
 		REPLACE
 		";" " "
 		${_VAR}
 		"${${_VAR}}"
 		)
-endforeach ()
+endforeach()
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-configure_file (
+configure_file(
 	conf.py.in
 	conf.py
 	)
 
-if (WIN32)
-	string (REPLACE "$(Configuration)" "%1" XMLGEN_EXE "${XMLGEN_EXE}")
-	string (REPLACE "$(Configuration)" "%1" DOXYREST_EXE "${DOXYREST_EXE}")
+if(WIN32)
+	string(REPLACE "$(Configuration)" "%1" XMLGEN_EXE "${XMLGEN_EXE}")
+	string(REPLACE "$(Configuration)" "%1" DOXYREST_EXE "${DOXYREST_EXE}")
 
-	configure_file (
+	configure_file(
 		${AXL_DOC_SHARE_DIR}/sh/build-xml.bat.in
 		build-xml.bat
 		)
 
-	configure_file (
+	configure_file(
 		${AXL_DOC_SHARE_DIR}/sh/build-rst.bat.in
 		build-rst.bat
 		)
 
-	configure_file (
+	configure_file(
 		${AXL_DOC_SHARE_DIR}/sh/build-html.bat.in
 		build-html.bat
 		)
 
-	configure_file (
+	configure_file(
 		${AXL_DOC_SHARE_DIR}/sh/build-pdf.bat.in
 		build-pdf.bat
 		)
-else ()
-	axl_configure_file_w_permissions (
+else()
+	axl_configure_file_w_permissions(
 		${AXL_DOC_SHARE_DIR}/sh/build-xml.sh.in
 		build-xml.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
@@ -163,7 +163,7 @@ else ()
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 
-	axl_configure_file_w_permissions (
+	axl_configure_file_w_permissions(
 		${AXL_DOC_SHARE_DIR}/sh/build-rst.sh.in
 		build-rst.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
@@ -171,7 +171,7 @@ else ()
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 
-	axl_configure_file_w_permissions (
+	axl_configure_file_w_permissions(
 		${AXL_DOC_SHARE_DIR}/sh/build-html.sh.in
 		build-html.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
@@ -179,13 +179,13 @@ else ()
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 
-	axl_configure_file_w_permissions (
+	axl_configure_file_w_permissions(
 		${AXL_DOC_SHARE_DIR}/sh/build-pdf.sh.in
 		build-pdf.sh
 		OWNER_READ OWNER_WRITE OWNER_EXECUTE
 		GROUP_READ GROUP_WRITE GROUP_EXECUTE
 		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
-endif ()
+endif()
 
 #...............................................................................

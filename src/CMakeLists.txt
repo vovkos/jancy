@@ -9,42 +9,42 @@
 #
 #...............................................................................
 
-add_subdirectory (jnc_ct)
-add_subdirectory (jnc_rt)
-add_subdirectory (jnc_ext) # ext BEFORE everything api, app & dll (we need BUILD_JNC_IO_USB)
-add_subdirectory (jnc_api)
+add_subdirectory(jnc_ct)
+add_subdirectory(jnc_rt)
+add_subdirectory(jnc_ext) # ext BEFORE everything api, app & dll (we need BUILD_JNC_IO_USB)
+add_subdirectory(jnc_api)
 
-option (
+option(
 	BUILD_JNC_APP
 	"Build jancy command line application"
 	ON
 	)
 
-option (
+option(
 	BUILD_JNC_DLL
 	"Build jancy shared library"
 	ON
 	)
 
-option (
+option(
 	BUILD_JNC_STDLIB
-	"Build jnc_stdlib.jncx (for IDE)"
+	"Build jnc_stdlib.jncx(for IDE)"
 	ON
 	)
 
-if (BUILD_JNC_APP)
-	add_subdirectory (jnc_app)
-endif ()
+if(BUILD_JNC_APP)
+	add_subdirectory(jnc_app)
+endif()
 
-if (BUILD_JNC_DLL)
-	set (JNC_LIBRARY_OBJECT OBJECT)
-	add_subdirectory (jnc_dll)
-else ()
-	set (JNC_LIBRARY_OBJECT)
-endif ()
+if(BUILD_JNC_DLL)
+	set(JNC_LIBRARY_OBJECT OBJECT)
+	add_subdirectory(jnc_dll)
+else()
+	set(JNC_LIBRARY_OBJECT)
+endif()
 
-if (BUILD_JNC_STDLIB)
-	add_subdirectory (jnc_stdlib)
-endif ()
+if(BUILD_JNC_STDLIB)
+	add_subdirectory(jnc_stdlib)
+endif()
 
 #...............................................................................

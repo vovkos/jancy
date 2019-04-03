@@ -13,21 +13,21 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_rt_ExceptionMgr.h
 	jnc_rt_Runtime.h
 	jnc_rt_GcHeap.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_rt_ExceptionMgr.cpp
 	jnc_rt_Runtime.cpp
 	jnc_rt_GcHeap.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -39,10 +39,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -54,7 +54,7 @@ source_group (
 # jnc_rt library
 #
 
-include_directories (
+include_directories(
 	${LLVM_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
@@ -63,7 +63,7 @@ include_directories (
 	${GEN_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_rt
 	${PCH_H}
 	${PCH_CPP}
@@ -71,7 +71,7 @@ add_library (
 	${LIB_CPP_LIST}
 	)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_rt
 	${PCH_H}
 	${PCH_CPP}
@@ -79,7 +79,7 @@ axl_set_pch (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	TARGETS jnc_rt
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)

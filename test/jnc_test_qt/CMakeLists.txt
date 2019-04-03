@@ -13,7 +13,7 @@
 # app folder
 #
 
-set (
+set(
 	APP_H_LIST
 	editor.h
 	highlighter.h
@@ -27,7 +27,7 @@ set (
 	testlib.h
 	)
 
-set (
+set(
 	APP_CPP_LIST
 	editor.cpp
 	highlighter.cpp
@@ -42,13 +42,13 @@ set (
 	testlib.cpp
 	)
 
-set (
+set(
 	APP_RL_LIST
 	jancyhighlighter.rl
 	llvmirhighlighter.rl
 	)
 
-source_group (
+source_group(
 	app
 	FILES
 	${APP_H_LIST}
@@ -61,7 +61,7 @@ source_group (
 # res folder
 #
 
-set (
+set(
 	RES_PNG_LIST
 	res/compile.png
 	res/new.png
@@ -70,12 +70,12 @@ set (
 	res/save.png
 	)
 
-set (
+set(
 	RES_QRC_LIST
 	jancyedit.qrc
 	)
 
-source_group (
+source_group(
 	res
 	FILES
 	${RES_PNG_LIST}
@@ -87,10 +87,10 @@ source_group (
 # gen folder
 #
 
-set (GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file (MAKE_DIRECTORY ${GEN_DIR})
+set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file(MAKE_DIRECTORY ${GEN_DIR})
 
-set (
+set(
 	MOC_H_LIST
 	editor.h
 	highlighter.h
@@ -103,41 +103,41 @@ set (
 	output.h
 	)
 
-axl_push_and_set (CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-qt5_wrap_cpp (
+qt5_wrap_cpp(
 	GEN_MOC_CPP_LIST
 	${MOC_H_LIST}
 	)
 
-qt5_add_resources (
+qt5_add_resources(
 	GEN_QRC_CPP_LIST
 	${RES_QRC_LIST}
 	)
 
-add_ragel_step (
+add_ragel_step(
 	jancyhighlighter.rl.cpp
 	jancyhighlighter.rl
 	)
 
-add_ragel_step (
+add_ragel_step(
 	llvmirhighlighter.rl.cpp
 	llvmirhighlighter.rl
 	)
 
-set (
+set(
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jancyhighlighter.rl.cpp
 	${GEN_DIR}/llvmirhighlighter.rl.cpp
 	)
 
-axl_pop (CMAKE_CURRENT_BINARY_DIR)
+axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
-axl_exclude_from_build (${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
-axl_exclude_from_build (${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
-axl_exclude_from_build (${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
+axl_exclude_from_build(${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+axl_exclude_from_build(${GEN_QRC_CPP_LIST}) # include "qrc_*.cpp" manually
+axl_exclude_from_build(${GEN_RL_CPP_LIST})  # include "*.rl.cpp" manually
 
-source_group (
+source_group(
 	gen
 	FILES
 	${GEN_RL_CPP_LIST}
@@ -150,10 +150,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H   pch.h)
-set (PCH_CPP pch.cpp)
+set(PCH_H   pch.h)
+set(PCH_CPP pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -165,39 +165,39 @@ source_group (
 # jnc_test_qt compiler test
 #
 
-if (MSVC)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200")
-endif ()
+if(MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200")
+endif()
 
-include_directories (
+include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	${GEN_DIR}
 	)
 
-link_directories (${AXL_LIB_DIR})
+link_directories(${AXL_LIB_DIR})
 
-if (BUILD_JNC_DLL)
-	link_directories (
+if(BUILD_JNC_DLL)
+	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
 		)
-else ()
-	link_directories (${LLVM_LIB_DIR})
-endif ()
+else()
+	link_directories(${LLVM_LIB_DIR})
+endif()
 
-if (BUILD_JNC_IO_USB)
-	include_directories (${LIBUSB_INC_DIR})
-	link_directories (${LIBUSB_LIB_DIR})
-	add_definitions (-D_JNC_IO_USB=1)
-endif ()
+if(BUILD_JNC_IO_USB)
+	include_directories(${LIBUSB_INC_DIR})
+	link_directories(${LIBUSB_LIB_DIR})
+	add_definitions(-D_JNC_IO_USB=1)
+endif()
 
-add_definitions (
+add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
 	)
 
-add_executable (
+add_executable(
 	jnc_test_qt
 	${PCH_H}
 	${PCH_CPP}
@@ -212,33 +212,33 @@ add_executable (
 	${GEN_RL_CPP_LIST}
 	)
 
-qt5_use_modules (jnc_test_qt Widgets)
+qt5_use_modules(jnc_test_qt Widgets)
 
-axl_set_pch (
+axl_set_pch(
 	jnc_test_qt
 	${PCH_H}
 	${PCH_CPP}
 	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_test_qt
 	PROPERTIES
 	FOLDER test
 	)
 
-if (BUILD_JNC_DLL)
-	add_dependencies (
+if(BUILD_JNC_DLL)
+	add_dependencies(
 		jnc_test_qt
 		jnc_dll
 		)
 
-	target_link_libraries (
+	target_link_libraries(
 		jnc_test_qt
 		${JANCY_DLL_NAME}
 		)
-else ()
-	target_link_libraries (
+else()
+	target_link_libraries(
 		jnc_test_qt
 		jnc_api_core
 		jnc_ct
@@ -249,10 +249,10 @@ else ()
 		jnc_api_core
 		)
 
-	target_link_llvm_jit_libraries (jnc_test_qt)
-endif ()
+	target_link_llvm_jit_libraries(jnc_test_qt)
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_test_qt
 	axl_zip
 	axl_fsm
@@ -261,63 +261,63 @@ target_link_libraries (
 	axl_core
 	)
 
-if (WIN32)
-	target_link_libraries (
+if(WIN32)
+	target_link_libraries(
 		jnc_test_qt
 		ws2_32
 		)
-elseif (UNIX)
-	target_link_libraries (
+elseif(UNIX)
+	target_link_libraries(
 		jnc_test_qt
 		pthread
 		)
 
-	if (NOT APPLE)
-		target_link_libraries (
+	if(NOT APPLE)
+		target_link_libraries(
 			jnc_test_qt
 			rt
 			)
 
-		add_qt_rpath_link ()
-	endif ()
-endif ()
+		add_qt_rpath_link()
+	endif()
+endif()
 
-if (BUILD_JNC_IO_USB)
-	if (WIN32)
-		target_link_libraries (
+if(BUILD_JNC_IO_USB)
+	if(WIN32)
+		target_link_libraries(
 			jnc_test_qt
 			libusb-1.0
 			)
-	else ()
-		target_link_libraries (
+	else()
+		target_link_libraries(
 			jnc_test_qt
 			usb-1.0
 			)
 
-		if (APPLE)
-			find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-			find_library (IOKIT_FRAMEWORK IOKit)
+		if(APPLE)
+			find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+			find_library(IOKIT_FRAMEWORK IOKit)
 
-			target_link_libraries (
+			target_link_libraries(
 				jnc_test_qt
 				${CORE_FOUNDATION_FRAMEWORK}
 				${IOKIT_FRAMEWORK}
 				)
-		endif ()
+		endif()
 
-		if (LINUX)
-			target_link_libraries (
+		if(LINUX)
+			target_link_libraries(
 				jnc_test_qt
 				udev
 				)
-		endif ()
-	endif ()
-endif ()
+		endif()
+	endif()
+endif()
 
-if (WIN32 AND QT_DLL_DIR)
-	set (_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
+if(WIN32 AND QT_DLL_DIR)
+	set(_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
 
-	add_custom_command (
+	add_custom_command(
 		TARGET jnc_test_qt
 		POST_BUILD
 		COMMAND
@@ -329,6 +329,6 @@ if (WIN32 AND QT_DLL_DIR)
 			${QT_DLL_DIR}/Qt5Widgets${_DEBUG_SUFFIX}.dll
 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 		)
-endif ()
+endif()
 
 #...............................................................................

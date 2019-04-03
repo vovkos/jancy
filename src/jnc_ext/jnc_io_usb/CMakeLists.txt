@@ -13,7 +13,7 @@
 # lib folder
 #
 
-set (
+set(
 	LIB_H_LIST
 	jnc_io_UsbDesc.h
 	jnc_io_UsbEndpoint.h
@@ -23,7 +23,7 @@ set (
 	jnc_io_UsbLib.h
 	)
 
-set (
+set(
 	LIB_CPP_LIST
 	jnc_io_UsbDesc.cpp
 	jnc_io_UsbEndpoint.cpp
@@ -33,7 +33,7 @@ set (
 	jnc_io_UsbLib.cpp
 	)
 
-source_group (
+source_group(
 	lib
 	FILES
 	${LIB_H_LIST}
@@ -45,14 +45,14 @@ source_group (
 # jnc folder
 #
 
-set (
+set(
 	JNC_LIST
 	jnc/io_UsbDevice.jnc
 	jnc/io_UsbInterface.jnc
 	jnc/io_UsbEndpoint.jnc
 	)
 
-source_group (
+source_group(
 	jnc
 	FILES
 	${JNC_LIST}
@@ -63,10 +63,10 @@ source_group (
 # pch folder
 #
 
-set (PCH_H     pch.h)
-set (PCH_CPP   pch.cpp)
+set(PCH_H     pch.h)
+set(PCH_CPP   pch.cpp)
 
-source_group (
+source_group(
 	pch
 	FILES
 	${PCH_H}
@@ -78,19 +78,19 @@ source_group (
 # jnc_io_usb library
 #
 
-include_directories (
+include_directories(
 	${LIBUSB_INC_DIR}
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
 	../jnc_io_cmn
 	)
 
-link_directories (
+link_directories(
 	${LIBUSB_LIB_DIR}
 	${AXL_LIB_DIR}
 	)
 
-add_library (
+add_library(
 	jnc_io_usb
 	SHARED
 	${PCH_H}
@@ -100,35 +100,35 @@ add_library (
 	${JNC_LIST}
 	)
 
-target_compile_definitions (
+target_compile_definitions(
 	jnc_io_usb
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
-if (GCC AND NOT APPLE)
-	axl_set_export_version_script_gcc (
+if(GCC AND NOT APPLE)
+	axl_set_export_version_script_gcc(
 		jnc_io_usb
 		jncDynamicExtensionLibMain
 		)
-endif ()
+endif()
 
-axl_set_pch (
+axl_set_pch(
 	jnc_io_usb
 	${PCH_H}
 	${PCH_CPP}
 	)
 
-set (CMAKE_SHARED_LIBRARY_PREFIX)
+set(CMAKE_SHARED_LIBRARY_PREFIX)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_usb
 	PROPERTIES
 	OUTPUT_NAME io_usb-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_usb
 	jnc_io_cmn
 	jnc_api_ext
@@ -136,44 +136,44 @@ target_link_libraries (
 	axl_core
 	)
 
-if (UNIX)
-	if (APPLE)
-		find_library (CORE_FOUNDATION_FRAMEWORK CoreFoundation)
-		find_library (IOKIT_FRAMEWORK IOKit)
+if(UNIX)
+	if(APPLE)
+		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library(IOKIT_FRAMEWORK IOKit)
 
-		target_link_libraries (
+		target_link_libraries(
 			jnc_io_usb
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
 			)
-	else ()
-		target_link_libraries (
+	else()
+		target_link_libraries(
 			jnc_io_usb
 			rt
 			)
-	endif ()
-endif ()
+	endif()
+endif()
 
-target_link_libraries (
+target_link_libraries(
 	jnc_io_usb
 	${LIBUSB_LIB_NAME}
 	)
 
-if (LINUX)
-	target_link_libraries (
+if(LINUX)
+	target_link_libraries(
 		jnc_io_usb
 		udev
 		)
-endif ()
+endif()
 
-set_target_properties (
+set_target_properties(
 	jnc_io_usb
 	PROPERTIES
 	FOLDER extensions
 	)
 
-if (WIN32 AND LIBUSB_DLL_DIR)
-	add_custom_command (
+if(WIN32 AND LIBUSB_DLL_DIR)
+	add_custom_command(
 		TARGET jnc_io_usb
 		POST_BUILD
 		COMMAND
@@ -183,16 +183,16 @@ if (WIN32 AND LIBUSB_DLL_DIR)
 			${LIBUSB_DLL_DIR}/libusb-1.0.dll
 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CONFIGURATION}
 		)
-endif ()
+endif()
 
 #...............................................................................
 #
 # io_usb.jncx archive
 #
 
-set (DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 
-add_custom_target (
+add_custom_target(
 	jnc_io_usb_jncx
 	ALL
 	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_usb.jncx
@@ -201,7 +201,7 @@ add_custom_target (
 	jnc_io_usb
 	)
 
-set_target_properties (
+set_target_properties(
 	jnc_io_usb_jncx
 	PROPERTIES
 	FOLDER extensions
@@ -209,7 +209,7 @@ set_target_properties (
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-install (
+install(
 	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_usb.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
