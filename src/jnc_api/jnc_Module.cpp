@@ -399,69 +399,9 @@ jnc_Module_generateDocumentation(
 	const char* outputDir
 	)
 {
-	static char indexFileHdr[] =
-		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
-		"<doxygenindex>\n";
-
-	static char indexFileTerm[] = "</doxygenindex>\n";
-
-	static char compoundFileHdr[] =
-		"<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
-		"<doxygen>\n";
-
-	static char compoundFileTerm[] = "</doxygen>\n";
-
-	bool result;
-
-	result =
-		module->link() &&
-		io::ensureDirExists(outputDir);
-
-	if (!result)
-		return false;
-
-	result = module->m_doxyMgr.resolveBlockTargets();
-	if (!result)
-	{
-		// generate a warning about orphan doxy blocks?
-	}
-
-	sl::String nspaceXml;
-	sl::String indexXml;
-
-	jnc::GlobalNamespace* nspace = module->m_namespaceMgr.getGlobalNamespace();
-
-	result = nspace->generateDocumentation(outputDir, &nspaceXml, &indexXml);
-	if (!result)
-		return false;
-
-	if (nspaceXml.isEmpty())
-	{
-		err::setError("module does not contain any documentable items");
-		return false;
-	}
-
-	module->m_doxyMgr.deleteEmptyGroups();
-
-	result = module->m_doxyMgr.generateGroupDocumentation(outputDir, &indexXml);
-	if (!result)
-		return false;
-
-	sl::String refId = module->m_doxyMgr.getDoxyBlock(nspace)->getRefId();
-	sl::String nspaceFileName = sl::String(outputDir) + "/" + refId + ".xml";
-	sl::String indexFileName = sl::String(outputDir) + "/index.xml";
-
-	io::File file;
 	return
-		file.open(nspaceFileName, io::FileFlag_Clear) &&
-		file.write(compoundFileHdr, lengthof(compoundFileHdr)) != -1 &&
-		file.write(nspaceXml, nspaceXml.getLength()) != -1 &&
-		file.write(compoundFileTerm, lengthof(compoundFileTerm)) != -1 &&
-
-		file.open(indexFileName, io::FileFlag_Clear) &&
-		file.write(indexFileHdr, lengthof(indexFileHdr)) != -1 &&
-		file.write(indexXml, indexXml.getLength()) != -1 &&
-		file.write(indexFileTerm, lengthof(indexFileTerm)) != -1;
+		module->link() &&
+		module->m_doxyModule.generateDocumentation(outputDir);
 }
 
 JNC_EXTERN_C

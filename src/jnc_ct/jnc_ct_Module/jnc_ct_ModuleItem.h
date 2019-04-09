@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include "jnc_ct_Lexer.h"
 #include "jnc_ModuleItem.h"
+#include "jnc_ct_Lexer.h"
 
 namespace jnc {
 namespace ct {
@@ -26,7 +26,6 @@ class DerivableType;
 class ClassType;
 class Function;
 class Property;
-class DoxyBlock;
 
 //..............................................................................
 
@@ -85,10 +84,10 @@ public:
 class ModuleItemDecl: public ModuleItemPos
 {
 	friend class ModuleItem;
+	friend class DoxyHost;
 	friend class Parser;
 	friend class Namespace;
 	friend class ControlFlowMgr;
-	friend class DoxyMgr;
 	friend class Orphan;
 
 protected:
@@ -98,7 +97,7 @@ protected:
 	sl::String m_qualifiedName;
 	Namespace* m_parentNamespace;
 	AttributeBlock* m_attributeBlock;
-	DoxyBlock* m_doxyBlock;
+	dox::Block* m_doxyBlock;
 
 public:
 	ModuleItemDecl();
@@ -140,6 +139,12 @@ public:
 	getAttributeBlock()
 	{
 		return m_attributeBlock;
+	}
+
+	dox::Block*
+	getDoxyBlock()
+	{
+		return m_doxyBlock;
 	}
 
 	void

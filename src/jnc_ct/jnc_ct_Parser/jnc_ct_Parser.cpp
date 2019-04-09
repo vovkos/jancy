@@ -26,7 +26,7 @@ namespace ct {
 //..............................................................................
 
 Parser::Parser(Module* module):
-	m_doxyParser(module)
+	m_doxyParser(&module->m_doxyModule)
 {
 	m_module = module;
 	m_stage = Stage_Pass1;
@@ -649,7 +649,7 @@ Parser::assignDeclarationAttributes(
 	ModuleItemDecl* decl,
 	const Token::Pos& pos,
 	AttributeBlock* attributeBlock,
-	DoxyBlock* doxyBlock
+	dox::Block* doxyBlock
 	)
 {
 	decl->m_accessKind = m_accessKind ?
@@ -667,7 +667,7 @@ Parser::assignDeclarationAttributes(
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock();
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_Documentation)
-		m_module->m_doxyMgr.setDoxyBlock(item, decl, doxyBlock ? doxyBlock : m_doxyParser.popBlock());
+		m_module->m_doxyHost.setItemBlock(item, decl, doxyBlock ? doxyBlock : m_doxyParser.popBlock());
 
 	item->m_flags |= ModuleItemFlag_User;
 	m_lastDeclaredItem = item;

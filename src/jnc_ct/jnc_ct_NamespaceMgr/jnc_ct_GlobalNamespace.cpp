@@ -33,7 +33,7 @@ GlobalNamespace::createDoxyRefId()
 		refId.makeLowerCase();
 	}
 
-	return m_module->m_doxyMgr.adjustRefId(refId);
+	return m_module->m_doxyModule.adjustRefId(refId);
 }
 
 bool
@@ -43,7 +43,7 @@ GlobalNamespace::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	const char* kind;
 	const char* name;

@@ -96,7 +96,7 @@ Variable::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
 	const char* kind = isMulticast ? "event" : "variable";

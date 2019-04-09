@@ -60,7 +60,7 @@ EnumConst::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format(
 		"<enumvalue id='%s'>\n"
@@ -203,7 +203,7 @@ EnumType::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	sl::String memberXml;
 	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, false);

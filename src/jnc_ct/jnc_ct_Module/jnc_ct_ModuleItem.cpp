@@ -222,7 +222,7 @@ ModuleItem::createDoxyRefId()
 
 	refId.makeLowerCase();
 
-	return m_module->m_doxyMgr.adjustRefId(refId);
+	return m_module->m_doxyModule.adjustRefId(refId);
 }
 
 bool

@@ -24,7 +24,7 @@
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_ImportMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
-#include "jnc_ct_DoxyMgr.h"
+#include "jnc_ct_DoxyHost.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
 
@@ -97,7 +97,8 @@ public:
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;
-	DoxyMgr m_doxyMgr;
+	DoxyHost m_doxyHost;
+	dox::Module m_doxyModule;
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
 

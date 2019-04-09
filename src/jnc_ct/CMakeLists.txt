@@ -80,40 +80,6 @@ source_group(
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# jnc_ct_DoxyMgr folder
-#
-
-file(
-	GLOB
-	DOXYMGR_H_LIST
-	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-	jnc_ct_DoxyMgr/*.h
-	)
-
-file(
-	GLOB
-	DOXYMGR_CPP_LIST
-	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-	jnc_ct_DoxyMgr/*.cpp
-	)
-
-file(
-	GLOB
-	DOXYMGR_RL_LIST
-	RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-	jnc_ct_DoxyMgr/*.rl
-	)
-
-source_group(
-	jnc_ct_DoxyMgr
-	FILES
-	${DOXYMGR_H_LIST}
-	${DOXYMGR_CPP_LIST}
-	${DOXYMGR_RL_LIST}
-	)
-
-#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-#
 # jnc_ct_FunctionMgr folder
 #
 
@@ -422,11 +388,6 @@ add_perl_step(
 	)
 
 add_ragel_step(
-	jnc_ct_DoxyLexer.rl.cpp
-	jnc_ct_DoxyMgr/jnc_ct_DoxyLexer.rl
-	)
-
-add_ragel_step(
 	jnc_ct_Lexer.rl.cpp
 	jnc_ct_Parser/jnc_ct_Lexer.rl
 	)
@@ -463,7 +424,6 @@ set(
 set(
 	GEN_RL_CPP_LIST
 	${GEN_DIR}/jnc_ct_Lexer.rl.cpp
-	${GEN_DIR}/jnc_ct_DoxyLexer.rl.cpp
 	)
 
 set(
@@ -530,9 +490,6 @@ add_library(
 	${CALLCONV_CPP_LIST}
 	${CONTROLFLOWMGR_H_LIST}
 	${CONTROLFLOWMGR_CPP_LIST}
-	${DOXYMGR_H_LIST}
-	${DOXYMGR_CPP_LIST}
-	${DOXYMGR_RL_LIST}
 	${FUNCTIONMGR_H_LIST}
 	${FUNCTIONMGR_CPP_LIST}
 	${NAMESPACEMGR_H_LIST}

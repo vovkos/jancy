@@ -807,7 +807,7 @@ Property::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format("<memberdef kind='property' id='%s'", doxyBlock->getRefId ().sz());
 

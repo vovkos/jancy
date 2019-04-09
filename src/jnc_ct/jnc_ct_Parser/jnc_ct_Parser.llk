@@ -38,7 +38,6 @@ Includes
 	#include "jnc_ct_Lexer.h"
 	#include "jnc_ct_Module.h"
 	#include "jnc_ct_Decl.h"
-	#include "jnc_ct_DoxyParser.h"
 }
 
 CppIncludes
@@ -148,7 +147,7 @@ Members
 	FunctionType* m_lastPropertyGetterType;
 	uint_t m_lastPropertyTypeModifiers;
 
-	DoxyParser m_doxyParser;
+	dox::Parser m_doxyParser;
 
 	ReactorClassType* m_reactorType;
 	Value m_reactionIdxArgValue;
@@ -269,7 +268,7 @@ Members2
 		ModuleItemDecl* decl,
 		const Token::Pos& pos,
 		AttributeBlock* attributeBlock = NULL,
-		DoxyBlock* doxyBlock = NULL
+		dox::Block* doxyBlock = NULL
 		);
 
 	void

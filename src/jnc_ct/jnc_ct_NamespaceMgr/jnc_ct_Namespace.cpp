@@ -331,8 +331,9 @@ Namespace::generateMemberDocumentation(
 		if (memberXml.isEmpty())
 			continue;
 
-		DoxyBlock* doxyBlock = item->getModule()->m_doxyMgr.getDoxyBlock(item, decl);
-		DoxyGroup* doxyGroup = doxyBlock->getGroup();
+		Module* module = item->getModule();
+		dox::Block* doxyBlock = module->m_doxyHost.getItemBlock(item, decl);
+		dox::Group* doxyGroup = doxyBlock->getGroup();
 		if (doxyGroup)
 			doxyGroup->addItem(item);
 

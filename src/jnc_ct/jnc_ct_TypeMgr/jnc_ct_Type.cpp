@@ -649,7 +649,7 @@ NamedType::prepareDoxyLinkedText()
 		return;
 	}
 
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 	sl::String refId = doxyBlock->getRefId();
 	getTypeStringTuple()->m_doxyLinkedTextPrefix.format(
 		"<ref refid=\"%s\">%s</ref>",
@@ -683,7 +683,7 @@ Typedef::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format(
 		"<memberdef kind='typedef' id='%s'>\n"
@@ -713,7 +713,7 @@ TypedefShadowType::prepareDoxyLinkedText()
 		return;
 	}
 
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(m_typedef);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(m_typedef);
 	sl::String refId = doxyBlock->getRefId();
 	getTypeStringTuple()->m_doxyLinkedTextPrefix.format(
 		"<ref refid=\"%s\">%s</ref>",

@@ -707,7 +707,7 @@ DerivableType::generateDocumentation(
 {
 	bool result;
 
-	DoxyBlock* doxyBlock = m_module->m_doxyMgr.getDoxyBlock(this);
+	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	const char* kind =
 		m_typeKind == TypeKind_Struct ? "struct" :
@@ -753,7 +753,7 @@ DerivableType::generateDocumentation(
 	for (; it; it++)
 	{
 		DerivableType* baseType = it->getType();
-		DoxyBlock* baseTypeDoxyBlock = m_module->m_doxyMgr.getDoxyBlock(baseType);
+		dox::Block* baseTypeDoxyBlock = m_module->m_doxyHost.getItemBlock(baseType);
 		sl::String refId = baseTypeDoxyBlock->getRefId();
 		Unit* unit = baseType->getParentUnit();
 		ExtensionLib* lib = unit ? unit->getLib() : NULL;

@@ -37,7 +37,8 @@ namespace ct {
 
 //..............................................................................
 
-Module::Module()
+Module::Module():
+	m_doxyModule(&m_doxyHost)
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -71,7 +72,7 @@ Module::clear()
 	m_unitMgr.clear();
 	m_importMgr.clear();
 	m_extensionLibMgr.clear();
-	m_doxyMgr.clear();
+	m_doxyModule.clear();
 
 	m_name.clear();
 	m_llvmIrBuilder.clear();
@@ -532,16 +533,19 @@ Module::parse(
 				sl::StringRef comment = token->m_data.m_string;
 				bool isSingleLine = token->m_token <= TokenKind_DoxyComment2;
 				ModuleItem* lastDeclaredItem = NULL;
+				lex::LineCol pos = token->m_pos;
+				pos.m_col += 3; // doxygen comments always start with 3 characters: ///, //!, /** /*!
 
 				if (isSingleLine && !comment.isEmpty() && comment[0] == '<')
 				{
 					lastDeclaredItem = parser.m_lastDeclaredItem;
 					comment = comment.getSubString(1);
+					pos.m_col++;
 				}
 
 				parser.m_doxyParser.addComment(
 					comment,
-					token->m_pos,
+					pos,
 					isSingleLine,
 					lastDeclaredItem
 					);

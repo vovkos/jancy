@@ -109,6 +109,7 @@ target_link_libraries(
 	axl_fsm
 	axl_io
 	axl_lex
+	axl_dox
 	axl_core
 	)
 
