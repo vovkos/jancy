@@ -531,12 +531,11 @@ Module::parse(
 			if (!(m_compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token->m_token - TokenKind_DoxyComment1))))
 			{
 				sl::StringRef comment = token->m_data.m_string;
-				bool isSingleLine = token->m_token <= TokenKind_DoxyComment2;
 				ModuleItem* lastDeclaredItem = NULL;
 				lex::LineCol pos = token->m_pos;
 				pos.m_col += 3; // doxygen comments always start with 3 characters: ///, //!, /** /*!
 
-				if (isSingleLine && !comment.isEmpty() && comment[0] == '<')
+				if (!comment.isEmpty() && comment[0] == '<')
 				{
 					lastDeclaredItem = parser.m_lastDeclaredItem;
 					comment = comment.getSubString(1);
@@ -546,7 +545,7 @@ Module::parse(
 				parser.m_doxyParser.addComment(
 					comment,
 					pos,
-					isSingleLine,
+					token->m_token <= TokenKind_DoxyComment2, // only concat single-line comments
 					lastDeclaredItem
 					);
 			}

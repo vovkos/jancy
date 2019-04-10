@@ -30,6 +30,7 @@ GlobalNamespace::createDoxyRefId()
 	else
 	{
 		refId.format("namespace_%s", getQualifiedName().sz());
+		refId.replace('.', '_');
 		refId.makeLowerCase();
 	}
 
