@@ -61,12 +61,13 @@ set(
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
 	-o ${RST_DIR}/index.rst
-	-F ${DOXYREST_FRAME_DIR}
-	-D g_introFile=intro.rst
-	-D g_language=jancy
-	-D g_globalDefFile=def.rst
-	-D g_extraPageList=syncId.rst,disposable.rst,errorcode.rst
-	-f c_index.rst.in
+	-D INTRO_FILE=intro.rst
+	-D LANGUAGE=jancy
+	-D FORCE_INCLUDE_FILE=def.rst
+	-D EXTRA_PAGE_LIST={syncId.rst,disposable.rst,errorcode.rst}
+	-F ${DOXYREST_FRAME_DIR}/cfamily
+	-F ${DOXYREST_FRAME_DIR}/common
+	-f index.rst.in
 	)
 
 set(

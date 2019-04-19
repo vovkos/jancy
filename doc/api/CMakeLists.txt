@@ -39,14 +39,13 @@ set(XMLGEN_CMD_LINE ${DOXYGEN_CMD_LINE})
 set(
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
-	-D g_hasNewLineAfterReturnType
-	-D g_excludeEmptyDefines
-	-D g_excludeDefinePattern=__STDC_
-	-D g_nameDelimiter=::
-	-D g_introFile=intro.rst
+	-D ML_SPECIFIER_MODIFIER_LIST
+	-D EXCLUDE_DEFINE_PATTERN=__STDC_
+	-D INTRO_FILE=intro.rst
 	-o ${RST_DIR}/index.rst
-	-F ${DOXYREST_FRAME_DIR}
-	-f c_index.rst.in
+	-F ${DOXYREST_FRAME_DIR}/cfamily
+	-F ${DOXYREST_FRAME_DIR}/common
+	-f index.rst.in
 	)
 
 set(
