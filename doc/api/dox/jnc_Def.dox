@@ -78,7 +78,7 @@
 
 	``JNC_PTR_SIZE`` equals ``4`` on ``JNC_CPU_X86``; equals ``8`` on ``JNC_CPU_AMD64``.
 
-	``JNC_PTR_SIZE`` equals ``32`` on ``JNC_CPU_X86``; equals ``64`` on ``JNC_CPU_AMD64``.
+	``JNC_PTR_BITS`` equals ``32`` on ``JNC_CPU_X86``; equals ``64`` on ``JNC_CPU_AMD64``.
 
 */
 
