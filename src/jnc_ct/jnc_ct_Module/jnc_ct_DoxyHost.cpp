@@ -68,7 +68,8 @@ DoxyHost::setItemBlock(
 	)
 {
 	itemDecl->m_doxyBlock = block;
-	block->m_item = item;
+	if (block)
+		block->m_item = item;
 }
 
 sl::String
