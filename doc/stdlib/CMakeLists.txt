@@ -63,6 +63,7 @@ set(
 	-o ${RST_DIR}/index.rst
 	-D INTRO_FILE=intro.rst
 	-D LANGUAGE=jancy
+	-D ML_PARAM_LIST_COUNT_THRESHOLD=1
 	-D FORCE_INCLUDE_FILE=def.rst
 	-D EXTRA_PAGE_LIST={syncId.rst,disposable.rst,errorcode.rst}
 	-F ${DOXYREST_FRAME_DIR}/cfamily
