@@ -401,7 +401,11 @@ jnc_Module_generateDocumentation(
 {
 	return
 		module->link() &&
-		module->m_doxyModule.generateDocumentation(outputDir);
+		module->m_doxyModule.generateDocumentation(
+			outputDir,
+			"index.xml",
+			JNC_GLOBAL_NAMESPACE_DOXID ".xml"
+			);
 }
 
 JNC_EXTERN_C

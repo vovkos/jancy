@@ -25,7 +25,7 @@ GlobalNamespace::createDoxyRefId()
 
 	if (this == m_module->m_namespaceMgr.getGlobalNamespace())
 	{
-		refId = "global_namespace";
+		refId = JNC_GLOBAL_NAMESPACE_DOXID;
 	}
 	else
 	{

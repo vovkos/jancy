@@ -35,6 +35,8 @@
 
 */
 
+#define JNC_GLOBAL_NAMESPACE_DOXID "global"
+
 //..............................................................................
 
 enum jnc_NamespaceKind
