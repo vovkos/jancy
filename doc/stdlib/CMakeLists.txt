@@ -47,6 +47,7 @@ set(
 	-S ${_EXT_DIR}/jnc_std/jnc
 	-S ${_EXT_DIR}/jnc_sys/jnc
 	-I ${_EXT_DIR}/jnc_io_base/jnc
+	-S ${_EXT_DIR}/jnc_io_base/jnc
 	-S ${_EXT_DIR}/jnc_io_ssh/jnc
 	-S ${_EXT_DIR}/jnc_io_pcap/jnc
 	-S ${_EXT_DIR}/jnc_io_usb/jnc
@@ -60,12 +61,8 @@ set(XMLGEN_CMD_LINE ${JANCY_CMD_LINE})
 set(
 	DOXYREST_CMD_LINE
 	${XML_DIR}/index.xml
+	-c ${CMAKE_CURRENT_LIST_DIR}/doxyrest-config.lua
 	-o ${RST_DIR}/index.rst
-	-D INTRO_FILE=intro.rst
-	-D LANGUAGE=jancy
-	-D ML_PARAM_LIST_COUNT_THRESHOLD=1
-	-D FORCE_INCLUDE_FILE=def.rst
-	-D EXTRA_PAGE_LIST={syncId.rst,disposable.rst,errorcode.rst}
 	-F ${DOXYREST_FRAME_DIR}/cfamily
 	-F ${DOXYREST_FRAME_DIR}/common
 	-f index.rst.in
