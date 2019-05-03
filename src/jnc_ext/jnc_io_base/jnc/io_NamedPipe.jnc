@@ -137,7 +137,7 @@ opaque class NamedPipe
 	void close();
 
 	/**
-		Effectively makes ``io.NamedPipe`` a *disposable* class[#f2]_.
+		Effectively makes ``io.NamedPipe`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;
@@ -148,7 +148,7 @@ opaque class NamedPipe
 		client connection, issue ``close`` method on the client file stream
 		object.
 
-		If method fails, ``null`` value is returned[#f1]_.
+		If method fails, ``null`` value is returned [#f1]_.
 	*/
 
 	FileStream* accept(bool isSuspended = false);

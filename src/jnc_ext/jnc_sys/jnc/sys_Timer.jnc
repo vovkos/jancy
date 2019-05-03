@@ -33,7 +33,7 @@ namespace sys {
 	aforementioned methods.
 
 	To stop the timer, invoke ``stop`` method. For local timers it is
-	recommended to use *disposable* pattern[#f1]_.
+	recommended to use *disposable* pattern [#f1]_.
 
 	Code sample::
 
@@ -100,13 +100,13 @@ opaque class Timer
 		Stops a previously started timer, does nothing if the timer is not
 		started. This function always succeeds.
 
-		For local timers it is recommended to use *disposable* pattern[#f1]_.
+		For local timers it is recommended to use *disposable* pattern [#f1]_.
 	*/
 
 	void stop();
 
 	/**
-		Effectively makes ``sys.Timer`` a *disposable* class[#f1]_.
+		Effectively makes ``sys.Timer`` a *disposable* class [#f1]_.
 	*/
 
 	alias dispose = stop;

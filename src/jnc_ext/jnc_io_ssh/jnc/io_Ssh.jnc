@@ -371,7 +371,7 @@ opaque class SshChannel
 	void close();
 
 	/**
-		Effectively makes ``io.SshChannel`` a *disposable* class[#f2]_.
+		Effectively makes ``io.SshChannel`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;

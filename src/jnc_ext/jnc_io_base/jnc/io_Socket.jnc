@@ -325,7 +325,7 @@ opaque class Socket
 	void close();
 
 	/**
-		Effectively makes ``io.Socket`` a *disposable* class[#f2]_.
+		Effectively makes ``io.Socket`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;
@@ -365,7 +365,7 @@ opaque class Socket
 		to communicate with this particular client. To terminate a client
 		connection, issue ``close`` method on the client file stream object.
 
-		If method fails, ``null`` value is returned[#f1]_.
+		If method fails, ``null`` value is returned [#f1]_.
 	*/
 
 	Socket* errorcode accept(

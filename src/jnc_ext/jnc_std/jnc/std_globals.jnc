@@ -51,7 +51,7 @@
 /**
 	Calculates and returns the length of the string pointed to by ``p``
 	argument. The length of the string is defined as the number of bytes between
-	the beginning of the string ``p`` and the very first ``0`` byte[#f1]_.
+	the beginning of the string ``p`` and the very first ``0`` byte [#f1]_.
 
 	Returns ``0`` if ``p == null``.
 */
@@ -474,7 +474,7 @@ size_t print_u(char const thin* text);
 size_t perror(char const* text);
 
 /**
-	Prints formatted output to the standard output stream[#f3]_.
+	Prints formatted output to the standard output stream [#f3]_.
 
 	Returns the number of characters printed, or a ``-1`` if an error occurs.
 
@@ -500,7 +500,7 @@ namespace std {
 /**
 	Composes a string with the same text that would be printed if
 	``fmtSpecifier`` was used in `printf` function, but instead of being
-	printed, the content is stored in a memory buffer[#f3]_.
+	printed, the content is stored in a memory buffer [#f3]_.
 
 	Returns a pointer to null-terminated string containing the newly formatted
 	text.

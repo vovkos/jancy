@@ -200,7 +200,7 @@ opaque class Mailslot
 
 		Returns ``true`` on success. If the mailslot could not be opened, IO
 		error supplied by operating system is set and then the function returns
-		``false``  [#f1]_.
+		``false`` [#f1]_.
 	*/
 
 	bool errorcode open(char const* name);
@@ -216,7 +216,7 @@ opaque class Mailslot
 	void close();
 
 	/**
-		Effectively makes ``io.Mailslot`` a *disposable* class[#f2]_.
+		Effectively makes ``io.Mailslot`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;
@@ -225,7 +225,7 @@ opaque class Mailslot
 		Attempts to read up to ``size`` bytes from the mailslot into the buffer
 		pointed to by ``p``.
 
-		Returns the actual amount of bytes read or ``-1`` if error occurs[#f1]_.
+		Returns the actual amount of bytes read or ``-1`` if error occurs [#f1]_.
 
 		Normally you would call this function from within your event handler for
 		``IncomingData`` event. If this function is called when there is no

@@ -405,7 +405,7 @@ bitflag enum SerialLineErrors
 opaque class Serial
 {
 	/**
-		This property is used for getting and setting[#f4]_ baud rate, i.e. the
+		This property is used for getting and setting [#f4]_ baud rate, i.e. the
 		number of signal changes per second, which directly affects the speed of
 		data transmission.
 
@@ -417,7 +417,7 @@ opaque class Serial
 	uint_t autoget property m_baudRate;
 
 	/**
-		This property is used for getting and setting[#f4]_ flow control, i.e.
+		This property is used for getting and setting [#f4]_ flow control, i.e.
 		the protocol of attempted prevention of data loss during serial
 		transmission which may happen when transmission side sends data faster
 		than the receiving side is able to process it.
@@ -428,7 +428,7 @@ opaque class Serial
 	SerialFlowControl autoget property m_flowControl;
 
 	/**
-		This property is used for getting and setting[#f4]_ byte size, i.e. the
+		This property is used for getting and setting [#f4]_ byte size, i.e. the
 		number of bits in each character transmitted over the serial line. Valid
 		values range from ``5`` to ``8``; normally ``8`` data bits are used.
 	*/
@@ -436,7 +436,7 @@ opaque class Serial
 	uint_t autoget property m_dataBits; // typically 5..8
 
 	/**
-		This property is used for getting and setting[#f4]_ the number of
+		This property is used for getting and setting [#f4]_ the number of
 		serial stop bits, i.e. auxillary(non-data) bits sent at the end of each
 		character to re-synchronize the receiver; normally 1 stop bit is used
 		(designated by `io.SerialStopBits._1`)
@@ -447,7 +447,7 @@ opaque class Serial
 	SerialStopBits autoget property m_stopBits;
 
 	/**
-		This property is used for getting and setting[#f4]_ serial parity
+		This property is used for getting and setting [#f4]_ serial parity
 		control, i.e. the protocol of attempted error detection during serial
 		transmission. The idea is to send an extra *parity* bit so that the
 		total number of one's including data bits *and* this parity bit is
@@ -475,21 +475,21 @@ opaque class Serial
 
 
 	/**
-		This property is used for getting and setting[#f4]_ ``DTR``
+		This property is used for getting and setting [#f4]_ ``DTR``
 		(data-terminal-ready) serial control line.
 	*/
 
 	bool autoget property m_dtr;
 
 	/**
-		This property is used for getting and setting[#f4]_ ``RTS``
+		This property is used for getting and setting [#f4]_ ``RTS``
 		(ready-to-send) serial control line.
 	*/
 
 	bool autoget property m_rts;
 
 	/**
-		This property is used for getting and setting[#f4]_ ``RTS``
+		This property is used for getting and setting [#f4]_ ``RTS``
 		(ready-to-send) serial control line.
 	*/
 
@@ -540,7 +540,7 @@ opaque class Serial
 	void close();
 
 	/**
-		Effectively makes ``io.Serial`` a *disposable* class[#f2]_.
+		Effectively makes ``io.Serial`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;

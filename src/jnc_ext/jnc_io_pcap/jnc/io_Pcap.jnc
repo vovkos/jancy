@@ -199,7 +199,7 @@ opaque class Pcap
 	size_t autoget property m_readBufferSize;
 
 	/**
-		Holds currently specified capture filter[#f4]_.
+		Holds currently specified capture filter [#f4]_.
 	*/
 
 	char const* readonly m_filter;
@@ -253,7 +253,7 @@ opaque class Pcap
 		argument.
 
 		The second argument, ``filter``, has the same meaning as in
-		``openDevice`` method[#f4]_.
+		``openDevice`` method [#f4]_.
 
 		Returns ``true`` on success. If capture file could not be opened,
 		function sets the error reported by Pcap and returns ``false`` [#f1]_.
@@ -275,7 +275,7 @@ opaque class Pcap
 	void close();
 
 	/**
-		Effectively makes ``io.Pcap`` a *disposable* class[#f2]_.
+		Effectively makes ``io.Pcap`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;

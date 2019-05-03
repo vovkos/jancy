@@ -157,13 +157,13 @@ opaque class File
 		This property is used for getting and setting file size.
 
 		Reading from this property returns current size of the file; writing to
-		it sets new size[#f3]_.
+		it sets new size [#f3]_.
 	*/
 
 	uint64_t const property m_size;
 
 	/**
-		This property is used for getting and setting[#f3]_ current file
+		This property is used for getting and setting [#f3]_ current file
 		position, i.e. the offset at which file contents will be accessed by
 		``read`` and ``write`` methods.
 
@@ -207,7 +207,7 @@ opaque class File
 	void close();
 
 	/**
-		Effectively makes ``io.File`` a *disposable* class[#f2]_.
+		Effectively makes ``io.File`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;

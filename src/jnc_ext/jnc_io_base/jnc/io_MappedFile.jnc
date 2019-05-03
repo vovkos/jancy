@@ -164,7 +164,7 @@ opaque class MappedFile
 	void close();
 
 	/**
-		Effectively makes ``io.MappedFile`` a *disposable* class[#f2]_.
+		Effectively makes ``io.MappedFile`` a *disposable* class [#f2]_.
 	*/
 
 	alias void dispose = close;
@@ -177,7 +177,7 @@ opaque class MappedFile
 		requested view should be *permanent* or *dynamic*.
 
 		Returns a pointer to the requested region, or ``null`` if mapping
-		operation failed[#f1]_.
+		operation failed [#f1]_.
 	*/
 
 	void* errorcode view(

@@ -146,7 +146,7 @@ class DynamicLib
 	void close();
 
 	/**
-		Effectively makes ``jnc.DynamicLib`` a *disposable* class[#f2]_.
+		Effectively makes ``jnc.DynamicLib`` a *disposable* class [#f2]_.
 	*/
 
 	alias dispose = close;
