@@ -83,7 +83,7 @@ public:
 	bool
 	hasReturn()
 	{
-		llvm::TerminatorInst* inst = m_llvmBlock->getTerminator();
+		llvm::Instruction* inst = m_llvmBlock->getTerminator();
 		return inst && inst->getOpcode() == llvm::Instruction::Ret;
 	}
 

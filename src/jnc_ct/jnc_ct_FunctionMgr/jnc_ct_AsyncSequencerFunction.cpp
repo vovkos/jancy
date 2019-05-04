@@ -182,7 +182,8 @@ AsyncSequencerFunction::replaceAllocas()
 {
 	// replace all alloca's with GEPs
 
-	llvm::Value* llvmPromiseValue = m_llvmFunction->arg_begin();
+	llvm::Function::arg_iterator llvmArg = m_llvmFunction->arg_begin();
+	llvm::Value* llvmPromiseValue = &*llvmArg;
 	llvm::BasicBlock* llvmAllocaBlock = m_allocaBlock->getLlvmBlock();
 	llvm::BasicBlock::iterator it = llvmAllocaBlock->begin();
 	llvm::DataLayout llvmDataLayout(m_module->getLlvmModule());
