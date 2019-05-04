@@ -260,7 +260,7 @@ GcShadowStackMgr::finalizeFrame()
 		for (size_t i = 0; i < count; i++)
 		{
 			BasicBlock* block = returnBlockArray[i];
-			llvm::TerminatorInst* llvmRet = block->getLlvmBlock()->getTerminator();
+			llvm::Instruction* llvmRet = block->getLlvmBlock()->getTerminator();
 			ASSERT(llvm::isa<llvm::ReturnInst> (llvmRet));
 
 			m_module->m_llvmIrBuilder.setInsertPoint(llvmRet);

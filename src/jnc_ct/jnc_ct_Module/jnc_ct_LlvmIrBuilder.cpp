@@ -52,7 +52,7 @@ LlvmIrBuilder::clear()
 void
 LlvmIrBuilder::setAllocaBlock(BasicBlock* block)
 {
-	llvm::TerminatorInst* llvmJmp = block->getLlvmBlock()->getTerminator();
+	llvm::Instruction* llvmJmp = block->getLlvmBlock()->getTerminator();
 	ASSERT(llvm::isa<llvm::BranchInst> (llvmJmp));
 
 	m_llvmAllocaIrBuilder->SetInsertPoint(llvmJmp);

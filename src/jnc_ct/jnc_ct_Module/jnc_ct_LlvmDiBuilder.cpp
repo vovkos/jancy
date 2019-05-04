@@ -440,39 +440,37 @@ LlvmDiBuilder::createFunction(Function* function)
 	ASSERT(llvmDiSubroutineType);
 
 	return m_llvmDiBuilder->createFunction(
-		unit->getLlvmDiFile(),
-		function->getQualifiedName().sz(),
-		function->getQualifiedName().sz(), // linkage name
-		unit->getLlvmDiFile(),
-		declPos.m_line + 1,
-		llvmDiSubroutineType,
-		false,
-		true,
-		scopePos.m_line + 1,
-		0,     // llvm::DIDescriptor::FlagPrototyped,
-		false, // bool isOptimized
-		function->getLlvmFunction(),
-		NULL,  // MDNode* TParams
-		NULL   // MDNode *Decl
+		unit->getLlvmDiFile(),             // DIDescriptor Scope
+		function->getQualifiedName().sz(), // StringRef Name
+		function->getQualifiedName().sz(), // StringRef LinkageName
+		unit->getLlvmDiFile(),             // DIFile File
+		declPos.m_line + 1,                // unsigned LineNo
+		llvmDiSubroutineType,              // DICompositeType Ty
+		false,                             // bool isLocalToUnit
+		true,                              // bool isDefinition
+		scopePos.m_line + 1,               // unsigned ScopeLine
+		0,                                 // llvm::DIDescriptor::FlagPrototyped,
+		false,                             // bool isOptimized
+		function->getLlvmFunction(),       // Function *Fn
+		NULL,                              // MDNode *TParams
+		NULL                               // MDNode *Decl
 		);
 #else
 	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
 	ASSERT(llvm::isa<llvm::DISubroutineType> (llvmDiSubroutineType));
 
 	return m_llvmDiBuilder->createFunction(
-		NULL,
-		function->getQualifiedName().sz(),
-		function->getQualifiedName().sz(), // linkage name
-		unit->getLlvmDiFile(),
-		declPos.m_line + 1,
-		llvmDiSubroutineType,
-		false,
-		true,
-		scopePos.m_line + 1,
-		(llvm::DIFlags) 0,     // llvm::DIDescriptor::FlagPrototyped,
-		false,
-		NULL,  // DITemplateParameterArray TParams
-		NULL   // DISubprogram *Decl
+		(llvm::DIScope*) NULL,             // DIScope *Scope
+		function->getQualifiedName().sz(), // StringRef Name
+		function->getQualifiedName().sz(), // StringRef LinkageName
+		unit->getLlvmDiFile(),             // DIFile *File
+		declPos.m_line + 1,                // unsigned LineNo
+		llvmDiSubroutineType,              // DISubroutineType *Ty
+#	if (LLVM_VERSION < 0x0800)
+		false,                             // bool isLocalToUnit
+		true,                              // bool isDefinition
+#	endif
+		scopePos.m_line + 1                // unsigned ScopeLine
 		);
 #endif
 }
