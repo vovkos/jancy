@@ -78,7 +78,7 @@ build_script:
 
     - mkdir build
     - cd build
-    - cmake .. %CMAKE_CONFIGURE_FLAGS%
+    - cmake .. %CMAKE_CONFIGURE_FLAGS% -DJANCY_TEST_OPT_LEVEL=-O0
     - cmake --build . %CMAKE_BUILD_FLAGS%
 
     - ps: Add-AppveyorMessage "APPVEYOR_REPO_COMMIT=$env:APPVEYOR_REPO_COMMIT"
