@@ -26,28 +26,28 @@ matrix:
 
 platform:
     - x64
-    - x86
+#    - x86
 
 configuration:
     - Debug
-    - Release
+#    - Release
 
 environment:
     matrix:
         -   LLVM_VERSION: 3.4.2
             TOOLCHAIN:    msvc10
 
-        -   LLVM_VERSION: 3.4.2
-            TOOLCHAIN:    msvc12
-
-        -   LLVM_VERSION: 3.4.2
-            TOOLCHAIN:    msvc14
-
-        -   LLVM_VERSION: 3.9.1
-            TOOLCHAIN:    msvc12
-
-        -   LLVM_VERSION: 3.9.1
-            TOOLCHAIN:    msvc14
+#        -   LLVM_VERSION: 3.4.2
+#            TOOLCHAIN:    msvc12
+#
+#        -   LLVM_VERSION: 3.4.2
+#            TOOLCHAIN:    msvc14
+#
+#        -   LLVM_VERSION: 3.9.1
+#            TOOLCHAIN:    msvc12
+#
+#        -   LLVM_VERSION: 3.9.1
+#            TOOLCHAIN:    msvc14
 
 install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
@@ -78,18 +78,38 @@ build_script:
 
     - mkdir build
     - cd build
-    - cmake .. %CMAKE_CONFIGURE_FLAGS% -DJANCY_TEST_OPT_LEVEL=-O1
+    - cmake .. %CMAKE_CONFIGURE_FLAGS%
     - cmake --build . %CMAKE_BUILD_FLAGS%
+
+    - cpack -C %CONFIGURATION% -G 7Z
 
     - ps: Add-AppveyorMessage "APPVEYOR_REPO_COMMIT=$env:APPVEYOR_REPO_COMMIT"
 
-test_script:
-    - ctest -C %CONFIGURATION% --output-on-failure
+# test_script:
+#    - ctest -C %CONFIGURATION% --output-on-failure
+#
+# notifications:
+#     -   provider: Webhook
+#         on_build_success: true
+#         on_build_failure: false
+#
+#         url: http://jancy.org:5005/appveyor-ci
 
-notifications:
-    -   provider: Webhook
-        on_build_success: true
-        on_build_failure: false
+artifacts:
+    -   path: build\jancy-1.8.5-windows-amd64.7z
+        name: jancy_package
 
-        url: http://jancy.org:5005/appveyor-ci
+deploy:
+    description: 'Test deploy'
+    provider: GitHub
 
+    auth_token:
+        secure: Fu74ylq5QefgNWwNJ/f9OuEYykWNLRetDgRTED5UhVD6Dczu9btgesmnuvFkp874
+
+    artifact: jancy_package
+    force_update: true
+
+    on:
+        platform: x64
+        toolchain: msvc10
+        configuration: Debug

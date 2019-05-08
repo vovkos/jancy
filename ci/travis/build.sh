@@ -43,7 +43,7 @@ fi
 
 mkdir build
 pushd build
-cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION -DJANCY_TEST_OPT_LEVEL=-O1
+cmake .. -DTARGET_CPU=$TARGET_CPU -DCMAKE_BUILD_TYPE=$BUILD_CONFIGURATION
 make
 ctest --output-on-failure
 
