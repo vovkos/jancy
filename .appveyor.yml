@@ -81,37 +81,14 @@ build_script:
     - cmake .. %CMAKE_CONFIGURE_FLAGS%
     - cmake --build . %CMAKE_BUILD_FLAGS%
 
-    - echo running 15_DynamicStructs.jnc...
-    - bin\%CONFIGURATION%\jancy -O2 %THIS_DIR%\samples\jnc\15_DynamicStructs.jnc
-    - echo done
-
     - ps: Add-AppveyorMessage "APPVEYOR_REPO_COMMIT=$env:APPVEYOR_REPO_COMMIT"
 
-# test_script:
-#    - ctest -C %CONFIGURATION% --output-on-failure
-#
-# notifications:
-#     -   provider: Webhook
-#         on_build_success: true
-#         on_build_failure: false
-#
-#         url: http://jancy.org:5005/appveyor-ci
+test_script:
+    - ctest -C %CONFIGURATION% --output-on-failure
 
-# artifacts:
-#     -   path: build\jancy-1.8.5-windows-amd64.7z
-#         name: jancy_package
-#
-# deploy:
-#     description: 'Test deploy'
-#     provider: GitHub
-#
-#     auth_token:
-#         secure: Fu74ylq5QefgNWwNJ/f9OuEYykWNLRetDgRTED5UhVD6Dczu9btgesmnuvFkp874
-#
-#     artifact: jancy_package
-#     force_update: true
-#
-#     on:
-#         platform: x64
-#         toolchain: msvc10
-#         configuration: Debug
+notifications:
+     -   provider: Webhook
+         on_build_success: true
+         on_build_failure: false
+
+         url: http://jancy.org:5005/appveyor-ci
