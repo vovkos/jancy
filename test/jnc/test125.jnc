@@ -1,12 +1,10 @@
 // this sample demonstrates a bug in legacy JIT in LLVM-3.4.2 (at least, on Windows)
 
+int g_x;
+int g_y;
+
 int main()
 {
-	uint_t x;
-	uint_t y;
-	uint_t z;
-
-	z = x & ((1 << y) - 1);
-
-	return;
+	g_y = (g_x >> 1) & 1;
+	return 0;
 }
