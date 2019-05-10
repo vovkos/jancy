@@ -8,5 +8,5 @@ int main()
 
 	z = x & ((1 << y) - 1);
 
-	return;
+	return 0;
 }
