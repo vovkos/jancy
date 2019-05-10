@@ -25,16 +25,6 @@ if(NOT BUILD_JNC_IO_USB)
 		)
 endif()
 
-if(WIN32 AND ${LLVM_VERSION} VERSION_LESS 3.5)
-	# this is a test against a specific bug in legacy JIT in LLVM 3.4.2
-
-	list(
-		REMOVE_ITEM
-		TEST_JNC_LIST
-		test114.jnc
-		)
-endif()
-
 source_group(
 	jnc
 	FILES
