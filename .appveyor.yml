@@ -26,28 +26,28 @@ matrix:
 
 platform:
     - x64
-#    - x86
+    - x86
 
 configuration:
     - Debug
-#    - Release
+    - Release
 
 environment:
     matrix:
         -   LLVM_VERSION: 3.4.2
             TOOLCHAIN:    msvc10
 
-#        -   LLVM_VERSION: 3.4.2
-#            TOOLCHAIN:    msvc12
-#
-#        -   LLVM_VERSION: 3.4.2
-#            TOOLCHAIN:    msvc14
-#
-#        -   LLVM_VERSION: 3.9.1
-#            TOOLCHAIN:    msvc12
-#
-#        -   LLVM_VERSION: 3.9.1
-#            TOOLCHAIN:    msvc14
+        -   LLVM_VERSION: 3.4.2
+            TOOLCHAIN:    msvc12
+
+        -   LLVM_VERSION: 3.4.2
+            TOOLCHAIN:    msvc14
+
+        -   LLVM_VERSION: 3.9.1
+            TOOLCHAIN:    msvc12
+
+        -   LLVM_VERSION: 3.9.1
+            TOOLCHAIN:    msvc14
 
 install:
     - call ci\appveyor\set-env.bat %TOOLCHAIN% %PLATFORM%
