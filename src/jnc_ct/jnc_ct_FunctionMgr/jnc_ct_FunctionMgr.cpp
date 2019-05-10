@@ -21,9 +21,9 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
-// #define _JNC_LLVM_DEBUG 1
+// #define _JNC_LLVM_DEBUG  1
 // #define _JNC_LLVM_VERIFY 1
-// #define _JNC_LLVM_NO_JIT    1
+// #define _JNC_LLVM_NO_JIT 1
 
 namespace jnc {
 namespace ct {

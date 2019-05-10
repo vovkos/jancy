@@ -298,6 +298,11 @@ Module::createLlvmExecutionEngine()
 
 	engineBuilder.setTargetOptions(targetOptions);
 
+	// disable CPU feature auto-detection
+	// alas, making use of certain CPU features leads to JIT crashes (e.g. test114.jnc)
+
+	engineBuilder.setMCPU("generic");
+
 #if (_JNC_CPU_X86)
 	engineBuilder.setMArch("x86");
 #endif
