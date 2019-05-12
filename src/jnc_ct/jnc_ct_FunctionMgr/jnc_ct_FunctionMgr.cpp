@@ -21,7 +21,6 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_ct_Parser.llk.h"
 
-// #define _JNC_LLVM_DEBUG  1
 // #define _JNC_LLVM_VERIFY 1
 // #define _JNC_LLVM_NO_JIT 1
 
@@ -727,10 +726,6 @@ FunctionMgr::jitFunctions()
 
 	llvm::ScopedFatalErrorHandler scopeErrorHandler(llvmFatalErrorHandler);
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
-
-#if (_JNC_LLVM_DEBUG_JIT)
-	llvm::DebugFlag = true;
-#endif
 
 	try
 	{

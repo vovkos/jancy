@@ -19,6 +19,8 @@
 #	include "jnc_rt_ExceptionMgr.h"
 #endif
 
+#define _JNC_LLVM_DEBUG 0
+
 //..............................................................................
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
@@ -424,6 +426,10 @@ jnc_initialize(const char* tag)
 	llvm::InitializeNativeTargetAsmParser();
 	llvm::InitializeNativeTargetAsmPrinter();
 	llvm::InitializeNativeTargetDisassembler();
+
+#if (_JNC_LLVM_DEBUG)
+	llvm::DebugFlag = true;
+#endif
 
 #if (LLVM_VERSION < 0x0306)
 	LLVMLinkInJIT();
