@@ -700,6 +700,15 @@ Module::compile()
 bool
 Module::optimize(uint_t level)
 {
+	// optimization requires knowledge of the DataLayout for TargetMachine
+
+	if (!m_llvmExecutionEngine)
+	{
+		bool result = createLlvmExecutionEngine();
+		if (!result)
+			return false;
+	}
+
 	// before running LLVM optimization passes, save LLVM names of declarations --
 	// corresponding llvm::Function*/llvm::GlobalVariable* may be optimized out
 
@@ -763,9 +772,12 @@ Module::jit()
 			return false;
 	}
 
-	result = createLlvmExecutionEngine();
-	if (!result)
-		return false;
+	if (!m_llvmExecutionEngine)
+	{
+		result = createLlvmExecutionEngine();
+		if (!result)
+			return false;
+	}
 
 	result =
 		m_extensionLibMgr.mapAddresses() &&
