@@ -40,6 +40,7 @@
 		of ``size`` bytes long.
 
 	\footnote f3
+
 		Note that this function uses ``C`` vararg calling convention(and
 		actually maps directly to libc ``snprintf``). As such, it is
 		**not safe**. It is recommended to use formatting literals instead.
