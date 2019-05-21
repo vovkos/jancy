@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy namespace.
 
-	Use functions from the :ref:`Namespace<cid-namespace>` to access and manage the contents of this structure.
+	Use functions from the `Namespace` group to access and manage the contents of this structure.
 
 	\endverbatim
 

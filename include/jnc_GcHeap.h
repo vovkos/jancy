@@ -31,7 +31,7 @@
 
 	Opaque structure used as a handle to Jancy garbage-collected heap.
 
-	Use functions from the :ref:`Garbage-Collected Heap<cid-gc-heap>` group to access and manage the contents of this structure.
+	Use functions from the `Garbage-Collected Heap` group to access and manage the contents of this structure.
 
 	\endverbatim
 

@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy variable.
 
-	Use functions from the :ref:`Variable<cid-variable>` to access and manage the contents of this structure.
+	Use functions from the `Variable` group to access and manage the contents of this structure.
 
 	\endverbatim
 

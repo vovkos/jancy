@@ -38,7 +38,7 @@
 
 	Opaque structure used as a handle to Jancy root type.
 
-	Use functions from the :ref:`Type<cid-type>` to access and manage the contents of this structure.
+	Use functions from the `Type` group to access and manage the contents of this structure.
 
 	\endverbatim
 

@@ -31,7 +31,7 @@
 
 	Opaque structure used as a handle to Jancy module item.
 
-	Use functions from the `Module Item` to access and manage the contents of this structure.
+	Use functions from the `Module Item` group to access and manage the contents of this structure.
 
 	\endverbatim
 
@@ -41,7 +41,7 @@
 
 	Opaque structure used as a handle to Jancy module item declaration.
 
-	Use functions from the :ref:`Module Item Declaration<cid-module-item-decl>` to access and manage the contents of this structure.
+	Use functions from the `Module Item Declaration` group to access and manage the contents of this structure.
 
 	\endverbatim
 

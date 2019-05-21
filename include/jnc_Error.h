@@ -30,7 +30,7 @@
 
 	Opaque structure used as a handle to Jancy error-describing buffer.
 
-	Use functions from the `Error Subsystem` to access and manage the contents of this structure.
+	Use functions from the `Error Subsystem` group to access and manage the contents of this structure.
 
 	\endverbatim
 

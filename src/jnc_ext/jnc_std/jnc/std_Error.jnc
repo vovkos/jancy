@@ -102,7 +102,7 @@ Error const* getLastError();
 
 	.. ref-code-block::
 
-		std.getLastError().:ref:`m_description<cid-std.error.m_description>`
+		std.getLastError().`m_description<std.Error.m_description>`
 */
 
 char const* getLastErrorDescription()

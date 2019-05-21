@@ -35,7 +35,7 @@
 
 	Opaque structure used as a handle to Jancy class type.
 
-	Use functions from the `Class Type` to access and manage the contents of this structure.
+	Use functions from the `Class Type` group to access and manage the contents of this structure.
 
 	\endverbatim
 

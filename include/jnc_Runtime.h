@@ -34,7 +34,7 @@
 
 	Opaque structure used as a handle to Jancy runtime.
 
-	Use functions from the :ref:`Runtime<cid-runtime>` group to access and manage the contents of this structure.
+	Use functions from the `Runtime` group to access and manage the contents of this structure.
 
 	\endverbatim
 

@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy property.
 
-	Use functions from the :ref:`Property<cid-property>` to access and manage the contents of this structure.
+	Use functions from the `Property` group to access and manage the contents of this structure.
 
 	\endverbatim
 

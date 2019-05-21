@@ -29,7 +29,7 @@
 
 	Opaque structure used as a handle to Jancy function.
 
-	Use functions from the :ref:`Function<cid-function>` to access and manage the contents of this structure.
+	Use functions from the `Function` group to access and manage the contents of this structure.
 
 	\endverbatim
 

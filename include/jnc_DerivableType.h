@@ -32,7 +32,7 @@
 
 	Opaque structure used as a handle to Jancy derivable type.
 
-	Use functions from the `Derivable Type` to access and manage the contents of this structure.
+	Use functions from the `Derivable Type` group to access and manage the contents of this structure.
 
 	\endverbatim
 

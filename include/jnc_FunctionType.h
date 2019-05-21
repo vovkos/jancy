@@ -32,7 +32,7 @@
 
 	Opaque structure used as a handle to Jancy function type.
 
-	Use functions from the `Function Type` to access and manage the contents of this structure.
+	Use functions from the `Function Type` group to access and manage the contents of this structure.
 
 	\endverbatim
 

@@ -229,7 +229,7 @@ opaque class Pcap
 		The second one, ``filter``, allows you to specify a capture filter
 		[#f4]_ which will be applied to incoming packets -- packets which do
 		not pass the filter, will never be signalled via
-		`io.PCapEvents.IncomingData` event and could not be read by ``read``
+		`io.PcapEvents.IncomingData` event and could not be read by ``read``
 		method.
 
 		The third and final parameter specifies whether to put interface in

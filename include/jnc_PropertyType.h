@@ -33,7 +33,7 @@ Each property in Jancy has one getter and zero or more setters. Property type ha
 
 	Opaque structure used as a handle to Jancy property type.
 
-	Use functions from the `Property Type` to access and manage the contents of this structure.
+	Use functions from the `Property Type` group to access and manage the contents of this structure.
 
 	\endverbatim
 
