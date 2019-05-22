@@ -1,11 +1,11 @@
 #...............................................................................
 #
-#  This file is part of the Graco toolkit.
+#  This file is part of the Jancy toolkit.
 #
-#  Graco is distributed under the MIT license.
+#  Jancy is distributed under the MIT license.
 #  For details see accompanying license.txt file,
 #  the public copy of which is also available at:
-#  http://tibbo.com/downloads/archive/graco/license.txt
+#  http://tibbo.com/downloads/archive/jancy/license.txt
 #
 #...............................................................................
 
@@ -18,9 +18,6 @@ init:
 
 clone_folder:  c:\projects\jancy
 shallow_clone: true
-
-matrix:
-    fast_finish: false
 
 platform:
     - x64
@@ -44,8 +41,8 @@ environment:
         -   LLVM_VERSION: 3.9.1
             TOOLCHAIN:    msvc15
 
-        -   LLVM_VERSION: 8.0.0
-            TOOLCHAIN:    msvc15
+matrix:
+    fast_finish: false
 
     exclude:
         -   image: Visual Studio 2015

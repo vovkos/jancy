@@ -22,6 +22,7 @@ if /i "%1" == "x64" goto :amd64
 if /i "%1" == "msvc10" goto :msvc10
 if /i "%1" == "msvc12" goto :msvc12
 if /i "%1" == "msvc14" goto :msvc14
+if /i "%1" == "msvc15" goto :msvc15
 
 echo Invalid argument: '%1'
 exit -1
@@ -66,6 +67,12 @@ goto :loop
 set TOOLCHAIN=msvc14
 set CMAKE_GENERATOR=Visual Studio 14 2015
 set LUA_TOOLCHAIN=dll14
+shift
+goto :loop
+
+:msvc15
+set TOOLCHAIN=msvc15
+set CMAKE_GENERATOR=Visual Studio 15 2017
 shift
 goto :loop
 
