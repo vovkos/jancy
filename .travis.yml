@@ -9,7 +9,7 @@
 #
 #...............................................................................
 
-dist:     trusty
+dist:     xenial
 sudo:     required
 language: cpp
 
@@ -30,10 +30,10 @@ env:
         - LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
         - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
         - LLVM_VERSION=3.4.2 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
-        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
-        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
-        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
-        - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+        - LLVM_VERSION=3.9.1 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+        - LLVM_VERSION=3.9.1 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+        - LLVM_VERSION=3.9.1 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+        - LLVM_VERSION=3.9.1 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
 
 matrix:
     exclude:
@@ -47,10 +47,10 @@ matrix:
           env: LLVM_VERSION=3.4.2 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
         - os:  osx
-          env: LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+          env: LLVM_VERSION=3.9.1 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
 
         - os:  osx
-          env: LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+          env: LLVM_VERSION=3.9.1 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 install:
     - source ci/travis/set-env.sh

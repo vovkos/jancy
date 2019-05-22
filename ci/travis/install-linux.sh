@@ -9,14 +9,6 @@
 #
 #...............................................................................
 
-# manually install CMake (we need at least CMake 3.3, repos only have 3.2)
-
-wget --quiet $CMAKE_URL
-mkdir -p $CMAKE_DIR
-tar --strip-components=1 -xzf $CMAKE_TAR -C $CMAKE_DIR
-
-# now to official APT packages
-
 if [ "$TARGET_CPU" != "x86" ]; then
 	sudo apt-get -qq update
 

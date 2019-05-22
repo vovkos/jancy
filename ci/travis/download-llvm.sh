@@ -10,40 +10,29 @@
 #...............................................................................
 
 if [ $TRAVIS_OS_NAME == "osx" ]; then
-	GNUSORT=gsort
+	DIST_SUFFIX=
 	CPU_SUFFIX=
 	CC_SUFFIX=
 else
-	GNUSORT=sort
+	DIST_SUFFIX=-$TRAVIS_DIST
 	CPU_SUFFIX=-$TARGET_CPU
 	CC_SUFFIX=-$CC
 fi
 
-isVersionGe ()
-{
-    [ $1 == `echo -e "$1\n$2" | $GNUSORT -V -r | head -n1` ]
-}
-
 if [ $BUILD_CONFIGURATION != "Debug" ]; then
 	DEBUG_SUFFIX=
-	TAR_FILE_EXT=.xz
 else
 	DEBUG_SUFFIX=-dbg
-
-	if isVersionGe $LLVM_VERSION 3.8; then
-		TAR_FILE_EXT=.gz
-	else
-		TAR_FILE_EXT=.xz
-	fi
 fi
 
-LLVM_TAR=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$CPU_SUFFIX$CC_SUFFIX$DEBUG_SUFFIX.tar$TAR_FILE_EXT
-LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/download/llvm-$LLVM_VERSION/$LLVM_TAR
+LLVM_RELEASE=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$DIST_SUFFIX
+LLVM_TAR=$LLVM_RELEASE$CPU_SUFFIX$CC_SUFFIX$DEBUG_SUFFIX.tar.xz
+LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/download/$LLVM_RELEASE/$LLVM_TAR
 
-if isVersionGe $LLVM_VERSION 3.9; then
-    LLVM_CMAKE_SUBDIR=lib/cmake/llvm
-else
+if [[ $LLVM_VERSION < "3.5.0" ]]; then
     LLVM_CMAKE_SUBDIR=share/llvm/cmake
+else
+    LLVM_CMAKE_SUBDIR=lib/cmake/llvm
 fi
 
 echo getting LLVM from: $LLVM_URL
