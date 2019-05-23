@@ -63,5 +63,7 @@ goto :eof
 
 :llvm34x
 
+echo set (LLVM_INC_DIR %DOWNLOAD_DIR_CMAKE%/include) >> paths.cmake
+echo set (LLVM_LIB_DIR %DOWNLOAD_DIR_CMAKE%/lib) >> paths.cmake
 echo set (LLVM_CMAKE_DIR %DOWNLOAD_DIR_CMAKE%/llvm/share/llvm/cmake) >> paths.cmake
 echo set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${LLVM_CMAKE_DIR}) >> paths.cmake

@@ -36,6 +36,8 @@ mkdir -p llvm
 tar --strip-components=1 -xf $LLVM_TAR -C llvm
 
 if [[ $LLVM_VERSION < "3.5.0" ]]; then
+	echo "set (LLVM_INC_DIR $(pwd)/llvm/include)" >> paths.cmake
+	echo "set (LLVM_LIB_DIR $(pwd)/llvm/lib)" >> paths.cmake
 	echo "set (LLVM_CMAKE_DIR $(pwd)/llvm/share/llvm/cmake)" >> paths.cmake
 	echo "set (CMAKE_MODULE_PATH \${CMAKE_MODULE_PATH} \${LLVM_CMAKE_DIR})" >> paths.cmake
 else
