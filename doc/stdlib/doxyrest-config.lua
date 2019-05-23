@@ -12,6 +12,7 @@
 INTRO_FILE = "intro.rst"
 LANGUAGE = "jancy"
 ML_PARAM_LIST_COUNT_THRESHOLD = 1
+PRE_BODY_NL = true
 FORCE_INCLUDE_FILE = "def.rst"
 CREF_DB = true
 
