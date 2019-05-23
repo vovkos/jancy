@@ -34,6 +34,10 @@ env:
         - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
         - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
         - LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+        - LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Debug
+        - LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=amd64 BUILD_CONFIGURATION=Release
+        - LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+        - LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 matrix:
     exclude:
@@ -51,6 +55,12 @@ matrix:
 
         - os:  osx
           env: LLVM_VERSION=3.9.1 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
+
+        - os:  osx
+          env: LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Debug
+
+        - os:  osx
+          env: LLVM_VERSION=8.0.0 CPP_STD=c++11 TARGET_CPU=x86 BUILD_CONFIGURATION=Release
 
 install:
     - source ci/travis/set-env.sh
