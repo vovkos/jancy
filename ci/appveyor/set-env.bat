@@ -82,18 +82,15 @@ goto :loop
 
 if "%TOOLCHAIN%" == "" goto :msvc14
 if "%TARGET_CPU%" == "" goto :amd64
-if "%CONFIGURATION%" == "" (set CONFIGURATION=Release)
+if "%CONFIGURATION%" == "" set CONFIGURATION=Release
 
 set LLVM_DEBUG_SUFFIX=
-set LLVM_CMAKE_SUBDIR=share/llvm/cmake
-set LLVM_VERSION_VALUE=%LLVM_VERSION:.=%
-if %LLVM_VERSION_VALUE% geq 390 (set LLVM_CMAKE_SUBDIR=lib/cmake/llvm)
-if "%CONFIGURATION%" == "Debug" (set LLVM_DEBUG_SUFFIX=-dbg)
+if "%CONFIGURATION%" == "Debug" set LLVM_DEBUG_SUFFIX=-dbg
 set LLVM_RELEASE_NAME=llvm-%LLVM_VERSION%-windows-%TARGET_CPU%-%TOOLCHAIN%-msvcrt%LLVM_DEBUG_SUFFIX%
 set LLVM_DOWNLOAD_FILE=%LLVM_RELEASE_NAME%.7z
 set LLVM_DOWNLOAD_URL=https://github.com/vovkos/llvm-package-windows/releases/download/llvm-%LLVM_VERSION%/%LLVM_DOWNLOAD_FILE%
 
-set LUA_VERSION=5.3.3
+set LUA_VERSION=5.3.5
 set LUA_LIB_NAME=lua53
 set LUA_DOWNLOAD_FILE=lua-%LUA_VERSION%_%LUA_PLATFORM%_%LUA_TOOLCHAIN%_lib.zip
 set LUA_DOWNLOAD_URL=https://sourceforge.net/projects/luabinaries/files/%LUA_VERSION%/Windows%%20Libraries/Dynamic/%LUA_DOWNLOAD_FILE%/download
@@ -110,8 +107,8 @@ set CMAKE_BUILD_FLAGS= ^
 	/consoleloggerparameters:Summary
 
 echo ---------------------------------------------------------------------------
+echo LLVM_VERSION:       %LLVM_VERSION%
 echo LLVM_DOWNLOAD_URL:  %LLVM_DOWNLOAD_URL%
-echo LLVM_CMAKE_SUBDIR:  %LLVM_CMAKE_SUBDIR%
 echo LUA_LIB_NAME:       %LUA_LIB_NAME%
 echo LUA_DOWNLOAD_URL:   %LUA_DOWNLOAD_URL%
 echo RAGEL_DOWNLOAD_URL: %RAGEL_DOWNLOAD_URL%

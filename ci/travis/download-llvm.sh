@@ -29,16 +29,15 @@ LLVM_RELEASE=llvm-$LLVM_VERSION-$TRAVIS_OS_NAME$DIST_SUFFIX
 LLVM_TAR=$LLVM_RELEASE$CPU_SUFFIX$CC_SUFFIX$DEBUG_SUFFIX.tar.xz
 LLVM_URL=https://github.com/vovkos/llvm-package-travis/releases/download/$LLVM_RELEASE/$LLVM_TAR
 
-if [[ $LLVM_VERSION < "3.5.0" ]]; then
-    LLVM_CMAKE_SUBDIR=share/llvm/cmake
-else
-    LLVM_CMAKE_SUBDIR=lib/cmake/llvm
-fi
-
 echo getting LLVM from: $LLVM_URL
 
 wget --quiet $LLVM_URL
 mkdir -p llvm
 tar --strip-components=1 -xf $LLVM_TAR -C llvm
 
-echo "set (LLVM_CMAKE_DIR $(pwd)/llvm/$LLVM_CMAKE_SUBDIR)" >> paths.cmake
+if [[ $LLVM_VERSION < "3.5.0" ]]; then
+	echo "set (LLVM_CMAKE_DIR $(pwd)/llvm/share/llvm/cmake" >> paths.cmake
+	echo "set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${LLVM_CMAKE_DIR}" >> paths.cmake
+else
+	echo "set (LLVM_CMAKE_DIR $(pwd)/llvm/lib/cmake/llvm)" >> paths.cmake
+fi
