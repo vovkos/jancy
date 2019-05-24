@@ -269,11 +269,16 @@ NamespaceMgr::openScope(
 	scope->m_pos = pos;
 	scope->m_flags |= flags;
 
-	if (scope->m_parentNamespace == scope->m_function->getScope())
+	bool isFunctionScope = scope->m_parentNamespace == scope->m_function->getScope();
+	if (isFunctionScope)
 		scope->m_flags |= ScopeFlag_Function;
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo)
-		scope->m_llvmDiScope = (llvm::DIScope_vn)m_module->m_llvmDiBuilder.createLexicalBlock(parentScope, pos);
+	{
+		scope->m_llvmDiScope = isFunctionScope ?
+			(llvm::DIScope_vn)scope->m_function->getLlvmDiSubprogram() :
+			(llvm::DIScope_vn)m_module->m_llvmDiBuilder.createLexicalBlock(parentScope, pos);
+	}
 
 	setSourcePos(pos);
 

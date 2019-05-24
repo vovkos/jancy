@@ -44,10 +44,7 @@ LlvmDiBuilder::create()
 		m_module->getName().sz(),
 		io::getCurrentDir().sz(),
 #else
-		m_llvmDiBuilder->createFile(
-			m_module->getName().sz(),
-			io::getCurrentDir().sz()
-			),
+		createFile(m_module->getName(), io::getCurrentDir()),
 #endif
 		"jnc-1.0.0",
 		false, "", 1
@@ -455,23 +452,42 @@ LlvmDiBuilder::createFunction(Function* function)
 		NULL,                              // MDNode *TParams
 		NULL                               // MDNode *Decl
 		);
-#else
+#elif (LLVM_VERSION < 0x0800)
 	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
 	ASSERT(llvm::isa<llvm::DISubroutineType> (llvmDiSubroutineType));
 
-	return m_llvmDiBuilder->createFunction(
-		(llvm::DIScope*) NULL,             // DIScope *Scope
+	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
+		unit->getLlvmDiFile(),             // DIScope *Scope
 		function->getQualifiedName().sz(), // StringRef Name
 		function->getQualifiedName().sz(), // StringRef LinkageName
 		unit->getLlvmDiFile(),             // DIFile *File
 		declPos.m_line + 1,                // unsigned LineNo
 		llvmDiSubroutineType,              // DISubroutineType *Ty
-#	if (LLVM_VERSION < 0x0800)
 		false,                             // bool isLocalToUnit
 		true,                              // bool isDefinition
-#	endif
-		scopePos.m_line + 1                // unsigned ScopeLine
+		scopePos.m_line + 1,               // unsigned ScopeLine
 		);
+
+	function->getLlvmFunction()->setSubprogram(subprogram);
+	return subprogram;
+#else
+	llvm::DISubroutineType* llvmDiSubroutineType = (llvm::DISubroutineType*)function->getType()->getLlvmDiType();
+	ASSERT(llvm::isa<llvm::DISubroutineType> (llvmDiSubroutineType));
+
+	llvm::DISubprogram* subprogram = m_llvmDiBuilder->createFunction(
+		unit->getLlvmDiFile(),               // DIScope *Scope
+		function->getQualifiedName().sz(),   // StringRef Name
+		function->getQualifiedName().sz(),   // StringRef LinkageName
+		unit->getLlvmDiFile(),               // DIFile *File
+		declPos.m_line + 1,                  // unsigned LineNo
+		llvmDiSubroutineType,                // DISubroutineType *Ty
+		scopePos.m_line + 1,                 // unsigned ScopeLine
+		llvm::DINode::FlagZero,              // DINode::DIFlags Flags
+		llvm::DISubprogram::SPFlagDefinition // DISubroutine::DISPFlags SPFlags
+		);
+
+	function->getLlvmFunction()->setSubprogram(subprogram);
+	return subprogram;
 #endif
 }
 
@@ -500,7 +516,8 @@ LlvmDiBuilder::createLexicalBlock(
 	return m_llvmDiBuilder->createLexicalBlock(
 		llvmParentBlock,
 		unit->getLlvmDiFile(),
-		pos.m_line + 1, 0
+		pos.m_line + 1,
+		pos.m_col + 1
 #if (LLVM_VERSION == 0x0305)
 		,0 // unsigned Discriminator
 #endif

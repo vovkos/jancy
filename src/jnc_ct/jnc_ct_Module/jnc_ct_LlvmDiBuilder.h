@@ -80,7 +80,7 @@ public:
 		const Token::Pos& pos
 		)
 	{
-		return llvm::DebugLoc::get(pos.m_line + 1, 0, scope->getLlvmDiScope());
+		return llvm::DebugLoc::get(pos.m_line + 1, pos.m_col + 1, scope->getLlvmDiScope());
 	}
 
 	llvm::DebugLoc
