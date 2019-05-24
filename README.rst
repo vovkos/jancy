@@ -48,7 +48,7 @@ Design Principles
 
 * LLVM as a back-end
 
-	This was a no-brainer from the very beginning. I started with LLVM 3.1 five years ago; at the present moment Jancy builds and runs with any LLVM version from 3.4.2 all the way up to 5.0.0
+	This was a no-brainer from the very beginning. I started with LLVM 3.1 five years ago; at the present moment Jancy builds and runs with any LLVM version from 3.4.2 all the way up to 8.0.0
 
 Key Features
 ------------
