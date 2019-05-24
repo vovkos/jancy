@@ -134,20 +134,12 @@ TypeMgr::getStdType(StdType stdType)
 		type = getStdType(StdType_DataBox)->getDataPtrType_c();
 		break;
 
-	case StdType_DynamicArrayBox:
-		type = createDynamicArrayBoxType();
+	case StdType_DetachedDataBox:
+		type = createDetachedDataBoxType();
 		break;
 
-	case StdType_DynamicArrayBoxPtr:
-		type = getStdType(StdType_DynamicArrayBox)->getDataPtrType_c();
-		break;
-
-	case StdType_StaticDataBox:
-		type = createStaticDataBoxType();
-		break;
-
-	case StdType_StaticDataBoxPtr:
-		type = getStdType(StdType_StaticDataBox)->getDataPtrType_c();
+	case StdType_DetachedDataBoxPtr:
+		type = getStdType(StdType_DetachedDataBox)->getDataPtrType_c();
 		break;
 
 	case StdType_DataPtrValidator:
@@ -2471,23 +2463,12 @@ TypeMgr::createDataBoxType()
 }
 
 StructType*
-TypeMgr::createDynamicArrayBoxType()
+TypeMgr::createDetachedDataBoxType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.DynamicArrayBox");
+	StructType* type = createStructType(sl::String(), "jnc.DetachedDataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
-	type->createField("!m_count", getPrimitiveType (TypeKind_Int64_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
-	type->ensureLayout();
-	return type;
-}
-
-StructType*
-TypeMgr::createStaticDataBoxType()
-{
-	StructType* type = createStructType(sl::String(), "jnc.StaticDataBox");
-	type->createField("!m_type", getStdType (StdType_BytePtr));
-	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->ensureLayout();
 	return type;

@@ -37,6 +37,16 @@ namespace rt {
 
 //..............................................................................
 
+inline
+size_t
+getDynamicArrayElementCount(DataBox* box)
+{
+	ASSERT(box->m_box.m_flags & BoxFlag_DynamicArray);
+	return box->m_validator.getRangeLength() / box->m_box.m_type->getSize();
+}
+
+//..............................................................................
+
 GcHeap::GcHeap()
 {
 	m_runtime = containerof(this, Runtime, m_gcHeap);
@@ -502,7 +512,7 @@ GcHeap::tryAllocateArray(
 {
 	size_t size = type->getSize() * count;
 
-	DynamicArrayBox* box = AXL_MEM_NEW_EXTRA(DynamicArrayBox, size);
+	DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
 	if (!box)
 	{
 		err::setFormatStringError("not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
@@ -514,7 +524,6 @@ GcHeap::tryAllocateArray(
 	box->m_box.m_type = type;
 	box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 	box->m_box.m_rootOffset = 0;
-	box->m_count = count;
 	box->m_validator.m_validatorBox = (Box*)box;
 	box->m_validator.m_targetBox = (Box*)box;
 	box->m_validator.m_rangeBegin = box + 1;
@@ -599,32 +608,35 @@ GcHeap::createDataPtrValidator(
 	}
 	else
 	{
-		size_t size = sizeof(DataPtrValidator)* GcDef_DataPtrValidatorPoolSize;
+		size_t size = sizeof(DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
 
-		DynamicArrayBox* box = AXL_MEM_NEW_EXTRA(DynamicArrayBox, size);
+		DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
 		if (!box)
 		{
 			Runtime::dynamicThrow();
 			ASSERT(false);
 		}
 
+		validator = (DataPtrValidator*) (box + 1);
+		validator->m_validatorBox = (Box*)box;
+
 		box->m_box.m_type = (jnc::Type*)m_runtime->getModule()->m_typeMgr.getStdType(StdType_DataPtrValidator);
 		box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
 		box->m_box.m_rootOffset = 0;
-		box->m_count = GcDef_DataPtrValidatorPoolSize;
+		box->m_validator.m_targetBox = (Box*)box;
+		box->m_validator.m_validatorBox = (Box*)box;
+		box->m_validator.m_rangeBegin = validator;
+		box->m_validator.m_rangeEnd = validator + GcDef_DataPtrValidatorPoolSize;
 
 		incrementAllocSizeAndLock(size);
 		m_allocBoxArray.append((Box*)box);
 		m_lock.unlock();
 
-		validator = &box->m_validator;
-		validator->m_validatorBox = (Box*)box;
-
 		if (GcDef_DataPtrValidatorPoolSize >= 2)
 		{
 			thread->m_dataPtrValidatorPoolBegin = validator + 1;
 			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = (Box*)box;
-			thread->m_dataPtrValidatorPoolEnd = validator + GcDef_DataPtrValidatorPoolSize;
+			thread->m_dataPtrValidatorPoolEnd = (DataPtrValidator*)box->m_validator.m_rangeEnd;
 		}
 	}
 
@@ -828,6 +840,8 @@ GcHeap::registerMutatorThread(GcMutatorThread* thread)
 	thread->m_noCollectRegionLevel = 0;
 	thread->m_dataPtrValidatorPoolBegin = NULL;
 	thread->m_dataPtrValidatorPoolEnd = NULL;
+	thread->m_detachedDataBoxPoolBegin = NULL;
+	thread->m_detachedDataBoxPoolEnd = NULL;
 
 	m_mutatorThreadList.insertTail(thread);
 	m_lock.unlock();
@@ -987,6 +1001,8 @@ GcHeap::markData(Box* box)
 	if (box->m_flags & BoxFlag_DataMark)
 		return;
 
+	ASSERT(!(box->m_flags & BoxFlag_Static)); // statics are always marked
+
 	weakMark(box);
 
 	box->m_flags |= BoxFlag_DataMark;
@@ -994,7 +1010,6 @@ GcHeap::markData(Box* box)
 	if (!(box->m_type->getFlags() & TypeFlag_GcRoot))
 		return;
 
-	ASSERT(!(box->m_flags & BoxFlag_StaticData));
 	if (box->m_type->getTypeKind() == TypeKind_Class)
 	{
 		addRoot(box, box->m_type);
@@ -1005,8 +1020,8 @@ GcHeap::markData(Box* box)
 	}
 	else
 	{
-		DynamicArrayBox* arrayBox = (DynamicArrayBox*)box;
-		addRootArray(arrayBox + 1, arrayBox->m_box.m_type, arrayBox->m_count);
+		size_t count = getDynamicArrayElementCount((DataBox*)box);
+		addRootArray((DataBox*)box + 1, box->m_type, count);
 	}
 }
 
@@ -1015,6 +1030,8 @@ GcHeap::markClass(Box* box)
 {
 	if (box->m_flags & BoxFlag_ClassMark)
 		return;
+
+	ASSERT(!(box->m_flags & BoxFlag_Static)); // statics are always marked
 
 	weakMark(box);
 	markClassFields(box);
@@ -1386,6 +1403,11 @@ GcHeap::collect_l(bool isMutatorThread)
 
 		if (thread->m_dataPtrValidatorPoolBegin)
 			weakMark(thread->m_dataPtrValidatorPoolBegin->m_validatorBox);
+
+		// detached data box pool
+
+		if (thread->m_detachedDataBoxPoolBegin)
+			weakMark((Box*)((char*)thread->m_detachedDataBoxPoolBegin - thread->m_detachedDataBoxPoolBegin->m_box.m_rootOffset));
 	}
 
 	// run mark cycle
@@ -1485,7 +1507,7 @@ GcHeap::collect_l(bool isMutatorThread)
 		{
 			size_t size = box->m_type->getSize();
 			if (box->m_flags & BoxFlag_DynamicArray)
-				size *= ((DynamicArrayBox*)box)->m_count;
+				size *= getDynamicArrayElementCount((DataBox*)box);
 
 			freeSize += size;
 

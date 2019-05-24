@@ -1,0 +1,29 @@
+// this test demonstrates a bug in dynamic cast
+
+struct BaseA
+{
+	int m_a;
+}
+
+struct BaseB
+{
+	int m_b;
+}
+
+struct Derived: BaseA, BaseB
+{
+	int m_c;
+}
+
+int main()
+{
+	Derived* d = new Derived;
+	printf("d: %p\n", d);
+
+	BaseB* b = d;
+
+	Derived* d2 = dynamic (Derived*)b;
+	assert(d2 == d);
+
+	return 0;
+}

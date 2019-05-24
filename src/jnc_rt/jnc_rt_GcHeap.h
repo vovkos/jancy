@@ -189,6 +189,19 @@ public:
 		size_t rangeLength
 		);
 
+	DataPtr
+	createForeignDataPtr(
+		void* p,
+		ct::Type* type
+		);
+
+	DataPtr
+	createForeignArrayPtr(
+		void* p,
+		ct::Type* type,
+		size_t count
+		);
+
 	// dynamic layout methods
 
 	IfaceHdr*

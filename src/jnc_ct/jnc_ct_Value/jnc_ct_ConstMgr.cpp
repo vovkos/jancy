@@ -29,7 +29,7 @@ ConstMgr::clear()
 {
 	m_valueList.clear();
 	m_constList.clear();
-	m_constDataPtrValidatorList.clear();
+	m_constBoxList.clear();
 }
 
 Const*
@@ -62,17 +62,17 @@ ConstMgr::createConstDataPtrValidator(
 	Type* type
 	)
 {
-	ConstDataPtrValidatorEntry* entry = AXL_MEM_NEW(ConstDataPtrValidatorEntry);
-	entry->m_box.m_box.m_flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
-	entry->m_box.m_box.m_type = type;
-	entry->m_box.m_p = (void*)p;
-	entry->m_validator.m_validatorBox = &entry->m_box.m_box;
-	entry->m_validator.m_targetBox = &entry->m_box.m_box;
-	entry->m_validator.m_rangeBegin = p;
-	entry->m_validator.m_rangeEnd = (char*)p + type->getSize();
-	m_constDataPtrValidatorList.insertTail(entry);
+	DetachedDataBox* box = m_constBoxList.insertTail().p();
+	box->m_box.m_type = type;
+	box->m_box.m_flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
+	box->m_box.m_rootOffset = 0;
+	box->m_validator.m_validatorBox = &box->m_box;
+	box->m_validator.m_targetBox = &box->m_box;
+	box->m_validator.m_rangeBegin = p;
+	box->m_validator.m_rangeEnd = (char*)p + type->getSize();
+	box->m_p = (void*)p;
 
-	return &entry->m_validator;
+	return &box->m_validator;
 }
 
 //..............................................................................

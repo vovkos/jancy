@@ -139,8 +139,8 @@ public:
 	Variable*
 	createOnceFlagVariable(StorageKind storageKind = StorageKind_Static);
 
-	Variable*
-	createStaticDataPtrValidatorVariable(Variable* variable);
+	LeanDataPtrValidator*
+	createStaticDataPtrValidator(Variable* variable);
 
 	Variable*
 	createArgVariable(

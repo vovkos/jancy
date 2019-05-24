@@ -868,10 +868,7 @@ protected:
 	createDataBoxType();
 
 	StructType*
-	createDynamicArrayBoxType();
-
-	StructType*
-	createStaticDataBoxType();
+	createDetachedDataBoxType();
 
 	StructType*
 	createDataPtrValidatorType();

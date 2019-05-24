@@ -27,10 +27,9 @@
 */
 
 typedef struct jnc_Box jnc_Box;
-typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
 typedef struct jnc_DataBox jnc_DataBox;
-typedef struct jnc_StaticDataBox jnc_StaticDataBox;
-typedef struct jnc_DynamicArrayBox jnc_DynamicArrayBox;
+typedef struct jnc_DetachedDataBox jnc_DetachedDataBox;
+typedef struct jnc_DataPtrValidator jnc_DataPtrValidator;
 typedef struct jnc_DataPtr jnc_DataPtr;
 typedef struct jnc_FunctionPtr jnc_FunctionPtr;
 typedef struct jnc_PropertyPtr jnc_PropertyPtr;
@@ -57,15 +56,16 @@ typedef struct jnc_CallSite jnc_CallSite;
 
 enum jnc_BoxFlag
 {
-	jnc_BoxFlag_WeakMark        = 0x01,
-	jnc_BoxFlag_ClosureWeakMark = 0x02,
-	jnc_BoxFlag_DataMark        = 0x04,
-	jnc_BoxFlag_ClassMark       = 0x08,
-	jnc_BoxFlag_Zombie          = 0x10,
-	jnc_BoxFlag_StaticData      = 0x20,
-	jnc_BoxFlag_DynamicArray    = 0x40,
-
-	jnc_BoxFlag_MarkMask        = 0x0f,
+	jnc_BoxFlag_WeakMark        = 0x0001,
+	jnc_BoxFlag_ClosureWeakMark = 0x0002,
+	jnc_BoxFlag_DataMark        = 0x0004,
+	jnc_BoxFlag_ClassMark       = 0x0008,
+	jnc_BoxFlag_Zombie          = 0x0010,
+	jnc_BoxFlag_Static          = 0x0020,
+	jnc_BoxFlag_DynamicArray    = 0x0040,
+	jnc_BoxFlag_Detached        = 0x0080,
+	jnc_BoxFlag_Invalid         = 0x8000,
+	jnc_BoxFlag_MarkMask        = 0x000f,
 };
 
 typedef enum jnc_BoxFlag jnc_BoxFlag;
@@ -106,6 +106,14 @@ struct jnc_DataPtrValidator
 	jnc_Box* m_targetBox;
 	const void* m_rangeBegin;
 	const void* m_rangeEnd;
+
+#ifdef __cplusplus
+	size_t
+	getRangeLength()
+	{
+		return (char*)m_rangeEnd - (char*)m_rangeBegin;
+	}
+#endif
 };
 
 //..............................................................................
@@ -140,26 +148,15 @@ struct jnc_DataBox
 {
 	jnc_Box m_box;
 	jnc_DataPtrValidator m_validator;
+
+	// followed by actual data
 };
 
-struct jnc_StaticDataBox
+struct jnc_DetachedDataBox
 {
 	jnc_Box m_box;
-	void* m_p; // static data boxes are detached from the actual data
-};
-
-struct jnc_DynamicArrayBox
-{
-	jnc_Box m_box;
-
-	union
-	{
-		/// \unnamed{union}
-		size_t m_count;
-		uint64_t m_padding; // ensure 8-byte alignment
-	};
-
-	jnc_DataPtrValidator m_validator; // when gcheap allocates validators, it re-uses this field
+	jnc_DataPtrValidator m_validator;
+	void* m_p; // detached from the actual data (used for static, foreign)
 };
 
 //..............................................................................
@@ -286,6 +283,8 @@ struct jnc_GcMutatorThread
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
+	jnc_DetachedDataBox* m_detachedDataBoxPoolBegin;
+	jnc_DetachedDataBox* m_detachedDataBoxPoolEnd;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -381,26 +380,27 @@ namespace jnc {
 
 //..............................................................................
 
-enum BoxFlag
-{
+typedef jnc_BoxFlag BoxFlag;
+
+const BoxFlag
 	BoxFlag_WeakMark        = jnc_BoxFlag_WeakMark,
 	BoxFlag_ClosureWeakMark = jnc_BoxFlag_ClosureWeakMark,
 	BoxFlag_DataMark        = jnc_BoxFlag_DataMark,
 	BoxFlag_ClassMark       = jnc_BoxFlag_ClassMark,
 	BoxFlag_Zombie          = jnc_BoxFlag_Zombie,
-	BoxFlag_StaticData      = jnc_BoxFlag_StaticData,
+	BoxFlag_Static          = jnc_BoxFlag_Static,
 	BoxFlag_DynamicArray    = jnc_BoxFlag_DynamicArray,
-	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask,
-};
+	BoxFlag_Detached        = jnc_BoxFlag_Detached,
+	BoxFlag_Invalid         = jnc_BoxFlag_Invalid,
+	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
 typedef jnc_Box Box;
-typedef jnc_DataPtrValidator DataPtrValidator;
 typedef jnc_DataBox DataBox;
-typedef jnc_StaticDataBox StaticDataBox;
-typedef jnc_DynamicArrayBox DynamicArrayBox;
+typedef jnc_DetachedDataBox DetachedDataBox;
+typedef jnc_DataPtrValidator DataPtrValidator;
 typedef jnc_DataPtr DataPtr;
 typedef jnc_FunctionPtr FunctionPtr;
 typedef jnc_PropertyPtr PropertyPtr;

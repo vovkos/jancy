@@ -48,18 +48,11 @@ class ConstMgr
 	friend class Module;
 
 protected:
-	struct ConstDataPtrValidatorEntry: sl::ListLink
-	{
-		StaticDataBox m_box;
-		DataPtrValidator m_validator;
-	};
-
-protected:
 	Module* m_module;
 
 	sl::BoxList<Value> m_valueList;
 	sl::List<Const> m_constList;
-	sl::List<ConstDataPtrValidatorEntry> m_constDataPtrValidatorList;
+	sl::BoxList<DetachedDataBox> m_constBoxList;
 
 public:
 	ConstMgr();

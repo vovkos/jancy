@@ -416,16 +416,26 @@ VariableMgr::createOnceFlagVariable(StorageKind storageKind)
 		);
 }
 
-Variable*
-VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
+LeanDataPtrValidator*
+VariableMgr::createStaticDataPtrValidator(Variable* variable)
 {
 	ASSERT(variable->m_storageKind == StorageKind_Static);
 
-	// create static box
+	// create detached static data box
 
-	StructType* boxType = (StructType*)m_module->m_typeMgr.getStdType(StdType_StaticDataBox);
+	StructType* boxType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DetachedDataBox);
+	StructType* validatorType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DataPtrValidator);
 
-	uintptr_t flags = BoxFlag_StaticData | BoxFlag_DataMark | BoxFlag_WeakMark;
+	sl::String boxName = variable->getQualifiedName() + ".box";
+
+	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
+		*m_module->getLlvmModule(),
+		boxType->getLlvmType(),
+		false,
+		llvm::GlobalVariable::InternalLinkage,
+		NULL,
+		boxName >> toLlvm
+		);
 
 	Value variablePtrValue;
 	Value variableEndPtrValue;
@@ -446,31 +456,9 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 	ASSERT(llvm::isa<llvm::Constant> (variablePtrValue.getLlvmValue()));
 	ASSERT(llvm::isa<llvm::Constant> (variableEndPtrValue.getLlvmValue()));
 
+	// validator initializer
+
 	llvm::Constant* llvmMemberArray[4]; // this buffer is used twice
-
-	llvmMemberArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_BytePtr), &variable->m_type),
-	llvmMemberArray[1] = Value::getLlvmConst(m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u), &flags),
-	llvmMemberArray[2] = (llvm::Constant*)variablePtrValue.getLlvmValue();
-
-	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get(
-		(llvm::StructType*)boxType->getLlvmType(),
-		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 3)
-		);
-
-	sl::String boxName = variable->getQualifiedName() + ".box";
-
-	llvm::GlobalVariable* llvmBoxVariable = new llvm::GlobalVariable(
-		*m_module->getLlvmModule(),
-		boxType->getLlvmType(),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		llvmBoxConst,
-		boxName.sz()
-		);
-
-	// now validator
-
-	StructType* validatorType = (StructType*)m_module->m_typeMgr.getStdType(StdType_DataPtrValidator);
 
 	Value boxPtrValue;
 	m_module->m_llvmIrBuilder.createBitCast(
@@ -491,31 +479,33 @@ VariableMgr::createStaticDataPtrValidatorVariable(Variable* variable)
 		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
 		);
 
-	sl::String validatorName = variable->getQualifiedName() + ".validator";
+	// box initializer
 
-	llvm::GlobalVariable* llvmValidatorVariable = new llvm::GlobalVariable(
-		*m_module->getLlvmModule(),
-		validatorType->getLlvmType(),
-		false,
-		llvm::GlobalVariable::InternalLinkage,
-		llvmValidatorConst,
-		validatorName.sz()
+	uintptr_t flags = BoxFlag_Detached | BoxFlag_Static | BoxFlag_DataMark | BoxFlag_WeakMark;
+
+	llvmMemberArray[0] = Value::getLlvmConst(m_module->m_typeMgr.getStdType(StdType_BytePtr), &variable->m_type);
+	llvmMemberArray[1] = Value::getLlvmConst(m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr_u), &flags);
+	llvmMemberArray[2] = llvmValidatorConst;
+	llvmMemberArray[3] = (llvm::Constant*)variablePtrValue.getLlvmValue();
+
+	llvm::Constant* llvmBoxConst = llvm::ConstantStruct::get(
+		(llvm::StructType*)boxType->getLlvmType(),
+		llvm::ArrayRef<llvm::Constant*> (llvmMemberArray, 4)
 		);
 
-	Variable* validatorVariable = AXL_MEM_NEW(Variable);
-	validatorVariable->m_module = m_module;
-	validatorVariable->m_name = validatorName;
-	validatorVariable->m_qualifiedName = validatorName;
-	validatorVariable->m_type = validatorType;
-	validatorVariable->m_storageKind = StorageKind_Static;
-	validatorVariable->m_ptrTypeFlags = 0;
-	validatorVariable->m_scope = NULL;
-	validatorVariable->m_llvmValue = llvmValidatorVariable;
-	m_variableList.insertTail(validatorVariable);
+	llvmBoxVariable->setInitializer(llvmBoxConst);
+
+	Value validatorPtrValue;
+	m_module->m_llvmIrBuilder.createGep2(
+		llvmBoxVariable,
+		2,
+		m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr),
+		&validatorPtrValue
+		);
 
 	LeanDataPtrValidator* validator = variable->getLeanDataPtrValidator();
-	validator->m_validatorValue = validatorVariable;
-	return validatorVariable;
+	validator->m_validatorValue = validatorPtrValue;
+	return validator;
 }
 
 bool

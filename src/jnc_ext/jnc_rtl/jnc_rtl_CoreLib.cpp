@@ -73,7 +73,11 @@ dynamicCastDataPtr(
 		return g_nullPtr;
 
 	Box* box = ptr.m_validator->m_targetBox;
-	void* p = (box->m_flags & BoxFlag_StaticData) ? ((StaticDataBox*)box)->m_p : box + 1;
+	void* p =
+		(box->m_type->getTypeKind() == TypeKind_Class) ? box + 1 :
+		(box->m_flags & BoxFlag_Detached) ? ((DetachedDataBox*)box)->m_p :
+		((DataBox*)box + 1);
+
 	if (ptr.m_p < p)
 		return g_nullPtr;
 
@@ -158,6 +162,7 @@ primeStaticClass(
 	)
 {
 	primeClass(box, type);
+	box->m_flags |= BoxFlag_Static;
 }
 
 IfaceHdr*

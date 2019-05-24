@@ -56,7 +56,7 @@ LeanDataPtrValidator::createValidator()
 			switch (storageKind)
 			{
 			case StorageKind_Static:
-				module->m_variableMgr.createStaticDataPtrValidatorVariable(variable);
+				module->m_variableMgr.createStaticDataPtrValidator(variable);
 				break;
 
 			case StorageKind_Stack:
