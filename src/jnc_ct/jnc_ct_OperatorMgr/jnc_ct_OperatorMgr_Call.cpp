@@ -646,7 +646,7 @@ OperatorMgr::gcSafePoint()
 			llvm::AtomicRMWInst::Xchg,
 			ptrValue,
 			value,
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x030900)
 			llvm::AcquireRelease,
 #else
 			llvm::AtomicOrdering::AcquireRelease,

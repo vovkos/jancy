@@ -620,7 +620,7 @@ ControlFlowMgr::onceStmt_PreBody(
 			stmt->m_flagVariable,
 			Value((int64_t) 0, type),
 			Value(1, type),
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x030900)
 			llvm::Acquire,
 #else
 			llvm::AtomicOrdering::Acquire,
@@ -629,7 +629,7 @@ ControlFlowMgr::onceStmt_PreBody(
 			&value
 			);
 
-#if (LLVM_VERSION < 0x0305)
+#if (LLVM_VERSION < 0x030500)
 		result =
 			m_module->m_operatorMgr.binaryOperator(BinOpKind_Eq, value, Value((int64_t) 0, type), &value) &&
 			conditionalJump(value, bodyBlock, loopBlock);
@@ -674,7 +674,7 @@ ControlFlowMgr::onceStmt_PostBody(
 			llvm::AtomicRMWInst::Xchg,
 			stmt->m_flagVariable,
 			Value((int64_t) 2, type),
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x030900)
 			llvm::Release,
 #else
 			llvm::AtomicOrdering::Release,

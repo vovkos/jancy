@@ -50,7 +50,7 @@
 
 // make an easily comparable version like 0x0304
 
-#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 8) | LLVM_VERSION_MINOR)
+#define LLVM_VERSION ((LLVM_VERSION_MAJOR << 16) | (LLVM_VERSION_MINOR << 8) | LLVM_VERSION_PATCH)
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -60,7 +60,7 @@
 
 // they moved things around in LLVM 3.5
 
-#if (LLVM_VERSION < 0x0305)
+#if (LLVM_VERSION < 0x030500)
 #	include <llvm/PassManager.h>
 #	include <llvm/DIBuilder.h>
 #	include <llvm/DebugInfo.h>
@@ -92,7 +92,7 @@
 // application does not use those classes -- then why link to LLVM?)
 
 #ifndef _JNC_LLVM_NO_JIT
-#	if (LLVM_VERSION < 0x0306) // legacy JIT is gone in LLVM 3.6
+#	if (LLVM_VERSION < 0x030600) // legacy JIT is gone in LLVM 3.6
 #		include <llvm/ExecutionEngine/JIT.h>
 #		include <llvm/ExecutionEngine/JITMemoryManager.h>
 #	endif
@@ -159,8 +159,8 @@ public:
 
 namespace llvm {
 
-#if (LLVM_VERSION < 0x0307)
-#	if (LLVM_VERSION < 0x0306)
+#if (LLVM_VERSION < 0x030700)
+#	if (LLVM_VERSION < 0x030600)
 
 typedef DICompositeType DISubroutineType_vn;
 typedef Value Metadata;
@@ -197,7 +197,7 @@ typedef InitializedPtr<DIFile> DIFile_vn;
 
 #endif
 
-#if (LLVM_VERSION < 0x0400)
+#if (LLVM_VERSION < 0x040000)
 
 typedef unsigned DIFlags;
 
@@ -207,7 +207,7 @@ typedef DINode::DIFlags DIFlags;
 
 #endif
 
-#if (LLVM_VERSION < 0x0500)
+#if (LLVM_VERSION < 0x050000)
 
 typedef SynchronizationScope SynchronizationScope_vn;
 const SynchronizationScope DefaultSynchronizationScope_vn = CrossThread;

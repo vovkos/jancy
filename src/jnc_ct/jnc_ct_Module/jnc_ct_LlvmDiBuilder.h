@@ -103,7 +103,7 @@ public:
 		uint_t code
 		)
 	{
-#if (LLVM_VERSION < 0x0400)
+#if (LLVM_VERSION < 0x040000)
 		return m_llvmDiBuilder->createBasicType(name >> toLlvm, size * 8, alignment * 8, code);
 #else
 		return m_llvmDiBuilder->createBasicType(name >> toLlvm, size * 8, code);
@@ -131,7 +131,7 @@ public:
 	llvm::DIType_vn
 	createPointerType(Type* type);
 
-#if (LLVM_VERSION < 0x0400)
+#if (LLVM_VERSION < 0x040000)
 	// this method requires some serious porting on LLVM 4, but it's not used now anyway, so...
 	llvm::DIGlobalVariable_vn
 	createGlobalVariable(Variable* variable);

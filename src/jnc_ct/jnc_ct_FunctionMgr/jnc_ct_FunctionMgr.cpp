@@ -357,7 +357,7 @@ FunctionMgr::epilogue()
 	finalizeFunction(function, true);
 
 #if (_JNC_DEBUG && _JNC_LLVM_VERIFY)
-#	if (LLVM_VERSION < 0x0305)
+#	if (LLVM_VERSION < 0x030500)
 	bool isBroken = llvm::verifyFunction(*function->getLlvmFunction(), llvm::ReturnStatusAction);
 #	else
 	bool isBroken = llvm::verifyFunction(*function->getLlvmFunction());

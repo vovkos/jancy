@@ -2293,7 +2293,7 @@ TypeMgr::setupPrimitiveType(
 	type->m_alignment = size;
 	type->m_signature = signature;
 	type->m_llvmType = NULL;
-#if (LLVM_VERSION < 0x0309)
+#if (LLVM_VERSION < 0x030900)
 	type->m_llvmDiType = llvm::DIType_vn();
 #else
 	type->m_llvmDiType = NULL;

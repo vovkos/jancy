@@ -114,7 +114,7 @@ Module::initialize(
 	compileFlags |= ModuleCompileFlag_SimpleGcSafePoint;
 #endif
 
-#if (LLVM_VERSION >= 0x0306)
+#if (LLVM_VERSION >= 0x030600)
 	compileFlags |= ModuleCompileFlag_McJit;
 #endif
 
@@ -188,7 +188,7 @@ Module::createLlvmExecutionEngine()
 	enableMerge->setValue(false);
 #endif
 
-#if (LLVM_VERSION < 0x0306)
+#if (LLVM_VERSION < 0x030600)
 	llvm::EngineBuilder engineBuilder(m_llvmModule);
 #else
 	llvm::EngineBuilder engineBuilder(std::move(std::unique_ptr<llvm::Module> (m_llvmModule)));
@@ -207,11 +207,11 @@ Module::createLlvmExecutionEngine()
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
 		JitMemoryMgr* jitMemoryMgr = new JitMemoryMgr(this);
-#if (LLVM_VERSION < 0x0306)
+#if (LLVM_VERSION < 0x030600)
 		engineBuilder.setUseMCJIT(true);
 		engineBuilder.setMCJITMemoryManager(jitMemoryMgr);
 		targetOptions.JITEmitDebugInfo = true;
-#elif (LLVM_VERSION < 0x0307)
+#elif (LLVM_VERSION < 0x030700)
 		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
 		targetOptions.JITEmitDebugInfo = true;
 #else
@@ -252,7 +252,7 @@ Module::createLlvmExecutionEngine()
 	}
 	else
 	{
-#if (LLVM_VERSION >= 0x0306) // legacy JIT is gone in LLVM 3.6
+#if (LLVM_VERSION >= 0x030600) // legacy JIT is gone in LLVM 3.6
 		ASSERT(false); // should have been checked earlier
 #else
 #	if (_JNC_OS_WIN && _JNC_CPU_AMD64)
@@ -358,7 +358,7 @@ Module::mapVariable(
 		llvmVariable->replaceAllUsesWith(llvmMapping);
 		llvmVariable->eraseFromParent();
 
-#if (LLVM_VERSION >= 0x0400)
+#if (LLVM_VERSION >= 0x040000)
 		ASSERT(m_llvmExecutionEngine);
 		m_llvmExecutionEngine->addGlobalMapping(llvmMapping, p);
 #else
