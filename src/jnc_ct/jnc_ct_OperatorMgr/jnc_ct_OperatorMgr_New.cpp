@@ -25,7 +25,6 @@ OperatorMgr::memSet(
 	const Value& value,
 	char c,
 	size_t size,
-	size_t alignment,
 	bool isVolatile
 	)
 {
@@ -35,12 +34,14 @@ OperatorMgr::memSet(
 	if (!result)
 		return false;
 
-	Value argValueArray[5] =
+	Value argValueArray[] =
 	{
 		ptrValue,
 		Value(c, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8)),
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+#if (LLVM_VERSION < 0x070000)
 		Value(alignment, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+#endif
 		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
 	};
 
@@ -62,7 +63,6 @@ OperatorMgr::memCpy(
 	const Value& dstValue,
 	const Value& srcValue,
 	size_t size,
-	size_t alignment,
 	bool isVolatile
 	)
 {
@@ -76,12 +76,14 @@ OperatorMgr::memCpy(
 	if (!result)
 		return false;
 
-	Value argValueArray[5] =
+	Value argValueArray[] =
 	{
 		dstPtrValue,
 		srcPtrValue,
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+#if (LLVM_VERSION < 0x070000)
 		Value(alignment, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+#endif
 		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
 	};
 

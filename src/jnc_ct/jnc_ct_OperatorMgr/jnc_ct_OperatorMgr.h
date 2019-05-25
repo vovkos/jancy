@@ -738,7 +738,6 @@ public:
 		const Value& value,
 		char c,
 		size_t size,
-		size_t alignment = 1,
 		bool isVolatile = false
 		);
 
@@ -748,7 +747,6 @@ public:
 		const Value& dstValue,
 		const Value& srcValue,
 		size_t size,
-		size_t alignment = 1,
 		bool isVolatile = false
 		);
 
@@ -757,11 +755,10 @@ public:
 		const Value& dstValue,
 		const Value& srcValue,
 		size_t size,
-		size_t alignment = 1,
 		bool isVolatile = false
 		)
 	{
-		return memCpy(StdFunc_LlvmMemcpy, dstValue, srcValue, size, alignment, isVolatile);
+		return memCpy(StdFunc_LlvmMemcpy, dstValue, srcValue, size, isVolatile);
 	}
 
 	bool
@@ -769,11 +766,10 @@ public:
 		const Value& dstValue,
 		const Value& srcValue,
 		size_t size,
-		size_t alignment = 1,
 		bool isVolatile = false
 		)
 	{
-		return memCpy(StdFunc_LlvmMemmove, dstValue, srcValue, size, alignment, isVolatile);
+		return memCpy(StdFunc_LlvmMemmove, dstValue, srcValue, size, isVolatile);
 	}
 
 	bool
