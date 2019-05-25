@@ -40,7 +40,7 @@ OperatorMgr::memSet(
 		Value(c, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int8)),
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #if (LLVM_VERSION < 0x070000)
-		Value(alignment, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+		Value(1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #endif
 		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
 	};
@@ -82,7 +82,7 @@ OperatorMgr::memCpy(
 		srcPtrValue,
 		Value(size, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #if (LLVM_VERSION < 0x070000)
-		Value(alignment, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
+		Value(1, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32)),
 #endif
 		Value(isVolatile, m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool)),
 	};

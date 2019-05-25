@@ -465,7 +465,7 @@ LlvmDiBuilder::createFunction(Function* function)
 		llvmDiSubroutineType,              // DISubroutineType *Ty
 		false,                             // bool isLocalToUnit
 		true,                              // bool isDefinition
-		scopePos.m_line + 1,               // unsigned ScopeLine
+		scopePos.m_line + 1                // unsigned ScopeLine
 		);
 
 	function->getLlvmFunction()->setSubprogram(subprogram);
