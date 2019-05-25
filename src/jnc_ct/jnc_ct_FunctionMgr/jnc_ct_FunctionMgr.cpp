@@ -230,6 +230,8 @@ FunctionMgr::prologue(
 {
 	m_currentFunction = function;
 
+	m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
+
 	// create entry blocks
 
 	function->m_allocaBlock = m_module->m_controlFlowMgr.createBlock("function_entry");
