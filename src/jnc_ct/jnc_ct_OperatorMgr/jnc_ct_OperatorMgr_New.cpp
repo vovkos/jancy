@@ -108,7 +108,7 @@ OperatorMgr::zeroInitialize(const Value& value)
 	if (type->getSize() <= TypeSizeLimit_StoreSize)
 		m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), value);
 	else
-		memSet(value, 0, type->getSize(), type->getAlignment());
+		memSet(value, 0, type->getSize());
 }
 
 bool
