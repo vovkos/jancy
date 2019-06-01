@@ -75,6 +75,8 @@ AsyncSequencerFunction::compile()
 
 	// add arg fields to the scope
 
+	scope->createConst("thisPromise", promiseValue);
+
 	for (; i < argCount; i++)
 	{
 		StructField* argField = promiseFieldArray[i];

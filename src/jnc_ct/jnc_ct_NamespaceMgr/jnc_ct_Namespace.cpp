@@ -228,7 +228,7 @@ Namespace::createConst(
 	const Value& value
 	)
 {
-	ASSERT(value.getValueKind() == ValueKind_Const && value.getType());
+	ASSERT(value.getType());
 
 	Module* module = value.getType()->getModule();
 	sl::String qualifiedName = createQualifiedName(name);
