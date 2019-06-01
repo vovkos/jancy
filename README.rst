@@ -34,9 +34,9 @@ Jancy is *the first and only* scripting language with **safe pointer arithmetics
 Design Principles
 -----------------
 
-* Statically typed C-family scripting language aimed at IO and UI
+* Statically typed C-family scripting language for IO and UI domains
 
-	Python is *the* scripting language of hackers. I hope Jancy will become the scripting language of those hackers who prefer to *stay closer to C*.
+	Python is *the* scripting language of hackers. I hope Jancy will one day become the scripting language of those hackers who prefer to *stay closer to C*.
 
 * High level of ABI and source compatibility with C
 
@@ -48,7 +48,7 @@ Design Principles
 
 * LLVM as a back-end
 
-	This was a no-brainer from the very beginning. I started with LLVM 3.1 five years ago; at the present moment Jancy builds and runs with any LLVM version from 3.4.2 all the way up to 8.0.0
+	This was a no-brainer from the very beginning. I started with LLVM 3.1 a few years ago; at the present moment Jancy builds and runs with any LLVM version from 3.4.2 all the way up to the latest and greatest LLVM 8.0.0
 
 Key Features
 ------------
@@ -60,13 +60,13 @@ Use pointer arithmetic -- the most elegant and the most efficient way of parsing
 
 .. code:: cpp
 
-	IpHdr const* ipHdr = (IpHdr const*) p;
+	IpHdr const* ipHdr = (IpHdr const*)p;
 	p += ipHdr.m_headerLength * 4;
 
 	switch (ipHdr.m_protocol)
 	{
 	case Proto.Icmp:
-		IcmpHdr const* icmpHdr = (IcmpHdr const*) p;
+		IcmpHdr const* icmpHdr = (IcmpHdr const*)p;
 		switch (icmpHdr.m_type)
 		{
 		case IcmpType.EchoReply:
@@ -76,6 +76,30 @@ Use pointer arithmetic -- the most elegant and the most efficient way of parsing
 	}
 
 If bounds-checks on a pointer access fail, Jancy runtime will throw an exception which you can handle the way you like.
+
+You can also safely pass buffers from C/C++ to Jancy without creating a copy on the GC-heap:
+
+.. code:: cpp
+
+	void thisIsCpp(
+		jnc::Runtime* runtime,
+		jnc::Function* function
+		)
+	{
+		char buffer[] = "I'm on stack but still safe!";
+
+		JNC_BEGIN_CALL_SITE(runtime)
+
+		jnc::DataPtr ptr = runtime->getGcHeap()->createForeignDataPtr(
+			buffer,
+			sizeof(buffer),
+			jnc::ValidatorFlag_CallSite // valid inside current call-site only
+			);
+
+		jnc::callFunction(function, ptr);
+
+		JNC_END_CALL_SITE() // here ptr is invalidated and Jancy can't access it anymore
+	}
 
 Spreadsheet-like Reactive Programming
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +120,80 @@ Write auto-evaluating *formulas* just like you do in Excel -- and stay in full c
 	m_uiReactor.stop ();
 
 This, together with the developed infrastructure of *properties* and *events*, is perfect for UI programming!
+
+Scheduled Function Pointers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Assign a *scheduler* before passing a function pointers as a callback of some sort (completion routine, event handler, etc). This way you can elegantly place the execution of your callback in the correct environment -- for example, into context of a specific thread:
+
+.. code:: cpp
+
+	class WorkerThread: jnc.Scheduler
+	{
+		override schedule (function* f ())
+		{
+			// enqueue f and signal worker thread event
+		}
+		...
+	}
+
+Then you apply a binary operator ``@`` (reads: at) to create a *scheduled* pointer to your callback:
+
+.. code:: cpp
+
+	void onComplete (bool status)
+	{
+		// we are in the worker thread
+	}
+
+	startTransaction (onComplete @ m_workerThread);
+
+When the transaction completes and completion routine is finally called, ``onComplete`` is guaranteed to be executed in the context of the assigned ``m_workerThread``.
+
+Async-Await (with A Cherry On Top)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The async-await approach is becoming increasingly popular during recent years -- and righfully so. In most cases, it absolutely is **the right way** of doing asynchronous programming. No wonder that Jancy fully supports this paradigm:
+
+.. code:: cpp
+
+	async transact(char const* address)
+	{
+		await connect(address);
+		await modify();
+		await disconnect();
+
+	catch:
+		handleError(std.getLastError());
+	}
+
+	...
+
+	jnc.Promise* promise = transact();
+	promise.blockingWait();
+
+A cherry on top is that in Jancy you can easily control the *execution environment* of your ``async`` procedure with *schedulers* -- for example, run in context of some specific thread:
+
+.. code:: cpp
+
+	// transact() will run in the worker thread
+
+	jnc.Promise* promise = (transact @ m_workerThread)("my-service");
+
+You can even switch contexts during the execution of your ``async`` procedure:
+
+.. code:: cpp
+
+	async foo()
+	{
+		await thisPromise.asyncSetScheduler(m_workerThread);
+
+		// we are in the worker thread
+
+		await thisPromise.asyncSetScheduler(m_mainUiThread);
+
+		// we are in the main UI thread
+	}
 
 Incremental Regex-based Switches
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,7 +220,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 	// ...
 	}
 
-This statement will compile into a table-driven DFA which can parse the input string in *O(length)* -- you don't get any faster than that.
+This statement will compile into a table-driven DFA which can parse the input string in ``O(length)`` -- you don't get any faster than that.
 
 But there's more -- the resulting DFA recognizer is *incremental*, which means you can feed it the data chunk-by-chunk when it becomes available (e.g. once received over the network).
 
@@ -158,36 +256,6 @@ In Jancy you can describe a dynamic struct, overlap your buffer with a pointer t
 
 You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using this facility.
 
-Scheduled Function Pointers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Assign a *scheduler* before passing a function pointers as a callback of some sort (completion routine, event handler, etc). This way you can elegantly place the execution of your callback in the correct environment -- for example, in the context of a specific thread:
-
-.. code:: cpp
-
-	class WorkerThread: jnc.Scheduler
-	{
-		override schedule (function* f ())
-		{
-			// enqueue f and signal worker thread event
-		}
-		// ...
-	}
-
-Then you apply a binary operator ``@`` (reads: at) to create a *scheduled* pointer to your callback:
-
-.. code:: cpp
-
-	void onComplete (bool status)
-	{
-		// we are in the worker thread
-	}
-
-	startTransaction (onComplete @ m_workerThread);
-
-
-When the transaction completes and completion routine is finally called, ``onComplete`` is guaranteed to be executed in the context of the assigned ``m_workerThread``.
-
 Dual Error Handling Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -222,8 +290,7 @@ Use *throw-catch* semantics:
 		file.close ();
 	}
 
-
-...or do *error-code* checks where it works better:
+\...or do *error-code* checks where it works better:
 
 .. code:: cpp
 
@@ -295,7 +362,7 @@ The ``cmut`` modifier must be used on the type of a member -- field, method, pro
 		b.m_next.m_value = 10; // error: cannot store to const-location
 	}
 
-Implementing the equivalent functionality in C++ would require a private field and three accessors!
+Implementing the equivalent functionality in C++ would require *a private field and three accessors*!
 
 Finally, the most obvious application for dual modifiers -- *event fields*:
 
