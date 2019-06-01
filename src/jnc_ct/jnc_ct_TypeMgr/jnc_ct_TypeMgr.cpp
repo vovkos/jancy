@@ -79,6 +79,7 @@ TypeMgr::clear()
 
 	m_typeMap.clear();
 
+	m_multicastClassTypeArray.clear();
 	m_unresolvedNamedImportTypeArray.clear();
 	m_unresolvedImportPtrTypeArray.clear();
 	m_unresolvedImportIntModTypeArray.clear();
