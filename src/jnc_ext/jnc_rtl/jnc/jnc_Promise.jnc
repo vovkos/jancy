@@ -31,6 +31,11 @@ public:
 	construct();
 	destruct();
 
+	async asyncSetScheduler(Scheduler* scheduler)
+	{
+		m_scheduler = scheduler;
+	}
+
 	intptr errorcode wait(function* handler());
 	intptr errorcode wait(function* handler(std.Error const* error));
 

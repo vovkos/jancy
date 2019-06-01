@@ -1,0 +1,35 @@
+// changing schedulers testing
+
+class MyScheduler: jnc.Scheduler
+{
+	construct()
+	{
+		printf("MyScheduler.construct(%p)\n", this);
+	}
+
+	override schedule(function* f())
+	{
+		printf("+MyScheduler.schedule(%p)\n", this);
+		f();
+		printf("-MyScheduler.schedule(%p)\n", this);
+	}
+}
+
+MyScheduler scheduler1;
+MyScheduler scheduler2;
+
+async asyncFoo()
+{
+	printf("asyncFoo - 1\n");
+	await thisPromise.asyncSetScheduler(scheduler1);
+	printf("asyncFoo - 2\n");
+	await thisPromise.asyncSetScheduler(scheduler2);
+	printf("asyncFoo - 3\n");
+}
+
+int main()
+{
+	jnc.Promise* promise = asyncFoo();
+	promise.blockingWait();
+	return 0;
+}
