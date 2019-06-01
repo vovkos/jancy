@@ -11,7 +11,7 @@
 
 ///+++
 
-/// JNC_SELECT_ANY char g_std_HashTableSrc [] =
+/// JNC_SELECT_ANY char g_std_HashTableSrc[] =
 
 import "std_MapEntry.jnc"
 

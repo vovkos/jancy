@@ -11,7 +11,7 @@
 
 ///+++
 
-/// JNC_SELECT_ANY char g_std_RbTreeSrc [] =
+/// JNC_SELECT_ANY char g_std_RbTreeSrc[] =
 
 import "std_MapEntry.jnc"
 

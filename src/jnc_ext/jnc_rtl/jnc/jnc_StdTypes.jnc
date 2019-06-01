@@ -17,7 +17,7 @@ namespace jnci {
 
 //..............................................................................
 
-///; static char fmtLiteralTypeSrc [] =
+///; static char fmtLiteralTypeSrc[] =
 
 struct FmtLiteral
 {
@@ -28,7 +28,7 @@ struct FmtLiteral
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char int64Int64TypeSrc [] =
+///; static char int64Int64TypeSrc[] =
 
 struct Int64Int64
 {
@@ -38,7 +38,7 @@ struct Int64Int64
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char fp64Fp64TypeSrc [] =
+///; static char fp64Fp64TypeSrc[] =
 
 struct Fp64Fp64
 {
@@ -48,7 +48,7 @@ struct Fp64Fp64
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char int64Fp64TypeSrc [] =
+///; static char int64Fp64TypeSrc[] =
 
 struct Int64Fp64
 {
@@ -58,7 +58,7 @@ struct Int64Fp64
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char fp64Int64TypeSrc [] =
+///; static char fp64Int64TypeSrc[] =
 
 struct Fp64Int64
 {
@@ -70,7 +70,7 @@ struct Fp64Int64
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char dynamicLayoutTypeSrc [] =
+///; static char dynamicLayoutTypeSrc[] =
 
 opaque class DynamicLayout
 {

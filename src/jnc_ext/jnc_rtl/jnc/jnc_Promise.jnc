@@ -15,7 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-///; static char promiseTypeSrc [] =
+///; static char promiseTypeSrc[] =
 
 opaque class Promise
 {
@@ -45,11 +45,9 @@ public:
 	variant async asyncWait();
 }
 
-///;
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char promisifierTypeSrc [] =
+///; static char promisifierTypeSrc[] =
 
 class Promisifier: Promise
 {
@@ -63,6 +61,12 @@ class Promisifier: Promise
 		std.Error const* error
 		);
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char getCurrentPromiseSrc[] =
+
+jnc.Promise* getCurrentPromise();
 
 ///;
 

@@ -1010,6 +1010,14 @@ appendFmtLiteral_v(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+Promise*
+getCurrentPromise()
+{
+	return NULL;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 multicastDestruct(Multicast* multicast)
 {
@@ -1239,6 +1247,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+
+	// async-await
+
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_GetCurrentPromise, getCurrentPromise)
 
 	// multicasts
 

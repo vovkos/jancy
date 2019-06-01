@@ -11,7 +11,7 @@
 
 ///+++
 
-/// JNC_SELECT_ANY char g_std_ListSrc [] =
+/// JNC_SELECT_ANY char g_std_ListSrc[] =
 
 namespace std {
 

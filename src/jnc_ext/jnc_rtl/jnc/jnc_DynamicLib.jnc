@@ -15,7 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-///; static char dynamicLibTypeSrc [] =
+///; static char dynamicLibTypeSrc[] =
 
 /**
 	\ingroup rtl

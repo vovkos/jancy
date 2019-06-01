@@ -15,25 +15,25 @@ namespace jnci {
 
 //..............................................................................
 
-///; static char dynamicSizeOfSrc [] =
+///; static char dynamicSizeOfSrc[] =
 
 size_t dynamicSizeOf(void const* p);
 
-///; static char dynamicCountOfSrc [] =
+///; static char dynamicCountOfSrc[] =
 
 size_t dynamicCountOf(
 	void const* p,
 	void thin* type
 	);
 
-///; static char dynamicTypeSizeOfSrc [] =
+///; static char dynamicTypeSizeOfSrc[] =
 
 size_t dynamicTypeSizeOf(
 	void const* p,
 	void thin* type
 	);
 
-///; static char dynamicFieldSizeOfSrc [] =
+///; static char dynamicFieldSizeOfSrc[] =
 
 size_t dynamicFieldSizeOf(
 	void const* p,
@@ -41,7 +41,7 @@ size_t dynamicFieldSizeOf(
 	void thin* field
 	);
 
-///; static char dynamicFieldCountOfSrc [] =
+///; static char dynamicFieldCountOfSrc[] =
 
 size_t dynamicFieldCountOf(
 	void const* p,
@@ -50,21 +50,21 @@ size_t dynamicFieldCountOf(
 	);
 
 
-///; static char dynamicCastDataPtrSrc [] =
+///; static char dynamicCastDataPtrSrc[] =
 
 void* dynamicCastDataPtr(
 	void const* p,
 	void thin* type
 	);
 
-///; static char dynamicCastClassPtrSrc [] =
+///; static char dynamicCastClassPtrSrc[] =
 
 class* dynamicCastClassPtr(
 	class const* p,
 	void thin* type
 	);
 
-///; static char dynamicCastVariantSrc [] =
+///; static char dynamicCastVariantSrc[] =
 
 bool dynamicCastVariant(
 	variant v,
@@ -72,11 +72,11 @@ bool dynamicCastVariant(
 	void thin* buffer
 	);
 
-///; static char strengthenClassPtrSrc [] =
+///; static char strengthenClassPtrSrc[] =
 
 class* strengthenClassPtr(class weak* p);
 
-///; static char assertionFailureSrc [] =
+///; static char assertionFailureSrc[] =
 
 void assertionFailure(
 	char const thin* fileName,
@@ -85,11 +85,11 @@ void assertionFailure(
 	char const thin* message
 	);
 
-///; static char addStaticDestructorSrc [] =
+///; static char addStaticDestructorSrc[] =
 
 void addStaticDestructor(void thin* dtor);
 
-///; static char addStaticClassDestructorSrc [] =
+///; static char addStaticClassDestructorSrc[] =
 
 void addStaticClassDestructor(
 	void thin* dtor,
@@ -160,7 +160,7 @@ size_t appendFmtLiteral_v(
 	variant v
 	);
 
-///; static char tryCheckDataPtrRangeDirectSrc [] =
+///; static char tryCheckDataPtrRangeDirectSrc[] =
 
 bool errorcode tryCheckDataPtrRangeDirect(
 	void thin const* p,
@@ -168,7 +168,7 @@ bool errorcode tryCheckDataPtrRangeDirect(
 	size_t rangeLength
 	);
 
-///; static char checkDataPtrRangeDirectSrc [] =
+///; static char checkDataPtrRangeDirectSrc[] =
 
 void checkDataPtrRangeDirect(
 	void thin const* p,
@@ -176,7 +176,7 @@ void checkDataPtrRangeDirect(
 	size_t rangeLength
 	);
 
-///; static char tryLazyGetDynamicLibFunctionSrc [] =
+///; static char tryLazyGetDynamicLibFunctionSrc[] =
 
 void thin* errorcode tryLazyGetDynamicLibFunction(
 	jnc.DynamicLib* lib,
@@ -184,7 +184,7 @@ void thin* errorcode tryLazyGetDynamicLibFunction(
 	char thin const* name
 	);
 
-///; static char lazyGetDynamicLibFunctionSrc [] =
+///; static char lazyGetDynamicLibFunctionSrc[] =
 
 void thin* lazyGetDynamicLibFunction(
 	jnc.DynamicLib* lib,
@@ -192,7 +192,7 @@ void thin* lazyGetDynamicLibFunction(
 	char thin const* name
 	);
 
-///; static char getDynamicFieldSrc [] =
+///; static char getDynamicFieldSrc[] =
 
 void thin* getDynamicField(
 	void const* p,
