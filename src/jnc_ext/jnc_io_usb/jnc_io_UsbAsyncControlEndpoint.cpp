@@ -135,7 +135,7 @@ UsbAsyncControlEndpoint::transfer(
 	}
 	else
 	{
-		transfer->m_inBufferPtr = g_nullPtr;
+		transfer->m_inBufferPtr = g_nullDataPtr;
 		memcpy(setup + 1, ptr.m_p, size);
 	}
 
@@ -263,7 +263,7 @@ UsbAsyncControlEndpoint::finalizeTransfers_l()
 			break;
 		}
 
-		it->m_inBufferPtr = g_nullPtr;
+		it->m_inBufferPtr = g_nullDataPtr;
 		it->m_completionFuncPtr = g_nullFunctionPtr;
 	}
 
@@ -286,7 +286,7 @@ UsbAsyncControlEndpoint::callCompletionFunc(
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
 
-	DataPtr errorPtr = g_nullPtr;
+	DataPtr errorPtr = g_nullDataPtr;
 
 	if (error)
 		errorPtr = jnc::memDup(error, error->m_size);

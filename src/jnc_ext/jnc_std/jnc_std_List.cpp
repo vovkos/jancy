@@ -64,8 +64,8 @@ List::clear()
 	for (; entry; entry = (ListEntry*)entry->m_nextPtr.m_p)
 		entry->m_list = NULL;
 
-	m_headPtr = g_nullPtr;
-	m_tailPtr = g_nullPtr;
+	m_headPtr = g_nullDataPtr;
+	m_tailPtr = g_nullDataPtr;
 	m_count = 0;
 }
 
@@ -87,8 +87,8 @@ List::takeOver(List* list)
 	m_tailPtr = list->m_tailPtr;
 	m_count = list->m_count;
 
-	list->m_headPtr = g_nullPtr;
-	list->m_tailPtr = g_nullPtr;
+	list->m_headPtr = g_nullDataPtr;
+	list->m_tailPtr = g_nullDataPtr;
 	list->m_count = 0;
 }
 
@@ -216,8 +216,8 @@ List::remove(
 
 	self->removeImpl(entry);
 
-	entry->m_prevPtr = g_nullPtr;
-	entry->m_nextPtr = g_nullPtr;
+	entry->m_prevPtr = g_nullDataPtr;
+	entry->m_nextPtr = g_nullDataPtr;
 	entry->m_list = NULL;
 
 	return entry->m_data;
@@ -240,7 +240,7 @@ List::insertHeadImpl(DataPtr entryPtr)
 	ListEntry* entry = (ListEntry*)entryPtr.m_p;
 	ASSERT(entry->m_list == this);
 
-	entry->m_prevPtr = g_nullPtr;
+	entry->m_prevPtr = g_nullDataPtr;
 	entry->m_nextPtr = m_headPtr;
 
 	if (m_headPtr.m_p)
@@ -259,7 +259,7 @@ List::insertTailImpl(DataPtr entryPtr)
 	ASSERT(entry->m_list == this);
 
 	entry->m_prevPtr = m_tailPtr;
-	entry->m_nextPtr = g_nullPtr;
+	entry->m_nextPtr = g_nullDataPtr;
 
 	if (m_tailPtr.m_p)
 		((ListEntry*)m_tailPtr.m_p)->m_nextPtr = entryPtr;

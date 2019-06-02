@@ -18,7 +18,7 @@
 
 // TODO: add a gc root for g_propValue
 
-jnc::DataPtr g_propValue = jnc::g_nullPtr;
+jnc::DataPtr g_propValue = jnc::g_nullDataPtr;
 
 void
 foo_0(int x)

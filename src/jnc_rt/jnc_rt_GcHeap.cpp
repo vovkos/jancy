@@ -466,7 +466,7 @@ GcHeap::tryAllocateData(ct::Type* type)
 	if (!box)
 	{
 		err::setFormatStringError("not enough memory for '%s'", type->getTypeString().sz());
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	memset(box + 1, 0, size);
@@ -516,7 +516,7 @@ GcHeap::tryAllocateArray(
 	if (!box)
 	{
 		err::setFormatStringError("not enough memory for '%s [%d]'", type->getTypeString().sz(), count);
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	memset(box + 1, 0, size);

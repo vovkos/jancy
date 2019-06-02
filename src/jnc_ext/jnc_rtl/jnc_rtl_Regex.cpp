@@ -127,7 +127,7 @@ RegexState::reset()
 {
 	m_currentOffset = 0;
 	m_consumedLength = 0;
-	m_subMatchArrayPtr = g_nullPtr;
+	m_subMatchArrayPtr = g_nullDataPtr;
 	m_subMatchCount = 0;
 
 	memset(&m_match, 0, sizeof(RegexMatch));
@@ -140,7 +140,7 @@ RegexState::reset()
 	m_matchLength = 0;
 	m_replayBufferOffset = 0;
 	m_replayLength = 0;
-	m_groupOffsetArrayPtr = g_nullPtr;
+	m_groupOffsetArrayPtr = g_nullDataPtr;
 	m_groupCount = 0;
 	m_maxSubMatchCount = 0;
 }
@@ -259,8 +259,8 @@ RegexState::setDfa(ct::Dfa* dfa)
 	Type* matchType = module->m_typeMgr.getStdType(StdType_RegexMatch);
 	Type* sizeType = module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 
-	m_groupOffsetArrayPtr = m_groupCount ? gcHeap->allocateArray(sizeType, m_groupCount * 2) : g_nullPtr;
-	m_subMatchArrayPtr = m_maxSubMatchCount ? gcHeap->allocateArray(matchType, m_maxSubMatchCount) : g_nullPtr;
+	m_groupOffsetArrayPtr = m_groupCount ? gcHeap->allocateArray(sizeType, m_groupCount * 2) : g_nullDataPtr;
+	m_subMatchArrayPtr = m_maxSubMatchCount ? gcHeap->allocateArray(matchType, m_maxSubMatchCount) : g_nullDataPtr;
 
 	softReset();
 }
@@ -439,7 +439,7 @@ RegexState::match(size_t stateId)
 		}
 		else // enforce empty sub-lexeme
 		{
-			subLexeme->m_textPtr = g_nullPtr;
+			subLexeme->m_textPtr = g_nullDataPtr;
 			subLexeme->m_offset = -1;
 			subLexeme->m_length = 0;
 		}

@@ -100,7 +100,7 @@ public:
 		Variant key
 		)
 	{
-		return self->m_rbTree.findValue(key, g_nullPtr);
+		return self->m_rbTree.findValue(key, g_nullDataPtr);
 	}
 
 	static
@@ -111,7 +111,7 @@ public:
 		Variant key
 		)
 	{
-		return self->m_rbTree.findValue(key, relOp, g_nullPtr);
+		return self->m_rbTree.findValue(key, relOp, g_nullDataPtr);
 	}
 
 	void

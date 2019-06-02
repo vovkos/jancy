@@ -103,7 +103,7 @@ UsbDevice::getDeviceDesc(UsbDevice* self)
 
 	bool result = self->m_device.getDeviceDescriptor(&desc);
 	if (!result)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	return createUsbDeviceDesc(getCurrentThreadRuntime(), &desc, &self->m_device);
 }
@@ -116,7 +116,7 @@ UsbDevice::getActiveConfigurationDesc(UsbDevice* self)
 
 	bool result = self->m_device.getActiveConfigDescriptor(&desc);
 	if (!result)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	return createUsbConfigurationDesc(getCurrentThreadRuntime(), desc);
 }
@@ -131,7 +131,7 @@ UsbDevice::getStringDesc(
 	if (!self->m_isOpen)
 	{
 		err::setError(err::SystemErrorCode_InvalidDeviceState);
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	sl::String string = self->m_device.getStringDesrciptor(stringId);
@@ -270,7 +270,7 @@ createUsbDeviceArray(DataPtr countPtr)
 	axl::io::UsbDeviceList deviceList;
 	size_t count = deviceList.enumerateDevices();
 
-	DataPtr arrayPtr = g_nullPtr;
+	DataPtr arrayPtr = g_nullDataPtr;
 	Runtime* runtime = getCurrentThreadRuntime();
 	GcHeap* gcHeap = runtime->getGcHeap();
 	Type* classPtrType = (Type*)UsbDevice::getType(runtime->getModule())->getClassPtrType();

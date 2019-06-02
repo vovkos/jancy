@@ -132,7 +132,7 @@ public:
 	JNC_CDECL
 	complete_0()
 	{
-		complete_2(g_nullVariant, g_nullPtr);
+		complete_2(g_nullVariant, g_nullDataPtr);
 	}
 
 	void

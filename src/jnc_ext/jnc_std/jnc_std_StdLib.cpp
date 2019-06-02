@@ -122,7 +122,7 @@ getErrorPtr(const err::ErrorHdr* error)
 
 	DataPtr resultPtr = gcHeap->tryAllocateBuffer(error->m_size);
 	if (!resultPtr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	memcpy(resultPtr.m_p, error, error->m_size);
 	return resultPtr;
@@ -176,11 +176,11 @@ memChr(
 	)
 {
 	if (!ptr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	void* p = memchr(ptr.m_p, c, size);
 	if (!p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p = p;
@@ -197,14 +197,14 @@ memMem(
 	)
 {
 	if (!ptr1.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	if (!ptr2.m_p)
 		return ptr1;
 
 	void* p = sl::memMem(ptr1.m_p, size1, ptr2.m_p, size2);
 	if (!p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p = p;
@@ -259,7 +259,7 @@ memCat(
 	size_t totalSize = size1 + size2;
 	DataPtr resultPtr = gcHeap->tryAllocateBuffer(totalSize);
 	if (!resultPtr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	char* p = (char*)resultPtr.m_p;
 
@@ -283,7 +283,7 @@ memDup(
 
 	DataPtr resultPtr = gcHeap->tryAllocateBuffer(size);
 	if (!resultPtr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	if (ptr.m_p)
 		memcpy(resultPtr.m_p, ptr.m_p, size);
@@ -371,11 +371,11 @@ strChr(
 	)
 {
 	if (!ptr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	char* p = strchr((char*)ptr.m_p, c);
 	if (!p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p =
@@ -390,7 +390,7 @@ striChr(
 	)
 {
 	if (!ptr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	size_t length = strLen(ptr);
 
@@ -398,7 +398,7 @@ striChr(
 	find.setPattern(enc::CharCodecKind_Ascii, &c, 1, sl::TextBoyerMooreFlag_CaseInsensitive);
 	size_t offset = find.find(enc::CharCodecKind_Ascii, ptr.m_p, length);
 	if (offset == -1)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p = (char*)ptr.m_p + offset;
@@ -413,14 +413,14 @@ strStr(
 	)
 {
 	if (!ptr1.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	if (!ptr2.m_p)
 		return ptr1;
 
 	char* p = strstr((char*)ptr1.m_p, (char*)ptr2.m_p);
 	if (!p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p = p;
@@ -435,7 +435,7 @@ striStr(
 	)
 {
 	if (!ptr1.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	if (!ptr2.m_p)
 		return ptr1;
@@ -447,7 +447,7 @@ striStr(
 	find.setPattern(enc::CharCodecKind_Ascii, ptr2.m_p, length2, sl::TextBoyerMooreFlag_CaseInsensitive);
 	size_t offset = find.find(enc::CharCodecKind_Ascii, ptr1.m_p, length1);
 	if (offset == -1)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	DataPtr resultPtr;
 	resultPtr.m_p = (char*)ptr1.m_p + offset;
@@ -538,7 +538,7 @@ format(
 
 	DataPtr resultPtr = gcHeap->tryAllocateBuffer(length + 1);
 	if (!resultPtr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	memcpy(resultPtr.m_p, string.sz(), length);
 	return resultPtr;

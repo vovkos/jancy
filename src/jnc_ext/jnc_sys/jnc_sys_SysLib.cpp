@@ -39,7 +39,7 @@ DataPtr
 getEnv(DataPtr namePtr)
 {
 	if (!namePtr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	const char* value = getenv((const char*) namePtr.m_p);
 	return strDup(value);

@@ -151,8 +151,8 @@ DeviceMonitor::close()
 	AsyncIoDevice::close();
 	m_isConnected = false;
 	m_isEnabled = false;
-	m_deviceNamePtr = g_nullPtr;
-	m_fileNameFilterPtr = g_nullPtr;
+	m_deviceNamePtr = g_nullDataPtr;
+	m_fileNameFilterPtr = g_nullDataPtr;
 
 #if (_AXL_OS_WIN)
 	if (m_overlappedIo)

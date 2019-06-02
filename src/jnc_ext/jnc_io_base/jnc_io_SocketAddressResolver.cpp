@@ -271,7 +271,7 @@ SocketAddressResolver::callCompletionFunc(
 {
 	JNC_BEGIN_CALL_SITE(m_runtime);
 
-	DataPtr addressTablePtr = g_nullPtr;
+	DataPtr addressTablePtr = g_nullDataPtr;
 
 	if (addressCount)
 	{
@@ -284,7 +284,7 @@ SocketAddressResolver::callCompletionFunc(
 			dst->setSockAddr(*src);
 	}
 
-	DataPtr errorPtr = error ? memDup(error, error->m_size) : g_nullPtr;
+	DataPtr errorPtr = error ? memDup(error, error->m_size) : g_nullDataPtr;
 
 	callVoidFunctionPtr(completionFuncPtr, addressTablePtr, addressCount, errorPtr);
 

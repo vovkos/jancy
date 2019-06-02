@@ -24,7 +24,7 @@ AsyncIoDevice::AsyncIoDevice()
 
 	m_options = 0;
 	m_activeEvents = 0;
-	m_ioErrorPtr = g_nullPtr;
+	m_ioErrorPtr = g_nullDataPtr;
 	m_ioThreadFlags = 0;
 
 	m_isOpen = false;

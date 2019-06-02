@@ -359,11 +359,11 @@ createPcapDeviceDescList(DataPtr countPtr)
 	if (result == -1)
 	{
 		err::setError(errorBuffer);
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	if (!ifaceList)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	Runtime* runtime = getCurrentThreadRuntime();
 	ScopedNoCollectRegion noCollectRegion(runtime, false);

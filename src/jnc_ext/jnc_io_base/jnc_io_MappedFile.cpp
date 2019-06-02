@@ -59,7 +59,7 @@ MappedFile::view(
 {
 	void* p = self->m_file.view(offset, size, isPermanent);
 	if (!p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	// lifetime of the resulting view is not guaranteed
 	// but its the best we can do with the direct use of axl::io::MappedFile

@@ -139,7 +139,7 @@ public:
 		Variant key
 		)
 	{
-		return self->m_hashTable.findValue(key, g_nullPtr);
+		return self->m_hashTable.findValue(key, g_nullDataPtr);
 	}
 
 	void

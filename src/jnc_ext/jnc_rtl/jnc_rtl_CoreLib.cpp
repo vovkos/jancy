@@ -70,7 +70,7 @@ dynamicCastDataPtr(
 	)
 {
 	if (!ptr.m_validator)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	Box* box = ptr.m_validator->m_targetBox;
 	void* p =
@@ -79,7 +79,7 @@ dynamicCastDataPtr(
 		((DataBox*)box + 1);
 
 	if (ptr.m_p < p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	Type* srcType = box->m_type;
 	while (srcType->getTypeKind() == TypeKind_Array)
@@ -104,11 +104,11 @@ dynamicCastDataPtr(
 	AXL_TODO("find field pointed to by ptr and do cast accordingly")
 
 	if (srcType->getTypeKind() != TypeKind_Struct)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	size_t offset = ((StructType*)srcType)->findBaseTypeOffset(type);
 	if (offset == -1)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	ptr.m_p = (char*)p + offset;
 	return ptr;
@@ -306,7 +306,7 @@ asyncRet(
 	// jnc.Promisifier ONLY uses jnc.Promise fields to complete the promise
 	// so it's OK to cast -- even though the actual class is NOT jnc.Promisifier
 
-	((Promisifier*)promise)->complete_2(result, g_nullPtr);
+	((Promisifier*)promise)->complete_2(result, g_nullDataPtr);
 }
 
 void

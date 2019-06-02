@@ -34,8 +34,8 @@ JNC_END_TYPE_FUNCTION_MAP()
 void
 Map::clear()
 {
-	m_headPtr = g_nullPtr;
-	m_tailPtr = g_nullPtr;
+	m_headPtr = g_nullDataPtr;
+	m_tailPtr = g_nullDataPtr;
 	m_count = 0;
 }
 
@@ -51,8 +51,8 @@ Map::add(const sl::MapIterator<Variant, DataPtr>& it)
 	sl::MapEntry<Variant, DataPtr>* prev = (sl::MapEntry<Variant, DataPtr>*) it->getPrev();
 
 	entry->m_key = it->getKey();
-	entry->m_nextPtr = next ? next->m_value : g_nullPtr;
-	entry->m_prevPtr = prev ? prev->m_value : g_nullPtr;
+	entry->m_nextPtr = next ? next->m_value : g_nullDataPtr;
+	entry->m_prevPtr = prev ? prev->m_value : g_nullDataPtr;
 	entry->m_map = this;
 	entry->m_mapEntry = it.getEntry();
 

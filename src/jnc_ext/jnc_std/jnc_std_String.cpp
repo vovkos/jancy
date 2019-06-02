@@ -181,7 +181,7 @@ StringBuilder::detachString(StringBuilder* self)
 	((char*)self->m_ptr.m_p) [self->m_length] = 0;
 
 	DataPtr ptr = self->m_ptr;
-	self->m_ptr = g_nullPtr;
+	self->m_ptr = g_nullDataPtr;
 	self->m_length = 0;
 	self->m_maxLength = 0;
 
@@ -197,7 +197,7 @@ StringBuilder::cloneString(StringBuilder* self)
 
 	DataPtr ptr = gcHeap->tryAllocateBuffer(self->m_length + 1);
 	if (!ptr.m_p)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	memcpy(ptr.m_p, self->m_ptr.m_p, self->m_length);
 	return ptr;

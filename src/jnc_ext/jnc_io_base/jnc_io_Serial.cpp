@@ -897,7 +897,7 @@ createSerialPortDescList(DataPtr countPtr)
 		if (countPtr.m_p)
 			*(size_t*)countPtr.m_p = 0;
 
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	Runtime* runtime = getCurrentThreadRuntime();

@@ -105,7 +105,7 @@ createNetworkAdapterDescList(
 		if (addressCountPtr.m_p)
 			*(size_t*)addressCountPtr.m_p = 0;
 
-		return g_nullPtr;
+		return g_nullDataPtr;
 	}
 
 	ScopedNoCollectRegion noCollectRegion(runtime, false);

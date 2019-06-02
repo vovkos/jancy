@@ -36,7 +36,7 @@ DataPtr getSymbolicLinkTarget(DataPtr namePtr)
 	sl::String linkTarget;
 	bool result = axl::io::getSymbolicLinkTarget(&linkTarget, (const char*) namePtr.m_p);
 	if (!result)
-		return g_nullPtr;
+		return g_nullDataPtr;
 
 	return strDup(linkTarget);
 }

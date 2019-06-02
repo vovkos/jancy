@@ -155,7 +155,7 @@ initUsbInterfaceDesc(
 {
 	Type* endpointDescType = UsbEndpointDesc::getType(runtime->getModule());
 
-	dstDesc->m_nextAltSettingInterfacePtr = g_nullPtr;
+	dstDesc->m_nextAltSettingInterfacePtr = g_nullDataPtr;
 	dstDesc->m_endpointTable = runtime->getGcHeap()->allocateArray(endpointDescType, srcDesc->bNumEndpoints);
 	dstDesc->m_endpointCount = srcDesc->bNumEndpoints;
 
@@ -255,7 +255,7 @@ createUsbConfigurationDesc(
 	const libusb_config_descriptor* srcDesc
 	)
 {
-	DataPtr resultPtr = g_nullPtr;
+	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
 
@@ -277,7 +277,7 @@ createUsbDeviceDesc(
 	axl::io::UsbDevice* srcDevice
 	)
 {
-	DataPtr resultPtr = g_nullPtr;
+	DataPtr resultPtr = g_nullDataPtr;
 
 	JNC_BEGIN_CALL_SITE(runtime)
 

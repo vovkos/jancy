@@ -43,7 +43,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 UsbInterface::UsbInterface()
 {
 	m_parentDevice = NULL;
-	m_interfaceDescPtr = g_nullPtr;
+	m_interfaceDescPtr = g_nullDataPtr;
 	m_isClaimed = false;
 }
 
