@@ -38,6 +38,9 @@ environment:
         -   LLVM_VERSION: 3.9.1
             TOOLCHAIN:    msvc12
 
+        -   LLVM_VERSION: 7.1.0
+            TOOLCHAIN:    msvc15
+
         -   LLVM_VERSION: 8.0.0
             TOOLCHAIN:    msvc15
 
