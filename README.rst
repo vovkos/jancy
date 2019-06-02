@@ -90,10 +90,10 @@ You can also safely pass buffers from C/C++ to Jancy without creating a copy on 
 
 		JNC_BEGIN_CALL_SITE(runtime)
 
-		jnc::DataPtr ptr = runtime->getGcHeap()->createForeignDataPtr(
+		jnc::DataPtr ptr = runtime->getGcHeap()->createForeignBufferPtr(
 			buffer,
 			sizeof(buffer),
-			jnc::ValidatorFlag_CallSite // valid inside current call-site only
+			jnc::ForeignDataFlag_CallSiteLocal // valid inside current call-site only
 			);
 
 		jnc::callFunction(function, ptr);
@@ -108,16 +108,16 @@ Write auto-evaluating *formulas* just like you do in Excel -- and stay in full c
 
 .. code:: cpp
 
-	reactor m_uiReactor ()
+	reactor m_uiReactor
 	{
 		m_title = $"Target address: $(m_addressCombo.m_editText)";
 		m_isTransmitEnabled = m_state == State.Connected;
 		// ...
 	}
 
-	m_uiReactor.start ();
+	m_uiReactor.start();
 	// ...
-	m_uiReactor.stop ();
+	m_uiReactor.stop();
 
 This, together with the developed infrastructure of *properties* and *events*, is perfect for UI programming!
 
@@ -130,7 +130,7 @@ Assign a *scheduler* before passing a function pointers as a callback of some so
 
 	class WorkerThread: jnc.Scheduler
 	{
-		override schedule (function* f ())
+		override schedule(function* f())
 		{
 			// enqueue f and signal worker thread event
 		}
@@ -141,19 +141,19 @@ Then you apply a binary operator ``@`` (reads: at) to create a *scheduled* point
 
 .. code:: cpp
 
-	void onComplete (bool status)
+	void onComplete(bool status)
 	{
 		// we are in the worker thread
 	}
 
-	startTransaction (onComplete @ m_workerThread);
+	startTransaction(onComplete @ m_workerThread);
 
 When the transaction completes and completion routine is finally called, ``onComplete`` is guaranteed to be executed in the context of the assigned ``m_workerThread``.
 
 Async-Await (with A Cherry On Top)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The async-await approach is becoming increasingly popular during recent years -- and righfully so. In most cases, it absolutely is **the right way** of doing asynchronous programming. No wonder that Jancy fully supports this paradigm:
+The async-await paradigm is becoming increasingly popular during recent years -- and righfully so. In most cases, it absolutely is **the right way** of doing asynchronous programming. As a language targeting the IO domain, Jancy fully supports async-await:
 
 .. code:: cpp
 
@@ -172,7 +172,7 @@ The async-await approach is becoming increasingly popular during recent years --
 	jnc.Promise* promise = transact();
 	promise.blockingWait();
 
-A cherry on top is that in Jancy you can easily control the *execution environment* of your ``async`` procedure with *schedulers* -- for example, run in context of some specific thread:
+A cherry on top is that in Jancy you can easily control the *execution environment* of your ``async`` procedure with *schedulers* -- for example, run it in context of a specific thread:
 
 .. code:: cpp
 
@@ -210,7 +210,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 		break;
 
 	case r"bar(\d+)":
-		print ($"bar id: $(state.m_subMatchArray [0].m_text)\n");
+		print($"bar id: $(state.m_subMatchArray[0].m_text)\n");
 		break;
 
 	case r"\s+":
@@ -234,10 +234,10 @@ Define dynamically laid-out structures with non-constant sizes of array fields -
 	dynamic struct FileHdr
 	{
 		// ...
-		char m_authorName [strlen (m_authorName) + 1];
-		char m_authorEmail [strlen (m_authorEmail) + 1];
+		char m_authorName[strlen(m_authorName) + 1];
+		char m_authorEmail[strlen(m_authorEmail) + 1];
 		uint8_t m_sectionCount;
-		SectionDesc m_sectionTable [m_sectionCount];
+		SectionDesc m_sectionTable[m_sectionCount];
 		// ...
 	}
 
@@ -247,11 +247,11 @@ In Jancy you can describe a dynamic struct, overlap your buffer with a pointer t
 
 	FileHdr const* hdr = buffer;
 
-	displayAuthorInfo (hdr.m_authorName, hdr.m_authorEmail);
+	displayAuthorInfo(hdr.m_authorName, hdr.m_authorEmail);
 
 	for (size_t i = 0; i < hdr.m_sectionCount; i++)
 	{
-		processSection (hdr.m_sectionTable [i].m_offset, hdr.m_sectionTable [i].m_size);
+		processSection(hdr.m_sectionTable[i].m_offset, hdr.m_sectionTable[i].m_size);
 	}
 
 You can write to dynamic structs, too -- just make sure you fill it sequentially from top to bottom. And yes, dynamically calculated offsets are cached, so there is no significant performance penalty for using this facility.
@@ -267,8 +267,8 @@ In Jancy you can write methods which can be *both* error-checked and caught exce
 
 	class File
 	{
-		bool errorcode open (char const* fileName);
-		close ();
+		bool errorcode open(char const* fileName);
+		close();
 		alias dispose = close;
 	}
 
@@ -276,31 +276,31 @@ Use *throw-catch* semantics:
 
 .. code:: cpp
 
-	foo (File* file)
+	foo(File* file)
 	{
-		file.open ("data.bin");
-		file.write (hdr, sizeof (hdr));
-		file.write (data, dataSize);
+		file.open("data.bin");
+		file.write(hdr, sizeof(hdr));
+		file.write(data, dataSize);
 		// ...
 
 	catch:
-		print ($"error: $!\n");
+		print($"error: $!\n");
 
 	finally:
-		file.close ();
+		file.close();
 	}
 
 \...or do *error-code* checks where it works better:
 
 .. code:: cpp
 
-	bar ()
+	bar()
 	{
 		disposable File file;
-		bool result = try file.open ("data.bin");
+		bool result = try file.open("data.bin");
 		if (!result)
 		{
-			print ($"can't open: $!\n");
+			print($"can't open: $!\n");
 			// ...
 		}
 
@@ -319,21 +319,21 @@ Jancy introduces yet another cool feature called *dual type modifiers* -- i.e. m
 	class C
 	{
 		int readonly m_readOnly;
-		foo ();
+		foo();
 	}
 
 The ``readonly`` modifier's meaning depends on whether a call-site belongs to the *private-circle* of the namespace:
 
 .. code:: cpp
 
-	C.foo ()
+	C.foo()
 	{
 		m_readOnly = 10; // ok
 	}
 
-	bar (C* c)
+	bar(C* c)
 	{
-		print ($"c.m_readOnly = $(c.m_readOnly)\n"); // ok
+		print($"c.m_readOnly = $(c.m_readOnly)\n"); // ok
 		c.m_readOnly = 20; // error: cannot store to const-location
 	}
 
@@ -353,7 +353,7 @@ The ``cmut`` modifier must be used on the type of a member -- field, method, pro
 
 .. code:: cpp
 
-	bar (
+	bar(
 		ListEntry* a,
 		ListEntry const* b
 		)
@@ -370,24 +370,24 @@ Finally, the most obvious application for dual modifiers -- *event fields*:
 
 	class C1
 	{
-		event m_onCompleted ();
-		work ();
+		event m_onCompleted();
+		work();
 	}
 
 The ``event`` modifier limits access to the methods of the underlying ``multicast`` depending on whether a call-site belongs to the *private-circle* of the namespace:
 
 .. code:: cpp
 
-	C.work ()
+	C.work()
 	{
 		// ...
-		m_onCompleted (); // ok
+		m_onCompleted(); // ok
 	}
 
-	foo (C* c)
+	foo(C* c)
 	{
 		c.m_onCompleted += onCompleted; // adding/remove handlers is ok
-		c.m_onCompleted (); // error: non-friends can't fire events
+		c.m_onCompleted(); // error: non-friends can't fire events
 	}
 
 Other Notable Features
