@@ -11,7 +11,6 @@
 
 #include "pch.h"
 #include "jnc_GcHeap.h"
-#include "jnc_Runtime.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
