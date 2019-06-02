@@ -19,6 +19,24 @@ namespace ct {
 
 //..............................................................................
 
+GcShadowStackFrameMap::~GcShadowStackFrameMap()
+{
+	if (m_mapKind != GcShadowStackFrameMapKind_Dynamic)
+		return;
+
+	// invalidate all call-site-local boxes
+
+	size_t count = m_gcRootArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Box* box = (Box*)m_gcRootArray[i];
+		if (box->m_flags & BoxFlag_CallSiteLocal)
+			box->m_flags |= BoxFlag_Invalid;
+	}
+}
+
+//..............................................................................
+
 GcShadowStackMgr::GcShadowStackMgr()
 {
 	m_module = Module::getCurrentConstructedModule();

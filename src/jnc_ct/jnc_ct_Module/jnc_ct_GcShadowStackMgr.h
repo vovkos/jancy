@@ -55,6 +55,8 @@ public:
 		m_mapKind = GcShadowStackFrameMapKind_Static;
 	}
 
+	~GcShadowStackFrameMap();
+
 	GcShadowStackFrameMap*
 	getPrev()
 	{
