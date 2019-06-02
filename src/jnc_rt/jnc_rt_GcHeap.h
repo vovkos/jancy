@@ -189,17 +189,19 @@ public:
 		size_t rangeLength
 		);
 
-	DataPtr
-	createForeignDataPtr(
+	DetachedDataBox*
+	createForeignDataBox(
+		Type* type,
+		size_t elementCount,
 		void* p,
-		ct::Type* type
+		uint_t flags = 0
 		);
 
 	DataPtr
-	createForeignArrayPtr(
+	createForeignBufferPtr(
 		void* p,
-		ct::Type* type,
-		size_t count
+		size_t size,
+		uint_t flags = 0
 		);
 
 	// dynamic layout methods

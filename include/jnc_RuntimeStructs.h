@@ -64,6 +64,7 @@ enum jnc_BoxFlag
 	jnc_BoxFlag_Static          = 0x0020,
 	jnc_BoxFlag_DynamicArray    = 0x0040,
 	jnc_BoxFlag_Detached        = 0x0080,
+	jnc_BoxFlag_CallSiteLocal   = 0x0100,
 	jnc_BoxFlag_Invalid         = 0x8000,
 	jnc_BoxFlag_MarkMask        = 0x000f,
 };
@@ -156,7 +157,7 @@ struct jnc_DetachedDataBox
 {
 	jnc_Box m_box;
 	jnc_DataPtrValidator m_validator;
-	void* m_p; // detached from the actual data (used for static, foreign)
+	void* m_p; // detached from the actual data (for static & foreign data)
 };
 
 //..............................................................................
@@ -268,8 +269,8 @@ struct jnc_GcShadowStackFrameMapBuffer
 	jnc_ListLink m_link;
 	jnc_GcShadowStackFrameMap* m_prev;
 	intptr_t m_mapKind;
-	intptr_t m_gcRootArray[3];
-	intptr_t m_gcRootTypeArray[3];
+	intptr_t m_gcRootArray[3];     // maps to jnc::ct::GcShadowStackFrameMap::m_gcRootArray
+	intptr_t m_gcRootTypeArray[3]; // maps to jnc::ct::GcShadowStackFrameMap::m_gcRootTypeArray
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -283,8 +284,8 @@ struct jnc_GcMutatorThread
 	size_t m_noCollectRegionLevel;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolBegin;
 	jnc_DataPtrValidator* m_dataPtrValidatorPoolEnd;
-	jnc_DetachedDataBox* m_detachedDataBoxPoolBegin;
-	jnc_DetachedDataBox* m_detachedDataBoxPoolEnd;
+	jnc_DetachedDataBox* m_foreignDataBoxPoolBegin;
+	jnc_DetachedDataBox* m_foreignDataBoxPoolEnd;
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -391,6 +392,7 @@ const BoxFlag
 	BoxFlag_Static          = jnc_BoxFlag_Static,
 	BoxFlag_DynamicArray    = jnc_BoxFlag_DynamicArray,
 	BoxFlag_Detached        = jnc_BoxFlag_Detached,
+	BoxFlag_CallSiteLocal   = jnc_BoxFlag_CallSiteLocal,
 	BoxFlag_Invalid         = jnc_BoxFlag_Invalid,
 	BoxFlag_MarkMask        = jnc_BoxFlag_MarkMask;
 

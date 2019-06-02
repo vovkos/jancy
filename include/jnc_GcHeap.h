@@ -52,8 +52,10 @@ enum jnc_GcDef
 
 #ifdef _JNC_DEBUG
 	jnc_GcDef_DataPtrValidatorPoolSize = 1, // don't use pool, allocate every time
+	jnc_GcDef_ForeignDataBoxPoolSize   = 1, // don't use pool, allocate every time
 #else
 	jnc_GcDef_DataPtrValidatorPoolSize = 32,
+	jnc_GcDef_ForeignDataBoxPoolSize   = 16,
 #endif
 
 	jnc_GcDef_ShutdownIterationLimit   = 3,
@@ -71,6 +73,15 @@ enum jnc_GcShadowStackFrameMapOp
 };
 
 typedef enum jnc_GcShadowStackFrameMapOp jnc_GcShadowStackFrameMapOp;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum jnc_ForeignDataFlag
+{
+	jnc_ForeignDataFlag_CallSiteLocal = 0x01,
+};
+
+typedef enum jnc_ForeignDataFlag jnc_ForeignDataFlag;
 
 //..............................................................................
 
@@ -253,6 +264,25 @@ jnc_GcHeap_createDataPtrValidator(
 	jnc_Box* box,
 	void* rangeBegin,
 	size_t rangeLength
+	);
+
+JNC_EXTERN_C
+jnc_DetachedDataBox*
+jnc_GcHeap_createForeignDataBox(
+	jnc_GcHeap* gcHeap,
+	jnc_Type* type,
+	size_t elementCount, // -1 if not array
+	void* p,
+	uint_t flags // combination of jnc_ForeignDataFlag
+	);
+
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_GcHeap_createForeignBufferPtr(
+	jnc_GcHeap* gcHeap,
+	void* p,
+	size_t size,
+	uint_t flags // combination of jnc_ForeignDataFlag
 	);
 
 JNC_EXTERN_C
@@ -463,6 +493,37 @@ struct jnc_GcHeap
 		return jnc_GcHeap_createDataPtrValidator(this, box, rangeBegin, rangeLength);
 	}
 
+	jnc_DetachedDataBox*
+	createForeignDataBox(
+		jnc_Type* type,
+		size_t elementCount,
+		void* p,
+		uint_t flags = 0
+		)
+	{
+		return jnc_GcHeap_createForeignDataBox(this, type, elementCount, p, flags);
+	}
+
+	jnc_DetachedDataBox*
+	createForeignDataBox(
+		jnc_Type* type,
+		void* p,
+		uint_t flags = 0
+		)
+	{
+		return jnc_GcHeap_createForeignDataBox(this, type, -1, p, flags);
+	}
+
+	jnc_DataPtr
+	createForeignBufferPtr(
+		void* p,
+		size_t size,
+		uint_t flags = 0
+		)
+	{
+		return jnc_GcHeap_createForeignBufferPtr(this, p, size, flags);
+	}
+
 	jnc_IfaceHdr*
 	getDynamicLayout(jnc_Box* box)
 	{
@@ -525,6 +586,7 @@ const GcDef
 	GcDef_AllocSizeTrigger         = jnc_GcDef_AllocSizeTrigger,
 	GcDef_PeriodSizeTrigger        = jnc_GcDef_PeriodSizeTrigger,
 	GcDef_DataPtrValidatorPoolSize = jnc_GcDef_DataPtrValidatorPoolSize,
+	GcDef_ForeignDataBoxPoolSize   = jnc_GcDef_ForeignDataBoxPoolSize,
 	GcDef_ShutdownIterationLimit   = jnc_GcDef_ShutdownIterationLimit;
 
 typedef jnc_GcShadowStackFrameMapOp GcShadowStackFrameMapOp;
@@ -533,6 +595,11 @@ const GcShadowStackFrameMapOp
 	GcShadowStackFrameMapOp_Open    = jnc_GcShadowStackFrameMapOp_Open,
 	GcShadowStackFrameMapOp_Close   = jnc_GcShadowStackFrameMapOp_Close,
 	GcShadowStackFrameMapOp_Restore = jnc_GcShadowStackFrameMapOp_Restore;
+
+typedef jnc_ForeignDataFlag ForeignDataFlag;
+
+const ForeignDataFlag
+	ForeignDataFlag_CallSiteLocal = jnc_ForeignDataFlag_CallSiteLocal;
 
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;

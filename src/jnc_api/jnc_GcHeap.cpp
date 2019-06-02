@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_GcHeap.h"
+#include "jnc_Runtime.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
@@ -207,6 +208,33 @@ jnc_GcHeap_createDataPtrValidator(
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createDataPtrValidatorFunc(gcHeap, box, rangeBegin, rangeLength);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DetachedDataBox*
+jnc_GcHeap_createForeignDataBox(
+	jnc_GcHeap* gcHeap,
+	jnc_Type* type,
+	size_t elementCount,
+	void* p,
+	uint_t flags
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignDataBoxFunc(gcHeap, type, elementCount, p, flags);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_GcHeap_createForeignBufferPtr(
+	jnc_GcHeap* gcHeap,
+	void* p,
+	size_t size,
+	uint_t flags
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignBufferPtrFunc(gcHeap, p, size, flags);
 }
 
 JNC_EXTERN_C
@@ -513,6 +541,32 @@ jnc_GcHeap_createDataPtrValidator(
 	)
 {
 	return gcHeap->createDataPtrValidator(box, rangeBegin, rangeLength);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DetachedDataBox*
+jnc_GcHeap_createForeignDataBox(
+	jnc_GcHeap* gcHeap,
+	jnc_Type* type,
+	size_t elementCount,
+	void* p,
+	uint_t flags
+	)
+{
+	return gcHeap->createForeignDataBox(type, elementCount, p, flags);
+}
+
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_GcHeap_createForeignBufferPtr(
+	jnc_GcHeap* gcHeap,
+	void* p,
+	size_t size,
+	uint_t flags
+	)
+{
+	return gcHeap->createForeignBufferPtr(p, size, flags);
 }
 
 JNC_EXTERN_C

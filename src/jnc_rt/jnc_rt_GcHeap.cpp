@@ -284,7 +284,7 @@ GcHeap::addBoxIfDynamicFrame(Box* box)
 		return false;
 
 	map->addBox(box);
-	return false;
+	return true;
 }
 
 // allocation methods
@@ -479,7 +479,7 @@ GcHeap::tryAllocateData(ct::Type* type)
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*)box->m_validator.m_rangeBegin + size;
 
-	addBoxIfDynamicFrame(&box->m_box);
+	addBoxIfDynamicFrame((Box*)box);
 
 	incrementAllocSizeAndLock(size);
 	m_allocBoxArray.append((Box*)box);
@@ -529,7 +529,7 @@ GcHeap::tryAllocateArray(
 	box->m_validator.m_rangeBegin = box + 1;
 	box->m_validator.m_rangeEnd = (char*)box->m_validator.m_rangeBegin + size;
 
-	addBoxIfDynamicFrame(&box->m_box);
+	addBoxIfDynamicFrame((Box*)box);
 
 	incrementAllocSizeAndLock(size);
 	m_allocBoxArray.append((Box*)box);
@@ -584,8 +584,6 @@ GcHeap::createDataPtrValidator(
 	size_t rangeLength
 	)
 {
-	ASSERT(GcDef_DataPtrValidatorPoolSize >= 1);
-
 	DataPtrValidator* validator;
 
 	GcMutatorThread* thread = getCurrentGcMutatorThread();
@@ -608,35 +606,19 @@ GcHeap::createDataPtrValidator(
 	}
 	else
 	{
-		size_t size = sizeof(DataPtrValidator) * GcDef_DataPtrValidatorPoolSize;
+		ASSERT(GcDef_DataPtrValidatorPoolSize >= 1);
 
-		DataBox* box = AXL_MEM_NEW_EXTRA(DataBox, size);
-		if (!box)
-		{
-			Runtime::dynamicThrow();
-			ASSERT(false);
-		}
+		jnc::Type* validatorType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DataPtrValidator);
+		DataPtr ptr = allocateArray(validatorType, GcDef_DataPtrValidatorPoolSize);
 
-		validator = (DataPtrValidator*) (box + 1);
-		validator->m_validatorBox = (Box*)box;
-
-		box->m_box.m_type = (jnc::Type*)m_runtime->getModule()->m_typeMgr.getStdType(StdType_DataPtrValidator);
-		box->m_box.m_flags = BoxFlag_DynamicArray | BoxFlag_DataMark | BoxFlag_WeakMark;
-		box->m_box.m_rootOffset = 0;
-		box->m_validator.m_targetBox = (Box*)box;
-		box->m_validator.m_validatorBox = (Box*)box;
-		box->m_validator.m_rangeBegin = validator;
-		box->m_validator.m_rangeEnd = validator + GcDef_DataPtrValidatorPoolSize;
-
-		incrementAllocSizeAndLock(size);
-		m_allocBoxArray.append((Box*)box);
-		m_lock.unlock();
+		validator = (DataPtrValidator*) ptr.m_p;
+		validator->m_validatorBox = ptr.m_validator->m_validatorBox;
 
 		if (GcDef_DataPtrValidatorPoolSize >= 2)
 		{
 			thread->m_dataPtrValidatorPoolBegin = validator + 1;
-			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = (Box*)box;
-			thread->m_dataPtrValidatorPoolEnd = (DataPtrValidator*)box->m_validator.m_rangeEnd;
+			thread->m_dataPtrValidatorPoolBegin->m_validatorBox = ptr.m_validator->m_validatorBox;
+			thread->m_dataPtrValidatorPoolEnd = (DataPtrValidator*)ptr.m_validator->m_rangeEnd;
 		}
 	}
 
@@ -644,6 +626,89 @@ GcHeap::createDataPtrValidator(
 	validator->m_rangeBegin = rangeBegin;
 	validator->m_rangeEnd = (char*)rangeBegin + rangeLength;
 	return validator;
+}
+
+DetachedDataBox*
+GcHeap::createForeignDataBox(
+	Type* type,
+	size_t elementCount,
+	void* p,
+	uint_t flags
+	)
+{
+	DetachedDataBox* resultBox;
+
+	GcMutatorThread* thread = getCurrentGcMutatorThread();
+	ASSERT(thread && !thread->m_waitRegionLevel);
+
+	if (thread->m_foreignDataBoxPoolBegin)
+	{
+		resultBox = thread->m_foreignDataBoxPoolBegin;
+		thread->m_foreignDataBoxPoolBegin++;
+
+		if (thread->m_foreignDataBoxPoolBegin < thread->m_foreignDataBoxPoolEnd)
+		{
+			thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox = resultBox->m_validator.m_validatorBox;
+		}
+		else
+		{
+			thread->m_foreignDataBoxPoolBegin = NULL;
+			thread->m_foreignDataBoxPoolEnd = NULL;
+		}
+	}
+	else
+	{
+		ASSERT(GcDef_ForeignDataBoxPoolSize >= 1);
+
+		Type* boxType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_DetachedDataBox);
+		DataPtr ptr = allocateArray(boxType, GcDef_ForeignDataBoxPoolSize);
+
+		resultBox = (DetachedDataBox*) ptr.m_p;
+		resultBox->m_validator.m_validatorBox = ptr.m_validator->m_validatorBox;
+
+		if (GcDef_DataPtrValidatorPoolSize >= 2)
+		{
+			thread->m_foreignDataBoxPoolBegin = resultBox + 1;
+			thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox = ptr.m_validator->m_validatorBox;
+			thread->m_foreignDataBoxPoolEnd = (DetachedDataBox*)ptr.m_validator->m_rangeEnd;
+		}
+	}
+
+	resultBox->m_box.m_type = type;
+	resultBox->m_box.m_flags = BoxFlag_Detached | BoxFlag_DataMark | BoxFlag_WeakMark;
+	resultBox->m_box.m_rootOffset = 0;
+
+	size_t size = type->getSize();
+	if ((intptr_t) elementCount > 0)
+	{
+		size *= elementCount;
+		resultBox->m_box.m_flags |= BoxFlag_DynamicArray;
+	}
+
+	if (flags & ForeignDataFlag_CallSiteLocal)
+		resultBox->m_box.m_flags |= BoxFlag_CallSiteLocal;
+
+	resultBox->m_validator.m_targetBox = &resultBox->m_box;
+	resultBox->m_validator.m_rangeBegin = p;
+	resultBox->m_validator.m_rangeEnd = (char*)p + size;
+	resultBox->m_p = p;
+
+	addBoxIfDynamicFrame((Box*)resultBox);
+
+	return resultBox;
+}
+
+DataPtr
+GcHeap::createForeignBufferPtr(
+	void* p,
+	size_t size,
+	uint_t flags
+	)
+{
+	Type* type = m_runtime->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Char);
+	DetachedDataBox* box = createForeignDataBox(type, size, p, flags);
+	DataPtr ptr = { p, &box->m_validator };
+	return ptr;
 }
 
 // dynamic layout methods
@@ -840,8 +905,8 @@ GcHeap::registerMutatorThread(GcMutatorThread* thread)
 	thread->m_noCollectRegionLevel = 0;
 	thread->m_dataPtrValidatorPoolBegin = NULL;
 	thread->m_dataPtrValidatorPoolEnd = NULL;
-	thread->m_detachedDataBoxPoolBegin = NULL;
-	thread->m_detachedDataBoxPoolEnd = NULL;
+	thread->m_foreignDataBoxPoolBegin = NULL;
+	thread->m_foreignDataBoxPoolEnd = NULL;
 
 	m_mutatorThreadList.insertTail(thread);
 	m_lock.unlock();
@@ -1404,10 +1469,10 @@ GcHeap::collect_l(bool isMutatorThread)
 		if (thread->m_dataPtrValidatorPoolBegin)
 			weakMark(thread->m_dataPtrValidatorPoolBegin->m_validatorBox);
 
-		// detached data box pool
+		// foreign data box pool
 
-		if (thread->m_detachedDataBoxPoolBegin)
-			weakMark((Box*)((char*)thread->m_detachedDataBoxPoolBegin - thread->m_detachedDataBoxPoolBegin->m_box.m_rootOffset));
+		if (thread->m_foreignDataBoxPoolBegin)
+			weakMark(thread->m_foreignDataBoxPoolBegin->m_validator.m_validatorBox);
 	}
 
 	// run mark cycle
