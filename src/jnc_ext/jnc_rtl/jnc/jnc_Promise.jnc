@@ -67,12 +67,6 @@ class Promisifier: Promise
 		);
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-///; static char getCurrentPromiseSrc[] =
-
-jnc.Promise* getCurrentPromise();
-
 ///;
 
 //..............................................................................
