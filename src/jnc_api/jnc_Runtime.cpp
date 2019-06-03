@@ -454,7 +454,7 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ct::ClosureClassType*)classType)->strengthen(iface) :
-		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Zombie) ? iface : NULL;
+		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Destructed) ? iface : NULL;
 }
 
 JNC_EXTERN_C

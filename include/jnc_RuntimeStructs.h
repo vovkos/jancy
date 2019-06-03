@@ -60,12 +60,12 @@ enum jnc_BoxFlag
 	jnc_BoxFlag_ClosureWeakMark = 0x0002,
 	jnc_BoxFlag_DataMark        = 0x0004,
 	jnc_BoxFlag_ClassMark       = 0x0008,
-	jnc_BoxFlag_Zombie          = 0x0010,
+	jnc_BoxFlag_Destructed      = 0x0010,
 	jnc_BoxFlag_Static          = 0x0020,
 	jnc_BoxFlag_DynamicArray    = 0x0040,
 	jnc_BoxFlag_Detached        = 0x0080,
 	jnc_BoxFlag_CallSiteLocal   = 0x0100,
-	jnc_BoxFlag_Invalid         = 0x8000,
+	jnc_BoxFlag_Invalid         = 0x0200,
 	jnc_BoxFlag_MarkMask        = 0x000f,
 };
 
@@ -77,12 +77,12 @@ struct jnc_Box
 {
 	jnc_Type* m_type;
 
-	uintptr_t m_flags      : 8;
+	uintptr_t m_flags      : 10;
 
 #if (JNC_PTR_BITS == 64)
-	uintptr_t m_rootOffset : 56;
+	uintptr_t m_rootOffset : 54;
 #else
-	uintptr_t m_rootOffset : 24; // more than enough
+	uintptr_t m_rootOffset : 22; // more than enough
 #endif
 };
 
@@ -388,7 +388,7 @@ const BoxFlag
 	BoxFlag_ClosureWeakMark = jnc_BoxFlag_ClosureWeakMark,
 	BoxFlag_DataMark        = jnc_BoxFlag_DataMark,
 	BoxFlag_ClassMark       = jnc_BoxFlag_ClassMark,
-	BoxFlag_Zombie          = jnc_BoxFlag_Zombie,
+	BoxFlag_Destructed      = jnc_BoxFlag_Destructed,
 	BoxFlag_Static          = jnc_BoxFlag_Static,
 	BoxFlag_DynamicArray    = jnc_BoxFlag_DynamicArray,
 	BoxFlag_Detached        = jnc_BoxFlag_Detached,

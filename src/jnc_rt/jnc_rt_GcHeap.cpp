@@ -1504,7 +1504,7 @@ GcHeap::collect_l(bool isMutatorThread)
 	for (size_t i = 0; i < count; i++)
 	{
 		Box* box = m_destructibleClassBoxArray[i];
-		ASSERT(!(box->m_flags & BoxFlag_Zombie) && ((ct::ClassType*)box->m_type)->getDestructor());
+		ASSERT(!(box->m_flags & BoxFlag_Destructed) && ((ct::ClassType*)box->m_type)->getDestructor());
 
 		if (box->m_flags & (BoxFlag_ClassMark | BoxFlag_ClosureWeakMark))
 		{
@@ -1515,7 +1515,7 @@ GcHeap::collect_l(bool isMutatorThread)
 			IfaceHdr* iface = (IfaceHdr*)(box + 1);
 			ASSERT(iface->m_box == box);
 
-			box->m_flags |= BoxFlag_Zombie;
+			box->m_flags |= BoxFlag_Destructed;
 			destructArray.append(iface);
 		}
 	}
