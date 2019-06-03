@@ -70,13 +70,9 @@ while (chomp (my $s = <>))
 
 		if ($s !~ m/^[ \t]*$/)
 		{
-			# remove trailing whitespace
-
-			$s =~ s/\s+$//;
-
-			# mask quotation marks with escapes
-
-			$s =~ s/(?<!\\)\"/\\\"/g;
+			$s =~ s/\s+$//;     # remove trailing whitespace
+			$s =~ s/\\/\\\\/g;  # escqape backslashes
+			$s =~ s/"/\\"/g;    # escqape quotation marks
 
 			print ("\"$s\\n\"\n");
 		}
