@@ -211,10 +211,12 @@ public:
 
 	bool
 	parse(
-		ExtensionLib* lib,
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
-		);
+		)
+	{
+		return parseImpl(NULL, fileName, source);
+	}
 
 	bool
 	parseFile(const sl::StringRef& fileName);
@@ -259,6 +261,13 @@ public:
 	getLlvmIrString();
 
 protected:
+	bool
+	parseImpl(
+		ExtensionLib* lib,
+		const sl::StringRef& fileName,
+		const sl::StringRef& source
+		);
+
 	bool
 	createLlvmExecutionEngine();
 

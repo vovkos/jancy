@@ -314,13 +314,17 @@ JNC_EXPORT_O
 bool_t
 jnc_Module_parse(
 	jnc_Module* module,
-	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
 	)
 {
-	return module->parse(lib, fileName, sl::StringRef(source, length));
+	return module->parse(
+		fileName,
+		length != -1 ?
+			sl::StringRef(source, length) :
+			sl::StringRef(source)
+		);
 }
 
 JNC_EXTERN_C

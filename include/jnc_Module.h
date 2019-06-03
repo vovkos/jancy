@@ -214,7 +214,6 @@ JNC_EXTERN_C
 bool_t
 jnc_Module_parse(
 	jnc_Module* module,
-	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length
@@ -402,23 +401,12 @@ struct jnc_Module
 
 	bool
 	parse(
-		jnc_ExtensionLib* lib,
 		const char* fileName,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		return jnc_Module_parse(this, lib, fileName, source, length) != 0;
-	}
-
-	bool
-	parse(
-		const char* fileName,
-		const char* source,
-		size_t length = -1
-		)
-	{
-		return jnc_Module_parse(this, NULL, fileName, source, length) != 0;
+		return jnc_Module_parse(this, fileName, source, length) != 0;
 	}
 
 	bool

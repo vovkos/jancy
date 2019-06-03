@@ -1061,7 +1061,6 @@ typedef
 bool_t
 jnc_Module_ParseFunc(
 	jnc_Module* module,
-	jnc_ExtensionLib* lib,
 	const char* fileName,
 	const char* source,
 	size_t length

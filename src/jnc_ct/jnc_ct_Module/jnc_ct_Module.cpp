@@ -499,7 +499,7 @@ Module::markForCompile(ModuleItem* item)
 }
 
 bool
-Module::parse(
+Module::parseImpl(
 	ExtensionLib* lib,
 	const sl::StringRef& fileName,
 	const sl::StringRef& source
@@ -596,7 +596,7 @@ Module::parseFile(const sl::StringRef& fileName)
 	m_sourceList.insertTail(source);
 	m_filePathSet.visit(filePath);
 
-	return parse(NULL, filePath, source);
+	return parseImpl(NULL, filePath, source);
 }
 
 bool
@@ -608,7 +608,7 @@ Module::parseImports()
 	for (; importIt; importIt++)
 	{
 		bool result = importIt->m_importKind == ImportKind_Source ?
-			parse(
+			parseImpl(
 				importIt->m_lib,
 				importIt->m_filePath,
 				importIt->m_source
