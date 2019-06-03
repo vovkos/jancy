@@ -842,6 +842,9 @@ appendFmtLiteral_p(
 	DataPtr ptr
 	)
 {
+	if (!ptr.m_p) // shortcut
+		return fmtLiteral->m_length;
+
 	size_t length = strLen(ptr);
 	checkDataPtrRangeIndirect(ptr.m_p, length, ptr.m_validator);
 	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, length);
