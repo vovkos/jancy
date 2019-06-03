@@ -11,6 +11,9 @@
 
 // This sample demonstrates reactive approach to UI programming.
 
+///+++
+///; static char scriptSrc[] =
+
 //..............................................................................
 
 // basic widget classes
@@ -241,3 +244,6 @@ int main(Layout* mainLayout)
 }
 
 //..............................................................................
+
+///;
+///---

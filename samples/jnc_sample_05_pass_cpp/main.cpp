@@ -10,7 +10,6 @@
 //..............................................................................
 
 #include "pch.h"
-#include "MyLib.h"
 
 //..............................................................................
 
@@ -65,33 +64,37 @@ main(
 	bool result;
 
 	printf("Initializing...\n");
+	jnc::initialize("jnc_sample_05_pass_cpp");
+
+	jnc::AutoModule module;
+	module->initialize("jnc_sample_05_pass_cpp");
+	module->addStaticLib(jnc::StdLib_getLib());
 
 	if (argc < 2)
 	{
-		printf("usage: jnc_sample_02_embed_cpp <script.jnc>\n");
-		return Error_CmdLine;
-	}
+#include "script.jnc.cpp"
 
-	jnc::initialize("jnc_sample_02_embed_cpp");
+		printf("Parsing default script...\n");
+
+		result =
+			module->parse("script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			module->parseImports();
+	}
+	else
+	{
 
 #if (_JNC_OS_WIN)
-	std::auto_ptr<char> fileName_utf8 = convertToUtf8(argv[1]);
-	const char* fileName = fileName_utf8.get();
+		std::auto_ptr<char> fileName_utf8 = convertToUtf8(argv[1]);
+		const char* fileName = fileName_utf8.get();
 #else
-	const char* fileName = argv[1];
+		const char* fileName = argv[1];
 #endif
+		printf("Parsing '%s'...\n", fileName);
 
-	jnc::AutoModule module;
-
-	module->initialize(fileName);
-	module->addStaticLib(jnc::StdLib_getLib());
-	module->addStaticLib(MyLib_getLib());
-
-	printf("Parsing '%s'...\n", fileName);
-
-	result =
-		module->parseFile(fileName) &&
-		module->parseImports();
+		result =
+			module->parseFile(fileName) &&
+			module->parseImports();
+	}
 
 	if (!result)
 	{
@@ -118,8 +121,8 @@ main(
 	}
 
 	jnc::Namespace* nspace = module->getGlobalNamespace()->getNamespace();
-	jnc::Function* mainFunction = nspace->findFunction("main", true);
-	if (!mainFunction)
+	jnc::Function* fooFunction = nspace->findFunction("foo", true);
+	if (!fooFunction)
 	{
 		printf("%s\n", jnc::getLastErrorDescription_v ());
 		return Error_Compile;
@@ -137,13 +140,85 @@ main(
 	}
 
 	Error finalResult = Error_Success;
+	jnc::DataPtr ptr;
 
-	int returnValue;
-	result = jnc::callFunction(runtime, mainFunction, &returnValue);
+	char string[] = "This is a host string on stack";
+
+	// normally, you want to invalidate foreign pointers
+	// immediately upon exiting the call-site
+
+	printf("Automatic foreign pointer invalidation...\n");
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		ptr = runtime->getGcHeap()->createForeignBufferPtr(
+			string,
+			sizeof(string),
+			jnc::ForeignDataFlag_CallSiteLocal
+			);
+
+		jnc::callVoidFunction(fooFunction, ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
 	if (!result)
 	{
 		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
-		finalResult = Error_Runtime;
+		return Error_Runtime;
+	}
+
+	// here, ptr cannot be accessed anymore
+
+	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
+	if (!result)
+	{
+		printf("Exprected error: %s\n", jnc::getLastErrorDescription_v ());
+	}
+	else
+	{
+		printf("Unexpected success accessing an invalidated pointer\n");
+		return Error_Runtime;
+	}
+
+	jnc_setErrno(2);
+
+	// sometimes, you may want to invalidate foreign pointers manually
+
+	printf("Manual foreign pointer invalidation...\n");
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		ptr = runtime->getGcHeap()->createForeignBufferPtr(string, sizeof(string));
+		jnc::callVoidFunction(fooFunction, ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
+	if (!result)
+	{
+		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
+		return Error_Runtime;
+	}
+
+	// we still can access ptr here
+
+	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
+	if (!result)
+	{
+		printf("Runtime error: %s\n", jnc::getLastErrorDescription_v ());
+		return Error_Runtime;
+	}
+
+	// invalidate manually
+
+	ptr.m_validator->m_targetBox->m_flags |= jnc::BoxFlag_Invalid;
+
+	// now, we can't access it
+
+	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
+	if (!result)
+	{
+		printf("Exprected error: %s\n", jnc::getLastErrorDescription_v ());
+	}
+	else
+	{
+		printf("Unexpected success accessing an invalidated pointer\n");
+		return Error_Runtime;
 	}
 
 	printf("Shutting down...\n");

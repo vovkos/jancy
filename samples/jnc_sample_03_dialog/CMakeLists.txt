@@ -76,14 +76,29 @@ qt5_wrap_cpp(
 	${MOC_H_LIST}
 	)
 
+add_perl_step(
+	script.jnc.cpp
+	script.jnc
+	${JNC2CPP_PL}
+	)
+
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
-axl_exclude_from_build(${GEN_MOC_CPP_LIST}) # include "moc_*.cpp" manually
+set(
+	GEN_JNC_CPP_LIST
+	${GEN_DIR}/script.jnc.cpp
+	)
+
+axl_exclude_from_build(
+	${GEN_MOC_CPP_LIST}  # include "moc_*.cpp" manually
+	${GEN_JNC_CPP_LIST}  # include "*.jnc.cpp" manually
+	)
 
 source_group(
 	gen
 	FILES
 	${GEN_MOC_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -115,15 +130,16 @@ include_directories(
 	${GEN_DIR}
 	)
 
-link_directories(${AXL_LIB_DIR})
-
 if(BUILD_JNC_DLL)
 	link_directories(
 		${JANCY_LIB_DIR}
 		${JANCY_BIN_DIR}
 		)
 else()
-	link_directories(${LLVM_LIB_DIR})
+	link_directories(
+		${LLVM_LIB_DIR}
+		${AXL_LIB_DIR}
+		)
 endif()
 
 add_definitions(
@@ -139,6 +155,7 @@ add_executable(
 	${APP_CPP_LIST}
 	${APP_JNC_LIST}
 	${GEN_MOC_CPP_LIST}
+	${GEN_JNC_CPP_LIST}
 	)
 
 qt5_use_modules(jnc_sample_03_dialog Widgets)
@@ -176,19 +193,15 @@ else()
 		jnc_std
 		jnc_sys
 		jnc_api_core
+		axl_zip
+		axl_fsm
+		axl_io
+		axl_lex
+		axl_core
 		)
 
 	target_link_llvm_jit_libraries(jnc_sample_03_dialog)
 endif()
-
-target_link_libraries(
-	jnc_sample_03_dialog
-	axl_zip
-	axl_fsm
-	axl_io
-	axl_lex
-	axl_core
-	)
 
 if(UNIX)
 	target_link_libraries(
@@ -230,6 +243,11 @@ endif()
 axl_detect_host_cpu(_CPU)
 
 if(WIN32 OR(LINUX AND "${TARGET_CPU}" STREQUAL "${_CPU}"))
+	add_test(
+		NAME jnc_sample_03_dialog_default
+		COMMAND $<TARGET_FILE:jnc_sample_03_dialog> --test
+		)
+
 	add_test(
 		NAME jnc_sample_03_dialog
 		COMMAND

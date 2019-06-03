@@ -10,7 +10,6 @@
 //..............................................................................
 
 #include "pch.h"
-#include "MyLib.h"
 
 //..............................................................................
 
@@ -68,8 +67,8 @@ main(
 #endif
 {
 	typedef
-	int
-	MainFunc();
+	void
+	FooFunc(jnc_DataPtr);
 
 	int result;
 	Error finalResult = Error_Success;
@@ -77,38 +76,44 @@ main(
 	const char* fileName = NULL;
 	jnc_Module* module = NULL;
 	jnc_Runtime* runtime = NULL;
+	jnc_GcHeap* gcHeap = NULL;
 	jnc_Namespace* nspace;
 	jnc_Function* function;
-	MainFunc* mc;
-	int returnValue;
+	jnc_DataPtr ptr;
+	FooFunc* mc;
+	char string[] = "This is a host string on stack";
 
 	printf("Initializing...\n");
+	jnc_initialize("jnc_sample_04_pass_c");
+
+	module = jnc_Module_create();
+	jnc_Module_initialize(module, "jnc_sample_04_pass_c", jnc_ModuleCompileFlag_StdFlags);
+	jnc_Module_addStaticLib(module, jnc_StdLib_getLib());
 
 	if (argc < 2)
 	{
-		printf("usage: jnc_sample_01_embed_c <script.jnc>\n");
-		finalResult = Error_CmdLine;
-		goto exit;
-	}
+#include "script.jnc.cpp"
 
-	jnc_initialize("jnc_sample_01_embed_c");
+		printf("Parsing default script...\n");
+
+		result =
+			jnc_Module_parse(module, "script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			jnc_Module_parseImports(module);
+	}
+	else
+	{
 
 #if (_JNC_OS_WIN)
-	fileName = convertToUtf8(argv[1], -1);
+		fileName = convertToUtf8(argv[1], -1);
 #else
-	fileName = argv[1];
+		fileName = argv[1];
 #endif
+		printf("Parsing '%s'...\n", fileName);
 
-	module = jnc_Module_create();
-	jnc_Module_initialize(module, fileName, jnc_ModuleCompileFlag_StdFlags);
-	jnc_Module_addStaticLib(module, jnc_StdLib_getLib());
-	jnc_Module_addStaticLib(module, MyLib_getLib());
-
-	printf("Parsing '%s'...\n", fileName);
-
-	result =
-		jnc_Module_parseFile(module, fileName) &&
-		jnc_Module_parseImports(module);
+		result =
+			jnc_Module_parseFile(module, fileName) &&
+			jnc_Module_parseImports(module);
+	}
 
 	if (!result)
 	{
@@ -138,7 +143,7 @@ main(
 	}
 
 	nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)jnc_Module_getGlobalNamespace(module));
-	function = jnc_Namespace_findFunction(nspace, "main", 1);
+	function = jnc_Namespace_findFunction(nspace, "foo", 1);
 	if (!function)
 	{
 		printf("%s\n", jnc_getLastErrorDescription_v ());
@@ -157,15 +162,94 @@ main(
 		goto exit;
 	}
 
+	gcHeap = jnc_Runtime_getGcHeap(runtime);
 	mc = jnc_Function_getMachineCode(function);
 
+	// normally, you want to invalidate foreign pointers
+	// immediately upon exiting the call-site
+
+	printf("Automatic foreign pointer invalidation...\n");
+
 	JNC_BEGIN_CALL_SITE(runtime)
-	returnValue = mc();
+		ptr = jnc_GcHeap_createForeignBufferPtr(
+			gcHeap,
+			string,
+			sizeof(string),
+			jnc_ForeignDataFlag_CallSiteLocal
+			);
+		mc(ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
 	if (!result)
 	{
 		printf("Runtime error: %s\n", jnc_getLastErrorDescription_v ());
+		finalResult = Error_Runtime;
+		goto exit;
+	}
+
+	// here, ptr cannot be accessed anymore
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		mc(ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
+	if (!result)
+	{
+		printf("Exprected error: %s\n", jnc_getLastErrorDescription_v ());
+	}
+	else
+	{
+		printf("Unexpected success accessing an invalidated pointer\n");
+		finalResult = Error_Runtime;
+		goto exit;
+	}
+
+	// sometimes, you may want to invalidate foreign pointers manually
+
+	printf("Manual foreign pointer invalidation...\n");
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		ptr = jnc_GcHeap_createForeignBufferPtr(gcHeap, string, sizeof(string), 0);
+		mc(ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
+	if (!result)
+	{
+		printf("Runtime error: %s\n", jnc_getLastErrorDescription_v ());
+		finalResult = Error_Runtime;
+		goto exit;
+	}
+
+	// we still can access ptr here
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		mc(ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
+	if (!result)
+	{
+		printf("Runtime error: %s\n", jnc_getLastErrorDescription_v ());
+		finalResult = Error_Runtime;
+		goto exit;
+	}
+
+	// invalidate manually
+
+	ptr.m_validator->m_targetBox->m_flags |= jnc_BoxFlag_Invalid;
+
+	// now, we can't access it
+
+	JNC_BEGIN_CALL_SITE(runtime)
+		mc(ptr);
+	JNC_END_CALL_SITE_EX(&result)
+
+	if (!result)
+	{
+		printf("Exprected error: %s\n", jnc_getLastErrorDescription_v ());
+	}
+	else
+	{
+		printf("Unexpected success accessing an invalidated pointer\n");
 		finalResult = Error_Runtime;
 		goto exit;
 	}

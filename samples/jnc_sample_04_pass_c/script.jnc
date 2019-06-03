@@ -1,0 +1,28 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+// This sample demonstrates how to safely pass memory blocks
+// to Jancy functions without copying them onto the GC-heap
+
+///+++
+///; static char scriptSrc[] =
+
+//..............................................................................
+
+foo(char* s)
+{
+	print($"foo('$s')\n");
+}
+
+//..............................................................................
+
+///;
+///---

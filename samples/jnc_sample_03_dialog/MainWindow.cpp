@@ -83,23 +83,32 @@ int MainWindow::output(const char* format, ...)
 
 bool MainWindow::runScript(const QString& fileName)
 {
-	if (fileName.isEmpty())
-	{
-		output("usage: 02_dialog <script.jnc>\n");
-		return false;
-	}
+	bool result;
 
-	QByteArray fileName_utf8 = fileName.toUtf8();
-
-	output("Parsing...\n");
-
-	m_module->initialize(fileName_utf8.constBegin());
+	m_module->initialize("jnc_sample_03_dialog");
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(MyLib_getLib());
 
-	bool result =
-		m_module->parseFile(fileName_utf8.constBegin()) &&
-		m_module->parseImports();
+	if (fileName.isEmpty())
+	{
+#include "script.jnc.cpp"
+
+		output("Parsing default script...\n");
+
+		result =
+			m_module->parse("script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			m_module->parseImports();
+	}
+	else
+	{
+		QByteArray fileName_utf8 = fileName.toUtf8();
+
+		output("Parsing...\n");
+
+		result =
+			m_module->parseFile(fileName_utf8.constBegin()) &&
+			m_module->parseImports();
+	}
 
 	if (!result)
 	{

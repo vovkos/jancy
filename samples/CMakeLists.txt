@@ -12,33 +12,27 @@
 add_subdirectory(jnc)
 
 option(
-	BUILD_JNC_SAMPLE_01_EMBED_C
-	"Build sample jnc_sample_01_embed_c"
+	BUILD_C_SAMPLES
+	"Build C samples"
 	ON
 	)
-
-if(BUILD_JNC_SAMPLE_01_EMBED_C)
-	add_subdirectory(jnc_sample_01_embed_c)
-endif()
 
 option(
-	BUILD_JNC_SAMPLE_02_EMBED_CPP
-	"Build sample jnc_sample_02_embed_cpp"
+	BUILD_CPP_SAMPLES
+	"Build C++ samples"
 	ON
 	)
 
-if(BUILD_JNC_SAMPLE_02_EMBED_CPP)
-	add_subdirectory(jnc_sample_02_embed_cpp)
+if(BUILD_C_SAMPLES)
+	add_subdirectory(jnc_sample_01_export_c)
+	add_subdirectory(jnc_sample_04_pass_c)
 endif()
 
-if(${QT_FOUND})
-	option(
-		BUILD_JNC_SAMPLE_03_DIALOG
-		"Build sample jnc_sample_03_dialog(QT bindings)"
-		ON
-		)
+if(BUILD_CPP_SAMPLES)
+	add_subdirectory(jnc_sample_02_export_cpp)
+	add_subdirectory(jnc_sample_05_pass_cpp)
 
-	if(BUILD_JNC_SAMPLE_03_DIALOG)
+	if(${QT_FOUND})
 		add_subdirectory(jnc_sample_03_dialog)
 	endif()
 endif()
