@@ -494,6 +494,12 @@ tryCheckDataPtrRangeIndirect(
 		return false;
 	}
 
+	if (validator->m_targetBox->m_flags & BoxFlag_Invalid)
+	{
+		err::setError("invalidated pointer access");
+		return false;
+	}
+
 	void* end = (char*)p + size;
 	if (p < validator->m_rangeBegin || end > validator->m_rangeEnd)
 	{
@@ -836,7 +842,9 @@ appendFmtLiteral_p(
 	DataPtr ptr
 	)
 {
-	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, strLen(ptr));
+	size_t length = strLen(ptr);
+	checkDataPtrRangeIndirect(ptr.m_p, length, ptr.m_validator);
+	return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, (const char*) ptr.m_p, length);
 }
 
 static
