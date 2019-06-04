@@ -217,10 +217,10 @@ jnc_GcHeap_createForeignDataBox(
 	jnc_Type* type,
 	size_t elementCount,
 	void* p,
-	uint_t flags
+	bool_t isCallSiteLocal
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignDataBoxFunc(gcHeap, type, elementCount, p, flags);
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignDataBoxFunc(gcHeap, type, elementCount, p, isCallSiteLocal);
 }
 
 JNC_EXTERN_C
@@ -230,10 +230,10 @@ jnc_GcHeap_createForeignBufferPtr(
 	jnc_GcHeap* gcHeap,
 	void* p,
 	size_t size,
-	uint_t flags
+	bool_t isCallSiteLocal
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignBufferPtrFunc(gcHeap, p, size, flags);
+	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_createForeignBufferPtrFunc(gcHeap, p, size, isCallSiteLocal);
 }
 
 JNC_EXTERN_C
@@ -550,22 +550,23 @@ jnc_GcHeap_createForeignDataBox(
 	jnc_Type* type,
 	size_t elementCount,
 	void* p,
-	uint_t flags
+	bool_t isCallSiteLocal
 	)
 {
-	return gcHeap->createForeignDataBox(type, elementCount, p, flags);
+	return gcHeap->createForeignDataBox(type, elementCount, p, isCallSiteLocal);
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_createForeignBufferPtr(
 	jnc_GcHeap* gcHeap,
 	void* p,
 	size_t size,
-	uint_t flags
+	bool_t isCallSiteLocal
 	)
 {
-	return gcHeap->createForeignBufferPtr(p, size, flags);
+	return gcHeap->createForeignBufferPtr(p, size, isCallSiteLocal);
 }
 
 JNC_EXTERN_C

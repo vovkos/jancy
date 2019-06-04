@@ -93,7 +93,7 @@ You can also safely pass buffers from C/C++ to Jancy without creating a copy on 
 		jnc::DataPtr ptr = runtime->getGcHeap()->createForeignBufferPtr(
 			buffer,
 			sizeof(buffer),
-			jnc::ForeignDataFlag_CallSiteLocal // valid inside current call-site only
+			true // bool isCallSiteLocal (valid inside current call-site only)
 			);
 
 		jnc::callFunction(function, ptr);

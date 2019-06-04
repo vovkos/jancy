@@ -633,7 +633,7 @@ GcHeap::createForeignDataBox(
 	Type* type,
 	size_t elementCount,
 	void* p,
-	uint_t flags
+	bool isCallSiteLocal
 	)
 {
 	DetachedDataBox* resultBox;
@@ -685,7 +685,7 @@ GcHeap::createForeignDataBox(
 		resultBox->m_box.m_flags |= BoxFlag_DynamicArray;
 	}
 
-	if (flags & ForeignDataFlag_CallSiteLocal)
+	if (isCallSiteLocal)
 		resultBox->m_box.m_flags |= BoxFlag_CallSiteLocal;
 
 	resultBox->m_validator.m_targetBox = &resultBox->m_box;
@@ -702,11 +702,11 @@ DataPtr
 GcHeap::createForeignBufferPtr(
 	void* p,
 	size_t size,
-	uint_t flags
+	bool isCallSiteLocal
 	)
 {
 	Type* type = m_runtime->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Char);
-	DetachedDataBox* box = createForeignDataBox(type, size, p, flags);
+	DetachedDataBox* box = createForeignDataBox(type, size, p, isCallSiteLocal);
 	DataPtr ptr = { p, &box->m_validator };
 	return ptr;
 }

@@ -74,15 +74,6 @@ enum jnc_GcShadowStackFrameMapOp
 
 typedef enum jnc_GcShadowStackFrameMapOp jnc_GcShadowStackFrameMapOp;
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum jnc_ForeignDataFlag
-{
-	jnc_ForeignDataFlag_CallSiteLocal = 0x01,
-};
-
-typedef enum jnc_ForeignDataFlag jnc_ForeignDataFlag;
-
 //..............................................................................
 
 struct jnc_GcStats
@@ -273,7 +264,7 @@ jnc_GcHeap_createForeignDataBox(
 	jnc_Type* type,
 	size_t elementCount, // -1 if not array
 	void* p,
-	uint_t flags // combination of jnc_ForeignDataFlag
+	bool_t isCallSiteLocal
 	);
 
 JNC_EXTERN_C
@@ -282,7 +273,7 @@ jnc_GcHeap_createForeignBufferPtr(
 	jnc_GcHeap* gcHeap,
 	void* p,
 	size_t size,
-	uint_t flags // combination of jnc_ForeignDataFlag
+	bool_t isCallSiteLocal
 	);
 
 JNC_EXTERN_C
@@ -498,30 +489,30 @@ struct jnc_GcHeap
 		jnc_Type* type,
 		size_t elementCount,
 		void* p,
-		uint_t flags = 0
+		bool isCallSiteLocal = true
 		)
 	{
-		return jnc_GcHeap_createForeignDataBox(this, type, elementCount, p, flags);
+		return jnc_GcHeap_createForeignDataBox(this, type, elementCount, p, isCallSiteLocal);
 	}
 
 	jnc_DetachedDataBox*
 	createForeignDataBox(
 		jnc_Type* type,
 		void* p,
-		uint_t flags = 0
+		bool isCallSiteLocal = true
 		)
 	{
-		return jnc_GcHeap_createForeignDataBox(this, type, -1, p, flags);
+		return jnc_GcHeap_createForeignDataBox(this, type, -1, p, isCallSiteLocal);
 	}
 
 	jnc_DataPtr
 	createForeignBufferPtr(
 		void* p,
 		size_t size,
-		uint_t flags = 0
+		bool isCallSiteLocal = true
 		)
 	{
-		return jnc_GcHeap_createForeignBufferPtr(this, p, size, flags);
+		return jnc_GcHeap_createForeignBufferPtr(this, p, size, isCallSiteLocal);
 	}
 
 	jnc_IfaceHdr*
@@ -595,11 +586,6 @@ const GcShadowStackFrameMapOp
 	GcShadowStackFrameMapOp_Open    = jnc_GcShadowStackFrameMapOp_Open,
 	GcShadowStackFrameMapOp_Close   = jnc_GcShadowStackFrameMapOp_Close,
 	GcShadowStackFrameMapOp_Restore = jnc_GcShadowStackFrameMapOp_Restore;
-
-typedef jnc_ForeignDataFlag ForeignDataFlag;
-
-const ForeignDataFlag
-	ForeignDataFlag_CallSiteLocal = jnc_ForeignDataFlag_CallSiteLocal;
 
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;

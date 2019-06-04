@@ -1355,7 +1355,7 @@ jnc_GcHeap_CreateForeignDataBoxFunc(
 	jnc_Type* type,
 	size_t elementCount,
 	void* p,
-	uint_t flags
+	bool_t isCallSiteLocal
 	);
 
 typedef
@@ -1364,7 +1364,7 @@ jnc_GcHeap_CreateForeignBufferPtrFunc(
 	jnc_GcHeap* gcHeap,
 	void* p,
 	size_t size,
-	uint_t flags
+	bool_t isCallSiteLocal
 	);
 
 typedef

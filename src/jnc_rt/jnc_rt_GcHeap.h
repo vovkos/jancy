@@ -194,14 +194,14 @@ public:
 		Type* type,
 		size_t elementCount,
 		void* p,
-		uint_t flags = 0
+		bool isCallSiteLocal = true
 		);
 
 	DataPtr
 	createForeignBufferPtr(
 		void* p,
 		size_t size,
-		uint_t flags = 0
+		bool isCallSiteLocal = true
 		);
 
 	// dynamic layout methods
