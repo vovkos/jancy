@@ -223,7 +223,7 @@ main(
 
 	// invalidate manually
 
-	ptr.m_validator->m_targetBox->m_flags |= jnc_BoxFlag_Invalid;
+	jnc_GcHeap_invalidateDataPtr(gcHeap, ptr);
 
 	// now, we can't access it
 

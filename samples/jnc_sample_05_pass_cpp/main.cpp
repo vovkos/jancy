@@ -125,6 +125,7 @@ main(
 	printf("Running...\n");
 
 	jnc::AutoRuntime runtime;
+	jnc::GcHeap* gcHeap = runtime->getGcHeap();
 
 	result = runtime->startup(module);
 	if (!result)
@@ -144,7 +145,7 @@ main(
 	printf("Automatic foreign pointer invalidation...\n");
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		ptr = runtime->getGcHeap()->createForeignBufferPtr(string, sizeof(string), true);
+		ptr = gcHeap->createForeignBufferPtr(string, sizeof(string));
 		jnc::callVoidFunction(fooFunction, ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
@@ -174,7 +175,7 @@ main(
 	printf("Manual foreign pointer invalidation...\n");
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		ptr = runtime->getGcHeap()->createForeignBufferPtr(string, sizeof(string));
+		ptr = gcHeap->createForeignBufferPtr(string, sizeof(string), false); // isCallSiteLocal = false
 		jnc::callVoidFunction(fooFunction, ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
@@ -195,7 +196,7 @@ main(
 
 	// invalidate manually
 
-	ptr.m_validator->m_targetBox->m_flags |= jnc::BoxFlag_Invalid;
+	gcHeap->invalidateDataPtr(ptr);
 
 	// now, we can't access it
 
