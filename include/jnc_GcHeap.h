@@ -277,6 +277,23 @@ jnc_GcHeap_createForeignBufferPtr(
 	);
 
 JNC_EXTERN_C
+void
+jnc_GcHeap_invalidateDataPtrValidator(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtrValidator* validator
+	);
+
+JNC_INLINE
+void
+jnc_GcHeap_invalidateDataPtr(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtr ptr
+	)
+{
+	jnc_GcHeap_invalidateDataPtrValidator(gcHeap, ptr.m_validator);
+}
+
+JNC_EXTERN_C
 jnc_IfaceHdr*
 jnc_GcHeap_getDynamicLayout(
 	jnc_GcHeap* gcHeap,
@@ -513,6 +530,18 @@ struct jnc_GcHeap
 		)
 	{
 		return jnc_GcHeap_createForeignBufferPtr(this, p, size, isCallSiteLocal);
+	}
+
+	void
+	invalidateDataPtrValidator(jnc_DataPtrValidator* validator)
+	{
+		jnc_GcHeap_invalidateDataPtrValidator(this, validator);
+	}
+
+	void
+	invalidateDataPtr(jnc_DataPtr ptr)
+	{
+		jnc_GcHeap_invalidateDataPtr(this, ptr);
 	}
 
 	jnc_IfaceHdr*

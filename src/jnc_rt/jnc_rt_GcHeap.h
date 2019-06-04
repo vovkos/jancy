@@ -204,6 +204,15 @@ public:
 		bool isCallSiteLocal = true
 		);
 
+	void
+	invalidateDataPtrValidator(DataPtrValidator* validator);
+
+	void
+	invalidateDataPtr(DataPtr ptr)
+	{
+		invalidateDataPtrValidator(ptr.m_validator);
+	}
+
 	// dynamic layout methods
 
 	IfaceHdr*

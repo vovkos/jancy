@@ -711,6 +711,14 @@ GcHeap::createForeignBufferPtr(
 	return ptr;
 }
 
+void
+GcHeap::invalidateDataPtrValidator(DataPtrValidator* validator)
+{
+	waitIdleAndLock();
+	validator->m_targetBox->m_flags |= BoxFlag_Invalid;
+	m_lock.unlock();
+}
+
 // dynamic layout methods
 
 IfaceHdr*

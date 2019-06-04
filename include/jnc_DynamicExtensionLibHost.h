@@ -1368,6 +1368,13 @@ jnc_GcHeap_CreateForeignBufferPtrFunc(
 	);
 
 typedef
+void
+jnc_GcHeap_InvalidateDataPtrValidatorFunc(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtrValidator* validator
+	);
+
+typedef
 jnc_IfaceHdr*
 jnc_GcHeap_GetDynamicLayoutFunc(
 	jnc_GcHeap* gcHeap,
@@ -1431,6 +1438,7 @@ struct jnc_GcHeapFuncTable
 	jnc_GcHeap_CreateDataPtrValidatorFunc* m_createDataPtrValidatorFunc;
 	jnc_GcHeap_CreateForeignDataBoxFunc* m_createForeignDataBoxFunc;
 	jnc_GcHeap_CreateForeignBufferPtrFunc* m_createForeignBufferPtrFunc;
+	jnc_GcHeap_InvalidateDataPtrValidatorFunc* m_invalidateDataPtrValidatorFunc;
 	jnc_GcHeap_GetDynamicLayoutFunc* m_getDynamicLayoutFunc;
 	jnc_GcHeap_ResetDynamicLayoutFunc* m_resetDynamicLayoutFunc;
 	jnc_GcHeap_WeakMarkFunc* m_weakMarkFunc;

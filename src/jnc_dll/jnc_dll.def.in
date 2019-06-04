@@ -196,6 +196,7 @@ EXPORTS
 	jnc_GcHeap_createDataPtrValidator
 	jnc_GcHeap_createForeignDataBox
 	jnc_GcHeap_createForeignBufferPtr
+	jnc_GcHeap_invalidateDataPtrValidator
 	jnc_GcHeap_enterNoCollectRegion
 	jnc_GcHeap_enterWaitRegion
 	jnc_GcHeap_getDynamicLayout

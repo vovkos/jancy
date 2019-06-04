@@ -238,6 +238,17 @@ jnc_GcHeap_createForeignBufferPtr(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+void
+jnc_GcHeap_invalidateDataPtrValidator(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtrValidator* validator
+	)
+{
+	jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_invalidateDataPtrValidatorFunc(gcHeap, validator);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_IfaceHdr*
 jnc_GcHeap_getDynamicLayout(
 	jnc_GcHeap* gcHeap,
@@ -567,6 +578,17 @@ jnc_GcHeap_createForeignBufferPtr(
 	)
 {
 	return gcHeap->createForeignBufferPtr(p, size, isCallSiteLocal);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_GcHeap_invalidateDataPtrValidator(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtrValidator* validator
+	)
+{
+	gcHeap->invalidateDataPtrValidator(validator);
 }
 
 JNC_EXTERN_C
