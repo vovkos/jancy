@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "MyLib.h"
+#include "script.jnc.c"
 
 //..............................................................................
 
@@ -92,12 +93,10 @@ main(
 
 	if (argc < 2)
 	{
-#include "script.jnc.cpp"
-
 		printf("Parsing default script...\n");
 
 		result =
-			jnc_Module_parse(module, "script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			jnc_Module_parse(module, "script.jnc", g_script, sizeof(g_script) - 1) &&
 			jnc_Module_parseImports(module);
 	}
 	else
@@ -121,19 +120,13 @@ main(
 		goto exit;
 	}
 
-	printf("Compiling...\n");
+	printf("Compiling & JITting...\n");
 
-	result = jnc_Module_compile(module);
-	if (!result)
-	{
-		printf("%s\n", jnc_getLastErrorDescription_v ());
-		finalResult = Error_Compile;
-		goto exit;
-	}
+	result =
+		jnc_Module_compile(module) &&
+		jnc_Module_optimize(module, 2) &&
+		jnc_Module_jit(module);
 
-	printf("JITting...\n");
-
-	result = jnc_Module_jit(module);
 	if (!result)
 	{
 		printf("%s\n", jnc_getLastErrorDescription_v ());

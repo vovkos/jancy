@@ -61,7 +61,7 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step(
-	script.jnc.cpp
+	script.jnc.c
 	script.jnc
 	${JNC2CPP_PL}
 	)
@@ -70,7 +70,7 @@ axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
 set(
 	GEN_JNC_CPP_LIST
-	${GEN_DIR}/script.jnc.cpp
+	${GEN_DIR}/script.jnc.c
 	)
 
 axl_exclude_from_build(${GEN_JNC_CPP_LIST}) # include "*.jnc.cpp" manually

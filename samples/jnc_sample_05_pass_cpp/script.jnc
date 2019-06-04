@@ -13,7 +13,7 @@
 // to Jancy functions without copying them onto the GC-heap
 
 ///+++
-///; static char scriptSrc[] =
+///static char g_script[] =
 
 //..............................................................................
 

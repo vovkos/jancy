@@ -13,6 +13,7 @@
 #include "MainWindow.h"
 #include "moc_MainWindow.cpp"
 #include "MyLib.h"
+#include "script.jnc.cpp"
 
 //..............................................................................
 
@@ -91,12 +92,10 @@ bool MainWindow::runScript(const QString& fileName)
 
 	if (fileName.isEmpty())
 	{
-#include "script.jnc.cpp"
-
 		output("Parsing default script...\n");
 
 		result =
-			m_module->parse("script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			m_module->parse("script.jnc", g_script, sizeof(g_script) - 1) &&
 			m_module->parseImports();
 	}
 	else
@@ -116,18 +115,13 @@ bool MainWindow::runScript(const QString& fileName)
 		return false;
 	}
 
-	output("Compiling...\n");
+	output("Compiling & JITting...\n");
 
-	result = m_module->compile();
-	if (!result)
-	{
-		output("%s\n", jnc::getLastErrorDescription_v ());
-		return false;
-	}
+	result =
+		m_module->compile() &&
+		m_module->optimize() &&
+		m_module->jit();
 
-	output("JITting...\n");
-
-	result = m_module->jit();
 	if (!result)
 	{
 		output("%s\n", jnc::getLastErrorDescription_v ());

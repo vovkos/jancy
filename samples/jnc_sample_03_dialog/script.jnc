@@ -12,7 +12,7 @@
 // This sample demonstrates reactive approach to UI programming.
 
 ///+++
-///; static char scriptSrc[] =
+///static char g_script[] =
 
 //..............................................................................
 

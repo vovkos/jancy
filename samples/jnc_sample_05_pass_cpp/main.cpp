@@ -10,6 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
+#include "script.jnc.cpp"
 
 //..............................................................................
 
@@ -72,12 +73,10 @@ main(
 
 	if (argc < 2)
 	{
-#include "script.jnc.cpp"
-
 		printf("Parsing default script...\n");
 
 		result =
-			module->parse("script.jnc", scriptSrc, sizeof(scriptSrc) - 1) &&
+			module->parse("script.jnc", g_script, sizeof(g_script) - 1) &&
 			module->parseImports();
 	}
 	else
@@ -102,18 +101,13 @@ main(
 		return Error_Compile;
 	}
 
-	printf("Compiling...\n");
+	printf("Compiling & JITting...\n");
 
-	result = module->compile();
-	if (!result)
-	{
-		printf("%s\n", jnc::getLastErrorDescription_v ());
-		return Error_Compile;
-	}
+	result =
+		module->compile() &&
+		module->optimize() &&
+		module->jit();
 
-	printf("JITting...\n");
-
-	result = module->jit();
 	if (!result)
 	{
 		printf("%s\n", jnc::getLastErrorDescription_v ());
@@ -150,12 +144,7 @@ main(
 	printf("Automatic foreign pointer invalidation...\n");
 
 	JNC_BEGIN_CALL_SITE(runtime)
-		ptr = runtime->getGcHeap()->createForeignBufferPtr(
-			string,
-			sizeof(string),
-			jnc::ForeignDataFlag_CallSiteLocal
-			);
-
+		ptr = runtime->getGcHeap()->createForeignBufferPtr(string, sizeof(string), true);
 		jnc::callVoidFunction(fooFunction, ptr);
 	JNC_END_CALL_SITE_EX(&result)
 
