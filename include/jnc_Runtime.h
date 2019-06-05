@@ -242,6 +242,21 @@ jnc_memDup(
 	size_t size
 	);
 
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_createForeignBufferPtr(
+	const void* p,
+	size_t size,
+	bool_t isCallSiteLocal
+	);
+
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_createForeignStringPtr(
+	const char* p,
+	bool_t isCallSiteLocal
+	);
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
@@ -555,6 +570,27 @@ memDup(
 	)
 {
 	return jnc_memDup(p, size);
+}
+
+inline
+DataPtr
+createForeignBufferPtr(
+	const void* p,
+	size_t size,
+	bool isCallSiteLocal = true
+	)
+{
+	return jnc_createForeignBufferPtr(p, size, isCallSiteLocal);
+}
+
+inline
+DataPtr
+createForeignStringPtr(
+	const char* p,
+	bool isCallSiteLocal = true
+	)
+{
+	return jnc_createForeignStringPtr(p, isCallSiteLocal);
 }
 
 //..............................................................................

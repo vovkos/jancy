@@ -1213,24 +1213,6 @@ jnc_PrimeClassFunc(
 	const void* vtable
 	);
 
-typedef
-size_t
-jnc_StrLenFunc(jnc_DataPtr ptr);
-
-typedef
-jnc_DataPtr
-jnc_StrDupFunc(
-	const char* p,
-	size_t length
-	);
-
-typedef
-jnc_DataPtr
-jnc_MemDupFunc(
-	const void* p,
-	size_t size
-	);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_RuntimeFuncTable
@@ -1253,9 +1235,6 @@ struct jnc_RuntimeFuncTable
 	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
 	jnc_DynamicThrowFunc* m_dynamicThrowFunc;
 	jnc_PrimeClassFunc* m_primeClassFunc;
-	jnc_StrLenFunc* m_strLenFunc;
-	jnc_StrDupFunc* m_strDupFunc;
-	jnc_MemDupFunc* m_memDupFunc;
 };
 
 //..............................................................................

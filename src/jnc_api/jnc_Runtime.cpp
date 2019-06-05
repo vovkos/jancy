@@ -24,6 +24,115 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_strLen(jnc_DataPtr ptr)
+{
+	if (!ptr.m_validator ||
+		ptr.m_p < ptr.m_validator->m_rangeBegin ||
+		(ptr.m_validator->m_targetBox->m_flags & jnc_BoxFlag_Invalid))
+		return 0;
+
+	char* p0 = (char*)ptr.m_p;
+	char* end = (char*)ptr.m_validator->m_rangeEnd;
+
+	char* p = p0;
+	while (p < end && *p)
+		p++;
+
+	return p - p0;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_strDup(
+	const char* p,
+	size_t length
+	)
+{
+	using namespace jnc;
+
+	if (length == -1)
+		length = strlen_s(p);
+
+	if (!length)
+		return g_nullDataPtr;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	DataPtr resultPtr = gcHeap->tryAllocateBuffer(length + 1);
+	if (!resultPtr.m_p)
+		return g_nullDataPtr;
+
+	if (p)
+		memcpy(resultPtr.m_p, p, length);
+
+	return resultPtr;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_DataPtr
+jnc_memDup(
+	const void* p,
+	size_t size
+	)
+{
+	using namespace jnc;
+
+	if (!size)
+		return g_nullDataPtr;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	DataPtr resultPtr = gcHeap->tryAllocateBuffer(size);
+	if (!resultPtr.m_p)
+		return g_nullDataPtr;
+
+	if (p)
+		memcpy(resultPtr.m_p, p, size);
+
+	return resultPtr;
+}
+
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_createForeignBufferPtr(
+	const void* p,
+	size_t size,
+	bool_t isCallSiteLocal
+	)
+{
+	using namespace jnc;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	return gcHeap->createForeignBufferPtr(p, size, isCallSiteLocal != 0);
+}
+
+JNC_EXTERN_C
+jnc_DataPtr
+jnc_createForeignStringPtr(
+	const char* p,
+	bool_t isCallSiteLocal
+	)
+{
+	using namespace jnc;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	size_t length = strlen_s(p);
+	return gcHeap->createForeignBufferPtr(p, length + 1, isCallSiteLocal != 0);
+}
+
+//..............................................................................
+
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
@@ -180,36 +289,6 @@ jnc_primeClass(
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_primeClassFunc(box, root, type, vtable);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_strLen(jnc_DataPtr ptr)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_strLenFunc(ptr);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DataPtr
-jnc_strDup(
-	const char* p,
-	size_t length
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_strDupFunc(p, length);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DataPtr
-jnc_memDup(
-	const void* p,
-	size_t size
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_memDupFunc(p, size);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -455,79 +534,6 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 	return classTypeKind == ClassTypeKind_FunctionClosure || classTypeKind == ClassTypeKind_PropertyClosure ?
 		((ct::ClosureClassType*)classType)->strengthen(iface) :
 		(iface->m_box->m_flags & BoxFlag_ClassMark) && !(iface->m_box->m_flags & BoxFlag_Destructed) ? iface : NULL;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_strLen(jnc_DataPtr ptr)
-{
-	if (!ptr.m_validator || ptr.m_p < ptr.m_validator->m_rangeBegin)
-		return 0;
-
-	char* p0 = (char*)ptr.m_p;
-	char* end = (char*)ptr.m_validator->m_rangeEnd;
-
-	char* p = p0;
-	while (p < end && *p)
-		p++;
-
-	return p - p0;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DataPtr
-jnc_strDup(
-	const char* p,
-	size_t length
-	)
-{
-	using namespace jnc;
-
-	if (length == -1)
-		length = strlen_s(p);
-
-	if (!length)
-		return g_nullDataPtr;
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(length + 1);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
-	if (p)
-		memcpy(resultPtr.m_p, p, length);
-
-	return resultPtr;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DataPtr
-jnc_memDup(
-	const void* p,
-	size_t size
-	)
-{
-	using namespace jnc;
-
-	if (!size)
-		return g_nullDataPtr;
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(size);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
-	if (p)
-		memcpy(resultPtr.m_p, p, size);
-
-	return resultPtr;
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
