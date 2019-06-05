@@ -70,9 +70,9 @@ Use pointer arithmetic -- the most elegant and the most efficient way of parsing
 		switch (icmpHdr.m_type)
 		{
 		case IcmpType.EchoReply:
-			// ...
+			...
 		}
-		// ...
+		...
 	}
 
 If bounds-checks on a pointer access fail, Jancy runtime will throw an exception which you can handle the way you like.
@@ -89,15 +89,9 @@ You can also safely pass buffers from C/C++ to Jancy without creating a copy on 
 		char buffer[] = "I'm on stack but still safe!";
 
 		JNC_BEGIN_CALL_SITE(runtime)
-
-		jnc::DataPtr ptr = runtime->getGcHeap()->createForeignBufferPtr(
-			buffer,
-			sizeof(buffer),
-			true // bool isCallSiteLocal (valid inside current call-site only)
-			);
-
-		jnc::callFunction(function, ptr);
-
+			// create a call-site-local foreign data pointer
+			jnc::DataPtr ptr = jnc::createForeignBufferPtr(buffer, sizeof(buffer), true);
+			jnc::callFunction(function, ptr);
 		JNC_END_CALL_SITE() // here ptr is invalidated and Jancy can't access it anymore
 	}
 
@@ -111,20 +105,23 @@ Write auto-evaluating *formulas* just like you do in Excel -- and stay in full c
 	reactor m_uiReactor
 	{
 		m_title = $"Target address: $(m_addressCombo.m_editText)";
+		m_localAddressProp.m_isEnabled = m_useLocalAddressProp.m_isChecked;
 		m_isTransmitEnabled = m_state == State.Connected;
-		// ...
+		...
 	}
 
 	m_uiReactor.start();
-	// ...
+	// now UI events are handled inside the reactor...
+
 	m_uiReactor.stop();
+	// ...and not anymore
 
 This, together with the developed infrastructure of *properties* and *events*, is perfect for UI programming!
 
 Scheduled Function Pointers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Assign a *scheduler* before passing a function pointers as a callback of some sort (completion routine, event handler, etc). This way you can elegantly place the execution of your callback in the correct environment -- for example, into context of a specific thread:
+*Schedulers* allow you to elegantly place the execution of your *callback* (completion routine, event handler, etc) in the correct environment -- for example, into the context of a specific thread:
 
 .. code:: cpp
 
@@ -137,7 +134,7 @@ Assign a *scheduler* before passing a function pointers as a callback of some so
 		...
 	}
 
-Then you apply a binary operator ``@`` (reads: at) to create a *scheduled* pointer to your callback:
+Apply a binary operator ``@`` (reads *"at"*) to create a *scheduled* pointer to your callback:
 
 .. code:: cpp
 
@@ -146,9 +143,10 @@ Then you apply a binary operator ``@`` (reads: at) to create a *scheduled* point
 		// we are in the worker thread
 	}
 
-	startTransaction(onComplete @ m_workerThread);
+	WorkerThread workerThread;
+	startTransaction(onComplete @ workerThread);
 
-When the transaction completes and completion routine is finally called, ``onComplete`` is guaranteed to be executed in the context of the assigned ``m_workerThread``.
+When the transaction completes and completion routine is finally called, ``onComplete`` is guaranteed to be executed in the context of the assigned ``workerThread``.
 
 Async-Await (with A Cherry On Top)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -167,8 +165,6 @@ The async-await paradigm is becoming increasingly popular during recent years --
 		handleError(std.getLastError());
 	}
 
-	...
-
 	jnc.Promise* promise = transact();
 	promise.blockingWait();
 
@@ -177,7 +173,6 @@ A cherry on top is that in Jancy you can easily control the *execution environme
 .. code:: cpp
 
 	// transact() will run in the worker thread
-
 	jnc.Promise* promise = (transact @ m_workerThread)("my-service");
 
 You can even switch contexts during the execution of your ``async`` procedure:
@@ -187,11 +182,9 @@ You can even switch contexts during the execution of your ``async`` procedure:
 	async foo()
 	{
 		await thisPromise.asyncSetScheduler(m_workerThread);
-
 		// we are in the worker thread
 
 		await thisPromise.asyncSetScheduler(m_mainUiThread);
-
 		// we are in the main UI thread
 	}
 
@@ -206,7 +199,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 	reswitch (state, p, length)
 	{
 	case "foo":
-		// ...
+		...
 		break;
 
 	case r"bar(\d+)":
@@ -217,7 +210,7 @@ Create *efficient* regex-based switches for tokenizing string streams:
 		// ignore whitespace
 		break;
 
-	// ...
+	...
 	}
 
 This statement will compile into a table-driven DFA which can parse the input string in ``O(length)`` -- you don't get any faster than that.
@@ -233,12 +226,12 @@ Define dynamically laid-out structures with non-constant sizes of array fields -
 
 	dynamic struct FileHdr
 	{
-		// ...
+		...
 		char m_authorName[strlen(m_authorName) + 1];
 		char m_authorEmail[strlen(m_authorEmail) + 1];
 		uint8_t m_sectionCount;
 		SectionDesc m_sectionTable[m_sectionCount];
-		// ...
+		...
 	}
 
 In Jancy you can describe a dynamic struct, overlap your buffer with a pointer to this struct and then access the fields at dynamic offsets normally, just like you do with regular C-structs:
@@ -281,7 +274,7 @@ Use *throw-catch* semantics:
 		file.open("data.bin");
 		file.write(hdr, sizeof(hdr));
 		file.write(data, dataSize);
-		// ...
+		...
 
 	catch:
 		print($"error: $!\n");
@@ -301,10 +294,9 @@ Use *throw-catch* semantics:
 		if (!result)
 		{
 			print($"can't open: $!\n");
-			// ...
+			...
 		}
-
-		// ...
+		...
 	}
 
 On a side note, see how elegantly Jancy solves the problem of *deterministic resource release*? Create a type with a method (or an alias) named ``dispose`` -- and every ``disposable`` instance of this type will get ``dispose`` method called upon exiting the scope (no matter which exit route is taken, of course).
@@ -380,7 +372,7 @@ The ``event`` modifier limits access to the methods of the underlying ``multicas
 
 	C.work()
 	{
-		// ...
+		...
 		m_onCompleted(); // ok
 	}
 
