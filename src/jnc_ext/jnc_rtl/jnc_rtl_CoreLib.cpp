@@ -228,7 +228,7 @@ allocateArray(
 DataPtrValidator*
 createDataPtrValidator(
 	Box* box,
-	void* rangeBegin,
+	const void* rangeBegin,
 	size_t rangeLength
 	)
 {

@@ -336,9 +336,6 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_getCurrentThreadTls,
 	jnc_dynamicThrow,
 	jnc_primeClass,
-	jnc_strLen,
-	jnc_strDup,
-	jnc_memDup,
 };
 
 static jnc_GcHeapFuncTable g_gcHeapFuncTable =

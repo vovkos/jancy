@@ -1323,7 +1323,7 @@ jnc_DataPtrValidator*
 jnc_GcHeap_CreateDataPtrValidatorFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
-	void* rangeBegin,
+	const void* rangeBegin,
 	size_t rangeLength
 	);
 
@@ -1333,7 +1333,7 @@ jnc_GcHeap_CreateForeignDataBoxFunc(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t elementCount,
-	void* p,
+	const void* p,
 	bool_t isCallSiteLocal
 	);
 
@@ -1341,7 +1341,7 @@ typedef
 jnc_DataPtr
 jnc_GcHeap_CreateForeignBufferPtrFunc(
 	jnc_GcHeap* gcHeap,
-	void* p,
+	const void* p,
 	size_t size,
 	bool_t isCallSiteLocal
 	);

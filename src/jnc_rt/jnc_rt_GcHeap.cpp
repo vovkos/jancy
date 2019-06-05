@@ -580,7 +580,7 @@ GcHeap::allocateBuffer(size_t size)
 DataPtrValidator*
 GcHeap::createDataPtrValidator(
 	Box* box,
-	void* rangeBegin,
+	const void* rangeBegin,
 	size_t rangeLength
 	)
 {
@@ -632,7 +632,7 @@ DetachedDataBox*
 GcHeap::createForeignDataBox(
 	Type* type,
 	size_t elementCount,
-	void* p,
+	const void* p,
 	bool isCallSiteLocal
 	)
 {
@@ -691,7 +691,7 @@ GcHeap::createForeignDataBox(
 	resultBox->m_validator.m_targetBox = &resultBox->m_box;
 	resultBox->m_validator.m_rangeBegin = p;
 	resultBox->m_validator.m_rangeEnd = (char*)p + size;
-	resultBox->m_p = p;
+	resultBox->m_p = (void*)p;
 
 	addBoxIfDynamicFrame((Box*)resultBox);
 
@@ -700,14 +700,14 @@ GcHeap::createForeignDataBox(
 
 DataPtr
 GcHeap::createForeignBufferPtr(
-	void* p,
+	const void* p,
 	size_t size,
 	bool isCallSiteLocal
 	)
 {
 	Type* type = m_runtime->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Char);
 	DetachedDataBox* box = createForeignDataBox(type, size, p, isCallSiteLocal);
-	DataPtr ptr = { p, &box->m_validator };
+	DataPtr ptr = { (void*)p, &box->m_validator };
 	return ptr;
 }
 

@@ -253,7 +253,7 @@ jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box,
-	void* rangeBegin,
+	const void* rangeBegin,
 	size_t rangeLength
 	);
 
@@ -263,7 +263,7 @@ jnc_GcHeap_createForeignDataBox(
 	jnc_GcHeap* gcHeap,
 	jnc_Type* type,
 	size_t elementCount, // -1 if not array
-	void* p,
+	const void* p,
 	bool_t isCallSiteLocal
 	);
 
@@ -271,7 +271,7 @@ JNC_EXTERN_C
 jnc_DataPtr
 jnc_GcHeap_createForeignBufferPtr(
 	jnc_GcHeap* gcHeap,
-	void* p,
+	const void* p,
 	size_t size,
 	bool_t isCallSiteLocal
 	);
@@ -494,7 +494,7 @@ struct jnc_GcHeap
 	jnc_DataPtrValidator*
 	createDataPtrValidator(
 		jnc_Box* box,
-		void* rangeBegin,
+		const void* rangeBegin,
 		size_t rangeLength
 		)
 	{
@@ -505,7 +505,7 @@ struct jnc_GcHeap
 	createForeignDataBox(
 		jnc_Type* type,
 		size_t elementCount,
-		void* p,
+		const void* p,
 		bool isCallSiteLocal = true
 		)
 	{
@@ -515,7 +515,7 @@ struct jnc_GcHeap
 	jnc_DetachedDataBox*
 	createForeignDataBox(
 		jnc_Type* type,
-		void* p,
+		const void* p,
 		bool isCallSiteLocal = true
 		)
 	{
@@ -524,7 +524,7 @@ struct jnc_GcHeap
 
 	jnc_DataPtr
 	createForeignBufferPtr(
-		void* p,
+		const void* p,
 		size_t size,
 		bool isCallSiteLocal = true
 		)

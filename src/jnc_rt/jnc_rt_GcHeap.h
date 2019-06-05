@@ -185,7 +185,7 @@ public:
 	DataPtrValidator*
 	createDataPtrValidator(
 		Box* box,
-		void* rangeBegin,
+		const void* rangeBegin,
 		size_t rangeLength
 		);
 
@@ -193,13 +193,13 @@ public:
 	createForeignDataBox(
 		Type* type,
 		size_t elementCount,
-		void* p,
+		const void* p,
 		bool isCallSiteLocal = true
 		);
 
 	DataPtr
 	createForeignBufferPtr(
-		void* p,
+		const void* p,
 		size_t size,
 		bool isCallSiteLocal = true
 		);
