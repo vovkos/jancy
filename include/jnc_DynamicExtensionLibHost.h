@@ -1036,7 +1036,7 @@ jnc_Module_AddImportDirFunc(
 	);
 
 typedef
-void
+bool_t
 jnc_Module_AddImportFunc(
 	jnc_Module* module,
 	const char* fileName

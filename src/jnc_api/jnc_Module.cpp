@@ -97,7 +97,7 @@ jnc_Module_addSource(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-void
+bool_t
 jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
@@ -266,13 +266,13 @@ jnc_Module_addImportDir(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-void
+bool_t
 jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
 	)
 {
-	module->m_importMgr.addImport(fileName);
+	return module->m_importMgr.addImport(fileName);
 }
 
 JNC_EXTERN_C

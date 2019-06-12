@@ -182,7 +182,7 @@ jnc_Module_addImportDir(
 	);
 
 JNC_EXTERN_C
-void
+bool_t
 jnc_Module_addImport(
 	jnc_Module* module,
 	const char* fileName
@@ -372,10 +372,10 @@ struct jnc_Module
 		jnc_Module_addImportDir(this, dir);
 	}
 
-	void
+	bool
 	addImport(const char* fileName)
 	{
-		jnc_Module_addImport(this, fileName);
+		return jnc_Module_addImport(this, fileName) != 0;
 	}
 
 	void
