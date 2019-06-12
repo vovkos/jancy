@@ -113,14 +113,10 @@ ImportMgr::findImportFile(
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
-	ASSERT(unit);
 
-	sl::String filePath = io::findFilePath(
-		fileName,
-		unit->getDir(),
-		&m_importDirList,
-		false
-		);
+	sl::String filePath = unit ?
+		io::findFilePath(fileName, unit->getDir(), &m_importDirList, false) :
+		io::findFilePath(fileName, &m_importDirList, false);
 
 	if (filePath.isEmpty())
 	{
