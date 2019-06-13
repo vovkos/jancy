@@ -17,16 +17,23 @@
 #include "jnc_rtl_DynamicLayout.h"
 #include "jnc_CallSite.h"
 
-// #define _JNC_TRACE_GC_COLLECT
-// #define _JNC_TRACE_GC_REGION
+// #define _JNC_TRACE_GC_MARK 1
+// #define _JNC_TRACE_GC_COLLECT 1
+// #define _JNC_TRACE_GC_REGION 1
 
-#ifdef _JNC_TRACE_GC_COLLECT
+#if (_JNC_TRACE_GC_MARK)
+#	define JNC_TRACE_GC_MARK TRACE
+#else
+#	define JNC_TRACE_GC_MARK (void)
+#endif
+
+#if (_JNC_TRACE_GC_COLLECT)
 #	define JNC_TRACE_GC_COLLECT TRACE
 #else
 #	define JNC_TRACE_GC_COLLECT (void)
 #endif
 
-#ifdef _JNC_TRACE_GC_REGION
+#if (_JNC_TRACE_GC_REGION)
 #	define JNC_TRACE_GC_REGION TRACE
 #else
 #	define JNC_TRACE_GC_REGION (void)
@@ -1669,6 +1676,16 @@ GcHeap::runMarkCycle()
 		for (size_t i = 0; i < count; i++)
 		{
 			const Root* root = &m_markRootArray[prevGcRootArrayIdx][i];
+#if (_JNC_TRACE_GC_MARK)
+			sl::String dump = enc::HexEncoding::encode(root->m_p, root->m_type->getSize(), enc::HexEncodingFlag_Multiline);
+
+			TRACE(
+				"markGcRoots: type: %s addr: %p\n%s\n",
+				root->m_type->getTypeString().sz(),
+				root->m_p,
+				dump.sz()
+				);
+#endif
 			root->m_type->markGcRoots(root->m_p, this);
 		}
 	}
