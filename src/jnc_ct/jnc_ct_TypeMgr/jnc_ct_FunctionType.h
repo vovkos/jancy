@@ -100,6 +100,12 @@ public:
 		return !m_argArray.isEmpty() && m_argArray[0]->getStorageKind() == StorageKind_This;
 	}
 
+	FunctionArg*
+	getThisArg()
+	{
+		return isMemberMethodType() ? m_argArray[0] : NULL;
+	}
+
 	Type*
 	getThisArgType()
 	{

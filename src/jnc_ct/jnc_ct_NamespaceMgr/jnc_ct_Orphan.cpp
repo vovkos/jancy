@@ -191,8 +191,28 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	copySrcPos(originFunction);
 	originFunction->addUsingSet(&m_usingSet);
 
+	FunctionType* originType = originFunction->getType();
+	if (originType->getFlags() & ModuleItemFlag_User)
+	{
+		result = copyArgNames(originType);
+		if (!result)
+			return false;
+	}
+	else
+	{
+		sl::Array<FunctionArg*> argArray = m_functionType->getArgArray();
+		if (originType->isMemberMethodType())
+			argArray.insert(0, originType->getThisArg());
+
+		originFunction->m_type = m_module->m_typeMgr.createUserFunctionType(
+			originType->getCallConv(),
+			originType->getReturnType(),
+			argArray,
+			originType->getFlags()
+			);
+	}
+
 	return
-		copyArgNames(originFunction->getType()) &&
 		originFunction->setBody(&m_body) &&
 		verifyStorageKind(originFunction);
 }
@@ -235,6 +255,8 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 bool
 Orphan::copyArgNames(FunctionType* targetFunctionType)
 {
+	ASSERT(targetFunctionType->getFlags() & ModuleItemFlag_User);
+
 	// copy arg names and make sure orphan funciton does not override default values
 
 	sl::Array<FunctionArg*> dstArgArray = targetFunctionType->getArgArray();
