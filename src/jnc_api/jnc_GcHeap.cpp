@@ -564,7 +564,7 @@ jnc_GcHeap_createForeignDataBox(
 	bool_t isCallSiteLocal
 	)
 {
-	return gcHeap->createForeignDataBox(type, elementCount, p, isCallSiteLocal);
+	return gcHeap->createForeignDataBox(type, elementCount, p, isCallSiteLocal != 0);
 }
 
 JNC_EXTERN_C
@@ -577,7 +577,7 @@ jnc_GcHeap_createForeignBufferPtr(
 	bool_t isCallSiteLocal
 	)
 {
-	return gcHeap->createForeignBufferPtr(p, size, isCallSiteLocal);
+	return gcHeap->createForeignBufferPtr(p, size, isCallSiteLocal != 0);
 }
 
 JNC_EXTERN_C
