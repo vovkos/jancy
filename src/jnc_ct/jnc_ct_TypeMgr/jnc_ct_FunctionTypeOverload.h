@@ -36,6 +36,7 @@ public:
 
 	FunctionTypeOverload(FunctionType* type)
 	{
+		m_flags = 0;
 		m_type = type;
 	}
 
@@ -44,6 +45,7 @@ public:
 		size_t count
 		)
 	{
+		m_flags = 0;
 		copy(typeArray, count);
 	}
 

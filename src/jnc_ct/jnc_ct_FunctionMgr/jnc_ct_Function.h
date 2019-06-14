@@ -56,6 +56,7 @@ public:
 	{
 		m_functionKind = FunctionKind_Undefined;
 		m_castOpType = NULL;
+		m_thisArgTypeFlags = 0;
 	}
 
 	FunctionKind

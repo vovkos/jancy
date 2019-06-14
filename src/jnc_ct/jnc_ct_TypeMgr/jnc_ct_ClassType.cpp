@@ -23,6 +23,7 @@ namespace ct {
 ClassType::ClassType()
 {
 	m_typeKind = TypeKind_Class;
+	m_classTypeKind = ClassTypeKind_Normal;
 	m_flags = TypeFlag_NoStack;
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
