@@ -96,7 +96,7 @@ UsbAsyncControlEndpoint::transfer(
 	bool result;
 
 	m_lock.lock();
-	ASSERT(!m_flags & Flag_Stop);
+	ASSERT(!(m_flags & Flag_Stop));
 	Transfer* transfer = m_transferPool.get();
 	m_lock.unlock();
 
@@ -170,7 +170,7 @@ UsbAsyncControlEndpoint::cancelTransfers()
 	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 
 	m_lock.lock();
-	ASSERT(!m_flags & Flag_Stop);
+	ASSERT(!(m_flags & Flag_Stop));
 	m_flags |= Flag_CancelTransfers;
 	m_event.signal();
 	m_lock.unlock();
