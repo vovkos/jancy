@@ -87,7 +87,7 @@ Cast_ClassPtr::constCast(
 		return false; // TODO: user conversions later via constructors
 
 	IfaceHdr* srcIface = *(IfaceHdr**) opValue.getConstData();
-	ClassType* srcClassType = (ClassType*)srcIface->m_box->m_type;
+	ClassType* srcClassType = srcIface ? (ClassType*)srcIface->m_box->m_type : NULL;
 
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
