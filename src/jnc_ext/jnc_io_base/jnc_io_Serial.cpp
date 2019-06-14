@@ -97,6 +97,7 @@ Serial::Serial()
 #if (_AXL_OS_WIN)
 	m_overlappedIo = NULL;
 #endif
+	m_lineErrors = 0;
 }
 
 #if (_AXL_OS_WIN)
