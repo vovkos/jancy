@@ -298,7 +298,7 @@ NamespaceMgr::openScope(
 		scope->m_sjljFrameIdx++;
 		m_module->m_controlFlowMgr.setJmp(scope->m_catchBlock, scope->m_sjljFrameIdx);
 
-		if (ScopeFlag_FinallyAhead)
+		if (flags & ScopeFlag_FinallyAhead)
 			scope->m_finallyBlock = m_module->m_controlFlowMgr.createBlock("catch_finally_block");
 	}
 	else if (flags & ScopeFlag_FinallyAhead)
