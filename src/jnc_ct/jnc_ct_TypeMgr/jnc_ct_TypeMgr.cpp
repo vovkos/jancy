@@ -622,6 +622,9 @@ TypeMgr::createTypedef(
 	tdef->m_type = type;
 	m_typedefList.insertTail(tdef);
 
+	if (type->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)type)->addFixup(&tdef->m_type);
+
 	return tdef;
 }
 
