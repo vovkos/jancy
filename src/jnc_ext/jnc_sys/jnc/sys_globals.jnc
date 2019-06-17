@@ -96,28 +96,6 @@ SystemInfo const g_systemInfo;
 
 uintptr_t getCurrentThreadId();
 
-/**
-	Creates a new thead and executes ``threadFunc`` in the context of the newly
-	created thread.
-
-	If you need to pass extra context parameters to the ``threadFunc``, use
-	partial application as such::
-
-		myThreadFunc(
-			int intContext,
-			char const* stringContext
-			)
-		{
-		}
-
-		// ...
-
-		sys.createThread(myThreadFunc ~(100, "string-context"));
-
-*/
-
-bool createThread(function* threadFunc());
-
 //! @}
 
 //! \addtogroup time
