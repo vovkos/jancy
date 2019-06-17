@@ -1,0 +1,15 @@
+namespace a {
+
+typedef uint32_t U32;
+
+struct S
+{
+	U32 m_x;
+}
+
+} // namespace a
+
+int main()
+{
+	return 0;
+}

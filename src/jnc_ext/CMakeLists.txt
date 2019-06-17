@@ -77,7 +77,7 @@ endif()
 
 option(
 	BUILD_IDE_STDLIB
-	"Build jancy base IO(sockets, serial ports, files) extension library "
+	"Build jancy stdlib (rtl, std, sys) extension library for IDE"
 	ON
 	)
 

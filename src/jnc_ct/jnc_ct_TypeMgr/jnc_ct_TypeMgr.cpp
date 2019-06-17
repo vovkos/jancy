@@ -299,15 +299,6 @@ TypeMgr::getLazyStdType(StdType stdType)
 	return type;
 }
 
-void
-pushImportSrcPosError(NamedImportType* importType)
-{
-	lex::pushSrcPosError(
-		importType->getParentUnit()->getFilePath(),
-		*importType->getPos()
-		);
-}
-
 bool
 TypeMgr::resolveImportTypes()
 {
@@ -347,7 +338,7 @@ TypeMgr::resolveImportTypes()
 			if (!item)
 			{
 				err::setFormatStringError("unresolved import '%s'", importType->getTypeString().sz());
-				pushImportSrcPosError(importType);
+				importType->pushImportSrcPosError();
 				return false;
 			}
 
@@ -364,12 +355,16 @@ TypeMgr::resolveImportTypes()
 					((Typedef*)item)->getType();
 
 				if (importType->m_actualType->getTypeKind() == TypeKind_NamedImport)
+				{
 					superImportTypeArray.append(importType);
+					continue;
+				}
+
 				break;
 
 			default:
 				err::setFormatStringError("'%s' is not a type", importType->getTypeString().sz());
-				pushImportSrcPosError(importType);
+				importType->pushImportSrcPosError();
 				return false;
 			}
 
@@ -382,33 +377,12 @@ TypeMgr::resolveImportTypes()
 		for (size_t i = 0; i < count; i++)
 		{
 			NamedImportType* superImportType = superImportTypeArray[i];
-			superImportType->m_flags |= ImportTypeFlag_ImportLoop;
+			Type* type = superImportType->resolveSuperImportType();
+			if (!type)
+				return false;
 
-			Type* type = superImportType->m_actualType;
-			while (type->m_typeKind == TypeKind_NamedImport)
-			{
-				ImportType* importType = (ImportType*)type;
-				if (importType->m_flags & ImportTypeFlag_ImportLoop)
-				{
-					err::setFormatStringError("'%s': import loop detected", importType->getTypeString().sz());
-					pushImportSrcPosError(superImportType);
-					return false;
-				}
-
-				importType->m_flags |= ImportTypeFlag_ImportLoop;
-				type = importType->m_actualType;
-			}
-
-			Type* externType = type;
-			while (type->m_typeKind == TypeKind_NamedImport)
-			{
-				ImportType* importType = (ImportType*)type;
-				importType->m_actualType = externType;
-				importType->m_flags &= ~ImportTypeFlag_ImportLoop;
-				importType->applyFixups();
-
-				type = importType->m_actualType;
-			}
+			ASSERT(superImportType->m_actualType == type);
+			superImportType->applyFixups();
 		}
 
 		count = unresolvedImportIntModTypeArray.getCount();

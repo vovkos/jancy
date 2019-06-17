@@ -83,6 +83,34 @@ NamedImportType::setAnchorName(const QualifiedName& name)
 	return this;
 }
 
+void
+NamedImportType::pushImportSrcPosError()
+{
+	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
+}
+
+Type*
+NamedImportType::resolveSuperImportType()
+{
+	if (m_actualType->getTypeKind() != TypeKind_NamedImport)
+		return m_actualType;
+
+	if (m_flags & ImportTypeFlag_ImportLoop)
+	{
+		err::setFormatStringError("'%s': import loop detected", getQualifiedName().sz());
+		return NULL;
+	}
+
+	m_flags |= ImportTypeFlag_ImportLoop;
+	Type* result = ((NamedImportType*)m_actualType)->resolveSuperImportType();
+	m_flags &= ~ImportTypeFlag_ImportLoop;
+
+	if (result)
+		m_actualType = result;
+
+	return result;
+}
+
 //..............................................................................
 
 ImportPtrType::ImportPtrType()

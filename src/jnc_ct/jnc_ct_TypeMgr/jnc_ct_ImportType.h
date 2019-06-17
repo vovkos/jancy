@@ -152,6 +152,12 @@ public:
 		const QualifiedName& orphanName
 		);
 
+	Type*
+	resolveSuperImportType();
+
+	void
+	pushImportSrcPosError();
+
 protected:
 	virtual
 	void
