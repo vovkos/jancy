@@ -385,22 +385,19 @@ size_t memdjb2(
 int rand();
 
 /**
-	Converts Unicode codepoint ``c`` to upper case.
+	\subgroup
+
+	Converts Unicode codepoint ``c`` to upper or lower case.
 
 	Returns the resulting Unicode codepoint.
 */
 
 uint32_t toupper(uint32_t c);
-
-/**
-	Converts Unicode codepoint ``c`` to lower case.
-
-	Returns the resulting Unicode codepoint.
-*/
-
 uint32_t tolower(uint32_t c);
 
 /**
+	\subgroup
+
 	Parses a string representation of an integer.
 
 	Discards any whitespace characters until the first non-whitespace character
@@ -409,30 +406,24 @@ uint32_t tolower(uint32_t c);
 
 	Returns result integer value or ``0`` if string does not contain a valid
 	representation of an integer.
+
+	The ``strtol`` and ``strtoul`` functions set the pointer referenced by
+	``end`` to the character past the last character interpreted. If ``end`` is
+	``null``, it is ignored.
 
 	Returns ``0`` if ``p == null``.
 */
 
 int atoi(char const* p);
-
-/**
-	Parses a string representation of an integer.
-
-	Discards any whitespace characters until the first non-whitespace character
-	is found, then takes as many characters as possible to form a valid integer
-	number representation and converts them to an integer value.
-
-	Returns result integer value or ``0`` if string does not contain a valid
-	representation of an integer.
-
-	The functions sets the pointer pointed to by ``end`` to point to the
-	character past the last character interpreted. If ``end`` is ``null``, it
-	is ignored.
-
-	Returns ``0`` if ``p == null``.
-*/
+long atol(char const* p);
 
 long strtol(
+	char const* p,
+	char const** end = null,
+	int radix = 10
+	);
+
+unsigned long strtoul(
 	char const* p,
 	char const** end = null,
 	int radix = 10
@@ -460,7 +451,6 @@ char* gets();
 
 size_t print(char const* text);
 size_t print_u(char const thin* text);
-
 
 /**
 	Prints error message to the standard error stream.

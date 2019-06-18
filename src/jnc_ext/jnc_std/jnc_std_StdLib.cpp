@@ -81,17 +81,28 @@ atoi(DataPtr ptr)
 	return ptr.m_p ? ::atoi((char*)ptr.m_p) : 0;
 }
 
-long
-strtol(
+int64_t
+atol(DataPtr ptr)
+{
+	return ptr.m_p ? ::_atoi64((char*)ptr.m_p) : 0;
+}
+
+template <
+	typename T,
+	typename F
+	>
+T
+strtot(
+	const F& f,
 	DataPtr ptr,
 	DataPtr endPtr,
 	int radix
 	)
 {
-	long result = 0;
+	T result = 0;
 	char* end = (char*)ptr.m_p;
 	if (ptr.m_p)
-		result = ::strtol((char*)ptr.m_p, &end, radix);
+		result = f((char*)ptr.m_p, &end, radix);
 
 	if (endPtr.m_p)
 	{
@@ -100,6 +111,26 @@ strtol(
 	}
 
 	return result;
+}
+
+int64_t
+strtol(
+	DataPtr ptr,
+	DataPtr endPtr,
+	int radix
+	)
+{
+	return strtot<int64_t>(::_strtoi64, ptr, endPtr, radix);
+}
+
+uint64_t
+strtoul(
+	DataPtr ptr,
+	DataPtr endPtr,
+	int radix
+	)
+{
+	return strtot<uint64_t>(::_strtoui64, ptr, endPtr, radix);
 }
 
 uint32_t
@@ -646,7 +677,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("memdjb2",  memDjb2)
 	JNC_MAP_FUNCTION("rand",     ::rand)
 	JNC_MAP_FUNCTION("atoi",     jnc::std::atoi)
+	JNC_MAP_FUNCTION("atol",     jnc::std::atol)
 	JNC_MAP_FUNCTION("strtol",   jnc::std::strtol)
+	JNC_MAP_FUNCTION("strtoul",  jnc::std::strtoul)
 	JNC_MAP_FUNCTION("toupper",  toUpper)
 	JNC_MAP_FUNCTION("tolower",  toLower)
 	JNC_MAP_FUNCTION("gets",     jnc::std::gets)
