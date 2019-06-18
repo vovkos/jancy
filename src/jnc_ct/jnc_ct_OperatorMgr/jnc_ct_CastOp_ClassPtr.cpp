@@ -56,8 +56,10 @@ Cast_ClassPtr::getCastKind(
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 	ClassPtrType* dstType = (ClassPtrType*)type;
 
-	if ((srcType->getFlags() & PtrTypeFlag_Const) &&
-		!(dstType->getFlags() & PtrTypeFlag_Const))
+	bool isSrcConst = (srcType->getFlags() & PtrTypeFlag_Const) != 0;
+	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
+
+	if (isSrcConst && !isDstConst)
 		return CastKind_None; // const vs non-const mismatch
 
 	ClassType* srcClassType = srcType->getTargetType();
@@ -68,8 +70,10 @@ Cast_ClassPtr::getCastKind(
 		srcClassType->cmp(dstClassType) == 0 ||
 		isMulticastToMulticast(srcType, dstType) ||
 		srcClassType->findBaseTypeTraverse(dstClassType) ?
-		CastKind_Implicit :
-		CastKind_Dynamic;
+		isSrcConst == isDstConst ?
+			CastKind_Implicit :
+			CastKind_ImplicitCrossConst :
+			CastKind_Dynamic;
 }
 
 bool

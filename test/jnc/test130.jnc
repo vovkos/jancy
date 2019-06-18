@@ -1,0 +1,16 @@
+// this test was used to fix choosing of function overload
+
+foo(void* p, size_t l)
+{
+}
+
+foo(void const* p, size_t l)
+{
+}
+
+int main()
+{
+	void* p;
+	foo(p, 0);
+	return 0;
+}

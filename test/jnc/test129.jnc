@@ -1,3 +1,5 @@
+// this test was used to fix resolving of super-imports
+
 namespace a {
 
 typedef uint32_t U32;

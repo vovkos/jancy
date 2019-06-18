@@ -133,8 +133,11 @@ Cast_DataPtr_FromClassPtr::getCastKind(
 	DataPtrType* dstType = (DataPtrType*)type;
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 
+	bool isSrcConst = (srcType->getFlags() & PtrTypeFlag_Const) != 0;
+	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
+
 	return
-		(srcType->getFlags() & PtrTypeFlag_Const) && !(srcType->getFlags() & PtrTypeFlag_Const) ? CastKind_None :
+		isSrcConst && !isDstConst ? CastKind_None :
 		dstType->getPtrTypeKind() != DataPtrTypeKind_Thin ? CastKind_None :
 		dstType->getTargetType()->getTypeKind() == TypeKind_Void ? CastKind_ImplicitCrossFamily :
 		CastKind_Explicit;
@@ -153,7 +156,10 @@ Cast_DataPtr_FromClassPtr::llvmCast(
 	DataPtrType* dstType = (DataPtrType*)type;
 	ClassPtrType* srcType = (ClassPtrType*)opValue.getType();
 
-	if ((srcType->getFlags() & PtrTypeFlag_Const) && !(srcType->getFlags() & PtrTypeFlag_Const))
+	bool isSrcConst = (srcType->getFlags() & PtrTypeFlag_Const) != 0;
+	bool isDstConst = (dstType->getFlags() & PtrTypeFlag_Const) != 0;
+
+	if (isSrcConst && !isDstConst)
 	{
 		setCastError(opValue, type);
 		return false;
@@ -296,11 +302,15 @@ Cast_DataPtr_Base::getCastKind(
 	if (isSrcConst && !isDstConst)
 		return CastKind_None; // const vs non-const mismatch
 
+	CastKind implicitCastKind = isDstConst != isSrcConst ?
+		CastKind_ImplicitCrossConst :
+		CastKind_Implicit;
+
 	Type* srcDataType = srcType->getTargetType();
 	Type* dstDataType = dstType->getTargetType();
 
 	if (srcDataType->cmp(dstDataType) == 0)
-		return CastKind_Implicit;
+		return implicitCastKind;
 
 	bool isSrcPod = (srcDataType->getFlags() & TypeFlag_Pod) != 0;
 	bool isDstPod = (dstDataType->getFlags() & TypeFlag_Pod) != 0;
@@ -309,23 +319,23 @@ Cast_DataPtr_Base::getCastKind(
 
 	if (dstDataType->getStdType() == StdType_AbstractData ||
 		dstDataType->getTypeKind() == TypeKind_Void && canCastToPod)
-		return CastKind_Implicit;
+		return implicitCastKind;
 
 	if (srcDataType->getTypeKind() == TypeKind_Void &&
 		(dstDataType->getTypeKind() == TypeKind_Int8 || dstDataType->getTypeKind() == TypeKind_Int8_u))
-		return CastKind_Implicit;
+		return implicitCastKind;
 
 	if ((srcDataType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		(dstDataType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		srcDataType->getSize() == dstDataType->getSize())
-		return CastKind_Implicit;
+		return implicitCastKind;
 
 	bool isDstBase =
 		srcDataType->getTypeKind() == TypeKind_Struct &&
 		((StructType*)srcDataType)->findBaseTypeTraverse(dstDataType);
 
 	return
-		isDstBase ? CastKind_Implicit :
+		isDstBase ? implicitCastKind :
 		isDstPod && canCastToPod ? CastKind_Explicit :
 		isDstDerivable ? CastKind_Dynamic : CastKind_None;
 }

@@ -29,6 +29,7 @@ enum CastKind
 	CastKind_Dynamic,
 	CastKind_Explicit,
 	CastKind_ImplicitCrossFamily,
+	CastKind_ImplicitCrossConst,
 	CastKind_Implicit,
 	CastKind_Identitiy,
 };
