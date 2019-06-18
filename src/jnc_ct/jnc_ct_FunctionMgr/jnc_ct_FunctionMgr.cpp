@@ -763,7 +763,6 @@ FunctionMgr::getStdFunction(StdFunc func)
 	Type* returnType;
 	FunctionType* functionType;
 	Function* function;
-	const StdItemSource* source;
 
 	switch (func)
 	{
@@ -1056,13 +1055,13 @@ FunctionMgr::getStdFunction(StdFunc func)
 	case StdFunc_TryLazyGetDynamicLibFunction:
 	case StdFunc_LazyGetDynamicLibFunction:
 	case StdFunc_GetDynamicField:
-		source = getStdFunctionSource(func);
-		ASSERT(source->m_source);
+	case StdFunc_CreateConstDataPtr:
+		function = parseStdFunction(func);
+		break;
 
-		function = parseStdFunction(
-			source->m_stdNamespace,
-			sl::StringRef(source->m_source, source->m_length)
-			);
+	case StdFunc_CreateDataPtr:
+		function = parseStdFunction(func);
+		getStdFunction(StdFunc_CreateConstDataPtr); // parse and add overload, too
 		break;
 
 	case StdFunc_SimpleMulticastCall:
@@ -1076,6 +1075,18 @@ FunctionMgr::getStdFunction(StdFunc func)
 
 	m_stdFunctionArray[func] = function;
 	return function;
+}
+
+Function*
+FunctionMgr::parseStdFunction(StdFunc func)
+{
+	const StdItemSource* source = getStdFunctionSource(func);
+	ASSERT(source->m_source);
+
+	return parseStdFunction(
+		source->m_stdNamespace,
+		sl::StringRef(source->m_source, source->m_length)
+		);
 }
 
 Function*

@@ -99,13 +99,14 @@ NamespaceMgr::addStdItems()
 		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
 		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
 		global->addItem(jnc) &&
-		jnc->addItem("Scheduler", m_module->m_typeMgr.getLazyStdType (StdType_Scheduler)) &&
-		jnc->addItem("RegexMatch", m_module->m_typeMgr.getLazyStdType (StdType_RegexMatch)) &&
-		jnc->addItem("RegexState", m_module->m_typeMgr.getLazyStdType (StdType_RegexState)) &&
-		jnc->addItem("RegexDfa", m_module->m_typeMgr.getLazyStdType (StdType_RegexDfa)) &&
-		jnc->addItem("Promise", m_module->m_typeMgr.getLazyStdType (StdType_Promise)) &&
-		jnc->addItem("Promisifier", m_module->m_typeMgr.getLazyStdType (StdType_Promisifier)) &&
-		jnc->addItem("DynamicLib", m_module->m_typeMgr.getLazyStdType (StdType_DynamicLib));
+		jnc->addItem("createDataPtr", m_module->m_functionMgr.getLazyStdFunction(StdFunc_CreateDataPtr)) &&
+		jnc->addItem("Scheduler", m_module->m_typeMgr.getLazyStdType(StdType_Scheduler)) &&
+		jnc->addItem("RegexMatch", m_module->m_typeMgr.getLazyStdType(StdType_RegexMatch)) &&
+		jnc->addItem("RegexState", m_module->m_typeMgr.getLazyStdType(StdType_RegexState)) &&
+		jnc->addItem("RegexDfa", m_module->m_typeMgr.getLazyStdType(StdType_RegexDfa)) &&
+		jnc->addItem("Promise", m_module->m_typeMgr.getLazyStdType(StdType_Promise)) &&
+		jnc->addItem("Promisifier", m_module->m_typeMgr.getLazyStdType(StdType_Promisifier)) &&
+		jnc->addItem("DynamicLib", m_module->m_typeMgr.getLazyStdType(StdType_DynamicLib));
 
 	ASSERT(result);
 }

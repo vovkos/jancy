@@ -273,6 +273,9 @@ protected:
 		);
 
 	Function*
+	parseStdFunction(StdFunc func);
+
+	Function*
 	parseStdFunction(
 		StdNamespace stdNamespace,
 		const sl::StringRef& source

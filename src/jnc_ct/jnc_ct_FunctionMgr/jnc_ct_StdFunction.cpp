@@ -186,6 +186,16 @@ getStdFunctionSource(StdFunc stdFunc)
 			lengthof(getDynamicFieldSrc),
 			StdNamespace_Internal,
 		},
+		{                                        // StdFunc_CreateDataPtr,
+			createDataPtrSrc,
+			lengthof(createDataPtrSrc),
+			StdNamespace_Jnc,
+		},
+		{                                        // StdFunc_CreateConstDataPtr,
+			createConstDataPtrSrc,
+			lengthof(createConstDataPtrSrc),
+			StdNamespace_Jnc,
+		},
 	};
 
 	ASSERT((size_t)stdFunc < StdFunc__Count);

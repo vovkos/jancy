@@ -1,16 +1,26 @@
 // this test was used to fix choosing of function overload
 
-foo(void* p, size_t l)
+foo(void* p, size_t length)
 {
 }
 
-foo(void const* p, size_t l)
+foo(void const* p, size_t length)
 {
 }
 
 int main()
 {
 	void* p;
-	foo(p, 0);
+	void const* cp;
+
+	foo(p, 1);
+	foo(cp, 2);
+
+	void thin* tp = "abc";
+	void const thin* tcp = "def";
+
+	p = jnc.createDataPtr(tp);
+	cp = jnc.createDataPtr(tcp);
+
 	return 0;
 }

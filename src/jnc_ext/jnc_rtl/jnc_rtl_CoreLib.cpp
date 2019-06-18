@@ -1021,10 +1021,16 @@ appendFmtLiteral_v(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Promise*
-getCurrentPromise()
+DataPtr
+createDataPtr(
+	void* p,
+	size_t length
+	)
 {
-	return NULL;
+	if (length == -1)
+		length = p ? strlen((char*)p) + 1 : 0;
+
+	return jnc::createForeignBufferPtr(p, length, false);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -1258,6 +1264,11 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+
+	// thin -> safe data pointers
+
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_CreateDataPtr,      createDataPtr)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_CreateConstDataPtr, createDataPtr)
 
 	// multicasts
 

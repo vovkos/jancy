@@ -87,6 +87,8 @@ enum StdFunc
 	StdFunc_LlvmMemset,
 
 	StdFunc_GetDynamicField,
+	StdFunc_CreateDataPtr,
+	StdFunc_CreateConstDataPtr,
 
 	StdFunc__Count
 };
