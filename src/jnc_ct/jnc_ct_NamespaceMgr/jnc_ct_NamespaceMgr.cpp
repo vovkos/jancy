@@ -99,7 +99,12 @@ NamespaceMgr::addStdItems()
 		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
 		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
 		global->addItem(jnc) &&
+		jnc->addItem("g_gcTriggers", m_module->m_functionMgr.getLazyStdProperty(StdProp_GcTriggers)) &&
+		jnc->addItem("getGcStats", m_module->m_functionMgr.getLazyStdFunction(StdFunc_GetGcStats)) &&
+		jnc->addItem("collectGarbage", m_module->m_functionMgr.getLazyStdFunction(StdFunc_CollectGarbage)) &&
 		jnc->addItem("createDataPtr", m_module->m_functionMgr.getLazyStdFunction(StdFunc_CreateDataPtr)) &&
+		jnc->addItem("GcTriggers", m_module->m_typeMgr.getLazyStdType(StdType_GcTriggers)) &&
+		jnc->addItem("GcStats", m_module->m_typeMgr.getLazyStdType(StdType_GcStats)) &&
 		jnc->addItem("Scheduler", m_module->m_typeMgr.getLazyStdType(StdType_Scheduler)) &&
 		jnc->addItem("RegexMatch", m_module->m_typeMgr.getLazyStdType(StdType_RegexMatch)) &&
 		jnc->addItem("RegexState", m_module->m_typeMgr.getLazyStdType(StdType_RegexState)) &&

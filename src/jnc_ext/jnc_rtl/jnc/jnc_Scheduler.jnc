@@ -15,7 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-///; static char schedulerTypeSrc[] =
+///; static char schedulerSrc[] =
 
 /**
 	\ingroup rtl

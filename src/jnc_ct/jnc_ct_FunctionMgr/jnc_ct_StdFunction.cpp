@@ -21,6 +21,7 @@ namespace ct {
 const StdItemSource*
 getStdFunctionSource(StdFunc stdFunc)
 {
+	#include "jnc_globals.jnc.cpp"
 	#include "jnc_StdFunctions.jnc.cpp"
 
 	static StdItemSource sourceTable[StdFunc__Count] =
@@ -186,6 +187,10 @@ getStdFunctionSource(StdFunc stdFunc)
 			lengthof(getDynamicFieldSrc),
 			StdNamespace_Internal,
 		},
+		{ NULL },                                // StdFunc_GcTriggers_get,
+		{ NULL },                                // StdFunc_GcTriggers_set,
+		{ NULL },                                // StdFunc_GetGcStats,
+		{ NULL },                                // StdFunc_CollectGarbage,
 		{                                        // StdFunc_CreateDataPtr,
 			createDataPtrSrc,
 			lengthof(createDataPtrSrc),
@@ -207,7 +212,15 @@ getStdFunctionSource(StdFunc stdFunc)
 ModuleItem*
 LazyStdFunction::getActualItem()
 {
-	return m_module->m_functionMgr.getStdFunction(m_func);
+	return m_module->m_functionMgr.getStdFunction(m_stdFunc);
+}
+
+//..............................................................................
+
+ModuleItem*
+LazyStdProperty::getActualItem()
+{
+	return m_module->m_functionMgr.getStdProperty(m_stdProp);
 }
 
 //..............................................................................

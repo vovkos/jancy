@@ -9,40 +9,31 @@
 //
 //..............................................................................
 
-struct FooBar
-{
-	int m_a;
-	int m_b;
-}
+namespace jnc {
 
-int main()
-{
-	printf("main ()\n");
-
-	int x = 0;
-
-	switch (x)
-	{
-	case 0:
-		printf("x -- case 0\n");
-
-		printf("collect garbage #1\n");
-		jnc.collectGarbage();
-		break;
-
-	case 1:
-		FooBar fooBar;
-		FooBar* p = &fooBar;
-		printf("x -- case 1\n");
-		break;
-
-	default:
-		printf("x -- default\n");
-	}
-
-	printf("collect garbage #2\n");
-	jnc.collectGarbage();
-	return 0;
-}
+///+++
 
 //..............................................................................
+
+///; static char gcStatsSrc[] =
+
+struct GcStats
+{
+	size_t m_currentAllocSize;
+	size_t m_totalAllocSize;
+	size_t m_peakAllocSize;
+	size_t m_currentPeriodSize;
+	size_t m_totalCollectCount;
+	size_t m_lastCollectFreeSize;
+	uint64_t m_lastCollectTime;
+	uint64_t m_lastCollectTimeTaken;
+	uint64_t m_totalCollectTimeTaken;
+}
+
+///;
+
+//..............................................................................
+
+///---
+
+} // namespace jnc

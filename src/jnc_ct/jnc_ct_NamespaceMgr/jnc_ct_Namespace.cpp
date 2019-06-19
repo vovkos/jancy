@@ -84,21 +84,19 @@ Namespace::findItem(const sl::StringRef& name)
 
 	LazyModuleItem* lazyItem = (LazyModuleItem*)item;
 	ASSERT(!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
-
-	it->m_value = NULL; // many lazy std-types are parsed, so remove it from namespace
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 
 	item = lazyItem->getActualItem();
 	if (!item)
 		return NULL;
 
-	if (!it->m_value)
+	if (it->m_value != item) // it might already have been added during parse
 	{
-		m_itemArray.append(item);
+		ASSERT(it->m_value == lazyItem);
 		it->m_value = item;
+		m_itemArray.append(item);
 	}
 
-	ASSERT(it->m_value == item);
 	return item;
 }
 
@@ -196,7 +194,9 @@ Namespace::addItem(
 		return false;
 	}
 
-	if (item->getItemKind() != ModuleItemKind_Lazy)
+	if (item->getItemKind() == ModuleItemKind_Lazy)
+		((LazyModuleItem*)item)->m_it = it;
+	else
 		m_itemArray.append(item);
 
 	it->m_value = item;

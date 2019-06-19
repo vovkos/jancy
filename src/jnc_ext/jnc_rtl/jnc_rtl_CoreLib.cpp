@@ -22,12 +22,21 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_CallSite.h"
 
-#define JNC_MAP_STD_FUNCTION(stdFuncKind, proc) \
-	if (module->m_functionMgr.isStdFunctionUsed(stdFuncKind)) \
+#define JNC_MAP_STD_FUNCTION(stdFunc, proc) \
+	if (module->m_functionMgr.isStdFunctionUsed(stdFunc)) \
 	{ \
-		function = module->m_functionMgr.getStdFunction(stdFuncKind); \
+		function = module->m_functionMgr.getStdFunction(stdFunc); \
 		ASSERT(function); \
 		JNC_MAP_FUNCTION_IMPL(function, proc); \
+	}
+
+#define JNC_MAP_STD_PROPERTY(stdProp, getter, setter) \
+	if (module->m_functionMgr.isStdPropertyUsed(stdProp)) \
+	{ \
+		prop = module->m_functionMgr.getStdProperty(stdProp); \
+		ASSERT(prop); \
+		JNC_MAP_PROPERTY_GETTER(prop, getter); \
+		JNC_MAP_PROPERTY_SETTER(prop, setter); \
 	}
 
 #define JNC_MAP_STD_TYPE(stdType, Type) \
@@ -1021,6 +1030,48 @@ appendFmtLiteral_v(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+void
+collectGarbage()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	gcHeap->collect();
+}
+
+GcStats
+getGcStats()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	GcStats stats;
+	gcHeap->getStats(&stats);
+	return stats;
+}
+
+GcSizeTriggers
+gcTriggers_get()
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	GcSizeTriggers triggers;
+	gcHeap->getSizeTriggers(&triggers);
+	return triggers;
+}
+
+void
+gcTriggers_set(GcSizeTriggers triggers)
+{
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	gcHeap->setSizeTriggers(triggers);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 DataPtr
 createDataPtr(
 	void* p,
@@ -1264,6 +1315,13 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_ui64, appendFmtLiteral_ui64)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_f,    appendFmtLiteral_f)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AppendFmtLiteral_v,    appendFmtLiteral_v)
+
+	// gc heap
+
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_CollectGarbage, collectGarbage)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_GetGcStats,     getGcStats)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_GcTriggers_get, gcTriggers_get)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_GcTriggers_set, gcTriggers_set)
 
 	// thin -> safe data pointers
 

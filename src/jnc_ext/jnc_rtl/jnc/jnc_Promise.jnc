@@ -15,7 +15,7 @@ namespace jnc {
 
 //..............................................................................
 
-///; static char promiseTypeSrc[] =
+///; static char promiseSrc[] =
 
 opaque class Promise
 {
@@ -52,7 +52,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char promisifierTypeSrc[] =
+///; static char promisifierSrc[] =
 
 class Promisifier: Promise
 {

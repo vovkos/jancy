@@ -327,6 +327,9 @@ set(JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl/jnc)
 
 set(
 	JNC_LIST
+	${JNC_DIR}/jnc_globals.jnc
+	${JNC_DIR}/jnc_GcTriggers.jnc
+	${JNC_DIR}/jnc_GcStats.jnc
 	${JNC_DIR}/jnc_StdTypes.jnc
 	${JNC_DIR}/jnc_StdFunctions.jnc
 	${JNC_DIR}/jnc_DynamicLib.jnc
@@ -352,6 +355,12 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 add_perl_step(
+	jnc_globals.jnc.cpp
+	${JNC_DIR}/jnc_globals.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step(
 	jnc_StdTypes.jnc.cpp
 	${JNC_DIR}/jnc_StdTypes.jnc
 	${JNC2CPP_PL}
@@ -360,6 +369,18 @@ add_perl_step(
 add_perl_step(
 	jnc_StdFunctions.jnc.cpp
 	${JNC_DIR}/jnc_StdFunctions.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step(
+	jnc_GcTriggers.jnc.cpp
+	${JNC_DIR}/jnc_GcTriggers.jnc
+	${JNC2CPP_PL}
+	)
+
+add_perl_step(
+	jnc_GcStats.jnc.cpp
+	${JNC_DIR}/jnc_GcStats.jnc
 	${JNC2CPP_PL}
 	)
 

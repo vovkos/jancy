@@ -83,46 +83,6 @@ sleep(uint32_t msCount)
 }
 
 void
-collectGarbage()
-{
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->collect();
-}
-
-GcStats
-getGcStats()
-{
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	GcStats stats;
-	gcHeap->getStats(&stats);
-	return stats;
-}
-
-GcSizeTriggers
-getGcTriggers()
-{
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	GcSizeTriggers triggers;
-	gcHeap->getSizeTriggers(&triggers);
-	return triggers;
-}
-
-void
-setGcTriggers(GcSizeTriggers triggers)
-{
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->setSizeTriggers(&triggers);
-}
-
-void
 initSystemInfo(SystemInfo* systemInfo)
 {
 #if (_JNC_CPU_X86)
@@ -250,9 +210,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
 	JNC_MAP_FUNCTION("sys.formatTimestamp",     formatTimestamp_0)
 	JNC_MAP_OVERLOAD(formatTimestamp_1)
 	JNC_MAP_FUNCTION("sys.sleep",               jnc::sys::sleep)
-	JNC_MAP_FUNCTION("sys.collectGarbage",      collectGarbage)
-	JNC_MAP_FUNCTION("sys.getGcStats",          getGcStats)
-	JNC_MAP_PROPERTY("sys.g_gcTriggers",        getGcTriggers, setGcTriggers)
 	JNC_MAP_PROPERTY("sys.g_env",               getEnv, setEnv)
 	JNC_MAP_VARIABLE("sys.g_systemInfo",        getSystemInfo ())
 

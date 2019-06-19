@@ -200,24 +200,10 @@ void thin* getDynamicField(
 	void thin* field
 	);
 
-///; static char createDataPtrSrc[] =
-
-void* createDataPtr(
-	void thin* p,
-	size_t length = -1
-	);
-
-///; static char createConstDataPtrSrc[] =
-
-void const* createDataPtr(
-	void const thin* p,
-	size_t length = -1
-	);
-
 ///;
 
 //..............................................................................
 
 ///---
 
-} // namespace jnci {
+} // namespace jnci

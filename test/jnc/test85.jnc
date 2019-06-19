@@ -14,10 +14,10 @@ int main()
 {
 	printf("main ()\n");
 
-	sys.GcTriggers triggers = sys.g_gcTriggers;
+	jnc.GcTriggers triggers = jnc.g_gcTriggers;
 	printf("triggers: %d, %d\n", triggers.m_allocSizeTrigger, triggers.m_periodSizeTrigger);
 
-	sys.collectGarbage();
+	jnc.collectGarbage();
 
 	return 0;
 }

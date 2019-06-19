@@ -49,6 +49,9 @@ source_group(
 
 set(
 	JNC_LIST
+	jnc/jnc_globals.jnc
+	jnc/jnc_GcTriggers.jnc
+	jnc/jnc_GcStats.jnc
 	jnc/jnc_DynamicLib.jnc
 	jnc/jnc_Promise.jnc
 	jnc/jnc_Regex.jnc

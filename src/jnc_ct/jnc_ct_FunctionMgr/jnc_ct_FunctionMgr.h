@@ -41,6 +41,7 @@ protected:
 	sl::List<Property> m_propertyList;
 	sl::List<PropertyTemplate> m_propertyTemplateList;
 	sl::List<LazyStdFunction> m_lazyStdFunctionList;
+	sl::List<LazyStdProperty> m_lazyStdPropertyList;
 
 	sl::StringHashTable<Function*> m_thunkFunctionMap;
 	sl::StringHashTable<Property*> m_thunkPropertyMap;
@@ -52,6 +53,7 @@ protected:
 	Function* m_stdFunctionArray[StdFunc__Count];
 	LazyStdFunction* m_lazyStdFunctionArray[StdFunc__Count];
 	Property* m_stdPropertyArray[StdProp__Count];
+	LazyStdProperty* m_lazyStdPropertyArray[StdProp__Count];
 
 	Function* m_currentFunction;
 	Value m_thisValue;
@@ -217,7 +219,7 @@ public:
 	bool
 	jitFunctions();
 
-	// std functions
+	// std functions & properties
 
 	bool
 	isStdFunctionUsed(StdFunc func)
@@ -232,8 +234,18 @@ public:
 	LazyStdFunction*
 	getLazyStdFunction(StdFunc func);
 
+	bool
+	isStdPropertyUsed(StdProp prop)
+	{
+		ASSERT(prop < StdProp__Count);
+		return m_stdPropertyArray[prop] != NULL;
+	}
+
 	Property*
 	getStdProperty(StdProp prop);
+
+	LazyStdProperty*
+	getLazyStdProperty(StdProp prop);
 
 	Function*
 	getDirectThunkFunction(

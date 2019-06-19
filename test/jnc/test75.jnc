@@ -21,7 +21,7 @@ struct Foo
 	char const* foo()
 	{
 		printf("+Foo.m_foo = %d\n", m_foo);
-		sys.collectGarbage(); // <-- Foo was collected due to incorrect gc grame map
+		jnc.collectGarbage(); // <-- Foo was collected due to incorrect gc grame map
 		printf("-Foo.m_foo = %d\n", m_foo);
 		return null;
 	}

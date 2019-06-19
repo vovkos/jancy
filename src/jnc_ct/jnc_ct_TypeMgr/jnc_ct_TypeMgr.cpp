@@ -100,6 +100,7 @@ TypeMgr::getStdType(StdType stdType)
 	if (m_stdTypeArray[stdType])
 		return m_stdTypeArray[stdType];
 
+	ModuleItem* item;
 	Type* type;
 	switch (stdType)
 	{
@@ -203,53 +204,8 @@ TypeMgr::getStdType(StdType stdType)
 		type = getFunctionType(getStdType(StdType_SimpleEventPtr), NULL, 0);
 		break;
 
-	case StdType_RegexMatch:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("RegexMatch");
-		if (!type)
-			type = parseStdType(stdType);
-		break;
-
-	case StdType_RegexState:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("RegexState");
-		if (!type)
-			type = parseStdType(stdType);
-		break;
-
-	case StdType_RegexDfa:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("RegexDfa");
-		if (!type)
-			type = parseStdType(stdType);
-		break;
-
-	case StdType_Promise:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("Promise");
-		if (type)
-			break;
-
-		type = parseStdType(stdType);
-		getStdType(StdType_Promisifier); // make sure Promisifier is also added
-		break;
-
 	case StdType_PromisePtr:
 		type = ((ClassType*)getStdType(StdType_Promise))->getClassPtrType(ClassPtrTypeKind_Normal);
-		break;
-
-	case StdType_Promisifier:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("Promisifier");
-		if (!type)
-			type = parseStdType(stdType);
-		break;
-
-	case StdType_DynamicLib:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("DynamicLib");
-		if (!type)
-			type = parseStdType(stdType);
-		break;
-
-	case StdType_Scheduler:
-		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findItemByName("Scheduler");
-		if (!type)
-			type = parseStdType(stdType);
 		break;
 
 	case StdType_SchedulerPtr:
@@ -262,6 +218,32 @@ TypeMgr::getStdType(StdType stdType)
 
 	case StdType_ReactorClosure:
 		type = createReactorClosureType();
+		break;
+
+	case StdType_GcTriggers:
+	case StdType_GcStats:
+	case StdType_RegexMatch:
+	case StdType_RegexState:
+	case StdType_RegexDfa:
+	case StdType_Promisifier:
+	case StdType_DynamicLib:
+	case StdType_Scheduler:
+		ASSERT(m_lazyStdTypeArray[stdType]);
+		m_lazyStdTypeArray[stdType]->detach();
+		type = parseStdType(stdType);
+		break;
+
+	case StdType_Promise: // have cycles in definition
+		ASSERT(m_lazyStdTypeArray[stdType]);
+		item = m_lazyStdTypeArray[stdType]->getCurrentItem();
+		if (item && item->getItemKind() != ModuleItemKind_Lazy)
+		{
+			ASSERT(item->getItemKind() == ModuleItemKind_Type);
+			return (Type*)item;
+		}
+
+		m_lazyStdTypeArray[stdType]->detach();
+		type = parseStdType(stdType);
 		break;
 
 	case StdType_FmtLiteral:

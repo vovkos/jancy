@@ -179,40 +179,6 @@ char const* formatTimestamp(
 
 //! @}
 
-//! \addtogroup gc
-//! @{
-
-struct GcStats
-{
-	size_t m_currentAllocSize;
-	size_t m_totalAllocSize;
-	size_t m_peakAllocSize;
-	size_t m_currentPeriodSize;
-	size_t m_totalCollectCount;
-	size_t m_lastCollectFreeSize;
-	uint64_t m_lastCollectTime;
-	uint64_t m_lastCollectTimeTaken;
-	uint64_t m_totalCollectTimeTaken;
-}
-
-GcStats getGcStats();
-
-struct GcTriggers
-{
-	size_t m_allocSizeTrigger;
-	size_t m_periodSizeTrigger;
-}
-
-GcTriggers property g_gcTriggers;
-
-/**
-	Forces a full cycle of garbage collection.
-*/
-
-void collectGarbage();
-
-//! @}
-
 //..............................................................................
 
 } // namespace sys

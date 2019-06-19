@@ -47,6 +47,8 @@ FunctionMgr::clear()
 	m_functionList.clear();
 	m_propertyList.clear();
 	m_propertyTemplateList.clear();
+	m_lazyStdFunctionList.clear();
+	m_lazyStdPropertyList.clear();
 	m_thunkFunctionMap.clear();
 	m_thunkPropertyMap.clear();
 	m_schedLauncherFunctionMap.clear();
@@ -55,6 +57,7 @@ FunctionMgr::clear()
 	memset(m_stdFunctionArray, 0, sizeof(m_stdFunctionArray));
 	memset(m_lazyStdFunctionArray, 0, sizeof(m_lazyStdFunctionArray));
 	memset(m_stdPropertyArray, 0, sizeof(m_stdPropertyArray));
+	memset(m_lazyStdPropertyArray, 0, sizeof(m_lazyStdPropertyArray));
 
 	m_thisValue.clear();
 	m_promiseValue.clear();
@@ -1021,6 +1024,31 @@ FunctionMgr::getStdFunction(StdFunc func)
 		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.gcSafePoint", functionType);
 		break;
 
+	case StdFunc_CollectGarbage:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
+		function = createFunction(FunctionKind_Normal, "collectGarbage", "jnc.collectGarbage", functionType);
+		break;
+
+	case StdFunc_GetGcStats:
+		returnType = m_module->m_typeMgr.getStdType(StdType_GcStats);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
+		function = createFunction(FunctionKind_Normal, "getGcStats", "jnc.getGcStats", functionType);
+		break;
+
+	case StdFunc_GcTriggers_get:
+		returnType = m_module->m_typeMgr.getStdType(StdType_GcTriggers);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
+		function = createFunction(FunctionKind_Getter, sl::String(), "jnc.g_gcTriggers.get", functionType);
+		break;
+
+	case StdFunc_GcTriggers_set:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_GcTriggers);
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
+		function = createFunction(FunctionKind_Setter, sl::String(), "jnc.g_gcTriggers.set", functionType);
+		break;
+
 	case StdFunc_SetGcShadowStackFrameMap:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_GcShadowStackFrame)->getDataPtrType_c();
@@ -1060,6 +1088,8 @@ FunctionMgr::getStdFunction(StdFunc func)
 		break;
 
 	case StdFunc_CreateDataPtr:
+		ASSERT(m_lazyStdFunctionArray[StdFunc_CreateDataPtr]);
+		m_lazyStdFunctionArray[StdFunc_CreateDataPtr]->detach();
 		function = parseStdFunction(func);
 		getStdFunction(StdFunc_CreateConstDataPtr); // parse and add overload, too
 		break;
@@ -1137,18 +1167,18 @@ FunctionMgr::parseStdFunction(
 }
 
 LazyStdFunction*
-FunctionMgr::getLazyStdFunction(StdFunc func)
+FunctionMgr::getLazyStdFunction(StdFunc stdFunc)
 {
-	ASSERT((size_t)func < StdFunc__Count);
+	ASSERT((size_t)stdFunc < StdFunc__Count);
 
-	if (m_lazyStdFunctionArray[func])
-		return m_lazyStdFunctionArray[func];
+	if (m_lazyStdFunctionArray[stdFunc])
+		return m_lazyStdFunctionArray[stdFunc];
 
 	LazyStdFunction* function = AXL_MEM_NEW(LazyStdFunction);
 	function->m_module = m_module;
-	function->m_func = func;
+	function->m_stdFunc = stdFunc;
 	m_lazyStdFunctionList.insertTail(function);
-	m_lazyStdFunctionArray[func] = function;
+	m_lazyStdFunctionArray[stdFunc] = function;
 	return function;
 }
 
@@ -1179,12 +1209,36 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter->getType());
 		break;
 
+	case StdProp_GcTriggers:
+		prop = createProperty(PropertyKind_Normal, "g_gcTriggers", "jnc.g_gcTriggers");
+		prop->m_storageKind = StorageKind_Static;
+		prop->m_getter = getStdFunction(StdFunc_GcTriggers_get);
+		prop->m_setter = getStdFunction(StdFunc_GcTriggers_set);
+		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter->getType());
+		break;
+
 	default:
 		ASSERT(false);
 		prop = NULL;
 	}
 
 	m_stdPropertyArray[stdProp] = prop;
+	return prop;
+}
+
+LazyStdProperty*
+FunctionMgr::getLazyStdProperty(StdProp stdProp)
+{
+	ASSERT((size_t)stdProp < StdProp__Count);
+
+	if (m_lazyStdPropertyArray[stdProp])
+		return m_lazyStdPropertyArray[stdProp];
+
+	LazyStdProperty* prop = AXL_MEM_NEW(LazyStdProperty);
+	prop->m_module = m_module;
+	prop->m_stdProp = stdProp;
+	m_lazyStdPropertyList.insertTail(prop);
+	m_lazyStdPropertyArray[stdProp] = prop;
 	return prop;
 }
 
