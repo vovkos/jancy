@@ -409,7 +409,26 @@ strChr(
 		return g_nullDataPtr;
 
 	DataPtr resultPtr;
-	resultPtr.m_p =
+	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr.m_validator;
+	return resultPtr;
+}
+
+DataPtr
+strrChr(
+	DataPtr ptr,
+	char c
+	)
+{
+	if (!ptr.m_p)
+		return g_nullDataPtr;
+
+	char* p = strrchr((char*)ptr.m_p, c);
+	if (!p)
+		return g_nullDataPtr;
+
+	DataPtr resultPtr;
+	resultPtr.m_p = p;
 	resultPtr.m_validator = ptr.m_validator;
 	return resultPtr;
 }
@@ -434,6 +453,25 @@ striChr(
 	DataPtr resultPtr;
 	resultPtr.m_p = (char*)ptr.m_p + offset;
 	resultPtr.m_validator = ptr.m_validator;
+	return resultPtr;
+}
+
+DataPtr
+strpBrk(
+	DataPtr ptr1,
+	DataPtr ptr2
+	)
+{
+	if (!ptr1.m_p || !ptr2.m_p)
+		return g_nullDataPtr;
+
+	char* p = strpbrk((char*)ptr1.m_p, (char*)ptr2.m_p);
+	if (!p)
+		return g_nullDataPtr;
+
+	DataPtr resultPtr;
+	resultPtr.m_p = p;
+	resultPtr.m_validator = ptr1.m_validator;
 	return resultPtr;
 }
 
@@ -658,7 +696,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
 	JNC_MAP_FUNCTION("stricmp",  striCmp)
 	JNC_MAP_FUNCTION("strnicmp", strniCmp)
 	JNC_MAP_FUNCTION("strchr",   strChr)
+	JNC_MAP_FUNCTION("strrchr",  strrChr)
 	JNC_MAP_FUNCTION("strichr",  striChr)
+	JNC_MAP_FUNCTION("strpbrk",  strpBrk)
 	JNC_MAP_FUNCTION("strstr",   strStr)
 	JNC_MAP_FUNCTION("stristr",  striStr)
 	JNC_MAP_FUNCTION("strcpy",   strCpy)

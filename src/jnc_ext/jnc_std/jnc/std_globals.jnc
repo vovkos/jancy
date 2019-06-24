@@ -169,9 +169,19 @@ char const* strchr(
 	char c
 	);
 
+char const* strrchr(
+	char const* p,
+	char c
+	);
+
 char const* strichr(
 	char const* p,
 	char c
+	);
+
+char const* strpbrk(
+	char const* p1,
+	char const* p2
 	);
 
 /**
