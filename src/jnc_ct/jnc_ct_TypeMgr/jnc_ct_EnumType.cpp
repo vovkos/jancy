@@ -150,14 +150,6 @@ EnumType::calcLayout()
 					return false;
 			}
 
-#if (JNC_PTR_SIZE == 4)
-			if (value > 0xffffffff && m_baseType->getSize() < 8)
-			{
-				err::setFormatStringError("enum const '%lld' is too big", value);
-				return false;
-			}
-#endif
-
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
 
@@ -177,14 +169,6 @@ EnumType::calcLayout()
 				if (!result)
 					return false;
 			}
-
-#if (JNC_PTR_SIZE == 4)
-			if (value > 0xffffffff && m_baseType->getSize() < 8)
-			{
-				err::setFormatStringError("enum const '%lld' is too big", value);
-				return false;
-			}
-#endif
 
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
