@@ -1012,7 +1012,14 @@ TypeMgr::createUserFunctionType(
 	if (flags & FunctionTypeFlag_Async)
 	{
 		type->m_asyncReturnType = returnType;
-		returnType = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
+
+		uint_t compileFlags = m_module->getCompileFlags();
+
+		// when compiling stdlib docs, we don't add standard types
+
+		returnType = (compileFlags & ModuleCompileFlag_StdLibDoc) ?
+			m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr) :
+			m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 
 		if (flags & FunctionTypeFlag_ErrorCode)
 		{
