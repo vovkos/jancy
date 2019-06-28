@@ -100,6 +100,7 @@ jnc_memDup(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_createForeignBufferPtr(
 	const void* p,
@@ -116,6 +117,7 @@ jnc_createForeignBufferPtr(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_DataPtr
 jnc_createForeignStringPtr(
 	const char* p,

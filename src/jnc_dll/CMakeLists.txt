@@ -51,14 +51,6 @@ else()
 			xcode.c
 			)
 	endif()
-
-	if(NOT APPLE)
-		set(
-			DLL_SRC_LIST
-			${DLL_SRC_LIST}
-			jnc_dll.version
-			)
-	endif()
 endif()
 
 source_group(
