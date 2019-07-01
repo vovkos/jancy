@@ -487,20 +487,20 @@ const ModuleCompileState
 typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
 const ModuleCompileFlag
-	ModuleCompileFlag_DebugInfo                            = jnc_ModuleCompileFlag_DebugInfo,
-	ModuleCompileFlag_McJit                                = jnc_ModuleCompileFlag_McJit,
-	ModuleCompileFlag_SimpleGcSafePoint                    = jnc_ModuleCompileFlag_SimpleGcSafePoint,
-	ModuleCompileFlag_GcSafePointInPrologue                = jnc_ModuleCompileFlag_GcSafePointInPrologue,
-	ModuleCompileFlag_GcSafePointInInternalPrologue        = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
-	ModuleCompileFlag_Documentation                        = jnc_ModuleCompileFlag_Documentation,
-	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo            = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
-	ModuleCompileFlag_KeepTypedefShadow                    = jnc_ModuleCompileFlag_KeepTypedefShadow,
-	ModuleCompileFlag_StdLibDoc                            = jnc_ModuleCompileFlag_StdLibDoc,
-	ModuleCompileFlag_DisableDoxyComment1                  = jnc_ModuleCompileFlag_DisableDoxyComment1,
-	ModuleCompileFlag_DisableDoxyComment2                  = jnc_ModuleCompileFlag_DisableDoxyComment2,
-	ModuleCompileFlag_DisableDoxyComment3                  = jnc_ModuleCompileFlag_DisableDoxyComment3,
-	ModuleCompileFlag_DisableDoxyComment4                  = jnc_ModuleCompileFlag_DisableDoxyComment4,
-	ModuleCompileFlag_StdFlags                             = jnc_ModuleCompileFlag_StdFlags;
+	ModuleCompileFlag_DebugInfo                     = jnc_ModuleCompileFlag_DebugInfo,
+	ModuleCompileFlag_McJit                         = jnc_ModuleCompileFlag_McJit,
+	ModuleCompileFlag_SimpleGcSafePoint             = jnc_ModuleCompileFlag_SimpleGcSafePoint,
+	ModuleCompileFlag_GcSafePointInPrologue         = jnc_ModuleCompileFlag_GcSafePointInPrologue,
+	ModuleCompileFlag_GcSafePointInInternalPrologue = jnc_ModuleCompileFlag_GcSafePointInInternalPrologue,
+	ModuleCompileFlag_Documentation                 = jnc_ModuleCompileFlag_Documentation,
+	ModuleCompileFlag_IgnoreOpaqueClassTypeInfo     = jnc_ModuleCompileFlag_IgnoreOpaqueClassTypeInfo,
+	ModuleCompileFlag_KeepTypedefShadow             = jnc_ModuleCompileFlag_KeepTypedefShadow,
+	ModuleCompileFlag_StdLibDoc                     = jnc_ModuleCompileFlag_StdLibDoc,
+	ModuleCompileFlag_DisableDoxyComment1           = jnc_ModuleCompileFlag_DisableDoxyComment1,
+	ModuleCompileFlag_DisableDoxyComment2           = jnc_ModuleCompileFlag_DisableDoxyComment2,
+	ModuleCompileFlag_DisableDoxyComment3           = jnc_ModuleCompileFlag_DisableDoxyComment3,
+	ModuleCompileFlag_DisableDoxyComment4           = jnc_ModuleCompileFlag_DisableDoxyComment4,
+	ModuleCompileFlag_StdFlags                      = jnc_ModuleCompileFlag_StdFlags;
 
 //..............................................................................
 
