@@ -389,7 +389,17 @@ Parser::postDeclaratorName(Declarator* declarator)
 		anchorName.removeLastName();
 
 	ASSERT(!anchorName.isEmpty());
-	declarator->m_baseType = ((NamedImportType*)declarator->m_baseType)->setAnchorName(anchorName);
+
+	NamedImportType* importType = m_module->m_typeMgr.getNamedImportType(
+		((NamedImportType*)declarator->m_baseType)->m_name,
+		m_module->m_namespaceMgr.getCurrentNamespace(),
+		anchorName
+		);
+
+	importType->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	importType->m_pos = declarator->getPos();
+
+	declarator->m_baseType = importType;
 }
 
 void

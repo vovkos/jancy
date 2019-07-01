@@ -29,7 +29,7 @@ DataPtrType::DataPtrType()
 
 sl::String
 DataPtrType::createSignature(
-	Type* baseType,
+	Type* targetType,
 	TypeKind typeKind,
 	DataPtrTypeKind ptrTypeKind,
 	uint_t flags
@@ -49,7 +49,7 @@ DataPtrType::createSignature(
 	}
 
 	signature += getPtrTypeFlagSignature(flags);
-	signature += baseType->getSignature();
+	signature += targetType->getSignature();
 	return signature;
 }
 

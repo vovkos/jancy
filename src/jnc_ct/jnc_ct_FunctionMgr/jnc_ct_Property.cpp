@@ -617,29 +617,12 @@ Property::calcLayout()
 	m_vtable.reserve(2 + setterCount);
 
 	if (m_binder)
-	{
-		result = m_binder->getType()->ensureLayout();
-		if (!result)
-			return false;
-
 		m_vtable.append(m_binder);
-	}
-
-	result = m_getter->getType()->ensureLayout();
-	if (!result)
-		return false;
 
 	m_vtable.append(m_getter);
 
 	for (size_t i = 0; i < setterCount; i++)
-	{
-		Function* setter = m_setter->getOverload(i);
-		result = setter->getType()->ensureLayout();
-		if (!result)
-			return false;
-
-		m_vtable.append(setter);
-	}
+		m_vtable.append(m_setter->getOverload(i));
 
 	createVtableVariable();
 	return true;

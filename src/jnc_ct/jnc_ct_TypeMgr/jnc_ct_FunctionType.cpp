@@ -130,16 +130,19 @@ FunctionType::createArgSignature(
 	uint_t flags
 	)
 {
-	sl::String string = "(";
+	sl::String string = '(';
 
 	for (size_t i = 0; i < argCount; i++)
 	{
 		Type* type = argTypeArray[i];
 		string += type->getSignature();
-		string += ",";
+		string += ',';
 	}
 
-	string += (flags & FunctionTypeFlag_VarArg) ? ".)" : ")";
+	if (flags & FunctionTypeFlag_VarArg)
+		string += '.';
+
+	string += ')';
 	return string;
 }
 
@@ -150,17 +153,19 @@ FunctionType::createArgSignature(
 	uint_t flags
 	)
 {
-	sl::String string = "(";
+	sl::String string = '(';
 
 	for (size_t i = 0; i < argCount; i++)
 	{
 		FunctionArg* arg = argArray[i];
-
 		string += arg->getType()->getSignature();
-		string += ",";
+		string += ',';
 	}
 
-	string += (flags & FunctionTypeFlag_VarArg) ? ".)" : ")";
+	if (flags & FunctionTypeFlag_VarArg)
+		string += '.';
+
+	string += ')';
 	return string;
 }
 
@@ -341,44 +346,6 @@ void
 FunctionType::prepareLlvmDiType()
 {
 	m_llvmDiType = m_module->m_llvmDiBuilder.createSubroutineType(this);
-}
-
-bool
-FunctionType::calcLayout()
-{
-	bool result;
-
-	result = m_returnType->ensureLayout();
-	if (!result)
-		return false;
-
-	size_t argCount = m_argArray.getCount();
-	for (size_t i = 0; i < argCount; i++)
-	{
-		result = m_argArray[i]->getType()->ensureLayout();
-		if (!result)
-			return false;
-	}
-
-	if (m_shortType != this)
-	{
-		result = m_shortType->ensureLayout();
-		if (!result)
-			return false;
-	}
-
-	// update signature
-
-	sl::String signature = createSignature(
-		m_callConv,
-		m_returnType,
-		m_argArray,
-		m_argArray.getCount(),
-		m_flags
-		);
-
-	m_module->m_typeMgr.updateTypeSignature(this, signature);
-	return true;
 }
 
 sl::String

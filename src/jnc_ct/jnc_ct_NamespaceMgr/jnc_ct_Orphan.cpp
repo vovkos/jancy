@@ -166,13 +166,6 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 		}
 	}
 
-	bool result =
-		m_functionType->ensureLayout() &&
-		originFunction->getTypeOverload()->ensureLayout();
-
-	if (!result)
-		return false;
-
 	originFunction = originFunction->findShortOverload(m_functionType);
 	if (!originFunction)
 	{
@@ -194,7 +187,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	FunctionType* originType = originFunction->getType();
 	if (originType->getFlags() & ModuleItemFlag_User)
 	{
-		result = copyArgNames(originType);
+		bool result = copyArgNames(originType);
 		if (!result)
 			return false;
 	}

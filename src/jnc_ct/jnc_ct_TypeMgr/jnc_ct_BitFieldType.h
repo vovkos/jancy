@@ -67,6 +67,13 @@ public:
 protected:
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = createSignature(m_baseType, m_bitOffset, m_bitCount);
+	}
+
+	virtual
+	void
 	prepareTypeString();
 
 	virtual

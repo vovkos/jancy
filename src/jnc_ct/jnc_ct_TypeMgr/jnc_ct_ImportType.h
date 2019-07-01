@@ -23,7 +23,8 @@ class ImportPtrType;
 
 enum ImportTypeFlag
 {
-	ImportTypeFlag_ImportLoop = 0x010000, // used for detection of import loops
+	ImportTypeFlag_ImportLoop       = 0x010000, // used for detection of import loops
+	ImportTypeFlag_UsedByImportType = 0x020000, // used by ImportPtrType / ImportIntModType
 };
 
 //..............................................................................
@@ -40,6 +41,12 @@ public:
 	ImportType()
 	{
 		m_actualType = NULL;
+	}
+
+	bool
+	isUsed()
+	{
+		return !m_fixupArray.isEmpty() || (m_flags & ImportTypeFlag_UsedByImportType);
 	}
 
 	bool
@@ -101,6 +108,7 @@ class NamedImportType:
 	public ModuleItemPos
 {
 	friend class TypeMgr;
+	friend class Parser;
 
 protected:
 	QualifiedName m_name;
@@ -128,9 +136,6 @@ public:
 	{
 		return m_anchorName;
 	}
-
-	NamedImportType*
-	setAnchorName(const QualifiedName& name);
 
 	const sl::String&
 	getQualifiedName()

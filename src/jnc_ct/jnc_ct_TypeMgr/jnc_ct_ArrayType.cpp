@@ -206,9 +206,6 @@ ArrayType::calcLayoutImpl(
 		m_elementCount = (size_t)value;
 	}
 
-	sl::String signature = createSignature(m_elementType, m_elementCount);
-	m_module->m_typeMgr.updateTypeSignature(this, signature);
-
 	m_size = m_elementType->getSize() * m_elementCount;
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;

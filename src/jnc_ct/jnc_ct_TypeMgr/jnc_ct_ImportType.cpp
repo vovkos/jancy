@@ -64,25 +64,6 @@ NamedImportType::createSignature(
 	return signature;
 }
 
-NamedImportType*
-NamedImportType::setAnchorName(const QualifiedName& name)
-{
-	if (!m_fixupArray.isEmpty())
-		return m_module->m_typeMgr.getNamedImportType(m_name, m_anchorNamespace, name);
-
-	ASSERT(m_anchorName.isEmpty());
-	m_anchorName = name;
-	m_typeStringTuple = NULL;
-
-	m_qualifiedName = m_anchorNamespace->createQualifiedName(name);
-	m_qualifiedName += '.';
-	m_qualifiedName += m_name.getFullName();
-
-	sl::String signature = createSignature(m_name, m_anchorNamespace, m_anchorName);
-	m_module->m_typeMgr.updateTypeSignature(this, signature);
-	return this;
-}
-
 void
 NamedImportType::pushImportSrcPosError()
 {

@@ -146,6 +146,13 @@ public:
 protected:
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = createSignature(m_getterType, m_setterType, m_flags);
+	}
+
+	virtual
+	void
 	prepareTypeString();
 
 	virtual

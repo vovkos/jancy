@@ -187,7 +187,6 @@ protected:
 	StdType m_stdType;
 	size_t m_size;
 	size_t m_alignment;
-	sl::StringHashTableIterator<Type*> m_typeMapIt;
 	sl::String m_signature;
 
 	llvm::Type* m_llvmType;
@@ -234,10 +233,7 @@ public:
 	}
 
 	const sl::String&
-	getSignature()
-	{
-		return m_signature;
-	}
+	getSignature();
 
 	const sl::String&
 	getTypeString();
@@ -281,7 +277,7 @@ public:
 	int
 	cmp(Type* type)
 	{
-		return type != this ? m_signature.cmp(type->m_signature) : 0;
+		return type != this ? getSignature().cmp(type->getSignature()) : 0;
 	}
 
 	ArrayType*
@@ -334,6 +330,10 @@ protected:
 
 	virtual
 	void
+	prepareSignature();
+
+	virtual
+	void
 	prepareTypeString();
 
 	virtual
@@ -373,6 +373,16 @@ protected:
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+const sl::String&
+Type::getSignature()
+{
+	if (m_signature.isEmpty())
+		prepareSignature();
+
+	return m_signature;
+}
 
 inline
 llvm::Type*
@@ -481,6 +491,13 @@ public:
 protected:
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = "T" + m_typedef->getQualifiedName();
+	}
+
+	virtual
+	void
 	prepareTypeString()
 	{
 		getTypeStringTuple()->m_typeStringPrefix = getQualifiedName();
@@ -494,14 +511,14 @@ protected:
 	void
 	prepareLlvmType()
 	{
-		ASSERT(false);
+		m_llvmType = m_typedef->getType()->getLlvmType();
 	}
 
 	virtual
 	void
 	prepareLlvmDiType()
 	{
-		ASSERT(false);
+		m_llvmDiType = m_typedef->getType()->getLlvmDiType();
 	}
 
 	virtual

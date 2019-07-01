@@ -208,6 +208,13 @@ public:
 protected:
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = createSignature(m_callConv, m_returnType, m_argArray, m_argArray.getCount(), m_flags);
+	}
+
+	virtual
+	void
 	prepareTypeString();
 
 	virtual
@@ -225,10 +232,6 @@ protected:
 	virtual
 	void
 	prepareLlvmDiType();
-
-	virtual
-	bool
-	calcLayout();
 };
 
 //..............................................................................

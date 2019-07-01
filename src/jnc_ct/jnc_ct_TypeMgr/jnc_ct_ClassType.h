@@ -185,6 +185,13 @@ protected:
 
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = "CC" + m_qualifiedName;
+	}
+
+	virtual
+	void
 	prepareLlvmType();
 
 	virtual

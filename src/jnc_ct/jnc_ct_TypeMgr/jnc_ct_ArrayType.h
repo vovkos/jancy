@@ -93,6 +93,13 @@ public:
 
 protected:
 	virtual
+	void
+	prepareSignature()
+	{
+		m_signature = createSignature(m_elementType, m_elementCount);
+	}
+
+	virtual
 	bool
 	calcLayout()
 	{

@@ -68,6 +68,14 @@ protected:
 
 	virtual
 	void
+	prepareSignature()
+	{
+		ASSERT(m_signature.isEmpty());
+		m_signature = 'U' + m_qualifiedName;
+	}
+
+	virtual
+	void
 	prepareLlvmType()
 	{
 		m_llvmType = getStructType()->getLlvmType();

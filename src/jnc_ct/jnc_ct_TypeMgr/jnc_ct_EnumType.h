@@ -128,6 +128,10 @@ public:
 protected:
 	virtual
 	void
+	prepareSignature();
+
+	virtual
+	void
 	prepareLlvmType()
 	{
 		m_llvmType = m_baseType->getLlvmType();

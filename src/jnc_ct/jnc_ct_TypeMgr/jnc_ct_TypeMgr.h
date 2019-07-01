@@ -137,12 +137,6 @@ public:
 	bool
 	resolveImportTypes();
 
-	void
-	updateTypeSignature(
-		Type* type,
-		const sl::StringRef& signature
-		);
-
 	const sl::List<Type>&
 	getTypeList()
 	{
@@ -832,8 +826,7 @@ protected:
 	void
 	setupPrimitiveType(
 		TypeKind typeKind,
-		size_t size,
-		const sl::StringRef& signature
+		size_t size
 		);
 
 	void

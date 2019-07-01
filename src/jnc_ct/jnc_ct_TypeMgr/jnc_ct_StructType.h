@@ -193,6 +193,13 @@ protected:
 
 	virtual
 	void
+	prepareSignature()
+	{
+		m_signature = 'S' + m_qualifiedName;
+	}
+
+	virtual
+	void
 	prepareLlvmType();
 
 	virtual

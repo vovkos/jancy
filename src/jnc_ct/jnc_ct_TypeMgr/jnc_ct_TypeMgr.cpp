@@ -309,6 +309,9 @@ TypeMgr::resolveImportTypes()
 		for (size_t i = 0; i < count; i++)
 		{
 			NamedImportType* importType = unresolvedNamedImportTypeArray[i];
+			if (!importType->isUsed()) // re-anchored and abandoned
+				continue;
+
 			Namespace* anchorNamespace = importType->m_anchorNamespace;
 			if (!importType->m_anchorName.isEmpty())
 			{
@@ -412,27 +415,6 @@ TypeMgr::resolveImportTypes()
 	return true;
 }
 
-void
-TypeMgr::updateTypeSignature(
-	Type* type,
-	const sl::StringRef& signature
-	)
-{
-	if (type->m_signature == signature)
-		return;
-
-	if (!type->m_typeMapIt)
-	{
-		type->m_signature = signature;
-		return;
-	}
-
-	m_typeMap.erase(type->m_typeMapIt);
-	type->m_signature = signature;
-	type->m_typeMapIt = m_typeMap.visit(signature);
-	type->m_typeMapIt->m_value = type;
-}
-
 BitFieldType*
 TypeMgr::getBitFieldType(
 	Type* baseType,
@@ -441,19 +423,12 @@ TypeMgr::getBitFieldType(
 	)
 {
 	sl::String signature = BitFieldType::createSignature(baseType, bitOffset, bitCount);
-
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
-	{
-		BitFieldType* type = (BitFieldType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
+		return (BitFieldType*)it->m_value;
 
 	BitFieldType* type = AXL_MEM_NEW(BitFieldType);
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_baseType = baseType;
 	type->m_bitOffset = bitOffset;
 	type->m_bitCount = bitCount;
@@ -531,19 +506,12 @@ TypeMgr::getArrayType(
 	)
 {
 	sl::String signature = ArrayType::createSignature(elementType, elementCount);
-
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
-	{
-		ArrayType* type = (ArrayType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
+		return (ArrayType*)it->m_value;
 
 	ArrayType* type = AXL_MEM_NEW(ArrayType);
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_elementType = elementType;
 	type->m_elementCount = elementCount;
 	m_typeList.insertTail(type);
@@ -589,7 +557,6 @@ TypeMgr::createTypedefShadowType(Typedef* tdef)
 {
 	TypedefShadowType* type = AXL_MEM_NEW(TypedefShadowType);
 	type->m_module = m_module;
-	type->m_signature.format("T%s", tdef->getQualifiedName().sz());
 	type->m_parentUnit = tdef->m_parentUnit;
 	type->m_parentNamespace = tdef->m_parentNamespace;
 	type->m_pos = tdef->m_pos;
@@ -612,12 +579,7 @@ TypeMgr::createEnumType(
 	uint_t flags
 	)
 {
-	const char* signaturePrefix = (flags & EnumTypeFlag_BitFlag) ?
-		(flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
-		(flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
-
 	EnumType* type = AXL_MEM_NEW(EnumType);
-	type->m_signature.format("%s%s", signaturePrefix, qualifiedName.sz());
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -650,7 +612,6 @@ TypeMgr::createStructType(
 	)
 {
 	StructType* type = AXL_MEM_NEW(StructType);
-	type->m_signature.format("S%s", qualifiedName.sz());
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -676,7 +637,6 @@ TypeMgr::createUnionType(
 	)
 {
 	UnionType* type = AXL_MEM_NEW(UnionType);
-	type->m_signature.format("U%s", qualifiedName.sz());
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -746,7 +706,6 @@ TypeMgr::createClassType(
 
 	m_typeList.insertTail(type);
 
-	type->m_signature.format("CC%s", qualifiedName.sz());
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
@@ -886,16 +845,10 @@ TypeMgr::getFunctionType(
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
-	{
-		FunctionType* type = (FunctionType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
+		return (FunctionType*)it->m_value;
 
 	FunctionType* type = AXL_MEM_NEW(FunctionType);
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
 	type->m_flags = flags;
@@ -904,17 +857,6 @@ TypeMgr::getFunctionType(
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
-
-	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	it->m_value = type;
 	return type;
@@ -952,16 +894,10 @@ TypeMgr::getFunctionType(
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
-	{
-		FunctionType* type = (FunctionType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
+		return (FunctionType*)it->m_value;
 
 	FunctionType* type = AXL_MEM_NEW(FunctionType);
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_callConv = callConv;
 	type->m_returnType = returnType;
 	type->m_flags = flags;
@@ -970,17 +906,6 @@ TypeMgr::getFunctionType(
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
-
-	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	it->m_value = type;
 	return type;
@@ -996,17 +921,8 @@ TypeMgr::createUserFunctionType(
 {
 	ASSERT(callConv && returnType);
 
-	sl::String signature = FunctionType::createSignature(
-		callConv,
-		returnType,
-		argArray,
-		argArray.getCount(),
-		flags
-		);
-
 	FunctionType* type = AXL_MEM_NEW(FunctionType);
 	type->m_module = m_module;
-	type->m_signature = signature;
 	type->m_callConv = callConv;
 
 	if (flags & FunctionTypeFlag_Async)
@@ -1035,17 +951,6 @@ TypeMgr::createUserFunctionType(
 
 	if (returnType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)returnType)->addFixup(&type->m_returnType);
-
-	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	return type;
 }
@@ -1107,22 +1012,15 @@ TypeMgr::getPropertyType(
 	)
 {
 	sl::String signature = PropertyType::createSignature(getterType, setterType, flags);
-
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
-	{
-		PropertyType* type = (PropertyType*)it->m_value;
-		ASSERT(type->m_signature == signature);
-		return type;
-	}
+		return (PropertyType*)it->m_value;
 
 	if (setterType.isEmpty())
 		flags |= PropertyTypeFlag_Const;
 
 	PropertyType* type = AXL_MEM_NEW(PropertyType);
 	type->m_module = m_module;
-	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_getterType = getterType;
 	type->m_setterType = setterType;
 	type->m_flags = flags;
@@ -1520,6 +1418,8 @@ TypeMgr::getFunctionClosureClassType(
 	size_t thisArgIdx
 	)
 {
+	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+
 	sl::String signature = ClosureClassType::createSignature(
 		targetType,
 		thunkType,
@@ -1539,7 +1439,6 @@ TypeMgr::getFunctionClosureClassType(
 
 	FunctionClosureClassType* type = (FunctionClosureClassType*)createUnnamedClassType(ClassTypeKind_FunctionClosure, "FunctionClosure");
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
@@ -1581,6 +1480,8 @@ TypeMgr::getPropertyClosureClassType(
 	size_t thisArgIdx
 	)
 {
+	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+
 	sl::String signature = ClosureClassType::createSignature(
 		targetType,
 		thunkType,
@@ -1600,7 +1501,6 @@ TypeMgr::getPropertyClosureClassType(
 
 	PropertyClosureClassType* type = (PropertyClosureClassType*)createUnnamedClassType(ClassTypeKind_PropertyClosure, "PropertyClosure");
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
@@ -1639,6 +1539,8 @@ TypeMgr::getDataClosureClassType(
 	PropertyType* thunkType
 	)
 {
+	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+
 	sl::String signature = DataClosureClassType::createSignature(targetType, thunkType);
 
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
@@ -1651,7 +1553,6 @@ TypeMgr::getDataClosureClassType(
 
 	DataClosureClassType* type = (DataClosureClassType*)createUnnamedClassType(ClassTypeKind_DataClosure, "DataClosure");
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->createField("!m_target", targetType->getDataPtrType ());
 
 	Property* thunkProperty = m_module->m_functionMgr.createProperty(
@@ -1708,7 +1609,6 @@ TypeMgr::getDataPtrType(
 
 	DataPtrType* type = AXL_MEM_NEW(DataPtrType);
 	type->m_module = m_module;
-	type->m_signature = DataPtrType::createSignature(targetType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
@@ -1762,7 +1662,6 @@ TypeMgr::getClassPtrType(
 
 	ClassPtrType* type = AXL_MEM_NEW(ClassPtrType);
 	type->m_module = m_module;
-	type->m_signature = ClassPtrType::createSignature(targetType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_targetType = targetType;
@@ -1805,7 +1704,6 @@ TypeMgr::getFunctionPtrType(
 
 	FunctionPtrType* type = AXL_MEM_NEW(FunctionPtrType);
 	type->m_module = m_module;
-	type->m_signature = FunctionPtrType::createSignature(functionType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
@@ -1859,7 +1757,6 @@ TypeMgr::getPropertyPtrType(
 
 	PropertyPtrType* type = AXL_MEM_NEW(PropertyPtrType);
 	type->m_module = m_module;
-	type->m_signature = PropertyPtrType::createSignature(propertyType, typeKind, ptrTypeKind, flags);
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
@@ -1924,7 +1821,6 @@ TypeMgr::getNamedImportType(
 	NamedImportType* type = AXL_MEM_NEW(NamedImportType);
 	type->m_module = m_module;
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_name = name;
 	type->m_anchorNamespace = anchorNamespace;
 	type->m_anchorName = anchorName;
@@ -1971,7 +1867,6 @@ TypeMgr::getImportPtrType(
 	ImportPtrType* type = AXL_MEM_NEW(ImportPtrType);
 	type->m_module = m_module;
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_targetType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
 	type->m_flags = flags;
@@ -1979,6 +1874,8 @@ TypeMgr::getImportPtrType(
 	m_typeList.insertTail(type);
 	m_unresolvedImportPtrTypeArray.append(type);
 	it->m_value = type;
+
+	namedImportType->m_flags |= ImportTypeFlag_UsedByImportType;
 
 	return type;
 }
@@ -2007,7 +1904,6 @@ TypeMgr::getImportIntModType(
 	ImportIntModType* type = AXL_MEM_NEW(ImportIntModType);
 	type->m_module = m_module;
 	type->m_signature = signature;
-	type->m_typeMapIt = it;
 	type->m_importType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
 	type->m_flags = flags;
@@ -2015,6 +1911,8 @@ TypeMgr::getImportIntModType(
 	m_typeList.insertTail(type);
 	m_unresolvedImportIntModTypeArray.append(type);
 	it->m_value = type;
+
+	namedImportType->m_flags |= ImportTypeFlag_UsedByImportType;
 
 	return type;
 }
@@ -2169,25 +2067,25 @@ TypeMgr::getPropertyPtrTypeTuple(PropertyType* propertyType)
 void
 TypeMgr::setupAllPrimitiveTypes()
 {
-	setupPrimitiveType(TypeKind_Void,      0, "v");
-	setupPrimitiveType(TypeKind_Variant,   sizeof(Variant), "z");
-	setupPrimitiveType(TypeKind_Bool,      1, "b");
-	setupPrimitiveType(TypeKind_Int8,      1, "is1");
-	setupPrimitiveType(TypeKind_Int8_u,    1, "iu1");
-	setupPrimitiveType(TypeKind_Int16,     2, "is2");
-	setupPrimitiveType(TypeKind_Int16_u,   2, "iu2");
-	setupPrimitiveType(TypeKind_Int32,     4, "is4");
-	setupPrimitiveType(TypeKind_Int32_u,   4, "iu4");
-	setupPrimitiveType(TypeKind_Int64,     8, "is8");
-	setupPrimitiveType(TypeKind_Int64_u,   8, "iu8");
-	setupPrimitiveType(TypeKind_Int16_be,  2, "ibs2");
-	setupPrimitiveType(TypeKind_Int16_beu, 2, "ibu2");
-	setupPrimitiveType(TypeKind_Int32_be,  4, "ibs4");
-	setupPrimitiveType(TypeKind_Int32_beu, 4, "ibu4");
-	setupPrimitiveType(TypeKind_Int64_be,  8, "ibs8");
-	setupPrimitiveType(TypeKind_Int64_beu, 8, "ibu8");
-	setupPrimitiveType(TypeKind_Float,     4, "f4");
-	setupPrimitiveType(TypeKind_Double,    8, "f8");
+	setupPrimitiveType(TypeKind_Void,      0);
+	setupPrimitiveType(TypeKind_Variant,   sizeof(Variant));
+	setupPrimitiveType(TypeKind_Bool,      1);
+	setupPrimitiveType(TypeKind_Int8,      1);
+	setupPrimitiveType(TypeKind_Int8_u,    1);
+	setupPrimitiveType(TypeKind_Int16,     2);
+	setupPrimitiveType(TypeKind_Int16_u,   2);
+	setupPrimitiveType(TypeKind_Int32,     4);
+	setupPrimitiveType(TypeKind_Int32_u,   4);
+	setupPrimitiveType(TypeKind_Int64,     8);
+	setupPrimitiveType(TypeKind_Int64_u,   8);
+	setupPrimitiveType(TypeKind_Int16_be,  2);
+	setupPrimitiveType(TypeKind_Int16_beu, 2);
+	setupPrimitiveType(TypeKind_Int32_be,  4);
+	setupPrimitiveType(TypeKind_Int32_beu, 4);
+	setupPrimitiveType(TypeKind_Int64_be,  8);
+	setupPrimitiveType(TypeKind_Int64_beu, 8);
+	setupPrimitiveType(TypeKind_Float,     4);
+	setupPrimitiveType(TypeKind_Double,    8);
 
 	// variant requires special treatment
 
@@ -2246,8 +2144,7 @@ TypeMgr::setupCallConvArray()
 void
 TypeMgr::setupPrimitiveType(
 	TypeKind typeKind,
-	size_t size,
-	const sl::StringRef& signature
+	size_t size
 	)
 {
 	ASSERT(typeKind < TypeKind__PrimitiveTypeCount);
@@ -2258,7 +2155,6 @@ TypeMgr::setupPrimitiveType(
 	type->m_flags = TypeFlag_Pod | ModuleItemFlag_LayoutReady;
 	type->m_size = size;
 	type->m_alignment = size;
-	type->m_signature = signature;
 	type->m_llvmType = NULL;
 #if (LLVM_VERSION < 0x030900)
 	type->m_llvmDiType = llvm::DIType_vn();

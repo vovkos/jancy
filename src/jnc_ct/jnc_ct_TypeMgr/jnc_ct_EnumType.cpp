@@ -115,6 +115,16 @@ EnumType::createConst(
 	return enumConst;
 }
 
+void
+EnumType::prepareSignature()
+{
+	const char* signaturePrefix = (m_flags & EnumTypeFlag_BitFlag) ?
+		(m_flags & EnumTypeFlag_Exposed) ? "EZ" : "EF" :
+		(m_flags & EnumTypeFlag_Exposed) ? "EC" : "EE";
+
+	m_signature = signaturePrefix + m_qualifiedName;
+}
+
 bool
 EnumType::calcLayout()
 {
@@ -122,7 +132,12 @@ EnumType::calcLayout()
 
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
-		err::setFormatStringError("enum base type must be integer type");
+		err::setFormatStringError(
+			"invalid base type %s for %s (must be integer type)",
+			m_baseType->getTypeString().sz(),
+			getTypeString().sz()
+			);
+
 		return false;
 	}
 

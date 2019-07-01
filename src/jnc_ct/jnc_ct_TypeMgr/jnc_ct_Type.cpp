@@ -195,7 +195,7 @@ Type::Type()
 	m_typeKind = TypeKind_Void;
 	m_stdType = (StdType) -1;
 	m_size = 0;
-	m_alignment = 1;
+	m_alignment = 0;
 	m_llvmType = NULL;
 	m_typeStringTuple = NULL;
 	m_simplePropertyTypeTuple = NULL;
@@ -412,6 +412,38 @@ Type::prepareDoxyTypeString()
 		tuple->m_doxyTypeString += suffix;
 		tuple->m_doxyTypeString += "</argsstring>\n";
 	}
+}
+
+void
+Type::prepareSignature()
+{
+	static const char* primitiveTypeSignatureTable[TypeKind_Double + 1] =
+	{
+		"v",    // TypeKind_Void,
+		"z",    // TypeKind_Variant,
+		"b",    // TypeKind_Bool,
+		"is1",  // TypeKind_Int8,
+		"iu1",  // TypeKind_Int8_u,
+		"is2",  // TypeKind_Int16,
+		"iu2",  // TypeKind_Int16_u,
+		"is4",  // TypeKind_Int32,
+		"iu4",  // TypeKind_Int32_u,
+		"is8",  // TypeKind_Int64,
+		"iu8",  // TypeKind_Int64_u,
+		"ibs2", // TypeKind_Int16_be,
+		"ibu2", // TypeKind_Int16_beu,
+		"ibs4", // TypeKind_Int32_be,
+		"ibu4", // TypeKind_Int32_beu,
+		"ibs8", // TypeKind_Int64_be,
+		"ibu8", // TypeKind_Int64_beu,
+		"f4",   // TypeKind_Float,
+		"f8",   // TypeKind_Double,
+	};
+
+	if ((size_t)m_typeKind <= countof(primitiveTypeSignatureTable))
+		m_signature = primitiveTypeSignatureTable[m_typeKind];
+	else
+		ASSERT(false);
 }
 
 void
@@ -729,7 +761,7 @@ TypedefShadowType::calcLayout()
 	Type* type = m_typedef->getType();
 	m_size = type->getSize();
 	m_alignment = type->getAlignment();
-	m_signature = type->getSignature();
+	m_signature.clear();
 	return true;
 }
 

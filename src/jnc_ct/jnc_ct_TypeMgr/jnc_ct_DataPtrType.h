@@ -68,7 +68,7 @@ public:
 	static
 	sl::String
 	createSignature(
-		Type* baseType,
+		Type* targetType,
 		TypeKind typeKind,
 		DataPtrTypeKind ptrTypeKind,
 		uint_t flags
@@ -82,6 +82,13 @@ public:
 		);
 
 protected:
+	virtual
+	void
+	prepareSignature()
+	{
+		m_signature = createSignature(m_targetType, m_typeKind, m_ptrTypeKind, m_flags);
+	}
+
 	virtual
 	void
 	prepareTypeString();

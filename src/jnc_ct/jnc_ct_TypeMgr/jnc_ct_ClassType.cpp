@@ -498,10 +498,6 @@ ClassType::calcLayout()
 		Function* function = m_virtualMethodArray[i];
 		ASSERT(function->m_storageKind == StorageKind_Abstract || function->m_storageKind == StorageKind_Virtual);
 
-		result = function->getType()->ensureLayout();
-		if (!result)
-			return false;
-
 		addVirtualFunction(function);
 	}
 
@@ -510,10 +506,6 @@ ClassType::calcLayout()
 	{
 		Function* function = m_overrideMethodArray[i];
 		ASSERT(function->m_storageKind == StorageKind_Override);
-
-		result = function->getType()->ensureLayout();
-		if (!result)
-			return false;
 
 		result = overrideVirtualFunction(function);
 		if (!result)
