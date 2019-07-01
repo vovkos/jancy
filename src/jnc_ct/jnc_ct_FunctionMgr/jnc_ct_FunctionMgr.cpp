@@ -553,7 +553,6 @@ FunctionMgr::getDirectThunkProperty(
 		);
 
 	thunkProperty->m_storageKind = StorageKind_Static;
-	thunkProperty->m_signature = signature;
 
 	bool result = thunkProperty->create(targetProperty, thunkPropertyType, hasUnusedClosure);
 	if (!result)
@@ -593,7 +592,6 @@ FunctionMgr::getDirectDataThunkProperty(
 		);
 
 	thunkProperty->m_storageKind = StorageKind_Static;
-	thunkProperty->m_signature = signature;
 	thunkProperty->m_targetVariable = targetVariable;
 
 	if (hasUnusedClosure)

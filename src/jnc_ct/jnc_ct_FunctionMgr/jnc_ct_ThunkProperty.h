@@ -23,7 +23,6 @@ class ThunkProperty: public Property
 	friend class FunctionMgr;
 
 protected:
-	sl::String m_signature;
 	Property* m_targetProperty;
 
 public:
@@ -44,7 +43,6 @@ class DataThunkProperty: public Property
 	friend class FunctionMgr;
 
 protected:
-	sl::String m_signature;
 	Variable* m_targetVariable;
 
 public:
