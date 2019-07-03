@@ -32,7 +32,7 @@ class JancyLexer(RegexLexer):
             (r'[rR]".*"', String),
             (r'(0[xXoObBnNdD]|[fF$])?"', String, 'string'),
             (r'(0[xXoObBnNdD])?"""(.|\n)*?"""', String),
-            (r"'(\\.|\\[0-7]{1,3}|\\x[a-fA-F0-9]{1,2}|[^\\\'\n])'", String.Char),
+            (r"'(\\.|\\[0-7]{1,3}|\\x[a-fA-F0-9]{1,2}|[^\\\'\n])*?'", String.Char),
             (r'(\d+\.\d*|\.\d+|\d+)[eE][+-]?\d+', Number.Float),
             (r'(\d+\.\d*|\.\d+|\d+[fF])', Number.Float),
             (r'0[xX][0-9a-fA-F]+', Number.Hex),
