@@ -142,6 +142,10 @@ else()
 		)
 endif()
 
+if (GCC_LINK_GLIBC_WRAPPERS)
+	link_directories(${AXL_LIB_DIR})
+endif()
+
 add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP

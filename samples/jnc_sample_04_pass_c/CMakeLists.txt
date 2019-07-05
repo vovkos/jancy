@@ -103,6 +103,10 @@ else()
 		)
 endif()
 
+if (GCC_LINK_GLIBC_WRAPPERS)
+	link_directories(${AXL_LIB_DIR})
+endif()
+
 add_executable(
 	jnc_sample_04_pass_c
 	${PCH_H}
