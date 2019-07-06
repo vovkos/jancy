@@ -36,7 +36,7 @@ protected:
 		ExtensionLib* m_lib;
 		zip::ZipReader m_zipReader;
 		sl::String m_dynamicLibFilePath;
-		sys::DynamicLibrary m_dynamicLib;
+		sys::DynamicLib m_dynamicLib;
 	};
 
 	struct ItemCacheEntry: sl::ListLink

@@ -254,7 +254,7 @@ const SyncScope::ID DefaultSynchronizationScope_vn = llvm::SyncScope::System;
 #include "axl_sys_TlsMgr.h"
 #include "axl_sys_TlsSlot.h"
 #include "axl_sys_SjljTry.h"
-#include "axl_sys_DynamicLibrary.h"
+#include "axl_sys_DynamicLib.h"
 #include "axl_zip_ZipReader.h"
 
 #if (_AXL_OS_WIN)

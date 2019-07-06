@@ -40,7 +40,7 @@ public:
 	JNC_CDECL
 	close()
 	{
-		getDynamicLibrary()->close();
+		getDynamicLib()->close();
 	}
 
 	void*
@@ -53,11 +53,12 @@ public:
 	void*
 	getFunctionImpl(const sl::StringRef& name);
 
-	sys::DynamicLibrary*
-	getDynamicLibrary()
+protected:
+	sys::DynamicLib*
+	getDynamicLib()
 	{
-		ASSERT(sizeof(sys::DynamicLibrary) == sizeof(m_handle));
-		return (sys::DynamicLibrary*) &m_handle;
+		ASSERT(sizeof(sys::DynamicLib) == sizeof(m_handle));
+		return (sys::DynamicLib*) &m_handle;
 	}
 };
 
