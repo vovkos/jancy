@@ -191,18 +191,10 @@ elseif(UNIX)
 			${CORE_FOUNDATION_FRAMEWORK}
 			${IOKIT_FRAMEWORK}
 			)
-
 	else()
 		target_link_libraries(
 			jnc_io_base
 			rt
-			)
-	endif()
-
-	if(LINUX AND LIBUDEV_FOUND)
-		target_link_libraries(
-			jnc_io_base
-			udev
 			)
 	endif()
 endif()
