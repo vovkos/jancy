@@ -13,9 +13,6 @@ namespace jnc {
 
 //..............................................................................
 
-//! \addtogroup gc
-//! @{
-
 GcStats getGcStats();
 GcTriggers property g_gcTriggers;
 
@@ -25,7 +22,6 @@ GcTriggers property g_gcTriggers;
 
 void collectGarbage();
 
-//! @}
 ///+++
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
