@@ -33,6 +33,20 @@ set(
 	jnc_sys_SysLib.cpp
 	)
 
+if(WIN32)
+	set(
+		LIB_H_LIST
+		${LIB_H_LIST}
+		jnc_sys_Registry.h
+		)
+
+	set(
+		LIB_CPP_LIST
+		${LIB_CPP_LIST}
+		jnc_sys_Registry.cpp
+		)
+endif()
+
 source_group(
 	lib
 	FILES
@@ -53,6 +67,7 @@ set(
 	jnc/sys_NotificationEvent.jnc
 	jnc/sys_Thread.jnc
 	jnc/sys_Timer.jnc
+	jnc/sys_Registry.jnc
 	)
 
 source_group(
@@ -107,6 +122,12 @@ add_perl_step(
 	${JNC2CPP_PL}
 	)
 
+add_perl_step(
+	sys_Registry.jnc.cpp
+	jnc/sys_Registry.jnc
+	${JNC2CPP_PL}
+	)
+
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
 
 set(
@@ -117,6 +138,7 @@ set(
 	${GEN_DIR}/sys_Lock.jnc.cpp
 	${GEN_DIR}/sys_Thread.jnc.cpp
 	${GEN_DIR}/sys_Timer.jnc.cpp
+	${GEN_DIR}/sys_Registry.jnc.cpp
 	)
 
 axl_exclude_from_build(${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually

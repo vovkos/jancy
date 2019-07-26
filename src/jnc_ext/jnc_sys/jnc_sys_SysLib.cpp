@@ -24,6 +24,11 @@
 #include "sys_Thread.jnc.cpp"
 #include "sys_Timer.jnc.cpp"
 
+#if (_JNC_OS_WIN)
+#	include "jnc_sys_Registry.h"
+#	include "sys_Registry.jnc.cpp"
+#endif
+
 namespace jnc {
 namespace sys {
 
@@ -185,13 +190,15 @@ JNC_DEFINE_LIB(
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_SysLib)
-	JNC_LIB_SOURCE_FILE("sys_globals.jnc", g_sys_globalsSrc)
-	JNC_LIB_SOURCE_FILE("sys_Lock.jnc",    g_sys_LockSrc)
-	JNC_LIB_SOURCE_FILE("sys_Event.jnc",   g_sys_EventSrc)
+	JNC_LIB_SOURCE_FILE("sys_globals.jnc",  g_sys_globalsSrc)
+	JNC_LIB_SOURCE_FILE("sys_Lock.jnc",     g_sys_LockSrc)
+	JNC_LIB_SOURCE_FILE("sys_Event.jnc",    g_sys_EventSrc)
 	JNC_LIB_SOURCE_FILE("sys_NotificationEvent.jnc", g_sys_NotificationEventSrc)
-	JNC_LIB_SOURCE_FILE("sys_Thread.jnc",  g_sys_ThreadSrc)
-	JNC_LIB_SOURCE_FILE("sys_Timer.jnc",   g_sys_TimerSrc)
-
+	JNC_LIB_SOURCE_FILE("sys_Thread.jnc",   g_sys_ThreadSrc)
+	JNC_LIB_SOURCE_FILE("sys_Timer.jnc",    g_sys_TimerSrc)
+#if (_JNC_OS_WIN)
+	JNC_LIB_SOURCE_FILE("sys_Registry.jnc", g_sys_RegistrySrc)
+#endif
 	JNC_LIB_IMPORT("sys_globals.jnc")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
@@ -201,6 +208,9 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_SysLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NotificationEvent)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Thread)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Timer)
+#if (_JNC_OS_WIN)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(RegKey)
+#endif
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
@@ -218,6 +228,9 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
 	JNC_MAP_TYPE(NotificationEvent)
 	JNC_MAP_TYPE(Thread)
 	JNC_MAP_TYPE(Timer)
+#if (_JNC_OS_WIN)
+	JNC_MAP_TYPE(RegKey)
+#endif
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................

@@ -1,0 +1,126 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+///+++
+
+/// JNC_SELECT_ANY char g_sys_RegistrySrc[] =
+
+namespace sys {
+
+//! \addtogroup registry
+//! @{
+
+//..............................................................................
+
+enum RegStdKey
+{
+	ClassesRoot              = 0x80000000,
+	CurrentUser              = 0x80000001,
+	LocalMachine             = 0x80000002,
+	Users                    = 0x80000003,
+	PerformanceData          = 0x80000004,
+	PerformanceText          = 0x80000050,
+	PerformanceNlstext       = 0x80000060,
+	CurrentConfig            = 0x80000005,
+	DynData                  = 0x80000006,
+	CurrentUserLocalSettings = 0x80000007,
+}
+
+enum RegValueType
+{
+	None                     = 0,
+	Sz                       = 1,
+	ExpandSz                 = 2,
+	Binary                   = 3,
+	Dword                    = 4,
+	DwordBigEndian           = 5,
+	Link                     = 6,
+	MultiSz                  = 7,
+	ResourceList             = 8,
+	FullResourceDescriptor   = 9,
+	ResourceRequirementsList = 10,
+	Qword                    = 11,
+}
+
+enum RegKeyAccess
+{
+	All   = 0x01f003f,
+	Read  = 0x0020019,
+	Write = 0x0020006,
+}
+
+opaque class RegKey
+{
+	construct();
+	destruct();
+
+	close();
+
+	bool errorcode create(
+		RegStdKey parent,
+		char const* path
+		);
+
+	bool errorcode create(
+		RegKey* parent,
+		char const* path
+		);
+
+	bool errorcode open(
+		RegStdKey parent,
+		char const* path,
+		RegKeyAccess access = RegKeyAccess.All
+		);
+
+	bool errorcode open(
+		RegKey* parent,
+		char const* path,
+		RegKeyAccess access = RegKeyAccess.All
+		);
+
+	void const* errorcode read(
+		char const* name,
+		RegValueType* type = null
+		);
+
+	uint32_t readDword(char const* name);
+	char const* readString(char const* name);
+
+	bool errorcode write(
+		char const* name,
+		RegValueType type,
+		void const* data,
+		size_t size
+		);
+
+	bool errorcode writeDword(
+		char const* name,
+		uint32_t value
+		)
+	{
+		return write(name, RegValueType.Dword, &value, sizeof(value));
+	}
+
+	bool errorcode writeString(
+		char const* name,
+		char const* value
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace sys
+
+///;
+
+///---
