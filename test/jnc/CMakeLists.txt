@@ -25,6 +25,14 @@ if(NOT BUILD_JNC_IO_USB)
 		)
 endif()
 
+if (NOT WIN32)
+	list(
+		REMOVE_ITEM
+		TEST_JNC_LIST
+		test131.jnc   # sys.RegKey test
+		)
+endif()
+
 source_group(
 	jnc
 	FILES
