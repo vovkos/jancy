@@ -254,7 +254,6 @@ RegKey::readImpl(
 }
 
 bool
-JNC_CDECL
 RegKey::writeImpl(
 	const char* name,
 	dword_t type,
