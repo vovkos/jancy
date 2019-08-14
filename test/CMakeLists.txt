@@ -9,6 +9,16 @@
 #
 #...............................................................................
 
+option(
+	BUILD_JNC_TESTS
+	"Build Jancy tests"
+	ON
+	)
+
+if(NOT BUILD_JNC_TESTS)
+	return()
+endif()
+
 add_subdirectory(jnc_test_abi)
 add_subdirectory(jnc)
 add_subdirectory(ioninja)
