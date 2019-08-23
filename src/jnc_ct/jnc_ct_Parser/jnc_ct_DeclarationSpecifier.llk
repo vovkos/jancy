@@ -16,32 +16,32 @@ class
 declaration_specifier_list
 	enter
 	{
-		pushTypeSpecifier (&$.m_typeSpecifier);
+		pushTypeSpecifier(&$.m_typeSpecifier);
 	}
 	leave
 	{
-		popTypeSpecifier (&$.m_typeSpecifier);
+		popTypeSpecifier(&$.m_typeSpecifier);
 	}
-	:	declaration_specifier <&$.m_typeSpecifier>+
+	:	declaration_specifier<&$.m_typeSpecifier>+
 	;
 
-declaration_specifier <TypeSpecifier* $typeSpecifier>
+declaration_specifier<TypeSpecifier* $typeSpecifier>
 	:	attribute_block
 	|	storage_specifier
 			{
-				return setStorageKind ($1.m_storageKind);
+				return setStorageKind($1.m_storageKind);
 			}
 	|	access_specifier
 			{
-				return setAccessKind ($1.m_accessKind);
+				return setAccessKind($1.m_accessKind);
 			}
 	|	type_specifier
 			{
-				return $typeSpecifier->setType ($1.m_type);
+				return $typeSpecifier->setType($1.m_type);
 			}
 	|	type_modifier
 			{
-				return $typeSpecifier->addTypeModifier ($1.m_typeModifier);
+				return $typeSpecifier->addTypeModifier($1.m_typeModifier);
 			}
 	;
 
@@ -54,23 +54,23 @@ class
 type_specifier_modifier_list
 	enter
 	{
-		pushTypeSpecifier (&$.m_typeSpecifier);
+		pushTypeSpecifier(&$.m_typeSpecifier);
 	}
 	leave
 	{
-		popTypeSpecifier (&$.m_typeSpecifier);
+		popTypeSpecifier(&$.m_typeSpecifier);
 	}
-	: type_specifier_modifier <&$.m_typeSpecifier>+
+	: type_specifier_modifier<&$.m_typeSpecifier>+
 	;
 
-type_specifier_modifier <TypeSpecifier* $typeSpecifier>
+type_specifier_modifier<TypeSpecifier* $typeSpecifier>
 	:	type_specifier
 			{
-				return $typeSpecifier->setType ($1.m_type);
+				return $typeSpecifier->setType($1.m_type);
 			}
 	|	type_modifier
 			{
-				return $typeSpecifier->addTypeModifier ($1.m_typeModifier);
+				return $typeSpecifier->addTypeModifier($1.m_typeModifier);
 			}
 	;
 
@@ -145,51 +145,51 @@ class
 type_specifier
 	:	TokenKind_Void
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Void);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 			}
 	|	TokenKind_Variant
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Variant);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 			}
 	|	TokenKind_Class
 			{
-				$.m_type = m_module->m_typeMgr.getStdType (StdType_AbstractClass);
+				$.m_type = m_module->m_typeMgr.getStdType(StdType_AbstractClass);
 			}
 	|	TokenKind_AnyData
 			{
-				$.m_type = m_module->m_typeMgr.getStdType (StdType_AbstractData);
+				$.m_type = m_module->m_typeMgr.getStdType(StdType_AbstractData);
 			}
 	|	TokenKind_Bool
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
 			}
 	|	TokenKind_Int
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Int);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 			}
 	|	TokenKind_IntPtr
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_IntPtr);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr);
 			}
 	|	TokenKind_Char
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Char);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char);
 			}
 	|	TokenKind_Short
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Short);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Short);
 			}
 	|	TokenKind_Long
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Long);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Long);
 			}
 	|	TokenKind_Float
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Float);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Float);
 			}
 	|	TokenKind_Double
 			{
-				$.m_type = m_module->m_typeMgr.getPrimitiveType (TypeKind_Double);
+				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Double);
 			}
 	|	resolver (TokenKind_Property '{')
 		property_template_specifier $t
@@ -215,11 +215,11 @@ basetype_qualified_name
 			{
 				$.m_baseTypeIdx = $1.m_data.m_integer - 1;
 			}
-	|	TokenKind_BaseType '.' qualified_name_impl <&$.m_name>
+	|	TokenKind_BaseType '.' qualified_name_impl<&$.m_name>
 			{
 				$.m_baseTypeIdx = $1.m_data.m_integer - 1;
 			}
-	|	qualified_name_impl <&$.m_name>
+	|	qualified_name_impl<&$.m_name>
 			{
 				$.m_baseTypeIdx = -1;
 			}
@@ -227,14 +227,14 @@ basetype_qualified_name
 
 qualified_type_name_rslv
 	:		{
-				if (isTypeSpecified ())
+				if (isTypeSpecified())
 					return false;
 			}
 		basetype_qualified_name $n
 			{
 				return
 					m_stage == Stage_Pass1 ||
-					findType (
+					findType(
 						$n.m_baseTypeIdx,
 						$n.m_name,
 						$n.m_firstToken.m_pos
@@ -254,7 +254,7 @@ class
 qualified_type_name
 	:	basetype_qualified_name
 			{
-				$.m_type = getType (
+				$.m_type = getType(
 					$1.m_baseTypeIdx,
 					$1.m_name,
 					$1.m_firstToken.m_pos
@@ -275,13 +275,13 @@ property_template_specifier
 	}
 	:	TokenKind_Property
 			{
-				$propertyTemplate = createPropertyTemplate ();
-				m_module->m_namespaceMgr.openNamespace ($propertyTemplate);
+				$propertyTemplate = createPropertyTemplate();
+				m_module->m_namespaceMgr.openNamespace($propertyTemplate);
 			}
 		named_type_block_impl
 			{
-				m_module->m_namespaceMgr.closeNamespace ();
-				$.m_type = $propertyTemplate->calcType ();
+				m_module->m_namespaceMgr.closeNamespace();
+				$.m_type = $propertyTemplate->calcType();
 				return $.m_type != NULL;
 			}
 	;

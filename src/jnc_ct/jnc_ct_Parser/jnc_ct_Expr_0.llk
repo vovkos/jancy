@@ -38,16 +38,16 @@ expression_or_empty_0
 
 class
 {
-	sl::BoxList <Value> m_valueList;
+	sl::BoxList<Value> m_valueList;
 }
 expression_list_0
 	:	expression_0
 			{
-				$.m_valueList.insertTail ($1.m_value);
+				$.m_valueList.insertTail($1.m_value);
 			}
 		(',' expression_0 $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)*
 	;
@@ -57,25 +57,25 @@ expression_list_0
 
 class
 {
-	sl::BoxList <Value> m_valueList;
+	sl::BoxList<Value> m_valueList;
 }
 nullable
 expression_or_empty_list_0
 	:	expression_0
 			{
-				$.m_valueList.insertTail ($1.m_value);
+				$.m_valueList.insertTail($1.m_value);
 			}
 		(',' expression_or_empty_0 $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)*
 	|		{
-				$.m_valueList.insertTail (Value ());
+				$.m_valueList.insertTail(Value());
 			}
 		(',' expression_or_empty_0 $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)+
 	|	epsilon
@@ -92,7 +92,7 @@ conditional_expr_0 <Value* $value>
 	:	logical_or_expr_0 <$value>
 		('?' conditional_expr_0 <&$trueValue> ':' conditional_expr_0 <&$falseValue>
 			{
-				return m_module->m_operatorMgr.getConditionalOperatorResultType ($trueValue, $falseValue, $value);
+				return m_module->m_operatorMgr.getConditionalOperatorResultType($trueValue, $falseValue, $value);
 			}
 		)?
 	;
@@ -105,7 +105,7 @@ logical_or_expr_0 <Value* $value>
 	:	logical_and_expr_0 <$value>
 		(TokenKind_LogOr logical_and_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogAnd, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_LogAnd, $value, $opValue2);
 			}
 		)*
 	;
@@ -118,7 +118,7 @@ logical_and_expr_0 <Value* $value>
 	:	inclusive_or_expr_0 <$value>
 		(TokenKind_LogAnd inclusive_or_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_LogOr, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_LogOr, $value, $opValue2);
 			}
 		)*
 	;
@@ -131,7 +131,7 @@ inclusive_or_expr_0 <Value* $value>
 	:	exclusive_or_expr_0 <$value>
 		('|' exclusive_or_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwOr, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_BwOr, $value, $opValue2);
 			}
 		)*
 	;
@@ -144,7 +144,7 @@ exclusive_or_expr_0 <Value* $value>
 	:	and_expr_0 <$value>
 		('^' and_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwXor, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_BwXor, $value, $opValue2);
 			}
 		)*
 	;
@@ -157,7 +157,7 @@ and_expr_0 <Value* $value>
 	:	equality_expr_0 <$value>
 		('&' equality_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_BwAnd, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_BwAnd, $value, $opValue2);
 			}
 		)*
 	;
@@ -170,7 +170,7 @@ equality_expr_0 <Value* $value>
 	:	relational_expr_0 <$value>
 		(equality_operator $o relational_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -183,7 +183,7 @@ relational_expr_0 <Value* $value>
 	:	shift_expr_0 <$value>
 		(relational_operator $o shift_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -196,7 +196,7 @@ shift_expr_0 <Value* $value>
 	:	additive_expr_0 <$value>
 		(shift_operator $o additive_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -209,7 +209,7 @@ additive_expr_0 <Value* $value>
 	:	multiplicative_expr_0 <$value>
 		(additive_operator $o multiplicative_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -222,7 +222,7 @@ multiplicative_expr_0 <Value* $value>
 	:	at_expr_0 <$value>
 		(multiplicative_operator $o at_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -235,7 +235,7 @@ at_expr_0 <Value* $value>
 	:	assignment_expr_0 <$value>
 		('@' assignment_expr_0 <&$opValue2>
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_At, $value, $opValue2);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_At, $value, $opValue2);
 			}
 		)*
 	;
@@ -249,7 +249,7 @@ assignment_expr_0 <Value* $value>
 		(
 			assignment_operator $o conditional_expr_0 <&$opValue2>
 				{
-					return m_module->m_operatorMgr.getBinaryOperatorResultType ($o.m_opKind, $value, $opValue2);
+					return m_module->m_operatorMgr.getBinaryOperatorResultType($o.m_opKind, $value, $opValue2);
 				}
 		)?
 	;
@@ -262,35 +262,35 @@ unary_expr_0 <Value* $value>
 unary_operator_expr_0 <Value* $value>
 	:	'+' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Plus, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Plus, $value);
 			}
 	|	'-' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Minus, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Minus, $value);
 			}
 	|	'~' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_BwNot, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_BwNot, $value);
 			}
 	|	'&' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Addr, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Addr, $value);
 			}
 	|	'*' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Indir, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Indir, $value);
 			}
 	|	'!' unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_LogNot, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_LogNot, $value);
 			}
 	|	TokenKind_Inc unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreInc, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_PreInc, $value);
 			}
 	|	TokenKind_Dec unary_expr_0 <$value>
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PreDec, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_PreDec, $value);
 			}
 	|	TokenKind_Try unary_expr_0 <$value>
 			{
@@ -299,11 +299,11 @@ unary_operator_expr_0 <Value* $value>
 	|	resolver (cast_operator_rslv)
 		'(' type_name $t ')' unary_expr_0 <$value>
 			{
-				$value->setType ($t.m_type);
+				$value->setType($t.m_type);
 			}
 	|	storage_specifier $s? TokenKind_New new_operator_sype_0 $t
 			{
-				return newOperator_0 ($t.m_type, $value);
+				return newOperator_0($t.m_type, $value);
 			}
 	;
 
@@ -331,28 +331,28 @@ postfix_expr_0 <Value* $value>
 postfix_operator_0 <Value* $value>
 	:	'(' expression_or_empty_list_0 ')'
 			{
-				return m_module->m_operatorMgr.getCallOperatorResultType ($value, &$2.m_valueList);
+				return m_module->m_operatorMgr.getCallOperatorResultType($value, &$2.m_valueList);
 			}
 	|	'~' '(' expression_or_empty_list_0 ')'
 			{
-				return m_module->m_operatorMgr.getClosureOperatorResultType ($value, &$3.m_valueList);
+				return m_module->m_operatorMgr.getClosureOperatorResultType($value, &$3.m_valueList);
 			}
 	|	'[' expression_or_empty_0 ']'
 			{
-				return m_module->m_operatorMgr.getBinaryOperatorResultType (BinOpKind_Idx, $value, $2.m_value);
+				return m_module->m_operatorMgr.getBinaryOperatorResultType(BinOpKind_Idx, $value, $2.m_value);
 			}
 	|	TokenKind_Inc
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostInc, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_PostInc, $value);
 			}
 	|	TokenKind_Dec
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_PostDec, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_PostDec, $value);
 			}
 	|	'.'	member_operator_0 <$value>
 	|	TokenKind_Ptr
 			{
-				return m_module->m_operatorMgr.getUnaryOperatorResultType (UnOpKind_Ptr, $value);
+				return m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Ptr, $value);
 			}
 		member_operator_0 <$value>
 	;
@@ -360,15 +360,15 @@ postfix_operator_0 <Value* $value>
 member_operator_0 <Value* $value>
 	:	TokenKind_Identifier $n
 			{
-				return m_module->m_operatorMgr.getMemberOperatorResultType ($value, $n.m_data.m_string);
+				return m_module->m_operatorMgr.getMemberOperatorResultType($value, $n.m_data.m_string);
 			}
 	|	TokenKind_Get
 			{
-				return m_module->m_operatorMgr.getPropertyGetterType ($value);
+				return m_module->m_operatorMgr.getPropertyGetterType($value);
 			}
 	|	TokenKind_Set
 			{
-				return m_module->m_operatorMgr.getPropertySetterType ($value);
+				return m_module->m_operatorMgr.getPropertySetterType($value);
 			}
 	;
 
@@ -377,56 +377,56 @@ primary_expr_0 <Value* $value>
 	|	literal_0 <$value>
 	|	TokenKind_BaseType
 			{
-				return getBaseType ($1.m_data.m_integer - 1, $value);
+				return getBaseType($1.m_data.m_integer - 1, $value);
 			}
 	|	TokenKind_Identifier
 			{
-				return lookupIdentifierType ($1.m_data.m_string, $1.m_pos, $value);
+				return lookupIdentifierType($1.m_data.m_string, $1.m_pos, $value);
 			}
 	|	TokenKind_This
 			{
-				return m_module->m_operatorMgr.getThisValueType ($value);
+				return m_module->m_operatorMgr.getThisValueType($value);
 			}
 	|	TokenKind_Integer
 			{
-				TypeKind typeKind = getInt64TypeKind ($1.m_data.m_int64);
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (typeKind));
+				TypeKind typeKind = getInt64TypeKind($1.m_data.m_int64);
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(typeKind));
 			}
 	|	TokenKind_Fp
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Double));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Double));
 			}
 	|	TokenKind_True
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 			}
 	|	TokenKind_False
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_Bool));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
 			}
 	|	TokenKind_Null
 			{
-				$value->setNull (m_module);
+				$value->setNull(m_module);
 			}
 	|	TokenKind_Dynamic? TokenKind_SizeOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 			}
 	|	TokenKind_Dynamic? TokenKind_CountOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 			}
 	|	TokenKind_Dynamic? TokenKind_TypeOf '(' type_name_or_expr_0 ')'
 			{
-				$value->setType (m_module->m_typeMgr.getStdType (StdType_AbstractClassPtr));
+				$value->setType(m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr));
 			}
 	|	TokenKind_OffsetOf '(' expression_0 ')'
 			{
-				$value->setType (m_module->m_typeMgr.getPrimitiveType (TypeKind_SizeT));
+				$value->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT));
 			}
 	|	TokenKind_BindingOf '(' conditional_expr_0 <$value> ')'
 			{
-				return m_module->m_operatorMgr.getPropertyOnChangedType ($value);
+				return m_module->m_operatorMgr.getPropertyOnChangedType($value);
 			}
 	;
 
@@ -451,12 +451,12 @@ literal_0 <Value* $value>
 literal_atom_0 <Literal_0* $literal>
 	:	TokenKind_Literal
 			{
-				$literal->m_length += $1.m_data.m_string.getLength ();
+				$literal->m_length += $1.m_data.m_string.getLength();
 				$literal->m_isZeroTerminated = true;
 			}
 	|	TokenKind_BinLiteral
 			{
-				$literal->m_length += $1.m_data.m_binData.getCount ();
+				$literal->m_length += $1.m_data.m_binData.getCount();
 				$literal->m_isZeroTerminated = false;
 			}
 	|	TokenKind_FmtLiteral expression_0 TokenKind_FmtSpecifier?

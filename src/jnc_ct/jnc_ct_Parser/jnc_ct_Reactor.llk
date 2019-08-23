@@ -17,25 +17,25 @@ reactor_body
 	}
 	:	'{'
 			{
-				m_module->m_controlFlowMgr.switchStmt_Create (&$stmt);
-				return m_module->m_controlFlowMgr.switchStmt_Condition (&$stmt, m_reactionIdxArgValue, $1.m_pos);
+				m_module->m_controlFlowMgr.switchStmt_Create(&$stmt);
+				return m_module->m_controlFlowMgr.switchStmt_Condition(&$stmt, m_reactionIdxArgValue, $1.m_pos);
 			}
-		(reactor_stmt <&$stmt> | ';')*
+		(reactor_stmt<&$stmt> | ';')*
 		'}'
 			{
-				m_module->m_controlFlowMgr.switchStmt_Follow (&$stmt);
+				m_module->m_controlFlowMgr.switchStmt_Follow(&$stmt);
 			}
 	;
 
-reactor_stmt <SwitchStmt* $stmt>
+reactor_stmt<SwitchStmt* $stmt>
 	enter
 	{
-		return m_module->m_controlFlowMgr.switchStmt_Case ($stmt, m_reactionIdx, m_currentToken.m_pos, 0);
+		return m_module->m_controlFlowMgr.switchStmt_Case($stmt, m_reactionIdx, m_currentToken.m_pos, 0);
 	}
 	leave
 	{
 		m_reactionIdx++;
-		return m_module->m_controlFlowMgr.breakJump (1);
+		return m_module->m_controlFlowMgr.breakJump(1);
 	}
 	:	local_item_declaration
 	|	expression_stmt
@@ -49,60 +49,60 @@ reactor_onevent_stmt
 	}
 	leave
 	{
-		postDeclarator (&$declarator);
+		postDeclarator(&$declarator);
 	}
 	:	TokenKind_OnEvent
 		reactor_event_name
 			{
-				postDeclaratorName (&$declarator);
+				postDeclaratorName(&$declarator);
 			}
-		function_suffix <&$declarator>
+		function_suffix<&$declarator>
 		declaration_body_pass1
 			{
-				return reactorOnEventStmt ($2.m_valueList, &$declarator, &$4.m_tokenList);
+				return reactorOnEventStmt($2.m_valueList, &$declarator, &$4.m_tokenList);
 			}
 	;
 
 class
 {
-	sl::BoxList <Value> m_valueList;
+	sl::BoxList<Value> m_valueList;
 }
 reactor_event_name
 	local
 	{
-		sl::BoxList <Token> $tokenList;
+		sl::BoxList<Token> $tokenList;
 	}
 	enter
 	{
-		ASSERT (m_stage == Stage_Reaction);
+		ASSERT(m_stage == Stage_Reaction);
 		m_stage = Stage_Pass2; // don't add implicit bindings to bindable properties inside 'onevent'
  	}
 	leave
 	{
-		ASSERT (m_stage == Stage_Pass2);
+		ASSERT(m_stage == Stage_Pass2);
 		m_stage = Stage_Reaction; // restore
 	}
 	:	'(' expression_list ')'
 			{
-				sl::takeOver (&$.m_valueList, &$2.m_valueList)
+				sl::takeOver(&$.m_valueList, &$2.m_valueList)
 			}
 	|	TokenKind_BindingOf '(' expression ')'
 			{
 				Value value;
 				return
-					m_module->m_operatorMgr.getPropertyOnChanged ($3.m_value, &value) &&
-					$.m_valueList.insertTail (value);
+					m_module->m_operatorMgr.getPropertyOnChanged($3.m_value, &value) &&
+					$.m_valueList.insertTail(value);
 			}
 	|	(any // anything until '('
 			{
-				$tokenList.insertTail ($1);
+				$tokenList.insertTail($1);
 			}
 		)+
 			{
 				Value value;
 				return
-					m_module->m_operatorMgr.parseExpression ($tokenList, &value) &&
-					$.m_valueList.insertTail (value);
+					m_module->m_operatorMgr.parseExpression($tokenList, &value) &&
+					$.m_valueList.insertTail(value);
 			}
 	;
 
@@ -130,14 +130,14 @@ reactor_onevent_stmt_0
 	}
 	leave
 	{
-		postDeclarator (&$declarator);
+		postDeclarator(&$declarator);
 	}
 	:	TokenKind_OnEvent
 		reactor_event_name_0
 			{
-				postDeclaratorName (&$declarator);
+				postDeclaratorName(&$declarator);
 			}
-		function_suffix <&$declarator>
+		function_suffix<&$declarator>
 		reactor_compound_stmt_0
 	;
 

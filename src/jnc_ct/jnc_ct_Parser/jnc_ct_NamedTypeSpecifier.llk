@@ -19,7 +19,7 @@ named_type_specifier
 	leave
 	{
 		if (m_stage == Stage_Pass2)
-			return $.m_type->ensureLayout ();
+			return $.m_type->ensureLayout();
 	}
 	:	enum_specifier
 			{
@@ -67,16 +67,16 @@ enum_specifier
 	}
 	leave
 	{
-		if ($.m_type->getFlags () & EnumTypeFlag_Exposed)
-			return m_module->m_namespaceMgr.getCurrentNamespace ()->exposeEnumConsts ($.m_type);
+		if ($.m_type->getFlags() & EnumTypeFlag_Exposed)
+			return m_module->m_namespaceMgr.getCurrentNamespace()->exposeEnumConsts($.m_type);
 	}
-	:	enum_modifier <&$.m_flags>*
+	:	enum_modifier<&$.m_flags>*
 		TokenKind_Enum
 		TokenKind_Identifier $n?
 		(':' type_name $b)?
 			{
-				$.m_type = createEnumType (
-					&$n ? $n.m_data.m_string : sl::String (),
+				$.m_type = createEnumType(
+					&$n ? $n.m_data.m_string : sl::String(),
 					&$b ? $b.m_type : NULL,
 					$.m_flags
 					);
@@ -84,37 +84,37 @@ enum_specifier
 				if (!$.m_type)
 					return false;
 			}
-		enum_block <$.m_type>
+		enum_block<$.m_type>
 	;
 
-enum_modifier <uint_t* $flags>
+enum_modifier<uint_t* $flags>
 	:	TokenKind_Exposed
 			{
-				return addEnumFlag ($flags, EnumTypeFlag_Exposed);
+				return addEnumFlag($flags, EnumTypeFlag_Exposed);
 			}
 	|	TokenKind_BitFlag
 			{
-				return addEnumFlag ($flags, EnumTypeFlag_BitFlag);
+				return addEnumFlag($flags, EnumTypeFlag_BitFlag);
 			}
 	;
 
-enum_block <EnumType* $type>
+enum_block<EnumType* $type>
 	:	'{'
 			{
-				m_module->m_namespaceMgr.openNamespace ($type);
+				m_module->m_namespaceMgr.openNamespace($type);
 			}
-		enum_member <$type> (',' enum_member <$type>)*
+		enum_member<$type> (',' enum_member<$type>)*
 		'}'
 			{
-				m_module->m_namespaceMgr.closeNamespace ();
+				m_module->m_namespaceMgr.closeNamespace();
 			}
 	;
 
 nullable
-enum_member <EnumType* $type>
+enum_member<EnumType* $type>
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				return createEnumConst ($type, $1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
+				return createEnumConst($type, $1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
 	;
@@ -130,16 +130,16 @@ class
 struct_specifier
 	leave
 	{
-		if ($.m_type->getName ().isEmpty ())
-			return declareUnnamedStructOrUnion ($.m_type);
+		if ($.m_type->getName().isEmpty())
+			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
 		TokenKind_Struct
 		TokenKind_Identifier $n?
 		(':' type_name_list $b)?
 			{
-				$.m_type = createStructType (
-					&$n ? $n.m_data.m_string : sl::String (),
+				$.m_type = createStructType(
+					&$n ? $n.m_data.m_string : sl::String(),
 					&$b ? &$b.m_typeList : NULL,
 					m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
@@ -148,7 +148,7 @@ struct_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block <$.m_type>
+		named_type_block<$.m_type>
 	;
 
 //..............................................................................
@@ -162,15 +162,15 @@ class
 union_specifier
 	leave
 	{
-		if ($.m_type->getName ().isEmpty ())
-			return declareUnnamedStructOrUnion ($.m_type);
+		if ($.m_type->getName().isEmpty())
+			return declareUnnamedStructOrUnion($.m_type);
 	}
 	:	TokenKind_Dynamic $d?
 		TokenKind_Union
 		TokenKind_Identifier $n?
 			{
-				$.m_type = createUnionType (
-					&$n ? $n.m_data.m_string : sl::String (),
+				$.m_type = createUnionType(
+					&$n ? $n.m_data.m_string : sl::String(),
 					m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
 					);
@@ -178,7 +178,7 @@ union_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block <$.m_type>
+		named_type_block<$.m_type>
 	;
 
 //..............................................................................
@@ -196,7 +196,7 @@ class_specifier
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?
 			{
-				$.m_type = createClassType (
+				$.m_type = createClassType(
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
 					m_fieldAlignment,
@@ -206,7 +206,7 @@ class_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block <$.m_type>
+		named_type_block<$.m_type>
 	;
 
 //..............................................................................
@@ -220,14 +220,14 @@ class
 library_specifier
 	:	TokenKind_DynamicLib TokenKind_Identifier
 			{
-				$.m_type = createDynamicLibType ($2.m_data.m_string);
+				$.m_type = createDynamicLibType($2.m_data.m_string);
 
 				if (!$.m_type)
 					return false;
 			}
 		'{' named_type_block_declaration* '}'
 			{
-				return finalizeDynamicLibType ();
+				return finalizeDynamicLibType();
 			}
 	;
 
@@ -235,15 +235,15 @@ library_specifier
 
 // struct, union, class, property
 
-named_type_block <NamedType* $type>
+named_type_block<NamedType* $type>
 	enter
 	{
-		m_module->m_namespaceMgr.openNamespace ($type);
+		m_module->m_namespaceMgr.openNamespace($type);
 	}
 	leave
 	{
 		$type->m_flags |= ModuleItemFlag_Sealed;
-		m_module->m_namespaceMgr.closeNamespace ();
+		m_module->m_namespaceMgr.closeNamespace();
 	}
 	:	named_type_block_impl
 	;

@@ -37,7 +37,7 @@ named_type_block_declaration
 local_declaration
 	enter
 	{
-		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
+		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
 	}
 	:	common_declaration
 	|	statement
@@ -52,25 +52,25 @@ local_declaration
 import_declaration
 	:	TokenKind_Import TokenKind_Literal
 			{
-				return m_module->m_importMgr.addImport ($2.m_data.m_string);
+				return m_module->m_importMgr.addImport($2.m_data.m_string);
 			}
 	;
 
 namespace_declaration
 	:	TokenKind_Namespace qualified_name
 			{
-				return openGlobalNamespace ($2.m_name, $2.m_firstToken.m_pos) != NULL;
+				return openGlobalNamespace($2.m_name, $2.m_firstToken.m_pos) != NULL;
 			}
 		'{' global_declaration* '}'
 			{
-				m_module->m_namespaceMgr.closeNamespace ();
+				m_module->m_namespaceMgr.closeNamespace();
 			}
 	;
 
 extension_declaration
 	:	TokenKind_Extension TokenKind_Identifier ':' type_name
 			{
-				return openExtensionNamespace (
+				return openExtensionNamespace(
 					$2.m_data.m_string,
 					$4.m_type,
 					$2.m_pos
@@ -78,14 +78,14 @@ extension_declaration
 			}
 		'{' named_type_block_declaration* '}'
 			{
-				m_module->m_namespaceMgr.closeNamespace ();
+				m_module->m_namespaceMgr.closeNamespace();
 			}
 	;
 
 using_declaration
 	:	TokenKind_Using using_namespace_kind qualified_name_list ';'
 			{
-				return useNamespace ($3.m_nameList, $2.m_namespaceKind, $1.m_pos);
+				return useNamespace($3.m_nameList, $2.m_namespaceKind, $1.m_pos);
 			}
 	;
 
@@ -139,11 +139,11 @@ setas_declaration
 setas_value
 	:	type_name
 			{
-				return setSetAsType ($1.m_type);
+				return setSetAsType($1.m_type);
 			}
 	|	TokenKind_Default
 			{
-				return setSetAsType (NULL);
+				return setSetAsType(NULL);
 			}
 	;
 
@@ -154,35 +154,35 @@ class
 	QualifiedName m_name
 }
 qualified_name
-	:	qualified_name_impl <&$.m_name>
+	:	qualified_name_impl<&$.m_name>
 	;
 
-qualified_name_impl <QualifiedName* $name>
+qualified_name_impl<QualifiedName* $name>
 	:	TokenKind_Identifier
 			{
-				$name->addName ($1.m_data.m_string);
+				$name->addName($1.m_data.m_string);
 			}
 		('.' TokenKind_Identifier $n2
 			{
-				$name->addName ($n2.m_data.m_string);
+				$name->addName($n2.m_data.m_string);
 			}
 		)*
 	;
 
 class
 {
-	sl::BoxList <QualifiedName> m_nameList;
+	sl::BoxList<QualifiedName> m_nameList;
 }
 qualified_name_list
 	:	qualified_name
 			{
-				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
-				sl::takeOver (it.p (), &$1.m_name);
+				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
+				sl::takeOver(it.p(), &$1.m_name);
 			}
 		(',' qualified_name
 			{
-				sl::BoxIterator <QualifiedName> it = $.m_nameList.insertTail ();
-				sl::takeOver (it.p (), &$3.m_name);
+				sl::BoxIterator<QualifiedName> it = $.m_nameList.insertTail();
+				sl::takeOver(it.p(), &$3.m_name);
 			}
 		)*
 	;
@@ -203,17 +203,17 @@ start
 normal_item_declaration
 	enter
 	{
-		preDeclaration ();
+		preDeclaration();
 	}
 	:	item_declaration_w_specifier
-	|	resolver (item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+	|	resolver(item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
 		item_declaration_wo_specifier
 	;
 
 local_item_declaration
 	enter
 	{
-		preDeclaration ();
+		preDeclaration();
 	}
 	:	item_declaration_w_specifier
 	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
@@ -225,16 +225,16 @@ item_declaration_w_specifier
 	{
 		if (m_attributeBlock)
 		{
-			err::setFormatStringError ("unused attribute block in declaration");
+			err::setFormatStringError("unused attribute block in declaration");
 			return false;
 		}
 	}
 	:	declaration_specifier_list $s
-		declarator_list <&$s.m_typeSpecifier>
+		declarator_list<&$s.m_typeSpecifier>
 	;
 
 item_declaration_wo_specifier
-	:	declarator_list <NULL>
+	:	declarator_list<NULL>
 	;
 
 // conflict at TokenKind_Identifier in global scope and in named type block
@@ -246,8 +246,8 @@ item_declaration_wo_specifier_rslv
 	{
 		Declarator $declarator; // dummy
 	}
-	:	declarator_qualifier <&$declarator>
-		('.' declarator_qualifier <&$declarator>)*
+	:	declarator_qualifier<&$declarator>
+		('.' declarator_qualifier<&$declarator>)*
 		'(' // must be a function
 	;
 
@@ -255,26 +255,26 @@ item_declaration_wo_specifier_rslv
 
 class
 {
-	sl::BoxList <Token> m_tokenList;
+	sl::BoxList<Token> m_tokenList;
 }
 declaration_body_pass1
 	:	compound_stmt_pass1 <&$.m_tokenList>
 	;
 
-compound_stmt_pass1 <sl::BoxList <Token>* $tokenList>
+compound_stmt_pass1 <sl::BoxList<Token>* $tokenList>
 	local
 	{
 		StmtPass1 $stmt;
 	}
 	:	'{'
 			{
-				addScopeAnchorToken (&$stmt, $1);
+				addScopeAnchorToken(&$stmt, $1);
 			}
 		statement_pass1 <&$stmt>*
 		'}' $r
 			{
-				$tokenList->insertListTail (&$stmt.m_tokenList);
-				$tokenList->insertTail ($r);
+				$tokenList->insertListTail(&$stmt.m_tokenList);
+				$tokenList->insertTail($r);
 			}
 	;
 
@@ -282,29 +282,29 @@ statement_pass1 <StmtPass1* $stmt>
 	:	compound_stmt_pass1 <&(*$stmt).m_tokenList>
 	|	TokenKind_Catch
 			{
-				$stmt->m_tokenList.insertTail ($1);
+				$stmt->m_tokenList.insertTail($1);
 				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
 			}
 	|	TokenKind_Finally
 			{
-				$stmt->m_tokenList.insertTail ($1);
+				$stmt->m_tokenList.insertTail($1);
 				$stmt->m_scopeAnchorToken->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
 			}
 	|	TokenKind_NestedScope
 			{
-				addScopeAnchorToken ($stmt, $1);
+				addScopeAnchorToken($stmt, $1);
 			}
 	|	TokenKind_Case
 			{
-				addScopeAnchorToken ($stmt, $1);
+				addScopeAnchorToken($stmt, $1);
 			}
 	|	TokenKind_Default
 			{
-				addScopeAnchorToken ($stmt, $1);
+				addScopeAnchorToken($stmt, $1);
 			}
 	|	any
 			{
-				$stmt->m_tokenList.insertTail ($1);
+				$stmt->m_tokenList.insertTail($1);
 			}
 	;
 
@@ -312,7 +312,7 @@ statement_pass1 <StmtPass1* $stmt>
 
 // type names
 
-type_name_impl <
+type_name_impl<
 	Type** $type,
 	Value* $countValue
 	>
@@ -322,12 +322,12 @@ type_name_impl <
 	}
 	:	type_specifier_modifier_list
 			{
-				$declarator.setTypeSpecifier (&$1.m_typeSpecifier, m_module);
+				$declarator.setTypeSpecifier(&$1.m_typeSpecifier, m_module);
 			}
-		declarator_prefix <&$declarator>*
-		declarator_suffix <&$declarator>*
+		declarator_prefix<&$declarator>*
+		declarator_suffix<&$declarator>*
 			{
-				Type* type = $declarator.calcType ($countValue);
+				Type* type = $declarator.calcType($countValue);
 				if (!type)
 					return false;
 
@@ -340,21 +340,21 @@ class
 	Type* m_type;
 }
 type_name
-	: type_name_impl <&$.m_type, NULL>
+	: type_name_impl<&$.m_type, NULL>
 	;
 
 class
 {
-	sl::BoxList <Type*> m_typeList;
+	sl::BoxList<Type*> m_typeList;
 }
 type_name_list
 	:	type_name
 			{
-				$.m_typeList.insertTail ($1.m_type);
+				$.m_typeList.insertTail($1.m_type);
 			}
 		(',' type_name $t2
 			{
-				$.m_typeList.insertTail ($t2.m_type);
+				$.m_typeList.insertTail($t2.m_type);
 			}
 		)*
 	;
@@ -368,13 +368,13 @@ attribute_block
 			{
 				if (m_attributeBlock)
 				{
-					err::setError ("attribute block redefinition");
+					err::setError("attribute block redefinition");
 					return false;
 				}
 
-				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock ();
+				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
 			}
-		attribute_declarator (',' attribute_declarator)*
+		attribute_declarator(',' attribute_declarator)*
 		']'
 	;
 
@@ -382,7 +382,7 @@ nullable
 attribute_declarator
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				Attribute* attribute = m_attributeBlock->createAttribute (
+				Attribute* attribute = m_attributeBlock->createAttribute(
 					$1.m_data.m_string,
 					&$i ? &$i.m_tokenList : NULL
 					);

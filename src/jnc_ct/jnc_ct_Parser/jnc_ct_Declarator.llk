@@ -9,154 +9,154 @@
 //
 //..............................................................................
 
-declarator_list <TypeSpecifier* $typeSpecifier>
-	:	declarator <$typeSpecifier>
-		declarator_list_terminator <$typeSpecifier, &$1.m_declarator>
+declarator_list<TypeSpecifier* $typeSpecifier>
+	:	declarator<$typeSpecifier>
+		declarator_list_terminator<$typeSpecifier, &$1.m_declarator>
 	;
 
 class
 {
 	Declarator m_declarator;
 }
-declarator <TypeSpecifier* $typeSpecifier>
+declarator<TypeSpecifier* $typeSpecifier>
 	enter
 	{
-		$.m_declarator.setTypeSpecifier ($typeSpecifier, m_module);
+		$.m_declarator.setTypeSpecifier($typeSpecifier, m_module);
 	}
 	leave
 	{
-		postDeclarator (&$.m_declarator);
+		postDeclarator(&$.m_declarator);
 	}
-	:	declarator_prefix <&$.m_declarator>*
-		declarator_name <&$.m_declarator>
-		declarator_suffix <&$.m_declarator>*
-		declarator_constructor <&$.m_declarator>?
+	:	declarator_prefix<&$.m_declarator>*
+		declarator_name<&$.m_declarator>
+		declarator_suffix<&$.m_declarator>*
+		declarator_constructor<&$.m_declarator>?
 	;
 
-declarator_list_terminator <
+declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	resolver ('=' '{')
-		declarator_w_curly_initializer <$typeSpecifier, $declarator>
+		declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
-				return bodylessDeclaration ();
+				return bodylessDeclaration();
 			}
-	|	declarator_wo_curly_initializer <$typeSpecifier, $declarator>
+	|	declarator_wo_curly_initializer<$typeSpecifier, $declarator>
 			{
-				return bodylessDeclaration ();
+				return bodylessDeclaration();
 			}
 	|	declaration_body_pass1
 			{
-				return declare ($declarator) && setDeclarationBody (&$1.m_tokenList);
+				return declare($declarator) && setDeclarationBody(&$1.m_tokenList);
 			}
 	;
 
-declarator_w_curly_initializer <
+declarator_w_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	'=' curly_initializer_pass1
 			{
-				sl::takeOver (&$declarator->m_initializer, &$2.m_tokenList);
-				return declare ($declarator);
+				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
+				return declare($declarator);
 			}
-		(',' declarator_list <$typeSpecifier>)?
+		(',' declarator_list<$typeSpecifier>)?
 	;
 
-declarator_wo_curly_initializer <
+declarator_wo_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
 	:	('=' expression_pass1
 			{
-				sl::takeOver (&$declarator->m_initializer, &$2.m_tokenList);
+				sl::takeOver(&$declarator->m_initializer, &$2.m_tokenList);
 			}
 		)?
 			{
-				return declare ($declarator);
+				return declare($declarator);
 			}
-		(	',' declarator_list <$typeSpecifier>
+		(	',' declarator_list<$typeSpecifier>
 		|	';'
 		)
 	;
 
 //..............................................................................
 
-declarator_name <Declarator* $declarator>
+declarator_name<Declarator* $declarator>
 	leave
 	{
-		postDeclaratorName ($declarator);
+		postDeclaratorName($declarator);
 	}
-	:	declarator_qualifier <$declarator>
+	:	declarator_qualifier<$declarator>
 			{
 				$declarator->m_pos = $1.m_firstToken.m_pos;
-				$declarator->m_attributeBlock = popAttributeBlock ();
-				$declarator->m_doxyBlock = m_doxyParser.popBlock ();
+				$declarator->m_attributeBlock = popAttributeBlock();
+				$declarator->m_doxyBlock = m_doxyParser.popBlock();
 			}
-		('.' declarator_qualifier <$declarator>)*
+		('.' declarator_qualifier<$declarator>)*
 	;
 
-declarator_qualifier <Declarator* $declarator>
+declarator_qualifier<Declarator* $declarator>
 	:	TokenKind_Identifier
 			{
-				return $declarator->addName ($1.m_data.m_string);
+				return $declarator->addName($1.m_data.m_string);
 			}
 	|	TokenKind_Get
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Getter);
+				return $declarator->addUnnamedMethod(FunctionKind_Getter);
 			}
 	|	TokenKind_Set
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Setter);
+				return $declarator->addUnnamedMethod(FunctionKind_Setter);
 			}
 	|	TokenKind_PreConstruct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_PreConstructor);
+				return $declarator->addUnnamedMethod(FunctionKind_PreConstructor);
 			}
 	|	TokenKind_Construct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Constructor);
+				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
 			}
 	|	TokenKind_Destruct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Destructor);
+				return $declarator->addUnnamedMethod(FunctionKind_Destructor);
 			}
 	|	TokenKind_Static TokenKind_Construct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_StaticConstructor);
+				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
 			}
 	|	TokenKind_Static TokenKind_Destruct
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_StaticDestructor);
+				return $declarator->addUnnamedMethod(FunctionKind_StaticDestructor);
 			}
-	|	TokenKind_Operator declarator_operator_qualifier <$declarator>
+	|	TokenKind_Operator declarator_operator_qualifier<$declarator>
 	;
 
-declarator_operator_qualifier <Declarator* $declarator>
+declarator_operator_qualifier<Declarator* $declarator>
 	:	operator_name
 			{
-				return $declarator->addUnaryBinaryOperator ($1.m_unOpKind, $1.m_binOpKind);
+				return $declarator->addUnaryBinaryOperator($1.m_unOpKind, $1.m_binOpKind);
 			}
 	|	type_name
 			{
-				return $declarator->addCastOperator ($1.m_type);
+				return $declarator->addCastOperator($1.m_type);
 			}
 	|	'(' ')'
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_CallOperator);
+				return $declarator->addUnnamedMethod(FunctionKind_CallOperator);
 			}
 	|	TokenKind_Ellipsis
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_OperatorVararg);
+				return $declarator->addUnnamedMethod(FunctionKind_OperatorVararg);
 			}
 	|	TokenKind_Cdecl TokenKind_Ellipsis
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_OperatorCdeclVararg);
+				return $declarator->addUnnamedMethod(FunctionKind_OperatorCdeclVararg);
 			}
 	|	TokenKind_BindingOf
 			{
-				return $declarator->addUnnamedMethod (FunctionKind_Binder);
+				return $declarator->addUnnamedMethod(FunctionKind_Binder);
 			}
 	;
 
@@ -343,38 +343,38 @@ operator_name
 
 // prefix & suffix
 
-declarator_prefix <Declarator* $declarator>
+declarator_prefix<Declarator* $declarator>
 	:	'*'
 			{
-				$declarator->addPointerPrefix ();
+				$declarator->addPointerPrefix();
 			}
 		(type_modifier $m
 			{
-				return $declarator->addTypeModifier ($m.m_typeModifier);
+				return $declarator->addTypeModifier($m.m_typeModifier);
 			}
 		)*
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-declarator_suffix <Declarator* $declarator>
-	:	array_suffix <$declarator>
+declarator_suffix<Declarator* $declarator>
+	:	array_suffix<$declarator>
 	|	resolver (function_suffix_rslv)
-		function_suffix <$declarator>
+		function_suffix<$declarator>
 	|	resolver ({ return false; }) // prefer conditional-expr over type-name
-		bitfield_suffix <$declarator>
+		bitfield_suffix<$declarator>
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-array_suffix <Declarator* $declarator>
+array_suffix<Declarator* $declarator>
 	:	'[' ']'
 			{
-				$declarator->addArraySuffix (-1);
+				$declarator->addArraySuffix(-1);
 			}
 	|	'[' expression_pass1 ']'
 			{
-				$declarator->addArraySuffix (&$2.m_tokenList);
+				$declarator->addArraySuffix(&$2.m_tokenList);
 			}
 	;
 
@@ -386,7 +386,7 @@ function_suffix_rslv
 	|	'(' (type_specifier | type_modifier)
 	;
 
-function_suffix <Declarator* $declarator>
+function_suffix<Declarator* $declarator>
 	local
 	{
 		DeclFunctionSuffix* $functionSuffix;
@@ -394,22 +394,22 @@ function_suffix <Declarator* $declarator>
 	}
 	enter
 	{
-		$functionSuffix = $declarator->addFunctionSuffix ();
+		$functionSuffix = $declarator->addFunctionSuffix();
 		$prevStorageKind = m_storageKind;
 	}
 	leave
 	{
 		m_storageKind = $prevStorageKind;
 	}
-	:	'(' function_formal_argument_list <$functionSuffix>? ')' function_modifier <$functionSuffix>*
+	:	'(' function_formal_argument_list<$functionSuffix>? ')' function_modifier<$functionSuffix>*
 	;
 
-function_formal_argument_list <DeclFunctionSuffix* $functionSuffix>
-	:	function_formal_argument <$functionSuffix>
-		(',' function_formal_argument <$functionSuffix>)*
+function_formal_argument_list<DeclFunctionSuffix* $functionSuffix>
+	:	function_formal_argument<$functionSuffix>
+		(',' function_formal_argument<$functionSuffix>)*
 	;
 
-function_formal_argument <DeclFunctionSuffix* $functionSuffix>
+function_formal_argument<DeclFunctionSuffix* $functionSuffix>
 	local
 	{
 		Declarator $declarator;
@@ -420,47 +420,47 @@ function_formal_argument <DeclFunctionSuffix* $functionSuffix>
 	}
 	:	declaration_specifier_list $s
 			{
-				$declarator.setTypeSpecifier (&$s.m_typeSpecifier, m_module);
+				$declarator.setTypeSpecifier(&$s.m_typeSpecifier, m_module);
 			}
-		declarator_prefix <&$declarator>*
-		declarator_name <&$declarator>?
-		declarator_suffix <&$declarator>*
+		declarator_prefix<&$declarator>*
+		declarator_name<&$declarator>?
+		declarator_suffix<&$declarator>*
 		('=' expression_pass1 $i
 			{
-				sl::takeOver (&$declarator.m_initializer, &$i.m_tokenList);
+				sl::takeOver(&$declarator.m_initializer, &$i.m_tokenList);
 			}
 		)?
 			{
-				return createFormalArg ($functionSuffix, &$declarator) != NULL;
+				return createFormalArg($functionSuffix, &$declarator) != NULL;
 			}
 	|	TokenKind_Ellipsis
 			{
-				return $functionSuffix->addFunctionTypeFlag (FunctionTypeFlag_VarArg);
+				return $functionSuffix->addFunctionTypeFlag(FunctionTypeFlag_VarArg);
 			}
 	;
 
-function_modifier <DeclFunctionSuffix* $functionSuffix>
+function_modifier<DeclFunctionSuffix* $functionSuffix>
 	:	TokenKind_Const
 			{
-				return $functionSuffix->getDeclarator ()->setPostDeclaratorModifier (PostDeclaratorModifier_Const);
+				return $functionSuffix->getDeclarator()->setPostDeclaratorModifier(PostDeclaratorModifier_Const);
 			}
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitfield_suffix <Declarator* $declarator>
+bitfield_suffix<Declarator* $declarator>
 	:	':' TokenKind_Integer
 			{
-				return $declarator->addBitFieldSuffix ($2.m_data.m_integer);
+				return $declarator->addBitFieldSuffix($2.m_data.m_integer);
 			}
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-declarator_constructor <Declarator* $declarator>
+declarator_constructor<Declarator* $declarator>
 	:	TokenKind_Construct? arg_list_pass1
 			{
-				sl::takeOver (&$declarator->m_constructor, &$2.m_tokenList);
+				sl::takeOver(&$declarator->m_constructor, &$2.m_tokenList);
 			}
 	;
 

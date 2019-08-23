@@ -11,43 +11,43 @@
 
 class
 {
-	sl::BoxList <Token> m_tokenList;
+	sl::BoxList<Token> m_tokenList;
 }
 expression_pass1
-	:	expression_pass1_item <&$.m_tokenList>+
+	:	expression_pass1_item<&$.m_tokenList>+
 	;
 
-expression_pass1_item <sl::BoxList <Token>* $tokenList>
+expression_pass1_item<sl::BoxList<Token>* $tokenList>
 	:	'{'
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
-		expression_pass1_item <$tokenList>*
+		expression_pass1_item<$tokenList>*
 		'}'
 			{
-				$tokenList->insertTail ($3);
+				$tokenList->insertTail($3);
 			}
 	|	'['
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
-		expression_pass1_item <$tokenList>*
+		expression_pass1_item<$tokenList>*
 		']'
 			{
-				$tokenList->insertTail ($3);
+				$tokenList->insertTail($3);
 			}
 	|	'('
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
-		expression_pass1_item <$tokenList>*
+		expression_pass1_item<$tokenList>*
 		')'
 			{
-				$tokenList->insertTail ($3);
+				$tokenList->insertTail($3);
 			}
 	|	any
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
 	;
 
@@ -55,53 +55,53 @@ expression_pass1_item <sl::BoxList <Token>* $tokenList>
 
 class
 {
-	sl::BoxList <Token> m_tokenList;
+	sl::BoxList<Token> m_tokenList;
 }
 arg_list_pass1
-	:	'(' arg_list_pass1_item <&$.m_tokenList>* ')'
+	:	'(' arg_list_pass1_item<&$.m_tokenList>* ')'
 	;
 
-arg_list_pass1_item <sl::BoxList <Token>* $tokenList>
+arg_list_pass1_item<sl::BoxList<Token>* $tokenList>
 	:	'('
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
-		arg_list_pass1_item <$tokenList>*
+		arg_list_pass1_item<$tokenList>*
 		')'
 			{
-				$tokenList->insertTail ($3);
+				$tokenList->insertTail($3);
 			}
 	|	any
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
 	;
 
 class
 {
-	sl::BoxList <Token> m_tokenList;
+	sl::BoxList<Token> m_tokenList;
 }
 curly_initializer_pass1
-	:	curly_initializer_pass1_impl <&$.m_tokenList>
+	:	curly_initializer_pass1_impl<&$.m_tokenList>
 	;
 
-curly_initializer_pass1_impl <sl::BoxList <Token>* $tokenList>
+curly_initializer_pass1_impl<sl::BoxList<Token>* $tokenList>
 	:	'{'
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
-		curly_initializer_pass1_item <$tokenList>*
+		curly_initializer_pass1_item<$tokenList>*
 		'}'
 			{
-				$tokenList->insertTail ($3);
+				$tokenList->insertTail($3);
 			}
 	;
 
-curly_initializer_pass1_item <sl::BoxList <Token>* $tokenList>
-	:	curly_initializer_pass1_impl <$tokenList>
+curly_initializer_pass1_item<sl::BoxList<Token>* $tokenList>
+	:	curly_initializer_pass1_impl<$tokenList>
 	|	any
 			{
-				$tokenList->insertTail ($1);
+				$tokenList->insertTail($1);
 			}
 	;
 
@@ -120,7 +120,7 @@ nullable
 expression_or_empty_list_save_list
 	:	expression_or_empty_list
 			{
-				sl::takeOver (&m_expressionValueList, &$1.m_valueList);
+				sl::takeOver(&m_expressionValueList, &$1.m_valueList);
 			}
 	;
 
@@ -134,9 +134,9 @@ start
 expression
 	enter
 	{
-		m_module->m_namespaceMgr.setSourcePos (m_currentToken.m_pos);
+		m_module->m_namespaceMgr.setSourcePos(m_currentToken.m_pos);
 	}
-	:	conditional_expr <&$.m_value>
+	:	conditional_expr<&$.m_value>
 	;
 
 class
@@ -145,22 +145,22 @@ class
 }
 nullable
 expression_or_empty
-	:	conditional_expr <&$.m_value>
+	:	conditional_expr<&$.m_value>
 	|	epsilon
 	;
 
 class
 {
-	sl::BoxList <Value> m_valueList;
+	sl::BoxList<Value> m_valueList;
 }
 expression_list
 	:	expression
 			{
-				$.m_valueList.insertTail ($1.m_value);
+				$.m_valueList.insertTail($1.m_value);
 			}
 		(',' expression $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)*
 	;
@@ -170,25 +170,25 @@ expression_list
 
 class
 {
-	sl::BoxList <Value> m_valueList;
+	sl::BoxList<Value> m_valueList;
 }
 nullable
 expression_or_empty_list
 	:	expression
 			{
-				$.m_valueList.insertTail ($1.m_value);
+				$.m_valueList.insertTail($1.m_value);
 			}
 		(',' expression_or_empty $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)*
 	|		{
-				$.m_valueList.insertTail (Value ());
+				$.m_valueList.insertTail(Value());
 			}
 		(',' expression_or_empty $e2
 			{
-				$.m_valueList.insertTail ($e2.m_value);
+				$.m_valueList.insertTail($e2.m_value);
 			}
 		)+
 	|	epsilon
@@ -200,11 +200,11 @@ class
 }
 start
 constant_expr
-	:	conditional_expr <&$.m_value>
+	:	conditional_expr<&$.m_value>
 			{
-				if ($.m_value.getValueKind () != ValueKind_Const)
+				if ($.m_value.getValueKind() != ValueKind_Const)
 				{
-					err::setFormatStringError ("not a constant expression");
+					err::setFormatStringError("not a constant expression");
 					return false;
 				}
 			}
@@ -218,18 +218,18 @@ start
 constant_integer_expr
 	:	expression
 			{
-				if ($1.m_value.getValueKind () != ValueKind_Const ||
-					!($1.m_value.getType ()->getTypeKindFlags () & TypeKindFlag_Integer))
+				if ($1.m_value.getValueKind() != ValueKind_Const ||
+					!($1.m_value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
 				{
-					err::setFormatStringError ("expression is not integer constant");
+					err::setFormatStringError("expression is not integer constant");
 					return false;
 				}
 
-				bool result = m_module->m_operatorMgr.castOperator (&$1.m_value, TypeKind_Int32);
+				bool result = m_module->m_operatorMgr.castOperator(&$1.m_value, TypeKind_Int32);
 				if (!result)
 					return false;
 
-				$.m_value = $1.m_value.getInt32 ();
+				$.m_value = $1.m_value.getInt32();
 			}
 	;
 
@@ -243,24 +243,24 @@ class
 	BasicBlock* m_elseBlock;
 	BasicBlock* m_phiBlock;
 }
-conditional_expr <Value* $value>
-	:	logical_or_expr <$value>
+conditional_expr<Value* $value>
+	:	logical_or_expr<$value>
 		(
 				{
-					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock ("cond_then");
-					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock ("cond_else");
-					$.m_phiBlock = m_module->m_controlFlowMgr.createBlock ("cond_phi");
-					return m_module->m_controlFlowMgr.conditionalJump (*$value, $.m_thenBlock, $.m_elseBlock);
+					$.m_thenBlock = m_module->m_controlFlowMgr.createBlock("cond_then");
+					$.m_elseBlock = m_module->m_controlFlowMgr.createBlock("cond_else");
+					$.m_phiBlock = m_module->m_controlFlowMgr.createBlock("cond_phi");
+					return m_module->m_controlFlowMgr.conditionalJump(*$value, $.m_thenBlock, $.m_elseBlock);
 				}
 			'?'
-			conditional_expr <&$.m_trueValue>
+			conditional_expr<&$.m_trueValue>
 				{
-					$.m_thenBlock = m_module->m_controlFlowMgr.setCurrentBlock ($.m_elseBlock); // might have changed
+					$.m_thenBlock = m_module->m_controlFlowMgr.setCurrentBlock($.m_elseBlock); // might have changed
 				}
 			':'
-			conditional_expr <&$.m_falseValue>
+			conditional_expr<&$.m_falseValue>
 				{
-					return m_module->m_operatorMgr.conditionalOperator (
+					return m_module->m_operatorMgr.conditionalOperator(
 						$.m_trueValue,
 						$.m_falseValue,
 						$.m_thenBlock,
@@ -271,102 +271,102 @@ conditional_expr <Value* $value>
 		)?
 	;
 
-logical_or_expr <Value* $value>
+logical_or_expr<Value* $value>
 	local
 	{
 		BasicBlock* $opBlock1;
 		BasicBlock* $opBlock2;
 		Value $opValue2;
 	}
-	:	logical_and_expr <$value>
+	:	logical_and_expr<$value>
 		(
 			TokenKind_LogOr
 				{
-					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
-					$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_or_op2");
-					m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
-					if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-						$opBlock2->markReachable ();
+					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock();
+					$opBlock2 = m_module->m_controlFlowMgr.createBlock("log_or_op2");
+					m_module->m_controlFlowMgr.setCurrentBlock($opBlock2); // don't follow yet
+					if ($opBlock1->getFlags() & BasicBlockFlag_Reachable) // promote reachability
+						$opBlock2->markReachable();
 				}
-			logical_and_expr <&$opValue2>
+			logical_and_expr<&$opValue2>
 				{
-					return m_module->m_operatorMgr.logicalOrOperator ($opBlock1, $opBlock2, $value, $opValue2);
+					return m_module->m_operatorMgr.logicalOrOperator($opBlock1, $opBlock2, $value, $opValue2);
 				}
 		)*
 	;
 
-logical_and_expr <Value* $value>
+logical_and_expr<Value* $value>
 	local
 	{
 		BasicBlock* $opBlock1;
 		BasicBlock* $opBlock2;
 		Value $opValue2;
 	}
-	:	inclusive_or_expr <$value>
+	:	inclusive_or_expr<$value>
 		(
 			TokenKind_LogAnd
 				{
-					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock ();
-					$opBlock2 = m_module->m_controlFlowMgr.createBlock ("log_and_op2");
-					m_module->m_controlFlowMgr.setCurrentBlock ($opBlock2); // don't follow yet
-					if ($opBlock1->getFlags () & BasicBlockFlag_Reachable) // promote reachability
-						$opBlock2->markReachable ();
+					$opBlock1 = m_module->m_controlFlowMgr.getCurrentBlock();
+					$opBlock2 = m_module->m_controlFlowMgr.createBlock("log_and_op2");
+					m_module->m_controlFlowMgr.setCurrentBlock($opBlock2); // don't follow yet
+					if ($opBlock1->getFlags() & BasicBlockFlag_Reachable) // promote reachability
+						$opBlock2->markReachable();
 				}
-			inclusive_or_expr <&$opValue2>
+			inclusive_or_expr<&$opValue2>
 				{
-					return m_module->m_operatorMgr.logicalAndOperator ($opBlock1, $opBlock2, $value, $opValue2);
+					return m_module->m_operatorMgr.logicalAndOperator($opBlock1, $opBlock2, $value, $opValue2);
 				}
 		)*
 	;
 
-inclusive_or_expr <Value* $value>
+inclusive_or_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	exclusive_or_expr <$value>
-		('|' exclusive_or_expr <&$opValue2>
+	:	exclusive_or_expr<$value>
+		('|' exclusive_or_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_BwOr, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwOr, $value, $opValue2);
 			}
 		)*
 	;
 
-exclusive_or_expr <Value* $value>
+exclusive_or_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	and_expr <$value>
-		('^' and_expr <&$opValue2>
+	:	and_expr<$value>
+		('^' and_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_BwXor, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwXor, $value, $opValue2);
 			}
 		)*
 	;
 
-and_expr <Value* $value>
+and_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	equality_expr <$value>
-		('&' equality_expr <&$opValue2>
+	:	equality_expr<$value>
+		('&' equality_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_BwAnd, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator(BinOpKind_BwAnd, $value, $opValue2);
 			}
 		)*
 	;
 
-equality_expr <Value* $value>
+equality_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	relational_expr <$value>
-		(equality_operator $o relational_expr <&$opValue2>
+	:	relational_expr<$value>
+		(equality_operator $o relational_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -386,15 +386,15 @@ equality_operator
 		}
 	;
 
-relational_expr <Value* $value>
+relational_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	shift_expr <$value>
-		(relational_operator $o shift_expr <&$opValue2>
+	:	shift_expr<$value>
+		(relational_operator $o shift_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -422,15 +422,15 @@ relational_operator
 			}
 	;
 
-shift_expr <Value* $value>
+shift_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	additive_expr <$value>
-		(shift_operator $o additive_expr <&$opValue2>
+	:	additive_expr<$value>
+		(shift_operator $o additive_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -450,15 +450,15 @@ shift_operator
 			}
 	;
 
-additive_expr <Value* $value>
+additive_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	multiplicative_expr <$value>
-		(additive_operator $o multiplicative_expr <&$opValue2>
+	:	multiplicative_expr<$value>
+		(additive_operator $o multiplicative_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -478,15 +478,15 @@ additive_operator
 			}
 	;
 
-multiplicative_expr <Value* $value>
+multiplicative_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	at_expr <$value>
-		(multiplicative_operator $o at_expr <&$opValue2>
+	:	at_expr<$value>
+		(multiplicative_operator $o at_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 		)*
 	;
@@ -510,24 +510,24 @@ multiplicative_operator
 			}
 	;
 
-at_expr <Value* $value>
+at_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
 	}
-	:	assignment_expr <$value>
-		('@' assignment_expr <&$opValue2>
+	:	assignment_expr<$value>
+		('@' assignment_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_At, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator(BinOpKind_At, $value, $opValue2);
 			}
 		)*
 	;
 
-assignment_expr <Value* $value>
-	: unary_expr <$value> assignment_operator_expr <$value>?
+assignment_expr<Value* $value>
+	: unary_expr<$value> assignment_operator_expr<$value>?
 	;
 
-assignment_operator_expr <Value* $value>
+assignment_operator_expr<Value* $value>
 	local
 	{
 		Value $opValue2;
@@ -535,11 +535,11 @@ assignment_operator_expr <Value* $value>
 	enter
 	{
 		if (m_stage == Stage_Reaction)  // reset on assignment (actually, not sure if it's the right thing to do)
-			return resetReactionBindings ();
+			return resetReactionBindings();
 	}
-	:	assignment_operator $o conditional_expr <&$opValue2>
+	:	assignment_operator $o conditional_expr<&$opValue2>
 			{
-				return m_module->m_operatorMgr.binaryOperator ($o.m_opKind, $value, $opValue2);
+				return m_module->m_operatorMgr.binaryOperator($o.m_opKind, $value, $opValue2);
 			}
 	|	'='
 			{
@@ -603,80 +603,80 @@ assignment_operator
 			}
 	;
 
-unary_expr <Value* $value>
-	:	postfix_expr <$value>
-	|	unary_operator_expr <$value>
+unary_expr<Value* $value>
+	:	postfix_expr<$value>
+	|	unary_operator_expr<$value>
 	;
 
-unary_operator_expr <Value* $value>
+unary_operator_expr<Value* $value>
 	leave
 	{
-		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
-			return addReactionBinding (*$value);
+		if (m_stage == Stage_Reaction && isBindableType($value->getType()))
+			return addReactionBinding(*$value);
 	}
-	:	'+' unary_expr <$value>
+	:	'+' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Plus, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Plus, $value);
 			}
-	|	'-' unary_expr <$value>
+	|	'-' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Minus, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Minus, $value);
 			}
-	|	'~' unary_expr <$value>
+	|	'~' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_BwNot, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_BwNot, $value);
 			}
-	|	'&' unary_expr <$value>
+	|	'&' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Addr, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Addr, $value);
 			}
-	|	'*' unary_expr <$value>
+	|	'*' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, $value);
 			}
-	|	'!' unary_expr <$value>
+	|	'!' unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_LogNot, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_LogNot, $value);
 			}
-	|	TokenKind_Inc unary_expr <$value>
+	|	TokenKind_Inc unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PreInc, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreInc, $value);
 			}
-	|	TokenKind_Dec unary_expr <$value>
+	|	TokenKind_Dec unary_expr<$value>
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PreDec, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreDec, $value);
 			}
-	|	try_operator_expr <$value>
+	|	try_operator_expr<$value>
 	|	resolver (cast_operator_rslv)
-		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr <$value>
+		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr<$value>
 			{
 				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.castOperator (dynamism, $value, $t.m_type);
+				return m_module->m_operatorMgr.castOperator(dynamism, $value, $t.m_type);
 			}
 	|	TokenKind_New new_operator_type $t
 			{
-				return m_module->m_operatorMgr.newOperator (
+				return m_module->m_operatorMgr.newOperator(
 					$t.m_type,
 					$t.m_elementCountValue,
 					&$t.m_argList,
 					$value
 					);
 			}
-		new_operator_curly_initializer <$value>?
+		new_operator_curly_initializer<$value>?
 	;
 
-try_operator_expr <Value* $value>
+try_operator_expr<Value* $value>
 	local
 	{
 		TryExpr $tryExpr;
 	}
 	:	TokenKind_Try
 			{
-				m_module->m_controlFlowMgr.beginTryOperator (&$tryExpr);
+				m_module->m_controlFlowMgr.beginTryOperator(&$tryExpr);
 			}
-		unary_expr <$value>
+		unary_expr<$value>
 			{
-				return m_module->m_controlFlowMgr.endTryOperator (&$tryExpr, $value);
+				return m_module->m_controlFlowMgr.endTryOperator(&$tryExpr, $value);
 			}
 	;
 
@@ -684,15 +684,15 @@ class
 {
 	Type* m_type;
 	Value m_elementCountValue;
-	sl::BoxList <Value> m_argList;
+	sl::BoxList<Value> m_argList;
 }
 new_operator_type
-	:	type_name_impl <&$.m_type, &$.m_elementCountValue>
+	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
 	|	resolver (type_name_w_constructor_rslv) priority (2) // set higher priority than type_specifier::qualified_name
 		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
 			{
 				$.m_type = $t.m_type;
-				sl::takeOver (&$.m_argList, &$a.m_valueList);
+				sl::takeOver(&$.m_argList, &$a.m_valueList);
 			}
 	;
 
@@ -700,10 +700,10 @@ type_name_w_constructor_rslv
 	:	qualified_name TokenKind_Construct? '('
 	;
 
-new_operator_curly_initializer <Value* $value>
+new_operator_curly_initializer<Value* $value>
 	enter
 	{
-		return m_module->m_operatorMgr.unaryOperator (UnOpKind_Indir, *$value, &m_curlyInitializerTargetValue);
+		return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, *$value, &m_curlyInitializerTargetValue);
 	}
 	:	curly_initializer
 	;
@@ -716,141 +716,141 @@ cast_operator_rslv
 	{
 		TypeSpecifier $typeSpecifier;
 	}
-	:	TokenKind_Dynamic? '(' type_specifier_modifier <&$typeSpecifier>
+	:	TokenKind_Dynamic? '(' type_specifier_modifier<&$typeSpecifier>
 	;
 
-postfix_expr <Value* $value>
-	:	primary_expr <$value>
-		postfix_operator <$value>*
+postfix_expr<Value* $value>
+	:	primary_expr<$value>
+		postfix_operator<$value>*
 	;
 
-postfix_operator <Value* $value>
+postfix_operator<Value* $value>
 	leave
 	{
-		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
-			return addReactionBinding (*$value);
+		if (m_stage == Stage_Reaction && isBindableType($value->getType()))
+			return addReactionBinding(*$value);
 	}
 	:	'(' expression_or_empty_list ')'
 			{
-				return m_module->m_operatorMgr.callOperator ($value, &$2.m_valueList);
+				return m_module->m_operatorMgr.callOperator($value, &$2.m_valueList);
 			}
 	|	'~' '(' expression_or_empty_list ')'
 			{
-				return m_module->m_operatorMgr.closureOperator ($value, &$3.m_valueList);
+				return m_module->m_operatorMgr.closureOperator($value, &$3.m_valueList);
 			}
 	|	'[' expression_or_empty ']'
 			{
-				return m_module->m_operatorMgr.binaryOperator (BinOpKind_Idx, $value, $2.m_value);
+				return m_module->m_operatorMgr.binaryOperator(BinOpKind_Idx, $value, $2.m_value);
 			}
 	|	TokenKind_Inc
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PostInc, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PostInc, $value);
 			}
 	|	TokenKind_Dec
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_PostDec, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PostDec, $value);
 			}
-	|	'.'	member_operator <$value>
+	|	'.'	member_operator<$value>
 	|	TokenKind_Ptr
 			{
-				return m_module->m_operatorMgr.unaryOperator (UnOpKind_Ptr, $value);
+				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
-		member_operator <$value>
+		member_operator<$value>
 	;
 
-member_operator <Value* $value>
+member_operator<Value* $value>
 	:	TokenKind_Identifier $n
 			{
-				return m_module->m_operatorMgr.memberOperator ($value, $n.m_data.m_string);
+				return m_module->m_operatorMgr.memberOperator($value, $n.m_data.m_string);
 			}
 	|	TokenKind_Get
 			{
-				return m_module->m_operatorMgr.getPropertyGetter ($value);
+				return m_module->m_operatorMgr.getPropertyGetter($value);
 			}
 	|	TokenKind_Set
 			{
-				return m_module->m_operatorMgr.getPropertySetter ($value);
+				return m_module->m_operatorMgr.getPropertySetter($value);
 			}
 	;
 
 // sizeof typeof bindingof etc operators should be here and not in unary_operator
-// otherwise member operators could not be applied (typeof (int).m_size)
+// otherwise member operators could not be applied (typeof(int).m_size)
 
-primary_expr <Value* $value>
+primary_expr<Value* $value>
 	leave
 	{
-		if (m_stage == Stage_Reaction && isBindableType ($value->getType ()))
-			return addReactionBinding (*$value);
+		if (m_stage == Stage_Reaction && isBindableType($value->getType()))
+			return addReactionBinding(*$value);
 	}
-	:	'(' conditional_expr <$value> ')'
-	|	literal <$value>
+	:	'(' conditional_expr<$value> ')'
+	|	literal<$value>
 	|	TokenKind_BaseType
 			{
-				return getBaseType ($1.m_data.m_integer - 1, $value);
+				return getBaseType($1.m_data.m_integer - 1, $value);
 			}
 	|	TokenKind_Identifier
 			{
-				return lookupIdentifier ($1.m_data.m_string, $1.m_pos, $value);
+				return lookupIdentifier($1.m_data.m_string, $1.m_pos, $value);
 			}
 	|	TokenKind_This
 			{
-				return m_module->m_operatorMgr.getThisValue ($value);
+				return m_module->m_operatorMgr.getThisValue($value);
 			}
 	|	TokenKind_Integer
 			{
-				$value->setConstInt64_u ($1.m_data.m_int64_u, m_module);
+				$value->setConstInt64_u($1.m_data.m_int64_u, m_module);
 			}
 	|	TokenKind_Fp
 			{
-				$value->setConstDouble ($1.m_data.m_double, m_module);
+				$value->setConstDouble($1.m_data.m_double, m_module);
 			}
 	|	TokenKind_True
 			{
-				$value->setConstBool (true, m_module);
+				$value->setConstBool(true, m_module);
 			}
 	|	TokenKind_False
 			{
-				$value->setConstBool (false, m_module);
+				$value->setConstBool(false, m_module);
 			}
 	|	TokenKind_Null
 			{
-				$value->setNull (m_module);
+				$value->setNull(m_module);
 			}
 	|	TokenKind_Await expression $e
 			{
-				return m_module->m_operatorMgr.awaitOperator ($e.m_value, $value);
+				return m_module->m_operatorMgr.awaitOperator($e.m_value, $value);
 			}
 	|	TokenKind_SizeOf '(' type_name_or_expr $t ')'
 			{
-				return m_module->m_operatorMgr.sizeofOperator (OperatorDynamism_Static, $t.m_value, $value);
+				return m_module->m_operatorMgr.sizeofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
 	|	TokenKind_CountOf '(' type_name_or_expr $t ')'
 			{
-				return m_module->m_operatorMgr.countofOperator (OperatorDynamism_Static, $t.m_value, $value);
+				return m_module->m_operatorMgr.countofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
 	|	TokenKind_TypeOf '(' type_name_or_expr $t ')'
 			{
-				return m_module->m_operatorMgr.typeofOperator (OperatorDynamism_Static, $t.m_value, $value);
+				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Static, $t.m_value, $value);
 			}
 	|	TokenKind_Dynamic TokenKind_SizeOf '(' expression $e ')'
 			{
-				return m_module->m_operatorMgr.sizeofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
+				return m_module->m_operatorMgr.sizeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
 	|	TokenKind_Dynamic TokenKind_CountOf '(' expression $e ')'
 			{
-				return m_module->m_operatorMgr.countofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
+				return m_module->m_operatorMgr.countofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
 	|	TokenKind_Dynamic TokenKind_TypeOf '(' expression $e ')'
 			{
-				return m_module->m_operatorMgr.typeofOperator (OperatorDynamism_Dynamic, $e.m_value, $value);
+				return m_module->m_operatorMgr.typeofOperator(OperatorDynamism_Dynamic, $e.m_value, $value);
 			}
 	|	TokenKind_OffsetOf '(' expression_0 $e ')'
 			{
-				return m_module->m_operatorMgr.offsetofOperator ($e.m_value, $value);
+				return m_module->m_operatorMgr.offsetofOperator($e.m_value, $value);
 			}
-	|	TokenKind_BindingOf '(' conditional_expr <$value> ')'
+	|	TokenKind_BindingOf '(' conditional_expr<$value> ')'
 			{
-				return m_module->m_operatorMgr.getPropertyOnChanged ($value);
+				return m_module->m_operatorMgr.getPropertyOnChanged($value);
 			}
 	;
 
@@ -875,28 +875,28 @@ class
 {
 	Literal m_literal;
 }
-literal <Value* $value>
-	:	literal_atom <&$.m_literal>+ ('(' expression_or_empty_list $a ')')?
+literal<Value* $value>
+	:	literal_atom<&$.m_literal>+ ('(' expression_or_empty_list $a ')')?
 			{
-				return finalizeLiteral (&$.m_literal, &$a ? &$a.m_valueList : NULL, $value);
+				return finalizeLiteral(&$.m_literal, &$a ? &$a.m_valueList : NULL, $value);
 			}
 	;
 
-literal_atom <Literal* $literal>
+literal_atom<Literal* $literal>
 	:	TokenKind_Literal
 			{
-				$literal->m_binData.append ($1.m_data.m_string.cp (), $1.m_data.m_string.getLength ());
+				$literal->m_binData.append($1.m_data.m_string.cp(), $1.m_data.m_string.getLength());
 				$literal->m_isZeroTerminated = true;
 			}
 	|	TokenKind_BinLiteral
 			{
-				$literal->m_binData.append ($1.m_data.m_binData, $1.m_data.m_binData.getCount ());
+				$literal->m_binData.append($1.m_data.m_binData, $1.m_data.m_binData.getCount());
 				$literal->m_isZeroTerminated = false;
 			}
 	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier $s?
 			{
-				sl::String fmtSpecifier = &$s ? $s.m_data.m_string : sl::String ();
-				return addFmtSite (
+				sl::String fmtSpecifier = &$s ? $s.m_data.m_string : sl::String();
+				return addFmtSite(
 					$literal,
 					$1.m_data.m_string,
 					$2.m_value,
@@ -916,21 +916,21 @@ curly_initializer
 	}
 	enter
 	{
-		ASSERT (m_curlyInitializerTargetValue);
+		ASSERT(m_curlyInitializerTargetValue);
 		$initializer.m_targetValue = m_curlyInitializerTargetValue;
 	}
-	:	'{' curly_initializer_item <&$initializer> (',' curly_initializer_item <&$initializer>)* '}'
+	:	'{' curly_initializer_item<&$initializer> (',' curly_initializer_item<&$initializer>)* '}'
 			{
 				if (!$initializer.m_count)
 				{
-					err::setFormatStringError ("empty curly initializer");
+					err::setFormatStringError("empty curly initializer");
 					return false;
 				}
 			}
 	;
 
 nullable
-curly_initializer_item <CurlyInitializer* $initializer>
+curly_initializer_item<CurlyInitializer* $initializer>
 	local
 	{
 		Value prevCurlyInitializerTargetValue;
@@ -938,7 +938,7 @@ curly_initializer_item <CurlyInitializer* $initializer>
 	:	resolver (TokenKind_Identifier '=')
 		TokenKind_Identifier $n '='
 			{
-				return prepareCurlyInitializerNamedItem ($initializer, $n.m_data.m_string);
+				return prepareCurlyInitializerNamedItem($initializer, $n.m_data.m_string);
 			}
 		(	curly_initializer
 				{
@@ -946,18 +946,18 @@ curly_initializer_item <CurlyInitializer* $initializer>
 				}
 		|	expression $e
 				{
-					return assignCurlyInitializerItem ($initializer, $e.m_value);
+					return assignCurlyInitializerItem($initializer, $e.m_value);
 				}
 		)
 	|		{
-				return prepareCurlyInitializerIndexedItem ($initializer);
+				return prepareCurlyInitializerIndexedItem($initializer);
 			}
 		expression $e
 			{
-				return assignCurlyInitializerItem ($initializer, $e.m_value);
+				return assignCurlyInitializerItem($initializer, $e.m_value);
 			}
 	|		{
-				return prepareCurlyInitializerIndexedItem ($initializer);
+				return prepareCurlyInitializerIndexedItem($initializer);
 			}
 		curly_initializer
 			{
@@ -966,7 +966,7 @@ curly_initializer_item <CurlyInitializer* $initializer>
 			}
 	|	epsilon
 			{
-				return skipCurlyInitializerItem ($initializer);
+				return skipCurlyInitializerItem($initializer);
 			}
 	;
 

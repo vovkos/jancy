@@ -159,7 +159,7 @@ main := |*
 'bindingof'       |
 'dynamic'
 
-)                   { colorize (ts, te, Qt::blue); };
+)                   { colorize(ts, te, Qt::blue); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -179,13 +179,13 @@ dec+                |
 '0' [xXoObBnNdD] raw_lit_dq |
 dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 [$fF] lit_dq
-)					{ colorize (ts, te, Qt::darkRed); };
+)					{ colorize(ts, te, Qt::darkRed); };
 
 ('0' [xXoObBnNdD])? '"""'
-					{ colorize (ts, te, Qt::darkRed); fgoto lit_ml; };
+					{ colorize(ts, te, Qt::darkRed); fgoto lit_ml; };
 
-'//' any*           { colorize (ts, te, Qt::darkGray); };
-'/*'                { colorize (ts, te, Qt::darkGray); fgoto comment; };
+'//' any*           { colorize(ts, te, Qt::darkGray); };
+'/*'                { colorize(ts, te, Qt::darkGray); fgoto comment; };
 
 ws | nl             ;
 any                 ;
@@ -199,8 +199,8 @@ any                 ;
 
 comment := |*
 
-'*/'                { colorize (ts, te, Qt::darkGray); fgoto main; };
-any                 { colorize (ts, te, Qt::darkGray); };
+'*/'                { colorize(ts, te, Qt::darkGray); fgoto main; };
+any                 { colorize(ts, te, Qt::darkGray); };
 
 *|;
 
@@ -211,8 +211,8 @@ any                 { colorize (ts, te, Qt::darkGray); };
 
 lit_ml := |*
 
-'"""'               { colorize (ts, te, Qt::darkRed); fgoto main; };
-any                 { colorize (ts, te, Qt::darkRed); };
+'"""'               { colorize(ts, te, Qt::darkRed); fgoto main; };
+any                 { colorize(ts, te, Qt::darkRed); };
 
 *|;
 
@@ -224,21 +224,21 @@ any                 { colorize (ts, te, Qt::darkRed); };
 #define BLOCK_STATE_COMMENT 1
 #define BLOCK_STATE_LIT_ML  2
 
-void JancyHighlighter::ragelInit ()
+void JancyHighlighter::ragelInit()
 {
 	%% write init;
 }
 
-void JancyHighlighter::ragelExec ()
+void JancyHighlighter::ragelExec()
 {
 	%% write exec;
 }
 
-void JancyHighlighter::ragelExecPreEvent (int &ragelState)
+void JancyHighlighter::ragelExecPreEvent(int &ragelState)
 {
-	setCurrentBlockState (BLOCK_STATE_NONE);
+	setCurrentBlockState(BLOCK_STATE_NONE);
 
-	int prevBlockState = previousBlockState ();
+	int prevBlockState = previousBlockState();
 	switch (prevBlockState)
 	{
 	case BLOCK_STATE_COMMENT:
@@ -251,16 +251,16 @@ void JancyHighlighter::ragelExecPreEvent (int &ragelState)
 	}
 }
 
-void JancyHighlighter::ragelExecPostEvent (int ragelState)
+void JancyHighlighter::ragelExecPostEvent(int ragelState)
 {
 	switch (ragelState)
 	{
 	case jancy_lexer_en_comment:
-		setCurrentBlockState (BLOCK_STATE_COMMENT);
+		setCurrentBlockState(BLOCK_STATE_COMMENT);
 		break;
 
 	case jancy_lexer_en_lit_ml:
-		setCurrentBlockState (BLOCK_STATE_LIT_ML);
+		setCurrentBlockState(BLOCK_STATE_LIT_ML);
 		break;
 	}
 }
