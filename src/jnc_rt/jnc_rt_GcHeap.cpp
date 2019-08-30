@@ -1691,6 +1691,10 @@ GcHeap::collect_l(bool isMutatorThread)
 	m_stats.m_lastCollectFreeSize = freeSize;
 	m_stats.m_lastCollectTimeTaken = sys::getTimestamp() - m_stats.m_lastCollectTime;
 	m_stats.m_totalCollectTimeTaken += m_stats.m_lastCollectTimeTaken;
+
+	if (!m_dynamicDestructArray.isEmpty())
+		m_destructEvent.signal();
+
 	m_idleEvent.signal();
 	m_lock.unlock();
 
