@@ -551,17 +551,6 @@ strDup(
 	return jnc_strDup(p, length);
 }
 
-#ifdef _AXL_SL_STRING_H
-
-inline
-DataPtr
-strDup(const axl::sl::StringRef& string)
-{
-	return jnc_strDup(string.cp(), string.getLength());
-}
-
-#endif
-
 inline
 DataPtr
 memDup(
@@ -592,6 +581,28 @@ createForeignStringPtr(
 {
 	return jnc_createForeignStringPtr(p, isCallSiteLocal);
 }
+
+#ifdef _AXL_SL_STRING_H
+
+inline
+DataPtr
+strDup(const axl::sl::StringRef& string)
+{
+	return jnc_strDup(string.cp(), string.getLength());
+}
+
+inline
+DataPtr
+createForeignStringPtr(
+	const axl::sl::StringRef& string,
+	bool isCallSiteLocal = true
+	)
+{
+	const char* p = string.cp();
+	return jnc_createForeignBufferPtr(p, p ? string.getLength() + 1 : 0, isCallSiteLocal);
+}
+
+#endif
 
 //..............................................................................
 
