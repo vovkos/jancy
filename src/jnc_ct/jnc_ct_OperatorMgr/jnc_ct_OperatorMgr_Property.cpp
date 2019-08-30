@@ -217,9 +217,9 @@ OperatorMgr::getPropertySetterType(
 			ptrType->getTargetType();
 	}
 
-	if (propertyType->isReadOnly())
+	if (propertyType->isConst())
 	{
-		err::setFormatStringError("read-only '%s' has no 'set'", propertyType->getTypeString().sz());
+		err::setFormatStringError("const '%s' has no 'set'", propertyType->getTypeString().sz());
 		return NULL;
 	}
 	else if (ptrType->getFlags() & PtrTypeFlag_Const)
@@ -276,9 +276,9 @@ OperatorMgr::getPropertySetter(
 		ptrType->getTargetType()->getStdObjectMemberPropertyType() :
 		ptrType->getTargetType();
 
-	if (propertyType->isReadOnly())
+	if (propertyType->isConst())
 	{
-		err::setFormatStringError("read-only '%s' has no setter", propertyType->getTypeString().sz());
+		err::setFormatStringError("const '%s' has no setter", propertyType->getTypeString().sz());
 		return false;
 	}
 	else if (ptrType->getFlags() & PtrTypeFlag_Const)
