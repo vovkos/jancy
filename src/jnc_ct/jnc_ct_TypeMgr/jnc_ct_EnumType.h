@@ -105,7 +105,7 @@ public:
 		return m_baseType;
 	}
 
-	sl::Array<EnumConst*>
+	const sl::Array<EnumConst*>&
 	getConstArray()
 	{
 		return m_constArray;
@@ -145,6 +145,7 @@ protected:
 	}
 
 	virtual
+	void
 	bool
 	calcLayout();
 };

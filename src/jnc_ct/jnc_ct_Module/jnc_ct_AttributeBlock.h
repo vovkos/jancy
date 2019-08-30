@@ -29,7 +29,7 @@ protected:
 	Value m_value;
 
 public:
-	Value
+	const Value&
 	getValue()
 	{
 		return m_value;
@@ -68,7 +68,7 @@ public:
 		return m_parentItem;
 	}
 
-	sl::Array<Attribute*>
+	const sl::Array<Attribute*>&
 	getAttributeArray()
 	{
 		return m_attributeArray;

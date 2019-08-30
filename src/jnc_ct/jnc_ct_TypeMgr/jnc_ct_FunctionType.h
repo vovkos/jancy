@@ -76,13 +76,13 @@ public:
 		return m_asyncReturnType;
 	}
 
-	sl::Array<FunctionArg*>
+	const sl::Array<FunctionArg*>&
 	getArgArray()
 	{
 		return m_argArray;
 	}
 
-	sl::Array<uint_t>
+	const sl::Array<uint_t>&
 	getArgFlagArray()
 	{
 		return m_argFlagArray;

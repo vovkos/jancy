@@ -34,7 +34,7 @@ public:
 		m_itemKind = ModuleItemKind_Const;
 	}
 
-	Value
+	const Value&
 	getValue()
 	{
 		return m_value;
