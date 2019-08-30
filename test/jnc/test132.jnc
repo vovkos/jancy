@@ -1,0 +1,147 @@
+// this test was used during development of introspection facilities
+
+void printTypeInfo(jnc.Type* type)
+{
+	printf(
+		"typeid:    %p\n"
+		"typename:  %s\n"
+		"signature: %s\n"
+		"size:      %d\n"
+		"alignment: %d\n\n",
+		type, 
+		type.m_typeString,
+		type.m_signature,
+		type.m_size,
+		type.m_alignment
+		);
+}
+
+void printPtrTypeInfo(jnc.DataPtrType* type)
+{
+	printf(
+		"typeid:     %p\n"
+		"typename:   %s\n"
+		"signature:  %s\n"
+		"size:       %d\n"
+		"alignment:  %d\n"
+		"ptrkind:    %d\n"
+		"targetid:   %p\n"
+		"targettype: %s\n\n",
+		type, 
+		type.m_typeString,
+		type.m_signature,
+		type.m_size,
+		type.m_alignment,
+		type.m_ptrTypeKind,
+		type.m_targetType,
+		type.m_targetType.m_typeString
+		);
+}
+
+void printAttributeBlock(jnc.ModuleItemDecl* decl)
+{
+	jnc.AttributeBlock* block = decl.m_attributeBlock;
+	if (!block)
+		return;
+
+	size_t count = block.m_attributeCount;
+	if (!count)
+		return;
+
+	print("[ ");
+
+	for (size_t i = 0; i < count; i++)
+	{
+		if (i)
+			print(", ");
+
+		jnc.Attribute* attr = block.m_attributeArray[i];
+		print(attr.m_name);
+
+		if (attr.m_hasValue)
+		{
+			print(" = ");
+			print(attr.m_value);
+		}
+	}
+
+	print(" ]\n");
+}
+
+void printStructTypeInfo(jnc.StructType* type)
+{
+	printf(
+		"typeid:     %p\n"
+		"typename:   %s\n"
+		"signature:  %s\n"
+		"size:       %d\n"
+		"alignment:  %d\n"
+		"name:       %s\n"
+		"qname:      %s\n"
+		"pos:        %s(%d:%d)\n\n",
+		type, 
+		type.m_typeString,
+		type.m_signature,
+		type.m_size,
+		type.m_alignment,
+		type.m_name,
+		type.m_qualifiedName,
+		type.m_parentUnit.m_filePath,
+		type.m_line + 1,
+		type.m_col + 1
+		);
+
+	size_t count = type.m_memberFieldCount;
+	for (size_t i = 0; i < count; i++)
+	{
+		jnc.StructField* field = type.m_memberFieldArray[i];
+		printAttributeBlock(field);
+
+		printf(
+			"field #%d\n"
+			"  name:   %s\n"
+			"  type:   %s\n"
+			"  offset: %d\n"
+			"  size:   %d\n\n",
+			i,
+			field.m_name,
+			field.m_type.m_typeString,
+			field.m_offset,
+			field.m_type.m_size
+			);
+	}
+}
+
+int main()
+{
+	printf("main\n");
+
+	printTypeInfo(typeof(char));
+	printTypeInfo(typeof(long));
+
+	printPtrTypeInfo(typeof(char*));
+	printPtrTypeInfo(typeof(long*));
+	printPtrTypeInfo(typeof(double*));
+	printPtrTypeInfo(typeof(float*));
+		
+	printPtrTypeInfo(typeof(double*));
+	printPtrTypeInfo(typeof(float*));
+
+	struct Point
+	{
+		[ XAttr = "hui", XAttr2 ]
+		char m_x;
+
+		[ YAttr = "govno", YAttr2 ]
+		short m_y;
+
+		[ ZAttr = "i", ZAttr2 ]
+		int m_z;
+
+		[ WAttr1 = "muravei", WAttr2 ]
+		long m_w;
+	}
+
+	printStructTypeInfo(typeof(Point));
+	return 0;
+}
