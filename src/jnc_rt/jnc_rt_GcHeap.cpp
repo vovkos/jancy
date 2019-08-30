@@ -19,6 +19,7 @@
 
 // #define _JNC_TRACE_GC_MARK 1
 // #define _JNC_TRACE_GC_COLLECT 1
+// #define _JNC_TRACE_GC_DESTRUCT 1
 // #define _JNC_TRACE_GC_REGION 1
 
 #if (_JNC_TRACE_GC_MARK)
@@ -31,6 +32,12 @@
 #	define JNC_TRACE_GC_COLLECT TRACE
 #else
 #	define JNC_TRACE_GC_COLLECT (void)
+#endif
+
+#if (_JNC_TRACE_GC_DESTRUCT)
+#	define JNC_TRACE_GC_DESTRUCT TRACE
+#else
+#	define JNC_TRACE_GC_DESTRUCT (void)
 #endif
 
 #if (_JNC_TRACE_GC_REGION)
@@ -344,7 +351,7 @@ GcHeap::addClassBox_l(Box* box)
 
 	if (classType->getDestructor())
 	{
-		TRACE("++ Adding destructible class %s(%p)\n", classType->getQualifiedName().sz(), box);
+		JNC_TRACE_GC_DESTRUCT("GcHeap::addClassBox_l: adding destructible %s(%p)\n", classType->getQualifiedName().sz(), ifaceHdr);
 		m_destructibleClassBoxArray.append(box);
 	}
 }
@@ -1628,7 +1635,7 @@ GcHeap::collect_l(bool isMutatorThread)
 			box->m_flags |= BoxFlag_Destructed;
 			destructArray.append(iface);
 
-			TRACE("-- Scheduling %s(%p) for destruction...\n", box->m_type->getTypeString().sz(), box);
+			JNC_TRACE_GC_DESTRUCT("GcHeap::collect_l: scheduling destruction of %s(%p)...\n", box->m_type->getTypeString().sz(), iface);
 		}
 	}
 
@@ -1803,6 +1810,8 @@ GcHeap::runDestructCycle_l()
 		ct::ClassType* classType = (ct::ClassType*)iface->m_box->m_type;
 		ct::Function* destructor = classType->getDestructor();
 		ASSERT(destructor);
+
+		JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getQualifiedName().sz(), iface);
 
 		bool result = callVoidFunction(m_runtime, destructor, iface);
 		if (!result)
