@@ -131,6 +131,13 @@ protected:
 	virtual
 	void
 	prepareLlvmDiType();
+
+	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_PropertyPtrType);
+	}
 };
 
 //..............................................................................

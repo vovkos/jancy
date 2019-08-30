@@ -146,6 +146,12 @@ protected:
 
 	virtual
 	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_EnumType);
+	}
+
+	virtual
 	bool
 	calcLayout();
 };

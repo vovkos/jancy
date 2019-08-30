@@ -28,7 +28,6 @@ class NamedTypeBlock
 protected:
 	ModuleItem* m_parent; // derivable type or property
 
-	sl::Array<Variable*> m_staticFieldArray;
 	sl::Array<StructField*> m_memberFieldArray;
 	sl::Array<Function*> m_memberMethodArray;
 	sl::Array<Property*> m_memberPropertyArray;
@@ -51,12 +50,6 @@ protected:
 
 public:
 	NamedTypeBlock(ModuleItem* parent);
-
-	sl::Array<Variable*>
-	getStaticFieldArray() const
-	{
-		return m_staticFieldArray;
-	}
 
 	sl::Array<StructField*>
 	getMemberFieldArray() const

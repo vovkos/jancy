@@ -199,6 +199,13 @@ protected:
 	prepareLlvmDiType();
 
 	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_ClassType);
+	}
+
+	virtual
 	bool
 	calcLayout();
 

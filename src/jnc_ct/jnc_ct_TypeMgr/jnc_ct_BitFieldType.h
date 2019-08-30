@@ -97,6 +97,13 @@ protected:
 	virtual
 	bool
 	calcLayout();
+
+	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_BitFieldType);
+	}
 };
 
 //..............................................................................

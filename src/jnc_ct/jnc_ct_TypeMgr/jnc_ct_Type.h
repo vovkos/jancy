@@ -192,6 +192,7 @@ protected:
 	llvm::Type* m_llvmType;
 	llvm::DIType_vn m_llvmDiType;
 
+	Variable* m_typeVariable;
 	TypeStringTuple* m_typeStringTuple;
 	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
 	FunctionArgTuple* m_functionArgTuple;
@@ -265,6 +266,15 @@ public:
 	llvm::DIType_vn
 	getLlvmDiType();
 
+	bool
+	hasTypeVariable()
+	{
+		return m_typeVariable != NULL;
+	}
+
+	Variable*
+	getTypeVariable();
+
 	Value
 	getUndefValue();
 
@@ -324,6 +334,8 @@ public:
 		rt::GcHeap* gcHeap
 		);
 
+
+
 protected:
 	TypeStringTuple*
 	getTypeStringTuple();
@@ -353,6 +365,14 @@ protected:
 	prepareLlvmDiType();
 
 	virtual
+	void
+	prepareTypeVariable()
+	{
+		ASSERT(m_typeKind < TypeKind__PrimitiveTypeCount);
+		prepareSimpleTypeVariable(StdType_Type);
+	}
+
+	virtual
 	bool
 	calcLayout()
 	{
@@ -370,6 +390,9 @@ protected:
 		ASSERT(false);
 		return this;
 	}
+
+	void
+	prepareSimpleTypeVariable(StdType stdType);
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -402,6 +425,16 @@ Type::getLlvmDiType()
 		prepareLlvmDiType();
 
 	return m_llvmDiType;
+}
+
+inline
+Variable*
+Type::getTypeVariable()
+{
+	if (!m_typeVariable)
+		prepareTypeVariable();
+
+	return m_typeVariable;
 }
 
 //..............................................................................

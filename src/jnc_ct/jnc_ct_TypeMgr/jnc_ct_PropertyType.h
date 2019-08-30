@@ -44,7 +44,7 @@ public:
 	PropertyType();
 
 	bool
-	isReadOnly()
+	isConst()
 	{
 		return m_setterType.isEmpty();
 	}
@@ -105,7 +105,7 @@ public:
 	getStdObjectMemberPropertyType();
 
 	PropertyType*
-	getShortType  ();
+	getShortType();
 
 	PropertyPtrType*
 	getPropertyPtrType(
@@ -168,6 +168,13 @@ protected:
 	prepareLlvmType()
 	{
 		ASSERT(false);
+	}
+
+	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_PropertyType);
 	}
 };
 

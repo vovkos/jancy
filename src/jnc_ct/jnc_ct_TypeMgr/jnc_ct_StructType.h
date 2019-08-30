@@ -207,6 +207,13 @@ protected:
 	prepareLlvmDiType();
 
 	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_StructType);
+	}
+
+	virtual
 	bool
 	calcLayout();
 

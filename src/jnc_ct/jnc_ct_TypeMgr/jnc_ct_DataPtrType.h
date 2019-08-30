@@ -106,6 +106,13 @@ protected:
 	prepareLlvmDiType();
 
 	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_DataPtrType);
+	}
+
+	virtual
 	Type*
 	calcFoldedDualType(
 		bool isAlien,

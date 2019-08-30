@@ -86,6 +86,13 @@ protected:
 	prepareLlvmDiType();
 
 	virtual
+	void
+	prepareTypeVariable()
+	{
+		prepareSimpleTypeVariable(StdType_UnionType);
+	}
+
+	virtual
 	bool
 	calcLayout();
 };

@@ -50,7 +50,7 @@ protected:
 	size_t m_parentOffset;
 	size_t m_reactionCount;
 	Function* m_reaction;
-	sl::HashTable<size_t, Function*, sl::HashId<size_t> > m_onEventMap;
+	sl::SimpleHashTable<size_t, Function*> m_onEventMap;
 	sl::BoxList<Token> m_body;
 
 public:

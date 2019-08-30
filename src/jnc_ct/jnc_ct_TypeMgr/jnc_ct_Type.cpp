@@ -14,6 +14,7 @@
 #include "jnc_ct_Decl.h"
 #include "jnc_ct_Module.h"
 #include "jnc_Variant.h"
+#include "jnc_rt_GcHeap.h"
 
 namespace jnc {
 namespace ct {
@@ -197,6 +198,7 @@ Type::Type()
 	m_size = 0;
 	m_alignment = 0;
 	m_llvmType = NULL;
+	m_typeVariable = NULL;
 	m_typeStringTuple = NULL;
 	m_simplePropertyTypeTuple = NULL;
 	m_functionArgTuple = NULL;
@@ -659,16 +661,48 @@ Type::prepareLlvmDiType()
 }
 
 void
+Type::prepareSimpleTypeVariable(StdType stdType)
+{
+	ASSERT(!m_typeVariable && m_module->getCompileState() < ModuleCompileState_Compiled);
+
+	sl::String qualifiedName = "jnc.g_type_" + getSignature();
+	Type* type = m_module->m_typeMgr.getStdType(stdType);
+
+	sl::BoxList<Token> constructor;
+	Token* token = constructor.insertTail().p();
+	token->m_token = TokenKind_Integer;
+	token->m_data.m_int64_u = (intptr_t)this;
+
+	m_typeVariable = m_module->m_variableMgr.createVariable(
+		StorageKind_Static,
+		sl::String(),
+		qualifiedName,
+		type,
+		0,
+		&constructor
+		);
+
+	BasicBlock* block = m_module->m_controlFlowMgr.setCurrentBlock(m_module->getConstructor()->getPrologueBlock());
+	bool result = m_module->m_variableMgr.initializeVariable(m_typeVariable);
+#if (_JNC_DEBUG)
+	if (!result)
+	{
+		TRACE("intialize type variable error: %s\n", err::getLastErrorDescription().sz());
+		ASSERT(false);
+	}
+#endif
+
+	m_module->m_controlFlowMgr.setCurrentBlock(block);
+}
+
+void
 Type::markGcRoots(
 	const void* p,
 	rt::GcHeap* gcHeap
 	)
 {
 	ASSERT(m_typeKind == TypeKind_Variant);
-
-	Variant* variant = (Variant*)p;
-	if (variant->m_type && (variant->m_type->m_flags & TypeFlag_GcRoot))
-		variant->m_type->markGcRoots(p, gcHeap);
+	gcHeap->markVariant(*(Variant*)p);
 }
 
 //..............................................................................
