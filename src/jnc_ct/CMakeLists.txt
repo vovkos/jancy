@@ -320,28 +320,65 @@ source_group(
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# jnc folder
+# jnc_rtl_core folder
 #
 
-set(JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl/jnc)
+set(RTL_CORE_JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core/jnc)
 
 set(
-	JNC_LIST
-	${JNC_DIR}/jnc_globals.jnc
-	${JNC_DIR}/jnc_GcTriggers.jnc
-	${JNC_DIR}/jnc_GcStats.jnc
-	${JNC_DIR}/jnc_StdTypes.jnc
-	${JNC_DIR}/jnc_StdFunctions.jnc
-	${JNC_DIR}/jnc_DynamicLib.jnc
-	${JNC_DIR}/jnc_Regex.jnc
-	${JNC_DIR}/jnc_Promise.jnc
-	${JNC_DIR}/jnc_Scheduler.jnc
+	RTL_CORE_JNC_LIST
+	${RTL_CORE_JNC_DIR}/jnc_globals.jnc
+	${RTL_CORE_JNC_DIR}/jnc_GcTriggers.jnc
+	${RTL_CORE_JNC_DIR}/jnc_GcStats.jnc
+	${RTL_CORE_JNC_DIR}/jnc_StdTypes.jnc
+	${RTL_CORE_JNC_DIR}/jnc_StdFunctions.jnc
+	${RTL_CORE_JNC_DIR}/jnc_DynamicLib.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Regex.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Promise.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Scheduler.jnc
 	)
 
 source_group(
-	jnc
+	jnc_rtl_core_jnc
 	FILES
-	${JNC_LIST}
+	${RTL_CORE_JNC_LIST}
+	)
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# rtl_intro_jnc folder
+#
+
+set(RTL_INTRO_JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_intro/jnc)
+
+set(
+	RTL_INTRO_JNC_LIST
+	${RTL_INTRO_JNC_DIR}/jnc_ModuleItem.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_AttributeBlock.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Namespace.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_OpKind.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Type.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_NamedTypeBlock.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_ArrayType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_BitFieldType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_FunctionType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_PropertyType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_EnumType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_ClassType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_StructType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_UnionType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Alias.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Variable.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Function.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Property.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Module.jnc
+	)
+
+source_group(
+	jnc_rtl_intro_jnc
+	FILES
+	${RTL_INTRO_JNC_LIST}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -354,59 +391,19 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-add_perl_step(
-	jnc_globals.jnc.cpp
-	${JNC_DIR}/jnc_globals.jnc
-	${JNC2CPP_PL}
-	)
+set(GEN_JNC_CPP_LIST)
 
-add_perl_step(
-	jnc_StdTypes.jnc.cpp
-	${JNC_DIR}/jnc_StdTypes.jnc
-	${JNC2CPP_PL}
-	)
+foreach(_JNC ${RTL_CORE_JNC_LIST} ${RTL_INTRO_JNC_LIST})
+	get_filename_component(_NAME ${_JNC} NAME)
 
-add_perl_step(
-	jnc_StdFunctions.jnc.cpp
-	${JNC_DIR}/jnc_StdFunctions.jnc
-	${JNC2CPP_PL}
-	)
+	add_perl_step(
+		${_NAME}.cpp
+		${_JNC}
+		${JNC2CPP_PL}
+		)
 
-add_perl_step(
-	jnc_GcTriggers.jnc.cpp
-	${JNC_DIR}/jnc_GcTriggers.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	jnc_GcStats.jnc.cpp
-	${JNC_DIR}/jnc_GcStats.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	jnc_DynamicLib.jnc.cpp
-	${JNC_DIR}/jnc_DynamicLib.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	jnc_Regex.jnc.cpp
-	${JNC_DIR}/jnc_Regex.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	jnc_Promise.jnc.cpp
-	${JNC_DIR}/jnc_Promise.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	jnc_Scheduler.jnc.cpp
-	${JNC_DIR}/jnc_Scheduler.jnc
-	${JNC2CPP_PL}
-	)
+	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
+endforeach()
 
 add_ragel_step(
 	jnc_ct_Lexer.rl.cpp
@@ -431,16 +428,6 @@ add_graco_double_step(
 	)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
-
-set(
-	GEN_JNC_CPP_LIST
-	${GEN_DIR}/jnc_StdTypes.jnc.cpp
-	${GEN_DIR}/jnc_StdFunctions.jnc.cpp
-	${GEN_DIR}/jnc_DynamicLib.jnc.cpp
-	${GEN_DIR}/jnc_Scheduler.jnc.cpp
-	${GEN_DIR}/jnc_Regex.jnc.cpp
-	${GEN_DIR}/jnc_Promise.jnc.cpp
-	)
 
 set(
 	GEN_RL_CPP_LIST
@@ -498,7 +485,7 @@ include_directories(
 	${CMAKE_CURRENT_LIST_DIR} # for pch.h
 	${JANCY_SRC_DIR}/jnc_rt
 	${JANCY_SRC_DIR}/jnc_ct/include
-	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl
+	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
 	${GEN_DIR}
 	)
 
@@ -530,7 +517,8 @@ add_library(
 	${PARSER_RL_LIST}
 	${PARSER_LLK_LIST}
 	${PERL_PL_LIST}
-	${JNC_LIST}
+	${RTL_CORE_JNC_LIST}
+	${RTL_INTRO_JNC_LIST}
 	${GEN_JNC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
 	${GEN_LLK_H_LIST}

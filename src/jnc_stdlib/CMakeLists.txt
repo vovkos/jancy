@@ -22,7 +22,8 @@ add_custom_target(
 	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/jnc_stdlib.jncx
 		-x!jnc_StdTypes.jnc
 		-x!jnc_StdFunctions.jnc
-		${JANCY_ROOT_DIR}/src/jnc_ext/jnc_rtl/jnc/*
+		${JANCY_ROOT_DIR}/src/jnc_ext/jnc_rtl_core/jnc/*
+		${JANCY_ROOT_DIR}/src/jnc_ext/jnc_rtl_intro/jnc/*
 		${JANCY_ROOT_DIR}/src/jnc_ext/jnc_std/jnc/*
 		${JANCY_ROOT_DIR}/src/jnc_ext/jnc_sys/jnc/*
 	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/jnc_stdlib.jncx

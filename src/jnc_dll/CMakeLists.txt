@@ -38,7 +38,8 @@ else()
 	set(
 		DLL_SRC_LIST
 		$<TARGET_OBJECTS:jnc_api_core_o>
-		$<TARGET_OBJECTS:jnc_rtl_o>
+		$<TARGET_OBJECTS:jnc_rtl_core_o>
+		$<TARGET_OBJECTS:jnc_rtl_intro_o>
 		$<TARGET_OBJECTS:jnc_std_o>
 		$<TARGET_OBJECTS:jnc_sys_o>
 		jnc_dll.version
@@ -68,7 +69,8 @@ if(WIN32)
 	target_link_libraries(
 		jnc_dll
 		jnc_api_core
-		jnc_rtl
+		jnc_rtl_core
+		jnc_rtl_intro
 		jnc_std
 		jnc_sys
 		)

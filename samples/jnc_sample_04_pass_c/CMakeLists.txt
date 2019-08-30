@@ -145,7 +145,8 @@ else()
 		jnc_api_core
 		jnc_ct
 		jnc_rt
-		jnc_rtl
+		jnc_rtl_core
+		jnc_rtl_intro
 		jnc_std
 		jnc_sys
 		jnc_api_core
