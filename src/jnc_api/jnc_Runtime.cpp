@@ -455,11 +455,11 @@ primeIface(
 
 	// primeClass all the base types
 
-	sl::Array<ct::BaseTypeSlot*> baseTypePrimeArray = type->getBaseTypePrimeArray();
-	size_t count = baseTypePrimeArray.getCount();
+	sl::Array<ct::BaseTypeSlot*> classBaseTypeArray = type->getClassBaseTypeArray();
+	size_t count = classBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::BaseTypeSlot* slot = baseTypePrimeArray[i];
+		ct::BaseTypeSlot* slot = classBaseTypeArray[i];
 		ASSERT(slot->getType()->getTypeKind() == TypeKind_Class);
 
 		primeIface(

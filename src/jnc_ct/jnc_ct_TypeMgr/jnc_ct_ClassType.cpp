@@ -385,7 +385,7 @@ ClassType::calcLayout()
 		if (baseClassType->m_vtableStructType)
 			getVtableStructType()->append(baseClassType->m_vtableStructType);
 
-		m_baseTypePrimeArray.append(slot);
+		m_classBaseTypeArray.append(slot);
 
 		if (baseClassType->m_destructor)
 			m_baseTypeDestructArray.append(slot);

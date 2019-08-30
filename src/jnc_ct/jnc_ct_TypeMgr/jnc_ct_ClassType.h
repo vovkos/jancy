@@ -41,7 +41,7 @@ protected:
 	StructType* m_ifaceStructType;
 	StructType* m_classStructType;
 
-	sl::Array<BaseTypeSlot*> m_baseTypePrimeArray;
+	sl::Array<BaseTypeSlot*> m_classBaseTypeArray;
 	sl::Array<StructField*> m_classMemberFieldArray;
 
 	MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
@@ -122,9 +122,9 @@ public:
 	}
 
 	sl::Array<BaseTypeSlot*>
-	getBaseTypePrimeArray()
+	getClassBaseTypeArray()
 	{
-		return m_baseTypePrimeArray;
+		return m_classBaseTypeArray;
 	}
 
 	sl::Array<StructField*>
