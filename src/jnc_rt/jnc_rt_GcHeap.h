@@ -324,7 +324,20 @@ public:
 	markData(Box* box);
 
 	void
+	markDataPtr(const DataPtr& ptr);
+
+	void
+	markVariant(const Variant& variant);
+
+	void
 	markClass(Box* box);
+
+	void
+	markClassPtr(IfaceHdr* iface)
+	{
+		if (iface)
+			markClass(iface->m_box);
+	}
 
 	void
 	weakMarkClosureClass(Box* box);

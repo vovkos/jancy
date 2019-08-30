@@ -1106,6 +1106,23 @@ GcHeap::markData(Box* box)
 }
 
 void
+GcHeap::markDataPtr(const DataPtr& ptr)
+{
+	if (!ptr.m_validator)
+		return;
+
+	weakMark(ptr.m_validator->m_validatorBox);
+	markData(ptr.m_validator->m_targetBox);
+}
+
+void
+GcHeap::markVariant(const Variant& variant)
+{
+	if (variant.m_type && (variant.m_type->getFlags() & TypeFlag_GcRoot))
+		variant.m_type->markGcRoots(&variant, this);
+}
+
+void
 GcHeap::markClass(Box* box)
 {
 	if (box->m_flags & BoxFlag_ClassMark)

@@ -321,11 +321,25 @@ jnc_GcHeap_markData(
 	jnc_Box* box
 	);
 
+JNC_INLINE
+void
+jnc_GcHeap_markDataPtr(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtr ptr
+	);
+
 JNC_EXTERN_C
 void
 jnc_GcHeap_markClass(
 	jnc_GcHeap* gcHeap,
 	jnc_Box* box
+	);
+
+JNC_INLINE
+void
+jnc_GcHeap_markClassPtr(
+	jnc_GcHeap* gcHeap,
+	jnc_IfaceHdr* iface
 	);
 
 JNC_EXTERN_C
@@ -569,9 +583,21 @@ struct jnc_GcHeap
 	}
 
 	void
+	markDataPtr(jnc_DataPtr ptr)
+	{
+		jnc_GcHeap_markDataPtr(this, ptr);
+	}
+
+	void
 	markClass(jnc_Box* box)
 	{
 		jnc_GcHeap_markClass(this, box);
+	}
+
+	void
+	markClassPtr(jnc_IfaceHdr* iface)
+	{
+		jnc_GcHeap_markClassPtr(this, iface);
 	}
 
 	void
@@ -591,6 +617,33 @@ struct jnc_GcHeap
 	}
 };
 #endif // _JNC_CORE
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_INLINE
+void
+jnc_GcHeap_markDataPtr(
+	jnc_GcHeap* gcHeap,
+	jnc_DataPtr ptr
+	)
+{
+	if (ptr.m_validator)
+	{
+		jnc_GcHeap_weakMark(gcHeap, ptr.m_validator->m_validatorBox);
+		jnc_GcHeap_markData(gcHeap, ptr.m_validator->m_targetBox);
+	}
+}
+
+JNC_INLINE
+void
+jnc_GcHeap_markClassPtr(
+	jnc_GcHeap* gcHeap,
+	jnc_IfaceHdr* iface
+	)
+{
+	if (iface)
+		jnc_GcHeap_markClass(gcHeap, iface->m_box);
+}
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
