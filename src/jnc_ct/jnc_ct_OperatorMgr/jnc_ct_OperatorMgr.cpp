@@ -1107,7 +1107,25 @@ OperatorMgr::typeofOperator(
 	if (type->getTypeKind() == TypeKind_DataRef)
 		type = ((DataPtrType*)type)->getTargetType();
 
-	resultValue->setNull(m_module);
+	if (dynamism == OperatorDynamism_Dynamic)
+	{
+		type = prepareOperandType(opValue);
+		if (type->getTypeKind() != TypeKind_DataPtr)
+		{
+			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
+			return false;
+		}
+
+/*		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicTypeOf);
+		bool result = callOperator(function, opValue, resultValue);
+		if (!result)
+			return false; */
+
+		err::setError("'dynamic typeof' operator is not yet implemented");
+		return false;
+	}
+
+	resultValue->setVariable(type->getTypeVariable());
 	return true;
 }
 
