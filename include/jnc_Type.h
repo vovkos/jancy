@@ -339,6 +339,7 @@ JNC_EXTERN_C
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
+	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);
@@ -401,11 +402,21 @@ struct jnc_Type: jnc_ModuleItem
 
 	jnc_DataPtrType*
 	getDataPtrType(
+		jnc_TypeKind typeKind,
 		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return jnc_Type_getDataPtrType(this, ptrTypeKind, flags);
+		return jnc_Type_getDataPtrType(this, typeKind, ptrTypeKind, flags);
+	}
+
+	jnc_DataPtrType*
+	getDataPtrType(
+		jnc_DataPtrTypeKind ptrTypeKind = jnc_DataPtrTypeKind_Normal,
+		uint_t flags = 0
+		)
+	{
+		return jnc_Type_getDataPtrType(this, jnc_TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
 	void

@@ -63,11 +63,12 @@ JNC_EXPORT_O
 jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
+	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_classTypeFuncTable->m_getClassPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -135,11 +136,12 @@ JNC_EXPORT_O
 jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
+	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return type->getClassPtrType(ptrTypeKind, flags);
+	return type->getClassPtrType(typeKind, ptrTypeKind, flags);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

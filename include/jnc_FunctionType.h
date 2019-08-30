@@ -129,6 +129,7 @@ JNC_EXTERN_C
 jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType(
 	jnc_FunctionType* type,
+	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);
@@ -163,11 +164,21 @@ struct jnc_FunctionType: jnc_Type
 
 	jnc_FunctionPtrType*
 	getFunctionPtrType(
+		jnc_TypeKind typeKind,
 		jnc_FunctionPtrTypeKind ptrTypeKind = jnc_FunctionPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return jnc_FunctionType_getFunctionPtrType(this, ptrTypeKind, flags);
+		return jnc_FunctionType_getFunctionPtrType(this, typeKind, ptrTypeKind, flags);
+	}
+
+	jnc_FunctionPtrType*
+	getFunctionPtrType(
+		jnc_FunctionPtrTypeKind ptrTypeKind = jnc_FunctionPtrTypeKind_Normal,
+		uint_t flags = 0
+		)
+	{
+		return jnc_FunctionType_getFunctionPtrType(this, jnc_TypeKind_FunctionPtr, ptrTypeKind, flags);
 	}
 
 	jnc_FunctionType*

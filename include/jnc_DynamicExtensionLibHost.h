@@ -433,6 +433,7 @@ typedef
 jnc_DataPtrType*
 jnc_Type_GetDataPtrTypeFunc(
 	jnc_Type* type,
+	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);
@@ -612,6 +613,7 @@ typedef
 jnc_FunctionPtrType*
 jnc_FunctionType_GetFunctionPtrTypeFunc(
 	jnc_FunctionType* type,
+	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);
@@ -737,6 +739,7 @@ typedef
 jnc_ClassPtrType*
 jnc_ClassType_GetClassPtrTypeFunc(
 	jnc_ClassType* type,
+	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);

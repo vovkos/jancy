@@ -79,11 +79,12 @@ JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType(
 	jnc_FunctionType* type,
+	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc(type, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_functionTypeFuncTable->m_getFunctionPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -182,11 +183,12 @@ JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_FunctionType_getFunctionPtrType(
 	jnc_FunctionType* type,
+	jnc_TypeKind typeKind,
 	jnc_FunctionPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return type->getFunctionPtrType(ptrTypeKind, flags);
+	return type->getFunctionPtrType(typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C

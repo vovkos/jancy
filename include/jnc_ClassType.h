@@ -100,6 +100,7 @@ JNC_EXTERN_C
 jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
+	jnc_TypeKind typeKind,
 	jnc_ClassPtrTypeKind ptrTypeKind,
 	uint_t flags
 	);
@@ -124,11 +125,21 @@ struct jnc_ClassType: jnc_DerivableType
 
 	jnc_ClassPtrType*
 	getClassPtrType(
+		jnc_TypeKind typeKind,
 		jnc_ClassPtrTypeKind ptrTypeKind = jnc_ClassPtrTypeKind_Normal,
 		uint_t flags = 0
 		)
 	{
-		return jnc_ClassType_getClassPtrType(this, ptrTypeKind, flags);
+		return jnc_ClassType_getClassPtrType(this, typeKind, ptrTypeKind, flags);
+	}
+
+	jnc_ClassPtrType*
+	getClassPtrType(
+		jnc_ClassPtrTypeKind ptrTypeKind = jnc_ClassPtrTypeKind_Normal,
+		uint_t flags = 0
+		)
+	{
+		return jnc_ClassType_getClassPtrType(this, jnc_TypeKind_ClassPtr, ptrTypeKind, flags);
 	}
 };
 

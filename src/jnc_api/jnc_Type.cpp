@@ -252,11 +252,12 @@ JNC_EXPORT_O
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
+	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getDataPtrTypeFunc(type, ptrTypeKind, flags);
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_getDataPtrTypeFunc(type, typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
@@ -345,11 +346,12 @@ JNC_EXPORT_O
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
+	jnc_TypeKind typeKind,
 	jnc_DataPtrTypeKind ptrTypeKind,
 	uint_t flags
 	)
 {
-	return type->getDataPtrType(ptrTypeKind, flags);
+	return type->getDataPtrType(typeKind, ptrTypeKind, flags);
 }
 
 JNC_EXTERN_C
