@@ -438,7 +438,10 @@ protected:
 		);
 
 	void
-	markClassFields(Box* box);
+	markClassFields(
+		ClassType* type,
+		IfaceHdr* ifaceHdr
+		);
 
 	void
 	runMarkCycle();

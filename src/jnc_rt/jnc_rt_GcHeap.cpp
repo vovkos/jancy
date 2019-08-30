@@ -343,7 +343,10 @@ GcHeap::addClassBox_l(Box* box)
 	m_classBoxArray.append(box); // after all the fields
 
 	if (classType->getDestructor())
+	{
+		TRACE("++ Adding destructible class %s(%p)\n", classType->getQualifiedName().sz(), box);
 		m_destructibleClassBoxArray.append(box);
+	}
 }
 
 void
@@ -1184,13 +1187,15 @@ GcHeap::markVariant(const Variant& variant)
 void
 GcHeap::markClass(Box* box)
 {
+	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
+
 	if (box->m_flags & BoxFlag_ClassMark)
 		return;
 
 	ASSERT(!(box->m_flags & BoxFlag_Static)); // statics are always marked
 
 	weakMark(box);
-	markClassFields(box);
+	markClassFields((ClassType*)box->m_type, (IfaceHdr*)(box + 1));
 
 	box->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark;
 
@@ -1199,25 +1204,39 @@ GcHeap::markClass(Box* box)
 }
 
 void
-GcHeap::markClassFields(Box* box)
+GcHeap::markClassFields(
+	ClassType* type,
+	IfaceHdr* ifaceHdr
+	)
 {
-	ASSERT(box->m_type->getTypeKind() == TypeKind_Class);
+	char* p = (char*)ifaceHdr;
 
-	char* p0 = (char*)(box + 1);
-	ct::ClassType* classType = (ct::ClassType*)box->m_type;
-	sl::Array<ct::StructField*> classMemberFieldArray = classType->getClassMemberFieldArray();
-	size_t count = classMemberFieldArray.getCount();
+	// mark class fields in base classes
+
+	sl::Array<ct::BaseTypeSlot*> classBaseTypeArray = type->getClassBaseTypeArray();
+	size_t count = classBaseTypeArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		ct::BaseTypeSlot* slot = classBaseTypeArray[i];
+		markClassFields((ClassType*)slot->getType(), (IfaceHdr*)(p + slot->getOffset()));
+	}
+
+	// mark class fields in this class
+
+	sl::Array<ct::StructField*> classMemberFieldArray = type->getClassMemberFieldArray();
+	count = classMemberFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
 		ct::StructField* field = classMemberFieldArray[i];
-		Box* fieldBox = (Box*)(p0 + field->getOffset());
+		Box* fieldBox = (Box*)(p + field->getOffset());
 		ASSERT(fieldBox->m_type == field->getType());
+		ASSERT(fieldBox->m_type->getTypeKind() == TypeKind_Class);
 
 		if (fieldBox->m_flags & BoxFlag_ClassMark)
 			continue;
 
 		fieldBox->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark | BoxFlag_WeakMark;
-		markClassFields(fieldBox);
+		markClassFields((ClassType*)fieldBox->m_type, (IfaceHdr*)(fieldBox + 1));
 	}
 }
 
@@ -1608,6 +1627,8 @@ GcHeap::collect_l(bool isMutatorThread)
 
 			box->m_flags |= BoxFlag_Destructed;
 			destructArray.append(iface);
+
+			TRACE("-- Scheduling %s(%p) for destruction...\n", box->m_type->getTypeString().sz(), box);
 		}
 	}
 
