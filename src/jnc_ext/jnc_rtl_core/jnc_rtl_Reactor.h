@@ -59,7 +59,7 @@ protected:
 	sl::Array<Multicast*> m_pendingOnChangedBindingArray;
 	sl::Array<Multicast*> m_pendingOnEventBindingArray;
 	sl::List<Binding> m_bindingList;
-	sl::HashTable<Multicast*, Binding*, sl::HashId<Multicast*> > m_bindingMap;
+	sl::SimpleHashTable<Multicast*, Binding*> m_bindingMap;
 
 public:
 	ReactorImpl();

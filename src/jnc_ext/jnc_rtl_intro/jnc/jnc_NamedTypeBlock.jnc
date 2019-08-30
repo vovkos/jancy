@@ -1,0 +1,45 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char namedTypeBlockSrc[] =
+
+//..............................................................................
+
+opaque class NamedTypeBlock
+{
+	Function* const property m_staticConstructor;
+	Function* const property m_staticDestructor;
+	Function* const property m_constructor;
+	Function* const property m_destructor;
+
+	size_t const property m_memberFieldCount;
+	StructField* const property m_memberFieldArray(size_t index);
+
+	size_t const property m_memberMethodCount;
+	Function* const property m_memberMethodArray(size_t index);
+
+	size_t const property m_memberPropertyCount;
+	Property* const property m_memberPropertyArray(size_t index);
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

@@ -1,0 +1,50 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char variableSrc[] =
+
+//..............................................................................
+
+opaque class Variable:
+	ModuleItem,
+	ModuleItemDecl,
+	ModuleItemInitializer
+{
+	Type* const property m_type;
+	PtrTypeFlags const property m_ptrTypeFlags;
+
+	construct(intptr p);
+}
+
+///; static char constSrc[] =
+
+//..............................................................................
+
+opaque class Const:
+	ModuleItem,
+	ModuleItemDecl
+{
+	variant const property m_value;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

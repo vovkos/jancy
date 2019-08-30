@@ -1,0 +1,69 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char namespaceKindSrc[] =
+
+//..............................................................................
+
+enum NamespaceKind
+{
+	Undefined,
+	Global,
+	Scope,
+	Type,
+	Extension,
+	Property,
+	PropertyTemplate,
+	DynamicLib,
+	_Count,
+}
+
+///; static char namespaceSrc[] =
+
+//..............................................................................
+
+opaque class Namespace: ModuleItemDecl
+{
+	NamespaceKind const property m_namespaceKind;
+	size_t const property m_itemCount;
+	ModuleItem* const property m_itemArray(size_t index);
+	ModuleItem* findItem(char const* name);
+	Variable* findVariable(char const* name);
+	Function* findFunction(char const* name);
+	Property* findProperty(char const* name);
+	ClassType* findClassType(char const* name);
+
+	construct(intptr p);
+}
+
+///; static char globalNamespaceSrc[] =
+
+//..............................................................................
+
+opaque class GlobalNamespace:
+	ModuleItem,
+	Namespace
+{
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

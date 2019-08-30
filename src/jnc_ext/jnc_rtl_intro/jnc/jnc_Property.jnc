@@ -1,0 +1,66 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char propertyKindSrc[] =
+
+//..............................................................................
+
+enum PropertyKind
+{
+	Undefined = 0,
+	Normal,
+	Thunk,
+	DataThunk,
+	Internal,
+	_Count
+}
+
+///; static char propertyFlagSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PropertyFlag
+{
+	Const    = 0x010000,
+	Bindable = 0x020000,
+	AutoGet  = 0x100000,
+	AutoSet  = 0x200000,
+}
+
+///; static char propertySrc[] =
+
+//..............................................................................
+
+opaque class Property:
+	ModuleItem,
+	Namespace,
+	NamedTypeBlock
+{
+	PropertyKind const property m_propertyKind;
+	PropertyType* const property m_type;
+	Function* const property m_getter;
+	Function* const property m_setter;
+	Function* const property m_binder;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

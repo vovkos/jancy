@@ -1,0 +1,143 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char moduleItemKindSrc[] =
+
+//..............................................................................
+
+enum ModuleItemKind
+{
+	Undefined = 0,
+	Namespace,
+	Scope,
+	Type,
+	Typedef,
+	Alias,
+	Const,
+	Variable,
+	FunctionArg,
+	Function,
+	Property,
+	PropertyTemplate,
+	EnumConst,
+	StructField,
+	BaseTypeSlot,
+	Orphan,
+	Lazy,
+	_Count,
+}
+
+///; static char moduleItemFlagsSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum ModuleItemFlags
+{
+	User         = 0x01,
+	NeedLayout   = 0x02,
+	NeedCompile  = 0x04,
+	InCalcLayout = 0x10,
+	LayoutReady  = 0x20,
+	Constructed  = 0x40, // fields, properties, base type slots
+	Sealed       = 0x80,
+}
+
+///; static char storageKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum StorageKind
+{
+	Undefined = 0,
+	Alias,
+	Typedef,
+	Static,
+	Tls,
+	Stack,
+	Heap,
+	Member,
+	Abstract,
+	Virtual,
+	Override,
+	Mutable,
+	Disposable,
+	This,
+	_Count,
+}
+
+///; static char accessKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum AccessKind
+{
+	Undefined = 0,
+	Public,
+	Protected,
+	_Count,
+}
+
+///; static char moduleItemDeclSrc[] =
+
+//..............................................................................
+
+opaque class ModuleItemDecl
+{
+	char const* const property m_name;
+	char const* const property m_qualifiedName;
+	StorageKind const property m_storageKind;
+	AccessKind const property m_accessKind;
+	AttributeBlock* const property m_attributeBlock;
+	Namespace* const property m_parentNamespace;
+	Unit* const property m_parentUnit;
+	int const property m_line;
+	int const property m_col;
+
+	construct(intptr p);
+	destruct();
+}
+
+///; static char moduleItemInitializerSrc[] =
+
+//..............................................................................
+
+opaque class ModuleItemInitializer
+{
+	char const* const property m_initializer;
+
+	construct(intptr p);
+}
+
+///; static char moduleItemSrc[] =
+
+//..............................................................................
+
+opaque class ModuleItem
+{
+	Module* const property m_module;
+	ModuleItemKind const property m_itemKind;
+	uint_t const property m_flags;
+	Type* const property m_type;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

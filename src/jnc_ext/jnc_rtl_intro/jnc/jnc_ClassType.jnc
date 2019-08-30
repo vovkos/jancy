@@ -1,0 +1,92 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+//..............................................................................
+
+///; static char classTypeKindSrc[] =
+
+enum ClassTypeKind
+{
+	Normal = 0,
+	Abstract, // class*
+	Multicast,
+	McSnapshot,
+	Reactor,
+	FunctionClosure,
+	PropertyClosure,
+	DataClosure,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char classTypeFlagsSrc[] =
+
+bitflag enum ClassTypeFlags
+{
+	HasAbstractMethods = 0x010000,
+	Closure            = 0x020000,
+	Opaque             = 0x040000,
+	OpaqueNonCreatable = 0x080000,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+///; static char classPtrTypeKindSrc[] =
+
+enum ClassPtrTypeKind
+{
+	Normal = 0,
+	Weak,
+	_Count,
+}
+
+///; static char classTypeSrc[] =
+
+//..............................................................................
+
+opaque class ClassType: DerivableType
+{
+	ClassTypeKind const property m_classTypeKind;
+	StructType* const property m_ifaceStructType;
+	StructType* const property m_classStructType;
+
+	construct(intptr p);
+
+	ClassPtrType* getClassPtrType(
+		TypeKind typeKind = TypeKind.ClassPtr,
+		ClassPtrTypeKind ptrTypeKind = ClassPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+		);
+}
+
+///; static char classPtrTypeSrc[] =
+
+//..............................................................................
+
+opaque class ClassPtrType: Type
+{
+	ClassPtrTypeKind const property m_ptrTypeKind;
+	ClassType* const property m_targetType;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

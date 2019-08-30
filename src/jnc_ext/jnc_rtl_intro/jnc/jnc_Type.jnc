@@ -1,0 +1,252 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char typeKindSrc[] =
+
+//..............................................................................
+
+enum TypeKind
+{
+	// primitive types (completely identified by TypeKind)
+
+	Void,
+	Variant,
+	Bool,
+
+	// little-endian integers
+
+	Int8,
+	Int8_u,
+	Int16,
+	Int16_u,
+	Int32,
+	Int32_u,
+	Int64,
+	Int64_u,
+
+	// big-endian integers
+
+	Int16_be,
+	Int16_beu,
+	Int32_be,
+	Int32_beu,
+	Int64_be,
+	Int64_beu,
+
+	// floating point
+
+	Float,
+	Double,
+
+	// derived types
+
+	Array,
+	BitField,
+
+	// named types
+
+	Enum,
+	Struct,
+	Union,
+	Class,
+
+	// function types
+
+	Function,
+	Property,
+
+	// pointers & references
+
+	DataPtr,
+	DataRef,
+	ClassPtr,
+	ClassRef,
+	FunctionPtr,
+	FunctionRef,
+	PropertyPtr,
+	PropertyRef,
+
+	// import types (resolved after linkage)
+
+	NamedImport,
+	ImportPtr,
+	ImportIntMod,
+
+	// when generating documentation, we want to keep typedef shadow in declarations
+
+	TypedefShadow,
+
+	// aliases
+
+	Int     = Int32,
+	Int_u   = Int32_u,
+	Char    = Int8,
+	Char_u  = Int8_u,
+	Byte    = Int8_u,
+	Short   = Int16,
+	Short_u = Int16_u,
+	Word    = Int16_u,
+	Long    = Int64,
+	Long_u  = Int64_u,
+	DWord   = Int32_u,
+	QWord   = Int64_u,
+}
+
+///; static char typeKindFlagsSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum typeKindFlags
+{
+	Integer      = 0x00000001,
+	Unsigned     = 0x00000002,
+	BigEndian    = 0x00000004,
+	Fp           = 0x00000008,
+	Numeric      = 0x00000010,
+	Aggregate    = 0x00000020,
+	Named        = 0x00000100,
+	Derivable    = 0x00000200,
+	DataPtr      = 0x00000400,
+	ClassPtr     = 0x00000800,
+	FunctionPtr  = 0x00001000,
+	PropertyPtr  = 0x00002000,
+	Ptr          = 0x00004000,
+	Ref          = 0x00008000,
+	Import       = 0x00010000,
+	Code         = 0x00020000,
+	Nullable     = 0x00040000,
+	ErrorCode    = 0x00080000,
+}
+
+///; static char typeFlagsSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum TypeFlags
+{
+	Named     = 0x0100,
+	Pod       = 0x0200, // plain-old-data
+	GcRoot    = 0x0400, // is or contains gc-traceable pointers
+	StructRet = 0x0800, // return through hidden 1st arg (gcc32 callconv)
+	NoStack   = 0x1000, // try to avoid allocation on stack
+	Dynamic   = 0x2000, // dynamic struct/union/array
+}
+
+///; static char ptrTypeFlagsSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PtrTypeFlags
+{
+	Safe       = 0x0010000, // all ptr
+	Const      = 0x0020000, // class & data ptr
+	ReadOnly   = 0x0040000, // class & data ptr
+	CMut       = 0x0080000, // class & data ptr
+	Volatile   = 0x0100000, // class & data ptr
+	Event      = 0x0200000, // multicast-class only
+	DualEvent  = 0x0400000, // multicast-class only
+	Bindable   = 0x0800000, // multicast-class only
+	AutoGet    = 0x1000000, // data ptr only
+	DualTarget = 0x2000000, // data ptr only
+
+	_Dual =
+		ReadOnly |
+		CMut |
+		DualEvent |
+		DualTarget,
+}
+
+///; static char dataPtrTypeKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DataPtrTypeKind
+{
+	Normal = 0,
+	Lean,
+	Thin,
+	_Count,
+}
+
+///; static char typeSrc[] =
+
+//..............................................................................
+
+opaque class Type: ModuleItem
+{
+	TypeKind const property m_typeKind;
+	size_t const property m_size;
+	size_t const property m_alignment;
+	char const* const property m_signature;
+	char const* const property m_typeString;
+	char const* const property m_typeStringPrefix;
+	char const* const property m_typeStringSuffix;
+
+	construct(intptr p);
+	destruct();
+
+	int cmp(Type* type);
+	ArrayType* getArrayType(size_t elementCount);
+
+	DataPtrType* getDataPtrType(
+		TypeKind typeKind = TypeKind.DataPtr,
+		DataPtrTypeKind ptrTypeKind = DataPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+		);
+}
+
+///; static char namedTypeSrc[] =
+
+//..............................................................................
+
+opaque class NamedType:
+	Type,
+	Namespace
+{
+	construct(intptr p);
+}
+
+///; static char dataPtrTypeSrc[] =
+
+//..............................................................................
+
+opaque class DataPtrType: Type
+{
+	DataPtrTypeKind const property m_ptrTypeKind;
+	Type* const property m_targetType;
+
+	construct(intptr p);
+}
+
+///; static char typedefSrc[] =
+
+//..............................................................................
+
+opaque class Typedef:
+	ModuleItem,
+	ModuleItemDecl
+{
+	Type* const property m_type;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

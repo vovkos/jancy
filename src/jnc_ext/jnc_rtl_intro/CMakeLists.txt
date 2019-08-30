@@ -15,24 +15,50 @@
 
 set(
 	LIB_H_LIST
-	jnc_rtl_DynamicLib.h
-	jnc_rtl_DynamicLayout.h
-	jnc_rtl_Multicast.h
-	jnc_rtl_Promise.h
-	jnc_rtl_Reactor.h
-	jnc_rtl_Regex.h
+	jnc_rtl_Alias.h
+	jnc_rtl_ArrayType.h
+	jnc_rtl_AttributeBlock.h
+	jnc_rtl_BitFieldType.h
+	jnc_rtl_ClassType.h
+	jnc_rtl_DerivableType.h
+	jnc_rtl_EnumType.h
+	jnc_rtl_Function.h
+	jnc_rtl_FunctionType.h
+	jnc_rtl_Module.h
+	jnc_rtl_ModuleItem.h
+	jnc_rtl_NamedTypeBlock.h
+	jnc_rtl_Namespace.h
+	jnc_rtl_Property.h
+	jnc_rtl_PropertyType.h
+	jnc_rtl_StructType.h
+	jnc_rtl_Type.h
+	jnc_rtl_UnionType.h
+	jnc_rtl_Variable.h
+	jnc_rtl_IntrospectionLib.h
 	)
 
 set(
 	LIB_CPP_LIST
-	jnc_rtl_CoreLib.cpp
-	jnc_rtl_DynamicLib.cpp
-	jnc_rtl_DynamicLayout.cpp
-	jnc_rtl_Multicast.cpp
-	jnc_rtl_Promise.cpp
-	jnc_rtl_Reactor.cpp
-	jnc_rtl_Reactor.cpp
-	jnc_rtl_Regex.cpp
+	jnc_rtl_Alias.cpp
+	jnc_rtl_ArrayType.cpp
+	jnc_rtl_AttributeBlock.cpp
+	jnc_rtl_BitFieldType.cpp
+	jnc_rtl_ClassType.cpp
+	jnc_rtl_DerivableType.cpp
+	jnc_rtl_EnumType.cpp
+	jnc_rtl_Function.cpp
+	jnc_rtl_FunctionType.cpp
+	jnc_rtl_Module.cpp
+	jnc_rtl_ModuleItem.cpp
+	jnc_rtl_NamedTypeBlock.cpp
+	jnc_rtl_Namespace.cpp
+	jnc_rtl_Property.cpp
+	jnc_rtl_PropertyType.cpp
+	jnc_rtl_StructType.cpp
+	jnc_rtl_Type.cpp
+	jnc_rtl_UnionType.cpp
+	jnc_rtl_Variable.cpp
+	jnc_rtl_IntrospectionLib.cpp
 	)
 
 source_group(
@@ -49,16 +75,26 @@ source_group(
 
 set(
 	JNC_LIST
-	jnc/jnc_globals.jnc
-	jnc/jnc_GcTriggers.jnc
-	jnc/jnc_GcStats.jnc
-	jnc/jnc_DynamicLib.jnc
-	jnc/jnc_Promise.jnc
-	jnc/jnc_Regex.jnc
-	jnc/jnc_Scheduler.jnc
-	jnc/jnc_StdFunctions.jnc
-	jnc/jnc_StdTypes.jnc
-	jnc/jnc_StdTypedefs.jnc
+	jnc/jnc_Alias.jnc
+	jnc/jnc_ArrayType.jnc
+	jnc/jnc_AttributeBlock.jnc
+	jnc/jnc_BitFieldType.jnc
+	jnc/jnc_ClassType.jnc
+	jnc/jnc_DerivableType.jnc
+	jnc/jnc_EnumType.jnc
+	jnc/jnc_Function.jnc
+	jnc/jnc_FunctionType.jnc
+	jnc/jnc_Module.jnc
+	jnc/jnc_ModuleItem.jnc
+	jnc/jnc_NamedTypeBlock.jnc
+	jnc/jnc_Namespace.jnc
+	jnc/jnc_OpKind.jnc
+	jnc/jnc_Property.jnc
+	jnc/jnc_PropertyType.jnc
+	jnc/jnc_StructType.jnc
+	jnc/jnc_Type.jnc
+	jnc/jnc_UnionType.jnc
+	jnc/jnc_Variable.jnc
 	)
 
 source_group(
@@ -85,7 +121,7 @@ source_group(
 
 #...............................................................................
 #
-# jnc_rtl library
+# jnc_rtl_intro library
 #
 
 include_directories(
@@ -98,7 +134,7 @@ include_directories(
 	)
 
 add_library(
-	jnc_rtl
+	jnc_rtl_intro
 	${PCH_H}
 	${PCH_CPP}
 	${LIB_H_LIST}
@@ -107,13 +143,13 @@ add_library(
 	)
 
 axl_set_pch(
-	jnc_rtl
+	jnc_rtl_intro
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 set_target_properties(
-	jnc_rtl
+	jnc_rtl_intro
 	PROPERTIES
 	FOLDER extensions
 	)
@@ -124,7 +160,7 @@ set_target_properties(
 
 if(UNIX)
 	add_library(
-		jnc_rtl_o OBJECT
+		jnc_rtl_intro_o OBJECT
 		${PCH_H}
 		${PCH_O_CPP}
 		${LIB_H_LIST}
@@ -132,19 +168,19 @@ if(UNIX)
 		)
 
 	target_compile_definitions(
-		jnc_rtl_o
+		jnc_rtl_intro_o
 		PUBLIC
 		-D_JNC_OBJECT_LIB=1
 		)
 
 	axl_set_pch(
-		jnc_rtl_o
+		jnc_rtl_intro_o
 		${PCH_H}
 		${PCH_O_CPP}
 		)
 
 	set_target_properties(
-		jnc_rtl_o
+		jnc_rtl_intro_o
 		PROPERTIES
 		FOLDER extensions
 		)
@@ -153,7 +189,7 @@ endif()
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
-	TARGETS jnc_rtl
+	TARGETS jnc_rtl_intro
 	DESTINATION ${JANCY_INSTALL_LIB_SUBDIR}
 	)
 

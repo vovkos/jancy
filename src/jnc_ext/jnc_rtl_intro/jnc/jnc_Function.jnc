@@ -1,0 +1,81 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char functionKindSrc[] =
+
+//..............................................................................
+
+enum FunctionKind
+{
+	Undefined = 0,
+	Normal,
+	Getter,
+	Setter,
+	Binder,
+	PreConstructor,
+	Constructor,
+	Destructor,
+	StaticConstructor,
+	StaticDestructor,
+	CallOperator,
+	CastOperator,
+	UnaryOperator,
+	BinaryOperator,
+	OperatorVararg,
+	OperatorCdeclVararg,
+	Internal,
+	Thunk,
+	SchedLauncher,
+	AsyncSchedLauncher,
+	AsyncSequencer,
+	_Count
+}
+
+///; static char functionKindFlagsSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum FunctionKindFlags
+{
+	NoStorage   = 0x01,
+	NoOverloads = 0x02,
+	NoArgs      = 0x04,
+}
+
+///; static char functionSrc[] =
+
+//..............................................................................
+
+opaque class Function:
+	ModuleItem,
+	ModuleItemDecl
+{
+	FunctionKind const property m_functionKind;
+	FunctionType* const property m_type;
+	bool const property m_isMember;
+	size_t const property m_overloadCount;
+	Function* const property m_overloadArray(size_t index);
+	void thin* const property m_machineCode;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

@@ -1,0 +1,77 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char propertyTypeFlagsSrc[] =
+
+//..............................................................................
+
+bitflag enum PropertyTypeFlags
+{
+	Const    = 0x010000,
+	Bindable = 0x020000,
+}
+
+///; static char propertyPtrTypeKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum PropertyPtrTypeKind
+{
+	Normal = 0,
+	Weak,
+	Thin,
+	_Count,
+}
+
+///; static char propertyTypeSrc[] =
+
+//..............................................................................
+
+opaque class PropertyType: Type
+{
+	bool const property m_isConst;
+	bool const property m_isIndexed;
+	FunctionType* const property m_getterType;
+	FunctionType* const property m_setterType;
+	FunctionType* const property m_binderType;
+
+	construct(intptr p);
+
+	PropertyPtrType* getPropertyPtrType(
+		TypeKind typeKind = TypeKind.PropertyPtr,
+		PropertyPtrTypeKind ptrTypeKind = PropertyPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+		);
+}
+
+///; static char propertyPtrTypeSrc[] =
+
+//..............................................................................
+
+opaque class PropertyPtrType: Type
+{
+	PropertyPtrTypeKind const property m_ptrTypeKind;
+	PropertyType* const property m_targetType;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

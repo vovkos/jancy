@@ -1,0 +1,81 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char moduleCompileFlagsSrc[] =
+
+//..............................................................................
+
+bitflag enum ModuleCompileFlags
+{
+	DebugInfo                     = 0x00000001,
+	McJit                         = 0x00000002,
+	SimpleGcSafePoint             = 0x00000004,
+	GcSafePointInPrologue         = 0x00000010,
+	GcSafePointInInternalPrologue = 0x00000020,
+	Documentation                 = 0x00000200,
+	IgnoreOpaqueClassTypeInfo     = 0x00000400,
+	KeepTypedefShadow             = 0x00000800,
+	StdLibDoc                     = 0x00001000,
+	DisableDoxyComment1           = 0x00002000,
+	DisableDoxyComment2           = 0x00004000,
+	DisableDoxyComment3           = 0x00008000,
+	DisableDoxyComment4           = 0x00010000,
+}
+
+///; static char moduleCompileStateSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ModuleCompileState
+{
+	Idle,
+	Linked,
+	LayoutCalculated,
+	Compiled,
+	Jitted,
+}
+
+///; static char moduleSrc[] =
+
+//..............................................................................
+
+opaque class Module
+{
+	ModuleCompileFlags const property m_compileFlags;
+	ModuleCompileState const property m_compileState;
+	GlobalNamespace* const property m_globalNamespace;
+	Type* const property m_primitiveTypeTable(TypeKind typeKind);
+
+	construct(intptr p);
+}
+
+///; static char unitSrc[] =
+
+//..............................................................................
+
+opaque class Unit
+{
+	char const* const property m_filePath;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

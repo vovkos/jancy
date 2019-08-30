@@ -1,0 +1,36 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char arrayTypeSrc[] =
+
+//..............................................................................
+
+opaque class ArrayType: Type
+{
+	Type* const property m_elementType;
+	Type* const property m_rootType;
+	size_t const property m_elementCount;
+	Function* const property m_getDynamicSizeFunction;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

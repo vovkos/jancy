@@ -1,0 +1,96 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char functionTypeFlagsSrc[] =
+
+//..............................................................................
+
+bitflag enum FunctionTypeFlags
+{
+	VarArg         = 0x010000,
+	ErrorCode      = 0x020000,
+	ByValArgs      = 0x040000,
+	CoercedArgs    = 0x080000,
+	Unsafe         = 0x100000,
+	Async          = 0x200000,
+	AsyncErrorCode = 0x400000,
+}
+
+///; static char functionPtrTypeKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum FunctionPtrTypeKind
+{
+	Normal = 0,
+	Weak,
+	Thin,
+	_Count,
+}
+
+///; static char functionArgSrc[] =
+
+//..............................................................................
+
+class FunctionArg:
+	ModuleItem,
+	ModuleItemDecl,
+	ModuleItemInitializer
+{
+	Type* const property m_type;
+	PtrTypeFlags const property m_ptrTypeFlags;
+
+	construct(intptr p);
+}
+
+///; static char functionTypeSrc[] =
+
+//..............................................................................
+
+opaque class FunctionType: Type
+{
+	Type* const property m_returnType;
+	size_t const property m_argCount;
+	FunctionArg* const property m_argArray(size_t index);
+	FunctionType* const property m_shortType;
+
+	construct(intptr p);
+
+	FunctionPtrType* getFunctionPtrType(
+		TypeKind typeKind = TypeKind.FunctionPtr,
+		FunctionPtrTypeKind ptrTypeKind = FunctionPtrTypeKind.Normal,
+		PtrTypeFlags flags = 0
+		);
+}
+
+///; static char functionPtrTypeSrc[] =
+
+//..............................................................................
+
+opaque class FunctionPtrType: Type
+{
+	FunctionPtrTypeKind const property m_ptrTypeKind;
+	FunctionType* const property m_targetType;
+
+	construct(intptr p);
+}
+
+//..............................................................................
+
+///;
+
+///---
+
+} // namespace jnc

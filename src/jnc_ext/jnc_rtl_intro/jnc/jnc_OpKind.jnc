@@ -1,0 +1,103 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace jnc {
+
+///+++
+
+///; static char unOpKindSrc[] =
+
+//..............................................................................
+
+enum UnOpKind
+{
+	Undefined = 0,
+	Plus,
+	Minus,
+	BwNot,
+	Indir,
+	Addr,
+	LogNot,
+	PreInc,
+	PreDec,
+	PostInc,
+	PostDec,
+	Ptr,
+	_Count,
+}
+
+///; static char binOpKindSrc[] =
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum BinOpKind
+{
+	Undefined = 0,
+
+	// arithmetic
+
+	Add,
+	Sub,
+	Mul,
+	Div,
+	Mod,
+	Shl,
+	Shr,
+	BwAnd,
+	BwXor,
+	BwOr,
+	At,
+
+	// comparison
+
+	Eq,
+	Ne,
+	Lt,
+	Le,
+	Gt,
+	Ge,
+
+	// indexing
+
+	Idx,
+
+	// logic
+
+	LogAnd,
+	LogOr,
+
+	// assignment
+
+	Assign,
+	RefAssign,
+	AddAssign,
+	SubAssign,
+	MulAssign,
+	DivAssign,
+	ModAssign,
+	ShlAssign,
+	ShrAssign,
+	AndAssign,
+	XorAssign,
+	OrAssign,
+	AtAssign,
+
+	// meta
+
+	_Count,
+	_OpAssignDelta = AddAssign - Add,
+}
+
+//..............................................................................
+
+///---
+
+} // namespace jnc
