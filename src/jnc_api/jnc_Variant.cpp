@@ -11,12 +11,48 @@
 
 #include "pch.h"
 #include "jnc_Variant.h"
+#include "jnc_Runtime.h"
+#include "jnc_GcHeap.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
+#	include "jnc_rt_GcHeap.h"
 #endif
+
+//..............................................................................
+
+JNC_EXTERN_C
+bool_t
+jnc_Variant_create(
+	jnc_Variant* variant,
+	const void* p,
+	jnc_Type* type
+	)
+{
+	using namespace jnc;
+
+	size_t size = type->getSize();
+	if (size <= sizeof(jnc::DataPtr))
+	{
+		memcpy(variant, p, size);
+		variant->m_type = type;
+		return true;
+	}
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	if (!gcHeap)
+		return err::fail(err::Error("not inside Jancy call-site"));
+
+	DataPtr ptr = gcHeap->tryAllocateData(type);
+	if (!ptr.m_p)
+		return false;
+
+	memcpy(ptr.m_p, p, size);
+	variant->m_type = type->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	return true;
+}
 
 //..............................................................................
 

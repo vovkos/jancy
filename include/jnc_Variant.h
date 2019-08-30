@@ -115,6 +115,14 @@ JNC_EXTERN_C
 size_t
 jnc_Variant_hash(const jnc_Variant* variant);
 
+JNC_EXTERN_C
+bool_t
+jnc_Variant_create(
+	jnc_Variant* variant,
+	const void* p,
+	jnc_Type* type
+	);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_Variant
@@ -154,6 +162,15 @@ struct jnc_Variant
 	isNull() const
 	{
 		return jnc_Variant_isNull(this) != 0;
+	}
+
+	bool
+	create(
+		const void* p,
+		jnc_Type* type
+		)
+	{
+		return jnc_Variant_create(this, p, type) != 0;
 	}
 
 	bool
