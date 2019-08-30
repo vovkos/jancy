@@ -130,7 +130,7 @@ jnc_createForeignStringPtr(
 	ASSERT(gcHeap);
 
 	size_t length = strlen_s(p);
-	return gcHeap->createForeignBufferPtr(p, length + 1, isCallSiteLocal != 0);
+	return gcHeap->createForeignBufferPtr(p, p ? length + 1 : 0, isCallSiteLocal != 0);
 }
 
 //..............................................................................
