@@ -841,8 +841,15 @@ protected:
 
 	NamedType*
 	parseStdType(
+		StdType stdType,
+		Unit* unit
+		);
+
+	NamedType*
+	parseStdType(
+		const sl::StringRef& source,
 		StdNamespace stdNamespace,
-		const sl::StringRef& source
+		Unit* unit
 		);
 
 	ClassType*

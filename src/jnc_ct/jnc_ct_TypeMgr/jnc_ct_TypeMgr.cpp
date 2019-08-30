@@ -42,6 +42,15 @@
 namespace jnc {
 namespace ct {
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+NamedType*
+TypeMgr::parseStdType(StdType stdType)
+{
+	return parseStdType(stdType, m_module->m_unitMgr.getCoreLibUnit());
+}
+
 //..............................................................................
 
 TypeMgr::TypeMgr()
@@ -231,6 +240,73 @@ TypeMgr::getStdType(StdType stdType)
 		ASSERT(m_lazyStdTypeArray[stdType]);
 		m_lazyStdTypeArray[stdType]->detach();
 		type = parseStdType(stdType);
+		break;
+
+	case StdType_ModuleItemKind:
+	case StdType_ModuleItemFlags:
+	case StdType_StorageKind:
+	case StdType_AccessKind:
+	case StdType_ModuleItem:
+	case StdType_ModuleItemDecl:
+	case StdType_ModuleItemInitializer:
+	case StdType_Attribute:
+	case StdType_AttributeBlock:
+	case StdType_NamespaceKind:
+	case StdType_Namespace:
+	case StdType_GlobalNamespace:
+	case StdType_UnOpKind:
+	case StdType_BinOpKind:
+	case StdType_TypeKind:
+	case StdType_TypeKindFlags:
+	case StdType_TypeFlags:
+	case StdType_PtrTypeFlags:
+	case StdType_DataPtrTypeKind:
+	case StdType_Type:
+	case StdType_DataPtrType:
+	case StdType_NamedType:
+	case StdType_NamedTypeBlock:
+	case StdType_BaseTypeSlot:
+	case StdType_DerivableType:
+	case StdType_ArrayType:
+	case StdType_BitFieldType:
+	case StdType_FunctionTypeFlags:
+	case StdType_FunctionPtrTypeKind:
+	case StdType_FunctionArg:
+	case StdType_FunctionType:
+	case StdType_FunctionPtrType:
+	case StdType_PropertyTypeFlags:
+	case StdType_PropertyPtrTypeKind:
+	case StdType_PropertyType:
+	case StdType_PropertyPtrType:
+	case StdType_EnumTypeFlags:
+	case StdType_EnumConst:
+	case StdType_EnumType:
+	case StdType_ClassTypeKind:
+	case StdType_ClassTypeFlags:
+	case StdType_ClassPtrTypeKind:
+	case StdType_ClassType:
+	case StdType_ClassPtrType:
+	case StdType_StructTypeKind:
+	case StdType_StructField:
+	case StdType_StructType:
+	case StdType_UnionType:
+	case StdType_Alias:
+	case StdType_Variable:
+	case StdType_Const:
+	case StdType_FunctionKind:
+	case StdType_FunctionKindFlags:
+	case StdType_Function:
+	case StdType_PropertyKind:
+	case StdType_PropertyFlag:
+	case StdType_Property:
+	case StdType_Typedef:
+	case StdType_ModuleCompileFlags:
+	case StdType_ModuleCompileState:
+	case StdType_Module:
+	case StdType_Unit:
+		ASSERT(m_lazyStdTypeArray[stdType]);
+		m_lazyStdTypeArray[stdType]->detach();
+		type = parseStdType(stdType, m_module->m_unitMgr.getIntrospectionLibUnit());
 		break;
 
 	case StdType_Promise: // have cycles in definition
@@ -2161,6 +2237,7 @@ TypeMgr::setupPrimitiveType(
 #else
 	type->m_llvmDiType = NULL;
 #endif
+	type->m_typeVariable = NULL;
 	type->m_simplePropertyTypeTuple = NULL;
 	type->m_functionArgTuple = NULL;
 	type->m_dataPtrTypeTuple = NULL;
@@ -2185,21 +2262,26 @@ TypeMgr::setupStdTypedef(
 }
 
 NamedType*
-TypeMgr::parseStdType(StdType stdType)
+TypeMgr::parseStdType(
+	StdType stdType,
+	Unit* unit
+	)
 {
 	const StdItemSource* source = getStdTypeSource(stdType);
 	ASSERT(source->m_source);
 
 	return parseStdType(
+		sl::StringRef(source->m_source, source->m_length),
 		source->m_stdNamespace,
-		sl::StringRef(source->m_source, source->m_length)
+		unit
 		);
 }
 
 NamedType*
 TypeMgr::parseStdType(
+	const sl::StringRef& source,
 	StdNamespace stdNamespace,
-	const sl::StringRef& source
+	Unit* unit
 	)
 {
 	bool result;
@@ -2212,7 +2294,7 @@ TypeMgr::parseStdType(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_module->m_unitMgr.getCoreLibUnit());
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
 	ASSERT(prevUnit);
 
 	Parser parser(m_module);
@@ -2223,11 +2305,13 @@ TypeMgr::parseStdType(
 		const Token* token = lexer.getToken();
 
 		result = parser.parseToken(token);
+#if (_JNC_DEBUG)
 		if (!result)
 		{
 			TRACE("parse std type error: %s\n", err::getLastErrorDescription().sz());
 			ASSERT(false);
 		}
+#endif
 
 		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
 			break;
@@ -2247,10 +2331,13 @@ TypeMgr::parseStdType(
 	if (state >= ModuleCompileState_LayoutCalculated && m_parseStdTypeLevel == 1)
 	{
 		result = m_module->postParseStdItem();
+#if (_JNC_DEBUG)
 		if (!result)
-			printf("error: %s\n", err::getLastErrorDescription().sz());
-
-		ASSERT(result);
+		{
+			printf("post-parse std type error: %s\n", err::getLastErrorDescription().sz());
+			ASSERT(false);
+		}
+#endif
 
 		// if this assert fires, rewrite std type
 
