@@ -12,6 +12,8 @@
 #pragma once
 
 #include "jnc_GcHeap.h"
+#include "jnc_Type.h"
+#include "jnc_Variant.h"
 
 namespace jnc {
 namespace rt {
@@ -109,7 +111,8 @@ protected:
 	sl::Array<Root> m_markRootArray[2];
 	size_t m_currentMarkRootArrayIdx;
 
-	sl::HashTable<Box*, IfaceHdr*, sl::HashId<Box*> > m_dynamicLayoutMap;
+	sl::SimpleHashTable<Box*, IfaceHdr*> m_dynamicLayoutMap;
+	sl::SimpleHashTable<void*, IfaceHdr*> m_introspectionMap;
 
 	// adjustable triggers
 
@@ -220,6 +223,14 @@ public:
 
 	void
 	resetDynamicLayout(Box* box);
+
+	// introspection
+
+	IfaceHdr*
+	getIntrospectionClass(
+		void* item,
+		StdType stdType
+		);
 
 	// management methods
 

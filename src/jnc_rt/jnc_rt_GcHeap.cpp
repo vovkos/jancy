@@ -745,7 +745,7 @@ GcHeap::getDynamicLayout(Box* box)
 	m_lock.unlock();
 
 	// we need a call site so the newly allocated dynamic layout
-	// does not get collected during waitIdleAndLock ()
+	// does not get collected during waitIdleAndLock()
 
 	JNC_BEGIN_CALL_SITE(m_runtime)
 
@@ -753,7 +753,7 @@ GcHeap::getDynamicLayout(Box* box)
 
 	waitIdleAndLock();
 
-	sl::HashTableIterator<Box*, IfaceHdr*> it = m_dynamicLayoutMap.visit(box);
+	it = m_dynamicLayoutMap.visit(box);
 	if (it->m_value)
 		dynamicLayout = it->m_value;
 	else
@@ -772,6 +772,64 @@ GcHeap::resetDynamicLayout(Box* box)
 	waitIdleAndLock();
 	m_dynamicLayoutMap.eraseKey(box);
 	m_lock.unlock();
+}
+
+IfaceHdr*
+GcHeap::getIntrospectionClass(
+	void* item,
+	StdType stdType
+	)
+{
+	ASSERT(item);
+
+	IfaceHdr* introClass;
+
+	waitIdleAndLock();
+	sl::HashTableIterator<void*, IfaceHdr*> it = m_introspectionMap.find(item);
+	if (it)
+	{
+		introClass = it->m_value;
+		m_lock.unlock();
+		return introClass;
+	}
+
+	m_lock.unlock();
+
+	ClassType* type = (ClassType*)m_runtime->getModule()->m_typeMgr.getStdType(stdType);
+	ASSERT(type->getTypeKind() == TypeKind_Class);
+
+	Function* constructor = type->getConstructor();
+	ASSERT(constructor && constructor->getType()->getArgArray().getCount() == 2);
+
+	// we need a call site so the newly allocated introspection class
+	// does not get collected during waitIdleAndLock()
+
+	JNC_BEGIN_CALL_SITE(m_runtime)
+
+	introClass = allocateClass(type);
+	callVoidFunction(constructor, introClass, item);
+
+	waitIdleAndLock();
+
+	it = m_introspectionMap.visit(item);
+	if (it->m_value)
+	{
+		introClass = it->m_value;
+	}
+	else
+	{
+		it->m_value = introClass;
+
+		Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
+		Root root = { &it->m_value, ptrType };
+		m_staticRootArray.append(root);
+	}
+
+	m_lock.unlock();
+
+	JNC_END_CALL_SITE()
+
+	return introClass;
 }
 
 // management
@@ -844,6 +902,7 @@ GcHeap::finalizeShutdown()
 	m_classBoxArray.clear();
 	m_destructibleClassBoxArray.clear();
 	m_dynamicLayoutMap.clear();
+	m_introspectionMap.clear();
 }
 
 void
