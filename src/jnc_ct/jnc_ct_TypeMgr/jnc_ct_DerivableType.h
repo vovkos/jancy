@@ -144,7 +144,7 @@ protected:
 
 	sl::Array<Function*> m_unaryOperatorTable;
 	sl::Array<Function*> m_binaryOperatorTable;
-	sl::Array<Function*> m_castOperatorTable;
+	sl::Array<Function*> m_castOperatorArray;
 	sl::StringHashTable<Function*> m_castOperatorMap;
 	Function* m_callOperator;
 	Function* m_operatorVararg;
@@ -176,7 +176,7 @@ public:
 		return m_baseTypeList;
 	}
 
-	sl::Array<BaseTypeSlot*>
+	const sl::Array<BaseTypeSlot*>&
 	getBaseTypeArray()
 	{
 		return m_baseTypeArray;
@@ -240,10 +240,10 @@ public:
 		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : NULL;
 	}
 
-	Function*
-	getCastOperator(size_t i)
+	const sl::Array<Function*>&
+	getCastOperatorArray()
 	{
-		return i < m_castOperatorTable.getCount() ? m_castOperatorTable[i] : NULL;
+		return m_castOperatorArray;
 	}
 
 	Function*

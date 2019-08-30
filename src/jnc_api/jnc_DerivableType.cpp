@@ -275,14 +275,13 @@ jnc_DerivableType_getCastOperator(
 	size_t idx
 	)
 {
-	jnc_Function* function = type->getCastOperator(idx);
-	if (!function)
+	if (idx >= type->getCastOperatorArray().getCount())
 	{
 		err::setFormatStringError("'%s' has no cast operator #%d", type->getTypeString().sz(), idx);
 		return NULL;
 	}
 
-	return function;
+	return type->getCastOperatorArray()[idx];
 }
 
 JNC_EXTERN_C
