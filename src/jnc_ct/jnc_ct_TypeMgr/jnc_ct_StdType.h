@@ -74,5 +74,13 @@ public:
 
 //..............................................................................
 
+#define JNC_MAP_STD_TYPE(stdType, Type) \
+	if (module->m_typeMgr.isStdTypeUsed(stdType)) \
+	{ \
+		JNC_MAP_TYPE(Type); \
+	}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc
