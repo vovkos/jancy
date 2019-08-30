@@ -75,6 +75,7 @@ UnitMgr::UnitMgr()
 
 	m_currentUnit = NULL;
 	m_coreLibUnit = NULL;
+	m_introspectionLibUnit = NULL;
 }
 
 void
@@ -83,6 +84,7 @@ UnitMgr::clear()
 	m_unitList.clear();
 	m_currentUnit = NULL;
 	m_coreLibUnit = NULL;
+	m_introspectionLibUnit = NULL;
 }
 
 Unit*
@@ -99,9 +101,18 @@ Unit*
 UnitMgr::getCoreLibUnit()
 {
 	if (!m_coreLibUnit)
-		m_coreLibUnit = createUnit(jnc_CoreLib_getLib(), "jnc_rtl.jnc");
+		m_coreLibUnit = createUnit(jnc_CoreLib_getLib(), "jnc_rtl_core.jnc");
 
 	return m_coreLibUnit;
+}
+
+Unit*
+UnitMgr::getIntrospectionLibUnit()
+{
+	if (!m_introspectionLibUnit)
+		m_introspectionLibUnit = createUnit(jnc_IntrospectionLib_getLib(), "jnc_rtl_intro.jnc");
+
+	return m_introspectionLibUnit;
 }
 
 Unit*

@@ -133,6 +133,7 @@ Module::initialize(
 	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
 	{
 		m_extensionLibMgr.addStaticLib(jnc_CoreLib_getLib());
+		m_extensionLibMgr.addStaticLib(jnc_IntrospectionLib_getLib());
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}

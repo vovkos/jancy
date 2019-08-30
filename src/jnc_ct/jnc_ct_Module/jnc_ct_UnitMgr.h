@@ -104,6 +104,7 @@ protected:
 	sl::List<Unit> m_unitList;
 	Unit* m_currentUnit;
 	Unit* m_coreLibUnit;
+	Unit* m_introspectionLibUnit;
 
 public:
 	UnitMgr();
@@ -134,6 +135,9 @@ public:
 
 	Unit*
 	getCoreLibUnit();
+
+	Unit*
+	getIntrospectionLibUnit();
 
 	Unit*
 	createUnit(

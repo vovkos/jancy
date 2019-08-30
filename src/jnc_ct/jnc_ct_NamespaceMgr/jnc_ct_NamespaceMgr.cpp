@@ -111,7 +111,69 @@ NamespaceMgr::addStdItems()
 		jnc->addItem("RegexDfa", m_module->m_typeMgr.getLazyStdType(StdType_RegexDfa)) &&
 		jnc->addItem("Promise", m_module->m_typeMgr.getLazyStdType(StdType_Promise)) &&
 		jnc->addItem("Promisifier", m_module->m_typeMgr.getLazyStdType(StdType_Promisifier)) &&
-		jnc->addItem("DynamicLib", m_module->m_typeMgr.getLazyStdType(StdType_DynamicLib));
+		jnc->addItem("DynamicLib", m_module->m_typeMgr.getLazyStdType(StdType_DynamicLib)) &&
+		jnc->addItem("ModuleItemKind", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemKind)) &&
+		jnc->addItem("ModuleItemFlags", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemFlags)) &&
+		jnc->addItem("StorageKind", m_module->m_typeMgr.getLazyStdType(StdType_StorageKind)) &&
+		jnc->addItem("AccessKind", m_module->m_typeMgr.getLazyStdType(StdType_AccessKind)) &&
+		jnc->addItem("ModuleItem", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItem)) &&
+		jnc->addItem("ModuleItemDecl", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemDecl)) &&
+		jnc->addItem("ModuleItemInitializer", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemInitializer)) &&
+		jnc->addItem("Attribute", m_module->m_typeMgr.getLazyStdType(StdType_Attribute)) &&
+		jnc->addItem("AttributeBlock", m_module->m_typeMgr.getLazyStdType(StdType_AttributeBlock)) &&
+		jnc->addItem("NamespaceKind", m_module->m_typeMgr.getLazyStdType(StdType_NamespaceKind)) &&
+		jnc->addItem("Namespace", m_module->m_typeMgr.getLazyStdType(StdType_Namespace)) &&
+		jnc->addItem("GlobalNamespace", m_module->m_typeMgr.getLazyStdType(StdType_GlobalNamespace)) &&
+		jnc->addItem("UnOpKind", m_module->m_typeMgr.getLazyStdType(StdType_UnOpKind)) &&
+		jnc->addItem("BinOpKind", m_module->m_typeMgr.getLazyStdType(StdType_BinOpKind)) &&
+		jnc->addItem("TypeKind", m_module->m_typeMgr.getLazyStdType(StdType_TypeKind)) &&
+		jnc->addItem("TypeKindFlags", m_module->m_typeMgr.getLazyStdType(StdType_TypeKindFlags)) &&
+		jnc->addItem("TypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_TypeFlags)) &&
+		jnc->addItem("PtrTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_PtrTypeFlags)) &&
+		jnc->addItem("DataPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_DataPtrTypeKind)) &&
+		jnc->addItem("Type", m_module->m_typeMgr.getLazyStdType(StdType_Type)) &&
+		jnc->addItem("DataPtrType", m_module->m_typeMgr.getLazyStdType(StdType_DataPtrType)) &&
+		jnc->addItem("NamedType", m_module->m_typeMgr.getLazyStdType(StdType_NamedType)) &&
+		jnc->addItem("NamedTypeBlock", m_module->m_typeMgr.getLazyStdType(StdType_NamedTypeBlock)) &&
+		jnc->addItem("BaseTypeSlot", m_module->m_typeMgr.getLazyStdType(StdType_BaseTypeSlot)) &&
+		jnc->addItem("DerivableType", m_module->m_typeMgr.getLazyStdType(StdType_DerivableType)) &&
+		jnc->addItem("ArrayType", m_module->m_typeMgr.getLazyStdType(StdType_ArrayType)) &&
+		jnc->addItem("BitFieldType", m_module->m_typeMgr.getLazyStdType(StdType_BitFieldType)) &&
+		jnc->addItem("FunctionTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_FunctionTypeFlags)) &&
+		jnc->addItem("FunctionPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_FunctionPtrTypeKind)) &&
+		jnc->addItem("FunctionArg", m_module->m_typeMgr.getLazyStdType(StdType_FunctionArg)) &&
+		jnc->addItem("FunctionType", m_module->m_typeMgr.getLazyStdType(StdType_FunctionType)) &&
+		jnc->addItem("FunctionPtrType", m_module->m_typeMgr.getLazyStdType(StdType_FunctionPtrType)) &&
+		jnc->addItem("PropertyTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_PropertyTypeFlags)) &&
+		jnc->addItem("PropertyPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_PropertyPtrTypeKind)) &&
+		jnc->addItem("PropertyType", m_module->m_typeMgr.getLazyStdType(StdType_PropertyType)) &&
+		jnc->addItem("PropertyPtrType", m_module->m_typeMgr.getLazyStdType(StdType_PropertyPtrType)) &&
+		jnc->addItem("EnumTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_EnumTypeFlags)) &&
+		jnc->addItem("EnumConst", m_module->m_typeMgr.getLazyStdType(StdType_EnumConst)) &&
+		jnc->addItem("EnumType", m_module->m_typeMgr.getLazyStdType(StdType_EnumType)) &&
+		jnc->addItem("ClassTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_ClassTypeKind)) &&
+		jnc->addItem("ClassTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_ClassTypeFlags)) &&
+		jnc->addItem("ClassPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_ClassPtrTypeKind)) &&
+		jnc->addItem("ClassType", m_module->m_typeMgr.getLazyStdType(StdType_ClassType)) &&
+		jnc->addItem("ClassPtrType", m_module->m_typeMgr.getLazyStdType(StdType_ClassPtrType)) &&
+		jnc->addItem("StructTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_StructTypeKind)) &&
+		jnc->addItem("StructField", m_module->m_typeMgr.getLazyStdType(StdType_StructField)) &&
+		jnc->addItem("StructType", m_module->m_typeMgr.getLazyStdType(StdType_StructType)) &&
+		jnc->addItem("UnionType", m_module->m_typeMgr.getLazyStdType(StdType_UnionType)) &&
+		jnc->addItem("Alias", m_module->m_typeMgr.getLazyStdType(StdType_Alias)) &&
+		jnc->addItem("Const", m_module->m_typeMgr.getLazyStdType(StdType_Const)) &&
+		jnc->addItem("Variable", m_module->m_typeMgr.getLazyStdType(StdType_Variable)) &&
+		jnc->addItem("FunctionKind", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKind)) &&
+		jnc->addItem("FunctionKindFlags", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKindFlags)) &&
+		jnc->addItem("Function", m_module->m_typeMgr.getLazyStdType(StdType_Function)) &&
+		jnc->addItem("PropertyKind", m_module->m_typeMgr.getLazyStdType(StdType_PropertyKind)) &&
+		jnc->addItem("PropertyFlag", m_module->m_typeMgr.getLazyStdType(StdType_PropertyFlag)) &&
+		jnc->addItem("Property", m_module->m_typeMgr.getLazyStdType(StdType_Property)) &&
+		jnc->addItem("Typedef", m_module->m_typeMgr.getLazyStdType(StdType_Typedef)) &&
+		jnc->addItem("ModuleCompileFlags", m_module->m_typeMgr.getLazyStdType(StdType_ModuleCompileFlags)) &&
+		jnc->addItem("ModuleCompileState", m_module->m_typeMgr.getLazyStdType(StdType_ModuleCompileState)) &&
+		jnc->addItem("Module", m_module->m_typeMgr.getLazyStdType(StdType_Module)) &&
+		jnc->addItem("Unit", m_module->m_typeMgr.getLazyStdType(StdType_Unit));
 
 	ASSERT(result);
 }

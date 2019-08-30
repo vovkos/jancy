@@ -497,6 +497,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 // standard libraries
 
 JNC_DECLARE_LIB(jnc_CoreLib)
+JNC_DECLARE_LIB(jnc_IntrospectionLib)
 JNC_DECLARE_LIB(jnc_StdLib)
 JNC_DECLARE_LIB(jnc_SysLib)
 
