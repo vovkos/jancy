@@ -1,0 +1,34 @@
+// this test was used when fixing non-marking of base class class-fields
+
+bool g_destructFlag;
+
+class A
+{
+	destruct()
+	{
+		printf("A.destruct();\n");
+		g_destructFlag = true;
+	}
+}
+
+class B
+{
+	A m_a;
+}
+
+class C: B
+{
+}
+
+int main()
+{
+	C c;
+
+	printf("collecting...\n");
+	jnc.collectGarbage();
+	sys.sleep(250); // enough for the destruct thread to wake up
+	printf("collect completed.\n");
+
+	assert(!g_destructFlag);
+	return 0;
+}
