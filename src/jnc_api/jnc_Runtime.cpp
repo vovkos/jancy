@@ -473,11 +473,11 @@ primeIface(
 
 	// primeClass all the class fields
 
-	sl::Array<ct::StructField*> fieldPrimeArray = type->getClassMemberFieldArray();
+	const sl::Array<ct::Field*>& fieldPrimeArray = type->getClassFieldArray();
 	count = fieldPrimeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::StructField* field = fieldPrimeArray[i];
+		ct::Field* field = fieldPrimeArray[i];
 		ASSERT(field->getType()->getTypeKind() == TypeKind_Class);
 
 		ct::ClassType* fieldType = (ct::ClassType*)field->getType();

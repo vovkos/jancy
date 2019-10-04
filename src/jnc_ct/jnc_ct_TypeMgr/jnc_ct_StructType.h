@@ -17,89 +17,6 @@
 namespace jnc {
 namespace ct {
 
-class StructType;
-class UnionType;
-struct FmtLiteral;
-
-//..............................................................................
-
-class StructField:
-	public ModuleItem,
-	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
-	friend class TypeMgr;
-	friend class NamedTypeBlock;
-	friend class DerivableType;
-	friend class Property;
-	friend class StructType;
-	friend class UnionType;
-	friend class ClassType;
-
-protected:
-	Type* m_type;
-	uint_t m_ptrTypeFlags;
-	sl::BoxList<Token> m_constructor;
-
-	Type* m_bitFieldBaseType;
-	size_t m_bitCount;
-	size_t m_offset;
-
-	union
-	{
-		uint_t m_llvmIndex;
-		size_t m_prevDynamicFieldIndex;
-	};
-
-public:
-	StructField();
-
-	Type*
-	getType()
-	{
-		return m_type;
-	}
-
-	int
-	getPtrTypeFlags()
-	{
-		return m_ptrTypeFlags;
-	}
-
-	sl::ConstBoxList<Token>
-	getConstructor()
-	{
-		return m_constructor;
-	}
-
-	size_t
-	getOffset()
-	{
-		return m_offset;
-	}
-
-	uint_t
-	getLlvmIndex()
-	{
-		return m_llvmIndex;
-	}
-
-	size_t
-	getPrevDynamicFieldIndex()
-	{
-		return m_prevDynamicFieldIndex;
-	}
-
-	virtual
-	bool
-	generateDocumentation(
-		const sl::StringRef& outputDir,
-		sl::String* itemXml,
-		sl::String* indexXml
-		);
-
-};
-
 //..............................................................................
 
 enum StructTypeKind
@@ -127,7 +44,7 @@ protected:
 	size_t m_fieldActualSize;
 	size_t m_fieldAlignedSize;
 
-	sl::Array<StructField*> m_dynamicFieldArray;
+	sl::Array<Field*> m_dynamicFieldArray;
 	sl::Array<llvm::Type*> m_llvmFieldTypeArray;
 	BitFieldType* m_lastBitFieldType;
 	size_t m_lastBitFieldOffset;
@@ -159,7 +76,7 @@ public:
 		return m_fieldAlignedSize;
 	}
 
-	sl::Array<StructField*>
+	sl::Array<Field*>
 	getDynamicFieldArray()
 	{
 		return m_dynamicFieldArray;
@@ -167,10 +84,6 @@ public:
 
 	bool
 	append(StructType* type);
-
-	virtual
-	bool
-	compile();
 
 	virtual
 	void
@@ -181,7 +94,7 @@ public:
 
 protected:
 	virtual
-	StructField*
+	Field*
 	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
@@ -218,7 +131,7 @@ protected:
 	calcLayout();
 
 	bool
-	layoutField(StructField* field);
+	layoutField(Field* field);
 
 	bool
 	layoutField(

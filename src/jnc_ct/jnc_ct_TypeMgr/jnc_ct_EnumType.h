@@ -125,6 +125,9 @@ public:
 		sl::String* indexXml
 		);
 
+	bool
+	ensureValuesReady();
+
 protected:
 	virtual
 	void
@@ -150,6 +153,10 @@ protected:
 	{
 		prepareSimpleTypeVariable(StdType_EnumType);
 	}
+
+	virtual
+	bool
+	parseBody();
 
 	virtual
 	bool

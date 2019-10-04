@@ -19,24 +19,6 @@ namespace rtl {
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE(
-	StructField,
-	"jnc.StructField",
-	sl::g_nullGuid,
-	-1,
-	StructField,
-	NULL
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP(StructField)
-	JNC_MAP_CONSTRUCTOR((&jnc::construct<StructField, ct::StructField*>))
-	JNC_MAP_CONST_PROPERTY("m_type", &StructField::getType)
-	JNC_MAP_CONST_PROPERTY("m_ptrTypeFlags", &StructField::getPtrTypeFlags)
-	JNC_MAP_CONST_PROPERTY("m_offset", &StructField::getOffset)
-JNC_END_TYPE_FUNCTION_MAP()
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	StructType,
 	"jnc.StructType",
 	sl::g_nullGuid,

@@ -26,7 +26,7 @@ struct UsbConfigurationDesc
 	uint8_t m_configurationId;
 	uint8_t m_descriptionStringId;
 	uint8_t m_attributes;
-	uint8_t  m_maxPower;
+	uint8_t m_maxPower;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

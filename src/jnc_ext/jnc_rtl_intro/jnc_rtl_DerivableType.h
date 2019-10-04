@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_rtl_Type.h"
-#include "jnc_rtl_NamedTypeBlock.h"
+#include "jnc_rtl_MemberBlock.h"
 #include "jnc_ct_DerivableType.h"
 
 namespace jnc {
@@ -61,12 +61,12 @@ public:
 template <typename T>
 class DerivableTypeBase:
 	public NamedTypeBase<T>,
-	public NamedTypeBlock
+	public MemberBlock
 {
 public:
 	DerivableTypeBase(T* type):
 		NamedTypeBase<T>(type),
-		NamedTypeBlock(type)
+		MemberBlock(type)
 	{
 	}
 };

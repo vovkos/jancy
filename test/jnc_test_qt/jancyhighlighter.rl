@@ -115,7 +115,6 @@ main := |*
 
 'get'             |
 'set'             |
-'preconstruct'    |
 'construct'       |
 'destruct'        |
 'operator'        |

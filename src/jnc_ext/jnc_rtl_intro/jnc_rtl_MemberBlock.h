@@ -13,22 +13,22 @@
 
 #include "jnc_ExtensionLib.h"
 #include "jnc_rtl_IntrospectionLib.h"
-#include "jnc_ct_NamedTypeBlock.h"
+#include "jnc_ct_MemberBlock.h"
 
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE(NamedTypeBlock)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(MemberBlock)
 
 //..............................................................................
 
-class NamedTypeBlock: public IfaceHdr
+class MemberBlock: public IfaceHdr
 {
 protected:
-	ct::NamedTypeBlock* m_block;
+	ct::MemberBlock* m_block;
 
 public:
-	NamedTypeBlock(ct::NamedTypeBlock* block)
+	MemberBlock(ct::MemberBlock* block)
 	{
 		m_block = block;
 	}
@@ -39,13 +39,6 @@ public:
 	getStaticConstructor()
 	{
 		return rtl::getFunction(m_block->getStaticConstructor());
-	}
-
-	Function*
-	JNC_CDECL
-	getStaticDestructor()
-	{
-		return rtl::getFunction(m_block->getStaticDestructor());
 	}
 
 	Function*
@@ -64,47 +57,62 @@ public:
 
 	size_t
 	JNC_CDECL
-	getMemberFieldCount()
+	getStaticVariableCount()
 	{
-		return m_block->getMemberFieldArray().getCount();
+		return m_block->getStaticVariableArray().getCount();
 	}
 
-	StructField*
+	Variable*
 	JNC_CDECL
-	getMemberField(size_t index)
+	getStaticVariable(size_t index)
 	{
-		size_t count = m_block->getMemberFieldArray().getCount();
-		return index < count ? rtl::getStructField(m_block->getMemberFieldArray()[index]) : NULL;
+		size_t count = m_block->getStaticVariableArray().getCount();
+		return index < count ? rtl::getVariable(m_block->getStaticVariableArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	getMemberMethodCount()
+	getFieldCount()
 	{
-		return m_block->getMemberMethodArray().getCount();
+		return m_block->getFieldArray().getCount();
+	}
+
+	Field*
+	JNC_CDECL
+	getField(size_t index)
+	{
+		size_t count = m_block->getFieldArray().getCount();
+		return index < count ? rtl::getField(m_block->getFieldArray()[index]) : NULL;
+	}
+
+	size_t
+	JNC_CDECL
+	getMethodCount()
+	{
+		return m_block->getMethodArray().getCount();
 	}
 
 	Function*
 	JNC_CDECL
-	getMemberMethod(size_t index)
+	getMethod(size_t index)
 	{
-		size_t count = m_block->getMemberMethodArray().getCount();
-		return index < count ? rtl::getFunction(m_block->getMemberMethodArray()[index]) : NULL;
+		size_t count = m_block->getMethodArray().getCount();
+		return index < count ? rtl::getFunction(m_block->getMethodArray()[index]) : NULL;
 	}
 
 	size_t
 	JNC_CDECL
-	getMemberPropertyCount()
+	getPropertyCount()
 	{
-		return m_block->getMemberPropertyArray().getCount();
+		return m_block->getPropertyArray().getCount();
 	}
 
 	Property*
 	JNC_CDECL
-	getMemberProperty(size_t index)
+	getProperty(size_t index)
 	{
-		size_t count = m_block->getMemberPropertyArray().getCount();
-		return index < count ? rtl::getProperty(m_block->getMemberPropertyArray()[index]) : NULL;
+		size_t count = m_block->getPropertyArray().getCount();
+		return index < count ? rtl::getProperty(m_block->getPropertyArray()[index]) : NULL;
 	}
 };
 

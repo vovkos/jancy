@@ -42,56 +42,21 @@ public:
 	JNC_CDECL
 	getItemCount()
 	{
-		return n()->getItemCount();
+		return n()->getItemArray().getCount();
 	}
 
 	ModuleItem*
 	JNC_CDECL
 	getItem(size_t index)
 	{
-		return rtl::getModuleItem(n()->getItem(index));
+		return rtl::getModuleItem(n()->getItemArray()[index]);
 	}
 
 	ModuleItem*
 	JNC_CDECL
 	findItem(DataPtr namePtr)
 	{
-		return rtl::getModuleItem(n()->findItemByName((char*)namePtr.m_p));
-	}
-
-	Variable*
-	JNC_CDECL
-	findVariable(DataPtr namePtr)
-	{
-		ct::ModuleItem* item = n()->findItemByName((char*)namePtr.m_p);
-		return item && item->getItemKind() == ModuleItemKind_Variable ? rtl::getVariable((ct::Variable*)item) : NULL;
-	}
-
-	Function*
-	JNC_CDECL
-	findFunction(DataPtr namePtr)
-	{
-		ct::ModuleItem* item = n()->findItemByName((char*)namePtr.m_p);
-		return item && item->getItemKind() == ModuleItemKind_Function ? rtl::getFunction((ct::Function*)item) : NULL;
-	}
-
-	Property*
-	JNC_CDECL
-	findProperty(DataPtr namePtr)
-	{
-		ct::ModuleItem* item = n()->findItemByName((char*)namePtr.m_p);
-		return item && item->getItemKind() == ModuleItemKind_Property ? rtl::getProperty((ct::Property*)item) : NULL;
-	}
-
-	ClassType*
-	JNC_CDECL
-	findClassType(DataPtr namePtr)
-	{
-		ct::ModuleItem* item = n()->findItemByName((char*)namePtr.m_p);
-		return
-			item &&
-			item->getItemKind() == ModuleItemKind_Type &&
-			((ct::Type*)item)->getTypeKind() == TypeKind_Class ? (ClassType*)rtl::getType((ct::Type*)item) : NULL;
+		return rtl::getModuleItem(n()->findItem((char*)namePtr.m_p).m_item);
 	}
 
 protected:

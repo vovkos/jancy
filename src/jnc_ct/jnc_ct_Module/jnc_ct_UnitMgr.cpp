@@ -22,48 +22,6 @@ Unit::Unit()
 {
 	m_module = NULL;
 	m_lib = NULL;
-	m_constructor = NULL;
-	m_destructor = NULL;
-}
-
-bool
-Unit::setConstructor(Function* function)
-{
-	if (!function->getType()->getArgArray().isEmpty())
-	{
-		err::setFormatStringError("unit 'construct' cannot have arguments");
-		return false;
-	}
-
-	if (m_constructor)
-	{
-		err::setFormatStringError("unit already has 'construct' method");
-		return false;
-	}
-
-	function->m_functionKind = FunctionKind_StaticConstructor;
-	function->m_storageKind = StorageKind_Static;
-	function->m_qualifiedName = "unit.construct";
-	m_constructor = function;
-	return true;
-}
-
-bool
-Unit::setDestructor(Function* function)
-{
-	ASSERT(function->getType()->getArgArray().isEmpty());
-
-	if (m_destructor)
-	{
-		err::setFormatStringError("unit already has 'destruct' method");
-		return false;
-	}
-
-	function->m_functionKind = FunctionKind_StaticDestructor;
-	function->m_storageKind = StorageKind_Static;
-	function->m_qualifiedName = "unit.destruct";
-	m_destructor = function;
-	return true;
 }
 
 //..............................................................................
@@ -123,6 +81,7 @@ UnitMgr::createUnit(
 {
 	Unit* unit = AXL_MEM_NEW(Unit);
 
+	unit->m_module = m_module;
 	unit->m_lib = lib;
 	unit->m_filePath = filePath;
 	unit->m_fileName = io::getFileName(filePath);

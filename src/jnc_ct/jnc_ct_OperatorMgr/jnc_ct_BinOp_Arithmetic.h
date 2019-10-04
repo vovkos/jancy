@@ -213,6 +213,7 @@ public:
 	BinOp_Add()
 	{
 		m_opKind = BinOpKind_Add;
+		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
 	}
 
 	virtual
@@ -291,6 +292,7 @@ public:
 	BinOp_Sub()
 	{
 		m_opKind = BinOpKind_Sub;
+		m_opFlags1 = m_opFlags2 = OpFlag_EnsurePtrTargetLayout;
 	}
 
 	virtual

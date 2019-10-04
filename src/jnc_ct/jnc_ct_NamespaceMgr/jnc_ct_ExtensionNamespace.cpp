@@ -67,8 +67,15 @@ ExtensionNamespace::addProperty(Property* prop)
 }
 
 bool
-ExtensionNamespace::calcLayout()
+ExtensionNamespace::parseBody()
 {
+	bool result =
+		m_type->ensureLayout() &&
+		GlobalNamespace::parseBody();
+
+	if (!result)
+		return false;
+
 	if (!(m_type->getTypeKindFlags() & TypeKindFlag_Derivable))
 	{
 		err::setFormatStringError("'%s' cannot have a type extension", m_type->getTypeString().sz());

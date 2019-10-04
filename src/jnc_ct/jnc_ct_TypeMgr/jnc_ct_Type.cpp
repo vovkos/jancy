@@ -359,6 +359,30 @@ Type::getSimpleFunctionArg(uint_t ptrTypeFlags)
 	return m_module->m_typeMgr.getSimpleFunctionArg(this, ptrTypeFlags);
 }
 
+bool
+Type::prepareLayout()
+{
+	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+
+	if (m_flags & ModuleItemFlag_InCalcLayout)
+	{
+		ModuleItemDecl* decl = getDecl();
+		ASSERT(decl); // recursion is only possible with named types
+
+		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->getQualifiedName().sz());
+		return false;
+	}
+
+	m_flags |= ModuleItemFlag_InCalcLayout;
+
+	bool result = calcLayout();
+	if (!result)
+		return false;
+
+	m_flags |= ModuleItemFlag_LayoutReady;
+	return true;
+}
+
 void
 Type::prepareTypeString()
 {
@@ -682,17 +706,9 @@ Type::prepareSimpleTypeVariable(StdType stdType)
 		&constructor
 		);
 
-	BasicBlock* block = m_module->m_controlFlowMgr.setCurrentBlock(m_module->getConstructor()->getPrologueBlock());
-	bool result = m_module->m_variableMgr.initializeVariable(m_typeVariable);
-#if (_JNC_DEBUG)
-	if (!result)
-	{
-		TRACE("intialize type variable error: %s\n", err::getLastErrorDescription().sz());
-		ASSERT(false);
-	}
-#endif
-
-	m_module->m_controlFlowMgr.setCurrentBlock(block);
+	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
+	bool result = m_module->m_variableMgr.allocateVariable(m_typeVariable);
+	ASSERT(result);
 }
 
 void
@@ -820,44 +836,6 @@ getSimpleType(
 }
 
 Type*
-getModuleItemType(ModuleItem* item)
-{
-	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
-	case ModuleItemKind_Type:
-		return (Type*)item;
-
-	case ModuleItemKind_Typedef:
-		return ((Typedef*)item)->getType();
-
-	case ModuleItemKind_Alias:
-		return ((Alias*)item)->getType();
-
-	case ModuleItemKind_Variable:
-		return ((Variable*)item)->getType();
-
-	case ModuleItemKind_FunctionArg:
-		return ((FunctionArg*)item)->getType();
-
-	case ModuleItemKind_Function:
-		return ((Function*)item)->getType();
-
-	case ModuleItemKind_Property:
-		return ((Property*)item)->getType();
-
-	case ModuleItemKind_EnumConst:
-		return ((EnumConst*)item)->getParentEnumType();
-
-	case ModuleItemKind_StructField:
-		return ((StructField*)item)->getType();
-
-	default:
-		return NULL;
-	}
-}
-
-Type*
 getDirectRefType(
 	Type* type,
 	uint_t ptrTypeFlags
@@ -890,13 +868,14 @@ isDisposableType(Type* type)
 		return false;
 
 	DerivableType* derivableType = (DerivableType*)type;
-	ModuleItem* item = derivableType->findItem("dispose");
-	if (!item)
+	FindModuleItemResult findResult = derivableType->findItem("dispose");
+	if (!findResult.m_item)
 		return false;
 
 	FunctionType* functionType;
-
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Function:

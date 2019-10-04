@@ -44,7 +44,7 @@ protected:
 
 public:
 	TypeBase(T* type):
-		ModuleItemBase(type)
+		ModuleItemBase<T>(type)
 	{
 	}
 
@@ -152,7 +152,7 @@ class NamedTypeBase:
 {
 public:
 	NamedTypeBase(T* type):
-		TypeBase(type),
+		TypeBase<T>(type),
 		Namespace(type)
 	{
 	}

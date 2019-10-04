@@ -67,7 +67,7 @@ enum jnc_ModuleItemKind
 	jnc_ModuleItemKind_Property,
 	jnc_ModuleItemKind_PropertyTemplate,
 	jnc_ModuleItemKind_EnumConst,
-	jnc_ModuleItemKind_StructField,
+	jnc_ModuleItemKind_Field,
 	jnc_ModuleItemKind_BaseTypeSlot,
 	jnc_ModuleItemKind_Orphan,
 	jnc_ModuleItemKind_Lazy,
@@ -87,11 +87,11 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind);
 enum jnc_ModuleItemFlag
 {
 	jnc_ModuleItemFlag_User         = 0x01,
-	jnc_ModuleItemFlag_NeedLayout   = 0x02,
+	jnc_ModuleItemFlag_Compilable   = 0x02,
 	jnc_ModuleItemFlag_NeedCompile  = 0x04,
 	jnc_ModuleItemFlag_InCalcLayout = 0x10,
 	jnc_ModuleItemFlag_LayoutReady  = 0x20,
-	jnc_ModuleItemFlag_Constructed  = 0x40, // fields, properties, base type slots
+	jnc_ModuleItemFlag_Constructed  = 0x40, // base type slots, fields, variables, properties
 	jnc_ModuleItemFlag_Sealed       = 0x80,
 };
 
@@ -186,10 +186,6 @@ JNC_EXTERN_C
 int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl);
 
-JNC_EXTERN_C
-size_t
-jnc_ModuleItemDecl_getOffset(jnc_ModuleItemDecl* decl);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -249,13 +245,6 @@ struct jnc_ModuleItemDecl
 	{
 		return jnc_ModuleItemDecl_getCol(this);
 	}
-
-	size_t
-	getOffset()
-	{
-		return jnc_ModuleItemDecl_getOffset(this);
-	}
-
 };
 
 #endif // _JNC_CORE
@@ -289,6 +278,10 @@ jnc_ModuleItem_getNamespace(jnc_ModuleItem* item);
 JNC_EXTERN_C
 jnc_Type*
 jnc_ModuleItem_getType(jnc_ModuleItem* item);
+
+JNC_EXTERN_C
+bool_t
+jnc_ModuleItem_require(jnc_ModuleItem* item);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -331,25 +324,33 @@ struct jnc_ModuleItem
 	{
 		return jnc_ModuleItem_getType(this);
 	}
+
+	bool
+	require()
+	{
+		return jnc_ModuleItem_require(this) != 0;
+	}
 };
 
 #endif // _JNC_CORE
 
 //..............................................................................
 
-JNC_EXTERN_C
-jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType(
-	jnc_ModuleItem* item,
-	const char* name
-	);
+// since namespaces are lazy now, a find operation may fail for many reasons
+// other than just item-not-found
 
-JNC_EXTERN_C
-jnc_ClassType*
-jnc_verifyModuleItemIsClassType(
-	jnc_ModuleItem* item,
-	const char* name
-	);
+struct jnc_FindModuleItemResult
+{
+	bool_t m_result; // error can be obtained via jnc_getLastError
+	jnc_ModuleItem* m_item;
+};
+
+typedef struct jnc_FindModuleItemResult jnc_FindModuleItemResult;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_SELECT_ANY jnc_FindModuleItemResult jnc_g_errorFindModuleItemResult = { 0, NULL };
+JNC_SELECT_ANY jnc_FindModuleItemResult jnc_g_nullFindModuleItemResult = { 1, NULL };
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -375,7 +376,7 @@ const ModuleItemKind
 	ModuleItemKind_Property         = jnc_ModuleItemKind_Property,
 	ModuleItemKind_PropertyTemplate = jnc_ModuleItemKind_PropertyTemplate,
 	ModuleItemKind_EnumConst        = jnc_ModuleItemKind_EnumConst,
-	ModuleItemKind_StructField      = jnc_ModuleItemKind_StructField,
+	ModuleItemKind_Field            = jnc_ModuleItemKind_Field,
 	ModuleItemKind_BaseTypeSlot     = jnc_ModuleItemKind_BaseTypeSlot,
 	ModuleItemKind_Orphan           = jnc_ModuleItemKind_Orphan,
 	ModuleItemKind_Lazy             = jnc_ModuleItemKind_Lazy,
@@ -396,7 +397,7 @@ typedef jnc_ModuleItemFlag ModuleItemFlag;
 
 const ModuleItemFlag
 	ModuleItemFlag_User         = jnc_ModuleItemFlag_User,
-	ModuleItemFlag_NeedLayout   = jnc_ModuleItemFlag_NeedLayout,
+	ModuleItemFlag_Compilable   = jnc_ModuleItemFlag_Compilable,
 	ModuleItemFlag_NeedCompile  = jnc_ModuleItemFlag_NeedCompile,
 	ModuleItemFlag_InCalcLayout = jnc_ModuleItemFlag_InCalcLayout,
 	ModuleItemFlag_LayoutReady  = jnc_ModuleItemFlag_LayoutReady,
@@ -454,25 +455,27 @@ getAccessKindString(AccessKind accessKind)
 
 //..............................................................................
 
-inline
-jnc_DerivableType*
-verifyModuleItemIsDerivableType(
-	ModuleItem* item,
-	const char* name
-	)
+struct FindModuleItemResult: jnc_FindModuleItemResult
 {
-	return jnc_verifyModuleItemIsDerivableType(item, name);
-}
+	FindModuleItemResult(const jnc_FindModuleItemResult& src)
+	{
+		m_result = src.m_result;
+		m_item = src.m_item;
+	}
 
-inline
-jnc_ClassType*
-verifyModuleItemIsClassType(
-	ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc_verifyModuleItemIsClassType(item, name);
-}
+	explicit
+	FindModuleItemResult(ModuleItem* item)
+	{
+		JNC_ASSERT(item);
+		m_result = true;
+		m_item = item;
+	}
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_SELECT_ANY FindModuleItemResult g_errorFindModuleItemResult = jnc_g_errorFindModuleItemResult;
+JNC_SELECT_ANY FindModuleItemResult g_nullFindModuleItemResult = jnc_g_nullFindModuleItemResult;
 
 //..............................................................................
 

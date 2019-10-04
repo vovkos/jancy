@@ -22,6 +22,7 @@ namespace ct {
 MulticastClassType::MulticastClassType()
 {
 	m_classTypeKind = ClassTypeKind_Multicast;
+	m_namespaceStatus = NamespaceStatus_Ready;
 	m_targetType = NULL;
 	m_snapshotType = NULL;
 	m_eventClassPtrTypeTuple = NULL;
@@ -55,11 +56,34 @@ MulticastClassType::prepareDoxyTypeString()
 }
 
 bool
-MulticastClassType::compileCallMethod()
+MulticastClassType::calcLayout()
 {
-	bool result;
+	bool result =
+		ClassType::calcLayout() &&
+		m_snapshotType->ensureLayout();
 
-	Function* function = m_methodArray[MulticastMethodKind_Call];
+	if (!result)
+		return false;
+
+	// we also need to explicitly mark call methods for compile:
+	// [1] Multicast.call may be never explicitly called for events --
+	// e.g., we may generate events from C/C++ and not from Jancy;
+	// [2] McSnapshot.call is never called directly -- it's referenced from RTL
+	// in MulticastImpl::getSnapshot
+
+	m_module->markForCompile(m_methodArray[MulticastMethodKind_Call]);
+	m_module->markForCompile(m_snapshotType->getMethodArray()[McSnapshotMethodKind_Call]);
+	return true;
+}
+
+bool
+MulticastClassType::compileCallMethod(Function* function)
+{
+	ASSERT(function == m_methodArray[MulticastMethodKind_Call]);
+
+	bool result = m_methodArray[MulticastMethodKind_Call]->getType()->ensureLayout();
+	if (!result)
+		return false;
 
 	size_t argCount = function->getType()->getArgArray().getCount();
 
@@ -81,11 +105,8 @@ MulticastClassType::compileCallMethod()
 		argList.insertTail(argValueArray[i]);
 
 	m_module->m_operatorMgr.callOperator(snapshotValue, &argList);
-
 	m_module->m_controlFlowMgr.ret();
-
 	m_module->m_functionMgr.internalEpilogue();
-
 	return true;
 }
 

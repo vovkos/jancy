@@ -39,7 +39,8 @@
 
 enum jnc_VariableFlag
 {
-	jnc_VariableFlag_Arg = 0x010000,
+	jnc_VariableFlag_Allocated = 0x010000, // for TLS values we can't rely on m_llvmValue being NULL
+	jnc_VariableFlag_Arg       = 0x020000,
 };
 
 typedef enum jnc_VariableFlag jnc_VariableFlag;
@@ -85,7 +86,9 @@ namespace jnc {
 
 typedef enum jnc_VariableFlag VariableFlag;
 
-const VariableFlag VariableFlag_Arg = jnc_VariableFlag_Arg;
+const VariableFlag
+	VariableFlag_Allocated = jnc_VariableFlag_Allocated,
+	VariableFlag_Arg       = jnc_VariableFlag_Arg;
 
 //..............................................................................
 

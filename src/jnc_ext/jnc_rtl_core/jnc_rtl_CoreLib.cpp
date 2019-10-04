@@ -585,7 +585,7 @@ size_t
 getDynamicFieldOffset(
 	DataPtr ptr,
 	DerivableType* type,
-	StructField* field
+	Field* field
 	)
 {
 	ASSERT	(type->getFlags() & TypeFlag_Dynamic);
@@ -610,7 +610,7 @@ getDynamicFieldOffset(
 	}
 	else
 	{
-		field = structType->getMemberFieldArray().getBack();
+		field = structType->getFieldArray().getBack();
 
 		if (field->getType()->getFlags() & TypeFlag_Dynamic)
 		{
@@ -633,7 +633,7 @@ void*
 getDynamicField(
 	DataPtr ptr,
 	DerivableType* type,
-	StructField* field
+	Field* field
 	)
 {
 	return (char*)ptr.m_p + getDynamicFieldOffset(ptr, type, field);
@@ -652,7 +652,7 @@ size_t
 dynamicFieldSizeOf(
 	DataPtr ptr,
 	DerivableType* type,
-	StructField* field
+	Field* field
 	)
 {
 	ASSERT(type->getFlags() & TypeFlag_Dynamic);
@@ -671,7 +671,7 @@ size_t
 dynamicFieldCountOf(
 	DataPtr ptr,
 	DerivableType* type,
-	StructField* field
+	Field* field
 	)
 {
 	ASSERT(field->getType()->getTypeKind() == TypeKind_Array);
@@ -1185,7 +1185,7 @@ mapMulticastMethods(
 bool
 mapAllMulticastMethods(Module* module)
 {
-	const sl::Array<ct::MulticastClassType*> mcTypeArray = module->m_typeMgr.getMulticastClassTypeArray();
+	const sl::Array<ct::MulticastClassType*>& mcTypeArray = module->m_typeMgr.getMulticastClassTypeArray();
 	size_t count = mcTypeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		mapMulticastMethods(module, mcTypeArray[i]);

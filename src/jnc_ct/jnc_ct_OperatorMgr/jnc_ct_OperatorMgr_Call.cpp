@@ -26,13 +26,12 @@ OperatorMgr::callTraceFunction(
 	const sl::StringRef& string
 	)
 {
-	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(functionName);
-	if (item && item->getItemKind() == ModuleItemKind_Function)
-	{
-		Value literalValue;
-		literalValue.setCharArray(string, m_module);
-		m_module->m_operatorMgr.callOperator((Function*)item, literalValue);
-	}
+	Function* function = (Function*)m_module->m_namespaceMgr.getGlobalNamespace()->findItem(functionName).m_item;
+	ASSERT(function && function->getItemKind() == ModuleItemKind_Function);
+
+	Value literalValue;
+	literalValue.setCharArray(string, m_module);
+	m_module->m_operatorMgr.callOperator(function, literalValue);
 }
 
 void
@@ -216,7 +215,9 @@ OperatorMgr::getCallOperatorResultType(
 	bool result;
 
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue);
+	result = prepareOperandType(rawOpValue, &opValue);
+	if (!result)
+		return NULL;
 
 	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
 	{
@@ -348,13 +349,16 @@ OperatorMgr::callOperator(
 			return false;
 	}
 
-	if (opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isOverloaded())
+	if (opValue.getValueKind() == ValueKind_FunctionOverload)
 	{
 		Function* function = opValue.getFunction()->chooseOverload(*argValueList);
 		if (!function)
 			return false;
 
-		opValue.setFunction(function);
+		result = opValue.trySetFunctionNoOverload(function);
+		if (!result)
+			return false;
+
 		opValue.setClosure(closure);
 	}
 
@@ -541,7 +545,12 @@ OperatorMgr::castArgValueList(
 			return false;
 		}
 
-		Type* type = prepareOperandType(argValue);
+		Value typeValue;
+		bool result = prepareOperandType(argValue, &typeValue);
+		if (!result)
+			return false;
+
+		Type* type = typeValue.getType();
 		if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
 		{
 			DerivableType* derivableType = (DerivableType*)type;

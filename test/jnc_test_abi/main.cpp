@@ -60,11 +60,45 @@ main(
 	module->addStaticLib(jnc::StdLib_getLib());
 	module->addStaticLib(TestLib_getLib());
 
-	printf("Compiling...\n");
+	static const char* requiredFuncSet[] =
+	{
+		"c2jnc.funcInt32",
+		"c2jnc.funcInt64",
+		"c2jnc.funcStruct32",
+		"c2jnc.funcStruct64",
+		"c2jnc.funcStruct128",
+		"c2jnc.funcVariant",
+		"c2jnc.funcFloat",
+		"c2jnc.funcDouble",
+		"jnc2c.testInt32",
+		"jnc2c.testInt64",
+		"jnc2c.testStruct32",
+		"jnc2c.testStruct64",
+		"jnc2c.testStruct128",
+		"jnc2c.testVariant",
+		"jnc2c.testPtr",
+		"jnc2c.testFloat",
+		"jnc2c.testDouble",
+	};
+
+	for (size_t i = 0; i < countof(requiredFuncSet); i++)
+		module->require(jnc::ModuleItemKind_Function, requiredFuncSet[i]);
+
+	printf("Parsing...\n");
 
 	result =
 		module->parseFile(sourceFileName) &&
-		module->parseImports() &&
+		module->parseImports();
+
+	if (!result)
+	{
+		printf("Error: %s\n", err::getLastErrorDescription().sz());
+		return -1;
+	}
+
+	printf("Compiling & JITting...\n");
+
+	result =
 		module->compile() &&
 		module->jit();
 

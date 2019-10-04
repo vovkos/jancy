@@ -233,7 +233,7 @@ qualified_type_name_rslv
 		basetype_qualified_name $n
 			{
 				return
-					m_stage == Stage_Pass1 ||
+					m_mode == Mode_Parse ||
 					findType(
 						$n.m_baseTypeIdx,
 						$n.m_name,
@@ -278,7 +278,7 @@ property_template_specifier
 				$propertyTemplate = createPropertyTemplate();
 				m_module->m_namespaceMgr.openNamespace($propertyTemplate);
 			}
-		named_type_block_impl
+		'{' member_block_declaration_list '}'
 			{
 				m_module->m_namespaceMgr.closeNamespace();
 				$.m_type = $propertyTemplate->calcType();

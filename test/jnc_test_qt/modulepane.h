@@ -48,7 +48,7 @@ private:
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);
 	void addDerivableTypeMembers(QTreeWidgetItem* parent, jnc::DerivableType* type);
 
-	void addStructField(QTreeWidgetItem* parent, jnc::StructField* field)
+	void addField(QTreeWidgetItem* parent, jnc::Field* field)
 	{
 		addValue(parent, field->getDecl()->getName(), field->getType(), field);
 	}

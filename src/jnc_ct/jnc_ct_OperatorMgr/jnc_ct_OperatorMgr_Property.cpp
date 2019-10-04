@@ -111,7 +111,9 @@ OperatorMgr::getPropertyGetterType(const Value& rawOpValue)
 	PropertyType* propertyType;
 
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	if (!result)
+		return NULL;
 
 	if (opValue.getValueKind() == ValueKind_Property)
 	{
@@ -197,7 +199,9 @@ OperatorMgr::getPropertySetterType(
 	)
 {
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	if (!result)
+		return NULL;
 
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
 
@@ -341,7 +345,9 @@ OperatorMgr::getPropertyBinderType(const Value& rawOpValue)
 	PropertyType* propertyType;
 
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	if (!result)
+		return NULL;
 
 	if (opValue.getValueKind() == ValueKind_Property)
 	{
@@ -479,8 +485,8 @@ OperatorMgr::getPropertyAutoGetValueType(const Value& opValue)
 	Type* type;
 
 	ModuleItem* autoGetValue = opValue.getProperty()->getAutoGetValue();
-	type = autoGetValue->getItemKind() == ModuleItemKind_StructField ?
-		((StructField*)autoGetValue)->getType() :
+	type = autoGetValue->getItemKind() == ModuleItemKind_Field ?
+		((Field*)autoGetValue)->getType() :
 		((Variable*)autoGetValue)->getType();
 
 	return type->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean);
@@ -520,7 +526,9 @@ Type*
 OperatorMgr::getPropertyOnChangedType(const Value& rawOpValue)
 {
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
+	if (!result)
+		return NULL;
 
 	if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr) ||
 		!(((PropertyPtrType*)opValue.getType())->getTargetType()->getFlags() & PropertyTypeFlag_Bindable))

@@ -117,7 +117,7 @@ LlvmDiBuilder::createEmptyStructType(StructType* structType)
 		unit->getLlvmDiFile(),
 		structType->getQualifiedName().sz(),
 		unit->getLlvmDiFile(),
-		structType->getPos()->m_line + 1,
+		structType->getPos().m_line + 1,
 		structType->getSize() * 8,
 		structType->getAlignment() * 8,
 		(llvm::DIFlags) 0,
@@ -137,7 +137,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType)
 	ASSERT(unit);
 
 	sl::ConstList<BaseTypeSlot> baseTypeList = structType->getBaseTypeList();
-	sl::Array<StructField*> fieldArray = structType->getMemberFieldArray();
+	const sl::Array<Field*>& fieldArray = structType->getFieldArray();
 
 	size_t baseTypeCount = baseTypeList.getCount();
 	size_t fieldCount = fieldArray.getCount();
@@ -159,7 +159,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType)
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "UnnamedBaseType",
 			unit->getLlvmDiFile(),
-			baseType->getPos()->m_line + 1,
+			baseType->getPos().m_line + 1,
 			baseType->getType()->getSize() * 8,
 			baseType->getType()->getAlignment() * 8,
 			baseType->getOffset() * 8,
@@ -170,14 +170,14 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType)
 
 	for (size_t j = 0; j < fieldCount; i++, j++)
 	{
-		StructField* field = fieldArray[j];
+		Field* field = fieldArray[j];
 		sl::String name = field->getName();
 
 		fieldTypeArray[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "m_unnamedField",
 			unit->getLlvmDiFile(),
-			field->getPos()->m_line + 1,
+			field->getPos().m_line + 1,
 			field->getType()->getSize() * 8,
 			field->getType()->getAlignment() * 8,
 			field->getOffset() * 8,
@@ -213,7 +213,7 @@ LlvmDiBuilder::createEmptyUnionType(UnionType* unionType)
 		unit->getLlvmDiFile(),
 		unionType->getQualifiedName().sz(),
 		unit->getLlvmDiFile(),
-		unionType->getPos()->m_line + 1,
+		unionType->getPos().m_line + 1,
 		unionType->getSize() * 8,
 		unionType->getAlignment() * 8,
 		(llvm::DIFlags) 0,
@@ -227,7 +227,7 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType)
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	sl::Array<StructField*> fieldArray = unionType->getMemberFieldArray();
+	const sl::Array<Field*>& fieldArray = unionType->getFieldArray();
 	size_t count = fieldArray.getCount();
 
 	char buffer[256];
@@ -236,14 +236,14 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType)
 
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = fieldArray[i];
+		Field* field = fieldArray[i];
 		sl::String name = field->getName();
 
 		fieldTypeArray[i] = m_llvmDiBuilder->createMemberType(
 			unit->getLlvmDiFile(),
 			!name.isEmpty() ? name.sz() : "m_unnamedField",
 			unit->getLlvmDiFile(),
-			field->getPos()->m_line + 1,
+			field->getPos().m_line + 1,
 			field->getType()->getSize() * 8,
 			field->getType()->getAlignment() * 8,
 			field->getOffset() * 8,
@@ -337,7 +337,7 @@ LlvmDiBuilder::createGlobalVariable(Variable* variable)
 		variable->getQualifiedName().sz(), // StringRef Name
 		variable->getQualifiedName().sz(), // StringRef LinkageName
 		unit->getLlvmDiFile(),
-		variable->getPos()->m_line + 1,
+		variable->getPos().m_line + 1,
 		variable->getType()->getLlvmDiType(),
 		true, // bool isLocalToUnit
 		llvmGlobalVariable
@@ -362,7 +362,7 @@ LlvmDiBuilder::createParameterVariable(
 		scope->getLlvmDiScope(),
 		variable->getName().sz(),
 		unit->getLlvmDiFile(),
-		variable->getPos()->m_line + 1,
+		variable->getPos().m_line + 1,
 		variable->getType()->getLlvmDiType(),
 		true, // bool AlwaysPreserve
 		0     // unsigned Flags
@@ -373,7 +373,7 @@ LlvmDiBuilder::createParameterVariable(
 		variable->getName().sz(),
 		argumentIdx + 1,
 		unit->getLlvmDiFile(),
-		variable->getPos()->m_line + 1,
+		variable->getPos().m_line + 1,
 		variable->getType()->getLlvmDiType(),
 		true, // bool AlwaysPreserve
 		(llvm::DIFlags) 0
@@ -400,7 +400,7 @@ LlvmDiBuilder::createDeclare(Variable* variable)
 		);
 
 	llvm::DebugLoc llvmDebugLoc = llvm::DebugLoc::get(
-		variable->getPos()->m_line + 1, 0,
+		variable->getPos().m_line + 1, 0,
 		scope->getLlvmDiScope()
 		);
 
@@ -409,13 +409,11 @@ LlvmDiBuilder::createDeclare(Variable* variable)
 	llvm::DILocalVariable* llvmDiLocalVariable = (llvm::DILocalVariable*)variable->getLlvmDiDescriptor();
 	ASSERT(llvm::isa<llvm::DILocalVariable> (llvmDiLocalVariable));
 
-	const Token::Pos* pos = variable->getPos();
-
 	llvm::Instruction* llvmInstruction = m_llvmDiBuilder->insertDeclare(
 		variable->getLlvmValue(),
 		llvmDiLocalVariable,
 		m_llvmDiBuilder->createExpression(),
-		llvm::DebugLoc::get(pos->m_line, pos->m_col, scope->getLlvmDiScope()),
+		llvm::DebugLoc::get(variable->getPos().m_line, variable->getPos().m_col, scope->getLlvmDiScope()),
 		block->getLlvmBlock()
 		);
 #endif
@@ -429,8 +427,8 @@ LlvmDiBuilder::createFunction(Function* function)
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Token::Pos declPos = *function->getPos();
-	Token::Pos scopePos = function->hasBody() ? function->getBody().getHead()->m_pos : declPos;
+	lex::LineCol declPos = function->getPos();
+	lex::LineCol scopePos = function->hasBody() ? function->getBodyPos() : declPos;
 
 #if (LLVM_VERSION < 0x030700)
 	llvm::DICompositeType llvmDiSubroutineType(function->getType()->getLlvmDiType());
@@ -494,7 +492,7 @@ LlvmDiBuilder::createFunction(Function* function)
 llvm::DILexicalBlock_vn
 LlvmDiBuilder::createLexicalBlock(
 	Scope* parentScope,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();

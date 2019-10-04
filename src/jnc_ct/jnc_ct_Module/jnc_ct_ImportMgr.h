@@ -40,6 +40,8 @@ struct Import: sl::ListLink
 
 class ImportMgr
 {
+	friend class Module;
+
 protected:
 	enum FindResult
 	{
@@ -70,12 +72,6 @@ public:
 	void
 	clear();
 
-	sl::ConstList<Import>
-	getImportList()
-	{
-		return m_importList;
-	}
-
 	bool
 	addImport(const sl::StringRef& fileName);
 
@@ -90,6 +86,12 @@ public:
 	addIgnoredImport(const sl::StringRef& fileName)
 	{
 		m_ignoredImportSet.visit(fileName);
+	}
+
+	void
+	takeOverImports(sl::List<Import>* list)
+	{
+		sl::takeOver(list, &m_importList);
 	}
 
 protected:

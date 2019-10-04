@@ -82,7 +82,7 @@ ArrayType::createDimensionString()
 bool
 ArrayType::ensureDynamicLayout(
 	StructType* dynamicStruct,
-	StructField* dynamicField
+	Field* dynamicField
 	)
 {
 	bool result;
@@ -101,7 +101,7 @@ ArrayType::ensureDynamicLayout(
 bool
 ArrayType::calcLayoutImpl(
 	StructType* dynamicStruct,
-	StructField* dynamicField
+	Field* dynamicField
 	)
 {
 	bool result = m_elementType->ensureLayout();
@@ -162,16 +162,15 @@ ArrayType::calcLayoutImpl(
 			Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 			FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
 
-			m_getDynamicSizeFunction = m_module->m_functionMgr.createFunction(
-				FunctionKind_Internal,
-				sl::String(),
+			m_getDynamicSizeFunction = m_module->m_functionMgr.createInternalFunction<GetDynamicSizeFunction>(
 				qualifiedName,
 				type
 				);
 
+			m_getDynamicSizeFunction->m_arrayType = this;
 			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
 			m_getDynamicSizeFunction->convertToMemberMethod(dynamicStruct);
-			m_module->markForCompile(this);
+			m_module->markForCompile(m_getDynamicSizeFunction);
 
 			m_flags |= TypeFlag_Dynamic;
 			m_elementCount = 0;
@@ -213,21 +212,36 @@ ArrayType::calcLayoutImpl(
 	return true;
 }
 
-bool
-ArrayType::compile()
+void
+ArrayType::markGcRoots(
+	const void* p,
+	rt::GcHeap* gcHeap
+	)
 {
-	ASSERT(m_getDynamicSizeFunction);
+	ASSERT(m_flags & TypeFlag_GcRoot);
+	gcHeap->addRootArray(p, m_elementType, m_elementCount);
+}
+
+void
+ArrayType::prepareLlvmDiType()
+{
+	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);
+}
+
+bool
+ArrayType::compileGetDynamicSizeFunction(Function* function)
+{
+	ASSERT(function == m_getDynamicSizeFunction);
 
 	bool result;
 
-	m_module->m_functionMgr.internalPrologue(m_getDynamicSizeFunction);
-	m_module->m_functionMgr.createThisValue();
-
-	Unit* parentUnit = m_getDynamicSizeFunction->getParentUnit();
+	Unit* parentUnit = function->getParentUnit();
 	if (parentUnit)
 		m_module->m_unitMgr.setCurrentUnit(parentUnit);
 
-	m_module->m_namespaceMgr.openNamespace(m_getDynamicSizeFunction->getParentNamespace());
+	m_module->m_namespaceMgr.openNamespace(function->getParentNamespace());
+	m_module->m_functionMgr.internalPrologue(function);
+	m_module->m_functionMgr.createThisValue();
 
 	Value resultValue;
 	result = m_module->m_operatorMgr.parseExpression(m_elementCountInitializer, &resultValue);
@@ -252,25 +266,9 @@ ArrayType::compile()
 	if (!result)
 		return false;
 
-	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
 	return true;
-}
-
-void
-ArrayType::markGcRoots(
-	const void* p,
-	rt::GcHeap* gcHeap
-	)
-{
-	ASSERT(m_flags & TypeFlag_GcRoot);
-	gcHeap->addRootArray(p, m_elementType, m_elementCount);
-}
-
-void
-ArrayType::prepareLlvmDiType()
-{
-	m_llvmDiType = m_module->m_llvmDiBuilder.createArrayType(this);
 }
 
 //..............................................................................

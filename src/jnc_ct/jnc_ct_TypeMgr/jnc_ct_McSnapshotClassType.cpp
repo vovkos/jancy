@@ -22,6 +22,7 @@ namespace ct {
 McSnapshotClassType::McSnapshotClassType()
 {
 	m_classTypeKind = ClassTypeKind_McSnapshot;
+	m_namespaceStatus = NamespaceStatus_Ready;
 	m_targetType = NULL;
 	memset(m_fieldArray, 0, sizeof(m_fieldArray));
 	memset(m_methodArray, 0, sizeof(m_methodArray));
@@ -53,9 +54,13 @@ McSnapshotClassType::prepareDoxyTypeString()
 }
 
 bool
-McSnapshotClassType::compileCallMethod()
+McSnapshotClassType::compileCallMethod(Function* function)
 {
-	Function* function = m_methodArray[McSnapshotMethodKind_Call];
+	ASSERT(function == m_methodArray[McSnapshotMethodKind_Call]);
+
+	bool result = function->getType()->ensureLayout();
+	if (!result)
+		return false;
 
 	sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
 	size_t argCount = argArray.getCount();

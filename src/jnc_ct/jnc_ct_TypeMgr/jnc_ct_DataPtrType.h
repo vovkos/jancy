@@ -83,6 +83,10 @@ public:
 
 protected:
 	virtual
+	bool
+	calcLayout();
+
+	virtual
 	void
 	prepareSignature()
 	{

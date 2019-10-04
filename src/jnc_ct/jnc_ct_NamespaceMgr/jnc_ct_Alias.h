@@ -18,6 +18,13 @@ namespace ct {
 
 //..............................................................................
 
+enum AliasFlag
+{
+	AliasFlag_InResolve = 0x010000, // used for detection of alias loops
+};
+
+//..............................................................................
+
 class Alias:
 	public ModuleItem,
 	public ModuleItemDecl,
@@ -26,12 +33,25 @@ class Alias:
 	friend class NamespaceMgr;
 
 protected:
+	enum ResolveStatus
+	{
+		ResolveStatus_Undefined = 0,
+		ResolveStatus_Resolved,
+		ResolveStatus_Error,
+	};
+
+protected:
 	ModuleItem* m_targetItem;
-	Type* m_type;
-	uint_t m_ptrTypeFlags;
+	err::Error m_resolveError;
 
 public:
 	Alias();
+
+	bool
+	isResolved()
+	{
+		return m_targetItem != NULL;
+	}
 
 	ModuleItem*
 	getTargetItem()
@@ -48,11 +68,35 @@ public:
 		sl::String* indexXml
 		);
 
-protected:
-	virtual
 	bool
-	calcLayout();
+	ensureResolved()
+	{
+		return
+			m_targetItem ? true :
+			m_resolveError ? err::fail(m_resolveError) :
+			resolve();
+	}
+
+protected:
+	bool
+	resolve();
+
+	bool
+	resolveImpl();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+Alias::resolve()
+{
+	bool result = resolveImpl();
+	if (!result)
+		m_resolveError = err::getLastError();
+
+	return result;
+}
 
 //..............................................................................
 

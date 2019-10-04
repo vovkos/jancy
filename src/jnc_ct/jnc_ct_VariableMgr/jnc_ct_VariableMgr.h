@@ -33,7 +33,8 @@ protected:
 	sl::List<Variable> m_variableList;
 	sl::Array<Variable*> m_staticVariableArray;
 	sl::Array<Variable*> m_staticGcRootArray;
-	sl::Array<Variable*> m_globalStaticVariableArray;
+	sl::Array<Variable*> m_globalVariablePrimeArray;
+	sl::Array<Variable*> m_globalVariableInitializeArray;
 	sl::Array<Variable*> m_liftedStackVariableArray;
 	sl::Array<Variable*> m_argVariableArray;
 	sl::Array<Variable*> m_tlsVariableArray;
@@ -60,34 +61,53 @@ public:
 	void
 	finalizeFunction();
 
+	bool
+	isStdVariableUsed(StdVariable variable)
+	{
+		ASSERT(variable < StdVariable__Count);
+		return m_stdVariableArray[variable] != NULL;
+	}
+
 	Variable*
 	getStdVariable(StdVariable variable);
 
-	sl::Array<Variable*>
-	getStaticVariableArray()
+	const sl::List<Variable>&
+	getVariableList()
 	{
-		return m_staticVariableArray;
+		return m_variableList;
 	}
 
-	sl::Array<Variable*>
+	const sl::Array<Variable*>&
 	getStaticGcRootArray()
 	{
 		return m_staticGcRootArray;
 	}
 
-	sl::Array<Variable*>
-	getGlobalStaticVariableArray()
+	const sl::Array<Variable*>&
+	getStaticVariableArray()
 	{
-		return m_globalStaticVariableArray;
+		return m_staticVariableArray;
 	}
 
-	sl::Array<Variable*>
+	const sl::Array<Variable*>&
+	getGlobalVariablePrimeArray()
+	{
+		return m_globalVariablePrimeArray;
+	}
+
+	const sl::Array<Variable*>&
+	getGlobalVariableInitializeArray()
+	{
+		return m_globalVariableInitializeArray;
+	}
+
+	const sl::Array<Variable*>&
 	getArgVariableArray()
 	{
 		return m_argVariableArray;
 	}
 
-	sl::Array<Variable*>
+	const sl::Array<Variable*>&
 	getTlsVariableArray()
 	{
 		return m_tlsVariableArray;
@@ -122,10 +142,7 @@ public:
 		const sl::StringRef& name,
 		Type* type,
 		uint_t ptrTypeFlags = 0
-		)
-	{
-		return createVariable(StorageKind_Stack, name, name, type, ptrTypeFlags);
-	}
+		);
 
 	Variable*
 	createSimpleStaticVariable(
@@ -159,7 +176,10 @@ public:
 	createTlsStructType();
 
 	bool
-	allocateInitializeGlobalVariables();
+	allocateVariable(Variable* variable);
+
+	void
+	primeStaticClassVariable(Variable* variable);
 
 	bool
 	initializeVariable(Variable* variable);
@@ -170,6 +190,21 @@ public:
 	bool
 	finalizeDisposableVariable(Variable* variable);
 
+	bool
+	allocateNamespaceVariables(const sl::ConstIterator<Variable>& prevIt);
+
+	void
+	primeGlobalVariables();
+
+	bool
+	initializeGlobalVariables();
+
+	void
+	appendGlobalVariablePrimeArray(const sl::ArrayRef<Variable*>& array)
+	{
+		m_globalVariablePrimeArray.append(array);
+	}
+
 protected:
 	llvm::GlobalVariable*
 	createLlvmGlobalVariable(
@@ -177,9 +212,6 @@ protected:
 		const sl::StringRef& name,
 		const Value& initValue = Value()
 		);
-
-	void
-	primeStaticClassVariable(Variable* variable);
 
 	bool
 	allocateHeapVariable(Variable* variable);

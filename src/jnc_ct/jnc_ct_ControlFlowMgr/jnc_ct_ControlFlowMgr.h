@@ -119,8 +119,10 @@ protected:
 	BasicBlock* m_catchFinallyFollowBlock;
 	BasicBlock* m_returnBlock;
 	BasicBlock* m_dynamicThrowBlock;
+	BasicBlock* m_emissionLockBlock;
 	Variable* m_returnValueVariable;
 	Variable* m_finallyRouteIdxVariable;
+	size_t m_emissionLockCount;
 	size_t m_finallyRouteIdx;
 	size_t m_sjljFrameCount;
 	Value m_sjljFrameArrayValue;
@@ -137,6 +139,12 @@ public:
 
 	void
 	clear();
+
+	void
+	lockEmission();
+
+	void
+	unlockEmission();
 
 	BasicBlock*
 	createBlock(
@@ -267,13 +275,13 @@ public:
 	finalizeTryScope(Scope* scope);
 
 	bool
-	catchLabel(const Token::Pos& pos);
+	catchLabel(const lex::LineCol& pos);
 
 	void
 	finalizeCatchScope(Scope* scope);
 
 	bool
-	finallyLabel(const Token::Pos& pos);
+	finallyLabel(const lex::LineCol& pos);
 
 	void
 	finalizeFinallyScope(Scope* scope);
@@ -293,13 +301,13 @@ public:
 	ifStmt_Condition(
 		IfStmt* stmt,
 		const Value& value,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
 	ifStmt_Else(
 		IfStmt* stmt,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
@@ -314,21 +322,21 @@ public:
 	switchStmt_Condition(
 		SwitchStmt* stmt,
 		const Value& value,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	bool
 	switchStmt_Case(
 		SwitchStmt* stmt,
 		intptr_t value,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		uint_t scopeFlags
 		);
 
 	bool
 	switchStmt_Default(
 		SwitchStmt* stmt,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		uint_t scopeFlags
 		);
 
@@ -346,21 +354,21 @@ public:
 		const Value& regexStateValue,
 		const Value& dataValue,
 		const Value& sizeValue,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	bool
 	reSwitchStmt_Case(
 		ReSwitchStmt* stmt,
 		const sl::StringRef& regexSource,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		uint_t scopeFlags
 		);
 
 	bool
 	reSwitchStmt_Default(
 		ReSwitchStmt* stmt,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		uint_t scopeFlags
 		);
 
@@ -376,7 +384,7 @@ public:
 	whileStmt_Condition(
 		WhileStmt* stmt,
 		const Value& value,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
@@ -390,7 +398,7 @@ public:
 	void
 	doStmt_PreBody(
 		DoStmt* stmt,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
@@ -410,7 +418,7 @@ public:
 	void
 	forStmt_PreInit(
 		ForStmt* stmt,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
@@ -442,7 +450,7 @@ public:
 	bool
 	onceStmt_Create(
 		OnceStmt* stmt,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		StorageKind storageKind = StorageKind_Static
 		);
 
@@ -455,13 +463,13 @@ public:
 	bool
 	onceStmt_PreBody(
 		OnceStmt* stmt,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	void
 	onceStmt_PostBody(
 		OnceStmt* stmt,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	Variable*

@@ -41,6 +41,7 @@ struct CmdLine
 	sl::BoxList<sl::String> m_importDirList;
 	sl::BoxList<sl::String> m_sourceDirList;
 	sl::BoxList<sl::String> m_ignoredImportList;
+	sl::BoxList<sl::String> m_requireList;
 
 	CmdLine();
 };
@@ -55,6 +56,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_StdInSrc,
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_CompileOnly,
+	CmdLineSwitch_Require,
 	CmdLineSwitch_Documentation,
 	CmdLineSwitch_OutputDir,
 	CmdLineSwitch_SourceDir,
@@ -107,6 +109,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_CompileOnly,
 		"c", "compile-only", NULL,
 		"Compile only (no run)"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_Require,
+		"require", "<symbol>",
+		"Marks a symbol as required"
 		)
 	AXL_SL_CMD_LINE_SWITCH_3(
 		CmdLineSwitch_Documentation,

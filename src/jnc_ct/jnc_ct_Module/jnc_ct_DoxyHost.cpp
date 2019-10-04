@@ -96,10 +96,11 @@ DoxyHost::findItem(
 	size_t overloadIdx
 	)
 {
-	ModuleItem* item = m_module->m_namespaceMgr.getGlobalNamespace()->findItemByName(name);
-	if (!item)
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
+	if (!findResult.m_item)
 		return NULL;
 
+	ModuleItem* item = findResult.m_item;
 	if (overloadIdx && item->getItemKind() == ModuleItemKind_Function)
 	{
 		Function* overload = ((Function*)item)->getOverload(overloadIdx);

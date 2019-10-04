@@ -11,6 +11,8 @@
 
 #include "pch.h"
 #include "jnc_ct_NamespaceMgr.h"
+#include "jnc_ct_ExtensionNamespace.h"
+#include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -30,8 +32,10 @@ NamespaceMgr::NamespaceMgr()
 	GlobalNamespace* internal = &m_stdNamespaceArray[StdNamespace_Internal];
 
 	global->m_module = m_module;
+	global->m_namespaceStatus = NamespaceStatus_Ready;
 
 	jnc->m_module = m_module;
+	jnc->m_namespaceStatus = NamespaceStatus_Ready;
 	jnc->m_parentNamespace = global;
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
@@ -40,6 +44,7 @@ NamespaceMgr::NamespaceMgr()
 		jnc->m_flags |= ModuleItemFlag_Sealed;
 
 	internal->m_module = m_module;
+	internal->m_namespaceStatus = NamespaceStatus_Ready;
 	internal->m_parentNamespace = global;
 	internal->m_name = jncName;
 	internal->m_qualifiedName = jncName;
@@ -57,17 +62,15 @@ NamespaceMgr::clear()
 		m_stdNamespaceArray[i].clear();
 
 	m_globalNamespaceList.clear();
-	m_extensionNamespaceList.clear();
-	m_dynamicLibNamespaceList.clear();
 	m_scopeList.clear();
 	m_orphanList.clear();
 	m_aliasList.clear();
 	m_namespaceStack.clear();
+	m_sourcePos.clear();
 	m_currentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
 	m_currentScope = NULL;
 	m_sourcePosLockCount = 0;
 	m_staticObjectValue.clear();
-	m_importUsingSetArray.clear();
 }
 
 void
@@ -134,7 +137,7 @@ NamespaceMgr::addStdItems()
 		jnc->addItem("Type", m_module->m_typeMgr.getLazyStdType(StdType_Type)) &&
 		jnc->addItem("DataPtrType", m_module->m_typeMgr.getLazyStdType(StdType_DataPtrType)) &&
 		jnc->addItem("NamedType", m_module->m_typeMgr.getLazyStdType(StdType_NamedType)) &&
-		jnc->addItem("NamedTypeBlock", m_module->m_typeMgr.getLazyStdType(StdType_NamedTypeBlock)) &&
+		jnc->addItem("MemberBlock", m_module->m_typeMgr.getLazyStdType(StdType_MemberBlock)) &&
 		jnc->addItem("BaseTypeSlot", m_module->m_typeMgr.getLazyStdType(StdType_BaseTypeSlot)) &&
 		jnc->addItem("DerivableType", m_module->m_typeMgr.getLazyStdType(StdType_DerivableType)) &&
 		jnc->addItem("ArrayType", m_module->m_typeMgr.getLazyStdType(StdType_ArrayType)) &&
@@ -157,7 +160,7 @@ NamespaceMgr::addStdItems()
 		jnc->addItem("ClassType", m_module->m_typeMgr.getLazyStdType(StdType_ClassType)) &&
 		jnc->addItem("ClassPtrType", m_module->m_typeMgr.getLazyStdType(StdType_ClassPtrType)) &&
 		jnc->addItem("StructTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_StructTypeKind)) &&
-		jnc->addItem("StructField", m_module->m_typeMgr.getLazyStdType(StdType_StructField)) &&
+		jnc->addItem("Field", m_module->m_typeMgr.getLazyStdType(StdType_Field)) &&
 		jnc->addItem("StructType", m_module->m_typeMgr.getLazyStdType(StdType_StructType)) &&
 		jnc->addItem("UnionType", m_module->m_typeMgr.getLazyStdType(StdType_UnionType)) &&
 		jnc->addItem("Alias", m_module->m_typeMgr.getLazyStdType(StdType_Alias)) &&
@@ -192,45 +195,10 @@ NamespaceMgr::createOrphan(
 	return orphan;
 }
 
-bool
-NamespaceMgr::resolveOrphans()
-{
-	bool result;
-
-	sl::Iterator<Orphan> it = m_orphanList.getHead();
-	for (; it; it++)
-	{
-		result = it->resolveOrphan();
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-NamespaceMgr::resolveImportUsingSets()
-{
-	bool result;
-
-	size_t count = m_importUsingSetArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
-		UsingSet* usingSet = m_importUsingSetArray[i];
-		result = usingSet->resolveImportNamespaces();
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
 Alias*
 NamespaceMgr::createAlias(
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
-	Type* type,
-	uint_t ptrTypeFlags,
 	sl::BoxList<Token>* initializer
 	)
 {
@@ -238,18 +206,13 @@ NamespaceMgr::createAlias(
 	alias->m_module = m_module;
 	alias->m_name = name;
 	alias->m_qualifiedName = qualifiedName;
-	alias->m_type = type;
-	alias->m_ptrTypeFlags = ptrTypeFlags;
 	sl::takeOver(&alias->m_initializer, initializer);
 	m_aliasList.insertTail(alias);
-
-	m_module->markForLayout(alias);
-
 	return alias;
 }
 
 void
-NamespaceMgr::setSourcePos(const Token::Pos& pos)
+NamespaceMgr::setSourcePos(const lex::LineCol& pos)
 {
 	if (!(m_module->getCompileFlags() & ModuleCompileFlag_DebugInfo) ||
 		!m_currentScope ||
@@ -272,10 +235,8 @@ NamespaceMgr::openNamespace(Namespace* nspace)
 
 	m_namespaceStack.append(entry);
 	m_currentNamespace = nspace;
+	m_currentScope = nspace->m_namespaceKind == NamespaceKind_Scope ? (Scope*)nspace : NULL;
 	m_currentAccessKind = AccessKind_Public; // always start with 'public'
-
-	if (nspace->m_namespaceKind == NamespaceKind_Scope)
-		m_currentScope =  (Scope*)nspace;
 }
 
 void
@@ -328,7 +289,7 @@ NamespaceMgr::openInternalScope()
 
 Scope*
 NamespaceMgr::openScope(
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	uint_t flags
 	)
 {
@@ -485,8 +446,9 @@ NamespaceMgr::getAccessKind(Namespace* targetNamespace)
 	return AccessKind_Public;
 }
 
-GlobalNamespace*
-NamespaceMgr::createGlobalNamespace(
+void
+NamespaceMgr::addGlobalNamespace(
+	GlobalNamespace* nspace,
 	const sl::StringRef& name,
 	Namespace* parentNamespace
 	)
@@ -494,56 +456,10 @@ NamespaceMgr::createGlobalNamespace(
 	if (!parentNamespace)
 		parentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
 
-	GlobalNamespace* nspace = AXL_MEM_NEW(GlobalNamespace);
 	nspace->m_module = m_module;
 	nspace->m_name = name;
 	nspace->m_parentNamespace = parentNamespace;
 	m_globalNamespaceList.insertTail(nspace);
-	return nspace;
-}
-
-ExtensionNamespace*
-NamespaceMgr::createExtensionNamespace(
-	const sl::StringRef& name,
-	Type* type,
-	Namespace* parentNamespace
-	)
-{
-	if (!parentNamespace)
-		parentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
-
-	ExtensionNamespace* nspace = AXL_MEM_NEW(ExtensionNamespace);
-	nspace->m_module = m_module;
-	nspace->m_name = name;
-	nspace->m_parentNamespace = parentNamespace;
-	nspace->m_type = (DerivableType*)type; // force-cast
-	m_extensionNamespaceList.insertTail(nspace);
-
-	if (type->getTypeKindFlags() & TypeKindFlag_Import)
-	{
-		((ImportType*)type)->addFixup(&nspace->m_type);
-		m_module->markForLayout(nspace, true);
-	}
-	else
-	{
-		bool result = nspace->ensureLayout();
-		if (!result)
-			return NULL;
-	}
-
-	return nspace;
-}
-
-DynamicLibNamespace*
-NamespaceMgr::createDynamicLibNamespace(ClassType* dynamicLibType)
-{
-	DynamicLibNamespace* nspace = AXL_MEM_NEW(DynamicLibNamespace);
-	nspace->m_module = m_module;
-	nspace->m_name = "lib";
-	nspace->m_parentNamespace = dynamicLibType;
-	nspace->m_dynamicLibType = dynamicLibType;
-	m_dynamicLibNamespaceList.insertTail(nspace);
-	return nspace;
 }
 
 Scope*

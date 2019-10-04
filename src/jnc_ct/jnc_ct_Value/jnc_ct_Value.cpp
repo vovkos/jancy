@@ -53,12 +53,12 @@ public:
 		char buffer[256];
 		sl::Array<llvm::Constant*> llvmMemberArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-		sl::Array<StructField*> fieldArray = type->getMemberFieldArray();
+		const sl::Array<Field*>& fieldArray = type->getFieldArray();
 		size_t count = fieldArray.getCount();
 
 		for (size_t i = 0; i < count; i++)
 		{
-			StructField* field = fieldArray[i];
+			Field* field = fieldArray[i];
 			jnc::ct::Value memberConst((char*)p + field->getOffset(), field->getType());
 			llvmMemberArray.append((llvm::Constant*)memberConst.getLlvmValue());
 		}
@@ -84,6 +84,7 @@ getValueKindString(ValueKind valueKind)
 		"const",                  // ValueKind_Const,
 		"variable",               // ValueKind_Variable,
 		"function",               // ValueKind_Function,
+		"function-overload",      // ValueKind_FunctionOverload,
 		"function-type-overload", // ValueKind_FunctionTypeOverload,
 		"property",               // ValueKind_Property,
 		"llvm-register",          // ValueKind_LlvmRegister,
@@ -271,7 +272,7 @@ void
 Value::setDynamicFieldInfo(
 	const Value& parentValue,
 	DerivableType* parentType,
-	StructField* field
+	Field* field
 	)
 {
 	m_dynamicFieldInfo = AXL_REF_NEW(DynamicFieldValueInfo);
@@ -339,15 +340,30 @@ Value::setVariable(Variable* variable)
 	m_valueKind = ValueKind_Variable;
 	m_llvmValue = variable->getLlvmValue();
 	m_variable = variable;
-	m_type = getDirectRefType(
-		variable->getType(),
-		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
-		);
+	m_type = getDirectRefType(variable->getType(), variable->getPtrTypeFlags() | PtrTypeFlag_Safe);
 }
 
-void
-Value::setFunction(Function* function)
+bool
+Value::trySetFunction(Function* function)
 {
+	if (!function->isOverloaded())
+		return trySetFunctionNoOverload(function);
+
+	clear();
+
+	m_valueKind = ValueKind_FunctionOverload;
+	m_function = function;
+	m_type = function->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+	return true;
+}
+
+bool
+Value::trySetFunctionNoOverload(Function* function)
+{
+	bool result = function->getType()->ensureLayout();
+	if (!result)
+		return false;
+
 	clear();
 
 	m_valueKind = ValueKind_Function;
@@ -360,6 +376,8 @@ Value::setFunction(Function* function)
 
 	if (!function->isVirtual())
 		m_llvmValue = function->getLlvmFunction();
+
+	return true;
 }
 
 void
@@ -367,9 +385,9 @@ Value::setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload)
 {
 	clear();
 
-	m_valueKind = functionTypeOverload->isOverloaded() ? ValueKind_FunctionTypeOverload : ValueKind_Type;
+	m_valueKind = ValueKind_FunctionTypeOverload;
 	m_functionTypeOverload = functionTypeOverload;
-	m_type = functionTypeOverload->getOverload(0);
+	m_type = functionTypeOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
 }
 
 void
@@ -385,33 +403,42 @@ Value::setProperty(Property* prop)
 		PtrTypeFlag_Safe
 		);
 
-	// don't assign LlvmValue yet cause property LlvmValue is only needed for pointers
+	// don't assign LlvmValue (property LlvmValue is only needed for pointers)
 }
 
-void
-Value::setEnumConst(EnumConst* enumConst)
+bool
+Value::trySetEnumConst(EnumConst* enumConst)
 {
-	EnumType* enumType;
-	uint64_t enumValue;
+	EnumType* enumType = enumConst->getParentEnumType();
+	if (!(enumConst->getFlags() & EnumConstFlag_ValueReady))
+	{
+		bool result = enumType->ensureLayout();
+		if (!result)
+			return false;
+	}
 
-	enumType = enumConst->getParentEnumType();
-	enumValue = enumConst->getValue();
-
+	Type* baseType = enumType->getBaseType();
+	uint64_t enumValue = enumConst->getValue();
 	if (enumType->getBaseType()->getTypeKindFlags() & TypeKindFlag_BigEndian)
 	{
 		enumValue = sl::swapByteOrder64(enumValue);
 
-		size_t size = enumType->getSize();
+		size_t size = baseType->getSize();
 		if (size < 8)
 			enumValue >>= (8 - size) * 8;
 	}
 
-	createConst(&enumValue, enumType);
+	return createConst(
+		&enumValue,
+		(enumType->getFlags() & ModuleItemFlag_LayoutReady) ?
+			enumType :
+			baseType
+		);
 }
 
 void
 Value::setField(
-	StructField* field,
+	Field* field,
 	Type* type,
 	size_t baseOffset
 	)
@@ -427,7 +454,7 @@ Value::setField(
 
 void
 Value::setField(
-	StructField* field,
+	Field* field,
 	size_t baseOffset
 	)
 {
@@ -508,12 +535,18 @@ Value::createConst(
 	Type* type
 	)
 {
+	bool result;
+
 	clear();
 
-	size_t size = type->getSize();
-	size_t allocSize = AXL_MAX(size, sizeof(int64_t)); // ensure int64 for GetLlvmConst ()
+	result = type->ensureLayout();
+	if (!result)
+		return false;
 
-	bool result = m_constData.setCount(allocSize);
+	size_t size = type->getSize();
+	size_t allocSize = sl::align<sizeof(int64_t)>(size); // ensure int64 for getLlvmConst ()
+
+	result = m_constData.setCount(allocSize);
 	if (!result)
 		return false;
 

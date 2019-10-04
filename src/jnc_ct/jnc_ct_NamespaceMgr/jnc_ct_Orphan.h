@@ -31,17 +31,17 @@ enum OrphanKind
 
 class Orphan:
 	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemBodyDecl,
 	public FunctionName
 {
 	friend class NamespaceMgr;
+	friend class Namespace;
 	friend class Parser;
 
 protected:
 	OrphanKind m_orphanKind;
 	QualifiedName m_declaratorName;
 	FunctionType* m_functionType;
-	sl::BoxList<Token> m_body;
 	UsingSet m_usingSet;
 
 public:
@@ -53,10 +53,10 @@ public:
 		return m_orphanKind;
 	}
 
-	const QualifiedName*
+	const QualifiedName&
 	getDeclaratorName()
 	{
-		return &m_declaratorName;
+		return m_declaratorName;
 	}
 
 	FunctionType*
@@ -65,20 +65,11 @@ public:
 		return m_functionType;
 	}
 
-	sl::ConstBoxList<Token>
-	getBody()
-	{
-		return m_body;
-	}
-
-	bool
-	setBody(sl::BoxList<Token>* tokenList);
-
 	void
 	addUsingSet(Namespace* anchorNamespace);
 
 	bool
-	resolveOrphan();
+	adopt(ModuleItem* item);
 
 protected:
 	bool

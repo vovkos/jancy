@@ -14,6 +14,8 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_ClassType.h"
+#include "jnc_ct_ExtensionNamespace.h"
+#include "jnc_ct_DynamicLibNamespace.h"
 
 namespace jnc {
 namespace ct {
@@ -28,6 +30,38 @@ Namespace::clear()
 	m_friendSet.clear();
 	m_dualPtrTypeTupleMap.clear();
 	m_usingSet.clear();
+}
+
+ModuleItem*
+Namespace::getModuleItem()
+{
+	switch (m_namespaceKind)
+	{
+	case NamespaceKind_Global:
+		return (GlobalNamespace*)this;
+
+	case NamespaceKind_Scope:
+		return (Scope*)this;
+
+	case NamespaceKind_Type:
+		return (NamedType*)this;
+
+	case NamespaceKind_Extension:
+		return (ExtensionNamespace*)this;
+
+	case NamespaceKind_Property:
+		return (Property*)this;
+
+	case NamespaceKind_PropertyTemplate:
+		return (PropertyTemplate*)this;
+
+	case NamespaceKind_DynamicLib:
+		return (DynamicLibNamespace*)this;
+
+	default:
+		ASSERT(false);
+		return NULL;
+	}
 }
 
 sl::String
@@ -46,49 +80,153 @@ Namespace::createQualifiedName(const sl::StringRef& name)
 	return qualifiedName;
 }
 
-ModuleItem*
-Namespace::findItemByName(const sl::StringRef& name)
+bool
+Namespace::resolveOrphans()
 {
-	if (name.find('.') == -1)
-		return findItem(name);
+	bool result;
 
-	QualifiedName qualifiedName;
-	qualifiedName.parse(name);
-	return findItem(qualifiedName);
-}
+	char buffer[256];
+	sl::Array<Property*> propertyArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 
-ModuleItem*
-Namespace::getItemByName(const sl::StringRef& name)
-{
-	ModuleItem* item = findItemByName(name);
-
-	if (!item)
+	size_t count = m_orphanArray.getCount();
+	for (size_t i = 0; i < count; i++)
 	{
-		err::setFormatStringError("'%s' not found", name.sz());
-		return NULL;
+		Orphan* orphan = m_orphanArray[i];
+		FunctionKind functionKind = orphan->getFunctionKind();
+
+		if (functionKind != FunctionKind_Normal && orphan->m_declaratorName.isEmpty())
+		{
+			result = orphan->adopt(getModuleItem());
+			if (!result)
+			{
+				orphan->pushSrcPosError();
+				return false;
+			}
+
+			continue;
+		}
+
+		sl::StringRef name = orphan->m_declaratorName.removeFirstName();
+		FindModuleItemResult findResult = findDirectChildItem(name);
+		if (!findResult.m_result)
+			return false;
+
+		if (!findResult.m_item)
+		{
+			err::setFormatStringError("'%s' not found", name.sz());
+			orphan->pushSrcPosError();
+			return false;
+		}
+
+		if (functionKind == FunctionKind_Normal && orphan->m_declaratorName.isEmpty())
+		{
+			result = orphan->adopt(findResult.m_item);
+			if (!result)
+			{
+				orphan->pushSrcPosError();
+				return false;
+			}
+
+			continue;
+		}
+
+		Namespace* nspace = findResult.m_item->getNamespace();
+		if (!nspace)
+		{
+			err::setFormatStringError("'%s' is a %s, not a namespace", name.sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
+			orphan->pushSrcPosError();
+			return false;
+		}
+
+		nspace->addOrphan(orphan);
+
+		if (nspace->getNamespaceKind() == NamespaceKind_Property)
+			propertyArray.append((Property*)nspace);
 	}
 
-	return item;
+	count = propertyArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		result = propertyArray[i]->resolveOrphans();
+		if (!result)
+			return false;
+	}
+
+	m_orphanArray.clear(); // not needed anymore
+	return true;
 }
 
-ModuleItem*
-Namespace::findItem(const sl::StringRef& name)
+bool
+Namespace::ensureNamespaceReady()
 {
+	bool result;
+	switch (m_namespaceStatus)
+	{
+	case NamespaceStatus_ParseRequired:
+		ASSERT(hasBody());
+
+		m_namespaceStatus = NamespaceStatus_Parsing; // prevent recursive parse
+
+		result = parseBody();
+		if (!result)
+		{
+			m_namespaceStatus = NamespaceStatus_ParseError;
+			m_parseError = err::getLastError();
+			return false;
+		}
+
+		m_namespaceStatus = NamespaceStatus_Ready;
+		break;
+
+	case NamespaceStatus_ParseError:
+		err::setError(m_parseError);
+		return false;
+
+	default:
+		// it's OK if we are still parsing ourselves
+
+		ASSERT(
+			m_namespaceStatus == NamespaceStatus_Parsing ||
+			m_namespaceStatus == NamespaceStatus_Ready);
+	}
+
+	return true;
+}
+
+FindModuleItemResult
+Namespace::findDirectChildItem(const sl::StringRef& name)
+{
+	bool result = ensureNamespaceReady();
+	if (!result)
+		return g_errorFindModuleItemResult;
+
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.find(name);
 	if (!it)
-		return NULL;
+		return g_nullFindModuleItemResult;
 
 	ModuleItem* item = it->m_value;
-	if (!item || item->getItemKind() != ModuleItemKind_Lazy)
-		return item;
+	if (!item)
+		return g_nullFindModuleItemResult;
+
+	if (item->getItemKind() == ModuleItemKind_Alias)
+	{
+		Alias* alias = (Alias*)item;
+		result = alias->ensureResolved();
+		if (!result)
+			return g_errorFindModuleItemResult;
+
+		item = alias->getTargetItem();
+	}
+
+	if (item->getItemKind() != ModuleItemKind_Lazy)
+		return FindModuleItemResult(item);
 
 	LazyModuleItem* lazyItem = (LazyModuleItem*)item;
 	ASSERT(!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
 	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
 
 	item = lazyItem->getActualItem();
-	if (!item)
-		return NULL;
+	ASSERT(item);
 
 	if (it->m_value != item) // it might already have been added during parse
 	{
@@ -97,88 +235,97 @@ Namespace::findItem(const sl::StringRef& name)
 		m_itemArray.append(item);
 	}
 
-	return item;
+	return FindModuleItemResult(item);
 }
 
-ModuleItem*
+FindModuleItemResult
+Namespace::findItem(const sl::StringRef& name)
+{
+	if (name.find('.') == -1)
+		return findDirectChildItem(name);
+
+	QualifiedName qualifiedName;
+	qualifiedName.parse(name);
+	return findItem(qualifiedName);
+}
+
+FindModuleItemResult
 Namespace::findItem(const QualifiedName& name)
 {
-	ModuleItem* item = findItem(name.getFirstName());
-	if (!item)
-		return NULL;
+	FindModuleItemResult findResult = findDirectChildItem(name.getFirstName());
+	if (!findResult.m_item)
+		return findResult;
 
-	sl::ConstBoxIterator<sl::String> nameIt = name.getNameList().getHead();
+	sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = item->getNamespace();
+		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)
-			return NULL;
+			return g_nullFindModuleItemResult;
 
-		item = nspace->findItem(*nameIt);
-		if (!item)
-			return NULL;
+		findResult = nspace->findItem(*nameIt);
+		if (!findResult.m_item)
+			return findResult;
 	}
 
-	return item;
+	return findResult;
 }
 
-ModuleItem*
+FindModuleItemResult
 Namespace::findItemTraverse(
 	const QualifiedName& name,
 	MemberCoord* coord,
 	uint_t flags
 	)
 {
-	ModuleItem* item = findItemTraverse(name.getFirstName(), coord, flags);
-	if (!item)
-		return NULL;
+	FindModuleItemResult findResult = findDirectChildItemTraverse(name.getFirstName(), coord, flags);
+	if (!findResult.m_item)
+		return findResult;
 
-	sl::ConstBoxIterator<sl::String> nameIt = name.getNameList().getHead();
+	sl::ConstBoxIterator<sl::StringRef> nameIt = name.getNameList().getHead();
 	for (; nameIt; nameIt++)
 	{
-		Namespace* nspace = item->getNamespace();
+		Namespace* nspace = findResult.m_item->getNamespace();
 		if (!nspace)
-			return NULL;
+			return g_nullFindModuleItemResult;
 
-		item = nspace->findItem(*nameIt);
-		if (!item)
-			return NULL;
+		findResult = nspace->findDirectChildItem(*nameIt);
+		if (!findResult.m_item)
+			return findResult;
 	}
 
-	return item;
+	return findResult;
 }
 
-ModuleItem*
-Namespace::findItemTraverseImpl(
+FindModuleItemResult
+Namespace::findDirectChildItemTraverse(
 	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags
 	)
 {
-	ModuleItem* item;
-
 	if (!(flags & TraverseKind_NoThis))
 	{
-		item = findItem(name);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = findDirectChildItem(name);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
 	if (!(flags & TraverseKind_NoUsingNamespaces))
 	{
-		item = m_usingSet.findItem(name);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = m_usingSet.findItem(name);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
 	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		item = m_parentNamespace->findItemTraverse(name, coord, flags & ~TraverseKind_NoThis);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseKind_NoThis);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
-	return NULL;
+	return g_nullFindModuleItemResult;
 }
 
 bool
@@ -206,20 +353,23 @@ Namespace::addItem(
 size_t
 Namespace::addFunction(Function* function)
 {
-	ModuleItem* oldItem = findItem(function->m_name);
-	if (!oldItem)
+	FindModuleItemResult findResult = findItem(function->m_name);
+	if (!findResult.m_result)
+		return -1;
+
+	if (!findResult.m_item)
 	{
 		addItem(function);
 		return 0;
 	}
 
-	if (oldItem->getItemKind() != ModuleItemKind_Function)
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
 	{
 		setRedefinitionError(function->m_name);
 		return -1;
 	}
 
-	return ((Function*)oldItem)->addOverload(function);
+	return ((Function*)findResult.m_item)->addOverload(function);
 }
 
 Const*
@@ -244,10 +394,11 @@ Namespace::createConst(
 bool
 Namespace::exposeEnumConsts(EnumType* type)
 {
-	bool result;
+	bool result = type->ensureNamespaceReady();
+	if (!result)
+		return false;
 
 	sl::Array<EnumConst*> constArray = type->getConstArray();
-
 	size_t count = constArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{

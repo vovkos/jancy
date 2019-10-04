@@ -21,6 +21,32 @@ namespace ct {
 //..............................................................................
 
 bool
+OperatorMgr::newOperator(
+	Type* type,
+	const Value& elementCountValue,
+	sl::BoxList<Value>* argValueList,
+	Value* resultValue
+	)
+{
+	ASSERT(!(type->getTypeKindFlags() & TypeKindFlag_Import));
+
+	bool result = type->ensureLayout();
+	if (!result)
+		return false;
+
+	if (type->getTypeKind() == TypeKind_Class)
+	{
+		result = ((ClassType*)type)->ensureCreatable();
+		if (!result)
+			return false;
+	}
+
+	return
+		gcHeapAllocate(type, elementCountValue, resultValue) &&
+		construct(*resultValue, argValueList);
+}
+
+bool
 OperatorMgr::memSet(
 	const Value& value,
 	char c,
@@ -137,21 +163,9 @@ OperatorMgr::construct(
 		return false;
 	}
 
-	TypeKind typeKind = type->getTypeKind();
-
-	Function* constructor = NULL;
-
-	switch (typeKind)
-	{
-	case TypeKind_Struct:
-	case TypeKind_Union:
-		constructor = ((DerivableType*)type)->getConstructor();
-		break;
-
-	case TypeKind_Class:
-		constructor = ((ClassType*)type)->getConstructor();
-		break;
-	}
+	Function* constructor = (type->getTypeKindFlags() & TypeKindFlag_Derivable) ?
+		((DerivableType*)type)->getConstructor() :
+		NULL;
 
 	if (!constructor)
 	{
@@ -208,8 +222,7 @@ OperatorMgr::parseInitializer(
 	sl::BoxList<Value> argList;
 	if (!constructorTokenList.isEmpty())
 	{
-		Parser parser(m_module);
-		parser.m_stage = Parser::Stage_Pass2;
+		Parser parser(m_module, Parser::Mode_Compile);
 
 		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
 		if (!result)
@@ -224,25 +237,29 @@ OperatorMgr::parseInitializer(
 
 	if (!initializerTokenList.isEmpty())
 	{
-		Parser parser(m_module);
-		parser.m_stage = Parser::Stage_Pass2;
+		Parser parser(m_module, Parser::Mode_Compile);
+		sl::ConstBoxIterator<Token> tokenIt = initializerTokenList.getHead();
 
-		if (initializerTokenList.getHead()->m_token == '{')
+		switch (tokenIt->m_token)
 		{
+		case TokenKind_Body:
+			parser.m_curlyInitializerTargetValue = value;
+			result = parser.parseBody(SymbolKind_curly_initializer, tokenIt->m_pos, tokenIt->m_data.m_string);
+			break;
+
+		case '{':
 			parser.m_curlyInitializerTargetValue = value;
 			result = parser.parseTokenList(SymbolKind_curly_initializer, initializerTokenList);
-			if (!result)
-				return false;
-		}
-		else
-		{
+			break;
+
+		default:
 			result =
 				parser.parseTokenList(SymbolKind_expression_save_value, initializerTokenList) &&
 				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.m_expressionValue);
-
-			if (!result)
-				return false;
 		}
+
+		if (!result)
+			return false;
 	}
 
 	return true;
@@ -272,8 +289,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	Value* resultValue
 	)
 {
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass2;
+	Parser parser(m_module, Parser::Mode_Compile);
 
 	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
 	m_module->m_namespaceMgr.lockSourcePos();
@@ -296,9 +312,7 @@ OperatorMgr::parseExpression(
 	Value* resultValue
 	)
 {
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-	parser.m_flags |= flags;
+	Parser parser(m_module, Parser::Mode_Compile, flags);
 
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, expressionTokenList);
 	if (!result)
@@ -350,12 +364,15 @@ OperatorMgr::parseAutoSizeArrayInitializer(
 	const sl::ConstBoxList<Token>& initializerTokenList
 	)
 {
-	int firstToken = initializerTokenList.getHead()->m_token;
-	switch (firstToken)
+	const Token* token = initializerTokenList.getHead().p();
+	switch (token->m_token)
 	{
 	case TokenKind_Literal:
 	case TokenKind_BinLiteral:
 		return parseAutoSizeArrayLiteralInitializer(initializerTokenList);
+
+	case TokenKind_Body:
+		return parseAutoSizeArrayCurlyInitializer(arrayType, token->m_pos, token->m_data.m_string);
 
 	case '{':
 		return parseAutoSizeArrayCurlyInitializer(arrayType, initializerTokenList);
@@ -392,6 +409,41 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>&
 		elementCount++;
 
 	return elementCount;
+}
+
+size_t
+OperatorMgr::parseAutoSizeArrayCurlyInitializer(
+	ArrayType* arrayType,
+	const lex::LineCol& pos,
+	const sl::StringRef& initializer
+	)
+{
+	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+	ASSERT(unit);
+
+	Lexer lexer(LexerMode_Compile);
+	lexer.create(unit->getFilePath(), initializer);
+	lexer.setLineCol(pos);
+
+	sl::BoxList<Token> tokenList;
+
+	for (;;)
+	{
+		const Token* token = lexer.getToken();
+		switch (token->m_token)
+		{
+		case TokenKind_Eof: // no need to add EOF token
+			return parseAutoSizeArrayCurlyInitializer(arrayType, tokenList);
+
+		case TokenKind_Error:
+			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+			lex::pushSrcPosError(unit->getFilePath(), token->m_pos);
+			return -1;
+		}
+
+		tokenList.insertTail(*token);
+		lexer.nextToken();
+	}
 }
 
 size_t
@@ -527,29 +579,6 @@ OperatorMgr::gcHeapAllocate(
 	else
 		resultValue->overrideType(ptrValue, type->getDataPtrType());
 
-	return true;
-}
-
-bool
-OperatorMgr::newOperator(
-	Type* type,
-	const Value& rawElementCountValue,
-	sl::BoxList<Value>* argValueList,
-	Value* resultValue
-	)
-{
-	bool result;
-
-	Value ptrValue;
-	result = gcHeapAllocate(type, rawElementCountValue, &ptrValue);
-	if (!result)
-		return false;
-
-	result = construct(ptrValue, argValueList);
-	if (!result)
-		return false;
-
-	*resultValue = ptrValue;
 	return true;
 }
 

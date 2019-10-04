@@ -25,7 +25,7 @@ UnionType::UnionType()
 	m_structType = NULL;
 }
 
-StructField*
+Field*
 UnionType::createFieldImpl(
 	const sl::StringRef& name,
 	Type* type,
@@ -35,13 +35,7 @@ UnionType::createFieldImpl(
 	sl::BoxList<Token>* initializer
 	)
 {
-	if (m_flags & ModuleItemFlag_Sealed)
-	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString().sz());
-		return NULL;
-	}
-
-	StructField* field = m_module->m_typeMgr.createStructField(
+	Field* field = m_module->m_typeMgr.createField(
 		name,
 		type,
 		bitCount,
@@ -51,24 +45,6 @@ UnionType::createFieldImpl(
 		);
 
 	field->m_parentNamespace = this;
-
-	if (!field->m_constructor.isEmpty() ||
-		!field->m_initializer.isEmpty())
-	{
-		if (m_initializedMemberFieldArray.isEmpty())
-		{
-			err::setFormatStringError(
-				"'%s' already has initialized field '%s'",
-				type->getTypeString().sz(),
-				m_initializedMemberFieldArray[0]->getName().sz()
-				);
-			return NULL;
-		}
-
-		m_initializedMemberFieldArray.append(field);
-	}
-
-	m_memberFieldArray.append(field);
 
 	if (name.isEmpty())
 	{
@@ -81,22 +57,24 @@ UnionType::createFieldImpl(
 			return NULL;
 	}
 
-	m_memberFieldArray.append(field);
+	m_fieldArray.append(field);
 	return field;
 }
 
 bool
 UnionType::calcLayout()
 {
-	bool result;
+	bool result = ensureNamespaceReady();
+	if (!result)
+		return false;
 
 	Type* largestFieldType = NULL;
 	size_t largestAlignment = 0;
 
-	size_t count = m_memberFieldArray.getCount();
+	size_t count = m_fieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_memberFieldArray[i];
+		Field* field = m_fieldArray[i];
 
 		result = field->m_type->ensureLayout();
 		if (!result)
@@ -132,6 +110,10 @@ UnionType::calcLayout()
 			largestAlignment = field->m_type->getAlignment();
 
 		field->m_llvmIndex = i; // llvmIndex is used in unions!
+
+		if (field->m_parentNamespace == this && // skip property fields
+			(!field->m_initializer.isEmpty() || isConstructibleType(field->m_type)))
+			m_fieldInitializeArray.append(field);
 	}
 
 	ASSERT(largestFieldType);
@@ -143,18 +125,30 @@ UnionType::calcLayout()
 	if (!result)
 		return false;
 
-	if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty())
+	scanStaticVariables();
+	scanPropertyCtorDtors();
+
+	if (!m_propertyDestructArray.isEmpty())
 	{
-		result = createDefaultMethod(FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
+		err::setError("invalid property destructor in 'union'");
+		return false;
+	}
+
+	if (!m_staticConstructor &&
+		(!m_staticVariableInitializeArray.isEmpty() ||
+		!m_propertyStaticConstructArray.isEmpty()))
+	{
+		result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
 		if (!result)
 			return false;
 	}
 
 	if (!m_constructor &&
-		(m_preconstructor ||
-		!m_initializedMemberFieldArray.isEmpty()))
+		(m_staticConstructor ||
+		!m_fieldInitializeArray.isEmpty() ||
+		!m_propertyConstructArray.isEmpty()))
 	{
-		result = createDefaultMethod(FunctionKind_Constructor) != NULL;
+		result = createDefaultMethod<DefaultConstructor>() != NULL;
 		if (!result)
 			return false;
 	}
@@ -164,28 +158,6 @@ UnionType::calcLayout()
 
 	if (m_size > TypeSizeLimit_StackAllocSize)
 		m_flags |= TypeFlag_NoStack;
-
-	return true;
-}
-
-bool
-UnionType::compile()
-{
-	bool result;
-
-	if (m_staticConstructor && !(m_staticConstructor->getFlags() & ModuleItemFlag_User))
-	{
-		result = compileDefaultStaticConstructor();
-		if (!result)
-			return false;
-	}
-
-	if (m_constructor && !(m_constructor->getFlags() & ModuleItemFlag_User))
-	{
-		result = compileDefaultConstructor();
-		if (!result)
-			return false;
-	}
 
 	return true;
 }

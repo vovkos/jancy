@@ -13,7 +13,7 @@
 
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_rtl_Namespace.h"
-#include "jnc_rtl_NamedTypeBlock.h"
+#include "jnc_rtl_MemberBlock.h"
 #include "jnc_ct_Property.h"
 
 namespace jnc {
@@ -26,13 +26,13 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Property)
 class Property:
 	public ModuleItemBase<ct::Property>,
 	public Namespace,
-	public NamedTypeBlock
+	public MemberBlock
 {
 public:
 	Property(ct::Property* prop):
 		ModuleItemBase(prop),
 		Namespace(prop),
-		NamedTypeBlock(prop)
+		MemberBlock(prop)
 	{
 	}
 

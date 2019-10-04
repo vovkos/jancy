@@ -25,7 +25,7 @@ class GlobalNamespace;
 class Type;
 class DataPtrType;
 class NamedType;
-class NamedTypeBlock;
+class MemberBlock;
 class BaseTypeSlot;
 class DerivableType;
 class ArrayType;
@@ -39,7 +39,7 @@ class EnumConst;
 class EnumType;
 class ClassType;
 class ClassPtrType;
-class StructField;
+class Field;
 class StructType;
 class UnionType;
 class Alias;
@@ -83,6 +83,14 @@ getBaseTypeSlot(ct::BaseTypeSlot* slot)
 	return (BaseTypeSlot*)getIntrospectionClass(slot, StdType_BaseTypeSlot);
 }
 
+inline
+Field*
+JNC_CDECL
+getField(ct::Field* field)
+{
+	return (Field*)getIntrospectionClass(field, StdType_Field);
+}
+
 Type*
 JNC_CDECL
 getType(ct::Type* type);
@@ -92,14 +100,6 @@ EnumConst*
 getEnumConst(ct::EnumConst* cnst)
 {
 	return (EnumConst*)getIntrospectionClass(cnst, StdType_EnumConst);
-}
-
-inline
-StructField*
-JNC_CDECL
-getStructField(ct::StructField* field)
-{
-	return (StructField*)getIntrospectionClass(field, StdType_StructField);
 }
 
 inline

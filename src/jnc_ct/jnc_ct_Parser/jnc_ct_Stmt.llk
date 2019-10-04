@@ -15,7 +15,7 @@ compound_stmt
 			{
 				m_module->m_namespaceMgr.openScope($1.m_pos, $1.m_data.m_integer);
 			}
-		local_declaration*
+		local_declaration_list
 		'}'
 			{
 				m_module->m_namespaceMgr.closeScope();
@@ -32,7 +32,7 @@ constructor_compound_stmt
 			{
 				return finalizeBaseTypeMemberConstructBlock();
 			}
-		local_declaration*
+		local_declaration_list
 		'}'
 			{
 				m_module->m_namespaceMgr.closeScope();
@@ -278,8 +278,7 @@ for_stmt
 			}
 		(local_item_declaration | expression_or_empty_list ';')
 		for_stmt_condition<&$stmt> ';'
-		(
-				{
+		(		{
 					m_module->m_controlFlowMgr.forStmt_PreLoop(&$stmt);
 				}
 			expression_list

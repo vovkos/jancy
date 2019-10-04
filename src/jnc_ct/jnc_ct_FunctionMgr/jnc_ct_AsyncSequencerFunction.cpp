@@ -37,11 +37,11 @@ AsyncSequencerFunction::compile()
 	m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
 	Value promiseValue;
-	m_module->m_functionMgr.internalPrologue(this, &promiseValue, 1, &m_body.getHead()->m_pos);
+	m_module->m_functionMgr.internalPrologue(this, &promiseValue, 1, &m_bodyPos);
 	m_module->m_functionMgr.m_promiseValue = promiseValue;
 
 	Scope* scope = m_module->m_namespaceMgr.openScope(
-		m_body.getHead()->m_pos,
+		m_bodyPos,
 		ScopeFlag_CatchAhead | ScopeFlag_HasCatch
 		);
 
@@ -50,7 +50,7 @@ AsyncSequencerFunction::compile()
 	ASSERT(!m_promiseType);
 	m_promiseType = ((ClassPtrType*)promiseValue.getType())->getTargetType();
 
-	sl::Array<StructField*> promiseFieldArray = m_promiseType->getMemberFieldArray();
+	const sl::Array<Field*>& promiseFieldArray = m_promiseType->getFieldArray();
 	size_t argCount = promiseFieldArray.getCount();
 
 	size_t i = 0;
@@ -59,7 +59,7 @@ AsyncSequencerFunction::compile()
 	{
 		// add this arg
 
-		StructField* argField = promiseFieldArray[0];
+		Field* argField = promiseFieldArray[0];
 		Value argFieldValue;
 
 		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
@@ -79,7 +79,7 @@ AsyncSequencerFunction::compile()
 
 	for (; i < argCount; i++)
 	{
-		StructField* argField = promiseFieldArray[i];
+		Field* argField = promiseFieldArray[i];
 
 		Value argFieldValue;
 		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
@@ -125,11 +125,10 @@ AsyncSequencerFunction::compile()
 
 	// parse body
 
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass2;
+	Parser parser(m_module, Parser::Mode_Compile);
 
 	result =
-		parser.parseTokenList(SymbolKind_compound_stmt, m_body, true) &&
+		parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body) &&
 		m_module->m_controlFlowMgr.checkReturn();
 
 	if (!result)
@@ -166,7 +165,7 @@ AsyncSequencerFunction::compile()
 	// sync-catch and async-throw
 
 	m_module->m_controlFlowMgr.setCurrentBlock(prevBlock);
-	result = m_module->m_controlFlowMgr.catchLabel(m_body.getTail()->m_pos);
+	result = m_module->m_controlFlowMgr.catchLabel(m_module->m_namespaceMgr.getSourcePos());
 	ASSERT(result);
 
 	Function* throwFunc = m_module->m_functionMgr.getStdFunction(StdFunc_AsyncThrow);

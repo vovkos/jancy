@@ -31,7 +31,7 @@ AsyncLauncherFunction::compile()
 	sl::String promiseName = qualifiedName + ".Promise";
 	sl::String sequencerName = qualifiedName + ".sequencer";
 
-	ClassType* promiseType = m_module->m_typeMgr.createClassType(sl::String(), promiseName);
+	ClassType* promiseType = m_module->m_typeMgr.createInternalClassType(promiseName);
 	promiseType->addBaseType(m_module->m_typeMgr.getStdType(StdType_Promise));
 
 	if (isMember())
@@ -41,15 +41,11 @@ AsyncLauncherFunction::compile()
 
 	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
-	Token::Pos beginPos = m_body.getHead()->m_pos;
-	Token::Pos endPos = m_body.getTail()->m_pos;
-
-	m_module->m_functionMgr.prologue(this, beginPos);
-	m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(NULL, &m_usingSet);
+	m_module->m_functionMgr.prologue(this, m_bodyPos);
+	m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(&m_usingSet);
 
 	sl::Array<Variable*> argVariableArray = m_module->m_variableMgr.getArgVariableArray();
 	size_t argCount = argVariableArray.getCount();
-
 	for (size_t i = 0; i < argCount; i++)
 	{
 		Variable* argVar = argVariableArray[i];
@@ -59,7 +55,7 @@ AsyncLauncherFunction::compile()
 	result = promiseType->ensureLayout();
 	ASSERT(result);
 
-	sl::Array<StructField*> argFieldArray = promiseType->getMemberFieldArray();
+	const sl::Array<Field*>& argFieldArray = promiseType->getFieldArray();
 	ASSERT(argFieldArray.getCount() == (isMember() ? argCount + 1 : argCount));
 
 	Value promiseValue;
@@ -70,7 +66,7 @@ AsyncLauncherFunction::compile()
 
 	if (isMember())
 	{
-		StructField* argField = argFieldArray[0];
+		Field* argField = argFieldArray[0];
 		Value argFieldValue;
 
 		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
@@ -85,7 +81,7 @@ AsyncLauncherFunction::compile()
 	for (size_t i = 0; i < argCount; i++, j++)
 	{
 		Variable* argVar = argVariableArray[i];
-		StructField* argField = argFieldArray[j];
+		Field* argField = argFieldArray[j];
 		Value argFieldValue;
 
 		result = m_module->m_operatorMgr.getField(promiseValue, argField, &argFieldValue);
@@ -100,12 +96,13 @@ AsyncLauncherFunction::compile()
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(&argType, 1, flags);
 
-	AsyncSequencerFunction* sequencerFunc = (AsyncSequencerFunction*) m_module->m_functionMgr.createFunction(
-		FunctionKind_AsyncSequencer,
+	AsyncSequencerFunction* sequencerFunc = m_module->m_functionMgr.createFunction<AsyncSequencerFunction>(
 		sl::String(),
 		sequencerName,
 		functionType
 		);
+
+	m_module->m_functionMgr.m_asyncSequencerFunctionArray.append(sequencerFunc);
 
 	sequencerFunc->m_asyncLauncher = this;
 	sequencerFunc->m_parentUnit = m_parentUnit;
@@ -113,15 +110,13 @@ AsyncLauncherFunction::compile()
 	sequencerFunc->m_thisArgType = m_thisArgType;
 	sequencerFunc->m_thisType = m_thisType;
 	sequencerFunc->m_thisArgDelta = m_thisArgDelta;
-
-	sequencerFunc->setBody(&m_body);
+	sequencerFunc->setBody(m_bodyPos, m_body);
 
 	m_module->m_operatorMgr.callOperator(sequencerFunc, promiseValue);
 
 	result = m_module->m_controlFlowMgr.ret(promiseValue);
 	ASSERT(result);
 
-	m_module->m_namespaceMgr.setSourcePos(endPos);
 	return m_module->m_functionMgr.epilogue();
 }
 

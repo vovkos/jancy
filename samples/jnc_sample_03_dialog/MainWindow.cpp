@@ -89,25 +89,24 @@ bool MainWindow::runScript(const QString& fileName)
 	m_module->initialize("jnc_sample_03_dialog");
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(MyLib_getLib());
+	m_module->require(jnc::ModuleItemKind_Function, "main");
 
 	if (fileName.isEmpty())
 	{
 		output("Parsing default script...\n");
-
-		result =
-			m_module->parse("script.jnc", g_script, sizeof(g_script) - 1) &&
-			m_module->parseImports();
+		result = m_module->parse("script.jnc", g_script, sizeof(g_script) - 1);
 	}
 	else
 	{
 		QByteArray fileName_utf8 = fileName.toUtf8();
 
-		output("Parsing...\n");
-
-		result =
-			m_module->parseFile(fileName_utf8.constBegin()) &&
-			m_module->parseImports();
+		output("Parsing %s...\n", fileName_utf8.constData());
+		result = m_module->parseFile(fileName_utf8.constData());
 	}
+
+	result =
+		result &&
+		m_module->parseImports();
 
 	if (!result)
 	{
@@ -129,12 +128,8 @@ bool MainWindow::runScript(const QString& fileName)
 	}
 
 	jnc::Namespace* nspace = m_module->getGlobalNamespace()->getNamespace();
-	jnc::Function* mainFunction = nspace->findFunction("main");
-	if (!mainFunction)
-	{
-		output("%s\n", jnc::getLastErrorDescription_v ());
-		return false;
-	}
+	jnc::Function* mainFunction = (jnc::Function*)nspace->findItem("main").m_item;
+	JNC_ASSERT(mainFunction && mainFunction->getItemKind() == jnc::ModuleItemKind_Function);
 
 	output("Running...\n");
 

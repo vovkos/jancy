@@ -104,14 +104,14 @@ public:
 	JNC_CDECL
 	getLine()
 	{
-		return m_decl->getPos()->m_line;
+		return m_decl->getPos().m_line;
 	}
 
 	int
 	JNC_CDECL
 	getCol()
 	{
-		return m_decl->getPos()->m_col;
+		return m_decl->getPos().m_col;
 	}
 
 protected:

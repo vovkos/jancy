@@ -19,6 +19,27 @@ namespace ct {
 
 //..............................................................................
 
+class Cast_FunctionPtr_FromOverload: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+		);
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//..............................................................................
+
 class Cast_FunctionPtr_FromMulticast: public CastOperator
 {
 public:
@@ -166,6 +187,7 @@ public:
 class Cast_FunctionPtr: public Cast_Master
 {
 protected:
+	Cast_FunctionPtr_FromOverload m_fromOverload;
 	Cast_FunctionPtr_FromMulticast m_fromMulticast;
 	Cast_FunctionPtr_FromDataPtr m_fromDataPtr;
 	Cast_FunctionPtr_FromFat m_fromFat;

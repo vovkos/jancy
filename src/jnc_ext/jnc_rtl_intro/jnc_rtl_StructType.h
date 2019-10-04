@@ -17,45 +17,7 @@
 namespace jnc {
 namespace rtl {
 
-JNC_DECLARE_OPAQUE_CLASS_TYPE(StructField)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(StructType)
-
-//..............................................................................
-
-class StructField:
-	public ModuleItemBase<ct::StructField>,
-	public ModuleItemDecl,
-	public ModuleItemInitializer
-{
-public:
-	StructField(ct::StructField* field):
-		ModuleItemBase(field),
-		ModuleItemDecl(field),
-		ModuleItemInitializer(field)
-	{
-	}
-
-	Type*
-	JNC_CDECL
-	getType()
-	{
-		return rtl::getType(m_item->getType());
-	}
-
-	uint_t
-	JNC_CDECL
-	getPtrTypeFlags()
-	{
-		return m_item->getPtrTypeFlags();
-	}
-
-	size_t
-	JNC_CDECL
-	getOffset()
-	{
-		return m_item->getOffset();
-	}
-};
 
 //..............................................................................
 

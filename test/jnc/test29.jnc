@@ -23,11 +23,6 @@ class C1
 		printf("C1.static construct ()\n");
 	}
 
-	preconstruct()
-	{
-		printf("C1.preconstruct ()\n");
-	}
-
 	construct()
 	{
 		printf("C1.construct ()\n");

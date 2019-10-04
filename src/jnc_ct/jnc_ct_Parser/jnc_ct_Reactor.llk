@@ -74,13 +74,13 @@ reactor_event_name
 	}
 	enter
 	{
-		ASSERT(m_stage == Stage_Reaction);
-		m_stage = Stage_Pass2; // don't add implicit bindings to bindable properties inside 'onevent'
+		ASSERT(m_mode == Mode_Reaction);
+		m_mode = Mode_Compile; // don't add implicit bindings to bindable properties inside 'onevent'
  	}
 	leave
 	{
-		ASSERT(m_stage == Stage_Pass2);
-		m_stage = Stage_Reaction; // restore
+		ASSERT(m_mode == Mode_Compile);
+		m_mode = Mode_Reaction; // restore
 	}
 	:	'(' expression_list ')'
 			{
@@ -119,36 +119,12 @@ reactor_stmt_0
 		m_reactionIdx++;
 	}
 	:	local_item_declaration
-	|	expression_0 ';'
-	|	reactor_onevent_stmt_0
-	;
-
-reactor_onevent_stmt_0
-	local
-	{
-		Declarator $declarator;
-	}
-	leave
-	{
-		postDeclarator(&$declarator);
-	}
-	:	TokenKind_OnEvent
-		reactor_event_name_0
-			{
-				postDeclaratorName(&$declarator);
-			}
-		function_suffix<&$declarator>
-		reactor_compound_stmt_0
+	|	TokenKind_OnEvent any+ reactor_compound_stmt_0
+	|	any+ ';'
 	;
 
 reactor_compound_stmt_0
 	:	'{' (reactor_compound_stmt_0 | any)* '}'
-	;
-
-reactor_event_name_0
-	:	'(' expression_list_0 ')'
-	|	TokenKind_BindingOf '(' expression_0 ')'
-	|	any+ // anything until '('
 	;
 
 //..............................................................................

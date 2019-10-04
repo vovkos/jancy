@@ -53,10 +53,11 @@ typedef enum jnc_PropertyKind jnc_PropertyKind;
 
 enum jnc_PropertyFlag
 {
-	jnc_PropertyFlag_Const    = 0x010000,
-	jnc_PropertyFlag_Bindable = 0x020000,
-	jnc_PropertyFlag_AutoGet  = 0x100000,
-	jnc_PropertyFlag_AutoSet  = 0x200000,
+	jnc_PropertyFlag_Const     = 0x010000,
+	jnc_PropertyFlag_Bindable  = 0x020000,
+	jnc_PropertyFlag_AutoGet   = 0x100000,
+	jnc_PropertyFlag_AutoSet   = 0x200000,
+	jnc_PropertyFlag_Finalized = 0x800000,
 };
 
 typedef enum jnc_PropertyFlag jnc_PropertyFlag;
@@ -128,10 +129,11 @@ const PropertyKind
 typedef enum jnc_PropertyFlag PropertyFlag;
 
 const PropertyFlag
-	PropertyFlag_Const    = jnc_PropertyFlag_Const,
-	PropertyFlag_Bindable =	jnc_PropertyFlag_Bindable,
-	PropertyFlag_AutoGet  = jnc_PropertyFlag_AutoGet,
-	PropertyFlag_AutoSet  = jnc_PropertyFlag_AutoSet;
+	PropertyFlag_Const     = jnc_PropertyFlag_Const,
+	PropertyFlag_Bindable  = jnc_PropertyFlag_Bindable,
+	PropertyFlag_AutoGet   = jnc_PropertyFlag_AutoGet,
+	PropertyFlag_AutoSet   = jnc_PropertyFlag_AutoSet,
+	PropertyFlag_Finalized = jnc_PropertyFlag_Finalized;
 
 //..............................................................................
 

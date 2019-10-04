@@ -21,6 +21,54 @@ namespace ct {
 //..............................................................................
 
 CastKind
+Cast_FunctionPtr_FromOverload::getCastKind(
+	const Value& opValue,
+	Type* type
+	)
+{
+	ValueKind valueKind = opValue.getValueKind();
+	ASSERT(valueKind == ValueKind_FunctionOverload || valueKind == ValueKind_FunctionTypeOverload);
+
+	FunctionTypeOverload* typeOverload = valueKind == ValueKind_FunctionOverload ?
+		opValue.getFunction()->getTypeOverload() :
+		opValue.getFunctionTypeOverload();
+
+	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
+	FunctionType* functionType = ((FunctionPtrType*)type)->getTargetType();
+
+	CastKind castKind;
+	size_t index = typeOverload->chooseOverload(opValue.getClosure(), functionType->getArgArray(), &castKind);
+	return index == -1 ? CastKind_None : castKind;
+}
+
+bool
+Cast_FunctionPtr_FromOverload::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload);
+	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
+
+	Function* function = opValue.getFunction();
+	FunctionType* functionType = ((FunctionPtrType*)type)->getTargetType();
+	Closure* closure = opValue.getClosure();
+	Function* overload = function->chooseOverload(closure, functionType->getArgArray());
+	if (!overload)
+		return false;
+
+	Value overloadValue;
+	bool result = overloadValue.trySetFunctionNoOverload(overload); // should already be laid out
+	ASSERT(result);
+
+	overloadValue.setClosure(closure);
+	return m_module->m_operatorMgr.castOperator(overloadValue, type, resultValue);
+}
+
+//..............................................................................
+
+CastKind
 Cast_FunctionPtr_FromMulticast::getCastKind(
 	const Value& opValue,
 	Type* type
@@ -114,12 +162,6 @@ Cast_FunctionPtr_Base::getCastKind(
 {
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_FunctionPtr);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
-
-	if (!opValue.getType())
-	{
-		ASSERT(opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isOverloaded());
-		return CastKind_None; // choosing overload is not yet implemented
-	}
 
 	FunctionPtrType* srcPtrType = (FunctionPtrType*)opValue.getClosureAwareType();
 	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
@@ -484,21 +526,14 @@ Cast_FunctionPtr::getCastOperator(
 {
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	FunctionPtrType* dstPtrType = (FunctionPtrType*)type;
-	FunctionPtrTypeKind dstPtrTypeKind = dstPtrType->getPtrTypeKind();
-
 	Type* srcType = opValue.getType();
-	if (!srcType)
-	{
-		ASSERT(opValue.getValueKind() == ValueKind_Function && opValue.getFunction()->isOverloaded());
-		ASSERT(dstPtrTypeKind >= 0 && dstPtrTypeKind < 2);
-
-		return m_operatorTable[FunctionPtrTypeKind_Thin][dstPtrTypeKind];
-	}
-
 	TypeKind typeKind = srcType->getTypeKind();
 	switch (typeKind)
 	{
+	case TypeKind_Void:
+		ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload || opValue.getValueKind() == ValueKind_FunctionTypeOverload);
+		return &m_fromOverload;
+
 	case TypeKind_FunctionPtr:
 	case TypeKind_FunctionRef:
 		break;
@@ -515,8 +550,8 @@ Cast_FunctionPtr::getCastOperator(
 		return NULL;
 	}
 
-	FunctionPtrType* srcPtrType = (FunctionPtrType*)srcType;
-	FunctionPtrTypeKind srcPtrTypeKind = srcPtrType->getPtrTypeKind();
+	FunctionPtrTypeKind srcPtrTypeKind = ((FunctionPtrType*)srcType)->getPtrTypeKind();
+	FunctionPtrTypeKind dstPtrTypeKind = ((FunctionPtrType*)type)->getPtrTypeKind();
 
 	ASSERT((size_t)srcPtrTypeKind < FunctionPtrTypeKind__Count);
 	ASSERT((size_t)dstPtrTypeKind < FunctionPtrTypeKind__Count);

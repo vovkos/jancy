@@ -11,15 +11,15 @@
 
 #include "pch.h"
 #include "jnc_Variant.h"
-#include "jnc_Runtime.h"
-#include "jnc_GcHeap.h"
 
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
-#	include "jnc_rt_GcHeap.h"
+#	include "jnc_rt_Runtime.h"
 #endif
+
+#include "jnc_Runtime.h"
 
 //..............................................................................
 

@@ -12,11 +12,35 @@
 #include "pch.h"
 #include "jnc_ct_GlobalNamespace.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
+
+void
+GlobalNamespace::addBody(
+	Unit* unit,
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
+{
+	if (m_body.isEmpty())
+	{
+		ASSERT(unit == m_parentUnit);
+		m_bodyPos = pos;
+		m_body = body;
+	}
+	else
+	{
+		ExtraBody* extraBody = AXL_MEM_NEW(ExtraBody);
+		extraBody->m_unit = unit;
+		extraBody->m_pos = pos;
+		extraBody->m_body = body;
+		m_extraBodyList.insertTail(extraBody);
+	}
+}
 
 sl::String
 GlobalNamespace::createDoxyRefId()
@@ -35,6 +59,66 @@ GlobalNamespace::createDoxyRefId()
 	}
 
 	return m_module->m_doxyModule.adjustRefId(refId);
+}
+
+bool
+GlobalNamespace::parseBody()
+{
+	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
+	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
+
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	m_module->m_namespaceMgr.openNamespace(this);
+
+	bool result = parseBodyImpl(m_parentUnit, m_bodyPos, m_body);
+	if (!result)
+		return false;
+
+	sl::Iterator<ExtraBody> it = m_extraBodyList.getHead();
+	for (; it; it++)
+	{
+		result = parseBodyImpl(it->m_unit, it->m_pos, it->m_body);
+		if (!result)
+			return false;
+	}
+
+	result =
+		resolveOrphans() &&
+		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
+
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.closeNamespace();
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
+	return true;
+}
+
+bool
+GlobalNamespace::parseBodyImpl(
+	Unit* unit,
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
+{
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(unit);
+
+	size_t length = body.getLength();
+	ASSERT(length >= 2);
+
+	Parser parser(m_module, Parser::Mode_Parse);
+	bool result = parser.parseBody(
+		SymbolKind_global_declaration_list,
+		lex::LineCol(pos.m_line, pos.m_col + 1),
+		body.getSubString(1, length - 2)
+		);
+
+	if (!result)
+		return false;
+
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
+	return true;
 }
 
 bool

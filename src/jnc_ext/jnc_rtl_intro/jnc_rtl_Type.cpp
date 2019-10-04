@@ -12,9 +12,9 @@
 #include "pch.h"
 #include "jnc_rtl_Type.h"
 #include "jnc_Construct.h"
-#include "jnc_Runtime.h"
-#include "jnc_rt_Runtime.h"
 #include "jnc_ct_Variable.h"
+#include "jnc_rt_Runtime.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace rtl {

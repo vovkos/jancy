@@ -301,7 +301,7 @@ enum jnc_StdType
 	jnc_StdType_Type,
 	jnc_StdType_DataPtrType,
 	jnc_StdType_NamedType,
-	jnc_StdType_NamedTypeBlock,
+	jnc_StdType_MemberBlock,
 	jnc_StdType_BaseTypeSlot,
 	jnc_StdType_DerivableType,
 	jnc_StdType_ArrayType,
@@ -324,7 +324,7 @@ enum jnc_StdType
 	jnc_StdType_ClassType,
 	jnc_StdType_ClassPtrType,
 	jnc_StdType_StructTypeKind,
-	jnc_StdType_StructField,
+	jnc_StdType_Field,
 	jnc_StdType_StructType,
 	jnc_StdType_UnionType,
 	jnc_StdType_Alias,
@@ -414,6 +414,10 @@ jnc_Type_getDataPtrType(
 	);
 
 JNC_EXTERN_C
+bool_t
+jnc_Type_ensureLayout(jnc_Type* type);
+
+JNC_EXTERN_C
 void
 jnc_Type_markGcRoots(
 	jnc_Type* type,
@@ -488,6 +492,12 @@ struct jnc_Type: jnc_ModuleItem
 		return jnc_Type_getDataPtrType(this, jnc_TypeKind_DataPtr, ptrTypeKind, flags);
 	}
 
+	bool
+	ensureLayout()
+	{
+		return jnc_Type_ensureLayout(this) != 0;
+	}
+
 	void
 	markGcRoots(
 		const void* p,
@@ -560,6 +570,15 @@ jnc_isCharPtrType(jnc_Type* type)
 	return
 		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataPtr &&
 		jnc_Type_getTypeKind(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type)) == jnc_TypeKind_Char;
+}
+
+JNC_INLINE
+bool_t
+jnc_isDerivableTypePtrType(jnc_Type* type)
+{
+	return
+		jnc_Type_getTypeKind(type) == jnc_TypeKind_DataPtr &&
+		(jnc_Type_getTypeKindFlags(jnc_DataPtrType_getTargetType((jnc_DataPtrType*)type)) & jnc_TypeKindFlag_Derivable);
 }
 
 JNC_INLINE
@@ -789,7 +808,7 @@ const StdType
 	StdType_Type                  = jnc_StdType_Type,
 	StdType_DataPtrType           = jnc_StdType_DataPtrType,
 	StdType_NamedType             = jnc_StdType_NamedType,
-	StdType_NamedTypeBlock        = jnc_StdType_NamedTypeBlock,
+	StdType_MemberBlock           = jnc_StdType_MemberBlock,
 	StdType_BaseTypeSlot          = jnc_StdType_BaseTypeSlot,
 	StdType_DerivableType         = jnc_StdType_DerivableType,
 	StdType_ArrayType             = jnc_StdType_ArrayType,
@@ -812,7 +831,7 @@ const StdType
 	StdType_ClassType             = jnc_StdType_ClassType,
 	StdType_ClassPtrType          = jnc_StdType_ClassPtrType,
 	StdType_StructTypeKind        = jnc_StdType_StructTypeKind,
-	StdType_StructField           = jnc_StdType_StructField,
+	StdType_Field                 = jnc_StdType_Field,
 	StdType_StructType            = jnc_StdType_StructType,
 	StdType_UnionType             = jnc_StdType_UnionType,
 	StdType_Alias                 = jnc_StdType_Alias,
@@ -857,6 +876,13 @@ bool
 isCharPtrType(Type* type)
 {
 	return jnc_isCharPtrType(type) != 0;
+}
+
+inline
+bool
+isDerivableTypePtrType(Type* type)
+{
+	return jnc_isDerivableTypePtrType(type) != 0;
 }
 
 inline

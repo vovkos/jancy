@@ -32,7 +32,9 @@ public:
 	bool
 	compile()
 	{
-		return m_module->compile() && m_module->optimize(m_cmdLine->m_optLevel);
+		return
+			m_module->compile() &&
+			m_module->optimize(m_cmdLine->m_optLevel);
 	}
 
 	bool

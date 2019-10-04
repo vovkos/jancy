@@ -47,6 +47,10 @@ BitFieldType::prepareDoxyLinkedText()
 bool
 BitFieldType::calcLayout()
 {
+	bool result = m_baseType->ensureLayout();
+	if (!result)
+		return false;
+
 	TypeKind typeKind = m_baseType->getTypeKind();
 	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_beu)
 	{

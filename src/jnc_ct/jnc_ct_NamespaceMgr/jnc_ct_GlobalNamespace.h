@@ -24,6 +24,17 @@ class GlobalNamespace:
 {
 	friend class NamespaceMgr;
 
+protected:
+	struct ExtraBody: sl::ListLink
+	{
+		Unit* m_unit;
+		lex::LineCol m_pos;
+		sl::StringRef m_body;
+	};
+
+protected:
+	sl::List<ExtraBody> m_extraBodyList;
+
 public:
 	GlobalNamespace()
 	{
@@ -42,28 +53,25 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
-};
 
-//..............................................................................
-
-class DynamicLibNamespace: public GlobalNamespace
-{
-	friend class NamespaceMgr;
+	void
+	addBody(
+		Unit* unit,
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
 
 protected:
-	ClassType* m_dynamicLibType;
+	virtual
+	bool
+	parseBody();
 
-public:
-	DynamicLibNamespace()
-	{
-		m_namespaceKind = NamespaceKind_DynamicLib;
-		m_dynamicLibType = NULL;
-	}
-
-	ClassType* getLibraryType()
-	{
-		return m_dynamicLibType;
-	}
+	bool
+	parseBodyImpl(
+		Unit* unit,
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
 };
 
 //..............................................................................

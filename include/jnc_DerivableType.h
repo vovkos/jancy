@@ -85,16 +85,29 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem
 //..............................................................................
 
 JNC_EXTERN_C
+size_t
+jnc_Field_getOffset(jnc_Field* field);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_Field: jnc_ModuleItem
+{
+	size_t
+	getOffset()
+	{
+		return jnc_Field_getOffset(this);
+	}
+};
+
+#endif // _JNC_CORE
+
+//..............................................................................
+
+JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type);
-
-JNC_EXTERN_C
-jnc_Function*
-jnc_DerivableType_getStaticDestructor(jnc_DerivableType* type);
-
-JNC_EXTERN_C
-jnc_Function*
-jnc_DerivableType_getPreConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
@@ -149,33 +162,44 @@ jnc_DerivableType_findBaseTypeOffset(
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberFieldCount(jnc_DerivableType* type);
+jnc_DerivableType_getStaticVariableCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
-jnc_StructField*
-jnc_DerivableType_getMemberField(
+jnc_Variable*
+jnc_DerivableType_getStaticVariable(
 	jnc_DerivableType* type,
 	size_t index
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberMethodCount(jnc_DerivableType* type);
+jnc_DerivableType_getFieldCount(jnc_DerivableType* type);
+
+JNC_EXTERN_C
+jnc_Field*
+jnc_DerivableType_getField(
+	jnc_DerivableType* type,
+	size_t index
+	);
+
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_getMethodCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
-jnc_DerivableType_getMemberMethod(
+jnc_DerivableType_getMethod(
 	jnc_DerivableType* type,
 	size_t index
 	);
 
 JNC_EXTERN_C
 size_t
-jnc_DerivableType_getMemberPropertyCount(jnc_DerivableType* type);
+jnc_DerivableType_getPropertyCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Property*
-jnc_DerivableType_getMemberProperty(
+jnc_DerivableType_getProperty(
 	jnc_DerivableType* type,
 	size_t index
 	);
@@ -190,18 +214,6 @@ struct jnc_DerivableType: jnc_NamedType
 	getStaticConstructor()
 	{
 		return jnc_DerivableType_getStaticConstructor(this);
-	}
-
-	jnc_Function*
-	getStaticDestructor()
-	{
-		return jnc_DerivableType_getStaticDestructor(this);
-	}
-
-	jnc_Function*
-	getPreConstructor()
-	{
-		return jnc_DerivableType_getPreConstructor(this);
 	}
 
 	jnc_Function*
@@ -259,44 +271,90 @@ struct jnc_DerivableType: jnc_NamedType
 	}
 
 	size_t
-	getMemberFieldCount()
+	getStaticVariableCount()
 	{
-		return jnc_DerivableType_getMemberFieldCount(this);
+		return jnc_DerivableType_getStaticVariableCount(this);
 	}
 
-	jnc_StructField*
-	getMemberField(size_t index)
+	jnc_Variable*
+	getStaticVariable(size_t index)
 	{
-		return jnc_DerivableType_getMemberField(this, index);
+		return jnc_DerivableType_getStaticVariable(this, index);
 	}
 
 	size_t
-	getMemberMethodCount()
+	getFieldCount()
 	{
-		return jnc_DerivableType_getMemberMethodCount(this);
+		return jnc_DerivableType_getFieldCount(this);
+	}
+
+	jnc_Field*
+	getField(size_t index)
+	{
+		return jnc_DerivableType_getField(this, index);
+	}
+
+	size_t
+	getMethodCount()
+	{
+		return jnc_DerivableType_getMethodCount(this);
 	}
 
 	jnc_Function*
-	getMemberMethod(size_t index)
+	getMethod(size_t index)
 	{
-		return jnc_DerivableType_getMemberMethod(this, index);
+		return jnc_DerivableType_getMethod(this, index);
 	}
 
 	size_t
-	getMemberPropertyCount()
+	getPropertyCount()
 	{
-		return jnc_DerivableType_getMemberPropertyCount(this);
+		return jnc_DerivableType_getPropertyCount(this);
 	}
 
 	jnc_Property*
-	getMemberProperty(size_t index)
+	getProperty(size_t index)
 	{
-		return jnc_DerivableType_getMemberProperty(this, index);
+		return jnc_DerivableType_getProperty(this, index);
 	}
 };
 
 #endif // _JNC_CORE
 
 //..............................................................................
+
+/// @}
+/// \addtogroup type
+/// @{
+
+JNC_INLINE
+bool_t
+jnc_isConstructibleType(jnc_Type* type)
+{
+	return
+		(jnc_Type_getTypeKindFlags(type) & jnc_TypeKindFlag_Derivable) &&
+		jnc_DerivableType_getConstructor((jnc_DerivableType*)type);
+}
+
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#ifdef __cplusplus
+
+namespace jnc {
+
+//..............................................................................
+
+inline
+bool
+isConstructibleType(Type* type)
+{
+	return jnc_isConstructibleType(type) != 0;
+}
+
+//..............................................................................
+
+} // namespace jnc
+
+#endif // __cplusplus
 
 /// @}

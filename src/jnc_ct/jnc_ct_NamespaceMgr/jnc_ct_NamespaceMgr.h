@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_GlobalNamespace.h"
-#include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_Scope.h"
 #include "jnc_ct_Orphan.h"
 #include "jnc_ct_Alias.h"
@@ -22,6 +21,8 @@ namespace ct {
 
 class Module;
 class ClassType;
+class ExtensionNamespace;
+class DynamicLibNamespace;
 
 //..............................................................................
 
@@ -45,15 +46,13 @@ protected:
 
 	GlobalNamespace m_stdNamespaceArray[StdNamespace__Count];
 	sl::List<GlobalNamespace> m_globalNamespaceList;
-	sl::List<ExtensionNamespace> m_extensionNamespaceList;
-	sl::List<DynamicLibNamespace> m_dynamicLibNamespaceList;
 	sl::List<Scope> m_scopeList;
 	sl::List<Orphan> m_orphanList;
 	sl::List<Alias> m_aliasList;
 
 	sl::Array<NamespaceStackEntry> m_namespaceStack;
-	sl::Array<UsingSet*> m_importUsingSetArray;
 
+	lex::LineCol m_sourcePos;
 	Namespace* m_currentNamespace;
 	Scope* m_currentScope;
 	AccessKind m_currentAccessKind;
@@ -88,26 +87,12 @@ public:
 		FunctionType* functionType
 		);
 
-	bool
-	resolveOrphans();
-
 	Alias*
 	createAlias(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
-		Type* type,
-		uint_t ptrTypeFlags,
 		sl::BoxList<Token>* initializer
 		);
-
-	void
-	addImportUsingSet(UsingSet* usingSet)
-	{
-		m_importUsingSetArray.append(usingSet);
-	}
-
-	bool
-	resolveImportUsingSets();
 
 	void
 	lockSourcePos()
@@ -121,8 +106,14 @@ public:
 		m_sourcePosLockCount--;
 	}
 
+	const lex::LineCol&
+	getSourcePos()
+	{
+		return m_sourcePos;
+	}
+
 	void
-	setSourcePos(const Token::Pos& pos);
+	setSourcePos(const lex::LineCol& pos);
 
 	GlobalNamespace*
 	getGlobalNamespace()
@@ -179,7 +170,7 @@ public:
 
 	Scope*
 	openScope(
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		uint_t flags = 0
 		);
 
@@ -195,21 +186,12 @@ public:
 		return m_currentNamespace->createQualifiedName(name);
 	}
 
-	GlobalNamespace*
+	template <typename T = GlobalNamespace>
+	T*
 	createGlobalNamespace(
 		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
 		);
-
-	ExtensionNamespace*
-	createExtensionNamespace(
-		const sl::StringRef& name,
-		Type* type,
-		Namespace* parentNamespace = NULL
-		);
-
-	DynamicLibNamespace*
-	createDynamicLibNamespace(ClassType* dynamicLibType);
 
 	Scope*
 	findBreakScope(size_t level);
@@ -219,7 +201,29 @@ public:
 
 	Scope*
 	findCatchScope();
+
+protected:
+	void
+	addGlobalNamespace(
+		GlobalNamespace* nspace,
+		const sl::StringRef& name,
+		Namespace* parentNamespace
+		);
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+T*
+NamespaceMgr::createGlobalNamespace(
+	const sl::StringRef& name,
+	Namespace* parentNamespace
+	)
+{
+	T* nspace = AXL_MEM_NEW(T);
+	addGlobalNamespace(nspace, name, parentNamespace);
+	return nspace;
+}
 
 //..............................................................................
 

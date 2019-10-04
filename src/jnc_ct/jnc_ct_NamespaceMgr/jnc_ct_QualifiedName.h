@@ -19,14 +19,15 @@ namespace ct {
 class QualifiedName
 {
 protected:
-	sl::String m_first;
-	sl::BoxList<sl::String> m_list;
+	sl::StringRef m_first;
+	sl::BoxList<sl::StringRef> m_list;
 
 public:
 	QualifiedName()
 	{
 	}
 
+	explicit
 	QualifiedName(const sl::StringRef& name)
 	{
 		m_first = name;
@@ -57,7 +58,10 @@ public:
 	void
 	addName(const sl::StringRef& name);
 
-	sl::String
+	sl::StringRef
+	removeFirstName();
+
+	sl::StringRef
 	removeLastName();
 
 	bool
@@ -72,19 +76,26 @@ public:
 		return m_list.isEmpty();
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getFirstName() const
 	{
 		return m_first;
 	}
 
-	sl::ConstBoxList<sl::String>
+	const sl::StringRef&
+	getPrevName(const sl::ConstBoxIterator<sl::StringRef>& it) const
+	{
+		sl::ConstBoxIterator<sl::StringRef> prevIt = it.getPrev();
+		return prevIt ? *prevIt : m_first;
+	}
+
+	sl::ConstBoxList<sl::StringRef>
 	getNameList() const
 	{
 		return m_list;
 	}
 
-	const sl::String&
+	const sl::StringRef&
 	getShortName() const
 	{
 		return !m_list.isEmpty() ? *m_list.getTail() : m_first;

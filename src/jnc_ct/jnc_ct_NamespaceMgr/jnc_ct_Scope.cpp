@@ -22,6 +22,7 @@ Scope::Scope()
 {
 	m_itemKind = ModuleItemKind_Scope;
 	m_namespaceKind = NamespaceKind_Scope;
+	m_namespaceStatus = NamespaceStatus_Ready;
 	m_function = NULL;
 	m_breakBlock = NULL;
 	m_continueBlock = NULL;

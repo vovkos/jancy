@@ -18,7 +18,7 @@ class
 named_type_specifier
 	leave
 	{
-		if (m_stage == Stage_Pass2)
+		if (m_mode == Mode_Compile)
 			return $.m_type->ensureLayout();
 	}
 	:	enum_specifier
@@ -73,11 +73,11 @@ enum_specifier
 	:	enum_modifier<&$.m_flags>*
 		TokenKind_Enum
 		TokenKind_Identifier $n?
-		(':' type_name $b)?
+		(':' type_name $t)?
 			{
 				$.m_type = createEnumType(
 					&$n ? $n.m_data.m_string : sl::String(),
-					&$b ? $b.m_type : NULL,
+					&$t ? $t.m_type : NULL,
 					$.m_flags
 					);
 
@@ -99,22 +99,32 @@ enum_modifier<uint_t* $flags>
 	;
 
 enum_block<EnumType* $type>
-	:	'{'
-			{
-				m_module->m_namespaceMgr.openNamespace($type);
-			}
-		enum_member<$type> (',' enum_member<$type>)*
-		'}'
-			{
-				m_module->m_namespaceMgr.closeNamespace();
-			}
+	:	(		{
+					m_module->m_namespaceMgr.openNamespace($type);
+					$type->m_namespaceStatus = NamespaceStatus_Ready;
+				}
+			'{' enum_const_list '}'
+				{
+					m_module->m_namespaceMgr.closeNamespace();
+				}
+		|	TokenKind_Body $b
+				{
+					$type->setBody($b.m_pos, $b.m_data.m_string);
+				}
+		)
+	;
+
+start
+nullable
+enum_const_list
+	:	enum_const (',' enum_const)*
 	;
 
 nullable
-enum_member<EnumType* $type>
+enum_const
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				return createEnumConst($type, $1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
+				return createEnumConst($1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
 	;
@@ -148,7 +158,7 @@ struct_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block<$.m_type>
+		member_block<$.m_type>
 	;
 
 //..............................................................................
@@ -178,7 +188,7 @@ union_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block<$.m_type>
+		member_block<$.m_type>
 	;
 
 //..............................................................................
@@ -206,7 +216,7 @@ class_specifier
 				if (!$.m_type)
 					return false;
 			}
-		named_type_block<$.m_type>
+		member_block<$.m_type>
 	;
 
 //..............................................................................
@@ -215,42 +225,47 @@ class_specifier
 
 class
 {
-	ClassType* m_type;
+	DynamicLibClassType* m_type;
 }
 library_specifier
 	:	TokenKind_DynamicLib TokenKind_Identifier
 			{
 				$.m_type = createDynamicLibType($2.m_data.m_string);
-
 				if (!$.m_type)
 					return false;
 			}
-		'{' named_type_block_declaration* '}'
-			{
-				return finalizeDynamicLibType();
-			}
+		(		{
+					m_module->m_namespaceMgr.openNamespace($.m_type->getLibNamespace());
+				}
+			'{' member_block_declaration_list '}'
+				{
+					return finalizeDynamicLibType();
+				}
+		|	TokenKind_Body $b
+				{
+					return $.m_type->getLibNamespace()->setBody($b.m_pos, $b.m_data.m_string);
+				}
+		)
 	;
 
 //..............................................................................
 
 // struct, union, class, property
 
-named_type_block<NamedType* $type>
-	enter
-	{
-		m_module->m_namespaceMgr.openNamespace($type);
-	}
-	leave
-	{
-		$type->m_flags |= ModuleItemFlag_Sealed;
-		m_module->m_namespaceMgr.closeNamespace();
-	}
-	:	named_type_block_impl
-	;
-
-start
-named_type_block_impl
-	:	'{' named_type_block_declaration* '}'
+member_block<NamedType* $type>
+	:	(		{
+					m_module->m_namespaceMgr.openNamespace($type);
+					$type->m_namespaceStatus = NamespaceStatus_Ready;
+				}
+			'{' member_block_declaration_list '}'
+				{
+					m_module->m_namespaceMgr.closeNamespace();
+				}
+		|	TokenKind_Body $b
+				{
+					return $type->setBody($b.m_pos, $b.m_data.m_string);
+				}
+		)
 	;
 
 //..............................................................................

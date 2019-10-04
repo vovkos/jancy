@@ -23,9 +23,21 @@ class MulticastClassType: public ClassType
 	friend class TypeMgr;
 
 protected:
+	class CallMethod: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((MulticastClassType*)m_parentNamespace)->compileCallMethod(this);
+		}
+	};
+
+protected:
 	FunctionPtrType* m_targetType;
 	McSnapshotClassType* m_snapshotType;
-	StructField* m_fieldArray[MulticastFieldKind__Count];
+	Field* m_fieldArray[MulticastFieldKind__Count];
 	Function* m_methodArray[MulticastMethodKind__Count];
 
 	ClassPtrTypeTuple* m_eventClassPtrTypeTuple;
@@ -45,7 +57,7 @@ public:
 		return m_targetType->getTargetType();
 	}
 
-	StructField*
+	Field*
 	getField(MulticastFieldKind field) const
 	{
 		ASSERT(field < MulticastFieldKind__Count);
@@ -65,15 +77,6 @@ public:
 		return m_snapshotType;
 	}
 
-	virtual
-	bool
-	compile()
-	{
-		return
-			ClassType::compile() &&
-			compileCallMethod();
-	}
-
 protected:
 	virtual
 	void
@@ -89,15 +92,10 @@ protected:
 
 	virtual
 	bool
-	calcLayout()
-	{
-		return
-			ClassType::calcLayout() &&
-			m_snapshotType->ensureLayout();
-	}
+	calcLayout();
 
 	bool
-	compileCallMethod();
+	compileCallMethod(Function* function);
 };
 
 //..............................................................................

@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class AsyncSequencerFunction: public Function
+class AsyncSequencerFunction: public CompilableFunction
 {
 	friend class AsyncLauncherFunction;
 

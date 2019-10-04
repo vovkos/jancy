@@ -21,16 +21,16 @@ int main()
 
 	Foo foo;
 
-	printf("sizeof (Foo) = %d\n", sizeof (Foo));
-	printf("sizeof (Foo.m_c) = %d\n", sizeof (Foo.m_c));
-	printf("sizeof (Foo.m_a) = %d\n", sizeof (Foo.m_a));
-	printf("countof (Foo.m_a) = %d\n", countof (Foo.m_a));
-	printf("offsetof (Foo.m_a) = %d\n", offsetof (Foo.m_a));
+	printf("sizeof (Foo) = %d\n", sizeof(Foo));
+	printf("sizeof (Foo.m_c) = %d\n", sizeof(Foo.m_c));
+	printf("sizeof (Foo.m_a) = %d\n", sizeof(Foo.m_a));
+	printf("countof (Foo.m_a) = %d\n", countof(Foo.m_a));
+	printf("offsetof (Foo.m_a) = %d\n", offsetof(Foo.m_a));
 
-	printf("sizeof (foo) = %d\n", sizeof (foo));
-	printf("sizeof (foo.m_c) = %d\n", sizeof (foo.m_c));
-	printf("sizeof (foo.m_a) = %d\n", sizeof (foo.m_a));
-	printf("countof (foo.m_a) = %d\n", countof (foo.m_a));
+	printf("sizeof (foo) = %d\n", sizeof(foo));
+	printf("sizeof (foo.m_c) = %d\n", sizeof(foo.m_c));
+	printf("sizeof (foo.m_a) = %d\n", sizeof(foo.m_a));
+	printf("countof (foo.m_a) = %d\n", countof(foo.m_a));
 
 	return 0;
 }

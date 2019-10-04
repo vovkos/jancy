@@ -13,7 +13,6 @@ foo()
 	return (void) -1;
 }
 
-
 int main()
 {
 	Foo f;

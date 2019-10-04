@@ -60,6 +60,13 @@ JncApp::JncApp(CmdLine* cmdLine)
 		m_module->addIgnoredImport(*it);
 
 	m_module->addImportDir(io::getExeDir());
+
+	sl::BoxIterator<sl::String> requireIt = m_cmdLine->m_requireList.getHead();
+	for (; requireIt; requireIt++)
+		m_module->require(jnc::ModuleItemKind_Undefined, *requireIt);
+
+	if (m_cmdLine->m_flags & JncFlag_Run)
+		m_module->require(jnc::ModuleItemKind_Function, m_cmdLine->m_functionName);
 }
 
 bool
@@ -115,14 +122,10 @@ JncApp::runFunction(int* returnValue)
 {
 	bool result;
 
-	jnc::ModuleItem* functionItem = m_module->findItem(m_cmdLine->m_functionName);
-	if (!functionItem || functionItem->getItemKind() != jnc::ModuleItemKind_Function)
-	{
-		err::setFormatStringError("'%s' is not found or not a function\n", m_cmdLine->m_functionName.sz());
-		return false;
-	}
+	jnc::FindModuleItemResult findResult = m_module->getGlobalNamespace()->getNamespace()->findItem(m_cmdLine->m_functionName);
+	ASSERT(findResult.m_item && findResult.m_item->getItemKind() == jnc::ModuleItemKind_Function);
 
-	jnc::Function* function = (jnc::Function*)functionItem;
+	jnc::Function* function = (jnc::Function*)findResult.m_item;
 	jnc::FunctionType* functionType = function->getType();
 	jnc::TypeKind returnTypeKind = functionType->getReturnType()->getTypeKind();
 	size_t argCount = functionType->getArgCount();

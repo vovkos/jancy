@@ -43,21 +43,57 @@ class DataThunkProperty: public Property
 	friend class FunctionMgr;
 
 protected:
+	class Getter: public CompilableFunction
+	{
+	public:
+		Getter()
+		{
+			m_functionKind = FunctionKind_Getter;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((DataThunkProperty*)m_parentNamespace)->compileGetter(this);
+		}
+	};
+
+	class Setter: public CompilableFunction
+	{
+	public:
+		Setter()
+		{
+			m_functionKind = FunctionKind_Setter;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((DataThunkProperty*)m_parentNamespace)->compileSetter(this);
+		}
+	};
+
+protected:
 	Variable* m_targetVariable;
 
 public:
 	DataThunkProperty();
 
-	virtual
-	bool
-	compile();
-
 protected:
 	bool
-	compileGetter();
+	compileGetter(Function* function);
 
 	bool
-	compileSetter(Function* setter);
+	compileSetter(Function* function);
+
+	virtual
+	Function*
+	createAccessor(
+		FunctionKind functionKind,
+		FunctionType* type
+		);
 };
 
 //..............................................................................

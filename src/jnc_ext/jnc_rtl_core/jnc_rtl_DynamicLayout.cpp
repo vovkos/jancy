@@ -73,7 +73,7 @@ size_t
 DynamicLayout::getDynamicFieldSize(
 	DataPtr ptr,
 	size_t offset,
-	StructField* field
+	Field* field
 	)
 {
 	size_t size = 0;
@@ -134,7 +134,7 @@ DynamicLayout::getDynamicFieldEndOffset(
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT(typeKind == TypeKind_Struct);
 
-	sl::Array<StructField*> dynamicFieldArray = ((StructType*)type)->getDynamicFieldArray();
+	sl::Array<Field*> dynamicFieldArray = ((StructType*)type)->getDynamicFieldArray();
 
 	size_t offset;
 
@@ -154,7 +154,7 @@ DynamicLayout::getDynamicFieldEndOffset(
 	{
 		m_lock.unlock();
 
-		StructField* field = dynamicFieldArray[i];
+		Field* field = dynamicFieldArray[i];
 		offset += field->getOffset();
 
 		size_t size = getDynamicFieldSize(ptr, offset, field);

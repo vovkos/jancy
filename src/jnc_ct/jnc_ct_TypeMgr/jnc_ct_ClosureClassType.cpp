@@ -20,6 +20,13 @@ namespace ct {
 
 //..............................................................................
 
+ClosureClassType::ClosureClassType()
+{
+	m_namespaceStatus = NamespaceStatus_Ready;
+	m_flags |= ClassTypeFlag_Closure;
+	m_thisArgFieldIdx = -1;
+}
+
 sl::String
 ClosureClassType::createSignature(
 	Type* targetType, // function or property
@@ -60,14 +67,14 @@ ClosureClassType::buildArgValueList(
 
 	// part 1 -- arguments come both from closure and from thunk
 
-	size_t fieldCount = m_memberFieldArray.getCount();
+	size_t fieldCount = m_fieldArray.getCount();
 	for (size_t i = 0; fieldIdx < fieldCount; i++)
 	{
 		Value argValue;
 
 		if (i == m_closureMap[iClosure])
 		{
-			m_module->m_operatorMgr.getClassField(closureValue, m_memberFieldArray[fieldIdx], NULL, &argValue);
+			m_module->m_operatorMgr.getClassField(closureValue, m_fieldArray[fieldIdx], NULL, &argValue);
 			fieldIdx++;
 			iClosure++;
 		}
@@ -92,7 +99,7 @@ ClosureClassType::strengthen(IfaceHdr* p)
 	if (m_thisArgFieldIdx == -1)
 		return p;
 
-	StructField* field = getFieldByIndex(m_thisArgFieldIdx);
+	Field* field = getFieldByIndex(m_thisArgFieldIdx);
 	ASSERT(field && field->getType()->getTypeKind() == TypeKind_ClassPtr);
 
 	void* p2 = (char*)p + field->getOffset();
@@ -109,37 +116,33 @@ FunctionClosureClassType::FunctionClosureClassType()
 }
 
 bool
-FunctionClosureClassType::compile()
+FunctionClosureClassType::compileThunkFunction(Function* function)
 {
-	ASSERT(m_thunkFunction);
+	ASSERT(function == m_thunkFunction);
 
-	bool result = ClassType::compile();
-	if (!result)
-		return false;
-
-	size_t argCount = m_thunkFunction->getType()->getArgArray().getCount();
+	size_t argCount = function->getType()->getArgArray().getCount();
 
 	char buffer[256];
 	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
-	m_module->m_functionMgr.internalPrologue(m_thunkFunction, argValueArray, argCount);
+	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	ASSERT(thisValue);
 
 	Value pfnValue;
-	m_module->m_operatorMgr.getClassField(thisValue, m_memberFieldArray[0], NULL, &pfnValue);
+	m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &pfnValue);
 
 	sl::BoxList<Value> argValueList;
 	buildArgValueList(thisValue, argValueArray, argCount, &argValueList);
 
 	Value returnValue;
-	result = m_module->m_operatorMgr.callOperator(pfnValue, &argValueList, &returnValue);
+	bool result = m_module->m_operatorMgr.callOperator(pfnValue, &argValueList, &returnValue);
 	if (!result)
 		return false;
 
-	if (m_thunkFunction->getType()->getReturnType()->getTypeKind() != TypeKind_Void)
+	if (function->getType()->getReturnType()->getTypeKind() != TypeKind_Void)
 	{
 		result = m_module->m_controlFlowMgr.ret(returnValue);
 		if (!result)
@@ -152,51 +155,21 @@ FunctionClosureClassType::compile()
 
 //..............................................................................
 
+Function*
+PropertyClosureClassType::ThunkProperty::createAccessor(
+	FunctionKind functionKind,
+	FunctionType* type
+	)
+{
+	return m_module->m_functionMgr.createFunction<Accessor>(functionKind, type);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 PropertyClosureClassType::PropertyClosureClassType()
 {
 	m_classTypeKind = ClassTypeKind_PropertyClosure;
 	m_thunkProperty = NULL;
-}
-
-bool
-PropertyClosureClassType::compile()
-{
-	ASSERT(m_thunkProperty);
-
-	bool result = ClassType::compile();
-	if (!result)
-		return false;
-
-	Function* getter = m_thunkProperty->getGetter();
-	Function* setter = m_thunkProperty->getSetter();
-	Function* binder = m_thunkProperty->getBinder();
-
-	if (binder)
-	{
-		result = compileAccessor(binder);
-		if (!result)
-			return false;
-	}
-
-	result = compileAccessor(getter);
-	if (!result)
-		return false;
-
-	if (setter)
-	{
-		size_t overloadCount = setter->getOverloadCount();
-
-		for (size_t i = 0; i < overloadCount; i++)
-		{
-			Function* overload = setter->getOverload(i);
-
-			result = compileAccessor(overload);
-			if (!result)
-				return false;
-		}
-	}
-
-	return true;
 }
 
 bool
@@ -218,7 +191,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 	ASSERT(thisValue);
 
 	Value propertyPtrValue;
-	result = m_module->m_operatorMgr.getClassField(thisValue, m_memberFieldArray[0], NULL, &propertyPtrValue);
+	result = m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &propertyPtrValue);
 	ASSERT(result);
 
 	Value pfnValue;
@@ -267,6 +240,27 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 
 //..............................................................................
 
+Function*
+DataClosureClassType::ThunkProperty::createAccessor(
+	FunctionKind functionKind,
+	FunctionType* type
+	)
+{
+	switch (functionKind)
+	{
+	case FunctionKind_Getter:
+		return m_module->m_functionMgr.createFunction<Getter>(functionKind, type);
+
+	case FunctionKind_Setter:
+		return m_module->m_functionMgr.createFunction<Setter>(functionKind, type);
+
+	default:
+		return Property::createAccessor(functionKind, type);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 DataClosureClassType::DataClosureClassType()
 {
 	m_classTypeKind = ClassTypeKind_DataClosure;
@@ -291,42 +285,11 @@ DataClosureClassType::createSignature(
 }
 
 bool
-DataClosureClassType::compile()
+DataClosureClassType::compileGetter(Function* function)
 {
-	ASSERT(m_thunkProperty);
+	ASSERT(function == m_thunkProperty->getGetter());
 
-	bool result = ClassType::compile();
-	if (!result)
-		return false;
-
-	Function* getter = m_thunkProperty->getGetter();
-	Function* setter = m_thunkProperty->getSetter();
-
-	result = compileGetter(getter);
-	if (!result)
-		return false;
-
-	if (setter)
-	{
-		size_t overloadCount = setter->getOverloadCount();
-
-		for (size_t i = 0; i < overloadCount; i++)
-		{
-			Function* overload = setter->getOverload(i);
-
-			result = compileSetter(overload);
-			if (!result)
-				return false;
-		}
-	}
-
-	return true;
-}
-
-bool
-DataClosureClassType::compileGetter(Function* getter)
-{
-	m_module->m_functionMgr.internalPrologue(getter);
+	m_module->m_functionMgr.internalPrologue(function);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	ASSERT(thisValue);
@@ -334,7 +297,7 @@ DataClosureClassType::compileGetter(Function* getter)
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField(thisValue, m_memberFieldArray[0], NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, &ptrValue) &&
 		m_module->m_controlFlowMgr.ret(ptrValue);
 
@@ -346,10 +309,10 @@ DataClosureClassType::compileGetter(Function* getter)
 }
 
 bool
-DataClosureClassType::compileSetter(Function* setter)
+DataClosureClassType::compileSetter(Function* function)
 {
 	Value argValue;
-	m_module->m_functionMgr.internalPrologue(setter, &argValue, 1);
+	m_module->m_functionMgr.internalPrologue(function, &argValue, 1);
 
 	Value thisValue = m_module->m_functionMgr.getThisValue();
 	ASSERT(thisValue);
@@ -357,7 +320,7 @@ DataClosureClassType::compileSetter(Function* setter)
 	Value ptrValue;
 
 	bool result =
-		m_module->m_operatorMgr.getClassField(thisValue, m_memberFieldArray[0], NULL, &ptrValue) &&
+		m_module->m_operatorMgr.getClassField(thisValue, m_fieldArray[0], NULL, &ptrValue) &&
 		m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, &ptrValue) &&
 		m_module->m_operatorMgr.storeDataRef(ptrValue, argValue);
 

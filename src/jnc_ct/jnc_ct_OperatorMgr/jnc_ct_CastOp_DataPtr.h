@@ -56,6 +56,11 @@ public:
 class Cast_DataPtr_FromClassPtr: public CastOperator
 {
 public:
+	Cast_DataPtr_FromClassPtr()
+	{
+		m_opFlags = OpFlag_EnsurePtrTargetLayout;
+	}
+
 	virtual
 	CastKind
 	getCastKind(
@@ -127,7 +132,7 @@ class Cast_DataPtr_Base: public CastOperator
 public:
 	Cast_DataPtr_Base()
 	{
-		m_opFlags = OpFlag_KeepDerivableRef;
+		m_opFlags = OpFlag_KeepDerivableRef | OpFlag_EnsurePtrTargetLayout;
 	}
 
 	virtual

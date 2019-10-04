@@ -27,7 +27,6 @@ FunctionType::FunctionType()
 	m_shortType = this;
 	m_stdObjectMemberMethodType = NULL;
 	m_functionPtrTypeTuple = NULL;
-	m_abstractFunction = NULL;
 	m_functionPtrTypeTuple = NULL;
 }
 
@@ -91,36 +90,6 @@ FunctionType*
 FunctionType::getStdObjectMemberMethodType()
 {
 	return m_module->m_typeMgr.getStdObjectMemberMethodType(this);
-}
-
-Function*
-FunctionType::getAbstractFunction()
-{
-	if (m_abstractFunction)
-		return m_abstractFunction;
-
-	Function* function = m_module->m_functionMgr.createFunction(
-		FunctionKind_Internal,
-		sl::String(),
-		"jnc.abstractFunction",
-		this
-		);
-
-	m_abstractFunction = function;
-	m_module->markForCompile(this);
-	return function;
-}
-
-bool
-FunctionType::compile()
-{
-	ASSERT(m_abstractFunction);
-
-	m_module->m_functionMgr.internalPrologue(m_abstractFunction);
-//	m_module->m_llvmIrBuilder.runtimeError (RuntimeErrorKind_AbstractFunction);
-	m_module->m_functionMgr.internalEpilogue();
-
-	return true;
 }
 
 sl::String
@@ -244,6 +213,24 @@ FunctionType::getTypeModifierString()
 		string.chop(1);
 
 	return string;
+}
+
+bool
+FunctionType::calcLayout()
+{
+	bool result = m_returnType->ensureLayout();
+	if (!result)
+		return false;
+
+	size_t count = m_argArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		result = m_argArray[i]->getType()->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 void

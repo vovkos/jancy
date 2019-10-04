@@ -38,6 +38,7 @@ class FunctionPtrType;
 class PropertyPtrType;
 class ImportType;
 class ReactorClassType;
+class DynamicLibClassType;
 class ClosureClassType;
 class FunctionClosureClassType;
 class PropertyClosureClassType;
@@ -102,7 +103,7 @@ protected:
 	sl::List<Typedef> m_typedefList;
 	sl::List<LazyStdType> m_lazyStdTypeList;
 	sl::List<FunctionArg> m_functionArgList;
-	sl::List<StructField> m_structFieldList;
+	sl::List<Field> m_fieldList;
 
 	sl::List<SimplePropertyTypeTuple> m_simplePropertyTypeTupleList;
 	sl::List<FunctionArgTuple> m_functionArgTupleList;
@@ -112,15 +113,11 @@ protected:
 	sl::List<PropertyPtrTypeTuple> m_propertyPtrTypeTupleList;
 	sl::List<DualTypeTuple> m_dualTypeTupleList;
 
-	sl::StringHashTable<Type*> m_typeMap;
-
 	sl::Array<MulticastClassType*> m_multicastClassTypeArray;
-	sl::Array<NamedImportType*> m_unresolvedNamedImportTypeArray;
-	sl::Array<ImportPtrType*> m_unresolvedImportPtrTypeArray;
-	sl::Array<ImportIntModType*> m_unresolvedImportIntModTypeArray;
+	sl::SimpleHashTable<DerivableType*, bool> m_externalReturnTypeSet;
 
+	sl::StringHashTable<Type*> m_typeMap;
 	size_t m_unnamedTypeCounter;
-	size_t m_parseStdTypeLevel;
 
 public:
 	TypeMgr();
@@ -133,9 +130,6 @@ public:
 
 	void
 	clear();
-
-	bool
-	resolveImportTypes();
 
 	const sl::List<Type>&
 	getTypeList()
@@ -253,7 +247,7 @@ public:
 		)
 	{
 		return createEnumType(
-			sl::String(),
+			sl::StringRef(),
 			sl::formatString("enum.%d", ++m_unnamedTypeCounter),
 			baseType,
 			flags
@@ -269,13 +263,20 @@ public:
 		);
 
 	StructType*
+	createInternalStructType(
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		);
+
+	StructType*
 	createUnnamedStructType(
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
 		return createStructType(
-			sl::String(),
+			sl::StringRef(),
 			sl::formatString("struct.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
@@ -283,14 +284,13 @@ public:
 	}
 
 	StructType*
-	createUnnamedStructType(
+	createUnnamedInternalStructType(
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createStructType(
-			sl::String(),
+		return createInternalStructType(
 			sl::formatString("struct.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
@@ -312,73 +312,68 @@ public:
 		)
 	{
 		return createUnionType(
-			sl::String(),
+			sl::StringRef(),
 			sl::formatString("union.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
 	}
 
-	ClassType*
+	template <typename T = ClassType>
+	T*
 	createClassType(
-		ClassTypeKind classTypeKind,
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		);
 
-	ClassType*
-	createClassType(
-		const sl::StringRef& name,
-		const sl::StringRef& qualifiedName,
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-		)
-	{
-		return createClassType(ClassTypeKind_Normal, name, qualifiedName, fieldAlignment, flags);
-	}
-
-	ClassType*
+	template <typename T = ClassType>
+	T*
 	createUnnamedClassType(
-		ClassTypeKind classTypeKind,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType(
-			classTypeKind,
-			sl::String(),
+		return createClassType<T>(
+			sl::StringRef(),
 			sl::formatString("class.%d", ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
 	}
 
-	ClassType*
-	createUnnamedClassType(
-		ClassTypeKind classTypeKind,
+	template <typename T = ClassType>
+	T*
+	createInternalClassType(
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		);
+
+	template <typename T>
+	T*
+	createUnnamedInternalClassType(
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		)
 	{
-		return createClassType(
-			classTypeKind,
-			sl::String(),
+		return createInternalClassType<T>(
 			sl::formatString("class.%s.%d", tag.sz(), ++m_unnamedTypeCounter),
 			fieldAlignment,
 			flags
 			);
 	}
-	ClassType*
-	createUnnamedClassType(
-		size_t fieldAlignment = 8,
-		uint_t flags = 0
-		)
+
+	void
+	addExternalReturnType(DerivableType* type)
 	{
-		return createUnnamedClassType(ClassTypeKind_Normal, fieldAlignment, flags);
+		m_externalReturnTypeSet.visit(type);
 	}
+
+	bool
+	requireExternalReturnTypes();
 
 	FunctionArg*
 	createFunctionArg(
@@ -404,8 +399,8 @@ public:
 		return getSimpleFunctionArg(StorageKind_Stack, type, ptrTypeFlags);
 	}
 
-	StructField*
-	createStructField(
+	Field*
+	createField(
 		const sl::StringRef& name,
 		Type* type,
 		size_t bitCount = 0,
@@ -768,19 +763,14 @@ public:
 	ImportPtrType*
 	getImportPtrType(
 		NamedImportType* importType,
-		uint_t typeModifiers = 0,
-		uint_t flags = 0
+		uint_t typeModifiers
 		);
 
 	ImportIntModType*
 	getImportIntModType(
 		NamedImportType* importType,
-		uint_t typeModifiers = 0,
-		uint_t flags = 0
+		uint_t typeModifiers
 		);
-
-	Type*
-	getCheckedPtrType(Type* type);
 
 	Type*
 	foldDualType(
@@ -790,6 +780,15 @@ public:
 		);
 
 protected:
+	void
+	addClassType(
+		ClassType* type,
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		size_t fieldAlignment,
+		uint_t flags
+		);
+
 	DualTypeTuple*
 	getDualTypeTuple(Type* type);
 
@@ -888,6 +887,35 @@ protected:
 	StructType*
 	createSjljFrameType();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+template <typename T>
+T*
+TypeMgr::createClassType(
+	const sl::StringRef& name,
+	const sl::StringRef& qualifiedName,
+	size_t fieldAlignment,
+	uint_t flags
+	)
+{
+	T* type = AXL_MEM_NEW(T);
+	addClassType(type, name, qualifiedName, fieldAlignment, flags);
+	return type;
+}
+
+template <typename T>
+T*
+TypeMgr::createInternalClassType(
+	const sl::StringRef& tag,
+	size_t fieldAlignment,
+	uint_t flags
+	)
+{
+	T* type = createClassType<T>(sl::StringRef(), tag, fieldAlignment, flags);
+	type->m_namespaceStatus = NamespaceStatus_Ready;
+	return type;
+}
 
 //..............................................................................
 

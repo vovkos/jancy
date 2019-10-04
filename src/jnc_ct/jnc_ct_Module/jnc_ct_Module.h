@@ -65,19 +65,37 @@ protected:
 class Module: public PreModule
 {
 protected:
+	struct RequiredItem
+	{
+		ModuleItemKind m_itemKind;
+		TypeKind m_typeKind;
+		bool m_isEssential;
+
+		RequiredItem();
+
+		RequiredItem(
+			ModuleItemKind itemKind,
+			bool isEssential
+			);
+
+		RequiredItem(
+			TypeKind typeKind,
+			bool isEssential
+			);
+	};
+
+protected:
 	sl::String m_name;
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
-
 	Function* m_constructor;
-	Function* m_destructor;
 
-	sl::Array<ModuleItem*> m_calcLayoutArray;
-	sl::Array<ModuleItem*> m_compileArray;
+	sl::Array<Function*> m_compileArray;
 	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
 	sl::StringHashTable<bool> m_filePathSet;
 	sl::StringHashTable<void*> m_functionMap;
+	sl::StringHashTable<RequiredItem> m_requireSet;
 
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
@@ -151,12 +169,6 @@ public:
 		return m_constructor;
 	}
 
-	Function*
-	getDestructor()
-	{
-		return m_destructor;
-	}
-
 	void
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
@@ -192,13 +204,7 @@ public:
 		);
 
 	void
-	markForLayout(
-		ModuleItem* item,
-		bool isForced = false
-		);
-
-	void
-	markForCompile(ModuleItem* item);
+	markForCompile(Function* function);
 
 	void
 	initialize(
@@ -224,11 +230,25 @@ public:
 	bool
 	parseImports();
 
-	bool
-	link();
+	void
+	require(
+		ModuleItemKind itemKind,
+		const sl::StringRef& name,
+		bool isEssential = true
+		)
+	{
+		m_requireSet[name] = RequiredItem(itemKind, isEssential);
+	}
 
-	bool
-	calcLayout();
+	void
+	require(
+		TypeKind typeKind,
+		const sl::StringRef& name,
+		bool isEssential = true
+		)
+	{
+		m_requireSet[name] = RequiredItem(typeKind, isEssential);
+	}
 
 	bool
 	compile();
@@ -238,9 +258,6 @@ public:
 
 	bool
 	jit();
-
-	bool
-	postParseStdItem();
 
 	bool
 	mapVariable(
@@ -272,14 +289,86 @@ protected:
 	createLlvmExecutionEngine();
 
 	bool
-	createConstructorDestructor();
-
-	bool
-	processCalcLayoutArray();
-
-	bool
 	processCompileArray();
+
+	void
+	createConstructor();
+
+	Function*
+	createGlobalPrimerFunction();
+
+	Function*
+	createGlobalInitializerFunction();
 };
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Module::RequiredItem::RequiredItem()
+{
+	m_itemKind = ModuleItemKind_Undefined;
+	m_typeKind = TypeKind_Void;
+	m_isEssential = false;
+}
+
+inline
+Module::RequiredItem::RequiredItem(
+	ModuleItemKind itemKind,
+	bool isEssential
+	)
+{
+	m_itemKind = itemKind;
+	m_typeKind = TypeKind_Void;
+	m_isEssential = isEssential;
+}
+
+inline
+Module::RequiredItem::RequiredItem(
+	TypeKind typeKind,
+	bool isEssential
+	)
+{
+	m_itemKind = ModuleItemKind_Type;
+	m_typeKind = typeKind;
+	m_isEssential = isEssential;
+}
+
+//..............................................................................
+
+template <typename T>
+T*
+MemberBlock::createMethod(
+	const sl::StringRef& name,
+	FunctionType* shortType
+	)
+{
+	sl::String qualifedName = getParentNamespaceImpl()->createQualifiedName(name);
+	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(name, qualifedName, shortType);
+	return addMethod(function) ? function : NULL;
+}
+
+template <typename T>
+T*
+MemberBlock::createUnnamedMethod(
+	FunctionKind functionKind,
+	FunctionType* shortType
+	)
+{
+	T* function = m_parent->getModule()->m_functionMgr.createFunction<T>(shortType);
+	function->m_functionKind = functionKind;
+	return addMethod(function) ? function : NULL;
+}
+
+template <typename T>
+T*
+MemberBlock::createDefaultMethod()
+{
+	Module* module = m_parent->getModule();
+	FunctionType* type = (FunctionType*)module->m_typeMgr.getStdType(StdType_SimpleFunction);
+	T* function = module->m_functionMgr.createFunction<T>(sl::StringRef(), sl::StringRef(), type);
+	bool result = addMethod(function);
+	return result ? function : NULL;
+}
 
 //..............................................................................
 

@@ -19,6 +19,7 @@
 #include "jnc_ct_ThunkProperty.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_MulticastClassType.h"
+#include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_Parser.llk.h"
 
 // #define _JNC_LLVM_VERIFY 1
@@ -53,7 +54,10 @@ FunctionMgr::clear()
 	m_thunkPropertyMap.clear();
 	m_schedLauncherFunctionMap.clear();
 	m_asyncSequencerFunctionArray.clear();
-	m_staticConstructArray.clear();
+
+	for (size_t i = 0; i < countof(m_globalCtorDtorArrayTable); i++)
+		m_globalCtorDtorArrayTable[i].clear();
+
 	memset(m_stdFunctionArray, 0, sizeof(m_stdFunctionArray));
 	memset(m_lazyStdFunctionArray, 0, sizeof(m_lazyStdFunctionArray));
 	memset(m_stdPropertyArray, 0, sizeof(m_stdPropertyArray));
@@ -64,32 +68,6 @@ FunctionMgr::clear()
 	m_currentFunction = NULL;
 }
 
-void
-FunctionMgr::callStaticConstructors()
-{
-	Function* addDestructor = getStdFunction(StdFunc_AddStaticDestructor);
-	Type* dtorType = m_module->m_typeMgr.getStdType(StdType_BytePtr);
-
-	size_t count = m_staticConstructArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
-		NamedTypeBlock* namedTypeBlock = m_staticConstructArray[i];
-
-		Function* destructor = namedTypeBlock->getStaticDestructor();
-		if (destructor)
-		{
-			Value dtorValue;
-			m_module->m_llvmIrBuilder.createBitCast(destructor, dtorType, &dtorValue);
-			m_module->m_llvmIrBuilder.createCall(addDestructor, addDestructor->getType(), dtorValue, NULL);
-		}
-
-		Function* constructor = namedTypeBlock->getStaticConstructor();
-		ASSERT(constructor);
-
-		m_module->m_llvmIrBuilder.createCall(constructor, constructor->getType(), NULL);
-	}
-}
-
 Value
 FunctionMgr::overrideThisValue(const Value& value)
 {
@@ -98,85 +76,55 @@ FunctionMgr::overrideThisValue(const Value& value)
 	return prevThisValue;
 }
 
-Function*
-FunctionMgr::createFunction(
-	FunctionKind functionKind,
+bool
+FunctionMgr::addGlobalCtorDtor(
+	GlobalCtorDtorKind kind,
+	Function* function
+	)
+{
+	ASSERT((size_t)kind < countof(m_globalCtorDtorArrayTable));
+
+	if (!function->getType()->getArgArray().isEmpty())
+	{
+		err::setFormatStringError("global constructor cannot have arguments");
+		return false;
+	}
+
+	m_globalCtorDtorArrayTable[kind].append(function);
+
+	if (!function->m_prologueBlock) // otherwise, already compiled (e.g., global-initializer)
+		m_module->markForCompile(function);
+
+	return true;
+}
+
+void
+FunctionMgr::addFunction(
+	Function* function,
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	FunctionType* type
 	)
 {
-	Function* function;
-	switch (functionKind)
-	{
-	case FunctionKind_Thunk:
-		function = AXL_MEM_NEW(ThunkFunction);
-		break;
-
-	case FunctionKind_SchedLauncher:
-		function = AXL_MEM_NEW(SchedLauncherFunction);
-		break;
-
-	case FunctionKind_AsyncSchedLauncher:
-		function = AXL_MEM_NEW(AsyncSchedLauncherFunction);
-		break;
-
-	case FunctionKind_AsyncSequencer:
-		function = AXL_MEM_NEW(AsyncSequencerFunction);
-		m_asyncSequencerFunctionArray.append((AsyncSequencerFunction*)function);
-		break;
-
-	default:
-		if (type->getFlags() & FunctionTypeFlag_Async)
-		{
-			function = AXL_MEM_NEW(AsyncLauncherFunction);
-		}
-		else
-		{
-			function = AXL_MEM_NEW(Function);
-			function->m_functionKind = functionKind;
-		}
-	}
-
 	function->m_module = m_module;
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
 	function->m_type = type;
 	function->m_typeOverload.addOverload(type);
 	m_functionList.insertTail(function);
-	return function;
 }
 
-Property*
-FunctionMgr::createProperty(
-	PropertyKind propertyKind,
+void
+FunctionMgr::addProperty(
+	Property* prop,
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName
 	)
 {
-	Property* prop;
-
-	switch (propertyKind)
-	{
-	case PropertyKind_Thunk:
-		prop = AXL_MEM_NEW(ThunkProperty);
-		break;
-
-	case PropertyKind_DataThunk:
-		prop = AXL_MEM_NEW(DataThunkProperty);
-		break;
-
-	default:
-		prop = AXL_MEM_NEW(Property);
-	}
-
 	prop->m_module = m_module;
-	prop->m_propertyKind = propertyKind;
 	prop->m_name = name;
 	prop->m_qualifiedName = qualifiedName;
-	m_module->markForLayout(prop, true);
 	m_propertyList.insertTail(prop);
-	return prop;
 }
 
 PropertyTemplate*
@@ -228,7 +176,7 @@ FunctionMgr::setCurrentFunction(Function* function)
 void
 FunctionMgr::prologue(
 	Function* function,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	m_currentFunction = function;
@@ -262,7 +210,6 @@ FunctionMgr::prologue(
 	if (function->m_type->getFlags() & FunctionTypeFlag_Unsafe)
 		m_module->m_operatorMgr.enterUnsafeRgn();
 
-
 	function->getType()->getCallConv()->createArgVariables(function);
 
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("function_body");
@@ -275,16 +222,6 @@ FunctionMgr::prologue(
 
 	if (function->isMember())
 		createThisValue();
-
-	// static initializers
-
-	if (function->m_functionKind == FunctionKind_StaticConstructor)
-	{
-		if (function->getProperty())
-			function->getProperty()->initializeStaticFields();
-		else if (function->getParentType())
-			function->getParentType()->initializeStaticFields();
-	}
 }
 
 void
@@ -329,14 +266,15 @@ FunctionMgr::epilogue()
 
 	ASSERT(m_currentFunction && scope);
 
-	if (function->m_functionKind == FunctionKind_Destructor)
+	if (function->m_functionKind == FunctionKind_Destructor &&
+		function->m_storageKind == StorageKind_Member)
 	{
 		ASSERT(m_thisValue);
 
 		if (function->getProperty())
 		{
 			Property* prop = function->getProperty();
-			result = prop->callMemberPropertyDestructors(m_thisValue);
+			result = prop->callPropertyDestructors(m_thisValue);
 		}
 		else
 		{
@@ -344,7 +282,7 @@ FunctionMgr::epilogue()
 			ClassType* classType = (ClassType*)function->getParentType();
 
 			result =
-				classType->callMemberPropertyDestructors(m_thisValue) &&
+				classType->callPropertyDestructors(m_thisValue) &&
 				classType->callBaseTypeDestructors(m_thisValue);
 		}
 
@@ -414,7 +352,7 @@ FunctionMgr::internalPrologue(
 	Function* function,
 	Value* argValueArray,
 	size_t argCount,
-	const Token::Pos* pos
+	const lex::LineCol* pos
 	)
 {
 	m_currentFunction = function;
@@ -508,8 +446,7 @@ FunctionMgr::getDirectThunkFunction(
 	if (it->m_value)
 		return it->m_value;
 
-	ThunkFunction* thunkFunction = (ThunkFunction*)createFunction(
-		FunctionKind_Thunk,
+	ThunkFunction* thunkFunction = createFunction<ThunkFunction>(
 		sl::String(),
 		"jnc.directThunkFunction",
 		thunkFunctionType
@@ -517,10 +454,8 @@ FunctionMgr::getDirectThunkFunction(
 
 	thunkFunction->m_storageKind = StorageKind_Static;
 	thunkFunction->m_targetFunction = targetFunction;
-
 	it->m_value = thunkFunction;
 
-	m_module->markForCompile(thunkFunction);
 	return thunkFunction;
 }
 
@@ -546,8 +481,7 @@ FunctionMgr::getDirectThunkProperty(
 	if (it->m_value)
 		return it->m_value;
 
-	ThunkProperty* thunkProperty = (ThunkProperty*)createProperty(
-		PropertyKind_Thunk,
+	ThunkProperty* thunkProperty = createProperty<ThunkProperty>(
 		sl::String(),
 		"jnc.g_directThunkProperty"
 		);
@@ -555,12 +489,9 @@ FunctionMgr::getDirectThunkProperty(
 	thunkProperty->m_storageKind = StorageKind_Static;
 
 	bool result = thunkProperty->create(targetProperty, thunkPropertyType, hasUnusedClosure);
-	if (!result)
-		return NULL;
+	ASSERT(result);
 
 	it->m_value = thunkProperty;
-
-	thunkProperty->ensureLayout();
 	return thunkProperty;
 }
 
@@ -585,8 +516,7 @@ FunctionMgr::getDirectDataThunkProperty(
 	if (it->m_value)
 		return it->m_value;
 
-	DataThunkProperty* thunkProperty = (DataThunkProperty*)createProperty(
-		PropertyKind_DataThunk,
+	DataThunkProperty* thunkProperty = createProperty<DataThunkProperty>(
 		sl::String(),
 		"jnc.g_directDataThunkProperty"
 		);
@@ -598,13 +528,9 @@ FunctionMgr::getDirectDataThunkProperty(
 		thunkPropertyType = thunkPropertyType->getStdObjectMemberPropertyType();
 
 	result = thunkProperty->create(thunkPropertyType);
-	if (!result)
-		return NULL;
+	ASSERT(result);
 
 	it->m_value = thunkProperty;
-
-	thunkProperty->ensureLayout();
-	m_module->markForCompile(thunkProperty);
 	return thunkProperty;
 }
 
@@ -629,8 +555,7 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 		Type* returnType = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(returnType, argArray);
 
-		launcherFunction = createFunction(
-			FunctionKind_AsyncSchedLauncher,
+		launcherFunction = createFunction<AsyncSchedLauncherFunction>(
 			sl::String(),
 			"jnc.asyncSchedLauncher",
 			launcherFunctionType
@@ -640,8 +565,7 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 	{
 		FunctionType* launcherFunctionType = m_module->m_typeMgr.getFunctionType(argArray);
 
-		launcherFunction = createFunction(
-			FunctionKind_SchedLauncher,
+		launcherFunction = createFunction<SchedLauncherFunction>(
 			sl::String(),
 			"jnc.schedLauncher",
 			launcherFunctionType
@@ -651,9 +575,23 @@ FunctionMgr::getSchedLauncherFunction(FunctionPtrType* targetFunctionPtrType)
 	launcherFunction->m_storageKind = StorageKind_Static;
 
 	it->m_value = launcherFunction;
-
-	m_module->markForCompile(launcherFunction);
 	return launcherFunction;
+}
+
+bool
+FunctionMgr::finalizeNamespaceProperties(const sl::ConstIterator<Property>& prevIt)
+{
+	bool result;
+
+	sl::Iterator<Property> it = prevIt ? (Property*)prevIt.getNext().p() : m_propertyList.getHead();
+	for (; it; it++)
+	{
+		result = it->finalize();
+		if (!result)
+			return false;
+	}
+
+	return true;
 }
 
 void
@@ -685,7 +623,7 @@ FunctionMgr::injectTlsPrologue(Function* function)
 	size_t count = tlsVariableArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = tlsVariableArray[i].m_variable->getTlsField();
+		Field* field = tlsVariableArray[i].m_variable->getTlsField();
 		ASSERT(field);
 
 		Value ptrValue;
@@ -772,35 +710,35 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BoxPtr);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.primeStaticClass", functionType);
+		function = createInternalFunction("jnc.primeStaticClass", functionType);
 		break;
 
 	case StdFunc_TryAllocateClass:
 		returnType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.tryAllocateClass", functionType);
+		function = createInternalFunction("jnc.tryAllocateClass", functionType);
 		break;
 
 	case StdFunc_AllocateClass:
 		returnType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.allocateClass", functionType);
+		function = createInternalFunction("jnc.allocateClass", functionType);
 		break;
 
 	case StdFunc_TryAllocateData:
 		returnType = m_module->m_typeMgr.getStdType(StdType_AbstractDataPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.tryAllocateData", functionType);
+		function = createInternalFunction("jnc.tryAllocateData", functionType);
 		break;
 
 	case StdFunc_AllocateData:
 		returnType = m_module->m_typeMgr.getStdType(StdType_AbstractDataPtr);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.allocateData", functionType);
+		function = createInternalFunction("jnc.allocateData", functionType);
 		break;
 
 	case StdFunc_TryAllocateArray:
@@ -808,7 +746,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.tryAllocateArray", functionType);
+		function = createInternalFunction("jnc.tryAllocateArray", functionType);
 		break;
 
 	case StdFunc_AllocateArray:
@@ -816,7 +754,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.allocateArray", functionType);
+		function = createInternalFunction("jnc.allocateArray", functionType);
 		break;
 
 	case StdFunc_CreateDataPtrValidator:
@@ -825,7 +763,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.createDataPtrValidator", functionType);
+		function = createInternalFunction("jnc.createDataPtrValidator", functionType);
 		break;
 
 	case StdFunc_TryCheckDataPtrRangeIndirect:
@@ -834,7 +772,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		argTypeArray[2] = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3, FunctionTypeFlag_ErrorCode);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.tryCheckDataPtrRangeIndirect", functionType);
+		function = createInternalFunction("jnc.tryCheckDataPtrRangeIndirect", functionType);
 		break;
 
 	case StdFunc_CheckDataPtrRangeIndirect:
@@ -843,7 +781,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		argTypeArray[2] = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.checkDataPtrRangeIndirect", functionType);
+		function = createInternalFunction("jnc.checkDataPtrRangeIndirect", functionType);
 		break;
 
 	case StdFunc_LlvmMemcpy:
@@ -854,7 +792,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.llvmMemcpy", functionType);
+		function = createInternalFunction("jnc.llvmMemcpy", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
 		llvmArgTypeArray[1] = argTypeArray[1]->getLlvmType();
@@ -874,7 +812,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.llvmMemmove", functionType);
+		function = createInternalFunction("jnc.llvmMemmove", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
 		llvmArgTypeArray[1] = argTypeArray[1]->getLlvmType();
@@ -894,7 +832,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[3] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
 		argTypeArray[4] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 5);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.llvmMemset", functionType);
+		function = createInternalFunction("jnc.llvmMemset", functionType);
 
 		llvmArgTypeArray[0] = argTypeArray[0]->getLlvmType();
 		llvmArgTypeArray[1] = argTypeArray[2]->getLlvmType();
@@ -909,20 +847,20 @@ FunctionMgr::getStdFunction(StdFunc func)
 	case StdFunc_GetTls:
 		returnType = m_module->m_variableMgr.getTlsStructType()->getDataPtrType(DataPtrTypeKind_Thin);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.getTls", functionType);
+		function = createInternalFunction("jnc.getTls", functionType);
 		break;
 
 	case StdFunc_SetJmp:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c();
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.setJmp", functionType);
+		function = createInternalFunction("jnc.setJmp", functionType);
 		break;
 
 	case StdFunc_DynamicThrow:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.dynamicThrow", functionType);
+		function = createInternalFunction("jnc.dynamicThrow", functionType);
 		break;
 
 	case StdFunc_AsyncRet:
@@ -930,14 +868,14 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.asyncRet", functionType);
+		function = createInternalFunction("jnc.asyncRet", functionType);
 		break;
 
 	case StdFunc_AsyncThrow:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_PromisePtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.asyncThrow", functionType);
+		function = createInternalFunction("jnc.asyncThrow", functionType);
 		break;
 
 	case StdFunc_VariantUnaryOperator:
@@ -945,7 +883,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantUnaryOperator", functionType);
+		function = createInternalFunction("jnc.variantUnaryOperator", functionType);
 		break;
 
 	case StdFunc_VariantBinaryOperator:
@@ -954,7 +892,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantBinaryOperator", functionType);
+		function = createInternalFunction("jnc.variantBinaryOperator", functionType);
 		break;
 
 	case StdFunc_VariantRelationalOperator:
@@ -963,7 +901,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantRelationalOperator", functionType);
+		function = createInternalFunction("jnc.variantRelationalOperator", functionType);
 		break;
 
 	case StdFunc_VariantMemberOperator:
@@ -971,7 +909,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(jnc_StdType_CharConstPtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantMemberOperator", functionType);
+		function = createInternalFunction("jnc.variantMemberOperator", functionType);
 		break;
 
 	case StdFunc_VariantIndexOperator:
@@ -979,7 +917,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantIndexOperator", functionType);
+		function = createInternalFunction("jnc.variantIndexOperator", functionType);
 		break;
 
 	case StdFunc_VariantMemberProperty_get:
@@ -987,7 +925,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(jnc_StdType_CharConstPtr);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantMemberProperty.get", functionType);
+		function = createInternalFunction("jnc.variantMemberProperty.get", functionType);
 		break;
 
 	case StdFunc_VariantMemberProperty_set:
@@ -996,7 +934,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(jnc_StdType_CharConstPtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantMemberProperty.set", functionType);
+		function = createInternalFunction("jnc.variantMemberProperty.set", functionType);
 		break;
 
 	case StdFunc_VariantIndexProperty_get:
@@ -1004,7 +942,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[0] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant)->getDataPtrType(DataPtrTypeKind_Normal, PtrTypeFlag_Const);
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 2);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantIndexProperty.get", functionType);
+		function = createInternalFunction("jnc.variantIndexProperty.get", functionType);
 		break;
 
 	case StdFunc_VariantIndexProperty_set:
@@ -1013,38 +951,38 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.variantIndexProperty.set", functionType);
+		function = createInternalFunction("jnc.variantIndexProperty.set", functionType);
 		break;
 
 	case StdFunc_GcSafePoint:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.gcSafePoint", functionType);
+		function = createInternalFunction("jnc.gcSafePoint", functionType);
 		break;
 
 	case StdFunc_CollectGarbage:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Normal, "collectGarbage", "jnc.collectGarbage", functionType);
+		function = createFunction("collectGarbage", "jnc.collectGarbage", functionType);
 		break;
 
 	case StdFunc_GetGcStats:
 		returnType = m_module->m_typeMgr.getStdType(StdType_GcStats);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Normal, "getGcStats", "jnc.getGcStats", functionType);
+		function = createFunction("getGcStats", "jnc.getGcStats", functionType);
 		break;
 
 	case StdFunc_GcTriggers_get:
 		returnType = m_module->m_typeMgr.getStdType(StdType_GcTriggers);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
-		function = createFunction(FunctionKind_Getter, sl::String(), "jnc.g_gcTriggers.get", functionType);
+		function = createInternalFunction("jnc.g_gcTriggers.get", functionType);
 		break;
 
 	case StdFunc_GcTriggers_set:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_GcTriggers);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
-		function = createFunction(FunctionKind_Setter, sl::String(), "jnc.g_gcTriggers.set", functionType);
+		function = createInternalFunction("jnc.g_gcTriggers.set", functionType);
 		break;
 
 	case StdFunc_SetGcShadowStackFrameMap:
@@ -1053,7 +991,7 @@ FunctionMgr::getStdFunction(StdFunc func)
 		argTypeArray[1] = m_module->m_typeMgr.getStdType(StdType_BytePtr);
 		argTypeArray[2] = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 3);
-		function = createFunction(FunctionKind_Internal, sl::String(), "jnc.setGcShadowStackFrameMap", functionType);
+		function = createInternalFunction("jnc.setGcShadowStackFrameMap", functionType);
 		break;
 
 	case StdFunc_DynamicSizeOf:
@@ -1131,9 +1069,8 @@ FunctionMgr::parseStdFunction(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
 
-	Parser parser(m_module);
+	Parser parser(m_module, Parser::Mode_Compile);
 	parser.create(SymbolKind_normal_item_declaration);
-	parser.m_stage = Parser::Stage_Pass2; // no imports
 
 	for (;;)
 	{
@@ -1158,8 +1095,8 @@ FunctionMgr::parseStdFunction(
 	ModuleItem* item = parser.m_lastDeclaredItem;
 	ASSERT(item && item->getItemKind() == ModuleItemKind_Function);
 
-	result = m_module->postParseStdItem();
-	ASSERT(result);
+//	result = m_module->postParseStdItem();
+//	ASSERT(result);
 
 	return (Function*)item;
 }
@@ -1192,7 +1129,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 	switch (stdProp)
 	{
 	case StdProp_VariantMember:
-		prop = createProperty(PropertyKind_Internal, sl::String(), "jnc.g_variantMember");
+		prop = createInternalProperty("jnc.g_variantMember");
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantMemberProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantMemberProperty_set);
@@ -1200,7 +1137,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		break;
 
 	case StdProp_VariantIndex:
-		prop = createProperty(PropertyKind_Internal, sl::String(), "jnc.g_variantIndex");
+		prop = createInternalProperty("jnc.g_variantIndex");
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantIndexProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantIndexProperty_set);
@@ -1208,7 +1145,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		break;
 
 	case StdProp_GcTriggers:
-		prop = createProperty(PropertyKind_Normal, "g_gcTriggers", "jnc.g_gcTriggers");
+		prop = createProperty("g_gcTriggers", "jnc.g_gcTriggers");
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_GcTriggers_get);
 		prop->m_setter = getStdFunction(StdFunc_GcTriggers_set);

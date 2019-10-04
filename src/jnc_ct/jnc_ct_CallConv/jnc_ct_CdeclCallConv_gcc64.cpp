@@ -23,9 +23,13 @@ CdeclCallConv_gcc64::getArgCoerceType(Type* type)
 {
 	AXL_TODO("implement proper coercion for structures with floating point fields")
 
-	return type->getSize() > sizeof(uint64_t) ?
-		m_module->m_typeMgr.getStdType(StdType_Int64Int64) :
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
+	if (type->getSize() <= sizeof(uint64_t))
+		return m_module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
+
+	Type* coerceType = m_module->m_typeMgr.getStdType(StdType_Int64Int64);
+	bool result = coerceType->ensureLayout();
+	ASSERT(result);
+	return coerceType;
 }
 
 void

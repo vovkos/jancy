@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class AsyncLauncherFunction: public Function
+class AsyncLauncherFunction: public Function // requires a body to be compiled
 {
 	friend class FunctionMgr;
 

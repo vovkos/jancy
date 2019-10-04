@@ -30,10 +30,11 @@ getStdTypeSource(StdType stdType)
 	#include "jnc_DynamicLib.jnc.cpp"
 	#include "jnc_ModuleItem.jnc.cpp"
 	#include "jnc_AttributeBlock.jnc.cpp"
+	#include "jnc_Field.jnc.cpp"
 	#include "jnc_Namespace.jnc.cpp"
 	#include "jnc_OpKind.jnc.cpp"
 	#include "jnc_Type.jnc.cpp"
-	#include "jnc_NamedTypeBlock.jnc.cpp"
+	#include "jnc_MemberBlock.jnc.cpp"
 	#include "jnc_DerivableType.jnc.cpp"
 	#include "jnc_ArrayType.jnc.cpp"
 	#include "jnc_BitFieldType.jnc.cpp"
@@ -277,9 +278,9 @@ getStdTypeSource(StdType stdType)
 			lengthof(namedTypeSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_NamedTypeBlock
-			namedTypeBlockSrc,
-			lengthof(namedTypeBlockSrc),
+		{                                    // StdType_MemberBlock
+			memberBlockSrc,
+			lengthof(memberBlockSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_BaseTypeSlot
@@ -392,9 +393,9 @@ getStdTypeSource(StdType stdType)
 			lengthof(structTypeKindSrc),
 			StdNamespace_Jnc,
 		},
-		{                                    // StdType_StructField
-			structFieldSrc,
-			lengthof(structFieldSrc),
+		{                                    // StdType_Field
+			fieldSrc,
+			lengthof(fieldSrc),
 			StdNamespace_Jnc,
 		},
 		{                                    // StdType_StructType

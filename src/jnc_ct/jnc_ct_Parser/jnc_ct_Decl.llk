@@ -20,13 +20,12 @@ common_declaration
 
 global_declaration
 	:	common_declaration
-	|	import_declaration
 	|	namespace_declaration
 	|	extension_declaration
 	|	normal_item_declaration
 	;
 
-named_type_block_declaration
+member_block_declaration
 	:	common_declaration
 	|	friend_declaration
 	|	access_declaration
@@ -47,6 +46,26 @@ local_declaration
 	|	nested_scope_label
 	;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+start
+nullable
+global_declaration_list
+	:	global_declaration*
+	;
+
+start
+nullable
+member_block_declaration_list
+	:	member_block_declaration*
+	;
+
+start
+nullable
+local_declaration_list
+	:	local_declaration*
+	;
+
 //..............................................................................
 
 import_declaration
@@ -57,28 +76,27 @@ import_declaration
 	;
 
 namespace_declaration
-	:	TokenKind_Namespace qualified_name
+	:	TokenKind_Namespace qualified_name TokenKind_Body
 			{
-				return openGlobalNamespace($2.m_name, $2.m_firstToken.m_pos) != NULL;
-			}
-		'{' global_declaration* '}'
-			{
-				m_module->m_namespaceMgr.closeNamespace();
+				return declareGlobalNamespace(
+					$2.m_firstToken.m_pos,
+					$2.m_name,
+					$3.m_pos,
+					$3.m_data.m_string
+					) != NULL;
 			}
 	;
 
 extension_declaration
-	:	TokenKind_Extension TokenKind_Identifier ':' type_name
+	:	TokenKind_Extension TokenKind_Identifier ':' type_name TokenKind_Body
 			{
-				return openExtensionNamespace(
+				return declareExtensionNamespace(
+					$2.m_pos,
 					$2.m_data.m_string,
 					$4.m_type,
-					$2.m_pos
+					$5.m_pos,
+					$5.m_data.m_string
 					) != NULL;
-			}
-		'{' named_type_block_declaration* '}'
-			{
-				m_module->m_namespaceMgr.closeNamespace();
 			}
 	;
 
@@ -258,10 +276,10 @@ class
 	sl::BoxList<Token> m_tokenList;
 }
 declaration_body_pass1
-	:	compound_stmt_pass1 <&$.m_tokenList>
+	:	compound_stmt_pass1<&$.m_tokenList>
 	;
 
-compound_stmt_pass1 <sl::BoxList<Token>* $tokenList>
+compound_stmt_pass1<sl::BoxList<Token>* $tokenList>
 	local
 	{
 		StmtPass1 $stmt;
@@ -278,8 +296,8 @@ compound_stmt_pass1 <sl::BoxList<Token>* $tokenList>
 			}
 	;
 
-statement_pass1 <StmtPass1* $stmt>
-	:	compound_stmt_pass1 <&(*$stmt).m_tokenList>
+statement_pass1<StmtPass1* $stmt>
+	:	compound_stmt_pass1<&(*$stmt).m_tokenList>
 	|	TokenKind_Catch
 			{
 				$stmt->m_tokenList.insertTail($1);

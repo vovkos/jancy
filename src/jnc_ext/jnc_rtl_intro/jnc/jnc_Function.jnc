@@ -24,7 +24,6 @@ enum FunctionKind
 	Getter,
 	Setter,
 	Binder,
-	PreConstructor,
 	Constructor,
 	Destructor,
 	StaticConstructor,

@@ -190,7 +190,6 @@ ExtensionLibMgr::findSourceFileContents(
 		return false;
 
 	SourceFile* file = it->m_value;
-
 	if (file->m_zipIndex != -1)
 	{
 		sl::Array<char> contents = file->m_zipReader->extractFileToMem(file->m_zipIndex);
@@ -204,7 +203,7 @@ ExtensionLibMgr::findSourceFileContents(
 	return true;
 }
 
-ct::ModuleItem*
+FindModuleItemResult
 ExtensionLibMgr::findItem(
 	const sl::StringRef& name,
 	const sl::Guid& libGuid,
@@ -214,7 +213,7 @@ ExtensionLibMgr::findItem(
 	ASSERT(m_module);
 
 	if (cacheSlot == -1) // no caching for this item
-		return m_module->m_namespaceMgr.getGlobalNamespace()->getItemByName(name);
+		return m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
 
 	ItemCacheEntry* entry;
 	ItemCacheMap::Iterator it = m_itemCacheMap.visit(libGuid);
@@ -233,13 +232,14 @@ ExtensionLibMgr::findItem(
 	if (count <= cacheSlot)
 		entry->m_itemArray.setCountZeroConstruct(cacheSlot + 1);
 
-	ModuleItem* item = entry->m_itemArray[cacheSlot];
-	if (item)
-		return item;
+	if (entry->m_itemArray[cacheSlot])
+		return FindModuleItemResult(entry->m_itemArray[cacheSlot]);
 
-	item = m_module->m_namespaceMgr.getGlobalNamespace()->getItemByName(name);
-	entry->m_itemArray[cacheSlot] = item;
-	return item;
+	FindModuleItemResult findResult = m_module->m_namespaceMgr.getGlobalNamespace()->findItem(name);
+	if (findResult.m_item)
+		entry->m_itemArray[cacheSlot] = findResult.m_item;
+
+	return findResult;
 }
 
 void

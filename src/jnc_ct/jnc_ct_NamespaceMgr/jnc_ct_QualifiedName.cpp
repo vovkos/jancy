@@ -26,10 +26,23 @@ QualifiedName::addName(const sl::StringRef& name)
 		m_list.insertTail(name);
 }
 
-sl::String
+sl::StringRef
+QualifiedName::removeFirstName()
+{
+	sl::StringRef name = m_first;
+
+	if (m_list.isEmpty())
+		m_first.clear();
+	else
+		m_first = m_list.removeHead();
+
+	return name;
+}
+
+sl::StringRef
 QualifiedName::removeLastName()
 {
-	sl::String name;
+	sl::StringRef name;
 
 	if (m_list.isEmpty())
 	{
@@ -51,7 +64,7 @@ QualifiedName::getFullName() const
 		return m_first;
 
 	sl::String name = m_first;
-	sl::ConstBoxIterator<sl::String> it = m_list.getHead();
+	sl::ConstBoxIterator<sl::StringRef> it = m_list.getHead();
 	for (; it; it++)
 	{
 		name.append('.');
@@ -62,22 +75,25 @@ QualifiedName::getFullName() const
 }
 
 void
-QualifiedName::parse(const sl::StringRef& name0)
+QualifiedName::parse(const sl::StringRef& name)
 {
 	clear();
 
-	const char* name = name0.sz();
+	const char* p = name.cp();
+	const char* end = name.getEnd();
+
 	for (;;)
 	{
-		const char* dot = strchr(name, '.');
+		size_t length = end - p;
+		const char* dot = (const char*)memchr(p, '.', length);
 		if (!dot)
 		{
-			addName(name);
+			addName(sl::StringRef(p, length));
 			break;
 		}
 
-		addName(sl::StringRef(name, dot - name));
-		name = dot + 1;
+		addName(sl::StringRef(p, dot - p));
+		p = dot + 1;
 	}
 }
 
@@ -87,7 +103,7 @@ QualifiedName::copy(const QualifiedName& name)
 	m_first = name.m_first;
 	m_list.clear();
 
-	sl::ConstBoxIterator<sl::String> it = name.m_list.getHead();
+	sl::ConstBoxIterator<sl::StringRef> it = name.m_list.getHead();
 	for (; it; it++)
 		m_list.insertTail(*it);
 }

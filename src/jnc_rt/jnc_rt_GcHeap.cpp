@@ -133,18 +133,13 @@ GcHeap::startup(ct::Module* module)
 	{
 		m_flags |= Flag_SimpleSafePoint;
 	}
-	else
+	else if (module->m_variableMgr.isStdVariableUsed(ct::StdVariable_GcSafePointTrigger))
 	{
 		ct::Variable* safePointTriggerVariable = module->m_variableMgr.getStdVariable(ct::StdVariable_GcSafePointTrigger);
 		*(void**) safePointTriggerVariable->getStaticData() = m_guardPage;
 	}
 
 	addStaticRootVariables(module->m_variableMgr.getStaticGcRootArray());
-
-	ct::Function* destructor = module->getDestructor();
-	if (destructor)
-		addStaticDestructor((StaticDestructFunc*)destructor->getMachineCode());
-
 	return m_destructThread.start();
 }
 
@@ -388,11 +383,11 @@ GcHeap::addClassFieldBoxes_l(
 {
 	char* p = (char*)ifaceHdr;
 
-	sl::Array<ct::StructField*> classFieldArray = type->getClassMemberFieldArray();
+	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
 	size_t count = classFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::StructField* field = classFieldArray[i];
+		ct::Field* field = classFieldArray[i];
 		Box* childBox = (Box*)(p + field->getOffset());
 
 		ASSERT(
@@ -402,7 +397,6 @@ GcHeap::addClassFieldBoxes_l(
 		addClassBox_l(childBox);
 	}
 }
-
 
 void
 GcHeap::addStaticClassDestructor_l(
@@ -454,11 +448,11 @@ GcHeap::addStaticClassFieldDestructors_l(
 {
 	char* p = (char*)ifaceHdr;
 
-	sl::Array<ct::StructField*> classFieldArray = type->getClassMemberFieldArray();
+	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
 	size_t count = classFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::StructField* field = classFieldArray[i];
+		ct::Field* field = classFieldArray[i];
 		ct::ClassType* fieldType = (ct::ClassType*)field->getType();
 		ASSERT(fieldType->getTypeKind() == TypeKind_Class);
 
@@ -1230,11 +1224,11 @@ GcHeap::markClassFields(
 
 	// mark class fields in this class
 
-	sl::Array<ct::StructField*> classMemberFieldArray = type->getClassMemberFieldArray();
-	count = classMemberFieldArray.getCount();
+	const sl::Array<ct::Field*>& classFieldArray = type->getClassFieldArray();
+	count = classFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::StructField* field = classMemberFieldArray[i];
+		ct::Field* field = classFieldArray[i];
 		Box* fieldBox = (Box*)(p + field->getOffset());
 		ASSERT(fieldBox->m_type == field->getType());
 		ASSERT(fieldBox->m_type->getTypeKind() == TypeKind_Class);
@@ -1271,17 +1265,17 @@ GcHeap::weakMarkClosureClass(Box* box)
 
 	// add this arg as weak pointer
 
-	ct::StructField* thisArgField = closureClassType->getFieldByIndex(thisArgFieldIdx);
+	ct::Field* thisArgField = closureClassType->getFieldByIndex(thisArgFieldIdx);
 	ASSERT(thisArgField && thisArgField->getType()->getTypeKind() == TypeKind_ClassPtr);
 	ct::ClassPtrType* weakPtrType = ((ct::ClassPtrType*)(thisArgField->getType()))->getWeakPtrType();
 	addRoot(p0 + thisArgField->getOffset(), weakPtrType);
 
-	sl::Array<ct::StructField*> gcRootFieldArray = closureClassType->getGcRootMemberFieldArray();
+	const sl::Array<ct::Field*>& gcRootFieldArray = closureClassType->getGcRootFieldArray();
 	size_t count = gcRootFieldArray.getCount();
 
 	for (size_t i = 0; i < count; i++)
 	{
-		ct::StructField* field = gcRootFieldArray[i];
+		ct::Field* field = gcRootFieldArray[i];
 		if (field != thisArgField)
 			addRoot(p0 + field->getOffset(), field->getType());
 	}
@@ -1558,7 +1552,7 @@ GcHeap::collect_l(bool isMutatorThread)
 	// add stack and tls roots and validator pools
 
 	ct::StructType* tlsType = m_runtime->getModule()->m_variableMgr.getTlsStructType();
-	sl::Array<ct::StructField*> tlsRootFieldArray = tlsType->getGcRootMemberFieldArray();
+	const sl::Array<ct::Field*>& tlsRootFieldArray = tlsType->getGcRootFieldArray();
 	size_t tlsRootFieldCount = tlsRootFieldArray.getCount();
 
 	MutatorThreadList::Iterator threadIt = m_mutatorThreadList.getHead();
@@ -1577,7 +1571,7 @@ GcHeap::collect_l(bool isMutatorThread)
 
 		for (size_t i = 0; i < tlsRootFieldCount; i++)
 		{
-			ct::StructField* field = tlsRootFieldArray[i];
+			ct::Field* field = tlsRootFieldArray[i];
 			addRoot((char*)tlsVariableTable + field->getOffset(), field->getType());
 		}
 

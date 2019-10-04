@@ -24,7 +24,7 @@ DataPtrType::DataPtrType()
 	m_typeKind = TypeKind_DataPtr;
 	m_ptrTypeKind = DataPtrTypeKind_Normal;
 	m_targetType = NULL;
-	m_size = sizeof(DataPtr);
+	m_alignment = sizeof(void*);
 }
 
 sl::String
@@ -51,6 +51,19 @@ DataPtrType::createSignature(
 	signature += getPtrTypeFlagSignature(flags);
 	signature += targetType->getSignature();
 	return signature;
+}
+
+bool
+DataPtrType::calcLayout()
+{
+	ASSERT(m_targetType->getTypeKindFlags() & TypeKindFlag_Import);
+
+	bool result = ((ImportType*)m_targetType)->ensureResolved();
+	if (!result)
+		return false;
+
+	ASSERT(!(m_targetType->getTypeKindFlags() & TypeKindFlag_Import)); // should have been fixed up in resolve
+	return true;
 }
 
 void
@@ -109,8 +122,9 @@ DataPtrType::prepareLlvmDiType()
 {
 	m_llvmDiType =
 		m_ptrTypeKind == DataPtrTypeKind_Normal ? m_module->m_typeMgr.getStdType(StdType_DataPtrStruct)->getLlvmDiType() :
-		m_targetType->getTypeKind() != TypeKind_Void ? m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
-		m_module->m_typeMgr.getStdType(StdType_BytePtr)->getLlvmDiType();
+		m_targetType->getTypeKind() != TypeKind_Void && (m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
+				m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
+				m_module->m_typeMgr.getStdType(StdType_BytePtr)->getLlvmDiType();
 }
 
 void

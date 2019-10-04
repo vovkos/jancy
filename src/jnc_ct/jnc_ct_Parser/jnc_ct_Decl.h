@@ -410,7 +410,7 @@ protected:
 	BinOpKind m_binOpKind;
 	Type* m_castOpType;
 	QualifiedName m_name;
-	Token::Pos m_pos;
+	lex::LineCol m_pos;
 	size_t m_bitCount;
 	uint_t m_postDeclaratorModifiers;
 	Type* m_baseType;
@@ -479,7 +479,7 @@ public:
 		return &m_name;
 	}
 
-	const Token::Pos&
+	const lex::LineCol&
 	getPos()
 	{
 		return m_pos;

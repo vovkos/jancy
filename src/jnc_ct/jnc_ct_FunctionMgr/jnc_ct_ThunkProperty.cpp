@@ -91,32 +91,29 @@ DataThunkProperty::DataThunkProperty()
 	m_targetVariable = NULL;
 }
 
-bool
-DataThunkProperty::compile()
+Function*
+DataThunkProperty::createAccessor(
+	FunctionKind functionKind,
+	FunctionType* type
+	)
 {
-	bool result = compileGetter();
-	if (!result)
-		return false;
-
-	if (m_setter)
+	switch (functionKind)
 	{
-		size_t count = m_setter->getOverloadCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			Function* overload = m_setter->getOverload(i);
-			result = compileSetter(overload);
-			if (!result)
-				return false;
-		}
-	}
+	case FunctionKind_Getter:
+		return m_module->m_functionMgr.createFunction<Getter>(type);
 
-	return true;
+	case FunctionKind_Setter:
+		return m_module->m_functionMgr.createFunction<Setter>(type);
+
+	default:
+		return Property::createAccessor(functionKind, type);
+	}
 }
 
 bool
-DataThunkProperty::compileGetter()
+DataThunkProperty::compileGetter(Function* getter)
 {
-	m_module->m_functionMgr.internalPrologue(m_getter);
+	m_module->m_functionMgr.internalPrologue(getter);
 
 	bool result = m_module->m_controlFlowMgr.ret(m_targetVariable);
 	if (!result)

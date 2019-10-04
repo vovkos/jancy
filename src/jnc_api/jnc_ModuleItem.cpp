@@ -40,7 +40,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind)
 		"property",                    // jnc_ModuleItemKind_Property,
 		"property-template",           // jnc_ModuleItemKind_PropertyTemplate,
 		"enum-member",                 // jnc_ModuleItemKind_EnumConst,
-		"struct-member",               // jnc_ModuleItemKind_StructField,
+		"struct-member",               // jnc_ModuleItemKind_Field,
 		"base-type-slot",              // jnc_ModuleItemKind_BaseTypeSlot,
 		"orphan",                      // jnc_ModuleItemKind_Orphan,
 		"lazy",                        // jnc_ModuleItemKind_Lazy,
@@ -172,14 +172,6 @@ jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getColFunc(decl);
 }
 
-JNC_EXTERN_C
-JNC_EXPORT_O
-size_t
-jnc_ModuleItemDecl_getOffset(jnc_ModuleItemDecl* decl)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemDeclFuncTable->m_getOffsetFunc(decl);
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
@@ -232,24 +224,10 @@ jnc_ModuleItem_getType(jnc_ModuleItem* item)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType(
-	jnc_ModuleItem* item,
-	const char* name
-	)
+bool_t
+jnc_ModuleItem_require(jnc_ModuleItem* item)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_verifyModuleItemIsDerivableTypeFunc(item, name);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_ClassType*
-jnc_verifyModuleItemIsClassType(
-	jnc_ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_verifyModuleItemIsClassTypeFunc(item, name);
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_requireFunc(item);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -317,7 +295,7 @@ JNC_EXPORT_O
 int
 jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl)
 {
-	return decl->getPos()->m_line;
+	return decl->getPos().m_line;
 }
 
 JNC_EXTERN_C
@@ -325,15 +303,15 @@ JNC_EXPORT_O
 int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 {
-	return decl->getPos()->m_col;
+	return decl->getPos().m_col;
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-size_t
-jnc_ModuleItemDecl_getOffset(jnc_ModuleItemDecl* decl)
+bool_t
+jnc_ModuleItem_require(jnc_ModuleItem* item)
 {
-	return decl->getPos()->m_offset;
+	return item->require();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -384,30 +362,6 @@ jnc_Type*
 jnc_ModuleItem_getType(jnc_ModuleItem* item)
 {
 	return item->getType();
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_DerivableType*
-jnc_verifyModuleItemIsDerivableType(
-	jnc_ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc::ct::verifyModuleItemIsDerivableType(item, name);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_ClassType*
-jnc_verifyModuleItemIsClassType(
-	jnc_ModuleItem* item,
-	const char* name
-	)
-{
-	return jnc::ct::verifyModuleItemIsClassType(item, name);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

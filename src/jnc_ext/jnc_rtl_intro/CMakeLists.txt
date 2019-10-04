@@ -22,11 +22,12 @@ set(
 	jnc_rtl_ClassType.h
 	jnc_rtl_DerivableType.h
 	jnc_rtl_EnumType.h
+	jnc_rtl_Field.h
 	jnc_rtl_Function.h
 	jnc_rtl_FunctionType.h
 	jnc_rtl_Module.h
 	jnc_rtl_ModuleItem.h
-	jnc_rtl_NamedTypeBlock.h
+	jnc_rtl_MemberBlock.h
 	jnc_rtl_Namespace.h
 	jnc_rtl_Property.h
 	jnc_rtl_PropertyType.h
@@ -46,11 +47,12 @@ set(
 	jnc_rtl_ClassType.cpp
 	jnc_rtl_DerivableType.cpp
 	jnc_rtl_EnumType.cpp
+	jnc_rtl_Field.cpp
 	jnc_rtl_Function.cpp
 	jnc_rtl_FunctionType.cpp
 	jnc_rtl_Module.cpp
 	jnc_rtl_ModuleItem.cpp
-	jnc_rtl_NamedTypeBlock.cpp
+	jnc_rtl_MemberBlock.cpp
 	jnc_rtl_Namespace.cpp
 	jnc_rtl_Property.cpp
 	jnc_rtl_PropertyType.cpp
@@ -82,11 +84,12 @@ set(
 	jnc/jnc_ClassType.jnc
 	jnc/jnc_DerivableType.jnc
 	jnc/jnc_EnumType.jnc
+	jnc/jnc_Field.jnc
 	jnc/jnc_Function.jnc
 	jnc/jnc_FunctionType.jnc
 	jnc/jnc_Module.jnc
 	jnc/jnc_ModuleItem.jnc
-	jnc/jnc_NamedTypeBlock.jnc
+	jnc/jnc_MemberBlock.jnc
 	jnc/jnc_Namespace.jnc
 	jnc/jnc_OpKind.jnc
 	jnc/jnc_Property.jnc

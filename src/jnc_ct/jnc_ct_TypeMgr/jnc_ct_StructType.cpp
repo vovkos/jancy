@@ -19,64 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-StructField::StructField()
-{
-	m_itemKind = ModuleItemKind_StructField;
-	m_type = NULL;
-	m_ptrTypeFlags = 0;
-	m_bitFieldBaseType = NULL;
-	m_bitCount = 0;
-	m_offset = 0;
-	m_llvmIndex = -1;
-	m_prevDynamicFieldIndex = -1;
-}
-
-bool
-StructField::generateDocumentation(
-	const sl::StringRef& outputDir,
-	sl::String* itemXml,
-	sl::String* indexXml
-	)
-{
-	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
-
-	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
-	const char* kind = isMulticast ? "event" : "variable";
-
-	itemXml->format("<memberdef kind='%s' id='%s'", kind, doxyBlock->getRefId ().sz());
-
-	if (m_accessKind != AccessKind_Public)
-		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
-
-	if (m_storageKind == StorageKind_Static)
-		itemXml->append(" static='yes'");
-	else if (m_storageKind == StorageKind_Tls)
-		itemXml->append(" tls='yes'");
-
-	if (m_ptrTypeFlags & PtrTypeFlag_Const)
-		itemXml->append(" const='yes'");
-	else if (m_ptrTypeFlags & PtrTypeFlag_ReadOnly)
-		itemXml->append(" readonly='yes'");
-
-	itemXml->appendFormat(">\n<name>%s</name>\n", m_name.sz());
-	itemXml->append(m_type->getDoxyTypeString());
-
-	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_ptrTypeFlags & ~PtrTypeFlag_DualEvent);
-	if (!ptrTypeFlagString.isEmpty())
-		itemXml->appendFormat("<modifiers>%s</modifiers>\n", ptrTypeFlagString.sz());
-
-	if (!m_initializer.isEmpty())
-		itemXml->appendFormat("<initializer>= %s</initializer>\n", getInitializerString().sz());
-
-	itemXml->append(doxyBlock->getDescriptionString());
-	itemXml->append(getDoxyLocationString());
-	itemXml->append("</memberdef>\n");
-
-	return true;
-}
-
-//..............................................................................
-
 StructType::StructType()
 {
 	m_typeKind = TypeKind_Struct;
@@ -95,7 +37,7 @@ StructType::prepareLlvmType()
 	m_llvmType = llvm::StructType::create(*m_module->getLlvmContext(), getQualifiedName().sz());
 }
 
-StructField*
+Field*
 StructType::createFieldImpl(
 	const sl::StringRef& name,
 	Type* type,
@@ -105,13 +47,7 @@ StructType::createFieldImpl(
 	sl::BoxList<Token>* initializer
 	)
 {
-	if (m_flags & ModuleItemFlag_Sealed)
-	{
-		err::setFormatStringError("'%s' is completed, cannot add fields to it", getTypeString().sz());
-		return NULL;
-	}
-
-	StructField* field = m_module->m_typeMgr.createStructField(
+	Field* field = m_module->m_typeMgr.createField(
 		name,
 		type,
 		bitCount,
@@ -121,12 +57,6 @@ StructType::createFieldImpl(
 		);
 
 	field->m_parentNamespace = this;
-
-	if (!field->m_constructor.isEmpty() ||
-		!field->m_initializer.isEmpty())
-	{
-		m_initializedMemberFieldArray.append(field);
-	}
 
 	if (name.isEmpty())
 	{
@@ -139,7 +69,7 @@ StructType::createFieldImpl(
 			return NULL;
 	}
 
-	m_memberFieldArray.append(field);
+	m_fieldArray.append(field);
 	return field;
 }
 
@@ -156,11 +86,11 @@ StructType::append(StructType* type)
 			return false;
 	}
 
-	sl::Array<StructField*> fieldArray = type->getMemberFieldArray();
+	const sl::Array<Field*>& fieldArray = type->getFieldArray();
 	size_t count = fieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = fieldArray[i];
+		Field* field = fieldArray[i];
 		result = field->m_bitCount ?
 			createField(field->m_name, field->m_bitFieldBaseType, field->m_bitCount, field->m_ptrTypeFlags) != NULL:
 			createField(field->m_name, field->m_type, 0, field->m_ptrTypeFlags) != NULL;
@@ -175,12 +105,18 @@ StructType::append(StructType* type)
 bool
 StructType::calcLayout()
 {
-	bool result;
+	bool result = ensureNamespaceReady();
+	if (!result)
+		return false;
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
 	for (; slotIt; slotIt++)
 	{
 		BaseTypeSlot* slot = *slotIt;
+		result = slot->m_type->ensureLayout();
+		if (!result)
+			return false;
+
 		if (!(slot->m_type->getTypeKindFlags() & TypeKindFlag_Derivable) ||
 			(slot->m_type->getFlags() & TypeFlag_Dynamic) ||
 			slot->m_type->getTypeKind() == TypeKind_Class)
@@ -224,10 +160,10 @@ StructType::calcLayout()
 			return false;
 	}
 
-	size_t count = m_memberFieldArray.getCount();
+	size_t count = m_fieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_memberFieldArray[i];
+		Field* field = m_fieldArray[i];
 		result = layoutField(field);
 		if (!result)
 			return false;
@@ -242,14 +178,14 @@ StructType::calcLayout()
 	if (m_fieldAlignedSize > m_fieldActualSize)
 		insertPadding(m_fieldAlignedSize - m_fieldActualSize);
 
-	// scan members for gcroots and constructors (not for auxilary structs such as class iface)
+	// scan members for gcroots and constructors (but not for auxilary structs such as class iface)
 
 	if (m_structTypeKind == StructTypeKind_Normal)
 	{
-		size_t count = m_memberFieldArray.getCount();
+		size_t count = m_fieldArray.getCount();
 		for (size_t i = 0; i < count; i++)
 		{
-			StructField* field = m_memberFieldArray[i];
+			Field* field = m_fieldArray[i];
 			Type* type = field->getType();
 
 			uint_t fieldTypeFlags = type->getFlags();
@@ -259,44 +195,40 @@ StructType::calcLayout()
 
 			if (fieldTypeFlags & TypeFlag_GcRoot)
 			{
-				m_gcRootMemberFieldArray.append(field);
+				m_gcRootFieldArray.append(field);
 				m_flags |= TypeFlag_GcRoot;
 			}
 
-			if ((type->getTypeKindFlags() & TypeKindFlag_Derivable) && ((DerivableType*)type)->getConstructor())
-				m_memberFieldConstructArray.append(field);
+			if (field->m_parentNamespace == this && // skip property fields
+				(!field->m_initializer.isEmpty() || isConstructibleType(type)))
+				m_fieldInitializeArray.append(field);
 		}
 
-		count = m_memberPropertyArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			Property* prop = m_memberPropertyArray[i];
-			result = prop->ensureLayout();
-			if (!result)
-				return false;
+		scanStaticVariables();
+		scanPropertyCtorDtors();
 
-			if (prop->getConstructor())
-				m_memberPropertyConstructArray.append(prop);
+		if (!m_propertyDestructArray.isEmpty())
+		{
+			err::setError("invalid property destructor in 'struct'");
+			return false;
 		}
-	}
 
-	if (m_structTypeKind == StructTypeKind_Normal)
-	{
-		if (!m_staticConstructor && !m_initializedStaticFieldArray.isEmpty())
+		if (!m_staticConstructor &&
+			(!m_staticVariableInitializeArray.isEmpty() ||
+			!m_propertyStaticConstructArray.isEmpty()))
 		{
-			result = createDefaultMethod(FunctionKind_StaticConstructor, StorageKind_Static) != NULL;
+			result = createDefaultMethod<DefaultStaticConstructor>() != NULL;
 			if (!result)
 				return false;
 		}
 
 		if (!m_constructor &&
-			(m_preconstructor ||
+			(m_staticConstructor ||
 			!m_baseTypeConstructArray.isEmpty() ||
-			!m_memberFieldConstructArray.isEmpty() ||
-			!m_initializedMemberFieldArray.isEmpty() ||
-			!m_memberPropertyConstructArray.isEmpty()))
+			!m_fieldInitializeArray.isEmpty() ||
+			!m_propertyConstructArray.isEmpty()))
 		{
-			result = createDefaultMethod(FunctionKind_Constructor) != NULL;
+			result = createDefaultMethod<DefaultConstructor>() != NULL;
 			if (!result)
 				return false;
 		}
@@ -335,7 +267,7 @@ StructType::calcLayout()
 				typeInfo->m_size - m_fieldAlignedSize
 				);
 
-			StructField* field = createField(opaqueDataType);
+			Field* field = createField(opaqueDataType);
 			result = layoutField(field);
 			ASSERT(result);
 		}
@@ -355,7 +287,11 @@ StructType::calcLayout()
 		m_size = 0;
 		m_flags |= TypeFlag_NoStack;
 
-		m_module->m_typeMgr.getStdType(StdType_DynamicLayout); // ensure jnc.DynamicLayout is present
+		// ensure jnc.DynamicLayout is present and laid out (needed from RTL)
+
+		Type* dynamicLayoutType = m_module->m_typeMgr.getStdType(StdType_DynamicLayout);
+		result = dynamicLayoutType->ensureLayout();
+		ASSERT(result);
 	}
 	else
 	{
@@ -374,38 +310,9 @@ StructType::calcLayout()
 }
 
 bool
-StructType::compile()
+StructType::layoutField(Field* field)
 {
 	bool result;
-
-	if (m_staticConstructor && !(m_staticConstructor->getFlags() & ModuleItemFlag_User))
-	{
-		result = compileDefaultStaticConstructor();
-		if (!result)
-			return false;
-	}
-
-	if (m_constructor && !(m_constructor->getFlags() & ModuleItemFlag_User))
-	{
-		result = compileDefaultConstructor();
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-StructType::layoutField(StructField* field)
-{
-	bool result;
-
-	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind() == TypeKind_Class)
-	{
-		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
-		field->pushSrcPosError();
-		return false;
-	}
 
 	if ((m_flags & TypeFlag_Dynamic) && field->m_type->getTypeKind() == TypeKind_Array)
 	{
@@ -418,6 +325,13 @@ StructType::layoutField(StructField* field)
 		result = field->m_type->ensureLayout();
 		if (!result)
 			return false;
+	}
+
+	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind() == TypeKind_Class)
+	{
+		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
+		field->pushSrcPosError();
+		return false;
 	}
 
 	result = field->m_bitCount ?
@@ -539,6 +453,10 @@ StructType::layoutBitField(
 	if (!type)
 		return false;
 
+	bool result = type->ensureLayout();
+	if (!result)
+		return false;
+
 	*type_o = type;
 	m_lastBitFieldType = type;
 
@@ -619,11 +537,11 @@ StructType::prepareLlvmDiType()
 
 void
 StructType::markGcRoots(
-	const void* _p,
+	const void* p0,
 	rt::GcHeap* gcHeap
 	)
 {
-	char* p = (char*)_p;
+	char* p = (char*)p0;
 
 	size_t count = m_gcRootBaseTypeArray.getCount();
 	for (size_t i = 0; i < count; i++)
@@ -632,10 +550,10 @@ StructType::markGcRoots(
 		slot->getType()->markGcRoots(p + slot->getOffset(), gcHeap);
 	}
 
-	count = m_gcRootMemberFieldArray.getCount();
+	count = m_gcRootFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		StructField* field = m_gcRootMemberFieldArray[i];
+		Field* field = m_gcRootFieldArray[i];
 		field->getType()->markGcRoots(p + field->getOffset(), gcHeap);
 	}
 }

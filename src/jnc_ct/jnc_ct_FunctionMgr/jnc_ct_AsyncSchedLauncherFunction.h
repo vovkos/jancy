@@ -18,7 +18,7 @@ namespace ct {
 
 //..............................................................................
 
-class AsyncSchedLauncherFunction: public Function
+class AsyncSchedLauncherFunction: public CompilableFunction
 {
 	friend class FunctionMgr;
 

@@ -66,7 +66,6 @@ TypeMgr::TypeMgr()
 	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
 
 	m_unnamedTypeCounter = 0;
-	m_parseStdTypeLevel = 0;
 }
 
 void
@@ -76,8 +75,7 @@ TypeMgr::clear()
 	m_typedefList.clear();
 	m_lazyStdTypeList.clear();
 	m_functionArgList.clear();
-	m_structFieldList.clear();
-
+	m_fieldList.clear();
 	m_simplePropertyTypeTupleList.clear();
 	m_functionArgTupleList.clear();
 	m_dataPtrTypeTupleList.clear();
@@ -85,13 +83,9 @@ TypeMgr::clear()
 	m_functionPtrTypeTupleList.clear();
 	m_propertyPtrTypeTupleList.clear();
 	m_dualTypeTupleList.clear();
-
 	m_typeMap.clear();
-
 	m_multicastClassTypeArray.clear();
-	m_unresolvedNamedImportTypeArray.clear();
-	m_unresolvedImportPtrTypeArray.clear();
-	m_unresolvedImportIntModTypeArray.clear();
+	m_externalReturnTypeSet.clear();
 
 	setupAllPrimitiveTypes();
 
@@ -99,7 +93,6 @@ TypeMgr::clear()
 	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
 
 	m_unnamedTypeCounter = 0;
-	m_parseStdTypeLevel = 0;
 }
 
 Type*
@@ -264,7 +257,7 @@ TypeMgr::getStdType(StdType stdType)
 	case StdType_Type:
 	case StdType_DataPtrType:
 	case StdType_NamedType:
-	case StdType_NamedTypeBlock:
+	case StdType_MemberBlock:
 	case StdType_BaseTypeSlot:
 	case StdType_DerivableType:
 	case StdType_ArrayType:
@@ -287,7 +280,7 @@ TypeMgr::getStdType(StdType stdType)
 	case StdType_ClassType:
 	case StdType_ClassPtrType:
 	case StdType_StructTypeKind:
-	case StdType_StructField:
+	case StdType_Field:
 	case StdType_StructType:
 	case StdType_UnionType:
 	case StdType_Alias:
@@ -357,140 +350,6 @@ TypeMgr::getLazyStdType(StdType stdType)
 	return type;
 }
 
-bool
-TypeMgr::resolveImportTypes()
-{
-	char buffer[256];
-	sl::Array<NamedImportType*> superImportTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
-
-	// new items can be added in the process of resolving
-
-	while (
-		!m_unresolvedNamedImportTypeArray.isEmpty() ||
-		!m_unresolvedImportPtrTypeArray.isEmpty() ||
-		!m_unresolvedImportIntModTypeArray.isEmpty()
-		)
-	{
-		superImportTypeArray.clear();
-
-		sl::Array<NamedImportType*> unresolvedNamedImportTypeArray = m_unresolvedNamedImportTypeArray;
-		sl::Array<ImportPtrType*> unresolvedImportPtrTypeArray = m_unresolvedImportPtrTypeArray;
-		sl::Array<ImportIntModType*> unresolvedImportIntModTypeArray = m_unresolvedImportIntModTypeArray;
-
-		m_unresolvedNamedImportTypeArray.clear();
-		m_unresolvedImportIntModTypeArray.clear();
-		m_unresolvedImportPtrTypeArray.clear();
-
-		size_t count = unresolvedNamedImportTypeArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			NamedImportType* importType = unresolvedNamedImportTypeArray[i];
-			if (!importType->isUsed()) // re-anchored and abandoned
-				continue;
-
-			Namespace* anchorNamespace = importType->m_anchorNamespace;
-			if (!importType->m_anchorName.isEmpty())
-			{
-				ModuleItem* item = anchorNamespace->findItemTraverse(importType->m_anchorName);
-				anchorNamespace = item ? item->getNamespace() : NULL;
-			}
-
-			ModuleItem* item = anchorNamespace ? anchorNamespace->findItemTraverse(importType->m_name) : NULL;
-			if (!item)
-			{
-				err::setFormatStringError("unresolved import '%s'", importType->getTypeString().sz());
-				importType->pushImportSrcPosError();
-				return false;
-			}
-
-			ModuleItemKind itemKind = item->getItemKind();
-			switch (itemKind)
-			{
-			case ModuleItemKind_Type:
-				importType->m_actualType = (Type*)item;
-				break;
-
-			case ModuleItemKind_Typedef:
-				importType->m_actualType = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
-					((Typedef*)item)->getShadowType() :
-					((Typedef*)item)->getType();
-
-				if (importType->m_actualType->getTypeKind() == TypeKind_NamedImport)
-				{
-					superImportTypeArray.append(importType);
-					continue;
-				}
-
-				break;
-
-			default:
-				err::setFormatStringError("'%s' is not a type", importType->getTypeString().sz());
-				importType->pushImportSrcPosError();
-				return false;
-			}
-
-			importType->applyFixups();
-		}
-
-		// eliminate super-imports and detect import loops
-
-		count = superImportTypeArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			NamedImportType* superImportType = superImportTypeArray[i];
-			Type* type = superImportType->resolveSuperImportType();
-			if (!type)
-				return false;
-
-			ASSERT(superImportType->m_actualType == type);
-			superImportType->applyFixups();
-		}
-
-		count = unresolvedImportIntModTypeArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			ImportIntModType* importType = unresolvedImportIntModTypeArray[i];
-
-			DeclTypeCalc typeCalc;
-
-			Type* type = typeCalc.calcIntModType(
-				importType->m_importType->m_actualType,
-				importType->m_typeModifiers
-				);
-
-			if (!type)
-				return false;
-
-			importType->m_actualType = type;
-			importType->applyFixups();
-		}
-
-		count = unresolvedImportPtrTypeArray.getCount();
-		for (size_t i = 0; i < count; i++)
-		{
-			ImportPtrType* importType = unresolvedImportPtrTypeArray[i];
-
-			DeclTypeCalc typeCalc;
-
-			Type* type = typeCalc.calcPtrType(
-				importType->m_targetType->m_actualType,
-				importType->m_typeModifiers
-				);
-
-			if (!type)
-				return false;
-
-			if (importType->getFlags() & PtrTypeFlag_Safe)
-				type = getCheckedPtrType(type);
-
-			importType->m_actualType = type;
-			importType->applyFixups();
-		}
-	}
-
-	return true;
-}
-
 BitFieldType*
 TypeMgr::getBitFieldType(
 	Type* baseType,
@@ -512,16 +371,7 @@ TypeMgr::getBitFieldType(
 	it->m_value = type;
 
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
-	{
 		((ImportType*)baseType)->addFixup(&type->m_baseType);
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	return type;
 }
@@ -537,9 +387,6 @@ TypeMgr::createAutoSizeArrayType(Type* elementType)
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)elementType)->addFixup(&type->m_elementType);
-
-	if (!m_module->m_namespaceMgr.getCurrentScope())
-		m_module->markForLayout(type, true); // can't calclayout yet
 
 	return type;
 }
@@ -560,17 +407,6 @@ TypeMgr::createArrayType(
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)elementType)->addFixup(&type->m_elementType);
-
-	if (!m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	return type;
 }
@@ -593,16 +429,7 @@ TypeMgr::getArrayType(
 	m_typeList.insertTail(type);
 
 	if (elementType->getTypeKindFlags() & TypeKindFlag_Import)
-	{
 		((ImportType*)elementType)->addFixup(&type->m_elementType);
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
 
 	it->m_value = type;
 	return type;
@@ -675,7 +502,6 @@ TypeMgr::createEnumType(
 	if (baseType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)baseType)->addFixup(&type->m_baseType);
 
-	m_module->markForLayout(type, true);
 	return type;
 }
 
@@ -700,7 +526,18 @@ TypeMgr::createStructType(
 	type->m_fieldAlignment = fieldAlignment;
 	type->m_flags |= flags;
 	m_typeList.insertTail(type);
-	m_module->markForLayout(type, true);
+	return type;
+}
+
+StructType*
+TypeMgr::createInternalStructType(
+	const sl::StringRef& tag,
+	size_t fieldAlignment,
+	uint_t flags
+	)
+{
+	StructType* type = createStructType(sl::StringRef(), tag, fieldAlignment, flags);
+	type->m_namespaceStatus = NamespaceStatus_Ready;
 	return type;
 }
 
@@ -721,14 +558,12 @@ TypeMgr::createUnionType(
 	type->addItem(type);
 #endif
 
-	m_module->markForLayout(type, true); // before child struct
-
 	type->m_module = m_module;
 	type->m_flags |= flags;
 
 	if (!(flags & TypeFlag_Dynamic))
 	{
-		StructType* unionStructType = createUnnamedStructType(type->createQualifiedName("Struct"), fieldAlignment);
+		StructType* unionStructType = createUnnamedInternalStructType(type->createQualifiedName("Struct"), fieldAlignment);
 		unionStructType->m_parentNamespace = type;
 		unionStructType->m_structTypeKind = StructTypeKind_UnionStruct;
 		type->m_structType = unionStructType;
@@ -738,77 +573,59 @@ TypeMgr::createUnionType(
 	return type;
 }
 
-ClassType*
-TypeMgr::createClassType(
-	ClassTypeKind classTypeKind,
+void
+TypeMgr::addClassType(
+	ClassType* type,
 	const sl::StringRef& name,
 	const sl::StringRef& qualifiedName,
 	size_t fieldAlignment,
 	uint_t flags
 	)
 {
-	ClassType* type;
-
-	switch (classTypeKind)
-	{
-	case ClassTypeKind_Reactor:
-		type = AXL_MEM_NEW(ReactorClassType);
-		break;
-
-	case ClassTypeKind_FunctionClosure:
-		type = AXL_MEM_NEW(FunctionClosureClassType);
-		break;
-
-	case ClassTypeKind_PropertyClosure:
-		type = AXL_MEM_NEW(PropertyClosureClassType);
-		break;
-
-	case ClassTypeKind_DataClosure:
-		type = AXL_MEM_NEW(DataClosureClassType);
-		break;
-
-	case ClassTypeKind_Multicast:
-		type = AXL_MEM_NEW(MulticastClassType);
-		m_multicastClassTypeArray.append((MulticastClassType*)type);
-		break;
-
-	case ClassTypeKind_McSnapshot:
-		type = AXL_MEM_NEW(McSnapshotClassType);
-		break;
-
-	default:
-		type = AXL_MEM_NEW(ClassType);
-	}
-
-	m_typeList.insertTail(type);
-
+	type->m_module = m_module;
 	type->m_name = name;
 	type->m_qualifiedName = qualifiedName;
-	type->m_flags |= TypeFlag_Named;
+	type->m_flags |= flags | TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
 	type->addItem(type);
 #endif
 
-	m_module->markForLayout(type, true); // before child structs
-
-	StructType* ifaceStructType = createUnnamedStructType(type->createQualifiedName("Iface"), fieldAlignment);
+	StructType* ifaceStructType = createUnnamedInternalStructType(type->createQualifiedName("Iface"), fieldAlignment);
 	ifaceStructType->m_structTypeKind = StructTypeKind_IfaceStruct;
 	ifaceStructType->m_parentNamespace = type;
 	ifaceStructType->m_storageKind = StorageKind_Member;
 
-	StructType* classStructType = createUnnamedStructType(type->createQualifiedName("Class"), fieldAlignment);
+	StructType* classStructType = createUnnamedInternalStructType(type->createQualifiedName("Class"), fieldAlignment);
 	classStructType->m_structTypeKind = StructTypeKind_ClassStruct;
 	classStructType->m_parentNamespace = type;
-	classStructType->createField("!m_box", getStdType (StdType_Box));
+	classStructType->createField("!m_box", getStdType(StdType_Box));
 	classStructType->createField("!m_iface", ifaceStructType);
 
-	type->m_module = m_module;
-	type->m_flags |= flags;
-	type->m_classTypeKind = classTypeKind;
 	type->m_ifaceStructType = ifaceStructType;
 	type->m_classStructType = classStructType;
-	return type;
+	m_typeList.insertTail(type);
+
+	if (type->m_classTypeKind == ClassTypeKind_Multicast)
+		m_multicastClassTypeArray.append((MulticastClassType*)type);
+}
+
+bool
+TypeMgr::requireExternalReturnTypes()
+{
+	bool result;
+
+	sl::HashTableIterator<DerivableType*, bool> it = m_externalReturnTypeSet.getHead();
+	for (; it; it++)
+	{
+		DerivableType* type = it->getKey();
+		result = type->requireExternalReturn();
+		if (!result)
+			return false;
+	}
+
+	m_externalReturnTypeSet.clear();
+	return true;
 }
 
 FunctionArg*
@@ -837,8 +654,8 @@ TypeMgr::createFunctionArg(
 	return functionArg;
 }
 
-StructField*
-TypeMgr::createStructField(
+Field*
+TypeMgr::createField(
 	const sl::StringRef& name,
 	Type* type,
 	size_t bitCount,
@@ -847,7 +664,7 @@ TypeMgr::createStructField(
 	sl::BoxList<Token>* initializer
 	)
 {
-	StructField* field = AXL_MEM_NEW(StructField);
+	Field* field = AXL_MEM_NEW(Field);
 	field->m_module = m_module;
 	field->m_name = name;
 	field->m_type = type;
@@ -861,7 +678,7 @@ TypeMgr::createStructField(
 	if (initializer)
 		sl::takeOver(&field->m_initializer, initializer);
 
-	m_structFieldList.insertTail(field);
+	m_fieldList.insertTail(field);
 
 	if (type->getTypeKindFlags() & TypeKindFlag_Import)
 	{
@@ -1294,8 +1111,6 @@ TypeMgr::getShortPropertyType(PropertyType* propertyType)
 ClassType*
 TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 {
-	bool result;
-
 	if (functionPtrType->m_multicastType)
 		return functionPtrType->m_multicastType;
 
@@ -1306,7 +1121,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 		return NULL;
 	}
 
-	MulticastClassType* type = (MulticastClassType*)createUnnamedClassType(ClassTypeKind_Multicast, "Multicast");
+	MulticastClassType* type = createUnnamedInternalClassType<MulticastClassType>("Multicast");
 	type->m_targetType = functionPtrType;
 	type->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1324,17 +1139,17 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 
 	bool isThin = functionPtrType->getPtrTypeKind() == FunctionPtrTypeKind_Thin;
 
-	// destrutor
+	// destructor
 
 	methodType = getFunctionType();
-	method = type->createUnnamedMethod(StorageKind_Member, FunctionKind_Destructor, methodType);
+	method = type->createUnnamedMethod(FunctionKind_Destructor, methodType);
 	method->m_flags |= ModuleItemFlag_User; // no need to generate default destructor
 	type->m_destructor = method;
 
 	// methods
 
 	methodType = getFunctionType();
-	method = type->createMethod(StorageKind_Member, "clear", methodType);
+	method = type->createMethod("clear", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Clear] = method;
 
@@ -1342,27 +1157,27 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 	argType = functionPtrType;
 	methodType = getFunctionType(returnType, &argType, 1);
 
-	method = type->createMethod(StorageKind_Member, "setup", methodType);
+	method = type->createMethod("setup", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Setup] = method;
 
-	method = type->createMethod(StorageKind_Member, "add", methodType);
+	method = type->createMethod("add", methodType);
 	type->m_methodArray[MulticastMethodKind_Add] = method;
 
 	returnType = functionPtrType;
 	argType = getPrimitiveType(TypeKind_IntPtr);
 	methodType = getFunctionType(returnType, &argType, 1);
-	method = type->createMethod(StorageKind_Member, "remove", methodType);
+	method = type->createMethod("remove", methodType);
 	type->m_methodArray[MulticastMethodKind_Remove] = method;
 
 	returnType = functionPtrType->getNormalPtrType();
 	methodType = getFunctionType(returnType, NULL, 0);
-	method = type->createMethod(StorageKind_Member, "getSnapshot", methodType);
+	method = type->createMethod("getSnapshot", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_GetSnapshot] = method;
 
 	methodType = functionPtrType->getTargetType();
-	method = type->createMethod(StorageKind_Member, "call", methodType);
+	method = type->createMethod<MulticastClassType::CallMethod>("call", methodType);
 	method->m_flags |= MulticastMethodFlag_InaccessibleViaEventPtr;
 	type->m_methodArray[MulticastMethodKind_Call] = method;
 
@@ -1376,7 +1191,7 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 
 	// snapshot closure (snapshot is shared between weak and normal multicasts)
 
-	McSnapshotClassType* snapshotType = (McSnapshotClassType*)createUnnamedClassType(ClassTypeKind_McSnapshot, "McSnapshot");
+	McSnapshotClassType* snapshotType = createUnnamedInternalClassType<McSnapshotClassType>("McSnapshot");
 	snapshotType->m_targetType = functionPtrType->getUnWeakPtrType();
 	snapshotType->m_flags |= (functionPtrType->m_flags & TypeFlag_GcRoot);
 
@@ -1388,27 +1203,9 @@ TypeMgr::getMulticastType(FunctionPtrType* functionPtrType)
 	// call method
 
 	methodType = functionPtrType->getTargetType();
-	snapshotType->m_methodArray[McSnapshotMethodKind_Call] = snapshotType->createMethod(StorageKind_Member, "call", methodType);
+	snapshotType->m_methodArray[McSnapshotMethodKind_Call] = snapshotType->createMethod<McSnapshotClassType::CallMethod>("call", methodType);
 
 	type->m_snapshotType = snapshotType;
-
-	if (!m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type);
-		m_module->markForLayout(type->m_snapshotType);
-	}
-	else
-	{
-		result =
-			type->ensureLayout  () &&
-			type->m_snapshotType->ensureLayout();
-
-		if (!result)
-			return NULL;
-	}
-
-	m_module->markForCompile(type);
-	m_module->markForCompile(type->m_snapshotType);
 
 	functionPtrType->m_multicastType = type;
 	return type;
@@ -1426,16 +1223,23 @@ TypeMgr::createReactorBaseType()
 	FunctionType* addOnEventBindingType = getFunctionType(voidType, &abstractPtrType, 1);
 
 	ClassType* type = createClassType("ReactorBase", "jnc.ReactorBase", 8, ClassTypeFlag_Opaque);
+	type->m_namespaceStatus = NamespaceStatus_Ready;
 	type->createField("m_activationCountLimit", getPrimitiveType (TypeKind_SizeT));
 
-	type->createDefaultMethod(FunctionKind_Constructor, StorageKind_Member, ModuleItemFlag_User); // no need to auto-generate ctor
-	type->createDefaultMethod(FunctionKind_Destructor, StorageKind_Member, ModuleItemFlag_User); // no need to auto-generate dtor
-	type->createMethod(StorageKind_Member, "start", simpleFunctionType);
-	type->createMethod(StorageKind_Member, "stop", simpleFunctionType);
-	type->createMethod(StorageKind_Member, "restart", simpleFunctionType);
-	type->createMethod(StorageKind_Member, "!addOnChangedBinding", addOnChangedBindingType);
-	type->createMethod(StorageKind_Member, "!addOnEventBinding", addOnEventBindingType);
-	type->createMethod(StorageKind_Member, "!resetOnChangedBindings", simpleFunctionType);
+	Function* constructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
+	constructor->m_functionKind = FunctionKind_Constructor;
+	type->addMethod(constructor);
+
+	Function* destructor = m_module->m_functionMgr.createFunction(simpleFunctionType);
+	destructor->m_functionKind = FunctionKind_Destructor;
+	type->addMethod(destructor);
+
+	type->createMethod("start", simpleFunctionType);
+	type->createMethod("stop", simpleFunctionType);
+	type->createMethod("restart", simpleFunctionType);
+	type->createMethod("!addOnChangedBinding", addOnChangedBindingType);
+	type->createMethod("!addOnEventBinding", addOnEventBindingType);
+	type->createMethod("!resetOnChangedBindings", simpleFunctionType);
 
 	return type;
 }
@@ -1447,8 +1251,7 @@ TypeMgr::createReactorType(
 	ClassType* parentType
 	)
 {
-	ReactorClassType* type = (ReactorClassType*)createClassType(ClassTypeKind_Reactor, name, qualifiedName);
-
+	ReactorClassType* type = createClassType<ReactorClassType>(name, qualifiedName);
 	type->addBaseType(getStdType(StdType_ReactorBase));
 	type->m_parentType = parentType;
 
@@ -1462,13 +1265,17 @@ TypeMgr::createReactorType(
 	}
 	else
 	{
-		Type* argTypeArray[] = { parentType->getClassPtrType(), sizeType };
+		Type* argTypeArray[] =
+		{
+			parentType->getClassPtrType(ClassPtrTypeKind_Normal, PtrTypeFlag_Safe),
+			sizeType
+		};
+
 		reactionType = getFunctionType(voidType, argTypeArray, 2);
 	}
 
-	type->m_reaction = type->createMethod(StorageKind_Member, "!reaction", reactionType);
+	type->m_reaction = type->createMethod<ReactorClassType::Reaction>("!reaction", reactionType);
 
-	m_module->markForCompile(type);
 	getStdType(StdType_ReactorClosure); // ensure closure type is created
 	return type;
 }
@@ -1476,7 +1283,7 @@ TypeMgr::createReactorType(
 FunctionClosureClassType*
 TypeMgr::createReactorClosureType()
 {
-	FunctionClosureClassType* type = (FunctionClosureClassType*)createClassType(ClassTypeKind_FunctionClosure, "ReactorClosure", "jnc.ReactorClosure");
+	FunctionClosureClassType* type = createClassType<FunctionClosureClassType>("ReactorClosure", "jnc.ReactorClosure");
 	type->m_thisArgFieldIdx = 0;
 	type->createField("m_self", type->getClassPtrType ());
 	type->createField("m_event", getStdType (StdType_BytePtr));
@@ -1494,7 +1301,7 @@ TypeMgr::getFunctionClosureClassType(
 	size_t thisArgIdx
 	)
 {
-	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = ClosureClassType::createSignature(
 		targetType,
@@ -1513,36 +1320,25 @@ TypeMgr::getFunctionClosureClassType(
 		return type;
 	}
 
-	FunctionClosureClassType* type = (FunctionClosureClassType*)createUnnamedClassType(ClassTypeKind_FunctionClosure, "FunctionClosure");
+	FunctionClosureClassType* type = createUnnamedInternalClassType<FunctionClosureClassType>("FunctionClosure");
 	type->m_signature = signature;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
 
-	type->createField("m_target", targetType->getFunctionPtrType (FunctionPtrTypeKind_Thin));
+	type->createField("m_target", targetType->getFunctionPtrType(FunctionPtrTypeKind_Thin));
 
 	sl::String argFieldName;
-
 	for (size_t i = 0; i < argCount; i++)
 	{
 		argFieldName.format("m_arg%d", i);
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Function* thunkFunction = m_module->m_functionMgr.createFunction(
-		FunctionKind_Internal,
-		sl::String(),
-		"jnc.thunkFunction",
-		thunkType
-		);
-
+	Function* thunkFunction = m_module->m_functionMgr.createInternalFunction<FunctionClosureClassType::ThunkFunction>("jnc.thunkFunction", thunkType);
 	type->addMethod(thunkFunction);
 	type->m_thunkFunction = thunkFunction;
 
-	type->ensureLayout();
-	m_module->markForCompile(type);
-
 	it->m_value = type;
-
 	return type;
 }
 
@@ -1556,7 +1352,7 @@ TypeMgr::getPropertyClosureClassType(
 	size_t thisArgIdx
 	)
 {
-	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = ClosureClassType::createSignature(
 		targetType,
@@ -1575,7 +1371,7 @@ TypeMgr::getPropertyClosureClassType(
 		return type;
 	}
 
-	PropertyClosureClassType* type = (PropertyClosureClassType*)createUnnamedClassType(ClassTypeKind_PropertyClosure, "PropertyClosure");
+	PropertyClosureClassType* type = createUnnamedInternalClassType<PropertyClosureClassType>("PropertyClosure");
 	type->m_signature = signature;
 	type->m_closureMap.copy(closureMap, argCount);
 	type->m_thisArgFieldIdx = thisArgIdx + 1;
@@ -1590,22 +1386,14 @@ TypeMgr::getPropertyClosureClassType(
 		type->createField(argFieldName, argTypeArray[i]);
 	}
 
-	Property* thunkProperty = m_module->m_functionMgr.createProperty(
-		PropertyKind_Internal,
-		sl::String(),
-		type->createQualifiedName("m_thunkProperty")
-		);
-
+	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<PropertyClosureClassType::ThunkProperty>(type->createQualifiedName("m_thunkProperty"));
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
-	thunkProperty->create(thunkType);
-
-	type->ensureLayout();
-	m_module->markForCompile(type);
+	bool result = thunkProperty->create(thunkType);
+	ASSERT(result);
 
 	it->m_value = type;
-
 	return type;
 }
 
@@ -1615,7 +1403,7 @@ TypeMgr::getDataClosureClassType(
 	PropertyType* thunkType
 	)
 {
-	ASSERT(m_module->getCompileState() > ModuleCompileState_Linked); // signatures are final
+	ASSERT(m_module->getCompileState() >= ModuleCompileState_Parsed); // signatures are final
 
 	sl::String signature = DataClosureClassType::createSignature(targetType, thunkType);
 
@@ -1627,26 +1415,18 @@ TypeMgr::getDataClosureClassType(
 		return type;
 	}
 
-	DataClosureClassType* type = (DataClosureClassType*)createUnnamedClassType(ClassTypeKind_DataClosure, "DataClosure");
+	DataClosureClassType* type = createUnnamedInternalClassType<DataClosureClassType>("DataClosure");
 	type->m_signature = signature;
 	type->createField("!m_target", targetType->getDataPtrType ());
 
-	Property* thunkProperty = m_module->m_functionMgr.createProperty(
-		PropertyKind_Internal,
-		sl::String(),
-		type->createQualifiedName("m_thunkProperty")
-		);
-
+	Property* thunkProperty = m_module->m_functionMgr.createInternalProperty<DataClosureClassType::ThunkProperty>(type->createQualifiedName("m_thunkProperty"));
 	type->addProperty(thunkProperty);
 	type->m_thunkProperty = thunkProperty;
 
-	thunkProperty->create(thunkType);
-
-	type->ensureLayout();
-	m_module->markForCompile(type);
+	bool result = thunkProperty->create(thunkType);
+	ASSERT(result);
 
 	it->m_value = type;
-
 	return type;
 }
 
@@ -1688,12 +1468,13 @@ TypeMgr::getDataPtrType(
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignment = sizeof(void*);
 	type->m_targetType = targetType;
 	type->m_flags = flags;
 
 	if (targetType->getTypeKindFlags() & TypeKindFlag_Import)
 		((ImportType*)targetType)->addFixup(&type->m_targetType);
+	else
+		type->m_flags |= ModuleItemFlag_LayoutReady;
 
 	m_typeList.insertTail(type);
 	tuple->m_ptrTypeArray[i1][i2][i3][i4][i5] = type;
@@ -1710,8 +1491,7 @@ TypeMgr::getClassPtrType(
 {
 	ASSERT((size_t)ptrTypeKind < ClassPtrTypeKind__Count);
 
-	if (typeKind == TypeKind_ClassPtr)
-		flags |= TypeFlag_GcRoot;
+	flags |= ModuleItemFlag_LayoutReady | TypeFlag_GcRoot;
 
 	ClassPtrTypeTuple* tuple;
 
@@ -1759,7 +1539,7 @@ TypeMgr::getFunctionPtrType(
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
 	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
 
-	if (typeKind == TypeKind_FunctionPtr && ptrTypeKind != FunctionPtrTypeKind_Thin)
+	if (ptrTypeKind != FunctionPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
@@ -1783,24 +1563,11 @@ TypeMgr::getFunctionPtrType(
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignment = sizeof(void*);
 	type->m_targetType = functionType;
 	type->m_flags = flags;
 
 	m_typeList.insertTail(type);
 	tuple->m_ptrTypeArray[i1][i2][i3] = type;
-
-	if (m_parseStdTypeLevel || !m_module->m_namespaceMgr.getCurrentScope())
-	{
-		m_module->markForLayout(type, true);
-	}
-	else
-	{
-		bool result = type->ensureLayout();
-		if (!result)
-			return NULL;
-	}
-
 	return type;
 }
 
@@ -1815,7 +1582,9 @@ TypeMgr::getPropertyPtrType(
 	ASSERT(typeKind == TypeKind_PropertyPtr || typeKind == TypeKind_PropertyRef);
 	ASSERT((size_t)ptrTypeKind < PropertyPtrTypeKind__Count);
 
-	if (typeKind == TypeKind_PropertyPtr && ptrTypeKind != PropertyPtrTypeKind_Thin)
+	flags |= ModuleItemFlag_LayoutReady;
+
+	if (ptrTypeKind != PropertyPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
 
 	PropertyPtrTypeTuple* tuple = getPropertyPtrTypeTuple(propertyType);
@@ -1836,7 +1605,6 @@ TypeMgr::getPropertyPtrType(
 	type->m_typeKind = typeKind;
 	type->m_ptrTypeKind = ptrTypeKind;
 	type->m_size = size;
-	type->m_alignment = sizeof(void*);
 	type->m_targetType = propertyType;
 	type->m_flags = flags;
 
@@ -1851,7 +1619,7 @@ TypeMgr::getPropertyVtableStructType(PropertyType* propertyType)
 	if (propertyType->m_vtableStructType)
 		return propertyType->m_vtableStructType;
 
-	StructType* type = createUnnamedStructType("PropertyVtable");
+	StructType* type = createUnnamedInternalStructType("PropertyVtable");
 
 	if (propertyType->getFlags() & PropertyTypeFlag_Bindable)
 		type->createField("!m_binder", propertyType->m_binderType->getFunctionPtrType (FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe));
@@ -1913,25 +1681,17 @@ TypeMgr::getNamedImportType(
 	}
 
 	m_typeList.insertTail(type);
-	m_unresolvedNamedImportTypeArray.append(type);
 	it->m_value = type;
-
 	return type;
 }
 
 ImportPtrType*
 TypeMgr::getImportPtrType(
 	NamedImportType* namedImportType,
-	uint_t typeModifiers,
-	uint_t flags
+	uint_t typeModifiers
 	)
 {
-	sl::String signature = ImportPtrType::createSignature(
-		namedImportType,
-		typeModifiers,
-		flags
-		);
-
+	sl::String signature = ImportPtrType::createSignature(namedImportType, typeModifiers);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
 	{
@@ -1945,30 +1705,19 @@ TypeMgr::getImportPtrType(
 	type->m_signature = signature;
 	type->m_targetType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
-	type->m_flags = flags;
 
 	m_typeList.insertTail(type);
-	m_unresolvedImportPtrTypeArray.append(type);
 	it->m_value = type;
-
-	namedImportType->m_flags |= ImportTypeFlag_UsedByImportType;
-
 	return type;
 }
 
 ImportIntModType*
 TypeMgr::getImportIntModType(
 	NamedImportType* namedImportType,
-	uint_t typeModifiers,
-	uint_t flags
+	uint_t typeModifiers
 	)
 {
-	sl::String signature = ImportIntModType::createSignature(
-		namedImportType,
-		typeModifiers,
-		flags
-		);
-
+	sl::String signature = ImportIntModType::createSignature(namedImportType, typeModifiers);
 	sl::StringHashTableIterator<Type*> it = m_typeMap.visit(signature);
 	if (it->m_value)
 	{
@@ -1982,42 +1731,10 @@ TypeMgr::getImportIntModType(
 	type->m_signature = signature;
 	type->m_importType = namedImportType;
 	type->m_typeModifiers = typeModifiers;
-	type->m_flags = flags;
 
 	m_typeList.insertTail(type);
-	m_unresolvedImportIntModTypeArray.append(type);
 	it->m_value = type;
-
-	namedImportType->m_flags |= ImportTypeFlag_UsedByImportType;
-
 	return type;
-}
-
-Type*
-TypeMgr::getCheckedPtrType(Type* type)
-{
-	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
-	case TypeKind_DataPtr:
-		return ((DataPtrType*)type)->getCheckedPtrType();
-
-	case TypeKind_ClassPtr:
-		return ((ClassPtrType*)type)->getCheckedPtrType();
-
-	case TypeKind_FunctionPtr:
-		return ((FunctionPtrType*)type)->getCheckedPtrType();
-
-	case TypeKind_PropertyPtr:
-		return ((PropertyPtrType*)type)->getCheckedPtrType();
-
-	case TypeKind_ImportPtr:
-		return ((ImportPtrType*)type)->getCheckedPtrType();
-
-	default:
-		ASSERT(false);
-		return type;
-	}
 }
 
 Type*
@@ -2286,9 +2003,7 @@ TypeMgr::parseStdType(
 {
 	bool result;
 
-	m_parseStdTypeLevel++;
-
-	Lexer lexer;
+	Lexer lexer(LexerMode_Parse);
 	lexer.create("jnc_StdTypes.jnc", source);
 
 	if (stdNamespace)
@@ -2324,32 +2039,8 @@ TypeMgr::parseStdType(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace();
 
-	NamedType* type = parser.m_namedType;
-	ASSERT(type);
-
-	ModuleCompileState state = m_module->getCompileState();
-	if (state >= ModuleCompileState_LayoutCalculated && m_parseStdTypeLevel == 1)
-	{
-		result = m_module->postParseStdItem();
-#if (_JNC_DEBUG)
-		if (!result)
-		{
-			printf("post-parse std type error: %s\n", err::getLastErrorDescription().sz());
-			ASSERT(false);
-		}
-#endif
-
-		// if this assert fires, rewrite std type
-
-		ASSERT(
-			m_unresolvedNamedImportTypeArray.isEmpty() &&
-			m_unresolvedImportPtrTypeArray.isEmpty() &&
-			m_unresolvedImportIntModTypeArray.isEmpty()
-			);
-	}
-
-	m_parseStdTypeLevel--;
-	return type;
+	ASSERT(parser.m_namedType);
+	return parser.m_namedType;
 }
 
 ClassType*
@@ -2357,7 +2048,8 @@ TypeMgr::createAbstractClassType()
 {
 	static sl::String typeString = "class";
 
-	ClassType* type = createClassType(ClassTypeKind_Abstract, sl::String(), "jnc.AbstractClass");
+	ClassType* type = createInternalClassType<ClassType>("jnc.AbstractClass");
+	type->m_classTypeKind = ClassTypeKind_Abstract;
 	TypeStringTuple* tuple = type->getTypeStringTuple();
 	tuple->m_typeStringPrefix = typeString;
 	tuple->m_doxyLinkedTextPrefix = typeString;
@@ -2370,7 +2062,7 @@ TypeMgr::createAbstractDataType()
 {
 	static sl::String typeString = "anydata";
 
-	StructType* type = createStructType(sl::String(), "jnc.AbstractData");
+	StructType* type = createInternalStructType("jnc.AbstractData");
 	TypeStringTuple* tuple = type->getTypeStringTuple();
 	tuple->m_typeStringPrefix = typeString;
 	tuple->m_doxyLinkedTextPrefix = typeString;
@@ -2384,7 +2076,7 @@ TypeMgr::createAbstractDataType()
 StructType*
 TypeMgr::createIfaceHdrType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.IfaceHdr");
+	StructType* type = createInternalStructType("jnc.IfaceHdr");
 	type->createField("!m_vtable", getStdType (StdType_BytePtr));
 	type->createField("!m_box", getStdType (StdType_BoxPtr));
 	type->ensureLayout();
@@ -2394,7 +2086,7 @@ TypeMgr::createIfaceHdrType()
 StructType*
 TypeMgr::createBoxType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.Box");
+	StructType* type = createInternalStructType("jnc.Box");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->ensureLayout();
@@ -2404,7 +2096,7 @@ TypeMgr::createBoxType()
 StructType*
 TypeMgr::createDataBoxType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.DataBox");
+	StructType* type = createInternalStructType("jnc.DataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
@@ -2415,7 +2107,7 @@ TypeMgr::createDataBoxType()
 StructType*
 TypeMgr::createDetachedDataBoxType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.DetachedDataBox");
+	StructType* type = createInternalStructType("jnc.DetachedDataBox");
 	type->createField("!m_type", getStdType (StdType_BytePtr));
 	type->createField("!m_flags", getPrimitiveType (TypeKind_IntPtr_u));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidator));
@@ -2427,7 +2119,7 @@ TypeMgr::createDetachedDataBoxType()
 StructType*
 TypeMgr::createDataPtrValidatorType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.DataPtrValidator");
+	StructType* type = createInternalStructType("jnc.DataPtrValidator");
 	type->createField("!m_validatorBox", getStdType (StdType_BoxPtr));
 	type->createField("!m_targetBox", getStdType (StdType_BoxPtr));
 	type->createField("!m_rangeBegin", getStdType (StdType_BytePtr));
@@ -2439,7 +2131,7 @@ TypeMgr::createDataPtrValidatorType()
 StructType*
 TypeMgr::createDataPtrStructType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.DataPtr");
+	StructType* type = createInternalStructType("jnc.DataPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_validator", getStdType (StdType_DataPtrValidatorPtr));
 	type->ensureLayout();
@@ -2449,7 +2141,7 @@ TypeMgr::createDataPtrStructType()
 StructType*
 TypeMgr::createFunctionPtrStructType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.FunctionPtr");
+	StructType* type = createInternalStructType("jnc.FunctionPtr");
 	type->createField("!m_p", getStdType (StdType_BytePtr));
 	type->createField("!m_closure", getStdType (StdType_AbstractClassPtr));
 	type->ensureLayout();
@@ -2459,7 +2151,7 @@ TypeMgr::createFunctionPtrStructType()
 StructType*
 TypeMgr::createVariantStructType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.Variant");
+	StructType* type = createInternalStructType("jnc.Variant");
 	type->createField("!m_data1", getPrimitiveType (TypeKind_IntPtr));
 	type->createField("!m_data2", getPrimitiveType (TypeKind_IntPtr));
 #if (JNC_PTR_SIZE == 4)
@@ -2473,7 +2165,7 @@ TypeMgr::createVariantStructType()
 StructType*
 TypeMgr::createGcShadowStackFrameType()
 {
-	StructType* type = createStructType(sl::String(), "jnc.GcShadowStackFrame");
+	StructType* type = createInternalStructType("jnc.GcShadowStackFrame");
 	type->createField("!m_prev", type->getDataPtrType_c ());
 	type->createField("!m_map", getStdType (StdType_BytePtr));
 	type->createField("!m_gcRootArray", getStdType (StdType_BytePtr)->getDataPtrType_c ());
@@ -2485,7 +2177,7 @@ StructType*
 TypeMgr::createSjljFrameType()
 {
 	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), sizeof(jmp_buf));
-	StructType* type = createStructType(sl::String(), "jnc.SjljFrame");
+	StructType* type = createInternalStructType("jnc.SjljFrame");
 	type->createField("!m_jmpBuf", arrayType);
 	type->ensureLayout();
 	type->m_alignment = 16; // override alignment

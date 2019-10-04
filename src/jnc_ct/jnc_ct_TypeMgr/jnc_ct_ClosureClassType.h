@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_ClassType.h"
+#include "jnc_ct_Property.h"
 
 namespace jnc {
 namespace ct {
@@ -27,11 +28,7 @@ public:
 	size_t m_thisArgFieldIdx;
 
 public:
-	ClosureClassType()
-	{
-		m_flags |= ClassTypeFlag_Closure;
-		m_thisArgFieldIdx = -1;
-	}
+	ClosureClassType();
 
 	size_t
 	getThisArgFieldIdx()
@@ -49,10 +46,6 @@ public:
 		size_t closureArgCount,
 		size_t thisArgIdx
 		);
-
-	virtual
-	bool
-	compile() = 0;
 
 	IfaceHdr*
 	strengthen(IfaceHdr* p);
@@ -74,6 +67,18 @@ class FunctionClosureClassType: public ClosureClassType
 	friend class TypeMgr;
 
 protected:
+	class ThunkFunction: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((FunctionClosureClassType*)m_parentNamespace)->compileThunkFunction(this);
+		}
+	};
+
+protected:
 	Function* m_thunkFunction;
 
 public:
@@ -85,9 +90,9 @@ public:
 		return m_thunkFunction;
 	}
 
-	virtual
+protected:
 	bool
-	compile();
+	compileThunkFunction(Function* function);
 };
 
 //..............................................................................
@@ -95,6 +100,29 @@ public:
 class PropertyClosureClassType: public ClosureClassType
 {
 	friend class TypeMgr;
+
+protected:
+	class ThunkProperty: public Property
+	{
+	protected:
+		virtual
+		Function*
+		createAccessor(
+			FunctionKind functionKind,
+			FunctionType* type
+			);
+	};
+
+	class Accessor: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((PropertyClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileAccessor(this);
+		}
+	};
 
 protected:
 	Property* m_thunkProperty;
@@ -108,10 +136,6 @@ public:
 		return m_thunkProperty;
 	}
 
-	virtual
-	bool
-	compile();
-
 protected:
 	bool
 	compileAccessor(Function* accessor);
@@ -122,6 +146,40 @@ protected:
 class DataClosureClassType: public ClassType
 {
 	friend class TypeMgr;
+
+protected:
+	class ThunkProperty: public Property
+	{
+	protected:
+		virtual
+		Function*
+		createAccessor(
+			FunctionKind functionKind,
+			FunctionType* type
+			);
+	};
+
+	class Getter: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileGetter(this);
+		}
+	};
+
+	class Setter: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((DataClosureClassType*)((Property*)m_parentNamespace)->getParentNamespace())->compileSetter(this);
+		}
+	};
 
 protected:
 	Property* m_thunkProperty;
@@ -141,10 +199,6 @@ public:
 		Type* targetType,
 		PropertyType* thunkType
 		);
-
-	virtual
-	bool
-	compile();
 
 protected:
 	bool

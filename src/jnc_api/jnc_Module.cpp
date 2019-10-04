@@ -46,15 +46,15 @@ jnc_Module_getPrimitiveType(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_ModuleItem*
-jnc_Module_findItem(
+jnc_FindModuleItemResult
+jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
 	size_t itemCacheSlot
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_findItemFunc(module, name, libGuid, itemCacheSlot);
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_findExtensionLibItemFunc(module, name, libGuid, itemCacheSlot);
 }
 
 JNC_EXTERN_C
@@ -116,6 +116,32 @@ jnc_Module_addOpaqueClassTypeInfo(
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addOpaqueClassTypeInfoFunc(module, qualifiedName, info);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Module_require(
+	jnc_Module* module,
+	jnc_ModuleItemKind itemKind,
+	const char* name,
+	bool_t isEssential
+	)
+{
+	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireFunc(module, itemKind, name, isEssential);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Module_requireType(
+	jnc_Module* module,
+	jnc_TypeKind typeKind,
+	const char* name,
+	bool_t isEssential
+	)
+{
+	jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_requireTypeFunc(module, typeKind, name, isEssential);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -204,8 +230,8 @@ jnc_Module_getStdType(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_ModuleItem*
-jnc_Module_findItem(
+jnc_FindModuleItemResult
+jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
@@ -311,6 +337,32 @@ jnc_Module_addStaticLib(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+void
+jnc_Module_require(
+	jnc_Module* module,
+	jnc_ModuleItemKind itemKind,
+	const char* name,
+	bool_t isEssential
+	)
+{
+	module->require(itemKind, name, isEssential);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Module_requireType(
+	jnc_Module* module,
+	jnc_TypeKind typeKind,
+	const char* name,
+	bool_t isEssential
+	)
+{
+	module->require(typeKind, name, isEssential);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 bool_t
 jnc_Module_parse(
 	jnc_Module* module,
@@ -344,22 +396,6 @@ bool_t
 jnc_Module_parseImports(jnc_Module* module)
 {
 	return module->parseImports();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_Module_link(jnc_Module* module)
-{
-	return module->link();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_Module_calcLayout(jnc_Module* module)
-{
-	return module->calcLayout();
 }
 
 JNC_EXTERN_C
@@ -405,13 +441,11 @@ jnc_Module_generateDocumentation(
 	const char* outputDir
 	)
 {
-	return
-		module->link() &&
-		module->m_doxyModule.generateDocumentation(
-			outputDir,
-			"index.xml",
-			JNC_GLOBAL_NAMESPACE_DOXID ".xml"
-			);
+	return module->m_doxyModule.generateDocumentation(
+		outputDir,
+		"index.xml",
+		JNC_GLOBAL_NAMESPACE_DOXID ".xml"
+		);
 }
 
 JNC_EXTERN_C

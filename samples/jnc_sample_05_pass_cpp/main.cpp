@@ -70,14 +70,12 @@ main(
 	jnc::AutoModule module;
 	module->initialize("jnc_sample_05_pass_cpp");
 	module->addStaticLib(jnc::StdLib_getLib());
+	module->require(jnc::ModuleItemKind_Function, "foo");
 
 	if (argc < 2)
 	{
 		printf("Parsing default script...\n");
-
-		result =
-			module->parse("script.jnc", g_script, sizeof(g_script) - 1) &&
-			module->parseImports();
+		result = module->parse("script.jnc", g_script, sizeof(g_script) - 1);
 	}
 	else
 	{
@@ -89,12 +87,10 @@ main(
 		const char* fileName = argv[1];
 #endif
 		printf("Parsing '%s'...\n", fileName);
-
-		result =
-			module->parseFile(fileName) &&
-			module->parseImports();
+		result = module->parseFile(fileName);
 	}
 
+	result = result && module->parseImports();
 	if (!result)
 	{
 		printf("%s\n", jnc::getLastErrorDescription_v ());
@@ -115,12 +111,8 @@ main(
 	}
 
 	jnc::Namespace* nspace = module->getGlobalNamespace()->getNamespace();
-	jnc::Function* fooFunction = nspace->findFunction("foo", true);
-	if (!fooFunction)
-	{
-		printf("%s\n", jnc::getLastErrorDescription_v ());
-		return Error_Compile;
-	}
+	jnc::Function* fooFunction = (jnc::Function*)nspace->findItem("foo").m_item;
+	JNC_ASSERT(fooFunction && fooFunction->getItemKind() == jnc::ModuleItemKind_Function);
 
 	printf("Running...\n");
 

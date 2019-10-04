@@ -21,6 +21,11 @@ namespace ct {
 class Cast_ClassPtr: public CastOperator
 {
 public:
+	Cast_ClassPtr()
+	{
+		m_opFlags = OpFlag_EnsurePtrTargetLayout;
+	}
+
 	virtual
 	CastKind
 	getCastKind(

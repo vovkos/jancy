@@ -40,10 +40,6 @@ opaque class Namespace: ModuleItemDecl
 	size_t const property m_itemCount;
 	ModuleItem* const property m_itemArray(size_t index);
 	ModuleItem* findItem(char const* name);
-	Variable* findVariable(char const* name);
-	Function* findFunction(char const* name);
-	Property* findProperty(char const* name);
-	ClassType* findClassType(char const* name);
 
 	construct(intptr p);
 }

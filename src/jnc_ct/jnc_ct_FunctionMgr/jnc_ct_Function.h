@@ -104,7 +104,7 @@ public:
 
 class Function:
 	public ModuleItem,
-	public ModuleItemDecl,
+	public ModuleItemBodyDecl,
 	public ModuleItemInitializer,
 	public FunctionName
 {
@@ -112,7 +112,7 @@ class Function:
 	friend class Unit;
 	friend class FunctionMgr;
 	friend class TypeMgr;
-	friend class NamedTypeBlock;
+	friend class MemberBlock;
 	friend class DerivableType;
 	friend class StructType;
 	friend class ClassType;
@@ -149,7 +149,6 @@ protected:
 
 	ExtensionNamespace* m_extensionNamespace;
 
-	sl::BoxList<Token> m_body;
 	UsingSet m_usingSet;
 
 	BasicBlock* m_allocaBlock;
@@ -267,21 +266,6 @@ public:
 	void
 	convertToMemberMethod(DerivableType* parentType);
 
-	bool
-	hasBody()
-	{
-		return !m_body.isEmpty();
-	}
-
-	sl::ConstBoxList<Token>
-	getBody()
-	{
-		return m_body;
-	}
-
-	bool
-	setBody(sl::BoxList<Token>* tokenList);
-
 	void
 	addUsingSet(UsingSet* usingSet);
 
@@ -304,6 +288,12 @@ public:
 	getPrologueBlock()
 	{
 		return m_prologueBlock;
+	}
+
+	bool
+	hasLlvmFunction()
+	{
+		return m_llvmFunction != NULL;
 	}
 
 	llvm::Function*
@@ -363,6 +353,18 @@ public:
 
 	Function*
 	chooseOverload(
+		Closure* closure,
+		FunctionArg* const* argArray,
+		size_t argCount,
+		CastKind* castKind = NULL
+		)
+	{
+		size_t i = m_typeOverload.chooseOverload(closure, argArray, argCount, castKind);
+		return i != -1 ? getOverload(i) : NULL;
+	}
+
+	Function*
+	chooseOverload(
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
@@ -370,6 +372,25 @@ public:
 	{
 		size_t i = m_typeOverload.chooseOverload(argArray, argCount, castKind);
 		return i != -1 ? getOverload(i) : NULL;
+	}
+
+	Function*
+	chooseOverload(
+		Closure* closure,
+		const sl::ArrayRef<FunctionArg*>& argArray,
+		CastKind* castKind = NULL
+		)
+	{
+		return chooseOverload(closure, argArray, argArray.getCount(), castKind);
+	}
+
+	Function*
+	chooseOverload(
+		const sl::ArrayRef<FunctionArg*>& argArray,
+		CastKind* castKind = NULL
+		)
+	{
+		return chooseOverload(argArray, argArray.getCount(), castKind);
 	}
 
 	Function*
@@ -426,6 +447,16 @@ public:
 	size_t
 	addOverload(Function* function);
 
+	bool
+	canCompile()
+	{
+		return hasBody() || hasInitializer() || (m_flags & (m_flags & ModuleItemFlag_Compilable));
+	}
+
+	virtual
+	bool
+	require();
+
 	virtual
 	bool
 	compile();
@@ -444,12 +475,6 @@ protected:
 
 	void
 	prepareLlvmDiSubprogram();
-
-	bool
-	compileConstructorBody();
-
-	bool
-	compileNormalBody();
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -473,6 +498,17 @@ Function::getLlvmDiSubprogram()
 
 	return m_llvmDiSubprogram;
 }
+
+//..............................................................................
+
+class CompilableFunction: public Function
+{
+public:
+	CompilableFunction()
+	{
+		m_flags |= ModuleItemFlag_Compilable;
+	}
+};
 
 //..............................................................................
 

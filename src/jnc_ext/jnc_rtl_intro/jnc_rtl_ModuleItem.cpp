@@ -12,8 +12,8 @@
 #include "pch.h"
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_Construct.h"
-#include "jnc_Runtime.h"
 #include "jnc_rt_Runtime.h"
+#include "jnc_Runtime.h"
 
 namespace jnc {
 namespace rtl {
@@ -155,7 +155,7 @@ getModuleItem(ct::ModuleItem* item)
 		StdType_Property,         // ModuleItemKind_Property
 		StdType_ModuleItem,       // ModuleItemKind_PropertyTemplate
 		StdType_EnumConst,        // ModuleItemKind_EnumConst
-		StdType_StructField,      // ModuleItemKind_StructField
+		StdType_Field,      // ModuleItemKind_Field
 		StdType_BaseTypeSlot,     // ModuleItemKind_BaseTypeSlot
 		StdType_ModuleItem,       // ModuleItemKind_Orphan
 		StdType_ModuleItem,       // ModuleItemKind_Lazy

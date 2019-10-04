@@ -46,12 +46,23 @@ class ReactorClassType: public ClassType
 	friend class Parser;
 
 protected:
+	class Reaction: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((ReactorClassType*)m_parentNamespace)->compileReaction(this);
+		}
+	};
+
+protected:
 	ClassType* m_parentType;
 	size_t m_parentOffset;
 	size_t m_reactionCount;
 	Function* m_reaction;
 	sl::SimpleHashTable<size_t, Function*> m_onEventMap;
-	sl::BoxList<Token> m_body;
 
 public:
 	ReactorClassType();
@@ -92,21 +103,6 @@ public:
 		return m_onEventMap.findValue(reactionIdx, NULL);
 	}
 
-	bool
-	hasBody()
-	{
-		return !m_body.isEmpty();
-	}
-
-	sl::ConstBoxList<Token>
-	getBody()
-	{
-		return m_body;
-	}
-
-	bool
-	setBody(sl::BoxList<Token>* tokenList);
-
 protected:
 	virtual
 	bool
@@ -114,7 +110,10 @@ protected:
 
 	virtual
 	bool
-	compile();
+	prepareForOperatorNew();
+
+	bool
+	compileReaction(Function* function);
 };
 
 //..............................................................................

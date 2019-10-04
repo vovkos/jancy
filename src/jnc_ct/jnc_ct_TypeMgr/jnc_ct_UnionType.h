@@ -41,10 +41,6 @@ public:
 	}
 
 	virtual
-	bool
-	compile();
-
-	virtual
 	void
 	markGcRoots(
 		const void* p,
@@ -56,7 +52,7 @@ public:
 
 protected:
 	virtual
-	StructField*
+	Field*
 	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,

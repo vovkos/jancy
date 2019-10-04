@@ -34,7 +34,7 @@ opaque class BaseTypeSlot:
 
 opaque class DerivableType:
 	NamedType,
-	NamedTypeBlock
+	MemberBlock
 {
 	size_t const property m_baseTypeCount;
 	BaseTypeSlot* const property m_baseTypeArray(size_t index);

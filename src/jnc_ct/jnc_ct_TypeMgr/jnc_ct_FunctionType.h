@@ -51,7 +51,6 @@ protected:
 	sl::String m_argSignature;
 	FunctionType* m_shortType;
 	FunctionType* m_stdObjectMemberMethodType;
-	Function* m_abstractFunction;
 	FunctionPtrTypeTuple* m_functionPtrTypeTuple;
 
 public:
@@ -130,9 +129,6 @@ public:
 	FunctionType*
 	getStdObjectMemberMethodType();
 
-	Function*
-	getAbstractFunction();
-
 	FunctionPtrType*
 	getFunctionPtrType(
 		TypeKind typeKind,
@@ -198,14 +194,14 @@ public:
 		return createArgSignature(m_argArray, m_argArray.getCount(), m_flags);
 	}
 
-	virtual
-	bool
-	compile();
-
 	sl::String
 	getDoxyArgString();
 
 protected:
+	virtual
+	bool
+	calcLayout();
+
 	virtual
 	void
 	prepareSignature()

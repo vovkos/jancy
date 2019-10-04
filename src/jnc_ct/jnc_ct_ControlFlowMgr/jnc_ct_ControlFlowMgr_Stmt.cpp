@@ -31,7 +31,7 @@ bool
 ControlFlowMgr::ifStmt_Condition(
 	IfStmt* stmt,
 	const Value& value,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	bool result = conditionalJump(value, stmt->m_thenBlock, stmt->m_elseBlock);
@@ -45,7 +45,7 @@ ControlFlowMgr::ifStmt_Condition(
 void
 ControlFlowMgr::ifStmt_Else(
 	IfStmt* stmt,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	m_module->m_namespaceMgr.closeScope();
@@ -75,7 +75,7 @@ bool
 ControlFlowMgr::switchStmt_Condition(
 	SwitchStmt* stmt,
 	const Value& value,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	bool result = m_module->m_operatorMgr.castOperator(value, TypeKind_Int, &stmt->m_value);
@@ -99,7 +99,7 @@ bool
 ControlFlowMgr::switchStmt_Case(
 	SwitchStmt* stmt,
 	intptr_t value,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	uint_t scopeFlags
 	)
 {
@@ -124,7 +124,7 @@ ControlFlowMgr::switchStmt_Case(
 bool
 ControlFlowMgr::switchStmt_Default(
 	SwitchStmt* stmt,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	uint_t scopeFlags
 	)
 {
@@ -183,7 +183,7 @@ ControlFlowMgr::reSwitchStmt_Condition(
 	const Value& regexStateValue,
 	const Value& dataValue,
 	const Value& sizeValue,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
@@ -225,7 +225,7 @@ bool
 ControlFlowMgr::reSwitchStmt_Case(
 	ReSwitchStmt* stmt,
 	const sl::StringRef& regexSource,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	uint_t scopeFlags
 	)
 {
@@ -249,7 +249,7 @@ ControlFlowMgr::reSwitchStmt_Case(
 bool
 ControlFlowMgr::reSwitchStmt_Default(
 	ReSwitchStmt* stmt,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	uint_t scopeFlags
 	)
 {
@@ -336,8 +336,8 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 	m_module->m_controlFlowMgr.setCurrentBlock(stmt->m_switchBlock);
 
 	ClassType* regexStateType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_RegexState);
-	Function* execFunc = regexStateType->findFunctionByName("exec");
-	ASSERT(execFunc);
+	Function* execFunc = (Function*)regexStateType->findItem("exec").m_item;
+	ASSERT(execFunc && execFunc->getItemKind() == ModuleItemKind_Function);
 
 	Value dfaValue(&dfa, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 	Value resultValue;
@@ -380,7 +380,7 @@ bool
 ControlFlowMgr::whileStmt_Condition(
 	WhileStmt* stmt,
 	const Value& value,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	m_module->m_operatorMgr.gcSafePoint();
@@ -412,7 +412,7 @@ ControlFlowMgr::doStmt_Create(DoStmt* stmt)
 void
 ControlFlowMgr::doStmt_PreBody(
 	DoStmt* stmt,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	m_module->m_operatorMgr.gcSafePoint();
@@ -452,7 +452,7 @@ ControlFlowMgr::forStmt_Create(ForStmt* stmt)
 void
 ControlFlowMgr::forStmt_PreInit(
 	ForStmt* stmt,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	stmt->m_scope = m_module->m_namespaceMgr.openScope(pos);
@@ -518,7 +518,7 @@ ControlFlowMgr::forStmt_PostBody(ForStmt* stmt)
 bool
 ControlFlowMgr::onceStmt_Create(
 	OnceStmt* stmt,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	StorageKind storageKind
 	)
 {
@@ -532,13 +532,6 @@ ControlFlowMgr::onceStmt_Create(
 
 	flagVariable = m_module->m_variableMgr.createOnceFlagVariable(storageKind);
 	flagVariable->m_pos = pos;
-
-	if (storageKind == StorageKind_Static)
-	{
-		BasicBlock* block = setCurrentBlock(m_module->getConstructor()->getPrologueBlock());
-		m_module->m_operatorMgr.zeroInitialize(flagVariable);
-		setCurrentBlock(block);
-	}
 
 	onceStmt_Create(stmt, flagVariable);
 	return true;
@@ -557,7 +550,7 @@ ControlFlowMgr::onceStmt_Create(
 bool
 ControlFlowMgr::onceStmt_PreBody(
 	OnceStmt* stmt,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	bool result;
@@ -649,7 +642,7 @@ ControlFlowMgr::onceStmt_PreBody(
 void
 ControlFlowMgr::onceStmt_PostBody(
 	OnceStmt* stmt,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	StorageKind storageKind = stmt->m_flagVariable->getStorageKind();

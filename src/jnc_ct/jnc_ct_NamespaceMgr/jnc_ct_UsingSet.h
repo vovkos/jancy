@@ -19,7 +19,6 @@ namespace jnc {
 namespace ct {
 
 class NamespaceMgr;
-class Namespace;
 class GlobalNamespace;
 class ExtensionNamespace;
 class NamedType;
@@ -46,14 +45,10 @@ public:
 	clear();
 
 	void
-	append(
-		NamespaceMgr* importNamespaceMgr,
-		const UsingSet* src
-		);
+	append(const UsingSet* src);
 
 	bool
 	addNamespace(
-		NamespaceMgr* importNamespaceMgr,
 		Namespace* anchorNamespace,
 		NamespaceKind namespaceKind,
 		const QualifiedName& name
@@ -71,17 +66,24 @@ public:
 		m_extensionNamespaceArray.append(nspace);
 	}
 
-	bool
-	resolveImportNamespaces();
-
-	ModuleItem*
+	FindModuleItemResult
 	findItem(const sl::StringRef& name);
 
-	ModuleItem*
+	FindModuleItemResult
 	findExtensionItem(
 		NamedType* type,
 		const sl::StringRef& name
 		);
+
+protected:
+	bool
+	ensureResolved()
+	{
+		return m_importNamespaceList.isEmpty() ? true : resolve();
+	}
+
+	bool
+	resolve();
 };
 
 //..............................................................................

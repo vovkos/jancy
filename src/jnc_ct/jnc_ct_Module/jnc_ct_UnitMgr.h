@@ -11,12 +11,10 @@
 
 #pragma once
 
-#include "jnc_ct_AttributeMgr.h"
+#include "jnc_Def.h"
 
 namespace jnc {
 namespace ct {
-
-class Module;
 
 //..............................................................................
 
@@ -33,9 +31,6 @@ protected:
 	sl::String m_dir;
 
 	llvm::DIFile_vn m_llvmDiFile;
-
-	Function* m_constructor;
-	Function* m_destructor;
 
 public:
 	Unit();
@@ -75,24 +70,6 @@ public:
 	{
 		return m_llvmDiFile;
 	}
-
-	Function*
-	getConstructor() const
-	{
-		return m_constructor;
-	}
-
-	bool
-	setConstructor(Function* function);
-
-	Function*
-	getDestructor() const
-	{
-		return m_destructor;
-	}
-
-	bool
-	setDestructor(Function* function);
 };
 
 //..............................................................................
@@ -118,7 +95,7 @@ public:
 	void
 	clear();
 
-	sl::ConstList<Unit>
+	const sl::List<Unit>&
 	getUnitList()
 	{
 		return m_unitList;

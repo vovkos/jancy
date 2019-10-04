@@ -37,7 +37,7 @@ declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
-	:	resolver ('=' '{')
+	:	resolver ('=' ('{' | TokenKind_Body))
 		declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
@@ -46,9 +46,9 @@ declarator_list_terminator<
 			{
 				return bodylessDeclaration();
 			}
-	|	declaration_body_pass1
+	|	TokenKind_Body
 			{
-				return declare($declarator) && setDeclarationBody(&$1.m_tokenList);
+				return declare($declarator) && setDeclarationBody($1.m_pos, $1.m_data.m_string);
 			}
 	;
 
@@ -110,10 +110,6 @@ declarator_qualifier<Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Setter);
 			}
-	|	TokenKind_PreConstruct
-			{
-				return $declarator->addUnnamedMethod(FunctionKind_PreConstructor);
-			}
 	|	TokenKind_Construct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
@@ -125,10 +121,6 @@ declarator_qualifier<Declarator* $declarator>
 	|	TokenKind_Static TokenKind_Construct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
-			}
-	|	TokenKind_Static TokenKind_Destruct
-			{
-				return $declarator->addUnnamedMethod(FunctionKind_StaticDestructor);
 			}
 	|	TokenKind_Operator declarator_operator_qualifier<$declarator>
 	;

@@ -26,40 +26,16 @@ Orphan::Orphan()
 	m_functionType = NULL;
 }
 
-bool
-Orphan::setBody(sl::BoxList<Token>* tokenList)
-{
-	if (!m_body.isEmpty())
-	{
-		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
-		return false;
-	}
-
-	sl::takeOver(&m_body, tokenList);
-	return true;
-}
-
 void
 Orphan::addUsingSet(Namespace* anchorNamespace)
 {
-	NamespaceMgr* importNamespaceMgr = m_module->getCompileState() < ModuleCompileState_Linked ?
-		&m_module->m_namespaceMgr :
-		NULL;
-
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
-		m_usingSet.append(importNamespaceMgr, nspace->getUsingSet());
+		m_usingSet.append(nspace->getUsingSet());
 }
 
 bool
-Orphan::resolveOrphan()
+Orphan::adopt(ModuleItem* item)
 {
-	ModuleItem* item = m_parentNamespace->findItemTraverse(m_declaratorName);
-	if (!item)
-	{
-		err::setFormatStringError("unresolved orphan '%s'", getQualifiedName().sz());
-		return false;
-	}
-
 	switch (m_orphanKind)
 	{
 	case OrphanKind_Function:
@@ -105,9 +81,6 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 		DerivableType* type = (DerivableType*)item;
 		switch (m_functionKind)
 		{
-		case FunctionKind_PreConstructor:
-			return type->getPreConstructor();
-
 		case FunctionKind_Constructor:
 			return type->getConstructor();
 
@@ -134,6 +107,7 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 bool
 Orphan::adoptOrphanFunction(ModuleItem* item)
 {
+	bool result;
 	Function* originFunction = NULL;
 
 	ModuleItemKind itemKind = item->getItemKind();
@@ -166,6 +140,10 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 		}
 	}
 
+	result = m_functionType->ensureLayout();
+	if (!result)
+		return false;
+
 	originFunction = originFunction->findShortOverload(m_functionType);
 	if (!originFunction)
 	{
@@ -187,7 +165,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	FunctionType* originType = originFunction->getType();
 	if (originType->getFlags() & ModuleItemFlag_User)
 	{
-		bool result = copyArgNames(originType);
+		result = copyArgNames(originType);
 		if (!result)
 			return false;
 	}
@@ -206,7 +184,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	}
 
 	return
-		originFunction->setBody(&m_body) &&
+		originFunction->setBody(m_bodyPos, m_body) &&
 		verifyStorageKind(originFunction);
 }
 
@@ -222,8 +200,8 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 		itemType = ((Variable*)item)->getType();
 		break;
 
-	case ModuleItemKind_StructField:
-		itemType = ((StructField*)item)->getType();
+	case ModuleItemKind_Field:
+		itemType = ((Field*)item)->getType();
 		break;
 	}
 
@@ -241,7 +219,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 	originReaction->addUsingSet(&m_usingSet);
 
 	return
-		originType->setBody(&m_body) &&
+		originType->setBody(m_bodyPos, m_body) &&
 		verifyStorageKind(originReaction);
 }
 

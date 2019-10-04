@@ -29,8 +29,10 @@ ControlFlowMgr::ControlFlowMgr()
 	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
 	m_catchFinallyFollowBlock = NULL;
+	m_emissionLockBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
+	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
 }
@@ -47,12 +49,35 @@ ControlFlowMgr::clear()
 	m_catchFinallyFollowBlock = NULL;
 	m_returnBlock = NULL;
 	m_dynamicThrowBlock = NULL;
+	m_emissionLockBlock = NULL;
 	m_finallyRouteIdxVariable = NULL;
 	m_returnValueVariable = NULL;
+	m_emissionLockCount = 0;
 	m_finallyRouteIdx = -1;
 	m_sjljFrameCount = 0;
 	m_sjljFrameArrayValue.clear();
 	m_prevSjljFrameValue.clear();
+}
+
+void
+ControlFlowMgr::lockEmission()
+{
+	if (++m_emissionLockCount != 1)
+		return;
+
+	ASSERT(!m_emissionLockBlock);
+	m_emissionLockBlock = setCurrentBlock(getUnreachableBlock());
+}
+
+void
+ControlFlowMgr::unlockEmission()
+{
+	if (--m_emissionLockCount)
+		return;
+
+	ASSERT(m_emissionLockBlock);
+	setCurrentBlock(m_emissionLockBlock);
+	m_emissionLockBlock = NULL;
 }
 
 void

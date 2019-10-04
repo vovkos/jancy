@@ -49,10 +49,7 @@ AttributeBlock::createAttribute(
 	attribute->m_name = name;
 
 	if (initializer)
-	{
 		sl::takeOver(&attribute->m_initializer, initializer);
-		m_module->markForLayout(attribute);
-	}
 
 	m_attributeList.insertTail(attribute);
 	m_attributeArray.append(attribute);

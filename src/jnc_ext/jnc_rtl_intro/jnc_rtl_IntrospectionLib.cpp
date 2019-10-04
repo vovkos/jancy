@@ -13,6 +13,7 @@
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_rtl_AttributeBlock.h"
 #include "jnc_rtl_Namespace.h"
+#include "jnc_rtl_Field.h"
 #include "jnc_rtl_Type.h"
 #include "jnc_rtl_ArrayType.h"
 #include "jnc_rtl_BitFieldType.h"
@@ -64,7 +65,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_IntrospectionLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Type)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DataPtrType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedType)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedTypeBlock)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(MemberBlock)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(BaseTypeSlot)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(DerivableType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ArrayType)
@@ -77,7 +78,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_IntrospectionLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(EnumType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ClassType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ClassPtrType)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(StructField)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Field)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(StructType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(UnionType)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Alias)
@@ -99,7 +100,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_IntrospectionLib)
 	JNC_MAP_STD_TYPE(StdType_Type, Type)
 	JNC_MAP_STD_TYPE(StdType_DataPtrType, DataPtrType)
 	JNC_MAP_STD_TYPE(StdType_NamedType, NamedType)
-	JNC_MAP_STD_TYPE(StdType_NamedTypeBlock, NamedTypeBlock)
+	JNC_MAP_STD_TYPE(StdType_MemberBlock, MemberBlock)
 	JNC_MAP_STD_TYPE(StdType_BaseTypeSlot, BaseTypeSlot)
 	JNC_MAP_STD_TYPE(StdType_DerivableType, DerivableType)
 	JNC_MAP_STD_TYPE(StdType_ArrayType, ArrayType)
@@ -112,7 +113,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_IntrospectionLib)
 	JNC_MAP_STD_TYPE(StdType_EnumType, EnumType)
 	JNC_MAP_STD_TYPE(StdType_ClassType, ClassType)
 	JNC_MAP_STD_TYPE(StdType_ClassPtrType, ClassPtrType)
-	JNC_MAP_STD_TYPE(StdType_StructField, StructField)
+	JNC_MAP_STD_TYPE(StdType_Field, Field)
 	JNC_MAP_STD_TYPE(StdType_StructType, StructType)
 	JNC_MAP_STD_TYPE(StdType_UnionType, UnionType)
 	JNC_MAP_STD_TYPE(StdType_Alias, Alias)

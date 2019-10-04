@@ -11,9 +11,10 @@
 
 #include "pch.h"
 #include "jnc_ct_OperatorMgr.h"
-#include "jnc_ct_Module.h"
 #include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_UnionType.h"
+#include "jnc_ct_DynamicLibNamespace.h"
+#include "jnc_ct_Module.h"
 
 namespace jnc {
 namespace ct {
@@ -26,9 +27,11 @@ OperatorMgr::createMemberClosure(
 	ModuleItemDecl* itemDecl
 	)
 {
+	ValueKind valueKind = value->getValueKind();
+
 	Value thisValue;
 
-	bool result = value->getValueKind() == ValueKind_Type ?
+	bool result = valueKind == ValueKind_Type || valueKind == ValueKind_FunctionTypeOverload ?
 		getThisValueType(&thisValue, itemDecl) :
 		getThisValue(&thisValue, itemDecl);
 
@@ -159,8 +162,11 @@ OperatorMgr::getNamespaceMemberType(
 	)
 {
 	MemberCoord coord;
-	ModuleItem* item = nspace->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-	if (!item)
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName().sz());
 		return false;
@@ -168,8 +174,9 @@ OperatorMgr::getNamespaceMemberType(
 
 	bool result = true;
 	ModuleItemDecl* decl = NULL;
-
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -224,9 +231,9 @@ OperatorMgr::getNamespaceMemberType(
 		decl = (EnumConst*)item;
 		break;
 
-	case ModuleItemKind_StructField:
-		resultValue->setField((StructField*)item, coord.m_offset);
-		decl = (StructField*)item;
+	case ModuleItemKind_Field:
+		resultValue->setField((Field*)item, coord.m_offset);
+		decl = (Field*)item;
 		break;
 
 	default:
@@ -247,18 +254,22 @@ OperatorMgr::getNamespaceMember(
 	Value* resultValue
 	)
 {
-	ModuleItem* item = nspace->findItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
-	if (!item)
+	bool result;
+
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName().sz());
 		return false;
 	}
 
-	bool result = true;
 	ModuleItemDecl* decl = NULL;
-	Function* function;
-
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	if (itemKind == ModuleItemKind_Alias)
 	{
 		item = ((Alias*)item)->getTargetItem();
@@ -276,6 +287,9 @@ OperatorMgr::getNamespaceMember(
 	case ModuleItemKind_Typedef:
 		item = ((Typedef*)item)->getType();
 		result = checkAccess((Typedef*)item);
+		if (!result)
+			return false;
+
 		// and fall through
 
 	case ModuleItemKind_Type:
@@ -295,15 +309,25 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Function:
+		Function* function;
 		function = (Function*)item;
-
 		if (function->isVirtual())
 		{
+			if (function->isOverloaded())
+			{
+				err::setError("referencing overloaded virtual functions is not supported yet");
+				return false;
+			}
+
 			if (function->getStorageKind() == StorageKind_Abstract)
 			{
 				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz());
 				return false;
 			}
+
+			result = function->getType()->ensureLayout();
+			if (!result)
+				return false;
 
 			resultValue->setLlvmValue(
 				function->getLlvmFunction(),
@@ -311,15 +335,21 @@ OperatorMgr::getNamespaceMember(
 				);
 
 			result = createMemberClosure(resultValue);
-		}
-		else if (function->isMember())
-		{
-			resultValue->setFunction(function);
-			result = createMemberClosure(resultValue);
+			if (!result)
+				return false;
 		}
 		else
 		{
-			resultValue->setFunction(function);
+			result = resultValue->trySetFunction((Function*)item);
+			if (!result)
+				return false;
+
+			if (function->isMember())
+			{
+				result = createMemberClosure(resultValue);
+				if (!result)
+					return false;
+			}
 		}
 
 		decl = function;
@@ -334,11 +364,10 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_EnumConst:
-		result = ((EnumConst*)item)->getParentEnumType()->ensureLayout();
+		result = resultValue->trySetEnumConst((EnumConst*)item);
 		if (!result)
 			return false;
 
-		resultValue->setEnumConst((EnumConst*)item);
 		decl = (EnumConst*)item;
 		break;
 
@@ -359,16 +388,20 @@ OperatorMgr::getNamedTypeMemberType(
 	)
 {
 	MemberCoord coord;
-	ModuleItem* member = namedType->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-	if (!member)
+	FindModuleItemResult findResult = namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
 
 	ModuleItemDecl* decl = NULL;
-
+	ModuleItem* member = findResult.m_item;
 	ModuleItemKind memberKind = member->getItemKind();
+
 	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -376,9 +409,9 @@ OperatorMgr::getNamedTypeMemberType(
 		decl = (GlobalNamespace*)member;
 		break;
 
-	case ModuleItemKind_StructField:
+	case ModuleItemKind_Field:
 		{
-		StructField* field = (StructField*)member;
+		Field* field = (Field*)member;
 		decl = field;
 
 		size_t baseOffset = 0;
@@ -404,11 +437,17 @@ OperatorMgr::getNamedTypeMemberType(
 		break;
 		}
 
-	case ModuleItemKind_Function:
-		resultValue->setType(((Function*)member)->getType()->getShortType()->getFunctionPtrType(
-			TypeKind_FunctionRef,
-			FunctionPtrTypeKind_Thin
+	case ModuleItemKind_Variable:
+		resultValue->setType(((Variable*)member)->getType()->getDataPtrType(
+			TypeKind_DataRef,
+			DataPtrTypeKind_Thin
 			));
+
+		decl = (Function*)member;
+		break;
+
+	case ModuleItemKind_Function:
+		resultValue->setFunctionTypeOverload(((Function*)member)->getTypeOverload());
 		decl = (Function*)member;
 		break;
 
@@ -417,6 +456,7 @@ OperatorMgr::getNamedTypeMemberType(
 			TypeKind_PropertyRef,
 			PropertyPtrTypeKind_Thin
 			));
+
 		decl = (Property*)member;
 		break;
 
@@ -436,19 +476,27 @@ OperatorMgr::getNamedTypeMember(
 	Value* resultValue
 	)
 {
-	bool result;
+	bool result = namedType->ensureLayout();
+	if (!result)
+		return false;
 
 	MemberCoord coord;
-	ModuleItem* member = namedType->findItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-	if (!member)
+	FindModuleItemResult findResult = namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
+		namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
+
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
 
 	ModuleItemDecl* decl = NULL;
-
+	ModuleItem* member = findResult.m_item;
 	ModuleItemKind memberKind = member->getItemKind();
+
 	switch (memberKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -456,13 +504,21 @@ OperatorMgr::getNamedTypeMember(
 		decl = (GlobalNamespace*)member;
 		break;
 
-	case ModuleItemKind_StructField:
+	case ModuleItemKind_Field:
 		return
-			getField(opValue, (StructField*)member, &coord, resultValue) &&
-			finalizeMemberOperator(opValue, (StructField*)member, resultValue);
+			getField(opValue, (Field*)member, &coord, resultValue) &&
+			finalizeMemberOperator(opValue, (Field*)member, resultValue);
+
+	case ModuleItemKind_Variable:
+		resultValue->setVariable((Variable*)member);
+		decl = (Variable*)member;
+		break;
 
 	case ModuleItemKind_Function:
-		resultValue->setFunction((Function*)member);
+		result = resultValue->trySetFunction((Function*)member);
+		if (!result)
+			return false;
+
 		decl = (Function*)member;
 		break;
 
@@ -472,7 +528,7 @@ OperatorMgr::getNamedTypeMember(
 		break;
 
 	default:
-		err::setFormatStringError("invalid member kind");
+		err::setFormatStringError("invalid member kind '%s'", getModuleItemKindString(memberKind));
 		return false;
 	}
 
@@ -517,13 +573,6 @@ OperatorMgr::getEnumTypeMemberType(
 	Value* resultValue
 	)
 {
-	ModuleItem* member = enumType->findItem(name);
-	if (!member)
-	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
-		return false;
-	}
-
 	Type* resultType = (enumType->getFlags() & EnumTypeFlag_BitFlag) ?
 		enumType :
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
@@ -540,15 +589,18 @@ OperatorMgr::getEnumTypeMember(
 	Value* resultValue
 	)
 {
-	ModuleItem* member = enumType->findItem(name);
-	if (!member)
+	FindModuleItemResult findResult = enumType->findItem(name);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), enumType->getTypeString().sz());
 		return false;
 	}
 
-	ASSERT(member->getItemKind() == ModuleItemKind_EnumConst);
-	EnumConst* enumConst = (EnumConst*)member;
+	ASSERT(findResult.m_item->getItemKind() == ModuleItemKind_EnumConst);
+	EnumConst* enumConst = (EnumConst*)findResult.m_item;
 	Value memberValue(enumConst->getValue(), enumType);
 	BinOpKind binOpKind = (enumType->getFlags() & EnumTypeFlag_BitFlag) ? BinOpKind_BwAnd : BinOpKind_Eq;
 
@@ -613,11 +665,22 @@ OperatorMgr::getMemberOperatorResultType(
 	Value* resultValue
 	)
 {
+	bool result;
+
 	if (rawOpValue.getValueKind() == ValueKind_Namespace)
 		return getNamespaceMemberType(rawOpValue.getNamespace(), name, resultValue);
 
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepEnum);
+	result = prepareOperandType(
+		rawOpValue,
+		&opValue,
+		OpFlag_KeepDataRef |
+		OpFlag_KeepEnum |
+		OpFlag_EnsurePtrTargetLayout
+		);
+
+	if (!result)
+		return false;
 
 	Type* type = opValue.getType();
 	if (type->getTypeKind() == TypeKind_DataRef)
@@ -625,9 +688,14 @@ OperatorMgr::getMemberOperatorResultType(
 
 	if (type->getTypeKind() == TypeKind_DataPtr)
 	{
-		type = ((DataPtrType*)type)->getTargetType();
+		result = getUnaryOperatorResultType(UnOpKind_Indir, &opValue);
+		if (!result)
+			return false;
 
-		bool result = getUnaryOperatorResultType(UnOpKind_Indir, &opValue);
+		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
+		type = ((DataPtrType*)opValue.getType())->getTargetType();
+
+		result = type->ensureLayout();
 		if (!result)
 			return false;
 	}
@@ -640,12 +708,14 @@ OperatorMgr::getMemberOperatorResultType(
 		return getNamedTypeMemberType(opValue, (NamedType*)type, name, resultValue);
 
 	case TypeKind_ClassPtr:
-		prepareOperandType(&opValue);
-		return getNamedTypeMemberType(opValue, ((ClassPtrType*)type)->getTargetType(), name, resultValue);
+		return
+			prepareOperandType(&opValue) &&
+			getNamedTypeMemberType(opValue, ((ClassPtrType*)type)->getTargetType(), name, resultValue);
 
 	case TypeKind_Enum:
-		prepareOperandType(&opValue);
-		return getEnumTypeMemberType(opValue, (EnumType*)type, name, resultValue);
+		return
+			prepareOperandType(&opValue) &&
+			getEnumTypeMemberType(opValue, (EnumType*)type, name, resultValue);
 
 	case TypeKind_Variant:
 		resultValue->setType(m_module->m_typeMgr.getSimplePropertyType(type)); // variant property
@@ -665,14 +735,22 @@ OperatorMgr::memberOperator(
 	)
 {
 	Value opValue;
-	bool result = prepareOperand(rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepClassRef);
+
+	bool result = prepareOperand(
+		rawOpValue,
+		&opValue,
+		OpFlag_KeepDataRef |
+		OpFlag_KeepClassRef |
+		OpFlag_EnsurePtrTargetLayout
+		);
+
 	if (!result)
 		return false;
 
 	Type* type = opValue.getType();
 	TypeKind typeKind = type->getTypeKind();
 
-	StructField* field;
+	Field* field;
 
 	switch (typeKind)
 	{
@@ -800,9 +878,14 @@ OperatorMgr::memberOperator(
 
 	if (type->getTypeKind() == TypeKind_DataPtr)
 	{
-		type = ((DataPtrType*)type)->getTargetType();
-
 		result = unaryOperator(UnOpKind_Indir, &opValue);
+		if (!result)
+			return false;
+
+		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
+		type = ((DataPtrType*)opValue.getType())->getTargetType();
+
+		result = type->ensureLayout();
 		if (!result)
 			return false;
 	}

@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_UsingSet.h"
+#include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_Module.h"
 
 namespace jnc {
@@ -27,82 +28,86 @@ UsingSet::clear()
 }
 
 void
-UsingSet::append(
-	NamespaceMgr* importNamespaceMgr,
-	const UsingSet* src
-	)
+UsingSet::append(const UsingSet* src)
 {
 	m_globalNamespaceArray.append(src->m_globalNamespaceArray);
 	m_extensionNamespaceArray.append(src->m_extensionNamespaceArray);
 
-	if (!src->m_importNamespaceList.isEmpty())
+	sl::ConstIterator<ImportNamespace> it = src->m_importNamespaceList.getHead();
+	for (; it; it++)
 	{
-		ASSERT(importNamespaceMgr);
-		if (m_importNamespaceList.isEmpty())
-			importNamespaceMgr->addImportUsingSet(this);
-
-		sl::ConstIterator<ImportNamespace> it = src->m_importNamespaceList.getHead();
-		for (; it; it++)
-		{
-			ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
-			*importNamespace = **it;
-			m_importNamespaceList.insertTail(importNamespace);
-		}
+		ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
+		*importNamespace = **it;
+		m_importNamespaceList.insertTail(importNamespace);
 	}
 }
 
-ModuleItem* UsingSet::findItem(const sl::StringRef& name)
+FindModuleItemResult
+UsingSet::findItem(const sl::StringRef& name)
 {
+	bool result = ensureResolved();
+	if (!result)
+		return g_errorFindModuleItemResult;
+
 	size_t count = m_globalNamespaceArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		ModuleItem* item = m_globalNamespaceArray[i]->findItem(name);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = m_globalNamespaceArray[i]->findDirectChildItem(name);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
-	return NULL;
+	return g_nullFindModuleItemResult;
 }
 
-ModuleItem* UsingSet::findExtensionItem(
+FindModuleItemResult
+UsingSet::findExtensionItem(
 	NamedType* type,
 	const sl::StringRef& name
 	)
 {
+	bool result = ensureResolved();
+	if (!result)
+		return g_errorFindModuleItemResult;
+
 	size_t count = m_extensionNamespaceArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
 		ExtensionNamespace* nspace = m_extensionNamespaceArray[i];
+		result = nspace->ensureNamespaceReady();
+		if (!result)
+			return g_errorFindModuleItemResult;
+
 		if (nspace->getType()->cmp(type) == 0)
 		{
-			ModuleItem* item = nspace->findItem(name);
-			if (item)
-				return item;
+			FindModuleItemResult findResult = nspace->findDirectChildItem(name);
+			if (!findResult.m_result || findResult.m_item)
+				return findResult;
 		}
 	}
 
-	return NULL;
+	return g_nullFindModuleItemResult;
 }
 
 bool
 UsingSet::addNamespace(
-	NamespaceMgr* importNamespaceMgr,
 	Namespace* anchorNamespace,
 	NamespaceKind namespaceKind,
 	const QualifiedName& name
 	)
 {
-	ModuleItem* item = anchorNamespace->findItemTraverse(name);
-	if (!item)
+	FindModuleItemResult findResult = anchorNamespace->findItemTraverse(name);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
-		if (!importNamespaceMgr)
+		Module* module = anchorNamespace->getModuleItem()->getModule();
+		if (module->getCompileState() >= ModuleCompileState_Parsed)
 		{
-			err::setFormatStringError("undeclared identifier '%s'", name.getFullName ().sz());
+			err::setFormatStringError("namespace '%s' not found", name.getFullName());
 			return false;
 		}
-
-		if (m_importNamespaceList.isEmpty())
-			importNamespaceMgr->addImportUsingSet(this);
 
 		ImportNamespace* importNamespace = AXL_MEM_NEW(ImportNamespace);
 		importNamespace->m_anchorNamespace = anchorNamespace;
@@ -112,13 +117,13 @@ UsingSet::addNamespace(
 		return true;
 	}
 
-	if (item->getItemKind() != ModuleItemKind_Namespace)
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace)
 	{
-		err::setFormatStringError("'%s' is not a namespace", name.getFullName ().sz());
+		err::setFormatStringError("'%s' is a %s, not a namespace", name.getFullName ().sz(), getModuleItemKindString(findResult.m_item->getItemKind()));
 		return false;
 	}
 
-	GlobalNamespace* nspace = (GlobalNamespace*)item;
+	GlobalNamespace* nspace = (GlobalNamespace*)findResult.m_item;
 	if (nspace->getNamespaceKind() != namespaceKind)
 	{
 		err::setFormatStringError("'%s' is not %s", name.getFullName ().sz(), getNamespaceKindString(namespaceKind));
@@ -144,17 +149,21 @@ UsingSet::addNamespace(
 }
 
 bool
-UsingSet::resolveImportNamespaces()
+UsingSet::resolve()
 {
+	bool result;
+
 	while (!m_importNamespaceList.isEmpty())
 	{
 		ImportNamespace* importNamespace = m_importNamespaceList.removeHead();
-		addNamespace(
-			NULL,
+		result = addNamespace(
 			importNamespace->m_anchorNamespace,
 			importNamespace->m_namespaceKind,
 			importNamespace->m_name
 			);
+
+		if (!result)
+			return false;
 
 		AXL_MEM_DELETE(importNamespace);
 	}

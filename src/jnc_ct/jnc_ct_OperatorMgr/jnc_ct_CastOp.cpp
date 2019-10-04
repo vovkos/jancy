@@ -55,11 +55,27 @@ setCastError(
 		break;
 	}
 
-	return err::setFormatStringError(
-		format,
-		opValue.getValueKind() == ValueKind_Null ? "null" : opValue.getType ()->getTypeString().sz(),
-		dstType->getTypeString().sz()
-		);
+	sl::StringRef opValueString;
+	ValueKind valueKind = opValue.getValueKind();
+	switch (valueKind)
+	{
+	case ValueKind_Null:
+		opValueString = "null";
+		break;
+
+	case ValueKind_FunctionOverload:
+		opValueString = opValue.getFunction()->getQualifiedName();
+		break;
+
+	case ValueKind_FunctionTypeOverload:
+		opValueString = "overloaded-function";
+		break;
+
+	default:
+		opValueString = opValue.getType ()->getTypeString();
+	}
+
+	return err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());
 }
 
 err::Error
@@ -182,7 +198,11 @@ Cast_Master::getCastKind(
 
 	uint_t opFlags = op->getOpFlags();
 	if (opFlags != m_opFlags)
-		m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags);
+	{
+		bool result = m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags);
+		if (!result)
+			return CastKind_None;
+	}
 
 	return op->getCastKind(opValue, type);
 }
@@ -270,7 +290,11 @@ Cast_SuperMaster::getCastKind(
 
 	uint_t opFlags1 = operator1->getOpFlags();
 	if (opFlags1 != m_opFlags)
-		m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags1);
+	{
+		result = m_module->m_operatorMgr.prepareOperandType(&opValue, opFlags1);
+		if (!result)
+			return CastKind_None;
+	}
 
 	if (!operator2)
 		return operator1->getCastKind(opValue, type);

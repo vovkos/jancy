@@ -112,6 +112,13 @@ public:
 
 protected:
 	virtual
+	bool
+	calcLayout()
+	{
+		return m_targetType->ensureLayout();
+	}
+
+	virtual
 	void
 	prepareSignature()
 	{

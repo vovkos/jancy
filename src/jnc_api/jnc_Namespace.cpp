@@ -65,50 +65,13 @@ jnc_Namespace_getItem(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Variable*
-jnc_Namespace_findVariable(
+jnc_FindModuleItemResult
+jnc_Namespace_findItem(
 	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
+	const char* name
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findVariableFunc(nspace, name, isRequired);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_Namespace_findFunction(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findFunctionFunc(nspace, name, isRequired);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Property*
-jnc_Namespace_findProperty(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findPropertyFunc(nspace, name, isRequired);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_ClassType*
-jnc_Namespace_findClassType(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findClassTypeFunc(nspace, name, isRequired);
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_findItemFunc(nspace, name);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -118,7 +81,7 @@ JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace)
 {
-	return nspace->getItemCount();
+	return nspace->getItemArray().getCount();
 }
 
 JNC_EXTERN_C
@@ -129,63 +92,18 @@ jnc_Namespace_getItem(
 	size_t index
 	)
 {
-	return nspace->getItem(index);
+	return nspace->getItemArray()[index];
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Variable*
-jnc_Namespace_findVariable(
+jnc_FindModuleItemResult
+jnc_Namespace_findItem(
 	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
+	const char* name
 	)
 {
-	return isRequired ?
-		nspace->getVariableByName(name) :
-		nspace->findVariableByName(name);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_Namespace_findFunction(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return isRequired ?
-		nspace->getFunctionByName(name) :
-		nspace->findFunctionByName(name);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Property*
-jnc_Namespace_findProperty(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return isRequired ?
-		nspace->getPropertyByName(name) :
-		nspace->findPropertyByName(name);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_ClassType*
-jnc_Namespace_findClassType(
-	jnc_Namespace* nspace,
-	const char* name,
-	bool_t isRequired
-	)
-{
-	return isRequired ?
-		nspace->getClassTypeByName(name) :
-		nspace->findClassTypeByName(name);
+	return nspace->findItem(name);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

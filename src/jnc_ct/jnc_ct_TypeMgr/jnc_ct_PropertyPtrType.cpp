@@ -23,7 +23,7 @@ PropertyPtrType::PropertyPtrType()
 {
 	m_typeKind = TypeKind_PropertyPtr;
 	m_ptrTypeKind = PropertyPtrTypeKind_Normal;
-	m_size = sizeof(PropertyPtr);
+	m_alignment = sizeof(void*);
 	m_targetType = NULL;
 }
 

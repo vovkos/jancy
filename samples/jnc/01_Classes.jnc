@@ -34,17 +34,9 @@ public:
 
 	static construct();
 
-	// preconstructors are called before each constructor overload
-	// (similar to Java initializer blocks)
-
-	preconstruct()
-	{
-		printf("C1.preconstruct ()\n");
-	}
-
 	construct()
 	{
-		printf("C1.construct ()\n");
+		printf("C1.construct()\n");
 	}
 
 	// overloaded constructor
@@ -56,7 +48,7 @@ public:
 
 	destruct()
 	{
-		printf("C1.destruct ()\n");
+		printf("C1.destruct()\n");
 	}
 
 	// overloaded '+=' operator
@@ -81,7 +73,7 @@ C1.construct(
 	int y
 	)
 {
-	printf("C1.construct (%d, %d)\n", x, y);
+	printf("C1.construct(%d, %d)\n", x, y);
 	m_x = x;
 	m_y = y;
 }
@@ -114,6 +106,7 @@ int main()
 	// in Jancy what *is* a pointer, must *look like* a pointer
 
 	C1* p = new C1;
+	printf("p = { %d, %d }\n", p.m_x, p.m_y);
 
 	return 0;
 }

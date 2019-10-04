@@ -20,7 +20,7 @@ namespace ct {
 
 class ExtensionNamespace: public GlobalNamespace
 {
-	friend class NamespaceMgr;
+	friend class Parser;
 
 protected:
 	Type* m_type;
@@ -48,7 +48,7 @@ public:
 protected:
 	virtual
 	bool
-	calcLayout();
+	parseBody();
 
 	void
 	fixupMethod(Function* function);

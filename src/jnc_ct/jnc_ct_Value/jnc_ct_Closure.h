@@ -91,7 +91,6 @@ public:
 	PropertyPtrType*
 	getPropertyClosureType(PropertyPtrType* ptrType);
 
-protected:
 	bool
 	getArgTypeArray(
 		Module* module,

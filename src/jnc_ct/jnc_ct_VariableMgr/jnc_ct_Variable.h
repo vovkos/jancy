@@ -11,14 +11,14 @@
 
 #pragma once
 
-#include "jnc_ct_Type.h"
+#include "jnc_ct_ModuleItem.h"
 #include "jnc_ct_LlvmIrInsertPoint.h"
 
 namespace jnc {
 namespace ct {
 
 class Scope;
-class StructField;
+class Field;
 class LeanDataPtrValidator;
 
 //..............................................................................
@@ -42,6 +42,9 @@ class Variable:
 {
 	friend class VariableMgr;
 	friend class FunctionMgr;
+	friend class MemberBlock;
+	friend class Property;
+	friend class Type;
 	friend class Parser;
 	friend class Module;
 
@@ -50,15 +53,14 @@ protected:
 	uint_t m_ptrTypeFlags;
 	sl::BoxList<Token> m_constructor;
 	Scope* m_scope;
-	StructField* m_tlsField;
+	Field* m_tlsField;
 	void* m_staticData;
 	ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	sl::String m_llvmGlobalVariableName;
 	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
-	llvm::Value* m_llvmValue;       // GlobalVariable* / AllocaInst* / GEPInst* / CallInst*
-	llvm::DIVariable_vn m_llvmDiDescriptor;  // DIVariable / DIGlobalVariable
-
-	llvm::AllocaInst* m_llvmPreLiftValue; // we have to keep original allocas until the very end
+	llvm::Value* m_llvmValue;                   // GlobalVariable* / AllocaInst* / GEPInst* / CallInst*
+	llvm::DIVariable_vn m_llvmDiDescriptor;     // DIVariable / DIGlobalVariable
+	llvm::AllocaInst* m_llvmPreLiftValue;       // we have to keep original allocas until the very end
 
 public:
 	LlvmIrInsertPoint m_liftInsertPoint;
@@ -90,7 +92,7 @@ public:
 		return m_scope;
 	}
 
-	StructField*
+	Field*
 	getTlsField()
 	{
 		ASSERT(m_storageKind == StorageKind_Tls);
@@ -106,6 +108,7 @@ public:
 	llvm::GlobalVariable*
 	getLlvmGlobalVariable()
 	{
+		ASSERT(m_llvmGlobalVariable);
 		return m_llvmGlobalVariable;
 	}
 
@@ -116,15 +119,6 @@ public:
 	getLlvmDiDescriptor()
 	{
 		return m_llvmDiDescriptor;
-	}
-
-	bool
-	isInitializationNeeded()
-	{
-		return
-			!m_constructor.isEmpty() ||
-			!m_initializer.isEmpty() ||
-			m_type->getTypeKind() == TypeKind_Class; // static class variable
 	}
 
 	virtual
@@ -149,6 +143,16 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
+llvm::Value*
+Variable::getLlvmValue()
+{
+	if (!m_llvmValue)
+		prepareLlvmValue();
+
+	return m_llvmValue;
+}
+
+inline
 void*
 Variable::getStaticData()
 {
@@ -166,16 +170,6 @@ Variable::getLeanDataPtrValidator()
 		prepareLeanDataPtrValidator();
 
 	return m_leanDataPtrValidator;
-}
-
-inline
-llvm::Value*
-Variable::getLlvmValue()
-{
-	if (!m_llvmValue)
-		prepareLlvmValue();
-
-	return m_llvmValue;
 }
 
 //..............................................................................

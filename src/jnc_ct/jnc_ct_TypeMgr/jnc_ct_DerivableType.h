@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_ct_NamedTypeBlock.h"
+#include "jnc_ct_MemberBlock.h"
 
 namespace jnc {
 namespace ct {
@@ -123,9 +123,59 @@ public:
 
 class DerivableType:
 	public NamedType,
-	public NamedTypeBlock
+	public MemberBlock
 {
 	friend class Parser;
+
+protected:
+	class DefaultStaticConstructor: public CompilableFunction
+	{
+	public:
+		DefaultStaticConstructor()
+		{
+			m_functionKind = FunctionKind_StaticConstructor;
+			m_storageKind = StorageKind_Static;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((DerivableType*)m_parentNamespace)->compileDefaultStaticConstructor();
+		}
+	};
+
+	class DefaultConstructor: public CompilableFunction
+	{
+	public:
+		DefaultConstructor()
+		{
+			m_functionKind = FunctionKind_Constructor;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((DerivableType*)m_parentNamespace)->compileDefaultConstructor();
+		}
+	};
+
+	class DefaultDestructor: public CompilableFunction
+	{
+	public:
+		DefaultDestructor()
+		{
+			m_functionKind = FunctionKind_Destructor;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((DerivableType*)m_parentNamespace)->compileDefaultDestructor();
+		}
+	};
 
 protected:
 	// base types
@@ -220,12 +270,6 @@ public:
 	}
 
 	Function*
-	getPreConstructor()
-	{
-		return m_preconstructor;
-	}
-
-	Function*
 	getDefaultConstructor();
 
 	Function*
@@ -280,7 +324,7 @@ public:
 	Property*
 	chooseIndexerProperty(const Value& opValue);
 
-	StructField*
+	Field*
 	getFieldByIndex(size_t index);
 
 	virtual
@@ -299,6 +343,20 @@ public:
 
 	virtual
 	bool
+	require()
+	{
+		return ensureLayout() && requireConstructor();
+	}
+
+	virtual
+	bool
+	requireExternalReturn()
+	{
+		return DerivableType::require();
+	}
+
+	virtual
+	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
@@ -306,18 +364,15 @@ public:
 		);
 
 protected:
+	virtual
+	bool
+	parseBody();
+
 	Property*
 	getIndexerProperty(Type* argType);
 
-	ModuleItem*
+	FindModuleItemResult
 	findItemInExtensionNamespaces(const sl::StringRef& name);
-
-	Function*
-	createDefaultMethod(
-		FunctionKind functionKind,
-		StorageKind storageKind = StorageKind_Member,
-		uint_t flags = 0
-		);
 
 	bool
 	compileDefaultStaticConstructor();
@@ -329,6 +384,9 @@ protected:
 	compileDefaultDestructor();
 
 	bool
+	requireConstructor();
+
+	bool
 	findBaseTypeTraverseImpl(
 		Type* type,
 		BaseTypeCoord* coord,
@@ -336,35 +394,24 @@ protected:
 		);
 
 	virtual
-	ModuleItem*
-	findItemTraverseImpl(
+	FindModuleItemResult
+	findDirectChildItemTraverse(
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
 		)
 	{
-		return findItemTraverseImpl(name, coord, flags, 0);
+		return findDirectChildItemTraverse(name, coord, flags, 0);
 	}
 
-	ModuleItem*
-	findItemTraverseImpl(
+	FindModuleItemResult
+	findDirectChildItemTraverse(
 		const sl::StringRef& name,
 		MemberCoord* coord,
 		uint_t flags,
 		size_t baseTypeLevel
 		);
 };
-
-//..............................................................................
-
-JNC_INLINE
-bool
-isConstructibleType(Type* type)
-{
-	return
-		(type->getTypeKindFlags() & TypeKindFlag_Derivable) &&
-		((DerivableType*)type)->getConstructor() != NULL;
-}
 
 //..............................................................................
 

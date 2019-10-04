@@ -13,6 +13,7 @@
 #include "jnc_ct_ImportType.h"
 #include "jnc_ct_Decl.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_DeclTypeCalc.h"
 
 namespace jnc {
 namespace ct {
@@ -29,6 +30,22 @@ ImportType::applyFixups()
 		*m_fixupArray[i] = m_actualType;
 }
 
+bool
+ImportType::ensureResolved()
+{
+	if (m_actualType)
+		return true;
+
+	if (m_flags & ImportTypeFlag_InResolve)
+	{
+		err::setFormatStringError("can't resolve '%s' due to recursion", getTypeString().sz());
+		return false;
+	}
+
+	m_flags |= ImportTypeFlag_InResolve;
+	return resolve();
+}
+
 //..............................................................................
 
 NamedImportType::NamedImportType()
@@ -38,12 +55,9 @@ NamedImportType::NamedImportType()
 }
 
 ImportPtrType*
-NamedImportType::getImportPtrType(
-	uint_t typeModifiers,
-	uint_t flags
-	)
+NamedImportType::getImportPtrType(uint_t typeModifiers)
 {
-	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers, flags);
+	return m_module->m_typeMgr.getImportPtrType(this, typeModifiers);
 }
 
 sl::String
@@ -64,32 +78,69 @@ NamedImportType::createSignature(
 	return signature;
 }
 
-void
-NamedImportType::pushImportSrcPosError()
+bool
+NamedImportType::resolve()
 {
-	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
-}
-
-Type*
-NamedImportType::resolveSuperImportType()
-{
-	if (m_actualType->getTypeKind() != TypeKind_NamedImport)
-		return m_actualType;
-
-	if (m_flags & ImportTypeFlag_ImportLoop)
+	Namespace* anchorNamespace = m_anchorNamespace;
+	if (!m_anchorName.isEmpty())
 	{
-		err::setFormatStringError("'%s': import loop detected", getQualifiedName().sz());
-		return NULL;
+		FindModuleItemResult findResult = anchorNamespace->findItemTraverse(m_anchorName);
+		if (!findResult.m_result)
+		{
+			pushSrcPosError();
+			return false;
+		}
+
+		anchorNamespace = findResult.m_item ? findResult.m_item->getNamespace() : NULL;
 	}
 
-	m_flags |= ImportTypeFlag_ImportLoop;
-	Type* result = ((NamedImportType*)m_actualType)->resolveSuperImportType();
-	m_flags &= ~ImportTypeFlag_ImportLoop;
+	FindModuleItemResult findResult = anchorNamespace ? anchorNamespace->findItemTraverse(m_name) : g_nullFindModuleItemResult;
+	if (!findResult.m_result)
+	{
+		pushSrcPosError();
+		return false;
+	}
 
-	if (result)
-		m_actualType = result;
+	if (!findResult.m_item)
+	{
+		err::setFormatStringError("unresolved import '%s'", getTypeString().sz());
+		pushSrcPosError();
+		return false;
+	}
 
-	return result;
+	ModuleItem* item = findResult.m_item;
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind)
+	{
+	case ModuleItemKind_Type:
+		m_actualType = (Type*)item;
+		break;
+
+	case ModuleItemKind_Typedef:
+		m_actualType = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
+			((Typedef*)item)->getShadowType() :
+			((Typedef*)item)->getType();
+		break;
+
+	default:
+		err::setFormatStringError("'%s' is not a type", getTypeString().sz());
+		pushSrcPosError();
+		return false;
+	}
+
+	if (m_actualType->getTypeKindFlags() & TypeKindFlag_Import)
+	{
+		ImportType* type = (ImportType*)m_actualType;
+		bool result = ((ImportType*)type)->ensureResolved();
+		if (!result)
+			return false;
+
+		m_actualType = type->getActualType();
+		ASSERT(!(m_actualType->getTypeKindFlags() & TypeKindFlag_Import));
+	}
+
+	applyFixups();
+	return true;
 }
 
 //..............................................................................
@@ -126,6 +177,22 @@ ImportPtrType::prepareTypeString()
 	tuple->m_typeStringPrefix += '*';
 }
 
+bool
+ImportPtrType::resolve()
+{
+	bool result = m_targetType->ensureResolved();
+	if (!result)
+		return false;
+
+	DeclTypeCalc typeCalc;
+	m_actualType = typeCalc.calcPtrType(m_targetType->getActualType(), m_typeModifiers);
+	if (!m_actualType)
+		return false;
+
+	applyFixups();
+	return true;
+}
+
 //..............................................................................
 
 ImportIntModType::ImportIntModType()
@@ -155,6 +222,22 @@ ImportIntModType::prepareTypeString()
 	}
 
 	tuple->m_typeStringPrefix += m_importType->getQualifiedName();
+}
+
+bool
+ImportIntModType::resolve()
+{
+	bool result = m_importType->ensureResolved();
+	if (!result)
+		return false;
+
+	DeclTypeCalc typeCalc;
+	m_actualType = typeCalc.calcIntModType(m_importType->getActualType(), m_typeModifiers);
+	if (!m_actualType)
+		return false;
+
+	applyFixups();
+	return true;
 }
 
 //..............................................................................

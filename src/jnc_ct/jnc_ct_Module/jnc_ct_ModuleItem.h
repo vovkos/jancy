@@ -13,6 +13,7 @@
 
 #include "jnc_ModuleItem.h"
 #include "jnc_ct_Lexer.h"
+#include "jnc_ct_UnitMgr.h"
 
 namespace jnc {
 namespace ct {
@@ -37,7 +38,13 @@ protected:
 	sl::BoxList<Token> m_initializer;
 
 public:
-	sl::ConstBoxList<Token>
+	bool
+	hasInitializer()
+	{
+		return !m_initializer.isEmpty();
+	}
+
+	const sl::BoxList<Token>&
 	getInitializer()
 	{
 		return m_initializer;
@@ -58,7 +65,7 @@ class ModuleItemPos
 
 protected:
 	Unit* m_parentUnit;
-	Token::Pos m_pos;
+	lex::LineCol m_pos;
 
 public:
 	ModuleItemPos()
@@ -72,10 +79,16 @@ public:
 		return m_parentUnit;
 	}
 
-	const Token::Pos*
+	const lex::LineCol&
 	getPos() const
 	{
-		return &m_pos;
+		return m_pos;
+	}
+
+	void
+	pushSrcPosError()
+	{
+		lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
 	}
 };
 
@@ -147,9 +160,6 @@ public:
 		return m_doxyBlock;
 	}
 
-	void
-	pushSrcPosError();
-
 protected:
 	void
 	prepareQualifiedName();
@@ -169,6 +179,50 @@ ModuleItemDecl::getQualifiedName()
 
 	return m_qualifiedName;
 }
+
+//..............................................................................
+
+class ModuleItemBodyDecl: public ModuleItemDecl
+{
+	friend class Parser;
+
+protected:
+	lex::LineCol m_bodyPos;
+	sl::StringRef m_body;
+	sl::BoxList<Token> m_tokenList;
+
+public:
+	bool
+	hasBody() const
+	{
+		return !m_body.isEmpty();
+	}
+
+	const lex::LineCol&
+	getBodyPos() const
+	{
+		return m_bodyPos;
+	}
+
+	const sl::StringRef&
+	getBody() const
+	{
+		return m_body;
+	}
+
+	bool
+	setBody(
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
+
+	bool
+	setTokenList(sl::BoxList<Token>* tokenList);
+
+protected:
+	bool
+	canSetBody();
+};
 
 //..............................................................................
 
@@ -217,15 +271,12 @@ public:
 	Type*
 	getType();
 
-	bool
-	ensureLayout();
-
 	virtual
 	bool
-	compile()
+	require()
 	{
-		ASSERT(false);
-		return true;
+		err::setFormatStringError("don't know how to require '%s'", getModuleItemKindString(m_itemKind));
+		return false;
 	}
 
 	virtual
@@ -242,15 +293,6 @@ public:
 	virtual
 	sl::String
 	createDoxyRefId();
-
-protected:
-	virtual
-	bool
-	calcLayout()
-	{
-		ASSERT(false);
-		return true;
-	}
 };
 
 //..............................................................................
@@ -292,69 +334,6 @@ public:
 	ModuleItem*
 	getActualItem() = 0;
 };
-
-//..............................................................................
-
-ModuleItem*
-verifyModuleItemKind(
-	ModuleItem* item,
-	ModuleItemKind itemKind,
-	const sl::StringRef& name
-	);
-
-JNC_INLINE
-Type*
-verifyModuleItemIsType(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-{
-	return (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
-}
-
-DerivableType*
-verifyModuleItemIsDerivableType(
-	ModuleItem* item,
-	const sl::StringRef& name
-	);
-
-ClassType*
-verifyModuleItemIsClassType(
-	ModuleItem* item,
-	const sl::StringRef& name
-	);
-
-JNC_INLINE
-Variable*
-verifyModuleItemIsVariable(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-
-{
-	return (Variable*)verifyModuleItemKind(item, ModuleItemKind_Variable, name);
-}
-
-JNC_INLINE
-Function*
-verifyModuleItemIsFunction(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-
-{
-	return (Function*)verifyModuleItemKind(item, ModuleItemKind_Function, name);
-}
-
-JNC_INLINE
-Property*
-verifyModuleItemIsProperty(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-{
-	return (Property*)verifyModuleItemKind(item, ModuleItemKind_Property, name);
-}
 
 //..............................................................................
 

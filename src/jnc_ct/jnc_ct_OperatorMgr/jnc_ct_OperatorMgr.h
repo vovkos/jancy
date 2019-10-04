@@ -220,29 +220,24 @@ public:
 		return m_unsafeEnterCount > 0;
 	}
 
-	// load reference, get property, enum->int, bool->int, array->ptr -- unless specified otherwise with Flags
+	// ensure ptr/ref target layout, load ref, get property, enum->int, bool->int, array->ptr
+	// all that unless specified otherwise with Flags
 
-	void
+	bool
 	prepareOperandType(
 		const Value& opValue,
 		Value* resultValue,
 		uint_t opFlags = 0
 		);
 
-	void
+	bool
 	prepareOperandType(
 		Value* opValue,
 		uint_t opFlags = 0
 		)
 	{
-		prepareOperandType(*opValue, opValue, opFlags);
+		return prepareOperandType(*opValue, opValue, opFlags);
 	}
-
-	Type*
-	prepareOperandType(
-		const Value& opValue,
-		uint_t opFlags = 0
-		);
 
 	bool
 	prepareOperand(
@@ -259,9 +254,6 @@ public:
 	{
 		return prepareOperand(*opValue, opValue, opFlags);
 	}
-
-	bool
-	prepareArgumentReturnValue(Value* value);
 
 	bool
 	prepareDataPtr(
@@ -487,10 +479,21 @@ public:
 
 	CastKind
 	getArgCastKind(
+		Closure* closure,
 		FunctionType* functionType,
 		FunctionArg* const* argArray,
 		size_t argCount
 		);
+
+	CastKind
+	getArgCastKind(
+		FunctionType* functionType,
+		FunctionArg* const* argArray,
+		size_t argCount
+		)
+	{
+		return getArgCastKind(NULL, functionType, argArray, argCount);
+	}
 
 	CastKind
 	getArgCastKind(
@@ -501,11 +504,21 @@ public:
 
 	CastKind
 	getArgCastKind(
+		Closure* closure,
 		FunctionType* functionType,
 		const sl::Array<FunctionArg*>& argArray
 		)
 	{
-		return getArgCastKind(functionType, argArray, argArray.getCount());
+		return getArgCastKind(closure, functionType, argArray, argArray.getCount());
+	}
+
+	CastKind
+	getArgCastKind(
+		FunctionType* functionType,
+		const sl::Array<FunctionArg*>& argArray
+		)
+	{
+		return getArgCastKind(NULL, functionType, argArray, argArray.getCount());
 	}
 
 	CastKind
@@ -854,6 +867,13 @@ public:
 	parseAutoSizeArrayCurlyInitializer(
 		ArrayType* arrayType,
 		const sl::ConstBoxList<Token>& initializerTokenList
+		);
+
+	size_t
+	parseAutoSizeArrayCurlyInitializer(
+		ArrayType* arrayType,
+		const lex::LineCol& pos,
+		const sl::StringRef& initializer
 		);
 
 	Type*
@@ -1456,7 +1476,7 @@ public:
 	bool
 	getField(
 		const Value& opValue,
-		StructField* member,
+		Field* member,
 		MemberCoord* coord,
 		Value* resultValue
 		);
@@ -1464,7 +1484,7 @@ public:
 	bool
 	getField(
 		const Value& opValue,
-		StructField* member,
+		Field* member,
 		Value* resultValue
 		)
 	{
@@ -1474,7 +1494,7 @@ public:
 	bool
 	getField(
 		Value* value,
-		StructField* member
+		Field* member
 		)
 	{
 		return getField(*value, member, NULL, value);
@@ -1500,30 +1520,30 @@ public:
 	bool
 	getStructField(
 		const Value& opValue,
-		StructField* field,
+		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
 		);
 
 	bool
-	getDynamicStructField(
+	getDynamicField(
 		const Value& opValue,
 		DerivableType* type,
-		StructField* field,
+		Field* field,
 		Value* resultValue
 		);
 
 	bool
 	getUnionField(
 		const Value& opValue,
-		StructField* field,
+		Field* field,
 		Value* resultValue
 		);
 
 	bool
 	getClassField(
 		const Value& opValue,
-		StructField* field,
+		Field* field,
 		MemberCoord* coord,
 		Value* resultValue
 		);

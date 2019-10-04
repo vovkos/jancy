@@ -22,7 +22,7 @@ namespace ct {
 bool
 OperatorMgr::getField(
 	const Value& opValue,
-	StructField* field,
+	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
 	)
@@ -37,7 +37,7 @@ OperatorMgr::getField(
 	if (type->getFlags() & TypeFlag_Dynamic)
 	{
 		ASSERT(type->getTypeKindFlags() & TypeKindFlag_Derivable);
-		return getDynamicStructField(opValue, (DerivableType*)type, field, resultValue);
+		return getDynamicField(opValue, (DerivableType*)type, field, resultValue);
 	}
 
 	TypeKind typeKind = type->getTypeKind();
@@ -70,8 +70,8 @@ OperatorMgr::getPromiseField(
 	ASSERT(((ClassPtrType*)promiseValue.getType())->getTargetType()->getBaseTypeArray() [0]->getType()->getStdType() == StdType_Promise);
 
 	ClassType* promiseType = (ClassType*)m_module->m_typeMgr.getStdType(StdType_Promise);
-	StructField* stateField = (StructField*)promiseType->findItemByName(name);
-	ASSERT(stateField);
+	Field* stateField = (Field*)promiseType->findItem(name).m_item;
+	ASSERT(stateField && stateField->getItemKind() == ModuleItemKind_Field);
 
 	MemberCoord coord;
 	coord.m_llvmIndexArray.append(0); // account for base type jnc.Promise
@@ -128,7 +128,7 @@ OperatorMgr::getFieldPtrImpl(
 				);
 		}
 
-		StructField* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
+		Field* field = unionCoord->m_type->getFieldByIndex(llvmIndex[llvmIndexDelta]);
 		Type* type = field->getType()->getDataPtrType_c();
 
 		m_module->m_llvmIrBuilder.createBitCast(opValue, type, &opValue);
@@ -163,7 +163,7 @@ OperatorMgr::getFieldPtrImpl(
 bool
 OperatorMgr::getStructField(
 	const Value& opValue,
-	StructField* field,
+	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
 	)
@@ -298,10 +298,10 @@ OperatorMgr::getStructField(
 }
 
 bool
-OperatorMgr::getDynamicStructField(
+OperatorMgr::getDynamicField(
 	const Value& opValue,
 	DerivableType* type,
-	StructField* field,
+	Field* field,
 	Value* resultValue
 	)
 {
@@ -349,7 +349,7 @@ OperatorMgr::getDynamicStructField(
 bool
 OperatorMgr::getUnionField(
 	const Value& opValue,
-	StructField* field,
+	Field* field,
 	Value* resultValue
 	)
 {
@@ -412,7 +412,7 @@ OperatorMgr::getUnionField(
 bool
 OperatorMgr::getClassField(
 	const Value& rawOpValue,
-	StructField* field,
+	Field* field,
 	MemberCoord* coord,
 	Value* resultValue
 	)
@@ -493,7 +493,7 @@ OperatorMgr::getPropertyField(
 
 	switch (itemKind)
 	{
-	case ModuleItemKind_StructField:
+	case ModuleItemKind_Field:
 		break;
 
 	case ModuleItemKind_Variable:
@@ -505,7 +505,7 @@ OperatorMgr::getPropertyField(
 	}
 
 	ASSERT(opValue.getValueKind() == ValueKind_Property);
-	ASSERT(member->getItemKind() == ModuleItemKind_StructField);
+	ASSERT(member->getItemKind() == ModuleItemKind_Field);
 
 	Property* prop = opValue.getProperty();
 
@@ -540,7 +540,7 @@ OperatorMgr::getPropertyField(
 
 	return
 		castOperator(&parentValue, parentPtrType) &&
-		getField(parentValue, (StructField*)member, resultValue);
+		getField(parentValue, (Field*)member, resultValue);
 }
 
 //..............................................................................

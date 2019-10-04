@@ -24,6 +24,10 @@ FunctionTypeOverload::findOverload(FunctionType* type) const
 	if (!m_type)
 		return -1;
 
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
+
 	if (type->cmp(m_type) == 0)
 		return 0;
 
@@ -44,6 +48,10 @@ FunctionTypeOverload::findShortOverload(FunctionType* type) const
 	if (!m_type)
 		return -1;
 
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
+
 	if (type->cmp(m_type->getShortType()) == 0)
 		return 0;
 
@@ -60,6 +68,7 @@ FunctionTypeOverload::findShortOverload(FunctionType* type) const
 
 size_t
 FunctionTypeOverload::chooseOverload(
+	Closure* closure,
 	FunctionArg* const* argArray,
 	size_t argCount,
 	CastKind* castKind
@@ -67,9 +76,12 @@ FunctionTypeOverload::chooseOverload(
 {
 	ASSERT(m_type);
 
-	Module* module = m_type->getModule();
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
 
-	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind(m_type, argArray, argCount);
+	Module* module = m_type->getModule();
+	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind(closure, m_type, argArray, argCount);
 	size_t bestOverload = bestCastKind ? 0 : -1;
 	bool isAmbiguous = false;
 
@@ -77,7 +89,7 @@ FunctionTypeOverload::chooseOverload(
 	for (size_t i = 0; i < count; i++)
 	{
 		FunctionType* overloadType = m_overloadArray[i];
-		CastKind castKind = module->m_operatorMgr.getArgCastKind(overloadType, argArray, argCount);
+		CastKind castKind = module->m_operatorMgr.getArgCastKind(closure, overloadType, argArray, argCount);
 		if (!castKind)
 			continue;
 
@@ -119,8 +131,11 @@ FunctionTypeOverload::chooseOverload(
 {
 	ASSERT(m_type);
 
-	Module* module = m_type->getModule();
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
 
+	Module* module = m_type->getModule();
 	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind(m_type, argValueArray, argCount);
 	size_t bestOverload = bestCastKind ? 0 : -1;
 	bool isAmbiguous = false;
@@ -170,8 +185,11 @@ FunctionTypeOverload::chooseOverload(
 {
 	ASSERT(m_type);
 
-	Module* module = m_type->getModule();
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
 
+	Module* module = m_type->getModule();
 	CastKind bestCastKind = module->m_operatorMgr.getArgCastKind(m_type, argList);
 	size_t bestOverload = bestCastKind ? 0 : -1;
 	bool isAmbiguous = false;
@@ -221,11 +239,13 @@ FunctionTypeOverload::chooseSetterOverload(
 {
 	ASSERT(m_type);
 
-	Module* module = m_type->getModule();
+	bool result = ensureLayout();
+	if (!result)
+		return -1;
 
+	Module* module = m_type->getModule();
 	size_t setterValueIdx = m_type->getArgArray().getCount() - 1;
 	ASSERT(setterValueIdx != -1);
-
 	Type* setterValueArgType = m_type->getArgArray() [setterValueIdx]->getType();
 	CastKind bestCastKind = module->m_operatorMgr.getCastKind(value, setterValueArgType);
 	size_t bestOverload = bestCastKind ? 0 : -1;
@@ -319,14 +339,12 @@ FunctionTypeOverload::copy(
 }
 
 bool
-FunctionTypeOverload::ensureLayout()
+FunctionTypeOverload::prepareLayout() const
 {
-	bool result;
+	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
+	ASSERT(m_type);
 
-	if (m_flags & ModuleItemFlag_LayoutReady)
-		return true;
-
-	result = m_type->ensureLayout();
+	bool result = m_type->ensureLayout();
 	if (!result)
 		return false;
 

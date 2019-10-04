@@ -42,26 +42,20 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+size_t
+jnc_Field_getOffset(jnc_Field* field)
+{
+	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getOffsetFunc(field);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 {
 	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getStaticConstructorFunc(type);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_DerivableType_getStaticDestructor(jnc_DerivableType* type)
-{
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getStaticDestructorFunc(type);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_DerivableType_getPreConstructor(jnc_DerivableType* type)
-{
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getPreConstructorFunc(type);
 }
 
 JNC_EXTERN_C
@@ -143,47 +137,20 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+size_t
+jnc_Field_getOffset(jnc_Field* field)
+{
+	return field->getOffset();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 {
-	jnc_Function* function = type->getStaticConstructor();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no static constructor", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_DerivableType_getStaticDestructor(jnc_DerivableType* type)
-{
-	jnc_Function* function = type->getStaticDestructor();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no static destructor", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Function*
-jnc_DerivableType_getPreConstructor(jnc_DerivableType* type)
-{
-	jnc_Function* function = type->getPreConstructor();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no preconstructor", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
+	return type->getStaticConstructor();
 }
 
 JNC_EXTERN_C
@@ -191,14 +158,7 @@ JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 {
-	jnc_Function* function = type->getConstructor();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
+	return type->getConstructor();
 }
 
 JNC_EXTERN_C
@@ -206,14 +166,7 @@ JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 {
-	jnc_Function* function = type->getDestructor();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no destructor", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
+	return type->getDestructor();
 }
 
 JNC_EXTERN_C
@@ -224,14 +177,7 @@ jnc_DerivableType_getUnaryOperator(
 	jnc_UnOpKind opKind
 	)
 {
-	jnc_Function* function = type->getUnaryOperator((jnc::UnOpKind)opKind);
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getUnOpKindString(opKind));
-		return NULL;
-	}
-
-	return function;
+	return type->getUnaryOperator((jnc::UnOpKind)opKind);
 }
 
 JNC_EXTERN_C
@@ -242,14 +188,7 @@ jnc_DerivableType_getBinaryOperator(
 	jnc_BinOpKind opKind
 	)
 {
-	jnc_Function* function = type->getBinaryOperator((jnc::BinOpKind)opKind);
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no operator %s", type->getTypeString().sz(), jnc_getBinOpKindString(opKind));
-		return NULL;
-	}
-
-	return function;
+	return type->getBinaryOperator((jnc::BinOpKind)opKind);
 }
 
 JNC_EXTERN_C
@@ -257,14 +196,7 @@ JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 {
-	jnc_Function* function = type->getCallOperator();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no operator ()", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return function;
+	return type->getCallOperator();
 }
 
 JNC_EXTERN_C
@@ -275,13 +207,9 @@ jnc_DerivableType_getCastOperator(
 	size_t idx
 	)
 {
-	if (idx >= type->getCastOperatorArray().getCount())
-	{
-		err::setFormatStringError("'%s' has no cast operator #%d", type->getTypeString().sz(), idx);
-		return NULL;
-	}
-
-	return type->getCastOperatorArray()[idx];
+	return idx < type->getCastOperatorArray().getCount() ?
+		type->getCastOperatorArray()[idx] :
+		NULL;
 }
 
 JNC_EXTERN_C
@@ -317,58 +245,77 @@ jnc_DerivableType_findBaseTypeOffset(
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_DerivableType_getMemberFieldCount(jnc_DerivableType* type)
+jnc_DerivableType_getStaticVariableCount(jnc_DerivableType* type)
 {
-	return type->getMemberFieldArray().getCount();
+	return type->getStaticVariableArray().getCount();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_StructField*
-jnc_DerivableType_getMemberField(
+jnc_Variable*
+jnc_DerivableType_getStaticVariable(
 	jnc_DerivableType* type,
 	size_t index
 	)
 {
-	return type->getMemberFieldArray() [index];
+	return type->getStaticVariableArray()[index];
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_DerivableType_getMemberMethodCount(jnc_DerivableType* type)
+jnc_DerivableType_getFieldCount(jnc_DerivableType* type)
 {
-	return type->getMemberMethodArray().getCount();
+	return type->getFieldArray().getCount();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Field*
+jnc_DerivableType_getField(
+	jnc_DerivableType* type,
+	size_t index
+	)
+{
+	return type->getFieldArray()[index];
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_DerivableType_getMethodCount(jnc_DerivableType* type)
+{
+	return type->getMethodArray().getCount();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Function*
-jnc_DerivableType_getMemberMethod(
+jnc_DerivableType_getMethod(
 	jnc_DerivableType* type,
 	size_t index
 	)
 {
-	return type->getMemberMethodArray() [index];
+	return type->getMethodArray()[index];
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_DerivableType_getMemberPropertyCount(jnc_DerivableType* type)
+jnc_DerivableType_getPropertyCount(jnc_DerivableType* type)
 {
-	return type->getMemberPropertyArray().getCount();
+	return type->getPropertyArray().getCount();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Property*
-jnc_DerivableType_getMemberProperty(
+jnc_DerivableType_getProperty(
 	jnc_DerivableType* type,
 	size_t index
 	)
 {
-	return type->getMemberPropertyArray() [index];
+	return type->getPropertyArray() [index];
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

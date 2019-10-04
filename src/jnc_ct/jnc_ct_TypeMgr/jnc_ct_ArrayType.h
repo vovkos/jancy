@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
+#include "jnc_ct_Function.h"
 #include "jnc_ArrayType.h"
 
 namespace jnc {
@@ -25,12 +26,27 @@ class ArrayType: public Type
 	friend class Parser;
 
 protected:
+	class GetDynamicSizeFunction: public CompilableFunction
+	{
+	public:
+		ArrayType* m_arrayType;
+
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return m_arrayType->compileGetDynamicSizeFunction(this);
+		}
+	};
+
+protected:
 	Type* m_elementType;
 	Type* m_rootType;
 	size_t m_elementCount;
 
 	sl::BoxList<Token> m_elementCountInitializer;
-	Function* m_getDynamicSizeFunction;
+	GetDynamicSizeFunction* m_getDynamicSizeFunction;
 
 	Unit* m_parentUnit;
 	Namespace* m_parentNamespace;
@@ -88,7 +104,7 @@ public:
 	bool
 	ensureDynamicLayout(
 		StructType* dynamicStruct,
-		StructField* dynamicField
+		Field* dynamicField
 		);
 
 protected:
@@ -106,14 +122,10 @@ protected:
 		return calcLayoutImpl(NULL, NULL);
 	}
 
-	virtual
-	bool
-	compile();
-
 	bool
 	calcLayoutImpl(
 		StructType* dynamicStruct,
-		StructField* dynamicField
+		Field* dynamicField
 		);
 
 	virtual
@@ -145,6 +157,9 @@ protected:
 	{
 		prepareSimpleTypeVariable(StdType_ArrayType);
 	}
+
+	bool
+	compileGetDynamicSizeFunction(Function* function);
 };
 
 //..............................................................................

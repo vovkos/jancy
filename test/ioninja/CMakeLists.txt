@@ -15,44 +15,59 @@ endif()
 
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-plugin-"
-	FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
+	FLAGS -c --ignore-opaque -I ../../api -I ../../common
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Echo
-	BEGIN_FILE_LIST
-		EchoLayer.jnc
-	END_FILE_LIST
+	REQUIRES EchoLayer
+	FILES EchoLayer.jnc
+	FINALIZE_TEST Echo
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EzTapPro
-	BEGIN_FILE_LIST
+	REQUIRES
+		EzTapProSession
+		representSerialLog
+	FILES
 		EzTapProSession.jnc
 		EzTapPro.jnc
 		../Serial/SerialLogRecordCode.jnc
 		../Serial/SerialLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST EzTapPro
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/File
-	BEGIN_FILE_LIST
+	REQUIRES
+		FileSession
+		representFileLog
+	FILES
 		FileSession.jnc
 		FileLogRecordCode.jnc
 		FileLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST File
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/GenericSerialTap
-	BEGIN_FILE_LIST
+	REQUIRES
+		SerialTapSession
+		representSerialLog
+	FILES
 		GenericSerialTapSession.jnc
 		../Serial/SerialLogRecordCode.jnc
 		../Serial/SerialLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST GenericSerialTap
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Mailslot
-	BEGIN_FILE_LIST
+	REQUIRES
+		MailslotSession
+		representMailslotLog
+	FILES
 		MailslotSession.jnc
 		MailslotLogRecordCode.jnc
 		MailslotLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST Mailslot
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Modbus
-	BEGIN_FILE_LIST
+	REQUIRES
+		ModbusLayer
+		representModbusLog
+	FILES
 		ModbusLayer.jnc
 		ModbusParserBase.jnc
 		ModbusRtuParser.jnc
@@ -64,116 +79,147 @@ add_jancy_tests(
 		ModbusLog_Rtu.jnc
 		ModbusLog_Ascii.jnc
 		ModbusLog_Tcp.jnc
-	END_FILE_LIST
+	FINALIZE_TEST Modbus
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeListener
-	BEGIN_FILE_LIST
+	REQUIRES
+		PipeListenerSession
+		representPipeListenerLog
+	FILES
 		PipeListenerSession.jnc
 		PipeListenerLogRecordCode.jnc
 		PipeListenerLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST PipeListener
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/RegexColorizer
-	BEGIN_FILE_LIST
+	REQUIRES RegexColorizerLayer
+	FILES
 		RegexPattern.jnc
 		RegexColorizerLayer.jnc
 		RegexColorizerHighlighter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST RegexColorizer
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Serial
-	BEGIN_FILE_LIST
+	REQUIRES
+		SerialSession
+		representSerialLog
+	FILES
 		SerialSession.jnc
 		SerialLogRecordCode.jnc
 		SerialLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST Serial
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SocketLog
-	BEGIN_FILE_LIST
+	REQUIRES representSocketLog
+	FILES
 		SocketLogRecordCode.jnc
 		SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST SocketLog
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpConnection
-	BEGIN_FILE_LIST
+	REQUIRES
+		TcpConnectionSession
+		representSocketLog
+	FILES
 		TcpConnectionSession.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST TcpConnection
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpListener
-	BEGIN_FILE_LIST
+	REQUIRES
+		TcpListenerSession
+		representSocketLog
+	FILES
 		TcpListenerSession.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST TcpListener
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpProxy
-	BEGIN_FILE_LIST
+	REQUIRES
+		TcpProxySession
+		representSocketLog
+	FILES
 		TcpProxySession.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST TcpProxy
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TibboModbusGatewayMon
-	BEGIN_FILE_LIST
+	REQUIRES
+		ModbusGatewayMonSession
+		representSocketLog
+	FILES
 		ModbusGatewayMonSession.jnc
 		ModbusGatewayMonLogRecordCode.jnc
 		ModbusGatewayMonLogRepresenter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST TibboModbusGatewayMon
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TxModifier
-	BEGIN_FILE_LIST
-		TxModifierLayer.jnc
-	END_FILE_LIST
+	REQUIRES TxModifierLayer
+	FILES TxModifierLayer.jnc
+	FINALIZE_TEST TxModifier
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TxRxFilter
-	BEGIN_FILE_LIST
-		TxRxFilterLayer.jnc
-	END_FILE_LIST
+	REQUIRES TxRxFilterLayer
+	FILES TxRxFilterLayer.jnc
+	FINALIZE_TEST TxRxFilter
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Udp
-	BEGIN_FILE_LIST
+	REQUIRES
+		UdpSession
+		representSocketLog
+	FILES
 		UdpSession.jnc
 		UdpLogRecordCode.jnc
 		UdpLogRepresenter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	END_FILE_LIST
+	FINALIZE_TEST Udp
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/XModem
-	BEGIN_FILE_LIST
+	REQUIRES XModemLayer
+	FILES
 		XModem.jnc
 		XModemLayer.jnc
 		XModemTransmitter.jnc
 		XModemReceiver.jnc
-	END_FILE_LIST
+	FINALIZE_TEST XModem
 	)
 
 if(BUILD_JNC_IO_SSH)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
+		FLAGS -c --ignore-opaque -I ../../api -I ../../common
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SshChannel
-		BEGIN_FILE_LIST
+		REQUIRES
+			SshChannelSession
+			representSshLog
+			representSocketLog
+		FILES
 			SshChannelSession.jnc
 			SshLogRecordCode.jnc
 			SshLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST SshChannel
 		)
 endif()
 
 if(BUILD_JNC_IO_PCAP)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
+		FLAGS -c --ignore-opaque -I ../../api -I ../../common
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/NetworkSniffer
-		BEGIN_FILE_LIST
+		REQUIRES
+			SnifferSession
+			representSnifferLog
+		FILES
 			SnifferSession.jnc
 			SnifferLogRecordCode.jnc
 			SnifferLogRepresenter.jnc
@@ -185,10 +231,13 @@ if(BUILD_JNC_IO_PCAP)
 			SnifferLog_Udp.jnc
 			../PcapLog/PcapLogRecordCode.jnc
 			../PcapLog/PcapLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST NetworkSniffer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpFlowMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			TcpFlowMonSession
+			representTcpFlowMonLog
+		FILES
 			TcpFlowMonSession.jnc
 			TcpFlowMonLogRecordCode.jnc
 			TcpFlowMonLogRepresenter.jnc
@@ -196,10 +245,13 @@ if(BUILD_JNC_IO_PCAP)
 			../PcapLog/PcapLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST TcpFlowMon
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UdpFlowMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			UdpFlowMonSession
+			representUdpFlowMonLog
+		FILES
 			UdpFlowMonSession.jnc
 			UdpFlowMonLogRecordCode.jnc
 			UdpFlowMonLogRepresenter.jnc
@@ -207,24 +259,30 @@ if(BUILD_JNC_IO_PCAP)
 			../PcapLog/PcapLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST UdpFlowMon
 		)
 endif()
 
 if(BUILD_JNC_IO_USB)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
+		FLAGS -c --ignore-opaque -I ../../api -I ../../common
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTap
-		BEGIN_FILE_LIST
+		REQUIRES
+			SerialTapSession
+			representSerialLog
+		FILES
 			SerialTapSession.jnc
 			../Serial/SerialLogRecordCode.jnc
 			../Serial/SerialLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST SerialTap
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiSniffer
-		BEGIN_FILE_LIST
+		REQUIRES
+			I2cSpiSnifferSession
+			representI2cSpiSnifferLog
+		FILES
 			I2cSpiSnifferSession.jnc
 			I2cSpiSnifferLogRecordCode.jnc
 			I2cSpiSnifferLogRepresenter.jnc
@@ -233,33 +291,45 @@ if(BUILD_JNC_IO_USB)
 			Decoder.jnc
 			I2cDecoder.jnc
 			SpiDecoder.jnc
-		END_FILE_LIST
+		FINALIZE_TEST I2cSpiSniffer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbControlEndpoint
-		BEGIN_FILE_LIST
+		REQUIRES
+			UsbControlEndpointSession
+			representUsbLog
+		FILES
 			UsbControlEndpointSession.jnc
 			../UsbLog/UsbLogRecordCode.jnc
 			../UsbLog/UsbLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST UsbControlEndpoint
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbDataEndpoint
-		BEGIN_FILE_LIST
+		REQUIRES
+			UsbDataEndpointSession
+			representUsbLog
+		FILES
 			UsbDataEndpointSession.jnc
 			../UsbLog/UsbLogRecordCode.jnc
 			../UsbLog/UsbLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST UsbDataEndpoint
 
 		NAME_PREFIX "jnc-ioninja-sample-"
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/CypressUploader
-		BEGIN_FILE_LIST
+		REQUIRES
+			CypressUploaderSession
+			representUsbLog
+		FILES
 			CypressUploaderSession.jnc
 			../../plugins/UsbLog/UsbLogRecordCode.jnc
 			../../plugins/UsbLog/UsbLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST CypressUploader
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/HwSerialMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			HwSerialMonSession
+			representHwSerialMonLog
+		FILES
 			HwSerialMonSession.jnc
 			HwSerialMonLogRecordCode.jnc
 			HwSerialMonLogRepresenter.jnc
@@ -269,24 +339,31 @@ if(BUILD_JNC_IO_USB)
 			I2c.jnc
 			../../plugins/UsbLog/UsbLogRecordCode.jnc
 			../../plugins/UsbLog/UsbLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST HwSerialMon
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/samples/SpiTap
-		BEGIN_FILE_LIST
+		REQUIRES
+			SpiTapSession
+			representSpiTapLog
+		FILES
 			SpiTapSession.jnc
 			SpiTapLogRecordCode.jnc
 			SpiTapLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST SpiTap
 		)
 endif()
 
 if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS "-c --ignore-opaque -I ../../api -I ../../common"
+		FLAGS -c --ignore-opaque -I ../../api -I ../../common
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			SerialMonSession
+			representDeviceMonLog
+			representSerialLog
+		FILES
 			SerialMonSession.jnc
 			SerialMonitor.jnc
 			SerialMonProcessor.jnc
@@ -298,38 +375,45 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
 			../Serial/SerialLogRecordCode.jnc
 			../Serial/SerialLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST SerialMon
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			PipeMonSession
+			representDeviceMonLog
+		FILES
 			PipeMonSession.jnc
 			PipeMonitor.jnc
 			PipeMonLogRecordCode.jnc
 			PipeMonLogRepresenter.jnc
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST PipeMon
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/MailslotMon
-		BEGIN_FILE_LIST
+		REQUIRES
+			MailslotMonSession
+			representDeviceMonLog
+		FILES
 			MailslotMonSession.jnc
 			MailslotMonitor.jnc
 			MailslotMonLogRecordCode.jnc
 			MailslotMonLogRepresenter.jnc
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
 			../DeviceMonLog/DeviceMonLogRepresenter.jnc
-		END_FILE_LIST
+		FINALIZE_TEST MailslotMon
 		)
 endif()
 
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-packet-"
-	FLAGS "-c -I ../common"
+	FLAGS -c -I ../common
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/packets
 
-	default.jnc
-	ModBus.jnc
-	TcpIp.jnc
+	TESTS
+		default.jnc
+		ModBus.jnc
+		TcpIp.jnc
 	)
 
 #...............................................................................

@@ -21,6 +21,14 @@
 //..............................................................................
 
 JNC_EXTERN_C
+const char*
+jnc_Alias_getInitializerString_v(jnc_Alias* alias);
+
+JNC_EXTERN_C
+bool_t
+jnc_Alias_isResolved(jnc_Alias* alias);
+
+JNC_EXTERN_C
 jnc_ModuleItem*
 jnc_Alias_getTargetItem(jnc_Alias* alias);
 
@@ -30,6 +38,18 @@ jnc_Alias_getTargetItem(jnc_Alias* alias);
 
 struct jnc_Alias: jnc_ModuleItem
 {
+	const char*
+	getInitializerString_v()
+	{
+		return jnc_Alias_getInitializerString_v(this);
+	}
+
+	bool
+	isResolved()
+	{
+		return jnc_Alias_isResolved(this);
+	}
+
 	jnc_ModuleItem*
 	getTargetItem()
 	{

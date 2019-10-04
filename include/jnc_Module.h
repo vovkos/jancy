@@ -83,10 +83,9 @@ typedef enum jnc_ModuleCompileFlag jnc_ModuleCompileFlag;
 enum jnc_ModuleCompileState
 {
 	jnc_ModuleCompileState_Idle,
-	jnc_ModuleCompileState_Linked,
-	jnc_ModuleCompileState_LayoutCalculated,
-	jnc_ModuleCompileState_Compiled,
-	jnc_ModuleCompileState_Jitted,
+	jnc_ModuleCompileState_Parsed,    // all files are parsed; global namespace is ready
+	jnc_ModuleCompileState_Compiled,  // all required functions are compiled into LLVM IR
+	jnc_ModuleCompileState_Jitted,    // machine code for all required functions is ready
 };
 
 typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
@@ -140,8 +139,8 @@ jnc_Module_getStdType(
 	);
 
 JNC_EXTERN_C
-jnc_ModuleItem*
-jnc_Module_findItem(
+jnc_FindModuleItemResult
+jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
 	const char* name,
 	const jnc_Guid* libGuid,
@@ -211,6 +210,24 @@ jnc_Module_addStaticLib(
 	);
 
 JNC_EXTERN_C
+void
+jnc_Module_require(
+	jnc_Module* module,
+	jnc_ModuleItemKind itemKind,
+	const char* name,
+	bool_t isEssential
+	);
+
+JNC_EXTERN_C
+void
+jnc_Module_requireType(
+	jnc_Module* module,
+	jnc_TypeKind typeKind,
+	const char* name,
+	bool_t isEssential
+	);
+
+JNC_EXTERN_C
 bool_t
 jnc_Module_parse(
 	jnc_Module* module,
@@ -229,14 +246,6 @@ jnc_Module_parseFile(
 JNC_EXTERN_C
 bool_t
 jnc_Module_parseImports(jnc_Module* module);
-
-JNC_EXTERN_C
-bool_t
-jnc_Module_link(jnc_Module* module);
-
-JNC_EXTERN_C
-bool_t
-jnc_Module_calcLayout(jnc_Module* module);
 
 JNC_EXTERN_C
 bool_t
@@ -327,14 +336,14 @@ struct jnc_Module
 		return jnc_Module_getStdType(this, stdType);
 	}
 
-	jnc_ModuleItem*
-	findItem(
+	jnc_FindModuleItemResult
+	findExtenstionLibItem(
 		const char* name,
-		const jnc_Guid* libGuid = NULL,
-		size_t itemCacheSlot = -1
+		const jnc_Guid* libGuid,
+		size_t itemCacheSlot
 		)
 	{
-		return jnc_Module_findItem(this, name, libGuid, itemCacheSlot);
+		return jnc_Module_findExtensionLibItem(this, name, libGuid, itemCacheSlot);
 	}
 
 	bool
@@ -399,6 +408,26 @@ struct jnc_Module
 		jnc_Module_addStaticLib(this, lib);
 	}
 
+	void
+	require(
+		jnc_ModuleItemKind itemKind,
+		const char* name,
+		bool isEssential = true
+		)
+	{
+		jnc_Module_require(this, itemKind, name, isEssential);
+	}
+
+	void
+	require(
+		jnc_TypeKind typeKind,
+		const char* name,
+		bool isEssential = true
+		)
+	{
+		jnc_Module_requireType(this, typeKind, name, isEssential);
+	}
+
 	bool
 	parse(
 		const char* fileName,
@@ -419,18 +448,6 @@ struct jnc_Module
 	parseImports()
 	{
 		return jnc_Module_parseImports(this) != 0;
-	}
-
-	bool
-	link()
-	{
-		return jnc_Module_link(this) != 0;
-	}
-
-	bool
-	calcLayout()
-	{
-		return jnc_Module_calcLayout(this) != 0;
 	}
 
 	bool
@@ -476,11 +493,10 @@ namespace jnc {
 typedef jnc_ModuleCompileState ModuleCompileState;
 
 const ModuleCompileState
-	ModuleCompileState_Idle             = jnc_ModuleCompileState_Idle,
-	ModuleCompileState_Linked           = jnc_ModuleCompileState_Linked,
-	ModuleCompileState_LayoutCalculated = jnc_ModuleCompileState_LayoutCalculated,
-	ModuleCompileState_Compiled         = jnc_ModuleCompileState_Compiled,
-	ModuleCompileState_Jitted           = jnc_ModuleCompileState_Jitted;
+	ModuleCompileState_Idle     = jnc_ModuleCompileState_Idle,
+	ModuleCompileState_Parsed   = jnc_ModuleCompileState_Parsed,
+	ModuleCompileState_Compiled = jnc_ModuleCompileState_Compiled,
+	ModuleCompileState_Jitted   = jnc_ModuleCompileState_Jitted;
 
 //..............................................................................
 

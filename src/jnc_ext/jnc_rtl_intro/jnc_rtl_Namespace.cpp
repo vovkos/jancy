@@ -37,10 +37,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Namespace)
 	JNC_MAP_CONST_PROPERTY("m_itemCount", &Namespace::getItemCount)
 	JNC_MAP_CONST_PROPERTY("m_itemArray", &Namespace::getItem)
 	JNC_MAP_FUNCTION("findItem", &Namespace::findItem)
-	JNC_MAP_FUNCTION("findVariable", &Namespace::findVariable)
-	JNC_MAP_FUNCTION("findFunction", &Namespace::findFunction)
-	JNC_MAP_FUNCTION("findProperty", &Namespace::findProperty)
-	JNC_MAP_FUNCTION("findClassType", &Namespace::findClassType)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

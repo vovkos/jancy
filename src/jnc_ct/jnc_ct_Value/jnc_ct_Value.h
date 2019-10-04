@@ -22,7 +22,7 @@ class Variable;
 class Function;
 class FunctionTypeOverload;
 class Property;
-class StructField;
+class Field;
 class ClassType;
 class Closure;
 class LeanDataPtrValidator;
@@ -38,6 +38,7 @@ enum ValueKind
 	ValueKind_Const,
 	ValueKind_Variable,
 	ValueKind_Function,
+	ValueKind_FunctionOverload,
 	ValueKind_FunctionTypeOverload,
 	ValueKind_Property,
 	ValueKind_Field,
@@ -73,7 +74,7 @@ protected:
 		Function* m_function;
 		FunctionTypeOverload* m_functionTypeOverload;
 		Property* m_property;
-		StructField* m_field;
+		Field* m_field;
 	};
 
 	sl::Array<char> m_constData;
@@ -151,6 +152,12 @@ public:
 		setProperty(prop);
 	}
 
+	Value(EnumConst* enumConst)
+	{
+		init();
+		setEnumConst(enumConst);
+	}
+
 	Value(
 		llvm::Value* llvmValue,
 		Type* type = NULL,
@@ -201,7 +208,7 @@ public:
 	Function*
 	getFunction() const
 	{
-		ASSERT(m_valueKind == ValueKind_Function);
+		ASSERT(m_valueKind == ValueKind_Function || m_valueKind == ValueKind_FunctionOverload);
 		return m_function;
 	}
 
@@ -219,7 +226,7 @@ public:
 		return m_property;
 	}
 
-	StructField*
+	Field*
 	getField() const
 	{
 		ASSERT(m_valueKind == ValueKind_Field);
@@ -363,7 +370,7 @@ public:
 	setDynamicFieldInfo(
 		const Value& parentValue,
 		DerivableType* parentType,
-		StructField* field
+		Field* field
 		);
 
 	void
@@ -419,7 +426,17 @@ public:
 	setVariable(Variable* variable);
 
 	void
-	setFunction(Function* function);
+	setFunction(Function* function)
+	{
+		bool result = trySetFunction(function);
+		ASSERT(result);
+	}
+
+	bool
+	trySetFunction(Function* function);
+
+	bool
+	trySetFunctionNoOverload(Function* function);
 
 	void
 	setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload);
@@ -428,18 +445,25 @@ public:
 	setProperty(Property* prop);
 
 	void
-	setEnumConst(EnumConst* enumConst);
+	setEnumConst(EnumConst* enumConst)
+	{
+		bool result = trySetEnumConst(enumConst);
+		ASSERT(result);
+	}
+
+	bool
+	trySetEnumConst(EnumConst* enumConst);
 
 	void
 	setField(
-		StructField* field,
+		Field* field,
 		Type* type,
 		size_t baseOffset
 		);
 
 	void
 	setField(
-		StructField* field,
+		Field* field,
 		size_t baseOffset
 		);
 
@@ -665,7 +689,7 @@ struct DynamicFieldValueInfo: ref::RefCount
 {
 	Value m_parentValue;
 	DerivableType* m_parentType;
-	StructField* m_field;
+	Field* m_field;
 };
 
 //..............................................................................

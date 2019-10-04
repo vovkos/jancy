@@ -40,7 +40,7 @@ FunctionPtrType::FunctionPtrType()
 {
 	m_typeKind = TypeKind_FunctionPtr;
 	m_ptrTypeKind = FunctionPtrTypeKind_Normal;
-	m_size = sizeof(FunctionPtr);
+	m_alignment = sizeof(void*);
 	m_targetType = NULL;
 	m_multicastType = NULL;
 }
@@ -85,8 +85,8 @@ FunctionPtrType::getTypeModifierString()
 	sl::String ptrTypeFlagString = getPtrTypeFlagString(m_flags);
 	if (!ptrTypeFlagString.isEmpty())
 	{
-		string += ' ';
 		string += ptrTypeFlagString;
+		string += ' ';
 	}
 
 	if (m_ptrTypeKind != FunctionPtrTypeKind_Normal)
@@ -163,7 +163,9 @@ FunctionPtrType::prepareLlvmDiType()
 {
 	m_llvmDiType = m_ptrTypeKind != FunctionPtrTypeKind_Thin ?
 		m_module->m_typeMgr.getStdType(StdType_FunctionPtrStruct)->getLlvmDiType() :
-		m_module->m_llvmDiBuilder.createPointerType(m_targetType);
+		(m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
+			m_module->m_llvmDiBuilder.createPointerType(m_targetType) :
+			m_module->m_llvmDiBuilder.createPointerType(m_module->m_typeMgr.getStdType(StdType_SimpleFunction));
 }
 
 void

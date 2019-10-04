@@ -39,11 +39,10 @@ Runtime::startup(ct::Module* module)
 	m_noThreadEvent.signal();
 
 	ct::Function* constructor = module->getConstructor();
-	ASSERT(constructor);
 
 	return
 		m_gcHeap.startup(module) &&
-		callVoidFunction(this, constructor);
+		(!constructor || callVoidFunction(this, constructor));
 }
 
 void

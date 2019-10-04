@@ -59,7 +59,7 @@ ControlFlowMgr::markLandingPad(
 	uint_t flags
 	)
 {
-	ASSERT (flags >= (block->m_flags & BasicBlockFlag_LandingPadMask));
+	ASSERT(flags >= (block->m_flags & BasicBlockFlag_LandingPadMask));
 
 	if (!(block->m_flags & BasicBlockFlag_LandingPadMask))
 		m_landingPadBlockArray.append(block);
@@ -223,7 +223,7 @@ ControlFlowMgr::checkErrorCode(
 		minusOneValue.createConst(&minusOne, returnType);
 
 		result = m_module->m_operatorMgr.binaryOperator(BinOpKind_Ne, returnValue, minusOneValue, &indicatorValue);
-		ASSERT (result);
+		ASSERT(result);
 	}
 
 	BasicBlock* followBlock = createBlock("follow_block");
@@ -231,7 +231,7 @@ ControlFlowMgr::checkErrorCode(
 	if (throwBlock)
 	{
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
-		ASSERT (result);
+		ASSERT(result);
 		return;
 	}
 
@@ -241,14 +241,14 @@ ControlFlowMgr::checkErrorCode(
 		throwBlock = getDynamicThrowBlock();
 
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, followBlock);
-		ASSERT (result);
+		ASSERT(result);
 	}
 	else
 	{
 		throwBlock = createBlock("static_throw_block");
 
 		result = conditionalJump(indicatorValue, followBlock, throwBlock, throwBlock);
-		ASSERT (result);
+		ASSERT(result);
 
 		throwException();
 		setCurrentBlock(followBlock);
@@ -267,7 +267,7 @@ ControlFlowMgr::finalizeTryScope(Scope* scope)
 }
 
 bool
-ControlFlowMgr::catchLabel(const Token::Pos& pos)
+ControlFlowMgr::catchLabel(const lex::LineCol& pos)
 {
 	bool result;
 
@@ -339,7 +339,7 @@ ControlFlowMgr::finalizeCatchScope(Scope* scope)
 }
 
 bool
-ControlFlowMgr::finallyLabel(const Token::Pos& pos)
+ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
 {
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	if (scope->m_flags & ScopeFlag_Disposable)

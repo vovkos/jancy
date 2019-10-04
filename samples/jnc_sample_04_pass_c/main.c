@@ -90,14 +90,12 @@ main(
 	module = jnc_Module_create();
 	jnc_Module_initialize(module, "jnc_sample_04_pass_c", jnc_ModuleCompileFlag_StdFlags);
 	jnc_Module_addStaticLib(module, jnc_StdLib_getLib());
+	jnc_Module_require(module, jnc_ModuleItemKind_Function, "foo", 1);
 
 	if (argc < 2)
 	{
 		printf("Parsing default script...\n");
-
-		result =
-			jnc_Module_parse(module, "script.jnc", g_script, sizeof(g_script) - 1) &&
-			jnc_Module_parseImports(module);
+		result = jnc_Module_parse(module, "script.jnc", g_script, sizeof(g_script) - 1);
 	}
 	else
 	{
@@ -108,12 +106,10 @@ main(
 		fileName = argv[1];
 #endif
 		printf("Parsing '%s'...\n", fileName);
-
-		result =
-			jnc_Module_parseFile(module, fileName) &&
-			jnc_Module_parseImports(module);
+		result = jnc_Module_parseFile(module, fileName);
 	}
 
+	result = result && jnc_Module_parseImports(module);
 	if (!result)
 	{
 		printf("%s\n", jnc_getLastErrorDescription_v ());
@@ -136,13 +132,8 @@ main(
 	}
 
 	nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)jnc_Module_getGlobalNamespace(module));
-	function = jnc_Namespace_findFunction(nspace, "foo", 1);
-	if (!function)
-	{
-		printf("%s\n", jnc_getLastErrorDescription_v ());
-		finalResult = Error_Compile;
-		goto exit;
-	}
+	function = (jnc_Function*)jnc_Namespace_findItem(nspace, "foo").m_item;
+	JNC_ASSERT(function && jnc_ModuleItem_getItemKind(function) == jnc_ModuleItemKind_Function);
 
 	printf("Running...\n");
 

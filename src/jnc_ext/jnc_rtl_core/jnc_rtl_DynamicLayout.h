@@ -58,7 +58,7 @@ public:
 	getDynamicFieldSize(
 		DataPtr ptr,
 		size_t offset,
-		StructField* field
+		Field* field
 		);
 
 	size_t

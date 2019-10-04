@@ -30,7 +30,7 @@ bool ModulePane::build(jnc::Module* module, MdiChild* document)
 {
 	clear();
 
-	jnc::GlobalNamespace *globalNamespace =	module->getGlobalNamespace();
+	jnc::GlobalNamespace* globalNamespace = module->getGlobalNamespace();
 	addNamespace(0, globalNamespace);
 
 	this->document = document;
@@ -166,8 +166,8 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 		addEnumConst(parent, (jnc::EnumConst*)item);
 		break;
 
-	case jnc::ModuleItemKind_StructField:
-		addStructField(parent, (jnc::StructField*)item);
+	case jnc::ModuleItemKind_Field:
+		addField(parent, (jnc::Field*)item);
 		break;
 
 	case jnc::ModuleItemKind_Lazy:
@@ -192,8 +192,11 @@ void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 
-	QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString()).arg (type->getSize ());
-	item->setToolTip(0, toolTip);
+	if (type->getFlags() & jnc::ModuleItemFlag_LayoutReady)
+	{
+		QString toolTip = QString("%1 (sizeof = %2)").arg (type->getTypeString()).arg (type->getSize ());
+		item->setToolTip(0, toolTip);
+	}
 
 	jnc::ModuleItemDecl* decl = NULL;
 	jnc::TypeKind typeKind = type->getTypeKind();
@@ -265,21 +268,16 @@ void ModulePane::addEnumTypeMembers(QTreeWidgetItem *parent, jnc::EnumType* type
 
 void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::DerivableType *type)
 {
-	size_t count = type->getMemberFieldCount();
+	size_t count = type->getStaticVariableCount();
 	for (size_t i = 0; i < count; i++)
-	{
-		jnc::StructField* field = type->getMemberField(i);
-		addStructField(parent, field);
-	}
+		addVariable(parent, type->getStaticVariable(i));
+
+	count = type->getFieldCount();
+	for (size_t i = 0; i < count; i++)
+		addField(parent, type->getField(i));
 
 	if (type->getStaticConstructor())
 		addItem(parent, type->getStaticConstructor());
-
-	if (type->getStaticDestructor())
-		addItem(parent, type->getStaticDestructor());
-
-	if (type->getPreConstructor())
-		addItem(parent, type->getPreConstructor());
 
 	if (type->getConstructor())
 		addItem(parent, type->getConstructor());
@@ -287,19 +285,13 @@ void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::Derivable
 	if (type->getDestructor())
 		addItem(parent, type->getDestructor());
 
-	count = type->getMemberPropertyCount();
+	count = type->getPropertyCount();
 	for (size_t i = 0; i < count; i++)
-	{
-		jnc::Property* prop = type->getMemberProperty(i);
-		addProperty(parent, prop);
-	}
+		addProperty(parent, type->getProperty(i));
 
-	count = type->getMemberMethodCount();
+	count = type->getMethodCount();
 	for (size_t i = 0; i < count; i++)
-	{
-		jnc::Function* function = type->getMemberMethod(i);
-		addFunction(parent, function);
-	}
+		addFunction(parent, type->getMethod(i));
 
 	expandItem(parent);
 }
@@ -314,12 +306,11 @@ void ModulePane::addFunction(QTreeWidgetItem *parent, jnc::Function* function)
 	{
 		size_t count = function->getOverloadCount();
 
-		QString itemName;
-		itemName.sprintf(
-			"%s (%d overloads)",
-			function->getDecl()->getName(),
-			count
-			);
+		const char* name = function->getFunctionKind() == jnc::FunctionKind_Normal ?
+			function->getDecl()->getName() :
+			jnc::getFunctionKindString(function->getFunctionKind());
+
+		QString itemName = QString("%1 (%2 overloads)").arg(name).arg(count);
 
 		QTreeWidgetItem *item = insertItem(itemName, parent);
 		for (size_t i = 0; i < count; i++)
@@ -340,7 +331,7 @@ void ModulePane::addFunctionImpl(QTreeWidgetItem *parent, jnc::Function* functio
 		function->getDecl()->getName() :
 		jnc::getFunctionKindString(function->getFunctionKind());
 
-	QString itemName = QString("%1 %2 %3").arg (type->getTypeStringPrefix (), name, type->getTypeStringSuffix ());
+	QString itemName = QString("%1 %2%3").arg(type->getTypeStringPrefix(), name, type->getTypeStringSuffix());
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)function->getDecl()));
 }
@@ -367,7 +358,7 @@ void ModulePane::addAlias(QTreeWidgetItem* parent, jnc::Alias* alias)
 	name.sprintf(
 		"alias %s = %s",
 		alias->getDecl()->getName(),
-		alias->getTargetItem()->getDecl()->getQualifiedName()
+		alias->getInitializerString_v()
 		);
 
 	QTreeWidgetItem *item = insertItem(name, parent);

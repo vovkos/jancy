@@ -24,8 +24,20 @@ class McSnapshotClassType: public ClassType
 	friend class TypeMgr;
 
 protected:
+	class CallMethod: public CompilableFunction
+	{
+	public:
+		virtual
+		bool
+		compile()
+		{
+			return ((McSnapshotClassType*)m_parentNamespace)->compileCallMethod(this);
+		}
+	};
+
+protected:
 	FunctionPtrType* m_targetType;
-	StructField* m_fieldArray[McSnapshotFieldKind__Count];
+	Field* m_fieldArray[McSnapshotFieldKind__Count];
 	Function* m_methodArray[McSnapshotMethodKind__Count];
 
 public:
@@ -43,7 +55,7 @@ public:
 		return m_targetType->getTargetType();
 	}
 
-	StructField*
+	Field*
 	getField(McSnapshotFieldKind field)
 	{
 		ASSERT(field < McSnapshotFieldKind__Count);
@@ -55,15 +67,6 @@ public:
 	{
 		ASSERT(method < McSnapshotMethodKind__Count);
 		return m_methodArray[method];
-	}
-
-	virtual
-	bool
-	compile()
-	{
-		return
-			ClassType::compile() &&
-			compileCallMethod();
 	}
 
 protected:
@@ -80,7 +83,7 @@ protected:
 	prepareDoxyTypeString();
 
 	bool
-	compileCallMethod();
+	compileCallMethod(Function* function);
 };
 
 //..............................................................................

@@ -26,7 +26,7 @@ lookahead = 2;
 start
 nullable
 compilation_unit
-	: global_declaration*
+	: (global_declaration | import_declaration)*
 	;
 
 //..............................................................................
@@ -47,11 +47,11 @@ CppIncludes
 
 Members
 {
-	enum Stage
+	enum Mode
 	{
-		Stage_Pass1,    // global declarations (before linkage)
-		Stage_Pass2,    // statements and expressions (after linkage & calclayout)
-		Stage_Reaction, // compiling the 'reaction' method of a reactor (like Pass2, but with implicit bindings)
+		Mode_Parse,    // parsing declarations (global/namespaces/type members)
+		Mode_Compile,  // compiling statements and expressions
+		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
 	enum Flag
@@ -131,7 +131,7 @@ Members
 	};
 
 	Module* m_module;
-	Stage m_stage;
+	Mode m_mode;
 	uint_t m_flags;
 	size_t m_fieldAlignment;
 	size_t m_defaultFieldAlignment;
@@ -158,8 +158,6 @@ Members
 
 	Value m_curlyInitializerTargetValue;
 
-	size_t m_dynamicLibFunctionCount;
-
 	// saved attributes
 
 	Value m_expressionValue;
@@ -170,19 +168,39 @@ Members
 
 Members2
 {
-	Parser(Module* module);
+	Parser(
+		Module* module,
+		Mode mode = Mode_Parse,
+		uint_t flags = 0
+		);
+
+	bool
+	tokenizeBody(
+		sl::BoxList<Token>* tokenList,
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
+
+	bool
+	parseBody(
+		SymbolKind symbol,
+		const lex::LineCol& pos,
+		const sl::StringRef& source
+		);
 
 	bool
 	parseTokenList(
 		SymbolKind symbol,
-		const sl::ConstBoxList<Token>& tokenList,
-		bool isBuildingAst = false
+		const sl::ConstBoxList<Token>& tokenList
 		);
+
+	bool
+	parseEofToken(const lex::LineCol& pos);
 
 	NamedImportType*
 	getNamedImportType(
 		const QualifiedName& name,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	sl::String
@@ -195,14 +213,14 @@ Members2
 	findType(
 		size_t baseTypeIdx,
 		const QualifiedName& name,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	Type*
 	getType(
 		size_t baseTypeIdx,
 		const QualifiedName& name,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	DerivableType*
@@ -260,13 +278,16 @@ Members2
 	bodylessDeclaration();
 
 	bool
-	setDeclarationBody(sl::BoxList<Token>* tokenList);
+	setDeclarationBody(
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
 
 	void
 	assignDeclarationAttributes(
 		ModuleItem* item,
 		ModuleItemDecl* decl,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		AttributeBlock* attributeBlock = NULL,
 		dox::Block* doxyBlock = NULL
 		);
@@ -285,27 +306,14 @@ Members2
 	getGlobalNamespace(
 		GlobalNamespace* parentNamespace,
 		const sl::StringRef& name,
-		const Token::Pos& pos
-		);
-
-	GlobalNamespace*
-	openGlobalNamespace(
-		const QualifiedName& name,
-		const Token::Pos& pos
-		);
-
-	ExtensionNamespace*
-	openExtensionNamespace(
-		const sl::StringRef& name,
-		Type* type,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	bool
 	useNamespace(
 		const sl::BoxList<QualifiedName>& nameList,
 		NamespaceKind namespaceKind,
-		const Token::Pos& pos
+		const lex::LineCol& pos
 		);
 
 	AttributeBlock*
@@ -316,6 +324,23 @@ Members2
 
 	bool
 	declareInReaction(Declarator* declarator);
+
+	GlobalNamespace*
+	declareGlobalNamespace(
+		const lex::LineCol& pos,
+		const QualifiedName& name,
+		const lex::LineCol& bodyPos,
+		const sl::StringRef& body
+		);
+
+	ExtensionNamespace*
+	declareExtensionNamespace(
+		const lex::LineCol& pos,
+		const sl::StringRef& name,
+		Type* type,
+		const lex::LineCol& bodyPos,
+		const sl::StringRef& body
+		);
 
 	bool
 	declareTypedef(
@@ -380,9 +405,8 @@ Members2
 
 	EnumConst*
 	createEnumConst(
-		EnumType* type,
 		const sl::StringRef& name,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		sl::BoxList<Token>* initializer
 		);
 
@@ -409,7 +433,7 @@ Members2
 		uint_t flags
 		);
 
-	ClassType*
+	DynamicLibClassType*
 	createDynamicLibType(const sl::StringRef& name);
 
 	bool
@@ -423,6 +447,12 @@ Members2
 
 	bool
 	finalizeLastProperty(bool hasBody);
+
+	bool
+	parseLastPropertyBody(
+		const lex::LineCol& pos,
+		const sl::StringRef& body
+		);
 
 	bool
 	parseLastPropertyBody(const sl::ConstBoxList<Token>& body);
@@ -478,7 +508,7 @@ Members2
 
 	bool
 	callFieldConstructor(
-		StructField* field,
+		Field* field,
 		sl::BoxList<Value>* argList
 		);
 
@@ -488,14 +518,14 @@ Members2
 	bool
 	lookupIdentifier(
 		const sl::StringRef& name,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		Value* value
 		);
 
 	bool
 	lookupIdentifierType(
 		const sl::StringRef& name,
-		const Token::Pos& pos,
+		const lex::LineCol& pos,
 		Value* value
 		);
 

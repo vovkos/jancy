@@ -47,7 +47,6 @@ Module::Module():
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
-	m_destructor = NULL;
 
 	finalizeConstruction();
 }
@@ -77,7 +76,6 @@ Module::clear()
 	m_name.clear();
 	m_llvmIrBuilder.clear();
 	m_llvmDiBuilder.clear();
-	m_calcLayoutArray.clear();
 	m_compileArray.clear();
 	m_sourceList.clear();
 	m_filePathSet.clear();
@@ -95,7 +93,6 @@ Module::clear()
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
-	m_destructor = NULL;
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -389,6 +386,12 @@ Module::mapFunction(
 	void* p
 	)
 {
+	if (!function->hasLlvmFunction()) // never used
+	{
+		function->m_machineCode = p;
+		return true;
+	}
+
 	llvm::Function* llvmFunction = !function->m_llvmFunctionName.isEmpty() ?
 		m_llvmModule->getFunction(function->m_llvmFunctionName >> toLlvm) :
 		function->getLlvmFunction();
@@ -445,16 +448,9 @@ Module::setFunctionPointer(
 	void* p
 	)
 {
-	Function* function = m_namespaceMgr.getGlobalNamespace()->getFunctionByName(name);
-	if (!function)
-		return false;
-
-	llvm::Function* llvmFunction = function->getLlvmFunction();
-	if (!llvmFunction)
-		return false;
-
-	llvmExecutionEngine->addGlobalMapping(llvmFunction, p);
-	return true;
+	QualifiedName qualifiedName;
+	qualifiedName.parse(name);
+	return setFunctionPointer(llvmExecutionEngine, qualifiedName, p);
 }
 
 bool
@@ -464,11 +460,23 @@ Module::setFunctionPointer(
 	void* p
 	)
 {
-	ModuleItem* item = m_namespaceMgr.getGlobalNamespace()->findItem(name);
-	if (!item || item->getItemKind() != ModuleItemKind_Function)
+	FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(name);
+	if (!findResult.m_item)
 		return false;
 
-	llvm::Function* llvmFunction = ((Function*)item)->getLlvmFunction();
+	if (!findResult.m_item)
+	{
+		err::setFormatStringError("'%s' not found", name.getFullName().sz());
+		return false;
+	}
+
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
+	{
+		err::setFormatStringError("'%s' is not a function", name.getFullName().sz());
+		return false;
+	}
+
+	llvm::Function* llvmFunction = ((Function*)findResult.m_item)->getLlvmFunction();
 	if (!llvmFunction)
 		return false;
 
@@ -477,26 +485,13 @@ Module::setFunctionPointer(
 }
 
 void
-Module::markForLayout(
-	ModuleItem* item,
-	bool isForced
-	)
+Module::markForCompile(Function* function)
 {
-	if (!isForced && (item->m_flags & ModuleItemFlag_NeedLayout))
+	if (function->m_flags & ModuleItemFlag_NeedCompile)
 		return;
 
-	item->m_flags |= ModuleItemFlag_NeedLayout;
-	m_calcLayoutArray.append(item);
-}
-
-void
-Module::markForCompile(ModuleItem* item)
-{
-	if (item->m_flags & ModuleItemFlag_NeedCompile)
-		return;
-
-	item->m_flags |= ModuleItemFlag_NeedCompile;
-	m_compileArray.append(item);
+	function->m_flags |= ModuleItemFlag_NeedCompile;
+	m_compileArray.append(function);
 }
 
 bool
@@ -506,19 +501,51 @@ Module::parseImpl(
 	const sl::StringRef& source
 	)
 {
+	ASSERT(m_compileState < ModuleCompileState_Parsed);
+
 	bool result;
 
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer;
+	Lexer lexer(LexerMode_Parse);
 	lexer.create(fileName, source);
+
+#if (0)
+	for (;;)
+	{
+		const Token* token = lexer.getToken();
+		switch (token->m_token)
+		{
+		case TokenKind_Error:
+			printf("lexer error: %s\n", err::getLastErrorDescription().sz());
+			return false;
+
+		case TokenKind_Eof:
+			printf("EOF\n");
+			err::setError("lexer-test-exit");
+			return false;
+		}
+
+		printf(
+			"token(%3d) @%3d: %s\n",
+			token->m_tokenKind,
+			token->m_pos.m_line + 1,
+			sl::StringRef(token->m_pos.m_p, token->m_pos.m_length).sz()
+			);
+
+		lexer.nextToken();
+	}
+
+	err::setError("lexer-test-exit");
+	return false;
+#endif
 
 	if (m_compileFlags & ModuleCompileFlag_Documentation)
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
 
 	Parser parser(this);
-	parser.create(Parser::StartSymbol, true);
+	parser.create(Parser::StartSymbol);
 
 	for (;;)
 	{
@@ -580,8 +607,9 @@ Module::parseImpl(
 bool
 Module::parseFile(const sl::StringRef& fileName)
 {
-	sl::String filePath = io::getFullFilePath(fileName);
+	ASSERT(m_compileState < ModuleCompileState_Parsed);
 
+	sl::String filePath = io::getFullFilePath(fileName);
 	sl::StringHashTableIterator<bool> it = m_filePathSet.find(filePath);
 	if (it)
 		return true; // already parsed
@@ -603,63 +631,88 @@ Module::parseFile(const sl::StringRef& fileName)
 bool
 Module::parseImports()
 {
-	sl::ConstList<Import> importList = m_importMgr.getImportList();
-	sl::ConstIterator<Import> importIt = importList.getHead();
+	ASSERT(m_compileState < ModuleCompileState_Parsed);
 
-	for (; importIt; importIt++)
-	{
-		bool result = importIt->m_importKind == ImportKind_Source ?
-			parseImpl(
-				importIt->m_lib,
-				importIt->m_filePath,
-				importIt->m_source
-				) :
-			parseFile(importIt->m_filePath);
-
-		if (!result)
-			return false;
-	}
-
-	return true;
-}
-
-bool
-Module::link()
-{
 	bool result;
 
-	ASSERT(m_compileState < ModuleCompileState_Linked);
+	for (;;)
+	{
+		sl::List<Import> importList;
+		m_importMgr.takeOverImports(&importList);
+		if (importList.isEmpty())
+			break;
+
+		sl::ConstIterator<Import> importIt = importList.getHead();
+		for (; importIt; importIt++)
+		{
+			result = importIt->m_importKind == ImportKind_Source ?
+				parseImpl(
+					importIt->m_lib,
+					importIt->m_filePath,
+					importIt->m_source
+					) :
+				parseFile(importIt->m_filePath);
+
+			if (!result)
+				return false;
+		}
+	}
+
+	GlobalNamespace* nspace = m_namespaceMgr.getGlobalNamespace();
 
 	result =
-		m_typeMgr.resolveImportTypes() &&
-		m_namespaceMgr.resolveImportUsingSets() &&
-		m_namespaceMgr.resolveOrphans();
+		nspace->resolveOrphans() &&
+		m_variableMgr.allocateNamespaceVariables(sl::ConstIterator<Variable>()) &&
+		m_functionMgr.finalizeNamespaceProperties(sl::ConstIterator<Property>());
 
 	if (!result)
 		return false;
 
-	m_compileState = ModuleCompileState_Linked;
-	return true;
-}
-
-bool
-Module::calcLayout()
-{
-	bool result;
-
-	ASSERT(m_compileState < ModuleCompileState_LayoutCalculated);
-	if (m_compileState < ModuleCompileState_Linked)
+	sl::ConstStringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
+	for (; requireIt; requireIt++)
 	{
-		result = link();
+		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
+		if (!findResult.m_result)
+			return false;
+
+		if (!findResult.m_item)
+		{
+			if (!requireIt->m_value.m_isEssential) // not essential
+				continue;
+
+			err::setFormatStringError("required module item '%s' not found", requireIt->getKey().sz());
+			return false;
+		}
+
+		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined &&
+			findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
+		{
+			err::setFormatStringError(
+				"required module item '%s' item kind mismatch: '%s'",
+				requireIt->getKey().sz(),
+				getModuleItemKindString(findResult.m_item->getItemKind())
+				);
+			return false;
+		}
+
+		if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
+			requireIt->m_value.m_typeKind != TypeKind_Void &&
+			requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind())
+		{
+			err::setFormatStringError(
+				"required type '%s' type mismatch: '%s'",
+				requireIt->getKey().sz(),
+				((Type*)findResult.m_item)->getTypeString().sz()
+				);
+			return false;
+		}
+
+		result = findResult.m_item->require();
 		if (!result)
 			return false;
 	}
 
-	result = processCalcLayoutArray();
-	if (!result)
-		return false;
-
-	m_compileState = ModuleCompileState_LayoutCalculated;
+	m_compileState = ModuleCompileState_Parsed;
 	return true;
 }
 
@@ -669,23 +722,25 @@ Module::compile()
 	bool result;
 
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
-	if (m_compileState < ModuleCompileState_LayoutCalculated)
+	if (m_compileState < ModuleCompileState_Parsed)
 	{
-		result = calcLayout();
+		result = parseImports();
 		if (!result)
 			return false;
 	}
 
-	result =
-		createConstructorDestructor() &&
-		processCompileArray() &&
-		m_variableMgr.createTlsStructType();
+	result = processCompileArray();
+	if (!result)
+		return false;
 
+	createConstructor();
+
+	result = m_variableMgr.createTlsStructType();
 	if (!result)
 		return false;
 
 	m_functionMgr.injectTlsPrologues();
-	m_functionMgr.replaceAsyncAllocas();
+	m_functionMgr.replaceAsyncAllocas(); // after replacing TLS allocas!
 
 	result = m_controlFlowMgr.deleteUnreachableBlocks();
 	if (!result)
@@ -722,16 +777,18 @@ Module::optimize(uint_t level)
 	sl::Iterator<Function> it = m_functionMgr.m_functionList.getHead();
 	for (; it; it++)
 	{
-		Function* function = *it;
-		llvm::Function* llvmFunction = function->getLlvmFunction();
+		if (!it->hasLlvmFunction())
+			continue;
+
+		llvm::Function* llvmFunction = it->getLlvmFunction();
 		if (llvmFunction->isDeclaration())
 			it->m_llvmFunctionName = llvmFunction->getName() >> toAxl;
 	}
 
-	size_t count = m_variableMgr.m_globalStaticVariableArray.getCount();
+	size_t count = m_variableMgr.m_staticVariableArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
-		Variable* variable = m_variableMgr.m_globalStaticVariableArray[i];
+		Variable* variable = m_variableMgr.m_staticVariableArray[i];
 		llvm::GlobalVariable* llvmGlobalVariable = variable->getLlvmGlobalVariable();
 		if (llvmGlobalVariable->isDeclaration())
 			variable->m_llvmGlobalVariableName = llvmGlobalVariable->getName() >> toAxl;
@@ -792,36 +849,16 @@ Module::jit()
 }
 
 bool
-Module::processCalcLayoutArray()
-{
-	bool result;
-
-	while (!m_calcLayoutArray.isEmpty()) // new items could be added in process
-	{
-		sl::Array<ModuleItem*> calcLayoutArray = m_calcLayoutArray;
-		m_calcLayoutArray.clear();
-
-		size_t count = calcLayoutArray.getCount();
-		for (size_t i = 0; i < calcLayoutArray.getCount(); i++)
-		{
-			result = calcLayoutArray[i]->ensureLayout();
-			if (!result)
-				return false;
-		}
-	}
-
-	return true;
-}
-
-bool
 Module::processCompileArray()
 {
 	bool result;
 
-	while (!m_compileArray.isEmpty()) // new items could be added in process
+	// new items could be added in the process, so we need a loop
+
+	while (!m_compileArray.isEmpty())
 	{
-		sl::Array<ModuleItem*> compileArray = m_compileArray;
-		m_compileArray.clear();
+		sl::Array<Function*> compileArray;
+		sl::takeOver(&compileArray, &m_compileArray);
 
 		size_t count = compileArray.getCount();
 		for (size_t i = 0; i < compileArray.getCount(); i++)
@@ -832,109 +869,112 @@ Module::processCompileArray()
 
 			ASSERT(!m_namespaceMgr.getCurrentScope());
 		}
-	}
 
-	return true;
-}
+		if (!m_variableMgr.getGlobalVariablePrimeArray().isEmpty())
+		{
+			Function* function = createGlobalPrimerFunction();
+			m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariablePrimer, function);
+		}
 
-bool
-Module::postParseStdItem()
-{
-	bool result = m_typeMgr.resolveImportTypes();
-	if (!result)
-		return false;
+		if (!m_variableMgr.getGlobalVariableInitializeArray().isEmpty())
+		{
+			Function* function = createGlobalInitializerFunction();
+			if (!function)
+				return false;
 
-	if (m_compileState >= ModuleCompileState_LayoutCalculated)
-	{
-		result = processCalcLayoutArray();
+			m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariableInitializer, function);
+		}
+
+		result = m_typeMgr.requireExternalReturnTypes();
 		if (!result)
 			return false;
-
-		if (m_compileState >= ModuleCompileState_Compiled)
-		{
-			result = processCompileArray();
-			if (!result)
-				return false;
-		}
 	}
 
 	return true;
 }
-bool
-Module::createConstructorDestructor()
+
+void
+Module::createConstructor()
 {
-	ASSERT(!m_constructor && !m_destructor);
+	ASSERT(!m_constructor);
 
-	bool result;
+	const sl::Array<Function*>& primerArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_VariablePrimer);
+	const sl::Array<Function*>& initializerArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_VariableInitializer);
+	const sl::Array<Function*>& constructorArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_Constructor);
+	const sl::Array<Function*>& destructorArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_Destructor);
 
-	bool hasDestructors = false;
-	sl::ConstList<Unit> unitList = m_unitMgr.getUnitList();
+	if (primerArray.isEmpty() &&
+		initializerArray.isEmpty() &&
+		constructorArray.isEmpty() &&
+		destructorArray.isEmpty())
+		return;
 
-	// create constructor unconditionally -- static variable might appear during compilation
-
-	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
-	Function* function = m_functionMgr.createFunction(
-		FunctionKind_StaticConstructor,
-		sl::String(),
-		"module.construct",
-		type
-		);
-
-	function->m_storageKind = StorageKind_Static;
-	m_constructor = function;
+	FunctionType* constructorType = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
+	m_constructor = m_functionMgr.createInternalFunction("module.construct", constructorType);
+	m_constructor->m_storageKind = StorageKind_Static;
 
 	uint_t prevFlags = m_compileFlags;
 	m_compileFlags &= ~ModuleCompileFlag_GcSafePointInInternalPrologue;
-	m_functionMgr.internalPrologue(function);
+	m_functionMgr.internalPrologue(m_constructor);
 	m_compileFlags = prevFlags;
 
-	result = m_variableMgr.allocateInitializeGlobalVariables();
-	if (!result)
-		return false;
+	size_t count = primerArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		m_llvmIrBuilder.createCall(primerArray[i], primerArray[i]->getType(), NULL);
 
-	m_functionMgr.callStaticConstructors();
+	count = initializerArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		m_llvmIrBuilder.createCall(initializerArray[i], initializerArray[i]->getType(), NULL);
 
-	sl::ConstIterator<Unit> it = unitList.getHead();
-	for (; it; it++)
+	count = constructorArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		m_llvmIrBuilder.createCall(constructorArray[i], constructorArray[i]->getType(), NULL);
+
+	count = destructorArray.getCount();
+	if (count)
 	{
-		Function* constructor = it->getConstructor();
-		Function* destructor = it->getDestructor();
+		Function* addStaticDestructor = m_functionMgr.getStdFunction(StdFunc_AddStaticDestructor);
+		Type* voidPtrType = m_typeMgr.getStdType(StdType_BytePtr);
 
-		if (destructor)
-			hasDestructors = true;
-
-		if (constructor)
-			m_llvmIrBuilder.createCall(constructor, constructor->getType(), NULL);
+		for (size_t i = 0; i < count; i++)
+		{
+			Value argValue;
+			m_llvmIrBuilder.createBitCast(destructorArray[i], voidPtrType, &argValue);
+			m_llvmIrBuilder.createCall(addStaticDestructor, addStaticDestructor->getType(), argValue, NULL);
+		}
 	}
 
 	m_functionMgr.internalEpilogue();
+}
 
-	if (!hasDestructors)
-		return true;
-
-	function = m_functionMgr.createFunction(
-		FunctionKind_StaticDestructor,
-		sl::String(),
-		"module.destruct",
-		type
-		);
-
+Function*
+Module::createGlobalPrimerFunction()
+{
+	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
+	Function* function = m_functionMgr.createInternalFunction("module.primeGlobals", type);
 	function->m_storageKind = StorageKind_Static;
-	m_destructor = function;
+
+	m_functionMgr.internalPrologue(function);
+	m_variableMgr.primeGlobalVariables();
+	m_functionMgr.internalEpilogue();
+	return function;
+}
+
+Function*
+Module::createGlobalInitializerFunction()
+{
+	FunctionType* type = (FunctionType*)m_typeMgr.getStdType(StdType_SimpleFunction);
+	Function* function = m_functionMgr.createInternalFunction("module.initializeGlobals", type);
+	function->m_storageKind = StorageKind_Static;
 
 	m_functionMgr.internalPrologue(function);
 
-	it = unitList.getTail();
-	for (; it; it--)
-	{
-		Function* destructor = it->getDestructor();
-		if (destructor)
-			m_llvmIrBuilder.createCall(destructor, destructor->getType(), NULL);
-	}
+	bool result = m_variableMgr.initializeGlobalVariables();
+	if (!result)
+		return NULL;
 
 	m_functionMgr.internalEpilogue();
-
-	return true;
+	return function;
 }
 
 sl::String

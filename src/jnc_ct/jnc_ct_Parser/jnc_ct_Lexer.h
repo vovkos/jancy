@@ -36,6 +36,7 @@ enum TokenKind
 	TokenKind_BinLiteral,
 	TokenKind_FmtLiteral,
 	TokenKind_FmtSpecifier,
+	TokenKind_Body,
 
 	// special declarations
 
@@ -118,7 +119,6 @@ enum TokenKind
 
 	TokenKind_Get,
 	TokenKind_Set,
-	TokenKind_PreConstruct,
 	TokenKind_Construct,
 	TokenKind_Destruct,
 	TokenKind_Operator,
@@ -227,6 +227,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_BinLiteral,   "bin-literal")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtLiteral,   "fmt-literal")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtSpecifier, "fmt-specifier")
+	AXL_LEX_TOKEN_NAME(TokenKind_Body,         "body")
 
 	// special declarations
 
@@ -309,7 +310,6 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 
 	AXL_LEX_TOKEN_NAME(TokenKind_Get,          "get")
 	AXL_LEX_TOKEN_NAME(TokenKind_Set,          "set")
-	AXL_LEX_TOKEN_NAME(TokenKind_PreConstruct, "preconstruct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Construct,    "construct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,     "destruct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Operator,     "operator")
@@ -399,19 +399,37 @@ typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum LexerMode
+{
+	LexerMode_Parse,   // don't tokenize bodies
+	LexerMode_Compile,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class Lexer: public lex::RagelLexer<Lexer, Token>
 {
 	friend class lex::RagelLexer<Lexer, Token>;
 
 protected:
+	LexerMode m_mode;
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
+	Token* m_bodyToken;
+	size_t m_curlyBraceLevel;
 	int m_mlBinLiteralTokenRadix;
+
 	sl::Array<intptr_t> m_parenthesesLevelStack;
 	sl::String m_dir;
 
 public:
-	Lexer();
+	Lexer(LexerMode mode = LexerMode_Compile);
+
+	LexerMode
+	getMode()
+	{
+		return m_mode;
+	}
 
 protected:
 	Token*
@@ -490,6 +508,12 @@ protected:
 
 	Token*
 	createDoxyCommentToken(TokenKind tokenKind);
+
+	bool
+	onLeftCurlyBrace();
+
+	bool
+	onRightCurlyBrace();
 
 	void
 	onLeftParentheses();

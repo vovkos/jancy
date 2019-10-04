@@ -61,6 +61,35 @@ raw_lit_sq = "'" [^'\n]* ("'" | nl);
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
+# curly-braces-enclosed body machine
+#
+
+body_main := |*
+
+'{'          { ++m_curlyBraceLevel; };
+'}'          { if (onRightCurlyBrace()) fret; };
+lit_dq_w_esc ;
+lit_sq       ;
+'"""'        { fgoto body_lit_ml; };
+
+'//' [^\n]*  ;
+'/*' (any | nl)* :>> '*/'
+             ;
+nl           ;
+any          ;
+
+*|;
+
+body_lit_ml := |*
+
+'"""'     { fgoto body_main; };
+nl        ;
+any       ;
+
+*|;
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
 # multi-line literal machine
 #
 
@@ -197,7 +226,6 @@ main := |*
 
 'get'            { createToken(TokenKind_Get); };
 'set'            { createToken(TokenKind_Set); };
-'preconstruct'   { createToken(TokenKind_PreConstruct); };
 'construct'      { createToken(TokenKind_Construct); };
 'destruct'       { createToken(TokenKind_Destruct); };
 'operator'       { createToken(TokenKind_Operator); };
@@ -341,8 +369,8 @@ dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 
 '//' [^\n]*      ;
 '/*' (any | nl)* :>> '*/'
-				 ;
-
+                 ;
+'{'              { if (onLeftCurlyBrace()) fcall body_main; };
 '('              { onLeftParentheses(); };
 ')'              { if (!onRightParentheses()) fret; };
 ';'              { if (!onSemicolon()) fcall fmt_spec; };

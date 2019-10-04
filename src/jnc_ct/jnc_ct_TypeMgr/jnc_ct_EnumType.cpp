@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_EnumType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
@@ -126,9 +127,38 @@ EnumType::prepareSignature()
 }
 
 bool
+EnumType::parseBody()
+{
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	m_module->m_namespaceMgr.openNamespace(this);
+
+	size_t length = m_body.getLength();
+	ASSERT(length >= 2);
+
+	Parser parser(m_module, Parser::Mode_Parse);
+	bool result = parser.parseBody(
+		SymbolKind_enum_const_list,
+		lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
+		m_body.getSubString(1, length - 2)
+		);
+
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.closeNamespace();
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
+	return true;
+}
+
+bool
 EnumType::calcLayout()
 {
-	bool result;
+	bool result =
+		m_baseType->ensureLayout() &&
+		ensureNamespaceReady();
+
+	if (!result)
+		return false;
 
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
 	{

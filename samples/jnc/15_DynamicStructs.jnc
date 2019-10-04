@@ -68,7 +68,7 @@ printFileHdr(FileHdr const* hdr)
 	for (size_t i = 0; i < hdr.m_sectionCount; i++)
 	{
 		char const* section = data + hdr.m_sectionTable[i].m_offset;
-		printf("section [%d]: %s\n", i, section);
+		printf("section[%d]:  %s\n", i, section);
 	}
 }
 
@@ -92,7 +92,7 @@ int main()
 		"section-2",        // 84:
 	}
 
-	printf("sizeof (buffer): %d\n", sizeof (buffer));
+	printf("sizeof(buffer): %d\n", sizeof(buffer));
 
 	printFileHdr((FileHdr const*) buffer);
 

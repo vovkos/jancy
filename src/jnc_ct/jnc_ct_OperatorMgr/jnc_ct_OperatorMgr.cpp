@@ -166,8 +166,12 @@ OperatorMgr::getOverloadedUnaryOperator(
 	const Value& opValue
 	)
 {
-	Type* opType = prepareOperandType(opValue);
+	Value opTypeValue;
+	bool result = prepareOperandType(opValue, &opTypeValue);
+	if (!result)
+		return NULL;
 
+	Type* opType = opTypeValue.getType();
 	if (opType->getTypeKind() == TypeKind_ClassPtr)
 	{
 		ClassPtrType* ptrType = (ClassPtrType*)opType;
@@ -202,7 +206,9 @@ OperatorMgr::getUnaryOperatorResultType(
 	ASSERT(op);
 
 	Value opValue;
-	prepareOperandType(rawOpValue, &opValue, op->getOpFlags());
+	bool result = prepareOperandType(rawOpValue, &opValue, op->getOpFlags());
+	if (!result)
+		return NULL;
 
 	return opValue.getType()->getTypeKind() == TypeKind_Variant && opKind <= UnOpKind_Indir ?
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant) :
@@ -287,8 +293,13 @@ OperatorMgr::getBinaryOperatorResultType(
 
 	Value opValue1;
 	Value opValue2;
-	prepareOperandType(rawOpValue1, &opValue1, op->getOpFlags1());
-	prepareOperandType(rawOpValue2, &opValue2, op->getOpFlags2());
+
+	bool result =
+		prepareOperandType(rawOpValue1, &opValue1, op->getOpFlags1()) &&
+		prepareOperandType(rawOpValue2, &opValue2, op->getOpFlags2());
+
+	if (!result)
+		return NULL;
 
 	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge)
 		return m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
@@ -322,7 +333,12 @@ OperatorMgr::getOverloadedBinaryOperator(
 	const Value& opValue
 	)
 {
-	Type* opType = prepareOperandType(opValue);
+	Value opTypeValue;
+	bool result = prepareOperandType(opValue, &opTypeValue);
+	if (!result)
+		return NULL;
+
+	Type* opType = opTypeValue.getType();
 	if (opType->getTypeKind() == TypeKind_ClassPtr)
 	{
 		ClassPtrType* ptrType = (ClassPtrType*)opType;
@@ -347,13 +363,17 @@ OperatorMgr::binaryOperator(
 {
 	ASSERT((size_t)opKind < BinOpKind__Count);
 
+	bool result;
+
 	Function* function = getOverloadedBinaryOperator(opKind, rawOpValue1);
 	if (function)
 	{
 		if (function->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr)
 		{
 			Value opValue1;
-			prepareOperandType(rawOpValue1, &opValue1);
+			result = prepareOperandType(rawOpValue1, &opValue1);
+			if (!result)
+				return false;
 
 			if (opValue1.getType()->getTypeKind() == TypeKind_ClassPtr &&
 				(opValue1.getType()->getFlags() & PtrTypeFlag_Event))
@@ -379,7 +399,7 @@ OperatorMgr::binaryOperator(
 	BinaryOperator* op = m_binaryOperatorTable[opKind];
 	ASSERT(op);
 
-	bool result =
+	result =
 		prepareOperand(rawOpValue1, &opValue1, op->getOpFlags1()) &&
 		prepareOperand(rawOpValue2, &opValue2, op->getOpFlags2());
 
@@ -429,8 +449,9 @@ OperatorMgr::getConditionalOperatorResultType(
 	const Value& falseValue
 	)
 {
-	Type* resultType;
+	bool result;
 
+	Type* resultType;
 	Type* trueType = trueValue.getClosureAwareType();
 	Type* falseType = falseValue.getClosureAwareType();
 
@@ -455,14 +476,24 @@ OperatorMgr::getConditionalOperatorResultType(
 		if (isArrayRefType(falseType))
 			falseFlags |= OpFlag_ArrayRefToPtr;
 
-		trueType = prepareOperandType(trueType, trueFlags);
-		falseType = prepareOperandType(falseType, falseFlags);
+		Value trueTypeValue;
+		Value falseTypeValue;
+
+		result =
+			prepareOperandType(trueType, &trueTypeValue, trueFlags) &&
+			prepareOperandType(falseType, &falseTypeValue, falseFlags);
+
+		if (!result)
+			return NULL;
+
+		trueType = trueTypeValue.getType();
+		falseType = falseTypeValue.getType();
 
 		resultType =
 			trueType->cmp(falseType) == 0 ? trueType :
 			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
 				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
-				prepareOperandType(trueType);
+				trueType;
 	}
 
 	// if it's a lean data pointer, fatten it
@@ -477,7 +508,7 @@ OperatorMgr::getConditionalOperatorResultType(
 			);
 	}
 
-	bool result =
+	result =
 		checkCastKind(trueValue, resultType) &&
 		checkCastKind(falseValue, resultType);
 
@@ -766,6 +797,8 @@ OperatorMgr::getCastKind(
 	if (rawOpValue.getValueKind() == ValueKind_Null)
 		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Implicit : CastKind_None;
 
+	sl::String s = type->getTypeString();
+
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < TypeKind__Count);
 
@@ -773,11 +806,14 @@ OperatorMgr::getCastKind(
 	ASSERT(op); // there is always a default
 
 	Value opValue;
-	prepareOperandType(
+	bool result = prepareOperandType(
 		rawOpValue,
 		&opValue,
 		op->getOpFlags()
 		);
+
+	if (!result)
+		return CastKind_None;
 
 	Type* opType = opValue.getType();
 	return
@@ -788,12 +824,21 @@ OperatorMgr::getCastKind(
 
 CastKind
 OperatorMgr::getArgCastKind(
+	Closure* closure,
 	FunctionType* functionType,
 	FunctionArg* const* actualArgArray,
 	size_t actualArgCount
 	)
 {
 	sl::Array<FunctionArg*> formalArgArray = functionType->getArgArray();
+
+	if (closure)
+	{
+		bool result = closure->getArgTypeArray(m_module, &formalArgArray);
+		if (!result)
+			return CastKind_None;
+	}
+
 	size_t formalArgCount = formalArgArray.getCount();
 
 	if (actualArgCount > formalArgCount && !(functionType->getFlags() & FunctionTypeFlag_VarArg))
@@ -987,7 +1032,9 @@ OperatorMgr::sizeofOperator(
 	Value* resultValue
 	)
 {
+	bool result;
 	Type* type = opValue.getType();
+
 	if (type->getTypeKind() == TypeKind_DataRef)
 		type = ((DataPtrType*)type)->getTargetType();
 
@@ -1011,7 +1058,12 @@ OperatorMgr::sizeofOperator(
 			}
 		}
 
-		type = prepareOperandType(opValue);
+		Value typeValue;
+		result = prepareOperandType(opValue, &typeValue);
+		if (!result)
+			return false;
+
+		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
 			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
@@ -1028,6 +1080,10 @@ OperatorMgr::sizeofOperator(
 		return false;
 	}
 
+	result = type->ensureLayout();
+	if (!result)
+		return false;
+
 	resultValue->setConstSizeT(type->getSize(), m_module);
 	return true;
 }
@@ -1039,6 +1095,8 @@ OperatorMgr::countofOperator(
 	Value* resultValue
 	)
 {
+	bool result;
+
 	Type* type = opValue.getType();
 	if (type->getTypeKind() == TypeKind_DataRef)
 		type = ((DataPtrType*)type)->getTargetType();
@@ -1067,7 +1125,12 @@ OperatorMgr::countofOperator(
 			return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
 		}
 
-		type = prepareOperandType(opValue);
+		Value typeValue;
+		bool result = prepareOperandType(opValue, &typeValue);
+		if (!result)
+			return false;
+
+		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
 			err::setFormatStringError("'dynamic countof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
@@ -1075,7 +1138,7 @@ OperatorMgr::countofOperator(
 		}
 
 		type = ((DataPtrType*)type)->getTargetType();
-		Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
+		typeValue.createConst(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_DynamicCountOf);
 		return callOperator(function, opValue, typeValue, resultValue);
 	}
@@ -1092,6 +1155,10 @@ OperatorMgr::countofOperator(
 		return false;
 	}
 
+	result = type->ensureLayout();
+	if (!result)
+		return false;
+
 	resultValue->setConstSizeT(((ArrayType*)type)->getElementCount(), m_module);
 	return true;
 }
@@ -1103,16 +1170,17 @@ OperatorMgr::typeofOperator(
 	Value* resultValue
 	)
 {
-	Type* type = opValue.getType();
-	if (type->getTypeKind() == TypeKind_DataRef)
-		type = ((DataPtrType*)type)->getTargetType();
+	Value typeValue;
+	bool result = prepareOperandType(opValue, &typeValue);
+	if (!result)
+		return false;
 
+	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
-		type = prepareOperandType(opValue);
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
-			err::setFormatStringError("'dynamic sizeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
+			err::setFormatStringError("'dynamic typeof' operator is only applicable to data pointers, not to '%s'", type->getTypeString().sz());
 			return false;
 		}
 
@@ -1125,21 +1193,30 @@ OperatorMgr::typeofOperator(
 		return false;
 	}
 
+	result = type->ensureLayout();
+	if (!result)
+		return false;
+
 	resultValue->setVariable(type->getTypeVariable());
 	return true;
 }
 
-void
+bool
 OperatorMgr::prepareOperandType(
 	const Value& opValue,
 	Value* resultValue,
 	uint_t opFlags
 	)
 {
-	if (opValue.isEmpty())
+	bool result;
+
+	switch (opValue.getValueKind())
 	{
+	case ValueKind_Void:
+	case ValueKind_FunctionOverload:
+	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
-		return;
+		return true;
 	}
 
 	Value value = opValue;
@@ -1147,12 +1224,37 @@ OperatorMgr::prepareOperandType(
 	for (;;)
 	{
 		Type* type = value.getType();
-		Type* prevType = type;
+		result = type->ensureLayout();
+		if (!result)
+			return false;
 
 		TypeKind typeKind = type->getTypeKind();
 		switch (typeKind)
 		{
+		case TypeKind_NamedImport:
+		case TypeKind_ImportIntMod:
+		case TypeKind_ImportPtr:
+			value.overrideType(((ImportType*)type)->getActualType());
+			break;
+
+		case TypeKind_DataPtr:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
+			break;
+
 		case TypeKind_DataRef:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
 			if (!(opFlags & OpFlag_KeepDataRef))
 			{
 				DataPtrType* ptrType = (DataPtrType*)type;
@@ -1170,9 +1272,7 @@ OperatorMgr::prepareOperandType(
 					bool b2 = targetTypeKind == TypeKind_Variant && (opFlags & OpFlag_KeepVariantRef);
 
 					if (!b1 && !b2)
-					{
 						value = ((DataPtrType*)type)->getTargetType();
-					}
 				}
 				else if (opFlags & OpFlag_LoadArrayRef)
 				{
@@ -1191,16 +1291,33 @@ OperatorMgr::prepareOperandType(
 
 			break;
 
+		case TypeKind_ClassPtr:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
+			break;
+
 		case TypeKind_ClassRef:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
 			if (!(opFlags & OpFlag_KeepClassRef))
 			{
 				ClassPtrType* ptrType = (ClassPtrType*)type;
 				ClassType* targetType = ptrType->getTargetType();
-				value = targetType->getClassPtrType(
+				value.overrideType(targetType->getClassPtrType(
 					TypeKind_ClassPtr,
 					ptrType->getPtrTypeKind(),
 					ptrType->getFlags()
-					);
+					));
 			}
 
 			break;
@@ -1210,7 +1327,7 @@ OperatorMgr::prepareOperandType(
 			{
 				FunctionPtrType* ptrType = (FunctionPtrType*)value.getClosureAwareType(); // important: take closure into account!
 				if (!ptrType)
-					break;
+					return false;
 
 				FunctionType* targetType = ptrType->getTargetType();
 				value = targetType->getFunctionPtrType(ptrType->getPtrTypeKind(), ptrType->getFlags());
@@ -1223,7 +1340,7 @@ OperatorMgr::prepareOperandType(
 			{
 				PropertyPtrType* ptrType = (PropertyPtrType*)value.getClosureAwareType();
 				if (!ptrType)
-					break;
+					return false;
 
 				PropertyType* targetType = ptrType->getTargetType();
 				if (!targetType->isIndexed())
@@ -1240,7 +1357,7 @@ OperatorMgr::prepareOperandType(
 
 		case TypeKind_Enum:
 			if (!(opFlags & OpFlag_KeepEnum))
-				value = ((EnumType*)type)->getBaseType();
+				value.overrideType(((EnumType*)type)->getBaseType());
 
 			break;
 		}
@@ -1250,17 +1367,7 @@ OperatorMgr::prepareOperandType(
 	}
 
 	*resultValue = value;
-}
-
-Type*
-OperatorMgr::prepareOperandType(
-	const Value& opValue,
-	uint_t opFlags
-	)
-{
-	Value resultValue;
-	prepareOperandType(opValue, &resultValue, opFlags);
-	return resultValue.getType();
+	return true;
 }
 
 void
@@ -1307,8 +1414,11 @@ OperatorMgr::prepareOperand(
 {
 	bool result;
 
-	if (opValue.isEmpty())
+	switch (opValue.getValueKind())
 	{
+	case ValueKind_Void:
+	case ValueKind_FunctionOverload:
+	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
 		return true;
 	}
@@ -1317,11 +1427,37 @@ OperatorMgr::prepareOperand(
 	for (;;)
 	{
 		Type* type = value.getType();
+		result = type->ensureLayout();
+		if (!result)
+			return false;
 
 		TypeKind typeKind = type->getTypeKind();
 		switch (typeKind)
 		{
+		case TypeKind_NamedImport:
+		case TypeKind_ImportIntMod:
+		case TypeKind_ImportPtr:
+			value.overrideType(((ImportType*)type)->getActualType());
+			break;
+
+		case TypeKind_DataPtr:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
+			break;
+
 		case TypeKind_DataRef:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((DataPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
 			if (!(opFlags & OpFlag_KeepDataRef))
 			{
 				DataPtrType* ptrType = (DataPtrType*)type;
@@ -1354,7 +1490,24 @@ OperatorMgr::prepareOperand(
 
 			break;
 
+		case TypeKind_ClassPtr:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
+			break;
+
 		case TypeKind_ClassRef:
+			if (opFlags & OpFlag_EnsurePtrTargetLayout)
+			{
+				result = ((ClassPtrType*)type)->getTargetType()->ensureLayout();
+				if (!result)
+					return false;
+			}
+
 			if (!(opFlags & OpFlag_KeepClassRef))
 			{
 				ClassPtrType* ptrType = (ClassPtrType*)type;

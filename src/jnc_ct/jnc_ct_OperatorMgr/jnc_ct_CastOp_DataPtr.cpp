@@ -28,7 +28,11 @@ Cast_DataPtr_FromArray::getCastKind(
 {
 	if (isArrayRefType(opValue.getType()))
 	{
-		Value ptrValue = m_module->m_operatorMgr.prepareOperandType(opValue, OpFlag_ArrayRefToPtr);
+		Value ptrValue;
+		bool result = m_module->m_operatorMgr.prepareOperandType(opValue, &ptrValue, OpFlag_ArrayRefToPtr);
+		if (!result)
+			return CastKind_None;
+
 		return m_module->m_operatorMgr.getCastKind(ptrValue, type);
 	}
 
@@ -81,6 +85,7 @@ Cast_DataPtr_FromArray::constCast(
 	DataPtrType* dstType = (DataPtrType*)type;
 
 	const Value& savedOpValue = m_module->m_constMgr.saveValue(opValue);
+	const void* p0 = opValue.getConstData();
 	const void* p = savedOpValue.getConstData();
 
 	AXL_TODO("create a global constant holding the array")

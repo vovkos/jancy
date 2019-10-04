@@ -42,7 +42,7 @@ protected:
 	StructType* m_classStructType;
 
 	sl::Array<BaseTypeSlot*> m_classBaseTypeArray;
-	sl::Array<StructField*> m_classMemberFieldArray;
+	sl::Array<Field*> m_classFieldArray;
 
 	MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
 
@@ -127,10 +127,10 @@ public:
 		return m_classBaseTypeArray;
 	}
 
-	sl::Array<StructField*>
-	getClassMemberFieldArray()
+	sl::Array<Field*>
+	getClassFieldArray()
 	{
-		return m_classMemberFieldArray;
+		return m_classFieldArray;
 	}
 
 	sl::Array<Function*>
@@ -156,7 +156,19 @@ public:
 
 	virtual
 	bool
-	compile();
+	require()
+	{
+		return ensureLayout() && ensureCreatable() && requireConstructor();
+	}
+
+	virtual
+	bool
+	requireExternalReturn()
+	{
+		return ensureLayout() &&
+			((m_flags & ClassTypeFlag_HasAbstractMethods) || // OK to return abstract classes
+			ensureCreatable() && requireConstructor());
+	}
 
 	virtual
 	void
@@ -164,6 +176,12 @@ public:
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
+
+	bool
+	ensureCreatable()
+	{
+		return (m_flags & ClassTypeFlag_Creatable) ? true : prepareForOperatorNew();
+	}
 
 protected:
 	void
@@ -173,7 +191,7 @@ protected:
 		);
 
 	virtual
-	StructField*
+	Field*
 	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
@@ -209,14 +227,15 @@ protected:
 	bool
 	calcLayout();
 
-	void
+	bool
 	addVirtualFunction(Function* function);
 
 	bool
 	overrideVirtualFunction(Function* function);
 
-	void
-	createVtableVariable();
+	virtual
+	bool
+	prepareForOperatorNew();
 };
 
 //..............................................................................

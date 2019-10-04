@@ -224,12 +224,14 @@ public:
 	size_t
 	getSize()
 	{
+		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 		return m_size;
 	}
 
 	size_t
 	getAlignment()
 	{
+		ASSERT(m_flags & ModuleItemFlag_LayoutReady);
 		return m_alignment;
 	}
 
@@ -290,6 +292,12 @@ public:
 		return type != this ? getSignature().cmp(type->getSignature()) : 0;
 	}
 
+	bool
+	ensureLayout()
+	{
+		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
+	}
+
 	ArrayType*
 	getArrayType(size_t elementCount);
 
@@ -328,17 +336,25 @@ public:
 		);
 
 	virtual
+	bool
+	require()
+	{
+		return ensureLayout();
+	}
+
+	virtual
 	void
 	markGcRoots(
 		const void* p,
 		rt::GcHeap* gcHeap
 		);
 
-
-
 protected:
 	TypeStringTuple*
 	getTypeStringTuple();
+
+	bool
+	prepareLayout();
 
 	virtual
 	void
@@ -376,7 +392,7 @@ protected:
 	bool
 	calcLayout()
 	{
-		ASSERT(m_size && m_alignment);
+		ASSERT(false); // shouldn't be called unless required
 		return true;
 	}
 
@@ -495,6 +511,14 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
+
+protected:
+	virtual
+	bool
+	calcLayout()
+	{
+		return m_type->ensureLayout();
+	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -572,9 +596,6 @@ getSimpleType(
 	StdType stdType,
 	Module* module
 	);
-
-Type*
-getModuleItemType(ModuleItem* item);
 
 Type*
 getDirectRefType(

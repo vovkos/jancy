@@ -37,7 +37,7 @@ int property g_simpleProp(size_t i);
 
 int g_simpleProp.get(size_t i)
 {
-	printf("g_simpleProp.get (%d)\n", i);
+	printf("g_simpleProp.get(%d)\n", i);
 	return g_x[i];
 }
 
@@ -46,7 +46,7 @@ g_simpleProp.set(
 	int x
 	)
 {
-	printf("g_simpleProp.set (%d, %d)\n", i, x);
+	printf("g_simpleProp.set(%d, %d)\n", i, x);
 	g_x[i] = x;
 }
 
@@ -62,7 +62,7 @@ int g_x[2];
 
 property g_prop
 {
-	int m_x[2] [2];
+	int m_x[2][2];
 
 	// more than one index argument can be used...
 
@@ -71,8 +71,8 @@ property g_prop
 		size_t j
 		)
 	{
-		printf("g_prop.get (%d, %d)\n", i, j);
-		return m_x[i] [j];
+		printf("g_prop.get(%d, %d)\n", i, j);
+		return m_x[i][j];
 	}
 
 	// ... but all accessors should have the same index arguments
@@ -83,8 +83,8 @@ property g_prop
 		int x
 		)
 	{
-		printf("g_prop.set (%d, %d, int %d)\n", i, j, x);
-		m_x[i] [j] = x;
+		printf("g_prop.set(%d, %d, int %d)\n", i, j, x);
+		m_x[i][j] = x;
 	}
 
 	// setters of indexed properties can be overloaded
@@ -95,8 +95,8 @@ property g_prop
 		double x
 		)
 	{
-		printf("g_prop.set (%d, %d, double %f)\n", i, j, x);
-		m_x[i] [j] = (int)x;
+		printf("g_prop.set(%d, %d, double %f)\n", i, j, x);
+		m_x[i][j] = (int)x;
 	}
 }
 
@@ -112,14 +112,14 @@ int main()
 
 	g_simpleProp[0] = 100;
 	g_simpleProp[1] = 200;
-	// g_simpleProp [2] = 300; // <-- runtime error
+	// g_simpleProp[2] = 300; // <-- runtime error
 
 	// to access a property with multiple index arguments use the same syntax as
 	// for accessing multi-dimensional arrays
 
-	x = g_prop[1] [1];
-	g_prop[0] [1] = 500;
-	g_prop[1] [0] = 1.5;
+	x = g_prop[1][1];
+	g_prop[0][1] = 500;
+	g_prop[1][0] = 1.5;
 
 	return 0;
 }

@@ -215,70 +215,59 @@ add_jancy_tests
 	# ...
 	)
 
-	set(_FLAGS "--print-retval --import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION> ${JANCY_TEST_OPT_LEVEL}")
+	set(_ARG_LIST ${ARGN})
+
+	set(
+		_FLAG_LIST
+		--print-retval
+		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
+		${JANCY_TEST_OPT_LEVEL}
+		)
 
 	if(UNIX)
-		set(_FLAGS "${_FLAGS} --debug-info")
+		list(APPEND _FLAG_LIST --debug-info)
 	endif()
 
-	string(REPLACE " " ";" _FLAG_LIST "${_FLAGS}")
-
-	set(_ARG_LIST ${ARGN})
-	set(_DIR)
-	set(_PREFIX)
+	set(_COMMAND)
+	set(_NAME_PREFIX)
+	set(_WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
+	set(_REQUIRE_LIST)
 	set(_FILE_LIST)
-	set(_FIRST_FILE)
-	set(_IS_DIR FALSE)
-	set(_IS_PREFIX FALSE)
-	set(_IS_FLAGS FALSE)
-	set(_IS_FILE_LIST FALSE)
 
 	foreach(_ARG ${_ARG_LIST})
-		if(_IS_DIR)
-			set(_DIR ${_ARG})
-			set(_IS_DIR FALSE)
-		elseif(_IS_PREFIX)
-			set(_PREFIX ${_ARG})
-			set(_IS_PREFIX FALSE)
-		elseif(_IS_FLAGS)
-			set(_FLAGS "${_FLAGS} ${_ARG}")
-			set(_IS_FLAGS FALSE)
-			string(REPLACE " " ";" _FLAG_LIST "${_FLAGS}")
-		elseif("${_ARG}" STREQUAL "WORKING_DIRECTORY")
-			set(_IS_DIR TRUE)
-		elseif("${_ARG}" STREQUAL "NAME_PREFIX")
-			set(_IS_PREFIX TRUE)
-		elseif("${_ARG}" STREQUAL "FLAGS")
-			set(_IS_FLAGS TRUE)
-		elseif("${_ARG}" STREQUAL "BEGIN_FILE_LIST")
-			set(_IS_FILE_LIST TRUE)
-			set(_FILE_LIST)
-		elseif(_IS_FILE_LIST AND NOT "${_ARG}" STREQUAL "END_FILE_LIST")
-			if("${_FILE_LIST}" STREQUAL "")
-				set(_FIRST_FILE ${_ARG})
-			endif()
+		if("${_ARG}" MATCHES "NAME_PREFIX|WORKING_DIRECTORY|FLAGS|TESTS|REQUIRES|FILES|FINALIZE_TEST")
+			set(_COMMAND ${_ARG})
 
+			if (${_COMMAND} MATCHES "S$") # a list -- clear it
+				string(REGEX REPLACE "S$" "_LIST" _LIST "${_COMMAND}")
+				set(_${_LIST})
+			endif()
+		elseif("${_COMMAND}" STREQUAL "NAME_PREFIX")
+			set(_NAME_PREFIX ${_ARG})
+		elseif("${_COMMAND}" STREQUAL "WORKING_DIRECTORY")
+			set(_WORKING_DIRECTORY ${_ARG})
+		elseif("${_COMMAND}" STREQUAL "FLAGS")
+			list(APPEND _FLAG_LIST ${_ARG})
+		elseif("${_COMMAND}" STREQUAL "REQUIRES")
+			list(APPEND _REQUIRE_LIST "--require" ${_ARG})
+		elseif("${_COMMAND}" STREQUAL "FILES")
 			list(APPEND _FILE_LIST ${_ARG})
-		else()
-			if(_IS_FILE_LIST)
-				set(_IS_FILE_LIST FALSE)
-			else()
-				set(_FIRST_FILE ${_ARG})
-				set(_FILE_LIST ${_ARG})
-			endif()
+		elseif("${_COMMAND}" STREQUAL "TESTS")
+			add_test(
+				NAME ${_NAME_PREFIX}${_ARG}
+				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
+				COMMAND jnc_app ${_FLAG_LIST} ${_ARG}
+				)
+		elseif("${_COMMAND}" STREQUAL "FINALIZE_TEST")
+			add_test(
+				NAME ${_NAME_PREFIX}${_ARG}
+				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
+				COMMAND jnc_app ${_FLAG_LIST} ${_REQUIRE_LIST} ${_FILE_LIST}
+				)
 
-			if("${_DIR}" STREQUAL "")
-				add_test(
-					NAME ${_PREFIX}${_FIRST_FILE}
-					COMMAND jnc_app ${_FLAG_LIST} ${_FILE_LIST}
-					)
-			else()
-				add_test(
-					NAME ${_PREFIX}${_FIRST_FILE}
-					WORKING_DIRECTORY ${_DIR}
-					COMMAND jnc_app ${_FLAG_LIST} ${_FILE_LIST}
-					)
-			endif()
+			set(_COMMAND)
+		else()
+			message(FATAL_ERROR "syntax error in 'add_jancy_tests': ARG: '${_ARG}' COMMAND: '${_COMMAND}'")
 		endif()
 	endforeach()
 endmacro()

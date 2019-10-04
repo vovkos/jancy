@@ -13,25 +13,27 @@ namespace jnc {
 
 ///+++
 
-///; static char namedTypeBlockSrc[] =
+///; static char memberBlockSrc[] =
 
 //..............................................................................
 
-opaque class NamedTypeBlock
+opaque class MemberBlock
 {
 	Function* const property m_staticConstructor;
-	Function* const property m_staticDestructor;
 	Function* const property m_constructor;
 	Function* const property m_destructor;
 
-	size_t const property m_memberFieldCount;
-	StructField* const property m_memberFieldArray(size_t index);
+	size_t const property m_staticVariableCount;
+	Variable* const property m_staticVariableArray(size_t index);
 
-	size_t const property m_memberMethodCount;
-	Function* const property m_memberMethodArray(size_t index);
+	size_t const property m_fieldCount;
+	Field* const property m_fieldArray(size_t index);
 
-	size_t const property m_memberPropertyCount;
-	Property* const property m_memberPropertyArray(size_t index);
+	size_t const property m_methodCount;
+	Function* const property m_methodArray(size_t index);
+
+	size_t const property m_propertyCount;
+	Property* const property m_propertyArray(size_t index);
 
 	construct(intptr p);
 }

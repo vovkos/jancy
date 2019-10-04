@@ -46,7 +46,7 @@ bitflag enum PropertyFlag
 opaque class Property:
 	ModuleItem,
 	Namespace,
-	NamedTypeBlock
+	MemberBlock
 {
 	PropertyKind const property m_propertyKind;
 	PropertyType* const property m_type;

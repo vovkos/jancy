@@ -15,6 +15,10 @@
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_UnionType.h"
+#include "jnc_ct_DynamicLibClassType.h"
+#include "jnc_ct_DynamicLibNamespace.h"
+#include "jnc_ct_ExtensionNamespace.h"
+#include "jnc_ct_AsyncLauncherFunction.h"
 #include "jnc_ct_ReactorClassType.h"
 #include "jnc_rtl_Regex.h"
 #include "jnc_ct_Parser.llk.h"
@@ -25,12 +29,16 @@ namespace ct {
 
 //..............................................................................
 
-Parser::Parser(Module* module):
+Parser::Parser(
+	Module* module,
+	Mode mode,
+	uint_t flags
+	):
 	m_doxyParser(&module->m_doxyModule)
 {
 	m_module = module;
-	m_stage = Stage_Pass1;
-	m_flags = 0;
+	m_mode = mode;
+	m_flags = flags;
 	m_fieldAlignment = 8;
 	m_defaultFieldAlignment = 8;
 	m_storageKind = StorageKind_Undefined;
@@ -41,7 +49,6 @@ Parser::Parser(Module* module):
 	m_lastPropertyTypeModifiers = 0;
 	m_reactorType = NULL;
 	m_reactionIdx = 0;
-	m_dynamicLibFunctionCount = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
 	m_namedType = NULL;
@@ -49,48 +56,135 @@ Parser::Parser(Module* module):
 }
 
 bool
-Parser::parseTokenList(
-	SymbolKind symbol,
-	const sl::ConstBoxList<Token>& tokenList,
-	bool isBuildingAst
+Parser::tokenizeBody(
+	sl::BoxList<Token>* tokenList,
+	const lex::LineCol& pos,
+	const sl::StringRef& body
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
+	Lexer lexer(m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile);
+	lexer.create(unit->getFilePath(), body);
+	lexer.setLineCol(pos);
+
+	char buffer[256];
+	sl::Array<Token*> scopeAnchorTokenStack(ref::BufKind_Stack, buffer, sizeof(buffer));
+	bool isScopeFlagMarkupRequired = m_mode != Mode_Parse;
+
+	for (;;)
+	{
+		const Token* token = lexer.getToken();
+		switch (token->m_token)
+		{
+		case TokenKind_Eof: // don't add EOF token (parseTokenList adds one automatically)
+			return true;
+
+		case TokenKind_Error:
+			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+			lex::pushSrcPosError(unit->getFilePath(), token->m_pos);
+			return false;
+		}
+
+		tokenList->insertTail(*token);
+		lexer.nextToken();
+
+		Token* anchorToken;
+
+		if (isScopeFlagMarkupRequired)
+			switch (token->m_token)
+			{
+			case '{':
+				anchorToken = tokenList->getTail().p();
+				anchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
+				scopeAnchorTokenStack.append(anchorToken);
+				break;
+
+			case '}':
+				scopeAnchorTokenStack.pop();
+				break;
+
+			case TokenKind_NestedScope:
+			case TokenKind_Case:
+			case TokenKind_Default:
+				if (!scopeAnchorTokenStack.isEmpty())
+				{
+					anchorToken = tokenList->getTail().p();
+					anchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
+					scopeAnchorTokenStack.getBack() = anchorToken;
+				}
+				break;
+
+			case TokenKind_Catch:
+				if (!scopeAnchorTokenStack.isEmpty())
+					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_CatchAhead | ScopeFlag_HasCatch;
+				break;
+
+			case TokenKind_Finally:
+				if (!scopeAnchorTokenStack.isEmpty())
+					scopeAnchorTokenStack.getBack()->m_data.m_integer |= ScopeFlag_FinallyAhead | ScopeFlag_Finalizable;
+				break;
+			}
+	}
+}
+
+bool
+Parser::parseBody(
+	SymbolKind symbol,
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
+{
+	sl::BoxList<Token> tokenList;
+
+	bool result = tokenizeBody(&tokenList, pos, body);
+	if (!result)
+		return false;
+
+	return !tokenList.isEmpty() ?
+		parseTokenList(symbol, tokenList) :
+		create(symbol) && parseEofToken(pos);
+}
+
+bool
+Parser::parseTokenList(
+	SymbolKind symbol,
+	const sl::ConstBoxList<Token>& tokenList
+	)
+{
 	ASSERT(!tokenList.isEmpty());
 
-	bool result;
-
-	create(symbol, isBuildingAst);
+	create(symbol);
 
 	sl::ConstBoxIterator<Token> token = tokenList.getHead();
 	for (; token; token++)
 	{
-		result = parseToken(&*token);
+		bool result = parseToken(&*token);
 		if (!result)
 		{
-			lex::ensureSrcPosError(unit->getFilePath(), token->m_pos.m_line, token->m_pos.m_col);
+			lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token->m_pos);
 			return false;
 		}
 	}
 
 	// important: process EOF token, it might actually trigger actions!
 
-	Token::Pos pos = tokenList.getTail()->m_pos;
+	return parseEofToken(tokenList.getTail()->m_pos);
+}
 
+bool
+Parser::parseEofToken(const lex::LineCol& pos)
+{
 	Token eofToken;
 	eofToken.m_token = 0;
-	eofToken.m_pos = pos;
-	eofToken.m_pos.m_p += pos.m_length;
-	eofToken.m_pos.m_offset += pos.m_length;
-	eofToken.m_pos.m_col += pos.m_length;
-	eofToken.m_pos.m_length = 0;
+	eofToken.m_pos.m_line = pos.m_line;
+	eofToken.m_pos.m_col = pos.m_col;
 
-	result = parseToken(&eofToken);
+	bool result = parseToken(&eofToken);
 	if (!result)
 	{
-		lex::ensureSrcPosError(unit->getFilePath(), eofToken.m_pos.m_line, eofToken.m_pos.m_col);
+		lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
 		return false;
 	}
 
@@ -118,7 +212,7 @@ Parser::isTypeSpecified()
 NamedImportType*
 Parser::getNamedImportType(
 	const QualifiedName& name,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -137,14 +231,14 @@ Type*
 Parser::findType(
 	size_t baseTypeIdx,
 	const QualifiedName& name,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 
 	ModuleItem* item;
 
-	if (m_stage == Stage_Pass1)
+	if (m_mode == Mode_Parse)
 	{
 		if (baseTypeIdx != -1)
 			return NULL;
@@ -153,9 +247,14 @@ Parser::findType(
 			return getNamedImportType(name, pos);
 
 		sl::String shortName = name.getShortName();
-		item = nspace->findItem(shortName);
-		if (!item)
+		FindModuleItemResult findResult = nspace->findDirectChildItem(shortName);
+		if (!findResult.m_result)
+			return NULL;
+
+		if (!findResult.m_item)
 			return getNamedImportType(name, pos);
+
+		item = findResult.m_item;
 	}
 	else
 	{
@@ -171,9 +270,11 @@ Parser::findType(
 				return baseType;
 		}
 
-		item = nspace->findItemTraverse(name);
-		if (!item)
+		FindModuleItemResult findResult = nspace->findItemTraverse(name);
+		if (!findResult.m_item)
 			return NULL;
+
+		item = findResult.m_item;
 	}
 
 	ModuleItemKind itemKind = item->getItemKind();
@@ -196,7 +297,7 @@ Type*
 Parser::getType(
 	size_t baseTypeIdx,
 	const QualifiedName& name,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	Type* type = findType(baseTypeIdx, name, pos);
@@ -251,7 +352,7 @@ Parser::preDeclaration()
 bool
 Parser::bodylessDeclaration()
 {
-	if (m_stage == Stage_Reaction)
+	if (m_mode == Mode_Reaction)
 		return true; // reactor declarations are already processed at this stage
 
 	ASSERT(m_lastDeclaredItem);
@@ -274,7 +375,10 @@ Parser::bodylessDeclaration()
 }
 
 bool
-Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
+Parser::setDeclarationBody(
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
 {
 	if (!m_lastDeclaredItem)
 	{
@@ -299,10 +403,10 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 
 		function = (Function*)m_lastDeclaredItem;
 		function->addUsingSet(nspace);
-		return function->setBody(tokenList);
+		return function->setBody(pos, body);
 
 	case ModuleItemKind_Property:
-		return parseLastPropertyBody(*tokenList);
+		return parseLastPropertyBody(pos, body);
 
 	case ModuleItemKind_Typedef:
 		type = ((Typedef*)m_lastDeclaredItem)->getType();
@@ -316,14 +420,14 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 		type = ((Variable*)m_lastDeclaredItem)->getType();
 		break;
 
-	case ModuleItemKind_StructField:
-		type = ((StructField*)m_lastDeclaredItem)->getType();
+	case ModuleItemKind_Field:
+		type = ((Field*)m_lastDeclaredItem)->getType();
 		break;
 
 	case ModuleItemKind_Orphan:
 		orphan = (Orphan*)m_lastDeclaredItem;
 		orphan->addUsingSet(nspace);
-		return orphan->setBody(tokenList);
+		return orphan->setBody(pos, body);
 
 	default:
 		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
@@ -336,7 +440,7 @@ Parser::setDeclarationBody(sl::BoxList<Token>* tokenList)
 		return false;
 	}
 
-	return ((ReactorClassType*)type)->setBody(tokenList);
+	return ((ReactorClassType*)type)->setBody(pos, body);
 }
 
 bool
@@ -415,13 +519,16 @@ GlobalNamespace*
 Parser::getGlobalNamespace(
 	GlobalNamespace* parentNamespace,
 	const sl::StringRef& name,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	GlobalNamespace* nspace;
 
-	ModuleItem* item = parentNamespace->findItem(name);
-	if (!item)
+	FindModuleItemResult findResult = parentNamespace->findItem(name);
+	if (!findResult.m_result)
+		return NULL;
+
+	if (!findResult.m_item)
 	{
 		nspace = m_module->m_namespaceMgr.createGlobalNamespace(name, parentNamespace);
 		nspace->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
@@ -430,22 +537,24 @@ Parser::getGlobalNamespace(
 	}
 	else
 	{
-		if (item->getItemKind() != ModuleItemKind_Namespace)
+		if (findResult.m_item->getItemKind() != ModuleItemKind_Namespace)
 		{
-			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName (name).sz());
+			err::setFormatStringError("'%s' exists and is not a namespace", parentNamespace->createQualifiedName(name).sz());
 			return NULL;
 		}
 
-		nspace = (GlobalNamespace*)item;
+		nspace = (GlobalNamespace*)findResult.m_item;
 	}
 
 	return nspace;
 }
 
 GlobalNamespace*
-Parser::openGlobalNamespace(
+Parser::declareGlobalNamespace(
+	const lex::LineCol& pos,
 	const QualifiedName& name,
-	const Token::Pos& pos
+	const lex::LineCol& bodyPos,
+	const sl::StringRef& body
 	)
 {
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -465,7 +574,7 @@ Parser::openGlobalNamespace(
 		return NULL;
 	}
 
-	sl::ConstBoxIterator<sl::String> it = name.getNameList().getHead();
+	sl::ConstBoxIterator<sl::StringRef> it = name.getNameList().getHead();
 	for (; it; it++)
 	{
 		nspace = getGlobalNamespace(nspace, *it, pos);
@@ -473,56 +582,55 @@ Parser::openGlobalNamespace(
 			return NULL;
 	}
 
-	m_module->m_namespaceMgr.openNamespace(nspace);
+	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyPos, body);
 	return nspace;
 }
 
 ExtensionNamespace*
-Parser::openExtensionNamespace(
+Parser::declareExtensionNamespace(
+	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	Type* type,
-	const Token::Pos& pos
+	const lex::LineCol& bodyPos,
+	const sl::StringRef& body
 	)
 {
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ExtensionNamespace* extensionNamespace = m_module->m_namespaceMgr.createExtensionNamespace(
+	ExtensionNamespace* nspace = m_module->m_namespaceMgr.createGlobalNamespace<ExtensionNamespace>(
 		name,
-		type,
 		currentNamespace
 		);
 
-	if (!extensionNamespace)
-		return NULL;
+	nspace->m_type = (DerivableType*)type; // force-cast
 
-	extensionNamespace->m_pos = pos;
+	if (type->getTypeKindFlags() & TypeKindFlag_Import)
+		((ImportType*)type)->addFixup(&nspace->m_type);
 
-	bool result = currentNamespace->addItem(extensionNamespace);
+	assignDeclarationAttributes(nspace, nspace, pos);
+
+	bool result = currentNamespace->addItem(nspace);
 	if (!result)
 		return NULL;
 
-	m_module->m_namespaceMgr.openNamespace(extensionNamespace);
-	return extensionNamespace;
+	result = nspace->setBody(bodyPos, body);
+	ASSERT(result);
+	return nspace;
 }
 
 bool
 Parser::useNamespace(
 	const sl::BoxList<QualifiedName>& nameList,
 	NamespaceKind namespaceKind,
-	const Token::Pos& pos
+	const lex::LineCol& pos
 	)
 {
 	bool result;
-
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
-	NamespaceMgr* importNamespaceMgr = m_module->getCompileState() < ModuleCompileState_Linked ?
-		&m_module->m_namespaceMgr :
-		NULL;
 
 	sl::ConstBoxIterator<QualifiedName> it = nameList.getHead();
 	for (; it; it++)
 	{
-		result = nspace->m_usingSet.addNamespace(importNamespaceMgr, nspace, namespaceKind, *it);
+		result = nspace->m_usingSet.addNamespace(nspace, namespaceKind, *it);
 		if (!result)
 			return false;
 	}
@@ -541,7 +649,7 @@ Parser::popAttributeBlock()
 bool
 Parser::declareInReaction(Declarator* declarator)
 {
-	ASSERT(m_stage == Stage_Reaction && m_reactorType);
+	ASSERT(m_mode == Mode_Reaction && m_reactorType);
 
 	if (!declarator->isSimple())
 	{
@@ -550,12 +658,17 @@ Parser::declareInReaction(Declarator* declarator)
 	}
 
 	sl::String name = declarator->getName()->getShortName();
-	m_lastDeclaredItem = m_reactorType->findItem(name);
-	if (!m_lastDeclaredItem)
+	FindModuleItemResult findResult = m_reactorType->findItem(name);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("member '%s' not found in reactor '%s'", name.sz(), m_reactorType->getQualifiedName().sz());
 		return false;
 	}
+
+	m_lastDeclaredItem = findResult.m_item;
 
 	if (declarator->m_initializer.isEmpty())
 		return true;
@@ -571,8 +684,7 @@ Parser::declareInReaction(Declarator* declarator)
 	token.m_data.m_string = name;
 	declarator->m_initializer.insertHead(token);
 
-	Parser parser(m_module);
-	parser.m_stage = Stage_Reaction;
+	Parser parser(m_module, Mode_Reaction);
 	parser.m_reactorType = m_reactorType;
 	parser.m_reactionIdx = m_reactionIdx;
 
@@ -582,7 +694,7 @@ Parser::declareInReaction(Declarator* declarator)
 bool
 Parser::declare(Declarator* declarator)
 {
-	if (m_stage == Stage_Reaction)
+	if (m_mode == Mode_Reaction)
 		return declareInReaction(declarator);
 
 	m_lastDeclaredItem = NULL;
@@ -657,7 +769,7 @@ void
 Parser::assignDeclarationAttributes(
 	ModuleItem* item,
 	ModuleItemDecl* decl,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	AttributeBlock* attributeBlock,
 	dox::Block* doxyBlock
 	)
@@ -698,12 +810,16 @@ Parser::declareTypedef(
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
 	sl::String name = declarator->getName()->getShortName();
+	FindModuleItemResult findResult = nspace->findItem(name);
 
-	ModuleItem* prevItem = nspace->findItem(name);
-	if (prevItem)
+	if (!findResult.m_result)
+		return false;
+
+	if (findResult.m_item)
 	{
+		ModuleItem* prevItem = findResult.m_item;
+
 		if (prevItem->getItemKind() != ModuleItemKind_Typedef ||
 			((Typedef*)prevItem)->getType()->cmp(type) != 0)
 		{
@@ -713,9 +829,7 @@ Parser::declareTypedef(
 
 		m_attributeBlock = NULL;
 		m_lastDeclaredItem = prevItem;
-
 		m_doxyParser.popBlock();
-
 		return true;
 	}
 
@@ -760,19 +874,18 @@ Parser::declareAlias(
 		return false;
 	}
 
+	if (type->getTypeKind() != TypeKind_Void)
+	{
+		err::setFormatStringError("alias doesn't need a type");
+		return false;
+	}
+
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	sl::String name = declarator->getName()->getShortName();
 	sl::String qualifiedName = nspace->createQualifiedName(name);
 	sl::BoxList<Token>* initializer = &declarator->m_initializer;
 
-	Alias* alias = m_module->m_namespaceMgr.createAlias(
-		name,
-		qualifiedName,
-		type,
-		ptrTypeFlags,
-		initializer
-		);
-
+	Alias* alias = m_module->m_namespaceMgr.createAlias(name, qualifiedName, initializer);
 	assignDeclarationAttributes(alias, alias, declarator);
 
 	if (nspace->getNamespaceKind() == NamespaceKind_Property)
@@ -833,7 +946,7 @@ Parser::declareFunction(
 	if (!m_storageKind)
 	{
 		m_storageKind =
-			functionKind == FunctionKind_StaticConstructor || functionKind == FunctionKind_StaticDestructor ? StorageKind_Static :
+			functionKind == FunctionKind_StaticConstructor ? StorageKind_Static :
 			namespaceKind == NamespaceKind_Property ? ((Property*)nspace)->getStorageKind() : StorageKind_Undefined;
 	}
 
@@ -872,19 +985,32 @@ Parser::declareFunction(
 		functionItem = orphan;
 		functionItemDecl = orphan;
 		functionName = orphan;
+		nspace->addOrphan(orphan);
 	}
 	else
 	{
-		Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
+		Function* function;
+
+		if (type->getFlags() & FunctionTypeFlag_Async)
+		{
+			function = m_module->m_functionMgr.createFunction<AsyncLauncherFunction>(
+				sl::StringRef(),
+				sl::StringRef(),
+				type
+				);
+		}
+		else
+		{
+			function = m_module->m_functionMgr.createFunction(type);
+			function->m_functionKind = functionKind;
+		}
+
 		functionItem = function;
 		functionItemDecl = function;
 		functionName = function;
 
 		if (!declarator->m_initializer.isEmpty())
-		{
 			sl::takeOver(&function->m_initializer, &declarator->m_initializer);
-			m_module->markForCompile(function);
-		}
 	}
 
 	assignDeclarationAttributes(functionItem, functionItemDecl, declarator);
@@ -976,8 +1102,7 @@ Parser::declareFunction(
 		return ((Property*)nspace)->addMethod(function);
 
 	case NamespaceKind_DynamicLib:
-		function->m_libraryTableIndex = m_dynamicLibFunctionCount;
-		m_dynamicLibFunctionCount++;
+		function->m_libraryTableIndex = ((DynamicLibNamespace*)nspace)->m_functionCount++;
 
 		// and fall through
 
@@ -1000,11 +1125,10 @@ Parser::declareFunction(
 		{
 		case FunctionKind_Constructor:
 		case FunctionKind_StaticConstructor:
-			return function->getParentUnit()->setConstructor(function);
+			return m_module->m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_Constructor, function);
 
 		case FunctionKind_Destructor:
-		case FunctionKind_StaticDestructor:
-			return function->getParentUnit()->setDestructor(function);
+			return m_module->m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_Destructor, function);
 		}
 
 	if (functionKind != FunctionKind_Normal)
@@ -1159,6 +1283,24 @@ Parser::createProperty(Declarator* declarator)
 }
 
 bool
+Parser::parseLastPropertyBody(
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
+{
+	size_t length = body.getLength();
+	sl::BoxList<Token> tokenList;
+
+	return
+		tokenizeBody(
+			&tokenList,
+			lex::LineCol(pos.m_line, pos.m_col + 1),
+			body.getSubString(1, length - 2)
+			) &&
+		parseLastPropertyBody(tokenList);
+}
+
+bool
 Parser::parseLastPropertyBody(const sl::ConstBoxList<Token>& body)
 {
 	ASSERT(m_lastDeclaredItem && m_lastDeclaredItem->getItemKind() == ModuleItemKind_Property);
@@ -1167,17 +1309,15 @@ Parser::parseLastPropertyBody(const sl::ConstBoxList<Token>& body)
 
 	Property* prop = (Property*)m_lastDeclaredItem;
 
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass1;
+	Parser parser(m_module, Mode_Parse);
 
 	m_module->m_namespaceMgr.openNamespace(prop);
 
-	result = parser.parseTokenList(SymbolKind_named_type_block_impl, body);
+	result = parser.parseTokenList(SymbolKind_member_block_declaration_list, body);
 	if (!result)
 		return false;
 
 	m_module->m_namespaceMgr.closeNamespace();
-
 	return finalizeLastProperty(true);
 }
 
@@ -1214,7 +1354,11 @@ Parser::finalizeLastProperty(bool hasBody)
 			return false;
 		}
 
-		Function* getter = m_module->m_functionMgr.createFunction(FunctionKind_Getter, m_lastPropertyGetterType);
+		Function* getter = (m_lastPropertyTypeModifiers & TypeModifier_AutoGet) ?
+			m_module->m_functionMgr.createFunction<Property::AutoGetter>(m_lastPropertyGetterType) :
+			m_module->m_functionMgr.createFunction(m_lastPropertyGetterType);
+
+		getter->m_functionKind = FunctionKind_Getter;
 		getter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(getter);
@@ -1240,7 +1384,8 @@ Parser::finalizeLastProperty(bool hasBody)
 		argArray.append(setterArgType->getSimpleFunctionArg());
 
 		FunctionType* setterType = m_module->m_typeMgr.getFunctionType(argArray);
-		Function* setter = m_module->m_functionMgr.createFunction(FunctionKind_Setter, setterType);
+		Function* setter = m_module->m_functionMgr.createFunction(setterType);
+		setter->m_functionKind = FunctionKind_Setter;
 		setter->m_flags |= ModuleItemFlag_User;
 
 		result = prop->addMethod(setter);
@@ -1267,7 +1412,6 @@ Parser::finalizeLastProperty(bool hasBody)
 		if (!prop->m_autoGetValue)
 		{
 			result = prop->createAutoGetValue(prop->m_getter->getType()->getReturnType());
-
 			if (!result)
 				return false;
 		}
@@ -1275,12 +1419,6 @@ Parser::finalizeLastProperty(bool hasBody)
 
 	if (prop->m_getter)
 		prop->createType();
-
-	if (prop->m_flags & (PropertyFlag_AutoGet | PropertyFlag_AutoSet))
-		m_module->markForCompile(prop);
-
-	if (prop->getStaticConstructor())
-		m_module->m_functionMgr.addStaticConstructor(prop);
 
 	return true;
 }
@@ -1326,9 +1464,11 @@ Parser::declareReactor(
 
 	if (declarator->isQualified())
 	{
-		Orphan* oprhan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
-		oprhan->m_declaratorName = *declarator->getName();
-		assignDeclarationAttributes(oprhan, oprhan, declarator);
+		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
+		orphan->m_functionKind = FunctionKind_Normal;
+		orphan->m_declaratorName = *declarator->getName();
+		assignDeclarationAttributes(orphan, orphan, declarator);
+		nspace->addOrphan(orphan);
 	}
 	else
 	{
@@ -1386,7 +1526,7 @@ Parser::declareData(
 		if (arrayType->m_elementCount == -1)
 			return false;
 
-		if (m_stage == Stage_Pass2)
+		if (m_mode == Mode_Compile)
 		{
 			result = arrayType->ensureLayout();
 			if (!result)
@@ -1493,7 +1633,7 @@ Parser::declareData(
 
 		if (storageKind == StorageKind_Member)
 		{
-			StructField* field = prop->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
+			Field* field = prop->createField(name, type, bitCount, ptrTypeFlags, constructor, initializer);
 			if (!field)
 				return false;
 
@@ -1513,18 +1653,13 @@ Parser::declareData(
 				initializer
 				);
 
-			if (!variable)
-				return false;
-
 			assignDeclarationAttributes(variable, variable, declarator);
 
 			result = nspace->addItem(variable);
 			if (!result)
 				return false;
 
-			if (variable->isInitializationNeeded())
-				prop->m_initializedStaticFieldArray.append(variable);
-
+			prop->m_staticVariableArray.append(variable);
 			dataItem = variable;
 		}
 
@@ -1554,16 +1689,6 @@ Parser::declareData(
 			initializer
 			);
 
-		if (!variable)
-			return false;
-
-		if (isDisposable)
-		{
-			result = m_module->m_variableMgr.finalizeDisposableVariable(variable);
-			if (!result)
-				return false;
-		}
-
 		assignDeclarationAttributes(variable, variable, declarator);
 
 		result = nspace->addItem(variable);
@@ -1580,8 +1705,7 @@ Parser::declareData(
 			case TypeKind_Class:
 			case TypeKind_Struct:
 			case TypeKind_Union:
-				if (variable->isInitializationNeeded())
-					((DerivableType*)namedType)->m_initializedStaticFieldArray.append(variable);
+				((DerivableType*)namedType)->m_staticVariableArray.append(variable);
 				break;
 
 			default:
@@ -1591,6 +1715,17 @@ Parser::declareData(
 		}
 		else if (scope)
 		{
+			result = m_module->m_variableMgr.allocateVariable(variable);
+			if (!result)
+				return false;
+
+			if (isDisposable)
+			{
+				result = m_module->m_variableMgr.finalizeDisposableVariable(variable);
+				if (!result)
+					return false;
+			}
+
 			switch (storageKind)
 			{
 			case StorageKind_Stack:
@@ -1603,7 +1738,9 @@ Parser::declareData(
 
 			case StorageKind_Static:
 			case StorageKind_Tls:
-				if (!variable->isInitializationNeeded())
+				if (variable->m_initializer.isEmpty() &&
+					variable->m_type->getTypeKind() != TypeKind_Class &&
+					!isConstructibleType(variable->m_type))
 					break;
 
 				OnceStmt stmt;
@@ -1617,12 +1754,17 @@ Parser::declareData(
 				if (!result)
 					return false;
 
-				Token::Pos pos =
+				m_module->m_controlFlowMgr.onceStmt_PostBody(
+					&stmt,
 					!variable->m_initializer.isEmpty() ? variable->m_initializer.getTail()->m_pos :
 					!variable->m_constructor.isEmpty() ? variable->m_constructor.getTail()->m_pos :
-					variable->m_pos;
+					variable->m_pos
+					);
 
-				m_module->m_controlFlowMgr.onceStmt_PostBody(&stmt, pos);
+				break;
+
+			default:
+				ASSERT(false);
 			}
 		}
 	}
@@ -1633,7 +1775,7 @@ Parser::declareData(
 		NamedType* namedType = (NamedType*)nspace;
 		TypeKind namedTypeKind = namedType->getTypeKind();
 
-		StructField* field;
+		Field* field;
 
 		switch (namedTypeKind)
 		{
@@ -1671,7 +1813,7 @@ Parser::declareUnnamedStructOrUnion(DerivableType* type)
 
 	Declarator declarator;
 	declarator.m_declaratorKind = DeclaratorKind_Name;
-	declarator.m_pos = *type->getPos();
+	declarator.m_pos = type->getPos();
 	return declareData(&declarator, type, 0);
 }
 
@@ -1781,12 +1923,16 @@ Parser::createEnumType(
 
 EnumConst*
 Parser::createEnumConst(
-	EnumType* type,
 	const sl::StringRef& name,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	sl::BoxList<Token>* initializer
 	)
 {
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	ASSERT(nspace->getNamespaceKind() == NamespaceKind_Type);
+	ASSERT(((NamedType*)nspace)->getTypeKind() == TypeKind_Enum);
+
+	EnumType* type = (EnumType*)m_module->m_namespaceMgr.getCurrentNamespace();
 	EnumConst* enumConst = type->createConst(name, initializer);
 	if (!enumConst)
 		return NULL;
@@ -1925,35 +2071,29 @@ Parser::createClassType(
 	return classType;
 }
 
-ClassType*
+DynamicLibClassType*
 Parser::createDynamicLibType(const sl::StringRef& name)
 {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ClassType* classType;
 
 	sl::String qualifiedName = nspace->createQualifiedName(name);
-	classType = m_module->m_typeMgr.createClassType(name, qualifiedName);
+	DynamicLibClassType* classType = m_module->m_typeMgr.createClassType<DynamicLibClassType>(name, qualifiedName);
 
 	Type* baseType = m_module->m_typeMgr.getStdType(StdType_DynamicLib);
-	result = classType->addBaseType(baseType) != NULL;
-	if (!result)
-		return NULL;
 
-	result = nspace->addItem(classType);
-	if (!result)
-		return NULL;
+	result =
+		classType->addBaseType(baseType) != NULL &&
+		nspace->addItem(classType);
 
-	DynamicLibNamespace* dynamicLibNamespace = m_module->m_namespaceMgr.createDynamicLibNamespace(classType);
-
-	result = classType->addItem(dynamicLibNamespace);
 	if (!result)
 		return NULL;
 
 	assignDeclarationAttributes(classType, classType, m_lastMatchedToken.m_pos);
-	m_module->m_namespaceMgr.openNamespace(dynamicLibNamespace);
-	m_dynamicLibFunctionCount = 0;
+
+	DynamicLibNamespace* dynamicLibNamespace = classType->createLibNamespace();
+	dynamicLibNamespace->m_parentUnit = classType->getParentUnit();
 	return classType;
 }
 
@@ -1964,16 +2104,11 @@ Parser::finalizeDynamicLibType()
 	ASSERT(nspace->getNamespaceKind() == NamespaceKind_DynamicLib);
 
 	DynamicLibNamespace* dynamicLibNamespace = (DynamicLibNamespace*)nspace;
-	ClassType* dynamicLibType = dynamicLibNamespace->getLibraryType();
-
-	if (!m_dynamicLibFunctionCount)
-	{
-		err::setFormatStringError("dynamiclib '%s' has no functions", dynamicLibType->getQualifiedName().sz());
+	DynamicLibClassType* dynamicLibType = dynamicLibNamespace->getLibraryType();
+	bool result = dynamicLibType->ensureFunctionTable();
+	if (!result)
 		return false;
-	}
 
-	ArrayType* functionTableType = m_module->m_typeMgr.getStdType(StdType_BytePtr)->getArrayType(m_dynamicLibFunctionCount);
-	dynamicLibType->createField(functionTableType);
 	m_module->m_namespaceMgr.closeNamespace();
 	return true;
 }
@@ -1981,7 +2116,7 @@ Parser::finalizeDynamicLibType()
 bool
 Parser::addReactionBinding(const Value& value)
 {
-	ASSERT(m_stage == Stage_Reaction && m_reactorType);
+	ASSERT(m_mode == Mode_Reaction && m_reactorType);
 
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnChangedBinding);
 
@@ -2013,14 +2148,14 @@ Parser::reactorOnEventStmt(
 	sl::BoxList<Token>* tokenList
 	)
 {
-	ASSERT(m_stage == Stage_Reaction && m_reactorType);
+	ASSERT(m_mode == Mode_Reaction && m_reactorType);
 
 	DeclFunctionSuffix* suffix = declarator->getFunctionSuffix();
 	ASSERT(suffix);
 
 	FunctionType* functionType = m_module->m_typeMgr.getFunctionType(suffix->getArgArray());
 	Function* handler = m_reactorType->createOnEventHandler(m_reactionIdx, functionType);
-	handler->setBody(tokenList);
+	handler->setTokenList(tokenList);
 
 	Function* addBindingFunc = getReactorMethod(m_module, ReactorMethod_AddOnEventBinding);
 
@@ -2047,16 +2182,20 @@ Parser::callBaseTypeMemberConstructor(
 	ASSERT(m_constructorType || m_constructorProperty);
 
 	Namespace* nspace = m_module->m_functionMgr.getCurrentFunction()->getParentNamespace();
-	ModuleItem* item = nspace->findItemTraverse(name);
-	if (!item)
+	FindModuleItemResult findResult = nspace->findItemTraverse(name);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("name '%s' is not found", name.getFullName ().sz());
 		return false;
 	}
 
 	Type* type = NULL;
-
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Type:
@@ -2069,8 +2208,8 @@ Parser::callBaseTypeMemberConstructor(
 		err::setFormatStringError("property construction is not yet implemented");
 		return false;
 
-	case ModuleItemKind_StructField:
-		return callFieldConstructor((StructField*)item, argList);
+	case ModuleItemKind_Field:
+		return callFieldConstructor((Field*)item, argList);
 
 	case ModuleItemKind_Variable:
 		err::setFormatStringError("static field construction is not yet implemented");
@@ -2211,7 +2350,7 @@ Parser::callBaseTypeConstructorImpl(
 
 bool
 Parser::callFieldConstructor(
-	StructField* field,
+	Field* field,
 	sl::BoxList<Value>* argList
 	)
 {
@@ -2276,32 +2415,38 @@ Parser::finalizeBaseTypeMemberConstructBlock()
 {
 	ASSERT(m_constructorType || m_constructorProperty);
 
-	Value thisValue = m_module->m_functionMgr.getThisValue();
+	Function* constructor = m_module->m_functionMgr.getCurrentFunction();
+	FunctionKind functionKind = constructor->getFunctionKind();
 
-	bool result;
+	ASSERT(functionKind == FunctionKind_Constructor || functionKind == FunctionKind_StaticConstructor);
 
-	if (m_constructorProperty)
+	if (functionKind == FunctionKind_StaticConstructor)
+	{
+		MemberBlock* memberBlock = m_constructorProperty ?
+			(MemberBlock*)m_constructorProperty :
+			(MemberBlock*)m_constructorType;
+
+		memberBlock->primeStaticVariables();
+
 		return
-			m_constructorProperty->callMemberFieldConstructors(thisValue) &&
-			m_constructorProperty->initializeMemberFields(thisValue) &&
-			m_constructorProperty->callMemberPropertyConstructors(thisValue);
+			memberBlock->initializeStaticVariables() &&
+			memberBlock->callPropertyStaticConstructors();
+	}
+	else
+	{
+		Value thisValue = m_module->m_functionMgr.getThisValue();
 
-	ASSERT(thisValue);
-
-	result =
-		m_constructorType->callBaseTypeConstructors(thisValue) &&
-		m_constructorType->callMemberFieldConstructors(thisValue) &&
-		m_constructorType->initializeMemberFields(thisValue) &&
-		m_constructorType->callMemberPropertyConstructors(thisValue);
-
-	if (!result)
-		return false;
-
-	Function* preconstructor = m_constructorType->getPreConstructor();
-	if (!preconstructor)
-		return true;
-
-	return m_module->m_operatorMgr.callOperator(preconstructor, thisValue);
+		if (m_constructorProperty)
+			return
+				m_constructorProperty->initializeFields(thisValue) &&
+				m_constructorProperty->callPropertyConstructors(thisValue);
+		else
+			return
+				m_constructorType->callBaseTypeConstructors(thisValue) &&
+				m_constructorType->callStaticConstructor() &&
+				m_constructorType->initializeFields(thisValue) &&
+				m_constructorType->callPropertyConstructors(thisValue);
+	}
 }
 
 bool
@@ -2317,18 +2462,20 @@ Parser::newOperator_0(
 bool
 Parser::lookupIdentifier(
 	const sl::StringRef& name,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	Value* value
 	)
 {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ModuleItem* item = NULL;
 
 	MemberCoord coord;
-	item = nspace->findItemTraverse(name, &coord);
-	if (!item)
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, &coord);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("undeclared identifier '%s'", name.sz());
 		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
@@ -2336,8 +2483,9 @@ Parser::lookupIdentifier(
 	}
 
 	Value thisValue;
-
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -2351,7 +2499,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_Type:
 		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
 		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
+			err::setFormatStringError("'%s' cannot be used as expression", ((Type*)item)->getTypeString().sz());
 			return false;
 		}
 
@@ -2379,7 +2527,9 @@ Parser::lookupIdentifier(
 			return false;
 		}
 
-		value->setFunction((Function*)item);
+		result = value->trySetFunction((Function*)item);
+		if (!result)
+			return false;
 
 		if (((Function*)item)->isMember())
 		{
@@ -2398,7 +2548,6 @@ Parser::lookupIdentifier(
 		}
 
 		value->setProperty((Property*)item);
-
 		if (((Property*)item)->isMember())
 		{
 			result = m_module->m_operatorMgr.createMemberClosure(value, (Property*)item);
@@ -2409,17 +2558,12 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_EnumConst:
-		if (!(item->getFlags() & EnumConstFlag_ValueReady))
-		{
-			result = ((EnumConst*)item)->getParentEnumType()->ensureLayout();
-			if (!result)
-				return false;
-		}
-
-		value->setEnumConst((EnumConst*)item);
+		result = value->trySetEnumConst((EnumConst*)item);
+		if (!result)
+			return false;
 		break;
 
-	case ModuleItemKind_StructField:
+	case ModuleItemKind_Field:
 		if (m_flags & Flag_ConstExpression)
 		{
 			err::setFormatStringError("field '%s' cannot be used in const expression", name.sz());
@@ -2427,8 +2571,8 @@ Parser::lookupIdentifier(
 		}
 
 		result =
-			m_module->m_operatorMgr.getThisValue(&thisValue, (StructField*)item) &&
-			m_module->m_operatorMgr.getField(thisValue, (StructField*)item, &coord, value);
+			m_module->m_operatorMgr.getThisValue(&thisValue, (Field*)item) &&
+			m_module->m_operatorMgr.getField(thisValue, (Field*)item, &coord, value);
 
 		if (!result)
 			return false;
@@ -2450,24 +2594,28 @@ Parser::lookupIdentifier(
 bool
 Parser::lookupIdentifierType(
 	const sl::StringRef& name,
-	const Token::Pos& pos,
+	const lex::LineCol& pos,
 	Value* value
 	)
 {
 	bool result;
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	ModuleItem* item = NULL;
 
-	item = nspace->findItemTraverse(name);
-	if (!item)
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("undeclared identifier '%s'", name.sz());
 		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
 		return false;
 	}
 
+	ModuleItem* item = findResult.m_item;
 	ModuleItemKind itemKind = item->getItemKind();
+
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
@@ -2526,8 +2674,8 @@ Parser::lookupIdentifierType(
 		value->setType(((EnumConst*)item)->getParentEnumType()->getBaseType());
 		break;
 
-	case ModuleItemKind_StructField:
-		value->setType(getDirectRefType(((StructField*)item)->getType()));
+	case ModuleItemKind_Field:
+		value->setType(getDirectRefType(((Field*)item)->getType()));
 		break;
 
 	default:

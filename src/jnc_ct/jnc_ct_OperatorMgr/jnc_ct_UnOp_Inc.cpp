@@ -48,8 +48,8 @@ Type*
 UnOp_PostInc::getResultType(const Value& opValue)
 {
 	Value oldValue;
-	m_module->m_operatorMgr.prepareOperandType(opValue, &oldValue);
-	return oldValue.getType();
+	bool result = m_module->m_operatorMgr.prepareOperandType(opValue, &oldValue);
+	return result ? oldValue.getType() : NULL;
 }
 
 bool

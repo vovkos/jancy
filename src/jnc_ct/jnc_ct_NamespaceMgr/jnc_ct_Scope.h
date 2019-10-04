@@ -117,6 +117,15 @@ public:
 
 	bool
 	canStaticThrow();
+
+protected:
+	virtual
+	bool
+	parseBody()
+	{
+		ASSERT(false);
+		return true;
+	}
 };
 
 //..............................................................................

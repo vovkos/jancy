@@ -100,7 +100,7 @@ public:
 		return it ? it->m_value : NULL;
 	}
 
-	ct::ModuleItem*
+	FindModuleItemResult
 	findItem(
 		const sl::StringRef& name,
 		const sl::Guid& libGuid,

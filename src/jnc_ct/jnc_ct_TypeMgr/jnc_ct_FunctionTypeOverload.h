@@ -23,7 +23,7 @@ namespace ct {
 class FunctionTypeOverload
 {
 protected:
-	uint_t m_flags;
+	mutable uint_t m_flags;
 	FunctionType* m_type;
 	sl::Array<FunctionType*> m_overloadArray;
 
@@ -62,6 +62,13 @@ public:
 		return *this;
 	}
 
+	Module*
+	getModule() const
+	{
+		ASSERT(m_type);
+		return m_type->getModule();
+	}
+
 	bool
 	isEmpty() const
 	{
@@ -96,6 +103,7 @@ public:
 
 	size_t
 	chooseOverload(
+		Closure* closure,
 		FunctionArg* const* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
@@ -103,19 +111,39 @@ public:
 
 	size_t
 	chooseOverload(
+		FunctionArg* const* argArray,
+		size_t argCount,
+		CastKind* castKind = NULL
+		) const
+	{
+		return chooseOverload(NULL, argArray, argCount, castKind);
+	}
+
+	size_t
+	chooseOverload(
+		Closure* closure,
+		const sl::ArrayRef<FunctionArg*>& argArray,
+		CastKind* castKind = NULL
+		) const
+	{
+		return chooseOverload(closure, argArray, argArray.getCount(), castKind);
+	}
+
+	size_t
+	chooseOverload(
+		const sl::ArrayRef<FunctionArg*>& argArray,
+		CastKind* castKind = NULL
+		) const
+	{
+		return chooseOverload(NULL, argArray, argArray.getCount(), castKind);
+	}
+
+	size_t
+	chooseOverload(
 		const Value* argArray,
 		size_t argCount,
 		CastKind* castKind = NULL
 		) const;
-
-	size_t
-	chooseOverload(
-		const sl::Array<FunctionArg*>& argArray,
-		CastKind* castKind = NULL
-		) const
-	{
-		return chooseOverload(argArray, argArray.getCount(), castKind);
-	}
 
 	size_t
 	chooseOverload(
@@ -147,8 +175,15 @@ public:
 		size_t count
 		);
 
+protected:
 	bool
-	ensureLayout();
+	ensureLayout() const
+	{
+		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
+	}
+
+	bool
+	prepareLayout() const;
 };
 
 //..............................................................................

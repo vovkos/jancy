@@ -34,12 +34,6 @@ ModuleItemDecl::prepareQualifiedName()
 	m_qualifiedName = m_parentNamespace ? m_parentNamespace->createQualifiedName(m_name) : m_name;
 }
 
-void
-ModuleItemDecl::pushSrcPosError()
-{
-	lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
-}
-
 sl::String
 ModuleItemDecl::getDoxyLocationString()
 {
@@ -55,6 +49,51 @@ ModuleItemDecl::getDoxyLocationString()
 		);
 
 	return string;
+}
+
+//..............................................................................
+
+bool
+ModuleItemBodyDecl::setBody(
+	const lex::LineCol& pos,
+	const sl::StringRef& body
+	)
+{
+	if (!canSetBody())
+		return false;
+
+	m_bodyPos = pos;
+	m_body = body;
+	return true;
+}
+
+bool
+ModuleItemBodyDecl::setTokenList(sl::BoxList<Token>* tokenList)
+{
+	if (!canSetBody())
+		return false;
+
+	m_bodyPos = tokenList->getHead()->m_pos;
+	sl::takeOver(&m_tokenList, tokenList);
+	return true;
+}
+
+bool
+ModuleItemBodyDecl::canSetBody()
+{
+	if (!m_body.isEmpty() || !m_tokenList.isEmpty())
+	{
+		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
+		return false;
+	}
+
+	if (m_storageKind == StorageKind_Abstract)
+	{
+		err::setFormatStringError("'%s' is abstract and hence cannot have a body", getQualifiedName().sz());
+		return false;
+	}
+
+	return true;
 }
 
 //..............................................................................
@@ -109,8 +148,8 @@ ModuleItem::getDecl()
 	case ModuleItemKind_EnumConst:
 		return (EnumConst*)this;
 
-	case ModuleItemKind_StructField:
-		return (StructField*)this;
+	case ModuleItemKind_Field:
+		return (Field*)this;
 
 	case ModuleItemKind_BaseTypeSlot:
 		return (BaseTypeSlot*)this;
@@ -187,14 +226,17 @@ ModuleItem::getType()
 	case ModuleItemKind_EnumConst:
 		return ((ct::EnumConst*)this)->getParentEnumType();
 
-	case ModuleItemKind_StructField:
-		return ((ct::StructField*)this)->getType();
+	case ModuleItemKind_Field:
+		return ((ct::Field*)this)->getType();
 
 	case ModuleItemKind_BaseTypeSlot:
 		return ((ct::BaseTypeSlot*)this)->getType();
 
 	case ModuleItemKind_Orphan:
 		return ((ct::Orphan*)this)->getFunctionType();
+
+	case ModuleItemKind_Alias:
+		return ((ct::Alias*)this)->getTargetItem()->getType();
 
 	case ModuleItemKind_Lazy:
 		return jnc_ModuleItem_getType(((ct::LazyModuleItem*)this)->getActualItem());
@@ -223,92 +265,6 @@ ModuleItem::createDoxyRefId()
 	refId.makeLowerCase();
 
 	return m_module->m_doxyModule.adjustRefId(refId);
-}
-
-bool
-ModuleItem::ensureLayout()
-{
-	bool result;
-
-	if (m_flags & ModuleItemFlag_LayoutReady)
-		return true;
-
-	if (m_flags & ModuleItemFlag_InCalcLayout)
-	{
-		ModuleItemDecl* decl = getDecl();
-		ASSERT(decl); // recursion is only possible with named types
-
-		err::setFormatStringError("can't calculate layout of '%s' due to recursion", decl->getQualifiedName().sz());
-		return false;
-	}
-
-	m_flags |= ModuleItemFlag_InCalcLayout;
-
-	result = calcLayout();
-
-	m_flags &= ~ModuleItemFlag_InCalcLayout;
-
-	if (!result)
-		return false;
-
-	m_flags |= ModuleItemFlag_LayoutReady;
-	return true;
-}
-
-//..............................................................................
-
-ModuleItem*
-verifyModuleItemKind(
-	ModuleItem* item,
-	ModuleItemKind itemKind,
-	const sl::StringRef& name
-	)
-{
-	if (item->getItemKind() != itemKind)
-	{
-		err::setFormatStringError("'%s' is not a %s", name.sz(), getModuleItemKindString(itemKind));
-		return NULL;
-	}
-
-	return item;
-}
-
-DerivableType*
-verifyModuleItemIsDerivableType(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-{
-	Type* type = (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
-	if (!type)
-		return NULL;
-
-	if (!(type->getTypeKindFlags() & TypeKindFlag_Derivable))
-	{
-		err::setFormatStringError("'%s' is not a derivable type", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return (DerivableType*)item;
-}
-
-ClassType*
-verifyModuleItemIsClassType(
-	ModuleItem* item,
-	const sl::StringRef& name
-	)
-{
-	Type* type = (Type*)verifyModuleItemKind(item, ModuleItemKind_Type, name);
-	if (!type)
-		return NULL;
-
-	if (type->getTypeKind() != TypeKind_Class)
-	{
-		err::setFormatStringError("'%s' is not a class type", type->getTypeString().sz());
-		return NULL;
-	}
-
-	return (ClassType*)item;
 }
 
 //..............................................................................

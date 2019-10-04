@@ -114,11 +114,14 @@ decodeByteString(
 
 //..............................................................................
 
-Lexer::Lexer()
+Lexer::Lexer(LexerMode mode)
 {
+	m_mode = mode;
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
 	m_mlBinLiteralTokenRadix = 0;
+	m_bodyToken = NULL;
+	m_curlyBraceLevel = 0;
 }
 
 Token*
@@ -493,6 +496,34 @@ Lexer::createDoxyCommentToken(TokenKind tokenKind)
 	Token* token = createStringToken(tokenKind, 3, right);
 	token->m_channelMask = TokenChannelMask_DoxyComment;
 	return token;
+}
+
+bool
+Lexer::onLeftCurlyBrace()
+{
+	if (m_mode != LexerMode_Parse)
+	{
+		createToken('{');
+		return false;
+	}
+
+	ASSERT(m_curlyBraceLevel == 0);
+	m_bodyToken = preCreateToken(TokenKind_Body);
+	m_curlyBraceLevel = 1;
+	return true;
+}
+
+bool
+Lexer::onRightCurlyBrace()
+{
+	ASSERT(m_mode == LexerMode_Parse && m_bodyToken == m_tokenList.getTail().p() && m_curlyBraceLevel);
+
+	if (--m_curlyBraceLevel)
+		return false;
+
+	m_bodyToken->m_pos.m_length = te - m_bodyToken->m_pos.m_p;
+	m_bodyToken->m_data.m_string = sl::StringRef(m_bodyToken->m_pos.m_p, m_bodyToken->m_pos.m_length);
+	return true;
 }
 
 void

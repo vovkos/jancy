@@ -239,9 +239,12 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType)
 	PropertyType* type = ptrType->getTargetType();
 	FunctionType* getterType = type->getGetterType();
 	FunctionTypeOverload* setterType = type->getSetterType();
-
 	sl::Array<FunctionArg*> argArray = getterType->getArgArray();
-	result = getArgTypeArray(module, &argArray);
+
+	result =
+		getterType->ensureLayout() &&
+		getArgTypeArray(module, &argArray);
+
 	if (!result)
 		return NULL;
 
@@ -252,12 +255,15 @@ Closure::getPropertyClosureType(PropertyPtrType* ptrType)
 		);
 
 	FunctionTypeOverload closureSetterType;
-
 	size_t setterCount = setterType->getOverloadCount();
 	for (size_t i = 0; i < setterCount; i++)
 	{
 		FunctionType* overloadType = setterType->getOverload(i);
 		ASSERT(!overloadType->getArgArray().isEmpty());
+
+		result = overloadType->ensureLayout();
+		if (!result)
+			return NULL;
 
 		argArray.append(overloadType->getArgArray().getBack());
 

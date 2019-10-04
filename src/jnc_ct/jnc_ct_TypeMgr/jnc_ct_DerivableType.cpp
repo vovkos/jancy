@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_DerivableType.h"
 #include "jnc_ct_Module.h"
+#include "jnc_ct_Parser.llk.h"
 
 namespace jnc {
 namespace ct {
@@ -40,7 +41,7 @@ BaseTypeCoord::BaseTypeCoord():
 //..............................................................................
 
 DerivableType::DerivableType():
-	NamedTypeBlock(this)
+	MemberBlock(this)
 {
 	m_defaultConstructor = NULL;
 	m_callOperator = NULL;
@@ -64,23 +65,23 @@ DerivableType::getMemberPropertyType(PropertyType* shortType)
 	return m_module->m_typeMgr.getMemberPropertyType(this, shortType);
 }
 
-ModuleItem*
+FindModuleItemResult
 DerivableType::findItemInExtensionNamespaces(const sl::StringRef& name)
 {
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 	while (nspace)
 	{
-		ModuleItem* item = nspace->getUsingSet()->findExtensionItem(this, name);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = nspace->getUsingSet()->findExtensionItem(this, name);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 
 		nspace = nspace->getParentNamespace();
 	}
 
-	return NULL;
+	return g_nullFindModuleItemResult;
 }
 
-StructField*
+Field*
 DerivableType::getFieldByIndex(size_t index)
 {
 	if (!m_baseTypeList.isEmpty())
@@ -89,14 +90,14 @@ DerivableType::getFieldByIndex(size_t index)
 		return NULL;
 	}
 
-	size_t count = m_memberFieldArray.getCount();
+	size_t count = m_fieldArray.getCount();
 	if (index >= count)
 	{
 		err::setFormatStringError("index '%d' is out of bounds", index);
 		return NULL;
 	}
 
-	return m_memberFieldArray[index];
+	return m_fieldArray[index];
 }
 
 Function*
@@ -135,12 +136,7 @@ DerivableType::getIndexerProperty(Type* argType)
 	if (it->m_value)
 		return it->m_value;
 
-	Property* prop = m_module->m_functionMgr.createProperty(
-		PropertyKind_Internal,
-		sl::String(),
-		createQualifiedName("m_indexer")
-		);
-
+	Property* prop = m_module->m_functionMgr.createInternalProperty(createQualifiedName("m_indexer"));
 	prop->m_storageKind = StorageKind_Member;
 	it->m_value = prop;
 	return prop;
@@ -266,21 +262,12 @@ DerivableType::addMethod(Function* function)
 
 	switch (functionKind)
 	{
-	case FunctionKind_PreConstructor:
-		target = &m_preconstructor;
+	case FunctionKind_StaticConstructor:
+		target = &m_staticConstructor;
 		break;
 
 	case FunctionKind_Constructor:
 		target = &m_constructor;
-		break;
-
-	case FunctionKind_StaticConstructor:
-		target = &m_staticConstructor;
-		m_module->m_functionMgr.addStaticConstructor(this);
-		break;
-
-	case FunctionKind_StaticDestructor:
-		target = &m_staticDestructor;
 		break;
 
 	case FunctionKind_Normal:
@@ -289,7 +276,7 @@ DerivableType::addMethod(Function* function)
 			return false;
 
 		if (overloadIdx == 0)
-			m_memberMethodArray.append(function);
+			m_methodArray.append(function);
 
 		return true;
 
@@ -381,6 +368,7 @@ bool
 DerivableType::addProperty(Property* prop)
 {
 	ASSERT(prop->isNamed());
+
 	bool result = addItem(prop);
 	if (!result)
 		return false;
@@ -406,93 +394,39 @@ DerivableType::addProperty(Property* prop)
 		return false;
 	}
 
-	m_memberPropertyArray.append(prop);
-	return true;
-}
-
-Function*
-DerivableType::createDefaultMethod(
-	FunctionKind functionKind,
-	StorageKind storageKind,
-	uint_t flags
-	)
-{
-	FunctionType* type = (FunctionType*)m_module->m_typeMgr.getStdType(StdType_SimpleFunction);
-	Function* function = m_module->m_functionMgr.createFunction(functionKind, type);
-	function->m_storageKind = storageKind;
-	function->m_flags |= flags;
-
-	bool result = addMethod(function);
-	if (!result)
-		return NULL;
-
-	m_module->markForCompile(this);
-	return function;
-}
-
-bool
-DerivableType::compileDefaultStaticConstructor()
-{
-	ASSERT(m_staticConstructor);
-
-	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
-
-	bool result = initializeStaticFields();
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
+	m_propertyArray.append(prop);
 	return true;
 }
 
 bool
-DerivableType::compileDefaultConstructor()
+DerivableType::parseBody()
 {
-	ASSERT(m_constructor);
+	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
+	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
 
-	bool result;
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	m_module->m_namespaceMgr.openNamespace(this);
 
-	Value thisValue;
-	m_module->m_functionMgr.internalPrologue(m_constructor, &thisValue, 1);
+	Parser parser(m_module, Parser::Mode_Parse);
 
-	result =
-		callBaseTypeConstructors(thisValue) &&
-		callMemberFieldConstructors(thisValue) &&
-		initializeMemberFields(thisValue) &&
-		callMemberPropertyConstructors(thisValue);
+	size_t length = m_body.getLength();
+	ASSERT(length >= 2);
+
+	bool result =
+		parser.parseBody(
+			SymbolKind_member_block_declaration_list,
+			lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
+			m_body.getSubString(1, length - 2)
+			) &&
+		resolveOrphans() &&
+		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
 
 	if (!result)
 		return false;
 
-	if (m_preconstructor)
-	{
-		result = m_module->m_operatorMgr.callOperator(m_preconstructor, thisValue);
-		if (!result)
-			return false;
-	}
-
-	m_module->m_functionMgr.internalEpilogue();
-	return true;
-}
-
-bool
-DerivableType::compileDefaultDestructor()
-{
-	ASSERT(m_destructor);
-
-	bool result;
-
-	Value argValue;
-	m_module->m_functionMgr.internalPrologue(m_destructor, &argValue, 1);
-
-	result =
-		callMemberPropertyDestructors(argValue) &&
-		callBaseTypeDestructors(argValue);
-
-	if (!result)
-		return false;
-
-	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
 }
 
@@ -588,20 +522,21 @@ DerivableType::findBaseTypeTraverseImpl(
 	return false;
 }
 
-ModuleItem*
-DerivableType::findItemTraverseImpl(
+FindModuleItemResult
+DerivableType::findDirectChildItemTraverse(
 	const sl::StringRef& name,
 	MemberCoord* coord,
 	uint_t flags,
 	size_t level
 	)
 {
-	ModuleItem* item;
-
 	if (!(flags & TraverseKind_NoThis))
 	{
-		item = findItem(name);
-		if (item)
+		FindModuleItemResult findResult = findDirectChildItem(name);
+		if (!findResult.m_result)
+			return findResult;
+
+		if (findResult.m_item)
 		{
 			if (coord)
 			{
@@ -617,7 +552,7 @@ DerivableType::findItemTraverseImpl(
 				}
 			}
 
-			return item;
+			return findResult;
 		}
 
 		uint_t modFlags = flags | TraverseKind_NoParentNamespace;
@@ -626,12 +561,15 @@ DerivableType::findItemTraverseImpl(
 		size_t count = m_unnamedFieldArray.getCount();
 		for	(size_t i = 0; i < count; i++)
 		{
-			StructField* field = m_unnamedFieldArray[i];
+			Field* field = m_unnamedFieldArray[i];
 			if (field->getType()->getTypeKindFlags() & TypeKindFlag_Derivable)
 			{
 				DerivableType* type = (DerivableType*)field->getType();
-				item = type->findItemTraverseImpl(name, coord, modFlags, nextLevel);
-				if (item)
+				findResult = type->findDirectChildItemTraverse(name, coord, modFlags, nextLevel);
+				if (!findResult.m_result)
+					return findResult;
+
+				if (findResult.m_item)
 				{
 					if (coord && coord->m_type)
 					{
@@ -647,7 +585,7 @@ DerivableType::findItemTraverseImpl(
 						}
 					}
 
-					return item;
+					return findResult;
 				}
 			}
 		}
@@ -655,9 +593,9 @@ DerivableType::findItemTraverseImpl(
 
 	if (!(flags & TraverseKind_NoExtensionNamespaces))
 	{
-		item = findItemInExtensionNamespaces(name);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = findItemInExtensionNamespaces(name);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
 	if (!(flags & TraverseKind_NoBaseType))
@@ -673,8 +611,11 @@ DerivableType::findItemTraverseImpl(
 				continue;
 
 			DerivableType* baseType = slot->m_type;
-			item = baseType->findItemTraverseImpl(name, coord, modFlags, nextLevel);
-			if (item)
+			FindModuleItemResult findResult = baseType->findDirectChildItemTraverse(name, coord, modFlags, nextLevel);
+			if (!findResult.m_result)
+				return findResult;
+
+			if (findResult.m_item)
 			{
 				if (coord && coord->m_type)
 				{
@@ -683,19 +624,19 @@ DerivableType::findItemTraverseImpl(
 					coord->m_vtableIndex += slot->m_vtableIndex;
 				}
 
-				return item;
+				return findResult;
 			}
 		}
 	}
 
 	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
 	{
-		item = m_parentNamespace->findItemTraverse(name, coord, flags);
-		if (item)
-			return item;
+		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags);
+		if (!findResult.m_result || findResult.m_item)
+			return findResult;
 	}
 
-	return NULL;
+	return g_nullFindModuleItemResult;
 }
 
 bool
@@ -788,6 +729,94 @@ DerivableType::generateDocumentation(
 	itemXml->append(getDoxyLocationString());
 	itemXml->append("</compounddef>\n");
 
+	return true;
+}
+
+bool
+DerivableType::requireConstructor()
+{
+	if (!m_constructor)
+		return true;
+
+	if (m_constructor->canCompile())
+		m_module->markForCompile(m_constructor);
+
+	size_t count = m_constructor->getOverloadCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Function* overload = m_constructor->getOverload(i);
+		if (overload->canCompile())
+			m_module->markForCompile(overload);
+	}
+
+	return true;
+}
+
+bool
+DerivableType::compileDefaultStaticConstructor()
+{
+	ASSERT(m_staticConstructor);
+
+	m_module->m_namespaceMgr.openNamespace(this);
+	m_module->m_functionMgr.internalPrologue(m_staticConstructor);
+
+	primeStaticVariables();
+
+	bool result =
+		initializeStaticVariables() &&
+		callPropertyStaticConstructors();
+
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultConstructor()
+{
+	ASSERT(m_constructor);
+
+	bool result;
+
+	Value thisValue;
+	m_module->m_namespaceMgr.openNamespace(this);
+	m_module->m_functionMgr.internalPrologue(m_constructor, &thisValue, 1);
+
+	result =
+		callBaseTypeConstructors(thisValue) &&
+		callStaticConstructor() &&
+		initializeFields(thisValue) &&
+		callPropertyConstructors(thisValue);
+
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.internalEpilogue();
+	m_module->m_namespaceMgr.closeNamespace();
+	return true;
+}
+
+bool
+DerivableType::compileDefaultDestructor()
+{
+	ASSERT(m_destructor);
+
+	bool result;
+
+	Value argValue;
+	m_module->m_functionMgr.internalPrologue(m_destructor, &argValue, 1);
+
+	result =
+		callPropertyDestructors(argValue) &&
+		callBaseTypeDestructors(argValue);
+
+	if (!result)
+		return false;
+
+	m_module->m_functionMgr.internalEpilogue();
 	return true;
 }
 

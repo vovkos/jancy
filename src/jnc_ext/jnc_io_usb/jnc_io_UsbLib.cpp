@@ -30,6 +30,10 @@ JNC_DEFINE_LIB(
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
 	JNC_LIB_IMPORT("io_UsbDevice.jnc")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbConfigurationDesc")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbDeviceDesc")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbInterfaceDesc")
+	JNC_LIB_REQUIRE_TYPE(TypeKind_Struct, "io.UsbEndpointDesc")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(UsbLib)

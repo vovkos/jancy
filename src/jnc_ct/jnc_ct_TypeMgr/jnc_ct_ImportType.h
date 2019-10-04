@@ -13,6 +13,7 @@
 
 #include "jnc_ct_Type.h"
 #include "jnc_ct_Namespace.h"
+#include "jnc_ct_Decl.h"
 
 namespace jnc {
 namespace ct {
@@ -23,8 +24,7 @@ class ImportPtrType;
 
 enum ImportTypeFlag
 {
-	ImportTypeFlag_ImportLoop       = 0x010000, // used for detection of import loops
-	ImportTypeFlag_UsedByImportType = 0x020000, // used by ImportPtrType / ImportIntModType
+	ImportTypeFlag_InResolve = 0x010000, // used for detection of import/typedef loops
 };
 
 //..............................................................................
@@ -41,12 +41,6 @@ public:
 	ImportType()
 	{
 		m_actualType = NULL;
-	}
-
-	bool
-	isUsed()
-	{
-		return !m_fixupArray.isEmpty() || (m_flags & ImportTypeFlag_UsedByImportType);
 	}
 
 	bool
@@ -77,6 +71,9 @@ public:
 	void
 	applyFixups();
 
+	bool
+	ensureResolved();
+
 protected:
 	virtual
 	void
@@ -96,9 +93,12 @@ protected:
 	bool
 	calcLayout()
 	{
-		ASSERT(false);
-		return true;
+		return ensureResolved() && m_actualType->ensureLayout();
 	}
+
+	virtual
+	bool
+	resolve() = 0;
 };
 
 //..............................................................................
@@ -144,10 +144,7 @@ public:
 	}
 
 	ImportPtrType*
-	getImportPtrType(
-		uint_t typeModifiers = 0,
-		uint_t flags = 0
-		);
+	getImportPtrType(uint_t typeModifiers);
 
 	static
 	sl::String
@@ -157,12 +154,6 @@ public:
 		const QualifiedName& orphanName
 		);
 
-	Type*
-	resolveSuperImportType();
-
-	void
-	pushImportSrcPosError();
-
 protected:
 	virtual
 	void
@@ -170,6 +161,10 @@ protected:
 	{
 		getTypeStringTuple()->m_typeStringPrefix.format("import %s", getQualifiedName().sz());
 	}
+
+	virtual
+	bool
+	resolve();
 };
 
 //..............................................................................
@@ -197,35 +192,17 @@ public:
 		return m_typeModifiers;
 	}
 
-	ImportPtrType*
-	getCheckedPtrType()
-	{
-		return !(m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getImportPtrType(m_typeModifiers, m_flags | PtrTypeFlag_Safe) :
-			this;
-	}
-
-	ImportPtrType*
-	getUnCheckedPtrType()
-	{
-		return (m_flags & PtrTypeFlag_Safe) ?
-			m_targetType->getImportPtrType(m_typeModifiers, m_flags & ~PtrTypeFlag_Safe) :
-			this;
-	}
-
 	static
 	sl::String
 	createSignature(
 		NamedImportType* importType,
-		uint_t typeModifiers,
-		uint_t flags
+		uint_t typeModifiers
 		)
 	{
 		return sl::formatString(
-			"ZP%s:%d:%d",
+			"ZP%s:%d",
 			importType->getQualifiedName().sz(),
-			typeModifiers,
-			flags
+			typeModifiers
 			);
 	}
 
@@ -233,6 +210,10 @@ protected:
 	virtual
 	void
 	prepareTypeString();
+
+	virtual
+	bool
+	resolve();
 };
 
 //..............................................................................
@@ -264,15 +245,13 @@ public:
 	sl::String
 	createSignature(
 		NamedImportType* importType,
-		uint_t typeModifiers,
-		uint_t flags
+		uint_t typeModifiers
 		)
 	{
 		return sl::formatString(
 			"ZI%s:%d:%d",
 			importType->getQualifiedName().sz(),
-			typeModifiers,
-			flags
+			typeModifiers
 			);
 	}
 
@@ -280,6 +259,10 @@ protected:
 	virtual
 	void
 	prepareTypeString();
+
+	virtual
+	bool
+	resolve();
 };
 
 //..............................................................................

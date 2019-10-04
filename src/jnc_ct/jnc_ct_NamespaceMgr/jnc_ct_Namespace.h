@@ -24,6 +24,7 @@ class EnumType;
 class Const;
 class MemberCoord;
 class Value;
+class Orphan;
 
 struct DualPtrTypeTuple;
 
@@ -40,7 +41,17 @@ enum
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class Namespace: public ModuleItemDecl
+enum NamespaceStatus
+{
+	NamespaceStatus_ParseRequired = 0,
+	NamespaceStatus_Parsing       = 1,
+	NamespaceStatus_ParseError    = -1,
+	NamespaceStatus_Ready         = 2,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class Namespace: public ModuleItemBodyDecl
 {
 	friend class NamespaceMgr;
 	friend class TypeMgr;
@@ -48,8 +59,10 @@ class Namespace: public ModuleItemDecl
 
 protected:
 	NamespaceKind m_namespaceKind;
-
+	NamespaceStatus m_namespaceStatus;
+	err::Error m_parseError;
 	sl::Array<ModuleItem*> m_itemArray;
+	sl::Array<Orphan*> m_orphanArray;
 	sl::StringHashTable<ModuleItem*> m_itemMap;
 	sl::StringHashTable<bool> m_friendSet;
 	sl::StringHashTable<DualPtrTypeTuple*> m_dualPtrTypeTupleMap;
@@ -59,6 +72,7 @@ public:
 	Namespace()
 	{
 		m_namespaceKind = NamespaceKind_Undefined;
+		m_namespaceStatus = NamespaceStatus_ParseRequired; // most namespaces are lazily parsed
 	}
 
 	NamespaceKind
@@ -66,6 +80,12 @@ public:
 	{
 		return m_namespaceKind;
 	}
+
+	bool
+	ensureNamespaceReady();
+
+	ModuleItem*
+	getModuleItem();
 
 	UsingSet*
 	getUsingSet()
@@ -88,113 +108,24 @@ public:
 		return m_friendSet.find(nspace->getQualifiedName()) != NULL;
 	}
 
-	ModuleItem*
-	findItemByName(const sl::StringRef& name);
+	FindModuleItemResult
+	findDirectChildItem(const sl::StringRef& name);
 
-	ModuleItem*
-	getItemByName(const sl::StringRef& name);
-
-	Type*
-	findTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsType(item, name) : NULL;
-	}
-
-	Type*
-	getTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsType(item, name) : NULL;
-	}
-
-	DerivableType*
-	findDerivableTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsDerivableType(item, name) : NULL;
-	}
-
-	DerivableType*
-	getDerivableTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsDerivableType(item, name) : NULL;
-	}
-
-	ClassType*
-	findClassTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsClassType(item, name) : NULL;
-	}
-
-	ClassType*
-	getClassTypeByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsClassType(item, name) : NULL;
-	}
-
-	Variable*
-	findVariableByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsVariable(item, name) : NULL;
-	}
-
-	Variable*
-	getVariableByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsVariable(item, name) : NULL;
-	}
-
-	Function*
-	findFunctionByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsFunction(item, name) : NULL;
-	}
-
-	Function*
-	getFunctionByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsFunction(item, name) : NULL;
-	}
-
-	Property*
-	findPropertyByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = findItemByName(name);
-		return item ? verifyModuleItemIsProperty(item, name) : NULL;
-	}
-
-	Property*
-	getPropertyByName(const sl::StringRef& name)
-	{
-		ModuleItem* item = getItemByName(name);
-		return item ? verifyModuleItemIsProperty(item, name) : NULL;
-	}
-
-	ModuleItem*
-	findItem(const sl::StringRef& name);
-
-	ModuleItem*
+	FindModuleItemResult
 	findItem(const QualifiedName& name);
 
-	ModuleItem*
-	findItemTraverse(
+	FindModuleItemResult
+	findItem(const sl::StringRef& name);
+
+	virtual
+	FindModuleItemResult
+	findDirectChildItemTraverse(
 		const sl::StringRef& name,
 		MemberCoord* coord = NULL,
 		uint_t flags = 0
-		)
-	{
-		return findItemTraverseImpl(name, coord, flags);
-	}
+		);
 
-	ModuleItem*
+	FindModuleItemResult
 	findItemTraverse(
 		const QualifiedName& name,
 		MemberCoord* coord = NULL,
@@ -220,27 +151,29 @@ public:
 	size_t
 	addFunction(Function* function); // returns overload idx or -1 on error
 
+	void
+	addOrphan(Orphan* orphan)
+	{
+		m_orphanArray.append(orphan);
+	}
+
 	Const*
 	createConst(
 		const sl::StringRef& name,
 		const Value& value
 		);
 
-	size_t
-	getItemCount()
+	const sl::Array<ModuleItem*>&
+	getItemArray()
 	{
-		return m_itemArray.getCount();
-	}
-
-	ModuleItem*
-	getItem(size_t index)
-	{
-		ASSERT(index < m_itemArray.getCount());
-		return m_itemArray[index];
+		return m_itemArray;
 	}
 
 	bool
 	exposeEnumConsts(EnumType* member);
+
+	bool
+	resolveOrphans();
 
 protected:
 	void
@@ -253,12 +186,12 @@ protected:
 		);
 
 	virtual
-	ModuleItem*
-	findItemTraverseImpl(
-		const sl::StringRef& name,
-		MemberCoord* coord = NULL,
-		uint_t flags = 0
-		);
+	bool
+	parseBody()
+	{
+		ASSERT(false);
+		return true;
+	}
 
 	bool
 	generateMemberDocumentation(

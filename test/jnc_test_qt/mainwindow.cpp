@@ -344,7 +344,10 @@ void MainWindow::writeSettings()
 jnc::Function* MainWindow::findGlobalFunction(const QString& name)
 {
 	QByteArray nameBytes = name.toLocal8Bit();
-	return m_module->getGlobalNamespace()->getNamespace()->findFunction(nameBytes.data());
+	jnc::FindModuleItemResult findResult = m_module->getGlobalNamespace()->getNamespace()->findItem(nameBytes.data());
+	return findResult.m_item && findResult.m_item->getItemKind() == jnc::ModuleItemKind_Function ?
+		(jnc::Function*)findResult.m_item :
+		NULL;
 }
 
 void MainWindow::clearOutput()
@@ -384,8 +387,8 @@ bool MainWindow::compile()
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 	m_module->addStaticLib(TestLib_getLib());
-
 	m_module->addImportDir(appDir.constData());
+	m_module->require(jnc::ModuleItemKind_Function, "main");
 
 #if (_JNC_OS_POSIX)
 #	if (_JNC_DEBUG)

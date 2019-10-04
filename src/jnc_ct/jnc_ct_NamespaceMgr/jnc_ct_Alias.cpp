@@ -23,34 +23,47 @@ Alias::Alias()
 {
 	m_itemKind = ModuleItemKind_Alias;
 	m_targetItem = NULL;
-	m_type = NULL;
-	m_ptrTypeFlags = 0;
 }
 
 bool
-Alias::calcLayout()
+Alias::resolveImpl()
 {
 	bool result;
+
+	ASSERT(!m_targetItem);
+
+	if (m_flags & AliasFlag_InResolve)
+	{
+		err::setFormatStringError("can't resolve '%s' due to recursion", getQualifiedName().sz());
+		return false;
+	}
+
+	m_flags |= AliasFlag_InResolve;
 
 	Parser parser(m_module);
 	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, m_initializer);
 	if (!result)
 		return false;
 
-	m_targetItem = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
-	if (!m_targetItem)
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
 		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
+	m_targetItem = findResult.m_item;
 	if (m_targetItem->getItemKind() == ModuleItemKind_Alias)
 	{
-		result = m_targetItem->ensureLayout();
+		Alias* alias = (Alias*)m_targetItem;
+		result = alias->ensureResolved();
 		if (!result)
 			return false;
 
-		m_targetItem = ((Alias*)m_targetItem)->getTargetItem();
+		m_targetItem = alias->getTargetItem();
 		ASSERT(m_targetItem->getItemKind() != ModuleItemKind_Alias);
 	}
 

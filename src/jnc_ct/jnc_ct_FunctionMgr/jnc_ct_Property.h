@@ -14,7 +14,7 @@
 #include "jnc_ct_PropertyType.h"
 #include "jnc_ct_PropertyVerifier.h"
 #include "jnc_ct_Function.h"
-#include "jnc_ct_NamedTypeBlock.h"
+#include "jnc_ct_MemberBlock.h"
 #include "jnc_Property.h"
 
 namespace jnc {
@@ -25,15 +25,113 @@ namespace ct {
 class Property:
 	public ModuleItem,
 	public Namespace,
-	public NamedTypeBlock
+	public MemberBlock
 {
 	friend class TypeMgr;
-	friend class NamedTypeBlock;
+	friend class MemberBlock;
 	friend class DerivableType;
 	friend class ClassType;
 	friend class ExtensionNamespace;
 	friend class FunctionMgr;
 	friend class Parser;
+
+protected:
+	class DefaultStaticConstructor: public CompilableFunction
+	{
+	public:
+		DefaultStaticConstructor()
+		{
+			m_functionKind = FunctionKind_StaticConstructor;
+			m_storageKind = StorageKind_Static;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileDefaultStaticConstructor();
+		}
+	};
+
+	class DefaultConstructor: public CompilableFunction
+	{
+	public:
+		DefaultConstructor()
+		{
+			m_functionKind = FunctionKind_Constructor;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileDefaultConstructor();
+		}
+	};
+
+	class DefaultDestructor: public CompilableFunction
+	{
+	public:
+		DefaultDestructor()
+		{
+			m_functionKind = FunctionKind_Destructor;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileDefaultDestructor();
+		}
+	};
+
+	class AutoGetter: public CompilableFunction
+	{
+	public:
+		AutoGetter()
+		{
+			m_functionKind = FunctionKind_Getter;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileAutoGetter();
+		}
+	};
+
+	class AutoSetter: public CompilableFunction
+	{
+	public:
+		AutoSetter()
+		{
+			m_functionKind = FunctionKind_Setter;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileAutoSetter();
+		}
+	};
+
+	class Binder: public CompilableFunction
+	{
+	public:
+		Binder()
+		{
+			m_functionKind = FunctionKind_Binder;
+		}
+
+		virtual
+		bool
+		compile()
+		{
+			return ((Property*)m_parentNamespace)->compileBinder();
+		}
+	};
 
 protected:
 	PropertyKind m_propertyKind;
@@ -44,7 +142,7 @@ protected:
 	Function* m_setter;
 	Function* m_binder;
 
-	// member data is StructField or Variable
+	// member data is Field or Variable
 
 	ModuleItem* m_onChanged;
 	ModuleItem* m_autoGetValue;
@@ -161,15 +259,20 @@ public:
 	bool
 	addProperty(Property* prop);
 
+	bool
+	ensureVtable()
+	{
+		return m_vtable.isEmpty() ? prepareVtable() : true;
+	}
+
 	Variable*
 	getVtableVariable()
 	{
-		return m_vtableVariable;
+		return m_vtableVariable || createVtableVariable() ? m_vtableVariable : NULL;
 	}
 
-	virtual
 	bool
-	compile();
+	finalize(); // resolves autoget/bindable aliases, lays out vtable, creates default constructors
 
 	virtual
 	bool
@@ -181,7 +284,14 @@ public:
 
 protected:
 	virtual
-	StructField*
+	Function*
+	createAccessor(
+		FunctionKind functionKind,
+		FunctionType* type
+		);
+
+	virtual
+	Field*
 	createFieldImpl(
 		const sl::StringRef& name,
 		Type* type,
@@ -191,15 +301,29 @@ protected:
 		sl::BoxList<Token>* initializer = NULL
 		);
 
-	virtual
 	bool
-	calcLayout();
+	appendVtableMethod(Function* function)
+	{
+		return function->getType()->ensureLayout() && m_vtable.append(function) != -1;
+	}
 
-	void
+	bool
+	prepareVtable();
+
+	bool
 	createVtableVariable();
 
 	Value
 	getAutoAccessorPropertyValue();
+
+	bool
+	compileDefaultStaticConstructor();
+
+	bool
+	compileDefaultConstructor();
+
+	bool
+	compileDefaultDestructor();
 
 	bool
 	compileAutoGetter();

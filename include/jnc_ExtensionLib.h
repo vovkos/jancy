@@ -73,13 +73,8 @@ typedef
 bool_t
 jnc_DynamicExtensionLibUnloadFunc();
 
-JNC_SELECT_ANY
-char
-jnc_g_dynamicExtensionLibMainFuncName[] = "jncDynamicExtensionLibMain";
-
-JNC_SELECT_ANY
-char
-jnc_g_dynamicExtensionLibUnloadFuncName[] = "jncDynamicExtensionLibUnload";
+JNC_SELECT_ANY char jnc_g_dynamicExtensionLibMainFuncName[] = "jncDynamicExtensionLibMain";
+JNC_SELECT_ANY char jnc_g_dynamicExtensionLibUnloadFuncName[] = "jncDynamicExtensionLibUnload";
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -133,10 +128,22 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_ExtensionLib* lib = LibPrefix##_getLib();
 
 #define JNC_LIB_SOURCE_FILE(fileName, sourceVar) \
-		jnc_Module_addSource(module, lib, fileName, sourceVar, sizeof(sourceVar) - 1);
+	jnc_Module_addSource(module, lib, fileName, sourceVar, sizeof(sourceVar) - 1);
 
 #define JNC_LIB_IMPORT(fileName) \
-		jnc_Module_addImport(module, fileName);
+	jnc_Module_addImport(module, fileName);
+
+#define JNC_LIB_REQUIRE_EX(itemKind, name, isEssential) \
+	jnc_Module_require(module, itemKind, name, isEssential);
+
+#define JNC_LIB_REQUIRE(itemKind, name) \
+	JNC_LIB_REQUIRE_EX(itemKind, name, 1)
+
+#define JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, isEssential) \
+	jnc_Module_requireType(module, typeKind, name, isEssential);
+
+#define JNC_LIB_REQUIRE_TYPE(typeKind, name) \
+	JNC_LIB_REQUIRE_TYPE_EX(typeKind, name, 1)
 
 #define JNC_END_LIB_SOURCE_FILE_TABLE() \
 	}
@@ -167,6 +174,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	LibPrefix##_mapAddresses(jnc_Module* module) \
 	{ \
 		bool_t result = 1; \
+		jnc_FindModuleItemResult findResult = jnc_g_nullFindModuleItemResult; \
 		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
@@ -195,13 +203,13 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		);
 
 #define JNC_DECLARE_TYPE(TypePrefix) \
-	JNC_DECLARE_TYPE_EX ( \
+	JNC_DECLARE_TYPE_EX( \
 		TypePrefix, \
 		jnc_DerivableType \
 		)
 
 #define JNC_DECLARE_CLASS_TYPE(TypePrefix) \
-	JNC_DECLARE_TYPE_EX ( \
+	JNC_DECLARE_TYPE_EX( \
 		TypePrefix, \
 		jnc_ClassType \
 		) \
@@ -216,7 +224,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 //..............................................................................
 
-#define JNC_DEFINE_TYPE_EX(TypePrefix, JncType, verify, qualifiedName, libGuid, cacheSlot) \
+#define JNC_DEFINE_TYPE_EX(TypePrefix, JncType, qualifiedName, libGuid, cacheSlot) \
 	JNC_EXTERN_C \
 	const char* \
 	TypePrefix##_getQualifiedName() \
@@ -227,25 +235,30 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JncType* \
 	TypePrefix##_getType(jnc_Module* module) \
 	{ \
-		jnc_ModuleItem* item = jnc_Module_findItem(module, qualifiedName, &(libGuid), cacheSlot); \
-		return item ? verify(item, qualifiedName) : NULL; \
+		jnc_FindModuleItemResult findResult = jnc_Module_findExtensionLibItem( \
+			module, \
+			qualifiedName, \
+			&(libGuid), \
+			cacheSlot); \
+		return \
+			findResult.m_item && \
+			jnc_ModuleItem_getItemKind(findResult.m_item) == jnc_ModuleItemKind_Type ? \
+			(JncType*)(jnc_Type*)findResult.m_item : NULL; \
 	}
 
 #define JNC_DEFINE_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot) \
-	JNC_DEFINE_TYPE_EX ( \
+	JNC_DEFINE_TYPE_EX( \
 		TypePrefix, \
 		jnc_DerivableType, \
-		jnc_verifyModuleItemIsDerivableType, \
 		qualifiedName, \
 		libGuid, \
 		cacheSlot \
 		)
 
 #define JNC_DEFINE_CLASS_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot) \
-	JNC_DEFINE_TYPE_EX ( \
+	JNC_DEFINE_TYPE_EX( \
 		TypePrefix, \
 		jnc_ClassType, \
-		jnc_verifyModuleItemIsClassType, \
 		qualifiedName, \
 		libGuid, \
 		cacheSlot \
@@ -298,13 +311,13 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	}
 
 #define JNC_DECLARE_TYPE_STATIC_METHODS(TypePrefix) \
-	JNC_DECLARE_TYPE_STATIC_METHODS_EX ( \
+	JNC_DECLARE_TYPE_STATIC_METHODS_EX( \
 		TypePrefix, \
 		jnc::DerivableType \
 		)
 
 #define JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(TypePrefix) \
-	JNC_DECLARE_TYPE_STATIC_METHODS_EX ( \
+	JNC_DECLARE_TYPE_STATIC_METHODS_EX( \
 		TypePrefix, \
 		jnc::ClassType \
 		) \
@@ -352,10 +365,11 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		) \
 	{ \
 		bool_t result = 1; \
-		jnc_Variable* variable = NULL; \
+		jnc_FindModuleItemResult findResult = jnc_g_nullFindModuleItemResult; \
+		jnc_Namespace* nspace = NULL; \
 		jnc_Function* function = NULL; \
 		jnc_Property* prop = NULL; \
-		jnc_Namespace* nspace = NULL; \
+		jnc_Variable* variable = NULL; \
 		size_t overloadIdx = 0; \
 		jnc_DerivableType* type = (jnc_DerivableType*)TypePrefix##_getType(module); \
 		if (!type) \
@@ -380,75 +394,67 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP_TYPE_EX(TypePrefix, 1)
 
 #define JNC_MAP_FUNCTION_IMPL(function, p) \
-	result = jnc_Module_mapFunction(module, function, jnc_pvoid_cast(p)); \
-	if (!result) \
-		return 0;
+	do \
+	{ \
+		result = jnc_Module_mapFunction(module, function, jnc_pvoid_cast(p)); \
+		if (!result) \
+			return 0; \
+	} while (0)
 
 #define JNC_MAP_OVERLOAD(p) \
 	if (function) \
 	{ \
 		jnc_Function* overload = jnc_Function_getOverload(function, ++overloadIdx); \
-		if (!overload) \
-			return 0; \
-		JNC_MAP_FUNCTION_IMPL(overload, p) \
+		if (overload) \
+			JNC_MAP_FUNCTION_IMPL(overload, p); \
 	}
-
-#define JNC_MAP_PRECONSTRUCTOR(p) \
-	function = jnc_DerivableType_getPreconstructor(type); \
-	if (!function) \
-		return 0; \
-	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
 
 #define JNC_MAP_CONSTRUCTOR(p) \
 	function = jnc_DerivableType_getConstructor(type); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_DESTRUCTOR(p) \
 	function = jnc_DerivableType_getDestructor(type); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_UNARY_OPERATOR(opKind, p) \
 	function = jnc_DerivableType_getUnaryOperator(type, opKind); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_BINARY_OPERATOR(opKind, p) \
 	function = jnc_DerivableType_getBinaryOperator(type, opKind); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_CALL_OPERATOR(p) \
 	function = jnc_DerivableType_getCallOperator(); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_CAST_OPERATOR(i, p) \
 	function = jnc_DerivableType_getCastOperator(i); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p)
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p);
+
+#define JNC_FIND_ITEM_IMPL(name, itemKind, ItemType, item) \
+	findResult = jnc_Namespace_findItem(nspace, name); \
+	item = findResult.m_item && jnc_ModuleItem_getItemKind(findResult.m_item) == itemKind ? \
+		(ItemType*)findResult.m_item : NULL; \
 
 #define JNC_MAP_FUNCTION(name, p) \
-	function = jnc_Namespace_findFunction(nspace, name, 1); \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Function, jnc_Function, function) \
+	overloadIdx = 0; \
 	if (function) \
-	{ \
-		overloadIdx = 0; \
-		JNC_MAP_FUNCTION_IMPL(function, p) \
-	}
+		JNC_MAP_FUNCTION_IMPL(function, p); \
 
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
 	function = jnc_Property_getGetter(prop); \
@@ -458,36 +464,27 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 
 #define JNC_MAP_PROPERTY_SETTER(prop, p) \
 	function = jnc_Property_getSetter(prop); \
-	if (!function) \
-		return 0; \
 	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p);
+	if (function) \
+		JNC_MAP_FUNCTION_IMPL(function, p); \
 
 #define JNC_MAP_PROPERTY(name, getter, setter) \
-	prop = jnc_Namespace_findProperty(nspace, name, 1); \
-	if (!prop) \
-		return 0; \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
 	JNC_MAP_PROPERTY_GETTER(prop, getter); \
 	JNC_MAP_PROPERTY_SETTER(prop, setter);
 
 #define JNC_MAP_CONST_PROPERTY(name, getter) \
-	prop = jnc_Namespace_findProperty(nspace, name, 1); \
-	if (!prop) \
-		return 0; \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
 	JNC_MAP_PROPERTY_GETTER(prop, getter);
 
 #define JNC_MAP_AUTOGET_PROPERTY(name, setter) \
-	prop = jnc_Namespace_findProperty(nspace, name, 1); \
-	if (!prop) \
-		return 0; \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
 	JNC_MAP_PROPERTY_SETTER(prop, setter);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_MAP_VARIABLE(name, p) \
-	variable = jnc_Namespace_findVariable(nspace, name, 1); \
-	if (!variable) \
-		return 0; \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Variable, jnc_Variable, variable) \
 	result = jnc_Module_mapVariable(module, variable, p); \
 	if (!result) \
 		return 0;

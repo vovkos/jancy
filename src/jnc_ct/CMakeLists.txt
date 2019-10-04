@@ -358,7 +358,8 @@ set(
 	${RTL_INTRO_JNC_DIR}/jnc_Namespace.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_OpKind.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Type.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_NamedTypeBlock.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Field.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_MemberBlock.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_ArrayType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_BitFieldType.jnc

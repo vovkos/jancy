@@ -44,14 +44,11 @@ FunctionArg::getArgString()
 
 	sl::String suffix = m_type->getTypeStringSuffix();
 	if (!suffix.isEmpty())
-	{
-		string += ' ';
 		string += suffix;
-	}
 
 	if (!m_initializer.isEmpty())
 	{
-		string += ' ';
+		string += " = ";
 		string += getInitializerString();
 	}
 

@@ -32,7 +32,7 @@ enum ModuleItemKind
 	Property,
 	PropertyTemplate,
 	EnumConst,
-	StructField,
+	Field,
 	BaseTypeSlot,
 	Orphan,
 	Lazy,

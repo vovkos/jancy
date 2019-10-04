@@ -41,45 +41,17 @@ Function::Function()
 	m_machineCode = NULL;
 }
 
-bool
-Function::setBody(sl::BoxList<Token>* tokenList)
-{
-	if (!m_body.isEmpty())
-	{
-		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
-		return false;
-	}
-
-	if (m_storageKind == StorageKind_Abstract)
-	{
-		err::setFormatStringError("'%s' is abstract and hence cannot have a body", getQualifiedName().sz());
-		return false;
-	}
-
-	sl::takeOver(&m_body, tokenList);
-	m_module->markForCompile(this);
-	return true;
-}
-
 void
 Function::addUsingSet(Namespace* anchorNamespace)
 {
-	NamespaceMgr* importNamespaceMgr = m_module->getCompileState() < ModuleCompileState_Linked ?
-		&m_module->m_namespaceMgr :
-		NULL;
-
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
-		m_usingSet.append(importNamespaceMgr, nspace->getUsingSet());
+		m_usingSet.append(nspace->getUsingSet());
 }
 
 void
 Function::addUsingSet(UsingSet* usingSet)
 {
-	NamespaceMgr* importNamespaceMgr = m_module->getCompileState() < ModuleCompileState_Linked ?
-		&m_module->m_namespaceMgr :
-		NULL;
-
-	m_usingSet.append(importNamespaceMgr, usingSet);
+	m_usingSet.append(usingSet);
 }
 
 void
@@ -99,6 +71,13 @@ Function::prepareLlvmFunction()
 	}
 
 	m_llvmFunction = m_type->getCallConv()->createLlvmFunction(m_type, llvmName);
+
+	if (canCompile())
+		m_module->markForCompile(this);
+	else if (m_type->getReturnType()->getTypeKind() == TypeKind_ClassPtr)
+		m_module->m_typeMgr.addExternalReturnType(((ClassPtrType*)m_type->getReturnType())->getTargetType());
+	else if (isDerivableTypePtrType(m_type->getReturnType()))
+		m_module->m_typeMgr.addExternalReturnType((DerivableType*)((DataPtrType*)m_type->getReturnType())->getTargetType());
 }
 
 void
@@ -147,12 +126,41 @@ Function::addTlsVariable(Variable* variable)
 }
 
 bool
+Function::require()
+{
+	if (!canCompile())
+	{
+		err::setFormatStringError("required '%s' is external", getQualifiedName().sz());
+		return false;
+	}
+
+	m_module->markForCompile(this);
+
+	size_t count = m_overloadArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Function* overload = m_overloadArray[i];
+		if (!overload->canCompile())
+		{
+			err::setFormatStringError("required '%s' (overload #%d) is external", getQualifiedName().sz(), i);
+			return false;
+		}
+
+		m_module->markForCompile(overload);
+	}
+
+	return true;
+}
+
+bool
 Function::compile()
 {
-	bool result;
-
-	ASSERT(!m_body.isEmpty() || !m_initializer.isEmpty()); // otherwise what are we doing here?
 	ASSERT(!m_prologueBlock);
+	ASSERT(!m_body.isEmpty() || !m_initializer.isEmpty()); // otherwise what are we doing here?
+
+	bool result = m_type->ensureLayout();
+	if (!result)
+		return false;
 
 	if (m_parentUnit)
 		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
@@ -161,21 +169,33 @@ Function::compile()
 	{
 		// a function with a body
 
-		Token::Pos beginPos = m_body.getHead()->m_pos;
-		Token::Pos endPos = m_body.getTail()->m_pos;
+		m_module->m_functionMgr.prologue(this, m_bodyPos);
+		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(&m_usingSet);
 
-		m_module->m_functionMgr.prologue(this, beginPos);
-		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(NULL, &m_usingSet);
+		Parser parser(m_module, Parser::Mode_Compile);
+		SymbolKind symbolKind = SymbolKind_compound_stmt;
 
-		result = m_functionKind == FunctionKind_Constructor ?
-			compileConstructorBody() :
-			compileNormalBody();
+		if (m_functionKind == FunctionKind_Constructor ||
+			m_functionKind == FunctionKind_StaticConstructor)
+		{
+			NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
+			switch (namespaceKind)
+			{
+			case NamespaceKind_Type:
+				parser.m_constructorType = (DerivableType*)m_parentNamespace;
+				symbolKind = SymbolKind_constructor_compound_stmt;
+				break;
 
-		if (!result)
-			return false;
+			case NamespaceKind_Property:
+				parser.m_constructorProperty = (Property*)m_parentNamespace;
+				symbolKind = SymbolKind_constructor_compound_stmt;
+				break;
+			}
+		}
 
-		m_module->m_namespaceMgr.setSourcePos(endPos);
-		return m_module->m_functionMgr.epilogue();
+		return
+			parser.parseBody(symbolKind, m_bodyPos, m_body) &&
+			m_module->m_functionMgr.epilogue();
 	}
 
 	// redirected function
@@ -185,33 +205,31 @@ Function::compile()
 	if (!result)
 		return false;
 
-	ModuleItem* item = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
-	if (!item)
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
+	if (!findResult.m_result)
+		return false;
+
+	if (!findResult.m_item)
 	{
-		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz());
+		err::setFormatStringError("'%s' not found", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
-	if (item->getItemKind() != ModuleItemKind_Function)
+	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
 	{
 		err::setFormatStringError("'%s' is not function", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
-	Function* targetFunction = (Function*)item;
-
-	if (m_functionKind < FunctionKind_PreConstructor || m_functionKind > FunctionKind_StaticDestructor)
+	Function* targetFunction = (Function*)findResult.m_item;
+	if (m_functionKind < FunctionKind_StaticConstructor || m_functionKind > FunctionKind_Destructor)
 	{
 		Function* targetOverload = targetFunction->findOverload(m_type);
-		if (targetOverload)
+		if (targetOverload) // can re-use target function directly
 		{
-			// can re-use the same function directly
-
-			result = targetOverload->m_llvmFunction != NULL || targetOverload->compile();
-			if (!result)
-				return false;
-
-			m_llvmFunction = targetOverload->m_llvmFunction;
+			llvm::Function* llvmFunction = targetOverload->getLlvmFunction();
+			m_llvmFunction->replaceAllUsesWith(llvmFunction);
+			m_llvmFunction = llvmFunction;
 			return true;
 		}
 	}
@@ -244,32 +262,6 @@ Function::compile()
 
 	m_module->m_functionMgr.internalEpilogue();
 	return true;
-}
-
-bool
-Function::compileConstructorBody()
-{
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-
-	NamespaceKind namespaceKind = m_parentNamespace->getNamespaceKind();
-	ASSERT(namespaceKind == NamespaceKind_Type || namespaceKind == NamespaceKind_Property);
-
-	if (namespaceKind == NamespaceKind_Type)
-		parser.m_constructorType = (DerivableType*)m_parentNamespace;
-	else
-		parser.m_constructorProperty = (Property*)m_parentNamespace;
-
-	return parser.parseTokenList(SymbolKind_constructor_compound_stmt, m_body, true);
-}
-
-bool
-Function::compileNormalBody()
-{
-	Parser parser(m_module);
-	parser.m_stage = Parser::Stage_Pass2;
-
-	return parser.parseTokenList(SymbolKind_compound_stmt, m_body, true);
 }
 
 bool

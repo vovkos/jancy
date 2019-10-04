@@ -91,10 +91,10 @@ void printStructTypeInfo(jnc.StructType* type)
 		type.m_col + 1
 		);
 
-	size_t count = type.m_memberFieldCount;
+	size_t count = type.m_fieldCount;
 	for (size_t i = 0; i < count; i++)
 	{
-		jnc.StructField* field = type.m_memberFieldArray[i];
+		jnc.Field* field = type.m_fieldArray[i];
 		printAttributeBlock(field);
 
 		printf(

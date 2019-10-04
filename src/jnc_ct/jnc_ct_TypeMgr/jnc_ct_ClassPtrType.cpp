@@ -77,7 +77,9 @@ ClassPtrType::prepareLlvmType()
 void
 ClassPtrType::prepareLlvmDiType()
 {
-	m_llvmDiType = m_module->m_llvmDiBuilder.createPointerType(m_targetType->getIfaceStructType());
+	m_llvmDiType = (m_targetType->getFlags() & ModuleItemFlag_LayoutReady) ?
+		m_module->m_llvmDiBuilder.createPointerType(m_targetType->getIfaceStructType()) :
+		m_module->m_typeMgr.getStdType(StdType_BytePtr)->getLlvmDiType();
 }
 
 void

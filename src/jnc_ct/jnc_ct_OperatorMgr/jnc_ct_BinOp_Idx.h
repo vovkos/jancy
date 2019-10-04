@@ -24,7 +24,7 @@ public:
 	BinOp_Idx()
 	{
 		m_opKind = BinOpKind_Idx;
-		m_opFlags1 = OpFlag_KeepPropertyRef | OpFlag_KeepVariantRef;
+		m_opFlags1 = OpFlag_KeepPropertyRef | OpFlag_KeepVariantRef | OpFlag_EnsurePtrTargetLayout;
 	}
 
 	virtual

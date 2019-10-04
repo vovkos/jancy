@@ -121,6 +121,9 @@ OperatorMgr::createClosureObject(
 			);
 	}
 
+	if (!closureType)
+		return NULL;
+
 	// create instance
 
 	Value closureValue;
@@ -128,7 +131,7 @@ OperatorMgr::createClosureObject(
 	if (!result)
 		return false;
 
-	sl::Array<StructField*> fieldArray = closureType->getMemberFieldArray();
+	const sl::Array<Field*>& fieldArray = closureType->getFieldArray();
 	size_t fieldIdx = 0;
 
 	// save function/property pointer
@@ -197,7 +200,7 @@ OperatorMgr::createDataClosureObject(
 	if (!result)
 		return false;
 
-	sl::Array<StructField*> fieldArray = closureType->getMemberFieldArray();
+	const sl::Array<Field*>& fieldArray = closureType->getFieldArray();
 	ASSERT(!fieldArray.isEmpty());
 
 	// save data pointer
