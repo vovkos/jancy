@@ -439,7 +439,6 @@ Value::trySetEnumConst(EnumConst* enumConst)
 void
 Value::setField(
 	Field* field,
-	Type* type,
 	size_t baseOffset
 	)
 {
@@ -447,18 +446,9 @@ Value::setField(
 
 	m_valueKind = ValueKind_Field;
 	m_field = field;
-	m_type = type;
+	m_type = field->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
 	m_constData.setCount(sizeof(size_t));
 	*(size_t*)m_constData.p() = baseOffset + field->getOffset();
-}
-
-void
-Value::setField(
-	Field* field,
-	size_t baseOffset
-	)
-{
-	setField(field, field->getType(), baseOffset);
 }
 
 void

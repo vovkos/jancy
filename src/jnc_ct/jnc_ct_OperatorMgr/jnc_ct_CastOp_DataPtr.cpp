@@ -14,6 +14,7 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
+#include "jnc_ct_UnOp_Ptr.h"
 
 namespace jnc {
 namespace ct {
@@ -718,7 +719,7 @@ Cast_DataRef::getCastKind(
 {
 	ASSERT(type->getTypeKind() == TypeKind_DataRef);
 
-	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Addr, opValue);
+	Type* intermediateSrcType = UnOp_Addr::getResultType(opValue);
 	if (!intermediateSrcType)
 		return CastKind_None;
 

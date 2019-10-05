@@ -548,7 +548,7 @@ Cast_PropertyRef::getCastKind(
 {
 	ASSERT(type->getTypeKind() == TypeKind_PropertyRef);
 
-	Type* intermediateSrcType = m_module->m_operatorMgr.getUnaryOperatorResultType(UnOpKind_Addr, opValue);
+	Type* intermediateSrcType = UnOp_Addr::getResultType(opValue);
 	if (!intermediateSrcType)
 		return CastKind_None;
 

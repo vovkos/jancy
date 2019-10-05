@@ -19,69 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-BinOp_Idx::getResultType(
-	const Value& opValue1,
-	const Value& opValue2
-	)
-{
-	Type* opType1 = opValue1.getType();
-	if (opType1->getTypeKind() == TypeKind_DataRef)
-	{
-		DataPtrType* ptrType = (DataPtrType*)opType1;
-		Type* targetType = ptrType->getTargetType();
-		TypeKind targetTypeKind = targetType->getTypeKind();
-		switch (targetTypeKind)
-		{
-		case TypeKind_Array:
-			return ((ArrayType*)targetType)->getElementType()->getDataPtrType(
-				TypeKind_DataRef,
-				ptrType->getPtrTypeKind(),
-				ptrType->getFlags()
-				);
-
-		case TypeKind_Variant:
-			return m_module->m_typeMgr.getSimplePropertyType(targetType); // variant property
-		}
-
-		opType1 = targetType;
-	}
-
-	DataPtrType* ptrType;
-
-	TypeKind typeKind = opType1->getTypeKind();
-	switch (typeKind)
-	{
-	case TypeKind_DataPtr:
-		ptrType = (DataPtrType*)opType1;
-		return ptrType->getTargetType()->getDataPtrType(
-			TypeKind_DataRef,
-			ptrType->getPtrTypeKind(),
-			ptrType->getFlags()
-			);
-
-	case TypeKind_Array:
-		return ((ArrayType*)opType1)->getElementType();
-
-	case TypeKind_Variant:
-		return opType1; // variant property
-
-	case TypeKind_PropertyRef:
-	case TypeKind_PropertyPtr:
-		return getPropertyIndexResultType(opValue1, opValue2);
-
-	case TypeKind_ClassPtr:
-		return getDerivableTypeIndexResultType(((ClassPtrType*)opType1)->getTargetType(), opValue1, opValue2);
-
-	default:
-		if (opType1->getTypeKindFlags() & TypeKindFlag_Derivable)
-			return getDerivableTypeIndexResultType((DerivableType*)opType1, opValue1, opValue2);
-
-		err::setFormatStringError("cannot index '%s'", opType1->getTypeString().sz());
-		return NULL;
-	}
-}
-
 bool
 BinOp_Idx::op(
 	const Value& rawOpValue1,
@@ -294,36 +231,6 @@ BinOp_Idx::propertyIndexOperator(
 
 	closure->getArgValueList()->insertTail(rawOpValue2);
 	return true;
-}
-
-Type*
-BinOp_Idx::getPropertyIndexResultType(
-	const Value& rawOpValue1,
-	const Value& rawOpValue2
-	)
-{
-	Value resultValue;
-	propertyIndexOperator(rawOpValue1, rawOpValue2, &resultValue);
-	return resultValue.getClosure()->getClosureType(rawOpValue1.getType());
-}
-
-Type*
-BinOp_Idx::getDerivableTypeIndexResultType(
-	DerivableType* derivableType,
-	const Value& opValue1,
-	const Value& opValue2
-	)
-{
-	Property* prop = getDerivableTypeIndexerProperty(derivableType, opValue2);
-	if (!prop)
-		return NULL;
-
-	Value resultValue = prop;
-	Closure* closure = resultValue.createClosure();
-	closure->getArgValueList()->insertTail(opValue1);
-	closure->getArgValueList()->insertTail(opValue2);
-
-	return closure->getClosureType(prop->getType());
 }
 
 bool

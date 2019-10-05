@@ -1117,7 +1117,7 @@ GcHeap::safePoint()
 #endif
 
 	if (!(m_flags & Flag_SimpleSafePoint))
-		sys::atomicXchg((volatile int32_t*) m_guardPage.p(), 0); // we need a fence, hence atomicXchg
+		sys::atomicXchg((volatile int32_t*)m_guardPage.p(), 0); // we need a fence, hence atomicXchg
 	else if (m_state == State_StopTheWorld)
 		parkAtSafePoint(); // parkAtSafePoint will force a fence with atomicDec
 }

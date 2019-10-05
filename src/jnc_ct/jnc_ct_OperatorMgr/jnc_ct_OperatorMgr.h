@@ -293,28 +293,6 @@ public:
 
 	// unary operators
 
-	Type*
-	getUnaryOperatorResultType(
-		UnOpKind opKind,
-		const Value& opValue
-		);
-
-	bool
-	getUnaryOperatorResultType(
-		UnOpKind opKind,
-		const Value& opValue,
-		Value* resultValue
-		);
-
-	bool
-	getUnaryOperatorResultType(
-		UnOpKind opKind,
-		Value* value
-		)
-	{
-		return getUnaryOperatorResultType(opKind, *value, value);
-	}
-
 	bool
 	unaryOperator(
 		UnOpKind opKind,
@@ -332,31 +310,6 @@ public:
 	}
 
 	// binary operators
-
-	Type*
-	getBinaryOperatorResultType(
-		BinOpKind opKind,
-		const Value& opValue1,
-		const Value& opValue2
-		);
-
-	bool
-	getBinaryOperatorResultType(
-		BinOpKind opKind,
-		const Value& opValue1,
-		const Value& opValue2,
-		Value* resultValue
-		);
-
-	bool
-	getBinaryOperatorResultType(
-		BinOpKind opKind,
-		Value* value,
-		const Value& opValue2
-		)
-	{
-		return getBinaryOperatorResultType(opKind, *value, opValue2, value);
-	}
 
 	bool
 	binaryOperator(
@@ -422,13 +375,6 @@ public:
 	getConditionalOperatorResultType(
 		const Value& trueValue,
 		const Value& falseValue
-		);
-
-	bool
-	getConditionalOperatorResultType(
-		const Value& trueValue,
-		const Value& falseValue,
-		Value* resultValue
 		);
 
 	bool
@@ -876,14 +822,6 @@ public:
 		const sl::StringRef& initializer
 		);
 
-	Type*
-	getNewOperatorResultType(Type* type)
-	{
-		return type->getTypeKind() == TypeKind_Class ?
-			(Type*) ((ClassType*)type)->getClassPtrType() :
-			type->getDataPtrType();
-	}
-
 	bool
 	gcHeapAllocate(
 		Type* type,
@@ -974,22 +912,6 @@ public:
 	}
 
 	bool
-	getMemberOperatorResultType(
-		const Value& opValue,
-		const sl::StringRef& name,
-		Value* resultValue
-		);
-
-	bool
-	getMemberOperatorResultType(
-		Value* value,
-		const sl::StringRef& name
-		)
-	{
-		return getMemberOperatorResultType(*value, name, value);
-	}
-
-	bool
 	memberOperator(
 		const Value& opValue,
 		const sl::StringRef& name,
@@ -1017,28 +939,6 @@ public:
 	void
 	traceBlock(BasicBlock* block);
 #endif
-
-	Type*
-	getCallOperatorResultType(
-		const Value& opValue,
-		sl::BoxList<Value>* argValueList
-		);
-
-	bool
-	getCallOperatorResultType(
-		const Value& opValue,
-		sl::BoxList<Value>* argValueList,
-		Value* resultValue
-		);
-
-	bool
-	getCallOperatorResultType(
-		Value* value,
-		sl::BoxList<Value>* argValueList
-		)
-	{
-		return getCallOperatorResultType(*value, argValueList, value);
-	}
 
 	bool
 	callOperator(
@@ -1131,28 +1031,6 @@ public:
 
 	// closure operators
 
-	Type*
-	getClosureOperatorResultType(
-		const Value& opValue,
-		sl::BoxList<Value>* argValueList
-		);
-
-	bool
-	getClosureOperatorResultType(
-		const Value& opValue,
-		sl::BoxList<Value>* argValueList,
-		Value* resultValue
-		);
-
-	bool
-	getClosureOperatorResultType(
-		Value* value,
-		sl::BoxList<Value>* argValueList
-		)
-	{
-		return getClosureOperatorResultType(*value,  argValueList, value);
-	}
-
 	bool
 	closureOperator(
 		const Value& opValue,
@@ -1205,28 +1083,7 @@ public:
 		return closureOperator(opValue, &argValueList, resultValue);
 	}
 
-	Type*
-	getFunctionType(
-		const Value& opValue,
-		FunctionType* functionType
-		);
-
 	// property getter
-
-	Type*
-	getPropertyGetterType(const Value& opValue);
-
-	bool
-	getPropertyGetterType(
-		const Value& opValue,
-		Value* resultValue
-		);
-
-	bool
-	getPropertyGetterType(Value* value)
-	{
-		return getPropertyGetterType(*value, value);
-	}
 
 	bool
 	getPropertyGetter(
@@ -1242,28 +1099,6 @@ public:
 
 	// property setter
 
-	Type*
-	getPropertySetterType(
-		const Value& opValue,
-		const Value& argValue
-		);
-
-	bool
-	getPropertySetterType(
-		const Value& opValue,
-		const Value& argValue,
-		Value* resultValue
-		);
-
-	bool
-	getPropertySetterType(
-		Value* value,
-		const Value& argValue
-		)
-	{
-		return getPropertySetterType(*value, argValue, value);
-	}
-
 	bool
 	getPropertySetter(
 		const Value& opValue,
@@ -1278,27 +1113,6 @@ public:
 		)
 	{
 		return getPropertySetter(*value, argValue, value);
-	}
-
-	Type*
-	getPropertySetterType(const Value& opValue)
-	{
-		return getPropertySetterType(opValue, Value());
-	}
-
-	bool
-	getPropertySetterType(
-		const Value& opValue,
-		Value* resultValue
-		)
-	{
-		return getPropertySetterType(opValue, Value(), resultValue);
-	}
-
-	bool
-	getPropertySetterType(Value* value)
-	{
-		return getPropertySetterType(*value, Value(), value);
 	}
 
 	bool
@@ -1317,21 +1131,6 @@ public:
 	}
 
 	// property binder
-
-	Type*
-	getPropertyBinderType(const Value& opValue);
-
-	bool
-	getPropertyBinderType(
-		const Value& opValue,
-		Value* resultValue
-		);
-
-	bool
-	getPropertyBinderType(Value* value)
-	{
-		return getPropertyBinderType(*value, value);
-	}
 
 	bool
 	getPropertyBinder(
@@ -1644,24 +1443,10 @@ protected:
 	// member operators
 
 	bool
-	getNamespaceMemberType(
-		Namespace* nspace,
-		const sl::StringRef& name,
-		Value* resultValue
-		);
-
-	bool
 	getNamespaceMember(
 		Namespace* nspace,
 		const sl::StringRef& name,
-		Value* resultValue
-		);
-
-	bool
-	getNamedTypeMemberType(
-		const Value& opValue,
-		NamedType* namedType,
-		const sl::StringRef& name,
+		size_t baseFieldOffset,
 		Value* resultValue
 		);
 
@@ -1669,14 +1454,6 @@ protected:
 	getNamedTypeMember(
 		const Value& opValue,
 		NamedType* namedType,
-		const sl::StringRef& name,
-		Value* resultValue
-		);
-
-	bool
-	getEnumTypeMemberType(
-		const Value& opValue,
-		EnumType* enumType,
 		const sl::StringRef& name,
 		Value* resultValue
 		);

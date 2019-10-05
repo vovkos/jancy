@@ -55,20 +55,6 @@ public:
 		return m_opFlags2;
 	}
 
-	bool
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2,
-		Value* resultValue
-		);
-
-	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		) = 0;
-
 	virtual
 	bool
 	op(

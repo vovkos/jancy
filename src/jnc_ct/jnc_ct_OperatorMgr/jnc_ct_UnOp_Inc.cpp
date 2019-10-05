@@ -18,12 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-UnOp_PreInc::getResultType(const Value& opValue)
-{
-	return opValue.getType();
-}
-
 bool
 UnOp_PreInc::op(
 	const Value& opValue,
@@ -43,14 +37,6 @@ UnOp_PreInc::op(
 }
 
 //..............................................................................
-
-Type*
-UnOp_PostInc::getResultType(const Value& opValue)
-{
-	Value oldValue;
-	bool result = m_module->m_operatorMgr.prepareOperandType(opValue, &oldValue);
-	return result ? oldValue.getType() : NULL;
-}
 
 bool
 UnOp_PostInc::op(

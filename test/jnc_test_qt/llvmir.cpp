@@ -32,7 +32,6 @@ bool LlvmIr::build(jnc::Module* module)
 	return true;
 }
 
-
 void LlvmIr::setupHighlighter()
 {
 	highlighter = new LlvmIrHighlighter(document());

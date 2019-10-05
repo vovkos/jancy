@@ -147,6 +147,24 @@ class
 {
 	Value m_value;
 }
+start
+expression_0
+	enter
+	{
+		m_module->m_controlFlowMgr.lockEmission();
+	}
+	leave
+	{
+		m_module->m_controlFlowMgr.unlockEmission();
+	}
+	:	conditional_expr<&$.m_value>
+	;
+
+
+class
+{
+	Value m_value;
+}
 nullable
 expression_or_empty
 	:	conditional_expr<&$.m_value>

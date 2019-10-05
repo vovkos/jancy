@@ -31,16 +31,6 @@ public:
 
 public:
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return getArithmeticResultType(opValue1, opValue2);
-	}
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
@@ -637,19 +627,6 @@ public:
 	BinOp_BwAnd();
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return
-			isBitFlagEnumType(opValue1.getType()) ? opValue1.getType() :
-			isBitFlagEnumType(opValue2.getType()) ? opValue2.getType() :
-			getArithmeticResultType(opValue1, opValue2);
-	}
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
@@ -709,18 +686,6 @@ public:
 	BinOp_BwOr();
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return isBitFlagEnumOpType(opValue1, opValue2) ?
-			opValue1.getType() :
-			getArithmeticResultType(opValue1, opValue2);
-	}
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
@@ -766,18 +731,6 @@ class BinOp_BwXor: public BinOp_IntegerOnly<BinOp_BwXor>
 {
 public:
 	BinOp_BwXor();
-
-	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return isBitFlagEnumOpType(opValue1, opValue2) ?
-			opValue1.getType() :
-			getArithmeticResultType(opValue1, opValue2);
-	}
 
 	virtual
 	bool

@@ -2450,16 +2450,6 @@ Parser::finalizeBaseTypeMemberConstructBlock()
 }
 
 bool
-Parser::newOperator_0(
-	Type* type,
-	Value* resultValue
-	)
-{
-	resultValue->setType(m_module->m_operatorMgr.getNewOperatorResultType(type));
-	return true;
-}
-
-bool
 Parser::lookupIdentifier(
 	const sl::StringRef& name,
 	const lex::LineCol& pos,
@@ -2585,101 +2575,6 @@ Parser::lookupIdentifier(
 			getModuleItemKindString(item->getItemKind()),
 			name.sz()
 			);
-		return false;
-	};
-
-	return true;
-}
-
-bool
-Parser::lookupIdentifierType(
-	const sl::StringRef& name,
-	const lex::LineCol& pos,
-	Value* value
-	)
-{
-	bool result;
-
-	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-
-	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name);
-	if (!findResult.m_result)
-		return false;
-
-	if (!findResult.m_item)
-	{
-		err::setFormatStringError("undeclared identifier '%s'", name.sz());
-		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
-		return false;
-	}
-
-	ModuleItem* item = findResult.m_item;
-	ModuleItemKind itemKind = item->getItemKind();
-
-	switch (itemKind)
-	{
-	case ModuleItemKind_Namespace:
-		value->setNamespace((GlobalNamespace*)item);
-		break;
-
-	case ModuleItemKind_Typedef:
-		item = ((Typedef*)item)->getType();
-		// and fall through
-
-	case ModuleItemKind_Type:
-		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
-		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
-			return false;
-		}
-
-		value->setNamespace((NamedType*)item);
-		break;
-
-	case ModuleItemKind_Variable:
-		value->setType(getDirectRefType(((Variable*)item)->getType()));
-		break;
-
-	case ModuleItemKind_Alias:
-		value->setType(((Alias*)item)->getType());
-		break;
-
-	case ModuleItemKind_Function:
-		{
-		Function* function = (Function*)item;
-		value->setFunctionTypeOverload(function->getTypeOverload());
-
-		if (((Function*)item)->isMember())
-		{
-			result = m_module->m_operatorMgr.createMemberClosure(value, (Function*)item);
-			if (!result)
-				return false;
-		}
-		}
-		break;
-
-	case ModuleItemKind_Property:
-		value->setType(((Property*)item)->getType()->getPropertyPtrType(TypeKind_PropertyRef, PropertyPtrTypeKind_Thin));
-
-		if (((Property*)item)->isMember())
-		{
-			result = m_module->m_operatorMgr.createMemberClosure(value, (Property*)item);
-			if (!result)
-				return false;
-		}
-
-		break;
-
-	case ModuleItemKind_EnumConst:
-		value->setType(((EnumConst*)item)->getParentEnumType()->getBaseType());
-		break;
-
-	case ModuleItemKind_Field:
-		value->setType(getDirectRefType(((Field*)item)->getType()));
-		break;
-
-	default:
-		err::setFormatStringError("'%s' cannot be used as expression", name.sz());
 		return false;
 	};
 

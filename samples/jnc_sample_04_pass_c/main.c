@@ -133,7 +133,7 @@ main(
 
 	nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)jnc_Module_getGlobalNamespace(module));
 	function = (jnc_Function*)jnc_Namespace_findItem(nspace, "foo").m_item;
-	JNC_ASSERT(function && jnc_ModuleItem_getItemKind(function) == jnc_ModuleItemKind_Function);
+	JNC_ASSERT(function && jnc_ModuleItem_getItemKind((jnc_ModuleItem*)function) == jnc_ModuleItemKind_Function);
 
 	printf("Running...\n");
 

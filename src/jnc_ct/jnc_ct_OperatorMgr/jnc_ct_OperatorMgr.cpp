@@ -186,50 +186,6 @@ OperatorMgr::getOverloadedUnaryOperator(
 	return NULL;
 }
 
-Type*
-OperatorMgr::getUnaryOperatorResultType(
-	UnOpKind opKind,
-	const Value& rawOpValue
-	)
-{
-	ASSERT((size_t)opKind < UnOpKind__Count);
-
-	Function* function = getOverloadedUnaryOperator(opKind, rawOpValue);
-	if (function)
-	{
-		sl::BoxList<Value> argList;
-		argList.insertTail(rawOpValue);
-		return getCallOperatorResultType(function->getTypeOverload(), &argList);
-	}
-
-	UnaryOperator* op = m_unaryOperatorTable[opKind];
-	ASSERT(op);
-
-	Value opValue;
-	bool result = prepareOperandType(rawOpValue, &opValue, op->getOpFlags());
-	if (!result)
-		return NULL;
-
-	return opValue.getType()->getTypeKind() == TypeKind_Variant && opKind <= UnOpKind_Indir ?
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant) :
-		op->getResultType(opValue);
-}
-
-bool
-OperatorMgr::getUnaryOperatorResultType(
-	UnOpKind opKind,
-	const Value& rawOpValue,
-	Value* resultValue
-	)
-{
-	Type* resultType = getUnaryOperatorResultType(opKind, rawOpValue);
-	if (!resultType)
-		return false;
-
-	resultValue->setType(resultType);
-	return true;
-}
-
 bool
 OperatorMgr::unaryOperator(
 	UnOpKind opKind,
@@ -268,63 +224,6 @@ OperatorMgr::unaryOperator(
 	}
 
 	return op->op(opValue, resultValue);
-}
-
-Type*
-OperatorMgr::getBinaryOperatorResultType(
-	BinOpKind opKind,
-	const Value& rawOpValue1,
-	const Value& rawOpValue2
-	)
-{
-	ASSERT((size_t)opKind < BinOpKind__Count);
-
-	Function* function = getOverloadedBinaryOperator(opKind, rawOpValue1);
-	if (function)
-	{
-		sl::BoxList<Value> argList;
-		argList.insertTail(rawOpValue1);
-		argList.insertTail(rawOpValue2);
-		return getCallOperatorResultType(function->getTypeOverload(), &argList);
-	}
-
-	BinaryOperator* op = m_binaryOperatorTable[opKind];
-	ASSERT(op);
-
-	Value opValue1;
-	Value opValue2;
-
-	bool result =
-		prepareOperandType(rawOpValue1, &opValue1, op->getOpFlags1()) &&
-		prepareOperandType(rawOpValue2, &opValue2, op->getOpFlags2());
-
-	if (!result)
-		return NULL;
-
-	if (opKind >= BinOpKind_Eq && opKind <= BinOpKind_Ge)
-		return m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-
-	if ((opValue1.getType()->getTypeKind() == TypeKind_Variant ||
-		opValue2.getType()->getTypeKind() == TypeKind_Variant) && opKind < BinOpKind_Eq)
-		return m_module->m_typeMgr.getPrimitiveType(TypeKind_Variant);
-
-	return op->getResultType(opValue1, opValue2);
-}
-
-bool
-OperatorMgr::getBinaryOperatorResultType(
-	BinOpKind opKind,
-	const Value& rawOpValue1,
-	const Value& rawOpValue2,
-	Value* resultValue
-	)
-{
-	Type* resultType = getBinaryOperatorResultType(opKind, rawOpValue1, rawOpValue2);
-	if (!resultType)
-		return false;
-
-	resultValue->setType(resultType);
-	return true;
 }
 
 Function*
@@ -513,21 +412,6 @@ OperatorMgr::getConditionalOperatorResultType(
 		checkCastKind(falseValue, resultType);
 
 	return result ? resultType : NULL;
-}
-
-bool
-OperatorMgr::getConditionalOperatorResultType(
-	const Value& trueValue,
-	const Value& falseValue,
-	Value* resultValue
-	)
-{
-	Type* resultType = getConditionalOperatorResultType(trueValue, falseValue);
-	if (!resultType)
-		return false;
-
-	resultValue->setType(resultType);
-	return true;
 }
 
 bool
@@ -1198,6 +1082,22 @@ OperatorMgr::typeofOperator(
 		return false;
 
 	resultValue->setVariable(type->getTypeVariable());
+	return true;
+}
+
+bool
+OperatorMgr::offsetofOperator(
+	const Value& value,
+	Value* resultValue
+	)
+{
+	if (value.getValueKind() != ValueKind_Field)
+	{
+		err::setFormatStringError("'offsetof' can only be applied to fields");
+		return false;
+	}
+
+	resultValue->setConstSizeT(value.getFieldOffset(), m_module);
 	return true;
 }
 

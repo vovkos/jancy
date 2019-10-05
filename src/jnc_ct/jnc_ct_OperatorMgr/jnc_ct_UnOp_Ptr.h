@@ -27,7 +27,7 @@ public:
 		m_opFlags = OpFlag_KeepRef;
 	}
 
-	virtual
+	static
 	Type*
 	getResultType(const Value& opValue);
 
@@ -49,7 +49,7 @@ public:
 		m_opKind = UnOpKind_Indir;
 	}
 
-	virtual
+	static
 	Type*
 	getResultType(const Value& opValue);
 

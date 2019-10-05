@@ -27,10 +27,6 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(const Value& opValue);
-
-	virtual
 	bool
 	op(
 		const Value& opValue,

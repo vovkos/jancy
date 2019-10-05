@@ -105,47 +105,6 @@ OperatorMgr::getPropertyVtable(
 	return true;
 }
 
-Type*
-OperatorMgr::getPropertyGetterType(const Value& rawOpValue)
-{
-	PropertyType* propertyType;
-
-	Value opValue;
-	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
-	if (!result)
-		return NULL;
-
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
-		propertyType = opValue.getProperty()->getType();
-	}
-	else
-	{
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
-		PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
-		propertyType = ptrType->hasClosure() ?
-			ptrType->getTargetType()->getStdObjectMemberPropertyType() :
-			ptrType->getTargetType();
-	}
-
-	return getFunctionType(opValue, propertyType->getGetterType());
-}
-
-bool
-OperatorMgr::getPropertyGetterType(
-	const Value& opValue,
-	Value* resultValue
-	)
-{
-	Type* resultType = getPropertyGetterType(opValue);
-	if (!resultType)
-		return false;
-
-	resultValue->setType(resultType);
-	return true;
-}
-
 bool
 OperatorMgr::getPropertyGetter(
 	const Value& rawOpValue,
@@ -189,73 +148,6 @@ OperatorMgr::getPropertyGetter(
 		);
 
 	resultValue->setClosure(VtableValue.getClosure());
-	return true;
-}
-
-Type*
-OperatorMgr::getPropertySetterType(
-	const Value& rawOpValue,
-	const Value& argValue
-	)
-{
-	Value opValue;
-	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
-	if (!result)
-		return NULL;
-
-	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
-	PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
-	PropertyType* propertyType;
-
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
-		propertyType = opValue.getProperty()->getType();
-	}
-	else
-	{
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
-		propertyType = ptrType->hasClosure() ?
-			ptrType->getTargetType()->getStdObjectMemberPropertyType() :
-			ptrType->getTargetType();
-	}
-
-	if (propertyType->isConst())
-	{
-		err::setFormatStringError("const '%s' has no 'set'", propertyType->getTypeString().sz());
-		return NULL;
-	}
-	else if (ptrType->getFlags() & PtrTypeFlag_Const)
-	{
-		err::setFormatStringError("'set' is inaccessible via 'const' property pointer");
-		return NULL;
-	}
-
-	FunctionTypeOverload* setterTypeOverload = propertyType->getSetterType();
-	size_t i = setterTypeOverload->chooseSetterOverload(argValue);
-	if (i == -1)
-	{
-		err::setFormatStringError("cannot choose one of '%d' setter overloads", setterTypeOverload->getOverloadCount ());
-		return NULL;
-	}
-
-	FunctionType* setterType = setterTypeOverload->getOverload(i);
-	return getFunctionType(opValue, setterType);
-}
-
-bool
-OperatorMgr::getPropertySetterType(
-	const Value& opValue,
-	const Value& argValue,
-	Value* resultValue
-	)
-{
-	Type* resultType = getPropertySetterType(opValue, argValue);
-	if (!resultType)
-		return false;
-
-	resultValue->setType(resultType);
 	return true;
 }
 
@@ -336,53 +228,6 @@ OperatorMgr::getPropertySetter(
 		);
 
 	resultValue->setClosure(vtableValue.getClosure());
-	return true;
-}
-
-Type*
-OperatorMgr::getPropertyBinderType(const Value& rawOpValue)
-{
-	PropertyType* propertyType;
-
-	Value opValue;
-	bool result = prepareOperandType(rawOpValue, &opValue, OpFlag_KeepPropertyRef);
-	if (!result)
-		return NULL;
-
-	if (opValue.getValueKind() == ValueKind_Property)
-	{
-		propertyType = opValue.getProperty()->getType();
-	}
-	else
-	{
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_PropertyPtr);
-
-		PropertyPtrType* ptrType = (PropertyPtrType*)opValue.getType();
-		propertyType = ptrType->hasClosure() ?
-			ptrType->getTargetType()->getStdObjectMemberPropertyType() :
-			ptrType->getTargetType();
-	}
-
-	if (!(propertyType->getFlags() & PropertyTypeFlag_Bindable))
-	{
-		err::setFormatStringError("'%s' has no 'onchanged' binder", propertyType->getTypeString().sz());
-		return NULL;
-	}
-
-	return getFunctionType(opValue, propertyType->getBinderType());
-}
-
-bool
-OperatorMgr::getPropertyBinderType(
-	const Value& opValue,
-	Value* resultValue
-	)
-{
-	Type* type = getPropertyBinderType(opValue);
-	if (!type)
-		return false;
-
-	resultValue->setType(type);
 	return true;
 }
 

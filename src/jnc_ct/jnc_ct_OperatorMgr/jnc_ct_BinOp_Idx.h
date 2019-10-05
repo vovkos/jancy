@@ -28,25 +28,11 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		);
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
-
-	static
-	Type*
-	getPropertyIndexResultType(
-		const Value& rawOpValue1,
-		const Value& rawOpValue2
 		);
 
 protected:
@@ -71,13 +57,6 @@ protected:
 		const Value& rawOpValue1,
 		const Value& rawOpValue2,
 		Value* resultValue
-		);
-
-	Type*
-	getDerivableTypeIndexResultType(
-		DerivableType* derivableType,
-		const Value& opValue1,
-		const Value& opValue2
 		);
 
 	bool

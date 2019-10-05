@@ -29,16 +29,6 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return opValue1.getType();
-	}
-
-	virtual
 	bool
 	op(
 		const Value& opValue1,
@@ -59,16 +49,6 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return opValue1.getType();
-	}
-
-	virtual
 	bool
 	op(
 		const Value& opValue1,
@@ -86,17 +66,6 @@ public:
 	{
 		m_opKind = BinOpKind_RefAssign;
 		m_opFlags1 = OpFlag_KeepRef;
-	}
-
-	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		err::setFormatStringError("'%s' has no overloaded ':=' operator", opValue1.getType ()->getTypeString().sz());
-		return NULL;
 	}
 
 	virtual

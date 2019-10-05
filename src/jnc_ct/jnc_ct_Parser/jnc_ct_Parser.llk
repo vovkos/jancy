@@ -11,7 +11,6 @@
 
 import "jnc_ct_Decl.llk";
 import "jnc_ct_Expr.llk";
-import "jnc_ct_Expr_0.llk";
 import "jnc_ct_Stmt.llk";
 import "jnc_ct_Reactor.llk";
 
@@ -458,12 +457,6 @@ Members2
 	parseLastPropertyBody(const sl::ConstBoxList<Token>& body);
 
 	bool
-	newOperator_0(
-		Type* type,
-		Value* resultValue
-		);
-
-	bool
 	addReactionBinding(const Value& value);
 
 	bool
@@ -517,13 +510,6 @@ Members2
 
 	bool
 	lookupIdentifier(
-		const sl::StringRef& name,
-		const lex::LineCol& pos,
-		Value* value
-		);
-
-	bool
-	lookupIdentifierType(
 		const sl::StringRef& name,
 		const lex::LineCol& pos,
 		Value* value

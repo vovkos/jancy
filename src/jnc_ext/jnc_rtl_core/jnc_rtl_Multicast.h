@@ -106,7 +106,7 @@ protected:
 		if (!m_handleTable)
 			return ptr;
 
-		sl::HandleTable<size_t>* handleTable = (sl::HandleTable<size_t>*) m_handleTable;
+		sl::HandleTable<size_t>* handleTable = (sl::HandleTable<size_t>*)m_handleTable;
 		sl::HandleTableIterator<size_t> it = handleTable->find((uintptr_t)handle);
 		if (!it)
 			return ptr;

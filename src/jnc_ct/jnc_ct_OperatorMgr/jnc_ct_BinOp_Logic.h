@@ -27,13 +27,6 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		);
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
@@ -55,13 +48,6 @@ public:
 	{
 		m_opKind = BinOpKind_LogOr;
 	}
-
-	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		);
 
 	virtual
 	bool

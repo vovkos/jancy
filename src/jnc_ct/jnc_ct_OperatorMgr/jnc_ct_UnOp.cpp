@@ -53,20 +53,6 @@ UnaryOperator::UnaryOperator()
 	m_opFlags = 0;
 }
 
-bool
-UnaryOperator::getResultType(
-	const Value& opValue,
-	Value* resultValue
-	)
-{
-	Type* type = getResultType(opValue);
-	if (!type)
-		return false;
-
-	resultValue->setType(type);
-	return true;
-}
-
 //..............................................................................
 
 } // namespace ct

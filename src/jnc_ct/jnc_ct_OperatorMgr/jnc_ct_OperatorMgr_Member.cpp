@@ -22,6 +22,92 @@ namespace ct {
 //..............................................................................
 
 bool
+OperatorMgr::memberOperator(
+	const Value& rawOpValue,
+	const sl::StringRef& name,
+	Value* resultValue
+	)
+{
+	bool result;
+	Namespace* nspace;
+	Field* field;
+
+	ValueKind valueKind = rawOpValue.getValueKind();
+	switch (valueKind)
+	{
+	case ValueKind_Namespace:
+		nspace = rawOpValue.getNamespace();
+		return nspace->getNamespaceKind() == NamespaceKind_DynamicLib ?
+			getLibraryMember((DynamicLibNamespace*)nspace, rawOpValue.getClosure(), name, resultValue) :
+			getNamespaceMember(nspace, name, 0, resultValue);
+
+	case ValueKind_Field:
+		field = rawOpValue.getField();
+		result = field->getType()->ensureLayout();
+		if (!result)
+			return false;
+
+		if (!(field->getType()->getTypeKindFlags() & TypeKindFlag_Named))
+		{
+			err::setFormatStringError("member operator cannot be applied to '%s'", field->getType()->getTypeString().sz());
+			return false;
+		}
+
+		nspace = (NamedType*)field->getType();
+		return getNamespaceMember(nspace, name, rawOpValue.getFieldOffset(), resultValue);
+	}
+
+	Value opValue;
+	result = prepareOperand(rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepEnum);
+	if (!result)
+		return false;
+
+	Type* type = opValue.getType();
+
+	if (type->getTypeKind() == TypeKind_DataRef)
+		type = ((DataPtrType*)type)->getTargetType();
+
+	if (type->getTypeKind() == TypeKind_DataPtr)
+	{
+		result = unaryOperator(UnOpKind_Indir, &opValue);
+		if (!result)
+			return false;
+
+		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
+		type = ((DataPtrType*)opValue.getType())->getTargetType();
+
+		result = type->ensureLayout();
+		if (!result)
+			return false;
+	}
+
+	TypeKind typeKind = type->getTypeKind();
+	switch (typeKind)
+	{
+	case TypeKind_Struct:
+	case TypeKind_Union:
+		return getNamedTypeMember(opValue, (NamedType*)type, name, resultValue);
+
+	case TypeKind_ClassPtr:
+		return
+			prepareOperand(&opValue) &&
+			getNamedTypeMember(opValue, ((ClassPtrType*)type)->getTargetType(), name, resultValue);
+
+	case TypeKind_Enum:
+		return
+			prepareOperand(&opValue) &&
+			getEnumTypeMember(opValue, (EnumType*)type, name, resultValue);
+
+	case TypeKind_Variant:
+		return getVariantMember(opValue, name, resultValue);
+
+	default:
+		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
+		return false;
+	}
+}
+
+bool
 OperatorMgr::createMemberClosure(
 	Value* value,
 	ModuleItemDecl* itemDecl
@@ -155,102 +241,10 @@ OperatorMgr::finalizeMemberOperator(
 }
 
 bool
-OperatorMgr::getNamespaceMemberType(
-	Namespace* nspace,
-	const sl::StringRef& name,
-	Value* resultValue
-	)
-{
-	MemberCoord coord;
-	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-	if (!findResult.m_result)
-		return false;
-
-	if (!findResult.m_item)
-	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), nspace->getQualifiedName().sz());
-		return false;
-	}
-
-	bool result = true;
-	ModuleItemDecl* decl = NULL;
-	ModuleItem* item = findResult.m_item;
-	ModuleItemKind itemKind = item->getItemKind();
-
-	switch (itemKind)
-	{
-	case ModuleItemKind_Namespace:
-		resultValue->setNamespace((GlobalNamespace*)item);
-		decl = (GlobalNamespace*)item;
-		break;
-
-	case ModuleItemKind_Typedef:
-		item = ((Typedef*)item)->getType();
-		result = checkAccess((Typedef*)item);
-		// and fall through
-
-	case ModuleItemKind_Type:
-		if (!(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named))
-		{
-			err::setFormatStringError("'%s' cannot be used as expression", ((Type*) item)->getTypeString().sz());
-			return false;
-		}
-
-		resultValue->setNamespace((NamedType*)item);
-		decl = (NamedType*)item;
-		break;
-
-	case ModuleItemKind_Alias:
-		resultValue->setType(((Alias*)item)->getType());
-		decl = (Alias*)item;
-		break;
-
-	case ModuleItemKind_Variable:
-		resultValue->setType(((Variable*)item)->getType()->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean));
-		decl = (Variable*)item;
-		break;
-
-	case ModuleItemKind_Function:
-		resultValue->setFunctionTypeOverload(((Function*)item)->getTypeOverload());
-		if (((Function*)item)->isMember())
-			result = createMemberClosure(resultValue);
-
-		decl = (Function*)item;
-		break;
-
-	case ModuleItemKind_Property:
-		resultValue->setType(((Property*)item)->getType()->getPropertyPtrType(TypeKind_PropertyRef, PropertyPtrTypeKind_Thin));
-		if (((Property*)item)->isMember())
-			result = createMemberClosure(resultValue);
-
-		decl = (Property*)item;
-		break;
-
-	case ModuleItemKind_EnumConst:
-		resultValue->setType(((EnumConst*)item)->getParentEnumType());
-		decl = (EnumConst*)item;
-		break;
-
-	case ModuleItemKind_Field:
-		resultValue->setField((Field*)item, coord.m_offset);
-		decl = (Field*)item;
-		break;
-
-	default:
-		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
-		return false;
-	};
-
-	if (!result)
-		return false;
-
-	return finalizeMemberOperator(Value(), decl, resultValue);
-}
-
-bool
 OperatorMgr::getNamespaceMember(
 	Namespace* nspace,
 	const sl::StringRef& name,
+	size_t baseFieldOffset,
 	Value* resultValue
 	)
 {
@@ -371,101 +365,27 @@ OperatorMgr::getNamespaceMember(
 		decl = (EnumConst*)item;
 		break;
 
+	case ModuleItemKind_Field:
+		if (nspace->getNamespaceKind() != NamespaceKind_Type)
+		{
+			err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
+			return false;
+		}
+
+		result = ((NamedType*)nspace)->ensureLayout();
+		if (!result)
+			return false;
+
+		resultValue->setField((Field*)item, baseFieldOffset);
+		decl = (Field*)item;
+		break;
+
 	default:
 		err::setFormatStringError("'%s.%s' cannot be used as expression", nspace->getQualifiedName().sz(), name.sz());
 		return false;
 	};
 
 	return finalizeMemberOperator(Value(), decl, resultValue);
-}
-
-bool
-OperatorMgr::getNamedTypeMemberType(
-	const Value& opValue,
-	NamedType* namedType,
-	const sl::StringRef& name,
-	Value* resultValue
-	)
-{
-	MemberCoord coord;
-	FindModuleItemResult findResult = namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-	if (!findResult.m_result)
-		return false;
-
-	if (!findResult.m_item)
-	{
-		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
-		return false;
-	}
-
-	ModuleItemDecl* decl = NULL;
-	ModuleItem* member = findResult.m_item;
-	ModuleItemKind memberKind = member->getItemKind();
-
-	switch (memberKind)
-	{
-	case ModuleItemKind_Namespace:
-		resultValue->setNamespace((GlobalNamespace*)member);
-		decl = (GlobalNamespace*)member;
-		break;
-
-	case ModuleItemKind_Field:
-		{
-		Field* field = (Field*)member;
-		decl = field;
-
-		size_t baseOffset = 0;
-		if (opValue.getValueKind() == ValueKind_Field)
-			baseOffset = opValue.getFieldOffset();
-
-		if (!(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr))
-		{
-			resultValue->setField(field, baseOffset);
-			break;
-		}
-
-		DataPtrType* ptrType = (DataPtrType*)opValue.getType();
-		DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
-		Type* resultType = field->getType()->getDataPtrType(
-			TypeKind_DataRef,
-			ptrTypeKind == DataPtrTypeKind_Thin ? DataPtrTypeKind_Thin : DataPtrTypeKind_Lean,
-			opValue.getType()->getFlags()
-			);
-
-		resultValue->setField(field, resultType, baseOffset);
-		break;
-		}
-
-	case ModuleItemKind_Variable:
-		resultValue->setType(((Variable*)member)->getType()->getDataPtrType(
-			TypeKind_DataRef,
-			DataPtrTypeKind_Thin
-			));
-
-		decl = (Function*)member;
-		break;
-
-	case ModuleItemKind_Function:
-		resultValue->setFunctionTypeOverload(((Function*)member)->getTypeOverload());
-		decl = (Function*)member;
-		break;
-
-	case ModuleItemKind_Property:
-		resultValue->setType(((Property*)member)->getType()->getShortType()->getPropertyPtrType(
-			TypeKind_PropertyRef,
-			PropertyPtrTypeKind_Thin
-			));
-
-		decl = (Property*)member;
-		break;
-
-	default:
-		err::setFormatStringError("invalid member kind '%s'", getModuleItemKindString(memberKind));
-		return false;
-	}
-
-	return finalizeMemberOperator(opValue, decl, resultValue);
 }
 
 bool
@@ -566,22 +486,6 @@ OperatorMgr::getNamedTypeMember(
 }
 
 bool
-OperatorMgr::getEnumTypeMemberType(
-	const Value& opValue,
-	EnumType* enumType,
-	const sl::StringRef& name,
-	Value* resultValue
-	)
-{
-	Type* resultType = (enumType->getFlags() & EnumTypeFlag_BitFlag) ?
-		enumType :
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-
-	resultValue->setType(resultType);
-	return true;
-}
-
-bool
 OperatorMgr::getEnumTypeMember(
 	const Value& opValue,
 	EnumType* enumType,
@@ -656,75 +560,6 @@ OperatorMgr::getVariantMember(
 	closure->append(variantValue);
 	closure->append(nameValue);
 	return true;
-}
-
-bool
-OperatorMgr::getMemberOperatorResultType(
-	const Value& rawOpValue,
-	const sl::StringRef& name,
-	Value* resultValue
-	)
-{
-	bool result;
-
-	if (rawOpValue.getValueKind() == ValueKind_Namespace)
-		return getNamespaceMemberType(rawOpValue.getNamespace(), name, resultValue);
-
-	Value opValue;
-	result = prepareOperandType(
-		rawOpValue,
-		&opValue,
-		OpFlag_KeepDataRef |
-		OpFlag_KeepEnum |
-		OpFlag_EnsurePtrTargetLayout
-		);
-
-	if (!result)
-		return false;
-
-	Type* type = opValue.getType();
-	if (type->getTypeKind() == TypeKind_DataRef)
-		type = ((DataPtrType*)type)->getTargetType();
-
-	if (type->getTypeKind() == TypeKind_DataPtr)
-	{
-		result = getUnaryOperatorResultType(UnOpKind_Indir, &opValue);
-		if (!result)
-			return false;
-
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
-		type = ((DataPtrType*)opValue.getType())->getTargetType();
-
-		result = type->ensureLayout();
-		if (!result)
-			return false;
-	}
-
-	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
-	case TypeKind_Struct:
-	case TypeKind_Union:
-		return getNamedTypeMemberType(opValue, (NamedType*)type, name, resultValue);
-
-	case TypeKind_ClassPtr:
-		return
-			prepareOperandType(&opValue) &&
-			getNamedTypeMemberType(opValue, ((ClassPtrType*)type)->getTargetType(), name, resultValue);
-
-	case TypeKind_Enum:
-		return
-			prepareOperandType(&opValue) &&
-			getEnumTypeMemberType(opValue, (EnumType*)type, name, resultValue);
-
-	case TypeKind_Variant:
-		resultValue->setType(m_module->m_typeMgr.getSimplePropertyType(type)); // variant property
-		return true;
-
-	default:
-		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
-		return false;
-	}
 }
 
 bool
@@ -807,7 +642,7 @@ OperatorMgr::getLibraryMember(
 	ASSERT(closure && closure->isMemberClosure());
 
 	Value memberValue;
-	bool result = getNamespaceMember(library, name, &memberValue);
+	bool result = getNamespaceMember(library, name, 0, &memberValue);
 	if (!result || memberValue.getValueKind() != ValueKind_Function)
 		return result;
 
@@ -848,87 +683,6 @@ OperatorMgr::getLibraryMember(
 
 	Type* resultType = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, resultValue);
-	return true;
-}
-
-bool
-OperatorMgr::memberOperator(
-	const Value& rawOpValue,
-	const sl::StringRef& name,
-	Value* resultValue
-	)
-{
-	if (rawOpValue.getValueKind() == ValueKind_Namespace)
-	{
-		Namespace* nspace = rawOpValue.getNamespace();
-		return nspace->getNamespaceKind() == NamespaceKind_DynamicLib ?
-			getLibraryMember((DynamicLibNamespace*)nspace, rawOpValue.getClosure(), name, resultValue) :
-			getNamespaceMember(nspace, name, resultValue);
-	}
-
-	Value opValue;
-	bool result = prepareOperand(rawOpValue, &opValue, OpFlag_KeepDataRef | OpFlag_KeepEnum);
-	if (!result)
-		return false;
-
-	Type* type = opValue.getType();
-
-	if (type->getTypeKind() == TypeKind_DataRef)
-		type = ((DataPtrType*)type)->getTargetType();
-
-	if (type->getTypeKind() == TypeKind_DataPtr)
-	{
-		result = unaryOperator(UnOpKind_Indir, &opValue);
-		if (!result)
-			return false;
-
-		ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
-		type = ((DataPtrType*)opValue.getType())->getTargetType();
-
-		result = type->ensureLayout();
-		if (!result)
-			return false;
-	}
-
-	TypeKind typeKind = type->getTypeKind();
-	switch (typeKind)
-	{
-	case TypeKind_Struct:
-	case TypeKind_Union:
-		return getNamedTypeMember(opValue, (NamedType*)type, name, resultValue);
-
-	case TypeKind_ClassPtr:
-		return
-			prepareOperand(&opValue) &&
-			getNamedTypeMember(opValue, ((ClassPtrType*)type)->getTargetType(), name, resultValue);
-
-	case TypeKind_Enum:
-		return
-			prepareOperand(&opValue) &&
-			getEnumTypeMember(opValue, (EnumType*)type, name, resultValue);
-
-	case TypeKind_Variant:
-		return getVariantMember(opValue, name, resultValue);
-
-	default:
-		err::setFormatStringError("member operator cannot be applied to '%s'", type->getTypeString().sz());
-		return false;
-	}
-}
-
-bool
-OperatorMgr::offsetofOperator(
-	const Value& value,
-	Value* resultValue
-	)
-{
-	if (value.getValueKind() != ValueKind_Field)
-	{
-		err::setFormatStringError("'offsetof' can only be applied to fields");
-		return false;
-	}
-
-	resultValue->setConstSizeT(value.getFieldOffset(), m_module);
 	return true;
 }
 

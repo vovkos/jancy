@@ -27,10 +27,6 @@ public:
 	}
 
 	virtual
-	Type*
-	getResultType(const Value& opValue);
-
-	virtual
 	bool
 	op(
 		const Value& opValue,
@@ -47,10 +43,6 @@ public:
 	{
 		m_opFlags = OpFlag_KeepRef;
 	}
-
-	virtual
-	Type*
-	getResultType(const Value& opValue);
 
 	virtual
 	bool

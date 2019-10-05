@@ -66,27 +66,13 @@ public:
 
 public:
 	virtual
-	Type*
-	getResultType(const Value& opValue)
-	{
-		Type* type = getArithmeticOperatorResultType(opValue);
-		if (!type || T::isIntegerOnly && !(type->getTypeKindFlags() & TypeKindFlag_Integer))
-		{
-			setOperatorError(opValue);
-			return NULL;
-		}
-
-		return type;
-	}
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue,
 		Value* resultValue
 		)
 	{
-		Type* type = getResultType(rawOpValue);
+		Type* type = getArithmeticOperatorResultType(rawOpValue);
 
 		Value opValue;
 		bool result = castOperator(m_module, rawOpValue, type, &opValue);

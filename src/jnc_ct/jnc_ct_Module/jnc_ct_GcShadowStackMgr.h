@@ -79,7 +79,7 @@ public:
 	getGcRootIndexArray()
 	{
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Static);
-		return (const size_t*) m_gcRootArray.cp();
+		return (const size_t*)m_gcRootArray.cp();
 	}
 
 	Type* const*
@@ -93,7 +93,7 @@ public:
 	getBoxArray()
 	{
 		ASSERT(m_mapKind == GcShadowStackFrameMapKind_Dynamic);
-		return (Box* const*) m_gcRootArray.cp();
+		return (Box* const*)m_gcRootArray.cp();
 	}
 
 	void

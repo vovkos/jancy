@@ -75,21 +75,6 @@ BinaryOperator::BinaryOperator()
 	m_opFlags1 = m_opFlags2 = 0;
 }
 
-bool
-BinaryOperator::getResultType(
-	const Value& opValue1,
-	const Value& opValue2,
-	Value* resultValue
-	)
-{
-	Type* type = getResultType(opValue1, opValue2);
-	if (!type)
-		return false;
-
-	resultValue->setType(type);
-	return true;
-}
-
 //..............................................................................
 
 } // namespace ct

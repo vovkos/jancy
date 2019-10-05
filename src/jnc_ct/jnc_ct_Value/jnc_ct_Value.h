@@ -257,63 +257,63 @@ public:
 	getBool() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(bool));
-		return *(const bool*) m_constData.cp();
+		return *(const bool*)m_constData.cp();
 	}
 
 	int
 	getInt() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int));
-		return *(const int*) m_constData.cp();
+		return *(const int*)m_constData.cp();
 	}
 
 	intptr_t
 	getIntPtr() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(intptr_t));
-		return *(const intptr_t*) m_constData.cp();
+		return *(const intptr_t*)m_constData.cp();
 	}
 
 	int32_t
 	getInt32() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int32_t));
-		return *(const int32_t*) m_constData.cp();
+		return *(const int32_t*)m_constData.cp();
 	}
 
 	int64_t
 	getInt64() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(int64_t));
-		return *(const int64_t*) m_constData.cp();
+		return *(const int64_t*)m_constData.cp();
 	}
 
 	size_t
 	getSizeT() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(size_t));
-		return *(const size_t*) m_constData.cp();
+		return *(const size_t*)m_constData.cp();
 	}
 
 	float
 	getFloat() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(float));
-		return *(const float*) m_constData.cp();
+		return *(const float*)m_constData.cp();
 	}
 
 	double
 	getDouble() const
 	{
 		ASSERT(m_valueKind == ValueKind_Const && m_type->getSize() >= sizeof(double));
-		return *(const double*) m_constData.cp();
+		return *(const double*)m_constData.cp();
 	}
 
 	size_t
 	getFieldOffset() const
 	{
 		ASSERT(m_valueKind == ValueKind_Field && m_constData.getCount() >= sizeof(size_t));
-		return *(const size_t*) m_constData.cp();
+		return *(const size_t*)m_constData.cp();
 	}
 
 	bool
@@ -453,13 +453,6 @@ public:
 
 	bool
 	trySetEnumConst(EnumConst* enumConst);
-
-	void
-	setField(
-		Field* field,
-		Type* type,
-		size_t baseOffset
-		);
 
 	void
 	setField(

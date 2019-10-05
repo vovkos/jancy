@@ -18,12 +18,6 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-UnOp_LogNot::getResultType(const Value& opValue)
-{
-	return m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool);
-}
-
 bool
 UnOp_LogNot::op(
 	const Value& opValue,

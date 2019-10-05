@@ -27,7 +27,7 @@ MulticastImpl::destruct()
 {
 	if (m_handleTable)
 	{
-		AXL_MEM_DELETE((sl::HandleTable<size_t>*) m_handleTable);
+		AXL_MEM_DELETE((sl::HandleTable<size_t>*)m_handleTable);
 		m_handleTable = NULL;
 	}
 
@@ -38,7 +38,7 @@ void
 MulticastImpl::clear()
 {
 	if (m_handleTable)
-		((sl::HandleTable<size_t>*) m_handleTable)->clear();
+		((sl::HandleTable<size_t>*)m_handleTable)->clear();
 
 	m_count = 0;
 }
@@ -67,7 +67,7 @@ sl::HandleTable<size_t>*
 MulticastImpl::getHandleTable()
 {
 	if (m_handleTable)
-		return (sl::HandleTable<size_t>*) m_handleTable;
+		return (sl::HandleTable<size_t>*)m_handleTable;
 
 	sl::HandleTable<size_t>* handleTable = AXL_MEM_NEW(sl::HandleTable<size_t>);
 	m_handleTable = handleTable;

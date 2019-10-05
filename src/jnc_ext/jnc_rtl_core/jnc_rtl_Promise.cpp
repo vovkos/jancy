@@ -197,7 +197,7 @@ Promise::blockingWaitImpl()
 
 	if (m_errorPtr.m_p)
 	{
-		err::setError((const err::ErrorHdr*) m_errorPtr.m_p);
+		err::setError((const err::ErrorHdr*)m_errorPtr.m_p);
 
 		GcHeap* gcHeap = getCurrentThreadGcHeap();
 		ASSERT(gcHeap);

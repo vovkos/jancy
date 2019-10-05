@@ -19,15 +19,6 @@ namespace ct {
 
 //..............................................................................
 
-Type*
-BinOp_At::getResultType(
-	const Value& opValue1,
-	const Value& opValue2
-	)
-{
-	return opValue1.getType();
-}
-
 bool
 BinOp_At::op(
 	const Value& opValue1,

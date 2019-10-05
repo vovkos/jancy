@@ -32,16 +32,6 @@ class BinOp_Cmp: public BinaryOperator
 {
 public:
 	virtual
-	Type*
-	getResultType(
-		const Value& opValue1,
-		const Value& opValue2
-		)
-	{
-		return getSimpleType(TypeKind_Bool, m_module);
-	}
-
-	virtual
 	bool
 	op(
 		const Value& rawOpValue1,
