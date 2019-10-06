@@ -916,12 +916,12 @@ OperatorMgr::sizeofOperator(
 	Value* resultValue
 	)
 {
-	bool result;
-	Type* type = opValue.getType();
+	Value typeValue;
+	bool result = prepareOperandType(opValue, &typeValue, OpFlag_LoadArrayRef);
+	if (!result)
+		return false;
 
-	if (type->getTypeKind() == TypeKind_DataRef)
-		type = ((DataPtrType*)type)->getTargetType();
-
+	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
 		if (type->getFlags() & TypeFlag_Dynamic)
@@ -942,11 +942,6 @@ OperatorMgr::sizeofOperator(
 			}
 		}
 
-		Value typeValue;
-		result = prepareOperandType(opValue, &typeValue);
-		if (!result)
-			return false;
-
 		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr)
 		{
@@ -964,10 +959,6 @@ OperatorMgr::sizeofOperator(
 		return false;
 	}
 
-	result = type->ensureLayout();
-	if (!result)
-		return false;
-
 	resultValue->setConstSizeT(type->getSize(), m_module);
 	return true;
 }
@@ -979,12 +970,12 @@ OperatorMgr::countofOperator(
 	Value* resultValue
 	)
 {
-	bool result;
+	Value typeValue;
+	bool result = prepareOperandType(opValue, &typeValue, OpFlag_LoadArrayRef);
+	if (!result)
+		return false;
 
-	Type* type = opValue.getType();
-	if (type->getTypeKind() == TypeKind_DataRef)
-		type = ((DataPtrType*)type)->getTargetType();
-
+	Type* type = typeValue.getType();
 	if (dynamism == OperatorDynamism_Dynamic)
 	{
 		if (type->getFlags() & TypeFlag_Dynamic)
@@ -1008,11 +999,6 @@ OperatorMgr::countofOperator(
 			Value fieldValue(&fieldInfo->m_field, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 			return callOperator(function, fieldInfo->m_parentValue, typeValue, fieldValue, resultValue);
 		}
-
-		Value typeValue;
-		bool result = prepareOperandType(opValue, &typeValue);
-		if (!result)
-			return false;
 
 		type = typeValue.getType();
 		if (type->getTypeKind() != TypeKind_DataPtr)
@@ -1038,10 +1024,6 @@ OperatorMgr::countofOperator(
 		err::setError("use 'dynamic countof' to get element count of a dynamic array");
 		return false;
 	}
-
-	result = type->ensureLayout();
-	if (!result)
-		return false;
 
 	resultValue->setConstSizeT(((ArrayType*)type)->getElementCount(), m_module);
 	return true;
@@ -1076,10 +1058,6 @@ OperatorMgr::typeofOperator(
 		err::setError("'dynamic typeof' operator is not yet implemented");
 		return false;
 	}
-
-	result = type->ensureLayout();
-	if (!result)
-		return false;
 
 	resultValue->setVariable(type->getTypeVariable());
 	return true;
@@ -1116,6 +1094,10 @@ OperatorMgr::prepareOperandType(
 	case ValueKind_FunctionOverload:
 	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
+		return true;
+
+	case ValueKind_Field:
+		resultValue->overrideType(opValue.getField()->getType());
 		return true;
 	}
 

@@ -407,8 +407,6 @@ OperatorMgr::getNamedTypeMember(
 
 	if (!findResult.m_item)
 	{
-		namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
-
 		err::setFormatStringError("'%s' is not a member of '%s'", name.sz(), namedType->getTypeString().sz());
 		return false;
 	}
@@ -425,6 +423,12 @@ OperatorMgr::getNamedTypeMember(
 		break;
 
 	case ModuleItemKind_Field:
+		if (m_module->m_controlFlowMgr.isEmissionLocked()) // sizeof/countof/offsetof/typeof operators, keep Field
+		{
+			resultValue->setField((Field*)member, coord.m_offset);
+			return true;
+		}
+
 		return
 			getField(opValue, (Field*)member, &coord, resultValue) &&
 			finalizeMemberOperator(opValue, (Field*)member, resultValue);

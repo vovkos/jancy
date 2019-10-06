@@ -140,6 +140,12 @@ public:
 	void
 	clear();
 
+	bool
+	isEmissionLocked()
+	{
+		return m_emissionLockCount != 0;
+	}
+
 	void
 	lockEmission();
 
