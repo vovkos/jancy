@@ -681,8 +681,6 @@ OperatorMgr::getCastKind(
 	if (rawOpValue.getValueKind() == ValueKind_Null)
 		return (type->getTypeKindFlags() & TypeKindFlag_Nullable) ? CastKind_Implicit : CastKind_None;
 
-	sl::String s = type->getTypeString();
-
 	TypeKind typeKind = type->getTypeKind();
 	ASSERT((size_t)typeKind < TypeKind__Count);
 

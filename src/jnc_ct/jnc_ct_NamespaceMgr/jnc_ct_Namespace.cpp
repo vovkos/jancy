@@ -229,12 +229,11 @@ Namespace::findDirectChildItem(const sl::StringRef& name)
 	item = lazyItem->getActualItem();
 	ASSERT(item);
 
-	if (it->m_value == lazyItem) // it might already have been added during parse
-	{
-		it->m_value = item;
-		m_itemArray.append(item);
-	}
+	if (it->m_value != lazyItem) // it already has been replaced during parse
+		return FindModuleItemResult(it->m_value);
 
+	it->m_value = item;
+	m_itemArray.append(item);
 	return FindModuleItemResult(item);
 }
 
