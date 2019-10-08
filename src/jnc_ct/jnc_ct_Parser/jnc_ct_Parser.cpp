@@ -2328,7 +2328,7 @@ Parser::callBaseTypeConstructorImpl(
 		return false;
 	}
 
-	Function* constructor = type->getConstructor();
+	OverloadableFunction constructor = type->getConstructor();
 	if (!constructor)
 	{
 		err::setFormatStringError("'%s' has no constructor", type->getTypeString().sz());
@@ -2390,7 +2390,7 @@ Parser::callFieldConstructor(
 		return false;
 	}
 
-	Function* constructor = ((DerivableType*)field->getType())->getConstructor();
+	OverloadableFunction constructor = ((DerivableType*)field->getType())->getConstructor();
 
 	Value fieldValue;
 	result =
@@ -2524,6 +2524,23 @@ Parser::lookupIdentifier(
 		if (((Function*)item)->isMember())
 		{
 			result = m_module->m_operatorMgr.createMemberClosure(value, (Function*)item);
+			if (!result)
+				return false;
+		}
+
+		break;
+
+	case ModuleItemKind_FunctionOverload:
+		if (m_flags & Flag_ConstExpression)
+		{
+			err::setFormatStringError("function '%s' cannot be used in const expression", name.sz());
+			return false;
+		}
+
+		value->setFunctionOverload((FunctionOverload*)item);
+		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers)
+		{
+			result = m_module->m_operatorMgr.createMemberClosure(value, (FunctionOverload*)item);
 			if (!result)
 				return false;
 		}

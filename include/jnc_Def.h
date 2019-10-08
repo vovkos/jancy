@@ -48,6 +48,7 @@ class GlobalNamespace;
 class Alias;
 class Variable;
 class Function;
+class FunctionOverload;
 class Property;
 class Typedef;
 class Type;
@@ -98,6 +99,7 @@ typedef jnc::ct::GlobalNamespace jnc_GlobalNamespace;
 typedef jnc::ct::Alias jnc_Alias;
 typedef jnc::ct::Variable jnc_Variable;
 typedef jnc::ct::Function jnc_Function;
+typedef jnc::ct::FunctionOverload jnc_FunctionOverload;
 typedef jnc::ct::Property jnc_Property;
 typedef jnc::ct::Typedef jnc_Typedef;
 typedef jnc::ct::Type jnc_Type;
@@ -149,6 +151,7 @@ typedef struct jnc_GlobalNamespace jnc_GlobalNamespace;
 typedef struct jnc_Alias jnc_Alias;
 typedef struct jnc_Variable jnc_Variable;
 typedef struct jnc_Function jnc_Function;
+typedef struct jnc_FunctionOverload jnc_FunctionOverload;
 typedef struct jnc_Property jnc_Property;
 typedef struct jnc_Typedef jnc_Typedef;
 typedef struct jnc_Type jnc_Type;
@@ -363,6 +366,7 @@ typedef struct jnc_ErrorRouter jnc_ErrorRouter; // opaque
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+typedef union jnc_OverloadableFunction jnc_OverloadableFunction;
 typedef struct jnc_ExtensionLib jnc_ExtensionLib;
 typedef struct jnc_GcStats jnc_GcStats;
 typedef struct jnc_GcSizeTriggers jnc_GcSizeTriggers;
@@ -393,6 +397,7 @@ typedef jnc_GlobalNamespace GlobalNamespace;
 typedef jnc_Alias Alias;
 typedef jnc_Variable Variable;
 typedef jnc_Function Function;
+typedef jnc_FunctionOverload FunctionOverload;
 typedef jnc_Property Property;
 typedef jnc_Typedef Typedef;
 typedef jnc_Type Type;

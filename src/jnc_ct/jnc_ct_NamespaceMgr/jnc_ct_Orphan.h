@@ -87,7 +87,7 @@ protected:
 	bool
 	copyArgNames(FunctionType* targetFunctionType);
 
-	Function*
+	OverloadableFunction
 	getItemUnnamedMethod(ModuleItem* item);
 };
 

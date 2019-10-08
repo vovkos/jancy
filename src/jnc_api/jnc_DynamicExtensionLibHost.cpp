@@ -100,10 +100,15 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 	sizeof(jnc_FunctionFuncTable),
 	jnc_Function_getFunctionKind,
 	jnc_Function_isMember,
-	jnc_Function_isOverloaded,
-	jnc_Function_getOverloadCount,
-	jnc_Function_getOverload,
 	jnc_Function_getMachineCode,
+};
+
+static jnc_FunctionOverloadFuncTable g_functionOverloadFuncTable =
+{
+	sizeof(jnc_FunctionFuncTable),
+	jnc_FunctionOverload_getFunctionKind,
+	jnc_FunctionOverload_getOverloadCount,
+	jnc_FunctionOverload_getOverload,
 };
 
 static jnc_PropertyFuncTable g_propertyFuncTable =
@@ -157,6 +162,7 @@ static jnc_DerivableTypeFuncTable g_derivableTypeFuncTable =
 	jnc_DerivableType_getUnaryOperator,
 	jnc_DerivableType_getBinaryOperator,
 	jnc_DerivableType_getCallOperator,
+	jnc_DerivableType_getCastOperatorCount,
 	jnc_DerivableType_getCastOperator,
 };
 
@@ -380,6 +386,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	&g_globalNamespaceFuncTable,
 	&g_variableFuncTable,
 	&g_functionFuncTable,
+	&g_functionOverloadFuncTable,
 	&g_propertyFuncTable,
 	&g_typedefFuncTable,
 	&g_typeFuncTable,

@@ -14,6 +14,7 @@
 #include "jnc_ct_Module.h"
 #include "jnc_ct_StructType.h"
 #include "jnc_ct_ClassType.h"
+#include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_DynamicLibNamespace.h"
 
@@ -228,9 +229,8 @@ Namespace::findDirectChildItem(const sl::StringRef& name)
 	item = lazyItem->getActualItem();
 	ASSERT(item);
 
-	if (it->m_value != item) // it might already have been added during parse
+	if (it->m_value == lazyItem) // it might already have been added during parse
 	{
-		ASSERT(it->m_value == lazyItem);
 		it->m_value = item;
 		m_itemArray.append(item);
 	}
@@ -353,23 +353,27 @@ Namespace::addItem(
 size_t
 Namespace::addFunction(Function* function)
 {
-	FindModuleItemResult findResult = findItem(function->m_name);
-	if (!findResult.m_result)
-		return -1;
-
-	if (!findResult.m_item)
+	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.visit(function->m_name);
+	if (!it->m_value)
 	{
-		addItem(function);
+		it->m_value = function;
 		return 0;
 	}
 
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
+	ModuleItemKind itemKind = it->m_value->getItemKind();
+	switch (itemKind)
 	{
+	case ModuleItemKind_Function:
+		it->m_value = function->getModule()->m_functionMgr.createFunctionOverload((Function*)it->m_value);
+		// and fall through
+
+	case ModuleItemKind_FunctionOverload:
+		return ((FunctionOverload*)it->m_value)->addOverload(function);
+
+	default:
 		setRedefinitionError(function->m_name);
 		return -1;
 	}
-
-	return ((Function*)findResult.m_item)->addOverload(function);
 }
 
 Const*

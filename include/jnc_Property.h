@@ -14,6 +14,7 @@
 #define _JNC_PROPERTY_H
 
 #include "jnc_PropertyType.h"
+#include "jnc_Function.h"
 
 /**
 
@@ -76,7 +77,7 @@ jnc_Function*
 jnc_Property_getGetter(jnc_Property* prop);
 
 JNC_EXTERN_C
-jnc_Function*
+jnc_OverloadableFunction
 jnc_Property_getSetter(jnc_Property* prop);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -97,7 +98,7 @@ struct jnc_Property: jnc_ModuleItem
 		return jnc_Property_getGetter(this);
 	}
 
-	jnc_Function*
+	jnc::OverloadableFunction
 	getSetter()
 	{
 		return jnc_Property_getSetter(this);

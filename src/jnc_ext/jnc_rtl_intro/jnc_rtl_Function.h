@@ -13,11 +13,13 @@
 
 #include "jnc_rtl_ModuleItem.h"
 #include "jnc_ct_Function.h"
+#include "jnc_ct_FunctionOverload.h"
 
 namespace jnc {
 namespace rtl {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(Function)
+JNC_DECLARE_OPAQUE_CLASS_TYPE(FunctionOverload)
 
 //..............................................................................
 
@@ -53,6 +55,34 @@ public:
 		return m_item->isMember();
 	}
 
+	void*
+	JNC_CDECL
+	getMachineCode()
+	{
+		return m_item->getMachineCode();
+	}
+};
+
+//..............................................................................
+
+class FunctionOverload:
+	public ModuleItemBase<ct::FunctionOverload>,
+	public ModuleItemDecl
+{
+public:
+	FunctionOverload(ct::FunctionOverload* overload):
+		ModuleItemBase(overload),
+		ModuleItemDecl(overload)
+	{
+	}
+
+	FunctionKind
+	JNC_CDECL
+	getFunctionKind()
+	{
+		return m_item->getFunctionKind();
+	}
+
 	size_t
 	JNC_CDECL
 	getOverloadCount()
@@ -65,13 +95,6 @@ public:
 	getOverload(size_t index)
 	{
 		return rtl::getFunction(m_item->getOverload(index));
-	}
-
-	void*
-	JNC_CDECL
-	getMachineCode()
-	{
-		return m_item->getMachineCode();
 	}
 };
 

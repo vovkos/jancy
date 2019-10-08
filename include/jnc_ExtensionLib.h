@@ -177,6 +177,8 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_FindModuleItemResult findResult = jnc_g_nullFindModuleItemResult; \
 		jnc_Variable* variable = NULL; \
 		jnc_Function* function = NULL; \
+		jnc_FunctionOverload* functionOverload = NULL; \
+		jnc_OverloadableFunction overloadableFunction = { NULL }; \
 		jnc_Property* prop = NULL; \
 		jnc_GlobalNamespace* global = jnc_Module_getGlobalNamespace(module); \
 		jnc_Namespace* nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)global); \
@@ -368,6 +370,8 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_FindModuleItemResult findResult = jnc_g_nullFindModuleItemResult; \
 		jnc_Namespace* nspace = NULL; \
 		jnc_Function* function = NULL; \
+		jnc_FunctionOverload* functionOverload = NULL; \
+		jnc_OverloadableFunction overloadableFunction = { NULL }; \
 		jnc_Property* prop = NULL; \
 		jnc_Variable* variable = NULL; \
 		size_t overloadIdx = 0; \
@@ -394,56 +398,64 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP_TYPE_EX(TypePrefix, 1)
 
 #define JNC_MAP_FUNCTION_IMPL(function, p) \
-	do \
+	if (function) \
 	{ \
 		result = jnc_Module_mapFunction(module, function, jnc_pvoid_cast(p)); \
 		if (!result) \
 			return 0; \
-	} while (0)
+	}
+
+#define JNC_MAP_OVERLOADABLE_FUNCTION(item, p) \
+	function = NULL; \
+	functionOverload = NULL; \
+	if (item) \
+	{ \
+		jnc_ModuleItemKind itemKind = jnc_ModuleItem_getItemKind(item); \
+		if (itemKind == jnc_ModuleItemKind_Function) \
+		{ \
+			functionOverload = NULL; \
+			function = (jnc_Function*)item; \
+			JNC_MAP_FUNCTION_IMPL(function, p); \
+		} \
+		else if (itemKind == jnc_ModuleItemKind_FunctionOverload) \
+		{ \
+			functionOverload = (jnc_FunctionOverload*)item; \
+			function = jnc_FunctionOverload_getOverload(functionOverload, 0); \
+			JNC_MAP_FUNCTION_IMPL(function, p); \
+			overloadIdx = 1; \
+		} \
+	}
 
 #define JNC_MAP_OVERLOAD(p) \
-	if (function) \
+	if (functionOverload) \
 	{ \
-		jnc_Function* overload = jnc_Function_getOverload(function, ++overloadIdx); \
-		if (overload) \
-			JNC_MAP_FUNCTION_IMPL(overload, p); \
+		function = jnc_FunctionOverload_getOverload(functionOverload, overloadIdx++); \
+		JNC_MAP_FUNCTION_IMPL(function, p); \
 	}
 
 #define JNC_MAP_CONSTRUCTOR(p) \
-	function = jnc_DerivableType_getConstructor(type); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	overloadableFunction = jnc_DerivableType_getConstructor(type); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
 #define JNC_MAP_DESTRUCTOR(p) \
 	function = jnc_DerivableType_getDestructor(type); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_MAP_UNARY_OPERATOR(opKind, p) \
-	function = jnc_DerivableType_getUnaryOperator(type, opKind); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	overloadableFunction = jnc_DerivableType_getUnaryOperator(type, opKind); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
 #define JNC_MAP_BINARY_OPERATOR(opKind, p) \
-	function = jnc_DerivableType_getBinaryOperator(type, opKind); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	overloadableFunction = jnc_DerivableType_getBinaryOperator(type, opKind); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
 #define JNC_MAP_CALL_OPERATOR(p) \
-	function = jnc_DerivableType_getCallOperator(); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	overloadableFunction = jnc_DerivableType_getCallOperator(); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
 
 #define JNC_MAP_CAST_OPERATOR(i, p) \
 	function = jnc_DerivableType_getCastOperator(i); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p);
+	JNC_MAP_FUNCTION_IMPL(function, p);
 
 #define JNC_FIND_ITEM_IMPL(name, itemKind, ItemType, item) \
 	findResult = jnc_Namespace_findItem(nspace, name); \
@@ -451,22 +463,17 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		(ItemType*)findResult.m_item : NULL; \
 
 #define JNC_MAP_FUNCTION(name, p) \
-	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Function, jnc_Function, function) \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p); \
+	findResult = jnc_Namespace_findItem(nspace, name); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(findResult.m_item, p);
 
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
 	function = jnc_Property_getGetter(prop); \
 	JNC_ASSERT(function); \
-	overloadIdx = 0; \
-	JNC_MAP_FUNCTION_IMPL(function, p);
+	JNC_MAP_FUNCTION_IMPL(function, p); \
 
 #define JNC_MAP_PROPERTY_SETTER(prop, p) \
-	function = jnc_Property_getSetter(prop); \
-	overloadIdx = 0; \
-	if (function) \
-		JNC_MAP_FUNCTION_IMPL(function, p); \
+	overloadableFunction = jnc_Property_getSetter(prop); \
+	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p);
 
 #define JNC_MAP_PROPERTY(name, getter, setter) \
 	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \

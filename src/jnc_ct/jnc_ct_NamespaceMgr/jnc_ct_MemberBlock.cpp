@@ -23,7 +23,6 @@ MemberBlock::MemberBlock(ModuleItem* parent)
 	m_parent = parent;
 	m_staticConstructorOnceFlagVariable = NULL;
 	m_staticConstructor = NULL;
-	m_constructor = NULL;
 	m_destructor = NULL;
 }
 
@@ -241,7 +240,7 @@ MemberBlock::callPropertyConstructors(const Value& thisValue)
 			continue;
 		}
 
-		Function* constructor = prop->getConstructor();
+		OverloadableFunction constructor = prop->getConstructor();
 		ASSERT(constructor);
 
 		result = module->m_operatorMgr.callOperator(constructor, thisValue);
@@ -268,6 +267,47 @@ MemberBlock::callPropertyDestructors(const Value& thisValue)
 		result = module->m_operatorMgr.callOperator(destructor, thisValue);
 		if (!result)
 			return false;
+	}
+
+	return true;
+}
+
+bool
+MemberBlock::addUnnamedMethod(
+	Function* function,
+	Function** targetFunction,
+	OverloadableFunction* targetOverloadableFunction
+	)
+{
+	if (targetFunction)
+	{
+		ASSERT(!targetOverloadableFunction);
+
+		if (*targetFunction)
+		{
+			err::setFormatStringError("'%s' already exists", (*targetFunction)->getQualifiedName().sz());
+			return false;
+		}
+
+		*targetFunction = function;
+	}
+	else
+	{
+		ASSERT(targetOverloadableFunction);
+
+		if (!*targetOverloadableFunction)
+		{
+			*targetOverloadableFunction = function;
+		}
+		else
+		{
+			if ((*targetOverloadableFunction)->getItemKind() == ModuleItemKind_Function)
+				*targetOverloadableFunction = function->getModule()->m_functionMgr.createFunctionOverload(targetOverloadableFunction->getFunction());
+
+			bool result = targetOverloadableFunction->getFunctionOverload()->addOverload(function) != -1;
+			if (!result)
+				return false;
+		}
 	}
 
 	return true;

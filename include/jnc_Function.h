@@ -14,6 +14,7 @@
 #define _JNC_FUNCTION_H
 
 #include "jnc_FunctionType.h"
+#include "jnc_ModuleItem.h"
 
 /**
 
@@ -88,6 +89,15 @@ jnc_getFunctionKindFlags(jnc_FunctionKind functionKind);
 
 //..............................................................................
 
+enum jnc_FunctionOverloadFlag
+{
+	jnc_FunctionOverloadFlag_HasMembers = 0x010000,
+};
+
+typedef enum jnc_FunctionOverloadFlag jnc_FunctionOverloadFlag;
+
+//..............................................................................
+
 JNC_EXTERN_C
 jnc_FunctionKind
 jnc_Function_getFunctionKind(jnc_Function* function);
@@ -102,22 +112,6 @@ jnc_Function_getType(jnc_Function* function)
 JNC_EXTERN_C
 bool_t
 jnc_Function_isMember(jnc_Function* function);
-
-JNC_EXTERN_C
-bool_t
-jnc_Function_isOverloaded(jnc_Function* function);
-
-JNC_EXTERN_C
-size_t
-jnc_Function_getOverloadCount(jnc_Function* function);
-
-JNC_EXTERN_C
-jnc_Function*
-jnc_Function_getOverload(
-	jnc_Function* function,
-	size_t index
-	);
-
 
 JNC_EXTERN_C
 void*
@@ -147,24 +141,6 @@ struct jnc_Function: jnc_ModuleItem
 		return jnc_Function_isMember(this) != 0;
 	}
 
-	bool
-	isOverloaded()
-	{
-		return jnc_Function_isOverloaded(this) != 0;
-	}
-
-	size_t
-	getOverloadCount()
-	{
-		return jnc_Function_getOverloadCount(this);
-	}
-
-	jnc_Function*
-	getOverload(size_t index)
-	{
-		return jnc_Function_getOverload(this, index);
-	}
-
 	void*
 	getMachineCode()
 	{
@@ -173,6 +149,59 @@ struct jnc_Function: jnc_ModuleItem
 };
 
 #endif // _JNC_CORE
+
+//..............................................................................
+
+JNC_EXTERN_C
+jnc_FunctionKind
+jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function);
+
+JNC_EXTERN_C
+size_t
+jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function);
+
+JNC_EXTERN_C
+jnc_Function*
+jnc_FunctionOverload_getOverload(
+	jnc_FunctionOverload* function,
+	size_t index
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_FunctionOverload: jnc_ModuleItem
+{
+	jnc_FunctionKind
+	getFunctionKind()
+	{
+		return jnc_FunctionOverload_getFunctionKind(this);
+	}
+
+	size_t
+	getOverloadCount()
+	{
+		return jnc_FunctionOverload_getOverloadCount(this);
+	}
+
+	jnc_Function*
+	getOverload(size_t index)
+	{
+		return jnc_FunctionOverload_getOverload(this, index);
+	}
+};
+
+#endif // _JNC_CORE
+
+//..............................................................................
+
+union jnc_OverloadableFunction
+{
+	jnc_ModuleItem* m_item;
+	jnc_Function* m_function;
+	jnc_FunctionOverload* m_functionOverload;
+};
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -232,6 +261,78 @@ getFunctionKindFlags(FunctionKind functionKind)
 {
 	return jnc_getFunctionKindFlags(functionKind);
 }
+
+//..............................................................................
+
+typedef jnc_FunctionOverloadFlag FunctionOverloadFlag;
+
+const FunctionOverloadFlag
+	FunctionOverloadFlag_HasMembers = jnc_FunctionOverloadFlag_HasMembers;
+
+//..............................................................................
+
+class OverloadableFunction
+{
+protected:
+	union
+	{
+		ModuleItem* m_item;
+		Function* m_function;
+		FunctionOverload* m_functionOverload;
+	};
+
+public:
+	OverloadableFunction()
+	{
+		m_item = NULL;
+	}
+
+	OverloadableFunction(Function* function)
+	{
+		m_function = function;
+	}
+
+	OverloadableFunction(FunctionOverload* functionOverload)
+	{
+		m_functionOverload = functionOverload;
+	}
+
+	OverloadableFunction(jnc_OverloadableFunction src)
+	{
+		m_item = src.m_item;
+	}
+
+	operator bool()
+	{
+		return m_item != NULL;
+	}
+
+	operator jnc_OverloadableFunction()
+	{
+		return { m_item };
+	}
+
+	ModuleItem*
+	operator -> ()
+	{
+		JNC_ASSERT(m_item);
+		return m_item;
+	}
+
+	Function*
+	getFunction()
+	{
+		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_Function);
+		return m_function;
+	}
+
+	FunctionOverload*
+	getFunctionOverload()
+	{
+		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_FunctionOverload);
+		return m_functionOverload;
+	}
+};
 
 //..............................................................................
 

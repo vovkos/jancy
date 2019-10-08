@@ -43,8 +43,6 @@ BaseTypeCoord::BaseTypeCoord():
 DerivableType::DerivableType():
 	MemberBlock(this)
 {
-	m_defaultConstructor = NULL;
-	m_callOperator = NULL;
 	m_operatorVararg = NULL;
 	m_operatorCdeclVararg = NULL;
 	m_setAsType = NULL;
@@ -98,33 +96,6 @@ DerivableType::getFieldByIndex(size_t index)
 	}
 
 	return m_fieldArray[index];
-}
-
-Function*
-DerivableType::getDefaultConstructor()
-{
-	ASSERT(m_constructor);
-	if (m_defaultConstructor)
-		return m_defaultConstructor;
-
-	Type* thisArgType = getThisArgType(PtrTypeFlag_Safe);
-
-	// avoid allocations
-
-	sl::BoxListEntry<Value> thisArgValue;
-	thisArgValue.m_value.setType(thisArgType);
-
-	sl::AuxList<sl::BoxListEntry<Value> > argList;
-	argList.insertTail(&thisArgValue);
-
-	m_defaultConstructor = m_constructor->chooseOverload(argList);
-	if (!m_defaultConstructor)
-	{
-		err::setFormatStringError("'%s' has no default constructor", getTypeString().sz());
-		return NULL;
-	}
-
-	return m_defaultConstructor;
 }
 
 Property*
@@ -257,17 +228,18 @@ DerivableType::addMethod(Function* function)
 
 	Property* indexerProperty;
 	sl::Array<FunctionArg*> argArray;
-	Function** target = NULL;
+	Function** targetFunction = NULL;
+	OverloadableFunction* targetOverloadableFunction = NULL;
 	size_t overloadIdx;
 
 	switch (functionKind)
 	{
 	case FunctionKind_StaticConstructor:
-		target = &m_staticConstructor;
+		targetFunction = &m_staticConstructor;
 		break;
 
 	case FunctionKind_Constructor:
-		target = &m_constructor;
+		targetOverloadableFunction = &m_constructor;
 		break;
 
 	case FunctionKind_Normal:
@@ -275,35 +247,33 @@ DerivableType::addMethod(Function* function)
 		if (overloadIdx == -1)
 			return false;
 
-		if (overloadIdx == 0)
-			m_methodArray.append(function);
-
+		m_methodArray.append(function);
 		return true;
 
 	case FunctionKind_UnaryOperator:
 		if (m_unaryOperatorTable.isEmpty())
 			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		target = &m_unaryOperatorTable[function->getUnOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorTable[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
 		if (m_binaryOperatorTable.isEmpty())
 			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		target = &m_binaryOperatorTable[function->getBinOpKind()];
+		targetOverloadableFunction = &m_binaryOperatorTable[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
-		target = &m_callOperator;
+		targetOverloadableFunction = &m_callOperator;
 		break;
 
 	case FunctionKind_OperatorVararg:
-		target = &m_operatorVararg;
+		targetFunction = &m_operatorVararg;
 		break;
 
 	case FunctionKind_OperatorCdeclVararg:
-		target = &m_operatorCdeclVararg;
+		targetFunction = &m_operatorCdeclVararg;
 		break;
 
 	case FunctionKind_Getter:
@@ -315,7 +285,7 @@ DerivableType::addMethod(Function* function)
 		}
 
 		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		target = &indexerProperty->m_getter;
+		targetFunction = &indexerProperty->m_getter;
 		break;
 
 	case FunctionKind_Setter:
@@ -327,7 +297,7 @@ DerivableType::addMethod(Function* function)
 		}
 
 		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		target = &indexerProperty->m_setter;
+		targetOverloadableFunction = &indexerProperty->m_setter;
 		break;
 
 	default:
@@ -340,28 +310,7 @@ DerivableType::addMethod(Function* function)
 	}
 
 	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
-
-	if (!*target)
-	{
-		*target = function;
-	}
-	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
-	{
-		err::setFormatStringError(
-			"'%s' already has '%s' method",
-			getTypeString().sz(),
-			getFunctionKindString(functionKind)
-			);
-		return false;
-	}
-	else
-	{
-		bool result = (*target)->addOverload(function) != -1;
-		if (!result)
-			return false;
-	}
-
-	return true;
+	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
 bool
@@ -445,9 +394,8 @@ DerivableType::callBaseTypeConstructors(const Value& thisValue)
 			continue;
 		}
 
-		Function* constructor = slot->m_type->getDefaultConstructor();
-		if (!constructor)
-			return false;
+		OverloadableFunction constructor = slot->m_type->getConstructor();
+		ASSERT(constructor);
 
 		result = m_module->m_operatorMgr.callOperator(constructor, thisValue);
 		if (!result)
@@ -738,15 +686,23 @@ DerivableType::requireConstructor()
 	if (!m_constructor)
 		return true;
 
-	if (m_constructor->canCompile())
-		m_module->markForCompile(m_constructor);
-
-	size_t count = m_constructor->getOverloadCount();
-	for (size_t i = 0; i < count; i++)
+	if (m_constructor->getItemKind() == ModuleItemKind_Function)
 	{
-		Function* overload = m_constructor->getOverload(i);
-		if (overload->canCompile())
-			m_module->markForCompile(overload);
+		Function* constructor = m_constructor.getFunction();
+
+		if (constructor->canCompile())
+			m_module->markForCompile(constructor);
+	}
+	else
+	{
+		FunctionOverload* constructor = m_constructor.getFunctionOverload();
+		size_t count = constructor->getOverloadCount();
+		for (size_t i = 0; i < count; i++)
+		{
+			Function* overload = constructor->getOverload(i);
+			if (overload->canCompile())
+				m_module->markForCompile(overload);
+		}
 	}
 
 	return true;
@@ -777,15 +733,13 @@ DerivableType::compileDefaultStaticConstructor()
 bool
 DerivableType::compileDefaultConstructor()
 {
-	ASSERT(m_constructor);
-
-	bool result;
+	Function* constructor = m_constructor.getFunction();
 
 	Value thisValue;
 	m_module->m_namespaceMgr.openNamespace(this);
-	m_module->m_functionMgr.internalPrologue(m_constructor, &thisValue, 1);
+	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
 
-	result =
+	bool result =
 		callBaseTypeConstructors(thisValue) &&
 		callStaticConstructor() &&
 		initializeFields(thisValue) &&

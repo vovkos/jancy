@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Type.h"
+#include "jnc_Function.h"
 
 namespace jnc {
 namespace ct {
@@ -72,6 +73,7 @@ protected:
 		Namespace* m_namespace;
 		Variable* m_variable;
 		Function* m_function;
+		FunctionOverload* m_functionOverload;
 		FunctionTypeOverload* m_functionTypeOverload;
 		Property* m_property;
 		Field* m_field;
@@ -138,6 +140,18 @@ public:
 	{
 		init();
 		setFunction(function);
+	}
+
+	Value(FunctionOverload* functionOverload)
+	{
+		init();
+		setFunctionOverload(functionOverload);
+	}
+
+	Value(OverloadableFunction function)
+	{
+		init();
+		setOverloadableFunction(function);
 	}
 
 	Value(FunctionTypeOverload* functionTypeOverload)
@@ -208,8 +222,15 @@ public:
 	Function*
 	getFunction() const
 	{
-		ASSERT(m_valueKind == ValueKind_Function || m_valueKind == ValueKind_FunctionOverload);
+		ASSERT(m_valueKind == ValueKind_Function);
 		return m_function;
+	}
+
+	FunctionOverload*
+	getFunctionOverload() const
+	{
+		ASSERT(m_valueKind == ValueKind_FunctionOverload);
+		return m_functionOverload;
 	}
 
 	FunctionTypeOverload*
@@ -435,8 +456,18 @@ public:
 	bool
 	trySetFunction(Function* function);
 
+	void
+	setFunctionOverload(FunctionOverload* functionOverload);
+
+	void
+	setOverloadableFunction(OverloadableFunction function)
+	{
+		bool result = trySetOverloadableFunction(function);
+		ASSERT(result);
+	}
+
 	bool
-	trySetFunctionNoOverload(Function* function);
+	trySetOverloadableFunction(OverloadableFunction function);
 
 	void
 	setFunctionTypeOverload(FunctionTypeOverload* functionTypeOverload);

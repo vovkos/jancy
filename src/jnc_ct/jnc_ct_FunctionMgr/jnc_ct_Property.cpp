@@ -28,7 +28,6 @@ Property::Property():
 	m_type = NULL;
 
 	m_getter = NULL;
-	m_setter = NULL;
 	m_binder = NULL;
 
 	m_autoGetValue = NULL;
@@ -416,7 +415,8 @@ Property::addMethod(Function* function)
 	function->m_property = this;
 	function->m_extensionNamespace = m_extensionNamespace;
 
-	Function** target = NULL;
+	Function** targetFunction = NULL;
+	OverloadableFunction* targetOverloadableFunction = NULL;
 
 	switch (functionKind)
 	{
@@ -429,7 +429,7 @@ Property::addMethod(Function* function)
 
 		if (storageKind != StorageKind_Static)
 		{
-			target = &m_constructor;
+			targetOverloadableFunction = &m_constructor;
 			break;
 		}
 
@@ -439,11 +439,11 @@ Property::addMethod(Function* function)
 		// and fall through
 
 	case FunctionKind_StaticConstructor:
-		target = &m_staticConstructor;
+		targetFunction = &m_staticConstructor;
 		break;
 
 	case FunctionKind_Destructor:
-		target = &m_destructor;
+		targetFunction = &m_destructor;
 		break;
 
 	case FunctionKind_Getter:
@@ -451,7 +451,7 @@ Property::addMethod(Function* function)
 		if (!result)
 			return false;
 
-		target = &m_getter;
+		targetFunction = &m_getter;
 		break;
 
 	case FunctionKind_Setter:
@@ -465,11 +465,11 @@ Property::addMethod(Function* function)
 		if (!result)
 			return false;
 
-		target = &m_setter;
+		targetOverloadableFunction = &m_setter;
 		break;
 
 	case FunctionKind_Binder:
-		target = &m_binder;
+		targetFunction = &m_binder;
 		break;
 
 	case FunctionKind_Normal:
@@ -485,18 +485,7 @@ Property::addMethod(Function* function)
 	}
 
 	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
-	if (!*target)
-	{
-		*target = function;
-	}
-	else
-	{
-		result = (*target)->addOverload(function) != -1;
-		if (!result)
-			return false;
-	}
-
-	return true;
+	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
 bool
@@ -662,15 +651,22 @@ Property::createType()
 	if (m_onChanged)
 		typeFlags |= PropertyTypeFlag_Bindable;
 
-	m_type = m_setter ?
-		m_module->m_typeMgr.getPropertyType(
-			m_getter->getType(),
-			*m_setter->getTypeOverload(),
-			typeFlags
-			) :
-		m_module->m_typeMgr.getPropertyType(
+	if (!m_setter)
+		m_type = m_module->m_typeMgr.getPropertyType(
 			m_getter->getType(),
 			NULL,
+			typeFlags
+			);
+	else if (m_setter->getItemKind() == ModuleItemKind_Function)
+		m_type = m_module->m_typeMgr.getPropertyType(
+			m_getter->getType(),
+			m_setter.getFunction()->getType(),
+			typeFlags
+			);
+	else
+		m_type = m_module->m_typeMgr.getPropertyType(
+			m_getter->getType(),
+			m_setter.getFunctionOverload()->getTypeOverload(),
 			typeFlags
 			);
 
@@ -682,7 +678,10 @@ Property::prepareVtable()
 {
 	bool result;
 
-	size_t setterCount = m_setter ? m_setter->getOverloadCount() : 0;
+	size_t setterCount =
+		!m_setter ? 0 :
+		m_setter->getItemKind() == ModuleItemKind_Function ? 1 :
+		m_setter.getFunctionOverload()->getOverloadCount();
 
 	m_vtable.reserve(2 + setterCount);
 
@@ -697,9 +696,16 @@ Property::prepareVtable()
 	if (!result)
 		return false;
 
+	if (!m_setter)
+		return true;
+
+	if (m_setter->getItemKind() == ModuleItemKind_Function)
+		return appendVtableMethod(m_setter.getFunction());
+
+	FunctionOverload* setter = m_setter.getFunctionOverload();
 	for (size_t i = 0; i < setterCount; i++)
 	{
-		result = appendVtableMethod(m_setter->getOverload(i));
+		result = appendVtableMethod(setter->getOverload(i));
 		if (!result)
 			return false;
 	}
@@ -824,13 +830,13 @@ Property::compileDefaultStaticConstructor()
 bool
 Property::compileDefaultConstructor()
 {
-	ASSERT(m_constructor);
+	Function* constructor = m_constructor.getFunction();
 
 	bool result;
 
 	Value thisValue;
 	m_module->m_namespaceMgr.openNamespace(this);
-	m_module->m_functionMgr.internalPrologue(m_constructor, &thisValue, 1);
+	m_module->m_functionMgr.internalPrologue(constructor, &thisValue, 1);
 
 	// don't call static constructor here -- as to avoid unnecessary nested once-stmt
 
@@ -888,8 +894,9 @@ Property::compileAutoGetter()
 bool
 Property::compileAutoSetter()
 {
-	ASSERT(m_setter && !m_setter->isOverloaded());
 	ASSERT(m_type->getFlags() & PropertyTypeFlag_Bindable);
+
+	Function* setter = m_setter.getFunction();
 
 	bool result;
 
@@ -898,12 +905,12 @@ Property::compileAutoSetter()
 	if (isMember())
 	{
 		Value argValueArray[2];
-		m_module->m_functionMgr.internalPrologue(m_setter, argValueArray, 2);
+		m_module->m_functionMgr.internalPrologue(setter, argValueArray, 2);
 		srcValue = argValueArray[1];
 	}
 	else
 	{
-		m_module->m_functionMgr.internalPrologue(m_setter, &srcValue, 1);
+		m_module->m_functionMgr.internalPrologue(setter, &srcValue, 1);
 	}
 
 	BasicBlock* assignBlock = m_module->m_controlFlowMgr.createBlock("assign_block");

@@ -63,6 +63,7 @@ EXPORTS
 	jnc_DerivableType_getBaseTypeCount
 	jnc_DerivableType_getBinaryOperator
 	jnc_DerivableType_getCallOperator
+	jnc_DerivableType_getCastOperatorCount
 	jnc_DerivableType_getCastOperator
 	jnc_DerivableType_getConstructor
 	jnc_DerivableType_getDestructor
@@ -112,10 +113,10 @@ EXPORTS
 	jnc_getFunctionKindString
 	jnc_Function_getFunctionKind
 	jnc_Function_getMachineCode
-	jnc_Function_getOverload
-	jnc_Function_getOverloadCount
 	jnc_Function_isMember
-	jnc_Function_isOverloaded
+	jnc_FunctionOverload_getFunctionKind
+	jnc_FunctionOverload_getOverload
+	jnc_FunctionOverload_getOverloadCount
 	jnc_Property_getGetter
 	jnc_Property_getSetter
 	jnc_Namespace_getItemCount

@@ -800,10 +800,10 @@ GcHeap::getIntrospectionClass(
 	m_lock.unlock();
 
 	ClassType* type = (ClassType*)m_runtime->getModule()->m_typeMgr.getStdType(stdType);
-	ASSERT(type->getTypeKind() == TypeKind_Class);
+	ASSERT(type->getTypeKind() == TypeKind_Class && type->getConstructor());
 
-	Function* constructor = type->getConstructor();
-	ASSERT(constructor && constructor->getType()->getArgArray().getCount() == 2);
+	Function* constructor = type->getConstructor().getFunction();
+	ASSERT(constructor->getType()->getArgArray().getCount() == 2);
 
 	// we need a call site so the newly allocated introspection class
 	// does not get collected during waitIdleAndLock()

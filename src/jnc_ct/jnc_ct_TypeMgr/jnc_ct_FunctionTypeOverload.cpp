@@ -246,7 +246,7 @@ FunctionTypeOverload::chooseSetterOverload(
 	Module* module = m_type->getModule();
 	size_t setterValueIdx = m_type->getArgArray().getCount() - 1;
 	ASSERT(setterValueIdx != -1);
-	Type* setterValueArgType = m_type->getArgArray() [setterValueIdx]->getType();
+	Type* setterValueArgType = m_type->getArgArray()[setterValueIdx]->getType();
 	CastKind bestCastKind = module->m_operatorMgr.getCastKind(value, setterValueArgType);
 	size_t bestOverload = bestCastKind ? 0 : -1;
 	bool isAmbiguous = false;

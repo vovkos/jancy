@@ -1411,13 +1411,13 @@ public:
 protected:
 	// overloaded operators
 
-	Function*
+	OverloadableFunction
 	getOverloadedUnaryOperator(
 		UnOpKind opKind,
 		const Value& opValue
 		);
 
-	Function*
+	OverloadableFunction
 	getOverloadedBinaryOperator(
 		BinOpKind opKind,
 		const Value& opValue1
@@ -1544,12 +1544,6 @@ protected:
 	{
 		return callOperatorVararg(operatorVararg, type, *value, value);
 	}
-
-	bool
-	deleteDataPtr(const Value& opValue);
-
-	bool
-	deleteClassPtr(const Value& opValue);
 
 	bool
 	dynamicCastDataPtr(

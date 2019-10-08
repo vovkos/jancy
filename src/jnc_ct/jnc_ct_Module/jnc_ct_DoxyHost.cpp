@@ -101,9 +101,9 @@ DoxyHost::findItem(
 		return NULL;
 
 	ModuleItem* item = findResult.m_item;
-	if (overloadIdx && item->getItemKind() == ModuleItemKind_Function)
+	if (overloadIdx && item->getItemKind() == ModuleItemKind_FunctionOverload)
 	{
-		Function* overload = ((Function*)item)->getOverload(overloadIdx);
+		Function* overload = ((FunctionOverload*)item)->getOverload(overloadIdx);
 		if (overload)
 			item = overload;
 	}

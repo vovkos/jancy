@@ -34,28 +34,34 @@ Cast_Struct::getCastKind(
 	ASSERT(type->getTypeKind() == TypeKind_Struct);
 	StructType* structType = (StructType*)type;
 
-	Function* constructor = structType->getConstructor();
-	if (constructor)
+	OverloadableFunction constructor = structType->getConstructor();
+	if (!constructor || m_recursionStopper)
+		return CastKind_None;
+
+	CastKind castKind;
+	Value argValueArray[2];
+	argValueArray[0].setType(structType->getDataPtrType());
+	argValueArray[1] = opValue;
+
+	m_recursionStopper = true;
+
+	if (constructor->getItemKind() == ModuleItemKind_Function)
 	{
-		if (m_recursionStopper)
+		FunctionTypeOverload type = constructor.getFunction()->getType();
+		bool result = type.chooseOverload(argValueArray, 2, &castKind) != -1;
+		if (!result)
 			return CastKind_None;
-
-		m_recursionStopper = true;
-
-		Value argValueArray[2];
-		argValueArray[0].setType(structType->getDataPtrType());
-		argValueArray[1] = opValue;
-
-		CastKind castKind;
-		Function* overload = constructor->chooseOverload(argValueArray, 2, &castKind);
-
-		m_recursionStopper = false;
-
-		if (overload)
-			return AXL_MIN(castKind, CastKind_ImplicitCrossFamily);
+	}
+	else
+	{
+		Function* overload = constructor.getFunctionOverload()->chooseOverload(argValueArray, 2, &castKind);
+		if (!overload)
+			return CastKind_None;
 	}
 
-	return CastKind_None;
+	m_recursionStopper = false;
+
+	return AXL_MIN(castKind, CastKind_ImplicitCrossFamily);
 }
 
 bool
@@ -111,7 +117,7 @@ Cast_Struct::llvmCast(
 	ASSERT(type->getTypeKind() == TypeKind_Struct);
 	StructType* structType = (StructType*)type;
 
-	Function* constructor = structType->getConstructor();
+	OverloadableFunction constructor = structType->getConstructor();
 	if (!constructor)
 	{
 		setCastError(opValue, type);

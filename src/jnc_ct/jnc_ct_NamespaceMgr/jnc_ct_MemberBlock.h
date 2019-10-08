@@ -38,7 +38,7 @@ protected:
 
 	Variable* m_staticConstructorOnceFlagVariable;
 	Function* m_staticConstructor;
-	Function* m_constructor;
+	OverloadableFunction m_constructor;
 	Function* m_destructor;
 
 	sl::Array<Field*> m_gcRootFieldArray;
@@ -94,7 +94,7 @@ public:
 		return m_staticConstructor;
 	}
 
-	Function*
+	OverloadableFunction
 	getConstructor() const
 	{
 		return m_constructor;
@@ -199,6 +199,13 @@ protected:
 
 	bool
 	callStaticConstructor();
+
+	bool
+	addUnnamedMethod(
+		Function* function,
+		Function** targetFunction,
+		OverloadableFunction* targetOverloadableFunction
+		);
 };
 
 //..............................................................................

@@ -289,6 +289,7 @@ TypeMgr::getStdType(StdType stdType)
 	case StdType_FunctionKind:
 	case StdType_FunctionKindFlags:
 	case StdType_Function:
+	case StdType_FunctionOverload:
 	case StdType_PropertyKind:
 	case StdType_PropertyFlag:
 	case StdType_Property:

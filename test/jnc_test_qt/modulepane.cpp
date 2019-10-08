@@ -280,7 +280,7 @@ void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::Derivable
 		addItem(parent, type->getStaticConstructor());
 
 	if (type->getConstructor())
-		addItem(parent, type->getConstructor());
+		addOverloadableFunction(parent, type->getConstructor());
 
 	if (type->getDestructor())
 		addItem(parent, type->getDestructor());
@@ -298,33 +298,6 @@ void ModulePane::addDerivableTypeMembers(QTreeWidgetItem *parent, jnc::Derivable
 
 void ModulePane::addFunction(QTreeWidgetItem *parent, jnc::Function* function)
 {
-	if (!function->isOverloaded())
-	{
-		addFunctionImpl(parent, function);
-	}
-	else
-	{
-		size_t count = function->getOverloadCount();
-
-		const char* name = function->getFunctionKind() == jnc::FunctionKind_Normal ?
-			function->getDecl()->getName() :
-			jnc::getFunctionKindString(function->getFunctionKind());
-
-		QString itemName = QString("%1 (%2 overloads)").arg(name).arg(count);
-
-		QTreeWidgetItem *item = insertItem(itemName, parent);
-		for (size_t i = 0; i < count; i++)
-		{
-			jnc::Function* pOverload = function->getOverload(i);
-			addFunctionImpl(item, pOverload);
-		}
-
-		expandItem(item);
-	}
-}
-
-void ModulePane::addFunctionImpl(QTreeWidgetItem *parent, jnc::Function* function)
-{
 	jnc::FunctionType* type = function->getType();
 
 	const char* name = function->getFunctionKind() == jnc::FunctionKind_Normal ?
@@ -336,18 +309,44 @@ void ModulePane::addFunctionImpl(QTreeWidgetItem *parent, jnc::Function* functio
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)function->getDecl()));
 }
 
+void ModulePane::addFunctionOverload(QTreeWidgetItem *parent, jnc::FunctionOverload* overload)
+{
+	size_t count = overload->getOverloadCount();
+
+	const char* name = overload->getFunctionKind() == jnc::FunctionKind_Normal ?
+		overload->getDecl()->getName() :
+		jnc::getFunctionKindString(overload->getFunctionKind());
+
+	QString itemName = QString("%1 (%2 overloads)").arg(name).arg(count);
+
+	QTreeWidgetItem *item = insertItem(itemName, parent);
+	for (size_t i = 0; i < count; i++)
+	{
+		jnc::Function* function = overload->getOverload(i);
+		addFunction(item, function);
+	}
+
+	expandItem(item);
+}
+
+void ModulePane::addOverloadableFunction(QTreeWidgetItem* parent, jnc::OverloadableFunction function)
+{
+	function->getItemKind() == jnc::ModuleItemKind_Function ?
+		addFunction(parent, function.getFunction()) :
+		addFunctionOverload(parent, function.getFunctionOverload());
+}
+
 void ModulePane::addProperty(QTreeWidgetItem *parent, jnc::Property* prop)
 {
 	QTreeWidgetItem *item = insertItem(prop->getDecl()->getName(), parent);
 	item->setData(0, Qt::UserRole, qVariantFromValue((void*)prop->getDecl()));
 
 	jnc::Function* getter = prop->getGetter();
-	jnc::Function* setter = prop->getSetter();
-
 	addFunction(item, getter);
 
+	jnc::OverloadableFunction setter = prop->getSetter();
 	if (setter)
-		addFunction(item, setter);
+		addOverloadableFunction(item, setter);
 
 	expandItem(item);
 }

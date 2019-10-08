@@ -169,6 +169,7 @@ NamespaceMgr::addStdItems()
 		jnc->addItem("FunctionKind", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKind)) &&
 		jnc->addItem("FunctionKindFlags", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKindFlags)) &&
 		jnc->addItem("Function", m_module->m_typeMgr.getLazyStdType(StdType_Function)) &&
+		jnc->addItem("FunctionOverload", m_module->m_typeMgr.getLazyStdType(StdType_FunctionOverload)) &&
 		jnc->addItem("PropertyKind", m_module->m_typeMgr.getLazyStdType(StdType_PropertyKind)) &&
 		jnc->addItem("PropertyFlag", m_module->m_typeMgr.getLazyStdType(StdType_PropertyFlag)) &&
 		jnc->addItem("Property", m_module->m_typeMgr.getLazyStdType(StdType_Property)) &&

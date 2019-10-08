@@ -14,6 +14,7 @@
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ArrayType.h"
+#include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_LeanDataPtrValidator.h"
 
 namespace jnc {
@@ -346,20 +347,6 @@ Value::setVariable(Variable* variable)
 bool
 Value::trySetFunction(Function* function)
 {
-	if (!function->isOverloaded())
-		return trySetFunctionNoOverload(function);
-
-	clear();
-
-	m_valueKind = ValueKind_FunctionOverload;
-	m_function = function;
-	m_type = function->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
-	return true;
-}
-
-bool
-Value::trySetFunctionNoOverload(Function* function)
-{
 	bool result = function->getType()->ensureLayout();
 	if (!result)
 		return false;
@@ -377,6 +364,26 @@ Value::trySetFunctionNoOverload(Function* function)
 	if (!function->isVirtual())
 		m_llvmValue = function->getLlvmFunction();
 
+	return true;
+}
+
+void
+Value::setFunctionOverload(FunctionOverload* functionOverload)
+{
+	clear();
+
+	m_valueKind = ValueKind_FunctionOverload;
+	m_functionOverload = functionOverload;
+	m_type = functionOverload->getModule()->m_typeMgr.getPrimitiveType(TypeKind_Void);
+}
+
+bool
+Value::trySetOverloadableFunction(OverloadableFunction function)
+{
+	if (function->getItemKind() == ModuleItemKind_Function)
+		return trySetFunction(function.getFunction());
+
+	setFunctionOverload(function.getFunctionOverload());
 	return true;
 }
 

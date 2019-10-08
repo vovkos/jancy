@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Function.h"
+#include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_Property.h"
 #include "jnc_ct_PropertyTemplate.h"
 #include "jnc_ct_StdFunction.h"
@@ -50,6 +51,7 @@ protected:
 	Module* m_module;
 
 	sl::List<Function> m_functionList;
+	sl::List<FunctionOverload> m_functionOverloadList;
 	sl::List<Property> m_propertyList;
 	sl::List<PropertyTemplate> m_propertyTemplateList;
 	sl::List<LazyStdFunction> m_lazyStdFunctionList;
@@ -166,6 +168,9 @@ public:
 		const sl::StringRef& tag,
 		FunctionType* type
 		);
+
+	FunctionOverload*
+	createFunctionOverload(Function* function);
 
 	template <typename T = Property>
 	T*

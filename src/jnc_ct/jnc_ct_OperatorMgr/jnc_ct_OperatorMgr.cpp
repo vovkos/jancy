@@ -160,7 +160,7 @@ OperatorMgr::clear()
 	m_unsafeEnterCount = 0;
 }
 
-Function*
+OverloadableFunction
 OperatorMgr::getOverloadedUnaryOperator(
 	UnOpKind opKind,
 	const Value& opValue
@@ -169,7 +169,7 @@ OperatorMgr::getOverloadedUnaryOperator(
 	Value opTypeValue;
 	bool result = prepareOperandType(opValue, &opTypeValue);
 	if (!result)
-		return NULL;
+		return OverloadableFunction();
 
 	Type* opType = opTypeValue.getType();
 	if (opType->getTypeKind() == TypeKind_ClassPtr)
@@ -183,7 +183,7 @@ OperatorMgr::getOverloadedUnaryOperator(
 		return derivableType->getUnaryOperator(opKind);
 	}
 
-	return NULL;
+	return OverloadableFunction();
 }
 
 bool
@@ -195,7 +195,7 @@ OperatorMgr::unaryOperator(
 {
 	ASSERT((size_t)opKind < UnOpKind__Count);
 
-	Function* function = getOverloadedUnaryOperator(opKind, rawOpValue);
+	OverloadableFunction function = getOverloadedUnaryOperator(opKind, rawOpValue);
 	if (function)
 	{
 		sl::BoxList<Value> argList;
@@ -226,7 +226,7 @@ OperatorMgr::unaryOperator(
 	return op->op(opValue, resultValue);
 }
 
-Function*
+OverloadableFunction
 OperatorMgr::getOverloadedBinaryOperator(
 	BinOpKind opKind,
 	const Value& opValue
@@ -235,7 +235,7 @@ OperatorMgr::getOverloadedBinaryOperator(
 	Value opTypeValue;
 	bool result = prepareOperandType(opValue, &opTypeValue);
 	if (!result)
-		return NULL;
+		return OverloadableFunction();
 
 	Type* opType = opTypeValue.getType();
 	if (opType->getTypeKind() == TypeKind_ClassPtr)
@@ -249,7 +249,7 @@ OperatorMgr::getOverloadedBinaryOperator(
 		return derivableType->getBinaryOperator(opKind);
 	}
 
-	return NULL;
+	return OverloadableFunction();
 }
 
 bool
@@ -264,7 +264,7 @@ OperatorMgr::binaryOperator(
 
 	bool result;
 
-	Function* function = getOverloadedBinaryOperator(opKind, rawOpValue1);
+	OverloadableFunction function = getOverloadedBinaryOperator(opKind, rawOpValue1);
 	if (function)
 	{
 		if (function->getFlags() & MulticastMethodFlag_InaccessibleViaEventPtr)
@@ -277,7 +277,7 @@ OperatorMgr::binaryOperator(
 			if (opValue1.getType()->getTypeKind() == TypeKind_ClassPtr &&
 				(opValue1.getType()->getFlags() & PtrTypeFlag_Event))
 			{
-				err::setFormatStringError("'%s' is inaccessible via 'event' pointer", getBinOpKindString(function->getBinOpKind ()));
+				err::setError("operator is inaccessible via 'event' pointer");
 				return false;
 			}
 		}

@@ -139,7 +139,7 @@ protected:
 	PropertyType* m_type;
 
 	Function* m_getter;
-	Function* m_setter;
+	OverloadableFunction m_setter;
 	Function* m_binder;
 
 	// member data is Field or Variable
@@ -179,7 +179,7 @@ public:
 		return m_getter;
 	}
 
-	Function*
+	OverloadableFunction
 	getSetter()
 	{
 		return m_setter;

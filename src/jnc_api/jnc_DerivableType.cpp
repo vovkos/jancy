@@ -60,7 +60,7 @@ jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 {
 	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getConstructorFunc(type);
@@ -76,7 +76,7 @@ jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
@@ -87,7 +87,7 @@ jnc_DerivableType_getUnaryOperator(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
@@ -98,7 +98,7 @@ jnc_DerivableType_getBinaryOperator(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 {
 	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCallOperatorFunc(type);
@@ -106,13 +106,21 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+size_t
+jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCastOperatorCountFunc(type);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,
-	size_t idx
+	size_t index
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCastOperatorFunc(type, idx);
+	return jnc_g_dynamicExtensionLibHost->m_derivableTypeFuncTable->m_getCastOperatorFunc(type, index);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -155,7 +163,7 @@ jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 {
 	return type->getConstructor();
@@ -171,7 +179,7 @@ jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
@@ -182,7 +190,7 @@ jnc_DerivableType_getUnaryOperator(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
@@ -193,7 +201,7 @@ jnc_DerivableType_getBinaryOperator(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 {
 	return type->getCallOperator();
@@ -201,15 +209,21 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+size_t
+jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type)
+{
+	return type->getCastOperatorArray().getCount();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,
-	size_t idx
+	size_t index
 	)
 {
-	return idx < type->getCastOperatorArray().getCount() ?
-		type->getCastOperatorArray()[idx] :
-		NULL;
+	return type->getCastOperatorArray()[index];
 }
 
 JNC_EXTERN_C
@@ -315,7 +329,7 @@ jnc_DerivableType_getProperty(
 	size_t index
 	)
 {
-	return type->getPropertyArray() [index];
+	return type->getPropertyArray()[index];
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

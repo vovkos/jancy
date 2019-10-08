@@ -31,7 +31,7 @@ OperatorMgr::logicalOrOperator(
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(opBlock1);
 
-	Function* function = getOverloadedBinaryOperator(BinOpKind_LogOr, rawOpValue1);
+	OverloadableFunction function = getOverloadedBinaryOperator(BinOpKind_LogOr, rawOpValue1);
 	if (function)
 	{
 		m_module->m_controlFlowMgr.follow(opBlock2);
@@ -104,7 +104,7 @@ OperatorMgr::logicalAndOperator(
 
 	BasicBlock* prevBlock = m_module->m_controlFlowMgr.setCurrentBlock(opBlock1);
 
-	Function* function = getOverloadedBinaryOperator(BinOpKind_LogAnd, rawOpValue1);
+	OverloadableFunction function = getOverloadedBinaryOperator(BinOpKind_LogAnd, rawOpValue1);
 	if (function)
 	{
 		m_module->m_controlFlowMgr.follow(opBlock2);

@@ -44,7 +44,7 @@ ThunkProperty::create(
 		hasUnusedClosure
 		);
 
-	Function* targetSetter = targetProperty->getSetter();
+	OverloadableFunction targetSetter = targetProperty->getSetter();
 	FunctionTypeOverload* thunkSetterType = thunkPropertyType->getSetterType();
 
 	size_t setterCount = thunkSetterType->getOverloadCount();
@@ -58,9 +58,21 @@ ThunkProperty::create(
 	{
 		FunctionType* thunkFunctionType = thunkSetterType->getOverload(i);
 
-		Function* overload = targetSetter->chooseSetterOverload(thunkFunctionType);
-		if (!overload)
-			return false;
+		Function* overload;
+
+		if (targetSetter->getItemKind() == ModuleItemKind_Function)
+		{
+			overload = targetSetter.getFunction();
+			FunctionTypeOverload targetSetterType(overload->getType());
+			if (targetSetterType.chooseSetterOverload(thunkFunctionType) == -1)
+				return false;
+		}
+		else
+		{
+			overload = targetSetter.getFunctionOverload()->chooseSetterOverload(thunkFunctionType);
+			if (!overload)
+				return false;
+		}
 
 		Function* thunkFunction = m_module->m_functionMgr.getDirectThunkFunction(
 			overload,
@@ -74,7 +86,10 @@ ThunkProperty::create(
 		}
 		else
 		{
-			result = m_setter->addOverload(thunkFunction) != -1;
+			if (m_setter->getItemKind() == ModuleItemKind_Function)
+				m_setter = m_module->m_functionMgr.createFunctionOverload(m_setter.getFunction());
+
+			result = m_setter.getFunctionOverload()->addOverload(thunkFunction) != -1;
 			if (!result)
 				return false;
 		}

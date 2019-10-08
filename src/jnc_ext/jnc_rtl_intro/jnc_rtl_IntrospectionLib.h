@@ -45,6 +45,7 @@ class UnionType;
 class Alias;
 class Variable;
 class Function;
+class FunctionOverload;
 class Property;
 class Module;
 class Unit;
@@ -114,6 +115,16 @@ Function*
 getFunction(ct::Function* function)
 {
 	return (Function*)getIntrospectionClass(function, StdType_Function);
+}
+
+Function*
+getFunction(OverloadableFunction function);
+
+inline
+FunctionOverload*
+getFunctionOverload(ct::FunctionOverload* overload)
+{
+	return (FunctionOverload*)getIntrospectionClass(overload, StdType_FunctionOverload);
 }
 
 inline

@@ -42,7 +42,8 @@ private:
 	void addEnumConst(QTreeWidgetItem* parent, jnc::EnumConst* member);
 	void addValue(QTreeWidgetItem* parent, const QString& name, jnc::Type* type, jnc::ModuleItem* item);
 	void addFunction(QTreeWidgetItem* parent, jnc::Function* function);
-	void addFunctionImpl(QTreeWidgetItem* parent, jnc::Function* function);
+	void addFunctionOverload(QTreeWidgetItem* parent, jnc::FunctionOverload* overload);
+	void addOverloadableFunction(QTreeWidgetItem* parent, jnc::OverloadableFunction function);
 	void addProperty(QTreeWidgetItem* parent, jnc::Property* prop);
 	void addAlias(QTreeWidgetItem* parent, jnc::Alias* alias);
 	void addEnumTypeMembers(QTreeWidgetItem* parent, jnc::EnumType* type);

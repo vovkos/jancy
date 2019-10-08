@@ -438,6 +438,11 @@ getStdTypeSource(StdType stdType)
 			lengthof(functionSrc),
 			StdNamespace_Jnc,
 		},
+		{                                    // StdType_FunctionOverload
+			functionOverloadSrc,
+			lengthof(functionOverloadSrc),
+			StdNamespace_Jnc,
+		},
 		{                                    // StdType_PropertyKind
 			propertyKindSrc,
 			lengthof(propertyKindSrc),

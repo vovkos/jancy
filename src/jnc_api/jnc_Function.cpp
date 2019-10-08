@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Function.h"
+#	include "jnc_ct_FunctionOverload.h"
 #endif
 
 //..............................................................................
@@ -117,37 +118,39 @@ jnc_Function_isMember(jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-bool_t
-jnc_Function_isOverloaded(jnc_Function* function)
+void*
+jnc_Function_getMachineCode(jnc_Function* function)
 {
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isOverloadedFunc(function);
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getMachineCodeFunc(function);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_FunctionKind
+jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getFunctionKindFunc(function);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_Function_getOverloadCount(jnc_Function* function)
+jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function)
 {
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getOverloadCountFunc(function);
+	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getOverloadCountFunc(function);
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Function*
-jnc_Function_getOverload(
-	jnc_Function* function,
-	size_t overloadIdx
+jnc_FunctionOverload_getOverload(
+	jnc_FunctionOverload* function,
+	size_t index
 	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getOverloadFunc(function, overloadIdx);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-void*
-jnc_Function_getMachineCode(jnc_Function* function)
-{
-	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_getMachineCodeFunc(function);
+	return jnc_g_dynamicExtensionLibHost->m_functionOverloadFuncTable->m_getOverloadFunc(function, index);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -170,16 +173,26 @@ jnc_Function_isMember(jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-bool_t
-jnc_Function_isOverloaded(jnc_Function* function)
+void*
+jnc_Function_getMachineCode(jnc_Function* function)
 {
-	return function->isOverloaded();
+	return function->getMachineCode();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_FunctionKind
+jnc_FunctionOverload_getFunctionKind(jnc_FunctionOverload* function)
+{
+	return function->getFunctionKind();
 }
 
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
-jnc_Function_getOverloadCount(jnc_Function* function)
+jnc_FunctionOverload_getOverloadCount(jnc_FunctionOverload* function)
 {
 	return function->getOverloadCount();
 }
@@ -187,28 +200,14 @@ jnc_Function_getOverloadCount(jnc_Function* function)
 JNC_EXTERN_C
 JNC_EXPORT_O
 jnc_Function*
-jnc_Function_getOverload(
-	jnc_Function* function,
+jnc_FunctionOverload_getOverload(
+	jnc_FunctionOverload* function,
 	size_t index
 	)
 {
-	jnc_Function* overload = function->getOverload(index);
-	if (!overload)
-	{
-		err::setFormatStringError("'%s' has no overload #%d", function->getQualifiedName().sz(), index);
-		return NULL;
-	}
-
-	return overload;
+	return index < function->getOverloadCount() ? function->getOverload(index) : NULL;
 }
 
-JNC_EXTERN_C
-JNC_EXPORT_O
-void*
-jnc_Function_getMachineCode(jnc_Function* function)
-{
-	return function->getMachineCode();
-}
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 

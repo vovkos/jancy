@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_Function.h"
+#include "jnc_ct_FunctionOverload.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_ClassType.h"
 #include "jnc_ct_Parser.llk.h"
@@ -90,27 +91,12 @@ Function::prepareLlvmDiSubprogram()
 void
 Function::convertToMemberMethod(DerivableType* parentType)
 {
-	ASSERT(m_typeOverload.getOverloadCount() == 1);
-
 	m_parentNamespace = parentType;
 	m_type = parentType->getMemberMethodType(m_type, m_thisArgTypeFlags);
-	m_typeOverload = m_type;
 
 	ASSERT(!m_type->getArgArray().isEmpty());
 	m_thisArgType = m_type->getArgArray() [0]->getType();
 	m_thisType = m_thisArgType;
-}
-
-size_t
-Function::addOverload(Function* function)
-{
-	size_t overloadIdx = m_typeOverload.addOverload(function->m_type);
-	if (overloadIdx == -1)
-		return -1;
-
-	m_overloadArray.append(function);
-	ASSERT(overloadIdx == m_overloadArray.getCount());
-	return overloadIdx;
 }
 
 void
@@ -135,20 +121,6 @@ Function::require()
 	}
 
 	m_module->markForCompile(this);
-
-	size_t count = m_overloadArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
-		Function* overload = m_overloadArray[i];
-		if (!overload->canCompile())
-		{
-			err::setFormatStringError("required '%s' (overload #%d) is external", getQualifiedName().sz(), i);
-			return false;
-		}
-
-		m_module->markForCompile(overload);
-	}
-
 	return true;
 }
 
@@ -215,23 +187,46 @@ Function::compile()
 		return false;
 	}
 
-	if (findResult.m_item->getItemKind() != ModuleItemKind_Function)
+	// ctors/dtors require special prologues/epiloges
+
+	bool isCtorDtor =
+		m_functionKind >= FunctionKind_StaticConstructor &&
+		m_functionKind <= FunctionKind_Destructor;
+
+	Value targetValue;
+	ModuleItemKind itemKind = findResult.m_item->getItemKind();
+	Function* targetFunction = NULL;
+	switch (itemKind)
 	{
+	case ModuleItemKind_Function:
+		targetFunction = (Function*)findResult.m_item;
+		if (isCtorDtor || targetFunction->getType()->cmp(m_type) == 0)
+		{
+			targetValue = targetFunction;
+			targetFunction = NULL;
+		}
+
+		break;
+
+	case ModuleItemKind_FunctionOverload:
+		if (!isCtorDtor)
+			targetFunction = ((FunctionOverload*)findResult.m_item)->findOverload(m_type);
+
+		if (!targetFunction)
+			targetValue = (FunctionOverload*)findResult.m_item;
+		break;
+
+	default:
 		err::setFormatStringError("'%s' is not function", parser.m_qualifiedName.getFullName ().sz());
 		return false;
 	}
 
-	Function* targetFunction = (Function*)findResult.m_item;
-	if (m_functionKind < FunctionKind_StaticConstructor || m_functionKind > FunctionKind_Destructor)
+	if (targetFunction) // can re-use target function directly
 	{
-		Function* targetOverload = targetFunction->findOverload(m_type);
-		if (targetOverload) // can re-use target function directly
-		{
-			llvm::Function* llvmFunction = targetOverload->getLlvmFunction();
-			m_llvmFunction->replaceAllUsesWith(llvmFunction);
-			m_llvmFunction = llvmFunction;
-			return true;
-		}
+		llvm::Function* llvmFunction = targetFunction->getLlvmFunction();
+		m_llvmFunction->replaceAllUsesWith(llvmFunction);
+		m_llvmFunction = llvmFunction;
+		return true;
 	}
 
 	// have to make a call because of either conversion or extra prologue/epilogue actions (such as in constructor)
@@ -249,7 +244,7 @@ Function::compile()
 		argValueList.insertTail(argValueArray[i]);
 
 	Value resultValue;
-	result = m_module->m_operatorMgr.callOperator(targetFunction, &argValueList, &resultValue);
+	result = m_module->m_operatorMgr.callOperator(targetValue, &argValueList, &resultValue);
 	if (!result)
 		return false;
 
@@ -295,17 +290,6 @@ Function::generateDocumentation(
 	itemXml->append(doxyBlock->getDescriptionString());
 	itemXml->append(getDoxyLocationString());
 	itemXml->append("</memberdef>\n");
-
-	sl::String overloadXml;
-
-	size_t overloadCount = m_overloadArray.getCount();
-	for (size_t i = 0; i < overloadCount; i++)
-	{
-		Function* overload = m_overloadArray[i];
-		overload->generateDocumentation(outputDir, &overloadXml, indexXml);
-		itemXml->append('\n');
-		itemXml->append(overloadXml);
-	}
 
 	return true;
 }

@@ -174,7 +174,7 @@ OperatorMgr::callOperator(
 	{
 		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
 
-		Function* callOperator = ptrType->getTargetType()->getCallOperator();
+		OverloadableFunction callOperator = ptrType->getTargetType()->getCallOperator();
 		if (!callOperator)
 		{
 			err::setFormatStringError("cannot call '%s'", ptrType->getTypeString().sz());
@@ -189,8 +189,7 @@ OperatorMgr::callOperator(
 		}
 
 		Value objValue = opValue;
-
-		opValue.setFunction(callOperator);
+		opValue = callOperator;
 
 		Closure* closure = opValue.createClosure();
 		closure->insertThisArgValue(objValue);
@@ -206,11 +205,11 @@ OperatorMgr::callOperator(
 
 	if (opValue.getValueKind() == ValueKind_FunctionOverload)
 	{
-		Function* function = opValue.getFunction()->chooseOverload(*argValueList);
+		Function* function = opValue.getFunctionOverload()->chooseOverload(*argValueList);
 		if (!function)
 			return false;
 
-		result = opValue.trySetFunctionNoOverload(function);
+		result = opValue.trySetFunction(function);
 		if (!result)
 			return false;
 

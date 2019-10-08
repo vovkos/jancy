@@ -25,19 +25,6 @@ setCastError(
 	CastKind castKind
 	)
 {
-	Type* srcType = opValue.getType();
-	if (!srcType)
-	{
-		ASSERT(opValue.getValueKind() == ValueKind_Function);
-		Function* function = opValue.getFunction();
-
-		return err::setFormatStringError(
-			"not enough information to select one of %d overloads of '%s'",
-			function->getOverloadCount(),
-			function->getQualifiedName().sz()
-			);
-	}
-
 	const char* format;
 
 	switch (castKind)
@@ -64,7 +51,7 @@ setCastError(
 		break;
 
 	case ValueKind_FunctionOverload:
-		opValueString = opValue.getFunction()->getQualifiedName();
+		opValueString = opValue.getFunctionOverload()->getQualifiedName();
 		break;
 
 	case ValueKind_FunctionTypeOverload:

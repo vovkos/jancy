@@ -163,9 +163,10 @@ OperatorMgr::construct(
 		return false;
 	}
 
-	Function* constructor = (type->getTypeKindFlags() & TypeKindFlag_Derivable) ?
-		((DerivableType*)type)->getConstructor() :
-		NULL;
+	OverloadableFunction constructor;
+
+	if (type->getTypeKindFlags() & TypeKindFlag_Derivable)
+		constructor = ((DerivableType*)type)->getConstructor();
 
 	if (!constructor)
 	{
@@ -179,7 +180,8 @@ OperatorMgr::construct(
 	}
 
 	DerivableType* derivableType = (DerivableType*)type;
-	if (constructor->getAccessKind() != AccessKind_Public &&
+	if (constructor->getItemKind() == ModuleItemKind_Function &&
+		constructor.getFunction()->getAccessKind() != AccessKind_Public &&
 		m_module->m_namespaceMgr.getAccessKind(derivableType) == AccessKind_Public)
 	{
 		err::setFormatStringError("'%s.construct' is protected", derivableType->getQualifiedName().sz());

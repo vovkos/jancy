@@ -119,6 +119,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_IntrospectionLib)
 	JNC_MAP_STD_TYPE(StdType_Alias, Alias)
 	JNC_MAP_STD_TYPE(StdType_Variable, Variable)
 	JNC_MAP_STD_TYPE(StdType_Function, Function)
+	JNC_MAP_STD_TYPE(StdType_FunctionOverload, FunctionOverload)
 	JNC_MAP_STD_TYPE(StdType_Property, Property)
 	JNC_MAP_STD_TYPE(StdType_Module, Module)
 	JNC_MAP_STD_TYPE(StdType_Unit, Unit)
@@ -138,6 +139,18 @@ getIntrospectionClass(
 
 	GcHeap* gcHeap = getCurrentThreadRuntime()->getGcHeap();
 	return gcHeap->getIntrospectionClass(item, stdType);
+}
+
+Function*
+getFunction(OverloadableFunction function)
+{
+	return function ?
+		function->getItemKind() == ModuleItemKind_Function ?
+			getFunction(function.getFunction()) :
+		function->getItemKind() == ModuleItemKind_FunctionOverload ?
+			getFunction(function.getFunctionOverload()->getOverload(0)) :
+			NULL :
+		NULL;
 }
 
 //..............................................................................

@@ -29,8 +29,8 @@ Cast_FunctionPtr_FromOverload::getCastKind(
 	ValueKind valueKind = opValue.getValueKind();
 	ASSERT(valueKind == ValueKind_FunctionOverload || valueKind == ValueKind_FunctionTypeOverload);
 
-	FunctionTypeOverload* typeOverload = valueKind == ValueKind_FunctionOverload ?
-		opValue.getFunction()->getTypeOverload() :
+	const FunctionTypeOverload* typeOverload = valueKind == ValueKind_FunctionOverload ?
+		&opValue.getFunctionOverload()->getTypeOverload() :
 		opValue.getFunctionTypeOverload();
 
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
@@ -51,19 +51,16 @@ Cast_FunctionPtr_FromOverload::llvmCast(
 	ASSERT(opValue.getValueKind() == ValueKind_FunctionOverload);
 	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
 
-	Function* function = opValue.getFunction();
+	FunctionOverload* function = opValue.getFunctionOverload();
 	FunctionType* functionType = ((FunctionPtrType*)type)->getTargetType();
 	Closure* closure = opValue.getClosure();
 	Function* overload = function->chooseOverload(closure, functionType->getArgArray());
 	if (!overload)
 		return false;
 
-	Value overloadValue;
-	bool result = overloadValue.trySetFunctionNoOverload(overload); // should already be laid out
-	ASSERT(result);
-
-	overloadValue.setClosure(closure);
-	return m_module->m_operatorMgr.castOperator(overloadValue, type, resultValue);
+	Value functionValue(overload); // should already be laid out
+	functionValue.setClosure(closure);
+	return m_module->m_operatorMgr.castOperator(functionValue, type, resultValue);
 }
 
 //..............................................................................

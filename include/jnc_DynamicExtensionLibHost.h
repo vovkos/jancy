@@ -28,6 +28,7 @@ typedef struct jnc_NamespaceFuncTable jnc_NamespaceFuncTable;
 typedef struct jnc_GlobalNamespaceFuncTable jnc_GlobalNamespaceFuncTable;
 typedef struct jnc_VariableFuncTable jnc_VariableFuncTable;
 typedef struct jnc_FunctionFuncTable jnc_FunctionFuncTable;
+typedef struct jnc_FunctionOverloadFuncTable jnc_FunctionOverloadFuncTable;
 typedef struct jnc_PropertyFuncTable jnc_PropertyFuncTable;
 typedef struct jnc_TypedefFuncTable jnc_TypedefFuncTable;
 typedef struct jnc_TypeFuncTable jnc_TypeFuncTable;
@@ -300,21 +301,6 @@ bool_t
 jnc_Function_IsMemberFunc(jnc_Function* function);
 
 typedef
-bool_t
-jnc_Function_IsOverloadedFunc(jnc_Function* function);
-
-typedef
-size_t
-jnc_Function_GetOverloadCountFunc(jnc_Function* function);
-
-typedef
-jnc_Function*
-jnc_Function_GetOverloadFunc(
-	jnc_Function* function,
-	size_t overloadIdx
-	);
-
-typedef
 void*
 jnc_Function_GetMachineCodeFunc(jnc_Function* function);
 
@@ -325,10 +311,36 @@ struct jnc_FunctionFuncTable
 	size_t m_size;
 	jnc_Function_GetFunctionKindFunc* m_getFunctionKindFunc;
 	jnc_Function_IsMemberFunc* m_isMemberFunc;
-	jnc_Function_IsOverloadedFunc* m_isOverloadedFunc;
-	jnc_Function_GetOverloadCountFunc* m_getOverloadCountFunc;
-	jnc_Function_GetOverloadFunc* m_getOverloadFunc;
 	jnc_Function_GetMachineCodeFunc* m_getMachineCodeFunc;
+};
+
+//..............................................................................
+
+// FunctionOverload
+
+typedef
+jnc_FunctionKind
+jnc_FunctionOverload_GetFunctionKindFunc(jnc_FunctionOverload* function);
+
+typedef
+size_t
+jnc_FunctionOverload_GetOverloadCountFunc(jnc_FunctionOverload* function);
+
+typedef
+jnc_Function*
+jnc_FunctionOverload_GetOverloadFunc(
+	jnc_FunctionOverload* function,
+	size_t index
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_FunctionOverloadFuncTable
+{
+	size_t m_size;
+	jnc_FunctionOverload_GetFunctionKindFunc* m_getFunctionKindFunc;
+	jnc_FunctionOverload_GetOverloadCountFunc* m_getOverloadCountFunc;
+	jnc_FunctionOverload_GetOverloadFunc* m_getOverloadFunc;
 };
 
 //..............................................................................
@@ -340,7 +352,7 @@ jnc_Function*
 jnc_Property_GetGetterFunc(jnc_Property* prop);
 
 typedef
-jnc_Function*
+jnc_OverloadableFunction
 jnc_Property_GetSetterFunc(jnc_Property* prop);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -458,24 +470,32 @@ jnc_Function*
 jnc_DerivableType_GetMethodFunc(jnc_DerivableType* type);
 
 typedef
-jnc_Function*
+jnc_OverloadableFunction
+jnc_DerivableType_GetOverloadableMethodFunc(jnc_DerivableType* type);
+
+typedef
+jnc_OverloadableFunction
 jnc_DerivableType_GetUnaryOperatorFunc(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
 	);
 
 typedef
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_GetBinaryOperatorFunc(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
 	);
 
 typedef
+size_t
+jnc_DerivableType_GetCastOperatorCountFunc(jnc_DerivableType* type);
+
+typedef
 jnc_Function*
 jnc_DerivableType_GetCastOperatorFunc(
 	jnc_DerivableType* type,
-	size_t idx
+	size_t index
 	);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -484,11 +504,12 @@ struct jnc_DerivableTypeFuncTable
 {
 	size_t m_size;
 	jnc_DerivableType_GetMethodFunc* m_getStaticConstructorFunc;
-	jnc_DerivableType_GetMethodFunc* m_getConstructorFunc;
+	jnc_DerivableType_GetOverloadableMethodFunc* m_getConstructorFunc;
 	jnc_DerivableType_GetMethodFunc* m_getDestructorFunc;
 	jnc_DerivableType_GetUnaryOperatorFunc* m_getUnaryOperatorFunc;
 	jnc_DerivableType_GetBinaryOperatorFunc* m_getBinaryOperatorFunc;
-	jnc_DerivableType_GetMethodFunc* m_getCallOperatorFunc;
+	jnc_DerivableType_GetOverloadableMethodFunc* m_getCallOperatorFunc;
+	jnc_DerivableType_GetCastOperatorCountFunc* m_getCastOperatorCountFunc;
 	jnc_DerivableType_GetCastOperatorFunc* m_getCastOperatorFunc;
 };
 
@@ -1423,6 +1444,7 @@ struct jnc_DynamicExtensionLibHost
 	jnc_GlobalNamespaceFuncTable* m_globalNamespaceFuncTable;
 	jnc_VariableFuncTable* m_variableFuncTable;
 	jnc_FunctionFuncTable* m_functionFuncTable;
+	jnc_FunctionOverloadFuncTable* m_functionOverloadFuncTable;
 	jnc_PropertyFuncTable* m_propertyFuncTable;
 	jnc_TypedefFuncTable* m_typedefFuncTable;
 	jnc_TypeFuncTable* m_typeFuncTable;

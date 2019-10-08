@@ -152,11 +152,7 @@ Closure::getClosureType(Type* type)
 FunctionPtrType*
 Closure::getFunctionClosureType(Function* function)
 {
-	if (!function->isOverloaded())
-		return getFunctionClosureType(function->getType()->getFunctionPtrType(TypeKind_FunctionRef, FunctionPtrTypeKind_Thin));
-
-	err::setFormatStringError("function overload closures are not implemented yet");
-	return NULL;
+	return getFunctionClosureType(function->getType()->getFunctionPtrType(TypeKind_FunctionRef, FunctionPtrTypeKind_Thin));
 }
 
 bool

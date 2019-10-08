@@ -307,12 +307,6 @@ OperatorMgr::getNamespaceMember(
 		function = (Function*)item;
 		if (function->isVirtual())
 		{
-			if (function->isOverloaded())
-			{
-				err::setError("referencing overloaded virtual functions is not supported yet");
-				return false;
-			}
-
 			if (function->getStorageKind() == StorageKind_Abstract)
 			{
 				err::setFormatStringError("'%s' is abstract", function->getQualifiedName().sz());
@@ -349,10 +343,27 @@ OperatorMgr::getNamespaceMember(
 		decl = function;
 		break;
 
+	case ModuleItemKind_FunctionOverload:
+		resultValue->setFunctionOverload((FunctionOverload*)item);
+
+		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers)
+		{
+			result = createMemberClosure(resultValue);
+			if (!result)
+				return false;
+		}
+
+		decl = (FunctionOverload*)item;
+		break;
+
 	case ModuleItemKind_Property:
 		resultValue->setProperty((Property*)item);
 		if (((Property*)item)->isMember())
+		{
 			result = createMemberClosure(resultValue);
+			if (!result)
+				return false;
+		}
 
 		decl = (Property*)item;
 		break;
@@ -444,6 +455,11 @@ OperatorMgr::getNamedTypeMember(
 			return false;
 
 		decl = (Function*)member;
+		break;
+
+	case ModuleItemKind_FunctionOverload:
+		resultValue->setFunctionOverload((FunctionOverload*)member);
+		decl = (FunctionOverload*)member;
 		break;
 
 	case ModuleItemKind_Property:

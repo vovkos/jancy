@@ -139,6 +139,9 @@ ModuleItem::getDecl()
 	case ModuleItemKind_Function:
 		return (Function*)this;
 
+	case ModuleItemKind_FunctionOverload:
+		return (FunctionOverload*)this;
+
 	case ModuleItemKind_Property:
 		return (Property*)this;
 

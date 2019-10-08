@@ -152,10 +152,11 @@ getModuleItem(ct::ModuleItem* item)
 		StdType_Variable,         // ModuleItemKind_Variable
 		StdType_FunctionArg,      // ModuleItemKind_FunctionArg
 		StdType_Function,         // ModuleItemKind_Function
+		StdType_FunctionOverload, // ModuleItemKind_FunctionOverload
 		StdType_Property,         // ModuleItemKind_Property
 		StdType_ModuleItem,       // ModuleItemKind_PropertyTemplate
 		StdType_EnumConst,        // ModuleItemKind_EnumConst
-		StdType_Field,      // ModuleItemKind_Field
+		StdType_Field,            // ModuleItemKind_Field
 		StdType_BaseTypeSlot,     // ModuleItemKind_BaseTypeSlot
 		StdType_ModuleItem,       // ModuleItemKind_Orphan
 		StdType_ModuleItem,       // ModuleItemKind_Lazy

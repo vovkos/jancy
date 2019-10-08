@@ -24,7 +24,7 @@ class FunctionTypeOverload
 {
 protected:
 	mutable uint_t m_flags;
-	FunctionType* m_type;
+	FunctionType* m_type; // avoid array allocations when possible
 	sl::Array<FunctionType*> m_overloadArray;
 
 public:

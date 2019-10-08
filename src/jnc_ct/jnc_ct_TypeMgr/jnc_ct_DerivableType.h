@@ -188,15 +188,14 @@ protected:
 	sl::Array<BaseTypeSlot*> m_baseTypeDestructArray;
 
 	Type* m_setAsType;
-	Function* m_defaultConstructor;
 
 	// overloaded operators
 
-	sl::Array<Function*> m_unaryOperatorTable;
-	sl::Array<Function*> m_binaryOperatorTable;
+	sl::Array<OverloadableFunction> m_unaryOperatorTable;
+	sl::Array<OverloadableFunction> m_binaryOperatorTable;
 	sl::Array<Function*> m_castOperatorArray;
 	sl::StringHashTable<Function*> m_castOperatorMap;
-	Function* m_callOperator;
+	OverloadableFunction m_callOperator;
 	Function* m_operatorVararg;
 	Function* m_operatorCdeclVararg;
 	sl::StringHashTable<Property*> m_indexerPropertyMap;
@@ -269,19 +268,16 @@ public:
 		return m_setAsType;
 	}
 
-	Function*
-	getDefaultConstructor();
-
-	Function*
+	OverloadableFunction
 	getUnaryOperator(UnOpKind opKind)
 	{
-		return (size_t)opKind < m_unaryOperatorTable.getCount() ? m_unaryOperatorTable[opKind] : NULL;
+		return (size_t)opKind < m_unaryOperatorTable.getCount() ? m_unaryOperatorTable[opKind] : OverloadableFunction();
 	}
 
-	Function*
+	OverloadableFunction
 	getBinaryOperator(BinOpKind opKind)
 	{
-		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : NULL;
+		return (size_t)opKind < m_binaryOperatorTable.getCount() ? m_binaryOperatorTable[opKind] : OverloadableFunction();
 	}
 
 	const sl::Array<Function*>&
@@ -297,7 +293,7 @@ public:
 		return it ? it->m_value : NULL;
 	}
 
-	Function*
+	OverloadableFunction
 	getCallOperator()
 	{
 		return m_callOperator;

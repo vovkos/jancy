@@ -13,7 +13,7 @@
 
 #define _JNC_DERIVABLETYPE_H
 
-#include "jnc_Type.h"
+#include "jnc_Function.h"
 #include "jnc_OpKind.h"
 
 /**
@@ -110,7 +110,7 @@ jnc_Function*
 jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getConstructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
@@ -118,28 +118,32 @@ jnc_Function*
 jnc_DerivableType_getDestructor(jnc_DerivableType* type);
 
 JNC_EXTERN_C
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
 	jnc_UnOpKind opKind
 	);
 
 JNC_EXTERN_C
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
 	jnc_BinOpKind opKind
 	);
 
 JNC_EXTERN_C
-jnc_Function*
+jnc_OverloadableFunction
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type);
+
+JNC_EXTERN_C
+size_t
+jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type);
 
 JNC_EXTERN_C
 jnc_Function*
 jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,
-	size_t idx
+	size_t index
 	);
 
 JNC_EXTERN_C
@@ -216,7 +220,7 @@ struct jnc_DerivableType: jnc_NamedType
 		return jnc_DerivableType_getStaticConstructor(this);
 	}
 
-	jnc_Function*
+	jnc::OverloadableFunction
 	getConstructor()
 	{
 		return jnc_DerivableType_getConstructor(this);
@@ -228,28 +232,34 @@ struct jnc_DerivableType: jnc_NamedType
 		return jnc_DerivableType_getDestructor(this);
 	}
 
-	jnc_Function*
+	jnc::OverloadableFunction
 	getUnaryOperator(jnc_UnOpKind opKind)
 	{
 		return jnc_DerivableType_getUnaryOperator(this, opKind);
 	}
 
-	jnc_Function*
+	jnc::OverloadableFunction
 	getBinaryOperator(jnc_BinOpKind opKind)
 	{
 		return jnc_DerivableType_getBinaryOperator(this, opKind);
 	}
 
-	jnc_Function*
+	jnc::OverloadableFunction
 	getCallOperator()
 	{
 		return jnc_DerivableType_getCallOperator(this);
 	}
 
-	jnc_Function*
-	getCastOperator(size_t idx)
+	size_t
+	getCastOperatorCount()
 	{
-		return jnc_DerivableType_getCastOperator(this, idx);
+		return jnc_DerivableType_getCastOperatorCount(this);
+	}
+
+	jnc_Function*
+	getCastOperator(size_t index)
+	{
+		return jnc_DerivableType_getCastOperator(this, index);
 	}
 
 	size_t
@@ -333,7 +343,7 @@ jnc_isConstructibleType(jnc_Type* type)
 {
 	return
 		(jnc_Type_getTypeKindFlags(type) & jnc_TypeKindFlag_Derivable) &&
-		jnc_DerivableType_getConstructor((jnc_DerivableType*)type);
+		jnc_DerivableType_getConstructor((jnc_DerivableType*)type).m_item;
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

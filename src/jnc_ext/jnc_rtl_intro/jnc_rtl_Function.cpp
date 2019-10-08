@@ -32,9 +32,25 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Function)
 	JNC_MAP_CONST_PROPERTY("m_functionKind", &Function::getFunctionKind)
 	JNC_MAP_CONST_PROPERTY("m_type", &Function::getType)
 	JNC_MAP_CONST_PROPERTY("m_isMember", &Function::isMember)
-	JNC_MAP_CONST_PROPERTY("m_overloadCount", &Function::getOverloadCount)
-	JNC_MAP_CONST_PROPERTY("m_overloadArray", &Function::getOverload)
 	JNC_MAP_CONST_PROPERTY("m_machineCode", &Function::getMachineCode)
+JNC_END_TYPE_FUNCTION_MAP()
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	FunctionOverload,
+	"jnc.FunctionOverload",
+	sl::g_nullGuid,
+	-1,
+	FunctionOverload,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(FunctionOverload)
+	JNC_MAP_CONSTRUCTOR((&jnc::construct<FunctionOverload, ct::FunctionOverload*>))
+	JNC_MAP_CONST_PROPERTY("m_functionKind", &FunctionOverload::getFunctionKind)
+	JNC_MAP_CONST_PROPERTY("m_overloadCount", &FunctionOverload::getOverloadCount)
+	JNC_MAP_CONST_PROPERTY("m_overloadArray", &FunctionOverload::getOverload)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

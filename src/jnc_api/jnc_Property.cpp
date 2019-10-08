@@ -32,7 +32,7 @@ jnc_Property_getGetter(jnc_Property* prop)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_Property_getSetter(jnc_Property* prop)
 {
 	return jnc_g_dynamicExtensionLibHost->m_propertyFuncTable->m_getSetterFunc(prop);
@@ -50,17 +50,10 @@ jnc_Property_getGetter(jnc_Property* prop)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
+jnc_OverloadableFunction
 jnc_Property_getSetter(jnc_Property* prop)
 {
-	jnc_Function* function = prop->getSetter();
-	if (!function)
-	{
-		err::setFormatStringError("'%s' has no setter", prop->getQualifiedName().sz());
-		return NULL;
-	}
-
-	return function;
+	return prop->getSetter();
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -46,6 +46,7 @@ void
 FunctionMgr::clear()
 {
 	m_functionList.clear();
+	m_functionOverloadList.clear();
 	m_propertyList.clear();
 	m_propertyTemplateList.clear();
 	m_lazyStdFunctionList.clear();
@@ -110,8 +111,20 @@ FunctionMgr::addFunction(
 	function->m_name = name;
 	function->m_qualifiedName = qualifiedName;
 	function->m_type = type;
-	function->m_typeOverload.addOverload(type);
 	m_functionList.insertTail(function);
+}
+
+FunctionOverload*
+FunctionMgr::createFunctionOverload(Function* function)
+{
+	FunctionOverload* overload = AXL_MEM_NEW(FunctionOverload);
+	*(ModuleItemDecl*)overload = *(ModuleItemDecl*)function;
+	*(FunctionName*)overload = *(FunctionName*)function;
+	overload->m_module = m_module;
+	overload->m_overloadArray.append(function);
+	overload->m_typeOverload.addOverload(function->m_type);
+	m_functionOverloadList.insertTail(overload);
+	return overload;
 }
 
 void
@@ -1133,7 +1146,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantMemberProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantMemberProperty_set);
-		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter->getType());
+		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter.getFunction()->getType());
 		break;
 
 	case StdProp_VariantIndex:
@@ -1141,7 +1154,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_VariantIndexProperty_get);
 		prop->m_setter = getStdFunction(StdFunc_VariantIndexProperty_set);
-		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter->getType());
+		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter.getFunction()->getType());
 		break;
 
 	case StdProp_GcTriggers:
@@ -1149,7 +1162,7 @@ FunctionMgr::getStdProperty(StdProp stdProp)
 		prop->m_storageKind = StorageKind_Static;
 		prop->m_getter = getStdFunction(StdFunc_GcTriggers_get);
 		prop->m_setter = getStdFunction(StdFunc_GcTriggers_set);
-		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter->getType());
+		prop->m_type = m_module->m_typeMgr.getPropertyType(prop->m_getter->getType(), prop->m_setter.getFunction()->getType());
 		break;
 
 	default:

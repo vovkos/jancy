@@ -50,7 +50,7 @@ Orphan::adopt(ModuleItem* item)
 	}
 }
 
-Function*
+OverloadableFunction
 Orphan::getItemUnnamedMethod(ModuleItem* item)
 {
 	if (item->getItemKind() == ModuleItemKind_Property)
@@ -101,31 +101,38 @@ Orphan::getItemUnnamedMethod(ModuleItem* item)
 		}
 	}
 
-	return NULL;
+	return OverloadableFunction();
 }
 
 bool
 Orphan::adoptOrphanFunction(ModuleItem* item)
 {
 	bool result;
-	Function* originFunction = NULL;
+	OverloadableFunction origin;
 
 	ModuleItemKind itemKind = item->getItemKind();
 
 	if (m_functionKind == FunctionKind_Normal)
 	{
-		if (itemKind != ModuleItemKind_Function)
+		switch (itemKind)
 		{
+		case ModuleItemKind_Function:
+			origin = (Function*)item;
+			break;
+
+		case ModuleItemKind_FunctionOverload:
+			origin = (FunctionOverload*)item;
+			break;
+
+		default:
 			err::setFormatStringError("'%s' is not a function", getQualifiedName().sz());
 			return false;
 		}
-
-		originFunction = (Function*)item;
 	}
 	else
 	{
-		originFunction = getItemUnnamedMethod(item);
-		if (!originFunction)
+		origin = getItemUnnamedMethod(item);
+		if (!origin)
 		{
 			ModuleItemDecl* decl = item->getDecl();
 			ASSERT(decl);
@@ -144,7 +151,18 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	if (!result)
 		return false;
 
-	originFunction = originFunction->findShortOverload(m_functionType);
+	Function* originFunction;
+
+	if (origin->getItemKind() == ModuleItemKind_Function)
+	{
+		FunctionTypeOverload type = origin.getFunction()->getType();
+		originFunction = type.findShortOverload(m_functionType) != -1 ? origin.getFunction() : NULL;
+	}
+	else
+	{
+		originFunction = origin.getFunctionOverload()->findShortOverload(m_functionType);
+	}
+
 	if (!originFunction)
 	{
 		err::setFormatStringError("'%s': overload not found", getQualifiedName().sz());

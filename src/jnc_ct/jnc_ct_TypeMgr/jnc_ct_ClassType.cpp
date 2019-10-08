@@ -132,7 +132,8 @@ ClassType::addMethod(Function* function)
 
 	Property* indexerProperty;
 	sl::Array<FunctionArg*> argArray;
-	Function** target = NULL;
+	Function** targetFunction = NULL;
+	OverloadableFunction* targetOverloadableFunction = NULL;
 	size_t overloadIdx;
 
 	switch (functionKind)
@@ -141,15 +142,15 @@ ClassType::addMethod(Function* function)
 		return true;
 
 	case FunctionKind_StaticConstructor:
-		target = &m_staticConstructor;
+		targetFunction = &m_staticConstructor;
 		break;
 
 	case FunctionKind_Constructor:
-		target = &m_constructor;
+		targetOverloadableFunction = &m_constructor;
 		break;
 
 	case FunctionKind_Destructor:
-		target = &m_destructor;
+		targetFunction = &m_destructor;
 		break;
 
 	case FunctionKind_Normal:
@@ -157,27 +158,25 @@ ClassType::addMethod(Function* function)
 		if (overloadIdx == -1)
 			return false;
 
-		if (overloadIdx == 0)
-			m_methodArray.append(function);
-
+		m_methodArray.append(function);
 		return true;
 
 	case FunctionKind_UnaryOperator:
 		if (m_unaryOperatorTable.isEmpty())
 			m_unaryOperatorTable.setCountZeroConstruct(UnOpKind__Count);
 
-		target = &m_unaryOperatorTable[function->getUnOpKind()];
+		targetOverloadableFunction = &m_unaryOperatorTable[function->getUnOpKind()];
 		break;
 
 	case FunctionKind_BinaryOperator:
 		if (m_binaryOperatorTable.isEmpty())
 			m_binaryOperatorTable.setCountZeroConstruct(BinOpKind__Count);
 
-		target = &m_binaryOperatorTable[function->getBinOpKind()];
+		targetOverloadableFunction = &m_binaryOperatorTable[function->getBinOpKind()];
 		break;
 
 	case FunctionKind_CallOperator:
-		target = &m_callOperator;
+		targetOverloadableFunction = &m_callOperator;
 		break;
 
 	case FunctionKind_Getter:
@@ -189,7 +188,7 @@ ClassType::addMethod(Function* function)
 		}
 
 		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		target = &indexerProperty->m_getter;
+		targetFunction = &indexerProperty->m_getter;
 		break;
 
 	case FunctionKind_Setter:
@@ -201,7 +200,7 @@ ClassType::addMethod(Function* function)
 		}
 
 		indexerProperty = getIndexerProperty(argArray[1]->getType());
-		target = &indexerProperty->m_setter;
+		targetOverloadableFunction = &indexerProperty->m_setter;
 		break;
 
 	default:
@@ -214,28 +213,7 @@ ClassType::addMethod(Function* function)
 	}
 
 	function->m_qualifiedName = createQualifiedName(getFunctionKindString(functionKind));
-
-	if (!*target)
-	{
-		*target = function;
-	}
-	else if (functionKindFlags & FunctionKindFlag_NoOverloads)
-	{
-		err::setFormatStringError(
-			"'%s' already has '%s' method",
-			getTypeString().sz(),
-			getFunctionKindString(functionKind)
-			);
-		return false;
-	}
-	else
-	{
-		bool result = (*target)->addOverload(function) != -1;
-		if (!result)
-			return false;
-	}
-
-	return true;
+	return addUnnamedMethod(function, targetFunction, targetOverloadableFunction);
 }
 
 bool
@@ -595,22 +573,19 @@ ClassType::overrideVirtualFunction(Function* function)
 		return false;
 	}
 
-	Function* overridenFunction;
+	OverloadableFunction setter;
+	FunctionOverload* overridenOverload = NULL;
+	Function* overridenFunction = NULL;
 	ModuleItem* member = findResult.m_item;
 	ModuleItemKind itemKind = member->getItemKind();
 
 	switch (itemKind)
 	{
-	case ModuleItemKind_Function:
-		if (functionKind != FunctionKind_Normal)
-		{
-			err::setFormatStringError(
-				"cannot override '%s': function kind mismatch",
-				function->getQualifiedName().sz()
-				);
-			return false;
-		}
+	case ModuleItemKind_FunctionOverload:
+		overridenOverload = (FunctionOverload*)member;
+		break;
 
+	case ModuleItemKind_Function:
 		overridenFunction = (Function*)member;
 		break;
 
@@ -622,12 +597,17 @@ ClassType::overrideVirtualFunction(Function* function)
 			break;
 
 		case FunctionKind_Setter:
-			overridenFunction = ((Property*)member)->getSetter();
-			if (!overridenFunction)
+			setter = ((Property*)member)->getSetter();
+			if (!setter)
 			{
 				err::setFormatStringError("cannot override '%s': property has no setter", function->getQualifiedName().sz());
 				return false;
 			}
+
+			if (setter->getItemKind() == ModuleItemKind_Function)
+				overridenFunction = setter.getFunction();
+			else
+				overridenOverload = setter.getFunctionOverload();
 
 			break;
 
@@ -643,8 +623,19 @@ ClassType::overrideVirtualFunction(Function* function)
 		return false;
 	}
 
-	overridenFunction = overridenFunction->findShortOverload(function->getType()->getShortType());
-	if (!overridenFunction)
+	if (overridenFunction)
+	{
+		ASSERT(!overridenOverload);
+		result = overridenFunction->getType()->getShortType()->cmp(function->getType()->getShortType()) == 0;
+	}
+	else
+	{
+		ASSERT(overridenOverload);
+		overridenFunction = overridenOverload->findShortOverload(function->getType()->getShortType());
+		result = overridenFunction != NULL;
+	}
+
+	if (!result)
 	{
 		err::setFormatStringError("cannot override '%s': method signature mismatch", function->getQualifiedName().sz());
 		return false;
