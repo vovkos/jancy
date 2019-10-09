@@ -47,7 +47,7 @@ struct jnc_Alias: jnc_ModuleItem
 	bool
 	isResolved()
 	{
-		return jnc_Alias_isResolved(this);
+		return jnc_Alias_isResolved(this) != 0;
 	}
 
 	jnc_ModuleItem*
