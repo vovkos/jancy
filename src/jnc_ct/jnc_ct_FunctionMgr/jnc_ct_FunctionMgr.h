@@ -140,7 +140,7 @@ public:
 		Function* function
 		);
 
-	template <typename T = Function>
+	template <typename T>
 	T*
 	createFunction(
 		const sl::StringRef& name,
@@ -148,40 +148,89 @@ public:
 		FunctionType* type
 		);
 
-	template <typename T = Function>
+	Function*
+	createFunction(
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		FunctionType* type
+		)
+	{
+		return createFunction<Function>(name, qualifiedName, type);
+	}
+
+	template <typename T>
 	T*
 	createFunction(
 		FunctionKind functionKind,
 		FunctionType* type
 		);
 
-	template <typename T = Function>
+	Function*
+	createFunction(
+		FunctionKind functionKind,
+		FunctionType* type
+		)
+	{
+		return createFunction<Function>(functionKind, type);
+	}
+
+	template <typename T>
 	T*
 	createFunction(FunctionType* type)
 	{
 		return createFunction<T>(sl::String(), sl::String(), type);
 	}
 
-	template <typename T = Function>
+	Function*
+	createFunction(FunctionType* type)
+	{
+		return createFunction<Function>(type);
+	}
+
+	template <typename T>
 	T*
 	createInternalFunction(
 		const sl::StringRef& tag,
 		FunctionType* type
 		);
 
+	Function*
+	createInternalFunction(
+		const sl::StringRef& tag,
+		FunctionType* type
+		)
+	{ 
+		return createInternalFunction<Function>(tag, type);
+	}
+
 	FunctionOverload*
 	createFunctionOverload(Function* function);
 
-	template <typename T = Property>
+	template <typename T>
 	T*
 	createProperty(
 		const sl::StringRef& name,
 		const sl::StringRef& qualifiedName
 		);
 
-	template <typename T = Property>
+	Property*
+	createProperty(
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName
+		)
+	{
+		return createProperty<Property>(name, qualifiedName);
+	}
+
+	template <typename T>
 	T*
 	createInternalProperty(const sl::StringRef& tag);
+
+	Property*
+	createInternalProperty(const sl::StringRef& tag)
+	{
+		return createInternalProperty<Property>(tag);
+	}
 
 	PropertyTemplate*
 	createPropertyTemplate();

@@ -319,7 +319,7 @@ public:
 			);
 	}
 
-	template <typename T = ClassType>
+	template <typename T>
 	T*
 	createClassType(
 		const sl::StringRef& name,
@@ -328,7 +328,18 @@ public:
 		uint_t flags = 0
 		);
 
-	template <typename T = ClassType>
+	ClassType*
+	createClassType(
+		const sl::StringRef& name,
+		const sl::StringRef& qualifiedName,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createClassType<ClassType>(name, qualifiedName, fieldAlignment, flags);
+	}
+
+	template <typename T>
 	T*
 	createUnnamedClassType(
 		size_t fieldAlignment = 8,
@@ -343,13 +354,32 @@ public:
 			);
 	}
 
-	template <typename T = ClassType>
+	ClassType*
+	createUnnamedClassType(
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createUnnamedClassType<ClassType>(fieldAlignment, flags);
+	}
+
+	template <typename T>
 	T*
 	createInternalClassType(
 		const sl::StringRef& tag,
 		size_t fieldAlignment = 8,
 		uint_t flags = 0
 		);
+
+	ClassType*
+	createInternalClassType(
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createInternalClassType<ClassType>(tag, fieldAlignment, flags);
+	}
 
 	template <typename T>
 	T*
@@ -364,6 +394,16 @@ public:
 			fieldAlignment,
 			flags
 			);
+	}
+
+	ClassType*
+	createUnnamedInternalClassType(
+		const sl::StringRef& tag,
+		size_t fieldAlignment = 8,
+		uint_t flags = 0
+		)
+	{
+		return createUnnamedInternalClassType<ClassType>(tag, fieldAlignment, flags);
 	}
 
 	void

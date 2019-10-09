@@ -129,19 +129,37 @@ public:
 		return createFieldImpl(sl::String(), type, bitCount, ptrTypeFlags);
 	}
 
-	template <typename T = Function>
+	template <typename T>
 	T*
 	createMethod(
 		const sl::StringRef& name,
 		FunctionType* shortType
 		);
 
-	template <typename T = Function>
+	Function*
+	createMethod(
+		const sl::StringRef& name,
+		FunctionType* shortType
+		)
+	{
+		return createMethod<Function>(name, shortType);
+	}
+
+	template <typename T>
 	T*
 	createUnnamedMethod(
 		FunctionKind functionKind,
 		FunctionType* shortType
 		);
+
+	Function*
+	createUnnamedMethod(
+		FunctionKind functionKind,
+		FunctionType* shortType
+		)
+	{
+		return createUnnamedMethod<Function>(functionKind, shortType);
+	}
 
 	virtual
 	bool

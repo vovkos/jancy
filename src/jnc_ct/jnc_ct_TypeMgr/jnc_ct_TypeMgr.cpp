@@ -2049,7 +2049,7 @@ TypeMgr::createAbstractClassType()
 {
 	static sl::String typeString = "class";
 
-	ClassType* type = createInternalClassType<ClassType>("jnc.AbstractClass");
+	ClassType* type = createInternalClassType("jnc.AbstractClass");
 	type->m_classTypeKind = ClassTypeKind_Abstract;
 	TypeStringTuple* tuple = type->getTypeStringTuple();
 	tuple->m_typeStringPrefix = typeString;

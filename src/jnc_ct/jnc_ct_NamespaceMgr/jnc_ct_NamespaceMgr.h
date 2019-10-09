@@ -186,12 +186,21 @@ public:
 		return m_currentNamespace->createQualifiedName(name);
 	}
 
-	template <typename T = GlobalNamespace>
+	template <typename T>
 	T*
 	createGlobalNamespace(
 		const sl::StringRef& name,
 		Namespace* parentNamespace = NULL
 		);
+
+	GlobalNamespace*
+	createGlobalNamespace(
+		const sl::StringRef& name,
+		Namespace* parentNamespace = NULL
+		)
+	{
+		return createGlobalNamespace<GlobalNamespace>(name, parentNamespace);
+	}
 
 	Scope*
 	findBreakScope(size_t level);
