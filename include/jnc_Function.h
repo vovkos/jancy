@@ -309,7 +309,8 @@ public:
 
 	operator jnc_OverloadableFunction()
 	{
-		return { m_item };
+		jnc_OverloadableFunction result = { m_item };
+		return result;
 	}
 
 	ModuleItem*
