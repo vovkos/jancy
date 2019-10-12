@@ -345,7 +345,7 @@ jnc_Module_require(
 	bool_t isEssential
 	)
 {
-	module->require(itemKind, name, isEssential);
+	module->require(itemKind, name, isEssential != 0);
 }
 
 JNC_EXTERN_C
@@ -358,7 +358,7 @@ jnc_Module_requireType(
 	bool_t isEssential
 	)
 {
-	module->require(typeKind, name, isEssential);
+	module->require(typeKind, name, isEssential != 0);
 }
 
 JNC_EXTERN_C
