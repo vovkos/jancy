@@ -105,7 +105,7 @@ UsingSet::addNamespace(
 		Module* module = anchorNamespace->getModuleItem()->getModule();
 		if (module->getCompileState() >= ModuleCompileState_Parsed)
 		{
-			err::setFormatStringError("namespace '%s' not found", name.getFullName());
+			err::setFormatStringError("namespace '%s' not found", name.getFullName().sz());
 			return false;
 		}
 
