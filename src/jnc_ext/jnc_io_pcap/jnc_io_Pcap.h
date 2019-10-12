@@ -31,7 +31,6 @@ enum PcapEvent
 
 struct PcapHdr: IfaceHdr
 {
-	size_t m_snapshotSize;
 	bool m_isPromiscious;
 	uint_t m_readTimeout;
 	size_t m_readBufferSize;
@@ -82,11 +81,31 @@ public:
 		close();
 	}
 
+	pcap_t*
+	getPcap()
+	{
+		return m_pcap;
+	}
+
 	void
 	JNC_CDECL
 	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	{
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
+	}
+
+	int
+	JNC_CDECL
+	getLinkType()
+	{
+		return m_pcap.getLinkType();
+	}
+
+	size_t
+	JNC_CDECL
+	getSnapshotSize()
+	{
+		return m_pcap.getSnapshotSize();
 	}
 
 	bool
@@ -119,7 +138,11 @@ public:
 
 	bool
 	JNC_CDECL
-	setFilter(DataPtr filter);
+	setFilter(
+		DataPtr filter,
+		bool isOptimized,
+		uint32_t netMask
+		);
 
 	size_t
 	JNC_CDECL

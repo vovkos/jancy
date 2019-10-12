@@ -16,12 +16,14 @@
 set(
 	LIB_H_LIST
 	jnc_io_Pcap.h
+	jnc_io_PcapFilter.h
 	jnc_io_PcapLib.h
 	)
 
 set(
 	LIB_CPP_LIST
 	jnc_io_Pcap.cpp
+	jnc_io_PcapFilter.cpp
 	jnc_io_PcapLib.cpp
 	)
 

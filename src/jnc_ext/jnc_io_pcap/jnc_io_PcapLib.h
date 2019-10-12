@@ -25,6 +25,7 @@ JNC_DEFINE_GUID(
 enum PcapLibCacheSlot
 {
 	PcapLibCacheSlot_Pcap,
+	PcapLibCacheSlot_PcapFilter,
 	PcapLibCacheSlot_PcapAddress,
 	PcapLibCacheSlot_PcapDeviceDesc,
 };

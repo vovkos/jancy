@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_io_PcapLib.h"
 #include "jnc_io_Pcap.h"
+#include "jnc_io_PcapFilter.h"
 
 namespace jnc {
 namespace io {
@@ -31,6 +32,7 @@ JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(PcapLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Pcap)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(PcapFilter)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(PcapLib)

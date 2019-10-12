@@ -18,6 +18,22 @@ namespace io {
 
 //..............................................................................
 
+enum PcapLinkType
+{
+	Null        = 0,
+	Ethernet    = 1,
+	TokenRing   = 6,
+	Arcnet      = 7,
+	Slip        = 8,
+	Ppp         = 9,
+	Fddi        = 10,
+	PppSerial   = 50,
+	PppEthernet = 51,
+	Ieeee80211  = 105,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 /**
 	\import io_pcap.jncx
 
@@ -192,7 +208,8 @@ opaque class Pcap
 		ReadTimeout  = 200,
 	}
 
-	size_t readonly m_snapshotSize;
+	PcapLinkType const property m_linkType;
+	size_t const property m_snapshotSize;
 	bool readonly m_isPromiscious;
 	uint_t readonly m_readTimeout;
 
@@ -288,7 +305,11 @@ opaque class Pcap
 		function sets the error reported by Pcap and returns ``false`` [#f1]_.
 	*/
 
-	bool errorcode setFilter(char const* filter);
+	bool errorcode setFilter(
+		char const* filter,
+		bool isOptimized = true,
+		uint32_t netMask = -1
+		);
 
 	/**
 		Reads the next packet into the buffer pointed to by ``p`` and ``size``
@@ -335,6 +356,36 @@ opaque class Pcap
 	PcapEvents errorcode blockingWait(
 		PcapEvents eventMask,
 		uint_t timeout
+		);
+}
+
+//..............................................................................
+
+opaque class PcapFilter
+{
+	bool errorcode compile(
+		Pcap* pcap,
+		char const* filter,
+		bool isOptimized = true,
+		uint32_t netMask = -1
+		);
+
+	bool errorcode compile(
+		size_t snapshotSize,
+		PcapLinkType linkType,
+		char const* filter,
+		bool isOptimized = true,
+		uint32_t netMask = -1
+		);
+
+	bool errorcode compile(char const* filter)
+	{
+		return compile(Pcap.Defaults.SnapshotSize, PcapLinkType.Ethernet);
+	}
+
+	bool match(
+		void const* p,
+		size_t size
 		);
 }
 

@@ -32,7 +32,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Pcap>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Pcap>)
 
-	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &Pcap::setReadBufferSize)
+	JNC_MAP_CONST_PROPERTY("m_linkType",         &Pcap::getLinkType)
+	JNC_MAP_CONST_PROPERTY("m_snapshotSize",     &Pcap::getSnapshotSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &Pcap::setReadBufferSize)
 
 	JNC_MAP_FUNCTION("openDevice",   &Pcap::openDevice)
 	JNC_MAP_FUNCTION("openFile",     &Pcap::openFile)
@@ -101,7 +103,6 @@ Pcap::openDevice(
 	if (!result)
 		return false;
 
-	m_snapshotSize = snapshotSize;
 	m_isPromiscious = isPromiscious;
 	m_readTimeout = readTimeout;
 	m_filterPtr = strDup(filter);
@@ -167,18 +168,21 @@ Pcap::close()
 	m_pcap.close();
 
 	AsyncIoDevice::close();
-	m_snapshotSize = 0;
 	m_isPromiscious = false;
 	m_readTimeout = 0;
 }
 
 bool
 JNC_CDECL
-Pcap::setFilter(DataPtr filterPtr)
+Pcap::setFilter(
+	DataPtr filterPtr,
+	bool isOptimized,
+	uint32_t netMask
+	)
 {
 	const char* filter = (const char*) filterPtr.m_p;
 
-	bool result = m_pcap.setFilter(filter);
+	bool result = m_pcap.setFilter(filter, isOptimized, netMask);
 	if (!result)
 		return false;
 
@@ -234,14 +238,16 @@ Pcap::ioThreadFunc()
 {
 	ASSERT(m_pcap.isOpen());
 
+	size_t snapshotSize = m_pcap.getSnapshotSize();
+
 	sl::Array<char> readBuffer;
-	readBuffer.setCount(m_snapshotSize);
+	readBuffer.setCount(snapshotSize);
 
 	for (;;)
 	{
 		uint64_t timestamp;
 
-		size_t readResult = m_pcap.read(readBuffer, m_snapshotSize, &timestamp);
+		size_t readResult = m_pcap.read(readBuffer, snapshotSize, &timestamp);
 		if (readResult == -1)
 		{
 			setIoErrorEvent();
