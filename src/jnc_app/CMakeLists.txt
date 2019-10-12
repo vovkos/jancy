@@ -218,19 +218,20 @@ add_jancy_tests
 	set(_ARG_LIST ${ARGN})
 
 	set(
-		_FLAG_LIST
+		_BASE_FLAG_LIST
 		--print-retval
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
 		${JANCY_TEST_OPT_LEVEL}
 		)
 
 	if(UNIX)
-		list(APPEND _FLAG_LIST --debug-info)
+		list(APPEND _BASE_FLAG_LIST --debug-info)
 	endif()
 
 	set(_COMMAND)
 	set(_NAME_PREFIX)
 	set(_WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}")
+	set(_FLAG_LIST)
 	set(_REQUIRE_LIST)
 	set(_FILE_LIST)
 
@@ -256,13 +257,13 @@ add_jancy_tests
 			add_test(
 				NAME ${_NAME_PREFIX}${_ARG}
 				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
-				COMMAND jnc_app ${_FLAG_LIST} ${_ARG}
+				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_ARG}
 				)
 		elseif("${_COMMAND}" STREQUAL "FINALIZE_TEST")
 			add_test(
 				NAME ${_NAME_PREFIX}${_ARG}
 				WORKING_DIRECTORY ${_WORKING_DIRECTORY}
-				COMMAND jnc_app ${_FLAG_LIST} ${_REQUIRE_LIST} ${_FILE_LIST}
+				COMMAND jnc_app ${_BASE_FLAG_LIST} ${_FLAG_LIST} ${_REQUIRE_LIST} ${_FILE_LIST}
 				)
 
 			set(_COMMAND)

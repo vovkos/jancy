@@ -23,6 +23,7 @@
 		jnc_ModuleItem_getModule;
 		jnc_ModuleItem_getNamespace;
 		jnc_ModuleItem_getType;
+		jnc_ModuleItem_require;
 		jnc_getAccessKindString;
 		jnc_getModuleItemKindString;
 		jnc_getStorageKindString;
@@ -40,6 +41,7 @@
 		jnc_Type_getTypeStringPrefix;
 		jnc_Type_getTypeStringSuffix;
 		jnc_Type_markGcRoots;
+		jnc_Type_ensureLayout;
 		jnc_getDataPtrTypeKindString;
 		jnc_BaseTypeSlot_getOffset;
 		jnc_BaseTypeSlot_getVtableIndex;
@@ -98,10 +100,10 @@
 		jnc_getFunctionKindString;
 		jnc_Function_getFunctionKind;
 		jnc_Function_getMachineCode;
-		jnc_Function_getOverload;
-		jnc_Function_getOverloadCount;
 		jnc_Function_isMember;
-		jnc_Function_isOverloaded;
+		jnc_FunctionOverload_getFunctionKind;
+		jnc_FunctionOverload_getOverload;
+		jnc_FunctionOverload_getOverloadCount;
 		jnc_Property_getGetter;
 		jnc_Property_getSetter;
 		jnc_Namespace_getItemCount;
@@ -144,6 +146,7 @@
 		jnc_Module_parseFile;
 		jnc_Module_parseImports;
 		jnc_Module_require;
+		jnc_Module_requireType;
 		jnc_initialize;
 		jnc_Runtime_abort;
 		jnc_Runtime_create;

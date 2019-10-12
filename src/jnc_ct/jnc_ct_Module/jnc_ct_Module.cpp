@@ -668,7 +668,7 @@ Module::parseImports()
 	if (!result)
 		return false;
 
-	sl::ConstStringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
+	sl::StringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
 	for (; requireIt; requireIt++)
 	{
 		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
