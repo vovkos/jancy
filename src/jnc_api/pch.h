@@ -17,6 +17,7 @@
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 
 #include "axl_sl_BitIdx.h"
+#include "axl_err_Error.h"
 
 #if (_JNC_IO_USB)
 #	include "axl_io_UsbError.h"
