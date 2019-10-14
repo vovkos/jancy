@@ -38,11 +38,14 @@ set(
 	--ignore-import io_base.jncx
 	-X ${XML_DIR}
 
-	${_EXT_DIR}/jnc_rtl/jnc/jnc_DynamicLib.jnc
-	${_EXT_DIR}/jnc_rtl/jnc/jnc_Promise.jnc
-	${_EXT_DIR}/jnc_rtl/jnc/jnc_Regex.jnc
-	${_EXT_DIR}/jnc_rtl/jnc/jnc_Scheduler.jnc
-	${_EXT_DIR}/jnc_rtl/jnc/jnc_StdTypedefs.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_globals.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_GcStats.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_GcTriggers.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DynamicLib.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Promise.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Regex.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Scheduler.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_StdTypedefs.jnc
 
 	-S ${_EXT_DIR}/jnc_std/jnc
 	-S ${_EXT_DIR}/jnc_sys/jnc
