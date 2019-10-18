@@ -26,7 +26,7 @@ class Array
 	size_t readonly m_count;
 	size_t readonly m_maxCount;
 
-	variant get(size_t index)
+	variant get(size_t index) const
 	{
 		boundsCheck(index);
 		return m_p[index];
@@ -96,7 +96,7 @@ class Array
 		);
 
 protected:
-	boundsCheck(size_t index)
+	boundsCheck(size_t index) const
 	{
 		if (index >= m_count)
 		{
