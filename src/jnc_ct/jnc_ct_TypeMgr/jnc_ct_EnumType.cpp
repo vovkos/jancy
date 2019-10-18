@@ -176,9 +176,7 @@ EnumType::calcLayout()
 
 	// assign values to consts
 
-	if (m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(this);
 
 	if (m_flags & EnumTypeFlag_BitFlag)
@@ -221,7 +219,7 @@ EnumType::calcLayout()
 	}
 
 	m_module->m_namespaceMgr.closeNamespace();
-
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
 }
 

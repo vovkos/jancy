@@ -346,14 +346,21 @@ VariableMgr::initializeVariable(Variable* variable)
 		ASSERT(false);
 	};
 
-	if (variable->m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit(variable->m_parentUnit);
+	Unit* prevUnit = variable->m_parentUnit ? m_module->m_unitMgr.setCurrentUnit(variable->m_parentUnit) : NULL;
 
-	return m_module->m_operatorMgr.parseInitializer(
+	bool result = m_module->m_operatorMgr.parseInitializer(
 		variable,
 		variable->m_constructor,
 		variable->m_initializer
 		);
+
+	if (!result)
+		return false;
+
+	if (prevUnit)
+		m_module->m_unitMgr.setCurrentUnit(prevUnit);
+
+	return true;
 }
 
 bool

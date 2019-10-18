@@ -138,15 +138,14 @@ ArrayType::calcLayoutImpl(
 	{
 		ASSERT(m_parentUnit && m_parentNamespace);
 
-		if (m_parentUnit)
-			m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
-
+		Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 		m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
 		int64_t value = 0;
 		result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
 
 		m_module->m_namespaceMgr.closeNamespace();
+		m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 		if (!result)
 		{
