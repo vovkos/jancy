@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_RbTreeSrc[] =
-
 import "std_MapEntry.jnc"
 
 namespace std {
@@ -127,7 +123,3 @@ opaque class RbTree
 //! @}
 
 } // namespace std
-
-///;
-
-///---

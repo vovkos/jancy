@@ -22,16 +22,31 @@
 #include "jnc_std_HashTable.h"
 #include "jnc_std_RbTree.h"
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// jancy sources
+
+;static char g_std_globalsSrc[] =
 #include "std_globals.jnc.cpp"
+;static char g_std_GuidSrc[] =
 #include "std_Guid.jnc.cpp"
+;static char g_std_ErrorSrc[] =
 #include "std_Error.jnc.cpp"
+;static char g_std_StringSrc[] =
 #include "std_String.jnc.cpp"
+;static char g_std_BufferSrc[] =
 #include "std_Buffer.jnc.cpp"
+;static char g_std_ArraySrc[] =
 #include "std_Array.jnc.cpp"
+;static char g_std_ListSrc[] =
 #include "std_List.jnc.cpp"
+;static char g_std_MapEntrySrc[] =
 #include "std_MapEntry.jnc.cpp"
+;static char g_std_HashTableSrc[] =
 #include "std_HashTable.jnc.cpp"
+;static char g_std_RbTreeSrc[] =
 #include "std_RbTree.jnc.cpp"
+;
 
 namespace jnc {
 namespace std {

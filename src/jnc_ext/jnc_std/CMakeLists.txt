@@ -83,81 +83,19 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-add_perl_step(
-	std_globals.jnc.cpp
-	jnc/std_globals.jnc
-	${JNC2CPP_PL}
-	)
+foreach(_JNC ${JNC_LIST})
+	get_filename_component(_NAME ${_JNC} NAME)
 
-add_perl_step(
-	std_Guid.jnc.cpp
-	jnc/std_Guid.jnc
-	${JNC2CPP_PL}
-	)
+	add_perl_step(
+		${_NAME}.cpp
+		${_JNC}
+		${FILE2LITERAL_PL}
+		)
 
-add_perl_step(
-	std_Error.jnc.cpp
-	jnc/std_Error.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_String.jnc.cpp
-	jnc/std_String.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_Buffer.jnc.cpp
-	jnc/std_Buffer.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_Array.jnc.cpp
-	jnc/std_Array.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_List.jnc.cpp
-	jnc/std_List.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_MapEntry.jnc.cpp
-	jnc/std_MapEntry.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_HashTable.jnc.cpp
-	jnc/std_HashTable.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	std_RbTree.jnc.cpp
-	jnc/std_RbTree.jnc
-	${JNC2CPP_PL}
-	)
+	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
+endforeach()
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
-
-set(
-	GEN_JNC_CPP_LIST
-	${GEN_DIR}/std_globals.jnc.cpp
-	${GEN_DIR}/std_Guid.jnc.cpp
-	${GEN_DIR}/std_Error.jnc.cpp
-	${GEN_DIR}/std_String.jnc.cpp
-	${GEN_DIR}/std_Buffer.jnc.cpp
-	${GEN_DIR}/std_Array.jnc.cpp
-	${GEN_DIR}/std_List.jnc.cpp
-	${GEN_DIR}/std_MapEntry.jnc.cpp
-	${GEN_DIR}/std_HashTable.jnc.cpp
-	${GEN_DIR}/std_RbTree.jnc.cpp
-	)
 
 axl_exclude_from_build(${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 

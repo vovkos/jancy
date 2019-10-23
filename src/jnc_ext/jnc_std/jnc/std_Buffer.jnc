@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_BufferSrc[] =
-
 namespace std {
 
 //! \addtogroup container
@@ -93,7 +89,3 @@ protected:
 //! @}
 
 } // namespace std
-
-///;
-
-///---

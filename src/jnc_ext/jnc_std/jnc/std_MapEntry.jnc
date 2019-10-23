@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_MapEntrySrc[] =
-
 namespace std {
 
 //! \addtogroup container
@@ -38,7 +34,3 @@ protected:
 //! @}
 
 } // namespace std
-
-///;
-
-///---

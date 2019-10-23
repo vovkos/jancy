@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_ErrorSrc[] =
-
 import "std_Guid.jnc"
 
 namespace std {
@@ -139,7 +135,3 @@ setError(char const* string);
 //! @}
 
 } // namespace std
-
-///;
-
-///---

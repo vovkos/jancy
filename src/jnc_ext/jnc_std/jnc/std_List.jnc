@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_ListSrc[] =
-
 namespace std {
 
 //! \addtogroup container
@@ -277,7 +273,3 @@ class List
 //! @}
 
 } // namespace std
-
-///;
-
-///---
