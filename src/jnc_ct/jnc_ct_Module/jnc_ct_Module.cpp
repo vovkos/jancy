@@ -139,34 +139,34 @@ Module::initialize(
 
 #if (JNC_PTR_BITS == 32)
 #	if (_JNC_OS_POSIX)
-extern "C" int64_t __divdi3 (int64_t, int64_t);
-extern "C" int64_t __moddi3 (int64_t, int64_t);
-extern "C" uint64_t __udivdi3 (uint64_t, uint64_t);
-extern "C" uint64_t __umoddi3 (uint64_t, uint64_t);
+extern "C" int64_t __divdi3(int64_t, int64_t);
+extern "C" int64_t __moddi3(int64_t, int64_t);
+extern "C" uint64_t __udivdi3(uint64_t, uint64_t);
+extern "C" uint64_t __umoddi3(uint64_t, uint64_t);
 #		if (_JNC_CPU_ARM32)
 struct DivModRetVal
 {
 	uint64_t m_quotient;
 	uint64_t m_remainder;
 };
-extern "C" int32_t __aeabi_idiv (int32_t);
-extern "C" uint32_t __aeabi_uidiv (uint32_t);
-extern "C" DivModRetVal __aeabi_ldivmod (int64_t, int64_t);
-extern "C" DivModRetVal __aeabi_uldivmod (uint64_t, uint64_t);
-extern "C" float __aeabi_i2f (int32_t);
-extern "C" float __aeabi_l2f (int64_t);
-extern "C" float __aeabi_ui2f (uint32_t);
-extern "C" float __aeabi_ul2f (uint64_t);
-extern "C" double __aeabi_i2d (int32_t);
-extern "C" double __aeabi_l2d (int64_t);
-extern "C" double __aeabi_ui2d (uint32_t);
-extern "C" double __aeabi_ul2d (uint64_t);
+extern "C" int32_t __aeabi_idiv(int32_t);
+extern "C" uint32_t __aeabi_uidiv(uint32_t);
+extern "C" DivModRetVal __aeabi_ldivmod(int64_t, int64_t);
+extern "C" DivModRetVal __aeabi_uldivmod(uint64_t, uint64_t);
+extern "C" float __aeabi_i2f(int32_t);
+extern "C" float __aeabi_l2f(int64_t);
+extern "C" float __aeabi_ui2f(uint32_t);
+extern "C" float __aeabi_ul2f(uint64_t);
+extern "C" double __aeabi_i2d(int32_t);
+extern "C" double __aeabi_l2d(int64_t);
+extern "C" double __aeabi_ui2d(uint32_t);
+extern "C" double __aeabi_ul2d(uint64_t);
 #		endif
 #	elif (_JNC_OS_WIN)
-extern "C" int64_t _alldiv (int64_t, int64_t);
-extern "C" int64_t _allrem (int64_t, int64_t);
-extern "C" int64_t _aulldiv (int64_t, int64_t);
-extern "C" int64_t _aullrem (int64_t, int64_t);
+extern "C" int64_t _alldiv(int64_t, int64_t);
+extern "C" int64_t _allrem(int64_t, int64_t);
+extern "C" int64_t _aulldiv(int64_t, int64_t);
+extern "C" int64_t _aullrem(int64_t, int64_t);
 #	endif
 #endif
 
@@ -181,7 +181,7 @@ Module::createLlvmExecutionEngine()
 
 	llvm::StringMap<llvm::cl::Option*> options;
 	llvm::cl::getRegisteredOptions(options);
-	llvm::cl::opt<bool>* enableMerge = (llvm::cl::opt<bool>*) options.find("global-merge")->second;
+	llvm::cl::opt<bool>* enableMerge = (llvm::cl::opt<bool>*)options.find("global-merge")->second;
 	ASSERT(llvm::isa<llvm::cl::opt<bool> > (enableMerge));
 
 	enableMerge->setValue(false);
@@ -217,35 +217,37 @@ Module::createLlvmExecutionEngine()
 		engineBuilder.setMCJITMemoryManager(std::move(std::unique_ptr<JitMemoryMgr> (jitMemoryMgr)));
 #endif
 
-		m_functionMap["memset"] = (void*) memset;
-		m_functionMap["memcpy"] = (void*) memcpy;
-		m_functionMap["memmove"] = (void*) memmove;
-
+		m_functionMap["memset"] = (void*)memset;
+		m_functionMap["memcpy"] = (void*)memcpy;
+		m_functionMap["memmove"] = (void*)memmove;
+#if (_JNC_OS_DARWIN)
+		m_functionMap["___bzero"] = (void*)bzero;
+#endif
 #if (JNC_PTR_BITS == 32)
 #	if (_JNC_OS_POSIX)
-		m_functionMap["__divdi3"] = (void*) __divdi3;
-		m_functionMap["__moddi3"] = (void*) __moddi3;
-		m_functionMap["__udivdi3"] = (void*) __udivdi3;
-		m_functionMap["__umoddi3"] = (void*) __umoddi3;
+		m_functionMap["__divdi3"] = (void*)__divdi3;
+		m_functionMap["__moddi3"] = (void*)__moddi3;
+		m_functionMap["__udivdi3"] = (void*)__udivdi3;
+		m_functionMap["__umoddi3"] = (void*)__umoddi3;
 #		if (_JNC_CPU_ARM32)
-		m_functionMap["__aeabi_idiv"] = (void*) __aeabi_idiv;
-		m_functionMap["__aeabi_uidiv"] = (void*) __aeabi_uidiv;
-		m_functionMap["__aeabi_ldivmod"] = (void*) __aeabi_ldivmod;
-		m_functionMap["__aeabi_uldivmod"] = (void*) __aeabi_uldivmod;
-		m_functionMap["__aeabi_i2f"] = (void*) __aeabi_i2f;
-		m_functionMap["__aeabi_l2f"] = (void*) __aeabi_l2f;
-		m_functionMap["__aeabi_ui2f"] = (void*) __aeabi_ui2f;
-		m_functionMap["__aeabi_ul2f"] = (void*) __aeabi_ul2f;
-		m_functionMap["__aeabi_i2d"] = (void*) __aeabi_i2d;
-		m_functionMap["__aeabi_l2d"] = (void*) __aeabi_l2d;
-		m_functionMap["__aeabi_ui2d"] = (void*) __aeabi_ui2d;
-		m_functionMap["__aeabi_ul2d"] = (void*) __aeabi_ul2d;
+		m_functionMap["__aeabi_idiv"] = (void*)__aeabi_idiv;
+		m_functionMap["__aeabi_uidiv"] = (void*)__aeabi_uidiv;
+		m_functionMap["__aeabi_ldivmod"] = (void*)__aeabi_ldivmod;
+		m_functionMap["__aeabi_uldivmod"] = (void*)__aeabi_uldivmod;
+		m_functionMap["__aeabi_i2f"] = (void*)__aeabi_i2f;
+		m_functionMap["__aeabi_l2f"] = (void*)__aeabi_l2f;
+		m_functionMap["__aeabi_ui2f"] = (void*)__aeabi_ui2f;
+		m_functionMap["__aeabi_ul2f"] = (void*)__aeabi_ul2f;
+		m_functionMap["__aeabi_i2d"] = (void*)__aeabi_i2d;
+		m_functionMap["__aeabi_l2d"] = (void*)__aeabi_l2d;
+		m_functionMap["__aeabi_ui2d"] = (void*)__aeabi_ui2d;
+		m_functionMap["__aeabi_ul2d"] = (void*)__aeabi_ul2d;
 #		endif
 #	elif (_JNC_OS_WIN)
-		m_functionMap["_alldiv"] = (void*) _alldiv;
-		m_functionMap["_allrem"] = (void*) _allrem;
-		m_functionMap["_aulldiv"] = (void*) _aulldiv;
-		m_functionMap["_aullrem"] = (void*) _aullrem;
+		m_functionMap["_alldiv"] = (void*)_alldiv;
+		m_functionMap["_allrem"] = (void*)_allrem;
+		m_functionMap["_aulldiv"] = (void*)_aulldiv;
+		m_functionMap["_aullrem"] = (void*)_aullrem;
 #	endif
 #endif
 	}
@@ -280,7 +282,7 @@ Module::createLlvmExecutionEngine()
 
 		p[0] = 0x49;
 		p[1] = 0xbb;
-		*(void**) (p + 2) = chkstk;
+		*(void**)(p + 2) = chkstk;
 
 		// jmp r11
 
@@ -621,7 +623,7 @@ Module::parseFile(const sl::StringRef& fileName)
 		return false;
 
 	size_t length = file.getMappingSize();
-	sl::String source((const char*) file.p(), length);
+	sl::String source((const char*)file.p(), length);
 
 	m_sourceList.insertTail(source);
 	m_filePathSet.visit(filePath);
