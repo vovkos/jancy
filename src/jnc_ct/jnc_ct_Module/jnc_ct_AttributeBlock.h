@@ -18,6 +18,13 @@ namespace ct {
 
 //..............................................................................
 
+enum AttributeBlockFlag
+{
+	AttributeBlockFlag_ValuesReady = 0x010000,
+};
+
+//..............................................................................
+
 class Attribute:
 	public ModuleItem,
 	public ModuleItemDecl,
@@ -35,10 +42,8 @@ public:
 		return m_value;
 	}
 
-protected:
-	virtual
 	bool
-	calcLayout();
+	parseInitializer();
 };
 
 //..............................................................................
@@ -86,6 +91,16 @@ public:
 		const sl::StringRef& name,
 		sl::BoxList<Token>* initializer = NULL
 		);
+
+	bool
+	ensureAttributeValuesReady()
+	{
+		return (m_flags & AttributeBlockFlag_ValuesReady) || prepareAttributeValues();
+	}
+
+protected:
+	bool
+	prepareAttributeValues();
 };
 
 //..............................................................................

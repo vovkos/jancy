@@ -384,13 +384,7 @@ type_name_list
 attribute_block
 	:	'['
 			{
-				if (m_attributeBlock)
-				{
-					err::setError("attribute block redefinition");
-					return false;
-				}
-
-				m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
+				return createAttributeBlock($1.m_pos);
 			}
 		attribute_declarator(',' attribute_declarator)*
 		']'
@@ -400,15 +394,7 @@ nullable
 attribute_declarator
 	:	TokenKind_Identifier ('=' expression_pass1 $i)?
 			{
-				Attribute* attribute = m_attributeBlock->createAttribute(
-					$1.m_data.m_string,
-					&$i ? &$i.m_tokenList : NULL
-					);
-
-				if (!attribute)
-					return false;
-
-				attribute->m_pos = $1.m_pos;
+				return createAttribute($1.m_pos, $1.m_data.m_string, &$i ? &$i.m_tokenList : NULL);
 			}
 	|	epsilon
 	;

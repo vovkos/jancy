@@ -341,6 +341,35 @@ Parser::setSetAsType(Type* type)
 	return true;
 }
 
+bool
+Parser::createAttributeBlock(const lex::LineCol& pos)
+{
+	ASSERT(!m_attributeBlock);
+
+	m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
+	m_attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	m_attributeBlock->m_pos = pos;
+	return true;
+}
+
+bool
+Parser::createAttribute(
+	const lex::LineCol& pos,
+	const sl::StringRef& name,
+	sl::BoxList<Token>* initializer
+	)
+{
+	ASSERT(m_attributeBlock);
+
+	Attribute* attribute = m_attributeBlock->createAttribute(name, initializer);
+	if (!attribute)
+		return false;
+
+	attribute->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
+	attribute->m_pos = pos;
+	return true;
+}
+
 void
 Parser::preDeclaration()
 {
@@ -567,12 +596,6 @@ Parser::declareGlobalNamespace(
 	GlobalNamespace* nspace = getGlobalNamespace((GlobalNamespace*)currentNamespace, name.getFirstName(), pos);
 	if (!nspace)
 		return NULL;
-
-	if (nspace->getFlags() & ModuleItemFlag_Sealed)
-	{
-		err::setFormatStringError("cannot extend sealed namespace '%s'", nspace->getQualifiedName().sz());
-		return NULL;
-	}
 
 	sl::ConstBoxIterator<sl::StringRef> it = name.getNameList().getHead();
 	for (; it; it++)
@@ -2511,18 +2534,18 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Function:
-		if (m_flags & Flag_ConstExpression)
-		{
-			err::setFormatStringError("function '%s' cannot be used in const expression", name.sz());
-			return false;
-		}
-
 		result = value->trySetFunction((Function*)item);
 		if (!result)
 			return false;
 
 		if (((Function*)item)->isMember())
 		{
+			if (m_flags & Flag_ConstExpression)
+			{
+				err::setFormatStringError("member function '%s' cannot be used in const expression", name.sz());
+				return false;
+			}
+
 			result = m_module->m_operatorMgr.createMemberClosure(value, (Function*)item);
 			if (!result)
 				return false;
@@ -2533,7 +2556,7 @@ Parser::lookupIdentifier(
 	case ModuleItemKind_FunctionOverload:
 		if (m_flags & Flag_ConstExpression)
 		{
-			err::setFormatStringError("function '%s' cannot be used in const expression", name.sz());
+			err::setFormatStringError("overloaded function '%s' cannot be used in const expression", name.sz());
 			return false;
 		}
 

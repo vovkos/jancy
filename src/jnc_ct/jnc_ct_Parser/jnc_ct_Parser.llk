@@ -270,6 +270,16 @@ Members2
 	bool
 	isTypeSpecified();
 
+	bool
+	createAttributeBlock(const lex::LineCol& pos);
+
+	bool
+	createAttribute(
+		const lex::LineCol& pos,
+		const sl::StringRef& name,
+		sl::BoxList<Token>* initializer
+		);
+
 	void
 	preDeclaration();
 

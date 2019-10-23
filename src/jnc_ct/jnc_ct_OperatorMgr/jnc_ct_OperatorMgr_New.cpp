@@ -334,7 +334,10 @@ OperatorMgr::parseConstExpression(
 	if (!result)
 		return false;
 
-	ASSERT(resultValue->getValueKind() == ValueKind_Const);
+	ASSERT(
+		resultValue->getValueKind() == ValueKind_Const ||
+		resultValue->getValueKind() == ValueKind_Function);
+
 	return true;
 }
 

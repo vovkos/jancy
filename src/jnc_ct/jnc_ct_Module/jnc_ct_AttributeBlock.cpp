@@ -19,14 +19,17 @@ namespace ct {
 //..............................................................................
 
 bool
-Attribute::calcLayout()
+Attribute::parseInitializer()
 {
 	ASSERT(!m_initializer.isEmpty());
 
-	if (m_parentUnit)
-		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	bool result = m_module->m_operatorMgr.parseConstExpression(m_initializer, &m_value);
+	if (!result)
+		return false;
 
-	return m_module->m_operatorMgr.parseConstExpression(m_initializer, &m_value);
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
+	return true;
 }
 
 //..............................................................................
@@ -55,6 +58,27 @@ AttributeBlock::createAttribute(
 	m_attributeArray.append(attribute);
 	it->m_value = attribute;
 	return attribute;
+}
+
+bool
+AttributeBlock::prepareAttributeValues()
+{
+	ASSERT(!(m_flags & AttributeBlockFlag_ValuesReady));
+
+	size_t count = m_attributeArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Attribute* attribute = m_attributeArray[i];
+		if (attribute->hasInitializer())
+		{
+			bool result = attribute->parseInitializer();
+			if (!result)
+				return false;
+		}
+	}
+
+	m_flags |= AttributeBlockFlag_ValuesReady;
+	return true;
 }
 
 //..............................................................................

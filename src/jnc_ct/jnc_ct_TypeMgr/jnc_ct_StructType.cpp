@@ -327,6 +327,13 @@ StructType::layoutField(Field* field)
 			return false;
 	}
 
+	if (field->m_attributeBlock)
+	{
+		result = field->m_attributeBlock->ensureAttributeValuesReady();
+		if (!result)
+			return false;
+	}
+
 	if (m_structTypeKind != StructTypeKind_IfaceStruct && field->m_type->getTypeKind() == TypeKind_Class)
 	{
 		err::setFormatStringError("class '%s' cannot be a struct member", field->m_type->getTypeString().sz());
