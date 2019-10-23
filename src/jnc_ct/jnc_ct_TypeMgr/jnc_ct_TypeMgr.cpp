@@ -1492,10 +1492,8 @@ TypeMgr::getFunctionPtrType(
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
 	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
 
-	flags |= ModuleItemFlag_LayoutReady;
-
 	if (ptrTypeKind != FunctionPtrTypeKind_Thin)
-		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;
+		flags |= TypeFlag_GcRoot | TypeFlag_StructRet | ModuleItemFlag_LayoutReady;
 
 	if (functionType->m_flags & FunctionTypeFlag_Unsafe)
 		flags &= ~PtrTypeFlag_Safe;
