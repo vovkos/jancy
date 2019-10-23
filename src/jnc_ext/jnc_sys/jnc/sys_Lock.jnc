@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_sys_LockSrc[] =
-
 namespace sys {
 
 //! \addtogroup sync
@@ -93,7 +89,3 @@ opaque class Lock
 //! @}
 
 } // namespace sys
-
-///;
-
-///---

@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_sys_ThreadSrc[] =
-
 namespace sys {
 
 //! \addtogroup thread
@@ -145,7 +141,3 @@ opaque class Thread
 //! @}
 
 } // namespace sys
-
-///;
-
-///---

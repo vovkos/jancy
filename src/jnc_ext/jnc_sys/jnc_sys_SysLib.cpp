@@ -17,17 +17,32 @@
 #include "jnc_sys_Thread.h"
 #include "jnc_sys_Timer.h"
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// jancy sources
+
+;static char g_sys_globalsSrc[] =
 #include "sys_globals.jnc.cpp"
+;static char g_sys_LockSrc[] =
 #include "sys_Lock.jnc.cpp"
+;static char g_sys_EventSrc[] =
 #include "sys_Event.jnc.cpp"
+;static char g_sys_NotificationEventSrc[] =
 #include "sys_NotificationEvent.jnc.cpp"
+;static char g_sys_ThreadSrc[] =
 #include "sys_Thread.jnc.cpp"
+;static char g_sys_TimerSrc[] =
 #include "sys_Timer.jnc.cpp"
+;
 
 #if (_JNC_OS_WIN)
 #	include "jnc_sys_Registry.h"
+;static char g_sys_RegistrySrc[] =
 #	include "sys_Registry.jnc.cpp"
+;
 #endif
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 namespace jnc {
 namespace sys {

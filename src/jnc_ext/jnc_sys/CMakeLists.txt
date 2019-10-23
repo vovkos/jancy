@@ -86,60 +86,19 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
-add_perl_step(
-	sys_globals.jnc.cpp
-	jnc/sys_globals.jnc
-	${JNC2CPP_PL}
-	)
+foreach(_JNC ${JNC_LIST})
+	get_filename_component(_NAME ${_JNC} NAME)
 
-add_perl_step(
-	sys_Lock.jnc.cpp
-	jnc/sys_Lock.jnc
-	${JNC2CPP_PL}
-	)
+	add_perl_step(
+		${_NAME}.cpp
+		${_JNC}
+		${FILE2LITERAL_PL}
+		)
 
-add_perl_step(
-	sys_Event.jnc.cpp
-	jnc/sys_Event.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	sys_NotificationEvent.jnc.cpp
-	jnc/sys_NotificationEvent.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	sys_Thread.jnc.cpp
-	jnc/sys_Thread.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	sys_Timer.jnc.cpp
-	jnc/sys_Timer.jnc
-	${JNC2CPP_PL}
-	)
-
-add_perl_step(
-	sys_Registry.jnc.cpp
-	jnc/sys_Registry.jnc
-	${JNC2CPP_PL}
-	)
+	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
+endforeach()
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)
-
-set(
-	GEN_JNC_CPP_LIST
-	${GEN_DIR}/sys_globals.jnc.cpp
-	${GEN_DIR}/sys_Event.jnc.cpp
-	${GEN_DIR}/sys_NotificationEvent.jnc.cpp
-	${GEN_DIR}/sys_Lock.jnc.cpp
-	${GEN_DIR}/sys_Thread.jnc.cpp
-	${GEN_DIR}/sys_Timer.jnc.cpp
-	${GEN_DIR}/sys_Registry.jnc.cpp
-	)
 
 axl_exclude_from_build(${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
 

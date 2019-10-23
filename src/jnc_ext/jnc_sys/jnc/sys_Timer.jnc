@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_sys_TimerSrc[] =
-
 namespace sys {
 
 //! \addtogroup time
@@ -169,7 +165,3 @@ opaque class Timer
 //! @}
 
 } // namespace sys
-
-///;
-
-///---

@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_sys_RegistrySrc[] =
-
 namespace sys {
 
 //! \addtogroup registry
@@ -120,7 +116,3 @@ opaque class RegKey
 //! @}
 
 } // namespace sys
-
-///;
-
-///---
