@@ -11,11 +11,7 @@
 
 namespace jnc {
 
-///+++
-
 //..............................................................................
-
-///; static char dynamicLibSrc[] =
 
 /**
 	\ingroup rtl
@@ -171,10 +167,6 @@ class DynamicLib
 	void thin* errorcode getFunction(char const* fileName);
 }
 
-///;
-
 //..............................................................................
-
-///---
 
 } // namespace jnc

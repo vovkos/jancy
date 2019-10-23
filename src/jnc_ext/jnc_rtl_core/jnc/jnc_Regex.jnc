@@ -11,11 +11,7 @@
 
 namespace jnc {
 
-///+++
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-///; static char regexMatchSrc[] =
 
 /**
 	\ingroup rtl
@@ -38,8 +34,6 @@ struct RegexMatch
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-///; static char regexStateSrc[] =
 
 /**
 	\ingroup rtl
@@ -252,8 +246,6 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char regexDfaSrc[] =
-
 opaque class RegexDfa
 {
 	construct();
@@ -285,9 +277,5 @@ opaque class RegexDfa
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

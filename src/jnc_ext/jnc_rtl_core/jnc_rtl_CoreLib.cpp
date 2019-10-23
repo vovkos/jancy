@@ -22,6 +22,24 @@
 #include "jnc_ct_MulticastClassType.h"
 #include "jnc_CallSite.h"
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// jancy sources
+
+;static char g_jnc_gcSrc[] =
+#include "jnc_gc.jnc.cpp"
+;static char g_jnc_dataPtrSrc[] =
+#include "jnc_DataPtr.jnc.cpp"
+;static char g_jnc_dynamicLibSrc[] =
+#include "jnc_DynamicLib.jnc.cpp"
+;static char g_jnc_promiseSrc[] =
+#include "jnc_Promise.jnc.cpp"
+;static char g_jnc_regexSrc[] =
+#include "jnc_Regex.jnc.cpp"
+;static char g_jnc_schedulerSrc[] =
+#include "jnc_Scheduler.jnc.cpp"
+;
+
 namespace jnc {
 namespace rtl {
 
@@ -1209,6 +1227,12 @@ JNC_DEFINE_LIB(
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(jnc_CoreLib)
+	JNC_LIB_SOURCE_FILE("jnc_gc.jnc",         g_jnc_gcSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DataPtr.jnc",    g_jnc_dataPtrSrc)
+	JNC_LIB_SOURCE_FILE("jnc_DynamicLib.jnc", g_jnc_dynamicLibSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Promise.jnc",    g_jnc_promiseSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Regex.jnc",      g_jnc_regexSrc)
+	JNC_LIB_SOURCE_FILE("jnc_Scheduler.jnc",  g_jnc_schedulerSrc)
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
 JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_CoreLib)
@@ -1295,15 +1319,14 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// gc heap
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CollectGarbage, collectGarbage)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_GetGcStats,     getGcStats)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_GcTriggers_get, gcTriggers_get)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_GcTriggers_set, gcTriggers_set)
+	JNC_MAP_FUNCTION("jnc.collectGarbage", collectGarbage)
+	JNC_MAP_FUNCTION("jnc.getGcStats",     getGcStats)
+	JNC_MAP_PROPERTY("jnc.g_gcTriggers",   gcTriggers_get, gcTriggers_set)
 
 	// thin -> safe data pointers
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CreateDataPtr,      createDataPtr)
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_CreateConstDataPtr, createDataPtr)
+	JNC_MAP_FUNCTION("jnc.createDataPtr",  createDataPtr)
+	JNC_MAP_OVERLOAD(createDataPtr)
 
 	// multicasts
 
@@ -1313,13 +1336,14 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// std types
 
-	JNC_MAP_STD_TYPE(StdType_RegexState,    RegexState)
-	JNC_MAP_STD_TYPE(StdType_RegexDfa,      RegexDfa)
-	JNC_MAP_STD_TYPE(StdType_DynamicLib,    DynamicLib)
+	JNC_MAP_TYPE(RegexState)
+	JNC_MAP_TYPE(RegexDfa)
+	JNC_MAP_TYPE(DynamicLib)
+	JNC_MAP_TYPE(Promise)
+	JNC_MAP_TYPE(Promisifier)
+
 	JNC_MAP_STD_TYPE(StdType_DynamicLayout, DynamicLayout)
 	JNC_MAP_STD_TYPE(StdType_ReactorBase,   ReactorImpl)
-	JNC_MAP_STD_TYPE(StdType_Promise,       Promise)
-	JNC_MAP_STD_TYPE(StdType_Promisifier,   Promisifier)
 
 JNC_END_LIB_FUNCTION_MAP()
 

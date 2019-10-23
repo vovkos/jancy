@@ -11,22 +11,18 @@
 
 namespace jnc {
 
-///+++
+//..............................................................................
+
+void* createDataPtr(
+	void thin* p,
+	size_t length = -1
+	);
+
+void const* createDataPtr(
+	void const thin* p,
+	size_t length = -1
+	);
 
 //..............................................................................
 
-///; static char gcTriggersSrc[] =
-
-struct GcTriggers
-{
-	size_t m_allocSizeTrigger;
-	size_t m_periodSizeTrigger;
-}
-
-///;
-
-//..............................................................................
-
-///---
-
-} // namespace jnc
+} // namespace jnc {

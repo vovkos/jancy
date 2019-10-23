@@ -49,9 +49,8 @@ source_group(
 
 set(
 	JNC_LIST
-	jnc/jnc_globals.jnc
-	jnc/jnc_GcTriggers.jnc
-	jnc/jnc_GcStats.jnc
+	jnc/jnc_gc.jnc
+	jnc/jnc_DataPtr.jnc
 	jnc/jnc_DynamicLib.jnc
 	jnc/jnc_Promise.jnc
 	jnc/jnc_Regex.jnc
@@ -83,6 +82,38 @@ source_group(
 	${PCH_CPP}
 	)
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+#
+# gen folder
+#
+
+set(GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
+file(MAKE_DIRECTORY ${GEN_DIR})
+
+axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
+
+foreach(_JNC ${JNC_LIST})
+	get_filename_component(_NAME ${_JNC} NAME)
+
+	add_perl_step(
+		${_NAME}.cpp
+		${_JNC}
+		${FILE2LITERAL_PL}
+		)
+
+	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
+endforeach()
+
+axl_pop(CMAKE_CURRENT_BINARY_DIR)
+
+axl_exclude_from_build(${GEN_JNC_CPP_LIST})  # include "*.jnc.cpp" manually
+
+source_group(
+	gen
+	FILES
+	${GEN_JNC_CPP_LIST}
+	)
+
 #...............................................................................
 #
 # jnc_rtl_core library
@@ -104,6 +135,7 @@ add_library(
 	${LIB_H_LIST}
 	${LIB_CPP_LIST}
 	${JNC_LIST}
+	${GEN_JNC_CPP_LIST}
 	)
 
 axl_set_pch(

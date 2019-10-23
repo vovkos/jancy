@@ -11,11 +11,7 @@
 
 namespace jnc {
 
-///+++
-
 //..............................................................................
-
-///; static char promiseSrc[] =
 
 opaque class Promise
 {
@@ -52,8 +48,6 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-///; static char promisifierSrc[] =
-
 class Promisifier: Promise
 {
 	// pass those as completion routines
@@ -67,10 +61,6 @@ class Promisifier: Promise
 		);
 }
 
-///;
-
 //..............................................................................
-
-///---
 
 } // namespace jnc
