@@ -71,7 +71,7 @@ enum jnc_ModuleItemKind
 	jnc_ModuleItemKind_Field,
 	jnc_ModuleItemKind_BaseTypeSlot,
 	jnc_ModuleItemKind_Orphan,
-	jnc_ModuleItemKind_Lazy,
+	jnc_ModuleItemKind_LazyImport,
 	jnc_ModuleItemKind__Count,
 };
 
@@ -93,7 +93,6 @@ enum jnc_ModuleItemFlag
 	jnc_ModuleItemFlag_InCalcLayout = 0x10,
 	jnc_ModuleItemFlag_LayoutReady  = 0x20,
 	jnc_ModuleItemFlag_Constructed  = 0x40, // base type slots, fields, variables, properties
-	jnc_ModuleItemFlag_Sealed       = 0x80,
 };
 
 typedef enum jnc_ModuleItemFlag jnc_ModuleItemFlag;
@@ -381,7 +380,7 @@ const ModuleItemKind
 	ModuleItemKind_Field            = jnc_ModuleItemKind_Field,
 	ModuleItemKind_BaseTypeSlot     = jnc_ModuleItemKind_BaseTypeSlot,
 	ModuleItemKind_Orphan           = jnc_ModuleItemKind_Orphan,
-	ModuleItemKind_Lazy             = jnc_ModuleItemKind_Lazy,
+	ModuleItemKind_LazyImport       = jnc_ModuleItemKind_LazyImport,
 	ModuleItemKind__Count           = jnc_ModuleItemKind__Count;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -403,8 +402,7 @@ const ModuleItemFlag
 	ModuleItemFlag_NeedCompile  = jnc_ModuleItemFlag_NeedCompile,
 	ModuleItemFlag_InCalcLayout = jnc_ModuleItemFlag_InCalcLayout,
 	ModuleItemFlag_LayoutReady  = jnc_ModuleItemFlag_LayoutReady,
-	ModuleItemFlag_Constructed  = jnc_ModuleItemFlag_Constructed,
-	ModuleItemFlag_Sealed       = jnc_ModuleItemFlag_Sealed;
+	ModuleItemFlag_Constructed  = jnc_ModuleItemFlag_Constructed;
 
 //..............................................................................
 

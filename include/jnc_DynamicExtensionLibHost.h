@@ -1079,10 +1079,6 @@ jnc_Module_ParseImportsFunc(jnc_Module* module);
 
 typedef
 bool_t
-jnc_Module_CalcLayoutFunc(jnc_Module* module);
-
-typedef
-bool_t
 jnc_Module_CompileFunc(jnc_Module* module);
 
 typedef

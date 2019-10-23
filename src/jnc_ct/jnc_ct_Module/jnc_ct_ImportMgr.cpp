@@ -28,6 +28,7 @@ void
 ImportMgr::clear()
 {
 	m_importList.clear();
+	m_lazyImportList.clear();
 	m_importFilePathMap.clear();
 	m_ignoredImportSet.clear();
 }
@@ -131,6 +132,49 @@ ImportMgr::findImportFile(
 	it->m_value = true;
 	*filePath_o = filePath;
 	return FindResult_Found;
+}
+
+LazyImport*
+ImportMgr::createLazyImport(
+	ExtensionLib* lib,
+	const sl::StringRef& fileName,
+	const sl::StringRef& source
+	)
+{
+	LazyImport* import = AXL_MEM_NEW(LazyImport);
+	import->m_module = m_module;
+	import->m_lib = lib;
+	import->m_fileName = fileName;
+	import->m_source = source;
+	m_lazyImportList.insertTail(import);
+	return import;
+}
+
+bool
+ImportMgr::parseLazyImport(LazyImport* import)
+{
+	ASSERT(m_module->getCompileState() < ModuleCompileState_Compiled);
+
+	sl::ConstIterator<Variable> lastVariableIt = m_module->m_variableMgr.getVariableList().getTail();
+	sl::ConstIterator<Property> lastPropertyIt = m_module->m_functionMgr.getPropertyList().getTail();
+
+	import->m_flags |= LazyImportFlag_Used;
+
+	addImport(import->m_lib, import->m_fileName, import->m_source);
+
+	m_module->m_namespaceMgr.openNamespace(m_module->m_namespaceMgr.getGlobalNamespace());
+
+	bool result =
+		m_module->parseImports() &&
+		m_module->m_namespaceMgr.getGlobalNamespace()->resolveOrphans() &&
+		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
+
+	if (!result)
+		return false;
+
+	m_module->m_namespaceMgr.closeNamespace();
+	return true;
 }
 
 //..............................................................................

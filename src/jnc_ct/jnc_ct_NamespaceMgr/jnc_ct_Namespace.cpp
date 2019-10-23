@@ -26,6 +26,9 @@ namespace ct {
 void
 Namespace::clear()
 {
+	m_parentUnit = NULL;
+	m_body.clear();
+	m_bodyPos.clear();
 	m_itemArray.clear();
 	m_itemMap.clear();
 	m_friendSet.clear();
@@ -219,22 +222,30 @@ Namespace::findDirectChildItem(const sl::StringRef& name)
 		item = alias->getTargetItem();
 	}
 
-	if (item->getItemKind() != ModuleItemKind_Lazy)
+	if (item->getItemKind() != ModuleItemKind_LazyImport)
 		return FindModuleItemResult(item);
 
-	LazyModuleItem* lazyItem = (LazyModuleItem*)item;
-	ASSERT(!(lazyItem->m_flags & LazyModuleItemFlag_Touched));
-	lazyItem->m_flags |= LazyModuleItemFlag_Touched;
+	Module* module = item->getModule();
+	ASSERT(this == module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc));
 
-	item = lazyItem->getActualItem();
-	ASSERT(item);
+	if (module->getCompileState() >= ModuleCompileState_Compiled ||
+		(((LazyImport*)item)->getFlags() & LazyImportFlag_Used))
+		return g_nullFindModuleItemResult;
 
-	if (it->m_value != lazyItem) // it already has been replaced during parse
-		return FindModuleItemResult(it->m_value);
+	m_namespaceStatus = NamespaceStatus_ParseRequired;
 
-	it->m_value = item;
-	m_itemArray.append(item);
-	return FindModuleItemResult(item);
+	result =
+		module->m_importMgr.parseLazyImport((LazyImport*)item) &&
+		ensureNamespaceReady();
+
+	if (!result)
+	{
+		printf("error: %s\n", err::getLastErrorDescription().sz());
+		return g_errorFindModuleItemResult;
+	}
+
+	ASSERT(it->m_value != item); // should have been replaced
+	return FindModuleItemResult(it->m_value);
 }
 
 FindModuleItemResult
@@ -334,15 +345,13 @@ Namespace::addItem(
 	)
 {
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.visit(name);
-	if (it->m_value)
+	if (it->m_value && it->m_value->getItemKind() != ModuleItemKind_LazyImport)
 	{
 		setRedefinitionError(name);
 		return false;
 	}
 
-	if (item->getItemKind() == ModuleItemKind_Lazy)
-		((LazyModuleItem*)item)->m_it = it;
-	else
+	if (item->getItemKind() != ModuleItemKind_LazyImport)
 		m_itemArray.append(item);
 
 	it->m_value = item;
@@ -352,27 +361,40 @@ Namespace::addItem(
 size_t
 Namespace::addFunction(Function* function)
 {
+	size_t result = 0;
+
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.visit(function->m_name);
 	if (!it->m_value)
 	{
 		it->m_value = function;
-		return 0;
 	}
-
-	ModuleItemKind itemKind = it->m_value->getItemKind();
-	switch (itemKind)
+	else
 	{
-	case ModuleItemKind_Function:
-		it->m_value = function->getModule()->m_functionMgr.createFunctionOverload((Function*)it->m_value);
-		// and fall through
+		ModuleItemKind itemKind = it->m_value->getItemKind();
+		switch (itemKind)
+		{
+		case ModuleItemKind_Function:
+			it->m_value = function->getModule()->m_functionMgr.createFunctionOverload((Function*)it->m_value);
+			// and fall through
 
-	case ModuleItemKind_FunctionOverload:
-		return ((FunctionOverload*)it->m_value)->addOverload(function);
+		case ModuleItemKind_FunctionOverload:
+			result = ((FunctionOverload*)it->m_value)->addOverload(function);
+			if (result == -1)
+				return -1;
+			break;
 
-	default:
-		setRedefinitionError(function->m_name);
-		return -1;
+		case ModuleItemKind_LazyImport:
+			it->m_value = function;
+			break;
+
+		default:
+			setRedefinitionError(function->m_name);
+			return -1;
+		}
 	}
+
+	m_itemArray.append(function);
+	return result;
 }
 
 Const*

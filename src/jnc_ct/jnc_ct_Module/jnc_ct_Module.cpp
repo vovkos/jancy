@@ -131,6 +131,7 @@ Module::initialize(
 	{
 		m_extensionLibMgr.addStaticLib(jnc_CoreLib_getLib());
 		m_extensionLibMgr.addStaticLib(jnc_IntrospectionLib_getLib());
+		m_typeMgr.createStdTypes();
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}
@@ -501,7 +502,7 @@ Module::parseImpl(
 	const sl::StringRef& source
 	)
 {
-	ASSERT(m_compileState < ModuleCompileState_Parsed);
+	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	bool result;
 
@@ -607,7 +608,7 @@ Module::parseImpl(
 bool
 Module::parseFile(const sl::StringRef& fileName)
 {
-	ASSERT(m_compileState < ModuleCompileState_Parsed);
+	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	sl::String filePath = io::getFullFilePath(fileName);
 	sl::StringHashTableIterator<bool> it = m_filePathSet.find(filePath);
@@ -631,7 +632,7 @@ Module::parseFile(const sl::StringRef& fileName)
 bool
 Module::parseImports()
 {
-	ASSERT(m_compileState < ModuleCompileState_Parsed);
+	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
 	bool result;
 
@@ -658,60 +659,6 @@ Module::parseImports()
 		}
 	}
 
-	GlobalNamespace* nspace = m_namespaceMgr.getGlobalNamespace();
-
-	result =
-		nspace->resolveOrphans() &&
-		m_variableMgr.allocateNamespaceVariables(sl::ConstIterator<Variable>()) &&
-		m_functionMgr.finalizeNamespaceProperties(sl::ConstIterator<Property>());
-
-	if (!result)
-		return false;
-
-	sl::StringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
-	for (; requireIt; requireIt++)
-	{
-		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
-		if (!findResult.m_result)
-			return false;
-
-		if (!findResult.m_item)
-		{
-			if (!requireIt->m_value.m_isEssential) // not essential
-				continue;
-
-			err::setFormatStringError("required module item '%s' not found", requireIt->getKey().sz());
-			return false;
-		}
-
-		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined &&
-			findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
-		{
-			err::setFormatStringError(
-				"required module item '%s' item kind mismatch: '%s'",
-				requireIt->getKey().sz(),
-				getModuleItemKindString(findResult.m_item->getItemKind())
-				);
-			return false;
-		}
-
-		if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
-			requireIt->m_value.m_typeKind != TypeKind_Void &&
-			requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind())
-		{
-			err::setFormatStringError(
-				"required type '%s' type mismatch: '%s'",
-				requireIt->getKey().sz(),
-				((Type*)findResult.m_item)->getTypeString().sz()
-				);
-			return false;
-		}
-
-		result = findResult.m_item->require();
-		if (!result)
-			return false;
-	}
-
 	m_compileState = ModuleCompileState_Parsed;
 	return true;
 }
@@ -729,7 +676,13 @@ Module::compile()
 			return false;
 	}
 
-	result = processCompileArray();
+	result =
+		m_namespaceMgr.getGlobalNamespace()->resolveOrphans() &&
+		m_variableMgr.allocateNamespaceVariables(sl::ConstIterator<Variable>()) &&
+		m_functionMgr.finalizeNamespaceProperties(sl::ConstIterator<Property>()) &&
+		processRequireSet() &&
+		processCompileArray();
+
 	if (!result)
 		return false;
 
@@ -845,6 +798,116 @@ Module::jit()
 		return false;
 
 	m_compileState = ModuleCompileState_Jitted;
+	return true;
+}
+
+bool
+Module::requireIntrospectionLib()
+{
+	ASSERT(!(m_compileFlags & AuxCompileFlag_IntrospectionLib));
+
+	static StdType introspectionTypeTable[] =
+	{
+		StdType_ModuleItem,
+		StdType_ModuleItemDecl,
+		StdType_ModuleItemInitializer,
+		StdType_Attribute,
+		StdType_AttributeBlock,
+		StdType_Namespace,
+		StdType_GlobalNamespace,
+		StdType_Type,
+		StdType_DataPtrType,
+		StdType_NamedType,
+		StdType_MemberBlock,
+		StdType_BaseTypeSlot,
+		StdType_DerivableType,
+		StdType_ArrayType,
+		StdType_BitFieldType,
+		StdType_FunctionArg,
+		StdType_FunctionType,
+		StdType_FunctionPtrType,
+		StdType_PropertyType,
+		StdType_PropertyPtrType,
+		StdType_EnumConst,
+		StdType_EnumType,
+		StdType_ClassType,
+		StdType_ClassPtrType,
+		StdType_Field,
+		StdType_StructType,
+		StdType_UnionType,
+		StdType_Alias,
+		StdType_Const,
+		StdType_Variable,
+		StdType_Function,
+		StdType_FunctionOverload,
+		StdType_Property,
+		StdType_Typedef,
+		StdType_Module,
+		StdType_Unit,
+	};
+
+	for (size_t i = 0; i < countof(introspectionTypeTable); i++)
+	{
+		bool result = m_typeMgr.getStdType(introspectionTypeTable[i])->require();
+		if (!result)
+			return false;
+	}
+
+	m_compileFlags |= AuxCompileFlag_IntrospectionLib;
+	return true;
+}
+
+bool
+Module::processRequireSet()
+{
+	bool result;
+
+	sl::StringHashTableIterator<RequiredItem> requireIt = m_requireSet.getHead();
+	for (; requireIt; requireIt++)
+	{
+		FindModuleItemResult findResult = m_namespaceMgr.getGlobalNamespace()->findItem(requireIt->getKey());
+		if (!findResult.m_result)
+			return false;
+
+		if (!findResult.m_item)
+		{
+			if (!requireIt->m_value.m_isEssential) // not essential
+				continue;
+
+			err::setFormatStringError("required module item '%s' not found", requireIt->getKey().sz());
+			return false;
+		}
+
+		if (requireIt->m_value.m_itemKind != ModuleItemKind_Undefined)
+		{
+			if (findResult.m_item->getItemKind() != requireIt->m_value.m_itemKind)
+			{
+				err::setFormatStringError(
+					"required module item '%s' item kind mismatch: '%s'",
+					requireIt->getKey().sz(),
+					getModuleItemKindString(findResult.m_item->getItemKind())
+					);
+				return false;
+			}
+
+			if (requireIt->m_value.m_itemKind == ModuleItemKind_Type &&
+				requireIt->m_value.m_typeKind != TypeKind_Void &&
+				requireIt->m_value.m_typeKind != ((Type*)findResult.m_item)->getTypeKind())
+			{
+				err::setFormatStringError(
+					"required type '%s' type mismatch: '%s'",
+					requireIt->getKey().sz(),
+					((Type*)findResult.m_item)->getTypeString().sz()
+					);
+				return false;
+			}
+		}
+
+		result = findResult.m_item->require();
+		if (!result)
+			return false;
+	}
+
 	return true;
 }
 

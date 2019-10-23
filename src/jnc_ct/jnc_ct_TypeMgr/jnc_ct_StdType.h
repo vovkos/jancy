@@ -20,6 +20,9 @@ namespace ct {
 
 //..............................................................................
 
+const char*
+getStdTypeName(StdType stdType);
+
 const StdItemSource*
 getStdTypeSource(StdType stdType);
 
@@ -50,26 +53,6 @@ enum StdTypedef
 	StdTypedef_ulong_t,
 	StdTypedef_qword_t,
 	StdTypedef__Count,
-};
-
-//..............................................................................
-
-class LazyStdType: public LazyModuleItem
-{
-	friend class TypeMgr;
-
-protected:
-	StdType m_stdType;
-
-public:
-	LazyStdType()
-	{
-		m_stdType = (StdType) -1;
-	}
-
-	virtual
-	ModuleItem*
-	getActualItem();
 };
 
 //..............................................................................

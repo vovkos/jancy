@@ -88,14 +88,6 @@ enum StdFunc
 
 	StdFunc_GetDynamicField,
 
-	StdFunc_GcTriggers_get,
-	StdFunc_GcTriggers_set,
-	StdFunc_GetGcStats,
-	StdFunc_CollectGarbage,
-
-	StdFunc_CreateDataPtr,
-	StdFunc_CreateConstDataPtr,
-
 	StdFunc__Count
 };
 
@@ -106,53 +98,12 @@ getStdFunctionSource(StdFunc stdFunction);
 
 //..............................................................................
 
-class LazyStdFunction: public LazyModuleItem
-{
-	friend class FunctionMgr;
-
-protected:
-	StdFunc m_stdFunc;
-
-public:
-	LazyStdFunction()
-	{
-		m_stdFunc = (StdFunc)-1;
-	}
-
-	virtual
-	ModuleItem*
-	getActualItem();
-};
-
-//..............................................................................
-
 enum StdProp
 {
 	StdProp_VariantMember,
 	StdProp_VariantIndex,
-	StdProp_GcTriggers,
 
 	StdProp__Count,
-};
-
-//..............................................................................
-
-class LazyStdProperty: public LazyModuleItem
-{
-	friend class FunctionMgr;
-
-protected:
-	StdProp m_stdProp;
-
-public:
-	LazyStdProperty()
-	{
-		m_stdProp = (StdProp)-1;
-	}
-
-	virtual
-	ModuleItem*
-	getActualItem();
 };
 
 //..............................................................................

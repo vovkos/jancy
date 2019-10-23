@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_ct_ModuleItem.h"
 
 namespace jnc {
 namespace ct {
@@ -36,7 +37,50 @@ struct Import: sl::ListLink
 	sl::StringRef m_source;
 };
 
+//..............................................................................
+
+enum LazyImportFlag
+{
+	LazyImportFlag_Used = 0x010000,
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class LazyImport: public ModuleItem
+{
+	friend class ImportMgr;
+
+protected:
+	ExtensionLib* m_lib;
+	sl::String m_fileName;
+	sl::StringRef m_source;
+
+public:
+	LazyImport()
+	{
+		m_itemKind = ModuleItemKind_LazyImport;
+	}
+
+	ExtensionLib*
+	getLib()
+	{
+		return m_lib;
+	}
+
+	const sl::String&
+	getFileName()
+	{
+		return m_fileName;
+	}
+
+	const sl::StringRef&
+	getSource()
+	{
+		return m_source;
+	}
+};
+
+//..............................................................................
 
 class ImportMgr
 {
@@ -54,6 +98,7 @@ protected:
 	Module* m_module;
 
 	sl::List<Import> m_importList;
+	sl::List<LazyImport> m_lazyImportList;
 	sl::StringHashTable<bool> m_ignoredImportSet;
 	sl::StringHashTable<bool> m_importFilePathMap;
 
@@ -93,6 +138,16 @@ public:
 	{
 		sl::takeOver(list, &m_importList);
 	}
+
+	LazyImport*
+	createLazyImport(
+		ExtensionLib* lib,
+		const sl::StringRef& fileName,
+		const sl::StringRef& source
+		);
+
+	bool
+	parseLazyImport(LazyImport* import);
 
 protected:
 	FindResult

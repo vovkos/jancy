@@ -44,7 +44,7 @@ jnc_getModuleItemKindString(jnc_ModuleItemKind itemKind)
 		"struct-member",               // jnc_ModuleItemKind_Field,
 		"base-type-slot",              // jnc_ModuleItemKind_BaseTypeSlot,
 		"orphan",                      // jnc_ModuleItemKind_Orphan,
-		"lazy",                        // jnc_ModuleItemKind_Lazy,
+		"lazy-import",                 // jnc_ModuleItemKind_LazyImport,
 	};
 
 	return (size_t)itemKind < jnc_ModuleItemKind__Count ?

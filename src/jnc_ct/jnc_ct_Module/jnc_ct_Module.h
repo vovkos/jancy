@@ -65,6 +65,11 @@ protected:
 class Module: public PreModule
 {
 protected:
+	enum AuxCompileFlag
+	{
+		AuxCompileFlag_IntrospectionLib = 0x80000000,
+	};
+
 	struct RequiredItem
 	{
 		ModuleItemKind m_itemKind;
@@ -260,6 +265,12 @@ public:
 	jit();
 
 	bool
+	ensureIntrospectionLibRequired()
+	{
+		return (m_compileFlags & AuxCompileFlag_IntrospectionLib) || requireIntrospectionLib();
+	}
+
+	bool
 	mapVariable(
 		Variable* variable,
 		void* p
@@ -286,7 +297,13 @@ protected:
 		);
 
 	bool
+	requireIntrospectionLib();
+
+	bool
 	createLlvmExecutionEngine();
+
+	bool
+	processRequireSet();
 
 	bool
 	processCompileArray();

@@ -297,45 +297,5 @@ public:
 
 //..............................................................................
 
-enum LazyModuleItemFlag
-{
-	LazyModuleItemFlag_Touched = 0x010000,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-class LazyModuleItem: public ModuleItem
-{
-	friend class Namespace;
-
-protected:
-	sl::StringHashTableIterator<ModuleItem*> m_it;
-
-public:
-	LazyModuleItem()
-	{
-		m_itemKind = ModuleItemKind_Lazy;
-	}
-
-	ModuleItem*
-	getCurrentItem()
-	{
-		return m_it->m_value;
-	}
-
-	void
-	detach()
-	{
-		ASSERT(!m_it->m_value || m_it->m_value == this);
-		m_it->m_value = NULL;
-	}
-
-	virtual
-	ModuleItem*
-	getActualItem() = 0;
-};
-
-//..............................................................................
-
 } // namespace ct
 } // namespace jnc

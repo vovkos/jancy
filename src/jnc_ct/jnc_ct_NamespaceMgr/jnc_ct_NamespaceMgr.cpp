@@ -15,6 +15,29 @@
 #include "jnc_ct_DynamicLibNamespace.h"
 #include "jnc_ct_Module.h"
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// jancy sources
+
+;static char g_jnc_gcSrc[] =
+#include "jnc_gc.jnc.cpp"
+;static char g_jnc_dataPtrSrc[] =
+#include "jnc_DataPtr.jnc.cpp"
+;static char g_jnc_dynamicLibSrc[] =
+#include "jnc_DynamicLib.jnc.cpp"
+;static char g_jnc_promiseSrc[] =
+#include "jnc_Promise.jnc.cpp"
+;static char g_jnc_regexSrc[] =
+#include "jnc_Regex.jnc.cpp"
+;static char g_jnc_schedulerSrc[] =
+#include "jnc_Scheduler.jnc.cpp"
+;static char g_jnc_introSrc[] =
+#include "jnc_intro.jnc.cpp"
+;
+
+#include "jnc_StdFunctions.jnc.cpp"
+#include "jnc_StdTypes.jnc.cpp"
+
 namespace jnc {
 namespace ct {
 
@@ -39,9 +62,6 @@ NamespaceMgr::NamespaceMgr()
 	jnc->m_parentNamespace = global;
 	jnc->m_name = jncName;
 	jnc->m_qualifiedName = jncName;
-
-	if (!(m_module->getCompileFlags() & ModuleCompileFlag_StdLibDoc))
-		jnc->m_flags |= ModuleItemFlag_Sealed;
 
 	internal->m_module = m_module;
 	internal->m_namespaceStatus = NamespaceStatus_Ready;
@@ -76,108 +96,119 @@ NamespaceMgr::clear()
 void
 NamespaceMgr::addStdItems()
 {
-	GlobalNamespace* global = &m_stdNamespaceArray[StdNamespace_Global];
-	GlobalNamespace* jnc = &m_stdNamespaceArray[StdNamespace_Jnc];
+	GlobalNamespace* globalNspace = &m_stdNamespaceArray[StdNamespace_Global];
+	GlobalNamespace* jncNspace = &m_stdNamespaceArray[StdNamespace_Jnc];
+
+	ExtensionLib* coreLib = jnc_CoreLib_getLib();
+	ExtensionLib* introLib = jnc_IntrospectionLib_getLib();
+
+	LazyImport* gcImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_gc.jnc", g_jnc_gcSrc);
+	LazyImport* dataPtrImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DataPtr.jnc", g_jnc_dataPtrSrc);
+	LazyImport* dynamicLibImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_DynamicLib.jnc", g_jnc_dynamicLibSrc);
+	LazyImport* promiseImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_Promise.jnc", g_jnc_promiseSrc);
+	LazyImport* schedulerImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_Scheduler.jnc", g_jnc_schedulerSrc);
+	LazyImport* regexImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_Regex.jnc", g_jnc_regexSrc);
+	LazyImport* introImport = m_module->m_importMgr.createLazyImport(coreLib, "jnc_intro.jnc", g_jnc_introSrc);
 
 	bool result =
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_intptr_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uintptr_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_size_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int8_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf8_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint8_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uchar_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_byte_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int16_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf16_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint16_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_ushort_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_word_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int32_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf32_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint32_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_dword_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int64_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
-		global->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
-		global->addItem(jnc) &&
-		jnc->addItem("g_gcTriggers", m_module->m_functionMgr.getLazyStdProperty(StdProp_GcTriggers)) &&
-		jnc->addItem("getGcStats", m_module->m_functionMgr.getLazyStdFunction(StdFunc_GetGcStats)) &&
-		jnc->addItem("collectGarbage", m_module->m_functionMgr.getLazyStdFunction(StdFunc_CollectGarbage)) &&
-		jnc->addItem("createDataPtr", m_module->m_functionMgr.getLazyStdFunction(StdFunc_CreateDataPtr)) &&
-		jnc->addItem("GcTriggers", m_module->m_typeMgr.getLazyStdType(StdType_GcTriggers)) &&
-		jnc->addItem("GcStats", m_module->m_typeMgr.getLazyStdType(StdType_GcStats)) &&
-		jnc->addItem("Scheduler", m_module->m_typeMgr.getLazyStdType(StdType_Scheduler)) &&
-		jnc->addItem("RegexMatch", m_module->m_typeMgr.getLazyStdType(StdType_RegexMatch)) &&
-		jnc->addItem("RegexState", m_module->m_typeMgr.getLazyStdType(StdType_RegexState)) &&
-		jnc->addItem("RegexDfa", m_module->m_typeMgr.getLazyStdType(StdType_RegexDfa)) &&
-		jnc->addItem("Promise", m_module->m_typeMgr.getLazyStdType(StdType_Promise)) &&
-		jnc->addItem("Promisifier", m_module->m_typeMgr.getLazyStdType(StdType_Promisifier)) &&
-		jnc->addItem("DynamicLib", m_module->m_typeMgr.getLazyStdType(StdType_DynamicLib)) &&
-		jnc->addItem("ModuleItemKind", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemKind)) &&
-		jnc->addItem("ModuleItemFlags", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemFlags)) &&
-		jnc->addItem("StorageKind", m_module->m_typeMgr.getLazyStdType(StdType_StorageKind)) &&
-		jnc->addItem("AccessKind", m_module->m_typeMgr.getLazyStdType(StdType_AccessKind)) &&
-		jnc->addItem("ModuleItem", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItem)) &&
-		jnc->addItem("ModuleItemDecl", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemDecl)) &&
-		jnc->addItem("ModuleItemInitializer", m_module->m_typeMgr.getLazyStdType(StdType_ModuleItemInitializer)) &&
-		jnc->addItem("Attribute", m_module->m_typeMgr.getLazyStdType(StdType_Attribute)) &&
-		jnc->addItem("AttributeBlock", m_module->m_typeMgr.getLazyStdType(StdType_AttributeBlock)) &&
-		jnc->addItem("NamespaceKind", m_module->m_typeMgr.getLazyStdType(StdType_NamespaceKind)) &&
-		jnc->addItem("Namespace", m_module->m_typeMgr.getLazyStdType(StdType_Namespace)) &&
-		jnc->addItem("GlobalNamespace", m_module->m_typeMgr.getLazyStdType(StdType_GlobalNamespace)) &&
-		jnc->addItem("UnOpKind", m_module->m_typeMgr.getLazyStdType(StdType_UnOpKind)) &&
-		jnc->addItem("BinOpKind", m_module->m_typeMgr.getLazyStdType(StdType_BinOpKind)) &&
-		jnc->addItem("TypeKind", m_module->m_typeMgr.getLazyStdType(StdType_TypeKind)) &&
-		jnc->addItem("TypeKindFlags", m_module->m_typeMgr.getLazyStdType(StdType_TypeKindFlags)) &&
-		jnc->addItem("TypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_TypeFlags)) &&
-		jnc->addItem("PtrTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_PtrTypeFlags)) &&
-		jnc->addItem("DataPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_DataPtrTypeKind)) &&
-		jnc->addItem("Type", m_module->m_typeMgr.getLazyStdType(StdType_Type)) &&
-		jnc->addItem("DataPtrType", m_module->m_typeMgr.getLazyStdType(StdType_DataPtrType)) &&
-		jnc->addItem("NamedType", m_module->m_typeMgr.getLazyStdType(StdType_NamedType)) &&
-		jnc->addItem("MemberBlock", m_module->m_typeMgr.getLazyStdType(StdType_MemberBlock)) &&
-		jnc->addItem("BaseTypeSlot", m_module->m_typeMgr.getLazyStdType(StdType_BaseTypeSlot)) &&
-		jnc->addItem("DerivableType", m_module->m_typeMgr.getLazyStdType(StdType_DerivableType)) &&
-		jnc->addItem("ArrayType", m_module->m_typeMgr.getLazyStdType(StdType_ArrayType)) &&
-		jnc->addItem("BitFieldType", m_module->m_typeMgr.getLazyStdType(StdType_BitFieldType)) &&
-		jnc->addItem("FunctionTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_FunctionTypeFlags)) &&
-		jnc->addItem("FunctionPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_FunctionPtrTypeKind)) &&
-		jnc->addItem("FunctionArg", m_module->m_typeMgr.getLazyStdType(StdType_FunctionArg)) &&
-		jnc->addItem("FunctionType", m_module->m_typeMgr.getLazyStdType(StdType_FunctionType)) &&
-		jnc->addItem("FunctionPtrType", m_module->m_typeMgr.getLazyStdType(StdType_FunctionPtrType)) &&
-		jnc->addItem("PropertyTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_PropertyTypeFlags)) &&
-		jnc->addItem("PropertyPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_PropertyPtrTypeKind)) &&
-		jnc->addItem("PropertyType", m_module->m_typeMgr.getLazyStdType(StdType_PropertyType)) &&
-		jnc->addItem("PropertyPtrType", m_module->m_typeMgr.getLazyStdType(StdType_PropertyPtrType)) &&
-		jnc->addItem("EnumTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_EnumTypeFlags)) &&
-		jnc->addItem("EnumConst", m_module->m_typeMgr.getLazyStdType(StdType_EnumConst)) &&
-		jnc->addItem("EnumType", m_module->m_typeMgr.getLazyStdType(StdType_EnumType)) &&
-		jnc->addItem("ClassTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_ClassTypeKind)) &&
-		jnc->addItem("ClassTypeFlags", m_module->m_typeMgr.getLazyStdType(StdType_ClassTypeFlags)) &&
-		jnc->addItem("ClassPtrTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_ClassPtrTypeKind)) &&
-		jnc->addItem("ClassType", m_module->m_typeMgr.getLazyStdType(StdType_ClassType)) &&
-		jnc->addItem("ClassPtrType", m_module->m_typeMgr.getLazyStdType(StdType_ClassPtrType)) &&
-		jnc->addItem("StructTypeKind", m_module->m_typeMgr.getLazyStdType(StdType_StructTypeKind)) &&
-		jnc->addItem("Field", m_module->m_typeMgr.getLazyStdType(StdType_Field)) &&
-		jnc->addItem("StructType", m_module->m_typeMgr.getLazyStdType(StdType_StructType)) &&
-		jnc->addItem("UnionType", m_module->m_typeMgr.getLazyStdType(StdType_UnionType)) &&
-		jnc->addItem("Alias", m_module->m_typeMgr.getLazyStdType(StdType_Alias)) &&
-		jnc->addItem("Const", m_module->m_typeMgr.getLazyStdType(StdType_Const)) &&
-		jnc->addItem("Variable", m_module->m_typeMgr.getLazyStdType(StdType_Variable)) &&
-		jnc->addItem("FunctionKind", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKind)) &&
-		jnc->addItem("FunctionKindFlags", m_module->m_typeMgr.getLazyStdType(StdType_FunctionKindFlags)) &&
-		jnc->addItem("Function", m_module->m_typeMgr.getLazyStdType(StdType_Function)) &&
-		jnc->addItem("FunctionOverload", m_module->m_typeMgr.getLazyStdType(StdType_FunctionOverload)) &&
-		jnc->addItem("PropertyKind", m_module->m_typeMgr.getLazyStdType(StdType_PropertyKind)) &&
-		jnc->addItem("PropertyFlag", m_module->m_typeMgr.getLazyStdType(StdType_PropertyFlag)) &&
-		jnc->addItem("Property", m_module->m_typeMgr.getLazyStdType(StdType_Property)) &&
-		jnc->addItem("Typedef", m_module->m_typeMgr.getLazyStdType(StdType_Typedef)) &&
-		jnc->addItem("ModuleCompileFlags", m_module->m_typeMgr.getLazyStdType(StdType_ModuleCompileFlags)) &&
-		jnc->addItem("ModuleCompileState", m_module->m_typeMgr.getLazyStdType(StdType_ModuleCompileState)) &&
-		jnc->addItem("Module", m_module->m_typeMgr.getLazyStdType(StdType_Module)) &&
-		jnc->addItem("Unit", m_module->m_typeMgr.getLazyStdType(StdType_Unit));
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_intptr_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uintptr_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_size_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int8_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf8_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint8_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uchar_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_byte_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int16_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf16_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint16_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_ushort_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_word_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int32_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_utf32_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint32_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_dword_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_int64_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_uint64_t)) &&
+		globalNspace->addItem(m_module->m_typeMgr.getStdTypedef(StdTypedef_qword_t)) &&
+		globalNspace->addItem(jncNspace) &&
+		jncNspace->addItem("GcStats", gcImport) &&
+		jncNspace->addItem("GcTriggers", gcImport) &&
+		jncNspace->addItem("getGcStats", gcImport) &&
+		jncNspace->addItem("g_gcTriggers", gcImport) &&
+		jncNspace->addItem("collectGarbage", gcImport) &&
+		jncNspace->addItem("createDataPtr", dataPtrImport) &&
+		jncNspace->addItem("Scheduler", schedulerImport) &&
+		jncNspace->addItem("RegexMatch", regexImport) &&
+		jncNspace->addItem("RegexState", regexImport) &&
+		jncNspace->addItem("RegexDfa", regexImport) &&
+		jncNspace->addItem("Promise", promiseImport) &&
+		jncNspace->addItem("Promisifier", promiseImport) &&
+		jncNspace->addItem("DynamicLib", dynamicLibImport) &&
+		jncNspace->addItem("ModuleItemKind", introImport) &&
+		jncNspace->addItem("ModuleItemFlags", introImport) &&
+		jncNspace->addItem("StorageKind", introImport) &&
+		jncNspace->addItem("AccessKind", introImport) &&
+		jncNspace->addItem("ModuleItem", introImport) &&
+		jncNspace->addItem("ModuleItemDecl", introImport) &&
+		jncNspace->addItem("ModuleItemInitializer", introImport) &&
+		jncNspace->addItem("Attribute", introImport) &&
+		jncNspace->addItem("AttributeBlock", introImport) &&
+		jncNspace->addItem("NamespaceKind", introImport) &&
+		jncNspace->addItem("Namespace", introImport) &&
+		jncNspace->addItem("GlobalNamespace", introImport) &&
+		jncNspace->addItem("UnOpKind", introImport) &&
+		jncNspace->addItem("BinOpKind", introImport) &&
+		jncNspace->addItem("TypeKind", introImport) &&
+		jncNspace->addItem("TypeKindFlags", introImport) &&
+		jncNspace->addItem("TypeFlags", introImport) &&
+		jncNspace->addItem("PtrTypeFlags", introImport) &&
+		jncNspace->addItem("DataPtrTypeKind", introImport) &&
+		jncNspace->addItem("Type", introImport) &&
+		jncNspace->addItem("DataPtrType", introImport) &&
+		jncNspace->addItem("NamedType", introImport) &&
+		jncNspace->addItem("MemberBlock", introImport) &&
+		jncNspace->addItem("BaseTypeSlot", introImport) &&
+		jncNspace->addItem("DerivableType", introImport) &&
+		jncNspace->addItem("ArrayType", introImport) &&
+		jncNspace->addItem("BitFieldType", introImport) &&
+		jncNspace->addItem("FunctionTypeFlags", introImport) &&
+		jncNspace->addItem("FunctionPtrTypeKind", introImport) &&
+		jncNspace->addItem("FunctionArg", introImport) &&
+		jncNspace->addItem("FunctionType", introImport) &&
+		jncNspace->addItem("FunctionPtrType", introImport) &&
+		jncNspace->addItem("PropertyTypeFlags", introImport) &&
+		jncNspace->addItem("PropertyPtrTypeKind", introImport) &&
+		jncNspace->addItem("PropertyType", introImport) &&
+		jncNspace->addItem("PropertyPtrType", introImport) &&
+		jncNspace->addItem("EnumTypeFlags", introImport) &&
+		jncNspace->addItem("EnumConst", introImport) &&
+		jncNspace->addItem("EnumType", introImport) &&
+		jncNspace->addItem("ClassTypeKind", introImport) &&
+		jncNspace->addItem("ClassTypeFlags", introImport) &&
+		jncNspace->addItem("ClassPtrTypeKind", introImport) &&
+		jncNspace->addItem("ClassType", introImport) &&
+		jncNspace->addItem("ClassPtrType", introImport) &&
+		jncNspace->addItem("StructTypeKind", introImport) &&
+		jncNspace->addItem("Field", introImport) &&
+		jncNspace->addItem("StructType", introImport) &&
+		jncNspace->addItem("UnionType", introImport) &&
+		jncNspace->addItem("Alias", introImport) &&
+		jncNspace->addItem("Const", introImport) &&
+		jncNspace->addItem("Variable", introImport) &&
+		jncNspace->addItem("FunctionKind", introImport) &&
+		jncNspace->addItem("FunctionKindFlags", introImport) &&
+		jncNspace->addItem("Function", introImport) &&
+		jncNspace->addItem("FunctionOverload", introImport) &&
+		jncNspace->addItem("PropertyKind", introImport) &&
+		jncNspace->addItem("PropertyFlag", introImport) &&
+		jncNspace->addItem("Property", introImport) &&
+		jncNspace->addItem("Typedef", introImport) &&
+		jncNspace->addItem("ModuleCompileFlags", introImport) &&
+		jncNspace->addItem("ModuleCompileState", introImport) &&
+		jncNspace->addItem("Module", introImport) &&
+		jncNspace->addItem("Unit", introImport);
 
 	ASSERT(result);
 }

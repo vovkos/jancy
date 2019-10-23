@@ -136,7 +136,7 @@ public:
 	bool
 	addItem(T* item)
 	{
-		return addItem(item->m_name, item);
+		return addItem(item->getName(), item);
 	}
 
 	void

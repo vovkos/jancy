@@ -37,8 +37,6 @@
 // in pointer fields, retvals, arguments etc
 // adding self to the namespace avoids creating unnecessary import types
 
-#define _JNC_NAMED_TYPE_ADD_SELF
-
 namespace jnc {
 namespace ct {
 
@@ -63,8 +61,6 @@ TypeMgr::TypeMgr()
 	setupCallConvArray();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
-
 	m_unnamedTypeCounter = 0;
 }
 
@@ -73,7 +69,6 @@ TypeMgr::clear()
 {
 	m_typeList.clear();
 	m_typedefList.clear();
-	m_lazyStdTypeList.clear();
 	m_functionArgList.clear();
 	m_fieldList.clear();
 	m_simplePropertyTypeTupleList.clear();
@@ -90,10 +85,19 @@ TypeMgr::clear()
 	setupAllPrimitiveTypes();
 
 	memset(m_stdTypeArray, 0, sizeof(m_stdTypeArray));
-	memset(m_lazyStdTypeArray, 0, sizeof(m_lazyStdTypeArray));
-
 	m_unnamedTypeCounter = 0;
 }
+
+void
+TypeMgr::createStdTypes()
+{
+	// these std types may be required at runtime without being referenced at compile time
+
+	getStdType(StdType_AbstractClassPtr);
+	getStdType(StdType_DetachedDataBox);
+	getStdType(StdType_DataPtrValidator);
+}
+
 
 Type*
 TypeMgr::getStdType(StdType stdType)
@@ -102,7 +106,14 @@ TypeMgr::getStdType(StdType stdType)
 	if (m_stdTypeArray[stdType])
 		return m_stdTypeArray[stdType];
 
-	ModuleItem* item;
+	// all required std types should be ready at ModuleCompileState_Compiled
+	// (parsed types starting with StdType_GcTriggers may not be in the table yet)
+
+	ASSERT(
+		m_module->getCompileState() < ModuleCompileState_Compiled ||
+		(size_t)stdType >= StdType_GcTriggers);
+
+	const char* name;
 	Type* type;
 	switch (stdType)
 	{
@@ -227,33 +238,17 @@ TypeMgr::getStdType(StdType stdType)
 	case StdType_RegexMatch:
 	case StdType_RegexState:
 	case StdType_RegexDfa:
+	case StdType_Promise:
 	case StdType_Promisifier:
 	case StdType_DynamicLib:
 	case StdType_Scheduler:
-		ASSERT(m_lazyStdTypeArray[stdType]);
-		m_lazyStdTypeArray[stdType]->detach();
-		type = parseStdType(stdType);
-		break;
-
-	case StdType_ModuleItemKind:
-	case StdType_ModuleItemFlags:
-	case StdType_StorageKind:
-	case StdType_AccessKind:
 	case StdType_ModuleItem:
 	case StdType_ModuleItemDecl:
 	case StdType_ModuleItemInitializer:
 	case StdType_Attribute:
 	case StdType_AttributeBlock:
-	case StdType_NamespaceKind:
 	case StdType_Namespace:
 	case StdType_GlobalNamespace:
-	case StdType_UnOpKind:
-	case StdType_BinOpKind:
-	case StdType_TypeKind:
-	case StdType_TypeKindFlags:
-	case StdType_TypeFlags:
-	case StdType_PtrTypeFlags:
-	case StdType_DataPtrTypeKind:
 	case StdType_Type:
 	case StdType_DataPtrType:
 	case StdType_NamedType:
@@ -262,58 +257,32 @@ TypeMgr::getStdType(StdType stdType)
 	case StdType_DerivableType:
 	case StdType_ArrayType:
 	case StdType_BitFieldType:
-	case StdType_FunctionTypeFlags:
-	case StdType_FunctionPtrTypeKind:
 	case StdType_FunctionArg:
 	case StdType_FunctionType:
 	case StdType_FunctionPtrType:
-	case StdType_PropertyTypeFlags:
-	case StdType_PropertyPtrTypeKind:
 	case StdType_PropertyType:
 	case StdType_PropertyPtrType:
-	case StdType_EnumTypeFlags:
 	case StdType_EnumConst:
 	case StdType_EnumType:
-	case StdType_ClassTypeKind:
-	case StdType_ClassTypeFlags:
-	case StdType_ClassPtrTypeKind:
 	case StdType_ClassType:
 	case StdType_ClassPtrType:
-	case StdType_StructTypeKind:
 	case StdType_Field:
 	case StdType_StructType:
 	case StdType_UnionType:
 	case StdType_Alias:
 	case StdType_Variable:
 	case StdType_Const:
-	case StdType_FunctionKind:
-	case StdType_FunctionKindFlags:
 	case StdType_Function:
 	case StdType_FunctionOverload:
-	case StdType_PropertyKind:
-	case StdType_PropertyFlag:
 	case StdType_Property:
 	case StdType_Typedef:
-	case StdType_ModuleCompileFlags:
-	case StdType_ModuleCompileState:
 	case StdType_Module:
 	case StdType_Unit:
-		ASSERT(m_lazyStdTypeArray[stdType]);
-		m_lazyStdTypeArray[stdType]->detach();
-		type = parseStdType(stdType, m_module->m_unitMgr.getIntrospectionLibUnit());
-		break;
+		name = getStdTypeName(stdType);
+		ASSERT(name);
 
-	case StdType_Promise: // have cycles in definition
-		ASSERT(m_lazyStdTypeArray[stdType]);
-		item = m_lazyStdTypeArray[stdType]->getCurrentItem();
-		if (item && item->getItemKind() != ModuleItemKind_Lazy)
-		{
-			ASSERT(item->getItemKind() == ModuleItemKind_Type);
-			return (Type*)item;
-		}
-
-		m_lazyStdTypeArray[stdType]->detach();
-		type = parseStdType(stdType);
+		type = (Type*)m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc)->findDirectChildItem(name).m_item;
+		ASSERT(type && type->getItemKind() == ModuleItemKind_Type);
 		break;
 
 	case StdType_FmtLiteral:
@@ -332,22 +301,6 @@ TypeMgr::getStdType(StdType stdType)
 
 	type->m_stdType = stdType;
 	m_stdTypeArray[stdType] = type;
-	return type;
-}
-
-LazyStdType*
-TypeMgr::getLazyStdType(StdType stdType)
-{
-	ASSERT((size_t)stdType < StdType__Count);
-
-	if (m_lazyStdTypeArray[stdType])
-		return m_lazyStdTypeArray[stdType];
-
-	LazyStdType* type = AXL_MEM_NEW(LazyStdType);
-	type->m_module = m_module;
-	type->m_stdType = stdType;
-	m_lazyStdTypeList.insertTail(type);
-	m_lazyStdTypeArray[stdType] = type;
 	return type;
 }
 
@@ -488,10 +441,6 @@ TypeMgr::createEnumType(
 	type->m_qualifiedName = qualifiedName;
 	type->m_flags |= TypeFlag_Named;
 
-#ifdef _JNC_NAMED_TYPE_ADD_SELF
-	type->addItem(type);
-#endif
-
 	if (!baseType)
 		baseType = getPrimitiveType(TypeKind_Int);
 
@@ -520,7 +469,8 @@ TypeMgr::createStructType(
 	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-	type->addItem(type);
+	if (!name.isEmpty())
+		type->addItem(type);
 #endif
 
 	type->m_module = m_module;
@@ -556,7 +506,8 @@ TypeMgr::createUnionType(
 	type->m_flags |= TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-	type->addItem(type);
+	if (!name.isEmpty())
+		type->addItem(type);
 #endif
 
 	type->m_module = m_module;
@@ -589,7 +540,8 @@ TypeMgr::addClassType(
 	type->m_flags |= flags | TypeFlag_Named;
 
 #ifdef _JNC_NAMED_TYPE_ADD_SELF
-	type->addItem(type);
+	if (!name.isEmpty())
+		type->addItem(type);
 #endif
 
 	StructType* ifaceStructType = createUnnamedInternalStructType(type->createQualifiedName("Iface"), fieldAlignment);
@@ -1539,6 +1491,8 @@ TypeMgr::getFunctionPtrType(
 {
 	ASSERT(typeKind == TypeKind_FunctionPtr || typeKind == TypeKind_FunctionRef);
 	ASSERT((size_t)ptrTypeKind < FunctionPtrTypeKind__Count);
+
+	flags |= ModuleItemFlag_LayoutReady;
 
 	if (ptrTypeKind != FunctionPtrTypeKind_Thin)
 		flags |= TypeFlag_GcRoot | TypeFlag_StructRet;

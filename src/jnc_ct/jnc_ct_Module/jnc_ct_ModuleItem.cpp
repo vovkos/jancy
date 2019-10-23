@@ -241,9 +241,6 @@ ModuleItem::getType()
 	case ModuleItemKind_Alias:
 		return ((ct::Alias*)this)->getTargetItem()->getType();
 
-	case ModuleItemKind_Lazy:
-		return jnc_ModuleItem_getType(((ct::LazyModuleItem*)this)->getActualItem());
-
 	default:
 		return NULL;
 	}

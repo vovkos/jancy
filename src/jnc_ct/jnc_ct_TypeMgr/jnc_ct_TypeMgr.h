@@ -80,7 +80,6 @@ protected:
 	Type m_primitiveTypeArray[TypeKind__PrimitiveTypeCount];
 	Type* m_stdTypeArray[StdType__Count];
 	Typedef m_stdTypedefArray[StdTypedef__Count];
-	LazyStdType* m_lazyStdTypeArray[StdType__Count];
 	CallConv* m_callConvArray[CallConvKind__Count];
 
 	JnccallCallConv_msc32 m_jnccallCallConv_msc32;
@@ -101,7 +100,6 @@ protected:
 
 	sl::List<Type> m_typeList;
 	sl::List<Typedef> m_typedefList;
-	sl::List<LazyStdType> m_lazyStdTypeList;
 	sl::List<FunctionArg> m_functionArgList;
 	sl::List<Field> m_fieldList;
 
@@ -166,15 +164,15 @@ public:
 	Type*
 	getStdType(StdType stdType);
 
-	LazyStdType*
-	getLazyStdType(StdType stdType);
-
 	Typedef*
 	getStdTypedef(StdTypedef stdTypedef)
 	{
 		ASSERT(stdTypedef < StdTypedef__Count);
 		return &m_stdTypedefArray[stdTypedef];
 	}
+
+	void
+	createStdTypes();
 
 	Type*
 	getInt32Type(int32_t integer)

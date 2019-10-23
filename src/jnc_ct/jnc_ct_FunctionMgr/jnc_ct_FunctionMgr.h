@@ -54,8 +54,6 @@ protected:
 	sl::List<FunctionOverload> m_functionOverloadList;
 	sl::List<Property> m_propertyList;
 	sl::List<PropertyTemplate> m_propertyTemplateList;
-	sl::List<LazyStdFunction> m_lazyStdFunctionList;
-	sl::List<LazyStdProperty> m_lazyStdPropertyList;
 
 	sl::StringHashTable<Function*> m_thunkFunctionMap;
 	sl::StringHashTable<Property*> m_thunkPropertyMap;
@@ -65,9 +63,7 @@ protected:
 	sl::Array<Function*> m_globalCtorDtorArrayTable[GlobalCtorDtorKind__Count];
 
 	Function* m_stdFunctionArray[StdFunc__Count];
-	LazyStdFunction* m_lazyStdFunctionArray[StdFunc__Count];
 	Property* m_stdPropertyArray[StdProp__Count];
-	LazyStdProperty* m_lazyStdPropertyArray[StdProp__Count];
 
 	Function* m_currentFunction;
 	Value m_thisValue;
@@ -199,7 +195,7 @@ public:
 		const sl::StringRef& tag,
 		FunctionType* type
 		)
-	{ 
+	{
 		return createInternalFunction<Function>(tag, type);
 	}
 
@@ -279,9 +275,6 @@ public:
 	Function*
 	getStdFunction(StdFunc func);
 
-	LazyStdFunction*
-	getLazyStdFunction(StdFunc func);
-
 	bool
 	isStdPropertyUsed(StdProp prop)
 	{
@@ -291,9 +284,6 @@ public:
 
 	Property*
 	getStdProperty(StdProp prop);
-
-	LazyStdProperty*
-	getLazyStdProperty(StdProp prop);
 
 	Function*
 	getDirectThunkFunction(

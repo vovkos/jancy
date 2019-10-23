@@ -28,7 +28,7 @@ GlobalNamespace::addBody(
 {
 	if (m_body.isEmpty())
 	{
-		ASSERT(unit == m_parentUnit);
+		m_parentUnit = unit;
 		m_bodyPos = pos;
 		m_body = body;
 	}
@@ -90,6 +90,9 @@ GlobalNamespace::parseBody()
 		return false;
 
 	m_module->m_namespaceMgr.closeNamespace();
+
+	m_body.clear();
+	m_extraBodyList.clear();
 	return true;
 }
 
