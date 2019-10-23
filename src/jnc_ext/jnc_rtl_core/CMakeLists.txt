@@ -161,6 +161,7 @@ if(UNIX)
 		${PCH_O_CPP}
 		${LIB_H_LIST}
 		${LIB_CPP_LIST}
+		${GEN_JNC_CPP_LIST}
 		)
 
 	target_compile_definitions(
