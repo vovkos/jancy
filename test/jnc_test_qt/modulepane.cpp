@@ -170,10 +170,6 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 		addField(parent, (jnc::Field*)item);
 		break;
 
-	case jnc::ModuleItemKind_Lazy:
-		// don't display lazy items
-		break;
-
 	case jnc::ModuleItemKind_Alias:
 		addAlias(parent, (jnc::Alias*)item);
 		break;
@@ -188,7 +184,7 @@ void ModulePane::addItem(QTreeWidgetItem *parent, jnc::ModuleItem *item)
 
 void ModulePane::addType(QTreeWidgetItem *parent, jnc::Type *type)
 {
-	QString itemName = (const char *)type->getTypeString();
+	QString itemName = (const char*)type->getTypeString();
 
 	QTreeWidgetItem *item = insertItem(itemName, parent);
 
