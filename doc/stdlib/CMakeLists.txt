@@ -38,14 +38,36 @@ set(
 	--ignore-import io_base.jncx
 	-X ${XML_DIR}
 
-	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_globals.jnc
-	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_GcStats.jnc
-	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_GcTriggers.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DataPtr.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_DynamicLib.jnc
+	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_gc.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Promise.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Regex.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_Scheduler.jnc
 	${_EXT_DIR}/jnc_rtl_core/jnc/jnc_StdTypedefs.jnc
+
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Alias.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_ArrayType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_AttributeBlock.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_BitFieldType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_ClassType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_DerivableType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_EnumType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Field.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Function.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_FunctionType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_intro.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_MemberBlock.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Module.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_ModuleItem.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Namespace.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_OpKind.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Property.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_PropertyType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_StructType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Type.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_UnionType.jnc
+	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Variable.jnc
 
 	-S ${_EXT_DIR}/jnc_std/jnc
 	-S ${_EXT_DIR}/jnc_sys/jnc
