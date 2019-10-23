@@ -1,0 +1,32 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "jnc_Alias.jnc"
+import "jnc_ArrayType.jnc"
+import "jnc_AttributeBlock.jnc"
+import "jnc_BitFieldType.jnc"
+import "jnc_ClassType.jnc"
+import "jnc_DerivableType.jnc"
+import "jnc_EnumType.jnc"
+import "jnc_Field.jnc"
+import "jnc_Function.jnc"
+import "jnc_FunctionType.jnc"
+import "jnc_MemberBlock.jnc"
+import "jnc_Module.jnc"
+import "jnc_ModuleItem.jnc"
+import "jnc_Namespace.jnc"
+import "jnc_OpKind.jnc"
+import "jnc_Property.jnc"
+import "jnc_PropertyType.jnc"
+import "jnc_StructType.jnc"
+import "jnc_Type.jnc"
+import "jnc_UnionType.jnc"
+import "jnc_Variable.jnc"

@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char bitFieldTypeSrc[] =
-
 //..............................................................................
 
 opaque class BitFieldType: Type
@@ -27,9 +23,5 @@ opaque class BitFieldType: Type
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char variableSrc[] =
-
 //..............................................................................
 
 opaque class Variable:
@@ -28,8 +24,6 @@ opaque class Variable:
 	construct(intptr p);
 }
 
-///; static char constSrc[] =
-
 //..............................................................................
 
 opaque class Const:
@@ -42,9 +36,5 @@ opaque class Const:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

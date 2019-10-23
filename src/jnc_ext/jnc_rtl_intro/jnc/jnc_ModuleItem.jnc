@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char moduleItemKindSrc[] =
-
 //..............................................................................
 
 enum ModuleItemKind
@@ -39,8 +35,6 @@ enum ModuleItemKind
 	_Count,
 }
 
-///; static char moduleItemFlagsSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum ModuleItemFlags
@@ -53,8 +47,6 @@ bitflag enum ModuleItemFlags
 	Constructed  = 0x40, // fields, properties, base type slots
 	Sealed       = 0x80,
 }
-
-///; static char storageKindSrc[] =
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -77,8 +69,6 @@ enum StorageKind
 	_Count,
 }
 
-///; static char accessKindSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum AccessKind
@@ -88,8 +78,6 @@ enum AccessKind
 	Protected,
 	_Count,
 }
-
-///; static char moduleItemDeclSrc[] =
 
 //..............................................................................
 
@@ -109,8 +97,6 @@ opaque class ModuleItemDecl
 	destruct();
 }
 
-///; static char moduleItemInitializerSrc[] =
-
 //..............................................................................
 
 opaque class ModuleItemInitializer
@@ -119,8 +105,6 @@ opaque class ModuleItemInitializer
 
 	construct(intptr p);
 }
-
-///; static char moduleItemSrc[] =
 
 //..............................................................................
 
@@ -135,9 +119,5 @@ opaque class ModuleItem
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

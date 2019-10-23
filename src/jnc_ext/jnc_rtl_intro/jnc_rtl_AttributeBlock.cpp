@@ -11,6 +11,8 @@
 
 #include "pch.h"
 #include "jnc_rtl_AttributeBlock.h"
+#include "jnc_ct_Function.h"
+#include "jnc_ct_FunctionType.h"
 #include "jnc_Construct.h"
 
 namespace jnc {
@@ -62,10 +64,29 @@ Attribute::getValue(Attribute* self)
 		return self->m_value;
 
 	const ct::Value& value = self->m_item->getValue();
-	if (value.getValueKind() != ct::ValueKind_Const)
-		return g_nullVariant;
+	ct::ValueKind valueKind = value.getValueKind();
+	ct::FunctionPtrType* type;
+	ct::Function* function;
+	void* p;
 
-	self->m_value.create(value.getConstData(), value.getType());
+	switch (valueKind)
+	{
+	case ct::ValueKind_Const:
+		self->m_value.create(value.getConstData(), value.getType());
+		break;
+
+	case ct::ValueKind_Function:
+		function = value.getFunction();
+		p = function->getMachineCode();
+		type = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+		self->m_value.create(&p, (jnc::Type*)type);
+		break;
+
+	default:
+		ASSERT(false);
+		return g_nullVariant;
+	}
+
 	return self->m_value;
 }
 

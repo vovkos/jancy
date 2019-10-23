@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char propertyKindSrc[] =
-
 //..............................................................................
 
 enum PropertyKind
@@ -27,8 +23,6 @@ enum PropertyKind
 	_Count
 }
 
-///; static char propertyFlagSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum PropertyFlag
@@ -38,8 +32,6 @@ bitflag enum PropertyFlag
 	AutoGet  = 0x100000,
 	AutoSet  = 0x200000,
 }
-
-///; static char propertySrc[] =
 
 //..............................................................................
 
@@ -58,9 +50,5 @@ opaque class Property:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

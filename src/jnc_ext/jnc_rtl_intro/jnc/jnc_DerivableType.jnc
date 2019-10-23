@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char baseTypeSlotSrc[] =
-
 //..............................................................................
 
 opaque class BaseTypeSlot:
@@ -27,8 +23,6 @@ opaque class BaseTypeSlot:
 
 	construct(intptr p);
 }
-
-///; static char derivableTypeSrc[] =
 
 //..............................................................................
 
@@ -51,9 +45,5 @@ opaque class DerivableType:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

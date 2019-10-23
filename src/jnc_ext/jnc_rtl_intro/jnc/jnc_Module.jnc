@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char moduleCompileFlagsSrc[] =
-
 //..............................................................................
 
 bitflag enum ModuleCompileFlags
@@ -34,8 +30,6 @@ bitflag enum ModuleCompileFlags
 	DisableDoxyComment4           = 0x00010000,
 }
 
-///; static char moduleCompileStateSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum ModuleCompileState
@@ -46,8 +40,6 @@ enum ModuleCompileState
 	Compiled,
 	Jitted,
 }
-
-///; static char moduleSrc[] =
 
 //..............................................................................
 
@@ -61,8 +53,6 @@ opaque class Module
 	construct(intptr p);
 }
 
-///; static char unitSrc[] =
-
 //..............................................................................
 
 opaque class Unit
@@ -73,9 +63,5 @@ opaque class Unit
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

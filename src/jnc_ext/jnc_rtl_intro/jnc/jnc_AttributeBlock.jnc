@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char attributeSrc[] =
-
 //..............................................................................
 
 opaque class Attribute:
@@ -27,8 +23,6 @@ opaque class Attribute:
 
 	construct(intptr p);
 }
-
-///; static char attributeBlockSrc[] =
 
 //..............................................................................
 
@@ -44,9 +38,5 @@ opaque class AttributeBlock:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

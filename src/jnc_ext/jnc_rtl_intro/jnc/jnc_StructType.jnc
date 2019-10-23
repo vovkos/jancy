@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char structTypeKindSrc[] =
-
 //..............................................................................
 
 enum StructTypeKind
@@ -24,8 +20,6 @@ enum StructTypeKind
 	ClassStruct,
 	UnionStruct,
 }
-
-///; static char structTypeSrc[] =
 
 //..............................................................................
 
@@ -39,9 +33,5 @@ opaque class StructType: DerivableType
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

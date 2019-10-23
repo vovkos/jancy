@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char unionTypeSrc[] =
-
 //..............................................................................
 
 opaque class UnionType: DerivableType
@@ -25,9 +21,5 @@ opaque class UnionType: DerivableType
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

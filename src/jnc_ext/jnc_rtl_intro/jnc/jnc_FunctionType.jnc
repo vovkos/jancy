@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char functionTypeFlagsSrc[] =
-
 //..............................................................................
 
 bitflag enum FunctionTypeFlags
@@ -28,8 +24,6 @@ bitflag enum FunctionTypeFlags
 	AsyncErrorCode = 0x400000,
 }
 
-///; static char functionPtrTypeKindSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum FunctionPtrTypeKind
@@ -39,8 +33,6 @@ enum FunctionPtrTypeKind
 	Thin,
 	_Count,
 }
-
-///; static char functionArgSrc[] =
 
 //..............................................................................
 
@@ -54,8 +46,6 @@ class FunctionArg:
 
 	construct(intptr p);
 }
-
-///; static char functionTypeSrc[] =
 
 //..............................................................................
 
@@ -75,8 +65,6 @@ opaque class FunctionType: Type
 		);
 }
 
-///; static char functionPtrTypeSrc[] =
-
 //..............................................................................
 
 opaque class FunctionPtrType: Type
@@ -88,9 +76,5 @@ opaque class FunctionPtrType: Type
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

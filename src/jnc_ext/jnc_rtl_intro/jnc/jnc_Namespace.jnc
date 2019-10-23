@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char namespaceKindSrc[] =
-
 //..............................................................................
 
 enum NamespaceKind
@@ -30,8 +26,6 @@ enum NamespaceKind
 	_Count,
 }
 
-///; static char namespaceSrc[] =
-
 //..............................................................................
 
 opaque class Namespace: ModuleItemDecl
@@ -44,8 +38,6 @@ opaque class Namespace: ModuleItemDecl
 	construct(intptr p);
 }
 
-///; static char globalNamespaceSrc[] =
-
 //..............................................................................
 
 opaque class GlobalNamespace:
@@ -57,9 +49,5 @@ opaque class GlobalNamespace:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

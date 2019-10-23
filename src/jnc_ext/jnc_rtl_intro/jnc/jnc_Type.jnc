@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char typeKindSrc[] =
-
 //..............................................................................
 
 enum TypeKind
@@ -104,8 +100,6 @@ enum TypeKind
 	QWord   = Int64_u,
 }
 
-///; static char typeKindFlagsSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum typeKindFlags
@@ -130,8 +124,6 @@ bitflag enum typeKindFlags
 	ErrorCode    = 0x00080000,
 }
 
-///; static char typeFlagsSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum TypeFlags
@@ -143,8 +135,6 @@ bitflag enum TypeFlags
 	NoStack   = 0x1000, // try to avoid allocation on stack
 	Dynamic   = 0x2000, // dynamic struct/union/array
 }
-
-///; static char ptrTypeFlagsSrc[] =
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -168,8 +158,6 @@ bitflag enum PtrTypeFlags
 		DualTarget,
 }
 
-///; static char dataPtrTypeKindSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum DataPtrTypeKind
@@ -179,8 +167,6 @@ enum DataPtrTypeKind
 	Thin,
 	_Count,
 }
-
-///; static char typeSrc[] =
 
 //..............................................................................
 
@@ -198,6 +184,7 @@ opaque class Type: ModuleItem
 	destruct();
 
 	int cmp(Type* type);
+	char const* getValueString(void const* value);
 	ArrayType* getArrayType(size_t elementCount);
 
 	DataPtrType* getDataPtrType(
@@ -206,8 +193,6 @@ opaque class Type: ModuleItem
 		PtrTypeFlags flags = 0
 		);
 }
-
-///; static char namedTypeSrc[] =
 
 //..............................................................................
 
@@ -218,8 +203,6 @@ opaque class NamedType:
 	construct(intptr p);
 }
 
-///; static char dataPtrTypeSrc[] =
-
 //..............................................................................
 
 opaque class DataPtrType: Type
@@ -229,8 +212,6 @@ opaque class DataPtrType: Type
 
 	construct(intptr p);
 }
-
-///; static char typedefSrc[] =
 
 //..............................................................................
 
@@ -244,9 +225,5 @@ opaque class Typedef:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc

@@ -11,10 +11,6 @@
 
 namespace jnc {
 
-///+++
-
-///; static char functionKindSrc[] =
-
 //..............................................................................
 
 enum FunctionKind
@@ -42,8 +38,6 @@ enum FunctionKind
 	_Count
 }
 
-///; static char functionKindFlagsSrc[] =
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bitflag enum FunctionKindFlags
@@ -52,8 +46,6 @@ bitflag enum FunctionKindFlags
 	NoOverloads = 0x02,
 	NoArgs      = 0x04,
 }
-
-///; static char functionSrc[] =
 
 //..............................................................................
 
@@ -69,8 +61,6 @@ opaque class Function:
 	construct(intptr p);
 }
 
-///; static char functionOverloadSrc[] =
-
 //..............................................................................
 
 opaque class FunctionOverload:
@@ -85,9 +75,5 @@ opaque class FunctionOverload:
 }
 
 //..............................................................................
-
-///;
-
-///---
 
 } // namespace jnc
