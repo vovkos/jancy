@@ -22,6 +22,7 @@ set(JANCY_SPHINX_DIR    "@JANCY_ROOT_DIR@/sphinx")
 
 set(JANCY_EXE           "@JANCY_BIN_BASE_DIR@/${CONFIGURATION}/jancy")
 set(JNC2CPP_PL          "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
+set(FILE2LITERAL_PL     "@JANCY_ROOT_DIR@/tools/file2literal/file2literal.pl")
 
 if(WIN32)
 	set(JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)

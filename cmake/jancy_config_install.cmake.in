@@ -22,6 +22,7 @@ set(JANCY_TOOL_DIR   "${JANCY_INSTALL_PREFIX}/@JANCY_INSTALL_TOOL_SUBDIR@")
 
 set(JANCY_EXE        "${JANCY_BIN_DIR}/jancy")
 set(JNC2CPP_PL       "${JANCY_TOOL_DIR}/jnc2cpp/jnc2cpp.pl")
+set(FILE2LITERAL_PL  "${JANCY_TOOL_DIR}/file2literal/file2literal.pl")
 
 if(WIN32)
 	set(JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
