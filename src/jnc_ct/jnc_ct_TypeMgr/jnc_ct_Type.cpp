@@ -767,99 +767,85 @@ getValueString_bool(const void* p)
 sl::String
 getValueString_int8(const void* p)
 {
-	char buffer[32];
-	return _ltoa(*(int8_t*)p, buffer, 10);
+	return sl::formatString("%d", *(int8_t*)p);
 }
 
 sl::String
 getValueString_int8_u(const void* p)
 {
-	char buffer[32];
-	return _ultoa(*(uint8_t*)p, buffer, 10);
+	return sl::formatString("%u", *(uint8_t*)p);
 }
 
 sl::String
 getValueString_int16(const void* p)
 {
-	char buffer[32];
-	return _ltoa(*(int16_t*)p, buffer, 10);
+	return sl::formatString("%d", *(int16_t*)p);
 }
 
 sl::String
 getValueString_int16_u(const void* p)
 {
-	char buffer[32];
-	return _ultoa(*(uint16_t*)p, buffer, 10);
+	return sl::formatString("%u", *(uint16_t*)p);
 }
 
 sl::String
 getValueString_int32(const void* p)
 {
-	char buffer[32];
-	return _ltoa(*(int32_t*)p, buffer, 10);
+	return sl::formatString("%d", *(int32_t*)p);
 }
 
 sl::String
 getValueString_int32_u(const void* p)
 {
-	char buffer[32];
-	return _ultoa(*(uint32_t*)p, buffer, 10);
+	return sl::formatString("%u", *(uint32_t*)p);
 }
 
 sl::String
 getValueString_int64(const void* p)
 {
-	char buffer[32];
-	return _i64toa(*(int64_t*)p, buffer, 10);
+	return sl::formatString("%lld", *(int64_t*)p);
 }
 
 sl::String
 getValueString_int64_u(const void* p)
 {
-	char buffer[32];
-	return _ui64toa(*(uint64_t*)p, buffer, 10);
+	return sl::formatString("%llu", *(uint64_t*)p);
 }
 
 sl::String
 getValueString_int16_be(const void* p)
 {
-	char buffer[32];
-	return _ltoa((int16_t)sl::swapByteOrder16(*(uint16_t*)p), buffer, 10);
+	return sl::formatString("%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
 sl::String
 getValueString_int16_beu(const void* p)
 {
-	char buffer[32];
-	return _ultoa((uint16_t)sl::swapByteOrder16(*(uint16_t*)p), buffer, 10);
+	return sl::formatString("%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
 sl::String
 getValueString_int32_be(const void* p)
 {
-	char buffer[32];
-	return _ltoa((int32_t)sl::swapByteOrder32(*(uint32_t*)p), buffer, 10);
+	return sl::formatString("%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
 sl::String
 getValueString_int32_beu(const void* p)
 {
-	char buffer[32];
-	return _ultoa((uint32_t)sl::swapByteOrder32(*(uint32_t*)p), buffer, 10);
+	return sl::formatString("%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
 sl::String
 getValueString_int64_be(const void* p)
 {
-	char buffer[32];
-	return _i64toa((int64_t)sl::swapByteOrder64(*(uint64_t*)p), buffer, 10);
+	return sl::formatString("%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
 sl::String
 getValueString_int64_beu(const void* p)
 {
-	char buffer[32];
-	return _ui64toa((uint64_t)sl::swapByteOrder64(*(uint64_t*)p), buffer, 10);
+	return sl::formatString("%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
 sl::String
