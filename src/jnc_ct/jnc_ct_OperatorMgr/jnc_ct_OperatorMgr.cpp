@@ -1035,7 +1035,11 @@ OperatorMgr::typeofOperator(
 	)
 {
 	Value typeValue;
-	bool result = prepareOperandType(opValue, &typeValue);
+
+	bool result =
+		prepareOperandType(opValue, &typeValue) &&
+		m_module->ensureIntrospectionLibRequired();
+
 	if (!result)
 		return false;
 

@@ -310,6 +310,7 @@ source_group(
 set(
 	PERL_PL_LIST
 	${JNC2CPP_PL}
+	${FILE2LITERAL_PL}
 	)
 
 source_group(
@@ -320,28 +321,32 @@ source_group(
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
-# jnc_rtl_core folder
+# rtl_core_jnc folder
 #
 
 set(RTL_CORE_JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core/jnc)
 
 set(
 	RTL_CORE_JNC_LIST
-	${RTL_CORE_JNC_DIR}/jnc_globals.jnc
-	${RTL_CORE_JNC_DIR}/jnc_GcTriggers.jnc
-	${RTL_CORE_JNC_DIR}/jnc_GcStats.jnc
+	${RTL_CORE_JNC_DIR}/jnc_gc.jnc
+	${RTL_CORE_JNC_DIR}/jnc_DataPtr.jnc
+	${RTL_CORE_JNC_DIR}/jnc_DynamicLib.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Promise.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Regex.jnc
+	${RTL_CORE_JNC_DIR}/jnc_Scheduler.jnc
+	)
+
+set(
+	RTL_CORE_LEGACY_JNC_LIST
 	${RTL_CORE_JNC_DIR}/jnc_StdTypes.jnc
 	${RTL_CORE_JNC_DIR}/jnc_StdFunctions.jnc
-	${RTL_CORE_JNC_DIR}/jnc_DynamicLib.jnc
-	${RTL_CORE_JNC_DIR}/jnc_Regex.jnc
-	${RTL_CORE_JNC_DIR}/jnc_Promise.jnc
-	${RTL_CORE_JNC_DIR}/jnc_Scheduler.jnc
 	)
 
 source_group(
 	jnc_rtl_core_jnc
 	FILES
 	${RTL_CORE_JNC_LIST}
+	${RTL_CORE_LEGACY_JNC_LIST}
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -353,27 +358,28 @@ set(RTL_INTRO_JNC_DIR ${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_intro/jnc)
 
 set(
 	RTL_INTRO_JNC_LIST
-	${RTL_INTRO_JNC_DIR}/jnc_ModuleItem.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_intro.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Alias.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_ArrayType.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_AttributeBlock.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_BitFieldType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_ClassType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_EnumType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Field.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Function.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_FunctionType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_MemberBlock.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Module.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_ModuleItem.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Namespace.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_OpKind.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Type.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Field.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_MemberBlock.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_DerivableType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_ArrayType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_BitFieldType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_FunctionType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_PropertyType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_EnumType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_ClassType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_StructType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_UnionType.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Alias.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Variable.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Function.jnc
 	${RTL_INTRO_JNC_DIR}/jnc_Property.jnc
-	${RTL_INTRO_JNC_DIR}/jnc_Module.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_PropertyType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_StructType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Type.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_UnionType.jnc
+	${RTL_INTRO_JNC_DIR}/jnc_Variable.jnc
 	)
 
 source_group(
@@ -394,13 +400,25 @@ axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 
 set(GEN_JNC_CPP_LIST)
 
-foreach(_JNC ${RTL_CORE_JNC_LIST} ${RTL_INTRO_JNC_LIST})
+foreach(_JNC ${RTL_CORE_LEGACY_JNC_LIST})
 	get_filename_component(_NAME ${_JNC} NAME)
 
 	add_perl_step(
 		${_NAME}.cpp
 		${_JNC}
 		${JNC2CPP_PL}
+		)
+
+	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
+endforeach()
+
+foreach(_JNC ${RTL_CORE_JNC_LIST} ${RTL_INTRO_JNC_LIST})
+	get_filename_component(_NAME ${_JNC} NAME)
+
+	add_perl_step(
+		${_NAME}.cpp
+		${_JNC}
+		${FILE2LITERAL_PL}
 		)
 
 	list(APPEND GEN_JNC_CPP_LIST ${GEN_DIR}/${_NAME}.cpp)
