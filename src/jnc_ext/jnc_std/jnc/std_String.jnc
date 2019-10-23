@@ -9,10 +9,6 @@
 //
 //..............................................................................
 
-///+++
-
-/// JNC_SELECT_ANY char g_std_StringSrc[] =
-
 namespace std {
 
 //! \addtogroup container
@@ -49,9 +45,19 @@ class StringBuilder
 		m_p[offset] = e;
 	}
 
+	size_t errorcode operator := (utf32_t c)
+	{
+		return copy(c);
+	}
+
 	size_t errorcode operator := (char const* p)
 	{
 		return copy(p);
+	}
+
+	size_t errorcode operator += (utf32_t c)
+	{
+		return append(c);
 	}
 
 	size_t errorcode operator += (char const* p)
@@ -64,6 +70,11 @@ class StringBuilder
 	bool errorcode reserve(size_t length);
 
 	size_t errorcode copy(
+		utf32_t c,
+		size_t count = 1
+		);
+
+	size_t errorcode copy(
 		char const* p,
 		size_t length = -1
 		);
@@ -78,9 +89,12 @@ class StringBuilder
 		size_t length = -1
 		);
 
-	size_t errorcode copy(utf32_t c)
+	size_t errorcode append(
+		utf32_t c,
+		size_t count = 1
+		)
 	{
-		return copy(&c, 1);
+		return insert(-1, c, count);
 	}
 
 	size_t errorcode append(
@@ -107,10 +121,11 @@ class StringBuilder
 		return insert(-1, p, length);
 	}
 
-	size_t errorcode append(utf32_t c)
-	{
-		return insert(-1, &c, 1);
-	}
+	size_t errorcode insert(
+		size_t offset,
+		utf32_t c,
+		size_t count = 1
+		);
 
 	size_t errorcode insert(
 		size_t offset,
@@ -129,14 +144,6 @@ class StringBuilder
 		utf32_t const* p,
 		size_t length = -1
 		);
-
-	size_t errorcode insert(
-		size_t offset,
-		utf32_t c
-		)
-	{
-		return insert(offset, &c, 1);
-	}
 
 	size_t remove(
 		size_t offset,
@@ -162,7 +169,3 @@ protected:
 //! @}
 
 } // namespace std
-
-///;
-
-///---

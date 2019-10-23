@@ -43,6 +43,13 @@ public:
 
 	size_t
 	JNC_CDECL
+	copy_char(
+		utf32_t c,
+		size_t count
+		);
+
+	size_t
+	JNC_CDECL
 	copy_utf8(
 		DataPtr ptr,
 		size_t length
@@ -60,6 +67,14 @@ public:
 	copy_utf32(
 		DataPtr ptr,
 		size_t length
+		);
+
+	size_t
+	JNC_CDECL
+	insert_char(
+		size_t offset,
+		utf32_t c,
+		size_t count
 		);
 
 	size_t

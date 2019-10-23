@@ -29,10 +29,12 @@ JNC_DEFINE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(StringBuilder)
 	JNC_MAP_FUNCTION("clear", &StringBuilder::clear)
 	JNC_MAP_FUNCTION("reserve", &StringBuilder::reserve)
-	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_utf8)
+	JNC_MAP_FUNCTION("copy", &StringBuilder::copy_char)
+	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf8)
 	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf16)
 	JNC_MAP_OVERLOAD(&StringBuilder::copy_utf32)
-	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_utf8)
+	JNC_MAP_FUNCTION("insert", &StringBuilder::insert_char)
+	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf8)
 	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf16)
 	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf32)
 	JNC_MAP_FUNCTION("remove", &StringBuilder::remove)
@@ -61,6 +63,17 @@ StringBuilder::reserve(size_t length)
 	m_ptr = ptr;
 	m_maxLength = size - 1;
 	return true;
+}
+
+size_t
+JNC_CDECL
+StringBuilder::copy_char(
+	utf32_t c,
+	size_t count
+	)
+{
+	sl::String string(c, count);
+	return copyImpl(string.cp(), string.getLength());
 }
 
 size_t
@@ -100,6 +113,18 @@ StringBuilder::copy_utf32(
 	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf32_t*)ptr.m_p, length);
 	return copyImpl(string, string.getLength());
+}
+
+size_t
+JNC_CDECL
+StringBuilder::insert_char(
+	size_t offset,
+	utf32_t c,
+	size_t count
+	)
+{
+	sl::String string(c, count);
+	return insertImpl(offset, string.cp(), string.getLength());
 }
 
 size_t
