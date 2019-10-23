@@ -117,6 +117,14 @@ public:
 		return m_item->cmp(type->m_item);
 	}
 
+	static
+	DataPtr
+	JNC_CDECL
+	getValueString(
+		Type* self,
+		DataPtr valuePtr
+		);
+
 	ArrayType*
 	JNC_CDECL
 	getArrayType(size_t elementCount)

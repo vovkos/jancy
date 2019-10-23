@@ -41,6 +41,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Type)
 	JNC_MAP_CONST_PROPERTY("m_typeStringPrefix", &Type::getTypeStringPrefix)
 	JNC_MAP_CONST_PROPERTY("m_typeStringSuffix", &Type::getTypeStringSuffix)
 	JNC_MAP_FUNCTION("cmp", &Type::cmp)
+	JNC_MAP_FUNCTION("getValueString", &Type::getValueString)
 	JNC_MAP_FUNCTION("getArrayType", &Type::getArrayType)
 	JNC_MAP_FUNCTION("getDataPtrType", &Type::getDataPtrType)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -150,6 +151,16 @@ Type::getTypeStringSuffix(Type* self)
 		cache->m_typeStringSuffixPtr = createForeignStringPtr(self->m_item->getTypeStringSuffix(), false);
 
 	return cache->m_typeStringSuffixPtr;
+}
+
+DataPtr
+JNC_CDECL
+Type::getValueString(
+	Type* self,
+	DataPtr valuePtr
+	)
+{
+	return valuePtr.m_p ? strDup(self->m_item->getValueString(valuePtr.m_p)) : g_nullDataPtr;
 }
 
 //..............................................................................
