@@ -223,6 +223,22 @@ EnumType::calcLayout()
 	return true;
 }
 
+sl::String
+EnumType::getValueString(const void* p)
+{
+	Value value;
+	bool result = m_module->m_operatorMgr.castOperator(Value(p, m_baseType), TypeKind_Int64, &value);
+	ASSERT(result);
+
+	int64_t n = *(int64_t*)value.getConstData();
+	sl::Iterator<EnumConst> it = m_constList.getHead();
+	for (; it; it++)
+		if (it->m_value == n)
+			return it->m_name;
+
+	return m_baseType->getValueString(p);
+}
+
 bool
 EnumType::generateDocumentation(
 	const sl::StringRef& outputDir,

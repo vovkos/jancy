@@ -472,62 +472,95 @@ Type::prepareSignature()
 		ASSERT(false);
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+llvm::Type*
+getLlvmType_void(Module* module)
+{
+	return llvm::Type::getVoidTy(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_variant(Module* module)
+{
+	return module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmType();
+}
+
+llvm::Type*
+getLlvmType_bool(Module* module)
+{
+	return llvm::Type::getInt1Ty(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_int8(Module* module)
+{
+	return llvm::Type::getInt8Ty(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_int16(Module* module)
+{
+	return llvm::Type::getInt16Ty(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_int32(Module* module)
+{
+	return llvm::Type::getInt32Ty(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_int64(Module* module)
+{
+	return llvm::Type::getInt64Ty(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_float(Module* module)
+{
+	return llvm::Type::getFloatTy(*module->getLlvmContext());
+}
+
+llvm::Type*
+getLlvmType_double(Module* module)
+{
+	return llvm::Type::getDoubleTy(*module->getLlvmContext());
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 void
 Type::prepareLlvmType()
 {
-	ASSERT(!m_llvmType && m_typeKind < TypeKind__PrimitiveTypeCount);
+	ASSERT(!m_llvmType && (size_t)m_typeKind < TypeKind__PrimitiveTypeCount);
 
-	switch (m_typeKind)
+	typedef llvm::Type* GetLlvmTypeFunc(Module* module);
+
+	GetLlvmTypeFunc* getLlvmTypeFuncTable[TypeKind__PrimitiveTypeCount] =
 	{
-	case TypeKind_Void:
-		m_llvmType = llvm::Type::getVoidTy(*m_module->getLlvmContext());
-		break;
+		getLlvmType_void,    // TypeKind_Void
+		getLlvmType_variant, // TypeKind_Variant
+		getLlvmType_bool,    // TypeKind_Bool
+		getLlvmType_int8,    // TypeKind_Int8
+		getLlvmType_int8,    // TypeKind_Int8_u
+		getLlvmType_int16,   // TypeKind_Int16
+		getLlvmType_int16,   // TypeKind_Int16_u
+		getLlvmType_int32,   // TypeKind_Int32
+		getLlvmType_int32,   // TypeKind_Int32_u
+		getLlvmType_int64,   // TypeKind_Int64
+		getLlvmType_int64,   // TypeKind_Int64_u
+		getLlvmType_int16,   // TypeKind_Int16_be
+		getLlvmType_int16,   // TypeKind_Int16_beu
+		getLlvmType_int32,   // TypeKind_Int32_be
+		getLlvmType_int32,   // TypeKind_Int32_beu
+		getLlvmType_int64,   // TypeKind_Int64_be
+		getLlvmType_int64,   // TypeKind_Int64_beu
+		getLlvmType_float,   // TypeKind_Float
+		getLlvmType_double,  // TypeKind_Double
+	};
 
-	case TypeKind_Variant:
-		m_llvmType = m_module->m_typeMgr.getStdType(StdType_VariantStruct)->getLlvmType();
-		break;
-
-	case TypeKind_Bool:
-		m_llvmType = llvm::Type::getInt1Ty(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Int8:
-	case TypeKind_Int8_u:
-		m_llvmType = llvm::Type::getInt8Ty(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Int16:
-	case TypeKind_Int16_u:
-	case TypeKind_Int16_be:
-	case TypeKind_Int16_beu:
-		m_llvmType = llvm::Type::getInt16Ty(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Int32:
-	case TypeKind_Int32_u:
-	case TypeKind_Int32_be:
-	case TypeKind_Int32_beu:
-		m_llvmType = llvm::Type::getInt32Ty(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Int64:
-	case TypeKind_Int64_u:
-	case TypeKind_Int64_be:
-	case TypeKind_Int64_beu:
-		m_llvmType = llvm::Type::getInt64Ty(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Float:
-		m_llvmType = llvm::Type::getFloatTy(*m_module->getLlvmContext());
-		break;
-
-	case TypeKind_Double:
-		m_llvmType = llvm::Type::getDoubleTy(*m_module->getLlvmContext());
-		break;
-
-	default:
-		ASSERT(false);
-	}
+	m_llvmType = getLlvmTypeFuncTable[(size_t)m_typeKind](m_module);
 }
 
 void
@@ -709,6 +742,171 @@ Type::prepareSimpleTypeVariable(StdType stdType)
 	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
 	bool result = m_module->m_variableMgr.allocateVariable(m_typeVariable);
 	ASSERT(result);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+sl::String
+getValueString_void(const void* p)
+{
+	return "void";
+}
+
+sl::String
+getValueString_variant(const void* p)
+{
+	return ((Variant*)p)->m_type ? ((Variant*)p)->m_type->getValueString(p) : "<empty-variant>";
+}
+
+sl::String
+getValueString_bool(const void* p)
+{
+	return *(bool*)p ? "true" : "false";
+}
+
+sl::String
+getValueString_int8(const void* p)
+{
+	char buffer[32];
+	return _ltoa(*(int8_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int8_u(const void* p)
+{
+	char buffer[32];
+	return _ultoa(*(uint8_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int16(const void* p)
+{
+	char buffer[32];
+	return _ltoa(*(int16_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int16_u(const void* p)
+{
+	char buffer[32];
+	return _ultoa(*(uint16_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int32(const void* p)
+{
+	char buffer[32];
+	return _ltoa(*(int32_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int32_u(const void* p)
+{
+	char buffer[32];
+	return _ultoa(*(uint32_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int64(const void* p)
+{
+	char buffer[32];
+	return _i64toa(*(int64_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int64_u(const void* p)
+{
+	char buffer[32];
+	return _ui64toa(*(uint64_t*)p, buffer, 10);
+}
+
+sl::String
+getValueString_int16_be(const void* p)
+{
+	char buffer[32];
+	return _ltoa((int16_t)sl::swapByteOrder16(*(uint16_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_int16_beu(const void* p)
+{
+	char buffer[32];
+	return _ultoa((uint16_t)sl::swapByteOrder16(*(uint16_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_int32_be(const void* p)
+{
+	char buffer[32];
+	return _ltoa((int32_t)sl::swapByteOrder32(*(uint32_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_int32_beu(const void* p)
+{
+	char buffer[32];
+	return _ultoa((uint32_t)sl::swapByteOrder32(*(uint32_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_int64_be(const void* p)
+{
+	char buffer[32];
+	return _i64toa((int64_t)sl::swapByteOrder64(*(uint64_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_int64_beu(const void* p)
+{
+	char buffer[32];
+	return _ui64toa((uint64_t)sl::swapByteOrder64(*(uint64_t*)p), buffer, 10);
+}
+
+sl::String
+getValueString_float(const void* p)
+{
+	return sl::formatString("%f", *(float*)p);
+}
+
+sl::String
+getValueString_double(const void* p)
+{
+	return sl::formatString("%f", *(double*)p);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+sl::String
+Type::getValueString(const void* p)
+{
+	typedef sl::String GetValueStringFunc(const void* p);
+
+	GetValueStringFunc* getValueStringFuncTable[TypeKind__PrimitiveTypeCount] =
+	{
+		getValueString_void,       // TypeKind_Void
+		getValueString_variant,    // TypeKind_Variant
+		getValueString_bool,       // TypeKind_Bool
+		getValueString_int8,       // TypeKind_Int8
+		getValueString_int8_u,     // TypeKind_Int8_u
+		getValueString_int16,      // TypeKind_Int16
+		getValueString_int16_u,    // TypeKind_Int16_u
+		getValueString_int32,      // TypeKind_Int32
+		getValueString_int32_u,    // TypeKind_Int32_u
+		getValueString_int64,      // TypeKind_Int64
+		getValueString_int64_u,    // TypeKind_Int64_u
+		getValueString_int16_be,   // TypeKind_Int16_be
+		getValueString_int16_beu,  // TypeKind_Int16_beu
+		getValueString_int32_be,   // TypeKind_Int32_be
+		getValueString_int32_beu,  // TypeKind_Int32_beu
+		getValueString_int64_be,   // TypeKind_Int64_be
+		getValueString_int64_beu,  // TypeKind_Int64_beu
+		getValueString_float,      // TypeKind_Float
+		getValueString_double,     // TypeKind_Double
+	};
+
+	return (size_t)m_typeKind < TypeKind__PrimitiveTypeCount ?
+		getValueStringFuncTable[(size_t)m_typeKind](p) :
+		"<unsupported-type>";
 }
 
 void

@@ -211,6 +211,34 @@ ArrayType::calcLayoutImpl(
 	return true;
 }
 
+sl::String
+ArrayType::getValueString(const void* p0)
+{
+	if (m_flags & TypeFlag_Dynamic)
+	{
+		AXL_TODO("format dynamic arrays")
+		return "{ dynamic-array }";
+	}
+
+	if (!m_elementCount)
+		return "{}";
+
+	const char* p = (char*)p0;
+
+	sl::String string = "{ " + m_elementType->getValueString(p);
+
+	for (size_t i = 1; i < m_elementCount; i++)
+	{
+		p += m_elementType->getSize();
+
+		string += ", ";
+		string += m_elementType->getValueString(p);
+	}
+
+	string += " }";
+	return string;
+}
+
 void
 ArrayType::markGcRoots(
 	const void* p,

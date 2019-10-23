@@ -587,6 +587,27 @@ DerivableType::findDirectChildItemTraverse(
 	return g_nullFindModuleItemResult;
 }
 
+sl::String
+DerivableType::getValueString(const void* p0)
+{
+	if (m_fieldArray.isEmpty())
+		return "{}";
+
+	const char* p = (const char*)p0;
+
+	sl::String string = "{ " + m_fieldArray[0]->getType()->getValueString(p + m_fieldArray[0]->getOffset());
+
+	size_t count = m_fieldArray.getCount();
+	for (size_t i = 1; i < count; i++)
+	{
+		string += ", ";
+		string += m_fieldArray[i]->getType()->getValueString(p + m_fieldArray[i]->getOffset());
+	}
+
+	string += " }";
+	return string;
+}
+
 bool
 DerivableType::generateDocumentation(
 	const sl::StringRef& outputDir,

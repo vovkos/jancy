@@ -95,6 +95,10 @@ public:
 	}
 
 	virtual
+	sl::String
+	getValueString(const void* p);
+
+	virtual
 	void
 	markGcRoots(
 		const void* p,

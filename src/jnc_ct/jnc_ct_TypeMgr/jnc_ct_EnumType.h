@@ -118,6 +118,10 @@ public:
 		);
 
 	virtual
+	sl::String
+	getValueString(const void* p);
+
+	virtual
 	bool
 	generateDocumentation(
 		const sl::StringRef& outputDir,
