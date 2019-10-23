@@ -69,7 +69,7 @@ axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
 add_perl_step(
 	script.jnc.c
 	script.jnc
-	${JNC2CPP_PL}
+	${FILE2LITERAL_PL}
 	)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)

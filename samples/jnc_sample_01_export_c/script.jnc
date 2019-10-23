@@ -12,9 +12,6 @@
 // This sample demonstrates how to export functions, properties and types
 // into Jancy script.
 
-///+++
-///static char g_script[] =
-
 //..............................................................................
 
 // global function export demo
@@ -133,6 +130,3 @@ int main()
 }
 
 //..............................................................................
-
-///;
-///---

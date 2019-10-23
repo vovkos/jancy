@@ -79,7 +79,7 @@ qt5_wrap_cpp(
 add_perl_step(
 	script.jnc.cpp
 	script.jnc
-	${JNC2CPP_PL}
+	${FILE2LITERAL_PL}
 	)
 
 axl_pop(CMAKE_CURRENT_BINARY_DIR)

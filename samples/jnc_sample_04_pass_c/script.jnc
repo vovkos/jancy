@@ -12,9 +12,6 @@
 // This sample demonstrates how to safely pass memory blocks
 // to Jancy functions without copying them onto the GC-heap
 
-///+++
-///static char g_script[] =
-
 //..............................................................................
 
 foo(char* s)
@@ -23,6 +20,3 @@ foo(char* s)
 }
 
 //..............................................................................
-
-///;
-///---

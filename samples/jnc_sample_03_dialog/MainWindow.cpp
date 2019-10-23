@@ -13,7 +13,10 @@
 #include "MainWindow.h"
 #include "moc_MainWindow.cpp"
 #include "MyLib.h"
+
+char g_script[] =
 #include "script.jnc.cpp"
+;
 
 //..............................................................................
 

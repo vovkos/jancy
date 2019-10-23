@@ -11,7 +11,10 @@
 
 #include "pch.h"
 #include "MyLib.h"
+
+char g_script[] =
 #include "script.jnc.cpp"
+;
 
 //..............................................................................
 
