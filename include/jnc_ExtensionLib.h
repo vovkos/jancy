@@ -467,31 +467,42 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_MAP_OVERLOADABLE_FUNCTION(findResult.m_item, p);
 
 #define JNC_MAP_PROPERTY_GETTER(prop, p) \
-	function = jnc_Property_getGetter(prop); \
-	JNC_ASSERT(function); \
-	JNC_MAP_FUNCTION_IMPL(function, p); \
+	do \
+	{ \
+		function = jnc_Property_getGetter(prop); \
+		JNC_ASSERT(function); \
+		JNC_MAP_FUNCTION_IMPL(function, p); \
+	} while (0)
 
 #define JNC_MAP_PROPERTY_SETTER(prop, p) \
-	overloadableFunction = jnc_Property_getSetter(prop); \
-	JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p);
+	do \
+	{ \
+		overloadableFunction = jnc_Property_getSetter(prop); \
+		JNC_MAP_OVERLOADABLE_FUNCTION(overloadableFunction.m_item, p); \
+	} while (0)
 
 #define JNC_MAP_PROPERTY(name, getter, setter) \
-	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
-	JNC_MAP_PROPERTY_GETTER(prop, getter); \
-	JNC_MAP_PROPERTY_SETTER(prop, setter);
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop); \
+	if (prop) \
+	{ \
+		JNC_MAP_PROPERTY_GETTER(prop, getter); \
+		JNC_MAP_PROPERTY_SETTER(prop, setter); \
+	}
 
 #define JNC_MAP_CONST_PROPERTY(name, getter) \
-	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
-	JNC_MAP_PROPERTY_GETTER(prop, getter);
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop); \
+	if (prop) \
+		JNC_MAP_PROPERTY_GETTER(prop, getter);
 
 #define JNC_MAP_AUTOGET_PROPERTY(name, setter) \
-	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop) \
-	JNC_MAP_PROPERTY_SETTER(prop, setter);
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Property, jnc_Property, prop); \
+	if (prop) \
+		JNC_MAP_PROPERTY_SETTER(prop, setter);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #define JNC_MAP_VARIABLE(name, p) \
-	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Variable, jnc_Variable, variable) \
+	JNC_FIND_ITEM_IMPL(name, jnc_ModuleItemKind_Variable, jnc_Variable, variable); \
 	result = jnc_Module_mapVariable(module, variable, p); \
 	if (!result) \
 		return 0;
