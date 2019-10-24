@@ -95,6 +95,17 @@ opaque class ModuleItemDecl
 
 	construct(intptr p);
 	destruct();
+
+	Attribute* findAttribute(char const* name)
+	{
+		return m_attributeBlock ? m_attributeBlock.findAttribute(name) : null;
+	}
+
+	variant findAttributeValue(char const* name)
+	{
+		Attribute* attribute = findAttribute(name);
+		return attribute ? attribute.m_value : null;
+	}
 }
 
 //..............................................................................
