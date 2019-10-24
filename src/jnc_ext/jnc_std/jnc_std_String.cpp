@@ -210,7 +210,6 @@ StringBuilder::detachString(StringBuilder* self)
 	self->m_ptr = g_nullDataPtr;
 	self->m_length = 0;
 	self->m_bufferSize = 0;
-
 	return ptr;
 }
 

@@ -122,7 +122,8 @@ public:
 	JNC_CDECL
 	getValueString(
 		Type* self,
-		DataPtr valuePtr
+		DataPtr valuePtr,
+		DataPtr formatSpecPtr
 		);
 
 	ArrayType*

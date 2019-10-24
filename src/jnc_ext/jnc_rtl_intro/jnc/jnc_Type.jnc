@@ -184,7 +184,12 @@ opaque class Type: ModuleItem
 	destruct();
 
 	int cmp(Type* type);
-	char const* getValueString(void const* value);
+
+	char const* getValueString(
+		void const* value,
+		char const* formatSpec = null
+		);
+
 	ArrayType* getArrayType(size_t elementCount);
 
 	DataPtrType* getDataPtrType(

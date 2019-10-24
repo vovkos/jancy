@@ -157,10 +157,13 @@ DataPtr
 JNC_CDECL
 Type::getValueString(
 	Type* self,
-	DataPtr valuePtr
+	DataPtr valuePtr,
+	DataPtr formatSpecPtr
 	)
 {
-	return valuePtr.m_p ? strDup(self->m_item->getValueString(valuePtr.m_p)) : g_nullDataPtr;
+	return valuePtr.m_p ?
+		strDup(self->m_item->getValueString(valuePtr.m_p, (char*)formatSpecPtr.m_p)) :
+		g_nullDataPtr;
 }
 
 //..............................................................................
