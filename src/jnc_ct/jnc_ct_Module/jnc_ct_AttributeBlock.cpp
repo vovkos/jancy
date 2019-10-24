@@ -28,6 +28,13 @@ Attribute::parseInitializer()
 	if (!result)
 		return false;
 
+	if (m_value.getValueKind() == ValueKind_Function)
+	{
+		result = m_value.getFunction()->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)->ensureLayout();
+		if (!result)
+			return false;
+	}
+
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
 }
