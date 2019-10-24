@@ -224,7 +224,10 @@ EnumType::calcLayout()
 }
 
 sl::String
-EnumType::getValueString(const void* p)
+EnumType::getValueString(
+	const void* p,
+	const char* formatSpec
+	)
 {
 	Value value;
 	bool result = m_module->m_operatorMgr.castOperator(Value(p, m_baseType), TypeKind_Int64, &value);
@@ -236,7 +239,7 @@ EnumType::getValueString(const void* p)
 		if (it->m_value == n)
 			return it->m_name;
 
-	return m_baseType->getValueString(p);
+	return m_baseType->getValueString(p, formatSpec);
 }
 
 bool

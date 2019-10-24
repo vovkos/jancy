@@ -212,7 +212,10 @@ ArrayType::calcLayoutImpl(
 }
 
 sl::String
-ArrayType::getValueString(const void* p0)
+ArrayType::getValueString(
+	const void* p0,
+	const char* formatSpec
+	)
 {
 	if (m_flags & TypeFlag_Dynamic)
 	{
@@ -232,7 +235,7 @@ ArrayType::getValueString(const void* p0)
 		p += m_elementType->getSize();
 
 		string += ", ";
-		string += m_elementType->getValueString(p);
+		string += m_elementType->getValueString(p, formatSpec);
 	}
 
 	string += " }";

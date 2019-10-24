@@ -588,20 +588,23 @@ DerivableType::findDirectChildItemTraverse(
 }
 
 sl::String
-DerivableType::getValueString(const void* p0)
+DerivableType::getValueString(
+	const void* p0,
+	const char* formatSpec
+	)
 {
 	if (m_fieldArray.isEmpty())
 		return "{}";
 
 	const char* p = (const char*)p0;
 
-	sl::String string = "{ " + m_fieldArray[0]->getType()->getValueString(p + m_fieldArray[0]->getOffset());
+	sl::String string = "{ " + m_fieldArray[0]->getType()->getValueString(p + m_fieldArray[0]->getOffset(), formatSpec);
 
 	size_t count = m_fieldArray.getCount();
 	for (size_t i = 1; i < count; i++)
 	{
 		string += ", ";
-		string += m_fieldArray[i]->getType()->getValueString(p + m_fieldArray[i]->getOffset());
+		string += m_fieldArray[i]->getType()->getValueString(p + m_fieldArray[i]->getOffset(), formatSpec);
 	}
 
 	string += " }";

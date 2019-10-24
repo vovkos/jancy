@@ -96,7 +96,10 @@ public:
 
 	virtual
 	sl::String
-	getValueString(const void* p);
+	getValueString(
+		const void* p,
+		const char* formatSpec
+		);
 
 	virtual
 	void

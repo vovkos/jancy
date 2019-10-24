@@ -747,125 +747,192 @@ Type::prepareSimpleTypeVariable(StdType stdType)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 sl::String
-getValueString_void(const void* p)
+getValueString_void(
+	const void* p,
+	const char* formatSpec
+	)
 {
 	return "void";
 }
 
 sl::String
-getValueString_variant(const void* p)
+getValueString_variant(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return ((Variant*)p)->m_type ? ((Variant*)p)->m_type->getValueString(p) : "<empty-variant>";
+	return ((Variant*)p)->m_type ? ((Variant*)p)->m_type->getValueString(p, formatSpec) : "<empty-variant>";
 }
 
 sl::String
-getValueString_bool(const void* p)
+getValueString_bool(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return *(bool*)p ? "true" : "false";
+	return
+		formatSpec ? sl::formatString(formatSpec, *(bool*)p) :
+		*(bool*)p ? "true" : "false";
 }
 
 sl::String
-getValueString_int8(const void* p)
+getValueString_int8(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%d", *(int8_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%d", *(int8_t*)p);
 }
 
 sl::String
-getValueString_int8_u(const void* p)
+getValueString_int8_u(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%u", *(uint8_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint8_t*)p);
 }
 
 sl::String
-getValueString_int16(const void* p)
+getValueString_int16(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%d", *(int16_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%d", *(int16_t*)p);
 }
 
 sl::String
-getValueString_int16_u(const void* p)
+getValueString_int16_u(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%u", *(uint16_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint16_t*)p);
 }
 
 sl::String
-getValueString_int32(const void* p)
+getValueString_int32(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%d", *(int32_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%d", *(int32_t*)p);
 }
 
 sl::String
-getValueString_int32_u(const void* p)
+getValueString_int32_u(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%u", *(uint32_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%u", *(uint32_t*)p);
 }
 
 sl::String
-getValueString_int64(const void* p)
+getValueString_int64(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%lld", *(int64_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%lld", *(int64_t*)p);
 }
 
 sl::String
-getValueString_int64_u(const void* p)
+getValueString_int64_u(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%llu", *(uint64_t*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%llu", *(uint64_t*)p);
 }
 
 sl::String
-getValueString_int16_be(const void* p)
+getValueString_int16_be(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%d", (int16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
 sl::String
-getValueString_int16_beu(const void* p)
+getValueString_int16_beu(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%u", (uint16_t)sl::swapByteOrder16(*(uint16_t*)p));
 }
 
 sl::String
-getValueString_int32_be(const void* p)
+getValueString_int32_be(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%d", (int32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
 sl::String
-getValueString_int32_beu(const void* p)
+getValueString_int32_beu(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%u", (uint32_t)sl::swapByteOrder32(*(uint32_t*)p));
 }
 
 sl::String
-getValueString_int64_be(const void* p)
+getValueString_int64_be(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%lld", (int64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
 sl::String
-getValueString_int64_beu(const void* p)
+getValueString_int64_beu(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
+	return sl::formatString(formatSpec ? formatSpec : "%llu", (uint64_t)sl::swapByteOrder64(*(uint64_t*)p));
 }
 
 sl::String
-getValueString_float(const void* p)
+getValueString_float(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%f", *(float*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%f", *(float*)p);
 }
 
 sl::String
-getValueString_double(const void* p)
+getValueString_double(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	return sl::formatString("%f", *(double*)p);
+	return sl::formatString(formatSpec ? formatSpec : "%f", *(double*)p);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 sl::String
-Type::getValueString(const void* p)
+Type::getValueString(
+	const void* p,
+	const char* formatSpec
+	)
 {
-	typedef sl::String GetValueStringFunc(const void* p);
+	typedef
+	sl::String
+	GetValueStringFunc(
+		const void* p,
+		const char* formatSpec
+		);
 
 	GetValueStringFunc* getValueStringFuncTable[TypeKind__PrimitiveTypeCount] =
 	{
@@ -891,7 +958,7 @@ Type::getValueString(const void* p)
 	};
 
 	return (size_t)m_typeKind < TypeKind__PrimitiveTypeCount ?
-		getValueStringFuncTable[(size_t)m_typeKind](p) :
+		getValueStringFuncTable[(size_t)m_typeKind](p, formatSpec) :
 		"<unsupported-type>";
 }
 
