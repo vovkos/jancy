@@ -64,6 +64,13 @@ public:
 			);
 	}
 
+	virtual
+	sl::String
+	getValueString(
+		const void* p,
+		const char* formatSpec
+		);
+
 protected:
 	virtual
 	void

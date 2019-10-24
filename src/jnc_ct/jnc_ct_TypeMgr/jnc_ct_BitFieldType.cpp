@@ -63,6 +63,19 @@ BitFieldType::calcLayout()
 	return true;
 }
 
+sl::String
+BitFieldType::getValueString(
+	const void* p,
+	const char* formatSpec
+	)
+{
+	uint64_t value = 0;
+	memcpy(&value, p, m_baseType->getSize());
+	value >>= m_bitOffset;
+	value &= (1 << m_bitCount) - 1;
+	return m_baseType->getValueString(&value, formatSpec);
+}
+
 //..............................................................................
 
 } // namespace ct
