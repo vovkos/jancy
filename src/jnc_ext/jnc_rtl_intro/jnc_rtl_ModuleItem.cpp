@@ -26,7 +26,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	sl::g_nullGuid,
 	-1,
 	ModuleItemDecl,
-	NULL
+	&ModuleItemDecl::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItemDecl)
@@ -50,8 +50,8 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	"jnc.ModuleItemInitializer",
 	sl::g_nullGuid,
 	-1,
-	ModuleItemDecl,
-	NULL
+	ModuleItemInitializer,
+	&ModuleItemInitializer::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(ModuleItemInitializer)
