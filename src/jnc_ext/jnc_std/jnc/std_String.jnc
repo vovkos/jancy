@@ -20,7 +20,7 @@ class StringBuilder
 {
 	char readonly* readonly m_p;
 	size_t readonly m_length;
-	size_t readonly m_maxLength;
+	size_t readonly m_bufferSize;
 
 	property m_sz
 	{

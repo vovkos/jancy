@@ -48,20 +48,20 @@ bool
 JNC_CDECL
 StringBuilder::reserve(size_t length)
 {
-	if (length <= m_maxLength)
+	if (length < m_bufferSize)
 		return true;
 
-	size_t size = sl::getAllocSize(length + 1); // reserve space for null
-	ASSERT(size > length);
+	size_t bufferSize = sl::getAllocSize(length + 1); // reserve space for null
+	ASSERT(bufferSize > length);
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	DataPtr ptr = gcHeap->tryAllocateBuffer(size);
+	DataPtr ptr = gcHeap->tryAllocateBuffer(bufferSize);
 	if (!ptr.m_p)
 		return false;
 
 	memcpy(ptr.m_p, m_ptr.m_p, m_length);
 	m_ptr = ptr;
-	m_maxLength = size - 1;
+	m_bufferSize = bufferSize;
 	return true;
 }
 
@@ -190,6 +190,7 @@ StringBuilder::remove(
 	size_t tailIdx = offset + length;
 	char* p = (char*)m_ptr.m_p;
 	memmove(p + offset, p + tailIdx, m_length - tailIdx);
+	p[newLength] = 0;
 	m_length = newLength;
 	return newLength;
 }
@@ -197,7 +198,7 @@ StringBuilder::remove(
 DataPtr
 StringBuilder::detachString(StringBuilder* self)
 {
-	if (!self->m_maxLength)
+	if (!self->m_bufferSize)
 	{
 		GcHeap* gcHeap = getCurrentThreadGcHeap();
 		return gcHeap->tryAllocateBuffer(1); // empty string + null
@@ -208,7 +209,7 @@ StringBuilder::detachString(StringBuilder* self)
 	DataPtr ptr = self->m_ptr;
 	self->m_ptr = g_nullDataPtr;
 	self->m_length = 0;
-	self->m_maxLength = 0;
+	self->m_bufferSize = 0;
 
 	return ptr;
 }
@@ -217,7 +218,7 @@ DataPtr
 StringBuilder::cloneString(StringBuilder* self)
 {
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	if (!self->m_maxLength)
+	if (!self->m_bufferSize)
 		return gcHeap->tryAllocateBuffer(1); // empty string + null
 
 	DataPtr ptr = gcHeap->tryAllocateBuffer(self->m_length + 1);
@@ -243,6 +244,7 @@ StringBuilder::copyImpl(
 		return -1;
 
 	memcpy(m_ptr.m_p, p, length);
+	((char*)m_ptr.m_p)[length] = 0;
 	m_length = length;
 	return length;
 }
@@ -264,12 +266,13 @@ StringBuilder::insertImpl(
 	if (offset > m_length)
 		offset = m_length;
 
-	char* dst = (char*)m_ptr.m_p;
+	char* dst = (char*)m_ptr.m_p + offset;
 
 	if (offset < m_length)
-		memmove(dst + offset + length, dst + offset, m_length - offset);
+		memmove(dst + length, dst, m_length - offset);
 
-	memcpy(dst + offset, src, length);
+	memcpy(dst, src, length);
+	((char*)m_ptr.m_p)[newLength] = 0;
 	m_length = newLength;
 	return newLength;
 }

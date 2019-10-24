@@ -27,7 +27,7 @@ class StringBuilder: public IfaceHdr
 public:
 	DataPtr m_ptr;
 	size_t m_length;
-	size_t m_maxLength;
+	size_t m_bufferSize;
 
 public:
 	void
