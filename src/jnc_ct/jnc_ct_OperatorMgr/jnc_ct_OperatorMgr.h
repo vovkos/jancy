@@ -1270,6 +1270,23 @@ public:
 		const Value& srcValue
 		);
 
+	// bit fields
+
+	bool
+	extractBitField(
+		const Value& value,
+		BitFieldType* bitFieldType,
+		Value* resultValue
+		);
+
+	bool
+	mergeBitField(
+		const Value& value,
+		const Value& shadowValue,
+		BitFieldType* bitFieldType,
+		Value* resultValue
+		);
+
 	// fields
 
 	bool
@@ -1421,23 +1438,6 @@ protected:
 	getOverloadedBinaryOperator(
 		BinOpKind opKind,
 		const Value& opValue1
-		);
-
-	// bit fields
-
-	bool
-	extractBitField(
-		const Value& value,
-		BitFieldType* bitFieldType,
-		Value* resultValue
-		);
-
-	bool
-	mergeBitField(
-		const Value& value,
-		const Value& shadowValue,
-		BitFieldType* bitFieldType,
-		Value* resultValue
 		);
 
 	// member operators

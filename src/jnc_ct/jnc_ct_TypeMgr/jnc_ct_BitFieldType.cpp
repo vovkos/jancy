@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_BitFieldType.h"
+#include "jnc_ct_Module.h"
 
 namespace jnc {
 namespace ct {
@@ -69,11 +70,11 @@ BitFieldType::getValueString(
 	const char* formatSpec
 	)
 {
-	uint64_t value = 0;
-	memcpy(&value, p, m_baseType->getSize());
-	value >>= m_bitOffset;
-	value &= (1 << m_bitCount) - 1;
-	return m_baseType->getValueString(&value, formatSpec);
+	Value value(p, this);
+	bool result = m_module->m_operatorMgr.extractBitField(value, this, &value);
+	ASSERT(result);
+
+	return m_baseType->getValueString(value.getConstData(), formatSpec);
 }
 
 //..............................................................................

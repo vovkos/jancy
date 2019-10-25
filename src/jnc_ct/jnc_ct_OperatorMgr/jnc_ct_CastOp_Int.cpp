@@ -488,10 +488,10 @@ Cast_Int::getCastOperator(
 	case TypeKind_Int64_u:
 		return
 			srcSize == dstSize ? m_module->m_operatorMgr.getStdCastOperator(StdCast_Copy) :
-			srcSize > dstSize ? (CastOperator*) &m_trunc :
+			srcSize > dstSize ? (CastOperator*)&m_trunc :
 			(getTypeKindFlags(srcTypeKind) & TypeKindFlag_Unsigned) ?
-				(CastOperator*) &m_ext_u :
-				(CastOperator*) &m_ext;
+				(CastOperator*)&m_ext_u :
+				(CastOperator*)&m_ext;
 
 	case TypeKind_Int16_be:
 	case TypeKind_Int16_beu:
