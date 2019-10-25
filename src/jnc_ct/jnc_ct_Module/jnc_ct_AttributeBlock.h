@@ -36,6 +36,11 @@ protected:
 	Value m_value;
 
 public:
+	Attribute()
+	{
+		m_itemKind = ModuleItemKind_Attribute;
+	}
+
 	const Value&
 	getValue()
 	{
@@ -55,8 +60,6 @@ class AttributeBlock:
 	friend class AttributeMgr;
 
 protected:
-	ModuleItem* m_parentItem;
-
 	sl::List<Attribute> m_attributeList;
 	sl::Array<Attribute*> m_attributeArray;
 	sl::StringHashTable<Attribute*> m_attributeMap;
@@ -64,13 +67,7 @@ protected:
 public:
 	AttributeBlock()
 	{
-		m_parentItem = NULL;
-	}
-
-	ModuleItem*
-	getParentItem()
-	{
-		return m_parentItem;
+		m_itemKind = ModuleItemKind_AttributeBlock;
 	}
 
 	const sl::Array<Attribute*>&

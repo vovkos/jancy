@@ -144,6 +144,8 @@ getModuleItem(ct::ModuleItem* item)
 	{
 		StdType_ModuleItem,       // ModuleItemKind_Undefined
 		StdType_GlobalNamespace,  // ModuleItemKind_Namespace
+		StdType_Attribute,        // ModuleItemKind_Attribute
+		StdType_AttributeBlock,   // ModuleItemKind_AttributeBlock
 		StdType_ModuleItem,       // ModuleItemKind_Scope
 		StdType_Type,             // ModuleItemKind_Type
 		StdType_Typedef,          // ModuleItemKind_Typedef

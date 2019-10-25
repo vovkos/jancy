@@ -57,6 +57,8 @@ enum jnc_ModuleItemKind
 	jnc_ModuleItemKind_Undefined = 0,
 	jnc_ModuleItemKind_Namespace,
 	jnc_ModuleItemKind_Scope,
+	jnc_ModuleItemKind_Attribute,
+	jnc_ModuleItemKind_AttributeBlock,
 	jnc_ModuleItemKind_Type,
 	jnc_ModuleItemKind_Typedef,
 	jnc_ModuleItemKind_Alias,
@@ -365,6 +367,8 @@ typedef jnc_ModuleItemKind ModuleItemKind;
 const ModuleItemKind
 	ModuleItemKind_Undefined        = jnc_ModuleItemKind_Undefined,
 	ModuleItemKind_Namespace        = jnc_ModuleItemKind_Namespace,
+	ModuleItemKind_Attribute        = jnc_ModuleItemKind_Attribute,
+	ModuleItemKind_AttributeBlock   = jnc_ModuleItemKind_AttributeBlock,
 	ModuleItemKind_Scope            = jnc_ModuleItemKind_Scope,
 	ModuleItemKind_Type             = jnc_ModuleItemKind_Type,
 	ModuleItemKind_Typedef          = jnc_ModuleItemKind_Typedef,
