@@ -51,6 +51,7 @@ jnc_Variant_create(
 
 	memcpy(ptr.m_p, p, size);
 	variant->m_type = type->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Normal, PtrTypeFlag_Const);
+	variant->m_dataPtr = ptr;
 	return true;
 }
 
