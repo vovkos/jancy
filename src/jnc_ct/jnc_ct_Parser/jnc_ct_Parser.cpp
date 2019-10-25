@@ -347,6 +347,7 @@ Parser::createAttributeBlock(const lex::LineCol& pos)
 	ASSERT(!m_attributeBlock);
 
 	m_attributeBlock = m_module->m_attributeMgr.createAttributeBlock();
+	m_attributeBlock->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	m_attributeBlock->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	m_attributeBlock->m_pos = pos;
 	return true;
@@ -365,6 +366,7 @@ Parser::createAttribute(
 	if (!attribute)
 		return false;
 
+	attribute->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
 	attribute->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	attribute->m_pos = pos;
 	return true;

@@ -23,7 +23,6 @@ Attribute::parseInitializer()
 {
 	ASSERT(!m_initializer.isEmpty());
 
-	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	bool result = m_module->m_operatorMgr.parseConstExpression(m_initializer, &m_value);
 	if (!result)
 		return false;
@@ -35,7 +34,6 @@ Attribute::parseInitializer()
 			return false;
 	}
 
-	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
 }
 
@@ -72,6 +70,9 @@ AttributeBlock::prepareAttributeValues()
 {
 	ASSERT(!(m_flags & AttributeBlockFlag_ValuesReady));
 
+	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
+	m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
+
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -83,6 +84,9 @@ AttributeBlock::prepareAttributeValues()
 				return false;
 		}
 	}
+
+	m_module->m_namespaceMgr.closeNamespace();
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 	m_flags |= AttributeBlockFlag_ValuesReady;
 	return true;
