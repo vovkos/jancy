@@ -15,6 +15,7 @@ common_declaration
 	:	using_declaration
 	|   alignment_declaration
 	|	named_type_specifier
+	|   attribute_block
 	|	';'
 	;
 
