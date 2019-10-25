@@ -162,6 +162,7 @@ ImportMgr::parseLazyImport(LazyImport* import)
 
 	addImport(import->m_lib, import->m_fileName, import->m_source);
 
+	Unit* prevUnit = m_module->m_unitMgr.getCurrentUnit();
 	m_module->m_namespaceMgr.openNamespace(m_module->m_namespaceMgr.getGlobalNamespace());
 
 	bool result =
@@ -174,6 +175,7 @@ ImportMgr::parseLazyImport(LazyImport* import)
 		return false;
 
 	m_module->m_namespaceMgr.closeNamespace();
+	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
 }
 
