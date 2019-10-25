@@ -71,6 +71,10 @@ Attribute::getValue(Attribute* self)
 
 	switch (valueKind)
 	{
+	case ct::ValueKind_Void:
+	case ct::ValueKind_Null:
+		return g_nullVariant;
+
 	case ct::ValueKind_Const:
 		self->m_value.create(value.getConstData(), value.getType());
 		break;

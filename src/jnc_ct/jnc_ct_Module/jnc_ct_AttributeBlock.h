@@ -102,5 +102,12 @@ protected:
 
 //..............................................................................
 
+inline
+bool
+ModuleItemDecl::ensureAttributeValuesReady()
+{
+	return m_attributeBlock ? m_attributeBlock->ensureAttributeValuesReady() : true;
+}
+
 } // namespace ct
 } // namespace jnc

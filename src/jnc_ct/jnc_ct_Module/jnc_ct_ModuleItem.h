@@ -160,6 +160,9 @@ public:
 		return m_doxyBlock;
 	}
 
+	bool
+	ensureAttributeValuesReady();
+
 protected:
 	void
 	prepareQualifiedName();

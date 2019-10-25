@@ -64,7 +64,10 @@ UnionType::createFieldImpl(
 bool
 UnionType::calcLayout()
 {
-	bool result = ensureNamespaceReady();
+	bool result =
+		ensureNamespaceReady() &&
+		ensureAttributeValuesReady();
+
 	if (!result)
 		return false;
 

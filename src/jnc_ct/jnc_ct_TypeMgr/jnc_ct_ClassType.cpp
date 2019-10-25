@@ -269,7 +269,10 @@ ClassType::prepareLlvmDiType()
 bool
 ClassType::calcLayout()
 {
-	bool result = ensureNamespaceReady();
+	bool result =
+		ensureNamespaceReady() &&
+		ensureAttributeValuesReady();
+
 	if (!result)
 		return false;
 

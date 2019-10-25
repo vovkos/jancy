@@ -105,7 +105,10 @@ StructType::append(StructType* type)
 bool
 StructType::calcLayout()
 {
-	bool result = ensureNamespaceReady();
+	bool result =
+		ensureNamespaceReady() &&
+		ensureAttributeValuesReady();
+
 	if (!result)
 		return false;
 
@@ -314,6 +317,10 @@ StructType::layoutField(Field* field)
 {
 	bool result;
 
+	result = field->ensureAttributeValuesReady();
+	if (!result)
+		return false;
+
 	if ((m_flags & TypeFlag_Dynamic) && field->m_type->getTypeKind() == TypeKind_Array)
 	{
 		result = ((ArrayType*)field->m_type)->ensureDynamicLayout(this, field);
@@ -323,13 +330,6 @@ StructType::layoutField(Field* field)
 	else
 	{
 		result = field->m_type->ensureLayout();
-		if (!result)
-			return false;
-	}
-
-	if (field->m_attributeBlock)
-	{
-		result = field->m_attributeBlock->ensureAttributeValuesReady();
 		if (!result)
 			return false;
 	}

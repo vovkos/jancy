@@ -155,7 +155,8 @@ EnumType::calcLayout()
 {
 	bool result =
 		m_baseType->ensureLayout() &&
-		ensureNamespaceReady();
+		ensureNamespaceReady() &&
+		ensureAttributeValuesReady();
 
 	if (!result)
 		return false;
