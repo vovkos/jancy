@@ -72,8 +72,9 @@ Runtime::shutdown()
 			break;
 	}
 
-	ASSERT(m_tlsList.isEmpty());
 	m_gcHeap.finalizeShutdown();
+
+	ASSERT(m_tlsList.isEmpty());
 	m_state = State_Idle;
 }
 
