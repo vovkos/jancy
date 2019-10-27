@@ -772,7 +772,7 @@ getValueString_bool(
 {
 	return
 		formatSpec ? sl::formatString(formatSpec, *(bool*)p) :
-		*(bool*)p ? "true" : "false";
+		*(bool*)p ? sl::String("true") : sl::String("false");
 }
 
 sl::String
