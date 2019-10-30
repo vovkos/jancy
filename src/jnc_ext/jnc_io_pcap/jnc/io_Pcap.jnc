@@ -364,6 +364,8 @@ opaque class Pcap
 
 opaque class PcapFilter
 {
+	bool const property m_isEmpty;
+
 	bool errorcode compile(
 		Pcap* pcap,
 		char const* filter,

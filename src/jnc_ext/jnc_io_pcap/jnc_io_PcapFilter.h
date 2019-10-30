@@ -28,6 +28,13 @@ protected:
 public:
 	bool
 	JNC_CDECL
+	isEmpty()
+	{
+		return m_filter.isEmpty();
+	}
+
+	bool
+	JNC_CDECL
 	compile_0(
 		Pcap* pcap,
 		DataPtr filterPtr,
@@ -52,7 +59,7 @@ public:
 		size_t size
 		)
 	{
-		return m_filter.match(dataPtr.m_p, size);
+		return m_filter.isEmpty() ? true : m_filter.match(dataPtr.m_p, size);
 	}
 };
 
