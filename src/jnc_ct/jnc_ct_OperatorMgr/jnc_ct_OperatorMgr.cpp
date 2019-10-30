@@ -1037,7 +1037,7 @@ OperatorMgr::typeofOperator(
 	Value typeValue;
 
 	bool result =
-		prepareOperandType(opValue, &typeValue) &&
+		prepareOperandType(opValue, &typeValue, OpFlag_KeepBool | OpFlag_KeepEnum | OpFlag_LoadArrayRef) &&
 		m_module->ensureIntrospectionLibRequired();
 
 	if (!result)
