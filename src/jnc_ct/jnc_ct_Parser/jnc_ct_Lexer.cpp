@@ -126,7 +126,7 @@ Lexer::Lexer(LexerMode mode)
 
 Token*
 Lexer::createKeywordTokenEx(
-	int tokenKind,
+	TokenKind tokenKind,
 	int param
 	)
 {
@@ -137,7 +137,7 @@ Lexer::createKeywordTokenEx(
 
 Token*
 Lexer::createStringToken(
-	int tokenKind,
+	TokenKind tokenKind,
 	size_t left,
 	size_t right,
 	bool useEscapeEncoding
@@ -187,7 +187,7 @@ Lexer::createBinLiteralToken(int radix)
 
 Token*
 Lexer::createCharToken(
-	int tokenKind,
+	TokenKind tokenKind,
 	size_t left,
 	size_t right,
 	bool useEscapeEncoding
@@ -230,11 +230,12 @@ Lexer::createCharToken(
 
 Token*
 Lexer::createIntegerToken(
+	TokenKind tokenKind,
 	int radix,
 	size_t left
 	)
 {
-	Token* token = createToken(TokenKind_Integer);
+	Token* token = createToken(tokenKind);
 	token->m_data.m_int64_u = _strtoui64(ts + left, NULL, radix);
 	return token;
 }
@@ -385,7 +386,7 @@ Lexer::preCreateFmtLiteralToken()
 
 Token*
 Lexer::createFmtLiteralToken(
-	int tokenKind,
+	TokenKind tokenKind,
 	int param
 	)
 {
@@ -461,7 +462,24 @@ Lexer::createFmtIndexTokens()
 	size_t prevTokenizeLimit = m_tokenizeLimit;
 	m_tokenizeLimit = -1;
 
-	createIntegerToken(10, 1);
+	createIntegerToken(TokenKind_FmtIndex, 10, 1);
+
+	m_tokenizeLimit = prevTokenizeLimit;
+
+	preCreateFmtLiteralToken();
+}
+
+void
+Lexer::createFmtSimpleSpecifierTokens()
+{
+	createFmtLiteralToken(TokenKind_FmtLiteral, true);
+
+	// important: prevent stop () -- otherwise we could feed half-created fmt-literal token to the parser
+
+	size_t prevTokenizeLimit = m_tokenizeLimit;
+	m_tokenizeLimit = -1;
+
+	createStringToken(TokenKind_FmtSpecifier);
 
 	m_tokenizeLimit = prevTokenizeLimit;
 

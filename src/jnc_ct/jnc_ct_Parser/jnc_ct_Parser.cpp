@@ -2736,46 +2736,55 @@ Parser::addFmtSite(
 	if (!isIndex)
 	{
 		site->m_value = value;
-		site->m_index = -1;
+		return true;
 	}
-	else
+
+	if (value.getValueKind() != ValueKind_Const ||
+		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
-		if (value.getValueKind() != ValueKind_Const ||
-			!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
-		{
-			err::setFormatStringError("expression is not integer constant");
-			return false;
-		}
-
-		site->m_index = 0;
-		memcpy(&site->m_index, value.getConstData(), value.getType()->getSize());
+		err::setFormatStringError("expression is not integer constant");
+		return false;
 	}
 
+	site->m_index = 0;
+	memcpy(&site->m_index, value.getConstData(), value.getType()->getSize());
+
+	literal->m_lastIndex = site->m_index;
 	return true;
 }
 
-bool
-Parser::finalizeLiteral_0(
-	Literal_0* literal,
-	Value* resultValue
+void
+Parser::addFmtSite(
+	Literal* literal,
+	const sl::StringRef& string,
+	size_t index
 	)
 {
-	Type* type;
+	literal->m_binData.append(string.cp(), string.getLength());
 
-	if (literal->m_isFmtLiteral)
-	{
-		type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType();
-	}
-	else
-	{
-		if (literal->m_isZeroTerminated)
-			literal->m_length++;
+	FmtSite* site = AXL_MEM_NEW(FmtSite);
+	site->m_offset = literal->m_binData.getCount();
+	site->m_index = index;
+	literal->m_fmtSiteList.insertTail(site);
+	literal->m_lastIndex = index;
+	literal->m_isZeroTerminated = true;
+}
 
-		type = m_module->m_typeMgr.getArrayType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Char), literal->m_length);
-	}
+void
+Parser::addFmtSite(
+	Literal* literal,
+	const sl::StringRef& string,
+	const sl::StringRef& fmtSpecifierString
+	)
+{
+	literal->m_binData.append(string.cp(), string.getLength());
 
-	resultValue->setType(type);
-	return true;
+	FmtSite* site = AXL_MEM_NEW(FmtSite);
+	site->m_offset = literal->m_binData.getCount();
+	site->m_index = ++literal->m_lastIndex;
+	site->m_fmtSpecifierString = fmtSpecifierString;
+	literal->m_fmtSiteList.insertTail(site);
+	literal->m_isZeroTerminated = true;
 }
 
 bool

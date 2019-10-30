@@ -35,6 +35,7 @@ enum TokenKind
 
 	TokenKind_BinLiteral,
 	TokenKind_FmtLiteral,
+	TokenKind_FmtIndex,
 	TokenKind_FmtSpecifier,
 	TokenKind_Body,
 
@@ -226,6 +227,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Literal,      "string-literal")
 	AXL_LEX_TOKEN_NAME(TokenKind_BinLiteral,   "bin-literal")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtLiteral,   "fmt-literal")
+	AXL_LEX_TOKEN_NAME(TokenKind_FmtIndex,     "fmt-index")
 	AXL_LEX_TOKEN_NAME(TokenKind_FmtSpecifier, "fmt-specifier")
 	AXL_LEX_TOKEN_NAME(TokenKind_Body,         "body")
 
@@ -434,13 +436,13 @@ public:
 protected:
 	Token*
 	createKeywordTokenEx(
-		int tokenKind,
+		TokenKind tokenKind,
 		int param
 		);
 
 	Token*
 	createStringToken(
-		int tokenKind,
+		TokenKind tokenKind,
 		size_t left = 0,
 		size_t right = 0,
 		bool useEscapeEncoding = false
@@ -457,7 +459,7 @@ protected:
 
 	Token*
 	createCharToken(
-		int tokenKind,
+		TokenKind tokenKind,
 		size_t left,
 		size_t right,
 		bool useEscapeEncoding = false
@@ -465,9 +467,19 @@ protected:
 
 	Token*
 	createIntegerToken(
+		TokenKind tokenKind,
 		int radix = 10,
 		size_t left = 0
 		);
+
+	Token*
+	createIntegerToken(
+		int radix = 10,
+		size_t left = 0
+		)
+	{
+		return createIntegerToken(TokenKind_Integer, radix, left);
+	}
 
 	Token*
 	createFpToken();
@@ -490,7 +502,7 @@ protected:
 
 	Token*
 	createFmtLiteralToken(
-		int tokenKind,
+		TokenKind tokenKind,
 		int param = 0
 		);
 
@@ -502,6 +514,9 @@ protected:
 
 	void
 	createFmtIndexTokens();
+
+	void
+	createFmtSimpleSpecifierTokens();
 
 	Token*
 	createFmtSpecifierToken();

@@ -88,7 +88,7 @@ Members
 		FmtSite()
 		{
 			m_offset = 0;
-			m_index = 0;
+			m_index = -1;
 		}
 	};
 
@@ -96,25 +96,13 @@ Members
 	{
 		sl::Array<char> m_binData;
 		sl::List<FmtSite> m_fmtSiteList;
+		size_t m_lastIndex;
 		bool m_isZeroTerminated;
 
 		Literal()
 		{
+			m_lastIndex = 0;
 			m_isZeroTerminated = false;
-		}
-	};
-
-	struct Literal_0
-	{
-		size_t m_length;
-		bool m_isZeroTerminated;
-		bool m_isFmtLiteral;
-
-		Literal_0 ()
-		{
-			m_length = 0;
-			m_isZeroTerminated = false;
-			m_isFmtLiteral = false;
 		}
 	};
 
@@ -552,16 +540,24 @@ Members2
 		const sl::StringRef& fmtSpecifierString
 		);
 
+	void
+	addFmtSite(
+		Literal* literal,
+		const sl::StringRef& string,
+		size_t index
+		);
+
+	void
+	addFmtSite(
+		Literal* literal,
+		const sl::StringRef& string,
+		const sl::StringRef& fmtSpecifierString
+		);
+
 	bool
 	finalizeLiteral(
 		Literal* literal,
 		sl::BoxList<Value>* argValueList,
-		Value* resultValue
-		);
-
-	bool
-	finalizeLiteral_0(
-		Literal_0* literal,
 		Value* resultValue
 		);
 

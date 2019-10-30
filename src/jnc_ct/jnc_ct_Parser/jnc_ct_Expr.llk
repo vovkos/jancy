@@ -916,13 +916,29 @@ literal_atom<Literal* $literal>
 			}
 	|	TokenKind_FmtLiteral expression TokenKind_FmtSpecifier $s?
 			{
-				sl::String fmtSpecifier = &$s ? $s.m_data.m_string : sl::String();
+				sl::StringRef fmtSpecifier = &$s ? $s.m_data.m_string : sl::StringRef();
 				return addFmtSite(
 					$literal,
 					$1.m_data.m_string,
 					$2.m_value,
 					$1.m_data.m_integer != 0,
 					fmtSpecifier
+					);
+			}
+	|	TokenKind_FmtLiteral TokenKind_FmtIndex
+			{
+				addFmtSite(
+					$literal,
+					$1.m_data.m_string,
+					$2.m_data.m_integer
+					);
+			}
+	|	TokenKind_FmtLiteral TokenKind_FmtSpecifier
+			{
+				addFmtSite(
+					$literal,
+					$1.m_data.m_string,
+					$2.m_data.m_string
 					);
 			}
 	;

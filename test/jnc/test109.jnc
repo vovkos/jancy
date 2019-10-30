@@ -22,12 +22,12 @@ int main()
 
 	uint_t a = hdr.m_type;
 	EthernetType b = hdr.m_type;
-	uint_t c = (bigendian uint16_t) 0x0806;
+	uint_t c = (bigendian uint16_t)0x0806;
 	uint_t d = EthernetType.Arp;
 	bigendian uint_t e = 0x0806;
-	bigendian uint_t f = (bigendian uint_t) 0x0806;
+	bigendian uint_t f = (bigendian uint_t)0x0806;
 	EthernetType g = EthernetType.Arp;
-	EthernetType h = (EthernetType) 0x0806;
+	EthernetType h = (EthernetType)0x0806;
 
 	printf("*** all should print 0x0806\n");
 	printf("hdr.m_type = %04x\n", hdr.m_type);

@@ -113,6 +113,8 @@ esc       ;
 '$!'      { createFmtLastErrorDescriptionTokens(); };
 '$' id    { createFmtSimpleIdentifierTokens(); };
 '%' dec+  { createFmtIndexTokens(); };
+'%' ([\-+ #0] dec*)? ('.' dec+)? ('l' | 'll' | 'z')? [diuxXfeEgGcsp]
+          { createFmtSimpleSpecifierTokens(); };
 [$%] '('  { createFmtLiteralToken(TokenKind_FmtLiteral, *ts == '%'); m_parenthesesLevelStack.append(1); fcall main; };
 '"' | nl  { createFmtLiteralToken(TokenKind_Literal); fret; };
 any       ;
