@@ -196,6 +196,7 @@ EnumType::calcLayout()
 
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
+			m_constMap[value] = *constIt;
 
 			value = value ? 2 << sl::getHiBitIdx64(value) : 1;
 		}
@@ -216,6 +217,7 @@ EnumType::calcLayout()
 
 			constIt->m_value = value;
 			constIt->m_flags |= EnumConstFlag_ValueReady;
+			m_constMap[value] = *constIt;
 		}
 	}
 
@@ -235,12 +237,49 @@ EnumType::getValueString(
 	ASSERT(result);
 
 	int64_t n = *(int64_t*)value.getConstData();
-	sl::Iterator<EnumConst> it = m_constList.getHead();
-	for (; it; it++)
-		if (it->m_value == n)
-			return it->m_name;
 
-	return m_baseType->getValueString(p, formatSpec);
+	if (!(m_flags & EnumTypeFlag_BitFlag)) // shortcut
+	{
+		sl::HashTableIterator<int64_t, EnumConst*> it = m_constMap.find(n);
+		return it ? it->m_value->m_name : m_baseType->getValueString(p, formatSpec);
+	}
+
+	sl::String string;
+
+	int64_t unnamedFlags = 0;
+
+	while (n)
+	{
+		int64_t flag = sl::getLoBit64(n);
+		if (!flag)
+			break;
+
+		n &= ~flag;
+
+		sl::HashTableIterator<int64_t, EnumConst*> it = m_constMap.find(flag);
+		if (!it)
+		{
+			unnamedFlags |= flag;
+		}
+		else
+		{
+			if (!string.isEmpty())
+				string += ", ";
+
+			string += it->m_value->m_name;
+		}
+	}
+
+	if (string.isEmpty())
+		return m_baseType->getValueString(p, formatSpec);
+
+	if (unnamedFlags)
+	{
+		string += ", ";
+		string += m_baseType->getValueString(&unnamedFlags, formatSpec);
+	}
+
+	return string;
 }
 
 bool

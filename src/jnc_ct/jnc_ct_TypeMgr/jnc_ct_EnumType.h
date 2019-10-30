@@ -95,6 +95,7 @@ protected:
 	Type* m_baseType;
 	sl::List<EnumConst> m_constList;
 	sl::Array<EnumConst*> m_constArray;
+	sl::SimpleHashTable<int64_t, EnumConst*> m_constMap;
 
 public:
 	EnumType();
