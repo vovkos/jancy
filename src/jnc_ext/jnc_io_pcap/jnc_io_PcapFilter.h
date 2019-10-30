@@ -38,15 +38,12 @@ public:
 	bool
 	JNC_CDECL
 	compile_1(
-		size_t snapshotSize,
 		int linkType,
+		size_t snapshotSize,
 		DataPtr filterPtr,
 		bool isOptimized,
 		uint_t netMask
-		)
-	{
-		return m_filter.compile(snapshotSize, linkType, (char*)filterPtr.m_p, isOptimized, netMask);
-	}
+		);
 
 	bool
 	JNC_CDECL

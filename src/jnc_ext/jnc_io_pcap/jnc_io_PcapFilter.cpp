@@ -48,7 +48,32 @@ PcapFilter::compile_0(
 	uint_t netMask
 	)
 {
+	if (!filterPtr.m_p)
+	{
+		m_filter.free();
+		return true;
+	}
+
 	return m_filter.compile(pcap->getPcap(), (char*)filterPtr.m_p, isOptimized, netMask);
+}
+
+bool
+JNC_CDECL
+PcapFilter::compile_1(
+	int linkType,
+	size_t snapshotSize,
+	DataPtr filterPtr,
+	bool isOptimized,
+	uint_t netMask
+	)
+{
+	if (!filterPtr.m_p)
+	{
+		m_filter.free();
+		return true;
+	}
+
+	return m_filter.compile(linkType, snapshotSize, (char*)filterPtr.m_p, isOptimized, netMask);
 }
 
 //..............................................................................

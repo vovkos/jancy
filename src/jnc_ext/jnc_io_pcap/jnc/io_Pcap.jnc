@@ -9,6 +9,7 @@
 //
 //..............................................................................
 
+import "io_base.jncx"
 import "io_SocketAddress.jnc"
 
 namespace io {
@@ -371,16 +372,20 @@ opaque class PcapFilter
 		);
 
 	bool errorcode compile(
-		size_t snapshotSize,
 		PcapLinkType linkType,
+		size_t snapshotSize,
 		char const* filter,
 		bool isOptimized = true,
 		uint32_t netMask = -1
 		);
 
-	bool errorcode compile(char const* filter)
+	bool errorcode compile(
+		char const* filter,
+		bool isOptimized = true,
+		uint32_t netMask = -1
+		)
 	{
-		return compile(Pcap.Defaults.SnapshotSize, PcapLinkType.Ethernet);
+		return compile(PcapLinkType.Ethernet, Pcap.Defaults.SnapshotSize, filter, isOptimized, netMask);
 	}
 
 	bool match(
