@@ -213,11 +213,9 @@ void strcpy(
 	pointed to by ``p1`` and ``p2`` [#f1]_.
 
 	Returns a pointer to the result string.
-
-	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* errorcode strcat(
+char* strcat(
 	char const* p1,
 	char const* p2
 	);
@@ -226,11 +224,9 @@ char const* errorcode strcat(
 	Creates a duplicate of null-terminated string pointed to by ``p`` [#f1]_.
 
 	Returns a pointer to the result string.
-
-	Returns ``null`` if the buffer for the new string could not be allocated.
 */
 
-char const* errorcode strdup(
+char* strdup(
 	char const* p,
 	size_t length = -1
 	);
@@ -344,12 +340,9 @@ void memset(
 	``p1:size1`` and ``p2:size2`` [#f2]_.
 
 	Returns a pointer to the result memory block.
-
-	Returns ``null`` if the buffer for the new memory block could not be
-	allocated.
 */
 
-void* errorcode memcat(
+void* memcat(
 	void const* p1,
 	size_t size1,
 	void const* p2,
@@ -360,12 +353,9 @@ void* errorcode memcat(
 	Creates a duplicate of memory block ``p:size`` [#f2]_.
 
 	Returns a pointer to the result memory block.
-
-	Returns ``null`` if the buffer for the new memory block could not be
-	allocated.
 */
 
-void* errorcode memdup(
+void* memdup(
 	void const* p,
 	size_t size
 	);
@@ -505,7 +495,7 @@ namespace std {
 
 */
 
-char const* cdecl errorcode format(
+char const* cdecl format(
 	char const* fmtSpecifier,
 	...
 	);

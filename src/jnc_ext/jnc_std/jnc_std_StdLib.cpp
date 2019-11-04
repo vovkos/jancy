@@ -166,10 +166,7 @@ getErrorPtr(const err::ErrorHdr* error)
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(error->m_size);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(error->m_size);
 	memcpy(resultPtr.m_p, error, error->m_size);
 	return resultPtr;
 }
@@ -303,10 +300,7 @@ memCat(
 	ASSERT(gcHeap);
 
 	size_t totalSize = size1 + size2;
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(totalSize);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(totalSize);
 	char* p = (char*)resultPtr.m_p;
 
 	if (ptr1.m_p)
@@ -327,10 +321,7 @@ memDup(
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(size);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(size);
 	if (ptr.m_p)
 		memcpy(resultPtr.m_p, ptr.m_p, size);
 	else
@@ -620,10 +611,7 @@ format(
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(length + 1);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(length + 1);
 	memcpy(resultPtr.m_p, string.sz(), length);
 	return resultPtr;
 }

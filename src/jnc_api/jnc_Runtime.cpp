@@ -63,10 +63,7 @@ jnc_strDup(
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(length + 1);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(length + 1);
 	if (p)
 		memcpy(resultPtr.m_p, p, length);
 
@@ -89,10 +86,7 @@ jnc_memDup(
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
 	ASSERT(gcHeap);
 
-	DataPtr resultPtr = gcHeap->tryAllocateBuffer(size);
-	if (!resultPtr.m_p)
-		return g_nullDataPtr;
-
+	DataPtr resultPtr = gcHeap->allocateBuffer(size);
 	if (p)
 		memcpy(resultPtr.m_p, p, size);
 
