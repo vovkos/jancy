@@ -55,6 +55,13 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule()->setTag("jnc_io_pcap");
 	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+
+#if (_JNC_OS_WIN)
+	::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
+#endif
+
+	TRACE("jnc_io_pcap: Pcap version: %s\n", ::pcap_lib_version());
+
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::PcapLib_getLib();
 }

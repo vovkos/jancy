@@ -133,6 +133,12 @@ if(WIN32)
 		jnc_io_pcap
 		wpcap
 		)
+
+	set_target_properties(
+		jnc_io_pcap
+		PROPERTIES
+		LINK_FLAGS "/DELAYLOAD:wpcap.dll"
+		)
 elseif(UNIX)
 	target_link_libraries(
 		jnc_io_pcap
