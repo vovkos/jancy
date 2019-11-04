@@ -21,7 +21,7 @@ namespace io {
 
 enum PcapLinkType
 {
-	Null        = 0,
+	Loopback    = 0,
 	Ethernet    = 1,
 	TokenRing   = 6,
 	Arcnet      = 7,
