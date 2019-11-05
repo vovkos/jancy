@@ -310,11 +310,10 @@ OperatorMgr::parseFunctionArgDefaultValue(
 bool
 OperatorMgr::parseExpression(
 	const sl::ConstBoxList<Token>& expressionTokenList,
-	uint_t flags,
 	Value* resultValue
 	)
 {
-	Parser parser(m_module, Parser::Mode_Compile, flags);
+	Parser parser(m_module, Parser::Mode_Compile);
 
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, expressionTokenList);
 	if (!result)
@@ -323,24 +322,6 @@ OperatorMgr::parseExpression(
 	*resultValue = parser.m_expressionValue;
 	return true;
 }
-
-bool
-OperatorMgr::parseConstExpression(
-	const sl::ConstBoxList<Token>& expressionTokenList,
-	Value* resultValue
-	)
-{
-	bool result = parseExpression(expressionTokenList, Parser::Flag_ConstExpression, resultValue);
-	if (!result)
-		return false;
-
-	ASSERT(
-		resultValue->getValueKind() == ValueKind_Const ||
-		resultValue->getValueKind() == ValueKind_Function);
-
-	return true;
-}
-
 bool
 OperatorMgr::parseConstIntegerExpression(
 	const sl::ConstBoxList<Token>& expressionTokenList,
@@ -348,11 +329,12 @@ OperatorMgr::parseConstIntegerExpression(
 	)
 {
 	Value value;
-	bool result = parseConstExpression(expressionTokenList, &value);
+	bool result = parseExpression(expressionTokenList, &value);
 	if (!result)
 		return false;
 
-	if (!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
+	if (value.getValueKind() != ValueKind_Const ||
+		!(value.getType()->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError("expression is not integer constant");
 		return false;

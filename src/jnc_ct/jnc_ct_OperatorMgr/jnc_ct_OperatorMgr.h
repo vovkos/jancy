@@ -775,22 +775,6 @@ public:
 	bool
 	parseExpression(
 		const sl::ConstBoxList<Token>& expressionTokenList,
-		uint_t parserFlags,
-		Value* resultValue
-		);
-
-	bool
-	parseExpression(
-		const sl::ConstBoxList<Token>& expressionTokenList,
-		Value* resultValue
-		)
-	{
-		return parseExpression(expressionTokenList, 0, resultValue);
-	}
-
-	bool
-	parseConstExpression(
-		const sl::ConstBoxList<Token>& expressionTokenList,
 		Value* resultValue
 		);
 

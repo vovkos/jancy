@@ -53,11 +53,6 @@ Members
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
 	};
 
-	enum Flag
-	{
-		Flag_ConstExpression = 0x01,
-	};
-
 	enum AssignKind
 	{
 		AssignKind_Normal,
@@ -119,7 +114,6 @@ Members
 
 	Module* m_module;
 	Mode m_mode;
-	uint_t m_flags;
 	size_t m_fieldAlignment;
 	size_t m_defaultFieldAlignment;
 
@@ -157,8 +151,7 @@ Members2
 {
 	Parser(
 		Module* module,
-		Mode mode = Mode_Parse,
-		uint_t flags = 0
+		Mode mode = Mode_Parse
 		);
 
 	bool

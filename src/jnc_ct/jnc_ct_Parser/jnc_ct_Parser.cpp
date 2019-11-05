@@ -31,14 +31,12 @@ namespace ct {
 
 Parser::Parser(
 	Module* module,
-	Mode mode,
-	uint_t flags
+	Mode mode
 	):
 	m_doxyParser(&module->m_doxyModule)
 {
 	m_module = module;
 	m_mode = mode;
-	m_flags = flags;
 	m_fieldAlignment = 8;
 	m_defaultFieldAlignment = 8;
 	m_storageKind = StorageKind_Undefined;
@@ -1138,7 +1136,11 @@ Parser::declareFunction(
 			return false;
 		}
 
-		if (m_storageKind && m_storageKind != StorageKind_Static)
+		if (!m_storageKind)
+		{
+			function->m_storageKind = StorageKind_Static;
+		}
+		else if (m_storageKind != StorageKind_Static)
 		{
 			err::setFormatStringError("invalid storage specifier '%s' for a global function", getStorageKindString(m_storageKind));
 			return false;
@@ -2526,12 +2528,6 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Variable:
-		if (m_flags & Flag_ConstExpression)
-		{
-			err::setFormatStringError("variable '%s' cannot be used in const expression", name.sz());
-			return false;
-		}
-
 		value->setVariable((Variable*)item);
 		break;
 
@@ -2542,12 +2538,6 @@ Parser::lookupIdentifier(
 
 		if (((Function*)item)->isMember())
 		{
-			if (m_flags & Flag_ConstExpression)
-			{
-				err::setFormatStringError("member function '%s' cannot be used in const expression", name.sz());
-				return false;
-			}
-
 			result = m_module->m_operatorMgr.createMemberClosure(value, (Function*)item);
 			if (!result)
 				return false;
@@ -2556,12 +2546,6 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_FunctionOverload:
-		if (m_flags & Flag_ConstExpression)
-		{
-			err::setFormatStringError("overloaded function '%s' cannot be used in const expression", name.sz());
-			return false;
-		}
-
 		value->setFunctionOverload((FunctionOverload*)item);
 		if (((FunctionOverload*)item)->getFlags() & FunctionOverloadFlag_HasMembers)
 		{
@@ -2573,12 +2557,6 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Property:
-		if (m_flags & Flag_ConstExpression)
-		{
-			err::setFormatStringError("property '%s' cannot be used in const expression", name.sz());
-			return false;
-		}
-
 		value->setProperty((Property*)item);
 		if (((Property*)item)->isMember())
 		{
@@ -2596,12 +2574,6 @@ Parser::lookupIdentifier(
 		break;
 
 	case ModuleItemKind_Field:
-		if (m_flags & Flag_ConstExpression)
-		{
-			err::setFormatStringError("field '%s' cannot be used in const expression", name.sz());
-			return false;
-		}
-
 		result =
 			m_module->m_operatorMgr.getThisValue(&thisValue, (Field*)item) &&
 			m_module->m_operatorMgr.getField(thisValue, (Field*)item, &coord, value);
