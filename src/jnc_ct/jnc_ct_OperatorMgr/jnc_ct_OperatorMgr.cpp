@@ -1062,7 +1062,7 @@ OperatorMgr::typeofOperator(
 	}
 
 	resultValue->setVariable(type->getTypeVariable());
-	return true;
+	return prepareOperand(resultValue); // turn it into a class pointer
 }
 
 bool
