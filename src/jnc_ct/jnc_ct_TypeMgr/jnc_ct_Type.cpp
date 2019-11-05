@@ -740,6 +740,8 @@ Type::prepareSimpleTypeVariable(StdType stdType)
 		);
 
 	m_typeVariable->m_parentNamespace = m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc);
+	m_typeVariable->m_flags |= VariableFlag_Type;
+
 	bool result = m_module->m_variableMgr.allocateVariable(m_typeVariable);
 	ASSERT(result);
 }
