@@ -13,6 +13,7 @@
 #include "jnc_rtl_AttributeBlock.h"
 #include "jnc_ct_Function.h"
 #include "jnc_ct_FunctionType.h"
+#include "jnc_ct_ClassType.h"
 #include "jnc_Construct.h"
 
 namespace jnc {
@@ -65,8 +66,9 @@ Attribute::getValue(Attribute* self)
 
 	const ct::Value& value = self->m_item->getValue();
 	ct::ValueKind valueKind = value.getValueKind();
-	ct::FunctionPtrType* type;
+	ct::Type* type;
 	ct::Function* function;
+	ct::Variable* variable;
 	void* p;
 
 	switch (valueKind)
@@ -79,11 +81,32 @@ Attribute::getValue(Attribute* self)
 		self->m_value.create(value.getConstData(), value.getType());
 		break;
 
+	case ct::ValueKind_Variable:
+		variable = value.getVariable();
+		if (
+			variable->getStorageKind() != StorageKind_Static ||
+			variable->getType()->getTypeKind() != TypeKind_Class)
+		{
+			ASSERT(false);
+			return g_nullVariant;
+		}
+
+		p = (char*)variable->getStaticData() + sizeof(Box); // we want IfaceHdr*
+		type = (jnc::Type*)((ct::ClassType*)variable->getType())->getClassPtrType();
+		self->m_value.create(&p, type);
+		break;
+
 	case ct::ValueKind_Function:
 		function = value.getFunction();
+		if (function->getStorageKind() != StorageKind_Static)
+		{
+			ASSERT(false);
+			return g_nullVariant;
+		}
+
 		p = function->getMachineCode();
-		type = function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
-		self->m_value.create(&p, (jnc::Type*)type);
+		type = (jnc::Type*)function->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin);
+		self->m_value.create(&p, type);
 		break;
 
 	default:

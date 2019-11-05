@@ -23,15 +23,47 @@ Attribute::parseInitializer()
 {
 	ASSERT(!m_initializer.isEmpty());
 
-	bool result = m_module->m_operatorMgr.parseConstExpression(m_initializer, &m_value);
+	bool result = m_module->m_operatorMgr.parseExpression(m_initializer, &m_value);
 	if (!result)
 		return false;
 
-	if (m_value.getValueKind() == ValueKind_Function)
+	ValueKind valueKind = m_value.getValueKind();
+	switch (valueKind)
 	{
+	case ValueKind_Const:
+		break;
+
+	case ValueKind_Variable:
+		if (!(m_value.getVariable()->getFlags() & VariableFlag_Type))
+		{
+			err::setFormatStringError(
+				"non-type variable '%s' used as an attribute value",
+				m_value.getVariable()->getQualifiedName().sz()
+				);
+		}
+
+		break;
+
+	case ValueKind_Function:
+		if (m_value.getFunction()->getStorageKind() != StorageKind_Static)
+		{
+			err::setFormatStringError(
+				"non-static function '%s' used in a const expression",
+				m_value.getFunction()->getQualifiedName().sz()
+				);
+
+			return false;
+		}
+
 		result = m_value.getFunction()->getType()->getFunctionPtrType(FunctionPtrTypeKind_Thin)->ensureLayout();
 		if (!result)
 			return false;
+
+		break;
+
+	default:
+		err::setFormatStringError("'%s' used as an attribute value", getValueKindString(m_value.getValueKind()));
+		return false;
 	}
 
 	return true;
