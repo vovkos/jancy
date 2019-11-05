@@ -270,6 +270,9 @@ EnumType::getValueString(
 		}
 	}
 
+	if (!formatSpec)
+		formatSpec = "0x%X"; // bitflags are better represented as hex
+
 	if (string.isEmpty())
 		return m_baseType->getValueString(p, formatSpec);
 
