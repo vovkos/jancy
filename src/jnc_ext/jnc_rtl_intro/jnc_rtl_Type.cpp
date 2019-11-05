@@ -41,7 +41,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Type)
 	JNC_MAP_CONST_PROPERTY("m_typeStringPrefix", &Type::getTypeStringPrefix)
 	JNC_MAP_CONST_PROPERTY("m_typeStringSuffix", &Type::getTypeStringSuffix)
 	JNC_MAP_FUNCTION("cmp", &Type::cmp)
-	JNC_MAP_FUNCTION("getValueString", &Type::getValueString)
+	JNC_MAP_FUNCTION("getValueString", &Type::getValueString_0)
+	JNC_MAP_OVERLOAD(&Type::getValueString_1)
 	JNC_MAP_FUNCTION("getArrayType", &Type::getArrayType)
 	JNC_MAP_FUNCTION("getDataPtrType", &Type::getDataPtrType)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -155,7 +156,7 @@ Type::getTypeStringSuffix(Type* self)
 
 DataPtr
 JNC_CDECL
-Type::getValueString(
+Type::getValueString_0(
 	Type* self,
 	DataPtr valuePtr,
 	DataPtr formatSpecPtr
@@ -163,6 +164,24 @@ Type::getValueString(
 {
 	return valuePtr.m_p ?
 		strDup(self->m_item->getValueString(valuePtr.m_p, (char*)formatSpecPtr.m_p)) :
+		g_nullDataPtr;
+}
+
+DataPtr
+JNC_CDECL
+Type::getValueString_1(
+	Type* self,
+	Variant value,
+	DataPtr formatSpecPtr
+	)
+{
+	char buffer[256];
+	sl::Array<char> valueBuffer(ref::BufKind_Stack, buffer, sizeof(buffer));
+	valueBuffer.setCount(self->m_item->getSize());
+
+	bool result = value.cast(self->m_item, valueBuffer);
+	return result ?
+		strDup(self->m_item->getValueString(valueBuffer, (char*)formatSpecPtr.m_p)) :
 		g_nullDataPtr;
 }
 

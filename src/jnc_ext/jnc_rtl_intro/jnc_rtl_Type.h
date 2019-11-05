@@ -120,9 +120,18 @@ public:
 	static
 	DataPtr
 	JNC_CDECL
-	getValueString(
+	getValueString_0(
 		Type* self,
 		DataPtr valuePtr,
+		DataPtr formatSpecPtr
+		);
+
+	static
+	DataPtr
+	JNC_CDECL
+	getValueString_1(
+		Type* self,
+		Variant value,
 		DataPtr formatSpecPtr
 		);
 

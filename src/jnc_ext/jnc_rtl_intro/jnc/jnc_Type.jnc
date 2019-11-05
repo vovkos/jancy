@@ -190,6 +190,11 @@ opaque class Type: ModuleItem
 		char const* formatSpec = null
 		);
 
+	char const* getValueString(
+		variant value,
+		char const* formatSpec = null
+		);
+
 	ArrayType* getArrayType(size_t elementCount);
 
 	DataPtrType* getDataPtrType(
