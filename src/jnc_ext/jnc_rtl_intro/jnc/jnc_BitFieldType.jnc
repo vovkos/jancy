@@ -20,6 +20,8 @@ opaque class BitFieldType: Type
 	size_t const property m_bitCount;
 
 	construct(intptr p);
+
+	variant extract(void const* p);
 }
 
 //..............................................................................

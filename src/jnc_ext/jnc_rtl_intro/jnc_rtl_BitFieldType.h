@@ -49,6 +49,13 @@ public:
 	{
 		return m_item->getBitCount();
 	}
+
+	static
+	Variant
+	extract(
+		BitFieldType* self,
+		DataPtr ptr
+		);
 };
 
 //..............................................................................
