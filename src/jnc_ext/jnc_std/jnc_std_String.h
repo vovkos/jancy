@@ -32,10 +32,7 @@ public:
 public:
 	void
 	JNC_CDECL
-	clear()
-	{
-		m_length = 0;
-	}
+	clear();
 
 	bool
 	JNC_CDECL
@@ -107,6 +104,26 @@ public:
 		size_t offset,
 		size_t length
 		);
+
+	size_t
+	JNC_CDECL
+	chop(size_t length);
+
+	size_t
+	JNC_CDECL
+	trimLeft();
+
+	size_t
+	JNC_CDECL
+	trimRight();
+
+	size_t
+	JNC_CDECL
+	trim()
+	{
+		trimLeft();
+		return trimRight();
+	}
 
 	static
 	DataPtr

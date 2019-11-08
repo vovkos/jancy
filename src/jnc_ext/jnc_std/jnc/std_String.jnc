@@ -150,6 +150,12 @@ class StringBuilder
 		size_t length = 1
 		);
 
+	size_t chop(size_t length = 1);
+
+	size_t trimLeft();
+	size_t trimRight();
+	size_t trim();
+
 	char* errorcode detachString();
 	char* errorcode cloneString();
 

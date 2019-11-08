@@ -38,11 +38,24 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(StringBuilder)
 	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf16)
 	JNC_MAP_OVERLOAD(&StringBuilder::insert_utf32)
 	JNC_MAP_FUNCTION("remove", &StringBuilder::remove)
+	JNC_MAP_FUNCTION("chop", &StringBuilder::chop)
+	JNC_MAP_FUNCTION("trimLeft", &StringBuilder::trimLeft)
+	JNC_MAP_FUNCTION("trimRight", &StringBuilder::trimRight)
 	JNC_MAP_FUNCTION("detachString", &StringBuilder::detachString)
 	JNC_MAP_FUNCTION("cloneString", &StringBuilder::cloneString)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
+
+void
+JNC_CDECL
+StringBuilder::clear()
+{
+	if (m_length)
+		*(char*)m_ptr.m_p = 0;
+
+	m_length = 0;
+}
 
 bool
 JNC_CDECL
@@ -176,8 +189,8 @@ StringBuilder::remove(
 	size_t length
 	)
 {
-	if (offset > m_length)
-		offset = m_length;
+	if (offset >= m_length)
+		return m_length;
 
 	size_t maxRemoveSize = m_length - offset;
 	if (length > maxRemoveSize)
@@ -193,6 +206,54 @@ StringBuilder::remove(
 	p[newLength] = 0;
 	m_length = newLength;
 	return newLength;
+}
+
+size_t
+JNC_CDECL
+StringBuilder::chop(size_t length)
+{
+	if (length >= m_length)
+	{
+		clear();
+		return 0;
+	}
+
+	m_length -= length;
+	((char*)m_ptr.m_p)[m_length] = 0;
+	return m_length;
+}
+
+size_t
+JNC_CDECL
+StringBuilder::trimLeft()
+{
+	sl::StringRef string((char*)m_ptr.m_p, m_length);
+	size_t i = string.findNotOneOf(sl::StringRef::Details::getWhitespace());
+	if (i == -1)
+	{
+		clear();
+		return 0;
+	}
+
+	return remove(0, i);
+}
+
+size_t
+JNC_CDECL
+StringBuilder::trimRight()
+{
+	sl::StringRef string((char*)m_ptr.m_p, m_length);
+	size_t i = string.reverseFindNotOneOf(sl::StringRef::Details::getWhitespace());
+
+	if (i == -1)
+	{
+		clear();
+		return 0;
+	}
+
+	m_length = i + 1;
+	((char*)m_ptr.m_p)[m_length] = 0;
+	return m_length;
 }
 
 DataPtr
