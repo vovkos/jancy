@@ -228,7 +228,8 @@ ArrayType::getValueString(
 	if (m_elementType->getTypeKind() == TypeKind_Char)
 	{
 		const char* null = (const char*)memchr(p, 0, m_elementCount);
-		return sl::String(p, null ? null - p : m_elementCount);
+		sl::String string(p, null ? null - p : m_elementCount);
+		return formatSpec ? sl::formatString(formatSpec, string.sz()) : string;
 	}
 
 	if (!m_elementCount)
