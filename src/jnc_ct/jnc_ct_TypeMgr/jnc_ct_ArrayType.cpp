@@ -223,10 +223,16 @@ ArrayType::getValueString(
 		return "{ dynamic-array }";
 	}
 
+	const char* p = (char*)p0;
+
+	if (m_elementType->getTypeKind() == TypeKind_Char)
+	{
+		const char* null = (const char*)memchr(p, 0, m_elementCount);
+		return sl::String(p, null ? null - p : m_elementCount);
+	}
+
 	if (!m_elementCount)
 		return "{}";
-
-	const char* p = (char*)p0;
 
 	sl::String string = "{ " + m_elementType->getValueString(p);
 
