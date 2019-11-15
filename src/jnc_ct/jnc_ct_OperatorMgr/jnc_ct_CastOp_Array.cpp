@@ -79,6 +79,10 @@ Cast_Array::constCast(
 	{
 		size_t dstSize = type->getSize();
 		size_t srcSize = srcArrayType->getSize();
+
+		if (dstSize > srcSize)
+			memset(dst, 0, dstSize);
+
 		memcpy(dst, opValue.getConstData(), AXL_MIN(srcSize, dstSize));
 		return true;
 	}
