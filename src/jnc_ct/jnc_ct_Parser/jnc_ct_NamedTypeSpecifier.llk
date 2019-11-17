@@ -122,9 +122,10 @@ enum_const_list
 
 nullable
 enum_const
-	:	TokenKind_Identifier ('=' expression_pass1 $i)?
+	:	attribute_block?
+		TokenKind_Identifier $n ('=' expression_pass1 $i)?
 			{
-				return createEnumConst($1.m_data.m_string, $1.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
+				return createEnumConst($n.m_data.m_string, $n.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
 	;
