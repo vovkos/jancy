@@ -187,6 +187,10 @@ EnumType::calcLayout()
 		sl::Iterator<EnumConst> constIt = m_constList.getHead();
 		for (; constIt; constIt++)
 		{
+			result = constIt->ensureAttributeValuesReady();
+			if (!result)
+				return false;
+
 			if (!constIt->m_initializer.isEmpty())
 			{
 				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
@@ -208,6 +212,10 @@ EnumType::calcLayout()
 		sl::Iterator<EnumConst> constIt = m_constList.getHead();
 		for (; constIt; constIt++, value++)
 		{
+			result = constIt->ensureAttributeValuesReady();
+			if (!result)
+				return false;
+
 			if (!constIt->m_initializer.isEmpty())
 			{
 				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
@@ -240,8 +248,8 @@ EnumType::getValueString(
 
 	if (!(m_flags & EnumTypeFlag_BitFlag)) // shortcut
 	{
-		sl::HashTableIterator<int64_t, EnumConst*> it = m_constMap.find(n);
-		return it ? it->m_value->m_name : m_baseType->getValueString(p, formatSpec);
+		EnumConst* enumConst = findConst(n);
+		return enumConst ? enumConst->m_name : m_baseType->getValueString(p, formatSpec);
 	}
 
 	sl::String string;
@@ -256,8 +264,8 @@ EnumType::getValueString(
 
 		n &= ~flag;
 
-		sl::HashTableIterator<int64_t, EnumConst*> it = m_constMap.find(flag);
-		if (!it)
+		EnumConst* enumConst = findConst(flag);
+		if (!enumConst)
 		{
 			unnamedFlags |= flag;
 		}
@@ -266,7 +274,7 @@ EnumType::getValueString(
 			if (!string.isEmpty())
 				string += ", ";
 
-			string += it->m_value->m_name;
+			string += enumConst->m_name;
 		}
 	}
 

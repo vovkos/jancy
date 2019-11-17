@@ -118,6 +118,12 @@ public:
 		sl::BoxList<Token>* initializer = NULL
 		);
 
+	EnumConst*
+	findConst(int64_t value)
+	{
+		return m_constMap.findValue(value, NULL);
+	}
+
 	virtual
 	sl::String
 	getValueString(
@@ -132,9 +138,6 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
-
-	bool
-	ensureValuesReady();
 
 protected:
 	virtual
