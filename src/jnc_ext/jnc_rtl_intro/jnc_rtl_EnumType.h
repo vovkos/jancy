@@ -93,6 +93,14 @@ public:
 		size_t count = m_item->getConstArray().getCount();
 		return index < count ? rtl::getEnumConst(m_item->getConstArray()[index]) : NULL;
 	}
+
+	EnumConst*
+	JNC_CDECL
+	findConst(int64_t value)
+	{
+		jnc::EnumConst* enumConst = m_item->findConst(value);
+		return enumConst ? rtl::getEnumConst(enumConst) : NULL;
+	}
 };
 
 //..............................................................................

@@ -33,9 +33,10 @@ opaque class Namespace: ModuleItemDecl
 	NamespaceKind const property m_namespaceKind;
 	size_t const property m_itemCount;
 	ModuleItem* const property m_itemArray(size_t index);
-	ModuleItem* findItem(char const* name);
 
 	construct(intptr p);
+
+	ModuleItem* findItem(char const* name);
 }
 
 //..............................................................................

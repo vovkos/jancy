@@ -52,6 +52,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(EnumType)
 	JNC_MAP_CONST_PROPERTY("m_baseType", &EnumType::getBaseType)
 	JNC_MAP_CONST_PROPERTY("m_constCount", &EnumType::getConstCount)
 	JNC_MAP_CONST_PROPERTY("m_constArray", &EnumType::getConst)
+	JNC_MAP_FUNCTION("findConst", &EnumType::findConst)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

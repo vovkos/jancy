@@ -42,6 +42,8 @@ opaque class EnumType: NamedType
 	EnumConst* const property m_constArray(size_t index);
 
 	construct(intptr p);
+
+	EnumConst* findConst(int64_t value);
 }
 
 //..............................................................................

@@ -32,9 +32,10 @@ opaque class AttributeBlock:
 {
 	size_t const property m_attributeCount;
 	Attribute* const property m_attributeArray(size_t index);
-	Attribute* findAttribute(char const* name);
 
 	construct(intptr p);
+
+	Attribute* findAttribute(char const* name);
 }
 
 //..............................................................................

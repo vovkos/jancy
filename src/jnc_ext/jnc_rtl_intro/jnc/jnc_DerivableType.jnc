@@ -32,7 +32,6 @@ opaque class DerivableType:
 {
 	size_t const property m_baseTypeCount;
 	BaseTypeSlot* const property m_baseTypeArray(size_t index);
-	size_t findBaseTypeOffset(DerivableType* baseType);
 
 	Function* const property m_unaryOperatorTable(UnOpKind opKind);
 	Function* const property m_binaryOperatorTable(BinOpKind opKind);
@@ -42,6 +41,8 @@ opaque class DerivableType:
 	Function* const property m_castOperatorArray(size_t index);
 
 	construct(intptr p);
+
+	size_t findBaseTypeOffset(DerivableType* baseType);
 }
 
 //..............................................................................
