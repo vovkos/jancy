@@ -57,7 +57,9 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
 
 #if (_JNC_OS_WIN)
-	::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
+	sl::StringRef isNpcapDisable = ::getenv("JNC_IO_PCAP_DISABLE_NPCAP");
+	if (isNpcapDisable.isEmpty())
+		::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
 #endif
 
 	TRACE("jnc_io_pcap: Pcap version: %s\n", ::pcap_lib_version());
