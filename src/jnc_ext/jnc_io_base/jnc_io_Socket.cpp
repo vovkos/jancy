@@ -533,18 +533,34 @@ Socket::sendRecvLoop(
 		else
 			m_lock.unlock();
 
-		if (!isSendingSocket && !m_overlappedIo->m_sendBlock.isEmpty())
-		{
-			result = isDatagram ?
-				m_socket.m_socket.wsaSendTo(
-					m_overlappedIo->m_sendBlock,
-					m_overlappedIo->m_sendBlock.getCount(),
-					NULL,
-					0,
-					&((axl::io::SockAddr*)m_overlappedIo->m_sendToParams.p())->m_addr,
-					&m_overlappedIo->m_sendOverlapped
-					) :
-				m_socket.m_socket.wsaSend(
+		if (!isSendingSocket)
+			if (isDatagram)
+			{
+				if (!m_overlappedIo->m_sendToParams.isEmpty())
+				{
+					ASSERT(m_overlappedIo->m_sendToParams.getCount() >= sizeof(axl::io::SockAddr));
+
+					result = m_socket.m_socket.wsaSendTo(
+						m_overlappedIo->m_sendBlock,
+						m_overlappedIo->m_sendBlock.getCount(),
+						NULL,
+						0,
+						&((axl::io::SockAddr*)m_overlappedIo->m_sendToParams.p())->m_addr,
+						&m_overlappedIo->m_sendOverlapped
+						);
+
+					if (!result)
+					{
+						handleSendRecvError(isDatagram);
+						break;
+					}
+
+					isSendingSocket = true;
+				}
+			}
+			else if (!m_overlappedIo->m_sendBlock.isEmpty())
+			{
+				result = m_socket.m_socket.wsaSend(
 					m_overlappedIo->m_sendBlock,
 					m_overlappedIo->m_sendBlock.getCount(),
 					NULL,
@@ -552,25 +568,24 @@ Socket::sendRecvLoop(
 					&m_overlappedIo->m_sendOverlapped
 					);
 
-			if (!result)
-			{
-				handleSendRecvError(isDatagram);
-				break;
-			}
+				if (!result)
+				{
+					handleSendRecvError(isDatagram);
+					break;
+				}
 
-			isSendingSocket = true;
-		}
+				isSendingSocket = true;
+			}
 
 		size_t activeReadCount = m_overlappedIo->m_activeOverlappedRecvList.getCount();
 		if (!isReadBufferFull && activeReadCount < readParallelism)
 		{
 			size_t newReadCount = readParallelism - activeReadCount;
-			for (size_t i = 0; i < newReadCount; i++)
-			{
-				OverlappedRecv* recv = m_overlappedIo->m_overlappedRecvPool.get();
 
-				if (isDatagram)
+			if (isDatagram)
+				for (size_t i = 0; i < newReadCount; i++)
 				{
+					OverlappedRecv* recv = m_overlappedIo->m_overlappedRecvPool.get();
 					recv->m_sockAddrSize = sizeof(recv->m_sockAddr);
 
 					result =
@@ -584,9 +599,19 @@ Socket::sendRecvLoop(
 							&recv->m_sockAddrSize,
 							&recv->m_overlapped
 							);
+
+					if (!result)
+					{
+						handleSendRecvError(isDatagram);
+						return;
+					}
+
+					m_overlappedIo->m_activeOverlappedRecvList.insertTail(recv);
 				}
-				else
+			else
+				for (size_t i = 0; i < newReadCount; i++)
 				{
+					OverlappedRecv* recv = m_overlappedIo->m_overlappedRecvPool.get();
 					result =
 						recv->m_buffer.setCount(readBlockSize) &&
 						m_socket.m_socket.wsaRecv(
@@ -596,16 +621,15 @@ Socket::sendRecvLoop(
 							&recv->m_flags,
 							&recv->m_overlapped
 							);
-				}
 
-				if (!result)
-				{
-					handleSendRecvError(isDatagram);
-					return;
-				}
+					if (!result)
+					{
+						handleSendRecvError(isDatagram);
+						return;
+					}
 
-				m_overlappedIo->m_activeOverlappedRecvList.insertTail(recv);
-			}
+					m_overlappedIo->m_activeOverlappedRecvList.insertTail(recv);
+				}
 		}
 
 		if (m_overlappedIo->m_activeOverlappedRecvList.isEmpty())
@@ -805,8 +829,10 @@ Socket::sendRecvLoop(
 			while (canWriteSocket)
 			{
 				getNextWriteBlock(&writeBlock, &writeParams);
-				if (writeBlock.isEmpty())
+				if (writeParams.isEmpty())
 					break;
+
+				ASSERT(writeParams.getCount() >= sizeof(axl::io::SockAddr));
 
 				axl::io::SockAddr* sockAddr = ((axl::io::SockAddr*)writeParams.p());
 				socklen_t sockAddrSize = axl::io::getSockAddrSize(&sockAddr->m_addr);

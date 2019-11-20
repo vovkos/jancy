@@ -461,41 +461,38 @@ AsyncIoDevice::bufferedRead(
 
 	result = m_readBuffer.read(p, size);
 
-	if (result)
+	if (result && !m_readOverflowBuffer.isEmpty())
 	{
-		if (!m_readOverflowBuffer.isEmpty())
+		size_t overflowSize = m_readOverflowBuffer.getCount();
+
+		if (!m_readBuffer.isEmpty()) // refill the main buffer first
 		{
-			size_t overflowSize = m_readOverflowBuffer.getCount();
-
-			if (!m_readBuffer.isEmpty()) // refill the main buffer first
-			{
-				size_t movedSize = m_readBuffer.write(m_readOverflowBuffer, overflowSize);
-				m_readOverflowBuffer.remove(0, movedSize);
-			}
-			else // we can read some extra data directly from the overflow buffer
-			{
-				p += result;
-				size -= result;
-
-				size_t extraSize = AXL_MIN(overflowSize, size);
-				memcpy(p, m_readOverflowBuffer, extraSize);
-				result += extraSize;
-
-				// pump the remainder into the main buffer
-
-				size_t movedSize = m_readBuffer.write(m_readOverflowBuffer + extraSize, overflowSize - extraSize);
-				m_readOverflowBuffer.remove(0, extraSize + movedSize);
-			}
+			size_t movedSize = m_readBuffer.write(m_readOverflowBuffer, overflowSize);
+			m_readOverflowBuffer.remove(0, movedSize);
 		}
+		else // we can read some extra data directly from the overflow buffer
+		{
+			p += result;
+			size -= result;
 
-		if (!m_readBuffer.isFull())
-			m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
+			size_t extraSize = AXL_MIN(overflowSize, size);
+			memcpy(p, m_readOverflowBuffer, extraSize);
+			result += extraSize;
 
-		if (m_readBuffer.isEmpty())
-			m_activeEvents &= ~AsyncIoEvent_IncomingData;
+			// pump the remainder into the main buffer
 
-		wakeIoThread();
+			size_t movedSize = m_readBuffer.write(m_readOverflowBuffer + extraSize, overflowSize - extraSize);
+			m_readOverflowBuffer.remove(0, extraSize + movedSize);
+		}
 	}
+
+	if (!m_readBuffer.isFull())
+		m_activeEvents &= ~AsyncIoEvent_ReadBufferFull;
+
+	if (m_readBuffer.isEmpty() && m_readMetaList.isEmpty())
+		m_activeEvents &= ~AsyncIoEvent_IncomingData;
+
+	wakeIoThread();
 
 	ASSERT(isReadBufferValid());
 	m_lock.unlock();
@@ -522,20 +519,19 @@ AsyncIoDevice::bufferedWrite(
 	m_lock.lock();
 
 	size_t result = m_writeBuffer.write(dataPtr.m_p, dataSize);
-	if (result || (m_ioThreadFlags & IoThreadFlag_Datagram))
-	{
-		if (m_options & AsyncIoOption_KeepWriteBlockSize)
-		{
-			ReadWriteMeta* meta = createReadWriteMeta(result, params, paramSize);
-			m_writeMetaList.insertTail(meta);
-		}
 
-		m_activeEvents &= ~AsyncIoEvent_WriteBufferEmpty;
-		wakeIoThread();
+	if (m_options & AsyncIoOption_KeepWriteBlockSize)
+	{
+		ReadWriteMeta* meta = createReadWriteMeta(result, params, paramSize);
+		m_writeMetaList.insertTail(meta);
 	}
 
+	if (!m_writeBuffer.isEmpty() || !m_writeMetaList.isEmpty())
+		m_activeEvents &= ~AsyncIoEvent_WriteBufferEmpty;
+
+	wakeIoThread();
+
 	ASSERT(isWriteBufferValid());
-	isWriteBufferValid();
 	m_lock.unlock();
 
 	return result;
@@ -551,7 +547,7 @@ AsyncIoDevice::addToReadBuffer(
 {
 	ASSERT((m_options & AsyncIoOption_KeepReadBlockSize) || paramSize == 0);
 
-	if (!dataSize)
+	if (!dataSize && !(m_options & AsyncIoOption_KeepReadBlockSize))
 		return;
 
 	size_t addedSize = m_readBuffer.write(p, dataSize);
@@ -623,13 +619,13 @@ AsyncIoDevice::getNextWriteBlock(
 void
 AsyncIoDevice::updateReadWriteBufferEvents()
 {
-	if (!m_readBuffer.isEmpty())
-		m_activeEvents |= AsyncIoEvent_IncomingData;
-
 	if (m_readBuffer.isFull())
 		m_activeEvents |= AsyncIoEvent_ReadBufferFull;
 
-	if (m_writeBuffer.isEmpty())
+	if (!m_readBuffer.isEmpty() || !m_readMetaList.isEmpty())
+		m_activeEvents |= AsyncIoEvent_IncomingData;
+
+	if (m_writeBuffer.isEmpty() && m_writeMetaList.isEmpty())
 		m_activeEvents |= AsyncIoEvent_WriteBufferEmpty;
 }
 
