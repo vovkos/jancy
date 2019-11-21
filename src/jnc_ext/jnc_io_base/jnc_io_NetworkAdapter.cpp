@@ -108,7 +108,7 @@ createNetworkAdapterDescList(
 		return g_nullDataPtr;
 	}
 
-	ScopedNoCollectRegion noCollectRegion(runtime, false);
+	NoCollectRegion noCollectRegion(runtime, false);
 
 	sl::Iterator<axl::io::NetworkAdapterDesc> it = adapterList.getHead();
 

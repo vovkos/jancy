@@ -643,14 +643,14 @@ public:
 
 //..............................................................................
 
-class ScopedNoCollectRegion
+class NoCollectRegion
 {
 protected:
 	GcHeap* m_gcHeap;
 	bool m_canCollectOnLeave;
 
 public:
-	ScopedNoCollectRegion(
+	NoCollectRegion(
 		GcHeap* gcHeap,
 		bool canCollectOnLeave
 		)
@@ -658,15 +658,15 @@ public:
 		init(gcHeap, canCollectOnLeave);
 	}
 
-	ScopedNoCollectRegion(
+	NoCollectRegion(
 		Runtime* runtime,
 		bool canCollectOnLeave
 		)
 	{
-		init(jnc_Runtime_getGcHeap(runtime), canCollectOnLeave);
+		init(runtime->getGcHeap(), canCollectOnLeave);
 	}
 
-	ScopedNoCollectRegion(bool canCollectOnLeave)
+	NoCollectRegion(bool canCollectOnLeave)
 	{
 		GcHeap* gcHeap = getCurrentThreadGcHeap();
 		JNC_ASSERT(gcHeap);
@@ -674,9 +674,9 @@ public:
 		init(gcHeap, canCollectOnLeave);
 	}
 
-	~ScopedNoCollectRegion()
+	~NoCollectRegion()
 	{
-		jnc_GcHeap_leaveNoCollectRegion(m_gcHeap, m_canCollectOnLeave);
+		m_gcHeap->leaveNoCollectRegion(m_canCollectOnLeave);
 	}
 
 protected:
@@ -686,9 +686,48 @@ protected:
 		bool canCollectOnLeave
 		)
 	{
+		JNC_ASSERT(gcHeap);
 		m_gcHeap = gcHeap;
 		m_canCollectOnLeave = canCollectOnLeave;
-		jnc_GcHeap_enterNoCollectRegion(m_gcHeap);
+		gcHeap->enterNoCollectRegion();
+	}
+};
+
+//..............................................................................
+
+class WaitRegion
+{
+protected:
+	GcHeap* m_gcHeap;
+
+public:
+	WaitRegion(GcHeap* gcHeap)
+	{
+		init(gcHeap);
+	}
+
+	WaitRegion(Runtime* runtime)
+	{
+		init(runtime->getGcHeap());
+	}
+
+	WaitRegion()
+	{
+		init(getCurrentThreadGcHeap());
+	}
+
+	~WaitRegion()
+	{
+		m_gcHeap->leaveWaitRegion();
+	}
+
+protected:
+	void
+	init(GcHeap* gcHeap)
+	{
+		JNC_ASSERT(gcHeap);
+		m_gcHeap = gcHeap;
+		gcHeap->enterWaitRegion();
 	}
 };
 

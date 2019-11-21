@@ -114,7 +114,7 @@ MulticastImpl::getSnapshot()
 	MulticastClassType* type = (MulticastClassType*)m_ifaceHdr.m_box->m_type;
 	ASSERT(isClassType(type, ClassTypeKind_Multicast));
 
-	ScopedNoCollectRegion noCollectRegion(gcHeap, false);
+	NoCollectRegion noCollectRegion(gcHeap, false);
 
 	McSnapshotClassType* snapshotType = type->getSnapshotType();
 	FunctionPtrType* targetType = type->getTargetType();

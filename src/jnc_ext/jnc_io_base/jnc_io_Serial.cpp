@@ -902,7 +902,7 @@ createSerialPortDescList(DataPtr countPtr)
 	}
 
 	Runtime* runtime = getCurrentThreadRuntime();
-	ScopedNoCollectRegion noCollectRegion(runtime, false);
+	NoCollectRegion noCollectRegion(runtime, false);
 
 	sl::Iterator<axl::io::SerialPortDesc> it = portList.getHead();
 

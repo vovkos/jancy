@@ -372,10 +372,9 @@ createPcapDeviceDescList(DataPtr countPtr)
 		return g_nullDataPtr;
 
 	Runtime* runtime = getCurrentThreadRuntime();
-	ScopedNoCollectRegion noCollectRegion(runtime, false);
-
 	GcHeap* gcHeap = runtime->getGcHeap();
 	Type* deviceType = PcapDeviceDesc_getType(runtime->getModule());
+	NoCollectRegion noCollectRegion(gcHeap, false);
 
 	size_t count = 1;
 
