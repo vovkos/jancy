@@ -260,7 +260,7 @@ opaque class Pcap
 
 	bool errorcode openDevice(
 		char const* deviceName,
-		char const* filter,
+		char const* filter = null,
 		uint_t snapshotSize = Defaults.SnapshotSize,
 		bool isPromiscious = Defaults.Promiscious,
 		uint_t readTimeout = Defaults.ReadTimeout
@@ -279,7 +279,7 @@ opaque class Pcap
 
 	bool errorcode openFile(
 		char const* fileName,
-		char const* filter
+		char const* filter = null
 		);
 
 	/**
