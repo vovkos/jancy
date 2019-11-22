@@ -11,9 +11,12 @@
 
 #include "pch.h"
 #include "jnc_io_Pcap.h"
-#include "jnc_io_PcapSignalMgr.h"
 #include "jnc_io_PcapLib.h"
 #include "jnc_Error.h"
+
+#if (_JNC_OS_POSIX)
+#	include "jnc_io_PcapSignalMgr.h"
+#endif
 
 namespace jnc {
 namespace io {
