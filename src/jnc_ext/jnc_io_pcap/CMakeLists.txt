@@ -17,6 +17,7 @@ set(
 	LIB_H_LIST
 	jnc_io_Pcap.h
 	jnc_io_PcapFilter.h
+	jnc_io_PcapSignalMgr.h
 	jnc_io_PcapLib.h
 	)
 
@@ -24,8 +25,13 @@ set(
 	LIB_CPP_LIST
 	jnc_io_Pcap.cpp
 	jnc_io_PcapFilter.cpp
+	jnc_io_PcapSignalMgr.cpp
 	jnc_io_PcapLib.cpp
 	)
+
+if(NOT UNIX)
+	axl_exclude_from_build(jnc_io_PcapSignalMgr.cpp)
+endif()
 
 source_group(
 	lib

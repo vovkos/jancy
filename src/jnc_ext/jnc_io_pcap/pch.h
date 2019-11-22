@@ -27,6 +27,8 @@
 #	include "axl_io_win_File.h"
 #elif (_AXL_OS_POSIX)
 #	include "axl_io_psx_Pipe.h"
+#	include "axl_sys_TlsSlot.h"
+#	include <signal.h>
 #endif
 
 using namespace axl;

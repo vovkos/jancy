@@ -14,6 +14,10 @@
 #include "jnc_io_Pcap.h"
 #include "jnc_io_PcapFilter.h"
 
+#if (_JNC_OS_POSIX)
+#	include "jnc_io_PcapSignalMgr.h"
+#endif
+
 namespace jnc {
 namespace io {
 

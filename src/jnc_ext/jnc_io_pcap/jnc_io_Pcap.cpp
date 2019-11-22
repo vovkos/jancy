@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_Pcap.h"
+#include "jnc_io_PcapSignalMgr.h"
 #include "jnc_io_PcapLib.h"
 #include "jnc_Error.h"
 
@@ -160,10 +161,19 @@ Pcap::close()
 	wakeIoThread();
 	m_lock.unlock();
 
+#if (_JNC_OS_POSIX)
+	sl::getSimpleSingleton<PcapSignalMgr>()->install();
+	::pthread_kill(m_ioThread.getThreadId(), PcapSignalMgr::Signal);
+#endif
+
 	GcHeap* gcHeap = m_runtime->getGcHeap();
 	gcHeap->enterWaitRegion();
 	m_ioThread.waitAndClose();
 	gcHeap->leaveWaitRegion();
+
+#if (_JNC_OS_POSIX)
+	sl::getSimpleSingleton<PcapSignalMgr>()->uninstall();
+#endif
 
 	m_pcap.close();
 
@@ -237,6 +247,22 @@ void
 Pcap::ioThreadFunc()
 {
 	ASSERT(m_pcap.isOpen());
+
+#if (_JNC_OS_POSIX)
+	sys::setTlsPtrSlotValue<Pcap>(this);
+
+	// check for IoThreadFlag_Closing now; we might have
+	// called ::pthread_kill before setting the TLS slot
+
+	m_lock.lock();
+	if (m_ioThreadFlags & IoThreadFlag_Closing)
+	{
+		m_lock.unlock();
+		return;
+	}
+#endif
+
+	m_lock.unlock();
 
 	size_t snapshotSize = m_pcap.getSnapshotSize();
 
