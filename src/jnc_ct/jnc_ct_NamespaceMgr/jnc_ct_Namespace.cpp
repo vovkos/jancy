@@ -30,6 +30,7 @@ Namespace::clear()
 	m_body.clear();
 	m_bodyPos.clear();
 	m_itemArray.clear();
+	m_orphanArray.clear();
 	m_itemMap.clear();
 	m_friendSet.clear();
 	m_dualPtrTypeTupleMap.clear();
