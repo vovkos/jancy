@@ -166,7 +166,7 @@ Pcap::close()
 
 #if (_JNC_OS_POSIX)
 	sl::getSimpleSingleton<PcapSignalMgr>()->install();
-	::pthread_kill(m_ioThread.getThreadId(), PcapSignalMgr::Signal);
+	::pthread_kill((pthread_t)m_ioThread.getThreadId(), PcapSignalMgr::Signal);
 #endif
 
 	GcHeap* gcHeap = m_runtime->getGcHeap();
