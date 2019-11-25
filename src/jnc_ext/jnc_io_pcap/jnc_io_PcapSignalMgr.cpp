@@ -34,7 +34,7 @@ PcapSignalMgr::install()
 	struct sigaction sigAction = { 0 };
 	sigAction.sa_flags = SA_SIGINFO;
 	sigAction.sa_sigaction = signalHandler;
-	::sigemptyset(&sigAction.sa_mask);
+	sigemptyset(&sigAction.sa_mask);
 
 	int result = ::sigaction(Signal, &sigAction, &m_prevSigAction);
 	ASSERT(result == 0);
