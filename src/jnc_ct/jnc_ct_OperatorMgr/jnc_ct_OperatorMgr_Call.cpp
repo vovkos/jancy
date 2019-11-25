@@ -421,7 +421,10 @@ OperatorMgr::castArgValueList(
 			}
 		}
 
-		Type* formalArgType = getCdeclVarArgType(argValue.getType());
+		Type* formalArgType = argValue.getValueKind() == ValueKind_Null ?
+			m_module->m_typeMgr.getStdType(StdType_BytePtr) :
+			getCdeclVarArgType(argValue.getType());
+
 		result = castOperator(argValue, formalArgType, &*argValueIt); // store it in the same list entry
 		if (!result)
 			return false;
