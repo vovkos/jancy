@@ -67,12 +67,47 @@ UsbDevice::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 {
 	if (m_asyncControlEndpoint)
 		m_asyncControlEndpoint->markOpaqueGcRoots(gcHeap);
+
+	sl::Iterator<UsbInterface, UsbInterface::GetParentLink> it = m_interfaceList.getHead();
+	for (; it; it++)
+		gcHeap->markClassPtr(*it);
+}
+
+
+void
+UsbDevice::removeInterface(UsbInterface* iface)
+{
+	m_lock.lock();
+	sl::ListLink* link = UsbInterface::GetParentLink()(iface);
+	ASSERT((link->getPrev() == NULL) == (link->getNext() == NULL));
+
+	if (link->getNext())
+	{
+		m_interfaceList.remove(iface);
+		*link = sl::g_nullListLink;
+	}
+
+	m_lock.unlock();
 }
 
 void
 JNC_CDECL
 UsbDevice::close()
 {
+	m_lock.lock();
+	while (!m_interfaceList.isEmpty())
+	{
+		UsbInterface* iface = m_interfaceList.removeHead();
+		sl::ListLink* link = UsbInterface::GetParentLink()(iface);
+		*link = sl::g_nullListLink;
+		m_lock.unlock();
+
+		iface->release();
+
+		m_lock.lock();
+	}
+	m_lock.unlock();
+
 	if (m_asyncControlEndpoint)
 	{
 		AXL_MEM_DELETE(m_asyncControlEndpoint);
@@ -182,6 +217,10 @@ UsbDevice::claimInterface(
 			);
 
 		iface->m_isClaimed = true;
+
+		m_lock.lock();
+		m_interfaceList.insertTail(iface);
+		m_lock.unlock();
 	}
 
 	gcHeap->leaveNoCollectRegion(false);

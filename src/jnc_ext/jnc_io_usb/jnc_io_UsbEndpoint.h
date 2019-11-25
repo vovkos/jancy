@@ -49,11 +49,12 @@ class UsbEndpoint:
 	public AsyncIoDevice
 {
 	friend class IoThread;
+	friend class GetParentLink;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbEndpoint)
 
-protected:
+public:
 	enum Def
 	{
 		Def_TransferTimeout = -1,
@@ -64,6 +65,16 @@ protected:
 		Def_Options         = AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize,
 	};
 
+	class GetParentLink
+	{
+	public:
+		sl::ListLink* operator()(UsbEndpoint* self)
+		{
+			return &self->m_parentLink;
+		}
+	};
+
+protected:
 	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
@@ -83,6 +94,7 @@ protected:
 	};
 
 protected:
+	sl::ListLink m_parentLink;
 	IoThread m_ioThread;
 
 	mem::Pool<Transfer> m_transferPool;

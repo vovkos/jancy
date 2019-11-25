@@ -28,7 +28,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	g_usbLibGuid,
 	UsbLibCacheSlot_UsbInterface,
 	UsbInterface,
-	NULL
+	&UsbInterface::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(UsbInterface)
@@ -49,15 +49,61 @@ UsbInterface::UsbInterface()
 
 void
 JNC_CDECL
+UsbInterface::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
+{
+	sl::Iterator<UsbEndpoint, UsbEndpoint::GetParentLink> it = m_endpointList.getHead();
+	for (; it; it++)
+		gcHeap->markClassPtr(*it);
+}
+
+void
+UsbInterface::removeEndpoint(UsbEndpoint* endpoint)
+{
+	m_lock.lock();
+	sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
+	ASSERT((link->getPrev() == NULL) == (link->getNext() == NULL));
+
+	if (link->getNext())
+	{
+		m_endpointList.remove(endpoint);
+		*link = sl::g_nullListLink;
+	}
+
+	m_lock.unlock();
+}
+
+void
+JNC_CDECL
 UsbInterface::release()
 {
+	// we do force-release ifaces from UsbDevice::~UsbDevice
+	// therefore, we need to prevent multi-release
+
+	m_lock.lock();
 	if (!m_isClaimed)
+	{
+		m_lock.unlock();
 		return;
+	}
+
+	m_isClaimed = false;
+
+	while (!m_endpointList.isEmpty())
+	{
+		UsbEndpoint* endpoint = m_endpointList.removeHead();
+		sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
+		*link = sl::g_nullListLink;
+		m_lock.unlock();
+
+		endpoint->close();
+
+		m_lock.lock();
+	}
+	m_lock.unlock();
 
 	UsbInterfaceDesc* interfaceDesc = (UsbInterfaceDesc*)m_interfaceDescPtr.m_p;
-	bool result = m_parentDevice->m_device.releaseInterface(interfaceDesc->m_interfaceId);
-	if (result)
-		m_isClaimed = false;
+	m_parentDevice->m_device.releaseInterface(interfaceDesc->m_interfaceId);
+	m_parentDevice->removeInterface(this);
 }
 
 UsbEndpoint*
@@ -91,8 +137,11 @@ UsbInterface::openEndpoint(
 
 	gcHeap->leaveNoCollectRegion(false);
 
-	endpoint->open(isSuspended);
+	m_lock.lock();
+	m_endpointList.insertTail(endpoint);
+	m_lock.unlock();
 
+	endpoint->open(isSuspended);
 	return endpoint;
 }
 

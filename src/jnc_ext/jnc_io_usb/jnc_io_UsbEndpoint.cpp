@@ -81,10 +81,17 @@ void
 JNC_CDECL
 UsbEndpoint::close()
 {
-	if (!m_isOpen)
-		return;
+	// we do force-close endpoints from UsbInterface::~UsbInterface
+	// therefore, we need to prevent multi-close
 
 	m_lock.lock();
+	if (!m_isOpen)
+	{
+		m_lock.unlock();
+		return;
+	}
+
+	m_isOpen = false;
 	m_ioThreadFlags |= IoThreadFlag_Closing;
 	wakeIoThread();
 	m_lock.unlock();
@@ -94,6 +101,7 @@ UsbEndpoint::close()
 	m_ioThread.waitAndClose();
 	gcHeap->leaveWaitRegion();
 
+	m_parentInterface->removeEndpoint(this);
 	AsyncIoDevice::close();
 }
 

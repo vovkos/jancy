@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "jnc_io_UsbEndpoint.h"
+
 namespace jnc {
 namespace io {
 
@@ -23,14 +25,30 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbInterface)
 
 class UsbInterface: public IfaceHdr
 {
+	friend class GetParentLink;
+
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(UsbInterface)
 
 public:
+	class GetParentLink
+	{
+	public:
+		sl::ListLink* operator()(UsbInterface* self)
+		{
+			return &self->m_parentLink;
+		}
+	};
+
+public:
 	UsbDevice* m_parentDevice;
 	DataPtr m_interfaceDescPtr;
-
 	bool m_isClaimed;
+
+protected:
+	sys::Lock m_lock;
+	sl::ListLink m_parentLink;
+	sl::List<UsbEndpoint, UsbEndpoint::GetParentLink> m_endpointList;
 
 public:
 	UsbInterface();
@@ -39,6 +57,13 @@ public:
 	{
 		release();
 	}
+
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
+
+	void
+	removeEndpoint(UsbEndpoint* endpoint);
 
 	void
 	JNC_CDECL

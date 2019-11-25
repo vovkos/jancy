@@ -11,10 +11,11 @@
 
 #pragma once
 
+#include "jnc_io_UsbInterface.h"
+
 namespace jnc {
 namespace io {
 
-class UsbInterface;
 class UsbAsyncControlEndpoint;
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(UsbDevice)
@@ -35,6 +36,9 @@ protected:
 protected:
 	axl::io::UsbDevice m_device;
 	UsbAsyncControlEndpoint* m_asyncControlEndpoint;
+
+	sys::Lock m_lock;
+	sl::List<UsbInterface, UsbInterface::GetParentLink> m_interfaceList;
 
 public:
 	UsbDevice();
@@ -66,6 +70,9 @@ public:
 		m_isOpen = srcDevice->isOpen();
 		sl::takeOver(&m_device, srcDevice);
 	}
+
+	void
+	removeInterface(UsbInterface* iface);
 
 	void
 	JNC_CDECL
