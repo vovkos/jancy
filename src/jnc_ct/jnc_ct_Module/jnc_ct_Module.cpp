@@ -80,6 +80,7 @@ Module::clear()
 	m_sourceList.clear();
 	m_filePathSet.clear();
 	m_functionMap.clear();
+	m_requireSet.clear();
 
 	if (m_llvmExecutionEngine)
 		delete m_llvmExecutionEngine;
