@@ -759,6 +759,12 @@ ClassType::markGcRoots(
 		return;
 	}
 
+	// we avoid adding invalidated objects to the mark queue in the first place;
+	// however, we might attempt to mark an already-destructed static class object
+
+	if (iface->m_box->m_flags & BoxFlag_Invalid)
+		return;
+
 	ASSERT(iface->m_box == box && box->m_type == this);
 	markGcRootsImpl(iface, gcHeap);
 }

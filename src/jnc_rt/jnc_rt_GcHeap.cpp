@@ -46,6 +46,8 @@
 #	define JNC_TRACE_GC_REGION (void)
 #endif
 
+// #define JNC_DESTRUCT_DELAY 200
+
 namespace jnc {
 namespace rt {
 
@@ -1150,7 +1152,7 @@ GcHeap::markData(Box* box)
 
 	box->m_flags |= BoxFlag_DataMark;
 
-	if (!(box->m_type->getFlags() & TypeFlag_GcRoot))
+	if (!(box->m_type->getFlags() & TypeFlag_GcRoot) || (box->m_flags & BoxFlag_Invalid))
 		return;
 
 	if (box->m_type->getTypeKind() == TypeKind_Class)
@@ -1200,7 +1202,7 @@ GcHeap::markClass(Box* box)
 
 	box->m_flags |= BoxFlag_ClassMark | BoxFlag_DataMark;
 
-	if (box->m_type->getFlags() & TypeFlag_GcRoot)
+	if ((box->m_type->getFlags() & TypeFlag_GcRoot) && !(box->m_flags & BoxFlag_Invalid))
 		addRoot(box, box->m_type);
 }
 
@@ -1647,10 +1649,13 @@ GcHeap::collect_l(bool isMutatorThread)
 		Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 
 		for (size_t i = 0; i < count; i++, iface++)
-			addRoot(iface, ptrType);
+			if (!((*iface)->m_box->m_flags & BoxFlag_Invalid))
+				addRoot(iface, ptrType);
 
 		runMarkCycle();
 	}
+
+	JNC_TRACE_GC_COLLECT("   ... GcHeap::collect_l () -- destruct mark complete\n");
 
 	// sweep unmarked class boxes
 
@@ -1807,15 +1812,22 @@ GcHeap::runDestructCycle_l()
 
 		JNC_TRACE_GC_DESTRUCT("GcHeap::runDestructCycle_l: destructing %s(%p)\n", classType->getQualifiedName().sz(), iface);
 
-		bool result = callVoidFunction(m_runtime, destructor, iface);
+		bool result;
+		JNC_BEGIN_CALL_SITE(m_runtime)
+		callVoidFunction(destructor, iface);
+		iface->m_box->m_flags |= BoxFlag_Invalid;
+		JNC_END_CALL_SITE_EX(&result)
+
 		if (!result)
-		{
 			TRACE(
-				"-- WARNING: runtime error in %s.destruct (): %s\n",
+				"-- WARNING: runtime error in %s.destruct(): %s\n",
 				classType->getQualifiedName().sz(),
 				err::getLastErrorDescription().sz()
 				);
-		}
+
+#ifdef JNC_DESTRUCT_DELAY
+		sys::sleep(JNC_DESTRUCT_DELAY);
+#endif
 
 		waitIdleAndLock();
 		m_dynamicDestructArray.remove(i);
@@ -1846,14 +1858,28 @@ GcHeap::destructThreadFunc()
 			StaticDestructor* destructor = m_staticDestructorList.removeTail();
 			m_lock.unlock();
 
-			int retVal;
+			bool result;
+			JNC_BEGIN_CALL_SITE(m_runtime);
 
-			bool result = destructor->m_iface ?
-				callFunctionImpl_s(m_runtime, (void*)destructor->m_destructFunc, &retVal, destructor->m_iface) :
-				callFunctionImpl_s(m_runtime, (void*)destructor->m_staticDestructFunc, &retVal);
+			if (!destructor->m_iface)
+			{
+				callFunctionImpl_u<void>((void*)destructor->m_staticDestructFunc);
+			}
+			else
+			{
+				callFunctionImpl_u<void>((void*)destructor->m_destructFunc, destructor->m_iface);
+				destructor->m_iface->m_box->m_flags |= BoxFlag_Invalid;
+			}
+
+			JNC_END_CALL_SITE_EX(&result)
+
+			if (!result)
+				TRACE(
+					"-- WARNING: runtime error in a static destructor: %s\n",
+					err::getLastErrorDescription().sz()
+					);
 
 			AXL_MEM_DELETE(destructor);
-
 			waitIdleAndLock();
 		}
 
