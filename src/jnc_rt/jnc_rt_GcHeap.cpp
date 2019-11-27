@@ -1646,11 +1646,9 @@ GcHeap::collect_l(bool isMutatorThread)
 	{
 		size_t count = m_dynamicDestructArray.getCount();
 		IfaceHdr** iface = m_dynamicDestructArray;
-		Type* ptrType = m_runtime->getModule()->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 
 		for (size_t i = 0; i < count; i++, iface++)
-			if (!((*iface)->m_box->m_flags & BoxFlag_Invalid))
-				addRoot(iface, ptrType);
+			markClass((*iface)->m_box);
 
 		runMarkCycle();
 	}
