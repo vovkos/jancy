@@ -222,7 +222,7 @@ Lexer::createCharToken(
 
 	const char* end = p + length;
 	for (; p < end; p++, shift -= 8)
-		result |= *p << shift;
+		result |= *(uchar_t*)p << shift;
 
 	token->m_data.m_integer = result;
 	return token;
