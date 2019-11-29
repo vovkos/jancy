@@ -92,6 +92,8 @@ SystemInfo const g_systemInfo;
 
 uintptr_t getCurrentThreadId();
 
+char const* errorcode getProcessImageName(uint_t pid);
+
 //! @}
 
 //! \addtogroup time

@@ -56,6 +56,12 @@ getCurrentThreadId()
 }
 
 DataPtr
+getProcessImageName(uint_t pid)
+{
+	return strDup(axl::sys::getProcessImageName(pid));
+}
+
+DataPtr
 getEnv(DataPtr namePtr)
 {
 	if (!namePtr.m_p)
@@ -230,6 +236,7 @@ JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
 	JNC_MAP_FUNCTION("sys.getCurrentThreadId",  getCurrentThreadId)
+	JNC_MAP_FUNCTION("sys.getProcessImageName", getProcessImageName)
 	JNC_MAP_FUNCTION("sys.getTimestamp",        axl::sys::getTimestamp)
 	JNC_MAP_FUNCTION("sys.getPreciseTimestamp", axl::sys::getPreciseTimestamp)
 	JNC_MAP_FUNCTION("sys.formatTimestamp",     formatTimestamp_0)
