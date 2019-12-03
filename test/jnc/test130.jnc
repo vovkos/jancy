@@ -16,7 +16,8 @@ int main()
 	foo(p, 1);
 	foo(cp, 2);
 
-	void thin* tp = "abc";
+	char s[] = "abc";
+	void thin* tp = s;
 	void const thin* tcp = "def";
 
 	p = jnc.createDataPtr(tp);

@@ -263,10 +263,10 @@ funcVariant(
 	variant v4
 	);
 
-char*
+char const*
 funcPtr(
-	char* p1,
-	char thin* p2
+	char const* p1,
+	char const thin* p2
 	);
 
 float
@@ -349,7 +349,7 @@ testVariant()
 
 testPtr()
 {
-	char* retval = funcPtr("abc", "def");
+	char const* retval = funcPtr("abc", "def");
 	assert(strcmp(retval, "abc") == 0);
 }
 

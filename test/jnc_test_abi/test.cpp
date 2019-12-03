@@ -316,14 +316,14 @@ funcVariant(
 
 jnc::DataPtr
 funcPtr(
-	jnc::DataPtr p1,
-	char* p2
+	jnc::DataPtr ptr1,
+	char* ptr2
 	)
 {
-	ASSERT(strcmp((char*)p1.m_p, "abc") == 0);
-	ASSERT(strcmp(p2, "def") == 0);
+	ASSERT(strcmp((char*)ptr1.m_p, "abc") == 0);
+	ASSERT(strcmp(ptr2, "def") == 0);
 
-	return p1;
+	return ptr1;
 }
 
 float
