@@ -49,10 +49,16 @@ namespace sys {
 
 //..............................................................................
 
-intptr_t
+uint_t
+getCurrentProcessId()
+{
+	return axl::sys::getCurrentProcessId();
+}
+
+uintptr_t
 getCurrentThreadId()
 {
-	return (intptr_t)axl::sys::getCurrentThreadId();
+	return (uintptr_t)axl::sys::getCurrentThreadId();
 }
 
 DataPtr
@@ -235,6 +241,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(jnc_SysLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_SysLib)
+	JNC_MAP_FUNCTION("sys.getCurrentProcessId", getCurrentProcessId)
 	JNC_MAP_FUNCTION("sys.getCurrentThreadId",  getCurrentThreadId)
 	JNC_MAP_FUNCTION("sys.getProcessImageName", getProcessImageName)
 	JNC_MAP_FUNCTION("sys.getTimestamp",        axl::sys::getTimestamp)

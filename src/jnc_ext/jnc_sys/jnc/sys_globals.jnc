@@ -84,13 +84,22 @@ SystemInfo const g_systemInfo;
 //! @{
 
 /**
-	Returns the thread identifier(TID)of the current thread.
+	Returns the thread identifier (TID) of the current thread.
 
 	Translates to ``GetCurrentThreadId`` on Windows and ``pthread_self`` on
 	POSIX.
 */
 
 uintptr_t getCurrentThreadId();
+
+/**
+	Returns the process identifier (PID) of the current process.
+
+	Translates to ``GetCurrentProcessId`` on Windows and ``getpid`` on
+	POSIX.
+*/
+
+uint_t getCurrentProcessId();
 
 char const* errorcode getProcessImageName(uint_t pid);
 
