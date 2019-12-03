@@ -60,7 +60,13 @@ struct DeviceMonitorNotifyHdr
 	uint32_t m_signature;
 	uint16_t m_code;
 	uint16_t m_flags;
-	int32_t m_ntStatus;
+
+	union
+	{
+		int32_t m_ntStatus; // Windows
+		int m_errno;        // POSIX
+	}
+
 	uint32_t m_paramSize;
 	uint32_t m_processId;
 	uint32_t m_threadId;
