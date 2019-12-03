@@ -355,10 +355,16 @@ OperatorMgr::getConditionalOperatorResultType(
 	Type* falseType = falseValue.getClosureAwareType();
 
 	if (trueType->getTypeKind() == TypeKind_Array)
-		trueType = ((ArrayType*)trueType)->getElementType()->getDataPtrType();
+		trueType = ((ArrayType*)trueType)->getElementType()->getDataPtrType(
+			DataPtrTypeKind_Normal,
+			trueValue.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
+			);
 
 	if (falseType->getTypeKind() == TypeKind_Array)
-		falseType = ((ArrayType*)falseType)->getElementType()->getDataPtrType();
+		falseType = ((ArrayType*)falseType)->getElementType()->getDataPtrType(
+			DataPtrTypeKind_Normal,
+			falseValue.getValueKind() == ValueKind_Const ? PtrTypeFlag_Const : 0
+			);
 
 	if (trueType->cmp(falseType) == 0)
 	{
