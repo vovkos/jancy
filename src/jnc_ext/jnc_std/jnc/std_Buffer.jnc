@@ -62,11 +62,24 @@ class Buffer
 		return insert(-1, p, size);
 	}
 
+	size_t errorcode append(char const* p)
+	{
+		return insert(-1, p);
+	}
+
 	size_t errorcode insert(
 		size_t offset,
 		void const* p,
 		size_t size
 		);
+
+	size_t errorcode insert(
+		size_t offset,
+		char const* p
+		)
+	{
+		return p ? insert(offset, p, strlen(p) + 1) : insert(offset, "", 1);
+	}
 
 	size_t errorcode remove(
 		size_t offset,
