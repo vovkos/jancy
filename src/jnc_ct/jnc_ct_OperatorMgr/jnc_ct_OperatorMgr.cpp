@@ -398,7 +398,11 @@ OperatorMgr::getConditionalOperatorResultType(
 			trueType->cmp(falseType) == 0 ? trueType :
 			(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & TypeKindFlag_Numeric) ?
 				getConditionalNumericOperatorResultType(trueValue, trueType, falseValue, falseType) :
-				trueType;
+				(trueType->getTypeKindFlags() & falseType->getTypeKindFlags() & (TypeKindFlag_DataPtr | TypeKindFlag_ClassPtr)) &&
+				!(trueType->getFlags() & PtrTypeFlag_Const) &&
+				(falseType->getFlags() & PtrTypeFlag_Const) ?
+					falseType :
+					trueType;
 	}
 
 	// if it's a lean data pointer, fatten it
