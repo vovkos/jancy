@@ -18,6 +18,21 @@ namespace ct {
 
 //..............................................................................
 
+sl::String
+getConstTypeString(Type* type)
+{
+	sl::String string = type->getTypeStringPrefix() + " const";
+
+	const sl::String& suffix = type->getTypeStringSuffix();
+	if (!suffix.isEmpty())
+	{
+		string += ' ';
+		string += suffix;
+	}
+
+	return string;
+}
+
 err::Error
 setCastError(
 	const Value& opValue,
@@ -59,7 +74,9 @@ setCastError(
 		break;
 
 	default:
-		opValueString = opValue.getType ()->getTypeString();
+		opValueString = opValue.getValueKind() == ValueKind_Const ?
+			getConstTypeString(opValue.getType ()) :
+			opValue.getType()->getTypeString();
 	}
 
 	return err::setFormatStringError(format, opValueString.sz(), dstType->getTypeString().sz());
