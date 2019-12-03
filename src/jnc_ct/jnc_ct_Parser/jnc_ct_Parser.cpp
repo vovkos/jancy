@@ -2902,7 +2902,8 @@ Parser::appendFmtLiteralRawData(
 
 	Value literalValue;
 	literalValue.setCharArray(p, length, m_module);
-	m_module->m_operatorMgr.castOperator(&literalValue, m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType_c());
+	bool result = m_module->m_operatorMgr.castOperator(&literalValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr));
+	ASSERT(result);
 
 	Value lengthValue;
 	lengthValue.setConstSizeT(length, m_module);
