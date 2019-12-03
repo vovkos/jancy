@@ -97,7 +97,7 @@ OperatorMgr::memCpy(
 
 	bool result =
 		castOperator(dstValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &dstPtrValue) &&
-		castOperator(srcValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &srcPtrValue);
+		castOperator(srcValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr), &srcPtrValue);
 
 	if (!result)
 		return false;
