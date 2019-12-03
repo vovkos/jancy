@@ -16,7 +16,6 @@ common_declaration
 	|   alignment_declaration
 	|	named_type_specifier
 	|   attribute_block
-	|	';'
 	;
 
 global_declaration
@@ -24,6 +23,7 @@ global_declaration
 	|	namespace_declaration
 	|	extension_declaration
 	|	normal_item_declaration
+	|	';'
 	;
 
 member_block_declaration
@@ -32,6 +32,7 @@ member_block_declaration
 	|	access_declaration
 	|	normal_item_declaration
 	|   setas_declaration
+	|	';'
 	;
 
 local_declaration
