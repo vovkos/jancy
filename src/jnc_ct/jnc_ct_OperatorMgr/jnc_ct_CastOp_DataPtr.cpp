@@ -43,6 +43,9 @@ Cast_DataPtr_FromArray::getCastKind(
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	DataPtrType* dstType = (DataPtrType*)type;
 
+	if (opValue.getValueKind() == ValueKind_Const && !(dstType->getFlags() & PtrTypeFlag_Const))
+		return CastKind_None;
+
 	Type* arrayElementType = srcType->getElementType();
 	Type* ptrDataType = dstType->getTargetType();
 
@@ -84,6 +87,12 @@ Cast_DataPtr_FromArray::constCast(
 
 	ArrayType* srcType = (ArrayType*)opValue.getType();
 	DataPtrType* dstType = (DataPtrType*)type;
+
+	if (!(dstType->getFlags() & PtrTypeFlag_Const))
+	{
+		setCastError(opValue, type);
+		return false;
+	}
 
 	const Value& savedOpValue = m_module->m_constMgr.saveValue(opValue);
 	const void* p0 = opValue.getConstData();
