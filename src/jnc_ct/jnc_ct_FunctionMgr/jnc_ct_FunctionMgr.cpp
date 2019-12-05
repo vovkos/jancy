@@ -386,15 +386,8 @@ FunctionMgr::internalPrologue(
 
 	if (argCount)
 	{
-		llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
-		FunctionType* functionType = function->getType();
-		CallConv* callConv = functionType->getCallConv();
-
-		for (size_t i = 0; i < argCount; i++, llvmArg++)
-		{
-			Value argValue = callConv->getArgValue(&*llvmArg, functionType, i);
-			argValueArray[i] = argValue;
-		}
+		CallConv* callConv = function->getType()->getCallConv();
+		callConv->getArgValueArray(function, argValueArray, argCount);
 	}
 
 	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("function_body");

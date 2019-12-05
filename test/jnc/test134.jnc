@@ -1,0 +1,16 @@
+//..............................................................................
+
+char const* formatIntegerWithThousandSep_isv(uint64_t value)
+{
+	return null;
+}
+
+typedef char const* FormatFunc(uint64_t value);
+
+//..............................................................................
+
+int main()
+{
+	FormatFunc* f = formatIntegerWithThousandSep_isv;
+	return 0;
+}

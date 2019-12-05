@@ -60,6 +60,14 @@ public:
 
 	virtual
 	void
+	getArgValueArray(
+		Function* function,
+		Value* argValueArray,
+		size_t count
+		);
+
+	virtual
+	void
 	createArgVariables(Function* function);
 };
 

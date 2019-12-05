@@ -242,6 +242,23 @@ CdeclCallConv_msc64::getArgValue(
 }
 
 void
+CdeclCallConv_msc64::getArgValueArray(
+	Function* function,
+	Value* argValueArray,
+	size_t count
+	)
+{
+	Type* returnType = function->getType()->getReturnType();
+	CallConv::getArgValueArrayImpl(
+		function,
+		argValueArray,
+		count,
+		(returnType->getFlags() & TypeFlag_StructRet) &&
+		returnType->getSize() > sizeof(uint64_t) ? 1 : 0
+		);
+}
+
+void
 CdeclCallConv_msc64::createArgVariables(Function* function)
 {
 	Type* returnType = function->getType()->getReturnType();

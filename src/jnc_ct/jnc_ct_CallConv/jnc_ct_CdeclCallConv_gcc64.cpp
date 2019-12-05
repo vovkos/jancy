@@ -322,6 +322,23 @@ CdeclCallConv_gcc64::getArgValue(
 }
 
 void
+CdeclCallConv_gcc64::getArgValueArray(
+	Function* function,
+	Value* argValueArray,
+	size_t count
+	)
+{
+	Type* returnType = function->getType()->getReturnType();
+	CallConv::getArgValueArrayImpl(
+		function,
+		argValueArray,
+		count,
+		(returnType->getFlags() & TypeFlag_StructRet) &&
+		returnType->getSize() > sizeof(uint64_t) * 2 ? 1 : 0
+		);
+}
+
+void
 CdeclCallConv_gcc64::createArgVariables(Function* function)
 {
 	FunctionType* functionType = function->getType();
@@ -329,7 +346,7 @@ CdeclCallConv_gcc64::createArgVariables(Function* function)
 
 	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
 	if ((returnType->getFlags() & TypeFlag_StructRet) &&
-		returnType->getSize() > sizeof(uint64_t)* 2)
+		returnType->getSize() > sizeof(uint64_t) * 2)
 		llvmArg++;
 
 	size_t i = 0;

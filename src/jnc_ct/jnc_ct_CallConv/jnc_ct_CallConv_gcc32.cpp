@@ -135,6 +135,22 @@ CallConv_gcc32::getThisArgValue(Function* function)
 }
 
 void
+CallConv_gcc32::getArgValueArray(
+	Function* function,
+	Value* argValueArray,
+	size_t count
+	)
+{
+	Type* returnType = function->getType()->getReturnType();
+	CallConv::getArgValueArrayImpl(
+		function,
+		argValueArray,
+		count,
+		(returnType->getFlags() & TypeFlag_StructRet) ? 1 : 0
+		);
+}
+
+void
 CallConv_gcc32::createArgVariables(Function* function)
 {
 	Type* returnType = function->getType()->getReturnType();

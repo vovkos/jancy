@@ -291,6 +291,26 @@ CallConv::getArgValue(
 }
 
 void
+CallConv::getArgValueArrayImpl(
+	Function* function,
+	Value* argValueArray,
+	size_t argCount,
+	size_t baseLlvmArgIdx
+	)
+{
+	llvm::Function::arg_iterator llvmArg = function->getLlvmFunction()->arg_begin();
+	for (size_t i = 0; i < baseLlvmArgIdx; i++)
+		llvmArg++;
+
+	FunctionType* functionType = function->getType();
+	for (size_t i = 0; i < argCount; i++, llvmArg++)
+	{
+		Value argValue = getArgValue(&*llvmArg, functionType, i);
+		argValueArray[i] = argValue;
+	}
+}
+
+void
 CallConv::createArgVariablesImpl(
 	Function* function,
 	size_t baseLlvmArgIdx

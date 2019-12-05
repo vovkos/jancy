@@ -204,12 +204,31 @@ public:
 
 	virtual
 	void
+	getArgValueArray(
+		Function* function,
+		Value* argValueArray,
+		size_t count
+		)
+	{
+		getArgValueArrayImpl(function, argValueArray, count, 0);
+	}
+
+	virtual
+	void
 	createArgVariables(Function* function)
 	{
 		createArgVariablesImpl(function, 0);
 	}
 
 protected:
+	void
+	getArgValueArrayImpl(
+		Function* function,
+		Value* argValueArray,
+		size_t argCount,
+		size_t baseLlvmArgIdx = 0
+		);
+
 	void
 	createArgVariablesImpl(
 		Function* function,
