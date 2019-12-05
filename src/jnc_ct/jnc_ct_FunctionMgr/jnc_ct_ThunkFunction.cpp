@@ -34,8 +34,8 @@ ThunkFunction::compile()
 	sl::Array<FunctionArg*> thunkArgArray = m_type->getArgArray();
 	size_t thunkArgCount = thunkArgArray.getCount();
 
-	char buffer1[256];
-	sl::Array<Value> thunkArgValueArray(ref::BufKind_Stack, buffer1, sizeof(buffer1));
+	char buffer[256];
+	sl::Array<Value> thunkArgValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 	thunkArgValueArray.setCount(thunkArgCount);
 
 	m_module->m_functionMgr.internalPrologue(this, thunkArgValueArray, thunkArgCount);
@@ -43,18 +43,16 @@ ThunkFunction::compile()
 	sl::Array<FunctionArg*> targetArgArray = m_targetFunction->getType()->getArgArray();
 	size_t targetArgCount = targetArgArray.getCount();
 
-	// skip the first thunk argument if needed
+	// skip the fat -> thin thunk 1st (closure-this) argument
 
-	size_t j = 0;
-	if (thunkArgCount != targetArgCount)
-	{
-		ASSERT(thunkArgCount == targetArgCount + 1);
-		AXL_TODO("make sure we are skipping fat pointer closure in fat->thin thunk")
-		j = 1;
-	}
+	size_t j =
+		(thunkArgCount && thunkArgArray[0]->getStorageKind() == StorageKind_This) &&
+		(!targetArgCount || targetArgArray[0]->getStorageKind() != StorageKind_This) ? 1 : 0;
+
+	ASSERT(thunkArgCount - j <= targetArgCount); // this should have been checked in cast operator
 
 	sl::BoxList<Value> targetArgValueList;
-	for (size_t i = 0; i < targetArgCount; i++, j++)
+	for (size_t i = 0; j < thunkArgCount; i++, j++)
 	{
 		Value* argValue = targetArgValueList.insertTail().p();
 
