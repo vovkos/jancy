@@ -794,7 +794,6 @@ template <
 RetVal
 callFunctionPtr(
 	FunctionPtr ptr,
-	RetVal* retVal,
 	Arg arg
 	)
 {
