@@ -1,16 +1,31 @@
+import "std_String.jnc"
+
 //..............................................................................
 
-char const* formatIntegerWithThousandSep_isv(uint64_t value)
+char* formatIntegerWithThousandSep(
+	uint64_t value,
+	char sep = ','
+	)
 {
-	return null;
+	std.StringBuilder string = $"$value";
+
+	intptr_t i = string.m_length - 3;
+	for (; i > 0; i -= 3)
+		string.insert(i, sep);
+
+	return string.detachString();
 }
 
-typedef char const* FormatFunc(uint64_t value);
-
 //..............................................................................
+
+typedef char const* FormatFunc(int value);
 
 int main()
 {
-	FormatFunc* f = formatIntegerWithThousandSep_isv;
+	FormatFunc* func = formatIntegerWithThousandSep;
+	char const* string = func(123456);
+
+	printf("result: %s\n", string);
+
 	return 0;
 }
