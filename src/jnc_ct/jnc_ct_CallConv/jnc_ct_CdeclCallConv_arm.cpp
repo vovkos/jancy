@@ -44,7 +44,10 @@ CdeclCallConv_arm::getArgCoerceType(Type* type)
 	if (size % atomSize)
 		atomCount++;
 
-	return atomType->getArrayType(atomCount);
+	Type* coerceType = atomType->getArrayType(atomCount);
+	bool result = coerceType->ensureLayout();
+	ASSERT(result);
+	return coerceType;
 }
 
 void
