@@ -84,6 +84,9 @@ public:
 	bool
 	ensureNamespaceReady();
 
+	bool
+	ensureNamespaceReadyDeep();
+
 	ModuleItem*
 	getModuleItem();
 

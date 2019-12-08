@@ -198,6 +198,28 @@ Namespace::ensureNamespaceReady()
 	return true;
 }
 
+bool
+Namespace::ensureNamespaceReadyDeep()
+{
+	bool result = ensureNamespaceReady();
+	if (!result)
+		return false;
+
+	size_t count = m_itemArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Namespace* nspace = m_itemArray[i]->getNamespace();
+		if (nspace)
+		{
+			result = nspace->ensureNamespaceReadyDeep();
+			if (!result)
+				return false;
+		}
+	}
+
+	return true;
+}
+
 FindModuleItemResult
 Namespace::findDirectChildItem(const sl::StringRef& name)
 {
