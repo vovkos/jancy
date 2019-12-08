@@ -545,8 +545,8 @@ Module::parseImpl(
 	return false;
 #endif
 
-	if (m_compileFlags & ModuleCompileFlag_Documentation)
-		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments
+	if ((m_compileFlags & ModuleCompileFlag_Documentation) && !lib)
+		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
 
 	Parser parser(this);
 	parser.create(Parser::StartSymbol);
