@@ -162,6 +162,9 @@ extern "C" double __aeabi_i2d(int32_t);
 extern "C" double __aeabi_l2d(int64_t);
 extern "C" double __aeabi_ui2d(uint32_t);
 extern "C" double __aeabi_ul2d(uint64_t);
+extern "C" void __aeabi_memcpy(void*, const void*, size_t);
+extern "C" void __aeabi_memmove(void*, const void*, size_t);
+extern "C" void __aeabi_memset(void*, int, size_t);
 #		endif
 #	elif (_JNC_OS_WIN)
 extern "C" int64_t _alldiv(int64_t, int64_t);
@@ -243,6 +246,9 @@ Module::createLlvmExecutionEngine()
 		m_functionMap["__aeabi_l2d"] = (void*)__aeabi_l2d;
 		m_functionMap["__aeabi_ui2d"] = (void*)__aeabi_ui2d;
 		m_functionMap["__aeabi_ul2d"] = (void*)__aeabi_ul2d;
+		m_functionMap["__aeabi_memcpy"] = (void*)__aeabi_memcpy;
+		m_functionMap["__aeabi_memmove"] = (void*)__aeabi_memmove;
+		m_functionMap["__aeabi_memset"] = (void*)__aeabi_memset;
 #		endif
 #	elif (_JNC_OS_WIN)
 		m_functionMap["_alldiv"] = (void*)_alldiv;
