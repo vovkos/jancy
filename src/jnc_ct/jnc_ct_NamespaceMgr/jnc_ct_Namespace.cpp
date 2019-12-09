@@ -90,8 +90,12 @@ Namespace::resolveOrphans()
 {
 	bool result;
 
+	if (m_orphanArray.isEmpty())
+		return true;
+
 	char buffer[256];
 	sl::Array<Property*> propertyArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	ModuleItem* nspaceItem = getModuleItem();
 
 	size_t count = m_orphanArray.getCount();
 	for (size_t i = 0; i < count; i++)
@@ -101,7 +105,7 @@ Namespace::resolveOrphans()
 
 		if (functionKind != FunctionKind_Normal && orphan->m_declaratorName.isEmpty())
 		{
-			result = orphan->adopt(getModuleItem());
+			result = orphan->adopt(nspaceItem);
 			if (!result)
 			{
 				orphan->pushSrcPosError();
