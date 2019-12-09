@@ -52,8 +52,7 @@ BitFieldType::calcLayout()
 	if (!result)
 		return false;
 
-	TypeKind typeKind = m_baseType->getTypeKind();
-	if (typeKind < TypeKind_Int8 || typeKind > TypeKind_Int64_beu)
+	if (!isIntegerType(m_baseType))
 	{
 		err::setFormatStringError("bit field can only be used with integer types");
 		return false;
