@@ -1710,28 +1710,6 @@ TypeMgr::foldDualType(
 	return foldedType;
 }
 
-// this function is only called when generating documentation, as such,
-// there is no need to optimize the full type list search for imports
-
-bool
-TypeMgr::resolveImportTypes()
-{
-	bool result;
-
-	sl::Iterator<Type> it = m_typeList.getHead();
-	for (; it; it++)
-	{
-		if (it->getTypeKindFlags() & TypeKindFlag_Import)
-		{
-			result = ((ImportType*)*it)->ensureResolved();
-			if (!result)
-				return false;
-		}
-	}
-
-	return true;
-}
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 DualTypeTuple*
