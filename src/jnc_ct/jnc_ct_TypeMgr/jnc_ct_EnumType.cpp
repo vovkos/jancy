@@ -161,7 +161,8 @@ EnumType::calcLayout()
 	if (!result)
 		return false;
 
-	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
+		m_baseType->getTypeKind() != TypeKind_TypedefShadow)
 	{
 		err::setFormatStringError(
 			"invalid base type %s for %s (must be integer type)",
