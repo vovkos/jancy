@@ -36,6 +36,7 @@ struct CmdLine
 	sl::String m_functionName;
 	sl::String m_extensionSrcFileName;
 	sl::String m_outputDir;
+	sl::String m_excludeRegex;
 
 	sl::BoxList<sl::String> m_fileNameList;
 	sl::BoxList<sl::String> m_importDirList;
@@ -58,6 +59,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_CompileOnly,
 	CmdLineSwitch_Require,
 	CmdLineSwitch_Documentation,
+	CmdLineSwitch_Exclude,
 	CmdLineSwitch_OutputDir,
 	CmdLineSwitch_SourceDir,
 	CmdLineSwitch_ImportDir,
@@ -129,6 +131,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_SourceDir,
 		"S", "src-dir", "source-dir", "<dir>",
 		"Add a directory with source files"
+		)
+	AXL_SL_CMD_LINE_SWITCH_2(
+		CmdLineSwitch_Exclude,
+		"x", "exclude", "<regex>",
+		"Exclude source file names matching a regular expression"
 		)
 	AXL_SL_CMD_LINE_SWITCH_2(
 		CmdLineSwitch_ImportDir,
@@ -259,6 +266,9 @@ protected:
 
 	bool
 	finalize();
+
+	bool
+	scanSourceDirs();
 };
 
 //..............................................................................

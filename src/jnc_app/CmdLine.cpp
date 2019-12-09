@@ -160,6 +160,19 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_optLevel = atoi(value.sz());
 		break;
 
+	case CmdLineSwitch_Exclude:
+		if (m_cmdLine->m_excludeRegex.isEmpty())
+		{
+			m_cmdLine->m_excludeRegex = value;
+		}
+		else
+		{
+			m_cmdLine->m_excludeRegex += '|';
+			m_cmdLine->m_excludeRegex += value;
+		}
+
+		break;
+
 	case CmdLineSwitch_SourceDir:
 		m_cmdLine->m_sourceDirList.insertTail(value);
 		break;
@@ -193,53 +206,9 @@ CmdLineParser::onSwitch(
 bool
 CmdLineParser::finalize()
 {
-	static char jncSuffix[] = ".jnc";
-	static char doxSuffix[] = ".dox";
-
-	enum
-	{
-		SuffixLength = lengthof(jncSuffix)
-	};
-
-	bool isDoc = (m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
-
-	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
-	for (; it; it++)
-	{
-		sl::String dir = *it;
-		if (dir.isEmpty())
-			continue;
-
-		if (dir[dir.getLength() - 1])
-			dir += '/';
-
-		io::FileEnumerator fileEnum;
-		bool result = fileEnum.openDir(dir);
-		if (!result)
-		{
-			printf("warning: %s\n", err::getLastErrorDescription().sz());
-			continue;
-		}
-
-		while (fileEnum.hasNextFile())
-		{
-			sl::String filePath = dir + fileEnum.getNextFileName();
-			if (io::isDir(filePath))
-				continue;
-
-			size_t length = filePath.getLength();
-			if (length < SuffixLength)
-				continue;
-
-			const char* suffix = filePath.sz() + length - SuffixLength;
-
-			if (memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
-				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0)
-			{
-				m_cmdLine->m_fileNameList.insertTail(filePath);
-			}
-		}
-	}
+	bool result = scanSourceDirs();
+	if (!result)
+		return false;
 
 	if (!(m_cmdLine->m_flags & (
 		JncFlag_Help |
@@ -258,13 +227,84 @@ CmdLineParser::finalize()
 	if (m_cmdLine->m_flags & JncFlag_Jit)
 		m_cmdLine->m_flags |= JncFlag_Compile;
 
-	if (isDoc && !(m_cmdLine->m_flags & JncFlag_Compile))
+	if ((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) &&
+		!(m_cmdLine->m_flags & JncFlag_Compile))
 	{
 		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_IgnoreOpaqueClassTypeInfo;
 		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_KeepTypedefShadow;
 	}
 
 	return true;
+}
+
+bool
+CmdLineParser::scanSourceDirs()
+{
+	static char jncSuffix[] = ".jnc";
+	static char doxSuffix[] = ".dox";
+
+	enum
+	{
+		SuffixLength = lengthof(jncSuffix)
+	};
+
+	bool result;
+
+	fsm::Regex excludeRegex;
+	if (!m_cmdLine->m_excludeRegex.isEmpty())
+	{
+		fsm::RegexCompiler compiler(&excludeRegex);
+		result = compiler.compile(m_cmdLine->m_excludeRegex);
+		if (!result)
+			return false;
+	}
+
+	bool isDoc = (m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_Documentation) != 0;
+
+	sl::BoxIterator<sl::String> it = m_cmdLine->m_sourceDirList.getHead();
+	for (; it; it++)
+	{
+		sl::String dir = *it;
+		if (dir.isEmpty())
+			continue;
+
+		if (dir[dir.getLength() - 1])
+			dir += '/';
+
+		io::FileEnumerator fileEnum;
+		result = fileEnum.openDir(dir);
+		if (!result)
+		{
+			printf("warning: %s\n", err::getLastErrorDescription().sz());
+			continue;
+		}
+
+		while (fileEnum.hasNextFile())
+		{
+			sl::String filePath = dir + fileEnum.getNextFileName();
+			if (io::isDir(filePath))
+				continue;
+
+			size_t length = filePath.getLength();
+			if (length < SuffixLength)
+				continue;
+
+			const char* suffix = filePath.sz() + length - SuffixLength;
+
+			if ((memcmp(suffix, jncSuffix, SuffixLength) == 0 ||
+				isDoc && memcmp(suffix, doxSuffix, SuffixLength) == 0))
+			{
+				if (!excludeRegex.isEmpty() && excludeRegex.match(filePath))
+				{
+					printf("excluding: %s\n", filePath.sz());
+					continue;
+				}
+
+				m_cmdLine->m_fileNameList.insertTail(filePath);
+			}
+		}
+	}
+
 }
 
 //..............................................................................

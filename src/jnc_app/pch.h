@@ -22,6 +22,7 @@
 #include "axl_io_FilePathUtils.h"
 #include "axl_io_FileEnumerator.h"
 #include "axl_lex_ParseError.h"
+#include "axl_fsm_Regex.h"
 #include "axl_err_ErrorMgr.h"
 
 using namespace axl;
