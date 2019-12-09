@@ -355,6 +355,9 @@ StructType::layoutField(Field* field)
 			&field->m_llvmIndex
 			);
 
+	if (!result)
+		return false;
+
 	if (m_flags & TypeFlag_Dynamic)
 	{
 		field->m_prevDynamicFieldIndex = m_dynamicFieldArray.getCount() - 1;
