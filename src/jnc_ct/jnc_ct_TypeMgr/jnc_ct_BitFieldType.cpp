@@ -41,8 +41,8 @@ BitFieldType::prepareDoxyLinkedText()
 {
 	TypeStringTuple* tuple = getTypeStringTuple();
 
-	tuple->m_typeStringPrefix = m_baseType->getDoxyLinkedTextPrefix();
-	tuple->m_typeStringSuffix = getTypeStringSuffix();
+	tuple->m_doxyLinkedTextPrefix = m_baseType->getDoxyLinkedTextPrefix();
+	tuple->m_doxyLinkedTextSuffix = getTypeStringSuffix();
 }
 
 bool
