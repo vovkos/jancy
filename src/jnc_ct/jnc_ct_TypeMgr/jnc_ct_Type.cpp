@@ -1061,10 +1061,14 @@ TypedefShadowType::prepareDoxyLinkedText()
 bool
 TypedefShadowType::calcLayout()
 {
+	bool result = m_typedef->getType()->ensureLayout();
+	if (!result)
+		return false;
+
 	Type* type = m_typedef->getType();
 	m_size = type->getSize();
 	m_alignment = type->getAlignment();
-	m_signature.clear();
+	m_signature.clear(); // request signature rebuild
 	return true;
 }
 
