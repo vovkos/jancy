@@ -817,6 +817,9 @@ public:
 		bool isContainerConst
 		);
 
+	bool
+	resolveImportTypes(); // only called when generating documentation
+
 protected:
 	void
 	addClassType(

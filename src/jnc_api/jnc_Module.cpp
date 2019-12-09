@@ -443,6 +443,7 @@ jnc_Module_generateDocumentation(
 {
 	return
 		module->m_namespaceMgr.getGlobalNamespace()->ensureNamespaceReadyDeep() &&
+		module->m_typeMgr.resolveImportTypes() &&
 		module->m_doxyModule.generateDocumentation(
 			outputDir,
 			"index.xml",
