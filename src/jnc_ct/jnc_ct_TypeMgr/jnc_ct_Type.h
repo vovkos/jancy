@@ -518,14 +518,6 @@ public:
 		sl::String* itemXml,
 		sl::String* indexXml
 		);
-
-protected:
-	virtual
-	bool
-	calcLayout()
-	{
-		return m_type->ensureLayout();
-	}
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
