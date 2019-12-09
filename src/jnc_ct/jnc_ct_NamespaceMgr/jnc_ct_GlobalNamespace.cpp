@@ -161,7 +161,10 @@ GlobalNamespace::generateDocumentation(
 		);
 
 	sl::String memberXml;
-	Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, true);
+	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, true);
+	if (!result)
+		return false;
+
 	itemXml->append(memberXml);
 
 	sl::String footnoteXml = doxyBlock->getFootnoteString();
