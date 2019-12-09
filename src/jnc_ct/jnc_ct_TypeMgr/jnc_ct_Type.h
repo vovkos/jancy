@@ -611,6 +611,16 @@ isDualType(Type* type)
 	return (type->getFlags() & PtrTypeFlag__Dual) != 0;
 }
 
+inline
+bool
+isIntegerType(Type* type)
+{
+	return
+		(type->getTypeKindFlags() & TypeKindFlag_Integer) ||
+		type->getTypeKind() == TypeKind_TypedefShadow &&
+		(((TypedefShadowType*)type)->getTypedef()->getType()->getTypeKindFlags() & TypeKindFlag_Integer);
+}
+
 bool
 isDisposableType(Type* type);
 
