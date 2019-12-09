@@ -618,7 +618,9 @@ DerivableType::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	bool result;
+	bool result = ensureLayout();
+	if (!result)
+		return false;
 
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
