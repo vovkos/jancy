@@ -114,7 +114,6 @@ class JancyLexer(RegexLexer):
 
                 'get',
                 'set',
-                'preconstruct',
                 'construct',
                 'destruct',
                 'operator',
