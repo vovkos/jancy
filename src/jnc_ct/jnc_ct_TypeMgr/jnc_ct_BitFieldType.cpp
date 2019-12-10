@@ -52,7 +52,7 @@ BitFieldType::calcLayout()
 	if (!result)
 		return false;
 
-	if (!isIntegerType(m_baseType))
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError("bit field can only be used with integer types");
 		return false;

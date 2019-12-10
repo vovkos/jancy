@@ -339,6 +339,28 @@ FunctionTypeOverload::copy(
 }
 
 bool
+FunctionTypeOverload::prepareImports() const
+{
+	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
+	ASSERT(m_type);
+
+	bool result = m_type->ensureNoImports();
+	if (!result)
+		return false;
+
+	size_t count = m_overloadArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		result = m_overloadArray[i]->ensureNoImports();
+		if (!result)
+			return false;
+	}
+
+	m_flags |= TypeFlag_NoImports;
+	return true;
+}
+
+bool
 FunctionTypeOverload::prepareLayout() const
 {
 	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));

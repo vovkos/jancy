@@ -333,6 +333,9 @@ public:
 		JNC_ASSERT(m_item && jnc_ModuleItem_getItemKind(m_item) == ModuleItemKind_FunctionOverload);
 		return m_functionOverload;
 	}
+
+	bool
+	ensureNoImports();
 };
 
 //..............................................................................

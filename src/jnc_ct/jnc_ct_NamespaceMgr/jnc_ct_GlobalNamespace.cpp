@@ -81,13 +81,16 @@ GlobalNamespace::parseBody()
 			return false;
 	}
 
-	result =
-		resolveOrphans() &&
-		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
-		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow))
+	{
+		result =
+			resolveOrphans() &&
+			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+			m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
 
-	if (!result)
-		return false;
+		if (!result)
+			return false;
+	}
 
 	m_module->m_namespaceMgr.closeNamespace();
 

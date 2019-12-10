@@ -168,6 +168,24 @@ PropertyType::prepareDoxyTypeString()
 		getTypeStringTuple()->m_doxyTypeString += m_getterType->getDoxyArgString();
 }
 
+bool
+PropertyType::resolveImports()
+{
+	bool result = m_getterType->ensureNoImports();
+	if (!result)
+		return false;
+
+	size_t count = m_setterType.getOverloadCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		bool result = m_setterType.getOverload(i)->ensureNoImports();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
 //..............................................................................
 
 } // namespace ct

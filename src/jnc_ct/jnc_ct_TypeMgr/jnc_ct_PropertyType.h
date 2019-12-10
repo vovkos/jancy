@@ -176,6 +176,10 @@ protected:
 	{
 		prepareSimpleTypeVariable(StdType_PropertyType);
 	}
+
+	virtual
+	bool
+	resolveImports();
 };
 
 //..............................................................................

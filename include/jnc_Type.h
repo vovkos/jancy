@@ -198,6 +198,7 @@ enum jnc_TypeFlag
 	jnc_TypeFlag_StructRet = 0x0800, // return through hidden 1st arg (gcc32 callconv)
 	jnc_TypeFlag_NoStack   = 0x1000, // try to avoid allocation on stack
 	jnc_TypeFlag_Dynamic   = 0x2000, // dynamic struct/union/array
+	jnc_TypeFlag_NoImports = 0x4000, // all imports resolved (when generating documentation)
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -690,7 +691,8 @@ const TypeFlag
 	TypeFlag_GcRoot    = jnc_TypeFlag_GcRoot,
 	TypeFlag_StructRet = jnc_TypeFlag_StructRet,
 	TypeFlag_NoStack   = jnc_TypeFlag_NoStack,
-	TypeFlag_Dynamic   = jnc_TypeFlag_Dynamic;
+	TypeFlag_Dynamic   = jnc_TypeFlag_Dynamic,
+	TypeFlag_NoImports = jnc_TypeFlag_NoImports;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

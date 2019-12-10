@@ -95,10 +95,6 @@ protected:
 	{
 		return ensureResolved() && m_actualType->ensureLayout();
 	}
-
-	virtual
-	bool
-	resolve() = 0;
 };
 
 //..............................................................................
@@ -164,7 +160,7 @@ protected:
 
 	virtual
 	bool
-	resolve();
+	resolveImports();
 };
 
 //..............................................................................
@@ -213,7 +209,7 @@ protected:
 
 	virtual
 	bool
-	resolve();
+	resolveImports();
 };
 
 //..............................................................................
@@ -262,7 +258,7 @@ protected:
 
 	virtual
 	bool
-	resolve();
+	resolveImports();
 };
 
 //..............................................................................

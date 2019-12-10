@@ -69,10 +69,14 @@ ExtensionNamespace::addProperty(Property* prop)
 bool
 ExtensionNamespace::parseBody()
 {
-	bool result =
-		m_type->ensureLayout() &&
-		GlobalNamespace::parseBody();
+	bool result = (m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow) ?
+		m_type->ensureNoImports() :
+		m_type->ensureLayout();
 
+	if (!result)
+		return false;
+
+	result = GlobalNamespace::parseBody();
 	if (!result)
 		return false;
 

@@ -360,6 +360,19 @@ Type::getSimpleFunctionArg(uint_t ptrTypeFlags)
 }
 
 bool
+Type::prepareImports()
+{
+	ASSERT(!(m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)));
+
+	bool result = resolveImports();
+	if (!result)
+		return false;
+
+	m_flags |= TypeFlag_NoImports;
+	return true;
+}
+
+bool
 Type::prepareLayout()
 {
 	ASSERT(!(m_flags & ModuleItemFlag_LayoutReady));
@@ -1019,6 +1032,10 @@ Typedef::generateDocumentation(
 	sl::String* indexXml
 	)
 {
+	bool result = m_type->ensureNoImports();
+	if (!result)
+		return false;
+
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	itemXml->format(
@@ -1056,20 +1073,6 @@ TypedefShadowType::prepareDoxyLinkedText()
 		refId.sz(),
 		getQualifiedName().sz()
 		);
-}
-
-bool
-TypedefShadowType::calcLayout()
-{
-	bool result = m_typedef->getType()->ensureLayout();
-	if (!result)
-		return false;
-
-	Type* type = m_typedef->getType();
-	m_size = type->getSize();
-	m_alignment = type->getAlignment();
-	m_signature.clear(); // request signature rebuild
-	return true;
 }
 
 //..............................................................................

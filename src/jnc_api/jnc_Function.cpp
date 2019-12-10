@@ -208,6 +208,30 @@ jnc_FunctionOverload_getOverload(
 	return index < function->getOverloadCount() ? function->getOverload(index) : NULL;
 }
 
+namespace jnc {
+
+bool
+OverloadableFunction::ensureNoImports()
+{
+	if (!m_item)
+		return true;
+
+	ModuleItemKind itemKind = m_item->getItemKind();
+	switch (itemKind)
+	{
+	case ModuleItemKind_Function:
+		return ((Function*)m_item)->getType()->ensureNoImports();
+
+	case ModuleItemKind_FunctionOverload:
+		return ((FunctionOverload*)m_item)->getTypeOverload().ensureNoImports();
+
+	default:
+		ASSERT(false);
+		return true;
+	}
+}
+
+} // namespace jnc
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
 

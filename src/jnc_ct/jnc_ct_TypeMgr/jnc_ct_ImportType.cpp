@@ -43,7 +43,7 @@ ImportType::ensureResolved()
 	}
 
 	m_flags |= ImportTypeFlag_InResolve;
-	return resolve();
+	return resolveImports();
 }
 
 //..............................................................................
@@ -79,7 +79,7 @@ NamedImportType::createSignature(
 }
 
 bool
-NamedImportType::resolve()
+NamedImportType::resolveImports()
 {
 	Namespace* anchorNamespace = m_anchorNamespace;
 	if (!m_anchorName.isEmpty())
@@ -178,7 +178,7 @@ ImportPtrType::prepareTypeString()
 }
 
 bool
-ImportPtrType::resolve()
+ImportPtrType::resolveImports()
 {
 	bool result = m_targetType->ensureResolved();
 	if (!result)
@@ -225,7 +225,7 @@ ImportIntModType::prepareTypeString()
 }
 
 bool
-ImportIntModType::resolve()
+ImportIntModType::resolveImports()
 {
 	bool result = m_importType->ensureResolved();
 	if (!result)

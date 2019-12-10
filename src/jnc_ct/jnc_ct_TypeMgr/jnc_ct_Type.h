@@ -298,6 +298,12 @@ public:
 		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
 	}
 
+	bool
+	ensureNoImports()
+	{
+		return (m_flags & (TypeFlag_NoImports | ModuleItemFlag_LayoutReady)) ? true : prepareImports();
+	}
+
 	ArrayType*
 	getArrayType(size_t elementCount);
 
@@ -361,6 +367,9 @@ protected:
 	getTypeStringTuple();
 
 	bool
+	prepareImports();
+
+	bool
 	prepareLayout();
 
 	virtual
@@ -398,6 +407,14 @@ protected:
 	virtual
 	bool
 	calcLayout()
+	{
+		ASSERT(false); // shouldn't be called unless required
+		return true;
+	}
+
+	virtual
+	bool
+	resolveImports()
 	{
 		ASSERT(false); // shouldn't be called unless required
 		return true;
@@ -579,7 +596,10 @@ protected:
 
 	virtual
 	bool
-	calcLayout();
+	resolveImports()
+	{
+		return m_typedef->getType()->ensureNoImports();
+	}
 };
 
 //..............................................................................
@@ -609,16 +629,6 @@ bool
 isDualType(Type* type)
 {
 	return (type->getFlags() & PtrTypeFlag__Dual) != 0;
-}
-
-inline
-bool
-isIntegerType(Type* type)
-{
-	return
-		(type->getTypeKindFlags() & TypeKindFlag_Integer) ||
-		type->getTypeKind() == TypeKind_TypedefShadow &&
-		(((TypedefShadowType*)type)->getTypedef()->getType()->getTypeKindFlags() & TypeKindFlag_Integer);
 }
 
 bool

@@ -200,6 +200,10 @@ public:
 protected:
 	virtual
 	bool
+	resolveImports();
+
+	virtual
+	bool
 	calcLayout();
 
 	virtual

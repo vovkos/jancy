@@ -361,22 +361,73 @@ DerivableType::parseBody()
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
 
-	bool result =
-		parser.parseBody(
-			SymbolKind_member_block_declaration_list,
-			lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
-			m_body.getSubString(1, length - 2)
-			) &&
-		resolveOrphans() &&
-		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
-		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
+	bool result = parser.parseBody(
+		SymbolKind_member_block_declaration_list,
+		lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
+		m_body.getSubString(1, length - 2)
+		);
 
 	if (!result)
 		return false;
 
+	if (!(m_module->getCompileFlags() & ModuleCompileFlag_KeepTypedefShadow))
+	{
+		result =
+			resolveOrphans() &&
+			m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
+			m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
+
+		if (!result)
+			return false;
+	}
+
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return true;
+}
+
+template <typename T>
+bool
+ensureArrayNoImports(const sl::Array<T*>& array)
+{
+	size_t count = array.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		bool result = array[i]->getType()->ensureNoImports();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+template <typename T>
+bool
+ensureListNoImports(const sl::List<T>& list)
+{
+	sl::ConstIterator<T> it = list.getHead();
+	for (; it; it++)
+	{
+		bool result = it->getType()->ensureNoImports();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
+DerivableType::resolveImports()
+{
+	return
+		ensureListNoImports(m_baseTypeList) &&
+		ensureArrayNoImports(m_staticVariableArray) &&
+		ensureArrayNoImports(m_fieldArray) &&
+		ensureArrayNoImports(m_methodArray) &&
+		ensureArrayNoImports(m_propertyArray) &&
+		m_constructor.ensureNoImports() &&
+		(!m_staticConstructor || m_staticConstructor->getType()->ensureNoImports()) &&
+		(!m_destructor || m_destructor->getType()->ensureNoImports());
 }
 
 bool
@@ -618,7 +669,7 @@ DerivableType::generateDocumentation(
 	sl::String* indexXml
 	)
 {
-	bool result = ensureLayout();
+	bool result = ensureNoImports();
 	if (!result)
 		return false;
 

@@ -216,6 +216,24 @@ FunctionType::getTypeModifierString()
 }
 
 bool
+FunctionType::resolveImports()
+{
+	bool result = m_returnType->ensureNoImports();
+	if (!result)
+		return false;
+
+	size_t count = m_argArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		result = m_argArray[i]->getType()->ensureNoImports();
+		if (!result)
+			return false;
+	}
+
+	return true;
+}
+
+bool
 FunctionType::calcLayout()
 {
 	bool result = m_returnType->ensureLayout();

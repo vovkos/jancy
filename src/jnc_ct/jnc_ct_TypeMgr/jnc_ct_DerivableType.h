@@ -371,6 +371,10 @@ protected:
 	bool
 	parseBody();
 
+	virtual
+	bool
+	resolveImports();
+
 	Property*
 	getIndexerProperty(Type* argType);
 

@@ -124,6 +124,13 @@ protected:
 
 	virtual
 	bool
+	resolveImports()
+	{
+		return m_elementType->ensureNoImports();
+	}
+
+	virtual
+	bool
 	calcLayout()
 	{
 		return calcLayoutImpl(NULL, NULL);

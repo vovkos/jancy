@@ -161,7 +161,7 @@ EnumType::calcLayout()
 	if (!result)
 		return false;
 
-	if (!isIntegerType(m_baseType))
+	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer))
 	{
 		err::setFormatStringError(
 			"invalid base type %s for %s (must be integer type)",
@@ -300,10 +300,14 @@ EnumType::generateDocumentation(
 	sl::String* indexXml
 	)
 {
+	bool result = ensureNoImports();
+	if (!result)
+		return false;
+
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	sl::String memberXml;
-	bool result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, false);
+	result = Namespace::generateMemberDocumentation(outputDir, &memberXml, indexXml, false);
 	if (!result)
 		return false;
 

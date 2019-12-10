@@ -175,12 +175,21 @@ public:
 		size_t count
 		);
 
-protected:
+	bool
+	ensureNoImports() const
+	{
+		return (m_flags & (ModuleItemFlag_LayoutReady | TypeFlag_NoImports)) ? true : prepareImports();
+	}
+
 	bool
 	ensureLayout() const
 	{
 		return (m_flags & ModuleItemFlag_LayoutReady) ? true : prepareLayout();
 	}
+
+protected:
+	bool
+	prepareImports() const;
 
 	bool
 	prepareLayout() const;

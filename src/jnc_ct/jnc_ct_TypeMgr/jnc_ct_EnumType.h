@@ -171,6 +171,13 @@ protected:
 
 	virtual
 	bool
+	resolveImports()
+	{
+		return m_baseType->ensureNoImports();
+	}
+
+	virtual
+	bool
 	calcLayout();
 };
 

@@ -84,6 +84,13 @@ public:
 protected:
 	virtual
 	bool
+	resolveImports()
+	{
+		return m_targetType->ensureNoImports();
+	}
+
+	virtual
+	bool
 	calcLayout();
 
 	virtual

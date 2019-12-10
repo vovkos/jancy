@@ -96,6 +96,10 @@ Variable::generateDocumentation(
 	sl::String* indexXml
 	)
 {
+	bool result = m_type->ensureNoImports();
+	if (!result)
+		return false;
+
 	dox::Block* doxyBlock = m_module->m_doxyHost.getItemBlock(this);
 
 	bool isMulticast = isClassType(m_type, ClassTypeKind_Multicast);
