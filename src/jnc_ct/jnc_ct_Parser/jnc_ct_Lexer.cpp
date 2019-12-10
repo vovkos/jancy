@@ -501,8 +501,10 @@ Lexer::createFmtSpecifierToken()
 Token*
 Lexer::createDoxyCommentToken(TokenKind tokenKind)
 {
-	ASSERT(te - ts >= 3 && *ts == '/');
+	if (!(m_channelMask & TokenChannelMask_DoxyComment))
+		return NULL;
 
+	ASSERT(te - ts >= 3 && *ts == '/');
 	size_t right = 0;
 
 	if (tokenKind >= TokenKind_DoxyComment3) // multiline c-style: /** or /*!
