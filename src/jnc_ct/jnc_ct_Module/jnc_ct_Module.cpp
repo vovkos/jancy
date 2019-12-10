@@ -560,47 +560,18 @@ Module::parseImpl(
 	for (;;)
 	{
 		const Token* token = lexer.getToken();
-		switch (token->m_token)
+		if (token->m_token == TokenKind_Error)
 		{
-		case TokenKind_Error:
 			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
 			lex::pushSrcPosError(fileName, token->m_pos);
 			return false;
+		}
 
-		case TokenKind_DoxyComment1:
-		case TokenKind_DoxyComment2:
-		case TokenKind_DoxyComment3:
-		case TokenKind_DoxyComment4:
-			if (!(m_compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token->m_token - TokenKind_DoxyComment1))))
-			{
-				sl::StringRef comment = token->m_data.m_string;
-				ModuleItem* lastDeclaredItem = NULL;
-				lex::LineCol pos = token->m_pos;
-				pos.m_col += 3; // doxygen comments always start with 3 characters: ///, //!, /** /*!
-
-				if (!comment.isEmpty() && comment[0] == '<')
-				{
-					lastDeclaredItem = parser.m_lastDeclaredItem;
-					comment = comment.getSubString(1);
-					pos.m_col++;
-				}
-
-				parser.m_doxyParser.addComment(
-					comment,
-					pos,
-					token->m_token <= TokenKind_DoxyComment2, // only concat single-line comments
-					lastDeclaredItem
-					);
-			}
-			break;
-
-		default:
-			result = parser.parseToken(token);
-			if (!result)
-			{
-				lex::ensureSrcPosError(fileName, token->m_pos);
-				return false;
-			}
+		result = parser.parseToken(token);
+		if (!result)
+		{
+			lex::ensureSrcPosError(fileName, token->m_pos);
+			return false;
 		}
 
 		if (token->m_token == TokenKind_Eof) // EOF token must be parsed

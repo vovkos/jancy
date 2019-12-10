@@ -161,6 +161,9 @@ Members2
 		const sl::StringRef& body
 		);
 
+	void
+	addDoxyComment(const Token& token);
+
 	bool
 	parseBody(
 		SymbolKind symbol,

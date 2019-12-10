@@ -131,6 +131,33 @@ Parser::tokenizeBody(
 	}
 }
 
+void
+Parser::addDoxyComment(const Token& token)
+{
+	uint_t compileFlags = m_module->getCompileFlags();
+	if (compileFlags & (ModuleCompileFlag_DisableDoxyComment1 << (token.m_token - TokenKind_DoxyComment1)))
+		return;
+
+	sl::StringRef comment = token.m_data.m_string;
+	ModuleItem* lastDeclaredItem = NULL;
+	lex::LineCol pos = token.m_pos;
+	pos.m_col += 3; // doxygen comments always start with 3 characters: ///, //!, /** /*!
+
+	if (!comment.isEmpty() && comment[0] == '<')
+	{
+		lastDeclaredItem = m_lastDeclaredItem;
+		comment = comment.getSubString(1);
+		pos.m_col++;
+	}
+
+	m_doxyParser.addComment(
+		comment,
+		pos,
+		token.m_token <= TokenKind_DoxyComment2, // only concat single-line comments
+		lastDeclaredItem
+		);
+}
+
 bool
 Parser::parseBody(
 	SymbolKind symbol,

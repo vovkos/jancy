@@ -11,6 +11,18 @@
 
 // root declaration productions
 
+pragma
+doxy_comment
+	enter
+	{
+		addDoxyComment(m_currentToken);
+	}
+	:	TokenKind_DoxyComment1
+	|	TokenKind_DoxyComment2
+	|	TokenKind_DoxyComment3
+	|	TokenKind_DoxyComment4
+	;
+
 common_declaration
 	:	using_declaration
 	|   alignment_declaration
