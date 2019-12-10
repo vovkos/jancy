@@ -64,6 +64,10 @@ Parser::tokenizeBody(
 	ASSERT(unit);
 
 	Lexer lexer(m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile);
+
+	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
+		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
+
 	lexer.create(unit->getFilePath(), body);
 	lexer.setLineCol(pos);
 
