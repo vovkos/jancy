@@ -90,6 +90,7 @@ class JancyLexer(RegexLexer):
                 'multicast',
                 'event',
                 'reactor',
+                'async',
 
                 'auto',
                 'anydata',
@@ -156,6 +157,7 @@ class JancyLexer(RegexLexer):
                 'finally',
                 'nestedscope',
                 'assert',
+                'await',
 
                 'basetype',
                 'basetype1',
