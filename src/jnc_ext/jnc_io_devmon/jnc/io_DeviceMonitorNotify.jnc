@@ -14,7 +14,7 @@ import "io_lnx_DeviceMonitorNotify.jnc"
 
 namespace io {
 
-//! \addtogroup devmon
+//! \addtogroup io-devmon
 //! @{
 
 namespace psx {

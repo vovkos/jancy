@@ -13,7 +13,7 @@ import "io_UsbEndpoint.jnc"
 
 namespace io {
 
-//! \addtogroup usb
+//! \addtogroup io-usb
 //! @{
 
 //..............................................................................

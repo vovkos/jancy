@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-intro
+//! @{
+
 //..............................................................................
 
 opaque class BitFieldType: Type
@@ -25,5 +28,7 @@ opaque class BitFieldType: Type
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

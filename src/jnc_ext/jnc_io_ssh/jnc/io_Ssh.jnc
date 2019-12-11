@@ -15,7 +15,7 @@ import "io_SocketOptions.jnc"
 
 namespace io {
 
-//! \addtogroup ssh
+//! \addtogroup io-ssh
 //! @{
 
 //..............................................................................
@@ -297,10 +297,6 @@ struct SshConnectParams
 	\footnote f2
 
 		|footnote-disposable|
-
-	\footnote f3
-
-		|footnote-sync-id|
 */
 
 opaque class SshChannel

@@ -11,7 +11,7 @@
 
 namespace std {
 
-//! \addtogroup container
+//! \addtogroup std-container
 //! @{
 
 //..............................................................................

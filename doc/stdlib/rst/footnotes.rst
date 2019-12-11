@@ -20,7 +20,3 @@
 .. |footnote-set-property-fail| replace::
 
 	If setting this property fails, the actual IO error reported by the operating system is recorded; then exception is thrown.
-
-.. |footnote-sync-id| replace::
-
-	When assigining scheduled event handlers, you need to make sure the particular event is still relevant. For more details refer to :ref:`sync-id`.

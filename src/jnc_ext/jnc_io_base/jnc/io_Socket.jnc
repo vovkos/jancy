@@ -14,7 +14,7 @@ import "io_SocketOptions.jnc"
 
 namespace io {
 
-//! \addtogroup socket
+//! \addtogroup io-socket
 //! @{
 
 //..............................................................................
@@ -215,14 +215,6 @@ bitflag enum SocketEvents
 	\footnote f2
 
 		|footnote-disposable|
-
-	\footnote f3
-
-		|footnote-sync-id|
-
-	\footnote f4
-
-		|footnote-set-property-fail|
 */
 
 opaque class Socket

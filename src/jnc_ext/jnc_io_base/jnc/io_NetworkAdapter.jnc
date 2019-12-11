@@ -11,7 +11,7 @@
 
 namespace io {
 
-//! \addtogroup network-adapter
+//! \addtogroup io-network-adapter
 //! @{
 
 //..............................................................................

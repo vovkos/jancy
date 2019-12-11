@@ -9,20 +9,7 @@
 //
 //..............................................................................
 
-/**
-
-\defgroup g1_typedef
-
-	\title Standard Typedefs
-
-	\brief This section describes standard typedefs available in Jancy.
-
-	The purpose of these typedefs is to create a familiar environment for C/C++
-	programmers and make it easier to switch between Jancy and C/C++.
-
-*/
-
-//! \addtogroup g1_typedef
+//! \addtogroup c-typedefs
 //! @{
 
 /**

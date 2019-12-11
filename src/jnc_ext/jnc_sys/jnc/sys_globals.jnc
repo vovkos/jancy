@@ -14,7 +14,7 @@ namespace sys {
 //..............................................................................
 
 /**
-	\ingroup syslib
+	\ingroup sys
 
 	Provides access to the system environment variable table.
 
@@ -80,7 +80,7 @@ struct SystemInfo
 
 SystemInfo const g_systemInfo;
 
-//! \addtogroup thread
+//! \addtogroup sys-thread
 //! @{
 
 /**
@@ -105,7 +105,7 @@ char const* errorcode getProcessImageName(uint_t pid);
 
 //! @}
 
-//! \addtogroup time
+//! \addtogroup sys-time
 //! @{
 
 /**

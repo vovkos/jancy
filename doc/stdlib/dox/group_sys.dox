@@ -11,34 +11,38 @@
 
 /**
 
-\defgroup syslib
+\defgroup sys
 
 	\title System Facilities
+	\grouporder 4
 
 	This section describes classes, auxiliary types and functions which provide access to system services.
 
-\defgroup time
+\defgroup sys-time
 
 	\title Time & Timers
-	\ingroup syslib
+	\ingroup sys
+	\grouporder 1
 
 	\import sys_Timer.jnc
 
 	This section describes types and facilities for date, time and timer management.
 
-\defgroup thread
+\defgroup sys-thread
 
 	\title Thread Management
-	\ingroup syslib
+	\ingroup sys
+	\grouporder 2
 
 	\import sys_Thread.jnc
 
 	This section describes types and facilities for thread creation and management.
 
-\defgroup sync
+\defgroup sys-sync
 
 	\title Synchronization Facilities
-	\ingroup syslib
+	\ingroup sys
+	\grouporder 3
 
 	\import sys_Lock.jnc
 	\import sys_Event.jnc
@@ -46,11 +50,14 @@
 
 	This section describes types and facilities used for inter-thread synchronization.
 
-\defgroup gc
+\defgroup sys-registry
 
-	\title Garbage-Collected Heap
-	\ingroup syslib
+	\title Windows Registry Management
+	\ingroup sys
+	\grouporder 4
 
-	This section describes types and facilities used for the GC (garbage-collected heap) management.
+	\import sys_Registry.jnc
+
+	This section describes types and facilities for accessing the Windows system registry.
 
 */

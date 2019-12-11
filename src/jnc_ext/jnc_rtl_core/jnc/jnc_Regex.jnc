@@ -11,10 +11,12 @@
 
 namespace jnc {
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//! \addtogroup rtl-regex
+//! @{
+
+//..............................................................................
 
 /**
-	\ingroup rtl
 	\brief This struct holds the information about matched lexeme or sub-lexeme.
 */
 
@@ -36,7 +38,6 @@ struct RegexMatch
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 /**
-	\ingroup rtl
 	\brief This class holds the lexeme buffer and the state of DFA constructed
 	from an ``reswitch`` statement.
 
@@ -277,5 +278,7 @@ opaque class RegexDfa
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

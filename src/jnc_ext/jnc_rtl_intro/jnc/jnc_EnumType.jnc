@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-intro
+//! @{
+
 //..............................................................................
 
 bitflag enum EnumTypeFlags
@@ -47,5 +50,7 @@ opaque class EnumType: NamedType
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

@@ -18,7 +18,6 @@ CREF_DB = true
 
 EXTRA_PAGE_LIST =
 {
-	"syncId.rst",
 	"disposable.rst",
 	"errorcode.rst"
 }

@@ -13,7 +13,7 @@ import "io_SocketAddress.jnc"
 
 namespace io {
 
-//! \addtogroup socket
+//! \addtogroup io-socket
 //! @{
 
 //..............................................................................
@@ -104,10 +104,6 @@ namespace io {
 	\footnote f2
 
 		|footnote-disposable|
-
-	\footnote f3
-
-		|footnote-sync-id|
 */
 
 opaque class SocketAddressResolver

@@ -13,7 +13,7 @@ import "std_Guid.jnc"
 
 namespace std {
 
-//! \addtogroup error
+//! \addtogroup std-error
 //! @{
 
 std.Guid g_errnoGuid = { 0x25a6a7b5, 0xf662, 0x48ae, { 0xbc, 0xb6, 0x9a, 0x5c, 0xb5, 0xce, 0x5b, 0xb9 } }

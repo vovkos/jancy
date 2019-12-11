@@ -1,0 +1,45 @@
+﻿/**
+
+\defgroup c-typedefs
+
+	\title Standard Typedefs
+	\grouporder 1
+
+	\brief This section describes standard typedefs available in Jancy.
+
+	The purpose of these typedefs is to create a familiar environment for C/C++
+	programmers and make it easier to switch between Jancy and C/C++.
+
+*/
+
+/**
+\defgroup crt
+
+	\title C Runtime Functions
+	\grouporder 2
+
+	\brief This section contains C runtime functions available from Jancy.
+
+	The purpose of these functions is to create a familiar environment for C/C++
+	programmers and make it easier to switch between Jancy and C/C++.
+
+	\footnote f1
+
+		If null-terminating ``0`` byte is not discovered withing the allowed
+		range of string pointer, Jancy string functions behave just like if
+		``0`` was found at the very next byte after the end of allowed range.
+		In other words, it is always assumed that ``0`` could be found at the
+		location ``p + dynamic sizeof(p)`` -- even if the actual byte at this
+		location isn't really ``0``.
+
+	\footnote f2
+
+		The notation ``p:size`` here means: memory block pointed to by ``p`` and
+		of ``size`` bytes long.
+
+	\footnote f3
+
+		Note that this function uses ``C`` vararg calling convention(and
+		actually maps directly to libc ``snprintf``). As such, it is
+		**not safe**. It is recommended to use formatting literals instead.
+*/

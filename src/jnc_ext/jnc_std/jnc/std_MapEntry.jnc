@@ -11,10 +11,12 @@
 
 namespace std {
 
-//! \addtogroup container
+//! \addtogroup std-container
 //! @{
 
 //..............................................................................
+
+//! \import std_MapEntry.jnc
 
 struct MapEntry
 {

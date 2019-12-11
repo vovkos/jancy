@@ -11,8 +11,8 @@
 
 .. _errorcode:
 
-errorcode Functions
-===================
+'errorcode' Functions
+=====================
 
 Jancy provides syntactic sugar over good old C-style error code check model. It looks just like throwing and catching exceptions and frees the developer from the routine of constantly checking for error codes.
 

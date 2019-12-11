@@ -13,7 +13,7 @@ import "std_MapEntry.jnc"
 
 namespace std {
 
-//! \addtogroup container
+//! \addtogroup std-container
 //! @{
 
 //..............................................................................

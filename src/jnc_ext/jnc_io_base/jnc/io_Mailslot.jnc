@@ -11,7 +11,7 @@
 
 namespace io {
 
-//! \addtogroup file
+//! \addtogroup io-file
 //! @{
 
 //..............................................................................
@@ -165,10 +165,6 @@ bitflag enum MailslotEvents
 	\footnote f2
 
 		|footnote-disposable|
-
-	\footnote f3
-
-		|footnote-sync-id|
 */
 
 opaque class Mailslot

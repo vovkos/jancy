@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-core
+//! @{
+
 //..............................................................................
 
 void* createDataPtr(
@@ -82,5 +85,7 @@ void const* createDataPtr(
 void resetDynamicLayout(void const* p);
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc {

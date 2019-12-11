@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-intro
+//! @{
+
 //..............................................................................
 
 enum StructTypeKind
@@ -33,5 +36,7 @@ opaque class StructType: DerivableType
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

@@ -13,7 +13,7 @@ import "io_File.jnc"
 
 namespace io {
 
-//! \addtogroup file
+//! \addtogroup io-file
 //! @{
 
 //..............................................................................

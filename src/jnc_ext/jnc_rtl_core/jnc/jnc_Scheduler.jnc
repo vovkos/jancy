@@ -14,7 +14,7 @@ namespace jnc {
 //..............................................................................
 
 /**
-	\ingroup rtl
+	\ingroup rtl-core
 	\brief This interface is used by Jancy compiler when creating *scheduled*
 	function pointers.
 

@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-intro
+//! @{
+
 //..............................................................................
 
 enum TypeKind
@@ -102,7 +105,7 @@ enum TypeKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum typeKindFlags
+bitflag enum TypeKindFlags
 {
 	Integer      = 0x00000001,
 	Unsigned     = 0x00000002,
@@ -235,5 +238,7 @@ opaque class Typedef:
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

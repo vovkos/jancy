@@ -13,7 +13,7 @@ import "io_File.jnc"
 
 namespace io {
 
-//! \addtogroup file
+//! \addtogroup io-file
 //! @{
 
 //..............................................................................
@@ -258,10 +258,6 @@ bitflag enum FileStreamEvents
 	\footnote f2
 
 		|footnote-disposable|
-
-	\footnote f3
-
-		|footnote-sync-id|
 */
 
 opaque class FileStream

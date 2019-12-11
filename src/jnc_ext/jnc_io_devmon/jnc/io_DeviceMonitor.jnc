@@ -13,7 +13,7 @@ import "io_DeviceMonitorNotify.jnc"
 
 namespace io {
 
-//! \addtogroup devmon
+//! \addtogroup io-devmon
 //! @{
 
 //..............................................................................

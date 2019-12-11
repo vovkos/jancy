@@ -14,7 +14,7 @@ namespace jnc {
 //..............................................................................
 
 /**
-	\ingroup rtl
+	\ingroup rtl-core
 	\brief This class provides direct access to functions in *dynamic libraries*
 	(also known as *shared libraries*).
 

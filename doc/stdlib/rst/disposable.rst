@@ -11,18 +11,18 @@
 
 .. _disposable:
 
-Using Disposable Pattern
-========================
+'disposable' Variables
+======================
 
-A lot of classes in Jancy standard library (e.g. `io.File`, `io.Serial` etc) provide ``close`` methods  to terminate current session and release associated resources.
+A lot of classes in Jancy standard library (e.g. `io.File`, `io.Serial`, etc.) provide ``close`` methods to terminate the current session and release associated resources.
 
-If an instance of such class is being abandoned without calling ``close``, it will be closed automatically in class *destructor* -- which will happen whenever the Jancy Garbage Collector decides to sweep unused objects.
+If an instance of such class is being abandoned without having its ``close`` method called, it will still be called automatically in the class *destructor* -- which will happen whenever the Jancy Garbage Collector decides to sweep unused objects.
 
-However, leaving this at Garbage Collector' discretion is undesirable, as it leads to undeterministic resource release -- file handle or other resources will be held for unknown period of time.
+However, leaving this at Garbage Collector' discretion is undesirable, as it leads to undeterministic resource release -- file handle or other resources will be held for an unknown period of time.
 
-An easy way for overcoming this problem is to work with objects that do require timely invokation of ``close`` or similar resource-releasing method using Jancy ``disposable`` storage specifier.
+An easy way for overcoming this problem is to work with objects that do require a timely invokation of ``close`` (or similar resource-releasing method) using the Jancy ``disposable`` storage specifier.
 
-Example:
+.. rubric:: Example:
 
 .. ref-code-block:: jnc
 
@@ -38,7 +38,7 @@ Example:
 
 When program runs out of scope where a variable of disposable class was declared in, Jancy compiler will insert a call to ``dispose`` method (which is usually *aliased* to an actual release methods such as ``close``). This method will be called no matter how the program runs out of scope, be it a normal control flow, ``return``,  ``break``, ``continue`` or an exception.
 
-Note that you can easily write disposable classes yourself. All you have to do is to provide a ``dispose`` method:
+You can easily write disposable classes yourself. All you have to do is to provide a ``dispose`` method:
 
 .. ref-code-block:: jnc
 
@@ -59,4 +59,14 @@ Note that you can easily write disposable classes yourself. All you have to do i
 	    // work with c...
 
 	    throw; // <-- c.dispose () will get called
+	}
+
+Often times, a class already has a function to release resources (called ``close``, ``release``, etc.); renaming it to ``dispose`` may be undesireable. In such case, you cane make such a class disposable by *aliasing* ``dispose``:
+
+.. ref-code-block:: jnc
+
+	class MyDisposableClass
+	{
+		void close(); // a natural name for a resource-releasing method
+	    alias dispose = close;
 	}

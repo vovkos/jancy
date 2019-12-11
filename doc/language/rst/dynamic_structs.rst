@@ -77,12 +77,12 @@ Of course, given the fact that the size of such struct is dynamically calculated
 
 Another thing to consider when using dynamic structs is this. Dynamic offsets are cached for efficiency, as has been said above. However, this cache is a double-edged sword when you need to re-use the same buffer for different data. The cache, of course, knows nothing about that, so it will keep reporting the now-erroneous offsets.
 
-To combat that, be sure to reset the cache with ``std.resetDynamicLayout`` before re-using the same buffer with new data:
+To combat that, be sure to reset the cache with ``jnc.resetDynamicLayout`` before re-using the same buffer with new data:
 
 .. code-block:: jnc
 
 	memcpy (buffer, newData, newDataSize);
-	std.resetDynamicLayout (buffer);
+	jnc.resetDynamicLayout (buffer);
 
 	FileHdr	const* hdr = (FileHdr const*) buffer;
 

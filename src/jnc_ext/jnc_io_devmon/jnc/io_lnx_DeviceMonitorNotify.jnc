@@ -12,7 +12,7 @@
 namespace io {
 namespace lnx {
 
-//! \addtogroup devmon
+//! \addtogroup io-devmon
 //! @{
 
 //..............................................................................

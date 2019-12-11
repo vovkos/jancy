@@ -11,7 +11,7 @@
 
 namespace std {
 
-//! \addtogroup stdlib-misc
+//! \addtogroup std-misc
 //! @{
 
 //..............................................................................

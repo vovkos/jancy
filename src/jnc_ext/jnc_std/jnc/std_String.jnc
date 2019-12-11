@@ -11,10 +11,12 @@
 
 namespace std {
 
-//! \addtogroup container
+//! \addtogroup std-string
 //! @{
 
 //..............................................................................
+
+//! \import std_String.jnc
 
 class StringBuilder
 {

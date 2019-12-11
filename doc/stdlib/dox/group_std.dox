@@ -11,41 +11,59 @@
 
 /*!
 
-\defgroup stdlib
+\defgroup std
 
 	\title General Purpose Library
+	\grouporder 3
 
 	This section describes standard general-purpose classes and functions.
 
-\defgroup container
+\defgroup std-container
 
 	\title Containers & Collections
-	\ingroup stdlib
+	\ingroup std
+	\grouporder 1
 
 	\import std_Array.jnc
 	\import std_Buffer.jnc
 	\import std_List.jnc
 	\import std_HashTable.jnc
 	\import std_RbTree.jnc
+
+	This section describes types for holding structured collections of other
+	objects.
+
+\defgroup std-string
+
+	\title Strings
+	\ingroup std
+	\grouporder 2
+
 	\import std_String.jnc
 
-	This section describes types for holding structured collections of other objects.
-
-\defgroup error
-
-	\title Error Facilities
-	\ingroup stdlib
-
-	This section describes types and facilities for setting and retrieving error information.
-
-\defgroup stdlib-misc
-
-	\title Miscellaneous Facilities
-	\ingroup stdlib
-
-	This section describes miscellaneous types and facilities of ``namespace std``.
+	This section describes facilities for the efficient string handling.
 
 	\footnote f3
-		Note that this function uses ``C`` vararg calling convention (and actually maps directly to libc ``snprintf``). As such, it is **not safe**. It is recommended to use formatting literals instead.
+		Note that this function uses ``C`` vararg calling convention (and
+		actually maps directly to libc ``snprintf``). As such, it is **not
+		safe**. It is recommended to use formatting literals instead.
+
+\defgroup std-error
+
+	\title Error Facilities
+	\ingroup std
+	\grouporder 3
+
+	This section describes types and facilities for setting and retrieving
+	error information.
+
+\defgroup std-misc
+
+	\title Miscellaneous Facilities
+	\ingroup std
+	\grouporder 4
+
+	This section describes miscellaneous types and facilities of
+	``namespace	std``.
 
 */

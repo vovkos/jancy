@@ -11,7 +11,7 @@
 
 namespace sys {
 
-//! \addtogroup registry
+//! \addtogroup sys-registry
 //! @{
 
 //..............................................................................

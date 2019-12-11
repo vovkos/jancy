@@ -11,6 +11,9 @@
 
 namespace jnc {
 
+//! \addtogroup rtl-intro
+//! @{
+
 //..............................................................................
 
 bitflag enum FunctionTypeFlags
@@ -76,5 +79,7 @@ opaque class FunctionPtrType: Type
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace jnc

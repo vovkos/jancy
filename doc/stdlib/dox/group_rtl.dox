@@ -1,0 +1,64 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+/*!
+
+\defgroup rtl
+
+	\title RTL (Runtime Library)
+	\grouporder 2
+
+	This section describes built-in types and facilities that are integral part
+	of the Jancy language and constitute the RTL (runtime library) of the Jancy
+	compiler.
+
+\defgroup rtl-core
+
+	\title Core RTL
+	\ingroup rtl
+	\grouporder 1
+
+	This section describes the core RTL types and facilities.
+
+\defgroup rtl-gc
+
+	\title Garbage Collection
+	\ingroup rtl
+	\grouporder 2
+
+	This section describes facilities for GC (garbage collection).
+
+\defgroup rtl-async
+
+	\title Async-await
+	\ingroup rtl
+	\grouporder 3
+
+	This section describes facilities for the async-await paradigm.
+
+\defgroup rtl-regex
+
+	\title Regular Expressions
+	\ingroup rtl
+	\grouporder 4
+
+	This section describes facilities for the in-language regular expressions.
+
+\defgroup rtl-intro
+
+	\title Introspection
+	\ingroup rtl
+	\grouporder 5
+
+	This section describes facilities for the introspection (i.e., the
+	ability to inspect a program's structure during *runtime*).
+
+*/

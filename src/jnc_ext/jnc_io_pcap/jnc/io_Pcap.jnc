@@ -14,7 +14,7 @@ import "io_SocketAddress.jnc"
 
 namespace io {
 
-//! \addtogroup pcap
+//! \addtogroup io-pcap
 //! @{
 
 //..............................................................................
@@ -192,10 +192,6 @@ bitflag enum PcapEvents
 
 	\footnote f3
 
-		|footnote-sync-id|
-
-	\footnote f4
-
 		For detailed description of the syntax used in Pcap capture filter
 		expressions refer to: http://www.tcpdump.org/manpages/pcap-filter.7.html
 */
@@ -217,7 +213,7 @@ opaque class Pcap
 	size_t autoget property m_readBufferSize;
 
 	/**
-		Holds currently specified capture filter [#f4]_.
+		Holds currently specified capture filter [#f3]_.
 	*/
 
 	char const* readonly m_filter;
@@ -245,7 +241,7 @@ opaque class Pcap
 		available devices, use `io.createPcapDeviceDescList` function.
 
 		The second one, ``filter``, allows you to specify a capture filter
-		[#f4]_ which will be applied to incoming packets -- packets which do
+		[#f3]_ which will be applied to incoming packets -- packets which do
 		not pass the filter, will never be signalled via
 		`io.PcapEvents.IncomingData` event and could not be read by ``read``
 		method.
@@ -271,7 +267,7 @@ opaque class Pcap
 		argument.
 
 		The second argument, ``filter``, has the same meaning as in
-		``openDevice`` method [#f4]_.
+		``openDevice`` method [#f3]_.
 
 		Returns ``true`` on success. If capture file could not be opened,
 		function sets the error reported by Pcap and returns ``false`` [#f1]_.
