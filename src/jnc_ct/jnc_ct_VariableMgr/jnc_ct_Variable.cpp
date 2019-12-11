@@ -110,10 +110,10 @@ Variable::generateDocumentation(
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
-	if (m_storageKind == StorageKind_Static)
-		itemXml->append(" static='yes'");
-	else if (m_storageKind == StorageKind_Tls)
+	if (m_storageKind == StorageKind_Tls)
 		itemXml->append(" tls='yes'");
+	else if (m_storageKind == StorageKind_Static && m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Type)
+		itemXml->append(" static='yes'");
 
 	if (m_ptrTypeFlags & PtrTypeFlag_Const)
 		itemXml->append(" const='yes'");

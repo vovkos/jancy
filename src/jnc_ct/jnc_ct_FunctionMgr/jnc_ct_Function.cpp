@@ -277,7 +277,7 @@ Function::generateDocumentation(
 	if (m_accessKind != AccessKind_Public)
 		itemXml->appendFormat(" prot='%s'", getAccessKindString(m_accessKind));
 
-	if (m_storageKind == StorageKind_Static)
+	if (m_storageKind == StorageKind_Static && m_parentNamespace && m_parentNamespace->getNamespaceKind() == NamespaceKind_Type)
 		itemXml->append(" static='yes'");
 
 	if (isMember() && (m_thisArgTypeFlags & PtrTypeFlag_Const))
