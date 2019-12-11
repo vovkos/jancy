@@ -157,6 +157,18 @@ strengthenClassPtr(IfaceHdr* iface)
 	return jnc_strengthenClassPtr(iface);
 }
 
+void
+resetDynamicLayout(DataPtr ptr)
+{
+	if (!ptr.m_validator)
+		return;
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	gcHeap->resetDynamicLayout(ptr.m_validator->m_targetBox);
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 void
@@ -1325,7 +1337,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// thin -> safe data pointers
 
-	JNC_MAP_FUNCTION("jnc.createDataPtr",  createDataPtr)
+	JNC_MAP_FUNCTION("jnc.createDataPtr",      createDataPtr)
+	JNC_MAP_FUNCTION("jnc.resetDynamicLayout", resetDynamicLayout)
 	JNC_MAP_OVERLOAD(createDataPtr)
 
 	// multicasts

@@ -658,18 +658,6 @@ printf(
 	return g_printOutFunc(string.cp(), string.getLength());
 }
 
-void
-resetDynamicLayout(DataPtr ptr)
-{
-	if (!ptr.m_validator)
-		return;
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->resetDynamicLayout(ptr.m_validator->m_targetBox);
-}
-
 //..............................................................................
 
 } // namespace std
@@ -686,12 +674,11 @@ JNC_DEFINE_LIB(
 	)
 
 JNC_BEGIN_LIB_FUNCTION_MAP(jnc_StdLib)
-	JNC_MAP_FUNCTION("std.getLastError",       getLastError)
-	JNC_MAP_FUNCTION("std.setErrno",           setErrno)
-	JNC_MAP_FUNCTION("std.setError",           setError_0)
+	JNC_MAP_FUNCTION("std.getLastError", getLastError)
+	JNC_MAP_FUNCTION("std.setErrno",     setErrno)
+	JNC_MAP_FUNCTION("std.setError",     setError_0)
 	JNC_MAP_OVERLOAD(setError_1)
-	JNC_MAP_FUNCTION("std.format",             format)
-	JNC_MAP_FUNCTION("std.resetDynamicLayout", resetDynamicLayout)
+	JNC_MAP_FUNCTION("std.format",       format)
 
 	JNC_MAP_FUNCTION("strlen",   jnc::strLen)
 	JNC_MAP_FUNCTION("strcmp",   strCmp)
