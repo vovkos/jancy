@@ -100,7 +100,7 @@ int main()
 
 	// we will re-use the same buffer -- drop the dynamic layout cache
 
-	std.resetDynamicLayout(buffer);
+	jnc.resetDynamicLayout(buffer);
 
 	// you can also use dynamic structs for write-access
 	// in this case, be sure to set the fields from top to bottom
