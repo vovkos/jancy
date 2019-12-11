@@ -1338,8 +1338,8 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 	// thin -> safe data pointers
 
 	JNC_MAP_FUNCTION("jnc.createDataPtr",      createDataPtr)
-	JNC_MAP_FUNCTION("jnc.resetDynamicLayout", resetDynamicLayout)
 	JNC_MAP_OVERLOAD(createDataPtr)
+	JNC_MAP_FUNCTION("jnc.resetDynamicLayout", resetDynamicLayout)
 
 	// multicasts
 
