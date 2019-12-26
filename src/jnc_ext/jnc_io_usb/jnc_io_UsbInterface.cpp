@@ -61,9 +61,7 @@ UsbInterface::removeEndpoint(UsbEndpoint* endpoint)
 {
 	m_lock.lock();
 	sl::ListLink* link = UsbEndpoint::GetParentLink()(endpoint);
-	ASSERT((link->getPrev() == NULL) == (link->getNext() == NULL));
-
-	if (link->getNext())
+	if (link->getPrev() || link->getNext())
 	{
 		m_endpointList.remove(endpoint);
 		*link = sl::g_nullListLink;
