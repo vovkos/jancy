@@ -198,7 +198,15 @@ UsbEndpoint::cancelAllActiveTransfers()
 		m_transferPool.put(transfer);
 	}
 
-	m_lock.unlock();
+	if (isInEndpoint() || (m_activeEvents & UsbEndpointEvent_WriteCompleted))
+	{
+		m_lock.unlock();
+	}
+	else
+	{
+		m_activeEvents |= UsbEndpointEvent_WriteCompleted;
+		processWaitLists_l();
+	}
 }
 
 void
