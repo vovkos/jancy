@@ -142,7 +142,8 @@ UsbEndpoint::write(
 
 	m_lock.lock();
 
-	if (!m_writeBuffer.isEmpty() || !m_activeTransferList.isEmpty())
+	if (!(m_activeEvents & AsyncIoEvent_IoError) &&
+		(!m_writeBuffer.isEmpty() || !m_activeTransferList.isEmpty()))
 		m_activeEvents &= ~UsbEndpointEvent_WriteCompleted;
 
 	m_lock.unlock();
