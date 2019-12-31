@@ -489,7 +489,7 @@ opaque class SshChannel
 
 	SshEvents errorcode blockingWait(
 		SshEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

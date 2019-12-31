@@ -158,7 +158,7 @@ opaque class NamedPipe
 
 	NamedPipeEvents errorcode blockingWait(
 		NamedPipeEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

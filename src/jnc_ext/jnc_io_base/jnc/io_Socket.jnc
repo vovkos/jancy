@@ -463,7 +463,7 @@ opaque class Socket
 
 	SocketEvents errorcode blockingWait(
 		SocketEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

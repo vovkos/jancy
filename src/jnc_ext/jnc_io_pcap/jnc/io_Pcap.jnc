@@ -352,7 +352,7 @@ opaque class Pcap
 
 	PcapEvents errorcode blockingWait(
 		PcapEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

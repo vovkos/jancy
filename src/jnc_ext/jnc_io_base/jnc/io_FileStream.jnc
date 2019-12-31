@@ -395,7 +395,7 @@ opaque class FileStream
 
 	FileStreamEvents errorcode blockingWait(
 		FileStreamEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

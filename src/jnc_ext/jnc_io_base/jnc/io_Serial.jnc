@@ -605,7 +605,7 @@ opaque class Serial
 
 	SerialEvents errorcode blockingWait(
 		SerialEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

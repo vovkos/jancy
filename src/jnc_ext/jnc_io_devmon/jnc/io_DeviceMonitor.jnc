@@ -89,7 +89,7 @@ opaque class DeviceMonitor
 
 	DeviceMonitorEvents errorcode blockingWait(
 		DeviceMonitorEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 
