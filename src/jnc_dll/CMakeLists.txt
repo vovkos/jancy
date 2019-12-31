@@ -101,6 +101,7 @@ target_link_libraries(
 	jnc_rt
 	axl_zip
 	axl_fsm
+	axl_io_usb
 	axl_io
 	axl_lex
 	axl_dox

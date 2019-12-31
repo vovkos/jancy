@@ -132,6 +132,7 @@ target_link_libraries(
 	jnc_io_usb
 	jnc_io_cmn
 	jnc_api_ext
+	axl_io_usb
 	axl_io
 	axl_core
 	)
