@@ -338,6 +338,7 @@ NamedPipe::ioThreadFunc()
 				result = connect->m_pipe.overlappedConnect(&connect->m_overlapped);
 				if (!result)
 				{
+					m_overlappedIo->m_overlappedConnectPool.put(connect);
 					setIoErrorEvent();
 					return;
 				}

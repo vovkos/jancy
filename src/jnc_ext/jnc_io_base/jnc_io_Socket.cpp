@@ -602,6 +602,7 @@ Socket::sendRecvLoop(
 
 					if (!result)
 					{
+						m_overlappedIo->m_overlappedRecvPool.put(recv);
 						handleSendRecvError(isDatagram);
 						return;
 					}
@@ -624,6 +625,7 @@ Socket::sendRecvLoop(
 
 					if (!result)
 					{
+						m_overlappedIo->m_overlappedRecvPool.put(recv);
 						handleSendRecvError(isDatagram);
 						return;
 					}

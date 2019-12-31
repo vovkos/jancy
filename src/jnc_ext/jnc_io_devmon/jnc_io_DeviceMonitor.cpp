@@ -335,6 +335,7 @@ DeviceMonitor::ioThreadFunc()
 
 				if (!result)
 				{
+					m_overlappedIo->m_overlappedReadPool.put(read);
 					setIoErrorEvent();
 					return;
 				}
