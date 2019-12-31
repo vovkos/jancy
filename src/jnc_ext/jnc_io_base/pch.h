@@ -16,6 +16,7 @@
 #include "axl_io_NetworkAdapter.h"
 #include "axl_io_MappedFile.h"
 #include "axl_io_FilePathUtils.h"
+#include "axl_sys_Process.h"
 #include "axl_sys_Thread.h"
 #include "axl_sys_Event.h"
 #include "axl_sys_Time.h"
@@ -33,6 +34,7 @@
 
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_NamedPipe.h"
+#	include "axl_io_win_File.h"
 #elif (_AXL_OS_POSIX)
 #	include "axl_io_psx_Pipe.h"
 #endif

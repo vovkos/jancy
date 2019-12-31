@@ -22,6 +22,7 @@ set(
 	jnc_io_File.h
 	jnc_io_MappedFile.h
 	jnc_io_FileStream.h
+	jnc_io_ChildProcess.h
 	jnc_io_IoLib.h
 	)
 
@@ -34,6 +35,7 @@ set(
 	jnc_io_File.cpp
 	jnc_io_MappedFile.cpp
 	jnc_io_FileStream.cpp
+	jnc_io_ChildProcess.cpp
 	jnc_io_IoLib.cpp
 	)
 
@@ -76,6 +78,7 @@ set(
 	jnc/io_File.jnc
 	jnc/io_MappedFile.jnc
 	jnc/io_FileStream.jnc
+	jnc/io_ChildProcess.jnc
 	)
 
 if(WIN32)

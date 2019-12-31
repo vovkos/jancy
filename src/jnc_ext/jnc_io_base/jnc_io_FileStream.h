@@ -62,6 +62,7 @@ class FileStream:
 {
 	friend class IoThread;
 	friend class NamedPipe;
+	friend class ChildProcess;
 
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(FileStream)

@@ -20,6 +20,7 @@
 #include "jnc_io_SocketAddress.h"
 #include "jnc_io_SocketAddressResolver.h"
 #include "jnc_io_NetworkAdapter.h"
+#include "jnc_io_ChildProcess.h"
 
 #if (_JNC_OS_WIN)
 #	include "jnc_io_NamedPipe.h"
@@ -60,6 +61,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(IoLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Serial)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Socket)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SocketAddressResolver)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ChildProcess)
 #if (_JNC_OS_WIN)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedPipe)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Mailslot)
@@ -78,6 +80,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
 	JNC_MAP_TYPE(SocketAddress_ip6)
 	JNC_MAP_TYPE(SocketAddress)
 	JNC_MAP_TYPE(SocketAddressResolver)
+	JNC_MAP_TYPE(ChildProcess)
 #if (_JNC_OS_WIN)
 	JNC_MAP_TYPE(NamedPipe)
 	JNC_MAP_TYPE(Mailslot)

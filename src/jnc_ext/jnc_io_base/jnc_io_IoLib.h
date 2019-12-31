@@ -34,6 +34,7 @@ enum IoLibCacheSlot
 	IoLibCacheSlot_FileStream,
 	IoLibCacheSlot_NamedPipe,
 	IoLibCacheSlot_Mailslot,
+	IoLibCacheSlot_ChildProcess,
 };
 
 // {362FF8E2-1BDD-4319-AF8F-AD86C3917AC5}

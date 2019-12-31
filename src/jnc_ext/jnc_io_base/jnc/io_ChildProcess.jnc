@@ -1,0 +1,56 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_FileStream.jnc"
+
+namespace io {
+
+//! \addtogroup io-file
+//! @{
+
+//..............................................................................
+
+bitflag enum ChildProcessFlags
+{
+	MergeStdoutStderr,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class ChildProcess
+{
+	bool readonly m_isOpen;
+
+	FileStream m_stdin;
+	FileStream m_stdout;
+	FileStream m_stderr;
+
+	uint_t const property m_exitCode;
+
+	construct();
+	destruct();
+
+	bool errorcode start(
+		char const* commandLine,
+		ChildProcessFlags flags = 0
+		);
+
+	void close();
+	bool errorcode wait(uint_t timeout = -1);
+	void waitAndClose(uint_t timeout = -1);
+	bool errorcode terminate();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
