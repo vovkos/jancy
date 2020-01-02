@@ -18,27 +18,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
-	ChildProcess,
-	"io.ChildProcess",
-	g_ioLibGuid,
-	IoLibCacheSlot_ChildProcess,
-	ChildProcess,
-	NULL
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)
-	JNC_MAP_DESTRUCTOR(&jnc::destruct<ChildProcess>)
-	JNC_MAP_FUNCTION("start", &ChildProcess::start)
-	JNC_MAP_FUNCTION("close", &ChildProcess::close)
-	JNC_MAP_FUNCTION("wait", &ChildProcess::wait)
-	JNC_MAP_FUNCTION("waitAndClose", &ChildProcess::waitAndClose)
-	JNC_MAP_FUNCTION("terminate", &ChildProcess::terminate)
-JNC_END_TYPE_FUNCTION_MAP()
-
-//..............................................................................
-
+#if (_JNC_OS_WIN)
 bool
 createStdioPipe(
 	handle_t* readHandle,
@@ -49,7 +29,7 @@ createStdioPipe(
 {
 	static int32_t pipeId = 0;
 
-	char buffer[256];
+	char buffer[256];wait pid timeout
 	sl::String_w pipeName(ref::BufKind_Stack, buffer, sizeof(buffer));
 	pipeName.format(
 		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%d",
@@ -89,6 +69,68 @@ createStdioPipe(
 	*writeHandle = file.detach();
 	return true;
 }
+#else
+bool
+exec(const char* commandLine)
+{
+	char buffer[256];
+	sl::Array<char*> argv(ref::BufKind_Stack, buffer, sizeof(buffer));
+
+	sl::String string = commandLine;
+
+	size_t length = string.getLength();
+	for (;;)
+	{
+		string.trimLeft();
+		if (string.isEmpty())
+			break;
+
+		argv.append(string.p());
+
+		size_t pos = string.findOneOf(sl::StringDetails::getWhitespace());
+		if (pos == -1)
+			break;
+
+		string[pos] = 0;
+		string = string.getSubString(pos + 1);
+	}
+
+	if (argv.isEmpty())
+	{
+		err::setError("empty command line");
+		return false;
+	}
+
+	argv.append(NULL);
+	int result = ::execvp(argv[0], argv.p());
+	ASSERT(result == -1);
+	err::setLastSystemError();
+	return false;
+}
+#endif
+
+//..............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	ChildProcess,
+	"io.ChildProcess",
+	g_ioLibGuid,
+	IoLibCacheSlot_ChildProcess,
+	ChildProcess,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<ChildProcess>)
+	JNC_MAP_FUNCTION("start", &ChildProcess::start)
+	JNC_MAP_FUNCTION("close", &ChildProcess::close)
+	JNC_MAP_FUNCTION("wait", &ChildProcess::wait)
+	JNC_MAP_FUNCTION("waitAndClose", &ChildProcess::waitAndClose)
+	JNC_MAP_FUNCTION("terminate", &ChildProcess::terminate)
+JNC_END_TYPE_FUNCTION_MAP()
+
+//..............................................................................
 
 ChildProcess::ChildProcess()
 {
@@ -109,8 +151,12 @@ ChildProcess::start(
 	uint_t flags
 	)
 {
-	sl::String_w cmdLine = (char*)commandLinePtr.m_p;
+	close();
+
 	bool isMergedStdoutStderr = (flags & ChildProcessFlag_MergeStdoutStderr) != 0;
+
+#if (_JNC_OS_WIN)
+	sl::String_w cmdLine = (char*)commandLinePtr.m_p;
 
 	bool_t result;
 
@@ -144,6 +190,50 @@ ChildProcess::start(
 	attachFileStream(m_stdin, &parentStdin);
 	attachFileStream(m_stdout, &parentStdout);
 	attachFileStream(m_stderr, &parentStderr);
+#else
+	axl::io::psx::Pipe stdinPipe;
+	axl::io::psx::Pipe stdoutPipe;
+	axl::io::psx::Pipe stderrPipe;
+
+	bool result =
+		stdinPipe.create() &&
+		stdinPipe.m_writeFile.setBlockingMode(false) &&
+		stdoutPipe.create() &&
+		stdoutPipe.m_readFile.setBlockingMode(false) &&
+		(isMergedStdoutStderr ||
+		stderrPipe.create() &&
+		stderrPipe.m_readFile.setBlockingMode(false));
+
+	if (!result)
+		return false;
+
+	pid_t pid = ::fork();
+	switch (pid)
+	{
+	case -1:
+		err::setLastSystemError();
+		return false;
+
+	case 0:
+		::dup2(stdinPipe.m_readFile, STDIN_FILENO);
+		::dup2(stdoutPipe.m_writeFile, STDOUT_FILENO);
+		::dup2(isMergedStdoutStderr ? stdoutPipe.m_writeFile : stderrPipe.m_writeFile, STDERR_FILENO);
+
+		exec((char*)commandLinePtr.m_p);
+
+		::fprintf(stderr, "POSIX exec error: %s\n", err::getLastErrorDescription().sz());
+		::abort();
+		ASSERT(false);
+
+	default:
+		m_pid = pid;
+	}
+
+	attachFileStream(m_stdin, &stdinPipe.m_writeFile);
+	attachFileStream(m_stdout, &stdoutPipe.m_readFile);
+	attachFileStream(m_stderr, &stderrPipe.m_readFile);
+#endif
+
 	return true;
 }
 
@@ -154,16 +244,21 @@ ChildProcess::close()
 	m_stdin->close();
 	m_stdout->close();
 	m_stderr->close();
+#if (_JNC_OS_WIN)
 	m_process.close();
+#endif
 }
 
 uint_t
 JNC_CDECL
 ChildProcess::getExitCode()
 {
+#if (_JNC_OS_WIN)
 	dword_t exitCode = 0;
 	m_process.getExitCode(&exitCode);
 	return exitCode;
+#endif
+	return 0;
 }
 
 bool
@@ -190,7 +285,7 @@ ChildProcess::terminate()
 void
 ChildProcess::attachFileStream(
 	io::FileStream* fileStream,
-	axl::io::win::File* file
+	AxlOsFile* file
 	)
 {
 	fileStream->close();
@@ -205,8 +300,12 @@ ChildProcess::attachFileStream(
 	fileStream->setReadBufferSize(m_readBufferSize);
 	fileStream->setWriteBufferSize(m_writeBufferSize);
 	fileStream->setOptions(m_options); */
+#if (_JNC_OS_WIN)
+	ASSERT(!fileStream->m_overlappedIo);
 	fileStream->m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
-	fileStream->m_isOpen = true;
+#else
+#endif
+	fileStream->AsyncIoDevice::open();
 	fileStream->m_ioThread.start();
 }
 

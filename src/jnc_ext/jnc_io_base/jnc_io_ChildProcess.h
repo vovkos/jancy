@@ -40,7 +40,11 @@ public:
 	ClassBox<FileStream> m_stderr;
 
 protected:
+#if (_JNC_OS_WIN)
 	sys::win::Process m_process;
+#else
+	pid_t m_pid;
+#endif
 
 public:
 	ChildProcess();
@@ -74,10 +78,15 @@ public:
 	terminate();
 
 protected:
+#if (_JNC_OS_WIN)
+	typedef axl::io::win::File AxlOsFile;
+#else
+	typedef axl::io::psx::File AxlOsFile;
+#endif
 	void
 	attachFileStream(
 		io::FileStream* fileStream,
-		axl::io::win::File* file
+		AxlOsFile* file
 		);
 };
 
