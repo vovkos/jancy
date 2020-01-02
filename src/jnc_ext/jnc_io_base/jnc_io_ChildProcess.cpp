@@ -70,8 +70,8 @@ createStdioPipe(
 	return true;
 }
 #else
-bool
-exec(const char* commandLine)
+void
+exec(const char* commandLine) // returns on failure only
 {
 	char buffer[256];
 	sl::Array<char*> argv(ref::BufKind_Stack, buffer, sizeof(buffer));
@@ -98,14 +98,14 @@ exec(const char* commandLine)
 	if (argv.isEmpty())
 	{
 		err::setError("empty command line");
-		return false;
+		return;
 	}
 
 	argv.append(NULL);
+
 	int result = ::execvp(argv[0], argv.p());
 	ASSERT(result == -1);
 	err::setLastSystemError();
-	return false;
 }
 #endif
 
@@ -194,6 +194,7 @@ ChildProcess::start(
 	axl::io::psx::Pipe stdinPipe;
 	axl::io::psx::Pipe stdoutPipe;
 	axl::io::psx::Pipe stderrPipe;
+	axl::io::psx::Pipe execPipe;
 
 	bool result =
 		stdinPipe.create() &&
@@ -202,10 +203,15 @@ ChildProcess::start(
 		stdoutPipe.m_readFile.setBlockingMode(false) &&
 		(isMergedStdoutStderr ||
 		stderrPipe.create() &&
-		stderrPipe.m_readFile.setBlockingMode(false));
+		stderrPipe.m_readFile.setBlockingMode(false)) &&
+		execPipe.create();
 
 	if (!result)
 		return false;
+
+	execPipe.m_writeFile.fcntl(F_SETFD, FD_CLOEXEC);
+
+	err::Error error;
 
 	pid_t pid = ::fork();
 	switch (pid)
@@ -221,12 +227,34 @@ ChildProcess::start(
 
 		exec((char*)commandLinePtr.m_p);
 
-		::fprintf(stderr, "POSIX exec error: %s\n", err::getLastErrorDescription().sz());
-		::abort();
+		error = err::getLastError();
+		execPipe.m_writeFile.write(error, error->m_size);
+		execPipe.m_writeFile.flush();
+
+		::_exit(-1);
 		ASSERT(false);
 
 	default:
-		m_pid = pid;
+		execPipe.m_writeFile.close();
+
+		fd_set rdset;
+		FD_ZERO(&rdset);
+		FD_SET(execPipe.m_readFile, &rdset);
+
+		char buffer[256];
+		size_t size = execPipe.m_readFile.read(buffer, sizeof(buffer));
+		if (size == 0 || size == -1)
+		{
+			m_pid = pid;
+			break;
+		}
+
+		if (((err::ErrorHdr*)buffer)->m_size == size)
+			err::setError((err::ErrorHdr*)buffer);
+		else
+			err::setError("POSIX execvp failed"); // unlikely fallback
+
+		return false;
 	}
 
 	attachFileStream(m_stdin, &stdinPipe.m_writeFile);
@@ -303,7 +331,6 @@ ChildProcess::attachFileStream(
 #if (_JNC_OS_WIN)
 	ASSERT(!fileStream->m_overlappedIo);
 	fileStream->m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
-#else
 #endif
 	fileStream->AsyncIoDevice::open();
 	fileStream->m_ioThread.start();
