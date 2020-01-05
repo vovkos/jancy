@@ -193,7 +193,6 @@ NamedPipe::accept(bool isSuspended)
 
 	FileStream* fileStream = jnc::createClass<FileStream> (m_runtime);
 	fileStream->m_file.m_file.attach(h);
-	fileStream->m_fileStreamKind = FileStreamKind_Pipe;
 	fileStream->setReadParallelism(m_readParallelism);
 	fileStream->setReadBlockSize(m_readBlockSize);
 	fileStream->setReadBufferSize(m_readBufferSize);

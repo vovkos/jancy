@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(FileStream)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &FileStream::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &FileStream::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &FileStream::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_kind",              &FileStream::getKind)
 
 	JNC_MAP_FUNCTION("open",         &FileStream::open)
 	JNC_MAP_FUNCTION("close",        &FileStream::close)
@@ -52,7 +53,6 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 FileStream::FileStream()
 {
-	m_fileStreamKind = FileStreamKind_Unknown;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
@@ -67,6 +67,8 @@ FileStream::FileStream()
 #if (_AXL_OS_WIN)
 	m_overlappedIo = NULL;
 #endif
+
+	m_writeFile = &m_file;
 }
 
 bool
@@ -86,25 +88,7 @@ FileStream::open(
 
 #if (_JNC_OS_WIN)
 	dword_t type = ::GetFileType(m_file.m_file);
-	switch (type)
-	{
-	case FILE_TYPE_CHAR:
-		m_fileStreamKind = FileStreamKind_Serial;
-		break;
-
-	case FILE_TYPE_DISK:
-		m_fileStreamKind = FileStreamKind_Disk;
-		break;
-
-	case FILE_TYPE_PIPE:
-		m_fileStreamKind = FileStreamKind_Pipe;
-		break;
-
-	default:
-		m_fileStreamKind = FileStreamKind_Unknown;
-	};
-
-	if (m_fileStreamKind == FileStreamKind_Pipe)
+	if (type == FILE_TYPE_PIPE)
 	{
 		dword_t pipeMode = 0;
 		if (m_options & FileStreamOption_MessageNamedPipe)
@@ -268,7 +252,8 @@ FileStream::ioThreadFunc()
 	size_t waitCount = 2; // always 2 or 3
 
 	bool isWritingFile = false;
-	bool isDiskFile = ::GetFileType(m_file.m_file) == FILE_TYPE_DISK; // need to advance read/write offsets
+	bool isDiskFile = ::GetFileType(m_file.m_file) == FILE_TYPE_DISK; // need to advance read offsets
+	bool isDiskWriteFile = ::GetFileType(m_writeFile->m_file) == FILE_TYPE_DISK; // need to advance write offsets
 
 	m_ioThreadEvent.signal(); // do initial update of active events
 
@@ -327,7 +312,7 @@ FileStream::ioThreadFunc()
 			ASSERT(isWritingFile);
 
 			dword_t actualSize;
-			result = m_file.m_file.getOverlappedResult(&m_overlappedIo->m_writeOverlapped, &actualSize);
+			result = m_writeFile->m_file.getOverlappedResult(&m_overlappedIo->m_writeOverlapped, &actualSize);
 			if (!result)
 			{
 				setIoErrorEvent();
@@ -378,13 +363,13 @@ FileStream::ioThreadFunc()
 
 		if (!isWritingFile && !m_overlappedIo->m_writeBlock.isEmpty())
 		{
-			if (isDiskFile)
+			if (isDiskWriteFile)
 			{
 				m_overlappedIo->m_writeOverlapped.Offset = (uint32_t)writeOffset;
 				m_overlappedIo->m_writeOverlapped.OffsetHigh = (uint32_t)(writeOffset >> 32);
 			}
 
-			result = m_file.m_file.overlappedWrite(
+			result = m_writeFile->m_file.overlappedWrite(
 				m_overlappedIo->m_writeBlock,
 				m_overlappedIo->m_writeBlock.getCount(),
 				&m_overlappedIo->m_writeOverlapped
@@ -451,7 +436,8 @@ FileStream::ioThreadFunc()
 	ASSERT(m_file.isOpen());
 
 	int result;
-	int selectFd = AXL_MAX(m_file.m_file, m_ioThreadSelfPipe.m_readFile) + 1;
+	int maxFd = AXL_MAX(m_file.m_file, m_writeFile->m_file);
+	int selectFd = AXL_MAX(maxFd, m_ioThreadSelfPipe.m_readFile) + 1;
 
 	sl::Array<char> readBlock;
 	sl::Array<char> writeBlock;
@@ -477,7 +463,7 @@ FileStream::ioThreadFunc()
 			FD_SET(m_file.m_file, &readSet);
 
 		if (!canWriteFile && !isReadOnly)
-			FD_SET(m_file.m_file, &writeSet);
+			FD_SET(m_writeFile->m_file, &writeSet);
 
 		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
 		if (result == -1)
@@ -492,7 +478,7 @@ FileStream::ioThreadFunc()
 		if (FD_ISSET(m_file.m_file, &readSet))
 			canReadFile = true;
 
-		if (FD_ISSET(m_file.m_file, &writeSet))
+		if (FD_ISSET(m_writeFile->m_file, &writeSet))
 			canWriteFile = true;
 
 		m_lock.lock();
@@ -546,7 +532,7 @@ FileStream::ioThreadFunc()
 				break;
 
 			size_t blockSize = writeBlock.getCount();
-			ssize_t actualSize = ::write(m_file.m_file, writeBlock, blockSize);
+			ssize_t actualSize = ::write(m_writeFile->m_file, writeBlock, blockSize);
 			if (actualSize == -1)
 			{
 				if (errno == EAGAIN)

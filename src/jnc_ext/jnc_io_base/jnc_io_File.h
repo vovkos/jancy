@@ -18,23 +18,38 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(File)
 
 //..............................................................................
 
+enum FileKind
+{
+	FileKind_Unknown,
+	FileKind_Disk,
+	FileKind_Serial,
+	FileKind_Pipe,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+FileKind
+getFileKind(const axl::io::File& file);
+
+//..............................................................................
+
 class File: public IfaceHdr
 {
 	friend class IoThread;
 
-protected:
+public:
 	bool m_isOpen;
 
 protected:
-	Runtime* m_runtime;
 	axl::io::File m_file;
 
 public:
-	File();
-
-	void
+	FileKind
 	JNC_CDECL
-	setDynamicViewLimit(size_t limit);
+	getKind()
+	{
+		return getFileKind(m_file);
+	}
 
 	uint64_t
 	JNC_CDECL
@@ -69,17 +84,11 @@ public:
 	open(
 		DataPtr namePtr,
 		uint_t flags
-		)
-	{
-		return m_file.open((const char*) namePtr.m_p, flags);
-	}
+		);
 
 	void
 	JNC_CDECL
-	close()
-	{
-		m_file.close();
-	}
+	close();
 
 	size_t
 	JNC_CDECL

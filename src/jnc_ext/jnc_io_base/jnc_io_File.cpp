@@ -30,6 +30,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(File)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<File>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<File>)
+	JNC_MAP_CONST_PROPERTY("m_kind", &File::getKind)
 	JNC_MAP_CONST_PROPERTY("m_size", &File::getSize)
 	JNC_MAP_PROPERTY("m_position", &File::getPosition, &File::setPosition)
 	JNC_MAP_FUNCTION("open",  &File::open)
@@ -42,9 +43,52 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-File::File()
+FileKind
+getFileKind(const axl::io::File& file)
 {
-	m_runtime = getCurrentThreadRuntime();
+	if (!file.isOpen())
+		return FileKind_Unknown;
+
+#if (_JNC_OS_WIN)
+	FileKind fileKindTable[] =
+	{
+		FileKind_Unknown, // FILE_TYPE_UNKNOWN   (0x0000)
+		FileKind_Disk,    // FILE_TYPE_DISK      (0x0001)
+		FileKind_Unknown, // FILE_TYPE_CHAR      (0x0002)
+		FileKind_Unknown, // FILE_TYPE_PIPE      (0x0003)
+	};
+
+	dword_t type = file.m_file.getType();
+	return type < countof(fileKindTable) ? fileKindTable[type] : FileKind_Unknown;
+#else
+	return FileKind_Unknown;
+#endif
+}
+
+//..............................................................................
+
+bool
+JNC_CDECL
+File::open(
+	DataPtr namePtr,
+	uint_t flags
+	)
+{
+	close();
+
+	bool result = m_file.open((const char*) namePtr.m_p, flags);
+	if (!result)
+		return false;
+
+	m_isOpen = true;
+	return true;
+}
+
+void
+JNC_CDECL
+File::close()
+{
+	m_file.close();
 	m_isOpen = false;
 }
 

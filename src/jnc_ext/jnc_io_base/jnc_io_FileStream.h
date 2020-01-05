@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_io_AsyncIoDevice.h"
+#include "jnc_io_File.h"
 
 namespace jnc {
 namespace io {
@@ -19,16 +20,6 @@ namespace io {
 JNC_DECLARE_OPAQUE_CLASS_TYPE(FileStream)
 
 //..............................................................................
-
-enum FileStreamKind
-{
-	FileStreamKind_Unknown,
-	FileStreamKind_Disk,
-	FileStreamKind_Serial,
-	FileStreamKind_Pipe,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum FileStreamOption
 {
@@ -46,8 +37,7 @@ enum FileStreamEvent
 
 struct FileStreamHdr: IfaceHdr
 {
-	FileStreamKind m_fileStreamKind;
-
+	IfaceHdr* m_reserved;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -107,6 +97,7 @@ protected:
 
 protected:
 	axl::io::File m_file;
+	axl::io::File* m_writeFile; // normally points to m_file
 	uint_t m_openFlags;
 	IoThread m_ioThread;
 
@@ -160,6 +151,13 @@ public:
 	bool
 	JNC_CDECL
 	setOptions(uint_t options);
+
+	FileKind
+	JNC_CDECL
+	getKind()
+	{
+		return getFileKind(m_file);
+	}
 
 	bool
 	JNC_CDECL

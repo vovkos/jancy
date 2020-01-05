@@ -20,6 +20,60 @@ namespace io {
 	\import io_base.jncx
 	\import io_File.jnc
 
+	\brief This enumeration contains all possible values for the underlying type
+	of `io.File` or `io.FileStream` object.
+*/
+
+enum FileKind
+{
+	//! Denotes undefined (or generic) file stream.
+
+	Unknown,
+
+	//! The file stream represents a disk file.
+
+	Disk,
+
+	//! The file stream represents a serial port.
+
+	Serial,
+
+	//! The file stream represents a pipe (named/anonymous) or a socket.
+
+	Pipe,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+
+	Returns string representation of the ``kind`` argument. In case ``kind``
+	does not correspond to any known file stream kind(e.g. you have casted a
+	random integer number to `io.FileKind` enumeration type), string
+	``unknown device`` is returned.
+*/
+
+char const* getFileStreamKindString(FileStreamKind kind)
+{
+	static char const* stringTable[] =
+	{
+		"unknown device", // FileStreamKind.Unknown,
+		"disk file",      // FileStreamKind.Disk,
+		"serial device",  // FileStreamKind.Serial,
+		"pipe",           // FileStreamKind.Pipe,
+	}
+
+	return kind < countof(stringTable) ?
+		stringTable[kind] :
+		stringTable[0];
+}
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_File.jnc
+
 	\brief This enumeration specifies available options for opening `io.File`,
 	`io.FileStream` or `io.MappedFile`.
 
@@ -152,6 +206,8 @@ opaque class File
 	*/
 
 	bool readonly m_isOpen;
+
+	FileKind const property m_kind;
 
 	/**
 		This property is used for getting and setting file size.
