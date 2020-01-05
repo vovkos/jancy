@@ -18,6 +18,37 @@ namespace io {
 
 //..............................................................................
 
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	ChildProcess,
+	"io.ChildProcess",
+	g_ioLibGuid,
+	IoLibCacheSlot_ChildProcess,
+	ChildProcess,
+	&ChildProcess::markOpaqueGcRoots
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<ChildProcess>)
+
+	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &ChildProcess::setReadParallelism)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &ChildProcess::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &ChildProcess::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &ChildProcess::setWriteBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_options",         &ChildProcess::setOptions)
+
+	JNC_MAP_FUNCTION("start",        &ChildProcess::start)
+	JNC_MAP_FUNCTION("terminate",    &ChildProcess::terminate)
+	JNC_MAP_FUNCTION("close",        &ChildProcess::close)
+	JNC_MAP_FUNCTION("read",         &ChildProcess::read)
+	JNC_MAP_FUNCTION("write",        &ChildProcess::write)
+	JNC_MAP_FUNCTION("wait",         &ChildProcess::wait)
+	JNC_MAP_FUNCTION("cancelWait",   &ChildProcess::cancelWait)
+	JNC_MAP_FUNCTION("blockingWait", &ChildProcess::blockingWait)
+JNC_END_TYPE_FUNCTION_MAP()
+
+//..............................................................................
+
 #if (_JNC_OS_WIN)
 bool
 createStdioPipe(
@@ -29,7 +60,7 @@ createStdioPipe(
 {
 	static int32_t pipeId = 0;
 
-	char buffer[256];wait pid timeout
+	char buffer[256];
 	sl::String_w pipeName(ref::BufKind_Stack, buffer, sizeof(buffer));
 	pipeName.format(
 		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%d",
@@ -111,37 +142,10 @@ exec(const char* commandLine) // returns on failure only
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
-	ChildProcess,
-	"io.ChildProcess",
-	g_ioLibGuid,
-	IoLibCacheSlot_ChildProcess,
-	ChildProcess,
-	NULL
-	)
-
-JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<ChildProcess>)
-	JNC_MAP_DESTRUCTOR(&jnc::destruct<ChildProcess>)
-	JNC_MAP_FUNCTION("start", &ChildProcess::start)
-	JNC_MAP_FUNCTION("close", &ChildProcess::close)
-	JNC_MAP_FUNCTION("wait", &ChildProcess::wait)
-	JNC_MAP_FUNCTION("waitAndClose", &ChildProcess::waitAndClose)
-	JNC_MAP_FUNCTION("terminate", &ChildProcess::terminate)
-JNC_END_TYPE_FUNCTION_MAP()
-
-//..............................................................................
-
-ChildProcess::ChildProcess()
+ChildProcess::ChildProcess():
+	m_stderr((FileStream*&)m_reserved)
 {
-	jnc::construct<FileStream>(m_stdin);
-	jnc::construct<FileStream>(m_stdout);
-	jnc::construct<FileStream>(m_stderr);
-}
-
-ChildProcess::~ChildProcess()
-{
-	close();
+	m_writeFile = &m_stdin;
 }
 
 bool
@@ -153,7 +157,7 @@ ChildProcess::start(
 {
 	close();
 
-	bool isMergedStdoutStderr = (flags & ChildProcessFlag_MergeStdoutStderr) != 0;
+	bool isSeparateStderr = (flags & ChildProcessFlag_SeparateStderr) != 0;
 
 #if (_JNC_OS_WIN)
 	sl::String_w cmdLine = (char*)commandLinePtr.m_p;
@@ -170,7 +174,7 @@ ChildProcess::start(
 	result =
 		createStdioPipe(childStdin.p(), parentStdin.p(), 0, FILE_FLAG_OVERLAPPED) &&
 		createStdioPipe(parentStdout.p(), childStdout.p(), FILE_FLAG_OVERLAPPED, 0) &&
-		(isMergedStdoutStderr || createStdioPipe(parentStderr.p(), childStderr.p(), FILE_FLAG_OVERLAPPED, 0));
+		(!isSeparateStderr || createStdioPipe(parentStderr.p(), childStderr.p(), FILE_FLAG_OVERLAPPED, 0));
 
 	if (!result)
 		return false;
@@ -180,16 +184,21 @@ ChildProcess::start(
 	startupInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
 	startupInfo.hStdInput = childStdin;
 	startupInfo.hStdOutput = childStdout;
-	startupInfo.hStdError = isMergedStdoutStderr ? childStdout : childStderr;
+	startupInfo.hStdError = isSeparateStderr ? childStderr : childStdout;
 	startupInfo.wShowWindow = SW_HIDE;
 
 	result = m_process.createProcess(cmdLine, true, CREATE_NEW_CONSOLE, &startupInfo);
 	if (!result)
 		return false;
 
-	attachFileStream(m_stdin, &parentStdin);
-	attachFileStream(m_stdout, &parentStdout);
-	attachFileStream(m_stderr, &parentStderr);
+	m_stdin.m_file.attach(parentStdin.detach());
+	m_file.m_file.attach(parentStdout.detach());
+
+	ASSERT(!m_overlappedIo);
+	m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
+
+	if (isSeparateStderr)
+		m_stderr = createFileStream(&parentStderr);
 #else
 	axl::io::psx::Pipe stdinPipe;
 	axl::io::psx::Pipe stdoutPipe;
@@ -257,11 +266,15 @@ ChildProcess::start(
 		return false;
 	}
 
-	attachFileStream(m_stdin, &stdinPipe.m_writeFile);
-	attachFileStream(m_stdout, &stdoutPipe.m_readFile);
-	attachFileStream(m_stderr, &stderrPipe.m_readFile);
+	m_stdin.m_file.attach(stdinPipe.m_writeFile.detach());
+	m_file.m_file.attach(stdoutPipe.m_readFile.detach());
+
+	if (isSeparateStderr)
+		m_reserved = createFileStream(&stderrPipe.m_readFile);
 #endif
 
+	AsyncIoDevice::open();
+	m_ioThread.start();
 	return true;
 }
 
@@ -269,11 +282,18 @@ void
 JNC_CDECL
 ChildProcess::close()
 {
-	m_stdin->close();
-	m_stdout->close();
-	m_stderr->close();
+	FileStream::close();
+	m_stdin.close();
+
+	if (m_reserved)
+	{
+		((FileStream*)m_reserved)->close();
+		m_reserved = NULL;
+	}
+
 #if (_JNC_OS_WIN)
 	m_process.close();
+#else
 #endif
 }
 
@@ -285,22 +305,9 @@ ChildProcess::getExitCode()
 	dword_t exitCode = 0;
 	m_process.getExitCode(&exitCode);
 	return exitCode;
-#endif
+#else
 	return 0;
-}
-
-bool
-JNC_CDECL
-ChildProcess::wait(uint_t timeout)
-{
-	return true;
-}
-
-void
-JNC_CDECL
-ChildProcess::waitAndClose(uint_t timeout)
-{
-	close();
+#endif
 }
 
 bool
@@ -310,30 +317,25 @@ ChildProcess::terminate()
 	return true;
 }
 
-void
-ChildProcess::attachFileStream(
-	io::FileStream* fileStream,
-	AxlOsFile* file
-	)
+FileStream*
+ChildProcess::createFileStream(AxlOsFile* file)
 {
-	fileStream->close();
-
-	if (!file->isOpen())
-		return;
-
+	FileStream* fileStream = jnc::createClass<FileStream> (m_runtime);
 	fileStream->m_file.m_file.attach(file->detach());
-	fileStream->m_fileStreamKind = FileStreamKind_Pipe;
-/*	fileStream->setReadParallelism(m_readParallelism);
+	fileStream->setReadParallelism(m_readParallelism);
 	fileStream->setReadBlockSize(m_readBlockSize);
 	fileStream->setReadBufferSize(m_readBufferSize);
 	fileStream->setWriteBufferSize(m_writeBufferSize);
-	fileStream->setOptions(m_options); */
+	fileStream->setOptions(m_options);
+
 #if (_JNC_OS_WIN)
 	ASSERT(!fileStream->m_overlappedIo);
 	fileStream->m_overlappedIo = AXL_MEM_NEW(FileStream::OverlappedIo);
 #endif
+
 	fileStream->AsyncIoDevice::open();
 	fileStream->m_ioThread.start();
+	return fileStream;
 }
 
 //..............................................................................

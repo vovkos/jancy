@@ -18,20 +18,77 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum ChildProcessFlags
+bitflag enum ChildProcessOptions
 {
-	MergeStdoutStderr,
+	KeepReadBlockSize,
+	KeepWriteBlockSize,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum ChildProcessStartFlags
+{
+	SeparateStderr,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum ChildProcessEvents
+{
+	/**
+		An IO error occured on the file stream; detailed information about the
+		error is available at `io.FileStream.m_ioError`.
+	*/
+
+	IoError,
+
+	/**
+		More data is available on the file stream; this data could be fetched
+		with `io.FileStream.read` method.
+	*/
+
+	IncomingData,
+
+	/**
+		File stream receive buffer is full; upcoming data may be dropped
+		(depending on the underlying device represented by the file).
+	*/
+
+	ReadBufferFull,
+
+	/**
+		File stream transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
+		File stream transmit buffer is ready to accept more data; it's OK to
+		issue more `io.FileStream.write` requests.
+	*/
+
+	WriteBufferReady = WriteBufferEmpty,
+
+	ProcessFinished,
+	ProcessCrashed,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class ChildProcess
 {
-	bool readonly m_isOpen;
+	FileStream* m_stderr;
 
-	FileStream m_stdin;
-	FileStream m_stdout;
-	FileStream m_stderr;
+	uint_t autoget property m_readParallelism;
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	ChildProcessOptions autoget property m_options;
+	ChildProcessEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	bool readonly m_isOpen;
 
 	uint_t const property m_exitCode;
 
@@ -40,13 +97,33 @@ opaque class ChildProcess
 
 	bool errorcode start(
 		char const* commandLine,
-		ChildProcessFlags flags = 0
+		ChildProcessStartFlags flags = 0
 		);
 
-	void close();
-	bool errorcode wait(uint_t timeout = -1);
-	void waitAndClose(uint_t timeout = -1);
 	bool errorcode terminate();
+	void close();
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+		);
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+		);
+
+	intptr errorcode wait(
+		ChildProcessEvents eventMask,
+		function* handler(ChildProcessEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait(intptr handle);
+
+	ChildProcessEvents errorcode blockingWait(
+		ChildProcessEvents eventMask,
+		uint_t timeout = -1
+		);
 }
 
 //..............................................................................

@@ -22,24 +22,28 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ChildProcess)
 
 enum ChildProcessFlag
 {
-	ChildProcessFlag_MergeStdoutStderr = 0x01
+	ChildProcessFlag_SeparateStderr = 0x01
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class ChildProcess: IfaceHdr
+enum ChildProcessEvent
+{
+	ChildProcessEvent_Finished = 0x0010,
+	ChildProcessEvent_Crashed  = 0x0020,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+class ChildProcess: public FileStream
 {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(ChildProcess)
 
-public:
-	bool m_isOpen;
-
-	ClassBox<FileStream> m_stdin;
-	ClassBox<FileStream> m_stdout;
-	ClassBox<FileStream> m_stderr;
-
 protected:
+	axl::io::File m_stdin;
+	FileStream*& m_stderr;
+
 #if (_JNC_OS_WIN)
 	sys::win::Process m_process;
 #else
@@ -48,7 +52,11 @@ protected:
 
 public:
 	ChildProcess();
-	~ChildProcess();
+
+	~ChildProcess()
+	{
+		close();
+	}
 
 	uint_t
 	JNC_CDECL
@@ -61,21 +69,13 @@ public:
 		uint_t flags
 		);
 
-	void
-	JNC_CDECL
-	close();
-
-	bool
-	JNC_CDECL
-	wait(uint_t timeout);
-
-	void
-	JNC_CDECL
-	waitAndClose(uint_t timeout);
-
 	bool
 	JNC_CDECL
 	terminate();
+
+	void
+	JNC_CDECL
+	close();
 
 protected:
 #if (_JNC_OS_WIN)
@@ -83,11 +83,8 @@ protected:
 #else
 	typedef axl::io::psx::File AxlOsFile;
 #endif
-	void
-	attachFileStream(
-		io::FileStream* fileStream,
-		AxlOsFile* file
-		);
+	FileStream*
+	createFileStream(AxlOsFile* file);
 };
 
 //..............................................................................
