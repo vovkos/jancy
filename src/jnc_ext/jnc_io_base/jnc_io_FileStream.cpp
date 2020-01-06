@@ -437,7 +437,7 @@ FileStream::ioThreadFunc()
 
 	int result;
 	int maxFd = AXL_MAX(m_file.m_file, m_writeFile->m_file);
-	int selectFd = AXL_MAX(maxFd, m_ioThreadSelfPipe.m_readFile) + 1;
+	int selectFd = AXL_MAX(maxFd, (int)m_ioThreadSelfPipe.m_readFile) + 1;
 
 	sl::Array<char> readBlock;
 	sl::Array<char> writeBlock;
