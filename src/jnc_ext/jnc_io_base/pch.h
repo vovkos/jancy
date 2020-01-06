@@ -54,4 +54,5 @@ using namespace axl;
 #	include <netdb.h>
 #	include <net/if.h>
 #	include <netinet/tcp.h>
+#	include <sys/wait.h>
 #endif

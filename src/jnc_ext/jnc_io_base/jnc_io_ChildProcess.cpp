@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &ChildProcess::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &ChildProcess::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &ChildProcess::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_exitCode",          &ChildProcess::getExitCode)
 
 	JNC_MAP_FUNCTION("start",        &ChildProcess::start)
 	JNC_MAP_FUNCTION("terminate",    &ChildProcess::terminate)
@@ -210,7 +211,7 @@ ChildProcess::start(
 		stdinPipe.m_writeFile.setBlockingMode(false) &&
 		stdoutPipe.create() &&
 		stdoutPipe.m_readFile.setBlockingMode(false) &&
-		(isMergedStdoutStderr ||
+		(!isSeparateStderr ||
 		stderrPipe.create() &&
 		stderrPipe.m_readFile.setBlockingMode(false)) &&
 		execPipe.create();
@@ -232,7 +233,7 @@ ChildProcess::start(
 	case 0:
 		::dup2(stdinPipe.m_readFile, STDIN_FILENO);
 		::dup2(stdoutPipe.m_writeFile, STDOUT_FILENO);
-		::dup2(isMergedStdoutStderr ? stdoutPipe.m_writeFile : stderrPipe.m_writeFile, STDERR_FILENO);
+		::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
 
 		exec((char*)commandLinePtr.m_p);
 
@@ -301,12 +302,23 @@ uint_t
 JNC_CDECL
 ChildProcess::getExitCode()
 {
+	m_lock.lock();
+	if (!(m_activeEvents & ChildProcessEvent_Finished))
+	{
+		m_lock.unlock();
+		return 0;
+	}
+
+	m_lock.unlock();
+
 #if (_JNC_OS_WIN)
 	dword_t exitCode = 0;
 	m_process.getExitCode(&exitCode);
 	return exitCode;
 #else
-	return 0;
+	int status;
+	::waitpid(m_pid, &status, 0);
+	return WEXITSTATUS(status);
 #endif
 }
 
