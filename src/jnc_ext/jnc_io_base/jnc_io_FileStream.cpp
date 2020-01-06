@@ -51,6 +51,17 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+void
+FileStream::IoThread::threadFunc()
+{
+	FileStream* self = containerof(this, FileStream, m_ioThread);
+
+	self->ioThreadFunc();
+
+	if (self->m_finalizeIoThreadFunc)
+		self->m_finalizeIoThreadFunc(self);
+}
+
 FileStream::FileStream()
 {
 	m_readParallelism = Def_ReadParallelism;
@@ -62,13 +73,13 @@ FileStream::FileStream()
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
 
+	m_writeFile = &m_file;
+	m_finalizeIoThreadFunc = NULL;
 	m_openFlags = 0;
 
 #if (_AXL_OS_WIN)
 	m_overlappedIo = NULL;
 #endif
-
-	m_writeFile = &m_file;
 }
 
 bool
@@ -279,12 +290,7 @@ FileStream::ioThreadFunc()
 			result = m_file.m_file.getOverlappedResult(&read->m_overlapped, &actualSize);
 			if (!result)
 			{
-				err::Error error = err::getLastError();
-				if (error->m_code == ERROR_HANDLE_EOF)
-					setEvents(FileStreamEvent_Eof);
-				else
-					setIoErrorEvent();
-
+				handleIoError(&m_file);
 				return;
 			}
 
@@ -315,7 +321,7 @@ FileStream::ioThreadFunc()
 			result = m_writeFile->m_file.getOverlappedResult(&m_overlappedIo->m_writeOverlapped, &actualSize);
 			if (!result)
 			{
-				setIoErrorEvent();
+				handleIoError(m_writeFile);
 				return;
 			}
 
@@ -377,7 +383,7 @@ FileStream::ioThreadFunc()
 
 			if (!result)
 			{
-				setIoErrorEvent();
+				handleIoError(m_writeFile);
 				break;
 			}
 
@@ -405,7 +411,7 @@ FileStream::ioThreadFunc()
 				if (!result)
 				{
 					m_overlappedIo->m_overlappedReadPool.put(read);
-					setIoErrorEvent();
+					handleIoError(&m_file);
 					return;
 				}
 
@@ -426,6 +432,18 @@ FileStream::ioThreadFunc()
 			waitCount = 3;
 		}
 	}
+}
+
+void
+FileStream::handleIoError(axl::io::File* file)
+{
+	err::Error error = err::getLastError();
+
+	if (error->m_code == ERROR_HANDLE_EOF ||
+		error->m_code == ERROR_BROKEN_PIPE && file->m_file.getType() == FILE_TYPE_PIPE)
+		setEvents(FileStreamEvent_Eof);
+	else
+		setIoErrorEvent();
 }
 
 #elif (_JNC_OS_POSIX)

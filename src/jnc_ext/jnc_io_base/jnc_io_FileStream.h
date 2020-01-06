@@ -71,10 +71,7 @@ protected:
 	{
 	public:
 		void
-		threadFunc()
-		{
-			containerof(this, FileStream, m_ioThread)->ioThreadFunc();
-		}
+		threadFunc();
 	};
 
 #if (_AXL_OS_WIN)
@@ -95,11 +92,16 @@ protected:
 	};
 #endif
 
+	typedef
+	void
+	FinalizeIoThreadFunc(FileStream* self);
+
 protected:
 	axl::io::File m_file;
 	axl::io::File* m_writeFile; // normally points to m_file
 	uint_t m_openFlags;
 	IoThread m_ioThread;
+	FinalizeIoThreadFunc* m_finalizeIoThreadFunc;
 
 #if (_AXL_OS_WIN)
 	OverlappedIo* m_overlappedIo;
@@ -225,6 +227,11 @@ public:
 protected:
 	void
 	ioThreadFunc();
+
+#if (_JNC_OS_WIN)
+	void
+	handleIoError(axl::io::File* file);
+#endif
 };
 
 //..............................................................................
