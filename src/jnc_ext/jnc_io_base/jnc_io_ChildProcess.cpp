@@ -147,6 +147,7 @@ ChildProcess::ChildProcess():
 	m_stderr((FileStream*&)m_reserved)
 {
 	m_writeFile = &m_stdin;
+	m_finalizeIoThreadFunc = finalizeIoThread;
 }
 
 bool
@@ -188,7 +189,7 @@ ChildProcess::start(
 	startupInfo.hStdError = isSeparateStderr ? childStderr : childStdout;
 	startupInfo.wShowWindow = SW_HIDE;
 
-	result = m_process.createProcess(cmdLine, true, CREATE_NEW_CONSOLE, &startupInfo);
+	result = m_process.create(cmdLine, true, CREATE_NEW_CONSOLE, &startupInfo);
 	if (!result)
 		return false;
 
@@ -296,6 +297,8 @@ ChildProcess::close()
 	m_process.close();
 #else
 #endif
+
+	m_exitCode = 0;
 }
 
 uint_t
@@ -309,24 +312,21 @@ ChildProcess::getExitCode()
 		return 0;
 	}
 
+	uint_t exitCode = m_exitCode;
 	m_lock.unlock();
-
-#if (_JNC_OS_WIN)
-	dword_t exitCode = 0;
-	m_process.getExitCode(&exitCode);
 	return exitCode;
-#else
-	int status;
-	::waitpid(m_pid, &status, 0);
-	return WEXITSTATUS(status);
-#endif
 }
 
 bool
 JNC_CDECL
 ChildProcess::terminate()
 {
-	return true;
+#if (_JNC_OS_WIN)
+	return m_process.terminate(STATUS_CONTROL_C_EXIT);
+#else
+	int result = ::kill(m_pid, SIGKILL);
+	return err::complete(result == 0);
+#endif
 }
 
 FileStream*
@@ -348,6 +348,32 @@ ChildProcess::createFileStream(AxlOsFile* file)
 	fileStream->AsyncIoDevice::open();
 	fileStream->m_ioThread.start();
 	return fileStream;
+}
+
+void
+ChildProcess::finalizeIoThreadImpl()
+{
+	uint_t exitCode;
+	bool isCrashed;
+
+#if (_JNC_OS_WIN)
+	m_process.wait();
+	m_process.getExitCode((dword_t*)&exitCode);
+	isCrashed = exitCode >= 0xc0000000 && exitCode < 0xd0000000;
+#else
+	int status;
+	::waitpid(m_pid, &status, 0);
+	exitCode = WEXITSTATUS(status);
+	isCrashed = WISSIGNALLED(status);
+#endif
+
+	m_lock.lock();
+	m_exitCode = exitCode;
+
+	setEvents_l(isCrashed ?
+		ChildProcessEvent_Finished | ChildProcessEvent_Crashed :
+		ChildProcessEvent_Finished
+		);
 }
 
 //..............................................................................

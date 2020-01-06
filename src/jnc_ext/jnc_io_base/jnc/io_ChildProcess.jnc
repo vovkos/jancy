@@ -69,6 +69,12 @@ bitflag enum ChildProcessEvents
 
 	WriteBufferReady = WriteBufferEmpty,
 
+	/**
+		End-of-file was reached on the ``stdin`` stream.
+	*/
+
+	Eof,
+
 	ProcessFinished,
 	ProcessCrashed,
 }

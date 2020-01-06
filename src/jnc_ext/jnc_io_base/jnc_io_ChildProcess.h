@@ -29,8 +29,8 @@ enum ChildProcessFlag
 
 enum ChildProcessEvent
 {
-	ChildProcessEvent_Finished = 0x0010,
-	ChildProcessEvent_Crashed  = 0x0020,
+	ChildProcessEvent_Finished = 0x0020,
+	ChildProcessEvent_Crashed  = 0x0040,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -49,6 +49,8 @@ protected:
 #else
 	pid_t m_pid;
 #endif
+
+	uint_t m_exitCode;
 
 public:
 	ChildProcess();
@@ -85,6 +87,16 @@ protected:
 #endif
 	FileStream*
 	createFileStream(AxlOsFile* file);
+
+	static
+	void
+	finalizeIoThread(FileStream* self)
+	{
+		((ChildProcess*)self)->finalizeIoThreadImpl();
+	}
+
+	void
+	finalizeIoThreadImpl();
 };
 
 //..............................................................................
