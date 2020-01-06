@@ -50,7 +50,7 @@ getFileKind(const axl::io::File& file)
 		return FileKind_Unknown;
 
 #if (_JNC_OS_WIN)
-	FileKind fileKindTable[] =
+	static FileKind fileKindTable[] =
 	{
 		FileKind_Unknown, // FILE_TYPE_UNKNOWN   (0x0000)
 		FileKind_Disk,    // FILE_TYPE_DISK      (0x0001)
@@ -61,7 +61,15 @@ getFileKind(const axl::io::File& file)
 	dword_t type = file.m_file.getType();
 	return type < countof(fileKindTable) ? fileKindTable[type] : FileKind_Unknown;
 #else
-	return FileKind_Unknown;
+	struct stat st;
+	int result = ::fstat(file.m_file, &st);
+
+	return
+		result == -1 ? FileKind_Unknown :
+		S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode) ? FileKind_Pipe :
+		S_ISCHR(st.st_mode) ? FileKind_Serial :
+		S_ISREG(st.st_mode) ? FileKind_Disk :
+		FileKind_Unknown;
 #endif
 }
 
