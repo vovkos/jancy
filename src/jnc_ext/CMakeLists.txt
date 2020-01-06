@@ -28,6 +28,18 @@ if(BUILD_JNC_IO_BASE)
 	add_subdirectory(jnc_io_base)
 endif()
 
+if(OPENSSL_FOUND)
+	option(
+		BUILD_JNC_IO_SSL
+		"Build jancy SSL IO extension library"
+		ON
+		)
+
+	if(BUILD_JNC_IO_SSL)
+		add_subdirectory(jnc_io_ssl)
+	endif()
+endif()
+
 if(LIBSSH2_FOUND)
 	option(
 		BUILD_JNC_IO_SSH

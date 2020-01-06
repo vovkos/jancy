@@ -1,0 +1,102 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+import "io_SocketOptions.jnc"
+
+namespace io {
+
+//! \addtogroup io-ssl
+//! @{
+
+//..............................................................................
+
+bitflag enum SslSocketEvents
+{
+	IoError,
+	IncomingData,
+	ReadBufferFull,
+	WriteBufferEmpty,
+	WriteBufferReady = WriteBufferEmpty,
+	IncomingTcpConnection,
+	TcpConnected,
+	TcpDisconnected,
+	TcpReset,
+	SslHandshakeCompleted,
+	SslHandshakeError,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class SslSocket
+{
+	SocketAddress const property m_address;
+	SocketAddress const property m_peerAddress;
+
+	size_t autoget property m_readBlockSize;
+	size_t autoget property m_readBufferSize;
+	size_t autoget property m_writeBufferSize;
+
+	SocketOptions autoget property m_options;
+
+	io.SslSocketEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	bool readonly m_isOpen;
+
+	construct();
+	destruct();
+
+	bool errorcode open(AddressFamily family);
+	bool errorcode open(SocketAddress const* address);
+	void close();
+
+	alias dispose = close;
+
+	bool errorcode connect(SocketAddress const* address);
+	bool errorcode listen(size_t backlog = 0); // 0 -- default
+
+	SslSocket* errorcode accept(
+		SocketAddress* address = null,
+		bool isSuspended = false
+		);
+
+	void unsuspend();
+
+	size_t errorcode read(
+		void* p,
+		size_t size
+		);
+
+	size_t errorcode write(
+		void const* p,
+		size_t size
+		);
+
+	intptr errorcode wait(
+		SslSocketEvents eventMask,
+		function* handler(SslSocketEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait(intptr handle);
+
+	SslSocketEvents errorcode blockingWait(
+		SslSocketEvents eventMask,
+		uint_t timeout
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io
