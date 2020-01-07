@@ -364,7 +364,7 @@ ChildProcess::finalizeIoThreadImpl()
 	int status;
 	::waitpid(m_pid, &status, 0);
 	exitCode = WEXITSTATUS(status);
-	isCrashed = WISSIGNALLED(status);
+	isCrashed = WIFSIGNALED(status);
 #endif
 
 	m_lock.lock();
