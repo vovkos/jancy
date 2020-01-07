@@ -55,6 +55,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	WSAStartup(0x0202, &WsaData);
 #endif
 
+	SSL_library_init();
 	g::getModule()->setTag("jnc_io_ssl");
 	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;

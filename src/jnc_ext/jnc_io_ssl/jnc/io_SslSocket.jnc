@@ -62,6 +62,11 @@ opaque class SslSocket
 
 	alias dispose = close;
 
+	bool errorcode loadCertificateAuthorities(
+		char const* fileName,
+		char const* dir = null
+		);
+
 	bool errorcode connect(SocketAddress const* address);
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
 
@@ -69,6 +74,8 @@ opaque class SslSocket
 		SocketAddress* address = null,
 		bool isSuspended = false
 		);
+
+	bool errorcode shutdown();
 
 	void unsuspend();
 
@@ -91,7 +98,7 @@ opaque class SslSocket
 
 	SslSocketEvents errorcode blockingWait(
 		SslSocketEvents eventMask,
-		uint_t timeout
+		uint_t timeout = -1
 		);
 }
 

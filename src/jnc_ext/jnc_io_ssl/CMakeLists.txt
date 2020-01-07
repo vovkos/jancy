@@ -124,6 +124,7 @@ target_link_libraries(
 	jnc_io_cmn
 	jnc_api_ext
 	axl_io
+	axl_io_ssl
 	axl_core
 	${OPENSSL_CRYPTO_LIB_NAME}
 	${OPENSSL_SSL_LIB_NAME}

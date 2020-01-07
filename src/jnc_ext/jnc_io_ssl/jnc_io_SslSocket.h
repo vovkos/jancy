@@ -79,6 +79,8 @@ protected:
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
 
+	axl::io::SslCtx m_sslCtx;
+	axl::io::SslBio m_sslBio;
 	axl::io::Ssl m_ssl;
 
 public:
@@ -140,7 +142,6 @@ public:
 		return SocketBase::setOptions(flags);
 	}
 
-
 	bool
 	JNC_CDECL
 	open_0(uint16_t family);
@@ -152,6 +153,16 @@ public:
 	void
 	JNC_CDECL
 	close();
+
+	bool
+	JNC_CDECL
+	loadCertificateAuthorities(
+		DataPtr fileNamePtr,
+		DataPtr dirPtr
+		)
+	{
+		return m_sslCtx.loadVerifyLocations((char*)fileNamePtr.m_p, (char*)dirPtr.m_p);
+	}
 
 	bool
 	JNC_CDECL
@@ -173,6 +184,13 @@ public:
 	unsuspend()
 	{
 		suspendIoThread(false);
+	}
+
+	bool
+	JNC_CDECL
+	shutdown()
+	{
+		return m_ssl.shutdown();
 	}
 
 	size_t
@@ -230,10 +248,18 @@ protected:
 	getLastSslError();
 
 	bool
-	sslHandshakeLoop();
+	sslHandshakeLoop(bool isClient);
 
 	void
-	sendRecvLoop();
+	sslReadWriteLoop();
+
+	static
+	void
+	sslInfoCallback(
+		const SSL* ssl,
+		int type,
+		int value
+		);
 };
 
 //..............................................................................

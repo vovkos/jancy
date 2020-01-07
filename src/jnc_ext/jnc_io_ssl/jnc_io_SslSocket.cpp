@@ -73,7 +73,10 @@ SslSocket::open_0(uint16_t family)
 {
 	close();
 
-	bool result = SocketBase::open(family, IPPROTO_TCP, NULL);
+	bool result =
+		SocketBase::open(family, IPPROTO_TCP, NULL) &&
+		m_sslCtx.create();
+
 	if (!result)
 		return false;
 
@@ -89,7 +92,10 @@ SslSocket::open_1(DataPtr addressPtr)
 
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 
-	bool result = SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
+	bool result =
+		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
+		m_sslCtx.create();
+
 	if (!result)
 		return false;
 
@@ -116,6 +122,9 @@ SslSocket::close()
 
 	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
 
+	m_ssl.close();
+	m_sslBio.close();
+	m_sslCtx.close();
 	SocketBase::close();
 }
 
@@ -179,10 +188,13 @@ SslSocket::ioThreadFunc()
 
 		bool result =
 			connectLoop(SslSocketEvent_TcpConnected) &&
-			sslHandshakeLoop();
+			sslHandshakeLoop(true);
 
 		if (result)
-			sendRecvLoop();
+		{
+			wakeIoThread();
+			sslReadWriteLoop();
+		}
 	}
 	else if (m_ioThreadFlags & IoThreadFlag_Listening)
 	{
@@ -192,7 +204,13 @@ SslSocket::ioThreadFunc()
 	else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection)
 	{
 		m_lock.unlock();
-		sendRecvLoop();
+
+		bool result = sslHandshakeLoop(false);
+		if (result)
+		{
+			wakeIoThread();
+			sslReadWriteLoop();
+		}
 	}
 	else
 	{
@@ -202,14 +220,405 @@ SslSocket::ioThreadFunc()
 }
 
 bool
-SslSocket::sslHandshakeLoop()
+SslSocket::sslHandshakeLoop(bool isClient)
 {
+	bool result =
+		m_sslBio.createSocket(m_socket.m_socket) &&
+		m_ssl.create(m_sslCtx);
+
+	if (!result)
+		return false;
+
+	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setInfoCallback(sslInfoCallback);
+
+	if (isClient)
+		m_ssl.setConnectState();
+	else
+		m_ssl.setAcceptState();
+
+	sys::NotificationEvent socketEvent;
+	HANDLE waitTable[] =
+	{
+		m_ioThreadEvent.m_event,
+		socketEvent.m_event,
+	};
+
+	for (;;)
+	{
+		result = m_ssl.doHandshake();
+		if (result)
+			break;
+
+		uint_t socketEventMask = 0;
+
+		uint_t error = err::getLastError()->m_code;
+		switch (error)
+		{
+		case SSL_ERROR_WANT_READ:
+			socketEventMask |= FD_READ;
+			break;
+
+		case SSL_ERROR_WANT_WRITE:
+			socketEventMask |= FD_WRITE;
+			break;
+
+		default:
+			return false;
+		}
+
+		result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, socketEventMask);
+		if (!result)
+			return false;
+
+		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
+		if (waitResult == WAIT_FAILED)
+		{
+			setIoErrorEvent(err::getLastSystemErrorCode());
+			return false;
+		}
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return false;
+		}
+
+		m_lock.unlock();
+	}
+
+	m_lock.lock();
+	m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+	processWaitLists_l();
+
 	return true;
 }
 
+#if (_JNC_OS_WIN)
+
 void
-SslSocket::sendRecvLoop()
+SslSocket::sslReadWriteLoop()
 {
+	bool result;
+
+	sys::NotificationEvent socketEvent;
+	HANDLE waitTable[] =
+	{
+		m_ioThreadEvent.m_event,
+		socketEvent.m_event,
+	};
+
+	sl::Array<char> readBlock;
+	sl::Array<char> writeBlock;
+
+	bool canReadSocket = true;
+	bool canWriteSocket = true;
+
+	uint_t prevSocketEventMask = 0;
+
+	for (;;)
+	{
+		uint_t socketEventMask = 0;
+
+		if (!canReadSocket)
+			socketEventMask |= FD_READ;
+
+		if (!canWriteSocket)
+			socketEventMask |= FD_WRITE;
+
+		if (socketEventMask != prevSocketEventMask)
+		{
+			result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, socketEventMask);
+			if (!result)
+			{
+				setIoErrorEvent(err::getLastError());
+				return;
+			}
+
+			prevSocketEventMask = socketEventMask;
+		}
+
+		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
+		if (waitResult == WAIT_FAILED)
+		{
+			setIoErrorEvent(err::getLastSystemErrorCode());
+			return;
+		}
+
+		if (socketEvent.wait(0))
+		{
+			WSANETWORKEVENTS networkEvents;
+			result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
+			if (!result)
+			{
+				setIoErrorEvent();
+				return;
+			}
+
+			if (networkEvents.lNetworkEvents & FD_READ)
+			{
+				int error = networkEvents.iErrorCode[FD_READ_BIT];
+				if (error)
+				{
+					setIoErrorEvent(error);
+					return;
+				}
+
+				canReadSocket = true;
+			}
+
+			if (networkEvents.lNetworkEvents & FD_WRITE)
+			{
+				int error = networkEvents.iErrorCode[FD_WRITE_BIT];
+				if (error)
+				{
+					setIoErrorEvent(error);
+					return;
+				}
+
+				canWriteSocket = true;
+			}
+
+			socketEvent.reset();
+		}
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+
+		readBlock.setCount(m_readBlockSize); // update read block size
+
+		while (canReadSocket && !m_readBuffer.isFull())
+		{
+			size_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
+			if (actualSize == -1)
+			{
+				uint_t error = err::getLastError()->m_code;
+				switch (error)
+				{
+				case SSL_ERROR_WANT_READ:
+					canReadSocket = false;
+					break;
+
+				case SSL_ERROR_WANT_WRITE:
+					canWriteSocket = false;
+					break;
+
+				default:
+					setIoErrorEvent_l();
+					return;
+				}
+			}
+			else if (actualSize == 0) // disconnect by remote node
+			{
+				setEvents_l(SslSocketEvent_TcpDisconnected);
+				return;
+			}
+			else
+			{
+				addToReadBuffer(readBlock, actualSize);
+			}
+		}
+
+		while (canWriteSocket)
+		{
+			getNextWriteBlock(&writeBlock);
+			if (writeBlock.isEmpty())
+				break;
+
+			size_t blockSize = writeBlock.getCount();
+			size_t actualSize = m_ssl.write(writeBlock, blockSize);
+			if (actualSize == -1)
+			{
+				uint_t error = err::getLastError()->m_code;
+				switch (error)
+				{
+				case SSL_ERROR_WANT_READ:
+					canReadSocket = false;
+					break;
+
+				case SSL_ERROR_WANT_WRITE:
+					canWriteSocket = false;
+					break;
+
+				default:
+					setIoErrorEvent_l();
+					return;
+				}
+			}
+			else if ((size_t)actualSize < blockSize)
+			{
+				writeBlock.remove(0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear();
+			}
+		}
+
+		updateReadWriteBufferEvents();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l();
+		else
+			m_lock.unlock();
+	}
+}
+
+#elif (_JNC_OS_POSIX)
+
+void
+SslSocket::sslReadWriteLoop()
+{
+	int result;
+	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	sl::Array<char> readBlock;
+	sl::Array<char> writeBlock;
+	readBlock.setCount(Def_ReadBlockSize);
+
+	char buffer[256];
+	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	writeParams.setCount(sizeof(SocketAddress));
+
+	bool canReadSocket = true;
+	bool canWriteSocket = true;
+
+	for (;;)
+	{
+		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
+
+		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
+
+		if (!canReadSocket)
+			FD_SET(m_socket.m_socket, &readSet);
+
+		if (!canWriteSocket)
+			FD_SET(m_socket.m_socket, &writeSet);
+
+		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
+		if (result == -1)
+			break;
+
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
+		{
+			char buffer[256];
+			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
+		}
+
+		if (FD_ISSET(m_socket.m_socket, &readSet))
+			canReadSocket = true;
+
+		if (FD_ISSET(m_socket.m_socket, &writeSet))
+			canWriteSocket = true;
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = SshEvent_FullyConnected;
+
+		readBlock.setCount(m_readBlockSize); // update read block size
+
+		while (canReadSocket && !m_readBuffer.isFull())
+		{
+			ssize_t actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			{
+				canReadSocket = false;
+			}
+			else if (actualSize < 0)
+			{
+				setIoErrorEvent_l(err::Errno((int)actualSize));
+				return;
+			}
+			else if (actualSize == 0) // disconnect by remote node
+			{
+				setEvents_l(SshEvent_TcpDisconnected);
+				return;
+			}
+			else
+			{
+				addToReadBuffer(readBlock, actualSize);
+			}
+		}
+
+		while (canWriteSocket)
+		{
+			getNextWriteBlock(&writeBlock);
+			if (writeBlock.isEmpty())
+				break;
+
+			size_t blockSize = writeBlock.getCount();
+			ssize_t actualSize = ::libssh2_channel_write(m_sshChannel, writeBlock, blockSize);
+			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			{
+				canWriteSocket = false;
+			}
+			else if (actualSize < 0)
+			{
+				setIoErrorEvent_l(err::Errno((int)actualSize));
+				return;
+			}
+			else if ((size_t)actualSize < blockSize)
+			{
+				writeBlock.remove(0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear();
+			}
+		}
+
+		if (canWriteSocket && (m_ioThreadFlags & IoFlag_ResizePty))
+		{
+			ssize_t sshResult = ::libssh2_channel_request_pty_size(m_sshChannel, m_ptyWidth, m_ptyHeight);
+			if (sshResult == LIBSSH2_ERROR_EAGAIN)
+			{
+				canWriteSocket = false;
+			}
+			else if (sshResult < 0)
+			{
+				setIoErrorEvent_l(err::Errno((int)sshResult));
+				return;
+			}
+			else
+			{
+				m_ioThreadFlags &= ~IoFlag_ResizePty;
+			}
+		}
+
+		updateReadWriteBufferEvents();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l();
+		else
+			m_lock.unlock();
+	}
+}
+
+#endif
+
+void
+SslSocket::sslInfoCallback(
+	const SSL* ssl,
+	int type,
+	int value
+	)
+{
+	printf("sslInfoCallback(0x%x, %d) -> %s\n", type, value, SSL_state_string_long(ssl));
 }
 
 //..............................................................................
