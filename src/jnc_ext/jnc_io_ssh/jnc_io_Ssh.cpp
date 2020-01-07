@@ -315,7 +315,10 @@ SshChannel::ioThreadFunc()
 
 	m_lock.unlock();
 
-	bool result = tcpConnect(SshEvent_TcpConnectCompleted) && sshConnect();
+	bool result =
+		connectLoop(SshEvent_TcpConnectCompleted) &&
+		sshConnectLoop();
+
 	if (result)
 	{
 		wakeIoThread();
@@ -367,7 +370,7 @@ getSshLastError(LIBSSH2_SESSION* sshSession)
 }
 
 bool
-SshChannel::sshConnect()
+SshChannel::sshConnectLoop()
 {
 	int result;
 
@@ -473,7 +476,7 @@ SshChannel::sshConnect()
 				return false;
 			}
 
-			result = tcpConnect(SshEvent_TcpConnectCompleted);
+			result = connectLoop(SshEvent_TcpConnectCompleted);
 			if (!result)
 				return false;
 

@@ -23,8 +23,18 @@ namespace io {
 class SocketBase: public AsyncIoDevice
 {
 protected:
+	struct IncomingConnection: sl::ListLink
+	{
+		axl::io::Socket m_socket;
+		axl::io::SockAddr m_sockAddr;
+	};
+
+protected:
 	axl::io::Socket m_socket;
 	uint16_t m_family;
+
+	mem::Pool<IncomingConnection> m_incomingConnectionPool;
+	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
 
 protected:
 	SocketAddress
@@ -47,7 +57,10 @@ protected:
 	close();
 
 	bool
-	tcpConnect(uint_t connectCompletedEvent);
+	connectLoop(uint_t connectCompletedEvent);
+
+	void
+	acceptLoop(uint_t incomingConnectionEvent);
 };
 
 //..............................................................................

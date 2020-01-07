@@ -339,7 +339,7 @@ protected:
 	sshAsyncLoop(int result);
 
 	bool
-	sshConnect();
+	sshConnectLoop();
 
 	void
 	sshReadWriteLoop();

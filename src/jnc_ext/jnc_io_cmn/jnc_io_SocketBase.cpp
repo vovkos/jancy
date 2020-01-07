@@ -184,12 +184,18 @@ SocketBase::close()
 {
 	AsyncIoDevice::close();
 	m_socket.close();
+
+	sl::Iterator<IncomingConnection> it = m_pendingIncomingConnectionList.getHead();
+	for (; it; it++)
+		it->m_socket.close();
+
+	m_incomingConnectionPool.put(&m_pendingIncomingConnectionList);
 }
 
 #if (_JNC_OS_WIN)
 
 bool
-SocketBase::tcpConnect(uint_t connectCompletedEvent)
+SocketBase::connectLoop(uint_t connectCompletedEvent)
 {
 	sys::Event socketEvent;
 
@@ -255,10 +261,82 @@ SocketBase::tcpConnect(uint_t connectCompletedEvent)
 	}
 }
 
+void
+SocketBase::acceptLoop()
+{
+	sys::Event socketEvent;
+
+	bool result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, FD_ACCEPT);
+	if (!result)
+		return;
+
+	HANDLE waitTable[] =
+	{
+		m_ioThreadEvent.m_event,
+		socketEvent.m_event,
+	};
+
+	for (;;)
+	{
+		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
+		switch (waitResult)
+		{
+		case WAIT_FAILED:
+			setIoErrorEvent(err::getLastSystemErrorCode());
+			return;
+
+		case WAIT_OBJECT_0:
+			m_lock.lock();
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
+			{
+				m_lock.unlock();
+				return;
+			}
+
+			m_lock.unlock();
+			break;
+
+		case WAIT_OBJECT_0 + 1:
+			WSANETWORKEVENTS networkEvents;
+			result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
+			if (!result)
+			{
+				setIoErrorEvent();
+				return;
+			}
+
+			if (networkEvents.lNetworkEvents & FD_ACCEPT)
+			{
+				int error = networkEvents.iErrorCode[FD_ACCEPT_BIT];
+				if (error)
+				{
+					setIoErrorEvent(error);
+					return;
+				}
+
+				axl::io::Socket socket;
+				axl::io::SockAddr sockAddr;
+				bool result = m_socket.accept(&socket, &sockAddr);
+				if (!result)
+					return;
+
+				m_lock.lock();
+				IncomingConnection* incomingConnection = m_incomingConnectionPool.get();
+				incomingConnection->m_sockAddr = sockAddr;
+				sl::takeOver(&incomingConnection->m_socket.m_socket, &socket.m_socket);
+				m_pendingIncomingConnectionList.insertTail(incomingConnection);
+				setEvents_l(SocketEvent_IncomingConnection);
+			}
+
+			break;
+		}
+	}
+}
+
 #elif (_JNC_OS_POSIX)
 
 bool
-SocketBase::tcpConnect(uint_t connectCompletedEvent)
+SocketBase::connectLoop(uint_t connectCompletedEvent)
 {
 	int result;
 	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
@@ -309,6 +387,82 @@ SocketBase::tcpConnect(uint_t connectCompletedEvent)
 				return true;
 			}
 		}
+	}
+}
+
+void
+SocketBase::acceptLoop(uint_t incomingConnectionEvent)
+{
+	int result;
+	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	bool canAcceptSocket = false;
+
+	for (;;)
+	{
+		fd_set readSet = { 0 };
+
+		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
+
+		if (!canAcceptSocket)
+			FD_SET(m_socket.m_socket, &readSet);
+
+		result = ::select(selectFd, &readSet, NULL, NULL, NULL);
+		if (result == -1)
+			break;
+
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
+		{
+			char buffer[256];
+			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
+		}
+
+		if (FD_ISSET(m_socket.m_socket, &readSet))
+			canAcceptSocket = true;
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			break;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = 0;
+
+		while (canAcceptSocket)
+		{
+			axl::io::SockAddr sockAddr;
+			socklen_t sockAddrSize = sizeof(sockAddr);
+			int socket = ::accept(m_socket.m_socket, &sockAddr.m_addr, &sockAddrSize);
+			if (socket == -1)
+			{
+				if (errno == EAGAIN)
+				{
+					canAcceptSocket = false;
+				}
+				else
+				{
+					setIoErrorEvent_l(err::Errno(errno));
+					return;
+				}
+			}
+			else
+			{
+				IncomingConnection* incomingConnection = m_incomingConnectionPool.get();
+				incomingConnection->m_sockAddr = sockAddr;
+				incomingConnection->m_socket.m_socket.attach(socket);
+				m_pendingIncomingConnectionList.insertTail(incomingConnection);
+			}
+		}
+
+		if (!m_pendingIncomingConnectionList.isEmpty())
+			m_activeEvents |= incomingConnectionEvent;
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l();
+		else
+			m_lock.unlock();
 	}
 }
 

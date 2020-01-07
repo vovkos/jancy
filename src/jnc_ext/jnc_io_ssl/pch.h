@@ -15,11 +15,14 @@
 #include "axl_sys_Event.h"
 #include "axl_sys_Time.h"
 #include "axl_io_Socket.h"
+#include "axl_io_Ssl.h"
+#include "axl_io_SslBio.h"
 #include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
 #include "axl_err_Errno.h"
 #include "axl_err_ErrorMgr.h"
+#include "axl_mem_Pool.h"
 #include "axl_g_Module.h"
 
 #if (_AXL_OS_WIN)

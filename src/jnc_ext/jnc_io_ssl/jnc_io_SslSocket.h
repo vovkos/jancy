@@ -79,6 +79,8 @@ protected:
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
 
+	axl::io::Ssl m_ssl;
+
 public:
 	SslSocket();
 
@@ -227,11 +229,11 @@ protected:
 	err::Error
 	getLastSslError();
 
-	void
-	acceptLoop();
+	bool
+	sslHandshakeLoop();
 
 	void
-	sendRecvLoop(uint_t baseEvents);
+	sendRecvLoop();
 };
 
 //..............................................................................

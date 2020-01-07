@@ -76,12 +76,6 @@ protected:
 		IoThreadFlag_IncomingConnection = 0x0400,
 	};
 
-	struct IncomingConnection: sl::ListLink
-	{
-		axl::io::Socket m_socket;
-		axl::io::SockAddr m_sockAddr;
-	};
-
 #if (_AXL_OS_WIN)
 	struct OverlappedRecv: OverlappedRead
 	{
@@ -108,9 +102,6 @@ protected:
 
 protected:
 	IoThread m_ioThread;
-
-	mem::Pool<IncomingConnection> m_incomingConnectionPool;
-	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
 
 #if (_AXL_OS_WIN)
 	OverlappedIo* m_overlappedIo;
@@ -302,9 +293,6 @@ protected:
 
 	void
 	ioThreadFunc();
-
-	void
-	acceptLoop();
 
 	void
 	sendRecvLoop(
