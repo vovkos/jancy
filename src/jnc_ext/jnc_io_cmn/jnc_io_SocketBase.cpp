@@ -262,7 +262,7 @@ SocketBase::connectLoop(uint_t connectCompletedEvent)
 }
 
 void
-SocketBase::acceptLoop()
+SocketBase::acceptLoop(uint_t incomingConnectionEvent)
 {
 	sys::Event socketEvent;
 
@@ -325,7 +325,7 @@ SocketBase::acceptLoop()
 				incomingConnection->m_sockAddr = sockAddr;
 				sl::takeOver(&incomingConnection->m_socket.m_socket, &socket.m_socket);
 				m_pendingIncomingConnectionList.insertTail(incomingConnection);
-				setEvents_l(SocketEvent_IncomingConnection);
+				setEvents_l(incomingConnectionEvent);
 			}
 
 			break;
