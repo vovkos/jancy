@@ -27,6 +27,8 @@ enum SslLibCacheSlot
 	SslLibCacheSlot_SslSocket,
 };
 
+extern int g_sslSocketSelfIdx;
+
 //..............................................................................
 
 } // namespace io

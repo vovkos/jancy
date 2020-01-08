@@ -39,9 +39,10 @@ JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
+int g_sslSocketSelfIdx;
+
 } // namespace io
 } // namespace jnc
-
 
 jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 
@@ -59,6 +60,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_ssl");
 	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
+	jnc::io::g_sslSocketSelfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 	return jnc::io::SslLib_getLib();
 }
 
