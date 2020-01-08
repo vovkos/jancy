@@ -32,25 +32,28 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslSocket>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<SslSocket>)
 
-	JNC_MAP_CONST_PROPERTY("m_address",     &SslSocket::getAddress)
+	JNC_MAP_CONST_PROPERTY("m_address", &SslSocket::getAddress)
 	JNC_MAP_CONST_PROPERTY("m_peerAddress", &SslSocket::getPeerAddress)
-
-	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &SslSocket::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &SslSocket::setReadBufferSize)
+	JNC_MAP_CONST_PROPERTY("m_stateString", &SslSocket::getStateString)
+	JNC_MAP_CONST_PROPERTY("m_stateStringLong", &SslSocket::getStateStringLong)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &SslSocket::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_options",         &SslSocket::setOptions)
+	JNC_MAP_AUTOGET_PROPERTY("m_options", &SslSocket::setOptions)
 
-	JNC_MAP_FUNCTION("open",         &SslSocket::open_0)
+	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
-	JNC_MAP_FUNCTION("close",        &SslSocket::close)
-	JNC_MAP_FUNCTION("connect",      &SslSocket::connect)
-	JNC_MAP_FUNCTION("listen",       &SslSocket::listen)
-	JNC_MAP_FUNCTION("accept",       &SslSocket::accept)
-	JNC_MAP_FUNCTION("unsuspend",    &SslSocket::unsuspend)
-	JNC_MAP_FUNCTION("read",         &SslSocket::read)
-	JNC_MAP_FUNCTION("write",        &SslSocket::write)
-	JNC_MAP_FUNCTION("wait",         &SslSocket::wait)
-	JNC_MAP_FUNCTION("cancelWait",   &SslSocket::cancelWait)
+	JNC_MAP_FUNCTION("close", &SslSocket::close)
+	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
+	JNC_MAP_FUNCTION("setCaCertificateDir", &SslSocket::setCaCertificateDir)
+	JNC_MAP_FUNCTION("connect", &SslSocket::connect)
+	JNC_MAP_FUNCTION("listen", &SslSocket::listen)
+	JNC_MAP_FUNCTION("accept", &SslSocket::accept)
+	JNC_MAP_FUNCTION("unsuspend", &SslSocket::unsuspend)
+	JNC_MAP_FUNCTION("read", &SslSocket::read)
+	JNC_MAP_FUNCTION("write", &SslSocket::write)
+	JNC_MAP_FUNCTION("wait", &SslSocket::wait)
+	JNC_MAP_FUNCTION("cancelWait", &SslSocket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &SslSocket::blockingWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
@@ -73,15 +76,10 @@ SslSocket::open_0(uint16_t family)
 {
 	close();
 
-	bool result =
+	return
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		m_sslCtx.create();
-
-	if (!result)
-		return false;
-
-	m_ioThread.start();
-	return true;
+		m_sslCtx.create() &&
+		m_ioThread.start();
 }
 
 bool
@@ -92,15 +90,10 @@ SslSocket::open_1(DataPtr addressPtr)
 
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 
-	bool result =
+	return
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
-		m_sslCtx.create();
-
-	if (!result)
-		return false;
-
-	m_ioThread.start();
-	return true;
+		m_sslCtx.create() &&
+		m_ioThread.start();
 }
 
 void
@@ -166,8 +159,43 @@ SslSocket::accept(
 	bool isSuspended
 	)
 {
-	err::setError(err::SystemErrorCode_NotImplemented);
-	return NULL;
+	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
+	SslSocket* connectionSocket = createClass<SslSocket> (m_runtime);
+
+	m_lock.lock();
+	if (m_pendingIncomingConnectionList.isEmpty())
+	{
+		m_lock.unlock();
+		setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
+		return NULL;
+	}
+
+	IncomingConnection* incomingConnection = m_pendingIncomingConnectionList.removeHead();
+	sl::takeOver(&connectionSocket->m_socket.m_socket, &incomingConnection->m_socket.m_socket);
+	connectionSocket->setOptions(m_options);
+	connectionSocket->AsyncIoDevice::open();
+	connectionSocket->m_ioThreadFlags = IoThreadFlag_IncomingConnection;
+
+	if (isSuspended)
+		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
+
+	if (address)
+		address->setSockAddr(incomingConnection->m_sockAddr);
+
+	m_incomingConnectionPool.put(incomingConnection);
+
+	if (m_pendingIncomingConnectionList.isEmpty())
+		m_activeEvents &= ~SslSocketEvent_IncomingConnection;
+
+	m_lock.unlock();
+
+	bool result = connectionSocket->m_socket.setBlockingMode(false); // not guaranteed to be propagated across accept calls
+	if (!result)
+		return NULL;
+
+	connectionSocket->wakeIoThread();
+	connectionSocket->m_ioThread.start();
+	return connectionSocket;
 }
 
 void
@@ -199,7 +227,7 @@ SslSocket::ioThreadFunc()
 	else if (m_ioThreadFlags & IoThreadFlag_Listening)
 	{
 		m_lock.unlock();
-		acceptLoop(SslSocketEvent_IncomingTcpConnection);
+		acceptLoop(SslSocketEvent_IncomingConnection);
 	}
 	else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection)
 	{
@@ -230,6 +258,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		return false;
 
 	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
 	m_ssl.setInfoCallback(sslInfoCallback);
 
 	if (isClient)
@@ -250,17 +279,17 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		if (result)
 			break;
 
-		uint_t socketEventMask = 0;
+		uint_t socketEventMask;
 
 		uint_t error = err::getLastError()->m_code;
 		switch (error)
 		{
 		case SSL_ERROR_WANT_READ:
-			socketEventMask |= FD_READ;
+			socketEventMask = FD_READ;
 			break;
 
 		case SSL_ERROR_WANT_WRITE:
-			socketEventMask |= FD_WRITE;
+			socketEventMask = FD_WRITE;
 			break;
 
 		default:
@@ -614,11 +643,16 @@ SslSocket::sslReadWriteLoop()
 void
 SslSocket::sslInfoCallback(
 	const SSL* ssl,
-	int type,
-	int value
+	int where,
+	int ret
 	)
 {
-	printf("sslInfoCallback(0x%x, %d) -> %s\n", type, value, SSL_state_string_long(ssl));
+	SslSocket* self = (SslSocket*)::SSL_get_ex_data(ssl, g_sslSocketSelfIdx);
+	if (!self)
+		return;
+
+	ASSERT(self->m_ssl == ssl);
+	callMulticast(self->m_runtime, self->m_onStateChanged, where, ret);
 }
 
 //..............................................................................

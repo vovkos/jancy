@@ -23,7 +23,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslSocket)
 
 enum SslSocketEvent
 {
-	SslSocketEvent_IncomingTcpConnection = 0x0010,
+	SslSocketEvent_IncomingConnection    = 0x0010,
 	SslSocketEvent_TcpConnected          = 0x0020,
 	SslSocketEvent_TcpDisconnected       = 0x0040,
 	SslSocketEvent_TcpReset              = 0x0080,
@@ -35,6 +35,8 @@ enum SslSocketEvent
 
 struct SslSocketHdr: IfaceHdr
 {
+	ClassBox<Multicast> m_onStateChanged;
+
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
 	size_t m_writeBufferSize;
@@ -47,6 +49,9 @@ class SslSocket:
 	public SocketBase
 {
 	friend class IoThread;
+
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(SslSocket)
 
 protected:
 	enum Def
@@ -154,14 +159,34 @@ public:
 	JNC_CDECL
 	close();
 
+	static
+	DataPtr
+	JNC_CDECL
+	getStateString(SslSocket* self)
+	{
+		return strDup(self->m_ssl.getStateString());
+	}
+
+	static
+	DataPtr
+	JNC_CDECL
+	getStateStringLong(SslSocket* self)
+	{
+		return strDup(self->m_ssl.getStateStringLong());
+	}
+
 	bool
 	JNC_CDECL
-	loadCertificateAuthorities(
-		DataPtr fileNamePtr,
-		DataPtr dirPtr
-		)
+	loadCaCertificate(DataPtr fileNamePtr)
 	{
-		return m_sslCtx.loadVerifyLocations((char*)fileNamePtr.m_p, (char*)dirPtr.m_p);
+		return m_sslCtx.loadVerifyLocations((char*)fileNamePtr.m_p, NULL);
+	}
+
+	bool
+	JNC_CDECL
+	setCaCertificateDir(DataPtr dirPtr)
+	{
+		return m_sslCtx.loadVerifyLocations(NULL, (char*)dirPtr.m_p);
 	}
 
 	bool
@@ -244,9 +269,6 @@ protected:
 	void
 	ioThreadFunc();
 
-	err::Error
-	getLastSslError();
-
 	bool
 	sslHandshakeLoop(bool isClient);
 
@@ -257,8 +279,8 @@ protected:
 	void
 	sslInfoCallback(
 		const SSL* ssl,
-		int type,
-		int value
+		int where,
+		int ret
 		);
 };
 

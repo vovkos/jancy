@@ -27,7 +27,7 @@ bitflag enum SslSocketEvents
 	ReadBufferFull,
 	WriteBufferEmpty,
 	WriteBufferReady = WriteBufferEmpty,
-	IncomingTcpConnection,
+	IncomingConnection,
 	TcpConnected,
 	TcpDisconnected,
 	TcpReset,
@@ -37,15 +37,42 @@ bitflag enum SslSocketEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum SslSocketState
+{
+	Connect         = 0x1000,          // SSL_ST_CONNECT
+	Accept          = 0x2000,          // SSL_ST_ACCEPT
+	Loop            = 0x01,            // SSL_CB_LOOP
+	Exit            = 0x02,            // SSL_CB_EXIT
+	Read            = 0x04,            // SSL_CB_READ
+	Write           = 0x08,            // SSL_CB_WRITE
+	Alert           = 0x4000,          // SSL_CB_ALERT
+	ReadAlert       = Alert | Read,    // SSL_CB_READ_ALERT
+	WriteAlert      = Alert | Write,   // SSL_CB_WRITE_ALERT
+	AcceptLoop      = Accept | Loop,   // SSL_CB_ACCEPT_LOOP
+	AcceptExit      = Accept | Exit,   // SSL_CB_ACCEPT_EXIT
+	ConnectLoop     = Connect | Loop,  // SSL_CB_CONNECT_LOOP
+	ConnectExit     = Connect | Exit,  // SSL_CB_CONNECT_EXIT
+	HandshakeStart  = 0x10,            // SSL_CB_HANDSHAKE_START
+	HandshakeDone   = 0x20,            // SSL_CB_HANDSHAKE_DONE
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class SslSocket
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
+	char const* const property m_stateString;
+	char const* const property m_stateStringLong;
+
+	event m_onStateChanged(
+		SslSocketState state,
+		int alertInfo
+		);
 
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
-
 	SocketOptions autoget property m_options;
 
 	io.SslSocketEvents readonly volatile m_activeEvents;
@@ -62,10 +89,8 @@ opaque class SslSocket
 
 	alias dispose = close;
 
-	bool errorcode loadCertificateAuthorities(
-		char const* fileName,
-		char const* dir = null
-		);
+	bool errorcode loadCaCertificate(char const* fileName);
+	bool errorcode setCaCertificateDir(char const* dir);
 
 	bool errorcode connect(SocketAddress const* address);
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
