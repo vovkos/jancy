@@ -247,6 +247,8 @@ SslSocket::ioThreadFunc()
 	}
 }
 
+#if (_JNC_OS_WIN)
+
 bool
 SslSocket::sslHandshakeLoop(bool isClient)
 {
@@ -323,8 +325,6 @@ SslSocket::sslHandshakeLoop(bool isClient)
 
 	return true;
 }
-
-#if (_JNC_OS_WIN)
 
 void
 SslSocket::sslReadWriteLoop()
@@ -503,6 +503,80 @@ SslSocket::sslReadWriteLoop()
 
 #elif (_JNC_OS_POSIX)
 
+bool
+SslSocket::sslHandshakeLoop(bool isClient)
+{
+	bool result =
+		m_sslBio.createSocket(m_socket.m_socket) &&
+		m_ssl.create(m_sslCtx);
+
+	if (!result)
+		return false;
+
+	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
+	m_ssl.setInfoCallback(sslInfoCallback);
+
+	if (isClient)
+		m_ssl.setConnectState();
+	else
+		m_ssl.setAcceptState();
+
+	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	for (;;)
+	{
+		result = m_ssl.doHandshake();
+		if (result)
+			break;
+
+		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
+
+		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
+
+		uint_t error = err::getLastError()->m_code;
+		switch (error)
+		{
+		case SSL_ERROR_WANT_READ:
+			FD_SET(m_socket.m_socket, &readSet);
+			break;
+
+		case SSL_ERROR_WANT_WRITE:
+			FD_SET(m_socket.m_socket, &writeSet);
+			break;
+
+		default:
+			return false;
+		}
+
+		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
+		if (result == -1)
+			break;
+
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
+		{
+			char buffer[256];
+			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
+		}
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return false;
+		}
+
+		m_lock.unlock();
+	}
+
+	m_lock.lock();
+	m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+	processWaitLists_l();
+
+	return true;
+}
+
 void
 SslSocket::sslReadWriteLoop()
 {
@@ -557,25 +631,34 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SshEvent_FullyConnected;
+		m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
 		while (canReadSocket && !m_readBuffer.isFull())
 		{
-			ssize_t actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
-			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			ssize_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
+			if (actualSize == -1)
 			{
-				canReadSocket = false;
-			}
-			else if (actualSize < 0)
-			{
-				setIoErrorEvent_l(err::Errno((int)actualSize));
-				return;
+				uint_t error = err::getLastError()->m_code;
+				switch (error)
+				{
+				case SSL_ERROR_WANT_READ:
+					canReadSocket = false;
+					break;
+
+				case SSL_ERROR_WANT_WRITE:
+					canWriteSocket = false;
+					break;
+
+				default:
+					setIoErrorEvent_l();
+					return;
+				}
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents_l(SshEvent_TcpDisconnected);
+				setEvents_l(SslSocketEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -591,15 +674,24 @@ SslSocket::sslReadWriteLoop()
 				break;
 
 			size_t blockSize = writeBlock.getCount();
-			ssize_t actualSize = ::libssh2_channel_write(m_sshChannel, writeBlock, blockSize);
-			if (actualSize == LIBSSH2_ERROR_EAGAIN)
+			ssize_t actualSize = m_ssl.write(writeBlock, blockSize);
+			if (actualSize == -1)
 			{
-				canWriteSocket = false;
-			}
-			else if (actualSize < 0)
-			{
-				setIoErrorEvent_l(err::Errno((int)actualSize));
-				return;
+				uint_t error = err::getLastError()->m_code;
+				switch (error)
+				{
+				case SSL_ERROR_WANT_READ:
+					canReadSocket = false;
+					break;
+
+				case SSL_ERROR_WANT_WRITE:
+					canWriteSocket = false;
+					break;
+
+				default:
+					setIoErrorEvent_l();
+					return;
+				}
 			}
 			else if ((size_t)actualSize < blockSize)
 			{
@@ -608,24 +700,6 @@ SslSocket::sslReadWriteLoop()
 			else
 			{
 				writeBlock.clear();
-			}
-		}
-
-		if (canWriteSocket && (m_ioThreadFlags & IoFlag_ResizePty))
-		{
-			ssize_t sshResult = ::libssh2_channel_request_pty_size(m_sshChannel, m_ptyWidth, m_ptyHeight);
-			if (sshResult == LIBSSH2_ERROR_EAGAIN)
-			{
-				canWriteSocket = false;
-			}
-			else if (sshResult < 0)
-			{
-				setIoErrorEvent_l(err::Errno((int)sshResult));
-				return;
-			}
-			else
-			{
-				m_ioThreadFlags &= ~IoFlag_ResizePty;
 			}
 		}
 
