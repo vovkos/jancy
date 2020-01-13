@@ -25,7 +25,7 @@ enum IoLibCacheSlot
 	IoLibCacheSlot_SocketAddress_ip4,
 	IoLibCacheSlot_SocketAddress_ip6,
 	IoLibCacheSlot_SocketAddress,
-	IoLibCacheSlot_SocketAddressResolver,
+	IoLibCacheSlot_HostNameResolver,
 	IoLibCacheSlot_Socket,
 	IoLibCacheSlot_NetworkAdapterAddress,
 	IoLibCacheSlot_NetworkAdapterDesc,

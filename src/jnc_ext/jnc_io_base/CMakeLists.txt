@@ -17,7 +17,7 @@ set(
 	LIB_H_LIST
 	jnc_io_Serial.h
 	jnc_io_Socket.h
-	jnc_io_SocketAddressResolver.h
+	jnc_io_HostNameResolver.h
 	jnc_io_NetworkAdapter.h
 	jnc_io_File.h
 	jnc_io_MappedFile.h
@@ -30,7 +30,7 @@ set(
 	LIB_CPP_LIST
 	jnc_io_Serial.cpp
 	jnc_io_Socket.cpp
-	jnc_io_SocketAddressResolver.cpp
+	jnc_io_HostNameResolver.cpp
 	jnc_io_NetworkAdapter.cpp
 	jnc_io_File.cpp
 	jnc_io_MappedFile.cpp
@@ -73,7 +73,7 @@ set(
 	jnc/io_Socket.jnc
 	jnc/io_SocketOptions.jnc
 	jnc/io_SocketAddress.jnc
-	jnc/io_SocketAddressResolver.jnc
+	jnc/io_HostNameResolver.jnc
 	jnc/io_NetworkAdapter.jnc
 	jnc/io_File.jnc
 	jnc/io_MappedFile.jnc

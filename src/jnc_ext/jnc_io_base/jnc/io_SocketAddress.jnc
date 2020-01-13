@@ -191,7 +191,7 @@ alignment(2);
 
 	On the binary level this structure directly maps to ``sockaddr_in``.
 
-	\sa `io.Address_ip4`, `io.Socket`, `io.SocketAddressResolver`
+	\sa `io.Address_ip4`, `io.Socket`, `io.HostNameResolver`
 
 	\footnote f1
 
@@ -279,7 +279,7 @@ struct SocketAddress_ip4
 
 	On the binary level this structure directly maps to ``sockaddr_in6``.
 
-	\sa `io.Socket`, `io.SocketAddressResolver`
+	\sa `io.Socket`, `io.HostNameResolver`
 
 	\footnote f1
 

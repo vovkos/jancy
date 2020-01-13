@@ -1,0 +1,69 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//! \addtogroup io-socket
+//! @{
+
+//..............................................................................
+
+bitflag enum HostNameResolverEvents
+{
+	ResolveError,
+	ResolveCompleted,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class HostNameResolver
+{
+	SocketAddress const* property m_addressTable;
+	size_t readonly volatile m_addressCount,
+
+	protected uint_t m_unused;
+	HostNameResolverEvents readonly volatile m_activeEvents;
+	std.Error const* readonly volatile m_ioError;
+
+	bool readonly m_isOpen;
+
+	construct();
+	destruct();
+
+	bool errorcode resolve(
+		char const* name,
+		AddressFamily family = AddressFamily.Undefined
+		);
+
+	void cancel();
+	void close();
+	alias dispose = cancel;
+
+	intptr errorcode wait(
+		HostNameResolverEvents eventMask,
+		function* handler(HostNameResolverEvents triggeredEvents)
+		);
+
+	bool errorcode cancelWait(intptr handle);
+
+	HostNameResolverEvents errorcode blockingWait(
+		ChildProcessEvents eventMask,
+		uint_t timeout = -1
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

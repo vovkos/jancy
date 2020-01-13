@@ -105,7 +105,7 @@ FileStream::open(
 		if (m_options & FileStreamOption_MessageNamedPipe)
 		{
 			pipeMode = PIPE_READMODE_MESSAGE;
-			m_options |= AsyncIoOption_KeepReadBlockSize;
+			m_options |= AsyncIoDeviceOption_KeepReadBlockSize;
 		}
 
 		result = ::SetNamedPipeHandleState(m_file.m_file, &pipeMode, NULL, NULL) != 0;
@@ -175,7 +175,7 @@ FileStream::setOptions(uint_t options)
 		if (options & FileStreamOption_MessageNamedPipe)
 		{
 			pipeMode = PIPE_READMODE_MESSAGE;
-			options |= AsyncIoOption_KeepReadBlockSize;
+			options |= AsyncIoDeviceOption_KeepReadBlockSize;
 		}
 
 		bool result = ::SetNamedPipeHandleState(m_file.m_file, &pipeMode, NULL, NULL) != 0;
