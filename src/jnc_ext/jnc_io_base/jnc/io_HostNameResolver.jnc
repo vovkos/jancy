@@ -20,20 +20,20 @@ namespace io {
 
 bitflag enum HostNameResolverEvents
 {
-	ResolveError,
-	ResolveCompleted,
+	Error,
+	Resolved,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 opaque class HostNameResolver
 {
-	SocketAddress const* property m_addressTable;
-	size_t readonly volatile m_addressCount,
+	SocketAddress const* readonly volatile m_addressTable;
+	size_t readonly volatile m_addressCount;
 
 	protected uint_t m_unused;
 	HostNameResolverEvents readonly volatile m_activeEvents;
-	std.Error const* readonly volatile m_ioError;
+	std.Error const* readonly volatile m_error;
 
 	bool readonly m_isOpen;
 
@@ -57,7 +57,7 @@ opaque class HostNameResolver
 	bool errorcode cancelWait(intptr handle);
 
 	HostNameResolverEvents errorcode blockingWait(
-		ChildProcessEvents eventMask,
+		HostNameResolverEvents eventMask,
 		uint_t timeout = -1
 		);
 }

@@ -141,6 +141,8 @@ HostNameResolver::ioThreadFunc()
 	uint_t addrFamily;
 	uint_t port;
 
+	wakeIoThread();
+
 	for (;;)
 	{
 		sleepIoThread();
@@ -150,6 +152,12 @@ HostNameResolver::ioThreadFunc()
 		{
 			m_lock.unlock();
 			break;
+		}
+
+		if (m_name.isEmpty())
+		{
+			m_lock.unlock();
+			continue;
 		}
 
 		name = m_name;
@@ -186,6 +194,20 @@ HostNameResolver::ioThreadFunc()
 			complete_l(addrArray, count);
 		}
 	}
+}
+
+void
+HostNameResolver::complete_l(
+	const axl::io::SockAddr* addressTable,
+	size_t count
+	)
+{
+	JNC_BEGIN_CALL_SITE(m_runtime)
+	m_addressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
+	m_addressCount = count;
+	JNC_END_CALL_SITE()
+
+	setEvents_l(HostNameResolverEvent_Resolved);
 }
 
 //..............................................................................

@@ -23,14 +23,15 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(HostNameResolver)
 
 enum HostNameResolverEvent
 {
-	HostNameResolverEvent_ResolveError     = AsyncIoBaseEvent_IoError,
-	HostNameResolverEvent_ResolveCompleted = 0x02,
+	HostNameResolverEvent_Error    = AsyncIoBaseEvent_IoError,
+	HostNameResolverEvent_Resolved = 0x02,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct HostNameResolverHdr: IfaceHdr
 {
+	DataPtr m_addressTablePtr;
 	size_t m_addressCount;
 };
 
@@ -59,7 +60,6 @@ protected:
 	};
 
 protected:
-	sl::Array<axl::io::SockAddr> m_addressTable;
 	IoThread m_ioThread;
 	sl::String m_name;
 	uint_t m_addrFamily;
@@ -128,11 +128,7 @@ protected:
 	complete_l(
 		const axl::io::SockAddr* addressTable,
 		size_t count
-		)
-	{
-		m_addressTable.copy(addressTable, count);
-		setEvents_l(HostNameResolverEvent_ResolveCompleted);
-	}
+		);
 
 	void
 	complete(
