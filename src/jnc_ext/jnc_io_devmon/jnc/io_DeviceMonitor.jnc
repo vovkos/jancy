@@ -56,7 +56,7 @@ opaque class DeviceMonitor
 	bool readonly m_isConnected;
 	bool autoget property m_isEnabled;
 
-	uint_t readonly m_unused;
+	protected uint_t m_unused;
 
 	DeviceMonitorEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;

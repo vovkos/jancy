@@ -288,7 +288,7 @@ struct SshConnectParams
 		}
 
 	\sa `io.SshEvents`, `io.Socket`, `io.SocketAddress`,
-	`io.SocketAddressResolver`
+	`io.HostNameResolver`
 
 	\footnote f1
 

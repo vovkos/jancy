@@ -146,7 +146,7 @@ Pcap::finishOpen()
 	AsyncIoDevice::open();
 
 	m_ioThreadFlags |= IoThreadFlag_Datagram;
-	m_options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
+	m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
 
 	m_ioThread.start();
 	return true;

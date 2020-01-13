@@ -431,7 +431,7 @@ SshChannel::sshConnectLoop()
 			return false;
 		}
 
-		setErrorEvent(SshEvent_SshAuthenticateError, getSshLastError(m_sshSession));
+		setIoErrorEvent(SshEvent_SshAuthenticateError, getSshLastError(m_sshSession));
 		sleepIoThread();
 
 		m_lock.lock();

@@ -62,7 +62,7 @@ public:
 		Def_ReadParallelism = 4,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_WriteBufferSize = 16 * 1024,
-		Def_Options         = AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize,
+		Def_Options         = AsyncIoDeviceOption_KeepReadWriteBlockSize,
 	};
 
 	class GetParentLink

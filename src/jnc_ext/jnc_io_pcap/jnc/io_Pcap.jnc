@@ -218,7 +218,7 @@ opaque class Pcap
 
 	char const* readonly m_filter;
 
-	uint_t readonly m_unused;
+	protected uint_t m_unused;
 
 	io.PcapEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
