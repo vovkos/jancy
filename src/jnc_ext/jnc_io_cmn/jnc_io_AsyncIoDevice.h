@@ -11,53 +11,37 @@
 
 #pragma once
 
+#include "jnc_io_AsyncIoBase.h"
+
 namespace jnc {
 namespace io {
 
 //..............................................................................
 
-enum AsyncIoEvent
+enum AsyncIoDeviceEvent
 {
-	AsyncIoEvent_IoError          = 0x0001,
-	AsyncIoEvent_IncomingData     = 0x0002,
-	AsyncIoEvent_ReadBufferFull   = 0x0004,
-	AsyncIoEvent_WriteBufferEmpty = 0x0008,
+	AsyncIoDeviceEvent_IncomingData     = 0x0002,
+	AsyncIoDeviceEvent_ReadBufferFull   = 0x0004,
+	AsyncIoDeviceEvent_WriteBufferEmpty = 0x0008,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum AsyncIoOption
+enum AsyncIoDeviceOption
 {
-	AsyncIoOption_KeepReadBlockSize  = 0x01,
-	AsyncIoOption_KeepWriteBlockSize = 0x02,
+	AsyncIoDeviceOption_KeepReadBlockSize      = 0x01,
+	AsyncIoDeviceOption_KeepWriteBlockSize     = 0x02,
+	AsyncIoDeviceOption_KeepReadWriteBlockSize = 0x03,
 };
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
 
-class AsyncIoDevice
+class AsyncIoDevice: public AsyncIoBase
 {
 protected:
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Closing   = 0x0001,
-		IoThreadFlag_Suspended = 0x0002,
-		IoThreadFlag_Datagram  = 0x0004,
-	};
-
-	struct Wait: sl::ListLink
-	{
-		uint_t m_mask;
-	};
-
-	struct SyncWait: Wait
-	{
-		sys::Event* m_event;
-	};
-
-	struct AsyncWait: Wait
-	{
-		FunctionPtr m_handlerPtr;
-		handle_t m_handle;
+		IoThreadFlag_Datagram = 0x0004,
 	};
 
 	struct ReadWriteMeta: sl::ListLink
@@ -66,30 +50,7 @@ protected:
 		size_t m_paramSize;
 	};
 
-public:
-	uint_t m_options;
-	uint_t m_activeEvents;
-	DataPtr m_ioErrorPtr;
-
-	bool m_isOpen;
-
 protected:
-	Runtime* m_runtime;
-	sys::Lock m_lock;
-	volatile uint_t m_ioThreadFlags;
-	sl::AuxList<SyncWait> m_syncWaitList;
-	sl::List<AsyncWait> m_asyncWaitList;
-	sl::List<AsyncWait> m_pendingAsyncWaitList;
-	sl::HandleTable<AsyncWait*> m_asyncWaitMap;
-
-#if (_JNC_OS_WIN)
-	sys::Event m_ioThreadEvent;
-#else
-	axl::io::psx::Pipe m_ioThreadSelfPipe; // for self-pipe trick
-#endif
-
-	// buffers are not always used, but we get a cleaner impl this way
-
 	sl::CircularBuffer m_readBuffer;
 	sl::CircularBuffer m_writeBuffer;
 	sl::Array<char> m_readOverflowBuffer;
@@ -98,61 +59,12 @@ protected:
 	sl::List<ReadWriteMeta> m_writeMetaList;
 	sl::List<ReadWriteMeta> m_freeReadWriteMetaList;
 
-public:
-	AsyncIoDevice();
-
 protected:
-	void
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
-
-	handle_t
-	wait(
-		uint_t eventMask,
-		FunctionPtr handlerPtr
-		);
-
-	bool
-	cancelWait(handle_t handle);
-
-	uint_t
-	blockingWait(
-		uint_t eventMask,
-		uint_t timeout
-		);
-
 	void
 	open();
 
 	void
 	close();
-
-	void
-	wakeIoThread();
-
-	void
-	sleepIoThread();
-
-	void
-	suspendIoThread(bool isSuspended);
-
-	template <typename T>
-	void
-	setSetting(
-		T* p,
-		T value
-		)
-	{
-		if (!m_isOpen)
-		{
-			*p = value;
-			return;
-		}
-
-		m_lock.lock();
-		*p = value;
-		wakeIoThread();
-		m_lock.unlock();
-	}
 
 	bool
 	setReadBufferSize(
@@ -165,62 +77,6 @@ protected:
 		size_t* targetField,
 		size_t size
 		);
-
-	void
-	cancelAllWaits();
-
-	size_t
-	processWaitLists_l();
-
-	void
-	setEvents_l(uint_t events);
-
-	void
-	setEvents(uint_t events)
-	{
-		m_lock.lock();
-		setEvents_l(events);
-	}
-
-	void
-	setErrorEvent_l(
-		uint_t event,
-		const err::Error& error
-		)
-	{
-		m_lock.unlock();
-		setErrorEvent(event, error);
-	}
-
-	void
-	setIoErrorEvent_l(const err::Error& error)
-	{
-		setErrorEvent_l(AsyncIoEvent_IoError, error);
-	}
-
-	void
-	setIoErrorEvent_l()
-	{
-		setErrorEvent_l(AsyncIoEvent_IoError, err::getLastError());
-	}
-
-	void
-	setErrorEvent(
-		uint_t event,
-		const err::Error& error
-		);
-
-	void
-	setIoErrorEvent(const err::Error& error)
-	{
-		setErrorEvent(AsyncIoEvent_IoError, error);
-	}
-
-	void
-	setIoErrorEvent()
-	{
-		setErrorEvent(AsyncIoEvent_IoError, err::getLastError());
-	}
 
 	static
 	size_t

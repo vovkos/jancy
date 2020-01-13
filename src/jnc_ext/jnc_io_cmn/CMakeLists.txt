@@ -15,6 +15,7 @@
 
 set(
 	LIB_H_LIST
+	jnc_io_AsyncIoBase.h
 	jnc_io_AsyncIoDevice.h
 	jnc_io_SocketAddress.h
 	jnc_io_SocketOptions.h
@@ -23,6 +24,7 @@ set(
 
 set(
 	LIB_CPP_LIST
+	jnc_io_AsyncIoBase.cpp
 	jnc_io_AsyncIoDevice.cpp
 	jnc_io_SocketAddress.cpp
 	jnc_io_SocketBase.cpp

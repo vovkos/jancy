@@ -80,7 +80,7 @@ SocketBase::setOptions(uint_t options)
 	m_lock.lock();
 
 	if (m_ioThreadFlags & IoThreadFlag_Datagram)
-		options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
+		options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
 
 	m_options = options;
 	wakeIoThread();
@@ -173,7 +173,7 @@ SocketBase::open(
 	if (protocol != IPPROTO_TCP)
 	{
 		m_ioThreadFlags |= IoThreadFlag_Datagram;
-		m_options |= AsyncIoOption_KeepReadBlockSize | AsyncIoOption_KeepWriteBlockSize;
+		m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
 	}
 
 	return true;
