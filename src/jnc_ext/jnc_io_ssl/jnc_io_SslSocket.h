@@ -13,6 +13,7 @@
 
 #include "jnc_io_AsyncIoDevice.h"
 #include "jnc_io_SocketBase.h"
+#include "jnc_io_SslCertificate.h"
 
 namespace jnc {
 namespace io {
@@ -28,7 +29,6 @@ enum SslSocketEvent
 	SslSocketEvent_TcpDisconnected       = 0x0040,
 	SslSocketEvent_TcpReset              = 0x0080,
 	SslSocketEvent_SslHandshakeCompleted = 0x0100,
-	SslSocketEvent_SslHandshakeError     = 0x0200,
 };
 
 //..............................................................................
@@ -146,6 +146,18 @@ public:
 	{
 		return SocketBase::setOptions(flags);
 	}
+
+	size_t
+	JNC_CDECL
+	getPeerCertificateChainLength();
+
+	SslCertificate*
+	JNC_CDECL
+	getPeerCertificateChainEntry(size_t i);
+
+	SslCertificate*
+	JNC_CDECL
+	getPeerCertificate();
 
 	bool
 	JNC_CDECL

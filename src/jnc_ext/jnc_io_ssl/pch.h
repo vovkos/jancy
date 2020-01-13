@@ -17,6 +17,8 @@
 #include "axl_io_Socket.h"
 #include "axl_io_Ssl.h"
 #include "axl_cry_Bio.h"
+#include "axl_cry_BigNum.h"
+#include "axl_cry_Asn1.h"
 #include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"

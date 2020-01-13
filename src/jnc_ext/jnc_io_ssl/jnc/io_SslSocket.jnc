@@ -12,6 +12,7 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
+import "io_SslCertificate.jnc"
 
 namespace io {
 
@@ -32,7 +33,6 @@ bitflag enum SslSocketEvents
 	TcpDisconnected,
 	TcpReset,
 	SslHandshakeCompleted,
-	SslHandshakeError,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -62,6 +62,11 @@ opaque class SslSocket
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
+
+	size_t const property m_peerCertificateChainLength;
+	SslCertificate* const property m_peerCertificateChainEntry(size_t i);
+	SslCertificate* const property m_peerCertificate;
+
 	char const* const property m_stateString;
 	char const* const property m_stateStringLong;
 

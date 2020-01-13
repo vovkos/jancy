@@ -36,10 +36,14 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_CONST_PROPERTY("m_peerAddress", &SslSocket::getPeerAddress)
 	JNC_MAP_CONST_PROPERTY("m_stateString", &SslSocket::getStateString)
 	JNC_MAP_CONST_PROPERTY("m_stateStringLong", &SslSocket::getStateStringLong)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslSocket::getPeerCertificateChainLength)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainEntry", &SslSocket::getPeerCertificateChainEntry)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslSocket::getPeerCertificate)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &SslSocket::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options", &SslSocket::setOptions)
+
 
 	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
@@ -68,6 +72,31 @@ SslSocket::SslSocket()
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
+}
+
+size_t
+JNC_CDECL
+SslSocket::getPeerCertificateChainLength()
+{
+	STACK_OF(X509)* chain = SSL_get_peer_cert_chain(m_ssl);
+	return sk_X509_num(chain);
+}
+
+SslCertificate*
+JNC_CDECL
+SslSocket::getPeerCertificateChainEntry(size_t i)
+{
+	STACK_OF(X509)* chain = SSL_get_peer_cert_chain(m_ssl);
+	X509* cert = sk_X509_value(chain, i);
+	return cert ? SslCertificate::create(cert) : NULL;
+}
+
+SslCertificate*
+JNC_CDECL
+SslSocket::getPeerCertificate()
+{
+	X509* cert = SSL_get_peer_certificate(m_ssl);
+	return cert ? SslCertificate::create(cert) : NULL;
 }
 
 bool

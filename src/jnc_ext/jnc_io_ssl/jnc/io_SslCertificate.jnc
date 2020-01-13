@@ -1,0 +1,75 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-ssl
+//! @{
+
+//..............................................................................
+
+enum SslNid
+{
+	CommonName             = 13,
+	CountryName            = 14,
+	LocalityName           = 15,
+	StateOrProvinceName    = 16,
+	OrganizationName       = 17,
+	OrganizationalUnitName = 18,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getSslNidShortName(SslNid nid);
+char const* getSslNidLongName(SslNid nid);
+
+//..............................................................................
+
+struct SslCertEntry
+{
+	SslNid const property m_nid;
+	char const* const property m_name;
+	char const* const property m_value;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class SslCertName
+{
+	size_t readonly m_entryCount;
+	SslCertEntry* const property m_entryTable(size_t i);
+	char const* const property m_oneLine;
+
+	construct();
+	destruct();
+
+	SslCertEntry* findEntry(SslNid nid);
+}
+
+//..............................................................................
+
+opaque class SslCertificate
+{
+	char const* const property m_serialNumber;
+	uint64_t const property m_validFromDate;
+	uint64_t const property m_validToDate;
+	SslCertName* const property* m_subject;
+	SslCertName* const property* m_issuer;
+
+	construct();
+	destruct();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

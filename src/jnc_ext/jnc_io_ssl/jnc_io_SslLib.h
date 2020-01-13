@@ -24,6 +24,9 @@ JNC_DEFINE_GUID(
 
 enum SslLibCacheSlot
 {
+	SslLibCacheSlot_SslCertEntry,
+	SslLibCacheSlot_SslCertName,
+	SslLibCacheSlot_SslCertificate,
 	SslLibCacheSlot_SslSocket,
 };
 
