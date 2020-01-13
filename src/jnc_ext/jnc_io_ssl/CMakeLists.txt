@@ -123,6 +123,7 @@ target_link_libraries(
 	jnc_io_ssl
 	jnc_io_cmn
 	jnc_api_ext
+	axl_cry
 	axl_io
 	axl_io_ssl
 	axl_core

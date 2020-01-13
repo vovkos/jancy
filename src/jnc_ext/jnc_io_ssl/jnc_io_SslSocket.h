@@ -85,7 +85,7 @@ protected:
 	jnc::io::SocketAddress m_remoteAddress;
 
 	axl::io::SslCtx m_sslCtx;
-	axl::io::SslBio m_sslBio;
+	axl::cry::Bio m_sslBio;
 	axl::io::Ssl m_ssl;
 
 public:
