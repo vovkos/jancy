@@ -134,14 +134,17 @@ SslCertName::findEntry(
 DataPtr
 SslCertName::createEntry(X509_NAME_ENTRY* srcEntry)
 {
+	ASN1_OBJECT* object = X509_NAME_ENTRY_get_object(srcEntry);
+	ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
+
 	Runtime* runtime = getCurrentThreadRuntime();
 	runtime->getGcHeap()->enterNoCollectRegion();
 
 	DataPtr ptr = createData<SslCertNameEntry>(runtime);
 	SslCertNameEntry* dstEntry = (SslCertNameEntry*)ptr.m_p;
-	dstEntry->m_nid = OBJ_obj2nid(srcEntry->object);
-	dstEntry->m_namePtr = strDup(cry::getAsn1ObjectString(srcEntry->object));
-	dstEntry->m_valuePtr = strDup(cry::getAsn1StringString(srcEntry->value));
+	dstEntry->m_nid = OBJ_obj2nid(object);
+	dstEntry->m_namePtr = strDup(cry::getAsn1ObjectString(object));
+	dstEntry->m_valuePtr = strDup(cry::getAsn1StringString(value));
 
 	runtime->getGcHeap()->leaveNoCollectRegion(false);
 	return ptr;
