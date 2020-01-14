@@ -1,0 +1,140 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_HostNameResolver.jnc"
+import "io_ssl.jncx"
+
+void onStateChanged(
+	io.SslSocket* socket,
+	io.SslSocketState state, 
+	int alertInfo
+	)
+{
+	if (alertInfo > 0)
+		printf("SSL state: 0x%x, alert: %d, info: %s\n", state, alertInfo, socket.m_stateStringLong);
+}
+
+void printCertName(io.SslCertName const* name)
+{
+	size_t count = name.m_entryCount;
+	for (int i = 0; i < count; i++)
+	{
+		io.SslCertNameEntry const* entry = name.m_entryTable[i];
+		printf(
+			"    %3d: %s: %s\n", 
+			entry.m_nid, 
+			entry.m_name, 
+			entry.m_value
+			);
+	}
+}
+
+void printCertificate(io.SslCertificate const* cert)
+{
+	printf("  serial: %s\n", cert.m_serialNumber);
+	printf("  valid from: %s\n", sys.formatTimestamp(cert.m_validFromDate, "%Y-%M-%D"));
+	printf("  valid to: %s\n", sys.formatTimestamp(cert.m_validToDate, "%Y-%M-%D"));
+
+	printf("  subject:\n");
+	printCertName(cert.m_subject);
+
+	printf("  issuer:\n");
+	printCertName(cert.m_issuer);
+}
+
+int main()
+{
+	char const* hostName = "ioninja.com";
+//	char const* hostName = "www.google.com";
+
+	printf("Resolving %s...\n", hostName);
+
+	io.HostNameResolver resolver;
+	resolver.resolve(hostName);
+	resolver.blockingWait(io.HostNameResolverEvents.Error | io.HostNameResolverEvents.Resolved);
+	if (resolver.m_activeEvents & io.HostNameResolverEvents.Error)
+	{
+		printf("error: %s\n", resolver.m_error.m_description);
+		return -1;
+	}
+
+	io.SocketAddress addr = resolver.m_addressTable[0];
+	addr.m_port = 443;
+	printf("connecting to: %s...\n", addr.getString());
+
+	io.SslSocket ssl;
+	ssl.m_onStateChanged += onStateChanged~(ssl);
+	ssl.open(io.AddressFamily.Ip4);
+	ssl.connect(addr);
+
+	ssl.blockingWait(
+		io.SslSocketEvents.TcpConnected |
+		io.SslSocketEvents.IoError
+		);
+
+	if (ssl.m_activeEvents & io.SslSocketEvents.IoError)
+	{
+		printf("error: %s\n", ssl.m_ioError.m_description);
+		return -1;
+	}
+
+	printf("Handshaking...\n");
+
+	ssl.blockingWait(
+		io.SslSocketEvents.SslHandshakeCompleted |
+		io.SslSocketEvents.TcpDisconnected |
+		io.SslSocketEvents.IoError
+		);
+
+	if (ssl.m_activeEvents & io.SslSocketEvents.IoError)
+	{
+		printf("error: %s\n", ssl.m_ioError.m_description);
+		return -1;
+	}
+
+	size_t count = ssl.m_peerCertificateChainLength;
+	for (size_t i = 0; i < count; i++)
+	{
+		printf("certificate[%d]:\n", i);
+		printCertificate(ssl.m_peerCertificateChainEntry[i]);
+	}
+
+	printf("Getting front page...\n");
+
+	char const* httpGet = 
+		"GET / HTTP/1.1\n"
+		$"Host: $hostName\n"
+		"Connection: close\n\n";
+
+	ssl.write(httpGet, strlen(httpGet));
+
+	char buffer[256];
+
+	for (;;)
+	{
+		ssl.blockingWait(
+			io.SslSocketEvents.IncomingData | 
+			io.SslSocketEvents.TcpDisconnected |
+			io.SslSocketEvents.IoError,
+			3000 // in case a server ignores Connection: close
+			);
+
+		size_t size = ssl.read(buffer, sizeof(buffer) - 1);
+		if (!size)
+			break;
+	
+		buffer[size] = 0;
+		print(buffer);
+	}
+
+	return 0;
+}
