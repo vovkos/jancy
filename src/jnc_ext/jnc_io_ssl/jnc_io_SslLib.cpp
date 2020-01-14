@@ -37,10 +37,10 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(SslLib)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
 JNC_BEGIN_LIB_FUNCTION_MAP(SslLib)
-	JNC_MAP_FUNCTION("getSslNidShortName", getSslNidShortName)
-	JNC_MAP_FUNCTION("getSslNidLongName", getSslNidLongName)
+	JNC_MAP_FUNCTION("io.getSslNidShortName", getSslNidShortName)
+	JNC_MAP_FUNCTION("io.getSslNidLongName", getSslNidLongName)
 
-	JNC_MAP_TYPE(SslCertEntry)
+	JNC_MAP_TYPE(SslCertNameEntry)
 	JNC_MAP_TYPE(SslCertName)
 	JNC_MAP_TYPE(SslCertificate)
 	JNC_MAP_TYPE(SslSocket)

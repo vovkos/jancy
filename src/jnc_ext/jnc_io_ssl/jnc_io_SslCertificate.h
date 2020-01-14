@@ -14,15 +14,15 @@
 namespace jnc {
 namespace io {
 
-JNC_DECLARE_TYPE(SslCertEntry)
+JNC_DECLARE_TYPE(SslCertNameEntry)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCertName)
 JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCertificate)
 
 //..............................................................................
 
-struct SslCertEntry
+struct SslCertNameEntry
 {
-	JNC_DECLARE_TYPE_STATIC_METHODS(SslCertEntry)
+	JNC_DECLARE_TYPE_STATIC_METHODS(SslCertNameEntry)
 
 	uint_t m_nid;
 	DataPtr m_namePtr;

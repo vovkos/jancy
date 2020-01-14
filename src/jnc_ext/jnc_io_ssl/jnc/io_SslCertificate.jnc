@@ -33,11 +33,11 @@ char const* getSslNidLongName(SslNid nid);
 
 //..............................................................................
 
-struct SslCertEntry
+struct SslCertNameEntry
 {
-	SslNid const property m_nid;
-	char const* const property m_name;
-	char const* const property m_value;
+	SslNid m_nid;
+	char const* m_name;
+	char const* m_value;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -45,13 +45,13 @@ struct SslCertEntry
 opaque class SslCertName
 {
 	size_t readonly m_entryCount;
-	SslCertEntry* const property m_entryTable(size_t i);
+	SslCertNameEntry const* const property m_entryTable(size_t i);
 	char const* const property m_oneLine;
 
 	construct();
 	destruct();
 
-	SslCertEntry* findEntry(SslNid nid);
+	SslCertNameEntry const* findEntry(SslNid nid);
 }
 
 //..............................................................................
@@ -61,8 +61,8 @@ opaque class SslCertificate
 	char const* const property m_serialNumber;
 	uint64_t const property m_validFromDate;
 	uint64_t const property m_validToDate;
-	SslCertName* const property* m_subject;
-	SslCertName* const property* m_issuer;
+	SslCertName const* const property m_subject;
+	SslCertName const* const property m_issuer;
 
 	construct();
 	destruct();

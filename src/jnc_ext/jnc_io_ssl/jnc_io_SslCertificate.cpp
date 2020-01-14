@@ -19,13 +19,13 @@ namespace io {
 //..............................................................................
 
 JNC_DEFINE_TYPE(
-	SslCertEntry,
-	"io.SslCertEntry",
+	SslCertNameEntry,
+	"io.SslCertNameEntry",
 	g_sslLibGuid,
-	SslLibCacheSlot_SslCertEntry
+	SslLibCacheSlot_SslCertNameEntry
 	)
 
-JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertEntry)
+JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertNameEntry)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -36,7 +36,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	g_sslLibGuid,
 	SslLibCacheSlot_SslCertName,
 	SslCertName,
-	&SslCertificate::markOpaqueGcRoots
+	&SslCertName::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertName)
@@ -137,8 +137,8 @@ SslCertName::createEntry(X509_NAME_ENTRY* srcEntry)
 	Runtime* runtime = getCurrentThreadRuntime();
 	runtime->getGcHeap()->enterNoCollectRegion();
 
-	DataPtr ptr = createData<SslCertEntry>(runtime);
-	SslCertEntry* dstEntry = (SslCertEntry*)ptr.m_p;
+	DataPtr ptr = createData<SslCertNameEntry>(runtime);
+	SslCertNameEntry* dstEntry = (SslCertNameEntry*)ptr.m_p;
 	dstEntry->m_nid = OBJ_obj2nid(srcEntry->object);
 	dstEntry->m_namePtr = strDup(cry::getAsn1ObjectString(srcEntry->object));
 	dstEntry->m_valuePtr = strDup(cry::getAsn1StringString(srcEntry->value));
@@ -197,9 +197,9 @@ uint64_t
 JNC_CDECL
 SslCertificate::getValidToDate()
 {
-	return m_validFromDate ?
-		m_validFromDate :
-		m_validFromDate = getTimestamp(X509_get_notAfter(m_cert));
+	return m_validToDate ?
+		m_validToDate :
+		m_validToDate = getTimestamp(X509_get_notAfter(m_cert));
 }
 
 SslCertName*
