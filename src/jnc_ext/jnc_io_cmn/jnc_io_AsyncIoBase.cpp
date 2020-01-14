@@ -36,7 +36,7 @@ AsyncIoBase::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 	if (!m_runtime) // not constructed yet
 		return;
 
-	m_lock.lock();
+	m_lock.lock(); // we touch wait lists outside of a call site (in IO thread)
 
 	sl::Iterator<AsyncWait> it = m_asyncWaitList.getHead();
 	for (; it; it++)
@@ -286,6 +286,7 @@ AsyncIoBase::setIoErrorEvent_l(
 	)
 {
 	JNC_BEGIN_CALL_SITE(m_runtime)
+	NoCollectRegion noCollectRegion(m_runtime, false); // don't collect under lock
 	m_ioErrorPtr = memDup(error, error->m_size);
 	JNC_END_CALL_SITE()
 

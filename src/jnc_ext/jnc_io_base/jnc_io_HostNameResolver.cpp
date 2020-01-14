@@ -203,6 +203,7 @@ HostNameResolver::complete_l(
 	)
 {
 	JNC_BEGIN_CALL_SITE(m_runtime)
+	NoCollectRegion noCollectRegion(m_runtime, false); // don't collect under lock
 	m_addressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
 	m_addressCount = count;
 	JNC_END_CALL_SITE()
