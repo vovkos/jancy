@@ -203,7 +203,12 @@ struct SocketAddress
 
 	union
 	{
-		uint16_t m_family;
+		struct
+		{
+			uint16_t m_family;
+			uint16_t m_port;
+		};
+
 		sockaddr_in m_addr_ip4;
 		sockaddr_in6 m_addr_ip6;
 	};

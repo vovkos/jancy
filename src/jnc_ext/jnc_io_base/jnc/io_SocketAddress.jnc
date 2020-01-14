@@ -380,13 +380,25 @@ struct SocketAddress_ip6
 
 union SocketAddress
 {
-	/**
-		Holds the address family of the socket address. Depending on the value
-		of this field, the actual address is stored in either ``m_ip4`` or in
-		``m_ip6`` fields.
-	*/
+	struct
+	{
+		/**
+			Holds the address family of the socket address. Depending on the value
+			of this field, the actual address is stored in either ``m_ip4`` or in
+			``m_ip6`` fields.
+		*/
 
-	AddressFamily m_family;
+		AddressFamily m_family;
+
+		/**
+			Holds the number of ``TCP`` or ``UDP`` port. There is no need to change
+			the byte order of the port before assignment -- this field is already
+			declared as ``bigendian`` so all the necessary conversions will happen
+			automatically.
+		*/
+
+		bigendian uint16_t m_port;
+	}
 
 	/**
 		Holds ``IP4`` socket address as `io.SocketAddress_ip4`.
