@@ -455,6 +455,8 @@ SslSocket::sslReadWriteLoop()
 
 		while (canReadSocket && !m_readBuffer.isFull())
 		{
+			m_lock.unlock();
+
 			size_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
 			if (actualSize == -1)
 			{
@@ -470,17 +472,20 @@ SslSocket::sslReadWriteLoop()
 					break;
 
 				default:
-					setIoErrorEvent_l();
+					setIoErrorEvent();
 					return;
 				}
+
+				m_lock.lock();
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents_l(SslSocketEvent_TcpDisconnected);
+				setEvents(SslSocketEvent_TcpDisconnected);
 				return;
 			}
 			else
 			{
+				m_lock.lock();
 				addToReadBuffer(readBlock, actualSize);
 			}
 		}
@@ -490,6 +495,8 @@ SslSocket::sslReadWriteLoop()
 			getNextWriteBlock(&writeBlock);
 			if (writeBlock.isEmpty())
 				break;
+
+			m_lock.unlock();
 
 			size_t blockSize = writeBlock.getCount();
 			size_t actualSize = m_ssl.write(writeBlock, blockSize);
@@ -507,7 +514,7 @@ SslSocket::sslReadWriteLoop()
 					break;
 
 				default:
-					setIoErrorEvent_l();
+					setIoErrorEvent();
 					return;
 				}
 			}
@@ -519,6 +526,8 @@ SslSocket::sslReadWriteLoop()
 			{
 				writeBlock.clear();
 			}
+
+			m_lock.lock();
 		}
 
 		updateReadWriteBufferEvents();
@@ -666,6 +675,8 @@ SslSocket::sslReadWriteLoop()
 
 		while (canReadSocket && !m_readBuffer.isFull())
 		{
+			m_lock.unlock();
+
 			ssize_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
 			if (actualSize == -1)
 			{
@@ -681,17 +692,20 @@ SslSocket::sslReadWriteLoop()
 					break;
 
 				default:
-					setIoErrorEvent_l();
+					setIoErrorEvent();
 					return;
 				}
+
+				m_lock.lock();
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents_l(SslSocketEvent_TcpDisconnected);
+				setEvents(SslSocketEvent_TcpDisconnected);
 				return;
 			}
 			else
 			{
+				m_lock.lock();
 				addToReadBuffer(readBlock, actualSize);
 			}
 		}
@@ -701,6 +715,8 @@ SslSocket::sslReadWriteLoop()
 			getNextWriteBlock(&writeBlock);
 			if (writeBlock.isEmpty())
 				break;
+
+			m_lock.unlock();
 
 			size_t blockSize = writeBlock.getCount();
 			ssize_t actualSize = m_ssl.write(writeBlock, blockSize);
@@ -718,7 +734,7 @@ SslSocket::sslReadWriteLoop()
 					break;
 
 				default:
-					setIoErrorEvent_l();
+					setIoErrorEvent();
 					return;
 				}
 			}
@@ -730,6 +746,8 @@ SslSocket::sslReadWriteLoop()
 			{
 				writeBlock.clear();
 			}
+
+			m_lock.lock();
 		}
 
 		updateReadWriteBufferEvents();
