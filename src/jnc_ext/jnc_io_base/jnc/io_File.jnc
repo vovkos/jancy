@@ -53,14 +53,14 @@ enum FileKind
 	``unknown device`` is returned.
 */
 
-char const* getFileStreamKindString(FileStreamKind kind)
+char const* getFileStreamKindString(FileKind kind)
 {
 	static char const* stringTable[] =
 	{
-		"unknown device", // FileStreamKind.Unknown,
-		"disk file",      // FileStreamKind.Disk,
-		"serial device",  // FileStreamKind.Serial,
-		"pipe",           // FileStreamKind.Pipe,
+		"unknown device", // FileKind.Unknown,
+		"disk file",      // FileKind.Disk,
+		"serial device",  // FileKind.Serial,
+		"pipe",           // FileKind.Pipe,
 	}
 
 	return kind < countof(stringTable) ?
