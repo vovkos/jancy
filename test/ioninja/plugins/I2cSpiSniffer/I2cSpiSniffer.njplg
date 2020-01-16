@@ -1,26 +1,25 @@
 #...............................................................................
 #
-#  I2C/SPI Sniffer session plugin
+#  I2C/SPI Tap session plugin
 #
 
 [plugin]
 
-name        = "I2C/SPI Sniffer"
-description = "Monitor I2C/SPI communication via a I2C/SPI Sniffer device from Tibbo"
-id          = i2c-spi-sniffer
+name        = "I2C/SPI Tap"
+description = "Monitor I2C/SPI communication via a I2C/SPI Tap evice from Tibbo"
+id          = i2c-spi-tap
 group       = serial
-monitor     = false
-log-guid    = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327  # i2c-spi sniffer
-icon        = images/serialmon.png
-small-icon  = images/serialmon-16x16.png
+monitor     = true
+log-guid    = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327  # i2c-spi tap
+log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
 
 session-class = I2cSpiSnifferSession
 
 [scripts]
 
-Protocol.jnc
-Uploader.jnc
 Decoder.jnc
+I2cSpiSnifferSession.jnc
 I2cDecoder.jnc
 SpiDecoder.jnc
-I2cSpiSnifferSession.jnc

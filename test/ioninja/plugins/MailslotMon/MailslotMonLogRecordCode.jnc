@@ -9,17 +9,22 @@ import "log_RecordCode.jnc"
 
 enum MailslotMonLogRecordCode: uint64_t
 {
-	ServerFileOpened_old    = 0x01d4871750ac2a7b,
-	ServerFileOpenError_old = 0x01d4871750ac2a7c,
-	ClientFileOpened_old    = 0x01d4871750ac2a7d,
-	ClientFileOpenError_old = 0x01d4871750ac2a7e,
-	FileClosed              = 0x01d4871750ac2a7f,
-	FileIdChanged_old       = 0x01d4871750ac2a80,
-	ServerFileOpened        = 0x01d4871750ac2a81,
-	ServerFileOpenError     = 0x01d4871750ac2a82,
-	ClientFileOpened        = 0x01d4871750ac2a83,
-	ClientFileOpenError     = 0x01d4871750ac2a84,
-	FileIdChanged           = 0x01d4871750ac2a85,
+	ServerFileOpened_0    = 0x01d4871750ac2a7b,
+	ServerFileOpenError_0 = 0x01d4871750ac2a7c,
+	ClientFileOpened_0    = 0x01d4871750ac2a7d,
+	ClientFileOpenError_0 = 0x01d4871750ac2a7e,
+	FileClosed            = 0x01d4871750ac2a7f,
+	FileIdChanged_0       = 0x01d4871750ac2a80,
+	ServerFileOpened_1    = 0x01d4871750ac2a81,
+	ServerFileOpenError_1 = 0x01d4871750ac2a82,
+	ClientFileOpened_1    = 0x01d4871750ac2a83,
+	ClientFileOpenError_1 = 0x01d4871750ac2a84,
+	FileIdChanged_1       = 0x01d4871750ac2a85,
+	ServerFileOpened      = 0x01d4871750ac2a86,
+	ServerFileOpenError   = 0x01d4871750ac2a87,
+	ClientFileOpened      = 0x01d4871750ac2a88,
+	ClientFileOpenError   = 0x01d4871750ac2a89,
+	FileIdChanged         = 0x01d4871750ac2a8a,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

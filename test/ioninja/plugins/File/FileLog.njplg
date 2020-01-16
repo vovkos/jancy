@@ -9,6 +9,8 @@ name        = "File Log"
 description = "File log representer"
 group       = fs
 guid        = 1dfd5eb0-9560-11e3-a5e2-0800200c9a66
+icon        = images/file.png
+small-icon  = images/file-16x16.png
 
 log-representer-func = representFileLog
 
@@ -24,3 +26,4 @@ FileLogRepresenter.jnc
 01d485548790df2b  # Closed
 01d485548790df2c  # Eof
 01d485548790df2d  # Cleared
+01d485548790df2e  # FileOpened

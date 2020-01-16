@@ -3,17 +3,17 @@
 // Serial tap cable session
 //
 
+import "doc_Session.jnc"
 import "io_usb.jncx"
 import "io_base.jncx"
 import "io_Serial.jnc"
-import "io_SerialUi.jnc"
-import "io_BufferUi.jnc"
 import "io_UsbDb.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_SerialSettingUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
 namespace cy {
 
@@ -38,6 +38,14 @@ enum
 	// misc constants
 
 	CY_SCB_INDEX_POS = 15,
+
+	// interrupt bits
+
+	CY_UART_CTS_BIT          = 0x01,
+	CY_UART_DSR_BIT          = 0x02,
+	CY_UART_BREAK_BIT        = 0x04,
+	CY_UART_FRAME_ERROR_BIT  = 0x10,
+	CY_UART_PARITY_ERROR_BIT = 0x20,
 }
 
 struct CyUartConfig
@@ -212,27 +220,27 @@ protected:
 
 	// common serial ui
 
-	io.SerialSettingUi m_serialSettingUi;
+	ui.SerialSettingUi m_serialSettingUi;
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPane;
-	gui.ComboBox* m_deviceCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPane;
+	ui.ComboBox* m_deviceCombo;
 
 	// serial property grid
 
-	gui.EnumProperty* m_deviceProp;
-	gui.BoolProperty* m_flipProp;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.EnumProperty* m_deviceProp;
+	ui.BoolProperty* m_flipProp;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
-	gui.InformationValue* m_infoTable[InfoId._Count];
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+	ui.InformationValue* m_infoTable[InfoId._Count];
 
 	// ui reactor
 
@@ -295,15 +303,15 @@ SerialTapSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 
-	m_readBuffer.setSize(io.BufferPropertySet.Defaults.ReadBufferSize);
+	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
 
 	m_dteIface = new SerialIface;
 	m_dceIface = new SerialIface;
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -311,8 +319,8 @@ SerialTapSession.createUi()
 {
 	// toolbar
 
-	m_iconTable[IconId.Capture] = new gui.Icon("images/capture.png");
-	m_iconTable[IconId.StopCapture] = new gui.Icon("images/pause.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
 
 	m_pluginHost.m_toolBar.addLabel("Tap:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -330,7 +338,7 @@ SerialTapSession.createUi()
 
 	// serial settings
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
 		);
@@ -346,11 +354,11 @@ SerialTapSession.createUi()
 		m_pluginHost.m_toolBar,
 		m_pluginHost.m_propertyGrid,
 		group,
-		io.SerialSettingUi.SettingId.BaudRate,
-		io.SerialSettingUi.SettingId.BaudRate |
-		io.SerialSettingUi.SettingId.DataBits |
-		io.SerialSettingUi.SettingId.StopBits |
-		io.SerialSettingUi.SettingId.Parity
+		ui.SerialSettingUi.SettingId.BaudRate,
+		ui.SerialSettingUi.SettingId.BaudRate |
+		ui.SerialSettingUi.SettingId.DataBits |
+		ui.SerialSettingUi.SettingId.StopBits |
+		ui.SerialSettingUi.SettingId.Parity
 		);
 
 	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
@@ -375,17 +383,17 @@ SerialTapSession.createUi()
 		"Advanced options controlling performance, throughtput and compatibility"
 		);
 
-	io.BufferPropertySet.PropertyId mask = io.BufferPropertySet.PropertyId.All;
+	ui.BufferPropertySet.PropertyId mask = ui.BufferPropertySet.PropertyId.All;
 	mask &= ~(
-		io.BufferPropertySet.PropertyId.WriteBufferSize |
-		io.BufferPropertySet.PropertyId.KeepWriteBlockSize
+		ui.BufferPropertySet.PropertyId.WriteBufferSize |
+		ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
 		);
 
 	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group,, mask);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial tap");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial tap");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 
@@ -408,12 +416,12 @@ SerialTapSession.enumerateDevices()
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
-	size_t count = dynamic countof(deviceArray);
+	size_t totalCount = dynamic countof(deviceArray);
+	size_t actualCount = 0;
 
-	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption[count];
+	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[totalCount];
 
-	size_t ftdiCount = 0;
-	for (size_t i = 0; i < count; i++)
+	for (size_t i = 0; i < totalCount; i++)
 	{
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
@@ -429,12 +437,12 @@ SerialTapSession.enumerateDevices()
 
 		m_deviceCombo.addItem(text, device);
 
-		optionTable[ftdiCount].m_text = text;
-		optionTable[ftdiCount].m_value = device;
-		ftdiCount++;
+		optionTable[actualCount].m_text = text;
+		optionTable[actualCount].m_value = device;
+		actualCount++;
 	}
 
-	m_deviceProp.setOptions(optionTable, ftdiCount);
+	m_deviceProp.setOptions(optionTable, actualCount);
 }
 
 SerialTapSession.flipDteDce()
@@ -517,7 +525,7 @@ bool errorcode SerialTapSession.capture()
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
 	char const* p = $"$(params; B)$(m_deviceCombo.m_currentText)";
-	writeLog(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
+	m_logWriter.write(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
 
 	m_state = State.Opened;
 
@@ -532,7 +540,7 @@ bool errorcode SerialTapSession.capture()
 catch:
 	std.Error const* error = std.getLastError();
 
-	writeLog(
+	m_logWriter.write(
 		SerialLogRecordCode.PortOpenError,
 		error,
 		error.m_size
@@ -555,7 +563,7 @@ SerialTapSession.stopCapture()
 	if (m_state != State.Opened)
 		return;
 
-	writeLog(SerialLogRecordCode.PortClosed);
+	m_logWriter.write(SerialLogRecordCode.PortClosed);
 	m_stdSessionInfoSet.endSession();
 	m_dteIface.release();
 	m_dceIface.release();
@@ -570,7 +578,7 @@ SerialTapSession.waitBulkEndpointEvents(SerialIface* iface)
 		io.UsbEndpointEvents.IoError |
 		io.UsbEndpointEvents.ReadBufferFull |
 		io.UsbEndpointEvents.IncomingData,
-		onBulkEndpointEvent ~(
+		onBulkEndpointEvent~(
 			iface,
 			++iface.m_bulkSyncId
 			) @ m_pluginHost.m_mainThreadScheduler
@@ -582,7 +590,7 @@ SerialTapSession.waitInterruptEndpointEvents(SerialIface* iface)
 	iface.m_interruptEndpoint.wait(
 		io.UsbEndpointEvents.IoError |
 		io.UsbEndpointEvents.IncomingData,
-		onInterruptEndpointEvent ~(
+		onInterruptEndpointEvent~(
 			iface,
 			++iface.m_interruptSyncId
 			) @ m_pluginHost.m_mainThreadScheduler
@@ -600,14 +608,14 @@ SerialTapSession.onBulkEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, iface.m_bulkEndpoint.m_ioError, iface.m_bulkEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, iface.m_bulkEndpoint.m_ioError, iface.m_bulkEndpoint.m_ioError.m_size);
 		stopCapture();
 		return;
 	}
 
 	if ((triggeredEvents & io.UsbEndpointEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog(log.StdRecordCode.RxBufferFull);
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
 	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
 	{
@@ -615,7 +623,7 @@ SerialTapSession.onBulkEndpointEvent(
 		if (result)
 		{
 			uint64_t recordCode = iface == m_dteIface ? log.StdRecordCode.Rx : log.StdRecordCode.Tx;
-			writeLog(recordCode, m_readBuffer.m_p, result);
+			m_logWriter.write(recordCode, m_readBuffer.m_p, result);
 		}
 	}
 
@@ -633,7 +641,7 @@ SerialTapSession.onInterruptEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, iface.m_interruptEndpoint.m_ioError, iface.m_interruptEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, iface.m_interruptEndpoint.m_ioError, iface.m_interruptEndpoint.m_ioError.m_size);
 		stopCapture();
 		return;
 	}
@@ -643,12 +651,25 @@ SerialTapSession.onInterruptEndpointEvent(
 		size_t result = iface.m_interruptEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result >= 10 && (m_readBuffer[6] & 0x02))
 		{
+			char bits = m_readBuffer[8];
+
 			io.SerialStatusLines statusLines;
-			if (m_readBuffer[8] & 0x02)
+			io.SerialLineErrors lineErrors;
+
+			if (bits & cy.CY_UART_DSR_BIT)
 				statusLines |= io.SerialStatusLines.Dsr;
 
-			if (m_readBuffer[8] & 0x01)
+			if (bits & cy.CY_UART_CTS_BIT)
 				statusLines |= io.SerialStatusLines.Cts;
+
+			if (bits & cy.CY_UART_FRAME_ERROR_BIT)
+				lineErrors |= io.SerialLineErrors.FramingError;
+
+			if (bits & cy.CY_UART_PARITY_ERROR_BIT)
+				lineErrors |= io.SerialLineErrors.ParityError;
+
+			if (bits & cy.CY_UART_BREAK_BIT)
+				lineErrors |= io.SerialLineErrors.BreakError;
 
 			io.SerialStatusLines statusLineMask = statusLines ^ iface.m_serialStatusLines;
 
@@ -659,10 +680,13 @@ SerialTapSession.onInterruptEndpointEvent(
 					SerialLogRecordCode.ControlLineChanged;
 
 				SerialStatusLineChangedParams params = { statusLines, statusLineMask }
-				writeLog(recordCode, params, sizeof(params));
+				m_logWriter.write(recordCode, params, sizeof(params));
 
 				iface.m_serialStatusLines = statusLines;
 			}
+
+			if (lineErrors)
+				m_logWriter.write(SerialLogRecordCode.LineError, &lineErrors, sizeof(lineErrors));
 		}
 	}
 
@@ -716,25 +740,25 @@ bool errorcode SerialTapSession.applyProperties()
 
 	if (m_baudRate != baudRate)
 	{
-		writeLog(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
 		m_baudRate = baudRate;
 	}
 
 	if (m_dataBits != dataBits)
 	{
-		writeLog(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+		m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
 		m_dataBits = dataBits;
 	}
 
 	if (m_stopBits != stopBits)
 	{
-		writeLog(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+		m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
 		m_stopBits = stopBits;
 	}
 
 	if (m_parity != parity)
 	{
-		writeLog(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+		m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
 		m_parity = parity;
 	}
 
@@ -743,7 +767,7 @@ bool errorcode SerialTapSession.applyProperties()
 	return true;
 
 catch:
-	writeLogLastError(log.StdRecordCode.Error);
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	return false;
 }
 
@@ -766,11 +790,11 @@ SerialTapSession.onBaudRateChanged()
 	configureSerialIface(0);
 	configureSerialIface(1);
 
-	writeLog(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+	m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
 	m_baudRate = baudRate;
 
 catch:
-	writeLogLastError(log.StdRecordCode.Error);
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
 SerialTapSession.updateLineInfoValue(
@@ -779,7 +803,7 @@ SerialTapSession.updateLineInfoValue(
 	)
 {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? gui.StdColor.LightRed : gui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
 }
 
 reactor SerialTapSession.m_uiReactor

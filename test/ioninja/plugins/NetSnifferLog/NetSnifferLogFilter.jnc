@@ -1,0 +1,117 @@
+//..............................................................................
+//
+// Network Sniffer log filter
+//
+
+import "log_Filter.jnc"
+import "sys_Lock.jnc"
+import "std_HashTable.jnc"
+import "io_pcap.jncx"
+
+//..............................................................................
+
+class NetSnifferLogFilter: log.Filter
+{
+protected:
+	char const* m_filter;
+	bool m_isOptimized;
+	std.HashTable m_pcapFilterMap; // link-type to pcap-filter
+
+public:
+	// suspend log engine before calling setFilter
+
+	bool errorcode setFilter(
+		char const* filter,
+		bool isOptimized = true
+		);
+
+protected:
+	io.PcapFilter* getPcapFilter(io.PcapLinkType linkType);
+
+	override bool filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode NetSnifferLogFilter.setFilter(
+	char const* filter,
+	bool isOptimized
+	)
+{
+	io.PcapFilter pcapFilter;
+
+	pcapFilter.compile(
+		io.PcapLinkType.Ethernet,
+		io.Pcap.Defaults.SnapshotSize,
+		filter,
+		isOptimized
+		);
+
+	m_filter = strdup(filter);
+	m_isOptimized = isOptimized;
+	m_pcapFilterMap.clear();
+	m_pcapFilterMap[io.PcapLinkType.Ethernet] = pcapFilter;
+	return true;
+}
+
+io.PcapFilter* NetSnifferLogFilter.getPcapFilter(io.PcapLinkType linkType)
+{
+	std.MapEntry* entry = m_pcapFilterMap.visit(linkType);
+	io.PcapFilter* pcapFilter = entry.m_value;
+	if (pcapFilter)
+		return pcapFilter;
+
+	pcapFilter = new io.PcapFilter;
+
+	// if failed, pcap filter will remain empty
+
+	try pcapFilter.compile(
+		linkType,
+		io.Pcap.Defaults.SnapshotSize,
+		m_filter,
+		m_isOptimized
+		);
+
+	entry.m_value = pcapFilter;
+	return pcapFilter;
+}
+
+bool NetSnifferLogFilter.filter(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_filter)
+		return true;
+
+	io.PcapFilter* pcapFilter;
+
+	switch (recordCode)
+	{
+	case NetSnifferLogRecordCode.EthernetPacket:
+	case NetSnifferLogRecordCode.InjectedEthernetPacket:
+		pcapFilter = getPcapFilter(io.PcapLinkType.Ethernet);
+		break;
+
+	case NetSnifferLogRecordCode.Packet:
+	case NetSnifferLogRecordCode.InjectedPacket:
+		pcapFilter = getPcapFilter(*(io.PcapLinkType const*)p);
+		p += sizeof(io.PcapLinkType);
+		size -= sizeof(io.PcapLinkType);
+		break;
+
+	default:
+		return true; // everything else is visible
+	}
+
+	return pcapFilter ? pcapFilter.match(p, size) : true;
+}
+
+//..............................................................................

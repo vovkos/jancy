@@ -3,13 +3,13 @@
 // Device Monitor log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "DeviceMonLogRecordCode.jnc"
 
 //..............................................................................
 
 bool representDeviceMonLog  (
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -20,29 +20,29 @@ bool representDeviceMonLog  (
 	{
 	case DeviceMonLogRecordCode.CaptureStarted_name:
 		char const* name = (char const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Capture started on \e[34m$name");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Capture started on \e[34m$name");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStarted_filter:
 		char const* nameFilter = (char const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Capture started with filter \e[34m$nameFilter");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Capture started with filter \e[34m$nameFilter");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStopped:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText("Capture stopped");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Capture stopped");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot start capture: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot start capture: $(error.m_description)");
 
 		char const* url;
 
@@ -70,7 +70,7 @@ bool representDeviceMonLog  (
 			}
 
 		if (url)
-			target.addHyperText($"Read this \e^$url\e[4;34mKB article\e[m for more details");
+			representation.addHyperText($"Read this \e^$url\e[4;34mKB article\e[m for more details");
 
 		break;
 

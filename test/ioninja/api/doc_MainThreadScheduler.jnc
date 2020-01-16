@@ -1,0 +1,22 @@
+//..............................................................................
+//
+// Ninja document model - main thread schdeuler
+//
+
+namespace doc {
+
+//! \addtogroup api-doc
+//! @{
+
+//..............................................................................
+
+opaque class MainThreadScheduler: jnc.Scheduler
+{
+	override schedule(function* f());
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace doc

@@ -5,9 +5,11 @@
 
 [plugin]
 
-name        = Modbus Log
+name        = "Modbus Log"
 description = "Modbus log representer"
 guid        = 53603C98-34BC-46EF-BA08-D3274F1057B4
+icon        = images/modbus.png
+small-icon  = images/modbus-16x16.png
 
 log-representer-func = representModbusLog
 

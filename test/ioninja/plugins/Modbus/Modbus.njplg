@@ -6,13 +6,14 @@
 [plugin]
 
 name        = Modbus Analyzer
-description = "Analyzes a Serial/TCP monitor log and generates a secondary log with decoded Modbus messages"
+description = "Analyzes a Serial/TCP log and generates a secondary log with decoded Modbus messages"
 id          = modbus
 log-guid    = 53603C98-34BC-46EF-BA08-D3274F1057B4  # modbus
 icon        = images/modbus.png
 small-icon  = images/modbus-16x16.png
 
 layer-class = ModbusLayer
+pure-layer  = true
 
 [scripts]
 
@@ -21,3 +22,4 @@ ModbusParserBase.jnc
 ModbusRtuParser.jnc
 ModbusAsciiParser.jnc
 ModbusTcpParser.jnc
+ModbusInfoSet.jnc

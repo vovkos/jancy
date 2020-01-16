@@ -1,0 +1,146 @@
+//..............................................................................
+//
+// IPv6 (Internet protocol version 6) defitions
+//
+
+import "io_Ip.jnc"
+
+namespace io {
+
+//! \addtogroup proto-ip
+//! @{
+
+//..............................................................................
+
+bitflag enum IpOptionTypeFlag: uint8_t
+{
+	Copy  = 0x80,
+	Debug = 0x40,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum IpOptionNumber: uint8_t
+{
+	Eool    = 0, // no length field
+	Nop     = 1, // no length field
+	Sec     = 2,
+	Lsr     = 3,
+	Ts      = 4,
+	Esec    = 5,
+	Cipso   = 6,
+	Rr      = 7,
+	Sid     = 8,
+	Ssr     = 9,
+	Zsu     = 10,
+	Mtup    = 11,
+	Mtur    = 12,
+	Finn    = 13,
+	Visa    = 14,
+	Encode  = 15,
+	Imitd   = 16,
+	Eip     = 17,
+	Tr      = 18,
+	Addext  = 19,
+	Rtralt  = 20,
+	Sdb     = 21,
+	Dps     = 23,
+	Ump     = 24,
+	Qs      = 25,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum IpOptionType: uint8_t
+{
+	Eool    = IpOptionNumber.Eool,
+	Nop     = IpOptionNumber.Nop,
+	Sec     = IpOptionNumber.Sec    | IpOptionTypeFlag.Copy,
+	Lsr     = IpOptionNumber.Lsr    | IpOptionTypeFlag.Copy,
+	Ts      = IpOptionNumber.Ts     | IpOptionTypeFlag.Debug,
+	Esec    = IpOptionNumber.Esec   | IpOptionTypeFlag.Copy,
+	Cipso   = IpOptionNumber.Cipso  | IpOptionTypeFlag.Copy,
+	Rr      = IpOptionNumber.Rr,
+	Sid     = IpOptionNumber.Sid    | IpOptionTypeFlag.Copy,
+	Ssr     = IpOptionNumber.Ssr    | IpOptionTypeFlag.Copy,
+	Zsu     = IpOptionNumber.Zsu,
+	Mtup    = IpOptionNumber.Mtup,
+	Mtur    = IpOptionNumber.Mtur,
+	Finn    = IpOptionNumber.Finn   | IpOptionTypeFlag.Copy | IpOptionTypeFlag.Debug,
+	Visa    = IpOptionNumber.Visa   | IpOptionTypeFlag.Copy,
+	Encode  = IpOptionNumber.Encode,
+	Imitd   = IpOptionNumber.Imitd  | IpOptionTypeFlag.Copy,
+	Eip     = IpOptionNumber.Eip    | IpOptionTypeFlag.Copy,
+	Tr      = IpOptionNumber.Tr     | IpOptionTypeFlag.Debug,
+	Addext  = IpOptionNumber.Addext | IpOptionTypeFlag.Copy,
+	Rtralt  = IpOptionNumber.Rtralt | IpOptionTypeFlag.Copy,
+	Sdb     = IpOptionNumber.Sdb    | IpOptionTypeFlag.Copy,
+	Dps     = IpOptionNumber.Dps    | IpOptionTypeFlag.Copy,
+	Ump     = IpOptionNumber.Ump    | IpOptionTypeFlag.Copy,
+	Qs      = IpOptionNumber.Qs,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "IPv6",
+	formatDigestFunc = formatIp6Digest
+]
+struct Ip6Hdr
+{
+	[ displayName = "Version" ]
+	bigendian uint32_t m_version      : 4;
+
+	[ displayName = "Traffic class" ]
+	bigendian uint32_t m_trafficClass : 8;
+
+	[
+		displayName = "Flow label",
+		formatSpec = "0x%05X"
+	]
+	bigendian uint32_t m_flowLabel    : 20;
+
+	[ displayName = "Payload length" ]
+	bigendian uint16_t m_payloadLength;
+
+	[ displayName = "Next header" ]
+	IpProtocol m_nextHeader;
+
+	[ displayName = "Hop limit" ]
+	uint8_t m_hopLimit;
+
+	[
+		displayName = "Source",
+		formatFunc = formatIp6Address
+	]
+	uint16_t m_srcAddress[8];
+
+	[
+		displayName = "Destination",
+		formatFunc = formatIp6Address
+	]
+	uint16_t m_dstAddress[8];
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatIp6Digest(void const* p)
+{
+	Ip6Hdr const* hdr = (Ip6Hdr const*)p;
+
+	return $"%1 \u2192 %2" (
+		formatIp6Address(&hdr.m_srcAddress),
+		formatIp6Address(&hdr.m_dstAddress)
+		);
+}
+
+char const* formatIp6Address(void const* p)
+{
+	return ((io.Address_ip6 const*)p).getString();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

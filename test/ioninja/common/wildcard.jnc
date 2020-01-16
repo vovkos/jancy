@@ -1,0 +1,98 @@
+// based on:
+// http://www.drdobbs.com/architecture-and-design/matching-wildcards-an-empirical-way-to-t/240169123
+
+//! \addtogroup common-enc
+//! @{
+
+//..............................................................................
+
+bool wildcardCompareStringLowerCase(
+	const char thin* string0,
+	const char thin* wildcard
+	)
+{
+	if (!*string0) // empty input shortcut
+	{
+		while (*wildcard == '*')
+			wildcard++;
+
+		return *wildcard == '\0';
+	}
+
+	const char thin* string = string0;
+	const char thin* stringBookmark = null;
+	const char thin* wildcardBookmark = null;
+	char c;
+
+	for (;;)
+	{
+		if (*wildcard == '*')
+		{
+			while (*++wildcard == '*')
+				;
+
+			if (!*wildcard)
+				return true;
+
+			if (*wildcard != '?')
+			{
+				while ((char)tolower(*string) != *wildcard)
+				{
+					if (!(*(++string)))
+						return false;
+				}
+			}
+
+			wildcardBookmark = wildcard;
+			stringBookmark = string;
+		}
+		else
+		{
+			c = (char)tolower(*string);
+
+			if (c != *wildcard && *wildcard != '?')
+			{
+				if (wildcardBookmark)
+				{
+					if (wildcard != wildcardBookmark)
+					{
+						wildcard = wildcardBookmark;
+
+						if (c != *wildcard)
+						{
+							string = ++stringBookmark;
+							continue;
+						}
+						else
+						{
+							wildcard++;
+						}
+					}
+
+					if (*string)
+					{
+						string++;
+						continue;
+					}
+				}
+
+				return false;
+			}
+		}
+
+		string++;
+		wildcard++;
+
+		if (!*string)
+		{
+			while (*wildcard == '*')
+				wildcard++;
+
+			return !*wildcard;
+		}
+	}
+}
+
+//..............................................................................
+
+//! @}

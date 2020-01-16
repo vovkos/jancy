@@ -3,17 +3,17 @@
 // Generic file session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_FileStream.jnc"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_History.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_History.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
-using extension gui.ComboBoxHistory;
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -64,23 +64,23 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_fileNameCombo;
-	gui.ComboBox* m_accessCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_fileNameCombo;
+	ui.ComboBox* m_accessCombo;
 
 	// property grid
 
-	gui.StringProperty* m_fileNameProp;
-	gui.EnumProperty* m_accessProp;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.StringProperty* m_fileNameProp;
+	ui.EnumProperty* m_accessProp;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -133,14 +133,14 @@ FileSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 FileSession.createUi()
 {
-	static gui.EnumPropertyOption accessModeTable[] =
+	static ui.EnumPropertyOption accessModeTable[] =
 	{
 		{ "Read/Write",  Access.ReadWrite },
 		{ "Read-only",   Access.ReadOnly  },
@@ -153,17 +153,18 @@ FileSession.createUi()
 	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_fileNameCombo.m_isEditable = true;
 	m_fileNameCombo.m_onEnter += onFileNameComboEnter;
+	m_fileNameCombo.m_placeholderText = "Enter a file or device name...";
 
-	m_accessCombo = m_pluginHost.m_toolBar.addComboBox("Access:", accessModeTable, countof (accessModeTable));
+	m_accessCombo = m_pluginHost.m_toolBar.addComboBox("Access:", accessModeTable, countof(accessModeTable));
 
-	m_iconTable[IconId.Open] = new gui.Icon("images/open.png");
-	m_iconTable[IconId.Close] = new gui.Icon("images/close.png");
-	m_iconTable[IconId.Clear] = new gui.Icon("images/clear.png");
+	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
+	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
+	m_iconTable[IconId.Clear] = new ui.Icon("images/clear.png");
 
-	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
 
-	m_actionTable[ActionId.Clear] = createAction("Clear", m_iconTable [IconId.Clear]);
+	m_actionTable[ActionId.Clear] = createAction("Clear", m_iconTable[IconId.Clear]);
 	m_actionTable[ActionId.Clear].m_onTriggered += clear;
 	m_actionTable[ActionId.Clear].m_isEnabled = false;
 
@@ -173,7 +174,7 @@ FileSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"File stream-specific connection settings"
 		);
@@ -181,7 +182,8 @@ FileSession.createUi()
 	m_fileNameProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"File name",
-		"Specify the file name to open"
+		"Enter a file name...",
+		"Specify a file name to open"
 		);
 
 	m_accessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
@@ -196,7 +198,7 @@ FileSession.createUi()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("File session");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("File session");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -230,7 +232,7 @@ bool errorcode FileSession.open()
 	m_file.open(fileName, openFlags);
 
 	char const* p = $"$(m_file.m_kind; B)$fileName";
-	writeLog(FileLogRecordCode.Opened, p, dynamic sizeof(p));
+	m_logWriter.write(FileLogRecordCode.Opened, p, dynamic sizeof(p));
 	m_state = State.Opened;
 
 	waitFileStreamEvents();
@@ -239,7 +241,7 @@ bool errorcode FileSession.open()
 
 catch:
 	std.Error const* error = std.getLastError();
-	writeLog(
+	m_logWriter.write(
 		FileLogRecordCode.OpenError,
 		error,
 		error.m_size
@@ -254,7 +256,7 @@ FileSession.close()
 	if (m_state != State.Opened)
 		return;
 
-	writeLog(FileLogRecordCode.Closed);
+	m_logWriter.write(FileLogRecordCode.Closed);
 	m_file.close();
 	m_state = State.Closed;
 	m_syncId++;
@@ -267,7 +269,7 @@ FileSession.clear()
 		return;
 
 	try m_file.clear();
-	writeLog(FileLogRecordCode.Cleared);
+	m_logWriter.write(FileLogRecordCode.Cleared);
 }
 
 io.FileStreamOptions FileSession.getFileStreamOptions()
@@ -294,7 +296,7 @@ FileSession.waitFileStreamEvents()
 	if (!m_isTransmitEnabled)
 		eventMask |= io.FileStreamEvents.WriteBufferReady;
 
-	m_file.wait(eventMask, onFileStreamEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_file.wait(eventMask, onFileStreamEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 void FileSession.load(doc.Storage* storage)
@@ -355,7 +357,7 @@ size_t errorcode FileSession.transmit(
 
 	size_t result = m_file.write(p, size);
 	if (result)
-		writeLog(log.StdRecordCode.Tx, p, result);
+		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	return result;
 }
@@ -370,20 +372,20 @@ FileSession.onFileStreamEvent(
 
 	if (triggeredEvents & io.FileStreamEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_file.m_ioError, m_file.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_file.m_ioError, m_file.m_ioError.m_size);
 		close();
 		return;
 	}
 
 	if ((triggeredEvents & io.FileStreamEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog(log.StdRecordCode.RxBufferFull);
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
 	if (triggeredEvents & io.FileStreamEvents.IncomingData)
 	{
 		size_t result = m_file.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
 	if (triggeredEvents & io.FileStreamEvents.Eof)
@@ -394,10 +396,10 @@ FileSession.onFileStreamEvent(
 			if (!result)
 				break;
 
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
-		writeLog(FileLogRecordCode.Eof);
+		m_logWriter.write(FileLogRecordCode.Eof);
 		close();
 		return;
 	}
@@ -416,7 +418,7 @@ reactor FileSession.m_uiReactor
 	m_accessProp.m_isEnabled = !m_state;
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
-	m_actionTable[ActionId.Clear].m_isEnabled = m_state && m_file.m_kind == io.FileStreamKind.Disk;
+	m_actionTable[ActionId.Clear].m_isEnabled = m_state && m_file.m_kind == io.FileKind.Disk;
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
 }
 

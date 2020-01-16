@@ -9,6 +9,9 @@ import "io_TcpIp.jnc"
 
 alignment(1);
 
+//! \addtogroup packets-tcpip
+//! @{
+
 //..............................................................................
 
 struct EthernetFrame
@@ -95,6 +98,8 @@ struct IcmpFrame
 	{
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
+		m_icmp.m_checksum = 0;
+		m_icmp.m_checksum = adjustIpChecksum(calcChecksum16(&m_icmp, dynamic sizeof(&m_icmp)));
 	}
 
 	[ packetTemplateAction ]
@@ -277,7 +282,7 @@ uint_t calcChecksum16(
 	return checksum;
 }
 
-bigendian uint16_t adjustIpCheckSum(uint_t checksum)
+bigendian uint16_t adjustIpChecksum(uint_t checksum)
 {
 	checksum = (checksum >> 16) + (checksum & 0xffff);
 	checksum += checksum >> 16;
@@ -295,7 +300,7 @@ bigendian uint16_t calcIpHdrChecksum(io.IpHdr const* ipHdr)
 		size = maxSize;
 
 	uint_t checksum = calcChecksum16(ipHdr, size);
-	return adjustIpCheckSum(checksum);
+	return adjustIpChecksum(checksum);
 }
 
 bigendian uint16_t calcTcpUdpChecksum(
@@ -315,7 +320,9 @@ bigendian uint16_t calcTcpUdpChecksum(
 		calcChecksum16(&pseudoHdr, sizeof(pseudoHdr)) +
 		calcChecksum16(p, size);
 
-	return adjustIpCheckSum(checksum);
+	return adjustIpChecksum(checksum);
 }
 
 //..............................................................................
+
+//! @}

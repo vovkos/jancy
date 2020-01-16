@@ -3,6 +3,11 @@
 // Ninja script transmit API
 //
 
+//! \addtogroup api-tx
+//! @{
+
+//..............................................................................
+
 // no return value -- TX script is running in a dedicated thread, so we need
 // to reschedule transmission to be run in the main worker thread
 
@@ -12,3 +17,5 @@ void transmit(
 	);
 
 //..............................................................................
+
+//! @}

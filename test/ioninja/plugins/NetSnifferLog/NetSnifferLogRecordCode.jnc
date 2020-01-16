@@ -1,0 +1,28 @@
+//..............................................................................
+//
+// Sniffer log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum NetSnifferLogRecordCode: uint64_t
+{
+	EthernetPacket         = 0x01d4856b81a408c7 | log.RecordCodeFlags.Foldable,
+	InjectedEthernetPacket = 0x01d4856b81a408c8 | log.RecordCodeFlags.Foldable,
+	DefragmentedIp         = 0x01d4856b81a408c9 | log.RecordCodeFlags.Foldable,
+	Packet                 = 0x01d4856b81a408ca | log.RecordCodeFlags.Foldable,
+	InjectedPacket         = 0x01d4856b81a408cb | log.RecordCodeFlags.Foldable,
+	PacketDetails          = 0x01d4856b81a408cc | log.RecordCodeFlags.Foldable,
+	DefragmentedIpDetails  = 0x01d4856b81a408cd | log.RecordCodeFlags.Foldable,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum NetSnifferLogPartCode
+{
+	RawPacket = 1,
+}
+
+//..............................................................................

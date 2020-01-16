@@ -9,6 +9,8 @@ name        = "TCP Flow Monitor Log"
 description = "TCP Flow Monitor log representer"
 group       = net
 guid        = 5a6cc363-3ace-4db8-9224-3d972d16b30d
+icon        = images/tcpmon.png
+small-icon  = images/tcpmon-16x16.png
 
 log-representer-func = representTcpFlowMonLog
 

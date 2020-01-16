@@ -7,6 +7,9 @@ import "doc_Plugin.jnc"
 
 namespace doc {
 
+//! \addtogroup api-doc
+//! @{
+
 //..............................................................................
 
 class Layer: Plugin
@@ -41,4 +44,6 @@ class Layer: Plugin
 
 //..............................................................................
 
-} // namespace doc {
+//! @}
+
+} // namespace doc

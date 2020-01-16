@@ -9,6 +9,8 @@ name        = "Pipe Monitor Log"
 description = "Pipe Monitor log representer"
 group       = fs
 guid        = 8D4114D9-5020-4E0D-8D6A-98C8C29E76F0
+icon        = images/pipemon.png
+small-icon  = images/pipemon-16x16.png
 
 log-representer-func = representPipeMonLog
 
@@ -19,17 +21,22 @@ PipeMonLogRepresenter.jnc
 
 [records]
 
-01d48717897030a1  # ServerFileOpened_old
-01d48717897030a2  # ServerFileOpenError_old
-01d48717897030a3  # ClientFileOpened_old
-01d48717897030a4  # ClientFileOpenError_old
+01d48717897030a1  # ServerFileOpened_0
+01d48717897030a2  # ServerFileOpenError_0
+01d48717897030a3  # ClientFileOpened_0
+01d48717897030a4  # ClientFileOpenError_0
 01d48717897030a5  # FileClosed
 01d48717897030a6  # ConnectionAccepted
 01d48717897030a7  # ConnectionClosed
 01d48717897030a8  # Transaction
-01d48717897030a9  # FileIdChanged_old
-01d48717897030aa  # ServerFileOpened
-01d48717897030ab  # ServerFileOpenError
-01d48717897030ac  # ClientFileOpened
-01d48717897030ad  # ClientFileOpenError
-01d48717897030ae  # FileIdChanged
+01d48717897030a9  # FileIdChanged_0
+01d48717897030aa  # ServerFileOpened_1
+01d48717897030ab  # ServerFileOpenError_1
+01d48717897030ac  # ClientFileOpened_1
+01d48717897030ad  # ClientFileOpenError_1
+01d48717897030ae  # FileIdChanged_1
+01d48717897030af  # ServerFileOpened
+01d48717897030b0  # ServerFileOpenError
+01d48717897030b1  # ClientFileOpened
+01d48717897030b2  # ClientFileOpenError
+01d48717897030b3  # FileIdChanged

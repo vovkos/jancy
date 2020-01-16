@@ -3,177 +3,21 @@
 // Some standard checksums collected via selection processors
 //
 
-import "gui_InformationGrid.jnc"
+import "ui_ChecksumInfoSet.jnc"
 import "crc16.jnc"
 import "crc32.jnc"
 
 namespace log {
 
-//..............................................................................
-
-class ChecksumInfoSet
-{
-	bitflag enum InfoId
-	{
-		Crc16_ansi,
-		Crc16_modbus,
-		Crc16_xmodem,
-		Crc16_usb,
-		Crc32,
-		Sum8,
-		Sum16_le,
-		Sum16_be,
-		Ip4Checksum,
-
-		All =
-			Crc16_ansi |
-			Crc16_modbus |
-			Crc16_xmodem |
-			Crc16_usb |
-			Crc32 |
-			Sum8 |
-			Sum16_le |
-			Sum16_be |
-			Ip4Checksum,
-	}
-
-	gui.InformationValue* m_crc16Info_ansi;
-	gui.InformationValue* m_crc16Info_modbus;
-	gui.InformationValue* m_crc16Info_xmodem;
-	gui.InformationValue* m_crc16Info_usb;
-	gui.InformationValue* m_crc32Info;
-	gui.InformationValue* m_sum8Info;
-	gui.InformationValue* m_sum16Info_le;
-	gui.InformationValue* m_sum16Info_be;
-	gui.InformationValue* m_ip4ChecksumInfo;
-
-	createInformationValues(
-		gui.InformationGrid* informationGrid,
-		gui.InformationGroup* group = null,
-		gui.InformationValue* insertBefore = null,
-		InfoId mask = InfoId.All
-		);
-
-	createInformationValuesGrouped(
-		gui.InformationGrid* informationGrid,
-		gui.InformationGroup* group = null,
-		gui.InformationValue* insertBefore = null,
-		InfoId mask = InfoId.All
-		);
-}
-
-ChecksumInfoSet.createInformationValues(
-	gui.InformationGrid* informationGrid,
-	gui.InformationGroup* group,
-	gui.InformationValue* insertBefore,
-	InfoId mask
-	)
-{
-	if (mask & InfoId.Crc16_ansi)
-		m_crc16Info_ansi = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"CRC-16",
-			"Also known as CRC16-ANSI and CRC16-IBM"
-			);
-
-	if (mask & InfoId.Crc16_modbus)
-		m_crc16Info_modbus = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"CRC-16 (Modbus)",
-			"Modification of CRC-16 with the initial seed 0xffff"
-			);
-
-	if (mask & InfoId.Crc16_xmodem)
-		m_crc16Info_xmodem = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"CRC-16 (XModem)",
-			"Also known as CRC16-CCITT"
-			);
-
-	if (mask & InfoId.Crc16_usb)
-		m_crc16Info_usb = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"CRC-16 (USB)",
-			"Modification of CRC-16 with the initial seed 0xffff; final value is xored with 0xffff"
-			);
-
-	if (mask & InfoId.Crc32)
-		m_crc32Info = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"CRC-32"
-			);
-
-	if (mask & InfoId.Ip4Checksum)
-		m_ip4ChecksumInfo = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"IPv4 checksum",
-			"IPv4, TCP, UDP\n"
-			"Calculated as the 16-bit one's complement of the one's complement sum of all 16-bit words"
-			);
-
-	if (mask & InfoId.Sum8)
-		m_sum8Info = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"SUM-8",
-			"Summation of all bytes in range"
-			);
-
-	if (mask & InfoId.Sum16_le)
-		m_sum16Info_le = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"SUM-16 (little-endian)",
-			"Summation of all 16-bit words in range (little-endian)"
-			);
-
-	if (mask & InfoId.Sum16_be)
-		m_sum16Info_be = informationGrid.createValue(
-			group,
-			insertBefore,
-			true,
-			"SUM-16 (big-endian)",
-			"Summation of all 16-bit words in range (big-endian)"
-			);
-}
-
-ChecksumInfoSet.createInformationValuesGrouped(
-	gui.InformationGrid* informationGrid,
-	gui.InformationGroup* group,
-	gui.InformationValue* insertBefore,
-	InfoId mask
-	)
-{
-	gui.InformationGroup* subGroup = informationGrid.createGroup(
-		group,
-		insertBefore,
-		"Checksum calculator",
-		"Selection a range in the log to calculate checksums"
-		);
-
-	createInformationValues(informationGrid, subGroup,, mask);
-}
+//! \addtogroup common-log
+//! @{
 
 //..............................................................................
 
 class ChecksumCalcRangeProcessor: RangeProcessor
 {
 protected:
-	ChecksumInfoSet* m_infoSet;
+	ui.ChecksumInfoSet* m_infoSet;
 	uint64_t m_sum8;
 	uint64_t m_sum16_le;
 	uint64_t m_sum16_be;
@@ -185,13 +29,13 @@ protected:
 	size_t m_totalSize;
 
 public:
-	static ChecksumCalcRangeProcessor* factory(ChecksumInfoSet* infoSet)
+	static ChecksumCalcRangeProcessor* factory(ui.ChecksumInfoSet* infoSet)
 	{
 		return new ChecksumCalcRangeProcessor(infoSet);
 	}
 
 protected:
-	construct(ChecksumInfoSet* infoSet)
+	construct(ui.ChecksumInfoSet* infoSet)
 	{
 		m_infoSet = infoSet;
 		m_crc16_modbus = -1;
@@ -273,34 +117,42 @@ ChecksumCalcRangeProcessor.processBin(
 ChecksumCalcRangeProcessor.processEndOfRange()
 {
 	if (m_infoSet.m_crc16Info_ansi)
-		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; %04x)";
+		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; 04X)";
 
 	if (m_infoSet.m_crc16Info_modbus)
-		m_infoSet.m_crc16Info_modbus.m_value = $"$(m_crc16_modbus; %04x)";
+		m_infoSet.m_crc16Info_modbus.m_value = $"$(m_crc16_modbus; 04X)";
 
 	if (m_infoSet.m_crc16Info_xmodem)
-		m_infoSet.m_crc16Info_xmodem.m_value = $"$(m_crc16_xmodem; %04x)";
+		m_infoSet.m_crc16Info_xmodem.m_value = $"$(m_crc16_xmodem; 04X)";
 
 	if (m_infoSet.m_crc16Info_usb)
-		m_infoSet.m_crc16Info_usb.m_value = $"$(~m_crc16_modbus & 0xffff; %04x)";
+		m_infoSet.m_crc16Info_usb.m_value = $"$(~m_crc16_modbus & 0xffff; 04X)";
 
 	if (m_infoSet.m_crc32Info)
-		m_infoSet.m_crc32Info.m_value = $"$(m_crc32; %08x)";
+		m_infoSet.m_crc32Info.m_value = $"$(m_crc32; 08X)";
 
 	if (m_infoSet.m_ip4ChecksumInfo)
-		m_infoSet.m_ip4ChecksumInfo.m_value = $"$(~m_ip4Checksum & 0xffff; %04x)";
+		m_infoSet.m_ip4ChecksumInfo.m_value = $"$(~m_ip4Checksum & 0xffff; 04X)";
 
 	if (m_infoSet.m_sum8Info)
-		m_infoSet.m_sum8Info.m_value = $"$(m_sum8; x)";
+		m_infoSet.m_sum8Info.m_value = $"$(m_sum8; 02X)";
 
 	if (m_infoSet.m_sum16Info_le)
-		m_infoSet.m_sum16Info_le.m_value = $"$(m_sum16_le; x)";
+		m_infoSet.m_sum16Info_le.m_value = $"$(m_sum16_le; 04X)";
 
 	if (m_infoSet.m_sum16Info_be)
-		m_infoSet.m_sum16Info_be.m_value = $"$(m_sum16_be; x)";
+		m_infoSet.m_sum16Info_be.m_value = $"$(m_sum16_be; 04X)";
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+//..............................................................................
+
+//! @}
+
+} // namespace log
+
+
+//! \addtogroup common-crc
+//! @{
 
 // simple helper
 
@@ -319,6 +171,4 @@ uint64_t sum8(
 	return sum;
 }
 
-//..............................................................................
-
-} // namespace log
+//! @}

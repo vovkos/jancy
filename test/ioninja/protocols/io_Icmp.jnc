@@ -1,0 +1,72 @@
+//..............................................................................
+//
+// ICMP (Internet control message protocol) packets
+//
+
+namespace io {
+
+//! \addtogroup proto-icmp
+//! @{
+
+//..............................................................................
+
+enum IcmpType: uint8_t
+{
+	EchoReply               = 0,
+	DestinationUnreachable  = 3,
+	SourceQuench            = 4,
+	Redirect                = 5,
+	EchoRequest             = 8,
+	RouterAdvertisement     = 9,
+	RouterSelection         = 10,
+	TimeExceeded            = 11,
+	ParameterProblem        = 12,
+	TimestampRequest        = 13,
+	TimestampReply          = 14,
+	InformationRequest      = 15,
+	InformationReply        = 16,
+	AddressMaskRequest      = 17,
+	AddressMaskReply        = 18,
+	TraceRoute              = 30,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "ICMP",
+	formatDigestFunc = formatIcmpDigest
+]
+struct IcmpHdr
+{
+	[ displayName = "Type" ]
+	IcmpType m_type;
+
+	[ displayName = "Code" ]
+	uint8_t m_code;
+
+	[
+		displayName = "Checksum",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_checksum;
+
+	[ displayName = "Identifier" ]
+	bigendian uint16_t m_id;
+
+	[ displayName = "Sequence number" ]
+	bigendian uint16_t m_seqNumber;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatIcmpDigest(void const* p)
+{
+	IcmpHdr const* hdr = (IcmpHdr const*)p;
+	return typeof(IcmpType).getValueString(&hdr.m_type);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

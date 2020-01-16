@@ -9,6 +9,8 @@ name        = "Serial Log"
 description = "Serial log representer"
 group       = serial
 guid        = 29725452-e64f-4c0e-a871-776277b68572
+icon        = images/serial.png
+small-icon  = images/serial-16x16.png
 
 log-representer-func = representSerialLog
 
@@ -35,6 +37,8 @@ SerialLogRepresenter.jnc
 01d47c8fc7b0f70d  # ReadIntervalChanged
 01d47c8fc7b0f70e  # BuggyDriverDetected
 01d47c8fc7b0f70f  # ControlLineChanged
+01d47c8fc7b0f710  # LineError
+01d47c8fc7b0f711  # BreakConditionChanged
 
 [filter]
 
@@ -59,6 +63,7 @@ description = "Show/hide serial control lines changes (DTR/DSR)"
 01d47c8fc7b0f70f  # ControlLineChanged
 01d47c8fc7b0f709  # RtsChanged
 01d47c8fc7b0f70a  # DtrChanged
+01d47c8fc7b0f711  # BreakConditionChanged
 
 [filter]
 
@@ -67,3 +72,11 @@ name        = "Serial status line changes"
 description = "Show/hide serial control lines changes (RTS/CTS)"
 
 01d47c8fc7b0f70b  # StatusLineChanged
+
+[filter]
+
+id          = serial-line-error
+name        = "Serial line errors"
+description = "Show/hide serial line errors (FRAMING, PARITY, BREAK)"
+
+01d47c8fc7b0f710  # LineError

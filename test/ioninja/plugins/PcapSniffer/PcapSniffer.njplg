@@ -1,0 +1,26 @@
+#...............................................................................
+#
+#  Pcap Sniffer session plugin
+#
+
+[plugin]
+
+name        = "Pcap Sniffer"
+description = "Pcap-based network sniffer & protocol analyzer"
+id          = pcap-sniffer
+group       = net
+log-guid    = b0a872b3-de4b-4f15-88bd-8de55eba7a78  # network sniffer
+log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+terminal    = false
+detail-pane = true
+
+session-class = PcapSnifferSession
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[scripts]
+
+PcapSnifferSession.jnc
+../NetSnifferLog/NetSnifferLogFilter.jnc

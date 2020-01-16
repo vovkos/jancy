@@ -3,17 +3,17 @@
 // Generic file session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Mailslot.jnc"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_History.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_History.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
-using extension gui.ComboBoxHistory;
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -56,21 +56,21 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_nameCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_nameCombo;
 
 	// property grid
 
-	gui.StringProperty* m_nameProp;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.StringProperty* m_nameProp;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -118,8 +118,8 @@ MailslotSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -131,11 +131,12 @@ MailslotSession.createUi()
 	m_nameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_nameCombo.m_isEditable = true;
 	m_nameCombo.m_onEnter += onNameComboEnter;
+	m_nameCombo.m_placeholderText = "Enter a mailslot name...";
 
-	m_iconTable[IconId.Open] = new gui.Icon("images/open.png");
-	m_iconTable[IconId.Close] = new gui.Icon("images/close.png");
+	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
+	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
 
-	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable [IconId.Open]);
+	m_actionTable[ActionId.Open] = createAction("Open", m_iconTable[IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
 
 	// status bar
@@ -144,7 +145,7 @@ MailslotSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"File stream-specific connection settings"
 		);
@@ -152,27 +153,28 @@ MailslotSession.createUi()
 	m_nameProp = m_pluginHost.m_propertyGrid.createStringProperty(
 		group,,
 		"Mailslot name",
+		"Enter a mailslot name...",
 		"Specify the mailslot to open"
 		);
 
 	m_bufferPropertySet.createPropertiesGrouped(
 		m_pluginHost.m_propertyGrid,,,
-		io.BufferPropertySet.PropertyId.ReadParallelism |
-		io.BufferPropertySet.PropertyId.ReadBlockSize |
-		io.BufferPropertySet.PropertyId.ReadBufferSize |
-		io.BufferPropertySet.PropertyId.KeepReadBlockSize |
-		io.BufferPropertySet.PropertyId.NotifyReadBufferFull
+		ui.BufferPropertySet.PropertyId.ReadParallelism |
+		ui.BufferPropertySet.PropertyId.ReadBlockSize |
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.KeepReadBlockSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
 		);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Mailslot");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Mailslot");
 
 	m_stdSessionInfoSet.createInformationValues(
 		m_pluginHost.m_informationGrid,
 		infoGroup,,
-		gui.StdSessionInfoSet.InfoId.SessionTime |
-		gui.StdSessionInfoSet.InfoId.RxTotalSize
+		ui.StdSessionInfoSet.InfoId.SessionTime |
+		ui.StdSessionInfoSet.InfoId.RxTotalSize
 		);
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -198,7 +200,7 @@ bool errorcode MailslotSession.open()
 	m_mailslot.m_options = getMailslotOptions();
 	m_mailslot.open(fileName);
 
-	writeLogString(MailslotLogRecordCode.Opened, fileName);
+	m_logWriter.write(MailslotLogRecordCode.Opened, fileName);
 	m_state = State.Opened;
 	waitMailslotEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
@@ -206,7 +208,7 @@ bool errorcode MailslotSession.open()
 
 catch:
 	std.Error const* error = std.getLastError();
-	writeLog(
+	m_logWriter.write(
 		MailslotLogRecordCode.OpenError,
 		error,
 		error.m_size
@@ -221,7 +223,7 @@ MailslotSession.close()
 	if (m_state != State.Opened)
 		return;
 
-	writeLog(MailslotLogRecordCode.Closed);
+	m_logWriter.write(MailslotLogRecordCode.Closed);
 	m_mailslot.close();
 	m_state = State.Closed;
 	m_stdSessionInfoSet.endSession();
@@ -244,7 +246,7 @@ MailslotSession.waitMailslotEvents()
 		io.MailslotEvents.ReadBufferFull |
 		io.MailslotEvents.IncomingData;
 
-	m_mailslot.wait(eventMask, onMailslotEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_mailslot.wait(eventMask, onMailslotEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 void MailslotSession.load(doc.Storage* storage)
@@ -299,7 +301,7 @@ MailslotSession.onMailslotEvent(
 
 	if (triggeredEvents & io.MailslotEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_mailslot.m_ioError, m_mailslot.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_mailslot.m_ioError, m_mailslot.m_ioError.m_size);
 		close();
 		return;
 	}
@@ -308,7 +310,7 @@ MailslotSession.onMailslotEvent(
 	{
 		size_t result = m_mailslot.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
 	waitMailslotEvents();

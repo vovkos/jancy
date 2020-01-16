@@ -1,0 +1,126 @@
+//..............................................................................
+//
+// IP (Internet protocol version 4) defitions
+//
+
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
+
+namespace io {
+
+//! \addtogroup proto-ip
+//! @{
+
+//..............................................................................
+
+enum IpProtocol: uint8_t
+{
+	HopByHopOption = 0,
+	Icmp           = 1,
+	Igmp           = 2,
+	Tcp            = 6,
+	Udp            = 17,
+	Icmp6          = 58,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum IpFlags
+{
+	Mf = 0x01,
+	Df = 0x02,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "IP",
+	formatDigestFunc = formatIpDigest
+]
+struct IpHdr
+{
+	[ displayName = "Header length" ]
+	uint8_t m_headerLength : 4;
+
+	[ displayName = "Version" ]
+	uint8_t m_version      : 4;
+
+	[ displayName = "Type of service" ]
+	uint8_t m_typeOfService;
+
+	[ displayName = "Total length" ]
+	bigendian uint16_t m_totalLength;
+
+	[
+		displayName = "Identification",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_identification;
+
+	[
+		displayName = "Flags",
+		displayType = typeof(IpFlags)
+	]
+	bigendian uint16_t m_flags          : 3;
+
+	[ displayName = "Fragment offset" ]
+	bigendian uint16_t m_fragmentOffset : 13;
+
+	[ displayName = "Time to live" ]
+	uint8_t m_timeToLive;
+
+	[ displayName = "Protocol" ]
+	IpProtocol m_protocol;
+
+	[
+		displayName = "Header checksum",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_headerChecksum;
+
+	[
+		displayName = "Source",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_srcAddress;
+
+	[
+		displayName = "Destination",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_dstAddress;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatIpDigest(void const* p)
+{
+	IpHdr const* hdr = (IpHdr const*)p;
+
+	return $"%1 \u2192 %2" (
+		formatIpAddress(&hdr.m_srcAddress),
+		formatIpAddress(&hdr.m_dstAddress)
+		);
+}
+
+char const* formatIpAddress(void const* p)
+{
+	return ((io.Address_ip4 const*)p).getString();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct IpPseudoHdr
+{
+	bigendian uint32_t m_srcAddress;
+	bigendian uint32_t m_dstAddress;
+	uint8_t m_zero;
+	uint8_t m_protocol;
+	bigendian uint16_t m_length;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

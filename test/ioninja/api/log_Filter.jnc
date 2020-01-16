@@ -5,6 +5,9 @@
 
 namespace log {
 
+//! \addtogroup api-log
+//! @{
+
 //..............................................................................
 
 class Filter
@@ -23,4 +26,22 @@ class Filter
 
 //..............................................................................
 
-} // namespace log {
+class FoldingFilter
+{
+	abstract uint8_t filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	virtual reset()
+	{
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace log

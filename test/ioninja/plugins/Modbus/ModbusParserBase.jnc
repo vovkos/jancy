@@ -3,16 +3,22 @@
 // Modbus stream parser base class
 //
 
+//..............................................................................
+
 enum ModbusParserMode
 {
+	None,
 	Master,
 	Slave,
-	HalfDuplex,
+	Alternate,
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class ModbusParserBase
 {
 protected:
+	ModbusInfoSet* m_infoSet;
 	std.Buffer m_dataBuffer;
 	io.ModbusRole m_modbusRole;
 	uint64_t m_lastTimestamp;
@@ -20,9 +26,14 @@ protected:
 public:
 	io.ModbusProtocol readonly m_protocol;
 	ModbusParserMode autoget property m_mode;
-	uint64_t m_halfDuplexTimeout; // in 100-nsec intervals
+	uint64_t m_alternateTimeout; // in 100-nsec intervals
 
 public:
+	construct(
+		io.ModbusProtocol readonly protocol,
+		ModbusInfoSet* infoSet
+		);
+
 	abstract parse(
 		log.Writer* writer,
 		uint64_t timestamp,
@@ -38,6 +49,15 @@ protected:
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ModbusParserBase.construct(
+	io.ModbusProtocol readonly protocol,
+	ModbusInfoSet* infoSet
+	)
+{
+	m_protocol = protocol;
+	m_infoSet = infoSet;
+}
 
 ModbusParserBase.m_mode.set(ModbusParserMode mode)
 {
@@ -55,8 +75,8 @@ ModbusParserBase.m_mode.set(ModbusParserMode mode)
 
 ModbusParserBase.updateLastTimestamp(uint64_t timestamp)
 {
-	if (m_mode == ModbusParserMode.HalfDuplex &&
-		timestamp - m_lastTimestamp > m_halfDuplexTimeout)
+	if (m_mode == ModbusParserMode.Alternate &&
+		timestamp - m_lastTimestamp > m_alternateTimeout)
 		reset();
 
 	m_lastTimestamp = timestamp;

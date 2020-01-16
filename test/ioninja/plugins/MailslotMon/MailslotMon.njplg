@@ -21,3 +21,4 @@ session-class = MailslotMonSession
 
 MailslotMonSession.jnc
 MailslotMonitor.jnc
+MailslotMonLogFilter.jnc

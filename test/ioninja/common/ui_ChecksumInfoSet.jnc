@@ -1,0 +1,176 @@
+//..............................................................................
+//
+// Some standard checksums collected via selection processors
+//
+
+import "ui_InformationGrid.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class ChecksumInfoSet
+{
+	bitflag enum InfoId
+	{
+		Crc16_ansi,
+		Crc16_modbus,
+		Crc16_xmodem,
+		Crc16_usb,
+		Crc32,
+		Sum8,
+		Sum16_le,
+		Sum16_be,
+		Ip4Checksum,
+
+		All =
+			Crc16_ansi |
+			Crc16_modbus |
+			Crc16_xmodem |
+			Crc16_usb |
+			Crc32 |
+			Sum8 |
+			Sum16_le |
+			Sum16_be |
+			Ip4Checksum,
+	}
+
+	ui.InformationValue* m_crc16Info_ansi;
+	ui.InformationValue* m_crc16Info_modbus;
+	ui.InformationValue* m_crc16Info_xmodem;
+	ui.InformationValue* m_crc16Info_usb;
+	ui.InformationValue* m_crc32Info;
+	ui.InformationValue* m_sum8Info;
+	ui.InformationValue* m_sum16Info_le;
+	ui.InformationValue* m_sum16Info_be;
+	ui.InformationValue* m_ip4ChecksumInfo;
+
+	createInformationValues(
+		ui.InformationGrid* informationGrid,
+		ui.InformationGroup* group = null,
+		ui.InformationValue* insertBefore = null,
+		InfoId mask = InfoId.All
+		);
+
+	createInformationValuesGrouped(
+		ui.InformationGrid* informationGrid,
+		ui.InformationGroup* group = null,
+		ui.InformationValue* insertBefore = null,
+		InfoId mask = InfoId.All
+		);
+}
+
+ChecksumInfoSet.createInformationValues(
+	ui.InformationGrid* informationGrid,
+	ui.InformationGroup* group,
+	ui.InformationValue* insertBefore,
+	InfoId mask
+	)
+{
+	if (mask & InfoId.Crc16_ansi)
+		m_crc16Info_ansi = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-16",
+			"Also known as CRC16-ANSI and CRC16-IBM"
+			);
+
+	if (mask & InfoId.Crc16_modbus)
+		m_crc16Info_modbus = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-16 (Modbus)",
+			"Modification of CRC-16 with the initial seed 0xffff"
+			);
+
+	if (mask & InfoId.Crc16_xmodem)
+		m_crc16Info_xmodem = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-16 (XModem)",
+			"Also known as CRC16-CCITT"
+			);
+
+	if (mask & InfoId.Crc16_usb)
+		m_crc16Info_usb = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-16 (USB)",
+			"Modification of CRC-16 with the initial seed 0xffff; final value is xored with 0xffff"
+			);
+
+	if (mask & InfoId.Crc32)
+		m_crc32Info = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"CRC-32"
+			);
+
+	if (mask & InfoId.Ip4Checksum)
+		m_ip4ChecksumInfo = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"IPv4 checksum",
+			"IPv4, TCP, UDP\n"
+			"Calculated as the 16-bit one's complement of the one's complement sum of all 16-bit words"
+			);
+
+	if (mask & InfoId.Sum8)
+		m_sum8Info = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"SUM-8",
+			"Summation of all bytes in range"
+			);
+
+	if (mask & InfoId.Sum16_le)
+		m_sum16Info_le = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"SUM-16 (little-endian)",
+			"Summation of all 16-bit words in range (little-endian)"
+			);
+
+	if (mask & InfoId.Sum16_be)
+		m_sum16Info_be = informationGrid.createValue(
+			group,
+			insertBefore,
+			true,
+			"SUM-16 (big-endian)",
+			"Summation of all 16-bit words in range (big-endian)"
+			);
+}
+
+ChecksumInfoSet.createInformationValuesGrouped(
+	ui.InformationGrid* informationGrid,
+	ui.InformationGroup* group,
+	ui.InformationValue* insertBefore,
+	InfoId mask
+	)
+{
+	ui.InformationGroup* subGroup = informationGrid.createGroup(
+		group,
+		insertBefore,
+		"Checksum calculator",
+		"Selection a range in the log to calculate checksums"
+		);
+
+	createInformationValues(informationGrid, subGroup,, mask);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

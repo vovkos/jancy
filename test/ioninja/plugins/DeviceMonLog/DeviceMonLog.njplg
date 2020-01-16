@@ -9,6 +9,8 @@ name        = "Device Monitor Log"
 description = "Device Monitor log representer"
 group       = fs
 guid        = 323abaeb-7859-48bc-8e24-f8c082b04ff7
+icon        = images/devicemon.png
+small-icon  = images/devicemon-16x16.png
 
 log-representer-func = representDeviceMonLog
 

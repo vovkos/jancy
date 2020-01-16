@@ -3,7 +3,7 @@
 // Generic file log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_FileStream.jnc"
 import "FileLogRecordCode.jnc"
@@ -11,7 +11,7 @@ import "FileLogRecordCode.jnc"
 //..............................................................................
 
 bool representFileLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -21,36 +21,43 @@ bool representFileLog(
 	switch (recordCode)
 	{
 	case FileLogRecordCode.Opened:
-		io.FileStreamKind const* kind = (io.FileStreamKind const*) p;
+		io.FileKind const* kind = (io.FileKind const*) p;
 		char const* fileName = (char const*) (kind + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"Opened file \e[34m$fileName\e[m ($(io.getFileStreamKindString (*kind)))");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Opened file \e[34m$fileName\e[m ($(io.getFileStreamKindString (*kind)))");
+		break;
+
+	case FileLogRecordCode.FileOpened:
+		char const* fileName = (char const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Opened file \e[34m$fileName");
 		break;
 
 	case FileLogRecordCode.OpenError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open file: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open file: $(error.m_description)");
 		break;
 
 	case FileLogRecordCode.Closed:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"File closed");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"File closed");
 		break;
 
 	case FileLogRecordCode.Eof:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText("End-of-file reached");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("End-of-file reached");
 		break;
 
 	case FileLogRecordCode.Cleared:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"File cleared");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"File cleared");
 		break;
 
 	default:

@@ -1,0 +1,47 @@
+//..............................................................................
+//
+// UDP (User datagram protocol) defitions
+//
+
+namespace io {
+
+//! \addtogroup proto-udp
+//! @{
+
+//..............................................................................
+
+[
+	displayName = "UDP",
+	formatDigestFunc = formatUdpDigest
+]
+struct UdpHdr
+{
+	[ displayName = "Source port" ]
+	bigendian uint16_t m_srcPort;
+
+	[ displayName = "Destination port" ]
+	bigendian uint16_t m_dstPort;
+
+	[ displayName = "Length" ]
+	bigendian uint16_t m_length;
+
+	[
+		displayName = "Checksum",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_checksum;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatUdpDigest(void const* p)
+{
+	UdpHdr const* hdr = (UdpHdr const*)p;
+	return $"%1 \u2192 %2"(hdr.m_srcPort, hdr.m_dstPort);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

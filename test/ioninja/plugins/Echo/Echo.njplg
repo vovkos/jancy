@@ -9,7 +9,6 @@ name        = Echo
 description = "Immediatly transmits back received data"
 kind        = layer
 id          = echo
-guid        = 4a6e988d-8479-4103-8e84-c72e7055d1b9
 icon        = images/echo.png
 small-icon  = images/echo-16x16.png
 

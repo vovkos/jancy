@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  FPGA Uploader log representer plugin
+#
+
+[plugin]
+
+name        = "FPGA Uploader Log"
+description = "FPGA Uploader log representer"
+guid        = b26c1b57-16c7-48a5-bbb9-05ea1ada5368
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+
+log-representer-func = representFpgaUploaderLog
+
+[scripts]
+
+FpgaUploaderLogRecordCode.jnc
+FpgaUploaderLogRepresenter.jnc
+
+[records]
+
+01d487bb6423b807  # StillWaiting
+01d487bb6423b808  # FpgaDisabled
+01d487bb6423b809  # FirmwareUpToDate
+01d487bb6423b80a  # FirmwareUpdateRequired
+01d487bb6423b80b  # ErasingFlash
+01d487bb6423b80c  # UploadingFirmware
+01d487bb6423b80d  # EnablingFpga
+01d487bb6423b80e  # FpgaReady
+01d487bb6423b818  # FirmwareUpdateCancelled
+01d487bb6423b819  # FirmwareUpdateCompleted
+01d487bb6423b81a  # FirmwareBootFailed

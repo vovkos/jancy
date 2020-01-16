@@ -1,25 +1,25 @@
-import "gui_PropertyGrid.jnc"
+import "ui_PropertyGrid.jnc"
 
 //..............................................................................
 
 class RegexPattern
 {
-	gui.GroupProperty* m_groupProp;
-	gui.BoolProperty* m_isTxEnabledProp;
-	gui.BoolProperty* m_isRxEnabledProp;
-	gui.StringProperty* m_regexProp;
-	gui.ColorProperty* m_colorProp;
-	gui.FlagProperty* m_fontFlagProp;
+	ui.GroupProperty* m_groupProp;
+	ui.BoolProperty* m_isTxEnabledProp;
+	ui.BoolProperty* m_isRxEnabledProp;
+	ui.StringProperty* m_regexProp;
+	ui.ColorProperty* m_colorProp;
+	ui.FlagProperty* m_fontFlagProp;
 
 	reactor m_uiReactor;
 
 	construct(
-		gui.PropertyGrid* propertyGrid,
-		gui.Property* beforeProp,
+		ui.PropertyGrid* propertyGrid,
+		ui.Property* beforeProp,
 		size_t index
 		);
 
-	gui.TextAttr buildTextAttr();
+	ui.TextAttr buildTextAttr();
 
 	void load(doc.Storage* storage);
 	void save(doc.Storage* storage);
@@ -28,8 +28,8 @@ class RegexPattern
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 RegexPattern.construct(
-	gui.PropertyGrid* propertyGrid,
-	gui.Property* beforeProp,
+	ui.PropertyGrid* propertyGrid,
+	ui.Property* beforeProp,
 	size_t index
 	)
 {
@@ -55,6 +55,7 @@ RegexPattern.construct(
 	m_regexProp = propertyGrid.createStringProperty(
 		m_groupProp,,
 		"Regular expression",
+		"Enter a regular expression...",
 		"Write a regular expression describing this pattern"
 		);
 
@@ -64,12 +65,12 @@ RegexPattern.construct(
 		"Select a color to apply when this pattern is found"
 		);
 
-	gui.FlagPropertyOption fontFlagTable[] =
+	ui.FlagPropertyOption fontFlagTable[] =
 	{
-		{ "Bold",      gui.FontFlags.Bold },
-		{ "Italic",    gui.FontFlags.Italic },
-		{ "Underline", gui.FontFlags.Underline },
-		{ "Strikeout", gui.FontFlags.Strikeout },
+		{ "Bold",      ui.FontFlags.Bold },
+		{ "Italic",    ui.FontFlags.Italic },
+		{ "Underline", ui.FontFlags.Underline },
+		{ "Strikeout", ui.FontFlags.Strikeout },
 	}
 
 	m_fontFlagProp = propertyGrid.createFlagProperty(
@@ -88,9 +89,9 @@ RegexPattern.construct(
 
 	static Initializer initializerTable[] =
 	{
-		{ r"[\x00-\x1f]+", gui.StdColor.LightRed },
-		{ "[0-9]+",        gui.StdColor.LightPurple },
-		{ "[A-Za-z]+",     gui.StdColor.LightBlue },
+		{ r"[\x00-\x1f]+", ui.StdColor.LightRed },
+		{ "[0-9]+",        ui.StdColor.LightPurple },
+		{ "[A-Za-z]+",     ui.StdColor.LightBlue },
 	};
 
 	index %= countof(initializerTable);
@@ -103,13 +104,13 @@ RegexPattern.construct(
 	m_uiReactor.start();
 }
 
-gui.TextAttr RegexPattern.buildTextAttr()
+ui.TextAttr RegexPattern.buildTextAttr()
 {
-	gui.TextAttr attr =
+	ui.TextAttr attr =
 	{
-		m_backColor = gui.ColorFlags.Transparent,
+		m_backColor = ui.ColorFlags.Transparent,
 		m_textColor = m_colorProp.m_value,
-		m_fontFlags = (gui.FontFlags) m_fontFlagProp.m_value,
+		m_fontFlags = (ui.FontFlags) m_fontFlagProp.m_value,
 	}
 
 	return attr;

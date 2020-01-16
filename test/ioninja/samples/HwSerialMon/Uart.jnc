@@ -26,10 +26,10 @@ protected:
 	io.UartSignalDecoder m_rxDecoder;
 	sys.Timer m_timer;
 
-	gui.EnumProperty* m_baudRateProp;
-	gui.EnumProperty* m_dataBitsProp;
-	gui.EnumProperty* m_stopBitsProp;
-	gui.EnumProperty* m_parityProp;
+	ui.EnumProperty* m_baudRateProp;
+	ui.EnumProperty* m_dataBitsProp;
+	ui.EnumProperty* m_stopBitsProp;
+	ui.EnumProperty* m_parityProp;
 
 public:
 	construct(doc.PluginHost* pluginHost)
@@ -39,8 +39,8 @@ public:
 	}
 
 	override createProperties(
-		gui.GroupProperty* group = null,
-		gui.Property* beforeProp = null
+		ui.GroupProperty* group = null,
+		ui.Property* beforeProp = null
 		);
 
 	override loadProperties(doc.Storage* storage);
@@ -73,11 +73,11 @@ protected:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Uart.createProperties(
-	gui.GroupProperty* group,
-	gui.Property* beforeProp
+	ui.GroupProperty* group,
+	ui.Property* beforeProp
 	)
 {
-	static gui.EnumPropertyOption baudRateTable[] =
+	static ui.EnumPropertyOption baudRateTable[] =
 	{
 		{ "110 bps",    110 },
 		{ "300 bps",    300 },
@@ -100,20 +100,20 @@ Uart.createProperties(
 		{ "921600 bps", 921600 },
 	}
 
-	static gui.EnumPropertyOption dataBitsTable[] =
+	static ui.EnumPropertyOption dataBitsTable[] =
 	{
 		{ "7 bits", 7 },
 		{ "8 bits", 8 },
 	}
 
-	static gui.EnumPropertyOption stopBitsTable[] =
+	static ui.EnumPropertyOption stopBitsTable[] =
 	{
 		{ "1 bit",    io.SerialStopBits._1 },
 		{ "1.5 bits", io.SerialStopBits._15 },
 		{ "2 bits",   io.SerialStopBits._2 },
 	}
 
-	static gui.EnumPropertyOption parityTable[] =
+	static ui.EnumPropertyOption parityTable[] =
 	{
 		{ "None",  io.SerialParity.None },
 		{ "Odd",   io.SerialParity.Odd },
@@ -217,18 +217,20 @@ Uart.processSignal(
 	uint16_t changedLines = m_lastLines ^ lines;
 	m_lastLines = lines;
 
-	// m_pluginHost.m_log.m_writer.write (timestamp, log.StdRecordCode.Rx, p, sizeof (Snapshot));
+	log.Writer* logWriter = m_pluginHost.m_log.m_writer;
+
+	// logWriter.write (timestamp, log.StdRecordCode.Rx, p, sizeof (Snapshot));
 
 	if (changedLines & Lines.Rts)
 	{
 		bool state = !(lines & Lines.Rts);
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.UartRtsChanged, &state, sizeof(state));
+		logWriter.write(timestamp, HwSerialMonRecordCode.UartRtsChanged, &state, sizeof(state));
 	}
 
 	if (changedLines & Lines.Cts)
 	{
 		bool state = !(lines & Lines.Cts);
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.UartCtsChanged, &state, sizeof(state));
+		logWriter.write(timestamp, HwSerialMonRecordCode.UartCtsChanged, &state, sizeof(state));
 	}
 
 	if (changedLines & Lines.Tx)
@@ -263,17 +265,19 @@ Uart.finalizeFrame(
 	uchar_t data
 	)
 {
+	log.Writer* logWriter = m_pluginHost.m_log.m_writer;
+
 	// write data byte even in case of framing/parity errors
-	m_pluginHost.m_log.m_writer.write(timestamp, recordCode, &data, 1);
+	logWriter.write(timestamp, recordCode, &data, 1);
 
 	switch (result)
 	{
 	case io.UartDecodeResult.FramingError:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.UartFramingError);
+		logWriter.write(timestamp, HwSerialMonRecordCode.UartFramingError);
 		break;
 
 	case io.UartDecodeResult.ParityError:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.UartParityError);
+		logWriter.write(timestamp, HwSerialMonRecordCode.UartParityError);
 		break;
 	}
 }

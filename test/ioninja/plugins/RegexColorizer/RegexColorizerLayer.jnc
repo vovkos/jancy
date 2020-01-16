@@ -23,9 +23,9 @@ protected:
 	std.Array m_patternArray;
 	bool bindable m_hasExtraPatterns;
 
-	gui.ActionProperty* m_addPatternProp;
-	gui.ActionProperty* m_removeLastPatternProp;
-	gui.ActionProperty* m_removeAllExtraPatternsProp;
+	ui.ActionProperty* m_addPatternProp;
+	ui.ActionProperty* m_removeLastPatternProp;
+	ui.ActionProperty* m_removeAllExtraPatternsProp;
 
 	reactor m_uiReactor;
 
@@ -177,7 +177,7 @@ bool errorcode RegexColorizerLayer.applyProperties()
 		if (!strlen(regexString))
 			continue;
 
-		gui.TextAttr attr = pattern.buildTextAttr();
+		ui.TextAttr attr = pattern.buildTextAttr();
 
 		if (pattern.m_isTxEnabledProp.m_value)
 			m_txHighlighter.addRegexPattern_s(regexString, attr);

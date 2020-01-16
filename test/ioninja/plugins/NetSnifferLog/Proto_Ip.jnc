@@ -1,0 +1,279 @@
+//..............................................................................
+//
+// Sniffer log IPv4 packets handling
+//
+
+import "io_Ip.jnc"
+import "io_Icmp.jnc"
+import "io_Igmp.jnc"
+
+//..............................................................................
+
+void representIpDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(io.IpHdr))
+	{
+		representation.addHyperText("\e[1nIP\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
+	size_t ipHdrSize = ipHdr.m_headerLength * 4;
+
+	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize)
+	{
+		representation.addHyperText(formatIpDigest(ipHdr, " [BROKEN]"));
+		return;
+	}
+
+	p += ipHdrSize;
+	size = ipHdr.m_totalLength - ipHdrSize;
+
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset)
+	{
+		representation.addHyperText(formatIpDigest(ipHdr, " [FRAGMENTED]"));
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+		return;
+	}
+
+	char const* srcString = io.formatIpAddress(&ipHdr.m_srcAddress);
+	char const* dstString = io.formatIpAddress(&ipHdr.m_dstAddress);
+
+	switch (ipHdr.m_protocol)
+	{
+	case io.IpProtocol.Icmp:
+		representSimpleProtoDigest(
+			representation,
+			typeof(io.IcmpHdr),,
+			srcString,
+			dstString,
+			p,
+			size,
+			payloadPreviewIconIdx
+			);
+
+		break;
+
+	case io.IpProtocol.Igmp:
+		representSimpleProtoDigest(
+			representation,
+			typeof(io.IgmpHdr),,
+			srcString,
+			dstString,
+			p,
+			size,
+			payloadPreviewIconIdx
+			);
+
+		break;
+
+	case io.IpProtocol.Tcp:
+		representTcpDigest(representation, srcString, dstString, p, size, payloadPreviewIconIdx);
+		break;
+
+	case io.IpProtocol.Udp:
+		representUdpDigest(representation, srcString, dstString, p, size, payloadPreviewIconIdx);
+		break;
+
+	default:
+		representation.addHyperText(formatIpDigest(ipHdr));
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+	}
+}
+
+char const* formatIpDigest(
+	io.IpHdr const* hdr,
+	char const* extra = null
+	)
+{
+	return $"\e[1mIP \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (proto: \e[34m%3\e[m)%4"(
+		io.formatIpAddress(&hdr.m_srcAddress),
+		io.formatIpAddress(&hdr.m_dstAddress),
+		typeof(io.IpProtocol).getValueString(&hdr.m_protocol),
+		extra
+		);
+}
+
+void representIpDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
+
+	if (size < sizeof(io.IpHdr))
+	{
+		representation.addHyperText("\e[1nIP\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.IpHdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.NetworkLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.IpHdr), ProtoColor.NetworkLayer }
+	protoRangeArray.append(range);
+
+	io.IpHdr const* ipHdr = (io.IpHdr const*)p;
+	size_t ipHdrSize = ipHdr.m_headerLength * 4;
+
+	if (size < ipHdr.m_totalLength || ipHdr.m_totalLength < ipHdrSize)
+	{
+		representation.addHyperText("[BROKEN]");
+		return;
+	}
+
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset)
+	{
+		representation.addHyperText("[FRAGMENTED]");
+		return;
+	}
+
+	if (ipHdrSize > sizeof(io.IpHdr))
+		representIpOptions(
+			representation,
+			protoRangeArray,
+			ipHdr + 1,
+			ipHdrSize - sizeof(io.IpHdr),
+			baseOffset + sizeof(io.IpHdr),
+			foldFlags
+			);
+
+	p += ipHdrSize;
+	size = ipHdr.m_totalLength - ipHdrSize;
+	baseOffset += ipHdrSize;
+
+	switch (ipHdr.m_protocol)
+	{
+	case io.IpProtocol.Icmp:
+		representSimpleProtoDetails(
+			representation,
+			protoRangeArray,
+			typeof(io.IcmpHdr),,
+			p,
+			size,
+			baseOffset,
+			foldFlags,
+			ProtoFoldFlag.TransportLayer,
+			ProtoColor.TransportLayer,
+			ProtoFoldFlag.Payload,
+			ProtoColor.Payload
+			);
+		break;
+
+	case io.IpProtocol.Igmp:
+		representSimpleProtoDetails(
+			representation,
+			protoRangeArray,
+			typeof(io.IgmpHdr),,
+			p,
+			size,
+			baseOffset,
+			foldFlags,
+			ProtoFoldFlag.TransportLayer,
+			ProtoColor.TransportLayer
+			);
+		break;
+
+	case io.IpProtocol.Tcp:
+		representTcpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case io.IpProtocol.Udp:
+		representUdpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+	}
+}
+
+void representIpOptions(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.Options;
+
+	if (foldFlags & ProtoFoldFlag.Options)
+	{
+		representation.addHyperText(
+			$"[\e^-%1\e[34m-\e[m] \e[1mIP\e[m Options"(
+			ProtoFoldFlag.Options
+			));
+
+		size_t offset = baseOffset;
+		void const* end = p + size;
+
+		while (p < end)
+		{
+			uint8_t type = *(uint8_t const*)p;
+			uint8_t length = type <= io.IpOptionType.Nop ? 1 : *(uint8_t const*)(p + 1);
+
+			representation.addHyperText(
+				$"    \e^!0x%x,%2,%3\e[34m%4"(
+				NetSnifferLogPartCode.RawPacket,
+				offset,
+				length,
+				typeof(io.IpOptionType).getValueString(p)
+				));
+
+			offset += length;
+			p += length;
+		}
+	}
+	else
+	{
+		representation.addHyperText(
+			$"[\e^+%1\e[34m+\e[m] \e[1mIP\e[m Options (%2 bytes)"(
+			ProtoFoldFlag.Options,
+			size
+			));
+	}
+
+	ProtoRange range = { baseOffset, size, ProtoColor.Options };
+	protoRangeArray.append(range);
+}
+
+//..............................................................................
+
+void representDefragmentedIpDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelCyan;
+	representation.addPlainText("Defragmented IP packet");
+	representIpDigest(representation, p, size);
+}
+
+void representDefragmentedIpDetails(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	std.Array protoRangeArray;
+	representIpDetails(representation, protoRangeArray, p, size, 0, foldFlags);
+	representRawPacketData(representation, protoRangeArray, p, size);
+}
+
+//..............................................................................

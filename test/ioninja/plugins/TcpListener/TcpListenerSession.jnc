@@ -3,18 +3,18 @@
 // TCP Listener session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Socket.jnc"
-import "io_SocketUi.jnc"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_History.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_History.jnc"
+import "ui_SocketUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
-using extension gui.ComboBoxHistory;
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -78,23 +78,23 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_adapterCombo;
-	gui.ComboBox* m_portCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_adapterCombo;
+	ui.ComboBox* m_portCombo;
 
 	// property grid
 
-	gui.BoolProperty* m_overrideOldConnectionProp;
-	io.SocketPropertySet m_socketPropertySet;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.BoolProperty* m_overrideOldConnectionProp;
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -152,8 +152,8 @@ TcpListenerSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -162,7 +162,7 @@ TcpListenerSession.createUi()
 	// toolbar
 
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
-	m_adapterCombo = io.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, io.NetworkAdapterUsage.Listener);
+	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
 	m_pluginHost.m_toolBar.addLabel("Port:");
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox();
@@ -172,14 +172,14 @@ TcpListenerSession.createUi()
 	// status bar
 
 	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
-	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
 	m_statusPaneTable[StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane(, 80);
 
 	// action buttons
 
-	m_iconTable[IconId.Listen] = new gui.Icon("images/listen.png");
-	m_iconTable[IconId.StopListen] = new gui.Icon("images/pause.png");
-	m_iconTable[IconId.Disconnect] = new gui.Icon("images/disconnect.png");
+	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
+	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
+	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
@@ -189,7 +189,7 @@ TcpListenerSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"TCP-specific connection settings"
 		);
@@ -197,7 +197,7 @@ TcpListenerSession.createUi()
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
-		io.SocketPropertySet.PropertyId.AllTcpServer
+		ui.SocketPropertySet.PropertyId.AllTcpServer
 		);
 
 	m_socketPropertySet.m_defaultLocalPort = Defaults.LocalPort;
@@ -212,7 +212,7 @@ TcpListenerSession.createUi()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP listener");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP listener");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -237,7 +237,7 @@ bool errorcode TcpListenerSession.listen()
 
 	address = m_listenerSocket.m_address;
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.Listening,
 		&address,
 		sizeof(address)
@@ -251,7 +251,7 @@ bool errorcode TcpListenerSession.listen()
 
 catch:
 	std.Error const* error = std.getLastError();
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ListenError,
 		error,
 		error.m_size
@@ -266,7 +266,7 @@ TcpListenerSession.stopListen()
 	if (m_listenerState != ListenerState.Listening)
 		return;
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ListenStopped,
 		&m_localAddress,
 		sizeof(m_localAddress)
@@ -289,7 +289,7 @@ TcpListenerSession.disconnect()
 	if (m_socketPropertySet.m_tcpResetProp.m_value)
 		params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ClientDisconnected,
 		&params,
 		sizeof(params)
@@ -343,7 +343,7 @@ bool errorcode TcpListenerSession.applyProperties()
 	m_connectionSocket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_connectionSocket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_connectionSocket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_connectionSocket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_connectionSocket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	return true;
 }
 
@@ -364,7 +364,7 @@ size_t errorcode TcpListenerSession.transmit(
 
 	size_t result = m_connectionSocket.write(p, size);
 	if (result)
-		writeLog(log.StdRecordCode.Tx, p, result);
+		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	if (result < size)
 		m_isTransmitEnabled = false;
@@ -377,7 +377,7 @@ TcpListenerSession.waitListenerSocketEvents()
 	m_listenerSocket.wait(
 		io.SocketEvents.IoError |
 		io.SocketEvents.IncomingConnection,
-		onListenerSocketEvent ~(++m_listenerSyncId) @ m_pluginHost.m_mainThreadScheduler
+		onListenerSocketEvent~(++m_listenerSyncId) @ m_pluginHost.m_mainThreadScheduler
 		);
 }
 
@@ -388,7 +388,7 @@ TcpListenerSession.waitConnectionSocketEvents()
 		io.SocketEvents.IncomingData |
 		io.SocketEvents.Disconnected |
 		io.SocketEvents.Reset,
-		onConnectionSocketEvent ~(++m_connectionSyncId) @ m_pluginHost.m_mainThreadScheduler
+		onConnectionSocketEvent~(++m_connectionSyncId) @ m_pluginHost.m_mainThreadScheduler
 		);
 }
 
@@ -402,7 +402,7 @@ TcpListenerSession.onListenerSocketEvent(
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_listenerSocket.m_ioError, m_listenerSocket.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_listenerSocket.m_ioError, m_listenerSocket.m_ioError.m_size);
 		m_listenerSocket.close();
 		m_listenerState = ListenerState.Closed;
 		m_stdSessionInfoSet.endSession();
@@ -412,12 +412,12 @@ TcpListenerSession.onListenerSocketEvent(
 	if (triggeredEvents & io.SocketEvents.IncomingConnection)
 	{
 		io.SocketAddress address;
-		io.Socket* socket = m_listenerSocket.accept(&address);
+		io.Socket* socket = m_listenerSocket.accept(&address, true);
 
 		if (m_connectionState == ConnectionState.Connected && !m_overrideOldConnectionProp.m_value)
 		{
 			socket.close();
-			writeLog(SocketLogRecordCode.ClientRejected, &address, sizeof(address));
+			m_logWriter.write(SocketLogRecordCode.ClientRejected, &address, sizeof(address));
 			return;
 		}
 
@@ -425,11 +425,12 @@ TcpListenerSession.onListenerSocketEvent(
 		socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-		socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		socket.unsuspend();
 
 		disconnect();
 
-		writeLog(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
+		m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
 
 		m_remoteAddress = address;
 		m_connectionSocket = socket;
@@ -452,7 +453,7 @@ TcpListenerSession.onConnectionSocketEvent(
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_listenerSocket.m_ioError, m_listenerSocket.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_connectionSocket.m_ioError, m_connectionSocket.m_ioError.m_size);
 		m_connectionSocket.close();
 		m_connectionSocket = null;
 		m_connectionState = ConnectionState.Closed;
@@ -468,7 +469,7 @@ TcpListenerSession.onConnectionSocketEvent(
 			if (!result)
 				break;
 
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
 		TcpDisconnectLogRecordParams recordParams;
@@ -478,7 +479,7 @@ TcpListenerSession.onConnectionSocketEvent(
 		if (triggeredEvents & io.SocketEvents.Reset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-		writeLog(
+		m_logWriter.write(
 			SocketLogRecordCode.ClientDisconnected,
 			&recordParams,
 			sizeof(recordParams)
@@ -495,7 +496,7 @@ TcpListenerSession.onConnectionSocketEvent(
 	{
 		size_t result = m_connectionSocket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
 	if (io.SocketEvents.WriteBufferReady)

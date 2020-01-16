@@ -1,0 +1,47 @@
+//..............................................................................
+//
+// PCAP file header
+//
+
+namespace io {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+enum
+{
+	PcapFileSignature    = '\xa1\xb2\xc3\xd4',
+	PcapFileMajorVersion = 2,
+	PcapFileMinorVersion = 4,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PcapFileHdr
+{
+	uint32_t m_signature;
+	uint16_t m_majorVersion;
+	uint16_t m_minorVersion;
+	int32_t m_timeZoneOffset;
+	uint32_t m_timestampAccuracy;
+	uint32_t m_snapshotSize;
+	uint32_t m_linkType;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PcapPacketHdr
+{
+	uint32_t m_timestampSeconds;
+	uint32_t m_timestampMicroseconds;
+	uint32_t m_savedPacketSize;
+	uint32_t m_actualPacketSize;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

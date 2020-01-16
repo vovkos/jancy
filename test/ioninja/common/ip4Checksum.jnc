@@ -1,3 +1,8 @@
+//! \addtogroup common-crc
+//! @{
+
+//..............................................................................
+
 uint16_t calcIp4Checksum(
 	void const* p0,
 	size_t size,
@@ -44,3 +49,7 @@ uint16_t finalizeIp4Checksum(uint16_t checksum)
 {
 	return ~((checksum >> 8) | ((checksum & 0xff) << 8));
 }
+
+//..............................................................................
+
+//! @}

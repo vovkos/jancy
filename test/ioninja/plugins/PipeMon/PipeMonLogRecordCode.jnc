@@ -9,20 +9,25 @@ import "log_RecordCode.jnc"
 
 enum PipeMonLogRecordCode: uint64_t
 {
-	ServerFileOpened_old    = 0x01d48717897030a1,
-	ServerFileOpenError_old = 0x01d48717897030a2,
-	ClientFileOpened_old    = 0x01d48717897030a3,
-	ClientFileOpenError_old = 0x01d48717897030a4,
-	FileClosed              = 0x01d48717897030a5,
-	ConnectionAccepted      = 0x01d48717897030a6,
-	ConnectionClosed        = 0x01d48717897030a7,
-	Transaction             = 0x01d48717897030a8,
-	FileIdChanged_old       = 0x01d48717897030a9,
-	ServerFileOpened        = 0x01d48717897030aa,
-	ServerFileOpenError     = 0x01d48717897030ab,
-	ClientFileOpened        = 0x01d48717897030ac,
-	ClientFileOpenError     = 0x01d48717897030ad,
-	FileIdChanged           = 0x01d48717897030ae,
+	ServerFileOpened_0     = 0x01d48717897030a1,
+	ServerFileOpenError_0  = 0x01d48717897030a2,
+	ClientFileOpened_0     = 0x01d48717897030a3,
+	ClientFileOpenError_0  = 0x01d48717897030a4,
+	FileClosed             = 0x01d48717897030a5,
+	ConnectionAccepted     = 0x01d48717897030a6,
+	ConnectionClosed       = 0x01d48717897030a7,
+	Transaction            = 0x01d48717897030a8,
+	FileIdChanged_0        = 0x01d48717897030a9,
+	ServerFileOpened_1     = 0x01d48717897030aa,
+	ServerFileOpenError_1  = 0x01d48717897030ab,
+	ClientFileOpened_1     = 0x01d48717897030ac,
+	ClientFileOpenError_1  = 0x01d48717897030ad,
+	FileIdChanged_1        = 0x01d48717897030ae,
+	ServerFileOpened       = 0x01d48717897030af,
+	ServerFileOpenError    = 0x01d48717897030b0,
+	ClientFileOpened       = 0x01d48717897030b1,
+	ClientFileOpenError    = 0x01d48717897030b2,
+	FileIdChanged          = 0x01d48717897030b3,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -37,7 +42,7 @@ enum PipeMonLogPartCode: uint64_t
 
 struct PipeMonLogTransactionParams
 {
-	uint32_t m_fileId;
+	uint32_t _m_unused; // previously, fileId
 	uint32_t m_txDataSize;
 	uint32_t m_rxDataSize;
 }

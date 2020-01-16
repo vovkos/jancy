@@ -1,0 +1,51 @@
+#...............................................................................
+#
+#  Ethernet Tap log representer plugin
+#
+
+[plugin]
+
+name        = "Ethernet Tap Log"
+description = "Ethernet Tap log representer"
+guid        = ae3dc2da-6124-4c14-b05a-200df2fc580a
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+
+log-representer-func = representEthernetTapLog
+log-detailizer-func = detailizeEthernetTapLog
+
+[scripts]
+
+EthernetTapLogRepresenter.jnc
+EthernetTapLogRecordCode.jnc
+
+[records]
+
+01d4cdafa0abb0e0  # DeviceOpened
+01d4cdafa0abb0e1  # InterfaceClaimed
+01d4cdafa0abb0e2  # InEndpointOpened
+01d4cdafa0abb0e3  # OutEndpointOpened
+01d4cdafa0abb0e4  # CaptureStarted
+01d4cdafa0abb0e5  # CaptureStopped
+01d4cdafa0abb0e6  # CaptureError
+81d4cdafa0abb0e7  # Packet_ch1
+81d4cdafa0abb0e8  # Packet_ch2
+81d4cdafa0abb0e9  # PacketDetails_ch1
+81d4cdafa0abb0ea  # PacketDetails_ch2
+01d4cdafa0abb0eb  # CypressBufferCleared
+
+[filter]
+
+id          = packet-ch-1
+name        = "Channel #1"
+description = "Show/hide packets received over channel #1"
+
+81d4cdafa0abb0e7  # Packet_ch1
+
+[filter]
+
+id          = packet-ch-2
+name        = "Channel #2"
+description = "Show/hide packets received over channel #2"
+
+81d4cdafa0abb0e8  # Packet_ch2

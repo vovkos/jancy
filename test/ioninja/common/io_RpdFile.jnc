@@ -1,0 +1,41 @@
+//..............................................................................
+//
+// RPD file header with version tags
+//
+
+namespace io {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+enum
+{
+	RpdFileSignature = ':dpr'
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RpdVersion
+{
+	uint8_t m_hardwareVersion;
+	uint8_t m_firmwareType;
+	bigendian uint16_t m_firmwareVersion;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RpdHdr
+{
+	uint32_t m_signature;
+	RpdVersion m_version;
+	uint64_t m_timestamp;
+	char m_tag[16];
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

@@ -3,14 +3,14 @@
 // SSH log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "SshLogRecordCode.jnc"
-import "../SocketLog/SocketLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
 
 //..............................................................................
 
 bool representSshLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -20,59 +20,59 @@ bool representSshLog(
 	switch (recordCode)
 	{
 	case SshLogRecordCode.TcpConnectCompleted:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		target.addHyperText(SocketLogPartCode.Connecting, "Performing SSH handshake...");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH handshake...");
 		break;
 
 	case SshLogRecordCode.SshHandshakeCompleted:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		target.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
 		break;
 
 	case SshLogRecordCode.SshAuthCompleted:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		target.addHyperText(SocketLogPartCode.Connecting, "Opening SSH channel...");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Opening SSH channel...");
 		break;
 
 	case SshLogRecordCode.SshChannelOpened:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		target.addHyperText(SocketLogPartCode.Connecting, "Requesting PTY...");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Requesting PTY...");
 		break;
 
 	case SshLogRecordCode.SshPtyRequested:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
-		target.addHyperText(SocketLogPartCode.Connecting, "Starting process...");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.Connecting, "Starting process...");
 		break;
 
 	case SshLogRecordCode.SshProcessStarted:
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
 		break;
 
 	case SshLogRecordCode.ConnectCompleted:
-		target.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText("SSH channel established");
+		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText("SSH channel established");
 		break;
 
 	case SshLogRecordCode.Reconnecting:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.Connecting, "Reconnecting...");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, "Reconnecting...");
 		break;
 
 	default:

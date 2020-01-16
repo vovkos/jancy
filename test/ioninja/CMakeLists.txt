@@ -13,9 +13,11 @@ if(NOT ${BUILD_JNC_APP})
 	return()
 endif()
 
+set (_COMMON_FLAGS -c --ignore-opaque -I ../../api -I ../../common -I ../../protocols -I ../../plugins)
+
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-plugin-"
-	FLAGS -c --ignore-opaque -I ../../api -I ../../common
+	FLAGS ${_COMMON_FLAGS}
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Echo
 	REQUIRES EchoLayer
@@ -48,7 +50,7 @@ add_jancy_tests(
 		SerialTapSession
 		representSerialLog
 	FILES
-		GenericSerialTapSession.jnc
+		SerialTapSession.jnc
 		../Serial/SerialLogRecordCode.jnc
 		../Serial/SerialLogRepresenter.jnc
 	FINALIZE_TEST GenericSerialTap
@@ -73,6 +75,7 @@ add_jancy_tests(
 		ModbusRtuParser.jnc
 		ModbusAsciiParser.jnc
 		ModbusTcpParser.jnc
+		ModbusInfoSet.jnc
 		ModbusLogRecordCode.jnc
 		ModbusLogRepresenter.jnc
 		ModbusLog_Pdu.jnc
@@ -193,7 +196,7 @@ add_jancy_tests(
 if(BUILD_JNC_IO_SSH)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS -c --ignore-opaque -I ../../api -I ../../common
+		FLAGS ${_COMMON_FLAGS}
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SshChannel
 		REQUIRES
@@ -213,30 +216,41 @@ endif()
 if(BUILD_JNC_IO_PCAP)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS -c --ignore-opaque -I ../../api -I ../../common
+		FLAGS ${_COMMON_FLAGS}
 
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/NetworkSniffer
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PcapSniffer
 		REQUIRES
-			SnifferSession
-			representSnifferLog
+			PcapSnifferSession
+			representPcapLog
+			representNetSnifferLog
+			detailizeNetSnifferLog
 		FILES
-			SnifferSession.jnc
-			SnifferLogRecordCode.jnc
-			SnifferLogRepresenter.jnc
-			SnifferLog_Ethernet.jnc
-			SnifferLog_Arp.jnc
-			SnifferLog_Ip.jnc
-			SnifferLog_Icmp.jnc
-			SnifferLog_Tcp.jnc
-			SnifferLog_Udp.jnc
+			PcapSnifferSession.jnc
 			../PcapLog/PcapLogRecordCode.jnc
 			../PcapLog/PcapLogRepresenter.jnc
-		FINALIZE_TEST NetworkSniffer
+			../PcapLog/PcapLogRecordCode.jnc
+			../PcapLog/PcapLogRepresenter.jnc
+			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogRecordCode.jnc
+			../NetSnifferLog/NetSnifferLogRepresenter.jnc
+			../NetSnifferLog/Protocols.jnc
+			../NetSnifferLog/Proto_Simple.jnc
+			../NetSnifferLog/Proto_Ethernet.jnc
+			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Arp.jnc
+			../NetSnifferLog/Proto_Ip.jnc
+			../NetSnifferLog/Proto_Ip6.jnc
+			../NetSnifferLog/Proto_Tcp.jnc
+			../NetSnifferLog/Proto_Udp.jnc
+			../NetSnifferLog/Proto_Dns.jnc
+			../NetSnifferLog/Proto_Dhcp.jnc
+		FINALIZE_TEST PcapSniffer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpFlowMon
 		REQUIRES
 			TcpFlowMonSession
 			representTcpFlowMonLog
+			representPcapLog
 		FILES
 			TcpFlowMonSession.jnc
 			TcpFlowMonLogRecordCode.jnc
@@ -251,6 +265,7 @@ if(BUILD_JNC_IO_PCAP)
 		REQUIRES
 			UdpFlowMonSession
 			representUdpFlowMonLog
+			representPcapLog
 		FILES
 			UdpFlowMonSession.jnc
 			UdpFlowMonLogRecordCode.jnc
@@ -266,7 +281,7 @@ endif()
 if(BUILD_JNC_IO_USB)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS -c --ignore-opaque -I ../../api -I ../../common
+		FLAGS ${_COMMON_FLAGS}
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialTap
 		REQUIRES
@@ -286,12 +301,36 @@ if(BUILD_JNC_IO_USB)
 			I2cSpiSnifferSession.jnc
 			I2cSpiSnifferLogRecordCode.jnc
 			I2cSpiSnifferLogRepresenter.jnc
-			Protocol.jnc
-			Uploader.jnc
 			Decoder.jnc
 			I2cDecoder.jnc
 			SpiDecoder.jnc
 		FINALIZE_TEST I2cSpiSniffer
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
+		REQUIRES
+			EthernetTapSession
+			representEthernetTapLog
+			detailizeEthernetTapLog
+		FILES
+			EthernetTapSession.jnc
+			EthernetTapLogFilter.jnc
+			EthernetTapLogRecordCode.jnc
+			EthernetTapLogRepresenter.jnc
+			../NetSnifferLog/NetSnifferLogFilter.jnc
+			../NetSnifferLog/NetSnifferLogRecordCode.jnc
+			../NetSnifferLog/NetSnifferLogRepresenter.jnc
+			../NetSnifferLog/Protocols.jnc
+			../NetSnifferLog/Proto_Simple.jnc
+			../NetSnifferLog/Proto_Ethernet.jnc
+			../NetSnifferLog/Proto_Loopback.jnc
+			../NetSnifferLog/Proto_Arp.jnc
+			../NetSnifferLog/Proto_Ip.jnc
+			../NetSnifferLog/Proto_Ip6.jnc
+			../NetSnifferLog/Proto_Tcp.jnc
+			../NetSnifferLog/Proto_Udp.jnc
+			../NetSnifferLog/Proto_Dns.jnc
+			../NetSnifferLog/Proto_Dhcp.jnc
+		FINALIZE_TEST EthernetTap
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UsbControlEndpoint
 		REQUIRES
@@ -356,7 +395,7 @@ endif()
 if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 	add_jancy_tests(
 		NAME_PREFIX "jnc-ioninja-plugin-"
-		FLAGS -c --ignore-opaque -I ../../api -I ../../common
+		FLAGS ${_COMMON_FLAGS}
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialMon
 		REQUIRES
@@ -384,6 +423,7 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 		FILES
 			PipeMonSession.jnc
 			PipeMonitor.jnc
+			PipeMonLogFilter.jnc
 			PipeMonLogRecordCode.jnc
 			PipeMonLogRepresenter.jnc
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
@@ -397,6 +437,7 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 		FILES
 			MailslotMonSession.jnc
 			MailslotMonitor.jnc
+			MailslotMonLogFilter.jnc
 			MailslotMonLogRecordCode.jnc
 			MailslotMonLogRepresenter.jnc
 			../DeviceMonLog/DeviceMonLogRecordCode.jnc
@@ -407,7 +448,7 @@ endif()
 
 add_jancy_tests(
 	NAME_PREFIX "jnc-ioninja-packet-"
-	FLAGS -c -I ../common
+	FLAGS -c --ignore-opaque -I ../api -I ../common -I ../protocols
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/packets
 
 	TESTS

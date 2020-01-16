@@ -1,0 +1,66 @@
+//..............................................................................
+//
+// ARP (address resolution protocol) defitions
+//
+
+import "io_Ethernet.jnc"
+
+namespace io {
+
+//! \addtogroup proto-arp
+//! @{
+
+//..............................................................................
+
+enum ArpHardwareType: bigendian uint16_t
+{
+	Ethernet = 1,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ArpOpcode: bigendian uint16_t
+{
+	Request        = 1,
+	Reply          = 2,
+	RequestReverse = 3,
+	ReplyReverese  = 4,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "ARP",
+	formatDigestFunc = formatArpDigest
+]
+struct ArpHdr
+{
+	[ displayName = "Hardware type" ]
+	ArpHardwareType m_hardwareType;
+
+	[ displayName = "Protocol type" ]
+	EthernetType m_protocolType;
+
+	[ displayName = "Hardware size" ]
+	uint8_t m_hardwareLength;
+
+	[ displayName = "Protocol size" ]
+	uint8_t m_protocolLength;
+
+	[ displayName = "Opcode" ]
+	ArpOpcode m_opcode;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatArpDigest(void const* p)
+{
+	ArpHdr const* hdr = (ArpHdr const*)p;
+	return typeof(ArpOpcode).getValueString(&hdr.m_opcode);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

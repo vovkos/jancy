@@ -1,0 +1,363 @@
+//..............................................................................
+//
+// DNS (domain name system) defitions; also used for NetBIOS, MDNS, LLMNR
+//
+
+import "std_String.jnc"
+
+namespace io {
+
+//! \addtogroup proto-dns
+//! @{
+
+alignment(1);
+
+//..............................................................................
+
+enum DnsOpcode
+{
+	StandardQuery       = 0,
+	InverseQuery        = 1,
+	ServerStatusRequest = 2,
+	Notify              = 4,
+	Update              = 5,
+	DnsStatefulOp       = 6,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DnsClass: bigendian uint16_t
+{
+	Internet   = 0x01,
+	Chaos      = 0x03,
+	Hesiod     = 0x04,
+	QClassNone = 0xfe,
+	QClassAny  = 0xff,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DnsType: bigendian uint16_t
+{
+	A          = 1,
+	NS         = 2,
+	MD         = 3,
+	MF         = 4,
+	CNAME      = 5,
+	SOA        = 6,
+	MB         = 7,
+	MG         = 8,
+	MR         = 9,
+	NULL       = 10,
+	WKS        = 11,
+	PTR        = 12,
+	HINFO      = 13,
+	MINFO      = 14,
+	MX         = 15,
+	TXT        = 16,
+	RP         = 17,
+	AFSDB      = 18,
+	X25        = 19,
+	ISDN       = 20,
+	RT         = 21,
+	NSAP       = 22,
+	NSAPPTR    = 23,
+	SIG        = 24,
+	KEY        = 25,
+	PX         = 26,
+	GPOS       = 27,
+	AAAA       = 28,
+	LOC        = 29,
+	NXT        = 30,
+	EID        = 31,
+	NIMLOC     = 32,
+	SRV        = 33,
+	ATMA       = 34,
+	NAPTR      = 35,
+	KX         = 36,
+	CERT       = 37,
+	A6         = 38,
+	DNAME      = 39,
+	SINK       = 40,
+	OPT        = 41,
+	APL        = 42,
+	DS         = 43,
+	SSHFP      = 44,
+	IPSECKEY   = 45,
+	RRSIG      = 46,
+	NSEC       = 47,
+	DNSKEY     = 48,
+	DHCID      = 49,
+	NSEC3      = 50,
+	NSEC3PARAM = 51,
+	TLSA       = 52,
+	SMIMEA     = 53,
+	HIP        = 55,
+	NINFO      = 56,
+	RKEY       = 57,
+	TALINK     = 58,
+	CDS        = 59,
+	CDNSKEY    = 60,
+	OPENPGPKEY = 61,
+	CSYNC      = 62,
+	ZONEMD     = 63,
+	SPF        = 99,
+	UINFO      = 100,
+	UID        = 101,
+	GID        = 102,
+	UNSPEC     = 103,
+	NID        = 104,
+	L32        = 105,
+	L64        = 106,
+	LP         = 107,
+	EUI48      = 108,
+	EUI64      = 109,
+	TKEY       = 249,
+	TSIG       = 250,
+	IXFR       = 251,
+	AXFR       = 252,
+	MAILB      = 253,
+	MAILA      = 254,
+	ALL        = 255,
+	URI        = 256,
+	CAA        = 257,
+	AVC        = 258,
+	DOA        = 259,
+	AMTRELAY   = 260,
+	TA         = 32768,
+	DLV        = 32769,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum DnsFlags
+{
+	CheckingDisabled,
+	AuthenticData,
+	Reserved,
+	RecursionAvailable,
+	RecursionDesired,
+	Truncated,
+	AuthoritativeAnswer,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DnsResponseCode
+{
+	NoError               = 0,
+	FormatError           = 1,
+	ServerFailure         = 2,
+	NotExistentDomain     = 3,
+	NotImplemented        = 4,
+	QueryRefused          = 5,
+	DomainExists          = 6,
+	RrSetExists           = 7,
+	NotExistentRrSet      = 8,
+	NotAuthorized         = 9,
+	NotZone               = 10,
+	DsoTypeNotImplemented = 11,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "DNS",
+	formatDigestFunc = formatDnsDigest
+]
+struct DnsHdr
+{
+	[
+		displayName = "Identifier",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_id;
+
+	[
+		displayName = "Reply flag",
+		displayType = typeof(bool)
+	]
+	bigendian uint16_t m_isReply: 1;
+
+	[
+		displayName = "Opcode",
+		displayType = typeof(DnsOpcode)
+	]
+	bigendian uint16_t m_opcode: 4;
+
+	[
+		displayName = "Flags",
+		displayType = typeof(DnsFlags)
+	]
+	bigendian uint16_t m_flags: 7;
+
+	[
+		displayName = "Response code",
+		displayType = typeof(DnsResponseCode)
+	]
+	bigendian uint16_t m_responseCode: 4;
+
+	[ displayName = "Number of question RRs" ]
+	bigendian uint16_t m_questionRrCount;
+
+	[ displayName = "Number of answer RRs" ]
+	bigendian uint16_t m_answerRrCount;
+
+	[ displayName = "Number of authority RRs" ]
+	bigendian uint16_t m_authorityRrCount;
+
+	[ displayName = "Number of additional RRs" ]
+	bigendian uint16_t m_additionalRrCount;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DnsQuestionRrSuffix
+{
+	[ displayName = "Type" ]
+	DnsType m_type;
+
+	[ displayName = "Class" ]
+	DnsClass m_class;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DnsAnswerRrSuffix
+{
+	[ displayName = "Type" ]
+	DnsType m_type;
+
+	[ displayName = "Class" ]
+	DnsClass m_class;
+
+	[ displayName = "Time to live" ]
+	bigendian uint32_t m_ttl;
+
+	[ displayName = "Data length" ]
+	bigendian uint16_t m_dataLength;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatDnsDigest(void const* p)
+{
+	DnsHdr const* hdr = (DnsHdr const*)p;
+	uint_t opcode = hdr.m_opcode;
+
+	return $"%1 (ID: 0x%04X%3)"(
+		typeof(DnsOpcode).getValueString(&opcode),
+		hdr.m_id,
+		hdr.m_isReply ? ", reply" : null
+		);
+}
+
+size_t scanDnsName(
+	void const* p,
+	size_t size
+	)
+{
+	return scanDnsName(p, p + size) - p;
+}
+
+void const* scanDnsName(
+	void const* p,
+	void const* end
+	)
+{
+	while (p < end)
+	{
+		uchar_t c = *(uchar_t const*)p++;
+		if (!c)
+			break;
+
+		if (c & 0xc0) // pointer
+		{
+			p++;
+			break;
+		}
+
+		if (c > end - p)
+			break;
+
+		p += c;
+	}
+
+	return p;
+}
+
+char const* formatDnsName(
+	void const* p,
+	size_t size,
+	void const* base
+	)
+{
+	return formatDnsName(p, p + size, base);
+}
+
+char const* formatDnsName(
+	void const* p,
+	void const* end,
+	void const* base
+	)
+{
+	std.StringBuilder string;
+	formatDnsName(string, p, end, base);
+	return string.detachString();
+}
+
+size_t formatDnsName(
+	std.StringBuilder* string,
+	void const* p,
+	size_t size,
+	void const* base
+	)
+{
+	return formatDnsName(string, p, p + size, base) - p;
+}
+
+void const* formatDnsName(
+	std.StringBuilder* string,
+	void const* p,
+	void const* end,
+	void const* base
+	)
+{
+	while (p < end)
+	{
+		uchar_t c = *(uchar_t const*)p++;
+		if (!c)
+			break;
+
+		if (c & 0xc0) // pointer
+		{
+			size_t offset = ((c & ~0xc0) << 8) | *(uchar_t const*)p++;
+			if (offset >= end - base)
+				string.append("[INVALID-DNS-NAME-OFFSET]");
+			else
+				formatDnsName(string, base + offset, end, base);
+
+			break;
+		}
+
+		if (c > end - p)
+		{
+			string.append("[INVALID-DNS-NAME-LENGTH]");
+			break;
+		}
+
+		if (string.m_length)
+			string.append('.');
+
+		string.append(p, c);
+		p += c;
+	}
+
+	return p;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

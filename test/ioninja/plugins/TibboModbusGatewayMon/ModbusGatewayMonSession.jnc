@@ -3,17 +3,17 @@
 // Tibbo Modbus gateway monitor session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Socket.jnc"
-import "io_SocketAddressResolver.jnc"
-import "io_SocketUi.jnc"
-import "doc_Session.jnc"
-import "gui_History.jnc"
-import "gui_StdSessionInfo.jnc"
+import "io_HostNameResolver.jnc"
+import "ui_History.jnc"
+import "ui_SocketUi.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 
-using extension gui.ComboBoxHistory;
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -65,7 +65,7 @@ protected:
 
 	State bindable m_state;
 	io.Socket m_socket;
-	io.SocketAddressResolver m_resolver;
+	io.HostNameResolver m_resolver;
 	io.SocketAddress m_remoteAddress;
 	uint_t m_syncId;
 
@@ -75,21 +75,21 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_addressCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_addressCombo;
 
 	// property grid
 
-	io.SocketPropertySet m_socketPropertySet;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -120,11 +120,9 @@ protected:
 
 	onConnect();
 
-	onResolveCompleted(
+	onResolverEvent(
 		uint_t syncId,
-		io.SocketAddress const* addressTable,
-		size_t addressCount,
-		std.Error const* error
+		io.HostNameResolverEvents triggeredEvents
 		);
 
 	onSocketEvent(
@@ -149,8 +147,8 @@ ModbusGatewayMonSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -162,9 +160,10 @@ ModbusGatewayMonSession.createUi()
 	m_addressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_addressCombo.m_isEditable = true;
 	m_addressCombo.m_onEnter += connect;
+	m_addressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
-	m_iconTable[IconId.Connect] = new gui.Icon("images/connect.png");
-	m_iconTable[IconId.Disconnect] = new gui.Icon("images/disconnect.png");
+	m_iconTable[IconId.Connect] = new ui.Icon("images/connect.png");
+	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
 
 	m_actionTable[ActionId.Connect] = createAction("Connect", m_iconTable [IconId.Connect]);
 	m_actionTable[ActionId.Connect].m_onTriggered += onConnect;
@@ -172,19 +171,19 @@ ModbusGatewayMonSession.createUi()
 	// status bar
 
 	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
-	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = gui.StdColor.Blue;
+	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
 	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
 	m_statusPaneTable[StatusPaneId.Temp] = m_pluginHost.m_statusBar.addPane(, 100);
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"TCP-specific connection settings"
 		);
 
     m_socketPropertySet.m_defaultRemotePort = 23;
-    //io.SocketPropertySet.PropertyId mask = io.SocketPropertySet.PropertyId.AllTcpClient & ~io.SocketPropertySet.PropertyId.RemotePort;
+    //ui.SocketPropertySet.PropertyId mask = ui.SocketPropertySet.PropertyId.AllTcpClient & ~ui.SocketPropertySet.PropertyId.RemotePort;
 	m_socketPropertySet.createProperties(m_pluginHost.m_propertyGrid, group); //,, mask);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
@@ -196,7 +195,7 @@ ModbusGatewayMonSession.createUi()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Modbus Gateway Connection");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Modbus Gateway Connection");
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -234,7 +233,7 @@ bool errorcode ModbusGatewayMonSession.connect()
 
 	m_state = State.Resolving;
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.Resolving,
 		addressString,
 		strlen(addressString)
@@ -248,7 +247,13 @@ bool errorcode ModbusGatewayMonSession.connect()
 			addressFamily = adapterAddress.m_family;
 	}
 
-	m_resolver.resolve(addressString, addressFamily, onResolveCompleted ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_resolver.resolve(addressString, addressFamily);
+
+	m_resolver.wait(
+		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
+		onResolverEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler
+		);
+
 	return true;
 
 catch:
@@ -267,7 +272,7 @@ nestedscope:
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
 	{
@@ -294,7 +299,7 @@ nestedscope:
 	localAddress = m_socket.m_address;
 
 	char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
-	writeLog(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
+	m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 
 	waitSocketEvents();
 	return true;
@@ -302,12 +307,12 @@ nestedscope:
 catch:
 	if (!m_socketPropertySet.m_useLocalAddressProp.m_value)
 	{
-		writeLog(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
+		m_logWriter.write(SocketLogRecordCode.Connecting, remoteAddress, sizeof(io.SocketAddress));
 	}
 	else
 	{
 		char const* p = $"$(*remoteAddress; B)$(localAddress; B)";
-		writeLog(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
+		m_logWriter.write(SocketLogRecordCode.ConnectingFrom, p, dynamic sizeof(p));
 	}
 
 	handleConnectError(std.getLastError());
@@ -316,7 +321,7 @@ catch:
 
 ModbusGatewayMonSession.handleConnectError(std.Error const* error)
 {
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ConnectError,
 		error,
 		error.m_size
@@ -335,7 +340,7 @@ ModbusGatewayMonSession.disconnect()
 
 	case State.Resolving:
 	case State.Connecting:
-		writeLog(SocketLogRecordCode.ConnectCancelled);
+		m_logWriter.write(SocketLogRecordCode.ConnectCancelled);
 		break;
 
 	case State.Connected:
@@ -346,7 +351,7 @@ ModbusGatewayMonSession.disconnect()
 		if (m_socketPropertySet.m_tcpResetProp.m_value)
 			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-		writeLog(
+		m_logWriter.write(
 			SocketLogRecordCode.Disconnected,
 			&params,
 			sizeof(params)
@@ -396,7 +401,7 @@ bool errorcode ModbusGatewayMonSession.applyProperties()
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	return true;
 }
 
@@ -426,7 +431,7 @@ ModbusGatewayMonSession.waitSocketEvents()
 		break;
 	}
 
-	m_socket.wait(eventMask, onSocketEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 ModbusGatewayMonSession.onSocketEvent(
@@ -445,14 +450,14 @@ ModbusGatewayMonSession.onSocketEvent(
 
 	if (triggeredEvents & io.SocketEvents.Connected)
 	{
-		writeLog(SocketLogRecordCode.ConnectCompleted);
+		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
 		m_state = State.Connected;
 		m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 
 		size_t sz = m_socket.write(m_telnetCommand, 4);
 		if (sz != 4) {
-			writeLog(ModbusGatewayMonLogRecordCode.CommandError);
+			m_logWriter.write(ModbusGatewayMonLogRecordCode.CommandError);
 		}
 	}
 
@@ -464,7 +469,7 @@ ModbusGatewayMonSession.onSocketEvent(
 			if (!result)
 				break;
 
-			writeLog(log.StdRecordCode.Rx, m_bufferIncoming, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_bufferIncoming, result);
 		}
 
 		TcpDisconnectLogRecordParams recordParams;
@@ -474,7 +479,7 @@ ModbusGatewayMonSession.onSocketEvent(
 		if (triggeredEvents & io.SocketEvents.Reset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
-		writeLog(
+		m_logWriter.write(
 			SocketLogRecordCode.Disconnected,
 			&recordParams,
 			sizeof(recordParams)
@@ -489,7 +494,7 @@ ModbusGatewayMonSession.onSocketEvent(
 
 	if ((triggeredEvents & io.SocketEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog(log.StdRecordCode.RxBufferFull);
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
 
 	if (triggeredEvents & io.SocketEvents.IncomingData)
 	{
@@ -530,7 +535,7 @@ ModbusGatewayMonSession.onSocketEvent(
 						else
 							if (sizePacket + 2 <= m_bufferIncomingLength) {
 								// Packet receiving complete
-								writeLog(ModbusGatewayMonLogRecordCode.DumpPacket, &m_bufferIncoming[4], sizePacket - 2);
+								m_logWriter.write(ModbusGatewayMonLogRecordCode.DumpPacket, &m_bufferIncoming[4], sizePacket - 2);
 								//writeLog (log.StdRecordCode.Rx, m_bufferIncoming, 64);
 								m_bufferIncomingLength -= sizePacket + 2;
 								if (m_bufferIncomingLength > 0)
@@ -540,8 +545,8 @@ ModbusGatewayMonSession.onSocketEvent(
 					} else {    // Wrong Header
 						uint8_t _buf0 = m_bufferIncoming[0];
 						char const* str = $"Wrong packet header. Length:$m_bufferIncomingLength [0]:$_buf0";
-						writeLog(ModbusGatewayMonLogRecordCode.Log, str, dynamic sizeof(str));
-						writeLog(log.StdRecordCode.Rx, m_bufferIncoming, 128);
+						m_logWriter.write(ModbusGatewayMonLogRecordCode.Log, str, dynamic sizeof(str));
+						m_logWriter.write(log.StdRecordCode.Rx, m_bufferIncoming, 128);
 						m_bufferIncomingLength = 0;
 					}
 				}
@@ -552,31 +557,29 @@ ModbusGatewayMonSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-ModbusGatewayMonSession.onResolveCompleted(
+ModbusGatewayMonSession.onResolverEvent(
 	uint_t syncId,
-	io.SocketAddress const* addressTable,
-	size_t addressCount,
-	std.Error const* error
+	io.HostNameResolverEvents triggeredEvents
 	)
 {
 	if (syncId != m_syncId)
 		return;
 
-	if (error)
+	if (triggeredEvents & io.HostNameResolverEvents.Error)
 	{
-		handleConnectError(error);
+		handleConnectError(m_resolver.m_error);
 		return;
 	}
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ResolveCompleted,
-		addressTable,
+		m_resolver.m_addressTable,
 		sizeof(io.SocketAddress)
 		);
 
 	m_state = State.Closed;
 
-	io.SocketAddress address = addressTable[0];
+	io.SocketAddress address = m_resolver.m_addressTable[0];
 	if (!address.m_ip4.m_port) // IPv4 & IPv6 share the same port location
 		address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 

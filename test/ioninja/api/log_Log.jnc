@@ -3,7 +3,7 @@
 // Ninja log - main log engine api
 //
 
-import "gui_Icon.jnc"
+import "ui_Icon.jnc"
 import "log_Writer.jnc"
 import "log_Converter.jnc"
 import "log_Filter.jnc"
@@ -12,6 +12,9 @@ import "log_RangeProcessor.jnc"
 
 namespace log {
 
+//! \addtogroup api-log
+//! @{
+
 //..............................................................................
 
 opaque class Log
@@ -19,39 +22,44 @@ opaque class Log
 	size_t property m_leafLineCountLimit;
 	size_t property m_cacheUpdateScrollRateLimit;
 
-	gui.Icon* property m_iconTable(size_t i);
+	ui.Icon* property m_iconTable(size_t i);
 
 	Writer* readonly m_writer;
 	uint64_t autoget property m_baseTimestamp;
+	char const* const property m_recordFileName;
 
 	destruct();
 
 	suspend();
 	resume();
+	rebuild();
 
 	addConverter(
 		Converter* converter,
-		std.Guid const* classGuidArray,
-		size_t classCount
+		std.Guid const* auxClassGuidArray,
+		size_t auxClassCount
 		);
+
+	addConverter(
+		Converter* converter,
+		std.Guid const* auxClassGuid
+		)
+	{
+		addConverter(converter, auxClassGuid, 1);
+	}
 
 	addConverter(Converter* converter)
 	{
 		addConverter(converter, null, 0);
 	}
 
-	addConverter(
-		Converter* converter,
-		std.Guid const* classGuid
-		)
-	{
-		addConverter(converter, classGuid, 1);
-	}
-
 	removeAllConverters();
 
 	addFilter(Filter* filter);
 	removeAllFilters();
+
+	addFoldingFilter(FoldingFilter* filter);
+	removeAllFoldingFilters();
 
 	addListener(ListenerFunc* listenerFunc);
 	removeAllListeners();
@@ -62,4 +70,6 @@ opaque class Log
 
 //..............................................................................
 
-} // namespace log {
+//! @}
+
+} // namespace log

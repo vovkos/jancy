@@ -1,0 +1,115 @@
+//..............................................................................
+//
+// Pipe Monitor log filter
+//
+
+import "log_MonitorFilter.jnc"
+
+//..............................................................................
+
+class PipeMonLogFilter: log.MonitorFilter
+{
+public:
+	override bool filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool PipeMonLogFilter.filter(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	bool result = false;
+
+	switch (recordCode)
+	{
+	case PipeMonLogRecordCode.ServerFileOpened_0:
+	case PipeMonLogRecordCode.ClientFileOpened_0:
+		m_fileId = *(uint32_t const*)p;
+		char const* fileName = (char const*)(p + sizeof(uint32_t));
+		result = match(fileName, null, 0, true);
+		break;
+
+	case PipeMonLogRecordCode.ServerFileOpened_1:
+	case PipeMonLogRecordCode.ClientFileOpened_1:
+		m_fileId = *(uint32_t const*)p;
+		uint_t pid = *(uint32_t const*)(p + sizeof(uint32_t));
+		char const* fileName = (char const*)(p + sizeof(uint32_t) + sizeof(uint32_t));
+		result = match(fileName, null, pid, true);
+		break;
+
+	case PipeMonLogRecordCode.ServerFileOpened:
+	case PipeMonLogRecordCode.ClientFileOpened:
+		m_fileId = *(uint64_t const*)p;
+		uint_t pid = *(uint32_t const*)(p + sizeof(uint64_t));
+		char const* fileName = (char const*)(p + sizeof(uint64_t) + sizeof(uint32_t));
+		char const* processName = (char const*)fileName + strlen(fileName) + 1;
+		result = match(fileName, processName, pid, true);
+		break;
+
+	case PipeMonLogRecordCode.ServerFileOpenError_0:
+	case PipeMonLogRecordCode.ClientFileOpenError_0:
+		std.Error const* error = (std.Error const*)p;
+		char const* fileName = (char const*)(error + 1);
+		result = match(fileName, null, 0, false);
+		break;
+
+	case PipeMonLogRecordCode.ServerFileOpenError_1:
+	case PipeMonLogRecordCode.ClientFileOpenError_1:
+		uint_t pid = *(uint32_t const*)p;
+		std.Error const* error = (std.Error const*)(p + sizeof(uint32_t));
+		char const* fileName = (char const*)(error + 1);
+		result = match(fileName, null, pid, false);
+		break;
+
+	case PipeMonLogRecordCode.ServerFileOpenError:
+	case PipeMonLogRecordCode.ClientFileOpenError:
+		uint_t pid = *(uint32_t const*)p;
+		std.Error const* error = (std.Error const*)(p + sizeof(uint32_t));
+		char const* fileName = (char const*)(error + 1);
+		char const* processName = fileName + strlen(fileName) + 1;
+		result = match(fileName, processName, pid, false);
+		break;
+
+	case PipeMonLogRecordCode.FileClosed:
+		result = m_fileIdSet.removeKey(m_fileId);
+		break;
+
+	case PipeMonLogRecordCode.FileIdChanged_0:
+	case PipeMonLogRecordCode.FileIdChanged_1:
+		m_fileId = *(uint32_t const*)p;
+		if (m_fileId == m_lastVisibleFileId)
+			return false; // no need to show extra file-id-changed message
+
+		break;
+
+	case PipeMonLogRecordCode.FileIdChanged:
+		m_fileId = *(uint64_t const*)p;
+		if (m_fileId == m_lastVisibleFileId)
+			return false; // no need to show extra file-id-changed message
+
+		break;
+
+	case PipeMonLogRecordCode.ConnectionAccepted:
+	case PipeMonLogRecordCode.ConnectionClosed:
+	case PipeMonLogRecordCode.Transaction:
+	case log.StdRecordCode.Tx:
+	case log.StdRecordCode.Rx:
+		break;
+
+	default:
+		return true; // everything else is not filtered
+	}
+
+	return finalizeFilter(result);
+}
+
+//..............................................................................

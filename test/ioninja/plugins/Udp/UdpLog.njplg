@@ -9,6 +9,8 @@ name        = "UDP Log"
 description = "UDP log representer"
 group       = net
 guid        = 7827807e-2ea8-4e86-9344-f016aa77621e
+icon        = images/udp.png
+small-icon  = images/udp-16x16.png
 
 log-representer-func = representUdpLog
 
@@ -21,6 +23,8 @@ UdpLogRepresenter.jnc
 
 01d48410b3c4e600  # TxPacket
 01d48410b3c4e601  # RxPacket
+01d48410b3c4e602  # TxPacketEx
+01d48410b3c4e603  # RxPacketEx
 
 [filter]
 
@@ -30,3 +34,5 @@ description = "Show/hide UDP packet headers"
 
 01d48410b3c4e600  # TxPacket
 01d48410b3c4e601  # RxPacket
+01d48410b3c4e602  # TxPacketEx
+01d48410b3c4e603  # RxPacketEx

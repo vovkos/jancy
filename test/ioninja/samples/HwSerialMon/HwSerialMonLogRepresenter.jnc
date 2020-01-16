@@ -3,7 +3,7 @@
 // Hardware Serial Monitor log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "HwSerialMonLogRecordCode.jnc"
 
 //..............................................................................
@@ -16,7 +16,7 @@ char const* getLineString(uint_t line)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool representHwSerialMonLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -27,87 +27,87 @@ bool representHwSerialMonLog(
 	{
 	case HwSerialMonRecordCode.CaptureStarted:
 		char const* ifaceName = p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Capture started on \e[34m$ifaceName\e[m interface");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Capture started on \e[34m$ifaceName\e[m interface");
 		break;
 
 	case HwSerialMonRecordCode.CaptureStopped:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText("Capture stopped");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Capture stopped");
 		break;
 
 	case HwSerialMonRecordCode.RawPacket:
-//		target.m_lineAttr.m_iconIdx = -1;
-//		target.m_lineAttr.m_textColor = log.StdLogColor.Rx;
-		target.addBin(p, size);
+//		representation.m_lineAttr.m_iconIdx = -1;
+//		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+		representation.addBin(p, size);
 		break;
 
 	case HwSerialMonRecordCode.UartRtsChanged:
 		bool rts = *(bool const*) p;
 		char const* rtsString = getLineString(rts);
 
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"RTS changed: $rtsString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"RTS changed: $rtsString");
 		break;
 
 	case HwSerialMonRecordCode.UartCtsChanged:
 		bool dtr = *(bool const*) p;
 		char const* ctsString = getLineString(dtr);
 
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"CTS changed: $ctsString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"CTS changed: $ctsString");
 		break;
 
 	case HwSerialMonRecordCode.UartFramingError:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText("UART framing error");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("UART framing error");
 		break;
 
 	case HwSerialMonRecordCode.UartParityError:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText("UART parity error");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("UART parity error");
 		break;
 
 	case HwSerialMonRecordCode.I2cEmptyMessage:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText("I\u00b2C empty message");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("I\u00b2C empty message");
 		break;
 
 	case HwSerialMonRecordCode.I2cPreemptiveStart:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText("I\u00b2C preemptive start bit");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("I\u00b2C preemptive start bit");
 		break;
 
 	case HwSerialMonRecordCode.I2cPreemptiveStop:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText("I\u00b2C preemptive stop bit");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("I\u00b2C preemptive stop bit");
 		break;
 
 	case HwSerialMonRecordCode.I2cCharNack:
-		target.m_lineAttr.m_textColor = log.StdLogColor.Rx;
-		target.m_lineAttr.m_fontFlags = gui.FontFlags.Strikeout;
-		target.addBin(log.StdRecordCode.Rx, p, size);
+		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+		representation.m_lineAttr.m_fontFlags = ui.FontFlags.Strikeout;
+		representation.addBin(log.StdRecordCode.Rx, p, size);
 		break;
 
 	case HwSerialMonRecordCode.SpiEmptyMessage:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText("SPI empty message");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("SPI empty message");
 		break;
 
 	case HwSerialMonRecordCode.SpiFramingError:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText("SPI framing error");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("SPI framing error");
 		break;
 
 	default:

@@ -1,0 +1,99 @@
+//..............................................................................
+//
+// Pcap device user interface
+//
+
+import "ui_ComboBox.jnc"
+import "ui_ToolBar.jnc"
+import "ui_PropertyGrid.jnc"
+import "io_pcap.jncx"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+EnumPropertyOption const* createPcapDeviceOptionArray(bool canOpenFile = true)
+{
+	size_t count;
+	io.PcapDeviceDesc const* device = io.createPcapDeviceDescList(&count);
+
+	if (canOpenFile)
+		count++;
+
+	EnumPropertyOption* optionArray = new EnumPropertyOption[count];
+	EnumPropertyOption* option = optionArray;
+
+	for (; device; device = device.m_next, option++)
+	{
+		option.m_text = $"%1 - %2" (
+			device.m_description ? device.m_description : device.m_name,
+			device.m_address.m_address.getString()
+			);
+
+		option.m_value = device;
+	}
+
+	if (canOpenFile)
+	{
+		option.m_text = "Wireshark File (*.cap; *.pcap)";
+		option.m_value = null;
+	}
+
+	return optionArray;
+}
+
+//..............................................................................
+
+EnumProperty* createPcapDeviceProperty(
+	PropertyGrid* propertyGrid,
+	GroupProperty* group = null,
+	Property* beforeProp = null,
+	bool canOpenFile = true,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray(canOpenFile);
+	size_t optionCount = dynamic countof(optionArray);
+
+	return propertyGrid.createEnumProperty(
+		group,
+		beforeProp,
+		name,
+		toolTipText,
+		optionArray,
+		optionCount
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ComboBox*
+createPcapDeviceComboBox(
+	ToolBar* toolBar,
+	bool canOpenFile = true,
+	uint_t width = -1
+	)
+{
+	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray(canOpenFile);
+	size_t optionCount = dynamic countof(optionArray);
+
+	ComboBox* comboBox = toolBar.addComboBox(width);
+
+	for (size_t i = 0; i < optionCount; i++)
+		comboBox.addItem(
+			optionArray[i].m_text,
+			optionArray[i].m_value
+			);
+
+	return comboBox;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

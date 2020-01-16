@@ -1,0 +1,23 @@
+//..............................................................................
+//
+// Ninja GUI - options for combo boxes, enum properties & combo properties
+//
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+struct ComboItem
+{
+	char const* m_text;
+	variant m_value;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

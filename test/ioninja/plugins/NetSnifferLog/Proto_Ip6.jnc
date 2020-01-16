@@ -1,0 +1,163 @@
+//..............................................................................
+//
+// Sniffer log IPv6 packets handling
+//
+
+import "io_Ip6.jnc"
+import "io_Icmp6.jnc"
+
+//..............................................................................
+
+void representIp6Digest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(io.Ip6Hdr))
+	{
+		representation.addHyperText("\e[1mIPv6\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.Ip6Hdr const* ipHdr = (io.Ip6Hdr const*)p;
+	if (size - sizeof(io.Ip6Hdr) < ipHdr.m_payloadLength)
+	{
+		representation.addHyperText(formatIp6Digest(ipHdr, " [BROKEN]"));
+		return;
+	}
+
+	p += sizeof(io.Ip6Hdr);
+	size = ipHdr.m_payloadLength;
+
+	char const* srcString = io.formatIp6Address(&ipHdr.m_srcAddress);
+	char const* dstString = io.formatIp6Address(&ipHdr.m_dstAddress);
+
+	switch (ipHdr.m_nextHeader)
+	{
+	case io.IpProtocol.Icmp6:
+		representSimpleProtoDigest(
+			representation,
+			typeof(io.Icmp6Hdr),,
+			srcString,
+			dstString,
+			p,
+			size,
+			payloadPreviewIconIdx
+			);
+
+		break;
+
+	case io.IpProtocol.Tcp:
+		representTcpDigest(
+			representation,
+			$"[$srcString]",
+			$"[$dstString]",
+			p,
+			size,
+			payloadPreviewIconIdx
+			);
+
+		break;
+
+	case io.IpProtocol.Udp:
+		representUdpDigest(
+			representation,
+			$"[$srcString]",
+			$"[$dstString]",
+			p,
+			size,
+			payloadPreviewIconIdx
+			);
+
+		break;
+
+	default:
+		representation.addHyperText(formatIp6Digest(ipHdr));
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+	}
+}
+
+char const* formatIp6Digest(
+	io.Ip6Hdr const* hdr,
+	char const* extra = null
+	)
+{
+	return $"\e[1mIPv6 \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (proto: \e[34m%3\e[m)%4"(
+		io.formatIp6Address(&hdr.m_srcAddress),
+		io.formatIp6Address(&hdr.m_dstAddress),
+		typeof(io.IpProtocol).getValueString(&hdr.m_nextHeader),
+		extra
+		);
+}
+void representIp6Details(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
+
+	if (size < sizeof(io.Ip6Hdr))
+	{
+		representation.addHyperText("\e[1mIPv6\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.Ip6Hdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.NetworkLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.Ip6Hdr), ProtoColor.NetworkLayer }
+	protoRangeArray.append(range);
+
+	io.Ip6Hdr const* ipHdr = (io.Ip6Hdr const*)p;
+	if (size - sizeof(io.Ip6Hdr) < ipHdr.m_payloadLength)
+	{
+		representation.addHyperText("[BROKEN]");
+		return;
+	}
+
+	p += sizeof(io.Ip6Hdr);
+	size -= sizeof(io.Ip6Hdr);
+	baseOffset += sizeof(io.Ip6Hdr);
+
+	switch (ipHdr.m_nextHeader)
+	{
+	case io.IpProtocol.Icmp6:
+		representSimpleProtoDetails(
+			representation,
+			protoRangeArray,
+			typeof(io.Icmp6Hdr),,
+			p,
+			size,
+			baseOffset,
+			foldFlags,
+			ProtoFoldFlag.TransportLayer,
+			ProtoColor.TransportLayer,
+			ProtoFoldFlag.Payload,
+			ProtoColor.Payload
+			);
+		break;
+
+	case io.IpProtocol.Tcp:
+		representTcpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case io.IpProtocol.Udp:
+		representUdpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+	}
+}
+
+//..............................................................................

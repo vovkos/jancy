@@ -1,0 +1,38 @@
+//..............................................................................
+//
+// Ninja GUI - text attributes
+//
+
+import "ui_Color.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+bitflag enum FontFlags
+{
+	Bold,
+	Italic,
+	Underline,
+	Strikeout,
+
+	Transparent,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct TextAttr
+{
+	uint_t m_textColor;
+	uint_t m_backColor;
+	FontFlags m_fontFlags;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

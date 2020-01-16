@@ -9,6 +9,8 @@ name        = USB Log
 description = "USB log representer"
 group       = net
 guid        = 3b5bd445-951e-4f76-9d8d-fe97aecbdd73
+icon        = images/usb.png
+small-icon  = images/usb-16x16.png
 
 log-representer-func = representUsbLog
 

@@ -1,0 +1,87 @@
+//..............................................................................
+//
+// Ninja GUI - combo boxes
+//
+
+import "ui_ComboItem.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class ComboBox
+{
+	bool autoget property m_isVisible;
+	bool autoget property m_isEnabled;
+	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
+
+	property m_editText
+	{
+		char const* autoget m_value;
+		set(char const* value);
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
+	char const* autoget property m_placeholderText;
+	char const* autoget property m_toolTipText;
+	uint_t autoget property m_backgroundColor;
+
+	destruct();
+
+	void adjustSizeToContents();
+
+	size_t addItem(
+		char const* text,
+		variant data = null
+		)
+	{
+		return insertItem(-1, text, data);
+	}
+
+	size_t insertItem(
+		size_t index,
+		char const* text,
+		variant data = null
+		);
+
+	bool removeItem(size_t index);
+
+	void setItems(
+		ComboItem const* itemArray,
+		size_t count
+		);
+
+	void clear();
+
+	char const* property m_itemText(size_t index);
+	variant property m_itemData(size_t index);
+
+	size_t m_itemCount;
+
+	size_t bindable autoget property m_currentIndex;
+
+	property m_currentText
+	{
+		char const* get();
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
+	property m_currentData
+	{
+		variant get();
+		set(variant value);
+		bindable alias m_onPropChanged = m_onChanged;
+	}
+
+	event m_onChanged();
+	event m_onEnter();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

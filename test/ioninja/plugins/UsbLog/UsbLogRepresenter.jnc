@@ -3,7 +3,7 @@
 // USB log packet declarations and representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_UsbDb.jnc"
 import "UsbLogRecordCode.jnc"
 
@@ -38,7 +38,7 @@ char const* formatDeviceString(DeviceParams const* params)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 bool representUsbLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -49,76 +49,76 @@ bool representUsbLog(
 	{
 	case UsbLogRecordCode.DeviceOpened:
 		DeviceParams const* params = (DeviceParams const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"Device opened: $(formatDeviceString (params))");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Device opened: $(formatDeviceString (params))");
 		break;
 
 	case UsbLogRecordCode.DeviceOpenError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open device: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open device: $(error.m_description)");
 		break;
 
 	case UsbLogRecordCode.DeviceClosed:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText("Device closed");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("Device closed");
 		break;
 
 	case UsbLogRecordCode.KernelDriverDetached:
 		uint8_t ifaceId = *(uint8_t const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText($"Kernel driver detached from interface ID \e[34m$ifaceId");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"Kernel driver detached from interface ID \e[34m$ifaceId");
 		break;
 
 	case UsbLogRecordCode.InterfaceClaimed:
 		InterfaceParams const* params = (InterfaceParams const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Interface claimed: ID \e[34m$(params.m_interfaceId):$(params.m_altSettingId)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Interface claimed: ID \e[34m$(params.m_interfaceId):$(params.m_altSettingId)");
 		break;
 
 	case UsbLogRecordCode.InterfaceClaimError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot claim interface: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot claim interface: $(error.m_description)");
 		break;
 
 	case UsbLogRecordCode.InterfaceReleased:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Interface released");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Interface released");
 		break;
 
 	case UsbLogRecordCode.ReadingStarted:
 		uint8_t endpointId = *(uint8_t const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Reading started from endpoint ID \e[34m$(endpointId; 02x)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Reading started from endpoint ID \e[34m$(endpointId; 02x)");
 		break;
 
 	case UsbLogRecordCode.ReadingStopped:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Reading stopped");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Reading stopped");
 		break;
 
 	case UsbLogRecordCode.EndpointOpenError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open endpoint: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open endpoint: $(error.m_description)");
 		break;
 
 	case UsbLogRecordCode.ControlTransfer:
 		ControlTransferParams const* params = (ControlTransferParams const*) p;
-		target.m_lineAttr.m_iconIdx = (params.m_type & 0x80) ? log.StdLogIcon.RxPacket : log.StdLogIcon.TxPacket;
-		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-		target.addHyperText(
+		representation.m_lineAttr.m_iconIdx = (params.m_type & 0x80) ? log.StdLogIcon.RxPacket : log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText(
 			$"Type: $(params.m_type; 02x) "
 			$"Code: $(params.m_code; 02x) "
 			$"Value: $(params.m_value; 04x) "

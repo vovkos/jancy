@@ -3,17 +3,18 @@
 // Serial session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Serial.jnc"
 import "io_SerialBuggyDrivers.jnc"
-import "io_SerialUi.jnc"
-import "io_BufferUi.jnc"
-import "std_List.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_SerialSettingUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_List.jnc"
+import "std_Buffer.jnc"
+import "sys_Timer.jnc"
 
 //..............................................................................
 
@@ -22,10 +23,13 @@ class SerialSession: doc.Session
 protected:
 	enum Defaults
 	{
-		ReadMode       = SerialReadMode.WaitFirstChar,
-		ReadInterval   = 10,
-		Dtr            = true,
-		Rts            = true,
+		ReadMode         = SerialReadMode.WaitFirstChar,
+		ReadInterval     = 10,
+		Dtr              = true,
+		Rts              = true,
+		BreakCondition   = false,
+		UseReopenTimeout = false,
+		ReopenTimeout    = 3000,
 	}
 
 	enum State
@@ -40,6 +44,7 @@ protected:
 		Open,
 		Dtr,
 		Rts,
+		BreakCondition,
 		_Count,
 	}
 
@@ -53,10 +58,11 @@ protected:
 
 	enum InfoId
 	{
-		Dtr,
-		Rts,
 		Dsr,
 		Cts,
+		Dtr,
+		Rts,
+		BreakCondition,
 		_Count,
 	}
 
@@ -66,39 +72,44 @@ protected:
 	State bindable m_state;
 	io.Serial m_serial;
 	char const* m_portName;
+	sys.Timer m_reopenTimer;
 	uint_t bindable m_serialBaudRate;
 	io.SerialStatusLines bindable m_serialStatusLines;
 	bool bindable m_serialDtr;
 	bool bindable m_serialRts;
+	bool bindable m_serialBreakCondition;
 	std.Buffer m_readBuffer;
 	uint_t m_syncId;
 
 	// common serial ui
 
-	io.SerialSettingUi m_serialSettingUi;
+	ui.SerialSettingUi m_serialSettingUi;
 
 	// toolbar, status bar & menu
 
-	gui.ComboBox* m_portCombo;
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPane;
+	ui.ComboBox* m_portCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPane;
 
 	// serial property grid
 
-	gui.ComboProperty* m_portProp;
-	gui.BoolProperty* m_dtrProp;
-	gui.BoolProperty* m_rtsProp;
-	gui.EnumProperty* m_readModeProp;
-	gui.IntProperty* m_readIntervalProp;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.ComboProperty* m_portProp;
+	ui.BoolProperty* m_dtrProp;
+	ui.BoolProperty* m_rtsProp;
+	ui.BoolProperty* m_breakConditionProp;
+	ui.BoolProperty* m_useReopenProp;
+	ui.IntProperty* m_reopenTimeoutProp;
+	ui.EnumProperty* m_readModeProp;
+	ui.IntProperty* m_readIntervalProp;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.InformationValue* m_infoTable[InfoId._Count];
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.InformationValue* m_infoTable[InfoId._Count];
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -135,16 +146,28 @@ protected:
 	onBaudRateChanged();
 	onDtrChanged();
 	onRtsChanged();
+	onBreakConditionChanged();
 
 	onSerialEvent(
 		uint_t syncId,
 		io.SerialEvents triggeredEvents
 		);
 
+	onReopenTimer(uint_t syncId);
+
 	createUi();
 
 	enumeratePorts();
 	waitSerialEvents();
+
+	startReopenTimer()
+	{
+		m_reopenTimer.startSingleShotTimer(
+			onReopenTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
+			m_reopenTimeoutProp.m_value
+			);
+	}
+
 	io.SerialOptions getSerialOptions();
 
 	uint_t getReadInterval()
@@ -160,34 +183,33 @@ protected:
 		);
 }
 
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 SerialSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 
-	m_readBuffer.setSize(io.BufferPropertySet.Defaults.ReadBufferSize);
+	m_readBuffer.setSize(ui.BufferPropertySet.Defaults.ReadBufferSize);
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 SerialSession.createUi()
 {
-	static gui.EnumPropertyOption readModeTable[] =
+	static ui.EnumPropertyOption readModeTable[] =
 	{
 		{ "Check COMSTAT.cbInQue", SerialReadMode.CheckComstat },
 		{ "Wait for the 1st char", SerialReadMode.WaitFirstChar },
 		{ "Interval-based",        SerialReadMode.IntervalBased },
 	}
 
-	m_iconTable[IconId.Refresh] = new gui.Icon("images/refresh.png");
-	m_iconTable[IconId.Open] = new gui.Icon("images/connect.png");
-	m_iconTable[IconId.Close] = new gui.Icon("images/pause.png");
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Open] = new ui.Icon("images/connect.png");
+	m_iconTable[IconId.Close] = new ui.Icon("images/pause.png");
 
 	// toolbar
 
@@ -195,6 +217,7 @@ SerialSession.createUi()
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate ports", m_iconTable [IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
@@ -204,7 +227,7 @@ SerialSession.createUi()
 
 	// settings
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"Serial port-specific connection settings"
 		);
@@ -212,14 +235,27 @@ SerialSession.createUi()
 	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"Port",
-		"Specify serial port to use"
+		"Enter a serial port name...",
+		"Specify a serial port name to use"
+		);
+
+	m_useReopenProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Reopen on error",
+		"Attempt to re-open port if disconnected on error"
+		);
+
+	m_reopenTimeoutProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Reopen timeout",
+		"Specify delays to insert between re-open attempts"
 		);
 
 	m_serialSettingUi.create(
 		m_pluginHost.m_toolBar,
 		m_pluginHost.m_propertyGrid,
 		group,
-		io.SerialSettingUi.SettingId.BaudRate
+		ui.SerialSettingUi.SettingId.BaudRate
 		);
 
 	m_serialSettingUi.m_baudRateCombo.m_onEnter += onBaudRateChanged;
@@ -232,6 +268,9 @@ SerialSession.createUi()
 
 	m_actionTable[ActionId.Rts] = createAction("RTS", "images/rts.png", true, false);
 	m_actionTable[ActionId.Rts].m_onTriggered += onRtsChanged;
+
+	m_actionTable[ActionId.BreakCondition] = createAction("Break", "images/break.png", true, false);
+	m_actionTable[ActionId.BreakCondition].m_onTriggered += onBreakConditionChanged;
 
 	// status bar (only one pane)
 
@@ -249,6 +288,12 @@ SerialSession.createUi()
 		group,,
 		"RTS",
 		"RTS (Request-To-Send) modem control line"
+		);
+
+	m_breakConditionProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"BREAK",
+		"BREAK condition on the TX line"
 		);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
@@ -280,22 +325,23 @@ SerialSession.createUi()
 	{
 		// still, we want valid property pointers, so there's less checking
 
-		m_readModeProp = new gui.EnumProperty(null);
-		m_readIntervalProp = new gui.IntProperty(null);
+		m_readModeProp = new ui.EnumProperty(null);
+		m_readIntervalProp = new ui.IntProperty(null);
 	}
 
 	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 
-	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
-	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
 	m_infoTable[InfoId.Dsr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DSR");
 	m_infoTable[InfoId.Cts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "CTS");
+	m_infoTable[InfoId.Dtr] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "DTR");
+	m_infoTable[InfoId.Rts] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "RTS");
+	m_infoTable[InfoId.BreakCondition] = m_pluginHost.m_informationGrid.createValue(infoGroup,,, "BREAK");
 
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -352,7 +398,7 @@ bool errorcode SerialSession.open()
 	char const* driverName = io.detectSerialBuggyDriver(portName);
 	if (driverName)
 	{
-		writeLogString(SerialLogRecordCode.BuggyDriverDetected, driverName);
+		m_logWriter.write(SerialLogRecordCode.BuggyDriverDetected, driverName);
 		io.setConservativeSerialSettings(m_serial);
 	}
 
@@ -372,12 +418,13 @@ bool errorcode SerialSession.open()
 	params.m_osKind = sys.g_systemInfo.m_osKind;
 
 	char const* p = $"$(params; B)$portName";
-	writeLog(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
+	m_logWriter.write(SerialLogRecordCode.PortOpened, p, dynamic sizeof(p));
 
 	m_portName = portName;
 	m_serialBaudRate = m_serial.m_baudRate;
 	m_serialDtr = m_serial.m_dtr;
 	m_serialRts = m_serial.m_rts;
+	m_serialBreakCondition = m_serial.m_breakCondition;
 	m_serialStatusLines = m_serial.m_statusLines;
 	m_isTransmitEnabled = true;
 	m_state = State.Opened;
@@ -389,7 +436,7 @@ bool errorcode SerialSession.open()
 catch:
 	std.Error const* error = std.getLastError();
 
-	writeLog(
+	m_logWriter.write(
 		SerialLogRecordCode.PortOpenError,
 		error,
 		error.m_size
@@ -404,7 +451,7 @@ SerialSession.close()
 	if (m_state != State.Opened)
 		return;
 
-	writeLogString(SerialLogRecordCode.PortClosed, m_portName);
+	m_logWriter.write(SerialLogRecordCode.PortClosed, m_portName);
 	m_stdSessionInfoSet.endSession();
 	m_serial.close();
 	m_isTransmitEnabled = false;
@@ -419,6 +466,8 @@ void SerialSession.load(doc.Storage* storage)
 	m_portCombo.m_editText = storage.readString("portName");
 	m_actionTable[ActionId.Dtr].m_isChecked = storage.readBool("dtr", Defaults.Dtr);
 	m_actionTable[ActionId.Rts].m_isChecked = storage.readBool("rts", Defaults.Rts);
+	m_useReopenProp.m_value = storage.readBool("useReopenProp", Defaults.UseReopenTimeout);
+	m_reopenTimeoutProp.m_value = storage.readInt("reopenTimeout", Defaults.ReopenTimeout);
 	m_readModeProp.m_value = storage.readBool("readMode", Defaults.ReadMode);
 	m_readIntervalProp.m_value = storage.readInt("readInterval", Defaults.ReadInterval);
 
@@ -433,6 +482,8 @@ void SerialSession.save(doc.Storage* storage)
 	storage.writeString("portName", m_portCombo.m_editText);
 	storage.writeBool("dtr", m_actionTable [ActionId.Dtr].m_isChecked);
 	storage.writeBool("rts", m_actionTable [ActionId.Rts].m_isChecked);
+	storage.writeBool("useReopenProp", m_useReopenProp.m_value);
+	storage.writeInt("reopenTimeout", m_reopenTimeoutProp.m_value);
 	storage.writeInt("readMode", m_readModeProp.m_value);
 	storage.writeInt("readInterval", m_readIntervalProp.m_value);
 
@@ -446,6 +497,7 @@ void SerialSession.updateProperties()
 	m_portProp.m_value = m_portCombo.m_editText;
 	m_dtrProp.m_value = m_actionTable[ActionId.Dtr].m_isChecked;
 	m_rtsProp.m_value = m_actionTable[ActionId.Rts].m_isChecked;
+	m_breakConditionProp.m_value = m_actionTable[ActionId.BreakCondition].m_isChecked;
 }
 
 bool errorcode SerialSession.applyProperties()
@@ -455,10 +507,12 @@ bool errorcode SerialSession.applyProperties()
 	m_portCombo.m_editText = m_portProp.m_value;
 	m_actionTable[ActionId.Dtr].m_isChecked = m_dtrProp.m_value;
 	m_actionTable[ActionId.Rts].m_isChecked = m_rtsProp.m_value;
+	m_actionTable[ActionId.BreakCondition].m_isChecked = m_breakConditionProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
 	m_serialDtr = m_dtrProp.m_value;
 	m_serialRts = m_rtsProp.m_value;
+	m_serialBreakCondition = m_breakConditionProp.m_value;
 
 	if (m_state != State.Opened)
 		return true;
@@ -475,6 +529,7 @@ bool errorcode SerialSession.applyProperties()
 
 	bool prevDtr = m_serial.m_dtr;
 	bool prevRts = m_serial.m_rts;
+	bool prevBreakCondition = m_serial.m_breakCondition;
 
 	// collect new values from ui
 
@@ -486,6 +541,7 @@ bool errorcode SerialSession.applyProperties()
 
 	bool dtr = m_dtrProp.m_value;
 	bool rts = m_rtsProp.m_value;
+	bool breakCondition = m_breakConditionProp.m_value;
 
 	io.SerialOptions options = getSerialOptions();
 	uint_t readInterval = getReadInterval();
@@ -509,46 +565,51 @@ bool errorcode SerialSession.applyProperties()
 		m_rtsProp.m_value
 		);
 
+	m_serial.m_breakCondition = m_breakConditionProp.m_value;
+
 	// write changes to the log
 
 	if (baudRate != prevBaudRate)
 	{
-		writeLog(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+		m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
 		m_serialBaudRate = baudRate;
 	}
 
 	if (dataBits != prevDataBits)
-		writeLog(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
+		m_logWriter.write(SerialLogRecordCode.DataBitsChanged, &dataBits, sizeof(dataBits));
 
 	if (stopBits != prevStopBits)
-		writeLog(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
+		m_logWriter.write(SerialLogRecordCode.StopBitsChanged, &stopBits, sizeof(stopBits));
 
 	if (parity != prevParity)
-		writeLog(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
+		m_logWriter.write(SerialLogRecordCode.ParityChanged, &parity, sizeof(parity));
 
 	if (flowControl != prevFlowControl)
-		writeLog(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
+		m_logWriter.write(SerialLogRecordCode.FlowControlChanged, &flowControl, sizeof(flowControl));
 
 	if (dtr != prevDtr)
-		writeLog(SerialLogRecordCode.DtrChanged, &dtr, sizeof(dtr));
+		m_logWriter.write(SerialLogRecordCode.DtrChanged, &dtr, sizeof(dtr));
 
 	if (rts != prevRts)
-		writeLog(SerialLogRecordCode.RtsChanged, &rts, sizeof(rts));
+		m_logWriter.write(SerialLogRecordCode.RtsChanged, &rts, sizeof(rts));
+
+	if (breakCondition != prevBreakCondition)
+		m_logWriter.write(SerialLogRecordCode.RtsChanged, &breakCondition, sizeof(breakCondition));
 
 	io.SerialOptions optionMask = prevOptions ^ options;
 	if (optionMask & (io.SerialOptions.WinReadCheckComstat | io.SerialOptions.WinReadWaitFirstChar))
 	{
 		uint_t mode = m_readModeProp.m_value;
-		writeLog(SerialLogRecordCode.ReadModeChanged, &mode, sizeof(mode));
+		m_logWriter.write(SerialLogRecordCode.ReadModeChanged, &mode, sizeof(mode));
 	}
 
 	if (readInterval != prevReadInterval)
-		writeLog(SerialLogRecordCode.ReadIntervalChanged, &readInterval, sizeof(readInterval));
+		m_logWriter.write(SerialLogRecordCode.ReadIntervalChanged, &readInterval, sizeof(readInterval));
 
 	return true;
 
 catch:
-	writeLogLastError(log.StdRecordCode.Error);
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	return false;
 }
 
@@ -558,6 +619,9 @@ void SerialSession.restoreDefaultProperties()
 
 	m_dtrProp.m_value = Defaults.Dtr;
 	m_rtsProp.m_value = Defaults.Rts;
+	m_breakConditionProp.m_value = Defaults.BreakCondition;
+	m_useReopenProp.m_value = Defaults.UseReopenTimeout;
+	m_reopenTimeoutProp.m_value = Defaults.ReopenTimeout;
 
 	m_readModeProp.m_value = Defaults.ReadMode;
 	m_readIntervalProp.m_value = Defaults.ReadInterval;
@@ -573,7 +637,7 @@ size_t errorcode SerialSession.transmit(
 	size_t result = m_serial.write(p, size);
 
 	if (result)
-		writeLog(log.StdRecordCode.Tx, p, result);
+		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	if (result < size)
 	{
@@ -593,8 +657,8 @@ SerialSession.enumeratePorts()
 	io.SerialPortDesc const* portList = io.createSerialPortDescList(&count);
 	io.SerialPortDesc const* port = portList;
 
-	gui.EnumPropertyOption* optionArray = new gui.EnumPropertyOption[count];
-	gui.EnumPropertyOption* option = optionArray;
+	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
+	ui.EnumPropertyOption* option = optionArray;
 
 	for (; port; port = port.m_next, option++)
 	{
@@ -613,7 +677,8 @@ SerialSession.waitSerialEvents()
 	io.SerialEvents eventMask =
 		io.SerialEvents.IoError |
 		io.SerialEvents.ReadBufferFull |
-		io.SerialEvents.IncomingData;
+		io.SerialEvents.IncomingData |
+		io.SerialEvents.LineError;
 
 	if (!m_isTransmitEnabled)
 		eventMask |= io.SerialEvents.WriteBufferReady;
@@ -626,7 +691,7 @@ SerialSession.waitSerialEvents()
 		io.SerialEvents.DsrOff :
 		io.SerialEvents.DsrOn;
 
-	m_serial.wait(eventMask, onSerialEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_serial.wait(eventMask, onSerialEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 SerialSession.onSerialEvent(
@@ -639,20 +704,30 @@ SerialSession.onSerialEvent(
 
 	if (triggeredEvents & io.SerialEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_serial.m_ioError, m_serial.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_serial.m_ioError, m_serial.m_ioError.m_size);
 		close();
+
+		if (m_reopenTimeoutProp.m_value)
+			startReopenTimer();
+
 		return;
 	}
 
 	if ((triggeredEvents & io.SerialEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog(log.StdRecordCode.RxBufferFullLossy);
+		m_logWriter.write(log.StdRecordCode.RxBufferFullLossy);
 
 	if (triggeredEvents & io.SerialEvents.IncomingData)
 	{
 		size_t result = m_serial.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+	}
+
+	if (triggeredEvents & io.SerialEvents.LineError)
+	{
+		io.SerialLineErrors errors = m_serial.clearLineErrors();
+		m_logWriter.write(SerialLogRecordCode.LineError, &errors, sizeof(errors));
 	}
 
 	if (!m_isTransmitEnabled)
@@ -663,11 +738,21 @@ SerialSession.onSerialEvent(
 	if (statusLineMask)
 	{
 		SerialStatusLineChangedParams params = { statusLines, statusLineMask }
-		writeLog(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
+		m_logWriter.write(SerialLogRecordCode.StatusLineChanged, params, sizeof(params));
 		m_serialStatusLines = statusLines;
 	}
 
 	waitSerialEvents();
+}
+
+SerialSession.onReopenTimer(uint_t syncId)
+{
+	if (syncId != m_syncId)
+		return;
+
+	bool result = try open();
+	if (!result && m_useReopenProp.m_value)
+		startReopenTimer();
 }
 
 SerialSession.onBaudRateChanged()
@@ -690,11 +775,11 @@ SerialSession.onBaudRateChanged()
 		m_serial.m_rts
 		);
 
-	writeLog(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
+	m_logWriter.write(SerialLogRecordCode.BaudRateChanged, &baudRate, sizeof(baudRate));
 	m_serialBaudRate = baudRate;
 
 catch:
-	writeLogLastError(log.StdRecordCode.Error);
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
 SerialSession.onDtrChanged()
@@ -705,7 +790,7 @@ SerialSession.onDtrChanged()
 	bool value = m_actionTable[ActionId.Dtr].m_isChecked;
 	m_serial.m_dtr = value;
 	m_serialDtr = value;
-	writeLog(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
+	m_logWriter.write(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
 }
 
 SerialSession.onRtsChanged()
@@ -716,7 +801,18 @@ SerialSession.onRtsChanged()
 	bool value = m_actionTable[ActionId.Rts].m_isChecked;
 	m_serial.m_rts = value;
 	m_serialRts = value;
-	writeLog(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
+	m_logWriter.write(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
+}
+
+SerialSession.onBreakConditionChanged()
+{
+	if (m_state != State.Opened)
+		return;
+
+	bool value = m_actionTable[ActionId.BreakCondition].m_isChecked;
+	m_serial.m_breakCondition = value;
+	m_serialBreakCondition = value;
+	m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &value, sizeof(value));
 }
 
 SerialSession.updateLineInfoValue(
@@ -725,7 +821,7 @@ SerialSession.updateLineInfoValue(
 	)
 {
 	m_infoTable[infoId].m_value = line ? "on" : "off";
-	m_infoTable[infoId].m_valueColor = line ? gui.StdColor.LightRed : gui.StdColor.Gray;
+	m_infoTable[infoId].m_valueColor = line ? ui.StdColor.LightRed : ui.StdColor.Gray;
 }
 
 reactor SerialSession.m_uiReactor
@@ -738,19 +834,26 @@ reactor SerialSession.m_uiReactor
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_actionTable[ActionId.Rts].m_isEnabled = m_serialSettingUi.m_flowControlProp.m_value != io.SerialFlowControl.RtsCts;
 	m_rtsProp.m_isEnabled = m_serialSettingUi.m_flowControlProp.m_value != io.SerialFlowControl.RtsCts;
+	m_reopenTimeoutProp.m_isEnabled = m_useReopenProp.m_value;
 	m_bufferPropertySet.m_readParallelismProp.m_isEnabled = m_readModeProp.m_value != SerialReadMode.CheckComstat;
 	m_readIntervalProp.m_isEnabled = m_readModeProp.m_value == SerialReadMode.IntervalBased;
 	m_statusPane.m_text = m_state ? m_portName : "Port closed";
-	m_statusPane.m_color = m_state ? gui.StdColor.Blue : gui.StdColor.Gray;
-	m_infoTable[InfoId.Dtr].m_isEnabled = m_state;
-	m_infoTable[InfoId.Rts].m_isEnabled = m_state;
+	m_statusPane.m_color = m_state ? ui.StdColor.Blue : ui.StdColor.Gray;
 	m_infoTable[InfoId.Dsr].m_isEnabled = m_state;
 	m_infoTable[InfoId.Cts].m_isEnabled = m_state;
+	m_infoTable[InfoId.Dtr].m_isEnabled = m_state;
+	m_infoTable[InfoId.Rts].m_isEnabled = m_state;
+	m_infoTable[InfoId.BreakCondition].m_isEnabled = m_state;
 
 	updateLineInfoValue(InfoId.Dtr, m_serialDtr);
 	updateLineInfoValue(InfoId.Rts, m_serialRts);
 	updateLineInfoValue(InfoId.Dsr, m_serialStatusLines & io.SerialStatusLines.Dsr);
 	updateLineInfoValue(InfoId.Cts, m_serialStatusLines & io.SerialStatusLines.Cts);
+
+	onevent m_portCombo.m_onChanged()
+	{
+		m_reopenTimer.stop();
+	}
 }
 
 //..............................................................................

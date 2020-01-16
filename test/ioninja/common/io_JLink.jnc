@@ -1,0 +1,300 @@
+//..............................................................................
+//
+// J-Link binding
+//
+
+namespace io {
+
+//! \addtogroup common-jlink
+//! @{
+
+//..............................................................................
+
+enum
+{
+	JLINKARM_TIF_JTAG         = 0,
+	JLINKARM_TIF_SWD          = 1,
+	JLINKARM_TIF_BDM3         = 2,  // Do NOT use. Not supported anymore. Only there for backward compatbility inside the DLL
+	JLINKARM_TIF_FINE         = 3,
+	JLINKARM_TIF_ICSP         = 4,  // Microchip 2-wire JTAG via TCK + TMS (e.g. PIC32)
+	JLINKARM_TIF_SPI          = 5,
+	JLINKARM_TIF_C2           = 6,
+	JLINKARM_TIF_CJTAG        = 7,
+	JLINKARM_TIF_SWIM         = 8,  // Only used Flasher PRO/ATE internally. J-Link does not support SWIM interface (yet)
+	JLINKARM_TIF_PDI          = 9,  // Only used Flasher PRO/ATE internally. J-Link does not support PDI interface (yet)
+	JLINKARM_TIF_MC2WJTAG_TDI = 10, // Microchip 2-wire JTAG via TCK + TDI (e.g. BT5511 8051 core)
+	JLINKARM_TIF_NUMTIFS      = 11,
+}
+
+enum
+{
+	JLINKARM_RTTERMINAL_CMD_START     = 0,
+	JLINKARM_RTTERMINAL_CMD_STOP      = 1,
+	JLINKARM_RTTERMINAL_CMD_GETDESC   = 2,
+	JLINKARM_RTTERMINAL_CMD_GETNUMBUF = 3,
+	JLINKARM_RTTERMINAL_CMD_GETSTAT   = 4,
+}
+
+enum
+{
+	JLINKARM_RTTERMINAL_BUFFER_DIR_UP   = 0,
+	JLINKARM_RTTERMINAL_BUFFER_DIR_DOWN = 1,
+}
+
+enum
+{
+	JLINK_MRU_GROUP_DEVICE       = 0,
+	JLINK_MRU_GROUP_SETTINGSFILE = 1,
+	JLINK_MRU_GROUP_SCRIPTFILE   = 2,
+}
+
+enum
+{
+	JLINKARM_DEVICE_MAX_NUM_FLASH_BANKS = 16,
+}
+
+enum JLINK_FUNC_INDEX
+{
+	JLINK_IFUNC_SET_HOOK_DIALOG_UNLOCK_IDCODE = 0,
+	JLINK_IFUNC_SPI_TRANSFER_MULTIPLE,
+	JLINK_IFUNC_PIN_OVERRIDE,                 // Internal use. Not explained in SDK manual
+	JLINK_IFUNC_PIN_OVERRIDE_GET_PIN_CAPS,    // Internal use. Not explained in SDK manual
+	JLINK_IFUNC_MRU_GETLIST,
+	JLINK_IFUNC_RESERVED3,
+	JLINK_IFUNC_RESERVED4,
+	JLINK_IFUNC_RESERVED5,
+	JLINK_IFUNC_GET_SESSION_ID,
+	JLINK_IFUNC_CORESIGHT_TRIGGER_READ_APDP_REG,
+	JLINK_IFUNC_CAN_ACC_MEM_WHILE_RUNNING,
+	JLINK_IFUNC_UPDATE_BTL,
+	JLINK_IFUNC_GET_CURRENT_ENDIANESS,
+	JLINK_IFUNC_ALGODB_GET_PALGO_INFO,        // Only needed for internal use (J-Flash).
+	JLINK_IFUNC_ALGODB_GET_PALGO_INFO_CFI,    // Only needed for internal use (J-Flash).
+	JLINK_IFUNC_ALGODB_GET_ALGO_NO,           // Only needed for internal use (J-Flash).
+	JLINK_IFUNC_PCODE_SET_ENTRY_FUNC,         // Only needed for internal use (PCode compiler).
+	JLINK_IFUNC_PCODE_DOWNLOAD,               // Only needed for internal use (script files etc.)
+	JLINK_IFUNC_PCODE_EXEC_EX,                // Only needed for internal use
+	JLINK_IFUNC_START_MERGE_COMMANDS,         // Only needed for internal use
+	JLINK_IFUNC_END_MERGE_COMMANDS,           // Only needed for internal use
+	JLINK_IFUNC_RAWTRACE_BIST_STARTSTOP,      // Only needed for internal use (J-Link Commander)
+	JLINK_IFUNC_RAWTRACE_BIST_READ_ERR_STATS, // Only needed for internal use (J-Link Commander)
+	JLINK_IFUNC_GET_PF_GET_INST_INFO,
+	JLINK_IFUNC_CORESIGHT_ACC_APDP_REG_MUL,
+	JLINK_IFUNC_PCODE_DATA_DOWNLOAD,
+	JLINK_IFUNC_PCODE_EXEC_EX2,
+	JLINK_IFUNC_PCODE_FREE,                   // Only needed for internal use (script files etc.)
+	JLINK_IFUNC_EMU_COMMANDLINE_WRITE_READ,   // Emulates Flasher RS232 ASCII interface via USB commands
+	JLINK_IFUNC_GET_PF_DISASSEMBLE_BUFFER,
+	JLINK_IFUNC_EMU_GET_TARGET_IMG_AREA_INFO, // Only needed internally for now. Only available on Calliope Mini
+	JLINK_IFUNC_EMU_READ_TARGET_IMG_AREA,     // Only needed internally for now. Only available on Calliope Mini
+	JLINK_IFUNC_EMU_WRITE_TARGET_IMG_AREA,    // Only needed internally for now. Only available on Calliope Mini
+	JLINK_IFUNC_EMU_GET_CURR_CONN_INFO,       // Only needed internally for now. (J-Link Remote Server)
+	JLINK_IFUNC_GET_PF_EXP_DEVICE_LIST_XML,
+	JLINK_IFUNC_SCRIPTFILE_EXEC_FUNC,
+	JLINK_IFUNC_EMU_ADD_FW_IMAGES,
+	JLINK_NUM_FUNC_INDEXES
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+typedef uint8_t  U8;
+typedef uint32_t U32;
+
+typedef void stdcall JLINK_LOG(const char thin* sErr);
+
+typedef int stdcall JLINK_FUNC_MRU_GETLIST(
+	U32 Group,
+	char thin* sList,
+	U32 BufferSize
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct JLINK_RTTERMINAL_START
+{
+	U32 ConfigBlockAddress;
+	U32 Dummy0; // Future use. SBZ
+	U32 Dummy1; // Future use. SBZ
+	U32 Dummy2; // Future use. SBZ
+}
+
+struct JLINK_RTTERMINAL_STOP
+{
+	U8 InvalidateTargetCB;
+	U8 acDummy[3]; // Future use. SBZ
+	U32 Dummy0;    // Future use. SBZ
+	U32 Dummy1;    // Future use. SBZ
+	U32 Dummy2;    // Future use. SBZ
+}
+
+struct JLINK_RTTERMINAL_BUFDESC
+{
+	int BufferIndex;
+	U32 Direction;
+	char acName[32];
+	U32 SizeOfBuffer;
+	U32 Flags;
+}
+
+struct JLINK_RTTERMINAL_STATUS
+{
+	U32 NumBytesTransferred; // Total number of bytes sent to client application(s)
+	U32 NumBytesRead;        // Total number of bytes read from the target
+	int HostOverflowCount;   // Indicates a buffer overflow on the host system
+	int IsRunning;
+	int NumUpBuffers;        // Number of channels from the target which are handled by DLL.
+	int NumDownBuffers;      // Number of channels to the target which are handled by DLL.
+	U32 Dummy0;              // Future use. SBZ
+	U32 Dummy1;              // Future use. SBZ
+}
+
+struct JLINK_FLASH_AREA_INFO
+{
+	U32 Addr;
+	U32 Size;
+}
+
+struct JLINK_RAM_AREA_INFO
+{
+	U32 Addr;
+	U32 Size;
+}
+
+struct JLINK_PCODE_INFO
+{
+	const U8 thin* pPCode; // Pointer to PCode.
+	U32 NumBytes;          // Length of PCode in bytes.
+}
+
+struct JLINK_FLASH_BANK_INFO
+{
+	const char thin* sBankName;
+	const char thin* sAlgoFile;
+	U32 AlgoType;                 // Really of type MAIN_FLASH_ALGO_TYPE but to avoid mutual inclusion, we choose U32 here for now...
+	U32 BaseAddr;
+	const void thin* paBlockInfo; // For some algos, e.g. for SPIFI, this is just a default block info that may vary from target to target, so we need to request the actual one from the target via the RAMCode, at runtime
+	const void thin* pAlgoInfo;
+}
+
+struct JLINK_FLASH_BANK_INFO_EXT
+{
+	//
+	// Needed for algos that are implemented via RAMCode + PCode or PCode only
+	// For these algos, pAlgoInfo is == NULL and needs to be constructed at runtime
+	//
+
+	const void thin* pRAMCodeTurbo_LE;
+	const void thin* pRAMCodeTurbo_BE;
+	const void thin* pRAMCode_LE;
+	const void thin* pRAMCode_BE;
+	U32 SizeRAMCodeTurbo_LE;
+	U32 SizeRAMCodeTurbo_BE;
+	U32 SizeRAMCode_LE;
+	U32 SizeRAMCode_BE;
+	const void thin* pPCode; // PCode for flash bank
+	U32 SizePCode;
+}
+
+struct JLINKARM_DEVICE_INFO
+{
+	U32 SizeOfStruct;           // Required. Use SizeofStruct = sizeof(JLINKARM_DEVICE_INFO)
+	const char thin* sName;
+	U32 CoreId;
+	U32 FlashAddr;              // Start address of first flash area
+	U32 RAMAddr;                // Start address of first RAM area
+	char EndianMode;            // 0=Little, 1=Big, 2=Both
+	U32 FlashSize;              // Total flash size in bytes (flash may contain gaps. For exact address & size of each region, please refer to aFlashArea)
+	U32 RAMSize;                // Total RAM size in bytes  (RAM may contain gaps. For exact address & size of each region, please refer to aRAMArea)
+	const char thin* sManu;               // Device manufacturer
+	JLINK_FLASH_AREA_INFO aFlashArea[32]; // Region size of 0 bytes marks the end of the list
+	JLINK_RAM_AREA_INFO aRAMArea[32];     // Region size of 0 bytes marks the end of the list
+	U32 Core;                             // JLINKARM_CORE_... value
+	JLINK_FLASH_BANK_INFO aFlashBank[JLINKARM_DEVICE_MAX_NUM_FLASH_BANKS]; // Only interesting for J-Flash. Other applications can safely ignore this
+	JLINK_PCODE_INFO aPCodes[10];         // Only interesting for J-Flash. Other applications can safely ignore this. Currently, we support 5 different PCodes. We have allocated 5 elements as buffer for future versions.
+
+	//
+	// Available since extension for Flash banks without direct algo info linking
+	//
+
+	JLINK_FLASH_BANK_INFO_EXT aFlashBankExt[JLINKARM_DEVICE_MAX_NUM_FLASH_BANKS]; // Only interesting for J-Flash. Other applications can safely ignore this
+}
+
+//..............................................................................
+
+dynamiclib JLinkLib
+{
+	int stdcall JLINK_GetSN();
+	char stdcall JLINK_IsOpen();
+	char stdcall JLINK_IsHalted();
+
+	int stdcall JLINKARM_DEVICE_GetInfo(
+		int DeviceIndex,
+		JLINKARM_DEVICE_INFO thin* pDeviceInfo
+		);
+
+	const char thin* stdcall JLINK_Open();
+
+	const char thin* stdcall JLINK_OpenEx(
+		JLINK_LOG thin* pfLog,
+		JLINK_LOG thin* pfErrorOut
+		);
+
+	void stdcall JLINK_Close();
+
+	int stdcall JLINK_Connect();
+
+	void thin* stdcall JLINK_GetpFunc(JLINK_FUNC_INDEX FuncIndex);
+
+	int stdcall JLINK_ExecCommand(
+		const char thin* pIn,
+		char thin* pOut,
+		int BufferSize
+		);
+
+	void stdcall JLINK_Go();
+	void stdcall JLINK_SetSpeed(U32 Speed);
+
+	char stdcall JLINK_SelectIP(
+		const char thin* sHost,
+		int Port
+		);
+
+	// TIF
+
+	int stdcall JLINK_TIF_Select(int Interface);
+
+	// EMU
+
+	int stdcall JLINK_EMU_SelectByUSBSN(U32 SerialNo);
+	int stdcall JLINK_EMU_GetNumConnections();
+
+	void stdcall JLINK_EMU_GetProductName(
+		char thin* pBuffer,
+		U32 BufferSize
+		);
+
+	// RTT
+
+	int stdcall JLINK_RTTERMINAL_Control(
+		U32 Cmd,
+		void thin* p
+		);
+
+	int stdcall JLINK_RTTERMINAL_Read(
+		U32 BufferIndex,
+		char thin* sBuffer,
+		U32 BufferSize
+		);
+
+	int stdcall JLINK_RTTERMINAL_Write(
+		U32 BufferIndex,
+		const void thin* sBuffer,
+		U32 BufferSize
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

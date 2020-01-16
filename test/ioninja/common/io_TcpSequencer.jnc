@@ -7,6 +7,9 @@ import "std_List.jnc"
 
 namespace io {
 
+//! \addtogroup common-tcpip
+//! @{
+
 //..............................................................................
 
 class TcpSequencer
@@ -176,5 +179,7 @@ TcpSequencer.writeAlignedOutOfSeqSegments()
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

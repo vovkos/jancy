@@ -9,6 +9,8 @@ name        = "Socket Log"
 description = "Socket log representer"
 group       = net
 guid        = db8c8923-a699-46cc-be7c-f0bcd523082b
+icon        = images/socket.png
+small-icon  = images/socket-16x16.png
 
 log-representer-func = representSocketLog
 
@@ -32,6 +34,7 @@ SocketLogRepresenter.jnc
 01d483f3e69da209  # ConnectError/ResolveError
 01d483f3e69da20a  # Disconnected
 01d483f3e69da20b  # Disconnected_old
+01d483f3e69da212  # ReconnectDelay
 
 01d483f3e69da20c  # Listening
 01d483f3e69da20d  # ListenError

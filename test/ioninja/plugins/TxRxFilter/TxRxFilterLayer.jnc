@@ -1,3 +1,8 @@
+//..............................................................................
+//
+// TX/RX Filter layer
+//
+
 import "doc_Layer.jnc"
 
 //..............................................................................
@@ -6,8 +11,8 @@ class TxRxFilterLayer:
 	doc.Layer,
 	log.Filter
 {
-	gui.BoolProperty* m_isTxVisibleProp;
-	gui.BoolProperty* m_isRxVisibleProp;
+	ui.BoolProperty* m_isTxVisibleProp;
+	ui.BoolProperty* m_isRxVisibleProp;
 
 	construct(doc.PluginHost* pluginHost);
 

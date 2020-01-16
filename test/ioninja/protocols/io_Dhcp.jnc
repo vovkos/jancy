@@ -1,0 +1,408 @@
+//..............................................................................
+//
+// DHCP (dynamic host configuration protocol) defitions
+//
+
+import "std_String.jnc"
+
+namespace io {
+
+//! \addtogroup proto-dhcp
+//! @{
+
+alignment(1);
+
+//..............................................................................
+
+enum DhcpOpcode: uint8_t
+{
+	BootRequest = 1,
+	BootReply   = 2,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DhcpHardwareType: uint8_t
+{
+	Ethernet = 1,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DhcpFlags: uint16_t
+{
+	Broadcast = 1,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DhcpCookie: bigendian uint32_t
+{
+	Dhcp = 0x63825363
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "DHCP",
+	formatDigestFunc = formatDhcpDigest
+]
+struct DhcpHdr
+{
+	[ displayName = "Operation" ]
+	DhcpOpcode m_opcode;
+
+	[ displayName = "Hardware type" ]
+	DhcpHardwareType m_hardwareType;
+
+	[ displayName = "Hardware size" ]
+	uint8_t m_hardwareLength;
+
+	[ displayName = "Hops" ]
+	uint8_t m_hopCount;
+
+	[
+		displayName = "Transaction ID",
+		formatSpec = "0x%X"
+	]
+	bigendian uint32_t m_id;
+
+	[ displayName = "Seconds" ]
+	bigendian uint16_t m_secondsElapsed;
+
+	[
+		displayName = "Broadcast",
+		displayType = typeof(bool)
+	]
+	bigendian uint16_t m_broadcastFlag : 1;
+
+	[ displayName = "Reserved flags" ]
+	bigendian uint16_t m_reservedFlags : 15;
+
+	[
+		displayName = "Client IP",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_clientAddress;
+
+	[
+		displayName = "Your (client) IP",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_yourAddress;
+
+	[
+		displayName = "Next server IP",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_serverAddress;
+
+	[
+		displayName = "Relay agent IP",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_relayAddress;
+
+	[
+		displayName = "Client hardware address",
+		formatFunc = formatEthernetAddress
+	]
+	uint8_t m_hardwareAddress[16];
+
+	[
+		displayName = "Server host name",
+		formatSpec = "'%s'"
+	]
+	char m_serverName[64];
+
+	[
+		displayName = "Boot file name",
+		formatSpec = "'%s'"
+	]
+	char m_bootFileName[128];
+
+	[ displayName = "Magic cookie" ]
+	DhcpCookie m_magicCookie;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatDhcpDigest(void const* p)
+{
+	DhcpHdr const* hdr = (DhcpHdr const*)p;
+	void const* options = hdr + 1;
+	void const* end = p + dynamic sizeof(p);
+	DhcpOptionHdr const* messageType = findDhcpOption(DhcpOptionType.DhcpMessageType, options, end - options);
+
+	char const* typeString = messageType ?
+		typeof(DhcpMessageType).getValueString(messageType + 1) :
+		typeof(DhcpOpcode).getValueString(&hdr.m_opcode);
+
+	return $"%1 (ID: 0x%08X)"(typeString, hdr.m_id);
+}
+
+DhcpOptionHdr const* findDhcpOption(
+	DhcpOptionType type,
+	void const* options,
+	size_t size
+	)
+{
+	void const* p = options;
+	void const* end = options + size;
+
+	while (p < end)
+	{
+		DhcpOptionHdr const* optionHdr = (DhcpOptionHdr const*)p;
+		if (optionHdr.m_type == type)
+			return optionHdr;
+
+		switch (optionHdr.m_type)
+		{
+		case io.DhcpOptionType.Pad:
+			p++;
+			break;
+
+		case io.DhcpOptionType.End:
+			p++;
+			break2;
+
+		default:
+			p += sizeof(io.DhcpOptionHdr) + optionHdr.m_length;
+		}
+	}
+
+	return null;
+}
+
+//..............................................................................
+
+enum DhcpOptionType: uint8_t
+{
+	// RFC 1497 Vendor Extensions
+
+	Pad                     = 0,
+	End                     = 255,
+
+	[ formatFunc = formatIpAddress ]
+	SubnetMask              = 1,
+
+	TimeOffset              = 2,
+	Router                  = 3,
+	TimeServer              = 4,
+	NameServer              = 5,
+	DomainNameServer        = 6,
+	LogServer               = 7,
+	CookieServer            = 8,
+	LPRServer               = 9,
+	ImpressServer           = 10,
+	ResourceLocationServer  = 11,
+
+	[ formatExFunc = formatString ]
+	HostName                = 12,
+
+	BootFileSize            = 13,
+	MeritDumpFile           = 14,
+
+	[ formatExFunc = formatString ]
+	DomainName              = 15,
+
+	[ formatFunc = formatIpAddress ]
+	SwapServer              = 16,
+
+	[ formatExFunc = formatString ]
+	RootPath                = 17,
+
+	[ formatExFunc = formatString ]
+	ExtensionsPath          = 18,
+
+	// RFC 2132 IP Layer Parameters per Host
+
+	IpForwardingEnable            = 19,
+	NonLocalSourceRoutingEnable   = 20,
+	PolicyFilter                  = 21,
+	MaximumDatagramReassemblySize = 22,
+	DefaultIpTimeToLive           = 23,
+	PathMtuAgingTimeout           = 24,
+	PathMtuPlateauTable           = 25,
+
+	// RFC 2132 IP Layer Parameters per Interface
+
+	InterfaceMtu              = 26,
+	AllSubnetsAreLocal        = 27,
+	BroadcastAddress          = 28,
+	PerformMaskDiscovery      = 29,
+	MaskSupplier              = 30,
+	PerformRouterDiscovery    = 31,
+	RouterSolicitationAddress = 32,
+	StaticRoute               = 33,
+
+	// RFC 2132 Link Layer Parameters per Interface
+
+	TrailerEncapsulationOption = 34,
+	ARPCacheTimeout            = 35,
+	EthernetEncapsulation      = 36,
+
+	// RFC 2132 TCP Parameters
+
+	TcpDefaultTtl        = 37,
+	TcpKeepaliveInterval = 38,
+	TcpKeepaliveGarbage  = 39,
+
+	// RFC 2132 Application and Service Parameters
+
+	NetworkInformationServiceDomain      = 40,
+	NetworkInformationServers            = 41,
+	NetworkTimeProtocolServers           = 42,
+	VendorSpecificInformation            = 43,
+	NbtIpNameServer                      = 44,
+	NbtIpDatagramDistributionServer      = 45,
+	NbtIpNodeType                        = 46,
+	NbtIpScope                           = 47,
+	XWindowSystemFontServer              = 48,
+	XWindowSystemDisplayManager          = 49,
+	NetworkInformationServicePlusDomain  = 64,
+	NetworkInformationServicePlusServers = 65,
+	MobileIpHomeAgent                    = 68,
+	SimpleMailTransferProtocolServer     = 69,
+	PostOfficeProtocolServer             = 70,
+	NetworkNewsTransferProtocolServer    = 71,
+	DefaultWorldWideWebServer            = 72,
+	DefaultFingerProtocolServer          = 73,
+	DefaultInternetRelayChatServer       = 74,
+	StreetTalkServer                     = 75,
+	StreetTalkDirectoryAssistanceServer  = 76,
+
+	// RFC 2132 DHCP Extensions
+
+	[ formatFunc = formatIpAddress ]
+	RequestedIpAddress     = 50,
+
+	[ displayType = typeof(bigendian uint32_t) ]
+	IpAddressLeaseTime     = 51,
+
+	[ displayType = typeof(DhcpOptionOverload) ]
+	OptionOverload         = 52,
+
+	[ displayType = typeof(io.DhcpMessageType) ]
+	DhcpMessageType        = 53,
+
+	[ formatFunc = formatIpAddress ]
+	ServerIdentifier       = 54,
+
+	[ formatExFunc = formatDhcpParameterRequestList ]
+	ParameterRequestList   = 55,
+
+	[ formatExFunc = formatString ]
+	Message                = 56,
+
+	[ displayType = typeof(bigendian uint16_t) ]
+	MaximumDhcpMessageSize = 57,
+
+	[ displayType = typeof(bigendian uint32_t) ]
+	RenewalTimeValue       = 58,
+
+	[ displayType = typeof(bigendian uint32_t) ]
+	RebindingTimeValue     = 59,
+
+	[ formatExFunc = formatString ]
+	VendorClassIdentifier  = 60,
+
+	[ formatExFunc = formatDhcpClientIdentifier ]
+	ClientIdentifier       = 61,
+
+	[ formatExFunc = formatString ]
+	TftpServerName         = 66,
+
+	[ formatExFunc = formatString ]
+	BootfileName           = 67,
+
+	// Non-RFC 2132 Extensions
+
+	RelayAgentInformation         = 82,
+	NovellDirectoryServiceServers = 85,
+	NdsTreeName                   = 86,
+	NdsContext                    = 87,
+	TimeZonePosixStyle            = 100,
+	TimeZoneTzDatabaseStyle       = 101,
+	DomainSearch                  = 119,
+	ClasslessStaticRoute          = 121,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct DhcpOptionHdr
+{
+	DhcpOptionType m_type;
+	uint8_t m_length;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum DhcpMessageType: uint8_t
+{
+	Discover = 1,
+	Offer    = 2,
+	Request  = 3,
+	Decline  = 4,
+	Ack      = 5,
+	Nak      = 6,
+	Release  = 7,
+	Inform   = 8,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum DhcpOptionOverload: uint8_t
+{
+	File,
+	Sname,
+}
+
+//..............................................................................
+
+char const* formatString(
+	void const* p,
+	size_t size
+	)
+{
+	return strdup(p, size);
+}
+
+char const* formatDhcpParameterRequestList(
+	void const* p,
+	size_t size
+	)
+{
+	if (!size)
+		return null;
+
+	std.StringBuilder string;
+	string.copy($"%1 options"(size));
+
+	jnc.EnumType* type = typeof(DhcpOptionType);
+
+	void const* end = p + size;
+	for (; p < end; p++)
+	{
+		string.append("\n\t");
+		string.append(type.getValueString(p));
+	}
+
+	return string.detachString();
+}
+
+char const* formatDhcpClientIdentifier(
+	void const* p,
+	size_t size
+	)
+{
+	return *(DhcpHardwareType const*)p == DhcpHardwareType.Ethernet ?
+		formatEthernetAddress(p + 1) :
+		null;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

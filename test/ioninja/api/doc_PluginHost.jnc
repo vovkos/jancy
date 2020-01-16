@@ -3,33 +3,30 @@
 // Ninja document model - plugin host
 //
 
-import "gui_Menu.jnc"
-import "gui_ToolBar.jnc"
-import "gui_StatusBar.jnc"
-import "gui_PropertyGrid.jnc"
-import "gui_InformationGrid.jnc"
-import "gui_Terminal.jnc"
+import "doc_MainThreadScheduler.jnc"
+import "ui_Menu.jnc"
+import "ui_ToolBar.jnc"
+import "ui_StatusBar.jnc"
+import "ui_PropertyGrid.jnc"
+import "ui_InformationGrid.jnc"
+import "ui_Terminal.jnc"
 import "log_Log.jnc"
 
 namespace doc {
 
-//..............................................................................
-
-opaque class MainThreadScheduler: jnc.Scheduler
-{
-	override schedule(function* f());
-}
+//! \addtogroup api-doc
+//! @{
 
 //..............................................................................
 
 opaque class PluginHost
 {
-	gui.Menu m_menu;
-	gui.ToolBar m_toolBar;
-	gui.StatusBar m_statusBar;
-	gui.PropertyGrid m_propertyGrid;
-	gui.InformationGrid m_informationGrid;
-	gui.Terminal m_terminal;
+	ui.Menu m_menu;
+	ui.ToolBar m_toolBar;
+	ui.StatusBar m_statusBar;
+	ui.PropertyGrid m_propertyGrid;
+	ui.InformationGrid m_informationGrid;
+	ui.Terminal m_terminal;
 	log.Log m_log;
 	MainThreadScheduler* m_mainThreadScheduler;
 
@@ -40,6 +37,9 @@ opaque class PluginHost
 
 //..............................................................................
 
-} // namespace doc {
+//! @}
+
+} // namespace doc
 
 trace(char const* p);
+sendKeepAlive();

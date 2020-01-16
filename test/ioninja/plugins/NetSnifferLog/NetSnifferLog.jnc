@@ -1,0 +1,18 @@
+﻿//..............................................................................
+//
+// Sniffer log master import (to re-use from other representers)
+//
+
+import "NetSnifferLogFilter.jnc"
+import "NetSnifferLogRecordCode.jnc"
+import "NetSnifferLogRepresenter.jnc"
+import "Protocols.jnc"
+import "Proto_Simple.jnc"
+import "Proto_Ethernet.jnc"
+import "Proto_Arp.jnc"
+import "Proto_Ip.jnc"
+import "Proto_Ip6.jnc"
+import "Proto_Tcp.jnc"
+import "Proto_Udp.jnc"
+import "Proto_Dns.jnc"
+import "Proto_Dhcp.jnc"

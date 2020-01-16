@@ -4,14 +4,14 @@
 //
 
 import "UdpLogRecordCode.jnc"
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 
 //..............................................................................
 
 bool representUdpLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -21,17 +21,43 @@ bool representUdpLog(
 	switch (recordCode)
 	{
 	case UdpLogRecordCode.TxPacket:
-		char const* remoteAddress = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
-		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-		target.addHyperText($"To \e[34m$remoteAddress");
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"To \e[34m%1"(address.getString()));
 		break;
 
 	case UdpLogRecordCode.RxPacket:
-		char const* remoteAddress = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
-		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-		target.addHyperText($"From \e[34m$remoteAddress");
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"From \e[34m%1"(address.getString()));
+		break;
+
+	case UdpLogRecordCode.TxPacketEx:
+		uint32_t packetSize = *(uint32_t const*)p;
+		io.SocketAddress const* address = (io.SocketAddress const*)(p + sizeof(uint32_t));
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"To \e[34m%1\e[m (%2 bytes)"(
+			address.getString(),
+			packetSize
+			));
+		break;
+
+	case UdpLogRecordCode.RxPacketEx:
+		uint32_t packetSize = *(uint32_t const*)p;
+		io.SocketAddress const* address = (io.SocketAddress const*)(p + sizeof(uint32_t));
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"From \e[34m%1\e[m (%2 bytes)"(
+			address.getString(),
+			packetSize
+			));
 		break;
 
 	default:

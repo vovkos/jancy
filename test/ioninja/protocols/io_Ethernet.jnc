@@ -1,0 +1,149 @@
+//..............................................................................
+//
+// Ethernet II / Ethernet IEEE 802.3 defitions
+//
+
+namespace io {
+
+//! \addtogroup proto-ethernet
+//! @{
+
+//..............................................................................
+
+enum EthernetType: bigendian uint16_t
+{
+	Ieee8023      = 0x5dc,
+
+	Ip            = 0x0800, // Internet Protocol version 4 (IPv4)
+	Arp           = 0x0806, // Address Resolution Protocol (ARP)
+	Wol           = 0x0842, // Wake-on-LAN
+	Avtp          = 0x22f0, // Audio Video Transport Protocol (AVTP)
+	Trill         = 0x22f3, // IETF TRILL Protocol
+	Srp           = 0x22ea, // Stream Reservation Protocol
+	DecMopRc      = 0x6002, // DEC MOP RC
+	DecDnaRouting = 0x6003, // DECnet Phase IV, DNA Routing
+	DecLat        = 0x6004, // DEC LAT
+	Rarp          = 0x8035, // Reverse Address Resolution Protocol (RARP)
+	Ethertalk     = 0x809b, // AppleTalk (Ethertalk)
+	Aarp          = 0x80f3, // AppleTalk Address Resolution Protocol (AARP)
+	VlanTag       = 0x8100, // VLAN-tagged frame (IEEE 802.1Q) and Shortest Path Bridging IEEE 802.1aq with NNI compatibility
+	Slpp          = 0x8102, // Simple Loop Prevention Protocol (SLPP)
+	Ipx           = 0x8137, // IPX
+	Qnet          = 0x8204, // QNX Qnet
+	Ip6           = 0x86dd, // Internet Protocol Version 6 (IPv6)
+	FlowControl   = 0x8808, // Ethernet flow control
+	SlowProtocol  = 0x8809, // Ethernet Slow Protocols such as the Link Aggregation Control Protocol
+	CobraNet      = 0x8819, // CobraNet
+	MplsUnicast   = 0x8847, // MPLS unicast
+	MplsMulticast = 0x8848, // MPLS multicast
+	PpoeDiscovery = 0x8863, // PPPoE Discovery Stage
+	PpoeSession   = 0x8864, // PPPoE Session Stage
+	IntelAns      = 0x886d, // Intel Advanced Networking Services
+	Jumbo         = 0x8870, // Jumbo Frames (Obsoleted draft-ietf-isis-ext-eth-01)
+	HomePlugMme   = 0x887b, // HomePlug 1.0 MME
+	Eap           = 0x888e, // EAP over LAN (IEEE 802.1X)
+	Profinet      = 0x8892, // PROFINET Protocol
+	HyperScsi     = 0x889a, // HyperSCSI (SCSI over Ethernet)
+	Ataoe         = 0x88a2, // ATA over Ethernet
+	EtherCat      = 0x88a4, // EtherCAT Protocol
+	Bridging      = 0x88a8, // Provider Bridging (IEEE 802.1ad) & Shortest Path Bridging IEEE 802.1aq
+	Powerlink     = 0x88ab, // Ethernet Powerlink
+	Goose         = 0x88b8, // GOOSE (Generic Object Oriented Substation event)
+	Gse           = 0x88b9, // GSE (Generic Substation Events) Management Services
+	Sv            = 0x88ba, // SV (Sampled Value Transmission)
+	Lldp          = 0x88cc, // Link Layer Discovery Protocol (LLDP)
+	Sercos        = 0x88cd, // SERCOS III
+	Wsmp          = 0x88dc, // WSMP, WAVE Short Message Protocol
+	HomePlugAvMme = 0x88e1, // HomePlug AV MME
+	Mrp           = 0x88e3, // Media Redundancy Protocol (IEC62439-2)
+	MacSec        = 0x88e5, // MAC security (IEEE 802.1AE)
+	Pbb           = 0x88e7, // Provider Backbone Bridges (PBB) (IEEE 802.1ah)
+	Ptpoe         = 0x88f7, // Precision Time Protocol (PTP) over Ethernet (IEEE 1588)
+	Ncsi          = 0x88f8, // NC-SI
+	Prp           = 0x88fb, // Parallel Redundancy Protocol (PRP)
+	Cfm           = 0x8902, // IEEE 802.1ag Connectivity Fault Management (CFM) Protocol
+	Fcoe          = 0x8906, // Fibre Channel over Ethernet (FCoE)
+	FcoeInit      = 0x8914, // FCoE Initialization Protocol
+	Roce          = 0x8915, // RDMA over Converged Ethernet (RoCE)
+	Tte           = 0x891d, // TTEthernet Protocol Control Frame (TTE)
+	Hsr           = 0x892f, // High-availability Seamless Redundancy (HSR)
+	Ectp          = 0x9000, // Ethernet Configuration Testing Protocol
+	VlanDoubleTag = 0x9100, // VLAN-tagged (IEEE 802.1Q) frame with double tagging
+	Llt           = 0xcafe, // Veritas Technologies Low Latency Transport (LLT)
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "ETHERNET II",
+	formatDigestFunc = formatEthernetDigest
+]
+struct EthernetHdr
+{
+	[
+		displayName = "Destination",
+		formatFunc = formatEthernetAddress
+	]
+	uint8_t m_dstAddress[6];
+
+	[
+		displayName = "Source",
+		formatFunc = formatEthernetAddress
+	]
+	uint8_t m_srcAddress[6];
+
+	[ displayName = "Type" ]
+	EthernetType m_type;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "ETHERNET IEEE 802.3",
+	formatDigestFunc = formatEthernetDigest
+]
+struct EthernetHdr_ieee8023
+{
+	[
+		displayName = "Destination",
+		formatFunc = formatEthernetAddress
+	]
+	uint8_t m_dstAddress[6];
+
+	[
+		displayName = "Source",
+		formatFunc = formatEthernetAddress
+	]
+	uint8_t m_srcAddress[6];
+
+	[ displayName = "Length" ]
+	bigendian uint16_t m_length;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatEthernetDigest(void const* p)
+{
+	EthernetHdr const* hdr = (EthernetHdr const*)p;
+
+	return $"%1 \u2192 %2" (
+		formatEthernetAddress(&hdr.m_srcAddress),
+		formatEthernetAddress(&hdr.m_dstAddress)
+		);
+}
+
+char const* formatEthernetAddress(void const* p)
+{
+	uchar_t const* mac = (uchar_t const*)p;
+
+	return $"%02X:%02X:%02X:%02X:%02X:%02X"(
+		mac[0], mac[1], mac[2],
+		mac[3], mac[4], mac[5]
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

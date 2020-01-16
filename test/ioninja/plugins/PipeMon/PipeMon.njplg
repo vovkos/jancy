@@ -21,3 +21,4 @@ session-class = PipeMonSession
 
 PipeMonSession.jnc
 PipeMonitor.jnc
+PipeMonLogFilter.jnc

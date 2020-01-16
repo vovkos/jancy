@@ -3,7 +3,7 @@
 // Socket log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "SocketLogRecordCode.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
@@ -11,7 +11,7 @@ import "io_SocketAddress.jnc"
 //..............................................................................
 
 bool representSocketLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -22,71 +22,71 @@ bool representSocketLog(
 	{
 	case SocketLogRecordCode.Open:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"Opened socket at \e[34m$addressString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Opened socket at \e[34m$addressString");
 		break;
 
 	case SocketLogRecordCode.OpenError:
 		io.SocketAddress const* address = (io.SocketAddress const*) p;
 		char const* addressString = address.getString();
 		std.Error const* error = (std.Error const*) (address + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open socket at \e[34m$addressString\e[m: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open socket at \e[34m$addressString\e[m: $(error.m_description)");
 		break;
 
 	case SocketLogRecordCode.Close:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"Socket at \e[34m$addressString\e[m closed");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Socket at \e[34m$addressString\e[m closed");
 		break;
 
 	case SocketLogRecordCode.Resolving:
 		char const* addressString = (char const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.Connecting, $"Resolving \e[34m$addressString\e[m...");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, $"Resolving \e[34m$addressString\e[m...");
 		break;
 
 	case SocketLogRecordCode.Connecting:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.Connecting, $"Connecting to \e[34m$addressString\e[m...");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, $"Connecting to \e[34m$addressString\e[m...");
 		break;
 
 	case SocketLogRecordCode.ConnectingFrom:
 		char const* remoteAddressString = ((io.SocketAddress const*) p).getString();
 		char const* localAddressString = ((io.SocketAddress const*) p + 1).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(SocketLogPartCode.Connecting, $"Connecting to \e[34m$remoteAddressString\e[m from \e[34m$localAddressString\e[m...");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, $"Connecting to \e[34m$remoteAddressString\e[m from \e[34m$localAddressString\e[m...");
 		break;
 
 	case SocketLogRecordCode.ResolveCompleted:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, $"ok (\e[34m$addressString\e[m)");
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, $"ok (\e[34m$addressString\e[m)");
 		break;
 
 	case SocketLogRecordCode.ConnectCompleted:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
 		break;
 
 	case SocketLogRecordCode.ConnectCancelled:
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, "cancelled");
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "cancelled");
 		break;
 
 	case SocketLogRecordCode.ConnectError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText(SocketLogPartCode.ConnectCompleted, $"error: $(error.m_description)");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, $"error: $(error.m_description)");
 		break;
 
 	case SocketLogRecordCode.Disconnected:
@@ -95,45 +95,51 @@ bool representSocketLog(
 		char const* closeKind = (params.m_flags & TcpDisconnectLogRecordFlags.Reset) ? "reset" : "closed";
 		char const* initiator = (params.m_flags & TcpDisconnectLogRecordFlags.Remote) ? "remote" : "local";
 
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"Disconnected from \e[34m$addressString\e[m ($closeKind by $initiator node)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Disconnected from \e[34m$addressString\e[m ($closeKind by $initiator node)");
 		break;
 
 	case SocketLogRecordCode.Disconnected_old:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
 
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"Disconnected from \e[34m$addressString\e[m");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Disconnected from \e[34m$addressString\e[m");
+		break;
+
+	case SocketLogRecordCode.ReconnectDelay:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"About to reconnect...");
 		break;
 
 	case SocketLogRecordCode.Listening:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Listening on \e[34m$addressString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Listening on \e[34m$addressString");
 		break;
 
 	case SocketLogRecordCode.ListenError:
 		std.Error const* error = (std.Error const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot listen: $(error.m_description)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot listen: $(error.m_description)");
 		break;
 
 	case SocketLogRecordCode.ListenStopped:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText($"Stopped listening on \e[34m$addressString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Stopped listening on \e[34m$addressString");
 		break;
 
 	case SocketLogRecordCode.ClientConnected:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"Client connected from \e[34m$addressString");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Client connected from \e[34m$addressString");
 		break;
 
 	case SocketLogRecordCode.ClientDisconnected:
@@ -142,16 +148,16 @@ bool representSocketLog(
 		char const* closeKind = (params.m_flags & TcpDisconnectLogRecordFlags.Reset) ? "reset" : "closed";
 		char const* initiator = (params.m_flags & TcpDisconnectLogRecordFlags.Remote) ? "remote" : "local";
 
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"Client \e[34m$addressString\e[m disconnected ($closeKind by $initiator node)");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Client \e[34m$addressString\e[m disconnected ($closeKind by $initiator node)");
 		break;
 
 	case SocketLogRecordCode.ClientRejected:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Warning;
-		target.addHyperText($"Client \e[34m$addressString\e[m is rejected ");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"Client \e[34m$addressString\e[m is rejected ");
 		break;
 
 	default:

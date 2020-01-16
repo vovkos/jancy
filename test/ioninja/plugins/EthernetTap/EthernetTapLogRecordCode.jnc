@@ -1,0 +1,50 @@
+//..............................................................................
+//
+// Ethernet Tap log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum EthernetTapLogRecordCode: uint64_t
+{
+	DeviceOpened            = 0x01d4cdafa0abb0e0,
+	InterfaceClaimed        = 0x01d4cdafa0abb0e1,
+	InEndpointOpened        = 0x01d4cdafa0abb0e2,
+	OutEndpointOpened       = 0x01d4cdafa0abb0e3,
+	CaptureStarted          = 0x01d4cdafa0abb0e4,
+	CaptureStopped          = 0x01d4cdafa0abb0e5,
+	CaptureError            = 0x01d4cdafa0abb0e6,
+	Packet_ch1              = 0x81d4cdafa0abb0e7,
+	Packet_ch2              = 0x81d4cdafa0abb0e8,
+	PacketDetails_ch1       = 0x81d4cdafa0abb0e9,
+	PacketDetails_ch2       = 0x81d4cdafa0abb0ea,
+	CypressBufferCleared    = 0x01d4cdafa0abb0eb,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PacketFlags: uint8_t
+{
+	Reserved,       // 1
+	CrcValid,       // 2
+	BufferOverflow, // 4
+	ChannelId,      // 8
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PacketHdr
+{
+	uint16_t m_size;
+	uint8_t m_reserved;
+	PacketFlags m_flags;
+}
+
+enum
+{
+	MetaSize = sizeof(uint32_t) + sizeof(PacketHdr)
+}
+
+//..............................................................................

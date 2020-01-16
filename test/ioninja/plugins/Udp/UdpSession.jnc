@@ -3,19 +3,19 @@
 // UDP session
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_Socket.jnc"
-import "io_SocketAddressResolver.jnc"
-import "io_SocketUi.jnc"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_History.jnc"
-import "gui_StdSessionInfo.jnc"
+import "io_HostNameResolver.jnc"
+import "ui_History.jnc"
+import "ui_SocketUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
-using extension gui.ComboBoxHistory;
+using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
@@ -45,7 +45,6 @@ protected:
 
 	enum ActionId
 	{
-		AutoRemoteAddress,
 		Open,
 		_Count,
 	}
@@ -69,7 +68,7 @@ protected:
 
 	State bindable m_state;
 	io.Socket m_socket;
-	io.SocketAddressResolver m_resolver;
+	io.HostNameResolver m_resolver;
 	ResolveState m_resolveState;
 	io.SocketAddress m_remoteAddress;
 	bool m_remoteAddressChanged;
@@ -80,24 +79,24 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_adapterCombo;
-	gui.ComboBox* m_localPortCombo;
-	gui.ComboBox* m_remoteAddressCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_adapterCombo;
+	ui.ComboBox* m_localPortCombo;
+	ui.ComboBox* m_remoteAddressCombo;
 
 	// property grid
 
-	gui.BoolProperty* m_autoRemoteAddressProp;
-	io.SocketPropertySet m_socketPropertySet;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.BoolProperty* m_autoRemoteAddressProp;
+	ui.SocketPropertySet m_socketPropertySet;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -128,15 +127,12 @@ public:
 		);
 
 protected:
-	onOpen  ();
-
+	onOpen();
 	onRemoteAddressChanged();
 
-	onResolveCompleted(
+	onResolverEvent(
 		uint_t syncId,
-		io.SocketAddress const* addressTable,
-		size_t addressCount,
-		std.Error const* error
+		io.HostNameResolverEvents triggeredEvents
 		);
 
 	onSocketEvent(
@@ -162,8 +158,8 @@ UdpSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -171,24 +167,23 @@ UdpSession.createUi()
 {
 	// toolbar
 
-	m_iconTable[IconId.Open] = new gui.Icon("images/open.png");
-	m_iconTable[IconId.Close] = new gui.Icon("images/close.png");
-	m_iconTable[IconId.Compass] = new gui.Icon("images/compass.png");
+	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
+	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
+	m_iconTable[IconId.Compass] = new ui.Icon("images/compass.png");
 
 	m_pluginHost.m_toolBar.addLabel("Remote:");
 	m_remoteAddressCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_remoteAddressCombo.m_isEditable = true;
 	m_remoteAddressCombo.m_onChanged += onRemoteAddressChanged;
-
-	m_actionTable[ActionId.AutoRemoteAddress] = createAction("Auto-switch remote address", m_iconTable [IconId.Compass]);
-	m_actionTable[ActionId.AutoRemoteAddress].m_isCheckable = true;
+	m_remoteAddressCombo.m_placeholderText = "Enter a remote IP or hostname...";
 
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
-	m_adapterCombo = io.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, io.NetworkAdapterUsage.Listener);
+	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
 
-	m_pluginHost.m_toolBar.addLabel("Port:");
+	m_pluginHost.m_toolBar.addLabel("Local port:");
 	m_localPortCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_localPortCombo.m_isEditable = true;
+	m_localPortCombo.m_onEnter += openSocket;
 
 	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable [IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
@@ -199,7 +194,7 @@ UdpSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"UDP-specific connection settings"
 		);
@@ -207,7 +202,7 @@ UdpSession.createUi()
 	m_socketPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
-		io.SocketPropertySet.PropertyId.AllUdpClient
+		ui.SocketPropertySet.PropertyId.AllUdpClient
 		);
 
 	m_autoRemoteAddressProp = m_pluginHost.m_propertyGrid.createBoolProperty(
@@ -222,15 +217,15 @@ UdpSession.createUi()
 	m_bufferPropertySet.createPropertiesGrouped(
 		m_pluginHost.m_propertyGrid,
 		group,,
-		io.BufferPropertySet.PropertyId.All & ~(
-			io.BufferPropertySet.PropertyId.KeepReadBlockSize |
-			io.BufferPropertySet.PropertyId.KeepWriteBlockSize
+		ui.BufferPropertySet.PropertyId.All & ~(
+			ui.BufferPropertySet.PropertyId.KeepReadBlockSize |
+			ui.BufferPropertySet.PropertyId.KeepWriteBlockSize
 			)
 		);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("UDP socket");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("UDP socket");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -241,7 +236,7 @@ UdpSession.createUi()
 	m_uiReactor.start();
 }
 
-UdpSession.onOpen  ()
+UdpSession.onOpen()
 {
 	if (m_state)
 		closeSocket();
@@ -267,11 +262,11 @@ nestedscope:
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 
 	m_socket.open(io.Protocol.Udp, &address);
 	address = m_socket.m_address;
-	writeLog(SocketLogRecordCode.Open, &address, sizeof(address));
+	m_logWriter.write(SocketLogRecordCode.Open, &address, sizeof(address));
 	m_state = State.Opened;
 	waitSocketEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
@@ -279,7 +274,7 @@ nestedscope:
 catch:
 	std.Error const* error = std.getLastError();
 	void const* p = memcat(&address, sizeof(address), error, error.m_size);
-	writeLog(SocketLogRecordCode.OpenError, p, dynamic sizeof(p));
+	m_logWriter.write(SocketLogRecordCode.OpenError, p, dynamic sizeof(p));
 }
 
 UdpSession.closeSocket()
@@ -290,7 +285,7 @@ UdpSession.closeSocket()
 	io.SocketAddress address = m_socket.m_address;
 	m_socket.close();
 
-	writeLog(SocketLogRecordCode.Close, &address, sizeof(address));
+	m_logWriter.write(SocketLogRecordCode.Close, &address, sizeof(address));
 
 	m_state = State.Closed;
 	m_socketSyncId++;
@@ -308,7 +303,7 @@ UdpSession.waitSocketEvents()
 	if (!m_isTransmitEnabled)
 		eventMask |= io.SocketEvents.WriteBufferReady;
 
-	m_socket.wait(eventMask, onSocketEvent ~(++m_socketSyncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_socket.wait(eventMask, onSocketEvent~(++m_socketSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 UdpSession.load(doc.Storage* storage)
@@ -317,7 +312,7 @@ UdpSession.load(doc.Storage* storage)
 	m_localPortCombo.loadHistory(storage, "localPortHistory");
 
 	m_remoteAddressCombo.m_editText = storage.readString("remoteAddress", DefaultRemoteAddress);
-	m_actionTable[ActionId.AutoRemoteAddress].m_isChecked = storage.readInt("autoRemoteAddress");
+	m_autoRemoteAddressProp.m_value = storage.readBool("autoRemoteAddress");
 	m_adapterCombo.m_currentIndex = storage.readInt("adapterIdx");
 	m_localPortCombo.m_editText = storage.readString("localPort");
 
@@ -335,14 +330,13 @@ UdpSession.save(doc.Storage* storage)
 	m_localPortCombo.saveHistory(storage, "localPortHistory");
 
 	storage.writeString("remoteAddress", m_remoteAddressCombo.m_editText);
-	storage.writeInt("autoRemoteAddress", m_actionTable [ActionId.AutoRemoteAddress].m_isChecked);
+	storage.writeInt("autoRemoteAddress", m_autoRemoteAddressProp.m_value);
 	storage.writeInt("adapterIdx", (int) m_adapterCombo.m_currentIndex);
 	storage.writeString("localPort", m_localPortCombo.m_editText);
 }
 
 UdpSession.updateProperties()
 {
-	m_autoRemoteAddressProp.m_value = m_actionTable[ActionId.AutoRemoteAddress].m_isChecked;
 	m_socketPropertySet.m_remoteAddressProp.m_value = m_remoteAddressCombo.m_editText;
 	m_socketPropertySet.m_adapterProp.m_currentIndex = m_adapterCombo.m_currentIndex;
 	m_socketPropertySet.m_localPortProp.m_value = atoi(m_localPortCombo.m_editText);
@@ -350,7 +344,6 @@ UdpSession.updateProperties()
 
 bool errorcode UdpSession.applyProperties()
 {
-	m_actionTable[ActionId.AutoRemoteAddress].m_isChecked = m_autoRemoteAddressProp.m_value;
 	m_remoteAddressCombo.m_editText = m_socketPropertySet.m_remoteAddressProp.m_value;
 	m_adapterCombo.m_currentIndex = m_socketPropertySet.m_adapterProp.m_currentIndex;
 	m_localPortCombo.m_editText = $"$(m_socketPropertySet.m_localPortProp.m_value)";
@@ -362,7 +355,7 @@ bool errorcode UdpSession.applyProperties()
 	m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
 	m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_socket.m_options = io.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	return true;
 }
 
@@ -404,7 +397,7 @@ size_t errorcode UdpSession.transmit(
 
 		if (m_resolveState == ResolveState.Unresolved)
 		{
-			writeLog(
+			m_logWriter.write(
 				SocketLogRecordCode.Resolving,
 				addressString,
 				strlen(addressString)
@@ -415,7 +408,13 @@ size_t errorcode UdpSession.transmit(
 			if (adapterAddress)
 				addressFamily = adapterAddress.m_family;
 
-			m_resolver.resolve(addressString, addressFamily, onResolveCompleted ~(++m_resolverSyncId) @ m_pluginHost.m_mainThreadScheduler);
+			m_resolver.resolve(addressString, addressFamily);
+
+			m_resolver.wait(
+				io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
+				onResolverEvent~(++m_resolverSyncId) @ m_pluginHost.m_mainThreadScheduler
+				);
+
 			m_resolveState = ResolveState.Resolving;
 		}
 	}
@@ -444,10 +443,16 @@ size_t UdpSession.writeDatagram(
 {
 	size_t result = m_socket.writeDatagram(p, size, address);
 
-	m_pluginHost.m_log.m_writer.write(UdpLogRecordCode.TxPacket, address, sizeof(io.SocketAddress));
+	m_logWriter.write(
+		UdpLogRecordCode.TxPacketEx,
+		&result,
+		sizeof(uint32_t),
+		address,
+		sizeof(io.SocketAddress)
+		);
 
 	if (result)
-		m_pluginHost.m_log.m_writer.write(log.StdRecordCode.Tx, p, result);
+		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	return result;
 }
@@ -469,7 +474,7 @@ UdpSession.onSocketEvent(
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		writeLog(log.StdRecordCode.Error, m_socket.m_ioError, m_socket.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_socket.m_ioError, m_socket.m_ioError.m_size);
 		m_socket.close();
 		m_state = State.Closed;
 		m_isTransmitEnabled = false;
@@ -479,20 +484,26 @@ UdpSession.onSocketEvent(
 
 	if ((triggeredEvents & io.SocketEvents.ReadBufferFull) &&
 		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
-		writeLog(log.StdRecordCode.RxBufferFullLossy);
+		m_logWriter.write(log.StdRecordCode.RxBufferFullLossy);
 
 	if (triggeredEvents & io.SocketEvents.IncomingData)
 	{
 		io.SocketAddress remoteAddress;
 		size_t result = m_socket.readDatagram(m_readBuffer.m_p, m_readBuffer.m_size, &remoteAddress);
 
-		if (m_actionTable[ActionId.AutoRemoteAddress].m_isChecked)
+		if (m_autoRemoteAddressProp.m_value)
 			m_remoteAddressCombo.m_editText = remoteAddress.getString();
 
-		writeLog(UdpLogRecordCode.RxPacket, &remoteAddress, sizeof(io.SocketAddress));
+		m_logWriter.write(
+			UdpLogRecordCode.RxPacketEx,
+			&result,
+			sizeof(uint32_t),
+			&remoteAddress,
+			sizeof(io.SocketAddress)
+			);
 
 		if (result)
-			writeLog(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
 	if (io.SocketEvents.WriteBufferReady)
@@ -501,30 +512,28 @@ UdpSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-UdpSession.onResolveCompleted(
+UdpSession.onResolverEvent(
 	uint_t syncId,
-	io.SocketAddress const* addressTable,
-	size_t addressCount,
-	std.Error const* error
+	io.HostNameResolverEvents triggeredEvents
 	)
 {
 	if (syncId != m_resolverSyncId)
 		return;
 
-	if (error)
+	if (triggeredEvents & io.HostNameResolverEvents.Error)
 	{
-		writeLog(SocketLogRecordCode.ResolveError, error, error.m_size);
+		m_logWriter.write(SocketLogRecordCode.ResolveError, m_resolver.m_error, m_resolver.m_error.m_size);
 		m_resolveState = ResolveState.Unresolved;
 		return;
 	}
 
-	writeLog(
+	m_logWriter.write(
 		SocketLogRecordCode.ResolveCompleted,
-		addressTable,
+		m_resolver.m_addressTable,
 		sizeof(io.SocketAddress)
 		);
 
-	m_remoteAddress = addressTable[0];
+	m_remoteAddress = m_resolver.m_addressTable[0];
 
 	m_resolveState = m_resolveState == ResolveState.ChangeWhileResolving ?
 		ResolveState.Unresolved :
@@ -534,17 +543,20 @@ UdpSession.onResolveCompleted(
 
 catch:
 	std.Error const* error = std.getLastError();
-	writeLog(log.StdRecordCode.Error, error, error.m_size);
+	m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
 }
 
 reactor UdpSession.m_uiReactor
 {
 	m_title = $"UDP @ $(m_localPortCombo.m_editText) -> $(m_remoteAddressCombo.m_editText)";
 	m_isTransmitEnabled = m_state == State.Opened;
-	m_remoteAddressCombo.m_isEnabled = !m_actionTable[ActionId.AutoRemoteAddress].m_isChecked;
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close Socket" : "Open Socket";
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_state ? "Opened" : "Closed";
+	m_remoteAddressCombo.m_backgroundColor = m_autoRemoteAddressProp.m_value ? ui.StdColor.PastelGreen : ui.StdColor.White;
+	m_remoteAddressCombo.m_toolTipText = m_autoRemoteAddressProp.m_value ?
+		"This address will automatically switch to the address of the last inbound datagram" :
+		null;
 }
 
 //..............................................................................

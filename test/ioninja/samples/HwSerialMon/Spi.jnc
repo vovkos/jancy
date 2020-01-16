@@ -18,8 +18,8 @@ protected:
 		Ss   = 0x0800,
 	}
 
-	gui.EnumProperty* m_modeProp;
-	gui.EnumProperty* m_endiannessProp;
+	ui.EnumProperty* m_modeProp;
+	ui.EnumProperty* m_endiannessProp;
 
 	io.SpiSignalDecoder m_decoder;
 
@@ -31,8 +31,8 @@ public:
 	}
 
 	override createProperties(
-		gui.GroupProperty* group = null,
-		gui.Property* beforeProp = null
+		ui.GroupProperty* group = null,
+		ui.Property* beforeProp = null
 		);
 
 	override loadProperties(doc.Storage* storage);
@@ -53,11 +53,11 @@ public:
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 Spi.createProperties(
-	gui.GroupProperty* group,
-	gui.Property* beforeProp
+	ui.GroupProperty* group,
+	ui.Property* beforeProp
 	)
 {
-	static gui.EnumPropertyOption modeTable[] =
+	static ui.EnumPropertyOption modeTable[] =
 	{
 		{ "SPI 0 (CPOL 0, CPHA 0)",  0 },
 		{ "SPI 1 (CPOL 0, CPHA 1)",  1 },
@@ -65,7 +65,7 @@ Spi.createProperties(
 		{ "SPI 3 (CPOL 1, CPHA 1)",  3 },
 	}
 
-	static gui.EnumPropertyOption endiannessTable[] =
+	static ui.EnumPropertyOption endiannessTable[] =
 	{
 		{ "Big-endian (MSBit first)",    false },
 		{ "Little-endian (LSBit first)", true },
@@ -125,6 +125,8 @@ Spi.processSignal(
 		lines & Lines.Ss
 		);
 
+	log.Writer* logWriter = m_pluginHost.m_log.m_writer;
+
 	switch (result)
 	{
 	case io.SpiDecodeResult.Continue:
@@ -132,13 +134,13 @@ Spi.processSignal(
 		break;
 
 	case io.SpiDecodeResult.Stop:
-		m_pluginHost.m_log.m_writer.write(timestamp, log.StdRecordCode.Break);
+		logWriter.write(timestamp, log.StdRecordCode.Break);
 		break;
 
 	case io.SpiDecodeResult.Char:
 		char buffer[2] = { m_decoder.m_mosiChar, m_decoder.m_misoChar }
 
-		m_pluginHost.m_log.m_writer.write(
+		logWriter.write(
 			timestamp,
 			log.StdRecordCode.TxRx,
 			buffer,
@@ -147,11 +149,11 @@ Spi.processSignal(
 		break;
 
 	case io.SpiDecodeResult.FramingError:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.SpiFramingError);
+		logWriter.write(timestamp, HwSerialMonRecordCode.SpiFramingError);
 		break;
 
 	case io.SpiDecodeResult.EmptyMessage:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.SpiEmptyMessage);
+		logWriter.write(timestamp, HwSerialMonRecordCode.SpiEmptyMessage);
 		break;
 	}
 }

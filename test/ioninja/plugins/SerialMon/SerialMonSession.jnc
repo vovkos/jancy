@@ -3,13 +3,13 @@
 // Serial Monitor session
 //
 
-import "io_SerialUi.jnc"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
 import "doc_Session.jnc"
-import "gui_StdSessionInfo.jnc"
+import "ui_SerialSettingUi.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "ui_BufferPropertySet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
 //..............................................................................
 
@@ -56,22 +56,22 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_portCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_portCombo;
 
 	// serial mon property grid
 
-	gui.ComboProperty* m_portProp;
-	io.BufferPropertySet m_bufferPropertySet;
-	gui.IntProperty* m_pendingNotifySizeLimitProp;
+	ui.ComboProperty* m_portProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+	ui.IntProperty* m_pendingNotifySizeLimitProp;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -113,8 +113,8 @@ SerialMonSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -126,12 +126,13 @@ SerialMonSession.createUi()
 	m_portCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onEnter += onPortComboEnter;
+	m_portCombo.m_placeholderText = "Enter a serial port name...";
 
 	m_actionTable[ActionId.Refresh] = createAction("Refresh port list", "images/refresh.png");
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumeratePorts;
 
-	m_iconTable[IconId.Capture] = new gui.Icon("images/capture.png");
-	m_iconTable[IconId.StopCapture] = new gui.Icon("images/pause.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
 
 	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
 	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
@@ -142,7 +143,7 @@ SerialMonSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Device",
 		"Serial port monitor target device settings"
 		);
@@ -150,7 +151,8 @@ SerialMonSession.createUi()
 	m_portProp = m_pluginHost.m_propertyGrid.createComboProperty(
 		group,,
 		"Port",
-		"Specify serial port to monitor"
+		"Enter a serial port name...",
+		"Specify a serial port name to monitor"
 		);
 
 	group = m_pluginHost.m_propertyGrid.createGroupProperty(
@@ -161,10 +163,10 @@ SerialMonSession.createUi()
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
-		io.BufferPropertySet.PropertyId.ReadParallelism |
-		io.BufferPropertySet.PropertyId.ReadBufferSize |
-		io.BufferPropertySet.PropertyId.ReadBlockSize |
-		io.BufferPropertySet.PropertyId.NotifyReadBufferFull
+		ui.BufferPropertySet.PropertyId.ReadParallelism |
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.ReadBlockSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
 		);
 
 	m_pendingNotifySizeLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
@@ -180,7 +182,7 @@ SerialMonSession.createUi()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial monitor");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Serial monitor");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -201,8 +203,8 @@ SerialMonSession.enumeratePorts()
 	io.SerialPortDesc const* portList = io.createSerialPortDescList(&count);
 	io.SerialPortDesc const* port = portList;
 
-	gui.EnumPropertyOption* optionArray = new gui.EnumPropertyOption[count];
-	gui.EnumPropertyOption* option = optionArray;
+	ui.EnumPropertyOption* optionArray = new ui.EnumPropertyOption[count];
+	ui.EnumPropertyOption* option = optionArray;
 
 	for (; port; port = port.m_next, option++)
 	{
@@ -226,7 +228,7 @@ bool errorcode SerialMonSession.capture()
 	m_monitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_monitor.capture(name);
 
-	writeLogString(DeviceMonLogRecordCode.CaptureStarted_name, name);
+	m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_name, name);
 
 	m_portName = name;
 	m_state = State.Opened;
@@ -237,7 +239,7 @@ catch:
 	m_monitor.close();
 
 	std.Error const* error = std.getLastError();
-	writeLog(
+	m_logWriter.write(
 		DeviceMonLogRecordCode.CaptureError,
 		error,
 		error.m_size
@@ -250,7 +252,7 @@ SerialMonSession.close()
 	if (m_state != State.Opened)
 		return;
 
-	writeLog(DeviceMonLogRecordCode.CaptureStopped);
+	m_logWriter.write(DeviceMonLogRecordCode.CaptureStopped);
 
 	m_monitor.close();
 	m_state = State.Closed;

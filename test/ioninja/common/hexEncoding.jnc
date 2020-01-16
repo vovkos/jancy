@@ -2,6 +2,9 @@ import "std_Buffer.jnc"
 
 // port of axl_enc_HexEncoding.cpp
 
+//! \addtogroup common-enc
+//! @{
+
 //..............................................................................
 
 static bool isspace(char c) // we don't have these in the Jancy stdlib yet
@@ -89,3 +92,5 @@ size_t decodeHexString(
 }
 
 //..............................................................................
+
+//! @}

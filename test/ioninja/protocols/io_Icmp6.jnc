@@ -1,0 +1,86 @@
+//..............................................................................
+//
+// ICMPv6 (Internet control message protocol for IPv6) packets
+//
+
+namespace io {
+
+//! \addtogroup proto-icmp
+//! @{
+
+//..............................................................................
+
+enum Icmp6Type: uint8_t
+{
+	DestinationUnreachable                = 1,
+	PacketTooBig                          = 2,
+	TimeExceeded                          = 3,
+	ParameterProblem                      = 4,
+	EchoRequest                           = 128,
+	EchoReply                             = 129,
+	MulticastListenerQuery                = 130,
+	MulticastListenerReport               = 131,
+	MulticastListenerDone                 = 132,
+	RouterSolicitation                    = 133,
+	RouterAdvertisement                   = 134,
+	NeighborSolicitation                  = 135,
+	NeighborAdvertisement                 = 136,
+	RedirectMessage                       = 137,
+	RouterRenumbering                     = 138,
+	NodeInformationQuery                  = 139,
+	NodeInformationResponse               = 140,
+	InverseNeighborDiscoverySolicitation  = 141,
+	InverseNeighborDiscoveryAdvertisement = 142,
+	MulticastListenerDiscovery            = 143,
+	HomeAgentAddressDiscoveryRequest      = 144,
+	HomeAgentAddressDiscoveryReply        = 145,
+	MobilePrefixSolicitation              = 146,
+	MobilePrefixAdvertisement             = 147,
+	CertificationPathSolicitation         = 148,
+	CertificationPathAdvertisement        = 149,
+	MulticastRouterAdvertisement          = 151,
+	MulticastRouterSolicitation           = 152,
+	MulticastRouterTermination            = 153,
+	RplControl                            = 155,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "ICMPv6",
+	formatDigestFunc = formatIcmp6Digest
+]
+struct Icmp6Hdr
+{
+	[ displayName = "Type" ]
+	IcmpType m_type;
+
+	[ displayName = "Code" ]
+	uint8_t m_code;
+
+	[
+		displayName = "Checksum",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_checksum;
+
+	[ displayName = "Identifier" ]
+	bigendian uint16_t m_id;
+
+	[ displayName = "Sequence number" ]
+	bigendian uint16_t m_seqNumber;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatIcmp6Digest(void const* p)
+{
+	Icmp6Hdr const* hdr = (Icmp6Hdr const*)p;
+	return typeof(Icmp6Type).getValueString(&hdr.m_type);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

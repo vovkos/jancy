@@ -9,6 +9,8 @@ name        = Mailslot Monitor Log
 description = "Mailslot Monitor log representer"
 group       = fs
 guid        = 8B4D1156-4C00-40FF-8B24-015C7DF2FD80
+icon        = images/mailslotmon.png
+small-icon  = images/mailslotmon-16x16.png
 
 log-representer-func = representMailslotMonLog
 
@@ -19,14 +21,19 @@ MailslotMonLogRepresenter.jnc
 
 [records]
 
-01d4871750ac2a7b  # ServerFileOpened_old
-01d4871750ac2a7c  # ServerFileOpenError_old
-01d4871750ac2a7d  # ClientFileOpened_old
-01d4871750ac2a7e  # ClientFileOpenError_old
+01d4871750ac2a7b  # ServerFileOpened_0
+01d4871750ac2a7c  # ServerFileOpenError_0
+01d4871750ac2a7d  # ClientFileOpened_0
+01d4871750ac2a7e  # ClientFileOpenError_0
 01d4871750ac2a7f  # FileClosed
-01d4871750ac2a80  # FileIdChanged_old
-01d4871750ac2a81  # ServerFileOpened
-01d4871750ac2a82  # ServerFileOpenError
-01d4871750ac2a83  # ClientFileOpened
-01d4871750ac2a84  # ClientFileOpenError
-01d4871750ac2a85  # FileIdChanged
+01d4871750ac2a80  # FileIdChanged_0
+01d4871750ac2a81  # ServerFileOpened_1
+01d4871750ac2a82  # ServerFileOpenError_1
+01d4871750ac2a83  # ClientFileOpened_1
+01d4871750ac2a84  # ClientFileOpenError_1
+01d4871750ac2a85  # FileIdChanged_1
+01d4871750ac2a86  # ServerFileOpened
+01d4871750ac2a87  # ServerFileOpenError
+01d4871750ac2a88  # ClientFileOpened
+01d4871750ac2a89  # ClientFileOpenError
+01d4871750ac2a8a  # FileIdChanged

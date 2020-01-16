@@ -3,6 +3,8 @@
 // Modbus RTU stream parser
 //
 
+import "ModbusLogRecordCode.jnc"
+
 class ModbusRtuParser: ModbusParserBase
 {
 	// checking for correct serial modbus delays (1.5/3.5 chars) is not possible
@@ -15,13 +17,12 @@ class ModbusRtuParser: ModbusParserBase
 	}
 
 protected:
-	uint64_t m_lastTimestamp;
 	size_t m_expectedSize;
 
 public:
-	construct()
+	construct(ModbusInfoSet* infoSet)
 	{
-		m_protocol = io.ModbusProtocol.Rtu;
+		basetype.construct(io.ModbusProtocol.Rtu, infoSet);
 	}
 
 	override parse(
@@ -62,6 +63,7 @@ ModbusRtuParser.parse(
 			));
 
 		writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+		m_infoSet.addError();
 		reset();
 	}
 
@@ -91,12 +93,8 @@ ModbusRtuParser.parse(
 
 		// check ADU size once again (as we have appended some data)
 
-		size_t expectedSize = io.getModbusRtuAduSize(
-			m_modbusRole,
-			(io.ModbusRtuAduHdr const*) m_dataBuffer.m_p,
-			m_dataBuffer.m_size
-			);
-
+		io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) m_dataBuffer.m_p;
+		size_t expectedSize = io.getModbusRtuAduSize(m_modbusRole, aduHdr, m_dataBuffer.m_size);
 		if (expectedSize > m_expectedSize)
 		{
 			m_expectedSize = expectedSize;
@@ -106,19 +104,24 @@ ModbusRtuParser.parse(
 		// ADU completed
 
 		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+		m_infoSet.addAdu(m_modbusRole);
+
+		if (m_mode == ModbusParserMode.Alternate)
+		{
+			m_modbusRole = aduHdr.m_deviceAddress != 0 ? // write-only broadcast from master
+				(io.ModbusRole) !m_modbusRole :
+				io.ModbusRole.Master;
+
+			recordCode = getPacketRecordCode();
+		}
 
 		m_dataBuffer.clear();
 		m_expectedSize = 0;
-
-		if (m_mode == ModbusParserMode.HalfDuplex)
-		{
-			m_modbusRole = (io.ModbusRole) !m_modbusRole;
-			recordCode = getPacketRecordCode();
-		}
 	}
 
 catch:
 	writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+	m_infoSet.addError();
 	reset();
 }
 
@@ -127,7 +130,7 @@ ModbusRtuParser.reset()
 	m_dataBuffer.clear();
 	m_expectedSize = 0;
 
-	if (m_mode == ModbusParserMode.HalfDuplex)
+	if (m_mode == ModbusParserMode.Alternate)
 		m_modbusRole = io.ModbusRole.Master;
 }
 

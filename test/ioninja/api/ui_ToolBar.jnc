@@ -1,0 +1,55 @@
+//..............................................................................
+//
+// Ninja GUI - tool bar
+//
+
+import "ui_Action.jnc"
+import "ui_ComboBox.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+// toolbar
+
+opaque class ToolBar
+{
+	destruct();
+
+	addAction(Action* action);
+	addLabel(char const* pText);
+
+	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
+
+	ComboBox* addComboBox(
+		const char* labelText,
+		ComboItem const* itemArray,
+		size_t itemCount
+		);  // 0 = default, -1 = stretch
+
+	addSeparator();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ComboBox* ToolBar.addComboBox(
+	const char* labelText,
+	ComboItem const* itemArray,
+	size_t itemCount
+	)
+{
+	addLabel(labelText);
+	ComboBox* comboBox = addComboBox();
+	comboBox.setItems(itemArray, itemCount);
+	comboBox.adjustSizeToContents();
+	return comboBox;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

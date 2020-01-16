@@ -1,0 +1,94 @@
+//..............................................................................
+//
+// Sniffer log loopback packets handling
+//
+
+import "io_Loopback.jnc"
+
+//..............................................................................
+
+void representLoopbackDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(int32_t))
+	{
+		representation.addHyperText("\e[1mLOOPBACK\e[m [INCOMPLETE]");
+		return;
+	}
+
+	int32_t family = *(int32_t const*)p;
+	p += sizeof(int32_t);
+	size -= sizeof(int32_t);
+
+	switch (family)
+	{
+	case io.LoopbackProtocolFamily.Ip:
+		representIpDigest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	case io.LoopbackProtocolFamily.Ip6:
+		representIp6Digest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	default:
+		representation.addHyperText(
+			$"\e[1mLOOPBACK\e[m (address family: \e[34m%(1;d)/0x%(1;x)\e[m)"(
+			family
+			));
+
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+	}
+}
+
+void representLoopbackDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.LinkLayer;
+
+	if (size < sizeof(int32_t))
+	{
+		representation.addHyperText("\e[1mLOOPBACK\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.LoopbackHdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.LinkLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.EthernetHdr), ProtoColor.LinkLayer };
+	protoRangeArray.append(range);
+
+	int32_t family = *(int32_t const*)p;
+	p += sizeof(int32_t);
+	size -= sizeof(int32_t);
+	baseOffset += sizeof(int32_t);
+
+	switch (family)
+	{
+	case io.LoopbackProtocolFamily.Ip:
+		representIpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case io.LoopbackProtocolFamily.Ip6:
+		representIp6Details(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+	}
+}
+
+//..............................................................................

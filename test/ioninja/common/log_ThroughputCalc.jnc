@@ -3,123 +3,33 @@
 // Some standard stats collected via selection processors
 //
 
-import "gui_InformationGrid.jnc"
+import "ui_ThroughputInfoSet.jnc"
 import "formatInteger.jnc"
 
 namespace log {
 
-//..............................................................................
-
-class ThroughputInfoSet
-{
-	bitflag enum InfoId
-	{
-		TimeSpan,
-		TxTotalSize,
-		TxThroughput,
-		RxTotalSize,
-		RxThroughput,
-		TotalSize,
-		TotalThroughput,
-
-		Default =
-			TimeSpan |
-			TxTotalSize |
-			TxThroughput |
-			RxTotalSize |
-			RxThroughput,
-	}
-
-	gui.InformationValue* m_timeSpanInfo;
-	gui.InformationValue* m_txTotalSizeInfo;
-	gui.InformationValue* m_txThroughputInfo;
-	gui.InformationValue* m_rxTotalSizeInfo;
-	gui.InformationValue* m_rxThroughputInfo;
-	gui.InformationValue* m_totalSizeInfo;
-	gui.InformationValue* m_totalThroughputInfo;
-
-	createInformationValues(
-		gui.InformationGrid* informationGrid,
-		gui.InformationGroup* group = null,
-		gui.InformationValue* insertBefore = null,
-		InfoId mask = InfoId.Default
-		);
-
-	createInformationValuesGrouped(
-		gui.InformationGrid* informationGrid,
-		gui.InformationGroup* group = null,
-		gui.InformationValue* insertBefore = null,
-		InfoId mask = InfoId.Default
-		);
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-ThroughputInfoSet.createInformationValues(
-	gui.InformationGrid* informationGrid,
-	gui.InformationGroup* group,
-	gui.InformationValue* insertBefore,
-	InfoId mask
-	)
-{
-	if (mask & InfoId.TimeSpan)
-		m_timeSpanInfo = informationGrid.createValue(group, insertBefore, true, "Time span");
-
-	if (mask & InfoId.TxTotalSize)
-		m_txTotalSizeInfo = informationGrid.createValue(group, insertBefore, true, "TX total bytes");
-
-	if (mask & InfoId.TxThroughput)
-		m_txThroughputInfo = informationGrid.createValue(group, insertBefore, true, "TX throughput");
-
-	if (mask & InfoId.RxTotalSize)
-		m_rxTotalSizeInfo = informationGrid.createValue(group, insertBefore, true, "RX total bytes");
-
-	if (mask & InfoId.RxThroughput)
-		m_rxThroughputInfo = informationGrid.createValue(group, insertBefore, true, "RX throughput");
-
-	if (mask & InfoId.TotalSize)
-		m_totalSizeInfo = informationGrid.createValue(group, insertBefore, true, "Total bytes");
-
-	if (mask & InfoId.TotalThroughput)
-		m_totalThroughputInfo = informationGrid.createValue(group, insertBefore, true, "Total throughput");
-}
-
-ThroughputInfoSet.createInformationValuesGrouped(
-	gui.InformationGrid* informationGrid,
-	gui.InformationGroup* group,
-	gui.InformationValue* insertBefore,
-	InfoId mask
-	)
-{
-	gui.InformationGroup* subGroup = informationGrid.createGroup(
-		group,
-		insertBefore,
-		"Throughput calculator",
-		"Make a selection in the log to calculate throughput"
-		);
-
-	createInformationValues(informationGrid, subGroup,, mask);
-}
+//! \addtogroup common-log
+//! @{
 
 //..............................................................................
 
 class ThroughputCalcRangeProcessor: RangeProcessor
 {
 protected:
-	ThroughputInfoSet* m_infoSet;
+	ui.ThroughputInfoSet* m_infoSet;
 	uint64_t m_startTimestamp;
 	uint64_t m_txTotalSize;
 	uint64_t m_rxTotalSize;
 	uint64_t m_totalSize;
 
 public:
-	static ThroughputCalcRangeProcessor* factory(ThroughputInfoSet* infoSet)
+	static ThroughputCalcRangeProcessor* factory(ui.ThroughputInfoSet* infoSet)
 	{
 		return new ThroughputCalcRangeProcessor(infoSet);
 	}
 
 protected:
-	construct(ThroughputInfoSet* infoSet)
+	construct(ui.ThroughputInfoSet* infoSet)
 	{
 		m_infoSet = infoSet;
 	}
@@ -243,5 +153,7 @@ ThroughputCalcRangeProcessor.processEndOfRange()
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace log

@@ -7,6 +7,9 @@ import "log_Writer.jnc"
 
 namespace log {
 
+//! \addtogroup api-log
+//! @{
+
 //..............................................................................
 
 class Converter
@@ -26,4 +29,6 @@ class Converter
 
 //..............................................................................
 
-} // namespace log {
+//! @}
+
+} // namespace log

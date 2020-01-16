@@ -1,0 +1,227 @@
+//..............................................................................
+//
+// SSH connection user interface
+//
+
+import "ui_PropertyGrid.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class SshPropertySet
+{
+	bitflag enum PropertyId
+	{
+		UserName,
+		AuthenticationMethod,
+		PrivateKeyFile,
+		RememberLastPassword,
+		ChannelType,
+		ProcessType,
+		Exec,
+		PtyType,
+
+		All =
+			UserName |
+			AuthenticationMethod |
+			PrivateKeyFile |
+			RememberLastPassword |
+			ChannelType |
+			ProcessType |
+			Exec |
+			PtyType,
+	}
+
+	enum Defaults
+	{
+		AuthenticationMethod = ui.AuthenticationMethod.Password,
+		RememberLastPassword = false,
+	}
+
+	static char DefaultChannelType[] = "session";
+	static char DefaultProcessType[] = "shell";
+	static char DefaultPtyType[] = "xterm";
+
+	StringProperty* m_userNameProp;
+	EnumProperty* m_authenticationMethodProp;
+	FileProperty* m_privateKeyFileProp;
+	BoolProperty* m_rememberLastPasswordProp;
+	StringProperty* m_channelTypeProp;
+	StringProperty* m_processTypeProp;
+	StringProperty* m_execProp;
+	StringProperty* m_ptyTypeProp;
+
+	createProperties(
+		PropertyGrid* propertyGrid,
+		GroupProperty* group = null,
+		Property* insertBefore = null,
+		PropertyId mask = PropertyId.All
+		);
+
+	load(doc.Storage* storage);
+	save(doc.Storage* storage);
+	restoreDefaults();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SshPropertySet.createProperties(
+	PropertyGrid* propertyGrid,
+	GroupProperty* group,
+	Property* insertBefore,
+	PropertyId mask
+	)
+{
+	static EnumPropertyOption authenticationMethodTable[] =
+	{
+		{ "Password",    AuthenticationMethod.Password },
+		{ "Private key", AuthenticationMethod.PrivateKey },
+	}
+
+	if (mask & PropertyId.UserName)
+		m_userNameProp = propertyGrid.createStringProperty(
+			group,,
+			"User name",
+			"Enter a user name...",
+			"User name for SSH authentification"
+			);
+
+	if (mask & PropertyId.AuthenticationMethod)
+		m_authenticationMethodProp = propertyGrid.createEnumProperty(
+			group,,
+			"User authentication",
+			"How to authentify a user (password / private key)",
+			authenticationMethodTable,
+			countof(authenticationMethodTable)
+			);
+
+	if (mask & PropertyId.PrivateKeyFile)
+	{
+		m_privateKeyFileProp = propertyGrid.createFileProperty(
+			group,,
+			"Private key file",
+			"Private key file (PEM) for SSH authentification"
+			);
+
+		m_privateKeyFileProp.m_fileDialogCaption = "Select Private Key File";
+		m_privateKeyFileProp.m_filter = "SSH identity files (id_dsa id_rsa);;PEM files (*.pem);;All files (*.*)";
+	}
+
+	if (mask & PropertyId.RememberLastPassword)
+		m_rememberLastPasswordProp = propertyGrid.createBoolProperty(
+			group,,
+			"Remember last password",
+			"Re-use the last entered password during subsequent connect attempts"
+			);
+
+	if (mask & PropertyId.ChannelType)
+		m_channelTypeProp = propertyGrid.createStringProperty(
+			group,,
+			"SSH channel",
+			"Enter a channel type...",
+			"Type of requested SSH channel"
+			);
+
+	if (mask & PropertyId.ProcessType)
+		m_processTypeProp = propertyGrid.createStringProperty(
+			group,,
+			"SSH process",
+			"Enter a process type...",
+			"Type of requested SSH process"
+			);
+
+	if (mask & PropertyId.Exec)
+		m_execProp = propertyGrid.createStringProperty(
+			group,,
+			"SSH exec",
+			"Enter an executable name...",
+			"Process to exec on remote server"
+			);
+
+	if (mask & PropertyId.PtyType)
+		m_ptyTypeProp = propertyGrid.createStringProperty(
+			group,,
+			"Pseudoterminal",
+			"Enter a PTY type...",
+			"Type of requested pseudoterminal (PTY)"
+			);
+}
+
+SshPropertySet.load(doc.Storage* storage)
+{
+	if (m_userNameProp)
+		m_userNameProp.m_value = storage.readString("userName");
+
+	if (m_authenticationMethodProp)
+		m_authenticationMethodProp.m_value = storage.readInt("authenticationMethod", Defaults.AuthenticationMethod);
+
+	if (m_privateKeyFileProp)
+		m_privateKeyFileProp.m_value = storage.readString("privateKeyFile");
+
+	if (m_rememberLastPasswordProp)
+		m_rememberLastPasswordProp.m_value = storage.readBool("rememberLastPassword", Defaults.RememberLastPassword);
+
+	if (m_channelTypeProp)
+		m_channelTypeProp.m_value = storage.readString("channelType", DefaultChannelType);
+
+	if (m_processTypeProp)
+		m_processTypeProp.m_value = storage.readString("processType", DefaultProcessType);
+
+	if (m_execProp)
+		m_execProp.m_value = storage.readString("exec");
+
+	if (m_ptyTypeProp)
+		m_ptyTypeProp.m_value = storage.readString("ptyType", DefaultPtyType);
+}
+
+SshPropertySet.save(doc.Storage* storage)
+{
+	if (m_userNameProp)
+		storage.writeString("userName", m_userNameProp.m_value);
+
+	if (m_authenticationMethodProp)
+		storage.writeInt("authenticationMethod", m_authenticationMethodProp.m_value);
+
+	if (m_privateKeyFileProp)
+		storage.writeString("privateKeyFile", m_privateKeyFileProp.m_value);
+
+	if (m_rememberLastPasswordProp)
+		storage.writeBool("rememberLastPassword", m_rememberLastPasswordProp.m_value);
+
+	if (m_channelTypeProp)
+		storage.writeString("channelType", m_channelTypeProp.m_value);
+
+	if (m_processTypeProp)
+		storage.writeString("processType", m_processTypeProp.m_value);
+
+	if (m_execProp)
+		storage.writeString("exec", m_execProp.m_value);
+
+	if (m_ptyTypeProp)
+		storage.writeString("ptyType", m_ptyTypeProp.m_value);
+}
+
+SshPropertySet.restoreDefaults()
+{
+	if (m_rememberLastPasswordProp)
+		m_rememberLastPasswordProp.m_value = Defaults.RememberLastPassword;
+
+	if (m_channelTypeProp)
+		m_channelTypeProp.m_value = DefaultChannelType;
+
+	if (m_processTypeProp)
+		m_processTypeProp.m_value = DefaultProcessType;
+
+	if (m_ptyTypeProp)
+		m_ptyTypeProp.m_value = DefaultPtyType;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

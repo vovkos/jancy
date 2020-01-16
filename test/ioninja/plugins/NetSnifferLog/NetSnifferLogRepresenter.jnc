@@ -1,0 +1,254 @@
+//..............................................................................
+//
+// Sniffer log representer
+//
+
+import "log_Representation.jnc"
+import "log_Writer.jnc"
+import "log_RepresentStruct.jnc"
+import "io_pcap.jncx"
+import "std_Array.jnc"
+import "Protocols.jnc"
+import "NetSnifferLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representNetSnifferLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case NetSnifferLogRecordCode.EthernetPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representEthernetDigest(representation, p, size);
+		break;
+
+	case NetSnifferLogRecordCode.InjectedEthernetPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representEthernetDigest(representation, p, size, log.StdLogIcon.Tx);
+		break;
+
+	case NetSnifferLogRecordCode.Packet:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representPacketDigest(representation, p, size);
+		break;
+
+	case NetSnifferLogRecordCode.InjectedPacket:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representPacketDigest(representation, p, size, log.StdLogIcon.Tx);
+		break;
+
+	case NetSnifferLogRecordCode.DefragmentedIp:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representDefragmentedIpDigest(representation, p, size);
+		break;
+
+	case NetSnifferLogRecordCode.PacketDetails:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representPacketDetails(representation, p, size, foldFlags);
+		break;
+
+	case NetSnifferLogRecordCode.DefragmentedIpDetails:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representDefragmentedIpDetails(representation, p, size, foldFlags);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool detailizeNetSnifferLog(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	switch (recordCode)
+	{
+	case NetSnifferLogRecordCode.Packet:
+	case NetSnifferLogRecordCode.InjectedPacket:
+		writer.write(timestamp, NetSnifferLogRecordCode.PacketDetails, p, size);
+		break;
+
+	case NetSnifferLogRecordCode.DefragmentedIp:
+		writer.write(timestamp, NetSnifferLogRecordCode.DefragmentedIpDetails, p, size);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+void representPacketDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	io.PcapLinkType linkType = *(io.PcapLinkType const*)p;
+	p += sizeof(io.PcapLinkType);
+	size -= sizeof(io.PcapLinkType);
+	representPacketDigest(representation, linkType, p, size);
+}
+
+void representPacketDigest(
+	log.Representation* representation,
+	io.PcapLinkType linkType,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	switch (linkType)
+	{
+	case io.PcapLinkType.Loopback:
+		representLoopbackDigest(representation, p, size, payloadPreviewIconIdx);
+		break;
+
+	case io.PcapLinkType.Ethernet:
+		representEthernetDigest(representation, p, size, payloadPreviewIconIdx);
+		break;
+
+	default:
+		representUnsupportedLinkType(representation, linkType);
+	}
+}
+
+void representPacketDetails(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	io.PcapLinkType linkType = *(io.PcapLinkType const*)p;
+	p += sizeof(io.PcapLinkType);
+	size -= sizeof(io.PcapLinkType);
+
+	std.Array protoRangeArray;
+
+	switch (linkType)
+	{
+	case io.PcapLinkType.Loopback:
+		representLoopbackDetails(representation, protoRangeArray, p, size, 0, foldFlags);
+		break;
+
+	case io.PcapLinkType.Ethernet:
+		representEthernetDetails(representation, protoRangeArray, p, size, 0, foldFlags);
+		break;
+
+	default:
+		representUnsupportedLinkType(representation, linkType);
+	}
+
+	representation.addBreak();
+	representRawPacketData(representation, protoRangeArray, p, size);
+}
+
+void representUnsupportedLinkType(
+	log.Representation* representation,
+	io.PcapLinkType linkType
+	)
+{
+	representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+	representation.addHyperText($"Unsupported link type: \e[34m%1"(typeof(io.PcapLinkType).getValueString(&linkType)));
+}
+
+void representRawPacketData(
+	log.Representation* representation,
+	std.Array const* protoRangeArray,
+	void const* p,
+	size_t size
+	)
+{
+	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+	representation.addBin(NetSnifferLogPartCode.RawPacket, p, size);
+
+	ui.TextAttr attr;
+	attr.m_backColor = ui.ColorFlags.Transparent;
+
+	size_t protoCount = protoRangeArray.m_count;
+	for (size_t i = 0; i < protoCount; i++)
+	{
+		ProtoRange range = protoRangeArray[i];
+		attr.m_backColor = range.m_color;
+		representation.retroColorize(range.m_offset - size, range.m_size, attr);
+	}
+}
+
+void representPayload(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	char const* name,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags,
+	uint_t payloadFoldFlag,
+	uint_t color
+	)
+{
+	representation.m_lineAttr.m_backColor = color;
+
+	ProtoRange range = { baseOffset, size, color };
+	protoRangeArray.append(range);
+
+	if (foldFlags & payloadFoldFlag)
+	{
+		representation.addHyperText(
+			$"[\e^-%1\e[34m-\e[m] \e[1m%2\e[m Payload"(
+			payloadFoldFlag,
+			name
+			));
+
+		representation.m_lineAttr.m_backColor = color;
+		representation.addBin(p, size);
+	}
+	else
+	{
+		representation.addHyperText(
+			$"[\e^+%1\e[34m+\e[m] \e[1m%2\e[m Payload (%3 bytes)"(
+			payloadFoldFlag,
+			name,
+			size
+			));
+	}
+}
+
+void representPayloadPreview(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	representation.m_lineAttr.m_iconIdx = payloadPreviewIconIdx;
+	representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
+	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+	representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+	representation.addBinPreview(p, size);
+}
+
+//..............................................................................

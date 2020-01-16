@@ -9,21 +9,21 @@ import "log_RecordCode.jnc"
 
 enum PcapLogRecordCode: uint64_t
 {
-	StartingCapture = 0x01d485681832d000,
-	CaptureStarted  = 0x01d485681832d001,
-	CaptureError    = 0x01d485681832d002,
-	CaptureStopped  = 0x01d485681832d003,
-	ChangingFilter  = 0x01d485681832d004,
-	FilterChanged   = 0x01d485681832d005,
-	FilterError     = 0x01d485681832d006,
+	StartingCapture       = 0x01d485681832d000,
+	CaptureStarted        = 0x01d485681832d001,
+	CaptureError          = 0x01d485681832d002,
+	CaptureStopped        = 0x01d485681832d003,
+	ChangingCaptureFilter = 0x01d485681832d004,
+	CaptureFilterChanged  = 0x01d485681832d005,
+	CaptureFilterError    = 0x01d485681832d006,
 }
 
 enum PcapLogPartCode: uint64_t
 {
-	StartingCapture  = 0x01d485681832d000 | log.PartCodeFlags.MergeableForward,
-	CaptureCompleted = 0x01d485681832d000 | log.PartCodeFlags.MergeableBackward,
-	ChangingFilter   = 0x01d485681832d004 | log.PartCodeFlags.MergeableForward,
-	FilterCompleted  = 0x01d485681832d004 | log.PartCodeFlags.MergeableBackward,
+	StartingCapture        = 0x01d485681832d000 | log.PartCodeFlags.MergeableForward,
+	CaptureCompleted       = 0x01d485681832d000 | log.PartCodeFlags.MergeableBackward,
+	ChangingCaptureFilter  = 0x01d485681832d004 | log.PartCodeFlags.MergeableForward,
+	CaptureFilterCompleted = 0x01d485681832d004 | log.PartCodeFlags.MergeableBackward,
 }
 
 //..............................................................................

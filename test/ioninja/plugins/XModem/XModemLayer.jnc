@@ -1,7 +1,12 @@
+//..............................................................................
+//
+// X-Modem layer
+//
+
+import "doc_Layer.jnc"
 import "io_base.jncx"
 import "io_MappedFile.jnc"
-import "doc_Layer.jnc"
-import "gui_Dialog.jnc"
+import "ui_Dialog.jnc"
 
 //..............................................................................
 
@@ -26,15 +31,15 @@ protected:
 
 	State bindable m_state;
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.FileDlg m_fileDlg;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.FileDlg m_fileDlg;
 
 	XModemTransmitter m_transmitter;
 	XModemReceiver m_receiver;
 
 public:
 	io.MappedFile m_file;
-	gui.ProgressDlg m_progressDlg;
+	ui.ProgressDlg m_progressDlg;
 
 public:
 	construct(doc.PluginHost* pluginHost);
@@ -53,8 +58,8 @@ protected:
 		size_t size
 		);
 
-	onFileDlgCompleted(gui.StdDlgButton button);
-	onProgressDlgButtonClicked(gui.StdDlgButton button);
+	onFileDlgCompleted(ui.StdDlgButton button);
+	onProgressDlgButtonClicked(ui.StdDlgButton button);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -89,7 +94,7 @@ XModemLayer.transmitFile()
 {
 	cancelFileTranfer();
 
-	m_fileDlg.m_kind = gui.FileDlgKind.Open;
+	m_fileDlg.m_kind = ui.FileDlgKind.Open;
 	m_fileDlg.m_title = "Transmit File with XModem...";
 	m_fileDlg.m_filter = "All files (*.*)";
 	m_fileDlg.show();
@@ -101,7 +106,7 @@ XModemLayer.receiveFile()
 {
 	cancelFileTranfer();
 
-	m_fileDlg.m_kind = gui.FileDlgKind.Save;
+	m_fileDlg.m_kind = ui.FileDlgKind.Save;
 	m_fileDlg.m_title = "Receive File with XModem...";
 	m_fileDlg.m_filter = "All files (*.*)";
 	m_fileDlg.show();
@@ -130,9 +135,9 @@ XModemLayer.cancelFileTranfer()
 	m_progressDlg.hide();
 }
 
-XModemLayer.onFileDlgCompleted(gui.StdDlgButton button)
+XModemLayer.onFileDlgCompleted(ui.StdDlgButton button)
 {
-	if (button != gui.StdDlgButton.Ok)
+	if (button != ui.StdDlgButton.Ok)
 	{
 		m_state = State.Idle;
 		return;
@@ -141,7 +146,7 @@ XModemLayer.onFileDlgCompleted(gui.StdDlgButton button)
 	m_progressDlg.m_title = m_fileDlg.m_filePath;
 	m_progressDlg.m_status = "Initializing...";
 	m_progressDlg.m_progress = 0;
-	m_progressDlg.m_buttons = gui.StdDlgButtons.Abort;
+	m_progressDlg.m_buttons = ui.StdDlgButtons.Abort;
 	m_progressDlg.show();
 
 	switch (m_state)
@@ -164,20 +169,20 @@ XModemLayer.onFileDlgCompleted(gui.StdDlgButton button)
 
 catch:
 	m_progressDlg.m_status = std.getLastError().m_description;
-	m_progressDlg.m_buttons = gui.StdDlgButtons.Close;
+	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
-XModemLayer.onProgressDlgButtonClicked(gui.StdDlgButton button)
+XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button)
 {
 	switch (button)
 	{
-	case gui.StdDlgButton.Cancel:
-	case gui.StdDlgButton.Abort:
+	case ui.StdDlgButton.Cancel:
+	case ui.StdDlgButton.Abort:
 		cancelFileTranfer();
 		break;
 
-	case gui.StdDlgButton.Ok:
-	case gui.StdDlgButton.Close:
+	case ui.StdDlgButton.Ok:
+	case ui.StdDlgButton.Close:
 		m_progressDlg.hide();
 		break;
 	}

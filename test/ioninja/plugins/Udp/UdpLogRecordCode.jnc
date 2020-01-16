@@ -3,14 +3,16 @@
 // UDP log packet declarations and representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 
 //..............................................................................
 
 enum UdpLogRecordCode: uint64_t
 {
-	TxPacket = 0x01d48410b3c4e600,
-	RxPacket = 0x01d48410b3c4e601,
+	TxPacket   = 0x01d48410b3c4e600,
+	RxPacket   = 0x01d48410b3c4e601,
+	TxPacketEx = 0x01d48410b3c4e602,
+	RxPacketEx = 0x01d48410b3c4e603,
 }
 
 //..............................................................................

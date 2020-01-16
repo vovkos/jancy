@@ -1,0 +1,55 @@
+//..............................................................................
+//
+// IO Ninja log record file
+//
+
+namespace log {
+
+//! \addtogroup api-log
+//! @{
+
+//..............................................................................
+
+enum
+{
+	RecordFileSignature = ':gol',
+	RecordSignature     = ':cr\n',
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct RecordFileHdr
+{
+	uint32_t m_signature; // RecordFileSignature
+	uint32_t m_version;
+	uint64_t m_recordCount;
+	uint64_t m_totalRecordSize;
+	uint32_t _m_reserved;
+	uint32_t m_recordOffset  : 24;
+	uint32_t m_auxClassCount : 8;
+	std.Guid m_classGuid;
+
+	// followed by std.Guid [m_classCount]
+	// followed by aux headers (may be added in further versions)
+	// followed by log records at m_recordOffset
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// record code is 64-bit now -- no need to worry about collisions anymore
+
+struct Record
+{
+	uint32_t m_signature; // RecordSignature
+	uint32_t m_dataSize;
+	uint64_t m_code;
+	uint64_t m_timestamp;
+
+	// followed by record data (if any)
+};
+
+//..............................................................................
+
+//! @}
+
+} // namespace log

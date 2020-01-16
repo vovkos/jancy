@@ -1,0 +1,76 @@
+//..............................................................................
+//
+// Monitor log filter
+//
+
+import "log_Representation.jnc"
+
+namespace log {
+
+//..............................................................................
+
+void representDeviceOpened(
+	log.Representation* representation,
+	char const* messageText,
+	void const* p,
+	size_t size
+	)
+{
+	uint64_t fileId = *(uint64_t const*)p;
+	uint32_t pid = *(uint32_t const*)(p + sizeof(fileId));
+	char const* fileName = (char const*)(p + sizeof(fileId) + sizeof(pid));
+	char const* processName = (char const*)fileName + strlen(fileName) + 1;
+	bool isUnnamed = *fileName == '\0';
+
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+	representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+
+	representation.addHyperText(
+		$"%1\n"
+		$"\e[90mFile name:\t%2%3\n"
+		$"\e[90mFile ID:\t\e[34m0x%llX\n"
+		$"\e[90mProcess:\t\e[34m%5\n"
+		$"\e[90mPID:\t\e[34m%6"(
+		messageText,
+		isUnnamed ? "\e[31m" : "\e[34m",
+		isUnnamed ? "(unnamed)" : fileName,
+		fileId,
+		processName,
+		pid
+		));
+}
+
+void representDeviceOpenError(
+	log.Representation* representation,
+	char const* messageText,
+	void const* p,
+	size_t size
+	)
+{
+	uint32_t pid = *(uint32_t const*)p;
+	std.Error const* error = (std.Error const*)(p + sizeof(pid));
+	char const* fileName = (char const*)(error + 1);
+	char const* processName = fileName + strlen(fileName) + 1;
+	bool isUnnamed = *fileName == '\0';
+
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+	representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+
+	representation.addHyperText(
+		$"%1\n"
+		$"\e[90mFile name:\t%2%3\n"
+		$"\e[90mProcess:\t\e[34m%4\n"
+		$"\e[90mPID:\t\e[34m%5\n"
+		$"\e[90mError:\t\e[m%6"(
+		messageText,
+		isUnnamed ? "\e[90m" : "\e[34m",
+		isUnnamed ? "(unnamed)" : fileName,
+		processName,
+		pid,
+		error.m_description
+		));
+}
+
+//..............................................................................
+
+} // namespace log

@@ -159,8 +159,6 @@ struct EzTapErrorParams
 
 //..............................................................................
 
-alignment(default)
-
 std.HashTable g_ezTapResponseSizeMap;
 
 construct()

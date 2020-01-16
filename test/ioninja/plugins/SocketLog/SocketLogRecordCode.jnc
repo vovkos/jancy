@@ -24,6 +24,7 @@ enum SocketLogRecordCode: uint64_t
 	Disconnected_old   = 0x01d483f3e69da20b,
 	ResolveCancelled   = ConnectCancelled,   // alias
 	ResolveError       = ConnectError,       // alias
+	ReconnectDelay     = 0x01d483f3e69da212,
 
 	Listening          = 0x01d483f3e69da20c,
 	ListenError        = 0x01d483f3e69da20d,

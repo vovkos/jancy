@@ -1,0 +1,116 @@
+//..............................................................................
+//
+// LLC (link-layer control) defitions
+//
+
+namespace io {
+
+//! \addtogroup proto-llc
+//! @{
+
+//..............................................................................
+
+enum Lsap: uint8_t
+{
+	Null                       = 0x00,
+	LlcSublayerMgt             = 0x02,
+	SnaPathControl             = 0x04,
+	DodIp                      = 0x06,
+	ProWayLan                  = 0x0e,
+	TexasInstruments           = 0x18,
+	BridgeSpanningTreeProtocol = 0x42,
+	EiaRs511                   = 0x4e,
+	IsiIp                      = 0x5e,
+	Iso8208                    = 0x7e,
+	XeroxNetworkSystems        = 0x80,
+	Bacnet                     = 0x82,
+	Nestar                     = 0x86,
+	ProWayLanIec955            = 0x8e,
+	Arpanet                    = 0x98,
+	Rde                        = 0xa6,
+	Snap                       = 0xaa,
+	BanyanVines                = 0xbc,
+	NovellNetWare              = 0xe0,
+	IbmNetBios                 = 0xf0,
+	IbmLanMgt                  = 0xf4,
+	IbmRemoteProgramLoad       = 0xf8,
+	UngermannBass              = 0xfa,
+	Iso8473                    = 0xfe,
+
+	GroupLlcSublayerMgt        = 0x03,
+	GroupSnaPathControl        = 0x05,
+	GroupIbmLanMgt             = 0xf5,
+	Broadcast                  = 0xff,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "LLC",
+	formatDigestFunc = formatLlcDigest
+]
+struct LlcHdr
+{
+	[
+		displayName = "Destination",
+		formatSpec = "0x%02X"
+	]
+	Lsap m_dsap;
+
+	[
+		displayName = "Source",
+		formatSpec = "0x%02X"
+	]
+	Lsap m_ssap;
+
+	[
+		displayName = "Control",
+		formatSpec = "0x%02X"
+	]
+	uint8_t m_control;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "LLC",
+	formatDigestFunc = formatLlcDigest
+]
+struct LlcHdr16
+{
+	[
+		displayName = "Destination",
+		formatSpec = "0x%02X"
+	]
+	Lsap m_dsap;
+
+	[
+		displayName = "Source",
+		formatSpec = "0x%02X"
+	]
+	Lsap m_ssap;
+
+	[
+		displayName = "Control",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_control;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatLlcDigest(void const* p)
+{
+	LlcHdr const* hdr = (LlcHdr const*)p;
+
+	return $"%1 \u2192 %2" (
+		typeof(Lsap).getValueString(&hdr.m_ssap),
+		typeof(Lsap).getValueString(&hdr.m_dsap)
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

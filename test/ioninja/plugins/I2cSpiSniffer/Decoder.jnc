@@ -11,13 +11,12 @@ class Decoder
 {
 	enum Defaults
 	{
-		BufferSize = 1024,
+		BufferSize = 1024, // 8 * 1024, // 8K
 	}
 
 protected:
 	log.Writer* m_logWriter;
 	std.Buffer m_buffer;
-	size_t m_size;
 
 public:
 	construct(log.Writer* logWriter)
@@ -29,6 +28,7 @@ public:
 	abstract reset();
 
 	abstract decode(
+		uint64_t timestamp,
 		void const thin* p,
 		size_t size
 		);

@@ -1,0 +1,101 @@
+//..............................................................................
+//
+// FPGA Uploader log representer
+//
+
+import "log_Representation.jnc"
+import "io_RpdFile.jnc"
+
+//..............................................................................
+
+bool representFpgaUploaderLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case FpgaUploaderLogRecordCode.StillWaiting:
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText("...still waiting...");
+		break;
+
+	case FpgaUploaderLogRecordCode.FpgaDisabled:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("FPGA disabled");
+		break;
+
+	case FpgaUploaderLogRecordCode.FirmwareUpToDate:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("FPGA firmware is up-to-date");
+		break;
+
+	case FpgaUploaderLogRecordCode.FirmwareUpdateRequired:
+		uint_t version = ((io.RpdVersion const*)p)->m_firmwareVersion;
+		char const* fileName = (char const*)((io.RpdVersion const*)p + 1);
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText(
+			$"FPGA firmware update required: file \e[34m%1\e[m version \e[34m%2.%3\e[m" (
+			fileName,
+			(version >> 8) & 0xff,
+			version & 0xff
+			));
+		break;
+
+	case FpgaUploaderLogRecordCode.ErasingFlash:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Erasing flash memory...");
+		break;
+
+	case FpgaUploaderLogRecordCode.UploadingFirmware:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Uploading FPGA firmware...");
+		break;
+
+	case FpgaUploaderLogRecordCode.EnablingFpga:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Enabling FPGA...");
+		break;
+
+	case FpgaUploaderLogRecordCode.FpgaReady:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("FPGA ready");
+		break;
+
+	case FpgaUploaderLogRecordCode.FirmwareUploadCancelled:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("Uploading FPGA firmware cancelled");
+		break;
+
+	case FpgaUploaderLogRecordCode.FirmwareUploadCompleted:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Uploading FPGA firmware completed");
+		break;
+
+	case FpgaUploaderLogRecordCode.FirmwareBootFailed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText("FPGA has been uploaded, but couldn't boot");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

@@ -1,0 +1,25 @@
+//..............................................................................
+//
+// FPGA Uploader log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum FpgaUploaderLogRecordCode: uint64_t
+{
+	StillWaiting            = 0x01d487bb6423b807,
+	FpgaDisabled            = 0x01d487bb6423b808,
+	FirmwareUpToDate        = 0x01d487bb6423b809,
+	FirmwareUpdateRequired  = 0x01d487bb6423b80a,
+	ErasingFlash            = 0x01d487bb6423b80b,
+	UploadingFirmware       = 0x01d487bb6423b80c,
+	EnablingFpga            = 0x01d487bb6423b80d,
+	FpgaReady               = 0x01d487bb6423b80e,
+	FirmwareUploadCancelled = 0x01d487bb6423b818,
+	FirmwareUploadCompleted = 0x01d487bb6423b819,
+	FirmwareBootFailed      = 0x01d487bb6423b81a,
+}
+
+//..............................................................................

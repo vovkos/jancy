@@ -9,6 +9,8 @@ name        = Pipe Listener Log
 description = "Pipe Listener log representer"
 group       = fs
 guid        = d74419a1-789c-4d9a-8d92-bd44ee19c971
+icon        = images/pipe.png
+small-icon  = images/pipe-16x16.png
 
 log-representer-func = representPipeListenerLog
 

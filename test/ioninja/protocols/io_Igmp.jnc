@@ -1,0 +1,61 @@
+//..............................................................................
+//
+// IGMP (Internet group management protocol) defitions
+//
+
+namespace io {
+
+//! \addtogroup proto-igmp
+//! @{
+
+//..............................................................................
+
+enum IgmpType: uint8_t
+{
+	MembershipQuery     = 0x11,
+	MembershipReport_v1 = 0x12,
+	MembershipReport_v2 = 0x16,
+	MembershipReport_v3 = 0x22,
+	LeaveGroup          = 0x17,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "IGMP",
+	formatDigestFunc = formatIgmpDigest
+]
+struct IgmpHdr
+{
+	[ displayName = "Type" ]
+	IgmpType m_type;
+
+	[ displayName = "Max resp time" ]
+	uint8_t m_maxRespTime;
+
+	[
+		displayName = "Checksum",
+		formatSpec = "0x%04X"
+	]
+	bigendian uint16_t m_checksum;
+
+	[
+		displayName = "Group address",
+		formatFunc = formatIpAddress
+	]
+	bigendian uint32_t m_groupAddress;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* formatIgmpDigest(void const* p)
+{
+	IgmpHdr const* hdr = (IgmpHdr const*)p;
+	return typeof(IgmpType).getValueString(&hdr.m_type);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

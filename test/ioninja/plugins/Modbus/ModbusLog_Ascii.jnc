@@ -3,7 +3,7 @@
 // Modbus RTU log record declarations and representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_Modbus.jnc"
 import "hexEncoding.jnc"
 
@@ -24,7 +24,7 @@ uint8_t lrc(
 }
 
 representModbusAsciiAdu(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	io.ModbusRole role,
 	void const* p,
 	size_t size,
@@ -40,8 +40,8 @@ representModbusAsciiAdu(
 	io.ModbusRtuAduHdr const* aduHdr = (io.ModbusRtuAduHdr const*) aduBuffer.m_p;
 	io.ModbusPduHdr const* pduHdr = (io.ModbusPduHdr const*) (aduHdr + 1);
 
-	target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
-	target.m_lineAttr.m_iconIdx = role == io.ModbusRole.Master ?
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+	representation.m_lineAttr.m_iconIdx = role == io.ModbusRole.Master ?
 		log.StdLogIcon.TxPacket :
 		log.StdLogIcon.RxPacket;
 
@@ -51,7 +51,7 @@ representModbusAsciiAdu(
 
 	if (!(foldFlags & 1))
 	{
-		target.addHyperText(
+		representation.addHyperText(
 			$"[\e^+1\e[34m+\e[m] \e[1mMODBUS-ASCII\e[m Dev: \e[34m%1\e[m %2" (
 			aduHdr.m_deviceAddress,
 			actualChecksum == expectedChecksum ?
@@ -61,7 +61,7 @@ representModbusAsciiAdu(
 	}
 	else
 	{
-		target.addHyperText(
+		representation.addHyperText(
 			"[\e^-1\e[34m-\e[m]\n"
 			"\e[1mADU-ASCII\e[m\n"
 			$"    Device:    \e^!%1,%2\e[34m%3\e[m" (
@@ -72,7 +72,7 @@ representModbusAsciiAdu(
 
 		if (actualChecksum == expectedChecksum)
 		{
-			target.addHyperText(
+			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[32mOK\e[m]" (
 				size - 4, // xx\r\n
 				2,
@@ -81,7 +81,7 @@ representModbusAsciiAdu(
 		}
 		else
 		{
-			target.addHyperText(
+			representation.addHyperText(
 				$"    Checksum:  \e^!%1,%2\e[34m0x%(3; 04x)\e[m [\e[31mERROR\e[m] \e[90m(expected: 0x%(4; 04X))\e[m" (
 				checksumOffset,
 				2,
@@ -91,7 +91,7 @@ representModbusAsciiAdu(
 		}
 
 		representModbusPdu(
-			target,
+			representation,
 			role,
 			pduHdr,
 			1 + sizeof(io.ModbusRtuAduHdr) * 2,
@@ -99,21 +99,21 @@ representModbusAsciiAdu(
 			foldFlags
 			);
 
-		target.m_lineAttr.m_backColor = gui.ColorFlags.Transparent;
-		target.m_lineAttr.m_textColor = gui.StdColor.Gray;
-		target.addBin(p, size);
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+		representation.addBin(p, size);
 
-		gui.TextAttr attr;
-		attr.m_backColor = gui.ColorFlags.Transparent;
-		attr.m_textColor = gui.StdColor.Purple;
+		ui.TextAttr attr;
+		attr.m_backColor = ui.ColorFlags.Transparent;
+		attr.m_textColor = ui.StdColor.Purple;
 
-		target.retroColorize(-size, 1, attr); // :
-		target.retroColorize(-2, 2, attr);    // \r\n
+		representation.retroColorize(-size, 1, attr); // :
+		representation.retroColorize(-2, 2, attr);    // \r\n
 
-		attr.m_textColor = gui.StdColor.Cyan;
+		attr.m_textColor = ui.StdColor.Cyan;
 
-		target.retroColorize(-size + 1, sizeof(io.ModbusAsciiAduHdr), attr);
-		target.retroColorize(-4, 2, attr); // LRC8 (hex)
+		representation.retroColorize(-size + 1, sizeof(io.ModbusAsciiAduHdr), attr);
+		representation.retroColorize(-4, 2, attr); // LRC8 (hex)
 	}
 }
 

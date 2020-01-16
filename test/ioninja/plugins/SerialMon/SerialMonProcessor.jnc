@@ -4,6 +4,8 @@
 //
 
 import "io_devmon.jncx"
+import "io_base.jncx"
+import "io_Serial.jnc"
 
 //..............................................................................
 

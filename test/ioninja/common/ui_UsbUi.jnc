@@ -1,0 +1,123 @@
+//..............................................................................
+//
+// USB device lists
+//
+
+import "io_usb.jncx"
+import "ui_ComboBox.jnc"
+import "ui_PropertyGrid.jnc"
+import "io_UsbDb.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+populateUsbDeviceListUi(
+	ComboBox* deviceCombo,
+	EnumProperty* deviceProp,
+	io.UsbDevice* const* deviceArray,
+	size_t deviceCount
+	)
+{
+	io.UsbDb* usbDb = io.getStdUsbDb();
+	EnumPropertyOption* optionTable = new EnumPropertyOption[deviceCount];
+	deviceCombo.clear();
+
+	for (size_t i = 0; i < deviceCount; i++)
+	{
+		io.UsbDevice* device = deviceArray[i];
+		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+		io.UsbVendor const* vendor = usbDb.findVendor(deviceDesc.m_vendorId);
+		io.UsbProduct const* product = vendor ? vendor.findProduct(deviceDesc.m_productId) : null;
+
+		char const* text = $"@%(1;03d):%(2;03d) %3 %4" (
+			device.m_bus,
+			device.m_address,
+			vendor ? vendor.m_name : $"VID_$(deviceDesc.m_vendorId; 04x)",
+			product ? product.m_name : $"PID_$(deviceDesc.m_productId; 04x)"
+			);
+
+		deviceCombo.addItem(text, device);
+
+		optionTable[i].m_text = text;
+		optionTable[i].m_value = device;
+	}
+
+	deviceProp.setOptions(optionTable, deviceCount);
+}
+
+refreshUsbDeviceListUi(
+	ComboBox* deviceCombo,
+	EnumProperty* deviceProp
+	)
+{
+	size_t deviceCount;
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray(&deviceCount);
+	io.UsbDevice* prevDevice = deviceCombo.m_currentData;
+
+	populateUsbDeviceListUi(
+		deviceCombo,
+		deviceProp,
+		deviceArray,
+		deviceCount
+		);
+
+	if (!prevDevice)
+		return;
+
+	size_t i = findUsbDeviceComboIndex(
+		deviceCombo,
+		prevDevice.m_deviceDesc.m_vendorId,
+		prevDevice.m_deviceDesc.m_productId,
+		prevDevice.m_bus,
+		prevDevice.m_address
+		);
+
+	if (i != -1)
+	{
+		deviceCombo.m_currentIndex = i;
+		deviceProp.m_currentIndex = i;
+	}
+	else
+	{
+		deviceCombo.m_currentIndex = 0;
+		deviceProp.m_currentIndex = 0;
+	}
+}
+
+size_t findUsbDeviceComboIndex(
+	ComboBox* deviceCombo,
+	uint_t vid,
+	uint_t pid,
+	uint_t bus = -1,
+	uint_t address = -1
+	)
+{
+	size_t bestIndex = -1;
+
+	size_t itemCount = deviceCombo.m_itemCount;
+	for (size_t i = 0; i < itemCount; i++)
+	{
+		io.UsbDevice* device = deviceCombo.m_itemData[i];
+		if (device.m_deviceDesc.m_vendorId == vid &&
+			device.m_deviceDesc.m_productId == pid)
+		{
+			if ((bus == -1 || device.m_bus == bus) &&
+				(address == -1 || device.m_address == address))
+				return i; // exact match
+
+			bestIndex = i; // VID/PID match, but different address
+		}
+	}
+
+	return bestIndex;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

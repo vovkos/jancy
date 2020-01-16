@@ -9,6 +9,9 @@ import "io_File.jnc"
 
 namespace io {
 
+//! \addtogroup common-serial
+//! @{
+
 //..............................................................................
 
 char const* detectSerialBuggyDriver(char const* portName)
@@ -46,4 +49,6 @@ void setConservativeSerialSettings(io.Serial* serial)
 
 //..............................................................................
 
-} // namespace io {
+//! @}
+
+} // namespace io

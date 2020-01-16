@@ -15,12 +15,11 @@ protected:
 
 protected:
 	State m_state;
-	uint64_t m_lastTimestamp;
 
 public:
-	construct()
+	construct(ModbusInfoSet* infoSet)
 	{
-		m_protocol = io.ModbusProtocol.Ascii;
+		basetype.construct(io.ModbusProtocol.Ascii, infoSet);
 	}
 
 	override parse(
@@ -91,6 +90,7 @@ ModbusAsciiParser.parse(
 			{
 				std.setError("Missing '\\n' in Modbus ASCII frame");
 				writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+				m_infoSet.addError();
 				reset();
 				break;
 			}
@@ -99,11 +99,10 @@ ModbusAsciiParser.parse(
 
 			m_dataBuffer.append(adu, p - adu + 1);
 			writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+			m_infoSet.addAdu(m_modbusRole);
 			p++;
 
-			m_state = State.Idle;
-
-			if (m_mode == ModbusParserMode.HalfDuplex)
+			if (m_mode == ModbusParserMode.Alternate)
 			{
 				m_modbusRole = (io.ModbusRole) !m_modbusRole;
 				recordCode = getPacketRecordCode();
@@ -120,6 +119,7 @@ ModbusAsciiParser.parse(
 		{
 			std.setError("Modbus ASCII frame is too big and still incomplete");
 			writer.writeLastError(timestamp, ModbusLogRecordCode.ParseError);
+			m_infoSet.addError();
 			reset();
 		}
 	}
@@ -130,7 +130,7 @@ ModbusAsciiParser.reset()
 	m_dataBuffer.clear();
 	m_state = State.Idle;
 
-	if (m_mode == ModbusParserMode.HalfDuplex)
+	if (m_mode == ModbusParserMode.Alternate)
 		m_modbusRole = io.ModbusRole.Master;
 }
 

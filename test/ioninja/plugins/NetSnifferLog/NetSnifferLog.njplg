@@ -1,0 +1,58 @@
+#...............................................................................
+#
+#  Network Sniffer log plugin
+#
+
+[plugin]
+
+name        = "Network Sniffer Log"
+description = "Network Sniffer log representer"
+group       = net
+guid        = b0a872b3-de4b-4f15-88bd-8de55eba7a78
+icon        = images/sniffer.png
+small-icon  = images/sniffer-16x16.png
+
+log-representer-func = representNetSnifferLog
+log-detailizer-func = detailizeNetSnifferLog
+
+[scripts]
+
+NetSnifferLogRecordCode.jnc
+NetSnifferLogRepresenter.jnc
+Protocols.jnc
+Proto_Simple.jnc
+Proto_Ethernet.jnc
+Proto_Loopback.jnc
+Proto_Arp.jnc
+Proto_Ip.jnc
+Proto_Ip6.jnc
+Proto_Tcp.jnc
+Proto_Udp.jnc
+Proto_Dns.jnc
+Proto_Dhcp.jnc
+
+log_RepresentStruct.jnc
+
+io_Loopback.jnc
+io_Ethernet.jnc
+io_Llc.jnc
+io_Arp.jnc
+io_Ip.jnc
+io_Ip6.jnc
+io_Icmp.jnc
+io_Icmp6.jnc
+io_Igmp.jnc
+io_Tcp.jnc
+io_Udp.jnc
+io_Dns.jnc
+io_Dhcp.jnc
+
+[records]
+
+81d4856b81a408c7  # EthernetPacket
+81d4856b81a408c8  # InjectedEthernetPacket
+81d4856b81a408c9  # DefragmentedIp
+81d4856b81a408ca  # Packet
+81d4856b81a408cb  # InjectedPacket
+81d4856b81a408cc  # PacketDetails
+81d4856b81a408cd  # DefragmentedIpDetails

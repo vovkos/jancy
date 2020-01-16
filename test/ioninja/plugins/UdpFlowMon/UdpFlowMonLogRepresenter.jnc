@@ -3,7 +3,7 @@
 // UDP Flow Monitor log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "UdpFlowMonLogRecordCode.jnc"
@@ -11,7 +11,7 @@ import "UdpFlowMonLogRecordCode.jnc"
 //..............................................................................
 
 bool representUdpFlowMonLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -24,10 +24,10 @@ bool representUdpFlowMonLog(
 	case UdpFlowMonLogRecordCode.RxPacket:
 		UdpFlowMonPacketParams const* params = (UdpFlowMonPacketParams const*) p;
 
-		target.m_lineAttr.m_iconIdx = recordCode == UdpFlowMonLogRecordCode.TxPacket ?
+		representation.m_lineAttr.m_iconIdx = recordCode == UdpFlowMonLogRecordCode.TxPacket ?
 			log.StdLogIcon.TxPacket :
 			log.StdLogIcon.RxPacket;
-		target.m_lineAttr.m_backColor = gui.StdColor.PastelGray;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
 
 		char const* text = $"From \e[34m%1\e[m to \e[34m%2\e[m (%3 B)" (
 			params.m_srcAddress.getString(),
@@ -38,7 +38,7 @@ bool representUdpFlowMonLog(
 		if (params.m_isFragmented)
 			text = $"$text \e[31mfragmented";
 
-		target.addHyperText(text);
+		representation.addHyperText(text);
 		break;
 
 	default:

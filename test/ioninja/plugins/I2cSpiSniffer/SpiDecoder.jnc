@@ -10,6 +10,12 @@ import "Decoder.jnc"
 class SpiDecoder: Decoder
 {
 protected:
+	enum Defaults
+	{
+		BigEndian = true,
+		DataBits  = 8,
+	}
+
 	enum Code
 	{
 		Padding         = 0xff,
@@ -25,33 +31,34 @@ protected:
 	enum State
 	{
 		Idle,
-		Transaction,
 		MosiDataHi,
-		MosiDataLo,
 		MisoDataHi,
+		MosiDataLo,
 	}
 
 protected:
 	State m_state;
-	uint8_t m_mosi;
-	uint8_t m_miso;
-	std.Buffer m_misoBuffer;
-	uint_t* m_bitCount; // as to avoid "lifting" allocations
+	uint_t m_bitOffset;
+	uint16_t m_mosi;
+	uint16_t m_miso;
+
+	uchar_t* m_miso0;
+	uchar_t thin* m_misoEnd;
+	uint_t* m_incompleteBitCount; // as to avoid "lifting" allocations
 
 public:
-	bool m_isBigEndian;
 	uint_t m_dataBits;
+	bool m_isBigEndian;
+	bool m_isFlipMosiMiso;
 
 public:
 	construct(log.Writer* logWriter);
 
-	override reset()
-	{
-		m_state = State.Idle;
-	}
+	override reset();
 
 	override decode(
-		void const thin* p,
+		uint64_t timestamp,
+		void const thin* p0,
 		size_t size
 		);
 }
@@ -61,22 +68,31 @@ public:
 SpiDecoder.construct(log.Writer* logWriter)
 {
 	basetype.construct(logWriter);
-	m_misoBuffer.setSize(m_buffer.m_size / 2);
-	m_bitCount = new uint_t;
+	m_incompleteBitCount = new uint_t;
+	m_miso0 = m_buffer.m_p + m_buffer.m_size / 2;
+	m_misoEnd = m_miso0 + m_buffer.m_size / 2;
+	m_dataBits = Defaults.DataBits;
+	m_isBigEndian = Defaults.BigEndian;
+}
+
+override SpiDecoder.reset()
+{
+	m_state = State.Idle;
+	m_bitOffset = 0;
+	m_mosi = 0;
+	m_miso = 0;
 }
 
 SpiDecoder.decode(
+	uint64_t timestamp,
 	void const thin* p0,
 	size_t size
 	)
 {
-	uint64_t timestamp = sys.getTimestamp();
 	uchar_t const thin* p = p0;
 	uchar_t const thin* end = p + size;
-
-	uchar_t thin* mosi = m_buffer.m_p + m_size;
-	uchar_t thin* miso = m_misoBuffer.m_p + m_size;
-	uchar_t thin* lastMiso = m_misoBuffer.m_p + m_misoBuffer.m_size - 1;
+	uchar_t thin* mosi = m_buffer.m_p;
+	uchar_t thin* miso = m_miso0;
 
 	for (; p < end; p++)
 	{
@@ -88,7 +104,7 @@ SpiDecoder.decode(
 			continue;
 
 		case Code.BufferOverflow:
-			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.BufferOverflow);
+			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.FpgaBufferOverflow);
 			continue;
 		}
 
@@ -96,119 +112,159 @@ SpiDecoder.decode(
 		switch (code)
 		{
 		case Code.Start:
-			size_t size = mosi - (uchar_t*)m_buffer.m_p;
+		case Code.Stop:
+			size = mosi - (uchar_t*)m_buffer.m_p;
 			if (size)
 			{
-				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
+				memmove(m_buffer.m_p + size, m_miso0, size);
 				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
 				mosi = m_buffer.m_p;
-				miso = m_misoBuffer.m_p;
+				miso = m_miso0;
 			}
 
-			uint_t bitCount = c & 0x0f;
-			if (bitCount)
+			uint_t incompleteBitCount = m_bitOffset + (c & 0x03);
+			if (incompleteBitCount)
 			{
-				*m_bitCount = bitCount;
-				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
+				*m_incompleteBitCount = incompleteBitCount;
+				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_incompleteBitCount, sizeof(uint_t));
 			}
 
-			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.SpiStart, null, 0);
-			m_state = State.Transaction;
+			m_logWriter.write(
+				timestamp,
+				code == Code.Start ?
+					I2cSpiSnifferLogRecordCode.SpiStart :
+					I2cSpiSnifferLogRecordCode.SpiStop,
+				null,
+				0
+				);
+
+			m_state = State.Idle;
+			m_bitOffset = 0;
+			m_mosi = 0;
+			m_miso = 0;
 			break;
 
 		case Code.MosiDataHi:
 			if (m_state >= State.MosiDataHi)
 				writeLogUnexpectedCode(timestamp, code, m_state);
 
-			if (m_isBigEndian)
-				m_mosi = c << 4;
-			else
-				m_mosi = c & 0x0f;
-
+			m_mosi |= (c & 0x0f) << m_bitOffset;
 			m_state = State.MosiDataHi;
-			break;
-
-		case Code.MosiDataLo:
-			if (m_state != State.MisoDataHi)
-				writeLogUnexpectedCode(timestamp, code, m_state);
-
-			if (m_isBigEndian)
-				m_mosi |= c & 0x0f;
-			else
-				m_mosi |= c << 4;
-
-			*mosi = m_mosi;
-			m_state = State.MosiDataLo;
 			break;
 
 		case Code.MisoDataHi:
 			if (m_state != State.MosiDataHi)
 				writeLogUnexpectedCode(timestamp, code, m_state);
 
-			if (m_isBigEndian)
-				m_miso = c << 4;
-			else
-				m_miso = c & 0x0f;
-
+			m_miso |= (c & 0x0f) << m_bitOffset;
+			m_bitOffset += 4;
 			m_state = State.MisoDataHi;
+			break;
+
+		case Code.MosiDataLo:
+			if (m_state != State.MisoDataHi)
+				writeLogUnexpectedCode(timestamp, code, m_state);
+
+			m_mosi |= (c & 0x0f) << m_bitOffset;
+			m_state = State.MosiDataLo;
 			break;
 
 		case Code.MisoDataLo:
 			if (m_state != State.MosiDataLo)
 				writeLogUnexpectedCode(timestamp, code, m_state);
 
-			if (m_isBigEndian)
-				m_miso |= c & 0x0f;
-			else
-				m_miso |= c << 4;
-
-			*miso = m_miso;
-
-			if (miso < lastMiso)
-			{
-				mosi++;
-				miso++;
-			}
-			else
-			{
-				size_t size = mosi - (uchar_t*)m_buffer.m_p;
-				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
-				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
-				mosi = m_buffer.m_p;
-				miso = m_misoBuffer.m_p;
-			}
-
-			m_state = State.Transaction;
-			break;
-
-		case Code.Stop:
-			size_t size = mosi - (uchar_t*)m_buffer.m_p;
-			if (size)
-			{
-				memcpy(m_buffer.m_p + size, m_misoBuffer.m_p, size);
-				m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
-				mosi = m_buffer.m_p;
-				miso = m_misoBuffer.m_p;
-			}
-
-			uint_t bitCount = c & 0x0f;
-			if (m_state == State.MosiDataHi || m_state == State.MisoDataHi)
-				bitCount += 4;
-
-			if (bitCount)
-			{
-				*m_bitCount = bitCount;
-				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_bitCount, sizeof(uint_t));
-			}
-
-			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.SpiStop, null, 0);
+			m_miso |= (c & 0x0f) << m_bitOffset;
+			m_bitOffset += 4;
 			m_state = State.Idle;
 			break;
 		}
+
+		if (m_bitOffset < m_dataBits)
+			continue;
+
+		if (m_isFlipMosiMiso)
+		{
+			uint16_t t = m_mosi;
+			m_mosi = m_miso;
+			m_miso = t;
+		}
+
+		switch (m_dataBits)
+		{
+		case 4:
+			*mosi++ = m_mosi;
+			*miso++ = m_miso;
+			break;
+
+		case 8:
+			if (m_isBigEndian)
+			{
+				m_mosi = swapNibble8(m_mosi);
+				m_miso = swapNibble8(m_miso);
+			}
+
+			*mosi++ = m_mosi;
+			*miso++ = m_miso;
+			break;
+
+		default: // 12, 16
+			if (m_isBigEndian)
+				if (m_dataBits == 12)
+				{
+					m_mosi = swapNibble12(m_mosi);
+					m_miso = swapNibble12(m_miso);
+				}
+				else
+				{
+					m_mosi = swapNibble16(m_mosi);
+					m_miso = swapNibble16(m_miso);
+				}
+
+			*(uint16_t bigendian thin*)mosi = m_mosi;
+			*(uint16_t bigendian thin*)miso = m_miso;
+			mosi += 2;
+			miso += 2;
+		}
+
+		m_bitOffset = 0;
+		m_mosi = 0;
+		m_miso = 0;
+
+		if (miso < m_misoEnd)
+			continue;
+
+		size = mosi - (uchar_t*)m_buffer.m_p;
+		memmove(m_buffer.m_p + size, m_miso0, size);
+		m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
+		mosi = m_buffer.m_p;
+		miso = m_miso0;
 	}
 
-	m_size = mosi - (uchar_t*)m_buffer.m_p;
+	size = mosi - (uchar_t*)m_buffer.m_p;
+	if (size)
+	{
+		memmove(m_buffer.m_p + size, m_miso0, size);
+		m_logWriter.write(timestamp, log.StdRecordCode.TxRx, m_buffer.m_p, 2 * size);
+		mosi = m_buffer.m_p;
+		miso = m_miso0;
+	}
 }
 
 //..............................................................................
 
+uint8_t swapNibble8(uint8_t x)
+{
+	return (x << 4) | (x >> 4);
+}
+
+uint16_t swapNibble12(uint16_t x)
+{
+	return ((x & 0x00f) << 8) | (x & 0x0f0) | ((x & 0xf00) >> 8);
+}
+
+uint16_t swapNibble16(uint16_t x)
+{
+	return (x << 12) | ((x & 0x00f0) << 4) | (x >> 12) | ((x & 0x0f00) >> 4);
+}
+
+//..............................................................................

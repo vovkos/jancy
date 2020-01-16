@@ -1,0 +1,158 @@
+//..............................................................................
+//
+// Pipe Monitor log filter
+//
+
+import "log_Filter.jnc"
+import "std_HashTable.jnc"
+import "wildcard.jnc"
+
+namespace log {
+
+//..............................................................................
+
+enum MonitorFilterKind
+{
+	None,
+	FileName,
+	FileId,
+	ProcessName,
+	ProcessId,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getMonitorFilterPlaceholderText(MonitorFilterKind filterKind)
+{
+	static char const* placeholderTextTable[] =
+	{
+		null,
+		"Enter a file name wildcard...",
+		"Enter a file ID...",
+		"Enter a process name wildcard...",
+		"Enter a process ID (PID)...",
+	}
+
+	return (size_t)filterKind < countof(placeholderTextTable) ?
+		placeholderTextTable[(size_t)filterKind] :
+		null;
+}
+
+//..............................................................................
+
+class MonitorFilter: log.Filter
+{
+protected:
+	MonitorFilterKind m_filterKind;
+	char const* m_wildcard;
+	uint64_t m_id;
+	uint64_t m_fileId;
+	uint64_t m_lastVisibleFileId;
+	std.HashTable m_fileIdSet;
+
+public:
+	// suspend log engine before calling setFilter
+
+	void setFilter(
+		MonitorFilterKind filterKind,
+		char const* filter
+		);
+
+	override void reset();
+
+protected:
+	bool finalizeFilter(bool result);
+
+	bool match(
+		char const* fileName,
+		char const* processName,
+		uint64_t pid,
+		bool addFileIdOnMatch
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void MonitorFilter.setFilter(
+	MonitorFilterKind filterKind,
+	char const* filter
+	)
+{
+	m_filterKind = filterKind;
+
+	switch (filterKind)
+	{
+	case MonitorFilterKind.FileName:
+	case MonitorFilterKind.ProcessName:
+		m_wildcard = strdup(filter);
+		if (!m_wildcard)
+			m_wildcard = ""; // should not be null
+		break;
+
+	case MonitorFilterKind.FileId:
+	case MonitorFilterKind.ProcessId:
+		m_id = strtoul(filter, null, 0);
+		break;
+	}
+}
+
+bool MonitorFilter.finalizeFilter(bool result)
+{
+	result =
+		result ||
+		m_filterKind == MonitorFilterKind.None ||
+		m_filterKind == MonitorFilterKind.FileId && m_fileId == m_id ||
+		m_fileIdSet.find(m_fileId);
+
+	if (result)
+		m_lastVisibleFileId = m_fileId;
+
+	return result;
+}
+
+void MonitorFilter.reset()
+{
+	m_fileIdSet.clear();
+	m_fileId = 0;
+	m_lastVisibleFileId = 0;
+}
+
+bool MonitorFilter.match(
+	char const* fileName,
+	char const* processName,
+	uint64_t pid,
+	bool addFileIdIfMatch
+	)
+{
+	bool result;
+
+	switch (m_filterKind)
+	{
+	case MonitorFilterKind.None:
+		return true;
+
+	case MonitorFilterKind.FileName:
+		result = wildcardCompareStringLowerCase(fileName, m_wildcard);
+		break;
+
+	case MonitorFilterKind.FileId:
+		return m_fileId == m_id;
+
+	case MonitorFilterKind.ProcessName:
+		result = wildcardCompareStringLowerCase(processName, m_wildcard);
+		break;
+
+	case MonitorFilterKind.ProcessId:
+		result = pid == m_id;
+		break;
+	}
+
+	if (result && addFileIdIfMatch)
+		m_fileIdSet.add(m_fileId, true);
+
+	return result;
+}
+
+//..............................................................................
+
+} // namespace log

@@ -1,0 +1,66 @@
+//..............................................................................
+//
+// Sniffer log protocol colors
+//
+
+import "ui_Color.jnc"
+
+//..............................................................................
+
+bitflag enum ProtoFoldFlag: uint8_t
+{
+	MetaLayer      = 0x01,
+	LinkLayer      = 0x02,
+	NetworkLayer   = 0x04,
+	TransportLayer = 0x08,
+	AppLayer       = 0x10,
+	Payload        = 0x20,
+	Options        = 0x40,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum ProtoColor
+{
+	MetaLayer      = ui.StdColor.PastelGreen,
+	LinkLayer      = ui.StdColor.PastelBlue,
+	NetworkLayer   = ui.StdColor.PastelPurple,
+	TransportLayer = ui.StdColor.PastelRed,
+	AppLayer       = ui.StdColor.PastelOrange,
+	Payload        = ui.StdColor.PastelYellow,
+	Options        = ui.StdColor.PastelCyan,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct ProtoRange
+{
+	size_t m_offset;
+	size_t m_size;
+	uint_t m_color;
+}
+
+//..............................................................................
+
+class AppProtoParser
+{
+	abstract void representDigest(
+		log.Representation* representation,
+		char const* srcString,
+		char const* dstString,
+		void const* p,
+		size_t size,
+		int payloadPreviewIconIdx = -1
+		);
+
+	abstract void representDetails(
+		log.Representation* representation,
+		std.Array* protoRangeArray,
+		void const* p,
+		size_t size,
+		size_t baseOffset,
+		uint_t foldFlags
+		);
+}
+
+//..............................................................................

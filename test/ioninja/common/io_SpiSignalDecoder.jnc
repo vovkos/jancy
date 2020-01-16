@@ -5,6 +5,9 @@
 
 namespace io {
 
+//! \addtogroup common-signal-decode
+//! @{
+
 //..............................................................................
 
 enum SpiDecodeResult
@@ -68,7 +71,7 @@ SpiDecodeResult SpiSignalDecoder.add(
 	bool ss
 	)
 {
-	static bool spiSelectorTable[2] [2] [2] =
+	static bool spiSelectorTable[2][2][2] =
 	{
 		// CPOL 0
 		{
@@ -130,7 +133,7 @@ SpiDecodeResult SpiSignalDecoder.add(
 
 	m_lastSclk = sclk;
 
-	if (spiSelectorTable[m_cpol] [m_cpha] [sclk])
+	if (spiSelectorTable[m_cpol][m_cpha][sclk])
 	{
 		if (!m_bit)
 		{
@@ -158,5 +161,7 @@ SpiDecodeResult SpiSignalDecoder.add(
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

@@ -9,9 +9,9 @@ protected:
 	size_t m_expectedSize;
 
 public:
-	construct()
+	construct(ModbusInfoSet* infoSet)
 	{
-		m_protocol = io.ModbusProtocol.Rtu;
+		basetype.construct(io.ModbusProtocol.Tcp, infoSet);
 	}
 
 	override parse(
@@ -71,6 +71,7 @@ ModbusTcpParser.parse(
 		}
 
 		writer.write(timestamp, recordCode, m_dataBuffer.m_p, m_dataBuffer.m_size);
+		m_infoSet.addAdu(m_modbusRole);
 		reset();
 	}
 }

@@ -4,6 +4,8 @@
 //
 
 import "SerialMonProcessor.jnc"
+import "SerialMonLogRecordCode.jnc"
+import "Serial/SerialLogRecordCode.jnc"
 
 // excerpt from termios.h
 
@@ -168,12 +170,36 @@ SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* noti
 	switch (notifyHdr.m_code)
 	{
 	case io.lnx.DeviceMonitorNotifyCode.Open:
+		io.lnx.DeviceMonitorOpenNotifyParams const* params = (io.lnx.DeviceMonitorOpenNotifyParams const*)(notifyHdr + 1);
+
+		uint64_t recordCode;
+		std.Buffer logParams;
+		logParams.append(&notifyHdr.m_processId, sizeof(notifyHdr.m_processId));
+
+		if (notifyHdr.m_errno == 0)
+		{
+			recordCode = SerialMonLogRecordCode.DeviceOpened;
+		}
+		else
+		{
+			recordCode = SerialMonLogRecordCode.DeviceOpenError;
+
+			std.Error error;
+			error.m_size = sizeof(error);
+			error.m_guid = std.g_errnoGuid;
+			error.m_code = notifyHdr.m_errno;
+			logParams.append(&error, error.m_size);
+		}
+
+		logParams.append(try sys.getProcessImageName(notifyHdr.m_processId));
+
 		m_logWriter.write(
 			notifyHdr.m_timestamp,
-			SerialMonLogRecordCode.DeviceOpened,
-			&notifyHdr.m_processId,
-			sizeof(notifyHdr. m_processId)
+			recordCode,
+			logParams.m_p,
+			logParams.m_size
 			);
+
 		break;
 
 	case io.lnx.DeviceMonitorNotifyCode.Close:

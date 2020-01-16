@@ -1,0 +1,731 @@
+//..............................................................................
+//
+// Ethernet Tap session
+//
+
+import "doc_Session.jnc"
+import "io_usb.jncx"
+import "io_FpgaUploader.jnc"
+import "io_LogToPcap.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "ui_History.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class EthernetTapSession: doc.Session
+{
+protected:
+	enum Defaults
+	{
+		ReadParallelism = 4,
+		ReadBlockSize   = 64 * 1024,
+		ReadBufferSize  = 1 * 1024 * 1024,
+
+		LogCacheUpdateScrollRateLimit = 16,
+	}
+
+	enum
+	{
+		CypressBufferSize         = 4 * 1024, // 4K (2K built-in in Cypress + 512 FPGA FIFO)
+		GracefulStopWriteTimeout  = 1000,     // 1 sec
+		CypressClearBufferTimeout = 200,      // 0.2 sec
+		FpgaUploadBaseIndex       = 0x2000,
+	}
+
+	enum State
+	{
+		Closed,
+		Uploading,
+		Capturing,
+	}
+
+	char const* m_statusText[] =
+	{
+		"Closed",
+		"Uploading",
+		"Capturing",
+	}
+
+	enum ActionId
+	{
+		ApplyFilter,
+		Refresh,
+		Capture,
+		ExportPcap,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Capture,
+		Stop,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+	enum Usb
+	{
+		VendorId    = 0x326f,
+		ProductId   = 0x0003,
+		OutEndpoint = 0x02,
+		InEndpoint  = 0x86,
+		PacketSize  = 512,
+	}
+
+	static char const m_firmwareFileName[] = __DIR__ "/firmware/eth.rpd";
+
+protected:
+	// usb
+
+	State bindable m_state;
+	io.UsbDevice* m_device;
+	io.UsbInterface* m_iface;
+	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
+	io.UsbEndpoint* m_inEndpoint;
+	io.FpgaUploader m_uploader;
+	std.Buffer m_readBuffer;
+	std.Buffer m_packetBuffer;
+	uint16_t m_packetOffset;
+	uint32_t m_packetIndex;
+	PacketFlags m_packetFlags;
+	uint_t m_syncId;
+
+	EthernetTapLogFilter m_filter;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_deviceCombo;
+	ui.ComboBox* m_filterCombo;
+	ui.FileDlg* m_fileDlg;
+
+	// property grid
+
+	ui.EnumProperty* m_deviceProp;
+	ui.StringProperty* m_filterProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode capture();
+	void stopCapture(bool isGraceful = true);
+
+	override size_t errorcode transmit(
+		void const* p,
+		size_t size
+		);
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override errorcode bool applyProperties();
+	override void restoreDefaultProperties();
+
+protected:
+	void onCapture();
+	void onExportPcap();
+	void onFileDlgCompleted(ui.StdDlgButton button);
+
+	void onSetFilter()
+	{
+		try applyFilter(true);
+	}
+
+	void onInEndpointEvent(
+		uint_t syncId,
+		io.UsbEndpointEvents triggeredEvents
+		);
+
+	void onUpdateCompleted(bool result);
+
+	void createUi();
+	void enumerateDevices();
+	void waitInEndpointEvents();
+
+	void parse(
+		uint32_t const* p,
+		size_t size
+		);
+
+	bool errorcode startCapture();
+	bool errorcode gracefulStop();
+	bool errorcode applyFilter(bool rebuildLog = false);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+EthernetTapSession.construct(doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+	m_uploader.construct(pluginHost);
+	m_uploader.m_onUpdateCompleted += onUpdateCompleted;
+
+	createUi();
+
+	pluginHost.m_log.m_cacheUpdateScrollRateLimit = Defaults.LogCacheUpdateScrollRateLimit;
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	pluginHost.m_log.addFilter(m_filter);
+}
+
+EthernetTapSession.createUi()
+{
+	// toolbar
+
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.Stop] = new ui.Icon("images/stop.png");
+
+	m_pluginHost.m_toolBar.addLabel("Filter:");
+	m_filterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_filterCombo.m_isEditable = true;
+	m_filterCombo.m_onEnter += onSetFilter;
+	m_filterCombo.m_placeholderText = "Enter a pcap-filter...";
+	m_filterCombo.m_toolTipText =
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'";
+
+	m_actionTable[ActionId.ApplyFilter]  = createAction("Apply filter", "images/apply.png");
+	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetFilter;
+
+	m_pluginHost.m_toolBar.addLabel("Tap:");
+	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+
+	m_actionTable[ActionId.Refresh] = createAction("Re-enumerate sniffers", "images/refresh.png");
+	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+
+	m_pluginHost.m_menu.addSeparator();
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_actionTable[ActionId.ExportPcap] = createAction("Export Pcap file (*.pcap)", "images/save-pcap.png");
+	m_actionTable[ActionId.ExportPcap].m_onTriggered += onExportPcap;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Connection",
+		"USB-specific connection settings"
+		);
+
+	m_deviceProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"Device",
+		"Target USB device",
+		null, 0
+		);
+
+	m_filterProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"Filter",
+		"Enter a pcap-filter...",
+		"View only packets which pass this filter\n"
+		"For a complete syntax reference, google 'pcap-filter'"
+		);
+
+	ui.BufferPropertySet.PropertyId ids =
+		ui.BufferPropertySet.PropertyId.ReadParallelism |
+		ui.BufferPropertySet.PropertyId.ReadBlockSize |
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull;
+
+	m_bufferPropertySet.m_defaultReadParallelism = Defaults.ReadParallelism;
+	m_bufferPropertySet.m_defaultReadBlockSize = Defaults.ReadBlockSize;
+	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.ReadBufferSize;
+	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid,,, ids);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Ethernet tap");
+
+	m_stdSessionInfoSet.createInformationValues(
+		m_pluginHost.m_informationGrid,
+		infoGroup,,
+		ui.StdSessionInfoSet.InfoId.SessionTime |
+		ui.StdSessionInfoSet.InfoId.TxTotalSize |
+		ui.StdSessionInfoSet.InfoId.RxTotalSize |
+		ui.StdSessionInfoSet.InfoId.TxThroughput |
+		ui.StdSessionInfoSet.InfoId.RxThroughput
+		);
+
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_uiReactor.start();
+
+	enumerateDevices();
+	m_isTransmitEnabled = true;
+}
+
+EthernetTapSession.onCapture()
+{
+	if (m_state)
+		stopCapture();
+	else
+		try capture();
+}
+
+EthernetTapSession.onExportPcap()
+{
+	if (!m_fileDlg)
+	{
+		m_fileDlg = new ui.FileDlg;
+		m_fileDlg.m_onCompleted += onFileDlgCompleted;
+	}
+
+	m_fileDlg.m_kind = ui.FileDlgKind.Save;
+	m_fileDlg.m_title = "Export Pcap File...";
+	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
+	m_fileDlg.show();
+}
+
+EthernetTapSession.onUpdateCompleted(bool result)
+{
+	if (result)
+		try startCapture();
+	else
+		stopCapture();
+}
+
+size_t exportLogRecordToPcap(
+	log.Record const* record,
+	io.MappedFile* pcapFile,
+	uint64_t pcapOffset
+	)
+{
+	void const* p;
+	size_t size;
+
+	switch (record.m_code)
+	{
+	case EthernetTapLogRecordCode.Packet_ch1:
+	case EthernetTapLogRecordCode.Packet_ch2:
+		printf("record.m_code: %llx\n", record.m_code);
+
+		uint32_t const* idx = (uint32_t const*)(record + 1);
+		PacketHdr const* hdr = (PacketHdr const*)(idx + 1);
+		p = hdr + 1;
+		size = hdr.m_size;
+
+		printf("idx: %d\n", *idx);
+		printf("size: %d\n", size);
+		break;
+
+	default:
+		return 0;
+	}
+
+	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
+}
+
+EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
+{
+	if (button != ui.StdDlgButton.Ok)
+		return;
+
+	bool result = try io.exportLogToPcap(
+		m_pluginHost.m_log.m_recordFileName,
+		m_fileDlg.m_filePath,
+		io.PcapLinkType.Ethernet,
+		2 * 1024, // enough for ethernet
+		exportLogRecordToPcap
+		);
+
+	if (!result)
+		m_logWriter.writeLastError(log.StdRecordCode.Error);
+}
+
+EthernetTapSession.enumerateDevices()
+{
+	m_deviceCombo.clear();
+
+	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
+	size_t totalCount = dynamic countof(deviceArray);
+	size_t actualCount = 0;
+
+	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[totalCount];
+
+	for (size_t i = 0; i < totalCount; i++)
+	{
+		io.UsbDevice* device = deviceArray[i];
+		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
+
+		if (deviceDesc.m_vendorId != Usb.VendorId ||
+			deviceDesc.m_productId != Usb.ProductId)
+			continue;
+
+		char const* text = $"@%(1;03d):%(2;03d) IO Ninja Ethernet Tap"(
+			device.m_bus,
+			device.m_address
+			);
+
+		m_deviceCombo.addItem(text, device);
+
+		optionTable[actualCount].m_text = text;
+		optionTable[actualCount].m_value = device;
+		actualCount++;
+	}
+
+	m_deviceProp.setOptions(optionTable, actualCount);
+}
+
+bool errorcode EthernetTapSession.capture()
+{
+	stopCapture();
+
+	if (m_deviceCombo.m_currentIndex == -1)
+		return true;
+
+	startSession();
+
+	m_device = m_deviceCombo.m_currentData;
+	m_device.open();
+
+	m_logWriter.write(EthernetTapLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
+	return m_uploader.update(m_device, m_firmwareFileName, FpgaUploadBaseIndex);
+
+catch:
+	m_logWriter.writeLastError(EthernetTapLogRecordCode.CaptureError);
+	return false;
+}
+
+bool errorcode EthernetTapSession.startCapture()
+{
+	m_iface = m_device.claimInterface(0);
+	m_logWriter.write(EthernetTapLogRecordCode.InterfaceClaimed);
+
+	m_outEndpoint = m_iface.openEndpoint(Usb.OutEndpoint);
+	m_logWriter.write(EthernetTapLogRecordCode.OutEndpointOpened);
+	gracefulStop();
+
+	// align read block on 512 bytes
+
+	size_t readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	readBlockSize = (readBlockSize + Usb.PacketSize - 1) & ~(Usb.PacketSize - 1);
+
+	m_inEndpoint = m_iface.openEndpoint(Usb.InEndpoint, true);
+	m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_inEndpoint.m_readBlockSize = readBlockSize;
+	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_inEndpoint.m_options &= ~io.UsbEndpointOptions.KeepReadBlockSize;
+	m_inEndpoint.unsuspend();
+
+	m_logWriter.write(EthernetTapLogRecordCode.InEndpointOpened);
+
+	static char startCode = 0x55;
+	m_outEndpoint.write (&startCode, sizeof (startCode));
+	m_logWriter.write(EthernetTapLogRecordCode.CaptureStarted);
+
+	m_state = State.Capturing;
+	waitInEndpointEvents();
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	applyFilter();
+	return true;
+
+catch:
+	m_logWriter.writeLastError(EthernetTapLogRecordCode.CaptureError);
+	stopCapture();
+	return false;
+}
+
+bool errorcode EthernetTapSession.gracefulStop()
+{
+	static char stopCode = 0xaa;
+	m_outEndpoint.write(&stopCode, sizeof(stopCode));
+
+	io.UsbEndpointEvents events = m_outEndpoint.blockingWait(
+		io.UsbEndpointEvents.WriteCompleted | io.UsbEndpointEvents.IoError,
+		GracefulStopWriteTimeout
+		);
+
+	if (events & io.UsbEndpointEvents.IoError)
+	{
+		std.setError("Stop capture request failed");
+		return false;
+	}
+
+	io.UsbEndpoint* ep = m_iface.openEndpoint(Usb.InEndpoint, true);
+	ep.m_readParallelism = 1;
+	ep.m_readBlockSize = Usb.PacketSize;
+	ep.m_readBufferSize = CypressBufferSize;
+	ep.m_options &= ~io.UsbEndpointOptions.KeepReadBlockSize;
+	ep.unsuspend();
+
+	for (;;)
+	{
+		ep.blockingWait(io.UsbEndpointEvents.IncomingData, CypressClearBufferTimeout);
+
+		size_t size = ep.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (!size)
+			break;
+
+		m_logWriter.write(log.StdRecordCode.PlainText, $"Cypress buffer clear received: $size");
+		m_logWriter.write(log.StdRecordCode.Bin, m_readBuffer.m_p, size);
+	}
+
+	ep.close();
+	m_logWriter.write(EthernetTapLogRecordCode.CypressBufferCleared);
+	return true;
+}
+
+EthernetTapSession.stopCapture(bool isGraceful)
+{
+	if (m_outEndpoint)
+	{
+		if (isGraceful)
+			try gracefulStop();
+
+		m_outEndpoint.close();
+		m_outEndpoint = null;
+	}
+
+	if (m_inEndpoint)
+	{
+		m_inEndpoint.close();
+		m_inEndpoint = null;
+	}
+
+	if (m_iface)
+	{
+		m_iface.release();
+		m_iface = null;
+	}
+
+	if (m_device)
+	{
+		m_device.close();
+		m_device = null;
+	}
+
+	if (m_state)
+	{
+		m_stdSessionInfoSet.endSession();
+		m_logWriter.write(EthernetTapLogRecordCode.CaptureStopped);
+		m_state = State.Closed;
+	}
+
+	m_uploader.cancel();
+	m_packetBuffer.clear();
+	m_packetOffset = 0;
+	m_packetIndex = 0;
+	m_syncId++;
+}
+
+bool errorcode EthernetTapSession.applyFilter(bool rebuildLog)
+{
+	m_pluginHost.m_log.suspend();
+	bool result = try m_filter.setFilter(m_filterCombo.m_editText);
+	m_pluginHost.m_log.resume();
+
+	if (!result)
+	{
+		m_filterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_filterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+	m_filterCombo.addEditTextToHistory();
+
+	if (rebuildLog)
+		m_pluginHost.m_log.rebuild();
+
+	return true;
+}
+
+EthernetTapSession.waitInEndpointEvents()
+{
+	io.UsbEndpointEvents eventMask =
+		io.UsbEndpointEvents.IoError |
+		io.UsbEndpointEvents.ReadBufferFull |
+		io.UsbEndpointEvents.IncomingData;
+
+	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+EthernetTapSession.onInEndpointEvent(
+	uint_t syncId,
+	io.UsbEndpointEvents triggeredEvents
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.UsbEndpointEvents.IoError)
+	{
+		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
+		stopCapture(false);
+		return;
+	}
+
+	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
+	{
+		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		parse((uint32_t const*)m_readBuffer.m_p, size / sizeof(uint32_t));
+	}
+
+	waitInEndpointEvents();
+}
+
+EthernetTapSession.parse(
+	uint32_t const* p,
+	size_t count
+	)
+{
+	uint32_t const* end = p + count;
+
+	while (p < end)
+	{
+		if (!m_packetBuffer.m_size)
+		{
+			while (*p == -1 || *p == 0)
+				if (++p >= end)
+					break2;
+
+			size_t packetSize = ((*p & 0xffff) + 3) & ~3; // align on 4 bytes
+			size_t bufferSize = sizeof(uint32_t) * 2 + packetSize;
+			m_packetBuffer.setSize(bufferSize);
+			*(uint32_t*) m_packetBuffer.m_p = ++m_packetIndex;
+			m_packetOffset = sizeof(uint32_t);
+		}
+
+		size_t dstSize = m_packetBuffer.m_size - m_packetOffset;
+		assert(!(dstSize & 3)); // must be aligned
+
+		size_t srcSize = (end - p) * sizeof(uint32_t);
+		if (srcSize < dstSize)
+		{
+			memcpy(
+				m_packetBuffer.m_p + m_packetOffset,
+				p,
+				srcSize
+				);
+
+			m_packetOffset += srcSize;
+			break;
+		}
+
+		// packet is completed
+
+		memcpy(
+			m_packetBuffer.m_p + m_packetOffset,
+			p,
+			dstSize
+			);
+
+		p += dstSize / sizeof(uint32_t);
+
+		PacketHdr* hdr = (PacketHdr*)(m_packetBuffer.m_p + sizeof(uint32_t));
+		uint64_t recordCode;
+
+//		if (rand() & 1)
+//			hdr.m_flags &= ~PacketFlags.CrcValid;
+
+		if (hdr.m_flags & PacketFlags.ChannelId)
+		{
+			recordCode = EthernetTapLogRecordCode.Packet_ch2;
+			m_stdSessionInfoSet.addRxData(m_packetBuffer.m_size);
+		}
+		else
+		{
+			recordCode = EthernetTapLogRecordCode.Packet_ch1;
+			m_stdSessionInfoSet.addTxData(m_packetBuffer.m_size);
+		}
+
+		m_logWriter.write(recordCode, m_packetBuffer.m_p, m_packetBuffer.m_size);
+		m_packetBuffer.clear();
+		m_packetOffset = 0;
+	}
+}
+
+EthernetTapSession.load(doc.Storage* storage)
+{
+	m_filterCombo.loadHistory(storage, "filterHistory");
+	m_filterCombo.m_editText = storage.readString("filter");
+	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
+	m_bufferPropertySet.load(storage);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+}
+
+EthernetTapSession.save(doc.Storage* storage)
+{
+	m_filterCombo.saveHistory(storage, "filterHistory");
+	storage.writeString("filter", m_filterCombo.m_editText);
+	storage.writeInt("deviceIdx", (int)m_deviceCombo.m_currentIndex);
+	m_bufferPropertySet.save(storage);
+}
+
+EthernetTapSession.updateProperties()
+{
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+	m_filterProp.m_value = m_filterCombo.m_editText;
+}
+
+bool errorcode EthernetTapSession.applyProperties()
+{
+	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	m_filterCombo.m_editText = m_filterProp.m_value;
+	m_readBuffer.detach(); // drop buffer, so we re-allocate each time
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	applyFilter();
+
+	if (m_state != State.Capturing)
+		return true;
+
+	m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_inEndpoint.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	return true;
+}
+
+EthernetTapSession.restoreDefaultProperties()
+{
+	m_bufferPropertySet.restoreDefaults();
+}
+
+size_t errorcode EthernetTapSession.transmit(
+	void const* p,
+	size_t size
+	)
+{
+	m_packetBuffer.clear();
+	m_packetOffset = 0;
+	parse((uint32_t const*)p, size / 4);
+	return size;
+}
+
+reactor EthernetTapSession.m_uiReactor
+{
+	m_title = $"Ethernet $(m_deviceCombo.m_currentText)";
+	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
+}
+
+//..............................................................................

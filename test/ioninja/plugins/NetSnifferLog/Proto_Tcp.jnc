@@ -1,0 +1,136 @@
+//..............................................................................
+//
+// Sniffer log TCP packets handling
+//
+
+import "io_Tcp.jnc"
+
+//..............................................................................
+
+void representTcpDigest(
+	log.Representation* representation,
+	char const* srcString,
+	char const* dstString,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(io.TcpHdr))
+	{
+		representation.addHyperText(
+			$"\e[1mTCP \e[10;34m%1\e[m \u2192 \e[34m%2\e[m [INCOMPLETE]"(
+			srcString,
+			dstString
+			));
+		return;
+	}
+
+	io.TcpHdr const* tcpHdr = (io.TcpHdr const*)p;
+	size_t dataOffset = tcpHdr.m_dataOffset * 4;
+	size_t dataSize = size - dataOffset;
+
+	if (size < dataOffset || dataOffset < sizeof(io.TcpHdr))
+	{
+		representation.addHyperText(formatTcpDigest(tcpHdr, srcString, dstString, dataSize, " [BROKEN]"));
+		return;
+	}
+
+	representation.addHyperText(formatTcpDigest(tcpHdr, srcString, dstString, dataSize));
+
+	if (size == dataOffset)
+		return;
+
+	p += dataOffset;
+	size -= dataOffset;
+
+	representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+}
+
+char const* formatTcpDigest(
+	io.TcpHdr const* hdr,
+	char const* srcString,
+	char const* dstString,
+	size_t dataSize,
+	char const* extra = null
+	)
+{
+	return
+		$"\e[1mTCP \e[10;34m%1:%2\e[m \u2192 \e[10;34m%3:%4\e[m [%5]%6%7"(
+		srcString,
+		hdr.m_srcPort,
+		dstString,
+		hdr.m_dstPort,
+		io.formatTcpFlagString(hdr.m_flags),
+		dataSize ? $" ($dataSize bytes)" : null,
+		extra
+		);
+}
+
+void representTcpDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.TransportLayer;
+
+	if (size < sizeof(io.TcpHdr))
+	{
+		representation.addHyperText("\e[1mTCP\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.TcpHdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.TransportLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.TcpHdr), ProtoColor.TransportLayer }
+	protoRangeArray.append(range);
+
+	io.TcpHdr const* tcpHdr = (io.TcpHdr const*)p;
+	size_t dataOffset = tcpHdr.m_dataOffset * 4;
+	size_t dataSize = size - dataOffset;
+
+	if (size < dataOffset || dataOffset < sizeof(io.TcpHdr))
+	{
+		representation.addHyperText("[BROKEN]");
+		return;
+	}
+
+	if (dataOffset > sizeof(io.TcpHdr))
+	{
+		range = { baseOffset + sizeof(io.TcpHdr), dataOffset - sizeof(io.TcpHdr), ProtoColor.Options };
+		protoRangeArray.append(range);
+	}
+
+	if (size == dataOffset)
+		return;
+
+	p += dataOffset;
+	size -= dataOffset;
+	baseOffset += dataOffset;
+
+	representPayload(
+		representation,
+		protoRangeArray,
+		"TCP",
+		p,
+		size,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.Payload,
+		ProtoColor.Payload
+		);
+}
+
+//..............................................................................

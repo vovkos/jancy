@@ -1,0 +1,34 @@
+//..............................................................................
+//
+// Pcap BSD-style loopback defitions
+//
+
+namespace io {
+
+//! \addtogroup proto-loopback
+//! @{
+
+//..............................................................................
+
+enum LoopbackProtocolFamily: uint32_t
+{
+	Ip  = 2,
+	Ip6 = 24,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+[
+	displayName = "LOOPBACK",
+]
+struct LoopbackHdr
+{
+	[ displayName = "Protocol family" ]
+	LoopbackProtocolFamily m_protocolFamily;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

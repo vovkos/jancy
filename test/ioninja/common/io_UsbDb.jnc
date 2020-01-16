@@ -9,6 +9,9 @@ import "std_HashTable.jnc"
 
 namespace io {
 
+//! \addtogroup common-usb
+//! @{
+
 //..............................................................................
 
 struct UsbProduct
@@ -147,14 +150,14 @@ bool errorcode UsbDb.load(char const* fileName)
 	{
 		reswitch (state, p, end - p)
 		{
-		case r"(\h{4})\s+([^\n]+[^\s])[ \t\r]*\n":
+		case r"(\h{4})\s+([^\n]+[^\s])\s*\n":
 			vendor = addVendor(
 				strtol(state.m_subMatchArray[0].m_text,, 16),
 				state.m_subMatchArray[1].m_text
 				);
 			break;
 
-		case r"\t(\h{4})\s+([^\n]+[^\s])[ \t\r]*\n":
+		case r"\t(\h{4})\s+([^\n]+[^\s])\s*\n":
 			if (!vendor)
 			{
 				std.setError("invalid USB database file format");
@@ -167,13 +170,11 @@ bool errorcode UsbDb.load(char const* fileName)
 				);
 			break;
 
-		case r"#[^\n]*\n":
-			// ignore comment lines
-			break;
+		case r"\s*#[^\n]*\n":
+			break; // ignore comment lines
 
-		case r"[ \t\r]*\n":
-			// ignore empty lines
-			break;
+		case r"\s*\n":
+			break; // ignore empty lines
 
 		default:
 			break2; // any other line stops parsing
@@ -186,5 +187,7 @@ bool errorcode UsbDb.load(char const* fileName)
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

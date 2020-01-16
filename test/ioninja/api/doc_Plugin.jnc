@@ -8,11 +8,22 @@ import "doc_Storage.jnc"
 
 namespace doc {
 
+//! \addtogroup api-doc
+//! @{
+
 //..............................................................................
 
 class Plugin
 {
 	PluginHost* readonly m_pluginHost;
+
+	property m_logWriter
+	{
+		log.Writer* get()
+		{
+			return m_pluginHost.m_log.m_writer;
+		}
+	}
 
 	construct(PluginHost* host)
 	{
@@ -55,69 +66,34 @@ class Plugin
 		return transmit(p, size);
 	}
 
-	writeLog(
-		uint64_t recordCode,
-		void const* p,
-		size_t size
-		)
-	{
-		m_pluginHost.m_log.m_writer.write(recordCode, p, size);
-	}
-
-	writeLog(uint64_t recordCode)
-	{
-		m_pluginHost.m_log.m_writer.write(recordCode, null, 0);
-	}
-
-	writeLogString(
-		uint64_t recordCode,
-		char const* p
-		)
-	{
-		m_pluginHost.m_log.m_writer.write(recordCode, p, strlen(p));
-	}
-
-	writeLogError(
-		uint64_t recordCode,
-		std.Error const* error
-		)
-	{
-		m_pluginHost.m_log.m_writer.write(recordCode, error, error.m_size);
-	}
-
-	writeLogLastError(uint64_t recordCode)
-	{
-		writeLogError(recordCode, std.getLastError());
-	}
-
-	gui.Action* createAction(
+	ui.Action* createAction(
 		char const* text,
-		gui.Icon* icon = null,
+		ui.Icon* icon = null,
 		bool isCheckable = false,
 		bool isChecked = false
 		);
 
-	gui.Action* createAction(
+	ui.Action* createAction(
 		char const* text,
 		char const* iconFileName,
 		bool isCheckable = false,
 		bool isChecked = false
 		)
 	{
-		return createAction(text, new gui.Icon(iconFileName), isCheckable, isChecked);
+		return createAction(text, new ui.Icon(iconFileName), isCheckable, isChecked);
 	}
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-gui.Action* Plugin.createAction(
+ui.Action* Plugin.createAction(
 	char const* text,
-	gui.Icon* icon,
+	ui.Icon* icon,
 	bool isCheckable,
 	bool isChecked
 	)
 {
-	gui.Action* action = new gui.Action(text, icon);
+	ui.Action* action = new ui.Action(text, icon);
 	action.m_isCheckable = isCheckable;
 	if (isCheckable)
 		action.m_isChecked = isChecked;
@@ -129,4 +105,6 @@ gui.Action* Plugin.createAction(
 
 //..............................................................................
 
-} // namespace doc {
+// @}
+
+} // namespace doc

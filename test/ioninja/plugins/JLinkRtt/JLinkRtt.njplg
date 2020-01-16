@@ -1,0 +1,32 @@
+#...............................................................................
+#
+#  J-Link RTT session plugin
+#
+
+[plugin]
+
+name        = "J-Link RTT"
+description = "An advanced J-Link RTT terminal"
+id          = jlink-rtt
+log-guid    = b1c1cd8b-f182-41fe-af19-f5fc0ab33a16  # jlink-rtt
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/jlink.png
+small-icon  = images/jlink-16x16.png
+
+session-class = JLinkRttSession
+
+[scripts]
+
+JLinkRttSession.jnc
+
+[scripts-win]
+
+io_JLink_win.jnc
+
+[scripts-lnx]
+
+io_JLink_lnx.jnc
+
+[scripts-drw]
+
+io_JLink_drw.jnc

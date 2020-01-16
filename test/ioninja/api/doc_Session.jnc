@@ -7,6 +7,9 @@ import "doc_Plugin.jnc"
 
 namespace doc {
 
+//! \addtogroup api-doc
+//! @{
+
 //..............................................................................
 
 class Session: Plugin
@@ -31,10 +34,12 @@ class Session: Plugin
 	{
 		uint64_t timestamp = sys.getPreciseTimestamp();
 		m_pluginHost.m_log.m_baseTimestamp = timestamp;
-		m_pluginHost.m_log.m_writer.write(timestamp, log.StdRecordCode.SessionStarted);
+		m_logWriter.write(timestamp, log.StdRecordCode.SessionStarted);
 	}
 }
 
 //..............................................................................
 
-} // namespace doc {
+//! @}
+
+} // namespace doc

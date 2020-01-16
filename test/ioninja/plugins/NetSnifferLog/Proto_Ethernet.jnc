@@ -1,0 +1,158 @@
+//..............................................................................
+//
+// Sniffer log ethernet packets handling
+//
+
+import "io_Ethernet.jnc"
+import "io_Llc.jnc"
+
+//..............................................................................
+
+void representEthernetDigest(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(io.EthernetHdr))
+	{
+		representation.addHyperText("\e[1mETHERNET\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*) p;
+	p += sizeof(io.EthernetHdr);
+	size -= sizeof(io.EthernetHdr);
+
+	switch (ethernetHdr.m_type)
+	{
+	case io.EthernetType.Ip:
+		representIpDigest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	case io.EthernetType.Ip6:
+		representIp6Digest(representation, p, size, payloadPreviewIconIdx);
+		return;
+
+	case io.EthernetType.Arp:
+		representArpDigest(representation, p, size);
+		return;
+
+	default:
+		representation.addHyperText(
+			ethernetHdr.m_type <= io.EthernetType.Ieee8023 ?
+				$"\e[1mETHERNET 802.3 \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (\e[34m%3\e[m bytes)"(
+					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
+					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
+					(uint16_t)ethernetHdr.m_type
+					) :
+				$"\e[1mETHERNET II \e[10;34m%1\e[m \u2192 \e[34m%2\e[m (type: \e[34m%3\e[m)"(
+					io.formatEthernetAddress(ethernetHdr.m_srcAddress),
+					io.formatEthernetAddress(ethernetHdr.m_dstAddress),
+					typeof(io.EthernetType).getValueString(&ethernetHdr.m_type, "0x%04X")
+					)
+			);
+
+		representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+	}
+}
+
+void representEthernetDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.LinkLayer;
+
+	if (size < sizeof(io.EthernetHdr))
+	{
+		representation.addHyperText("\e[1nETHERNET\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*) p;
+	jnc.StructType* type = ethernetHdr.m_type <= io.EthernetType.Ieee8023 ?
+		typeof(io.EthernetHdr_ieee8023) :
+		typeof(io.EthernetHdr);
+
+	log.representStruct(
+		representation,
+		type,,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.LinkLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.EthernetHdr), ProtoColor.LinkLayer };
+	protoRangeArray.append(range);
+
+	p += sizeof(io.EthernetHdr);
+	size -= sizeof(io.EthernetHdr);
+	baseOffset += sizeof(io.EthernetHdr);
+
+	switch (ethernetHdr.m_type)
+	{
+	case io.EthernetType.Ip:
+		representIpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case io.EthernetType.Ip6:
+		representIp6Details(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	case io.EthernetType.Arp:
+		representArpDetails(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+		break;
+
+	default:
+		if (ethernetHdr.m_type <= io.EthernetType.Ieee8023)
+			representLlcHdr(representation, protoRangeArray, p, size, baseOffset, foldFlags);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void representLlcHdr(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.NetworkLayer;
+
+	if (size < sizeof(io.LlcHdr))
+	{
+		representation.addHyperText("\e[1mLLC\e[m [INCOMPLETE]");
+		return;
+	}
+
+	io.LlcHdr const* hdr = (io.LlcHdr const*)p;
+	jnc.StructType* type = (hdr.m_control & 0x80) ?
+		typeof(io.LlcHdr16) :
+		typeof(io.LlcHdr);
+
+	log.representStruct(
+		representation,
+		type,,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.NetworkLayer
+		);
+
+	ProtoRange range = { baseOffset, type.m_size, ProtoColor.NetworkLayer }
+	protoRangeArray.append(range);
+}
+
+//..............................................................................

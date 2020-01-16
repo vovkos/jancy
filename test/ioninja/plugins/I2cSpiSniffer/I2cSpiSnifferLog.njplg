@@ -1,21 +1,22 @@
 #...............................................................................
 #
-#  I2C/SPI Sniffer log representer plugin
+#  I2C/SPI Tap Log log plugin
 #
 
 [plugin]
 
-name        = "I2C/SPI Sniffer Log"
-description = "I2C/SPI Sniffer log representer"
+name        = "I2C/SPI Tap Log"
+description = "I2C/SPI Tap log representer"
 group       = serial
 guid        = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327
+small-icon  = images/sniffer-16x16.png
 
-log-representer-func = representDeviceMonLog
+log-representer-func = representI2cSpiSnifferLog
 
 [scripts]
 
-I2cSpiSnifferLogRecordCode.jnc
 I2cSpiSnifferLogRepresenter.jnc
+I2cSpiSnifferLogRecordCode.jnc
 
 [records]
 
@@ -28,15 +29,8 @@ I2cSpiSnifferLogRepresenter.jnc
 01d487bb6423b803  # CaptureError
 01d487bb6423b804  # UnexpectedCode
 01d487bb6423b805  # IncompleteByte
-01d487bb6423b806  # BufferOverflow
-01d487bb6423b807  # StillWaiting
-01d487bb6423b808  # FpgaDisabled
-01d487bb6423b809  # FirmwareUpToDate
-01d487bb6423b80a  # FirmwareUpdateRequired
-01d487bb6423b80b  # ErasingFlash
-01d487bb6423b80c  # UploadingFirmware
-01d487bb6423b80d  # EnablingFpga
-01d487bb6423b80e  # FpgaReady
+01d487bb6423b806  # FpgaBufferOverflow
+01d487bb6423b81c  # CypressBufferCleared
 01d487bb6423b80f  # I2cStart
 01d487bb6423b810  # I2cFinalizeStart7Bit
 01d487bb6423b811  # I2cFinalizeStart10Bit

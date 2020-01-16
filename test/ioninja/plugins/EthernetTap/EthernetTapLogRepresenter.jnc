@@ -1,0 +1,288 @@
+//..............................................................................
+//
+// Ethernet Tap log representer
+//
+
+import "log_Representation.jnc"
+import "log_Writer.jnc"
+import "NetSnifferLog/NetSnifferLog.jnc"
+import "crc32.jnc"
+
+//..............................................................................
+
+char const* getValidityString(bool isValid)
+{
+	return isValid ? "\e[32mOK\e[m" : "\e[31mINVALID\e[m";
+}
+
+bool representEthernetTapLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case EthernetTapLogRecordCode.DeviceOpened:
+		char const* name = (char const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Tap device \e[34m$name\e[m opened");
+		break;
+
+	case EthernetTapLogRecordCode.InterfaceClaimed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Interface \e[34m#0\e[m claimed");
+		break;
+
+	case EthernetTapLogRecordCode.InEndpointOpened:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"In endpoint \e[34m#86\e[m opened");
+		break;
+
+	case EthernetTapLogRecordCode.OutEndpointOpened:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Out endpoint \e[34m#2\e[m opened");
+		break;
+
+	case EthernetTapLogRecordCode.CaptureStarted:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Capture started");
+		break;
+
+	case EthernetTapLogRecordCode.CaptureStopped:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("Capture stopped");
+		break;
+
+	case EthernetTapLogRecordCode.CaptureError:
+		std.Error const* error = (std.Error const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open sniffer: $(error.m_description)");
+		break;
+
+	case EthernetTapLogRecordCode.Packet_ch1:
+		representPacketDigest(representation, 0, p, size);
+		break;
+
+	case EthernetTapLogRecordCode.Packet_ch2:
+		representPacketDigest(representation, 1, p, size);
+		break;
+
+	case EthernetTapLogRecordCode.PacketDetails_ch1:
+		representPacketDetails(representation, 0, p, size, foldFlags);
+		break;
+
+	case EthernetTapLogRecordCode.PacketDetails_ch2:
+		representPacketDetails(representation, 1, p, size, foldFlags);
+		break;
+
+	case EthernetTapLogRecordCode.CypressBufferCleared:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"Hardware buffer cleared");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool detailizeEthernetTapLog(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	switch (recordCode)
+	{
+	case EthernetTapLogRecordCode.Packet_ch1:
+		writer.write(timestamp, EthernetTapLogRecordCode.PacketDetails_ch1, p, size);
+		break;
+
+	case EthernetTapLogRecordCode.Packet_ch2:
+		writer.write(timestamp, EthernetTapLogRecordCode.PacketDetails_ch2, p, size);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................
+
+bool checkPacketHdrConsistency(
+	log.Representation* representation,
+	uint_t channel,
+	PacketHdr const* hdr,
+	size_t size
+	)
+{
+	if (hdr.m_flags & PacketFlags.BufferOverflow)
+	{
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelOrange;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.addHyperText($"Hardware buffer overflow on channel \e[34m$(channel + 1)");
+		return false;
+	}
+
+	if (hdr.m_size < sizeof(uint32_t))
+	{
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelRed;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.addHyperText($"Invalid packet size: \e[34m$(hdr.m_size)");
+		return false;
+	}
+
+	return true;
+}
+
+void representPacketDigest(
+	log.Representation* representation,
+	uint_t channel,
+	void const* p,
+	size_t size
+	)
+{
+	PacketHdr const* hdr = (PacketHdr const*)(p + sizeof(uint32_t));
+	bool result = checkPacketHdrConsistency(representation, channel, hdr, size);
+	if (!result)
+		return;
+
+	uint_t payloadPreviewIconIdx;
+
+	if (channel)
+	{
+		payloadPreviewIconIdx = log.StdLogIcon.Tx;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.TxPacket;
+	}
+	else
+	{
+		payloadPreviewIconIdx = log.StdLogIcon.Rx;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.RxPacket;
+	}
+
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+	representEthernetDigest(representation, hdr + 1, hdr.m_size, payloadPreviewIconIdx);
+
+	if (!(hdr.m_flags & PacketFlags.CrcValid))
+	{
+		representation.m_lineAttr.m_iconIdx = -1;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText("\e[31mINVALID CRC");
+	}
+}
+
+void representPacketDetails(
+	log.Representation* representation,
+	uint_t channel,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	std.Array protoRangeArray;
+	size = representPacketMeta(representation, protoRangeArray, channel, p, size, foldFlags);
+	representation.addBreak();
+	representRawPacketData(representation, protoRangeArray, p, size);
+}
+
+size_t representPacketMeta(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	uint_t channel,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	PacketHdr const* hdr = (PacketHdr const*)(p + sizeof(uint32_t));
+	bool result = checkPacketHdrConsistency(representation, channel, hdr, size);
+	if (!result)
+		return size;
+
+	representation.m_lineAttr.m_iconIdx = channel ? log.StdLogIcon.TxPacket : log.StdLogIcon.RxPacket;
+	representation.m_lineAttr.m_backColor = ProtoColor.MetaLayer;
+
+	uint32_t packetId = *(uint32_t const*)p;
+	size_t dataSize = hdr.m_size - sizeof(uint32_t);
+
+	if (!(foldFlags & ProtoFoldFlag.MetaLayer))
+	{
+		representation.addHyperText(
+			$"[\e^+%1\e[34m+\e[m] \e[1mMETA\e[m Frame #%2 (%3 bytes)%4"(
+			ProtoFoldFlag.MetaLayer,
+			packetId,
+			hdr.m_size,
+			(hdr.m_flags & PacketFlags.CrcValid) ? "" : " [\e[31mINVALID CRC\e[m]"
+			));
+	}
+	else
+	{
+		uint32_t actualCrc = *(uint32_t const*)(p + sizeof(uint32_t) + hdr.m_size);
+		uint32_t expectedCrc = crc32(hdr + 1, dataSize);
+
+		representation.addHyperText(
+			$"[\e^-%1\e[34m-\e[m] \e[1mMETA\e[m\n"
+			$"    Frame number:   \e^!0x%x,%3,%4\e[34m%5\n"
+			$"    Channel number: \e^!0x%x,%7,%8\e[34m%9\n"
+			$"    Size (full):    \e^!0x%x,%11,%12\e[34m%13\n"
+			$"    Size (no CRC):  %14\n"
+			$"    CRC (hardware): \e^!0x%x,%16,%17\e[34m0x%08X\e[m [%19]\n"
+			$"    CRC (software): 0x%08X\e[m [%21]"(
+			ProtoFoldFlag.MetaLayer,
+
+			NetSnifferLogPartCode.RawPacket,
+			0,
+			sizeof(uint32_t),
+			packetId,
+
+			NetSnifferLogPartCode.RawPacket,
+			sizeof(uint32_t) + offsetof(PacketHdr.m_flags),
+			sizeof(PacketHdr.m_flags),
+			channel + 1,
+
+			NetSnifferLogPartCode.RawPacket,
+			sizeof(uint32_t) + offsetof(PacketHdr.m_size),
+			sizeof(PacketHdr.m_size),
+			hdr.m_size,
+
+			dataSize,
+
+			NetSnifferLogPartCode.RawPacket,
+			MetaSize + dataSize,
+			sizeof(uint32_t),
+			actualCrc,
+
+			getValidityString(hdr.m_flags & PacketFlags.CrcValid),
+
+			expectedCrc,
+			getValidityString(actualCrc == expectedCrc)
+			));
+	}
+
+	ProtoRange range = { 0, MetaSize, ProtoColor.MetaLayer };
+	protoRangeArray.append(range);
+
+	range = { MetaSize + dataSize, sizeof(uint32_t), ProtoColor.MetaLayer };
+	protoRangeArray.append(range);
+
+	representEthernetDetails(representation, protoRangeArray, hdr + 1, dataSize, MetaSize, foldFlags);
+	return MetaSize + hdr.m_size;
+}
+
+//..............................................................................

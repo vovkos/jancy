@@ -9,6 +9,8 @@ name        = "Pcap Log"
 description = "Pcap log representer"
 group       = net
 guid        = 074c3414-2622-418a-885d-edfeca2b79e7
+icon        = images/pcap.png
+small-icon  = images/pcap-16x16.png
 
 log-representer-func = representPcapLog
 

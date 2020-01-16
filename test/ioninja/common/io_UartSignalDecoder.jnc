@@ -8,6 +8,9 @@ import "io_Serial.jnc"
 
 namespace io {
 
+//! \addtogroup common-signal-decode
+//! @{
+
 //..............................................................................
 
 enum UartDecodeResult
@@ -217,5 +220,7 @@ bool UartSignalDecoder.checkParity()
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

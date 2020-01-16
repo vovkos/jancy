@@ -3,13 +3,13 @@
 // Mailslot Monitor log representer
 //
 
-import "log_Representer.jnc"
+import "log_MonitorRepresenter.jnc"
 import "MailslotMonLogRecordCode.jnc"
 
 //..............................................................................
 
 bool representMailslotMonLog  (
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -18,94 +18,117 @@ bool representMailslotMonLog  (
 {
 	switch (recordCode)
 	{
-	case MailslotMonLogRecordCode.ServerFileOpened_old:
-		uint32_t fileId = *(uint32_t const*) p;
-		char const* name = (char const*) (p + sizeof(fileId));
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"File \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
+	case MailslotMonLogRecordCode.ServerFileOpened_0:
+		uint32_t fileId = *(uint32_t const*)p;
+		char const* name = (char const*)(p + sizeof(fileId));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"File \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
+		break;
+
+	case MailslotMonLogRecordCode.ServerFileOpened_1:
+		uint32_t fileId = *(uint32_t const*)p;
+		uint32_t pid = *((uint32_t const*)p + 1);
+		char const* name = (char const*)(p + sizeof(fileId) + sizeof(pid));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
 		break;
 
 	case MailslotMonLogRecordCode.ServerFileOpened:
-		uint32_t fileId = *(uint32_t const*) p;
-		uint32_t pid = *((uint32_t const*) p + 1);
-		char const* name = (char const*) (p + sizeof(fileId) + sizeof(pid));
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Server file opened: \e[34m$name");
+		log.representDeviceOpened(representation, "Server file opened", p, size);
 		break;
 
-	case MailslotMonLogRecordCode.ServerFileOpenError_old:
-		std.Error const* error = (std.Error const*) p;
-		char const* name = (char const*) (error + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
+	case MailslotMonLogRecordCode.ServerFileOpenError_0:
+		std.Error const* error = (std.Error const*)p;
+		char const* name = (char const*)(error + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
+		break;
+
+	case MailslotMonLogRecordCode.ServerFileOpenError_1:
+		uint32_t pid = *(uint32_t const*)p;
+		std.Error const* error = (std.Error const*)(p + sizeof(pid));
+		char const* name = (char const*)(error + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"PID \e[34m#$pid\e[m: Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
 		break;
 
 	case MailslotMonLogRecordCode.ServerFileOpenError:
-		uint32_t pid = *(uint32_t const*) p;
-		std.Error const* error = (std.Error const*) (p + sizeof(pid));
-		char const* name = (char const*) (error + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"PID \e[34m#$pid\e[m: Cannot open server file \e[34m$name\e[m$: $(error.m_description)");
+		log.representDeviceOpenError(representation, "Cannot open server file", p, size);
 		break;
 
-	case MailslotMonLogRecordCode.ClientFileOpened_old:
-		uint32_t fileId = *(uint32_t const*) p;
-		char const* name = (char const*) (p + sizeof(fileId));
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"File \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
+	case MailslotMonLogRecordCode.ClientFileOpened_0:
+		uint32_t fileId = *(uint32_t const*)p;
+		char const* name = (char const*)(p + sizeof(fileId));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"File \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
+		break;
+
+	case MailslotMonLogRecordCode.ClientFileOpened_1:
+		uint32_t fileId = *(uint32_t const*)p;
+		uint32_t pid = *((uint32_t const*)p + 1);
+		char const* name = (char const*)(p + sizeof(fileId) + sizeof(pid));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
 		break;
 
 	case MailslotMonLogRecordCode.ClientFileOpened:
-		uint32_t fileId = *(uint32_t const*) p;
-		uint32_t pid = *((uint32_t const*) p + 1);
-		char const* name = (char const*) (p + sizeof(fileId) + sizeof(pid));
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: Client file opened: \e[34m$name");
+		log.representDeviceOpened(representation, "Client file opened", p, size);
 		break;
 
-	case MailslotMonLogRecordCode.ClientFileOpenError_old:
-		std.Error const* error = (std.Error const*) p;
-		char const* name = (char const*) (error + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Cannot open client file \e[34m$name\e[m: $(error.m_description)");
+	case MailslotMonLogRecordCode.ClientFileOpenError_0:
+		std.Error const* error = (std.Error const*)p;
+		char const* name = (char const*)(error + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open client file \e[34m$name\e[m: $(error.m_description)");
+		break;
+
+	case MailslotMonLogRecordCode.ClientFileOpenError_1:
+		uint32_t pid = *(uint32_t const*)p;
+		std.Error const* error = (std.Error const*)(p + sizeof(pid));
+		char const* name = (char const*)(error + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"PID \e[34m#$pid\e[m: Cannot open client file \e[34m$name\e[m: $(error.m_description)");
 		break;
 
 	case MailslotMonLogRecordCode.ClientFileOpenError:
-		uint32_t pid = *(uint32_t const*) p;
-		std.Error const* error = (std.Error const*) (p + sizeof(pid));
-		char const* name = (char const*) (error + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"PID \e[34m#$pid\e[m: Cannot open client file \e[34m$name\e[m: $(error.m_description)");
+		log.representDeviceOpenError(representation, "Cannot open client file", p, size);
 		break;
 
 	case MailslotMonLogRecordCode.FileClosed:
-		target.m_lineAttr.m_flags = log.LineAttrFlags.Override;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText(MailslotMonLogPartCode.Suffix, "File closed");
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText(MailslotMonLogPartCode.Suffix, "File closed");
 		break;
 
-	case MailslotMonLogRecordCode.FileIdChanged_old:
-		uint32_t fileId = *(uint32_t const*) p;
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(MailslotMonLogPartCode.Prefix, $"File \e[34m#$fileId\e[m: ");
+	case MailslotMonLogRecordCode.FileIdChanged_0:
+		uint32_t fileId = *(uint32_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(MailslotMonLogPartCode.Prefix, $"File \e[34m#$fileId\e[m: ");
+		break;
+
+	case MailslotMonLogRecordCode.FileIdChanged_1:
+		uint32_t fileId = *(uint32_t const*)p;
+		uint32_t pid = *((uint32_t const*)p + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(MailslotMonLogPartCode.Prefix, $"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: ");
 		break;
 
 	case MailslotMonLogRecordCode.FileIdChanged:
-		uint32_t fileId = *(uint32_t const*) p;
-		uint32_t pid = *((uint32_t const*) p + 1);
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(MailslotMonLogPartCode.Prefix, $"PID \e[34m#$pid\e[m file \e[34m#$fileId\e[m: ");
+		uint64_t fileId = *(uint64_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(MailslotMonLogPartCode.Prefix, $"File ID \e[34m0x%llX\e[m: "(fileId));
 		break;
 
 	default:

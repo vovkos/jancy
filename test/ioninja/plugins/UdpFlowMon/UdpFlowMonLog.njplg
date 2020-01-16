@@ -9,6 +9,8 @@ name        = "UDP Flow Monitor Log"
 description = "UDP Flow Monitor log representer"
 group       = net
 guid        = 275d0959-ad5b-4f9c-9439-25993ac35b93
+icon        = images/udpmon.png
+small-icon  = images/udpmon-16x16.png
 
 log-representer-func = representUdpFlowMonLog
 

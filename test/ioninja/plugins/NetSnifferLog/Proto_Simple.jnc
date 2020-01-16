@@ -1,0 +1,130 @@
+//..............................................................................
+//
+// Sniffer log simple protocol packets (header + payload) handling
+//
+
+//..............................................................................
+
+void representSimpleProtoDigestNoPayload(
+	log.Representation* representation,
+	jnc.StructType* type,
+	char const* name = null,
+	char const* srcString,
+	char const* dstString,
+	void const* p,
+	size_t size
+	)
+{
+	if (!name)
+		name = log.getDisplayName(type);
+
+	if (size < type.m_size)
+	{
+		representation.addHyperText(
+			$"\e[1m%1 \e[10;34m%2\e[m \u2192 \e[34m%3\e[m [INCOMPLETE]"(
+			name,
+			srcString,
+			dstString
+			));
+		return;
+	}
+
+	char const* digest = log.getStructDigest(type, p);
+
+	representation.addHyperText(
+		$"\e[1m%1 \e[10;34m%2\e[m \u2192 \e[34m%3%4%5"(
+		name,
+		srcString,
+		dstString,
+		digest ? "\e[m " : null,
+		digest
+		));
+}
+
+void representSimpleProtoDigest(
+	log.Representation* representation,
+	jnc.StructType* type,
+	char const* name = null,
+	char const* srcString,
+	char const* dstString,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	representSimpleProtoDigestNoPayload(
+		representation,
+		type,
+		name,
+		srcString,
+		dstString,
+		p,
+		size
+		);
+
+	size_t typeSize = type.m_size;
+	if (size > typeSize)
+		representPayloadPreview(
+			representation,
+			p + typeSize,
+			size - typeSize,
+			payloadPreviewIconIdx
+			);
+}
+
+void representSimpleProtoDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	jnc.StructType* type,
+	char const* name = null,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags,
+	uint_t headerFoldFlag,
+	uint_t headerColor,
+	uint_t payloadFoldFlag = 0,
+	uint_t payloadColor = ui.ColorFlags.Transparent
+	)
+{
+	if (!name)
+		name = log.getDisplayName(type);
+
+	representation.m_lineAttr.m_backColor = headerColor;
+
+	size_t typeSize = type.m_size;
+	if (size < typeSize)
+	{
+		representation.addHyperText($"\e[1m%1\e[m [INCOMPLETE]"(name));
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		type,
+		name,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		headerFoldFlag
+		);
+
+	ProtoRange range = { baseOffset, typeSize, headerColor }
+	protoRangeArray.append(range);
+
+	if (size > typeSize)
+		representPayload(
+			representation,
+			protoRangeArray,
+			name,
+			p + typeSize,
+			size - typeSize,
+			baseOffset + typeSize,
+			foldFlags,
+			payloadFoldFlag,
+			payloadColor
+			);
+}
+
+//..............................................................................

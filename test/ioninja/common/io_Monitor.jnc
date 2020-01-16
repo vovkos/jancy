@@ -4,11 +4,15 @@
 //
 
 import "io_devmon.jncx"
-import "io_BufferUi.jnc"
 import "io_FileIdMgr.jnc"
+import "ui_BufferPropertySet.jnc"
+import "doc_PluginHost.jnc"
 import "std_Buffer.jnc"
 
 namespace io {
+
+//! \addtogroup common-io
+//! @{
 
 //..............................................................................
 
@@ -19,9 +23,17 @@ protected:
 	DeviceMonitor m_monitor;
 	std.Buffer m_notifyBuffer;
 	std.Buffer m_readBuffer;
-	FileIdMgr m_fileIdMgr;
+	uint64_t m_lastFileId;
 	bool m_notifyReadBufferFull;
 	uint_t m_syncId;
+
+	property m_logWriter
+	{
+		log.Writer* get()
+		{
+			return m_pluginHost.m_log.m_writer;
+		}
+	}
 
 public:
 	construct(doc.PluginHost* pluginHost)
@@ -44,7 +56,7 @@ public:
 	}
 
 	bool errorcode applyProperties(
-		BufferPropertySet* propSet,
+		ui.BufferPropertySet* propSet,
 		size_t pendingNotifySizeLimit
 		);
 
@@ -84,7 +96,7 @@ bool errorcode Monitor.capture(
 
 	m_monitor.m_isEnabled = true;
 	m_notifyBuffer.clear();
-	m_fileIdMgr.reset();
+	m_lastFileId = 0;
 	waitMonitorEvents();
 	return true;
 }
@@ -96,7 +108,7 @@ Monitor.close()
 }
 
 bool errorcode Monitor.applyProperties(
-	BufferPropertySet* bufferPropSet,
+	ui.BufferPropertySet* bufferPropSet,
 	size_t pendingNotifySizeLimit
 	)
 {
@@ -116,7 +128,7 @@ Monitor.waitMonitorEvents()
 		DeviceMonitorEvents.ReadBufferFull |
 		DeviceMonitorEvents.IncomingData;
 
-	m_monitor.wait(eventMask, onMonitorEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_monitor.wait(eventMask, onMonitorEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 Monitor.onMonitorEvent(
@@ -210,5 +222,7 @@ Monitor.processError(std.Error const* error)
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

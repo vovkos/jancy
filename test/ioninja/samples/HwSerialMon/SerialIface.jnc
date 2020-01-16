@@ -14,7 +14,7 @@ protected:
 
 public:
 	char const* readonly m_name;
-	gui.GroupProperty* readonly m_groupProp;
+	ui.GroupProperty* readonly m_groupProp;
 
 public:
 	construct(doc.PluginHost* pluginHost)
@@ -23,8 +23,8 @@ public:
 	}
 
 	virtual createProperties(
-		gui.GroupProperty* group = null,
-		gui.Property* beforeProp = null
+		ui.GroupProperty* group = null,
+		ui.Property* beforeProp = null
 		)
 	{
 	}

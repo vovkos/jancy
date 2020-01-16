@@ -7,8 +7,9 @@
 
 name        = Tibbo Modbus Gateway Monitor Log
 description = "Tibbo Modbus Gateway Monitor log representer"
-group       = net
 guid        = 075eb3ef-43e2-460c-9301-a72810de9689
+icon        = images/modbus.png
+small-icon  = images/modbus-16x16.png
 
 log-representer-func = representModbusGatewayMonLog
 

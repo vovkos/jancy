@@ -1,0 +1,46 @@
+//..............................................................................
+//
+// Ninja GUI - status bar
+//
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class StatusPane
+{
+	bool autoget property m_isVisible;
+	bool autoget property m_isEnabled;
+	char const* autoget property m_text;
+	uint_t autoget property m_width;
+	uint_t autoget property m_color;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class StatusBar
+{
+	destruct();
+
+	displayMessage(
+		char const* text,
+		uint_t timeout = 3000
+		);
+
+	size_t readonly m_paneCount;
+	StatusPane* const property m_pane(size_t index);
+
+	StatusPane* addPane(
+		char const* text = null,
+		uint_t width = 0 // 0 = default
+		);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

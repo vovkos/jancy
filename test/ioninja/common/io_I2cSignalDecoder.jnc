@@ -1,9 +1,12 @@
 //..............................................................................
 //
-// SPI clock-based signal-edge decoding
+// I2C clock-based signal-edge decoding
 //
 
 namespace io {
+
+//! \addtogroup common-signal-decode
+//! @{
 
 //..............................................................................
 
@@ -110,5 +113,7 @@ I2cDecodeResult I2cSignalDecoder.add(
 }
 
 //..............................................................................
+
+//! @}
 
 } // namespace io

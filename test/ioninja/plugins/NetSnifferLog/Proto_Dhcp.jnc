@@ -1,0 +1,231 @@
+//..............................................................................
+//
+// Sniffer log DHCP packets handling
+//
+
+import "io_Dhcp.jnc"
+
+//..............................................................................
+
+class DhcpProtoParser: AppProtoParser
+{
+public:
+	override void representDigest(
+		log.Representation* representation,
+		char const* srcString,
+		char const* dstString,
+		void const* p,
+		size_t size,
+		int payloadPreviewIconIdx
+		);
+
+	override void representDetails(
+		log.Representation* representation,
+		std.Array* protoRangeArray,
+		void const* p,
+		size_t size,
+		size_t baseOffset,
+		uint_t foldFlags
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void DhcpProtoParser.representDigest(
+	log.Representation* representation,
+	char const* srcString,
+	char const* dstString,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx
+	)
+{
+	representSimpleProtoDigestNoPayload(
+		representation,
+		typeof(io.DhcpHdr),,
+		srcString,
+		dstString,
+		p,
+		size
+		);
+}
+
+char const* getDhcpOptionValueString(io.DhcpOptionHdr const* optionHdr)
+{
+	jnc.EnumConst* optionConst = typeof(io.DhcpOptionType).findConst(optionHdr.m_type);
+	if (!optionConst)
+		return null;
+
+	log.FormatExFunc thin* formatExFunc = optionConst.findAttributeValue("formatExFunc");
+	if (formatExFunc)
+		return formatExFunc(optionHdr + 1, optionHdr.m_length);
+
+	log.FormatFunc thin* formatFunc = optionConst.findAttributeValue("formatFunc");
+	if (formatFunc)
+		return formatFunc(optionHdr + 1);
+
+	jnc.Type* displayType = optionConst.findAttributeValue("displayType");
+	if (displayType)
+		return displayType.getValueString(optionHdr + 1);
+
+	return null;
+}
+
+size_t representDhcpOption(
+	log.Representation* representation,
+	size_t i,
+	io.DhcpOptionHdr const* optionHdr,
+	size_t baseOffset
+	)
+{
+	size_t size;
+
+	switch (optionHdr.m_type)
+	{
+	case io.DhcpOptionType.Pad:
+	case io.DhcpOptionType.End:
+		size = 1;
+		break;
+
+	default:
+		size = sizeof(io.DhcpOptionHdr) + optionHdr.m_length;
+	}
+
+	representation.addHyperText($"%(1;5d): Option:\t\e^!%2,%3\e[34m%4"(
+		i,
+		baseOffset,
+		sizeof(io.DhcpOptionHdr.m_type),
+		typeof(io.DhcpOptionType).getValueString(&optionHdr.m_type, "0x%02X")
+		));
+
+	if (size >= sizeof(io.DhcpOptionHdr))
+		representation.addHyperText(
+			$"%(1;7c)Length:\t\e^!%2,%3\e[34m%4"(
+			' ',
+			baseOffset + offsetof(io.DhcpOptionHdr.m_length),
+			sizeof(io.DhcpOptionHdr.m_length),
+			optionHdr.m_length
+			));
+
+	char const* valueString = getDhcpOptionValueString(optionHdr);
+	if (valueString)
+		representation.addHyperText(
+			$"%(1;7c)Value:\t\e^!%2,%3\e[34m%4"(
+			' ',
+			baseOffset + sizeof(io.DhcpOptionHdr),
+			optionHdr.m_length,
+			valueString
+			));
+
+	return size;
+}
+
+void DhcpProtoParser.representDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.AppLayer;
+
+	if (size < sizeof(io.DnsHdr))
+	{
+		representation.addHyperText("\e[1mDHCP\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.DhcpHdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.AppLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.DhcpHdr), ProtoColor.AppLayer }
+	protoRangeArray.append(range);
+
+	if (size == sizeof(io.DhcpHdr))
+		return;
+
+	p += sizeof(io.DhcpHdr);
+	size -= sizeof(io.DhcpHdr);
+	baseOffset += sizeof(io.DhcpHdr);
+
+	representation.m_lineAttr.m_backColor = ProtoColor.Payload;
+
+	void const* options = p;
+	void const* end = p + size;
+	size_t optionOffset = baseOffset;
+	size_t optionSize;
+
+	if (foldFlags & ProtoFoldFlag.Payload)
+	{
+		representation.addHyperText(
+			$"[\e^-%1\e[34m-\e[m] \e[1mDHCP\e[m Options"(
+			ProtoFoldFlag.Payload
+			));
+
+		for (size_t i = 1; p < end; i++)
+		{
+			io.DhcpOptionHdr const* optionHdr = (io.DhcpOptionHdr const*)p;
+			p += representDhcpOption(representation, i, optionHdr, baseOffset + p - options);
+			if (optionHdr.m_type == io.DhcpOptionType.End)
+				break;
+		}
+
+		optionSize = p - options;
+	}
+	else
+	{
+		size_t optionCount = 0;
+		while (p < end)
+		{
+			optionCount++;
+
+			io.DhcpOptionHdr const* optionHdr = (io.DhcpOptionHdr const*)p;
+			switch (optionHdr.m_type)
+			{
+			case io.DhcpOptionType.Pad:
+				p++;
+				break;
+
+			case io.DhcpOptionType.End:
+				p++;
+				break2;
+
+			default:
+				p += sizeof(io.DhcpOptionHdr) + optionHdr.m_length;
+			}
+		}
+
+		optionSize = p - options;
+
+		representation.addHyperText(
+			$"[\e^+%1\e[34m+\e[m] \e[1mDHCP\e[m Options (%2 items, %3 bytes)"(
+			ProtoFoldFlag.Payload,
+			optionCount,
+			optionSize
+			));
+	}
+
+	range = { optionOffset, optionSize, ProtoColor.Payload };
+	protoRangeArray.append(range);
+}
+
+//..............................................................................
+
+construct()
+{
+	static DhcpProtoParser dhcp;
+
+	g_udpPortAppProtoParserMap[67] = dhcp;
+	g_udpPortAppProtoParserMap[68] = dhcp;
+}
+
+//..............................................................................

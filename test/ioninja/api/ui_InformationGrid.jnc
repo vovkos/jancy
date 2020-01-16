@@ -1,0 +1,201 @@
+//..............................................................................
+//
+// Ninja GUI - information grid
+//
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class InformationItem
+{
+	char const* autoget property m_name;
+	char const* autoget property m_toolTipText;
+	bool autoget property m_isEnabled;
+
+	addChildItem(
+		InformationItem* item,
+		InformationItem* beforeItem = null
+		);
+
+	removeChildItem(InformationItem* item);
+}
+
+//..............................................................................
+
+opaque class InformationGroup: InformationItem
+{
+	construct(char const* name);
+}
+
+//..............................................................................
+
+opaque class InformationValue: InformationItem
+{
+	construct(char const* name);
+
+	char const* autoget property m_value;
+	char const* autoget property m_disabledValue;
+	char const* autoget property m_valueToolTipText;
+	uint_t autoget property m_valueColor;
+	bool autoget property m_isSelectionDependent;
+}
+
+//..............................................................................
+
+// when calculating misc stats, we want to delay update of UI as to avoid
+// the unnecessary load on the CPU
+
+opaque class InformationStatValue: InformationValue
+{
+	typedef char const* FormatFunc(uint64_t value);
+
+	FormatFunc* m_formatFunc;
+	char const* m_formatSpec;
+
+	uint64_t autoget property m_value; // shadows InformationValue.m_value
+
+	construct(char const* name);
+	destruct();
+
+	void forceUpdate();
+}
+
+//..............................................................................
+
+opaque class InformationGrid
+{
+	addItem(
+		InformationItem* item,
+		InformationItem* beforeItem = null
+		);
+
+	removeItem(InformationItem* item);
+
+	InformationGroup* createGroup(
+		InformationItem* parentItem = null,
+		InformationItem* beforeItem = null,
+		char const* name,
+		char const* toolTipText = null
+		);
+
+	InformationGroup* createGroup(
+		char const* name,
+		char const* toolTipText = null
+		)
+	{
+		return createGroup(,, name, toolTipText);
+	}
+
+	InformationValue* createValue(
+		InformationItem* parentItem = null,
+		InformationItem* beforeItem = null,
+		bool isSelectionDependent = false,
+		char const* name,
+		char const* toolTipText = null
+		);
+
+	 InformationValue* createValue(
+		char const* name,
+		char const* toolTipText = null
+		)
+	{
+		return createValue(,,, name, toolTipText);
+	}
+
+	InformationStatValue* createStatValue(
+		InformationItem* parentItem = null,
+		InformationItem* beforeItem = null,
+		bool isSelectionDependent = false,
+		char const* name,
+		char const* toolTipText = null
+		);
+
+	 InformationStatValue* createStatValue(
+		char const* name,
+		char const* toolTipText = null
+		)
+	{
+		return createStatValue(,,, name, toolTipText);
+	}
+
+	resizeNameColumnToContents();
+
+protected:
+	addValueImpl(
+		InformationValue* item,
+		InformationItem* parentItem,
+		InformationItem* beforeItem,
+		bool isSelectionDependent,
+		char const* toolTipText
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+InformationGroup* InformationGrid.createGroup(
+	InformationItem* parentItem,
+	InformationItem* beforeItem,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	InformationGroup* item = new InformationGroup(name);
+
+	parentItem ?
+		parentItem.addChildItem(item, beforeItem) :
+		addItem(item, beforeItem);
+
+	return item;
+}
+
+InformationValue* InformationGrid.createValue(
+	InformationItem* parentItem,
+	InformationItem* beforeItem,
+	bool isSelectionDependent,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	InformationValue* item = new InformationValue(name);
+	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTipText);
+	return item;
+}
+
+InformationStatValue* InformationGrid.createStatValue(
+	InformationItem* parentItem,
+	InformationItem* beforeItem,
+	bool isSelectionDependent,
+	char const* name,
+	char const* toolTipText
+	)
+{
+	InformationStatValue* item = new InformationStatValue(name);
+	addValueImpl(item, parentItem, beforeItem, isSelectionDependent, toolTipText);
+	return item;
+}
+
+InformationGrid.addValueImpl(
+	InformationValue* item,
+	InformationItem* parentItem,
+	InformationItem* beforeItem,
+	bool isSelectionDependent,
+	char const* toolTipText
+	)
+{
+	item.m_toolTipText = toolTipText;
+	item.m_isSelectionDependent = isSelectionDependent;
+
+	parentItem ?
+		parentItem.addChildItem(item, beforeItem) :
+		addItem(item, beforeItem);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

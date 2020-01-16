@@ -5,10 +5,12 @@
 
 [plugin]
 
-name        = "SSH Log"
-description = "SSH log representer"
+name        = "Mailslot Log"
+description = "Mailslot log representer"
 group       = fs
 guid        = 8383248D-607F-431A-9414-178C23FD9603
+icon        = images/mailslot.png
+small-icon  = images/mailslot-16x16.png
 
 log-representer-func = representMailslotLog
 

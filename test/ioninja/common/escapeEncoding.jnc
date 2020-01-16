@@ -2,6 +2,9 @@ import "std_String.jnc"
 
 // port of axl_enc_EscapeEncoding.cpp
 
+//! \addtogroup common-enc
+//! @{
+
 //..............................................................................
 
 char findEscapeReplaceChar(char x)
@@ -165,3 +168,5 @@ size_t decodeEscapeString(
 }
 
 //..............................................................................
+
+//! @}

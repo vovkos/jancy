@@ -3,19 +3,19 @@
 // Cypress File uploader
 //
 
+import "doc_Session.jnc"
 import "io_base.jncx"
 import "io_usb.jncx"
 import "io_UsbDb.jnc"
 import "io_MappedFile.jnc"
-import "io_BufferUi.jnc"
-import "sys_Timer.jnc"
-import "std_Buffer.jnc"
-import "doc_Session.jnc"
-import "gui_StdSessionInfo.jnc"
-import "gui_Dialog.jnc"
+import "ui_Dialog.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "parseInteger.jnc"
+import "std_Buffer.jnc"
+import "sys_Timer.jnc"
 
 //..............................................................................
 
@@ -113,32 +113,32 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_deviceCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_deviceCombo;
 
 	// dialogs
 
-	gui.FileDlg m_fileDlg;
-	gui.ProgressDlg m_progressDlg;
+	ui.FileDlg m_fileDlg;
+	ui.ProgressDlg m_progressDlg;
 
 	// property grid
 
-	gui.EnumProperty* m_deviceProp;
-	gui.BoolProperty* m_autoDetachKernelDriverProp;
-	gui.IntProperty* m_statusCheckIntervalProp;
-	gui.IntProperty* m_fpgaCheckRetryCountProp;
-	gui.IntProperty* m_blockSizeProp;
-	gui.IntProperty* m_maxDownloadSizeProp;
-	gui.BoolProperty* m_eraseBeforeUploadProp;
-	gui.BoolProperty* m_extraStatusCheckProp;
+	ui.EnumProperty* m_deviceProp;
+	ui.BoolProperty* m_autoDetachKernelDriverProp;
+	ui.IntProperty* m_statusCheckIntervalProp;
+	ui.IntProperty* m_fpgaCheckRetryCountProp;
+	ui.IntProperty* m_blockSizeProp;
+	ui.IntProperty* m_maxDownloadSizeProp;
+	ui.BoolProperty* m_eraseBeforeUploadProp;
+	ui.BoolProperty* m_extraStatusCheckProp;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -160,8 +160,8 @@ protected:
 	onOpenDevice();
 	onDownloadFile();
 	onUploadFile();
-	onFileDlgCompleted(gui.StdDlgButton button);
-	onProgressDlgButtonClicked(gui.StdDlgButton button);
+	onFileDlgCompleted(ui.StdDlgButton button);
+	onProgressDlgButtonClicked(ui.StdDlgButton button);
 	onStatusCheckTimer();
 	onFpgaCheckTimer();
 
@@ -206,8 +206,8 @@ CypressUploaderSession.construct(doc.PluginHost* pluginHost)
 	m_fileDlg.m_onCompleted += onFileDlgCompleted;
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
 
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
@@ -215,11 +215,11 @@ CypressUploaderSession.createUi()
 {
 	// toolbar
 
-	m_iconTable[IconId.Open] = new gui.Icon("images/open.png");
-	m_iconTable[IconId.Close] = new gui.Icon("images/close.png");
-	m_iconTable[IconId.Refresh] = new gui.Icon("images/refresh.png");
-	m_iconTable[IconId.Download] = new gui.Icon("images/receive.png");
-	m_iconTable[IconId.Upload] = new gui.Icon("images/transmit.png");
+	m_iconTable[IconId.Open] = new ui.Icon("images/open.png");
+	m_iconTable[IconId.Close] = new ui.Icon("images/close.png");
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Download] = new ui.Icon("images/receive.png");
+	m_iconTable[IconId.Upload] = new ui.Icon("images/transmit.png");
 
 	m_pluginHost.m_toolBar.addLabel("Device:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -245,7 +245,7 @@ CypressUploaderSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
 		);
@@ -306,7 +306,7 @@ CypressUploaderSession.createUi()
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("USB connection");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("USB connection");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -332,7 +332,7 @@ CypressUploaderSession.enumerateDevices()
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
 	size_t count = dynamic countof(deviceArray);
 
-	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption[count];
+	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[count];
 
 	io.UsbDb* usbDb = io.getStdUsbDb();
 
@@ -379,12 +379,12 @@ bool CypressUploaderSession.openDevice()
 	params.m_productId = deviceDesc.m_productId;
 	params.m_vendorId = deviceDesc.m_vendorId;
 
-	writeLog(UsbLogRecordCode.DeviceOpened, &params, sizeof(params));
+	m_logWriter.write(UsbLogRecordCode.DeviceOpened, &params, sizeof(params));
 	m_state = State.Opened;
 	return true;
 
 catch:
-	writeLogLastError(UsbLogRecordCode.DeviceOpenError);
+	m_logWriter.writeLastError(UsbLogRecordCode.DeviceOpenError);
 	return false;
 }
 
@@ -396,7 +396,7 @@ CypressUploaderSession.closeDevice()
 	m_device.close();
 	m_device = null;
 
-	writeLog(UsbLogRecordCode.DeviceClosed);
+	m_logWriter.write(UsbLogRecordCode.DeviceClosed);
 	m_state = State.Closed;
 	m_syncId++;
 }
@@ -478,10 +478,10 @@ CypressUploaderSession.onDownloadFile()
 {
 	cancelFileTransfer();
 
-	writeLogString(log.StdRecordCode.PlainText, "Disabling FPGA...");
+	m_logWriter.write(log.StdRecordCode.PlainText, "Disabling FPGA...");
 	syncControlTransfer(ReqType.VendorOut, ReqCode.DisableFpga);
 
-	writeLogString(log.StdRecordCode.PlainText, "Downloading file...");
+	m_logWriter.write(log.StdRecordCode.PlainText, "Downloading file...");
 	m_state = State.Downloading;
 	m_offset = 0;
 	nextBlock();
@@ -491,7 +491,7 @@ CypressUploaderSession.onUploadFile()
 {
 	cancelFileTransfer();
 
-	m_fileDlg.m_kind = gui.FileDlgKind.Open;
+	m_fileDlg.m_kind = ui.FileDlgKind.Open;
 	m_fileDlg.m_title = "Upload File to Cypress EZ-USB FX2...";
 	m_fileDlg.m_filter = "All files (*.*)";
 	m_fileDlg.show();
@@ -499,9 +499,9 @@ CypressUploaderSession.onUploadFile()
 	m_state = State.FileDlg;
 }
 
-CypressUploaderSession.onFileDlgCompleted(gui.StdDlgButton button)
+CypressUploaderSession.onFileDlgCompleted(ui.StdDlgButton button)
 {
-	if (button != gui.StdDlgButton.Ok)
+	if (button != ui.StdDlgButton.Ok)
 	{
 		m_state = State.Opened;
 		return;
@@ -510,7 +510,7 @@ CypressUploaderSession.onFileDlgCompleted(gui.StdDlgButton button)
 	m_progressDlg.m_title = m_fileDlg.m_filePath;
 	m_progressDlg.m_status = "Initializing...";
 	m_progressDlg.m_progress = 0;
-	m_progressDlg.m_buttons = gui.StdDlgButtons.Abort;
+	m_progressDlg.m_buttons = ui.StdDlgButtons.Abort;
 	m_progressDlg.show();
 
 	m_file.open(
@@ -518,16 +518,16 @@ CypressUploaderSession.onFileDlgCompleted(gui.StdDlgButton button)
 		io.FileOpenFlags.OpenExisting | io.FileOpenFlags.ReadOnly
 		);
 
-	writeLogString(log.StdRecordCode.PlainText, "Disabling FPGA...");
+	m_logWriter.write(log.StdRecordCode.PlainText, "Disabling FPGA...");
 	syncControlTransfer(ReqType.VendorOut, ReqCode.DisableFpga);
 
-	writeLogString(log.StdRecordCode.PlainText, $"Uploading file: $(m_fileDlg.m_filePath) ($(m_file.m_size) bytes)...");
+	m_logWriter.write(log.StdRecordCode.PlainText, $"Uploading file: $(m_fileDlg.m_filePath) ($(m_file.m_size) bytes)...");
 	m_state = State.Uploading;
 	m_offset = 0;
 
 	if (m_eraseBeforeUploadProp.m_value)
 	{
-		writeLogString(log.StdRecordCode.PlainText, "Erasing flash...");
+		m_logWriter.write(log.StdRecordCode.PlainText, "Erasing flash...");
 		syncControlTransfer(ReqType.VendorOut, ReqCode.EraseFlash);
 		setStatusCheckTimer();
 	}
@@ -545,7 +545,7 @@ CypressUploaderSession.onFileDlgCompleted(gui.StdDlgButton button)
 
 catch:
 	m_progressDlg.m_status = std.getLastError().m_description;
-	m_progressDlg.m_buttons = gui.StdDlgButtons.Close;
+	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
 CypressUploaderSession.onStatusCheckTimer()
@@ -556,7 +556,7 @@ CypressUploaderSession.onStatusCheckTimer()
 
 	m_timer.stop();
 
-	writeLogString(log.StdRecordCode.PlainText, $"Device ready, resuming upload...");
+	m_logWriter.write(log.StdRecordCode.PlainText, $"Device ready, resuming upload...");
 	m_state = State.Uploading;
 	nextBlock();
 
@@ -569,7 +569,7 @@ CypressUploaderSession.onFpgaCheckTimer()
 	bool isReady = checkStatus(ReqCode.GetFpgaStatus);
 	if (isReady)
 	{
-		writeLogString(log.StdRecordCode.PlainText, $"FPGA is functional");
+		m_logWriter.write(log.StdRecordCode.PlainText, $"FPGA is functional");
 		cancelFileTransfer();
 	}
 
@@ -578,7 +578,7 @@ CypressUploaderSession.onFpgaCheckTimer()
 		return;
 
 	std.setError("Can't load FPGA");
-	writeLogLastError(log.StdRecordCode.Error);
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
 	cancelFileTransfer();
 
 catch:
@@ -587,7 +587,7 @@ catch:
 
 CypressUploaderSession.enableFpga()
 {
-	writeLogString(log.StdRecordCode.PlainText, $"Enabling FPGA...");
+	m_logWriter.write(log.StdRecordCode.PlainText, $"Enabling FPGA...");
 	m_state = State.EnablingFpga;
 	syncControlTransfer(ReqType.VendorOut, ReqCode.EnableFpga);
 
@@ -645,8 +645,8 @@ bool errorcode CypressUploaderSession.nextBlock()
 
 	if (!size)
 	{
-		writeLogString(log.StdRecordCode.PlainText, $"File transfer completed ($m_offset bytes).");
-		writeLog(log.StdRecordCode.Break); // separate from the next message
+		m_logWriter.write(log.StdRecordCode.PlainText, $"File transfer completed ($m_offset bytes).");
+		m_logWriter.write(log.StdRecordCode.Break); // separate from the next message
 
 		enableFpga();
 		return true;
@@ -659,7 +659,7 @@ bool errorcode CypressUploaderSession.nextBlock()
 		index,
 		m_block.m_p,
 		size,,
-		onTransferCompleted ~(
+		onTransferCompleted~(
 			m_syncId,
 			type,
 			code,
@@ -673,7 +673,7 @@ bool errorcode CypressUploaderSession.nextBlock()
 	return true;
 
 catch:
-	writeLogError(log.StdRecordCode.Error, std.getLastError());
+	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());
 	cancelFileTransfer();
 	return false;
 }
@@ -693,7 +693,7 @@ bool errorcode CypressUploaderSession.syncControlTransfer(
 	params.m_value = value;
 	params.m_index = index;
 
-	writeLog(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
+	m_logWriter.write(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
 
 	m_device.controlTransfer(
 		type,
@@ -705,12 +705,12 @@ bool errorcode CypressUploaderSession.syncControlTransfer(
 		);
 
 	if (size)
-		writeLog((type & ReqType.VendorIn) ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, size);
+		m_logWriter.write((type & ReqType.VendorIn) ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, size);
 
 	return true;
 
 catch:
-	writeLogError(log.StdRecordCode.Error, std.getLastError());
+	m_logWriter.write(log.StdRecordCode.Error, std.getLastError());
 	cancelFileTransfer();
 	return false;
 }
@@ -735,18 +735,18 @@ CypressUploaderSession.onTransferCompleted(
 	params.m_value = value;
 	params.m_index = index;
 
-	writeLog(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
+	m_logWriter.write(UsbLogRecordCode.ControlTransfer, &params, sizeof(params));
 
 	if (error)
 	{
-		writeLogError(log.StdRecordCode.Error, error);
+		m_logWriter.write(log.StdRecordCode.Error, error);
 		cancelFileTransfer();
 		return;
 	}
 
 	bool isUpload = !(type & 0x80);
 	uint64_t logRecordCode = isUpload ? log.StdRecordCode.Tx : log.StdRecordCode.Rx;
-	writeLog(logRecordCode, p, size);
+	m_logWriter.write(logRecordCode, p, size);
 
 	m_offset += size;
 
@@ -764,17 +764,17 @@ CypressUploaderSession.onTransferCompleted(
 	}
 }
 
-CypressUploaderSession.onProgressDlgButtonClicked(gui.StdDlgButton button)
+CypressUploaderSession.onProgressDlgButtonClicked(ui.StdDlgButton button)
 {
 	switch (button)
 	{
-	case gui.StdDlgButton.Cancel:
-	case gui.StdDlgButton.Abort:
+	case ui.StdDlgButton.Cancel:
+	case ui.StdDlgButton.Abort:
 		cancelFileTransfer();
 		break;
 
-	case gui.StdDlgButton.Ok:
-	case gui.StdDlgButton.Close:
+	case ui.StdDlgButton.Ok:
+	case ui.StdDlgButton.Close:
 		m_progressDlg.hide();
 		break;
 	}

@@ -50,6 +50,8 @@ override I2c.processSignal(
 		lines & I2cLines.Sda
 		);
 
+	log.Writer* logWriter = m_pluginHost.m_log.m_writer;
+
 	switch (result)
 	{
 	case io.I2cDecodeResult.Continue:
@@ -57,11 +59,11 @@ override I2c.processSignal(
 		break;
 
 	case io.I2cDecodeResult.Stop:
-		m_pluginHost.m_log.m_writer.write(timestamp, log.StdRecordCode.Break);
+		logWriter.write(timestamp, log.StdRecordCode.Break);
 		break;
 
 	case io.I2cDecodeResult.CharAck:
-		m_pluginHost.m_log.m_writer.write(
+		logWriter.write(
 			timestamp,
 			log.StdRecordCode.Rx,
 			&m_decoder.m_char,
@@ -70,7 +72,7 @@ override I2c.processSignal(
 		break;
 
 	case io.I2cDecodeResult.CharNack:
-		m_pluginHost.m_log.m_writer.write(
+		logWriter.write(
 			timestamp,
 			HwSerialMonRecordCode.I2cCharNack,
 			&m_decoder.m_char,
@@ -79,15 +81,15 @@ override I2c.processSignal(
 		break;
 
 	case io.I2cDecodeResult.PreemptiveStart:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.I2cPreemptiveStart);
+		logWriter.write(timestamp, HwSerialMonRecordCode.I2cPreemptiveStart);
 		break;
 
 	case io.I2cDecodeResult.PreemptiveStop:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.I2cPreemptiveStop);
+		logWriter.write(timestamp, HwSerialMonRecordCode.I2cPreemptiveStop);
 		break;
 
 	case io.I2cDecodeResult.EmptyMessage:
-		m_pluginHost.m_log.m_writer.write(timestamp, HwSerialMonRecordCode.I2cEmptyMessage);
+		logWriter.write(timestamp, HwSerialMonRecordCode.I2cEmptyMessage);
 		break;
 	}
 }

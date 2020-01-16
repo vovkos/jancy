@@ -1,29 +1,48 @@
 //..............................................................................
 //
-// I2C Sniffer session
+// I2C/SPI Tap session
 //
 
-import "io_usb.jncx"
-import "io_BufferUi.jnc"
-import "std_Buffer.jnc"
 import "doc_Session.jnc"
-import "gui_StdSessionInfo.jnc"
+import "io_usb.jncx"
+import "io_FpgaUploader.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
 
 //..............................................................................
 
 class I2cSpiSnifferSession: doc.Session
 {
 protected:
+	enum Protocol
+	{
+		Spi,
+		I2c,
+	}
+
 	enum Defaults
 	{
-		Proto       = Protocol.Spi,
-		SpiMode     = 0,
-		Endianness  = true,
-		DataBits    = 8,
-		ShowI2cStop = true,
-		ShowRawData = false,
+		Proto           = Protocol.Spi,
+		SpiMode         = 0,
+		SpiEndianness   = true,
+		SpiDataBits     = 8,
+		ReadParallelism = 4,
+		ReadBlockSize   = 64 * 1024,
+		ReadBufferSize  = 1 * 1024 * 1024,
+
+		UseLogCacheUpdateScrollRateLimit = true,
+		LogCacheUpdateScrollRateLimit    = 16,
+	}
+
+	enum
+	{
+		CypressBufferSize         = 4 * 1024, // 4K (2K built-in in Cypress + 512 FPGA FIFO)
+		GracefulStopWriteTimeout  = 1000,     // 1 sec
+		CypressClearBufferTimeout = 200,      // 0.2 sec
+		FpgaUploadBaseIndex       = 0x1000,
 	}
 
 	enum State
@@ -44,7 +63,7 @@ protected:
 	{
 		Refresh,
 		Capture,
-		Test,
+		Flip,
 		_Count,
 	}
 
@@ -53,6 +72,7 @@ protected:
 		Capture,
 		Stop,
 		Refresh,
+		Flip,
 		_Count,
 	}
 
@@ -62,32 +82,19 @@ protected:
 		_Count,
 	}
 
-	enum UsbId
+	enum Usb
 	{
-		VendorId  = 0x04B4,
-		ProductId = 0x00F1,
-//		VendorId  = 0x16d0,
-//		ProductId = 0x0e26,
+		VendorId    = 0x16d0,
+		ProductId   = 0x0e27,
+		OutEndpoint = 0x02,
+		InEndpoint  = 0x86,
+		PacketSize  = 512,
 	}
 
-	enum UsbEndpoint
+	static char const* const m_fileNameTable[] =
 	{
-		Out = 0x02,
-		In  = 0x86,
-//		Out = 0x01,
-//		In  = 0x82,
-	}
-
-	enum UsbEndpointTimeout
-	{
-		In  = 1000,
-		Out = 1500,
-	}
-
-	enum
-	{
-		UsbPacketSize                 = 512,
-		LogCacheUpdateScrollRateLimit = 16,
+		__DIR__ "/firmware/spi.rpd",
+		__DIR__ "/firmware/i2c.rpd",
 	}
 
 protected:
@@ -98,7 +105,7 @@ protected:
 	io.UsbInterface* m_iface;
 	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
 	io.UsbEndpoint* m_inEndpoint;
-	Uploader m_uploader;
+	io.FpgaUploader m_uploader;
 	std.Buffer m_readBuffer;
 	SpiDecoder m_spiDecoder;
 	I2cDecoder m_i2cDecoder;
@@ -107,27 +114,29 @@ protected:
 
 	// toolbar, status bar & menu
 
-	gui.Action* m_actionTable[ActionId._Count];
-	gui.Icon* m_iconTable[IconId._Count];
-	gui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
-	gui.ComboBox* m_deviceCombo;
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_deviceCombo;
+	ui.ComboBox* m_protocolCombo;
 
 	// property grid
 
-	gui.EnumProperty* m_deviceProp;
-	gui.EnumProperty* m_protocolProp;
-	gui.EnumProperty* m_spiModeProp;
-	gui.EnumProperty* m_endiannessProp;
-	gui.IntProperty* m_dataBitsProp;
-	gui.BoolProperty* m_showI2cStopProp;
-	gui.BoolProperty* m_showRawDataProp;
-	io.BufferPropertySet m_bufferPropertySet;
+	ui.EnumProperty* m_deviceProp;
+	ui.EnumProperty* m_protocolProp;
+	ui.EnumProperty* m_spiModeProp;
+	ui.EnumProperty* m_spiDataBitsProp;
+	ui.EnumProperty* m_spiEndiannessProp;
+	ui.BoolProperty* m_spiFlipMosiMisoProp;
+	ui.BoolProperty* m_useLogUpdateRateLimitProp;
+	ui.IntProperty* m_logUpdateRateLimitProp;
+	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
 
-	gui.StdSessionInfoSet m_stdSessionInfoSet;
-	log.ThroughputInfoSet m_throughputInfoSet;
-	log.ChecksumInfoSet m_checksumInfoSet;
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
 
 	// ui reactor
 
@@ -137,12 +146,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	void stopCapture();
-
-	override size_t errorcode transmit(
-		void const* p,
-		size_t size
-		);
+	void stopCapture(bool isGraceful = true);
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -150,8 +154,19 @@ public:
 	override errorcode bool applyProperties();
 	override void restoreDefaultProperties();
 
+	override size_t errorcode transmit(
+		void const* p,
+		size_t size
+		);
+
 protected:
 	onCapture();
+
+	onFlipMosiMiso()
+	{
+		m_spiDecoder.m_isFlipMosiMiso = m_actionTable[ActionId.Flip].m_isChecked;
+	}
+
 	onUpdateCompleted(bool result);
 
 	onInEndpointEvent(
@@ -159,12 +174,11 @@ protected:
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	onTest();
-
 	createUi();
 	enumerateDevices();
 	waitInEndpointEvents();
 	bool errorcode startCapture();
+	bool errorcode gracefulStop();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -181,20 +195,21 @@ I2cSpiSnifferSession.construct(doc.PluginHost* pluginHost)
 
 	createUi();
 
-	pluginHost.m_log.m_cacheUpdateScrollRateLimit = LogCacheUpdateScrollRateLimit;
-	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory ~(m_throughputInfoSet));
-	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory ~(m_checksumInfoSet));
+	pluginHost.m_log.m_cacheUpdateScrollRateLimit = Defaults.LogCacheUpdateScrollRateLimit;
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 I2cSpiSnifferSession.createUi()
 {
-	static gui.EnumPropertyOption protocolTable[] =
+	static ui.EnumPropertyOption protocolTable[] =
 	{
 		{ "SPI", Protocol.Spi },
 		{ "I2C", Protocol.I2c },
 	}
 
-	static gui.EnumPropertyOption spiModeTable[] =
+	static ui.EnumPropertyOption spiModeTable[] =
 	{
 		{ "SPI 0 (CPOL 0, CPHA 0)",  0 },
 		{ "SPI 1 (CPOL 0, CPHA 1)",  1 },
@@ -202,29 +217,44 @@ I2cSpiSnifferSession.createUi()
 		{ "SPI 3 (CPOL 1, CPHA 1)",  3 },
 	}
 
-	static gui.EnumPropertyOption endiannessTable[] =
+	static ui.EnumPropertyOption endiannessTable[] =
 	{
 		{ "Little-endian (LSBit first)", false },
 		{ "Big-endian (MSBit first)",    true },
 	}
 
+	static ui.EnumPropertyOption dataBitsTable[] =
+	{
+		{ "4 bits",  4 },
+		{ "8 bits",  8 },
+		{ "12 bits", 12 },
+		{ "16 bits", 16 },
+	}
+
 	// toolbar
 
-	m_iconTable[IconId.Capture] = new gui.Icon("images/capture.png");
-	m_iconTable[IconId.Stop] = new gui.Icon("images/stop.png");
-	m_iconTable[IconId.Refresh] = new gui.Icon("images/refresh.png");
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.Stop] = new ui.Icon("images/stop.png");
+	m_iconTable[IconId.Refresh] = new ui.Icon("images/refresh.png");
+	m_iconTable[IconId.Flip] = new ui.Icon("images/flip.png");
 
-	m_pluginHost.m_toolBar.addLabel("Sniffer:");
+	m_pluginHost.m_toolBar.addLabel("Tap:");
 	m_deviceCombo = m_pluginHost.m_toolBar.addComboBox(-1);
 
-	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate sniffers", m_iconTable [IconId.Refresh]);
+	m_actionTable[ActionId.Refresh]  = createAction("Re-enumerate I2C/SPI tap devices", m_iconTable[IconId.Refresh]);
 	m_actionTable[ActionId.Refresh].m_onTriggered += enumerateDevices;
 
-	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
-	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_protocolCombo = m_pluginHost.m_toolBar.addComboBox(
+		"Protocol:",
+		protocolTable,
+		countof(protocolTable)
+		);
 
-	m_actionTable[ActionId.Test] = createAction("Test");
-	m_actionTable[ActionId.Test].m_onTriggered += onTest;
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable[IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_actionTable[ActionId.Flip] = createAction("Flip SPI MOSI/MISO", m_iconTable[IconId.Flip]);
+	m_actionTable[ActionId.Flip].m_isCheckable = true;
+	m_actionTable[ActionId.Flip].m_onTriggered += onFlipMosiMiso;
 
 	// status bar
 
@@ -232,7 +262,7 @@ I2cSpiSnifferSession.createUi()
 
 	// property grid
 
-	gui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
 		"Connection",
 		"USB-specific connection settings"
 		);
@@ -260,46 +290,59 @@ I2cSpiSnifferSession.createUi()
 		countof(spiModeTable)
 		);
 
-	m_endiannessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+	m_spiDataBitsProp = m_pluginHost.m_propertyGrid.createEnumProperty(
 		group,,
-		"Endianness",
+		"SPI data bits",
+		"SPI word size",
+		dataBitsTable,
+		countof(dataBitsTable)
+		);
+
+	m_spiEndiannessProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		group,,
+		"SPI endianness",
 		"SPI bit endianness",
 		endiannessTable,
 		countof(endiannessTable)
 		);
 
-	m_dataBitsProp = m_pluginHost.m_propertyGrid.createIntProperty(
+	m_spiFlipMosiMisoProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
-		"Data bits",
-		"SPI word size"
+		"Flip SPI MOSI/MISO",
+		"Flip interpretation of SPI MOSI/MISO lines as TX/RX"
 		);
 
-	m_dataBitsProp.m_minValue = 4;
-	m_dataBitsProp.m_maxValue = 16;
-
-	m_showI2cStopProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		group,,
-		"Show I2C STOP",
-		"Show the I2C STOP transaction condition"
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Log update",
+		"Limit log update rate for better performance"
 		);
 
-	m_showRawDataProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+	m_useLogUpdateRateLimitProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		group,,
-		"Show Raw Data",
-		"Show raw data packets from HW sniffer"
+		"Use update rate limit",
+		"When ON, the engine only allows the specified number of scroll operations per second"
 		);
 
-	io.BufferPropertySet.PropertyId ids =
-		io.BufferPropertySet.PropertyId.ReadParallelism |
-		io.BufferPropertySet.PropertyId.ReadBlockSize |
-		io.BufferPropertySet.PropertyId.ReadBufferSize |
-		io.BufferPropertySet.PropertyId.NotifyReadBufferFull;
+	m_logUpdateRateLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Update rate limit",
+		"Log cache update limit (in scroll operations per second)"
+		);
 
+	ui.BufferPropertySet.PropertyId ids =
+		ui.BufferPropertySet.PropertyId.ReadParallelism |
+		ui.BufferPropertySet.PropertyId.ReadBlockSize |
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull;
+
+	m_bufferPropertySet.m_defaultReadParallelism = Defaults.ReadParallelism;
+	m_bufferPropertySet.m_defaultReadBlockSize = Defaults.ReadBlockSize;
+	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.ReadBufferSize;
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid,,, ids);
 
 	// information grid
 
-	gui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("USB connection");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("USB connection");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -327,63 +370,38 @@ I2cSpiSnifferSession.onUpdateCompleted(bool result)
 		stopCapture();
 }
 
-I2cSpiSnifferSession.onTest()
-{
-	static char const data1[] =
-		0x"""
-		11 32 23 32 21 32 2c 47 21 70 11 32 23 34 25 36
-		27 68 11 32 23 34 25 36 27 68 11 32 23 34 25 36
-		27 68 11 32 23 34 25 36 27 68 11 32 23 34 25 36
-		27 68 11 32 23 34 25 36 27 68 11 32 23 34 25 36
-		27 68
-		""";
-
-	m_decoder.decode(data1, sizeof(data1));
-}
-
-size_t errorcode I2cSpiSnifferSession.transmit(
-	void const* p,
-	size_t size
-	)
-{
-	if (m_showRawDataProp.m_value)
-		writeLog(log.StdRecordCode.Bin, p, size);
-
-	m_decoder.reset();
-	m_decoder.decode(p, size);
-	return size;
-}
-
 I2cSpiSnifferSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
 	io.UsbDevice* const* deviceArray = io.createUsbDeviceArray();
-	size_t count = dynamic countof(deviceArray);
+	size_t totalCount = dynamic countof(deviceArray);
+	size_t actualCount = 0;
 
-	gui.EnumPropertyOption* optionTable = new gui.EnumPropertyOption[count];
+	ui.EnumPropertyOption* optionTable = new ui.EnumPropertyOption[totalCount];
 
-	for (size_t i = 0; i < count; i++)
+	for (size_t i = 0; i < totalCount; i++)
 	{
 		io.UsbDevice* device = deviceArray[i];
 		io.UsbDeviceDesc const* deviceDesc = device.m_deviceDesc;
 
-		if (deviceDesc.m_vendorId != UsbId.VendorId ||
-			deviceDesc.m_productId != UsbId.ProductId)
+		if (deviceDesc.m_vendorId != Usb.VendorId ||
+			deviceDesc.m_productId != Usb.ProductId)
 			continue;
 
-		char const* text = $"@%(1;03d):%(2;03d) IO Ninja I2C/SPI Sniffer" (
+		char const* text = $"@%(1;03d):%(2;03d) IO Ninja I2C/SPI Tap" (
 			device.m_bus,
 			device.m_address
 			);
 
 		m_deviceCombo.addItem(text, device);
 
-		optionTable[i].m_text = text;
-		optionTable[i].m_value = device;
+		optionTable[actualCount].m_text = text;
+		optionTable[actualCount].m_value = device;
+		actualCount++;
 	}
 
-	m_deviceProp.setOptions(optionTable, count);
+	m_deviceProp.setOptions(optionTable, actualCount);
 }
 
 bool errorcode I2cSpiSnifferSession.capture()
@@ -398,47 +416,45 @@ bool errorcode I2cSpiSnifferSession.capture()
 	m_device = m_deviceCombo.m_currentData;
 	m_device.open();
 
-	writeLogString(I2cSpiSnifferLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
+	m_logWriter.write(I2cSpiSnifferLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
 
-	return m_uploader.update(m_device, m_protocolProp.m_value);
+	Protocol protocol = m_protocolCombo.m_currentData;
+	return m_uploader.update(m_device, m_fileNameTable[protocol], FpgaUploadBaseIndex);
 
 catch:
-	writeLogLastError(I2cSpiSnifferLogRecordCode.CaptureError);
+	m_logWriter.writeLastError(I2cSpiSnifferLogRecordCode.CaptureError);
 	return false;
 }
 
 bool errorcode I2cSpiSnifferSession.startCapture()
 {
 	m_iface = m_device.claimInterface(0);
-	writeLog(I2cSpiSnifferLogRecordCode.InterfaceClaimed);
-
-	m_outEndpoint = m_iface.openEndpoint(UsbEndpoint.Out);
-	m_outEndpoint.m_transferTimeout = UsbEndpointTimeout.Out;
-	writeLog(I2cSpiSnifferLogRecordCode.OutEndpointOpened);
+	m_outEndpoint = m_iface.openEndpoint(Usb.OutEndpoint);
+	gracefulStop();
 
 	// align read block on 512 bytes
 
 	size_t readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
-	readBlockSize = (readBlockSize + UsbPacketSize - 1) & ~(UsbPacketSize - 1);
+	readBlockSize = (readBlockSize + Usb.PacketSize - 1) & ~(Usb.PacketSize - 1);
 
-	m_inEndpoint = m_iface.openEndpoint(UsbEndpoint.In);
-	m_inEndpoint.m_transferTimeout = UsbEndpointTimeout.In;
+	m_inEndpoint = m_iface.openEndpoint(Usb.InEndpoint, true);
 	m_inEndpoint.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 	m_inEndpoint.m_readBlockSize = readBlockSize;
 	m_inEndpoint.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
 	m_inEndpoint.m_options &= ~io.UsbEndpointOptions.KeepReadBlockSize;
-	writeLog(I2cSpiSnifferLogRecordCode.InEndpointOpened);
+	m_inEndpoint.unsuspend();
 
 	char startCode;
 
-	switch (m_protocolProp.m_value)
+	switch (m_protocolCombo.m_currentData)
 	{
 	case Protocol.Spi:
-		m_spiDecoder.m_isBigEndian = m_endiannessProp.m_value;
-		m_spiDecoder.m_dataBits = 8;
+		m_spiDecoder.m_dataBits = m_spiDataBitsProp.m_value;
+		m_spiDecoder.m_isBigEndian = m_spiEndiannessProp.m_value;
+		m_spiDecoder.m_isFlipMosiMiso = m_actionTable[ActionId.Flip].m_isChecked;
 		m_decoder = m_spiDecoder;
 		startCode = m_spiModeProp.m_value;
-		startCode += m_endiannessProp.m_value ? 0x70 : 0x80;
+		startCode += m_spiEndiannessProp.m_value ? 0x70 : 0x80;
 		break;
 
 	case Protocol.I2c:
@@ -448,9 +464,8 @@ bool errorcode I2cSpiSnifferSession.startCapture()
 	}
 
 	m_decoder.reset();
-
 	m_outEndpoint.write(&startCode, sizeof(startCode));
-	writeLog(I2cSpiSnifferLogRecordCode.CaptureStarted);
+	m_logWriter.write(I2cSpiSnifferLogRecordCode.CaptureStarted);
 
 	waitInEndpointEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
@@ -458,17 +473,57 @@ bool errorcode I2cSpiSnifferSession.startCapture()
 	return true;
 
 catch:
-	writeLogLastError(I2cSpiSnifferLogRecordCode.CaptureError);
+	m_logWriter.writeLastError(I2cSpiSnifferLogRecordCode.CaptureError);
 	return false;
 }
 
-I2cSpiSnifferSession.stopCapture()
+bool errorcode I2cSpiSnifferSession.gracefulStop()
+{
+	static char stopCode = 0xaa;
+	m_outEndpoint.write(&stopCode, sizeof(stopCode));
+
+	io.UsbEndpointEvents events = m_outEndpoint.blockingWait(
+		io.UsbEndpointEvents.WriteCompleted | io.UsbEndpointEvents.IoError,
+		GracefulStopWriteTimeout
+		);
+
+	if (events & io.UsbEndpointEvents.IoError)
+	{
+		std.setError("Stop capture request failed");
+		return false;
+	}
+
+	io.UsbEndpoint* ep = m_iface.openEndpoint(Usb.InEndpoint, true);
+	ep.m_readParallelism = 1;
+	ep.m_readBlockSize = Usb.PacketSize;
+	ep.m_readBufferSize = CypressBufferSize;
+	ep.m_options &= ~io.UsbEndpointOptions.KeepReadBlockSize;
+	ep.unsuspend();
+
+	for (;;)
+	{
+		ep.blockingWait(io.UsbEndpointEvents.IncomingData, CypressClearBufferTimeout);
+
+		size_t size = ep.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (!size)
+			break;
+
+		// m_logWriter.write(log.StdRecordCode.PlainText, $"Cypress buffer clear received: $size");
+		// m_logWriter.write(log.StdRecordCode.Bin, m_readBuffer.m_p, size);
+	}
+
+	ep.close();
+	m_logWriter.write(I2cSpiSnifferLogRecordCode.CypressBufferCleared);
+	return true;
+}
+
+I2cSpiSnifferSession.stopCapture(bool isGraceful)
 {
 	if (m_outEndpoint)
 	{
-		static char stopCode = 0xaa;
-		try m_outEndpoint.write(&stopCode, sizeof(stopCode));
-		m_outEndpoint.blockingWait(io.UsbEndpointEvents.WriteCompleted);
+		if (isGraceful)
+			try gracefulStop();
+
 		m_outEndpoint.close();
 		m_outEndpoint = null;
 	}
@@ -494,7 +549,7 @@ I2cSpiSnifferSession.stopCapture()
 	if (m_state)
 	{
 		m_stdSessionInfoSet.endSession();
-		writeLog(I2cSpiSnifferLogRecordCode.CaptureStopped);
+		m_logWriter.write(I2cSpiSnifferLogRecordCode.CaptureStopped);
 		m_state = State.Closed;
 	}
 
@@ -509,7 +564,7 @@ I2cSpiSnifferSession.waitInEndpointEvents()
 		io.UsbEndpointEvents.ReadBufferFull |
 		io.UsbEndpointEvents.IncomingData;
 
-	m_inEndpoint.wait(eventMask, onInEndpointEvent ~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
 I2cSpiSnifferSession.onInEndpointEvent(
@@ -522,20 +577,15 @@ I2cSpiSnifferSession.onInEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		writeLogError(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
-		stopCapture();
+		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
+		stopCapture(false);
 		return;
 	}
 
 	if (triggeredEvents & io.UsbEndpointEvents.IncomingData)
 	{
 		size_t size = m_inEndpoint.read(m_readBuffer.m_p, m_readBuffer.m_size);
-		m_stdSessionInfoSet.addRxData(size);
-
-		if (m_showRawDataProp.m_value)
-			writeLog(log.StdRecordCode.Bin, m_readBuffer.m_p, size);
-
-		m_decoder.decode(m_readBuffer.m_p, size);
+		m_decoder.decode(sys.getTimestamp(), m_readBuffer.m_p, size);
 	}
 
 	waitInEndpointEvents();
@@ -544,38 +594,53 @@ I2cSpiSnifferSession.onInEndpointEvent(
 I2cSpiSnifferSession.load(doc.Storage* storage)
 {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
-	m_protocolProp.m_value = storage.readInt("protocol", Defaults.Proto);
+	m_protocolCombo.m_currentData = storage.readInt("protocol", Defaults.Proto);
 	m_spiModeProp.m_value = storage.readInt("spiMode", Defaults.SpiMode);
-	m_endiannessProp.m_value = storage.readInt("endianness", Defaults.Endianness);
-	m_dataBitsProp.m_value = storage.readInt("dataBits", Defaults.DataBits);
-	m_showI2cStopProp.m_value = storage.readBool("showI2cStop", Defaults.ShowI2cStop);
-	m_showRawDataProp.m_value = storage.readBool("showRawData", Defaults.ShowRawData);
+	m_spiDataBitsProp.m_value = storage.readInt("spiDataBits", Defaults.SpiDataBits);
+	m_spiEndiannessProp.m_value = storage.readInt("spiEndianness", Defaults.SpiEndianness);
+	m_actionTable[ActionId.Flip].m_isChecked = storage.readBool("spiFlipMosiMiso", false);
+	m_useLogUpdateRateLimitProp.m_value = storage.readBool("useLogUpdateRateLimitProp", Defaults.UseLogCacheUpdateScrollRateLimit);
+	m_logUpdateRateLimitProp.m_value = storage.readInt("logUpdateRateLimitProp", Defaults.LogCacheUpdateScrollRateLimit);
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
 I2cSpiSnifferSession.save(doc.Storage* storage)
 {
-	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
-	storage.writeInt("protocol", m_protocolProp.m_value);
+	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
+	storage.writeInt("protocol", m_protocolCombo.m_currentData);
 	storage.writeInt("spiMode", m_spiModeProp.m_value);
-	storage.writeInt("endianness", m_endiannessProp.m_value);
-	storage.writeInt("dataBits", m_dataBitsProp.m_value);
-	storage.writeBool("showI2cStop", m_showI2cStopProp.m_value);
-	storage.writeBool("showRawData", m_showRawDataProp.m_value);
+	storage.writeInt("spiDataBits", m_spiDataBitsProp.m_value);
+	storage.writeInt("spiEndianness", m_spiEndiannessProp.m_value);
+	storage.writeBool("spiFlipMosiMiso", m_actionTable[ActionId.Flip].m_isChecked);
+	storage.writeBool("useLogUpdateRateLimitProp", m_useLogUpdateRateLimitProp.m_value);
+	storage.writeInt("logUpdateRateLimitProp", m_logUpdateRateLimitProp.m_value);
 	m_bufferPropertySet.save(storage);
 }
 
 I2cSpiSnifferSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+	m_protocolProp.m_currentIndex = m_protocolCombo.m_currentIndex;
+	m_spiFlipMosiMisoProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
 bool errorcode I2cSpiSnifferSession.applyProperties()
 {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	m_protocolCombo.m_currentIndex = m_protocolProp.m_currentIndex;
+	m_actionTable[ActionId.Flip].m_isChecked = m_spiFlipMosiMisoProp.m_value;
+
 	m_readBuffer.detach(); // drop buffer, so we re-allocate each time
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	m_pluginHost.m_log.m_cacheUpdateScrollRateLimit = m_useLogUpdateRateLimitProp.m_value ?
+		m_logUpdateRateLimitProp.m_value :
+		-1;
+
+	m_spiDecoder.m_dataBits = m_spiDataBitsProp.m_value;
+	m_spiDecoder.m_isBigEndian = m_spiEndiannessProp.m_value;
+	m_spiDecoder.m_isFlipMosiMiso = m_actionTable[ActionId.Flip].m_isChecked;
 
 	if (m_state != State.Capturing)
 		return true;
@@ -590,23 +655,50 @@ I2cSpiSnifferSession.restoreDefaultProperties()
 {
 	m_protocolProp.m_value = Defaults.Proto;
 	m_spiModeProp.m_value = Defaults.SpiMode;
-	m_endiannessProp.m_value = Defaults.Endianness;
-	m_dataBitsProp.m_value = Defaults.DataBits;
-	m_showI2cStopProp.m_value = Defaults.ShowI2cStop;
-	m_showRawDataProp.m_value = false;
+	m_spiDataBitsProp.m_value = Defaults.SpiDataBits;
+	m_spiEndiannessProp.m_value = Defaults.SpiEndianness;
+	m_spiFlipMosiMisoProp.m_value = false;
+	m_useLogUpdateRateLimitProp.m_value = Defaults.UseLogCacheUpdateScrollRateLimit;
+	m_logUpdateRateLimitProp.m_value = Defaults.LogCacheUpdateScrollRateLimit;
 	m_bufferPropertySet.restoreDefaults();
+}
+
+size_t errorcode I2cSpiSnifferSession.transmit(
+	void const* p,
+	size_t size
+	)
+{
+	uint64_t timestamp = sys.getTimestamp();
+
+	if (m_protocolCombo.m_currentData == Protocol.I2c)
+	{
+		m_i2cDecoder.reset();
+		m_i2cDecoder.decode(timestamp, p, size);
+	}
+	else
+	{
+		m_spiDecoder.m_dataBits = m_spiDataBitsProp.m_value;
+		m_spiDecoder.m_isBigEndian = m_spiEndiannessProp.m_value;
+		m_spiDecoder.m_isFlipMosiMiso  = m_actionTable[ActionId.Flip].m_isChecked;
+		m_spiDecoder.reset();
+		m_spiDecoder.decode(timestamp, p, size);
+	}
+
+	return size;
 }
 
 reactor I2cSpiSnifferSession.m_uiReactor
 {
-	m_title = $"$(g_protocolNameTable [m_protocolProp.m_value]) $(m_deviceCombo.m_currentText)";
+	m_title = $"$(m_protocolCombo.m_currentText) $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";
 	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.Stop : IconId.Capture];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_statusText[m_state];
 	m_spiModeProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
-	m_endiannessProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
-	m_dataBitsProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
-	m_showI2cStopProp.m_isEnabled = m_protocolProp.m_value == Protocol.I2c;
+	m_spiDataBitsProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_spiEndiannessProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_spiFlipMosiMisoProp.m_isEnabled = m_protocolProp.m_value == Protocol.Spi;
+	m_actionTable[ActionId.Flip].m_isEnabled = m_protocolCombo.m_currentData == Protocol.Spi;
+	m_logUpdateRateLimitProp.m_isEnabled = m_useLogUpdateRateLimitProp.m_value;
 }
 
 //..............................................................................

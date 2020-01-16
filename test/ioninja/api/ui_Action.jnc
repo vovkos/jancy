@@ -1,0 +1,37 @@
+//..............................................................................
+//
+// Ninja GUI - actions (QT-style model)
+//
+
+import "ui_Icon.jnc"
+
+namespace ui {
+
+//! \addtogroup api-ui
+//! @{
+
+//..............................................................................
+
+opaque class Action
+{
+	construct(
+		char const* text,
+		Icon* icon = null
+		);
+
+	bool autoget property m_isVisible;
+	bool autoget property m_isEnabled;
+	bool autoget property m_isCheckable;
+	bool bindable autoget property m_isChecked;
+
+	char const* autoget property m_text;
+	Icon* autoget property m_icon;
+
+	event m_onTriggered();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

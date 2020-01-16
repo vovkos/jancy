@@ -1,0 +1,455 @@
+//..............................................................................
+//
+// Cypress EZ-USB uploader
+//
+
+import "io_base.jncx"
+import "io_usb.jncx"
+import "io_MappedFile.jnc"
+import "io_RpdFile.jnc"
+import "log_Writer.jnc"
+import "sys_Timer.jnc"
+import "ui_Dialog.jnc"
+import "doc_PluginHost.jnc"
+import "std_Buffer.jnc"
+import "parseVersion.jnc"
+import "FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc"
+
+namespace io {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class FpgaUploader
+{
+protected:
+	enum State
+	{
+		Idle,
+		PreErase,
+		Erasing,
+		Writing,
+		Loading,
+	}
+
+	enum UsbControlReqType
+	{
+		VendorIn  = 0x80,
+		VendorOut = 0x40,
+	}
+
+	enum UsbControlReqCode
+	{
+		GetVersion = 0x50,
+		GetStatus  = 0x51,
+		Erase      = 0x52,
+		Write      = 0x53,
+		Load       = 0x54,
+	}
+
+	bitflag enum Status: uint16_t
+	{
+		InvalidApp      = 0x0100,
+		FlashWriteError = 0x0200,
+		FlashBusy       = 0x0400,
+		AppLoadError    = 0x0800,
+		FpgaBusy        = 0x1000,
+	}
+
+	enum
+	{
+		AtomSize           = 4,
+		BlockSize          = 64,
+		TimerInterval      = 100,
+		StatusCheckCount   = 5,  // check n times before waiting
+		StillWaitingFactor = 1000 / TimerInterval, // once a second
+	}
+
+protected:
+	State m_state;
+	log.Writer* m_logWriter;
+	jnc.Scheduler* m_mainThreadScheduler;
+	io.UsbDevice* m_device;
+	io.MappedFile m_file;
+	RpdVersion m_fileVersion;
+	ui.ProgressDlg m_progressDlg;
+	sys.Timer m_timer;
+	std.Buffer m_block;
+	size_t m_fileSize;
+	size_t m_fileOffset;
+	size_t m_baseIndex;
+	size_t m_statusCheckIdx;
+	uint_t m_syncId;
+
+public:
+	event m_onUpdateCompleted(bool result);
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	cancel();
+
+	bool errorcode update(
+		io.UsbDevice* device,
+		char const* fileName,
+		size_t baseIndex
+		);
+
+protected:
+	RpdVersion getVersion();
+	Status getStatus();
+	erase(bool isCheckRequired);
+	sendFirstBlock(bool isCheckRequired);
+	sendNextBlock(bool isCheckRequired);
+	load(bool isCheckRequired);
+	finalizeLoad();
+	complete(bool result);
+
+	bool checkStatus();
+
+	onProgressDlgButtonClicked(ui.StdDlgButton button);
+	onTimer(uint_t syncId);
+
+	onTransferCompleted(
+		uint_t syncId,
+		size_t size,
+		std.Error const* error
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+FpgaUploader.construct(doc.PluginHost* pluginHost)
+{
+	m_logWriter = pluginHost.m_log.m_writer;
+	m_mainThreadScheduler = pluginHost.m_mainThreadScheduler;
+	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
+}
+
+FpgaUploader.cancel()
+{
+	if (!m_state)
+		return;
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCancelled);
+	complete(false);
+}
+
+bool errorcode FpgaUploader.update(
+	io.UsbDevice* device,
+	char const* fileName,
+	size_t baseIndex
+	)
+{
+	cancel();
+
+	m_device = device;
+	m_file.open(fileName, io.FileOpenFlags.ReadOnly);
+	RpdHdr const* hdr = (RpdHdr const*)m_file.view(0, sizeof(RpdHdr), false);
+	m_fileVersion = hdr.m_version;
+	m_baseIndex = baseIndex;
+
+	Status status = getStatus();
+	RpdVersion version = getVersion();
+
+	bool isUpToDate =
+		status == 0 &&
+		version.m_firmwareType == m_fileVersion.m_firmwareType &&
+		version.m_firmwareVersion >= m_fileVersion.m_firmwareVersion;
+
+	if (isUpToDate)
+	{
+		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpToDate);
+		m_onUpdateCompleted(true);
+		return true;
+	}
+
+	char const* p = strrchr(fileName, '/');
+	char const* params = $"$(hdr.m_version; B)$(p ? p + 1 : fileName)";
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUpdateRequired, params, dynamic sizeof(params));
+
+	m_progressDlg.m_title = "Updating FPGA Firmware";
+	m_progressDlg.m_status = "Preparing...";
+	m_progressDlg.m_progress = 0;
+	m_progressDlg.m_buttons = ui.StdDlgButtons.Abort;
+	m_progressDlg.show();
+
+	m_state = State.PreErase;
+	erase(true);
+
+	return true;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	cancel();
+	return false;
+}
+
+RpdVersion FpgaUploader.getVersion()
+{
+	RpdVersion version;
+
+	m_device.controlTransfer(
+		UsbControlReqType.VendorIn,
+		UsbControlReqCode.GetVersion,
+		0,
+		0,
+		&version,
+		sizeof(version)
+		);
+
+	return version;
+}
+
+Status FpgaUploader.getStatus()
+{
+	Status status;
+
+	m_device.controlTransfer(
+		UsbControlReqType.VendorIn,
+		UsbControlReqCode.GetStatus,
+		0,
+		0,
+		&status,
+		sizeof(status)
+		);
+
+	return status;
+}
+
+FpgaUploader.erase(bool isCheckRequired)
+{
+	if (isCheckRequired && !checkStatus())
+		return;
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.ErasingFlash);
+	m_progressDlg.m_status = "Erasing flash memory...";
+	m_state = State.Erasing;
+
+	m_device.controlTransfer(
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.Erase,
+		0,
+		0,
+		null,
+		0
+		);
+
+	if (checkStatus())
+		sendFirstBlock(false);
+}
+
+FpgaUploader.load(bool isCheckRequired)
+{
+	if (isCheckRequired && !checkStatus())
+		return;
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.EnablingFpga);
+	m_progressDlg.m_status = "Switching to the newly uploaded firmware...";
+	m_state = State.Loading;
+
+	m_device.controlTransfer(
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.Load,
+		0,
+		0,
+		null,
+		0
+		);
+
+	if (checkStatus())
+		finalizeLoad();
+}
+
+FpgaUploader.sendFirstBlock(bool isCheckRequired)
+{
+	if (isCheckRequired && !checkStatus())
+		return;
+
+	m_logWriter.write(FpgaUploaderLogRecordCode.UploadingFirmware);
+	m_progressDlg.m_status = "Uploading firmware file...";
+	m_state = State.Writing;
+
+	m_fileSize = m_file.m_size;
+	m_fileOffset = sizeof(RpdHdr);
+
+	sendNextBlock(false);
+}
+
+FpgaUploader.sendNextBlock(bool isCheckRequired)
+{
+	if (isCheckRequired && !checkStatus())
+		return;
+
+	if (m_fileOffset >= m_fileSize)
+	{
+		load(false); // already checked
+		return;
+	}
+
+	size_t leftover = m_fileSize - m_fileOffset;
+	size_t size = BlockSize;
+
+	if (size > leftover)
+		size = leftover;
+
+	void const* p = m_file.view(m_fileOffset, size);
+
+	m_block.setSize(size);
+	memcpy(m_block.m_p, p, size);
+
+	size_t atomIdx = (m_fileOffset - sizeof(RpdHdr)) / AtomSize;
+
+	m_device.controlTransfer(
+		UsbControlReqType.VendorOut,
+		UsbControlReqCode.Write,
+		size / AtomSize,
+		m_baseIndex + atomIdx,
+		m_block.m_p,
+		size,,
+		onTransferCompleted~(m_syncId) @ m_mainThreadScheduler
+		);
+
+	m_progressDlg.m_progress = m_fileOffset * 100 / m_fileSize;
+	m_fileOffset += size;
+}
+
+FpgaUploader.finalizeLoad()
+{
+	RpdVersion version = getVersion();
+
+	printf(
+		"finalizeLoad: (%d, %d) vs (%d, %d)\n",
+		version.m_firmwareType,
+		version.m_firmwareVersion,
+		m_fileVersion.m_firmwareType,
+		m_fileVersion.m_firmwareVersion
+		);
+
+	if (version.m_firmwareType == m_fileVersion.m_firmwareType &&
+		version.m_firmwareVersion == m_fileVersion.m_firmwareVersion)
+	{
+		complete(true);
+	}
+	else
+	{
+		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareBootFailed);
+		complete(false);
+	}
+}
+
+FpgaUploader.complete(bool result)
+{
+	if (result)
+		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCompleted);
+
+	m_progressDlg.hide();
+	m_timer.stop();
+	m_file.close();
+	m_state = State.Idle;
+	m_syncId++;
+
+	m_onUpdateCompleted(result);
+}
+
+bool FpgaUploader.checkStatus()
+{
+	for (size_t i = 0; i < StatusCheckCount; i++)
+	{
+		Status status = getStatus();
+		if (!(status & (Status.FlashBusy | Status.FpgaBusy)))
+			return true;
+	}
+
+	m_statusCheckIdx = 0;
+
+	m_timer.startPeriodicTimer(
+		onTimer~(++m_syncId) @ m_mainThreadScheduler,
+		TimerInterval
+		);
+
+	return false;
+}
+
+FpgaUploader.onTimer(uint_t syncId)
+{
+	if (syncId != m_syncId)
+		return;
+
+	Status status = getStatus();
+	if (status & (Status.FlashBusy | Status.FpgaBusy))
+	{
+		if (++m_statusCheckIdx % StillWaitingFactor == 0)
+			m_logWriter.write(FpgaUploaderLogRecordCode.StillWaiting);
+
+		return; // not yet
+	}
+
+	m_timer.stop();
+	m_syncId++;
+
+	switch (m_state)
+	{
+	case State.PreErase:
+		erase(false);
+		break;
+
+	case State.Erasing:
+		sendFirstBlock(false);
+		break;
+
+	case State.Writing:
+		sendNextBlock(false);
+		break;
+
+	case State.Loading:
+		finalizeLoad();
+		break;
+	}
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	cancel();
+}
+
+FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button)
+{
+	switch (button)
+	{
+	case ui.StdDlgButton.Cancel:
+	case ui.StdDlgButton.Abort:
+		cancel();
+		break;
+	}
+}
+
+FpgaUploader.onTransferCompleted(
+	uint_t syncId,
+	size_t size,
+	std.Error const* error
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (error)
+	{
+		std.setError(error);
+		throw;
+	}
+
+	sendNextBlock(true);
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	cancel();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

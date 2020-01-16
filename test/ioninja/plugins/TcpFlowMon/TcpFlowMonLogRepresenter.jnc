@@ -3,7 +3,7 @@
 // TCP Monitor log representer
 //
 
-import "log_Representer.jnc"
+import "log_Representation.jnc"
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "TcpFlowMonLogRecordCode.jnc"
@@ -11,7 +11,7 @@ import "TcpFlowMonLogRecordCode.jnc"
 //..............................................................................
 
 bool representTcpFlowMonLog(
-	log.RepresenterTarget* target,
+	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
 	size_t size,
@@ -23,36 +23,36 @@ bool representTcpFlowMonLog(
 	case TcpFlowMonLogRecordCode.Connecting:
 		char const* srcAddressString = ((io.SocketAddress const*) p).getString();
 		char const* dstAddressString = ((io.SocketAddress const*) p + 1).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		target.addHyperText(TcpFlowMonLogPartCode.Connecting, $"Connecting to \e[34m$dstAddressString\e[m from \e[34m$srcAddressString\e[m...");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(TcpFlowMonLogPartCode.Connecting, $"Connecting to \e[34m$dstAddressString\e[m from \e[34m$srcAddressString\e[m...");
 		break;
 
 	case TcpFlowMonLogRecordCode.ConnectCompleted:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText(TcpFlowMonLogPartCode.ConnectCompleted, "ok");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText(TcpFlowMonLogPartCode.ConnectCompleted, "ok");
 		break;
 
 	case TcpFlowMonLogRecordCode.ConnectionPickedUp:
 		char const* addressString1 = ((io.SocketAddress const*) p).getString();
 		char const* addressString2 = ((io.SocketAddress const*) p + 1).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		target.addHyperText($"Picked up connection between \e[34m$addressString1\e[m and \e[34m$addressString2\e[m");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Picked up connection between \e[34m$addressString1\e[m and \e[34m$addressString2\e[m");
 		break;
 
 	case TcpFlowMonLogRecordCode.Disconnected:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		target.addHyperText($"Disconnected by \e[34m$addressString\e");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Disconnected by \e[34m$addressString\e");
 		break;
 
 	case TcpFlowMonLogRecordCode.OutOfOrderDataDropped:
-		target.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
-		target.m_lineAttr.m_backColor = log.StdLogColor.Error;
-		target.addHyperText($"Out-of-order segment(s), data dropped\e");
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Out-of-order segment(s), data dropped\e");
 		break;
 
 	default:

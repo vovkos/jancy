@@ -1,0 +1,160 @@
+//..............................................................................
+//
+// Sniffer log UDP packets handling
+//
+
+import "io_Udp.jnc"
+import "std_HashTable.jnc"
+
+//..............................................................................
+
+std.HashTable g_udpPortAppProtoParserMap; // uint16_t port -> AppProtoParser*
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+AppProtoParser* getUdpAppProtoParser(io.UdpHdr const* hdr)
+{
+	AppProtoParser* srcParser = g_udpPortAppProtoParserMap[hdr.m_srcPort];
+	AppProtoParser* dstParser = g_udpPortAppProtoParserMap[hdr.m_dstPort];
+
+	return srcParser ?
+		dstParser && hdr.m_dstPort < hdr.m_srcPort? dstParser : srcParser :
+		dstParser ? dstParser : null;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void representUdpDigest(
+	log.Representation* representation,
+	char const* srcString,
+	char const* dstString,
+	void const* p,
+	size_t size,
+	int payloadPreviewIconIdx = -1
+	)
+{
+	if (size < sizeof(io.UdpHdr))
+	{
+		representation.addHyperText(
+			$"\e[1mUDP \e[10;34m%1\e[m \u2192 \e[34m%2\e[m [INCOMPLETE]"(
+			srcString,
+			dstString
+			));
+		return;
+	}
+
+	io.UdpHdr const* udpHdr = (io.UdpHdr const*)p;
+	if (size < udpHdr.m_length || udpHdr.m_length < sizeof(io.UdpHdr))
+	{
+		representation.addHyperText(formatUdpDigest(udpHdr, srcString, dstString, " [BROKEN]"));
+		return;
+	}
+
+	if (udpHdr.m_length == sizeof(io.UdpHdr))
+	{
+		representation.addHyperText(formatUdpDigest(udpHdr, srcString, dstString));
+		return;
+	}
+
+	p += sizeof(io.UdpHdr);
+	size = udpHdr.m_length - sizeof(io.UdpHdr);
+
+	AppProtoParser* parser = getUdpAppProtoParser(udpHdr);
+	if (parser)
+	{
+		parser.representDigest(representation, srcString, dstString, p, size, payloadPreviewIconIdx);
+		return;
+	}
+
+	representation.addHyperText(formatUdpDigest(udpHdr, srcString, dstString));
+	representPayloadPreview(representation, p, size, payloadPreviewIconIdx);
+}
+
+char const* formatUdpDigest(
+	io.UdpHdr const* hdr,
+	char const* srcString,
+	char const* dstString,
+	char const* extra = null
+	)
+{
+	return
+		$"\e[1mUDP \e[10;34m%1:%2\e[m \u2192 \e[10;34m%3:%4\e[m%5%6"(
+		srcString,
+		hdr.m_srcPort,
+		dstString,
+		hdr.m_dstPort,
+		hdr.m_length > sizeof(io.UdpHdr) ? $" ($(hdr.m_length - sizeof(io.UdpHdr)) bytes)" : null,
+		extra
+		);
+}
+
+void representUdpDetails(
+	log.Representation* representation,
+	std.Array* protoRangeArray,
+	void const* p,
+	size_t size,
+	size_t baseOffset,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_backColor = ProtoColor.TransportLayer;
+
+	if (size < sizeof(io.UdpHdr))
+	{
+		representation.addHyperText("\e[1mUDP\e[m [INCOMPLETE]");
+		return;
+	}
+
+	log.representStruct(
+		representation,
+		typeof(io.UdpHdr),,
+		NetSnifferLogPartCode.RawPacket,
+		p,
+		baseOffset,
+		foldFlags,
+		ProtoFoldFlag.TransportLayer
+		);
+
+	ProtoRange range = { baseOffset, sizeof(io.UdpHdr), ProtoColor.TransportLayer }
+	protoRangeArray.append(range);
+
+	io.UdpHdr const* udpHdr = (io.UdpHdr const*)p;
+	if (size < udpHdr.m_length || udpHdr.m_length < sizeof(io.UdpHdr))
+	{
+		representation.addHyperText($"[BROKEN] size: %1 %2"(size, udpHdr.m_length));
+		return;
+	}
+
+	if (udpHdr.m_length == sizeof(io.UdpHdr))
+		return;
+
+	p += sizeof(io.UdpHdr);
+	size = udpHdr.m_length - sizeof(io.UdpHdr);
+	baseOffset += sizeof(io.UdpHdr);
+
+	AppProtoParser* parser = getUdpAppProtoParser(udpHdr);
+
+	if (parser)
+		parser.representDetails(
+			representation,
+			protoRangeArray,
+			p,
+			size,
+			baseOffset,
+			foldFlags
+			);
+	else
+		representPayload(
+			representation,
+			protoRangeArray,
+			"UDP",
+			p,
+			size,
+			baseOffset,
+			foldFlags,
+			ProtoFoldFlag.Payload,
+			ProtoColor.Payload
+			);
+}
+
+//..............................................................................

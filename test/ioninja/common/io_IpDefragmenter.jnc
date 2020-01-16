@@ -9,6 +9,9 @@ import "io_TcpIp.jnc"
 
 namespace io {
 
+//! \addtogroup common-tcpip
+//! @{
+
 //..............................................................................
 
 class IpDefragmenter
@@ -205,4 +208,6 @@ IpDefragmenter.removeTimedOutChains()
 
 //..............................................................................
 
-} // namespace io {
+//! @}
+
+} // namespace io

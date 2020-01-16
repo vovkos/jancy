@@ -1,0 +1,91 @@
+//..............................................................................
+//
+// J-Link RTT log representer
+//
+
+import "log_Representation.jnc"
+import "JLinkRttLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representJLinkRttLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case JLinkRttLogRecordCode.Connected:
+		uint_t const* serialNumber = (uint_t const*)p;
+		char const* deviceName = (char const*)(serialNumber + 1);
+
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText(
+			$"Established J-Link RTT connection to \e[34m%1\e[m (S/N: \e[34m%2\e[m)"(
+			deviceName,
+			*serialNumber
+			));
+		break;
+
+	case JLinkRttLogRecordCode.ConnectError:
+		std.Error const* error = (std.Error const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot establish J-Link RTT connection: $(error.m_description)");
+		break;
+
+	case JLinkRttLogRecordCode.Attached:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText("Using existing J-Link RTT connection");
+		break;
+
+	case JLinkRttLogRecordCode.SearchingRtt:
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(JLinkRttLogPartCode.SearchingRtt, "Searching for RTT block...");
+		break;
+
+	case JLinkRttLogRecordCode.RttSearchCompleted:
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(JLinkRttLogPartCode.RttSearchCompleted, "ok");
+		break;
+
+	case JLinkRttLogRecordCode.RttSearchFailed:
+		std.Error const* error = (std.Error const*) p;
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText(JLinkRttLogPartCode.RttSearchCompleted, $"error: $(error.m_description)");
+		break;
+
+	case JLinkRttLogRecordCode.Closed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("J-Link RTT session closed");
+		break;
+
+	case JLinkRttLogRecordCode.TraceInfo:
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addPlainText(p);
+		break;
+
+	case JLinkRttLogRecordCode.TraceError:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addPlainText(p);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

@@ -1,0 +1,28 @@
+#...............................................................................
+#
+#  Serial MI Dump Viewer session plugin
+#
+
+[plugin]
+
+name        = "Serial MI Dump Viewer"
+description = "Displays MI (machine-interface) dumps previsouly captured by the Device Monitor utility"
+id          = serial-mi-dump-view
+group       = serial
+monitor     = true
+log-guid    = 27dcecb3-47dc-4f1d-b0f8-227b627b90ae  # serial monitor
+log-guid    = 29725452-e64f-4c0e-a871-776277b68572  # serial
+log-guid    = 1dfd5eb0-9560-11e3-a5e2-0800200c9a66  # file
+icon        = images/serialmon.png
+small-icon  = images/serialmon-16x16.png
+
+session-class = SerialMiDumpViewSession
+
+[scripts]
+
+SerialMiDumpViewSession.jnc
+SerialMonitor_mi.jnc
+SerialMonProcessor.jnc
+SerialMonProcessor_win.jnc
+SerialMonProcessor_lnx.jnc
+
