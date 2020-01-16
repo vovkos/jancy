@@ -50,6 +50,20 @@ echo set (LUA_LIB_NAME %LUA_LIB_NAME%) >> paths.cmake
 
 :: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+:: OpenSSL
+
+set OPENSSL_DIR_CMAKE=%OPENSSL_DIR:\=/%
+
+echo set (OPENSSL_INC_DIR %OPENSSL_DIR_CMAKE%/include) >> paths.cmake
+echo set (OPENSSL_LIB_DIR %OPENSSL_DIR_CMAKE%/lib) >> paths.cmake
+echo set (OPENSSL_DLL_DIR %OPENSSL_DIR_CMAKE%/bin) >> paths.cmake
+echo set (OPENSSL_CRYPTO_LIB_NAME libeay32) >> paths.cmake
+echo set (OPENSSL_CRYPTO_DLL_NAME libeay32) >> paths.cmake
+echo set (OPENSSL_SSL_LIB_NAME ssleay32) >> paths.cmake
+echo set (OPENSSL_SSL_DLL_NAME ssleay32) >> paths.cmake
+
+:: . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 :: LLVM
 
 appveyor DownloadFile %LLVM_DOWNLOAD_URL% -FileName %DOWNLOAD_DIR%\%LLVM_DOWNLOAD_FILE%

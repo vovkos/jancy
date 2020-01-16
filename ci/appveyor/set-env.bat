@@ -67,6 +67,7 @@ goto :loop
 set TARGET_CPU=x86
 set CMAKE_GENERATOR_SUFFIX=
 set LUA_PLATFORM=Win32
+set OPENSSL_DIR=C:\OpenSSL-Win32
 shift
 goto :loop
 
@@ -74,6 +75,7 @@ goto :loop
 set TARGET_CPU=amd64
 set CMAKE_GENERATOR_SUFFIX= Win64
 set LUA_PLATFORM=Win64
+set OPENSSL_DIR=C:\OpenSSL-Win64
 shift
 goto :loop
 
