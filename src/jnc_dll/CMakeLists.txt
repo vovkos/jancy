@@ -95,13 +95,16 @@ else()
 	endif()
 endif()
 
+if(BUILD_JNC_IO_USB)
+	target_link_libraries(jnc_dll axl_io_usb)
+endif()
+
 target_link_libraries(
 	jnc_dll
 	jnc_ct
 	jnc_rt
 	axl_zip
 	axl_fsm
-	axl_io_usb
 	axl_io
 	axl_lex
 	axl_dox

@@ -253,11 +253,14 @@ else()
 	target_link_llvm_jit_libraries(jnc_test_qt)
 endif()
 
+if(BUILD_JNC_IO_USB)
+	target_link_libraries(jnc_test_qt axl_io_usb)
+endif()
+
 target_link_libraries(
 	jnc_test_qt
 	axl_zip
 	axl_fsm
-	axl_io_usb
 	axl_io
 	axl_lex
 	axl_core
