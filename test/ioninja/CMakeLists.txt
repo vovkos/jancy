@@ -119,26 +119,6 @@ add_jancy_tests(
 		SocketLogRepresenter.jnc
 	FINALIZE_TEST SocketLog
 
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialMon
-	REQUIRES
-		SerialMiDumpViewSession
-		representSerialMonLog
-		representSerialLog
-		representFileLog
-	FILES
-		SerialMiDumpViewSession.jnc
-		SerialMonitor_mi.jnc
-		SerialMonProcessor.jnc
-		SerialMonProcessor_win.jnc
-		SerialMonProcessor_lnx.jnc
-		SerialMonLogRecordCode.jnc
-		SerialMonLogRepresenter.jnc
-		../Serial/SerialLogRecordCode.jnc
-		../Serial/SerialLogRepresenter.jnc
-		../File/FileLogRecordCode.jnc
-		../File/FileLogRepresenter.jnc
-	FINALIZE_TEST SerialMiDumpViewer
-
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpConnection
 	REQUIRES
 		TcpConnectionSession
@@ -459,6 +439,26 @@ if(BUILD_JNC_IO_DEVMON AND DEVMON_FOUND)
 			../Serial/SerialLogRecordCode.jnc
 			../Serial/SerialLogRepresenter.jnc
 		FINALIZE_TEST SerialMon
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SerialMon
+		REQUIRES
+			SerialMiDumpViewSession
+			representSerialMonLog
+			representSerialLog
+			representFileLog
+		FILES
+			SerialMiDumpViewSession.jnc
+			SerialMonitor_mi.jnc
+			SerialMonProcessor.jnc
+			SerialMonProcessor_win.jnc
+			SerialMonProcessor_lnx.jnc
+			SerialMonLogRecordCode.jnc
+			SerialMonLogRepresenter.jnc
+			../Serial/SerialLogRecordCode.jnc
+			../Serial/SerialLogRepresenter.jnc
+			../File/FileLogRecordCode.jnc
+			../File/FileLogRepresenter.jnc
+		FINALIZE_TEST SerialMiDumpViewer
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeMon
 		REQUIRES
