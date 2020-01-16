@@ -55,4 +55,5 @@ using namespace axl;
 #	include <net/if.h>
 #	include <netinet/tcp.h>
 #	include <sys/wait.h>
+#	include <signal.h>
 #endif
