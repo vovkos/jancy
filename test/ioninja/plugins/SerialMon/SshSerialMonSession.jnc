@@ -85,7 +85,7 @@ protected:
 
 	State bindable m_state;
 	io.SshChannel m_ssh;
-	io. m_resolver;
+	io.HostNameResolver m_resolver;
 	io.SocketAddress m_remoteAddress;
 	std.Buffer m_readBuffer;
 	uint_t m_syncId;
