@@ -69,6 +69,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertificate)
 	JNC_MAP_CONST_PROPERTY("m_validToDate", &SslCertificate::getValidToDate)
 	JNC_MAP_CONST_PROPERTY("m_subject", &SslCertificate::getSubject)
 	JNC_MAP_CONST_PROPERTY("m_issuer", &SslCertificate::getIssuer)
+
+	JNC_MAP_FUNCTION("load", &SslCertificate::load)
+	JNC_MAP_FUNCTION("save", &SslCertificate::save)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -247,6 +250,89 @@ SslCertificate::getTimestamp(const ASN1_TIME* time)
 
 	time_t unixTime = days * 24 * 60 * 60 + secs;
 	return (unixTime + AXL_SYS_EPOCH_DIFF) * 10000000;
+}
+
+bool
+JNC_CDECL
+SslCertificate::load(
+	SslCertFormat format,
+	DataPtr ptr,
+	size_t size
+	)
+{
+	X509* cert;
+
+	switch (format)
+	{
+	case SslCertFormat_Pem:
+		if (m_autoCert)
+			return cry::loadX509_pem(m_autoCert, ptr.m_p, size);
+
+		cert = cry::loadX509_pem(ptr.m_p, size);
+		if (cert == NULL)
+			return false;
+
+		break;
+
+	case SslCertFormat_Der:
+		if (m_autoCert)
+			return cry::loadX509_der(m_autoCert, ptr.m_p, size);
+
+		cert = cry::loadX509_der(ptr.m_p, size);
+		if (cert == NULL)
+			return false;
+
+		break;
+
+	default:
+		err::setError(err::SystemErrorCode_InvalidParameter);
+		return false;
+	}
+
+	m_autoCert.attach(cert);
+	m_cert = cert;
+	return true;
+}
+
+bool
+JNC_CDECL
+SslCertificate::save(
+	SslCertFormat format,
+	std::Buffer* jncBuffer
+	)
+{
+	bool result;
+	sl::String axlString;
+	sl::Array<char> axlBuffer;
+	sl::ArrayRef<char> axlBufferRef;
+
+	switch (format)
+	{
+	case SslCertFormat_Pem:
+		result = cry::saveX509_pem(&axlString, m_cert);
+		axlBufferRef = sl::ArrayRef<char>(axlString.cp(), axlString.getLength());
+		break;
+
+	case SslCertFormat_Der:
+		result = cry::saveX509_der(&axlBuffer, m_cert);
+		axlBufferRef = sl::ArrayRef<char>(axlBuffer.cp(), axlBuffer.getCount());
+		break;
+
+	default:
+		err::setError(err::SystemErrorCode_InvalidParameter);
+		return false;
+	}
+
+	if (!result)
+		return false;
+
+	size_t size = axlBufferRef.getCount();
+	result = jncBuffer->setSize(size);
+	if (!result)
+		return false;
+
+	memcpy(jncBuffer->m_ptr.m_p, axlBufferRef.cp(), size);
+	return true;
 }
 
 //..............................................................................

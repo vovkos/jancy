@@ -19,6 +19,7 @@
 #include "axl_cry_Bio.h"
 #include "axl_cry_BigNum.h"
 #include "axl_cry_Asn1.h"
+#include "axl_cry_X509.h"
 #include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
@@ -37,6 +38,7 @@ using namespace axl;
 
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
+#include "jnc_std_Buffer.h"
 
 #ifndef ssize_t
 #	define ssize_t intptr_t

@@ -20,6 +20,14 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCertificate)
 
 //..............................................................................
 
+enum SslCertFormat: uint_t
+{
+	SslCertFormat_Pem,
+	SslCertFormat_Der,
+};
+
+//..............................................................................
+
 struct SslCertNameEntry
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS(SslCertNameEntry)
@@ -90,6 +98,7 @@ public:
 
 protected:
 	X509* m_cert;
+	cry::AutoX509 m_autoCert;
 
 	DataPtr m_serialNumberPtr;
 	uint64_t m_validFromDate;
@@ -126,6 +135,21 @@ public:
 	SslCertName*
 	JNC_CDECL
 	getIssuer();
+
+	bool
+	JNC_CDECL
+	load(
+		SslCertFormat format,
+		DataPtr ptr,
+		size_t size
+		);
+
+	bool
+	JNC_CDECL
+	save(
+		SslCertFormat format,
+		std::Buffer* buffer
+		);
 
 protected:
 	SslCertName*

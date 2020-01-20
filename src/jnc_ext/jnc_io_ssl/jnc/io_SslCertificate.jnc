@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "std_Buffer.jnc"
+
 namespace io {
 
 //! \addtogroup io-ssl
@@ -30,6 +32,14 @@ enum SslNid
 
 char const* getSslNidShortName(SslNid nid);
 char const* getSslNidLongName(SslNid nid);
+
+//..............................................................................
+
+enum SslCertFormat
+{
+	Pem,
+	Der,
+}
 
 //..............................................................................
 
@@ -66,6 +76,32 @@ opaque class SslCertificate
 
 	construct();
 	destruct();
+
+	bool errorcode load(
+		SslCertFormat format,
+		void const* p,
+		size_t size
+		);
+
+	bool errorcode save(
+		SslCertFormat format,
+		std.Buffer* buffer
+		) const;
+
+	// simplified load/save API for PEM
+
+	bool errorcode load(char const* p)
+	{
+		return load(SslCertFormat.Pem, p, strlen(p));
+	}
+
+	char const* errorcode save() const
+	{
+		std.Buffer buffer;
+		save(SslCertFormat.Pem, buffer);
+		buffer.append(0); // ensure zero-termination
+		return (char const*)buffer.detach();
+	}
 }
 
 //..............................................................................
