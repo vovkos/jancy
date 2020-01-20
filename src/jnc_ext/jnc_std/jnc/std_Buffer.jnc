@@ -41,11 +41,13 @@ class Buffer
 
 	clear();
 
-	detach()
+	char* detach()
 	{
+		char* p = m_p;
 		m_p = null;
 		m_size = 0;
 		m_maxSize = 0;
+		return p;
 	}
 
 	bool errorcode setSize(size_t size);
@@ -55,6 +57,16 @@ class Buffer
 		void const* p,
 		size_t size
 		);
+
+	size_t errorcode copy(char const* p)
+	{
+		return copy(p, p ? strlen(p) : 0);
+	}
+
+	size_t errorcode copy(char c)
+	{
+		return copy(&c, sizeof(c));
+	}
 
 	size_t errorcode append(
 		void const* p,
@@ -69,6 +81,11 @@ class Buffer
 		return insert(-1, p);
 	}
 
+	size_t errorcode append(char c)
+	{
+		return insert(-1, c);
+	}
+
 	size_t errorcode insert(
 		size_t offset,
 		void const* p,
@@ -80,12 +97,20 @@ class Buffer
 		char const* p
 		)
 	{
-		return p ? insert(offset, p, strlen(p) + 1) : insert(offset, "", 1);
+		return insert(offset, p, p ? strlen(p) : 0);
+	}
+
+	size_t errorcode insert(
+		size_t offset,
+		char c
+		)
+	{
+		return insert(offset, &c, sizeof(c));
 	}
 
 	size_t errorcode remove(
 		size_t offset,
-		size_t size
+		size_t size = 1
 		);
 
 protected:
