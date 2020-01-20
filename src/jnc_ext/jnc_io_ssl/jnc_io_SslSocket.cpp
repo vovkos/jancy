@@ -120,7 +120,7 @@ SslSocket::open_1(DataPtr addressPtr)
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 
 	return
-		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
+		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
 		m_sslCtx.create() &&
 		m_ioThread.start();
 }
