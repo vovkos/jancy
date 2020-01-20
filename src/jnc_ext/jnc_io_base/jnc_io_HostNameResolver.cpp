@@ -93,11 +93,10 @@ HostNameResolver::resolve(
 		return true;
 	}
 
-	m_ioThreadFlags |= IoThreadFlag_Started;
-	m_activeEvents = 0;
 	m_lock.unlock();
 
 	AsyncIoBase::open();
+	m_ioThreadFlags |= IoThreadFlag_Started;
 	m_ioThread.start();
 	return true;
 }
