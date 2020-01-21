@@ -40,6 +40,14 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+void
+JNC_CDECL
+HostNameResolver::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
+{
+	AsyncIoBase::markOpaqueGcRoots(gcHeap);
+	gcHeap->markDataPtr(m_pendingAddressTablePtr);
+}
+
 bool
 JNC_CDECL
 HostNameResolver::resolve(
@@ -136,11 +144,9 @@ HostNameResolver::close()
 void
 HostNameResolver::ioThreadFunc()
 {
-	sl::String name;
-	uint_t addrFamily;
-	uint_t port;
-
 	wakeIoThread();
+
+	sl::Array<axl::io::SockAddr> addrArray;
 
 	for (;;)
 	{
@@ -159,12 +165,11 @@ HostNameResolver::ioThreadFunc()
 			continue;
 		}
 
-		name = m_name;
-		addrFamily = m_addrFamily;
-		port = m_port;
+		sl::StringRef name = m_name;
+		uint_t addrFamily = m_addrFamily;
+		uint_t port = m_port;
 		m_lock.unlock();
 
-		sl::Array<axl::io::SockAddr> addrArray;
 		bool result = axl::io::resolveHostName(&addrArray, name, addrFamily);
 
 		m_lock.lock();
@@ -177,37 +182,47 @@ HostNameResolver::ioThreadFunc()
 		if (name != m_name ||
 			addrFamily != m_addrFamily ||
 			port != m_port)
-		{
 			m_lock.unlock(); // cancelled
-		}
 		else if (!result)
-		{
 			setIoErrorEvent_l();
-		}
 		else
-		{
-			size_t count = addrArray.getCount();
-			for (size_t i = 0; i < count; i++)
-				addrArray[i].m_addr_ip4.sin_port = port;
-
-			complete_l(addrArray, count);
-		}
+			complete_l(addrArray, addrArray.getCount());
 	}
 }
 
 void
 HostNameResolver::complete_l(
-	const axl::io::SockAddr* addressTable,
+	axl::io::SockAddr* addressTable,
 	size_t count
 	)
 {
+	sl::StringRef name = m_name;
+	uint_t addrFamily = m_addrFamily;
+	uint_t port = m_port;
+	m_lock.unlock();
+
+	for (size_t i = 0; i < count; i++)
+		addressTable[i].m_addr_ip4.sin_port = port;
+
 	JNC_BEGIN_CALL_SITE(m_runtime)
-	NoCollectRegion noCollectRegion(m_runtime, false); // don't collect under lock
-	m_addressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
-	m_addressCount = count;
+	m_pendingAddressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
 	JNC_END_CALL_SITE()
 
-	setEvents_l(HostNameResolverEvent_Resolved);
+	m_lock.lock();
+
+	if (name != m_name ||
+		addrFamily != m_addrFamily ||
+		port != m_port)
+	{
+		m_lock.unlock(); // cancelled during memDup
+	}
+	else
+	{
+		m_addressTablePtr = m_pendingAddressTablePtr;
+		m_addressCount = count;
+		m_pendingAddressTablePtr = g_nullDataPtr;
+		setEvents_l(HostNameResolverEvent_Resolved);
+	}
 }
 
 //..............................................................................

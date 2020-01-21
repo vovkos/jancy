@@ -202,7 +202,7 @@ SocketBase::connectLoop(uint_t connectCompletedEvent)
 	bool result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, FD_CONNECT);
 	if (!result)
 	{
-		setIoErrorEvent(err::getLastError());
+		setIoErrorEvent();
 		return false;
 	}
 

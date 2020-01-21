@@ -57,6 +57,7 @@ public:
 
 protected:
 	Runtime* m_runtime;
+	DataPtr m_pendingIoErrorPtr;
 	sys::Lock m_lock;
 	volatile uint_t m_ioThreadFlags;
 	sl::AuxList<SyncWait> m_syncWaitList;

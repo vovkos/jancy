@@ -25,6 +25,7 @@ AsyncIoBase::AsyncIoBase()
 	m_options = 0;
 	m_activeEvents = 0;
 	m_ioErrorPtr = g_nullDataPtr;
+	m_pendingIoErrorPtr = g_nullDataPtr;
 	m_ioThreadFlags = 0;
 
 	m_isOpen = false;
@@ -49,11 +50,15 @@ AsyncIoBase::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 			gcHeap->markClass(it->m_handlerPtr.m_closure->m_box);
 
 	m_lock.unlock();
+
+	gcHeap->markDataPtr(m_pendingIoErrorPtr);
 }
 
 void
 AsyncIoBase::open()
 {
+	m_ioErrorPtr = g_nullDataPtr;
+	m_pendingIoErrorPtr = g_nullDataPtr;
 	m_isOpen = true;
 	m_ioThreadFlags = 0;
 	m_activeEvents = 0;
@@ -285,11 +290,15 @@ AsyncIoBase::setIoErrorEvent_l(
 	const err::Error& error
 	)
 {
-	JNC_BEGIN_CALL_SITE(m_runtime)
-	NoCollectRegion noCollectRegion(m_runtime, false); // don't collect under lock
-	m_ioErrorPtr = memDup(error, error->m_size);
-	JNC_END_CALL_SITE()
+	m_lock.unlock();
 
+	JNC_BEGIN_CALL_SITE(m_runtime)
+	m_pendingIoErrorPtr = memDup(error, error->m_size);
+ 	JNC_END_CALL_SITE()
+
+	m_lock.lock();
+	m_ioErrorPtr = m_pendingIoErrorPtr;
+	m_pendingIoErrorPtr = g_nullDataPtr;
 	setEvents_l(event);
 }
 

@@ -61,6 +61,7 @@ protected:
 
 protected:
 	IoThread m_ioThread;
+	DataPtr m_pendingAddressTablePtr;
 	sl::String m_name;
 	uint_t m_addrFamily;
 	uint_t m_port;
@@ -73,10 +74,7 @@ public:
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
-		AsyncIoBase::markOpaqueGcRoots(gcHeap);
-	}
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	bool
 	JNC_CDECL
@@ -126,13 +124,13 @@ protected:
 
 	void
 	complete_l(
-		const axl::io::SockAddr* addressTable,
+		axl::io::SockAddr* addressTable,
 		size_t count
 		);
 
 	void
 	complete(
-		const axl::io::SockAddr* addressTable,
+		axl::io::SockAddr* addressTable,
 		size_t count
 		)
 	{
