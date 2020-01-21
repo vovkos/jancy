@@ -16,6 +16,7 @@
 #include "axl_sys_Time.h"
 #include "axl_io_Socket.h"
 #include "axl_io_Ssl.h"
+#include "axl_io_MappedFile.h"
 #include "axl_cry_Bio.h"
 #include "axl_cry_BigNum.h"
 #include "axl_cry_Asn1.h"

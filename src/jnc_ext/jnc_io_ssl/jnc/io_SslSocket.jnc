@@ -94,6 +94,8 @@ opaque class SslSocket
 
 	alias dispose = close;
 
+	bool errorcode loadCertificate(char const* fileName);
+	bool errorcode loadPrivateKey(char const* fileName);
 	bool errorcode loadCaCertificate(char const* fileName);
 	bool errorcode setCaCertificateDir(char const* dir);
 

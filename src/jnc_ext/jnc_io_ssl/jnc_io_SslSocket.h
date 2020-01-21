@@ -36,7 +36,6 @@ enum SslSocketEvent
 struct SslSocketHdr: IfaceHdr
 {
 	ClassBox<Multicast> m_onStateChanged;
-
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
 	size_t m_writeBufferSize;
@@ -185,6 +184,20 @@ public:
 	getStateStringLong(SslSocket* self)
 	{
 		return strDup(self->m_ssl.getStateStringLong());
+	}
+
+	bool
+	JNC_CDECL
+	loadCertificate(DataPtr fileNamePtr)
+	{
+		return m_sslCtx.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
+	}
+
+	bool
+	JNC_CDECL
+	loadPrivateKey(DataPtr fileNamePtr)
+	{
+		return m_sslCtx.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
 	bool

@@ -77,31 +77,39 @@ opaque class SslCertificate
 	construct();
 	destruct();
 
-	bool errorcode load(
-		SslCertFormat format,
-		void const* p,
-		size_t size
-		);
-
-	bool errorcode save(
-		SslCertFormat format,
-		std.Buffer* buffer
+	bool errorcode encode(
+		std.Buffer* buffer,
+		SslCertFormat format = SslCertFormat.Pem
 		) const;
 
-	// simplified load/save API for PEM
-
-	bool errorcode load(char const* p)
-	{
-		return load(SslCertFormat.Pem, p, strlen(p));
-	}
-
-	char const* errorcode save() const
+	char const* errorcode encode() const
 	{
 		std.Buffer buffer;
-		save(SslCertFormat.Pem, buffer);
+		encode(buffer, SslCertFormat.Pem);
 		buffer.append(0); // ensure zero-termination
 		return (char const*)buffer.detach();
 	}
+
+	bool errorcode decode(
+		void const* p,
+		size_t size,
+		SslCertFormat format = SslCertFormat.Pem
+		);
+
+	bool errorcode decode(char const* p)
+	{
+		return decode(p, strlen(p), SslCertFormat.Pem);
+	}
+
+	bool errorcode load(
+		char const* fileName,
+		SslCertFormat format = SslCertFormat.Pem
+		);
+
+	bool errorcode save(
+		char const* fileName,
+		SslCertFormat format = SslCertFormat.Pem
+		) const;
 }
 
 //..............................................................................

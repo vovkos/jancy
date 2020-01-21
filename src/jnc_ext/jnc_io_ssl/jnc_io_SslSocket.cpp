@@ -44,10 +44,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options", &SslSocket::setOptions)
 
-
 	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
 	JNC_MAP_FUNCTION("close", &SslSocket::close)
+	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
+	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
 	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
 	JNC_MAP_FUNCTION("setCaCertificateDir", &SslSocket::setCaCertificateDir)
 	JNC_MAP_FUNCTION("connect", &SslSocket::connect)
@@ -79,7 +80,7 @@ JNC_CDECL
 SslSocket::getPeerCertificateChainLength()
 {
 	STACK_OF(X509)* chain = SSL_get_peer_cert_chain(m_ssl);
-	return sk_X509_num(chain);
+	return chain ? sk_X509_num(chain) : 0;
 }
 
 SslCertificate*
@@ -218,12 +219,15 @@ SslSocket::accept(
 
 	m_lock.unlock();
 
-	bool result = connectionSocket->m_socket.setBlockingMode(false); // not guaranteed to be propagated across accept calls
+	bool result =
+		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
+		connectionSocket->m_sslCtx.create() &&
+		connectionSocket->m_ioThread.start();
+
 	if (!result)
 		return NULL;
 
 	connectionSocket->wakeIoThread();
-	connectionSocket->m_ioThread.start();
 	return connectionSocket;
 }
 
@@ -286,7 +290,10 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		m_ssl.create(m_sslCtx);
 
 	if (!result)
+	{
+		setIoErrorEvent();
 		return false;
+	}
 
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
@@ -310,6 +317,14 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		if (result)
 			break;
 
+		TRACE("error: %s\n", err::getLastErrorDescription().sz());
+
+		ERR_load_crypto_strings();
+		SSL_load_error_strings(); // just once
+		char msg[1024];
+		ERR_error_string_n(ERR_get_error(), msg, sizeof(msg));
+		TRACE("%s %s %s %s\n", msg, ERR_lib_error_string(0), ERR_func_error_string(0), ERR_reason_error_string(0));
+
 		uint_t socketEventMask;
 
 		uint_t error = err::getLastError()->m_code;
@@ -324,6 +339,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 			break;
 
 		default:
+			setIoErrorEvent();
 			return false;
 		}
 
@@ -549,7 +565,10 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		m_ssl.create(m_sslCtx);
 
 	if (!result)
+	{
+		setIoErrorEvent();
 		return false;
+	}
 
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
@@ -585,6 +604,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 			break;
 
 		default:
+			setIoErrorEvent();
 			return false;
 		}
 

@@ -70,6 +70,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslCertificate)
 	JNC_MAP_CONST_PROPERTY("m_subject", &SslCertificate::getSubject)
 	JNC_MAP_CONST_PROPERTY("m_issuer", &SslCertificate::getIssuer)
 
+	JNC_MAP_FUNCTION("encode", &SslCertificate::encode)
+	JNC_MAP_FUNCTION("decode", &SslCertificate::decode)
 	JNC_MAP_FUNCTION("load", &SslCertificate::load)
 	JNC_MAP_FUNCTION("save", &SslCertificate::save)
 JNC_END_TYPE_FUNCTION_MAP()
@@ -254,10 +256,96 @@ SslCertificate::getTimestamp(const ASN1_TIME* time)
 
 bool
 JNC_CDECL
+SslCertificate::encode(
+	std::Buffer* jncBuffer,
+	SslCertFormat format
+	)
+{
+	sl::Array<char> axlBuffer;
+	bool result = encodeImpl(&axlBuffer, format);
+	if (!result)
+		return false;
+
+	size_t size = axlBuffer.getCount();
+	result = jncBuffer->setSize(size);
+	if (!result)
+		return false;
+
+	memcpy(jncBuffer->m_ptr.m_p, axlBuffer.cp(), size);
+	return true;
+}
+
+bool
+JNC_CDECL
 SslCertificate::load(
-	SslCertFormat format,
-	DataPtr ptr,
-	size_t size
+	DataPtr fileNamePtr,
+	SslCertFormat format
+	)
+{
+	axl::io::SimpleMappedFile file;
+
+	return
+		file.open((char*)fileNamePtr.m_p, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
+		decodeImpl(file.p(), file.getMappingSize(), format);
+}
+
+bool
+JNC_CDECL
+SslCertificate::save(
+	DataPtr fileNamePtr,
+	SslCertFormat format
+	)
+{
+	sl::Array<char> buffer;
+	bool result = encodeImpl(&buffer, format);
+	if (!result)
+		return false;
+
+	size_t size = buffer.getCount();
+
+	axl::io::File file;
+
+	return
+		file.open((char*)fileNamePtr.m_p) &&
+		file.write(buffer, size) != -1 &&
+		file.setSize(size);
+}
+
+bool
+JNC_CDECL
+SslCertificate::encodeImpl(
+	sl::Array<char>* buffer,
+	SslCertFormat format
+	)
+{
+	bool result;
+	sl::String string;
+
+	switch (format)
+	{
+	case SslCertFormat_Pem:
+		result = cry::saveX509_pem(&string, m_cert);
+		buffer->copy(string.cp(), string.getLength());
+		break;
+
+	case SslCertFormat_Der:
+		result = cry::saveX509_der(buffer, m_cert);
+		break;
+
+	default:
+		err::setError(err::SystemErrorCode_InvalidParameter);
+		return false;
+	}
+
+	return result;
+}
+
+bool
+JNC_CDECL
+SslCertificate::decodeImpl(
+	const void* p,
+	size_t size,
+	SslCertFormat format
 	)
 {
 	X509* cert;
@@ -266,9 +354,9 @@ SslCertificate::load(
 	{
 	case SslCertFormat_Pem:
 		if (m_autoCert)
-			return cry::loadX509_pem(m_autoCert, ptr.m_p, size);
+			return cry::loadX509_pem(m_autoCert, p, size);
 
-		cert = cry::loadX509_pem(ptr.m_p, size);
+		cert = cry::loadX509_pem(p, size);
 		if (cert == NULL)
 			return false;
 
@@ -276,9 +364,9 @@ SslCertificate::load(
 
 	case SslCertFormat_Der:
 		if (m_autoCert)
-			return cry::loadX509_der(m_autoCert, ptr.m_p, size);
+			return cry::loadX509_der(m_autoCert, p, size);
 
-		cert = cry::loadX509_der(ptr.m_p, size);
+		cert = cry::loadX509_der(p, size);
 		if (cert == NULL)
 			return false;
 
@@ -291,47 +379,6 @@ SslCertificate::load(
 
 	m_autoCert.attach(cert);
 	m_cert = cert;
-	return true;
-}
-
-bool
-JNC_CDECL
-SslCertificate::save(
-	SslCertFormat format,
-	std::Buffer* jncBuffer
-	)
-{
-	bool result;
-	sl::String axlString;
-	sl::Array<char> axlBuffer;
-	sl::ArrayRef<char> axlBufferRef;
-
-	switch (format)
-	{
-	case SslCertFormat_Pem:
-		result = cry::saveX509_pem(&axlString, m_cert);
-		axlBufferRef = sl::ArrayRef<char>(axlString.cp(), axlString.getLength());
-		break;
-
-	case SslCertFormat_Der:
-		result = cry::saveX509_der(&axlBuffer, m_cert);
-		axlBufferRef = sl::ArrayRef<char>(axlBuffer.cp(), axlBuffer.getCount());
-		break;
-
-	default:
-		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
-	}
-
-	if (!result)
-		return false;
-
-	size_t size = axlBufferRef.getCount();
-	result = jncBuffer->setSize(size);
-	if (!result)
-		return false;
-
-	memcpy(jncBuffer->m_ptr.m_p, axlBufferRef.cp(), size);
 	return true;
 }
 

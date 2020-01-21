@@ -138,17 +138,34 @@ public:
 
 	bool
 	JNC_CDECL
-	load(
-		SslCertFormat format,
+	encode(
+		std::Buffer* buffer,
+		SslCertFormat format
+		);
+
+	bool
+	JNC_CDECL
+	decode(
 		DataPtr ptr,
-		size_t size
+		size_t size,
+		SslCertFormat format
+		)
+	{
+		return decodeImpl(ptr.m_p, size, format);
+	}
+
+	bool
+	JNC_CDECL
+	load(
+		DataPtr fileNamePtr,
+		SslCertFormat format
 		);
 
 	bool
 	JNC_CDECL
 	save(
-		SslCertFormat format,
-		std::Buffer* buffer
+		DataPtr fileNamePtr,
+		SslCertFormat format
 		);
 
 protected:
@@ -157,6 +174,21 @@ protected:
 
 	uint64_t
 	getTimestamp(const ASN1_TIME* time);
+
+	bool
+	JNC_CDECL
+	encodeImpl(
+		sl::Array<char>* buffer,
+		SslCertFormat format
+		);
+
+	bool
+	JNC_CDECL
+	decodeImpl(
+		const void* p,
+		size_t size,
+		SslCertFormat format
+		);
 };
 
 //..............................................................................
