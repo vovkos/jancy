@@ -68,11 +68,17 @@ bitflag enum SshEvents
 
 	/**
 		``SSH`` channel has been closed by the remote server. Note that if
-		connection was terminated by the local node(using
+		connection was terminated by the local node (using
 		`io.SshChannel.close`), ``Disconnect`` event is **not** fired.
 	*/
 
 	TcpDisconnected,
+
+	/**
+		``SSH`` channel has been dropped by the remote server using ``TCP RST``.
+	*/
+
+	TcpReset,
 
 	/**
 		Underlying ``TCP`` connection has been established; ``SSH`` handshake

@@ -610,7 +610,7 @@ SshChannel::sshReadWriteLoop()
 
 	for (;;)
 	{
-		uint_t socketEventMask = 0;
+		uint_t socketEventMask = FD_CLOSE;
 
 		if (!canReadSocket)
 			socketEventMask |= FD_READ;
@@ -669,6 +669,19 @@ SshChannel::sshReadWriteLoop()
 				}
 
 				canWriteSocket = true;
+			}
+
+			if (!canReadSocket && (networkEvents.lNetworkEvents & FD_CLOSE))
+			{
+				int error = networkEvents.iErrorCode[FD_CLOSE_BIT];
+				if (!error)
+					setEvents(SshEvent_TcpDisconnected);
+				else if (error == WSAECONNRESET)
+					setEvents(SshEvent_TcpDisconnected | SshEvent_TcpReset);
+				else
+					setIoErrorEvent(error);
+
+				return;
 			}
 
 			socketEvent.reset();
