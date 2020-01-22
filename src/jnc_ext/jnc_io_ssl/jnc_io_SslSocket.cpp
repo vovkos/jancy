@@ -282,6 +282,17 @@ SslSocket::ioThreadFunc()
 
 #if (_JNC_OS_WIN)
 
+void
+SslSocket::processFdClose(int error)
+{
+	if (!error)
+		setEvents(SslSocketEvent_TcpDisconnected);
+	else if (error == WSAECONNRESET)
+		setEvents(SslSocketEvent_TcpDisconnected | SslSocketEvent_TcpReset);
+	else
+		setIoErrorEvent(error);
+}
+
 bool
 SslSocket::sslHandshakeLoop(bool isClient)
 {
@@ -317,25 +328,16 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		if (result)
 			break;
 
-		TRACE("error: %s\n", err::getLastErrorDescription().sz());
-
-		ERR_load_crypto_strings();
-		SSL_load_error_strings(); // just once
-		char msg[1024];
-		ERR_error_string_n(ERR_get_error(), msg, sizeof(msg));
-		TRACE("%s %s %s %s\n", msg, ERR_lib_error_string(0), ERR_func_error_string(0), ERR_reason_error_string(0));
-
-		uint_t socketEventMask;
-
+		uint_t socketEventMask = FD_CLOSE;
 		uint_t error = err::getLastError()->m_code;
 		switch (error)
 		{
 		case SSL_ERROR_WANT_READ:
-			socketEventMask = FD_READ;
+			socketEventMask |= FD_READ;
 			break;
 
 		case SSL_ERROR_WANT_WRITE:
-			socketEventMask = FD_WRITE;
+			socketEventMask |= FD_WRITE;
 			break;
 
 		default:
@@ -351,6 +353,20 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		if (waitResult == WAIT_FAILED)
 		{
 			setIoErrorEvent(err::getLastSystemErrorCode());
+			return false;
+		}
+
+		WSANETWORKEVENTS networkEvents;
+		result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
+		if (!result)
+		{
+			setIoErrorEvent();
+			return false;
+		}
+
+		if ((networkEvents.lNetworkEvents & FD_CLOSE) && !(networkEvents.lNetworkEvents & FD_READ))
+		{
+			processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
 			return false;
 		}
 
@@ -393,7 +409,7 @@ SslSocket::sslReadWriteLoop()
 
 	for (;;)
 	{
-		uint_t socketEventMask = 0;
+		uint_t socketEventMask = FD_CLOSE;
 
 		if (!canReadSocket)
 			socketEventMask |= FD_READ;
@@ -452,6 +468,12 @@ SslSocket::sslReadWriteLoop()
 				}
 
 				canWriteSocket = true;
+			}
+
+			if (!canReadSocket && (networkEvents.lNetworkEvents & FD_CLOSE))
+			{
+				processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
+				return;
 			}
 
 			socketEvent.reset();

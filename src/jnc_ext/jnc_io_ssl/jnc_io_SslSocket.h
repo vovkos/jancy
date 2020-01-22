@@ -307,6 +307,11 @@ protected:
 		int where,
 		int ret
 		);
+
+#if (_JNC_OS_WIN)
+	void
+	processFdClose(int error);
+#endif
 };
 
 //..............................................................................
