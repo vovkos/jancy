@@ -108,7 +108,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 #endif
 
 	g::getModule()->setTag("jnc_io_base");
-	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::IoLib_getLib();
 }

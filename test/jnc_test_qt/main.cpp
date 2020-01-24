@@ -34,6 +34,10 @@ int main(int argc, char* argv[])
 	io::registerUsbErrorProvider();
 #endif
 
+#if (_JNC_IO_SSL)
+	io::registerSslErrorProvider();
+#endif
+
 	srand((int)sys::getTimestamp());
 
 	QApplication app(argc, argv);

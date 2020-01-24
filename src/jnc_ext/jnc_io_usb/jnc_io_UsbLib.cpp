@@ -66,7 +66,7 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule()->setTag("jnc_io_usb");
-	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	axl::io::registerUsbErrorProvider();
 	axl::io::getUsbDefaultContext()->createDefault();
 	axl::io::getUsbDefaultContextEventThread()->start();

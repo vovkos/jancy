@@ -58,7 +58,7 @@ jnc_ExtensionLib*
 jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule()->setTag("jnc_io_pcap");
-	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+	err::getErrorMgr()->setRouter(host->m_errorRouter);
 
 #if (_JNC_OS_WIN)
 	sl::StringRef isNpcapDisable = ::getenv("JNC_IO_PCAP_DISABLE_NPCAP");

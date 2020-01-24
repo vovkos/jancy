@@ -50,6 +50,10 @@
 #	include "axl_io_UsbError.h"
 #endif
 
+#if (_JNC_IO_SSL)
+#	include "axl_io_SslError.h"
+#endif
+
 #include "axl_lex_ParseError.h"
 #include "axl_err_ErrorMgr.h"
 

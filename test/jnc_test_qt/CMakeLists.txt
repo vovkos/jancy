@@ -192,6 +192,12 @@ if(BUILD_JNC_IO_USB)
 	add_definitions(-D_JNC_IO_USB=1)
 endif()
 
+if(BUILD_JNC_IO_SSL)
+	include_directories(${OPENSSL_INC_DIR})
+	link_directories(${OPENSSL_LIB_DIR})
+	add_definitions(-D_JNC_IO_SSL=1)
+endif()
+
 add_definitions(
 	-DQT_COMPILING_QSTRING_COMPAT_CPP
 	-DQT_COMPILING_QIMAGE_COMPAT_CPP
@@ -255,6 +261,15 @@ endif()
 
 if(BUILD_JNC_IO_USB)
 	target_link_libraries(jnc_test_qt axl_io_usb)
+endif()
+
+if(BUILD_JNC_IO_SSL)
+	target_link_libraries(
+		jnc_test_qt
+		axl_cry
+		${OPENSSL_SSL_LIB_NAME}
+		${OPENSSL_CRYPTO_LIB_NAME}
+		)
 endif()
 
 target_link_libraries(

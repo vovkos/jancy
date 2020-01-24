@@ -67,7 +67,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 
 	SSL_library_init();
 	g::getModule()->setTag("jnc_io_ssl");
-	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::g_sslSocketSelfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 	return jnc::io::SslLib_getLib();

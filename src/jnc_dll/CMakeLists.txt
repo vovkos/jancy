@@ -21,10 +21,6 @@ link_directories(
 	${AXL_LIB_DIR}
 	)
 
-if(BUILD_JNC_IO_USB)
-	link_directories(${LIBUSB_LIB_DIR})
-endif()
-
 if(WIN32)
 	configure_file(jnc_dll.def.in jnc_dll.def)
 
@@ -93,10 +89,6 @@ else()
 			" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_dll.version'"
 			)
 	endif()
-endif()
-
-if(BUILD_JNC_IO_USB)
-	target_link_libraries(jnc_dll axl_io_usb)
 endif()
 
 target_link_libraries(

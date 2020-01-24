@@ -480,12 +480,6 @@ jnc_initialize(const char* tag)
 		g::getModule()->setTag(tag);
 
 	sl::getSimpleSingleton<jnc::rt::ExceptionMgr>()->install();
-
-	lex::registerParseErrorProvider();
-
-#if (_JNC_IO_USB)
-	io::registerUsbErrorProvider();
-#endif
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

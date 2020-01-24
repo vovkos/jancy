@@ -109,7 +109,7 @@ jnc_setErrorRouter(jnc_ErrorRouter* router)
 {
 	err::ErrorMgr* errorMgr = err::getErrorMgr();
 	if (router != errorMgr)
-		errorMgr->setForwardRouter(router);
+		errorMgr->setRouter(router);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

@@ -56,7 +56,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 #endif
 
 	g::getModule()->setTag("jnc_io_ssh");
-	err::getErrorMgr()->setForwardRouter(host->m_errorRouter);
+	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::SshLib_getLib();
 }
