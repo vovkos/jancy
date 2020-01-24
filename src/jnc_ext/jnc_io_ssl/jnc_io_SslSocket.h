@@ -295,6 +295,9 @@ protected:
 	ioThreadFunc();
 
 	bool
+	sslSuspendLoop();
+
+	bool
 	sslHandshakeLoop(bool isClient);
 
 	void

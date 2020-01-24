@@ -266,7 +266,10 @@ SslSocket::ioThreadFunc()
 	{
 		m_lock.unlock();
 
-		bool result = sslHandshakeLoop(false);
+		bool result =
+			sslSuspendLoop() &&
+			sslHandshakeLoop(false);
+
 		if (result)
 		{
 			wakeIoThread();
@@ -291,6 +294,30 @@ SslSocket::processFdClose(int error)
 		setEvents(SslSocketEvent_TcpDisconnected | SslSocketEvent_TcpReset);
 	else
 		setIoErrorEvent(error);
+}
+
+bool
+SslSocket::sslSuspendLoop()
+{
+	for (;;)
+	{
+		m_lock.lock();
+
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return false;
+		}
+
+		if (!(m_ioThreadFlags & IoThreadFlag_Suspended))
+		{
+			m_lock.unlock();
+			return true;
+		}
+
+		m_lock.unlock();
+		sleepIoThread();
+	}
 }
 
 bool
