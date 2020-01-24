@@ -186,6 +186,29 @@ public:
 		return strDup(self->m_ssl.getStateStringLong());
 	}
 
+	static
+	DataPtr
+	JNC_CDECL
+	getCipherName(SslSocket* self)
+	{
+		return strDup(self->m_ssl.getCurrentCipherName());
+	}
+
+	static
+	DataPtr
+	JNC_CDECL
+	getCipherDescription(SslSocket* self)
+	{
+		return strDup(self->m_ssl.getCurrentCipherDescription());
+	}
+
+	size_t
+	JNC_CDECL
+	getCipherBits(SslSocket)
+	{
+		return m_ssl.getCurrentCipherBits();
+	}
+
 	bool
 	JNC_CDECL
 	loadCertificate(DataPtr fileNamePtr)
