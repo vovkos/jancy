@@ -82,6 +82,12 @@ public:
 	}
 
 	bool
+	isNamespaceReady()
+	{
+		return m_namespaceStatus == NamespaceStatus_Ready;
+	}
+
+	bool
 	ensureNamespaceReady();
 
 	bool

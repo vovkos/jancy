@@ -245,6 +245,10 @@ struct jnc_AttributeBlockFuncTable
 // Namespace
 
 typedef
+bool_t
+jnc_Namespace_IsReadyFunc(jnc_Namespace* nspace);
+
+typedef
 size_t
 jnc_Namespace_GetItemCountFunc(jnc_Namespace* nspace);
 
@@ -267,6 +271,7 @@ jnc_Namespace_FindItemFunc(
 struct jnc_NamespaceFuncTable
 {
 	size_t m_size;
+	jnc_Namespace_IsReadyFunc* m_isReadyFunc;
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
 	jnc_Namespace_FindItemFunc* m_findItemFunc;
@@ -996,6 +1001,13 @@ jnc_Module_GetPrimitiveTypeFunc(
 	);
 
 typedef
+jnc_Type*
+jnc_Module_GetStdTypeFunc(
+	jnc_Module* module,
+	jnc_StdType stdType
+	);
+
+typedef
 jnc_FindModuleItemResult
 jnc_Module_FindExtensionLibItemFunc(
 	jnc_Module* module,
@@ -1120,6 +1132,7 @@ struct jnc_ModuleFuncTable
 	jnc_Module_InitializeFunc* m_initializeFunc;
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;
+	jnc_Module_GetStdTypeFunc* m_getStdTypeFunc;
 	jnc_Module_FindExtensionLibItemFunc* m_findExtensionLibItemFunc;
 	jnc_Module_MapVariableFunc* m_mapVariableFunc;
 	jnc_Module_MapFunctionFunc* m_mapFunctionFunc;

@@ -80,6 +80,7 @@ static jnc_AttributeBlockFuncTable g_attributeBlockFuncTable =
 static jnc_NamespaceFuncTable g_namespaceFuncTable =
 {
 	sizeof(jnc_NamespaceFuncTable),
+	jnc_Namespace_isReady,
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
 	jnc_Namespace_findItem,
@@ -305,6 +306,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 	jnc_Module_initialize,
 	jnc_Module_getGlobalNamespace,
 	jnc_Module_getPrimitiveType,
+	jnc_Module_getStdType,
 	jnc_Module_findExtensionLibItem,
 	jnc_Module_mapVariable,
 	jnc_Module_mapFunction,

@@ -63,6 +63,10 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind);
 //..............................................................................
 
 JNC_EXTERN_C
+bool_t
+jnc_Namespace_isReady(jnc_Namespace* nspace);
+
+JNC_EXTERN_C
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace);
 
@@ -85,6 +89,12 @@ jnc_Namespace_findItem(
 #if (!defined _JNC_CORE && defined __cplusplus)
 struct jnc_Namespace
 {
+	bool
+	isReady()
+	{
+		return jnc_Namespace_isReady(this);
+	}
+
 	size_t
 	getItemCount()
 	{

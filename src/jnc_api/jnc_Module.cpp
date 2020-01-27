@@ -46,6 +46,17 @@ jnc_Module_getPrimitiveType(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_Type*
+jnc_Module_getStdType(
+	jnc_Module* module,
+	jnc_StdType stdType
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getStdTypeFunc(module, stdType);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FindModuleItemResult
 jnc_Module_findExtensionLibItem(
 	jnc_Module* module,

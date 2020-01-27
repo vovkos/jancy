@@ -46,6 +46,14 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+bool_t
+jnc_Namespace_isReady(jnc_Namespace* nspace)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_isReadyFunc(nspace);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace)
 {
@@ -75,6 +83,14 @@ jnc_Namespace_findItem(
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_Namespace_isReady(jnc_Namespace* nspace)
+{
+	return nspace->isNamespaceReady();
+}
 
 JNC_EXTERN_C
 JNC_EXPORT_O
