@@ -378,7 +378,9 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		jnc_DerivableType* type = (jnc_DerivableType*)TypePrefix##_getType(module); \
 		if (!type) \
 			return !isRequired; \
-		nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)type);
+		nspace = jnc_ModuleItem_getNamespace((jnc_ModuleItem*)type); \
+		if (!jnc_Namespace_isReady(nspace)) \
+			return !isRequired; \
 
 #define JNC_END_TYPE_FUNCTION_MAP() \
 		return 1; \
