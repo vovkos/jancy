@@ -33,6 +33,7 @@ using namespace axl;
 
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
+#include "jnc_Promise.h"
 
 #ifndef ssize_t
 #	define ssize_t intptr_t

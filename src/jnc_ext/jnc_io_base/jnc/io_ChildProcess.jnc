@@ -127,10 +127,12 @@ opaque class ChildProcess
 
 	bool errorcode cancelWait(intptr handle);
 
-	ChildProcessEvents errorcode blockingWait(
+	ChildProcessEvents blockingWait(
 		ChildProcessEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async ChildProcessEvents asyncWait(ChildProcessEvents eventMask);
 }
 
 //..............................................................................

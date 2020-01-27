@@ -63,6 +63,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_FUNCTION("wait", &SslSocket::wait)
 	JNC_MAP_FUNCTION("cancelWait", &SslSocket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &SslSocket::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait", &SslSocket::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

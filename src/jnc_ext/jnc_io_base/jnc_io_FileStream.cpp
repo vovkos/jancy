@@ -47,6 +47,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(FileStream)
 	JNC_MAP_FUNCTION("wait",         &FileStream::wait)
 	JNC_MAP_FUNCTION("cancelWait",   &FileStream::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &FileStream::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &FileStream::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

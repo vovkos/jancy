@@ -131,7 +131,12 @@ opaque class SslSocket
 
 	bool errorcode cancelWait(intptr handle);
 
-	SslSocketEvents errorcode blockingWait(
+	SslSocketEvents blockingWait(
+		SslSocketEvents eventMask,
+		uint_t timeout = -1
+		);
+
+	async SslSocketEvents blockingWait(
 		SslSocketEvents eventMask,
 		uint_t timeout = -1
 		);

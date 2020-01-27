@@ -44,6 +44,7 @@ using namespace axl;
 #include "jnc_ExtensionLib.h"
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
+#include "jnc_Promise.h"
 
 #if (_AXL_OS_WIN)
 #	pragma comment(lib, "setupapi.lib")

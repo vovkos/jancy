@@ -82,44 +82,6 @@ AsyncIoBase::close()
 	m_isOpen = false;
 }
 
-uint_t
-AsyncIoBase::blockingWait(
-	uint_t eventMask,
-	uint_t timeout
-	)
-{
-	m_lock.lock();
-
-	uint_t triggeredEvents = eventMask & m_activeEvents;
-	if (triggeredEvents)
-	{
-		m_lock.unlock();
-		return triggeredEvents;
-	}
-
-	sys::Event event;
-
-	SyncWait wait;
-	wait.m_mask = eventMask;
-	wait.m_event = &event;
-	m_syncWaitList.insertTail(&wait);
-	m_lock.unlock();
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->enterWaitRegion();
-	event.wait(timeout);
-	gcHeap->leaveWaitRegion();
-
-	m_lock.lock();
-	triggeredEvents = eventMask & m_activeEvents;
-	m_syncWaitList.remove(&wait);
-	m_lock.unlock();
-
-	return triggeredEvents;
-}
-
 handle_t
 AsyncIoBase::wait(
 	uint_t eventMask,
@@ -171,6 +133,73 @@ AsyncIoBase::cancelWait(handle_t handle)
 	m_lock.unlock();
 
 	return true;
+}
+
+uint_t
+AsyncIoBase::blockingWait(
+	uint_t eventMask,
+	uint_t timeout
+	)
+{
+	m_lock.lock();
+
+	uint_t triggeredEvents = eventMask & m_activeEvents;
+	if (triggeredEvents)
+	{
+		m_lock.unlock();
+		return triggeredEvents;
+	}
+
+	sys::Event event;
+
+	SyncWait wait;
+	wait.m_mask = eventMask;
+	wait.m_event = &event;
+	m_syncWaitList.insertTail(&wait);
+	m_lock.unlock();
+
+	GcHeap* gcHeap = getCurrentThreadGcHeap();
+	ASSERT(gcHeap);
+
+	gcHeap->enterWaitRegion();
+	event.wait(timeout);
+	gcHeap->leaveWaitRegion();
+
+	m_lock.lock();
+	triggeredEvents = eventMask & m_activeEvents;
+	m_syncWaitList.remove(&wait);
+	m_lock.unlock();
+
+	return triggeredEvents;
+}
+
+Promise*
+AsyncIoBase::asyncWait(uint_t eventMask)
+{
+	ClassType* type = (ClassType*)m_runtime->getModule()->getStdType(StdType_Promise);
+	Promise* promise = (Promise*)m_runtime->getGcHeap()->allocateClass(type);
+
+	FunctionPtr ptr;
+	ptr.m_p = (void*)&onAsyncWaitCompleted;
+	ptr.m_closure = &promise->m_ifaceHdr;
+	wait(eventMask, ptr);
+	return promise;
+}
+
+void
+AsyncIoBase::onAsyncWaitCompleted(
+	IfaceHdr* closure,
+	uint_t triggeredEvents
+	)
+{
+	Runtime* runtime = getCurrentThreadRuntime();
+	Promise* promise = (Promise*)closure;
+
+	Variant result;
+	result.m_type = runtime->getModule()->getPrimitiveType(TypeKind_Int32_u);
+	result.m_uint32 = triggeredEvents;
+
+	promise->complete(result, g_nullDataPtr);
 }
 
 void

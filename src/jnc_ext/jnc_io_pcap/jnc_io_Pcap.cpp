@@ -49,6 +49,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_FUNCTION("wait",         &Pcap::wait)
 	JNC_MAP_FUNCTION("cancelWait",   &Pcap::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &Pcap::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &Pcap::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

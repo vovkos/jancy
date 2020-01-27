@@ -52,6 +52,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SshChannel)
 	JNC_MAP_FUNCTION("wait",         &SshChannel::wait)
 	JNC_MAP_FUNCTION("cancelWait",   &SshChannel::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &SshChannel::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &SshChannel::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

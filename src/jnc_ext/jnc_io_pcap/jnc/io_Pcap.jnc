@@ -350,10 +350,12 @@ opaque class Pcap
 
 	bool errorcode cancelWait(intptr handle);
 
-	PcapEvents errorcode blockingWait(
+	PcapEvents blockingWait(
 		PcapEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async PcapEvents asyncWait(PcapEvents eventMask);
 }
 
 //..............................................................................

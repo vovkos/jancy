@@ -56,10 +56,12 @@ opaque class HostNameResolver
 
 	bool errorcode cancelWait(intptr handle);
 
-	HostNameResolverEvents errorcode blockingWait(
+	HostNameResolverEvents blockingWait(
 		HostNameResolverEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async HostNameResolverEvents asyncWait(HostNameResolverEvents eventMask);
 }
 
 //..............................................................................

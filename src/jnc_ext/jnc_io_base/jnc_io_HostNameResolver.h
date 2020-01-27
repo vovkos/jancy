@@ -118,6 +118,13 @@ public:
 		return AsyncIoBase::blockingWait(eventMask, timeout);
 	}
 
+	Promise*
+	JNC_CDECL
+	asyncWait(uint_t eventMask)
+	{
+		return AsyncIoBase::asyncWait(eventMask);
+	}
+
 protected:
 	void
 	ioThreadFunc();

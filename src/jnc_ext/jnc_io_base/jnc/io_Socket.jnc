@@ -423,9 +423,7 @@ opaque class Socket
 		the function returns ``-1`` [#f1]_.
 
 		Normally you would call this function from within your event handler for
-		``IncomingData`` event. If this function is called when there is no
-		incoming data, it blocks until either the data arrives, or the serial
-		port is closed.
+		``IncomingData`` event.
 	*/
 
 	size_t errorcode readDatagram(
@@ -461,10 +459,12 @@ opaque class Socket
 
 	bool errorcode cancelWait(intptr handle);
 
-	SocketEvents errorcode blockingWait(
+	SocketEvents blockingWait(
 		SocketEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async SocketEvents asyncWait(SocketEvents eventMask);
 }
 
 //..............................................................................

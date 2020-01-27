@@ -338,10 +338,12 @@ opaque class FileStream
 
 	bool errorcode cancelWait(intptr handle);
 
-	FileStreamEvents errorcode blockingWait(
+	FileStreamEvents blockingWait(
 		FileStreamEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async FileStreamEvents asyncWait(FileStreamEvents eventMask);
 }
 
 //! @}

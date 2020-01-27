@@ -46,6 +46,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_FUNCTION("wait",         &ChildProcess::wait)
 	JNC_MAP_FUNCTION("cancelWait",   &ChildProcess::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &ChildProcess::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &ChildProcess::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

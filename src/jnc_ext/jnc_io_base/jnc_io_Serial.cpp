@@ -57,6 +57,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Serial)
 	JNC_MAP_FUNCTION("wait",            &Serial::wait)
 	JNC_MAP_FUNCTION("cancelWait",      &Serial::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait",    &Serial::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",       &Serial::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

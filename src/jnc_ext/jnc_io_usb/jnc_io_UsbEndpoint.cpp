@@ -48,6 +48,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(UsbEndpoint)
 	JNC_MAP_FUNCTION("wait",         &UsbEndpoint::wait)
 	JNC_MAP_FUNCTION("cancelWait",   &UsbEndpoint::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &UsbEndpoint::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &UsbEndpoint::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

@@ -158,10 +158,12 @@ opaque class UsbEndpoint
 
 	bool errorcode cancelWait(intptr handle);
 
-	UsbEndpointEvents errorcode blockingWait(
+	UsbEndpointEvents blockingWait(
 		UsbEndpointEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async UsbEndpointEvents asyncWait(UsbEndpointEvents eventMask);
 }
 
 //..............................................................................

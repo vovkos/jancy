@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(HostNameResolver)
 	JNC_MAP_FUNCTION("wait", &HostNameResolver::wait)
 	JNC_MAP_FUNCTION("cancelWait", &HostNameResolver::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &HostNameResolver::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait", &HostNameResolver::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

@@ -493,7 +493,12 @@ opaque class SshChannel
 
 	bool errorcode cancelWait(intptr handle);
 
-	SshEvents errorcode blockingWait(
+	SshEvents blockingWait(
+		SshEvents eventMask,
+		uint_t timeout = -1
+		);
+
+	async SshEvents blockingWait(
 		SshEvents eventMask,
 		uint_t timeout = -1
 		);

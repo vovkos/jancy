@@ -24,11 +24,11 @@
 #	include "axl_io_psx_Pipe.h"
 #endif
 
-
 #include "jnc_ExtensionLib.h"
 #include "jnc_Runtime.h"
 #include "jnc_CallSite.h"
 #include "jnc_Error.h"
+#include "jnc_Promise.h"
 
 #if (_AXL_OS_POSIX)
 #	include <netinet/tcp.h>

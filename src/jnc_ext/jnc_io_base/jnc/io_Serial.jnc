@@ -603,10 +603,12 @@ opaque class Serial
 
 	bool errorcode cancelWait(intptr handle);
 
-	SerialEvents errorcode blockingWait(
+	SerialEvents blockingWait(
 		SerialEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async SerialEvents asyncWait(SerialEvents eventMask);
 }
 
 //..............................................................................

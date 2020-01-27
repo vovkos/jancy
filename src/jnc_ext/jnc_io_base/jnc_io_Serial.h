@@ -292,6 +292,13 @@ public:
 		return AsyncIoDevice::blockingWait(eventMask, timeout);
 	}
 
+	Promise*
+	JNC_CDECL
+	asyncWait(uint_t eventMask)
+	{
+		return AsyncIoDevice::asyncWait(eventMask);
+	}
+
 protected:
 	void
 	ioThreadFunc();

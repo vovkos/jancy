@@ -58,6 +58,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Socket)
 	JNC_MAP_FUNCTION("wait",          &Socket::wait)
 	JNC_MAP_FUNCTION("cancelWait",    &Socket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait",  &Socket::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",     &Socket::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................

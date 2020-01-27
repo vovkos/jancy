@@ -93,6 +93,9 @@ protected:
 		uint_t timeout
 		);
 
+	Promise*
+	asyncWait(uint_t eventMask);
+
 	void
 	open();
 
@@ -182,6 +185,13 @@ protected:
 	{
 		setIoErrorEvent(AsyncIoBaseEvent_IoError, err::getLastError());
 	}
+
+	static
+	void
+	onAsyncWaitCompleted(
+		IfaceHdr* closure,
+		uint_t triggeredEvents
+		);
 };
 
 //..............................................................................
