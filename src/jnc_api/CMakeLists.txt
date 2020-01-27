@@ -37,6 +37,7 @@ set(
 	${JANCY_INC_DIR}/jnc_Property.h
 	${JANCY_INC_DIR}/jnc_Namespace.h
 	${JANCY_INC_DIR}/jnc_Variant.h
+	${JANCY_INC_DIR}/jnc_Promise.h
 	${JANCY_INC_DIR}/jnc_Unit.h
 	${JANCY_INC_DIR}/jnc_Module.h
 	${JANCY_INC_DIR}/jnc_Runtime.h
@@ -70,6 +71,7 @@ set(
 	jnc_Property.cpp
 	jnc_Namespace.cpp
 	jnc_Variant.cpp
+	jnc_Promise.cpp
 	jnc_Module.cpp
 	jnc_Runtime.cpp
 	jnc_GcHeap.cpp
@@ -129,6 +131,7 @@ include_directories(
 	${JANCY_INC_DIR}
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_rt
+	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
 	)
 
 add_library(

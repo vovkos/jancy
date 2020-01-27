@@ -17,6 +17,7 @@
 #include "jnc_Function.h"
 #include "jnc_ClassType.h"
 #include "jnc_Variant.h"
+#include "jnc_Promise.h"
 #include "jnc_OpKind.h"
 
 typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
@@ -53,6 +54,7 @@ typedef struct jnc_ClassPtrTypeFuncTable jnc_ClassPtrTypeFuncTable;
 typedef struct jnc_FunctionPtrTypeFuncTable jnc_FunctionPtrTypeFuncTable;
 typedef struct jnc_PropertyPtrTypeFuncTable jnc_PropertyPtrTypeFuncTable;
 typedef struct jnc_VariantFuncTable jnc_VariantFuncTable;
+typedef struct jnc_PromiseFuncTable jnc_PromiseFuncTable;
 typedef struct jnc_UnitFuncTable jnc_UnitFuncTable;
 typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
 typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
@@ -933,6 +935,24 @@ struct jnc_VariantFuncTable
 
 //..............................................................................
 
+typedef
+void
+jnc_Promise_CompleteFunc(
+	jnc_Promise* promise,
+	jnc_Variant result,
+	jnc_DataPtr errorPtr
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_PromiseFuncTable
+{
+	size_t m_size;
+	jnc_Promise_CompleteFunc* m_completeFunc;
+};
+
+//..............................................................................
+
 // Unit
 
 struct jnc_UnitFuncTable
@@ -1465,6 +1485,7 @@ struct jnc_DynamicExtensionLibHost
 	jnc_FunctionPtrTypeFuncTable* m_functionPtrTypeFuncTable;
 	jnc_PropertyPtrTypeFuncTable* m_propertyPtrTypeFuncTable;
 	jnc_VariantFuncTable* m_variantFuncTable;
+	jnc_PromiseFuncTable* m_promiseFuncTable;
 	jnc_UnitFuncTable* m_unitFuncTable;
 	jnc_ModuleFuncTable* m_moduleFuncTable;
 	jnc_RuntimeFuncTable* m_runtimeFuncTable;

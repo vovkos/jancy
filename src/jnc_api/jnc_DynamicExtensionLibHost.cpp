@@ -285,6 +285,12 @@ static jnc_VariantFuncTable g_variantFuncTable =
 	jnc_Variant_hash,
 };
 
+static jnc_PromiseFuncTable g_promiseFuncTable =
+{
+	sizeof(jnc_PromiseFuncTable),
+	jnc_Promise_complete,
+};
+
 static jnc_UnitFuncTable g_unitFuncTable =
 {
 	sizeof(jnc_UnitFuncTable),
@@ -411,6 +417,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	&g_functionPtrTypeFuncTable,
 	&g_propertyPtrTypeFuncTable,
 	&g_variantFuncTable,
+	&g_promiseFuncTable,
 	&g_unitFuncTable,
 	&g_moduleFuncTable,
 	&g_runtimeFuncTable,

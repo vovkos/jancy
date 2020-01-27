@@ -322,7 +322,7 @@ asyncRet(
 	// jnc.Promisifier ONLY uses jnc.Promise fields to complete the promise
 	// so it's OK to cast -- even though the actual class is NOT jnc.Promisifier
 
-	((Promisifier*)promise)->complete_2(result, g_nullDataPtr);
+	((PromiseImpl*)promise)->complete_2(result, g_nullDataPtr);
 }
 
 void
@@ -337,7 +337,7 @@ asyncThrow(IfaceHdr* promise)
 	if (errorPtr.m_p)
 		memcpy(errorPtr.m_p, error, error->m_size);
 
-	((Promisifier*)promise)->complete_2(g_nullVariant, errorPtr);
+	((PromiseImpl*)promise)->complete_2(g_nullVariant, errorPtr);
 }
 
 jnc_Variant

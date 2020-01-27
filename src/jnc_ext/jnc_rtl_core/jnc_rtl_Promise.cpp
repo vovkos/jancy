@@ -25,19 +25,19 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	"jnc.Promise",
 	sl::g_nullGuid,
 	-1,
-	Promise,
-	&Promise::markOpaqueGcRoots
+	PromiseImpl,
+	&PromiseImpl::markOpaqueGcRoots
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Promise)
-	JNC_MAP_CONSTRUCTOR(&jnc::construct<Promise>)
-	JNC_MAP_DESTRUCTOR(&jnc::destruct<Promise>)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<PromiseImpl>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<PromiseImpl>)
 
-	JNC_MAP_FUNCTION("asyncWait",    &Promise::asyncWait)
-	JNC_MAP_FUNCTION("wait",         &Promise::wait_0)
-	JNC_MAP_OVERLOAD(&Promise::wait_1)
-	JNC_MAP_OVERLOAD(&Promise::wait_2)
-	JNC_MAP_FUNCTION("blockingWait", &Promise::blockingWait)
+	JNC_MAP_FUNCTION("wait",         &PromiseImpl::wait_0)
+	JNC_MAP_OVERLOAD(&PromiseImpl::wait_1)
+	JNC_MAP_OVERLOAD(&PromiseImpl::wait_2)
+	JNC_MAP_FUNCTION("blockingWait", &PromiseImpl::blockingWait)
+	JNC_MAP_FUNCTION("asyncWait",    &PromiseImpl::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -50,14 +50,14 @@ JNC_DEFINE_CLASS_TYPE(
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Promisifier)
-	JNC_MAP_FUNCTION("complete", &Promisifier::complete_0)
-	JNC_MAP_OVERLOAD(&Promisifier::complete_1)
-	JNC_MAP_OVERLOAD(&Promisifier::complete_2)
+	JNC_MAP_FUNCTION("complete", &PromiseImpl::complete_0)
+	JNC_MAP_OVERLOAD(&PromiseImpl::complete_1)
+	JNC_MAP_OVERLOAD(&PromiseImpl::complete_2)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-Promise::Promise()
+PromiseImpl::PromiseImpl()
 {
 	// claim scheduler (if any)
 
@@ -69,7 +69,7 @@ Promise::Promise()
 
 void
 JNC_CDECL
-Promise::markOpaqueGcRoots(GcHeap* gcHeap)
+PromiseImpl::markOpaqueGcRoots(GcHeap* gcHeap)
 {
 	m_lock.lock();
 
@@ -89,7 +89,7 @@ Promise::markOpaqueGcRoots(GcHeap* gcHeap)
 
 uintptr_t
 JNC_CDECL
-Promise::wait_0(FunctionPtr handlerPtr)
+PromiseImpl::wait_0(FunctionPtr handlerPtr)
 {
 	m_lock.lock();
 
@@ -103,7 +103,7 @@ Promise::wait_0(FunctionPtr handlerPtr)
 
 uintptr_t
 JNC_CDECL
-Promise::wait_1(FunctionPtr handlerPtr)
+PromiseImpl::wait_1(FunctionPtr handlerPtr)
 {
 	m_lock.lock();
 
@@ -117,7 +117,7 @@ Promise::wait_1(FunctionPtr handlerPtr)
 
 uintptr_t
 JNC_CDECL
-Promise::wait_2(FunctionPtr handlerPtr)
+PromiseImpl::wait_2(FunctionPtr handlerPtr)
 {
 	m_lock.lock();
 
@@ -131,7 +131,7 @@ Promise::wait_2(FunctionPtr handlerPtr)
 
 bool
 JNC_CDECL
-Promise::cancelWait(uintptr_t handle)
+PromiseImpl::cancelWait(uintptr_t handle)
 {
 	m_lock.lock();
 
@@ -150,8 +150,46 @@ Promise::cancelWait(uintptr_t handle)
 	return true;
 }
 
+void
+JNC_CDECL
+PromiseImpl::complete_2(
+	Variant result,
+	DataPtr errorPtr
+	)
+{
+	m_lock.lock();
+	if (m_state == State_Completed)
+	{
+		m_lock.unlock();
+		TRACE("-- WARNING: ignoring repetitve completion for jnc.Promise: %p\n", this);
+		return;
+	}
+
+	m_result = result;
+	m_errorPtr = errorPtr;
+	m_state = State_Completed;
+
+	sl::Iterator<SyncWait> syncIt = m_syncWaitList.getHead();
+	for (; syncIt; syncIt++)
+		syncIt->m_event->signal();
+
+	while (!m_asyncWaitList.isEmpty())
+	{
+		AsyncWait* wait = *m_asyncWaitList.getHead();
+		m_asyncWaitMap.eraseKey(wait->m_handle);
+		m_lock.unlock();
+
+		callVoidFunctionPtr(wait->m_handlerPtr, m_result, m_errorPtr);
+
+		m_lock.lock();
+		m_asyncWaitList.erase(wait);
+	}
+
+	m_lock.unlock();
+}
+
 uintptr_t
-Promise::addAsyncWait_l(
+PromiseImpl::addAsyncWait_l(
 	AsyncWaitKind waitKind,
 	FunctionPtr handlerPtr
 	)
@@ -168,7 +206,7 @@ Promise::addAsyncWait_l(
 }
 
 Variant
-Promise::blockingWaitImpl()
+PromiseImpl::blockingWaitImpl()
 {
 	m_lock.lock();
 
@@ -207,46 +245,6 @@ Promise::blockingWaitImpl()
 	}
 
 	return m_result;
-}
-
-//..............................................................................
-
-void
-JNC_CDECL
-Promisifier::complete_2(
-	Variant result,
-	DataPtr errorPtr
-	)
-{
-	m_lock.lock();
-	if (m_state == State_Completed)
-	{
-		m_lock.unlock();
-		TRACE("-- WARNING: ignoring repetitve completion for jnc.Promise: %p\n", this);
-		return;
-	}
-
-	m_result = result;
-	m_errorPtr = errorPtr;
-	m_state = State_Completed;
-
-	sl::Iterator<SyncWait> syncIt = m_syncWaitList.getHead();
-	for (; syncIt; syncIt++)
-		syncIt->m_event->signal();
-
-	while (!m_asyncWaitList.isEmpty())
-	{
-		AsyncWait* wait = *m_asyncWaitList.getHead();
-		m_asyncWaitMap.eraseKey(wait->m_handle);
-		m_lock.unlock();
-
-		callVoidFunctionPtr(wait->m_handlerPtr, m_result, m_errorPtr);
-
-		m_lock.lock();
-		m_asyncWaitList.erase(wait);
-	}
-
-	m_lock.unlock();
 }
 
 //..............................................................................

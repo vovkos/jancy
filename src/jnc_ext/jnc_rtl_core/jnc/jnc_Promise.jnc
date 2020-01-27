@@ -46,7 +46,7 @@ public:
 	bool errorcode cancelWait(intptr handle);
 
 	variant blockingWait();
-	variant async asyncWait();
+	async variant asyncWait();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

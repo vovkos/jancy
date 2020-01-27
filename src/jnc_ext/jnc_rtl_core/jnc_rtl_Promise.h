@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
+#include "jnc_Promise.h"
 
 namespace jnc {
 namespace rtl {
@@ -21,8 +22,11 @@ JNC_DECLARE_CLASS_TYPE(Promisifier)
 
 //..............................................................................
 
-class Promise: public IfaceHdr
+class PromiseImpl: public Promise
 {
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(Promise)
+
 protected:
 	enum State
 	{
@@ -49,14 +53,6 @@ protected:
 		sys::Event* m_event;
 	};
 
-public:
-	size_t m_state;
-	IfaceHdr* m_scheduler;
-	Promise* m_pendingPromise;
-	GcShadowStackFrame* m_gcShadowStackFrame;
-	Variant m_result;
-	DataPtr m_errorPtr;
-
 protected:
 	sys::Lock m_lock;
 
@@ -69,7 +65,7 @@ protected:
 #endif
 
 public:
-	Promise();
+	PromiseImpl();
 
 	void
 	JNC_CDECL
@@ -93,7 +89,7 @@ public:
 
 	static
 	Variant
-	blockingWait(Promise* self)
+	blockingWait(PromiseImpl* self)
 	{
 		return self->blockingWaitImpl();
 	}
@@ -105,28 +101,7 @@ public:
 		return this;
 	}
 
-protected:
-	uintptr_t
-	addAsyncWait_l(
-		AsyncWaitKind waitKind,
-		FunctionPtr handlerPtr
-		);
-
-	Variant
-	blockingWaitImpl();
-};
-
-//..............................................................................
-
-class Promisifier: public Promise
-{
-public:
-	void
-	JNC_CDECL
-	markOpaqueGcRoots(GcHeap* gcHeap)
-	{
-		Promise::markOpaqueGcRoots(gcHeap);
-	}
+	// jnc.Promisifier
 
 	void
 	JNC_CDECL
@@ -148,6 +123,16 @@ public:
 		Variant result,
 		DataPtr errorPtr
 		);
+
+protected:
+	uintptr_t
+	addAsyncWait_l(
+		AsyncWaitKind waitKind,
+		FunctionPtr handlerPtr
+		);
+
+	Variant
+	blockingWaitImpl();
 };
 
 //..............................................................................
