@@ -87,10 +87,12 @@ opaque class DeviceMonitor
 
 	bool errorcode cancelWait(intptr handle);
 
-	DeviceMonitorEvents errorcode blockingWait(
+	DeviceMonitorEvents blockingWait(
 		DeviceMonitorEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async DeviceMonitorEvents asyncWait(DeviceMonitorEvents eventMask);
 }
 
 //..............................................................................

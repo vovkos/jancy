@@ -498,10 +498,7 @@ opaque class SshChannel
 		uint_t timeout = -1
 		);
 
-	async SshEvents blockingWait(
-		SshEvents eventMask,
-		uint_t timeout = -1
-		);
+	async SshEvents asyncWait(SshEvents eventMask);
 }
 
 //..............................................................................

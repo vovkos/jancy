@@ -241,10 +241,12 @@ opaque class Mailslot
 
 	bool errorcode cancelWait(intptr handle);
 
-	MailslotEvents errorcode blockingWait(
+	MailslotEvents blockingWait(
 		MailslotEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async MailslotEvents asyncWait(MailslotEvents eventMask);
 }
 
 //..............................................................................

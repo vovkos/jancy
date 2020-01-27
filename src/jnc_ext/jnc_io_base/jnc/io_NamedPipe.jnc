@@ -156,10 +156,12 @@ opaque class NamedPipe
 
 	bool errorcode cancelWait(intptr handle);
 
-	NamedPipeEvents errorcode blockingWait(
+	NamedPipeEvents blockingWait(
 		NamedPipeEvents eventMask,
 		uint_t timeout = -1
 		);
+
+	async NamedPipeEvents asyncWait(NamedPipeEvents eventMask);
 }
 
 //..............................................................................

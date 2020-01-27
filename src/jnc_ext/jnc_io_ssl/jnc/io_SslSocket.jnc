@@ -136,10 +136,7 @@ opaque class SslSocket
 		uint_t timeout = -1
 		);
 
-	async SslSocketEvents blockingWait(
-		SslSocketEvents eventMask,
-		uint_t timeout = -1
-		);
+	async SslSocketEvents asyncWait(SslSocketEvents eventMask);
 }
 
 //..............................................................................
