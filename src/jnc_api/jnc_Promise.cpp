@@ -1,4 +1,4 @@
-//..............................................................................
+o//..............................................................................
 //
 //  This file is part of the Jancy toolkit.
 //
@@ -47,7 +47,7 @@ jnc_Promise_complete(
 	jnc_DataPtr errorPtr
 	)
 {
-	((jnc::rtl::PromiseImpl*)promise)->complete(result, errorPtr);
+	((jnc::rtl::PromiseImpl*)promise)->complete_2(result, errorPtr);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB
