@@ -297,6 +297,7 @@ ChildProcess::close()
 #if (_JNC_OS_WIN)
 	m_process.close();
 #else
+	m_pid = 0;
 #endif
 
 	m_exitCode = 0;
@@ -354,6 +355,15 @@ ChildProcess::createFileStream(AxlOsFile* file)
 void
 ChildProcess::finalizeIoThreadImpl()
 {
+	m_lock.lock();
+	if (m_ioThreadFlags & IoThreadFlag_Closing)
+	{
+		m_lock.unlock();
+		return;
+	}
+
+	m_lock.unlock();
+
 	uint_t exitCode;
 	bool isCrashed;
 

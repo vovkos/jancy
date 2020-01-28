@@ -59,6 +59,13 @@ protected:
 		Def_Options         = 0,
 	};
 
+	enum IoThreadFlag
+	{
+		IoThreadFlag_Connecting         = 0x0100,
+		IoThreadFlag_Listening          = 0x0200,
+		IoThreadFlag_IncomingConnection = 0x0400,
+	};
+
 	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
@@ -67,13 +74,6 @@ protected:
 		{
 			containerof(this, Socket, m_ioThread)->ioThreadFunc();
 		}
-	};
-
-	enum IoThreadFlag
-	{
-		IoThreadFlag_Connecting         = 0x0100,
-		IoThreadFlag_Listening          = 0x0200,
-		IoThreadFlag_IncomingConnection = 0x0400,
 	};
 
 #if (_AXL_OS_WIN)
