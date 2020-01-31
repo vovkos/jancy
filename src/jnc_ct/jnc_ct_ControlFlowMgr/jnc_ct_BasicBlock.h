@@ -56,6 +56,12 @@ protected:
 public:
 	BasicBlock();
 
+	Module*
+	getModule()
+	{
+		return m_module;
+	}
+
 	int
 	getFlags()
 	{
