@@ -50,7 +50,7 @@ public:
 	calcRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray);
 
 	void
-	saveCrossRegionValues();
+	preserveCrossRegionValues();
 
 protected:
 	Region*
@@ -60,7 +60,7 @@ protected:
 		);
 
 	void
-	saveCrossRegionValue(
+	preserveCrossRegionValue(
 		llvm::Instruction* llvmOpInst,
 		llvm::Instruction* llvmTargetInst,
 		size_t opIdx

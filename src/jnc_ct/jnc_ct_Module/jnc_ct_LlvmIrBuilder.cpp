@@ -32,8 +32,8 @@ LlvmIrBuilder::create()
 {
 	ASSERT(!m_llvmIrBuilder);
 
-	m_llvmIrBuilder = new llvm::IRBuilder<> (*m_module->getLlvmContext());
-	m_llvmAllocaIrBuilder = new llvm::IRBuilder<> (*m_module->getLlvmContext());
+	m_llvmIrBuilder = new LlvmIrBuilderImpl(*m_module->getLlvmContext());
+	m_llvmAllocaIrBuilder = new LlvmIrBuilderImpl(*m_module->getLlvmContext());
 }
 
 void
@@ -438,6 +438,20 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	createInsertValue(functionPtrValue, ptrValue, 0, NULL, &functionPtrValue);
 	createInsertValue(functionPtrValue, closureValue, 1, resultType, resultValue);
 	return true;
+}
+
+//..............................................................................
+
+sl::String
+getLlvmInstructionString(llvm::Instruction* llvmInst)
+{
+	std::string bufferString;
+	llvm::raw_string_ostream stream(bufferString);
+	llvmInst->print(stream);
+
+	sl::String resultString(bufferString.c_str(), bufferString.length());
+	resultString.trimLeft(); // remove indent
+	return resultString;
 }
 
 //..............................................................................

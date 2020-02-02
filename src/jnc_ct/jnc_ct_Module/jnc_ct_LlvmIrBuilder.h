@@ -22,6 +22,14 @@ namespace ct {
 class Module;
 class Scope;
 
+#if (_JNC_DEBUG)
+#	define LLVM_IR_BUILDER_PRESERVE_NAMES true
+#else
+#	define LLVM_IR_BUILDER_PRESERVE_NAMES false
+#endif
+
+typedef llvm::IRBuilder<LLVM_IR_BUILDER_PRESERVE_NAMES> LlvmIrBuilderImpl;
+
 //..............................................................................
 
 class LlvmIrBuilder
@@ -30,8 +38,8 @@ class LlvmIrBuilder
 
 protected:
 	Module* m_module;
-	llvm::IRBuilder<>* m_llvmIrBuilder;
-	llvm::IRBuilder<>* m_llvmAllocaIrBuilder;
+	LlvmIrBuilderImpl* m_llvmIrBuilder;
+	LlvmIrBuilderImpl* m_llvmAllocaIrBuilder;
 
 public:
 	LlvmIrBuilder();
@@ -47,13 +55,13 @@ public:
 		return m_module;
 	}
 
-	llvm::IRBuilder<>*
+	LlvmIrBuilderImpl*
 	getLlvmIrBuilder()
 	{
 		return m_llvmIrBuilder;
 	}
 
-	llvm::IRBuilder<>*
+	LlvmIrBuilderImpl*
 	getLlvmAllocaIrBuilder()
 	{
 		return m_llvmAllocaIrBuilder;
@@ -1238,6 +1246,11 @@ public:
 		Value* resultValue
 		);
 };
+
+//..............................................................................
+
+sl::String
+getLlvmInstructionString(llvm::Instruction* llvmInst);
 
 //..............................................................................
 

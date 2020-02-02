@@ -13,6 +13,17 @@
 #include "jnc_ct_AsyncRegionMgr.h"
 #include "jnc_ct_Module.h"
 
+#if (_JNC_DEBUG)
+//#	define _JNC_ADD_ASYNC_REGION_MD      1
+#	define _JNC_TRACE_ASYNC_REGION_VALUE 1
+#endif
+
+#if (_JNC_TRACE_ASYNC_REGION_VALUE)
+#	define JNC_TRACE_ASYNC_REGION_VALUE TRACE
+#else
+#	define JNC_TRACE_ASYNC_REGION_VALUE (void)
+#endif
+
 namespace jnc {
 namespace ct {
 
@@ -75,7 +86,7 @@ AsyncRegionMgr::calcRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray)
 		} while (!frontArray[srcIdx].isEmpty());
 	}
 
-#if (_JNC_DEBUG)
+#if (_JNC_ADD_ASYNC_REGION_MD)
 	Type* mdType = m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr);
 	llvm::LLVMContext* llvmContext = m_module->getLlvmContext();
 	uint_t mdKindId = llvmContext->getMDKindID("jnc.async-region");
@@ -91,15 +102,12 @@ AsyncRegionMgr::calcRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray)
 }
 
 void
-AsyncRegionMgr::saveCrossRegionValues()
+AsyncRegionMgr::preserveCrossRegionValues()
 {
 	sl::HashTableIterator<llvm::BasicBlock*, Region*> blockIt = m_basicBlockMap.getHead();
 	for (; blockIt; blockIt++)
 	{
 		llvm::BasicBlock* llvmBlock = blockIt->getKey();
-		Region* region = m_basicBlockMap.findValue(llvmBlock, NULL);
-		ASSERT(region);
-
 		llvm::BasicBlock::iterator instIt = llvmBlock->begin();
 		for (; instIt != llvmBlock->end(); instIt++)
 		{
@@ -114,8 +122,8 @@ AsyncRegionMgr::saveCrossRegionValues()
 				llvm::Instruction* llvmOpInst = (llvm::Instruction*)llvmOp;
 				llvm::BasicBlock* llvmOpBlock = llvmOpInst->getParent();
 				Region* opRegion = m_basicBlockMap.findValue(llvmOpBlock, NULL);
-				if (opRegion && opRegion != region)
-					saveCrossRegionValue(llvmOpInst, llvmInst, i);
+				if (opRegion && opRegion != blockIt->m_value)
+					preserveCrossRegionValue(llvmOpInst, llvmInst, i);
 			}
 		}
 	}
@@ -130,7 +138,7 @@ AsyncRegionMgr::createRegion(
 	Region* region = AXL_MEM_NEW(Region);
 	region->m_llvmEntryBlock = llvmEntryBlock;
 	region->m_parentRegion = parentRegion;
-#if (_JNC_DEBUG)
+#if (_JNC_ADD_ASYNC_REGION_MD)
 	region->m_id = m_regionList.getCount();
 #endif
 
@@ -140,39 +148,45 @@ AsyncRegionMgr::createRegion(
 }
 
 void
-AsyncRegionMgr::saveCrossRegionValue(
+AsyncRegionMgr::preserveCrossRegionValue(
 	llvm::Instruction* llvmOpInst,
 	llvm::Instruction* llvmTargetInst,
 	size_t opIdx
 	)
 {
-	llvm::IRBuilder<>* llvmIrBuilder = m_module->m_llvmIrBuilder.getLlvmIrBuilder();
-	llvm::IRBuilder<>* llvmAllocaIrBuilder = m_module->m_llvmIrBuilder.getLlvmAllocaIrBuilder();
-
-#if (_JNC_DEBUG)
-	std::string string;
-	llvm::raw_string_ostream stream(string);
-	llvmOpInst->print(stream);
-#endif
+	LlvmIrBuilderImpl* llvmIrBuilder = m_module->m_llvmIrBuilder.getLlvmIrBuilder();
+	LlvmIrBuilderImpl* llvmAllocaIrBuilder = m_module->m_llvmIrBuilder.getLlvmAllocaIrBuilder();
 
 	llvm::AllocaInst* llvmAlloca;
 
 	sl::HashTableIterator<llvm::Instruction*, llvm::AllocaInst*> it = m_crossRegionValueMap.visit(llvmOpInst);
 	if (it->m_value)
 	{
-		TRACE("Re-using exiting storage for cross-async-region value: %s\n", string.c_str());
 		llvmAlloca = it->m_value;
+
+		JNC_TRACE_ASYNC_REGION_VALUE(
+			"Re-using preserved cross-async-region value: %s\n",
+			getLlvmInstructionString(llvmAlloca).sz()
+			);
 	}
 	else
 	{
+		llvmAlloca = llvmAllocaIrBuilder->CreateAlloca(llvmOpInst->getType());
+
+		JNC_TRACE_ASYNC_REGION_VALUE(
+			"Preseving cross-async-region value: %s\n  in: %s\n",
+			getLlvmInstructionString(llvmOpInst).sz(),
+			getLlvmInstructionString(llvmAlloca).sz()
+			);
+
 		llvm::Instruction* llvmNextInst = ++llvm::BasicBlock::iterator(llvmOpInst);
 		ASSERT(llvmNextInst); // each block must have a terminator, which is never an operand
-
-		TRACE("Saving cross-async-region value: %s\n", string.c_str());
-		llvmAlloca = llvmAllocaIrBuilder->CreateAlloca(llvmOpInst->getType(), NULL, "asyncv");
 		llvmIrBuilder->SetInsertPoint(llvmNextInst);
 		llvmIrBuilder->CreateStore(llvmOpInst, llvmAlloca);
 		it->m_value = llvmAlloca;
+
+		// note, that there is no need to add extra GC roots: all
+		// necessary roots should already be there -- regardless of await-s
 	}
 
 	llvmIrBuilder->SetInsertPoint(llvmTargetInst);

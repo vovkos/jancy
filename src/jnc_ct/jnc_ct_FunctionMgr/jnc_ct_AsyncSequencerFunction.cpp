@@ -177,11 +177,11 @@ AsyncSequencerFunction::compile()
 	m_module->m_functionMgr.internalEpilogue();
 	m_module->m_namespaceMgr.closeNamespace();
 
-	// preserve values used cross async-returns
+	// preserve values used across async-returns
 
 	AsyncRegionMgr regionMgr(m_module);
 	regionMgr.calcRegions(asyncBlockArray);
-	regionMgr.saveCrossRegionValues();
+	regionMgr.preserveCrossRegionValues();
 	return true;
 }
 
