@@ -253,7 +253,7 @@ LlvmIrBuilder::createAlloca(
 	Value* resultValue
 	)
 {
-	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), 0, name >> toLlvm);
+	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), NULL, name >> toLlvm);
 	resultValue->setLlvmValue(inst, resultType);
 	return inst;
 }

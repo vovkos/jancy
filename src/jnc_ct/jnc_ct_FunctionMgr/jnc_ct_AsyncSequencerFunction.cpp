@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_ct_AsyncSequencerFunction.h"
+#include "jnc_ct_AsyncRegionMgr.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Parser.llk.h"
 
@@ -176,9 +177,11 @@ AsyncSequencerFunction::compile()
 	m_module->m_functionMgr.internalEpilogue();
 	m_module->m_namespaceMgr.closeNamespace();
 
-	AsyncRegionCalc calc;
-	calc.calcAsyncRegions(asyncBlockArray);
-	calc.saveCrossAsyncRegionValues();
+	// preserve values used cross async-returns
+
+	AsyncRegionMgr regionMgr(m_module);
+	regionMgr.calcRegions(asyncBlockArray);
+	regionMgr.saveCrossRegionValues();
 	return true;
 }
 
@@ -231,103 +234,6 @@ AsyncSequencerFunction::replaceAllocas()
 	m_promiseType->m_ifaceStructType->m_size = offset;
 	m_promiseType->m_classStructType->m_size += delta;
 	m_promiseType->m_size += delta;
-}
-
-//..............................................................................
-
-void
-AsyncRegionCalc::calcAsyncRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray)
-{
-	ASSERT(!asyncBlockArray.isEmpty());
-
-	size_t count = asyncBlockArray.getCount();
-	for (size_t i = 0; i < count; i++)
-		addRegion(asyncBlockArray[i]->getLlvmBlock());
-
-	sl::Array<llvm::BasicBlock*> frontArray[2];
-
-	sl::Iterator<Region> it = m_regionList.getHead();
-	for (; it; it++)
-	{
-		Region* region = *it;
-
-		frontArray[0].copy(it->m_llvmEntryBlock);
-		size_t srcIdx = 0;
-
-		do
-		{
-			size_t dstIdx = !srcIdx;
-			frontArray[dstIdx].clear();
-
-			size_t count = frontArray[srcIdx].getCount();
-			for (size_t i = 0; i < count; i++)
-			{
-				llvm::BasicBlock* llvmBlock = frontArray[srcIdx][i];
-				llvm::TerminatorInst* llvmTermInst = llvmBlock->getTerminator();
-
-				size_t count = llvmTermInst->getNumSuccessors();
-				for (size_t i = 0; i < count; i++)
-				{
-					llvm::BasicBlock* llvmNextBlock = llvmTermInst->getSuccessor(i);
-					sl::HashTableIterator<llvm::BasicBlock*, Region*> mapIt = m_regionMap.visit(llvmNextBlock);
-					if (mapIt->m_value)
-					{
-						if (mapIt->m_value->m_llvmEntryBlock == llvmNextBlock) // a region entry
-							continue;
-
-						if (mapIt->m_value != region->m_prevRegion)
-						{
-							mapIt->m_value = addRegion(llvmNextBlock, mapIt->m_value);
-							continue;
-						}
-					}
-
-					mapIt->m_value = region;
-					frontArray[dstIdx].append(llvmNextBlock);
-				}
-			}
-
-			srcIdx = dstIdx;
-		} while (!frontArray[srcIdx].isEmpty());
-	}
-
-#if (_JNC_DEBUG)
-	Module* module = asyncBlockArray[0]->getModule();
-	Type* mdType = module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr);
-	llvm::LLVMContext* llvmContext = module->getLlvmContext();
-	uint_t mdKindId = llvmContext->getMDKindID("jnc.async-region");
-	sl::HashTableIterator<llvm::BasicBlock*, Region*> it2 = m_regionMap.getHead();
-	for (; it2; it2++)
-	{
-		Value regionIdValue(it2->m_value->m_id, mdType);
-		llvm::MDNode* llvmMd = llvm::MDNode::get(*llvmContext, llvm::ArrayRef<llvm::Value*>(regionIdValue.getLlvmValue()));
-		llvm::Instruction* llvmInst = it2->getKey()->begin();
-		llvmInst->setMetadata(mdKindId, llvmMd);
-	}
-#endif
-}
-
-void
-AsyncRegionCalc::saveCrossAsyncRegionValues()
-{
-}
-
-AsyncRegionCalc::Region*
-AsyncRegionCalc::addRegion(
-	llvm::BasicBlock* llvmEntryBlock,
-	Region* prevRegion
-	)
-{
-	Region* region = AXL_MEM_NEW(Region);
-	region->m_llvmEntryBlock = llvmEntryBlock;
-	region->m_prevRegion = prevRegion;
-#if (_JNC_DEBUG)
-	region->m_id = m_regionList.getCount();
-#endif
-
-	m_regionList.insertTail(region);
-	m_regionMap[llvmEntryBlock] = region;
-	return region;
 }
 
 //..............................................................................

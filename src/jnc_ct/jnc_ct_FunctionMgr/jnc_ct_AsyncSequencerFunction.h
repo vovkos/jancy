@@ -57,44 +57,5 @@ public:
 
 //..............................................................................
 
-class AsyncRegionCalc
-{
-protected:
-	struct Region: sl::ListLink
-	{
-		llvm::BasicBlock* m_llvmEntryBlock;
-		Region* m_prevRegion;
-#if (_JNC_DEBUG)
-		size_t m_id;
-#endif
-	};
-
-protected:
-	sl::List<Region> m_regionList;
-	sl::SimpleHashTable<llvm::BasicBlock*, Region*> m_regionMap;
-
-public:
-	void
-	calcAsyncRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray);
-
-	void
-	saveCrossAsyncRegionValues();
-
-protected:
-	Region*
-	addRegion(
-		llvm::BasicBlock* llvmEntryBlock,
-		Region* prevRegion = NULL
-		);
-
-	bool
-	isAsyncRegionEntry(llvm::BasicBlock*);
-
-	bool
-	markAsyncRegionEntry(llvm::BasicBlock*);
-};
-
-//..............................................................................
-
 } // namespace ct
 } // namespace jnc
