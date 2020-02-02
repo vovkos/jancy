@@ -96,6 +96,7 @@ private:
 	QAction* m_clearOutputAction;
 	QAction* m_compileAction;
 	QAction* m_runAction;
+	QAction* m_debugInfoAction;
 	QAction* m_optimizeAction;
 	QAction* m_jitAction;
 

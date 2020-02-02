@@ -154,6 +154,10 @@ void MainWindow::createActions()
 	m_clearOutputAction = new QAction("&Clear Output", this);
 	QObject::connect(m_clearOutputAction, SIGNAL(triggered()), this, SLOT(clearOutput()));
 
+	m_debugInfoAction = new QAction("&Debug Info", this);
+	m_debugInfoAction->setCheckable(true);
+	m_debugInfoAction->setChecked(true);
+
 	m_optimizeAction = new QAction("&Optimize", this);
 	m_optimizeAction->setCheckable(true);
 	m_optimizeAction->setChecked(true);
@@ -186,6 +190,7 @@ void MainWindow::createMenu()
 	m_editMenu->addAction(m_clearOutputAction);
 
 	m_debugMenu = menuBar()->addMenu("&Debug");
+	m_debugMenu->addAction(m_debugInfoAction);
 	m_debugMenu->addAction(m_optimizeAction);
 	m_debugMenu->addAction(m_jitAction);
 	m_debugMenu->addSeparator();
@@ -374,11 +379,13 @@ bool MainWindow::compile()
 
 	uint_t compileFlags =
 		jnc::ModuleCompileFlag_StdFlags
-#if (!_JNC_OS_WIN)
-		| jnc::ModuleCompileFlag_DebugInfo
-#endif
 		// | jnc::ModuleCompileFlag_SimpleGcSafePoint
 		;
+
+#if (!_JNC_OS_WIN)
+	if (m_debugInfoAction->isChecked())
+		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
+#endif
 
 	QByteArray sourceFilePath = child->file().toUtf8();
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
