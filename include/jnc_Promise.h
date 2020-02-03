@@ -29,8 +29,12 @@ typedef struct jnc_Promise jnc_Promise;
 
 //..............................................................................
 
+JNC_EXTERN_C
+jnc_Promise*
+jnc_createPromise(jnc_Runtime* runtime);
+
+JNC_EXTERN_C
 void
-JNC_CDECL
 jnc_Promise_complete(
 	jnc_Promise* promise,
 	jnc_Variant result,
@@ -72,6 +76,15 @@ namespace jnc {
 //..............................................................................
 
 typedef jnc_Promise Promise;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+Promise*
+createPromise(jnc_Runtime* runtime)
+{
+	return jnc_createPromise(runtime);
+}
 
 //..............................................................................
 

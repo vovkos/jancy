@@ -133,6 +133,7 @@ EXPORTS
 	jnc_Variant_setElement
 	jnc_Variant_setMember
 	jnc_Variant_unaryOperator
+	jnc_createPromise
 	jnc_Promise_complete
 	jnc_Module_addIgnoredImport
 	jnc_Module_addImport

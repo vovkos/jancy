@@ -941,6 +941,10 @@ struct jnc_VariantFuncTable
 //..............................................................................
 
 typedef
+jnc_Promise*
+jnc_Promise_CreateFunc(jnc_Runtime* runtime);
+
+typedef
 void
 jnc_Promise_CompleteFunc(
 	jnc_Promise* promise,
@@ -953,6 +957,7 @@ jnc_Promise_CompleteFunc(
 struct jnc_PromiseFuncTable
 {
 	size_t m_size;
+	jnc_Promise_CreateFunc* m_createFunc;
 	jnc_Promise_CompleteFunc* m_completeFunc;
 };
 

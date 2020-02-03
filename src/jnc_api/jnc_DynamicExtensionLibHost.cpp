@@ -289,6 +289,7 @@ static jnc_VariantFuncTable g_variantFuncTable =
 static jnc_PromiseFuncTable g_promiseFuncTable =
 {
 	sizeof(jnc_PromiseFuncTable),
+	jnc_createPromise,
 	jnc_Promise_complete,
 };
 
