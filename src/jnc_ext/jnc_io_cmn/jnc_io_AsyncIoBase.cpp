@@ -176,8 +176,7 @@ AsyncIoBase::blockingWait(
 Promise*
 AsyncIoBase::asyncWait(uint_t eventMask)
 {
-	ClassType* type = (ClassType*)m_runtime->getModule()->getStdType(StdType_Promise);
-	Promise* promise = (Promise*)m_runtime->getGcHeap()->allocateClass(type);
+	Promise* promise = createPromise(m_runtime);
 
 	FunctionPtr ptr;
 	ptr.m_p = (void*)&onAsyncWaitCompleted;
