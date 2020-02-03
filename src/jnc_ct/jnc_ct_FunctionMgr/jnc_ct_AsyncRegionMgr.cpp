@@ -174,7 +174,7 @@ AsyncRegionMgr::preserveCrossRegionValue(
 		llvmAlloca = llvmAllocaIrBuilder->CreateAlloca(llvmOpInst->getType());
 
 		JNC_TRACE_ASYNC_REGION_VALUE(
-			"Preseving cross-async-region value: %s\n  in: %s\n",
+			"Preseving cross-async-region value: %s\n  into: %s\n",
 			getLlvmInstructionString(llvmOpInst).sz(),
 			getLlvmInstructionString(llvmAlloca).sz()
 			);
