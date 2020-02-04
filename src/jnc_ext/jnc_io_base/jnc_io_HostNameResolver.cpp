@@ -202,9 +202,6 @@ HostNameResolver::complete_l(
 	uint_t port = m_port;
 	m_lock.unlock();
 
-	for (size_t i = 0; i < count; i++)
-		addressTable[i].m_addr_ip4.sin_port = port;
-
 	JNC_BEGIN_CALL_SITE(m_runtime)
 	m_pendingAddressTablePtr = memDup(addressTable, count * sizeof(axl::io::SockAddr));
 	JNC_END_CALL_SITE()
@@ -216,14 +213,21 @@ HostNameResolver::complete_l(
 		port != m_port)
 	{
 		m_lock.unlock(); // cancelled during memDup
+		return;
 	}
-	else
+
+	SocketAddress* p = m_pendingAddressTablePtr.m_p;
+	for (size_t i = 0; i < count; i++)
 	{
-		m_addressTablePtr = m_pendingAddressTablePtr;
-		m_addressCount = count;
-		m_pendingAddressTablePtr = g_nullDataPtr;
-		setEvents_l(HostNameResolverEvent_Resolved);
+		int family = addressTable[i].m_addr.sa_family;
+		p->m_family = family == AF_INET6 ? AddressFamily_Ip6 : family;
+		p->m_port = port;
 	}
+
+	m_addressTablePtr = m_pendingAddressTablePtr;
+	m_addressCount = count;
+	m_pendingAddressTablePtr = g_nullDataPtr;
+	setEvents_l(HostNameResolverEvent_Resolved);
 }
 
 //..............................................................................
