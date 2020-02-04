@@ -22,13 +22,17 @@ namespace ct {
 class Module;
 class Scope;
 
-#if (_JNC_DEBUG)
-#	define LLVM_IR_BUILDER_PRESERVE_NAMES true
-#else
-#	define LLVM_IR_BUILDER_PRESERVE_NAMES false
-#endif
+#if (LLVM_VERSION < 0x030900)
+#	if (_JNC_DEBUG)
+#		define LLVM_IR_BUILDER_PRESERVE_NAMES true
+#	else
+#		define LLVM_IR_BUILDER_PRESERVE_NAMES false
+#	endif
 
 typedef llvm::IRBuilder<LLVM_IR_BUILDER_PRESERVE_NAMES> LlvmIrBuilderImpl;
+#else
+typedef llvm::IRBuilder<> LlvmIrBuilderImpl;
+#endif
 
 //..............................................................................
 
