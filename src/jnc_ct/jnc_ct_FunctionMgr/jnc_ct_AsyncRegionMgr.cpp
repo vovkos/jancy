@@ -55,7 +55,7 @@ AsyncRegionMgr::calcRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray)
 			for (size_t i = 0; i < count; i++)
 			{
 				llvm::BasicBlock* llvmBlock = frontArray[srcIdx][i];
-				llvm::TerminatorInst* llvmTermInst = llvmBlock->getTerminator();
+				llvm::Instruction* llvmTermInst = llvmBlock->getTerminator();
 
 				size_t count = llvmTermInst->getNumSuccessors();
 				for (size_t i = 0; i < count; i++)
@@ -111,7 +111,7 @@ AsyncRegionMgr::preserveCrossRegionValues()
 		llvm::BasicBlock::iterator instIt = llvmBlock->begin();
 		for (; instIt != llvmBlock->end(); instIt++)
 		{
-			llvm::Instruction* llvmInst = instIt;
+			llvm::Instruction* llvmInst = &*instIt;
 			size_t opCount = llvmInst->getNumOperands();
 			for (size_t i = 0; i < opCount; i++)
 			{
@@ -179,7 +179,7 @@ AsyncRegionMgr::preserveCrossRegionValue(
 			getLlvmInstructionString(llvmAlloca).sz()
 			);
 
-		llvm::Instruction* llvmNextInst = ++llvm::BasicBlock::iterator(llvmOpInst);
+		llvm::Instruction* llvmNextInst = &*++llvm::BasicBlock::iterator(llvmOpInst);
 		ASSERT(llvmNextInst); // each block must have a terminator, which is never an operand
 		llvmIrBuilder->SetInsertPoint(llvmNextInst);
 		llvmIrBuilder->CreateStore(llvmOpInst, llvmAlloca);
