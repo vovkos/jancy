@@ -287,19 +287,6 @@ SslSocket::ioThreadFunc()
 	}
 }
 
-#if (_JNC_OS_WIN)
-
-void
-SslSocket::processFdClose(int error)
-{
-	if (!error)
-		setEvents(SslSocketEvent_TcpDisconnected);
-	else if (error == WSAECONNRESET)
-		setEvents(SslSocketEvent_TcpDisconnected | SslSocketEvent_TcpReset);
-	else
-		setIoErrorEvent(error);
-}
-
 bool
 SslSocket::sslSuspendLoop()
 {
@@ -322,6 +309,19 @@ SslSocket::sslSuspendLoop()
 		m_lock.unlock();
 		sleepIoThread();
 	}
+}
+
+#if (_JNC_OS_WIN)
+
+void
+SslSocket::processFdClose(int error)
+{
+	if (!error)
+		setEvents(SslSocketEvent_TcpDisconnected);
+	else if (error == WSAECONNRESET)
+		setEvents(SslSocketEvent_TcpDisconnected | SslSocketEvent_TcpReset);
+	else
+		setIoErrorEvent(error);
 }
 
 bool
