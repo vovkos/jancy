@@ -45,7 +45,7 @@ else()
 		set(
 			DLL_SRC_LIST
 			${DLL_SRC_LIST}
-			xcode.c
+			xcode.cpp
 			)
 	endif()
 endif()
