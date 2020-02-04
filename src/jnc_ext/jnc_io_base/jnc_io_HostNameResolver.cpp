@@ -193,7 +193,7 @@ HostNameResolver::ioThreadFunc()
 
 void
 HostNameResolver::complete_l(
-	axl::io::SockAddr* addressTable,
+	const axl::io::SockAddr* addressTable,
 	size_t count
 	)
 {
@@ -216,10 +216,11 @@ HostNameResolver::complete_l(
 		return;
 	}
 
-	SocketAddress* p = m_pendingAddressTablePtr.m_p;
-	for (size_t i = 0; i < count; i++)
+	SocketAddress* p = (SocketAddress*)m_pendingAddressTablePtr.m_p;
+	SocketAddress* end = p + count;
+	for (; p < end; p++)
 	{
-		int family = addressTable[i].m_addr.sa_family;
+		int family = ((axl::io::SockAddr*)p)->m_addr.sa_family;
 		p->m_family = family == AF_INET6 ? AddressFamily_Ip6 : family;
 		p->m_port = port;
 	}

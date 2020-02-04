@@ -131,13 +131,13 @@ protected:
 
 	void
 	complete_l(
-		axl::io::SockAddr* addressTable,
+		const axl::io::SockAddr* addressTable,
 		size_t count
 		);
 
 	void
 	complete(
-		axl::io::SockAddr* addressTable,
+		const axl::io::SockAddr* addressTable,
 		size_t count
 		)
 	{
