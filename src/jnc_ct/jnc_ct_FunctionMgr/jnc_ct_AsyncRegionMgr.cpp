@@ -55,7 +55,7 @@ AsyncRegionMgr::calcRegions(const sl::ArrayRef<BasicBlock*>& asyncBlockArray)
 			for (size_t i = 0; i < count; i++)
 			{
 				llvm::BasicBlock* llvmBlock = frontArray[srcIdx][i];
-				llvm::Instruction* llvmTermInst = llvmBlock->getTerminator();
+				llvm::TerminatorInst* llvmTermInst = llvmBlock->getTerminator();
 
 				size_t count = llvmTermInst->getNumSuccessors();
 				for (size_t i = 0; i < count; i++)
