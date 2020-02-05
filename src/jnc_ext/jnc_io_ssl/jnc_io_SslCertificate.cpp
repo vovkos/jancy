@@ -312,7 +312,6 @@ SslCertificate::save(
 }
 
 bool
-JNC_CDECL
 SslCertificate::encodeImpl(
 	sl::Array<char>* buffer,
 	uint_t format
@@ -341,7 +340,6 @@ SslCertificate::encodeImpl(
 }
 
 bool
-JNC_CDECL
 SslCertificate::decodeImpl(
 	const void* p,
 	size_t size,
