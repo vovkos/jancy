@@ -221,7 +221,7 @@ const SyncScope::ID DefaultSynchronizationScope_vn = llvm::SyncScope::System;
 
 #if (LLVM_VERSION >= 0x080000)
 
-typedef TerminatorInst Instruction
+typedef Instruction TerminatorInst;
 
 #endif
 
