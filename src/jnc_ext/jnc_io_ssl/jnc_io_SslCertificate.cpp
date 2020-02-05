@@ -324,12 +324,12 @@ SslCertificate::encodeImpl(
 	switch (format)
 	{
 	case SslCertFormat_Pem:
-		result = cry::saveX509_pem(&string, m_cert);
+		result = cry::saveX509_pem(&string, m_cert) != -1;
 		buffer->copy(string.cp(), string.getLength());
 		break;
 
 	case SslCertFormat_Der:
-		result = cry::saveX509_der(buffer, m_cert);
+		result = cry::saveX509_der(buffer, m_cert) != -1;
 		break;
 
 	default:
