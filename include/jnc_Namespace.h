@@ -92,7 +92,7 @@ struct jnc_Namespace
 	bool
 	isReady()
 	{
-		return jnc_Namespace_isReady(this);
+		return jnc_Namespace_isReady(this) != 0;
 	}
 
 	size_t
