@@ -258,7 +258,7 @@ bool
 JNC_CDECL
 SslCertificate::encode(
 	std::Buffer* jncBuffer,
-	SslCertFormat format
+	uint_t format
 	)
 {
 	sl::Array<char> axlBuffer;
@@ -279,7 +279,7 @@ bool
 JNC_CDECL
 SslCertificate::load(
 	DataPtr fileNamePtr,
-	SslCertFormat format
+	uint_t format
 	)
 {
 	axl::io::SimpleMappedFile file;
@@ -293,7 +293,7 @@ bool
 JNC_CDECL
 SslCertificate::save(
 	DataPtr fileNamePtr,
-	SslCertFormat format
+	uint_t format
 	)
 {
 	sl::Array<char> buffer;
@@ -315,7 +315,7 @@ bool
 JNC_CDECL
 SslCertificate::encodeImpl(
 	sl::Array<char>* buffer,
-	SslCertFormat format
+	uint_t format
 	)
 {
 	bool result;
@@ -345,7 +345,7 @@ JNC_CDECL
 SslCertificate::decodeImpl(
 	const void* p,
 	size_t size,
-	SslCertFormat format
+	uint_t format
 	)
 {
 	X509* cert;

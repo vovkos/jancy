@@ -20,7 +20,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(SslCertificate)
 
 //..............................................................................
 
-enum SslCertFormat: uint_t
+enum SslCertFormat
 {
 	SslCertFormat_Pem,
 	SslCertFormat_Der,
@@ -140,7 +140,7 @@ public:
 	JNC_CDECL
 	encode(
 		std::Buffer* buffer,
-		SslCertFormat format
+		uint_t format
 		);
 
 	bool
@@ -148,7 +148,7 @@ public:
 	decode(
 		DataPtr ptr,
 		size_t size,
-		SslCertFormat format
+		uint_t format
 		)
 	{
 		return decodeImpl(ptr.m_p, size, format);
@@ -158,14 +158,14 @@ public:
 	JNC_CDECL
 	load(
 		DataPtr fileNamePtr,
-		SslCertFormat format
+		uint_t format
 		);
 
 	bool
 	JNC_CDECL
 	save(
 		DataPtr fileNamePtr,
-		SslCertFormat format
+		uint_t format
 		);
 
 protected:
@@ -176,18 +176,16 @@ protected:
 	getTimestamp(const ASN1_TIME* time);
 
 	bool
-	JNC_CDECL
 	encodeImpl(
 		sl::Array<char>* buffer,
-		SslCertFormat format
+		uint_t format
 		);
 
 	bool
-	JNC_CDECL
 	decodeImpl(
 		const void* p,
 		size_t size,
-		SslCertFormat format
+		uint_t format
 		);
 };
 
