@@ -639,6 +639,7 @@ Module::parseImports()
 		}
 	}
 
+	m_extensionLibMgr.closeDynamicLibZipReaders();
 	m_compileState = ModuleCompileState_Parsed;
 	return true;
 }

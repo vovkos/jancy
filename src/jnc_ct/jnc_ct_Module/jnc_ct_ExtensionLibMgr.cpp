@@ -57,6 +57,14 @@ ExtensionLibMgr::clear()
 }
 
 void
+ExtensionLibMgr::closeDynamicLibZipReaders()
+{
+	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
+	for (; it; it++)
+		it->m_zipReader.close();
+}
+
+void
 ExtensionLibMgr::addStaticLib(ExtensionLib* lib)
 {
 	m_libArray.append(lib);

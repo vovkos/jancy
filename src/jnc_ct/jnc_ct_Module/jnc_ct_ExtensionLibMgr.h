@@ -83,6 +83,9 @@ public:
 	bool
 	loadDynamicLib(const sl::StringRef& fileName);
 
+	void
+	closeDynamicLibZipReaders();
+
 	bool
 	mapAddresses();
 
