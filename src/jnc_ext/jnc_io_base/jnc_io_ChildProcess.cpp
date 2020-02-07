@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &ChildProcess::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &ChildProcess::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &ChildProcess::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_pid",               &ChildProcess::getPid)
 	JNC_MAP_CONST_PROPERTY("m_exitCode",          &ChildProcess::getExitCode)
 
 	JNC_MAP_FUNCTION("start",        &ChildProcess::start)
@@ -301,6 +302,17 @@ ChildProcess::close()
 #endif
 
 	m_exitCode = 0;
+}
+
+uint_t
+JNC_CDECL
+ChildProcess::getPid()
+{
+#if (_JNC_OS_WIN)
+	return m_process.getProcessId();
+#else
+	return m_pid;
+#endif
 }
 
 uint_t

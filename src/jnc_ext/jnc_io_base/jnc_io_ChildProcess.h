@@ -62,6 +62,10 @@ public:
 
 	uint_t
 	JNC_CDECL
+	getPid();
+
+	uint_t
+	JNC_CDECL
 	getExitCode();
 
 	bool

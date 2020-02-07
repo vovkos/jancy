@@ -96,6 +96,7 @@ opaque class ChildProcess
 
 	bool readonly m_isOpen;
 
+	uint_t const property m_pid;
 	uint_t const property m_exitCode;
 
 	construct();
