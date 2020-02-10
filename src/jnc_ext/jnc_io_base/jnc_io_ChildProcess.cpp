@@ -32,22 +32,23 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(ChildProcess)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<ChildProcess>)
 
 	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &ChildProcess::setReadParallelism)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &ChildProcess::setReadBlockSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &ChildProcess::setReadBufferSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &ChildProcess::setReadBlockSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &ChildProcess::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &ChildProcess::setWriteBufferSize)
-	JNC_MAP_AUTOGET_PROPERTY("m_options",         &ChildProcess::setOptions)
-	JNC_MAP_CONST_PROPERTY("m_pid",               &ChildProcess::getPid)
-	JNC_MAP_CONST_PROPERTY("m_exitCode",          &ChildProcess::getExitCode)
+	JNC_MAP_AUTOGET_PROPERTY("m_options", &ChildProcess::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_pid", &ChildProcess::getPid)
+	JNC_MAP_CONST_PROPERTY("m_exitCode", &ChildProcess::getExitCode)
+	JNC_MAP_PROPERTY("m_ptySize", &ChildProcess::getPtySize, &ChildProcess::setPtySize)
 
-	JNC_MAP_FUNCTION("start",        &ChildProcess::start)
-	JNC_MAP_FUNCTION("terminate",    &ChildProcess::terminate)
-	JNC_MAP_FUNCTION("close",        &ChildProcess::close)
-	JNC_MAP_FUNCTION("read",         &ChildProcess::read)
-	JNC_MAP_FUNCTION("write",        &ChildProcess::write)
-	JNC_MAP_FUNCTION("wait",         &ChildProcess::wait)
-	JNC_MAP_FUNCTION("cancelWait",   &ChildProcess::cancelWait)
+	JNC_MAP_FUNCTION("start", &ChildProcess::start)
+	JNC_MAP_FUNCTION("terminate", &ChildProcess::terminate)
+	JNC_MAP_FUNCTION("close", &ChildProcess::close)
+	JNC_MAP_FUNCTION("read", &ChildProcess::read)
+	JNC_MAP_FUNCTION("write", &ChildProcess::write)
+	JNC_MAP_FUNCTION("wait", &ChildProcess::wait)
+	JNC_MAP_FUNCTION("cancelWait", &ChildProcess::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &ChildProcess::blockingWait)
-	JNC_MAP_FUNCTION("asyncWait",    &ChildProcess::asyncWait)
+	JNC_MAP_FUNCTION("asyncWait", &ChildProcess::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
@@ -105,13 +106,18 @@ createStdioPipe(
 }
 #else
 void
-exec(const char* commandLine) // returns on failure only
+exec(
+	const char* commandLine,
+	const DataPtr* environment,
+	uint_t flags
+	) // returns on failure only
 {
-	char buffer[256];
-	sl::Array<char*> argv(ref::BufKind_Stack, buffer, sizeof(buffer));
+	char buffer1[256];
+	char buffer2[256];
+	sl::Array<char*> argv(ref::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<char*> envp(ref::BufKind_Stack, buffer2, sizeof(buffer2));
 
 	sl::String string = commandLine;
-
 	size_t length = string.getLength();
 	for (;;)
 	{
@@ -137,7 +143,18 @@ exec(const char* commandLine) // returns on failure only
 
 	argv.append(NULL);
 
-	int result = ::execvp(argv[0], argv.p());
+	int result;
+
+	if (envp.isEmpty())
+	{
+		result = ::execvp(argv[0], argv.p());
+	}
+	else
+	{
+		envp.append(NULL);
+		result = ::execvpe(argv[0], argv.p(), envp.p());
+	}
+
 	ASSERT(result == -1);
 	err::setLastSystemError();
 }
@@ -150,12 +167,15 @@ ChildProcess::ChildProcess():
 {
 	m_writeFile = &m_stdin;
 	m_finalizeIoThreadFunc = finalizeIoThread;
+	m_ptySize.m_rowCount = Default_PtyRowCount;
+	m_ptySize.m_colCount = Default_PtyColCount;
 }
 
 bool
 JNC_CDECL
 ChildProcess::start(
 	DataPtr commandLinePtr,
+	DataPtr environmentPtr,
 	uint_t flags
 	)
 {
@@ -204,21 +224,33 @@ ChildProcess::start(
 	if (isSeparateStderr)
 		m_stderr = createFileStream(&parentStderr);
 #else
+	bool isPty = (flags & ChildProcessFlag_Pty) != 0;
+
 	axl::io::psx::Pipe stdinPipe;
 	axl::io::psx::Pipe stdoutPipe;
 	axl::io::psx::Pipe stderrPipe;
 	axl::io::psx::Pipe execPipe;
 
-	bool result =
-		stdinPipe.create() &&
-		stdinPipe.m_writeFile.setBlockingMode(false) &&
-		stdoutPipe.create() &&
-		stdoutPipe.m_readFile.setBlockingMode(false) &&
-		(!isSeparateStderr ||
-		stderrPipe.create() &&
-		stderrPipe.m_readFile.setBlockingMode(false)) &&
-		execPipe.create();
+	bool result;
 
+	if (isPty)
+		result =
+			m_masterPty.open() &&
+			m_masterPty.grant() &&
+			m_masterPty.unlock() &&
+			m_masterPty.setBlockingMode(false) &&
+			m_slavePty.open(m_masterPty.getSlaveFileName());
+	else
+		result =
+			stdinPipe.create() &&
+			stdinPipe.m_writeFile.setBlockingMode(false) &&
+			stdoutPipe.create() &&
+			stdoutPipe.m_readFile.setBlockingMode(false) &&
+			(!isSeparateStderr ||
+			stderrPipe.create() &&
+			stderrPipe.m_readFile.setBlockingMode(false));
+
+	result = result && execPipe.create();
 	if (!result)
 		return false;
 
@@ -234,11 +266,25 @@ ChildProcess::start(
 		return false;
 
 	case 0:
-		::dup2(stdinPipe.m_readFile, STDIN_FILENO);
-		::dup2(stdoutPipe.m_writeFile, STDOUT_FILENO);
-		::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
+		if (isPty)
+		{
+			::setsid();
+			::dup2(m_slavePty, STDIN_FILENO);
+			::dup2(m_slavePty, STDOUT_FILENO);
+			::dup2(m_slavePty, STDERR_FILENO);
 
-		exec((char*)commandLinePtr.m_p);
+			m_slavePty.ioctl(TIOCSCTTY, (int)0);
+			updatePtySize();
+			m_slavePty.close();
+		}
+		else
+		{
+			::dup2(stdinPipe.m_readFile, STDIN_FILENO);
+			::dup2(stdoutPipe.m_writeFile, STDOUT_FILENO);
+			::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
+		}
+
+		exec((char*)commandLinePtr.m_p, (DataPtr*)environmentPtr.m_p, flags);
 
 		error = err::getLastError();
 		execPipe.m_writeFile.write(error, error->m_size);
@@ -265,16 +311,24 @@ ChildProcess::start(
 		if (((err::ErrorHdr*)buffer)->m_size == size)
 			err::setError((err::ErrorHdr*)buffer);
 		else
-			err::setError("POSIX execvp failed"); // unlikely fallback
+			err::setError("POSIX execvpe failed"); // unlikely fallback
 
 		return false;
 	}
 
-	m_stdin.m_file.attach(stdinPipe.m_writeFile.detach());
-	m_file.m_file.attach(stdoutPipe.m_readFile.detach());
+	if (isPty)
+	{
+		m_stdin.m_file.attach(::dup(m_masterPty));
+		m_file.m_file.attach(::dup(m_masterPty));
+	}
+	else
+	{
+		m_stdin.m_file.attach(stdinPipe.m_writeFile.detach());
+		m_file.m_file.attach(stdoutPipe.m_readFile.detach());
 
-	if (isSeparateStderr)
-		m_reserved = createFileStream(&stderrPipe.m_readFile);
+		if (isSeparateStderr)
+			m_reserved = createFileStream(&stderrPipe.m_readFile);
+	}
 #endif
 
 	AsyncIoDevice::open();
@@ -298,6 +352,8 @@ ChildProcess::close()
 #if (_JNC_OS_WIN)
 	m_process.close();
 #else
+	m_masterPty.close();
+	m_slavePty.close();
 	m_pid = 0;
 #endif
 
@@ -330,6 +386,36 @@ ChildProcess::getExitCode()
 	m_lock.unlock();
 	return exitCode;
 }
+
+void
+JNC_CDECL
+ChildProcess::setPtySize(PtySize size)
+{
+	m_ptySize = size;
+
+#if (_JNC_OS_POSIX)
+	if (m_slavePty.isOpen())
+		updatePtySize();
+#endif
+}
+
+#if (_JNC_OS_POSIX)
+bool
+ChildProcess::updatePtySize()
+{
+	struct winsize winSize;
+	winSize.ws_row = m_ptySize.m_rowCount;
+	winSize.ws_col = m_ptySize.m_colCount;
+	int result = m_slavePty.ioctl(TIOCSWINSZ, &winSize);
+	if (result < 0)
+	{
+		err::setLastSystemError();
+		return false;
+	}
+
+	return true;
+}
+#endif
 
 bool
 JNC_CDECL

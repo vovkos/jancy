@@ -37,6 +37,7 @@
 #	include "axl_io_win_File.h"
 #elif (_AXL_OS_POSIX)
 #	include "axl_io_psx_Pipe.h"
+#	include "axl_io_psx_Pty.h"
 #endif
 
 using namespace axl;

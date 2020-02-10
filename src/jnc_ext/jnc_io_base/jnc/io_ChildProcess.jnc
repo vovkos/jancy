@@ -28,7 +28,9 @@ bitflag enum ChildProcessOptions
 
 bitflag enum ChildProcessStartFlags
 {
+	Pty,
 	SeparateStderr,
+	CleanEnvironment,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -81,9 +83,17 @@ bitflag enum ChildProcessEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct PtySize
+{
+	uint_t m_rowCount;
+	uint_t m_colCount;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class ChildProcess
 {
-	FileStream* m_stderr;
+	FileStream* readonly m_stderr;
 
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;
@@ -98,12 +108,14 @@ opaque class ChildProcess
 
 	uint_t const property m_pid;
 	uint_t const property m_exitCode;
+	PtySize property m_ptySize;
 
 	construct();
 	destruct();
 
 	bool errorcode start(
 		char const* commandLine,
+		char const* const* environment = null,
 		ChildProcessStartFlags flags = 0
 		);
 

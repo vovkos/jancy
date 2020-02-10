@@ -22,7 +22,9 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(ChildProcess)
 
 enum ChildProcessFlag
 {
-	ChildProcessFlag_SeparateStderr = 0x01
+	ChildProcessFlag_Pty              = 0x01,
+	ChildProcessFlag_SeparateStderr   = 0x02,
+	ChildProcessFlag_CleanEnvironment = 0x04,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,10 +37,25 @@ enum ChildProcessEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+struct PtySize
+{
+	uint_t m_rowCount;
+	uint_t m_colCount;
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 class ChildProcess: public FileStream
 {
 public:
 	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(ChildProcess)
+
+public:
+	enum Default
+	{
+		Default_PtyColCount = 80,
+		Default_PtyRowCount = 24,
+	};
 
 protected:
 	axl::io::File m_stdin;
@@ -48,9 +65,12 @@ protected:
 	sys::win::Process m_process;
 #else
 	pid_t m_pid;
+	axl::io::psx::Pty m_masterPty;
+	axl::io::psx::File m_slavePty;
 #endif
 
 	uint_t m_exitCode;
+	PtySize m_ptySize;
 
 public:
 	ChildProcess();
@@ -68,10 +88,22 @@ public:
 	JNC_CDECL
 	getExitCode();
 
+	PtySize
+	JNC_CDECL
+	getPtySize(ChildProcess* self)
+	{
+		return self->m_ptySize;
+	}
+
+	void
+	JNC_CDECL
+	setPtySize(PtySize size);
+
 	bool
 	JNC_CDECL
 	start(
 		DataPtr commandLinePtr,
+		DataPtr environmentPtr,
 		uint_t flags
 		);
 
@@ -101,6 +133,11 @@ protected:
 
 	void
 	finalizeIoThreadImpl();
+
+#if (_JNC_OS_POSIX)
+	bool
+	updatePtySize();
+#endif
 };
 
 //..............................................................................
