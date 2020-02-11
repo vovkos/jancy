@@ -230,6 +230,7 @@ ChildProcess::start(
 	axl::io::psx::Pipe stdoutPipe;
 	axl::io::psx::Pipe stderrPipe;
 	axl::io::psx::Pipe execPipe;
+	axl::io::psx::File slavePty;
 
 	bool result;
 
@@ -239,7 +240,7 @@ ChildProcess::start(
 			m_masterPty.grant() &&
 			m_masterPty.unlock() &&
 			m_masterPty.setBlockingMode(false) &&
-			m_slavePty.open(m_masterPty.getSlaveFileName());
+			slavePty.open(m_masterPty.getSlaveFileName());
 	else
 		result =
 			stdinPipe.create() &&
@@ -269,13 +270,12 @@ ChildProcess::start(
 		if (isPty)
 		{
 			::setsid();
-			::dup2(m_slavePty, STDIN_FILENO);
-			::dup2(m_slavePty, STDOUT_FILENO);
-			::dup2(m_slavePty, STDERR_FILENO);
+			::dup2(slavePty, STDIN_FILENO);
+			::dup2(slavePty, STDOUT_FILENO);
+			::dup2(slavePty, STDERR_FILENO);
 
-			m_slavePty.ioctl(TIOCSCTTY, (int)0);
-			updatePtySize();
-			m_slavePty.close();
+			slavePty.ioctl(TIOCSCTTY, (int)0);
+			slavePty.close();
 		}
 		else
 		{
@@ -320,6 +320,7 @@ ChildProcess::start(
 	{
 		m_stdin.m_file.attach(::dup(m_masterPty));
 		m_file.m_file.attach(::dup(m_masterPty));
+		updatePtySize();
 	}
 	else
 	{
@@ -353,7 +354,6 @@ ChildProcess::close()
 	m_process.close();
 #else
 	m_masterPty.close();
-	m_slavePty.close();
 	m_pid = 0;
 #endif
 
@@ -394,7 +394,7 @@ ChildProcess::setPtySize(PtySize size)
 	m_ptySize = size;
 
 #if (_JNC_OS_POSIX)
-	if (m_slavePty.isOpen())
+	if (m_masterPty.isOpen())
 		updatePtySize();
 #endif
 }
@@ -406,7 +406,7 @@ ChildProcess::updatePtySize()
 	struct winsize winSize;
 	winSize.ws_row = m_ptySize.m_rowCount;
 	winSize.ws_col = m_ptySize.m_colCount;
-	int result = m_slavePty.ioctl(TIOCSWINSZ, &winSize);
+	int result = m_masterPty.ioctl(TIOCSWINSZ, &winSize);
 	if (result < 0)
 	{
 		err::setLastSystemError();

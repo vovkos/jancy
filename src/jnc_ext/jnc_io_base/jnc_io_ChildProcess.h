@@ -66,7 +66,6 @@ protected:
 #else
 	pid_t m_pid;
 	axl::io::psx::Pty m_masterPty;
-	axl::io::psx::File m_slavePty;
 #endif
 
 	uint_t m_exitCode;
