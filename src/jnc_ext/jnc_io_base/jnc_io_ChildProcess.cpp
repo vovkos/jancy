@@ -152,7 +152,11 @@ exec(
 	else
 	{
 		envp.append(NULL);
+#if (_JNC_OS_DARWIN)
+		result = ::execve(argv[0], argv.p(), envp.p());
+#else
 		result = ::execvpe(argv[0], argv.p(), envp.p());
+#endif
 	}
 
 	ASSERT(result == -1);
