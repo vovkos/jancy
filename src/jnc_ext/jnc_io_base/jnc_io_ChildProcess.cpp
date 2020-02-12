@@ -240,10 +240,9 @@ ChildProcess::start(
 
 	if (isPty)
 		result =
-			m_masterPty.open() &&
+			m_masterPty.open(O_RDWR | O_NOCTTY | O_NONBLOCK) &&
 			m_masterPty.grant() &&
 			m_masterPty.unlock() &&
-			m_masterPty.setBlockingMode(false) &&
 			slavePty.open(m_masterPty.getSlaveFileName());
 	else
 		result =
