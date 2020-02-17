@@ -121,7 +121,8 @@ protected:
 
 	enum IoFlag
 	{
-		IoFlag_ResizePty = 0x0010,
+		IoFlag_Pty       = 0x0010,
+		IoFlag_ResizePty = 0x0020,
 	};
 
 	class IoThread: public sys::ThreadImpl<IoThread>

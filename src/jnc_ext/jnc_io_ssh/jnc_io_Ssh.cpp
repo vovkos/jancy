@@ -237,6 +237,10 @@ SshChannel::connectImpl(
 	m_connectParams->m_ptyType = ptyType;
 	m_ptyWidth = ptyWidth;
 	m_ptyHeight = ptyHeight;
+
+	if (!m_connectParams->m_ptyType.isEmpty())
+		m_ioThreadFlags |= IoFlag_Pty;
+
 	m_lock.unlock();
 
 	m_remoteAddress = *address;
@@ -604,6 +608,10 @@ SshChannel::sshReadWriteLoop()
 	sl::Array<char> readBlock;
 	sl::Array<char> writeBlock;
 
+	m_lock.lock();
+	bool hasPty = (m_ioThreadFlags & IoFlag_Pty) != 0;
+	m_lock.unlock();
+
 	bool canReadSocket = true;
 	bool canWriteSocket = true;
 
@@ -702,7 +710,19 @@ SshChannel::sshReadWriteLoop()
 
 		while (canReadSocket && !m_readBuffer.isFull())
 		{
-			ssize_t actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			ssize_t actualSize;
+
+			if (hasPty)
+			{
+				actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			}
+			else // need to read stderr, too
+			{
+				actualSize = ::libssh2_channel_read_stderr(m_sshChannel, readBlock, readBlock.getCount());
+				if (actualSize == 0)
+					actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			}
+
 			if (actualSize == LIBSSH2_ERROR_EAGAIN)
 			{
 				canReadSocket = false;
