@@ -21,6 +21,7 @@ enum DeviceMonitorMiMsgCode
 	Error,
 	Start,
 	Notification,
+	_Last = Notification,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
