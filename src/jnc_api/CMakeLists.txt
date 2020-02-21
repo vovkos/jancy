@@ -46,6 +46,9 @@ set(
 	${JANCY_INC_DIR}/jnc_DynamicExtensionLibHost.h
 	${JANCY_INC_DIR}/jnc_CallSite.h
 	${JANCY_INC_DIR}/jnc_Construct.h
+	${JANCY_INC_DIR}/jnc_StdMap.h
+	${JANCY_INC_DIR}/jnc_StdHashTable.h
+	${JANCY_INC_DIR}/jnc_StdRbTree.h
 	${JANCY_INC_DIR}/jnc_WarningSuppression.h
 	)
 
@@ -75,6 +78,8 @@ set(
 	jnc_Module.cpp
 	jnc_Runtime.cpp
 	jnc_GcHeap.cpp
+	jnc_StdHashTable.cpp
+	jnc_StdRbTree.cpp
 	)
 
 set(
@@ -132,6 +137,7 @@ include_directories(
 	${JANCY_SRC_DIR}/jnc_ct/include
 	${JANCY_SRC_DIR}/jnc_rt
 	${JANCY_SRC_DIR}/jnc_ext/jnc_rtl_core
+	${JANCY_SRC_DIR}/jnc_ext/jnc_std
 	)
 
 add_library(

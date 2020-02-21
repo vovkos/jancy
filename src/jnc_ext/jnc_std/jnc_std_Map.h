@@ -12,7 +12,7 @@
 #pragma once
 
 #include "jnc_ExtensionLib.h"
-#include "jnc_Variant.h"
+#include "jnc_StdMap.h"
 
 namespace jnc {
 namespace std {
@@ -23,28 +23,17 @@ JNC_DECLARE_TYPE(MapEntry)
 
 //..............................................................................
 
-struct MapEntry
+struct MapEntry: StdMapEntry
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS(MapEntry)
 
-	DataPtr m_nextPtr;
-	DataPtr m_prevPtr;
-
-	Variant m_key;
-	Variant m_value;
-
-	Map* m_map;
 	sl::MapEntry<Variant, DataPtr>* m_mapEntry;
 };
 
 //..............................................................................
 
-struct Map
+struct Map: StdMap
 {
-	DataPtr m_headPtr;
-	DataPtr m_tailPtr;
-	size_t m_count;
-
 	void
 	clear();
 

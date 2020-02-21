@@ -25,6 +25,8 @@
 #include "jnc_Module.h"
 #include "jnc_Runtime.h"
 #include "jnc_GcHeap.h"
+#include "jnc_StdHashTable.h"
+#include "jnc_StdRbTree.h"
 
 //..............................................................................
 
@@ -380,6 +382,28 @@ static jnc_GcHeapFuncTable g_gcHeapFuncTable =
 	jnc_GcHeap_addBoxToCallSite,
 };
 
+static jnc_StdHashTableFuncTable g_stdHashTableFuncTable =
+{
+	sizeof(jnc_StdHashTableFuncTable),
+	jnc_createStdHashTable,
+	jnc_StdHashTable_clear,
+	jnc_StdHashTable_find,
+	jnc_StdHashTable_add,
+	jnc_StdHashTable_remove,
+	jnc_StdHashTable_removeKey,
+};
+
+static jnc_StdRbTreeFuncTable g_stdRbTreeFuncTable =
+{
+	sizeof(jnc_StdRbTreeFuncTable),
+	jnc_createStdRbTree,
+	jnc_StdRbTree_clear,
+	jnc_StdRbTree_find,
+	jnc_StdRbTree_add,
+	jnc_StdRbTree_remove,
+	jnc_StdRbTree_removeKey,
+};
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
@@ -425,6 +449,8 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	&g_moduleFuncTable,
 	&g_runtimeFuncTable,
 	&g_gcHeapFuncTable,
+	&g_stdHashTableFuncTable,
+	&g_stdRbTreeFuncTable,
 };
 
 //..............................................................................

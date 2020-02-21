@@ -19,6 +19,8 @@
 #include "jnc_Variant.h"
 #include "jnc_Promise.h"
 #include "jnc_OpKind.h"
+#include "jnc_StdHashTable.h"
+#include "jnc_StdRbTree.h"
 
 typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
 typedef struct jnc_ModuleItemDeclFuncTable jnc_ModuleItemDeclFuncTable;
@@ -59,6 +61,8 @@ typedef struct jnc_UnitFuncTable jnc_UnitFuncTable;
 typedef struct jnc_ModuleFuncTable jnc_ModuleFuncTable;
 typedef struct jnc_RuntimeFuncTable jnc_RuntimeFuncTable;
 typedef struct jnc_GcHeapFuncTable jnc_GcHeapFuncTable;
+typedef struct jnc_StdHashTableFuncTable jnc_StdHashTableFuncTable;
+typedef struct jnc_StdRbTreeFuncTable jnc_StdRbTreeFuncTable;
 typedef struct jnc_DynamicExtensionLibHost jnc_DynamicExtensionLibHost;
 
 //..............................................................................
@@ -1463,6 +1467,121 @@ struct jnc_GcHeapFuncTable
 
 //..............................................................................
 
+// std.HashTable
+
+typedef
+jnc_StdHashTable*
+jnc_CreateStdHashTableFunc(
+	jnc_Runtime* runtime,
+	jnc_StdHashFunc* hashFunc,
+	jnc_StdIsEqualFunc* isEqualFunc
+	);
+
+typedef
+void
+jnc_StdHashTable_ClearFunc(jnc_StdHashTable* hashTable);
+
+typedef
+jnc_StdMapEntry*
+jnc_StdHashTable_FindFunc(
+	jnc_StdHashTable* hashTable,
+	jnc_Variant key
+	);
+
+typedef
+jnc_StdMapEntry*
+jnc_StdHashTable_AddFunc(
+	jnc_StdHashTable* hashTable,
+	jnc_Variant key,
+	jnc_Variant value
+	);
+
+typedef
+void
+jnc_StdHashTable_RemoveFunc(
+	jnc_StdHashTable* hashTable,
+	jnc_StdMapEntry* entry
+	);
+
+typedef
+bool_t
+jnc_StdHashTable_RemoveKeyFunc(
+	jnc_StdHashTable* hashTable,
+	jnc_Variant key
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_StdHashTableFuncTable
+{
+	size_t m_size;
+	jnc_CreateStdHashTableFunc* m_createStdHashTableFunc;
+	jnc_StdHashTable_ClearFunc* m_clearFunc;
+	jnc_StdHashTable_FindFunc* m_findFunc;
+	jnc_StdHashTable_AddFunc* m_addFunc;
+	jnc_StdHashTable_RemoveFunc* m_removeFunc;
+	jnc_StdHashTable_RemoveKeyFunc* m_removeKeyFunc;
+};
+
+//..............................................................................
+
+// std.RbTree
+
+typedef
+jnc_StdRbTree*
+jnc_CreateStdRbTreeFunc(
+	jnc_Runtime* runtime,
+	jnc_StdCmpFunc* cmpFunc
+	);
+
+typedef
+void
+jnc_StdRbTree_ClearFunc(jnc_StdRbTree* RbTree);
+
+typedef
+jnc_StdMapEntry*
+jnc_StdRbTree_FindFunc(
+	jnc_StdRbTree* RbTree,
+	jnc_Variant key
+	);
+
+typedef
+jnc_StdMapEntry*
+jnc_StdRbTree_AddFunc(
+	jnc_StdRbTree* RbTree,
+	jnc_Variant key,
+	jnc_Variant value
+	);
+
+typedef
+void
+jnc_StdRbTree_RemoveFunc(
+	jnc_StdRbTree* RbTree,
+	jnc_StdMapEntry* entry
+	);
+
+typedef
+bool_t
+jnc_StdRbTree_RemoveKeyFunc(
+	jnc_StdRbTree* RbTree,
+	jnc_Variant key
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_StdRbTreeFuncTable
+{
+	size_t m_size;
+	jnc_CreateStdRbTreeFunc* m_createStdRbTreeFunc;
+	jnc_StdRbTree_ClearFunc* m_clearFunc;
+	jnc_StdRbTree_FindFunc* m_findFunc;
+	jnc_StdRbTree_AddFunc* m_addFunc;
+	jnc_StdRbTree_RemoveFunc* m_removeFunc;
+	jnc_StdRbTree_RemoveKeyFunc* m_removeKeyFunc;
+};
+
+//..............................................................................
+
 // all-in-one
 
 struct jnc_DynamicExtensionLibHost
@@ -1508,6 +1627,8 @@ struct jnc_DynamicExtensionLibHost
 	jnc_ModuleFuncTable* m_moduleFuncTable;
 	jnc_RuntimeFuncTable* m_runtimeFuncTable;
 	jnc_GcHeapFuncTable* m_gcHeapFuncTable;
+	jnc_StdHashTableFuncTable* m_stdHashTableFuncTable;
+	jnc_StdRbTreeFuncTable* m_stdRbTreeFuncTable;
 };
 
 //..............................................................................

@@ -111,6 +111,7 @@
 		jnc_Namespace_getItem;
 		jnc_Namespace_findItem;
 		jnc_getNamespaceKindString;
+		jnc_Variant_create;
 		jnc_Variant_binaryOperator;
 		jnc_Variant_cast;
 		jnc_Variant_getElement;
@@ -212,6 +213,18 @@
 		jnc_StdLib_getLib;
 		jnc_StdLib_setStdIo;
 		jnc_SysLib_getLib;
+		jnc_createStdHashTable;
+		jnc_StdHashTable_clear;
+		jnc_StdHashTable_find;
+		jnc_StdHashTable_add;
+		jnc_StdHashTable_remove;
+		jnc_StdHashTable_removeKey;
+		jnc_createStdRbTree;
+		jnc_StdRbTree_clear;
+		jnc_StdRbTree_find;
+		jnc_StdRbTree_add;
+		jnc_StdRbTree_remove;
+		jnc_StdRbTree_removeKey;
 
 	local: *;
 };

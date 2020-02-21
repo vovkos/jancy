@@ -69,9 +69,8 @@ RbTree::visitImpl(Variant key)
 
 void
 JNC_CDECL
-RbTree::remove(DataPtr entryPtr)
+RbTree::removeImpl(MapEntry* entry)
 {
-	MapEntry* entry = (MapEntry*)entryPtr.m_p;
 	if (!entry || entry->m_map != &m_map)
 	{
 		err::setError("attempt to remove an invalid map entry from the red-black tree");

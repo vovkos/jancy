@@ -355,7 +355,6 @@ createClass(Runtime* runtime)
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p);
-
 	return p;
 }
 
@@ -372,7 +371,6 @@ createClass(
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg);
-
 	return p;
 }
 
@@ -391,7 +389,6 @@ createClass(
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2);
-
 	return p;
 }
 
@@ -412,7 +409,6 @@ createClass(
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2, arg3);
-
 	return p;
 }
 
@@ -435,7 +431,6 @@ createClass(
 	ClassType* type = T::getType(runtime->getModule());
 	T* p = (T*)runtime->getGcHeap()->allocateClass(type);
 	construct(p, arg1, arg2, arg3, arg4);
-
 	return p;
 }
 

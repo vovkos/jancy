@@ -54,7 +54,7 @@ public:
 	JNC_CDECL
 	insert(
 		size_t index,
-			DataPtr ptr,
+		DataPtr ptr,
 		size_t count
 		);
 

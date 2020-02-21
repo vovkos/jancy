@@ -12,17 +12,17 @@
 #pragma once
 
 #include "jnc_std_Map.h"
+#include "jnc_StdHashTable.h"
 
 namespace jnc {
 namespace std {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(HashTable)
 
-//..............................................................................
+typedef StdHashFunc    HashFunc;
+typedef StdIsEqualFunc IsEqualFunc;
 
-typedef
-size_t
-HashFunc(Variant key);
+//..............................................................................
 
 inline
 size_t
@@ -31,17 +31,8 @@ hashVariant(Variant key)
 	return key.hash();
 }
 
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-typedef
-bool
-IsEqualFunc(
-	Variant key1,
-	Variant key2
-	);
-
 inline
-bool
+bool_t
 isEqualVariant(
 	Variant key1,
 	Variant key2
@@ -100,6 +91,9 @@ public:
 class HashTable: public IfaceHdr
 {
 public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(HashTable)
+
+public:
 	Map m_map;
 
 protected:
@@ -144,7 +138,14 @@ public:
 
 	void
 	JNC_CDECL
-	remove(DataPtr entryPtr);
+	remove(DataPtr entryPtr)
+	{
+		removeImpl((MapEntry*)entryPtr.m_p);
+	}
+
+public:
+	void
+	removeImpl(MapEntry* entry);
 
 protected:
 	DataPtr

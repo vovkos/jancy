@@ -12,22 +12,16 @@
 #pragma once
 
 #include "jnc_std_Map.h"
+#include "jnc_StdRbTree.h"
 
 namespace jnc {
 namespace std {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(RbTree)
 
+typedef StdCmpFunc CmpFunc;
+
 //..............................................................................
-
-typedef
-int
-CmpFunc(
-	Variant key1,
-	Variant key2
-	);
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 int
 cmpVariant(
@@ -63,6 +57,9 @@ public:
 
 class RbTree: public IfaceHdr
 {
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(RbTree)
+
 public:
 	Map m_map;
 
@@ -116,7 +113,14 @@ public:
 
 	void
 	JNC_CDECL
-	remove(DataPtr entryPtr);
+	remove(DataPtr entryPtr)
+	{
+		removeImpl((MapEntry*)entryPtr.m_p);
+	}
+
+public:
+	void
+	removeImpl(MapEntry* entry); // used in jnc_StdRbTree_remove
 
 protected:
 	DataPtr

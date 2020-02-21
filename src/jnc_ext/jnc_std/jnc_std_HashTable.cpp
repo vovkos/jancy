@@ -53,10 +53,8 @@ HashTable::visitImpl(Variant key)
 }
 
 void
-JNC_CDECL
-HashTable::remove(DataPtr entryPtr)
+HashTable::removeImpl(MapEntry* entry)
 {
-	MapEntry* entry = (MapEntry*)entryPtr.m_p;
 	if (!entry || entry->m_map != &m_map)
 	{
 		err::setError("attempt to remove an invalid map entry from the hash table");
