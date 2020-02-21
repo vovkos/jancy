@@ -104,11 +104,63 @@ createStdioPipe(
 	*writeHandle = file.detach();
 	return true;
 }
+
+size_t
+buildEnvironmentBlock(
+	sl::Array<wchar_t>* block,
+	StdHashTable* environment,
+	uint_t flags
+	)
+{
+	if (!environment)
+	{
+		if (flags & ChildProcessFlag_CleanEnvironment)
+			return block->copy(L"\0\0", 2);
+
+		block->release(); // use NULL as environment block to inherit everything
+		return 0;
+	}
+
+	if (!(flags & ChildProcessFlag_CleanEnvironment))
+	{
+		wchar_t* parentEnvironment = ::GetEnvironmentStringsW();
+		wchar_t* p = parentEnvironment;
+		for (;;)
+		{
+			if (!p[0] && !p[1]) // double-zero-termination
+				break;
+
+			p++;
+		}
+
+		block->append(parentEnvironment, p - parentEnvironment);
+		::FreeEnvironmentStringsW(parentEnvironment);
+	}
+
+	char buffer[256];
+	sl::String_w variableDef(ref::BufKind_Stack, buffer, sizeof(buffer));
+
+	StdMapEntry* entry = environment->m_map.getHead();
+	for (; entry; entry = entry->getNext())
+	{
+		variableDef = entry->m_key.format_v();
+		variableDef += L'=';
+		variableDef += entry->m_value.format_v();
+
+		block->append(variableDef.cp(), variableDef.getLength());
+		block->append(0);
+	}
+
+	block->append(0); // ensure double-zero-termination
+
+	return block->getCount();
+}
+
 #else
 void
 exec(
 	const char* commandLine,
-	const DataPtr* environment,
+	const StdHashTable* environment,
 	uint_t flags
 	) // returns on failure only
 {
@@ -179,7 +231,7 @@ bool
 JNC_CDECL
 ChildProcess::start(
 	DataPtr commandLinePtr,
-	DataPtr environmentPtr,
+	StdHashTable* environment,
 	uint_t flags
 	)
 {
@@ -207,6 +259,10 @@ ChildProcess::start(
 	if (!result)
 		return false;
 
+	char buffer[256];
+	sl::Array<wchar_t> environmentBlock(ref::BufKind_Stack, buffer, sizeof(buffer));
+	buildEnvironmentBlock(&environmentBlock, environment, flags);
+
 	STARTUPINFOW startupInfo = { 0 };
 	startupInfo.cb = sizeof(STARTUPINFO);
 	startupInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
@@ -215,7 +271,19 @@ ChildProcess::start(
 	startupInfo.hStdError = isSeparateStderr ? childStderr : childStdout;
 	startupInfo.wShowWindow = SW_HIDE;
 
-	result = m_process.create(cmdLine, true, CREATE_NEW_CONSOLE, &startupInfo);
+	result = m_process.create(
+		NULL,
+		cmdLine,
+		NULL,
+		NULL,
+		true,
+		CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+		environmentBlock.cp(),
+		NULL,
+		&startupInfo,
+		NULL
+		);
+
 	if (!result)
 		return false;
 
@@ -287,7 +355,7 @@ ChildProcess::start(
 			::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
 		}
 
-		exec((char*)commandLinePtr.m_p, (DataPtr*)environmentPtr.m_p, flags);
+		exec(environment, (char*)commandLinePtr.m_p, flags);
 
 		error = err::getLastError();
 		execPipe.m_writeFile.write(error, error->m_size);

@@ -10,6 +10,7 @@
 //..............................................................................
 
 import "io_FileStream.jnc"
+import "std_HashTable.jnc"
 
 namespace io {
 
@@ -115,7 +116,7 @@ opaque class ChildProcess
 
 	bool errorcode start(
 		char const* commandLine,
-		char const* const* environment = null,
+		std.HashTable const* environment = null,
 		ChildProcessStartFlags flags = 0
 		);
 

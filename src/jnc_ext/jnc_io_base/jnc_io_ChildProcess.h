@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_io_FileStream.h"
+#include "jnc_StdHashTable.h"
 
 namespace jnc {
 namespace io {
@@ -102,7 +103,7 @@ public:
 	JNC_CDECL
 	start(
 		DataPtr commandLinePtr,
-		DataPtr environmentPtr,
+		StdHashTable* environment,
 		uint_t flags
 		);
 
