@@ -123,6 +123,25 @@ jnc_Variant_create(
 	jnc_Type* type
 	);
 
+JNC_EXTERN_C
+const char*
+jnc_Variant_format_v(
+	const jnc_Variant* variant,
+	const char* fmtSpecifier
+	);
+
+#ifdef _JNC_CORE
+
+JNC_EXTERN_C
+size_t
+jnc_Variant_format(
+	const jnc_Variant* variant,
+	sl::String* string,
+	const char* fmtSpecifier
+	);
+
+#endif
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_Variant
@@ -276,6 +295,25 @@ struct jnc_Variant
 	{
 		return jnc_Variant_hash(this);
 	}
+
+	const char*
+	format_v(const char* fmtSpecifier = NULL) const
+	{
+		return jnc_Variant_format_v(this, fmtSpecifier);
+	}
+
+	#ifdef _JNC_CORE
+
+	size_t
+	format(
+		sl::String* string,
+		const char* fmtSpecifier
+		)
+	{
+		return jnc_Variant_format(this, string, fmtSpecifier);
+	}
+
+	#endif
 #endif // __cplusplus
 };
 

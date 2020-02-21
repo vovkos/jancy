@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_Module.h"
+#	include "jnc_ct_ArrayType.h"
 #	include "jnc_rt_Runtime.h"
 #endif
 
@@ -163,6 +164,17 @@ size_t
 jnc_Variant_hash(const jnc_Variant* variant)
 {
 	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_hashFunc(variant);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Variant_format_v(
+	const jnc_Variant* variant,
+	const char* fmtSpecifier
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_variantFuncTable->m_formatFunc(variant, fmtSpecifier);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -516,6 +528,201 @@ jnc_Variant_hash(const jnc_Variant* variant)
 
 	const void* p = size <= sizeof(DataPtr) ? &variant : variant->m_p;
 	return sl::djb2(p, size);
+}
+
+// part of RTL-core (appendFmtLiteral_xxx)
+
+namespace jnc {
+namespace rtl {
+
+void
+prepareFormatString(
+	sl::String* formatString,
+	const char* fmtSpecifier,
+	const char* defaultType
+	);
+
+} // namespace rtl
+} // namespace jnc
+
+inline
+size_t
+formatImpl(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const char* defaultType,
+	...
+	)
+{
+	AXL_VA_DECL(va, defaultType);
+
+	char buffer[256];
+	sl::String formatString(ref::BufKind_Stack, buffer, sizeof(buffer));
+	jnc::rtl::prepareFormatString(&formatString, fmtSpecifier, defaultType);
+
+	return string->format_va(formatString, va);
+}
+
+static
+size_t
+formatStringImpl(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const char* p,
+	size_t length
+	)
+{
+	if (!fmtSpecifier)
+		return string->copy(p, length);
+
+	if (!p[length]) // already zero-terminated
+		return formatImpl(string, fmtSpecifier, "s", p);
+
+	// make a zero-terminated copy
+
+	char buffer[256];
+	sl::String string2(ref::BufKind_Stack, buffer, sizeof(buffer));
+	string2.copy(p, length);
+	return formatImpl(string, fmtSpecifier, "s", string2.sz());
+}
+
+static
+size_t
+formatCharPtr(
+	sl::String* string,
+	const char* fmtSpecifier,
+	const jnc::DataPtr& ptr
+	)
+{
+	if (!ptr.m_p) // shortcut
+		return string->getLength();
+
+	size_t length = jnc::strLen(ptr);
+	return formatStringImpl(string, fmtSpecifier, (const char*)ptr.m_p, length);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_Variant_format(
+	const jnc_Variant* variant,
+	sl::String* string,
+	const char* fmtSpecifier
+	)
+{
+	bool result;
+
+	string->clear();
+
+	if (!variant->m_type)
+		return 0;
+
+	jnc::TypeKind typeKind = variant->m_type->getTypeKind();
+	uint_t typeKindFlags = variant->m_type->getTypeKindFlags();
+
+	if (typeKindFlags & jnc::TypeKindFlag_Integer)
+	{
+		jnc::Module* module = variant->m_type->getModule();
+
+		char buffer[sizeof(int64_t)];
+
+		if (variant->m_type->getSize() > 4)
+		{
+			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int64);
+			result = variant->cast(targetType, buffer);
+			if (!result)
+			{
+				ASSERT(false);
+				return 0;
+			}
+
+			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
+			return formatImpl(string, fmtSpecifier, defaultType, *(int64_t*)buffer);
+		}
+		else
+		{
+			jnc::Type* targetType = module->m_typeMgr.getPrimitiveType(jnc::TypeKind_Int32);
+			result = variant->cast(targetType, buffer);
+			if (!result)
+			{
+				ASSERT(false);
+				return 0;
+			}
+
+			const char* defaultType = (typeKindFlags & jnc::TypeKindFlag_Unsigned) ? "llu" : "lld";
+			return formatImpl(string, fmtSpecifier,	defaultType, *(int32_t*)buffer);
+		}
+	}
+	else if (typeKindFlags & jnc::TypeKindFlag_Fp)
+	{
+		double x = jnc::TypeKind_Float ? *(float*)&variant : *(double*)&variant;
+		return formatImpl(string, fmtSpecifier, "f", x);
+	}
+
+	jnc::Type* type;
+	const void* p;
+
+	if (typeKind != jnc::TypeKind_DataRef)
+	{
+		type = variant->m_type;
+		p = &variant;
+	}
+	else
+	{
+		type = ((jnc::DataPtrType*)variant->m_type)->getTargetType();
+		p = variant->m_dataPtr.m_p;
+	}
+
+	if (jnc::isCharArrayType(type))
+	{
+		jnc::ArrayType* arrayType = (jnc::ArrayType*)type;
+		size_t count = arrayType->getElementCount();
+		const char* c = (char*)p;
+
+		// trim zero-termination
+
+		while (count && c[count - 1] == 0)
+			count--;
+
+		return string->copy(c, count);
+	}
+	else if (type->getTypeKindFlags() & jnc::TypeKindFlag_Ptr)
+	{
+		if (jnc::isCharPtrType(type))
+		{
+			jnc::DataPtrType* ptrType = (jnc::DataPtrType*)type;
+			jnc::DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
+
+			if (ptrTypeKind == jnc::DataPtrTypeKind_Normal)
+				return formatCharPtr(string, fmtSpecifier, variant->m_dataPtr);
+
+			const char* c = *(char**)p;
+			size_t length = strlen_s(c);
+			return formatStringImpl(string, fmtSpecifier, c, length);
+		}
+		else // generic pointer
+		{
+			return string->format("%p", variant->m_p);
+		}
+	}
+	else // don't know how to format
+	{
+		return string->format("(variant:%s)", type->getTypeString().sz());
+	}
+
+	return string->getLength();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Variant_format_v(
+	const jnc_Variant* variant,
+	const char* fmtSpecifier
+	)
+{
+	sl::String* string = jnc::getTlsStringBuffer();
+	jnc_Variant_format(variant, string, fmtSpecifier);
+	return *string;
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

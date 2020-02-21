@@ -926,6 +926,13 @@ typedef
 size_t
 jnc_Variant_HashFunc(const jnc_Variant* variant);
 
+typedef
+const char*
+jnc_Variant_FormatFunc(
+	const jnc_Variant* variant,
+	const char* fmtSpecifier
+	);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_VariantFuncTable
@@ -940,6 +947,7 @@ struct jnc_VariantFuncTable
 	jnc_Variant_GetElementFunc* m_getElementFunc;
 	jnc_Variant_SetElementFunc* m_setElementFunc;
 	jnc_Variant_HashFunc* m_hashFunc;
+	jnc_Variant_FormatFunc* m_formatFunc;
 };
 
 //..............................................................................

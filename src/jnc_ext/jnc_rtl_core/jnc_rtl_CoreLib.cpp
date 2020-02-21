@@ -754,7 +754,6 @@ appendFmtLiteral_a(
 	return fmtLiteral->m_length;
 }
 
-static
 void
 prepareFormatString(
 	sl::String* formatString,
@@ -838,16 +837,14 @@ appendFmtLiteralStringImpl(
 	if (!fmtSpecifier)
 		return appendFmtLiteral_a(fmtLiteral, p, length);
 
+	if (p[length] == 0) // already zero-terminated
+		return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", p);
+
 	char buffer[256];
 	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	string.copy(p, length);
 
-	if (p[length] != 0) // ensure zero-terminated
-	{
-		string.copy(p, length);
-		p = string;
-	}
-
-	return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", p);
+	return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", string.sz());
 }
 
 static
@@ -928,111 +925,10 @@ appendFmtLiteral_v(
 	Variant variant
 	)
 {
-	bool result;
-
-	if (!variant.m_type)
-		return fmtLiteral->m_length;
-
-	TypeKind typeKind = variant.m_type->getTypeKind();
-	uint_t typeKindFlags = variant.m_type->getTypeKindFlags();
-
-	if (typeKindFlags & TypeKindFlag_Integer)
-	{
-		Module* module = variant.m_type->getModule();
-
-		char buffer[sizeof(int64_t)];
-
-		if (variant.m_type->getSize() > 4)
-		{
-			Type* targetType = module->m_typeMgr.getPrimitiveType(TypeKind_Int64);
-			result = variant.cast(targetType, buffer);
-			if (!result)
-			{
-				ASSERT(false);
-				return fmtLiteral->m_length;
-			}
-
-			int64_t x = *(int64_t*)buffer;
-
-			return (typeKindFlags & TypeKindFlag_Unsigned) ?
-				appendFmtLiteral_ui64(fmtLiteral, fmtSpecifier, x) :
-				appendFmtLiteral_i64(fmtLiteral, fmtSpecifier, x);
-		}
-		else
-		{
-			Type* targetType = module->m_typeMgr.getPrimitiveType(TypeKind_Int32);
-			result = variant.cast(targetType, buffer);
-			if (!result)
-			{
-				ASSERT(false);
-				return fmtLiteral->m_length;
-			}
-
-			int32_t x = *(int32_t*)buffer;
-
-			return (typeKindFlags & TypeKindFlag_Unsigned) ?
-				appendFmtLiteral_ui32(fmtLiteral, fmtSpecifier, x) :
-				appendFmtLiteral_i32(fmtLiteral, fmtSpecifier, x);
-		}
-	}
-	else if (typeKindFlags & TypeKindFlag_Fp)
-	{
-		return typeKind == TypeKind_Float ?
-			appendFmtLiteral_f(fmtLiteral, fmtSpecifier, *(float*) &variant) :
-			appendFmtLiteral_f(fmtLiteral, fmtSpecifier, *(double*) &variant);
-	}
-
-	Type* type;
-	const void* p;
-
-	if (typeKind != TypeKind_DataRef)
-	{
-		type = variant.m_type;
-		p = &variant;
-	}
-	else
-	{
-		type = ((DataPtrType*)variant.m_type)->getTargetType();
-		p = variant.m_dataPtr.m_p;
-	}
-
-	if (isCharArrayType(type))
-	{
-		ArrayType* arrayType = (ArrayType*)type;
-		size_t count = arrayType->getElementCount();
-		const char* c = (char*)p;
-
-		// trim zero-termination
-
-		while (count && c[count - 1] == 0)
-			count--;
-
-		return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, c, count);
-	}
-	else if (type->getTypeKindFlags() & TypeKindFlag_Ptr)
-	{
-		if (isCharPtrType(type))
-		{
-			DataPtrType* ptrType = (DataPtrType*)type;
-			DataPtrTypeKind ptrTypeKind = ptrType->getPtrTypeKind();
-
-			if (ptrTypeKind == DataPtrTypeKind_Normal)
-				return appendFmtLiteral_p(fmtLiteral, fmtSpecifier, *(DataPtr*) &variant);
-
-			const char* c = *(char**) p;
-			size_t length = strlen_s(c);
-
-			return appendFmtLiteralStringImpl(fmtLiteral, fmtSpecifier, c, length);
-		}
-		else // generic pointer
-		{
-			return appendFmtLiteralDirect(fmtLiteral, "%p", variant.m_p);
-		}
-	}
-	else // don't know how to format
-	{
-		return appendFmtLiteralDirect(fmtLiteral, "(variant:%s)", type->getTypeString().sz());
-	}
+	char buffer[256];
+	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	variant.format(&string, fmtSpecifier);
+	return appendFmtLiteral_a(fmtLiteral, string, string.getLength());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

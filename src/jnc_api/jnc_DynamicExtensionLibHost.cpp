@@ -286,6 +286,7 @@ static jnc_VariantFuncTable g_variantFuncTable =
 	jnc_Variant_getElement,
 	jnc_Variant_setElement,
 	jnc_Variant_hash,
+	jnc_Variant_format_v,
 };
 
 static jnc_PromiseFuncTable g_promiseFuncTable =

@@ -111,9 +111,10 @@
 		jnc_Namespace_getItem;
 		jnc_Namespace_findItem;
 		jnc_getNamespaceKindString;
-		jnc_Variant_create;
 		jnc_Variant_binaryOperator;
 		jnc_Variant_cast;
+		jnc_Variant_create;
+		jnc_Variant_format_v;
 		jnc_Variant_getElement;
 		jnc_Variant_getMember;
 		jnc_Variant_hash;
