@@ -58,6 +58,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 //..............................................................................
 
 #if (_JNC_OS_WIN)
+
 bool
 createStdioPipe(
 	handle_t* readHandle,
@@ -133,10 +134,9 @@ buildEnvironmentBlock(
 		wchar_t* p = parentEnvironment;
 		for (;;)
 		{
-			if (!p[0] && !p[1]) // double-zero-termination
-				break;
-
 			p++;
+			if (!p[0] && !p[-1]) // double-zero-termination
+				break;
 		}
 
 		block->append(parentEnvironment, p - parentEnvironment);
