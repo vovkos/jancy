@@ -121,6 +121,8 @@ buildEnvironmentBlock(
 		return 0;
 	}
 
+	block->clear();
+
 	if (!(flags & ChildProcessFlag_CleanEnvironment))
 	{
 		wchar_t* parentEnvironment = ::GetEnvironmentStringsW();
@@ -157,59 +159,122 @@ buildEnvironmentBlock(
 }
 
 #else
-void
-exec(
-	const char* commandLine,
-	const StdHashTable* environment,
-	uint_t flags
-	) // returns on failure only
-{
-	char buffer1[256];
-	char buffer2[256];
-	sl::Array<char*> argv(ref::BufKind_Stack, buffer1, sizeof(buffer1));
-	sl::Array<char*> envp(ref::BufKind_Stack, buffer2, sizeof(buffer2));
 
-	sl::String string = commandLine;
-	size_t length = string.getLength();
+size_t
+buildArgvArray(
+	sl::Array<char*>* argv,
+	sl::String* string,
+	const char* commandLine
+	)
+{
+	argv->clear();
+	*string = commandLine;
+
 	for (;;)
 	{
-		string.trimLeft();
-		if (string.isEmpty())
+		string->trimLeft();
+		if (string->isEmpty())
 			break;
 
-		argv.append(string.p());
+		argv->append(string->p());
 
-		size_t pos = string.findOneOf(sl::StringDetails::getWhitespace());
+		size_t pos = string->findOneOf(sl::StringDetails::getWhitespace());
 		if (pos == -1)
 			break;
 
-		string[pos] = 0;
-		string = string.getSubString(pos + 1);
+		(*string)[pos] = 0;
+		string->setSubString(pos + 1);
 	}
 
-	if (argv.isEmpty())
+	if (argv->isEmpty())
 	{
 		err::setError("empty command line");
+		return -1;
+	}
+
+	argv->append(NULL);
+	return argv->getCount();
+}
+
+size_t
+buildEnvpArray(
+	sl::Array<char*>* envp,
+	sl::Array<char>* block,
+	StdHashTable* environment,
+	uint_t flags
+	)
+{
+	envp->clear();
+
+	if (!environment)
+	{
+		if (flags & ChildProcessFlag_CleanEnvironment)
+			envp->append(NULL);
+
+		return 0;
+	}
+
+	if (!(flags & ChildProcessFlag_CleanEnvironment))
+	{
+		char* const* p = environ;
+		for (; *p; p++)
+			envp->append(*p);
+	}
+
+	char buffer[256];
+	sl::Array<size_t> envpIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+
+	block->clear();
+
+	StdMapEntry* entry = environment->m_map.getHead();
+	for (; entry; entry = entry->getNext())
+	{
+		envpIndexArray.append(block->getCount());
+
+		sl::StringRef string = entry->m_key.format_v();
+		block->append(string.cp(), string.getLength());
+		block->append('=');
+
+		string = entry->m_value.format_v();
+		block->append(string.cp(), string.getLength());
+		block->append(0);
+	}
+
+	size_t count = envpIndexArray.getCount();
+	for (size_t i = 0; i < count; i++)
+		envp->append(block->p() + envpIndexArray[i]);
+
+	envp->append(NULL);
+	return envp->getCount();
+}
+
+void
+exec(
+	const char* commandLine,
+	StdHashTable* environment,
+	uint_t flags
+	) // returns on failure only
+{
+	char buffer[4][256];
+	sl::String argvString(ref::BufKind_Stack, buffer[0], sizeof(buffer[0]));
+	sl::Array<char> envpBlock(ref::BufKind_Stack, buffer[1], sizeof(buffer[1]));
+	sl::Array<char*> argv(ref::BufKind_Stack, buffer[2], sizeof(buffer[2]));
+	sl::Array<char*> envp(ref::BufKind_Stack, buffer[3], sizeof(buffer[3]));
+
+	int result =
+		buildArgvArray(&argv, &argvString, commandLine) != -1 &&
+		buildEnvpArray(&envp, &envpBlock, environment, flags) != -1;
+
+	if (!result)
 		return;
-	}
 
-	argv.append(NULL);
-
-	int result;
-
-	if (envp.isEmpty())
-	{
-		result = ::execvp(argv[0], argv.p());
-	}
-	else
-	{
-		envp.append(NULL);
+	result = envp.isEmpty() ?
+		::execvp(argv[0], argv.p()) :
 #if (_JNC_OS_DARWIN)
-		result = ::execve(argv[0], argv.p(), envp.p());
+		::execve(argv[0], argv.p(), envp.p());
 #else
-		result = ::execvpe(argv[0], argv.p(), envp.p());
+		::execvpe(argv[0], argv.p(), envp.p());
 #endif
-	}
 
 	ASSERT(result == -1);
 	err::setLastSystemError();
@@ -355,7 +420,7 @@ ChildProcess::start(
 			::dup2(isSeparateStderr ? stderrPipe.m_writeFile : stdoutPipe.m_writeFile, STDERR_FILENO);
 		}
 
-		exec(environment, (char*)commandLinePtr.m_p, flags);
+		exec((const char*)commandLinePtr.m_p, environment, flags);
 
 		error = err::getLastError();
 		execPipe.m_writeFile.write(error, error->m_size);
