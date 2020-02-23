@@ -664,7 +664,7 @@ jnc_Variant_format(
 	if (typeKind != jnc::TypeKind_DataRef)
 	{
 		type = variant->m_type;
-		p = &variant;
+		p = variant;
 	}
 	else
 	{
