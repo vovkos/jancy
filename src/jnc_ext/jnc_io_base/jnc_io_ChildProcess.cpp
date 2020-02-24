@@ -14,7 +14,28 @@
 #include "jnc_io_IoLib.h"
 
 #if (_JNC_OS_POSIX)
-extern char** environ;
+
+extern char** environ; // declaration may be missing (e.g. on Mac)
+
+#	if (_JNC_OS_DARWIN)
+
+int
+execvpe(
+	const char* program,
+	char** argv,
+	char** envp
+	)
+{
+	// this simple implementation is only OK to be used right after fork
+
+	char** prevEnviron = environ;
+	environ = envp;
+	execvp(program, argv);
+	environ = prevEnviron;
+	return -1;
+}
+
+#	endif
 #endif
 
 namespace jnc {
@@ -274,11 +295,7 @@ exec(
 
 	result = envp.isEmpty() ?
 		::execvp(argv[0], argv.p()) :
-#if (_JNC_OS_DARWIN)
-		::execve(argv[0], argv.p(), envp.p());
-#else
 		::execvpe(argv[0], argv.p(), envp.p());
-#endif
 
 	ASSERT(result == -1);
 	err::setLastSystemError();
