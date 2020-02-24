@@ -13,6 +13,10 @@
 #include "jnc_io_ChildProcess.h"
 #include "jnc_io_IoLib.h"
 
+#if (_JNC_OS_POSIX)
+extern char** environ;
+#endif
+
 namespace jnc {
 namespace io {
 
