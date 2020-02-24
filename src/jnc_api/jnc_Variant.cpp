@@ -25,6 +25,7 @@
 //..............................................................................
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 bool_t
 jnc_Variant_create(
 	jnc_Variant* variant,
