@@ -9,31 +9,24 @@
 //
 //..............................................................................
 
-#pragma once
-
-namespace jnc {
 namespace io {
 
+//! \addtogroup io-ssl
+//! @{
+
 //..............................................................................
 
-// {275366FE-EA5D-48C9-9414-640E1D43339B}
-JNC_DEFINE_GUID(
-	g_sslLibGuid,
-	0x275366fe, 0xea5d, 0x48c9, 0x94, 0x14, 0x64, 0xe, 0x1d, 0x43, 0x33, 0x9b
-	);
-
-enum SslLibCacheSlot
+opaque class SslCipher
 {
-	SslLibCacheSlot_SslCertNameEntry,
-	SslLibCacheSlot_SslCertName,
-	SslLibCacheSlot_SslCipher,
-	SslLibCacheSlot_SslCertificate,
-	SslLibCacheSlot_SslSocket,
-};
+	char const* const property m_name;
+	char const* const property m_description;
+	size_t const property m_bitCount;
 
-extern int g_sslSocketSelfIdx;
+	construct();
+}
 
 //..............................................................................
+
+//! @}
 
 } // namespace io
-} // namespace jnc

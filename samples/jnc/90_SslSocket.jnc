@@ -15,7 +15,7 @@ import "io_ssl.jncx"
 
 void onStateChanged(
 	io.SslSocket* socket,
-	io.SslSocketState state, 
+	io.SslSocketState state,
 	int alertInfo
 	)
 {
@@ -30,9 +30,9 @@ void printCertName(io.SslCertName const* name)
 	{
 		io.SslCertNameEntry const* entry = name.m_entryTable[i];
 		printf(
-			"    %3d: %s: %s\n", 
-			entry.m_nid, 
-			entry.m_name, 
+			"    %3d: %s: %s\n",
+			entry.m_nid,
+			entry.m_name,
 			entry.m_value
 			);
 	}
@@ -105,12 +105,12 @@ int main()
 	for (size_t i = 0; i < count; i++)
 	{
 		printf("certificate[%d]:\n", i);
-		printCertificate(ssl.m_peerCertificateChainEntry[i]);
+		printCertificate(ssl.m_peerCertificateChain[i]);
 	}
 
 	printf("Getting front page...\n");
 
-	char const* httpGet = 
+	char const* httpGet =
 		"GET / HTTP/1.1\n"
 		$"Host: $hostName\n"
 		"Connection: close\n\n";
@@ -122,7 +122,7 @@ int main()
 	for (;;)
 	{
 		ssl.blockingWait(
-			io.SslSocketEvents.IncomingData | 
+			io.SslSocketEvents.IncomingData |
 			io.SslSocketEvents.TcpDisconnected |
 			io.SslSocketEvents.IoError,
 			3000 // in case a server ignores Connection: close
@@ -131,7 +131,7 @@ int main()
 		size_t size = ssl.read(buffer, sizeof(buffer) - 1);
 		if (!size)
 			break;
-	
+
 		buffer[size] = 0;
 		print(buffer);
 	}

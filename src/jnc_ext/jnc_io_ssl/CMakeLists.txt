@@ -16,6 +16,7 @@
 set(
 	LIB_H_LIST
 	jnc_io_SslCertificate.h
+	jnc_io_SslCipher.h
 	jnc_io_SslSocket.h
 	jnc_io_SslLib.h
 	)
@@ -23,6 +24,7 @@ set(
 set(
 	LIB_CPP_LIST
 	jnc_io_SslCertificate.cpp
+	jnc_io_SslCipher.cpp
 	jnc_io_SslSocket.cpp
 	jnc_io_SslLib.cpp
 	)
@@ -42,6 +44,7 @@ source_group(
 set(
 	JNC_LIST
 	jnc/io_SslCertificate.jnc
+	jnc/io_SslCipher.jnc
 	jnc/io_SslSocket.jnc
 	)
 

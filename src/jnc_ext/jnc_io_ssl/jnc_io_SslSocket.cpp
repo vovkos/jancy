@@ -36,11 +36,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_CONST_PROPERTY("m_peerAddress", &SslSocket::getPeerAddress)
 	JNC_MAP_CONST_PROPERTY("m_stateString", &SslSocket::getStateString)
 	JNC_MAP_CONST_PROPERTY("m_stateStringLong", &SslSocket::getStateStringLong)
-	JNC_MAP_CONST_PROPERTY("m_cipherName", &SslSocket::getCipherName)
-	JNC_MAP_CONST_PROPERTY("m_cipherDescription", &SslSocket::getCipherDescription)
-	JNC_MAP_CONST_PROPERTY("m_cipherBits", &SslSocket::getCipherBits)
+	JNC_MAP_CONST_PROPERTY("m_availableCipherCount", &SslSocket::getAvailableCipherCount)
+	JNC_MAP_CONST_PROPERTY("m_availableCipherSet", &SslSocket::getAvailableCipherSetEntry)
+	JNC_MAP_CONST_PROPERTY("m_currentCipher", &SslSocket::getCurrentCipher)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslSocket::getPeerCertificateChainLength)
-	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainEntry", &SslSocket::getPeerCertificateChainEntry)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslSocket::getPeerCertificateChainEntry)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslSocket::getPeerCertificate)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &SslSocket::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
@@ -50,6 +50,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
 	JNC_MAP_FUNCTION("close", &SslSocket::close)
+	JNC_MAP_FUNCTION("enableCiphers", &SslSocket::enableCiphers)
 	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
 	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
 	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
@@ -83,7 +84,7 @@ size_t
 JNC_CDECL
 SslSocket::getPeerCertificateChainLength()
 {
-	STACK_OF(X509)* chain = SSL_get_peer_cert_chain(m_ssl);
+	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
 	return chain ? sk_X509_num(chain) : 0;
 }
 
@@ -91,7 +92,7 @@ SslCertificate*
 JNC_CDECL
 SslSocket::getPeerCertificateChainEntry(size_t i)
 {
-	STACK_OF(X509)* chain = SSL_get_peer_cert_chain(m_ssl);
+	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
 	X509* cert = sk_X509_value(chain, i);
 	return cert ? SslCertificate::create(cert) : NULL;
 }
@@ -100,8 +101,33 @@ SslCertificate*
 JNC_CDECL
 SslSocket::getPeerCertificate()
 {
-	X509* cert = SSL_get_peer_certificate(m_ssl);
+	X509* cert = ::SSL_get_peer_certificate(m_ssl);
 	return cert ? SslCertificate::create(cert) : NULL;
+}
+
+size_t
+JNC_CDECL
+SslSocket::getAvailableCipherCount()
+{
+	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
+	return stack ? sk_SSL_CIPHER_num(stack) : 0;
+}
+
+SslCipher*
+JNC_CDECL
+SslSocket::getAvailableCipherSetEntry(size_t i)
+{
+	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
+	SSL_CIPHER* cipher = sk_SSL_CIPHER_value(stack, i);
+	return cipher ? SslCipher::create(cipher) : NULL;
+}
+
+SslCipher*
+JNC_CDECL
+SslSocket::getCurrentCipher()
+{
+	const SSL_CIPHER* cipher = ::SSL_get_current_cipher(m_ssl);
+	return cipher ? SslCipher::create(cipher) : NULL;
 }
 
 bool

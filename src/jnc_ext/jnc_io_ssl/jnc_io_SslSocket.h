@@ -14,6 +14,7 @@
 #include "jnc_io_AsyncIoDevice.h"
 #include "jnc_io_SocketBase.h"
 #include "jnc_io_SslCertificate.h"
+#include "jnc_io_SslCipher.h"
 
 namespace jnc {
 namespace io {
@@ -148,6 +149,18 @@ public:
 
 	size_t
 	JNC_CDECL
+	getAvailableCipherCount();
+
+	SslCipher*
+	JNC_CDECL
+	getAvailableCipherSetEntry(size_t i);
+
+	SslCipher*
+	JNC_CDECL
+	getCurrentCipher();
+
+	size_t
+	JNC_CDECL
 	getPeerCertificateChainLength();
 
 	SslCertificate*
@@ -186,27 +199,11 @@ public:
 		return strDup(self->m_ssl.getStateStringLong());
 	}
 
-	static
-	DataPtr
+	bool
 	JNC_CDECL
-	getCipherName(SslSocket* self)
+	enableCiphers(DataPtr ciphersPtr)
 	{
-		return strDup(self->m_ssl.getCurrentCipherName());
-	}
-
-	static
-	DataPtr
-	JNC_CDECL
-	getCipherDescription(SslSocket* self)
-	{
-		return strDup(self->m_ssl.getCurrentCipherDescription());
-	}
-
-	size_t
-	JNC_CDECL
-	getCipherBits(SslSocket)
-	{
-		return m_ssl.getCurrentCipherBits();
+		return m_ssl.setCipherList((char*)ciphersPtr.m_p);
 	}
 
 	bool
