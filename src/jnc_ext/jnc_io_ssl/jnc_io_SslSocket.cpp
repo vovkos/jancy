@@ -138,8 +138,7 @@ SslSocket::open_0(uint16_t family)
 
 	return
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		m_sslCtx.create() &&
-		m_ioThread.start();
+		openSsl();
 }
 
 bool
@@ -152,8 +151,26 @@ SslSocket::open_1(DataPtr addressPtr)
 
 	return
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
+		openSsl();
+}
+
+bool
+SslSocket::openSsl()
+{
+	ASSERT(m_socket.isOpen());
+
+	bool result =
 		m_sslCtx.create() &&
-		m_ioThread.start();
+		m_sslBio.createSocket(m_socket.m_socket) &&
+		m_ssl.create(m_sslCtx);
+
+	if (!result)
+		return false;
+
+	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
+	m_ssl.setInfoCallback(sslInfoCallback);
+	return m_ioThread.start();
 }
 
 void
@@ -251,8 +268,7 @@ SslSocket::accept(
 
 	bool result =
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
-		connectionSocket->m_sslCtx.create() &&
-		connectionSocket->m_ioThread.start();
+		connectionSocket->openSsl();
 
 	if (!result)
 		return NULL;
@@ -353,20 +369,6 @@ SslSocket::processFdClose(int error)
 bool
 SslSocket::sslHandshakeLoop(bool isClient)
 {
-	bool result =
-		m_sslBio.createSocket(m_socket.m_socket) &&
-		m_ssl.create(m_sslCtx);
-
-	if (!result)
-	{
-		setIoErrorEvent();
-		return false;
-	}
-
-	m_ssl.setBio(m_sslBio.detach());
-	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
-	m_ssl.setInfoCallback(sslInfoCallback);
-
 	if (isClient)
 		m_ssl.setConnectState();
 	else
@@ -381,7 +383,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 
 	for (;;)
 	{
-		result = m_ssl.doHandshake();
+		bool result = m_ssl.doHandshake();
 		if (result)
 			break;
 
@@ -649,9 +651,6 @@ SslSocket::sslHandshakeLoop(bool isClient)
 		return false;
 	}
 
-	m_ssl.setBio(m_sslBio.detach());
-	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
-	m_ssl.setInfoCallback(sslInfoCallback);
 
 	if (isClient)
 		m_ssl.setConnectState();

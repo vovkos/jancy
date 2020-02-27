@@ -203,21 +203,23 @@ public:
 	JNC_CDECL
 	enableCiphers(DataPtr ciphersPtr)
 	{
-		return m_ssl.setCipherList((char*)ciphersPtr.m_p);
+		return
+			m_sslCtx.setCipherList((char*)ciphersPtr.m_p) &&
+			m_ssl.setCipherList((char*)ciphersPtr.m_p);
 	}
 
 	bool
 	JNC_CDECL
 	loadCertificate(DataPtr fileNamePtr)
 	{
-		return m_sslCtx.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
+		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
 	bool
 	JNC_CDECL
 	loadPrivateKey(DataPtr fileNamePtr)
 	{
-		return m_sslCtx.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
+		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
 	bool
@@ -320,6 +322,9 @@ public:
 protected:
 	void
 	ioThreadFunc();
+
+	bool
+	openSsl();
 
 	bool
 	sslSuspendLoop();
