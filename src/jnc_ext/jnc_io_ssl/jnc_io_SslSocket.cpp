@@ -167,6 +167,9 @@ SslSocket::openSsl()
 	if (!result)
 		return false;
 
+	::SSL_CTX_set_ecdh_auto(m_sslCtx, true);
+	::SSL_set_ecdh_auto(m_ssl, true);
+
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
 	m_ssl.setInfoCallback(sslInfoCallback);
