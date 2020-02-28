@@ -123,7 +123,7 @@ JNC_CDECL
 SslSocket::getAvailableCipherSetEntry(size_t i)
 {
 	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
-	SSL_CIPHER* cipher = sk_SSL_CIPHER_value(stack, i);
+	const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(stack, i);
 	return cipher ? SslCipher::create(cipher) : NULL;
 }
 
@@ -267,9 +267,6 @@ SslSocket::openSsl()
 
 	if (!result)
 		return false;
-
-	::SSL_CTX_set_ecdh_auto(m_sslCtx, true);
-	::SSL_set_ecdh_auto(m_ssl, true);
 
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
