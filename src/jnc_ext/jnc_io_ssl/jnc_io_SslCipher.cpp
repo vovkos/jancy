@@ -77,7 +77,7 @@ SslCipher::getDescription(SslCipher* self)
 	return self->m_descriptionPtr;
 }
 
-uint64_t
+uint_t
 JNC_CDECL
 SslCipher::getBitCount()
 {

@@ -49,7 +49,7 @@ public:
 	JNC_CDECL
 	getDescription(SslCipher* self);
 
-	size_t
+	uint_t
 	JNC_CDECL
 	getBitCount();
 };
