@@ -32,6 +32,15 @@ enum SslSocketEvent
 	SslSocketEvent_SslHandshakeCompleted = 0x0100,
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum SslStdDh
+{
+	SslStdDh_Dh1024x160,
+	SslStdDh_Dh2048x224,
+	SslStdDh_Dh2048x256,
+};
+
 //..............................................................................
 
 struct SslSocketHdr: IfaceHdr
@@ -207,6 +216,32 @@ public:
 			m_sslCtx.setCipherList((char*)ciphersPtr.m_p) &&
 			m_ssl.setCipherList((char*)ciphersPtr.m_p);
 	}
+
+	bool
+	JNC_CDECL
+	setEphemeralDhParams(
+		DataPtr pemPtr,
+		size_t length
+		);
+
+	bool
+	JNC_CDECL
+	loadEphemeralDhParams(DataPtr fileNamePtr);
+
+	bool
+	JNC_CDECL
+	setEphemeralDhStdParams(uint_t dh);
+
+	bool
+	JNC_CDECL
+	setEphemeralEcdhCurve(DataPtr curveNamePtr);
+
+	bool
+	JNC_CDECL
+	generateEphemeralRsaKey(
+		uint_t keyLength,
+		uint_t publicExponent
+		);
 
 	bool
 	JNC_CDECL

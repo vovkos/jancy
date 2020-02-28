@@ -51,6 +51,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
 	JNC_MAP_FUNCTION("close", &SslSocket::close)
 	JNC_MAP_FUNCTION("enableCiphers", &SslSocket::enableCiphers)
+	JNC_MAP_FUNCTION("setEphemeralDhParams", &SslSocket::setEphemeralDhParams)
+	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslSocket::loadEphemeralDhParams)
+	JNC_MAP_FUNCTION("setEphemeralDhStdParams", &SslSocket::setEphemeralDhStdParams)
+	JNC_MAP_FUNCTION("setEphemeralEcdhCurve", &SslSocket::setEphemeralEcdhCurve)
+	JNC_MAP_FUNCTION("generateEphemeralRsaKey", &SslSocket::generateEphemeralRsaKey)
 	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
 	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
 	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
@@ -128,6 +133,102 @@ SslSocket::getCurrentCipher()
 {
 	const SSL_CIPHER* cipher = ::SSL_get_current_cipher(m_ssl);
 	return cipher ? SslCipher::create(cipher) : NULL;
+}
+
+bool
+JNC_CDECL
+SslSocket::setEphemeralDhParams(
+	DataPtr pemPtr,
+	size_t length
+	)
+{
+	if (length == -1)
+		length = strLen(pemPtr);
+
+	cry::Dh dh;
+	return
+		dh.readParameters(pemPtr.m_p, length) &&
+		m_ssl.setTmpDh(dh);
+}
+
+bool
+JNC_CDECL
+SslSocket::loadEphemeralDhParams(DataPtr fileNamePtr)
+{
+	axl::io::SimpleMappedFile file;
+	cry::Bio bio;
+	cry::Dh dh;
+
+	return
+		file.open((char*)fileNamePtr.m_p, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
+		bio.createMemBuf(file.p(), file.getMappingSize()) &&
+		dh.readParameters(bio) &&
+		m_ssl.setTmpDh(dh);
+}
+
+bool
+JNC_CDECL
+SslSocket::setEphemeralDhStdParams(uint_t stdDh)
+{
+	cry::Dh dh;
+
+	bool result;
+
+	switch (stdDh)
+	{
+	case SslStdDh_Dh1024x160:
+		result = dh.create1024x160();
+		break;
+
+	case SslStdDh_Dh2048x224:
+		result = dh.create2048x224();
+		break;
+
+	case SslStdDh_Dh2048x256:
+		result = dh.create2048x256();
+		break;
+
+	default:
+		err::setError(err::SystemErrorCode_InvalidParameter);
+		return false;
+	}
+
+	return
+		result &&
+		m_ssl.setTmpDh(dh);
+}
+
+bool
+JNC_CDECL
+SslSocket::setEphemeralEcdhCurve(DataPtr curveNamePtr)
+{
+	int curveId = OBJ_sn2nid((char*)curveNamePtr.m_p);
+	if (curveId == NID_undef)
+	{
+		err::setFormatStringError("invalid curve '%s'", curveNamePtr.m_p);
+		return false;
+	}
+
+	cry::EcKey ec;
+
+	return
+		ec.create(curveId) && // no need to generate key now
+		m_ssl.setTmpEcdh(ec);
+}
+
+bool
+JNC_CDECL
+SslSocket::generateEphemeralRsaKey(
+	uint_t keyLength,
+	uint_t publicExponent
+	)
+{
+	cry::Rsa rsa;
+
+	return
+		rsa.create() &&
+		rsa.generate(keyLength, publicExponent) &&
+		m_ssl.setTmpRsa(rsa);
 }
 
 bool

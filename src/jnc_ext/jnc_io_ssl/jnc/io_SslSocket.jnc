@@ -59,6 +59,17 @@ bitflag enum SslSocketState
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+// RFC 5114
+
+enum SslStdDh
+{
+	Dh1024x160,
+	Dh2048x224,
+	Dh2048x256,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 opaque class SslSocket
 {
 	SocketAddress const property m_address;
@@ -99,6 +110,21 @@ opaque class SslSocket
 	alias dispose = close;
 
 	bool errorcode enableCiphers(char const* ciphers);
+
+	bool errorcode setEphemeralDhParams(
+		char const* pem,
+		size_t length = -1
+		);
+
+	bool errorcode loadEphemeralDhParams(char const* fileName);
+	bool errorcode setEphemeralDhStdParams(SslStdDh dh = SslStdDh.Dh1024x160);
+	bool errorcode setEphemeralEcdhCurve(char const* curveName = "secp112r1");
+
+	bool errorcode generateEphemeralRsaKey(
+		uint_t keyLength = 1024,
+		uint_t publicExponent = 0x10001 // 655337 aka RSA_F4
+		);
+
 	bool errorcode loadCertificate(char const* fileName);
 	bool errorcode loadPrivateKey(char const* fileName);
 	bool errorcode loadCaCertificate(char const* fileName);
