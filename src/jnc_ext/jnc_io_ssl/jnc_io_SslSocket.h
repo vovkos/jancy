@@ -238,13 +238,6 @@ public:
 
 	bool
 	JNC_CDECL
-	generateEphemeralRsaKey(
-		uint_t keyLength,
-		uint_t publicExponent
-		);
-
-	bool
-	JNC_CDECL
 	loadCertificate(DataPtr fileNamePtr)
 	{
 		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);

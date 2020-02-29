@@ -120,11 +120,6 @@ opaque class SslSocket
 	bool errorcode setEphemeralDhStdParams(SslStdDh dh = SslStdDh.Dh1024x160);
 	bool errorcode setEphemeralEcdhCurve(char const* curveName = "secp112r1");
 
-	bool errorcode generateEphemeralRsaKey(
-		uint_t keyLength = 1024,
-		uint_t publicExponent = 0x10001 // 655337 aka RSA_F4
-		);
-
 	bool errorcode loadCertificate(char const* fileName);
 	bool errorcode loadPrivateKey(char const* fileName);
 	bool errorcode loadCaCertificate(char const* fileName);

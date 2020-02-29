@@ -22,7 +22,6 @@
 #include "axl_cry_Asn1.h"
 #include "axl_cry_X509.h"
 #include "axl_cry_Dh.h"
-#include "axl_cry_Rsa.h"
 #include "axl_cry_EcKey.h"
 #include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"

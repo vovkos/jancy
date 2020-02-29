@@ -55,7 +55,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslSocket::loadEphemeralDhParams)
 	JNC_MAP_FUNCTION("setEphemeralDhStdParams", &SslSocket::setEphemeralDhStdParams)
 	JNC_MAP_FUNCTION("setEphemeralEcdhCurve", &SslSocket::setEphemeralEcdhCurve)
-	JNC_MAP_FUNCTION("generateEphemeralRsaKey", &SslSocket::generateEphemeralRsaKey)
 	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
 	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
 	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
@@ -214,21 +213,6 @@ SslSocket::setEphemeralEcdhCurve(DataPtr curveNamePtr)
 	return
 		ec.create(curveId) && // no need to generate key now
 		m_ssl.setTmpEcdh(ec);
-}
-
-bool
-JNC_CDECL
-SslSocket::generateEphemeralRsaKey(
-	uint_t keyLength,
-	uint_t publicExponent
-	)
-{
-	cry::Rsa rsa;
-
-	return
-		rsa.create() &&
-		rsa.generate(keyLength, publicExponent) &&
-		m_ssl.setTmpRsa(rsa);
 }
 
 bool
