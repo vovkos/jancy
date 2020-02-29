@@ -58,6 +58,9 @@ HostNameResolver::resolve(
 {
 	cancel();
 
+	if (!m_isOpen)
+		AsyncIoBase::open();
+
 	const char* name = (const char*)namePtr.m_p;
 
 	axl::io::SockAddr sockAddr;
@@ -104,7 +107,6 @@ HostNameResolver::resolve(
 
 	m_lock.unlock();
 
-	AsyncIoBase::open();
 	m_ioThreadFlags |= IoThreadFlag_Started;
 	m_ioThread.start();
 	return true;
