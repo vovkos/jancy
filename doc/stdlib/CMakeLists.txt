@@ -69,7 +69,9 @@ set(
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_UnionType.jnc
 	${_EXT_DIR}/jnc_rtl_intro/jnc/jnc_Variable.jnc
 
+	-I ${_EXT_DIR}/jnc_std/jnc
 	-S ${_EXT_DIR}/jnc_std/jnc
+	-I ${_EXT_DIR}/jnc_sys/jnc
 	-S ${_EXT_DIR}/jnc_sys/jnc
 	-I ${_EXT_DIR}/jnc_io_base/jnc
 	-S ${_EXT_DIR}/jnc_io_base/jnc
