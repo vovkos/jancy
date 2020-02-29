@@ -176,12 +176,21 @@ AsyncIoBase::blockingWait(
 Promise*
 AsyncIoBase::asyncWait(uint_t eventMask)
 {
+	NoCollectRegion noCollectRegion(false);
 	Promise* promise = createPromise(m_runtime);
 
 	FunctionPtr ptr;
 	ptr.m_p = (void*)&onAsyncWaitCompleted;
 	ptr.m_closure = &promise->m_ifaceHdr;
-	wait(eventMask, ptr);
+
+	handle_t handle = wait(eventMask, ptr);
+	if (handle == (handle_t)-1)
+	{
+		const jnc::Error* error = jnc::getLastError();
+		DataPtr errorPtr = memDup(error, error->m_size);
+		promise->complete(g_nullVariant, errorPtr);
+	}
+
 	return promise;
 }
 
