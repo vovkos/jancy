@@ -82,7 +82,7 @@ public:
 		) const
 	{
 		ASSERT(m_func);
-		return m_func(key1, key2);
+		return m_func(key1, key2) != 0;
 	}
 };
 
