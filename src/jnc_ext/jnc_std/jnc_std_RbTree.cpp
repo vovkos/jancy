@@ -68,7 +68,6 @@ RbTree::visitImpl(Variant key)
 }
 
 void
-JNC_CDECL
 RbTree::removeImpl(MapEntry* entry)
 {
 	if (!entry || entry->m_map != &m_map)
