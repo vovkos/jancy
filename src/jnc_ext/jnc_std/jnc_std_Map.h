@@ -26,8 +26,6 @@ JNC_DECLARE_TYPE(MapEntry)
 struct MapEntry: StdMapEntry
 {
 	JNC_DECLARE_TYPE_STATIC_METHODS(MapEntry)
-
-	sl::MapEntry<Variant, DataPtr>* m_mapEntry;
 };
 
 //..............................................................................

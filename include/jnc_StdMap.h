@@ -37,8 +37,7 @@ struct jnc_StdMapEntry
 	jnc_Variant m_key;
 	jnc_Variant m_value;
 	jnc_StdMap* m_map;
-
-	// followed by map-specific impl details
+	void* m_mapEntry;
 
 #ifdef __cplusplus
 	jnc_StdMapEntry*
