@@ -40,7 +40,7 @@ if(OPENSSL_FOUND)
 	endif()
 endif()
 
-if(LIBSSH2_FOUND)
+if(LIBSSH2_FOUND AND OPENSSL_FOUND)
 	option(
 		BUILD_JNC_IO_SSH
 		"Build jancy SSH IO extension library"
