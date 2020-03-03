@@ -105,7 +105,7 @@ SslCertName::getEntryTable(
 		return self->m_entryArray[i];
 
 	if (i >= count)
-		self->m_entryArray.setCount(i + 1);
+		self->m_entryArray.setCountZeroConstruct(i + 1);
 
 	self->m_entryArray[i] = createEntry(entry);
 	return self->m_entryArray[i];
@@ -143,15 +143,13 @@ SslCertName::createEntry(X509_NAME_ENTRY* srcEntry)
 	ASN1_STRING* value = X509_NAME_ENTRY_get_data(srcEntry);
 
 	Runtime* runtime = getCurrentThreadRuntime();
-	runtime->getGcHeap()->enterNoCollectRegion();
+	NoCollectRegion noCollectRegion(runtime, false);
 
 	DataPtr ptr = createData<SslCertNameEntry>(runtime);
 	SslCertNameEntry* dstEntry = (SslCertNameEntry*)ptr.m_p;
 	dstEntry->m_nid = OBJ_obj2nid(object);
 	dstEntry->m_namePtr = strDup(cry::getAsn1ObjectString(object));
 	dstEntry->m_valuePtr = strDup(cry::getAsn1StringString(value));
-
-	runtime->getGcHeap()->leaveNoCollectRegion(false);
 	return ptr;
 }
 
