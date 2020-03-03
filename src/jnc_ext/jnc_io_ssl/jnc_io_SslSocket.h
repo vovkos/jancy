@@ -192,6 +192,34 @@ public:
 	JNC_CDECL
 	close();
 
+	int
+	JNC_CDECL
+	getVerifyMode()
+	{
+		return m_ssl.getVerifyMode();
+	}
+
+	void
+	JNC_CDECL
+	setVerifyMode(int mode)
+	{
+		m_ssl.setVerifyMode(mode);
+	}
+
+	size_t
+	JNC_CDECL
+	getVerifyDepth()
+	{
+		return m_ssl.getVerifyDepth();
+	}
+
+	void
+	JNC_CDECL
+	setVerifyDepth(size_t depth)
+	{
+		m_ssl.setVerifyDepth((int)depth);
+	}
+
 	static
 	DataPtr
 	JNC_CDECL
@@ -238,6 +266,16 @@ public:
 
 	bool
 	JNC_CDECL
+	loadVerifyLocations(
+		DataPtr caFileNamePtr,
+		DataPtr caDirPtr
+		)
+	{
+		return m_sslCtx.loadVerifyLocations((char*)caFileNamePtr.m_p, (char*)caDirPtr.m_p);
+	}
+
+	bool
+	JNC_CDECL
 	loadCertificate(DataPtr fileNamePtr)
 	{
 		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
@@ -248,20 +286,6 @@ public:
 	loadPrivateKey(DataPtr fileNamePtr)
 	{
 		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
-	}
-
-	bool
-	JNC_CDECL
-	loadCaCertificate(DataPtr fileNamePtr)
-	{
-		return m_sslCtx.loadVerifyLocations((char*)fileNamePtr.m_p, NULL);
-	}
-
-	bool
-	JNC_CDECL
-	setCaCertificateDir(DataPtr dirPtr)
-	{
-		return m_sslCtx.loadVerifyLocations(NULL, (char*)dirPtr.m_p);
 	}
 
 	bool

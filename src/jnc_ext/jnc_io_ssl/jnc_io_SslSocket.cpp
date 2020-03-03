@@ -42,6 +42,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslSocket::getPeerCertificateChainLength)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslSocket::getPeerCertificateChainEntry)
 	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslSocket::getPeerCertificate)
+	JNC_MAP_PROPERTY("m_verifyMode", &SslSocket::getVerifyMode, &SslSocket::setVerifyMode)
+	JNC_MAP_PROPERTY("m_verifyDepth", &SslSocket::getVerifyDepth, &SslSocket::setVerifyDepth)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &SslSocket::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
@@ -55,10 +57,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslSocket::loadEphemeralDhParams)
 	JNC_MAP_FUNCTION("setEphemeralDhStdParams", &SslSocket::setEphemeralDhStdParams)
 	JNC_MAP_FUNCTION("setEphemeralEcdhCurve", &SslSocket::setEphemeralEcdhCurve)
+	JNC_MAP_FUNCTION("loadVerifyLocations", &SslSocket::loadVerifyLocations)
 	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
 	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
-	JNC_MAP_FUNCTION("loadCaCertificate", &SslSocket::loadCaCertificate)
-	JNC_MAP_FUNCTION("setCaCertificateDir", &SslSocket::setCaCertificateDir)
 	JNC_MAP_FUNCTION("connect", &SslSocket::connect)
 	JNC_MAP_FUNCTION("listen", &SslSocket::listen)
 	JNC_MAP_FUNCTION("accept", &SslSocket::accept)
@@ -255,6 +256,7 @@ SslSocket::openSsl()
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
 	m_ssl.setInfoCallback(sslInfoCallback);
+
 	return m_ioThread.start();
 }
 

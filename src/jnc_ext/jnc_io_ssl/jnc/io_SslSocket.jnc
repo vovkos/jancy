@@ -59,6 +59,16 @@ bitflag enum SslSocketState
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bitflag enum SslVerifyMode
+{
+	None                        = 0, // SSL_VERIFY_NONE
+	VerifyPeerCertificate       = 1, // SSL_VERIFY_PEER
+	RequireClientCertificate    = 2, // SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+	VerifyClientCertificateOnce = 4, // SSL_VERIFY_CLIENT_ONCE
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 // RFC 5114
 
 enum SslStdDh
@@ -81,6 +91,9 @@ opaque class SslSocket
 	size_t const property m_peerCertificateChainLength;
 	SslCertificate const* const property m_peerCertificateChain(size_t i);
 	SslCertificate const* const property m_peerCertificate;
+
+	SslVerifyMode property m_verifyMode;
+	size_t property m_verifyDepth;
 
 	char const* const property m_stateString;
 	char const* const property m_stateStringLong;
@@ -122,8 +135,11 @@ opaque class SslSocket
 
 	bool errorcode loadCertificate(char const* fileName);
 	bool errorcode loadPrivateKey(char const* fileName);
-	bool errorcode loadCaCertificate(char const* fileName);
-	bool errorcode setCaCertificateDir(char const* dir);
+
+	bool errorcode loadVerifyLocations(
+		char const* caFileName,
+		char const* caDir = null
+		);
 
 	bool errorcode connect(SocketAddress const* address);
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
