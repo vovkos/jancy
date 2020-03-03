@@ -61,7 +61,7 @@ opaque class SslCertName
 	construct();
 	destruct();
 
-	SslCertNameEntry const* findEntry(SslNid nid);
+	SslCertNameEntry const* findEntry(SslNid nid) const;
 }
 
 //..............................................................................
