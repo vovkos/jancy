@@ -57,11 +57,13 @@ int main()
 	}
 
 	foo(150);
-	return 0;
+
+	printf("*** shouldn't get here\n");
+	return -1;
 
 catch:
 	printf("error caught (%s)\n", std.getLastError ().m_description);
-	return -1;
+	return 0;
 }
 
 //..............................................................................
