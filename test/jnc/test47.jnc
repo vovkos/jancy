@@ -58,6 +58,8 @@ int main()
 
 	jnc.RegexState state(true); // incremental recognizer
 
+	int l = 0;
+
 	try
 	{
 		scanPacket(state, "op");
@@ -65,16 +67,21 @@ int main()
 		scanPacket(state, "nect5\r cl");
 		scanPacket(state, "ose\t7777");
 
+		l = 10;
+
 		printf("the following will fail ('close' has no [\\r\\n]\n");
 
 		scanPacket(state, null);
+		assert(false); // shouldn't get here
 
 	catch:
 		printf("recognition error\n");
-		return -1;
+		assert(l == 10);
+		return 0;
 	}
 
-	return 0;
+	printf("*** shouldn't get here\n");
+	return -1;
 }
 
 //..............................................................................

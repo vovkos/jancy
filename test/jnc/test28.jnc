@@ -20,11 +20,12 @@ int main()
 
 	foo(-1);
 
-	return 10;
+	printf("*** shouldn't get here\n");
+	return -1;
 
 catch:
 	printf("exception!\n");
-	return -1;
+	return 0;
 }
 
 //..............................................................................

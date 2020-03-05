@@ -8,13 +8,13 @@ bool errorcode async asyncOpen(int x)
 
 int errorcode async asyncFoo(int x)
 {
-	printf("asyncFoo(%d)\n", x);	
+	printf("asyncFoo(%d)\n", x);
 
 	printf("  opening...\n");
 	await asyncOpen(x);
 
-	printf("  done!\n");	
-	return 10;
+	printf("  done!\n");
+	return 0;
 
 catch:
 	printf("asyncFoo - exception!\n");
@@ -29,6 +29,6 @@ int main()
 	return result;
 
 catch:
-	printf("main - exception!\n");
-	return 0;
+	printf("main - exception\n");
+	return -1;
 }

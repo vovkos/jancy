@@ -28,7 +28,7 @@ int async asyncFoo(int x)
 	printf("  opening...\n");
 	x = await asyncOpen(x);
 
-	printf("  done!\n");	
+	printf("  done!\n");
 	return x * 3;
 }
 
@@ -39,5 +39,6 @@ int main()
 	int result = promise.blockingWait();
 	printf("result: %d\n", result);
 	assert(result == 60);
-	return result;
+
+	return 0;
 }

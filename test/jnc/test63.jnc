@@ -44,11 +44,12 @@ int main()
 
 	disposable C c2;
 
-	return 0;
+	printf("*** shouldn't get here\n");
+	return -1;
 
 catch:
 	printf("main catch\n");
-	return -1;
+	return 0;
 
 finally:
 	printf("main finally\n");

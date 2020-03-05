@@ -33,7 +33,7 @@ main()
 
 	printf("c.m_Int = %d\n", c.m_Int);
 
-	return 10;
+	return 0;
 }
 
 foo()

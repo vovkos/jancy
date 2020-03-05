@@ -18,7 +18,13 @@ onUsbEndpointEvent(
 int main()
 {
 	printf("Opening USB mouse...\n");
-	io.UsbDevice* device = io.openUsbDevice(0x046d, 0xc246);
+	io.UsbDevice* device = try io.openUsbDevice(0x046d, 0xc246);
+	if (!device)
+	{
+		printf("device not found\n");
+		return 0; // don't fail if there's this mouse
+	}
+
 	device.m_isAutoDetachKernelDriverEnabled = true;
 
 	printf("Claiming interface #0...\n");

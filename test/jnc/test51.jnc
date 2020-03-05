@@ -40,7 +40,7 @@ int main()
 
 	User32 user32;
 	user32.open("user32.dll");
-//	user32.lib.MessageBoxA (0, "Message Text", "Message Caption", 0x00000040); // MB_ICONINFORMATION
+//	user32.lib.MessageBoxA(0, "Message Text", "Message Caption", 0x00000040); // MB_ICONINFORMATION
 	user32.lib.MessageBeep(0x00000030); // MB_ICONEXCLAMATION
 
 	Msvcrt msvcrt;
