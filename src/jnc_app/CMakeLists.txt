@@ -219,7 +219,6 @@ add_jancy_tests
 
 	set(
 		_BASE_FLAG_LIST
-		--print-retval
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
 		${JANCY_TEST_OPT_LEVEL}
 		)
