@@ -135,8 +135,8 @@ target_link_libraries(
 	axl_io
 	axl_io_ssl
 	axl_core
-	${OPENSSL_CRYPTO_LIB_NAME}
 	${OPENSSL_SSL_LIB_NAME}
+	${OPENSSL_CRYPTO_LIB_NAME}
 	)
 
 if(LINUX)
@@ -159,8 +159,8 @@ if(WIN32)
 		list(
 			APPEND
 			_DLL_LIST
-			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
 			${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
+			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
 			)
 	endif()
 

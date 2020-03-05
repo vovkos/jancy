@@ -127,8 +127,8 @@ target_link_libraries(
 	jnc_api_ext
 	axl_io
 	axl_core
-	${OPENSSL_CRYPTO_LIB_NAME}
 	${OPENSSL_SSL_LIB_NAME}
+	${OPENSSL_CRYPTO_LIB_NAME}
 	)
 
 if(WIN32)
@@ -165,7 +165,12 @@ if(WIN32)
 	endif()
 
 	if(OPENSSL_DLL_DIR)
-		list(APPEND _DLL_LIST ${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll)
+		list(
+			APPEND
+			_DLL_LIST
+			${OPENSSL_DLL_DIR}/${OPENSSL_SSL_DLL_NAME}.dll
+			${OPENSSL_DLL_DIR}/${OPENSSL_CRYPTO_DLL_NAME}.dll
+			)
 	endif()
 
 	if(_DLL_LIST)
