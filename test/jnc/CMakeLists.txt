@@ -30,6 +30,8 @@ if (NOT WIN32)
 		REMOVE_ITEM
 		TEST_JNC_LIST
 		test131.jnc   # sys.RegKey test
+		test50.jnc    # winmm.dll:sndPlaySoundA
+		test51.jnc    # user32.dll:MessageBeep
 		)
 endif()
 
