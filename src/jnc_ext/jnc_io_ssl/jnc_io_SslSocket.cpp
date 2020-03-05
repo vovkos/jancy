@@ -728,17 +728,6 @@ SslSocket::sslReadWriteLoop()
 bool
 SslSocket::sslHandshakeLoop(bool isClient)
 {
-	bool result =
-		m_sslBio.createSocket(m_socket.m_socket) &&
-		m_ssl.create(m_sslCtx);
-
-	if (!result)
-	{
-		setIoErrorEvent();
-		return false;
-	}
-
-
 	if (isClient)
 		m_ssl.setConnectState();
 	else
@@ -748,7 +737,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 
 	for (;;)
 	{
-		result = m_ssl.doHandshake();
+		bool result = m_ssl.doHandshake();
 		if (result)
 			break;
 
