@@ -183,6 +183,11 @@ public:
 	bool
 	deleteUnreachableBlocks();
 
+#if (_JNC_DEBUG)
+	void
+	traceAllBlocks();
+#endif
+
 	sl::Array<BasicBlock*>
 	getAsyncBlockArray()
 	{

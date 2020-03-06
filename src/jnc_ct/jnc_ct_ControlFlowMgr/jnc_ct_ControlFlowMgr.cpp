@@ -246,6 +246,16 @@ ControlFlowMgr::deleteUnreachableBlocks()
 	return true;
 }
 
+#if (_JNC_DEBUG)
+void
+ControlFlowMgr::traceAllBlocks()
+{
+	sl::Iterator<BasicBlock> it = m_blockList.getHead();
+	for (; it; it++)
+		m_module->m_operatorMgr.traceBlock(*it);
+}
+#endif
+
 BasicBlock*
 ControlFlowMgr::getUnreachableBlock()
 {
