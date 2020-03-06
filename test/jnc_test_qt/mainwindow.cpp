@@ -20,6 +20,8 @@
 #include "qrc_jancyedit.cpp"
 
 // #define _NO_GC 1
+#define DEFAULT_DEBUG_INFO true
+#define DEFAULT_OPTIMIZE   true
 
 //..............................................................................
 
@@ -156,11 +158,11 @@ void MainWindow::createActions()
 
 	m_debugInfoAction = new QAction("&Debug Info", this);
 	m_debugInfoAction->setCheckable(true);
-	m_debugInfoAction->setChecked(true);
+	m_debugInfoAction->setChecked(DEFAULT_DEBUG_INFO);
 
 	m_optimizeAction = new QAction("&Optimize", this);
 	m_optimizeAction->setCheckable(true);
-	m_optimizeAction->setChecked(true);
+	m_optimizeAction->setChecked(DEFAULT_OPTIMIZE);
 
 	m_jitAction = new QAction("&JIT", this);
 	m_jitAction->setCheckable(true);
@@ -379,7 +381,7 @@ bool MainWindow::compile()
 
 	uint_t compileFlags =
 		jnc::ModuleCompileFlag_StdFlags
-		// | jnc::ModuleCompileFlag_SimpleGcSafePoint
+		| jnc::ModuleCompileFlag_SimpleGcSafePoint
 		;
 
 #if (!_JNC_OS_WIN)
@@ -492,7 +494,7 @@ MainWindow::run()
 
 	writeOutput("Running...\n");
 
-#ifdef _NO_GC
+#if (_NO_GC)
 	jnc::GcSizeTriggers triggers;
 	triggers.m_allocSizeTrigger = -1;
 	triggers.m_periodSizeTrigger = -1;
