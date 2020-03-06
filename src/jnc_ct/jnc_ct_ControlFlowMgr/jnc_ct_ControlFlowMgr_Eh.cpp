@@ -293,23 +293,24 @@ ControlFlowMgr::catchLabel(const lex::LineCol& pos)
 
 	ASSERT(!(scope->m_flags & ScopeFlag_Finally));
 
+	m_module->m_namespaceMgr.closeScope();
+
 	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
 	{
 		if (scope->m_flags & ScopeFlag_FinallyAhead)
 		{
-			normalFinallyFlow();
+			ASSERT(scope->m_finallyBlock);
+			normalFinallyFlow(scope->m_finallyBlock);
 		}
 		else
 		{
 			m_catchFinallyFollowBlock = createBlock("catch_follow");
 
-			ASSERT(scope->m_sjljFrameIdx != - 1);
+			ASSERT(scope->m_sjljFrameIdx != -1);
 			setSjljFrame(scope->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
 			jump(m_catchFinallyFollowBlock);
 		}
 	}
-
-	m_module->m_namespaceMgr.closeScope();
 
 	ASSERT(scope->m_catchBlock);
 	setCurrentBlock(scope->m_catchBlock);
@@ -367,12 +368,13 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
 		ASSERT(result);
 	}
 
-	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
-		normalFinallyFlow();
-
 	m_module->m_namespaceMgr.closeScope();
 
 	ASSERT(scope->m_finallyBlock);
+
+	if (m_currentBlock->m_flags & BasicBlockFlag_Reachable)
+		normalFinallyFlow(scope->m_finallyBlock);
+
 	setCurrentBlock(scope->m_finallyBlock);
 
 	Scope* finallyScope = m_module->m_namespaceMgr.openScope(pos, ScopeFlag_Finally);
@@ -555,23 +557,20 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 }
 
 void
-ControlFlowMgr::normalFinallyFlow()
+ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock)
 {
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-	ASSERT((scope->m_flags & ScopeFlag_FinallyAhead) && scope->m_finallyBlock);
-
 	if (!m_catchFinallyFollowBlock)
 		m_catchFinallyFollowBlock = createBlock("finally_follow");
 
 	size_t routeIdx = ++m_finallyRouteIdx;
 
-	scope->m_finallyBlock->m_finallyRouteMap[routeIdx] = m_catchFinallyFollowBlock;
+	finallyBlock->m_finallyRouteMap[routeIdx] = m_catchFinallyFollowBlock;
 
 	Variable* routeIdxVariable = getFinallyRouteIdxVariable();
 	Value routeIdxValue(routeIdx, m_module->m_typeMgr.getPrimitiveType(TypeKind_IntPtr));
 	m_module->m_llvmIrBuilder.createStore(routeIdxValue, routeIdxVariable);
 
-	jump(scope->m_finallyBlock);
+	jump(finallyBlock);
 }
 
 void

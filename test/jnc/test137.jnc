@@ -1,0 +1,18 @@
+class C
+{
+};
+
+int main()
+{
+	{
+		C* c1;
+
+		{
+			C* c2;
+
+		catch:
+		}
+	}
+
+	return 0;
+}

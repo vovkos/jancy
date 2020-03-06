@@ -509,7 +509,7 @@ protected:
 	getReturnValueVariable();
 
 	void
-	normalFinallyFlow();
+	normalFinallyFlow(BasicBlock* finallyBlock);
 
 	void
 	preCreateSjljFrameArray();
