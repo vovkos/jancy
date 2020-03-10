@@ -52,6 +52,25 @@ JNC_END_LIB_FUNCTION_MAP()
 
 jnc_DynamicExtensionLibHost* jnc_g_dynamicExtensionLibHost;
 
+#if (_JNC_OS_WIN)
+const char*
+getPcapVersion()
+{
+	const char* version;
+
+	__try
+	{
+		version = ::pcap_lib_version();
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		version = NULL;
+	}
+
+	return version;
+}
+#endif
+
 JNC_EXTERN_C
 JNC_EXPORT
 jnc_ExtensionLib*
@@ -60,14 +79,22 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_pcap");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 
-#if (_JNC_OS_WIN)
+#if (!_JNC_OS_WIN)
+	const char* pcapVersion = ::pcap_lib_version();
+#else
 	sl::StringRef isNpcapDisable = ::getenv("JNC_IO_PCAP_DISABLE_NPCAP");
 	if (isNpcapDisable.isEmpty())
 		::SetDllDirectoryW(io::win::getSystemDir() + L"\\npcap");
+
+	const char* pcapVersion = getPcapVersion();
+	if (!pcapVersion)
+	{
+		err::setError("can't delay-load pcap (wpcap.dll is missing or invalid)");
+		return NULL;
+	}
 #endif
 
-	TRACE("jnc_io_pcap: Pcap version: %s\n", ::pcap_lib_version());
-
+	TRACE("jnc_io_pcap: Pcap version: %s\n", pcapVersion);
 	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::PcapLib_getLib();
 }
