@@ -155,10 +155,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 
 	ExtensionLib* lib = mainFunc(&jnc_g_dynamicExtensionLibHostImpl);
 	if (!lib)
-	{
-		err::setFormatStringError("cannot get extension lib in '%s'", fileName.sz());
 		return false;
-	}
 
 	for (sourceFileIt++; sourceFileIt; sourceFileIt++)
 		sourceFileIt->m_lib = lib;
