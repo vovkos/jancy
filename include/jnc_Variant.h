@@ -168,7 +168,7 @@ struct jnc_Variant
 		jnc_DataPtr m_dataPtr;
 		jnc_FunctionPtr m_functionPtr;
 		jnc_PropertyPtr m_propertyPtr;
-	};
+	} JNC_GCC_ALIGN(8);
 
 #if (JNC_PTR_SIZE == 4)
 	char m_padding[4]; // ensure the same layout regardless of pack factor
