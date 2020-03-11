@@ -584,31 +584,14 @@ namespace jnc {
 
 //..............................................................................
 
-// implicit tail-padding (might lead to ABI-incompatibility if omitted)
-
-#if (_JNC_CPP_MSC)
-
 template <typename T>
-class BaseTailPadding
+struct TailPaddingCheck: T
 {
-	// microsoft compiler does not re-use tail padding
+	char m_field; // this field might be allocated in T's tail-padding
 };
 
-#else
-
-template <typename T>
-class BaseTailPadding
-{
-private:
-	struct TailPaddingCheck: T
-	{
-		char m_field; // this field might be allocated in T's tail-padding
-	};
-
-	char m_tailPadding[sizeof(T) - offsetof(TailPaddingCheck, m_field)];
-};
-
-#endif
+#define JNC_HAS_REUSABLE_TAIL_PADDING(T) (sizeof(jnc::TailPaddingCheck<T>) == sizeof(T))
+#define JNC_ASSERT_NO_REUSABLE_TAIL_PADDING(T) JNC_ASSERT(!JNC_HAS_REUSABLE_TAIL_PADDING(T))
 
 //..............................................................................
 
