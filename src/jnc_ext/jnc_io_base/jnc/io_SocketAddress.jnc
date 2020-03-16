@@ -233,7 +233,7 @@ struct SocketAddress_ip4
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress_ip4 const* address);
+	bool isEqual(SocketAddress_ip4 const* address) const;
 
 	/**
 		Checks two ``IP4`` socket addresses for *matching*. The term matching
@@ -249,7 +249,7 @@ struct SocketAddress_ip4
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress_ip4 const* filterAddress);
+	bool isMatch(SocketAddress_ip4 const* filterAddress) const;
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -327,7 +327,7 @@ struct SocketAddress_ip6
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress_ip6 const* address);
+	bool isEqual(SocketAddress_ip6 const* address) const;
 
 	/**
 		Checks two ``IP6`` socket addresses for *matching*. The term *matching*
@@ -343,7 +343,7 @@ struct SocketAddress_ip6
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress_ip6 const* filterAddress);
+	bool isMatch(SocketAddress_ip6 const* filterAddress) const;
 
 	/**
 		Constructs the address from a string representation in ``string``
@@ -417,7 +417,7 @@ union SocketAddress
 		addresses are equal and ``false`` otherwise.
 	*/
 
-	bool isEqual(SocketAddress const* addr);
+	bool isEqual(SocketAddress const* addr) const;
 
 	/**
 		Checks two socket addresses for *matching*. See
@@ -427,7 +427,7 @@ union SocketAddress
 		Returns ``true`` if addresses *match* and ``false`` otherwise.
 	*/
 
-	bool isMatch(SocketAddress const* filterAddress);
+	bool isMatch(SocketAddress const* filterAddress) const;
 
 	/**
 		Constructs the address from a string representation in ``string``
