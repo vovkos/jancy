@@ -221,11 +221,11 @@ struct NetworkAdapterDesc
 	NetworkAdapterFlags m_flags;
 
 	/**
-		Holds the hardware Media Access Control(MAC)address of the network
+		Holds the hardware Media Access Control (MAC) address of the network
 		adapter.
 	*/
 
-	uint8_t m_mac[6];
+	uint8_t m_macAddress[6];
 
 	/**
 		Holds a pointer to the head of the list of addresses assigned to this

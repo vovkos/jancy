@@ -39,7 +39,7 @@ struct NetworkAdapterDesc
 	DataPtr m_descriptionPtr;
 	uint_t m_type;
 	uint_t m_flags;
-	uint8_t m_mac[6];
+	uint8_t m_macAddress[6];
 	DataPtr m_addressPtr;
 	size_t m_addressCount;
 };

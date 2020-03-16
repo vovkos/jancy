@@ -65,7 +65,7 @@ createNetworkAdapterDesc(
 	adapter->m_flags = srcAdapter->getFlags();
 	adapter->m_namePtr = strDup(srcAdapter->getName());
 	adapter->m_descriptionPtr = strDup(srcAdapter->getDescription());
-	memcpy(adapter->m_mac, srcAdapter->getMac(), 6);
+	memcpy(adapter->m_macAddress, srcAdapter->getMacAddress(), 6);
 
 	if (prevAdapter)
 		prevAdapter->m_nextPtr = adapterPtr;
