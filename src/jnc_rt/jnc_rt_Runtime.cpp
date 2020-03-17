@@ -125,7 +125,8 @@ Runtime::initializeCallSite(jnc_CallSite* callSite)
 			// don't nest dynamic frames (unnecessary) -- but prev pointer must be saved anyway
 			// also, without nesting it's often OK to skip explicit GcHeap::addBoxToDynamicFrame
 
-			if (tlsVariableTable->m_gcShadowStackTop->m_map->getMapKind() != ct::GcShadowStackFrameMapKind_Dynamic)
+			if (!tlsVariableTable->m_gcShadowStackTop->m_map ||
+				tlsVariableTable->m_gcShadowStackTop->m_map->getMapKind() != ct::GcShadowStackFrameMapKind_Dynamic)
 				tlsVariableTable->m_gcShadowStackTop = &callSite->m_gcShadowStackDynamicFrame;
 
 			tls->m_initializeLevel++;
@@ -176,6 +177,7 @@ Runtime::uninitializeCallSite(jnc_CallSite* callSite)
 	ASSERT(
 		tlsVariableTable->m_gcShadowStackTop == &callSite->m_gcShadowStackDynamicFrame ||
 		tlsVariableTable->m_gcShadowStackTop == prevGcShadowStackTop &&
+		prevGcShadowStackTop->m_map &&
 		prevGcShadowStackTop->m_map->getMapKind() == ct::GcShadowStackFrameMapKind_Dynamic ||
 		!callSite->m_result &&
 		tlsVariableTable->m_gcShadowStackTop < &callSite->m_gcShadowStackDynamicFrame

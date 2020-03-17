@@ -224,6 +224,23 @@ testAlloc()
 	printf("done\n");
 }
 
+void
+testCallSite()
+{
+	jnc::Runtime* runtime = jnc::getCurrentThreadRuntime();
+	ASSERT(runtime);
+
+	printf("before JNC_BEGIN_CALL_SITE\n");
+
+	JNC_BEGIN_CALL_SITE(runtime)
+
+	printf("inside JNC_CALL_SITE\n");
+
+	JNC_END_CALL_SITE()
+
+	printf("after JNC_END_CALL_SITE\n");
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB(
@@ -248,6 +265,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 //	JNC_MAP_FUNCTION("testVariant", &testVariant)
 //	JNC_MAP_FUNCTION("qtWait", &qtWait)
 //	JNC_MAP_FUNCTION("testAlloc", testAlloc)
+//	JNC_MAP_FUNCTION("testCallSite", testCallSite)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
