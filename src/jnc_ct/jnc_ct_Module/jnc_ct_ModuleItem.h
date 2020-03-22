@@ -192,13 +192,13 @@ class ModuleItemBodyDecl: public ModuleItemDecl
 protected:
 	lex::LineCol m_bodyPos;
 	sl::StringRef m_body;
-	sl::BoxList<Token> m_tokenList;
+	sl::BoxList<Token> m_bodyTokenList;
 
 public:
 	bool
 	hasBody() const
 	{
-		return !m_body.isEmpty();
+		return !m_body.isEmpty() || !m_bodyTokenList.isEmpty();
 	}
 
 	const lex::LineCol&
@@ -220,7 +220,7 @@ public:
 		);
 
 	bool
-	setTokenList(sl::BoxList<Token>* tokenList);
+	setBody(sl::BoxList<Token>* tokenList);
 
 protected:
 	bool

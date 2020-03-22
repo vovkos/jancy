@@ -44,7 +44,7 @@ reactor g_ipReactor
 
 	// it's OK to specify multiple events to subscribe to
 
-	onevent(bindingof(g_ip4), bindingof(g_routerIp4)) ()
+	onevent (bindingof(g_ip4), bindingof(g_routerIp4)) ()
 	{
 		printf("IP or router IP has changed\n");
 		g_useDhcp = false;

@@ -111,8 +111,8 @@ ReactorClassType::prepareForOperatorNew()
 	if (!result)
 		return false;
 
-	// we also need to explicitly mark Reactor.reaction for compile as we don't call
-	// it directly -- it's getting referenced from RTL (ReactorImpl::onChanged)
+	// explicitly mark Reactor.reaction for compilation as we don't call it directly
+	// it's called from RTL in rtl::ReactorImpl::reactionLoop
 
 	m_module->markForCompile(m_reaction);
 	return true;
@@ -141,6 +141,14 @@ ReactorClassType::compileReaction(Function* function)
 
 	m_module->m_functionMgr.internalEpilogue();
 	m_module->m_namespaceMgr.closeNamespace();
+
+	// explicitly mark all event handlers for compilation as we don't call those directly
+	// they are called from RTL in rtl::ReactorImpl::reactionLoop
+
+	sl::MapIterator<size_t, Function*> it = m_onEventMap.getHead();
+	for (; it; it++)
+		m_module->markForCompile(it->m_value);
+
 	return true;
 }
 

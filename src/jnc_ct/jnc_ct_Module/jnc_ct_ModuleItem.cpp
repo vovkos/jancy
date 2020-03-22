@@ -68,20 +68,20 @@ ModuleItemBodyDecl::setBody(
 }
 
 bool
-ModuleItemBodyDecl::setTokenList(sl::BoxList<Token>* tokenList)
+ModuleItemBodyDecl::setBody(sl::BoxList<Token>* tokenList)
 {
 	if (!canSetBody())
 		return false;
 
 	m_bodyPos = tokenList->getHead()->m_pos;
-	sl::takeOver(&m_tokenList, tokenList);
+	sl::takeOver(&m_bodyTokenList, tokenList);
 	return true;
 }
 
 bool
 ModuleItemBodyDecl::canSetBody()
 {
-	if (!m_body.isEmpty() || !m_tokenList.isEmpty())
+	if (!m_body.isEmpty() || !m_bodyTokenList.isEmpty())
 	{
 		err::setFormatStringError("'%s' already has a body", getQualifiedName().sz());
 		return false;

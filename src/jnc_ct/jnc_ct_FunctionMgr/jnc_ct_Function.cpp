@@ -127,8 +127,8 @@ Function::require()
 bool
 Function::compile()
 {
-	ASSERT(!m_prologueBlock);
-	ASSERT(!m_body.isEmpty() || !m_initializer.isEmpty()); // otherwise what are we doing here?
+	ASSERT(hasBody() || hasInitializer()); // otherwise, what are we doing here?
+	ASSERT(!m_prologueBlock); // otherwise, already compiled
 
 	bool result = m_type->ensureLayout();
 	if (!result)
@@ -137,10 +137,8 @@ Function::compile()
 	if (m_parentUnit)
 		m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
-	if (!m_body.isEmpty())
+	if (hasBody()) // a function with a body
 	{
-		// a function with a body
-
 		m_module->m_functionMgr.prologue(this, m_bodyPos);
 		m_module->m_namespaceMgr.getCurrentScope()->getUsingSet()->append(&m_usingSet);
 
@@ -166,11 +164,13 @@ Function::compile()
 		}
 
 		return
-			parser.parseBody(symbolKind, m_bodyPos, m_body) &&
+			(!m_bodyTokenList.isEmpty() ?
+				parser.parseTokenList(symbolKind, m_bodyTokenList) :
+				parser.parseBody(symbolKind, m_bodyPos, m_body)) &&
 			m_module->m_functionMgr.epilogue();
 	}
 
-	// redirected function
+	// otherwise, a redirected function
 
 	Parser parser(m_module);
 	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, m_initializer);
