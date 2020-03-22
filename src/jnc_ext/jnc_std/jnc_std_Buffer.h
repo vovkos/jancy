@@ -30,13 +30,6 @@ public:
 	size_t m_maxSize;
 
 public:
-	void
-	JNC_CDECL
-	clear()
-	{
-		m_size = 0;
-	}
-
 	bool
 	JNC_CDECL
 	setSize(size_t size);

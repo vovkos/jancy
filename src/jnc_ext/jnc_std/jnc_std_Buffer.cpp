@@ -27,7 +27,6 @@ JNC_DEFINE_CLASS_TYPE(
 	)
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(Buffer)
-	JNC_MAP_FUNCTION("clear", &Buffer::clear)
 	JNC_MAP_FUNCTION("setSize", &Buffer::setSize)
 	JNC_MAP_FUNCTION("reserve", &Buffer::reserve)
 	JNC_MAP_FUNCTION("copy", &Buffer::copy)

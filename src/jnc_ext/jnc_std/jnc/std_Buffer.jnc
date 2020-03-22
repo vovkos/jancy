@@ -39,7 +39,10 @@ class Buffer
 		m_p[offset] = e;
 	}
 
-	clear();
+	clear()
+	{
+		m_size = 0;
+	}
 
 	char* detach()
 	{
