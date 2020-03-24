@@ -396,7 +396,7 @@ jnc_Variant_getMember(
 	if (!variant->m_type)
 	{
 		err::setError("cannot apply member operator to 'null'");
-		return true;
+		return false;
 	}
 
 	ct::Module* module = variant->m_type->getModule();
