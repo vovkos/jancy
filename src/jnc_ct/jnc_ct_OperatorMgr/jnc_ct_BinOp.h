@@ -63,7 +63,7 @@ public:
 		Value* resultValue
 		) = 0;
 
-	err::Error
+	size_t
 	setOperatorError(
 		Type* opType1,
 		Type* opType2
@@ -77,7 +77,7 @@ public:
 			);
 	}
 
-	err::Error
+	size_t
 	setOperatorError(
 		const Value& opValue1,
 		const Value& opValue2
