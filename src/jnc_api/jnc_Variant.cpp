@@ -555,7 +555,13 @@ jnc_Variant_hash(const jnc_Variant* variant)
 	if (size <= sizeof(uintptr_t) || variant->m_type->getTypeKind() == TypeKind_DataPtr)
 		return variant->m_uintptr;
 
-	const void* p = size <= sizeof(DataPtr) ? &variant : variant->m_p;
+	const void* p = variant;
+	if (variant->m_type->getTypeKind() == TypeKind_DataRef)
+	{
+		p = variant->m_p;
+		size = ((ct::DataPtrType*)variant->m_type)->getTargetType()->getSize();
+	}
+
 	return sl::djb2(p, size);
 }
 
