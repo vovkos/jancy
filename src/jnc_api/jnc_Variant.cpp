@@ -347,10 +347,38 @@ jnc_Variant_relationalOperator(
 		) &&
 		module->m_operatorMgr.castOperator(&resultValue, TypeKind_Bool);
 
-	if (!result)
+	if (result)
+	{
+		*resultBool = *(bool*)resultValue.getConstData();
+		return true;
+	}
+
+	// try memcmp fallback for equality and inequality
+
+	if ((opKind != jnc_BinOpKind_Eq && opKind != jnc_BinOpKind_Ne) ||
+		variant->m_type->cmp(variant2->m_type) != 0)
 		return false;
 
-	*resultBool = *(bool*)resultValue.getConstData();
+	const void* p1;
+	const void* p2;
+	size_t size;
+
+	Type* type = variant->m_type;
+	if (type->getTypeKind() == TypeKind_DataRef)
+	{
+		p1 = variant->m_p;
+		p2 = variant2->m_p;
+		size = ((ct::DataPtrType*)type)->getTargetType()->getSize();
+	}
+	else
+	{
+		p1 = variant;
+		p2 = variant2;
+		size = type->getSize();
+	}
+
+	bool isEqual = memcmp(p1, p2, size) == 0;
+	*resultBool = isEqual == (opKind == jnc_BinOpKind_Eq);
 	return true;
 }
 
