@@ -206,10 +206,10 @@ opaque class Pcap
 	}
 
 	PcapLinkType const property m_linkType;
-	size_t const property m_snapshotSize;
 	bool readonly m_isPromiscious;
 	uint_t readonly m_readTimeout;
-
+	size_t property m_snapshotSize;
+	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBufferSize;
 
 	/**

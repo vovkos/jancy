@@ -37,7 +37,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Pcap>)
 
 	JNC_MAP_CONST_PROPERTY("m_linkType",         &Pcap::getLinkType)
-	JNC_MAP_CONST_PROPERTY("m_snapshotSize",     &Pcap::getSnapshotSize)
+	JNC_MAP_PROPERTY("m_snapshotSize", &Pcap::getSnapshotSize, &Pcap::setSnapshotSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &Pcap::setReadBufferSize)
 
 	JNC_MAP_FUNCTION("openDevice",   &Pcap::openDevice)
@@ -80,6 +80,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Pcap::Pcap()
 {
+	m_kernelBufferSize = 0;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 }
@@ -184,6 +185,26 @@ Pcap::close()
 	AsyncIoDevice::close();
 	m_isPromiscious = false;
 	m_readTimeout = 0;
+}
+
+void
+JNC_CDECL
+Pcap::setSnapshotSize(size_t size)
+{
+	bool result = m_pcap.setSnapshotSize(size);
+	if (!result)
+		dynamicThrow();
+}
+
+void
+JNC_CDECL
+Pcap::setKernelBufferSize(size_t size)
+{
+	bool result = m_pcap.setBufferSize(size);
+	if (!result)
+		dynamicThrow();
+
+	m_kernelBufferSize = size;
 }
 
 bool

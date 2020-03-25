@@ -33,6 +33,7 @@ struct PcapHdr: IfaceHdr
 {
 	bool m_isPromiscious;
 	uint_t m_readTimeout;
+	size_t m_kernelBufferSize;
 	size_t m_readBufferSize;
 	DataPtr m_filterPtr;
 };
@@ -107,6 +108,14 @@ public:
 	{
 		return m_pcap.getSnapshotSize();
 	}
+
+	void
+	JNC_CDECL
+	setSnapshotSize(size_t size);
+
+	void
+	JNC_CDECL
+	setKernelBufferSize(size_t size);
 
 	bool
 	JNC_CDECL
