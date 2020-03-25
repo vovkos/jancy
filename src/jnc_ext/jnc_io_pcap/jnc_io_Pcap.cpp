@@ -36,20 +36,25 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Pcap)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<Pcap>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<Pcap>)
 
-	JNC_MAP_CONST_PROPERTY("m_linkType",         &Pcap::getLinkType)
+	JNC_MAP_CONST_PROPERTY("m_linkType", &Pcap::getLinkType)
+	JNC_MAP_AUTOGET_PROPERTY("m_isPromiscious", &Pcap::setPromiscious)
+	JNC_MAP_AUTOGET_PROPERTY("m_readTimeout", &Pcap::setReadTimeout)
 	JNC_MAP_PROPERTY("m_snapshotSize", &Pcap::getSnapshotSize, &Pcap::setSnapshotSize)
+	JNC_MAP_AUTOGET_PROPERTY("m_kernelBufferSize", &Pcap::setKernelBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &Pcap::setReadBufferSize)
 
-	JNC_MAP_FUNCTION("openDevice",   &Pcap::openDevice)
-	JNC_MAP_FUNCTION("openFile",     &Pcap::openFile)
-	JNC_MAP_FUNCTION("close",        &Pcap::close)
-	JNC_MAP_FUNCTION("setFilter",    &Pcap::setFilter)
-	JNC_MAP_FUNCTION("write",        &Pcap::write)
-	JNC_MAP_FUNCTION("read",         &Pcap::read)
-	JNC_MAP_FUNCTION("wait",         &Pcap::wait)
-	JNC_MAP_FUNCTION("cancelWait",   &Pcap::cancelWait)
+	JNC_MAP_FUNCTION("openDevice", &Pcap::openDevice)
+	JNC_MAP_FUNCTION("openLive", &Pcap::openLive)
+	JNC_MAP_FUNCTION("openFile", &Pcap::openFile)
+	JNC_MAP_FUNCTION("close", &Pcap::close)
+	JNC_MAP_FUNCTION("activate", &Pcap::activate)
+	JNC_MAP_FUNCTION("setFilter", &Pcap::setFilter)
+	JNC_MAP_FUNCTION("write", &Pcap::write)
+	JNC_MAP_FUNCTION("read", &Pcap::read)
+	JNC_MAP_FUNCTION("wait", &Pcap::wait)
+	JNC_MAP_FUNCTION("cancelWait", &Pcap::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &Pcap::blockingWait)
-	JNC_MAP_FUNCTION("asyncWait",    &Pcap::asyncWait)
+	JNC_MAP_FUNCTION("asyncWait", &Pcap::asyncWait)
 JNC_END_TYPE_FUNCTION_MAP()
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -80,14 +85,27 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Pcap::Pcap()
 {
-	m_kernelBufferSize = 0;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 }
 
 bool
 JNC_CDECL
-Pcap::openDevice(
+Pcap::openDevice(DataPtr deviceNamePtr)
+{
+	close();
+
+	return
+		m_pcap.openDevice((char*)deviceNamePtr.m_p) &&
+		m_pcap.setPromiscious(Def_IsPromiscious) &&
+		m_pcap.setPromiscious(Def_IsPromiscious) &&
+		m_pcap.setTimeout(Def_ReadTimeout) &&
+		finishOpen(IoThreadFlag_Suspended);
+}
+
+bool
+JNC_CDECL
+Pcap::openLive(
 	DataPtr deviceNamePtr,
 	DataPtr filterPtr,
 	uint_t snapshotSize,
@@ -95,24 +113,21 @@ Pcap::openDevice(
 	uint_t readTimeout
 	)
 {
-	bool result;
-
-	const char* deviceName = (const char*) deviceNamePtr.m_p;
-	const char* filter = (const char*) filterPtr.m_p;
-
 	close();
 
-	result =
-		m_pcap.openDevice(deviceName, snapshotSize, isPromiscious, readTimeout) &&
-		m_pcap.setFilter(filter);
+	bool result = m_pcap.openLive(
+		(char*)deviceNamePtr.m_p,
+		snapshotSize,
+		isPromiscious,
+		readTimeout
+		) &&
+		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN);
 
 	if (!result)
 		return false;
 
 	m_isPromiscious = isPromiscious;
 	m_readTimeout = readTimeout;
-	m_filterPtr = strDup(filter);
-
 	return finishOpen();
 }
 
@@ -123,33 +138,21 @@ Pcap::openFile(
 	DataPtr filterPtr
 	)
 {
-	bool result;
-
-	const char* fileName = (const char*) fileNamePtr.m_p;
-	const char* filter = (const char*) filterPtr.m_p;
-
 	close();
 
-	result =
-		m_pcap.openFile(fileName) &&
-		m_pcap.setFilter(filter);
-
-	if (!result)
-		return false;
-
-	m_filterPtr = strDup(filter);
-
-	return finishOpen();
+	return
+		m_pcap.openFile((char*)fileNamePtr.m_p) &&
+		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN) &&
+		finishOpen();
 }
 
 bool
-Pcap::finishOpen()
+Pcap::finishOpen(uint_t ioThreadFlags)
 {
 	AsyncIoDevice::open();
 
-	m_ioThreadFlags |= IoThreadFlag_Datagram;
 	m_options |= AsyncIoDeviceOption_KeepReadWriteBlockSize;
-
+	m_ioThreadFlags |= ioThreadFlags | IoThreadFlag_Datagram;
 	m_ioThread.start();
 	return true;
 }
@@ -183,8 +186,33 @@ Pcap::close()
 	m_pcap.close();
 
 	AsyncIoDevice::close();
+
+	m_kernelBufferSize = 0;
 	m_isPromiscious = false;
 	m_readTimeout = 0;
+	m_filterPtr = g_nullDataPtr;
+}
+
+void
+JNC_CDECL
+Pcap::setPromiscious(bool isPromiscious)
+{
+	bool result = m_pcap.setPromiscious(isPromiscious);
+	if (!result)
+		dynamicThrow();
+
+	m_isPromiscious = isPromiscious;
+}
+
+void
+JNC_CDECL
+Pcap::setReadTimeout(uint_t timeout)
+{
+	bool result = m_pcap.setTimeout(timeout);
+	if (!result)
+		dynamicThrow();
+
+	m_readTimeout = timeout;
 }
 
 void
@@ -205,6 +233,21 @@ Pcap::setKernelBufferSize(size_t size)
 		dynamicThrow();
 
 	m_kernelBufferSize = size;
+}
+
+bool
+JNC_CDECL
+Pcap::activate(DataPtr filterPtr)
+{
+	bool result =
+		m_pcap.activate() &&
+		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN);
+
+	if (!result)
+		return false;
+
+	unsuspendIoThread();
+	return true;
 }
 
 bool
@@ -275,17 +318,28 @@ Pcap::ioThreadFunc()
 
 #if (_JNC_OS_POSIX)
 	sys::setTlsPtrSlotValue<Pcap>(this);
-
-	// check for IoThreadFlag_Closing now; we might have
-	// called ::pthread_kill before setting the TLS slot
+#endif
 
 	m_lock.lock();
-	if (m_ioThreadFlags & IoThreadFlag_Closing)
+
+	for (;;)
 	{
+		// check for IoThreadFlag_Closing now; we might have
+		// called ::pthread_kill before setting the TLS slot
+
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return;
+		}
+
+		if (!(m_ioThreadFlags & IoThreadFlag_Suspended))
+			break;
+
 		m_lock.unlock();
-		return;
+		sleepIoThread();
+		m_lock.lock();
 	}
-#endif
 
 	m_lock.unlock();
 
@@ -299,15 +353,12 @@ Pcap::ioThreadFunc()
 		uint64_t timestamp;
 
 		size_t readResult = m_pcap.read(readBuffer, snapshotSize, &timestamp);
-		if (readResult == -1)
+		if ((intptr_t)readResult < 0)
 		{
-			setIoErrorEvent();
-			break;
-		}
+			readResult == PCAP_ERROR_BREAK ?
+				setEvents(PcapEvent_Eof) :
+				setIoErrorEvent(m_pcap.getLastErrorDescription());
 
-		if (readResult == -2)
-		{
-			setEvents(PcapEvent_Eof);
 			break;
 		}
 

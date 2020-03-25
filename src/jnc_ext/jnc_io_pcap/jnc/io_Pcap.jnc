@@ -200,14 +200,14 @@ opaque class Pcap
 {
 	enum Defaults
 	{
-		SnapshotSize = 64 * 1024,
-		Promiscious  = false,
-		ReadTimeout  = 200,
+		IsPromiscious = false,
+		ReadTimeout   = 200,
+		SnapshotSize  = 64 * 1024,
 	}
 
 	PcapLinkType const property m_linkType;
-	bool readonly m_isPromiscious;
-	uint_t readonly m_readTimeout;
+	bool autoget property m_isPromiscious;
+	uint_t autoget property m_readTimeout;
 	size_t property m_snapshotSize;
 	size_t autoget property m_kernelBufferSize; // 0 -- use platform default
 	size_t autoget property m_readBufferSize;
@@ -236,6 +236,16 @@ opaque class Pcap
 	/**
 		Opens a network interface for Pcap capture.
 
+		Returns ``true`` on success. If live capture on specified device could
+		not be opened, function sets the error reported by Pcap and returns
+		``false`` [#f1]_.
+	*/
+
+	bool errorcode openDevice(char const* deviceName);
+
+	/**
+		Opens a network interface for Pcap capture.
+
 		The function accepts 3 arguments. The first one, ``deviceName``, is
 		used to specify the device to start capture on. To obtain a list of
 		available devices, use `io.createPcapDeviceDescList` function.
@@ -246,19 +256,19 @@ opaque class Pcap
 		`io.PcapEvents.IncomingData` event and could not be read by ``read``
 		method.
 
-		The third and final parameter specifies whether to put interface in
-		promiscuous mode.
+		The third parameter specifies whether to put interface in promiscuous
+		mode.
 
 		Returns ``true`` on success. If live capture on specified device could
 		not be opened, function sets the error reported by Pcap and returns
 		``false`` [#f1]_.
 	*/
 
-	bool errorcode openDevice(
+	bool errorcode openLive(
 		char const* deviceName,
 		char const* filter = null,
 		uint_t snapshotSize = Defaults.SnapshotSize,
-		bool isPromiscious = Defaults.Promiscious,
+		bool isPromiscious = Defaults.IsPromiscious,
 		uint_t readTimeout = Defaults.ReadTimeout
 		);
 
@@ -293,6 +303,8 @@ opaque class Pcap
 	*/
 
 	alias dispose = close;
+
+	bool errorcode activate(char const* filter = null);
 
 	/**
 		Allows you to change current capture filter without restarting the

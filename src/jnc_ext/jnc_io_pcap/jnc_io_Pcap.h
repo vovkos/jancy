@@ -49,6 +49,9 @@ class Pcap:
 protected:
 	enum Def
 	{
+		Def_IsPromiscious = false,
+		Def_ReadTimeout   = 200,
+		Def_SnapshotSize  = 64 * 1024,
 		Def_ReadBufferSize = 64 * 1024,
 	};
 
@@ -95,31 +98,13 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
-	int
+	bool
 	JNC_CDECL
-	getLinkType()
-	{
-		return m_pcap.getLinkType();
-	}
-
-	size_t
-	JNC_CDECL
-	getSnapshotSize()
-	{
-		return m_pcap.getSnapshotSize();
-	}
-
-	void
-	JNC_CDECL
-	setSnapshotSize(size_t size);
-
-	void
-	JNC_CDECL
-	setKernelBufferSize(size_t size);
+	openDevice(DataPtr deviceNamePtr);
 
 	bool
 	JNC_CDECL
-	openDevice(
+	openLive(
 		DataPtr deviceNamePtr,
 		DataPtr filterPtr,
 		uint_t snapshotSize,
@@ -138,6 +123,36 @@ public:
 	JNC_CDECL
 	close();
 
+	int
+	JNC_CDECL
+	getLinkType()
+	{
+		return m_pcap.getLinkType();
+	}
+
+	void
+	JNC_CDECL
+	setPromiscious(bool isPromiscious);
+
+	void
+	JNC_CDECL
+	setReadTimeout(uint_t timeout);
+
+	size_t
+	JNC_CDECL
+	getSnapshotSize()
+	{
+		return m_pcap.getSnapshotSize();
+	}
+
+	void
+	JNC_CDECL
+	setSnapshotSize(size_t size);
+
+	void
+	JNC_CDECL
+	setKernelBufferSize(size_t size);
+
 	bool
 	JNC_CDECL
 	setReadBufferSize(size_t size)
@@ -147,8 +162,12 @@ public:
 
 	bool
 	JNC_CDECL
+	activate(DataPtr filterPtr);
+
+	bool
+	JNC_CDECL
 	setFilter(
-		DataPtr filter,
+		DataPtr filterPtr,
 		bool isOptimized,
 		uint32_t netMask
 		);
@@ -204,7 +223,7 @@ public:
 
 protected:
 	bool
-	finishOpen();
+	finishOpen(uint_t ioThreadFlags = 0);
 
 	void
 	ioThreadFunc();
