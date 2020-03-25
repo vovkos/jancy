@@ -307,7 +307,7 @@ public:
 	JNC_CDECL
 	unsuspend()
 	{
-		suspendIoThread(false);
+		unsuspendIoThread();
 	}
 
 	bool

@@ -217,7 +217,7 @@ public:
 	JNC_CDECL
 	unsuspend()
 	{
-		suspendIoThread(false);
+		unsuspendIoThread();
 	}
 
 	size_t

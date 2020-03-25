@@ -232,15 +232,10 @@ AsyncIoBase::sleepIoThread()
 }
 
 void
-AsyncIoBase::suspendIoThread(bool isSuspended)
+AsyncIoBase::unsuspendIoThread()
 {
 	m_lock.lock();
-
-	if (isSuspended)
-		m_ioThreadFlags |= IoThreadFlag_Suspended;
-	else
-		m_ioThreadFlags &= ~IoThreadFlag_Suspended;
-
+	m_ioThreadFlags &= ~IoThreadFlag_Suspended;
 	wakeIoThread();
 	m_lock.unlock();
 }

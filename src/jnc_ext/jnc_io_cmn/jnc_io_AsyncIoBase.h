@@ -109,7 +109,7 @@ protected:
 	sleepIoThread();
 
 	void
-	suspendIoThread(bool isSuspended);
+	unsuspendIoThread();
 
 	template <typename T>
 	void
