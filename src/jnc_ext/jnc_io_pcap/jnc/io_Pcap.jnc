@@ -200,7 +200,7 @@ opaque class Pcap
 {
 	enum Defaults
 	{
-		SnapshotSize = 16 * 1024,
+		SnapshotSize = 64 * 1024,
 		Promiscious  = false,
 		ReadTimeout  = 200,
 	}

@@ -48,7 +48,7 @@ class Pcap:
 protected:
 	enum Def
 	{
-		Def_ReadBufferSize  = 16 * 1024,
+		Def_ReadBufferSize = 64 * 1024,
 	};
 
 	class IoThread: public sys::ThreadImpl<IoThread>
