@@ -3,13 +3,13 @@
 // Mailslot Monitor
 //
 
-import "io_Monitor.jnc"
+import "iox_Monitor.jnc"
 import "io_FileIdMgr.jnc"
 import "std_String.jnc"
 
 //..............................................................................
 
-class MailslotMonitor: io.Monitor
+class MailslotMonitor: iox.Monitor
 {
 protected:
 	MailslotMonSession* m_session;
@@ -171,7 +171,7 @@ MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 
 MailslotMonitor.processError(std.Error const* error)
 {
-	m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+	m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();
 }
 

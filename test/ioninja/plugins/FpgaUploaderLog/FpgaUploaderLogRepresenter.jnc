@@ -36,7 +36,7 @@ bool representFpgaUploaderLog(
 		break;
 
 	case FpgaUploaderLogRecordCode.FirmwareUpdateRequired:
-		uint_t version = ((io.RpdVersion const*)p)->m_firmwareVersion;
+		uint_t version = ((io.RpdVersion const*)p).m_firmwareVersion;
 		char const* fileName = (char const*)((io.RpdVersion const*)p + 1);
 
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;

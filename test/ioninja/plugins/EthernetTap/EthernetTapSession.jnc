@@ -5,8 +5,8 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
-import "io_FpgaUploader.jnc"
 import "io_LogToPcap.jnc"
+import "iox_FpgaUploader.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "ui_History.jnc"
@@ -93,7 +93,7 @@ protected:
 	io.UsbInterface* m_iface;
 	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
 	io.UsbEndpoint* m_inEndpoint;
-	io.FpgaUploader m_uploader;
+	iox.FpgaUploader m_uploader;
 	std.Buffer m_readBuffer;
 	std.Buffer m_packetBuffer;
 	uint16_t m_packetOffset;
@@ -326,15 +326,10 @@ size_t exportLogRecordToPcap(
 	{
 	case EthernetTapLogRecordCode.Packet_ch1:
 	case EthernetTapLogRecordCode.Packet_ch2:
-		printf("record.m_code: %llx\n", record.m_code);
-
 		uint32_t const* idx = (uint32_t const*)(record + 1);
 		PacketHdr const* hdr = (PacketHdr const*)(idx + 1);
 		p = hdr + 1;
 		size = hdr.m_size;
-
-		printf("idx: %d\n", *idx);
-		printf("size: %d\n", size);
 		break;
 
 	default:

@@ -18,16 +18,20 @@ opaque class ComboBox
 	bool autoget property m_isEnabled;
 	bool autoget property m_isEditable; // for editable combo boxes: if itemData is non-null, it's used as the actual value
 
-	property m_editText
-	{
-		char const* autoget m_value;
-		set(char const* value);
-		bindable alias m_onPropChanged = m_onChanged;
-	}
-
+	char const* bindable autoget property m_editText;
 	char const* autoget property m_placeholderText;
 	char const* autoget property m_toolTipText;
 	uint_t autoget property m_backgroundColor;
+
+	size_t readonly m_itemCount;
+	char const* property m_itemText(size_t index);
+	variant property m_itemData(size_t index);
+
+	size_t bindable autoget property m_currentIndex;
+	char const* bindable const property m_currentText;
+	variant bindable property m_currentData;
+
+	event m_onEnter();
 
 	destruct();
 
@@ -41,11 +45,28 @@ opaque class ComboBox
 		return insertItem(-1, text, data);
 	}
 
+	size_t addItemSetCurrent(
+		char const* text,
+		variant data = null
+		)
+	{
+		return insertItemSetCurrent(-1, text, data);
+	}
+
 	size_t insertItem(
 		size_t index,
 		char const* text,
 		variant data = null
 		);
+
+	size_t insertItemSetCurrent(
+		size_t index,
+		char const* text,
+		variant data = null
+		)
+	{
+		return m_currentIndex = insertItem(index, text, data);
+	}
 
 	bool removeItem(size_t index);
 
@@ -55,29 +76,6 @@ opaque class ComboBox
 		);
 
 	void clear();
-
-	char const* property m_itemText(size_t index);
-	variant property m_itemData(size_t index);
-
-	size_t m_itemCount;
-
-	size_t bindable autoget property m_currentIndex;
-
-	property m_currentText
-	{
-		char const* get();
-		bindable alias m_onPropChanged = m_onChanged;
-	}
-
-	property m_currentData
-	{
-		variant get();
-		set(variant value);
-		bindable alias m_onPropChanged = m_onChanged;
-	}
-
-	event m_onChanged();
-	event m_onEnter();
 }
 
 //..............................................................................

@@ -223,9 +223,9 @@ SerialMonProcessor_win.processIoctlNotification(
 
 		wdk.SERIAL_LINE_CONTROL const* p = (wdk.SERIAL_LINE_CONTROL const*) inData;
 
-		uint_t dataBits = p->WordLength;
-		uint_t stopBits = p->StopBits;
-		uint_t parity = p->Parity;
+		uint_t dataBits = p.WordLength;
+		uint_t stopBits = p.StopBits;
+		uint_t parity = p.Parity;
 
 		m_logWriter.write(
 			timestamp,
@@ -257,9 +257,9 @@ SerialMonProcessor_win.processIoctlNotification(
 		wdk.SERIAL_HANDFLOW const* p = (wdk.SERIAL_HANDFLOW const*) inData;
 
 		io.SerialFlowControl flowControl =
-			(p->ControlHandShake & wdk.SERIAL_CTS_HANDSHAKE) && (p->FlowReplace & wdk.SERIAL_RTS_HANDSHAKE) ?
+			(p.ControlHandShake & wdk.SERIAL_CTS_HANDSHAKE) && (p.FlowReplace & wdk.SERIAL_RTS_HANDSHAKE) ?
 				io.SerialFlowControl.RtsCts :
-			(p->ControlHandShake & wdk.SERIAL_AUTO_RECEIVE) && (p->ControlHandShake & wdk.SERIAL_AUTO_TRANSMIT) ?
+			(p.ControlHandShake & wdk.SERIAL_AUTO_RECEIVE) && (p.ControlHandShake & wdk.SERIAL_AUTO_TRANSMIT) ?
 				flowControl = io.SerialFlowControl.XonXoff :
 				flowControl = io.SerialFlowControl.None;
 

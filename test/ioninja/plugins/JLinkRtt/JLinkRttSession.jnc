@@ -285,7 +285,7 @@ JLinkRttSession.createUi()
 		"Specify the path to J-Link library"
 		);
 
-	m_jlinkLibPathProp.m_fileDialogCaption = "Locate J-Link Library";
+	m_jlinkLibPathProp.m_fileDialogTitle = "Locate J-Link Library";
 
 	switch (sys.g_systemInfo.m_osKind)
 	{
@@ -394,6 +394,7 @@ JLinkRttSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -567,12 +568,7 @@ bool errorcode JLinkRttSession.connectJlink()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-	m_logWriter.write(
-		JLinkRttLogRecordCode.ConnectError,
-		error,
-		error.m_size
-		);
+	m_logWriter.writeLastError(JLinkRttLogRecordCode.ConnectError);
 
 	if (m_jlinkLib.m_isOpen && m_jlinkLib.lib.JLINK_IsOpen())
 		m_jlinkLib.lib.JLINK_Close();
@@ -693,7 +689,7 @@ JLinkRttSession.handleSocketError(std.Error const* error)
 		SocketLogRecordCode.ConnectError :
 		log.StdRecordCode.Error;
 
-	m_logWriter.write(recordCode, error, error.m_size);
+	m_logWriter.write(recordCode, error);
 	m_socket.close();
 	startSocketReconnectTimer();
 }

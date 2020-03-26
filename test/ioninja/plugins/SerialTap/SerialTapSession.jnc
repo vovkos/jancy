@@ -404,6 +404,7 @@ SerialTapSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	enumerateDevices();
@@ -538,14 +539,7 @@ bool errorcode SerialTapSession.capture()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-
-	m_logWriter.write(
-		SerialLogRecordCode.PortOpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(SerialLogRecordCode.PortOpenError);
 	m_dteIface.release();
 	m_dceIface.release();
 
@@ -608,7 +602,7 @@ SerialTapSession.onBulkEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, iface.m_bulkEndpoint.m_ioError, iface.m_bulkEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, iface.m_bulkEndpoint.m_ioError);
 		stopCapture();
 		return;
 	}
@@ -641,7 +635,7 @@ SerialTapSession.onInterruptEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, iface.m_interruptEndpoint.m_ioError, iface.m_interruptEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, iface.m_interruptEndpoint.m_ioError);
 		stopCapture();
 		return;
 	}

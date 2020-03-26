@@ -21,3 +21,5 @@ session-class = UdpFlowMonSession
 [scripts]
 
 UdpFlowMonSession.jnc
+UdpFlowMonLogFilter.jnc
+UdpDecoder.jnc

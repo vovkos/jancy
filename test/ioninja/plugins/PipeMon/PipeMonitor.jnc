@@ -3,7 +3,7 @@
 // Pipe Monitor
 //
 
-import "io_Monitor.jnc"
+import "iox_Monitor.jnc"
 import "io_FileIdMgr.jnc"
 import "std_String.jnc"
 
@@ -32,7 +32,7 @@ enum
 
 } // namespace wdk
 
-class PipeMonitor: io.Monitor
+class PipeMonitor: iox.Monitor
 {
 protected:
 	PipeMonSession* m_session;
@@ -291,7 +291,7 @@ PipeMonitor.processFsctlNotification(
 
 PipeMonitor.processError(std.Error const* error)
 {
-	m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+	m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();
 }
 

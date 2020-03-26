@@ -3,6 +3,8 @@
 // Pcap log representer
 //
 
+import "io_base.jncx"
+import "io_SocketAddress.jnc"
 import "log_Representation.jnc"
 import "PcapLogRecordCode.jnc"
 
@@ -19,7 +21,7 @@ bool representPcapLog(
 	switch (recordCode)
 	{
 	case PcapLogRecordCode.StartingCapture:
-		char const* filter = (char const*) p;
+		char const* filter = p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 
@@ -71,6 +73,30 @@ bool representPcapLog(
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addPlainText(PcapLogPartCode.CaptureFilterCompleted, $"error: $(error.m_description)");
 		break;
+
+	case PcapLogRecordCode.SetCaptureFilter:
+		char const* filter = (char const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(
+			size & *filter ?
+				$"Set capture filter \e[34m$filter" :
+				"Cleared capture filter"
+			);
+		break;
+
+	case PcapLogRecordCode.SetAddressFilter:
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(
+			address.m_family ?
+				$"Set capture address filter \e[34m$(address.getString())" :
+				"Cleared capture address filter"
+			);
+
+		break;
+
 
 	default:
 		return false;

@@ -1,0 +1,19 @@
+//..............................................................................
+//
+// SSH log record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum SslLogRecordCode: uint64_t
+{
+	SslHandshaking         = 0x01d5cdeded08f700,
+	SslHandshakeCompleted  = 0x01d5cdeded08f701,
+	SslCertificate         = 0x81d5cdeded08f702,
+	SslCipher              = 0x01d5cdeded08f703,
+	SslConnectionCompleted = 0x01d5cdeded08f704,
+}
+
+//..............................................................................

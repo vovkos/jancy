@@ -1,0 +1,153 @@
+//..............................................................................
+//
+// SSH log representer
+//
+
+import "io_ssl.jncx"
+import "log_Representation.jnc"
+import "SslLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+
+//..............................................................................
+
+void representSslCertName(
+	log.Representation* representation,
+	io.SslCertName const* name
+	)
+{
+	size_t count = name.m_entryCount;
+	for (int i = 0; i < count; i++)
+	{
+		io.SslCertNameEntry const* entry = name.m_entryTable[i];
+		representation.addHyperText(
+			$"        %1:\t\e[34m%2"(
+			entry.m_name,
+			entry.m_value
+			));
+	}
+}
+
+void representSslCertificate(
+	log.Representation* representation,
+	io.SslCertificate const* cert,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+
+	if (!(foldFlags & 1))
+	{
+		io.SslCertName const* subject = cert.m_subject;
+		io.SslCertNameEntry const* commonName = subject.findEntry(io.SslNid.CommonName);
+		io.SslCertNameEntry const* organizationName = subject.findEntry(io.SslNid.OrganizationName);
+
+		if (organizationName && commonName)
+			representation.addHyperText($"[\e^+1\e[34m+\e[m] SSL certificate: \e[34m%1\e[m - \e[34m%2"(
+			commonName.m_value,
+			organizationName.m_value
+			));
+		else
+		{
+			io.SslCertNameEntry const* name = organizationName ? organizationName : commonName;
+
+			if (name)
+				representation.addHyperText($"[\e^+1\e[34m+\e[m] SSL certificate: \e[34m$(name.m_value)");
+			else
+				representation.addHyperText("[\e^+1\e[34m+\e[m] SSL certificate");
+		}
+
+		return;
+	}
+
+	representation.addHyperText("[\e^-1\e[34m-\e[m] SSL certificate");
+	representation.addHyperText("    Subject:\t");
+	representSslCertName(representation, cert.m_subject);
+
+	representation.addHyperText("    Issued by:\t");
+	representSslCertName(representation, cert.m_issuer);
+
+	representation.addHyperText(
+		$"    Valid from:\t\e[34m%1\n"
+		$"    Valid to:\t\e[34m%2"(
+		sys.formatTimestamp(cert.m_validFromDate, "%Y-%M-%D"),
+		sys.formatTimestamp(cert.m_validToDate, "%Y-%M-%D")
+		));
+
+	if (!(foldFlags & 2))
+	{
+		representation.addHyperText($"[\e^+2\e[34m+\e[m] PEM");
+	}
+	else
+	{
+		representation.addHyperText($"[\e^-2\e[34m-\e[m] PEM");
+		representation.m_lineAttr.m_backColor = ui.ColorFlags.Transparent;
+
+		std.Buffer buffer;
+		cert.encode(buffer, io.SslCertFormat.Pem);
+		representation.addBin(buffer.m_p, buffer.m_size);
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool representSslLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case SslLogRecordCode.SslHandshaking:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSL handshake...");
+		break;
+
+	case SslLogRecordCode.SslHandshakeCompleted:
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		break;
+
+	case SslLogRecordCode.SslCertificate:
+		io.SslCertificate cert;
+		bool result = try cert.decode(p, size, io.SslCertFormat.Der);
+		if (result)
+		{
+			representSslCertificate(representation, cert, foldFlags);
+		}
+		else
+		{
+			representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+			representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+			representation.addHyperText("Broken SSL certificate:");
+			representation.addBin(p, size);
+		}
+
+		break;
+
+	case SslLogRecordCode.SslCipher:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.addHyperText($"SSL cipher: \e[34m$((char const*)p)");
+		break;
+
+	case SslLogRecordCode.SslConnectionCompleted:
+		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText("SSL connection established");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

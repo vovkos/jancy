@@ -1,0 +1,626 @@
+//..............................................................................
+//
+// Process session
+//
+
+import "doc_Session.jnc"
+import "io_base.jncx"
+import "io_ChildProcess.jnc"
+import "ui_History.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class ProcessSession: doc.Session
+{
+protected:
+	enum Defaults
+	{
+		Pty                = true,
+		SeparateStderr     = true,
+		CleanEnvironment   = false,
+		IoErrorWaitTimeout = 1000,
+	}
+
+	enum State
+	{
+		Idle,
+		Running,
+		Terminating,
+	}
+
+	enum Access
+	{
+		ReadWrite,
+		ReadOnly,
+		WriteOnly,
+	}
+
+	enum ActionId
+	{
+		Start,
+		Detach,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Start,
+		Detach,
+		Terminate,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+	static char const* m_stateName[] =
+	{
+		"Idle",
+		"Running",
+		"Terminating...",
+	}
+
+protected:
+	// file
+
+	State bindable m_state;
+	io.ChildProcess m_process;
+	std.Buffer m_readBuffer;
+	uint_t m_syncId;
+	uint_t m_stderrSyncId;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_commandLineCombo;
+
+	// property grid
+
+	ui.StringProperty* m_commandLineProp;
+	ui.BoolProperty* m_ptyProp;
+	ui.BoolProperty* m_separateStderrProp;
+	ui.BoolProperty* m_cleanEnvironmentProp;
+	ui.DictionaryProperty* m_environmentProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode start();
+	close();
+	detach();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+	override size_t errorcode transmit(
+		void const* p,
+		size_t size
+		);
+
+protected:
+	onStart()
+	{
+		m_state ? close() : try start();
+	}
+
+	onProcessNameComboEnter()
+	{
+		try start();
+	}
+
+	onChildProcessEvent(
+		uint_t syncId,
+		io.ChildProcessEvents triggeredEvents
+		);
+
+	onStderrEvent(
+		uint_t syncId,
+		io.FileStreamEvents triggeredEvents
+		);
+
+	onLogRecord(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	onConsoleSizeChanged();
+
+	io.ChildProcessOptions getChildProcessOptions();
+	waitChildProcessEvents();
+	waitStderrEvents();
+	readAllBufferedData();
+	createUi();
+	closeImpl();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+ProcessSession.construct(doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	createUi();
+
+	pluginHost.m_terminal.m_onConsoleSizeChanged += onConsoleSizeChanged;
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	pluginHost.m_log.addListener(onLogRecord);
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
+}
+
+ProcessSession.createUi()
+{
+	static ui.EnumPropertyOption accessModeTable[] =
+	{
+		{ "Read/Write",  Access.ReadWrite },
+		{ "Read-only",   Access.ReadOnly  },
+		{ "Write-only",  Access.WriteOnly },
+	}
+
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel("Command:");
+	m_commandLineCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_commandLineCombo.m_isEditable = true;
+	m_commandLineCombo.m_onEnter += onProcessNameComboEnter;
+	m_commandLineCombo.m_placeholderText = "Enter a command line...";
+
+	m_iconTable[IconId.Start] = new ui.Icon("images/start.png");
+	m_iconTable[IconId.Detach] = new ui.Icon("images/detach.png");
+	m_iconTable[IconId.Terminate] = new ui.Icon("images/terminate.png");
+
+	m_actionTable[ActionId.Start] = createAction("Open", m_iconTable[IconId.Start]);
+	m_actionTable[ActionId.Start].m_onTriggered += onStart;
+
+	m_actionTable[ActionId.Detach] = createAction("Detach", m_iconTable[IconId.Detach]);
+	m_actionTable[ActionId.Detach].m_onTriggered += detach;
+	m_actionTable[ActionId.Detach].m_isEnabled = false;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Connection",
+		"Process stream-specific connection settings"
+		);
+
+	m_commandLineProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"Command",
+		"Enter a command line...",
+		"Specify a command line to create a new process"
+		);
+
+	if (sys.g_systemInfo.m_osKind != sys.OsKind.Windows)
+		m_ptyProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+			group,,
+			"Create PTY",
+			"Create a pseudoterminal for the process"
+			);
+
+	m_separateStderrProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Separate STDERR",
+		"Read and display STDOUT & STDERR separately"
+		);
+
+	m_cleanEnvironmentProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Clean environment",
+		"Start with a clean environment (don't inherit parent environment variables)"
+		);
+
+	m_environmentProp = m_pluginHost.m_propertyGrid.createDictionaryProperty(
+		group,,
+		"Environment variables",
+		"Custom environment variable values for the process"
+		);
+
+	m_environmentProp.m_editDialogTitle = "Edit Environment Variables";
+	m_environmentProp.m_keyLabel = "Variable";
+	m_environmentProp.m_newKey = "NEW_VARIABLE";
+	m_environmentProp.m_newValue = "NEW_VARIABLE_VALUE";
+
+	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("Process session");
+
+	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_uiReactor.start();
+}
+
+bool errorcode ProcessSession.start()
+{
+	close();
+	startSession();
+
+	m_commandLineCombo.addEditTextToHistory();
+
+	char const* commandLine = m_commandLineCombo.m_editText;
+
+	m_process.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_process.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_process.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_process.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	m_process.m_options = getChildProcessOptions();
+
+	io.ChildProcessStartFlags flags =
+		m_ptyProp && m_ptyProp.m_value ? io.ChildProcessStartFlags.Pty :
+		m_separateStderrProp.m_value ? io.ChildProcessStartFlags.SeparateStderr :
+		0;
+
+	if (m_cleanEnvironmentProp.m_value)
+		flags |= io.ChildProcessStartFlags.CleanEnvironment;
+
+	m_process.start(commandLine, m_environmentProp.m_value, flags);
+
+	uint_t pid = m_process.m_pid;
+
+	m_logWriter.write(
+		ProcessLogRecordCode.ProcessStarted,
+		&pid,
+		sizeof(pid),
+		commandLine,
+		strlen(commandLine) + 1
+		);
+
+	m_state = State.Running;
+
+	waitChildProcessEvents();
+
+	if (flags & io.ChildProcessStartFlags.SeparateStderr)
+		waitStderrEvents();
+
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	return true;
+
+catch:
+	m_logWriter.writeLastError(ProcessLogRecordCode.ProcessStartError);
+	m_process.close();
+	return false;
+}
+
+ProcessSession.close()
+{
+	if (m_state != State.Running)
+		return;
+
+	try m_process.terminate();
+	m_logWriter.write(ProcessLogRecordCode.ProcessTerminating);
+	m_state = State.Terminating;
+}
+
+ProcessSession.detach()
+{
+	if (m_state != State.Running)
+		return;
+
+	m_logWriter.write(ProcessLogRecordCode.Detached);
+	closeImpl();
+}
+
+ProcessSession.closeImpl()
+{
+	m_process.close();
+	m_state = State.Idle;
+	m_syncId++;
+	m_stderrSyncId++;
+	m_stdSessionInfoSet.endSession();
+}
+
+io.ChildProcessOptions ProcessSession.getChildProcessOptions()
+{
+	io.ChildProcessOptions options;
+
+	if (m_bufferPropertySet.m_keepReadBlockSizeProp.m_value)
+		options |= io.ChildProcessOptions.KeepReadBlockSize;
+
+	if (m_bufferPropertySet.m_keepWriteBlockSizeProp.m_value)
+		options |= io.ChildProcessOptions.KeepWriteBlockSize;
+
+	return options;
+}
+
+ProcessSession.waitChildProcessEvents()
+{
+	io.ChildProcessEvents eventMask =
+		io.ChildProcessEvents.IoError |
+		io.ChildProcessEvents.ReadBufferFull |
+		io.ChildProcessEvents.IncomingData |
+		io.ChildProcessEvents.ProcessFinished |
+		io.ChildProcessEvents.ProcessCrashed;
+
+	if (!m_isTransmitEnabled)
+		eventMask |= io.ChildProcessEvents.WriteBufferReady;
+
+	m_process.wait(eventMask, onChildProcessEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+ProcessSession.waitStderrEvents()
+{
+	io.FileStreamEvents eventMask =
+		io.FileStreamEvents.IoError |
+		io.FileStreamEvents.ReadBufferFull |
+		io.FileStreamEvents.IncomingData;
+
+	m_process.m_stderr.wait(eventMask, onStderrEvent~(++m_stderrSyncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+ProcessSession.readAllBufferedData()
+{
+	for (;;)
+	{
+		size_t result = m_process.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (!result)
+			break;
+
+		m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+	}
+}
+
+void ProcessSession.load(doc.Storage* storage)
+{
+	m_commandLineCombo.loadHistory(storage, "commandLineHistory");
+	m_commandLineCombo.m_editText = storage.readString("commandLine");
+	m_separateStderrProp.m_value = storage.readBool("separateStderr", Defaults.SeparateStderr);
+	m_cleanEnvironmentProp.m_value = storage.readBool("cleanEnvironment", Defaults.CleanEnvironment);
+
+	if (m_ptyProp)
+		m_ptyProp.m_value = storage.readBool("pty", Defaults.Pty);
+
+	std.HashTable environment;
+
+	size_t i = 0;
+	for (;; i++)
+	{
+		char const* s = storage.readString($"env-$i");
+		char const* p = strchr(s, '=');
+		if (!p)
+			break;
+
+		char const* key = strdup(s, p - s);
+		char const* value = strdup(p + 1);
+		environment[key] = value;
+	}
+
+	m_environmentProp.m_value = environment;
+
+	m_bufferPropertySet.load(storage);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+}
+
+void ProcessSession.save(doc.Storage* storage)
+{
+	m_bufferPropertySet.save(storage);
+
+	m_commandLineCombo.saveHistory(storage, "commandLineHistory");
+	storage.writeString("commandLine", m_commandLineCombo.m_editText);
+	storage.writeBool("separateStderr", m_separateStderrProp.m_value);
+	storage.writeBool("cleanEnvironment", m_cleanEnvironmentProp.m_value);
+
+	size_t i = 0;
+	std.MapEntry const* entry = m_environmentProp.m_value.m_head;
+	for (; entry; entry = entry.m_next, i++)
+		storage.writeString($"env-$i", $"$(entry.m_key)=$(entry.m_value)");
+
+	storage.writeString($"env-$i", null);
+
+	if (m_ptyProp)
+		storage.writeBool("pty", m_ptyProp.m_value);
+}
+
+void ProcessSession.updateProperties()
+{
+	m_commandLineProp.m_value = m_commandLineCombo.m_editText;
+}
+
+bool errorcode ProcessSession.applyProperties()
+{
+	m_commandLineCombo.m_editText = m_commandLineProp.m_value;
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	if (!m_process.m_isOpen)
+		return true;
+
+	m_process.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+	m_process.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+	m_process.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_process.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+	m_process.m_options = getChildProcessOptions();
+	return true;
+}
+
+void ProcessSession.restoreDefaultProperties()
+{
+	m_bufferPropertySet.restoreDefaults();
+	m_separateStderrProp.m_value = Defaults.SeparateStderr;
+	m_cleanEnvironmentProp.m_value = Defaults.CleanEnvironment;
+
+	if (m_ptyProp)
+		m_ptyProp.m_value = Defaults.Pty;
+}
+
+size_t errorcode ProcessSession.transmit(
+	void const* p,
+	size_t size
+	)
+{
+	if (m_state != State.Running)
+		return -1;
+
+	size_t result = m_process.write(p, size);
+	if (result)
+		m_logWriter.write(log.StdRecordCode.Tx, p, result);
+
+	return result;
+}
+
+ProcessSession.onConsoleSizeChanged()
+{
+	io.PtySize size;
+	size.m_colCount = m_pluginHost.m_terminal.m_consoleWidth;
+	size.m_rowCount = m_pluginHost.m_terminal.m_consoleHeight;
+	m_process.m_ptySize = size;
+}
+
+ProcessSession.onChildProcessEvent(
+	uint_t syncId,
+	io.ChildProcessEvents triggeredEvents
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if ((triggeredEvents & io.ChildProcessEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.ChildProcessEvents.IncomingData)
+	{
+		size_t result = m_process.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
+	}
+
+	if (triggeredEvents & io.ChildProcessEvents.IoError) // PTYs fire IoError rather than Eof
+	{
+		readAllBufferedData();
+		m_logWriter.write(log.StdRecordCode.Error, m_process.m_ioError);
+
+		io.ChildProcessEvents processFinishedEvents = m_process.blockingWait(
+			io.ChildProcessEvents.ProcessFinished | io.ChildProcessEvents.ProcessCrashed,
+			Defaults.IoErrorWaitTimeout
+			);
+
+		if (!processFinishedEvents)
+		{
+			closeImpl();
+			return;
+		}
+
+		triggeredEvents |= processFinishedEvents;
+	}
+
+	if (triggeredEvents & io.ChildProcessEvents.ProcessFinished)
+	{
+		readAllBufferedData();
+
+		if (triggeredEvents & io.ChildProcessEvents.ProcessCrashed)
+		{
+			std.Error error;
+			error.m_size = sizeof(std.Error);
+			error.m_guid = sys.g_systemInfo.m_osKind == sys.OsKind.Windows ? std.g_ntStatusGuid : std.g_errnoGuid;
+			error.m_code = m_process.m_exitCode;
+			m_logWriter.write(ProcessLogRecordCode.ProcessCrashed, &error, sizeof(error));
+		}
+		else
+		{
+			int exitCode = m_process.m_exitCode;
+			m_logWriter.write(ProcessLogRecordCode.ProcessFinished, &exitCode, sizeof(exitCode));
+		}
+
+		closeImpl();
+		return;
+	}
+
+	if (io.ChildProcessEvents.WriteBufferReady)
+		m_isTransmitEnabled = true;
+
+	waitChildProcessEvents();
+}
+
+ProcessSession.onStderrEvent(
+	uint_t syncId,
+	io.FileStreamEvents triggeredEvents
+	)
+{
+	if (syncId != m_stderrSyncId)
+		return;
+
+	if (triggeredEvents & io.FileStreamEvents.IoError)
+	{
+		m_logWriter.write(log.StdRecordCode.Error, m_process.m_ioError);
+		closeImpl();
+		return;
+	}
+
+	if ((triggeredEvents & io.FileStreamEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.FileStreamEvents.IncomingData)
+	{
+		size_t result = m_process.m_stderr.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		if (result)
+			m_logWriter.write(ProcessLogRecordCode.Stderr, m_readBuffer.m_p, result);
+	}
+
+	waitStderrEvents();
+}
+
+ProcessSession.onLogRecord(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	if (recordCode == ProcessLogRecordCode.Stderr)
+	{
+		m_stdSessionInfoSet.addRxData(size);
+		m_pluginHost.m_terminal.write(p, size);
+	}
+}
+
+reactor ProcessSession.m_uiReactor
+{
+	m_title = $"Process $(m_commandLineCombo.m_editText)";
+	m_isTransmitEnabled = m_state;
+	m_actionTable[ActionId.Start].m_text = m_state ? "Terminate" : "Start";
+	m_actionTable[ActionId.Start].m_icon = m_iconTable[m_state ? IconId.Terminate : IconId.Start];
+	m_actionTable[ActionId.Start].m_isEnabled = m_state != State.Terminating;
+	m_actionTable[ActionId.Detach].m_isEnabled = m_state;
+	m_statusPaneTable[StatusPaneId.State].m_text = m_stateName[m_state];
+	m_separateStderrProp.m_isEnabled = !m_ptyProp || !m_ptyProp.m_value;
+}
+
+//..............................................................................

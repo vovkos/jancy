@@ -15,7 +15,7 @@ import "std_Buffer.jnc"
 import "parseVersion.jnc"
 import "FpgaUploaderLog/FpgaUploaderLogRecordCode.jnc"
 
-namespace io {
+namespace iox {
 
 //! \addtogroup common-io
 //! @{
@@ -73,7 +73,7 @@ protected:
 	jnc.Scheduler* m_mainThreadScheduler;
 	io.UsbDevice* m_device;
 	io.MappedFile m_file;
-	RpdVersion m_fileVersion;
+	io.RpdVersion m_fileVersion;
 	ui.ProgressDlg m_progressDlg;
 	sys.Timer m_timer;
 	std.Buffer m_block;
@@ -98,7 +98,7 @@ public:
 		);
 
 protected:
-	RpdVersion getVersion();
+	io.RpdVersion getVersion();
 	Status getStatus();
 	erase(bool isCheckRequired);
 	sendFirstBlock(bool isCheckRequired);
@@ -147,12 +147,12 @@ bool errorcode FpgaUploader.update(
 
 	m_device = device;
 	m_file.open(fileName, io.FileOpenFlags.ReadOnly);
-	RpdHdr const* hdr = (RpdHdr const*)m_file.view(0, sizeof(RpdHdr), false);
+	io.RpdHdr const* hdr = (io.RpdHdr const*)m_file.view(0, sizeof(io.RpdHdr), false);
 	m_fileVersion = hdr.m_version;
 	m_baseIndex = baseIndex;
 
 	Status status = getStatus();
-	RpdVersion version = getVersion();
+	io.RpdVersion version = getVersion();
 
 	bool isUpToDate =
 		status == 0 &&
@@ -188,9 +188,9 @@ catch:
 	return false;
 }
 
-RpdVersion FpgaUploader.getVersion()
+io.RpdVersion FpgaUploader.getVersion()
 {
-	RpdVersion version;
+	io.RpdVersion version;
 
 	m_device.controlTransfer(
 		UsbControlReqType.VendorIn,
@@ -274,7 +274,7 @@ FpgaUploader.sendFirstBlock(bool isCheckRequired)
 	m_state = State.Writing;
 
 	m_fileSize = m_file.m_size;
-	m_fileOffset = sizeof(RpdHdr);
+	m_fileOffset = sizeof(io.RpdHdr);
 
 	sendNextBlock(false);
 }
@@ -301,7 +301,7 @@ FpgaUploader.sendNextBlock(bool isCheckRequired)
 	m_block.setSize(size);
 	memcpy(m_block.m_p, p, size);
 
-	size_t atomIdx = (m_fileOffset - sizeof(RpdHdr)) / AtomSize;
+	size_t atomIdx = (m_fileOffset - sizeof(io.RpdHdr)) / AtomSize;
 
 	m_device.controlTransfer(
 		UsbControlReqType.VendorOut,
@@ -319,15 +319,7 @@ FpgaUploader.sendNextBlock(bool isCheckRequired)
 
 FpgaUploader.finalizeLoad()
 {
-	RpdVersion version = getVersion();
-
-	printf(
-		"finalizeLoad: (%d, %d) vs (%d, %d)\n",
-		version.m_firmwareType,
-		version.m_firmwareVersion,
-		m_fileVersion.m_firmwareType,
-		m_fileVersion.m_firmwareVersion
-		);
+	io.RpdVersion version = getVersion();
 
 	if (version.m_firmwareType == m_fileVersion.m_firmwareType &&
 		version.m_firmwareVersion == m_fileVersion.m_firmwareVersion)
@@ -452,4 +444,4 @@ catch:
 
 //! @}
 
-} // namespace io
+} // namespace iox

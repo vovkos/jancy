@@ -7,7 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum I2cSpiSnifferLogRecordCode: uint64_t
+enum I2cSpiTapLogRecordCode: uint64_t
 {
 	DeviceOpened              = 0x01d487bb6423b7fd,
 	InterfaceClaimed          = 0x01d487bb6423b7fe,
@@ -33,10 +33,10 @@ enum I2cSpiSnifferLogRecordCode: uint64_t
 	SpiStop                   = 0x01d487bb6423b817,
 }
 
-enum I2cSpiSnifferLogPartCode: uint64_t
+enum I2cSpiTapLogPartCode: uint64_t
 {
-	I2cStartBegin = I2cSpiSnifferLogRecordCode.I2cStart | log.PartCodeFlags.MergeableForward,
-	I2cStartEnd   = I2cSpiSnifferLogRecordCode.I2cStart | log.PartCodeFlags.MergeableBackward,
+	I2cStartBegin = I2cSpiTapLogRecordCode.I2cStart | log.PartCodeFlags.MergeableForward,
+	I2cStartEnd   = I2cSpiTapLogRecordCode.I2cStart | log.PartCodeFlags.MergeableBackward,
 }
 
 //..............................................................................

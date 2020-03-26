@@ -26,9 +26,10 @@ class PcapSnifferSession: doc.Session
 protected:
 	enum Defaults
 	{
-		Promiscious  = false,
-		SnapshotSize = 8 * 1024,
-		ReadTimeout  = 200,
+		Promiscious      = false,
+		SnapshotSize     = 64 * 1024,
+		KernelBufferSise = 0,
+		BufferSize       = 1 * 1024 * 1024,
 	}
 
 	enum State
@@ -64,11 +65,11 @@ protected:
 
 	State bindable m_state;
 	io.Pcap m_pcap;
+	char const* m_captureFilterString;
 	io.IpDefragmenter m_ipDefragmenter;
 	std.Buffer m_readBuffer;
-	uint_t m_syncId;
-
 	NetSnifferLogFilter m_filter;
+	uint_t m_syncId;
 
 	// toolbar, status bar & menu
 
@@ -88,6 +89,7 @@ protected:
 	ui.IntProperty* m_ipFragmentLimitProp;
 	ui.IntProperty* m_ipFragmentTimeoutProp;
 	ui.IntProperty* m_snapshotSizeProp;
+	ui.IntProperty* m_kernelBufferSizeProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -284,12 +286,22 @@ PcapSnifferSession.createUi()
 
 	m_snapshotSizeProp.m_spinBoxStep = 1024;
 
+	m_kernelBufferSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Kernel buffer size",
+		"Specify the Pcap kernel buffer size (0 = default)"
+		);
+
+	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
+
 	m_bufferPropertySet.createProperties(
 		m_pluginHost.m_propertyGrid,
 		group,,
 		ui.BufferPropertySet.PropertyId.ReadBufferSize |
 		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull
 		);
+
+	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.BufferSize;
 
 	// information grid
 
@@ -305,6 +317,7 @@ PcapSnifferSession.createUi()
 
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -415,28 +428,24 @@ bool errorcode PcapSnifferSession.capture(
 
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
+	m_pcap.openDevice(device.m_name);
+	m_pcap.m_isPromiscious = m_promisciousProp.m_value;
+	m_pcap.m_snapshotSize = m_snapshotSizeProp.m_value;
+	m_pcap.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
 	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_pcap.activate(filterString);
 
-	bool result = try m_pcap.openDevice(
-		device.m_name,
-		filterString,
-		m_snapshotSizeProp.m_value,
-		m_promisciousProp.m_value,
-		Defaults.ReadTimeout
-		);
-
-	if (!result)
-	{
-		m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
-		return false;
-	}
-
+	m_captureFilterString = filterString;
 	m_state = State.Capturing;
 	m_logWriter.write(PcapLogRecordCode.CaptureStarted);
 	waitPcapEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	applyViewFilter();
 	return true;
+
+catch:
+	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	return false;
 }
 
 bool errorcode PcapSnifferSession.openPcapFile(
@@ -446,24 +455,19 @@ bool errorcode PcapSnifferSession.openPcapFile(
 {
 	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
 
+	m_pcap.openFile(fileName, filterString);
 	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
-
-	bool result = try m_pcap.openFile(
-		fileName,
-		filterString
-		);
-
-	if (!result)
-	{
-		m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
-		return false;
-	}
-
+	m_captureFilterString = filterString;
 	m_state = State.Capturing;
+
 	m_logWriter.write(PcapLogRecordCode.CaptureStarted);
 	waitPcapEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
+
+catch:
+	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	return false;
 }
 
 PcapSnifferSession.stopCapture()
@@ -481,6 +485,9 @@ PcapSnifferSession.stopCapture()
 bool errorcode PcapSnifferSession.applyCaptureFilter()
 {
 	char const* filter = m_captureFilterProp.m_value;
+	if (strcmp(filter, m_captureFilterString) == 0)
+		return true;
+
 	m_logWriter.write(PcapLogRecordCode.ChangingCaptureFilter, filter);
 	bool result = try m_pcap.setFilter(filter);
 	if (!result)
@@ -490,6 +497,7 @@ bool errorcode PcapSnifferSession.applyCaptureFilter()
 	}
 
 	m_logWriter.write(PcapLogRecordCode.CaptureFilterChanged);
+	m_captureFilterString = filter;
 	return true;
 }
 
@@ -532,9 +540,10 @@ void PcapSnifferSession.load(doc.Storage* storage)
 	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
 	m_captureFilterProp.m_value = storage.readString("captureFilter");
 	m_promisciousProp.m_value = storage.readBool("promiscious", Defaults.Promiscious);
-	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.DefIpFragmentLimit);
-	m_ipFragmentTimeoutProp.m_value = storage.readInt("ipFragmentTimeout", io.IpDefragmenter.DefIpFragmentTimeout);
+	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.Defaults.FragmentLimit);
+	m_ipFragmentTimeoutProp.m_value = storage.readInt("ipFragmentTimeout", io.IpDefragmenter.Defaults.FragmentTimeout);
 	m_snapshotSizeProp.m_value = storage.readInt("snapshotSize", Defaults.SnapshotSize);
+	m_kernelBufferSizeProp.m_value = storage.readInt("kernelBufferSize", Defaults.KernelBufferSise);
 
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
@@ -551,6 +560,7 @@ void PcapSnifferSession.save(doc.Storage* storage)
 	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);
 	storage.writeInt("ipFragmentTimeout", m_ipFragmentTimeoutProp.m_value);
 	storage.writeInt("snapshotSize", m_snapshotSizeProp.m_value);
+	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
 }
 
 void PcapSnifferSession.updateProperties()
@@ -579,11 +589,11 @@ bool errorcode PcapSnifferSession.applyProperties()
 
 void PcapSnifferSession.restoreDefaultProperties()
 {
-	m_deviceProp.m_currentIndex = 0;
 	m_promisciousProp.m_value = Defaults.Promiscious;
+	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
+	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
 	m_snapshotSizeProp.m_value = Defaults.SnapshotSize;
-	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.DefIpFragmentLimit;
-	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.DefIpFragmentTimeout;
+	m_kernelBufferSizeProp.m_value = Defaults.KernelBufferSise;
 	m_bufferPropertySet.restoreDefaults();
 }
 
@@ -617,7 +627,7 @@ PcapSnifferSession.onPcapEvent(
 
 	if (triggeredEvents & io.PcapEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_pcap.m_ioError, m_pcap.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_pcap.m_ioError);
 		stopCapture();
 		return;
 	}
@@ -657,15 +667,35 @@ PcapSnifferSession.processPacket(
 
 	// defragment IPv4
 
-	if (size < sizeof(io.EthernetHdr) + sizeof(io.IpHdr))
-		return;
+	switch (linkType)
+	{
+	case io.PcapLinkType.Loopback:
+		if (size < sizeof(io.LoopbackHdr))
+			return;
 
-	io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*) p;
-	if (ethernetHdr.m_type != io.EthernetType.Ip)
-		return;
+		io.LoopbackHdr const* loopbackHdr = (io.LoopbackHdr const*)p;
+		if (loopbackHdr.m_protocolFamily != io.LoopbackProtocolFamily.Ip)
+			return;
 
-	p += sizeof(io.EthernetHdr);
-	size -= sizeof(io.EthernetHdr);
+		p += sizeof(io.LoopbackHdr);
+		size -= sizeof(io.LoopbackHdr);
+		break;
+
+	case io.PcapLinkType.Ethernet:
+		if (size < sizeof(io.EthernetHdr))
+			return;
+
+		io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*)p;
+		if (ethernetHdr.m_type != io.EthernetType.Ip)
+			return;
+
+		p += sizeof(io.EthernetHdr);
+		size -= sizeof(io.EthernetHdr);
+		break;
+	}
+
+	if (size < sizeof(io.IpHdr))
+		return;
 
 	io.IpHdr const* ipHdr = (io.IpHdr const*) p;
 	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset)

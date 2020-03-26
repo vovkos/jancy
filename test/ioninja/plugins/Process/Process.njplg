@@ -1,0 +1,19 @@
+#...............................................................................
+#
+#  Process session plugin
+#
+
+[plugin]
+
+name        = "Process"
+description = "Starts a process and communicates with it using STDIN/STDOUT streams"
+id          = process
+log-guid    = 680a931c-9f3d-46b4-9aad-600a453c61e7  # process
+icon        = images/process.png
+small-icon  = images/process-16x16.png
+
+session-class = ProcessSession
+
+[scripts]
+
+ProcessSession.jnc

@@ -630,7 +630,7 @@ UsbDataEndpointSession.onOutEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError, m_inEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
 		closeDevice();
 		return;
 	}
@@ -651,7 +651,7 @@ UsbDataEndpointSession.onInEndpointEvent(
 
 	if (triggeredEvents & io.UsbEndpointEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError, m_inEndpoint.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_inEndpoint.m_ioError);
 		closeDevice();
 		return;
 	}

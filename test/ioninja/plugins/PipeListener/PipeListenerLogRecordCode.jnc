@@ -9,12 +9,30 @@ import "log_RecordCode.jnc"
 
 enum PipeListenerLogRecordCode: uint64_t
 {
-	Listening          = 0x01d48560deefaf00,
-	ListenError        = 0x01d48560deefaf01,
-	ListenStopped      = 0x01d48560deefaf02,
-	ClientConnected    = 0x01d48560deefaf03,
-	ClientDisconnected = 0x01d48560deefaf04,
-	ClientRejected     = 0x01d48560deefaf05,
+	Listening            = 0x01d48560deefaf00,
+	ListenError          = 0x01d48560deefaf01,
+	ListenStopped        = 0x01d48560deefaf02,
+	ClientConnected_0    = 0x01d48560deefaf03,
+	ClientDisconnected_0 = 0x01d48560deefaf04,
+	ClientRejected       = 0x01d48560deefaf05,
+	ClientConnected      = 0x01d48560deefaf06,
+	ClientDisconnected   = 0x01d48560deefaf07,
+	ClientChanged        = 0x01d48560deefaf08,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum PipeDisconnectLogRecordFlags
+{
+	Remote
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PipeDisconnectLogRecordParams
+{
+	uint64_t m_id;
+	uint_t m_flags;
 }
 
 //..............................................................................

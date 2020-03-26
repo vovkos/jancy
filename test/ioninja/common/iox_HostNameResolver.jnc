@@ -1,0 +1,197 @@
+//..............................................................................
+//
+// Host name resolver (high-level interface, encapsulates logging and UI)
+//
+
+import "io_base.jncx"
+import "io_HostNameResolver.jnc"
+import "ui_StatusBar.jnc"
+
+namespace iox {
+
+//! \addtogroup common-io
+//! @{
+
+//..............................................................................
+
+class HostNameResolver
+{
+public:
+	enum State
+	{
+		Idle,
+		Error,
+		Resolving,
+		Resolved,
+	}
+
+protected:
+	doc.PluginHost* m_pluginHost;
+	io.HostNameResolver m_resolver;
+	char const* m_addressString;
+	uint_t m_syncId;
+
+	property m_logWriter
+	{
+		log.Writer* get()
+		{
+			return m_pluginHost.m_log.m_writer;
+		}
+	}
+
+public:
+	State bindable readonly m_state;
+	io.SocketAddress m_address;
+	uint_t m_defaultPort;
+	event m_onCompleted();
+
+public:
+	construct(doc.PluginHost* pluginHost)
+	{
+		m_pluginHost = pluginHost;
+	}
+
+	bool errorcode resolve(
+		char const* addressString,
+		io.AddressFamily addressFamily = io.AddressFamily.Undefined
+		);
+
+	void cancel();
+	void updateStatusPane(ui.StatusPane* pane);
+
+protected:
+	void handleResolveError(std.Error const* error);
+
+	onResolverEvent(
+		uint_t syncId,
+		io.HostNameResolverEvents triggeredEvents
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode HostNameResolver.resolve(
+	char const* addressString,
+	io.AddressFamily addressFamily
+	)
+{
+	cancel();
+
+	io.SocketAddress address;
+	bool isDirectAddress = try address.parse(addressString);
+	if (isDirectAddress)
+	{
+		if (!address.m_port)
+			address.m_port = m_defaultPort;
+
+		m_address = address;
+		m_state = State.Resolved;
+		return true;
+	}
+
+	m_syncId = sys.getTimestamp();
+	m_logWriter.write(SocketLogRecordCode.Resolving, addressString);
+	m_logWriter.sync(m_syncId);
+	m_resolver.resolve(addressString, addressFamily);
+	m_addressString = addressString;
+
+	m_resolver.wait(
+		io.HostNameResolverEvents.Resolved | io.HostNameResolverEvents.Error,
+		onResolverEvent~(m_syncId) @ m_pluginHost.m_mainThreadScheduler
+		);
+
+	m_state = State.Resolving;
+	return true;
+
+catch:
+	handleResolveError(std.getLastError());
+	return false;
+}
+
+void HostNameResolver.cancel()
+{
+	if (m_state != State.Resolving)
+	{
+		m_state = State.Idle;
+		return;
+	}
+
+	if (m_syncId != m_pluginHost.m_log.m_syncId)
+		m_logWriter.write(SocketLogRecordCode.ResolveCompletedPrefix, m_addressString);
+
+	m_logWriter.write(SocketLogRecordCode.ResolveCancelled);
+	m_resolver.cancel();
+	m_syncId++;
+	m_state = State.Idle;
+	m_onCompleted();
+}
+
+void HostNameResolver.updateStatusPane(ui.StatusPane* pane)
+{
+	switch (m_state)
+	{
+	case State.Resolving:
+		pane.m_text = "Resolving...";
+		pane.m_color = ui.StdColor.Black;
+		break;
+
+	case State.Resolved:
+		pane.m_text = m_address.getString();
+		pane.m_color = ui.StdColor.Blue;
+		break;
+
+	case State.Error:
+		pane.m_text = "Resolve error";
+		pane.m_color = ui.StdColor.Red;
+		break;
+
+	default:
+		pane.m_text = null;
+		pane.m_color = ui.StdColor.Black;
+	}
+}
+
+HostNameResolver.handleResolveError(std.Error const* error)
+{
+	m_logWriter.write(SocketLogRecordCode.ResolveError, error);
+	m_resolver.cancel();
+	m_state = State.Error;
+}
+
+HostNameResolver.onResolverEvent(
+	uint_t syncId,
+	io.HostNameResolverEvents triggeredEvents
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (syncId != m_pluginHost.m_log.m_syncId)
+		m_logWriter.write(SocketLogRecordCode.ResolveCompletedPrefix, m_addressString);
+
+	if (triggeredEvents & io.HostNameResolverEvents.Error)
+	{
+		handleResolveError(m_resolver.m_error);
+		m_onCompleted();
+		return;
+	}
+
+	m_logWriter.write(
+		SocketLogRecordCode.ResolveCompleted,
+		m_resolver.m_addressTable,
+		sizeof(io.SocketAddress)
+		);
+
+	m_address = m_resolver.m_addressTable[0];
+	if (!m_address.m_port)
+		m_address.m_port = m_defaultPort;
+
+	m_state = State.Resolved;
+	m_onCompleted();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace iox

@@ -1,0 +1,28 @@
+#...............................................................................
+#
+#  SSL log representer plugin
+#
+
+[plugin]
+
+name        = SSL Log
+description = "SSL log representer"
+group       = net
+guid        = 7940a0d5-a84b-4509-bae4-b5928511472d
+icon        = images/ssl.png
+small-icon  = images/ssl-16x16.png
+
+log-representer-func = representSslLog
+
+[scripts]
+
+SslLogRecordCode.jnc
+SslLogRepresenter.jnc
+
+[records]
+
+01d5cdeded08f700  # SslHandshaking
+01d5cdeded08f701  # SslHandshakeCompleted
+81d5cdeded08f702  # SslCertificate
+01d5cdeded08f703  # SslCipher
+01d5cdeded08f704  # SslConnectCompleted

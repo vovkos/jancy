@@ -1,12 +1,12 @@
 #...............................................................................
 #
-#  Pipe Listener session plugin
+#  Pipe Server session plugin
 #
 
 [plugin]
 
-name        = Pipe Listener
-description = "Listens for connection over named pipe"
+name        = Pipe Server 
+description = "Listens for accepts named pipe connections"
 id          = pipe-listener
 group       = fs
 log-guid    = d74419a1-789c-4d9a-8d92-bd44ee19c971  # pipe listener
@@ -18,3 +18,4 @@ session-class = PipeListenerSession
 [scripts]
 
 PipeListenerSession.jnc
+PipeClientLogFilter.jnc

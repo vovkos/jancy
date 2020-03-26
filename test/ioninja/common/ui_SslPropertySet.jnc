@@ -1,0 +1,361 @@
+//..............................................................................
+//
+// SSL user interface
+//
+
+import "ui_ToolBar.jnc"
+import "ui_PropertyGrid.jnc"
+import "io_ssl.jncx"
+import "io_SslSocket.jnc"
+import "doc_Storage.jnc"
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+class SslPropertySet
+{
+	bitflag enum PropertyId
+	{
+		CipherSet,
+		Certificate,
+		VerifyClientCertificate,
+		VerifyServerCertificate,
+		EphemeralDh,
+		EphemeralEcdh,
+
+		AllClient =
+			CipherSet |
+			Certificate |
+			VerifyServerCertificate,
+
+		AllServer =
+			CipherSet |
+			Certificate |
+			VerifyClientCertificate |
+			EphemeralDh |
+			EphemeralEcdh,
+	}
+
+	enum Defaults
+	{
+		TcpPort               = 443,
+		UseCertificate        = false,
+		VerifyPeerCertificate = false,
+		VerifyDepth           = 10,
+		UseEphemeralDh        = true,
+		UseEphemeralEcdh      = true,
+		EphemeralDhStdParams  = io.SslStdDh.Dh1024x160,
+	}
+
+	static char const DefaultCipherSet[] = "ALL"; // all (except for unencrypted)
+	static char const DefaultEphemeralEcdhCurve[] = "prime256v1"; // mostl commonly used one
+
+	ComboProperty* m_cipherSetProp;
+	BoolProperty* m_useCertificateProp;
+	FileProperty* m_certificateFileProp;
+	FileProperty* m_privateKeyFileProp;
+	BoolProperty* m_verifyCertificateProp;
+	FileProperty* m_verifyCaFileProp;
+	FileProperty* m_verifyCaDirProp;
+	IntProperty* m_verifyDepthProp;
+	BoolProperty* m_useEphemeralDhProp;
+	EnumProperty* m_ephemeralDhStdParamsProp;
+	BoolProperty* m_useEphemeralEcdhProp;
+	ComboProperty* m_ephemeralEcdhCurveProp;
+
+	createProperties(
+		PropertyGrid* propertyGrid,
+		GroupProperty* group = null,
+		Property* insertBefore = null,
+		PropertyId mask = PropertyId.AllClient
+		);
+
+	load(doc.Storage* storage);
+	save(doc.Storage* storage);
+	restoreDefaults();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+SslPropertySet.createProperties(
+	PropertyGrid* propertyGrid,
+	GroupProperty* group,
+	Property* insertBefore,
+	PropertyId mask
+	)
+{
+	if (mask & PropertyId.CipherSet)
+	{
+		static ui.EnumPropertyOption enabledCipherTable[] =
+		{
+			{ "Encrypted", "ALL" },
+			{ "Encrypted & authenticated", "ALL:!aNULL" },
+			{ "OpenSSL default", "ALL:!EXPORT:!LOW:!aNULL:!eNULL:!SSLv2" },
+			{ "All (including unencrypted)", "ALL:eNULL" },
+		}
+
+		m_cipherSetProp = propertyGrid.createComboProperty(
+			group,
+			insertBefore,
+			"Cipher suite",
+			"Enter OpenSSL cipher-string",
+			"Fine-tune the enabled OpenSSL cipher set",
+			enabledCipherTable,
+			countof(enabledCipherTable)
+			);
+	}
+
+	if (mask & PropertyId.Certificate)
+	{
+		m_useCertificateProp = propertyGrid.createBoolProperty(
+			group,
+			insertBefore,
+			"Use certificate",
+			"Specifify a certificate for your SSL connection"
+			);
+
+		m_useCertificateProp.m_isGroupEnabler = true;
+
+		m_certificateFileProp = propertyGrid.createFileProperty(
+			m_useCertificateProp,,
+			"Certificate",
+			"Specifify a certificate for your SSL connection"
+			);
+
+		m_certificateFileProp.m_fileDialogTitle = "Select Certificate File";
+		m_certificateFileProp.m_filter = "Certificate files (*.cer;*.pem);;All files (*.*)";
+
+		m_privateKeyFileProp = propertyGrid.createFileProperty(
+			m_useCertificateProp,,
+			"Private key",
+			"Specifify a private key for your SSL connection"
+			);
+
+		m_privateKeyFileProp.m_fileDialogTitle = "Select Private Key File";
+		m_privateKeyFileProp.m_filter = "Key files (*.key; *.pem);;All files (*.*)";
+	}
+
+	if (mask & (PropertyId.VerifyClientCertificate | PropertyId.VerifyServerCertificate))
+	{
+		m_verifyCertificateProp =
+			(mask & PropertyId.VerifyServerCertificate) ? propertyGrid.createBoolProperty(
+				group,
+				insertBefore,
+				"Verify certificates",
+				"Verify sertificate of the target SSL server"
+				) :
+			m_useCertificateProp ? propertyGrid.createBoolProperty(
+				m_useCertificateProp,,
+				"Verify certificates",
+				"Verify certificates of clients of your SSL server"
+				) :
+			null;
+
+		if (m_verifyCertificateProp)
+		{
+			m_verifyCertificateProp.m_isGroupEnabler = true;
+
+			m_verifyCaFileProp = propertyGrid.createFileProperty(
+				m_verifyCertificateProp,,
+				"CA certificate",
+				"Specifify a CA certificate for verification"
+				);
+
+			m_verifyCaFileProp.m_fileDialogTitle = "Select CA File";
+			m_verifyCaFileProp.m_filter = "Certificate files (*.cer; *.crt; *.pem);;All files (*.*)";
+
+			m_verifyCaDirProp = propertyGrid.createFileProperty(
+				m_verifyCertificateProp,,
+				"CA directory",
+				"Specifify a directory with CA certificates for verification"
+				);
+
+			m_verifyCaDirProp.m_fileDialogTitle = "Select CA Directory";
+			m_verifyCaDirProp.m_mode = ui.FilePropertyMode.Directory;
+			m_verifyCaDirProp.m_options = ui.FilePropertyOptions.ShowDirsOnly;
+
+			m_verifyDepthProp = propertyGrid.createIntProperty(
+				m_verifyCertificateProp,,
+				"Verify depth",
+				"Specifify the maximum certificate chain length"
+				);
+		}
+	}
+
+	if (mask & PropertyId.EphemeralDh)
+	{
+		static ui.EnumPropertyOption stdDhTable[] =
+		{
+			{ "DH 1024-bit MODP (160-bit prime)", io.SslStdDh.Dh1024x160 },
+			{ "DH 2048-bit MODP (224-bit prime)", io.SslStdDh.Dh2048x224 },
+			{ "DH 2048-bit MODP (256-bit prime)", io.SslStdDh.Dh2048x256 },
+		}
+
+		m_useEphemeralDhProp = propertyGrid.createBoolProperty(
+			group,
+			insertBefore,
+			"Use ephemeral DH",
+			"Use ephemeral DH in the absense of a certificate"
+			);
+
+		m_useEphemeralDhProp.m_isGroupEnabler = true;
+
+		m_ephemeralDhStdParamsProp = propertyGrid.createEnumProperty(
+			m_useEphemeralDhProp,,
+			"Ephemeral DH",
+			"Parameters to use for the ephemeral DH key exchange",
+			stdDhTable,
+			countof(stdDhTable)
+			);
+	}
+
+	if (mask & PropertyId.EphemeralEcdh)
+	{
+		static ui.EnumPropertyOption ecCurveTable[] =
+		{
+			{ "SECG/WTLS curve (112-bit prime)",       "secp112r1" },
+			{ "SECG curve (112-bit prime)",            "secp112r2" },
+			{ "SECG curve (128-bit prime)",            "secp128r1" },
+			{ "SECG curve (128-bit prime)",            "secp128r2" },
+			{ "SECG curve (160-bit prime)",            "secp160k1" },
+			{ "SECG curve (160-bit prime)",            "secp160r1" },
+			{ "SECG/WTLS curve (160-bit prime)",       "secp160r2" },
+			{ "SECG curve (192-bit prime)",            "secp192k1" },
+			{ "SECG curve (224-bit prime)",            "secp224k1" },
+			{ "NIST/SECG curve (224-bit prime)",       "secp224r1" },
+			{ "SECG curve (256-bit prime)",            "secp256k1" },
+			{ "NIST/SECG curve (384-bit prime)",       "secp384r1" },
+			{ "NIST/SECG curve (521-bit prime)",       "secp521r1" },
+			{ "NIST/X9.62/SECG curve (192-bit prime)", "prime192v1" },
+			{ "X9.62 curve (192-bit prime)",           "prime192v2" },
+			{ "X9.62 curve (192-bit prime)",           "prime192v3" },
+			{ "X9.62 curve (239-bit prime)",           "prime239v1" },
+			{ "X9.62 curve (239-bit prime)",           "prime239v2" },
+			{ "X9.62 curve (239-bit prime)",           "prime239v3" },
+			{ "X9.62/SECG curve (256-bit prime)",      "prime256v1" },
+
+			// can also specify any curve supported by openssl
+		}
+
+		m_useEphemeralEcdhProp = propertyGrid.createBoolProperty(
+			group,
+			insertBefore,
+			"Use ephemeral ECDH",
+			"Use ephemeral ECDH in the absense of a certificate"
+			);
+
+		m_useEphemeralEcdhProp.m_isGroupEnabler = true;
+
+		m_ephemeralEcdhCurveProp = propertyGrid.createComboProperty(
+			m_useEphemeralEcdhProp,,
+			"Ephemeral ECDH",
+			"Enter EC curve name",
+			"EC curve to use for the ephemeral ECDH key exchange",
+			ecCurveTable,
+			countof(ecCurveTable)
+			);
+	}
+}
+
+SslPropertySet.load(doc.Storage* storage)
+{
+	if (m_cipherSetProp)
+		m_cipherSetProp.m_value = storage.readString("cipherSet", DefaultCipherSet);
+
+	if (m_useCertificateProp)
+	{
+		m_useCertificateProp.m_value = storage.readBool("useCertificate", Defaults.UseCertificate);
+		m_certificateFileProp.m_value = storage.readString("certificateFile");
+		m_privateKeyFileProp.m_value = storage.readString("privateKeyFile");
+	}
+
+	if (m_verifyCertificateProp)
+	{
+		m_verifyCertificateProp.m_value = storage.readBool("verifyCertificateProp", Defaults.VerifyPeerCertificate);
+		m_verifyCaFileProp.m_value = storage.readString("verifyCaFileProp");
+		m_verifyCaDirProp.m_value = storage.readString("verifyCaDirProp");
+		m_verifyDepthProp.m_value = storage.readInt("verifyDepthProp", Defaults.VerifyDepth);
+	}
+
+	if (m_useEphemeralDhProp)
+	{
+		m_useEphemeralDhProp.m_value = storage.readBool("useEphemeralDh", Defaults.UseEphemeralDh);
+		m_ephemeralDhStdParamsProp.m_value = storage.readInt("ephemeralDhStdParams", Defaults.EphemeralDhStdParams);
+	}
+
+	if (m_useEphemeralEcdhProp)
+	{
+		m_useEphemeralEcdhProp.m_value = storage.readBool("useEphemeralEcdh", Defaults.UseEphemeralEcdh);
+		m_ephemeralEcdhCurveProp.m_value = storage.readString("ephemeralEcdhCurve", DefaultEphemeralEcdhCurve);
+	}
+}
+
+SslPropertySet.save(doc.Storage* storage)
+{
+	if (m_cipherSetProp)
+		storage.writeString("cipherSet", m_cipherSetProp.m_value);
+
+	if (m_useCertificateProp)
+	{
+		storage.writeBool("useCertificate", m_useCertificateProp.m_value);
+		storage.writeString("certificateFile", m_certificateFileProp.m_value);
+		storage.writeString("privateKeyFile", m_privateKeyFileProp.m_value);
+	}
+
+	if (m_verifyCertificateProp)
+	{
+		storage.writeBool("verifyCertificateProp", m_verifyCertificateProp.m_value);
+		storage.writeString("verifyCaFileProp", m_verifyCaFileProp.m_value);
+		storage.writeString("verifyCaDirProp", m_verifyCaDirProp.m_value);
+		storage.writeInt("verifyDepthProp", m_verifyDepthProp.m_value);
+	}
+
+	if (m_useEphemeralDhProp)
+	{
+		storage.writeBool("useEphemeralDh", m_useEphemeralDhProp.m_value);
+		storage.writeInt("ephemeralDhStdParams", m_ephemeralDhStdParamsProp.m_value);
+	}
+
+	if (m_useEphemeralEcdhProp)
+	{
+		storage.writeBool("useEphemeralEcdh", m_useEphemeralEcdhProp.m_value);
+		storage.writeString("ephemeralEcdhCurveProp", m_ephemeralEcdhCurveProp.m_value);
+	}
+}
+
+SslPropertySet.restoreDefaults()
+{
+	if (m_cipherSetProp)
+		m_cipherSetProp.m_value = DefaultCipherSet;
+
+	if (m_useCertificateProp)
+		m_useCertificateProp.m_value = Defaults.UseCertificate;
+
+	if (m_verifyCertificateProp)
+	{
+		m_verifyCertificateProp.m_value = Defaults.VerifyPeerCertificate;
+		m_verifyDepthProp.m_value = Defaults.VerifyDepth;
+	}
+
+	if (m_useEphemeralDhProp)
+	{
+		m_useEphemeralDhProp.m_value = Defaults.UseEphemeralDh;
+		m_ephemeralDhStdParamsProp.m_value = Defaults.EphemeralDhStdParams;
+	}
+
+	if (m_useEphemeralEcdhProp)
+	{
+		m_useEphemeralEcdhProp.m_value = Defaults.UseEphemeralEcdh;
+		m_ephemeralEcdhCurveProp.m_value = DefaultEphemeralEcdhCurve;
+	}
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

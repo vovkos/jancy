@@ -1,0 +1,76 @@
+//..............................................................................
+//
+// Process log representer
+//
+
+import "log_Representation.jnc"
+import "io_base.jncx"
+import "ProcessLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representProcessLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case ProcessLogRecordCode.ProcessStarted:
+		uint_t pid = *(uint_t const*)p;
+		char const* fileName = (char const*)(p + sizeof(uint_t));
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText($"Started process PID \e[34m$pid\e[m: \e[34m$fileName");
+		break;
+
+	case ProcessLogRecordCode.ProcessStartError:
+		std.Error const* error = (std.Error const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Cannot open file: $(error.m_description)");
+		break;
+
+	case ProcessLogRecordCode.ProcessFinished:
+		int exitCode = *(int const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Process finished with exit code: \e[34m$exitCode");
+		break;
+
+	case ProcessLogRecordCode.ProcessCrashed:
+		std.Error const* error  = (std.Error const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"Process crashed: $(error.m_description)");
+		break;
+
+	case ProcessLogRecordCode.ProcessTerminating:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("Terminating process...");
+		break;
+
+	case ProcessLogRecordCode.Detached:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText($"Detached from the running process");
+		break;
+
+	case ProcessLogRecordCode.Stderr:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Rx;
+		representation.m_lineAttr.m_textColor = 0x800000;
+		representation.addBin(p, size);
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

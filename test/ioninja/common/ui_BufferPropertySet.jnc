@@ -192,16 +192,16 @@ GroupProperty* BufferPropertySet.createPropertiesGrouped(
 BufferPropertySet.load(doc.Storage* storage)
 {
 	if (m_readParallelismProp)
-		m_readParallelismProp.m_value = storage.readInt("readParallelism", Defaults.ReadParallelism);
+		m_readParallelismProp.m_value = storage.readInt("readParallelism", m_defaultReadParallelism);
 
 	if (m_readBlockSizeProp)
-		m_readBlockSizeProp.m_value = storage.readInt("readBlockSize", Defaults.ReadBlockSize);
+		m_readBlockSizeProp.m_value = storage.readInt("readBlockSize", m_defaultReadBlockSize);
 
 	if (m_readBufferSizeProp)
-		m_readBufferSizeProp.m_value = storage.readInt("readBufferSize", Defaults.ReadBufferSize);
+		m_readBufferSizeProp.m_value = storage.readInt("readBufferSize", m_defaultReadBufferSize);
 
 	if (m_writeBufferSizeProp)
-		m_writeBufferSizeProp.m_value = storage.readInt("writeBufferSize", Defaults.WriteBufferSize);
+		m_writeBufferSizeProp.m_value = storage.readInt("writeBufferSize", m_defaultWriteBufferSize);
 
 	if (m_keepReadBlockSizeProp)
 		m_keepReadBlockSizeProp.m_value = storage.readBool("keepReadBlockSize", Defaults.KeepReadBlockSize);

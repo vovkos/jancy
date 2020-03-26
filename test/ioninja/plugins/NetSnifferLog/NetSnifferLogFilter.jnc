@@ -4,7 +4,6 @@
 //
 
 import "log_Filter.jnc"
-import "sys_Lock.jnc"
 import "std_HashTable.jnc"
 import "io_pcap.jncx"
 

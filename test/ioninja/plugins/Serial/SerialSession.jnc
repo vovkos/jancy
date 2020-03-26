@@ -228,7 +228,7 @@ SerialSession.createUi()
 	// settings
 
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
-		"Connection",
+		"Serial port",
 		"Serial port-specific connection settings"
 		);
 
@@ -245,8 +245,10 @@ SerialSession.createUi()
 		"Attempt to re-open port if disconnected on error"
 		);
 
+	m_useReopenProp.m_isGroupEnabler = true;
+
 	m_reopenTimeoutProp = m_pluginHost.m_propertyGrid.createIntProperty(
-		group,,
+		m_useReopenProp,,
 		"Reopen timeout",
 		"Specify delays to insert between re-open attempts"
 		);
@@ -315,7 +317,7 @@ SerialSession.createUi()
 
 		m_readIntervalProp = m_pluginHost.m_propertyGrid.createIntProperty(
 			group,,
-			"Read max inter-char interval (ms)",
+			"Read inter-char interval (ms)",
 			"Maximum inter-character delay during read request (in millisceonds)"
 			);
 
@@ -346,6 +348,7 @@ SerialSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	enumeratePorts();
@@ -434,14 +437,7 @@ bool errorcode SerialSession.open()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-
-	m_logWriter.write(
-		SerialLogRecordCode.PortOpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(SerialLogRecordCode.PortOpenError);
 	m_serial.close();
 	return false;
 }
@@ -704,7 +700,7 @@ SerialSession.onSerialEvent(
 
 	if (triggeredEvents & io.SerialEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_serial.m_ioError, m_serial.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_serial.m_ioError);
 		close();
 
 		if (m_reopenTimeoutProp.m_value)
@@ -834,7 +830,6 @@ reactor SerialSession.m_uiReactor
 	m_actionTable[ActionId.Open].m_icon = m_iconTable[m_state ? IconId.Close : IconId.Open];
 	m_actionTable[ActionId.Rts].m_isEnabled = m_serialSettingUi.m_flowControlProp.m_value != io.SerialFlowControl.RtsCts;
 	m_rtsProp.m_isEnabled = m_serialSettingUi.m_flowControlProp.m_value != io.SerialFlowControl.RtsCts;
-	m_reopenTimeoutProp.m_isEnabled = m_useReopenProp.m_value;
 	m_bufferPropertySet.m_readParallelismProp.m_isEnabled = m_readModeProp.m_value != SerialReadMode.CheckComstat;
 	m_readIntervalProp.m_isEnabled = m_readModeProp.m_value == SerialReadMode.IntervalBased;
 	m_statusPane.m_text = m_state ? m_portName : "Port closed";
@@ -850,7 +845,7 @@ reactor SerialSession.m_uiReactor
 	updateLineInfoValue(InfoId.Dsr, m_serialStatusLines & io.SerialStatusLines.Dsr);
 	updateLineInfoValue(InfoId.Cts, m_serialStatusLines & io.SerialStatusLines.Cts);
 
-	onevent m_portCombo.m_onChanged()
+	onevent bindingof(m_portCombo.m_editText)()
 	{
 		m_reopenTimer.stop();
 	}

@@ -1,0 +1,195 @@
+//..............................................................................
+//
+// IP packet decoding
+//
+
+import "io_base.jncx"
+import "io_pcap.jncx"
+import "io_SocketAddress.jnc"
+import "io_IpDefragmenter.jnc"
+import "io_Ethernet.jnc"
+import "io_Loopback.jnc"
+
+namespace io {
+
+//! \addtogroup common-tcpip
+//! @{
+
+//..............................................................................
+
+class IpDecoder
+{
+protected:
+	IpDefragmenter m_defragmenter;
+
+public:
+	void setupDefragmenter(
+		size_t fragmentLimit,
+		uint_t timeout
+		);
+
+	reset()
+	{
+		m_defragmenter.reset();
+	}
+
+	bool decodeLinkHdr(
+		PcapLinkType linkType,
+		void const* p,
+		size_t size
+		);
+
+protected:
+	bool decodeIpHdr(
+		void const* p,
+		size_t size
+		);
+
+	bool decodeIp6Hdr(
+		void const* p,
+		size_t size
+		);
+
+	abstract bool decodeTransportHdr(
+		io.SocketAddress* srcAddress,
+		io.SocketAddress* dstAddress,
+		io.IpProtocol protocol,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void IpDecoder.setupDefragmenter(
+	size_t fragmentLimit,
+	uint_t timeout
+	)
+{
+	m_defragmenter.m_fragmentLimit = fragmentLimit;
+	m_defragmenter.m_timeout = timeout;
+}
+
+bool IpDecoder.decodeLinkHdr(
+	PcapLinkType linkType,
+	void const* p,
+	size_t size
+	)
+{
+	switch (linkType)
+	{
+	case io.PcapLinkType.Loopback:
+		if (size < sizeof(io.LoopbackHdr))
+			return false;
+
+		io.LoopbackHdr const* loopbackHdr = (io.LoopbackHdr const*)p;
+		p += sizeof(io.LoopbackHdr);
+		size -= sizeof(io.LoopbackHdr);
+
+		switch (loopbackHdr.m_protocolFamily)
+		{
+		case io.LoopbackProtocolFamily.Ip:
+			return decodeIpHdr(p, size);
+
+		case io.LoopbackProtocolFamily.Ip6:
+			return decodeIpHdr(p, size);
+		}
+
+		break;
+
+	case io.PcapLinkType.Ethernet:
+		if (size < sizeof(io.EthernetHdr))
+			return false;
+
+		io.EthernetHdr const* ethernetHdr = (io.EthernetHdr const*)p;
+		p += sizeof(io.EthernetHdr);
+		size -= sizeof(io.EthernetHdr);
+
+		switch (ethernetHdr.m_type)
+		{
+		case io.EthernetType.Ip:
+			return decodeIpHdr(p, size);
+
+		case io.EthernetType.Ip6:
+			return decodeIpHdr(p, size);
+		}
+
+		break;
+	}
+
+	return false;
+}
+
+bool IpDecoder.decodeIpHdr(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(io.IpHdr))
+		return false;
+
+	io.IpHdr const* ipHdr = (io.IpHdr const*) p;
+	size_t ipHdrSize = ipHdr.m_headerLength * 4;
+
+	if (ipHdrSize < sizeof(io.IpHdr) ||
+		ipHdrSize > ipHdr.m_totalLength ||
+		ipHdr.m_totalLength > size)
+		return false;
+
+	if ((ipHdr.m_flags & io.IpFlags.Mf) || ipHdr.m_fragmentOffset) // fragmented ip
+	{
+		ipHdr = m_defragmenter.defragment(ipHdr, size);
+		if (!ipHdr)
+			return false;
+
+		p = ipHdr + 1; // defragmented IP headers don't have options
+		size = dynamic sizeof(p);
+	}
+	else
+	{
+		p += ipHdrSize;
+		size = ipHdr.m_totalLength - ipHdrSize;
+	}
+
+	io.SocketAddress srcAddress;
+	srcAddress.m_family = io.AddressFamily.Ip4;
+	srcAddress.m_ip4.m_address.m_i32 = ipHdr.m_srcAddress;
+
+	io.SocketAddress dstAddress;
+	dstAddress.m_family = io.AddressFamily.Ip4;
+	dstAddress.m_ip4.m_address.m_i32 = ipHdr.m_dstAddress;
+
+	return decodeTransportHdr(srcAddress, dstAddress, ipHdr.m_protocol, p, size);
+}
+
+bool IpDecoder.decodeIp6Hdr(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(io.Ip6Hdr))
+		return false;
+
+	io.Ip6Hdr const* ip6Hdr = (io.Ip6Hdr const*) p;
+	if (ip6Hdr.m_payloadLength + sizeof(io.Ip6Hdr) > size)
+		return false;
+
+	p += sizeof(io.Ip6Hdr);
+	size = ip6Hdr.m_payloadLength;
+
+	io.SocketAddress srcAddress;
+	srcAddress.m_family = io.AddressFamily.Ip6;
+	srcAddress.m_ip6.m_address = *(io.Address_ip6 const*) ip6Hdr.m_srcAddress;
+
+	io.SocketAddress dstAddress;
+	dstAddress.m_family = io.AddressFamily.Ip6;
+	dstAddress.m_ip6.m_address = *(io.Address_ip6 const*) ip6Hdr.m_dstAddress;
+
+	return decodeTransportHdr(srcAddress, dstAddress, ip6Hdr.m_nextHeader, p, size);
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

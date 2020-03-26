@@ -140,6 +140,11 @@ opaque class Writer
 
 		retroColorize(retroOffset, length, attr);
 	}
+
+	sync(uint64_t syncId)
+	{
+		write(StdRecordCode.SyncId, &syncId, sizeof(syncId));
+	}
 }
 
 //..............................................................................

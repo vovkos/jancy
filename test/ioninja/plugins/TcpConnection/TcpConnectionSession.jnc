@@ -190,7 +190,7 @@ TcpConnectionSession.createUi()
 	// property grid
 
 	ui.GroupProperty* propGroup = m_pluginHost.m_propertyGrid.createGroupProperty(
-		"Connection",
+		"TCP",
 		"TCP-specific connection settings"
 		);
 
@@ -198,8 +198,7 @@ TcpConnectionSession.createUi()
 		m_pluginHost.m_propertyGrid,
 		propGroup,,
 		ui.SocketPropertySet.PropertyId.AllTcpClient |
-		ui.SocketPropertySet.PropertyId.UseReconnect |
-		ui.SocketPropertySet.PropertyId.ReconnectTimeout
+		ui.SocketPropertySet.PropertyId.Reconnect
 		);
 
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
@@ -215,6 +214,7 @@ TcpConnectionSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -233,8 +233,8 @@ bool errorcode TcpConnectionSession.connect()
 	bool isDirectAddress = try address.parse(addressString);
 	if (isDirectAddress)
 	{
-		if (!address.m_ip4.m_port) // IPv4 & IPv6 share the same port location
-			address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
+		if (!address.m_port)
+			address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
 		return try connect(&address);
 	}
@@ -291,7 +291,7 @@ bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddres
 		else
 			m_localAddress.m_family = remoteAddress.m_family;
 
-		m_localAddress.m_ip4.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value; // same for IPv4/IPv6
+		m_localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
 
 		m_socket.open(io.Protocol.Tcp, &m_localAddress);
 	}
@@ -354,7 +354,7 @@ TcpConnectionSession.handleSocketError(std.Error const* error)
 		SocketLogRecordCode.ConnectError :
 		log.StdRecordCode.Error;
 
-	m_logWriter.write(recordCode, error, error.m_size);
+	m_logWriter.write(recordCode, error);
 	close();
 }
 
@@ -582,8 +582,8 @@ TcpConnectionSession.onResolverEvent(
 	m_state = State.Closed;
 
 	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_ip4.m_port) // IPv4 & IPv6 share the same port location
-		address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
+	if (!address.m_port)
+		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
 	connect(address);
 }
@@ -603,10 +603,6 @@ TcpConnectionSession.onReconnectTimer(uint_t syncId)
 reactor TcpConnectionSession.m_uiReactor
 {
 	m_title = $"TCP $(m_addressCombo.m_editText)";
-	m_socketPropertySet.m_reconnectTimeoutProp.m_isEnabled = m_socketPropertySet.m_useReconnectProp.m_value;
-	m_socketPropertySet.m_adapterProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
-	m_socketPropertySet.m_localPortProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
-	m_socketPropertySet.m_reuseLocalAddressProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
 	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];
@@ -615,7 +611,7 @@ reactor TcpConnectionSession.m_uiReactor
 	m_infoTable[InfoId.LocalAddress].m_isEnabled = m_state == State.Connected;
 	m_infoTable[InfoId.RemoteAddress].m_isEnabled = m_state == State.Connected;
 
-	onevent m_addressCombo.m_onChanged()
+	onevent bindingof(m_addressCombo.m_editText)()
 	{
 		m_reconnectTimer.stop();
 	}

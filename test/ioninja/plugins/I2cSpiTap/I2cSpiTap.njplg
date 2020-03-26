@@ -15,11 +15,11 @@ log-guid    = b26c1b57-16c7-48a5-bbb9-05ea1ada5368  # fpga uploader
 icon        = images/sniffer.png
 small-icon  = images/sniffer-16x16.png
 
-session-class = I2cSpiSnifferSession
+session-class = I2cSpiTapSession
 
 [scripts]
 
 Decoder.jnc
-I2cSpiSnifferSession.jnc
+I2cSpiTapSession.jnc
 I2cDecoder.jnc
 SpiDecoder.jnc

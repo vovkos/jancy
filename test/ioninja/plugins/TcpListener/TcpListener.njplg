@@ -1,12 +1,12 @@
 #...............................................................................
 #
-#  TCP Listener Socket session plugin
+#  TCP Server session plugin
 #
 
 [plugin]
 
-name        = TCP Listener Socket
-description = "Listens for connection over TCP socket"
+name        = TCP Server
+description = "Listens for and accepts TCP connections"
 id          = tcp-listener
 group       = net
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
@@ -18,3 +18,4 @@ session-class = TcpListenerSession
 [scripts]
 
 TcpListenerSession.jnc
+../SocketLog/SocketClientLogFilter.jnc

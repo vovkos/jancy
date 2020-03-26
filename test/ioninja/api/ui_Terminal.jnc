@@ -16,6 +16,8 @@ class Terminal
 	uint_t readonly m_consoleHeight;
 
 	event m_onConsoleSizeChanged();
+
+	void write(void const* p, size_t size);
 }
 
 //..............................................................................

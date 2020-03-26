@@ -204,6 +204,7 @@ FileSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -231,22 +232,27 @@ bool errorcode FileSession.open()
 	m_file.m_options = getFileStreamOptions();
 	m_file.open(fileName, openFlags);
 
-	char const* p = $"$(m_file.m_kind; B)$fileName";
-	m_logWriter.write(FileLogRecordCode.Opened, p, dynamic sizeof(p));
+	FileOpenLogRecordParams	params;
+	params.m_kind = m_file.m_kind;
+	params.m_openFlags = openFlags;
+
+	m_logWriter.write(
+		FileLogRecordCode.Opened,
+		&params,
+		sizeof(params),
+		fileName,
+		strlen(fileName) + 1
+		);
+
 	m_state = State.Opened;
+	m_isTransmitEnabled = access != m_state == State.Opened;
 
 	waitFileStreamEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-	m_logWriter.write(
-		FileLogRecordCode.OpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(FileLogRecordCode.OpenError);
 	m_file.close();
 	return false;
 }
@@ -259,6 +265,7 @@ FileSession.close()
 	m_logWriter.write(FileLogRecordCode.Closed);
 	m_file.close();
 	m_state = State.Closed;
+	m_isTransmitEnabled = false;
 	m_syncId++;
 	m_stdSessionInfoSet.endSession();
 }
@@ -372,7 +379,7 @@ FileSession.onFileStreamEvent(
 
 	if (triggeredEvents & io.FileStreamEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_file.m_ioError, m_file.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_file.m_ioError);
 		close();
 		return;
 	}
@@ -413,7 +420,6 @@ FileSession.onFileStreamEvent(
 reactor FileSession.m_uiReactor
 {
 	m_title = $"File $(m_fileNameCombo.m_editText)";
-	m_isTransmitEnabled = m_state == State.Opened;
 	m_accessCombo.m_isEnabled = !m_state;
 	m_accessProp.m_isEnabled = !m_state;
 	m_actionTable[ActionId.Open].m_text = m_state ? "Close" : "Open";

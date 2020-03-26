@@ -5,7 +5,7 @@
 
 import "doc_Session.jnc"
 import "io_usb.jncx"
-import "io_FpgaUploader.jnc"
+import "iox_FpgaUploader.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
@@ -14,7 +14,7 @@ import "std_Buffer.jnc"
 
 //..............................................................................
 
-class I2cSpiSnifferSession: doc.Session
+class I2cSpiTapSession: doc.Session
 {
 protected:
 	enum Protocol
@@ -105,7 +105,7 @@ protected:
 	io.UsbInterface* m_iface;
 	io.UsbEndpoint* m_outEndpoint; // until we figure out how to use control ep 0
 	io.UsbEndpoint* m_inEndpoint;
-	io.FpgaUploader m_uploader;
+	iox.FpgaUploader m_uploader;
 	std.Buffer m_readBuffer;
 	SpiDecoder m_spiDecoder;
 	I2cDecoder m_i2cDecoder;
@@ -183,7 +183,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-I2cSpiSnifferSession.construct(doc.PluginHost* pluginHost)
+I2cSpiTapSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 	m_uploader.construct(pluginHost);
@@ -201,7 +201,7 @@ I2cSpiSnifferSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-I2cSpiSnifferSession.createUi()
+I2cSpiTapSession.createUi()
 {
 	static ui.EnumPropertyOption protocolTable[] =
 	{
@@ -354,7 +354,7 @@ I2cSpiSnifferSession.createUi()
 	m_isTransmitEnabled = true;
 }
 
-I2cSpiSnifferSession.onCapture()
+I2cSpiTapSession.onCapture()
 {
 	if (m_state)
 		stopCapture();
@@ -362,7 +362,7 @@ I2cSpiSnifferSession.onCapture()
 		try capture();
 }
 
-I2cSpiSnifferSession.onUpdateCompleted(bool result)
+I2cSpiTapSession.onUpdateCompleted(bool result)
 {
 	if (result)
 		try startCapture();
@@ -370,7 +370,7 @@ I2cSpiSnifferSession.onUpdateCompleted(bool result)
 		stopCapture();
 }
 
-I2cSpiSnifferSession.enumerateDevices()
+I2cSpiTapSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
@@ -404,7 +404,7 @@ I2cSpiSnifferSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, actualCount);
 }
 
-bool errorcode I2cSpiSnifferSession.capture()
+bool errorcode I2cSpiTapSession.capture()
 {
 	stopCapture();
 
@@ -416,17 +416,17 @@ bool errorcode I2cSpiSnifferSession.capture()
 	m_device = m_deviceCombo.m_currentData;
 	m_device.open();
 
-	m_logWriter.write(I2cSpiSnifferLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
+	m_logWriter.write(I2cSpiTapLogRecordCode.DeviceOpened, m_deviceCombo.m_currentText);
 
 	Protocol protocol = m_protocolCombo.m_currentData;
 	return m_uploader.update(m_device, m_fileNameTable[protocol], FpgaUploadBaseIndex);
 
 catch:
-	m_logWriter.writeLastError(I2cSpiSnifferLogRecordCode.CaptureError);
+	m_logWriter.writeLastError(I2cSpiTapLogRecordCode.CaptureError);
 	return false;
 }
 
-bool errorcode I2cSpiSnifferSession.startCapture()
+bool errorcode I2cSpiTapSession.startCapture()
 {
 	m_iface = m_device.claimInterface(0);
 	m_outEndpoint = m_iface.openEndpoint(Usb.OutEndpoint);
@@ -465,7 +465,7 @@ bool errorcode I2cSpiSnifferSession.startCapture()
 
 	m_decoder.reset();
 	m_outEndpoint.write(&startCode, sizeof(startCode));
-	m_logWriter.write(I2cSpiSnifferLogRecordCode.CaptureStarted);
+	m_logWriter.write(I2cSpiTapLogRecordCode.CaptureStarted);
 
 	waitInEndpointEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
@@ -473,11 +473,11 @@ bool errorcode I2cSpiSnifferSession.startCapture()
 	return true;
 
 catch:
-	m_logWriter.writeLastError(I2cSpiSnifferLogRecordCode.CaptureError);
+	m_logWriter.writeLastError(I2cSpiTapLogRecordCode.CaptureError);
 	return false;
 }
 
-bool errorcode I2cSpiSnifferSession.gracefulStop()
+bool errorcode I2cSpiTapSession.gracefulStop()
 {
 	static char stopCode = 0xaa;
 	m_outEndpoint.write(&stopCode, sizeof(stopCode));
@@ -513,11 +513,11 @@ bool errorcode I2cSpiSnifferSession.gracefulStop()
 	}
 
 	ep.close();
-	m_logWriter.write(I2cSpiSnifferLogRecordCode.CypressBufferCleared);
+	m_logWriter.write(I2cSpiTapLogRecordCode.CypressBufferCleared);
 	return true;
 }
 
-I2cSpiSnifferSession.stopCapture(bool isGraceful)
+I2cSpiTapSession.stopCapture(bool isGraceful)
 {
 	if (m_outEndpoint)
 	{
@@ -549,7 +549,7 @@ I2cSpiSnifferSession.stopCapture(bool isGraceful)
 	if (m_state)
 	{
 		m_stdSessionInfoSet.endSession();
-		m_logWriter.write(I2cSpiSnifferLogRecordCode.CaptureStopped);
+		m_logWriter.write(I2cSpiTapLogRecordCode.CaptureStopped);
 		m_state = State.Closed;
 	}
 
@@ -557,7 +557,7 @@ I2cSpiSnifferSession.stopCapture(bool isGraceful)
 	m_syncId++;
 }
 
-I2cSpiSnifferSession.waitInEndpointEvents()
+I2cSpiTapSession.waitInEndpointEvents()
 {
 	io.UsbEndpointEvents eventMask =
 		io.UsbEndpointEvents.IoError |
@@ -567,7 +567,7 @@ I2cSpiSnifferSession.waitInEndpointEvents()
 	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-I2cSpiSnifferSession.onInEndpointEvent(
+I2cSpiTapSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
 	)
@@ -591,7 +591,7 @@ I2cSpiSnifferSession.onInEndpointEvent(
 	waitInEndpointEvents();
 }
 
-I2cSpiSnifferSession.load(doc.Storage* storage)
+I2cSpiTapSession.load(doc.Storage* storage)
 {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_protocolCombo.m_currentData = storage.readInt("protocol", Defaults.Proto);
@@ -605,7 +605,7 @@ I2cSpiSnifferSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-I2cSpiSnifferSession.save(doc.Storage* storage)
+I2cSpiTapSession.save(doc.Storage* storage)
 {
 	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
 	storage.writeInt("protocol", m_protocolCombo.m_currentData);
@@ -618,14 +618,14 @@ I2cSpiSnifferSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-I2cSpiSnifferSession.updateProperties()
+I2cSpiTapSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_protocolProp.m_currentIndex = m_protocolCombo.m_currentIndex;
 	m_spiFlipMosiMisoProp.m_value = m_actionTable[ActionId.Flip].m_isChecked;
 }
 
-bool errorcode I2cSpiSnifferSession.applyProperties()
+bool errorcode I2cSpiTapSession.applyProperties()
 {
 	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
 	m_protocolCombo.m_currentIndex = m_protocolProp.m_currentIndex;
@@ -651,7 +651,7 @@ bool errorcode I2cSpiSnifferSession.applyProperties()
 	return true;
 }
 
-I2cSpiSnifferSession.restoreDefaultProperties()
+I2cSpiTapSession.restoreDefaultProperties()
 {
 	m_protocolProp.m_value = Defaults.Proto;
 	m_spiModeProp.m_value = Defaults.SpiMode;
@@ -663,7 +663,7 @@ I2cSpiSnifferSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-size_t errorcode I2cSpiSnifferSession.transmit(
+size_t errorcode I2cSpiTapSession.transmit(
 	void const* p,
 	size_t size
 	)
@@ -687,7 +687,7 @@ size_t errorcode I2cSpiSnifferSession.transmit(
 	return size;
 }
 
-reactor I2cSpiSnifferSession.m_uiReactor
+reactor I2cSpiTapSession.m_uiReactor
 {
 	m_title = $"$(m_protocolCombo.m_currentText) $(m_deviceCombo.m_currentText)";
 	m_actionTable[ActionId.Capture].m_text = m_state ? "Close Device" : "Open Device";

@@ -19,3 +19,4 @@ session-class = UdpSession
 [scripts]
 
 UdpSession.jnc
+iox_HostNameResolver.jnc

@@ -21,9 +21,10 @@ FileLogRepresenter.jnc
 
 [records]
 
-01d485548790df29  # Opened
+01d485548790df29  # Opened_0
 01d485548790df2a  # OpenError
 01d485548790df2b  # Closed
 01d485548790df2c  # Eof
 01d485548790df2d  # Cleared
 01d485548790df2e  # FileOpened
+01d485548790df2f  # Opened

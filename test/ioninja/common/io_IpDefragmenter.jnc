@@ -16,10 +16,10 @@ namespace io {
 
 class IpDefragmenter
 {
-	enum
+	enum Defaults
 	{
-		DefIpFragmentLimit   = 8,
-		DefIpFragmentTimeout = 3000,
+		FragmentLimit   = 8,
+		FragmentTimeout = 3000,
 	}
 
 protected:
@@ -52,7 +52,10 @@ public:
 public:
 	construct();
 
-	reset();
+	reset()
+	{
+		m_chainHashTable.clear();
+	}
 
 	io.IpHdr const* defragment(
 		io.IpHdr const* ipHdr,
@@ -66,13 +69,8 @@ protected:
 
 IpDefragmenter.construct()
 {
-	m_fragmentLimit = DefIpFragmentLimit;
-	m_timeout = DefIpFragmentTimeout; // 3 sec
-}
-
-IpDefragmenter.reset()
-{
-	m_chainHashTable.clear();
+	m_fragmentLimit = Defaults.FragmentLimit;
+	m_timeout = Defaults.FragmentTimeout; // 3 sec
 }
 
 io.IpHdr const* IpDefragmenter.defragment(

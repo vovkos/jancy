@@ -13,6 +13,7 @@ import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
 import "std_Buffer.jnc"
+import "std_List.jnc"
 
 using extension ui.ComboBoxHistory;
 
@@ -26,22 +27,18 @@ protected:
 		LocalPort = 8080,
 	}
 
-	enum ListenerState
+	enum State
 	{
 		Closed,
 		Listening,
-	}
-
-	enum ConnectionState
-	{
-		Closed,
-		Connected,
 	}
 
 	enum ActionId
 	{
 		Listen,
 		Disconnect,
+		DisconnectAll,
+		ApplyFilter,
 		_Count,
 	}
 
@@ -49,32 +46,37 @@ protected:
 	{
 		Listen,
 		StopListen,
-		Disconnect,
 		_Count,
 	}
 
 	enum StatusPaneId
 	{
-		RemoteAddress,
 		ListenerState,
+		ClientCount,
 		_Count,
 	}
 
-protected:
-	// listener socket
+	class Client
+	{
+		std.ListEntry* m_entry;
+		bool bindable m_isTransmitEnabled;
+		io.Socket* m_socket;
+		io.SocketAddress m_address;
+		uint_t m_syncId;
+	}
 
-	ListenerState bindable m_listenerState;
+protected:
+	// listener socket & list of clients
+
+	State bindable m_state;
 	io.Socket m_listenerSocket;
 	io.SocketAddress m_localAddress;
 	uint_t m_listenerSyncId;
-
-	// connection socket
-
-	ConnectionState bindable m_connectionState;
-	io.Socket* m_connectionSocket;
-	io.SocketAddress m_remoteAddress;
+	std.List m_clientList;
+	size_t bindable m_clientCount;
+	Client* m_currentClient;
 	std.Buffer m_readBuffer;
-	uint_t m_connectionSyncId;
+	SocketClientLogFilter m_filter;
 
 	// toolbar, status bar & menu
 
@@ -83,11 +85,13 @@ protected:
 	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
 	ui.ComboBox* m_adapterCombo;
 	ui.ComboBox* m_portCombo;
+	ui.ComboBox* m_clientCombo;
+	ui.ComboBox* m_clientFilterCombo;
 
 	// property grid
 
-	ui.BoolProperty* m_overrideOldConnectionProp;
 	ui.SocketPropertySet m_socketPropertySet;
+	ui.StringProperty* m_clientFilterProp;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -106,6 +110,7 @@ public:
 	bool errorcode listen();
 	stopListen();
 	disconnect();
+	disconnectAll();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -121,7 +126,7 @@ public:
 protected:
 	onListen()
 	{
-		m_listenerState ? stopListen() : try listen();
+		m_state ? stopListen() : try listen();
 	}
 
 	onPortComboEnter()
@@ -129,19 +134,30 @@ protected:
 		try listen();
 	}
 
+	onSetClientFilter()
+	{
+		try applyClientFilter(true);
+	}
+
 	onListenerSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
-	onConnectionSocketEvent  (
+	onClientSocketEvent(
+		Client* client,
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
+	bool errorcode applyClientFilter(bool rebuildLog);
+
 	createUi();
 	waitListenerSocketEvents();
-	waitConnectionSocketEvents();
+	waitClientSocketEvents(Client* client);
+	disconnect(Client* client);
+	removeClient(Client* client);
+	setCurrentClient(Client* client);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -154,12 +170,33 @@ TcpListenerSession.construct(doc.PluginHost* pluginHost)
 
 	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
 	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	pluginHost.m_log.addFilter(m_filter);
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
 TcpListenerSession.createUi()
 {
 	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel("Filter:");
+	m_clientFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_clientFilterCombo.m_isEditable = true;
+	m_clientFilterCombo.m_onEnter += onSetClientFilter;
+	m_clientFilterCombo.m_placeholderText = "Enter client address to filter...";
+	m_clientFilterCombo.m_toolTipText = "View only communications with the specified client";
+
+	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
+	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_pluginHost.m_toolBar.addLabel("Client:");
+	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+
+	m_actionTable[ActionId.Disconnect] = createAction("Disconnect", "images/disconnect.png");
+	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
+	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
+	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
+	m_pluginHost.m_toolBar.addSeparator();
 
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
@@ -169,28 +206,20 @@ TcpListenerSession.createUi()
 	m_portCombo.m_isEditable = true;
 	m_portCombo.m_onEnter += onPortComboEnter;
 
-	// status bar
-
-	m_statusPaneTable[StatusPaneId.RemoteAddress] = m_pluginHost.m_statusBar.addPane(, 100);
-	m_statusPaneTable[StatusPaneId.RemoteAddress].m_color = ui.StdColor.Blue;
-	m_statusPaneTable[StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane(, 80);
-
-	// action buttons
-
 	m_iconTable[IconId.Listen] = new ui.Icon("images/listen.png");
 	m_iconTable[IconId.StopListen] = new ui.Icon("images/pause.png");
-	m_iconTable[IconId.Disconnect] = new ui.Icon("images/disconnect.png");
-
 	m_actionTable[ActionId.Listen] = createAction("Listen", m_iconTable [IconId.Listen]);
 	m_actionTable[ActionId.Listen].m_onTriggered += onListen;
 
-	m_actionTable[ActionId.Disconnect] = createAction("Disconnect", m_iconTable [IconId.Disconnect]);
-	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.ListenerState] = m_pluginHost.m_statusBar.addPane(, 80);
+	m_statusPaneTable[StatusPaneId.ClientCount] = m_pluginHost.m_statusBar.addPane(, 80);
 
 	// property grid
 
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
-		"Connection",
+		"TCP connection",
 		"TCP-specific connection settings"
 		);
 
@@ -202,12 +231,6 @@ TcpListenerSession.createUi()
 
 	m_socketPropertySet.m_defaultLocalPort = Defaults.LocalPort;
 
-	m_overrideOldConnectionProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		group,,
-		"Override connections",
-		"Accept incoming connection even if already connected"
-		);
-
 	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
 
 	// information grid
@@ -218,6 +241,7 @@ TcpListenerSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -230,75 +254,117 @@ bool errorcode TcpListenerSession.listen()
 
 	m_portCombo.addEditTextToHistory();
 	io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
-	address.m_ip4.m_port = (uint16_t)atoi(m_portCombo.m_editText); // same for IPv4/IPv6
+	address.m_port = (uint16_t)atoi(m_portCombo.m_editText);
 
 	m_listenerSocket.open(io.Protocol.Tcp, &address);
 	m_listenerSocket.listen();
 
 	address = m_listenerSocket.m_address;
-
-	m_logWriter.write(
-		SocketLogRecordCode.Listening,
-		&address,
-		sizeof(address)
-		);
-
+	m_logWriter.write(SocketLogRecordCode.Listening, &address, sizeof(address));
 	m_localAddress = address;
-	m_listenerState = ListenerState.Listening;
+	m_state = State.Listening;
 	waitListenerSocketEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-	m_logWriter.write(
-		SocketLogRecordCode.ListenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(SocketLogRecordCode.ListenError);
 	m_listenerSocket.close();
+	m_state = State.Closed;
+	m_listenerSyncId++;
+	m_stdSessionInfoSet.endSession();
 	return false;
 }
 
 TcpListenerSession.stopListen()
 {
-	if (m_listenerState != ListenerState.Listening)
+	if (m_state != State.Listening)
 		return;
 
-	m_logWriter.write(
-		SocketLogRecordCode.ListenStopped,
-		&m_localAddress,
-		sizeof(m_localAddress)
-		);
+	m_logWriter.write(SocketLogRecordCode.ListenStopped, &m_localAddress, sizeof(m_localAddress));
 	m_listenerSocket.close();
-	m_listenerState = ListenerState.Closed;
+	m_state = State.Closed;
 	m_listenerSyncId++;
 	m_stdSessionInfoSet.endSession();
 }
 
 TcpListenerSession.disconnect()
 {
-	if (m_connectionState != ConnectionState.Connected)
-		return;
+	Client* client = m_clientCombo.m_currentData;
+	if (client)
+		disconnect(client);
+}
 
+TcpListenerSession.disconnectAll()
+{
+	while (m_clientList.m_count)
+		disconnect(m_clientList.m_head.m_data);
+}
+
+TcpListenerSession.disconnect(TcpListenerSession.Client* client)
+{
 	TcpDisconnectLogRecordParams params;
-	params.m_address = m_remoteAddress;
+	params.m_address = client.m_address;
 	params.m_flags = 0;
 
 	if (m_socketPropertySet.m_tcpResetProp.m_value)
 		params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
+	m_logWriter.write(SocketLogRecordCode.ClientDisconnected, &params, sizeof(params));
+	removeClient(client);
+}
+
+void TcpListenerSession.removeClient(TcpListenerSession.Client* client)
+{
+	client.m_socket.close();
+	client.m_syncId++;
+
+	m_clientList.remove(client.m_entry);
+
+	for (size_t i = 0; i < m_clientCombo.m_itemCount; i++)
+		if (m_clientCombo.m_itemData[i] == client)
+		{
+			m_clientCombo.removeItem(i);
+			break;
+		}
+
+	m_clientCount = m_clientList.m_count;
+	m_currentClient = null;
+}
+
+void TcpListenerSession.setCurrentClient(TcpListenerSession.Client* client)
+{
+	if (client == m_currentClient)
+		return;
+
 	m_logWriter.write(
-		SocketLogRecordCode.ClientDisconnected,
-		&params,
-		sizeof(params)
+		SocketLogRecordCode.ClientChanged,
+		&client.m_address,
+		sizeof(client.m_address)
 		);
 
-	m_connectionSocket.close();
-	m_connectionSocket = null;
-	m_connectionState = ConnectionState.Closed;
-	m_connectionSyncId++;
+	m_currentClient = client;
+}
+
+bool errorcode TcpListenerSession.applyClientFilter(bool rebuildLog)
+{
+	m_pluginHost.m_log.suspend();
+	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
+	m_pluginHost.m_log.resume();
+
+	if (!result)
+	{
+		m_clientFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_clientFilterCombo.addEditTextToHistory();
+	m_clientFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+
+	if (rebuildLog)
+		m_pluginHost.m_log.rebuild();
+
+	return true;
 }
 
 void TcpListenerSession.load(doc.Storage* storage)
@@ -306,7 +372,6 @@ void TcpListenerSession.load(doc.Storage* storage)
 	m_portCombo.loadHistory(storage, "portHistory");
 	m_adapterCombo.m_currentIndex  = storage.readInt("adapterIdx");
 	m_portCombo.m_editText = storage.readString("port");
-	m_overrideOldConnectionProp.m_value = storage.readBool("overrideOldConnection");
 
 	m_socketPropertySet.load(storage);
 	m_bufferPropertySet.load(storage);
@@ -321,7 +386,6 @@ void TcpListenerSession.save(doc.Storage* storage)
 	m_portCombo.saveHistory(storage, "portHistory");
 	storage.writeInt("adapterIdx", (int) m_adapterCombo.m_currentIndex);
 	storage.writeString("port", m_portCombo.m_editText);
-	storage.writeBool("overrideOldConnection", m_overrideOldConnectionProp.m_value);
 }
 
 void TcpListenerSession.updateProperties()
@@ -336,14 +400,17 @@ bool errorcode TcpListenerSession.applyProperties()
 	m_adapterCombo.m_currentIndex = m_socketPropertySet.m_adapterProp.m_currentIndex;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
-	if (!m_connectionSocket)
-		return true;
+	std.ListEntry* entry = m_clientList.m_head;
+	for (; entry; entry = entry.m_next)
+	{
+		Client* client = entry.m_data;
+		client.m_socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
+		client.m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+		client.m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+		client.m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+		client.m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+	}
 
-	m_connectionSocket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
-	m_connectionSocket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
-	m_connectionSocket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
-	m_connectionSocket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-	m_connectionSocket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	return true;
 }
 
@@ -351,7 +418,6 @@ void TcpListenerSession.restoreDefaultProperties()
 {
 	m_socketPropertySet.restoreDefaults();
 	m_bufferPropertySet.restoreDefaults();
-	m_overrideOldConnectionProp.m_value = true;
 }
 
 size_t errorcode TcpListenerSession.transmit(
@@ -359,15 +425,18 @@ size_t errorcode TcpListenerSession.transmit(
 	size_t size
 	)
 {
-	if (m_connectionState != ConnectionState.Connected)
+	Client* client = m_clientCombo.m_currentData;
+	if (!client)
 		return -1;
 
-	size_t result = m_connectionSocket.write(p, size);
+	setCurrentClient(client);
+
+	size_t result = client.m_socket.write(p, size);
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	if (result < size)
-		m_isTransmitEnabled = false;
+		client.m_isTransmitEnabled = false;
 
 	return result;
 }
@@ -381,14 +450,20 @@ TcpListenerSession.waitListenerSocketEvents()
 		);
 }
 
-TcpListenerSession.waitConnectionSocketEvents()
+void TcpListenerSession.waitClientSocketEvents(TcpListenerSession.Client* client)
 {
-	m_connectionSocket.wait(
+	io.SocketEvents eventMask =
 		io.SocketEvents.IoError |
 		io.SocketEvents.IncomingData |
 		io.SocketEvents.Disconnected |
-		io.SocketEvents.Reset,
-		onConnectionSocketEvent~(++m_connectionSyncId) @ m_pluginHost.m_mainThreadScheduler
+		io.SocketEvents.Reset;
+
+	if (!client.m_isTransmitEnabled)
+		eventMask |= io.SocketEvents.WriteBufferReady;
+
+	client.m_socket.wait(
+		eventMask,
+		onClientSocketEvent~(client, ++client.m_syncId) @ m_pluginHost.m_mainThreadScheduler
 		);
 }
 
@@ -402,9 +477,9 @@ TcpListenerSession.onListenerSocketEvent(
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_listenerSocket.m_ioError, m_listenerSocket.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_listenerSocket.m_ioError);
 		m_listenerSocket.close();
-		m_listenerState = ListenerState.Closed;
+		m_state = State.Closed;
 		m_stdSessionInfoSet.endSession();
 		return;
 	}
@@ -413,13 +488,7 @@ TcpListenerSession.onListenerSocketEvent(
 	{
 		io.SocketAddress address;
 		io.Socket* socket = m_listenerSocket.accept(&address, true);
-
-		if (m_connectionState == ConnectionState.Connected && !m_overrideOldConnectionProp.m_value)
-		{
-			socket.close();
-			m_logWriter.write(SocketLogRecordCode.ClientRejected, &address, sizeof(address));
-			return;
-		}
+		m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
 
 		socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 		socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
@@ -428,36 +497,34 @@ TcpListenerSession.onListenerSocketEvent(
 		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 		socket.unsuspend();
 
-		disconnect();
+		Client* client = new Client;
+		client.m_socket = socket;
+		client.m_address = address;
+		client.m_entry = m_clientList.add(client);
+		m_clientCombo.addItemSetCurrent(client.m_address.getString(), client);
+		m_clientCount = m_clientList.m_count;
+		m_currentClient = client;
 
-		m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
-
-		m_remoteAddress = address;
-		m_connectionSocket = socket;
-		m_connectionState = ConnectionState.Connected;
-		m_isTransmitEnabled = true;
-
-		waitConnectionSocketEvents();
+		waitClientSocketEvents(client);
 	}
 
 	waitListenerSocketEvents();
 }
 
-TcpListenerSession.onConnectionSocketEvent(
+TcpListenerSession.onClientSocketEvent(
+	TcpListenerSession.Client* client,
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
 {
-	if (syncId != m_connectionSyncId)
+	if (syncId != client.m_syncId)
 		return;
 
 	if (triggeredEvents & io.SocketEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_connectionSocket.m_ioError, m_connectionSocket.m_ioError.m_size);
-		m_connectionSocket.close();
-		m_connectionSocket = null;
-		m_connectionState = ConnectionState.Closed;
-		m_isTransmitEnabled = false;
+		setCurrentClient(client);
+		m_logWriter.write(log.StdRecordCode.Error, client.m_socket.m_ioError);
+		removeClient(client);
 		return;
 	}
 
@@ -465,15 +532,16 @@ TcpListenerSession.onConnectionSocketEvent(
 	{
 		for (;;) // read all the buffered data
 		{
-			size_t result = m_connectionSocket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+			size_t result = client.m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 			if (!result)
 				break;
 
+			setCurrentClient(client);
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 		}
 
 		TcpDisconnectLogRecordParams recordParams;
-		recordParams.m_address = m_remoteAddress;
+		recordParams.m_address = client.m_address;
 		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
 		if (triggeredEvents & io.SocketEvents.Reset)
@@ -485,35 +553,40 @@ TcpListenerSession.onConnectionSocketEvent(
 			sizeof(recordParams)
 			);
 
-		m_connectionSocket.close();
-		m_connectionSocket = null;
-		m_connectionState = ConnectionState.Closed;
-		m_isTransmitEnabled = false;
+		removeClient(client);
 		return;
 	}
 
 	if (triggeredEvents & io.SocketEvents.IncomingData)
 	{
-		size_t result = m_connectionSocket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		setCurrentClient(client);
+		m_clientCombo.m_currentData = client;
+
+		size_t result = client.m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
-	if (io.SocketEvents.WriteBufferReady)
-		m_isTransmitEnabled = true;
+	if (triggeredEvents & io.SocketEvents.WriteBufferReady)
+		client.m_isTransmitEnabled = true;
 
-	waitConnectionSocketEvents();
+	waitClientSocketEvents(client);
 }
 
 reactor TcpListenerSession.m_uiReactor
 {
 	m_title = $"TCP @ $(m_portCombo.m_editText)";
-	m_actionTable[ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
-	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_listenerState ? IconId.StopListen : IconId.Listen];
-	m_actionTable[ActionId.Disconnect].m_isEnabled = m_connectionState != ConnectionState.Closed;
-	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_listenerState ? "Listening" : "Not listening";
-	m_statusPaneTable[StatusPaneId.RemoteAddress].m_text = m_connectionState ? m_remoteAddress.getString() : "<peer>";
-	m_statusPaneTable[StatusPaneId.RemoteAddress].m_isVisible = m_connectionState != ConnectionState.Closed;
+	m_actionTable[ActionId.Listen].m_text = m_state ? "Stop Listening" : "Listen";
+	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_state ? IconId.StopListen : IconId.Listen];
+	m_actionTable[ActionId.Disconnect].m_isEnabled =
+	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCombo.m_currentData;
+	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_state ? "Listening" : "Not listening";
+	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_clientCount client(s)";
+	m_clientCombo.m_isEnabled = m_clientCount;
+
+	m_isTransmitEnabled =
+		m_clientCombo.m_currentData &&
+		((Client*)m_clientCombo.m_currentData).m_isTransmitEnabled;
 }
 
 //..............................................................................

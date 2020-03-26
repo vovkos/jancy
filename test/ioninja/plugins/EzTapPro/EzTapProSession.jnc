@@ -365,6 +365,7 @@ EzTapProSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	enumeratePorts();
@@ -493,14 +494,7 @@ bool errorcode EzTapProSession.capture()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-
-	m_logWriter.write(
-		SerialLogRecordCode.PortOpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(SerialLogRecordCode.PortOpenError);
 	m_serial.close();
 	return false;
 }
@@ -873,7 +867,7 @@ EzTapProSession.onSerialEvent(
 
 	if (triggeredEvents & io.SerialEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, &m_serial.m_ioError, m_serial.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_serial.m_ioError);
 		stopCapture();
 		return;
 	}

@@ -33,13 +33,6 @@ class Layer: Plugin
 		void const* p,
 		size_t size
 		);
-
-	size_t transmitToNext(
-		void const* p,
-		size_t size,
-		void const* address,
-		size_t addressSize
-		);
 }
 
 //..............................................................................

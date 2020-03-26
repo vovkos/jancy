@@ -1,0 +1,21 @@
+#...............................................................................
+#
+#  SSL Connection session plugin
+#
+
+[plugin]
+
+name        = "SSL Connection Socket"
+description = "Establishes connection over SSL socket"
+id          = ssl
+group       = net
+log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/ssl.png
+small-icon  = images/ssl-16x16.png
+
+session-class = SslConnectionSession
+
+[scripts]
+
+SslConnectionSession.jnc

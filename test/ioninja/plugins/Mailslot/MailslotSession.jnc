@@ -180,6 +180,7 @@ MailslotSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -207,13 +208,7 @@ bool errorcode MailslotSession.open()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-	m_logWriter.write(
-		MailslotLogRecordCode.OpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(MailslotLogRecordCode.OpenError);
 	m_mailslot.close();
 	return false;
 }
@@ -301,7 +296,7 @@ MailslotSession.onMailslotEvent(
 
 	if (triggeredEvents & io.MailslotEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, m_mailslot.m_ioError, m_mailslot.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, m_mailslot.m_ioError);
 		close();
 		return;
 	}

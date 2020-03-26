@@ -11,12 +11,12 @@ group       = serial
 guid        = 39ee6b0f-a65e-4e8a-b252-6fa28d8e3327
 small-icon  = images/sniffer-16x16.png
 
-log-representer-func = representI2cSpiSnifferLog
+log-representer-func = representI2cSpiTapLog
 
 [scripts]
 
-I2cSpiSnifferLogRepresenter.jnc
-I2cSpiSnifferLogRecordCode.jnc
+I2cSpiTapLogRepresenter.jnc
+I2cSpiTapLogRecordCode.jnc
 
 [records]
 

@@ -84,7 +84,7 @@ EnumPropertyOption const* createNetworkAdapterOptionArray(NetworkAdapterUsage us
 
 EnumProperty* createNetworkAdapterProperty(
 	PropertyGrid* propertyGrid,
-	GroupProperty* group = null,
+	Property* group = null,
 	Property* insertBefore = null,
 	NetworkAdapterUsage usage,
 	char const* name,
@@ -116,8 +116,7 @@ EnumProperty* createNetworkAdapterProperty(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ComboBox*
-createNetworkAdapterComboBox(
+ComboBox* createNetworkAdapterComboBox(
 	ToolBar* toolBar,
 	NetworkAdapterUsage usage,
 	uint_t width = -1
@@ -150,12 +149,9 @@ class SocketPropertySet
 		ServerAdapter,
 		LocalPort,
 		ReuseLocalAddress,
-		TcpKeepAlive,
-		TcpNagle,
-		TcpReset,
+		TcpOptions,
 		UdpBroadcast,
-		UseReconnect,
-		ReconnectTimeout,
+		Reconnect,
 
 		AllUdpClient =
 			RemoteAddress |
@@ -172,32 +168,29 @@ class SocketPropertySet
 			ClientAdapter |
 			LocalPort |
 			ReuseLocalAddress |
-			TcpKeepAlive |
-			TcpNagle |
-			TcpReset,
+			TcpOptions,
 
 		AllTcpServer =
 			ServerAdapter |
 			LocalPort |
 			ReuseLocalAddress |
-			TcpKeepAlive |
-			TcpNagle |
-			TcpReset,
+			TcpOptions,
 	}
 
 	enum Defaults
 	{
-		RemotePort       = 80,
-		UseReconnect     = false,
-		ReconnectTimeout = 3000,
-		LocalPort        = 0,
-		TcpKeepAlive     = false,
-		TcpNagle         = false,
-		TcpReset         = false,
-		UdpBroadcast     = true,
+		RemotePort         = 80,
+		UseReconnect       = false,
+		ReconnectTimeout   = 3000,
+		LocalPort          = 0,
+		ReuseLocalAddress  = false,
+		TcpKeepAlive       = false,
+		TcpNagle           = false,
+		TcpReset           = false,
+		UdpBroadcast       = true,
 	}
 
-	static char DefaultRemoteAddress[] = "ioninja.com";
+	static char const DefaultRemoteAddress[] = "ioninja.com";
 
 	StringProperty* m_remoteAddressProp;
 	IntProperty* m_remotePortProp;
@@ -218,7 +211,7 @@ class SocketPropertySet
 
 	createProperties(
 		PropertyGrid* propertyGrid,
-		GroupProperty* group = null,
+		Property* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.AllTcpClient
 		);
@@ -232,7 +225,7 @@ class SocketPropertySet
 
 SocketPropertySet.createProperties(
 	PropertyGrid* propertyGrid,
-	GroupProperty* group,
+	Property* group,
 	Property* insertBefore,
 	PropertyId mask
 	)
@@ -254,7 +247,8 @@ SocketPropertySet.createProperties(
 			"Remote port to connect to (if not specified in remote address)"
 			);
 
-	if (mask & PropertyId.UseReconnect)
+	if (mask & PropertyId.Reconnect)
+	{
 		m_useReconnectProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
@@ -262,15 +256,20 @@ SocketPropertySet.createProperties(
 			"Attempt to reconnect when connection is dropped by the remote node"
 			);
 
-	if (mask & PropertyId.ReconnectTimeout)
+		m_useReconnectProp.m_isGroupEnabler = true;
+
 		m_reconnectTimeoutProp = propertyGrid.createIntProperty(
-			group,
-			insertBefore,
+			m_useReconnectProp,,
 			"Reconnect timeout",
 			"Specify the delay between reconnect attempts"
 			);
+	}
+
+	ui.Property* localAddressGroup = group;
+	ui.Property* localAddressInsertBefore = insertBefore;
 
 	if (mask & PropertyId.UseLocalAddress)
+	{
 		m_useLocalAddressProp = propertyGrid.createBoolProperty(
 			group,
 			insertBefore,
@@ -278,11 +277,16 @@ SocketPropertySet.createProperties(
 			"Bind socket to the specified local address"
 			);
 
+		m_useLocalAddressProp.m_isGroupEnabler = true;
+		localAddressGroup = m_useLocalAddressProp;
+		localAddressInsertBefore = null;
+	}
+
 	if (mask & (PropertyId.ClientAdapter | PropertyId.ServerAdapter))
 		m_adapterProp = createNetworkAdapterProperty(
 			propertyGrid,
-			group,
-			insertBefore,
+			localAddressGroup,
+			localAddressInsertBefore,
 			(mask & PropertyId.ClientAdapter) ?
 				NetworkAdapterUsage.Connection :
 				NetworkAdapterUsage.Listener,
@@ -292,42 +296,47 @@ SocketPropertySet.createProperties(
 
 	if (mask & PropertyId.LocalPort)
 		m_localPortProp = propertyGrid.createIntProperty(
-			group,,
+			localAddressGroup,
+			localAddressInsertBefore,
 			"Local port",
 			"Local port to bind to"
 			);
 
 	if (mask & PropertyId.ReuseLocalAddress)
 		m_reuseLocalAddressProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			localAddressGroup,
+			localAddressInsertBefore,
 			"Reuse address",
 			"Allow multiple sockets to share the same local address"
 			);
 
-	if (mask & PropertyId.TcpKeepAlive)
-		m_tcpKeepAliveProp = propertyGrid.createBoolProperty(
+	if (mask & PropertyId.TcpOptions)
+	{
+		ui.GroupProperty* tcpGroup = propertyGrid.createGroupProperty(
 			group,
 			insertBefore,
-			"TCP keep-alives",
-			"Detect connection loss with TCP keep-alive probes"
+			"Advanced TCP options",
+			"Specify advanced TCP flags"
 			);
 
-	if (mask & PropertyId.TcpNagle)
 		m_tcpNagleProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			tcpGroup,,
 			"TCP Nagle algorithm",
-			"Reduce the number of small TCP packets being sent"
+			"Delay transmission to reduce the number of small TCP packets"
 			);
 
-	if (mask & PropertyId.TcpReset)
 		m_tcpResetProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			tcpGroup,,
 			"TCP reset",
 			"Drop TCP connections abruptly with a TCP RST packet"
 			);
+
+		m_tcpKeepAliveProp = propertyGrid.createBoolProperty(
+			tcpGroup,,
+			"TCP keep-alives",
+			"Detect connection loss with TCP keep-alive probes"
+			);
+	}
 
 	if (mask & PropertyId.UdpBroadcast)
 		m_udpBroadcastProp = propertyGrid.createBoolProperty(
@@ -362,7 +371,7 @@ SocketPropertySet.load(doc.Storage* storage)
 		m_localPortProp.m_value = storage.readInt("localPort", m_defaultLocalPort);
 
 	if (m_reuseLocalAddressProp)
-		m_reuseLocalAddressProp.m_value = storage.readBool("reuseLocalAddress", false);
+		m_reuseLocalAddressProp.m_value = storage.readBool("reuseLocalAddress", Defaults.ReuseLocalAddress);
 
 	if (m_tcpKeepAliveProp)
 		m_tcpKeepAliveProp.m_value = storage.readBool("tcpKeepAlive", Defaults.TcpKeepAlive);
@@ -440,7 +449,7 @@ SocketPropertySet.restoreDefaults()
 		m_localPortProp.m_value = m_defaultLocalPort;
 
 	if (m_reuseLocalAddressProp)
-		m_reuseLocalAddressProp.m_value = false;
+		m_reuseLocalAddressProp.m_value = Defaults.ReuseLocalAddress;
 
 	if (m_tcpKeepAliveProp)
 		m_tcpKeepAliveProp.m_value = Defaults.TcpKeepAlive;

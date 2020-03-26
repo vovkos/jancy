@@ -139,7 +139,7 @@ ModbusLayer.createUi()
 		countof(protocolTable)
 		);
 
-	m_protocolCombo.m_onChanged += onProtocolChanged;
+	bindingof(m_protocolCombo.m_currentIndex) += onProtocolChanged;
 
 	m_streamRolesCombo = m_pluginHost.m_toolBar.addComboBox(
 		"Roles:",
@@ -147,7 +147,7 @@ ModbusLayer.createUi()
 		countof(streamRolesTable)
 		);
 
-	m_streamRolesCombo.m_onChanged += onStreamRolesComboChanged;
+	bindingof(m_protocolCombo.m_currentIndex) += onStreamRolesComboChanged;
 
 	m_applyAction = createAction("Apply & rebuild log", "images/apply.png");
 	m_applyAction.m_onTriggered += onApplyRebuildLog;

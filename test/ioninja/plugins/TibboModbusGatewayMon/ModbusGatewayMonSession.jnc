@@ -225,8 +225,8 @@ bool errorcode ModbusGatewayMonSession.connect()
 	bool isDirectAddress = try address.parse(addressString);
 	if (isDirectAddress)
 	{
-		if (address.m_ip4.m_port == 0)
-			address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
+		if (address.m_port == 0)
+			address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
 		return try connect(&address);
 	}
@@ -287,7 +287,7 @@ nestedscope:
 		else
 			localAddress.m_family = remoteAddress.m_family;
 
-		localAddress.m_ip4.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value; // same for IPv4/IPv6
+		localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
 
 		m_socket.open(io.Protocol.Tcp, &localAddress);
 	}
@@ -321,12 +321,7 @@ catch:
 
 ModbusGatewayMonSession.handleConnectError(std.Error const* error)
 {
-	m_logWriter.write(
-		SocketLogRecordCode.ConnectError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
 	m_socket.close();
 	m_state = State.Closed;
 }
@@ -580,8 +575,8 @@ ModbusGatewayMonSession.onResolverEvent(
 	m_state = State.Closed;
 
 	io.SocketAddress address = m_resolver.m_addressTable[0];
-	if (!address.m_ip4.m_port) // IPv4 & IPv6 share the same port location
-		address.m_ip4.m_port = m_socketPropertySet.m_remotePortProp.m_value;
+	if (!address.m_port)
+		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
 	connect(address);
 }
@@ -589,9 +584,6 @@ ModbusGatewayMonSession.onResolverEvent(
 reactor ModbusGatewayMonSession.m_uiReactor
 {
 	m_title = $"Modbus $(m_addressCombo.m_editText)";
-	m_socketPropertySet.m_adapterProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
-	m_socketPropertySet.m_localPortProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
-	m_socketPropertySet.m_reuseLocalAddressProp.m_isEnabled = m_socketPropertySet.m_useLocalAddressProp.m_value;
 	m_actionTable[ActionId.Connect].m_text = m_state ? "Disconnect" : "Connect";
 	m_actionTable[ActionId.Connect].m_icon = m_iconTable[m_state ? IconId.Disconnect : IconId.Connect];
 	m_statusPaneTable[StatusPaneId.State].m_text = m_stateStringTable[m_state];

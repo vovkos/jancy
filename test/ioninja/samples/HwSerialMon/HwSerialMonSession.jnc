@@ -251,6 +251,7 @@ HwSerialMonSession.createUi()
 	m_usbThroughputTimestamp = sys.getTimestamp();
 	updateUsbThroughput(m_usbThroughputTimestamp);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	enumerateDevices();

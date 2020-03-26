@@ -90,6 +90,7 @@ add_jancy_tests(
 		representPipeListenerLog
 	FILES
 		PipeListenerSession.jnc
+		PipeClientLogFilter.jnc
 		PipeListenerLogRecordCode.jnc
 		PipeListenerLogRepresenter.jnc
 	FINALIZE_TEST PipeListener
@@ -135,6 +136,7 @@ add_jancy_tests(
 		representSocketLog
 	FILES
 		TcpListenerSession.jnc
+		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpListener
@@ -145,6 +147,7 @@ add_jancy_tests(
 		representSocketLog
 	FILES
 		TcpProxySession.jnc
+		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpProxy
@@ -276,6 +279,9 @@ if(BUILD_JNC_IO_PCAP)
 			representPcapLog
 		FILES
 			TcpFlowMonSession.jnc
+			TcpDecoder.jnc
+			TcpSequencer.jnc
+			TcpFlowMonLogFilter.jnc
 			TcpFlowMonLogRecordCode.jnc
 			TcpFlowMonLogRepresenter.jnc
 			../PcapLog/PcapLogRecordCode.jnc
@@ -291,6 +297,8 @@ if(BUILD_JNC_IO_PCAP)
 			representPcapLog
 		FILES
 			UdpFlowMonSession.jnc
+			UdpDecoder.jnc
+			UdpFlowMonLogFilter.jnc
 			UdpFlowMonLogRecordCode.jnc
 			UdpFlowMonLogRepresenter.jnc
 			../PcapLog/PcapLogRecordCode.jnc
@@ -316,18 +324,18 @@ if(BUILD_JNC_IO_USB)
 			../Serial/SerialLogRepresenter.jnc
 		FINALIZE_TEST SerialTap
 
-		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiSniffer
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/I2cSpiTap
 		REQUIRES
-			I2cSpiSnifferSession
-			representI2cSpiSnifferLog
+			I2cSpiTapSession
+			representI2cSpiTapLog
 		FILES
-			I2cSpiSnifferSession.jnc
-			I2cSpiSnifferLogRecordCode.jnc
-			I2cSpiSnifferLogRepresenter.jnc
+			I2cSpiTapSession.jnc
+			I2cSpiTapLogRecordCode.jnc
+			I2cSpiTapLogRepresenter.jnc
 			Decoder.jnc
 			I2cDecoder.jnc
 			SpiDecoder.jnc
-		FINALIZE_TEST I2cSpiSniffer
+		FINALIZE_TEST I2cSpiTap
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/EthernetTap
 		REQUIRES
@@ -499,7 +507,7 @@ add_jancy_tests(
 
 	TESTS
 		default.jnc
-		ModBus.jnc
+		Modbus.jnc
 		TcpIp.jnc
 	)
 

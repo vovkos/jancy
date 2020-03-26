@@ -234,12 +234,8 @@ bool errorcode ReplayLogLayer.readLoop()
 			break;
 		}
 
-		if (m_replayCustomCodeProp.m_value)
-		{
-			printf("%llx vs %llx\n", record.m_code, m_customRecordCode);
-			if (record.m_code == m_customRecordCode)
-				isReplayed = true;
-		}
+		if (m_replayCustomCodeProp.m_value && record.m_code == m_customRecordCode)
+			isReplayed = true;
 
 		if (!isReplayed)
 		{

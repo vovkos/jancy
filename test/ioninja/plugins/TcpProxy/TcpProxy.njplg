@@ -9,13 +9,15 @@ name        = TCP Proxy
 description = "Passes-through data between a TCP client and a TCP server"
 id          = tcp-proxy
 group       = net
+monitor     = true
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/proxy.png
 small-icon  = images/proxy-16x16.png
-monitor     = true
 
 session-class = TcpProxySession
 
 [scripts]
 
 TcpProxySession.jnc
+iox_HostNameResolver.jnc
+../SocketLog/SocketClientLogFilter.jnc

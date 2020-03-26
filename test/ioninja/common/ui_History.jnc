@@ -22,6 +22,8 @@ extension ComboBoxHistory: ComboBox
 		size_t limit = 10
 		);
 
+	removeExtraItems(size_t limit);
+
 	saveHistory(
 		doc.Storage* storage,
 		char const* directory
@@ -46,19 +48,23 @@ ComboBoxHistory.addToHistory(
 	)
 {
 	for (size_t i = 0; i < m_itemCount; i++)
-	{
 		if (strcmp(text, m_itemText[i]) == 0)
 		{
 			if (!i)
 				return;
 
-			removeItem(i);
-			break;
+			insertItem(0, text);
+			removeItem(i + 1);
+			removeExtraItems(limit);
+			return;
 		}
-	}
 
 	insertItem(0, text);
+	removeExtraItems(limit);
+}
 
+ComboBoxHistory.removeExtraItems(size_t limit)
+{
 	while (m_itemCount > limit)
 		removeItem(limit);
 }

@@ -336,6 +336,7 @@ SerialTapSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	enumeratePorts();
@@ -501,14 +502,7 @@ bool errorcode SerialTapSession.open()
 	return true;
 
 catch:
-	std.Error const* error = std.getLastError();
-
-	m_logWriter.write(
-		SerialLogRecordCode.PortOpenError,
-		error,
-		error.m_size
-		);
-
+	m_logWriter.writeLastError(SerialLogRecordCode.PortOpenError);
 	m_dtePort.m_serial.close();
 	m_dcePort.m_serial.close();
 	return false;
@@ -665,7 +659,7 @@ SerialTapSession.onSerialEvent(
 
 	if (triggeredEvents & io.SerialEvents.IoError)
 	{
-		m_logWriter.write(log.StdRecordCode.Error, port.m_serial.m_ioError, port.m_serial.m_ioError.m_size);
+		m_logWriter.write(log.StdRecordCode.Error, port.m_serial.m_ioError);
 		close();
 		return;
 	}

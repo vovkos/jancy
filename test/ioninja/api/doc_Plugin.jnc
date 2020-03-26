@@ -56,16 +56,6 @@ class Plugin
 		size_t size
 		);
 
-	virtual size_t errorcode transmitTo(
-		void const* p,
-		size_t size,
-		void const* address,
-		size_t addressSize
-		)
-	{
-		return transmit(p, size);
-	}
-
 	ui.Action* createAction(
 		char const* text,
 		ui.Icon* icon = null,

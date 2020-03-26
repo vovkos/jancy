@@ -8,7 +8,7 @@ import "io_RpdFile.jnc"
 
 //..............................................................................
 
-bool representI2cSpiSnifferLog(
+bool representI2cSpiTapLog(
 	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
@@ -18,51 +18,51 @@ bool representI2cSpiSnifferLog(
 {
 	switch (recordCode)
 	{
-	case I2cSpiSnifferLogRecordCode.DeviceOpened:
+	case I2cSpiTapLogRecordCode.DeviceOpened:
 		char const* name = (char const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Opened tap device \e[34m$name\e[m");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.InterfaceClaimed:
+	case I2cSpiTapLogRecordCode.InterfaceClaimed:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Interface \e[34m#0\e[m claimed");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.InEndpointOpened:
+	case I2cSpiTapLogRecordCode.InEndpointOpened:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"In endpoint \e[34m#86\e[m opened");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.OutEndpointOpened:
+	case I2cSpiTapLogRecordCode.OutEndpointOpened:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Out endpoint \e[34m#2\e[m opened");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.CaptureStarted:
+	case I2cSpiTapLogRecordCode.CaptureStarted:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Capture started");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.CaptureStopped:
+	case I2cSpiTapLogRecordCode.CaptureStopped:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 		representation.addHyperText("Capture stopped");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.CaptureError:
+	case I2cSpiTapLogRecordCode.CaptureError:
 		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot open sniffer: $(error.m_description)");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.UnexpectedCode:
+	case I2cSpiTapLogRecordCode.UnexpectedCode:
 		uint_t code = ((uint_t const*)p)[0];
 		uint_t state = ((uint_t const*)p)[1];
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
@@ -70,38 +70,38 @@ bool representI2cSpiSnifferLog(
 		representation.addHyperText($"Unexpected code from sniffer (code: $code, decoder state: $state)");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.IncompleteByte:
+	case I2cSpiTapLogRecordCode.IncompleteByte:
 		uint_t bitCount = *(uint_t const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText($"Incomplete byte received ($(bitCount) bit(s))");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.FpgaBufferOverflow:
+	case I2cSpiTapLogRecordCode.FpgaBufferOverflow:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText("Hardware buffer overflow");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.CypressBufferCleared:
+	case I2cSpiTapLogRecordCode.CypressBufferCleared:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Hardware buffer cleared");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cStart:
+	case I2cSpiTapLogRecordCode.I2cStart:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Play;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText(I2cSpiSnifferLogPartCode.I2cStartBegin, "I2C start");
+		representation.addHyperText(I2cSpiTapLogPartCode.I2cStartBegin, "I2C start");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cFinalizeStart7Bit:
+	case I2cSpiTapLogRecordCode.I2cFinalizeStart7Bit:
 		uint16_t hdr = *(const uint16_t*) p;
 		bool isRead = hdr & 0x01;
 		bool isAck = hdr & 0x0100;
 
 		representation.addHyperText(
-			I2cSpiSnifferLogPartCode.I2cStartEnd,
+			I2cSpiTapLogPartCode.I2cStartEnd,
 			$"\x15I2C start (%1, I2C 7-bit address: \e[%2m0x%(3; 02x)\e[m)" (
 				isRead ? "read" : "write",
 				isAck ? "34" : "34;9",
@@ -116,14 +116,14 @@ bool representI2cSpiSnifferLog(
 		representation.addBin(isRead ? log.StdRecordCode.Rx : log.StdRecordCode.Tx, p, 1);
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cFinalizeStart10Bit:
+	case I2cSpiTapLogRecordCode.I2cFinalizeStart10Bit:
 		uint32_t hdr = *(const uint32_t*) p;
 		bool isRead = hdr & 0x01;
 		bool isAck1 = hdr & 0x00010000;
 		bool isAck2 = hdr & 0x00020000;
 
 		representation.addHyperText(
-			I2cSpiSnifferLogPartCode.I2cStartEnd,
+			I2cSpiTapLogPartCode.I2cStartEnd,
 			$"\x15I2C start (%1, I2C 10-bit address: \e[%2m0x%(3; 03x)\e[m)" (
 				isRead ? "read" : "write",
 				isAck1 && isAck2 ? "34" : "34;9",
@@ -154,19 +154,19 @@ bool representI2cSpiSnifferLog(
 
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cStop:
+	case I2cSpiTapLogRecordCode.I2cStop:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Stop;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText("I2C stop");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cStopOutOfTransaction:
+	case I2cSpiTapLogRecordCode.I2cStopOutOfTransaction:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText("I2C \e[31mstop\e[m out-of-transaction");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cTxNack:
+	case I2cSpiTapLogRecordCode.I2cTxNack:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Tx;
 		representation.m_lineAttr.m_textColor = log.StdLogColor.Tx;
@@ -174,7 +174,7 @@ bool representI2cSpiSnifferLog(
 		representation.addBin(log.StdRecordCode.Tx, p, size);
 		break;
 
-	case I2cSpiSnifferLogRecordCode.I2cRxNack:
+	case I2cSpiTapLogRecordCode.I2cRxNack:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Rx;
 		representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
@@ -182,13 +182,13 @@ bool representI2cSpiSnifferLog(
 		representation.addBin(log.StdRecordCode.Rx, p, size);
 		break;
 
-	case I2cSpiSnifferLogRecordCode.SpiStart:
+	case I2cSpiTapLogRecordCode.SpiStart:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Play;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText("SPI SS \e[32mlow\e[m");
 		break;
 
-	case I2cSpiSnifferLogRecordCode.SpiStop:
+	case I2cSpiTapLogRecordCode.SpiStop:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Stop;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText("SPI SS \e[31mhigh\e[m");

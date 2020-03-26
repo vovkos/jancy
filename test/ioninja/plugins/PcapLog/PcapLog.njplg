@@ -28,3 +28,5 @@ PcapLogRepresenter.jnc
 01d485681832d004  # ChangingFilter
 01d485681832d005  # FilterChanged
 01d485681832d006  # FilterError
+01d485681832d007  # SetCaptureFilter
+01d485681832d008  # SetAddressFilter

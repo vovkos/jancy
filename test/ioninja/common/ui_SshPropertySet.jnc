@@ -4,6 +4,8 @@
 //
 
 import "ui_PropertyGrid.jnc"
+import "ui_Dialog.jnc"
+import "doc_Storage.jnc"
 
 namespace ui {
 
@@ -20,9 +22,7 @@ class SshPropertySet
 		AuthenticationMethod,
 		PrivateKeyFile,
 		RememberLastPassword,
-		ChannelType,
-		ProcessType,
-		Exec,
+		Process,
 		PtyType,
 
 		All =
@@ -30,9 +30,7 @@ class SshPropertySet
 			AuthenticationMethod |
 			PrivateKeyFile |
 			RememberLastPassword |
-			ChannelType |
-			ProcessType |
-			Exec |
+			Process |
 			PtyType,
 	}
 
@@ -40,9 +38,9 @@ class SshPropertySet
 	{
 		AuthenticationMethod = ui.AuthenticationMethod.Password,
 		RememberLastPassword = false,
+		ProcessTypeIndex     = 0,
 	}
 
-	static char DefaultChannelType[] = "session";
 	static char DefaultProcessType[] = "shell";
 	static char DefaultPtyType[] = "xterm";
 
@@ -50,9 +48,8 @@ class SshPropertySet
 	EnumProperty* m_authenticationMethodProp;
 	FileProperty* m_privateKeyFileProp;
 	BoolProperty* m_rememberLastPasswordProp;
-	StringProperty* m_channelTypeProp;
-	StringProperty* m_processTypeProp;
-	StringProperty* m_execProp;
+	EnumProperty* m_processTypeProp;
+	StringProperty* m_processParamProp;
 	StringProperty* m_ptyTypeProp;
 
 	createProperties(
@@ -65,6 +62,8 @@ class SshPropertySet
 	load(doc.Storage* storage);
 	save(doc.Storage* storage);
 	restoreDefaults();
+
+	reactor m_uiReactor;
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -107,7 +106,7 @@ SshPropertySet.createProperties(
 			"Private key file (PEM) for SSH authentification"
 			);
 
-		m_privateKeyFileProp.m_fileDialogCaption = "Select Private Key File";
+		m_privateKeyFileProp.m_fileDialogTitle = "Select Private Key File";
 		m_privateKeyFileProp.m_filter = "SSH identity files (id_dsa id_rsa);;PEM files (*.pem);;All files (*.*)";
 	}
 
@@ -118,29 +117,30 @@ SshPropertySet.createProperties(
 			"Re-use the last entered password during subsequent connect attempts"
 			);
 
-	if (mask & PropertyId.ChannelType)
-		m_channelTypeProp = propertyGrid.createStringProperty(
+	if (mask & PropertyId.Process)
+	{
+		static ui.EnumPropertyOption processTypeTable[] =
+		{
+			{ "shell",     "shell" },
+			{ "exec",      "exec" },
+			{ "subsystem", "subsystem" },
+		}
+
+		m_processTypeProp = propertyGrid.createEnumProperty(
 			group,,
-			"SSH channel",
-			"Enter a channel type...",
-			"Type of requested SSH channel"
+			"Process type",
+			"Type of requested SSH process",
+			processTypeTable,
+			countof(processTypeTable)
 			);
 
-	if (mask & PropertyId.ProcessType)
-		m_processTypeProp = propertyGrid.createStringProperty(
+		m_processParamProp = propertyGrid.createStringProperty(
 			group,,
-			"SSH process",
-			"Enter a process type...",
-			"Type of requested SSH process"
+			"Process parameter",
+			"Enter remote process parameters...",
+			"Parameter to pass to the remote process"
 			);
-
-	if (mask & PropertyId.Exec)
-		m_execProp = propertyGrid.createStringProperty(
-			group,,
-			"SSH exec",
-			"Enter an executable name...",
-			"Process to exec on remote server"
-			);
+	}
 
 	if (mask & PropertyId.PtyType)
 		m_ptyTypeProp = propertyGrid.createStringProperty(
@@ -165,14 +165,11 @@ SshPropertySet.load(doc.Storage* storage)
 	if (m_rememberLastPasswordProp)
 		m_rememberLastPasswordProp.m_value = storage.readBool("rememberLastPassword", Defaults.RememberLastPassword);
 
-	if (m_channelTypeProp)
-		m_channelTypeProp.m_value = storage.readString("channelType", DefaultChannelType);
-
 	if (m_processTypeProp)
 		m_processTypeProp.m_value = storage.readString("processType", DefaultProcessType);
 
-	if (m_execProp)
-		m_execProp.m_value = storage.readString("exec");
+	if (m_processParamProp)
+		m_processParamProp.m_value = storage.readString("processParam");
 
 	if (m_ptyTypeProp)
 		m_ptyTypeProp.m_value = storage.readString("ptyType", DefaultPtyType);
@@ -192,14 +189,11 @@ SshPropertySet.save(doc.Storage* storage)
 	if (m_rememberLastPasswordProp)
 		storage.writeBool("rememberLastPassword", m_rememberLastPasswordProp.m_value);
 
-	if (m_channelTypeProp)
-		storage.writeString("channelType", m_channelTypeProp.m_value);
-
 	if (m_processTypeProp)
 		storage.writeString("processType", m_processTypeProp.m_value);
 
-	if (m_execProp)
-		storage.writeString("exec", m_execProp.m_value);
+	if (m_processParamProp)
+		storage.writeString("processParam", m_processParamProp.m_value);
 
 	if (m_ptyTypeProp)
 		storage.writeString("ptyType", m_ptyTypeProp.m_value);
@@ -210,14 +204,25 @@ SshPropertySet.restoreDefaults()
 	if (m_rememberLastPasswordProp)
 		m_rememberLastPasswordProp.m_value = Defaults.RememberLastPassword;
 
-	if (m_channelTypeProp)
-		m_channelTypeProp.m_value = DefaultChannelType;
-
 	if (m_processTypeProp)
-		m_processTypeProp.m_value = DefaultProcessType;
+		m_processTypeProp.m_currentIndex = Defaults.ProcessTypeIndex;
 
 	if (m_ptyTypeProp)
 		m_ptyTypeProp.m_value = DefaultPtyType;
+}
+
+reactor SshPropertySet.m_uiReactor
+{
+	m_authenticationMethodProp && m_privateKeyFileProp ?
+		m_privateKeyFileProp.m_isEnabled = m_authenticationMethodProp.m_value == ui.AuthenticationMethod.PrivateKey :
+		0;
+
+	m_processTypeProp ? m_processParamProp.m_isEnabled = strcmp(m_processTypeProp.m_value, "shell") != 0 : 0;
+
+	m_processTypeProp ?
+		strcmp(m_processTypeProp.m_value, "exec") == 0 ? m_processParamProp.m_placeholderText = "Enter command line..." :
+		strcmp(m_processTypeProp.m_value, "subsystem") == 0 ? m_processParamProp.m_placeholderText = "Enter subsystem name..." :
+		null : null;
 }
 
 //..............................................................................

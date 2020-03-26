@@ -104,7 +104,7 @@ SpiDecoder.decode(
 			continue;
 
 		case Code.BufferOverflow:
-			m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.FpgaBufferOverflow);
+			m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.FpgaBufferOverflow);
 			continue;
 		}
 
@@ -126,14 +126,14 @@ SpiDecoder.decode(
 			if (incompleteBitCount)
 			{
 				*m_incompleteBitCount = incompleteBitCount;
-				m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.IncompleteByte, m_incompleteBitCount, sizeof(uint_t));
+				m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.IncompleteByte, m_incompleteBitCount, sizeof(uint_t));
 			}
 
 			m_logWriter.write(
 				timestamp,
 				code == Code.Start ?
-					I2cSpiSnifferLogRecordCode.SpiStart :
-					I2cSpiSnifferLogRecordCode.SpiStop,
+					I2cSpiTapLogRecordCode.SpiStart :
+					I2cSpiTapLogRecordCode.SpiStop,
 				null,
 				0
 				);

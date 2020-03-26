@@ -3,13 +3,13 @@
 //  Device Monitor transport for SerialMonProcessor
 //
 
-import "io_Monitor.jnc"
+import "iox_Monitor.jnc"
 import "SerialMonProcessor_win.jnc"
 import "SerialMonProcessor_lnx.jnc"
 
 //..............................................................................
 
-class SerialMonitor: io.Monitor
+class SerialMonitor: iox.Monitor
 {
 protected:
 	SerialMonSession* m_session;
@@ -23,7 +23,7 @@ public:
 protected:
 	override processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 	{
-		m_processor->processNotification(notifyHdr);
+		m_processor.processNotification(notifyHdr);
 	}
 
 	override processError(std.Error const* error);
@@ -82,7 +82,7 @@ bool errorcode SerialMonitor.capture(char const* deviceName)
 
 SerialMonitor.processError(std.Error const* error)
 {
-	m_session.m_logWriter.write(log.StdRecordCode.Error, error, error.m_size);
+	m_session.m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();
 }
 

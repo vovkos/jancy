@@ -1,0 +1,100 @@
+//..............................................................................
+//
+// Socket client log filter (TCP Listener, TCP Proxy)
+//
+
+import "log_Filter.jnc"
+import "SocketLogRecordCode.jnc"
+
+//..............................................................................
+
+class SocketClientLogFilter: log.Filter
+{
+protected:
+	bool m_isVisible;
+	io.SocketAddress m_filterAddress;
+	io.SocketAddress m_lastVisibleAddress;
+
+public:
+	// suspend log engine before calling setFilter
+
+	bool errorcode setFilter(char const* filter);
+
+protected:
+	override void reset();
+
+	override bool filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode SocketClientLogFilter.setFilter(char const* filter)
+{
+	if (filter)
+		return m_filterAddress.parse(filter);
+
+	m_filterAddress = null;
+	return true;
+}
+
+void SocketClientLogFilter.reset()
+{
+	m_isVisible = false;
+	m_lastVisibleAddress = null;
+}
+
+bool SocketClientLogFilter.filter(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_filterAddress.m_family) // empty address means, filtering is off
+		return true;
+
+	switch (recordCode)
+	{
+	case SocketLogRecordCode.ClientConnected:
+	case SocketLogRecordCode.ClientChanged:
+		io.SocketAddress const* address = (io.SocketAddress const*)p;
+		m_isVisible = address.isMatch(m_filterAddress);
+		if (!m_isVisible)
+			return false;
+
+		if (recordCode == SocketLogRecordCode.ClientChanged && m_lastVisibleAddress.isEqual(address))
+			return false; // don't show unnecessary client-changed messages
+
+		m_lastVisibleAddress = *address;
+		return true;
+
+	case SocketLogRecordCode.ClientDisconnected:
+		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
+		bool result = params.m_address.isMatch(m_filterAddress);
+		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient)
+			return result;
+
+		if (result)
+			m_lastVisibleAddress = null;
+
+		m_isVisible = false;
+		return result;
+
+	case SocketLogRecordCode.ClientRemoved:
+		if (m_isVisible)
+			m_lastVisibleAddress = null;
+
+		m_isVisible = false;
+		return true;
+
+	default:
+		return m_isVisible;
+	}
+}
+
+//..............................................................................

@@ -9,8 +9,7 @@ import "log_RecordCode.jnc"
 
 enum UdpFlowMonLogRecordCode: uint64_t
 {
-	TxPacket = 0x01d487c65087ebc9,
-	RxPacket = 0x01d487c65087ebca,
+	Packet = 0x01d487c65087ebca,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

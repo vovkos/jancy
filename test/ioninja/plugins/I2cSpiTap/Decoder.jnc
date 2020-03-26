@@ -59,7 +59,7 @@ Decoder.writeLogUnexpectedCode(
 	params.m_code = code;
 	params.m_state = state;
 
-	m_logWriter.write(timestamp, I2cSpiSnifferLogRecordCode.UnexpectedCode, &params, sizeof(params));
+	m_logWriter.write(timestamp, I2cSpiTapLogRecordCode.UnexpectedCode, &params, sizeof(params));
 }
 
 //..............................................................................

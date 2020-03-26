@@ -35,24 +35,69 @@ bool representTcpFlowMonLog(
 		break;
 
 	case TcpFlowMonLogRecordCode.ConnectionPickedUp:
-		char const* addressString1 = ((io.SocketAddress const*) p).getString();
-		char const* addressString2 = ((io.SocketAddress const*) p + 1).getString();
+		io.SocketAddress const* serverAddress = (io.SocketAddress const*)p;
+		io.SocketAddress const* clientAddress = serverAddress + 1;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
-		representation.addHyperText($"Picked up connection between \e[34m$addressString1\e[m and \e[34m$addressString2\e[m");
+
+		representation.addHyperText(
+			$"Picked up connection between \e[34m$(clientAddress.getString())\e[m and "
+			$"\e[34m$(serverAddress.getString())"
+			);
 		break;
 
-	case TcpFlowMonLogRecordCode.Disconnected:
+	case TcpFlowMonLogRecordCode.Disconnected_old:
 		char const* addressString = ((io.SocketAddress const*) p).getString();
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
-		representation.addHyperText($"Disconnected by \e[34m$addressString\e");
+		representation.addHyperText($"Disconnected by \e[34m$addressString");
+		break;
+
+	case TcpFlowMonLogRecordCode.ConnectionChanged:
+		io.SocketAddress const* serverAddress = (io.SocketAddress const*)p;
+		io.SocketAddress const* clientAddress = serverAddress + 1;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+		representation.addHyperText(
+			$"Connection between \e[34m$(clientAddress.getString())\e[m and "
+			$"\e[34m$(serverAddress.getString())\e[m:"
+			);
+		break;
+
+	case TcpFlowMonLogRecordCode.Disconnected:
+	case TcpFlowMonLogRecordCode.Reset:
+		io.SocketAddress const* remoteAddress = (io.SocketAddress const*)p;
+		io.SocketAddress const* localAddress = remoteAddress + 1;
+		char const* closeKindString = recordCode == TcpFlowMonLogRecordCode.Reset ? "reset" : "closed";
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+
+		representation.addHyperText(
+			$"Disconnected from \e[34m$(remoteAddress.getString())\e[m "
+			$"($closeKindString by \e[34m$(localAddress.getString())\e[m)"
+			);
 		break;
 
 	case TcpFlowMonLogRecordCode.OutOfOrderDataDropped:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Out-of-order segment(s), data dropped\e");
+		break;
+
+	case TcpFlowMonLogRecordCode.DataLost:
+		uint32_t lostSize = *(uint32_t const*)p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
+		representation.addHyperText($"Missing TCP segment(s), data lost ($lostSize bytes)\e");
+		break;
+
+	case TcpFlowMonLogRecordCode.TotalDataLost:
+		uint32_t txLostSize = *(uint32_t const*)p;
+		uint32_t rxLostSize = *((uint32_t const*)p + 1);
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
+		representation.addHyperText($"Total data loss: TX $txLostSize bytes; RX $rxLostSize bytes\e");
 		break;
 
 	default:

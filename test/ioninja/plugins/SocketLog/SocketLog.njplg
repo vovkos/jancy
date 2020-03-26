@@ -42,3 +42,9 @@ SocketLogRepresenter.jnc
 01d483f3e69da20f  # ClientConnected
 01d483f3e69da210  # ClientDisconnected
 01d483f3e69da211  # ClientRejected
+01d483f3e69da213  # ClientChanged
+01d483f3e69da214  # ClientRemoved
+
+01d483f3e69da215  # ResolveCompletedPrefix
+01d483f3e69da216  # ResolveCompletedPrefix
+01d483f3e69da217  # DisconnectDataPending

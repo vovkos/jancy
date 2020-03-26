@@ -25,6 +25,7 @@ opaque class Log
 	ui.Icon* property m_iconTable(size_t i);
 
 	Writer* readonly m_writer;
+	uint64_t const property m_syncId; // -1 if last record is not StdRecordCode.Sync
 	uint64_t autoget property m_baseTimestamp;
 	char const* const property m_recordFileName;
 

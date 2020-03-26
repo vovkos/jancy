@@ -35,6 +35,12 @@ bool representSshLog(
 		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
 		break;
 
+	case SshLogRecordCode.SshAuthenticating:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing SSH authentification...");
+		break;
+
 	case SshLogRecordCode.SshAuthCompleted:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.TileIcon;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;

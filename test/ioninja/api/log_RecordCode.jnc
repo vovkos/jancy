@@ -44,6 +44,7 @@ enum StdRecordCode: uint64_t
 	Break             = 0x01d47ff1fc334a19,
 	RxBufferFull      = 0x01d47ff1fc334a1a,
 	RxBufferFullLossy = 0x01d47ff1fc334a1b,
+	SyncId            = 0x01d47ff1fc334a1c,
 }
 
 //..............................................................................

@@ -16,6 +16,8 @@ enum PcapLogRecordCode: uint64_t
 	ChangingCaptureFilter = 0x01d485681832d004,
 	CaptureFilterChanged  = 0x01d485681832d005,
 	CaptureFilterError    = 0x01d485681832d006,
+	SetCaptureFilter      = 0x01d485681832d007,
+	SetAddressFilter      = 0x01d485681832d008,
 }
 
 enum PcapLogPartCode: uint64_t

@@ -237,6 +237,7 @@ MailslotMonSession.createUi()
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
 
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
 	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
 
 	m_uiReactor.start();
@@ -268,15 +269,9 @@ bool errorcode MailslotMonSession.capture()
 	return true;
 
 catch:
+	m_logWriter.writeLastError(DeviceMonLogRecordCode.CaptureError);
 	m_msfsMonitor.close();
 	m_lanmanMonitor.close();
-
-	std.Error const* error = std.getLastError();
-	m_logWriter.write(
-		DeviceMonLogRecordCode.CaptureError,
-		error,
-		error.m_size
-		);
 	return false;
 }
 
