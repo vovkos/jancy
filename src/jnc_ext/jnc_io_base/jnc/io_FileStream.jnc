@@ -224,6 +224,8 @@ opaque class FileStream
 
 	bool readonly m_isOpen;
 
+	uintptr_t const property m_osHandle;
+
 	/**
 		Specifies the type of the file stream(regular disk file, serial port
 		etc). For the full list of supported file stream types, refer to

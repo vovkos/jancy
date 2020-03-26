@@ -37,6 +37,12 @@ protected:
 	sl::List<IncomingConnection> m_pendingIncomingConnectionList;
 
 protected:
+	uintptr_t
+	getOsHandle()
+	{
+		return m_socket.m_socket;
+	}
+
 	SocketAddress
 	getAddress();
 

@@ -86,6 +86,13 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
+	uintptr_t
+	JNC_CDECL
+	getOsHandle()
+	{
+		return (uintptr_t)(handle_t)m_file.m_file;
+	}
+
 	bool
 	JNC_CDECL
 	open(DataPtr namePtr);

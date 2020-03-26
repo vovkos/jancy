@@ -43,6 +43,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Socket)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &Socket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &Socket::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &Socket::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_osHandle",          &Socket::getOsHandle)
 
 	JNC_MAP_FUNCTION("open",          &Socket::open_0)
 	JNC_MAP_OVERLOAD(&Socket::open_1)

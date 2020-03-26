@@ -30,6 +30,7 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 JNC_BEGIN_TYPE_FUNCTION_MAP(File)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<File>)
 	JNC_MAP_DESTRUCTOR(&jnc::destruct<File>)
+	JNC_MAP_CONST_PROPERTY("m_osHandle", &File::getOsHandle)
 	JNC_MAP_CONST_PROPERTY("m_kind", &File::getKind)
 	JNC_MAP_CONST_PROPERTY("m_size", &File::getSize)
 	JNC_MAP_PROPERTY("m_position", &File::getPosition, &File::setPosition)

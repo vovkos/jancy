@@ -47,6 +47,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Serial)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &Serial::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &Serial::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &Serial::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_osHandle",          &Serial::getOsHandle)
 
 	JNC_MAP_FUNCTION("open",            &Serial::open)
 	JNC_MAP_FUNCTION("close",           &Serial::close)

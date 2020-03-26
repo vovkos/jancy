@@ -122,6 +122,13 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
+	uintptr_t
+	JNC_CDECL
+	getOsHandle()
+	{
+		return SocketBase::getOsHandle();
+	}
+
 	static
 	SocketAddress
 	JNC_CDECL

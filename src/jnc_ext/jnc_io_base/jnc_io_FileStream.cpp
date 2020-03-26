@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(FileStream)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &FileStream::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &FileStream::setWriteBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &FileStream::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_osHandle",          &FileStream::getOsHandle)
 	JNC_MAP_CONST_PROPERTY("m_kind",              &FileStream::getKind)
 
 	JNC_MAP_FUNCTION("open",         &FileStream::open)

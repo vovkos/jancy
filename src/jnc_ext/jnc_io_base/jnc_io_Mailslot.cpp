@@ -36,6 +36,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Mailslot)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &Mailslot::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize",  &Mailslot::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_options",         &Mailslot::setOptions)
+	JNC_MAP_CONST_PROPERTY("m_osHandle",          &Mailslot::getOsHandle)
 
 	JNC_MAP_FUNCTION("open",         &Mailslot::open)
 	JNC_MAP_FUNCTION("close",        &Mailslot::close)

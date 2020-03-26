@@ -154,6 +154,17 @@ public:
 	JNC_CDECL
 	setOptions(uint_t options);
 
+	uintptr_t
+	JNC_CDECL
+	getOsHandle()
+	{
+#if (_JNC_OS_WIN)
+		return (uintptr_t)(handle_t)m_file.m_file;
+#else
+		return m_file.m_file;
+#endif
+	}
+
 	FileKind
 	JNC_CDECL
 	getKind()

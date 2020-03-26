@@ -145,6 +145,17 @@ public:
 		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 	}
 
+	uintptr_t
+	JNC_CDECL
+	getOsHandle()
+	{
+#if (_JNC_OS_WIN)
+		return (uintptr_t)(handle_t)m_serial.m_serial;
+#else
+		return m_serial.m_serial;
+#endif
+	}
+
 	bool
 	JNC_CDECL
 	open(DataPtr namePtr);

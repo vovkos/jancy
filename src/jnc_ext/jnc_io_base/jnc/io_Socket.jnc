@@ -251,6 +251,8 @@ opaque class Socket
 
 	bool readonly m_isOpen;
 
+	uintptr_t const property m_osHandle;
+
 	construct();
 	destruct();
 
