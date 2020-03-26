@@ -54,8 +54,8 @@ getFileKind(const axl::io::File& file)
 	{
 		FileKind_Unknown, // FILE_TYPE_UNKNOWN   (0x0000)
 		FileKind_Disk,    // FILE_TYPE_DISK      (0x0001)
-		FileKind_Unknown, // FILE_TYPE_CHAR      (0x0002)
-		FileKind_Unknown, // FILE_TYPE_PIPE      (0x0003)
+		FileKind_Serial,  // FILE_TYPE_CHAR      (0x0002)
+		FileKind_Pipe,    // FILE_TYPE_PIPE      (0x0003)
 	};
 
 	dword_t type = file.m_file.getType();
