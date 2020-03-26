@@ -383,13 +383,13 @@ long atol(char const* p);
 long strtol(
 	char const* p,
 	char const** end = null,
-	int radix = 10
+	int radix = 0
 	);
 
 unsigned long strtoul(
 	char const* p,
 	char const** end = null,
-	int radix = 10
+	int radix = 0
 	);
 
 /**
