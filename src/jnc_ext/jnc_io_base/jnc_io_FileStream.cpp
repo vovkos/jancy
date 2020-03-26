@@ -94,31 +94,40 @@ FileStream::open(
 
 	close();
 
-	result = m_file.open((const char*) namePtr.m_p, openFlags | axl::io::FileFlag_Asynchronous);
+	const char* name = (const char*)namePtr.m_p;
+	openFlags |= axl::io::FileFlag_Asynchronous;
+
+#if (_JNC_OS_WIN)
+	if (m_options & FileStreamOption_MessageNamedPipe)
+		result =
+			m_file.open(name, openFlags | axl::io::FileFlag_WriteAttributes) ||
+			m_file.open(name, openFlags);
+	else
+		result = m_file.open(name, openFlags);
+
 	if (!result)
 		return false;
 
-#if (_JNC_OS_WIN)
-	dword_t type = ::GetFileType(m_file.m_file);
-	if (type == FILE_TYPE_PIPE)
+	if ((m_options & FileStreamOption_MessageNamedPipe) &&
+		m_file.m_file.getType() == FILE_TYPE_PIPE)
 	{
-		dword_t pipeMode = 0;
-		if (m_options & FileStreamOption_MessageNamedPipe)
-		{
-			pipeMode = PIPE_READMODE_MESSAGE;
-			m_options |= AsyncIoDeviceOption_KeepReadBlockSize;
-		}
-
+		dword_t pipeMode = PIPE_READMODE_MESSAGE;
 		result = ::SetNamedPipeHandleState(m_file.m_file, &pipeMode, NULL, NULL) != 0;
 		if (!result)
 		{
 			err::setLastSystemError();
 			return false;
 		}
+
+		m_options |= AsyncIoDeviceOption_KeepReadBlockSize;
 	}
 
 	ASSERT(!m_overlappedIo);
 	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+#else
+	result = m_file.open((const char*) namePtr.m_p, openFlags);
+	if (!result)
+		return false;
 #endif
 
 	m_openFlags = openFlags;

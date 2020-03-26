@@ -137,13 +137,38 @@ bitflag enum FileOpenFlags
 	/**
 		File should be deleted as soon as the last handle to it is being closed.
 
-		Currently it only works nicely on Windows which natively provides
-		support for this functionality via ``FILE_FLAG_DELETE_ON_CLOSE``.
-		Current implementation for POSIX platforms simply calls ``unlink``
-		immediatly after open.
+		Windows only. Maps to ``FILE_FLAG_DELETE_ON_CLOSE``.
 	*/
 
 	DeleteOnClose,
+
+	/**
+		File should be ``unlink``-ed immediately afer creation.
+
+		POSIX only.
+	*/
+
+	Unlink,
+
+	/**
+		File should be cleared immediately afer creation.
+	*/
+
+	Clear,
+
+	/**
+		File is opened in asynchronous mode.
+
+		Maps to ``FILE_FLAG_OVERLAPPED`` on Windows, ``O_NONBLOCK`` on POSIX.
+	*/
+
+	Asynchronous,
+
+	/**
+		Windows only. Requests special ``FILE_WRITE_ATTRIBUTES`` access.
+	*/
+
+	WriteAttributes,
 }
 
 //..............................................................................
