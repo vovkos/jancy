@@ -215,29 +215,22 @@ OperatorMgr::checkAccess(ModuleItemDecl* decl)
 	return true;
 }
 
-bool
-OperatorMgr::finalizeMemberOperator(
+void
+OperatorMgr::foldDualType(
 	const Value& opValue,
 	ModuleItemDecl* decl,
 	Value* resultValue
 	)
 {
-	bool result = checkAccess(decl);
-	if (!result)
-		return false;
-
 	Type* type = resultValue->getType();
-	if (type && isDualType(type))
-	{
-		Namespace* nspace = decl->getParentNamespace();
-		bool isAlien = m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public;
-		bool isConst = (opValue.getType()->getFlags() & PtrTypeFlag_Const) != 0;
+	ASSERT(isDualType(type));
 
-		type = m_module->m_typeMgr.foldDualType(type, isAlien, isConst);
-		resultValue->overrideType(type);
-	}
+	Namespace* nspace = decl->getParentNamespace();
+	bool isAlien = m_module->m_namespaceMgr.getAccessKind(nspace) == AccessKind_Public;
+	bool isConst = (opValue.getType()->getFlags() & PtrTypeFlag_Const) != 0;
 
-	return true;
+	type = m_module->m_typeMgr.foldDualType(type, isAlien, isConst);
+	resultValue->overrideType(type);
 }
 
 bool

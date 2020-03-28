@@ -1409,6 +1409,17 @@ public:
 	bool
 	checkAccess(ModuleItemDecl* decl);
 
+	void
+	finalizeDualType(
+		const Value& opValue,
+		ModuleItemDecl* decl,
+		Value* resultValue
+		)
+	{
+		if (isDualType(resultValue->getType()))
+			foldDualType(opValue, decl, resultValue);
+	}
+
 protected:
 	// overloaded operators
 
@@ -1477,7 +1488,11 @@ protected:
 		const Value& opValue,
 		ModuleItemDecl* decl,
 		Value* resultValue
-		);
+		)
+	{
+		finalizeDualType(opValue, decl, resultValue);
+		return checkAccess(decl);
+	}
 
 	bool
 	getClassVtable(
@@ -1540,6 +1555,13 @@ protected:
 	dynamicCastClassPtr(
 		const Value& opValue,
 		ClassPtrType* type,
+		Value* resultValue
+		);
+
+	void
+	foldDualType(
+		const Value& opValue,
+		ModuleItemDecl* decl,
 		Value* resultValue
 		);
 };

@@ -2613,6 +2613,7 @@ Parser::lookupIdentifier(
 		if (!result)
 			return false;
 
+		m_module->m_operatorMgr.finalizeDualType(thisValue, (Field*)item, value);
 		break;
 
 	default:
