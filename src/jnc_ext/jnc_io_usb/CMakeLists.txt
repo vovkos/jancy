@@ -192,14 +192,34 @@ endif()
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(JNC_IO_USB_NAME io_usb-${TARGET_CPU}.bin)
+set(JNC_IO_USB_DLL ${DLL_DIR}/${JNC_IO_USB_NAME})
+set(JNC_IO_USB_JNCX ${DLL_DIR}/io_usb.jncx)
+set(JNC_IO_USB_JNCX_DEPENDS jnc_io_usb)
+
+if(APPLE AND JANCY_CODESIGN_OPTIONS)
+	add_custom_target(
+		jnc_io_usb_sign
+		ALL
+		COMMAND echo Signing ${JNC_IO_USB_NAME}...
+		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_USB_DLL}
+		DEPENDS jnc_io_usb
+		)
+
+	set(JNC_IO_USB_JNCX_DEPENDS jnc_io_usb_sign)
+endif()
 
 add_custom_target(
 	jnc_io_usb_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_usb.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_usb.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_usb-${TARGET_CPU}.bin
-	DEPENDS
-	jnc_io_usb
+	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_USB_JNCX}
+	COMMAND
+		${7Z_EXE}
+		a -tzip -y
+		${JNC_IO_USB_JNCX}
+		${JNC_IO_USB_DLL}
+		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+	DEPENDS ${JNC_IO_USB_JNCX_DEPENDS}
 	)
 
 set_target_properties(

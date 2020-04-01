@@ -193,14 +193,34 @@ endif()
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(JNC_IO_SSH_NAME io_ssh-${TARGET_CPU}.bin)
+set(JNC_IO_SSH_DLL ${DLL_DIR}/${JNC_IO_SSH_NAME})
+set(JNC_IO_SSH_JNCX ${DLL_DIR}/io_ssh.jncx)
+set(JNC_IO_SSH_JNCX_DEPENDS jnc_io_ssh)
+
+if(APPLE AND JANCY_CODESIGN_OPTIONS)
+	add_custom_target(
+		jnc_io_ssh_sign
+		ALL
+		COMMAND echo Signing ${JNC_IO_SSH_NAME}...
+		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_SSH_DLL}
+		DEPENDS jnc_io_ssh
+		)
+
+	set(JNC_IO_SSH_JNCX_DEPENDS jnc_io_ssh_sign)
+endif()
 
 add_custom_target(
 	jnc_io_ssh_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_ssh.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_ssh.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_ssh-${TARGET_CPU}.bin
-	DEPENDS
-	jnc_io_ssh
+	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_SSH_JNCX}
+	COMMAND
+		${7Z_EXE}
+		a -tzip -y
+		${JNC_IO_SSH_JNCX}
+		${JNC_IO_SSH_DLL}
+		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+	DEPENDS ${JNC_IO_SSH_JNCX_DEPENDS}
 	)
 
 set_target_properties(

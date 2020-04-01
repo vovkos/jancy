@@ -214,14 +214,34 @@ set_target_properties(
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
+set(JNC_IO_BASE_NAME io_base-${TARGET_CPU}.bin)
+set(JNC_IO_BASE_DLL ${DLL_DIR}/${JNC_IO_BASE_NAME})
+set(JNC_IO_BASE_JNCX ${DLL_DIR}/io_base.jncx)
+set(JNC_IO_BASE_JNCX_DEPENDS jnc_io_base)
+
+if(APPLE AND JANCY_CODESIGN_OPTIONS)
+	add_custom_target(
+		jnc_io_base_sign
+		ALL
+		COMMAND echo Signing ${JNC_IO_BASE_NAME}...
+		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_BASE_DLL}
+		DEPENDS jnc_io_base
+		)
+
+	set(JNC_IO_BASE_JNCX_DEPENDS jnc_io_base_sign)
+endif()
 
 add_custom_target(
 	jnc_io_base_jncx
 	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${DLL_DIR}/io_base.jncx
-	COMMAND ${7Z_EXE} a -tzip -y ${DLL_DIR}/io_base.jncx ${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc ${DLL_DIR}/io_base-${TARGET_CPU}.bin
-	DEPENDS
-	jnc_io_base
+	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_BASE_JNCX}
+	COMMAND
+		${7Z_EXE}
+		a -tzip -y
+		${JNC_IO_BASE_JNCX}
+		${JNC_IO_BASE_DLL}
+		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
+	DEPENDS ${JNC_IO_BASE_JNCX_DEPENDS}
 	)
 
 set_target_properties(
