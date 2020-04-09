@@ -191,6 +191,16 @@ elseif(UNIX)
 	endif()
 endif()
 
+if(UNIX AND OPENSSL_DLL_DIR)
+	# otherwise, SSL tests will fail if custom OpenSSL dylib-s are used
+
+	set_target_properties(
+		jnc_app
+		PROPERTIES
+		BUILD_RPATH ${OPENSSL_DLL_DIR}
+		)
+endif()
+
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
