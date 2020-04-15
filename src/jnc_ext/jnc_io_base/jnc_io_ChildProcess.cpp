@@ -17,10 +17,8 @@
 
 extern char** environ; // declaration may be missing (e.g. on Mac)
 
-#	if (_JNC_OS_DARWIN)
-
 int
-execvpe(
+jnc_execvpe(
 	const char* program,
 	char** argv,
 	char** envp
@@ -35,7 +33,6 @@ execvpe(
 	return -1;
 }
 
-#	endif
 #endif
 
 namespace jnc {
@@ -295,7 +292,7 @@ exec(
 
 	result = envp.isEmpty() ?
 		::execvp(argv[0], argv.p()) :
-		::execvpe(argv[0], argv.p(), envp.p());
+		::jnc_execvpe(argv[0], argv.p(), envp.p());
 
 	ASSERT(result == -1);
 	err::setLastSystemError();
@@ -468,7 +465,7 @@ ChildProcess::start(
 		if (((err::ErrorHdr*)buffer)->m_size == size)
 			err::setError((err::ErrorHdr*)buffer);
 		else
-			err::setError("POSIX execvpe failed"); // unlikely fallback
+			err::setError("POSIX execvp failed"); // unlikely fallback
 
 		return false;
 	}
