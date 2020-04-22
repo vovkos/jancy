@@ -67,6 +67,7 @@ AsyncIoBase::open()
 	m_ioThreadEvent.reset();
 #elif (_JNC_OS_POSIX)
 	m_ioThreadSelfPipe.create();
+	m_ioThreadSelfPipe.m_writeFile.setBlockingMode(false); // we normally call wakeIoThread under lock, so never block on write
 #endif
 }
 
