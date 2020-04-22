@@ -19,6 +19,28 @@ namespace io {
 //..............................................................................
 
 bool
+SocketAddress::isEqual(
+	DataPtr selfPtr,
+	DataPtr addressPtr
+	)
+{
+	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
+	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
+	return sockAddr1.isEqual(&sockAddr2);
+}
+
+bool
+SocketAddress::isMatch(
+	DataPtr selfPtr,
+	DataPtr addressPtr
+	)
+{
+	axl::io::SockAddr sockAddr1 = ((SocketAddress*)selfPtr.m_p)->getSockAddr();
+	axl::io::SockAddr sockAddr2 = ((SocketAddress*)addressPtr.m_p)->getSockAddr();
+	return sockAddr1.isMatch(&sockAddr2);
+}
+
+bool
 SocketAddress::parse(
 	DataPtr selfPtr,
 	DataPtr stringPtr

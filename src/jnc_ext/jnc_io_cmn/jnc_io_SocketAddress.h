@@ -218,20 +218,14 @@ struct SocketAddress
 	isEqual(
 		DataPtr selfPtr,
 		DataPtr addressPtr
-		)
-	{
-		return ((SocketAddress*)selfPtr.m_p)->getSockAddr().isEqual((const sockaddr*) addressPtr.m_p);
-	}
+		);
 
 	static
 	bool
 	isMatch(
 		DataPtr selfPtr,
 		DataPtr addressPtr
-		)
-	{
-		return ((SocketAddress*)selfPtr.m_p)->getSockAddr().isMatch((const sockaddr*) addressPtr.m_p);
-	}
+		);
 
 	static
 	bool
