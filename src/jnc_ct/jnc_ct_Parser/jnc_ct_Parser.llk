@@ -13,50 +13,53 @@ import "jnc_ct_Decl.llk";
 import "jnc_ct_Expr.llk";
 import "jnc_ct_Stmt.llk";
 import "jnc_ct_Reactor.llk";
-
 import "jnc_ct_DeclarationSpecifier.llk";
 import "jnc_ct_Declarator.llk";
 import "jnc_ct_NamedTypeSpecifier.llk";
 
 //..............................................................................
 
-lookahead = 2;
-
-start
-nullable
-compilation_unit
-	: (global_declaration | import_declaration)*
-	;
-
-//..............................................................................
-
-ParserClassName = Parser;
-
-Includes
-{
+HeaderFileBegin
+{.
 	#include "jnc_ct_Lexer.h"
 	#include "jnc_ct_Module.h"
 	#include "jnc_ct_Decl.h"
-}
 
-CppIncludes
-{
-	#include "jnc_ct_Parser.llk.h"
-}
+	namespace jnc {
+	namespace ct {
+.}
+
+HeaderFileEnd
+{.
+	} // namespace ct
+	} // namespace jnc
+.}
+
+CppFileBegin
+{.
+	namespace jnc {
+	namespace ct {
+
+	typedef Parser::CurlyInitializer CurlyInitializer;
+	typedef Parser::FmtSite FmtSite;
+	typedef Parser::Literal Literal;
+	typedef Parser::StmtPass1 StmtPass1;
+.}
+
+CppFileEnd
+{.
+	} // namespace ct
+	} // namespace jnc
+.}
 
 Members
 {
+public:
 	enum Mode
 	{
 		Mode_Parse,    // parsing declarations (global/namespaces/type members)
 		Mode_Compile,  // compiling statements and expressions
 		Mode_Reaction, // compiling the 'reaction' method of a reactor (w/ implicit bindings)
-	};
-
-	enum AssignKind
-	{
-		AssignKind_Normal,
-		AssignKind_BinOp,
 	};
 
 	struct CurlyInitializer
@@ -112,6 +115,7 @@ Members
 		}
 	};
 
+protected:
 	Module* m_module;
 	Mode m_mode;
 	size_t m_fieldAlignment;
@@ -122,37 +126,76 @@ Members
 	AttributeBlock* m_attributeBlock;
 
 	ModuleItem* m_lastDeclaredItem;
-	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
-	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
-
+	NamedType* m_lastNamedType;
+	QualifiedName m_lastQualifiedName;
+	Value m_lastExpressionValue;
+	sl::BoxList<Value> m_lastExpressionValueList;
 	FunctionType* m_lastPropertyGetterType;
 	uint_t m_lastPropertyTypeModifiers;
 
+	sl::Array<TypeSpecifier*> m_typeSpecifierStack;
+	Declarator* m_topDeclarator; // orphan declarators affect import type resolution
+
+	size_t m_reactionIdx;
+
 	dox::Parser m_doxyParser;
 
-	ReactorClassType* m_reactorType;
-	Value m_reactionIdxArgValue;
-	size_t m_reactionIdx;
+public:
+	// freely adjustible
 
 	DerivableType* m_constructorType;
 	Property* m_constructorProperty;
-
+	ReactorClassType* m_reactorType;
+	Value m_reactionIdxArgValue;
 	Value m_curlyInitializerTargetValue;
 
-	// saved attributes
-
-	Value m_expressionValue;
-	sl::BoxList<Value> m_expressionValueList;
-	NamedType* m_namedType;
-	QualifiedName m_qualifiedName;
-}
-
-Members2
-{
+public:
 	Parser(
 		Module* module,
 		Mode mode = Mode_Parse
 		);
+
+	ModuleItem*
+	getLastDeclaredItem()
+	{
+		return m_lastDeclaredItem;
+	}
+
+	NamedType*
+	getLastNamedType()
+	{
+		return m_lastNamedType;
+	}
+
+	const QualifiedName&
+	getLastQualifiedName()
+	{
+		return m_lastQualifiedName;
+	}
+
+	const Value&
+	getLastExpressionValue()
+	{
+		return m_lastExpressionValue;
+	}
+
+	const sl::BoxList<Value>&
+	getLastExpressionValueList()
+	{
+		return m_lastExpressionValueList;
+	}
+
+	void
+	takeOverLastExpressionValueList(sl::BoxList<Value>* list)
+	{
+		sl::takeOver(list, &m_lastExpressionValueList);
+	}
+
+	size_t
+	getReactionCount()
+	{
+		return m_reactionIdx;
+	}
 
 	bool
 	tokenizeBody(
@@ -160,9 +203,6 @@ Members2
 		const lex::LineCol& pos,
 		const sl::StringRef& body
 		);
-
-	void
-	addDoxyComment(const Token& token);
 
 	bool
 	parseBody(
@@ -177,8 +217,15 @@ Members2
 		const sl::ConstBoxList<Token>& tokenList
 		);
 
+protected:
+	RecoverAction
+	processError(ErrorKind errorKind);
+
 	bool
 	parseEofToken(const lex::LineCol& pos);
+
+	void
+	addDoxyComment(const Token& token);
 
 	NamedImportType*
 	getNamedImportType(
@@ -602,16 +649,21 @@ Members2
 		);
 }
 
-OpenNamespace
-{.
-	namespace jnc {
-	namespace ct {
-.}
+//..............................................................................
 
-CloseNamespace
-{.
-	} // namespace ct
-	} // namespace jnc
-.}
+lookahead(2, default);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+start
+nullable
+compilation_unit
+	:	catch(compilation_unit_sync) (import_declaration | global_declaration)*
+	;
+
+compilation_unit_sync
+	:	TokenKind_Import
+	|	global_declaration_sync
+	;
 
 //..............................................................................

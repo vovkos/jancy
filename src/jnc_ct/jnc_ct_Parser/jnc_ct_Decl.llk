@@ -9,8 +9,6 @@
 //
 //..............................................................................
 
-// root declaration productions
-
 pragma
 doxy_comment
 	enter
@@ -23,11 +21,19 @@ doxy_comment
 	|	TokenKind_DoxyComment4
 	;
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 common_declaration
 	:	using_declaration
 	|   alignment_declaration
 	|	named_type_specifier
 	|   attribute_block
+	;
+
+common_declaration_sync
+	:	TokenKind_Using
+	|	TokenKind_Alignment
+	|	named_type_specifier_sync
 	;
 
 global_declaration
@@ -38,6 +44,14 @@ global_declaration
 	|	';'
 	;
 
+global_declaration_sync
+	:	common_declaration_sync
+	|	TokenKind_Namespace
+	|	TokenKind_Extension
+	|	';'
+	|	'}'
+	;
+
 member_block_declaration
 	:	common_declaration
 	|	friend_declaration
@@ -45,6 +59,16 @@ member_block_declaration
 	|	normal_item_declaration
 	|   setas_declaration
 	|	';'
+	;
+
+member_block_declaration_sync
+	:	common_declaration_sync
+	|	TokenKind_Friend
+	|	TokenKind_Public
+	|	TokenKind_Protected
+	|	TokenKind_SetAs
+	|	';'
+	|	'}'
 	;
 
 local_declaration
@@ -60,24 +84,32 @@ local_declaration
 	|	nested_scope_label
 	;
 
+local_declaration_sync
+	:	common_declaration_sync
+	|	statement_sync
+	|	TokenKind_Catch
+	|	TokenKind_Finally
+	|	TokenKind_NestedScope
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 start
 nullable
 global_declaration_list
-	:	global_declaration*
+	:	catch(global_declaration_sync) global_declaration*
 	;
 
 start
 nullable
 member_block_declaration_list
-	:	member_block_declaration*
+	:	catch(member_block_declaration_sync) member_block_declaration*
 	;
 
 start
 nullable
 local_declaration_list
-	:	local_declaration*
+	:	catch(local_declaration_sync) local_declaration*
 	;
 
 //..............................................................................
@@ -93,7 +125,7 @@ namespace_declaration
 	:	TokenKind_Namespace qualified_name TokenKind_Body
 			{
 				return declareGlobalNamespace(
-					$2.m_firstToken.m_pos,
+					$2.m_firstTokenPos,
 					$2.m_name,
 					$3.m_pos,
 					$3.m_data.m_string
@@ -223,7 +255,7 @@ start
 qualified_name_save_name
 	:	qualified_name
 			{
-				m_qualifiedName = $1.m_name;
+				m_lastQualifiedName = $1.m_name;
 			}
 	;
 
@@ -238,7 +270,7 @@ normal_item_declaration
 		preDeclaration();
 	}
 	:	item_declaration_w_specifier
-	|	resolver(item_declaration_wo_specifier_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+	|	resolve(item_declaration_wo_specifier_rslv) priority(2) // set higher priority than type_specifier::qualified_name
 		item_declaration_wo_specifier
 	;
 
@@ -248,7 +280,7 @@ local_item_declaration
 		preDeclaration();
 	}
 	:	item_declaration_w_specifier
-	|	resolver ({ return false; }) priority (2) // set higher priority than type_specifier::qualified_name
+	|	resolve({ return false; }) priority(2) // set higher priority than type_specifier::qualified_name
 		item_declaration_wo_specifier
 	;
 

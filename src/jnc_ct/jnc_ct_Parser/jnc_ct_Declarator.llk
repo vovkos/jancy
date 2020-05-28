@@ -37,7 +37,7 @@ declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
-	:	resolver ('=' ('{' | TokenKind_Body))
+	:	resolve('=' ('{' | TokenKind_Body))
 		declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
@@ -90,7 +90,7 @@ declarator_name<Declarator* $declarator>
 	}
 	:	declarator_qualifier<$declarator>
 			{
-				$declarator->m_pos = $1.m_firstToken.m_pos;
+				$declarator->m_pos = $1.m_firstTokenPos;
 				$declarator->m_attributeBlock = popAttributeBlock();
 				$declarator->m_doxyBlock = m_doxyParser.popBlock();
 			}
@@ -351,9 +351,9 @@ declarator_prefix<Declarator* $declarator>
 
 declarator_suffix<Declarator* $declarator>
 	:	array_suffix<$declarator>
-	|	resolver (function_suffix_rslv)
+	|	resolve(function_suffix_rslv)
 		function_suffix<$declarator>
-	|	resolver ({ return false; }) // prefer conditional-expr over type-name
+	|	resolve({ return false; }) // prefer conditional-expr over type-name
 		bitfield_suffix<$declarator>
 	;
 

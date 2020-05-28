@@ -43,14 +43,21 @@ Parser::Parser(
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
 	m_lastDeclaredItem = NULL;
+	m_lastNamedType = NULL;
 	m_lastPropertyGetterType = NULL;
 	m_lastPropertyTypeModifiers = 0;
 	m_reactorType = NULL;
 	m_reactionIdx = 0;
 	m_constructorType = NULL;
 	m_constructorProperty = NULL;
-	m_namedType = NULL;
 	m_topDeclarator = NULL;
+}
+
+Parser::RecoverAction
+Parser::processError(ErrorKind errorKind)
+{
+	m_module->addCompileError(err::getLastError());
+	return RecoverAction_Synchronize;
 }
 
 bool

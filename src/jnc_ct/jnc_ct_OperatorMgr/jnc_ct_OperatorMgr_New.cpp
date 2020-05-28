@@ -230,7 +230,7 @@ OperatorMgr::parseInitializer(
 		if (!result)
 			return false;
 
-		sl::takeOver(&argList, &parser.m_expressionValueList);
+		parser.takeOverLastExpressionValueList(&argList);
 	}
 
 	result = construct(value, &argList);
@@ -257,7 +257,7 @@ OperatorMgr::parseInitializer(
 		default:
 			result =
 				parser.parseTokenList(SymbolKind_expression_save_value, initializerTokenList) &&
-				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.m_expressionValue);
+				m_module->m_operatorMgr.binaryOperator(BinOpKind_Assign, value, parser.getLastExpressionValue());
 		}
 
 		if (!result)
@@ -303,7 +303,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	m_module->m_namespaceMgr.unlockSourcePos();
 	m_module->m_namespaceMgr.closeNamespace();
 
-	*resultValue = parser.m_expressionValue;
+	*resultValue = parser.getLastExpressionValue();
 	return true;
 }
 
@@ -319,7 +319,7 @@ OperatorMgr::parseExpression(
 	if (!result)
 		return false;
 
-	*resultValue = parser.m_expressionValue;
+	*resultValue = parser.getLastExpressionValue();
 	return true;
 }
 bool

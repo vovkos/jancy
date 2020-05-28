@@ -43,11 +43,19 @@ named_type_specifier
 			}
 	;
 
+named_type_specifier_sync
+	:	TokenKind_Enum
+	|	TokenKind_Struct
+	|	TokenKind_Union
+	|	TokenKind_Class
+	|	TokenKind_DynamicLib
+	;
+
 start
 named_type_specifier_save_type
 	:	named_type_specifier
 			{
-				m_namedType = $1.m_type;
+				m_lastNamedType = $1.m_type;
 			}
 	;
 
@@ -117,7 +125,7 @@ enum_block<EnumType* $type>
 start
 nullable
 enum_const_list
-	:	enum_const (',' enum_const)*
+	:	enum_const catch(enum_const_sync) (',' enum_const)*
 	;
 
 nullable
@@ -128,6 +136,11 @@ enum_const
 				return createEnumConst($n.m_data.m_string, $n.m_pos, &$i ? &$i.m_tokenList : NULL) != NULL;
 			}
 	|	epsilon
+	;
+
+enum_const_sync
+	:	','
+	|	'}'
 	;
 
 //..............................................................................
@@ -201,7 +214,7 @@ class
 	ClassType* m_type;
 }
 class_specifier
-	:	resolver (TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
+	:	resolve(TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
 		TokenKind_Opaque $o?
 		TokenKind_Class
 		TokenKind_Identifier $n

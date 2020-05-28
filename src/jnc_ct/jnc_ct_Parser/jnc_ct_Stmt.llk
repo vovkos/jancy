@@ -44,7 +44,7 @@ constructor_compound_stmt
 // actually, LADFA should be modified to allow LL (k) lookup also in case of continue-vs-fold conflict
 
 btm_construct_stmt
-	:	resolver (btm_construct_stmt_rslv)
+	:	resolve(btm_construct_stmt_rslv)
 		btm_construct_name $n '(' expression_or_empty_list $a ')'
 			{
 				return callBaseTypeMemberConstructor($n.m_name, &$a.m_valueList);
@@ -99,6 +99,25 @@ statement
 	|	unsafe_stmt
 	|	assert_stmt
 	|	';'
+	;
+
+statement_sync
+	:	TokenKind_If
+	|	TokenKind_Switch
+	|	TokenKind_Reswitch
+	|	TokenKind_While
+	|	TokenKind_Do
+	|	TokenKind_For
+	|	TokenKind_Break
+	|	TokenKind_Continue
+	|	TokenKind_Return
+	|	TokenKind_Once
+	|	TokenKind_Try
+	|	TokenKind_Throw
+	|	TokenKind_Unsafe
+	|	TokenKind_Assert
+	|	';'
+	|	'}'
 	;
 
 start
@@ -347,7 +366,7 @@ once_stmt
 			}
 		statement $s
 			{
-				m_module->m_controlFlowMgr.onceStmt_PostBody(&$stmt, $s.m_lastToken.m_pos);
+				m_module->m_controlFlowMgr.onceStmt_PostBody(&$stmt, $s.m_lastTokenPos);
 			}
 	;
 
@@ -372,7 +391,7 @@ throw_stmt
 	;
 
 unsafe_stmt
-	:	resolver (TokenKind_Unsafe '{')
+	:	resolve(TokenKind_Unsafe '{')
 		TokenKind_Unsafe
 		'{' $l
 			{

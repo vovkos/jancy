@@ -190,12 +190,12 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Double);
 			}
-	|	resolver (TokenKind_Property '{')
+	|	resolve(TokenKind_Property '{')
 		property_template_specifier $t
 			{
 				$.m_type = $t.m_type;
 			}
-	|	resolver (qualified_type_name_rslv)
+	|	resolve(qualified_type_name_rslv)
 		qualified_type_name $t
 			{
 				$.m_type = $t.m_type;
@@ -236,7 +236,7 @@ qualified_type_name_rslv
 					findType(
 						$n.m_baseTypeIdx,
 						$n.m_name,
-						$n.m_firstToken.m_pos
+						$n.m_firstTokenPos
 						) != NULL;
 			}
 		(('(' | '[' | '=') // declarator suffix detected
@@ -256,7 +256,7 @@ qualified_type_name
 				$.m_type = getType(
 					$1.m_baseTypeIdx,
 					$1.m_name,
-					$1.m_firstToken.m_pos
+					$1.m_firstTokenPos
 					);
 
 				return $.m_type != NULL;

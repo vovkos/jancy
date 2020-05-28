@@ -1992,8 +1992,8 @@ TypeMgr::parseStdType(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace();
 
-	ASSERT(parser.m_namedType);
-	return parser.m_namedType;
+	ASSERT(parser.getLastNamedType());
+	return parser.getLastNamedType();
 }
 
 ClassType*

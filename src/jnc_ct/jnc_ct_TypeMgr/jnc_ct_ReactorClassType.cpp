@@ -99,7 +99,7 @@ ReactorClassType::calcLayout()
 
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_functionMgr.setCurrentFunction(prevFunction);
-	m_reactionCount = parser.m_reactionIdx;
+	m_reactionCount = parser.getReactionCount();
 
 	return ClassType::calcLayout();
 }

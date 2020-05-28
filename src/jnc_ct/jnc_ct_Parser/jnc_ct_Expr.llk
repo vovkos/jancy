@@ -115,7 +115,7 @@ start
 expression_save_value
 	:	expression
 			{
-				m_expressionValue = $1.m_value;
+				m_lastExpressionValue = $1.m_value;
 			}
 	;
 
@@ -124,7 +124,7 @@ nullable
 expression_or_empty_list_save_list
 	:	expression_or_empty_list
 			{
-				sl::takeOver(&m_expressionValueList, &$1.m_valueList);
+				sl::takeOver(&m_lastExpressionValueList, &$1.m_valueList);
 			}
 	;
 
@@ -668,7 +668,7 @@ unary_operator_expr<Value* $value>
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreDec, $value);
 			}
 	|	try_operator_expr<$value>
-	|	resolver (cast_operator_rslv)
+	|	resolve(cast_operator_rslv)
 		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr<$value>
 			{
 				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
@@ -709,7 +709,7 @@ class
 }
 new_operator_type
 	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
-	|	resolver (type_name_w_constructor_rslv) priority (2) // set higher priority than type_specifier::qualified_name
+	|	resolve(type_name_w_constructor_rslv) priority(2) // set higher priority than type_specifier::qualified_name
 		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
 			{
 				$.m_type = $t.m_type;
@@ -972,7 +972,7 @@ curly_initializer_item<CurlyInitializer* $initializer>
 	{
 		Value prevCurlyInitializerTargetValue;
 	}
-	:	resolver (TokenKind_Identifier '=')
+	:	resolve(TokenKind_Identifier '=')
 		TokenKind_Identifier $n '='
 			{
 				return prepareCurlyInitializerNamedItem($initializer, $n.m_data.m_string);

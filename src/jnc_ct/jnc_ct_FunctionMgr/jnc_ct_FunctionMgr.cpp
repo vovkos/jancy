@@ -1060,7 +1060,7 @@ FunctionMgr::parseStdFunction(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.closeNamespace();
 
-	ModuleItem* item = parser.m_lastDeclaredItem;
+	ModuleItem* item = parser.getLastDeclaredItem();
 	ASSERT(item && item->getItemKind() == ModuleItemKind_Function);
 
 //	result = m_module->postParseStdItem();

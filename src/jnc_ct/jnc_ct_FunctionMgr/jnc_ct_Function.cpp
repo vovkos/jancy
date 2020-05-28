@@ -177,13 +177,13 @@ Function::compile()
 	if (!result)
 		return false;
 
-	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.getLastQualifiedName());
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item)
 	{
-		err::setFormatStringError("'%s' not found", parser.m_qualifiedName.getFullName ().sz());
+		err::setFormatStringError("'%s' not found", parser.getLastQualifiedName().getFullName().sz());
 		return false;
 	}
 
@@ -217,7 +217,7 @@ Function::compile()
 		break;
 
 	default:
-		err::setFormatStringError("'%s' is not function", parser.m_qualifiedName.getFullName ().sz());
+		err::setFormatStringError("'%s' is not function", parser.getLastQualifiedName().getFullName().sz());
 		return false;
 	}
 

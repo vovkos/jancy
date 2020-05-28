@@ -45,13 +45,13 @@ Alias::resolveImpl()
 	if (!result)
 		return false;
 
-	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.m_qualifiedName);
+	FindModuleItemResult findResult = m_parentNamespace->findItemTraverse(parser.getLastQualifiedName());
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item)
 	{
-		err::setFormatStringError("name '%s' is not found", parser.m_qualifiedName.getFullName ().sz());
+		err::setFormatStringError("name '%s' is not found", parser.getLastQualifiedName().getFullName().sz());
 		return false;
 	}
 
