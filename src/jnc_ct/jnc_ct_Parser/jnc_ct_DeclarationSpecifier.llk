@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-class
+struct
 {
 	TypeSpecifier m_typeSpecifier;
 }
@@ -46,7 +46,7 @@ declaration_specifier<TypeSpecifier* $typeSpecifier>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	TypeSpecifier m_typeSpecifier;
 }
@@ -75,7 +75,7 @@ type_specifier_modifier<TypeSpecifier* $typeSpecifier>
 
 //..............................................................................
 
-class
+struct
 {
 	StorageKind m_storageKind;
 }
@@ -120,7 +120,7 @@ storage_specifier
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	AccessKind m_accessKind;
 }
@@ -137,7 +137,7 @@ access_specifier
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	Type* m_type;
 }
@@ -190,13 +190,11 @@ type_specifier
 			{
 				$.m_type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Double);
 			}
-	|	resolve(TokenKind_Property '{')
-		property_template_specifier $t
+	|	property_template_specifier $t
 			{
 				$.m_type = $t.m_type;
 			}
-	|	resolve(qualified_type_name_rslv)
-		qualified_type_name $t
+	|	qualified_type_name $t
 			{
 				$.m_type = $t.m_type;
 			}
@@ -204,7 +202,7 @@ type_specifier
 
 // expression vs item_declaration_w_specifier
 
-class
+struct
 {
 	size_t m_baseTypeIdx;
 	QualifiedName m_name;
@@ -224,12 +222,15 @@ basetype_qualified_name
 			}
 	;
 
+// the main conflict of C-family: expression vs declaration
+
 qualified_type_name_rslv
-	:		{
-				if (isTypeSpecified())
-					return false;
-			}
-		basetype_qualified_name $n
+	enter
+	{
+		if (isTypeSpecified())
+			return false;
+	}
+	:	basetype_qualified_name $n
 			{
 				return
 					m_mode == Mode_Parse ||
@@ -246,10 +247,11 @@ qualified_type_name_rslv
 		)?
 	;
 
-class
+struct
 {
 	Type* m_type;
 }
+resolver(qualified_type_name_rslv)
 qualified_type_name
 	:	basetype_qualified_name
 			{
@@ -263,7 +265,7 @@ qualified_type_name
 			}
 	;
 
-class
+struct
 {
 	PropertyType* m_type;
 }
@@ -287,7 +289,7 @@ property_template_specifier
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	TypeModifier m_typeModifier;
 }

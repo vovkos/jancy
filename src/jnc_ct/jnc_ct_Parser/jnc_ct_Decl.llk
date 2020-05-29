@@ -153,7 +153,7 @@ using_declaration
 			}
 	;
 
-class
+struct
 {
 	NamespaceKind m_namespaceKind;
 }
@@ -213,7 +213,7 @@ setas_value
 
 //..............................................................................
 
-class
+struct
 {
 	QualifiedName m_name
 }
@@ -233,7 +233,7 @@ qualified_name_impl<QualifiedName* $name>
 		)*
 	;
 
-class
+struct
 {
 	sl::BoxList<QualifiedName> m_nameList;
 }
@@ -270,8 +270,7 @@ normal_item_declaration
 		preDeclaration();
 	}
 	:	item_declaration_w_specifier
-	|	resolve(item_declaration_wo_specifier_rslv) priority(2) // set higher priority than type_specifier::qualified_name
-		item_declaration_wo_specifier
+	|	item_declaration_wo_specifier
 	;
 
 local_item_declaration
@@ -280,8 +279,6 @@ local_item_declaration
 		preDeclaration();
 	}
 	:	item_declaration_w_specifier
-	|	resolve({ return false; }) priority(2) // set higher priority than type_specifier::qualified_name
-		item_declaration_wo_specifier
 	;
 
 item_declaration_w_specifier
@@ -295,10 +292,6 @@ item_declaration_w_specifier
 	}
 	:	declaration_specifier_list $s
 		declarator_list<&$s.m_typeSpecifier>
-	;
-
-item_declaration_wo_specifier
-	:	declarator_list<NULL>
 	;
 
 // conflict at TokenKind_Identifier in global scope and in named type block
@@ -315,9 +308,14 @@ item_declaration_wo_specifier_rslv
 		'(' // must be a function
 	;
 
+resolver(item_declaration_wo_specifier_rslv, 2) // set higher priority than type_specifier:qualified_name
+item_declaration_wo_specifier
+	:	declarator_list<NULL>
+	;
+
 //..............................................................................
 
-class
+struct
 {
 	sl::BoxList<Token> m_tokenList;
 }
@@ -399,7 +397,7 @@ type_name_impl<
 			}
 	;
 
-class
+struct
 {
 	Type* m_type;
 }
@@ -407,7 +405,7 @@ type_name
 	: type_name_impl<&$.m_type, NULL>
 	;
 
-class
+struct
 {
 	sl::BoxList<Type*> m_typeList;
 }

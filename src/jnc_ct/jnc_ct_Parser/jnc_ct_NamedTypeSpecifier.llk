@@ -11,7 +11,7 @@
 
 // root
 
-class
+struct
 {
 	NamedType* m_type;
 }
@@ -43,6 +43,7 @@ named_type_specifier
 			}
 	;
 
+
 named_type_specifier_sync
 	:	TokenKind_Enum
 	|	TokenKind_Struct
@@ -63,7 +64,7 @@ named_type_specifier_save_type
 
 // enum
 
-class
+struct
 {
 	EnumType* m_type;
 	uint_t m_flags;
@@ -147,7 +148,7 @@ enum_const_sync
 
 // struct
 
-class
+struct
 {
 	StructType* m_type;
 }
@@ -179,7 +180,7 @@ struct_specifier
 
 // union
 
-class
+struct
 {
 	UnionType* m_type;
 }
@@ -209,13 +210,13 @@ union_specifier
 
 // class
 
-class
+struct
 {
 	ClassType* m_type;
 }
+resolver(TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
 class_specifier
-	:	resolve(TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
-		TokenKind_Opaque $o?
+	:	TokenKind_Opaque $o?
 		TokenKind_Class
 		TokenKind_Identifier $n
 		(':' type_name_list $b)?
@@ -237,7 +238,7 @@ class_specifier
 
 // class
 
-class
+struct
 {
 	DynamicLibClassType* m_type;
 }

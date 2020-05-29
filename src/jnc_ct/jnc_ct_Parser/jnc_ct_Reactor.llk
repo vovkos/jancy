@@ -63,7 +63,7 @@ reactor_onevent_stmt
 			}
 	;
 
-class
+struct
 {
 	sl::BoxList<Value> m_valueList;
 }

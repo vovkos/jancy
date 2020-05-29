@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-class
+struct
 {
 	sl::BoxList<Token> m_tokenList;
 }
@@ -53,7 +53,7 @@ expression_pass1_item<sl::BoxList<Token>* $tokenList>
 
 // arg_list & curly_initializer are simplier cause we only need to count one kind of braces
 
-class
+struct
 {
 	sl::BoxList<Token> m_tokenList;
 }
@@ -77,7 +77,7 @@ arg_list_pass1_item<sl::BoxList<Token>* $tokenList>
 			}
 	;
 
-class
+struct
 {
 	sl::BoxList<Token> m_tokenList;
 }
@@ -130,7 +130,7 @@ expression_or_empty_list_save_list
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	Value m_value;
 }
@@ -143,7 +143,7 @@ expression
 	:	conditional_expr<&$.m_value>
 	;
 
-class
+struct
 {
 	Value m_value;
 }
@@ -161,7 +161,7 @@ expression_0
 	;
 
 
-class
+struct
 {
 	Value m_value;
 }
@@ -171,7 +171,7 @@ expression_or_empty
 	|	epsilon
 	;
 
-class
+struct
 {
 	sl::BoxList<Value> m_valueList;
 }
@@ -190,7 +190,7 @@ expression_list
 // expression_or_empty_list might seem overcomplicated but
 // this is done to avoid having a singe EValue_Void in case of empty list
 
-class
+struct
 {
 	sl::BoxList<Value> m_valueList;
 }
@@ -216,7 +216,7 @@ expression_or_empty_list
 	|	epsilon
 	;
 
-class
+struct
 {
 	Value m_value;
 }
@@ -232,7 +232,7 @@ constant_expr
 			}
 	;
 
-class
+struct
 {
 	intptr_t m_value;
 }
@@ -257,7 +257,7 @@ constant_integer_expr
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	Value m_trueValue;
 	Value m_falseValue;
@@ -392,7 +392,7 @@ equality_expr<Value* $value>
 		)*
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -420,7 +420,7 @@ relational_expr<Value* $value>
 		)*
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -456,7 +456,7 @@ shift_expr<Value* $value>
 		)*
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -484,7 +484,7 @@ additive_expr<Value* $value>
 		)*
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -512,7 +512,7 @@ multiplicative_expr<Value* $value>
 		)*
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -569,7 +569,7 @@ assignment_operator_expr<Value* $value>
 		curly_initializer
 	;
 
-class
+struct
 {
 	BinOpKind m_opKind;
 }
@@ -667,13 +667,8 @@ unary_operator_expr<Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PreDec, $value);
 			}
-	|	try_operator_expr<$value>
-	|	resolve(cast_operator_rslv)
-		TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr<$value>
-			{
-				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
-				return m_module->m_operatorMgr.castOperator(dynamism, $value, $t.m_type);
-			}
+	|	try_operator<$value>
+	|	cast_operator<$value>
 	|	TokenKind_New new_operator_type $t
 			{
 				return m_module->m_operatorMgr.newOperator(
@@ -686,7 +681,7 @@ unary_operator_expr<Value* $value>
 		new_operator_curly_initializer<$value>?
 	;
 
-try_operator_expr<Value* $value>
+try_operator<Value* $value>
 	local
 	{
 		TryExpr $tryExpr;
@@ -701,34 +696,6 @@ try_operator_expr<Value* $value>
 			}
 	;
 
-class
-{
-	Type* m_type;
-	Value m_elementCountValue;
-	sl::BoxList<Value> m_argList;
-}
-new_operator_type
-	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
-	|	resolve(type_name_w_constructor_rslv) priority(2) // set higher priority than type_specifier::qualified_name
-		qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
-			{
-				$.m_type = $t.m_type;
-				sl::takeOver(&$.m_argList, &$a.m_valueList);
-			}
-	;
-
-type_name_w_constructor_rslv
-	:	qualified_name TokenKind_Construct? '('
-	;
-
-new_operator_curly_initializer<Value* $value>
-	enter
-	{
-		return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, *$value, &m_curlyInitializerTargetValue);
-	}
-	:	curly_initializer
-	;
-
 // since '(' at 'unary_expr' is a conflict against epsilon production we need a resolver
 // otherwise epsilon production (i.e. no more unary operators) always loses
 
@@ -738,6 +705,43 @@ cast_operator_rslv
 		TypeSpecifier $typeSpecifier;
 	}
 	:	TokenKind_Dynamic? '(' type_specifier_modifier<&$typeSpecifier>
+	;
+
+resolver(cast_operator_rslv)
+cast_operator<Value* $value>
+	:	TokenKind_Dynamic $d? '(' type_name $t ')' unary_expr<$value>
+			{
+				OperatorDynamism dynamism = &$d ? OperatorDynamism_Dynamic : OperatorDynamism_Static;
+				return m_module->m_operatorMgr.castOperator(dynamism, $value, $t.m_type);
+			}
+	;
+
+struct
+{
+	Type* m_type;
+	Value m_elementCountValue;
+	sl::BoxList<Value> m_argList;
+}
+new_operator_type
+	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
+	|	new_operator_type_w_constructor<&$.m_type, &$.m_argList>
+	;
+
+resolver(qualified_name TokenKind_Construct? '(', 2) // set higher priority than qualified_type_name
+new_operator_type_w_constructor<Type** $type, sl::BoxList<Value>* $argList>
+	:	qualified_type_name $t TokenKind_Construct? '(' expression_or_empty_list $a ')'
+			{
+				*$type = $t.m_type;
+				sl::takeOver($argList, &$a.m_valueList);
+			}
+	;
+
+new_operator_curly_initializer<Value* $value>
+	enter
+	{
+		return m_module->m_operatorMgr.unaryOperator(UnOpKind_Indir, *$value, &m_curlyInitializerTargetValue);
+	}
+	:	curly_initializer
 	;
 
 postfix_expr<Value* $value>
@@ -877,7 +881,7 @@ primary_expr<Value* $value>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	Value m_value;
 }
@@ -892,7 +896,7 @@ type_name_or_expr
 			}
 	;
 
-class
+struct
 {
 	Literal m_literal;
 }
@@ -972,8 +976,17 @@ curly_initializer_item<CurlyInitializer* $initializer>
 	{
 		Value prevCurlyInitializerTargetValue;
 	}
-	:	resolve(TokenKind_Identifier '=')
-		TokenKind_Identifier $n '='
+	:	curly_initializer_named_item<$initializer>
+	|	curly_initializer_indexed_item<$initializer>
+	|	epsilon
+			{
+				return skipCurlyInitializerItem($initializer);
+			}
+	;
+
+resolver(TokenKind_Identifier '=') // conflict with expression:TokenKind_Identifier
+curly_initializer_named_item<CurlyInitializer* $initializer>
+	:	TokenKind_Identifier $n '='
 			{
 				return prepareCurlyInitializerNamedItem($initializer, $n.m_data.m_string);
 			}
@@ -986,24 +999,21 @@ curly_initializer_item<CurlyInitializer* $initializer>
 					return assignCurlyInitializerItem($initializer, $e.m_value);
 				}
 		)
-	|		{
-				return prepareCurlyInitializerIndexedItem($initializer);
-			}
-		expression $e
+	;
+
+curly_initializer_indexed_item<CurlyInitializer* $initializer>
+	enter
+	{
+		return prepareCurlyInitializerIndexedItem($initializer);
+	}
+	:	expression $e
 			{
 				return assignCurlyInitializerItem($initializer, $e.m_value);
 			}
-	|		{
-				return prepareCurlyInitializerIndexedItem($initializer);
-			}
-		curly_initializer
+	|	curly_initializer
 			{
 				$initializer->m_index++;
 				$initializer->m_count++;
-			}
-	|	epsilon
-			{
-				return skipCurlyInitializerItem($initializer);
 			}
 	;
 

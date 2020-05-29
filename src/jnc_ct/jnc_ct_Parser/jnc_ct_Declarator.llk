@@ -14,7 +14,7 @@ declarator_list<TypeSpecifier* $typeSpecifier>
 		declarator_list_terminator<$typeSpecifier, &$1.m_declarator>
 	;
 
-class
+struct
 {
 	Declarator m_declarator;
 }
@@ -37,8 +37,7 @@ declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
 	>
-	:	resolve('=' ('{' | TokenKind_Body))
-		declarator_w_curly_initializer<$typeSpecifier, $declarator>
+	:	declarator_w_curly_initializer<$typeSpecifier, $declarator>
 			{
 				return bodylessDeclaration();
 			}
@@ -52,6 +51,7 @@ declarator_list_terminator<
 			}
 	;
 
+resolver('=' ('{' | TokenKind_Body))
 declarator_w_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
@@ -154,7 +154,7 @@ declarator_operator_qualifier<Declarator* $declarator>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-class
+struct
 {
 	UnOpKind m_unOpKind;
 	BinOpKind m_binOpKind;
@@ -351,10 +351,8 @@ declarator_prefix<Declarator* $declarator>
 
 declarator_suffix<Declarator* $declarator>
 	:	array_suffix<$declarator>
-	|	resolve(function_suffix_rslv)
-		function_suffix<$declarator>
-	|	resolve({ return false; }) // prefer conditional-expr over type-name
-		bitfield_suffix<$declarator>
+	|	function_suffix<$declarator>
+	|	bitfield_suffix<$declarator>
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -378,6 +376,7 @@ function_suffix_rslv
 	|	'(' (type_specifier | type_modifier)
 	;
 
+resolver(function_suffix_rslv)
 function_suffix<Declarator* $declarator>
 	local
 	{
@@ -440,6 +439,7 @@ function_modifier<DeclFunctionSuffix* $functionSuffix>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+resolver({ return false; }) // prefer conditional-expr over type-name, e.g.: p = new int : 3
 bitfield_suffix<Declarator* $declarator>
 	:	':' TokenKind_Integer
 			{

@@ -44,8 +44,7 @@ constructor_compound_stmt
 // actually, LADFA should be modified to allow LL (k) lookup also in case of continue-vs-fold conflict
 
 btm_construct_stmt
-	:	resolve(btm_construct_stmt_rslv)
-		btm_construct_name $n '(' expression_or_empty_list $a ')'
+	:	btm_construct_name $n '(' expression_or_empty_list $a ')'
 			{
 				return callBaseTypeMemberConstructor($n.m_name, &$a.m_valueList);
 			}
@@ -56,14 +55,15 @@ btm_construct_stmt
 	|	';'
 	;
 
-btm_construct_stmt_rslv
+btm_construct_name_rslv
 	: TokenKind_Identifier '.' (TokenKind_Identifier '.')* TokenKind_Construct
 	;
 
-class
+struct
 {
 	QualifiedName m_name;
 }
+resolver(btm_construct_name_rslv)
 btm_construct_name
 	:	TokenKind_Identifier '.'
 			{
@@ -225,7 +225,7 @@ reswitch_block_stmt<ReSwitchStmt* $stmt>
 	;
 
 
-class
+struct
 {
 	sl::StringRef m_data;
 }
@@ -390,9 +390,9 @@ throw_stmt
 			}
 	;
 
+resolver(TokenKind_Unsafe '{')
 unsafe_stmt
-	:	resolve(TokenKind_Unsafe '{')
-		TokenKind_Unsafe
+	:	TokenKind_Unsafe
 		'{' $l
 			{
 				m_module->m_operatorMgr.enterUnsafeRgn();
