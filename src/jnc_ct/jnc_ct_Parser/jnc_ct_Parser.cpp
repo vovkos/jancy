@@ -53,6 +53,17 @@ Parser::Parser(
 	m_topDeclarator = NULL;
 }
 
+bool Parser::checkUnusedAttributeBlock()
+{
+	if (m_attributeBlock)
+	{
+		err::setFormatStringError("unused attribute block in declaration");
+		return false;
+	}
+
+	return true;
+}
+
 Parser::RecoverAction
 Parser::processError(ErrorKind errorKind)
 {

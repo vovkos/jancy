@@ -39,10 +39,6 @@ constructor_compound_stmt
 			}
 	;
 
-// conflict at qualified_name : '.' is a continue-vs-fold conflict, in which fold loses immediatly
-// this problem could be solved with double resolvers, but it looks really ugly
-// actually, LADFA should be modified to allow LL (k) lookup also in case of continue-vs-fold conflict
-
 btm_construct_stmt
 	:	btm_construct_name $n '(' expression_or_empty_list $a ')'
 			{
@@ -54,6 +50,10 @@ btm_construct_stmt
 			}
 	|	';'
 	;
+
+// conflict at qualified_name : '.' is a continue-vs-fold conflict, in which fold loses immediatly
+// this problem could be solved with double resolvers, but it looks really ugly
+// actually, LADFA should be modified to allow LL (k) lookup also in case of continue-vs-fold conflict
 
 btm_construct_name_rslv
 	: TokenKind_Identifier '.' (TokenKind_Identifier '.')* TokenKind_Construct

@@ -33,6 +33,28 @@ declarator<TypeSpecifier* $typeSpecifier>
 		declarator_constructor<&$.m_declarator>?
 	;
 
+struct
+{
+	Declarator m_declarator;
+}
+special_void_method_declarator
+	:	declarator_special_void_method_qualifier<&$m_declarator>
+		function_suffix<&$m_declarator>
+		special_void_method_declarator_terminator<&$m_declarator>
+	;
+
+special_void_method_declarator_terminator<Declarator* $declarator>
+	:	';'
+			{
+				return declare($declarator) && bodylessDeclaration();
+			}
+	|	TokenKind_Body
+			{
+				return declare($declarator) && setDeclarationBody($1.m_pos, $1.m_data.m_string);
+			}
+
+	;
+
 declarator_list_terminator<
 	TypeSpecifier* $typeSpecifier,
 	Declarator* $declarator
@@ -106,23 +128,27 @@ declarator_qualifier<Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Getter);
 			}
-	|	TokenKind_Set
-			{
-				return $declarator->addUnnamedMethod(FunctionKind_Setter);
-			}
-	|	TokenKind_Construct
+	|	declarator_special_void_method_qualifier<$declarator>
+	|	TokenKind_Operator declarator_operator_qualifier<$declarator>
+	;
+
+declarator_special_void_method_qualifier<Declarator* $declarator>
+	:	TokenKind_Construct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
-			}
-	|	TokenKind_Destruct
-			{
-				return $declarator->addUnnamedMethod(FunctionKind_Destructor);
 			}
 	|	TokenKind_Static TokenKind_Construct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
 			}
-	|	TokenKind_Operator declarator_operator_qualifier<$declarator>
+	|	TokenKind_Destruct
+			{
+				return $declarator->addUnnamedMethod(FunctionKind_Destructor);
+			}
+	|	TokenKind_Set
+			{
+				return $declarator->addUnnamedMethod(FunctionKind_Setter);
+			}
 	;
 
 declarator_operator_qualifier<Declarator* $declarator>

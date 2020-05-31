@@ -40,7 +40,7 @@ global_declaration
 	:	common_declaration
 	|	namespace_declaration
 	|	extension_declaration
-	|	normal_item_declaration
+	|	global_item_declaration
 	|	';'
 	;
 
@@ -56,7 +56,7 @@ member_block_declaration
 	:	common_declaration
 	|	friend_declaration
 	|	access_declaration
-	|	normal_item_declaration
+	|	member_item_declaration
 	|   setas_declaration
 	|	';'
 	;
@@ -263,14 +263,31 @@ qualified_name_save_name
 
 // item declarations
 
-start
-normal_item_declaration
+global_item_declaration
 	enter
 	{
 		preDeclaration();
 	}
-	:	item_declaration_w_specifier
-	|	item_declaration_wo_specifier
+	leave
+	{
+		checkUnusedAttributeBlock();
+	}
+	:	normal_item_declaration
+	|	special_void_method_declaration
+	|	qualified_special_void_method_declaration
+	;
+
+member_item_declaration
+	enter
+	{
+		preDeclaration();
+	}
+	leave
+	{
+		checkUnusedAttributeBlock();
+	}
+	:	normal_item_declaration
+	|	special_method_declaration
 	;
 
 local_item_declaration
@@ -278,39 +295,36 @@ local_item_declaration
 	{
 		preDeclaration();
 	}
-	:	item_declaration_w_specifier
-	;
-
-item_declaration_w_specifier
 	leave
 	{
-		if (m_attributeBlock)
-		{
-			err::setFormatStringError("unused attribute block in declaration");
-			return false;
-		}
+		checkUnusedAttributeBlock();
 	}
+	:	normal_item_declaration
+	;
+
+normal_item_declaration
 	:	declaration_specifier_list $s
 		declarator_list<&$s.m_typeSpecifier>
 	;
 
-// conflict at TokenKind_Identifier in global scope and in named type block
-// between qualified_type_name and declarator_name
-// prefer declarator_name if and only if this is a function
+// special methods allow for omission of specifiers
 
-item_declaration_wo_specifier_rslv
-	local
-	{
-		Declarator $declarator; // dummy
-	}
-	:	declarator_qualifier<&$declarator>
-		('.' declarator_qualifier<&$declarator>)*
-		'(' // must be a function
+special_void_method_declaration
+	:	special_void_methodTokenKind_Construct
+	|	TokenKind_Static TokenKind_Construct
+	|	TokenKind_Destruct
+	|	TokenKind_Set
 	;
 
-resolver(item_declaration_wo_specifier_rslv, 2) // set higher priority than type_specifier:qualified_name
-item_declaration_wo_specifier
-	:	declarator_list<NULL>
+qualified_special_void_method_declaration_rslv:
+	;
+
+resolver(qualified_special_void_method_declaration_rslv)
+qualified_special_void_method_declaration
+	:	TokenKind_Construct
+	|	TokenKind_Static TokenKind_Construct
+	|	TokenKind_Destruct
+	|	TokenKind_Set
 	;
 
 //..............................................................................
