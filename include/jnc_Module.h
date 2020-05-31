@@ -92,6 +92,28 @@ typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
 //..............................................................................
 
+enum jnc_ModuleParseErrorKind
+{
+	jnc_ModuleParseErrorKind_Syntax,   // -> llk::Parser::ErrorKind_Syntax
+	jnc_ModuleParseErrorKind_Semantic, // -> llk::Parser::ErrorKind_Semantic
+};
+
+typedef enum jnc_ModuleParseErrorKind jnc_ModuleParseErrorKind;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// true  -> llk::Parser::RecoverAction_Synchronize
+// false -> llk::Parser::RecoverAction_Fail
+
+typedef
+bool_t
+jnc_ModuleParseErrorHandlerFunc(
+	void* context,
+	jnc_ModuleParseErrorKind errorKind
+	);
+
+//..............................................................................
+
 JNC_EXTERN_C
 jnc_Module*
 jnc_Module_create();
@@ -110,6 +132,14 @@ jnc_Module_initialize(
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
+	);
+
+JNC_EXTERN_C
+void
+jnc_Module_setParseErrorHandler(
+	jnc_Module* module,
+	jnc_ModuleParseErrorHandlerFunc* errorHandler,
+	void* context
 	);
 
 JNC_EXTERN_C
@@ -304,6 +334,16 @@ struct jnc_Module
 		)
 	{
 		jnc_Module_initialize(this, tag, compileFlags);
+	}
+
+	void
+	setParseErrorHandler(
+		jnc_Module* module,
+		jnc_ModuleParseErrorHandlerFunc* errorHandler,
+		void* context
+		)
+	{
+		jnc_Module_setParseErrorHandler(this, errorHandler, context);
 	}
 
 	uint_t
@@ -517,6 +557,15 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment3           = jnc_ModuleCompileFlag_DisableDoxyComment3,
 	ModuleCompileFlag_DisableDoxyComment4           = jnc_ModuleCompileFlag_DisableDoxyComment4,
 	ModuleCompileFlag_StdFlags                      = jnc_ModuleCompileFlag_StdFlags;
+
+//..............................................................................
+
+typedef jnc_ModuleParseErrorHandlerFunc ModuleParseErrorHandlerFunc;
+typedef jnc_ModuleParseErrorKind ModuleParseErrorKind;
+
+const ModuleParseErrorKind
+	ModuleParseErrorKind_Syntax   = jnc_ModuleParseErrorKind_Syntax,
+	ModuleParseErrorKind_Semantic = jnc_ModuleParseErrorKind_Semantic;
 
 //..............................................................................
 

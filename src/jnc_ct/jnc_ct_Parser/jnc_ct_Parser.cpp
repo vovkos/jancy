@@ -67,8 +67,12 @@ bool Parser::checkUnusedAttributeBlock()
 Parser::RecoverAction
 Parser::processError(ErrorKind errorKind)
 {
-	m_module->addCompileError(err::getLastError());
-	return RecoverAction_Synchronize;
+	return m_module->m_parseErrorHandler && m_module->m_parseErrorHandler(
+		m_module->m_parseErrorHandlerContext,
+		(ModuleParseErrorKind)errorKind
+		) ?
+		RecoverAction_Synchronize :
+		RecoverAction_Fail;
 }
 
 bool

@@ -47,6 +47,8 @@ Module::Module():
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
+	m_parseErrorHandler = NULL;
+	m_parseErrorHandlerContext = NULL;
 
 	finalizeConstruction();
 }

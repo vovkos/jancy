@@ -195,6 +195,19 @@ jnc_Module_initialize(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+void
+jnc_Module_setParseErrorHandler(
+	jnc_Module* module,
+	jnc_ModuleParseErrorHandlerFunc* errorHandler,
+	void* context
+	)
+{
+	module->m_parseErrorHandler = errorHandler;
+	module->m_parseErrorHandlerContext = context;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 uint_t
 jnc_Module_getCompileFlags(jnc_Module* module)
 {

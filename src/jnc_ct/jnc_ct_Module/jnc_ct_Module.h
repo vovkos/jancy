@@ -101,13 +101,15 @@ protected:
 	sl::StringHashTable<bool> m_filePathSet;
 	sl::StringHashTable<void*> m_functionMap;
 	sl::StringHashTable<RequiredItem> m_requireSet;
-	sl::BoxList<err::Error> m_compileErrorList;
 
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
 
 public:
+	ModuleParseErrorHandlerFunc* m_parseErrorHandler;
+	void* m_parseErrorHandlerContext;
+
 	TypeMgr m_typeMgr;
 	AttributeMgr m_attributeMgr;
 	NamespaceMgr m_namespaceMgr;
@@ -146,12 +148,6 @@ public:
 	getCompileState()
 	{
 		return m_compileState;
-	}
-
-	const sl::BoxList<err::Error>&
-	getCompileErrorList()
-	{
-		return m_compileErrorList;
 	}
 
 	llvm::LLVMContext*
@@ -260,12 +256,6 @@ public:
 		)
 	{
 		m_requireSet[name] = RequiredItem(typeKind, isEssential);
-	}
-
-	void
-	addCompileError(const err::ErrorRef& error)
-	{
-		m_compileErrorList.insertTail(error);
 	}
 
 	bool
