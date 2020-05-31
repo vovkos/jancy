@@ -273,7 +273,7 @@ global_item_declaration
 		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
-	|	special_void_method_declaration
+	|	special_void_method_declarator
 	|	qualified_special_void_method_declaration
 	;
 
@@ -287,7 +287,7 @@ member_item_declaration
 		checkUnusedAttributeBlock();
 	}
 	:	normal_item_declaration
-	|	special_method_declaration
+	|	special_void_method_declarator
 	;
 
 local_item_declaration
@@ -307,24 +307,19 @@ normal_item_declaration
 		declarator_list<&$s.m_typeSpecifier>
 	;
 
-// special methods allow for omission of specifiers
-
-special_void_method_declaration
-	:	special_void_methodTokenKind_Construct
-	|	TokenKind_Static TokenKind_Construct
-	|	TokenKind_Destruct
-	|	TokenKind_Set
+qualified_special_void_method_declaration_rslv
+	:	(TokenKind_Identifier '.')*
+		(	TokenKind_Construct
+		|	TokenKind_StaticConstruct
+		|	TokenKind_Destruct
+		|	TokenKind_Set
+		|	TokenKind_Operator
+		)
 	;
 
-qualified_special_void_method_declaration_rslv:
-	;
-
-resolver(qualified_special_void_method_declaration_rslv)
+resolver(qualified_special_void_method_declaration_rslv, 2) // higher than qualified_type_name_rslv
 qualified_special_void_method_declaration
-	:	TokenKind_Construct
-	|	TokenKind_Static TokenKind_Construct
-	|	TokenKind_Destruct
-	|	TokenKind_Set
+	:	declarator_list<NULL>
 	;
 
 //..............................................................................

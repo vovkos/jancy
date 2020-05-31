@@ -342,6 +342,9 @@ protected:
 		assignDeclarationAttributes(item, itemDecl, declarator->m_pos, declarator->m_attributeBlock, declarator->m_doxyBlock);
 	}
 
+	bool
+	checkUnusedAttributeBlock();
+
 	GlobalNamespace*
 	getGlobalNamespace(
 		GlobalNamespace* parentNamespace,

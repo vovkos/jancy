@@ -38,9 +38,9 @@ struct
 	Declarator m_declarator;
 }
 special_void_method_declarator
-	:	declarator_special_void_method_qualifier<&$m_declarator>
-		function_suffix<&$m_declarator>
-		special_void_method_declarator_terminator<&$m_declarator>
+	:	special_void_method_declarator_qualifier<&$.m_declarator>
+		function_suffix<&$.m_declarator>
+		special_void_method_declarator_terminator<&$.m_declarator>
 	;
 
 special_void_method_declarator_terminator<Declarator* $declarator>
@@ -128,16 +128,15 @@ declarator_qualifier<Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Getter);
 			}
-	|	declarator_special_void_method_qualifier<$declarator>
-	|	TokenKind_Operator declarator_operator_qualifier<$declarator>
+	|	special_void_method_declarator_qualifier<$declarator>
 	;
 
-declarator_special_void_method_qualifier<Declarator* $declarator>
+special_void_method_declarator_qualifier<Declarator* $declarator>
 	:	TokenKind_Construct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Constructor);
 			}
-	|	TokenKind_Static TokenKind_Construct
+	|	TokenKind_StaticConstruct
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_StaticConstructor);
 			}
@@ -149,9 +148,10 @@ declarator_special_void_method_qualifier<Declarator* $declarator>
 			{
 				return $declarator->addUnnamedMethod(FunctionKind_Setter);
 			}
+	|	TokenKind_Operator operator_declarator_qualifier<$declarator>
 	;
 
-declarator_operator_qualifier<Declarator* $declarator>
+operator_declarator_qualifier<Declarator* $declarator>
 	:	operator_name
 			{
 				return $declarator->addUnaryBinaryOperator($1.m_unOpKind, $1.m_binOpKind);
@@ -396,13 +396,6 @@ array_suffix<Declarator* $declarator>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-function_suffix_rslv
-	:	'(' ')'
-	|	'(' TokenKind_Ellipsis ')'
-	|	'(' (type_specifier | type_modifier)
-	;
-
-resolver(function_suffix_rslv)
 function_suffix<Declarator* $declarator>
 	local
 	{

@@ -240,11 +240,6 @@ qualified_type_name_rslv
 						$n.m_firstTokenPos
 						) != NULL;
 			}
-		(('(' | '[' | '=') // declarator suffix detected
-			{
-				return false;
-			}
-		)?
 	;
 
 struct

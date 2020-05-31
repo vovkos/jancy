@@ -229,6 +229,8 @@ main := |*
 'get'            { createToken(TokenKind_Get); };
 'set'            { createToken(TokenKind_Set); };
 'construct'      { createToken(TokenKind_Construct); };
+'static' ws+ 'construct'
+                 { createToken(TokenKind_StaticConstruct); };
 'destruct'       { createToken(TokenKind_Destruct); };
 'operator'       { createToken(TokenKind_Operator); };
 'postfix'        { createToken(TokenKind_Postfix); };

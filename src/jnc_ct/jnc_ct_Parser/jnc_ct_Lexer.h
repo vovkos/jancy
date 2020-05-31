@@ -121,6 +121,7 @@ enum TokenKind
 	TokenKind_Get,
 	TokenKind_Set,
 	TokenKind_Construct,
+	TokenKind_StaticConstruct, // avoid extra resolver at global:static
 	TokenKind_Destruct,
 	TokenKind_Operator,
 	TokenKind_Postfix,
@@ -313,6 +314,7 @@ AXL_LEX_BEGIN_TOKEN_NAME_MAP(TokenName)
 	AXL_LEX_TOKEN_NAME(TokenKind_Get,          "get")
 	AXL_LEX_TOKEN_NAME(TokenKind_Set,          "set")
 	AXL_LEX_TOKEN_NAME(TokenKind_Construct,    "construct")
+	AXL_LEX_TOKEN_NAME(TokenKind_StaticConstruct, "static construct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Destruct,     "destruct")
 	AXL_LEX_TOKEN_NAME(TokenKind_Operator,     "operator")
 	AXL_LEX_TOKEN_NAME(TokenKind_Postfix,      "postfix")

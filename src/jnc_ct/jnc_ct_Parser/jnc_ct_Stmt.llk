@@ -390,7 +390,6 @@ throw_stmt
 			}
 	;
 
-resolver(TokenKind_Unsafe '{')
 unsafe_stmt
 	:	TokenKind_Unsafe
 		'{' $l
