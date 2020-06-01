@@ -29,7 +29,7 @@ dynamiclib Msvcrt
 		);
 }
 
-foo(Msvcrt* msvcrt)
+void foo(Msvcrt* msvcrt)
 {
 	msvcrt.lib.printf("hui govno i muravei!\n");
 }

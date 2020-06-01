@@ -12,14 +12,14 @@
 int autoget bindable property g_a;
 int autoget bindable property g_b;
 
-g_a.set(int x)
+void g_a.set(int x)
 {
 	printf("g_a.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-g_b.set(int x)
+void g_b.set(int x)
 {
 	printf("g_b.set (%d)\n", x);
 	m_value = x;

@@ -34,7 +34,7 @@ class Foo
 	}
 }
 
-threadProc()
+void threadProc()
 {
 	intptr_t tid = sys.getCurrentThreadId();
 

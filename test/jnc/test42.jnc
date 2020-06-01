@@ -13,7 +13,7 @@ class C1
 {
 	protected int m_x = 10;
 
-	foo()
+	void foo()
 	{
 		printf("C1.foo () { m_x = %d }\n", m_x);
 	}
@@ -21,7 +21,7 @@ class C1
 
 extension C1Ext: C1
 {
-	bar()
+	void bar()
 	{
 		printf("C1Ext.bar () { m_x = %d }\n", m_x);
 	}
@@ -34,7 +34,7 @@ extension C1Ext: C1
 		return m_x;
 	}
 
-	m_prop.set(int x)
+	void m_prop.set(int x)
 	{
 		printf("C1Ext.set (%d) { m_x = %d }\n", x, m_x);
 		m_x = x;

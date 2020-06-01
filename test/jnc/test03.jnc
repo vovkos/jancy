@@ -40,7 +40,7 @@ reactor g_reactor
 	}
 }
 
-foo()
+void foo()
 {
 	printf("foo ()\n");
 }

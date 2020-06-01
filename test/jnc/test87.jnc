@@ -7,7 +7,7 @@ struct Foo
 		printf("Foo.construct (%p)\n", this);
 	}
 
-	close()
+	void close()
 	{
 		printf("Foo.close (%p)\n", this);
 	}
@@ -22,7 +22,7 @@ class Bar
 		printf("Bar.construct (%p)\n", this);
 	}
 
-	close()
+	void close()
 	{
 		printf("Bar.close (%p)\n", this);
 	}

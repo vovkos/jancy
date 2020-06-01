@@ -9,11 +9,11 @@ class C
 	};
 
 	S1 foo();
-	bar(S1 a);
+	void bar(S1 a);
 	S1 baz(S1 a, S2 b);
 }
 
-C.bar(S1 a)
+void C.bar(S1 a)
 {
 }
 

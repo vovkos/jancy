@@ -20,7 +20,7 @@ class MyScheduler: jnc.Scheduler
 	}
 }
 
-foo(int x)
+void foo(int x)
 {
 	printf("foo (%d)\n", x);
 }

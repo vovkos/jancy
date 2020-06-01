@@ -22,7 +22,7 @@ struct B: A
 	void* m_p;
 }
 
-foo(void const* p)
+void foo(void const* p)
 {
 	B const* b = dynamic(B const*) p;
 	if (!b)

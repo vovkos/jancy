@@ -1,10 +1,10 @@
 // this test was used to fix choosing of function overload
 
-foo(void* p, size_t length)
+void foo(void* p, size_t length)
 {
 }
 
-foo(void const* p, size_t length)
+void foo(void const* p, size_t length)
 {
 }
 

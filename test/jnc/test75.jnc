@@ -27,7 +27,7 @@ struct Foo
 	}
 }
 
-foo()
+void foo()
 {
 	Foo foo;
 	foo.m_foo = 137;
@@ -45,7 +45,7 @@ foo()
 
 io.Address_ip4 g_address = { 0x7f000001 }
 
-bar()
+void bar()
 {
 	io.SocketAddress address;
 	address.m_family = io.AddressFamily.Ip4;

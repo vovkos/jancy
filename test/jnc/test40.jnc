@@ -15,7 +15,7 @@ bool errorcode bar()
 	return false;
 }
 
-foo()
+void foo()
 {
 	try
 	{

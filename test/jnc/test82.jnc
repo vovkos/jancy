@@ -1,6 +1,6 @@
 import "io_usb.jncx"
 
-printUsbEndpointDesc(io.UsbEndpointDesc const* endpointDesc)
+void printUsbEndpointDesc(io.UsbEndpointDesc const* endpointDesc)
 {
 	printf("      Endpoint:   0x%02x\n", endpointDesc.m_endpointId);
 	printf("      Direction:  %s\n", (endpointDesc.m_endpointId & 0x80) ? "IN" : "OUT");
@@ -8,7 +8,7 @@ printUsbEndpointDesc(io.UsbEndpointDesc const* endpointDesc)
 	printf("      Max packet: %d\n", endpointDesc.m_maxPacketSize);
 }
 
-printUsbIfaceDesc(io.UsbInterfaceDesc const* ifaceDesc)
+void printUsbIfaceDesc(io.UsbInterfaceDesc const* ifaceDesc)
 {
 	printf("    Interface:   %d\n", ifaceDesc.m_interfaceId);
 	printf("    Alt setting: %d\n", ifaceDesc.m_altSettingId);
@@ -23,7 +23,7 @@ printUsbIfaceDesc(io.UsbInterfaceDesc const* ifaceDesc)
 	}
 }
 
-printUsbConfigurationDesc(io.UsbConfigurationDesc const* configDesc)
+void printUsbConfigurationDesc(io.UsbConfigurationDesc const* configDesc)
 {
 	printf("  Configuration: %d\n", configDesc.m_configurationId);
 	printf("  Max power:     %d x(2|8) mA\n", configDesc.m_maxPower);
@@ -40,7 +40,7 @@ printUsbConfigurationDesc(io.UsbConfigurationDesc const* configDesc)
 	}
 }
 
-printUsbDevice(io.UsbDevice* device)
+void printUsbDevice(io.UsbDevice* device)
 {
 	bool result;
 

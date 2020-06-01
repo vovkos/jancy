@@ -28,7 +28,7 @@ class C1
 		printf("C1.construct ()\n");
 	}
 
-	foo()
+	void foo()
 	{
 		printf("m_table [0] = %d\n", m_table [0]);
 	}

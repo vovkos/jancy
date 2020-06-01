@@ -16,7 +16,7 @@ class C2
 		autoget alias m_value = m_classValue;
 		bindable alias m_onChanged = m_classOnChanged;
 
-		set(int x)
+		void set(int x)
 		{
 			m_value = x;
 			m_onChanged();
@@ -27,7 +27,7 @@ class C2
 	event m_classOnChanged();
 }
 
-foo()
+void foo()
 {
 	printf("foo ()\n");
 }
@@ -42,7 +42,7 @@ alias bar = foo;
 
 int baz(int) = foo;
 
-baz()
+void baz()
 {
 	printf("baz ()\n");
 }

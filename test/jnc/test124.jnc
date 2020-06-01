@@ -2,11 +2,11 @@
 
 //..............................................................................
 
-foo(T* const* p) // ptr import 
+void foo(T* const* p) // ptr import
 {
 }
 
-bar(T* p) // ptr import 
+void bar(T* p) // ptr import
 {
 }
 

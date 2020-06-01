@@ -1,4 +1,4 @@
-foo()
+void foo()
 {
 	print("foo\n");
 }

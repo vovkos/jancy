@@ -9,7 +9,7 @@
 //
 //..............................................................................
 
-write(
+void write(
 	int recordCode,
 	int foldFlags = 0
 	)
@@ -17,7 +17,7 @@ write(
 	printf("write (%d, %d)\n", recordCode, foldFlags);
 }
 
-write(
+void write(
 	int recordCode,
 	int p,
 	int size,

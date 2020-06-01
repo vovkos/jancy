@@ -33,7 +33,7 @@ class OpaqueTest
 		m_y = y;
 	}
 
-	foo()
+	void foo()
 	{
 		printf("C1.foo () { m_x = %d, m_y = %d }\n", m_x, m_y);
 	}

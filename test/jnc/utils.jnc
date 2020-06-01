@@ -19,7 +19,7 @@ destruct()
 	printf("utils.jnc.destruct ()\n");
 }
 
-utilsFoo()
+void utilsFoo()
 {
 	printf("utilsFoo ()\n");
 }

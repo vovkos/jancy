@@ -3,14 +3,14 @@
 int bindable autoget property g_a;
 int bindable autoget property g_b;
 
-g_a.set(int x)
+void g_a.set(int x)
 {
 	printf("g_a.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-g_b.set(int x)
+void g_b.set(int x)
 {
 	printf("g_b.set (%d)\n", x);
 	m_value = x;
@@ -67,7 +67,7 @@ class C
 	int bindable autoget property m_a;
 	int bindable autoget property m_b;
 
-	fireOnClickedEvent(
+	void fireOnClickedEvent(
 		int x,
 		int y
 		) // we can't fire from the outside
@@ -76,14 +76,14 @@ class C
 	}
 }
 
-C.m_a.set(int x)
+void C.m_a.set(int x)
 {
 	printf("C.m_a.set (%d)\n", x);
 	m_value = x;
 	m_onChanged();
 }
 
-C.m_b.set(int x)
+void C.m_b.set(int x)
 {
 	printf("C.m_b.set (%d)\n", x);
 	m_value = x;

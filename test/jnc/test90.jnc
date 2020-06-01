@@ -17,7 +17,7 @@ class C2
 		return i * 10;
 	}
 
-	set(
+	void set(
 		int i,
 		int value
 		)

@@ -11,7 +11,7 @@
 
 class Foo
 {
-	close()
+	void close()
 	{
 		printf("Foo.close ()\n");
 	}

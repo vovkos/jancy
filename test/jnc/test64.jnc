@@ -17,7 +17,7 @@ struct Foo
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bar(
+void bar(
 	char const* a,
 	char const* b
 	)
@@ -25,7 +25,7 @@ bar(
 	printf("a = %s; b = %s\n", a, b);
 }
 
-baz()
+void baz()
 {
 	Foo* foo = new Foo;
 	foo.m_name = "name";

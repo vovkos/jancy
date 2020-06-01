@@ -1,6 +1,6 @@
 bool bindable autoget property g_p;
 
-g_p.set(bool)
+void g_p.set(bool)
 {
 }
 

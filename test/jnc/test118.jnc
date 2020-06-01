@@ -1,4 +1,4 @@
-scanStream(
+void scanStream(
 	jnc.RegexState* state,
 	char const* p,
 	size_t length

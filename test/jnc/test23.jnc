@@ -36,12 +36,12 @@ main()
 	return 0;
 }
 
-foo()
+void foo()
 {
 	printf("foo ()\n");
 }
 
-bar()
+void bar()
 {
 	printf("bar ()\n");
 }

@@ -1,7 +1,7 @@
 import "io_base.jncx"
 import "io_Socket.jnc"
 
-foo(io.Protocol proto, io.SocketAddress const* a)
+void foo(io.Protocol proto, io.SocketAddress const* a)
 {
 	printf("foo: address: %s\n", a.getString ());
 	std.setErrno(5);
@@ -9,7 +9,7 @@ foo(io.Protocol proto, io.SocketAddress const* a)
 }
 
 
-openSocket()
+void openSocket()
 {
 	io.SocketAddress address;
 
@@ -46,7 +46,7 @@ catch:
 	printf("openSocket - catch: address: %s, error: %s\n", address.getString (), error.m_description);
 }
 
-foo()
+void foo()
 {
 	int x = 10;
 

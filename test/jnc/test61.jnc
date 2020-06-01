@@ -21,7 +21,7 @@ class Resource
 		printf("Resource.destruct (%p)\n", this);
 	}
 
-	close()
+	void close()
 	{
 		printf("Resource.close (%p)\n", this);
 	}

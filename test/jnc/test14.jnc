@@ -21,7 +21,7 @@ class C1
 
 	int m_member = 500;
 
-	foo(
+	void foo(
 		int x = Def.X,
 		int y = bar()
 		)
@@ -47,7 +47,7 @@ class C2
 			return m_classValue;
 		}
 
-		set(int x)
+		void set(int x)
 		{
 			m_classValue = x;
 			m_classOnChanged();
@@ -60,7 +60,7 @@ class C2
 	}
 }
 
-foo()
+void foo()
 {
 	printf("foo ()\n");
 }

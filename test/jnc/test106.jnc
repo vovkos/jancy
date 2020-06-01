@@ -8,7 +8,7 @@ class Foo
 	int m_value = Defaults.Value; // BUG: undeclared identifier
 }
 
-foo()
+void foo()
 {
 	return (void) -1;
 }

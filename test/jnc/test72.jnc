@@ -16,7 +16,7 @@ import "sys_Timer.jnc"
 
 sys.Event g_event;
 
-foo()
+void foo()
 {
 	printf("foo ()\n");
 	g_event.signal();

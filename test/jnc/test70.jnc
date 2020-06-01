@@ -63,7 +63,7 @@ struct NbnsQuestion
 	bigendian uint16_t m_class;
 }
 
-encodeNetBiosName(
+void encodeNetBiosName(
 	char* buffer,
 	const char* name
 	)

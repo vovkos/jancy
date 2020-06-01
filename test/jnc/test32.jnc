@@ -26,15 +26,15 @@ class TestClass
 	{
 	}
 
-	foo()
+	void foo()
 	{
 	}
 
-	foo(int x)
+	void foo(int x)
 	{
 	}
 
-	foo(double y)
+	void foo(double y)
 	{
 	}
 }
@@ -56,15 +56,15 @@ struct TestStruct
 	{
 	}
 
-	foo()
+	void foo()
 	{
 	}
 
-	foo(int x)
+	void foo(int x)
 	{
 	}
 
-	foo(double y)
+	void foo(double y)
 	{
 	}
 }

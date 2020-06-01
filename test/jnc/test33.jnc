@@ -20,7 +20,7 @@ struct A
 	}
 }
 
-foo(A a)
+void foo(A a)
 {
 	printf("foo (A {%d})\n", a.m_x);
 }

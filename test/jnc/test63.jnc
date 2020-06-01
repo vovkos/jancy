@@ -21,13 +21,13 @@ class C
 		printf("C.destruct (%p)\n", this);
 	}
 
-	dispose()
+	void dispose()
 	{
 		printf("C.dispose (%p)\n", this);
 	}
 }
 
-foo()
+void foo()
 {
 	printf("foo () is about to throw...\n");
 	std.setError("foo error");
