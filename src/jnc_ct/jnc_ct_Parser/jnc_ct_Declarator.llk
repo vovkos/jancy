@@ -38,7 +38,18 @@ struct
 	Declarator m_declarator;
 }
 special_void_method_declarator
+	enter
+	{
+		$.m_declarator.setTypeSpecifier(NULL, m_module);
+	}
+	leave
+	{
+		postDeclarator(&$.m_declarator);
+	}
 	:	special_void_method_declarator_qualifier<&$.m_declarator>
+			{
+				postDeclaratorName(&$.m_declarator);
+			}
 		function_suffix<&$.m_declarator>
 		special_void_method_declarator_terminator<&$.m_declarator>
 	;
@@ -396,6 +407,15 @@ array_suffix<Declarator* $declarator>
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+// the infamous conflict of C++ constructible object declaration, e.g.: C c(a);
+
+function_suffix_rslv
+	:	'(' ')'
+	|	'(' TokenKind_Ellipsis
+	|	'(' (type_specifier | type_modifier)
+	;
+
+resolver(function_suffix_rslv)
 function_suffix<Declarator* $declarator>
 	local
 	{

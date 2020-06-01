@@ -200,8 +200,6 @@ type_specifier
 			}
 	;
 
-// expression vs item_declaration_w_specifier
-
 struct
 {
 	size_t m_baseTypeIdx;
@@ -240,6 +238,11 @@ qualified_type_name_rslv
 						$n.m_firstTokenPos
 						) != NULL;
 			}
+		(('(' | '[' | '=') // declarator suffix detected
+			{
+				return false;
+			}
+		)?
 	;
 
 struct
