@@ -238,7 +238,7 @@ qualified_type_name_rslv
 						$n.m_firstTokenPos
 						) != NULL;
 			}
-		(('(' | '[' | '=') // declarator suffix detected
+		(('(' | '[' | '=') // declarator suffix detected, e.g.: static foo()
 			{
 				return false;
 			}
