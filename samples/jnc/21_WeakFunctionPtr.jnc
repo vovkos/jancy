@@ -23,7 +23,7 @@ class C1
 		printf("C1.construct ()\n");
 	}
 
-	foo(
+	void foo(
 		int a,
 		int b,
 		int c

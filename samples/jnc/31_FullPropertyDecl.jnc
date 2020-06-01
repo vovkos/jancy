@@ -33,7 +33,7 @@ property g_prop
 
 	// helper method
 
-	update()
+	void update()
 	{
 		printf("g_prop.update ()\n");
 	}

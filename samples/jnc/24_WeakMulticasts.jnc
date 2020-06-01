@@ -33,7 +33,7 @@ class C1
 		printf("C1.destruct ()\n");
 	}
 
-	foo()
+	void foo()
 	{
 		printf("C1.foo () { m_x = %d }\n", m_x);
 	}

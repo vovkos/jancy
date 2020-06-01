@@ -63,7 +63,7 @@ struct TaggedTransform: Transform
 
 //..............................................................................
 
-foo(TaggedTransform* taggedTransform)
+void foo(TaggedTransform* taggedTransform)
 {
 	// upcasts are always OK, no cast operator is needed
 
@@ -98,7 +98,7 @@ foo(TaggedTransform* taggedTransform)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bar(Vector* vector)
+void bar(Vector* vector)
 {
 	// POD types can be cast to each other using the cast operator...
 

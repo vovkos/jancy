@@ -97,17 +97,17 @@ int bindable g_data;
 
 // onChanged event handlers
 
-onSimplePropChanged()
+void onSimplePropChanged()
 {
 	printf("g_simpleProp has changed (new value = %d)\n", g_simpleProp);
 }
 
-onPropChanged()
+void onPropChanged()
 {
 	printf("g_prop has changed (new value = %d)\n", g_prop);
 }
 
-onDataChanged()
+void onDataChanged()
 {
 	printf("g_data has changed (new value = %d)\n", g_data);
 }

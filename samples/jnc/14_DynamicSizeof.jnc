@@ -16,7 +16,7 @@
 
 //..............................................................................
 
-foo(char const* s)
+void foo(char const* s)
 {
 	// 'dynamic sizeof' is only applicable to fat data pointers
 

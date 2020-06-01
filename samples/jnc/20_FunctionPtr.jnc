@@ -20,7 +20,7 @@ class C1
 {
 	int m_x = -1;
 
-	foo(
+	void foo(
 		int a,
 		int b,
 		int c
@@ -34,7 +34,7 @@ class C1
 
 // simple global function to be called through a function pointer
 
-bar(
+void bar(
 	int a,
 	int b
 	)

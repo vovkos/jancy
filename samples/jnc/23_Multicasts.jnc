@@ -15,12 +15,12 @@
 
 //..............................................................................
 
-foo(int x)
+void foo(int x)
 {
 	printf("foo (%d)\n", x);
 }
 
-bar(
+void bar(
 	int x,
 	int y
 	)
@@ -28,7 +28,7 @@ bar(
 	printf("bar (%d, %d)\n", x, y);
 }
 
-baz(int x)
+void baz(int x)
 {
 	printf("baz (%d)\n", x);
 }

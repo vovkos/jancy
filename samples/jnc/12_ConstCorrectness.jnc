@@ -22,7 +22,7 @@ struct Point
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-transpose(
+void transpose(
 	Point* dst,
 	Point const* src
 	)
@@ -51,12 +51,12 @@ class C1
 
 	// Jancy uses C++ syntax for declaring const methods
 
-	foo() const
+	void foo() const
 	{
 		printf("C1.foo () { m_field = %d }\n", m_field);
 	}
 
-	bar(int x)
+	void bar(int x)
 	{
 		printf("C1.bar (%d)\n", x);
 		m_field = x;
@@ -65,7 +65,7 @@ class C1
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-baz(C1 const* p)
+void baz(C1 const* p)
 {
 	printf("p.m_x = %d\n", p.m_field);
 

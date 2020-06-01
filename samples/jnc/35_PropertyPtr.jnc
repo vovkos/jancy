@@ -82,12 +82,12 @@ int g_bazTable[2] [2];
 class C1
 {
 	int autoget property m_bar;
+}
 
-	m_bar.set(int x)
-	{
-		printf("C1.m_bar.set (%d)\n", x);
-		m_value = x;
-	}
+C1.m_bar.set(int x)
+{
+	printf("C1.m_bar.set (%d)\n", x);
+	m_value = x;
 }
 
 //..............................................................................

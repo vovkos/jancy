@@ -40,7 +40,7 @@ dynamic struct FileHdr
 	char m_authorEmail[strlen(m_authorEmail) + 1];
 }
 
-printFileHdr(FileHdr const* hdr)
+void printFileHdr(FileHdr const* hdr)
 {
 	printf(
 		"signature:   %.4s (0x%08x)\n"

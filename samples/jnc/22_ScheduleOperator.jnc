@@ -34,7 +34,7 @@ class LockScheduler: jnc.Scheduler
 
 //..............................................................................
 
-foo(
+void foo(
 	int a,
 	int b,
 	function* completionFunc(
@@ -55,12 +55,12 @@ foo(
 	completionFunc(a, b);
 }
 
-bar(int x)
+void bar(int x)
 {
 	printf("bar (%d)\n", x);
 }
 
-onComplete(
+void onComplete(
 	int a,
 	int b
 	)
