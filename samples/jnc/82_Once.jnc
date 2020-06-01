@@ -41,17 +41,17 @@ int foo()
 	return rand() % 10;
 }
 
-initSomethingElse()
+void initSomethingElse()
 {
 	printf("initSomethingElse ()\n");
 }
 
-baz(int x)
+void baz(int x)
 {
 	printf("baz (%d)\n", x);
 }
 
-bar()
+void bar()
 {
 	printf("bar ()\n");
 

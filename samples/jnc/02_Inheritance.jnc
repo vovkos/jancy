@@ -23,7 +23,7 @@ class I1
 	// virtual methods are declared using traditional keywords 'virtual',
 	// 'abstract' and 'override'
 
-	abstract foo();
+	abstract void foo();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,7 +35,7 @@ class C1: I1
 		printf("C1.construct (%d)\n", a);
 	}
 
-	override foo()
+	override void foo()
 	{
 		printf("C1.foo ()\n");
 	}
@@ -45,9 +45,9 @@ class C1: I1
 
 class I2
 {
-	abstract bar();
+	abstract void bar();
 
-	abstract baz(
+	abstract void baz(
 		int x,
 		int y
 		);
@@ -62,12 +62,12 @@ class C2: I2
 		printf("C2.construct (%d)\n", a);
 	}
 
-	override bar()
+	override void bar()
 	{
 		printf("C2.bar ()\n");
 	}
 
-	override baz(
+	override void baz(
 		int x,
 		int y
 		)

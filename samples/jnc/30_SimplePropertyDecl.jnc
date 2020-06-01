@@ -28,7 +28,7 @@ int g_simpleProp.get()
 	return rand() % 3;
 }
 
-g_simpleProp.set(int x)
+void g_simpleProp.set(int x)
 {
 	printf("g_simpleProp.set (%d)\n", x);
 }

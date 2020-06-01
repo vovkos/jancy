@@ -16,9 +16,9 @@
 
 // global function export demo
 
-foo(int);
-foo(double);
-foo(char const*);
+void foo(int);
+void foo(double);
+void foo(char const*);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -30,9 +30,9 @@ property g_prop
 {
 	char const* get();
 
-	set(int);
-	set(double);
-	set(char const*);
+	void set(int);
+	void set(double);
+	void set(char const*);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -50,14 +50,14 @@ struct TestStruct
 		int y
 		);
 
-	foo();
+	void foo();
 
-	foo(
+	void foo(
 		int x,
 		int y
 		);
 
-	foo(TestStruct* src);
+	void foo(TestStruct* src);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -85,7 +85,7 @@ opaque class TestClass
 
 // event handler
 
-onNegative()
+void onNegative()
 {
 	printf("onNegative ()\n");
 }

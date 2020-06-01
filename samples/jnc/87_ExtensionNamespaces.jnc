@@ -32,14 +32,14 @@ extension C1Ext: C1
 {
 	// extension methods have access to protected data
 
-	foo()
+	void foo()
 	{
 		printf("C1Ext.foo () { m_x = %d }\n", m_x);
 	}
 
-	bar(int x);
+	void bar(int x);
 
-	static baz()
+	static void baz()
 	{
 		printf("C1Ext.baz ()\n");
 	}
@@ -66,7 +66,7 @@ extension C1Ext: C1
 // extension methods can be implemented outside of extension just like other
 // member methods
 
-C1Ext.bar(int x)
+void C1Ext.bar(int x)
 {
 	printf("C1Ext.bar (%d) { m_x = %d }\n", x, m_x);
 	m_x = x;
@@ -82,7 +82,7 @@ int C1Ext.m_prop.get()
 	return m_x;
 }
 
-C1Ext.m_prop.set(int x)
+void C1Ext.m_prop.set(int x)
 {
 	printf("C1Ext.m_prop.set (%d) { m_x = %d }\n", x, m_x);
 	m_x = x;

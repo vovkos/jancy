@@ -50,7 +50,7 @@ class Resource
 		release();
 	}
 
-	release()
+	void release()
 	{
 		if (!m_resource)
 			return;
@@ -64,7 +64,7 @@ class Resource
 
 //..............................................................................
 
-foo()
+void foo()
 {
 	printf("foo is about to throw...\n");
 	throw;

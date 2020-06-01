@@ -33,7 +33,7 @@ class C1
 
 	event m_onCompleted();
 
-	work()
+	void work()
 	{
 		// insiders have write-access to m_progress
 
@@ -50,7 +50,7 @@ class C1
 
 //..............................................................................
 
-onCompleted()
+void onCompleted()
 {
 	printf("onCompleted () -- work is finished\n");
 }

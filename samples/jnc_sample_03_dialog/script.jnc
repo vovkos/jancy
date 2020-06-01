@@ -41,7 +41,7 @@ class Widget
 	SizePolicy readonly m_hsizePolicy;
 	SizePolicy readonly m_vsizePolicy;
 
-	setSizePolicy(
+	void setSizePolicy(
 		SizePolicy hpolicy,
 		SizePolicy vpolicy
 		);
@@ -64,12 +64,12 @@ opaque class Layout
 
 	Direction readonly m_direction;
 
-	addWidget(Widget* widget);
-	addLayout(Layout* layout);
-	addSpacer();
-
 	construct(Direction direction);
 	destruct();
+
+	void addWidget(Widget* widget);
+	void addLayout(Layout* layout);
+	void addSpacer();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

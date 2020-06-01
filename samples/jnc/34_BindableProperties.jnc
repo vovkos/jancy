@@ -26,7 +26,7 @@ int autoget bindable property g_simpleProp;
 
 // setter implementation
 
-g_simpleProp.set(int x)
+void g_simpleProp.set(int x)
 {
 	printf("g_simpleProp.set (%d)\n", x);
 
@@ -56,15 +56,15 @@ property g_prop
 
 	bindable event m_e();
 
-	set(int x);
-	set(double x);
+	void set(int x);
+	void set(double x);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 // setters implementation
 
-g_prop.set(int x)
+void g_prop.set(int x)
 {
 	printf("g_prop.set (int %d)\n", x);
 
@@ -75,7 +75,7 @@ g_prop.set(int x)
 	m_e();
 }
 
-g_prop.set(double x)
+void g_prop.set(double x)
 {
 	printf("g_prop.set (double %f)\n", x);
 

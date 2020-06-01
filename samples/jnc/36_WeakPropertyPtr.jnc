@@ -30,7 +30,7 @@ class C1
 	int autoget property m_foo;
 }
 
-C1.m_foo.set(int x)
+void C1.m_foo.set(int x)
 {
 	printf("C1.m_foo.set (%d)\n", x);
 	m_value = x;

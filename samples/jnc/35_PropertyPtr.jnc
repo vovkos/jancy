@@ -30,7 +30,7 @@ int autoget property g_foo;
 
 // accessor implementation
 
-g_foo.set(int x)
+void g_foo.set(int x)
 {
 	printf("g_foo.set (%d)\n", x);
 	m_value = x;
@@ -58,7 +58,7 @@ int g_baz.get(
 	return g_bazTable[i] [j];
 }
 
-g_baz.set(
+void g_baz.set(
 	size_t i,
 	size_t j,
 	int x
@@ -84,7 +84,7 @@ class C1
 	int autoget property m_bar;
 }
 
-C1.m_bar.set(int x)
+void C1.m_bar.set(int x)
 {
 	printf("C1.m_bar.set (%d)\n", x);
 	m_value = x;

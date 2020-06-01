@@ -41,7 +41,7 @@ int g_simpleProp.get(size_t i)
 	return g_x[i];
 }
 
-g_simpleProp.set(
+void g_simpleProp.set(
 	size_t i,
 	int x
 	)
@@ -77,7 +77,7 @@ property g_prop
 
 	// ... but all accessors should have the same index arguments
 
-	set(
+	void set(
 		size_t i,
 		size_t j,
 		int x
@@ -89,7 +89,7 @@ property g_prop
 
 	// setters of indexed properties can be overloaded
 
-	set(
+	void set(
 		size_t i,
 		size_t j,
 		double x

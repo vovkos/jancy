@@ -27,7 +27,7 @@ int autoget property g_simpleProp;
 
 // setter implementation (no getter needed)
 
-g_simpleProp.set(int x)
+void g_simpleProp.set(int x)
 {
 	printf("g_simpleProp.set (%d)\n", x);
 
@@ -47,7 +47,7 @@ property g_prop
 
 	int autoget m_x;
 
-	set(int x)
+	void set(int x)
 	{
 		printf("g_prop.set (int %d)\n", x);
 		m_x = x;
@@ -55,7 +55,7 @@ property g_prop
 
 	// setters of autoget properties can be overloaded
 
-	set(double x)
+	void set(double x)
 	{
 		printf("g_prop.set (double %f)\n", x);
 		m_x = (int)x;
