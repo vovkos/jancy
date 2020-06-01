@@ -5,7 +5,7 @@
 
 [plugin]
 
-name        = UDP Socket
+name        = "UDP Socket"
 description = "UDP socket without \"connection\" notation"
 id          = udp
 group       = net

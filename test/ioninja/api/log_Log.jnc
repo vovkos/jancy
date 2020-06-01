@@ -31,17 +31,17 @@ opaque class Log
 
 	destruct();
 
-	suspend();
-	resume();
-	rebuild();
+	void suspend();
+	void resume();
+	void rebuild();
 
-	addConverter(
+	void addConverter(
 		Converter* converter,
 		std.Guid const* auxClassGuidArray,
 		size_t auxClassCount
 		);
 
-	addConverter(
+	void addConverter(
 		Converter* converter,
 		std.Guid const* auxClassGuid
 		)
@@ -49,24 +49,24 @@ opaque class Log
 		addConverter(converter, auxClassGuid, 1);
 	}
 
-	addConverter(Converter* converter)
+	void addConverter(Converter* converter)
 	{
 		addConverter(converter, null, 0);
 	}
 
-	removeAllConverters();
+	void removeAllConverters();
 
-	addFilter(Filter* filter);
-	removeAllFilters();
+	void addFilter(Filter* filter);
+	void removeAllFilters();
 
-	addFoldingFilter(FoldingFilter* filter);
-	removeAllFoldingFilters();
+	void addFoldingFilter(FoldingFilter* filter);
+	void removeAllFoldingFilters();
 
-	addListener(ListenerFunc* listenerFunc);
-	removeAllListeners();
+	void addListener(ListenerFunc* listenerFunc);
+	void removeAllListeners();
 
-	addSelectionProcessor(RangeProcessorFactoryFunc* factoryFunc);
-	removeAllSelectionProcessors();
+	void addSelectionProcessor(RangeProcessorFactoryFunc* factoryFunc);
+	void removeAllSelectionProcessors();
 }
 
 //..............................................................................

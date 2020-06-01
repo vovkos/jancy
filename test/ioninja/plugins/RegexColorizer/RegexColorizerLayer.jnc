@@ -45,11 +45,11 @@ public:
 		);
 
 protected:
-	createUi();
+	void createUi();
 
-	onAddPattern();
-	onRemoveLastPattern();
-	onRemoveAllExtraPatterns();
+	void onAddPattern();
+	void onRemoveLastPattern();
+	void onRemoveAllExtraPatterns();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -63,7 +63,7 @@ RegexColorizerLayer.construct(doc.PluginHost* pluginHost)
 	onAddPattern(); // add pattern #1
 }
 
-RegexColorizerLayer.createUi()
+void RegexColorizerLayer.createUi()
 {
 	m_addPatternProp = m_pluginHost.m_propertyGrid.createActionProperty(
 		"Add extra regex pattern",
@@ -89,7 +89,7 @@ RegexColorizerLayer.createUi()
 	m_uiReactor.start();
 }
 
-RegexColorizerLayer.onAddPattern()
+void RegexColorizerLayer.onAddPattern()
 {
 	RegexPattern* pattern = new RegexPattern(
 		m_pluginHost.m_propertyGrid,
@@ -101,7 +101,7 @@ RegexColorizerLayer.onAddPattern()
 	m_hasExtraPatterns = true;
 }
 
-RegexColorizerLayer.onRemoveLastPattern()
+void RegexColorizerLayer.onRemoveLastPattern()
 {
 	if (m_patternArray.m_count < 2)
 		return;
@@ -112,7 +112,7 @@ RegexColorizerLayer.onRemoveLastPattern()
 	m_hasExtraPatterns = m_patternArray.m_count > 1;
 }
 
-RegexColorizerLayer.onRemoveAllExtraPatterns()
+void RegexColorizerLayer.onRemoveAllExtraPatterns()
 {
 	for (size_t i = 1; i < m_patternArray.m_count; i++)
 	{

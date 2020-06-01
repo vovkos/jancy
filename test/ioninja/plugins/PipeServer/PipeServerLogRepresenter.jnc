@@ -4,11 +4,11 @@
 //
 
 import "log_Representation.jnc"
-import "PipeListenerLogRecordCode.jnc"
+import "PipeServerLogRecordCode.jnc"
 
 //..............................................................................
 
-bool representPipeListenerLog  (
+bool representPipeServerLog  (
 	log.Representation* representation,
 	uint64_t recordCode,
 	void const* p,
@@ -18,53 +18,53 @@ bool representPipeListenerLog  (
 {
 	switch (recordCode)
 	{
-	case PipeListenerLogRecordCode.Listening:
+	case PipeServerLogRecordCode.Listening:
 		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Listening on \e[34m$name");
 		break;
 
-	case PipeListenerLogRecordCode.ListenError:
+	case PipeServerLogRecordCode.ListenError:
 		std.Error const* error = (std.Error const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Error;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Error;
 		representation.addHyperText($"Cannot listen: $(error.m_description)");
 		break;
 
-	case PipeListenerLogRecordCode.ListenStopped:
+	case PipeServerLogRecordCode.ListenStopped:
 		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Stopped listening on \e[34m$name");
 		break;
 
-	case PipeListenerLogRecordCode.ClientConnected_0:
+	case PipeServerLogRecordCode.ClientConnected_0:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText("Client connected");
 		break;
 
-	case PipeListenerLogRecordCode.ClientDisconnected_0:
+	case PipeServerLogRecordCode.ClientDisconnected_0:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
 		representation.addHyperText("Client disconnected");
 		break;
 
-	case PipeListenerLogRecordCode.ClientRejected:
+	case PipeServerLogRecordCode.ClientRejected:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Warning;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Warning;
 		representation.addHyperText("Client connected and rejected ");
 		break;
 
-	case PipeListenerLogRecordCode.ClientConnected:
+	case PipeServerLogRecordCode.ClientConnected:
 		uint64_t id = *(uint64_t const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText($"Client ID \e[34m0x%llX\e[m connected"(id));
 		break;
 
-	case PipeListenerLogRecordCode.ClientDisconnected:
+	case PipeServerLogRecordCode.ClientDisconnected:
 		PipeDisconnectLogRecordParams const* params = (PipeDisconnectLogRecordParams const*)p;
 		char const* initiator = (params.m_flags & PipeDisconnectLogRecordFlags.Remote) ? "remote" : "local";
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
@@ -77,7 +77,7 @@ bool representPipeListenerLog  (
 			));
 		break;
 
-	case PipeListenerLogRecordCode.ClientChanged:
+	case PipeServerLogRecordCode.ClientChanged:
 		uint64_t id = *(uint64_t const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;

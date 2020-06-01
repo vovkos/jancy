@@ -18,19 +18,19 @@ protected:
 public:
 	construct(XModemLayer* parent);
 
-	start  ();
-	cancel();
+	void start();
+	void cancel();
 
-	onRx(
+	void onRx(
 		void const* p,
 		size_t size
 		);
 
 protected:
-	onRx_Data(XModemBlock const* block);
+	void onRx_Data(XModemBlock const* block);
 
-	complete();
-	sendNextDataBlock();
+	void complete();
+	void sendNextDataBlock();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -41,7 +41,7 @@ XModemReceiver.construct(XModemLayer* parent)
 	m_parent = parent;
 }
 
-XModemReceiver.start()
+void XModemReceiver.start()
 {
 	cancel();
 
@@ -54,7 +54,7 @@ XModemReceiver.start()
 	m_parent.m_file.setSize(0);
 }
 
-XModemReceiver.cancel()
+void XModemReceiver.cancel()
 {
 	if (m_state == State.Idle)
 		return;
@@ -67,7 +67,7 @@ XModemReceiver.cancel()
 	complete();
 }
 
-XModemReceiver.complete()
+void XModemReceiver.complete()
 {
 	m_parent.m_progressDlg.m_buttons = ui.StdDlgButtons.Ok;
 	m_parent.m_file.unmapAllViews();
@@ -77,7 +77,7 @@ XModemReceiver.complete()
 	m_offset = 0;
 }
 
-XModemReceiver.onRx(
+void XModemReceiver.onRx(
 	void const* p,
 	size_t size
 	)
@@ -107,7 +107,7 @@ XModemReceiver.onRx(
 	}
 }
 
-XModemReceiver.onRx_Data(XModemBlock const* block)
+void XModemReceiver.onRx_Data(XModemBlock const* block)
 {
 	static char ack = XModemChar.Ack;
 	static char nak = XModemChar.Nak;

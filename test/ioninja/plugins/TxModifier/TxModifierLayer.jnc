@@ -85,20 +85,20 @@ protected:
 		size_t size
 		);
 
-	flushDelayedWriteList();
-	setDelayedWriteTimer();
-	onDelayedWriteTimer();
+	void flushDelayedWriteList();
+	void setDelayedWriteTimer();
+	void onDelayedWriteTimer();
 
-	scheduleRetransmission(
+	void scheduleRetransmission(
 		void const* p,
 		size_t size
 		);
 
-	cancelRetransmission();
-	onRetransmitTimer();
-	onTransmitEnabledChanged();
+	void cancelRetransmission();
+	void onRetransmitTimer();
+	void onTransmitEnabledChanged();
 
-	createUi();
+	void createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -109,7 +109,7 @@ TxModifierLayer.construct(doc.PluginHost* pluginHost)
 	createUi();
 }
 
-TxModifierLayer.createUi()
+void TxModifierLayer.createUi()
 {
 	m_isPrefixEnabledProp = m_pluginHost.m_propertyGrid.createBoolProperty(
 		"Append prefix",
@@ -286,7 +286,7 @@ size_t TxModifierLayer.write(
 	return size;
 }
 
-TxModifierLayer.flushDelayedWriteList()
+void TxModifierLayer.flushDelayedWriteList()
 {
 	while (m_delayedWriteList.m_count)
 	{
@@ -301,7 +301,7 @@ TxModifierLayer.flushDelayedWriteList()
 	m_lastWriteTimestamp = sys.getTimestamp();
 }
 
-TxModifierLayer.setDelayedWriteTimer()
+void TxModifierLayer.setDelayedWriteTimer()
 {
 	m_delayedWriteTimer.startPeriodicTimer(
 		onDelayedWriteTimer @ m_pluginHost.m_mainThreadScheduler,
@@ -309,7 +309,7 @@ TxModifierLayer.setDelayedWriteTimer()
 		);
 }
 
-TxModifierLayer.onDelayedWriteTimer()
+void TxModifierLayer.onDelayedWriteTimer()
 {
 	if (!m_delayedWriteList.m_count)
 	{
@@ -335,7 +335,7 @@ TxModifierLayer.onDelayedWriteTimer()
 	m_lastWriteTimestamp = sys.getTimestamp();
 }
 
-TxModifierLayer.scheduleRetransmission(
+void TxModifierLayer.scheduleRetransmission(
 	void const* p,
 	size_t size
 	)
@@ -355,14 +355,14 @@ TxModifierLayer.scheduleRetransmission(
 		);
 }
 
-TxModifierLayer.cancelRetransmission()
+void TxModifierLayer.cancelRetransmission()
 {
 	m_retransmitNumber = 0;
 	m_retransmitPacket = null;
 	m_retransmitTimer.stop();
 }
 
-TxModifierLayer.onRetransmitTimer()
+void TxModifierLayer.onRetransmitTimer()
 {
 	if (!m_retransmitPacket) // cancelled
 		return;
@@ -371,7 +371,7 @@ TxModifierLayer.onRetransmitTimer()
 	write(m_retransmitPacket, m_retransmitPacketSize);
 }
 
-TxModifierLayer.onTransmitEnabledChanged()
+void TxModifierLayer.onTransmitEnabledChanged()
 {
 	if (m_isTransmitEnabled)
 		return;

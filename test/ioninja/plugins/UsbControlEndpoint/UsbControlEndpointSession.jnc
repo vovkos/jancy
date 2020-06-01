@@ -106,14 +106,14 @@ public:
 		);
 
 protected:
-	onEnumerateDevices()
+	void onEnumerateDevices()
 	{
 		ui.refreshUsbDeviceListUi(m_deviceCombo, m_deviceProp);
 	}
 
-	onOpenDevice();
+	void onOpenDevice();
 
-	onTransferCompleted(
+	void onTransferCompleted(
 		uint_t syncId,
 		uint_t type,
 		uint_t code,
@@ -124,7 +124,7 @@ protected:
 		std.Error const* error
 		);
 
-	createUi();
+	void createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -140,7 +140,7 @@ UsbControlEndpointSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-UsbControlEndpointSession.createUi()
+void UsbControlEndpointSession.createUi()
 {
 	static ui.EnumPropertyOption reqDirectionTable[] =
 	{
@@ -311,7 +311,7 @@ UsbControlEndpointSession.createUi()
 	ui.refreshUsbDeviceListUi(m_deviceCombo, m_deviceProp);
 }
 
-UsbControlEndpointSession.onOpenDevice()
+void UsbControlEndpointSession.onOpenDevice()
 {
 	if (m_state >= State.Opened)
 		closeDevice();
@@ -348,7 +348,7 @@ catch:
 	return false;
 }
 
-UsbControlEndpointSession.closeDevice()
+void UsbControlEndpointSession.closeDevice()
 {
 	if (m_state == State.Closed)
 		return;
@@ -361,7 +361,7 @@ UsbControlEndpointSession.closeDevice()
 	m_syncId++;
 }
 
-UsbControlEndpointSession.load(doc.Storage* storage)
+void UsbControlEndpointSession.load(doc.Storage* storage)
 {
 	uint_t vid = storage.readInt("deviceVid");
 	uint_t pid = storage.readInt("devicePid");
@@ -381,7 +381,7 @@ UsbControlEndpointSession.load(doc.Storage* storage)
 	m_reqIndexCombo.m_editText = storage.readString("reqIndex", "0x0000");
 }
 
-UsbControlEndpointSession.save(doc.Storage* storage)
+void UsbControlEndpointSession.save(doc.Storage* storage)
 {
 	io.UsbDevice* device = m_deviceCombo.m_currentData;
 	if (device)
@@ -401,7 +401,7 @@ UsbControlEndpointSession.save(doc.Storage* storage)
 	storage.writeString("reqIndex", m_reqIndexCombo.m_editText);
 }
 
-UsbControlEndpointSession.updateProperties()
+void UsbControlEndpointSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_reqDirectionProp.m_currentIndex = m_reqDirectionCombo.m_currentIndex;
@@ -425,7 +425,7 @@ bool errorcode UsbControlEndpointSession.applyProperties()
 	return true;
 }
 
-UsbControlEndpointSession.restoreDefaultProperties()
+void UsbControlEndpointSession.restoreDefaultProperties()
 {
 	m_autoDetachKernelDriverProp.m_value = true;
 	m_reqDirectionCombo.m_currentIndex = 0;
@@ -480,7 +480,7 @@ catch:
 	return -1;
 }
 
-UsbControlEndpointSession.onTransferCompleted(
+void UsbControlEndpointSession.onTransferCompleted(
 	uint_t syncId,
 	uint_t type,
 	uint_t code,

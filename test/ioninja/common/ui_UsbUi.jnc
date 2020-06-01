@@ -15,7 +15,7 @@ namespace ui {
 
 //..............................................................................
 
-populateUsbDeviceListUi(
+void populateUsbDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp,
 	io.UsbDevice* const* deviceArray,
@@ -49,7 +49,7 @@ populateUsbDeviceListUi(
 	deviceProp.setOptions(optionTable, deviceCount);
 }
 
-refreshUsbDeviceListUi(
+void refreshUsbDeviceListUi(
 	ComboBox* deviceCombo,
 	EnumProperty* deviceProp
 	)

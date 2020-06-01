@@ -75,7 +75,7 @@ SpiDecoder.construct(log.Writer* logWriter)
 	m_isBigEndian = Defaults.BigEndian;
 }
 
-override SpiDecoder.reset()
+void SpiDecoder.reset()
 {
 	m_state = State.Idle;
 	m_bitOffset = 0;
@@ -83,7 +83,7 @@ override SpiDecoder.reset()
 	m_miso = 0;
 }
 
-SpiDecoder.decode(
+void SpiDecoder.decode(
 	uint64_t timestamp,
 	void const thin* p0,
 	size_t size

@@ -19,21 +19,21 @@ protected:
 public:
 	construct(XModemLayer* parent);
 
-	start  ();
-	cancel();
+	void start();
+	void cancel();
 
-	onRx(
+	void onRx(
 		void const* p,
 		size_t size
 		);
 
 protected:
-	onRx_WaitNak(char c);
-	onRx_Data(char c);
-	onRx_Eot(char c);
+	void onRx_WaitNak(char c);
+	void onRx_Data(char c);
+	void onRx_Eot(char c);
 
-	complete();
-	sendNextDataBlock();
+	void complete();
+	void sendNextDataBlock();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -44,7 +44,7 @@ XModemTransmitter.construct(XModemLayer* parent)
 	m_parent = parent;
 }
 
-XModemTransmitter.start  ()
+void XModemTransmitter.start()
 {
 	cancel();
 
@@ -53,7 +53,7 @@ XModemTransmitter.start  ()
 	m_offset = 0;
 }
 
-XModemTransmitter.cancel()
+void XModemTransmitter.cancel()
 {
 	if (m_state == State.Idle)
 		return;
@@ -67,7 +67,7 @@ XModemTransmitter.cancel()
 	complete();
 }
 
-XModemTransmitter.complete()
+void XModemTransmitter.complete()
 {
 	m_state = State.Idle;
 	m_offset = 0;
@@ -75,7 +75,7 @@ XModemTransmitter.complete()
 	m_parent.m_file.close();
 }
 
-XModemTransmitter.sendNextDataBlock()
+void XModemTransmitter.sendNextDataBlock()
 {
 	if (m_offset > m_parent.m_file.m_size)
 		return;
@@ -104,7 +104,7 @@ catch:
 	complete();
 }
 
-XModemTransmitter.onRx(
+void XModemTransmitter.onRx(
 	void const* p,
 	size_t size
 	)
@@ -125,7 +125,7 @@ XModemTransmitter.onRx(
 	}
 }
 
-XModemTransmitter.onRx_WaitNak(char c)
+void XModemTransmitter.onRx_WaitNak(char c)
 {
 	switch (c)
 	{
@@ -141,7 +141,7 @@ XModemTransmitter.onRx_WaitNak(char c)
 	}
 }
 
- XModemTransmitter.onRx_Data(char c)
+void XModemTransmitter.onRx_Data(char c)
 {
 	switch (c)
 	{
@@ -177,7 +177,7 @@ XModemTransmitter.onRx_WaitNak(char c)
 	}
 }
 
-XModemTransmitter.onRx_Eot(char c)
+void XModemTransmitter.onRx_Eot(char c)
 {
 	switch (c)
 	{

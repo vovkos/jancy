@@ -22,7 +22,7 @@ class Converter
 		size_t size
 		);
 
-	virtual reset()
+	virtual void reset()
 	{
 	}
 }

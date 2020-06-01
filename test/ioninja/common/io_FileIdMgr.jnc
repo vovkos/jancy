@@ -23,15 +23,15 @@ public:
 	uint32_t readonly m_lastHiFileId;
 
 public:
-	reset();
+	void reset();
 
 	uint32_t getHiFileId(intptr_t loFileId);
-	removeLowFileId  (intptr_t loFileId);
+	void removeLowFileId(intptr_t loFileId);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-FileIdMgr.reset()
+void FileIdMgr.reset()
 {
 	m_fileIdMap.clear();
 	m_lastLoFileId = 0;
@@ -60,7 +60,7 @@ uint32_t FileIdMgr.getHiFileId(intptr_t loFileId)
 	return hiFileId;
 }
 
-FileIdMgr.removeLowFileId  (intptr_t lowFileId)
+void FileIdMgr.removeLowFileId(intptr_t lowFileId)
 {
 	if (lowFileId == m_lastLoFileId)
 	{

@@ -6,7 +6,7 @@
 [plugin]
 
 name        = "I2C/SPI Tap"
-description = "Monitor I2C/SPI communication via a I2C/SPI Tap evice from Tibbo"
+description = "Monitor I2C/SPI communication via an I2C/SPI Tap device from Tibbo"
 id          = i2c-spi-tap
 group       = serial
 monitor     = true

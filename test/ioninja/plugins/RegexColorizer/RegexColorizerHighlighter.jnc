@@ -36,7 +36,7 @@ public:
 
 	// xxx_s functions are called in the main thread while log is suspended
 
-	clearRegex_s();
+	void clearRegex_s();
 
 	bool errorcode addRegexPattern_s(
 		char const* regexString,
@@ -47,13 +47,13 @@ public:
 
 	// xxx_l functions are called in a log converter thread
 
-	write_l(
+	void write_l(
 		log.Writer* writer,
 		void const* p,
 		size_t size
 		);
 
-	finalizeWrite_l(log.Writer* writer)
+	void finalizeWrite_l(log.Writer* writer)
 	{
 		write_l(writer, null, 0); // send eof
 		m_regexState.reset();
@@ -62,7 +62,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-RegexColorizerHighlighter.clearRegex_s()
+void RegexColorizerHighlighter.clearRegex_s()
 {
 	m_regexDfa.clear();
 	m_attrArray.clear();
@@ -90,7 +90,7 @@ bool errorcode RegexColorizerHighlighter.finalizeRegex_s()
 	return true;
 }
 
-RegexColorizerHighlighter.write_l(
+void RegexColorizerHighlighter.write_l(
 	log.Writer* writer,
 	void const* p,
 	size_t size

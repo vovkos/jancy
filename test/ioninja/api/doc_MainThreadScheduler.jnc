@@ -12,7 +12,7 @@ namespace doc {
 
 opaque class MainThreadScheduler: jnc.Scheduler
 {
-	override schedule(function* f());
+	override void schedule(function* f());
 }
 
 //..............................................................................

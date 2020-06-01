@@ -48,14 +48,14 @@ class ChecksumInfoSet
 	ui.InformationValue* m_sum16Info_be;
 	ui.InformationValue* m_ip4ChecksumInfo;
 
-	createInformationValues(
+	void createInformationValues(
 		ui.InformationGrid* informationGrid,
 		ui.InformationGroup* group = null,
 		ui.InformationValue* insertBefore = null,
 		InfoId mask = InfoId.All
 		);
 
-	createInformationValuesGrouped(
+	void createInformationValuesGrouped(
 		ui.InformationGrid* informationGrid,
 		ui.InformationGroup* group = null,
 		ui.InformationValue* insertBefore = null,
@@ -63,7 +63,7 @@ class ChecksumInfoSet
 		);
 }
 
-ChecksumInfoSet.createInformationValues(
+void ChecksumInfoSet.createInformationValues(
 	ui.InformationGrid* informationGrid,
 	ui.InformationGroup* group,
 	ui.InformationValue* insertBefore,
@@ -152,7 +152,7 @@ ChecksumInfoSet.createInformationValues(
 			);
 }
 
-ChecksumInfoSet.createInformationValuesGrouped(
+void ChecksumInfoSet.createInformationValuesGrouped(
 	ui.InformationGrid* informationGrid,
 	ui.InformationGroup* group,
 	ui.InformationValue* insertBefore,

@@ -123,25 +123,25 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onOpenDevice();
-	onCapture();
-	onUsbThroughputTimer(uint_t syncId);
+	void onOpenDevice();
+	void onCapture();
+	void onUsbThroughputTimer(uint_t syncId);
 
-	onInEndpointEvent(
+	void onInEndpointEvent(
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	createUi();
-	enumerateDevices();
+	void createUi();
+	void enumerateDevices();
 
 	size_t errorcode writeOutEndpoint(
 		void const* p,
 		size_t size
 		);
 
-	waitInEndpointEvents();
-	updateUsbThroughput(uint64_t timestamp = sys.getTimestamp());
+	void waitInEndpointEvents();
+	void updateUsbThroughput(uint64_t timestamp = sys.getTimestamp());
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -160,7 +160,7 @@ HwSerialMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-HwSerialMonSession.createUi()
+void HwSerialMonSession.createUi()
 {
 	// toolbar
 
@@ -259,7 +259,7 @@ HwSerialMonSession.createUi()
 	m_uiReactor.start();
 }
 
-HwSerialMonSession.onOpenDevice()
+void HwSerialMonSession.onOpenDevice()
 {
 	if (m_state >= State.Opened)
 		closeDevice();
@@ -267,7 +267,7 @@ HwSerialMonSession.onOpenDevice()
 		try openDevice();
 }
 
-HwSerialMonSession.onCapture()
+void HwSerialMonSession.onCapture()
 {
 	if (m_state >= State.Capturing)
 		stopCapture();
@@ -275,7 +275,7 @@ HwSerialMonSession.onCapture()
 		try capture();
 }
 
-HwSerialMonSession.enumerateDevices()
+void HwSerialMonSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
@@ -347,7 +347,7 @@ catch:
 	return false;
 }
 
-HwSerialMonSession.closeDevice()
+void HwSerialMonSession.closeDevice()
 {
 	if (m_outEndpoint)
 	{
@@ -423,7 +423,7 @@ bool errorcode HwSerialMonSession.stopCapture()
 	return true;
 }
 
-HwSerialMonSession.waitInEndpointEvents  ()
+void HwSerialMonSession.waitInEndpointEvents()
 {
 	io.UsbEndpointEvents eventMask =
 		io.UsbEndpointEvents.IoError |
@@ -433,7 +433,7 @@ HwSerialMonSession.waitInEndpointEvents  ()
 	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_inEndpointSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-HwSerialMonSession.load(doc.Storage* storage)
+void HwSerialMonSession.load(doc.Storage* storage)
 {
 	m_deviceCombo.m_currentIndex  = storage.readInt("deviceIdx");
 	m_showRawDataProp.m_value = storage.readBool("showRawData");
@@ -444,7 +444,7 @@ HwSerialMonSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-HwSerialMonSession.save(doc.Storage* storage)
+void HwSerialMonSession.save(doc.Storage* storage)
 {
 	m_bufferPropertySet.save(storage);
 	storage.writeInt("deviceIdx", m_deviceCombo.m_currentIndex);
@@ -454,7 +454,7 @@ HwSerialMonSession.save(doc.Storage* storage)
 	m_spi.saveProperties(storage);
 }
 
-HwSerialMonSession.updateProperties()
+void HwSerialMonSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 }
@@ -475,7 +475,7 @@ bool errorcode HwSerialMonSession.applyProperties()
 	return true;
 }
 
-HwSerialMonSession.restoreDefaultProperties()
+void HwSerialMonSession.restoreDefaultProperties()
 {
 	m_deviceProp.m_currentIndex = 0;
 	m_serialIfaceProp.m_currentIndex = 0;
@@ -496,13 +496,13 @@ size_t errorcode HwSerialMonSession.writeOutEndpoint(
 	return result;
 }
 
-HwSerialMonSession.onUsbThroughputTimer(uint_t syncId)
+void HwSerialMonSession.onUsbThroughputTimer(uint_t syncId)
 {
 	if (syncId == m_usbThroughputTimerSyncId)
 		updateUsbThroughput();
 }
 
-HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
+void HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
 {
 	uint64_t throughput;
 
@@ -518,7 +518,7 @@ HwSerialMonSession.updateUsbThroughput(uint64_t timestamp)
 	m_usbThroughputInfo.m_value = $"$(formatIntegerWithThousandSep (throughput))";
 }
 
-HwSerialMonSession.onInEndpointEvent(
+void HwSerialMonSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
 	)

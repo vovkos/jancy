@@ -15,7 +15,7 @@ class EchoLayer: doc.Layer
 		pluginHost.m_log.addListener(onLogRecord @ pluginHost.m_mainThreadScheduler);
 	}
 
-	onLogRecord(
+	void onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,

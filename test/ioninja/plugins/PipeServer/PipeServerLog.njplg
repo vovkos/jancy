@@ -12,12 +12,12 @@ guid        = d74419a1-789c-4d9a-8d92-bd44ee19c971
 icon        = images/pipe.png
 small-icon  = images/pipe-16x16.png
 
-log-representer-func = representPipeListenerLog
+log-representer-func = representPipeServerLog
 
 [scripts]
 
-PipeListenerLogRecordCode.jnc
-PipeListenerLogRepresenter.jnc
+PipeServerLogRecordCode.jnc
+PipeServerLogRepresenter.jnc
 
 [records]
 

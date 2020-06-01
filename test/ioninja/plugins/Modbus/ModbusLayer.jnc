@@ -83,15 +83,15 @@ public:
 	override void reset();
 
 protected:
-	createUi();
+	void createUi();
 
-	onProtocolChanged();
-	onStreamRolesComboChanged();
-	onApplyRebuildLog();
+	void onProtocolChanged();
+	void onStreamRolesComboChanged();
+	void onApplyRebuildLog();
 
 	ModbusParserBase* getHalfDuplexParser(StreamRoles roles);
-	createParsers(io.ModbusProtocol protocol);
-	configureParsers(StreamRoles roles);
+	void createParsers(io.ModbusProtocol protocol);
+	void configureParsers(StreamRoles roles);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -107,7 +107,7 @@ ModbusLayer.construct(doc.PluginHost* pluginHost)
 	pluginHost.m_log.addConverter(this, &m_logGuid);
 }
 
-ModbusLayer.createUi()
+void ModbusLayer.createUi()
 {
 	static ui.EnumPropertyOption protocolTable[] =
 	{
@@ -192,18 +192,18 @@ reactor ModbusLayer.m_uiReactor
 		m_halfDuplexModeProp.m_value == HalfDuplexMode.Alternate;
 }
 
-ModbusLayer.onProtocolChanged()
+void ModbusLayer.onProtocolChanged()
 {
 	createParsers(m_protocolCombo.m_currentData);
 	configureParsers(m_streamRolesCombo.m_currentData);
 }
 
-ModbusLayer.onStreamRolesComboChanged()
+void ModbusLayer.onStreamRolesComboChanged()
 {
 	configureParsers(m_streamRolesCombo.m_currentData);
 }
 
-ModbusLayer.onApplyRebuildLog()
+void ModbusLayer.onApplyRebuildLog()
 {
 	createParsers(m_protocolCombo.m_currentData);
 	configureParsers(m_streamRolesCombo.m_currentData);

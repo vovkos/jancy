@@ -59,7 +59,7 @@ class BufferPropertySet
 	size_t m_defaultReadBufferSize = Defaults.ReadBufferSize;
 	size_t m_defaultWriteBufferSize = Defaults.WriteBufferSize;
 
-	createProperties(
+	void createProperties(
 		PropertyGrid* propertyGrid,
 		GroupProperty* group = null,
 		Property* insertBefore = null,
@@ -73,14 +73,14 @@ class BufferPropertySet
 		PropertyId mask = PropertyId.All
 		);
 
-	load(doc.Storage* storage);
-	save(doc.Storage* storage);
-	restoreDefaults();
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void restoreDefaults();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-BufferPropertySet.createProperties(
+void BufferPropertySet.createProperties(
 	PropertyGrid* propertyGrid,
 	GroupProperty* group,
 	Property* insertBefore,
@@ -189,7 +189,7 @@ GroupProperty* BufferPropertySet.createPropertiesGrouped(
 	return subGroup;
 }
 
-BufferPropertySet.load(doc.Storage* storage)
+void BufferPropertySet.load(doc.Storage* storage)
 {
 	if (m_readParallelismProp)
 		m_readParallelismProp.m_value = storage.readInt("readParallelism", m_defaultReadParallelism);
@@ -213,7 +213,7 @@ BufferPropertySet.load(doc.Storage* storage)
 		m_notifyReadBufferFullProp.m_value = storage.readBool("notifyReadBufferFull", Defaults.NotifyReadBufferFull);
 }
 
-BufferPropertySet.save(doc.Storage* storage)
+void BufferPropertySet.save(doc.Storage* storage)
 {
 	if (m_readParallelismProp)
 		storage.writeInt("readParallelism", m_readParallelismProp.m_value);
@@ -237,7 +237,7 @@ BufferPropertySet.save(doc.Storage* storage)
 		storage.writeBool("notifyReadBufferFull", m_notifyReadBufferFullProp.m_value);
 }
 
-BufferPropertySet.restoreDefaults()
+void BufferPropertySet.restoreDefaults()
 {
 	if (m_readParallelismProp)
 		m_readParallelismProp.m_value = m_defaultReadParallelism;

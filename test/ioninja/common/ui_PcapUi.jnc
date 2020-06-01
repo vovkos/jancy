@@ -71,8 +71,7 @@ EnumProperty* createPcapDeviceProperty(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ComboBox*
-createPcapDeviceComboBox(
+ComboBox* createPcapDeviceComboBox(
 	ToolBar* toolBar,
 	bool canOpenFile = true,
 	uint_t width = -1

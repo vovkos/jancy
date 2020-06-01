@@ -65,7 +65,7 @@ opaque class FileDlg
 
 	construct();
 
-	show();
+	void show();
 }
 
 //..............................................................................
@@ -93,7 +93,7 @@ opaque class LoginDlg
 
 	construct();
 
-	show();
+	void show();
 }
 
 //..............................................................................
@@ -109,7 +109,7 @@ opaque class MessageDlg
 
 	construct();
 
-	show();
+	void show();
 }
 
 //..............................................................................
@@ -126,8 +126,8 @@ opaque class ProgressDlg
 
 	construct();
 
-	show();
-	hide();
+	void show();
+	void hide();
 	alias dispose = hide;
 }
 

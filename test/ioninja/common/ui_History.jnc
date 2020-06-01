@@ -15,21 +15,21 @@ namespace ui {
 
 extension ComboBoxHistory: ComboBox
 {
-	addEditTextToHistory();
+	void addEditTextToHistory();
 
-	addToHistory(
+	void addToHistory(
 		char const* text,
 		size_t limit = 10
 		);
 
-	removeExtraItems(size_t limit);
+	void removeExtraItems(size_t limit);
 
-	saveHistory(
+	void saveHistory(
 		doc.Storage* storage,
 		char const* directory
 		);
 
-	loadHistory(
+	void loadHistory(
 		doc.Storage* storage,
 		char const* directory
 		);
@@ -37,12 +37,12 @@ extension ComboBoxHistory: ComboBox
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ComboBoxHistory.addEditTextToHistory()
+void ComboBoxHistory.addEditTextToHistory()
 {
 	return addToHistory(m_editText);
 }
 
-ComboBoxHistory.addToHistory(
+void ComboBoxHistory.addToHistory(
 	char const* text,
 	size_t limit
 	)
@@ -63,13 +63,13 @@ ComboBoxHistory.addToHistory(
 	removeExtraItems(limit);
 }
 
-ComboBoxHistory.removeExtraItems(size_t limit)
+void ComboBoxHistory.removeExtraItems(size_t limit)
 {
 	while (m_itemCount > limit)
 		removeItem(limit);
 }
 
-ComboBoxHistory.saveHistory(
+void ComboBoxHistory.saveHistory(
 	doc.Storage* storage,
 	char const* directory
 	)
@@ -88,7 +88,7 @@ finally:
 	storage.m_directory = prevDirectory;
 }
 
-ComboBoxHistory.loadHistory(
+void ComboBoxHistory.loadHistory(
 	doc.Storage* storage,
 	char const* directory
 	)

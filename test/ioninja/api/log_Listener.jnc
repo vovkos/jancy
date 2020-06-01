@@ -10,7 +10,7 @@ namespace log {
 
 //..............................................................................
 
-typedef ListenerFunc(
+typedef void ListenerFunc(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,

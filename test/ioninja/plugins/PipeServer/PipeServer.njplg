@@ -5,17 +5,17 @@
 
 [plugin]
 
-name        = Pipe Server 
-description = "Listens for accepts named pipe connections"
+name        = Pipe Server
+description = "Listens for and accepts named pipe connections"
 id          = pipe-listener
 group       = fs
-log-guid    = d74419a1-789c-4d9a-8d92-bd44ee19c971  # pipe listener
+log-guid    = d74419a1-789c-4d9a-8d92-bd44ee19c971  # pipe server
 icon        = images/pipe.png
 small-icon  = images/pipe-16x16.png
 
-session-class = PipeListenerSession
+session-class = PipeServerSession
 
 [scripts]
 
-PipeListenerSession.jnc
+PipeServerSession.jnc
 PipeClientLogFilter.jnc

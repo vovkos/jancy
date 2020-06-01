@@ -20,7 +20,7 @@ struct ModbusRtuReadFrame
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -29,7 +29,7 @@ struct ModbusRtuReadFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		updateModbusRtuChecksum(this);
 	}
@@ -43,7 +43,7 @@ struct ModbusTcpReadFrame
 	io.ModbusReadPdu m_read;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
@@ -52,7 +52,7 @@ struct ModbusTcpReadFrame
 	}
 
 	[ packetTemplateAction ]
-	updateLength()
+	void updateLength()
 	{
 		updateModbusTcpLength(this);
 	}
@@ -67,7 +67,7 @@ struct ModbusRtuWriteFrame
 	uint16_t m_crc;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -75,7 +75,7 @@ struct ModbusRtuWriteFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		updateModbusRtuChecksum(this);
 	}
@@ -89,7 +89,7 @@ struct ModbusTcpWriteFrame
 	io.ModbusWritePdu m_write;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
@@ -97,7 +97,7 @@ struct ModbusTcpWriteFrame
 	}
 
 	[ packetTemplateAction ]
-	updateLength()
+	void updateLength()
 	{
 		updateModbusTcpLength(this);
 	}
@@ -111,7 +111,7 @@ struct ModbusRtuWriteMultipleFrame
 	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -120,7 +120,7 @@ struct ModbusRtuWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	updateSize()
+	void updateSize()
 	{
 		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuWriteMultipleFrame);
 		m_write.m_count = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
@@ -128,7 +128,7 @@ struct ModbusRtuWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		updateModbusRtuChecksum(this);
 	}
@@ -142,7 +142,7 @@ struct ModbusTcpWriteMultipleFrame
 	io.ModbusWriteMultiplePdu m_write;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
@@ -151,7 +151,7 @@ struct ModbusTcpWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	updateLength()
+	void updateLength()
 	{
 		m_write.m_count = (dynamic sizeof(this) - sizeof(ModbusTcpWriteMultipleFrame)) / sizeof(uint16_t);
 		m_write.m_size = m_write.m_count * sizeof(uint16_t);
@@ -167,7 +167,7 @@ struct ModbusRtuReadWriteMultipleFrame
 	io.ModbusReadWriteMultiplePdu m_readWrite;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		m_deviceAddress = 1;
@@ -177,7 +177,7 @@ struct ModbusRtuReadWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	updateSize()
+	void updateSize()
 	{
 		size_t extra = dynamic sizeof(this) - sizeof(ModbusRtuReadWriteMultipleFrame);
 		m_readWrite.m_writeCount = extra > sizeof(uint16_t) ? (extra - sizeof(uint16_t)) / sizeof(uint16_t) : 0;
@@ -185,7 +185,7 @@ struct ModbusRtuReadWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		updateModbusRtuChecksum(this);
 	}
@@ -199,7 +199,7 @@ struct ModbusTcpReadWriteMultipleFrame
 	io.ModbusReadWriteMultiplePdu m_readWrite;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		*this = null;
 		initializeModbusTcpAdu(&m_adu);
@@ -209,7 +209,7 @@ struct ModbusTcpReadWriteMultipleFrame
 	}
 
 	[ packetTemplateAction ]
-	updateLength()
+	void updateLength()
 	{
 		m_readWrite.m_writeCount = (dynamic sizeof(this) - sizeof(ModbusTcpReadWriteMultipleFrame)) / sizeof(uint16_t);
 		m_readWrite.m_writeSize = m_readWrite.m_writeCount * sizeof(uint16_t);
@@ -219,7 +219,7 @@ struct ModbusTcpReadWriteMultipleFrame
 
 //..............................................................................
 
-updateModbusRtuChecksum(void* p)
+void updateModbusRtuChecksum(void* p)
 {
 	size_t size = dynamic sizeof(p);
 	if (size < 2)
@@ -229,7 +229,7 @@ updateModbusRtuChecksum(void* p)
 	*(uint16_t*)(p + size) = crc16_ansi(p, size, 0xffff);
 }
 
-initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu)
+void initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu)
 {
 	adu.m_deviceAddress = 1;
 	adu.m_protocol = 0;
@@ -237,7 +237,7 @@ initializeModbusTcpAdu(io.ModbusTcpAduHdr* adu)
 	adu.m_length = dynamic sizeof(adu) - offsetof(io.ModbusTcpAduHdr.m_deviceAddress);
 }
 
-updateModbusTcpLength(void* p)
+void updateModbusTcpLength(void* p)
 {
 	size_t size = dynamic sizeof(p);
 	if (size < sizeof(io.ModbusTcpAduHdr))

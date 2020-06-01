@@ -25,7 +25,7 @@ opaque class StatusBar
 {
 	destruct();
 
-	displayMessage(
+	void displayMessage(
 		char const* text,
 		uint_t timeout = 3000
 		);

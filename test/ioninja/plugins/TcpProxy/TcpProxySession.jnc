@@ -150,39 +150,39 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onListen()
+	void onListen()
 	{
 		m_listenerState ? stopListen() : try listen();
 	}
 
-	onTargetAddressChanged()
+	void onTargetAddressChanged()
 	{
 		m_resolver.cancel();
 	}
 
-	onTargetAddressEnter()
+	void onTargetAddressEnter()
 	{
 		try resolve();
 	}
 
-	onPortComboEnter()
+	void onPortComboEnter()
 	{
 		try listen();
 	}
 
-	onSetClientFilter()
+	void onSetClientFilter()
 	{
 		try applyClientFilter(true);
 	}
 
-	onResolveCompleted();
+	void onResolveCompleted();
 
-	onListenerSocketEvent(
+	void onListenerSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
-	onConnectionSocketEvent(
+	void onConnectionSocketEvent(
 		Proxy* proxy,
 		Connection* connection,
 		uint_t syncId,
@@ -191,30 +191,30 @@ protected:
 
 	bool errorcode applyClientFilter(bool rebuildLog);
 
-	createUi();
+	void createUi();
 
-	handleConnectError(
+	void handleConnectError(
 		Proxy* proxy,
 		std.Error const* error
 		);
 
-	handleListenError(std.Error const* error);
-	waitListenerSocketEvents();
+	void handleListenError(std.Error const* error);
+	void waitListenerSocketEvents();
 
-	waitConnectionSocketEvents(
+	void waitConnectionSocketEvents(
 		Proxy* proxy,
 		Connection* connection,
 		bool peerCanTransmit
 		);
 
-	connect(Proxy* proxy);
-	disconnect(Proxy* proxy);
+	void connect(Proxy* proxy);
+	void disconnect(Proxy* proxy);
 	bool errorcode resolve();
-	removeProxy(Proxy* proxy);
-	setCurrentProxy(Proxy* proxy);
-	syncConnectCompleted(Proxy* proxy);
+	void removeProxy(Proxy* proxy);
+	void setCurrentProxy(Proxy* proxy);
+	void syncConnectCompleted(Proxy* proxy);
 
-	forwardData(
+	void forwardData(
 		TcpProxySession.Proxy* proxy,
 		Connection* dst,
 		Connection* src
@@ -237,7 +237,7 @@ TcpProxySession.construct(doc.PluginHost* pluginHost)
 	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
-TcpProxySession.createUi()
+void TcpProxySession.createUi()
 {
 	// toolbar
 
@@ -360,7 +360,7 @@ bool errorcode TcpProxySession.resolve()
 	return m_resolver.resolve(addressString);
 }
 
-TcpProxySession.stopListen()
+void TcpProxySession.stopListen()
 {
 	if (!m_listenerState)
 		return;
@@ -372,13 +372,13 @@ TcpProxySession.stopListen()
 	m_stdSessionInfoSet.endSession();
 }
 
-TcpProxySession.disconnectAll()
+void TcpProxySession.disconnectAll()
 {
 	while (m_proxyList.m_count)
 		disconnect(m_proxyList.m_head.m_data);
 }
 
-TcpProxySession.disconnect(TcpProxySession.Proxy* proxy)
+void TcpProxySession.disconnect(TcpProxySession.Proxy* proxy)
 {
 	TcpDisconnectLogRecordParams params;
 	params.m_flags = (m_connectionSocketPropertySet.m_tcpResetProp.m_value) ?
@@ -572,7 +572,7 @@ void TcpProxySession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-TcpProxySession.onListenerSocketEvent(
+void TcpProxySession.onListenerSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
@@ -617,7 +617,7 @@ TcpProxySession.onListenerSocketEvent(
 	waitListenerSocketEvents();
 }
 
-TcpProxySession.onConnectionSocketEvent(
+void TcpProxySession.onConnectionSocketEvent(
 	TcpProxySession.Proxy* proxy,
 	TcpProxySession.Connection* connection,
 	uint_t syncId,
@@ -718,7 +718,7 @@ TcpProxySession.onConnectionSocketEvent(
 		waitConnectionSocketEvents(proxy, connection, peer.m_canTransmit);
 }
 
-TcpProxySession.onResolveCompleted()
+void TcpProxySession.onResolveCompleted()
 {
 	while (m_resolverWaitList.m_count)
 	{
@@ -730,7 +730,7 @@ TcpProxySession.onResolveCompleted()
 	}
 }
 
-TcpProxySession.forwardData(
+void TcpProxySession.forwardData(
 	TcpProxySession.Proxy* proxy,
 	TcpProxySession.Connection* dst,
 	TcpProxySession.Connection* src
@@ -776,7 +776,7 @@ TcpProxySession.forwardData(
 	waitConnectionSocketEvents(proxy, dst, src.m_canTransmit);
 }
 
-TcpProxySession.handleListenError(std.Error const* error)
+void TcpProxySession.handleListenError(std.Error const* error)
 {
 	uint64_t recordCode = m_listenerState == ListenerState.Closed ?
 		SocketLogRecordCode.ListenError :
@@ -789,7 +789,7 @@ TcpProxySession.handleListenError(std.Error const* error)
 	m_stdSessionInfoSet.endSession();
 }
 
-TcpProxySession.handleConnectError(
+void TcpProxySession.handleConnectError(
 	TcpProxySession.Proxy* proxy,
 	std.Error const* error
 	)
@@ -799,7 +799,7 @@ TcpProxySession.handleConnectError(
 	proxy.m_target.m_state = ConnectionState.Closed;
 }
 
-TcpProxySession.waitListenerSocketEvents()
+void TcpProxySession.waitListenerSocketEvents()
 {
 	m_listenerSocket.wait(
 		io.SocketEvents.IoError |
@@ -808,7 +808,7 @@ TcpProxySession.waitListenerSocketEvents()
 		);
 }
 
-TcpProxySession.waitConnectionSocketEvents(
+void TcpProxySession.waitConnectionSocketEvents(
 	TcpProxySession.Proxy* proxy,
 	TcpProxySession.Connection* connection,
 	bool peerCanTransmit

@@ -62,43 +62,43 @@ protected:
 	uint_t m_syncId;
 
 public:
-	createInformationValues(
+	void createInformationValues(
 		InformationGrid* informationGrid,
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
 		InfoId mask = InfoId.Default
 		);
 
-	addLogListener(log.Log* log)
+	void addLogListener(log.Log* log)
 	{
 		log.addListener(onLogRecord);
 	}
 
-	startSession(jnc.Scheduler* mainThreadScheduler);
-	endSession();
+	void startSession(jnc.Scheduler* mainThreadScheduler);
+	void endSession();
 
-	addData(
+	void addData(
 		size_t txSize,
 		size_t rxSize
 		);
 
-	addTxData(size_t size)
+	void addTxData(size_t size)
 	{
 		addData(size, 0);
 	}
 
-	addRxData(size_t size)
+	void addRxData(size_t size)
 	{
 		addData(0, size);
 	}
 
 protected:
-	update(uint64_t timestamp = sys.getTimestamp());
-	initialUpdate();
+	void update(uint64_t timestamp = sys.getTimestamp());
+	void initialUpdate();
 
-	onTimer(uint_t syncId);
+	void onTimer(uint_t syncId);
 
-	onLogRecord(
+	void onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
@@ -108,7 +108,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-StdSessionInfoSet.createInformationValues(
+void StdSessionInfoSet.createInformationValues(
 	InformationGrid* informationGrid,
 	InformationGroup* group,
 	InformationValue* insertBefore,
@@ -195,7 +195,7 @@ StdSessionInfoSet.createInformationValues(
 	initialUpdate();
 }
 
-StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler)
+void StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler)
 {
 	if (m_sessionTimeInfo)
 		m_sessionTimeInfo.m_isEnabled = true;
@@ -232,7 +232,7 @@ StdSessionInfoSet.startSession(jnc.Scheduler* mainThreadScheduler)
 	initialUpdate();
 }
 
-StdSessionInfoSet.endSession()
+void StdSessionInfoSet.endSession()
 {
 	m_timer.stop();
 
@@ -262,7 +262,7 @@ StdSessionInfoSet.endSession()
 	m_syncId++;
 }
 
-StdSessionInfoSet.addData(
+void StdSessionInfoSet.addData(
 	size_t txSize,
 	size_t rxSize
 	)
@@ -273,7 +273,7 @@ StdSessionInfoSet.addData(
 	m_lock.unlock();
 }
 
-StdSessionInfoSet.onLogRecord(
+void StdSessionInfoSet.onLogRecord(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,
@@ -297,13 +297,13 @@ StdSessionInfoSet.onLogRecord(
 	}
 }
 
-StdSessionInfoSet.onTimer(uint_t syncId)
+void StdSessionInfoSet.onTimer(uint_t syncId)
 {
 	if (syncId == m_syncId)
 		update();
 }
 
-StdSessionInfoSet.initialUpdate()
+void StdSessionInfoSet.initialUpdate()
 {
 	uint64_t timestamp = sys.getTimestamp();
 	m_sessionTimestamp = timestamp;
@@ -311,7 +311,7 @@ StdSessionInfoSet.initialUpdate()
 	update(timestamp);
 }
 
-StdSessionInfoSet.update(uint64_t timestamp)
+void StdSessionInfoSet.update(uint64_t timestamp)
 {
 	uint64_t txTotalSize;
 	uint64_t rxTotalSize;

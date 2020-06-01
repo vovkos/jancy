@@ -40,14 +40,14 @@ class ThroughputInfoSet
 	InformationValue* m_totalSizeInfo;
 	InformationValue* m_totalThroughputInfo;
 
-	createInformationValues(
+	void createInformationValues(
 		InformationGrid* informationGrid,
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
 		InfoId mask = InfoId.Default
 		);
 
-	createInformationValuesGrouped(
+	void createInformationValuesGrouped(
 		InformationGrid* informationGrid,
 		InformationGroup* group = null,
 		InformationValue* insertBefore = null,
@@ -57,7 +57,7 @@ class ThroughputInfoSet
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ThroughputInfoSet.createInformationValues(
+void ThroughputInfoSet.createInformationValues(
 	InformationGrid* informationGrid,
 	InformationGroup* group,
 	InformationValue* insertBefore,
@@ -86,7 +86,7 @@ ThroughputInfoSet.createInformationValues(
 		m_totalThroughputInfo = informationGrid.createValue(group, insertBefore, true, "Total throughput");
 }
 
-ThroughputInfoSet.createInformationValuesGrouped(
+void ThroughputInfoSet.createInformationValuesGrouped(
 	InformationGrid* informationGrid,
 	InformationGroup* group,
 	InformationValue* insertBefore,

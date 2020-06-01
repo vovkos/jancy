@@ -113,7 +113,7 @@ class SerialIface
 		uint_t ifaceId
 		);
 
-	release();
+	void release();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -141,7 +141,7 @@ bool errorcode SerialIface.claim(
 	return true;
 }
 
-SerialIface.release()
+void SerialIface.release()
 {
 	if (m_bulkEndpoint)
 	{
@@ -250,7 +250,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	stopCapture();
+	void stopCapture();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -259,39 +259,39 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? stopCapture() : try capture();
 	}
 
-	onDeviceComboEnter()
+	void onDeviceComboEnter()
 	{
 		try capture();
 	}
 
-	onBaudRateChanged();
+	void onBaudRateChanged();
 
-	onBulkEndpointEvent(
+	void onBulkEndpointEvent(
 		SerialIface* iface,
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	onInterruptEndpointEvent(
+	void onInterruptEndpointEvent(
 		SerialIface* iface,
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	createUi();
-	enumerateDevices();
-	flipDteDce();
-	waitBulkEndpointEvents(SerialIface* iface);
-	waitInterruptEndpointEvents(SerialIface* iface);
+	void createUi();
+	void enumerateDevices();
+	void flipDteDce();
+	void waitBulkEndpointEvents(SerialIface* iface);
+	void waitInterruptEndpointEvents(SerialIface* iface);
 	bool errorcode configureSerialIface(uint_t ifaceId);
 	bool getGpio(uint_t pin);
 
-	updateLineInfoValue(
+	void updateLineInfoValue(
 		InfoId infoId,
 		bool line
 		);
@@ -315,7 +315,7 @@ SerialTapSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SerialTapSession.createUi()
+void SerialTapSession.createUi()
 {
 	// toolbar
 
@@ -412,7 +412,7 @@ SerialTapSession.createUi()
 	m_uiReactor.start();
 }
 
-SerialTapSession.enumerateDevices()
+void SerialTapSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
@@ -446,7 +446,7 @@ SerialTapSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, actualCount);
 }
 
-SerialTapSession.flipDteDce()
+void SerialTapSession.flipDteDce()
 {
 	if (!m_state)
 		return;
@@ -552,7 +552,7 @@ catch:
 	return false;
 }
 
-SerialTapSession.stopCapture()
+void SerialTapSession.stopCapture()
 {
 	if (m_state != State.Opened)
 		return;
@@ -566,7 +566,7 @@ SerialTapSession.stopCapture()
 	m_state = State.Closed;
 }
 
-SerialTapSession.waitBulkEndpointEvents(SerialIface* iface)
+void SerialTapSession.waitBulkEndpointEvents(SerialIface* iface)
 {
 	iface.m_bulkEndpoint.wait(
 		io.UsbEndpointEvents.IoError |
@@ -579,7 +579,7 @@ SerialTapSession.waitBulkEndpointEvents(SerialIface* iface)
 		);
 }
 
-SerialTapSession.waitInterruptEndpointEvents(SerialIface* iface)
+void SerialTapSession.waitInterruptEndpointEvents(SerialIface* iface)
 {
 	iface.m_interruptEndpoint.wait(
 		io.UsbEndpointEvents.IoError |
@@ -591,7 +591,7 @@ SerialTapSession.waitInterruptEndpointEvents(SerialIface* iface)
 		);
 }
 
-SerialTapSession.onBulkEndpointEvent(
+void SerialTapSession.onBulkEndpointEvent(
 	SerialIface* iface,
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
@@ -624,7 +624,7 @@ SerialTapSession.onBulkEndpointEvent(
 	waitBulkEndpointEvents(iface);
 }
 
-SerialTapSession.onInterruptEndpointEvent(
+void SerialTapSession.onInterruptEndpointEvent(
 	SerialIface* iface,
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
@@ -772,7 +772,7 @@ void SerialTapSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-SerialTapSession.onBaudRateChanged()
+void SerialTapSession.onBaudRateChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -791,7 +791,7 @@ catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-SerialTapSession.updateLineInfoValue(
+void SerialTapSession.updateLineInfoValue(
 	InfoId infoId,
 	bool line
 	)

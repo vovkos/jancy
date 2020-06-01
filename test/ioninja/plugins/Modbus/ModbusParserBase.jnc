@@ -34,7 +34,7 @@ public:
 		ModbusInfoSet* infoSet
 		);
 
-	abstract parse(
+	abstract void parse(
 		log.Writer* writer,
 		uint64_t timestamp,
 		uint64_t originalRecordCode,
@@ -42,10 +42,10 @@ public:
 		size_t size
 		);
 
-	abstract reset();
+	abstract void reset();
 
 protected:
-	updateLastTimestamp(uint64_t timestamp);
+	void updateLastTimestamp(uint64_t timestamp);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -59,7 +59,7 @@ ModbusParserBase.construct(
 	m_infoSet = infoSet;
 }
 
-ModbusParserBase.m_mode.set(ModbusParserMode mode)
+void ModbusParserBase.m_mode.set(ModbusParserMode mode)
 {
 	if (mode == m_value)
 		return;
@@ -73,7 +73,7 @@ ModbusParserBase.m_mode.set(ModbusParserMode mode)
 	reset();
 }
 
-ModbusParserBase.updateLastTimestamp(uint64_t timestamp)
+void ModbusParserBase.updateLastTimestamp(uint64_t timestamp)
 {
 	if (m_mode == ModbusParserMode.Alternate &&
 		timestamp - m_lastTimestamp > m_alternateTimeout)

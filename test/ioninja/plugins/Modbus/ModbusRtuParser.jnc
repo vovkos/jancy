@@ -46,7 +46,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusRtuParser.parse(
+void ModbusRtuParser.parse(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t originalRecordCode,
@@ -125,7 +125,7 @@ catch:
 	reset();
 }
 
-ModbusRtuParser.reset()
+void ModbusRtuParser.reset()
 {
 	m_dataBuffer.clear();
 	m_expectedSize = 0;

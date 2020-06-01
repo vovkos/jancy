@@ -122,7 +122,7 @@ public:
 
 	bool errorcode connect();
 	bool errorcode connect(io.SocketAddress const* address);
-	disconnect();
+	void disconnect();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -131,33 +131,33 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onConnect()
+	void onConnect()
 	{
 		m_state ? disconnect() : try connect();
 	}
 
-	onComboEnter()
+	void onComboEnter()
 	{
 		try connect();
 	}
 
-	onLoginDlgCompleted(ui.StdDlgButton button);
-	onConsoleSizeChanged();
+	void onLoginDlgCompleted(ui.StdDlgButton button);
+	void onConsoleSizeChanged();
 
-	onResolverEvent(
+	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
 		);
 
-	onSshEvent(
+	void onSshEvent(
 		uint_t syncId,
 		io.SshEvents triggeredEvents
 		);
 
-	createUi();
-	waitSshEvents();
-	handleConnectError(std.Error const* error);
-	handleSshAuthenticateError(std.Error const* error);
+	void createUi();
+	void waitSshEvents();
+	void handleConnectError(std.Error const* error);
+	void handleSshAuthenticateError(std.Error const* error);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -177,7 +177,7 @@ SshSerialMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SshSerialMonSession.createUi()
+void SshSerialMonSession.createUi()
 {
 	// toolbar
 
@@ -382,7 +382,7 @@ catch:
 	return false;
 }
 
-SshSerialMonSession.waitSshEvents()
+void SshSerialMonSession.waitSshEvents()
 {
 	io.SshEvents eventMask = io.SshEvents.IoError;
 
@@ -423,14 +423,14 @@ SshSerialMonSession.waitSshEvents()
 	m_ssh.wait(eventMask, onSshEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-SshSerialMonSession.handleConnectError(std.Error const* error)
+void SshSerialMonSession.handleConnectError(std.Error const* error)
 {
 	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
 	m_ssh.close();
 	m_state = State.Closed;
 }
 
-SshSerialMonSession.handleSshAuthenticateError(std.Error const* error)
+void SshSerialMonSession.handleSshAuthenticateError(std.Error const* error)
 {
 	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
 
@@ -455,7 +455,7 @@ SshSerialMonSession.handleSshAuthenticateError(std.Error const* error)
 	m_state = State.WaitingLoginDlg;
 }
 
-SshSerialMonSession.onLoginDlgCompleted(ui.StdDlgButton button)
+void SshSerialMonSession.onLoginDlgCompleted(ui.StdDlgButton button)
 {
 	if (m_state != State.WaitingLoginDlg)
 		return;
@@ -509,7 +509,7 @@ catch:
 	m_state = State.Closed;
 }
 
-SshSerialMonSession.onConsoleSizeChanged()
+void SshSerialMonSession.onConsoleSizeChanged()
 {
 	m_ssh.resizePty(
 		m_pluginHost.m_terminal.m_consoleWidth,
@@ -517,7 +517,7 @@ SshSerialMonSession.onConsoleSizeChanged()
 		);
 }
 
-SshSerialMonSession.disconnect()
+void SshSerialMonSession.disconnect()
 {
 	switch (m_state)
 	{
@@ -604,7 +604,7 @@ void SshSerialMonSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-SshSerialMonSession.onSshEvent(
+void SshSerialMonSession.onSshEvent(
 	uint_t syncId,
 	io.SshEvents triggeredEvents
 	)
@@ -715,7 +715,7 @@ catch:
 	disconnect();
 }
 
-SshSerialMonSession.onResolverEvent(
+void SshSerialMonSession.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
 	)
@@ -741,7 +741,7 @@ SshSerialMonSession.onResolverEvent(
 	if (!address.m_port)
 		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
-	connect(&address);
+	try connect(address);
 }
 
 reactor SshSerialMonSession.m_uiReactor

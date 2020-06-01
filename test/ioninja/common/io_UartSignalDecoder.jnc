@@ -48,7 +48,7 @@ public:
 	uchar_t m_char;
 
 public:
-	start(
+	void start(
 		uint_t baudRate,
 		uint_t dataBits,
 		io.SerialStopBits stopBits,
@@ -69,7 +69,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-UartSignalDecoder.start(
+void UartSignalDecoder.start(
 	uint_t baudRate,
 	uint_t dataBits,
 	io.SerialStopBits stopBits,

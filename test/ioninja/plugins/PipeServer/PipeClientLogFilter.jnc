@@ -4,7 +4,7 @@
 //
 
 import "log_Filter.jnc"
-import "PipeListenerLogRecordCode.jnc"
+import "PipeServerLogRecordCode.jnc"
 
 //..............................................................................
 
@@ -76,20 +76,20 @@ bool PipeClientLogFilter.filter(
 
 	switch (recordCode)
 	{
-	case PipeListenerLogRecordCode.ClientConnected:
-	case PipeListenerLogRecordCode.ClientChanged:
+	case PipeServerLogRecordCode.ClientConnected:
+	case PipeServerLogRecordCode.ClientChanged:
 		uint64_t id = *(uint64_t const*)p;
 		m_isVisible = id == m_filterId;
 		if (!m_isVisible)
 			return false;
 
-		if (recordCode == PipeListenerLogRecordCode.ClientChanged && id == m_lastVisibleId)
+		if (recordCode == PipeServerLogRecordCode.ClientChanged && id == m_lastVisibleId)
 			return false; // don't show unnecessary client-changed messages
 
 		m_lastVisibleId = id;
 		return true;
 
-	case PipeListenerLogRecordCode.ClientDisconnected:
+	case PipeServerLogRecordCode.ClientDisconnected:
 		uint64_t id = *(uint64_t const*)p;
 		bool result = id == m_filterId;
 		if (result)

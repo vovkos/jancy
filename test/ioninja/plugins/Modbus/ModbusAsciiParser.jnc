@@ -43,7 +43,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusAsciiParser.parse(
+void ModbusAsciiParser.parse(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t originalRecordCode,
@@ -125,7 +125,7 @@ ModbusAsciiParser.parse(
 	}
 }
 
-ModbusAsciiParser.reset()
+void ModbusAsciiParser.reset()
 {
 	m_dataBuffer.clear();
 	m_state = State.Idle;

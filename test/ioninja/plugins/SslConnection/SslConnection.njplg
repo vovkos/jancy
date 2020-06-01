@@ -5,7 +5,7 @@
 
 [plugin]
 
-name        = "SSL Connection Socket"
+name        = "SSL Connection"
 description = "Establishes connection over SSL socket"
 id          = ssl
 group       = net

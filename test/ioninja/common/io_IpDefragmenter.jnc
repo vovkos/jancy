@@ -52,7 +52,7 @@ public:
 public:
 	construct();
 
-	reset()
+	void reset()
 	{
 		m_chainHashTable.clear();
 	}
@@ -64,7 +64,7 @@ public:
 
 protected:
 	io.IpHdr const* assembleChain(Chain* chain);
-	removeTimedOutChains();
+	void removeTimedOutChains();
 }
 
 IpDefragmenter.construct()
@@ -189,7 +189,7 @@ io.IpHdr const* IpDefragmenter.assembleChain(IpDefragmenter.Chain* chain)
 	return chain.m_ipHdr;
 }
 
-IpDefragmenter.removeTimedOutChains()
+void IpDefragmenter.removeTimedOutChains()
 {
 	uint64_t timestamp = sys.getTimestamp();
 

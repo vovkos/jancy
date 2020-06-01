@@ -143,10 +143,10 @@ class SerialMonProcessor_lnx: SerialMonProcessor
 		basetype.construct(logWriter);
 	}
 
-	override processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
+	override void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
 
 protected:
-	processIoctlNotification(
+	void processIoctlNotification(
 		int result,
 		uint64_t timestamp,
 		uint_t code,
@@ -155,7 +155,7 @@ protected:
 		size_t argDataSize
 		);
 
-	processTermiosSetAttr(
+	void processTermiosSetAttr(
 		uint64_t timestamp,
 		uint_t cflags,
 		uint_t iflags,
@@ -165,7 +165,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
+void SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
 	switch (notifyHdr.m_code)
 	{
@@ -248,7 +248,7 @@ SerialMonProcessor_lnx.processNotification(io.DeviceMonitorNotifyHdr const* noti
 	}
 }
 
-SerialMonProcessor_lnx.processIoctlNotification(
+void SerialMonProcessor_lnx.processIoctlNotification(
 	int result,
 	uint64_t timestamp,
 	uint_t code,
@@ -343,7 +343,7 @@ SerialMonProcessor_lnx.processIoctlNotification(
 	};
 }
 
-SerialMonProcessor_lnx.processTermiosSetAttr(
+void SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint64_t timestamp,
 	uint_t cflags,
 	uint_t iflags,

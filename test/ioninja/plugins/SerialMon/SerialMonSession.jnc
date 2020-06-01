@@ -81,7 +81,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -90,18 +90,18 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? close() : try capture();
 	}
 
-	onPortComboEnter()
+	void onPortComboEnter()
 	{
 		try capture();
 	}
 
-	createUi();
-	enumeratePorts();
+	void createUi();
+	void enumeratePorts();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -118,7 +118,7 @@ SerialMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SerialMonSession.createUi()
+void SerialMonSession.createUi()
 {
 	// toolbar
 
@@ -195,7 +195,7 @@ SerialMonSession.createUi()
 	m_uiReactor.start();
 }
 
-SerialMonSession.enumeratePorts()
+void SerialMonSession.enumeratePorts()
 {
 	char const* name = m_portCombo.m_currentText;
 	m_portCombo.clear();
@@ -242,7 +242,7 @@ catch:
 	return false;
 }
 
-SerialMonSession.close()
+void SerialMonSession.close()
 {
 	if (m_state != State.Opened)
 		return;

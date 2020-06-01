@@ -95,8 +95,8 @@ protected:
 public:
 	construct(doc.PluginHost* pluginHost);
 
-	openSocket();
-	closeSocket();
+	void openSocket();
+	void closeSocket();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -110,31 +110,31 @@ public:
 		);
 
 protected:
-	onOpen()
+	void onOpen()
 	{
 		m_state ? closeSocket() : openSocket();
 	}
 
-	onRemoteAddressChanged()
+	void onRemoteAddressChanged()
 	{
 		m_resolver.cancel();
 	}
 
-	onRemoteAddressEnter()
+	void onRemoteAddressEnter()
 	{
 		try resolve();
 	}
 
-	onResolveCompleted();
+	void onResolveCompleted();
 
-	onSocketEvent(
+	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
-	createUi();
+	void createUi();
 	bool errorcode resolve();
-	waitSocketEvents();
+	void waitSocketEvents();
 
 	size_t writeDatagram(
 		void const* p,
@@ -158,7 +158,7 @@ UdpSession.construct(doc.PluginHost* pluginHost)
 	m_resolver.m_onCompleted += onResolveCompleted;
 }
 
-UdpSession.createUi()
+void UdpSession.createUi()
 {
 	// toolbar
 
@@ -233,7 +233,7 @@ UdpSession.createUi()
 	m_uiReactor.start();
 }
 
-UdpSession.openSocket()
+void UdpSession.openSocket()
 {
 	io.SocketAddress address;
 
@@ -265,7 +265,7 @@ catch:
 	m_logWriter.write(SocketLogRecordCode.OpenError, address, sizeof(address), error, error.m_size);
 }
 
-UdpSession.closeSocket()
+void UdpSession.closeSocket()
 {
 	if (m_state == State.Closed)
 		return;
@@ -279,7 +279,7 @@ UdpSession.closeSocket()
 	m_stdSessionInfoSet.endSession();
 }
 
-UdpSession.waitSocketEvents()
+void UdpSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask =
 		io.SocketEvents.IoError |
@@ -292,7 +292,7 @@ UdpSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_socketSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-UdpSession.load(doc.Storage* storage)
+void UdpSession.load(doc.Storage* storage)
 {
 	m_remoteAddressCombo.loadHistory(storage, "remoteAddressHistory");
 	m_localPortCombo.loadHistory(storage, "localPortHistory");
@@ -307,7 +307,7 @@ UdpSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-UdpSession.save(doc.Storage* storage)
+void UdpSession.save(doc.Storage* storage)
 {
 	m_socketPropertySet.save(storage);
 	m_bufferPropertySet.save(storage);
@@ -321,7 +321,7 @@ UdpSession.save(doc.Storage* storage)
 	storage.writeString("localPort", m_localPortCombo.m_editText);
 }
 
-UdpSession.updateProperties()
+void UdpSession.updateProperties()
 {
 	m_socketPropertySet.m_remoteAddressProp.m_value = m_remoteAddressCombo.m_editText;
 	m_socketPropertySet.m_adapterProp.m_currentIndex = m_adapterCombo.m_currentIndex;
@@ -345,7 +345,7 @@ bool errorcode UdpSession.applyProperties()
 	return true;
 }
 
-UdpSession.restoreDefaultProperties()
+void UdpSession.restoreDefaultProperties()
 {
 	m_socketPropertySet.restoreDefaults();
 	m_bufferPropertySet.restoreDefaults();
@@ -412,7 +412,7 @@ size_t UdpSession.writeDatagram(
 	return result;
 }
 
-UdpSession.onSocketEvent(
+void UdpSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
@@ -460,7 +460,7 @@ UdpSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-UdpSession.onResolveCompleted()
+void UdpSession.onResolveCompleted()
 {
 	if (m_resolver.m_state == iox.HostNameResolver.State.Resolved && m_hasPendingDatagram)
 		writeDatagram(m_pendingDatagram.m_p, m_pendingDatagram.m_size, &m_resolver.m_address);

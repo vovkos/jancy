@@ -23,7 +23,7 @@ uint8_t lrc(
 	return (result ^ 0xff) + 1;
 }
 
-representModbusAsciiAdu(
+void representModbusAsciiAdu(
 	log.Representation* representation,
 	io.ModbusRole role,
 	void const* p,

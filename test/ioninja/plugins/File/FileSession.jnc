@@ -90,8 +90,8 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode open();
-	close();
-	clear();
+	void close();
+	void clear();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -105,24 +105,24 @@ public:
 		);
 
 protected:
-	onOpen()
+	void onOpen()
 	{
 		m_state ? close() : try open();
 	}
 
-	onFileNameComboEnter()
+	void onFileNameComboEnter()
 	{
 		try open();
 	}
 
-	onFileStreamEvent(
+	void onFileStreamEvent(
 		uint_t syncId,
 		io.FileStreamEvents triggeredEvents
 		);
 
 	io.FileStreamOptions getFileStreamOptions();
-	waitFileStreamEvents();
-	createUi();
+	void waitFileStreamEvents();
+	void createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -138,7 +138,7 @@ FileSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-FileSession.createUi()
+void FileSession.createUi()
 {
 	static ui.EnumPropertyOption accessModeTable[] =
 	{
@@ -257,7 +257,7 @@ catch:
 	return false;
 }
 
-FileSession.close()
+void FileSession.close()
 {
 	if (m_state != State.Opened)
 		return;
@@ -270,7 +270,7 @@ FileSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-FileSession.clear()
+void FileSession.clear()
 {
 	if (m_state != State.Opened)
 		return;
@@ -292,7 +292,7 @@ io.FileStreamOptions FileSession.getFileStreamOptions()
 	return options;
 }
 
-FileSession.waitFileStreamEvents()
+void FileSession.waitFileStreamEvents()
 {
 	io.FileStreamEvents eventMask =
 		io.FileStreamEvents.IoError |
@@ -369,7 +369,7 @@ size_t errorcode FileSession.transmit(
 	return result;
 }
 
-FileSession.onFileStreamEvent(
+void FileSession.onFileStreamEvent(
 	uint_t syncId,
 	io.FileStreamEvents triggeredEvents
 	)

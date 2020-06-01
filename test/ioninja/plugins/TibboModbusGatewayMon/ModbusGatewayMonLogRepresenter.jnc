@@ -388,7 +388,7 @@ size_t representerModbusAsciiConvertRtu(
 //          MODBUS represent functions
 //..............................................................................
 
-representModbusCoils(
+void representModbusCoils(
 	log.Representation* representation,
 	uint8_t const* p,
 	size_t count,
@@ -432,7 +432,7 @@ representModbusCoils(
 	}
 }
 
-representModbusCoilValues(
+void representModbusCoilValues(
 	log.Representation* representation,
 	uint8_t const* p,
 	size_t count,
@@ -465,7 +465,7 @@ representModbusCoilValues(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-representModbusRegisters(
+void representModbusRegisters(
 	log.Representation* representation,
 	bigendian uint16_t const* p,
 	size_t count,
@@ -509,7 +509,7 @@ representModbusRegisters(
 	}
 }
 
-representModbusRegisterValues(
+void representModbusRegisterValues(
 	log.Representation* representation,
 	bigendian uint16_t const* p,
 	size_t count,
@@ -529,7 +529,7 @@ representModbusRegisterValues(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-representModbusPdu(
+void representModbusPdu(
 	log.Representation* representation,
 	io.ModbusRole role,
 	io.ModbusPduHdr const* hdr,
@@ -726,7 +726,7 @@ struct ModbusMbapHdr
     uint8_t m_unitId;
 }
 
-representModbusMbap(
+void representModbusMbap(
 	log.Representation* representation,
 	io.ModbusRole role,
 	ModbusMbapHdr const* hdr,

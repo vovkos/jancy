@@ -85,7 +85,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode open();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -94,21 +94,21 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onOpen()
+	void onOpen()
 	{
 		m_state ? close() : try open();
 	}
 
-	onBrowse();
-	onFileDlgCompleted(ui.StdDlgButton button);
+	void onBrowse();
+	void onFileDlgCompleted(ui.StdDlgButton button);
 
-	onComboEnter()
+	void onComboEnter()
 	{
 		try open();
 	}
 
-	createUi();
-	readThreadFunc();
+	void createUi();
+	void readThreadFunc();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -127,7 +127,7 @@ SerialMiDumpViewSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SerialMiDumpViewSession.createUi()
+void SerialMiDumpViewSession.createUi()
 {
 	// toolbar
 
@@ -187,7 +187,7 @@ catch:
 	return false;
 }
 
-SerialMiDumpViewSession.close()
+void SerialMiDumpViewSession.close()
 {
 	if (!m_state)
 		return;
@@ -200,7 +200,7 @@ SerialMiDumpViewSession.close()
 	m_stdSessionInfoSet.endSession();
 }
 
-SerialMiDumpViewSession.onBrowse()
+void SerialMiDumpViewSession.onBrowse()
 {
 	m_fileDlg.m_kind = ui.FileDlgKind.Open;
 	m_fileDlg.m_title = "Open Device Monitor MI Dump...";
@@ -208,7 +208,7 @@ SerialMiDumpViewSession.onBrowse()
 	m_fileDlg.show();
 }
 
-SerialMiDumpViewSession.onFileDlgCompleted(ui.StdDlgButton button)
+void SerialMiDumpViewSession.onFileDlgCompleted(ui.StdDlgButton button)
 {
 	if (button == ui.StdDlgButton.Ok)
 		m_fileNameCombo.m_editText = m_fileDlg.m_filePath;
@@ -241,7 +241,7 @@ void SerialMiDumpViewSession.restoreDefaultProperties()
 {
 }
 
-SerialMiDumpViewSession.readThreadFunc()
+void SerialMiDumpViewSession.readThreadFunc()
 {
 	uint64_t offset = 0;
 	uint64_t end = m_file.m_size;

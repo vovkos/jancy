@@ -1,21 +1,22 @@
 #...............................................................................
 #
-#  TCP Server session plugin
+#  SSL Listener Socket session plugin
 #
 
 [plugin]
 
-name        = TCP Server
-description = "Listens for and accepts TCP connections"
-id          = tcp-listener
+name        = SSL Server
+description = "Listens for connection over SSL socket"
+id          = ssl-listener
 group       = net
+log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
-session-class = TcpListenerSession
+session-class = SslServerSession
 
 [scripts]
 
-TcpListenerSession.jnc
+SslServerSession.jnc
 ../SocketLog/SocketClientLogFilter.jnc

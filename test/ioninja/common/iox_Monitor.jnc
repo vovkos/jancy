@@ -4,7 +4,6 @@
 //
 
 import "io_devmon.jncx"
-import "io_FileIdMgr.jnc"
 import "ui_BufferPropertySet.jnc"
 import "doc_PluginHost.jnc"
 import "std_Buffer.jnc"
@@ -48,7 +47,7 @@ public:
 		size_t ioctlDescCount = 0
 		);
 
-	close();
+	void close();
 
 	bool errorcode setReadBufferSize(size_t size)
 	{
@@ -61,12 +60,12 @@ public:
 		);
 
 protected:
-	onMonitorEvent(
+	void onMonitorEvent(
 		uint_t syncId,
 		io.DeviceMonitorEvents triggeredEvents
 		);
 
-	waitMonitorEvents();
+	void waitMonitorEvents();
 
 	bool addNotificationData(
 		void const* p,
@@ -100,7 +99,7 @@ bool errorcode Monitor.capture(
 	return true;
 }
 
-Monitor.close()
+void Monitor.close()
 {
 	m_monitor.close();
 	m_syncId++;
@@ -120,7 +119,7 @@ bool errorcode Monitor.applyProperties(
 	return m_readBuffer.setSize(bufferPropSet.m_readBufferSizeProp.m_value);
 }
 
-Monitor.waitMonitorEvents()
+void Monitor.waitMonitorEvents()
 {
 	io.DeviceMonitorEvents eventMask =
 		io.DeviceMonitorEvents.IoError |
@@ -130,7 +129,7 @@ Monitor.waitMonitorEvents()
 	m_monitor.wait(eventMask, onMonitorEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-Monitor.onMonitorEvent(
+void Monitor.onMonitorEvent(
 	uint_t syncId,
 	io.DeviceMonitorEvents triggeredEvents
 	)
@@ -214,7 +213,7 @@ bool Monitor.addNotificationData(
 	return true;
 }
 
-Monitor.processError(std.Error const* error)
+void Monitor.processError(std.Error const* error)
 {
 	m_logWriter.write(log.StdRecordCode.Error, error);
 	close();

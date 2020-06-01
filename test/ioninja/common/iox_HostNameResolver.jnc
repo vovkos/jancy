@@ -62,7 +62,7 @@ public:
 protected:
 	void handleResolveError(std.Error const* error);
 
-	onResolverEvent(
+	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
 		);
@@ -151,14 +151,14 @@ void HostNameResolver.updateStatusPane(ui.StatusPane* pane)
 	}
 }
 
-HostNameResolver.handleResolveError(std.Error const* error)
+void HostNameResolver.handleResolveError(std.Error const* error)
 {
 	m_logWriter.write(SocketLogRecordCode.ResolveError, error);
 	m_resolver.cancel();
 	m_state = State.Error;
 }
 
-HostNameResolver.onResolverEvent(
+void HostNameResolver.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
 	)

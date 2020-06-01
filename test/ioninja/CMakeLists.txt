@@ -84,16 +84,16 @@ add_jancy_tests(
 		ModbusLog_Tcp.jnc
 	FINALIZE_TEST Modbus
 
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeListener
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/PipeServer
 	REQUIRES
-		PipeListenerSession
-		representPipeListenerLog
+		PipeServerSession
+		representPipeServerLog
 	FILES
-		PipeListenerSession.jnc
+		PipeServerSession.jnc
 		PipeClientLogFilter.jnc
-		PipeListenerLogRecordCode.jnc
-		PipeListenerLogRepresenter.jnc
-	FINALIZE_TEST PipeListener
+		PipeServerLogRecordCode.jnc
+		PipeServerLogRepresenter.jnc
+	FINALIZE_TEST PipeServer
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/RegexColorizer
 	REQUIRES RegexColorizerLayer
@@ -130,16 +130,16 @@ add_jancy_tests(
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpConnection
 
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpListener
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpServer
 	REQUIRES
-		TcpListenerSession
+		TcpServerSession
 		representSocketLog
 	FILES
-		TcpListenerSession.jnc
+		TcpServerSession.jnc
 		../SocketLog/SocketClientLogFilter.jnc
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
-	FINALIZE_TEST TcpListener
+	FINALIZE_TEST TcpServer
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpProxy
 	REQUIRES
@@ -151,6 +151,16 @@ add_jancy_tests(
 		../SocketLog/SocketLogRecordCode.jnc
 		../SocketLog/SocketLogRepresenter.jnc
 	FINALIZE_TEST TcpProxy
+
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/Process
+	REQUIRES
+		ProcessSession
+		representProcessLog
+	FILES
+		ProcessSession.jnc
+		ProcessLogRecordCode.jnc
+		ProcessLogRepresenter.jnc
+	FINALIZE_TEST Process
 
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TibboModbusGatewayMon
 	REQUIRES
@@ -236,6 +246,40 @@ if(BUILD_JNC_IO_SSH)
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST SshSerialMon
+		)
+endif()
+
+if(BUILD_JNC_IO_SSL)
+	add_jancy_tests(
+		NAME_PREFIX "jnc-ioninja-plugin-"
+		FLAGS ${_COMMON_FLAGS}
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SslConnection
+		REQUIRES
+			SslConnectionSession
+			representSslLog
+			representSocketLog
+		FILES
+			SslConnectionSession.jnc
+			../SslLog/SslLogRecordCode.jnc
+			../SslLog/SslLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SslConnection
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/SslServer
+		REQUIRES
+			SslServerSession
+			representSslLog
+			representSocketLog
+		FILES
+			SslServerSession.jnc
+			../SslLog/SslLogRecordCode.jnc
+			../SslLog/SslLogRepresenter.jnc
+			../SocketLog/SocketClientLogFilter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST SslServer
 		)
 endif()
 

@@ -119,7 +119,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode open();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -133,34 +133,34 @@ public:
 		);
 
 protected:
-	onOpen()
+	void onOpen()
 	{
 		m_state ? close() : try open();
 	}
 
-	onPortComboEnter()
+	void onPortComboEnter()
 	{
 		try open();
 	}
 
-	onBaudRateChanged();
-	onDtrChanged();
-	onRtsChanged();
-	onBreakConditionChanged();
+	void onBaudRateChanged();
+	void onDtrChanged();
+	void onRtsChanged();
+	void onBreakConditionChanged();
 
-	onSerialEvent(
+	void onSerialEvent(
 		uint_t syncId,
 		io.SerialEvents triggeredEvents
 		);
 
-	onReopenTimer(uint_t syncId);
+	void onReopenTimer(uint_t syncId);
 
-	createUi();
+	void createUi();
 
-	enumeratePorts();
-	waitSerialEvents();
+	void enumeratePorts();
+	void waitSerialEvents();
 
-	startReopenTimer()
+	void startReopenTimer()
 	{
 		m_reopenTimer.startSingleShotTimer(
 			onReopenTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
@@ -177,7 +177,7 @@ protected:
 			m_readModeProp.m_value != SerialReadMode.IntervalBased ? 0 : m_readIntervalProp.m_value;
 	}
 
-	updateLineInfoValue(
+	void updateLineInfoValue(
 		InfoId infoId,
 		bool line
 		);
@@ -198,7 +198,7 @@ SerialSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SerialSession.createUi()
+void SerialSession.createUi()
 {
 	static ui.EnumPropertyOption readModeTable[] =
 	{
@@ -442,7 +442,7 @@ catch:
 	return false;
 }
 
-SerialSession.close()
+void SerialSession.close()
 {
 	if (m_state != State.Opened)
 		return;
@@ -644,7 +644,7 @@ size_t errorcode SerialSession.transmit(
 	return result;
 }
 
-SerialSession.enumeratePorts()
+void SerialSession.enumeratePorts()
 {
 	char const* editText = m_portCombo.m_editText; // save edit text
 	m_portCombo.clear();
@@ -668,7 +668,7 @@ SerialSession.enumeratePorts()
 	m_portProp.setOptions(optionArray, count);
 }
 
-SerialSession.waitSerialEvents()
+void SerialSession.waitSerialEvents()
 {
 	io.SerialEvents eventMask =
 		io.SerialEvents.IoError |
@@ -690,7 +690,7 @@ SerialSession.waitSerialEvents()
 	m_serial.wait(eventMask, onSerialEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-SerialSession.onSerialEvent(
+void SerialSession.onSerialEvent(
 	uint_t syncId,
 	io.SerialEvents triggeredEvents
 	)
@@ -741,7 +741,7 @@ SerialSession.onSerialEvent(
 	waitSerialEvents();
 }
 
-SerialSession.onReopenTimer(uint_t syncId)
+void SerialSession.onReopenTimer(uint_t syncId)
 {
 	if (syncId != m_syncId)
 		return;
@@ -751,7 +751,7 @@ SerialSession.onReopenTimer(uint_t syncId)
 		startReopenTimer();
 }
 
-SerialSession.onBaudRateChanged()
+void SerialSession.onBaudRateChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -778,7 +778,7 @@ catch:
 	m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-SerialSession.onDtrChanged()
+void SerialSession.onDtrChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -789,7 +789,7 @@ SerialSession.onDtrChanged()
 	m_logWriter.write(SerialLogRecordCode.DtrChanged, &value, sizeof(value));
 }
 
-SerialSession.onRtsChanged()
+void SerialSession.onRtsChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -800,7 +800,7 @@ SerialSession.onRtsChanged()
 	m_logWriter.write(SerialLogRecordCode.RtsChanged, &value, sizeof(value));
 }
 
-SerialSession.onBreakConditionChanged()
+void SerialSession.onBreakConditionChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -811,7 +811,7 @@ SerialSession.onBreakConditionChanged()
 	m_logWriter.write(SerialLogRecordCode.BreakConditionChanged, &value, sizeof(value));
 }
 
-SerialSession.updateLineInfoValue(
+void SerialSession.updateLineInfoValue(
 	InfoId infoId,
 	bool line
 	)

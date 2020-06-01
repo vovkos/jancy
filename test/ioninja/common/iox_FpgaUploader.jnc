@@ -89,7 +89,7 @@ public:
 public:
 	construct(doc.PluginHost* pluginHost);
 
-	cancel();
+	void cancel();
 
 	bool errorcode update(
 		io.UsbDevice* device,
@@ -100,19 +100,19 @@ public:
 protected:
 	io.RpdVersion getVersion();
 	Status getStatus();
-	erase(bool isCheckRequired);
-	sendFirstBlock(bool isCheckRequired);
-	sendNextBlock(bool isCheckRequired);
-	load(bool isCheckRequired);
-	finalizeLoad();
-	complete(bool result);
+	void erase(bool isCheckRequired);
+	void sendFirstBlock(bool isCheckRequired);
+	void sendNextBlock(bool isCheckRequired);
+	void load(bool isCheckRequired);
+	void finalizeLoad();
+	void complete(bool result);
 
 	bool checkStatus();
 
-	onProgressDlgButtonClicked(ui.StdDlgButton button);
-	onTimer(uint_t syncId);
+	void onProgressDlgButtonClicked(ui.StdDlgButton button);
+	void onTimer(uint_t syncId);
 
-	onTransferCompleted(
+	void onTransferCompleted(
 		uint_t syncId,
 		size_t size,
 		std.Error const* error
@@ -128,7 +128,7 @@ FpgaUploader.construct(doc.PluginHost* pluginHost)
 	m_progressDlg.m_onButtonClicked += onProgressDlgButtonClicked;
 }
 
-FpgaUploader.cancel()
+void FpgaUploader.cancel()
 {
 	if (!m_state)
 		return;
@@ -220,7 +220,7 @@ Status FpgaUploader.getStatus()
 	return status;
 }
 
-FpgaUploader.erase(bool isCheckRequired)
+void FpgaUploader.erase(bool isCheckRequired)
 {
 	if (isCheckRequired && !checkStatus())
 		return;
@@ -242,7 +242,7 @@ FpgaUploader.erase(bool isCheckRequired)
 		sendFirstBlock(false);
 }
 
-FpgaUploader.load(bool isCheckRequired)
+void FpgaUploader.load(bool isCheckRequired)
 {
 	if (isCheckRequired && !checkStatus())
 		return;
@@ -264,7 +264,7 @@ FpgaUploader.load(bool isCheckRequired)
 		finalizeLoad();
 }
 
-FpgaUploader.sendFirstBlock(bool isCheckRequired)
+void FpgaUploader.sendFirstBlock(bool isCheckRequired)
 {
 	if (isCheckRequired && !checkStatus())
 		return;
@@ -279,7 +279,7 @@ FpgaUploader.sendFirstBlock(bool isCheckRequired)
 	sendNextBlock(false);
 }
 
-FpgaUploader.sendNextBlock(bool isCheckRequired)
+void FpgaUploader.sendNextBlock(bool isCheckRequired)
 {
 	if (isCheckRequired && !checkStatus())
 		return;
@@ -317,7 +317,7 @@ FpgaUploader.sendNextBlock(bool isCheckRequired)
 	m_fileOffset += size;
 }
 
-FpgaUploader.finalizeLoad()
+void FpgaUploader.finalizeLoad()
 {
 	io.RpdVersion version = getVersion();
 
@@ -333,7 +333,7 @@ FpgaUploader.finalizeLoad()
 	}
 }
 
-FpgaUploader.complete(bool result)
+void FpgaUploader.complete(bool result)
 {
 	if (result)
 		m_logWriter.write(FpgaUploaderLogRecordCode.FirmwareUploadCompleted);
@@ -366,7 +366,7 @@ bool FpgaUploader.checkStatus()
 	return false;
 }
 
-FpgaUploader.onTimer(uint_t syncId)
+void FpgaUploader.onTimer(uint_t syncId)
 {
 	if (syncId != m_syncId)
 		return;
@@ -407,7 +407,7 @@ catch:
 	cancel();
 }
 
-FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button)
+void FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button)
 {
 	switch (button)
 	{
@@ -418,7 +418,7 @@ FpgaUploader.onProgressDlgButtonClicked(ui.StdDlgButton button)
 	}
 }
 
-FpgaUploader.onTransferCompleted(
+void FpgaUploader.onTransferCompleted(
 	uint_t syncId,
 	size_t size,
 	std.Error const* error

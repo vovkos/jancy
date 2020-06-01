@@ -19,7 +19,7 @@ class Filter
 		size_t size
 		);
 
-	virtual reset()
+	virtual void reset()
 	{
 	}
 }
@@ -35,7 +35,7 @@ class FoldingFilter
 		size_t size
 		);
 
-	virtual reset()
+	virtual void reset()
 	{
 	}
 }

@@ -14,10 +14,10 @@ namespace ui {
 
 opaque class Menu
 {
-	addAction(Action* action);
-	addSeparator();
-
 	destruct();
+
+	void addAction(Action* action);
+	void addSeparator();
 }
 
 //..............................................................................

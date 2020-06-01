@@ -26,24 +26,24 @@ protected:
 	ui.InformationStatValue* readonly m_infoTable[InfoId._Count];
 
 public:
-	create(ui.InformationGrid* informationGrid);
+	void create(ui.InformationGrid* informationGrid);
 
-	addAdu(io.ModbusRole role)
+	void addAdu(io.ModbusRole role)
 	{
 		m_infoTable[role].m_value++;
 	}
 
-	addError()
+	void addError()
 	{
 		m_infoTable[InfoId.ErrorCount].m_value++;
 	}
 
-	reset();
+	void reset();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusInfoSet.create(ui.InformationGrid* informationGrid)
+void ModbusInfoSet.create(ui.InformationGrid* informationGrid)
 {
 	ui.InformationGroup* group = informationGrid.createGroup("Modbus statistics");
 
@@ -72,7 +72,7 @@ ModbusInfoSet.create(ui.InformationGrid* informationGrid)
 	}
 }
 
-ModbusInfoSet.reset()
+void ModbusInfoSet.reset()
 {
 	for (size_t i = 0; i < countof(m_infoTable); i++)
 		m_infoTable[i].m_value = 0;

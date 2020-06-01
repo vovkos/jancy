@@ -57,7 +57,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ThroughputCalcRangeProcessor.processText(
+void ThroughputCalcRangeProcessor.processText(
 	uint64_t partCode,
 	char const* text
 	)
@@ -66,7 +66,7 @@ ThroughputCalcRangeProcessor.processText(
 		m_startTimestamp = m_timestamp;
 }
 
-ThroughputCalcRangeProcessor.processBin(
+void ThroughputCalcRangeProcessor.processBin(
 	uint64_t partCode,
 	void const* p,
 	size_t size
@@ -89,7 +89,7 @@ ThroughputCalcRangeProcessor.processBin(
 	m_totalSize += size;
 }
 
-ThroughputCalcRangeProcessor.processDualBin(
+void ThroughputCalcRangeProcessor.processDualBin(
 	uint64_t partCode,
 	void const* p1,
 	void const* p2,
@@ -110,7 +110,7 @@ ThroughputCalcRangeProcessor.processDualBin(
 	m_totalSize += size * 2;
 }
 
-ThroughputCalcRangeProcessor.processEndOfRange()
+void ThroughputCalcRangeProcessor.processEndOfRange()
 {
 	uint64_t timeSpan = m_timestamp - m_startTimestamp;
 

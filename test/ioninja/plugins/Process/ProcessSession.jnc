@@ -109,8 +109,8 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode start();
-	close();
-	detach();
+	void close();
+	void detach();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -124,41 +124,41 @@ public:
 		);
 
 protected:
-	onStart()
+	void onStart()
 	{
 		m_state ? close() : try start();
 	}
 
-	onProcessNameComboEnter()
+	void onProcessNameComboEnter()
 	{
 		try start();
 	}
 
-	onChildProcessEvent(
+	void onChildProcessEvent(
 		uint_t syncId,
 		io.ChildProcessEvents triggeredEvents
 		);
 
-	onStderrEvent(
+	void onStderrEvent(
 		uint_t syncId,
 		io.FileStreamEvents triggeredEvents
 		);
 
-	onLogRecord(
+	void onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
 		);
 
-	onConsoleSizeChanged();
+	void onConsoleSizeChanged();
 
 	io.ChildProcessOptions getChildProcessOptions();
-	waitChildProcessEvents();
-	waitStderrEvents();
-	readAllBufferedData();
-	createUi();
-	closeImpl();
+	void waitChildProcessEvents();
+	void waitStderrEvents();
+	void readAllBufferedData();
+	void createUi();
+	void closeImpl();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -176,7 +176,7 @@ ProcessSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-ProcessSession.createUi()
+void ProcessSession.createUi()
 {
 	static ui.EnumPropertyOption accessModeTable[] =
 	{
@@ -319,7 +319,7 @@ catch:
 	return false;
 }
 
-ProcessSession.close()
+void ProcessSession.close()
 {
 	if (m_state != State.Running)
 		return;
@@ -329,7 +329,7 @@ ProcessSession.close()
 	m_state = State.Terminating;
 }
 
-ProcessSession.detach()
+void ProcessSession.detach()
 {
 	if (m_state != State.Running)
 		return;
@@ -338,7 +338,7 @@ ProcessSession.detach()
 	closeImpl();
 }
 
-ProcessSession.closeImpl()
+void ProcessSession.closeImpl()
 {
 	m_process.close();
 	m_state = State.Idle;
@@ -360,7 +360,7 @@ io.ChildProcessOptions ProcessSession.getChildProcessOptions()
 	return options;
 }
 
-ProcessSession.waitChildProcessEvents()
+void ProcessSession.waitChildProcessEvents()
 {
 	io.ChildProcessEvents eventMask =
 		io.ChildProcessEvents.IoError |
@@ -375,7 +375,7 @@ ProcessSession.waitChildProcessEvents()
 	m_process.wait(eventMask, onChildProcessEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-ProcessSession.waitStderrEvents()
+void ProcessSession.waitStderrEvents()
 {
 	io.FileStreamEvents eventMask =
 		io.FileStreamEvents.IoError |
@@ -385,7 +385,7 @@ ProcessSession.waitStderrEvents()
 	m_process.m_stderr.wait(eventMask, onStderrEvent~(++m_stderrSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-ProcessSession.readAllBufferedData()
+void ProcessSession.readAllBufferedData()
 {
 	for (;;)
 	{
@@ -494,7 +494,7 @@ size_t errorcode ProcessSession.transmit(
 	return result;
 }
 
-ProcessSession.onConsoleSizeChanged()
+void ProcessSession.onConsoleSizeChanged()
 {
 	io.PtySize size;
 	size.m_colCount = m_pluginHost.m_terminal.m_consoleWidth;
@@ -502,7 +502,7 @@ ProcessSession.onConsoleSizeChanged()
 	m_process.m_ptySize = size;
 }
 
-ProcessSession.onChildProcessEvent(
+void ProcessSession.onChildProcessEvent(
 	uint_t syncId,
 	io.ChildProcessEvents triggeredEvents
 	)
@@ -568,7 +568,7 @@ ProcessSession.onChildProcessEvent(
 	waitChildProcessEvents();
 }
 
-ProcessSession.onStderrEvent(
+void ProcessSession.onStderrEvent(
 	uint_t syncId,
 	io.FileStreamEvents triggeredEvents
 	)
@@ -597,7 +597,7 @@ ProcessSession.onStderrEvent(
 	waitStderrEvents();
 }
 
-ProcessSession.onLogRecord(
+void ProcessSession.onLogRecord(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,

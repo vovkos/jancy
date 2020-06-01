@@ -115,25 +115,25 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? stopCapture() : try capture();
 	}
 
-	onSetViewFilter()
+	void onSetViewFilter()
 	{
 		try applyViewFilter(true);
 	}
 
-	onDeviceComboEnter()
+	void onDeviceComboEnter()
 	{
 		try capture();
 	}
 
-	onOpenPcap();
-	onFileDlgCompleted(ui.StdDlgButton button);
+	void onOpenPcap();
+	void onFileDlgCompleted(ui.StdDlgButton button);
 
-	onPcapEvent(
+	void onPcapEvent(
 		uint_t syncId,
 		io.PcapEvents triggeredEvents
 		);
@@ -142,8 +142,8 @@ protected:
 	bool errorcode applyCaptureFilter();
 	bool errorcode applyViewFilter(bool rebuildLog = false);
 
-	waitPcapEvents();
-	createUi();
+	void waitPcapEvents();
+	void createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -161,7 +161,7 @@ UdpFlowMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-UdpFlowMonSession.createUi()
+void UdpFlowMonSession.createUi()
 {
 	// toolbar
 
@@ -280,7 +280,7 @@ UdpFlowMonSession.createUi()
 	m_uiReactor.start();
 }
 
-UdpFlowMonSession.onOpenPcap()
+void UdpFlowMonSession.onOpenPcap()
 {
 	if (!m_fileDlg)
 	{
@@ -294,7 +294,7 @@ UdpFlowMonSession.onOpenPcap()
 	m_fileDlg.show();
 }
 
-UdpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button)
+void UdpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button)
 {
 	if (button == ui.StdDlgButton.Ok)
 		try openPcapFile(m_fileDlg.m_filePath);
@@ -369,7 +369,7 @@ catch:
 	return false;
 }
 
-UdpFlowMonSession.stopCapture()
+void UdpFlowMonSession.stopCapture()
 {
 	if (!m_state)
 		return;
@@ -452,7 +452,7 @@ char const* errorcode UdpFlowMonSession.createCaptureFilterString(io.SocketAddre
 	return filterString;
 }
 
-UdpFlowMonSession.waitPcapEvents()
+void UdpFlowMonSession.waitPcapEvents()
 {
 	io.PcapEvents eventMask =
 		io.PcapEvents.IoError |
@@ -526,7 +526,7 @@ void UdpFlowMonSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-UdpFlowMonSession.onPcapEvent(
+void UdpFlowMonSession.onPcapEvent(
 	uint_t syncId,
 	io.PcapEvents triggeredEvents
 	)

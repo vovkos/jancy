@@ -112,7 +112,7 @@ public:
 
 	bool errorcode connect();
 	bool errorcode connect(io.SocketAddress const* address);
-	disconnect();
+	void disconnect();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -126,34 +126,34 @@ public:
 		);
 
 protected:
-	close();
-	handleSocketError(std.Error const* error);
+	void close();
+	void handleSocketError(std.Error const* error);
 
-	onConnect()
+	void onConnect()
 	{
 		m_state ? disconnect() : try connect();
 	}
 
-	onAddressComboEnter()
+	void onAddressComboEnter()
 	{
 		try connect();
 	}
 
-	onResolverEvent(
+	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
 		);
 
-	onSocketEvent(
+	void onSocketEvent(
 		uint_t syncId,
 		io.SslSocketEvents triggeredEvents
 		);
 
-	onReconnectTimer(uint_t syncId);
+	void onReconnectTimer(uint_t syncId);
 
-	createUi();
-	startReconnectTimer(bool canConnectNow);
-	waitSocketEvents();
+	void createUi();
+	void startReconnectTimer(bool canConnectNow);
+	void waitSocketEvents();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -169,7 +169,7 @@ SslConnectionSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SslConnectionSession.createUi()
+void SslConnectionSession.createUi()
 {
 	// toolbar
 
@@ -308,7 +308,10 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 		if (adapterAddress)
 			m_localAddress = *adapterAddress;
 		else
+		{
+			m_localAddress = null;
 			m_localAddress.m_family = remoteAddress.m_family;
+		}
 
 		m_localAddress.m_port = (uint16_t)m_socketPropertySet.m_localPortProp.m_value;
 
@@ -361,7 +364,7 @@ catch:
 	return false;
 }
 
-SslConnectionSession.waitSocketEvents()
+void SslConnectionSession.waitSocketEvents()
 {
 	io.SslSocketEvents eventMask = io.SslSocketEvents.IoError;
 
@@ -393,7 +396,7 @@ SslConnectionSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-SslConnectionSession.handleSocketError(std.Error const* error)
+void SslConnectionSession.handleSocketError(std.Error const* error)
 {
 	uint64_t recordCode = m_state < State.Connected ?
 		SocketLogRecordCode.ConnectError :
@@ -403,7 +406,7 @@ SslConnectionSession.handleSocketError(std.Error const* error)
 	close();
 }
 
-SslConnectionSession.close()
+void SslConnectionSession.close()
 {
 	m_stdSessionInfoSet.endSession();
 	m_isTransmitEnabled = false;
@@ -412,7 +415,7 @@ SslConnectionSession.close()
 	m_syncId++;
 }
 
-SslConnectionSession.disconnect()
+void SslConnectionSession.disconnect()
 {
 	switch (m_state)
 	{
@@ -514,7 +517,7 @@ size_t errorcode SslConnectionSession.transmit(
 	return result;
 }
 
-SslConnectionSession.startReconnectTimer(bool isForced)
+void SslConnectionSession.startReconnectTimer(bool isForced)
 {
 	uint64_t delay = m_socketPropertySet.m_reconnectTimeoutProp.m_value;
 	uint64_t dueTime = m_lastReconnectTime + delay * 10000;
@@ -534,7 +537,7 @@ SslConnectionSession.startReconnectTimer(bool isForced)
 		);
 }
 
-SslConnectionSession.onSocketEvent(
+void SslConnectionSession.onSocketEvent(
 	uint_t syncId,
 	io.SslSocketEvents triggeredEvents
 	)
@@ -628,7 +631,7 @@ SslConnectionSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-SslConnectionSession.onResolverEvent(
+void SslConnectionSession.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
 	)
@@ -654,10 +657,10 @@ SslConnectionSession.onResolverEvent(
 	if (!address.m_port)
 		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
-	connect(address);
+	try connect(address);
 }
 
-SslConnectionSession.onReconnectTimer(uint_t syncId)
+void SslConnectionSession.onReconnectTimer(uint_t syncId)
 {
 	if (syncId != m_syncId)
 		return;

@@ -80,7 +80,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode open();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -89,25 +89,25 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	createUi();
+	void createUi();
 
-	onOpen()
+	void onOpen()
 	{
 		m_state ? close() : try open();
 	}
 
-	onNameComboEnter()
+	void onNameComboEnter()
 	{
 		try open();
 	}
 
-	onMailslotEvent(
+	void onMailslotEvent(
 		uint_t syncId,
 		io.MailslotEvents triggeredEvents
 		);
 
 	io.MailslotOptions getMailslotOptions();
-	waitMailslotEvents();
+	void waitMailslotEvents();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -123,7 +123,7 @@ MailslotSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-MailslotSession.createUi()
+void MailslotSession.createUi()
 {
 	// toolbar
 
@@ -213,7 +213,7 @@ catch:
 	return false;
 }
 
-MailslotSession.close()
+void MailslotSession.close()
 {
 	if (m_state != State.Opened)
 		return;
@@ -234,7 +234,7 @@ io.MailslotOptions MailslotSession.getMailslotOptions()
 	return options;
 }
 
-MailslotSession.waitMailslotEvents()
+void MailslotSession.waitMailslotEvents()
 {
 	io.MailslotEvents eventMask =
 		io.MailslotEvents.IoError |
@@ -286,7 +286,7 @@ void MailslotSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-MailslotSession.onMailslotEvent(
+void MailslotSession.onMailslotEvent(
 	uint_t syncId,
 	io.MailslotEvents triggeredEvents
 	)

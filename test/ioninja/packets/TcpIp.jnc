@@ -35,26 +35,26 @@ struct IpFrame
 	io.IpHdr m_ip;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, (io.IpProtocol) 0);
 	}
 
 	[ packetTemplateAction ]
-	calcLength()
+	void calcLength()
 	{
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
 	}
 
 	[ packetTemplateAction ]
-	setSrcAddress(char const* addressString)
+	void setSrcAddress(char const* addressString)
 	{
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -63,7 +63,7 @@ struct IpFrame
 	}
 
 	[ packetTemplateAction ]
-	setDstAddress(char const* addressString)
+	void setDstAddress(char const* addressString)
 	{
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -81,20 +81,20 @@ struct IcmpFrame
 	io.IcmpHdr m_icmp;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Icmp);
 		m_icmp = null;
 	}
 
 	[ packetTemplateAction ]
-	calcLength()
+	void calcLength()
 	{
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
@@ -103,7 +103,7 @@ struct IcmpFrame
 	}
 
 	[ packetTemplateAction ]
-	setSrcAddress(char const* addressString)
+	void setSrcAddress(char const* addressString)
 	{
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -112,7 +112,7 @@ struct IcmpFrame
 	}
 
 	[ packetTemplateAction ]
-	setDstAddress(char const* addressString)
+	void setDstAddress(char const* addressString)
 	{
 		io.Address_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -130,20 +130,20 @@ struct TcpFrame
 	io.TcpHdr m_tcp;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Tcp);
 		m_tcp = null;
 	}
 
 	[ packetTemplateAction ]
-	calcLength()
+	void calcLength()
 	{
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
@@ -152,7 +152,7 @@ struct TcpFrame
 	}
 
 	[ packetTemplateAction ]
-	setSrcAddress(char const* addressString)
+	void setSrcAddress(char const* addressString)
 	{
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -167,7 +167,7 @@ struct TcpFrame
 	}
 
 	[ packetTemplateAction ]
-	setDstAddress(char const* addressString)
+	void setDstAddress(char const* addressString)
 	{
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -191,21 +191,21 @@ struct UdpFrame
 	io.UdpHdr m_udp;
 
 	[ packetTemplateAction ]
-	initialize()
+	void initialize()
 	{
 		initializeEthernetIpHdr(&m_ethernet, &m_ip, io.IpProtocol.Udp);
 		m_udp = null;
 	}
 
 	[ packetTemplateAction ]
-	calcLength()
+	void calcLength()
 	{
 		m_ip.m_totalLength = dynamic sizeof(&m_ip);
 		m_udp.m_length = dynamic sizeof(&m_udp);
 	}
 
 	[ packetTemplateAction ]
-	calcChecksum()
+	void calcChecksum()
 	{
 		m_ip.m_headerChecksum = 0;
 		m_ip.m_headerChecksum = calcIpHdrChecksum(&m_ip);
@@ -214,7 +214,7 @@ struct UdpFrame
 	}
 
 	[ packetTemplateAction ]
-	setSrcAddress(char const* addressString)
+	void setSrcAddress(char const* addressString)
 	{
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -229,7 +229,7 @@ struct UdpFrame
 	}
 
 	[ packetTemplateAction ]
-	setDstAddress(char const* addressString)
+	void setDstAddress(char const* addressString)
 	{
 		io.SocketAddress_ip4 addr;
 		bool result = try addr.parse(addressString);
@@ -246,7 +246,7 @@ struct UdpFrame
 
 //..............................................................................
 
-initializeEthernetIpHdr(
+void initializeEthernetIpHdr(
 	io.EthernetHdr* ethernetHdr,
 	io.IpHdr* ipHdr,
 	io.IpProtocol protocol

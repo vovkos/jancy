@@ -44,22 +44,22 @@ public:
 public:
 	construct(doc.PluginHost* pluginHost);
 
-	transmitFile();
-	receiveFile();
-	cancelFileTranfer  ();
+	void transmitFile();
+	void receiveFile();
+	void cancelFileTranfer  ();
 
 protected:
-	createUi();
+	void createUi();
 
-	onLogRecord(
+	void onLogRecord(
 		uint64_t timestamp,
 		uint64_t recordCode,
 		void const* p,
 		size_t size
 		);
 
-	onFileDlgCompleted(ui.StdDlgButton button);
-	onProgressDlgButtonClicked(ui.StdDlgButton button);
+	void onFileDlgCompleted(ui.StdDlgButton button);
+	void onProgressDlgButtonClicked(ui.StdDlgButton button);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -79,7 +79,7 @@ XModemLayer.construct(doc.PluginHost* pluginHost)
 	createUi();
 }
 
-XModemLayer.createUi()
+void XModemLayer.createUi()
 {
 	m_pluginHost.m_toolBar.addSeparator();
 
@@ -90,7 +90,7 @@ XModemLayer.createUi()
 	m_actionTable[ActionId.Receive].m_onTriggered += receiveFile;
 }
 
-XModemLayer.transmitFile()
+void XModemLayer.transmitFile()
 {
 	cancelFileTranfer();
 
@@ -102,7 +102,7 @@ XModemLayer.transmitFile()
 	m_state = State.TransmitFileDlg;
 }
 
-XModemLayer.receiveFile()
+void XModemLayer.receiveFile()
 {
 	cancelFileTranfer();
 
@@ -114,7 +114,7 @@ XModemLayer.receiveFile()
 	m_state = State.ReceiveFileDlg;
 }
 
-XModemLayer.cancelFileTranfer()
+void XModemLayer.cancelFileTranfer()
 {
 	switch (m_state)
 	{
@@ -135,7 +135,7 @@ XModemLayer.cancelFileTranfer()
 	m_progressDlg.hide();
 }
 
-XModemLayer.onFileDlgCompleted(ui.StdDlgButton button)
+void XModemLayer.onFileDlgCompleted(ui.StdDlgButton button)
 {
 	if (button != ui.StdDlgButton.Ok)
 	{
@@ -172,7 +172,7 @@ catch:
 	m_progressDlg.m_buttons = ui.StdDlgButtons.Close;
 }
 
-XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button)
+void XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button)
 {
 	switch (button)
 	{
@@ -188,7 +188,7 @@ XModemLayer.onProgressDlgButtonClicked(ui.StdDlgButton button)
 	}
 }
 
-XModemLayer.onLogRecord(
+void XModemLayer.onLogRecord(
 	uint64_t timestamp,
 	uint64_t recordCode,
 	void const* p,

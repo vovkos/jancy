@@ -52,7 +52,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ChecksumCalcRangeProcessor.processBin(
+void ChecksumCalcRangeProcessor.processBin(
 	uint64_t partCode,
 	void const* p,
 	size_t size
@@ -114,7 +114,7 @@ ChecksumCalcRangeProcessor.processBin(
 	m_totalSize += size;
 }
 
-ChecksumCalcRangeProcessor.processEndOfRange()
+void ChecksumCalcRangeProcessor.processEndOfRange()
 {
 	if (m_infoSet.m_crc16Info_ansi)
 		m_infoSet.m_crc16Info_ansi.m_value = $"$(m_crc16_ansi; 04X)";

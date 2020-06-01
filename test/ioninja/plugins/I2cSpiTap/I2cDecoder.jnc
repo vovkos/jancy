@@ -80,7 +80,7 @@ override I2cDecoder.reset()
 	m_addressState = AddressState.Idle;
 }
 
-I2cDecoder.decode(
+void I2cDecoder.decode(
 	uint64_t timestamp,
 	void const thin* p0,
 	size_t size

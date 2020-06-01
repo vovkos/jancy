@@ -47,7 +47,7 @@ char const* getModbusCoilsDigest(
 	return digest.detachString();
 }
 
-representModbusCoils(
+void representModbusCoils(
 	log.Representation* representation,
 	uint8_t const* p,
 	size_t count,
@@ -90,7 +90,7 @@ size_t getDecimalLength(uint8_t n)
 	return n < 10 ? 1 : n < 100 ? 2 : 3;
 }
 
-representModbusCoilValues(
+void representModbusCoilValues(
 	log.Representation* representation,
 	uint8_t const* p,
 	size_t count,
@@ -165,7 +165,7 @@ char const* getModbusRegistersDigest(
 	return digest.detachString();
 }
 
-representModbusRegisters(
+void representModbusRegisters(
 	log.Representation* representation,
 	bigendian uint16_t const* p,
 	size_t count,
@@ -202,7 +202,7 @@ representModbusRegisters(
 	}
 }
 
-representModbusRegisterValues(
+void representModbusRegisterValues(
 	log.Representation* representation,
 	bigendian uint16_t const* p,
 	size_t count,
@@ -246,7 +246,7 @@ char const* formatModbusFuncDescription(
 
 }
 
-representModbusPdu(
+void representModbusPdu(
 	log.Representation* representation,
 	io.ModbusRole role,
 	io.ModbusPduHdr const* hdr,

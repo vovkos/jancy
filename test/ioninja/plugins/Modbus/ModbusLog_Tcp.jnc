@@ -9,7 +9,7 @@ import "io_Modbus.jnc"
 
 //..............................................................................
 
-representModbusTcpAdu(
+void representModbusTcpAdu(
 	log.Representation* representation,
 	io.ModbusRole role,
 	void const* p,

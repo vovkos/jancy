@@ -80,7 +80,7 @@ bool errorcode SerialMonitor.capture(char const* deviceName)
 	return true;
 }
 
-SerialMonitor.processError(std.Error const* error)
+void SerialMonitor.processError(std.Error const* error)
 {
 	m_session.m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();

@@ -35,34 +35,34 @@ public:
 public:
 	construct(doc.PluginHost* pluginHost);
 
-	write(
+	void write(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
-	flush()
+	void flush()
 	{
 		flushOutOfSeqSegments(0);
 	}
 
-	finalize(uint32_t seqNumber);
+	void finalize(uint32_t seqNumber);
 
 protected:
-	writeInSeqSegment(
+	void writeInSeqSegment(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
-	addOutOfSeqSegment(
+	void addOutOfSeqSegment(
 		uint32_t seqNumber,
 		void const* p,
 		size_t size
 		);
 
-	flushOutOfSeqSegments(size_t limit);
-	writeAlignedOutOfSeqSegments();
+	void flushOutOfSeqSegments(size_t limit);
+	void writeAlignedOutOfSeqSegments();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -73,7 +73,7 @@ TcpSequencer.construct(doc.PluginHost* pluginHost)
 	m_outOfSeqLimit = Defaults.OutOfSeqLimit;
 }
 
-TcpSequencer.write(
+void TcpSequencer.write(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -90,7 +90,7 @@ TcpSequencer.write(
 	}
 }
 
-TcpSequencer.finalize(uint32_t seqNumber)
+void TcpSequencer.finalize(uint32_t seqNumber)
 {
 	flushOutOfSeqSegments(0);
 
@@ -102,7 +102,7 @@ TcpSequencer.finalize(uint32_t seqNumber)
 	}
 }
 
-TcpSequencer.writeInSeqSegment(
+void TcpSequencer.writeInSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -123,7 +123,7 @@ TcpSequencer.writeInSeqSegment(
 	m_seqNumber = newSeqNumber;
 }
 
-TcpSequencer.addOutOfSeqSegment(
+void TcpSequencer.addOutOfSeqSegment(
 	uint32_t seqNumber,
 	void const* p,
 	size_t size
@@ -151,7 +151,7 @@ TcpSequencer.addOutOfSeqSegment(
 	flushOutOfSeqSegments(m_outOfSeqLimit);
 }
 
-TcpSequencer.flushOutOfSeqSegments(size_t limit)
+void TcpSequencer.flushOutOfSeqSegments(size_t limit)
 {
 	while (m_outOfSeqList.m_count > limit)
 	{
@@ -164,7 +164,7 @@ TcpSequencer.flushOutOfSeqSegments(size_t limit)
 	}
 }
 
-TcpSequencer.writeAlignedOutOfSeqSegments()
+void TcpSequencer.writeAlignedOutOfSeqSegments()
 {
 	while (m_outOfSeqList.m_count)
 	{

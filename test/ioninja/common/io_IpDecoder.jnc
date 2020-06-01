@@ -28,7 +28,7 @@ public:
 		uint_t timeout
 		);
 
-	reset()
+	void reset()
 	{
 		m_defragmenter.reset();
 	}

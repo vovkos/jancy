@@ -30,7 +30,7 @@ class Session: Plugin
 		return size;
 	}
 
-	startSession()
+	void startSession()
 	{
 		uint64_t timestamp = sys.getPreciseTimestamp();
 		m_pluginHost.m_log.m_baseTimestamp = timestamp;

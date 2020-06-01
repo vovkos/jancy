@@ -19,8 +19,8 @@ opaque class ToolBar
 {
 	destruct();
 
-	addAction(Action* action);
-	addLabel(char const* pText);
+	void addAction(Action* action);
+	void addLabel(char const* pText);
 
 	ComboBox* addComboBox(uint_t width = 0);  // 0 = default, -1 = stretch
 
@@ -30,7 +30,7 @@ opaque class ToolBar
 		size_t itemCount
 		);  // 0 = default, -1 = stretch
 
-	addSeparator();
+	void addSeparator();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

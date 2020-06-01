@@ -68,7 +68,7 @@ class SpiIface
 		uint_t ifaceId
 		);
 
-	release();
+	void release();
 
 	bool errorcode setBufferProperties(ui.BufferPropertySet* bufferPropertySet);
 }
@@ -85,7 +85,7 @@ bool errorcode SpiIface.claim(
 	return true;
 }
 
-SpiIface.release()
+void SpiIface.release()
 {
 	if (m_endpoint)
 	{
@@ -206,7 +206,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	stopCapture();
+	void stopCapture();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -215,25 +215,25 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? stopCapture() : try capture();
 	}
 
-	onDeviceComboEnter()
+	void onDeviceComboEnter()
 	{
 		try capture();
 	}
 
-	onModeChanged();
+	void onModeChanged();
 
-	onEndpointEvent(
+	void onEndpointEvent(
 		SpiIface* iface,
 		uint_t syncId,
 		io.UsbEndpointEvents triggeredEvents
 		);
 
-	onFlushTimer(uint_t syncId);
+	void onFlushTimer(uint_t syncId);
 	bool flush(bool isForced);
 
 	void writeLogTextOnly(
@@ -248,10 +248,10 @@ protected:
 		size_t size
 		);
 
-	createUi();
-	enumerateDevices();
-	flipAB();
-	waitEndpointEvents(SpiIface* iface);
+	void createUi();
+	void enumerateDevices();
+	void flipAB();
+	void waitEndpointEvents(SpiIface* iface);
 	bool errorcode configureSpiIface(uint_t ifaceId);
 }
 
@@ -275,7 +275,7 @@ SpiTapSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-SpiTapSession.createUi()
+void SpiTapSession.createUi()
 {
 	static ui.EnumPropertyOption modeTable[] =
 	{
@@ -424,7 +424,7 @@ SpiTapSession.createUi()
 	m_uiReactor.start();
 }
 
-SpiTapSession.enumerateDevices()
+void SpiTapSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
@@ -458,7 +458,7 @@ SpiTapSession.enumerateDevices()
 	m_deviceProp.setOptions(optionTable, ftdiCount);
 }
 
-SpiTapSession.flipAB()
+void SpiTapSession.flipAB()
 {
 	if (!m_state)
 		return;
@@ -563,7 +563,7 @@ catch:
 	return false;
 }
 
-SpiTapSession.stopCapture()
+void SpiTapSession.stopCapture()
 {
 	if (m_state != State.Opened)
 		return;
@@ -579,7 +579,7 @@ SpiTapSession.stopCapture()
 	m_flushTimerSyncId++;
 }
 
-SpiTapSession.waitEndpointEvents(SpiIface* iface)
+void SpiTapSession.waitEndpointEvents(SpiIface* iface)
 {
 	iface.m_endpoint.wait(
 		io.UsbEndpointEvents.IoError |
@@ -659,7 +659,7 @@ bool SpiTapSession.flush(bool isForced)
 	return true;
 }
 
-SpiTapSession.onFlushTimer(uint_t syncId)
+void SpiTapSession.onFlushTimer(uint_t syncId)
 {
 	if (syncId != m_flushTimerSyncId)
 		return;
@@ -667,7 +667,7 @@ SpiTapSession.onFlushTimer(uint_t syncId)
 	flush(true);
 }
 
-SpiTapSession.onEndpointEvent(
+void SpiTapSession.onEndpointEvent(
 	SpiIface* iface,
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
@@ -868,7 +868,7 @@ void SpiTapSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-SpiTapSession.onModeChanged()
+void SpiTapSession.onModeChanged()
 {
 	if (m_state != State.Opened)
 		return;

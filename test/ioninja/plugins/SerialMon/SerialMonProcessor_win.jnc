@@ -93,10 +93,10 @@ class SerialMonProcessor_win: SerialMonProcessor
 		basetype.construct(logWriter);
 	}
 
-	override processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
+	override void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
 
 protected:
-	processIoctlNotification(
+	void processIoctlNotification(
 		int ntStatus,
 		uint64_t timestamp,
 		uint_t code,
@@ -109,7 +109,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
+void SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
 	switch (notifyHdr.m_code)
 	{
@@ -193,7 +193,7 @@ SerialMonProcessor_win.processNotification(io.DeviceMonitorNotifyHdr const* noti
 	}
 }
 
-SerialMonProcessor_win.processIoctlNotification(
+void SerialMonProcessor_win.processIoctlNotification(
 	int ntStatus,
 	uint64_t timestamp,
 	uint_t code,

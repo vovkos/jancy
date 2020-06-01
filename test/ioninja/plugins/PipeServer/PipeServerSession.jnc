@@ -1,6 +1,6 @@
 //..............................................................................
 //
-// Pipe Listener session
+// Pipe Server session
 //
 
 import "doc_Session.jnc"
@@ -19,7 +19,7 @@ using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class PipeListenerSession: doc.Session
+class PipeServerSession: doc.Session
 {
 protected:
 	enum Defaults
@@ -108,9 +108,9 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode listen();
-	stopListen();
-	disconnect();
-	disconnectAll();
+	void stopListen();
+	void disconnect();
+	void disconnectAll();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -124,45 +124,45 @@ public:
 		);
 
 protected:
-	onListen()
+	void onListen()
 	{
 		m_state ? stopListen() : try listen();
 	}
 
-	onSetClientFilter()
+	void onSetClientFilter()
 	{
 		try applyClientFilter(true);
 	}
 
-	onPipeNameComboEnter()
+	void onPipeNameComboEnter()
 	{
 		try listen();
 	}
 
-	onListenerPipeEvent(
+	void onListenerPipeEvent(
 		uint_t syncId,
 		io.NamedPipeEvents triggeredEvents
 		);
 
-	onClientPipeEvent(
+	void onClientPipeEvent(
 		Client* client,
 		uint_t syncId,
 		io.FileStreamEvents triggeredEvents
 		);
 
-	createUi();
+	void createUi();
 	bool errorcode applyClientFilter(bool rebuildLog);
 	io.FileStreamOptions getFileStreamOptions();
-	waitListenerPipeEvents();
-	waitClientPipeEvents(Client* client);
-	disconnect(Client* client);
-	removeClient(Client* client);
-	setCurrentClient(Client* client);
+	void waitListenerPipeEvents();
+	void waitClientPipeEvents(Client* client);
+	void disconnect(Client* client);
+	void removeClient(Client* client);
+	void setCurrentClient(Client* client);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-PipeListenerSession.construct(doc.PluginHost* pluginHost)
+PipeServerSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 
@@ -174,7 +174,7 @@ PipeListenerSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-PipeListenerSession.createUi()
+void PipeServerSession.createUi()
 {
 	// toolbar
 
@@ -252,7 +252,7 @@ PipeListenerSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode PipeListenerSession.listen()
+bool errorcode PipeServerSession.listen()
 {
 	stopListen();
 	startSession();
@@ -274,7 +274,7 @@ bool errorcode PipeListenerSession.listen()
 	m_listenerPipe.open(name);
 
 	m_logWriter.write(
-		PipeListenerLogRecordCode.Listening,
+		PipeServerLogRecordCode.Listening,
 		name,
 		strlen(name)
 		);
@@ -287,18 +287,18 @@ bool errorcode PipeListenerSession.listen()
 	return true;
 
 catch:
-	m_logWriter.writeLastError(PipeListenerLogRecordCode.ListenError);
+	m_logWriter.writeLastError(PipeServerLogRecordCode.ListenError);
 	m_listenerPipe.close();
 	return false;
 }
 
-PipeListenerSession.stopListen()
+void PipeServerSession.stopListen()
 {
 	if (m_state != State.Listening)
 		return;
 
 	m_logWriter.write(
-		PipeListenerLogRecordCode.ListenStopped,
+		PipeServerLogRecordCode.ListenStopped,
 		m_pipeName,
 		strlen(m_pipeName)
 		);
@@ -309,28 +309,28 @@ PipeListenerSession.stopListen()
 	m_stdSessionInfoSet.endSession();
 }
 
-PipeListenerSession.disconnect()
+void PipeServerSession.disconnect()
 {
 	Client* client = m_clientCombo.m_currentData;
 	if (client)
 		disconnect(client);
 }
 
-PipeListenerSession.disconnectAll()
+void PipeServerSession.disconnectAll()
 {
 	while (m_clientList.m_count)
 		disconnect(m_clientList.m_head.m_data);
 }
 
-PipeListenerSession.disconnect(PipeListenerSession.Client* client)
+void PipeServerSession.disconnect(PipeServerSession.Client* client)
 {
 	PipeDisconnectLogRecordParams params;
 	params.m_id = client.m_pipe.m_osHandle;
-	m_logWriter.write(PipeListenerLogRecordCode.ClientDisconnected, &params, sizeof(params));
+	m_logWriter.write(PipeServerLogRecordCode.ClientDisconnected, &params, sizeof(params));
 	removeClient(client);
 }
 
-void PipeListenerSession.removeClient(PipeListenerSession.Client* client)
+void PipeServerSession.removeClient(PipeServerSession.Client* client)
 {
 	client.m_pipe.close();
 	client.m_syncId++;
@@ -348,17 +348,17 @@ void PipeListenerSession.removeClient(PipeListenerSession.Client* client)
 	m_currentClient = null;
 }
 
-void PipeListenerSession.setCurrentClient(PipeListenerSession.Client* client)
+void PipeServerSession.setCurrentClient(PipeServerSession.Client* client)
 {
 	if (client == m_currentClient)
 		return;
 
 	uint64_t id = client.m_pipe.m_osHandle;
-	m_logWriter.write(PipeListenerLogRecordCode.ClientChanged, &id, sizeof(id));
+	m_logWriter.write(PipeServerLogRecordCode.ClientChanged, &id, sizeof(id));
 	m_currentClient = client;
 }
 
-bool errorcode PipeListenerSession.applyClientFilter(bool rebuildLog)
+bool errorcode PipeServerSession.applyClientFilter(bool rebuildLog)
 {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
@@ -379,7 +379,7 @@ bool errorcode PipeListenerSession.applyClientFilter(bool rebuildLog)
 	return true;
 }
 
-io.FileStreamOptions PipeListenerSession.getFileStreamOptions()
+io.FileStreamOptions PipeServerSession.getFileStreamOptions()
 {
 	io.FileStreamOptions options;
 
@@ -392,7 +392,7 @@ io.FileStreamOptions PipeListenerSession.getFileStreamOptions()
 	return options;
 }
 
-PipeListenerSession.waitListenerPipeEvents()
+void PipeServerSession.waitListenerPipeEvents()
 {
 	io.NamedPipeEvents eventMask =
 		io.NamedPipeEvents.IoError |
@@ -401,7 +401,7 @@ PipeListenerSession.waitListenerPipeEvents()
 	m_listenerPipe.wait(eventMask, onListenerPipeEvent~(++m_listenerSyncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-PipeListenerSession.waitClientPipeEvents(PipeListenerSession.Client* client)
+void PipeServerSession.waitClientPipeEvents(PipeServerSession.Client* client)
 {
 	io.FileStreamEvents eventMask =
 		io.FileStreamEvents.IoError |
@@ -418,7 +418,7 @@ PipeListenerSession.waitClientPipeEvents(PipeListenerSession.Client* client)
 		);
 }
 
-void PipeListenerSession.load(doc.Storage* storage)
+void PipeServerSession.load(doc.Storage* storage)
 {
 	m_pipeNameCombo.loadHistory(storage, "pipeNameHistory");
 	m_pipeNameCombo.m_editText = storage.readString("pipeName");
@@ -428,7 +428,7 @@ void PipeListenerSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void PipeListenerSession.save(doc.Storage* storage)
+void PipeServerSession.save(doc.Storage* storage)
 {
 	m_bufferPropertySet.save(storage);
 
@@ -437,12 +437,12 @@ void PipeListenerSession.save(doc.Storage* storage)
 	storage.writeBool("messageMode", m_messageModeProp.m_value);
 }
 
-void PipeListenerSession.updateProperties()
+void PipeServerSession.updateProperties()
 {
 	m_pipeNameProp.m_value = m_pipeNameCombo.m_editText;
 }
 
-bool errorcode PipeListenerSession.applyProperties()
+bool errorcode PipeServerSession.applyProperties()
 {
 	m_pipeNameCombo.m_editText = m_pipeNameProp.m_value;
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
@@ -472,12 +472,12 @@ bool errorcode PipeListenerSession.applyProperties()
 	return true;
 }
 
-void PipeListenerSession.restoreDefaultProperties()
+void PipeServerSession.restoreDefaultProperties()
 {
 	m_bufferPropertySet.restoreDefaults();
 }
 
-size_t errorcode PipeListenerSession.transmit(
+size_t errorcode PipeServerSession.transmit(
 	void const* p,
 	size_t size
 	)
@@ -498,7 +498,7 @@ size_t errorcode PipeListenerSession.transmit(
 	return result;
 }
 
-PipeListenerSession.onListenerPipeEvent(
+void PipeServerSession.onListenerPipeEvent(
 	uint_t syncId,
 	io.NamedPipeEvents triggeredEvents
 	)
@@ -517,7 +517,7 @@ PipeListenerSession.onListenerPipeEvent(
 	{
 		io.FileStream* pipe = m_listenerPipe.accept(true);
 		uint64_t id = pipe.m_osHandle;
-		m_logWriter.write(PipeListenerLogRecordCode.ClientConnected, &id, sizeof(id));
+		m_logWriter.write(PipeServerLogRecordCode.ClientConnected, &id, sizeof(id));
 
 		pipe.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
 		pipe.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
@@ -529,6 +529,7 @@ PipeListenerSession.onListenerPipeEvent(
 		Client* client = new Client;
 		client.m_pipe = pipe;
 		client.m_entry = m_clientList.add(client);
+		client.m_isTransmitEnabled = true;
 		m_clientCombo.addItemSetCurrent($"Client ID 0x%llX"(id), client);
 		m_clientCount = m_clientList.m_count;
 		m_currentClient = client;
@@ -539,8 +540,8 @@ PipeListenerSession.onListenerPipeEvent(
 	waitListenerPipeEvents();
 }
 
-PipeListenerSession.onClientPipeEvent(
-	PipeListenerSession.Client* client,
+void PipeServerSession.onClientPipeEvent(
+	PipeServerSession.Client* client,
 	uint_t syncId,
 	io.FileStreamEvents triggeredEvents
 	)
@@ -584,7 +585,7 @@ PipeListenerSession.onClientPipeEvent(
 		PipeDisconnectLogRecordParams params;
 		params.m_id = client.m_pipe.m_osHandle;
 		params.m_flags = PipeDisconnectLogRecordFlags.Remote;
-		m_logWriter.write(PipeListenerLogRecordCode.ClientDisconnected, &params, sizeof(params));
+		m_logWriter.write(PipeServerLogRecordCode.ClientDisconnected, &params, sizeof(params));
 		removeClient(client);
 		return;
 	}
@@ -595,7 +596,7 @@ PipeListenerSession.onClientPipeEvent(
 	waitClientPipeEvents(client);
 }
 
-reactor PipeListenerSession.m_uiReactor
+reactor PipeServerSession.m_uiReactor
 {
 	m_title = $"Pipe $(m_pipeNameCombo.m_editText)";
 	m_actionTable[ActionId.Listen].m_text = m_state ? "Stop Listening" : "Listen";

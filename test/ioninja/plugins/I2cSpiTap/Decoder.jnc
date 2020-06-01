@@ -34,7 +34,7 @@ public:
 		);
 
 protected:
-	writeLogUnexpectedCode(
+	void writeLogUnexpectedCode(
 		uint64_t timestamp,
 		uint_t code,
 		uint_t state
@@ -43,7 +43,7 @@ protected:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Decoder.writeLogUnexpectedCode(
+void Decoder.writeLogUnexpectedCode(
 	uint64_t timestamp,
 	uint_t code,
 	uint_t state

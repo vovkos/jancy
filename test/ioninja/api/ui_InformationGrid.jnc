@@ -16,12 +16,12 @@ opaque class InformationItem
 	char const* autoget property m_toolTipText;
 	bool autoget property m_isEnabled;
 
-	addChildItem(
+	void addChildItem(
 		InformationItem* item,
 		InformationItem* beforeItem = null
 		);
 
-	removeChildItem(InformationItem* item);
+	void removeChildItem(InformationItem* item);
 }
 
 //..............................................................................
@@ -68,12 +68,12 @@ opaque class InformationStatValue: InformationValue
 
 opaque class InformationGrid
 {
-	addItem(
+	void addItem(
 		InformationItem* item,
 		InformationItem* beforeItem = null
 		);
 
-	removeItem(InformationItem* item);
+	void removeItem(InformationItem* item);
 
 	InformationGroup* createGroup(
 		InformationItem* parentItem = null,
@@ -122,10 +122,10 @@ opaque class InformationGrid
 		return createStatValue(,,, name, toolTipText);
 	}
 
-	resizeNameColumnToContents();
+	void resizeNameColumnToContents();
 
 protected:
-	addValueImpl(
+	void addValueImpl(
 		InformationValue* item,
 		InformationItem* parentItem,
 		InformationItem* beforeItem,
@@ -178,7 +178,7 @@ InformationStatValue* InformationGrid.createStatValue(
 	return item;
 }
 
-InformationGrid.addValueImpl(
+void InformationGrid.addValueImpl(
 	InformationValue* item,
 	InformationItem* parentItem,
 	InformationItem* beforeItem,

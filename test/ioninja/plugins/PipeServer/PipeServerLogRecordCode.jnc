@@ -7,7 +7,7 @@ import "log_RecordCode.jnc"
 
 //..............................................................................
 
-enum PipeListenerLogRecordCode: uint64_t
+enum PipeServerLogRecordCode: uint64_t
 {
 	Listening            = 0x01d48560deefaf00,
 	ListenError          = 0x01d48560deefaf01,

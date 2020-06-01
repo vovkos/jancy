@@ -138,7 +138,7 @@ public:
 	destruct();
 
 	bool errorcode open();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -152,26 +152,26 @@ public:
 		);
 
 protected:
-	createUi();
+	void createUi();
 
 	bool errorcode connectJlink();
 	bool errorcode connectSocket();
 
-	onOpen()
+	void onOpen()
 	{
 		m_state ? close() : try open();
 	}
 
-	onDeviceComboEnter()
+	void onDeviceComboEnter()
 	{
 		try open();
 	}
 
-	enumerateDevices();
-	waitSocketEvents();
-	handleSocketError(std.Error const* error);
+	void enumerateDevices();
+	void waitSocketEvents();
+	void handleSocketError(std.Error const* error);
 
-	startSocketReconnectTimer()
+	void startSocketReconnectTimer()
 	{
 		m_socketReconnectTimer.startSingleShotTimer(
 			onSocketReconnectTimer~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler,
@@ -179,22 +179,22 @@ protected:
 			);
 	}
 
-	onSocketReconnectTimer(uint_t syncId);
+	void onSocketReconnectTimer(uint_t syncId);
 
-	onSocketEvent(
+	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
 
-	jlinkReadThreadFunc();
+	void jlinkReadThreadFunc();
 
-	static jlinkTraceInfo(char const thin* p)
+	static void jlinkTraceInfo(char const thin* p)
 	{
 		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceInfo, jnc.createDataPtr(p));
 	}
 
-	static jlinkTraceError(char const thin* p)
+	static void jlinkTraceError(char const thin* p)
 	{
 		m_singleton.m_logWriter.write(JLinkRttLogRecordCode.TraceError, jnc.createDataPtr(p));
 	}
@@ -230,7 +230,7 @@ JLinkRttSession.destruct()
 	}
 }
 
-JLinkRttSession.createUi()
+void JLinkRttSession.createUi()
 {
 	// toolbar
 
@@ -421,7 +421,7 @@ reactor JLinkRttSession.m_uiReactor
 		!m_autoDetectRttAddressProp.m_value;
 }
 
-JLinkRttSession.enumerateDevices()
+void JLinkRttSession.enumerateDevices()
 {
 	if (!m_jlinkLib.m_isOpen)
 		m_jlinkLib.open(m_jlinkLibPathProp.m_value);
@@ -459,7 +459,7 @@ bool errorcode JLinkRttSession.open()
 		connectSocket();
 }
 
-JLinkRttSession.close()
+void JLinkRttSession.close()
 {
 	if (!m_state)
 		return;
@@ -658,7 +658,7 @@ size_t errorcode JLinkRttSession.transmit(
 		-1;
 }
 
-JLinkRttSession.waitSocketEvents()
+void JLinkRttSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
@@ -683,7 +683,7 @@ JLinkRttSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-JLinkRttSession.handleSocketError(std.Error const* error)
+void JLinkRttSession.handleSocketError(std.Error const* error)
 {
 	uint64_t recordCode = m_state < State.SocketConnected ?
 		SocketLogRecordCode.ConnectError :
@@ -694,7 +694,7 @@ JLinkRttSession.handleSocketError(std.Error const* error)
 	startSocketReconnectTimer();
 }
 
-JLinkRttSession.onSocketEvent(
+void JLinkRttSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
@@ -762,13 +762,13 @@ JLinkRttSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-JLinkRttSession.onSocketReconnectTimer(uint_t syncId)
+void JLinkRttSession.onSocketReconnectTimer(uint_t syncId)
 {
 	if (syncId == m_syncId)
 		try connectSocket();
 }
 
-JLinkRttSession.jlinkReadThreadFunc()
+void JLinkRttSession.jlinkReadThreadFunc()
 {
 	int result;
 	std.Buffer readBuffer;

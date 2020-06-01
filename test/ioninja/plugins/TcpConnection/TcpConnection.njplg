@@ -5,7 +5,7 @@
 
 [plugin]
 
-name        = TCP Connection Socket
+name        = "TCP Connection"
 description = "Establishes connection over TCP socket"
 id          = tcp
 group       = net

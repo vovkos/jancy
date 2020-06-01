@@ -38,7 +38,7 @@ public:
 	uint8_t m_misoChar;
 
 public:
-	start(
+	void start(
 		uint_t spiMode,
 		bool isLittleEndian
 		);
@@ -53,7 +53,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SpiSignalDecoder.start(
+void SpiSignalDecoder.start(
 	uint_t spiMode,
 	bool isLittleEndian
 	)

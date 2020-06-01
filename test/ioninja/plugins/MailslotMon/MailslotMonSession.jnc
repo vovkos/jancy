@@ -88,7 +88,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -97,18 +97,18 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? close() : try capture();
 	}
 
-	onSetViewFilter()
+	void onSetViewFilter()
 	{
 		applyViewFilter(true);
 	}
 
-	createUi();
-	applyViewFilter(bool rebuildLog = false);
+	void createUi();
+	void applyViewFilter(bool rebuildLog = false);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -127,7 +127,7 @@ MailslotMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-MailslotMonSession.createUi()
+void MailslotMonSession.createUi()
 {
 	// toolbar
 
@@ -275,7 +275,7 @@ catch:
 	return false;
 }
 
-MailslotMonSession.close()
+void MailslotMonSession.close()
 {
 	if (m_state != State.Opened)
 		return;
@@ -343,7 +343,7 @@ void MailslotMonSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-MailslotMonSession.applyViewFilter(bool rebuildLog)
+void MailslotMonSession.applyViewFilter(bool rebuildLog)
 {
 	m_viewFilterCombo.addEditTextToHistory();
 

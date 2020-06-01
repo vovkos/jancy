@@ -84,9 +84,19 @@ void MonitorFilter.setFilter(
 	{
 	case MonitorFilterKind.FileName:
 	case MonitorFilterKind.ProcessName:
-		m_wildcard = strdup(filter);
-		if (!m_wildcard)
+		char* wildcard = strdup(filter);
+		if (!wildcard)
+		{
 			m_wildcard = ""; // should not be null
+			break;
+		}
+
+		// wildcardCompareStringLowerCase() expects wildcard in lower-case
+
+		for (char* p = wildcard; *p; p++)
+			*p = tolower(*p);
+
+		m_wildcard = wildcard;
 		break;
 
 	case MonitorFilterKind.FileId:

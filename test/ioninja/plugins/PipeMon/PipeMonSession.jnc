@@ -88,7 +88,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	close();
+	void close();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -97,20 +97,20 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? close() : try capture();
 	}
 
-	onSetViewFilter()
+	void onSetViewFilter()
 	{
 		applyViewFilter(true);
 	}
 
-	onMonitorError();
+	void onMonitorError();
 
-	createUi();
-	applyViewFilter(bool rebuildLog = false);
+	void createUi();
+	void applyViewFilter(bool rebuildLog = false);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -129,7 +129,7 @@ PipeMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-PipeMonSession.createUi()
+void PipeMonSession.createUi()
 {
 	// toolbar
 
@@ -270,7 +270,7 @@ catch:
 	return false;
 }
 
-PipeMonSession.close()
+void PipeMonSession.close()
 {
 	if (m_state != State.Opened)
 		return;
@@ -338,7 +338,7 @@ void PipeMonSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-PipeMonSession.applyViewFilter(bool rebuildLog)
+void PipeMonSession.applyViewFilter(bool rebuildLog)
 {
 	m_viewFilterCombo.addEditTextToHistory();
 

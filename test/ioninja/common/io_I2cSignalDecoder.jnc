@@ -36,7 +36,7 @@ public:
 	uchar_t readonly m_char;
 
 public:
-	start();
+	void start();
 
 	I2cDecodeResult add(
 		bool scl,
@@ -46,7 +46,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-I2cSignalDecoder.start()
+void I2cSignalDecoder.start()
 {
 	m_lastScl = true;
 	m_lastSda = true;

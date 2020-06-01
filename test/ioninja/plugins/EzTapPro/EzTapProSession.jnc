@@ -114,7 +114,7 @@ public:
 	construct(doc.PluginHost* pluginHost);
 
 	bool errorcode capture();
-	stopCapture();
+	void stopCapture();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -128,26 +128,26 @@ public:
 		);
 
 protected:
-	onCapture()
+	void onCapture()
 	{
 		m_state ? stopCapture() : try capture();
 	}
 
-	onPortComboEnter()
+	void onPortComboEnter()
 	{
 		try capture();
 	}
 
-	onBaudRateChanged();
+	void onBaudRateChanged();
 
-	onSerialEvent(
+	void onSerialEvent(
 		uint_t syncId,
 		io.SerialEvents triggeredEvents
 		);
 
-	createUi();
-	enumeratePorts();
-	flipDteDce();
+	void createUi();
+	void enumeratePorts();
+	void flipDteDce();
 
 	ui.ComboBox* createSerialSettingComboBox(
 		char const* labelText,
@@ -156,7 +156,7 @@ protected:
 		function* onChanged()
 		);
 
-	waitSerialEvents();
+	void waitSerialEvents();
 	io.SerialOptions getSerialOptions();
 
 	uint_t getReadInterval()
@@ -176,17 +176,17 @@ protected:
 		size_t size
 		);
 
-	updateDteControlLines(
+	void updateDteControlLines(
 		bool dtr,
 		bool rts
 		);
 
-	updateDceControlLines(
+	void updateDceControlLines(
 		bool dsr,
 		bool cts
 		);
 
-	updateLineInfoValue(
+	void updateLineInfoValue(
 		InfoId infoId,
 		bool line
 		);
@@ -207,7 +207,7 @@ EzTapProSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-EzTapProSession.createUi()
+void EzTapProSession.createUi()
 {
 	static ui.EnumPropertyOption parityTable[] =
 	{
@@ -391,7 +391,7 @@ ui.ComboBox* EzTapProSession.createSerialSettingComboBox(
 	return comboBox;
 }
 
-EzTapProSession.enumeratePorts()
+void EzTapProSession.enumeratePorts()
 {
 	char const* name = m_portCombo.m_currentText;
 	m_portCombo.clear();
@@ -415,7 +415,7 @@ EzTapProSession.enumeratePorts()
 	m_portProp.setOptions(optionArray, count);
 }
 
-EzTapProSession.flipDteDce()
+void EzTapProSession.flipDteDce()
 {
 	if (!m_state)
 		return;
@@ -499,7 +499,7 @@ catch:
 	return false;
 }
 
-EzTapProSession.stopCapture()
+void EzTapProSession.stopCapture()
 {
 	if (m_state != State.Opened)
 		return;
@@ -847,7 +847,7 @@ void EzTapProSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-EzTapProSession.waitSerialEvents()
+void EzTapProSession.waitSerialEvents()
 {
 	io.SerialEvents eventMask =
 		io.SerialEvents.IoError |
@@ -857,7 +857,7 @@ EzTapProSession.waitSerialEvents()
 	m_serial.wait(eventMask, onSerialEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-EzTapProSession.onSerialEvent(
+void EzTapProSession.onSerialEvent(
 	uint_t syncId,
 	io.SerialEvents triggeredEvents
 	)
@@ -890,7 +890,7 @@ catch:
 	stopCapture();
 }
 
-EzTapProSession.onBaudRateChanged()
+void EzTapProSession.onBaudRateChanged()
 {
 	if (m_state != State.Opened)
 		return;
@@ -898,7 +898,7 @@ EzTapProSession.onBaudRateChanged()
 	configureSerial();
 }
 
-EzTapProSession.updateLineInfoValue(
+void EzTapProSession.updateLineInfoValue(
 	InfoId infoId,
 	bool line
 	)

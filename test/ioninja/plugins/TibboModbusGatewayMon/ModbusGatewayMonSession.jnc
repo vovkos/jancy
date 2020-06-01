@@ -107,7 +107,7 @@ public:
 
 	bool errorcode connect();
 	bool errorcode connect(io.SocketAddress const* address);
-	disconnect();
+	void disconnect();
 
 	override void load(doc.Storage* storage);
 	override void save(doc.Storage* storage);
@@ -116,23 +116,23 @@ public:
 	override void restoreDefaultProperties();
 
 protected:
-	handleConnectError(std.Error const* error);
+	void handleConnectError(std.Error const* error);
 
-	onConnect();
+	void onConnect();
 
-	onResolverEvent(
+	void onResolverEvent(
 		uint_t syncId,
 		io.HostNameResolverEvents triggeredEvents
 		);
 
-	onSocketEvent(
+	void onSocketEvent(
 		uint_t syncId,
 		io.SocketEvents triggeredEvents
 		);
 
-	waitSocketEvents();
+	void waitSocketEvents();
 
-	createUi();
+	void createUi();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -152,7 +152,7 @@ ModbusGatewayMonSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-ModbusGatewayMonSession.createUi()
+void ModbusGatewayMonSession.createUi()
 {
 	// toolbar
 
@@ -204,7 +204,7 @@ ModbusGatewayMonSession.createUi()
 	m_uiReactor.start();
 }
 
-ModbusGatewayMonSession.onConnect()
+void ModbusGatewayMonSession.onConnect()
 {
 	if (m_state)
 		disconnect();
@@ -279,7 +279,6 @@ nestedscope:
 		m_socket.open(remoteAddress.m_family, io.Protocol.Tcp);
 	}
 	else
-
 	{
 		io.SocketAddress const* adapterAddress = m_socketPropertySet.m_adapterProp.m_value;
 		if (adapterAddress)
@@ -319,14 +318,14 @@ catch:
 	return false;
 }
 
-ModbusGatewayMonSession.handleConnectError(std.Error const* error)
+void ModbusGatewayMonSession.handleConnectError(std.Error const* error)
 {
 	m_logWriter.write(SocketLogRecordCode.ConnectError, error);
 	m_socket.close();
 	m_state = State.Closed;
 }
 
-ModbusGatewayMonSession.disconnect()
+void ModbusGatewayMonSession.disconnect()
 {
 	switch (m_state)
 	{
@@ -407,7 +406,7 @@ void ModbusGatewayMonSession.restoreDefaultProperties()
 	m_bufferPropertySet.restoreDefaults();
 }
 
-ModbusGatewayMonSession.waitSocketEvents()
+void ModbusGatewayMonSession.waitSocketEvents()
 {
 	io.SocketEvents eventMask = io.SocketEvents.IoError;
 
@@ -429,7 +428,7 @@ ModbusGatewayMonSession.waitSocketEvents()
 	m_socket.wait(eventMask, onSocketEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-ModbusGatewayMonSession.onSocketEvent(
+void ModbusGatewayMonSession.onSocketEvent(
 	uint_t syncId,
 	io.SocketEvents triggeredEvents
 	)
@@ -552,7 +551,7 @@ ModbusGatewayMonSession.onSocketEvent(
 	waitSocketEvents();
 }
 
-ModbusGatewayMonSession.onResolverEvent(
+void ModbusGatewayMonSession.onResolverEvent(
 	uint_t syncId,
 	io.HostNameResolverEvents triggeredEvents
 	)
@@ -578,7 +577,7 @@ ModbusGatewayMonSession.onResolverEvent(
 	if (!address.m_port)
 		address.m_port = m_socketPropertySet.m_remotePortProp.m_value;
 
-	connect(address);
+	try connect(address);
 }
 
 reactor ModbusGatewayMonSession.m_uiReactor

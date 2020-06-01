@@ -67,21 +67,21 @@ class SslPropertySet
 	BoolProperty* m_useEphemeralEcdhProp;
 	ComboProperty* m_ephemeralEcdhCurveProp;
 
-	createProperties(
+	void createProperties(
 		PropertyGrid* propertyGrid,
 		GroupProperty* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.AllClient
 		);
 
-	load(doc.Storage* storage);
-	save(doc.Storage* storage);
-	restoreDefaults();
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void restoreDefaults();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SslPropertySet.createProperties(
+void SslPropertySet.createProperties(
 	PropertyGrid* propertyGrid,
 	GroupProperty* group,
 	Property* insertBefore,
@@ -261,7 +261,7 @@ SslPropertySet.createProperties(
 	}
 }
 
-SslPropertySet.load(doc.Storage* storage)
+void SslPropertySet.load(doc.Storage* storage)
 {
 	if (m_cipherSetProp)
 		m_cipherSetProp.m_value = storage.readString("cipherSet", DefaultCipherSet);
@@ -294,7 +294,7 @@ SslPropertySet.load(doc.Storage* storage)
 	}
 }
 
-SslPropertySet.save(doc.Storage* storage)
+void SslPropertySet.save(doc.Storage* storage)
 {
 	if (m_cipherSetProp)
 		storage.writeString("cipherSet", m_cipherSetProp.m_value);
@@ -327,7 +327,7 @@ SslPropertySet.save(doc.Storage* storage)
 	}
 }
 
-SslPropertySet.restoreDefaults()
+void SslPropertySet.restoreDefaults()
 {
 	if (m_cipherSetProp)
 		m_cipherSetProp.m_value = DefaultCipherSet;

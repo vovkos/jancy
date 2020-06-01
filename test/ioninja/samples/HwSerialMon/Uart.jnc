@@ -60,19 +60,19 @@ public:
 		);
 
 protected:
-	finalizeFrame(
+	void finalizeFrame(
 		io.UartDecodeResult result,
 		uint64_t timestamp,
 		uint64_t recordCode,
 		uchar_t data
 		);
 
-	onTimer();
+	void onTimer();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Uart.createProperties(
+void Uart.createProperties(
 	ui.GroupProperty* group,
 	ui.Property* beforeProp
 	)
@@ -162,7 +162,7 @@ Uart.createProperties(
 		);
 }
 
-Uart.loadProperties(doc.Storage* storage)
+void Uart.loadProperties(doc.Storage* storage)
 {
 	m_baudRateProp.m_currentIndex = storage.readInt("baudRate");
 	m_dataBitsProp.m_currentIndex = storage.readInt("dataBits");
@@ -170,7 +170,7 @@ Uart.loadProperties(doc.Storage* storage)
 	m_parityProp.m_currentIndex = storage.readInt("parity");
 }
 
-Uart.saveProperties(doc.Storage* storage)
+void Uart.saveProperties(doc.Storage* storage)
 {
 	storage.writeInt("baudRate", m_baudRateProp.m_currentIndex);
 	storage.writeInt("dataBits", m_dataBitsProp.m_currentIndex);
@@ -178,7 +178,7 @@ Uart.saveProperties(doc.Storage* storage)
 	storage.writeInt("parity", m_parityProp.m_currentIndex);
 }
 
-Uart.restoreDefaultProperties()
+void Uart.restoreDefaultProperties()
 {
 	m_baudRateProp.m_value = 38400;
 	m_dataBitsProp.m_value = 8;
@@ -186,7 +186,7 @@ Uart.restoreDefaultProperties()
 	m_parityProp.m_value = io.SerialParity.None;
 }
 
-Uart.start()
+void Uart.start()
 {
 	m_txDecoder.start(
 		m_baudRateProp.m_value,
@@ -209,7 +209,7 @@ Uart.start()
 	m_lastLines = Lines.All;
 }
 
-Uart.processSignal(
+void Uart.processSignal(
 	uint64_t timestamp,
 	uint16_t lines
 	)
@@ -258,7 +258,7 @@ Uart.processSignal(
 	}
 }
 
-Uart.finalizeFrame(
+void Uart.finalizeFrame(
 	io.UartDecodeResult result,
 	uint64_t timestamp,
 	uint64_t recordCode,
@@ -282,7 +282,7 @@ Uart.finalizeFrame(
 	}
 }
 
-Uart.onTimer()
+void Uart.onTimer()
 {
 	io.UartDecodeResult result;
 

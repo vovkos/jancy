@@ -52,7 +52,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-Spi.createProperties(
+void Spi.createProperties(
 	ui.GroupProperty* group,
 	ui.Property* beforeProp
 	)
@@ -95,25 +95,25 @@ Spi.createProperties(
 		);
 }
 
-Spi.loadProperties(doc.Storage* storage)
+void Spi.loadProperties(doc.Storage* storage)
 {
 	m_modeProp.m_currentIndex = storage.readInt("spiMode");
 	m_endiannessProp.m_currentIndex = storage.readInt("spiEndianness");
 }
 
-Spi.saveProperties(doc.Storage* storage)
+void Spi.saveProperties(doc.Storage* storage)
 {
 	storage.writeInt("spiMode", m_modeProp.m_currentIndex);
 	storage.writeInt("spiEndianness", m_endiannessProp.m_currentIndex);
 }
 
-Spi.restoreDefaultProperties()
+void Spi.restoreDefaultProperties()
 {
 	m_modeProp.m_value = 0;
 	m_endiannessProp.m_value = false;
 }
 
-Spi.processSignal(
+void Spi.processSignal(
 	uint64_t timestamp,
 	uint16_t lines
 	)

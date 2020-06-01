@@ -209,21 +209,21 @@ class SocketPropertySet
 	uint16_t m_defaultLocalPort = Defaults.LocalPort;
 	uint_t m_defaultReconnectTimeout = Defaults.ReconnectTimeout;
 
-	createProperties(
+	void createProperties(
 		PropertyGrid* propertyGrid,
 		Property* group = null,
 		Property* insertBefore = null,
 		PropertyId mask = PropertyId.AllTcpClient
 		);
 
-	load(doc.Storage* storage);
-	save(doc.Storage* storage);
-	restoreDefaults();
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void restoreDefaults();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SocketPropertySet.createProperties(
+void SocketPropertySet.createProperties(
 	PropertyGrid* propertyGrid,
 	Property* group,
 	Property* insertBefore,
@@ -347,7 +347,7 @@ SocketPropertySet.createProperties(
 			);
 }
 
-SocketPropertySet.load(doc.Storage* storage)
+void SocketPropertySet.load(doc.Storage* storage)
 {
 	if (m_remoteAddressProp)
 		m_remoteAddressProp.m_value = storage.readString("address", DefaultRemoteAddress);
@@ -386,7 +386,7 @@ SocketPropertySet.load(doc.Storage* storage)
 		m_udpBroadcastProp.m_value = storage.readBool("udpBroadcast", Defaults.UdpBroadcast);
 }
 
-SocketPropertySet.save(doc.Storage* storage)
+void SocketPropertySet.save(doc.Storage* storage)
 {
 	if (m_remoteAddressProp)
 		storage.writeString("address", m_remoteAddressProp.m_value);
@@ -425,7 +425,7 @@ SocketPropertySet.save(doc.Storage* storage)
 		storage.writeBool("udpBroadcast", m_udpBroadcastProp.m_value);
 }
 
-SocketPropertySet.restoreDefaults()
+void SocketPropertySet.restoreDefaults()
 {
 	if (m_remotePortProp)
 		m_remotePortProp.m_value = m_defaultRemotePort;

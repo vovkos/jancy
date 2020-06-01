@@ -190,7 +190,7 @@ EthernetTapSession.construct(doc.PluginHost* pluginHost)
 	pluginHost.m_log.addFilter(m_filter);
 }
 
-EthernetTapSession.createUi()
+void EthernetTapSession.createUi()
 {
 	// toolbar
 
@@ -283,7 +283,7 @@ EthernetTapSession.createUi()
 	m_isTransmitEnabled = true;
 }
 
-EthernetTapSession.onCapture()
+void EthernetTapSession.onCapture()
 {
 	if (m_state)
 		stopCapture();
@@ -291,7 +291,7 @@ EthernetTapSession.onCapture()
 		try capture();
 }
 
-EthernetTapSession.onExportPcap()
+void EthernetTapSession.onExportPcap()
 {
 	if (!m_fileDlg)
 	{
@@ -305,7 +305,7 @@ EthernetTapSession.onExportPcap()
 	m_fileDlg.show();
 }
 
-EthernetTapSession.onUpdateCompleted(bool result)
+void EthernetTapSession.onUpdateCompleted(bool result)
 {
 	if (result)
 		try startCapture();
@@ -339,7 +339,7 @@ size_t exportLogRecordToPcap(
 	return io.writePcapPacket(pcapFile, pcapOffset, record.m_timestamp, p, size);
 }
 
-EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
+void EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
 {
 	if (button != ui.StdDlgButton.Ok)
 		return;
@@ -356,7 +356,7 @@ EthernetTapSession.onFileDlgCompleted(ui.StdDlgButton button)
 		m_logWriter.writeLastError(log.StdRecordCode.Error);
 }
 
-EthernetTapSession.enumerateDevices()
+void EthernetTapSession.enumerateDevices()
 {
 	m_deviceCombo.clear();
 
@@ -489,7 +489,7 @@ bool errorcode EthernetTapSession.gracefulStop()
 	return true;
 }
 
-EthernetTapSession.stopCapture(bool isGraceful)
+void EthernetTapSession.stopCapture(bool isGraceful)
 {
 	if (m_outEndpoint)
 	{
@@ -553,7 +553,7 @@ bool errorcode EthernetTapSession.applyFilter(bool rebuildLog)
 	return true;
 }
 
-EthernetTapSession.waitInEndpointEvents()
+void EthernetTapSession.waitInEndpointEvents()
 {
 	io.UsbEndpointEvents eventMask =
 		io.UsbEndpointEvents.IoError |
@@ -563,7 +563,7 @@ EthernetTapSession.waitInEndpointEvents()
 	m_inEndpoint.wait(eventMask, onInEndpointEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
 }
 
-EthernetTapSession.onInEndpointEvent(
+void EthernetTapSession.onInEndpointEvent(
 	uint_t syncId,
 	io.UsbEndpointEvents triggeredEvents
 	)
@@ -587,7 +587,7 @@ EthernetTapSession.onInEndpointEvent(
 	waitInEndpointEvents();
 }
 
-EthernetTapSession.parse(
+void EthernetTapSession.parse(
 	uint32_t const* p,
 	size_t count
 	)
@@ -658,7 +658,7 @@ EthernetTapSession.parse(
 	}
 }
 
-EthernetTapSession.load(doc.Storage* storage)
+void EthernetTapSession.load(doc.Storage* storage)
 {
 	m_filterCombo.loadHistory(storage, "filterHistory");
 	m_filterCombo.m_editText = storage.readString("filter");
@@ -667,7 +667,7 @@ EthernetTapSession.load(doc.Storage* storage)
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-EthernetTapSession.save(doc.Storage* storage)
+void EthernetTapSession.save(doc.Storage* storage)
 {
 	m_filterCombo.saveHistory(storage, "filterHistory");
 	storage.writeString("filter", m_filterCombo.m_editText);
@@ -675,7 +675,7 @@ EthernetTapSession.save(doc.Storage* storage)
 	m_bufferPropertySet.save(storage);
 }
 
-EthernetTapSession.updateProperties()
+void EthernetTapSession.updateProperties()
 {
 	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
 	m_filterProp.m_value = m_filterCombo.m_editText;
@@ -699,7 +699,7 @@ bool errorcode EthernetTapSession.applyProperties()
 	return true;
 }
 
-EthernetTapSession.restoreDefaultProperties()
+void EthernetTapSession.restoreDefaultProperties()
 {
 	m_bufferPropertySet.restoreDefaults();
 }

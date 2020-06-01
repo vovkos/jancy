@@ -41,5 +41,5 @@ opaque class PluginHost
 
 } // namespace doc
 
-trace(char const* p);
-sendKeepAlive();
+void trace(char const* p);
+void sendKeepAlive();

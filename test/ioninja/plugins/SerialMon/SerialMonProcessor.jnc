@@ -22,12 +22,12 @@ public:
 		reset();
 	}
 
-	reset()
+	void reset()
 	{
 		m_statusLines = (io.SerialStatusLines) -1; // special meaning: unintitalized
 	}
 
-	abstract processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
+	abstract void processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
 }
 
 //..............................................................................

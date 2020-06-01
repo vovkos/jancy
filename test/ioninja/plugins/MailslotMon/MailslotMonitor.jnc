@@ -4,7 +4,6 @@
 //
 
 import "iox_Monitor.jnc"
-import "io_FileIdMgr.jnc"
 import "std_String.jnc"
 
 //..............................................................................
@@ -21,7 +20,7 @@ protected:
 	override processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr);
 	override processError(std.Error const* error);
 
-	setFileId(
+	void setFileId(
 		uint64_t timestamp,
 		uint64_t fileId
 		);
@@ -35,7 +34,7 @@ MailslotMonitor.construct(MailslotMonSession* session)
 	m_session = session;
 }
 
-MailslotMonitor.setFileId(
+void MailslotMonitor.setFileId(
 	uint64_t timestamp,
 	uint64_t fileId
 	)
@@ -47,7 +46,7 @@ MailslotMonitor.setFileId(
 	m_logWriter.write(timestamp, MailslotMonLogRecordCode.FileIdChanged, &m_lastFileId, sizeof(m_lastFileId));
 }
 
-MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
+void MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 {
 	switch (notifyHdr.m_code)
 	{
@@ -169,7 +168,7 @@ MailslotMonitor.processNotification(io.DeviceMonitorNotifyHdr const* notifyHdr)
 	}
 }
 
-MailslotMonitor.processError(std.Error const* error)
+void MailslotMonitor.processError(std.Error const* error)
 {
 	m_logWriter.write(log.StdRecordCode.Error, error);
 	m_session.close();

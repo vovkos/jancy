@@ -77,7 +77,13 @@ bool SocketClientLogFilter.filter(
 		TcpDisconnectLogRecordParams const* params = (TcpDisconnectLogRecordParams const*)p;
 		bool result = params.m_address.isMatch(m_filterAddress);
 		if (params.m_flags & TcpDisconnectLogRecordFlags.KeepClient)
+		{
+			if (result)
+				m_lastVisibleAddress = params.m_address;
+
+			m_isVisible = result;
 			return result;
+		}
 
 		if (result)
 			m_lastVisibleAddress = null;
@@ -90,7 +96,7 @@ bool SocketClientLogFilter.filter(
 			m_lastVisibleAddress = null;
 
 		m_isVisible = false;
-		return true;
+		return true; // not represented, anyway
 
 	default:
 		return m_isVisible;

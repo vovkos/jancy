@@ -27,7 +27,7 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-ModbusTcpParser.parse(
+void ModbusTcpParser.parse(
 	log.Writer* writer,
 	uint64_t timestamp,
 	uint64_t originalRecordCode,
@@ -76,7 +76,7 @@ ModbusTcpParser.parse(
 	}
 }
 
-ModbusTcpParser.reset()
+void ModbusTcpParser.reset()
 {
 	m_dataBuffer.clear();
 	m_expectedSize = 0;

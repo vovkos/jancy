@@ -66,7 +66,7 @@ class SerialSettingUi
 				Defaults.BaudRate;
 		}
 
-		set(uint_t value)
+		void set(uint_t value)
 		{
 			if (m_baudRateCombo)
 				m_baudRateCombo.m_editText = $"$value bps";
@@ -85,7 +85,7 @@ class SerialSettingUi
 				Defaults.DataBits;
 		}
 
-		set(uint_t value)
+		void set(uint_t value)
 		{
 			if (m_dataBitsCombo)
 				m_dataBitsCombo.m_currentData = value;
@@ -104,7 +104,7 @@ class SerialSettingUi
 				Defaults.StopBits;
 		}
 
-		set(io.SerialStopBits value)
+		void set(io.SerialStopBits value)
 		{
 			if (m_stopBitsCombo)
 				m_stopBitsCombo.m_currentData = value;
@@ -123,7 +123,7 @@ class SerialSettingUi
 				Defaults.Parity;
 		}
 
-		set(io.SerialParity value)
+		void set(io.SerialParity value)
 		{
 			if (m_parityCombo)
 				m_parityCombo.m_currentData = value;
@@ -142,7 +142,7 @@ class SerialSettingUi
 				Defaults.FlowControl;
 		}
 
-		set(io.SerialFlowControl value)
+		void set(io.SerialFlowControl value)
 		{
 			if (m_flowControlCombo)
 				m_flowControlCombo.m_currentData = value;
@@ -152,7 +152,7 @@ class SerialSettingUi
 	}
 
 public:
-	create(
+	void create(
 		ui.ToolBar* toolBar,
 		ui.PropertyGrid* propertyGrid,
 		ui.GroupProperty* groupProp = null,
@@ -160,16 +160,16 @@ public:
 		SettingId propertyMask = SettingId.All
 		);
 
-	load(doc.Storage* storage);
-	save(doc.Storage* storage);
-	updateProperties();
-	applyProperties();
-	restoreDefaultProperties();
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void updateProperties();
+	void applyProperties();
+	void restoreDefaultProperties();
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-SerialSettingUi.create(
+void SerialSettingUi.create(
 	ui.ToolBar* toolBar,
 	ui.PropertyGrid* propertyGrid,
 	ui.GroupProperty* groupProp,
@@ -315,7 +315,7 @@ SerialSettingUi.create(
 			);
 }
 
-SerialSettingUi.load(doc.Storage* storage)
+void SerialSettingUi.load(doc.Storage* storage)
 {
 	m_baudRate = storage.readInt("baudRateVal", Defaults.BaudRate);
 	m_dataBits = storage.readInt("dataBitsVal", Defaults.DataBits); // 8 bits
@@ -324,7 +324,7 @@ SerialSettingUi.load(doc.Storage* storage)
 	m_flowControl = (io.SerialFlowControl) storage.readInt("flowControlVal", Defaults.FlowControl);
 }
 
-SerialSettingUi.save(doc.Storage* storage)
+void SerialSettingUi.save(doc.Storage* storage)
 {
 	storage.writeInt("baudRateVal", m_baudRate);
 	storage.writeInt("dataBitsVal", m_dataBits);
@@ -333,7 +333,7 @@ SerialSettingUi.save(doc.Storage* storage)
 	storage.writeInt("flowControlVal", m_flowControl);
 }
 
-SerialSettingUi.updateProperties()
+void SerialSettingUi.updateProperties()
 {
 	if (m_baudRateProp && m_baudRateCombo)
 		m_baudRateProp.m_value = m_baudRateCombo.m_editText;
@@ -351,7 +351,7 @@ SerialSettingUi.updateProperties()
 		m_flowControlProp.m_currentIndex = m_flowControlCombo.m_currentIndex;
 }
 
-SerialSettingUi.applyProperties()
+void SerialSettingUi.applyProperties()
 {
 	if (m_baudRateProp && m_baudRateCombo)
 		m_baudRateCombo.m_editText = m_baudRateProp.m_value;
@@ -369,7 +369,7 @@ SerialSettingUi.applyProperties()
 		m_flowControlCombo.m_currentIndex = m_flowControlProp.m_currentIndex;
 }
 
-SerialSettingUi.restoreDefaultProperties()
+void SerialSettingUi.restoreDefaultProperties()
 {
 	if (m_baudRateProp)
 		m_baudRateProp.m_value = $"$(Defaults.BaudRate) bps";
