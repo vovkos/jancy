@@ -74,14 +74,14 @@ opaque class Lock
 		released by other thread(s), the current thread acquires it.
 	*/
 
-	lock();
+	void lock();
 
 	/**
 		*Releases* the lock. If other threads are waiting for the lock at the
 		moment, the first one in the wait queue *acquires* the lock.
 	*/
 
-	unlock();
+	void unlock();
 }
 
 //..............................................................................

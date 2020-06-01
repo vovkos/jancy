@@ -81,13 +81,13 @@ opaque class NotificationEvent
 		event remains in *signalled* state.
 	*/
 
-	signal();
+	void signal();
 
 	/**
 		Returns event to *idle* state.
 	*/
 
-	reset();
+	void reset();
 
 	/**
 		Waits until event goes to *signalled* state. When it happens, ``wait``

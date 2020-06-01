@@ -93,11 +93,11 @@ bitflag enum MailslotEvents
 			io.Mailslot m_mailslot;
 			uint_t m_syncId;
 
-			open(char const* fileName);
-			close();
-			waitMailslotEvents();
+			void open(char const* fileName);
+			void close();
+			void waitMailslotEvents();
 
-			onMailslotEvent(
+			void onMailslotEvent(
 				uint_t syncId,
 				`io.MailslotEvents` triggeredEvents
 				);

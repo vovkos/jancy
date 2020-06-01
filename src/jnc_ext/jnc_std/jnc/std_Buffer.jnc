@@ -30,7 +30,7 @@ class Buffer
 		return m_p[offset];
 	}
 
-	set(
+	void set(
 		size_t offset,
 		char e
 		)
@@ -39,7 +39,7 @@ class Buffer
 		m_p[offset] = e;
 	}
 
-	clear()
+	void clear()
 	{
 		m_size = 0;
 	}
@@ -117,7 +117,7 @@ class Buffer
 		);
 
 protected:
-	boundsCheck(size_t offset)
+	void boundsCheck(size_t offset)
 	{
 		if (offset >= m_size)
 		{

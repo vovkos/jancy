@@ -195,17 +195,17 @@ struct SshConnectParams
 
 			construct();
 
-			open(
+			void open(
 				char const* portName,
 				uint_t baudRate
 				);
 
-			close();
-			waitSshEvents();
+			void close();
+			void waitSshEvents();
 
-			onWriteButtonClicked();
+			void onWriteButtonClicked();
 
-			onSshEvent(
+			void onSshEvent(
 				uint_t syncId,
 				`io.SshEvents` triggeredEvents
 				);

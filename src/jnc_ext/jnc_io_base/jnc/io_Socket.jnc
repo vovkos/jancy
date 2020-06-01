@@ -128,13 +128,13 @@ bitflag enum SocketEvents
 			io.Socket m_socket;
 			uint_t m_syncId;
 
-			connect(char const* addrString);
-			close();
-			waitSocketEvents();
+			void connect(char const* addrString);
+			void close();
+			void waitSocketEvents();
 
-			onWriteButtonClicked();
+			void onWriteButtonClicked();
 
-			onSocketEvent(
+			void onSocketEvent(
 				uint_t syncId,
 				`io.SocketEvents` triggeredEvents
 				);

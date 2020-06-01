@@ -112,15 +112,15 @@ bitflag enum PcapEvents
 			io.Pcap m_pcap;
 			uint_t m_syncId;
 
-			startCapture(
+			void startCapture(
 				char const* device,
 				char const* filter = null
 				);
 
-			close();
-			waitPcapEvents();
+			void close();
+			void waitPcapEvents();
 
-			onPcapEvent(
+			void onPcapEvent(
 				uint_t syncId,
 				`io.PcapEvents` triggeredEvents
 				);

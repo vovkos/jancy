@@ -103,7 +103,7 @@ opaque class HashTable
 		return findValue(key, null);
 	}
 
-	set(
+	void set(
 		variant key,
 		variant value
 		)
@@ -115,7 +115,7 @@ opaque class HashTable
 		Remove all entries from the hash table.
 	*/
 
-	clear();
+	void clear();
 
 	MapEntry* errorcode visit(variant key);
 

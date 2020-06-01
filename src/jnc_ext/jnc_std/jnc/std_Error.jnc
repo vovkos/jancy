@@ -112,13 +112,13 @@ char const* getLastErrorDescription()
 	Sets the last error of the current thread.
 */
 
-setError(Error const* error);
+void setError(Error const* error);
 
 /**
 	Sets ``errno`` error as the last error of the current thread.
 */
 
-setErrno(int errno);
+void setErrno(int errno);
 
 /**
 	Sets string error described by a null-terminated string pointed to by
@@ -128,7 +128,7 @@ setErrno(int errno);
 	null-terminated string identical to ``string``.
 */
 
-setError(char const* string);
+void setError(char const* string);
 
 //..............................................................................
 

@@ -235,7 +235,7 @@ public:
 		bytes.
 	*/
 
-	reset();
+	void reset();
 
 protected:
 	size_t exec(
@@ -252,7 +252,7 @@ opaque class RegexDfa
 	construct();
 	destruct();
 
-	clear();
+	void clear();
 
 	bool errorcode compile(
 		char const* regexString,

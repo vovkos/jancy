@@ -38,7 +38,7 @@ class StringBuilder
 		return m_p[offset];
 	}
 
-	set(
+	void set(
 		size_t offset,
 		char e
 		)
@@ -67,7 +67,7 @@ class StringBuilder
 		return append(p);
 	}
 
-	clear();
+	void clear();
 
 	bool errorcode reserve(size_t length);
 
@@ -162,7 +162,7 @@ class StringBuilder
 	char* errorcode cloneString();
 
 protected:
-	boundsCheck(size_t offset)
+	void boundsCheck(size_t offset)
 	{
 		if (offset >= m_length)
 		{

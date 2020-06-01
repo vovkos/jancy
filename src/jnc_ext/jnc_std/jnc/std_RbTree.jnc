@@ -60,7 +60,7 @@ opaque class RbTree
 		return findValue(key, null);
 	}
 
-	set(
+	void set(
 		variant key,
 		variant value
 		)
@@ -68,7 +68,7 @@ opaque class RbTree
 		add(key, value);
 	}
 
-	clear();
+	void clear();
 
 	MapEntry* errorcode visit(variant key);
 	MapEntry cmut* find(variant key) const;

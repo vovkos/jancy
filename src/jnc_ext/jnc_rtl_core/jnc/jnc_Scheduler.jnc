@@ -71,18 +71,18 @@ namespace jnc {
 		sys.Lock g_lock;
 		typedef OnComplete(int x);
 
-		work(OnComplete* onComplete)
+		void work(OnComplete* onComplete)
 		{
 			// ...
 			onComplete(100);
 		}
 
-		bar(int a, int b, int c)
+		void bar(int a, int b, int c)
 		{
 			printf($"bar ($a, $b, $c) -- MUST be called under g_lock");
 		}
 
-		foo()
+		void foo()
 		{
 			LockScheduler scheduler;
 			scheduler.m_lock = g_lock; // initialize scheduler
@@ -101,8 +101,8 @@ class Scheduler
 		handling function pointers of *any* type
 	*/
 
-	abstract schedule(function* proc());
-	async asyncSchedule(bool isOnce = false);
+	abstract void schedule(function* proc());
+	async void asyncSchedule(bool isOnce = false);
 }
 
 //..............................................................................

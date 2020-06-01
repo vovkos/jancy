@@ -30,7 +30,7 @@ class Array
 		return m_p[index];
 	}
 
-	set(
+	void set(
 		size_t index,
 		variant e
 		)
@@ -39,9 +39,9 @@ class Array
 		m_p[index] = e;
 	}
 
-	clear();
+	void clear();
 
-	detach()
+	void detach()
 	{
 		m_p = null;
 		m_count = 0;
@@ -94,7 +94,7 @@ class Array
 		);
 
 protected:
-	boundsCheck(size_t index) const
+	void boundsCheck(size_t index) const
 	{
 		if (index >= m_count)
 		{

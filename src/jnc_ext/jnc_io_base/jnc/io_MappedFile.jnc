@@ -59,7 +59,7 @@ namespace io {
 			uint64_t m_size;
 		}
 
-		foo(char const* fileName)
+		void foo(char const* fileName)
 		{
 			disposable io.MappedFile file;
 			file.open(fileName, `io.FileOpenFlags.ReadOnly`);

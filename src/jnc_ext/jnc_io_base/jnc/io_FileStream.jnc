@@ -122,13 +122,13 @@ bitflag enum FileStreamEvents
 			io.FileStream m_fileStream;
 			uint_t m_syncId;
 
-			open(char const* fileName);
-			close();
-			waitFileStreamEvents();
+			void open(char const* fileName);
+			void close();
+			void waitFileStreamEvents();
 
-			onWriteButtonClicked();
+			void onWriteButtonClicked();
 
-			onFileStreamEvent(
+			void onFileStreamEvent(
 				uint_t syncId,
 				`io.FileStreamEvents` triggeredEvents
 				);

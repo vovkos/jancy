@@ -64,13 +64,13 @@ opaque class Event
 		queue wakes up, the event goes back to *idle* state.
 	*/
 
-	signal();
+	void signal();
 
 	/**
 		Forcefully returns event to *idle* state.
 	*/
 
-	reset();
+	void reset();
 
 	/**
 		Waits until event goes to *signalled* state. When it happens, ``wait``

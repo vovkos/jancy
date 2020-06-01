@@ -58,7 +58,8 @@ opaque class RegKey
 	construct();
 	destruct();
 
-	close();
+	void close();
+	alias dispose = close;
 
 	bool errorcode create(
 		RegStdKey parent,

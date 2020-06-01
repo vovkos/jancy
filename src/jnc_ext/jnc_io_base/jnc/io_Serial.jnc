@@ -308,17 +308,17 @@ bitflag enum SerialLineErrors
 			io.Serial m_serial;
 			uint_t m_syncId;
 
-			open(
+			void open(
 				char const* portName,
 				uint_t baudRate
 				);
 
-			close();
-			waitSerialEvents();
+			void close();
+			void waitSerialEvents();
 
-			onWriteButtonClicked();
+			void onWriteButtonClicked();
 
-			onSerialEvent(
+			void onSerialEvent(
 				uint_t syncId,
 				`io.SerialEvents` triggeredEvents
 				);
