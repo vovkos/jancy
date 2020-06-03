@@ -1038,7 +1038,7 @@ FunctionMgr::parseStdFunction(
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
 
 	Parser parser(m_module, Parser::Mode_Compile);
-	parser.create(SymbolKind_normal_item_declaration);
+	parser.create("jnc_StdFunctions.jnc", SymbolKind_normal_item_declaration);
 
 	for (;;)
 	{

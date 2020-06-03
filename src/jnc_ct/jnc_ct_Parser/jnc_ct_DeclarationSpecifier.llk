@@ -44,6 +44,13 @@ declaration_specifier<TypeSpecifier* $typeSpecifier>
 			}
 	;
 
+declaration_specifier_sync
+	:	storage_specifier_sync
+	|	access_specifier_sync
+	|	type_specifier_sync
+	|	type_modifier_sync
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct
@@ -118,6 +125,18 @@ storage_specifier
 			}
 	;
 
+storage_specifier_sync
+	:	TokenKind_Typedef
+	|	TokenKind_Alias
+	|	TokenKind_Static
+	|	TokenKind_ThreadLocal
+	|	TokenKind_Abstract
+	|	TokenKind_Virtual
+	|	TokenKind_Override
+	|	TokenKind_Mutable
+	|	TokenKind_Disposable
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct
@@ -133,6 +152,11 @@ access_specifier
 			{
 				$.m_accessKind = AccessKind_Protected;
 			}
+	;
+
+access_specifier_sync
+	:	TokenKind_Public
+	|	TokenKind_Protected
 	;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -198,6 +222,21 @@ type_specifier
 			{
 				$.m_type = $t.m_type;
 			}
+	;
+
+type_specifier_sync
+	:	TokenKind_Void
+	|	TokenKind_Variant
+	|	TokenKind_Class
+	|	TokenKind_AnyData
+	|	TokenKind_Bool
+	|	TokenKind_Int
+	|	TokenKind_IntPtr
+	|	TokenKind_Char
+	|	TokenKind_Short
+	|	TokenKind_Long
+	|	TokenKind_Float
+	|	TokenKind_Double
 	;
 
 struct
@@ -392,6 +431,34 @@ type_modifier
 			{
 				$.m_typeModifier = TypeModifier_Async;
 			}
+	;
+
+type_modifier_sync
+	:	TokenKind_Unsigned
+	|	TokenKind_BigEndian
+	|	TokenKind_Const
+	|	TokenKind_ReadOnly
+	|	TokenKind_CMut
+	|	TokenKind_Volatile
+	|	TokenKind_Weak
+	|	TokenKind_Thin
+	|	TokenKind_Safe
+	|	TokenKind_Unsafe
+	|	TokenKind_Cdecl
+	|	TokenKind_Stdcall
+	|	TokenKind_Thiscall
+	|	TokenKind_Jnccall
+	|	TokenKind_Array
+	|	TokenKind_Function
+	|	TokenKind_Property
+	|	TokenKind_Bindable
+	|	TokenKind_AutoGet
+	|	TokenKind_Indexed
+	|	TokenKind_Multicast
+	|	TokenKind_Event
+	|	TokenKind_Reactor
+	|	TokenKind_ErrorCode
+	|	TokenKind_Async
 	;
 
 //..............................................................................

@@ -46,10 +46,10 @@ global_declaration
 
 global_declaration_sync
 	:	common_declaration_sync
+	|	item_declaration_sync
 	|	TokenKind_Namespace
 	|	TokenKind_Extension
 	|	';'
-	|	'}'
 	;
 
 member_block_declaration
@@ -63,12 +63,12 @@ member_block_declaration
 
 member_block_declaration_sync
 	:	common_declaration_sync
+	|	item_declaration_sync
 	|	TokenKind_Friend
 	|	TokenKind_Public
 	|	TokenKind_Protected
 	|	TokenKind_SetAs
 	|	';'
-	|	'}'
 	;
 
 local_declaration
@@ -309,17 +309,17 @@ normal_item_declaration
 
 qualified_special_void_method_declaration_rslv
 	:	(TokenKind_Identifier '.')*
-		(	TokenKind_Construct
-		|	TokenKind_StaticConstruct
-		|	TokenKind_Destruct
-		|	TokenKind_Set
-		|	TokenKind_Operator
-		)
+		special_void_method_declarator_sync
 	;
 
 resolver(qualified_special_void_method_declaration_rslv, 2) // higher than qualified_type_name_rslv
 qualified_special_void_method_declaration
 	:	declarator_list<NULL>
+	;
+
+item_declaration_sync
+	:	declaration_specifier_sync
+	|	special_void_method_declarator_sync
 	;
 
 //..............................................................................

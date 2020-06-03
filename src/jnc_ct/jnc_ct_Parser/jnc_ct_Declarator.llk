@@ -189,6 +189,14 @@ operator_declarator_qualifier<Declarator* $declarator>
 			}
 	;
 
+special_void_method_declarator_sync
+	:	TokenKind_Construct
+	|	TokenKind_StaticConstruct
+	|	TokenKind_Destruct
+	|	TokenKind_Set
+	|	TokenKind_Operator
+	;
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct

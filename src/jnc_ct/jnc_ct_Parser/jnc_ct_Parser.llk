@@ -21,35 +21,30 @@ import "jnc_ct_NamedTypeSpecifier.llk";
 
 HeaderFileBegin
 {.
-	#include "jnc_ct_Lexer.h"
-	#include "jnc_ct_Module.h"
-	#include "jnc_ct_Decl.h"
+#include "jnc_ct_Lexer.h"
+#include "jnc_ct_Module.h"
+#include "jnc_ct_Decl.h"
 
-	namespace jnc {
-	namespace ct {
+namespace jnc {
+namespace ct {
 .}
 
 HeaderFileEnd
 {.
-	} // namespace ct
-	} // namespace jnc
+} // namespace ct
+} // namespace jnc
 .}
 
 CppFileBegin
 {.
-	namespace jnc {
-	namespace ct {
-
-	typedef Parser::CurlyInitializer CurlyInitializer;
-	typedef Parser::FmtSite FmtSite;
-	typedef Parser::Literal Literal;
-	typedef Parser::StmtPass1 StmtPass1;
+namespace jnc {
+namespace ct {
 .}
 
 CppFileEnd
 {.
-	} // namespace ct
-	} // namespace jnc
+} // namespace ct
+} // namespace jnc
 .}
 
 Members
@@ -219,7 +214,12 @@ public:
 
 protected:
 	RecoverAction
-	processError(ErrorKind errorKind);
+	processError(ErrorKind errorKind)
+	{
+		return m_module->processCompileError((ModuleCompileErrorKind)errorKind) ?
+			RecoverAction_Synchronize :
+			RecoverAction_Fail;
+	}
 
 	bool
 	parseEofToken(const lex::LineCol& pos);

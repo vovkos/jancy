@@ -165,6 +165,9 @@ public:
 	void
 	closeNamespace();
 
+	void
+	closeAllNamespaces();
+
 	Scope*
 	openInternalScope();
 

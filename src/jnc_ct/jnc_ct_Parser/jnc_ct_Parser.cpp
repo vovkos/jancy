@@ -10,7 +10,6 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_ct_Module.h"
 #include "jnc_ct_Closure.h"
 #include "jnc_ct_DeclTypeCalc.h"
 #include "jnc_ct_ArrayType.h"
@@ -62,17 +61,6 @@ bool Parser::checkUnusedAttributeBlock()
 	}
 
 	return true;
-}
-
-Parser::RecoverAction
-Parser::processError(ErrorKind errorKind)
-{
-	return m_module->m_parseErrorHandler && m_module->m_parseErrorHandler(
-		m_module->m_parseErrorHandlerContext,
-		(ModuleParseErrorKind)errorKind
-		) ?
-		RecoverAction_Synchronize :
-		RecoverAction_Fail;
 }
 
 bool
@@ -195,7 +183,7 @@ Parser::parseBody(
 
 	return !tokenList.isEmpty() ?
 		parseTokenList(symbol, tokenList) :
-		create(symbol) && parseEofToken(pos);
+		create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol) && parseEofToken(pos);
 }
 
 bool
@@ -206,7 +194,7 @@ Parser::parseTokenList(
 {
 	ASSERT(!tokenList.isEmpty());
 
-	create(symbol);
+	create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol);
 
 	sl::ConstBoxIterator<Token> token = tokenList.getHead();
 	for (; token; token++)

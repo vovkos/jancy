@@ -42,13 +42,15 @@ Module::Module():
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorCount = 0;
+	m_compileErrorCountLimit = DefaultErrorCountLimit;
+	m_compileErrorHandler = NULL;
+	m_compileErrorHandlerContext = NULL;
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
 	m_constructor = NULL;
-	m_parseErrorHandler = NULL;
-	m_parseErrorHandlerContext = NULL;
 
 	finalizeConstruction();
 }
@@ -56,6 +58,34 @@ Module::Module():
 Module::~Module()
 {
 	clear();
+}
+
+bool
+Module::processCompileError(ModuleCompileErrorKind errorKind)
+{
+	if (++m_compileErrorCount > m_compileErrorCountLimit)
+	{
+		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
+		return false;
+	}
+
+	bool result =
+		m_compileErrorHandler &&
+		m_compileErrorHandler(m_compileErrorHandlerContext, errorKind);
+
+	if (!result)
+		return false;
+
+	if (errorKind >= ModuleCompileErrorKind_PostParse)
+	{
+		m_namespaceMgr.closeAllNamespaces();
+		m_functionMgr.setCurrentFunction(NULL);
+		m_controlFlowMgr.setCurrentBlock(NULL);
+
+		// probably, need more cleanup
+	}
+
+	return true;
 }
 
 void
@@ -99,6 +129,7 @@ Module::clear()
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorCount = 0;
 }
 
 void
@@ -557,7 +588,7 @@ Module::parseImpl(
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
 
 	Parser parser(this);
-	parser.create(Parser::StartSymbol);
+	parser.create(fileName, Parser::StartSymbol);
 
 	for (;;)
 	{
@@ -583,7 +614,6 @@ Module::parseImpl(
 	}
 
 	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();
-
 	return true;
 }
 
@@ -607,7 +637,6 @@ Module::parseFile(const sl::StringRef& fileName)
 
 	m_sourceList.insertTail(source);
 	m_filePathSet.visit(filePath);
-
 	return parseImpl(NULL, filePath, source);
 }
 
@@ -668,6 +697,12 @@ Module::compile()
 
 	if (!result)
 		return false;
+
+	if (m_compileErrorCount)
+	{
+		err::setFormatStringError("%d error(s); compilation failed", m_compileErrorCount);
+		return false;
+	}
 
 	createConstructor();
 
@@ -909,9 +944,21 @@ Module::processCompileArray()
 		size_t count = compileArray.getCount();
 		for (size_t i = 0; i < compileArray.getCount(); i++)
 		{
-			result = compileArray[i]->compile();
+			Function* function = compileArray[i];
+			result = function->compile();
 			if (!result)
-				return false;
+			{
+				lex::ensureSrcPosError(
+					function->m_parentUnit ? function->m_parentUnit->getFilePath() : m_name,
+					function->m_pos
+					);
+
+				result = processCompileError(ModuleCompileErrorKind_PostParse);
+				if (!result)
+					return false;
+
+				m_namespaceMgr.closeAllNamespaces();
+			}
 
 			ASSERT(!m_namespaceMgr.getCurrentScope());
 		}
@@ -926,14 +973,26 @@ Module::processCompileArray()
 		{
 			Function* function = createGlobalInitializerFunction();
 			if (!function)
-				return false;
-
-			m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariableInitializer, function);
+			{
+				result = processCompileError(ModuleCompileErrorKind_PostParse);
+				if (!result)
+					return false;
+			}
+			else
+			{
+				m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariableInitializer, function);
+			}
 		}
 
 		result = m_typeMgr.requireExternalReturnTypes();
 		if (!result)
+		{
+			result = processCompileError(ModuleCompileErrorKind_PostParse);
+			if (!result)
+				return false;
+
 			return false;
+		}
 	}
 
 	return true;

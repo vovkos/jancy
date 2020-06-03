@@ -195,19 +195,6 @@ jnc_Module_initialize(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-void
-jnc_Module_setParseErrorHandler(
-	jnc_Module* module,
-	jnc_ModuleParseErrorHandlerFunc* errorHandler,
-	void* context
-	)
-{
-	module->m_parseErrorHandler = errorHandler;
-	module->m_parseErrorHandlerContext = context;
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 uint_t
 jnc_Module_getCompileFlags(jnc_Module* module)
 {
@@ -220,6 +207,26 @@ jnc_ModuleCompileState
 jnc_Module_getCompileState(jnc_Module* module)
 {
 	return module->getCompileState();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_Module_getCompileErrorCount(jnc_Module* module)
+{
+	return module->getCompileErrorCount();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Module_setCompileErrorHandler(
+	jnc_Module* module,
+	jnc_ModuleCompileErrorHandlerFunc* handler,
+	void* context
+	)
+{
+	module->setCompileErrorHandler(handler, context);
 }
 
 JNC_EXTERN_C

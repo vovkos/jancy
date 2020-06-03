@@ -1966,7 +1966,7 @@ TypeMgr::parseStdType(
 	ASSERT(prevUnit);
 
 	Parser parser(m_module);
-	parser.create(SymbolKind_named_type_specifier_save_type);
+	parser.create("jnc_StdTypes.jnc", SymbolKind_named_type_specifier_save_type);
 
 	for (;;)
 	{

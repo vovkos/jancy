@@ -92,13 +92,14 @@ typedef enum jnc_ModuleCompileState jnc_ModuleCompileState;
 
 //..............................................................................
 
-enum jnc_ModuleParseErrorKind
+enum jnc_ModuleCompileErrorKind
 {
-	jnc_ModuleParseErrorKind_Syntax,   // -> llk::Parser::ErrorKind_Syntax
-	jnc_ModuleParseErrorKind_Semantic, // -> llk::Parser::ErrorKind_Semantic
+	jnc_ModuleCompileErrorKind_ParseSyntax,   // -> llk::Parser::ErrorKind_Syntax
+	jnc_ModuleCompileErrorKind_ParseSemantic, // -> llk::Parser::ErrorKind_Semantic
+	jnc_ModuleCompileErrorKind_PostParse,     // post-parse stage
 };
 
-typedef enum jnc_ModuleParseErrorKind jnc_ModuleParseErrorKind;
+typedef enum jnc_ModuleCompileErrorKind jnc_ModuleCompileErrorKind;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -107,9 +108,9 @@ typedef enum jnc_ModuleParseErrorKind jnc_ModuleParseErrorKind;
 
 typedef
 bool_t
-jnc_ModuleParseErrorHandlerFunc(
+jnc_ModuleCompileErrorHandlerFunc(
 	void* context,
-	jnc_ModuleParseErrorKind errorKind
+	jnc_ModuleCompileErrorKind errorKind
 	);
 
 //..............................................................................
@@ -135,20 +136,24 @@ jnc_Module_initialize(
 	);
 
 JNC_EXTERN_C
-void
-jnc_Module_setParseErrorHandler(
-	jnc_Module* module,
-	jnc_ModuleParseErrorHandlerFunc* errorHandler,
-	void* context
-	);
-
-JNC_EXTERN_C
 uint_t
 jnc_Module_getCompileFlags(jnc_Module* module);
 
 JNC_EXTERN_C
 jnc_ModuleCompileState
 jnc_Module_getCompileState(jnc_Module* module);
+
+JNC_EXTERN_C
+size_t
+jnc_Module_getCompileErrorCount(jnc_Module* module);
+
+JNC_EXTERN_C
+void
+jnc_Module_setCompileErrorHandler(
+	jnc_Module* module,
+	jnc_ModuleCompileErrorHandlerFunc* handler,
+	void* context
+	);
 
 JNC_EXTERN_C
 jnc_GlobalNamespace*
@@ -336,16 +341,6 @@ struct jnc_Module
 		jnc_Module_initialize(this, tag, compileFlags);
 	}
 
-	void
-	setParseErrorHandler(
-		jnc_Module* module,
-		jnc_ModuleParseErrorHandlerFunc* errorHandler,
-		void* context
-		)
-	{
-		jnc_Module_setParseErrorHandler(this, errorHandler, context);
-	}
-
 	uint_t
 	getCompileFlags()
 	{
@@ -356,6 +351,21 @@ struct jnc_Module
 	getCompileState()
 	{
 		return jnc_Module_getCompileState(this);
+	}
+
+	size_t
+	getCompileErrorCount()
+	{
+		return jnc_Module_getCompileErrorCount(this);
+	}
+
+	void
+	setCompileErrorHandler(
+		jnc_ModuleCompileErrorHandlerFunc* errorHandler,
+		void* context
+		)
+	{
+		jnc_Module_setCompileErrorHandler(this, errorHandler, context);
 	}
 
 	jnc_GlobalNamespace*
@@ -560,12 +570,13 @@ const ModuleCompileFlag
 
 //..............................................................................
 
-typedef jnc_ModuleParseErrorHandlerFunc ModuleParseErrorHandlerFunc;
-typedef jnc_ModuleParseErrorKind ModuleParseErrorKind;
+typedef jnc_ModuleCompileErrorHandlerFunc ModuleCompileErrorHandlerFunc;
+typedef jnc_ModuleCompileErrorKind ModuleCompileErrorKind;
 
-const ModuleParseErrorKind
-	ModuleParseErrorKind_Syntax   = jnc_ModuleParseErrorKind_Syntax,
-	ModuleParseErrorKind_Semantic = jnc_ModuleParseErrorKind_Semantic;
+const ModuleCompileErrorKind
+	ModuleCompileErrorKind_ParseSyntax   = jnc_ModuleCompileErrorKind_ParseSyntax,
+	ModuleCompileErrorKind_ParseSemantic = jnc_ModuleCompileErrorKind_ParseSemantic,
+	ModuleCompileErrorKind_PostParse     = jnc_ModuleCompileErrorKind_PostParse;
 
 //..............................................................................
 

@@ -70,6 +70,11 @@ protected:
 		AuxCompileFlag_IntrospectionLib = 0x80000000,
 	};
 
+	enum
+	{
+		DefaultErrorCountLimit = 100,
+	};
+
 	struct RequiredItem
 	{
 		ModuleItemKind m_itemKind;
@@ -94,7 +99,10 @@ protected:
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
-	Function* m_constructor;
+	size_t m_compileErrorCount;
+	size_t m_compileErrorCountLimit;
+	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
+	void* m_compileErrorHandlerContext;
 
 	sl::Array<Function*> m_compileArray;
 	sl::BoxList<sl::String> m_sourceList; // need to keep all sources in-memory during compilation
@@ -102,13 +110,12 @@ protected:
 	sl::StringHashTable<void*> m_functionMap;
 	sl::StringHashTable<RequiredItem> m_requireSet;
 
+	Function* m_constructor;
+
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
-
 public:
-	ModuleParseErrorHandlerFunc* m_parseErrorHandler;
-	void* m_parseErrorHandlerContext;
 
 	TypeMgr m_typeMgr;
 	AttributeMgr m_attributeMgr;
@@ -148,6 +155,25 @@ public:
 	getCompileState()
 	{
 		return m_compileState;
+	}
+
+	size_t
+	getCompileErrorCount()
+	{
+		return m_compileErrorCount;
+	}
+
+	bool
+	processCompileError(ModuleCompileErrorKind errorKind);
+
+	void
+	setCompileErrorHandler(
+		ModuleCompileErrorHandlerFunc* handler,
+		void* context
+		)
+	{
+		m_compileErrorHandler = handler;
+		m_compileErrorHandlerContext = context;
 	}
 
 	llvm::LLVMContext*

@@ -288,6 +288,16 @@ NamespaceMgr::closeNamespace()
 	m_currentAccessKind = entry.m_accessKind;
 }
 
+void
+NamespaceMgr::closeAllNamespaces()
+{
+	m_namespaceStack.clear();
+	m_currentNamespace = &m_stdNamespaceArray[StdNamespace_Global];
+	m_currentScope = NULL;
+	m_currentAccessKind = AccessKind_Public;
+	m_sourcePosLockCount = 0;
+}
+
 Scope*
 NamespaceMgr::openInternalScope()
 {

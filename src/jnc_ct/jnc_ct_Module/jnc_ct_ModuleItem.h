@@ -90,6 +90,12 @@ public:
 	{
 		lex::pushSrcPosError(m_parentUnit->getFilePath(), m_pos);
 	}
+
+	void
+	ensureSrcPosError()
+	{
+		lex::ensureSrcPosError(m_parentUnit->getFilePath(), m_pos);
+	}
 };
 
 //..............................................................................
