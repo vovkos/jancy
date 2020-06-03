@@ -65,6 +65,16 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	jnc::StdLib_setStdIo(NULL, printToOutput, printToOutput);
 }
 
+bool_t MainWindow::processCompileError(
+	void* context,
+	jnc::ModuleCompileErrorKind errorKind
+	)
+{
+	MainWindow* self = (MainWindow*)context;
+	self->writeOutput("%s\n", jnc::getLastError()->getDescription().sz());
+	return true;
+}
+
 void MainWindow::closeEvent(QCloseEvent* e)
 {
 	writeSettings();
@@ -393,6 +403,7 @@ bool MainWindow::compile()
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
+	m_module->setCompileErrorHandler(processCompileError, this);
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 	m_module->addStaticLib(TestLib_getLib());
@@ -408,28 +419,18 @@ bool MainWindow::compile()
 	m_module->addImportDir(libDir.toUtf8().constData());
 #endif
 
-	writeOutput("Parsing...\n");
+	writeOutput("Compiling...\n");
 
 	m_modulePane->clear();
 	m_llvmIr->clear();
 
 	QByteArray source = child->toPlainText().toUtf8();
 
-	result = m_module->parse(
-		sourceFilePath.constData(),
-		source.constData(),
-		source.size()
-		) &&
-		m_module->parseImports();
+	result =
+		m_module->parse(sourceFilePath.constData(), source.constData(), source.size()) &&
+		m_module->parseImports() &&
+		m_module->compile();
 
-	if (!result)
-	{
-		writeOutput("%s\n", err::getLastErrorDescription().sz());
-		return false;
-	}
-
-	writeOutput("Compiling...\n");
-	result = m_module->compile();
 	if (!result)
 	{
 		writeOutput("%s\n", err::getLastErrorDescription().sz());

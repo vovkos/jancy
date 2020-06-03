@@ -70,6 +70,11 @@ private:
 
 	jnc::Function* findGlobalFunction(const QString &name);
 
+	static bool_t processCompileError(
+		void* context,
+		jnc::ModuleCompileErrorKind errorKind
+		);
+
 private:
 	QMdiArea* m_mdiArea;
 	QString m_lastDir;
