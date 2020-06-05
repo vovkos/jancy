@@ -73,7 +73,7 @@ lit_sq       ;
 '"""'        { fgoto body_lit_ml; };
 
 '//' [^\n]*  ;
-'/*' (any | nl)* :>> '*/'
+'/*' (any | nl)* :>> '*/'?
              ;
 nl           ;
 any          ;
@@ -366,13 +366,13 @@ dec+ ('.' dec*) | ([eE] [+\-]? dec+)
 
 '///' [^\n]*     { createDoxyCommentToken(TokenKind_DoxyComment1); };
 '//!' [^\n]*     { createDoxyCommentToken(TokenKind_DoxyComment2); };
-'/**' (any | nl)* :>> '*/'
+'/**' (any | nl)* :>> '*/'?
 				 { createDoxyCommentToken(TokenKind_DoxyComment3); };
-'/*!' (any | nl)* :>> '*/'
+'/*!' (any | nl)* :>> '*/'?
 				 { createDoxyCommentToken(TokenKind_DoxyComment4); };
 
 '//' [^\n]*      ;
-'/*' (any | nl)* :>> '*/'
+'/*' (any | nl)* :>> '*/'?
                  ;
 '{'              { if (onLeftCurlyBrace()) fcall body_main; };
 '('              { onLeftParentheses(); };
