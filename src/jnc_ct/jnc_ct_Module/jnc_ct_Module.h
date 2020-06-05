@@ -99,6 +99,7 @@ protected:
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
+	size_t m_compileErrorIgnoreCount;
 	size_t m_compileErrorCount;
 	size_t m_compileErrorCountLimit;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
@@ -161,6 +162,18 @@ public:
 	getCompileErrorCount()
 	{
 		return m_compileErrorCount;
+	}
+
+	void
+	enterTryCompile()
+	{
+		m_compileErrorIgnoreCount++;
+	}
+
+	void
+	leaveTryCompile()
+	{
+		m_compileErrorIgnoreCount--;
 	}
 
 	bool

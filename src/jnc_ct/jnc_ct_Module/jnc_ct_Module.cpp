@@ -42,6 +42,7 @@ Module::Module():
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorIgnoreCount = 0;
 	m_compileErrorCount = 0;
 	m_compileErrorCountLimit = DefaultErrorCountLimit;
 	m_compileErrorHandler = NULL;
@@ -63,6 +64,9 @@ Module::~Module()
 bool
 Module::processCompileError(ModuleCompileErrorKind errorKind)
 {
+	if (m_compileErrorIgnoreCount)
+		return false;
+
 	if (++m_compileErrorCount > m_compileErrorCountLimit)
 	{
 		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
@@ -129,6 +133,7 @@ Module::clear()
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorIgnoreCount = 0;
 	m_compileErrorCount = 0;
 }
 
