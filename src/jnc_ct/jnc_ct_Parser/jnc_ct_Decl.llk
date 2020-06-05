@@ -307,9 +307,10 @@ normal_item_declaration
 		declarator_list<&$s.m_typeSpecifier>
 	;
 
+// conflict vs type_specifier:TokenKind_Identifier
+
 qualified_special_void_method_declaration_rslv
-	:	(TokenKind_Identifier '.')*
-		special_void_method_declarator_sync
+	:	(TokenKind_Identifier '.')* special_void_method_declarator_sync
 	;
 
 resolver(qualified_special_void_method_declaration_rslv, 2) // higher than qualified_type_name_rslv

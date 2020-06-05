@@ -210,11 +210,17 @@ union_specifier
 
 // class
 
+// conflict with type_specifier:TokenKind_Class
+
+class_specifier_rslv
+	:	TokenKind_Opaque? TokenKind_Class TokenKind_Identifier
+	;
+
 struct
 {
 	ClassType* m_type;
 }
-resolver(TokenKind_Opaque? TokenKind_Class TokenKind_Identifier)
+resolver(class_specifier_rslv)
 class_specifier
 	:	TokenKind_Opaque $o?
 		TokenKind_Class

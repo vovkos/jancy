@@ -696,8 +696,7 @@ try_operator<Value* $value>
 			}
 	;
 
-// since '(' at 'unary_expr' is a conflict against epsilon production we need a resolver
-// otherwise epsilon production (i.e. no more unary operators) always loses
+// cast_operator vs epsilon
 
 cast_operator_rslv
 	local
@@ -726,6 +725,8 @@ new_operator_type
 	:	type_name_impl<&$.m_type, &$.m_elementCountValue>
 	|	new_operator_type_w_constructor<&$.m_type, &$.m_argList>
 	;
+
+// can be left-factorized to avoid resolver
 
 resolver(qualified_name TokenKind_Construct? '(', 2) // set higher priority than qualified_type_name
 new_operator_type_w_constructor<Type** $type, sl::BoxList<Value>* $argList>

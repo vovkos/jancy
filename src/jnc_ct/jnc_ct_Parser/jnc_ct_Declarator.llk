@@ -84,6 +84,8 @@ declarator_list_terminator<
 			}
 	;
 
+// a special grammar rule for curly-initializers (we don't require ';' after a curly-initializer)
+
 resolver('=' ('{' | TokenKind_Body))
 declarator_w_curly_initializer<
 	TypeSpecifier* $typeSpecifier,
