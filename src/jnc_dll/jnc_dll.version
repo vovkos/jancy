@@ -138,6 +138,8 @@
 		jnc_Module_generateDocumentation;
 		jnc_Module_getCompileFlags;
 		jnc_Module_getCompileState;
+		jnc_Module_getCompileErrorCount;
+		jnc_Module_setCompileErrorHandler;
 		jnc_Module_getGlobalNamespace;
 		jnc_Module_getLlvmIrString_v;
 		jnc_Module_getPrimitiveType;
