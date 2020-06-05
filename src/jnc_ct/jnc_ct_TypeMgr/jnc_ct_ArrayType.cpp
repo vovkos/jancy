@@ -142,39 +142,53 @@ ArrayType::calcLayoutImpl(
 		m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
 		int64_t value = 0;
-		result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
 
-		m_module->m_namespaceMgr.closeNamespace();
-		m_module->m_unitMgr.setCurrentUnit(prevUnit);
-
-		if (!result)
+		if (!dynamicStruct)
 		{
-			if (!dynamicStruct)
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
+			m_module->m_namespaceMgr.closeNamespace();
+			m_module->m_unitMgr.setCurrentUnit(prevUnit);
+
+			if (!result)
 				return false;
+		}
+		else
+		{
+			// try parsing it as a const-integer expression first...
 
-			sl::String qualifiedName = sl::formatString(
-				"%s.%s.getDynamicSize",
-				dynamicStruct->getQualifiedName().sz(),
-				dynamicField->getName().sz()
-				);
+			m_module->enterTryCompile();
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(m_elementCountInitializer, &value);
+			m_module->leaveTryCompile();
 
-			Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
-			FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
+			m_module->m_namespaceMgr.closeNamespace();
+			m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
-			m_getDynamicSizeFunction = m_module->m_functionMgr.createInternalFunction<GetDynamicSizeFunction>(
-				qualifiedName,
-				type
-				);
+			if (!result) // nope, create a runtime function...
+			{
+				sl::String qualifiedName = sl::formatString(
+					"%s.%s.getDynamicSize",
+					dynamicStruct->getQualifiedName().sz(),
+					dynamicField->getName().sz()
+					);
 
-			m_getDynamicSizeFunction->m_arrayType = this;
-			m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
-			m_getDynamicSizeFunction->convertToMemberMethod(dynamicStruct);
-			m_module->markForCompile(m_getDynamicSizeFunction);
+				Type* returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT);
+				FunctionType* type = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);
 
-			m_flags |= TypeFlag_Dynamic;
-			m_elementCount = 0;
-			m_size = 0;
-			return true;
+				m_getDynamicSizeFunction = m_module->m_functionMgr.createInternalFunction<GetDynamicSizeFunction>(
+					qualifiedName,
+					type
+					);
+
+				m_getDynamicSizeFunction->m_arrayType = this;
+				m_getDynamicSizeFunction->m_storageKind = StorageKind_Member;
+				m_getDynamicSizeFunction->convertToMemberMethod(dynamicStruct);
+				m_module->markForCompile(m_getDynamicSizeFunction);
+
+				m_flags |= TypeFlag_Dynamic;
+				m_elementCount = 0;
+				m_size = 0;
+				return true;
+			}
 		}
 
 		if (value <= 0)
