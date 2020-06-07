@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	jnc::StdLib_setStdIo(NULL, printToOutput, printToOutput);
 }
 
-bool_t MainWindow::processCompileError(
+bool_t MainWindow::compileErrorHandler(
 	void* context,
 	jnc::ModuleCompileErrorKind errorKind
 	)
@@ -403,7 +403,7 @@ bool MainWindow::compile()
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
-	m_module->setCompileErrorHandler(processCompileError, this);
+	m_module->setCompileErrorHandler(compileErrorHandler, this);
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 	m_module->addStaticLib(TestLib_getLib());

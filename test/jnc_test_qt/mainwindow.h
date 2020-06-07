@@ -70,7 +70,7 @@ private:
 
 	jnc::Function* findGlobalFunction(const QString &name);
 
-	static bool_t processCompileError(
+	static bool_t compileErrorHandler(
 		void* context,
 		jnc::ModuleCompileErrorKind errorKind
 		);
