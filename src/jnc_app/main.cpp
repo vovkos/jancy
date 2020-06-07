@@ -92,7 +92,7 @@ main(
 	result = parser.parse(argc, argv);
 	if (!result)
 	{
-		printf("error parsing command line: %s\n", err::getLastErrorDescription().sz());
+		fprintf(stderr, "error parsing command line: %s\n", err::getLastErrorDescription().sz());
 		return JncError_InvalidCmdLine;
 	}
 
@@ -111,7 +111,7 @@ main(
 		result = app.parse();
 		if (!result)
 		{
-			printf("%s\n", err::getLastErrorDescription().sz());
+			fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 			return JncError_CompileFailure;
 		}
 
@@ -130,7 +130,7 @@ main(
 			result = app.compile();
 			if (!result)
 			{
-				printf("%s\n", err::getLastErrorDescription().sz());
+				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
 			}
 		}
@@ -143,7 +143,7 @@ main(
 			result = app.jit();
 			if (!result)
 			{
-				printf("%s\n", err::getLastErrorDescription().sz());
+				fprintf(stderr, "%s\n", err::getLastErrorDescription().sz());
 				return JncError_CompileFailure;
 			}
 		}

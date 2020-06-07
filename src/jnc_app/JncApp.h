@@ -54,6 +54,14 @@ public:
 
 	bool
 	runFunction(int* returnValue = NULL);
+
+protected:
+	static
+	bool_t
+	compileErrorHandler(
+		void* context,
+		jnc::ModuleCompileErrorKind errorKind
+		);
 };
 
 //..............................................................................

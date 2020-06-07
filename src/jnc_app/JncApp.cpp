@@ -43,6 +43,7 @@ JncApp::JncApp(CmdLine* cmdLine)
 {
 	m_cmdLine = cmdLine;
 	m_module->initialize("jnc_module", cmdLine->m_compileFlags);
+	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc))
 	{
@@ -67,6 +68,17 @@ JncApp::JncApp(CmdLine* cmdLine)
 
 	if (m_cmdLine->m_flags & JncFlag_Run)
 		m_module->require(jnc::ModuleItemKind_Function, m_cmdLine->m_functionName);
+}
+
+bool_t
+JncApp::compileErrorHandler(
+	void* context,
+	jnc::ModuleCompileErrorKind errorKind
+	)
+{
+	JncApp* self = (JncApp*)context;
+	fprintf(stderr, "%s\n", jnc::getLastError()->getDescription().sz());
+	return true;
 }
 
 bool
