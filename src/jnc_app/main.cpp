@@ -76,7 +76,9 @@ main(
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
 
-	srand((int)sys::getTimestamp());
+	int seed = (int)sys::getTimestamp();
+	fprintf(stderr, "srand: %x\n", seed);
+	srand(seed);
 
 	CmdLine cmdLine;
 	CmdLineParser parser(&cmdLine);

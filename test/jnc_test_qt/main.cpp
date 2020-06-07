@@ -38,7 +38,9 @@ int main(int argc, char* argv[])
 	io::registerSslErrorProvider();
 #endif
 
-	srand((int)sys::getTimestamp());
+	uint_t seed = 0x806b21a0; // sys::getTimestamp();
+	printf("srand: 0x%x\n", seed);
+	srand(seed);
 
 	QApplication app(argc, argv);
 	QCoreApplication::setOrganizationName("Tibbo");
