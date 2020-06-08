@@ -556,7 +556,8 @@ Parser::postDeclaratorName(Declarator* declarator)
 	if (!m_topDeclarator->isQualified() || declarator->m_baseType->getTypeKind() != TypeKind_NamedImport)
 		return;
 
-	// need to re-anchor import
+	// need to re-anchor the import, e.g.:
+	// A C.foo(); <-- here 'A' should be searched for starting with 'C'
 
 	QualifiedName anchorName = m_topDeclarator->m_name;
 	if (m_topDeclarator->getDeclaratorKind() == DeclaratorKind_Name)
@@ -580,7 +581,6 @@ void
 Parser::postDeclarator(Declarator* declarator)
 {
 	ASSERT(m_topDeclarator);
-
 	if (declarator == m_topDeclarator)
 		m_topDeclarator = NULL;
 }
@@ -2914,22 +2914,24 @@ Parser::finalizeLiteral(
 			);
 	}
 
-	Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
+	if (m_module->hasLlvm())
+	{
+		Value fatPtrValue;
+		Value thinPtrValue;
+		Value validatorValue;
+		Type* validatorType = m_module->m_typeMgr.getStdType(StdType_DataPtrValidatorPtr);
 
-	Value fatPtrValue;
-	Value thinPtrValue;
-	Value validatorValue;
+		m_module->m_llvmIrBuilder.createGep2(fmtLiteralValue, 0, NULL, &fatPtrValue);
+		m_module->m_llvmIrBuilder.createLoad(fatPtrValue, NULL, &fatPtrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 0, NULL, &thinPtrValue);
+		m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 1, validatorType, &validatorValue);
 
-	m_module->m_llvmIrBuilder.createGep2(fmtLiteralValue, 0, NULL, &fatPtrValue);
-	m_module->m_llvmIrBuilder.createLoad(fatPtrValue, NULL, &fatPtrValue);
-	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 0, NULL, &thinPtrValue);
-	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 1, validatorType, &validatorValue);
-
-	resultValue->setLeanDataPtr(
-		thinPtrValue.getLlvmValue(),
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Lean),
-		validatorValue
-		);
+		resultValue->setLeanDataPtr(
+			thinPtrValue.getLlvmValue(),
+			m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Lean),
+			validatorValue
+			);
+	}
 
 	return true;
 }
@@ -2948,18 +2950,21 @@ Parser::appendFmtLiteralRawData(
 	bool result = m_module->m_operatorMgr.castOperator(&literalValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr));
 	ASSERT(result);
 
-	Value lengthValue;
-	lengthValue.setConstSizeT(length, m_module);
+	if (m_module->hasLlvm())
+	{
+		Value lengthValue;
+		lengthValue.setConstSizeT(length, m_module);
 
-	Value resultValue;
-	m_module->m_llvmIrBuilder.createCall3(
-		append,
-		append->getType(),
-		fmtLiteralValue,
-		literalValue,
-		lengthValue,
-		&resultValue
-		);
+		Value resultValue;
+		m_module->m_llvmIrBuilder.createCall3(
+			append,
+			append->getType(),
+			fmtLiteralValue,
+			literalValue,
+			lengthValue,
+			&resultValue
+			);
+	}
 }
 
 bool
@@ -3061,20 +3066,24 @@ Parser::appendFmtLiteralBinValue(
 		m_module->m_typeMgr.getPrimitiveType(TypeKind_SizeT)
 		);
 
-	Value tmpValue;
-	Value resultValue;
-	m_module->m_llvmIrBuilder.createAlloca(type, "tmpFmtValue", NULL, &tmpValue);
-	m_module->m_llvmIrBuilder.createStore(srcValue, tmpValue);
-	m_module->m_llvmIrBuilder.createBitCast(tmpValue, argType, &tmpValue);
+	if (m_module->hasLlvm())
+	{
+		Value tmpValue;
+		Value resultValue;
 
-	m_module->m_llvmIrBuilder.createCall3(
-		append,
-		append->getType(),
-		fmtLiteralValue,
-		tmpValue,
-		sizeValue,
-		&resultValue
-		);
+		m_module->m_llvmIrBuilder.createAlloca(type, "tmpFmtValue", NULL, &tmpValue);
+		m_module->m_llvmIrBuilder.createStore(srcValue, tmpValue);
+		m_module->m_llvmIrBuilder.createBitCast(tmpValue, argType, &tmpValue);
+
+		m_module->m_llvmIrBuilder.createCall3(
+			append,
+			append->getType(),
+			fmtLiteralValue,
+			tmpValue,
+			sizeValue,
+			&resultValue
+			);
+	}
 
 	return true;
 }

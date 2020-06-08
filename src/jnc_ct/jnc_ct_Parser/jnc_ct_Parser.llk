@@ -150,6 +150,12 @@ public:
 		Mode mode = Mode_Parse
 		);
 
+	Declarator*
+	getTopDeclarator()
+	{
+		return m_topDeclarator;
+	}
+
 	ModuleItem*
 	getLastDeclaredItem()
 	{
