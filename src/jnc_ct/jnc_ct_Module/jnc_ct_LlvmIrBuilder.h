@@ -53,6 +53,11 @@ public:
 		clear();
 	}
 
+	operator bool ()
+	{
+		return m_llvmIrBuilder != NULL;
+	}
+
 	Module*
 	getModule()
 	{
@@ -83,18 +88,21 @@ public:
 	llvm::DebugLoc
 	getCurrentDebugLoc()
 	{
+		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->getCurrentDebugLocation();
 	}
 
 	void
 	setCurrentDebugLoc(const llvm::DebugLoc& llvmDebugLoc)
 	{
+		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetCurrentDebugLocation(llvmDebugLoc);
 	}
 
 	void
 	setInstDebugLoc(llvm::Instruction* llvmInst)
 	{
+		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetInstDebugLocation(llvmInst);
 	}
 
@@ -103,6 +111,7 @@ public:
 	llvm::Instruction*
 	getInsertPoint()
 	{
+		ASSERT(m_llvmIrBuilder);
 		return &*m_llvmIrBuilder->GetInsertPoint();
 	}
 
@@ -112,6 +121,7 @@ public:
 	void
 	setInsertPoint(llvm::Instruction* llvmInst)
 	{
+		ASSERT(m_llvmIrBuilder);
 		m_llvmIrBuilder->SetInsertPoint(llvmInst);
 	}
 
@@ -146,6 +156,8 @@ public:
 		BasicBlock* falseBlock
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		return m_llvmIrBuilder->CreateCondBr(
 			value.getLlvmValue(),
 			trueBlock->getLlvmBlock(),
@@ -180,12 +192,14 @@ public:
 	llvm::ReturnInst*
 	createRet()
 	{
+		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateRetVoid();
 	}
 
 	llvm::ReturnInst*
 	createRet(const Value& value)
 	{
+		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateRet(value.getLlvmValue());
 	}
 
@@ -214,7 +228,14 @@ public:
 		const sl::StringRef& name,
 		Type* resultType,
 		Value* resultValue
-		);
+		)
+	{
+		ASSERT(m_llvmAllocaIrBuilder);
+
+		llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), NULL, name >> toLlvm);
+		resultValue->setLlvmValue(inst, resultType);
+		return inst;
+	}
 
 	llvm::LoadInst*
 	createLoad(
@@ -224,6 +245,8 @@ public:
 		bool isVolatile = false
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::LoadInst* inst = m_llvmIrBuilder->CreateLoad(value.getLlvmValue(), isVolatile, "loa");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -236,6 +259,7 @@ public:
 		bool isVolatile = false
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
 		return m_llvmIrBuilder->CreateStore(srcValue.getLlvmValue(), dstValue.getLlvmValue(), isVolatile);
 	}
 
@@ -268,6 +292,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateGEP(value.getLlvmValue(), indexValue.getLlvmValue(), "gep");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -281,6 +307,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		Value indexValue;
 		indexValue.setConstInt32(index, getSimpleType(TypeKind_Int32, m_module));
 		return createGep(value, indexValue, resultType, resultValue);
@@ -356,6 +384,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateExtractValue(value.getLlvmValue(), index, "extract");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -370,11 +400,14 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateExtractValue(
 			value.getLlvmValue(),
 			llvm::ArrayRef<uint_t> ((uint_t*)indexArray, indexCount),
 			"extract"
 			);
+
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
 	}
@@ -388,6 +421,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateInsertValue(
 			aggregateValue.getLlvmValue(),
 			memberValue.getLlvmValue(),
@@ -409,6 +444,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateInsertValue(
 			aggregateValue.getLlvmValue(),
 			memberValue.getLlvmValue(),
@@ -429,6 +466,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateNeg(opValue.getLlvmValue(), "neg_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -441,6 +480,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFNeg(opValue.getLlvmValue(), "neg_f");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -453,6 +494,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateNot(opValue.getLlvmValue(), "not");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -468,6 +511,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateAdd(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "add_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -481,6 +526,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFAdd(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "add_f");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -494,6 +541,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateSub(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "sub_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -507,6 +556,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFSub(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "sub_f");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -520,6 +571,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateMul(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mul_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -533,6 +586,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFMul(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mul_f");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -546,6 +601,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateSDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -559,6 +616,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateUDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_u");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -572,6 +631,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFDiv(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "div_f");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -585,6 +646,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateSRem(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mod_i");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -598,6 +661,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateURem(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "mod_u");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -611,6 +676,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateShl(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "shl");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -624,6 +691,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateLShr(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "shr");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -650,6 +719,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateOr(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "or");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -663,6 +734,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateXor(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "xor");
 		resultValue->setLlvmValue(inst, resultType);
 		return inst;
@@ -677,6 +750,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "eq_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -689,6 +764,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOEQ(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "eq_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -701,6 +778,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpNE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ne_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -713,6 +792,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpONE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ne_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -725,6 +806,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -737,6 +820,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_u");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -749,6 +834,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "lt_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -761,6 +848,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSLE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -773,6 +862,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpULE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_u");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -785,6 +876,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOLE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "le_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -797,6 +890,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -809,6 +904,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_u");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -821,6 +918,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGT(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "gt_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -833,6 +932,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpSGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_i");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -845,6 +946,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateICmpUGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_u");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -857,6 +960,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFCmpOGE(opValue1.getLlvmValue(), opValue2.getLlvmValue(), "ge_f");
 		resultValue->setLlvmValue(inst, getSimpleType(TypeKind_Bool, m_module));
 		return inst;
@@ -872,6 +977,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::AtomicCmpXchgInst* inst = m_llvmIrBuilder->CreateAtomicCmpXchg(
 			ptrValue.getLlvmValue(),
 			cmpValue.getLlvmValue(),
@@ -899,6 +1006,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::AtomicCmpXchgInst* inst = m_llvmIrBuilder->CreateAtomicCmpXchg(
 			ptrValue.getLlvmValue(),
 			cmpValue.getLlvmValue(),
@@ -923,6 +1032,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::AtomicRMWInst* inst = m_llvmIrBuilder->CreateAtomicRMW(
 			opKind,
 			ptrValue.getLlvmValue(),
@@ -944,6 +1055,7 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
 		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast(opValue.getLlvmValue(), type, "bitcast");
 		resultValue->setLlvmValue(inst, NULL);
 		return inst;
@@ -956,6 +1068,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateBitCast(opValue.getLlvmValue(), type->getLlvmType(), "bitcast");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -968,6 +1082,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateIntToPtr(opValue.getLlvmValue(), type->getLlvmType(), "int2ptr");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -980,6 +1096,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreatePtrToInt(opValue.getLlvmValue(), type->getLlvmType(), "ptr2int");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -992,6 +1110,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateTrunc(opValue.getLlvmValue(), type->getLlvmType(), "trunc_i");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1004,6 +1124,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPTrunc(opValue.getLlvmValue(), type->getLlvmType(), "trunc_f");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1016,6 +1138,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateSExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_i");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1028,6 +1152,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateZExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_u");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1040,6 +1166,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPExt(opValue.getLlvmValue(), type->getLlvmType(), "ext_f");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1052,6 +1180,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateSIToFP(opValue.getLlvmValue(), type->getLlvmType(), "i2f");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1064,6 +1194,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateUIToFP(opValue.getLlvmValue(), type->getLlvmType(), "u2f");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1076,6 +1208,8 @@ public:
 		Value* resultValue
 		)
 	{
+		ASSERT(m_llvmIrBuilder);
+
 		llvm::Value* inst = m_llvmIrBuilder->CreateFPToSI(opValue.getLlvmValue(), type->getLlvmType(), "f2i");
 		resultValue->setLlvmValue(inst, type);
 		return inst;
@@ -1234,7 +1368,7 @@ public:
 
 	// function & property pointer operations
 
-	bool
+	void
 	createClosureFunctionPtr(
 		const Value& ptrValue,
 		const Value& closureValue,
@@ -1242,7 +1376,7 @@ public:
 		Value* resultValue
 		);
 
-	bool
+	void
 	createClosurePropertyPtr(
 		const Value& ptrValue,
 		const Value& closureValue,

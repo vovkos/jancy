@@ -52,6 +52,8 @@ LlvmIrBuilder::clear()
 void
 LlvmIrBuilder::setAllocaBlock(BasicBlock* block)
 {
+	ASSERT(m_llvmAllocaIrBuilder);
+
 	llvm::Instruction* llvmJmp = block->getLlvmBlock()->getTerminator();
 	ASSERT(llvm::isa<llvm::BranchInst> (llvmJmp));
 
@@ -66,6 +68,8 @@ LlvmIrBuilder::createSwitch(
 	size_t caseCount
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	Type* type = value.getType();
 	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Integer);
 
@@ -90,6 +94,8 @@ LlvmIrBuilder::createSwitch(
 void
 LlvmIrBuilder::setInsertPoint(BasicBlock* block)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	if (!(block->getFlags() & BasicBlockFlag_Entry) || !block->hasTerminator())
 		m_llvmIrBuilder->SetInsertPoint(block->getLlvmBlock());
 	else
@@ -99,6 +105,8 @@ LlvmIrBuilder::setInsertPoint(BasicBlock* block)
 void
 LlvmIrBuilder::saveInsertPoint(LlvmIrInsertPoint* insertPoint)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	insertPoint->m_llvmBlock = m_llvmIrBuilder->GetInsertBlock();
 
 	if (insertPoint->m_llvmBlock->empty())
@@ -127,6 +135,8 @@ LlvmIrBuilder::restoreInsertPoint(
 	LlvmIrInsertPoint* prevInsertPoint
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	saveInsertPoint(prevInsertPoint);
 	if (insertPoint == *prevInsertPoint)
 		return false;
@@ -138,7 +148,7 @@ LlvmIrBuilder::restoreInsertPoint(
 void
 LlvmIrBuilder::restoreInsertPoint(const LlvmIrInsertPoint& insertPoint)
 {
-	ASSERT(insertPoint);
+	ASSERT(m_llvmIrBuilder && insertPoint);
 
 	if (!insertPoint.m_llvmInstruction)
 	{
@@ -163,6 +173,8 @@ LlvmIrBuilder::createIndirectBr(
 	size_t blockCount
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	llvm::IndirectBrInst* inst = m_llvmIrBuilder->CreateIndirectBr(value.getLlvmValue(), blockCount);
 
 	for (size_t i = 0; i < blockCount; i++)
@@ -180,6 +192,8 @@ LlvmIrBuilder::createSwitch(
 	size_t caseCount
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	Type* type = value.getType();
 	ASSERT(type->getTypeKindFlags() & TypeKindFlag_Integer);
 
@@ -208,6 +222,8 @@ LlvmIrBuilder::createPhi(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	if (valueArray->isEmpty())
 	{
 		resultValue->setVoid(m_module);
@@ -232,6 +248,8 @@ LlvmIrBuilder::createPhi(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	if (value1.isEmpty())
 	{
 		resultValue->setVoid(m_module);
@@ -245,19 +263,6 @@ LlvmIrBuilder::createPhi(
 	return phiNode;
 }
 
-llvm::AllocaInst*
-LlvmIrBuilder::createAlloca(
-	Type* type,
-	const sl::StringRef& name,
-	Type* resultType,
-	Value* resultValue
-	)
-{
-	llvm::AllocaInst* inst = m_llvmAllocaIrBuilder->CreateAlloca(type->getLlvmType(), NULL, name >> toLlvm);
-	resultValue->setLlvmValue(inst, resultType);
-	return inst;
-}
-
 llvm::Value*
 LlvmIrBuilder::createGep(
 	const Value& value,
@@ -267,6 +272,8 @@ LlvmIrBuilder::createGep(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
@@ -293,6 +300,8 @@ LlvmIrBuilder::createGep(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
@@ -324,6 +333,8 @@ LlvmIrBuilder::createCall(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	llvm::CallInst* inst;
 
 	if (resultType->getTypeKind() != TypeKind_Void)
@@ -364,6 +375,8 @@ LlvmIrBuilder::createCall(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	size_t argCount = argValueList.getCount();
 
 	char buffer[256];
@@ -390,6 +403,8 @@ LlvmIrBuilder::createCall(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	char buffer[256];
 	sl::Array<llvm::Value*> llvmArgValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgValueArray.setCount(argCount);
@@ -400,7 +415,7 @@ LlvmIrBuilder::createCall(
 	return createCall(calleeValue, callConv, llvmArgValueArray, argCount, resultType, resultValue);
 }
 
-bool
+void
 LlvmIrBuilder::createClosureFunctionPtr(
 	const Value& rawPtrValue,
 	const Value& rawClosureValue,
@@ -408,6 +423,8 @@ LlvmIrBuilder::createClosureFunctionPtr(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	Value ptrValue;
 	Value closureValue;
 
@@ -417,10 +434,9 @@ LlvmIrBuilder::createClosureFunctionPtr(
 	Value functionPtrValue = resultType->getUndefValue();
 	createInsertValue(functionPtrValue, ptrValue, 0, NULL, &functionPtrValue);
 	createInsertValue(functionPtrValue, closureValue, 1, resultType, resultValue);
-	return true;
 }
 
-bool
+void
 LlvmIrBuilder::createClosurePropertyPtr(
 	const Value& rawPtrValue,
 	const Value& rawClosureValue,
@@ -428,6 +444,8 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	Value* resultValue
 	)
 {
+	ASSERT(m_llvmIrBuilder);
+
 	Value ptrValue;
 	Value closureValue;
 
@@ -437,7 +455,6 @@ LlvmIrBuilder::createClosurePropertyPtr(
 	Value functionPtrValue = resultType->getUndefValue();
 	createInsertValue(functionPtrValue, ptrValue, 0, NULL, &functionPtrValue);
 	createInsertValue(functionPtrValue, closureValue, 1, resultType, resultValue);
-	return true;
 }
 
 //..............................................................................
