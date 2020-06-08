@@ -77,8 +77,9 @@ main(
 	lex::registerParseErrorProvider();
 
 	int seed = (int)sys::getTimestamp();
-	fprintf(stderr, "srand: %x\n", seed);
 	srand(seed);
+
+	// fprintf(stderr, "srand: 0x%x\n", seed);
 
 	CmdLine cmdLine;
 	CmdLineParser parser(&cmdLine);

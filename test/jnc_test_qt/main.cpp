@@ -38,8 +38,7 @@ int main(int argc, char* argv[])
 	io::registerSslErrorProvider();
 #endif
 
-	uint_t seed = 0x806b21a0; // sys::getTimestamp();
-	printf("srand: 0x%x\n", seed);
+	uint_t seed = sys::getTimestamp();
 	srand(seed);
 
 	QApplication app(argc, argv);

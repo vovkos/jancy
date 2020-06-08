@@ -403,7 +403,10 @@ bool MainWindow::compile()
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
-	m_module->setCompileErrorHandler(compileErrorHandler, this);
+
+	AXL_TODO("once LLVM separation is done, we can enable error recovery")
+	// m_module->setCompileErrorHandler(compileErrorHandler, this);
+
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 	m_module->addStaticLib(TestLib_getLib());
