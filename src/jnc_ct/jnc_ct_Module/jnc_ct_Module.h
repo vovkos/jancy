@@ -146,6 +146,12 @@ public:
 		return m_name;
 	}
 
+	bool
+	hasLlvm()
+	{
+		return m_llvmIrBuilder;
+	}
+
 	uint_t
 	getCompileFlags()
 	{
@@ -331,6 +337,9 @@ public:
 	getLlvmIrString();
 
 protected:
+	void
+	clearLlvm();
+
 	bool
 	parseImpl(
 		ExtensionLib* lib,

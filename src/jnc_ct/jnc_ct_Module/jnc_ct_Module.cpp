@@ -67,10 +67,19 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 	if (m_compileErrorIgnoreCount)
 		return false;
 
-	if (++m_compileErrorCount > m_compileErrorCountLimit)
+	size_t compileErrorCount = ++m_compileErrorCount;
+	if (compileErrorCount > m_compileErrorCountLimit)
 	{
 		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
 		return false;
+	}
+
+	if (compileErrorCount == 1) // stop LLVM-IR emission after the very first error
+	{
+		AXL_TODO("LLVM calls are deeply interleaved with the rest of the code; need a major cleanup")
+
+		// clearLlvm();
+		m_compileFlags &= ~ModuleCompileFlag_DebugInfo;
 	}
 
 	bool result =
@@ -95,6 +104,8 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 void
 Module::clear()
 {
+	clearLlvm();
+
 	m_typeMgr.clear();
 	m_namespaceMgr.clear();
 	m_functionMgr.clear();
@@ -110,13 +121,25 @@ Module::clear()
 	m_doxyModule.clear();
 
 	m_name.clear();
-	m_llvmIrBuilder.clear();
-	m_llvmDiBuilder.clear();
 	m_compileArray.clear();
 	m_sourceList.clear();
 	m_filePathSet.clear();
 	m_functionMap.clear();
 	m_requireSet.clear();
+
+	m_constructor = NULL;
+
+	m_compileFlags = ModuleCompileFlag_StdFlags;
+	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorIgnoreCount = 0;
+	m_compileErrorCount = 0;
+}
+
+void
+Module::clearLlvm()
+{
+	m_llvmIrBuilder.clear();
+	m_llvmDiBuilder.clear();
 
 	if (m_llvmExecutionEngine)
 		delete m_llvmExecutionEngine;
@@ -129,12 +152,6 @@ Module::clear()
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
-	m_constructor = NULL;
-
-	m_compileFlags = ModuleCompileFlag_StdFlags;
-	m_compileState = ModuleCompileState_Idle;
-	m_compileErrorIgnoreCount = 0;
-	m_compileErrorCount = 0;
 }
 
 void
