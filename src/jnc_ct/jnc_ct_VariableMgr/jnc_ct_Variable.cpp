@@ -35,21 +35,7 @@ Variable::Variable()
 void
 Variable::prepareLlvmValue()
 {
-	ASSERT(!m_llvmValue);
-
-	if (m_storageKind != StorageKind_Tls)
-	{
-		ASSERT(m_module->getCompileErrorCount()); // recovering from an error
-
-		m_llvmGlobalVariable = m_module->m_variableMgr.createLlvmGlobalVariable(m_type, m_qualifiedName);
-
-		Value ptrValue;
-		m_llvmValue = m_type->getTypeKind() == TypeKind_Class ?
-			(llvm::Value*)m_module->m_llvmIrBuilder.createGep2(m_llvmGlobalVariable, 1, NULL, &ptrValue) :
-			(llvm::Value*)m_llvmGlobalVariable;
-
-		return;
-	}
+	ASSERT(!m_llvmValue && m_storageKind == StorageKind_Tls);
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	BasicBlock* prologueBlock = function->getPrologueBlock();
