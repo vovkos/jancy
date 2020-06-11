@@ -98,7 +98,7 @@ public:
 
 protected:
 	X509* m_cert;
-	cry::AutoX509 m_autoCert;
+	cry::X509Cert m_certBuffer;
 
 	DataPtr m_serialNumberPtr;
 	uint64_t m_validFromDate;

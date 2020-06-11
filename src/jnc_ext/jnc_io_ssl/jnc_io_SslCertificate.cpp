@@ -318,22 +318,25 @@ SslCertificate::encodeImpl(
 	bool result;
 	sl::String string;
 
+	cry::X509Cert cert = m_cert;
+
 	switch (format)
 	{
 	case SslCertFormat_Pem:
-		result = cry::saveX509_pem(&string, m_cert) != -1;
+		result = cert.savePem(&string) != -1;
 		buffer->copy(string.cp(), string.getLength());
 		break;
 
 	case SslCertFormat_Der:
-		result = cry::saveX509_der(buffer, m_cert) != -1;
+		result = cert.saveDer(buffer) != -1;
 		break;
 
 	default:
 		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
+		result = false;
 	}
 
+	cert.detach();
 	return result;
 }
 
@@ -344,38 +347,26 @@ SslCertificate::decodeImpl(
 	uint_t format
 	)
 {
-	X509* cert;
+	bool result;
 
 	switch (format)
 	{
 	case SslCertFormat_Pem:
-		if (m_autoCert)
-			return cry::loadX509_pem(m_autoCert, p, size);
-
-		cert = cry::loadX509_pem(p, size);
-		if (cert == NULL)
-			return false;
-
+		result = m_certBuffer.loadPem(p, size);
 		break;
 
 	case SslCertFormat_Der:
-		if (m_autoCert)
-			return cry::loadX509_der(m_autoCert, p, size);
-
-		cert = cry::loadX509_der(p, size);
-		if (cert == NULL)
-			return false;
-
+		result = m_certBuffer.loadDer(p, size);
 		break;
 
 	default:
 		err::setError(err::SystemErrorCode_InvalidParameter);
+		m_cert = NULL;
 		return false;
 	}
 
-	m_autoCert.attach(cert);
-	m_cert = cert;
-	return true;
+	m_cert = m_certBuffer;
+	return result;
 }
 
 //..............................................................................
