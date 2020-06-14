@@ -13,6 +13,8 @@
 #include "jnc_rt_ExceptionMgr.h"
 #include "jnc_rt_Runtime.h"
 
+#define _JNC_NO_EH 1
+
 namespace jnc {
 namespace rt {
 
@@ -88,6 +90,9 @@ ExceptionMgr::signalHandler(
 		}
 	}
 
+#if (_JNC_NO_EH)
+	sl::getSimpleSingleton<ExceptionMgr> ()->invokePrevSignalHandler(signal, signalInfo, context);
+#else
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	if (!tlsVariableTable->m_sjljFrame)
 	{
@@ -99,6 +104,7 @@ ExceptionMgr::signalHandler(
 		longjmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);
 	}
+#endif
 }
 
 void
@@ -175,6 +181,9 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 
+#if (_JNC_NO_EH)
+	return EXCEPTION_CONTINUE_SEARCH;
+#else
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	if (tlsVariableTable->m_sjljFrame)
 	{
@@ -191,6 +200,7 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
+#endif
 }
 
 #endif
