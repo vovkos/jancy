@@ -308,6 +308,8 @@ createUsbDeviceArray(DataPtr countPtr)
 {
 	axl::io::UsbDeviceList deviceList;
 	size_t count = deviceList.enumerateDevices();
+	if (count == -1)
+		return g_nullDataPtr;
 
 	DataPtr arrayPtr = g_nullDataPtr;
 	Runtime* runtime = getCurrentThreadRuntime();
