@@ -13,7 +13,7 @@
 #include "jnc_rt_ExceptionMgr.h"
 #include "jnc_rt_Runtime.h"
 
-#define _JNC_NO_EH 1
+// #define _JNC_NO_EH 1
 
 namespace jnc {
 namespace rt {
