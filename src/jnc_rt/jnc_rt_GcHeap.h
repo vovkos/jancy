@@ -455,7 +455,7 @@ protected:
 	void
 	parkAtSafePoint();
 
-	void
+	bool
 	abortThrow();
 };
 

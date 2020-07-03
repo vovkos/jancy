@@ -1930,12 +1930,24 @@ GcHeap::parkAtSafePoint(GcMutatorThread* thread)
 		abortThrow();
 }
 
-void
+bool
 GcHeap::abortThrow()
 {
+	// we may end up here during initializing/uninitializing a call-site (there is a
+	// safe-point inside waitIdleAndLock) -- so don't abort-throw unless there is a
+	// non-external SJLJ frame (so we are inside a call-site in a "stable" state)
+
+	Tls* tls = rt::getCurrentThreadTls();
+	ASSERT(tls);
+
+	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
+	if (!tlsVariableTable->m_sjljFrame)
+		return false;
+
 	err::setError("Jancy script execution forcibly interrupted");
 	Runtime::dynamicThrow();
 	ASSERT(false);
+	return true;
 }
 
 #if (_JNC_OS_WIN)
