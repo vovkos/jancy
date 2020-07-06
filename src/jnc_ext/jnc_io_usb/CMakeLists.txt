@@ -197,18 +197,6 @@ set(JNC_IO_USB_DLL ${DLL_DIR}/${JNC_IO_USB_NAME})
 set(JNC_IO_USB_JNCX ${DLL_DIR}/io_usb.jncx)
 set(JNC_IO_USB_JNCX_DEPENDS jnc_io_usb)
 
-if(APPLE AND JANCY_CODESIGN_OPTIONS)
-	add_custom_target(
-		jnc_io_usb_sign
-		ALL
-		COMMAND echo Signing ${JNC_IO_USB_NAME}...
-		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_USB_DLL}
-		DEPENDS jnc_io_usb
-		)
-
-	set(JNC_IO_USB_JNCX_DEPENDS jnc_io_usb_sign)
-endif()
-
 add_custom_target(
 	jnc_io_usb_jncx
 	ALL

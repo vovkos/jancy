@@ -198,18 +198,6 @@ set(JNC_IO_SSH_DLL ${DLL_DIR}/${JNC_IO_SSH_NAME})
 set(JNC_IO_SSH_JNCX ${DLL_DIR}/io_ssh.jncx)
 set(JNC_IO_SSH_JNCX_DEPENDS jnc_io_ssh)
 
-if(APPLE AND JANCY_CODESIGN_OPTIONS)
-	add_custom_target(
-		jnc_io_ssh_sign
-		ALL
-		COMMAND echo Signing ${JNC_IO_SSH_NAME}...
-		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_SSH_DLL}
-		DEPENDS jnc_io_ssh
-		)
-
-	set(JNC_IO_SSH_JNCX_DEPENDS jnc_io_ssh_sign)
-endif()
-
 add_custom_target(
 	jnc_io_ssh_jncx
 	ALL

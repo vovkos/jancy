@@ -178,18 +178,6 @@ set(JNC_IO_PCAP_DLL ${DLL_DIR}/${JNC_IO_PCAP_NAME})
 set(JNC_IO_PCAP_JNCX ${DLL_DIR}/io_pcap.jncx)
 set(JNC_IO_PCAP_JNCX_DEPENDS jnc_io_pcap)
 
-if(APPLE AND JANCY_CODESIGN_OPTIONS)
-	add_custom_target(
-		jnc_io_pcap_sign
-		ALL
-		COMMAND echo Signing ${JNC_IO_PCAP_NAME}...
-		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_PCAP_DLL}
-		DEPENDS jnc_io_pcap
-		)
-
-	set(JNC_IO_PCAP_JNCX_DEPENDS jnc_io_pcap_sign)
-endif()
-
 add_custom_target(
 	jnc_io_pcap_jncx
 	ALL

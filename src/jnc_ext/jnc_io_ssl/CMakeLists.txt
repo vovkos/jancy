@@ -189,18 +189,6 @@ set(JNC_IO_SSL_DLL ${DLL_DIR}/${JNC_IO_SSL_NAME})
 set(JNC_IO_SSL_JNCX ${DLL_DIR}/io_ssl.jncx)
 set(JNC_IO_SSL_JNCX_DEPENDS jnc_io_ssl)
 
-if(APPLE AND JANCY_CODESIGN_OPTIONS)
-	add_custom_target(
-		jnc_io_ssl_sign
-		ALL
-		COMMAND echo Signing ${JNC_IO_SSL_NAME}...
-		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_SSL_DLL}
-		DEPENDS jnc_io_ssl
-		)
-
-	set(JNC_IO_SSL_JNCX_DEPENDS jnc_io_ssl_sign)
-endif()
-
 add_custom_target(
 	jnc_io_ssl_jncx
 	ALL

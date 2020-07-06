@@ -219,18 +219,6 @@ set(JNC_IO_BASE_DLL ${DLL_DIR}/${JNC_IO_BASE_NAME})
 set(JNC_IO_BASE_JNCX ${DLL_DIR}/io_base.jncx)
 set(JNC_IO_BASE_JNCX_DEPENDS jnc_io_base)
 
-if(APPLE AND JANCY_CODESIGN_OPTIONS)
-	add_custom_target(
-		jnc_io_base_sign
-		ALL
-		COMMAND echo Signing ${JNC_IO_BASE_NAME}...
-		COMMAND codesign ${JANCY_CODESIGN_OPTIONS} ${JNC_IO_BASE_DLL}
-		DEPENDS jnc_io_base
-		)
-
-	set(JNC_IO_BASE_JNCX_DEPENDS jnc_io_base_sign)
-endif()
-
 add_custom_target(
 	jnc_io_base_jncx
 	ALL
