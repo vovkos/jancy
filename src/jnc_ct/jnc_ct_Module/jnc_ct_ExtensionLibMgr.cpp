@@ -76,6 +76,7 @@ ExtensionLibMgr::addStaticLib(ExtensionLib* lib)
 bool
 ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 {
+	static char jncxExt[] = ".jncx";
 	static char jncExt[] = ".jnc";
 	static char binExt[] = ".bin";
 
@@ -89,6 +90,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 
 	size_t dynamicLibFileIdx = -1;
 	sl::String dynamicLibFileName;
+	sl::String dynamicLibFilePath;
 
 	char buffer[256];
 	sl::Array<size_t> forcedImportIdxArray(ref::BufKind_Stack, buffer, sizeof(buffer));
@@ -125,7 +127,32 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		}
 	}
 
-	if (dynamicLibFileIdx == -1) // source-only extension
+	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin)
+	{
+		dynamicLibFilePath = fileName;
+
+		if (fileName.isSuffix(jncxExt))
+			dynamicLibFilePath.chop(lengthof(jncxExt));
+
+		dynamicLibFilePath += '-';
+		dynamicLibFilePath += AXL_CPU_STRING;
+		dynamicLibFilePath += binExt;
+
+		if (!io::doesFileExist(dynamicLibFilePath))
+			dynamicLibFilePath.clear();
+	}
+	else if (dynamicLibFileIdx != -1)
+	{
+		dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
+
+		result = entry->m_zipReader.extractFileToFile(dynamicLibFileIdx, dynamicLibFilePath);
+		if (!result)
+			return false;
+
+		entry->m_dynamicLibFilePath = dynamicLibFilePath;
+	}
+
+	if (dynamicLibFilePath.isEmpty()) // source-only jncx
 	{
 		size_t count = forcedImportIdxArray.getCount();
 		for (size_t i = 0; i < count; i++)
@@ -140,12 +167,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		return true;
 	}
 
-	entry->m_dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
-
-	result =
-		entry->m_zipReader.extractFileToFile(dynamicLibFileIdx, entry->m_dynamicLibFilePath) &&
-		entry->m_dynamicLib.open(entry->m_dynamicLibFilePath);
-
+	result = entry->m_dynamicLib.open(dynamicLibFilePath);
 	if (!result)
 		return false;
 
