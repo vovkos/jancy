@@ -21,6 +21,13 @@ namespace ct {
 Type*
 UnOp_Addr::getResultType(const Value& opValue)
 {
+	if (opValue.getValueKind() == ValueKind_Variable &&
+		opValue.getVariable()->getStorageKind() == StorageKind_Tls)
+	{
+		err::setFormatStringError("cannot take address of a 'threadlocal' variable");
+		return NULL;
+	}
+
 	union
 	{
 		Type* m_type;
