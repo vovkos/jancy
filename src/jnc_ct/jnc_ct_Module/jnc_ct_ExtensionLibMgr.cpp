@@ -127,7 +127,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		}
 	}
 
-	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin)
+	if (m_module->getCompileFlags() & ModuleCompileFlag_ExternalExtensionBin) // prefer external bin
 	{
 		dynamicLibFilePath = fileName;
 
@@ -141,7 +141,8 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		if (!io::doesFileExist(dynamicLibFilePath))
 			dynamicLibFilePath.clear();
 	}
-	else if (dynamicLibFileIdx != -1)
+
+	if (dynamicLibFilePath.isEmpty() && dynamicLibFileIdx != -1) // use zipped bin
 	{
 		dynamicLibFilePath.format("%s/%llx-%s", m_dynamicLibraryDir.sz(), sys::getTimestamp (), dynamicLibFileName.sz());
 
