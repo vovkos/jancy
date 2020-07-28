@@ -104,8 +104,6 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 void
 Module::clear()
 {
-	clearLlvm();
-
 	m_typeMgr.clear();
 	m_namespaceMgr.clear();
 	m_functionMgr.clear();
@@ -126,6 +124,8 @@ Module::clear()
 	m_filePathSet.clear();
 	m_functionMap.clear();
 	m_requireSet.clear();
+
+	clearLlvm();
 
 	m_constructor = NULL;
 
