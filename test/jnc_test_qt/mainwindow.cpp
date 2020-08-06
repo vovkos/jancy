@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 {
 	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
+	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	createMdiArea();
 	setCentralWidget(m_mdiArea);
@@ -387,11 +388,13 @@ bool MainWindow::compile()
 	if(!child->save())
 		return false;
 
+	writeOutput("Compiling...\n");
+
 	// DebugInfo does not work on Windows
 
 	uint_t compileFlags =
 		jnc::ModuleCompileFlag_StdFlags
-		| jnc::ModuleCompileFlag_SimpleGcSafePoint
+	//	| jnc::ModuleCompileFlag_SimpleGcSafePoint
 		;
 
 #if (!_JNC_OS_WIN)
@@ -403,10 +406,6 @@ bool MainWindow::compile()
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
-
-	AXL_TODO("once LLVM separation is done, we can enable error recovery")
-	// m_module->setCompileErrorHandler(compileErrorHandler, this);
-
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 	m_module->addStaticLib(TestLib_getLib());
@@ -421,8 +420,6 @@ bool MainWindow::compile()
 #	endif
 	m_module->addImportDir(libDir.toUtf8().constData());
 #endif
-
-	writeOutput("Compiling...\n");
 
 	m_modulePane->clear();
 	m_llvmIr->clear();

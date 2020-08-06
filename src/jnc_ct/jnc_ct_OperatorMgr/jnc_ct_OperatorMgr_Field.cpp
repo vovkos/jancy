@@ -425,6 +425,28 @@ OperatorMgr::getClassField(
 	ASSERT(opValue.getType()->getTypeKindFlags() & TypeKindFlag_ClassPtr);
 	ClassPtrType* opType = (ClassPtrType*)opValue.getType();
 
+	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe;
+	if (field->getStorageKind() == StorageKind_Mutable)
+		ptrTypeFlags &= ~PtrTypeFlag_Const;
+
+	if (!m_module->hasCodeGen())
+	{
+		Type* resultType = field->getType()->getTypeKind() == TypeKind_Class ?
+			(Type*)((ClassType*)field->getType())->getClassPtrType(
+				TypeKind_ClassRef,
+				ClassPtrTypeKind_Normal,
+				ptrTypeFlags
+				) :
+			field->getType()->getDataPtrType(
+				TypeKind_DataRef,
+				DataPtrTypeKind_Lean,
+				ptrTypeFlags
+				);
+
+		resultValue->setType(resultType);
+		return true;
+	}
+
 	checkNullPtr(opValue);
 
 	ClassType* classType = (ClassType*)field->getParentNamespace();
@@ -447,10 +469,6 @@ OperatorMgr::getClassField(
 		NULL,
 		&ptrValue
 		);
-
-	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags() | PtrTypeFlag_Safe;
-	if (field->getStorageKind() == StorageKind_Mutable)
-		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
 	if (field->getType()->getTypeKind() == TypeKind_Class)
 	{

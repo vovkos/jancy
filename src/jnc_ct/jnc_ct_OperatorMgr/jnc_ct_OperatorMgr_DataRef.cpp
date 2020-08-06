@@ -183,6 +183,9 @@ OperatorMgr::storeDataRef(
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	if (srcValue.getValueKind() != ValueKind_Const ||
 		dstValue.getValueKind() != ValueKind_Const)
 	{

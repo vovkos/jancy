@@ -33,11 +33,16 @@ dataPtrIncrementOperator(
 	DataPtrType* opType = (DataPtrType*)opValue1.getType();
 	DataPtrType* resultType = opType->getUnCheckedPtrType();
 	Type* targetType = opType->getTargetType();
-
 	if (targetType->getStdType() == StdType_AbstractData)
 	{
 		err::setError("pointer arithmetic is not applicable to 'anydata' pointers");
 		return false;
+	}
+
+	if (!module->hasCodeGen())
+	{
+		resultValue->setType(resultType);
+		return true;
 	}
 
 	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();

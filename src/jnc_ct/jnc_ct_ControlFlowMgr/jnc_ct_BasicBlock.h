@@ -44,14 +44,15 @@ class BasicBlock: public sl::ListLink
 protected:
 	Module* m_module;
 	uint_t m_flags;
-
 	sl::String m_name;
 	Function* m_function;
-	llvm::BasicBlock* m_llvmBlock;
-	llvm::DebugLoc m_llvmDebugLoc;
-
 	sl::SimpleHashTable<size_t, BasicBlock*> m_finallyRouteMap;
 	Scope* m_landingPadScope;
+
+	// codegen-only
+
+	llvm::BasicBlock* m_llvmBlock;
+	llvm::DebugLoc m_llvmDebugLoc;
 
 public:
 	BasicBlock();
@@ -71,18 +72,21 @@ public:
 	bool
 	isEmpty()
 	{
+		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getInstList().empty();
 	}
 
 	size_t
 	getInstructionCount()
 	{
+		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getInstList().size();
 	}
 
 	bool
 	hasTerminator()
 	{
+		ASSERT(m_llvmBlock);
 		return m_llvmBlock->getTerminator() != NULL;
 	}
 
@@ -114,6 +118,7 @@ public:
 	llvm::BasicBlock*
 	getLlvmBlock()
 	{
+		ASSERT(m_llvmBlock);
 		return m_llvmBlock;
 	}
 

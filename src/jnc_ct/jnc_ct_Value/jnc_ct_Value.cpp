@@ -336,12 +336,23 @@ Value::setNamespace(NamedType* type)
 void
 Value::setVariable(Variable* variable)
 {
+	Type* resultType = getDirectRefType(
+		variable->getType(),
+		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
+		);
+
+	if (!variable->getModule()->hasCodeGen())
+	{
+		setType(resultType);
+		return;
+	}
+
 	clear();
 
 	m_valueKind = ValueKind_Variable;
-	m_llvmValue = variable->getLlvmValue();
 	m_variable = variable;
-	m_type = getDirectRefType(variable->getType(), variable->getPtrTypeFlags() | PtrTypeFlag_Safe);
+	m_type = resultType;
+	m_llvmValue = variable->getLlvmValue();
 }
 
 bool
@@ -351,15 +362,23 @@ Value::trySetFunction(Function* function)
 	if (!result)
 		return false;
 
-	clear();
-
-	m_valueKind = ValueKind_Function;
-	m_function = function;
-	m_type = function->getType()->getFunctionPtrType(
+	FunctionPtrType* resultType = function->getType()->getFunctionPtrType(
 		TypeKind_FunctionRef,
 		FunctionPtrTypeKind_Thin,
 		PtrTypeFlag_Safe
 		);
+
+	if (!function->getModule()->hasCodeGen())
+	{
+		setType(resultType);
+		return true;
+	}
+
+	clear();
+
+	m_valueKind = ValueKind_Function;
+	m_function = function;
+	m_type = resultType;
 
 	if (!function->isVirtual())
 		m_llvmValue = function->getLlvmFunction();

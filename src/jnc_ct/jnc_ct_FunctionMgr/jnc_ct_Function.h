@@ -71,24 +71,20 @@ protected:
 		size_t m_libraryTableIndex;
 	};
 
-	// for property gettes/setters
-
-	Property* m_property;
-
+	Property* m_property; // for property gettes/setters
 	ExtensionNamespace* m_extensionNamespace;
-
 	UsingSet m_usingSet;
 
 	BasicBlock* m_allocaBlock;
 	BasicBlock* m_prologueBlock;
 	Scope* m_scope;
 
+	// codegen-only
+
+	sl::Array<TlsVariable> m_tlsVariableArray;
 	sl::String m_llvmFunctionName;
 	llvm::Function* m_llvmFunction;
 	llvm::DISubprogram_vn m_llvmDiSubprogram;
-
-	sl::Array<TlsVariable> m_tlsVariableArray;
-
 	void* m_machineCode; // native machine code
 
 public:

@@ -704,16 +704,16 @@ ClassType::prepareForOperatorNew()
 			return false;
 	}
 
-	if (!m_vtableStructType)
+	if (!m_module->hasCodeGen() || !m_vtableStructType)
 	{
 		m_flags |= ClassTypeFlag_Creatable;
 		return true;
 	}
 
+	count = m_vtable.getCount();
+
 	char buffer[256];
 	sl::Array<llvm::Constant*> llvmVtable(ref::BufKind_Stack, buffer, sizeof(buffer));
-
-	count = m_vtable.getCount();
 	llvmVtable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)

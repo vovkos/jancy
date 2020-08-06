@@ -187,6 +187,12 @@ FunctionMgr::prologue(
 	const lex::LineCol& pos
 	)
 {
+	if (!m_module->hasCodeGen())
+	{
+		prologueNoCodeGen(function, pos);
+		return;
+	}
+
 	m_currentFunction = function;
 
 	m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
@@ -230,6 +236,54 @@ FunctionMgr::prologue(
 
 	if (function->isMember())
 		createThisValue();
+}
+
+void
+FunctionMgr::prologueNoCodeGen(
+	Function* function,
+	const lex::LineCol& pos
+	)
+{
+	m_currentFunction = function;
+
+	// create entry blocks
+
+	function->m_prologueBlock = m_module->m_controlFlowMgr.createBlock("function_prologue");
+	function->m_prologueBlock->markEntry();
+	m_module->m_controlFlowMgr.setCurrentBlock(function->m_prologueBlock);
+
+	// create scope
+
+	m_module->m_namespaceMgr.openNamespace(function->m_parentNamespace);
+
+	function->m_scope = m_module->m_namespaceMgr.openScope(pos);
+
+	if (function->m_extensionNamespace)
+	{
+		function->m_scope->m_usingSet.addGlobalNamespace(function->m_extensionNamespace);
+		function->m_scope->m_usingSet.addExtensionNamespace(function->m_extensionNamespace);
+	}
+
+	if (function->m_type->getFlags() & FunctionTypeFlag_Unsafe)
+		m_module->m_operatorMgr.enterUnsafeRgn();
+
+	sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
+	size_t argCount = argArray.getCount();
+	for (size_t i = 0; i < argCount; i++)
+	{
+		FunctionArg* arg = argArray[i];
+		if (!arg->isNamed())
+			continue;
+
+		Variable* argVariable = m_module->m_variableMgr.createArgVariable(arg, i);
+		function->getScope()->addItem(argVariable);
+	}
+
+	BasicBlock* bodyBlock = m_module->m_controlFlowMgr.createBlock("function_body");
+	m_module->m_controlFlowMgr.jump(bodyBlock, bodyBlock);
+
+	if (function->isMember())
+		m_thisValue = function->m_thisType;
 }
 
 void

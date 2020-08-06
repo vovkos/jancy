@@ -189,15 +189,17 @@ protected:
 	size_t m_alignment;
 	sl::String m_signature;
 
-	llvm::Type* m_llvmType;
-	llvm::DIType_vn m_llvmDiType;
-
 	Variable* m_typeVariable;
 	TypeStringTuple* m_typeStringTuple;
 	SimplePropertyTypeTuple* m_simplePropertyTypeTuple;
 	FunctionArgTuple* m_functionArgTuple;
 	DataPtrTypeTuple* m_dataPtrTypeTuple;
 	DualTypeTuple* m_dualTypeTuple;
+
+	// codegen-only
+
+	llvm::Type* m_llvmType;
+	llvm::DIType_vn m_llvmDiType;
 
 public:
 	Type();

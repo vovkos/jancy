@@ -99,7 +99,7 @@ protected:
 
 	uint_t m_compileFlags;
 	ModuleCompileState m_compileState;
-	size_t m_compileErrorIgnoreCount;
+	size_t m_tryCompileLevel;
 	size_t m_compileErrorCount;
 	size_t m_compileErrorCountLimit;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
@@ -113,11 +113,13 @@ protected:
 
 	Function* m_constructor;
 
+	// codegen-only
+
 	llvm::LLVMContext* m_llvmContext;
 	llvm::Module* m_llvmModule;
 	llvm::ExecutionEngine* m_llvmExecutionEngine;
-public:
 
+public:
 	TypeMgr m_typeMgr;
 	AttributeMgr m_attributeMgr;
 	NamespaceMgr m_namespaceMgr;
@@ -133,6 +135,9 @@ public:
 	ExtensionLibMgr m_extensionLibMgr;
 	DoxyHost m_doxyHost;
 	dox::Module m_doxyModule;
+
+	// codegen-only
+
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
 
@@ -140,16 +145,16 @@ public:
 	Module();
 	~Module();
 
+	bool
+	hasCodeGen()
+	{
+		return m_llvmIrBuilder;
+	}
+
 	const sl::String&
 	getName()
 	{
 		return m_name;
-	}
-
-	bool
-	hasLlvm()
-	{
-		return m_llvmIrBuilder;
 	}
 
 	uint_t
@@ -173,13 +178,13 @@ public:
 	void
 	enterTryCompile()
 	{
-		m_compileErrorIgnoreCount++;
+		m_tryCompileLevel++;
 	}
 
 	void
 	leaveTryCompile()
 	{
-		m_compileErrorIgnoreCount--;
+		m_tryCompileLevel--;
 	}
 
 	bool

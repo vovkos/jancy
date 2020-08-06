@@ -14,6 +14,10 @@
 #include "jnc_ct_JitMemoryMgr.h"
 #include "jnc_ct_Parser.llk.h"
 
+#if (_AXL_DEBUG)
+#	define _JNC_TEST_NO_CODE_GEN 1
+#endif
+
 namespace jnc {
 
 //..............................................................................
@@ -42,16 +46,16 @@ Module::Module():
 {
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_compileErrorIgnoreCount = 0;
+	m_tryCompileLevel = 0;
 	m_compileErrorCount = 0;
 	m_compileErrorCountLimit = DefaultErrorCountLimit;
 	m_compileErrorHandler = NULL;
 	m_compileErrorHandlerContext = NULL;
+	m_constructor = NULL;
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
-	m_constructor = NULL;
 
 	finalizeConstruction();
 }
@@ -64,23 +68,17 @@ Module::~Module()
 bool
 Module::processCompileError(ModuleCompileErrorKind errorKind)
 {
-	if (m_compileErrorIgnoreCount)
+	if (m_tryCompileLevel)
 		return false;
 
-	size_t compileErrorCount = ++m_compileErrorCount;
-	if (compileErrorCount > m_compileErrorCountLimit)
+	if (++m_compileErrorCount > m_compileErrorCountLimit)
 	{
 		err::setFormatStringError("%d errors; error limit reached", m_compileErrorCount);
 		return false;
 	}
 
-	if (compileErrorCount == 1) // stop LLVM-IR emission after the very first error
-	{
-		AXL_TODO("LLVM calls are deeply interleaved with the rest of the code; need a major cleanup")
-
-		// clearLlvm();
-		m_compileFlags &= ~ModuleCompileFlag_DebugInfo;
-	}
+	if (m_compileErrorCount == 1) // stop code generation after the very first error
+		clearLlvm();
 
 	bool result =
 		m_compileErrorHandler &&
@@ -104,20 +102,6 @@ Module::processCompileError(ModuleCompileErrorKind errorKind)
 void
 Module::clear()
 {
-	m_typeMgr.clear();
-	m_namespaceMgr.clear();
-	m_functionMgr.clear();
-	m_variableMgr.clear();
-	m_constMgr.clear();
-	m_controlFlowMgr.clear();
-	m_operatorMgr.clear();
-	m_gcShadowStackMgr.clear();
-	m_regexMgr.clear();
-	m_unitMgr.clear();
-	m_importMgr.clear();
-	m_extensionLibMgr.clear();
-	m_doxyModule.clear();
-
 	m_name.clear();
 	m_compileArray.clear();
 	m_sourceList.clear();
@@ -125,14 +109,28 @@ Module::clear()
 	m_functionMap.clear();
 	m_requireSet.clear();
 
+	m_typeMgr.clear();
+	m_namespaceMgr.clear();
+	m_functionMgr.clear();
+	m_variableMgr.clear();
+	m_constMgr.clear();
+	m_operatorMgr.clear();
+	m_unitMgr.clear();
+	m_importMgr.clear();
+	m_extensionLibMgr.clear();
+	m_doxyModule.clear();
+	m_controlFlowMgr.clear();
+	m_gcShadowStackMgr.clear();
+	m_regexMgr.clear();
+
 	clearLlvm();
 
 	m_constructor = NULL;
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
-	m_compileErrorIgnoreCount = 0;
 	m_compileErrorCount = 0;
+	m_tryCompileLevel = 0;
 }
 
 void
@@ -152,6 +150,12 @@ Module::clearLlvm()
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
+
+	m_compileFlags &= ~(
+		ModuleCompileFlag_DebugInfo |
+		ModuleCompileFlag_GcSafePointInPrologue |
+		ModuleCompileFlag_GcSafePointInInternalPrologue
+		);
 }
 
 void
@@ -174,10 +178,10 @@ Module::initialize(
 	m_name = name;
 	m_compileFlags = compileFlags;
 	m_compileState = ModuleCompileState_Idle;
+	m_compileErrorCount = 0;
 
 	m_llvmContext = new llvm::LLVMContext;
 	m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
-
 	m_llvmIrBuilder.create();
 
 	if (compileFlags & ModuleCompileFlag_DebugInfo)
@@ -191,6 +195,11 @@ Module::initialize(
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}
+
+#if (_JNC_TEST_NO_CODE_GEN)
+	err::setError("testing compilation without codegen...");
+	processCompileError(ModuleCompileErrorKind_PostParse);
+#endif
 }
 
 #if (JNC_PTR_BITS == 32)

@@ -81,6 +81,9 @@ protected:
 
 	sl::Array<char> m_constData;
 	ref::Ptr<Closure> m_closure;
+
+	// codegen-only
+
 	ref::Ptr<DynamicFieldValueInfo> m_dynamicFieldInfo;
 	mutable ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	mutable llvm::Value* m_llvmValue;

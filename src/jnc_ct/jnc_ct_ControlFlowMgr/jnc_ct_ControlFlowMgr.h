@@ -488,9 +488,6 @@ public:
 
 protected:
 	void
-	addBlock(BasicBlock* block);
-
-	void
 	escapeScope(
 		Scope* targetScope,
 		BasicBlock* targetBlock

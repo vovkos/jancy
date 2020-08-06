@@ -179,7 +179,7 @@ StructType::calcLayout()
 	}
 
 	if (m_fieldAlignedSize > m_fieldActualSize)
-		insertPadding(m_fieldAlignedSize - m_fieldActualSize);
+		addLlvmPadding(m_fieldAlignedSize - m_fieldActualSize);
 
 	// scan members for gcroots and constructors (but not for auxilary structs such as class iface)
 
@@ -298,11 +298,14 @@ StructType::calcLayout()
 	}
 	else
 	{
-		llvm::StructType* llvmStructType = (llvm::StructType*)getLlvmType();
-		llvmStructType->setBody(
-			llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount()),
-			true
-			);
+		if (m_module->hasCodeGen())
+		{
+			llvm::StructType* llvmStructType = (llvm::StructType*)getLlvmType();
+			llvmStructType->setBody(
+				llvm::ArrayRef<llvm::Type*> (m_llvmFieldTypeArray, m_llvmFieldTypeArray.getCount()),
+				true
+				);
+		}
 
 		m_size = m_fieldAlignedSize;
 		if (m_size > TypeSizeLimit_StackAllocSize)
@@ -384,32 +387,31 @@ StructType::layoutField(Field* field)
 
 bool
 StructType::layoutField(
-	llvm::Type* llvmType,
-	size_t size,
-	size_t alignment,
+	Type* type,
 	size_t* offset_o,
 	uint_t* llvmIndex
 	)
 {
+	size_t alignment = type->getAlignment();
 	if (alignment > m_alignment)
 		m_alignment = AXL_MIN(alignment, m_fieldAlignment);
 
 	size_t offset = getFieldOffset(alignment);
 	if (offset > m_fieldActualSize)
-		insertPadding(offset - m_fieldActualSize);
+		addLlvmPadding(offset - m_fieldActualSize);
 
 	*offset_o = offset;
 
-	if (!(m_flags & TypeFlag_Dynamic))
+	if (m_module->hasCodeGen() && !(m_flags & TypeFlag_Dynamic))
 	{
 		*llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
-		m_llvmFieldTypeArray.append(llvmType);
+		m_llvmFieldTypeArray.append(type->getLlvmType());
 	}
 
 	m_lastBitFieldType = NULL;
 	m_lastBitFieldOffset = 0;
 
-	setFieldActualSize(offset + size);
+	setFieldActualSize(offset + type->getSize());
 	return true;
 }
 
@@ -485,11 +487,11 @@ StructType::layoutBitField(
 	m_lastBitFieldOffset = offset;
 
 	if (offset > m_fieldActualSize)
-		insertPadding(offset - m_fieldActualSize);
+		addLlvmPadding(offset - m_fieldActualSize);
 
 	*offset_o = offset;
 
-	if (!(m_flags & TypeFlag_Dynamic))
+	if (m_module->hasCodeGen() && !(m_flags & TypeFlag_Dynamic))
 	{
 		*llvmIndex = (uint_t)m_llvmFieldTypeArray.getCount();
 		m_llvmFieldTypeArray.append(type->getLlvmType());
@@ -530,12 +532,14 @@ StructType::setFieldActualSize(size_t size)
 	return m_fieldAlignedSize;
 }
 
-ArrayType*
-StructType::insertPadding(size_t size)
+void
+StructType::addLlvmPadding(size_t size)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	ArrayType* type = m_module->m_typeMgr.getArrayType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Char), size);
 	m_llvmFieldTypeArray.append(type->getLlvmType());
-	return type;
 }
 
 void

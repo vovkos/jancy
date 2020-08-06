@@ -30,6 +30,7 @@ BasicBlock::BasicBlock()
 Value
 BasicBlock::getBlockAddressValue()
 {
+	ASSERT(m_llvmBlock);
 	llvm::BlockAddress* llvmAddress = llvm::BlockAddress::get(m_function->getLlvmFunction(), m_llvmBlock);
 
 	Value value;

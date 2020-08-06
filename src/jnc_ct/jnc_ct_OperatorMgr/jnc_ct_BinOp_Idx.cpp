@@ -142,9 +142,6 @@ BinOp_Idx::arrayIndexOperator(
 	}
 
 	DataPtrType* opType1 = (DataPtrType*)opValue1.getType();
-
-	DataPtrType* ptrType;
-
 	uint_t ptrTypeFlags = opType1->getFlags();
 
 	if (ptrTypeFlags & PtrTypeFlag_Safe)
@@ -170,26 +167,49 @@ BinOp_Idx::arrayIndexOperator(
 	}
 
 	Value ptrValue;
-
 	DataPtrTypeKind ptrTypeKind = opType1->getPtrTypeKind();
-	if (ptrTypeKind == DataPtrTypeKind_Thin)
+	DataPtrType* ptrType;
+
+	if (!m_module->hasCodeGen())
 	{
-		ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
-		m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
+		switch (ptrTypeKind)
+		{
+		case DataPtrTypeKind_Thin:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
+			break;
+
+		case DataPtrTypeKind_Lean:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+			break;
+
+		default: // DataPtrTypeKind_Normal
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+		}
+
+		resultValue->setType(ptrType);
 	}
-	else if (ptrTypeKind == DataPtrTypeKind_Lean)
+	else
 	{
-		ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
-		m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
-		resultValue->setLeanDataPtrValidator(opValue1.getLeanDataPtrValidator());
-	}
-	else // DataPtrTypeKind_Normal
-	{
-		ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
-		m_module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
-		m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
-		m_module->m_llvmIrBuilder.createGep(ptrValue, opValue2, ptrType, resultValue);
-		resultValue->setLeanDataPtrValidator(opValue1);
+		switch (ptrTypeKind)
+		{
+		case DataPtrTypeKind_Thin:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Thin, ptrTypeFlags);
+			m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
+			break;
+
+		case DataPtrTypeKind_Lean:
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+			m_module->m_llvmIrBuilder.createGep2(opValue1, opValue2, ptrType, resultValue);
+			resultValue->setLeanDataPtrValidator(opValue1.getLeanDataPtrValidator());
+			break;
+
+		default: // DataPtrTypeKind_Normal
+			ptrType = elementType->getDataPtrType(TypeKind_DataRef, DataPtrTypeKind_Lean, ptrTypeFlags);
+			m_module->m_llvmIrBuilder.createExtractValue(opValue1, 0, NULL, &ptrValue);
+			m_module->m_llvmIrBuilder.createBitCast(ptrValue, ptrType, &ptrValue);
+			m_module->m_llvmIrBuilder.createGep(ptrValue, opValue2, ptrType, resultValue);
+			resultValue->setLeanDataPtrValidator(opValue1);
+		}
 	}
 
 	return true;

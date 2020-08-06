@@ -317,6 +317,12 @@ public:
 
 protected:
 	void
+	prologueNoCodeGen(
+		Function* function,
+		const lex::LineCol& pos
+		);
+
+	void
 	injectTlsPrologue(Function* function);
 
 	void

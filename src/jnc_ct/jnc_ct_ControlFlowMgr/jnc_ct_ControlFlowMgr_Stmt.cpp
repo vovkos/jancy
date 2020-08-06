@@ -555,6 +555,9 @@ ControlFlowMgr::onceStmt_PreBody(
 {
 	bool result;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	StorageKind storageKind = stmt->m_flagVariable->getStorageKind();
 	ASSERT(storageKind == StorageKind_Static || storageKind == StorageKind_Tls);
 
@@ -645,6 +648,9 @@ ControlFlowMgr::onceStmt_PostBody(
 	const lex::LineCol& pos
 	)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	StorageKind storageKind = stmt->m_flagVariable->getStorageKind();
 	ASSERT(storageKind == StorageKind_Static || storageKind == StorageKind_Tls);
 

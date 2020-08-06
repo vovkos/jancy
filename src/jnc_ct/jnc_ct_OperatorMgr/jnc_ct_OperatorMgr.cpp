@@ -509,6 +509,12 @@ OperatorMgr::castOperator(
 {
 	bool result;
 
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(type);
+		return true;
+	}
+
 	if (rawOpValue.getValueKind() == ValueKind_Null)
 	{
 		if ((type->getTypeKindFlags() & TypeKindFlag_Ptr) && (type->getFlags() & PtrTypeFlag_Safe))
@@ -1307,6 +1313,9 @@ OperatorMgr::prepareOperand(
 	)
 {
 	bool result;
+
+	if (!m_module->hasCodeGen())
+		return prepareOperandType(opValue, resultValue, opFlags);
 
 	switch (opValue.getValueKind())
 	{

@@ -111,11 +111,13 @@ ControlFlowMgr::createBlock(
 	block->m_module = m_module;
 	block->m_name = name;
 	block->m_flags = flags;
-	block->m_llvmBlock = llvm::BasicBlock::Create(
-		*m_module->getLlvmContext(),
-		name >> toLlvm,
-		NULL
-		);
+
+	if (m_module->hasCodeGen())
+		block->m_llvmBlock = llvm::BasicBlock::Create(
+			*m_module->getLlvmContext(),
+			name >> toLlvm,
+			NULL
+			);
 
 	m_blockList.insertTail(block);
 	return block;
@@ -139,15 +141,25 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block)
 		return block;
 
 	BasicBlock* prevCurrentBlock = m_currentBlock;
+	m_currentBlock = block;
+
+	if (!m_module->hasCodeGen())
+		return prevCurrentBlock;
+
 	if (prevCurrentBlock)
 		prevCurrentBlock->m_llvmDebugLoc = m_module->m_llvmIrBuilder.getCurrentDebugLoc();
 
-	m_currentBlock = block;
 	if (!block)
 		return prevCurrentBlock;
 
 	if (!block->m_function)
-		addBlock(block);
+	{
+		Function* function = m_module->m_functionMgr.getCurrentFunction();
+		ASSERT(function);
+
+		function->getLlvmFunction()->getBasicBlockList().push_back(block->m_llvmBlock);
+		block->m_function = function;
+	}
 
 	m_module->m_llvmIrBuilder.setInsertPoint(block);
 
@@ -161,18 +173,6 @@ ControlFlowMgr::setCurrentBlock(BasicBlock* block)
 		m_module->m_llvmIrBuilder.setCurrentDebugLoc(block->m_llvmDebugLoc);
 
 	return prevCurrentBlock;
-}
-
-void
-ControlFlowMgr::addBlock(BasicBlock* block)
-{
-	ASSERT(!block->m_function);
-
-	Function* function = m_module->m_functionMgr.getCurrentFunction();
-	ASSERT(function);
-
-	function->getLlvmFunction()->getBasicBlockList().push_back(block->m_llvmBlock);
-	block->m_function = function;
 }
 
 bool
@@ -259,7 +259,7 @@ ControlFlowMgr::traceAllBlocks()
 BasicBlock*
 ControlFlowMgr::getUnreachableBlock()
 {
-	if (m_unreachableBlock && m_unreachableBlock->getInstructionCount() == 1)
+	if (m_unreachableBlock)
 		return m_unreachableBlock;
 
 	m_unreachableBlock = createBlock("unreachable_block");
@@ -333,8 +333,10 @@ ControlFlowMgr::getReturnValueVariable()
 void
 ControlFlowMgr::markUnreachable(BasicBlock* block)
 {
-	ASSERT(block->isEmpty() && block->m_flags == 0);
+	if (!m_module->hasCodeGen())
+		return;
 
+	ASSERT(block->isEmpty() && block->m_flags == 0);
 	BasicBlock* prevCurrentBlock = setCurrentBlock(block);
 	m_module->m_llvmIrBuilder.createUnreachable();
 	setCurrentBlock(prevCurrentBlock);
@@ -348,7 +350,8 @@ ControlFlowMgr::jump(
 {
 	block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
 
-	m_module->m_llvmIrBuilder.createBr(block);
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.createBr(block);
 
 	if (!followBlock)
 		followBlock = getUnreachableBlock();
@@ -359,7 +362,7 @@ ControlFlowMgr::jump(
 void
 ControlFlowMgr::follow(BasicBlock* block)
 {
-	if (!m_currentBlock->hasTerminator())
+	if (m_module->hasCodeGen() && !m_currentBlock->hasTerminator())
 	{
 		m_module->m_llvmIrBuilder.createBr(block);
 		block->m_flags |= BasicBlockFlag_Jumped | (m_currentBlock->m_flags & BasicBlockFlag_Reachable);
@@ -386,7 +389,8 @@ ControlFlowMgr::conditionalJump(
 	thenBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 	elseBlock->m_flags |= BasicBlockFlag_Jumped | reachableFlag;
 
-	m_module->m_llvmIrBuilder.createCondBr(boolValue, thenBlock, elseBlock);
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.createCondBr(boolValue, thenBlock, elseBlock);
 
 	if (!followBlock)
 		followBlock = thenBlock;
@@ -429,6 +433,9 @@ ControlFlowMgr::escapeScope(
 	BasicBlock* targetBlock
 	)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	size_t routeIdx = ++m_finallyRouteIdx;
 
 	BasicBlock* firstFinallyBlock = NULL;
@@ -536,7 +543,9 @@ ControlFlowMgr::ret(const Value& value)
 		}
 
 		escapeScope(NULL, NULL);
-		m_module->m_llvmIrBuilder.createRet();
+
+		if (m_module->hasCodeGen())
+			m_module->m_llvmIrBuilder.createRet();
 	}
 	else
 	{
@@ -571,7 +580,8 @@ ControlFlowMgr::ret(const Value& value)
 
 		escapeScope(NULL, NULL);
 
-		functionType->getCallConv()->ret(function, returnValue);
+		if (m_module->hasCodeGen())
+			functionType->getCallConv()->ret(function, returnValue);
 	}
 
 	ASSERT(!(m_currentBlock->m_flags & BasicBlockFlag_Return));
@@ -584,7 +594,7 @@ ControlFlowMgr::ret(const Value& value)
 bool
 ControlFlowMgr::checkReturn()
 {
-	if (m_currentBlock->hasTerminator())
+	if (m_module->hasCodeGen() && m_currentBlock->hasTerminator())
 		return true;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
@@ -602,7 +612,8 @@ ControlFlowMgr::checkReturn()
 
 	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
 	{
-		m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
+		if (m_module->hasCodeGen())
+			m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
 	}
 	else if (returnType->getTypeKind() == TypeKind_Void)
 	{

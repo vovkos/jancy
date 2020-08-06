@@ -198,6 +198,12 @@ VariableMgr::allocateVariable(Variable* variable)
 			return false;
 	}
 
+	if (!m_module->hasCodeGen())
+	{
+		variable->m_flags |= VariableFlag_Allocated;
+		return true;
+	}
+
 	Value ptrValue;
 	switch (variable->m_storageKind)
 	{
@@ -314,37 +320,38 @@ VariableMgr::initializeVariable(Variable* variable)
 		return false;
 	}
 
-	switch (variable->m_storageKind)
-	{
-	case StorageKind_Static:
-		// only local class statics need to be primed (globals are primed in module constructor,
-		// type/property member static variables are primed in static constructor)
-
-		if (variable->m_type->getTypeKind() == TypeKind_Class &&
-			variable->m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope)
-			primeStaticClassVariable(variable);
-		break;
-
-	case StorageKind_Tls:
-	case StorageKind_Heap:
-		break;
-
-	case StorageKind_Stack:
-		if (variable->m_type->getFlags() & TypeFlag_GcRoot)
+	if (m_module->hasCodeGen())
+		switch (variable->m_storageKind)
 		{
-			m_module->m_operatorMgr.zeroInitialize(variable);
-			m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
-		}
-		else if ((variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty())
-		{
-			m_module->m_operatorMgr.zeroInitialize(variable);
-		}
+		case StorageKind_Static:
+			// only local class statics need to be primed (globals are primed in module constructor,
+			// type/property member static variables are primed in static constructor)
 
-		break;
+			if (variable->m_type->getTypeKind() == TypeKind_Class &&
+				variable->m_parentNamespace->getNamespaceKind() == NamespaceKind_Scope)
+				primeStaticClassVariable(variable);
+			break;
 
-	default:
-		ASSERT(false);
-	};
+		case StorageKind_Tls:
+		case StorageKind_Heap:
+			break;
+
+		case StorageKind_Stack:
+			if (variable->m_type->getFlags() & TypeFlag_GcRoot)
+			{
+				m_module->m_operatorMgr.zeroInitialize(variable);
+				m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
+			}
+			else if ((variable->m_type->getTypeKindFlags() & TypeKindFlag_Aggregate) || variable->m_initializer.isEmpty())
+			{
+				m_module->m_operatorMgr.zeroInitialize(variable);
+			}
+
+			break;
+
+		default:
+			ASSERT(false);
+		};
 
 	Unit* prevUnit = variable->m_parentUnit ? m_module->m_unitMgr.setCurrentUnit(variable->m_parentUnit) : NULL;
 

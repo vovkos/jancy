@@ -477,6 +477,9 @@ OperatorMgr::callImpl(
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	functionType->getCallConv()->call(
 		pfnValue,
 		functionType,
@@ -496,6 +499,9 @@ OperatorMgr::callImpl(
 void
 OperatorMgr::gcSafePoint()
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	if (m_module->getCompileFlags() & ModuleCompileFlag_SimpleGcSafePoint)
 	{
 		Function* function = m_module->m_functionMgr.getStdFunction(StdFunc_GcSafePoint);

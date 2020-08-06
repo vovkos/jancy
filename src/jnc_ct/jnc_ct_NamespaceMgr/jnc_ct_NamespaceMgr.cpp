@@ -322,7 +322,8 @@ NamespaceMgr::openInternalScope()
 
 	// if this scope creates any gc roots, frame map should be set before any of those
 
-	m_module->m_llvmIrBuilder.saveInsertPoint(&scope->m_gcShadowStackFrameMapInsertPoint);
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.saveInsertPoint(&scope->m_gcShadowStackFrameMapInsertPoint);
 
 	m_scopeList.insertTail(scope);
 

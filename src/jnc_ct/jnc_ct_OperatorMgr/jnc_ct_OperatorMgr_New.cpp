@@ -521,6 +521,17 @@ OperatorMgr::gcHeapAllocate(
 {
 	bool result;
 
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(
+			type->getTypeKind() == TypeKind_Class ?
+				(Type*)((ClassType*)type)->getClassPtrType() :
+				type->getDataPtrType()
+			);
+
+		return true;
+	}
+
 	Value typeValue(&type, m_module->m_typeMgr.getStdType(StdType_BytePtr));
 
 	Function* allocate;
@@ -555,11 +566,12 @@ OperatorMgr::gcHeapAllocate(
 		allocateArgValueList.insertTail(countValue);
 	}
 
-	m_module->m_operatorMgr.callOperator(
+	result = m_module->m_operatorMgr.callOperator(
 		allocate,
 		&allocateArgValueList,
 		&ptrValue
 		);
+
 
 	if (type->getTypeKind() == TypeKind_Class)
 		m_module->m_llvmIrBuilder.createBitCast(ptrValue, ((ClassType*)type)->getClassPtrType(), resultValue);

@@ -67,6 +67,12 @@ public:
 		if (!result)
 			return false;
 
+		if (!m_module->hasCodeGen())
+		{
+			resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+			return true;
+		}
+
 		if (opValue1.getValueKind() == ValueKind_Const && opValue2.getValueKind() == ValueKind_Const)
 		{
 			TypeKind typeKind = type->getTypeKind();

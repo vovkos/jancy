@@ -135,30 +135,10 @@ protected:
 
 	bool
 	layoutField(
-		llvm::Type* llvmType,
-		size_t size,
-		size_t alignment,
-		size_t* offset,
-		uint_t* llvmIndex
-		);
-
-	bool
-	layoutField(
 		Type* type,
 		size_t* offset,
 		uint_t* llvmIndex
-		)
-	{
-		return
-			type->ensureLayout() &&
-			layoutField(
-				type->getLlvmType(),
-				type->getSize(),
-				type->getAlignment(),
-				offset,
-				llvmIndex
-				);
-	}
+		);
 
 	bool
 	layoutBitField(
@@ -175,8 +155,8 @@ protected:
 	size_t
 	setFieldActualSize(size_t size);
 
-	ArrayType*
-	insertPadding(size_t size);
+	void
+	addLlvmPadding(size_t size);
 };
 
 //..............................................................................

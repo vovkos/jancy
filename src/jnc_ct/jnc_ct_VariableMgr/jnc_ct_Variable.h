@@ -53,6 +53,9 @@ protected:
 	uint_t m_ptrTypeFlags;
 	sl::BoxList<Token> m_constructor;
 	Scope* m_scope;
+
+	// codegen-only
+
 	Field* m_tlsField;
 	void* m_staticData;
 	ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
