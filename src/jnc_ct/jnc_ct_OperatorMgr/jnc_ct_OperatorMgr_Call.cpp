@@ -449,9 +449,18 @@ OperatorMgr::callClosureFunctionPtr(
 
 	Value pfnValue;
 	Value ifaceValue;
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &ifaceValue);
-	m_module->m_llvmIrBuilder.createBitCast(pfnValue, functionThinPtrType, &pfnValue);
+
+	if (!m_module->hasCodeGen())
+	{
+		pfnValue.setType(functionThinPtrType);
+		ifaceValue.setType(m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr));
+	}
+	else
+	{
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr), &ifaceValue);
+		m_module->m_llvmIrBuilder.createBitCast(pfnValue, functionThinPtrType, &pfnValue);
+	}
 
 	argValueList->insertHead(ifaceValue);
 	return callImpl(pfnValue, abstractMethodType, argValueList, resultValue);
@@ -478,7 +487,10 @@ OperatorMgr::callImpl(
 		return false;
 
 	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(functionType->getReturnType());
 		return true;
+	}
 
 	functionType->getCallConv()->call(
 		pfnValue,

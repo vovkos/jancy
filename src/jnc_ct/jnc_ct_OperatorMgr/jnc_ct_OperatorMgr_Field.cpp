@@ -233,14 +233,23 @@ OperatorMgr::getStructField(
 	DataPtrType* opType = (DataPtrType*)opValue.getType();
 	coord->m_llvmIndexArray.insert(0, 0);
 
+	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
 	uint_t ptrTypeFlags = opType->getFlags() | field->getPtrTypeFlags();
 	if (field->getStorageKind() == StorageKind_Mutable)
 		ptrTypeFlags &= ~PtrTypeFlag_Const;
 
-	DataPtrTypeKind ptrTypeKind = opType->getPtrTypeKind();
+	DataPtrType* resultType;
+
+	if (!m_module->hasCodeGen())
+	{
+		resultType = field->getType()->getDataPtrType(TypeKind_DataRef, ptrTypeKind, ptrTypeFlags);
+		resultValue->setType(resultType);
+		return true;
+	}
+
 	if (ptrTypeKind == DataPtrTypeKind_Thin)
 	{
-		DataPtrType* resultType = field->getType()->getDataPtrType(
+		resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Thin,
 			ptrTypeFlags
@@ -264,7 +273,7 @@ OperatorMgr::getStructField(
 
 	if (opType->getTargetType()->getFlags() & TypeFlag_Pod)
 	{
-		DataPtrType* resultType = field->getType()->getDataPtrType(
+		resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
@@ -279,7 +288,7 @@ OperatorMgr::getStructField(
 			return false;
 
 		ptrTypeFlags |= PtrTypeFlag_Safe;
-		DataPtrType* resultType = field->getType()->getDataPtrType(
+		resultType = field->getType()->getDataPtrType(
 			TypeKind_DataRef,
 			DataPtrTypeKind_Lean,
 			ptrTypeFlags
@@ -339,6 +348,12 @@ OperatorMgr::getDynamicField(
 		DataPtrTypeKind_Lean,
 		ptrTypeFlags
 		);
+
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(resultType);
+		return true;
+	}
 
 	m_module->m_llvmIrBuilder.createBitCast(ptrValue, resultType, &ptrValue);
 	resultValue->setLeanDataPtr(ptrValue.getLlvmValue(), resultType, opValue);

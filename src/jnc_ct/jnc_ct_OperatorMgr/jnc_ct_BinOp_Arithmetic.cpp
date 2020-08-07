@@ -185,11 +185,15 @@ dataPtrDifferenceOperator(
 	if (opValue1.getValueKind() == ValueKind_Const &&
 		opValue2.getValueKind() == ValueKind_Const)
 	{
-		char* p1 = *(char**) opValue1.getConstData();
-		char* p2 = *(char**) opValue2.getConstData();
+		char* p1 = *(char**)opValue1.getConstData();
+		char* p2 = *(char**)opValue2.getConstData();
 		intptr_t diff = (p1 - p2) / size;
 
 		resultValue->setConstSizeT(diff, type);
+	}
+	else if (!module->hasCodeGen())
+	{
+		resultValue->setType(type);
 	}
 	else
 	{

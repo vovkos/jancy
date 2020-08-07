@@ -85,10 +85,10 @@ MulticastClassType::compileCallMethod(Function* function)
 	if (!result)
 		return false;
 
-	size_t argCount = function->getType()->getArgArray().getCount();
-
 	char buffer[256];
 	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+
+	size_t argCount = function->getType()->getArgArray().getCount();
 	argValueArray.setCount(argCount);
 
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);

@@ -994,7 +994,7 @@ Module::processCompileArray()
 			ASSERT(!m_namespaceMgr.getCurrentScope());
 		}
 
-		if (!m_variableMgr.getGlobalVariablePrimeArray().isEmpty())
+		if (hasCodeGen() && !m_variableMgr.getGlobalVariablePrimeArray().isEmpty())
 		{
 			Function* function = createGlobalPrimerFunction();
 			m_functionMgr.addGlobalCtorDtor(GlobalCtorDtorKind_VariablePrimer, function);

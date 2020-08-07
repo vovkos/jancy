@@ -157,12 +157,13 @@ ControlFlowMgr::switchStmt_Follow(SwitchStmt* stmt)
 	BasicBlock* defaultBlock = stmt->m_defaultBlock ? stmt->m_defaultBlock : stmt->m_followBlock;
 	defaultBlock->m_flags |= (stmt->m_switchBlock->m_flags & BasicBlockFlag_Reachable);
 
-	m_module->m_llvmIrBuilder.createSwitch(
-		stmt->m_value,
-		defaultBlock,
-		stmt->m_caseMap.getHead(),
-		stmt->m_caseMap.getCount()
-		);
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.createSwitch(
+			stmt->m_value,
+			defaultBlock,
+			stmt->m_caseMap.getHead(),
+			stmt->m_caseMap.getCount()
+			);
 
 	setCurrentBlock(stmt->m_followBlock);
 }
@@ -354,12 +355,13 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 	if (!result)
 		return false;
 
-	m_module->m_llvmIrBuilder.createSwitch(
-		resultValue,
-		defaultBlock,
-		caseMap.getHead(),
-		caseMap.getCount()
-		);
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.createSwitch(
+			resultValue,
+			defaultBlock,
+			caseMap.getHead(),
+			caseMap.getCount()
+			);
 
 	setCurrentBlock(stmt->m_followBlock);
 	return true;

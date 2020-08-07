@@ -93,6 +93,7 @@ public:
 	bool
 	hasReturn()
 	{
+		ASSERT(m_llvmBlock);
 		llvm::Instruction* inst = m_llvmBlock->getTerminator();
 		return inst && inst->getOpcode() == llvm::Instruction::Ret;
 	}

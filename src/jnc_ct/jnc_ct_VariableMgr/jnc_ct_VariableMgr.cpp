@@ -398,11 +398,15 @@ VariableMgr::finalizeDisposableVariable(Variable* variable)
 
 	size_t count = variable->m_scope->addDisposableVariable(ptrVariable);
 
-	Variable* disposeLevelVariable = variable->m_scope->getDisposeLevelVariable();
-	m_module->m_llvmIrBuilder.createStore(
-		Value(&count, disposeLevelVariable->m_type),
-		disposeLevelVariable
-		);
+	if (m_module->hasCodeGen())
+	{
+		Variable* disposeLevelVariable = variable->m_scope->getDisposeLevelVariable();
+
+		m_module->m_llvmIrBuilder.createStore(
+			Value(&count, disposeLevelVariable->m_type),
+			disposeLevelVariable
+			);
+	}
 
 	return true;
 }

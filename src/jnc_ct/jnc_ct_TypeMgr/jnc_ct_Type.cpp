@@ -318,6 +318,13 @@ Type::getZeroValue()
 {
 	AXL_TODO("Type::getZeroValue () probably should return ValueKind_Const")
 
+	if (!m_module->hasCodeGen())
+	{
+		Value value;
+		value.createConst(NULL, this);
+		return value;
+	}
+
 	llvm::Value* llvmValue = llvm::Constant::getNullValue(getLlvmType());
 	return Value(llvmValue, this);
 }

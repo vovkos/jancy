@@ -87,13 +87,21 @@ OperatorMgr::getPropertyVtable(
 	Type* resultType = propertyType->getVtableStructType()->getDataPtrType_c();
 	Type* closureType = m_module->m_typeMgr.getStdType(StdType_AbstractClassPtr);
 
-	Value vtableValue;
 	Value closureValue;
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &vtableValue);
-	m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, closureType, &closureValue);
-	m_module->m_llvmIrBuilder.createBitCast(vtableValue, vtableType, resultValue);
 
-	resultValue->overrideType(resultType);
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(resultType);
+		closureValue.setType(closureType);
+	}
+	else
+	{
+		Value vtableValue;
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, NULL, &vtableValue);
+		m_module->m_llvmIrBuilder.createExtractValue(opValue, 1, closureType, &closureValue);
+		m_module->m_llvmIrBuilder.createBitCast(vtableValue, vtableType, resultValue);
+		resultValue->overrideType(resultType);
+	}
 
 	Closure* closure = opValue.getClosure();
 	if (closure)
@@ -210,22 +218,27 @@ OperatorMgr::getPropertySetter(
 	}
 
 	FunctionType* setterType = setterTypeOverload->getOverload(i);
+	FunctionPtrType* setterPtrType = setterType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe);
 
 	Value vtableValue;
 	result = getPropertyVtable(opValue, &vtableValue);
 	if (!result)
 		return false;
 
-	size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 2 : 1;
-	index += i;
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(setterPtrType);
+	}
+	else
+	{
+		size_t index = (propertyType->getFlags() & PropertyTypeFlag_Bindable) ? 2 : 1;
+		index += i;
 
-	Value pfnValue;
-	m_module->m_llvmIrBuilder.createGep2(vtableValue, index, NULL, &pfnValue);
-	m_module->m_llvmIrBuilder.createLoad(
-		pfnValue,
-		setterType->getFunctionPtrType(FunctionPtrTypeKind_Thin, PtrTypeFlag_Safe),
-		resultValue
-		);
+		Value pfnValue;
+		m_module->m_llvmIrBuilder.createGep2(vtableValue, index, NULL, &pfnValue);
+		m_module->m_llvmIrBuilder.createLoad(pfnValue, setterPtrType, resultValue);
+	}
+
 
 	resultValue->setClosure(vtableValue.getClosure());
 	return true;

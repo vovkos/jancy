@@ -105,6 +105,9 @@ ControlFlowMgr::setJmp(
 	size_t sjljFrameIdx
 	)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	if (!m_sjljFrameArrayValue)
 		preCreateSjljFrameArray();
 
@@ -133,6 +136,9 @@ ControlFlowMgr::setJmpFinally(
 	size_t sjljFrameIdx
 	)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	BasicBlock* catchBlock = createBlock("finally_sjlj_block");
 	setJmp(catchBlock, sjljFrameIdx);
 
@@ -148,6 +154,9 @@ ControlFlowMgr::setJmpFinally(
 void
 ControlFlowMgr::beginTryOperator(TryExpr* tryExpr)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	tryExpr->m_prev = scope->m_tryExpr;
 	tryExpr->m_catchBlock = createBlock("try_catch_block");
@@ -165,11 +174,6 @@ ControlFlowMgr::endTryOperator(
 	Value* value
 	)
 {
-	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
-
-	BasicBlock* prevBlock = m_currentBlock;
-	BasicBlock* phiBlock = createBlock("try_phi_block");
-
 	Value errorValue;
 	Type* type = value->getType();
 	if (type->getTypeKind() == TypeKind_Void)
@@ -186,6 +190,14 @@ ControlFlowMgr::endTryOperator(
 		err::setFormatStringError("'%s' cannot be used as error code", type->getTypeString().sz());
 		return false;
 	}
+
+	if (!m_module->hasCodeGen())
+		return true;
+
+	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+
+	BasicBlock* prevBlock = m_currentBlock;
+	BasicBlock* phiBlock = createBlock("try_phi_block");
 
 	ASSERT(tryExpr->m_sjljFrameIdx != -1);
 	setSjljFrame(tryExpr->m_sjljFrameIdx - 1); // restore prev sjlj frame on normal flow
@@ -388,6 +400,9 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
 
 void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	ASSERT(scope && scope->m_finallyBlock && m_finallyRouteIdxVariable);
 
 	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
@@ -494,6 +509,9 @@ ControlFlowMgr::disposeVariable(Variable* variable)
 void
 ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	size_t count = scope->m_disposableVariableArray.getCount();
 	ASSERT(scope && count && scope->m_disposeLevelVariable);
 
@@ -559,6 +577,9 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 void
 ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	if (!m_catchFinallyFollowBlock)
 		m_catchFinallyFollowBlock = createBlock("finally_follow");
 
@@ -576,6 +597,9 @@ ControlFlowMgr::normalFinallyFlow(BasicBlock* finallyBlock)
 void
 ControlFlowMgr::setSjljFrame(size_t index)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	ASSERT(m_sjljFrameArrayValue);
 
 	Variable* sjljFrameVariable = m_module->m_variableMgr.getStdVariable(StdVariable_SjljFrame);

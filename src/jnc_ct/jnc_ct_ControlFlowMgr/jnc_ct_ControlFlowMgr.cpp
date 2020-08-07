@@ -573,6 +573,9 @@ ControlFlowMgr::ret(const Value& value)
 
 		if ((scope->getFlags() & ScopeFlag_Finalizable) || isAsync)
 		{
+			if (!m_module->hasCodeGen())
+				return true;
+
 			m_module->m_llvmIrBuilder.createStore(returnValue, getReturnValueVariable());
 			escapeScope(function->getScope(), getReturnBlock());
 			return true;
@@ -594,7 +597,7 @@ ControlFlowMgr::ret(const Value& value)
 bool
 ControlFlowMgr::checkReturn()
 {
-	if (m_module->hasCodeGen() && m_currentBlock->hasTerminator())
+	if (!m_module->hasCodeGen() || m_currentBlock->hasTerminator())
 		return true;
 
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
@@ -612,8 +615,7 @@ ControlFlowMgr::checkReturn()
 
 	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
 	{
-		if (m_module->hasCodeGen())
-			m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
+		m_module->m_llvmIrBuilder.createUnreachable(); // just to make LLVM happy
 	}
 	else if (returnType->getTypeKind() == TypeKind_Void)
 	{

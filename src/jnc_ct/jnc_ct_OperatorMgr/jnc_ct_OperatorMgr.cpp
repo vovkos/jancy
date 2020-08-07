@@ -509,7 +509,7 @@ OperatorMgr::castOperator(
 {
 	bool result;
 
-	if (!m_module->hasCodeGen())
+	if (!m_module->hasCodeGen() && rawOpValue.getValueKind() != ValueKind_Const)
 	{
 		resultValue->setType(type);
 		return true;

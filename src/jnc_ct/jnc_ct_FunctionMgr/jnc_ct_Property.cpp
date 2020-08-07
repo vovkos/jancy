@@ -834,9 +834,9 @@ Property::compileDefaultStaticConstructor()
 bool
 Property::compileDefaultConstructor()
 {
-	Function* constructor = m_constructor.getFunction();
-
 	bool result;
+
+	Function* constructor = m_constructor.getFunction();
 
 	Value thisValue;
 	m_module->m_namespaceMgr.openNamespace(this);
@@ -900,12 +900,11 @@ Property::compileAutoSetter()
 {
 	ASSERT(m_type->getFlags() & PropertyTypeFlag_Bindable);
 
-	Function* setter = m_setter.getFunction();
-
 	bool result;
 
-	Value srcValue;
+	Function* setter = m_setter.getFunction();
 
+	Value srcValue;
 	if (isMember())
 	{
 		Value argValueArray[2];

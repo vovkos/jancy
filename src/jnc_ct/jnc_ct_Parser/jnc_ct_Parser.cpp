@@ -2914,6 +2914,14 @@ Parser::finalizeLiteral(
 			);
 	}
 
+	DataPtrType* resultType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Lean);
+
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(resultType);
+		return true;
+	}
+
 	Value fatPtrValue;
 	Value thinPtrValue;
 	Value validatorValue;
@@ -2923,13 +2931,7 @@ Parser::finalizeLiteral(
 	m_module->m_llvmIrBuilder.createLoad(fatPtrValue, NULL, &fatPtrValue);
 	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 0, NULL, &thinPtrValue);
 	m_module->m_llvmIrBuilder.createExtractValue(fatPtrValue, 1, validatorType, &validatorValue);
-
-	resultValue->setLeanDataPtr(
-		thinPtrValue.getLlvmValue(),
-		m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType(DataPtrTypeKind_Lean),
-		validatorValue
-		);
-
+	resultValue->setLeanDataPtr(thinPtrValue.getLlvmValue(), resultType, validatorValue);
 	return true;
 }
 
@@ -2940,6 +2942,9 @@ Parser::appendFmtLiteralRawData(
 	size_t length
 	)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	Function* append = m_module->m_functionMgr.getStdFunction(StdFunc_AppendFmtLiteral_a);
 
 	Value literalValue;

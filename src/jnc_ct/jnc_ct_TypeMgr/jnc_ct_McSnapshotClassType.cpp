@@ -62,6 +62,9 @@ McSnapshotClassType::compileCallMethod(Function* function)
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	sl::Array<FunctionArg*> argArray = function->getType()->getArgArray();
 	size_t argCount = argArray.getCount();
 

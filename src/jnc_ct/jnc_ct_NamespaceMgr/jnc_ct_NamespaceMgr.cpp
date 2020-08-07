@@ -363,7 +363,9 @@ NamespaceMgr::openScope(
 
 		Type* type = m_module->m_typeMgr.getPrimitiveType(TypeKind_Int);
 		scope->m_disposeLevelVariable = m_module->m_variableMgr.createSimpleStackVariable("dispose_level", type);
-		m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), scope->m_disposeLevelVariable);
+
+		if (m_module->hasCodeGen())
+			m_module->m_llvmIrBuilder.createStore(type->getZeroValue(), scope->m_disposeLevelVariable);
 	}
 	else if (flags & (ScopeFlag_Try | ScopeFlag_CatchAhead))
 	{

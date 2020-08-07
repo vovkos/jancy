@@ -60,6 +60,9 @@ OperatorMgr::memSet(
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	Value argValueArray[] =
 	{
 		ptrValue,
@@ -102,6 +105,9 @@ OperatorMgr::memCpy(
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	Value argValueArray[] =
 	{
 		dstPtrValue,
@@ -128,6 +134,9 @@ OperatorMgr::memCpy(
 void
 OperatorMgr::zeroInitialize(const Value& value)
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	ASSERT(value.getType()->getTypeKindFlags() & TypeKindFlag_DataPtr);
 	Type* type = ((DataPtrType*)value.getType())->getTargetType();
 
