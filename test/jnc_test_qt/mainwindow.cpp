@@ -167,6 +167,14 @@ void MainWindow::createActions()
 	m_clearOutputAction = new QAction("&Clear Output", this);
 	QObject::connect(m_clearOutputAction, SIGNAL(triggered()), this, SLOT(clearOutput()));
 
+	m_stdlibAction = new QAction("Standard &Libraries", this);
+	m_stdlibAction->setCheckable(true);
+	m_stdlibAction->setChecked(true);
+
+	m_simpleGcSafePointAction = new QAction("&Simple GC Safe-point", this);
+	m_simpleGcSafePointAction->setCheckable(true);
+	m_simpleGcSafePointAction->setChecked(false);
+
 	m_debugInfoAction = new QAction("&Debug Info", this);
 	m_debugInfoAction->setCheckable(true);
 	m_debugInfoAction->setChecked(DEFAULT_DEBUG_INFO);
@@ -202,13 +210,15 @@ void MainWindow::createMenu()
 	m_editMenu = menuBar()->addMenu("&Edit");
 	m_editMenu->addAction(m_clearOutputAction);
 
-	m_debugMenu = menuBar()->addMenu("&Debug");
-	m_debugMenu->addAction(m_debugInfoAction);
-	m_debugMenu->addAction(m_optimizeAction);
-	m_debugMenu->addAction(m_jitAction);
-	m_debugMenu->addSeparator();
-	m_debugMenu->addAction(m_compileAction);
-	m_debugMenu->addAction(m_runAction);
+	m_compileMenu = menuBar()->addMenu("&Compile");
+	m_compileMenu->addAction(m_stdlibAction);
+	m_compileMenu->addAction(m_simpleGcSafePointAction);
+	m_compileMenu->addAction(m_debugInfoAction);
+	m_compileMenu->addAction(m_optimizeAction);
+	m_compileMenu->addAction(m_jitAction);
+	m_compileMenu->addSeparator();
+	m_compileMenu->addAction(m_compileAction);
+	m_compileMenu->addAction(m_runAction);
 
 	m_viewMenu = menuBar()->addMenu("&View");
 }
@@ -392,10 +402,10 @@ bool MainWindow::compile()
 
 	// DebugInfo does not work on Windows
 
-	uint_t compileFlags =
-		jnc::ModuleCompileFlag_StdFlags
-	//	| jnc::ModuleCompileFlag_SimpleGcSafePoint
-		;
+	uint_t compileFlags = jnc::ModuleCompileFlag_StdFlags;
+
+	if (m_simpleGcSafePointAction->isChecked())
+		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
 
 #if (!_JNC_OS_WIN)
 	if (m_debugInfoAction->isChecked())
@@ -406,10 +416,15 @@ bool MainWindow::compile()
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
-	m_module->addStaticLib(jnc::StdLib_getLib());
-	m_module->addStaticLib(jnc::SysLib_getLib());
-	m_module->addStaticLib(TestLib_getLib());
-	m_module->addImportDir(appDir.constData());
+
+	if (m_stdlibAction->isChecked())
+	{
+		m_module->addStaticLib(jnc::StdLib_getLib());
+		m_module->addStaticLib(jnc::SysLib_getLib());
+		m_module->addStaticLib(TestLib_getLib());
+		m_module->addImportDir(appDir.constData());
+	}
+
 	m_module->require(jnc::ModuleItemKind_Function, "main");
 
 #if (_JNC_OS_POSIX)
