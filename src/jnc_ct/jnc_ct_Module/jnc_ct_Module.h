@@ -101,7 +101,6 @@ protected:
 	ModuleCompileState m_compileState;
 	size_t m_tryCompileLevel;
 	size_t m_compileErrorCount;
-	size_t m_compileErrorCountLimit;
 	ModuleCompileErrorHandlerFunc* m_compileErrorHandler;
 	void* m_compileErrorHandlerContext;
 
@@ -140,6 +139,8 @@ public:
 
 	LlvmIrBuilder m_llvmIrBuilder;
 	LlvmDiBuilder m_llvmDiBuilder;
+
+	size_t m_compileErrorCountLimit; // freely adjustible
 
 public:
 	Module();

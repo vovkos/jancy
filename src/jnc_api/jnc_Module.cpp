@@ -212,6 +212,25 @@ jnc_Module_getCompileState(jnc_Module* module)
 JNC_EXTERN_C
 JNC_EXPORT_O
 size_t
+jnc_Module_getCompileErrorCountLimit(jnc_Module* module)
+{
+	return module->m_compileErrorCountLimit;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_Module_setCompileErrorCountLimit(
+	jnc_Module* module,
+	size_t limit
+	)
+{
+	module->m_compileErrorCountLimit = limit;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
 jnc_Module_getCompileErrorCount(jnc_Module* module)
 {
 	return module->getCompileErrorCount();

@@ -147,6 +147,17 @@ jnc_Module_getCompileState(jnc_Module* module);
 
 JNC_EXTERN_C
 size_t
+jnc_Module_getCompileErrorCountLimit(jnc_Module* module);
+
+JNC_EXTERN_C
+void
+jnc_Module_setCompileErrorCountLimit(
+	jnc_Module* module,
+	size_t limit
+	);
+
+JNC_EXTERN_C
+size_t
 jnc_Module_getCompileErrorCount(jnc_Module* module);
 
 JNC_EXTERN_C
@@ -353,6 +364,18 @@ struct jnc_Module
 	getCompileState()
 	{
 		return jnc_Module_getCompileState(this);
+	}
+
+	size_t
+	getCompileErrorCountLimit()
+	{
+		return jnc_Module_getCompileErrorCountLimit(this);
+	}
+
+	void
+	setCompileErrorCountLimit(size_t limit)
+	{
+		return jnc_Module_setCompileErrorCountLimit(this, limit);
 	}
 
 	size_t
