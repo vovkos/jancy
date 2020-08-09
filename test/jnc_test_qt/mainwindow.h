@@ -104,6 +104,7 @@ private:
 	QAction* m_stdlibAction;
 	QAction* m_simpleGcSafePointAction;
 	QAction* m_debugInfoAction;
+	QAction* m_disableCodeGenAction;
 	QAction* m_optimizeAction;
 	QAction* m_jitAction;
 

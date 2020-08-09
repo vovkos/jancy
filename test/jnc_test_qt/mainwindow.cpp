@@ -20,8 +20,9 @@
 #include "qrc_jancyedit.cpp"
 
 // #define _NO_GC 1
-#define DEFAULT_DEBUG_INFO true
-#define DEFAULT_OPTIMIZE   true
+#define DEFAULT_DEBUG_INFO       true
+#define DEFAULT_OPTIMIZE         true
+#define DEFAULT_DISABLE_CODE_GEN false
 
 //..............................................................................
 
@@ -175,6 +176,10 @@ void MainWindow::createActions()
 	m_simpleGcSafePointAction->setCheckable(true);
 	m_simpleGcSafePointAction->setChecked(false);
 
+	m_disableCodeGenAction = new QAction("E&xclude Code Generation", this);
+	m_disableCodeGenAction->setCheckable(true);
+	m_disableCodeGenAction->setChecked(DEFAULT_DISABLE_CODE_GEN);
+
 	m_debugInfoAction = new QAction("&Debug Info", this);
 	m_debugInfoAction->setCheckable(true);
 	m_debugInfoAction->setChecked(DEFAULT_DEBUG_INFO);
@@ -213,6 +218,7 @@ void MainWindow::createMenu()
 	m_compileMenu = menuBar()->addMenu("&Compile");
 	m_compileMenu->addAction(m_stdlibAction);
 	m_compileMenu->addAction(m_simpleGcSafePointAction);
+	m_compileMenu->addAction(m_disableCodeGenAction);
 	m_compileMenu->addAction(m_debugInfoAction);
 	m_compileMenu->addAction(m_optimizeAction);
 	m_compileMenu->addAction(m_jitAction);
@@ -406,6 +412,9 @@ bool MainWindow::compile()
 
 	if (m_simpleGcSafePointAction->isChecked())
 		compileFlags |= jnc::ModuleCompileFlag_SimpleGcSafePoint;
+
+	if (m_disableCodeGenAction->isChecked())
+		compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
 
 #if (!_JNC_OS_WIN)
 	if (m_debugInfoAction->isChecked())
