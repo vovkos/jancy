@@ -154,14 +154,19 @@ OperatorMgr::getThisValue(
 		ClassType* parentType = reactorType->getParentType();
 
 		if (parentType)
-		{
-			size_t parentOffset = reactorType->getParentOffset();
-			ASSERT(parentOffset);
+			if (!m_module->hasCodeGen())
+			{
+				thisValue.setType(parentType->getClassPtrType());
+			}
+			else
+			{
+				size_t parentOffset = reactorType->getParentOffset();
+				ASSERT(parentOffset);
 
-			m_module->m_llvmIrBuilder.createBitCast(thisValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &thisValue);
-			m_module->m_llvmIrBuilder.createGep(thisValue, -parentOffset, NULL, &thisValue);
-			m_module->m_llvmIrBuilder.createBitCast(thisValue, parentType->getClassPtrType(), &thisValue);
-		}
+				m_module->m_llvmIrBuilder.createBitCast(thisValue, m_module->m_typeMgr.getStdType(StdType_BytePtr), &thisValue);
+				m_module->m_llvmIrBuilder.createGep(thisValue, -parentOffset, NULL, &thisValue);
+				m_module->m_llvmIrBuilder.createBitCast(thisValue, parentType->getClassPtrType(), &thisValue);
+			}
 	}
 
 	*value = thisValue;

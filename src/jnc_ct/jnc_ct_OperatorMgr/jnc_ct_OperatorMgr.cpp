@@ -464,10 +464,12 @@ OperatorMgr::conditionalOperator(
 
 	m_module->m_controlFlowMgr.follow(phiBlock);
 
-	if (resultType->getTypeKind() != TypeKind_Void)
-		m_module->m_llvmIrBuilder.createPhi(trueValue, thenBlock, falseValue, elseBlock, resultValue);
-	else
+	if (resultType->getTypeKind() == TypeKind_Void)
 		resultValue->setVoid(m_module);
+	else if (!m_module->hasCodeGen())
+		resultValue->setType(resultType);
+	else
+		m_module->m_llvmIrBuilder.createPhi(trueValue, thenBlock, falseValue, elseBlock, resultValue);
 
 	return true;
 }

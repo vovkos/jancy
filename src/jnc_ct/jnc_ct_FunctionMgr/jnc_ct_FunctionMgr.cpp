@@ -191,19 +191,19 @@ FunctionMgr::prologue(
 
 	// create entry blocks
 
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
+
 	function->m_allocaBlock = m_module->m_controlFlowMgr.createBlock("function_entry");
 	function->m_allocaBlock->markEntry();
 	function->m_prologueBlock = m_module->m_controlFlowMgr.createBlock("function_prologue");
 	function->m_prologueBlock->markEntry();
 
-	if (m_module->hasCodeGen())
-	{
-		m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
-		m_module->m_llvmIrBuilder.setAllocaBlock(function->m_allocaBlock);
-	}
-
 	m_module->m_controlFlowMgr.setCurrentBlock(function->m_allocaBlock);
 	m_module->m_controlFlowMgr.jump(function->m_prologueBlock, function->m_prologueBlock);
+
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.setAllocaBlock(function->m_allocaBlock);
 
 	// create scope
 
@@ -390,20 +390,19 @@ FunctionMgr::internalPrologue(
 {
 	m_currentFunction = function;
 
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
+
 	function->m_allocaBlock = m_module->m_controlFlowMgr.createBlock("function_entry");
 	function->m_allocaBlock->markEntry();
 	function->m_prologueBlock = m_module->m_controlFlowMgr.createBlock("function_prologue");
 	function->m_prologueBlock->markEntry();
 
-	if (m_module->hasCodeGen())
-	{
-		m_module->m_llvmIrBuilder.setCurrentDebugLoc(llvm::DebugLoc());
-		m_module->m_llvmIrBuilder.setAllocaBlock(function->m_allocaBlock);
-	}
-
 	m_module->m_controlFlowMgr.setCurrentBlock(function->m_allocaBlock);
-	m_module->m_controlFlowMgr.jump(function->m_prologueBlock);
-	m_module->m_controlFlowMgr.setCurrentBlock(function->m_prologueBlock);
+	m_module->m_controlFlowMgr.jump(function->m_prologueBlock, function->m_prologueBlock);
+
+	if (m_module->hasCodeGen())
+		m_module->m_llvmIrBuilder.setAllocaBlock(function->m_allocaBlock);
 
 	function->m_scope = pos ?
 		m_module->m_namespaceMgr.openScope(*pos) :

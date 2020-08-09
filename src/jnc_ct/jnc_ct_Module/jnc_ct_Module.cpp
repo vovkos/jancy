@@ -733,18 +733,21 @@ Module::compile()
 		return false;
 	}
 
-	createConstructor();
+	if (hasCodeGen())
+	{
+		createConstructor();
 
-	result = m_variableMgr.createTlsStructType();
-	if (!result)
-		return false;
+		result = m_variableMgr.createTlsStructType();
+		if (!result)
+			return false;
 
-	m_functionMgr.injectTlsPrologues();
-	m_functionMgr.replaceAsyncAllocas(); // after replacing TLS allocas!
+		m_functionMgr.injectTlsPrologues();
+		m_functionMgr.replaceAsyncAllocas(); // after replacing TLS allocas!
 
-	result = m_controlFlowMgr.deleteUnreachableBlocks();
-	if (!result)
-		return false;
+		result = m_controlFlowMgr.deleteUnreachableBlocks();
+		if (!result)
+			return false;
+	}
 
 	if (m_compileFlags & ModuleCompileFlag_DebugInfo)
 		m_llvmDiBuilder.finalize();

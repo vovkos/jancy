@@ -87,7 +87,12 @@ OperatorMgr::logicalOrOperator(
 	};
 
 	m_module->m_controlFlowMgr.follow(phiBlock);
-	m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, resultValue);
+
+	if (!m_module->hasCodeGen())
+		resultValue->setType(type);
+	else
+		m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, resultValue);
+
 	return true;
 }
 
@@ -161,7 +166,12 @@ OperatorMgr::logicalAndOperator(
 	};
 
 	m_module->m_controlFlowMgr.follow(phiBlock);
-	m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, resultValue);
+
+	if (!m_module->hasCodeGen())
+		resultValue->setType(type);
+	else
+		m_module->m_llvmIrBuilder.createPhi(valueArray, blockArray, 3, resultValue);
+
 	return true;
 }
 

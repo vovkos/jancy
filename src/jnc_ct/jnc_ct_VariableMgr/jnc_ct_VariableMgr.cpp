@@ -692,7 +692,7 @@ VariableMgr::createArgVariable(
 
 	// arg variables are not initialized (stored to directly), so mark gc root manually
 
-	if (variable->m_type->getFlags() & TypeFlag_GcRoot)
+	if (m_module->hasCodeGen() && (variable->m_type->getFlags() & TypeFlag_GcRoot))
 		m_module->m_gcShadowStackMgr.markGcRoot(variable, variable->m_type);
 
 	m_argVariableArray.append(variable);
