@@ -64,12 +64,12 @@ JncApp::JncApp(CmdLine* cmdLine)
 
 	m_module->addImportDir(io::getExeDir());
 
-	sl::BoxIterator<sl::String> requireIt = m_cmdLine->m_requireList.getHead();
+	sl::BoxIterator<sl::String> requireIt = cmdLine->m_requireList.getHead();
 	for (; requireIt; requireIt++)
 		m_module->require(jnc::ModuleItemKind_Undefined, *requireIt);
 
-	if (m_cmdLine->m_flags & JncFlag_Run)
-		m_module->require(jnc::ModuleItemKind_Function, m_cmdLine->m_functionName);
+	if (cmdLine->m_flags & JncFlag_Run)
+		m_module->require(jnc::ModuleItemKind_Function, cmdLine->m_functionName);
 }
 
 bool_t

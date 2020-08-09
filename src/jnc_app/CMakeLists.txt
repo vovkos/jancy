@@ -211,6 +211,13 @@ install(
 #...............................................................................
 
 axl_create_setting(
+	JANCY_TEST_DISABLE_CODE_GEN
+	DESCRIPTION "Disable code generation when running tests"
+	" "
+	"--disable-code-gen"
+	)
+
+axl_create_setting(
 	JANCY_TEST_OPT_LEVEL
 	DESCRIPTION "Optimization level to use when running tests"
 	DEFAULT "-O2"
@@ -230,6 +237,7 @@ add_jancy_tests
 	set(
 		_BASE_FLAG_LIST
 		--import-dir ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>
+		${JANCY_TEST_DISABLE_CODE_GEN}
 		${JANCY_TEST_OPT_LEVEL}
 		)
 

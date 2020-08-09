@@ -116,6 +116,11 @@ CmdLineParser::onSwitch(
 		m_cmdLine->m_flags |= JncFlag_Compile;
 		break;
 
+	case CmdLineSwitch_DisableCodeGen:
+		m_cmdLine->m_flags &= ~(JncFlag_Jit | JncFlag_Run);
+		m_cmdLine->m_compileFlags |= jnc::ModuleCompileFlag_DisableCodeGen;
+		break;
+
 	case CmdLineSwitch_Require:
 		m_cmdLine->m_requireList.insertTail(value);
 		break;

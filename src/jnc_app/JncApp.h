@@ -34,7 +34,8 @@ public:
 	{
 		return
 			m_module->compile() &&
-			m_module->optimize(m_cmdLine->m_optLevel);
+			((m_cmdLine->m_compileFlags & jnc::ModuleCompileFlag_DisableCodeGen) ||
+			m_module->optimize(m_cmdLine->m_optLevel));
 	}
 
 	bool

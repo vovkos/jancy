@@ -15,14 +15,15 @@
 
 enum JncFlag
 {
-	JncFlag_Help                      = 0x000001,
-	JncFlag_Version                   = 0x000002,
-	JncFlag_LlvmIr                    = 0x000004,
-	JncFlag_Compile                   = 0x000008,
-	JncFlag_Jit                       = 0x000010,
-	JncFlag_Run                       = 0x000080,
-	JncFlag_StdInSrc                  = 0x000400,
-	JncFlag_PrintReturnValue          = 0x000800,
+	JncFlag_Help             = 0x000001,
+	JncFlag_Version          = 0x000002,
+	JncFlag_LlvmIr           = 0x000004,
+	JncFlag_Compile          = 0x000008,
+	JncFlag_DisableCodeGen   = 0x000010,
+	JncFlag_Jit              = 0x000020,
+	JncFlag_Run              = 0x000080,
+	JncFlag_StdInSrc         = 0x000400,
+	JncFlag_PrintReturnValue = 0x000800,
 };
 
 struct CmdLine
@@ -57,6 +58,7 @@ enum CmdLineSwitch
 	CmdLineSwitch_StdInSrc,
 	CmdLineSwitch_SrcNameOverride,
 	CmdLineSwitch_CompileOnly,
+	CmdLineSwitch_DisableCodeGen,
 	CmdLineSwitch_Require,
 	CmdLineSwitch_Documentation,
 	CmdLineSwitch_Exclude,
@@ -111,6 +113,11 @@ AXL_SL_BEGIN_CMD_LINE_SWITCH_TABLE(CmdLineSwitchTable, CmdLineSwitch)
 		CmdLineSwitch_CompileOnly,
 		"c", "compile-only", NULL,
 		"Compile only (no run)"
+		)
+	AXL_SL_CMD_LINE_SWITCH(
+		CmdLineSwitch_DisableCodeGen,
+		"disable-code-gen", NULL,
+		"Disable code generation"
 		)
 	AXL_SL_CMD_LINE_SWITCH(
 		CmdLineSwitch_Require,
