@@ -42,6 +42,17 @@ enum OpFlag
 
 //..............................................................................
 
+bool
+hasCodeGen(Module* module);
+
+Type*
+getPrimitiveType(
+	Module* module,
+	TypeKind typeKind
+	);
+
+//..............................................................................
+
 class UnaryOperator
 {
 	friend class OperatorMgr;

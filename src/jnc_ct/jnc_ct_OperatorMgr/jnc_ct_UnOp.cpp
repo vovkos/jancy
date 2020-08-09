@@ -44,6 +44,23 @@ getUnOpKindString(UnOpKind opKind)
 
 //..............................................................................
 
+bool
+hasCodeGen(Module* module)
+{
+	return module->hasCodeGen();
+}
+
+Type*
+getPrimitiveType(
+	Module* module,
+	TypeKind typeKind
+	)
+{
+	return module->m_typeMgr.getPrimitiveType(typeKind);
+}
+
+//..............................................................................
+
 UnaryOperator::UnaryOperator()
 {
 	m_module = Module::getCurrentConstructedModule();

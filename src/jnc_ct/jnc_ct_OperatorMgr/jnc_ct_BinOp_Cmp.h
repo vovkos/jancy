@@ -67,9 +67,9 @@ public:
 		if (!result)
 			return false;
 
-		if (!m_module->hasCodeGen())
+		if (!hasCodeGen(m_module))
 		{
-			resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+			resultValue->setType(getPrimitiveType(m_module, TypeKind_Bool));
 			return true;
 		}
 

@@ -51,7 +51,7 @@ setUnsafeCastError(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-// these are sometimes needed for inlining casts before jnc_Module.h is include
+// these are sometimes needed for inlining casts before jnc_Module.h is included
 
 bool
 castOperator(

@@ -79,12 +79,6 @@ public:
 		if (!result)
 			return false;
 
-		if (!m_module->hasCodeGen())
-		{
-			resultValue->setType(type);
-			return true;
-		}
-
 		if (opValue.getValueKind() == ValueKind_Const)
 		{
 			TypeKind typeKind = type->getTypeKind();
@@ -111,6 +105,11 @@ public:
 			default:
 				ASSERT(false);
 			}
+		}
+		else if (!hasCodeGen(m_module))
+		{
+			resultValue->setType(type);
+			return true;
 		}
 		else
 		{
