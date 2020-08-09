@@ -196,10 +196,8 @@ Module::initialize(
 		m_namespaceMgr.addStdItems();
 	}
 
-#if (_JNC_TEST_NO_CODE_GEN)
-	err::setError("testing compilation without codegen...");
-	processCompileError(ModuleCompileErrorKind_PostParse);
-#endif
+	if (compileFlags & ModuleCompileFlag_DisableCodeGen)
+		clearLlvm();
 }
 
 #if (JNC_PTR_BITS == 32)
