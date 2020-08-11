@@ -9,32 +9,30 @@
 //
 //..............................................................................
 
-#ifndef _OUTPUT_H
-#define _OUTPUT_H
+#pragma once
 
-#include "editor.h"
+#include "monospaceplaintextedit.h"
 
-#define OutputBase Editor
-
-class Output : public OutputBase
+class Output: public MonospacePlainTextEdit
 {
 	Q_OBJECT
 
 public:
 	Output(QWidget *parent);
 
-	QSize sizeHint() const { return QSize(300, 300); }
+	QSize sizeHint() const
+	{
+		return QSize(300, 300);
+	}
 
 protected:
-	void mouseDoubleClickEvent(QMouseEvent *e);
+	void mouseDoubleClickEvent(QMouseEvent* e);
 
 private:
 	bool parseLine(
-		const QTextCursor &cursor,
-		int &documentLine,
-		int &documentCol,
-		QString &filePath
+		QString* filePath,
+		int* line,
+		int* col,
+		const QTextCursor& cursor
 		);
 };
-
-#endif

@@ -28,7 +28,7 @@ option(
 
 option(
 	BUILD_JNC_STDLIB
-	"Build jnc_stdlib.jncx(for IDE)"
+	"Build jnc_stdlib.jncx (for IDE)"
 	ON
 	)
 
@@ -45,6 +45,18 @@ endif()
 
 if(BUILD_JNC_STDLIB)
 	add_subdirectory(jnc_stdlib)
+endif()
+
+if (QT_FOUND)
+	option(
+		BUILD_JNC_EDIT
+		"Build jnc_edit (QT-based code-assisting editor)"
+		ON
+		)
+	
+	if(BUILD_JNC_EDIT)
+		add_subdirectory(jnc_edit)
+	endif()
 endif()
 
 #...............................................................................

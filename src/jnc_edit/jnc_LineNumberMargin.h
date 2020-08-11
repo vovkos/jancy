@@ -11,24 +11,38 @@
 
 #pragma once
 
-#include "monospaceplaintextedit.h"
+namespace jnc {
 
-class LlvmIrHighlighter;
+class Edit;
 
 //..............................................................................
 
-class LlvmIr: public MonospacePlainTextEdit
+class LineNumberMargin: public QWidget
 {
 	Q_OBJECT
 
-public:
-	LlvmIr(QWidget* parent);
-
-	QSize sizeHint() const { return QSize(300, 50); }
-	bool build(jnc::Module* module);
+protected:
+	enum Color
+	{
+		Color_Back = 0xffffff,
+		Color_Text = 0x2b91af,
+	};
 
 protected:
-	LlvmIrHighlighter* m_highlighter;
+	int m_anchorPos;
+
+public:
+	LineNumberMargin(Edit* edit);
+
+	void
+	updateFontMetrics();
+
+protected:
+	virtual
+	void
+	paintEvent(QPaintEvent* e);
 };
 
 //..............................................................................
+
+} // namespace jnc

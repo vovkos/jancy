@@ -9,24 +9,4 @@
 //
 //..............................................................................
 
-#ifndef JANCYHIGHLIGHTER_H
-#define JANCYHIGHLIGHTER_H
-
-#include "highlighter.h"
-
-class JancyHighlighter : public Highlighter
-{
-	Q_OBJECT
-
-public:
-	JancyHighlighter(QTextDocument *parent = 0) : Highlighter(parent) { }
-
-protected:
-	void ragelInit();
-	void ragelExec();
-
-	void ragelExecPreEvent(int &ragelState);
-	void ragelExecPostEvent(int ragelState);
-};
-
-#endif
+#include "pch.h"

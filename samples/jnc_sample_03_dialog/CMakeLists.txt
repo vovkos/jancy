@@ -121,10 +121,6 @@ source_group(
 # jnc_sample_03_dialog sample
 #
 
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zm200")
-endif()
-
 include_directories(
 	${JANCY_INC_DIR}
 	${GEN_DIR}

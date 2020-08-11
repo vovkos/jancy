@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 class LlvmIr;
 class ModulePane;
@@ -121,5 +120,3 @@ JNC_INLINE MainWindow* getMainWindow()
 }
 
 //..............................................................................
-
-#endif

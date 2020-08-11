@@ -17,7 +17,7 @@
 ModulePane::ModulePane(QWidget *parent)
 	: QTreeWidget(parent)
 {
-	document = 0;
+	m_document = NULL;
 
 	setColumnCount(1);
 	header()->hide();
@@ -29,19 +29,16 @@ ModulePane::ModulePane(QWidget *parent)
 bool ModulePane::build(jnc::Module* module, MdiChild* document)
 {
 	clear();
-
 	jnc::GlobalNamespace* globalNamespace = module->getGlobalNamespace();
 	addNamespace(0, globalNamespace);
-
-	this->document = document;
-
+	m_document = document;
 	return true;
 }
 
 void ModulePane::clear()
 {
 	QTreeWidget::clear();
-	document = 0;
+	m_document = NULL;
 }
 
 void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column)
@@ -54,8 +51,8 @@ void ModulePane::onItemDoubleClicked(QTreeWidgetItem *treeItem, int column)
 	if (!decl)
 		return;
 
-	document->selectLine(decl->getLine(), true);
-	document->setFocus();
+	m_document->setTextCursorLineCol(decl->getLine(), decl->getCol());
+	m_document->setFocus();
 }
 
 QTreeWidgetItem *ModulePane::insertItem(const QString &text, QTreeWidgetItem *parent)

@@ -9,8 +9,7 @@
 //
 //..............................................................................
 
-#ifndef _MODULEPANE_H
-#define _MODULEPANE_H
+#pragma once
 
 class MdiChild;
 
@@ -33,7 +32,6 @@ private:
 	QTreeWidgetItem *insertItem(const QString& text, QTreeWidgetItem* parent = 0);
 
 	bool addItemAttributes(QTreeWidgetItem* parent, jnc::ModuleItemDecl* decl);
-
 	void addNamespace(QTreeWidgetItem* parent, jnc::GlobalNamespace* globalNamespace);
 	void addItem(QTreeWidgetItem* parent, jnc::ModuleItem* item);
 	void addType(QTreeWidgetItem* parent, jnc::Type* type);
@@ -54,7 +52,6 @@ private:
 		addValue(parent, field->getDecl()->getName(), field->getType(), field);
 	}
 
-	MdiChild *document;
+protected:
+	MdiChild* m_document;
 };
-
-#endif

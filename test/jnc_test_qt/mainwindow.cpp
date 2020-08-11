@@ -17,7 +17,7 @@
 #include "llvmir.h"
 #include "testlib.h"
 #include "moc_mainwindow.cpp"
-#include "qrc_jancyedit.cpp"
+#include "qrc_res.cpp"
 
 // #define _NO_GC 1
 #define DEFAULT_DEBUG_INFO       true
@@ -73,7 +73,7 @@ bool_t MainWindow::compileErrorHandler(
 	)
 {
 	MainWindow* self = (MainWindow*)context;
-	self->writeOutput("%s\n", jnc::getLastError()->getDescription().sz());
+	self->writeOutput("%s\n", jnc::getLastErrorDescription_v());
 	return true;
 }
 
@@ -369,7 +369,7 @@ void MainWindow::writeSettings()
 	QStringList files;
 	foreach(QMdiSubWindow* subWindow, m_mdiArea->subWindowList())
 		if(MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget()))
-			files.append(child->file());
+			files.append(child->filePath());
 
 	s.setValue("filesOpened", files);
 	s.setValue("lastDir", m_lastDir);
@@ -393,8 +393,6 @@ void MainWindow::clearOutput()
 
 bool MainWindow::compile()
 {
-	qApp->setCursorFlashTime(0);
-
 	bool result;
 
 	MdiChild* child = activeMdiChild();
@@ -421,7 +419,7 @@ bool MainWindow::compile()
 		compileFlags |= jnc::ModuleCompileFlag_DebugInfo;
 #endif
 
-	QByteArray sourceFilePath = child->file().toUtf8();
+	QByteArray sourceFilePath = child->filePath().toUtf8();
 	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
@@ -457,7 +455,7 @@ bool MainWindow::compile()
 
 	if (!result)
 	{
-		writeOutput("%s\n", err::getLastErrorDescription().sz());
+		writeOutput("%s\n", jnc::getLastErrorDescription_v());
 		return false;
 	}
 
@@ -467,7 +465,7 @@ bool MainWindow::compile()
 		result = m_module->optimize(1);
 		if (!result)
 		{
-			writeOutput("%s\n", err::getLastErrorDescription().sz());
+			writeOutput("%s\n", jnc::getLastErrorDescription_v());
 			return false;
 		}
 	}
@@ -484,7 +482,7 @@ bool MainWindow::compile()
 		result = m_module->jit();
 		if (!result)
 		{
-			writeOutput("%s\n", err::getLastErrorDescription().sz());
+			writeOutput("%s\n", jnc::getLastErrorDescription_v());
 			return false;
 		}
 	}
@@ -529,7 +527,7 @@ MainWindow::run()
 	result = m_runtime->startup(m_module);
 	if (!result)
 	{
-		writeOutput("Cannot startup Jancy runtime: %s\n", err::getLastErrorDescription().sz());
+		writeOutput("Cannot startup Jancy runtime: %s\n", jnc::getLastErrorDescription_v());
 		return false;
 	}
 
@@ -538,7 +536,7 @@ MainWindow::run()
 	if (result)
 		writeOutput("'main' returned %d.\n", returnValue);
 	else
-		writeOutput("Runtime error: %s\n", err::getLastErrorDescription().sz());
+		writeOutput("Runtime error: %s\n", jnc::getLastErrorDescription_v());
 
 	if (result && returnValue == -1000) // for testing some async stuff with threads
 	{
@@ -580,7 +578,7 @@ QMdiSubWindow* MainWindow::findMdiSubWindow(const QString& filePath)
 
 	foreach(QMdiSubWindow* subWindow, m_mdiArea->subWindowList()) {
 		MdiChild* child = qobject_cast<MdiChild*>(subWindow->widget());
-		if(child && child->file() == canonicalFilePath)
+		if(child && child->filePath() == canonicalFilePath)
 			return subWindow;
 	}
 

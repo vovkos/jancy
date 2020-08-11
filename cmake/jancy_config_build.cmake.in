@@ -25,9 +25,11 @@ set(JNC2CPP_PL          "@JANCY_ROOT_DIR@/tools/jnc2cpp/jnc2cpp.pl")
 set(FILE2LITERAL_PL     "@JANCY_ROOT_DIR@/tools/file2literal/file2literal.pl")
 
 if(WIN32)
-	set(JANCY_DLL_NAME jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
+	set(JANCY_DLL_NAME      jancy-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
+	set(JANCY_EDIT_DLL_NAME jancy-edit-@JANCY_VERSION_MAJOR@.@JANCY_VERSION_MINOR@)
 else()
-	set(JANCY_DLL_NAME jancy)
+	set(JANCY_DLL_NAME      jancy)
+	set(JANCY_EDIT_DLL_NAME jancy-edit)
 endif()
 
 set(

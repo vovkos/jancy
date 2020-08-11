@@ -9,21 +9,31 @@
 //
 //..............................................................................
 
-#ifndef LLVMIRHIGHLIGHTER_H
-#define LLVMIRHIGHLIGHTER_H
+#pragma once
 
-#include "highlighter.h"
+//..............................................................................
 
-class LlvmIrHighlighter : public Highlighter
+class LlvmIrHighlighter: public gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter>
 {
-	Q_OBJECT
+public:
+	enum Color
+	{
+		Color_Keyword  = 0x0000ff,
+		Color_Constant = 0xce7b00,
+		Color_Comment  = 0x969696,
+	};
 
 public:
-	LlvmIrHighlighter(QTextDocument *parent = 0) : Highlighter(parent) { }
+	LlvmIrHighlighter(QTextDocument *parent):
+		gui::QtRagelSyntaxHighlighter<LlvmIrHighlighter>(parent)
+	{
+	}
 
-protected:
-	void ragelInit();
-	void ragelExec();
+	void
+	init();
+
+	void
+	exec();
 };
 
-#endif
+//..............................................................................

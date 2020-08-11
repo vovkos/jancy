@@ -14,25 +14,22 @@
 #include "llvmirhighlighter.h"
 #include "moc_llvmir.cpp"
 
-LlvmIr::LlvmIr(QWidget *parent)
-	: LlvmIrBase(parent)
+//..............................................................................
+
+LlvmIr::LlvmIr(QWidget *parent):
+	MonospacePlainTextEdit(parent)
 {
 	setReadOnly(true);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 	setLineWrapMode(QPlainTextEdit::NoWrap);
-	setupHighlighter();
+	m_highlighter = new LlvmIrHighlighter(document());
 }
 
 bool LlvmIr::build(jnc::Module* module)
 {
 	clear();
-
-	appendText(module->getLlvmIrString_v());
-
+	appendPlainText(module->getLlvmIrString_v());
 	return true;
 }
 
-void LlvmIr::setupHighlighter()
-{
-	highlighter = new LlvmIrHighlighter(document());
-}
+//..............................................................................

@@ -11,34 +11,24 @@
 
 #include "pch.h"
 #include "mdichild.h"
-#include "jancyhighlighter.h"
 #include "moc_mdichild.cpp"
 
-#define LINE_HIGHLIGHTING_BACK		QColor(255, 255, 215)
-#define LINE_NUMBER_MARGIN_BACK		QColor(255, 255, 255)
-#define LINE_NUMBER_MARGIN_FORE		QColor(43, 145, 175)
-
-MdiChild::MdiChild(QWidget *parent)
-	: MdiChildBase(parent)
+MdiChild::MdiChild(QWidget *parent):
+	jnc::Edit(parent)
 {
-	isUntitled = true;
-	isCompilationNeeded_ = true;
-
-	setupEditor();
-	setupHighlighter();
-	createLineNumberMargin();
-	enableLineHighlighting();
+	m_isUntitled = true;
+	m_isCompilationNeeded = true;
 }
 
 void MdiChild::newFile()
 {
 	static int sequenceNumber = 1;
 
-	isUntitled = true;
-	isCompilationNeeded_ = true;
+	m_isUntitled = true;
+	m_isCompilationNeeded = true;
 
-	filePath = tr("document%1").arg(sequenceNumber++);
-	setWindowTitle(filePath + "[*]");
+	m_filePath = tr("document%1").arg(sequenceNumber++);
+	setWindowTitle(m_filePath + "[*]");
 
 	connect(document(), SIGNAL(contentsChanged()),
 			this, SLOT(documentWasModified()));
@@ -69,21 +59,16 @@ bool MdiChild::loadFile(const QString& filePath)
 	connect(document(), SIGNAL(contentsChanged()),
 			this, SLOT(documentWasModified()));
 
-	isCompilationNeeded_ = true;
+	m_isCompilationNeeded = true;
 	return true;
 }
 
 bool MdiChild::save()
 {
-	if (isUntitled)
+	if (m_isUntitled)
 		return saveAs();
 	else
-		return saveFile(filePath);
-}
-
-QString MdiChild::file()
-{
-	return this->filePath;
+		return saveFile(m_filePath);
 }
 
 void MdiChild::closeEvent(QCloseEvent *e)
@@ -94,74 +79,25 @@ void MdiChild::closeEvent(QCloseEvent *e)
 		e->ignore();
 }
 
-void MdiChild::resizeEvent(QResizeEvent *e)
-{
-	MdiChildBase::resizeEvent(e);
-
-	QRect rect = contentsRect();
-	lineNumberMargin->setGeometry(rect.left(), rect.top(),
-		lineNumberMarginWidth, rect.height());
-}
-
 void MdiChild::documentWasModified()
 {
 	setWindowModified(true);
-	isCompilationNeeded_ = true;
-}
-
-void MdiChild::updateLineNumberMargin(const QRect &rect,int dy)
-{
-	if (dy)
-		lineNumberMargin->scroll(0, dy);
-	else
-		lineNumberMargin->update(0, rect.y(),
-			lineNumberMarginWidth, rect.height());
-}
-
-void MdiChild::highlightCurrentLine()
-{
-	highlightSingleLine(textCursor(), LINE_HIGHLIGHTING_BACK);
+	m_isCompilationNeeded = true;
 }
 
 bool MdiChild::saveAs()
 {
-	QString filePath = QFileDialog::getSaveFileName(this, "Save As",
-							this->filePath,
-							"Jancy Files (*.jnc);;All Files (*.*)");
+	QString filePath = QFileDialog::getSaveFileName(
+		this,
+		"Save As",
+		m_filePath,
+		"Jancy Files (*.jnc);;All Files (*.*)"
+		);
 
 	if (filePath.isEmpty())
 		return false;
 
 	return saveFile(filePath);
-}
-
-void MdiChild::setupEditor()
-{
-	setWordWrapMode(QTextOption::NoWrap);
-}
-
-void MdiChild::setupHighlighter()
-{
-	highlighter = new JancyHighlighter(document());
-}
-
-void MdiChild::createLineNumberMargin()
-{
-	lineNumberMarginWidth = fontMetrics().width(QLatin1Char('9')) * 4;
-	setViewportMargins(lineNumberMarginWidth, 0, 0, 0);
-
-	lineNumberMargin = new LineNumberMargin(this);
-
-	QObject::connect(this, SIGNAL(updateRequest(QRect,int)),
-		this, SLOT(updateLineNumberMargin(QRect,int)));
-}
-
-void MdiChild::enableLineHighlighting()
-{
-	QObject::connect(this, SIGNAL(cursorPositionChanged()),
-		this, SLOT(highlightCurrentLine()));
-
-	highlightCurrentLine();
 }
 
 bool MdiChild::saveFile(const QString& filePath)
@@ -188,20 +124,13 @@ bool MdiChild::saveFile(const QString& filePath)
 
 void MdiChild::setFile(const QString &filePath)
  {
-	 this->filePath = QFileInfo(filePath).canonicalFilePath();
-
-	 isUntitled = false;
+	 m_filePath = QFileInfo(filePath).canonicalFilePath();
+	 m_isUntitled = false;
 
 	 document()->setModified(false);
-
 	 setWindowModified(false);
 	 setWindowTitle(fileName() + "[*]");
  }
-
-QString MdiChild::fileName()
-{
-	return QFileInfo(filePath).fileName();
-}
 
 bool MdiChild::canClose()
 {
@@ -221,30 +150,4 @@ bool MdiChild::canClose()
 	}
 
 	return true;
-}
-
-void MdiChild::paintLineNumberMargin(QPaintEvent *e)
-{
-	QPainter painter(lineNumberMargin);
-	painter.fillRect(lineNumberMargin->rect(), LINE_NUMBER_MARGIN_BACK);
-
-	QTextBlock block = firstVisibleBlock();
-	int blockNumber = block.blockNumber();
-	qreal top = blockBoundingGeometry(block).translated(contentOffset()).top();
-	qreal bottom = top + blockBoundingRect(block).height();
-
-	painter.setPen(LINE_NUMBER_MARGIN_FORE);
-
-	while (block.isValid() && top <= e->rect().bottom()) {
-		if (block.isVisible() && bottom >= e->rect().top()) {
-			QString number = QString::number(blockNumber + 1);
-			painter.drawText(0, (int)top, lineNumberMargin->width(),
-				fontMetrics().height(), Qt::AlignRight, number);
-		}
-
-		block = block.next();
-		top = bottom;
-		bottom = top + blockBoundingRect(block).height();
-		blockNumber++;
-	}
 }

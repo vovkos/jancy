@@ -166,32 +166,12 @@ testPtr(
 	)
 {
 	printf("TestLib::testPtr\n");
-
-	((axl::io::SockAddr*)ptr.m_p)->parse((const char*) ptr2.m_p);
 }
 
 void
 testVariant(jnc::Variant variant)
 {
 	printf("TestLib::testVariant\n");
-}
-
-void
-qtWait(uint_t msTime)
-{
-	uint64_t start = sys::getTimestamp();
-	uint64_t interval = msTime * 10000;
-
-	QEventLoop eventLoop;
-
-	for (;;)
-	{
-		uint_t now = sys::getTimestamp();
-		if (now - start > interval)
-			break;
-
-		eventLoop.processEvents(QEventLoop::AllEvents, 100);
-	}
 }
 
 void
@@ -263,7 +243,6 @@ JNC_BEGIN_LIB_FUNCTION_MAP(TestLib)
 //	JNC_MAP_TYPE(TestStruct)
 //	JNC_MAP_FUNCTION("testPtr",     &testPtr)
 //	JNC_MAP_FUNCTION("testVariant", &testVariant)
-//	JNC_MAP_FUNCTION("qtWait", &qtWait)
 //	JNC_MAP_FUNCTION("testAlloc", testAlloc)
 //	JNC_MAP_FUNCTION("testCallSite", testCallSite)
 JNC_END_LIB_FUNCTION_MAP()

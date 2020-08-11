@@ -10,6 +10,5 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jancyhighlighter.h"
-#include "jancyhighlighter.rl.cpp"
-#include "moc_jancyhighlighter.cpp"
+#include "jnc_Highlighter.h"
+#include "jnc_Highlighter.rl.cpp"

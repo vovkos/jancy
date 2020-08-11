@@ -11,24 +11,42 @@
 
 #pragma once
 
-#include "monospaceplaintextedit.h"
-
-class LlvmIrHighlighter;
+namespace jnc {
 
 //..............................................................................
 
-class LlvmIr: public MonospacePlainTextEdit
+class JancyHighlighter: public gui::QtRagelSyntaxHighlighter<JancyHighlighter>
 {
-	Q_OBJECT
-
 public:
-	LlvmIr(QWidget* parent);
-
-	QSize sizeHint() const { return QSize(300, 50); }
-	bool build(jnc::Module* module);
+	enum Color
+	{
+		Color_Keyword  = 0x0000ff,
+		Color_Constant = 0xce7b00,
+		Color_Comment  = 0x969696,
+	};
 
 protected:
-	LlvmIrHighlighter* m_highlighter;
+	enum BlockState
+	{
+		BlockState_Normal,
+		BlockState_Comment,
+		BlockState_LitMl,
+	};
+
+public:
+	JancyHighlighter(QTextDocument* parent = NULL):
+		gui::QtRagelSyntaxHighlighter<JancyHighlighter>(parent)
+	{
+	}
+
+public:
+	void
+	init();
+
+	void
+	exec();
 };
 
 //..............................................................................
+
+} // namespace jnc

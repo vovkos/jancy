@@ -157,37 +157,36 @@ main := |*
 'typeof'          |
 'bindingof'       |
 'dynamic'
-
-)                   { colorize(ts, te, Qt::blue); };
+)                 { highlightLastToken(Color_Keyword); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-id                  ;
+id                ;
 
 (
-lit_sq              |
-lit_dq              |
-[rR] raw_lit_sq     |
-[rR] raw_lit_dq     |
-dec+                |
-'0' oct+            |
-'0' [xX] hex+       |
-'0' [oO] oct+       |
-'0' [bB] bin+       |
-'0' [nNdD] dec+     |
+lit_sq            |
+lit_dq            |
+[rR] raw_lit_sq   |
+[rR] raw_lit_dq   |
+dec+              |
+'0' oct+          |
+'0' [xX] hex+     |
+'0' [oO] oct+     |
+'0' [bB] bin+     |
+'0' [nNdD] dec+   |
 '0' [xXoObBnNdD] raw_lit_dq |
 dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 [$fF] lit_dq
-)					{ colorize(ts, te, Qt::darkRed); };
+)                 { highlightLastToken(Color_Constant); };
 
 ('0' [xXoObBnNdD])? '"""'
-					{ colorize(ts, te, Qt::darkRed); fgoto lit_ml; };
+                  { highlightLastToken(Color_Constant); fgoto lit_ml; };
 
-'//' any*           { colorize(ts, te, Qt::darkGray); };
-'/*'                { colorize(ts, te, Qt::darkGray); fgoto comment; };
+'//' any*         { highlightLastToken(Color_Comment); };
+'/*'              { highlightLastToken(Color_Comment); fgoto comment; };
 
-ws | nl             ;
-any                 ;
+ws | nl           ;
+any               ;
 
 *|;
 
@@ -198,8 +197,8 @@ any                 ;
 
 comment := |*
 
-'*/'                { colorize(ts, te, Qt::darkGray); fgoto main; };
-any                 { colorize(ts, te, Qt::darkGray); };
+'*/'              { highlightLastToken(Color_Comment); fgoto main; };
+any               { highlightLastToken(Color_Comment); };
 
 *|;
 
@@ -210,58 +209,55 @@ any                 { colorize(ts, te, Qt::darkGray); };
 
 lit_ml := |*
 
-'"""'               { colorize(ts, te, Qt::darkRed); fgoto main; };
-any                 { colorize(ts, te, Qt::darkRed); };
+'"""'             { highlightLastToken(Color_Constant); fgoto main; };
+any               { highlightLastToken(Color_Constant); };
 
 *|;
 
 }%%
 
+namespace jnc {
+
 //..............................................................................
 
-#define BLOCK_STATE_NONE	0
-#define BLOCK_STATE_COMMENT 1
-#define BLOCK_STATE_LIT_ML  2
-
-void JancyHighlighter::ragelInit()
+void
+JancyHighlighter::init()
 {
 	%% write init;
 }
 
-void JancyHighlighter::ragelExec()
+void
+JancyHighlighter::exec()
 {
-	%% write exec;
-}
-
-void JancyHighlighter::ragelExecPreEvent(int &ragelState)
-{
-	setCurrentBlockState(BLOCK_STATE_NONE);
-
 	int prevBlockState = previousBlockState();
 	switch (prevBlockState)
 	{
-	case BLOCK_STATE_COMMENT:
-		ragelState = jancy_lexer_en_comment;
+	case BlockState_Comment:
+		cs = jancy_lexer_en_comment;
 		break;
 
-	case BLOCK_STATE_LIT_ML:
-		ragelState = jancy_lexer_en_lit_ml;
+	case BlockState_LitMl:
+		cs = jancy_lexer_en_lit_ml;
 		break;
 	}
-}
 
-void JancyHighlighter::ragelExecPostEvent(int ragelState)
-{
-	switch (ragelState)
+	%% write exec;
+
+	switch (cs)
 	{
 	case jancy_lexer_en_comment:
-		setCurrentBlockState(BLOCK_STATE_COMMENT);
+		setCurrentBlockState(BlockState_Comment);
 		break;
 
 	case jancy_lexer_en_lit_ml:
-		setCurrentBlockState(BLOCK_STATE_LIT_ML);
+		setCurrentBlockState(BlockState_LitMl);
 		break;
+
+	default:
+		setCurrentBlockState(BlockState_Normal);
 	}
 }
 
 //..............................................................................
+
+} // namespace jnc

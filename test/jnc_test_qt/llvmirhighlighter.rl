@@ -14,7 +14,6 @@
 machine llvmir_lexer;
 write data;
 
-
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
 # standard definitions
@@ -97,20 +96,20 @@ main := |*
 'call' |
 'va_arg' |
 'landingpad'
-)				{ colorize(ts, te, Qt::blue); };
+)                   { highlightLastToken(Color_Keyword); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-id								{  };
-(lit_sq | lit_dq)				{ colorize(ts, te, Qt::darkRed); };
-dec+							{ colorize(ts, te, Qt::darkRed); };
-'0' [Xx] hex+					{ colorize(ts, te, Qt::darkRed); };
+id                  { };
+(lit_sq | lit_dq)   { highlightLastToken(Color_Constant); };
+dec+              	{ highlightLastToken(Color_Constant); };
+'0' [Xx] hex+       { highlightLastToken(Color_Constant); };
 
-';' [^\n]*						{ colorize(ts, te, Qt::darkGreen); };
+';' [^\n]*          { highlightLastToken(Color_Comment); };
 
-ws | nl							;
+ws | nl             ;
 
-any								{  };
+any                 { };
 
 *|;
 
@@ -118,12 +117,14 @@ any								{  };
 
 //..............................................................................
 
-void LlvmIrHighlighter::ragelInit()
+void
+LlvmIrHighlighter::init()
 {
 	%% write init;
 }
 
-void LlvmIrHighlighter::ragelExec()
+void
+LlvmIrHighlighter::exec()
 {
 	%% write exec;
 }
