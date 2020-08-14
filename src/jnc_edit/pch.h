@@ -22,40 +22,18 @@
 
 // QT
 
-#include <QtGui>
-#include <QAction>
-#include <QApplication>
-#include <QDockWidget>
-#include <QFileDialog>
-#include <QHeaderView>
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QMdiArea>
-#include <QMdiSubWindow>
 #include <QPlainTextEdit>
-#include <QStatusBar>
+#include <QStringListModel>
+#include <QCompleter>
+#include <QAbstractItemView>
+#include <QScrollBar>
+#include <QToolTip>
 #include <QSyntaxHighlighter>
-#include <QTextBlock>
-#include <QToolBar>
-#include <QTreeWidget>
-#include <QWidget>
+#include <QPainter>
+#include <QThread>
 
 // AXL
 
-#include "axl_io_SockAddr.h"
-#include "axl_sys_Time.h"
-
-#if (_JNC_IO_USB)
-#	include "axl_io_UsbError.h"
-#endif
-
-#if (_JNC_IO_SSL)
-#	include "axl_io_SslError.h"
-#endif
-
-#include "axl_lex_ParseError.h"
-#include "axl_err_ErrorMgr.h"
 #include "axl_gui_QtRagelSyntaxHighlighter.h"
 
 using namespace axl;
@@ -63,28 +41,6 @@ using namespace axl;
 // Jancy
 
 #include "jnc_Module.h"
-#include "jnc_Runtime.h"
 #include "jnc_ExtensionLib.h"
-#include "jnc_CallSite.h"
+#include "jnc_CodeAssist.h"
 #include "jnc_Error.h"
-
-#if (_JNC_OS_WIN)
-
-// Memory Leak Detection
-
-#	define _CRTDBG_MAP_ALLOC
-#	include <stdlib.h>
-#	include <crtdbg.h>
-
-#	ifdef _DEBUG
-#		ifndef DBG_NEW
-#			define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__)
-#			define new DBG_NEW
-#		endif
-#	endif
-
-#elif (_JNC_OS_POSIX)
-#	include <sys/socket.h>
-#	include <netinet/in.h>
-#	include <netinet/ip.h>
-#endif

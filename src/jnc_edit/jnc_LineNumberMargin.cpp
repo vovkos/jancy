@@ -14,6 +14,8 @@
 #include "jnc_Edit.h"
 #include "moc_jnc_LineNumberMargin.cpp"
 
+// #define _JNC_EDIT_LINE_NUMBER_MARGIN_BG 1
+
 namespace jnc {
 
 //..............................................................................
@@ -47,7 +49,10 @@ void LineNumberMargin::paintEvent(QPaintEvent* e)
 	QFontInfo fontInfo(edit->font()); // no f-ing idea why simply setting font doesn't work
 	painter.setFont(QFont(fontInfo.family(), fontInfo.pointSize()));
 	painter.setPen(Color_Text);
+
+#if (_JNC_EDIT_LINE_NUMBER_MARGIN_BG)
 	painter.fillRect(paintRect, Color_Back);
+#endif
 
 	while (block.isValid() && top <= paintRect.bottom())
 	{

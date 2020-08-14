@@ -16,9 +16,11 @@
 set(
 	LIB_H_LIST
 	${JANCY_INC_DIR}/jnc_Edit.h
+	${JANCY_INC_DIR}/jnc_CodeAssist.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_Highlighter.h
+	jnc_CodeAssistThread.h
 	)
 
 set(
@@ -26,6 +28,7 @@ set(
 	jnc_Edit_p.cpp
 	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
+	jnc_CodeAssistThread.cpp
 	)
 
 set(
@@ -76,6 +79,7 @@ set(
 	${JANCY_INC_DIR}/jnc_Edit.h
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
+	jnc_CodeAssistThread.h
 	)
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})

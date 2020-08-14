@@ -25,10 +25,7 @@ Edit::Edit(QWidget *parent):
 	Q_D(Edit);
 
 	d->q_ptr = this;
-	d->setupEditor();
-	d->enableSyntaxHighlighting(true);
-	d->enableLineNumberMargin(true);
-	d->enableCurrentLineHighlighting(true);
+	d->init();
 }
 
 Edit::~Edit()
@@ -60,7 +57,7 @@ void
 Edit::enableCurrentLineHighlighting(bool isEnabled)
 {
 	Q_D(Edit);
-	return d->enableCurrentLineHighlighting(true);
+	return d->enableCurrentLineHighlighting(isEnabled);
 }
 
 bool
@@ -74,7 +71,7 @@ void
 Edit::enableSyntaxHighlighting(bool isEnabled)
 {
 	Q_D(Edit);
-	return d->enableSyntaxHighlighting(true);
+	return d->enableSyntaxHighlighting(isEnabled);
 }
 
 Edit::CodeAssistTriggers
@@ -124,7 +121,7 @@ Edit::quickInfoTip()
 	Q_D(Edit);
 
 	d->requestCodeAssist(
-		EditPrivate::CodeAssistKind_QuickInfoTip,
+		CodeAssistKind_QuickInfoTip,
 		textCursor().position(),
 		true
 		);
@@ -136,7 +133,7 @@ Edit::argumentTip()
 	Q_D(Edit);
 
 	d->requestCodeAssist(
-		EditPrivate::CodeAssistKind_ArgumentTip,
+		CodeAssistKind_ArgumentTip,
 		textCursor().position(),
 		true
 		);
@@ -148,7 +145,7 @@ Edit::autoComplete()
 	Q_D(Edit);
 
 	d->requestCodeAssist(
-		EditPrivate::CodeAssistKind_AutoComplete,
+		CodeAssistKind_AutoComplete,
 		textCursor().position(),
 		true
 		);
@@ -160,7 +157,7 @@ Edit::autoCompleteList()
 	Q_D(Edit);
 
 	d->requestCodeAssist(
-		EditPrivate::CodeAssistKind_AutoCompleteList,
+		CodeAssistKind_AutoCompleteList,
 		textCursor().position(),
 		true
 		);
@@ -172,7 +169,7 @@ Edit::gotoDefinition()
 	Q_D(Edit);
 
 	d->requestCodeAssist(
-		EditPrivate::CodeAssistKind_GotoDefinition,
+		CodeAssistKind_GotoDefinition,
 		textCursor().position(),
 		true
 		);
@@ -194,7 +191,35 @@ Edit::keyPressEvent(QKeyEvent* e)
 {
 	Q_D(Edit);
 
-	if (e->key() == Qt::Key_Space && (e->modifiers() & Qt::ControlModifier))
+	int key = e->key();
+	QString text = e->text();
+	QChar ch = text.isEmpty() ? QChar() : text.at(0);
+
+	if (d->isCompleterVisible())
+	{
+		switch (key)
+		{
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+		case Qt::Key_Escape:
+		case Qt::Key_Tab:
+		case Qt::Key_Backtab:
+			e->ignore();
+			return; // let the completer do default behavior
+		}
+
+		if (key == Qt::Key_Backspace || ch.isNull() || ch.isLetterOrNumber())
+		{
+			QPlainTextEdit::keyPressEvent(e);
+			d->updateCompleter();
+		}
+		else
+		{
+			d->applyCompleter();
+			QPlainTextEdit::keyPressEvent(e);
+		}
+	}
+	else if (key == Qt::Key_Space && (e->modifiers() & Qt::ControlModifier))
 	{
 		if (e->modifiers() & Qt::ShiftModifier)
 		{
@@ -208,42 +233,32 @@ Edit::keyPressEvent(QKeyEvent* e)
 		}
 
 		e->accept();
-		return;
 	}
-
-	QPlainTextEdit::keyPressEvent(e);
-}
-
-void
-Edit::keyReleaseEvent(QKeyEvent* e)
-{
-	Q_D(Edit);
-
-	QPlainTextEdit::keyReleaseEvent(e); // default processing first
-
-	QByteArray text = e->text().toLatin1();
-	if (text.isEmpty())
-		return;
-
-	char c = text[0];
-	switch (c)
+	else
 	{
-	case '.':
-		if (d->m_codeAssistTriggers & AutoCompleteListOnTypeDot)
-			d->requestCodeAssist(EditPrivate::CodeAssistKind_AutoCompleteList, textCursor().position());
-		break;
+		QPlainTextEdit::keyPressEvent(e);
 
-	case '(':
-		if (d->m_codeAssistTriggers & ArgumentTipOnTypeLeftParenthesis)
-			d->requestCodeAssist(EditPrivate::CodeAssistKind_ArgumentTip, textCursor().position());
-		break;
+		char c = ch.toLatin1();
+		switch (c)
+		{
+		case '.':
+			if (d->m_codeAssistTriggers & AutoCompleteListOnTypeDot)
+				d->requestCodeAssist(CodeAssistKind_AutoCompleteList, textCursor().position());
+			break;
 
-	case ',':
-		if (d->m_codeAssistTriggers & ArgumentTipOnTypeComma)
-			d->requestCodeAssist(EditPrivate::CodeAssistKind_ArgumentTip, textCursor().position());
-		break;
+		case '(':
+			if (d->m_codeAssistTriggers & ArgumentTipOnTypeLeftParenthesis)
+				d->requestCodeAssist(CodeAssistKind_ArgumentTip, textCursor().position());
+			break;
+
+		case ',':
+			if (d->m_codeAssistTriggers & ArgumentTipOnTypeComma)
+				d->requestCodeAssist(CodeAssistKind_ArgumentTip, textCursor().position());
+			break;
+		}
 	}
 }
+
 
 void
 Edit::mousePressEvent(QMouseEvent* e)
@@ -273,6 +288,8 @@ EditPrivate::EditPrivate()
 	m_syntaxHighlighter = NULL;
 	m_lineNumberMargin = NULL;
 	m_isCurrentLineHighlightingEnabled = false;
+	m_thread = NULL;
+	m_completer = NULL;
 
 	m_codeAssistTriggers =
 		Edit::QuickInfoTipOnHoverOverIdentifier |
@@ -286,15 +303,18 @@ EditPrivate::EditPrivate()
 }
 
 void
-EditPrivate::setupEditor()
+EditPrivate::init()
 {
 	Q_Q(Edit);
 
 #if (_JNC_OS_DARWIN)
 	QFont font("Menlo", 11);
+#elif (_JNC_OS_WIN)
+	QFont font("Consolas", 10);
 #else
 	QFont font("Monospace", 9);
 #endif
+
 	font.setFixedPitch(true);
 	font.setKerning(false);
 	font.setStyleHint(
@@ -305,6 +325,10 @@ EditPrivate::setupEditor()
 	q->setFont(font);
 	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * 4);
 	q->setWordWrapMode(QTextOption::NoWrap);
+
+	enableSyntaxHighlighting(true);
+	enableLineNumberMargin(true);
+	enableCurrentLineHighlighting(true);
 }
 
 void
@@ -338,6 +362,7 @@ EditPrivate::enableLineNumberMargin(bool isEnabled)
 		m_lineNumberMargin = new LineNumberMargin(q);
 		q->setViewportMargins(m_lineNumberMargin->width(), 0, 0, 0);
 		updateLineNumberMarginGeometry();
+		m_lineNumberMargin->show();
 
 		QObject::connect(
 			q, SIGNAL(updateRequest(const QRect&, int)),
@@ -356,6 +381,7 @@ EditPrivate::enableLineNumberMargin(bool isEnabled)
 
 		q->setViewportMargins(0, 0, 0, 0);
 		delete m_lineNumberMargin;
+		m_lineNumberMargin = NULL;
 	}
 }
 
@@ -403,23 +429,29 @@ EditPrivate::updateLineNumberMarginGeometry()
 
 void
 EditPrivate::requestCodeAssist(
-	CodeAssistKind codeAssistKind,
+	CodeAssistKind kind,
 	int position,
 	bool isSync
 	)
 {
 	Q_Q(Edit);
 
-	static const char* codeAssistKindString[] =
-	{
-		"QuickInfoTip",
-		"ArgumentTip",
-		"AutoComplete",
-		"AutoCompleteList",
-		"GotoDefinition",
-	};
+	if (m_thread)
+		m_thread->cancel();
 
-	printf("requestCodeAssist(%s, %d, %d)\n", codeAssistKindString[codeAssistKind], position, isSync);
+	m_thread = new CodeAssistThread(this);
+
+	QObject::connect(
+		m_thread, SIGNAL(ready()),
+		this, SLOT(onCodeAssistReady())
+		);
+
+	QObject::connect(
+		m_thread, SIGNAL(finished()),
+		this, SLOT(onThreadFinished())
+		);
+
+	m_thread->request(kind, q->toPlainText(), position);
 }
 
 void
@@ -458,9 +490,198 @@ EditPrivate::highlightCurrentLine()
 }
 
 void
+EditPrivate::ensureCompleter()
+{
+	if (m_completer)
+		return;
+
+	Q_Q(Edit);
+
+	m_completer = new QCompleter(q);
+	m_completer->setWidget(q);
+	m_completer->setCompletionMode(QCompleter::PopupCompletion);
+	m_completer->setMaxVisibleItems(10);
+	m_completer->popup()->setFont(q->font());
+
+    QObject::connect(
+		m_completer, SIGNAL(activated(const QString&)),
+		this, SLOT(onCompleterActivated(const QString&))
+		);
+}
+
+void
+EditPrivate::updateCompleter(bool isForced)
+{
+	ASSERT(m_completer);
+
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	cursor.select(QTextCursor::WordUnderCursor);
+
+	QString prefix = cursor.selectedText();
+	if (!isForced && prefix == m_completer->completionPrefix())
+		return;
+
+	QAbstractItemView* popup = m_completer->popup();
+	m_completer->setCompletionPrefix(prefix);
+	popup->setCurrentIndex(m_completer->completionModel()->index(0, 0));
+
+    m_completerRect.setWidth(
+		popup->sizeHintForColumn(0) +
+		popup->verticalScrollBar()->sizeHint().width()
+		);
+
+	m_completer->complete(m_completerRect);
+}
+
+void
+EditPrivate::applyCompleter()
+{
+	ASSERT(m_completer);
+
+	QModelIndex index = m_completer->popup()->currentIndex();
+	QString completion = index.isValid() ? m_completer->popup()->model()->data(index).toString() : QString();
+	if (!completion.isEmpty())
+		onCompleterActivated(completion);
+
+	hideCompleter();
+}
+
+void
+EditPrivate::createQuickInfoTip(
+	const lex::LineColOffset& pos,
+	ModuleItem* item
+	)
+{
+	Q_Q(Edit);
+
+	QPoint point = q->cursorRect().topLeft();
+	point = q->mapToGlobal(point);
+	point += QPoint(q->viewportMargins().left(), 0);
+
+	QToolTip::showText(point, item->getDecl()->getName(), q);
+}
+
+void
+EditPrivate::createArgumentTip(
+	const lex::LineColOffset& pos,
+	Function* function,
+	size_t argumentIdx
+	)
+{
+	Q_Q(Edit);
+
+	QPoint point = q->cursorRect().topLeft();
+	point = q->mapToGlobal(point);
+	point += QPoint(q->viewportMargins().left(), 0);
+
+	QToolTip::showText(point, function->getDecl()->getName(), q);
+}
+
+void
+EditPrivate::createAutoCompleteList(
+	const lex::LineColOffset& pos,
+	Namespace* nspace,
+	uint_t flags
+	)
+{
+	Q_Q(Edit);
+
+	QStringList list;
+
+	size_t count = nspace->getItemCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		ModuleItem* item = nspace->getItem(i);
+		const char* name = item->getDecl()->getName();
+		printf("[%d]\t%s\n", i, name);
+		list.append(name);
+	}
+
+	ensureCompleter();
+
+	list.sort(Qt::CaseInsensitive);
+
+	m_completer->setModel(new QStringListModel(list, m_completer));
+	m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+	m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+	m_completer->setWrapAround(false);
+	m_completer->setCompletionPrefix(QString());
+
+	m_completerRect = q->cursorRect();
+	m_completerRect.translate(q->viewportMargins().left(), 0);
+
+	updateCompleter(true);
+}
+
+void
+EditPrivate::onCompleterActivated(const QString &completion)
+{
+	Q_Q(Edit);
+
+	if (m_completer->widget() != q)
+        return;
+
+    QTextCursor tc = q->textCursor();
+    int extra = completion.length() - m_completer->completionPrefix().length();
+    tc.movePosition(QTextCursor::Left);
+    tc.movePosition(QTextCursor::EndOfWord);
+    tc.insertText(completion.right(extra));
+    q->setTextCursor(tc);
+}
+
+void
 EditPrivate::onCodeAssistReady()
 {
 	Q_Q(Edit);
+
+	CodeAssistThread* thread = (CodeAssistThread*)sender();
+	ASSERT(thread);
+
+	CodeAssist* codeAssist = thread->getCodeAssist();
+	if (!codeAssist)
+		return;
+
+	CodeAssistKind kind = codeAssist->getCodeAssistKind();
+
+	lex::LineColOffset pos;
+	pos.m_line = codeAssist->getLine();
+	pos.m_col = codeAssist->getCol();
+	pos.m_offset = codeAssist->getOffset();
+
+	switch (kind)
+	{
+	case CodeAssistKind_QuickInfoTip:
+		createQuickInfoTip(pos, codeAssist->getModuleItem());
+		break;
+
+	case CodeAssistKind_ArgumentTip:
+		createArgumentTip(pos, codeAssist->getFunction(), codeAssist->getArgumentIdx());
+		break;
+
+	case CodeAssistKind_AutoComplete:
+		break;
+
+	case CodeAssistKind_AutoCompleteList:
+		createAutoCompleteList(pos, codeAssist->getNamespace(), codeAssist->getNamespaceFlags());
+		break;
+
+	case CodeAssistKind_GotoDefinition:
+		break;
+	}
+}
+
+void
+EditPrivate::onThreadFinished()
+{
+	CodeAssistThread* thread = (CodeAssistThread*)sender();
+	ASSERT(thread);
+
+	if (thread == m_thread)
+		m_thread = NULL;
+
+	thread->deleteLater();
 }
 
 //..............................................................................

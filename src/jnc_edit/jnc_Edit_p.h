@@ -14,6 +14,7 @@
 #include "jnc_Edit.h"
 #include "jnc_LineNumberMargin.h"
 #include "jnc_Highlighter.h"
+#include "jnc_CodeAssistThread.h"
 
 namespace jnc {
 
@@ -30,28 +31,22 @@ protected:
 		Color_CurrentLineBack = 0xe8eff8,
 	};
 
-	enum CodeAssistKind
-	{
-		CodeAssistKind_QuickInfoTip,
-		CodeAssistKind_ArgumentTip,
-		CodeAssistKind_AutoComplete,
-		CodeAssistKind_AutoCompleteList,
-		CodeAssistKind_GotoDefinition,
-	};
-
 protected:
     Edit* q_ptr;
 	JancyHighlighter* m_syntaxHighlighter;
 	LineNumberMargin* m_lineNumberMargin;
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
+	CodeAssistThread* m_thread;
+	QCompleter* m_completer;
+	QRect m_completerRect;
 	bool m_isCurrentLineHighlightingEnabled;
 
 protected:
 	EditPrivate();
 
 	void
-	setupEditor();
+	init();
 
 	void
 	enableSyntaxHighlighting(bool isEnabled);
@@ -67,15 +62,59 @@ protected:
 
 	void
 	requestCodeAssist(
-		CodeAssistKind codeAssistKind,
+		CodeAssistKind kind,
 		int position,
 		bool isSync = false
+		);
+
+	bool
+	isCompleterVisible()
+	{
+		return m_completer && m_completer->popup()->isVisible();
+	}
+
+	void
+	ensureCompleter();
+
+	void
+	applyCompleter();
+
+	void
+	updateCompleter(bool isForced = false);
+
+	void
+	hideCompleter()
+	{
+		ASSERT(m_completer);
+		m_completer->popup()->hide();
+	}
+
+	void
+	createQuickInfoTip(
+		const lex::LineColOffset& pos,
+		ModuleItem* item
+		);
+
+	void
+	createArgumentTip(
+		const lex::LineColOffset& pos,
+		Function* function,
+		size_t argumentIdx
+		);
+
+	void
+	createAutoCompleteList(
+		const lex::LineColOffset& pos,
+		Namespace* nspace,
+		uint_t flags
 		);
 
 private slots:
 	void updateLineNumberMargin(const QRect&, int);
 	void highlightCurrentLine();
+	void onCompleterActivated(const QString &completion);
 	void onCodeAssistReady();
+	void onThreadFinished();
 };
 
 //..............................................................................
