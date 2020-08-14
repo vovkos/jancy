@@ -45,6 +45,10 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 {
 	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
+	m_syntaxHighlightingAction = NULL;
+	m_currentLineHighlightingAction = NULL;
+	m_lineNumberMarginAction = NULL;
+
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	createMdiArea();
@@ -82,7 +86,7 @@ void MainWindow::closeEvent(QCloseEvent* e)
 	writeSettings();
 	m_mdiArea->closeAllSubWindows();
 
-	if (m_mdiArea->currentSubWindow())
+	if (!m_mdiArea->subWindowList().isEmpty())
 		e->ignore();
 	else
 		e->accept();
@@ -168,6 +172,22 @@ void MainWindow::createActions()
 	m_clearOutputAction = new QAction("&Clear Output", this);
 	QObject::connect(m_clearOutputAction, SIGNAL(triggered()), this, SLOT(clearOutput()));
 
+	m_syntaxHighlightingAction = new QAction("Highlight Jancy &Syntax", this);
+	m_syntaxHighlightingAction->setCheckable(true);
+	m_syntaxHighlightingAction->setChecked(true);
+	QObject::connect(m_syntaxHighlightingAction, SIGNAL(triggered(bool)), this, SLOT(onEnableSyntaxHighlighting(bool)));
+
+	m_currentLineHighlightingAction = new QAction("Highlight &Current line", this);
+	m_currentLineHighlightingAction->setCheckable(true);
+	m_currentLineHighlightingAction->setChecked(true);
+	QObject::connect(m_currentLineHighlightingAction, SIGNAL(triggered(bool)), this, SLOT(onEnableCurrentLineHighlighting(bool)));
+
+	m_lineNumberMarginAction = new QAction("Line &Number Margin", this);
+	m_lineNumberMarginAction->setCheckable(true);
+	m_lineNumberMarginAction->setChecked(true);
+	QObject::connect(m_lineNumberMarginAction, SIGNAL(triggered(bool)), this, SLOT(onEnableLineNumberMargin(bool)));
+
+
 	m_stdlibAction = new QAction("Standard &Libraries", this);
 	m_stdlibAction->setCheckable(true);
 	m_stdlibAction->setChecked(true);
@@ -227,6 +247,10 @@ void MainWindow::createMenu()
 	m_compileMenu->addAction(m_runAction);
 
 	m_viewMenu = menuBar()->addMenu("&View");
+	m_viewMenu->addAction(m_syntaxHighlightingAction);
+	m_viewMenu->addAction(m_currentLineHighlightingAction);
+	m_viewMenu->addAction(m_lineNumberMarginAction);
+	m_viewMenu->addSeparator();
 }
 
 void MainWindow::createToolBars()
@@ -338,6 +362,27 @@ void MainWindow::outputSlot()
 	}
 
 	m_outputMutex.unlock();
+}
+
+void MainWindow::onEnableSyntaxHighlighting(bool isEnabled)
+{
+	MdiChild* child = activeMdiChild();
+	if (child)
+		child->enableSyntaxHighlighting(isEnabled);
+}
+
+void MainWindow::onEnableCurrentLineHighlighting(bool isEnabled)
+{
+	MdiChild* child = activeMdiChild();
+	if (child)
+		child->enableCurrentLineHighlighting(isEnabled);
+}
+
+void MainWindow::onEnableLineNumberMargin(bool isEnabled)
+{
+	MdiChild* child = activeMdiChild();
+	if (child)
+		child->enableLineNumberMargin(isEnabled);
 }
 
 MdiChild* MainWindow::findMdiChild(const QString& filePath)

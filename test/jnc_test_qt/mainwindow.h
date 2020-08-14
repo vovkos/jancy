@@ -47,6 +47,9 @@ private slots:
 	bool compile();
 	bool run();
 	void outputSlot();
+	void onEnableSyntaxHighlighting(bool isEnabled);
+	void onEnableCurrentLineHighlighting(bool isEnabled);
+	void onEnableLineNumberMargin(bool isEnabled);
 
 signals:
 	void outputSignal();
@@ -98,6 +101,9 @@ private:
 	QAction* m_saveFileAction;
 	QAction* m_saveAsAction;
 	QAction* m_clearOutputAction;
+	QAction* m_syntaxHighlightingAction;
+	QAction* m_currentLineHighlightingAction;
+	QAction* m_lineNumberMarginAction;
 	QAction* m_compileAction;
 	QAction* m_runAction;
 	QAction* m_stdlibAction;
