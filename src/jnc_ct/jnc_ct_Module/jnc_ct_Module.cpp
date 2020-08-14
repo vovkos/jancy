@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_JitMemoryMgr.h"
+#include "jnc_ct_CodeAssist.h"
 #include "jnc_ct_Parser.llk.h"
 
 #if (_AXL_DEBUG)
@@ -52,6 +53,10 @@ Module::Module():
 	m_compileErrorHandler = NULL;
 	m_compileErrorHandlerContext = NULL;
 	m_constructor = NULL;
+
+	m_codeAssist = NULL;
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistOffset = 0;
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
@@ -125,7 +130,11 @@ Module::clear()
 
 	clearLlvm();
 
+	if (m_codeAssist)
+		AXL_MEM_DELETE(m_codeAssist);
+
 	m_constructor = NULL;
+	m_codeAssist = NULL;
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
@@ -180,12 +189,15 @@ Module::initialize(
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
 
-	m_llvmContext = new llvm::LLVMContext;
-	m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
-	m_llvmIrBuilder.create();
+	if (!(compileFlags & ModuleCompileFlag_DisableCodeGen))
+	{
+		m_llvmContext = new llvm::LLVMContext;
+		m_llvmModule = new llvm::Module("jncModule", *m_llvmContext);
+		m_llvmIrBuilder.create();
 
-	if (compileFlags & ModuleCompileFlag_DebugInfo)
-		m_llvmDiBuilder.create();
+		if (compileFlags & ModuleCompileFlag_DebugInfo)
+			m_llvmDiBuilder.create();
+	}
 
 	if (!(compileFlags & ModuleCompileFlag_StdLibDoc))
 	{
@@ -195,9 +207,6 @@ Module::initialize(
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}
-
-	if (compileFlags & ModuleCompileFlag_DisableCodeGen)
-		clearLlvm();
 }
 
 #if (JNC_PTR_BITS == 32)
@@ -387,6 +396,71 @@ Module::createLlvmExecutionEngine()
 	}
 
 	return true;
+}
+
+CodeAssist*
+Module::generateCodeAssist(
+	jnc_CodeAssistKind kind,
+	size_t offset,
+	const sl::StringRef& source
+	)
+{
+	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
+
+	m_codeAssistKind = kind;
+	m_codeAssistOffset = offset;
+	parse("code-assist-source", source);
+
+	if (m_codeAssist)
+		return m_codeAssist; // already created
+
+	// locate offset...
+
+	// create some random code-assist:
+
+	lex::LineColOffset pos;
+	pos.m_line = 10;
+	pos.m_col = 10;
+	pos.m_offset = offset;
+
+	Function* firstFunction = NULL;
+
+	GlobalNamespace* global = m_namespaceMgr.getGlobalNamespace();
+	const sl::Array<ModuleItem*>& globalItemArray = global->getItemArray();
+	size_t count = globalItemArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		ModuleItem* item = globalItemArray[i];
+		if (item->getItemKind() == ModuleItemKind_Function)
+		{
+			firstFunction = (Function*)item;
+			break;
+		}
+	}
+
+	switch (m_codeAssistKind)
+	{
+	case CodeAssistKind_QuickInfoTip:
+		if (firstFunction)
+			m_codeAssist = CodeAssist::createQuickInfoTip(pos, firstFunction);
+		break;
+
+	case CodeAssistKind_ArgumentTip:
+		if (firstFunction)
+			m_codeAssist = CodeAssist::createArgumentTip(pos, firstFunction, 0);
+		break;
+
+	case CodeAssistKind_AutoComplete:
+	case CodeAssistKind_AutoCompleteList:
+		m_codeAssist = CodeAssist::createAutoCompleteList(pos, global);
+		break;
+
+	case CodeAssistKind_GotoDefinition:
+		m_codeAssist = CodeAssist::createGotoDefinition(pos, firstFunction);
+		break;
+	}
+
+	return m_codeAssist;
 }
 
 bool

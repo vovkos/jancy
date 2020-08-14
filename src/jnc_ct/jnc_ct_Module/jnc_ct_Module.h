@@ -112,6 +112,10 @@ protected:
 
 	Function* m_constructor;
 
+	CodeAssist* m_codeAssist;
+	CodeAssistKind m_codeAssistKind;
+	size_t m_codeAssistOffset;
+
 	// codegen-only
 
 	llvm::LLVMContext* m_llvmContext;
@@ -228,6 +232,12 @@ public:
 		return m_constructor;
 	}
 
+	CodeAssist*
+	getCodeAssist()
+	{
+		return m_codeAssist;
+	}
+
 	void
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
@@ -266,13 +276,20 @@ public:
 	markForCompile(Function* function);
 
 	void
+	clear();
+
+	CodeAssist*
+	generateCodeAssist(
+		jnc_CodeAssistKind kind,
+		size_t offset,
+		const sl::StringRef& source
+		);
+
+	void
 	initialize(
 		const sl::StringRef& name,
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
-
-	void
-	clear();
 
 	bool
 	parse(
