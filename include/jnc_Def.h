@@ -75,6 +75,7 @@ class PropertyPtrType;
 class Unit;
 class Module;
 class GcShadowStackFrameMap;
+class CodeAssist;
 
 } // namespace ct
 
@@ -128,6 +129,7 @@ typedef jnc::ct::Module jnc_Module;
 typedef jnc::rt::Runtime jnc_Runtime;
 typedef jnc::rt::GcHeap jnc_GcHeap;
 typedef jnc::ct::GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
+typedef jnc::ct::CodeAssist jnc_CodeAssist;
 
 #	define JNC_GUID_INITIALIZER AXL_SL_GUID_INITIALIZER
 #	define JNC_DEFINE_GUID AXL_SL_DEFINE_GUID
@@ -180,6 +182,7 @@ typedef struct jnc_Module jnc_Module;
 typedef struct jnc_Runtime jnc_Runtime;
 typedef struct jnc_GcHeap jnc_GcHeap;
 typedef struct jnc_GcShadowStackFrameMap jnc_GcShadowStackFrameMap;
+typedef struct jnc_CodeAssist jnc_CodeAssist;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -429,6 +432,7 @@ typedef jnc_GcShadowStackFrameMap GcShadowStackFrameMap;
 typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_GcStats GcStats;
 typedef jnc_GcSizeTriggers GcSizeTriggers;
+typedef jnc_CodeAssist CodeAssist;
 
 //..............................................................................
 

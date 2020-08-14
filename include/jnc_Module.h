@@ -26,6 +26,7 @@
 #include "jnc_StructType.h"
 #include "jnc_UnionType.h"
 #include "jnc_ClassType.h"
+#include "jnc_CodeAssist.h"
 #include "jnc_Unit.h"
 
 /**
@@ -321,6 +322,20 @@ JNC_EXTERN_C
 const char*
 jnc_Module_getLlvmIrString_v(jnc_Module* module);
 
+JNC_EXTERN_C
+jnc_CodeAssist*
+jnc_Module_generateCodeAssist(
+	jnc_Module* module,
+	jnc_CodeAssistKind kind,
+	size_t offset,
+	const char* source,
+	size_t length
+	);
+
+JNC_EXTERN_C
+jnc_CodeAssist*
+jnc_Module_getCodeAssist(jnc_Module* module);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -553,6 +568,23 @@ struct jnc_Module
 	generateDocumentation(const char* outputDir)
 	{
 		return jnc_Module_generateDocumentation(this, outputDir) != 0;
+	}
+
+	jnc_CodeAssist*
+	generateCodeAssist(
+		jnc_CodeAssistKind kind,
+		size_t offset,
+		const char* source,
+		size_t length = -1
+		)
+	{
+		return jnc_Module_generateCodeAssist(this, kind, offset, source, length);
+	}
+
+	jnc_CodeAssist*
+	getCodeAssist()
+	{
+		return jnc_Module_getCodeAssist(this);
 	}
 };
 #endif // _JNC_CORE

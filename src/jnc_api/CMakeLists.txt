@@ -48,7 +48,7 @@ set(
 	${JANCY_INC_DIR}/jnc_Construct.h
 	${JANCY_INC_DIR}/jnc_StdMap.h
 	${JANCY_INC_DIR}/jnc_StdHashTable.h
-	${JANCY_INC_DIR}/jnc_StdRbTree.h
+	${JANCY_INC_DIR}/jnc_CodeAssist.h
 	${JANCY_INC_DIR}/jnc_WarningSuppression.h
 	)
 
@@ -80,6 +80,7 @@ set(
 	jnc_GcHeap.cpp
 	jnc_StdHashTable.cpp
 	jnc_StdRbTree.cpp
+	jnc_CodeAssist.cpp
 	)
 
 set(

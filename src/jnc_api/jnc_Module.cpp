@@ -502,6 +502,27 @@ jnc_Module_generateDocumentation(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_CodeAssist*
+jnc_Module_generateCodeAssist(
+	jnc_Module* module,
+	jnc_CodeAssistKind kind,
+	size_t offset,
+	const char* source,
+	size_t length
+	)
+{
+	return module->generateCodeAssist(kind, offset, sl::StringRef(source, length));
+}
+
+JNC_EXTERN_C
+jnc_CodeAssist*
+jnc_Module_getCodeAssist(jnc_Module* module)
+{
+	return module->getCodeAssist();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_initialize(const char* tag)
 {

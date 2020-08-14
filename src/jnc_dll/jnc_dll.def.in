@@ -20,6 +20,16 @@ EXPORTS
 	jnc_setErrno
 	jnc_setError
 	jnc_setStringError
+	jnc_getCodeAssistKindString
+	jnc_CodeAssist_getCodeAssistKind
+	jnc_CodeAssist_getLine
+	jnc_CodeAssist_getCol
+	jnc_CodeAssist_getOffset
+	jnc_CodeAssist_getModuleItem
+	jnc_CodeAssist_getFunction
+	jnc_CodeAssist_getArgumentIdx
+	jnc_CodeAssist_getNamespace
+	jnc_CodeAssist_getNamespaceFlags
 	jnc_ModuleItemDecl_getAccessKind
 	jnc_ModuleItemDecl_getAttributeBlock
 	jnc_ModuleItemDecl_getCol
@@ -149,6 +159,8 @@ EXPORTS
 	jnc_Module_destroy
 	jnc_Module_findExtensionLibItem
 	jnc_Module_generateDocumentation
+	jnc_Module_generateCodeAssist
+	jnc_Module_getCodeAssist
 	jnc_Module_getCompileFlags
 	jnc_Module_getCompileState
 	jnc_Module_getCompileErrorCount
