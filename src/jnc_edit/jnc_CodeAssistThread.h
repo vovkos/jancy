@@ -22,7 +22,7 @@ class CodeAssistThread: public QThread
 protected:
 	AutoModule m_module;
 	sl::String m_source;
-	size_t m_offset;
+	lex::LineCol m_pos;
 	CodeAssistKind m_codeAssistKind;
 
 public:
@@ -41,15 +41,19 @@ public:
 	void
 	request(
 		CodeAssistKind kind,
-		const QString& text,
-		int position
-		);
+		const QString& source,
+		const lex::LineCol& pos
+		)
+	{
+		QByteArray utf8 = source.toUtf8();
+		request(kind, sl::StringRef(utf8.data(), utf8.size()), pos);
+	}
 
 	void
 	request(
 		CodeAssistKind kind,
 		const sl::StringRef& source,
-		size_t offset
+		const lex::LineCol& pos
 		);
 
 	void

@@ -63,7 +63,23 @@ protected:
 	void
 	requestCodeAssist(
 		CodeAssistKind kind,
-		int position,
+		bool isSync = false
+		);
+
+	void
+	requestCodeAssist(
+		CodeAssistKind kind,
+		const QTextCursor& cursor,
+		bool isSync = false
+		)
+	{
+		requestCodeAssist(kind, getLineColFromCursor(cursor), isSync);
+	}
+
+	void
+	requestCodeAssist(
+		CodeAssistKind kind,
+		const lex::LineCol& pos,
 		bool isSync = false
 		);
 
@@ -91,23 +107,33 @@ protected:
 
 	void
 	createQuickInfoTip(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		ModuleItem* item
 		);
 
 	void
 	createArgumentTip(
-		const lex::LineColOffset& pos,
-		Function* function,
+		const lex::LineCol& pos,
+		FunctionType* type,
 		size_t argumentIdx
 		);
 
 	void
 	createAutoCompleteList(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		Namespace* nspace,
 		uint_t flags
 		);
+
+	static
+	lex::LineCol
+	getLineColFromCursor(const QTextCursor& cursor);
+
+	QRect
+	getCursorRectFromLineCol(const lex::LineCol& pos);
+
+	QPoint
+	getToolTipPointFromLineCol(const lex::LineCol& pos);
 
 private slots:
 	void updateLineNumberMargin(const QRect&, int);

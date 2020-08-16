@@ -21,7 +21,6 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 	QThread(parent)
 {
 	printf("CodeAssistThread::CodeAssistThread(%p)\n", this);
-	m_offset = 0;
 	m_codeAssistKind = CodeAssistKind_Undefined;
 }
 
@@ -33,38 +32,13 @@ CodeAssistThread::~CodeAssistThread()
 void
 CodeAssistThread::request(
 	CodeAssistKind kind,
-	const QString& text,
-	int position
-	)
-{
-	QByteArray text_utf8 = text.toUtf8();
-	size_t offset = text.left(position).toUtf8().count();
-
-	request(
-		kind,
-		sl::StringRef(text_utf8.data(), text_utf8.size()),
-		offset
-		);
-}
-
-void
-CodeAssistThread::request(
-	CodeAssistKind kind,
 	const sl::StringRef& source,
-	size_t offset
+	const lex::LineCol& pos
 	)
 {
 	m_codeAssistKind = kind;
 	m_source = source;
-	m_offset = offset;
-
-	printf(
-		"CodeAssistThread::request(%s, %d)\n%s<<<--->>>%s\n",
-		getCodeAssistKindString(kind),
-		offset,
-		source.getLeftSubString(offset).sz(),
-		source.getSubString(offset).sz()
-		);
+	m_pos = pos;
 
 	start();
 }
@@ -97,7 +71,8 @@ CodeAssistThread::run()
 
 	m_module->generateCodeAssist(
 		m_codeAssistKind,
-		m_offset,
+		m_pos.m_line,
+		m_pos.m_col,
 		m_source.cp(),
 		m_source.getLength()
 		);
