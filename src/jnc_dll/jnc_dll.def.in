@@ -24,7 +24,6 @@ EXPORTS
 	jnc_CodeAssist_getCodeAssistKind
 	jnc_CodeAssist_getLine
 	jnc_CodeAssist_getCol
-	jnc_CodeAssist_getOffset
 	jnc_CodeAssist_getModuleItem
 	jnc_CodeAssist_getFunction
 	jnc_CodeAssist_getArgumentIdx

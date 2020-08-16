@@ -114,7 +114,7 @@ protected:
 
 	CodeAssist* m_codeAssist;
 	CodeAssistKind m_codeAssistKind;
-	size_t m_codeAssistOffset;
+	lex::LineCol m_codeAssistPos;
 
 	// codegen-only
 
@@ -281,7 +281,7 @@ public:
 	CodeAssist*
 	generateCodeAssist(
 		jnc_CodeAssistKind kind,
-		size_t offset,
+		const lex::LineCol& pos,
 		const sl::StringRef& source
 		);
 

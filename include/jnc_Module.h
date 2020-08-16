@@ -327,7 +327,8 @@ jnc_CodeAssist*
 jnc_Module_generateCodeAssist(
 	jnc_Module* module,
 	jnc_CodeAssistKind kind,
-	size_t offset,
+	int line,
+	int col,
 	const char* source,
 	size_t length
 	);
@@ -573,12 +574,13 @@ struct jnc_Module
 	jnc_CodeAssist*
 	generateCodeAssist(
 		jnc_CodeAssistKind kind,
-		size_t offset,
+		int line,
+		int col,
 		const char* source,
 		size_t length = -1
 		)
 	{
-		return jnc_Module_generateCodeAssist(this, kind, offset, source, length);
+		return jnc_Module_generateCodeAssist(this, kind, line, col, source, length);
 	}
 
 	jnc_CodeAssist*

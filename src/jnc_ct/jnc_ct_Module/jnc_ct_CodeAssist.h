@@ -22,12 +22,12 @@ class CodeAssist
 {
 protected:
 	CodeAssistKind m_codeAssistKind;
-	lex::LineColOffset m_pos; // not necessarily the same as request position
+	lex::LineCol m_pos; // not necessarily the same as request position
 
 	union
 	{
 		ModuleItem* m_item;
-		Function* m_function;
+		FunctionType* m_functionType;
 		Namespace* m_namespace;
 	};
 
@@ -42,7 +42,7 @@ protected:
 	CodeAssist*
 	createModuleItemCodeAssist(
 		CodeAssistKind kind,
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		ModuleItem* item
 		);
 
@@ -50,7 +50,7 @@ public:
 	static
 	CodeAssist*
 	createQuickInfoTip(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		ModuleItem* item
 		)
 	{
@@ -60,7 +60,7 @@ public:
 	static
 	CodeAssist*
 	createGotoDefinition(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		ModuleItem* item
 		)
 	{
@@ -70,7 +70,7 @@ public:
 	static
 	CodeAssist*
 	createAutoComplete(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		ModuleItem* item
 		)
 	{
@@ -80,15 +80,15 @@ public:
 	static
 	CodeAssist*
 	createArgumentTip(
-		const lex::LineColOffset& pos,
-		Function* function,
+		const lex::LineCol& pos,
+		FunctionType* functionType,
 		size_t arugmentIdx
 		);
 
 	static
 	CodeAssist*
 	createAutoCompleteList(
-		const lex::LineColOffset& pos,
+		const lex::LineCol& pos,
 		Namespace* nspace,
 		uint_t flags = 0
 		);
@@ -111,12 +111,6 @@ public:
 		return m_pos.m_col;
 	}
 
-	size_t
-	getOffset()
-	{
-		return m_pos.m_offset;
-	}
-
 	ModuleItem*
 	getModuleItem()
 	{
@@ -124,11 +118,11 @@ public:
 		return m_item;
 	}
 
-	Function*
-	getFunction()
+	FunctionType*
+	getFunctionType()
 	{
 		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
-		return m_function;
+		return m_functionType;
 	}
 
 	Namespace*

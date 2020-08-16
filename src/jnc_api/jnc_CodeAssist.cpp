@@ -63,14 +63,6 @@ jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssistResult)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-size_t
-jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssistResult)
-{
-	return codeAssistResult->getOffset();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssistResult)
 {
@@ -79,10 +71,10 @@ jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssistResult)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_Function*
-jnc_CodeAssist_getFunction(jnc_CodeAssist* codeAssistResult)
+jnc_FunctionType*
+jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssistResult)
 {
-	return codeAssistResult->getFunction();
+	return codeAssistResult->getFunctionType();
 }
 
 JNC_EXTERN_C

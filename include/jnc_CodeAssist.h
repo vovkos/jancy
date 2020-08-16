@@ -48,16 +48,12 @@ int
 jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssistResult);
 
 JNC_EXTERN_C
-size_t
-jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssistResult);
-
-JNC_EXTERN_C
 jnc_ModuleItem*
 jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssistResult);
 
 JNC_EXTERN_C
-jnc_Function*
-jnc_CodeAssist_getFunction(jnc_CodeAssist* codeAssistResult);
+jnc_FunctionType*
+jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssistResult);
 
 JNC_EXTERN_C
 size_t
@@ -94,22 +90,16 @@ struct jnc_CodeAssist
 		return jnc_CodeAssist_getCol(this);
 	}
 
-	size_t
-	getOffset()
-	{
-		return jnc_CodeAssist_getOffset(this);
-	}
-
 	jnc_ModuleItem*
 	getModuleItem()
 	{
 		return jnc_CodeAssist_getModuleItem(this);
 	}
 
-	jnc_Function*
-	getFunction()
+	jnc_FunctionType*
+	getFunctionType()
 	{
-		return jnc_CodeAssist_getFunction(this);
+		return jnc_CodeAssist_getFunctionType(this);
 	}
 
 	size_t

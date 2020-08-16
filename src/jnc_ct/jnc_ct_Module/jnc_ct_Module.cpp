@@ -56,7 +56,6 @@ Module::Module():
 
 	m_codeAssist = NULL;
 	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_codeAssistOffset = 0;
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
@@ -401,14 +400,14 @@ Module::createLlvmExecutionEngine()
 CodeAssist*
 Module::generateCodeAssist(
 	jnc_CodeAssistKind kind,
-	size_t offset,
+	const lex::LineCol& pos,
 	const sl::StringRef& source
 	)
 {
 	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
 
 	m_codeAssistKind = kind;
-	m_codeAssistOffset = offset;
+	m_codeAssistPos = pos;
 	parse("code-assist-source", source);
 
 	if (m_codeAssist)
@@ -417,11 +416,6 @@ Module::generateCodeAssist(
 	// locate offset...
 
 	// create some random code-assist:
-
-	lex::LineColOffset pos;
-	pos.m_line = 10;
-	pos.m_col = 10;
-	pos.m_offset = offset;
 
 	Function* firstFunction = NULL;
 
@@ -442,21 +436,21 @@ Module::generateCodeAssist(
 	{
 	case CodeAssistKind_QuickInfoTip:
 		if (firstFunction)
-			m_codeAssist = CodeAssist::createQuickInfoTip(pos, firstFunction);
+			m_codeAssist = CodeAssist::createQuickInfoTip(m_codeAssistPos, firstFunction);
 		break;
 
 	case CodeAssistKind_ArgumentTip:
 		if (firstFunction)
-			m_codeAssist = CodeAssist::createArgumentTip(pos, firstFunction, 0);
+			m_codeAssist = CodeAssist::createArgumentTip(m_codeAssistPos, firstFunction->getType(), 0);
 		break;
 
 	case CodeAssistKind_AutoComplete:
 	case CodeAssistKind_AutoCompleteList:
-		m_codeAssist = CodeAssist::createAutoCompleteList(pos, global);
+		m_codeAssist = CodeAssist::createAutoCompleteList(m_codeAssistPos, global);
 		break;
 
 	case CodeAssistKind_GotoDefinition:
-		m_codeAssist = CodeAssist::createGotoDefinition(pos, firstFunction);
+		m_codeAssist = CodeAssist::createGotoDefinition(m_codeAssistPos, firstFunction);
 		break;
 	}
 
