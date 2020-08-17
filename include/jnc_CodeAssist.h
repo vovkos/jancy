@@ -48,6 +48,10 @@ int
 jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssistResult);
 
 JNC_EXTERN_C
+size_t
+jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssistResult);
+
+JNC_EXTERN_C
 jnc_ModuleItem*
 jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssistResult);
 
@@ -88,6 +92,12 @@ struct jnc_CodeAssist
 	getCol()
 	{
 		return jnc_CodeAssist_getCol(this);
+	}
+
+	size_t
+	getOffset()
+	{
+		return jnc_CodeAssist_getOffset(this);
 	}
 
 	jnc_ModuleItem*

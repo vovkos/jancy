@@ -112,9 +112,11 @@ protected:
 
 	Function* m_constructor;
 
-	CodeAssist* m_codeAssist;
 	CodeAssistKind m_codeAssistKind;
-	lex::LineCol m_codeAssistPos;
+	Module* m_codeAssistCacheModule;
+	size_t m_codeAssistOffset;
+	ModuleItem* m_codeAssistContainerItem;
+	CodeAssist* m_codeAssist;
 
 	// codegen-only
 
@@ -238,6 +240,12 @@ public:
 		return m_codeAssist;
 	}
 
+	size_t
+	getCodeAssistOffset()
+	{
+		return m_codeAssistOffset;
+	}
+
 	void
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
@@ -280,8 +288,9 @@ public:
 
 	CodeAssist*
 	generateCodeAssist(
-		jnc_CodeAssistKind kind,
-		const lex::LineCol& pos,
+		CodeAssistKind kind,
+		Module* cacheModule,
+		size_t offset,
 		const sl::StringRef& source
 		);
 

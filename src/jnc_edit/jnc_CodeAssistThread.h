@@ -21,9 +21,10 @@ class CodeAssistThread: public QThread
 
 protected:
 	AutoModule m_module;
-	sl::String m_source;
-	lex::LineCol m_pos;
+	ref::Ptr<Module> m_cacheModule;
 	CodeAssistKind m_codeAssistKind;
+	sl::String m_source;
+	size_t m_offset;
 
 public:
 	QStringList m_importDirList;
@@ -41,19 +42,17 @@ public:
 	void
 	request(
 		CodeAssistKind kind,
-		const QString& source,
-		const lex::LineCol& pos
-		)
-	{
-		QByteArray utf8 = source.toUtf8();
-		request(kind, sl::StringRef(utf8.data(), utf8.size()), pos);
-	}
+		const ref::Ptr<Module>& cacheModule,
+		int position,
+		const QString& source
+		);
 
 	void
 	request(
 		CodeAssistKind kind,
-		const sl::StringRef& source,
-		const lex::LineCol& pos
+		const ref::Ptr<Module>& cacheModule,
+		size_t offset,
+		const sl::StringRef& source
 		);
 
 	void

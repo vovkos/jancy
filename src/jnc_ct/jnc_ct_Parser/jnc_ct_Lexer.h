@@ -417,6 +417,9 @@ class Lexer: public lex::RagelLexer<Lexer, Token>
 
 protected:
 	LexerMode m_mode;
+	size_t m_codeAssistOffset;
+	Token* m_codeAssistToken;
+
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
 	Token* m_bodyToken;
@@ -427,7 +430,10 @@ protected:
 	sl::String m_dir;
 
 public:
-	Lexer(LexerMode mode = LexerMode_Compile);
+	Lexer(
+		LexerMode mode = LexerMode_Compile,
+		size_t codeAssistOffset = -1
+		);
 
 	LexerMode
 	getMode()
@@ -435,7 +441,34 @@ public:
 		return m_mode;
 	}
 
+	Token*
+	getCodeAssistToken()
+	{
+		return m_codeAssistToken;
+	}
+
 protected:
+	void
+	checkCodeAssistOffset(Token* token)
+	{
+		if (m_codeAssistOffset != -1 && token->m_pos.m_offset + token->m_pos.m_length >= m_codeAssistOffset)
+		{
+			if (token->m_pos.m_offset < m_codeAssistOffset)
+				m_codeAssistToken = token;
+
+			stop();
+			eof = pe; // abort further tokenization
+		}
+	}
+
+	Token*
+	createToken(int tokenKind)
+	{
+		Token* token = lex::RagelLexer<Lexer, Token>::createToken(tokenKind);
+		checkCodeAssistOffset(token);
+		return token;
+	}
+
 	Token*
 	createKeywordTokenEx(
 		TokenKind tokenKind,

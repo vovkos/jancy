@@ -138,7 +138,7 @@ EnumType::parseBody()
 	Parser parser(m_module, Parser::Mode_Parse);
 	bool result = parser.parseBody(
 		SymbolKind_enum_const_list,
-		lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
+		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
 		m_body.getSubString(1, length - 2)
 		);
 

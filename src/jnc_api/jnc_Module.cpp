@@ -506,13 +506,13 @@ jnc_CodeAssist*
 jnc_Module_generateCodeAssist(
 	jnc_Module* module,
 	jnc_CodeAssistKind kind,
-	int line,
-	int col,
+	jnc_Module* cacheModule,
+	size_t offset,
 	const char* source,
 	size_t length
 	)
 {
-	return module->generateCodeAssist(kind, lex::LineCol(line, col), sl::StringRef(source, length));
+	return module->generateCodeAssist(kind, cacheModule, offset, sl::StringRef(source, length));
 }
 
 JNC_EXTERN_C

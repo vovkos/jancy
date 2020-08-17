@@ -22,7 +22,7 @@ namespace ct {
 void
 GlobalNamespace::addBody(
 	Unit* unit,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
@@ -102,7 +102,7 @@ GlobalNamespace::parseBody()
 bool
 GlobalNamespace::parseBodyImpl(
 	Unit* unit,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
@@ -114,7 +114,7 @@ GlobalNamespace::parseBodyImpl(
 	Parser parser(m_module, Parser::Mode_Parse);
 	bool result = parser.parseBody(
 		SymbolKind_global_declaration_list,
-		lex::LineCol(pos.m_line, pos.m_col + 1),
+		lex::LineColOffset(pos.m_line, pos.m_col + 1, pos.m_offset + 1),
 		body.getSubString(1, length - 2)
 		);
 

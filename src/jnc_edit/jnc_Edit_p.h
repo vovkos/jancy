@@ -73,13 +73,13 @@ protected:
 		bool isSync = false
 		)
 	{
-		requestCodeAssist(kind, getLineColFromCursor(cursor), isSync);
+		requestCodeAssist(kind, cursor.position(), isSync);
 	}
 
 	void
 	requestCodeAssist(
 		CodeAssistKind kind,
-		const lex::LineCol& pos,
+		int position,
 		bool isSync = false
 		);
 

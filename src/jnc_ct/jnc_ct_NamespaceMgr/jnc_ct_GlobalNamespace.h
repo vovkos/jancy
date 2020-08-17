@@ -28,7 +28,7 @@ protected:
 	struct ExtraBody: sl::ListLink
 	{
 		Unit* m_unit;
-		lex::LineCol m_pos;
+		lex::LineColOffset m_pos;
 		sl::StringRef m_body;
 	};
 
@@ -57,7 +57,7 @@ public:
 	void
 	addBody(
 		Unit* unit,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 
@@ -69,7 +69,7 @@ protected:
 	bool
 	parseBodyImpl(
 		Unit* unit,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 };

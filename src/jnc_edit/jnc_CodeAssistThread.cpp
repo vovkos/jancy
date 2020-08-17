@@ -32,13 +32,28 @@ CodeAssistThread::~CodeAssistThread()
 void
 CodeAssistThread::request(
 	CodeAssistKind kind,
-	const sl::StringRef& source,
-	const lex::LineCol& pos
+	const ref::Ptr<Module>& cacheModule,
+	int position,
+	const QString& source
+	)
+{
+	QByteArray sourceUtf8 = source.toUtf8();
+	size_t offset = source.left(position).toUtf8().count();
+	request(kind, cacheModule, offset, sl::StringRef(sourceUtf8.data(), sourceUtf8.size()));
+}
+
+void
+CodeAssistThread::request(
+	CodeAssistKind kind,
+	const ref::Ptr<Module>& cacheModule,
+	size_t offset,
+	const sl::StringRef& source
 	)
 {
 	m_codeAssistKind = kind;
+	m_cacheModule = cacheModule;
+	m_offset = offset;
 	m_source = source;
-	m_pos = pos;
 
 	start();
 }
@@ -71,8 +86,8 @@ CodeAssistThread::run()
 
 	m_module->generateCodeAssist(
 		m_codeAssistKind,
-		m_pos.m_line,
-		m_pos.m_col,
+		m_cacheModule,
+		m_offset,
 		m_source.cp(),
 		m_source.getLength()
 		);

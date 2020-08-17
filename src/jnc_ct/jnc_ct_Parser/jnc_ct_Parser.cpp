@@ -66,20 +66,23 @@ bool Parser::checkUnusedAttributeBlock()
 bool
 Parser::tokenizeBody(
 	sl::BoxList<Token>* tokenList,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile);
+	Lexer lexer(
+		m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile,
+		m_module->getCodeAssistOffset()
+		);
 
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
 
 	lexer.create(unit->getFilePath(), body);
-	lexer.setLineCol(pos);
+	lexer.setLineColOffset(pos);
 
 	char buffer[256];
 	sl::Array<Token*> scopeAnchorTokenStack(ref::BufKind_Stack, buffer, sizeof(buffer));
@@ -171,7 +174,7 @@ Parser::addDoxyComment(const Token& token)
 bool
 Parser::parseBody(
 	SymbolKind symbol,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
@@ -213,12 +216,13 @@ Parser::parseTokenList(
 }
 
 bool
-Parser::parseEofToken(const lex::LineCol& pos)
+Parser::parseEofToken(const lex::LineColOffset& pos)
 {
 	Token eofToken;
 	eofToken.m_token = 0;
 	eofToken.m_pos.m_line = pos.m_line;
 	eofToken.m_pos.m_col = pos.m_col;
+	eofToken.m_pos.m_offset = pos.m_offset;
 
 	bool result = parseToken(&eofToken);
 	if (!result)
@@ -446,7 +450,7 @@ Parser::bodylessDeclaration()
 
 bool
 Parser::setDeclarationBody(
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
@@ -623,7 +627,7 @@ GlobalNamespace*
 Parser::declareGlobalNamespace(
 	const lex::LineCol& pos,
 	const QualifiedName& name,
-	const lex::LineCol& bodyPos,
+	const lex::LineColOffset& bodyPos,
 	const sl::StringRef& body
 	)
 {
@@ -655,7 +659,7 @@ Parser::declareExtensionNamespace(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	Type* type,
-	const lex::LineCol& bodyPos,
+	const lex::LineColOffset& bodyPos,
 	const sl::StringRef& body
 	)
 {
@@ -1352,7 +1356,7 @@ Parser::createProperty(Declarator* declarator)
 
 bool
 Parser::parseLastPropertyBody(
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {
@@ -1362,7 +1366,7 @@ Parser::parseLastPropertyBody(
 	return
 		tokenizeBody(
 			&tokenList,
-			lex::LineCol(pos.m_line, pos.m_col + 1),
+			lex::LineColOffset(pos.m_line, pos.m_col + 1, pos.m_offset + 1),
 			body.getSubString(1, length - 2)
 			) &&
 		parseLastPropertyBody(tokenList);

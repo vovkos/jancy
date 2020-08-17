@@ -114,9 +114,14 @@ decodeByteString(
 
 //..............................................................................
 
-Lexer::Lexer(LexerMode mode)
+Lexer::Lexer(
+	LexerMode mode,
+	size_t codeAssistOffset
+	)
 {
 	m_mode = mode;
+	m_codeAssistOffset = codeAssistOffset;
+	m_codeAssistToken = NULL;
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
 	m_mlBinLiteralTokenRadix = 0;

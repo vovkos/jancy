@@ -201,14 +201,14 @@ public:
 	bool
 	tokenizeBody(
 		sl::BoxList<Token>* tokenList,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 
 	bool
 	parseBody(
 		SymbolKind symbol,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& source
 		);
 
@@ -228,7 +228,7 @@ protected:
 	}
 
 	bool
-	parseEofToken(const lex::LineCol& pos);
+	parseEofToken(const lex::LineColOffset& pos);
 
 	void
 	addDoxyComment(const Token& token);
@@ -325,7 +325,7 @@ protected:
 
 	bool
 	setDeclarationBody(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 
@@ -378,7 +378,7 @@ protected:
 	declareGlobalNamespace(
 		const lex::LineCol& pos,
 		const QualifiedName& name,
-		const lex::LineCol& bodyPos,
+		const lex::LineColOffset& bodyPos,
 		const sl::StringRef& body
 		);
 
@@ -387,7 +387,7 @@ protected:
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		Type* type,
-		const lex::LineCol& bodyPos,
+		const lex::LineColOffset& bodyPos,
 		const sl::StringRef& body
 		);
 
@@ -499,7 +499,7 @@ protected:
 
 	bool
 	parseLastPropertyBody(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 

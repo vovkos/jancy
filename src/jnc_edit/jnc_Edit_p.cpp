@@ -411,13 +411,13 @@ EditPrivate::requestCodeAssist(
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	requestCodeAssist(kind, getLineColFromCursor(cursor), isSync);
+	requestCodeAssist(kind, cursor.position(), isSync);
 }
 
 void
 EditPrivate::requestCodeAssist(
 	CodeAssistKind kind,
-	const lex::LineCol& pos,
+	int position,
 	bool isSync
 	)
 {
@@ -438,7 +438,7 @@ EditPrivate::requestCodeAssist(
 		this, SLOT(onThreadFinished())
 		);
 
-	m_thread->request(kind, q->toPlainText(), pos);
+	m_thread->request(kind, ref::g_nullPtr, position, q->toPlainText());
 }
 
 void

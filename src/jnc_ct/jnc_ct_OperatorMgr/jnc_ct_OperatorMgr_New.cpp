@@ -410,16 +410,16 @@ OperatorMgr::parseAutoSizeArrayLiteralInitializer(const sl::ConstBoxList<Token>&
 size_t
 OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	ArrayType* arrayType,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& initializer
 	)
 {
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(LexerMode_Compile);
+	Lexer lexer(LexerMode_Compile, m_module->getCodeAssistOffset());
 	lexer.create(unit->getFilePath(), initializer);
-	lexer.setLineCol(pos);
+	lexer.setLineColOffset(pos);
 
 	sl::BoxList<Token> tokenList;
 

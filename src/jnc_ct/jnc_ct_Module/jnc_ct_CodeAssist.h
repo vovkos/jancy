@@ -22,7 +22,7 @@ class CodeAssist
 {
 protected:
 	CodeAssistKind m_codeAssistKind;
-	lex::LineCol m_pos; // not necessarily the same as request position
+	lex::LineColOffset m_pos; // not necessarily the same as request position
 
 	union
 	{
@@ -42,7 +42,7 @@ protected:
 	CodeAssist*
 	createModuleItemCodeAssist(
 		CodeAssistKind kind,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		ModuleItem* item
 		);
 
@@ -50,7 +50,7 @@ public:
 	static
 	CodeAssist*
 	createQuickInfoTip(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		ModuleItem* item
 		)
 	{
@@ -60,7 +60,7 @@ public:
 	static
 	CodeAssist*
 	createGotoDefinition(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		ModuleItem* item
 		)
 	{
@@ -70,7 +70,7 @@ public:
 	static
 	CodeAssist*
 	createAutoComplete(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		ModuleItem* item
 		)
 	{
@@ -80,7 +80,7 @@ public:
 	static
 	CodeAssist*
 	createArgumentTip(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		FunctionType* functionType,
 		size_t arugmentIdx
 		);
@@ -88,7 +88,7 @@ public:
 	static
 	CodeAssist*
 	createAutoCompleteList(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		Namespace* nspace,
 		uint_t flags = 0
 		);
@@ -109,6 +109,12 @@ public:
 	getCol()
 	{
 		return m_pos.m_col;
+	}
+
+	size_t
+	getOffset()
+	{
+		return m_pos.m_offset;
 	}
 
 	ModuleItem*

@@ -54,8 +54,11 @@ Module::Module():
 	m_compileErrorHandlerContext = NULL;
 	m_constructor = NULL;
 
-	m_codeAssist = NULL;
 	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistCacheModule = NULL;
+	m_codeAssistOffset = -1;
+	m_codeAssistContainerItem = NULL;
+	m_codeAssist = NULL;
 
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
@@ -129,10 +132,15 @@ Module::clear()
 
 	clearLlvm();
 
+	m_constructor = NULL;
+
 	if (m_codeAssist)
 		AXL_MEM_DELETE(m_codeAssist);
 
-	m_constructor = NULL;
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_codeAssistCacheModule = NULL;
+	m_codeAssistOffset = -1;
+	m_codeAssistContainerItem = NULL;
 	m_codeAssist = NULL;
 
 	m_compileFlags = ModuleCompileFlag_StdFlags;
@@ -400,39 +408,23 @@ Module::createLlvmExecutionEngine()
 CodeAssist*
 Module::generateCodeAssist(
 	jnc_CodeAssistKind kind,
-	const lex::LineCol& pos,
+	Module* cacheModule,
+	size_t offset,
 	const sl::StringRef& source
 	)
 {
 	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
 
 	m_codeAssistKind = kind;
-	m_codeAssistPos = pos;
+	m_codeAssistOffset = offset;
+	m_codeAssistCacheModule = cacheModule;
+
 	parse("code-assist-source", source);
 
 	if (m_codeAssist)
-		return m_codeAssist; // already created
+		return m_codeAssist;
 
-	// locate offset...
-
-	// create some random code-assist:
-
-	Function* firstFunction = NULL;
-
-	GlobalNamespace* global = m_namespaceMgr.getGlobalNamespace();
-	const sl::Array<ModuleItem*>& globalItemArray = global->getItemArray();
-	size_t count = globalItemArray.getCount();
-	for (size_t i = 0; i < count; i++)
-	{
-		ModuleItem* item = globalItemArray[i];
-		if (item->getItemKind() == ModuleItemKind_Function)
-		{
-			firstFunction = (Function*)item;
-			break;
-		}
-	}
-
-	switch (m_codeAssistKind)
+/*	switch (m_codeAssistKind)
 	{
 	case CodeAssistKind_QuickInfoTip:
 		if (firstFunction)
@@ -453,7 +445,7 @@ Module::generateCodeAssist(
 		m_codeAssist = CodeAssist::createGotoDefinition(m_codeAssistPos, firstFunction);
 		break;
 	}
-
+*/
 	return m_codeAssist;
 }
 
@@ -648,7 +640,7 @@ Module::parseImpl(
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer(LexerMode_Parse);
+	Lexer lexer(LexerMode_Parse, m_codeAssistOffset);
 	lexer.create(fileName, source);
 
 #if (0)

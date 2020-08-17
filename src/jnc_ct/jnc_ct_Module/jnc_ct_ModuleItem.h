@@ -196,7 +196,7 @@ class ModuleItemBodyDecl: public ModuleItemDecl
 	friend class Parser;
 
 protected:
-	lex::LineCol m_bodyPos;
+	lex::LineColOffset m_bodyPos;
 	sl::StringRef m_body;
 	sl::BoxList<Token> m_bodyTokenList;
 
@@ -207,7 +207,7 @@ public:
 		return !m_body.isEmpty() || !m_bodyTokenList.isEmpty();
 	}
 
-	const lex::LineCol&
+	const lex::LineColOffset&
 	getBodyPos() const
 	{
 		return m_bodyPos;
@@ -221,7 +221,7 @@ public:
 
 	bool
 	setBody(
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
 

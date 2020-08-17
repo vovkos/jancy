@@ -55,7 +55,7 @@ ModuleItemDecl::getDoxyLocationString()
 
 bool
 ModuleItemBodyDecl::setBody(
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
 {

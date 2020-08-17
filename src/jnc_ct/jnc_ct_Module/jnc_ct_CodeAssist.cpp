@@ -20,7 +20,7 @@ namespace ct {
 CodeAssist*
 CodeAssist::createModuleItemCodeAssist(
 	CodeAssistKind kind,
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	ModuleItem* item
 	)
 {
@@ -33,7 +33,7 @@ CodeAssist::createModuleItemCodeAssist(
 
 CodeAssist*
 CodeAssist::createArgumentTip(
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	FunctionType* functionType,
 	size_t argumentIdx
 	)
@@ -48,7 +48,7 @@ CodeAssist::createArgumentTip(
 
 CodeAssist*
 CodeAssist::createAutoCompleteList(
-	const lex::LineCol& pos,
+	const lex::LineColOffset& pos,
 	Namespace* nspace,
 	uint_t flags
 	)

@@ -802,7 +802,7 @@ public:
 	size_t
 	parseAutoSizeArrayCurlyInitializer(
 		ArrayType* arrayType,
-		const lex::LineCol& pos,
+		const lex::LineColOffset& pos,
 		const sl::StringRef& initializer
 		);
 

@@ -363,7 +363,7 @@ DerivableType::parseBody()
 
 	bool result = parser.parseBody(
 		SymbolKind_member_block_declaration_list,
-		lex::LineCol(m_bodyPos.m_line, m_bodyPos.m_col + 1),
+		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),
 		m_body.getSubString(1, length - 2)
 		);
 
