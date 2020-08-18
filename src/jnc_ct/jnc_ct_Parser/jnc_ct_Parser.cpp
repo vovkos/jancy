@@ -449,10 +449,7 @@ Parser::bodylessDeclaration()
 }
 
 bool
-Parser::setDeclarationBody(
-	const lex::LineColOffset& pos,
-	const sl::StringRef& body
-	)
+Parser::setDeclarationBody(const Token& bodyToken)
 {
 	if (!m_lastDeclaredItem)
 	{
@@ -477,10 +474,14 @@ Parser::setDeclarationBody(
 
 		function = (Function*)m_lastDeclaredItem;
 		function->addUsingSet(nspace);
-		return function->setBody(pos, body);
+
+		if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+			m_module->setCodeAssistContainerItem(function);
+
+		return function->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 
 	case ModuleItemKind_Property:
-		return parseLastPropertyBody(pos, body);
+		return parseLastPropertyBody(bodyToken);
 
 	case ModuleItemKind_Typedef:
 		type = ((Typedef*)m_lastDeclaredItem)->getType();
@@ -501,7 +502,7 @@ Parser::setDeclarationBody(
 	case ModuleItemKind_Orphan:
 		orphan = (Orphan*)m_lastDeclaredItem;
 		orphan->addUsingSet(nspace);
-		return orphan->setBody(pos, body);
+		return orphan->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 
 	default:
 		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
@@ -514,7 +515,22 @@ Parser::setDeclarationBody(
 		return false;
 	}
 
-	return ((ReactorClassType*)type)->setBody(pos, body);
+	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+		m_module->setCodeAssistContainerItem(type);
+
+	return ((ReactorClassType*)type)->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+}
+
+void
+Parser::setEnumBody(
+	EnumType* type,
+	const Token& bodyToken
+	)
+{
+	type->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+
+	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+		m_module->setCodeAssistContainerItem(type);
 }
 
 bool
@@ -627,8 +643,7 @@ GlobalNamespace*
 Parser::declareGlobalNamespace(
 	const lex::LineCol& pos,
 	const QualifiedName& name,
-	const lex::LineColOffset& bodyPos,
-	const sl::StringRef& body
+	const Token& bodyToken
 	)
 {
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -650,7 +665,11 @@ Parser::declareGlobalNamespace(
 			return NULL;
 	}
 
-	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyPos, body);
+	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyToken.m_pos, bodyToken.m_data.m_string);
+
+	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+		m_module->setCodeAssistContainerItem(nspace);
+
 	return nspace;
 }
 
@@ -659,8 +678,7 @@ Parser::declareExtensionNamespace(
 	const lex::LineCol& pos,
 	const sl::StringRef& name,
 	Type* type,
-	const lex::LineColOffset& bodyPos,
-	const sl::StringRef& body
+	const Token& bodyToken
 	)
 {
 	Namespace* currentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
@@ -680,7 +698,7 @@ Parser::declareExtensionNamespace(
 	if (!result)
 		return NULL;
 
-	result = nspace->setBody(bodyPos, body);
+	result = nspace->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 	ASSERT(result);
 	return nspace;
 }
@@ -1355,19 +1373,20 @@ Parser::createProperty(Declarator* declarator)
 }
 
 bool
-Parser::parseLastPropertyBody(
-	const lex::LineColOffset& pos,
-	const sl::StringRef& body
-	)
+Parser::parseLastPropertyBody(const Token& bodyToken)
 {
-	size_t length = body.getLength();
+	size_t length = bodyToken.m_data.m_string.getLength();
 	sl::BoxList<Token> tokenList;
 
 	return
 		tokenizeBody(
 			&tokenList,
-			lex::LineColOffset(pos.m_line, pos.m_col + 1, pos.m_offset + 1),
-			body.getSubString(1, length - 2)
+			lex::LineColOffset(
+				bodyToken.m_pos.m_line,
+				bodyToken.m_pos.m_col + 1,
+				bodyToken.m_pos.m_offset + 1
+				),
+			bodyToken.m_data.m_string.getSubString(1, length - 2)
 			) &&
 		parseLastPropertyBody(tokenList);
 }

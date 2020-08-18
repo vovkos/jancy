@@ -203,6 +203,7 @@ enum TokenChannelMask
 {
 	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
 	TokenChannelMask_DoxyComment = 0x02,
+	TokenChannelMask_CodeAssist  = 0x04,
 	TokenChannelMask_All         = -1,
 };
 
@@ -418,7 +419,6 @@ class Lexer: public lex::RagelLexer<Lexer, Token>
 protected:
 	LexerMode m_mode;
 	size_t m_codeAssistOffset;
-	Token* m_codeAssistToken;
 
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
@@ -441,12 +441,6 @@ public:
 		return m_mode;
 	}
 
-	Token*
-	getCodeAssistToken()
-	{
-		return m_codeAssistToken;
-	}
-
 protected:
 	void
 	checkCodeAssistOffset(Token* token)
@@ -454,7 +448,7 @@ protected:
 		if (m_codeAssistOffset != -1 && token->m_pos.m_offset + token->m_pos.m_length >= m_codeAssistOffset)
 		{
 			if (token->m_pos.m_offset < m_codeAssistOffset)
-				m_codeAssistToken = token;
+				token->m_channelMask |= TokenChannelMask_CodeAssist;
 
 			stop();
 			eof = pe; // abort further tokenization

@@ -424,6 +424,36 @@ Module::generateCodeAssist(
 	if (m_codeAssist)
 		return m_codeAssist;
 
+	if (m_codeAssistContainerItem)
+		generateCodeAssistImpl(m_codeAssistContainerItem);
+
+	return m_codeAssist;
+}
+
+void
+Module::generateCodeAssistImpl(ModuleItem* item)
+{
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind)
+	{
+	case ModuleItemKind_Namespace:
+		m_codeAssistContainerItem = NULL;
+		((GlobalNamespace*)item)->ensureNamespaceReady();
+
+		if (m_codeAssistContainerItem)
+			generateCodeAssistImpl(m_codeAssistContainerItem);
+
+		break;
+
+	case ModuleItemKind_Function:
+		((Function*)item)->compile();
+		break;
+
+	case ModuleItemKind_Type:
+		break;
+	}
+}
+
 /*	switch (m_codeAssistKind)
 	{
 	case CodeAssistKind_QuickInfoTip:
@@ -446,8 +476,6 @@ Module::generateCodeAssist(
 		break;
 	}
 */
-	return m_codeAssist;
-}
 
 bool
 Module::mapVariable(

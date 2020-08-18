@@ -124,25 +124,14 @@ import_declaration
 namespace_declaration
 	:	TokenKind_Namespace qualified_name TokenKind_Body
 			{
-				return declareGlobalNamespace(
-					$2.m_firstTokenPos,
-					$2.m_name,
-					$3.m_pos,
-					$3.m_data.m_string
-					) != NULL;
+				return declareGlobalNamespace($2.m_firstTokenPos, $2.m_name, $3) != NULL;
 			}
 	;
 
 extension_declaration
 	:	TokenKind_Extension TokenKind_Identifier ':' type_name TokenKind_Body
 			{
-				return declareExtensionNamespace(
-					$2.m_pos,
-					$2.m_data.m_string,
-					$4.m_type,
-					$5.m_pos,
-					$5.m_data.m_string
-					) != NULL;
+				return declareExtensionNamespace($2.m_pos, $2.m_data.m_string, $4.m_type, $5) != NULL;
 			}
 	;
 

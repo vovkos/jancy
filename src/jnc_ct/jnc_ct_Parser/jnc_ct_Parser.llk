@@ -324,9 +324,18 @@ protected:
 	bodylessDeclaration();
 
 	bool
-	setDeclarationBody(
-		const lex::LineColOffset& pos,
-		const sl::StringRef& body
+	setDeclarationBody(const Token& bodyToken);
+
+	void
+	setEnumTypeBody(
+		EnumType* type,
+		const Token& bodyToken
+		);
+
+	bool
+	setMemberBlockBodyBody(
+		EnumType* type,
+		const Token& bodyToken
 		);
 
 	void
@@ -378,8 +387,7 @@ protected:
 	declareGlobalNamespace(
 		const lex::LineCol& pos,
 		const QualifiedName& name,
-		const lex::LineColOffset& bodyPos,
-		const sl::StringRef& body
+		const Token& bodyToken
 		);
 
 	ExtensionNamespace*
@@ -387,8 +395,7 @@ protected:
 		const lex::LineCol& pos,
 		const sl::StringRef& name,
 		Type* type,
-		const lex::LineColOffset& bodyPos,
-		const sl::StringRef& body
+		const Token& bodyToken
 		);
 
 	bool
@@ -498,10 +505,7 @@ protected:
 	finalizeLastProperty(bool hasBody);
 
 	bool
-	parseLastPropertyBody(
-		const lex::LineColOffset& pos,
-		const sl::StringRef& body
-		);
+	parseLastPropertyBody(const Token& bodyToken);
 
 	bool
 	parseLastPropertyBody(const sl::ConstBoxList<Token>& body);

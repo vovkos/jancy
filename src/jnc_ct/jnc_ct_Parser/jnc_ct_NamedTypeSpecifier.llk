@@ -116,9 +116,9 @@ enum_block<EnumType* $type>
 				{
 					m_module->m_namespaceMgr.closeNamespace();
 				}
-		|	TokenKind_Body $b
+		|	TokenKind_Body
 				{
-					$type->setBody($b.m_pos, $b.m_data.m_string);
+					setEnumBody($type, $1);
 				}
 		)
 	;
@@ -262,9 +262,9 @@ library_specifier
 				{
 					return finalizeDynamicLibType();
 				}
-		|	TokenKind_Body $b
+		|	TokenKind_Body
 				{
-					return $.m_type->getLibNamespace()->setBody($b.m_pos, $b.m_data.m_string);
+					return setDynamicLibNamespaceBody($.m_type->getLibNamespace(), $1);
 				}
 		)
 	;
@@ -282,9 +282,9 @@ member_block<NamedType* $type>
 				{
 					m_module->m_namespaceMgr.closeNamespace();
 				}
-		|	TokenKind_Body $b
+		|	TokenKind_Body
 				{
-					return $type->setBody($b.m_pos, $b.m_data.m_string);
+					return setMemberBlockBody($type, $1);
 				}
 		)
 	;

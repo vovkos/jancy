@@ -121,7 +121,6 @@ Lexer::Lexer(
 {
 	m_mode = mode;
 	m_codeAssistOffset = codeAssistOffset;
-	m_codeAssistToken = NULL;
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
 	m_mlBinLiteralTokenRadix = 0;
@@ -548,6 +547,7 @@ Lexer::onRightCurlyBrace()
 
 	m_bodyToken->m_pos.m_length = te - m_bodyToken->m_pos.m_p;
 	m_bodyToken->m_data.m_string = sl::StringRef(m_bodyToken->m_pos.m_p, m_bodyToken->m_pos.m_length);
+	checkCodeAssistOffset(m_bodyToken);
 	return true;
 }
 

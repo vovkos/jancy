@@ -247,6 +247,12 @@ public:
 	}
 
 	void
+	setCodeAssistContainerItem(ModuleItem* item)
+	{
+		m_codeAssistContainerItem = item;
+	}
+
+	void
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
 		Function* function,
@@ -378,6 +384,12 @@ protected:
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
 		);
+
+	void
+	generateCodeAssistImpl(ModuleItem* item);
+
+	void
+	generateCodeAssistImpl(GlobalNamespace* nspace);
 
 	bool
 	requireIntrospectionLib();

@@ -61,7 +61,7 @@ special_void_method_declarator_terminator<Declarator* $declarator>
 			}
 	|	TokenKind_Body
 			{
-				return declare($declarator) && setDeclarationBody($1.m_pos, $1.m_data.m_string);
+				return declare($declarator) && setDeclarationBody($1);
 			}
 
 	;
@@ -80,7 +80,7 @@ declarator_list_terminator<
 			}
 	|	TokenKind_Body
 			{
-				return declare($declarator) && setDeclarationBody($1.m_pos, $1.m_data.m_string);
+				return declare($declarator) && setDeclarationBody($1);
 			}
 	;
 
