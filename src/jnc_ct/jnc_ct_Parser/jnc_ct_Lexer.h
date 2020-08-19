@@ -450,8 +450,11 @@ protected:
 			if (token->m_pos.m_offset < m_codeAssistOffset)
 				token->m_channelMask |= TokenChannelMask_CodeAssist;
 
-			stop();
-			eof = pe; // abort further tokenization
+			if (m_mode == LexerMode_Compile) // abort further tokenization
+			{
+				stop();
+				eof = pe;
+			}
 		}
 	}
 

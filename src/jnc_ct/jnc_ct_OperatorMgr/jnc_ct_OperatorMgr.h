@@ -879,6 +879,9 @@ public:
 		ModuleItemDecl* itemDecl = NULL
 		);
 
+	Namespace*
+	getValueNamespace(const Value& opValue);
+
 	bool
 	memberOperator(
 		const Value& opValue,
@@ -923,6 +926,12 @@ public:
 	void
 	traceBlock(BasicBlock* block);
 #endif
+
+	FunctionType*
+	getValueFunctionType(
+		const Value& opValue,
+		size_t* baseArgumentIdx
+		);
 
 	bool
 	callOperator(

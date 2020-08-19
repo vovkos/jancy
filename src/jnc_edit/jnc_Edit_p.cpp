@@ -183,7 +183,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 			return; // let the completer do default behavior
 		}
 
-		if (key == Qt::Key_Backspace || ch.isNull() || ch.isLetterOrNumber())
+		if (key == Qt::Key_Backspace || ch.isNull() || ch.isLetterOrNumber() || ch == '_')
 		{
 			QPlainTextEdit::keyPressEvent(e);
 			d->updateCompleter();
@@ -265,6 +265,7 @@ EditPrivate::EditPrivate()
 	m_isCurrentLineHighlightingEnabled = false;
 	m_thread = NULL;
 	m_completer = NULL;
+	m_currentCodeAssist = NULL;
 
 	m_codeAssistTriggers =
 		Edit::QuickInfoTipOnHoverOverIdentifier |
@@ -680,6 +681,12 @@ EditPrivate::createAutoCompleteList(
 
 	m_completerRect = getCursorRectFromLineCol(pos);
 	updateCompleter(true);
+}
+
+void
+EditPrivate::onCursorPositionChanged()
+{
+	if ()
 }
 
 void

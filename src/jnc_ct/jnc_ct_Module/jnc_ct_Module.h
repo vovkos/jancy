@@ -276,6 +276,14 @@ public:
 		uint_t compileFlags = ModuleCompileFlag_StdFlags
 		);
 
+	CodeAssist*
+	generateCodeAssist(
+		jnc_CodeAssistKind kind,
+		Module* cacheModule,
+		size_t offset,
+		const sl::StringRef& source
+		);
+
 	bool
 	parse(
 		const sl::StringRef& fileName,

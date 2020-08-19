@@ -200,18 +200,30 @@ expression_or_empty_list
 			{
 				$.m_valueList.insertTail($1.m_value);
 			}
-		(',' expression_or_empty $e2
-			{
-				$.m_valueList.insertTail($e2.m_value);
-			}
+		(
+			','
+				{
+					if (!m_argumentTipStack.isEmpty())
+						m_argumentTipStack.getTail()->m_argumentIdx++;
+				}
+			expression_or_empty $e2
+				{
+					$.m_valueList.insertTail($e2.m_value);
+				}
 		)*
 	|		{
 				$.m_valueList.insertTail(Value());
 			}
-		(',' expression_or_empty $e2
-			{
-				$.m_valueList.insertTail($e2.m_value);
-			}
+		(
+			','
+				{
+					if (!m_argumentTipStack.isEmpty())
+						m_argumentTipStack.getTail()->m_argumentIdx++;
+				}
+			expression_or_empty $e2
+				{
+					$.m_valueList.insertTail($e2.m_value);
+				}
 		)+
 	|	epsilon
 	;
@@ -756,12 +768,24 @@ postfix_operator<Value* $value>
 		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
 			return addReactionBinding(*$value);
 	}
-	:	'(' expression_or_empty_list ')'
+	:	'('
 			{
+				pushArgumentTipIf($1.m_pos, *$value);
+			}
+		expression_or_empty_list
+		')'
+			{
+				popArgumentTip();
 				return m_module->m_operatorMgr.callOperator($value, &$2.m_valueList);
 			}
-	|	'~' '(' expression_or_empty_list ')'
+	|	'~' '('
 			{
+				pushArgumentTipIf($2.m_pos, *$value);
+			}
+		expression_or_empty_list
+		')'
+			{
+				popArgumentTip();
 				return m_module->m_operatorMgr.closureOperator($value, &$3.m_valueList);
 			}
 	|	'[' expression_or_empty ']'
@@ -778,12 +802,12 @@ postfix_operator<Value* $value>
 			}
 	|	'.'
 			{
-				generateAutoCompleteListIf($1, $value);
+				generateAutoCompleteListIf($1, *$value);
 			}
 		member_operator<$value>
 	|	TokenKind_Ptr
 			{
-				generateAutoCompleteListIf($1, $value);
+				generateAutoCompleteListIf($1, *$value);
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
@@ -792,6 +816,7 @@ postfix_operator<Value* $value>
 member_operator<Value* $value>
 	:	TokenKind_Identifier $n
 			{
+				generateAutoCompleteListIf($1, *$value);
 				return m_module->m_operatorMgr.memberOperator($value, $n.m_data.m_string);
 			}
 	|	TokenKind_Get

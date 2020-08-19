@@ -21,6 +21,26 @@ namespace ct {
 
 //..............................................................................
 
+Namespace*
+OperatorMgr::getValueNamespace(const Value& rawOpValue)
+{
+	if (rawOpValue.getValueKind() == ValueKind_Namespace)
+		return rawOpValue.getNamespace();
+
+	Value opValue;
+	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepEnum);
+
+	Type* type = opValue.getType();
+	if (type->getTypeKindFlags() & TypeKindFlag_Ptr)
+	{
+		unaryOperator(UnOpKind_Indir, &opValue);
+		prepareOperandType(&opValue, OpFlag_KeepEnum);
+		type = opValue.getType();
+	}
+
+	return (type->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)type : NULL;
+}
+
 bool
 OperatorMgr::memberOperator(
 	const Value& rawOpValue,

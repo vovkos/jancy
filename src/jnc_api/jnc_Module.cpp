@@ -520,7 +520,7 @@ JNC_EXPORT_O
 jnc_CodeAssist*
 jnc_Module_getCodeAssist(jnc_Module* module)
 {
-	return module->getCodeAssist();
+	return module->m_codeAssistMgr.getCodeAssist();
 }
 
 JNC_EXTERN_C

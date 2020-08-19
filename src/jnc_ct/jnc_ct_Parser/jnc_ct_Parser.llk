@@ -110,6 +110,23 @@ public:
 		}
 	};
 
+	struct ArgumentTip: sl::ListLink
+	{
+		lex::LineColOffset m_pos;
+		Value m_value;
+		size_t m_argumentIdx;
+
+		ArgumentTip(
+			const lex::LineColOffset& pos,
+			const Value& value
+			)
+		{
+			m_pos = pos;
+			m_value = value;
+			m_argumentIdx = 0;
+		}
+	};
+
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -134,6 +151,8 @@ protected:
 	size_t m_reactionIdx;
 
 	dox::Parser m_doxyParser;
+
+	sl::List<ArgumentTip> m_argumentTipStack;
 
 public:
 	// freely adjustible
@@ -334,26 +353,10 @@ protected:
 		)
 	{
 		if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
-			m_module->setCodeAssistContainerItem(item);
+			m_module->m_codeAssistMgr.m_containerItem = item;
 
 		return item->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 	}
-
-	void
-	generateAutoCompleteListIf(
-		const Token& token,
-		const Value& value
-		)
-	{
-		if (m_module->getCodeAssistKind() == CodeAssistKind_AutoCompleteList && ($1.m_channelMask & TokenChannelMask_CodeAssist))
-			generateAutoCompleteList(token, value);
-	}
-
-	void
-	generateAutoCompleteList(
-		const Token& token,
-		const Value& value
-		);
 
 	void
 	assignDeclarationAttributes(
@@ -677,6 +680,43 @@ protected:
 		StmtPass1* stmt,
 		const Token& token
 		);
+
+	void
+	pushArgumentTipIf(
+		const lex::LineColOffset& pos,
+		const Value& value
+		)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_ArgumentTip)
+			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
+	}
+
+	void
+	popArgumentTip()
+	{
+		if (!m_argumentTipStack.isEmpty())
+			m_argumentTipStack.removeTail();
+	}
+
+	void
+	generateAutoCompleteListIf(
+		const Token& token,
+		const Value& value
+		)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+			(token.m_channelMask & TokenChannelMask_CodeAssist))
+			generateAutoCompleteList(token, value);
+	}
+
+	void
+	generateAutoCompleteList(
+		const Token& token,
+		const Value& value
+		);
+
+	void
+	generateArgumentTip();
 }
 
 //..............................................................................

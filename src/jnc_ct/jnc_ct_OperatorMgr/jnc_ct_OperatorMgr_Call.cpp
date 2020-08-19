@@ -244,6 +244,55 @@ OperatorMgr::callOperator(
 		callImpl(opValue, functionPtrType->getTargetType(), argValueList, resultValue);
 }
 
+FunctionType*
+OperatorMgr::getValueFunctionType(
+	const Value& rawOpValue,
+	size_t* baseArgumentIdx
+	)
+{
+	Value opValue;
+
+	bool result = prepareOperand(rawOpValue, &opValue);
+	if (!result)
+		return false;
+
+	*baseArgumentIdx = 0;
+
+	if (opValue.getType()->getTypeKind() == TypeKind_ClassPtr)
+	{
+		ClassPtrType* ptrType = (ClassPtrType*)opValue.getType();
+		OverloadableFunction callOperator = ptrType->getTargetType()->getCallOperator();
+		if (!callOperator)
+			return NULL;
+
+		*baseArgumentIdx = 1;
+
+		return callOperator->getItemKind() == ModuleItemKind_Function ?
+			callOperator.getFunction()->getType() :
+			callOperator.getFunctionOverload()->getOverload(0)->getType();
+	}
+
+	Closure* closure = opValue.getClosure();
+	if (closure)
+		*baseArgumentIdx = closure->getArgValueList()->getCount();
+
+	if (opValue.getValueKind() == ValueKind_FunctionOverload)
+		return opValue.getFunctionOverload()->getOverload(0)->getType();
+
+	if (opValue.getValueKind() == ValueKind_Function)
+		return opValue.getFunction()->getType();
+
+	Type* opType = opValue.getType();
+	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr))
+		return NULL;
+
+	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
+	if (functionPtrType->hasClosure())
+		*baseArgumentIdx++;
+
+	return functionPtrType->getTargetType();
+}
+
 bool
 OperatorMgr::callOperatorVararg(
 	Function* operatorVararg,

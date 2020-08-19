@@ -75,7 +75,7 @@ Parser::tokenizeBody(
 
 	Lexer lexer(
 		m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile,
-		m_module->getCodeAssistOffset()
+		m_module->m_codeAssistMgr.getOffset()
 		);
 
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
@@ -212,7 +212,12 @@ Parser::parseTokenList(
 
 	// important: process EOF token, it might actually trigger actions!
 
-	return parseEofToken(tokenList.getTail()->m_pos);
+	bool result = parseEofToken(tokenList.getTail()->m_pos);
+
+	if (!m_argumentTipStack.isEmpty())
+		generateArgumentTip();
+
+	return result;
 }
 
 bool
@@ -649,7 +654,7 @@ Parser::declareGlobalNamespace(
 	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyToken.m_pos, bodyToken.m_data.m_string);
 
 	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
-		m_module->setCodeAssistContainerItem(nspace);
+		m_module->m_codeAssistMgr.m_containerItem = nspace;
 
 	return nspace;
 }
@@ -681,6 +686,10 @@ Parser::declareExtensionNamespace(
 
 	result = nspace->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 	ASSERT(result);
+
+	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+		m_module->m_codeAssistMgr.m_containerItem = nspace;
+
 	return nspace;
 }
 
@@ -3196,7 +3205,34 @@ Parser::generateAutoCompleteList(
 	const Value& value
 	)
 {
-	m_module->setCodeAssist(CodeAssist::createAutoCompleteList(token.m_pos, global));
+	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
+
+	Token::Pos pos = token.m_pos;
+	if (token.m_tokenKind != TokenKind_Identifier)
+	{
+		pos.m_col += pos.m_length;
+		pos.m_offset += pos.m_length;
+	}
+
+	if (nspace)
+		m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace);
+}
+
+void
+Parser::generateArgumentTip()
+{
+	ASSERT(!m_argumentTipStack.isEmpty());
+
+	ArgumentTip* argumentTip = *m_argumentTipStack.getTail();
+
+	size_t baseArgumentIdx;
+	FunctionType* functionType = m_module->m_operatorMgr.getValueFunctionType(argumentTip->m_value, &baseArgumentIdx);
+	if (functionType)
+		m_module->m_codeAssistMgr.createArgumentTip(
+			argumentTip->m_pos,
+			functionType,
+			baseArgumentIdx + argumentTip->m_argumentIdx
+			);
 }
 
 /*	switch (m_codeAssistKind)
@@ -3204,16 +3240,6 @@ Parser::generateAutoCompleteList(
 	case CodeAssistKind_QuickInfoTip:
 		if (firstFunction)
 			m_codeAssist = CodeAssist::createQuickInfoTip(m_codeAssistPos, firstFunction);
-		break;
-
-	case CodeAssistKind_ArgumentTip:
-		if (firstFunction)
-			m_codeAssist = CodeAssist::createArgumentTip(m_codeAssistPos, firstFunction->getType(), 0);
-		break;
-
-	case CodeAssistKind_AutoComplete:
-	case CodeAssistKind_AutoCompleteList:
-		m_codeAssist = CodeAssist::createAutoCompleteList(m_codeAssistPos, global);
 		break;
 
 	case CodeAssistKind_GotoDefinition:
@@ -3226,3 +3252,4 @@ Parser::generateAutoCompleteList(
 
 } // namespace ct
 } // namespace jnc
+;

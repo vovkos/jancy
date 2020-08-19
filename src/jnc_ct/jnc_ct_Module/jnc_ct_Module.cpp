@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_JitMemoryMgr.h"
-#include "jnc_ct_CodeAssist.h"
 #include "jnc_ct_Parser.llk.h"
 
 #if (_AXL_DEBUG)
@@ -199,6 +198,20 @@ Module::initialize(
 		m_variableMgr.createStdVariables();
 		m_namespaceMgr.addStdItems();
 	}
+}
+
+CodeAssist*
+Module::generateCodeAssist(
+	jnc_CodeAssistKind kind,
+	Module* cacheModule,
+	size_t offset,
+	const sl::StringRef& source
+	)
+{
+	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
+	m_codeAssistMgr.initialize(kind, cacheModule, offset);
+	parse("code-assist-source", source);
+	return m_codeAssistMgr.generateCodeAssist();
 }
 
 #if (JNC_PTR_BITS == 32)
@@ -581,7 +594,7 @@ Module::parseImpl(
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer(LexerMode_Parse, m_codeAssistOffset);
+	Lexer lexer(LexerMode_Parse, m_codeAssistMgr.getOffset());
 	lexer.create(fileName, source);
 
 #if (0)

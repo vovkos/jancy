@@ -38,6 +38,7 @@ protected:
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	CodeAssistThread* m_thread;
+	CodeAssist* m_currentCodeAssist;
 	QCompleter* m_completer;
 	QRect m_completerRect;
 	bool m_isCurrentLineHighlightingEnabled;
@@ -138,6 +139,7 @@ protected:
 private slots:
 	void updateLineNumberMargin(const QRect&, int);
 	void highlightCurrentLine();
+	void onCursorPositionChanged();
 	void onCompleterActivated(const QString &completion);
 	void onCodeAssistReady();
 	void onThreadFinished();

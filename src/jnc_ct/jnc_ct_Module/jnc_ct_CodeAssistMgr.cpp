@@ -11,101 +11,61 @@
 
 #include "pch.h"
 #include "jnc_ct_CodeAssistMgr.h"
+#include "jnc_ct_Module.h"
 
 namespace jnc {
 namespace ct {
 
 //..............................................................................
 
-CodeAssist*
-CodeAssist::createModuleItemCodeAssist(
-	CodeAssistKind kind,
-	const lex::LineColOffset& pos,
-	ModuleItem* item
-	)
-{
-	CodeAssist* codeAssist = AXL_MEM_NEW(CodeAssist);
-	codeAssist->m_codeAssistKind = kind;
-	codeAssist->m_pos = pos;
-	codeAssist->m_item = item;
-	return codeAssist;
-}
-
-CodeAssist*
-CodeAssist::createArgumentTip(
-	const lex::LineColOffset& pos,
-	FunctionType* functionType,
-	size_t argumentIdx
-	)
-{
-	CodeAssist* codeAssist = AXL_MEM_NEW(CodeAssist);
-	codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
-	codeAssist->m_pos = pos;
-	codeAssist->m_functionType = functionType;
-	codeAssist->m_argumentIdx = argumentIdx;
-	return codeAssist;
-}
-
-CodeAssist*
-CodeAssist::createAutoCompleteList(
-	const lex::LineColOffset& pos,
-	Namespace* nspace,
-	uint_t flags
-	)
-{
-	CodeAssist* codeAssist = AXL_MEM_NEW(CodeAssist);
-	codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
-	codeAssist->m_pos = pos;
-	codeAssist->m_namespace = nspace;
-	codeAssist->m_namespaceFlags = flags;
-	return codeAssist;
-}
-
-//..............................................................................
-
 CodeAssistMgr::CodeAssistMgr()
 {
 	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_codeAssistCacheModule = NULL;
-	m_codeAssistOffset = -1;
-	m_codeAssistContainerItem = NULL;
+	m_cacheModule = NULL;
+	m_offset = -1;
+	m_containerItem = NULL;
+	m_codeAssist = NULL;
+}
+
+void
+CodeAssistMgr::freeCodeAssist()
+{
+	if (m_codeAssist)
+		AXL_MEM_DELETE(m_codeAssist);
+
 	m_codeAssist = NULL;
 }
 
 void
 CodeAssistMgr::clear()
 {
-	if (m_codeAssist)
-		AXL_MEM_DELETE(m_codeAssist);
-
+	freeCodeAssist();
 	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_codeAssistCacheModule = NULL;
-	m_codeAssistOffset = -1;
-	m_codeAssistContainerItem = NULL;
+	m_cacheModule = NULL;
+	m_offset = -1;
+	m_containerItem = NULL;
 	m_codeAssist = NULL;
 }
 
-CodeAssist*
-CodeAssistMgr::generateCodeAssist(
+void
+CodeAssistMgr::initialize(
 	jnc_CodeAssistKind kind,
 	Module* cacheModule,
-	size_t offset,
-	const sl::StringRef& source
+	size_t offset
 	)
 {
-	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
+	clear();
 
 	m_codeAssistKind = kind;
-	m_codeAssistOffset = offset;
-	m_codeAssistCacheModule = cacheModule;
+	m_cacheModule = cacheModule;
+	m_offset = offset;
+}
 
-	parse("code-assist-source", source);
-
-	if (m_codeAssist)
-		return m_codeAssist;
-
-	if (m_codeAssistContainerItem)
-		generateCodeAssistImpl(m_codeAssistContainerItem);
+CodeAssist*
+CodeAssistMgr::generateCodeAssist()
+{
+	if (!m_codeAssist && m_containerItem)
+		generateCodeAssistImpl(m_containerItem);
 
 	return m_codeAssist;
 }
@@ -117,11 +77,11 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item)
 	switch (itemKind)
 	{
 	case ModuleItemKind_Namespace:
-		m_codeAssistContainerItem = NULL;
+		m_containerItem = NULL;
 		((GlobalNamespace*)item)->ensureNamespaceReady();
 
-		if (m_codeAssistContainerItem)
-			generateCodeAssistImpl(m_codeAssistContainerItem);
+		if (m_containerItem)
+			generateCodeAssistImpl(m_containerItem);
 
 		break;
 
@@ -132,6 +92,56 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item)
 	case ModuleItemKind_Type:
 		break;
 	}
+}
+
+CodeAssist*
+CodeAssistMgr::createModuleItemCodeAssist(
+	CodeAssistKind kind,
+	const lex::LineColOffset& pos,
+	ModuleItem* item
+	)
+{
+	freeCodeAssist();
+
+	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist->m_codeAssistKind = kind;
+	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_item = item;
+	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createArgumentTip(
+	const lex::LineColOffset& pos,
+	FunctionType* functionType,
+	size_t argumentIdx
+	)
+{
+	freeCodeAssist();
+
+	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
+	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_functionType = functionType;
+	m_codeAssist->m_argumentIdx = argumentIdx;
+	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createAutoCompleteList(
+	const lex::LineColOffset& pos,
+	Namespace* nspace,
+	uint_t flags
+	)
+{
+	freeCodeAssist();
+
+	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
+	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_namespace = nspace;
+	m_codeAssist->m_namespaceFlags = flags;
+	return m_codeAssist;
 }
 
 //..............................................................................

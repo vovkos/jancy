@@ -37,39 +37,39 @@ jnc_getCodeAssistKindString(jnc_CodeAssistKind kind);
 
 JNC_EXTERN_C
 jnc_CodeAssistKind
-jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 int
-jnc_CodeAssist_getLine(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getLine(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 int
-jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 size_t
-jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 jnc_ModuleItem*
-jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 jnc_FunctionType*
-jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 size_t
-jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 jnc_Namespace*
-jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 uint_t
-jnc_CodeAssist_getNamespaceFlags(jnc_CodeAssist* codeAssistResult);
+jnc_CodeAssist_getNamespaceFlags(jnc_CodeAssist* codeAssist);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

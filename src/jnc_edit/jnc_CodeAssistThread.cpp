@@ -85,7 +85,9 @@ CodeAssistThread::run()
 	}
 
 	m_module->generateCodeAssist(
-		m_codeAssistKind,
+		m_codeAssistKind == CodeAssistKind_AutoComplete ?
+			CodeAssistKind_AutoCompleteList : // one-item lists will be commited as auto-complete
+			m_codeAssistKind,
 		m_cacheModule,
 		m_offset,
 		m_source.cp(),

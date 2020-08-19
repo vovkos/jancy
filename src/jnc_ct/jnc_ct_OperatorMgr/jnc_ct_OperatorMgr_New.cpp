@@ -417,7 +417,7 @@ OperatorMgr::parseAutoSizeArrayCurlyInitializer(
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(LexerMode_Compile, m_module->getCodeAssistOffset());
+	Lexer lexer(LexerMode_Compile, m_module->m_codeAssistMgr.getOffset());
 	lexer.create(unit->getFilePath(), initializer);
 	lexer.setLineColOffset(pos);
 

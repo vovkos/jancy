@@ -20,6 +20,8 @@ namespace ct {
 
 class CodeAssist
 {
+	friend class CodeAssistMgr;
+
 protected:
 	CodeAssistKind m_codeAssistKind;
 	lex::LineColOffset m_pos; // not necessarily the same as request position
@@ -37,62 +39,7 @@ protected:
 		uint_t m_namespaceFlags;
 	};
 
-protected:
-	static
-	CodeAssist*
-	createModuleItemCodeAssist(
-		CodeAssistKind kind,
-		const lex::LineColOffset& pos,
-		ModuleItem* item
-		);
-
 public:
-	static
-	CodeAssist*
-	createQuickInfoTip(
-		const lex::LineColOffset& pos,
-		ModuleItem* item
-		)
-	{
-		return createModuleItemCodeAssist(CodeAssistKind_QuickInfoTip, pos, item);
-	}
-
-	static
-	CodeAssist*
-	createGotoDefinition(
-		const lex::LineColOffset& pos,
-		ModuleItem* item
-		)
-	{
-		return createModuleItemCodeAssist(CodeAssistKind_GotoDefinition, pos, item);
-	}
-
-	static
-	CodeAssist*
-	createAutoComplete(
-		const lex::LineColOffset& pos,
-		ModuleItem* item
-		)
-	{
-		return createModuleItemCodeAssist(CodeAssistKind_AutoComplete, pos, item);
-	}
-
-	static
-	CodeAssist*
-	createArgumentTip(
-		const lex::LineColOffset& pos,
-		FunctionType* functionType,
-		size_t arugmentIdx
-		);
-
-	static
-	CodeAssist*
-	createAutoCompleteList(
-		const lex::LineColOffset& pos,
-		Namespace* nspace,
-		uint_t flags = 0
-		);
-
 	CodeAssistKind
 	getCodeAssistKind()
 	{
@@ -160,15 +107,27 @@ class CodeAssistMgr
 	friend class Parser;
 
 protected:
-	ct::Module* m_module;
+	Module* m_module;
+	Module* m_cacheModule;
+
 	CodeAssistKind m_codeAssistKind;
-	Module* m_codeAssistCacheModule;
-	size_t m_codeAssistOffset;
-	ModuleItem* m_codeAssistContainerItem;
 	CodeAssist* m_codeAssist;
+	size_t m_offset;
+	ModuleItem* m_containerItem;
 
 public:
 	CodeAssistMgr();
+
+	~CodeAssistMgr()
+	{
+		freeCodeAssist();
+	}
+
+	CodeAssistKind
+	getCodeAssistKind()
+	{
+		return m_codeAssistKind;
+	}
 
 	CodeAssist*
 	getCodeAssist()
@@ -177,28 +136,78 @@ public:
 	}
 
 	size_t
-	getCodeAssistOffset()
+	getOffset()
 	{
-		return m_codeAssistOffset;
+		return m_offset;
 	}
 
 	void
 	clear();
 
-	CodeAssist*
-	generateCodeAssist(
+	void
+	initialize(
 		CodeAssistKind kind,
 		Module* cacheModule,
-		size_t offset,
-		const sl::StringRef& source
+		size_t offset
+		);
+
+	CodeAssist*
+	generateCodeAssist();
+
+	CodeAssist*
+	createQuickInfoTip(
+		const lex::LineColOffset& pos,
+		ModuleItem* item
+		)
+	{
+		return createModuleItemCodeAssist(CodeAssistKind_QuickInfoTip, pos, item);
+	}
+
+	CodeAssist*
+	createGotoDefinition(
+		const lex::LineColOffset& pos,
+		ModuleItem* item
+		)
+	{
+		return createModuleItemCodeAssist(CodeAssistKind_GotoDefinition, pos, item);
+	}
+
+	CodeAssist*
+	createAutoComplete(
+		const lex::LineColOffset& pos,
+		ModuleItem* item
+		)
+	{
+		return createModuleItemCodeAssist(CodeAssistKind_AutoComplete, pos, item);
+	}
+
+	CodeAssist*
+	createArgumentTip(
+		const lex::LineColOffset& pos,
+		FunctionType* functionType,
+		size_t arugmentIdx
+		);
+
+	CodeAssist*
+	createAutoCompleteList(
+		const lex::LineColOffset& pos,
+		Namespace* nspace,
+		uint_t flags = 0
 		);
 
 protected:
 	void
-	generateCodeAssistImpl(ModuleItem* item);
+	freeCodeAssist();
 
 	void
-	generateCodeAssistImpl(GlobalNamespace* nspace);
+	generateCodeAssistImpl(ModuleItem* item);
+
+	CodeAssist*
+	createModuleItemCodeAssist(
+		CodeAssistKind kind,
+		const lex::LineColOffset& pos,
+		ModuleItem* item
+		);
 };
 
 } // namespace ct
