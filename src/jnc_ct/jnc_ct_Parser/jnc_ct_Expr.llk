@@ -776,9 +776,14 @@ postfix_operator<Value* $value>
 			{
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_PostDec, $value);
 			}
-	|	'.'	member_operator<$value>
+	|	'.'
+			{
+				generateAutoCompleteListIf($1, $value);
+			}
+		member_operator<$value>
 	|	TokenKind_Ptr
 			{
+				generateAutoCompleteListIf($1, $value);
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>

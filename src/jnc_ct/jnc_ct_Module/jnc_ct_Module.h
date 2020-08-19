@@ -24,6 +24,7 @@
 #include "jnc_ct_UnitMgr.h"
 #include "jnc_ct_ImportMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
+#include "jnc_ct_CodeAssistMgr.h"
 #include "jnc_ct_DoxyHost.h"
 #include "jnc_ct_LlvmIrBuilder.h"
 #include "jnc_ct_LlvmDiBuilder.h"
@@ -112,12 +113,6 @@ protected:
 
 	Function* m_constructor;
 
-	CodeAssistKind m_codeAssistKind;
-	Module* m_codeAssistCacheModule;
-	size_t m_codeAssistOffset;
-	ModuleItem* m_codeAssistContainerItem;
-	CodeAssist* m_codeAssist;
-
 	// codegen-only
 
 	llvm::LLVMContext* m_llvmContext;
@@ -138,6 +133,7 @@ public:
 	UnitMgr m_unitMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;
+	CodeAssistMgr m_codeAssistMgr;
 	DoxyHost m_doxyHost;
 	dox::Module m_doxyModule;
 
@@ -234,24 +230,6 @@ public:
 		return m_constructor;
 	}
 
-	CodeAssist*
-	getCodeAssist()
-	{
-		return m_codeAssist;
-	}
-
-	size_t
-	getCodeAssistOffset()
-	{
-		return m_codeAssistOffset;
-	}
-
-	void
-	setCodeAssistContainerItem(ModuleItem* item)
-	{
-		m_codeAssistContainerItem = item;
-	}
-
 	void
 	setFunctionPointer(
 		llvm::ExecutionEngine* llvmExecutionEngine,
@@ -291,14 +269,6 @@ public:
 
 	void
 	clear();
-
-	CodeAssist*
-	generateCodeAssist(
-		CodeAssistKind kind,
-		Module* cacheModule,
-		size_t offset,
-		const sl::StringRef& source
-		);
 
 	void
 	initialize(
@@ -384,12 +354,6 @@ protected:
 		const sl::StringRef& fileName,
 		const sl::StringRef& source
 		);
-
-	void
-	generateCodeAssistImpl(ModuleItem* item);
-
-	void
-	generateCodeAssistImpl(GlobalNamespace* nspace);
 
 	bool
 	requireIntrospectionLib();

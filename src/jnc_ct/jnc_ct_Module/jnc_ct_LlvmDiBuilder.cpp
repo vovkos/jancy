@@ -428,7 +428,7 @@ LlvmDiBuilder::createFunction(Function* function)
 	ASSERT(unit);
 
 	lex::LineCol declPos = function->getPos();
-	lex::LineCol scopePos = function->hasBody() ? function->getBodyPos() : declPos;
+	lex::LineCol scopePos = function->hasBody() ? (const lex::LineCol&)function->getBodyPos() : declPos;
 
 #if (LLVM_VERSION < 0x030700)
 	llvm::DICompositeType llvmDiSubroutineType(function->getType()->getLlvmDiType());

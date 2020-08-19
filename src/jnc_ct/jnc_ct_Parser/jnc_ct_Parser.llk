@@ -326,16 +326,33 @@ protected:
 	bool
 	setDeclarationBody(const Token& bodyToken);
 
-	void
-	setEnumTypeBody(
-		EnumType* type,
-		const Token& bodyToken
-		);
-
+	template <typename T>
 	bool
-	setMemberBlockBodyBody(
-		EnumType* type,
+	setBody(
+		T* item,
 		const Token& bodyToken
+		)
+	{
+		if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+			m_module->setCodeAssistContainerItem(item);
+
+		return item->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+	}
+
+	void
+	generateAutoCompleteListIf(
+		const Token& token,
+		const Value& value
+		)
+	{
+		if (m_module->getCodeAssistKind() == CodeAssistKind_AutoCompleteList && ($1.m_channelMask & TokenChannelMask_CodeAssist))
+			generateAutoCompleteList(token, value);
+	}
+
+	void
+	generateAutoCompleteList(
+		const Token& token,
+		const Value& value
 		);
 
 	void

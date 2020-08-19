@@ -118,7 +118,7 @@ enum_block<EnumType* $type>
 				}
 		|	TokenKind_Body
 				{
-					setEnumBody($type, $1);
+					setBody($type, $1);
 				}
 		)
 	;
@@ -264,7 +264,7 @@ library_specifier
 				}
 		|	TokenKind_Body
 				{
-					return setDynamicLibNamespaceBody($.m_type->getLibNamespace(), $1);
+					return setBody($.m_type->getLibNamespace(), $1);
 				}
 		)
 	;
@@ -284,7 +284,7 @@ member_block<NamedType* $type>
 				}
 		|	TokenKind_Body
 				{
-					return setMemberBlockBody($type, $1);
+					return setBody($type, $1);
 				}
 		)
 	;

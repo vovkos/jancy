@@ -474,11 +474,7 @@ Parser::setDeclarationBody(const Token& bodyToken)
 
 		function = (Function*)m_lastDeclaredItem;
 		function->addUsingSet(nspace);
-
-		if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
-			m_module->setCodeAssistContainerItem(function);
-
-		return function->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+		return setBody(function, bodyToken);
 
 	case ModuleItemKind_Property:
 		return parseLastPropertyBody(bodyToken);
@@ -515,22 +511,7 @@ Parser::setDeclarationBody(const Token& bodyToken)
 		return false;
 	}
 
-	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
-		m_module->setCodeAssistContainerItem(type);
-
-	return ((ReactorClassType*)type)->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
-}
-
-void
-Parser::setEnumBody(
-	EnumType* type,
-	const Token& bodyToken
-	)
-{
-	type->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
-
-	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
-		m_module->setCodeAssistContainerItem(type);
+	return setBody((ReactorClassType*)type, bodyToken);
 }
 
 bool
@@ -3208,6 +3189,38 @@ Parser::addScopeAnchorToken(
 	stmt->m_scopeAnchorToken = &*it;
 	stmt->m_scopeAnchorToken->m_data.m_integer = 0; // tokens can be reused, ensure 0
 }
+
+void
+Parser::generateAutoCompleteList(
+	const Token& token,
+	const Value& value
+	)
+{
+	m_module->setCodeAssist(CodeAssist::createAutoCompleteList(token.m_pos, global));
+}
+
+/*	switch (m_codeAssistKind)
+	{
+	case CodeAssistKind_QuickInfoTip:
+		if (firstFunction)
+			m_codeAssist = CodeAssist::createQuickInfoTip(m_codeAssistPos, firstFunction);
+		break;
+
+	case CodeAssistKind_ArgumentTip:
+		if (firstFunction)
+			m_codeAssist = CodeAssist::createArgumentTip(m_codeAssistPos, firstFunction->getType(), 0);
+		break;
+
+	case CodeAssistKind_AutoComplete:
+	case CodeAssistKind_AutoCompleteList:
+		m_codeAssist = CodeAssist::createAutoCompleteList(m_codeAssistPos, global);
+		break;
+
+	case CodeAssistKind_GotoDefinition:
+		m_codeAssist = CodeAssist::createGotoDefinition(m_codeAssistPos, firstFunction);
+		break;
+	}
+*/
 
 //..............................................................................
 

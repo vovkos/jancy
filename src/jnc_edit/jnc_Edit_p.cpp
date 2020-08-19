@@ -569,7 +569,13 @@ EditPrivate::getCursorRectFromLineCol(const lex::LineCol& pos)
 	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, pos.m_col);
 
 	QRect rect = q->cursorRect(cursor);
+
+#if (QT_VERSION >= 0x050500)
 	rect.translate(q->viewportMargins().left(), q->viewportMargins().top());
+#else
+	rect.translate(m_lineNumberMargin ? m_lineNumberMargin->width() : 0, 0);
+#endif
+
 	return rect;
 }
 

@@ -54,12 +54,6 @@ Module::Module():
 	m_compileErrorHandlerContext = NULL;
 	m_constructor = NULL;
 
-	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_codeAssistCacheModule = NULL;
-	m_codeAssistOffset = -1;
-	m_codeAssistContainerItem = NULL;
-	m_codeAssist = NULL;
-
 	m_llvmContext = NULL;
 	m_llvmModule = NULL;
 	m_llvmExecutionEngine = NULL;
@@ -129,20 +123,11 @@ Module::clear()
 	m_controlFlowMgr.clear();
 	m_gcShadowStackMgr.clear();
 	m_regexMgr.clear();
+	m_codeAssistMgr.clear();
 
 	clearLlvm();
 
 	m_constructor = NULL;
-
-	if (m_codeAssist)
-		AXL_MEM_DELETE(m_codeAssist);
-
-	m_codeAssistKind = CodeAssistKind_Undefined;
-	m_codeAssistCacheModule = NULL;
-	m_codeAssistOffset = -1;
-	m_codeAssistContainerItem = NULL;
-	m_codeAssist = NULL;
-
 	m_compileFlags = ModuleCompileFlag_StdFlags;
 	m_compileState = ModuleCompileState_Idle;
 	m_compileErrorCount = 0;
@@ -404,78 +389,6 @@ Module::createLlvmExecutionEngine()
 
 	return true;
 }
-
-CodeAssist*
-Module::generateCodeAssist(
-	jnc_CodeAssistKind kind,
-	Module* cacheModule,
-	size_t offset,
-	const sl::StringRef& source
-	)
-{
-	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
-
-	m_codeAssistKind = kind;
-	m_codeAssistOffset = offset;
-	m_codeAssistCacheModule = cacheModule;
-
-	parse("code-assist-source", source);
-
-	if (m_codeAssist)
-		return m_codeAssist;
-
-	if (m_codeAssistContainerItem)
-		generateCodeAssistImpl(m_codeAssistContainerItem);
-
-	return m_codeAssist;
-}
-
-void
-Module::generateCodeAssistImpl(ModuleItem* item)
-{
-	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
-	case ModuleItemKind_Namespace:
-		m_codeAssistContainerItem = NULL;
-		((GlobalNamespace*)item)->ensureNamespaceReady();
-
-		if (m_codeAssistContainerItem)
-			generateCodeAssistImpl(m_codeAssistContainerItem);
-
-		break;
-
-	case ModuleItemKind_Function:
-		((Function*)item)->compile();
-		break;
-
-	case ModuleItemKind_Type:
-		break;
-	}
-}
-
-/*	switch (m_codeAssistKind)
-	{
-	case CodeAssistKind_QuickInfoTip:
-		if (firstFunction)
-			m_codeAssist = CodeAssist::createQuickInfoTip(m_codeAssistPos, firstFunction);
-		break;
-
-	case CodeAssistKind_ArgumentTip:
-		if (firstFunction)
-			m_codeAssist = CodeAssist::createArgumentTip(m_codeAssistPos, firstFunction->getType(), 0);
-		break;
-
-	case CodeAssistKind_AutoComplete:
-	case CodeAssistKind_AutoCompleteList:
-		m_codeAssist = CodeAssist::createAutoCompleteList(m_codeAssistPos, global);
-		break;
-
-	case CodeAssistKind_GotoDefinition:
-		m_codeAssist = CodeAssist::createGotoDefinition(m_codeAssistPos, firstFunction);
-		break;
-	}
-*/
 
 bool
 Module::mapVariable(

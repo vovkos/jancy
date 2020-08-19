@@ -516,6 +516,7 @@ jnc_Module_generateCodeAssist(
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_CodeAssist*
 jnc_Module_getCodeAssist(jnc_Module* module)
 {

@@ -155,5 +155,51 @@ public:
 
 //..............................................................................
 
+class CodeAssistMgr
+{
+	friend class Parser;
+
+protected:
+	ct::Module* m_module;
+	CodeAssistKind m_codeAssistKind;
+	Module* m_codeAssistCacheModule;
+	size_t m_codeAssistOffset;
+	ModuleItem* m_codeAssistContainerItem;
+	CodeAssist* m_codeAssist;
+
+public:
+	CodeAssistMgr();
+
+	CodeAssist*
+	getCodeAssist()
+	{
+		return m_codeAssist;
+	}
+
+	size_t
+	getCodeAssistOffset()
+	{
+		return m_codeAssistOffset;
+	}
+
+	void
+	clear();
+
+	CodeAssist*
+	generateCodeAssist(
+		CodeAssistKind kind,
+		Module* cacheModule,
+		size_t offset,
+		const sl::StringRef& source
+		);
+
+protected:
+	void
+	generateCodeAssistImpl(ModuleItem* item);
+
+	void
+	generateCodeAssistImpl(GlobalNamespace* nspace);
+};
+
 } // namespace ct
 } // namespace jnc

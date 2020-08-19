@@ -101,7 +101,7 @@ CodeAssistThread::compileErrorHandler(
 	jnc::ModuleCompileErrorKind errorKind
 	)
 {
-	printf("%s\n", err::getLastErrorDescription().sz());
+	printf("code-assist-error: %s\n", getLastErrorDescription_v());
 	return true;
 }
 
