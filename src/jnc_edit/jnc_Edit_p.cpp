@@ -265,7 +265,7 @@ EditPrivate::EditPrivate()
 	m_isCurrentLineHighlightingEnabled = false;
 	m_thread = NULL;
 	m_completer = NULL;
-	m_currentCodeAssist = NULL;
+	m_codeAssist = NULL;
 
 	m_codeAssistTriggers =
 		Edit::QuickInfoTipOnHoverOverIdentifier |
@@ -305,6 +305,11 @@ EditPrivate::init()
 	enableSyntaxHighlighting(true);
 	enableLineNumberMargin(true);
 	enableCurrentLineHighlighting(true);
+
+	QObject::connect(
+		q, SIGNAL(cursorPositionChanged()),
+		this, SLOT(onCursorPositionChanged())
+		);
 }
 
 void
@@ -366,24 +371,13 @@ EditPrivate::enableCurrentLineHighlighting(bool isEnabled)
 {
 	Q_Q(Edit);
 
+	if (isEnabled == m_isCurrentLineHighlightingEnabled)
+		return;
+
 	if (isEnabled)
-	{
-		QObject::connect(
-			q, SIGNAL(cursorPositionChanged()),
-			this, SLOT(highlightCurrentLine())
-			);
-
 		highlightCurrentLine();
-	}
 	else
-	{
-		QObject::disconnect(
-			q, SIGNAL(cursorPositionChanged()),
-			this, SLOT(highlightCurrentLine())
-			);
-
 		q->setExtraSelections(QList<QTextEdit::ExtraSelection>());
-	}
 }
 
 void
@@ -686,7 +680,11 @@ EditPrivate::createAutoCompleteList(
 void
 EditPrivate::onCursorPositionChanged()
 {
-	if ()
+	if (m_codeAssist && m_codeAssist->getCodeAssistKind() == CodeAssistKind_ArgumentTip)
+		requestCodeAssist(CodeAssistKind_ArgumentTip);
+
+	if (m_isCurrentLineHighlightingEnabled)
+		highlightCurrentLine();
 }
 
 void
@@ -713,28 +711,32 @@ EditPrivate::onCodeAssistReady()
 	CodeAssistThread* thread = (CodeAssistThread*)sender();
 	ASSERT(thread);
 
-	CodeAssist* codeAssist = thread->getCodeAssist();
-	if (!codeAssist)
+	m_codeAssist = thread->getCodeAssist();
+	if (!m_codeAssist)
+	{
+		hideCompleter();
+		QToolTip::hideText();
 		return;
+	}
 
-	CodeAssistKind kind = codeAssist->getCodeAssistKind();
-	lex::LineCol pos(codeAssist->getLine(), codeAssist->getCol());
+	CodeAssistKind kind = m_codeAssist->getCodeAssistKind();
+	lex::LineCol pos(m_codeAssist->getLine(), m_codeAssist->getCol());
 
 	switch (kind)
 	{
 	case CodeAssistKind_QuickInfoTip:
-		createQuickInfoTip(pos, codeAssist->getModuleItem());
+		createQuickInfoTip(pos, m_codeAssist->getModuleItem());
 		break;
 
 	case CodeAssistKind_ArgumentTip:
-		createArgumentTip(pos, codeAssist->getFunctionType(), codeAssist->getArgumentIdx());
+		createArgumentTip(pos, m_codeAssist->getFunctionType(), m_codeAssist->getArgumentIdx());
 		break;
 
 	case CodeAssistKind_AutoComplete:
 		break;
 
 	case CodeAssistKind_AutoCompleteList:
-		createAutoCompleteList(pos, codeAssist->getNamespace(), codeAssist->getNamespaceFlags());
+		createAutoCompleteList(pos, m_codeAssist->getNamespace(), m_codeAssist->getNamespaceFlags());
 		break;
 
 	case CodeAssistKind_GotoDefinition:

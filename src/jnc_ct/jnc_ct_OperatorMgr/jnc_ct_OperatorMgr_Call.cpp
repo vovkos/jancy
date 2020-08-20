@@ -254,7 +254,7 @@ OperatorMgr::getValueFunctionType(
 
 	bool result = prepareOperand(rawOpValue, &opValue);
 	if (!result)
-		return false;
+		return NULL;
 
 	*baseArgumentIdx = 0;
 
