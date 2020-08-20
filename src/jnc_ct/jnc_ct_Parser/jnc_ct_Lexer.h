@@ -201,10 +201,11 @@ enum TokenKind
 
 enum TokenChannelMask
 {
-	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
-	TokenChannelMask_DoxyComment = 0x02,
-	TokenChannelMask_CodeAssist  = 0x04,
-	TokenChannelMask_All         = -1,
+	TokenChannelMask_Main           = lex::TokenChannelMask_Main, // 0x01,
+	TokenChannelMask_DoxyComment    = 0x02,
+	TokenChannelMask_CodeAssist     = 0x04,
+	TokenChannelMask_PostCodeAssist = 0x08,
+	TokenChannelMask_All            = -1,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -449,12 +450,16 @@ protected:
 		{
 			if (token->m_pos.m_offset < m_codeAssistOffset)
 				token->m_channelMask |= TokenChannelMask_CodeAssist;
+			else
+				token->m_channelMask |= TokenChannelMask_PostCodeAssist;
 
 			if (m_mode == LexerMode_Compile) // abort further tokenization
 			{
 				stop();
 				eof = pe;
 			}
+
+			m_codeAssistOffset = -1; // not necessary to check anymore
 		}
 	}
 

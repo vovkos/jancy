@@ -81,6 +81,7 @@ CodeAssistThread::run()
 	for (; it != m_importDirList.end(); it++)
 	{
 		QByteArray dir = (*it).toUtf8();
+		printf("import-dir: %s\n", dir.constData());
 		m_module->addImportDir(dir.constData());
 	}
 

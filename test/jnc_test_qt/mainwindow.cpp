@@ -49,6 +49,16 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	m_currentLineHighlightingAction = NULL;
 	m_lineNumberMarginAction = NULL;
 
+#if (_JNC_OS_WIN)
+	m_libDir = qApp->applicationDirPath();
+#else
+#	if (_JNC_DEBUG)
+	m_libDir = qApp->applicationDirPath() + "/../../lib/Debug";
+#	else
+	m_libDir = qApp->applicationDirPath() + "/../../lib/Release";
+#	endif
+#endif
+
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	createMdiArea();
@@ -465,7 +475,6 @@ bool MainWindow::compile()
 #endif
 
 	QByteArray sourceFilePath = child->filePath().toUtf8();
-	QByteArray appDir = qApp->applicationDirPath().toUtf8();
 
 	m_module->initialize(sourceFilePath.data(), compileFlags);
 
@@ -474,19 +483,10 @@ bool MainWindow::compile()
 		m_module->addStaticLib(jnc::StdLib_getLib());
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addStaticLib(TestLib_getLib());
-		m_module->addImportDir(appDir.constData());
+		m_module->addImportDir(m_libDir.toUtf8().constData());
 	}
 
 	m_module->require(jnc::ModuleItemKind_Function, "main");
-
-#if (_JNC_OS_POSIX)
-#	if (_JNC_DEBUG)
-	QString libDir = qApp->applicationDirPath() + "/../../lib/Debug";
-#	else
-	QString libDir = qApp->applicationDirPath() + "/../../lib/Release";
-#	endif
-	m_module->addImportDir(libDir.toUtf8().constData());
-#endif
 
 	m_modulePane->clear();
 	m_llvmIr->clear();
@@ -599,8 +599,8 @@ MdiChild* MainWindow::createMdiChild()
 {
 	MdiChild* child = new MdiChild(this);
 	child->setAttribute(Qt::WA_DeleteOnClose);
+	child->setImportDirList(QStringList(m_libDir));
 	m_mdiArea->addSubWindow(child);
-
 	return child;
 }
 

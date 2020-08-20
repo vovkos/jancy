@@ -38,7 +38,10 @@ protected:
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	CodeAssistThread* m_thread;
-	CodeAssist* m_codeAssist;
+	CodeAssistKind m_lastCodeAssistKind;
+	lex::LineCol m_lastCodeAssistLineCol;
+	int m_lastCodeAssistPosition;
+	QPoint m_lastToolTipPoint;
 	QCompleter* m_completer;
 	QRect m_completerRect;
 	bool m_isCurrentLineHighlightingEnabled;
@@ -84,6 +87,9 @@ protected:
 		bool isSync = false
 		);
 
+	void
+	hideCodeAssist();
+
 	bool
 	isCompleterVisible()
 	{
@@ -98,13 +104,6 @@ protected:
 
 	void
 	updateCompleter(bool isForced = false);
-
-	void
-	hideCompleter()
-	{
-		ASSERT(m_completer);
-		m_completer->popup()->hide();
-	}
 
 	void
 	createQuickInfoTip(
@@ -126,6 +125,9 @@ protected:
 		uint_t flags
 		);
 
+	QTextCursor
+	getCursorFromLineCol(const lex::LineCol& pos);
+
 	static
 	lex::LineCol
 	getLineColFromCursor(const QTextCursor& cursor);
@@ -134,10 +136,25 @@ protected:
 	getCursorRectFromLineCol(const lex::LineCol& pos);
 
 	QPoint
-	getToolTipPointFromLineCol(const lex::LineCol& pos);
+	getToolTipPointFromLineCol(
+		const lex::LineCol& pos,
+		bool isBelowCurrentCursor = false
+		);
 
 	void
 	highlightCurrentLine();
+
+	int
+	getLastCodeAssistPosition()
+	{
+		return m_lastCodeAssistPosition != -1 ? m_lastCodeAssistPosition : calcLastCodeAssistPosition();
+	}
+
+	int
+	calcLastCodeAssistPosition();
+
+	void
+	keyPressCtrlSpace(QKeyEvent* e);
 
 private slots:
 	void updateLineNumberMargin(const QRect&, int);

@@ -108,11 +108,8 @@ Edit::setTextCursorLineCol(
 	int col
 	)
 {
-	QTextCursor cursor = textCursor();
-	cursor.setPosition(0);
-	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line);
-	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, col);
-	setTextCursor(cursor);
+	Q_D(Edit);
+	setTextCursor(d->getCursorFromLineCol(lex::LineCol(line, col)));
 }
 
 void
@@ -181,39 +178,41 @@ Edit::keyPressEvent(QKeyEvent* e)
 		case Qt::Key_Backtab:
 			e->ignore();
 			return; // let the completer do default behavior
+
+		case Qt::Key_Space:
+			if (e->modifiers() & Qt::ControlModifier)
+			{
+				d->keyPressCtrlSpace(e);
+				return;
+			}
 		}
 
-		if (key == Qt::Key_Backspace || ch.isNull() || ch.isLetterOrNumber() || ch == '_')
-		{
-			QPlainTextEdit::keyPressEvent(e);
-			d->updateCompleter();
-		}
-		else
-		{
+		if (key != Qt::Key_Backspace && !ch.isNull() && !ch.isLetterOrNumber() && ch != '_')
 			d->applyCompleter();
-			QPlainTextEdit::keyPressEvent(e);
-		}
-	}
-	else if (key == Qt::Key_Space && (e->modifiers() & Qt::ControlModifier))
-	{
-		if (e->modifiers() & Qt::ShiftModifier)
-		{
-			if (d->m_codeAssistTriggers & ArgumentTipOnCtrlShiftSpace)
-				argumentTip();
-		}
-		else
-		{
-			if (d->m_codeAssistTriggers & AutoCompleteOnCtrlSpace)
-				autoComplete();
-		}
 
-		e->accept();
+		QPlainTextEdit::keyPressEvent(e);
 	}
-	else
+	else switch (key)
 	{
+		char c;
+
+	case Qt::Key_Escape:
+		QPlainTextEdit::keyPressEvent(e);
+		d->hideCodeAssist();
+		break;
+
+	case Qt::Key_Space:
+		if (e->modifiers() & Qt::ControlModifier)
+			d->keyPressCtrlSpace(e);
+		else
+			QPlainTextEdit::keyPressEvent(e);
+
+		break;
+
+	default:
 		QPlainTextEdit::keyPressEvent(e);
 
-		char c = ch.toLatin1();
+		c = ch.toLatin1();
 		switch (c)
 		{
 		case '.':
@@ -265,7 +264,8 @@ EditPrivate::EditPrivate()
 	m_isCurrentLineHighlightingEnabled = false;
 	m_thread = NULL;
 	m_completer = NULL;
-	m_codeAssist = NULL;
+	m_lastCodeAssistKind = CodeAssistKind_Undefined;
+	m_lastCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
 		Edit::QuickInfoTipOnHoverOverIdentifier |
@@ -378,6 +378,8 @@ EditPrivate::enableCurrentLineHighlighting(bool isEnabled)
 		highlightCurrentLine();
 	else
 		q->setExtraSelections(QList<QTextEdit::ExtraSelection>());
+
+	m_isCurrentLineHighlightingEnabled = isEnabled;
 }
 
 void
@@ -422,6 +424,7 @@ EditPrivate::requestCodeAssist(
 		m_thread->cancel();
 
 	m_thread = new CodeAssistThread(this);
+	m_thread->m_importDirList = m_importDirList;
 
 	QObject::connect(
 		m_thread, SIGNAL(ready()),
@@ -434,6 +437,18 @@ EditPrivate::requestCodeAssist(
 		);
 
 	m_thread->request(kind, ref::g_nullPtr, position, q->toPlainText());
+}
+
+void
+EditPrivate::hideCodeAssist()
+{
+	if (m_completer)
+		m_completer->popup()->hide();
+
+	QToolTip::hideText();
+
+	m_lastCodeAssistKind = CodeAssistKind_Undefined;
+	m_lastCodeAssistPosition = -1;
 }
 
 void
@@ -499,9 +514,23 @@ EditPrivate::updateCompleter(bool isForced)
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	cursor.select(QTextCursor::WordUnderCursor);
+	lex::LineCol pos = getLineColFromCursor(cursor);
+	int position = cursor.position();
+	int anchorPosition = getLastCodeAssistPosition();
+	if (position < anchorPosition)
+	{
+		hideCodeAssist();
+		return;
+	}
 
-	QString prefix = cursor.selectedText();
+	cursor.setPosition(position, QTextCursor::MoveAnchor);
+	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
+	QString prefix = cursor.selectedText().trimmed();
+	printf("prefix: %s\n", prefix.toUtf8().data());
+
+	if (!prefix.isEmpty() && prefix.at(0).isPunct())
+		prefix.clear();
+
 	if (!isForced && prefix == m_completer->completionPrefix())
 		return;
 
@@ -520,6 +549,8 @@ EditPrivate::updateCompleter(bool isForced)
 void
 EditPrivate::applyCompleter()
 {
+	Q_Q(Edit);
+
 	ASSERT(m_completer);
 
 	QModelIndex index = m_completer->popup()->currentIndex();
@@ -527,7 +558,19 @@ EditPrivate::applyCompleter()
 	if (!completion.isEmpty())
 		onCompleterActivated(completion);
 
-	hideCompleter();
+	hideCodeAssist();
+}
+
+QTextCursor
+EditPrivate::getCursorFromLineCol(const lex::LineCol& pos)
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	cursor.setPosition(0);
+	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, pos.m_line);
+	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, pos.m_col);
+	return cursor;
 }
 
 lex::LineCol
@@ -553,16 +596,22 @@ EditPrivate::getLineColFromCursor(const QTextCursor& cursor0)
 	return lex::LineCol(line, cursor0.columnNumber());
 }
 
+int
+EditPrivate::calcLastCodeAssistPosition()
+{
+	ASSERT(m_lastCodeAssistKind && m_lastCodeAssistPosition == -1);
+
+	QTextCursor cursor = getCursorFromLineCol(m_lastCodeAssistLineCol);
+	m_lastCodeAssistPosition = cursor.position();
+	return m_lastCodeAssistPosition;
+}
+
 QRect
 EditPrivate::getCursorRectFromLineCol(const lex::LineCol& pos)
 {
 	Q_Q(Edit);
 
-	QTextCursor cursor = q->textCursor();
-	cursor.setPosition(0);
-	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, pos.m_line);
-	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, pos.m_col);
-
+	QTextCursor cursor = getCursorFromLineCol(pos);
 	QRect rect = q->cursorRect(cursor);
 
 #if (QT_VERSION >= 0x050500)
@@ -575,7 +624,10 @@ EditPrivate::getCursorRectFromLineCol(const lex::LineCol& pos)
 }
 
 QPoint
-EditPrivate::getToolTipPointFromLineCol(const lex::LineCol& pos)
+EditPrivate::getToolTipPointFromLineCol(
+	const lex::LineCol& pos,
+	bool isBelowCurrentCursor
+	)
 {
 	Q_Q(Edit);
 
@@ -586,6 +638,10 @@ EditPrivate::getToolTipPointFromLineCol(const lex::LineCol& pos)
 	};
 
 	QRect rect = getCursorRectFromLineCol(pos);
+
+	if (isBelowCurrentCursor)
+		rect.moveTop(q->cursorRect().top());
+
 	QPoint point = q->mapToGlobal(rect.bottomLeft());
 	point -= QPoint(QtToolTipOffset_X, QtToolTipOffset_Y);
 	return point;
@@ -612,35 +668,51 @@ EditPrivate::createArgumentTip(
 {
 	Q_Q(Edit);
 
-	QString argTypeString = "(";
+	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
 
+	Type* returnType = functionType->getReturnType();
 	size_t argCount = functionType->getArgCount();
 	size_t lastArgIdx = argCount - 1;
+
+	QString text = returnType->getTypeString();
+	if (argCount >= 2)
+		text += " (<br>" ML_ARG_INDENT;
+	else
+		text += " (";
+
 	for (size_t i = 0; i < argCount; i++)
 	{
 		FunctionArg* arg = functionType->getArg(i);
 		Type* argType = arg->getType();
 
 		if (i == argumentIdx)
-			argTypeString += "<b>";
+			text += "<b>";
 
-		argTypeString += argType->getTypeStringPrefix();
-		argTypeString += ' ';
-		argTypeString += arg->getDecl()->getName();
-		argTypeString += argType->getTypeStringSuffix();
+		text += argType->getTypeStringPrefix();
+		text += ' ';
+		text += arg->getDecl()->getName();
+		text += argType->getTypeStringSuffix();
 
 		if (i == argumentIdx)
-			argTypeString += "</b>";
+			text += "</b>";
 
 		if (i != lastArgIdx)
-			argTypeString += ", ";
+			text += ",<br>" ML_ARG_INDENT;
 	}
 
-	argTypeString += ")";
+	if (argCount >= 2)
+		text += "<br>" ML_ARG_INDENT ")";
+	else
+		text += ")";
 
-	functionType->getTypeStringSuffix();
-	QPoint point = getToolTipPointFromLineCol(pos);
-	QToolTip::showText(point, argTypeString, q);
+	QPoint point = getToolTipPointFromLineCol(pos, true);
+	if (point != m_lastToolTipPoint)
+	{
+		QToolTip::showText(point, " ", q); // ensure tipChanged
+		m_lastToolTipPoint = point;
+	}
+
+	QToolTip::showText(point, text, q);
 }
 
 void
@@ -678,13 +750,46 @@ EditPrivate::createAutoCompleteList(
 }
 
 void
+EditPrivate::keyPressCtrlSpace(QKeyEvent* e)
+{
+	if (e->modifiers() & Qt::ShiftModifier)
+	{
+		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
+			requestCodeAssist(CodeAssistKind_ArgumentTip, true);
+	}
+	else
+	{
+		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
+			requestCodeAssist(CodeAssistKind_AutoComplete, true);
+	}
+
+	e->accept();
+}
+
+void
 EditPrivate::onCursorPositionChanged()
 {
-	if (m_codeAssist && m_codeAssist->getCodeAssistKind() == CodeAssistKind_ArgumentTip)
-		requestCodeAssist(CodeAssistKind_ArgumentTip);
-
 	if (m_isCurrentLineHighlightingEnabled)
 		highlightCurrentLine();
+
+	switch (m_lastCodeAssistKind)
+	{
+	case CodeAssistKind_Undefined:
+		break;
+
+	case CodeAssistKind_QuickInfoTip:
+		hideCodeAssist();
+		break;
+
+	case CodeAssistKind_ArgumentTip:
+		requestCodeAssist(CodeAssistKind_ArgumentTip);
+		break;
+
+	case CodeAssistKind_AutoCompleteList:
+		if (isCompleterVisible())
+			updateCompleter();
+		break;
+	}
 }
 
 void
@@ -692,14 +797,20 @@ EditPrivate::onCompleterActivated(const QString &completion)
 {
 	Q_Q(Edit);
 
-	if (m_completer->widget() != q)
-        return;
-
     QTextCursor cursor = q->textCursor();
-    int extra = completion.length() - m_completer->completionPrefix().length();
-    cursor.movePosition(QTextCursor::Left);
-    cursor.movePosition(QTextCursor::EndOfWord);
-    cursor.insertText(completion.right(extra));
+	cursor.select(QTextCursor::WordUnderCursor);
+
+	int basePosition = getLastCodeAssistPosition();
+	int position = cursor.position();
+	int anchor = cursor.anchor();
+
+	if (anchor < basePosition)
+		cursor.setPosition(basePosition, QTextCursor::MoveAnchor);
+
+	if (position < basePosition)
+		cursor.setPosition(basePosition, QTextCursor::KeepAnchor);
+
+    cursor.insertText(completion);
     q->setTextCursor(cursor);
 }
 
@@ -711,32 +822,35 @@ EditPrivate::onCodeAssistReady()
 	CodeAssistThread* thread = (CodeAssistThread*)sender();
 	ASSERT(thread);
 
-	m_codeAssist = thread->getCodeAssist();
-	if (!m_codeAssist)
+	CodeAssist* codeAssist = thread->getCodeAssist();
+	if (!codeAssist)
 	{
-		hideCompleter();
-		QToolTip::hideText();
+		hideCodeAssist();
 		return;
 	}
 
-	CodeAssistKind kind = m_codeAssist->getCodeAssistKind();
-	lex::LineCol pos(m_codeAssist->getLine(), m_codeAssist->getCol());
+	CodeAssistKind kind = codeAssist->getCodeAssistKind();
+	lex::LineCol pos(codeAssist->getLine(), codeAssist->getCol());
+
+	m_lastCodeAssistKind = kind;
+	m_lastCodeAssistLineCol = pos;
+	m_lastCodeAssistPosition = -1;
 
 	switch (kind)
 	{
 	case CodeAssistKind_QuickInfoTip:
-		createQuickInfoTip(pos, m_codeAssist->getModuleItem());
+		createQuickInfoTip(pos, codeAssist->getModuleItem());
 		break;
 
 	case CodeAssistKind_ArgumentTip:
-		createArgumentTip(pos, m_codeAssist->getFunctionType(), m_codeAssist->getArgumentIdx());
+		createArgumentTip(pos, codeAssist->getFunctionType(), codeAssist->getArgumentIdx());
 		break;
 
 	case CodeAssistKind_AutoComplete:
 		break;
 
 	case CodeAssistKind_AutoCompleteList:
-		createAutoCompleteList(pos, m_codeAssist->getNamespace(), m_codeAssist->getNamespaceFlags());
+		createAutoCompleteList(pos, codeAssist->getNamespace(), codeAssist->getNamespaceFlags());
 		break;
 
 	case CodeAssistKind_GotoDefinition:

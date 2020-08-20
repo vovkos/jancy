@@ -687,7 +687,8 @@ protected:
 		const Value& value
 		)
 	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_ArgumentTip)
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_ArgumentTip &&
+			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
 			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
 	}
 

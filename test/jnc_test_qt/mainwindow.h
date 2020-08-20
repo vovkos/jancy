@@ -80,6 +80,7 @@ private:
 private:
 	QMdiArea* m_mdiArea;
 	QString m_lastDir;
+	QString m_libDir;
 
 	Output* m_output;
 	ModulePane* m_modulePane;

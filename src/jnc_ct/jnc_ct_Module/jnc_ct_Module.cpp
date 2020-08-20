@@ -208,9 +208,10 @@ Module::generateCodeAssist(
 	const sl::StringRef& source
 	)
 {
-	initialize("code-assist-module", ModuleCompileFlag_DisableCodeGen);
+	m_compileFlags |= ModuleCompileFlag_DisableCodeGen;
 	m_codeAssistMgr.initialize(kind, cacheModule, offset);
 	parse("code-assist-source", source);
+	parseImports();
 	return m_codeAssistMgr.generateCodeAssist();
 }
 

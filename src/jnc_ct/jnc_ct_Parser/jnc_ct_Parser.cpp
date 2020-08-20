@@ -3206,6 +3206,8 @@ Parser::generateAutoCompleteList(
 	)
 {
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
+	if (!nspace)
+		return;
 
 	Token::Pos pos = token.m_pos;
 	if (token.m_tokenKind != TokenKind_Identifier)
@@ -3214,8 +3216,8 @@ Parser::generateAutoCompleteList(
 		pos.m_offset += pos.m_length;
 	}
 
-	if (nspace)
-		m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace);
+	nspace->ensureNamespaceReady();
+	m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace);
 }
 
 void

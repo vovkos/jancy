@@ -31,11 +31,18 @@ OperatorMgr::getValueNamespace(const Value& rawOpValue)
 	prepareOperandType(rawOpValue, &opValue, OpFlag_KeepEnum);
 
 	Type* type = opValue.getType();
-	if (type->getTypeKindFlags() & TypeKindFlag_Ptr)
+	TypeKind typeKind = type->getTypeKind();
+	switch (typeKind)
 	{
-		unaryOperator(UnOpKind_Indir, &opValue);
-		prepareOperandType(&opValue, OpFlag_KeepEnum);
-		type = opValue.getType();
+	case TypeKind_DataPtr:
+	case TypeKind_DataRef:
+		type = ((DataPtrType*)type)->getTargetType();
+		break;
+
+	case TypeKind_ClassPtr:
+	case TypeKind_ClassRef:
+		type = ((ClassPtrType*)type)->getTargetType();
+		break;
 	}
 
 	return (type->getTypeKindFlags() & TypeKindFlag_Named) ? (NamedType*)type : NULL;
