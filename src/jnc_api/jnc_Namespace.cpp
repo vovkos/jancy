@@ -54,6 +54,30 @@ jnc_Namespace_isReady(jnc_Namespace* nspace)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_NamespaceKind
+jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_getNamespaceKindFunc(nspace);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Namespace*
+jnc_Namespace_getParentNamespace(jnc_Namespace* nspace)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_getParentNamespaceFunc(nspace);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_ModuleItem*
+jnc_Namespace_getParentItem(jnc_Namespace* nspace)
+{
+	return jnc_g_dynamicExtensionLibHost->m_namespaceFuncTable->m_getParentItemFunc(nspace);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace)
 {
@@ -90,6 +114,30 @@ bool_t
 jnc_Namespace_isReady(jnc_Namespace* nspace)
 {
 	return nspace->isNamespaceReady();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_NamespaceKind
+jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace)
+{
+	return nspace->getNamespaceKind();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Namespace*
+jnc_Namespace_getParentNamespace(jnc_Namespace* nspace)
+{
+	return nspace->getParentNamespace();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_ModuleItem*
+jnc_Namespace_getParentItem(jnc_Namespace* nspace)
+{
+	return nspace->getParentItem();
 }
 
 JNC_EXTERN_C

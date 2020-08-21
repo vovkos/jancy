@@ -18,6 +18,15 @@ namespace ct {
 
 //..............................................................................
 
+CodeAssist::CodeAssist()
+{
+	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_item = NULL;
+	m_itemParam = 0;
+}
+
+//..............................................................................
+
 CodeAssistMgr::CodeAssistMgr()
 {
 	m_codeAssistKind = CodeAssistKind_Undefined;
@@ -62,36 +71,36 @@ CodeAssistMgr::initialize(
 }
 
 CodeAssist*
-CodeAssistMgr::generateCodeAssist()
-{
-	if (!m_codeAssist && m_containerItem)
-		generateCodeAssistImpl(m_containerItem);
-
-	return m_codeAssist;
-}
-
-void
 CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item)
 {
 	ModuleItemKind itemKind = item->getItemKind();
 	switch (itemKind)
 	{
-	case ModuleItemKind_Namespace:
-		m_containerItem = NULL;
-		((GlobalNamespace*)item)->ensureNamespaceReady();
-
-		if (m_containerItem)
-			generateCodeAssistImpl(m_containerItem);
-
+	case ModuleItemKind_Orphan:
+		item = ((Orphan*)item)->resolveForCodeAssist();
+		if (item)
+			generateCodeAssistImpl(item);
 		break;
 
 	case ModuleItemKind_Function:
 		((Function*)item)->compile();
 		break;
 
+	case ModuleItemKind_Namespace:
+		m_containerItem = NULL;
+		((GlobalNamespace*)item)->ensureNamespaceReady();
+		generateCodeAssist();
+		break;
+
 	case ModuleItemKind_Type:
+		ASSERT(((Type*)item)->getTypeKindFlags() & TypeKindFlag_Named);
+		m_containerItem = NULL;
+		((NamedType*)item)->ensureNamespaceReady();
+		generateCodeAssist();
 		break;
 	}
+
+	return m_codeAssist;
 }
 
 CodeAssist*

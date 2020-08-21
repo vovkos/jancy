@@ -83,6 +83,9 @@ static jnc_NamespaceFuncTable g_namespaceFuncTable =
 {
 	sizeof(jnc_NamespaceFuncTable),
 	jnc_Namespace_isReady,
+	jnc_Namespace_getNamespaceKind,
+	jnc_Namespace_getParentNamespace,
+	jnc_Namespace_getParentItem,
 	jnc_Namespace_getItemCount,
 	jnc_Namespace_getItem,
 	jnc_Namespace_findItem,

@@ -42,14 +42,14 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit
 public:
     enum CodeAssistTrigger
 	{
-		QuickInfoTipOnHoverOverIdentifier      = 0x0001,
+		QuickInfoTipOnMouseOverIdentifier      = 0x0001,
 		QuickInfoTipOnCursorOverIdentifier     = 0x0002,
 		ArgumentTipOnCtrlShiftSpace            = 0x0004,
 		ArgumentTipOnTypeLeftParenthesis       = 0x0008,
 		ArgumentTipOnTypeComma                 = 0x0010,
-		ArgumentTipOnHoverOverLeftParenthesis  = 0x0020,
+		ArgumentTipOnMouseOverLeftParenthesis  = 0x0020,
 		ArgumentTipOnCursorOverLeftParenthesis = 0x0040,
-		ArgumentTipOnHoverOverComma            = 0x0080,
+		ArgumentTipOnMouseOverComma            = 0x0080,
 		ArgumentTipOnCursorOverComma           = 0x0100,
 		AutoCompleteOnCtrlSpace                = 0x0200,
 		AutoCompleteListOnTypeDot              = 0x0400,
@@ -95,6 +95,7 @@ public slots:
 protected:
 	virtual void resizeEvent(QResizeEvent* e);
     virtual void keyPressEvent(QKeyEvent* e);
+	virtual void enterEvent(QEvent* e);
     virtual void mousePressEvent(QMouseEvent* e);
     virtual void mouseMoveEvent(QMouseEvent* e);
 

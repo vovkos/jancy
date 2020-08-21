@@ -201,10 +201,9 @@ expression_or_empty_list
 				$.m_valueList.insertTail($1.m_value);
 			}
 		(
-			','
+			',' $c
 				{
-					if (!m_argumentTipStack.isEmpty())
-						m_argumentTipStack.getTail()->m_argumentIdx++;
+					bumpArgumentTipIdxIf($c.m_pos);
 				}
 			expression_or_empty $e2
 				{
@@ -215,10 +214,9 @@ expression_or_empty_list
 				$.m_valueList.insertTail(Value());
 			}
 		(
-			','
+			',' $c
 				{
-					if (!m_argumentTipStack.isEmpty())
-						m_argumentTipStack.getTail()->m_argumentIdx++;
+					bumpArgumentTipIdxIf($c.m_pos);
 				}
 			expression_or_empty $e2
 				{
@@ -768,24 +766,24 @@ postfix_operator<Value* $value>
 		if (m_mode == Mode_Reaction && isBindableType($value->getType()))
 			return addReactionBinding(*$value);
 	}
-	:	'('
+	:	'(' $l
 			{
-				pushArgumentTipIf($1.m_pos, *$value);
+				pushArgumentTipIf($l.m_pos, *$value);
 			}
 		expression_or_empty_list
-		')'
+		')' $r
 			{
-				popArgumentTip();
+				popArgumentTipIf($r.m_pos);
 				return m_module->m_operatorMgr.callOperator($value, &$2.m_valueList);
 			}
-	|	'~' '('
+	|	'~' '(' $l
 			{
-				pushArgumentTipIf($2.m_pos, *$value);
+				pushArgumentTipIf($l.m_pos, *$value);
 			}
 		expression_or_empty_list
-		')'
+		')' $r
 			{
-				popArgumentTip();
+				popArgumentTipIf($r.m_pos);
 				return m_module->m_operatorMgr.closureOperator($value, &$3.m_valueList);
 			}
 	|	'[' expression_or_empty ']'
@@ -817,6 +815,7 @@ member_operator<Value* $value>
 	:	TokenKind_Identifier $n
 			{
 				generateAutoCompleteListIf($1, *$value);
+				generateMemberInfoIf($1, *$value, $n.m_data.m_string);
 				return m_module->m_operatorMgr.memberOperator($value, $n.m_data.m_string);
 			}
 	|	TokenKind_Get
@@ -846,7 +845,7 @@ primary_expr<Value* $value>
 			}
 	|	TokenKind_Identifier
 			{
-				return lookupIdentifier($1.m_data.m_string, $1.m_pos, $value);
+				return lookupIdentifier($1, $value);
 			}
 	|	TokenKind_This
 			{

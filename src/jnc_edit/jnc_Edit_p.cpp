@@ -13,6 +13,7 @@
 #include "jnc_Edit_p.h"
 #include "moc_jnc_Edit.cpp"
 #include "moc_jnc_Edit_p.cpp"
+#include "qrc_res.cpp"
 
 namespace jnc {
 
@@ -187,7 +188,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 			}
 		}
 
-		if (key != Qt::Key_Backspace && !ch.isNull() && !ch.isLetterOrNumber() && ch != '_')
+		if (ch.isPrint() && !ch.isLetterOrNumber() && ch != '_')
 			d->applyCompleter();
 
 		QPlainTextEdit::keyPressEvent(e);
@@ -233,7 +234,6 @@ Edit::keyPressEvent(QKeyEvent* e)
 	}
 }
 
-
 void
 Edit::mousePressEvent(QMouseEvent* e)
 {
@@ -251,7 +251,25 @@ Edit::mouseMoveEvent(QMouseEvent* e)
 
 	QPlainTextEdit::mouseMoveEvent(e);
 
-	// check for triggers
+	if (!d->isCompleterVisible() &&
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
+		d->requestQuickInfoTip(e->pos());
+}
+
+void
+Edit::enterEvent(QEvent* e)
+{
+	Q_D(Edit);
+
+	QPlainTextEdit::enterEvent(e);
+
+	if (!d->isCompleterVisible() &&
+		d->m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip &&
+		(d->m_codeAssistTriggers & QuickInfoTipOnMouseOverIdentifier))
+	{
+		QPoint pos = mapFromGlobal(QCursor::pos());
+		d->requestQuickInfoTip(pos);
+	}
 }
 
 //..............................................................................
@@ -266,9 +284,10 @@ EditPrivate::EditPrivate()
 	m_completer = NULL;
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
+	m_pendingCodeAssistPosition = -1;
 
 	m_codeAssistTriggers =
-		Edit::QuickInfoTipOnHoverOverIdentifier |
+		Edit::QuickInfoTipOnMouseOverIdentifier |
 		Edit::ArgumentTipOnCtrlShiftSpace |
 		Edit::ArgumentTipOnTypeLeftParenthesis |
 		Edit::ArgumentTipOnTypeComma |
@@ -276,6 +295,13 @@ EditPrivate::EditPrivate()
 		Edit::AutoCompleteListOnTypeDot |
 		Edit::AutoCompleteListOnTypeIdentifier |
 		Edit::GotoDefinitionOnCtrlClick;
+}
+
+QImage createSubImage(QImage* image, const QRect & rect) {
+    size_t offset = rect.x() * image->depth() / 8
+                    + rect.y() * image->bytesPerLine();
+    return QImage(image->bits() + offset, rect.width(), rect.height(),
+                  image->bytesPerLine(), image->format());
 }
 
 void
@@ -301,6 +327,7 @@ EditPrivate::init()
 	q->setFont(font);
 	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * 4);
 	q->setWordWrapMode(QTextOption::NoWrap);
+	q->setMouseTracking(true);
 
 	enableSyntaxHighlighting(true);
 	enableLineNumberMargin(true);
@@ -310,6 +337,26 @@ EditPrivate::init()
 		q, SIGNAL(cursorPositionChanged()),
 		this, SLOT(onCursorPositionChanged())
 		);
+
+	static const size_t iconIdxTable[] =
+	{
+		0,  // Icon_Object
+		1,  // Icon_Namespace
+		2,  // Icon_Event
+		4,  // Icon_Function
+		6,  // Icon_Property
+		7,  // Icon_Variable
+		12, // Icon_Field
+		11, // Icon_Const
+		10, // Icon_Type
+		9,  // Icon_Typedef
+ 	};
+
+	QPixmap imageList(":/Images/ObjectIcons");
+	int iconSize = imageList.height();
+
+	for (size_t i = 0; i < countof(m_iconTable); i++)
+		m_iconTable[i] = imageList.copy(iconIdxTable[i] * iconSize, 0, iconSize, iconSize);
 }
 
 void
@@ -440,6 +487,16 @@ EditPrivate::requestCodeAssist(
 }
 
 void
+EditPrivate::requestQuickInfoTip(const QPoint& pos)
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->cursorForPosition(pos);
+	m_pendingCodeAssistPosition = cursor.position();
+	m_quickInfoTipTimer.start(Timeout_QuickInfo, this);
+}
+
+void
 EditPrivate::hideCodeAssist()
 {
 	if (m_completer)
@@ -449,6 +506,7 @@ EditPrivate::hideCodeAssist()
 
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
+	m_thread = NULL;
 }
 
 void
@@ -525,11 +583,7 @@ EditPrivate::updateCompleter(bool isForced)
 
 	cursor.setPosition(position, QTextCursor::MoveAnchor);
 	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
-	QString prefix = cursor.selectedText().trimmed();
-	printf("prefix: %s\n", prefix.toUtf8().data());
-
-	if (!prefix.isEmpty() && prefix.at(0).isPunct())
-		prefix.clear();
+	QString prefix = cursor.selectedText();
 
 	if (!isForced && prefix == m_completer->completionPrefix())
 		return;
@@ -656,7 +710,47 @@ EditPrivate::createQuickInfoTip(
 	Q_Q(Edit);
 
 	QPoint point = getToolTipPointFromLineCol(pos);
-	QToolTip::showText(point, item->getDecl()->getName(), q);
+	ModuleItemDecl* decl = item->getDecl();
+	Type* type = item->getType();
+	QString prefix;
+	QString suffix;
+	QString text;
+
+	ModuleItemKind itemKind = item->getItemKind();
+	switch (itemKind)
+	{
+	case ModuleItemKind_Typedef:
+		prefix = "typedef ";
+		break;
+
+	case ModuleItemKind_Namespace:
+		text = QString("namespace ") + decl->getQualifiedName();
+		break;
+
+	case ModuleItemKind_Field:
+	case ModuleItemKind_Variable:
+	case ModuleItemKind_Function:
+	case ModuleItemKind_Property:
+		type = item->getType();
+		break;
+
+	case ModuleItemKind_Type:
+		text = type->getTypeString();
+		break;
+	}
+
+	if (text.isEmpty())
+	{
+		if (type)
+		{
+			prefix += type->getTypeStringPrefix();
+			suffix = type->getTypeStringSuffix();
+		}
+
+		text = prefix + ' ' + decl->getQualifiedName() + suffix;
+	}
+
+	QToolTip::showText(point, text, q);
 }
 
 void
@@ -715,6 +809,61 @@ EditPrivate::createArgumentTip(
 	QToolTip::showText(point, text, q);
 }
 
+size_t
+EditPrivate::getItemIconIdx(ModuleItem* item)
+{
+	static const size_t iconIdxTable[ModuleItemKind__Count] =
+	{
+		Icon_Object,    // ModuleItemKind_Undefined
+		Icon_Namespace, // ModuleItemKind_Namespace
+		Icon_Object,    // ModuleItemKind_Attribute
+		Icon_Object,    // ModuleItemKind_AttributeBlock
+		Icon_Object,    // ModuleItemKind_Scope
+		Icon_Type,      // ModuleItemKind_Type
+		Icon_Typedef,   // ModuleItemKind_Typedef
+		Icon_Object,    // ModuleItemKind_Alias
+		Icon_Const,     // ModuleItemKind_Const
+		Icon_Variable,  // ModuleItemKind_Variable
+		Icon_Function,  // ModuleItemKind_Function
+		Icon_Variable,  // ModuleItemKind_FunctionArg
+		Icon_Function,  // ModuleItemKind_FunctionOverload
+		Icon_Property,  // ModuleItemKind_Property
+		Icon_Property,  // ModuleItemKind_PropertyTemplate
+		Icon_Const,     // ModuleItemKind_EnumConst
+		Icon_Variable,  // ModuleItemKind_Field
+		Icon_Type,      // ModuleItemKind_BaseTypeSlot
+		Icon_Function,  // ModuleItemKind_Orphan
+		Icon_Object,    // ModuleItemKind_LazyImport
+	};
+
+	ModuleItemKind itemKind = item->getItemKind();
+	return ((size_t)itemKind < countof(iconIdxTable)) ? iconIdxTable[itemKind] : Icon_Object;
+}
+
+void
+EditPrivate::addAutoCompleteNamespace(
+	QStandardItemModel* model,
+	Namespace* nspace
+	)
+{
+	size_t count = nspace->getItemCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		ModuleItem* item = nspace->getItem(i);
+		QString name = item->getDecl()->getName();
+
+		QStandardItem* qtItem = new QStandardItem;
+		qtItem->setText(name);
+		qtItem->setData(name.toLower(), Role_CaseInsensitiveSort);
+
+		size_t iconIdx = getItemIconIdx(item);
+		if (iconIdx != -1)
+			qtItem->setIcon(m_iconTable[iconIdx]);
+
+		model->appendRow(qtItem);
+	}
+}
+
 void
 EditPrivate::createAutoCompleteList(
 	const lex::LineCol& pos,
@@ -724,22 +873,42 @@ EditPrivate::createAutoCompleteList(
 {
 	Q_Q(Edit);
 
-	QStringList list;
+	QStandardItemModel* model = new QStandardItemModel(m_completer);
+	addAutoCompleteNamespace(model, nspace);
 
-	size_t count = nspace->getItemCount();
-	for (size_t i = 0; i < count; i++)
+	NamespaceKind namespaceKind = nspace->getNamespaceKind();
+	if (namespaceKind == NamespaceKind_Type)
 	{
-		ModuleItem* item = nspace->getItem(i);
-		const char* name = item->getDecl()->getName();
-		printf("[%d]\t%s\n", i, name);
-		list.append(name);
+		NamedType* namedType = (NamedType*)nspace->getParentItem();
+		if (namedType->getTypeKindFlags() & TypeKindFlag_Derivable)
+		{
+			DerivableType* derivableType = (DerivableType*)namedType;
+			size_t count = derivableType->getBaseTypeCount();
+			for (size_t i = 0; i < count; i++)
+			{
+				BaseTypeSlot* slot = derivableType->getBaseType(i);
+				addAutoCompleteNamespace(model, slot->getType()->getNamespace());
+			}
+		}
+	}
+
+	if (flags & CodeAssistNamespaceFlag_IncludeParentNamespace)
+	{
+		nspace = nspace->getParentNamespace();
+
+		while (nspace)
+		{
+			addAutoCompleteNamespace(model, nspace);
+			nspace = nspace->getParentNamespace();
+		}
 	}
 
 	ensureCompleter();
 
-	list.sort(Qt::CaseInsensitive);
+	model->setSortRole(Role_CaseInsensitiveSort);
+	model->sort(0);
 
-	m_completer->setModel(new QStringListModel(list, m_completer));
+	m_completer->setModel(model);
 	m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
 	m_completer->setCaseSensitivity(Qt::CaseInsensitive);
 	m_completer->setWrapAround(false);
@@ -767,6 +936,16 @@ EditPrivate::keyPressCtrlSpace(QKeyEvent* e)
 }
 
 void
+EditPrivate::timerEvent(QTimerEvent* e)
+{
+	if (e->timerId() != m_quickInfoTipTimer.timerId())
+		return;
+
+	m_quickInfoTipTimer.stop();
+	requestCodeAssist(CodeAssistKind_QuickInfoTip, m_pendingCodeAssistPosition);
+}
+
+void
 EditPrivate::onCursorPositionChanged()
 {
 	if (m_isCurrentLineHighlightingEnabled)
@@ -774,9 +953,6 @@ EditPrivate::onCursorPositionChanged()
 
 	switch (m_lastCodeAssistKind)
 	{
-	case CodeAssistKind_Undefined:
-		break;
-
 	case CodeAssistKind_QuickInfoTip:
 		hideCodeAssist();
 		break;
@@ -822,10 +998,16 @@ EditPrivate::onCodeAssistReady()
 	CodeAssistThread* thread = (CodeAssistThread*)sender();
 	ASSERT(thread);
 
+	if (thread != m_thread)
+		return;
+
 	CodeAssist* codeAssist = thread->getCodeAssist();
 	if (!codeAssist)
 	{
-		hideCodeAssist();
+		if (thread->getCodeAssistKind() != CodeAssistKind_QuickInfoTip ||
+			m_lastCodeAssistKind == CodeAssistKind_QuickInfoTip) // don't let failed quick-info to ruin existing code-assist
+			hideCodeAssist();
+
 		return;
 	}
 

@@ -67,6 +67,18 @@ bool_t
 jnc_Namespace_isReady(jnc_Namespace* nspace);
 
 JNC_EXTERN_C
+jnc_NamespaceKind
+jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace);
+
+JNC_EXTERN_C
+jnc_Namespace*
+jnc_Namespace_getParentNamespace(jnc_Namespace* nspace);
+
+JNC_EXTERN_C
+jnc_ModuleItem*
+jnc_Namespace_getParentItem(jnc_Namespace* nspace);
+
+JNC_EXTERN_C
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace);
 
@@ -93,6 +105,24 @@ struct jnc_Namespace
 	isReady()
 	{
 		return jnc_Namespace_isReady(this) != 0;
+	}
+
+	jnc_NamespaceKind
+	getNamespaceKind()
+	{
+		return jnc_Namespace_getNamespaceKind(this);
+	}
+
+	jnc_Namespace*
+	getParentNamespace()
+	{
+		return jnc_Namespace_getParentNamespace(this);
+	}
+
+	jnc_ModuleItem*
+	getParentItem()
+	{
+		return jnc_Namespace_getParentItem(this);
 	}
 
 	size_t

@@ -26,9 +26,34 @@ class EditPrivate: public QObject
 	Q_DECLARE_PUBLIC(Edit)
 
 protected:
+	enum Timeout
+	{
+		Timeout_QuickInfo = 500,
+	};
+
 	enum Color
 	{
 		Color_CurrentLineBack = 0xe8eff8,
+	};
+
+	enum Role
+	{
+		Role_CaseInsensitiveSort = Qt::UserRole + 1,
+	};
+
+	enum Icon
+	{
+		Icon_Object,
+		Icon_Namespace,
+		Icon_Event,
+		Icon_Function,
+		Icon_Property,
+		Icon_Variable,
+		Icon_Field,
+		Icon_Const,
+		Icon_Type,
+		Icon_Typedef,
+		Icon__Count,
 	};
 
 protected:
@@ -41,9 +66,12 @@ protected:
 	CodeAssistKind m_lastCodeAssistKind;
 	lex::LineCol m_lastCodeAssistLineCol;
 	int m_lastCodeAssistPosition;
+	int m_pendingCodeAssistPosition;
 	QPoint m_lastToolTipPoint;
 	QCompleter* m_completer;
 	QRect m_completerRect;
+	QIcon m_iconTable[Icon__Count];
+	QBasicTimer m_quickInfoTipTimer;
 	bool m_isCurrentLineHighlightingEnabled;
 
 protected:
@@ -88,6 +116,9 @@ protected:
 		);
 
 	void
+	requestQuickInfoTip(const QPoint& pos);
+
+	void
 	hideCodeAssist();
 
 	bool
@@ -125,6 +156,15 @@ protected:
 		uint_t flags
 		);
 
+	void
+	addAutoCompleteNamespace(
+		QStandardItemModel* model,
+		Namespace* nspace
+		);
+
+	size_t
+	getItemIconIdx(ModuleItem* item);
+
 	QTextCursor
 	getCursorFromLineCol(const lex::LineCol& pos);
 
@@ -155,6 +195,10 @@ protected:
 
 	void
 	keyPressCtrlSpace(QKeyEvent* e);
+
+	virtual
+	void
+	timerEvent(QTimerEvent* e);
 
 private slots:
 	void updateLineNumberMargin(const QRect&, int);

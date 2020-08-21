@@ -35,6 +35,15 @@ jnc_getCodeAssistKindString(jnc_CodeAssistKind kind);
 
 //..............................................................................
 
+enum jnc_CodeAssistNamespaceFlag
+{
+	jnc_CodeAssistNamespaceFlag_IncludeParentNamespace = 0x01,
+};
+
+typedef enum jnc_CodeAssistNamespaceFlag jnc_CodeAssistNamespaceFlag;
+
+//..............................................................................
+
 JNC_EXTERN_C
 jnc_CodeAssistKind
 jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist);
@@ -158,6 +167,13 @@ getCodeAssistKindString(jnc_CodeAssistKind kind)
 {
 	return jnc_getCodeAssistKindString(kind);
 }
+
+//..............................................................................
+
+typedef jnc_CodeAssistNamespaceFlag CodeAssistNamespaceFlag;
+
+const CodeAssistNamespaceFlag
+	CodeAssistNamespaceFlag_IncludeParentNamespace = jnc_CodeAssistNamespaceFlag_IncludeParentNamespace;
 
 //..............................................................................
 

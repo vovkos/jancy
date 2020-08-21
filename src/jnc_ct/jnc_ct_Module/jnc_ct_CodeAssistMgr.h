@@ -35,11 +35,14 @@ protected:
 
 	union
 	{
+		size_t m_itemParam;
 		size_t m_argumentIdx;
 		uint_t m_namespaceFlags;
 	};
 
 public:
+	CodeAssist();
+
 	CodeAssistKind
 	getCodeAssistKind()
 	{
@@ -152,7 +155,13 @@ public:
 		);
 
 	CodeAssist*
-	generateCodeAssist();
+	generateCodeAssist()
+	{
+		return
+			m_codeAssist ? m_codeAssist :
+			m_containerItem ? generateCodeAssistImpl(m_containerItem) :
+			NULL;
+	}
 
 	CodeAssist*
 	createQuickInfoTip(
@@ -196,18 +205,18 @@ public:
 		);
 
 protected:
-	void
-	freeCodeAssist();
-
-	void
-	generateCodeAssistImpl(ModuleItem* item);
-
 	CodeAssist*
 	createModuleItemCodeAssist(
 		CodeAssistKind kind,
 		const lex::LineColOffset& pos,
 		ModuleItem* item
 		);
+
+	void
+	freeCodeAssist();
+
+	CodeAssist*
+	generateCodeAssistImpl(ModuleItem* item);
 };
 
 } // namespace ct

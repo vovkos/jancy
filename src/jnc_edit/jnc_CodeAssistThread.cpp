@@ -27,6 +27,7 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 CodeAssistThread::~CodeAssistThread()
 {
 	printf("CodeAssistThread::~CodeAssistThread(%p)\n", this);
+	wait();
 }
 
 void
@@ -79,11 +80,7 @@ CodeAssistThread::run()
 
 	QStringList::iterator it = m_importDirList.begin();
 	for (; it != m_importDirList.end(); it++)
-	{
-		QByteArray dir = (*it).toUtf8();
-		printf("import-dir: %s\n", dir.constData());
-		m_module->addImportDir(dir.constData());
-	}
+		m_module->addImportDir((*it).toUtf8().constData());
 
 	m_module->generateCodeAssist(
 		m_codeAssistKind == CodeAssistKind_AutoComplete ?
@@ -104,7 +101,6 @@ CodeAssistThread::compileErrorHandler(
 	jnc::ModuleCompileErrorKind errorKind
 	)
 {
-	printf("code-assist-error: %s\n", getLastErrorDescription_v());
 	return true;
 }
 

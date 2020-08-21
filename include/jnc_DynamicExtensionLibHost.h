@@ -14,6 +14,7 @@
 #define _JNC_DYNAMICEXTENSIONLIBHOST_H
 
 #include "jnc_RuntimeStructs.h"
+#include "jnc_Namespace.h"
 #include "jnc_Function.h"
 #include "jnc_ClassType.h"
 #include "jnc_Variant.h"
@@ -253,6 +254,18 @@ bool_t
 jnc_Namespace_IsReadyFunc(jnc_Namespace* nspace);
 
 typedef
+jnc_NamespaceKind
+jnc_Namespace_GetNamespaceKindFunc(jnc_Namespace* nspace);
+
+typedef
+jnc_Namespace*
+jnc_Namespace_GetParentNamespaceFunc(jnc_Namespace* nspace);
+
+typedef
+jnc_ModuleItem*
+jnc_Namespace_GetParentItemFunc(jnc_Namespace* nspace);
+
+typedef
 size_t
 jnc_Namespace_GetItemCountFunc(jnc_Namespace* nspace);
 
@@ -276,6 +289,9 @@ struct jnc_NamespaceFuncTable
 {
 	size_t m_size;
 	jnc_Namespace_IsReadyFunc* m_isReadyFunc;
+	jnc_Namespace_GetNamespaceKindFunc* m_getNamespaceKindFunc;
+	jnc_Namespace_GetParentNamespaceFunc* m_getParentNamespaceFunc;
+	jnc_Namespace_GetParentItemFunc* m_getParentItemFunc;
 	jnc_Namespace_GetItemCountFunc* m_getItemCountFunc;
 	jnc_Namespace_GetItemFunc* m_getItemFunc;
 	jnc_Namespace_FindItemFunc* m_findItemFunc;

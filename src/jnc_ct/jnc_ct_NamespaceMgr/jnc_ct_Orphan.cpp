@@ -24,6 +24,7 @@ Orphan::Orphan()
 	m_itemKind = ModuleItemKind_Orphan;
 	m_orphanKind = OrphanKind_Undefined;
 	m_functionType = NULL;
+	m_origin = NULL;
 }
 
 void
@@ -31,6 +32,30 @@ Orphan::addUsingSet(Namespace* anchorNamespace)
 {
 	for (Namespace* nspace = anchorNamespace; nspace; nspace = nspace->getParentNamespace())
 		m_usingSet.append(nspace->getUsingSet());
+}
+
+ModuleItem*
+Orphan::resolveForCodeAssist(Namespace* nspace)
+{
+	if (m_functionKind != FunctionKind_Normal && m_declaratorName.isEmpty())
+	{
+		adopt(nspace->getParentItem());
+		return m_origin;
+	}
+
+	sl::StringRef name = m_declaratorName.removeFirstName();
+	FindModuleItemResult findResult = nspace->findDirectChildItem(name);
+	if (!findResult.m_result || !findResult.m_item)
+		return NULL;
+
+	if (m_functionKind == FunctionKind_Normal && m_declaratorName.isEmpty())
+	{
+		adopt(findResult.m_item);
+		return m_origin;
+	}
+
+	nspace = findResult.m_item->getNamespace();
+	return nspace ? resolveForCodeAssist(nspace) : NULL;
 }
 
 bool
@@ -169,6 +194,8 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 		return false;
 	}
 
+	m_origin = originFunction;
+
 	if (!(originFunction->m_flags & ModuleItemFlag_User))
 	{
 		err::setFormatStringError("'%s' is a compiler-generated function", getQualifiedName().sz());
@@ -231,6 +258,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 
 	ReactorClassType* originType = (ReactorClassType*)itemType ;
 	Function* originReaction = originType->getReaction();
+	m_origin = originReaction;
 
 	copySrcPos(originType);
 	copySrcPos(originReaction);

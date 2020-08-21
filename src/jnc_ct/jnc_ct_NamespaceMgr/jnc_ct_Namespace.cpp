@@ -38,7 +38,7 @@ Namespace::clear()
 }
 
 ModuleItem*
-Namespace::getModuleItem()
+Namespace::getParentItem()
 {
 	switch (m_namespaceKind)
 	{
@@ -95,7 +95,7 @@ Namespace::resolveOrphans()
 
 	char buffer[256];
 	sl::Array<Property*> propertyArray(ref::BufKind_Stack, buffer, sizeof(buffer));
-	ModuleItem* nspaceItem = getModuleItem();
+	ModuleItem* nspaceItem = getParentItem();
 
 	size_t count = m_orphanArray.getCount();
 	for (size_t i = 0; i < count; i++)

@@ -33,6 +33,12 @@ public:
 	CodeAssistThread(QObject* parent = NULL);
 	~CodeAssistThread();
 
+	CodeAssistKind
+	getCodeAssistKind()
+	{
+		return m_codeAssistKind;
+	}
+
 	CodeAssist*
 	getCodeAssist()
 	{

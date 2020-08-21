@@ -94,7 +94,7 @@ public:
 	ensureNamespaceReadyDeep();
 
 	ModuleItem*
-	getModuleItem();
+	getParentItem();
 
 	UsingSet*
 	getUsingSet()

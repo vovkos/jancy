@@ -201,11 +201,13 @@ enum TokenKind
 
 enum TokenChannelMask
 {
-	TokenChannelMask_Main           = lex::TokenChannelMask_Main, // 0x01,
-	TokenChannelMask_DoxyComment    = 0x02,
-	TokenChannelMask_CodeAssist     = 0x04,
-	TokenChannelMask_PostCodeAssist = 0x08,
-	TokenChannelMask_All            = -1,
+	TokenChannelMask_Main            = lex::TokenChannelMask_Main, // 0x01,
+	TokenChannelMask_DoxyComment     = 0x02,
+	TokenChannelMask_CodeAssistLeft  = 0x10,
+	TokenChannelMask_CodeAssistMid   = 0x20,
+	TokenChannelMask_CodeAssistRight = 0x40,
+	TokenChannelMask_CodeAssist      = 0x70,
+	TokenChannelMask_All             = -1,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -447,21 +449,11 @@ protected:
 	checkCodeAssistOffset(Token* token)
 	{
 		if (m_codeAssistOffset != -1 && token->m_pos.m_offset + token->m_pos.m_length >= m_codeAssistOffset)
-		{
-			if (token->m_pos.m_offset < m_codeAssistOffset)
-				token->m_channelMask |= TokenChannelMask_CodeAssist;
-			else
-				token->m_channelMask |= TokenChannelMask_PostCodeAssist;
-
-			if (m_mode == LexerMode_Compile) // abort further tokenization
-			{
-				stop();
-				eof = pe;
-			}
-
-			m_codeAssistOffset = -1; // not necessary to check anymore
-		}
+			markCodeAssistToken(token);
 	}
+
+	void
+	markCodeAssistToken(Token* token);
 
 	Token*
 	createToken(int tokenKind)

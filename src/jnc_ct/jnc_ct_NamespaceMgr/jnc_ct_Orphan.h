@@ -42,6 +42,7 @@ protected:
 	OrphanKind m_orphanKind;
 	QualifiedName m_declaratorName;
 	FunctionType* m_functionType;
+	ModuleItem* m_origin;
 	UsingSet m_usingSet;
 
 public:
@@ -65,13 +66,28 @@ public:
 		return m_functionType;
 	}
 
+	ModuleItem*
+	getOrigin() // after adopted
+	{
+		return m_origin;
+	}
+
 	void
 	addUsingSet(Namespace* anchorNamespace);
 
 	bool
 	adopt(ModuleItem* item);
 
+	ModuleItem*
+	resolveForCodeAssist()
+	{
+		return resolveForCodeAssist(m_parentNamespace);
+	}
+
 protected:
+	ModuleItem*
+	resolveForCodeAssist(Namespace* nspace);
+
 	bool
 	adoptOrphanFunction(ModuleItem* item);
 

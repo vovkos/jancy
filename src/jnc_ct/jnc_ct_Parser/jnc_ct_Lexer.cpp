@@ -128,6 +128,29 @@ Lexer::Lexer(
 	m_curlyBraceLevel = 0;
 }
 
+void
+Lexer::markCodeAssistToken(Token* token)
+{
+	ASSERT(m_codeAssistOffset != -1);
+
+	if (token->m_pos.m_offset == m_codeAssistOffset)
+		token->m_channelMask |= TokenChannelMask_CodeAssistLeft;
+	else if (token->m_pos.m_offset < m_codeAssistOffset)
+		token->m_channelMask |= token->m_pos.m_offset + token->m_pos.m_length == m_codeAssistOffset ?
+			TokenChannelMask_CodeAssistRight :
+			TokenChannelMask_CodeAssistMid;
+	else
+	{
+		if (m_mode == LexerMode_Compile) // abort further tokenization
+		{
+			stop();
+			eof = pe;
+		}
+
+		m_codeAssistOffset = -1; // not necessary to check anymore
+	}
+}
+
 Token*
 Lexer::createKeywordTokenEx(
 	TokenKind tokenKind,

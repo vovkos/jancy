@@ -584,8 +584,7 @@ protected:
 
 	bool
 	lookupIdentifier(
-		const sl::StringRef& name,
-		const lex::LineCol& pos,
+		const Token& token,
 		Value* value
 		);
 
@@ -693,12 +692,20 @@ protected:
 	}
 
 	void
-	popArgumentTip()
+	popArgumentTipIf(const lex::LineColOffset& pos)
 	{
-		if (!m_argumentTipStack.isEmpty())
-			m_argumentTipStack.removeTail();
+		if (!m_argumentTipStack.isEmpty() &&
+			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
+			m_argumentTipStack.eraseTail();
 	}
 
+	void
+	bumpArgumentTipIdxIf(const lex::LineColOffset& pos)
+	{
+		if (!m_argumentTipStack.isEmpty() &&
+			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
+			m_argumentTipStack.getTail()->m_argumentIdx++;
+	}
 	void
 	generateAutoCompleteListIf(
 		const Token& token,
@@ -714,6 +721,32 @@ protected:
 	generateAutoCompleteList(
 		const Token& token,
 		const Value& value
+		);
+
+	void
+	generateAutoCompleteList(
+		const Token& token,
+		Namespace* nspace,
+		uint_t flags = 0
+		);
+
+	void
+	generateMemberInfoIf(
+		const Token& token,
+		const Value& value,
+		const sl::StringRef& name
+		)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
+			(token.m_channelMask & TokenChannelMask_CodeAssist))
+			generateMemberInfo(token, value, name);
+	}
+
+	void
+	generateMemberInfo(
+		const Token& token,
+		const Value& value,
+		const sl::StringRef& name
 		);
 
 	void

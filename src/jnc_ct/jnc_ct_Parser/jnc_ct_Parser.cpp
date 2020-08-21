@@ -503,7 +503,7 @@ Parser::setDeclarationBody(const Token& bodyToken)
 	case ModuleItemKind_Orphan:
 		orphan = (Orphan*)m_lastDeclaredItem;
 		orphan->addUsingSet(nspace);
-		return orphan->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+		return setBody(orphan, bodyToken);
 
 	default:
 		err::setFormatStringError("'%s' cannot have a body", getModuleItemKindString(m_lastDeclaredItem->getItemKind ()));
@@ -2533,8 +2533,7 @@ Parser::finalizeBaseTypeMemberConstructBlock()
 
 bool
 Parser::lookupIdentifier(
-	const sl::StringRef& name,
-	const lex::LineCol& pos,
+	const Token& token,
 	Value* value
 	)
 {
@@ -2542,15 +2541,21 @@ Parser::lookupIdentifier(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 
+	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
+
+	if (codeAssistKind == CodeAssistKind_AutoCompleteList &&
+		(token.m_channelMask & TokenChannelMask_CodeAssist))
+		generateAutoCompleteList(token, nspace, CodeAssistNamespaceFlag_IncludeParentNamespace);
+
 	MemberCoord coord;
-	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, &coord);
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(token.m_data.m_string, &coord);
 	if (!findResult.m_result)
 		return false;
 
 	if (!findResult.m_item)
 	{
-		err::setFormatStringError("undeclared identifier '%s'", name.sz());
-		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), pos);
+		err::setFormatStringError("undeclared identifier '%s'", token.m_data.m_string.sz());
+		lex::pushSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token.m_pos);
 		return false;
 	}
 
@@ -2643,10 +2648,14 @@ Parser::lookupIdentifier(
 		err::setFormatStringError(
 			"%s '%s' cannot be used as expression",
 			getModuleItemKindString(item->getItemKind()),
-			name.sz()
+			token.m_data.m_string.sz()
 			);
 		return false;
 	};
+
+	if (codeAssistKind == CodeAssistKind_QuickInfoTip &&
+		(token.m_channelMask & TokenChannelMask_CodeAssist))
+		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos, item);
 
 	return true;
 }
@@ -3206,18 +3215,45 @@ Parser::generateAutoCompleteList(
 	)
 {
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
-	if (!nspace)
-		return;
+	if (nspace)
+		generateAutoCompleteList(token, nspace);
+}
 
+void
+Parser::generateMemberInfo(
+	const Token& token,
+	const Value& value,
+	const sl::StringRef& name
+	)
+{
+	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
+	if (nspace)
+	{
+		FindModuleItemResult result = nspace->findDirectChildItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
+		if (result.m_item)
+			m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos, result.m_item);
+	}
+}
+
+void
+Parser::generateAutoCompleteList(
+	const Token& token,
+	Namespace* nspace,
+	uint_t flags
+	)
+{
 	Token::Pos pos = token.m_pos;
 	if (token.m_tokenKind != TokenKind_Identifier)
 	{
+		if (!(token.m_channelMask & TokenChannelMask_CodeAssistRight))
+			return;
+
 		pos.m_col += pos.m_length;
 		pos.m_offset += pos.m_length;
 	}
 
 	nspace->ensureNamespaceReady();
-	m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace);
+	m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace, flags);
 }
 
 void
@@ -3237,21 +3273,7 @@ Parser::generateArgumentTip()
 			);
 }
 
-/*	switch (m_codeAssistKind)
-	{
-	case CodeAssistKind_QuickInfoTip:
-		if (firstFunction)
-			m_codeAssist = CodeAssist::createQuickInfoTip(m_codeAssistPos, firstFunction);
-		break;
-
-	case CodeAssistKind_GotoDefinition:
-		m_codeAssist = CodeAssist::createGotoDefinition(m_codeAssistPos, firstFunction);
-		break;
-	}
-*/
-
 //..............................................................................
 
 } // namespace ct
 } // namespace jnc
-;

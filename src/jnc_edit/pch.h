@@ -24,6 +24,7 @@
 
 #include <QPlainTextEdit>
 #include <QStringListModel>
+#include <QStandardItemModel>
 #include <QCompleter>
 #include <QAbstractItemView>
 #include <QScrollBar>
@@ -31,6 +32,7 @@
 #include <QSyntaxHighlighter>
 #include <QPainter>
 #include <QThread>
+#include <QBasicTimer>
 
 // AXL
 
