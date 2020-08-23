@@ -35,6 +35,10 @@ protected:
 public:
 	Unit();
 
+	inline
+	bool
+	isRootUnit();
+
 	Module*
 	getModule() const
 	{
@@ -99,6 +103,12 @@ public:
 	getUnitList()
 	{
 		return m_unitList;
+	}
+
+	Unit*
+	getRootUnit()
+	{
+		return *m_unitList.getHead();
 	}
 
 	Unit*

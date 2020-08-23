@@ -62,6 +62,18 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind);
 
 //..............................................................................
 
+enum jnc_StdNamespace
+{
+	jnc_StdNamespace_Global,
+	jnc_StdNamespace_Jnc,
+	jnc_StdNamespace_Internal,
+	jnc_StdNamespace__Count,
+};
+
+typedef enum jnc_StdNamespace jnc_StdNamespace;
+
+//..............................................................................
+
 JNC_EXTERN_C
 bool_t
 jnc_Namespace_isReady(jnc_Namespace* nspace);
@@ -182,6 +194,16 @@ getNamespaceKindString(NamespaceKind namespaceKind)
 {
 	return jnc_getNamespaceKindString(namespaceKind);
 }
+
+//..............................................................................
+
+typedef jnc_StdNamespace StdNamespace;
+
+const StdNamespace
+	StdNamespace_Global   = jnc_StdNamespace_Global,
+	StdNamespace_Jnc      = jnc_StdNamespace_Jnc,
+	StdNamespace_Internal = jnc_StdNamespace_Internal,
+	StdNamespace__Count   = jnc_StdNamespace__Count;
 
 //..............................................................................
 

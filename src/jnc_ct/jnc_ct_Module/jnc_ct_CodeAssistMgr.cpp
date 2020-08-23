@@ -151,6 +151,11 @@ CodeAssistMgr::createAutoCompleteList(
 {
 	freeCodeAssist();
 
+	nspace->ensureNamespaceReady();
+
+	if (nspace == m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc))
+		nspace->parseLazyImports();
+
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
 	m_codeAssist->m_pos = pos;

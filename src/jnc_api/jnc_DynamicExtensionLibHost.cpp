@@ -312,6 +312,7 @@ static jnc_ModuleFuncTable g_moduleFuncTable =
 	jnc_Module_clear,
 	jnc_Module_initialize,
 	jnc_Module_getGlobalNamespace,
+	jnc_Module_getStdNamespace,
 	jnc_Module_getPrimitiveType,
 	jnc_Module_getStdType,
 	jnc_Module_getExtensionSourceFileIterator,

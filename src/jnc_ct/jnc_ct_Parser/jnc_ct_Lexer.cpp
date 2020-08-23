@@ -152,32 +152,84 @@ Lexer::markCodeAssistToken(Token* token)
 }
 
 Token*
-Lexer::createKeywordTokenEx(
+Lexer::createStringToken(
 	TokenKind tokenKind,
-	int param
+	size_t prefix,
+	size_t suffix
 	)
 {
-	Token* token = createToken(tokenKind);
-	token->m_data.m_integer = param;
+	Token* token = createToken(TokenKind_Literal);
+	ASSERT(token->m_pos.m_length >= prefix + suffix);
+
+	size_t length = token->m_pos.m_length - prefix - suffix;
+	token->m_data.m_string = sl::StringRef(ts + prefix, length);
 	return token;
 }
 
 Token*
-Lexer::createStringToken(
-	TokenKind tokenKind,
-	size_t left,
-	size_t right,
+Lexer::createCharToken(
+	size_t prefix,
 	bool useEscapeEncoding
 	)
 {
-	Token* token = createToken(tokenKind);
-	ASSERT(token->m_pos.m_length >= left + right);
+	Token* token = createToken(TokenKind_Integer);
+	ASSERT(token->m_pos.m_length >= 1);
 
-	size_t length = token->m_pos.m_length - (left + right);
+	char buffer[256];
+	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+
+	const char* p = ts + prefix;
+	size_t length = token->m_pos.m_length - prefix;
+	if (length)
+	{
+		char last = te[-1];
+		if (last == '\'' || last == '\\')
+			length--;
+	}
+
 	if (useEscapeEncoding)
-		token->m_data.m_string = enc::EscapeEncoding::decode(sl::StringRef(ts + left, length));
+	{
+		enc::EscapeEncoding::decode(&string, sl::StringRef(p, length));
+		p = string;
+		length = string.getLength();
+	}
+
+	if (length > sizeof(int))
+		length = sizeof(int);
+
+	int result = 0;
+	int shift = 8 * (length - 1);
+
+	const char* end = p + length;
+	for (; p < end; p++, shift -= 8)
+		result |= *(uchar_t*)p << shift;
+
+	token->m_data.m_integer = result;
+	return token;
+}
+
+Token*
+Lexer::createLiteralToken(
+	size_t prefix,
+	bool useEscapeEncoding
+	)
+{
+	Token* token = createToken(TokenKind_Literal);
+	ASSERT(token->m_pos.m_length >= 1);
+
+	const char* p = ts + prefix;
+	size_t length = token->m_pos.m_length - prefix;
+	if (length)
+	{
+		char last = te[-1];
+		if (last == '\"' || last == '\\')
+			length--;
+	}
+
+	if (useEscapeEncoding)
+		token->m_data.m_string = enc::EscapeEncoding::decode(sl::StringRef(p, length));
 	else
-		token->m_data.m_string = sl::StringRef(ts + left, length);
+		token->m_data.m_string = sl::StringRef(p, length);
 
 	return token;
 }
@@ -209,49 +261,6 @@ Lexer::createBinLiteralToken(int radix)
 	Token* token = createToken(TokenKind_BinLiteral);
 	ASSERT(token->m_pos.m_length >= 4);
 	decodeByteString(&token->m_data.m_binData, radix, sl::StringRef(ts + 3, token->m_pos.m_length - 4));
-	return token;
-}
-
-Token*
-Lexer::createCharToken(
-	TokenKind tokenKind,
-	size_t left,
-	size_t right,
-	bool useEscapeEncoding
-	)
-{
-	Token* token = createToken(tokenKind);
-	ASSERT(token->m_pos.m_length >= 2);
-
-	size_t length = token->m_pos.m_length - (left + right);
-
-	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
-
-	const char* p;
-
-	if (!useEscapeEncoding)
-	{
-		p = ts + left;
-	}
-	else
-	{
-		enc::EscapeEncoding::decode(&string, sl::StringRef(ts + left, length));
-		p = string;
-		length = string.getLength();
-	}
-
-	if (length > sizeof(int))
-		length = sizeof(int);
-
-	int result = 0;
-	int shift = 8 * (length - 1);
-
-	const char* end = p + length;
-	for (; p < end; p++, shift -= 8)
-		result |= *(uchar_t*)p << shift;
-
-	token->m_data.m_integer = result;
 	return token;
 }
 
@@ -532,15 +541,15 @@ Lexer::createDoxyCommentToken(TokenKind tokenKind)
 		return NULL;
 
 	ASSERT(te - ts >= 3 && *ts == '/');
-	size_t right = 0;
+	size_t suffix = 0;
 
 	if (tokenKind >= TokenKind_DoxyComment3) // multiline c-style: /** or /*!
 	{
 		ASSERT(ts[1] == '*' && te[-1] == '/' && te[-2] == '*');
-		right = 2;
+		suffix = 2;
 	}
 
-	Token* token = createStringToken(tokenKind, 3, right);
+	Token* token = createStringToken(tokenKind, 3, suffix);
 	token->m_channelMask = TokenChannelMask_DoxyComment;
 	return token;
 }

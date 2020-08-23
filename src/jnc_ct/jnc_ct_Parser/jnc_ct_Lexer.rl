@@ -43,21 +43,20 @@ postpop
 # standard definitions
 #
 
-dec    = [0-9];
-hex    = [0-9a-fA-F];
-oct    = [0-7];
-bin    = [01];
-id     = [_a-zA-Z] [_a-zA-Z0-9]*;
-ws     = [ \t\r]+;
-nl     = '\n' @{ newLine(p + 1); };
-lc_nl  = '\\' '\r'? nl;
-esc    = '\\' [^\n];
+dec = [0-9];
+hex = [0-9a-fA-F];
+oct = [0-7];
+bin = [01];
+id  = [_a-zA-Z] [_a-zA-Z0-9]*;
+ws  = [ \t\r]+;
+nl  = '\n' @{ newLine(p + 1); };
+esc = '\\' [^\n];
 
-lit_dq_wo_esc = '"' [^"\n\\]* (["\\] | nl);
-lit_dq_w_esc  = '"' ([^"\n\\] | esc)* (["\\] | nl);
-lit_sq     = "'" ([^'\n\\] | esc)* (['\\] | nl);
-raw_lit_dq = '"' [^"\n]* ('"' | nl);
-raw_lit_sq = "'" [^'\n]* ("'" | nl);
+lit_dq_wo_esc = '"' [^"\n\\]* ["\\]?;
+lit_dq_w_esc  = '"' ([^"\n\\] | esc)* ["\\]?;
+lit_sq        = "'" ([^'\n\\] | esc)* ['\\]?;
+raw_lit_dq    = '"' [^"\n]* '"'?;
+raw_lit_sq    = "'" [^'\n]* "'"?;
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 #
@@ -341,11 +340,11 @@ main := |*
 # common tokens
 
 id               { createStringToken(TokenKind_Identifier); };
-lit_sq           { createCharToken(TokenKind_Integer, 1, 1, true); };
-lit_dq_wo_esc    { createStringToken(TokenKind_Literal, 1, 1, false); };
-lit_dq_w_esc     { createStringToken(TokenKind_Literal, 1, 1, true); };
-[rR] raw_lit_sq  { createCharToken(TokenKind_Integer, 2, 1, false); };
-[rR] raw_lit_dq  { createStringToken(TokenKind_Literal, 2, 1, false); };
+lit_sq           { createCharToken(1, true); };
+lit_dq_wo_esc    { createLiteralToken(1, false); };
+lit_dq_w_esc     { createLiteralToken(1, true); };
+[rR] raw_lit_sq  { createCharToken(2, false); };
+[rR] raw_lit_dq  { createLiteralToken(2, false); };
 '0' oct+         { createIntegerToken(8); };
 dec+             { createIntegerToken(10); };
 '0' [xX] hex+    { createIntegerToken(16, 2); };

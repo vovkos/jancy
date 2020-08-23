@@ -33,6 +33,9 @@
 #include <QPainter>
 #include <QThread>
 #include <QBasicTimer>
+#include <QFileIconProvider>
+#include <QDirIterator>
+#include <QApplication>
 
 // AXL
 

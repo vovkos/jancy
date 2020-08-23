@@ -467,13 +467,37 @@ protected:
 	createKeywordTokenEx(
 		TokenKind tokenKind,
 		int param
-		);
+		)
+	{
+		Token* token = createToken(tokenKind);
+		token->m_data.m_integer = param;
+		return token;
+	}
+
+	Token*
+	createStringToken(TokenKind tokenKind)
+	{
+		Token* token = createToken(tokenKind);
+		token->m_data.m_string = sl::StringRef(ts, token->m_pos.m_length);
+		return token;
+	}
 
 	Token*
 	createStringToken(
 		TokenKind tokenKind,
-		size_t left = 0,
-		size_t right = 0,
+		size_t prefix,
+		size_t suffix
+		);
+
+	Token*
+	createCharToken(
+		size_t prefix,
+		bool useEscapeEncoding = false
+		);
+
+	Token*
+	createLiteralToken(
+		size_t prefix,
 		bool useEscapeEncoding = false
 		);
 
@@ -485,14 +509,6 @@ protected:
 
 	Token*
 	createBinLiteralToken(int radix);
-
-	Token*
-	createCharToken(
-		TokenKind tokenKind,
-		size_t left,
-		size_t right,
-		bool useEscapeEncoding = false
-		);
 
 	Token*
 	createIntegerToken(

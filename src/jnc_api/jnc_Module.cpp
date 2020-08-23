@@ -35,6 +35,17 @@ jnc_Module_getGlobalNamespace(jnc_Module* module)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+jnc_GlobalNamespace*
+jnc_Module_getStdNamespace(
+	jnc_Module* module,
+	jnc_StdNamespace stdNamespace
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getStdNamespaceFunc(module, stdNamespace);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getPrimitiveType(
 	jnc_Module* module,
@@ -293,6 +304,18 @@ jnc_Module_getGlobalNamespace(jnc_Module* module)
 {
 	return module->m_namespaceMgr.getGlobalNamespace();
 }
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_GlobalNamespace*
+jnc_Module_getStdNamespace(
+	jnc_Module* module,
+	jnc_StdNamespace stdNamespace
+	)
+{
+	return module->m_namespaceMgr.getStdNamespace(stdNamespace);
+}
+
 
 JNC_EXTERN_C
 JNC_EXPORT_O

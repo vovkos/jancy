@@ -72,6 +72,7 @@ protected:
 	QRect m_completerRect;
 	QIcon m_iconTable[Icon__Count];
 	QBasicTimer m_quickInfoTipTimer;
+	QFileIconProvider m_fileIconProvider;
 	bool m_isCurrentLineHighlightingEnabled;
 
 protected:
@@ -168,6 +169,12 @@ protected:
 		Namespace* nspace
 		);
 
+	void
+	addFile(
+		QStandardItemModel* model,
+		const QString& fileName
+		);
+
 	size_t
 	getItemIconIdx(ModuleItem* item);
 
@@ -209,7 +216,7 @@ protected:
 private slots:
 	void updateLineNumberMargin(const QRect&, int);
 	void onCursorPositionChanged();
-	void onCompleterActivated(const QString &completion);
+	void onCompleterActivated(const QString& completion);
 	void onCodeAssistReady();
 	void onThreadFinished();
 };

@@ -653,14 +653,17 @@ VariableMgr::liftStackVariable(Variable* variable)
 void
 VariableMgr::finalizeFunction()
 {
-	size_t count = m_liftedStackVariableArray.getCount();
-	for (size_t i = 0; i < count; i++)
+	if (m_module->hasCodeGen())
 	{
-		Variable* variable = m_liftedStackVariableArray[i];
-		ASSERT(variable->m_llvmPreLiftValue);
-		variable->m_llvmPreLiftValue->replaceAllUsesWith(variable->m_llvmValue);
-		variable->m_llvmPreLiftValue->eraseFromParent();
-		variable->m_llvmPreLiftValue = NULL;
+		size_t count = m_liftedStackVariableArray.getCount();
+		for (size_t i = 0; i < count; i++)
+		{
+			Variable* variable = m_liftedStackVariableArray[i];
+			ASSERT(variable->m_llvmPreLiftValue);
+			variable->m_llvmPreLiftValue->replaceAllUsesWith(variable->m_llvmValue);
+			variable->m_llvmPreLiftValue->eraseFromParent();
+			variable->m_llvmPreLiftValue = NULL;
+		}
 	}
 
 	m_liftedStackVariableArray.clear();

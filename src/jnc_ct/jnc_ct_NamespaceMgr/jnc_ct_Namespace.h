@@ -93,6 +93,9 @@ public:
 	bool
 	ensureNamespaceReadyDeep();
 
+	bool
+	parseLazyImports();
+
 	ModuleItem*
 	getParentItem();
 

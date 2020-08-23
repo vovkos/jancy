@@ -75,7 +75,7 @@ Parser::tokenizeBody(
 
 	Lexer lexer(
 		m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile,
-		m_module->m_codeAssistMgr.getOffset()
+		unit->isRootUnit() ? m_module->m_codeAssistMgr.getOffset() : -1
 		);
 
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
@@ -214,8 +214,19 @@ Parser::parseTokenList(
 
 	bool result = parseEofToken(tokenList.getTail()->m_pos);
 
-	if (!m_argumentTipStack.isEmpty())
-		generateArgumentTip();
+	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
+	if (codeAssistKind && !m_module->m_codeAssistMgr.getCodeAssist())
+		switch (codeAssistKind)
+		{
+		case CodeAssistKind_ArgumentTip:
+			if (!m_argumentTipStack.isEmpty())
+				generateArgumentTip();
+			break;
+
+		case CodeAssistKind_AutoCompleteList:
+			// ...
+			break;
+		}
 
 	return result;
 }

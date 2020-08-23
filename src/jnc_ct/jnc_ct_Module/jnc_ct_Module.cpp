@@ -595,7 +595,7 @@ Module::parseImpl(
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer(LexerMode_Parse, m_codeAssistMgr.getOffset());
+	Lexer lexer(LexerMode_Parse, unit->isRootUnit() ? m_codeAssistMgr.getOffset() : -1);
 	lexer.create(fileName, source);
 
 #if (0)

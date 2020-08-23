@@ -454,6 +454,16 @@ MemberBlock::createDefaultMethod()
 	return result ? function : NULL;
 }
 
+
+//..............................................................................
+
+inline
+bool
+Unit::isRootUnit()
+{
+	return this == m_module->m_unitMgr.getRootUnit();
+}
+
 //..............................................................................
 
 } // namespace ct

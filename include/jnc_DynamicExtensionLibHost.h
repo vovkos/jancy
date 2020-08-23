@@ -1027,6 +1027,13 @@ jnc_GlobalNamespace*
 jnc_Module_GetGlobalNamespaceFunc(jnc_Module* module);
 
 typedef
+jnc_GlobalNamespace*
+jnc_Module_GetStdNamespaceFunc(
+	jnc_Module* module,
+	jnc_StdNamespace stdNamespace
+	);
+
+typedef
 jnc_Type*
 jnc_Module_GetPrimitiveTypeFunc(
 	jnc_Module* module,
@@ -1186,6 +1193,7 @@ struct jnc_ModuleFuncTable
 	jnc_Module_ClearFunc* m_clearFunc;
 	jnc_Module_InitializeFunc* m_initializeFunc;
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
+	jnc_Module_GetStdNamespaceFunc* m_getStdNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;
 	jnc_Module_GetStdTypeFunc* m_getStdTypeFunc;
 	jnc_Module_GetExtensionSourceFileIteratorFunc* m_getExtensionSourceFileIteratorFunc;

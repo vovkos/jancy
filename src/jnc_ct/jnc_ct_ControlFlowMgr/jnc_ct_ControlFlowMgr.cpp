@@ -83,7 +83,7 @@ ControlFlowMgr::unlockEmission()
 void
 ControlFlowMgr::finalizeFunction()
 {
-	if (m_sjljFrameArrayValue)
+	if (m_sjljFrameArrayValue && m_module->hasCodeGen())
 		finalizeSjljFrameArray();
 
 	m_asyncBlockArray.clear();

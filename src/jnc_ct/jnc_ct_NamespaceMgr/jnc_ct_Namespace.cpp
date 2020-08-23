@@ -224,6 +224,24 @@ Namespace::ensureNamespaceReadyDeep()
 	return true;
 }
 
+bool
+Namespace::parseLazyImports()
+{
+	m_namespaceStatus = NamespaceStatus_ParseRequired;
+
+	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.getHead();
+	for (; it; it++)
+		if (it->m_value->getItemKind() == ModuleItemKind_LazyImport)
+		{
+			LazyImport* lazyImport = (LazyImport*)it->m_value;
+			Module* module = lazyImport->getModule();
+			module->m_importMgr.parseLazyImport(lazyImport);
+		}
+
+	ensureNamespaceReady();
+	return true;
+}
+
 FindModuleItemResult
 Namespace::findDirectChildItem(const sl::StringRef& name)
 {

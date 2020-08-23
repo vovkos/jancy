@@ -403,34 +403,35 @@ NamespaceMgr::closeScope()
 	ASSERT(m_currentScope);
 	uint_t flags = m_currentScope->m_flags;
 
-	if (flags & ScopeFlag_Disposable)
-	{
-		m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
-		m_module->m_controlFlowMgr.finalizeDisposableScope(m_currentScope);
-	}
-	else if ((flags & ScopeFlag_Try) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
-	{
-		m_currentScope->m_flags &= ~ScopeFlag_Try; // prevent recursion
-		m_module->m_controlFlowMgr.finalizeTryScope(m_currentScope);
-	}
-	else
-	{
-		// the above two cases introduce implicit finally/catch labels
-		// as such, they will finalize this scope and open a new one
-
-		m_module->m_gcShadowStackMgr.finalizeScope(m_currentScope);
-
-		if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
+	if (m_module->hasCodeGen())
+		if (flags & ScopeFlag_Disposable)
 		{
-			m_currentScope->m_flags &= ~ScopeFlag_Catch; // prevent recursion
-			m_module->m_controlFlowMgr.finalizeCatchScope(m_currentScope);
+			m_currentScope->m_flags &= ~ScopeFlag_Disposable; // prevent recursion
+			m_module->m_controlFlowMgr.finalizeDisposableScope(m_currentScope);
 		}
-		else if (flags & ScopeFlag_Finally)
+		else if ((flags & ScopeFlag_Try) && !(flags & (ScopeFlag_CatchAhead | ScopeFlag_FinallyAhead)))
 		{
-			m_currentScope->m_flags &= ~ScopeFlag_Finally; // prevent recursion
-			m_module->m_controlFlowMgr.finalizeFinallyScope(m_currentScope);
+			m_currentScope->m_flags &= ~ScopeFlag_Try; // prevent recursion
+			m_module->m_controlFlowMgr.finalizeTryScope(m_currentScope);
 		}
-	}
+		else
+		{
+			// the above two cases introduce implicit finally/catch labels
+			// as such, they will finalize this scope and open a new one
+
+			m_module->m_gcShadowStackMgr.finalizeScope(m_currentScope);
+
+			if ((flags & ScopeFlag_Catch) && !(flags & ScopeFlag_FinallyAhead))
+			{
+				m_currentScope->m_flags &= ~ScopeFlag_Catch; // prevent recursion
+				m_module->m_controlFlowMgr.finalizeCatchScope(m_currentScope);
+			}
+			else if (flags & ScopeFlag_Finally)
+			{
+				m_currentScope->m_flags &= ~ScopeFlag_Finally; // prevent recursion
+				m_module->m_controlFlowMgr.finalizeFinallyScope(m_currentScope);
+			}
+		}
 
 	closeNamespace();
 

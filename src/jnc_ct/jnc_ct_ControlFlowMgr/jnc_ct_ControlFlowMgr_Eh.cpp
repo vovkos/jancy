@@ -400,9 +400,6 @@ ControlFlowMgr::finallyLabel(const lex::LineCol& pos)
 
 void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 {
-	if (!m_module->hasCodeGen())
-		return;
-
 	ASSERT(scope && scope->m_finallyBlock && m_finallyRouteIdxVariable);
 
 	if (!(m_currentBlock->m_flags & BasicBlockFlag_Reachable))
@@ -509,9 +506,6 @@ ControlFlowMgr::disposeVariable(Variable* variable)
 void
 ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 {
-	if (!m_module->hasCodeGen())
-		return;
-
 	size_t count = scope->m_disposableVariableArray.getCount();
 	ASSERT(scope && count && scope->m_disposeLevelVariable);
 

@@ -174,6 +174,13 @@ jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace(jnc_Module* module);
 
 JNC_EXTERN_C
+jnc_GlobalNamespace*
+jnc_Module_getStdNamespace(
+	jnc_Module* module,
+	jnc_StdNamespace stdNamespace
+	);
+
+JNC_EXTERN_C
 jnc_Type*
 jnc_Module_getPrimitiveType(
 	jnc_Module* module,
@@ -435,6 +442,12 @@ struct jnc_Module
 	getGlobalNamespace()
 	{
 		return jnc_Module_getGlobalNamespace(this);
+	}
+
+	jnc_GlobalNamespace*
+	getStdNamespace(jnc_StdNamespace stdNamespace)
+	{
+		return jnc_Module_getStdNamespace(this, stdNamespace);
 	}
 
 	jnc_Type*

@@ -177,8 +177,16 @@ Edit::keyPressEvent(QKeyEvent* e)
 		case Qt::Key_Escape:
 		case Qt::Key_Tab:
 		case Qt::Key_Backtab:
+		case Qt::Key_Up:
+		case Qt::Key_Down:
 			e->ignore();
 			return; // let the completer do default behavior
+
+		case Qt::Key_Home:
+		case Qt::Key_End:
+			e->setModifiers(Qt::ControlModifier);
+			QApplication::sendEvent(d->m_completer->popup(), e);
+			return;
 
 		case Qt::Key_Space:
 			if (e->modifiers() & Qt::ControlModifier)
@@ -586,7 +594,9 @@ EditPrivate::updateCompleter(bool isForced)
 	QString prefix = cursor.selectedText();
 
 	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
-		prefix.remove(0, 1);
+		prefix.remove(0, 1); // opening quotation mark
+
+	printf("prefix: %s\n", prefix.toUtf8().data());
 
 	if (!isForced && prefix == m_completer->completionPrefix())
 		return;
@@ -922,6 +932,20 @@ EditPrivate::createAutoCompleteList(
 }
 
 void
+EditPrivate::addFile(
+	QStandardItemModel* model,
+	const QString& fileName
+	)
+{
+	QStandardItem* qtItem = new QStandardItem;
+	qtItem->setText(fileName);
+	qtItem->setData(fileName.toLower(), Role_CaseInsensitiveSort);
+	qtItem->setIcon(m_fileIconProvider.icon(QFileIconProvider::File));
+
+	model->appendRow(qtItem);
+}
+
+void
 EditPrivate::createImportAutoCompleteList(
 	const lex::LineCol& pos,
 	Module* module
@@ -931,20 +955,28 @@ EditPrivate::createImportAutoCompleteList(
 
 	QStandardItemModel* model = new QStandardItemModel(m_completer);
 
+	QStringList importDirFilter;
+	importDirFilter.append("*.jnc");
+	importDirFilter.append("*.jncx");
+
 	handle_t it = module->getImportDirIterator();
 	while (it)
 	{
 		const char* dir = module->getNextImportDir(&it);
-		QStandardItem* item = new QStandardItem(dir);
-		model->appendRow(item);
+		QDirIterator dirIt(dir, importDirFilter);
+
+		while (dirIt.hasNext())
+		{
+			dirIt.next();
+			addFile(model, dirIt.fileName());
+		}
 	}
 
 	it = module->getExtensionSourceFileIterator();
 	while (it)
 	{
 		const char* fileName = module->getNextExtensionSourceFile(&it);
-		QStandardItem* item = new QStandardItem(fileName);
-		model->appendRow(item);
+		addFile(model, fileName);
 	}
 
 	ensureCompleter();
@@ -1006,6 +1038,7 @@ EditPrivate::onCursorPositionChanged()
 		break;
 
 	case CodeAssistKind_AutoCompleteList:
+	case CodeAssistKind_ImportAutoCompleteList:
 		if (isCompleterVisible())
 			updateCompleter();
 		break;
@@ -1013,24 +1046,36 @@ EditPrivate::onCursorPositionChanged()
 }
 
 void
-EditPrivate::onCompleterActivated(const QString &completion)
+EditPrivate::onCompleterActivated(const QString& completion)
 {
 	Q_Q(Edit);
 
     QTextCursor cursor = q->textCursor();
-	cursor.select(QTextCursor::WordUnderCursor);
-
 	int basePosition = getLastCodeAssistPosition();
-	int position = cursor.position();
-	int anchor = cursor.anchor();
 
-	if (anchor < basePosition)
+	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
+	{
+		QString quotedCompletion = '"' + completion + '"';
 		cursor.setPosition(basePosition, QTextCursor::MoveAnchor);
+		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+		cursor.insertText(quotedCompletion);
+	}
+	else
+	{
+		cursor.select(QTextCursor::WordUnderCursor);
 
-	if (position < basePosition)
-		cursor.setPosition(basePosition, QTextCursor::KeepAnchor);
+		int position = cursor.position();
+		int anchor = cursor.anchor();
 
-    cursor.insertText(completion);
+		if (anchor < basePosition)
+			cursor.setPosition(basePosition, QTextCursor::MoveAnchor);
+
+		if (position < basePosition)
+			cursor.setPosition(basePosition, QTextCursor::KeepAnchor);
+
+		cursor.insertText(completion);
+	}
+
     q->setTextCursor(cursor);
 }
 
@@ -1070,9 +1115,6 @@ EditPrivate::onCodeAssistReady()
 
 	case CodeAssistKind_ArgumentTip:
 		createArgumentTip(pos, codeAssist->getFunctionType(), codeAssist->getArgumentIdx());
-		break;
-
-	case CodeAssistKind_AutoComplete:
 		break;
 
 	case CodeAssistKind_AutoCompleteList:

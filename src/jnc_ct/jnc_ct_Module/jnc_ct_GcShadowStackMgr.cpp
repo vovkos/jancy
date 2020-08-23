@@ -62,7 +62,8 @@ GcShadowStackMgr::finalizeFunction()
 	if (!m_frameVariable)
 		return;
 
-	finalizeFrame();
+	if (m_module->hasCodeGen())
+		finalizeFrame();
 
 	m_gcRootArrayValue.clear();
 	m_functionFrameMapArray.clear();

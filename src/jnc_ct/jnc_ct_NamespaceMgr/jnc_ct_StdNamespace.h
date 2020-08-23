@@ -11,20 +11,12 @@
 
 #pragma once
 
+#include "jnc_Namespace.h"
+
 namespace jnc {
 namespace ct {
 
 //..............................................................................
-
-enum StdNamespace
-{
-	StdNamespace_Global,
-	StdNamespace_Jnc,
-	StdNamespace_Internal,
-	StdNamespace__Count,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct StdItemSource
 {
