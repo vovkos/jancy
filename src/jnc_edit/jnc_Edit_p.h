@@ -157,6 +157,12 @@ protected:
 		);
 
 	void
+	createImportAutoCompleteList(
+		const lex::LineCol& pos,
+		Module* module
+		);
+
+	void
 	addAutoCompleteNamespace(
 		QStandardItemModel* model,
 		Namespace* nspace

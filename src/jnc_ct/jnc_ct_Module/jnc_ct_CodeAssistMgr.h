@@ -25,6 +25,7 @@ class CodeAssist
 protected:
 	CodeAssistKind m_codeAssistKind;
 	lex::LineColOffset m_pos; // not necessarily the same as request position
+	Module* m_module;
 
 	union
 	{
@@ -65,6 +66,12 @@ public:
 	getOffset()
 	{
 		return m_pos.m_offset;
+	}
+
+	Module*
+	getModule()
+	{
+		return m_module;
 	}
 
 	ModuleItem*
@@ -203,6 +210,9 @@ public:
 		Namespace* nspace,
 		uint_t flags = 0
 		);
+
+	CodeAssist*
+	createImportAutoCompleteList(const lex::LineColOffset& pos);
 
 protected:
 	CodeAssist*

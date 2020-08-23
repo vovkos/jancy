@@ -74,6 +74,12 @@ public:
 		return m_module;
 	}
 
+	const sl::StringHashTable<SourceFile*>&
+	getSourceFileMap()
+	{
+		return m_sourceFileMap;
+	}
+
 	void
 	clear();
 

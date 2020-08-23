@@ -57,6 +57,25 @@ jnc_Module_getStdType(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+handle_t
+jnc_Module_getExtensionSourceFileIterator(jnc_Module* module)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getExtensionSourceFileIteratorFunc(module);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Module_getNextExtensionSourceFile(
+	jnc_Module* module,
+	handle_t* iterator
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getNextExtensionSourceFileFunc(module, iterator);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FindModuleItemResult
 jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
@@ -104,6 +123,25 @@ jnc_Module_addSource(
 	)
 {
 	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_addSourceFunc(module, lib, fileName, source, size);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+handle_t
+jnc_Module_getImportDirIterator(jnc_Module* module)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getImportDirIteratorFunc(module);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Module_getNextImportDir(
+	jnc_Module* module,
+	handle_t* iterator
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getNextImportDirFunc(module, iterator);
 }
 
 JNC_EXTERN_C
@@ -280,6 +318,31 @@ jnc_Module_getStdType(
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+handle_t
+jnc_Module_getExtensionSourceFileIterator(jnc_Module* module)
+{
+	return (handle_t)module->m_extensionLibMgr.getSourceFileMap().getHead().p();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Module_getNextExtensionSourceFile(
+	jnc_Module* module,
+	handle_t* iterator
+	)
+{
+	sl::StringHashTableIterator<void*> it((sl::HashTableEntry<sl::String, void*>*)*iterator);
+	if (!it)
+		return NULL;
+
+	const char* dir = it->getKey().sz();
+	*iterator = (++it).p();
+	return dir;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FindModuleItemResult
 jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
@@ -327,6 +390,31 @@ jnc_Module_addSource(
 	)
 {
 	module->m_extensionLibMgr.addSource(lib, fileName, axl::sl::StringRef(source, length));
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+handle_t
+jnc_Module_getImportDirIterator(jnc_Module* module)
+{
+	return (handle_t)module->m_importMgr.m_importDirList.getHead().getEntry();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_Module_getNextImportDir(
+	jnc_Module* module,
+	handle_t* iterator
+	)
+{
+	sl::BoxIterator<sl::String> it((sl::BoxListEntry<sl::String>*)*iterator);
+	if (!it)
+		return NULL;
+
+	const char* dir = *it;
+	*iterator = (++it).p();
+	return dir;
 }
 
 JNC_EXTERN_C

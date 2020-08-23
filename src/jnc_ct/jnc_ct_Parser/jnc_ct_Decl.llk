@@ -117,6 +117,7 @@ local_declaration_list
 import_declaration
 	:	TokenKind_Import TokenKind_Literal
 			{
+				generateImportAutoCompleteListIf($2);
 				return m_module->m_importMgr.addImport($2.m_data.m_string);
 			}
 	;

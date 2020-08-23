@@ -585,6 +585,9 @@ EditPrivate::updateCompleter(bool isForced)
 	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
 	QString prefix = cursor.selectedText();
 
+	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
+		prefix.remove(0, 1);
+
 	if (!isForced && prefix == m_completer->completionPrefix())
 		return;
 
@@ -919,6 +922,47 @@ EditPrivate::createAutoCompleteList(
 }
 
 void
+EditPrivate::createImportAutoCompleteList(
+	const lex::LineCol& pos,
+	Module* module
+	)
+{
+	Q_Q(Edit);
+
+	QStandardItemModel* model = new QStandardItemModel(m_completer);
+
+	handle_t it = module->getImportDirIterator();
+	while (it)
+	{
+		const char* dir = module->getNextImportDir(&it);
+		QStandardItem* item = new QStandardItem(dir);
+		model->appendRow(item);
+	}
+
+	it = module->getExtensionSourceFileIterator();
+	while (it)
+	{
+		const char* fileName = module->getNextExtensionSourceFile(&it);
+		QStandardItem* item = new QStandardItem(fileName);
+		model->appendRow(item);
+	}
+
+	ensureCompleter();
+
+	model->setSortRole(Role_CaseInsensitiveSort);
+	model->sort(0);
+
+	m_completer->setModel(model);
+	m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+	m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+	m_completer->setWrapAround(false);
+	m_completer->setCompletionPrefix(QString());
+
+	m_completerRect = getCursorRectFromLineCol(pos);
+	updateCompleter(true);
+}
+
+void
 EditPrivate::keyPressCtrlSpace(QKeyEvent* e)
 {
 	if (e->modifiers() & Qt::ShiftModifier)
@@ -1033,6 +1077,10 @@ EditPrivate::onCodeAssistReady()
 
 	case CodeAssistKind_AutoCompleteList:
 		createAutoCompleteList(pos, codeAssist->getNamespace(), codeAssist->getNamespaceFlags());
+		break;
+
+	case CodeAssistKind_ImportAutoCompleteList:
+		createImportAutoCompleteList(pos, codeAssist->getModule());
 		break;
 
 	case CodeAssistKind_GotoDefinition:

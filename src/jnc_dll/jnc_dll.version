@@ -11,6 +11,7 @@
 		jnc_CodeAssist_getCodeAssistKind;
 		jnc_CodeAssist_getLine;
 		jnc_CodeAssist_getCol;
+		jnc_CodeAssist_getModule;
 		jnc_CodeAssist_getModuleItem;
 		jnc_CodeAssist_getFunctionType;
 		jnc_CodeAssist_getArgumentIdx;
@@ -115,6 +116,9 @@
 		jnc_Property_getGetter;
 		jnc_Property_getSetter;
 		jnc_Namespace_isReady;
+		jnc_Namespace_getParentItem;
+		jnc_Namespace_getNamespaceKind;
+		jnc_Namespace_getParentNamespace;
 		jnc_Namespace_getItemCount;
 		jnc_Namespace_getItem;
 		jnc_Namespace_findItem;
@@ -151,6 +155,12 @@
 		jnc_Module_getCompileErrorCount;
 		jnc_Module_setCompileErrorHandler;
 		jnc_Module_getGlobalNamespace;
+		jnc_Module_getExtensionSourceFileIterator;
+		jnc_Module_getNextExtensionSourceFile;
+		jnc_Module_getImportDirIterator;
+		jnc_Module_getNextImportDir;
+		jnc_Module_getImportDirIterator;
+		jnc_Module_getNextImportDir;
 		jnc_Module_getLlvmIrString_v;
 		jnc_Module_getPrimitiveType;
 		jnc_Module_getStdType;

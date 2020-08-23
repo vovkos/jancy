@@ -18,23 +18,6 @@
 
 //..............................................................................
 
-const char*
-jnc_getCodeAssistKindString(jnc_CodeAssistKind kind)
-{
-	static const char* const stringTable[] =
-	{
-		"QuickInfoTip",
-		"ArgumentTip",
-		"AutoComplete",
-		"AutoCompleteList",
-		"GotoDefinition",
-	};
-
-	return (size_t)kind < countof(stringTable) ? stringTable[kind] : "?";
-}
-
-//..............................................................................
-
 #if (_JNC_CORE)
 
 JNC_EXTERN_C
@@ -67,6 +50,14 @@ size_t
 jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist)
 {
 	return codeAssist->getOffset();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Module*
+jnc_CodeAssist_getModule(jnc_CodeAssist* codeAssist)
+{
+	return codeAssist->getModule();
 }
 
 JNC_EXTERN_C

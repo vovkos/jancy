@@ -1041,6 +1041,17 @@ jnc_Module_GetStdTypeFunc(
 	);
 
 typedef
+handle_t
+jnc_Module_GetExtensionSourceFileIteratorFunc(jnc_Module* module);
+
+typedef
+const char*
+jnc_Module_GetNextExtensionSourceFileFunc(
+	jnc_Module* module,
+	handle_t* iterator
+	);
+
+typedef
 jnc_FindModuleItemResult
 jnc_Module_FindExtensionLibItemFunc(
 	jnc_Module* module,
@@ -1073,6 +1084,17 @@ jnc_Module_AddSourceFunc(
 	const char* fileName,
 	const char* source,
 	size_t length
+	);
+
+typedef
+handle_t
+jnc_Module_GetImportDirIteratorFunc(jnc_Module* module);
+
+typedef
+const char*
+jnc_Module_GetNextImportDirFunc(
+	jnc_Module* module,
+	handle_t* iterator
 	);
 
 typedef
@@ -1166,10 +1188,14 @@ struct jnc_ModuleFuncTable
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;
 	jnc_Module_GetStdTypeFunc* m_getStdTypeFunc;
+	jnc_Module_GetExtensionSourceFileIteratorFunc* m_getExtensionSourceFileIteratorFunc;
+	jnc_Module_GetNextExtensionSourceFileFunc* m_getNextExtensionSourceFileFunc;
 	jnc_Module_FindExtensionLibItemFunc* m_findExtensionLibItemFunc;
 	jnc_Module_MapVariableFunc* m_mapVariableFunc;
 	jnc_Module_MapFunctionFunc* m_mapFunctionFunc;
 	jnc_Module_AddSourceFunc* m_addSourceFunc;
+	jnc_Module_GetImportDirIteratorFunc* m_getImportDirIteratorFunc;
+	jnc_Module_GetNextImportDirFunc* m_getNextImportDirFunc;
 	jnc_Module_AddImportDirFunc* m_addImportDirFunc;
 	jnc_Module_AddImportFunc* m_addImportFunc;
 	jnc_Module_AddOpaqueClassTypeInfoFunc* m_addOpaqueClassTypeInfoFunc;

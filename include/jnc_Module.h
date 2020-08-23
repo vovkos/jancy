@@ -188,6 +188,17 @@ jnc_Module_getStdType(
 	);
 
 JNC_EXTERN_C
+handle_t
+jnc_Module_getExtensionSourceFileIterator(jnc_Module* module);
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getNextExtensionSourceFile(
+	jnc_Module* module,
+	handle_t* iterator
+	);
+
+JNC_EXTERN_C
 jnc_FindModuleItemResult
 jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
@@ -220,6 +231,17 @@ jnc_Module_addSource(
 	const char* fileName,
 	const char* source,
 	size_t length
+	);
+
+JNC_EXTERN_C
+handle_t
+jnc_Module_getImportDirIterator(jnc_Module* module);
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getNextImportDir(
+	jnc_Module* module,
+	handle_t* iterator
 	);
 
 JNC_EXTERN_C
@@ -427,6 +449,18 @@ struct jnc_Module
 		return jnc_Module_getStdType(this, stdType);
 	}
 
+	handle_t
+	getExtensionSourceFileIterator()
+	{
+		return jnc_Module_getExtensionSourceFileIterator(this);
+	}
+
+	const char*
+	getNextExtensionSourceFile(handle_t* iterator)
+	{
+		return jnc_Module_getNextExtensionSourceFile(this, iterator);
+	}
+
 	jnc_FindModuleItemResult
 	findExtenstionLibItem(
 		const char* name,
@@ -464,6 +498,18 @@ struct jnc_Module
 		)
 	{
 		jnc_Module_addSource(this, lib, fileName, source, length);
+	}
+
+	handle_t
+	getImportDirIterator()
+	{
+		return jnc_Module_getImportDirIterator(this);
+	}
+
+	const char*
+	getNextImportDir(handle_t* iterator)
+	{
+		return jnc_Module_getNextImportDir(this, iterator);
 	}
 
 	void

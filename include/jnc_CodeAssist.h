@@ -22,16 +22,11 @@ enum jnc_CodeAssistKind
 	jnc_CodeAssistKind_ArgumentTip,
 	jnc_CodeAssistKind_AutoComplete,
 	jnc_CodeAssistKind_AutoCompleteList,
+	jnc_CodeAssistKind_ImportAutoCompleteList,
 	jnc_CodeAssistKind_GotoDefinition,
 };
 
 typedef enum jnc_CodeAssistKind jnc_CodeAssistKind;
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-JNC_EXTERN_C
-const char*
-jnc_getCodeAssistKindString(jnc_CodeAssistKind kind);
 
 //..............................................................................
 
@@ -59,6 +54,10 @@ jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssist);
 JNC_EXTERN_C
 size_t
 jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist);
+
+JNC_EXTERN_C
+jnc_Module*
+jnc_CodeAssist_getModule(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 jnc_ModuleItem*
@@ -109,6 +108,12 @@ struct jnc_CodeAssist
 		return jnc_CodeAssist_getOffset(this);
 	}
 
+	jnc_Module*
+	getModule()
+	{
+		return jnc_CodeAssist_getModule(this);
+	}
+
 	jnc_ModuleItem*
 	getModuleItem()
 	{
@@ -152,23 +157,15 @@ namespace jnc {
 typedef jnc_CodeAssistKind CodeAssistKind;
 
 const CodeAssistKind
-	CodeAssistKind_Undefined        = jnc_CodeAssistKind_Undefined,
-	CodeAssistKind_QuickInfoTip     = jnc_CodeAssistKind_QuickInfoTip,
-	CodeAssistKind_ArgumentTip      = jnc_CodeAssistKind_ArgumentTip,
-	CodeAssistKind_AutoComplete     = jnc_CodeAssistKind_AutoComplete,
-	CodeAssistKind_AutoCompleteList = jnc_CodeAssistKind_AutoCompleteList,
-	CodeAssistKind_GotoDefinition   = jnc_CodeAssistKind_GotoDefinition;
+	CodeAssistKind_Undefined              = jnc_CodeAssistKind_Undefined,
+	CodeAssistKind_QuickInfoTip           = jnc_CodeAssistKind_QuickInfoTip,
+	CodeAssistKind_ArgumentTip            = jnc_CodeAssistKind_ArgumentTip,
+	CodeAssistKind_AutoComplete           = jnc_CodeAssistKind_AutoComplete,
+	CodeAssistKind_AutoCompleteList       = jnc_CodeAssistKind_AutoCompleteList,
+	CodeAssistKind_ImportAutoCompleteList = jnc_CodeAssistKind_ImportAutoCompleteList,
+	CodeAssistKind_GotoDefinition         = jnc_CodeAssistKind_GotoDefinition;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-inline
-const char*
-getCodeAssistKindString(jnc_CodeAssistKind kind)
-{
-	return jnc_getCodeAssistKindString(kind);
-}
-
-//..............................................................................
 
 typedef jnc_CodeAssistNamespaceFlag CodeAssistNamespaceFlag;
 

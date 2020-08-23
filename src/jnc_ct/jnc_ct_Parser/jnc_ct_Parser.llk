@@ -706,6 +706,7 @@ protected:
 			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
 			m_argumentTipStack.getTail()->m_argumentIdx++;
 	}
+
 	void
 	generateAutoCompleteListIf(
 		const Token& token,
@@ -729,6 +730,17 @@ protected:
 		Namespace* nspace,
 		uint_t flags = 0
 		);
+
+	void
+	generateImportAutoCompleteListIf(const Token& token)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+			(token.m_channelMask & (TokenChannelMask_CodeAssistLeft | TokenChannelMask_CodeAssistMid)))
+			m_module->m_codeAssistMgr.createImportAutoCompleteList(token.m_pos);
+	}
+
+	void
+	generateImportAutoCompleteList(const Token& token);
 
 	void
 	generateMemberInfoIf(

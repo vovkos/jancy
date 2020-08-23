@@ -21,6 +21,7 @@ namespace ct {
 CodeAssist::CodeAssist()
 {
 	m_codeAssistKind = CodeAssistKind_Undefined;
+	m_module = NULL;
 	m_item = NULL;
 	m_itemParam = 0;
 }
@@ -29,6 +30,9 @@ CodeAssist::CodeAssist()
 
 CodeAssistMgr::CodeAssistMgr()
 {
+	m_module = Module::getCurrentConstructedModule();
+	ASSERT(m_module);
+
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_cacheModule = NULL;
 	m_offset = -1;
@@ -115,6 +119,7 @@ CodeAssistMgr::createModuleItemCodeAssist(
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = kind;
 	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_item = item;
 	return m_codeAssist;
 }
@@ -131,6 +136,7 @@ CodeAssistMgr::createArgumentTip(
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_functionType = functionType;
 	m_codeAssist->m_argumentIdx = argumentIdx;
 	return m_codeAssist;
@@ -148,8 +154,21 @@ CodeAssistMgr::createAutoCompleteList(
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
 	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_namespace = nspace;
 	m_codeAssist->m_namespaceFlags = flags;
+	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createImportAutoCompleteList(const lex::LineColOffset& pos)
+{
+	freeCodeAssist();
+
+	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoCompleteList;
+	m_codeAssist->m_pos = pos;
+	m_codeAssist->m_module = m_module;
 	return m_codeAssist;
 }
 
