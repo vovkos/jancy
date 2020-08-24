@@ -275,7 +275,7 @@ OperatorMgr::getNamespaceMember(
 {
 	bool result;
 
-	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
+	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
 	if (!findResult.m_result)
 		return false;
 
@@ -437,7 +437,7 @@ OperatorMgr::getNamedTypeMember(
 		return false;
 
 	MemberCoord coord;
-	FindModuleItemResult findResult = namedType->findDirectChildItemTraverse(name, &coord, TraverseKind_NoParentNamespace);
+	FindModuleItemResult findResult = namedType->findDirectChildItemTraverse(name, &coord, TraverseFlag_NoParentNamespace);
 	if (!findResult.m_result)
 		return false;
 

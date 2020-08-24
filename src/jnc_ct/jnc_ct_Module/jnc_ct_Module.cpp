@@ -595,7 +595,7 @@ Module::parseImpl(
 	Unit* unit = m_unitMgr.createUnit(lib, fileName);
 	m_unitMgr.setCurrentUnit(unit);
 
-	Lexer lexer(LexerMode_Parse, unit->isRootUnit() ? m_codeAssistMgr.getOffset() : -1);
+	Lexer lexer(LexerMode_Parse);
 	lexer.create(fileName, source);
 
 #if (0)
@@ -634,27 +634,59 @@ Module::parseImpl(
 	Parser parser(this);
 	parser.create(fileName, Parser::StartSymbol);
 
-	for (;;)
+	CodeAssistKind codeAssistKind = m_codeAssistMgr.getCodeAssistKind();
+	if (!codeAssistKind || !unit->isRootUnit())
 	{
-		const Token* token = lexer.getToken();
-		if (token->m_token == TokenKind_Error)
+		for (;;)
 		{
-			err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
-			lex::pushSrcPosError(fileName, token->m_pos);
-			return false;
-		}
+			const Token* token = lexer.getToken();
+			if (token->m_token == TokenKind_Error)
+			{
+				err::setFormatStringError("invalid character '\\x%02x'", (uchar_t) token->m_data.m_integer);
+				lex::pushSrcPosError(fileName, token->m_pos);
+				return false;
+			}
 
-		result = parser.parseToken(token);
-		if (!result)
+			result = parser.parseToken(token);
+			if (!result)
+			{
+				lex::ensureSrcPosError(fileName, token->m_pos);
+				return false;
+			}
+
+			if (token->m_token == TokenKind_Eof) // EOF token must be parsed
+				break;
+
+			lexer.nextToken();
+		}
+	}
+	else
+	{
+		size_t offset = m_codeAssistMgr.getOffset();
+
+		for (;;)
 		{
-			lex::ensureSrcPosError(fileName, token->m_pos);
-			return false;
+			const Token* token = lexer.getToken();
+			if (token->m_token == TokenKind_Error)
+				return false;
+
+			markCodeAssistToken((Token*)token, offset);
+
+			if (token->m_flags & TokenFlag_PostCodeAssist)
+			{
+				m_codeAssistMgr.prepareAutoCompleteFallback();
+				offset = -1; // not needed anymore
+			}
+
+			result = parser.parseToken(token);
+			if (!result)
+				return false;
+
+			if (token->m_token == TokenKind_Eof) // EOF token must be parsed
+				break;
+
+			lexer.nextToken();
 		}
-
-		if (token->m_token == TokenKind_Eof) // EOF token must be parsed
-			break;
-
-		lexer.nextToken();
 	}
 
 	m_namespaceMgr.getGlobalNamespace()->getUsingSet()->clear();

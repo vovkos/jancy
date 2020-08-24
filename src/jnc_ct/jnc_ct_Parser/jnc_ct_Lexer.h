@@ -201,13 +201,20 @@ enum TokenKind
 
 enum TokenChannelMask
 {
-	TokenChannelMask_Main            = lex::TokenChannelMask_Main, // 0x01,
-	TokenChannelMask_DoxyComment     = 0x02,
-	TokenChannelMask_CodeAssistLeft  = 0x10,
-	TokenChannelMask_CodeAssistMid   = 0x20,
-	TokenChannelMask_CodeAssistRight = 0x40,
-	TokenChannelMask_CodeAssist      = 0x70,
-	TokenChannelMask_All             = -1,
+	TokenChannelMask_Main        = lex::TokenChannelMask_Main, // 0x01,
+	TokenChannelMask_DoxyComment = 0x02,
+	TokenChannelMask_All         = 0x03,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum TokenFlag
+{
+	TokenFlag_CodeAssistLeft  = 0x10,
+	TokenFlag_CodeAssistMid   = 0x20,
+	TokenFlag_CodeAssistRight = 0x40,
+	TokenFlag_CodeAssist      = 0x70,
+	TokenFlag_PostCodeAssist  = 0x80,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -407,6 +414,23 @@ typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+inline
+void
+markCodeAssistToken(
+	Token* token,
+	size_t offset
+	)
+{
+	size_t end = token->m_pos.m_offset + token->m_pos.m_length;
+	if (end >= offset)
+		token->m_flags |=
+			token->m_pos.m_offset > offset ? TokenFlag_PostCodeAssist :
+			token->m_pos.m_offset == offset ? TokenFlag_CodeAssistLeft :
+			end == offset ? TokenFlag_CodeAssistRight : TokenFlag_CodeAssistMid;
+}
+
+//..............................................................................
+
 enum LexerMode
 {
 	LexerMode_Parse,   // don't tokenize bodies
@@ -421,8 +445,6 @@ class Lexer: public lex::RagelLexer<Lexer, Token>
 
 protected:
 	LexerMode m_mode;
-	size_t m_codeAssistOffset;
-
 	Token* m_fmtLiteralToken;
 	Token* m_mlLiteralToken;
 	Token* m_bodyToken;
@@ -433,11 +455,7 @@ protected:
 	sl::String m_dir;
 
 public:
-	Lexer(
-		LexerMode mode = LexerMode_Compile,
-		size_t codeAssistOffset = -1
-		);
-
+	Lexer(LexerMode mode = LexerMode_Compile);
 	LexerMode
 	getMode()
 	{
@@ -445,24 +463,6 @@ public:
 	}
 
 protected:
-	void
-	checkCodeAssistOffset(Token* token)
-	{
-		if (m_codeAssistOffset != -1 && token->m_pos.m_offset + token->m_pos.m_length >= m_codeAssistOffset)
-			markCodeAssistToken(token);
-	}
-
-	void
-	markCodeAssistToken(Token* token);
-
-	Token*
-	createToken(int tokenKind)
-	{
-		Token* token = lex::RagelLexer<Lexer, Token>::createToken(tokenKind);
-		checkCodeAssistOffset(token);
-		return token;
-	}
-
 	Token*
 	createKeywordTokenEx(
 		TokenKind tokenKind,

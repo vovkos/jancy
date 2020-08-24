@@ -437,6 +437,10 @@ bool_t
 jnc_Type_ensureLayoutFunc(jnc_Type* type);
 
 typedef
+bool_t
+jnc_Type_ensureNoImportsFunc(jnc_Type* type);
+
+typedef
 void
 jnc_Type_MarkGcRootsFunc(
 	jnc_Type* type,
@@ -455,6 +459,7 @@ struct jnc_TypeFuncTable
 	jnc_Type_CmpFunc* m_cmpFunc;
 	jnc_Type_GetDataPtrTypeFunc* m_getDataPtrTypeFunc;
 	jnc_Type_ensureLayoutFunc* m_ensureLayoutFunc;
+	jnc_Type_ensureNoImportsFunc* m_ensureNoImportsFunc;
 	jnc_Type_MarkGcRootsFunc* m_markGcRootsFunc;
 };
 

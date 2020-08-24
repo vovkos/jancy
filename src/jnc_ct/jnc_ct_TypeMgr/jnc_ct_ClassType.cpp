@@ -561,10 +561,10 @@ ClassType::overrideVirtualFunction(Function* function)
 	FindModuleItemResult findResult = findDirectChildItemTraverse(
 		function->m_name,
 		&coord,
-		TraverseKind_NoExtensionNamespaces |
-		TraverseKind_NoParentNamespace |
-		TraverseKind_NoUsingNamespaces |
-		TraverseKind_NoThis
+		TraverseFlag_NoExtensionNamespaces |
+		TraverseFlag_NoParentNamespace |
+		TraverseFlag_NoUsingNamespaces |
+		TraverseFlag_NoThis
 		);
 
 	if (!findResult.m_result)

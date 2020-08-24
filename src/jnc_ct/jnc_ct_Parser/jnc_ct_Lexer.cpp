@@ -114,41 +114,14 @@ decodeByteString(
 
 //..............................................................................
 
-Lexer::Lexer(
-	LexerMode mode,
-	size_t codeAssistOffset
-	)
+Lexer::Lexer(LexerMode mode)
 {
 	m_mode = mode;
-	m_codeAssistOffset = codeAssistOffset;
 	m_fmtLiteralToken = NULL;
 	m_mlLiteralToken = NULL;
 	m_mlBinLiteralTokenRadix = 0;
 	m_bodyToken = NULL;
 	m_curlyBraceLevel = 0;
-}
-
-void
-Lexer::markCodeAssistToken(Token* token)
-{
-	ASSERT(m_codeAssistOffset != -1);
-
-	if (token->m_pos.m_offset == m_codeAssistOffset)
-		token->m_channelMask |= TokenChannelMask_CodeAssistLeft;
-	else if (token->m_pos.m_offset < m_codeAssistOffset)
-		token->m_channelMask |= token->m_pos.m_offset + token->m_pos.m_length == m_codeAssistOffset ?
-			TokenChannelMask_CodeAssistRight :
-			TokenChannelMask_CodeAssistMid;
-	else
-	{
-		if (m_mode == LexerMode_Compile) // abort further tokenization
-		{
-			stop();
-			eof = pe;
-		}
-
-		m_codeAssistOffset = -1; // not necessary to check anymore
-	}
 }
 
 Token*
@@ -579,7 +552,6 @@ Lexer::onRightCurlyBrace()
 
 	m_bodyToken->m_pos.m_length = te - m_bodyToken->m_pos.m_p;
 	m_bodyToken->m_data.m_string = sl::StringRef(m_bodyToken->m_pos.m_p, m_bodyToken->m_pos.m_length);
-	checkCodeAssistOffset(m_bodyToken);
 	return true;
 }
 

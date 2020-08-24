@@ -30,22 +30,6 @@ jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-int
-jnc_CodeAssist_getLine(jnc_CodeAssist* codeAssist)
-{
-	return codeAssist->getLine();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-int
-jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssist)
-{
-	return codeAssist->getCol();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist)
 {

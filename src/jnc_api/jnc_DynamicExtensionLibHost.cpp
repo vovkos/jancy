@@ -138,6 +138,7 @@ static jnc_TypeFuncTable g_typeFuncTable =
 	jnc_Type_cmp,
 	jnc_Type_getDataPtrType,
 	jnc_Type_ensureLayout,
+	jnc_Type_ensureNoImports,
 	jnc_Type_markGcRoots,
 };
 

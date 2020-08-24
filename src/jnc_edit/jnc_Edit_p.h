@@ -36,6 +36,12 @@ protected:
 		Color_CurrentLineBack = 0xe8eff8,
 	};
 
+	enum Width
+	{
+		Width_MaxNameColumnWidth = 160,
+		Width_MaxTypeColumnWidth = 320,
+	};
+
 	enum Role
 	{
 		Role_CaseInsensitiveSort = Qt::UserRole + 1,
@@ -64,7 +70,7 @@ protected:
 	QStringList m_importDirList;
 	CodeAssistThread* m_thread;
 	CodeAssistKind m_lastCodeAssistKind;
-	lex::LineCol m_lastCodeAssistLineCol;
+	size_t m_lastCodeAssistOffset;
 	int m_lastCodeAssistPosition;
 	int m_pendingCodeAssistPosition;
 	QPoint m_lastToolTipPoint;
@@ -92,6 +98,9 @@ protected:
 
 	void
 	updateLineNumberMarginGeometry();
+
+	void
+	requestCodeAssistOnChar(char c);
 
 	void
 	requestCodeAssist(
@@ -138,30 +147,22 @@ protected:
 	updateCompleter(bool isForced = false);
 
 	void
-	createQuickInfoTip(
-		const lex::LineCol& pos,
-		ModuleItem* item
-		);
+	createQuickInfoTip(ModuleItem* item);
 
 	void
 	createArgumentTip(
-		const lex::LineCol& pos,
 		FunctionType* type,
 		size_t argumentIdx
 		);
 
 	void
 	createAutoCompleteList(
-		const lex::LineCol& pos,
 		Namespace* nspace,
 		uint_t flags
 		);
 
 	void
-	createImportAutoCompleteList(
-		const lex::LineCol& pos,
-		Module* module
-		);
+	createImportAutoCompleteList(Module* module);
 
 	void
 	addAutoCompleteNamespace(
@@ -178,24 +179,27 @@ protected:
 	size_t
 	getItemIconIdx(ModuleItem* item);
 
-	QTextCursor
-	getCursorFromLineCol(const lex::LineCol& pos);
-
 	static
 	lex::LineCol
 	getLineColFromCursor(const QTextCursor& cursor);
 
-	QRect
-	getCursorRectFromLineCol(const lex::LineCol& pos);
+	QTextCursor
+	getCursorFromLineCol(const lex::LineCol& pos);
 
-	QPoint
-	getToolTipPointFromLineCol(
-		const lex::LineCol& pos,
-		bool isBelowCurrentCursor = false
-		);
+	QTextCursor
+	getCursorFromOffset(size_t offset);
 
 	void
 	highlightCurrentLine();
+
+	QTextCursor
+	getLastCodeAssistCursor();
+
+	QRect
+	getLastCodeAssistCursorRect();
+
+	QPoint
+	getLastCodeAssistToolTipPoint(bool isBelowCurrentCursor = false);
 
 	int
 	getLastCodeAssistPosition()
@@ -208,6 +212,9 @@ protected:
 
 	void
 	keyPressCtrlSpace(QKeyEvent* e);
+
+	void
+	keyPressHome(QKeyEvent* e);
 
 	virtual
 	void

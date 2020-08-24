@@ -359,23 +359,23 @@ Namespace::findDirectChildItemTraverse(
 	uint_t flags
 	)
 {
-	if (!(flags & TraverseKind_NoThis))
+	if (!(flags & TraverseFlag_NoThis))
 	{
 		FindModuleItemResult findResult = findDirectChildItem(name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 	}
 
-	if (!(flags & TraverseKind_NoUsingNamespaces))
+	if (!(flags & TraverseFlag_NoUsingNamespaces))
 	{
 		FindModuleItemResult findResult = m_usingSet.findItem(name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 	}
 
-	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
+	if (!(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace)
 	{
-		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseKind_NoThis);
+		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseFlag_NoThis);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 	}

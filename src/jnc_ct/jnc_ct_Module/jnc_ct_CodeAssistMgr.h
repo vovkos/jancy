@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_CodeAssist.h"
+#include "jnc_ct_QualifiedName.h"
 
 namespace jnc {
 namespace ct {
@@ -24,7 +25,7 @@ class CodeAssist
 
 protected:
 	CodeAssistKind m_codeAssistKind;
-	lex::LineColOffset m_pos; // not necessarily the same as request position
+	size_t m_offset; // not necessarily the same as request offset
 	Module* m_module;
 
 	union
@@ -50,22 +51,10 @@ public:
 		return m_codeAssistKind;
 	}
 
-	int
-	getLine()
-	{
-		return m_pos.m_line;
-	}
-
-	int
-	getCol()
-	{
-		return m_pos.m_col;
-	}
-
 	size_t
 	getOffset()
 	{
-		return m_pos.m_offset;
+		return m_offset;
 	}
 
 	Module*
@@ -115,15 +104,19 @@ public:
 class CodeAssistMgr
 {
 	friend class Parser;
+	friend class Module;
 
 protected:
 	Module* m_module;
 	Module* m_cacheModule;
-
 	CodeAssistKind m_codeAssistKind;
 	CodeAssist* m_codeAssist;
 	size_t m_offset;
 	ModuleItem* m_containerItem;
+
+	size_t m_autoCompleteOffset;
+	Namespace* m_autoCompleteNamespace;
+	QualifiedName m_autoCompletePrefix;
 
 public:
 	CodeAssistMgr();
@@ -162,72 +155,80 @@ public:
 		);
 
 	CodeAssist*
-	generateCodeAssist()
-	{
-		return
-			m_codeAssist ? m_codeAssist :
-			m_containerItem ? generateCodeAssistImpl(m_containerItem) :
-			NULL;
-	}
+	generateCodeAssist();
+
+	void
+	prepareAutoCompleteFallback();
 
 	CodeAssist*
 	createQuickInfoTip(
-		const lex::LineColOffset& pos,
+		size_t offset,
 		ModuleItem* item
 		)
 	{
-		return createModuleItemCodeAssist(CodeAssistKind_QuickInfoTip, pos, item);
+		return createModuleItemCodeAssist(CodeAssistKind_QuickInfoTip, offset, item);
 	}
 
 	CodeAssist*
 	createGotoDefinition(
-		const lex::LineColOffset& pos,
+		size_t offset,
 		ModuleItem* item
 		)
 	{
-		return createModuleItemCodeAssist(CodeAssistKind_GotoDefinition, pos, item);
+		return createModuleItemCodeAssist(CodeAssistKind_GotoDefinition, offset, item);
 	}
 
 	CodeAssist*
 	createAutoComplete(
-		const lex::LineColOffset& pos,
+		size_t offset,
 		ModuleItem* item
 		)
 	{
-		return createModuleItemCodeAssist(CodeAssistKind_AutoComplete, pos, item);
+		return createModuleItemCodeAssist(CodeAssistKind_AutoComplete, offset, item);
+	}
+
+	CodeAssist*
+	createEmptyCodeAssist(size_t offset)
+	{
+		return createModuleItemCodeAssist(CodeAssistKind_Undefined, offset, NULL);
 	}
 
 	CodeAssist*
 	createArgumentTip(
-		const lex::LineColOffset& pos,
+		size_t offset,
 		FunctionType* functionType,
 		size_t arugmentIdx
 		);
 
 	CodeAssist*
 	createAutoCompleteList(
-		const lex::LineColOffset& pos,
+		size_t offset,
 		Namespace* nspace,
 		uint_t flags = 0
 		);
 
 	CodeAssist*
-	createImportAutoCompleteList(const lex::LineColOffset& pos);
+	createImportAutoCompleteList(size_t offset);
 
 protected:
-	CodeAssist*
-	createModuleItemCodeAssist(
-		CodeAssistKind kind,
-		const lex::LineColOffset& pos,
-		ModuleItem* item
-		);
-
 	void
 	freeCodeAssist();
 
 	CodeAssist*
 	generateCodeAssistImpl(ModuleItem* item);
+
+	CodeAssist*
+	createModuleItemCodeAssist(
+		CodeAssistKind kind,
+		size_t offset,
+		ModuleItem* item
+		);
+
+	CodeAssist*
+	createAutoCompleteListFromPrefix();
 };
+
+//..............................................................................
 
 } // namespace ct
 } // namespace jnc

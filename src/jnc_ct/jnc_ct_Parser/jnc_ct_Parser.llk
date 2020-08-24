@@ -247,7 +247,10 @@ protected:
 	}
 
 	bool
-	parseEofToken(const lex::LineColOffset& pos);
+	parseEofToken(
+		const lex::LineColOffset& pos,
+		size_t length
+		);
 
 	void
 	addDoxyComment(const Token& token);
@@ -352,7 +355,7 @@ protected:
 		const Token& bodyToken
 		)
 	{
-		if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+		if (bodyToken.m_flags & TokenFlag_CodeAssist)
 			m_module->m_codeAssistMgr.m_containerItem = item;
 
 		return item->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
@@ -714,7 +717,7 @@ protected:
 		)
 	{
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
-			(token.m_channelMask & TokenChannelMask_CodeAssist))
+			(token.m_flags & TokenFlag_CodeAssist))
 			generateAutoCompleteList(token, value);
 	}
 
@@ -722,6 +725,23 @@ protected:
 	generateAutoCompleteList(
 		const Token& token,
 		const Value& value
+		);
+
+	void
+	generateAutoCompleteListIf(
+		const Token& token,
+		const QualifiedName& prefix
+		)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+			(token.m_flags & TokenFlag_CodeAssist))
+			generateAutoCompleteList(token, prefix);
+	}
+
+	void
+	generateAutoCompleteList(
+		const Token& token,
+		const QualifiedName& prefix
 		);
 
 	void
@@ -735,8 +755,8 @@ protected:
 	generateImportAutoCompleteListIf(const Token& token)
 	{
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
-			(token.m_channelMask & TokenChannelMask_CodeAssist))
-			m_module->m_codeAssistMgr.createImportAutoCompleteList(token.m_pos);
+			(token.m_flags & TokenFlag_CodeAssist))
+			m_module->m_codeAssistMgr.createImportAutoCompleteList(token.m_pos.m_offset);
 	}
 
 	void
@@ -750,7 +770,7 @@ protected:
 		)
 	{
 		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
-			(token.m_channelMask & TokenChannelMask_CodeAssist))
+			(token.m_flags & TokenFlag_CodeAssist))
 			generateMemberInfo(token, value, name);
 	}
 

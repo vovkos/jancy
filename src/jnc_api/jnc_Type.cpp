@@ -270,6 +270,14 @@ jnc_Type_ensureLayout(jnc_Type* type)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+bool_t
+jnc_Type_ensureNoImports(jnc_Type* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_typeFuncTable->m_ensureNoImportsFunc(type);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_Type_markGcRoots(
 	jnc_Type* type,
@@ -368,6 +376,14 @@ bool_t
 jnc_Type_ensureLayout(jnc_Type* type)
 {
 	return type->ensureLayout();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_Type_ensureNoImports(jnc_Type* type)
+{
+	return type->ensureNoImports();
 }
 
 JNC_EXTERN_C

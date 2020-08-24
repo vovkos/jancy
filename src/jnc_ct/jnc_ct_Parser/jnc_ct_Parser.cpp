@@ -73,10 +73,7 @@ Parser::tokenizeBody(
 	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
 	ASSERT(unit);
 
-	Lexer lexer(
-		m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile,
-		unit->isRootUnit() ? m_module->m_codeAssistMgr.getOffset() : -1
-		);
+	Lexer lexer(m_mode == Mode_Parse ? LexerMode_Parse : LexerMode_Compile);
 
 	if ((m_module->getCompileFlags() & ModuleCompileFlag_Documentation) && !unit->getLib())
 		lexer.m_channelMask = TokenChannelMask_All; // also include doxy-comments (but not for libs!)
@@ -186,7 +183,8 @@ Parser::parseBody(
 
 	return !tokenList.isEmpty() ?
 		parseTokenList(symbol, tokenList) :
-		create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol) && parseEofToken(pos);
+		create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol) &&
+		parseEofToken(pos, body.getLength());
 }
 
 bool
@@ -197,48 +195,75 @@ Parser::parseTokenList(
 {
 	ASSERT(!tokenList.isEmpty());
 
-	create(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), symbol);
+	Unit* unit = m_module->m_unitMgr.getCurrentUnit();
+	create(unit->getFilePath(), symbol);
 
-	sl::ConstBoxIterator<Token> token = tokenList.getHead();
-	for (; token; token++)
-	{
-		bool result = parseToken(&*token);
-		if (!result)
-		{
-			lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token->m_pos);
-			return false;
-		}
-	}
-
-	// important: process EOF token, it might actually trigger actions!
-
-	bool result = parseEofToken(tokenList.getTail()->m_pos);
+	Token::Pos lastTokenPos = tokenList.getTail()->m_pos;
 
 	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
-	if (codeAssistKind && !m_module->m_codeAssistMgr.getCodeAssist())
-		switch (codeAssistKind)
+	if (!codeAssistKind || !unit->isRootUnit())
+	{
+		sl::ConstBoxIterator<Token> token = tokenList.getHead();
+		for (; token; token++)
 		{
-		case CodeAssistKind_ArgumentTip:
-			if (!m_argumentTipStack.isEmpty())
-				generateArgumentTip();
-			break;
-
-		case CodeAssistKind_AutoCompleteList:
-			// ...
-			break;
+			bool result = parseToken(&*token);
+			if (!result)
+			{
+				lex::ensureSrcPosError(m_module->m_unitMgr.getCurrentUnit()->getFilePath(), token->m_pos);
+				return false;
+			}
 		}
 
-	return result;
+		return parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
+	}
+	else
+	{
+		size_t offset = m_module->m_codeAssistMgr.getOffset();
+
+		sl::ConstBoxIterator<Token> token = tokenList.getHead();
+		for (; token; token++)
+		{
+			markCodeAssistToken((Token*)token.p(), offset);
+
+			if (token->m_flags & TokenFlag_PostCodeAssist)
+			{
+				m_module->m_codeAssistMgr.prepareAutoCompleteFallback();
+
+				if (m_mode == Mode_Compile)
+				{
+					lastTokenPos = token->m_pos;
+					break;
+				}
+
+				offset = -1; // not needed anymore
+			}
+
+			bool result = parseToken(&*token);
+			if (!result)
+				return false;
+		}
+
+		m_module->m_codeAssistMgr.prepareAutoCompleteFallback();
+		parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
+
+		if (!m_module->m_codeAssistMgr.getCodeAssist() && !m_argumentTipStack.isEmpty())
+			generateArgumentTip();
+
+		return true;
+	}
 }
 
 bool
-Parser::parseEofToken(const lex::LineColOffset& pos)
+Parser::parseEofToken(
+	const lex::LineColOffset& pos,
+	size_t length
+	)
 {
 	Token eofToken;
 	eofToken.m_token = 0;
 	eofToken.m_pos.m_line = pos.m_line;
-	eofToken.m_pos.m_col = pos.m_col;
-	eofToken.m_pos.m_offset = pos.m_offset;
+	eofToken.m_pos.m_col = pos.m_col + length;
+	eofToken.m_pos.m_offset = pos.m_offset + length;
 
 	bool result = parseToken(&eofToken);
 	if (!result)
@@ -597,7 +622,6 @@ Parser::postDeclaratorName(Declarator* declarator)
 void
 Parser::postDeclarator(Declarator* declarator)
 {
-	ASSERT(m_topDeclarator);
 	if (declarator == m_topDeclarator)
 		m_topDeclarator = NULL;
 }
@@ -664,7 +688,7 @@ Parser::declareGlobalNamespace(
 
 	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyToken.m_pos, bodyToken.m_data.m_string);
 
-	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+	if (bodyToken.m_flags & TokenFlag_CodeAssist)
 		m_module->m_codeAssistMgr.m_containerItem = nspace;
 
 	return nspace;
@@ -698,7 +722,7 @@ Parser::declareExtensionNamespace(
 	result = nspace->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
 	ASSERT(result);
 
-	if (bodyToken.m_channelMask & TokenChannelMask_CodeAssist)
+	if (bodyToken.m_flags & TokenFlag_CodeAssist)
 		m_module->m_codeAssistMgr.m_containerItem = nspace;
 
 	return nspace;
@@ -2555,7 +2579,7 @@ Parser::lookupIdentifier(
 	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
 
 	if (codeAssistKind == CodeAssistKind_AutoCompleteList &&
-		(token.m_channelMask & TokenChannelMask_CodeAssist))
+		(token.m_flags & TokenFlag_CodeAssist))
 		generateAutoCompleteList(token, nspace, CodeAssistNamespaceFlag_IncludeParentNamespace);
 
 	MemberCoord coord;
@@ -2665,8 +2689,8 @@ Parser::lookupIdentifier(
 	};
 
 	if (codeAssistKind == CodeAssistKind_QuickInfoTip &&
-		(token.m_channelMask & TokenChannelMask_CodeAssist))
-		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos, item);
+		(token.m_flags & TokenFlag_CodeAssist))
+		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, item);
 
 	return true;
 }
@@ -3226,8 +3250,11 @@ Parser::generateAutoCompleteList(
 	)
 {
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
+
 	if (nspace)
 		generateAutoCompleteList(token, nspace);
+	else
+		m_module->m_codeAssistMgr.createEmptyCodeAssist(token.m_pos.m_offset);
 }
 
 void
@@ -3240,9 +3267,9 @@ Parser::generateMemberInfo(
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
 	if (nspace)
 	{
-		FindModuleItemResult result = nspace->findDirectChildItemTraverse(name, NULL, TraverseKind_NoParentNamespace);
+		FindModuleItemResult result = nspace->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
 		if (result.m_item)
-			m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos, result.m_item);
+			m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, result.m_item);
 	}
 }
 
@@ -3253,18 +3280,32 @@ Parser::generateAutoCompleteList(
 	uint_t flags
 	)
 {
-	Token::Pos pos = token.m_pos;
+	size_t offset = token.m_pos.m_offset;
 	if (token.m_tokenKind != TokenKind_Identifier)
-	{
-		if (!(token.m_channelMask & TokenChannelMask_CodeAssistRight))
+		if (token.m_flags & TokenFlag_CodeAssistRight)
+			offset += token.m_pos.m_length;
+		else
 			return;
 
-		pos.m_col += pos.m_length;
-		pos.m_offset += pos.m_length;
-	}
+	m_module->m_codeAssistMgr.createAutoCompleteList(offset, nspace, flags);
+}
 
-	nspace->ensureNamespaceReady();
-	m_module->m_codeAssistMgr.createAutoCompleteList(pos, nspace, flags);
+void
+Parser::generateAutoCompleteList(
+	const Token& token,
+	const QualifiedName& prefix
+	)
+{
+	size_t offset = token.m_pos.m_offset;
+	if (token.m_tokenKind != TokenKind_Identifier)
+		if (token.m_flags & TokenFlag_CodeAssistRight)
+			offset += token.m_pos.m_length;
+		else
+			return;
+
+	m_module->m_codeAssistMgr.m_autoCompleteNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	m_module->m_codeAssistMgr.m_autoCompletePrefix = prefix;
+	m_module->m_codeAssistMgr.m_autoCompleteOffset = offset;
 }
 
 void
@@ -3278,7 +3319,7 @@ Parser::generateArgumentTip()
 	FunctionType* functionType = m_module->m_operatorMgr.getValueFunctionType(argumentTip->m_value, &baseArgumentIdx);
 	if (functionType)
 		m_module->m_codeAssistMgr.createArgumentTip(
-			argumentTip->m_pos,
+			argumentTip->m_pos.m_offset,
 			functionType,
 			baseArgumentIdx + argumentTip->m_argumentIdx
 			);

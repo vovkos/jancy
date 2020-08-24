@@ -529,7 +529,7 @@ DerivableType::findDirectChildItemTraverse(
 	size_t level
 	)
 {
-	if (!(flags & TraverseKind_NoThis))
+	if (!(flags & TraverseFlag_NoThis))
 	{
 		FindModuleItemResult findResult = findDirectChildItem(name);
 		if (!findResult.m_result)
@@ -554,7 +554,7 @@ DerivableType::findDirectChildItemTraverse(
 			return findResult;
 		}
 
-		uint_t modFlags = flags | TraverseKind_NoParentNamespace;
+		uint_t modFlags = flags | TraverseFlag_NoParentNamespace;
 		size_t nextLevel = level + 1;
 
 		size_t count = m_unnamedFieldArray.getCount();
@@ -590,16 +590,16 @@ DerivableType::findDirectChildItemTraverse(
 		}
 	}
 
-	if (!(flags & TraverseKind_NoExtensionNamespaces))
+	if (!(flags & TraverseFlag_NoExtensionNamespaces))
 	{
 		FindModuleItemResult findResult = findItemInExtensionNamespaces(name);
 		if (!findResult.m_result || findResult.m_item)
 			return findResult;
 	}
 
-	if (!(flags & TraverseKind_NoBaseType))
+	if (!(flags & TraverseFlag_NoBaseType))
 	{
-		uint_t modFlags = (flags & ~TraverseKind_NoThis) | TraverseKind_NoParentNamespace;
+		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
 		size_t nextLevel = level + 1;
 
 		sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
@@ -628,7 +628,7 @@ DerivableType::findDirectChildItemTraverse(
 		}
 	}
 
-	if (!(flags & TraverseKind_NoParentNamespace) && m_parentNamespace)
+	if (!(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace)
 	{
 		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags);
 		if (!findResult.m_result || findResult.m_item)

@@ -36,6 +36,7 @@
 #include <QFileIconProvider>
 #include <QDirIterator>
 #include <QApplication>
+#include <QTreeView>
 
 // AXL
 

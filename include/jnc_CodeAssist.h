@@ -44,14 +44,6 @@ jnc_CodeAssistKind
 jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
-int
-jnc_CodeAssist_getLine(jnc_CodeAssist* codeAssist);
-
-JNC_EXTERN_C
-int
-jnc_CodeAssist_getCol(jnc_CodeAssist* codeAssist);
-
-JNC_EXTERN_C
 size_t
 jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist);
 
@@ -88,18 +80,6 @@ struct jnc_CodeAssist
 	getCodeAssistKind()
 	{
 		return jnc_CodeAssist_getCodeAssistKind(this);
-	}
-
-	int
-	getLine()
-	{
-		return jnc_CodeAssist_getLine(this);
-	}
-
-	int
-	getCol()
-	{
-		return jnc_CodeAssist_getCol(this);
 	}
 
 	size_t

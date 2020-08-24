@@ -32,11 +32,11 @@ struct DualPtrTypeTuple;
 
 enum
 {
-	TraverseKind_NoThis                = 0x01,
-	TraverseKind_NoBaseType            = 0x04,
-	TraverseKind_NoParentNamespace     = 0x08,
-	TraverseKind_NoUsingNamespaces     = 0x10,
-	TraverseKind_NoExtensionNamespaces = 0x20,
+	TraverseFlag_NoThis                = 0x01,
+	TraverseFlag_NoBaseType            = 0x04,
+	TraverseFlag_NoParentNamespace     = 0x08,
+	TraverseFlag_NoUsingNamespaces     = 0x10,
+	TraverseFlag_NoExtensionNamespaces = 0x20,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

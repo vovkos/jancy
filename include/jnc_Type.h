@@ -390,6 +390,10 @@ jnc_Type_getDataPtrType(
 
 JNC_EXTERN_C
 bool_t
+jnc_Type_ensureNoImports(jnc_Type* type);
+
+JNC_EXTERN_C
+bool_t
 jnc_Type_ensureLayout(jnc_Type* type);
 
 JNC_EXTERN_C
@@ -471,6 +475,12 @@ struct jnc_Type: jnc_ModuleItem
 	ensureLayout()
 	{
 		return jnc_Type_ensureLayout(this) != 0;
+	}
+
+	bool
+	ensureNoImports()
+	{
+		return jnc_Type_ensureNoImports(this) != 0;
 	}
 
 	void
