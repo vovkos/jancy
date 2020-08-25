@@ -344,6 +344,166 @@ getOrphanType(ModuleItem* item)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+sl::String
+getDefaultSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	sl::String synopsis = getModuleItemKindString(item->getItemKind());
+	ModuleItemDecl* decl = item->getDecl();
+	if (decl)
+	{
+		synopsis += ' ';
+		synopsis += isQualifiedName ? decl->getQualifiedName() : decl->getName();
+	}
+
+	return synopsis;
+}
+
+sl::String
+getTypeSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Type* type = (Type*)item;
+	if (!(type->getTypeKindFlags() & TypeKindFlag_Named))
+		return type->getTypeString();
+
+	static const char* namedTypeKindStringTable[] =
+	{
+		"enum",   // TypeKind_Enum,
+		"struct", // TypeKind_Struct,
+		"union",  // TypeKind_Union,
+		"class",  // TypeKind_Class,
+	};
+
+	sl::String synopsis;
+
+	TypeKind typeKind = type->getTypeKind();
+	ASSERT(typeKind >= TypeKind_Enum && typeKind <= TypeKind_Class);
+
+	switch (typeKind)
+	{
+	case TypeKind_Enum:
+		synopsis = getEnumTypeFlagString(type->getFlags());
+		if (!synopsis.isEmpty())
+			synopsis += ' ';
+		break;
+
+	case TypeKind_Class:
+		if (type->getFlags() & ClassTypeFlag_Opaque)
+			synopsis = "opaque ";
+		break;
+	}
+
+	synopsis += namedTypeKindStringTable[typeKind - TypeKind_Enum];
+	synopsis += ' ';
+
+	NamedType* namedType = (NamedType*)type;
+	synopsis += isQualifiedName ? namedType->getQualifiedName() : namedType->getName();
+	return synopsis;
+}
+
+sl::String
+getTypedItemSynopsisImpl(
+	ModuleItemDecl* decl,
+	Type* type,
+	bool isQualifiedName,
+	const char* prefix = NULL,
+	uint_t ptrTypeFlags = 0
+	)
+{
+	ASSERT(decl && type);
+
+	type->ensureNoImports();
+
+	sl::String synopsis = prefix;
+	synopsis += type->getTypeStringPrefix();
+	synopsis += ' ';
+
+	sl::String ptrTypeFlagsString = getPtrTypeFlagString(ptrTypeFlags);
+	if (!ptrTypeFlagsString.isEmpty())
+	{
+		synopsis += ptrTypeFlagsString;
+		synopsis += ' ';
+	}
+
+	synopsis += isQualifiedName ? decl->getQualifiedName() : decl->getName();
+	synopsis += type->getTypeStringSuffix();
+	return synopsis;
+}
+
+sl::String
+getTypedItemSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	return getTypedItemSynopsisImpl(item->getDecl(), item->getType(), isQualifiedName);
+}
+
+sl::String
+getTypedefSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Typedef* tdef = (Typedef*)item;
+
+	return getTypedItemSynopsisImpl(tdef, tdef->getType(), isQualifiedName, "typedef ");
+}
+
+sl::String
+getVariableSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Variable* variable = (Variable*)item;
+
+	return getTypedItemSynopsisImpl(
+		variable,
+		variable->getType(),
+		isQualifiedName,
+		NULL,
+		variable->getPtrTypeFlags()
+		);
+}
+
+sl::String
+getFieldSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Field* field = (Field*)item;
+
+	return getTypedItemSynopsisImpl(
+		field,
+		field->getType(),
+		isQualifiedName,
+		NULL,
+		field->getPtrTypeFlags()
+		);
+}
+
+sl::String
+getEnumConstSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	EnumConst* enumConst = (EnumConst*)item;
+
+	sl::String synopsis = "const ";
+	synopsis += isQualifiedName ? enumConst->getQualifiedName() : enumConst->getName();
+	return synopsis;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 ModuleItem::ModuleItem()
 {
 	m_module = NULL;
@@ -358,7 +518,7 @@ ModuleItem::getDecl()
 	ModuleItemDecl*
 	GetDeclFunc(ModuleItem* item);
 
-	GetDeclFunc* getDeclFuncTable[ModuleItemKind__Count] =
+	static GetDeclFunc* funcTable[ModuleItemKind__Count] =
 	{
 		getNullDecl,             // ModuleItemKind_Undefined = 0,
 		getNamespaceDecl,        // ModuleItemKind_Namespace,
@@ -382,8 +542,8 @@ ModuleItem::getDecl()
 		getNullDecl,             // ModuleItemKind_LazyImport,
 	};
 
-	ASSERT((size_t)m_itemKind);
-	return getDeclFuncTable[(size_t)m_itemKind](this);
+	ASSERT((size_t)m_itemKind < countof(funcTable));
+	return funcTable[(size_t)m_itemKind](this);
 }
 
 Namespace*
@@ -393,7 +553,7 @@ ModuleItem::getNamespace()
 	Namespace*
 	GetNamespaceFunc(ModuleItem* item);
 
-	GetNamespaceFunc* getNamespaceFuncTable[ModuleItemKind__Count] =
+	static GetNamespaceFunc* funcTable[ModuleItemKind__Count] =
 	{
 		getNullNamespace,             // ModuleItemKind_Undefined = 0,
 		getNamespaceNamespace,        // ModuleItemKind_Namespace,
@@ -417,8 +577,8 @@ ModuleItem::getNamespace()
 		getNullNamespace,             // ModuleItemKind_LazyImport,
 	};
 
-	ASSERT((size_t)m_itemKind);
-	return getNamespaceFuncTable[(size_t)m_itemKind](this);
+	ASSERT((size_t)m_itemKind < countof(funcTable));
+	return funcTable[(size_t)m_itemKind](this);
 }
 
 Type*
@@ -428,7 +588,7 @@ ModuleItem::getType()
 	Type*
 	GetTypeFunc(ModuleItem* item);
 
-	GetTypeFunc* getTypeFuncTable[ModuleItemKind__Count] =
+	static GetTypeFunc* funcTable[ModuleItemKind__Count] =
 	{
 		getNullType,             // ModuleItemKind_Undefined = 0,
 		getNullType,             // ModuleItemKind_Namespace,
@@ -452,8 +612,46 @@ ModuleItem::getType()
 		getNullType,             // ModuleItemKind_LazyImport,
 	};
 
-	ASSERT((size_t)m_itemKind);
-	return getTypeFuncTable[(size_t)m_itemKind](this);
+	ASSERT((size_t)m_itemKind < countof(funcTable));
+	return funcTable[(size_t)m_itemKind](this);
+}
+
+sl::String
+ModuleItem::getSynopsis(bool isQualifiedName)
+{
+	typedef
+	sl::String
+	GetSynopsisFunc(
+		ModuleItem* item,
+		bool isQualifiedName
+		);
+
+	static GetSynopsisFunc* funcTable[ModuleItemKind__Count] =
+	{
+		getDefaultSynopsis,    // ModuleItemKind_Undefined = 0,
+		getDefaultSynopsis,    // ModuleItemKind_Namespace,
+		getDefaultSynopsis,    // ModuleItemKind_Scope,
+		getDefaultSynopsis,    // ModuleItemKind_Attribute,
+		getDefaultSynopsis,    // ModuleItemKind_AttributeBlock,
+		getTypeSynopsis,       // ModuleItemKind_Type,
+		getTypedefSynopsis,    // ModuleItemKind_Typedef,
+		getDefaultSynopsis,    // ModuleItemKind_Alias,
+		getDefaultSynopsis,    // ModuleItemKind_Const,
+		getVariableSynopsis,   // ModuleItemKind_Variable,
+		getTypedItemSynopsis,  // ModuleItemKind_Function,
+		getTypedItemSynopsis,  // ModuleItemKind_FunctionArg,
+		getDefaultSynopsis,    // ModuleItemKind_FunctionOverload,
+		getTypedItemSynopsis,  // ModuleItemKind_Property,
+		getDefaultSynopsis,    // ModuleItemKind_PropertyTemplate,
+		getEnumConstSynopsis,  // ModuleItemKind_EnumConst,
+		getFieldSynopsis,      // ModuleItemKind_Field,
+		getDefaultSynopsis,    // ModuleItemKind_BaseTypeSlot,
+		getDefaultSynopsis,    // ModuleItemKind_Orphan,
+		getDefaultSynopsis,    // ModuleItemKind_LazyImport,
+	};
+
+	ASSERT((size_t)m_itemKind < countof(funcTable));
+	return funcTable[(size_t)m_itemKind](this, isQualifiedName);
 }
 
 sl::String

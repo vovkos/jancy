@@ -85,6 +85,10 @@ struct jnc_BaseTypeSlot: jnc_ModuleItem
 //..............................................................................
 
 JNC_EXTERN_C
+uint_t
+jnc_Field_getPtrTypeFlags(jnc_Field* field);
+
+JNC_EXTERN_C
 size_t
 jnc_Field_getOffset(jnc_Field* field);
 
@@ -94,6 +98,12 @@ jnc_Field_getOffset(jnc_Field* field);
 
 struct jnc_Field: jnc_ModuleItem
 {
+	uint_t
+	getPtrTypeFlags()
+	{
+		return jnc_Field_getPtrTypeFlags(this);
+	}
+
 	size_t
 	getOffset()
 	{

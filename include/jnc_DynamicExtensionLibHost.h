@@ -187,6 +187,13 @@ jnc_Type*
 jnc_ModuleItem_GetTypeFunc(jnc_ModuleItem* item);
 
 typedef
+const char*
+jnc_ModuleItem_GetSynopsisFunc(
+	jnc_ModuleItem* item,
+	bool_t isQualifiedName
+	);
+
+typedef
 bool_t
 jnc_ModuleItem_RequireFunc(jnc_ModuleItem* item);
 
@@ -201,6 +208,7 @@ struct jnc_ModuleItemFuncTable
 	jnc_ModuleItem_GetDeclFunc* m_getDeclFunc;
 	jnc_ModuleItem_GetNamespaceFunc* m_getNamespaceFunc;
 	jnc_ModuleItem_GetTypeFunc* m_getTypeFunc;
+	jnc_ModuleItem_GetSynopsisFunc* m_getSynopsisFunc;
 	jnc_ModuleItem_RequireFunc* m_requireFunc;
 };
 
@@ -310,9 +318,26 @@ struct jnc_GlobalNamespaceFuncTable
 
 // Variable
 
+typedef
+uint_t
+jnc_Variable_GetPtrTypeFlagsFunc(jnc_Variable* variable);
+
+typedef
+bool_t
+jnc_Variable_HasInitializerFunc(jnc_Variable* variable);
+
+typedef
+const char*
+jnc_Variable_GetInitializerStringFunc(jnc_Variable* variable);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct jnc_VariableFuncTable
 {
 	size_t m_size;
+	jnc_Variable_GetPtrTypeFlagsFunc* m_getPtrTypeFlagsFunc;
+	jnc_Variable_HasInitializerFunc* m_hasInitializerFunc;
+	jnc_Variable_GetInitializerStringFunc* m_getInitializerStringFunc;
 };
 
 //..............................................................................
@@ -705,6 +730,10 @@ struct jnc_EnumTypeFuncTable
 // FieldFuncTable
 
 typedef
+uint_t
+jnc_Field_GetPtrTypeFlagsFunc(jnc_Field* field);
+
+typedef
 size_t
 jnc_Field_GetOffsetFunc(jnc_Field* field);
 
@@ -713,6 +742,7 @@ jnc_Field_GetOffsetFunc(jnc_Field* field);
 struct jnc_FieldFuncTable
 {
 	size_t m_size;
+	jnc_Field_GetPtrTypeFlagsFunc* m_getPtrTypeFlagsFunc;
 	jnc_Field_GetOffsetFunc* m_getOffsetFunc;
 };
 

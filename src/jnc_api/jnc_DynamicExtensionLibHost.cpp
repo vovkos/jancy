@@ -63,6 +63,7 @@ static jnc_ModuleItemFuncTable g_moduleItemFuncTable =
 	jnc_ModuleItem_getDecl,
 	jnc_ModuleItem_getNamespace,
 	jnc_ModuleItem_getType,
+	jnc_ModuleItem_getSynopsis_v,
 	jnc_ModuleItem_require,
 };
 
@@ -99,6 +100,9 @@ static jnc_GlobalNamespaceFuncTable g_globalNamespaceFuncTable =
 static jnc_VariableFuncTable g_variableFuncTable =
 {
 	sizeof(jnc_VariableFuncTable),
+	jnc_Variable_getPtrTypeFlags,
+	jnc_Variable_hasInitializer,
+	jnc_Variable_getInitializerString_v,
 };
 
 static jnc_FunctionFuncTable g_functionFuncTable =
@@ -157,6 +161,7 @@ static jnc_BaseTypeSlotFuncTable g_baseTypeSlotFuncTable =
 static jnc_FieldFuncTable g_fieldFuncTable =
 {
 	sizeof(jnc_FieldFuncTable),
+	jnc_Field_getPtrTypeFlags,
 	jnc_Field_getOffset,
 };
 

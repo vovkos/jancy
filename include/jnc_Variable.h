@@ -49,6 +49,10 @@ typedef enum jnc_VariableFlag jnc_VariableFlag;
 //..............................................................................
 
 JNC_EXTERN_C
+uint_t
+jnc_Variable_getPtrTypeFlags(jnc_Variable* variable);
+
+JNC_EXTERN_C
 bool_t
 jnc_Variable_hasInitializer(jnc_Variable* variable);
 
@@ -62,6 +66,12 @@ jnc_Variable_getInitializerString_v(jnc_Variable* variable);
 
 struct jnc_Variable: jnc_ModuleItem
 {
+	uint_t
+	getPtrTypeFlags()
+	{
+		return jnc_Variable_getPtrTypeFlags(this);
+	}
+
 	bool
 	hasInitializer()
 	{

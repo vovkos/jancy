@@ -25,7 +25,7 @@ class EditPrivate: public QObject
 	Q_OBJECT
 	Q_DECLARE_PUBLIC(Edit)
 
-protected:
+public:
 	enum Timeout
 	{
 		Timeout_QuickInfo = 500,
@@ -33,15 +33,25 @@ protected:
 
 	enum Color
 	{
-		Color_CurrentLineBack = 0xe8eff8,
+		Color_SelectionBack      = 0x99c9ef,
+		Color_CurrentLineBack    = 0xe8eff8,
+		Color_SynopsisColumnText = 0x808080,
 	};
 
-	enum Width
+	enum Column
 	{
-		Width_MaxNameColumnWidth = 160,
-		Width_MaxTypeColumnWidth = 320,
+		Column_Name     = 0,
+		Column_Synopsis = 1,
 	};
 
+	enum Limit
+	{
+		Limit_MaxVisibleItemCount = 16,
+		Limit_MaxNameWidth        = 256,
+		Limit_MaxSynopsisWidth    = 512,
+	};
+
+protected:
 	enum Role
 	{
 		Role_CaseInsensitiveSort = Qt::UserRole + 1,
@@ -210,11 +220,17 @@ protected:
 	int
 	calcLastCodeAssistPosition();
 
-	void
-	keyPressCtrlSpace(QKeyEvent* e);
+	bool
+	keyPressSpace(Qt::KeyboardModifiers modifiers);
 
-	void
-	keyPressHome(QKeyEvent* e);
+	bool
+	keyPressHome(Qt::KeyboardModifiers modifiers);
+
+	bool
+	keyPressTab(Qt::KeyboardModifiers modifiers);
+
+	bool
+	keyPressEnter(Qt::KeyboardModifiers modifiers);
 
 	virtual
 	void
@@ -226,6 +242,25 @@ private slots:
 	void onCompleterActivated(const QString& completion);
 	void onCodeAssistReady();
 	void onThreadFinished();
+};
+
+//..............................................................................
+
+class CompleterItemDelegate: public QStyledItemDelegate
+{
+public:
+	CompleterItemDelegate(QObject* parent = NULL):
+		QStyledItemDelegate(parent)
+	{
+	}
+
+	virtual
+	void
+	paint(
+		QPainter* painter,
+		const QStyleOptionViewItem& option0,
+		const QModelIndex& index
+		) const;
 };
 
 //..............................................................................

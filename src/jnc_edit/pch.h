@@ -37,6 +37,7 @@
 #include <QDirIterator>
 #include <QApplication>
 #include <QTreeView>
+#include <QStyledItemDelegate>
 
 // AXL
 

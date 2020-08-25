@@ -227,8 +227,6 @@ Namespace::ensureNamespaceReadyDeep()
 bool
 Namespace::parseLazyImports()
 {
-	m_namespaceStatus = NamespaceStatus_ParseRequired;
-
 	sl::StringHashTableIterator<ModuleItem*> it = m_itemMap.getHead();
 	for (; it; it++)
 		if (it->m_value->getItemKind() == ModuleItemKind_LazyImport)
@@ -237,6 +235,9 @@ Namespace::parseLazyImports()
 			Module* module = lazyImport->getModule();
 			module->m_importMgr.parseLazyImport(lazyImport);
 		}
+
+	if (hasBody())
+		m_namespaceStatus = NamespaceStatus_ParseRequired;
 
 	ensureNamespaceReady();
 	return true;

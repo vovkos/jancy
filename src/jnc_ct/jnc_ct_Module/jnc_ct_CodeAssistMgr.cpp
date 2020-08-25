@@ -204,10 +204,10 @@ CodeAssistMgr::createAutoCompleteList(
 	}
 	else
 	{
-		nspace->ensureNamespaceReady();
-
 		if (nspace == m_module->m_namespaceMgr.getStdNamespace(StdNamespace_Jnc))
 			nspace->parseLazyImports();
+
+		nspace->ensureNamespaceReady();
 	}
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);

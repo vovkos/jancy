@@ -1111,6 +1111,9 @@ OperatorMgr::prepareOperandType(
 	switch (opValue.getValueKind())
 	{
 	case ValueKind_Void:
+		resultValue->setVoid(m_module); // ensure non-null type
+		return true;
+
 	case ValueKind_FunctionOverload:
 	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;
@@ -1322,6 +1325,9 @@ OperatorMgr::prepareOperand(
 	switch (opValue.getValueKind())
 	{
 	case ValueKind_Void:
+		resultValue->setVoid(m_module); // ensure non-null type
+		return true;
+
 	case ValueKind_FunctionOverload:
 	case ValueKind_FunctionTypeOverload:
 		*resultValue = opValue;

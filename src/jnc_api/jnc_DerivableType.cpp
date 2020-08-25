@@ -42,6 +42,14 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+uint_t
+jnc_Field_getPtrTypeFlags(jnc_Field* field)
+{
+	return jnc_g_dynamicExtensionLibHost->m_fieldFuncTable->m_getPtrTypeFlagsFunc(field);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_Field_getOffset(jnc_Field* field)
 {
@@ -142,6 +150,14 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+uint_t
+jnc_Field_getPtrTypeFlags(jnc_Field* field)
+{
+	return field->getPtrTypeFlags();
+}
 
 JNC_EXTERN_C
 JNC_EXPORT_O

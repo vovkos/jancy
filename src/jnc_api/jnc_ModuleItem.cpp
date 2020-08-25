@@ -227,6 +227,17 @@ jnc_ModuleItem_getType(jnc_ModuleItem* item)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+const char*
+jnc_ModuleItem_getSynopsis_v(
+	jnc_ModuleItem* item,
+	bool_t isQualifiedName
+	)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleItemFuncTable->m_getSynopsisFunc(item, isQualifiedName);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 bool_t
 jnc_ModuleItem_require(jnc_ModuleItem* item)
 {
@@ -307,6 +318,17 @@ int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 {
 	return decl->getPos().m_col;
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+const char*
+jnc_ModuleItem_getSynopsis_v(
+	jnc_ModuleItem* item,
+	bool_t isQualifiedName
+	)
+{
+	return *jnc::getTlsStringBuffer() = item->getSynopsis(isQualifiedName != 0);
 }
 
 JNC_EXTERN_C

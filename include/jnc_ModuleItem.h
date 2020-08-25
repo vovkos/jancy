@@ -188,6 +188,10 @@ JNC_EXTERN_C
 int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl);
 
+JNC_EXTERN_C
+int
+jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -282,6 +286,13 @@ jnc_Type*
 jnc_ModuleItem_getType(jnc_ModuleItem* item);
 
 JNC_EXTERN_C
+const char*
+jnc_ModuleItem_getSynopsis_v(
+	jnc_ModuleItem* item,
+	bool_t isQualifiedName
+	);
+
+JNC_EXTERN_C
 bool_t
 jnc_ModuleItem_require(jnc_ModuleItem* item);
 
@@ -325,6 +336,12 @@ struct jnc_ModuleItem
 	getType()
 	{
 		return jnc_ModuleItem_getType(this);
+	}
+
+	const char*
+	getSynopsis_v(bool isQualifiedName = true)
+	{
+		return jnc_ModuleItem_getSynopsis_v(this, isQualifiedName);
 	}
 
 	bool

@@ -43,6 +43,7 @@ EXPORTS
 	jnc_ModuleItem_getModule
 	jnc_ModuleItem_getNamespace
 	jnc_ModuleItem_getType
+	jnc_ModuleItem_getSynopsis_v
 	jnc_ModuleItem_require
 	jnc_getAccessKindString
 	jnc_getModuleItemKindString
@@ -66,6 +67,7 @@ EXPORTS
 	jnc_getDataPtrTypeKindString
 	jnc_BaseTypeSlot_getOffset
 	jnc_BaseTypeSlot_getVtableIndex
+	jnc_Field_getPtrTypeFlags
 	jnc_Field_getOffset
 	jnc_DerivableType_findBaseTypeOffset
 	jnc_DerivableType_getBaseType
@@ -116,6 +118,7 @@ EXPORTS
 	jnc_Alias_isResolved
 	jnc_Alias_getInitializerString_v
 	jnc_Alias_getTargetItem
+	jnc_Variable_getPtrTypeFlags
 	jnc_Variable_getInitializerString_v
 	jnc_Variable_hasInitializer
 	jnc_getFunctionKindFlags

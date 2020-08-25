@@ -280,6 +280,9 @@ public:
 	Type*
 	getType();
 
+	sl::String
+	getSynopsis(bool isQualifiedName = true);
+
 	virtual
 	bool
 	require()

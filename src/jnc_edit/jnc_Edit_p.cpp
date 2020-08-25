@@ -167,26 +167,31 @@ Edit::keyPressEvent(QKeyEvent* e)
 	int key = e->key();
 	QString text = e->text();
 	QChar ch = text.isEmpty() ? QChar() : text.at(0);
+	bool isHandled = true; // assume handled
 
 	if (!d->isCompleterVisible())
 		switch (key)
 		{
 		case Qt::Key_Escape:
-			QPlainTextEdit::keyPressEvent(e);
 			d->hideCodeAssist();
 			break;
 
-		case Qt::Key_Space:
-			if (e->modifiers() & Qt::ControlModifier)
-				d->keyPressCtrlSpace(e);
-			else
-				QPlainTextEdit::keyPressEvent(e);
-
+		case Qt::Key_Home:
+			isHandled = d->keyPressHome(e->modifiers());
 			break;
 
-//		case Qt::Key_Home:
-//			d->keyPressHome(e);
-//			break;
+		case Qt::Key_Tab:
+			isHandled = d->keyPressTab(e->modifiers());
+			break;
+
+		case Qt::Key_Space:
+			isHandled = d->keyPressSpace(e->modifiers());
+			break;
+
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+			isHandled = d->keyPressEnter(e->modifiers());
+			break;
 
 		default:
 			QPlainTextEdit::keyPressEvent(e);
@@ -205,23 +210,20 @@ Edit::keyPressEvent(QKeyEvent* e)
 			e->ignore(); // let the completer do the default processing
 			break;
 
-//		case Qt::Key_Home:
-//			d->keyPressHome(e);
-//			break;
+		case Qt::Key_Home:
+			d->keyPressHome(e->modifiers());
+			break;
 
 		case Qt::Key_Space:
-			if (e->modifiers() & Qt::ControlModifier)
-			{
-				d->keyPressCtrlSpace(e);
+			if (d->keyPressSpace(e->modifiers()))
 				break;
-			}
 
 			// fall through
 
 		default:
 			if (!ch.isPrint() || ch.isLetterOrNumber() || ch == '_')
 			{
-				QPlainTextEdit::keyPressEvent(e);
+				isHandled = false;
 				break;
 			}
 
@@ -229,6 +231,10 @@ Edit::keyPressEvent(QKeyEvent* e)
 			QPlainTextEdit::keyPressEvent(e);
 			d->requestCodeAssistOnChar(ch.toLatin1());
 		}
+
+	if (!isHandled)
+		QPlainTextEdit::keyPressEvent(e);
+
 }
 
 void
@@ -322,10 +328,15 @@ EditPrivate::init()
 		(QFont::StyleStrategy)(QFont::NoFontMerging | QFont::ForceIntegerMetrics)
 		);
 
+	QPalette palette = q->palette();
+	palette.setColor(QPalette::Highlight, Color_SelectionBack);
+	palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
+
 	q->setFont(font);
 	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * 4);
 	q->setWordWrapMode(QTextOption::NoWrap);
 	q->setMouseTracking(true);
+	q->setPalette(palette);
 
 	enableSyntaxHighlighting(true);
 	enableLineNumberMargin(true);
@@ -573,16 +584,18 @@ EditPrivate::ensureCompleter()
 	Q_Q(Edit);
 
 	QTreeView* popup = new QTreeView;
+	CompleterItemDelegate* itemDelegate = new CompleterItemDelegate(popup);
 	popup->setHeaderHidden(true);
 	popup->setRootIsDecorated(false);
 	popup->setSelectionBehavior(QAbstractItemView::SelectRows);
 	popup->setFont(q->font());
-	popup->setFocusPolicy(Qt::NoFocus);
+	popup->setItemDelegateForColumn(Column_Name, itemDelegate);
+	popup->setItemDelegateForColumn(Column_Synopsis, itemDelegate);
 
 	m_completer = new QCompleter(q);
 	m_completer->setWidget(q);
 	m_completer->setCompletionMode(QCompleter::PopupCompletion);
-	m_completer->setMaxVisibleItems(10);
+	m_completer->setMaxVisibleItems(Limit_MaxVisibleItemCount);
 	m_completer->setPopup(popup);
 
     QObject::connect(
@@ -622,21 +635,23 @@ EditPrivate::updateCompleter(bool isForced)
 	m_completer->setCompletionPrefix(prefix);
 	popup->setCurrentIndex(m_completer->completionModel()->index(0, 0));
 
-	int width0 = popup->sizeHintForColumn(0);
-	int width1 = popup->sizeHintForColumn(1);
-	int width3 = popup->verticalScrollBar()->sizeHint().width();
 	QMargins margins = treeView->contentsMargins();
+	int marginWidth = margins.left() + margins.right();
+	int scrollWidth = popup->verticalScrollBar()->sizeHint().width();
+	int nameWidth = popup->sizeHintForColumn(Column_Name);
+	int synopsisWidth = popup->sizeHintForColumn(Column_Synopsis);
 
-	if (width0 > Width_MaxNameColumnWidth)
-		width0 = Width_MaxNameColumnWidth;
+	if (nameWidth > Limit_MaxNameWidth)
+		nameWidth = Limit_MaxNameWidth;
 
-	if (width1 > Width_MaxTypeColumnWidth)
-		width1 = Width_MaxTypeColumnWidth;
+	if (synopsisWidth > Limit_MaxSynopsisWidth)
+		synopsisWidth = Limit_MaxSynopsisWidth;
 
-	treeView->setColumnWidth(0, width0);
-	treeView->setColumnWidth(1, width1);
+	treeView->setColumnWidth(Column_Name, nameWidth);
+	treeView->setColumnWidth(Column_Synopsis, synopsisWidth);
 
-	m_completerRect.setWidth(width0 + width1 + width3 + margins.left() + margins.right());
+	int fullWidth = nameWidth + synopsisWidth + scrollWidth + marginWidth;
+	m_completerRect.setWidth(fullWidth);
 	m_completer->complete(m_completerRect);
 }
 
@@ -766,47 +781,8 @@ EditPrivate::createQuickInfoTip(ModuleItem* item)
 {
 	Q_Q(Edit);
 
+	QString text = item->getSynopsis_v();
 	QPoint point = getLastCodeAssistToolTipPoint();
-	ModuleItemDecl* decl = item->getDecl();
-	Type* type = item->getType();
-	QString prefix;
-	QString suffix;
-	QString text;
-
-	ModuleItemKind itemKind = item->getItemKind();
-	switch (itemKind)
-	{
-	case ModuleItemKind_Typedef:
-		prefix = "typedef ";
-		break;
-
-	case ModuleItemKind_Namespace:
-		text = QString("namespace ") + decl->getQualifiedName();
-		break;
-
-	case ModuleItemKind_Field:
-	case ModuleItemKind_Variable:
-	case ModuleItemKind_Function:
-	case ModuleItemKind_Property:
-		type = item->getType();
-		break;
-
-	case ModuleItemKind_Type:
-		text = type->getTypeString();
-		break;
-	}
-
-	if (text.isEmpty())
-	{
-		if (type)
-		{
-			prefix += type->getTypeStringPrefix();
-			suffix = type->getTypeStringSuffix();
-		}
-
-		text = prefix + ' ' + decl->getQualifiedName() + suffix;
-	}
-
 	QToolTip::showText(point, text, q);
 }
 
@@ -824,7 +800,9 @@ EditPrivate::createArgumentTip(
 	size_t argCount = functionType->getArgCount();
 	size_t lastArgIdx = argCount - 1;
 
-	QString text = returnType->getTypeString();
+	QString text = "<p style='white-space:pre'>";
+	text += returnType->getTypeString();
+
 	if (argCount >= 2)
 		text += " (<br>" ML_ARG_INDENT;
 	else
@@ -851,9 +829,9 @@ EditPrivate::createArgumentTip(
 	}
 
 	if (argCount >= 2)
-		text += "<br>" ML_ARG_INDENT ")";
+		text += "<br>" ML_ARG_INDENT ")</p>";
 	else
-		text += ")";
+		text += ")</p>";
 
 	QPoint point = getLastCodeAssistToolTipPoint(true);
 	if (point != m_lastToolTipPoint)
@@ -928,34 +906,22 @@ EditPrivate::addAutoCompleteNamespace(
 		ModuleItemKind itemKind = item->getItemKind();
 		Type* type = item->getType();
 		QString name = item->getDecl()->getName();
+		QString synopsis = item->getSynopsis_v();
+		size_t iconIdx = getItemIconIdx(item);
 
 		QStandardItem* nameItem = new QStandardItem;
 		nameItem->setText(name);
 		nameItem->setData(name.toLower(), Role_CaseInsensitiveSort);
 
-		QString typeString;
-		if (!type)
-		{
-			typeString = getModuleItemKindString(itemKind);
-			typeString += ' ' + name;
-		}
-		else
-		{
-			QString prefix = type->getTypeStringPrefix();
-			QString suffix = type->getTypeStringSuffix();
-			typeString = prefix + ' ' + name + suffix;
-		}
+		QStandardItem* synopsisItem = new QStandardItem;
+		synopsisItem->setText(synopsis);
 
-		QStandardItem* typeItem = new QStandardItem;
-		typeItem->setText(typeString);
-
-		size_t iconIdx = getItemIconIdx(item);
 		if (iconIdx != -1)
-			typeItem->setIcon(m_iconTable[iconIdx]);
+			synopsisItem->setIcon(m_iconTable[iconIdx]);
 
 		QList<QStandardItem*> row;
 		row.append(nameItem);
-		row.append(typeItem);
+		row.append(synopsisItem);
 
 		model->appendRow(row);
 	}
@@ -1058,10 +1024,13 @@ EditPrivate::createImportAutoCompleteList(Module* module)
 	updateCompleter(true);
 }
 
-void
-EditPrivate::keyPressCtrlSpace(QKeyEvent* e)
+bool
+EditPrivate::keyPressSpace(Qt::KeyboardModifiers modifiers)
 {
-	if (e->modifiers() & Qt::ShiftModifier)
+	if (!(modifiers & Qt::ControlModifier))
+		return false;
+
+	if (modifiers & Qt::ShiftModifier)
 	{
 		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
 			requestCodeAssist(CodeAssistKind_ArgumentTip, true);
@@ -1072,24 +1041,62 @@ EditPrivate::keyPressCtrlSpace(QKeyEvent* e)
 			requestCodeAssist(CodeAssistKind_AutoComplete, true);
 	}
 
-	e->accept();
+	return true;
 }
 
-void
-EditPrivate::keyPressHome(QKeyEvent* e)
+bool
+EditPrivate::keyPressHome(Qt::KeyboardModifiers modifiers)
 {
 	Q_Q(Edit);
 
-	QTextCursor::MoveMode moveMode = (e->modifiers() & Qt::ShiftModifier) ?
+	if (modifiers & Qt::ControlModifier)
+		return false;
+
+	// don't select indent
+
+	QTextCursor cursor = q->textCursor();
+	int position = cursor.position();
+	cursor.setPosition(position, QTextCursor::MoveAnchor);
+	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+
+	bool isNextWord;
+
+	if (cursor.position() == position)
+	{
+		isNextWord = true;
+	}
+	else
+	{
+		QString line = cursor.selectedText();
+		isNextWord = !line.isEmpty() && line.at(0).isSpace() && !line.trimmed().isEmpty();
+	}
+
+	QTextCursor::MoveMode moveMode = (modifiers & Qt::ShiftModifier) ?
 		QTextCursor::KeepAnchor :
 		QTextCursor::MoveAnchor;
 
-	QTextCursor cursor = q->textCursor();
-	cursor.movePosition(QTextCursor::MoveOperation::StartOfLine, moveMode);
-	cursor.movePosition(QTextCursor::MoveOperation::WordRight, moveMode);
+	cursor = q->textCursor();
+	cursor.movePosition(QTextCursor::StartOfLine, moveMode);
+
+	if (isNextWord)
+		cursor.movePosition(QTextCursor::NextWord, moveMode);
+
 	q->setTextCursor(cursor);
-	e->accept();
+	return true;
 }
+
+bool
+EditPrivate::keyPressTab(Qt::KeyboardModifiers modifiers)
+{
+	return false;
+}
+
+bool
+EditPrivate::keyPressEnter(Qt::KeyboardModifiers modifiers)
+{
+	return false;
+}
+
 
 void
 EditPrivate::timerEvent(QTimerEvent* e)
@@ -1220,6 +1227,27 @@ EditPrivate::onThreadFinished()
 		m_thread = NULL;
 
 	thread->deleteLater();
+}
+
+//..............................................................................
+
+void
+CompleterItemDelegate::paint(
+	QPainter* painter,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index
+	) const
+{
+	if (index.column() != EditPrivate::Column_Synopsis)
+	{
+		QStyledItemDelegate::paint(painter, option, index);
+		return;
+	}
+
+	QStyleOptionViewItem altOption = option;
+	altOption.palette.setColor(QPalette::Text, EditPrivate::Color_SynopsisColumnText);
+	altOption.palette.setColor(QPalette::WindowText, EditPrivate::Color_SynopsisColumnText);
+	QStyledItemDelegate::paint(painter, altOption, index);
 }
 
 //..............................................................................
