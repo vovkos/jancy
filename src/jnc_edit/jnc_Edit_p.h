@@ -218,23 +218,26 @@ protected:
 	int
 	calcLastCodeAssistPosition();
 
-	bool
-	keyPressSpace(Qt::KeyboardModifiers modifiers);
-
-	bool
-	keyPressHome(Qt::KeyboardModifiers modifiers);
-
-	bool
-	keyPressTab(Qt::KeyboardModifiers modifiers);
-
-	bool
-	keyPressEnter(Qt::KeyboardModifiers modifiers);
-
 	void
 	indentSelection();
 
 	void
 	unindentSelection();
+
+	void
+	keyPressControlSpace(QKeyEvent* e);
+
+	void
+	keyPressHome(QKeyEvent* e);
+
+	void
+	keyPressTab(QKeyEvent* e);
+
+	void
+	keyPressBacktab(QKeyEvent* e);
+
+	void
+	keyPressEnter(QKeyEvent* e);
 
 	virtual
 	void

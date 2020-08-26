@@ -271,7 +271,6 @@ Edit::keyPressEvent(QKeyEvent* e)
 	int key = e->key();
 	QString text = e->text();
 	QChar ch = text.isEmpty() ? QChar() : text.at(0);
-	bool isHandled = true; // assume handled
 
 	if (!d->isCompleterVisible())
 		switch (key)
@@ -280,26 +279,31 @@ Edit::keyPressEvent(QKeyEvent* e)
 			d->hideCodeAssist();
 			break;
 
-		case Qt::Key_Home:
-			isHandled = d->keyPressHome(e->modifiers());
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+			d->keyPressEnter(e);
 			break;
 
 		case Qt::Key_Tab:
-			isHandled = d->keyPressTab(e->modifiers());
+			d->keyPressTab(e);
 			break;
 
 		case Qt::Key_Backtab:
-			isHandled = d->keyPressTab(e->modifiers() | Qt::ShiftModifier);
+			d->keyPressBacktab(e);
+			break;
+
+		case Qt::Key_Home:
+			d->keyPressHome(e);
 			break;
 
 		case Qt::Key_Space:
-			isHandled = d->keyPressSpace(e->modifiers());
-			break;
+			if (e->modifiers() & Qt::ControlModifier)
+			{
+				d->keyPressControlSpace(e);
+				break;
+			}
 
-		case Qt::Key_Enter:
-		case Qt::Key_Return:
-			isHandled = d->keyPressEnter(e->modifiers());
-			break;
+			// fall through
 
 		default:
 			QPlainTextEdit::keyPressEvent(e);
@@ -308,9 +312,9 @@ Edit::keyPressEvent(QKeyEvent* e)
 	else
 		switch (key)
 		{
+		case Qt::Key_Escape:
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
-		case Qt::Key_Escape:
 		case Qt::Key_Tab:
 		case Qt::Key_Backtab:
 		case Qt::Key_Up:
@@ -319,19 +323,22 @@ Edit::keyPressEvent(QKeyEvent* e)
 			break;
 
 		case Qt::Key_Home:
-			d->keyPressHome(e->modifiers());
+			d->keyPressHome(e);
 			break;
 
 		case Qt::Key_Space:
-			if (d->keyPressSpace(e->modifiers()))
+			if (e->modifiers() & Qt::ControlModifier)
+			{
+				d->keyPressControlSpace(e);
 				break;
+			}
 
 			// fall through
 
 		default:
 			if (!ch.isPrint() || ch.isLetterOrNumber() || ch == '_')
 			{
-				isHandled = false;
+				QPlainTextEdit::keyPressEvent(e);
 				break;
 			}
 
@@ -339,10 +346,6 @@ Edit::keyPressEvent(QKeyEvent* e)
 			QPlainTextEdit::keyPressEvent(e);
 			d->requestCodeAssistOnChar(ch.toLatin1());
 		}
-
-	if (!isHandled)
-		QPlainTextEdit::keyPressEvent(e);
-
 }
 
 void
@@ -1111,83 +1114,6 @@ EditPrivate::createImportAutoCompleteList(Module* module)
 	updateCompleter(true);
 }
 
-bool
-EditPrivate::keyPressSpace(Qt::KeyboardModifiers modifiers)
-{
-	if (!(modifiers & Qt::ControlModifier))
-		return false;
-
-	if (modifiers & Qt::ShiftModifier)
-	{
-		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
-			requestCodeAssist(CodeAssistKind_ArgumentTip, true);
-	}
-	else
-	{
-		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
-			requestCodeAssist(CodeAssistKind_AutoComplete, true);
-	}
-
-	return true;
-}
-
-bool
-EditPrivate::keyPressHome(Qt::KeyboardModifiers modifiers)
-{
-	Q_Q(Edit);
-
-	if (modifiers & Qt::ControlModifier)
-		return false;
-
-	QTextCursor::MoveMode moveMode = (modifiers & Qt::ShiftModifier) ?
-		QTextCursor::KeepAnchor :
-		QTextCursor::MoveAnchor;
-
-	QTextCursor cursor = q->textCursor();
-	bool isNextWord;
-
-	if (isCursorAtStartOfLine(cursor))
-	{
-		isNextWord = isCursorOnIndent(cursor);
-	}
-	else
-	{
-		bool wasOnIndent = isCursorOnIndent(cursor);
-		cursor.movePosition(QTextCursor::StartOfLine, moveMode);
-		isNextWord = !wasOnIndent && isCursorOnIndent(cursor);
-	}
-
-	if (isNextWord)
-		cursor.movePosition(QTextCursor::NextWord, moveMode);
-
-	q->setTextCursor(cursor);
-	return true;
-}
-
-bool
-EditPrivate::keyPressTab(Qt::KeyboardModifiers modifiers)
-{
-	Q_Q(Edit);
-
-	QTextCursor cursor = q->textCursor();
-
-	if (modifiers & Qt::ShiftModifier) // unindent
-	{
-		if (isCursorMultiLineSelection(cursor) ||
-			isCursorOnIndent(cursor))
-			unindentSelection();
-	}
-	else
-	{
-		if (!isCursorMultiLineSelection(cursor))
-			return false;
-
-		indentSelection();
-	}
-
-	return true;
-}
-
 void
 EditPrivate::indentSelection()
 {
@@ -1255,14 +1181,106 @@ EditPrivate::unindentSelection()
 	cursor.endEditBlock();
 }
 
-bool
-EditPrivate::keyPressEnter(Qt::KeyboardModifiers modifiers)
+void
+EditPrivate::keyPressControlSpace(QKeyEvent* e)
 {
 	Q_Q(Edit);
 
-	// auto-indent
+	if (e->modifiers() & Qt::ShiftModifier)
+	{
+		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
+			requestCodeAssist(CodeAssistKind_ArgumentTip, true);
+	}
+	else
+	{
+		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
+			requestCodeAssist(CodeAssistKind_AutoComplete, true);
+	}
+}
 
-	return false;
+void
+EditPrivate::keyPressHome(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	Qt::KeyboardModifiers modifiers = e->modifiers();
+	if (modifiers & Qt::ControlModifier)
+	{
+		q->QPlainTextEdit::keyPressEvent(e);
+		return;
+	}
+
+	QTextCursor::MoveMode moveMode = (modifiers & Qt::ShiftModifier) ?
+		QTextCursor::KeepAnchor :
+		QTextCursor::MoveAnchor;
+
+	QTextCursor cursor = q->textCursor();
+	bool isNextWord;
+
+	if (isCursorAtStartOfLine(cursor))
+	{
+		isNextWord = isCursorOnIndent(cursor);
+	}
+	else
+	{
+		bool wasOnIndent = isCursorOnIndent(cursor);
+		cursor.movePosition(QTextCursor::StartOfLine, moveMode);
+		isNextWord = !wasOnIndent && isCursorOnIndent(cursor);
+	}
+
+	if (isNextWord)
+		cursor.movePosition(QTextCursor::NextWord, moveMode);
+
+	q->setTextCursor(cursor);
+}
+
+void
+EditPrivate::keyPressTab(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	if (e->modifiers() & Qt::ShiftModifier) // unindent
+		return keyPressBacktab(e);
+
+	QTextCursor cursor = q->textCursor();
+	if (isCursorMultiLineSelection(cursor))
+		indentSelection();
+	else
+		q->QPlainTextEdit::keyPressEvent(e);
+}
+
+void
+EditPrivate::keyPressBacktab(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	if (isCursorMultiLineSelection(cursor) || isCursorOnIndent(cursor))
+		unindentSelection();
+}
+
+void
+EditPrivate::keyPressEnter(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	int start = cursor.selectionStart();
+	cursor.setPosition(start);
+	cursor.movePosition(QTextCursor::StartOfLine);
+	if (!isCursorOnIndent(cursor))
+	{
+		q->QPlainTextEdit::keyPressEvent(e);
+		return;
+	}
+
+	cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+	QString indent = cursor.selectedText();
+
+	cursor.beginEditBlock();
+	q->QPlainTextEdit::keyPressEvent(e);
+	q->textCursor().insertText(indent);
+	cursor.endEditBlock();
 }
 
 void
