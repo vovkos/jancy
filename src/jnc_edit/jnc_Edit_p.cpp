@@ -117,6 +117,16 @@ isCursorOnIndent(const QTextCursor& cursor0)
 	return !selection.isEmpty() && selection.at(0).isSpace();
 }
 
+QString
+getCursorLinePrefix(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.setPosition(position);
+	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+	return cursor.selectedText();
+}
+
 QChar
 getCursorPrevChar(const QTextCursor& cursor0)
 {
@@ -485,13 +495,14 @@ EditPrivate::EditPrivate()
 	m_pendingCodeAssistPosition = -1;
 
 		m_codeAssistTriggers =
-	//		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
+//		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
 		Edit::ArgumentTipOnCtrlShiftSpace |
 		Edit::ArgumentTipOnTypeLeftParenthesis |
 		Edit::ArgumentTipOnTypeComma |
 		Edit::AutoCompleteOnCtrlSpace |
 		Edit::AutoCompleteListOnTypeDot |
 		Edit::AutoCompleteListOnTypeIdentifier |
+		Edit::ImportAutoCompleteListOnTypeQuotationMark |
 		Edit::GotoDefinitionOnCtrlClick;
 }
 
@@ -1381,6 +1392,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	QTextCursor cursor = q->textCursor();
 
 	bool hasSelection;
+	bool isImportAutoComplete;
 	QChar nextChar;
 
 	switch (c)
@@ -1414,8 +1426,9 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 			q->setTextCursor(cursor);
 		}
 
-		if (c == '(' && (m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis))
+		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis) && c == '(')
 			requestCodeAssist(CodeAssistKind_ArgumentTip);
+
 		break;
 
 	case '.':
@@ -1423,6 +1436,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 
 		if (m_codeAssistTriggers & Edit::AutoCompleteListOnTypeDot)
 			requestCodeAssist(CodeAssistKind_AutoCompleteList);
+
 		break;
 
 	case ',':
@@ -1430,6 +1444,19 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 
 		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma)
 			requestCodeAssist(CodeAssistKind_ArgumentTip);
+
+		break;
+
+	case '"':
+		isImportAutoComplete =
+			((m_codeAssistTriggers & Edit::ImportAutoCompleteListOnTypeQuotationMark) &&
+			getCursorLinePrefix(cursor).trimmed() == "import");
+
+		q->QPlainTextEdit::keyPressEvent(e);
+
+		if (isImportAutoComplete)
+			requestCodeAssist(CodeAssistKind_AutoCompleteList);
+
 		break;
 
 	default:

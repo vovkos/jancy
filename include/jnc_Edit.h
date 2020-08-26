@@ -42,19 +42,20 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit
 public:
     enum CodeAssistTrigger
 	{
-		QuickInfoTipOnMouseOverIdentifier      = 0x0001,
-		QuickInfoTipOnCursorOverIdentifier     = 0x0002,
-		ArgumentTipOnCtrlShiftSpace            = 0x0004,
-		ArgumentTipOnTypeLeftParenthesis       = 0x0008,
-		ArgumentTipOnTypeComma                 = 0x0010,
-		ArgumentTipOnMouseOverLeftParenthesis  = 0x0020,
-		ArgumentTipOnCursorOverLeftParenthesis = 0x0040,
-		ArgumentTipOnMouseOverComma            = 0x0080,
-		ArgumentTipOnCursorOverComma           = 0x0100,
-		AutoCompleteOnCtrlSpace                = 0x0200,
-		AutoCompleteListOnTypeDot              = 0x0400,
-		AutoCompleteListOnTypeIdentifier       = 0x0800,
-		GotoDefinitionOnCtrlClick              = 0x1000,
+		QuickInfoTipOnMouseOverIdentifier         = 0x0001,
+		QuickInfoTipOnCursorOverIdentifier        = 0x0002,
+		ArgumentTipOnCtrlShiftSpace               = 0x0004,
+		ArgumentTipOnTypeLeftParenthesis          = 0x0008,
+		ArgumentTipOnTypeComma                    = 0x0010,
+		ArgumentTipOnMouseOverLeftParenthesis     = 0x0020,
+		ArgumentTipOnCursorOverLeftParenthesis    = 0x0040,
+		ArgumentTipOnMouseOverComma               = 0x0080,
+		ArgumentTipOnCursorOverComma              = 0x0100,
+		AutoCompleteOnCtrlSpace                   = 0x0200,
+		AutoCompleteListOnTypeDot                 = 0x0400,
+		AutoCompleteListOnTypeIdentifier          = 0x0800,
+		ImportAutoCompleteListOnTypeQuotationMark = 0x1000,
+		GotoDefinitionOnCtrlClick                 = 0x2000,
     };
 
     Q_DECLARE_FLAGS(CodeAssistTriggers, CodeAssistTrigger)
