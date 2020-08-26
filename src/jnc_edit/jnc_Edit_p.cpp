@@ -19,6 +19,96 @@ namespace jnc {
 
 //..............................................................................
 
+lex::LineCol
+getCursorLineCol(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	int line = 0;
+	while (cursor.positionInBlock() > 0)
+	{
+		line++;
+		cursor.movePosition(QTextCursor::Up);
+	}
+
+	QTextBlock block = cursor.block().previous();
+	while (block.isValid())
+	{
+		line += block.lineCount();
+		block = block.previous();
+	}
+
+	return lex::LineCol(line, cursor0.columnNumber());
+}
+
+bool
+isCursorMultiLineSelection(const QTextCursor& cursor0)
+{
+	if (!cursor0.hasSelection())
+		return false;
+
+	QTextCursor cursor = cursor0;
+	int start = cursor.anchor();
+	int end = cursor.position();
+
+	if (start > end)
+	{
+		int t = start;
+		start = end;
+		end = t;
+	}
+
+	cursor.setPosition(start);
+	cursor.movePosition(QTextCursor::StartOfLine);
+	cursor.movePosition(QTextCursor::Down);
+	return cursor.position() <= end;
+}
+
+bool
+isCursorAtStartOfLine(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.movePosition(QTextCursor::StartOfLine);
+	return cursor.position() == position;
+}
+
+int
+getCursorEndOfLinePosition(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.movePosition(QTextCursor::EndOfLine);
+	return cursor.position();
+}
+
+bool
+isCursorOnIndent(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	if (cursor.position() != position)
+	{
+		cursor.setPosition(position, QTextCursor::KeepAnchor);
+		QString selection = cursor.selectedText();
+		return !selection.isEmpty() && selection.at(0).isSpace() && selection.trimmed().isEmpty();
+	}
+
+	// already was at start-of-line
+
+	int eol = getCursorEndOfLinePosition(cursor);
+	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+	if (cursor.position() > eol) // empty line
+		return false;
+
+	QString selection = cursor.selectedText();
+	return !selection.isEmpty() && selection.at(0).isSpace();
+}
+
+//..............................................................................
+
 Edit::Edit(QWidget *parent):
 	QPlainTextEdit(parent),
 	d_ptr(new EditPrivate)
@@ -149,6 +239,20 @@ Edit::gotoDefinition()
 }
 
 void
+Edit::indentSelection()
+{
+	Q_D(Edit);
+	d->indentSelection();
+}
+
+void
+Edit::unindentSelection()
+{
+	Q_D(Edit);
+	d->unindentSelection();
+}
+
+void
 Edit::resizeEvent(QResizeEvent *e)
 {
 	Q_D(Edit);
@@ -182,6 +286,10 @@ Edit::keyPressEvent(QKeyEvent* e)
 
 		case Qt::Key_Tab:
 			isHandled = d->keyPressTab(e->modifiers());
+			break;
+
+		case Qt::Key_Backtab:
+			isHandled = d->keyPressTab(e->modifiers() | Qt::ShiftModifier);
 			break;
 
 		case Qt::Key_Space:
@@ -283,6 +391,7 @@ EditPrivate::EditPrivate()
 	m_syntaxHighlighter = NULL;
 	m_lineNumberMargin = NULL;
 	m_isCurrentLineHighlightingEnabled = false;
+	m_tabWidth = 4;
 	m_thread = NULL;
 	m_completer = NULL;
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
@@ -290,8 +399,8 @@ EditPrivate::EditPrivate()
 	m_lastCodeAssistPosition = -1;
 	m_pendingCodeAssistPosition = -1;
 
-	m_codeAssistTriggers =
-//		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
+		m_codeAssistTriggers =
+	//		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
 		Edit::ArgumentTipOnCtrlShiftSpace |
 		Edit::ArgumentTipOnTypeLeftParenthesis |
 		Edit::ArgumentTipOnTypeComma |
@@ -330,10 +439,11 @@ EditPrivate::init()
 
 	QPalette palette = q->palette();
 	palette.setColor(QPalette::Highlight, Color_SelectionBack);
+	palette.setColor(QPalette::Inactive, QPalette::Highlight, Color_SelectionBackInactive);
 	palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
 
 	q->setFont(font);
-	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * 4);
+	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * m_tabWidth);
 	q->setWordWrapMode(QTextOption::NoWrap);
 	q->setMouseTracking(true);
 	q->setPalette(palette);
@@ -668,29 +778,6 @@ EditPrivate::applyCompleter()
 		onCompleterActivated(completion);
 
 	hideCodeAssist();
-}
-
-lex::LineCol
-EditPrivate::getLineColFromCursor(const QTextCursor& cursor0)
-{
-	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	int line = 0;
-	while (cursor.positionInBlock() > 0)
-	{
-		line++;
-		cursor.movePosition(QTextCursor::Up);
-	}
-
-	QTextBlock block = cursor.block().previous();
-	while (block.isValid())
-	{
-		line += block.lineCount();
-		block = block.previous();
-	}
-
-	return lex::LineCol(line, cursor0.columnNumber());
 }
 
 QTextCursor
@@ -1052,31 +1139,23 @@ EditPrivate::keyPressHome(Qt::KeyboardModifiers modifiers)
 	if (modifiers & Qt::ControlModifier)
 		return false;
 
-	// don't select indent
-
-	QTextCursor cursor = q->textCursor();
-	int position = cursor.position();
-	cursor.setPosition(position, QTextCursor::MoveAnchor);
-	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-
-	bool isNextWord;
-
-	if (cursor.position() == position)
-	{
-		isNextWord = true;
-	}
-	else
-	{
-		QString line = cursor.selectedText();
-		isNextWord = !line.isEmpty() && line.at(0).isSpace() && !line.trimmed().isEmpty();
-	}
-
 	QTextCursor::MoveMode moveMode = (modifiers & Qt::ShiftModifier) ?
 		QTextCursor::KeepAnchor :
 		QTextCursor::MoveAnchor;
 
-	cursor = q->textCursor();
-	cursor.movePosition(QTextCursor::StartOfLine, moveMode);
+	QTextCursor cursor = q->textCursor();
+	bool isNextWord;
+
+	if (isCursorAtStartOfLine(cursor))
+	{
+		isNextWord = isCursorOnIndent(cursor);
+	}
+	else
+	{
+		bool wasOnIndent = isCursorOnIndent(cursor);
+		cursor.movePosition(QTextCursor::StartOfLine, moveMode);
+		isNextWord = !wasOnIndent && isCursorOnIndent(cursor);
+	}
 
 	if (isNextWord)
 		cursor.movePosition(QTextCursor::NextWord, moveMode);
@@ -1088,15 +1167,103 @@ EditPrivate::keyPressHome(Qt::KeyboardModifiers modifiers)
 bool
 EditPrivate::keyPressTab(Qt::KeyboardModifiers modifiers)
 {
-	return false;
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+
+	if (modifiers & Qt::ShiftModifier) // unindent
+	{
+		if (isCursorMultiLineSelection(cursor) ||
+			isCursorOnIndent(cursor))
+			unindentSelection();
+	}
+	else
+	{
+		if (!isCursorMultiLineSelection(cursor))
+			return false;
+
+		indentSelection();
+	}
+
+	return true;
+}
+
+void
+EditPrivate::indentSelection()
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	int start = cursor.selectionStart();
+	int end = cursor.selectionEnd();
+
+	cursor.beginEditBlock();
+	cursor.setPosition(start);
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	QTextCursor endCursor = cursor;
+	endCursor.setPosition(end);
+
+	for (; cursor < endCursor; cursor.movePosition(QTextCursor::Down))
+		cursor.insertText(QChar('\t'));
+
+	cursor.endEditBlock();
+}
+
+void
+EditPrivate::unindentSelection()
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+
+	int start = cursor.selectionStart();
+	int end = isCursorMultiLineSelection(cursor) ?
+		cursor.selectionEnd() :
+		getCursorEndOfLinePosition(cursor);
+
+	cursor.beginEditBlock();
+	cursor.setPosition(start);
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	QTextCursor endCursor = cursor;
+	endCursor.setPosition(end);
+
+	for (; cursor < endCursor; cursor.movePosition(QTextCursor::Down))
+	{
+		if (!isCursorOnIndent(cursor))
+			continue;
+
+		cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+
+		QString indent = cursor.selectedText();
+		int length = indent.length();
+		int delta = AXL_MIN(m_tabWidth, length);
+
+		for (int i = 0; i < delta; i++)
+			if (indent.at(i) == '\t')
+			{
+				delta = i + 1;
+				break;
+			}
+
+		cursor.movePosition(QTextCursor::StartOfLine);
+		cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, delta);
+		cursor.removeSelectedText();
+	}
+
+	cursor.endEditBlock();
 }
 
 bool
 EditPrivate::keyPressEnter(Qt::KeyboardModifiers modifiers)
 {
+	Q_Q(Edit);
+
+	// auto-indent
+
 	return false;
 }
-
 
 void
 EditPrivate::timerEvent(QTimerEvent* e)

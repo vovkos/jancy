@@ -92,6 +92,11 @@ public slots:
 	void autoCompleteList();
 	void gotoDefinition();
 
+	// indent
+
+	void indentSelection();
+	void unindentSelection();
+
 protected:
 	virtual void resizeEvent(QResizeEvent* e);
     virtual void keyPressEvent(QKeyEvent* e);

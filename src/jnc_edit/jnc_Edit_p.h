@@ -33,9 +33,10 @@ public:
 
 	enum Color
 	{
-		Color_SelectionBack      = 0x99c9ef,
-		Color_CurrentLineBack    = 0xe8eff8,
-		Color_SynopsisColumnText = 0x808080,
+		Color_SelectionBack         = 0x99c9ef,
+		Color_SelectionBackInactive = 0xe0e0e0,
+		Color_CurrentLineBack       = 0xe8eff8,
+		Color_SynopsisColumnText    = 0x808080,
 	};
 
 	enum Column
@@ -76,6 +77,7 @@ protected:
     Edit* q_ptr;
 	JancyHighlighter* m_syntaxHighlighter;
 	LineNumberMargin* m_lineNumberMargin;
+	int m_tabWidth;
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
 	CodeAssistThread* m_thread;
@@ -189,10 +191,6 @@ protected:
 	size_t
 	getItemIconIdx(ModuleItem* item);
 
-	static
-	lex::LineCol
-	getLineColFromCursor(const QTextCursor& cursor);
-
 	QTextCursor
 	getCursorFromLineCol(const lex::LineCol& pos);
 
@@ -231,6 +229,12 @@ protected:
 
 	bool
 	keyPressEnter(Qt::KeyboardModifiers modifiers);
+
+	void
+	indentSelection();
+
+	void
+	unindentSelection();
 
 	virtual
 	void
