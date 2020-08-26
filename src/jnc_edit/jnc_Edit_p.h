@@ -112,9 +112,6 @@ protected:
 	updateLineNumberMarginGeometry();
 
 	void
-	requestCodeAssistOnChar(char c);
-
-	void
 	requestCodeAssist(
 		CodeAssistKind kind,
 		bool isSync = false
@@ -238,6 +235,12 @@ protected:
 
 	void
 	keyPressEnter(QKeyEvent* e);
+
+	void
+	keyPressBackspace(QKeyEvent* e);
+
+	void
+	keyPressPrintChar(QKeyEvent* e);
 
 	virtual
 	void

@@ -74,6 +74,16 @@ isCursorAtStartOfLine(const QTextCursor& cursor0)
 	return cursor.position() == position;
 }
 
+inline
+int
+getCursorStartOfLinePosition(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.movePosition(QTextCursor::StartOfLine);
+	return cursor.position();
+}
+
+inline
 int
 getCursorEndOfLinePosition(const QTextCursor& cursor0)
 {
@@ -105,6 +115,73 @@ isCursorOnIndent(const QTextCursor& cursor0)
 
 	QString selection = cursor.selectedText();
 	return !selection.isEmpty() && selection.at(0).isSpace();
+}
+
+QChar
+getCursorPrevChar(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.setPosition(position);
+
+	int sol = getCursorStartOfLinePosition(cursor);
+	if (position <= sol)
+		return QChar();
+
+	cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+	QString selection = cursor.selectedText();
+	return !selection.isEmpty() ? selection.at(0) : QChar();
+}
+
+QChar
+getCursorNextChar(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.setPosition(position);
+
+	int eol = getCursorEndOfLinePosition(cursor);
+	if (position >= eol)
+		return QChar();
+
+	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+	QString selection = cursor.selectedText();
+	return !selection.isEmpty() ? selection.at(0) : QChar();
+}
+
+inline
+bool
+isLeftBrace(QChar c)
+{
+	switch (c.unicode())
+	{
+	case '(':
+	case '[':
+	case '{':
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+QChar
+getRightBrace(QChar c)
+{
+	switch (c.unicode())
+	{
+	case '(':
+		return ')';
+
+	case '[':
+		return ']';
+
+	case '{':
+		return '}';
+
+	default:
+		return c;
+	}
 }
 
 //..............................................................................
@@ -292,6 +369,10 @@ Edit::keyPressEvent(QKeyEvent* e)
 			d->keyPressBacktab(e);
 			break;
 
+		case Qt::Key_Backspace:
+			d->keyPressBackspace(e);
+			break;
+
 		case Qt::Key_Home:
 			d->keyPressHome(e);
 			break;
@@ -306,8 +387,10 @@ Edit::keyPressEvent(QKeyEvent* e)
 			// fall through
 
 		default:
-			QPlainTextEdit::keyPressEvent(e);
-			d->requestCodeAssistOnChar(ch.toLatin1());
+			if (ch.isPrint())
+				d->keyPressPrintChar(e);
+			else
+				QPlainTextEdit::keyPressEvent(e);
 		}
 	else
 		switch (key)
@@ -343,8 +426,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 			}
 
 			d->applyCompleter();
-			QPlainTextEdit::keyPressEvent(e);
-			d->requestCodeAssistOnChar(ch.toLatin1());
+			keyPressEvent(e); // re-run
 		}
 }
 
@@ -566,28 +648,6 @@ EditPrivate::updateLineNumberMarginGeometry()
 		m_lineNumberMargin->width(),
 		rect.height()
 		);
-}
-
-void
-EditPrivate::requestCodeAssistOnChar(char c)
-{
-	switch (c)
-	{
-	case '.':
-		if (m_codeAssistTriggers & Edit::AutoCompleteListOnTypeDot)
-			requestCodeAssist(CodeAssistKind_AutoCompleteList);
-		break;
-
-	case '(':
-		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis)
-			requestCodeAssist(CodeAssistKind_ArgumentTip);
-		break;
-
-	case ',':
-		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma)
-			requestCodeAssist(CodeAssistKind_ArgumentTip);
-		break;
-	}
 }
 
 void
@@ -1281,6 +1341,100 @@ EditPrivate::keyPressEnter(QKeyEvent* e)
 	q->QPlainTextEdit::keyPressEvent(e);
 	q->textCursor().insertText(indent);
 	cursor.endEditBlock();
+}
+
+void
+EditPrivate::keyPressBackspace(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	if (cursor.hasSelection())
+	{
+		q->QPlainTextEdit::keyPressEvent(e);
+		return;
+	}
+
+	QChar prev = getCursorPrevChar(cursor);
+	if (isLeftBrace(prev))
+	{
+		QChar next = getCursorNextChar(cursor);
+		if (next == getRightBrace(prev))
+		{
+			cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+			cursor.removeSelectedText();
+		}
+	}
+
+	q->QPlainTextEdit::keyPressEvent(e);
+}
+
+void
+EditPrivate::keyPressPrintChar(QKeyEvent* e)
+{
+	Q_Q(Edit);
+
+	QString text = e->text();
+	QChar ch = text.isEmpty() ? QChar() : text.at(0);
+	int c = ch.toLatin1();
+
+	QTextCursor cursor = q->textCursor();
+
+	bool hasSelection;
+	QChar nextChar;
+
+	switch (c)
+	{
+	case ')':
+	case ']':
+	case '}':
+		if (cursor.hasSelection() || getCursorNextChar(cursor) != c)
+		{
+			q->QPlainTextEdit::keyPressEvent(e);
+			break;
+		}
+
+		cursor.movePosition(QTextCursor::NextCharacter);
+		q->setTextCursor(cursor);
+		break;
+
+	case '(':
+	case '[':
+	case '{':
+		hasSelection = cursor.hasSelection();
+		nextChar = getCursorNextChar(cursor);
+
+		q->QPlainTextEdit::keyPressEvent(e);
+
+		if (!hasSelection && !isLeftBrace(nextChar))
+		{
+			cursor = q->textCursor();
+			cursor.insertText(getRightBrace(c));
+			cursor.movePosition(QTextCursor::PreviousCharacter);
+			q->setTextCursor(cursor);
+		}
+
+		if (c == '(' && (m_codeAssistTriggers & Edit::ArgumentTipOnTypeLeftParenthesis))
+			requestCodeAssist(CodeAssistKind_ArgumentTip);
+		break;
+
+	case '.':
+		q->QPlainTextEdit::keyPressEvent(e);
+
+		if (m_codeAssistTriggers & Edit::AutoCompleteListOnTypeDot)
+			requestCodeAssist(CodeAssistKind_AutoCompleteList);
+		break;
+
+	case ',':
+		q->QPlainTextEdit::keyPressEvent(e);
+
+		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma)
+			requestCodeAssist(CodeAssistKind_ArgumentTip);
+		break;
+
+	default:
+		q->QPlainTextEdit::keyPressEvent(e);
+	}
 }
 
 void
