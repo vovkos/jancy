@@ -159,6 +159,8 @@ getCursorNextChar(const QTextCursor& cursor0)
 	return !selection.isEmpty() ? selection.at(0) : QChar();
 }
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 inline
 bool
 isLeftBrace(QChar c)
@@ -172,6 +174,41 @@ isLeftBrace(QChar c)
 
 	default:
 		return false;
+	}
+}
+
+inline
+bool
+isRightBrace(QChar c)
+{
+	switch (c.unicode())
+	{
+	case ')':
+	case ']':
+	case '}':
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+QChar
+getLeftBrace(QChar c)
+{
+	switch (c.unicode())
+	{
+	case ')':
+		return '(';
+
+	case ']':
+		return '[';
+
+	case '}':
+		return '{';
+
+	default:
+		return c;
 	}
 }
 
@@ -191,6 +228,34 @@ getRightBrace(QChar c)
 
 	default:
 		return c;
+	}
+}
+
+BraceMatch
+checkBraceMatch(QChar ch)
+{
+	switch (ch.unicode())
+	{
+	case '(':
+		return BraceMatch(')');
+
+	case '[':
+		return BraceMatch(']');
+
+	case '{':
+		return BraceMatch('}');
+
+	case ')':
+		return BraceMatch('(', true);
+
+	case ']':
+		return BraceMatch('[', true);
+
+	case '}':
+		return BraceMatch('{', true);
+
+	default:
+		return BraceMatch();
 	}
 }
 
@@ -958,16 +1023,16 @@ EditPrivate::createArgumentTip(
 	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
 
 	Type* returnType = functionType->getReturnType();
+	uint_t flags = functionType->getFlags();
 	size_t argCount = functionType->getArgCount();
 	size_t lastArgIdx = argCount - 1;
 
+	bool isVarArg = (flags & FunctionTypeFlag_VarArg) != 0;
+	bool isMl = argCount >= 2;
+
 	QString text = "<p style='white-space:pre'>";
 	text += returnType->getTypeString();
-
-	if (argCount >= 2)
-		text += " (<br>" ML_ARG_INDENT;
-	else
-		text += " (";
+	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
 
 	for (size_t i = 0; i < argCount; i++)
 	{
@@ -989,10 +1054,10 @@ EditPrivate::createArgumentTip(
 			text += ",<br>" ML_ARG_INDENT;
 	}
 
-	if (argCount >= 2)
-		text += "<br>" ML_ARG_INDENT ")</p>";
-	else
-		text += ")</p>";
+	if (isVarArg)
+		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
+
+	text += isMl ? "<br>" ML_ARG_INDENT ")</p>" : ")</p>";
 
 	QPoint point = getLastCodeAssistToolTipPoint(true);
 	if (point != m_lastToolTipPoint)
@@ -1418,7 +1483,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 
 		q->QPlainTextEdit::keyPressEvent(e);
 
-		if (!hasSelection && !isLeftBrace(nextChar))
+		if (!hasSelection && !isLeftBrace(nextChar) && !nextChar.isLetterOrNumber())
 		{
 			cursor = q->textCursor();
 			cursor.insertText(getRightBrace(c));
@@ -1475,6 +1540,22 @@ EditPrivate::timerEvent(QTimerEvent* e)
 }
 
 void
+EditPrivate::matchBraces()
+{
+	Q_Q(Edit);
+
+	QTextCursor cursor = q->textCursor();
+	BraceMatch braceMatch = checkBraceMatch(getCursorNextChar(cursor));
+
+	if (!braceMatch)
+		braceMatch = checkBraceMatch(getCursorPrevChar(cursor));
+
+	if (braceMatch)
+	{
+	}
+}
+
+void
 EditPrivate::onCursorPositionChanged()
 {
 	if (m_isCurrentLineHighlightingEnabled)
@@ -1496,6 +1577,8 @@ EditPrivate::onCursorPositionChanged()
 			updateCompleter();
 		break;
 	}
+
+	matchBraces();
 }
 
 void

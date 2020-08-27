@@ -222,6 +222,9 @@ protected:
 	unindentSelection();
 
 	void
+	matchBraces();
+
+	void
 	keyPressControlSpace(QKeyEvent* e);
 
 	void
@@ -271,6 +274,33 @@ public:
 		const QStyleOptionViewItem& option0,
 		const QModelIndex& index
 		) const;
+};
+
+//..............................................................................
+
+struct BraceMatch
+{
+	QChar m_pairBrace;
+	bool m_isBackwardSearch;
+
+	BraceMatch()
+	{
+		m_isBackwardSearch = false;
+	}
+
+	BraceMatch(
+		QChar pairBrace,
+		bool isBackwardSearch = false
+		)
+	{
+		m_pairBrace = pairBrace;
+		m_isBackwardSearch = isBackwardSearch;
+	}
+
+	operator bool () const
+	{
+		return !m_pairBrace.isNull();
+	}
 };
 
 //..............................................................................
