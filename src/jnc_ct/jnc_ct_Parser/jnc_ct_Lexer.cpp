@@ -131,7 +131,7 @@ Lexer::createStringToken(
 	size_t suffix
 	)
 {
-	Token* token = createToken(TokenKind_Literal);
+	Token* token = createToken(tokenKind);
 	ASSERT(token->m_pos.m_length >= prefix + suffix);
 
 	size_t length = token->m_pos.m_length - prefix - suffix;
