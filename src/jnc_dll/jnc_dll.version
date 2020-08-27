@@ -9,8 +9,7 @@
 		jnc_setError;
 		jnc_setStringError;
 		jnc_CodeAssist_getCodeAssistKind;
-		jnc_CodeAssist_getLine;
-		jnc_CodeAssist_getCol;
+		jnc_CodeAssist_getOffset;
 		jnc_CodeAssist_getModule;
 		jnc_CodeAssist_getModuleItem;
 		jnc_CodeAssist_getFunctionType;
@@ -32,6 +31,7 @@
 		jnc_ModuleItem_getModule;
 		jnc_ModuleItem_getNamespace;
 		jnc_ModuleItem_getType;
+		jnc_ModuleItem_getSynopsis_v;
 		jnc_ModuleItem_require;
 		jnc_getAccessKindString;
 		jnc_getModuleItemKindString;
