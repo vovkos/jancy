@@ -106,6 +106,8 @@ AttributeBlock::prepareAttributeValues()
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(m_parentNamespace);
 
+	bool finalResult = true;
+
 	size_t count = m_attributeArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -114,7 +116,7 @@ AttributeBlock::prepareAttributeValues()
 		{
 			bool result = attribute->parseInitializer();
 			if (!result)
-				return false;
+				finalResult = false;
 		}
 	}
 
@@ -122,7 +124,7 @@ AttributeBlock::prepareAttributeValues()
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 
 	m_flags |= AttributeBlockFlag_ValuesReady;
-	return true;
+	return finalResult;
 }
 
 //..............................................................................

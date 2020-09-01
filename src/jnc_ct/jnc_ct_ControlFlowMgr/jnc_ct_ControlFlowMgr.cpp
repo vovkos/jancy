@@ -523,6 +523,7 @@ ControlFlowMgr::ret(const Value& value)
 		functionType->getReturnType();
 
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
+	ASSERT(scope);
 
 	if (!value)
 	{

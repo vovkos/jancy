@@ -180,58 +180,71 @@ EnumType::calcLayout()
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(this);
 
-	if (m_flags & EnumTypeFlag_BitFlag)
-	{
-		int64_t value = 1;
-
-		sl::Iterator<EnumConst> constIt = m_constList.getHead();
-		for (; constIt; constIt++)
-		{
-			result = constIt->ensureAttributeValuesReady();
-			if (!result)
-				return false;
-
-			if (!constIt->m_initializer.isEmpty())
-			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
-				if (!result)
-					return false;
-			}
-
-			constIt->m_value = value;
-			constIt->m_flags |= EnumConstFlag_ValueReady;
-			m_constMap[value] = *constIt;
-
-			value = value ? 2 << sl::getHiBitIdx64(value) : 1;
-		}
-	}
-	else
-	{
-		int64_t value = 0;
-
-		sl::Iterator<EnumConst> constIt = m_constList.getHead();
-		for (; constIt; constIt++, value++)
-		{
-			result = constIt->ensureAttributeValuesReady();
-			if (!result)
-				return false;
-
-			if (!constIt->m_initializer.isEmpty())
-			{
-				result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
-				if (!result)
-					return false;
-			}
-
-			constIt->m_value = value;
-			constIt->m_flags |= EnumConstFlag_ValueReady;
-			m_constMap[value] = *constIt;
-		}
-	}
+	result = (m_flags & EnumTypeFlag_BitFlag) ?
+		calcBitflagEnumConstValues() :
+		calcEnumConstValues();
 
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return true;
+	return result;
+}
+
+bool
+EnumType::calcEnumConstValues()
+{
+	bool finalResult = true;
+	int64_t value = 0;
+
+	sl::Iterator<EnumConst> constIt = m_constList.getHead();
+	for (; constIt; constIt++, value++)
+	{
+		bool result = constIt->ensureAttributeValuesReady();
+		if (!result)
+			finalResult = false;
+
+		if (!constIt->m_initializer.isEmpty())
+		{
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
+			if (!result)
+				finalResult = false;
+		}
+
+		constIt->m_value = value;
+		constIt->m_flags |= EnumConstFlag_ValueReady;
+		m_constMap[value] = *constIt;
+	}
+
+	return finalResult;
+}
+
+bool
+EnumType::calcBitflagEnumConstValues()
+{
+	bool finalResult = true;
+	int64_t value = 1;
+
+	sl::Iterator<EnumConst> constIt = m_constList.getHead();
+	for (; constIt; constIt++)
+	{
+		bool result = constIt->ensureAttributeValuesReady();
+		if (!result)
+			finalResult = false;
+
+		if (!constIt->m_initializer.isEmpty())
+		{
+			result = m_module->m_operatorMgr.parseConstIntegerExpression(constIt->m_initializer, &value);
+			if (!result)
+				finalResult = false;
+		}
+
+		constIt->m_value = value;
+		constIt->m_flags |= EnumConstFlag_ValueReady;
+		m_constMap[value] = *constIt;
+
+		value = value ? 2 << sl::getHiBitIdx64(value) : 1;
+	}
+
+	return finalResult;
 }
 
 sl::String

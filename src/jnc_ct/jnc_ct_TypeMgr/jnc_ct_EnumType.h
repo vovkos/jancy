@@ -179,6 +179,12 @@ protected:
 	virtual
 	bool
 	calcLayout();
+
+	bool
+	calcBitflagEnumConstValues();
+
+	bool
+	calcEnumConstValues();
 };
 
 //..............................................................................
