@@ -30,6 +30,7 @@ Attribute::parseInitializer()
 	ValueKind valueKind = m_value.getValueKind();
 	switch (valueKind)
 	{
+	case ValueKind_Null:
 	case ValueKind_Const:
 		break;
 
