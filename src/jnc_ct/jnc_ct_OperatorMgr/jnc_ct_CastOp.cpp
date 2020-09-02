@@ -61,6 +61,10 @@ setCastError(
 	ValueKind valueKind = opValue.getValueKind();
 	switch (valueKind)
 	{
+	case ValueKind_Void:
+		opValueString = "void";
+		break;
+
 	case ValueKind_Null:
 		opValueString = "null";
 		break;
