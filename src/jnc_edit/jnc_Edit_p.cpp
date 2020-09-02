@@ -75,6 +75,16 @@ isCursorAtStartOfLine(const QTextCursor& cursor0)
 }
 
 inline
+bool
+isCursorAtEndOfLineIgnoreSpace(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.setPosition(cursor.position());
+	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+	return cursor.selectedText().trimmed().isEmpty();
+}
+
+inline
 int
 getCursorStartOfLinePosition(const QTextCursor& cursor0)
 {
@@ -1518,9 +1528,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 
 	QTextCursor cursor = q->textCursor();
 
-	bool hasSelection;
 	bool isImportAutoComplete;
-	QChar nextChar;
 
 	switch (c)
 	{
@@ -1540,12 +1548,9 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	case '(':
 	case '[':
 	case '{':
-		hasSelection = cursor.hasSelection();
-		nextChar = getCursorNextChar(cursor);
-
 		q->QPlainTextEdit::keyPressEvent(e);
 
-		if (!hasSelection && !isLeftBrace(nextChar) && !nextChar.isLetterOrNumber())
+		if (isCursorAtEndOfLineIgnoreSpace(cursor))
 		{
 			cursor = q->textCursor();
 			cursor.insertText(getRightBrace(c));
