@@ -78,7 +78,7 @@ CodeAssistThread::run()
 	m_module->addStaticLib(jnc::StdLib_getLib());
 	m_module->addStaticLib(jnc::SysLib_getLib());
 
-	QStringList::iterator it = m_importDirList.begin();
+	QStringList::ConstIterator it = m_importDirList.begin();
 	for (; it != m_importDirList.end(); it++)
 		m_module->addImportDir((*it).toUtf8().constData());
 

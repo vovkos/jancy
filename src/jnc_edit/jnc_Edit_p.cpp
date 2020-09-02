@@ -462,6 +462,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 		{
 		case Qt::Key_Escape:
 			d->hideCodeAssist();
+			QPlainTextEdit::keyPressEvent(e);
 			break;
 
 		case Qt::Key_Enter:
