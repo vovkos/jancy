@@ -436,7 +436,7 @@ jnc_Module_getNextImportDir(
 		return NULL;
 
 	const char* dir = *it;
-	*iterator = (++it).p();
+	*iterator = (++it).getEntry();
 	return dir;
 }
 
