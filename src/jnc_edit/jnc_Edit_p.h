@@ -109,6 +109,9 @@ protected:
 	enableCurrentLineHighlighting(bool isEnabled);
 
 	void
+	updateFontMetrics();
+
+	void
 	updateLineNumberMarginGeometry();
 
 	void

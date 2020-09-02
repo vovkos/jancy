@@ -32,8 +32,10 @@ class JNC_EDIT_EXPORT Edit: public QPlainTextEdit
 	Q_DECLARE_PRIVATE(Edit)
 	Q_DISABLE_COPY(Edit)
 	Q_PROPERTY(bool isLineNumberMarginEnabled READ isLineNumberMarginEnabled WRITE enableLineNumberMargin)
+	Q_PROPERTY(int lineNumberMarginWidth READ lineNumberMarginWidth)
 	Q_PROPERTY(bool isCurrentLineHighlightingEnabled READ isCurrentLineHighlightingEnabled WRITE enableCurrentLineHighlighting)
 	Q_PROPERTY(bool isSyntaxHighlightingEnabled READ isSyntaxHighlightingEnabled WRITE enableSyntaxHighlighting)
+	Q_PROPERTY(int tabWidth READ tabWidth WRITE setTabWidth)
 	Q_PROPERTY(CodeAssistTriggers codeAssistTriggers READ codeAssistTriggers WRITE setCodeAssistTriggers)
 	Q_PROPERTY(QStringList importDirList READ importDirList WRITE setImportDirList)
 
@@ -68,10 +70,13 @@ public:
 
 	bool isLineNumberMarginEnabled();
 	void enableLineNumberMargin(bool isEnabled);
+	int lineNumberMarginWidth();
 	bool isCurrentLineHighlightingEnabled();
 	void enableCurrentLineHighlighting(bool isEnabled);
 	bool isSyntaxHighlightingEnabled();
 	void enableSyntaxHighlighting(bool isEnabled);
+	int tabWidth();
+	void setTabWidth(int width);
 	CodeAssistTriggers codeAssistTriggers();
 	void setCodeAssistTriggers(CodeAssistTriggers triggers);
 	QStringList importDirList();
@@ -99,6 +104,7 @@ public slots:
 	void unindentSelection();
 
 protected:
+	virtual void changeEvent(QEvent* e);
 	virtual void resizeEvent(QResizeEvent* e);
     virtual void keyPressEvent(QKeyEvent* e);
 	virtual void enterEvent(QEvent* e);

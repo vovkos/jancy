@@ -289,6 +289,12 @@ Edit::enableLineNumberMargin(bool isEnabled)
 	d->enableLineNumberMargin(isEnabled);
 }
 
+int Edit::lineNumberMarginWidth()
+{
+	Q_D(Edit);
+	return d->m_lineNumberMargin ? d->m_lineNumberMargin->width() : 0;
+}
+
 bool
 Edit::isCurrentLineHighlightingEnabled()
 {
@@ -300,7 +306,7 @@ void
 Edit::enableCurrentLineHighlighting(bool isEnabled)
 {
 	Q_D(Edit);
-	return d->enableCurrentLineHighlighting(isEnabled);
+	d->enableCurrentLineHighlighting(isEnabled);
 }
 
 bool
@@ -314,7 +320,23 @@ void
 Edit::enableSyntaxHighlighting(bool isEnabled)
 {
 	Q_D(Edit);
-	return d->enableSyntaxHighlighting(isEnabled);
+	d->enableSyntaxHighlighting(isEnabled);
+}
+
+int
+Edit::tabWidth()
+{
+	Q_D(Edit);
+	return d->m_tabWidth;
+}
+
+void
+Edit::setTabWidth(int width)
+{
+	Q_D(Edit);
+
+	d->m_tabWidth = width;
+	setTabStopWidth(fontMetrics().width(' ') * width);
 }
 
 Edit::CodeAssistTriggers
@@ -402,6 +424,17 @@ Edit::unindentSelection()
 {
 	Q_D(Edit);
 	d->unindentSelection();
+}
+
+void
+Edit::changeEvent(QEvent* e)
+{
+	Q_D(Edit);
+
+	QPlainTextEdit::changeEvent(e);
+
+	if (e->type() == QEvent::FontChange)
+		d->updateFontMetrics();
 }
 
 void
@@ -559,7 +592,7 @@ EditPrivate::EditPrivate()
 	m_lastCodeAssistPosition = -1;
 	m_pendingCodeAssistPosition = -1;
 
-		m_codeAssistTriggers =
+	m_codeAssistTriggers =
 //		Edit::QuickInfoTipOnMouseOverIdentifier | // doesn't work quite well yet
 		Edit::ArgumentTipOnCtrlShiftSpace |
 		Edit::ArgumentTipOnTypeLeftParenthesis |
@@ -604,7 +637,6 @@ EditPrivate::init()
 	palette.setBrush(QPalette::HighlightedText, QBrush(Qt::NoBrush));
 
 	q->setFont(font);
-	q->setTabStopWidth(q_ptr->fontMetrics().width(' ') * m_tabWidth);
 	q->setWordWrapMode(QTextOption::NoWrap);
 	q->setMouseTracking(true);
 	q->setPalette(palette);
@@ -707,6 +739,20 @@ EditPrivate::enableCurrentLineHighlighting(bool isEnabled)
 		q->setExtraSelections(QList<QTextEdit::ExtraSelection>());
 
 	m_isCurrentLineHighlightingEnabled = isEnabled;
+}
+
+void
+EditPrivate::updateFontMetrics()
+{
+	Q_Q(Edit);
+
+	q->setTabStopWidth(q->fontMetrics().width(' ') * m_tabWidth);
+
+	if (m_lineNumberMargin)
+	{
+		m_lineNumberMargin->updateFontMetrics();
+		q->setViewportMargins(m_lineNumberMargin->width(), 0, 0, 0);
+	}
 }
 
 void

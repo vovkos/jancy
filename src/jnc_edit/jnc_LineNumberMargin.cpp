@@ -26,14 +26,16 @@ LineNumberMargin::LineNumberMargin(Edit* edit):
 	updateFontMetrics();
 }
 
-void LineNumberMargin::updateFontMetrics()
+void
+LineNumberMargin::updateFontMetrics()
 {
 	int digitWidth = parentWidget()->fontMetrics().width('0');
 	m_anchorPos = digitWidth * 4;
 	setFixedWidth(digitWidth * 5);
 }
 
-void LineNumberMargin::paintEvent(QPaintEvent* e)
+void
+LineNumberMargin::paintEvent(QPaintEvent* e)
 {
 	QPainter painter(this);
 	QRectF paintRect = e->rect();
