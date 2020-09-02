@@ -367,6 +367,20 @@ Edit::setImportDirList(const QStringList& dirList)
 	d->m_importDirList = dirList;
 }
 
+QStringList
+Edit::importList()
+{
+	Q_D(Edit);
+	return d->m_importList;
+}
+
+void
+Edit::setImportList(const QStringList& importList)
+{
+	Q_D(Edit);
+	d->m_importList = importList;
+}
+
 void
 Edit::setTextCursorLineCol(
 	int line,
@@ -799,6 +813,7 @@ EditPrivate::requestCodeAssist(
 
 	m_thread = new CodeAssistThread(this);
 	m_thread->m_importDirList = m_importDirList;
+	m_thread->m_importList = m_importList;
 
 	QObject::connect(
 		m_thread, SIGNAL(ready()),

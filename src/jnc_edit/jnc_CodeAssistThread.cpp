@@ -82,6 +82,10 @@ CodeAssistThread::run()
 	for (; it != m_importDirList.end(); it++)
 		m_module->addImportDir((*it).toUtf8().constData());
 
+	it = m_importList.begin();
+	for (; it != m_importList.end(); it++)
+		m_module->addImport((*it).toUtf8().constData());
+
 	m_module->generateCodeAssist(
 		m_codeAssistKind == CodeAssistKind_AutoComplete ?
 			CodeAssistKind_AutoCompleteList : // one-item lists will be commited as auto-complete

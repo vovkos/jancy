@@ -81,6 +81,8 @@ public:
 	void setCodeAssistTriggers(CodeAssistTriggers triggers);
 	QStringList importDirList();
 	void setImportDirList(const QStringList& dirList);
+	QStringList importList();
+	void setImportList(const QStringList& importList);
 
 	// selection operations
 

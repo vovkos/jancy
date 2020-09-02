@@ -80,6 +80,7 @@ protected:
 	int m_tabWidth;
 	Edit::CodeAssistTriggers m_codeAssistTriggers;
 	QStringList m_importDirList;
+	QStringList m_importList;
 	CodeAssistThread* m_thread;
 	CodeAssistKind m_lastCodeAssistKind;
 	size_t m_lastCodeAssistOffset;
