@@ -43,9 +43,7 @@ JncApp::JncApp(CmdLine* cmdLine)
 {
 	m_cmdLine = cmdLine;
 	m_module->initialize("jnc_module", cmdLine->m_compileFlags);
-
-	AXL_TODO("once LLVM separation is done, we can enable error recovery")
-	// m_module->setCompileErrorHandler(compileErrorHandler, this);
+	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
 	if (!(cmdLine->m_compileFlags & jnc::ModuleCompileFlag_StdLibDoc))
 	{
