@@ -219,23 +219,30 @@ Parser::parseTokenList(
 	else
 	{
 		size_t offset = m_module->m_codeAssistMgr.getOffset();
+		size_t autoCompleteFallbackOffset = offset;
 
 		sl::ConstBoxIterator<Token> token = tokenList.getHead();
 		for (; token; token++)
 		{
-			markCodeAssistToken((Token*)token.p(), offset);
-
-			if (token->m_flags & TokenFlag_PostCodeAssist)
+			bool isCodeAssist = markCodeAssistToken((Token*)token.p(), offset);
+			if (isCodeAssist)
 			{
-				m_module->m_codeAssistMgr.prepareAutoCompleteFallback();
+				if (token->m_tokenKind == TokenKind_Identifier &&
+					(token->m_flags & TokenFlag_CodeAssist))
+					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
-				if (m_mode == Mode_Compile)
+				if (token->m_flags & TokenFlag_PostCodeAssist)
 				{
-					lastTokenPos = token->m_pos;
-					break;
-				}
+					m_module->m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 
-				offset = -1; // not needed anymore
+					if (m_mode == Mode_Compile)
+					{
+						lastTokenPos = token->m_pos;
+						break;
+					}
+
+					offset = -1; // not needed anymore
+				}
 			}
 
 			bool result = parseToken(&*token);
@@ -243,7 +250,7 @@ Parser::parseTokenList(
 				return false;
 		}
 
-		m_module->m_codeAssistMgr.prepareAutoCompleteFallback();
+		m_module->m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 		parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 
 		if (!m_module->m_codeAssistMgr.getCodeAssist() && !m_argumentTipStack.isEmpty())
@@ -2576,12 +2583,6 @@ Parser::lookupIdentifier(
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
 
-	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
-
-	if (codeAssistKind == CodeAssistKind_AutoCompleteList &&
-		(token.m_flags & TokenFlag_CodeAssist))
-		generateAutoCompleteList(token, nspace, CodeAssistNamespaceFlag_IncludeParentNamespace);
-
 	MemberCoord coord;
 	FindModuleItemResult findResult = nspace->findDirectChildItemTraverse(token.m_data.m_string, &coord);
 	if (!findResult.m_result)
@@ -2688,7 +2689,7 @@ Parser::lookupIdentifier(
 		return false;
 	};
 
-	if (codeAssistKind == CodeAssistKind_QuickInfoTip &&
+	if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_QuickInfoTip &&
 		(token.m_flags & TokenFlag_CodeAssist))
 		m_module->m_codeAssistMgr.createQuickInfoTip(token.m_pos.m_offset, item);
 

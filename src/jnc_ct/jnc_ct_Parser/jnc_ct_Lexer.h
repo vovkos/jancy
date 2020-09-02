@@ -415,18 +415,22 @@ typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
-void
+bool
 markCodeAssistToken(
 	Token* token,
 	size_t offset
 	)
 {
 	size_t end = token->m_pos.m_offset + token->m_pos.m_length;
-	if (end >= offset)
-		token->m_flags |=
-			(token->m_pos.m_offset > offset || token->m_token == TokenKind_Eof) ? TokenFlag_PostCodeAssist :
-			token->m_pos.m_offset == offset ? TokenFlag_CodeAssistLeft :
-			end == offset ? TokenFlag_CodeAssistRight : TokenFlag_CodeAssistMid;
+	if (end < offset)
+		return false;
+
+	token->m_flags |=
+		(token->m_pos.m_offset > offset || token->m_token == TokenKind_Eof) ? TokenFlag_PostCodeAssist :
+		token->m_pos.m_offset == offset ? TokenFlag_CodeAssistLeft :
+		end == offset ? TokenFlag_CodeAssistRight : TokenFlag_CodeAssistMid;
+
+	return true;
 }
 
 //..............................................................................

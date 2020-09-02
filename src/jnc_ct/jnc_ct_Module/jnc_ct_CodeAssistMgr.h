@@ -158,7 +158,7 @@ public:
 	generateCodeAssist();
 
 	void
-	prepareAutoCompleteFallback();
+	prepareAutoCompleteFallback(size_t offset);
 
 	CodeAssist*
 	createQuickInfoTip(

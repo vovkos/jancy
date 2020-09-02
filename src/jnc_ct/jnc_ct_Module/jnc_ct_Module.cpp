@@ -663,6 +663,7 @@ Module::parseImpl(
 	else
 	{
 		size_t offset = m_codeAssistMgr.getOffset();
+		size_t autoCompleteFallbackOffset = offset;
 
 		for (;;)
 		{
@@ -670,12 +671,18 @@ Module::parseImpl(
 			if (token->m_token == TokenKind_Error)
 				return false;
 
-			markCodeAssistToken((Token*)token, offset);
-
-			if (token->m_flags & TokenFlag_PostCodeAssist)
+			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
+			if (isCodeAssist)
 			{
-				m_codeAssistMgr.prepareAutoCompleteFallback();
-				offset = -1; // not needed anymore
+				if (token->m_tokenKind == TokenKind_Identifier &&
+					(token->m_flags & TokenFlag_CodeAssist))
+					autoCompleteFallbackOffset = token->m_pos.m_offset;
+
+				if (token->m_flags & (TokenFlag_PostCodeAssist))
+				{
+					m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
+					offset = -1; // not needed anymore
+				}
 			}
 
 			result = parser.parseToken(token);

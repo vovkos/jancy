@@ -468,12 +468,12 @@ Unit::isRootUnit()
 
 inline
 void
-CodeAssistMgr::prepareAutoCompleteFallback()
+CodeAssistMgr::prepareAutoCompleteFallback(size_t offset)
 {
 	if (m_codeAssistKind == CodeAssistKind_AutoCompleteList && !m_codeAssist && !m_containerItem)
 	{
 		m_autoCompleteNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-		m_autoCompleteOffset = m_offset;
+		m_autoCompleteOffset = offset;
 	}
 }
 
