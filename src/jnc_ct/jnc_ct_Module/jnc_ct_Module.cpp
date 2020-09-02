@@ -728,7 +728,7 @@ Module::parseImports()
 {
 	ASSERT(m_compileState < ModuleCompileState_Compiled);
 
-	bool result;
+	bool finalResult = true;
 
 	for (;;)
 	{
@@ -740,7 +740,7 @@ Module::parseImports()
 		sl::ConstIterator<Import> importIt = importList.getHead();
 		for (; importIt; importIt++)
 		{
-			result = importIt->m_importKind == ImportKind_Source ?
+			bool result = importIt->m_importKind == ImportKind_Source ?
 				parseImpl(
 					importIt->m_lib,
 					importIt->m_filePath,
@@ -749,13 +749,13 @@ Module::parseImports()
 				parseFile(importIt->m_filePath);
 
 			if (!result)
-				return false;
+				finalResult = false;
 		}
 	}
 
 	m_extensionLibMgr.closeDynamicLibZipReaders();
 	m_compileState = ModuleCompileState_Parsed;
-	return true;
+	return finalResult;
 }
 
 bool
