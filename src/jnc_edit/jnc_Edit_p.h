@@ -282,28 +282,28 @@ public:
 
 //..............................................................................
 
-struct BraceMatch
+struct PairBrace
 {
-	QChar m_pairBrace;
+	QChar m_c;
 	bool m_isBackwardSearch;
 
-	BraceMatch()
+	PairBrace()
 	{
 		m_isBackwardSearch = false;
 	}
 
-	BraceMatch(
-		QChar pairBrace,
+	PairBrace(
+		QChar c,
 		bool isBackwardSearch = false
 		)
 	{
-		m_pairBrace = pairBrace;
+		m_c = c;
 		m_isBackwardSearch = isBackwardSearch;
 	}
 
 	operator bool () const
 	{
-		return !m_pairBrace.isNull();
+		return !m_c.isNull();
 	}
 };
 

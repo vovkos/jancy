@@ -241,31 +241,31 @@ getRightBrace(QChar c)
 	}
 }
 
-BraceMatch
+PairBrace
 checkBraceMatch(QChar ch)
 {
 	switch (ch.unicode())
 	{
 	case '(':
-		return BraceMatch(')');
+		return PairBrace(')');
 
 	case '[':
-		return BraceMatch(']');
+		return PairBrace(']');
 
 	case '{':
-		return BraceMatch('}');
+		return PairBrace('}');
 
 	case ')':
-		return BraceMatch('(', true);
+		return PairBrace('(', true);
 
 	case ']':
-		return BraceMatch('[', true);
+		return PairBrace('[', true);
 
 	case '}':
-		return BraceMatch('{', true);
+		return PairBrace('{', true);
 
 	default:
-		return BraceMatch();
+		return PairBrace();
 	}
 }
 
@@ -1612,14 +1612,54 @@ EditPrivate::matchBraces()
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	BraceMatch braceMatch = checkBraceMatch(getCursorNextChar(cursor));
+	if (cursor.hasSelection())
+		return;
 
-	if (!braceMatch)
-		braceMatch = checkBraceMatch(getCursorPrevChar(cursor));
-
-	if (braceMatch)
+	QChar brace = getCursorNextChar(cursor);
+	PairBrace pair = checkBraceMatch(brace);
+	if (!pair)
 	{
+		brace = getCursorPrevChar(cursor);
+		pair = checkBraceMatch(brace);
+		if (!pair)
+			return;
 	}
+
+	printf("find '%c' %s\n", pair.m_c, pair.m_isBackwardSearch ? "<-" : "->");
+
+	QString text = q->toPlainText();
+	int pos = cursor.position();
+	int matchPos = -1;
+
+	if (pair.m_isBackwardSearch)
+		for (int i = pos, level = 1; i >= 0; i--)
+		{
+			QChar c = text.at(i);
+			if (c == brace)
+				level++;
+			else if (c == pair.m_c)
+				if (!--level)
+				{
+					matchPos = i;
+					break;
+				}
+		}
+	else
+		for (int i = pos, level = 1, length = text.length(); i < length; i--)
+		{
+			QChar c = text.at(i);
+			if (c == brace)
+				level++;
+			else if (c == pair.m_c)
+				if (!--level)
+				{
+					matchPos = i;
+					break;
+				}
+		}
+
+	if (matchPos != -1)
+		printf("found matching '%c' at: %d\n", pair.m_c, matchPos);
 }
 
 void
