@@ -37,6 +37,7 @@ public:
 		Color_SelectionBackInactive = 0xe0e0e0,
 		Color_CurrentLineBack       = 0xe8eff8,
 		Color_SynopsisColumnText    = 0x808080,
+		Color_BraceMatch            = 0xffff00,
 	};
 
 	enum Column
@@ -73,6 +74,15 @@ protected:
 		Icon__Count,
 	};
 
+	enum HighlightKind
+	{
+		HighlightKind_CurrentLine,
+		HighlightKind_AnchorBrace,
+		HighlightKind_PairBrace,
+		HighlightKind_Temp,
+		HighlightKind__Count,
+	};
+
 protected:
     Edit* q_ptr;
 	JancyHighlighter* m_syntaxHighlighter;
@@ -92,6 +102,8 @@ protected:
 	QIcon m_iconTable[Icon__Count];
 	QBasicTimer m_quickInfoTipTimer;
 	QFileIconProvider m_fileIconProvider;
+	QTextEdit::ExtraSelection m_highlighTable[HighlightKind__Count];
+	bool m_isExtraSelectionUpdateRequired;
 	bool m_isCurrentLineHighlightingEnabled;
 
 protected:
@@ -114,6 +126,9 @@ protected:
 
 	void
 	updateLineNumberMarginGeometry();
+
+	void
+	updateExtraSelections();
 
 	void
 	requestCodeAssist(
@@ -193,7 +208,10 @@ protected:
 	getItemIconIdx(ModuleItem* item);
 
 	QTextCursor
-	getCursorFromLineCol(const lex::LineCol& pos);
+	getCursorFromLineCol(
+		int line,
+		int col
+		);
 
 	QTextCursor
 	getCursorFromOffset(size_t offset);

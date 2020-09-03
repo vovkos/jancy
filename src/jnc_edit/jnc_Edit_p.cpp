@@ -398,7 +398,28 @@ Edit::setTextCursorLineCol(
 	)
 {
 	Q_D(Edit);
-	setTextCursor(d->getCursorFromLineCol(lex::LineCol(line, col)));
+	setTextCursor(d->getCursorFromLineCol(line, col));
+}
+
+void
+Edit::highlightLineTemp(
+	int line,
+	const QColor& backColor,
+	const QColor& textColor
+	)
+{
+	Q_D(Edit);
+
+	QTextEdit::ExtraSelection selection;
+	selection.cursor = d->getCursorFromLineCol(line, 0);
+	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+	selection.format.setBackground(backColor);
+
+	if (textColor.isValid())
+		selection.format.setForeground(textColor);
+
+	d->m_highlighTable[EditPrivate::HighlightKind_Temp] = selection;
+	d->updateExtraSelections();
 }
 
 void
@@ -609,6 +630,7 @@ EditPrivate::EditPrivate()
 	m_syntaxHighlighter = NULL;
 	m_lineNumberMargin = NULL;
 	m_isCurrentLineHighlightingEnabled = false;
+	m_isExtraSelectionUpdateRequired = false;
 	m_tabWidth = 4;
 	m_thread = NULL;
 	m_completer = NULL;
@@ -627,13 +649,11 @@ EditPrivate::EditPrivate()
 		Edit::AutoCompleteListOnTypeIdentifier |
 		Edit::ImportAutoCompleteListOnTypeQuotationMark |
 		Edit::GotoDefinitionOnCtrlClick;
-}
 
-QImage createSubImage(QImage* image, const QRect & rect) {
-    size_t offset = rect.x() * image->depth() / 8
-                    + rect.y() * image->bytesPerLine();
-    return QImage(image->bits() + offset, rect.width(), rect.height(),
-                  image->bytesPerLine(), image->format());
+	m_highlighTable[HighlightKind_CurrentLine].format.setBackground(QColor(Color_CurrentLineBack));
+	m_highlighTable[HighlightKind_CurrentLine].format.setProperty(QTextFormat::FullWidthSelection, true);
+	m_highlighTable[HighlightKind_AnchorBrace].format.setBackground(QColor(Color_BraceMatch));
+	m_highlighTable[HighlightKind_PairBrace].format.setBackground(QColor(Color_BraceMatch));
 }
 
 void
@@ -761,9 +781,25 @@ EditPrivate::enableCurrentLineHighlighting(bool isEnabled)
 	if (isEnabled)
 		highlightCurrentLine();
 	else
-		q->setExtraSelections(QList<QTextEdit::ExtraSelection>());
+		m_highlighTable[HighlightKind_CurrentLine].cursor = QTextCursor();
 
 	m_isCurrentLineHighlightingEnabled = isEnabled;
+	updateExtraSelections();
+}
+
+void
+EditPrivate::updateExtraSelections()
+{
+	Q_Q(Edit);
+
+	QList<QTextEdit::ExtraSelection> list;
+
+	for (size_t i = 0; i < countof(m_highlighTable); i++)
+		if (!m_highlighTable[i].cursor.isNull())
+			list.append(m_highlighTable[i]);
+
+	q->setExtraSelections(list);
+	m_isExtraSelectionUpdateRequired = false;
 }
 
 void
@@ -885,15 +921,11 @@ EditPrivate::highlightCurrentLine()
 {
 	Q_Q(Edit);
 
-	QTextEdit::ExtraSelection selection;
-	selection.cursor = q->textCursor();
-	selection.cursor.clearSelection();
-	selection.format.setBackground(QColor(Color_CurrentLineBack));
-	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+	QTextCursor cursor = q->textCursor();
+	cursor.clearSelection();
+	m_highlighTable[HighlightKind_CurrentLine].cursor = cursor;
 
-	QList<QTextEdit::ExtraSelection> extraSelections;
-	extraSelections.append(selection);
-	q->setExtraSelections(extraSelections);
+	m_isExtraSelectionUpdateRequired = true;
 }
 
 void
@@ -992,14 +1024,17 @@ EditPrivate::applyCompleter()
 }
 
 QTextCursor
-EditPrivate::getCursorFromLineCol(const lex::LineCol& pos)
+EditPrivate::getCursorFromLineCol(
+	int line,
+	int col
+	)
 {
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
 	cursor.setPosition(0);
-	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, pos.m_line);
-	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, pos.m_col);
+	cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line);
+	cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, col);
 	return cursor;
 }
 
@@ -1611,9 +1646,18 @@ EditPrivate::matchBraces()
 {
 	Q_Q(Edit);
 
+	if (!m_highlighTable[HighlightKind_AnchorBrace].cursor.isNull()) // clear first
+	{
+		m_highlighTable[HighlightKind_AnchorBrace].cursor = QTextCursor();
+		m_highlighTable[HighlightKind_PairBrace].cursor = QTextCursor();
+		m_isExtraSelectionUpdateRequired = true;
+	}
+
 	QTextCursor cursor = q->textCursor();
 	if (cursor.hasSelection())
 		return;
+
+	int pos = cursor.position();
 
 	QChar brace = getCursorNextChar(cursor);
 	PairBrace pair = checkBraceMatch(brace);
@@ -1623,16 +1667,15 @@ EditPrivate::matchBraces()
 		pair = checkBraceMatch(brace);
 		if (!pair)
 			return;
+
+		pos--;
 	}
 
-	printf("find '%c' %s\n", pair.m_c, pair.m_isBackwardSearch ? "<-" : "->");
-
 	QString text = q->toPlainText();
-	int pos = cursor.position();
 	int matchPos = -1;
 
 	if (pair.m_isBackwardSearch)
-		for (int i = pos, level = 1; i >= 0; i--)
+		for (int i = pos - 1, level = 1; i >= 0; i--)
 		{
 			QChar c = text.at(i);
 			if (c == brace)
@@ -1645,7 +1688,7 @@ EditPrivate::matchBraces()
 				}
 		}
 	else
-		for (int i = pos, level = 1, length = text.length(); i < length; i--)
+		for (int i = pos + 1, level = 1, length = text.length(); i < length; i++)
 		{
 			QChar c = text.at(i);
 			if (c == brace)
@@ -1658,16 +1701,23 @@ EditPrivate::matchBraces()
 				}
 		}
 
-	if (matchPos != -1)
-		printf("found matching '%c' at: %d\n", pair.m_c, matchPos);
+	if (matchPos == -1)
+		return;
+
+	cursor.setPosition(pos);
+	m_highlighTable[HighlightKind_AnchorBrace].cursor = cursor;
+	m_highlighTable[HighlightKind_AnchorBrace].cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+
+	cursor.setPosition(matchPos);
+	m_highlighTable[HighlightKind_PairBrace].cursor = cursor;
+	m_highlighTable[HighlightKind_PairBrace].cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+
+	m_isExtraSelectionUpdateRequired = true;
 }
 
 void
 EditPrivate::onCursorPositionChanged()
 {
-	if (m_isCurrentLineHighlightingEnabled)
-		highlightCurrentLine();
-
 	switch (m_lastCodeAssistKind)
 	{
 	case CodeAssistKind_QuickInfoTip:
@@ -1685,7 +1735,19 @@ EditPrivate::onCursorPositionChanged()
 		break;
 	}
 
+	if (m_isCurrentLineHighlightingEnabled)
+		highlightCurrentLine();
+
+	if (!m_highlighTable[HighlightKind_Temp].cursor.isNull())
+	{
+		m_highlighTable[HighlightKind_Temp].cursor = QTextCursor();
+		m_isExtraSelectionUpdateRequired = true;
+	}
+
 	matchBraces();
+
+	if (m_isExtraSelectionUpdateRequired)
+		updateExtraSelections();
 }
 
 void

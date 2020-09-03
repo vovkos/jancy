@@ -84,11 +84,17 @@ public:
 	QStringList importList();
 	void setImportList(const QStringList& importList);
 
-	// selection operations
+	// selection/highlighth operations
 
 	void setTextCursorLineCol(
 		int line,
 		int col
+		);
+
+	void highlightLineTemp(
+		int line,
+		const QColor& backColor,
+		const QColor& textColor = QColor::Invalid
 		);
 
 public slots:
