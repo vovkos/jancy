@@ -1817,22 +1817,17 @@ EditPrivate::onCompleterActivated(const QString& completion)
 	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
 	{
 		QString quotedCompletion = '"' + completion + '"';
-		cursor.setPosition(basePosition, QTextCursor::MoveAnchor);
+		cursor.setPosition(basePosition);
 		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 		cursor.insertText(quotedCompletion);
 	}
 	else
 	{
-		cursor.select(QTextCursor::WordUnderCursor);
+		cursor.setPosition(basePosition);
 
-		int position = cursor.position();
-		int anchor = cursor.anchor();
-
-		if (anchor < basePosition)
-			cursor.setPosition(basePosition, QTextCursor::MoveAnchor);
-
-		if (position < basePosition)
-			cursor.setPosition(basePosition, QTextCursor::KeepAnchor);
+		QChar c = getCursorNextChar(cursor);
+		if (c.isLetterOrNumber() || c == '_')
+			cursor.select(QTextCursor::WordUnderCursor);
 
 		cursor.insertText(completion);
 	}
