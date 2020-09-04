@@ -162,9 +162,10 @@ main := |*
 
 id                ;
 
+lit_dq            { highlightLastToken(Color_Constant, true); };
+
 (
 lit_sq            |
-lit_dq            |
 [rR] raw_lit_sq   |
 [rR] raw_lit_dq   |
 dec+              |
@@ -181,8 +182,8 @@ dec+ (('.' dec*) | ([eE] [+\-]? dec+)) |
 ('0' [xXoObBnNdD])? '"""'
                   { highlightLastToken(Color_Constant); fgoto lit_ml; };
 
-'//' any*         { highlightLastToken(Color_Comment); };
-'/*'              { highlightLastToken(Color_Comment); fgoto comment; };
+'//' any*         { highlightLastToken(Color_Comment); setCurrentBlockState(BlockState_CommentSl); };
+'/*'              { highlightLastToken(Color_Comment); fgoto comment_ml; };
 
 ws | nl           ;
 any               ;
@@ -194,10 +195,9 @@ any               ;
 # comment machine
 #
 
-comment := |*
+comment_ml := |*
 
-'*/'              { highlightLastToken(Color_Comment); fgoto main; };
-any               { highlightLastToken(Color_Comment); };
+any* :>> '*/'?    { highlightLastToken(Color_Comment); if (isTokenSuffix("*/", 2)) fgoto main; };
 
 *|;
 
@@ -208,8 +208,7 @@ any               { highlightLastToken(Color_Comment); };
 
 lit_ml := |*
 
-'"""'             { highlightLastToken(Color_Constant); fgoto main; };
-any               { highlightLastToken(Color_Constant); };
+any* :>> '"""'?   { highlightLastToken(Color_Constant); if (isTokenSuffix("\"\"\"", 3)) fgoto main; };
 
 *|;
 
@@ -231,8 +230,8 @@ JancyHighlighter::exec()
 	int prevBlockState = previousBlockState();
 	switch (prevBlockState)
 	{
-	case BlockState_Comment:
-		cs = jancy_lexer_en_comment;
+	case BlockState_CommentMl:
+		cs = jancy_lexer_en_comment_ml;
 		break;
 
 	case BlockState_LitMl:
@@ -240,20 +239,19 @@ JancyHighlighter::exec()
 		break;
 	}
 
+	setCurrentBlockState(BlockState_Normal);
+
 	%% write exec;
 
 	switch (cs)
 	{
-	case jancy_lexer_en_comment:
-		setCurrentBlockState(BlockState_Comment);
+	case jancy_lexer_en_comment_ml:
+		setCurrentBlockState(BlockState_CommentMl);
 		break;
 
 	case jancy_lexer_en_lit_ml:
 		setCurrentBlockState(BlockState_LitMl);
 		break;
-
-	default:
-		setCurrentBlockState(BlockState_Normal);
 	}
 }
 

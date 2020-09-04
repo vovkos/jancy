@@ -29,7 +29,8 @@ protected:
 	enum BlockState
 	{
 		BlockState_Normal,
-		BlockState_Comment,
+		BlockState_CommentSl,
+		BlockState_CommentMl,
 		BlockState_LitMl,
 	};
 
@@ -37,6 +38,22 @@ public:
 	JancyHighlighter(QTextDocument* parent = NULL):
 		gui::QtRagelSyntaxHighlighter<JancyHighlighter>(parent)
 	{
+	}
+
+protected:
+	bool
+	isTokenSuffix(const sl::StringRef& suffix)
+	{
+		return sl::StringRef(ts, te - ts).isSuffix(suffix);
+	}
+
+	bool
+	isTokenSuffix(
+		const char* p,
+		size_t length
+		)
+	{
+		return sl::StringRef(ts, te - ts).isSuffix(sl::StringRef(p, length));
 	}
 
 public:

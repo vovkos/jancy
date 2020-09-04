@@ -37,7 +37,7 @@ public:
 		Color_SelectionBackInactive = 0xe0e0e0,
 		Color_CurrentLineBack       = 0xe8eff8,
 		Color_SynopsisColumnText    = 0x808080,
-		Color_BraceMatch            = 0xffff00,
+		Color_BraceMatch            = 0xfff080,
 	};
 
 	enum Column

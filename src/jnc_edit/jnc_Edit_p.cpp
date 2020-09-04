@@ -169,6 +169,41 @@ getCursorNextChar(const QTextCursor& cursor0)
 	return !selection.isEmpty() ? selection.at(0) : QChar();
 }
 
+bool
+hasCursorHighlightColor(
+	const QTextCursor& cursor,
+	bool checkUserData = false
+	)
+{
+	if (cursor.atBlockEnd() && cursor.block().userState() != 0)
+		return true;
+
+	QVector<QTextLayout::FormatRange> formats = cursor.block().layout()->formats();
+
+	// binary search
+
+	int pos = cursor.positionInBlock();
+	int left = 0;
+	int right = formats.count();
+
+	while (left < right)
+	{
+		int i = (left + right) / 2;
+
+		QTextLayout::FormatRange range = formats[i];
+		int end = range.start + range.length;
+
+		if (pos < range.start)
+			right = i;
+		else if (pos >= end)
+			left = i + 1;
+		else
+			return !(checkUserData && range.format.property(QTextFormat::UserFormat).toBool());
+	}
+
+	return false;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
@@ -842,7 +877,10 @@ EditPrivate::requestCodeAssist(
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	requestCodeAssist(kind, cursor.position(), isSync);
+	if (hasCursorHighlightColor(cursor, true))
+		hideCodeAssist();
+	else
+		requestCodeAssist(kind, cursor.position(), isSync);
 }
 
 void
@@ -1657,8 +1695,6 @@ EditPrivate::matchBraces()
 	if (cursor.hasSelection())
 		return;
 
-	int pos = cursor.position();
-
 	QChar brace = getCursorNextChar(cursor);
 	PairBrace pair = checkBraceMatch(brace);
 	if (!pair)
@@ -1668,37 +1704,57 @@ EditPrivate::matchBraces()
 		if (!pair)
 			return;
 
-		pos--;
+		cursor.movePosition(QTextCursor::PreviousCharacter);
 	}
 
+	if (hasCursorHighlightColor(cursor))
+		return;
+
 	QString text = q->toPlainText();
+
+	int pos = cursor.position();
 	int matchPos = -1;
 
 	if (pair.m_isBackwardSearch)
 		for (int i = pos - 1, level = 1; i >= 0; i--)
 		{
 			QChar c = text.at(i);
+
 			if (c == brace)
-				level++;
+			{
+				cursor.setPosition(i);
+				if (!hasCursorHighlightColor(cursor))
+					level++;
+			}
 			else if (c == pair.m_c)
-				if (!--level)
+			{
+				cursor.setPosition(i);
+				if (!hasCursorHighlightColor(cursor) && !--level)
 				{
 					matchPos = i;
 					break;
 				}
+			}
 		}
 	else
 		for (int i = pos + 1, level = 1, length = text.length(); i < length; i++)
 		{
 			QChar c = text.at(i);
 			if (c == brace)
-				level++;
+			{
+				cursor.setPosition(i);
+				if (!hasCursorHighlightColor(cursor))
+					level++;
+			}
 			else if (c == pair.m_c)
-				if (!--level)
+			{
+				cursor.setPosition(i);
+				if (!hasCursorHighlightColor(cursor) && !--level)
 				{
 					matchPos = i;
 					break;
 				}
+			}
 		}
 
 	if (matchPos == -1)
