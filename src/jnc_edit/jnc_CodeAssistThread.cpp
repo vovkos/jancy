@@ -105,6 +105,7 @@ CodeAssistThread::compileErrorHandler(
 	jnc::ModuleCompileErrorKind errorKind
 	)
 {
+	printf("CodeAssistThread::compileErrorHandler: %s\n", jnc::getLastErrorDescription_v());
 	return true;
 }
 
