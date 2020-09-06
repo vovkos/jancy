@@ -102,31 +102,6 @@ getCursorEndOfLinePosition(const QTextCursor& cursor0)
 	return cursor.position();
 }
 
-bool
-isCursorOnIndent(const QTextCursor& cursor0)
-{
-	QTextCursor cursor = cursor0;
-	int position = cursor.position();
-	cursor.movePosition(QTextCursor::StartOfLine);
-
-	if (cursor.position() != position)
-	{
-		cursor.setPosition(position, QTextCursor::KeepAnchor);
-		QString selection = cursor.selectedText();
-		return !selection.isEmpty() && selection.at(0).isSpace() && selection.trimmed().isEmpty();
-	}
-
-	// already was at start-of-line
-
-	int eol = getCursorEndOfLinePosition(cursor);
-	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-	if (cursor.position() > eol) // empty line
-		return false;
-
-	QString selection = cursor.selectedText();
-	return !selection.isEmpty() && selection.at(0).isSpace();
-}
-
 QString
 getCursorLinePrefix(const QTextCursor& cursor0)
 {
@@ -167,6 +142,21 @@ getCursorNextChar(const QTextCursor& cursor0)
 	cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
 	QString selection = cursor.selectedText();
 	return !selection.isEmpty() ? selection.at(0) : QChar();
+}
+
+bool
+isCursorOnIndent(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.movePosition(QTextCursor::StartOfLine);
+
+	if (cursor.position() == position) // already was at start-of-line
+		return getCursorNextChar(cursor).isSpace();
+
+	cursor.setPosition(position, QTextCursor::KeepAnchor);
+	QString selection = cursor.selectedText();
+	return !selection.isEmpty() && selection.at(0).isSpace() && selection.trimmed().isEmpty();
 }
 
 bool
@@ -1546,8 +1536,10 @@ EditPrivate::keyPressEnter(QKeyEvent* e)
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	int start = cursor.selectionStart();
-	cursor.setPosition(start);
+	if (cursor.hasSelection())
+		cursor.setPosition(cursor.selectionStart());
+
+	int position = cursor.position();
 	cursor.movePosition(QTextCursor::StartOfLine);
 	if (!isCursorOnIndent(cursor))
 	{
@@ -1555,12 +1547,31 @@ EditPrivate::keyPressEnter(QKeyEvent* e)
 		return;
 	}
 
+	bool isSol = cursor.position() == position;
 	cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
 	QString indent = cursor.selectedText();
 
+	cursor = q->textCursor();
 	cursor.beginEditBlock();
-	q->QPlainTextEdit::keyPressEvent(e);
-	q->textCursor().insertText(indent);
+	cursor.insertText(QChar('\n'));
+
+	if (isCursorOnIndent(cursor))
+		cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor); // select new "random" indent
+
+	cursor.insertText(indent); // insert proper indent
+
+	if (isSol)
+	{
+		cursor.movePosition(QTextCursor::StartOfLine);
+		q->setTextCursor(cursor);
+	}
+
+	cursor.movePosition(QTextCursor::Up);
+	cursor.movePosition(QTextCursor::EndOfLine);
+	cursor.movePosition(QTextCursor::PreviousWord);
+	cursor.movePosition(QTextCursor::EndOfWord);
+	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+	cursor.removeSelectedText();
 	cursor.endEditBlock();
 }
 
