@@ -275,9 +275,7 @@ SshChannel::authenticate(
 	ASSERT(m_connectParams);
 	m_connectParams->m_userName = userNamePtr.m_p ? (const char*) userNamePtr.m_p : "anonymous";
 	m_connectParams->m_password = (const char*) passwordPtr.m_p;
-
-	if (privateKeyPtr.m_p && privateKeySize)
-		m_connectParams->m_privateKey.copy((char*)privateKeyPtr.m_p, privateKeySize);
+	m_connectParams->m_privateKey.copy((char*)privateKeyPtr.m_p, privateKeySize);
 
 	wakeIoThread();
 	m_lock.unlock();
