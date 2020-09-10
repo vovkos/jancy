@@ -168,7 +168,11 @@ hasCursorHighlightColor(
 	if (cursor.atBlockEnd() && cursor.block().userState() != 0)
 		return true;
 
+#if (QT_VERSION >= 0x050600)
 	QVector<QTextLayout::FormatRange> formats = cursor.block().layout()->formats();
+#else
+	QList<QTextLayout::FormatRange> formats = cursor.block().layout()->additionalFormats();
+#endif
 
 	// binary search
 
