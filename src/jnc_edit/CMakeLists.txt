@@ -173,6 +173,7 @@ add_library(
 	${GEN_QRC_CPP_LIST}
 	${GEN_MOC_CPP_LIST}
 	${GEN_RL_CPP_LIST}
+	jnc_edit.version
 	)
 
 qt5_use_modules_alt(jnc_edit Widgets)
@@ -235,6 +236,13 @@ elseif(UNIX)
 			)
 
 		add_qt_rpath_link()
+
+		set_property(
+			TARGET jnc_edit
+			APPEND_STRING
+			PROPERTY LINK_FLAGS
+			" -Wl,--version-script='${CMAKE_CURRENT_LIST_DIR}/jnc_edit.version'"
+			)
 	endif()
 endif()
 

@@ -1,0 +1,4 @@
+{
+	global: _ZN3jnc4Edit*;
+	local: *;
+};
