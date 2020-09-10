@@ -158,13 +158,12 @@ add_executable(
 	${GEN_JNC_CPP_LIST}
 	)
 
-qt5_use_modules(jnc_sample_03_dialog Widgets)
+qt5_use_modules_alt(jnc_sample_03_dialog Widgets)
 
 axl_set_pch(
 	jnc_sample_03_dialog
 	${PCH_H}
 	${PCH_CPP}
-	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 set_target_properties(

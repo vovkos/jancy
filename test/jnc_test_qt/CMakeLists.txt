@@ -9,6 +9,13 @@
 #
 #...............................................................................
 
+if(LINUX AND NOT ${TARGET_CPU} STREQUAL "x86") # if cross-compiling and64 -> x86, we gotta set rpath
+	set(JNC_SKIP_BUILD_RPATH_DEFAULT TRUE)
+endif()
+
+option(JNC_SKIP_BUILD_RPATH "Skip build rpath (i.e. which QT to use)" ${JNC_SKIP_BUILD_RPATH_DEFAULT})
+
+#...............................................................................
 #
 # app folder
 #
@@ -152,6 +159,11 @@ source_group(
 # jnc_test_qt compiler test
 #
 
+if(JNC_SKIP_BUILD_RPATH)
+	set(CMAKE_SKIP_BUILD_RPATH TRUE)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'${JANCY_DLL_DIR}'")
+endif()
+
 if(BUILD_JNC_IO_USB)
 	add_definitions(-D_JNC_IO_USB=1)
 	include_directories(${LIBUSB_INC_DIR})
@@ -211,13 +223,12 @@ add_executable(
 	${GEN_RL_CPP_LIST}
 	)
 
-qt5_use_modules(jnc_test_qt Widgets)
+qt5_use_modules_alt(jnc_test_qt Widgets)
 
 axl_set_pch(
 	jnc_test_qt
 	${PCH_H}
 	${PCH_CPP}
-	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 set_target_properties(
@@ -296,7 +307,9 @@ elseif(UNIX)
 			rt
 			)
 
-		add_qt_rpath_link()
+		if(NOT JNC_SKIP_BUILD_RPATH)
+			add_qt_rpath_link()
+		endif()
 	endif()
 endif()
 

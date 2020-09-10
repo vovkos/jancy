@@ -175,13 +175,12 @@ add_library(
 	${GEN_RL_CPP_LIST}
 	)
 
-qt5_use_modules(jnc_edit Widgets)
+qt5_use_modules_alt(jnc_edit Widgets)
 
 axl_set_pch(
 	jnc_edit
 	${PCH_H}
 	${PCH_CPP}
-	${Qt5Core_EXECUTABLE_COMPILE_FLAGS}
 	)
 
 if(BUILD_JNC_DLL)
