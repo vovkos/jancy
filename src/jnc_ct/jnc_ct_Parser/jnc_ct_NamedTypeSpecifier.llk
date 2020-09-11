@@ -262,9 +262,9 @@ library_specifier
 				{
 					return finalizeDynamicLibType();
 				}
-		|	TokenKind_Body
+		|	TokenKind_Body $b
 				{
-					return setBody($.m_type->getLibNamespace(), $1);
+					return setBody($.m_type->getLibNamespace(), $b);
 				}
 		)
 	;
