@@ -561,7 +561,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 			break;
 
 		case Qt::Key_Space:
-			if (e->modifiers() & Qt::ControlModifier)
+			if (e->modifiers() & QT_CONTROL_MODIFIER)
 			{
 				d->keyPressControlSpace(e);
 				break;
@@ -593,7 +593,7 @@ Edit::keyPressEvent(QKeyEvent* e)
 			break;
 
 		case Qt::Key_Space:
-			if (e->modifiers() & Qt::ControlModifier)
+			if (e->modifiers() & QT_CONTROL_MODIFIER)
 			{
 				d->keyPressControlSpace(e);
 				break;
@@ -691,7 +691,7 @@ EditPrivate::init()
 	Q_Q(Edit);
 
 #if (_JNC_OS_DARWIN)
-	QFont font("Menlo", 11);
+	QFont font("Menlo", 12);
 #elif (_JNC_OS_WIN)
 	QFont font("Consolas", 10);
 #else

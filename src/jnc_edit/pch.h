@@ -51,3 +51,11 @@ using namespace axl;
 #include "jnc_ExtensionLib.h"
 #include "jnc_CodeAssist.h"
 #include "jnc_Error.h"
+
+// on macOS, QT flips ControlModifier and MetaModifier
+
+#if (_AXL_OS_DARWIN)
+#	define QT_CONTROL_MODIFIER Qt::MetaModifier
+#else
+#	define QT_CONTROL_MODIFIER Qt::ControlModifier
+#endif
