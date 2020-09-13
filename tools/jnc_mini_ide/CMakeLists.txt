@@ -234,7 +234,7 @@ axl_set_pch(
 set_target_properties(
 	jnc_mini_ide
 	PROPERTIES
-	FOLDER test
+	FOLDER tools
 	)
 
 target_link_libraries(
