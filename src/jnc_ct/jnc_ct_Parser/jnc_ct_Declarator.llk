@@ -129,12 +129,19 @@ declarator_name<Declarator* $declarator>
 				$declarator->m_attributeBlock = popAttributeBlock();
 				$declarator->m_doxyBlock = m_doxyParser.popBlock();
 			}
-		('.' declarator_qualifier<$declarator>)*
+		(
+			'.' $dot
+				{
+					generateAutoCompleteListIf($dot, $declarator->getName());
+				}
+			declarator_qualifier<$declarator>
+		)*
 	;
 
 declarator_qualifier<Declarator* $declarator>
 	:	TokenKind_Identifier
 			{
+				generateAutoCompleteListIf($1, $declarator->getName());
 				return $declarator->addName($1.m_data.m_string);
 			}
 	|	TokenKind_Get

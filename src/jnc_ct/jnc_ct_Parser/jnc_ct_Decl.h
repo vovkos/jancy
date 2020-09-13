@@ -473,10 +473,10 @@ public:
 		Module* module
 		);
 
-	const QualifiedName*
+	const QualifiedName&
 	getName()
 	{
-		return &m_name;
+		return m_name;
 	}
 
 	const lex::LineCol&

@@ -775,7 +775,7 @@ Parser::declareInReaction(Declarator* declarator)
 		return false;
 	}
 
-	sl::String name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	FindModuleItemResult findResult = m_reactorType->findItem(name);
 	if (!findResult.m_result)
 		return false;
@@ -928,7 +928,7 @@ Parser::declareTypedef(
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	sl::String name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	FindModuleItemResult findResult = nspace->findItem(name);
 
 	if (!findResult.m_result)
@@ -999,7 +999,7 @@ Parser::declareAlias(
 	}
 
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	sl::String name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	sl::String qualifiedName = nspace->createQualifiedName(name);
 	sl::BoxList<Token>* initializer = &declarator->m_initializer;
 
@@ -1098,7 +1098,7 @@ Parser::declareFunction(
 	{
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Function, type);
 		orphan->m_functionKind = functionKind;
-		orphan->m_declaratorName = *declarator->getName();
+		orphan->m_declaratorName = declarator->getName();
 
 		functionItem = orphan;
 		functionItemDecl = orphan;
@@ -1139,7 +1139,7 @@ Parser::declareFunction(
 	switch (functionKind)
 	{
 	case FunctionKind_Normal:
-		functionItemDecl->m_name = declarator->getName()->getShortName();
+		functionItemDecl->m_name = declarator->getName().getShortName();
 		functionItemDecl->m_qualifiedName = nspace->createQualifiedName(functionItemDecl->m_name);
 		break;
 
@@ -1338,7 +1338,7 @@ Parser::createProperty(Declarator* declarator)
 		return NULL;
 	}
 
-	const sl::String& name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	sl::String qualifiedName = nspace->createQualifiedName(name);
 	Property* prop = m_module->m_functionMgr.createProperty(name, qualifiedName);
 
@@ -1582,14 +1582,14 @@ Parser::declareReactor(
 		return false;
 	}
 
-	sl::String name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	sl::String qualifiedName = nspace->createQualifiedName(name);
 
 	if (declarator->isQualified())
 	{
 		Orphan* orphan = m_module->m_namespaceMgr.createOrphan(OrphanKind_Reactor, NULL);
 		orphan->m_functionKind = FunctionKind_Normal;
-		orphan->m_declaratorName = *declarator->getName();
+		orphan->m_declaratorName = declarator->getName();
 		assignDeclarationAttributes(orphan, orphan, declarator);
 		nspace->addOrphan(orphan);
 	}
@@ -1631,7 +1631,7 @@ Parser::declareData(
 		return false;
 	}
 
-	sl::String name = declarator->getName()->getShortName();
+	const sl::StringRef& name = declarator->getName().getShortName();
 	size_t bitCount = declarator->getBitCount();
 	sl::BoxList<Token>* constructor = &declarator->m_constructor;
 	sl::BoxList<Token>* initializer = &declarator->m_initializer;
@@ -1979,7 +1979,7 @@ Parser::createFormalArg(
 
 	if (declarator->isSimple())
 	{
-		name = declarator->getName()->getShortName();
+		name = declarator->getName().getShortName();
 	}
 	else if (declarator->getDeclaratorKind() != DeclaratorKind_Undefined)
 	{
