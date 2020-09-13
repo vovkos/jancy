@@ -21,6 +21,7 @@ set(
 	jnc_LineNumberMargin.h
 	jnc_Highlighter.h
 	jnc_CodeAssistThread.h
+	jnc_CodeTip.h
 	)
 
 set(
@@ -29,6 +30,7 @@ set(
 	jnc_LineNumberMargin.cpp
 	jnc_Highlighter.cpp
 	jnc_CodeAssistThread.cpp
+	jnc_CodeTip.cpp
 	)
 
 set(
@@ -80,6 +82,7 @@ set(
 	jnc_Edit_p.h
 	jnc_LineNumberMargin.h
 	jnc_CodeAssistThread.h
+	jnc_CodeTip.h
 	)
 
 axl_push_and_set(CMAKE_CURRENT_BINARY_DIR ${GEN_DIR})
@@ -135,7 +138,7 @@ source_group(
 
 #...............................................................................
 #
-# jnc_edit compiler test
+# jnc_edit code-assisting editor
 #
 
 include_directories(

@@ -18,6 +18,8 @@
 
 namespace jnc {
 
+class CodeTip;
+
 //..............................................................................
 
 class EditPrivate: public QObject
@@ -96,7 +98,7 @@ protected:
 	size_t m_lastCodeAssistOffset;
 	int m_lastCodeAssistPosition;
 	int m_pendingCodeAssistPosition;
-	QPoint m_lastToolTipPoint;
+	CodeTip* m_codeTip;
 	QCompleter* m_completer;
 	QRect m_completerRect;
 	QIcon m_iconTable[Icon__Count];
@@ -122,7 +124,7 @@ protected:
 	enableCurrentLineHighlighting(bool isEnabled);
 
 	void
-	updateFontMetrics();
+	updateFont();
 
 	void
 	updateLineNumberMarginGeometry();
@@ -158,6 +160,9 @@ protected:
 
 	void
 	hideCodeAssist();
+
+	void
+	ensureCodeTip();
 
 	bool
 	isCompleterVisible()
@@ -225,9 +230,6 @@ protected:
 	QRect
 	getLastCodeAssistCursorRect();
 
-	QPoint
-	getLastCodeAssistToolTipPoint(bool isBelowCurrentCursor = false);
-
 	int
 	getLastCodeAssistPosition()
 	{
@@ -236,6 +238,9 @@ protected:
 
 	int
 	calcLastCodeAssistPosition();
+
+	QPoint
+	getLastCodeTipPoint(bool isBelowCurrentCursor = false);
 
 	void
 	indentSelection();

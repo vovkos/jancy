@@ -11,6 +11,7 @@
 
 #include "pch.h"
 #include "jnc_Edit_p.h"
+#include "jnc_CodeTip.h"
 #include "moc_jnc_Edit.cpp"
 #include "moc_jnc_Edit_p.cpp"
 #include "qrc_res.cpp"
@@ -508,7 +509,7 @@ Edit::changeEvent(QEvent* e)
 	QPlainTextEdit::changeEvent(e);
 
 	if (e->type() == QEvent::FontChange)
-		d->updateFontMetrics();
+		d->updateFont();
 }
 
 void
@@ -662,6 +663,7 @@ EditPrivate::EditPrivate()
 	m_isExtraSelectionUpdateRequired = false;
 	m_tabWidth = 4;
 	m_thread = NULL;
+	m_codeTip = NULL;
 	m_completer = NULL;
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistOffset = -1;
@@ -832,11 +834,14 @@ EditPrivate::updateExtraSelections()
 }
 
 void
-EditPrivate::updateFontMetrics()
+EditPrivate::updateFont()
 {
 	Q_Q(Edit);
 
 	q->setTabStopWidth(q->fontMetrics().width(' ') * m_tabWidth);
+
+	if (m_codeTip)
+		m_codeTip->setFont(q->font());
 
 	if (m_lineNumberMargin)
 	{
@@ -922,7 +927,8 @@ EditPrivate::hideCodeAssist()
 	if (m_completer)
 		m_completer->popup()->hide();
 
-	QToolTip::hideText();
+	if (m_codeTip)
+		m_codeTip->close();
 
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
@@ -958,6 +964,18 @@ EditPrivate::highlightCurrentLine()
 	m_highlighTable[HighlightKind_CurrentLine].cursor = cursor;
 
 	m_isExtraSelectionUpdateRequired = true;
+}
+
+void
+EditPrivate::ensureCodeTip()
+{
+	if (m_codeTip)
+		return;
+
+	Q_Q(Edit);
+
+	m_codeTip = new CodeTip(q);
+	m_codeTip->setFont(q->font());
 }
 
 void
@@ -1121,24 +1139,16 @@ EditPrivate::calcLastCodeAssistPosition()
 }
 
 QPoint
-EditPrivate::getLastCodeAssistToolTipPoint(bool isBelowCurrentCursor)
+EditPrivate::getLastCodeTipPoint(bool isBelowCurrentCursor)
 {
 	Q_Q(Edit);
-
-	enum
-	{
-		QtToolTipOffset_X = 2,
-		QtToolTipOffset_Y = 16,
-	};
 
 	QRect rect = getLastCodeAssistCursorRect();
 
 	if (isBelowCurrentCursor)
 		rect.moveTop(q->cursorRect().top());
 
-	QPoint point = q->mapToGlobal(rect.bottomLeft());
-	point -= QPoint(QtToolTipOffset_X, QtToolTipOffset_Y);
-	return point;
+	return q->mapToGlobal(rect.bottomLeft());
 }
 
 void
@@ -1146,9 +1156,11 @@ EditPrivate::createQuickInfoTip(ModuleItem* item)
 {
 	Q_Q(Edit);
 
+	QPoint point = getLastCodeTipPoint();
 	QString text = item->getSynopsis_v();
-	QPoint point = getLastCodeAssistToolTipPoint();
-	QToolTip::showText(point, text, q);
+
+	ensureCodeTip();
+	m_codeTip->showText(point, text);
 }
 
 void
@@ -1169,6 +1181,7 @@ EditPrivate::createArgumentTip(
 	bool isVarArg = (flags & FunctionTypeFlag_VarArg) != 0;
 	bool isMl = argCount >= 2;
 
+	QPoint point = getLastCodeTipPoint(true);
 	QString text = "<p style='white-space:pre'>";
 	text += returnType->getTypeString();
 	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
@@ -1198,14 +1211,8 @@ EditPrivate::createArgumentTip(
 
 	text += isMl ? "<br>" ML_ARG_INDENT ")</p>" : ")</p>";
 
-	QPoint point = getLastCodeAssistToolTipPoint(true);
-	if (point != m_lastToolTipPoint)
-	{
-		QToolTip::showText(point, " ", q); // ensure tipChanged
-		m_lastToolTipPoint = point;
-	}
-
-	QToolTip::showText(point, text, q);
+	ensureCodeTip();
+	m_codeTip->showText(point, text);
 }
 
 size_t

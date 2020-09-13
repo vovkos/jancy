@@ -22,21 +22,22 @@
 
 // QT
 
+#include <QApplication>
 #include <QPlainTextEdit>
-#include <QStringListModel>
 #include <QStandardItemModel>
 #include <QCompleter>
 #include <QAbstractItemView>
-#include <QScrollBar>
-#include <QToolTip>
 #include <QSyntaxHighlighter>
 #include <QPainter>
 #include <QThread>
 #include <QBasicTimer>
 #include <QFileIconProvider>
 #include <QDirIterator>
-#include <QApplication>
 #include <QTreeView>
+#include <QScrollBar>
+#include <QLabel>
+#include <QStylePainter>
+#include <QDesktopWidget>
 #include <QStyledItemDelegate>
 
 // AXL
