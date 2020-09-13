@@ -9,18 +9,16 @@
 #
 #...............................................................................
 
-option(
-	BUILD_JNC_TESTS
-	"Build Jancy tests"
-	ON
-	)
+if(QT_FOUND)
+	option(
+		BUILD_JNC_MINI_IDE
+		"Build Jancy Mini-IDE"
+		ON
+		)
 
-if(NOT BUILD_JNC_TESTS)
-	return()
+	if(BUILD_JNC_MINI_IDE)
+		add_subdirectory(jnc_mini_ide)
+	endif()
 endif()
-
-add_subdirectory(jnc_test_abi)
-add_subdirectory(jnc)
-add_subdirectory(ioninja)
 
 #...............................................................................

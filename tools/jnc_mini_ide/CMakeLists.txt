@@ -156,7 +156,7 @@ source_group(
 
 #...............................................................................
 #
-# jnc_test_qt compiler test
+# jnc_mini_ide - Jancy Minimalistic IDE
 #
 
 if(JNC_SKIP_BUILD_RPATH)
@@ -209,7 +209,7 @@ add_definitions(
 	)
 
 add_executable(
-	jnc_test_qt
+	jnc_mini_ide
 	${PCH_H}
 	${PCH_CPP}
 	${APP_H_LIST}
@@ -223,38 +223,38 @@ add_executable(
 	${GEN_RL_CPP_LIST}
 	)
 
-qt5_use_modules_alt(jnc_test_qt Widgets)
+qt5_use_modules_alt(jnc_mini_ide Widgets)
 
 axl_set_pch(
-	jnc_test_qt
+	jnc_mini_ide
 	${PCH_H}
 	${PCH_CPP}
 	)
 
 set_target_properties(
-	jnc_test_qt
+	jnc_mini_ide
 	PROPERTIES
 	FOLDER test
 	)
 
 target_link_libraries(
-	jnc_test_qt
+	jnc_mini_ide
 	jnc_edit
 	)
 
 if(BUILD_JNC_DLL)
 	add_dependencies(
-		jnc_test_qt
+		jnc_mini_ide
 		jnc_dll
 		)
 
 	target_link_libraries(
-		jnc_test_qt
+		jnc_mini_ide
 		${JANCY_DLL_NAME}
 		)
 else()
 	target_link_libraries(
-		jnc_test_qt
+		jnc_mini_ide
 		jnc_api_core
 		jnc_ct
 		jnc_rt
@@ -265,16 +265,16 @@ else()
 		jnc_api_core
 		)
 
-	target_link_llvm_jit_libraries(jnc_test_qt)
+	target_link_llvm_jit_libraries(jnc_mini_ide)
 endif()
 
 if(BUILD_JNC_IO_USB)
-	target_link_libraries(jnc_test_qt axl_io_usb)
+	target_link_libraries(jnc_mini_ide axl_io_usb)
 endif()
 
 if(BUILD_JNC_IO_SSL)
 	target_link_libraries(
-		jnc_test_qt
+		jnc_mini_ide
 		axl_cry
 		${OPENSSL_SSL_LIB_NAME}
 		${OPENSSL_CRYPTO_LIB_NAME}
@@ -282,7 +282,7 @@ if(BUILD_JNC_IO_SSL)
 endif()
 
 target_link_libraries(
-	jnc_test_qt
+	jnc_mini_ide
 	axl_zip
 	axl_fsm
 	axl_io
@@ -292,18 +292,18 @@ target_link_libraries(
 
 if(WIN32)
 	target_link_libraries(
-		jnc_test_qt
+		jnc_mini_ide
 		ws2_32
 		)
 elseif(UNIX)
 	target_link_libraries(
-		jnc_test_qt
+		jnc_mini_ide
 		pthread
 		)
 
 	if(NOT APPLE)
 		target_link_libraries(
-			jnc_test_qt
+			jnc_mini_ide
 			rt
 			)
 
@@ -316,12 +316,12 @@ endif()
 if(BUILD_JNC_IO_USB)
 	if(WIN32)
 		target_link_libraries(
-			jnc_test_qt
+			jnc_mini_ide
 			libusb-1.0
 			)
 	else()
 		target_link_libraries(
-			jnc_test_qt
+			jnc_mini_ide
 			usb-1.0
 			)
 
@@ -330,7 +330,7 @@ if(BUILD_JNC_IO_USB)
 			find_library(IOKIT_FRAMEWORK IOKit)
 
 			target_link_libraries(
-				jnc_test_qt
+				jnc_mini_ide
 				${CORE_FOUNDATION_FRAMEWORK}
 				${IOKIT_FRAMEWORK}
 				)
@@ -338,7 +338,7 @@ if(BUILD_JNC_IO_USB)
 
 		if(LINUX)
 			target_link_libraries(
-				jnc_test_qt
+				jnc_mini_ide
 				udev
 				)
 		endif()
@@ -349,10 +349,10 @@ if(WIN32 AND QT_DLL_DIR)
 	set(_DEBUG_SUFFIX $<$<CONFIG:Debug>:d>)
 
 	add_custom_command(
-		TARGET jnc_test_qt
+		TARGET jnc_mini_ide
 		POST_BUILD
 		COMMAND
-			echo Copying DLL files for jnc_test_qt...
+			echo Copying DLL files for jnc_mini_ide...
 		COMMAND
 			${CMAKE_COMMAND} -E copy
 			${QT_DLL_DIR}/Qt5Core${_DEBUG_SUFFIX}.dll

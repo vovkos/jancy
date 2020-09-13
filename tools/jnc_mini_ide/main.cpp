@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 #endif
 
 	g::getModule()->setTag("jnc_app");
-	jnc::initialize("jnc_dll:jnc_test_qt");
+	jnc::initialize("jnc_dll:jnc_mini_ide");
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	QApplication app(argc, argv);
 	QCoreApplication::setOrganizationName("Tibbo");
 	QCoreApplication::setOrganizationDomain("tibbo.com");
-	QCoreApplication::setApplicationName("JancyEdit");
+	QCoreApplication::setApplicationName("Jancy Mini-IDE");
 
 	MainWindow mainWindow;
 	mainWindow.showMaximized();

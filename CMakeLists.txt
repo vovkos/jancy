@@ -72,9 +72,10 @@ add_subdirectory(cmake)
 include(${CMAKE_CURRENT_BINARY_DIR}/cmake/jancy_config.cmake)
 
 add_subdirectory(src)
-add_subdirectory(doc)
+add_subdirectory(tools)
 add_subdirectory(samples)
 add_subdirectory(test)
+add_subdirectory(doc)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
