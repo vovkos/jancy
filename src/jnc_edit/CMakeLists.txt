@@ -257,4 +257,11 @@ set_target_properties(
 		SOVERSION ${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}
 	)
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install(
+	TARGETS jnc_edit
+	DESTINATION ${JANCY_INSTALL_DLL_SUBDIR}
+	)
+
 #...............................................................................
