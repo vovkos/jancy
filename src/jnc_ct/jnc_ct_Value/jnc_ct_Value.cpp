@@ -336,18 +336,32 @@ Value::setNamespace(NamedType* type)
 void
 Value::setVariable(Variable* variable)
 {
-	Type* resultType = getDirectRefType(
-		variable->getType(),
-		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
-		);
+	clear();
 
-	if (!variable->getModule()->hasCodeGen())
+	Module* module = variable->getModule();
+
+	if (!module->hasCodeGen())
 	{
+		bool result = variable->getType()->ensureLayout();
+		if (!result)
+		{
+			setVoid(module);
+			return;
+		}
+
+		Type* resultType = getDirectRefType(
+			variable->getType(),
+			variable->getPtrTypeFlags() | PtrTypeFlag_Safe
+			);
+
 		setType(resultType);
 		return;
 	}
 
-	clear();
+	Type* resultType = getDirectRefType(
+		variable->getType(),
+		variable->getPtrTypeFlags() | PtrTypeFlag_Safe
+		);
 
 	m_valueKind = ValueKind_Variable;
 	m_variable = variable;
