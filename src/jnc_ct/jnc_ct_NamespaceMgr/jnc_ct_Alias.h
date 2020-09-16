@@ -53,6 +53,12 @@ public:
 		return m_targetItem != NULL;
 	}
 
+	Type*
+	getType()
+	{
+		return ensureResolved() ? m_targetItem->getType() : NULL;
+	}
+
 	ModuleItem*
 	getTargetItem()
 	{

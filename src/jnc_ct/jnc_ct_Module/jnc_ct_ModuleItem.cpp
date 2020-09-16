@@ -279,7 +279,7 @@ getTypedefType(ModuleItem* item)
 Type*
 getAliasType(ModuleItem* item)
 {
-	return ((Alias*)item)->getTargetItem()->getType();
+	return ((Alias*)item)->getType();
 }
 
 Type*
