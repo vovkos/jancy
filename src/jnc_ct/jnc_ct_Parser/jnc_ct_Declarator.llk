@@ -132,7 +132,7 @@ declarator_name<Declarator* $declarator>
 		(
 			'.' $dot
 				{
-					generateAutoCompleteListIf($dot, $declarator->getName(), CodeAssistFlag_Declarator);
+					prepareAutoCompleteFallbackIf($dot, $declarator->getName(), CodeAssistFlag_Declarator);
 				}
 			declarator_qualifier<$declarator>
 		)*
@@ -141,7 +141,7 @@ declarator_name<Declarator* $declarator>
 declarator_qualifier<Declarator* $declarator>
 	:	TokenKind_Identifier
 			{
-				generateAutoCompleteListIf($1, $declarator->getName(), CodeAssistFlag_Declarator);
+				prepareAutoCompleteFallbackIf($1, $declarator->getName(), CodeAssistFlag_Declarator);
 				return $declarator->addName($1.m_data.m_string);
 			}
 	|	TokenKind_Get

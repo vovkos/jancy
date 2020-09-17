@@ -728,25 +728,6 @@ protected:
 		);
 
 	void
-	generateAutoCompleteListIf(
-		const Token& token,
-		const QualifiedName& prefix,
-		uint_t flags = 0
-		)
-	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
-			(token.m_flags & TokenFlag_CodeAssist))
-			generateAutoCompleteList(token, prefix, flags);
-	}
-
-	void
-	generateAutoCompleteList(
-		const Token& token,
-		const QualifiedName& prefix,
-		uint_t flags = 0
-		);
-
-	void
 	generateAutoCompleteList(
 		const Token& token,
 		Namespace* nspace,
@@ -762,7 +743,23 @@ protected:
 	}
 
 	void
-	generateImportAutoCompleteList(const Token& token);
+	prepareAutoCompleteFallbackIf(
+		const Token& token,
+		const QualifiedName& prefix,
+		uint_t flags = 0
+		)
+	{
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+			(token.m_flags & TokenFlag_CodeAssist))
+			prepareAutoCompleteFallback(token, prefix, flags);
+	}
+
+	void
+	prepareAutoCompleteFallback(
+		const Token& token,
+		const QualifiedName& prefix,
+		uint_t flags = 0
+		);
 
 	void
 	generateMemberInfoIf(

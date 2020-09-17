@@ -30,6 +30,15 @@ CodeAssist::CodeAssist()
 
 //..............................................................................
 
+void
+CodeAssistMgr::AutoCompleteFallback::clear()
+{
+	m_offset = -1;
+	m_namespace = NULL;
+	m_prefix.clear();
+	m_flags = 0;
+}
+
 CodeAssistMgr::CodeAssistMgr()
 {
 	m_module = Module::getCurrentConstructedModule();
@@ -40,8 +49,6 @@ CodeAssistMgr::CodeAssistMgr()
 	m_offset = -1;
 	m_containerItem = NULL;
 	m_codeAssist = NULL;
-	m_autoCompleteOffset = -1;
-	m_autoCompleteNamespace = NULL;
 }
 
 void
@@ -53,8 +60,7 @@ CodeAssistMgr::clear()
 	m_offset = -1;
 	m_containerItem = NULL;
 	m_codeAssist = NULL;
-	m_autoCompleteOffset = -1;
-	m_autoCompleteNamespace = NULL;
+	m_autoCompleteFallback.clear();
 }
 
 void
@@ -84,12 +90,8 @@ CodeAssistMgr::generateCodeAssist()
 		generateCodeAssistImpl(item);
 	}
 
-	if (!m_codeAssist && m_autoCompleteNamespace) // auto-complete fallback
-		createAutoCompleteList(
-			m_autoCompleteOffset,
-			m_autoCompleteNamespace,
-			CodeAssistFlag_IncludeParentNamespace
-			);
+	if (!m_codeAssist && m_autoCompleteFallback.m_namespace) // auto-complete fallback
+		createAutoCompleteFallback();
 
 	return m_codeAssist;
 }
@@ -201,26 +203,24 @@ CodeAssistMgr::createAutoCompleteList(
 }
 
 CodeAssist*
-CodeAssistMgr::createAutoCompleteList(
-	size_t offset,
-	Namespace* nspace,
-	const QualifiedName& prefix,
-	uint_t flags
-	)
+CodeAssistMgr::createAutoCompleteFallback()
 {
-	if (prefix.isEmpty())
-		return createAutoCompleteList(offset, nspace, flags);
+	ASSERT(m_autoCompleteFallback.m_namespace);
 
-	FindModuleItemResult findItemResult = nspace->findItemTraverse(prefix, NULL);
-	nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
-	if (nspace)
-		return createAutoCompleteList(offset, nspace, flags);
+	if (m_autoCompleteFallback.m_prefix.isEmpty())
+		return createAutoCompleteList(
+			m_autoCompleteFallback.m_offset,
+			m_autoCompleteFallback.m_namespace,
+			m_autoCompleteFallback.m_flags
+			);
 
-	// adjust the fallback auto-complete
-
-	m_autoCompleteOffset = offset;
-	m_autoCompleteNamespace = nspace;
-	return NULL;
+	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);
+	Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
+	return createAutoCompleteList(
+		m_autoCompleteFallback.m_offset,
+		nspace ? nspace : m_autoCompleteFallback.m_namespace,
+		m_autoCompleteFallback.m_flags
+		);
 }
 
 CodeAssist*

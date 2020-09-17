@@ -214,17 +214,17 @@ qualified_name
 qualified_name_impl<QualifiedName* $name>
 	:	TokenKind_Identifier
 			{
-				generateAutoCompleteListIf($1, *$name);
+				prepareAutoCompleteFallbackIf($1, *$name);
 				$name->addName($1.m_data.m_string);
 			}
 		(
 			'.' $op
 				{
-					generateAutoCompleteListIf($op, *$name);
+					prepareAutoCompleteFallbackIf($op, *$name);
 				}
 			TokenKind_Identifier $n2
 				{
-					generateAutoCompleteListIf($n2, *$name);
+					prepareAutoCompleteFallbackIf($n2, *$name);
 					$name->addName($n2.m_data.m_string);
 				}
 		)*

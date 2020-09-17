@@ -3292,7 +3292,7 @@ Parser::generateAutoCompleteList(
 }
 
 void
-Parser::generateAutoCompleteList(
+Parser::prepareAutoCompleteFallback(
 	const Token& token,
 	const QualifiedName& prefix,
 	uint_t flags
@@ -3305,11 +3305,11 @@ Parser::generateAutoCompleteList(
 		else
 			return;
 
-	if (prefix.isEmpty())
-		flags |= CodeAssistFlag_IncludeParentNamespace;
-
 	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_codeAssistMgr.createAutoCompleteList(offset, nspace, prefix, flags);
+	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_offset = offset;
+	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_namespace = nspace;
+	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_prefix = prefix;
+	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_flags = flags;
 }
 
 void

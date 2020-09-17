@@ -106,15 +106,30 @@ class CodeAssistMgr
 	friend class Module;
 
 protected:
+	struct AutoCompleteFallback
+	{
+		size_t m_offset;
+		Namespace* m_namespace;
+		QualifiedName m_prefix;
+		uint_t m_flags;
+
+		AutoCompleteFallback()
+		{
+			clear();
+		}
+
+		void
+		clear();
+	};
+
+protected:
 	Module* m_module;
 	Module* m_cacheModule;
 	CodeAssistKind m_codeAssistKind;
 	CodeAssist* m_codeAssist;
 	size_t m_offset;
 	ModuleItem* m_containerItem;
-
-	size_t m_autoCompleteOffset;
-	Namespace* m_autoCompleteNamespace;
+	AutoCompleteFallback m_autoCompleteFallback;
 
 public:
 	CodeAssistMgr();
@@ -206,14 +221,6 @@ public:
 		);
 
 	CodeAssist*
-	createAutoCompleteList(
-		size_t offset,
-		Namespace* nspace,
-		const QualifiedName& prefix,
-		uint_t flags = 0
-		);
-
-	CodeAssist*
 	createImportAutoCompleteList(size_t offset);
 
 protected:
@@ -229,6 +236,9 @@ protected:
 		size_t offset,
 		ModuleItem* item
 		);
+
+	CodeAssist*
+	createAutoCompleteFallback();
 };
 
 //..............................................................................
