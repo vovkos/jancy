@@ -113,6 +113,32 @@ getCursorLinePrefix(const QTextCursor& cursor0)
 	return cursor.selectedText();
 }
 
+QString
+getCursorLineSuffix(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	int position = cursor.position();
+	cursor.setPosition(position);
+	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+	return cursor.selectedText();
+}
+
+bool
+isCursorLineEmpty(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.select(QTextCursor::LineUnderCursor);
+	return cursor.selectedText().trimmed().isEmpty();
+}
+
+bool
+isCursorNextLineEmpty(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.movePosition(QTextCursor::Down);;
+	return isCursorLineEmpty(cursor);
+}
+
 QChar
 getCursorPrevChar(const QTextCursor& cursor0)
 {
@@ -930,6 +956,7 @@ EditPrivate::hideCodeAssist()
 	if (m_codeTip)
 		m_codeTip->close();
 
+	m_lastCodeAssistModule = ref::g_nullPtr;
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
 	m_thread = NULL;
@@ -1002,8 +1029,8 @@ EditPrivate::ensureCompleter()
 	m_completer->setPopup(popup);
 
     QObject::connect(
-		m_completer, SIGNAL(activated(const QString&)),
-		this, SLOT(onCompleterActivated(const QString&))
+		m_completer, SIGNAL(activated(const QModelIndex&)),
+		this, SLOT(onCompleterActivated(const QModelIndex&))
 		);
 }
 
@@ -1066,9 +1093,8 @@ EditPrivate::applyCompleter()
 	ASSERT(m_completer);
 
 	QModelIndex index = m_completer->popup()->currentIndex();
-	QString completion = index.isValid() ? m_completer->popup()->model()->data(index).toString() : QString();
-	if (!completion.isEmpty())
-		onCompleterActivated(completion);
+	if (index.isValid())
+		onCompleterActivated(index);
 
 	hideCodeAssist();
 }
@@ -1174,11 +1200,9 @@ EditPrivate::createArgumentTip(
 	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
 
 	Type* returnType = functionType->getReturnType();
-	uint_t flags = functionType->getFlags();
 	size_t argCount = functionType->getArgCount();
 	size_t lastArgIdx = argCount - 1;
 
-	bool isVarArg = (flags & FunctionTypeFlag_VarArg) != 0;
 	bool isMl = argCount >= 2;
 
 	QPoint point = getLastCodeTipPoint(true);
@@ -1206,7 +1230,7 @@ EditPrivate::createArgumentTip(
 			text += ",<br>" ML_ARG_INDENT;
 	}
 
-	if (isVarArg)
+	if (functionType->getFlags() & FunctionTypeFlag_VarArg)
 		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
 
 	text += isMl ? "<br>" ML_ARG_INDENT ")</p>" : ")</p>";
@@ -1284,6 +1308,7 @@ EditPrivate::addAutoCompleteNamespace(
 		QStandardItem* nameItem = new QStandardItem;
 		nameItem->setText(name);
 		nameItem->setData(name.toLower(), Role_CaseInsensitiveSort);
+		nameItem->setData(QVariant::fromValue((void*)item), Role_ModuleItem);
 
 		QStandardItem* synopsisItem = new QStandardItem;
 		synopsisItem->setText(synopsis);
@@ -1310,7 +1335,7 @@ EditPrivate::createAutoCompleteList(
 	QStandardItemModel* model = new QStandardItemModel(m_completer);
 	addAutoCompleteNamespace(model, nspace);
 
-	if (flags & CodeAssistNamespaceFlag_IncludeParentNamespace)
+	if (flags & CodeAssistFlag_IncludeParentNamespace)
 	{
 		nspace = nspace->getParentNamespace();
 
@@ -1828,12 +1853,89 @@ EditPrivate::onCursorPositionChanged()
 		updateExtraSelections();
 }
 
+Function*
+EditPrivate::getAutoCompleteDeclFunction(const QModelIndex& index)
+{
+	ModuleItem* item = (ModuleItem*)m_completer->popup()->model()->data(index, Role_ModuleItem).value<void*>();
+	if (!item || item->getItemKind() != ModuleItemKind_Function)
+		return false;
+
+	ModuleItemDecl* decl = item->getDecl();
+	if (decl->getParentNamespace() != m_lastCodeAssistModule->getCodeAssist()->getNamespace())
+		return false;
+
+	AttributeBlock* block = decl->getAttributeBlock();
+	return block && block->findAttribute("autoCompleteDecl") ? (Function*)item : NULL;
+}
+
+QString
+getAutoCompleteDeclString(
+	Function* function,
+	bool isNextLineEmpty
+	)
+{
+	FunctionType* type = function->getType();
+	Type* returnType = type->getReturnType();
+	size_t argCount = type->getArgCount();
+	size_t lastArgIdx = argCount - 1;
+
+	bool isMl = argCount >= 2;
+
+	QString text = returnType->getTypeString();
+	text += ' ';
+	text += function->getDecl()->getQualifiedName();
+	text += isMl ? "(\n\t" : "(";
+
+	for (size_t i = 0; i < argCount; i++)
+	{
+		FunctionArg* arg = type->getArg(i);
+		Type* argType = arg->getType();
+
+		text += argType->getTypeStringPrefix();
+		text += ' ';
+		text += arg->getDecl()->getName();
+		text += argType->getTypeStringSuffix();
+
+		if (i != lastArgIdx)
+			text += ",\n\t";
+	}
+
+	if (type->getFlags() & FunctionTypeFlag_VarArg)
+		text += isMl ? ",\n\t..." : ", ...";
+
+	if (isMl)
+		text += "\n\t";
+
+	text += ")\n{\n\t\n}";
+
+	if (!isNextLineEmpty)
+		text += '\n';
+
+	return text;
+}
+
 void
-EditPrivate::onCompleterActivated(const QString& completion)
+EditPrivate::onCompleterActivated(const QModelIndex& index)
 {
 	Q_Q(Edit);
 
     QTextCursor cursor = q->textCursor();
+
+	Function* function = getAutoCompleteDeclFunction(index);
+	if (function && getCursorLineSuffix(cursor).trimmed().isEmpty())
+	{
+		bool isNextLineEmpty = isCursorNextLineEmpty(cursor);
+		QString completion = getAutoCompleteDeclString(function, isNextLineEmpty);
+		cursor.select(QTextCursor::LineUnderCursor);
+		cursor.insertText(completion);
+
+		int delta = isNextLineEmpty ? 2 : 3; // inside body after \t
+		cursor.setPosition(cursor.position() - delta);
+	    q->setTextCursor(cursor);
+		return;
+	}
+
+	QString completion = m_completer->popup()->model()->data(index, Qt::DisplayRole).toString();
 	int basePosition = getLastCodeAssistPosition();
 
 	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
@@ -1868,7 +1970,7 @@ EditPrivate::onCodeAssistReady()
 	if (thread != m_thread)
 		return;
 
-	CodeAssist* codeAssist = thread->getCodeAssist();
+	CodeAssist* codeAssist = thread->getModule()->getCodeAssist();
 	if (!codeAssist)
 	{
 		if (thread->getCodeAssistKind() != CodeAssistKind_QuickInfoTip ||
@@ -1878,6 +1980,7 @@ EditPrivate::onCodeAssistReady()
 		return;
 	}
 
+	m_lastCodeAssistModule = thread->getModule(); // cache
 	m_lastCodeAssistKind = codeAssist->getCodeAssistKind();
 	m_lastCodeAssistOffset = codeAssist->getOffset();
 	m_lastCodeAssistPosition = -1;
@@ -1893,7 +1996,7 @@ EditPrivate::onCodeAssistReady()
 		break;
 
 	case CodeAssistKind_AutoCompleteList:
-		createAutoCompleteList(codeAssist->getNamespace(), codeAssist->getNamespaceFlags());
+		createAutoCompleteList(codeAssist->getNamespace(), codeAssist->getFlags());
 		break;
 
 	case CodeAssistKind_ImportAutoCompleteList:

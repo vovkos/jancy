@@ -30,18 +30,23 @@ typedef enum jnc_CodeAssistKind jnc_CodeAssistKind;
 
 //..............................................................................
 
-enum jnc_CodeAssistNamespaceFlag
+enum jnc_CodeAssistFlag
 {
-	jnc_CodeAssistNamespaceFlag_IncludeParentNamespace = 0x01,
+	jnc_CodeAssistFlag_IncludeParentNamespace = 0x01,
+	jnc_CodeAssistFlag_Declarator             = 0x02,
 };
 
-typedef enum jnc_CodeAssistNamespaceFlag jnc_CodeAssistNamespaceFlag;
+typedef enum jnc_CodeAssistFlag jnc_CodeAssistFlag;
 
 //..............................................................................
 
 JNC_EXTERN_C
 jnc_CodeAssistKind
 jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist);
+
+JNC_EXTERN_C
+uint_t
+jnc_CodeAssist_getFlags(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 size_t
@@ -67,10 +72,6 @@ JNC_EXTERN_C
 jnc_Namespace*
 jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist);
 
-JNC_EXTERN_C
-uint_t
-jnc_CodeAssist_getNamespaceFlags(jnc_CodeAssist* codeAssist);
-
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 #if (!defined _JNC_CORE && defined __cplusplus)
@@ -82,10 +83,16 @@ struct jnc_CodeAssist
 		return jnc_CodeAssist_getCodeAssistKind(this);
 	}
 
-	size_t
+	uint_t
 	getOffset()
 	{
 		return jnc_CodeAssist_getOffset(this);
+	}
+
+	size_t
+	getFlags()
+	{
+		return jnc_CodeAssist_getFlags(this);
 	}
 
 	jnc_Module*
@@ -117,12 +124,6 @@ struct jnc_CodeAssist
 	{
 		return jnc_CodeAssist_getNamespace(this);
 	}
-
-	uint_t
-	getNamespaceFlags()
-	{
-		return jnc_CodeAssist_getNamespaceFlags(this);
-	}
 };
 #endif // _JNC_CORE
 
@@ -147,10 +148,11 @@ const CodeAssistKind
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-typedef jnc_CodeAssistNamespaceFlag CodeAssistNamespaceFlag;
+typedef jnc_CodeAssistFlag CodeAssistFlag;
 
-const CodeAssistNamespaceFlag
-	CodeAssistNamespaceFlag_IncludeParentNamespace = jnc_CodeAssistNamespaceFlag_IncludeParentNamespace;
+const CodeAssistFlag
+	CodeAssistFlag_IncludeParentNamespace = jnc_CodeAssistFlag_IncludeParentNamespace,
+	CodeAssistFlag_Declarator             = jnc_CodeAssistFlag_Declarator;
 
 //..............................................................................
 

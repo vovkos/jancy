@@ -20,7 +20,7 @@ class CodeAssistThread: public QThread
 	Q_OBJECT
 
 protected:
-	AutoModule m_module;
+	ref::Ptr<Module> m_module;
 	ref::Ptr<Module> m_cacheModule;
 	CodeAssistKind m_codeAssistKind;
 	sl::String m_source;
@@ -34,16 +34,16 @@ public:
 	CodeAssistThread(QObject* parent = NULL);
 	~CodeAssistThread();
 
+	const ref::Ptr<Module>&
+	getModule()
+	{
+		return m_module;
+	}
+
 	CodeAssistKind
 	getCodeAssistKind()
 	{
 		return m_codeAssistKind;
-	}
-
-	CodeAssist*
-	getCodeAssist()
-	{
-		return m_module->getCodeAssist();
 	}
 
 	void

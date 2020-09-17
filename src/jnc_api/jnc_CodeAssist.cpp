@@ -30,6 +30,14 @@ jnc_CodeAssist_getCodeAssistKind(jnc_CodeAssist* codeAssist)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+uint_t
+jnc_CodeAssist_getFlags(jnc_CodeAssist* codeAssist)
+{
+	return codeAssist->getFlags();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_CodeAssist_getOffset(jnc_CodeAssist* codeAssist)
 {
@@ -74,14 +82,6 @@ jnc_Namespace*
 jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist)
 {
 	return codeAssist->getNamespace();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-uint_t
-jnc_CodeAssist_getNamespaceFlags(jnc_CodeAssist* codeAssist)
-{
-	return codeAssist->getNamespaceFlags();
 }
 
 #endif

@@ -23,6 +23,7 @@ CodeAssist::CodeAssist()
 	m_codeAssistKind = CodeAssistKind_Undefined;
 	m_offset = 0;
 	m_module = NULL;
+	m_flags = 0;
 	m_item = NULL;
 	m_itemParam = 0;
 }
@@ -52,10 +53,8 @@ CodeAssistMgr::clear()
 	m_offset = -1;
 	m_containerItem = NULL;
 	m_codeAssist = NULL;
-
 	m_autoCompleteOffset = -1;
 	m_autoCompleteNamespace = NULL;
-	m_autoCompletePrefix.clear();
 }
 
 void
@@ -85,15 +84,12 @@ CodeAssistMgr::generateCodeAssist()
 		generateCodeAssistImpl(item);
 	}
 
-	if (!m_codeAssist && m_autoCompleteNamespace)
-		if (!m_autoCompletePrefix.isEmpty())
-			createAutoCompleteListFromPrefix();
-		else
-			createAutoCompleteList(
-				m_autoCompleteOffset,
-				m_autoCompleteNamespace,
-				CodeAssistNamespaceFlag_IncludeParentNamespace
-				);
+	if (!m_codeAssist && m_autoCompleteNamespace) // auto-complete fallback
+		createAutoCompleteList(
+			m_autoCompleteOffset,
+			m_autoCompleteNamespace,
+			CodeAssistFlag_IncludeParentNamespace
+			);
 
 	return m_codeAssist;
 }
@@ -136,21 +132,6 @@ CodeAssistMgr::generateCodeAssistImpl(ModuleItem* item)
 	}
 
 	return m_codeAssist;
-}
-
-CodeAssist*
-CodeAssistMgr::createAutoCompleteListFromPrefix()
-{
-	ASSERT(m_codeAssistKind == CodeAssistKind_AutoCompleteList);
-	ASSERT(m_autoCompleteOffset != -1);
-	ASSERT(!m_autoCompletePrefix.isEmpty());
-
-	FindModuleItemResult findItemResult = m_autoCompleteNamespace->findItemTraverse(m_autoCompletePrefix, NULL);
-	if (!findItemResult.m_item)
-		return NULL;
-
-	Namespace* nspace = findItemResult.m_item->getNamespace();
-	return nspace ? createAutoCompleteList(m_autoCompleteOffset, nspace) : NULL;
 }
 
 CodeAssist*
@@ -212,11 +193,34 @@ CodeAssistMgr::createAutoCompleteList(
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
+	m_codeAssist->m_flags = flags;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	m_codeAssist->m_namespace = nspace;
-	m_codeAssist->m_namespaceFlags = flags;
 	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createAutoCompleteList(
+	size_t offset,
+	Namespace* nspace,
+	const QualifiedName& prefix,
+	uint_t flags
+	)
+{
+	if (prefix.isEmpty())
+		return createAutoCompleteList(offset, nspace, flags);
+
+	FindModuleItemResult findItemResult = nspace->findItemTraverse(prefix, NULL);
+	nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
+	if (nspace)
+		return createAutoCompleteList(offset, nspace, flags);
+
+	// adjust the fallback auto-complete
+
+	m_autoCompleteOffset = offset;
+	m_autoCompleteNamespace = nspace;
+	return NULL;
 }
 
 CodeAssist*

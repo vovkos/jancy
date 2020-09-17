@@ -25,6 +25,7 @@ class CodeAssist
 
 protected:
 	CodeAssistKind m_codeAssistKind;
+	uint_t m_flags;
 	size_t m_offset; // not necessarily the same as request offset
 	Module* m_module;
 
@@ -39,7 +40,6 @@ protected:
 	{
 		size_t m_itemParam;
 		size_t m_argumentIdx;
-		uint_t m_namespaceFlags;
 	};
 
 public:
@@ -49,6 +49,12 @@ public:
 	getCodeAssistKind()
 	{
 		return m_codeAssistKind;
+	}
+
+	uint_t
+	getFlags()
+	{
+		return m_flags;
 	}
 
 	size_t
@@ -90,13 +96,6 @@ public:
 		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
 		return m_argumentIdx;
 	}
-
-	uint_t
-	getNamespaceFlags()
-	{
-		ASSERT(m_codeAssistKind == CodeAssistKind_AutoCompleteList);
-		return m_namespaceFlags;
-	}
 };
 
 //..............................................................................
@@ -116,7 +115,6 @@ protected:
 
 	size_t m_autoCompleteOffset;
 	Namespace* m_autoCompleteNamespace;
-	QualifiedName m_autoCompletePrefix;
 
 public:
 	CodeAssistMgr();
@@ -208,6 +206,14 @@ public:
 		);
 
 	CodeAssist*
+	createAutoCompleteList(
+		size_t offset,
+		Namespace* nspace,
+		const QualifiedName& prefix,
+		uint_t flags = 0
+		);
+
+	CodeAssist*
 	createImportAutoCompleteList(size_t offset);
 
 protected:
@@ -223,9 +229,6 @@ protected:
 		size_t offset,
 		ModuleItem* item
 		);
-
-	CodeAssist*
-	createAutoCompleteListFromPrefix();
 };
 
 //..............................................................................

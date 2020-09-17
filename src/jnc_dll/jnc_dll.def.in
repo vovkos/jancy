@@ -21,13 +21,13 @@ EXPORTS
 	jnc_setError
 	jnc_setStringError
 	jnc_CodeAssist_getCodeAssistKind
+	jnc_CodeAssist_getFlags
 	jnc_CodeAssist_getOffset
 	jnc_CodeAssist_getModule
 	jnc_CodeAssist_getModuleItem
 	jnc_CodeAssist_getFunctionType
 	jnc_CodeAssist_getArgumentIdx
 	jnc_CodeAssist_getNamespace
-	jnc_CodeAssist_getNamespaceFlags
 	jnc_ModuleItemDecl_getAccessKind
 	jnc_ModuleItemDecl_getAttributeBlock
 	jnc_ModuleItemDecl_getCol

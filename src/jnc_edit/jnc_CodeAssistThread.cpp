@@ -22,6 +22,10 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 {
 	printf("CodeAssistThread::CodeAssistThread(%p)\n", this);
 	m_codeAssistKind = CodeAssistKind_Undefined;
+
+	ref::Ptr<AutoModule> autoModule = AXL_REF_NEW(ref::Box<AutoModule>);
+	m_module.attach(autoModule->p(), autoModule.getRefCount());
+	autoModule.detach();
 }
 
 CodeAssistThread::~CodeAssistThread()

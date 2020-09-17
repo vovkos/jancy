@@ -59,6 +59,7 @@ protected:
 	enum Role
 	{
 		Role_CaseInsensitiveSort = Qt::UserRole + 1,
+		Role_ModuleItem,
 	};
 
 	enum Icon
@@ -94,6 +95,7 @@ protected:
 	QStringList m_importDirList;
 	QStringList m_importList;
 	CodeAssistThread* m_thread;
+	ref::Ptr<Module> m_lastCodeAssistModule;
 	CodeAssistKind m_lastCodeAssistKind;
 	size_t m_lastCodeAssistOffset;
 	int m_lastCodeAssistPosition;
@@ -242,6 +244,9 @@ protected:
 	QPoint
 	getLastCodeTipPoint(bool isBelowCurrentCursor = false);
 
+	Function*
+	getAutoCompleteDeclFunction(const QModelIndex& index);
+
 	void
 	indentSelection();
 
@@ -279,7 +284,7 @@ protected:
 private slots:
 	void updateLineNumberMargin(const QRect&, int);
 	void onCursorPositionChanged();
-	void onCompleterActivated(const QString& completion);
+	void onCompleterActivated(const QModelIndex& index);
 	void onCodeAssistReady();
 	void onThreadFinished();
 };

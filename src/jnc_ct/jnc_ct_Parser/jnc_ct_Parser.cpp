@@ -3294,7 +3294,8 @@ Parser::generateAutoCompleteList(
 void
 Parser::generateAutoCompleteList(
 	const Token& token,
-	const QualifiedName& prefix
+	const QualifiedName& prefix,
+	uint_t flags
 	)
 {
 	size_t offset = token.m_pos.m_offset;
@@ -3304,9 +3305,11 @@ Parser::generateAutoCompleteList(
 		else
 			return;
 
-	m_module->m_codeAssistMgr.m_autoCompleteNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
-	m_module->m_codeAssistMgr.m_autoCompletePrefix = prefix;
-	m_module->m_codeAssistMgr.m_autoCompleteOffset = offset;
+	if (prefix.isEmpty())
+		flags |= CodeAssistFlag_IncludeParentNamespace;
+
+	Namespace* nspace = m_module->m_namespaceMgr.getCurrentNamespace();
+	m_module->m_codeAssistMgr.createAutoCompleteList(offset, nspace, prefix, flags);
 }
 
 void
