@@ -711,35 +711,35 @@ protected:
 	}
 
 	void
-	generateAutoCompleteListIf(
+	generateAutoCompleteIf(
 		const Token& token,
 		const Value& value
 		)
 	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
-			generateAutoCompleteList(token, value);
+			generateAutoComplete(token, value);
 	}
 
 	void
-	generateAutoCompleteList(
+	generateAutoComplete(
 		const Token& token,
 		const Value& value
 		);
 
 	void
-	generateAutoCompleteList(
+	generateAutoComplete(
 		const Token& token,
 		Namespace* nspace,
 		uint_t flags = 0
 		);
 
 	void
-	generateImportAutoCompleteListIf(const Token& token)
+	generateImportAutoCompleteIf(const Token& token)
 	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
-			m_module->m_codeAssistMgr.createImportAutoCompleteList(token.m_pos.m_offset);
+			m_module->m_codeAssistMgr.createImportAutoComplete(token.m_pos.m_offset);
 	}
 
 	void
@@ -749,7 +749,7 @@ protected:
 		uint_t flags = 0
 		)
 	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoCompleteList &&
+		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_AutoComplete &&
 			(token.m_flags & TokenFlag_CodeAssist))
 			prepareAutoCompleteFallback(token, prefix, flags);
 	}

@@ -72,7 +72,7 @@ public:
 	ModuleItem*
 	getModuleItem()
 	{
-		ASSERT(m_codeAssistKind == CodeAssistKind_QuickInfoTip || m_codeAssistKind == CodeAssistKind_GotoDefinition || m_codeAssistKind == CodeAssistKind_AutoComplete);
+		ASSERT(m_codeAssistKind == CodeAssistKind_QuickInfoTip || m_codeAssistKind == CodeAssistKind_GotoDefinition);
 		return m_item;
 	}
 
@@ -86,7 +86,7 @@ public:
 	Namespace*
 	getNamespace()
 	{
-		ASSERT(m_codeAssistKind == CodeAssistKind_AutoCompleteList);
+		ASSERT(m_codeAssistKind == CodeAssistKind_AutoComplete);
 		return m_namespace;
 	}
 
@@ -214,14 +214,14 @@ public:
 		);
 
 	CodeAssist*
-	createAutoCompleteList(
+	createAutoComplete(
 		size_t offset,
 		Namespace* nspace,
 		uint_t flags = 0
 		);
 
 	CodeAssist*
-	createImportAutoCompleteList(size_t offset);
+	createImportAutoComplete(size_t offset);
 
 protected:
 	void

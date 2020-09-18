@@ -470,7 +470,7 @@ inline
 void
 CodeAssistMgr::prepareAutoCompleteFallback(size_t offset)
 {
-	if (m_codeAssistKind == CodeAssistKind_AutoCompleteList && !m_codeAssist && !m_containerItem)
+	if (m_codeAssistKind == CodeAssistKind_AutoComplete && !m_codeAssist && !m_containerItem)
 	{
 		m_autoCompleteFallback.m_namespace = m_module->m_namespaceMgr.getCurrentNamespace();
 		m_autoCompleteFallback.m_offset = offset;

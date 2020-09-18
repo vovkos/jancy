@@ -21,8 +21,7 @@ enum jnc_CodeAssistKind
 	jnc_CodeAssistKind_QuickInfoTip,
 	jnc_CodeAssistKind_ArgumentTip,
 	jnc_CodeAssistKind_AutoComplete,
-	jnc_CodeAssistKind_AutoCompleteList,
-	jnc_CodeAssistKind_ImportAutoCompleteList,
+	jnc_CodeAssistKind_ImportAutoComplete,
 	jnc_CodeAssistKind_GotoDefinition,
 };
 
@@ -33,7 +32,8 @@ typedef enum jnc_CodeAssistKind jnc_CodeAssistKind;
 enum jnc_CodeAssistFlag
 {
 	jnc_CodeAssistFlag_IncludeParentNamespace = 0x01,
-	jnc_CodeAssistFlag_Declarator             = 0x02,
+	jnc_CodeAssistFlag_AutoCompleteFallback   = 0x02,
+	jnc_CodeAssistFlag_Declarator             = 0x04,
 };
 
 typedef enum jnc_CodeAssistFlag jnc_CodeAssistFlag;
@@ -138,13 +138,12 @@ namespace jnc {
 typedef jnc_CodeAssistKind CodeAssistKind;
 
 const CodeAssistKind
-	CodeAssistKind_Undefined              = jnc_CodeAssistKind_Undefined,
-	CodeAssistKind_QuickInfoTip           = jnc_CodeAssistKind_QuickInfoTip,
-	CodeAssistKind_ArgumentTip            = jnc_CodeAssistKind_ArgumentTip,
-	CodeAssistKind_AutoComplete           = jnc_CodeAssistKind_AutoComplete,
-	CodeAssistKind_AutoCompleteList       = jnc_CodeAssistKind_AutoCompleteList,
-	CodeAssistKind_ImportAutoCompleteList = jnc_CodeAssistKind_ImportAutoCompleteList,
-	CodeAssistKind_GotoDefinition         = jnc_CodeAssistKind_GotoDefinition;
+	CodeAssistKind_Undefined          = jnc_CodeAssistKind_Undefined,
+	CodeAssistKind_QuickInfoTip       = jnc_CodeAssistKind_QuickInfoTip,
+	CodeAssistKind_ArgumentTip        = jnc_CodeAssistKind_ArgumentTip,
+	CodeAssistKind_AutoComplete       = jnc_CodeAssistKind_AutoComplete,
+	CodeAssistKind_ImportAutoComplete = jnc_CodeAssistKind_ImportAutoComplete,
+	CodeAssistKind_GotoDefinition     = jnc_CodeAssistKind_GotoDefinition;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -152,6 +151,7 @@ typedef jnc_CodeAssistFlag CodeAssistFlag;
 
 const CodeAssistFlag
 	CodeAssistFlag_IncludeParentNamespace = jnc_CodeAssistFlag_IncludeParentNamespace,
+	CodeAssistFlag_AutoCompleteFallback   = jnc_CodeAssistFlag_AutoCompleteFallback,
 	CodeAssistFlag_Declarator             = jnc_CodeAssistFlag_Declarator;
 
 //..............................................................................

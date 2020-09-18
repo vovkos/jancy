@@ -187,10 +187,7 @@ isCursorOnIndent(const QTextCursor& cursor0)
 }
 
 bool
-hasCursorHighlightColor(
-	const QTextCursor& cursor,
-	bool checkUserData = false
-	)
+hasCursorHighlightColor(const QTextCursor& cursor)
 {
 	if (cursor.atBlockEnd() && cursor.block().userState() != 0)
 		return true;
@@ -219,7 +216,7 @@ hasCursorHighlightColor(
 		else if (pos >= end)
 			left = i + 1;
 		else
-			return !(checkUserData && range.format.property(QTextFormat::UserFormat).toBool());
+			return true;
 	}
 
 	return false;
@@ -482,35 +479,28 @@ void
 Edit::quickInfoTip()
 {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_QuickInfoTip, true);
+	d->requestCodeAssist(CodeAssistKind_QuickInfoTip);
 }
 
 void
 Edit::argumentTip()
 {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_ArgumentTip, true);
+	d->requestCodeAssist(CodeAssistKind_ArgumentTip);
 }
 
 void
 Edit::autoComplete()
 {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_AutoComplete, true);
-}
-
-void
-Edit::autoCompleteList()
-{
-	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_AutoCompleteList, true);
+	d->requestCodeAssist(CodeAssistKind_AutoComplete);
 }
 
 void
 Edit::gotoDefinition()
 {
 	Q_D(Edit);
-	d->requestCodeAssist(CodeAssistKind_GotoDefinition, true);
+	d->requestCodeAssist(CodeAssistKind_GotoDefinition);
 }
 
 void
@@ -702,9 +692,9 @@ EditPrivate::EditPrivate()
 		Edit::ArgumentTipOnTypeLeftParenthesis |
 		Edit::ArgumentTipOnTypeComma |
 		Edit::AutoCompleteOnCtrlSpace |
-		Edit::AutoCompleteListOnTypeDot |
-		Edit::AutoCompleteListOnTypeIdentifier |
-		Edit::ImportAutoCompleteListOnTypeQuotationMark |
+		Edit::AutoCompleteOnTypeDot |
+		Edit::AutoCompleteOnTypeIdentifier |
+		Edit::ImportAutoCompleteOnTypeQuotationMark |
 		Edit::GotoDefinitionOnCtrlClick;
 
 	m_highlighTable[HighlightKind_CurrentLine].format.setBackground(QColor(Color_CurrentLineBack));
@@ -894,25 +884,18 @@ EditPrivate::updateLineNumberMarginGeometry()
 }
 
 void
-EditPrivate::requestCodeAssist(
-	CodeAssistKind kind,
-	bool isSync
-	)
+EditPrivate::requestCodeAssist(CodeAssistKind kind)
 {
 	Q_Q(Edit);
 
 	QTextCursor cursor = q->textCursor();
-	if (hasCursorHighlightColor(cursor, true))
-		hideCodeAssist();
-	else
-		requestCodeAssist(kind, cursor.position(), isSync);
+	requestCodeAssist(kind, cursor.position());
 }
 
 void
 EditPrivate::requestCodeAssist(
 	CodeAssistKind kind,
-	int position,
-	bool isSync
+	int position
 	)
 {
 	Q_Q(Edit);
@@ -1054,7 +1037,7 @@ EditPrivate::updateCompleter(bool isForced)
 	cursor.setPosition(anchorPosition, QTextCursor::KeepAnchor);
 	QString prefix = cursor.selectedText();
 
-	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
+	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete)
 		prefix.remove(0, 1); // opening quotation mark
 
 	if (!isForced && prefix == m_completer->completionPrefix())
@@ -1325,12 +1308,16 @@ EditPrivate::addAutoCompleteNamespace(
 }
 
 void
-EditPrivate::createAutoCompleteList(
+EditPrivate::createAutoComplete(
 	Namespace* nspace,
 	uint_t flags
 	)
 {
 	Q_Q(Edit);
+
+	if ((flags & CodeAssistFlag_AutoCompleteFallback) &&
+		hasCursorHighlightColor(getLastCodeAssistCursor()))
+		return; // don't generate fallback within keywords/literals/comments/etc
 
 	QStandardItemModel* model = new QStandardItemModel(m_completer);
 	addAutoCompleteNamespace(model, nspace);
@@ -1376,7 +1363,7 @@ EditPrivate::addFile(
 }
 
 void
-EditPrivate::createImportAutoCompleteList(Module* module)
+EditPrivate::createImportAutoComplete(Module* module)
 {
 	Q_Q(Edit);
 
@@ -1496,12 +1483,12 @@ EditPrivate::keyPressControlSpace(QKeyEvent* e)
 	if (e->modifiers() & Qt::ShiftModifier)
 	{
 		if (m_codeAssistTriggers & Edit::ArgumentTipOnCtrlShiftSpace)
-			requestCodeAssist(CodeAssistKind_ArgumentTip, true);
+			requestCodeAssist(CodeAssistKind_ArgumentTip);
 	}
 	else
 	{
 		if (m_codeAssistTriggers & Edit::AutoCompleteOnCtrlSpace)
-			requestCodeAssist(CodeAssistKind_AutoComplete, true);
+			requestCodeAssist(CodeAssistKind_AutoComplete);
 	}
 }
 
@@ -1647,7 +1634,6 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	int c = ch.toLatin1();
 
 	QTextCursor cursor = q->textCursor();
-
 	bool isImportAutoComplete;
 
 	switch (c)
@@ -1655,7 +1641,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	case ')':
 	case ']':
 	case '}':
-		if (cursor.hasSelection() || getCursorNextChar(cursor) != c)
+		if (cursor.hasSelection() || getCursorNextChar(cursor) != c || hasCursorHighlightColor(cursor))
 		{
 			q->QPlainTextEdit::keyPressEvent(e);
 			break;
@@ -1669,6 +1655,9 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	case '[':
 	case '{':
 		q->QPlainTextEdit::keyPressEvent(e);
+
+		if (hasCursorHighlightColor(cursor))
+			break;
 
 		if (isCursorAtEndOfLineIgnoreSpace(cursor))
 		{
@@ -1686,28 +1675,28 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 	case '.':
 		q->QPlainTextEdit::keyPressEvent(e);
 
-		if (m_codeAssistTriggers & Edit::AutoCompleteListOnTypeDot)
-			requestCodeAssist(CodeAssistKind_AutoCompleteList);
+		if ((m_codeAssistTriggers & Edit::AutoCompleteOnTypeDot) && !hasCursorHighlightColor(cursor))
+			requestCodeAssist(CodeAssistKind_AutoComplete);
 
 		break;
 
 	case ',':
 		q->QPlainTextEdit::keyPressEvent(e);
 
-		if (m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma)
+		if ((m_codeAssistTriggers & Edit::ArgumentTipOnTypeComma) && !hasCursorHighlightColor(cursor))
 			requestCodeAssist(CodeAssistKind_ArgumentTip);
 
 		break;
 
 	case '"':
 		isImportAutoComplete =
-			((m_codeAssistTriggers & Edit::ImportAutoCompleteListOnTypeQuotationMark) &&
+			((m_codeAssistTriggers & Edit::ImportAutoCompleteOnTypeQuotationMark) &&
 			getCursorLinePrefix(cursor).trimmed() == "import");
 
 		q->QPlainTextEdit::keyPressEvent(e);
 
 		if (isImportAutoComplete)
-			requestCodeAssist(CodeAssistKind_AutoCompleteList);
+			requestCodeAssist(CodeAssistKind_AutoComplete);
 
 		break;
 
@@ -1831,8 +1820,8 @@ EditPrivate::onCursorPositionChanged()
 		requestCodeAssist(CodeAssistKind_ArgumentTip);
 		break;
 
-	case CodeAssistKind_AutoCompleteList:
-	case CodeAssistKind_ImportAutoCompleteList:
+	case CodeAssistKind_AutoComplete:
+	case CodeAssistKind_ImportAutoComplete:
 		if (isCompleterVisible())
 			updateCompleter();
 		break;
@@ -1938,7 +1927,7 @@ EditPrivate::onCompleterActivated(const QModelIndex& index)
 	QString completion = m_completer->popup()->model()->data(index, Qt::DisplayRole).toString();
 	int basePosition = getLastCodeAssistPosition();
 
-	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoCompleteList)
+	if (m_lastCodeAssistKind == CodeAssistKind_ImportAutoComplete)
 	{
 		QString quotedCompletion = '"' + completion + '"';
 		cursor.setPosition(basePosition);
@@ -1995,12 +1984,12 @@ EditPrivate::onCodeAssistReady()
 		createArgumentTip(codeAssist->getFunctionType(), codeAssist->getArgumentIdx());
 		break;
 
-	case CodeAssistKind_AutoCompleteList:
-		createAutoCompleteList(codeAssist->getNamespace(), codeAssist->getFlags());
+	case CodeAssistKind_AutoComplete:
+		createAutoComplete(codeAssist->getNamespace(), codeAssist->getFlags());
 		break;
 
-	case CodeAssistKind_ImportAutoCompleteList:
-		createImportAutoCompleteList(codeAssist->getModule());
+	case CodeAssistKind_ImportAutoComplete:
+		createImportAutoComplete(codeAssist->getModule());
 		break;
 
 	case CodeAssistKind_GotoDefinition:

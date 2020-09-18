@@ -172,7 +172,7 @@ CodeAssistMgr::createArgumentTip(
 }
 
 CodeAssist*
-CodeAssistMgr::createAutoCompleteList(
+CodeAssistMgr::createAutoComplete(
 	size_t offset,
 	Namespace* nspace,
 	uint_t flags
@@ -194,7 +194,7 @@ CodeAssistMgr::createAutoCompleteList(
 	}
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
-	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoCompleteList;
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_AutoComplete;
 	m_codeAssist->m_flags = flags;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
@@ -208,28 +208,33 @@ CodeAssistMgr::createAutoCompleteFallback()
 	ASSERT(m_autoCompleteFallback.m_namespace);
 
 	if (m_autoCompleteFallback.m_prefix.isEmpty())
-		return createAutoCompleteList(
+		return createAutoComplete(
 			m_autoCompleteFallback.m_offset,
 			m_autoCompleteFallback.m_namespace,
-			m_autoCompleteFallback.m_flags | CodeAssistFlag_IncludeParentNamespace
+			m_autoCompleteFallback.m_flags |
+			CodeAssistFlag_AutoCompleteFallback |
+			CodeAssistFlag_IncludeParentNamespace
 			);
 
 	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);
 	Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
-	return createAutoCompleteList(
+
+	return nspace ? createAutoComplete(
 		m_autoCompleteFallback.m_offset,
-		nspace ? nspace : m_autoCompleteFallback.m_namespace,
-		m_autoCompleteFallback.m_flags
-		);
+		nspace,
+		m_autoCompleteFallback.m_flags |
+		CodeAssistFlag_AutoCompleteFallback
+		) :
+		NULL;
 }
 
 CodeAssist*
-CodeAssistMgr::createImportAutoCompleteList(size_t offset)
+CodeAssistMgr::createImportAutoComplete(size_t offset)
 {
 	freeCodeAssist();
 
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
-	m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoCompleteList;
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_ImportAutoComplete;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
 	return m_codeAssist;

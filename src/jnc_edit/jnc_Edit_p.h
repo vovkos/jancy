@@ -135,26 +135,21 @@ protected:
 	updateExtraSelections();
 
 	void
-	requestCodeAssist(
-		CodeAssistKind kind,
-		bool isSync = false
-		);
+	requestCodeAssist(CodeAssistKind kind);
 
 	void
 	requestCodeAssist(
 		CodeAssistKind kind,
-		const QTextCursor& cursor,
-		bool isSync = false
+		const QTextCursor& cursor
 		)
 	{
-		requestCodeAssist(kind, cursor.position(), isSync);
+		requestCodeAssist(kind, cursor.position());
 	}
 
 	void
 	requestCodeAssist(
 		CodeAssistKind kind,
-		int position,
-		bool isSync = false
+		int position
 		);
 
 	void
@@ -191,13 +186,13 @@ protected:
 		);
 
 	void
-	createAutoCompleteList(
+	createAutoComplete(
 		Namespace* nspace,
 		uint_t flags
 		);
 
 	void
-	createImportAutoCompleteList(Module* module);
+	createImportAutoComplete(Module* module);
 
 	void
 	addAutoCompleteNamespace(

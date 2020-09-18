@@ -800,12 +800,12 @@ postfix_operator<Value* $value>
 			}
 	|	'.'
 			{
-				generateAutoCompleteListIf($1, *$value);
+				generateAutoCompleteIf($1, *$value);
 			}
 		member_operator<$value>
 	|	TokenKind_Ptr
 			{
-				generateAutoCompleteListIf($1, *$value);
+				generateAutoCompleteIf($1, *$value);
 				return m_module->m_operatorMgr.unaryOperator(UnOpKind_Ptr, $value);
 			}
 		member_operator<$value>
@@ -814,7 +814,7 @@ postfix_operator<Value* $value>
 member_operator<Value* $value>
 	:	TokenKind_Identifier $n
 			{
-				generateAutoCompleteListIf($1, *$value);
+				generateAutoCompleteIf($1, *$value);
 				generateMemberInfoIf($1, *$value, $n.m_data.m_string);
 				return m_module->m_operatorMgr.memberOperator($value, $n.m_data.m_string);
 			}

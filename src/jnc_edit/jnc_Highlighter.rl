@@ -162,9 +162,8 @@ main := |*
 
 id                ;
 
-lit_dq            { highlightLastToken(Color_Constant, true); };
-
 (
+lit_dq            |
 lit_sq            |
 [rR] raw_lit_sq   |
 [rR] raw_lit_dq   |

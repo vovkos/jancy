@@ -1263,7 +1263,8 @@ Parser::declareFunction(
 		return false;
 	}
 
-	return nspace->addFunction(function) != -1;
+	size_t result = nspace->addFunction(function);
+	return result != -1 || m_module->m_codeAssistMgr.getCodeAssistKind(); // when doing code-assist, ignore redefinition errors
 }
 
 bool
@@ -3245,7 +3246,7 @@ Parser::addScopeAnchorToken(
 }
 
 void
-Parser::generateAutoCompleteList(
+Parser::generateAutoComplete(
 	const Token& token,
 	const Value& value
 	)
@@ -3253,7 +3254,7 @@ Parser::generateAutoCompleteList(
 	Namespace* nspace = m_module->m_operatorMgr.getValueNamespace(value);
 
 	if (nspace)
-		generateAutoCompleteList(token, nspace);
+		generateAutoComplete(token, nspace);
 	else
 		m_module->m_codeAssistMgr.createEmptyCodeAssist(token.m_pos.m_offset);
 }
@@ -3275,7 +3276,7 @@ Parser::generateMemberInfo(
 }
 
 void
-Parser::generateAutoCompleteList(
+Parser::generateAutoComplete(
 	const Token& token,
 	Namespace* nspace,
 	uint_t flags
@@ -3288,7 +3289,7 @@ Parser::generateAutoCompleteList(
 		else
 			return;
 
-	m_module->m_codeAssistMgr.createAutoCompleteList(offset, nspace, flags);
+	m_module->m_codeAssistMgr.createAutoComplete(offset, nspace, flags);
 }
 
 void

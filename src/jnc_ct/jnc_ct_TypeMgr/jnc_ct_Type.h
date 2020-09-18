@@ -602,6 +602,13 @@ protected:
 	{
 		return m_typedef->getType()->ensureNoImports();
 	}
+
+	virtual
+	bool
+	calcLayout()
+	{
+		return m_typedef->getType()->ensureLayout();
+	}
 };
 
 //..............................................................................
