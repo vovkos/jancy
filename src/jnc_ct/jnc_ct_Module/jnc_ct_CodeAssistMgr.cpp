@@ -211,7 +211,7 @@ CodeAssistMgr::createAutoCompleteFallback()
 		return createAutoCompleteList(
 			m_autoCompleteFallback.m_offset,
 			m_autoCompleteFallback.m_namespace,
-			m_autoCompleteFallback.m_flags
+			m_autoCompleteFallback.m_flags | CodeAssistFlag_IncludeParentNamespace
 			);
 
 	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);

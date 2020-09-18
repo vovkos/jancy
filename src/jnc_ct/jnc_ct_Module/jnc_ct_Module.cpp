@@ -208,7 +208,11 @@ Module::generateCodeAssist(
 	const sl::StringRef& source
 	)
 {
-	m_compileFlags |= ModuleCompileFlag_DisableCodeGen;
+	m_compileFlags |=
+		ModuleCompileFlag_DisableCodeGen |
+		ModuleCompileFlag_IgnoreOpaqueClassTypeInfo |
+		ModuleCompileFlag_KeepTypedefShadow;
+
 	m_codeAssistMgr.initialize(kind, cacheModule, offset);
 	parse("code-assist-source", source);
 	parseImports();
