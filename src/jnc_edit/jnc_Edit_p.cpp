@@ -135,8 +135,16 @@ bool
 isCursorNextLineEmpty(const QTextCursor& cursor0)
 {
 	QTextCursor cursor = cursor0;
-	cursor.movePosition(QTextCursor::Down);;
+	cursor.movePosition(QTextCursor::Down);
 	return isCursorLineEmpty(cursor);
+}
+
+QString
+getCursorPrevWord(const QTextCursor& cursor0)
+{
+	QTextCursor cursor = cursor0;
+	cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+	return cursor.selectedText();
 }
 
 QChar
@@ -1315,9 +1323,16 @@ EditPrivate::createAutoComplete(
 {
 	Q_Q(Edit);
 
-	if ((flags & CodeAssistFlag_AutoCompleteFallback) &&
-		hasCursorHighlightColor(getLastCodeAssistCursor()))
-		return; // don't generate fallback within keywords/literals/comments/etc
+	if (flags & CodeAssistFlag_AutoCompleteFallback)
+	{
+		// we don't want an auto-complete fallback
+		// (a) within keywords/literals/comments/etc
+		// (b) for member-operators
+
+		QTextCursor cursor = getLastCodeAssistCursor();
+		if (hasCursorHighlightColor(cursor) || getCursorPrevChar(cursor) == '.')
+			return;
+	}
 
 	QStandardItemModel* model = new QStandardItemModel(m_completer);
 	addAutoCompleteNamespace(model, nspace);
