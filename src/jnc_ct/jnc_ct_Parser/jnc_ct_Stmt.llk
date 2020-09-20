@@ -115,7 +115,7 @@ statement_sync
 	|	TokenKind_Unsafe
 	|	TokenKind_Assert
 	|	';'
-	|	'}'
+	|	'{'
 	;
 
 start
