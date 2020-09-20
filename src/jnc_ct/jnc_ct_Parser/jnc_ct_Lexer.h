@@ -416,6 +416,19 @@ typedef lex::RagelToken<TokenKind, TokenName, TokenData> Token;
 
 inline
 bool
+isOffsetInsideTokenList(
+	const sl::ConstBoxList<Token>& tokenList,
+	size_t offset
+	)
+{
+	return
+		!tokenList.isEmpty() &&
+		tokenList.getHead()->m_pos.m_offset <= offset &&
+		tokenList.getTail()->m_pos.m_offset + tokenList.getTail()->m_pos.m_length > offset;
+}
+
+inline
+bool
 markCodeAssistToken(
 	Token* token,
 	size_t offset

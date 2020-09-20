@@ -200,8 +200,9 @@ Parser::parseTokenList(
 
 	Token::Pos lastTokenPos = tokenList.getTail()->m_pos;
 
-	CodeAssistKind codeAssistKind = m_module->m_codeAssistMgr.getCodeAssistKind();
-	if (!codeAssistKind || !unit->isRootUnit())
+	if (!m_module->m_codeAssistMgr.getCodeAssistKind() ||
+		!unit->isRootUnit() ||
+		!isOffsetInsideTokenList(tokenList, m_module->m_codeAssistMgr.getOffset()))
 	{
 		sl::ConstBoxIterator<Token> token = tokenList.getHead();
 		for (; token; token++)
@@ -227,8 +228,7 @@ Parser::parseTokenList(
 			bool isCodeAssist = markCodeAssistToken((Token*)token.p(), offset);
 			if (isCodeAssist)
 			{
-				if (token->m_tokenKind == TokenKind_Identifier &&
-					(token->m_flags & TokenFlag_CodeAssist))
+				if (token->m_tokenKind == TokenKind_Identifier && (token->m_flags & TokenFlag_CodeAssist))
 					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
 				if (token->m_flags & TokenFlag_PostCodeAssist)
@@ -250,7 +250,6 @@ Parser::parseTokenList(
 				return false;
 		}
 
-		m_module->m_codeAssistMgr.prepareAutoCompleteFallback(autoCompleteFallbackOffset);
 		parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 
 		if (!m_module->m_codeAssistMgr.getCodeAssist() && !m_argumentTipStack.isEmpty())

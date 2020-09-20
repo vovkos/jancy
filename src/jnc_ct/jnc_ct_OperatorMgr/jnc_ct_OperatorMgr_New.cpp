@@ -280,7 +280,7 @@ bool
 OperatorMgr::parseFunctionArgDefaultValue(
 	ModuleItemDecl* decl,
 	const Value& thisValue,
-	const sl::ConstBoxList<Token> tokenList,
+	const sl::ConstBoxList<Token>& tokenList,
 	Value* resultValue
 	)
 {
@@ -296,7 +296,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 bool
 OperatorMgr::parseFunctionArgDefaultValue(
 	ModuleItemDecl* decl,
-	const sl::ConstBoxList<Token> tokenList,
+	const sl::ConstBoxList<Token>& tokenList,
 	Value* resultValue
 	)
 {

@@ -678,8 +678,7 @@ Module::parseImpl(
 			bool isCodeAssist = markCodeAssistToken((Token*)token, offset);
 			if (isCodeAssist)
 			{
-				if (token->m_tokenKind == TokenKind_Identifier &&
-					(token->m_flags & TokenFlag_CodeAssist))
+				if (token->m_tokenKind == TokenKind_Identifier && (token->m_flags & TokenFlag_CodeAssist))
 					autoCompleteFallbackOffset = token->m_pos.m_offset;
 
 				if (token->m_flags & (TokenFlag_PostCodeAssist))

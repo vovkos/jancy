@@ -747,7 +747,7 @@ public:
 	bool
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
-		const sl::ConstBoxList<Token> tokenList,
+		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
 		);
 
@@ -755,7 +755,7 @@ public:
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		const Value& thisValue,
-		const sl::ConstBoxList<Token> tokenList,
+		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
 		);
 
@@ -763,7 +763,7 @@ public:
 	parseFunctionArgDefaultValue(
 		ModuleItemDecl* decl,
 		Closure* closure,
-		const sl::ConstBoxList<Token> tokenList,
+		const sl::ConstBoxList<Token>& tokenList,
 		Value* resultValue
 		)
 	{

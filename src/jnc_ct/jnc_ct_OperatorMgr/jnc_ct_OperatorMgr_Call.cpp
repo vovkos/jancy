@@ -368,7 +368,7 @@ OperatorMgr::castArgValueList(
 		FunctionArg* arg = argArray[i];
 		if (argValue.isEmpty())
 		{
-			sl::ConstBoxList<Token> initializer = arg->getInitializer();
+			const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
 			if (initializer.isEmpty())
 			{
 				err::setFormatStringError(
@@ -401,7 +401,7 @@ OperatorMgr::castArgValueList(
 		Value argValue;
 
 		FunctionArg* arg = argArray[i];
-		sl::ConstBoxList<Token> initializer = arg->getInitializer();
+		const sl::ConstBoxList<Token>& initializer = arg->getInitializer();
 		if (initializer.isEmpty())
 		{
 			err::setFormatStringError(
