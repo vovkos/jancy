@@ -1847,11 +1847,11 @@ EditPrivate::getAutoCompleteDeclFunction(const QModelIndex& index)
 {
 	ModuleItem* item = (ModuleItem*)m_completer->popup()->model()->data(index, Role_ModuleItem).value<void*>();
 	if (!item || item->getItemKind() != ModuleItemKind_Function)
-		return false;
+		return NULL;
 
 	ModuleItemDecl* decl = item->getDecl();
 	if (decl->getParentNamespace() != m_lastCodeAssistModule->getCodeAssist()->getNamespace())
-		return false;
+		return NULL;
 
 	AttributeBlock* block = decl->getAttributeBlock();
 	return block && block->findAttribute("autoCompleteDecl") ? (Function*)item : NULL;
