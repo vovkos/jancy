@@ -1136,6 +1136,10 @@ OperatorMgr::prepareOperandType(
 		TypeKind typeKind = type->getTypeKind();
 		switch (typeKind)
 		{
+		case TypeKind_TypedefShadow:
+			value.overrideType(((TypedefShadowType*)type)->getTypedef()->getType());
+			break;
+
 		case TypeKind_NamedImport:
 		case TypeKind_ImportIntMod:
 		case TypeKind_ImportPtr:
