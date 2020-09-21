@@ -420,6 +420,12 @@ Namespace::addFunction(Function* function)
 		switch (itemKind)
 		{
 		case ModuleItemKind_Function:
+			if (((Function*)it->m_value)->isPrototype()) // replace the prototype
+			{
+				it->m_value = function;
+				break;
+			}
+
 			it->m_value = function->getModule()->m_functionMgr.createFunctionOverload((Function*)it->m_value);
 			// and fall through
 

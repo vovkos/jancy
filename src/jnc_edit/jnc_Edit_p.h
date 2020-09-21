@@ -240,7 +240,7 @@ protected:
 	getLastCodeTipPoint(bool isBelowCurrentCursor = false);
 
 	Function*
-	getAutoCompleteDeclFunction(const QModelIndex& index);
+	getPrototypeFunction(const QModelIndex& index);
 
 	void
 	indentSelection();

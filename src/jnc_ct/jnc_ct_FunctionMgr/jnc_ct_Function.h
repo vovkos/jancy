@@ -19,6 +19,7 @@
 #include "jnc_ct_UnOp.h"
 #include "jnc_ct_BinOp.h"
 #include "jnc_ct_Variable.h"
+#include "jnc_ct_AttributeBlock.h"
 #include "jnc_Function.h"
 
 namespace jnc {
@@ -130,6 +131,12 @@ public:
 	isVirtual()
 	{
 		return m_storageKind >= StorageKind_Abstract && m_storageKind <= StorageKind_Override;
+	}
+
+	bool
+	isPrototype()
+	{
+		return m_attributeBlock && m_attributeBlock->findAttribute("prototype");
 	}
 
 	ClassType*

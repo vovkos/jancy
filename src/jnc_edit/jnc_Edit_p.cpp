@@ -1858,7 +1858,7 @@ EditPrivate::onCursorPositionChanged()
 }
 
 Function*
-EditPrivate::getAutoCompleteDeclFunction(const QModelIndex& index)
+EditPrivate::getPrototypeFunction(const QModelIndex& index)
 {
 	ModuleItem* item = (ModuleItem*)m_completer->popup()->model()->data(index, Role_ModuleItem).value<void*>();
 	if (!item || item->getItemKind() != ModuleItemKind_Function)
@@ -1869,11 +1869,11 @@ EditPrivate::getAutoCompleteDeclFunction(const QModelIndex& index)
 		return NULL;
 
 	AttributeBlock* block = decl->getAttributeBlock();
-	return block && block->findAttribute("autoCompleteDecl") ? (Function*)item : NULL;
+	return block && block->findAttribute("prototype") ? (Function*)item : NULL;
 }
 
 QString
-getAutoCompleteDeclString(
+getPrototypeDeclString(
 	Function* function,
 	bool isNextLineEmpty
 	)
@@ -1925,11 +1925,11 @@ EditPrivate::onCompleterActivated(const QModelIndex& index)
 
     QTextCursor cursor = q->textCursor();
 
-	Function* function = getAutoCompleteDeclFunction(index);
+	Function* function = getPrototypeFunction(index);
 	if (function && getCursorLineSuffix(cursor).trimmed().isEmpty())
 	{
 		bool isNextLineEmpty = isCursorNextLineEmpty(cursor);
-		QString completion = getAutoCompleteDeclString(function, isNextLineEmpty);
+		QString completion = getPrototypeDeclString(function, isNextLineEmpty);
 		cursor.select(QTextCursor::LineUnderCursor);
 		cursor.insertText(completion);
 
