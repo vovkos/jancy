@@ -456,6 +456,21 @@ getTypedefSynopsis(
 }
 
 sl::String
+getAliasSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Alias* alias = (Alias*)item;
+
+	sl::String synopsis = "alias ";
+	synopsis += isQualifiedName ? alias->getQualifiedName() : alias->getName();
+	synopsis += " = ";
+	synopsis += alias->getInitializerString();
+	return synopsis;
+}
+
+sl::String
 getVariableSynopsis(
 	ModuleItem* item,
 	bool isQualifiedName
@@ -470,6 +485,68 @@ getVariableSynopsis(
 		NULL,
 		variable->getPtrTypeFlags()
 		);
+}
+
+sl::String
+getFunctionSynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Function* function = (Function*)item;
+
+	if (!function->isMember())
+		return getTypedItemSynopsisImpl(
+			function,
+			function->getType(),
+			isQualifiedName
+			);
+
+	FunctionType* type = function->getType();
+	type->ensureNoImports();
+
+	sl::String synopsis = type->getReturnType()->getTypeString();
+	synopsis += ' ';
+	synopsis += isQualifiedName ? function->getQualifiedName() : function->getName();
+	synopsis += type->getShortType()->getTypeStringSuffix();
+
+	uint_t ptrFlags = type->getThisArgType()->getFlags();
+	if (ptrFlags & PtrTypeFlag_Const)
+		synopsis += " const";
+
+	return synopsis;
+}
+
+sl::String
+getPropertySynopsis(
+	ModuleItem* item,
+	bool isQualifiedName
+	)
+{
+	Property* prop = (Property*)item;
+
+	if (!prop->isMember())
+		getTypedItemSynopsisImpl(
+			prop,
+			prop->getType(),
+			isQualifiedName
+			);
+
+	PropertyType* type = prop->getType();
+	type->ensureNoImports();
+
+	sl::String synopsis = type->getReturnType()->getTypeString();
+	sl::String typeModifierString = type->getShortType()->getTypeModifierString();
+	if (!typeModifierString.isEmpty())
+	{
+		synopsis += ' ';
+		synopsis += typeModifierString;
+	}
+
+	synopsis += " property ";
+	synopsis += isQualifiedName ? prop->getQualifiedName() : prop->getName();
+	synopsis += type->getShortType()->getTypeStringSuffix();
+	return synopsis;
 }
 
 sl::String
@@ -635,13 +712,13 @@ ModuleItem::getSynopsis(bool isQualifiedName)
 		getDefaultSynopsis,    // ModuleItemKind_AttributeBlock,
 		getTypeSynopsis,       // ModuleItemKind_Type,
 		getTypedefSynopsis,    // ModuleItemKind_Typedef,
-		getDefaultSynopsis,    // ModuleItemKind_Alias,
+		getAliasSynopsis,      // ModuleItemKind_Alias,
 		getDefaultSynopsis,    // ModuleItemKind_Const,
 		getVariableSynopsis,   // ModuleItemKind_Variable,
-		getTypedItemSynopsis,  // ModuleItemKind_Function,
+		getFunctionSynopsis,   // ModuleItemKind_Function,
 		getTypedItemSynopsis,  // ModuleItemKind_FunctionArg,
 		getDefaultSynopsis,    // ModuleItemKind_FunctionOverload,
-		getTypedItemSynopsis,  // ModuleItemKind_Property,
+		getPropertySynopsis,   // ModuleItemKind_Property,
 		getDefaultSynopsis,    // ModuleItemKind_PropertyTemplate,
 		getEnumConstSynopsis,  // ModuleItemKind_EnumConst,
 		getFieldSynopsis,      // ModuleItemKind_Field,
