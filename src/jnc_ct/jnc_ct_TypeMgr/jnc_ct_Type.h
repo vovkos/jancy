@@ -605,10 +605,7 @@ protected:
 
 	virtual
 	bool
-	calcLayout()
-	{
-		return m_typedef->getType()->ensureLayout();
-	}
+	calcLayout();
 };
 
 //..............................................................................

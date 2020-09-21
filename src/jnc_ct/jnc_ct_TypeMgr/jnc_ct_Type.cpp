@@ -1063,6 +1063,20 @@ Typedef::generateDocumentation(
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+bool
+TypedefShadowType::calcLayout()
+{
+	Type* type = m_typedef->getType();
+
+	bool result = type->ensureLayout();
+	if (!result)
+		return false;
+
+	m_size = type->getSize();
+	m_alignment = type->getAlignment();
+	return true;
+}
+
 void
 TypedefShadowType::prepareDoxyLinkedText()
 {
