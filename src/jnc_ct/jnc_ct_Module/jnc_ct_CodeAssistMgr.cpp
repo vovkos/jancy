@@ -218,14 +218,18 @@ CodeAssistMgr::createAutoCompleteFallback()
 
 	FindModuleItemResult findItemResult = m_autoCompleteFallback.m_namespace->findItemTraverse(m_autoCompleteFallback.m_prefix, NULL);
 	Namespace* nspace = findItemResult.m_item ? findItemResult.m_item->getNamespace() : NULL;
+	if (!nspace)
+		return NULL;
 
-	return nspace ? createAutoComplete(
+	nspace->ensureNamespaceReady();
+
+	return createAutoComplete(
 		m_autoCompleteFallback.m_offset,
 		nspace,
 		m_autoCompleteFallback.m_flags |
-		CodeAssistFlag_AutoCompleteFallback
-		) :
-		NULL;
+		CodeAssistFlag_AutoCompleteFallback |
+		CodeAssistFlag_QualifiedName
+		);
 }
 
 CodeAssist*

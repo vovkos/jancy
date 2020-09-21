@@ -1325,12 +1325,11 @@ EditPrivate::createAutoComplete(
 
 	if (flags & CodeAssistFlag_AutoCompleteFallback)
 	{
-		// we don't want an auto-complete fallback
-		// (a) within keywords/literals/comments/etc
-		// (b) for member-operators
-
 		QTextCursor cursor = getLastCodeAssistCursor();
-		if (hasCursorHighlightColor(cursor) || getCursorPrevChar(cursor) == '.')
+		if (hasCursorHighlightColor(cursor)) // not within keywords/literals/comments/etc
+			return;
+
+		if (!(flags & CodeAssistFlag_QualifiedName) && getCursorPrevChar(cursor) == '.') // not after the member operator
 			return;
 	}
 

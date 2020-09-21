@@ -33,7 +33,8 @@ enum jnc_CodeAssistFlag
 {
 	jnc_CodeAssistFlag_IncludeParentNamespace = 0x01,
 	jnc_CodeAssistFlag_AutoCompleteFallback   = 0x02,
-	jnc_CodeAssistFlag_Declarator             = 0x04,
+	jnc_CodeAssistFlag_QualifiedName          = 0x04,
+	jnc_CodeAssistFlag_Declarator             = 0x08,
 };
 
 typedef enum jnc_CodeAssistFlag jnc_CodeAssistFlag;
@@ -152,6 +153,7 @@ typedef jnc_CodeAssistFlag CodeAssistFlag;
 const CodeAssistFlag
 	CodeAssistFlag_IncludeParentNamespace = jnc_CodeAssistFlag_IncludeParentNamespace,
 	CodeAssistFlag_AutoCompleteFallback   = jnc_CodeAssistFlag_AutoCompleteFallback,
+	CodeAssistFlag_QualifiedName          = jnc_CodeAssistFlag_QualifiedName,
 	CodeAssistFlag_Declarator             = jnc_CodeAssistFlag_Declarator;
 
 //..............................................................................
