@@ -106,7 +106,7 @@ public:
 		Type* type
 		)
 	{
-		return opValue.getType()->getSize() < type->getSize() ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
+		return CastKind_ImplicitCrossFamily;
 	}
 
 	virtual
@@ -153,7 +153,7 @@ public:
 		Type* type
 		)
 	{
-		return opValue.getType()->getSize() < type->getSize() ? CastKind_ImplicitCrossFamily : CastKind_Explicit;
+		return CastKind_ImplicitCrossFamily;
 	}
 
 	virtual
