@@ -26,15 +26,15 @@ getArithmeticOperatorResultType(Type* opType)
 	switch (typeKind)
 	{
 	case TypeKind_Int8:
+	case TypeKind_Int8_u:
 	case TypeKind_Int16:
+	case TypeKind_Int16_u:
 	case TypeKind_Int16_be:
+	case TypeKind_Int16_beu:
 	case TypeKind_Int32_be:
 		typeKind = TypeKind_Int32;
 		break;
 
-	case TypeKind_Int8_u:
-	case TypeKind_Int16_u:
-	case TypeKind_Int16_beu:
 	case TypeKind_Int32_beu:
 		typeKind = TypeKind_Int32_u;
 		break;
