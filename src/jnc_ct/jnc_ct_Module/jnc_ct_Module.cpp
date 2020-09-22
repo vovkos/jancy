@@ -1010,6 +1010,11 @@ Module::processRequireSet()
 			}
 		}
 
+		if (!requireIt->m_value.m_isEssential &&
+			findResult.m_item->getItemKind() == ModuleItemKind_Function &&
+			((Function*)findResult.m_item)->isPrototype())
+			continue; // ignore unimplemented prototypes
+
 		result = findResult.m_item->require();
 		if (!result)
 			return false;
