@@ -544,16 +544,7 @@ DeclTypeCalc::getFunctionType(Type* returnType)
 	uint_t typeFlags = suffix->getFunctionTypeFlags();
 
 	if (m_typeModifiers & TypeModifier_ErrorCode)
-	{
-		if (returnType->getTypeKind() != TypeKind_NamedImport &&
-			!(returnType->getTypeKindFlags() & TypeKindFlag_ErrorCode))
-		{
-			err::setFormatStringError("'%s' cannot be used as error code", returnType->getTypeString().sz());
-			return NULL;
-		}
-
 		typeFlags |= FunctionTypeFlag_ErrorCode;
-	}
 
 	if (m_typeModifiers & TypeModifier_Unsafe)
 		typeFlags |= FunctionTypeFlag_Unsafe;
