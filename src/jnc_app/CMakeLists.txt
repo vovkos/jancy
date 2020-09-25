@@ -135,6 +135,7 @@ set_target_properties(
 	jnc_app
 	PROPERTIES
 	OUTPUT_NAME jancy
+	FOLDER tools
 	)
 
 if(BUILD_JNC_DLL)
