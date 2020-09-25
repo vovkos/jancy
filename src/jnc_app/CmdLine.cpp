@@ -280,7 +280,7 @@ CmdLineParser::scanSourceDirs()
 		result = fileEnum.openDir(dir);
 		if (!result)
 		{
-			printf("warning: %s\n", err::getLastErrorDescription().sz());
+			printf("warning: source dir %s: %s\n", dir.sz(), err::getLastErrorDescription().sz());
 			continue;
 		}
 
