@@ -109,6 +109,20 @@ protected:
 	calcLayout();
 
 	virtual
+	void
+	prepareTypeString()
+	{
+		getTypeStringTuple()->m_typeStringPrefix = "reactor";
+	}
+
+	virtual
+	void
+	prepareDoxyLinkedText()
+	{
+		getTypeStringTuple()->m_doxyLinkedTextPrefix = "reactor";
+	}
+
+	virtual
 	bool
 	prepareForOperatorNew();
 
