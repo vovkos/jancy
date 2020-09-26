@@ -688,8 +688,14 @@ OperatorMgr::getLibraryMember(
 
 	Value memberValue;
 	bool result = getNamespaceMember(library, name, 0, &memberValue);
-	if (!result || memberValue.getValueKind() != ValueKind_Function)
-		return result;
+	if (!result)
+		return false;
+
+	if (memberValue.getValueKind() != ValueKind_Function)
+	{
+		*resultValue = memberValue;
+		return true;
+	}
 
 	Function* function = memberValue.getFunction();
 	size_t index = function->getLibraryTableIndex();
