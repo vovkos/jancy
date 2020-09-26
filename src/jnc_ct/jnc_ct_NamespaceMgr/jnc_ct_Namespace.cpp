@@ -285,10 +285,7 @@ Namespace::findDirectChildItem(const sl::StringRef& name)
 		ensureNamespaceReady();
 
 	if (!result)
-	{
-		printf("error: %s\n", err::getLastErrorDescription().sz());
 		return g_errorFindModuleItemResult;
-	}
 
 	ASSERT(it->m_value != item); // should have been replaced
 	return FindModuleItemResult(it->m_value);
