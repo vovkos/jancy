@@ -53,7 +53,7 @@ CodeTip::eventFilter(
 	switch (e->type())
 	{
 	case QEvent::Leave:
-		close();
+		onLeave();
 		break;
 
 	case QEvent::WindowActivate:
@@ -61,8 +61,6 @@ CodeTip::eventFilter(
 	case QEvent::FocusIn:
 	case QEvent::FocusOut:
 	case QEvent::Close: // For QTBUG-55523 (QQC) specifically: Hide tooltip when windows are closed
-	case QEvent::MouseButtonPress:
-	case QEvent::MouseButtonRelease:
 	case QEvent::MouseButtonDblClick:
 	case QEvent::Wheel:
 		close();
@@ -99,6 +97,13 @@ CodeTip::resizeEvent(QResizeEvent* e)
 		setMask(frameMask.region);
 
 	QLabel::resizeEvent(e);
+}
+
+void
+CodeTip::leaveEvent(QEvent* e)
+{
+	QLabel::leaveEvent(e);
+	onLeave();
 }
 
 int
@@ -152,6 +157,23 @@ CodeTip::placeTip(const QPoint& pos)
 		p.setY(screen.y() + screen.height() - height());
 
 	move(p);
+}
+
+void
+CodeTip::onLeave()
+{
+	QWidget* widget = qApp->widgetAt(QCursor::pos());
+	QWidget* edit = parentWidget();
+
+	while (widget)
+	{
+		if (widget == edit)
+			return;
+
+		widget = widget->parentWidget();
+	}
+
+	close();
 }
 
 //..............................................................................

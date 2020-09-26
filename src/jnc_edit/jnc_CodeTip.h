@@ -33,6 +33,10 @@ protected:
 	void
 	resizeEvent(QResizeEvent* e);
 
+	virtual
+	void
+	leaveEvent(QEvent* e);
+
 protected:
 	int
 	getTipScreen(const QPoint &pos);
@@ -42,6 +46,9 @@ protected:
 
 	void
 	placeTip(const QPoint &pos);
+
+	void
+	onLeave();
 };
 
 //..............................................................................
