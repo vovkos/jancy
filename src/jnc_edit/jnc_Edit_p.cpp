@@ -1190,6 +1190,14 @@ EditPrivate::createArgumentTip(
 
 	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
 
+	bool isConst = false;
+	FunctionType* shortType = functionType->getShortType();
+	if (shortType != functionType)
+	{
+		isConst = functionType->getArgCount() && (functionType->getArg(0)->getType()->getFlags() & PtrTypeFlag_Const);
+		functionType = shortType;
+	}
+
 	Type* returnType = functionType->getReturnType();
 	size_t argCount = functionType->getArgCount();
 	size_t lastArgIdx = argCount - 1;
@@ -1224,7 +1232,8 @@ EditPrivate::createArgumentTip(
 	if (functionType->getFlags() & FunctionTypeFlag_VarArg)
 		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
 
-	text += isMl ? "<br>" ML_ARG_INDENT ")</p>" : ")</p>";
+	text += isMl ? "<br>" ML_ARG_INDENT ")" : ")";
+	text += isConst ? " const</p>" : "</p>";
 
 	ensureCodeTip();
 	m_codeTip->showText(point, text);
