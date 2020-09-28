@@ -221,6 +221,40 @@ struct jnc_FunctionPtrType: jnc_Type
 
 #endif // _JNC_CORE
 
+//..............................................................................
+
+JNC_EXTERN_C
+size_t
+jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload);
+
+JNC_EXTERN_C
+jnc_FunctionType*
+jnc_FunctionTypeOverload_getOverload(
+	jnc_FunctionTypeOverload* typeOverload,
+	size_t index
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#if (!defined _JNC_CORE && defined __cplusplus)
+
+struct jnc_FunctionTypeOverload
+{
+	size_t
+	getOverloadCount()
+	{
+		return jnc_FunctionTypeOverload_getOverloadCount(this);
+	}
+
+	jnc_FunctionType*
+	getOverload(size_t index)
+	{
+		return jnc_FunctionTypeOverload_getOverload(this, index);
+	}
+};
+
+#endif // _JNC_CORE
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus

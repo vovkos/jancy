@@ -585,6 +585,17 @@ Edit::keyPressEvent(QKeyEvent* e)
 			d->keyPressHome(e);
 			break;
 
+		case Qt::Key_Up:
+		case Qt::Key_Down:
+			if (!d->isCodeTipVisible() || !d->m_codeTip->isFunctionTypeOverload())
+				QPlainTextEdit::keyPressEvent(e);
+			else if (key == Qt::Key_Up)
+				d->m_codeTip->prevFunctionTypeOverload();
+			else
+				d->m_codeTip->nextFunctionTypeOverload();
+
+			break;
+
 		case Qt::Key_Space:
 			if (e->modifiers() & QT_CONTROL_MODIFIER)
 			{
@@ -1174,69 +1185,23 @@ EditPrivate::createQuickInfoTip(ModuleItem* item)
 	Q_Q(Edit);
 
 	QPoint point = getLastCodeTipPoint();
-	QString text = item->getSynopsis_v();
 
 	ensureCodeTip();
-	m_codeTip->showText(point, text);
+	m_codeTip->showQuickInfoTip(point, item);
 }
 
 void
 EditPrivate::createArgumentTip(
-	FunctionType* functionType,
+	FunctionTypeOverload* typeOverload,
 	size_t argumentIdx
 	)
 {
 	Q_Q(Edit);
 
-	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
-
-	bool isConst = false;
-	FunctionType* shortType = functionType->getShortType();
-	if (shortType != functionType)
-	{
-		isConst = functionType->getArgCount() && (functionType->getArg(0)->getType()->getFlags() & PtrTypeFlag_Const);
-		functionType = shortType;
-	}
-
-	Type* returnType = functionType->getReturnType();
-	size_t argCount = functionType->getArgCount();
-	size_t lastArgIdx = argCount - 1;
-
-	bool isMl = argCount >= 2;
-
-	QPoint point = getLastCodeTipPoint(true);
-	QString text = "<p style='white-space:pre'>";
-	text += returnType->getTypeString();
-	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
-
-	for (size_t i = 0; i < argCount; i++)
-	{
-		FunctionArg* arg = functionType->getArg(i);
-		Type* argType = arg->getType();
-
-		if (i == argumentIdx)
-			text += "<b>";
-
-		text += argType->getTypeStringPrefix();
-		text += ' ';
-		text += arg->getDecl()->getName();
-		text += argType->getTypeStringSuffix();
-
-		if (i == argumentIdx)
-			text += "</b>";
-
-		if (i != lastArgIdx)
-			text += ",<br>" ML_ARG_INDENT;
-	}
-
-	if (functionType->getFlags() & FunctionTypeFlag_VarArg)
-		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
-
-	text += isMl ? "<br>" ML_ARG_INDENT ")" : ")";
-	text += isConst ? " const</p>" : "</p>";
+	QPoint point = getLastCodeTipPoint();
 
 	ensureCodeTip();
-	m_codeTip->showText(point, text);
+	m_codeTip->showArgumentTip(point, typeOverload, argumentIdx);
 }
 
 size_t
@@ -2004,7 +1969,7 @@ EditPrivate::onCodeAssistReady()
 		break;
 
 	case CodeAssistKind_ArgumentTip:
-		createArgumentTip(codeAssist->getFunctionType(), codeAssist->getArgumentIdx());
+		createArgumentTip(codeAssist->getFunctionTypeOverload(), codeAssist->getArgumentIdx());
 		break;
 
 	case CodeAssistKind_AutoComplete:

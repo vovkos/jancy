@@ -166,7 +166,25 @@ CodeAssistMgr::createArgumentTip(
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
 	m_codeAssist->m_module = m_module;
-	m_codeAssist->m_functionType = functionType;
+	m_codeAssist->m_functionTypeOverload = functionType;
+	m_codeAssist->m_argumentIdx = argumentIdx;
+	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createArgumentTip(
+	size_t offset,
+	const FunctionTypeOverload& typeOverload,
+	size_t argumentIdx
+	)
+{
+	freeCodeAssist();
+
+	m_codeAssist = AXL_MEM_NEW(CodeAssist);
+	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
+	m_codeAssist->m_offset = offset;
+	m_codeAssist->m_module = m_module;
+	m_codeAssist->m_functionTypeOverload = typeOverload;
 	m_codeAssist->m_argumentIdx = argumentIdx;
 	return m_codeAssist;
 }

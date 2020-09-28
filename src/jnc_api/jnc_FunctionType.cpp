@@ -16,6 +16,7 @@
 #	include "jnc_ExtensionLib.h"
 #elif defined(_JNC_CORE)
 #	include "jnc_ct_FunctionType.h"
+#	include "jnc_ct_FunctionTypeOverload.h"
 #	include "jnc_ct_FunctionPtrType.h"
 #endif
 
@@ -158,6 +159,25 @@ jnc_FunctionType_getArg(
 	)
 {
 	return type->getArgArray() [index];
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNC_EXTERN_C
+size_t
+jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload)
+{
+	return typeOverload->getOverloadCount();
+}
+
+JNC_EXTERN_C
+jnc_FunctionType*
+jnc_FunctionTypeOverload_getOverload(
+	jnc_FunctionTypeOverload* typeOverload,
+	size_t index
+	)
+{
+	return typeOverload->getOverload(index);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

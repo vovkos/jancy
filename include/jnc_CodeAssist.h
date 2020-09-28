@@ -62,16 +62,16 @@ jnc_ModuleItem*
 jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
-jnc_FunctionType*
-jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssist);
+jnc_Namespace*
+jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist);
+
+JNC_EXTERN_C
+jnc_FunctionTypeOverload*
+jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist);
 
 JNC_EXTERN_C
 size_t
 jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist);
-
-JNC_EXTERN_C
-jnc_Namespace*
-jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -108,22 +108,22 @@ struct jnc_CodeAssist
 		return jnc_CodeAssist_getModuleItem(this);
 	}
 
-	jnc_FunctionType*
-	getFunctionType()
+	jnc_Namespace*
+	getNamespace()
 	{
-		return jnc_CodeAssist_getFunctionType(this);
+		return jnc_CodeAssist_getNamespace(this);
+	}
+
+	jnc_FunctionTypeOverload*
+	getFunctionTypeOverload()
+	{
+		return jnc_CodeAssist_getFunctionTypeOverload(this);
 	}
 
 	size_t
 	getArgumentIdx()
 	{
 		return jnc_CodeAssist_getArgumentIdx(this);
-	}
-
-	jnc_Namespace*
-	getNamespace()
-	{
-		return jnc_CodeAssist_getNamespace(this);
 	}
 };
 #endif // _JNC_CORE

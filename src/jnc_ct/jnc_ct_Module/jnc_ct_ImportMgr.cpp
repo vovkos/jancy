@@ -171,12 +171,9 @@ ImportMgr::parseLazyImport(LazyImport* import)
 		m_module->m_variableMgr.allocateNamespaceVariables(lastVariableIt) &&
 		m_module->m_functionMgr.finalizeNamespaceProperties(lastPropertyIt);
 
-	if (!result)
-		return false;
-
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
-	return true;
+	return result;
 }
 
 //..............................................................................

@@ -244,8 +244,8 @@ OperatorMgr::callOperator(
 		callImpl(opValue, functionPtrType->getTargetType(), argValueList, resultValue);
 }
 
-FunctionType*
-OperatorMgr::getValueFunctionType(
+FunctionTypeOverload
+OperatorMgr::getValueFunctionTypeOverload(
 	const Value& rawOpValue,
 	size_t* baseArgumentIdx
 	)
@@ -268,8 +268,8 @@ OperatorMgr::getValueFunctionType(
 		*baseArgumentIdx = 1;
 
 		return callOperator->getItemKind() == ModuleItemKind_Function ?
-			callOperator.getFunction()->getType() :
-			callOperator.getFunctionOverload()->getOverload(0)->getType();
+			FunctionTypeOverload(callOperator.getFunction()->getType()) :
+			FunctionTypeOverload(callOperator.getFunctionOverload()->getTypeOverload());
 	}
 
 	Closure* closure = opValue.getClosure();
@@ -277,14 +277,14 @@ OperatorMgr::getValueFunctionType(
 		*baseArgumentIdx = closure->getArgValueList()->getCount();
 
 	if (opValue.getValueKind() == ValueKind_FunctionOverload)
-		return opValue.getFunctionOverload()->getOverload(0)->getType();
+		return opValue.getFunctionOverload()->getTypeOverload();
 
 	if (opValue.getValueKind() == ValueKind_Function)
 		return opValue.getFunction()->getType();
 
 	Type* opType = opValue.getType();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr))
-		return NULL;
+		return false;
 
 	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
 	if (functionPtrType->hasClosure())

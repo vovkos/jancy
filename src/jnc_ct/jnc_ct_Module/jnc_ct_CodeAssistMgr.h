@@ -13,6 +13,7 @@
 
 #include "jnc_CodeAssist.h"
 #include "jnc_ct_QualifiedName.h"
+#include "jnc_ct_FunctionTypeOverload.h"
 
 namespace jnc {
 namespace ct {
@@ -28,11 +29,11 @@ protected:
 	uint_t m_flags;
 	size_t m_offset; // not necessarily the same as request offset
 	Module* m_module;
+	FunctionTypeOverload m_functionTypeOverload;
 
 	union
 	{
 		ModuleItem* m_item;
-		FunctionType* m_functionType;
 		Namespace* m_namespace;
 	};
 
@@ -76,18 +77,18 @@ public:
 		return m_item;
 	}
 
-	FunctionType*
-	getFunctionType()
-	{
-		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
-		return m_functionType;
-	}
-
 	Namespace*
 	getNamespace()
 	{
 		ASSERT(m_codeAssistKind == CodeAssistKind_AutoComplete);
 		return m_namespace;
+	}
+
+	FunctionTypeOverload*
+	getFunctionTypeOverload()
+	{
+		ASSERT(m_codeAssistKind == CodeAssistKind_ArgumentTip);
+		return &m_functionTypeOverload;
 	}
 
 	size_t
@@ -211,6 +212,13 @@ public:
 		size_t offset,
 		FunctionType* functionType,
 		size_t arugmentIdx
+		);
+
+	CodeAssist*
+	createArgumentTip(
+		size_t offset,
+		const FunctionTypeOverload& typeOverload,
+		size_t argumentIdx
 		);
 
 	CodeAssist*

@@ -62,10 +62,18 @@ jnc_CodeAssist_getModuleItem(jnc_CodeAssist* codeAssist)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-jnc_FunctionType*
-jnc_CodeAssist_getFunctionType(jnc_CodeAssist* codeAssist)
+jnc_Namespace*
+jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist)
 {
-	return codeAssist->getFunctionType();
+	return codeAssist->getNamespace();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_FunctionTypeOverload*
+jnc_CodeAssist_getFunctionTypeOverload(jnc_CodeAssist* codeAssist)
+{
+	return codeAssist->getFunctionTypeOverload();
 }
 
 JNC_EXTERN_C
@@ -74,14 +82,6 @@ size_t
 jnc_CodeAssist_getArgumentIdx(jnc_CodeAssist* codeAssist)
 {
 	return codeAssist->getArgumentIdx();
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-jnc_Namespace*
-jnc_CodeAssist_getNamespace(jnc_CodeAssist* codeAssist)
-{
-	return codeAssist->getNamespace();
 }
 
 #endif

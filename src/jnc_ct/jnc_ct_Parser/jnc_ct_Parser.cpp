@@ -3320,11 +3320,15 @@ Parser::generateArgumentTip()
 	ArgumentTip* argumentTip = *m_argumentTipStack.getTail();
 
 	size_t baseArgumentIdx;
-	FunctionType* functionType = m_module->m_operatorMgr.getValueFunctionType(argumentTip->m_value, &baseArgumentIdx);
-	if (functionType)
+	FunctionTypeOverload typeOverload = m_module->m_operatorMgr.getValueFunctionTypeOverload(
+		argumentTip->m_value,
+		&baseArgumentIdx
+		);
+
+	if (typeOverload.getOverloadCount())
 		m_module->m_codeAssistMgr.createArgumentTip(
 			argumentTip->m_pos.m_offset,
-			functionType,
+			typeOverload,
 			baseArgumentIdx + argumentTip->m_argumentIdx
 			);
 }

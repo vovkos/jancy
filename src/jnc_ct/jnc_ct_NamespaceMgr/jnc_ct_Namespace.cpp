@@ -280,12 +280,15 @@ Namespace::findDirectChildItem(const sl::StringRef& name)
 
 	m_namespaceStatus = NamespaceStatus_ParseRequired;
 
-	result =
-		module->m_importMgr.parseLazyImport((LazyImport*)item) &&
-		ensureNamespaceReady();
+	// during code-assist, we may fail on parsing imports, but we still need to return a valid stdtype
 
-	if (!result)
-		return g_errorFindModuleItemResult;
+	bool result1 = module->m_importMgr.parseLazyImport((LazyImport*)item);
+	bool result2 = ensureNamespaceReady();
+
+	if (!result1 || !result2)
+		return it->m_value != item ?
+			FindModuleItemResult(it->m_value) :
+			g_errorFindModuleItemResult;
 
 	ASSERT(it->m_value != item); // should have been replaced
 	return FindModuleItemResult(it->m_value);

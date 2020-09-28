@@ -9,17 +9,152 @@ namespace jnc {
 CodeTip::CodeTip(QWidget* parent):
 	QLabel(parent, Qt::ToolTip | Qt::BypassGraphicsProxyWidget)
 {
+	m_functionTypeOverload = NULL;
+	m_functionTypeOverloadIdx = 0;
+	m_argumentIdx = 0;
 	setForegroundRole(QPalette::ToolTipText);
 	setBackgroundRole(QPalette::ToolTipBase);
 	ensurePolished();
 	setMargin(1 + style()->pixelMetric(QStyle::PM_ToolTipLabelFrameWidth, 0, this));
 	setFrameStyle(QFrame::NoFrame);
 	setAlignment(Qt::AlignLeft);
+	setTextFormat(Qt::RichText);
 	setIndent(1);
 	qApp->installEventFilter(this);
 	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / 255.0);
 	setWordWrap(false);
 	setMouseTracking(true);
+}
+
+void
+CodeTip::nextFunctionTypeOverload()
+{
+	ASSERT(isFunctionTypeOverload());
+
+	size_t lastIdx = m_functionTypeOverload->getOverloadCount() - 1;
+	if (m_functionTypeOverloadIdx < lastIdx)
+		m_functionTypeOverloadIdx++;
+	else
+		m_functionTypeOverloadIdx = 0;
+
+	setTipText(getArgumentTipText());
+}
+
+void
+CodeTip::prevFunctionTypeOverload()
+{
+	ASSERT(isFunctionTypeOverload());
+
+	if (m_functionTypeOverloadIdx)
+		m_functionTypeOverloadIdx--;
+	else
+		m_functionTypeOverloadIdx = m_functionTypeOverload->getOverloadCount() - 1;
+
+	setTipText(getArgumentTipText());
+}
+
+void
+CodeTip::showQuickInfoTip(
+	const QPoint& pos,
+	ModuleItem* item
+	)
+{
+	m_functionTypeOverload = NULL;
+	m_functionTypeOverloadIdx = 0;
+	m_argumentIdx = 0;
+
+	showText(pos, item->getSynopsis_v());
+}
+
+void
+CodeTip::showArgumentTip(
+	const QPoint& pos,
+	FunctionTypeOverload* overload,
+	size_t argumentIdx
+	)
+{
+	m_functionTypeOverload = overload;
+	m_argumentIdx = argumentIdx;
+
+	size_t overloadCount = overload->getOverloadCount();
+	if (!isVisible() || m_functionTypeOverloadIdx >= overloadCount)
+		m_functionTypeOverloadIdx = 0;
+
+	showText(pos, getArgumentTipText());
+}
+
+QString
+CodeTip::getArgumentTipText()
+{
+	ASSERT(m_functionTypeOverload);
+
+	size_t overloadCount = m_functionTypeOverload->getOverloadCount();
+	FunctionType* type = m_functionTypeOverload->getOverload(m_functionTypeOverloadIdx);
+	QString text = getArgumentTipText(type, m_argumentIdx);
+
+	if (overloadCount)
+		text = QString("%1 of %2<hr>%3").
+			arg(m_functionTypeOverloadIdx + 1).
+			arg(overloadCount).
+			arg(text);
+
+	return text;
+}
+
+QString
+CodeTip::getArgumentTipText(
+	FunctionType* type,
+	size_t argumentIdx
+	)
+{
+	#define ML_ARG_INDENT "&nbsp;&nbsp;&nbsp;&nbsp;"
+
+	bool isConst = false;
+	FunctionType* shortType = type->getShortType();
+	if (shortType != type)
+	{
+		isConst = type->getArgCount() && (type->getArg(0)->getType()->getFlags() & PtrTypeFlag_Const);
+		type = shortType;
+	}
+
+	Type* returnType = type->getReturnType();
+	size_t argCount = type->getArgCount();
+	size_t lastArgIdx = argCount - 1;
+
+	bool isMl = argCount >= 2;
+
+	QString text = returnType->getTypeString();
+	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
+
+	for (size_t i = 0; i < argCount; i++)
+	{
+		FunctionArg* arg = type->getArg(i);
+		Type* argType = arg->getType();
+
+		if (i == argumentIdx)
+			text += "<b>";
+
+		text += argType->getTypeStringPrefix();
+		text += ' ';
+		text += arg->getDecl()->getName();
+		text += argType->getTypeStringSuffix();
+
+		if (i == argumentIdx)
+			text += "</b>";
+
+		if (i != lastArgIdx)
+			text += ",<br>" ML_ARG_INDENT;
+	}
+
+	if (type->getFlags() & FunctionTypeFlag_VarArg)
+		text += isMl ? ",<br>" ML_ARG_INDENT "..." : ", ...";
+
+	text += isMl ? "<br>" ML_ARG_INDENT ")" : ")";
+
+	if (isConst)
+		text += " const</p>";
+
+	return text;
 }
 
 void

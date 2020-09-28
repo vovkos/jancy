@@ -14,6 +14,7 @@
 #include "jnc_Edit.h"
 #include "jnc_LineNumberMargin.h"
 #include "jnc_Highlighter.h"
+#include "jnc_CodeTip.h"
 #include "jnc_CodeAssistThread.h"
 
 namespace jnc {
@@ -167,6 +168,12 @@ protected:
 		return m_completer && m_completer->popup()->isVisible();
 	}
 
+	bool
+	isCodeTipVisible()
+	{
+		return m_codeTip && m_codeTip->isVisible();
+	}
+
 	void
 	ensureCompleter();
 
@@ -181,7 +188,7 @@ protected:
 
 	void
 	createArgumentTip(
-		FunctionType* type,
+		FunctionTypeOverload* typeOverload,
 		size_t argumentIdx
 		);
 

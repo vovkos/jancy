@@ -927,8 +927,8 @@ public:
 	traceBlock(BasicBlock* block);
 #endif
 
-	FunctionType*
-	getValueFunctionType(
+	FunctionTypeOverload
+	getValueFunctionTypeOverload(
 		const Value& opValue,
 		size_t* baseArgumentIdx
 		);
