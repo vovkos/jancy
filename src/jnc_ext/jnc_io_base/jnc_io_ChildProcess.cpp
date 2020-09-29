@@ -352,7 +352,7 @@ ChildProcess::start(
 	startupInfo.hStdInput = childStdin;
 	startupInfo.hStdOutput = childStdout;
 	startupInfo.hStdError = isSeparateStderr ? childStderr : childStdout;
-	startupInfo.wShowWindow = SW_HIDE;
+	startupInfo.wShowWindow = SW_SHOWNORMAL;
 
 	result = m_process.create(
 		NULL,
@@ -360,7 +360,7 @@ ChildProcess::start(
 		NULL,
 		NULL,
 		true,
-		CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT,
+		CREATE_UNICODE_ENVIRONMENT,
 		environmentBlock.cp(),
 		NULL,
 		&startupInfo,
