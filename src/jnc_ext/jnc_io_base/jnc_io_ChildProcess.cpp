@@ -77,6 +77,20 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 #if (_JNC_OS_WIN)
 
+uint64_t
+getPipeId()
+{
+	static uint64_t lastPipeId = 0;
+
+	for (;;)
+	{
+		uint64_t pipeId = sys::getTimestamp();
+		uint64_t prevId = sys::atomicXchg(&lastPipeId, pipeId);
+		if (pipeId != prevId)
+			return pipeId;
+	}
+}
+
 bool
 createStdioPipe(
 	handle_t* readHandle,
@@ -85,14 +99,12 @@ createStdioPipe(
 	dword_t writeMode
 	)
 {
-	static int32_t pipeId = 0;
-
 	char buffer[256];
 	sl::String_w pipeName(ref::BufKind_Stack, buffer, sizeof(buffer));
 	pipeName.format(
-		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%d",
+		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%llx",
 		sys::getCurrentProcessId(),
-		sys::atomicInc(&pipeId)
+		getPipeId()
 		);
 
 	axl::io::win::NamedPipe pipe;
