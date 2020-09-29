@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "jnc_CodeTip.h"
+#include "jnc_Highlighter.h"
 #include "moc_jnc_CodeTip.cpp"
 
 namespace jnc {
@@ -89,10 +90,12 @@ CodeTip::getArgumentTipText()
 	ASSERT(m_functionTypeOverload);
 
 	size_t overloadCount = m_functionTypeOverload->getOverloadCount();
+	ASSERT(m_functionTypeOverloadIdx < overloadCount);
+
 	FunctionType* type = m_functionTypeOverload->getOverload(m_functionTypeOverloadIdx);
 	QString text = getArgumentTipText(type, m_argumentIdx);
 
-	if (overloadCount)
+	if (overloadCount > 1)
 		text = QString("%1 of %2<hr>%3").
 			arg(m_functionTypeOverloadIdx + 1).
 			arg(overloadCount).
@@ -123,7 +126,7 @@ CodeTip::getArgumentTipText(
 
 	bool isMl = argCount >= 2;
 
-	QString text = returnType->getTypeString();
+	QString text = highlightJancySource(returnType->getTypeString());
 	text += isMl ? " (<br>" ML_ARG_INDENT : " (";
 
 	for (size_t i = 0; i < argCount; i++)
@@ -134,10 +137,16 @@ CodeTip::getArgumentTipText(
 		if (i == argumentIdx)
 			text += "<b>";
 
-		text += argType->getTypeStringPrefix();
+		text += highlightJancySource(argType->getTypeStringPrefix());
 		text += ' ';
 		text += arg->getDecl()->getName();
-		text += argType->getTypeStringSuffix();
+		text += highlightJancySource(argType->getTypeStringSuffix());
+
+		if (arg->hasDefaultValue())
+		{
+			text += " = ";
+			text += highlightJancySource(arg->getDefaultValueString());
+		}
 
 		if (i == argumentIdx)
 			text += "</b>";
@@ -152,7 +161,7 @@ CodeTip::getArgumentTipText(
 	text += isMl ? "<br>" ML_ARG_INDENT ")" : ")";
 
 	if (isConst)
-		text += " const</p>";
+		text += highlightJancySource(" const");
 
 	return text;
 }

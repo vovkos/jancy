@@ -64,6 +64,11 @@ public:
 	exec();
 };
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+QString
+highlightJancySource(const QString& source);
+
 //..............................................................................
 
 } // namespace jnc

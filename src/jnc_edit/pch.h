@@ -39,6 +39,7 @@
 #include <QStylePainter>
 #include <QDesktopWidget>
 #include <QStyledItemDelegate>
+#include <QTextDocumentFragment>
 
 // AXL
 
