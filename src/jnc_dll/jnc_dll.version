@@ -13,7 +13,7 @@
 		jnc_CodeAssist_getOffset;
 		jnc_CodeAssist_getModule;
 		jnc_CodeAssist_getModuleItem;
-		jnc_CodeAssist_getFunctionType;
+		jnc_CodeAssist_getFunctionTypeOverload;
 		jnc_CodeAssist_getArgumentIdx;
 		jnc_CodeAssist_getNamespace;
 		jnc_ModuleItemDecl_getAccessKind;
@@ -87,6 +87,8 @@
 		jnc_FunctionType_getFunctionPtrType;
 		jnc_FunctionType_getReturnType;
 		jnc_FunctionType_getShortType;
+		jnc_FunctionTypeOverload_getOverloadCount;
+		jnc_FunctionTypeOverload_getOverload;
 		jnc_getFunctionTypeFlagString;
 		jnc_EnumConst_getValue;
 		jnc_EnumType_getBaseType;

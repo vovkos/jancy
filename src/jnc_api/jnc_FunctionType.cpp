@@ -164,6 +164,7 @@ jnc_FunctionType_getArg(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 size_t
 jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload)
 {
@@ -171,6 +172,7 @@ jnc_FunctionTypeOverload_getOverloadCount(jnc_FunctionTypeOverload* typeOverload
 }
 
 JNC_EXTERN_C
+JNC_EXPORT_O
 jnc_FunctionType*
 jnc_FunctionTypeOverload_getOverload(
 	jnc_FunctionTypeOverload* typeOverload,
