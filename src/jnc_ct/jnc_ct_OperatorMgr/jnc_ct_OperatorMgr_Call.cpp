@@ -284,7 +284,7 @@ OperatorMgr::getValueFunctionTypeOverload(
 
 	Type* opType = opValue.getType();
 	if (!(opType->getTypeKindFlags() & TypeKindFlag_FunctionPtr))
-		return false;
+		return NULL;
 
 	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
 	if (functionPtrType->hasClosure())
