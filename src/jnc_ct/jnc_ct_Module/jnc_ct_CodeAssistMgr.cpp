@@ -180,6 +180,10 @@ CodeAssistMgr::createArgumentTip(
 {
 	freeCodeAssist();
 
+	size_t overloadCount = typeOverload.getOverloadCount();
+	for (size_t i = 0; i < overloadCount; i++)
+		typeOverload.getOverload(i)->ensureNoImports();
+
 	m_codeAssist = AXL_MEM_NEW(CodeAssist);
 	m_codeAssist->m_codeAssistKind = CodeAssistKind_ArgumentTip;
 	m_codeAssist->m_offset = offset;
