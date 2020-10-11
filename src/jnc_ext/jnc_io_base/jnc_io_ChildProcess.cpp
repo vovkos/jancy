@@ -80,12 +80,12 @@ JNC_END_TYPE_FUNCTION_MAP()
 uint64_t
 getPipeId()
 {
-	static uint64_t lastPipeId = 0;
+	static int64_t lastPipeId = 0;
 
 	for (;;)
 	{
-		uint64_t pipeId = sys::getTimestamp();
-		uint64_t prevId = sys::atomicXchg(&lastPipeId, pipeId);
+		int64_t pipeId = sys::getTimestamp();
+		int64_t prevId = sys::atomicXchg(&lastPipeId, pipeId);
 		if (pipeId != prevId)
 			return pipeId;
 	}
