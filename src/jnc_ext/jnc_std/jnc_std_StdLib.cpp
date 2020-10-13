@@ -663,7 +663,6 @@ printf(
 } // namespace std
 } // namespace jnc
 
-
 using namespace jnc::std;
 
 JNC_DEFINE_LIB(
