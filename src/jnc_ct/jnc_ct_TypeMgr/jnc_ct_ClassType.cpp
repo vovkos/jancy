@@ -96,9 +96,6 @@ ClassType::addMethod(Function* function)
 
 	function->m_parentNamespace = this;
 
-	if (storageKind == StorageKind_Undefined)
-		storageKind = StorageKind_Member;
-
 	switch (storageKind)
 	{
 	case StorageKind_Static:
@@ -109,6 +106,10 @@ ClassType::addMethod(Function* function)
 		}
 
 		break;
+
+	case StorageKind_Undefined:
+		function->m_storageKind = StorageKind_Member;
+		// and fall through
 
 	case StorageKind_Member:
 		function->convertToMemberMethod(this);
