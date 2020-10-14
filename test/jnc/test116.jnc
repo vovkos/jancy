@@ -54,5 +54,5 @@ int main()
 destruct()
 {
 	printf("module.destruct: g_counter: %d\n", g_objectCount);
-	assert(g_objectCount == 0);
+	assert(g_objectCount == 3); // global B g_b;
 }
