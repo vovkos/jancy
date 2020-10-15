@@ -1196,7 +1196,7 @@ JNC_BEGIN_LIB_FUNCTION_MAP(jnc_CoreLib)
 
 	// exceptions/async
 
-	JNC_MAP_STD_FUNCTION(ct::StdFunc_SetJmp,       ::setjmp)
+	JNC_MAP_STD_FUNCTION(ct::StdFunc_SetJmp,       jnc_setJmp)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_DynamicThrow, dynamicThrow)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AsyncRet,     asyncRet)
 	JNC_MAP_STD_FUNCTION(ct::StdFunc_AsyncThrow,   asyncThrow)

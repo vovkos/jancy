@@ -12,6 +12,8 @@
 LIBRARY jancy-${JANCY_VERSION_MAJOR}.${JANCY_VERSION_MINOR}.dll
 
 EXPORTS
+	jnc_setJmp
+	jnc_longJmp
 	jnc_getBinOpKindString
 	jnc_getUnOpKindString
 	jnc_setErrorRouter

@@ -82,6 +82,7 @@ void
 Runtime::abort()
 {
 	m_lock.lock();
+
 	if (m_state != State_Running)
 	{
 		m_lock.unlock();
@@ -89,7 +90,6 @@ Runtime::abort()
 	}
 
 	m_lock.unlock();
-
 	m_gcHeap.abort();
 }
 
@@ -244,12 +244,7 @@ Runtime::dynamicThrow()
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	if (tlsVariableTable->m_sjljFrame)
 	{
-#if (_JNC_OS_WIN && _JNC_CPU_AMD64)
-		_JUMP_BUFFER* pBuffer = (_JUMP_BUFFER*)tlsVariableTable->m_sjljFrame->m_jmpBuf;
-		pBuffer->Frame = 0; // prevent unwinding -- it doesn't work with the LLVM MCJIT-generated code
-#endif
-
-		longjmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 	}
 	else
 	{
@@ -257,7 +252,7 @@ Runtime::dynamicThrow()
 		TRACE("-- WARNING: jump to external SJLJ frame: %p\n", frame);
 
 		ASSERT(frame);
-		longjmp(frame->m_jmpBuf, -1);
+		jnc_longJmp(frame->m_jmpBuf, -1);
 	}
 
 	ASSERT(false);

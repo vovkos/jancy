@@ -38,7 +38,7 @@
 	JNC_ASSERT(runtime); \
 	jnc_Runtime_initializeCallSite(__jncRuntime, &__jncCallSite); \
 	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame(__jncRuntime, &__jncSjljFrame); \
-	__jncSjljBranch = setjmp(__jncSjljFrame.m_jmpBuf); \
+	__jncSjljBranch = jnc_setJmp(__jncSjljFrame.m_jmpBuf); \
 	if (!__jncSjljBranch) \
 	{
 

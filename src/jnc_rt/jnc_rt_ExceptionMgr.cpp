@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_rt_ExceptionMgr.h"
 #include "jnc_rt_Runtime.h"
+#include "jnc_Runtime.h"
 
 // #define _JNC_NO_EH 1
 
@@ -101,7 +102,7 @@ ExceptionMgr::signalHandler(
 	else
 	{
 		AXL_TODO("add extra variables to the SJLJ frame to store error information");
-		longjmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);
 	}
 #endif
@@ -189,13 +190,7 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 	{
 		AXL_TODO("encode SEH information better");
 		sys::win::setNtStatus(status);
-
-#if (_AXL_CPU_AMD64)
-		_JUMP_BUFFER* pBuffer = (_JUMP_BUFFER*)tlsVariableTable->m_sjljFrame->m_jmpBuf;
-		pBuffer->Frame = 0; // prevent unwinding -- it doesn't work with the LLVM MCJIT-generated code
-#endif
-
-		longjmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
+		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);
 	}
 

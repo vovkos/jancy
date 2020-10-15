@@ -257,6 +257,30 @@ jnc_createForeignStringPtr(
 	bool_t isCallSiteLocal
 	);
 
+// we want to make sure there is no unwinding during SJLJ -- alas,
+// unwinding doesn't work too well with the LLVM-generated JIT-code
+
+#if (_JNC_OS_WIN)
+#	if (_JNC_CPU_X86)
+JNC_EXTERN_C
+int
+jnc_setJmp(jmp_buf jmpBuf);
+#	else
+#		define jnc_setJmp setjmp
+#	endif
+
+JNC_EXTERN_C
+void
+jnc_longJmp(
+	jmp_buf jmpBuf,
+	int retVal
+	);
+
+#else
+#	define jnc_setJmp  setjmp
+#	define jnc_longJmp longjmp
+#endif
+
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 #ifdef __cplusplus
