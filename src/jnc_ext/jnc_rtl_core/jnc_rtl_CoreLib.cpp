@@ -459,6 +459,7 @@ assertionFailure(
 		string.appendFormat("; %s", message);
 
 	err::setError(string);
+	string.release(); // release before throwing (sl::String::~String will not be called)
 	dynamicThrow();
 }
 
