@@ -1,0 +1,12 @@
+// msvc15 x86 release crashes if exception is thrown from LLVM JIT code (ESP gets shifted by 4 bytes)
+
+destruct()
+{
+	assert(false);
+}
+
+int main()
+{
+	assert(false);
+	return 0;
+}
