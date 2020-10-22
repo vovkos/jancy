@@ -230,6 +230,22 @@ hasCursorHighlightColor(const QTextCursor& cursor)
 	return false;
 }
 
+void
+moveCursorWithLimit(
+	QTextCursor* cursor,
+	const QTextCursor& limitCursor,
+	QTextCursor::MoveOperation op,
+	QTextCursor::MoveMode mode = QTextCursor::MoveAnchor,
+	int n = 1
+	)
+{
+	int pos = cursor->position();
+	cursor->movePosition(op, mode, n);
+
+	if (cursor->position() == pos) // didn't change, use limit
+		*cursor = limitCursor;
+}
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
@@ -1412,7 +1428,7 @@ EditPrivate::indentSelection()
 	QTextCursor endCursor = cursor;
 	endCursor.setPosition(end);
 
-	for (; cursor < endCursor; cursor.movePosition(QTextCursor::Down))
+	for (; cursor < endCursor; moveCursorWithLimit(&cursor, endCursor, QTextCursor::Down))
 		cursor.insertText(QChar('\t'));
 
 	cursor.endEditBlock();
@@ -1437,7 +1453,7 @@ EditPrivate::unindentSelection()
 	QTextCursor endCursor = cursor;
 	endCursor.setPosition(end);
 
-	for (; cursor < endCursor; cursor.movePosition(QTextCursor::Down))
+	for (; cursor < endCursor; moveCursorWithLimit(&cursor, endCursor, QTextCursor::Down))
 	{
 		if (!isCursorOnIndent(cursor))
 			continue;
