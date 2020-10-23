@@ -346,6 +346,26 @@ checkBraceMatch(QChar ch)
 	}
 }
 
+bool
+isBraceAutoComplete(QChar nextCh)
+{
+	switch (nextCh.unicode())
+	{
+	case 0:
+	case ' ':
+	case '\t':
+	case ')':
+	case ']':
+	case '}':
+	case ',':
+	case ';':
+		return true;
+
+	default:
+		return false;
+	}
+}
+
 //..............................................................................
 
 Edit::Edit(QWidget *parent):
@@ -1663,7 +1683,7 @@ EditPrivate::keyPressPrintChar(QKeyEvent* e)
 		if (hasCursorHighlightColor(cursor))
 			break;
 
-		if (isCursorAtEndOfLineIgnoreSpace(cursor))
+		if (isBraceAutoComplete(getCursorNextChar(cursor)))
 		{
 			cursor = q->textCursor();
 			cursor.insertText(getRightBrace(c));
