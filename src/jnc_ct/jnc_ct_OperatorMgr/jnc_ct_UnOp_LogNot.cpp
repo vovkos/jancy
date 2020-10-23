@@ -82,6 +82,12 @@ UnOp_LogNot::ptrOperator(
 	if (opValue.getType()->getSize() == sizeof(void*))
 		return zeroCmpOperator(opValue, resultValue);
 
+	if (!m_module->hasCodeGen())
+	{
+		resultValue->setType(m_module->m_typeMgr.getPrimitiveType(TypeKind_Bool));
+		return true;
+	}
+
 	Value ptrValue;
 	m_module->m_llvmIrBuilder.createExtractValue(opValue, 0, m_module->m_typeMgr.getStdType(StdType_BytePtr), &ptrValue);
 	return zeroCmpOperator(ptrValue, resultValue);
