@@ -334,6 +334,8 @@ opaque class File
 //..............................................................................
 
 char const* getSymbolicLinkTarget(char const* name);
+char const* getTempDir();
+char const* getHomeDir();
 
 //..............................................................................
 

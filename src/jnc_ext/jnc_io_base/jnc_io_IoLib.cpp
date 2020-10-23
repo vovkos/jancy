@@ -42,6 +42,16 @@ DataPtr getSymbolicLinkTarget(DataPtr namePtr)
 	return strDup(linkTarget);
 }
 
+DataPtr getTempDir()
+{
+	return strDup(axl::io::getTempDir());
+}
+
+DataPtr getHomeDir()
+{
+	return strDup(axl::io::getHomeDir());
+}
+
 //..............................................................................
 
 JNC_DEFINE_LIB(
@@ -86,8 +96,10 @@ JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
 	JNC_MAP_TYPE(Mailslot)
 #endif
 	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
-	JNC_MAP_FUNCTION("io.createSerialPortDescList",     createSerialPortDescList)
-	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget",        getSymbolicLinkTarget)
+	JNC_MAP_FUNCTION("io.createSerialPortDescList", createSerialPortDescList)
+	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget", getSymbolicLinkTarget)
+	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
+	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
