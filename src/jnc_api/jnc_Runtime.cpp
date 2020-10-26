@@ -555,7 +555,7 @@ int
 __declspec(naked)
 jnc_setJmp(jmp_buf jmpBuf)
 {
-	_asm
+	__asm
 	{
 		xor eax, eax
 		mov edx, JMPBUF[esp]
@@ -581,7 +581,7 @@ jnc_longJmp(
 	int retVal
 	)
 {
-	_asm
+	__asm
 	{
 		mov ecx, JMPBUF[esp]   /* User's jmp_buf in %ecx.  */
 		mov eax, [esp + 8]      /* Second argument is return value.  */
