@@ -550,6 +550,10 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 #define PCOFF  0
 #define JMPBUF 4
 
+#ifdef xor
+#	undef xor
+#endif
+
 EXTERN_C
 int
 __declspec(naked)
