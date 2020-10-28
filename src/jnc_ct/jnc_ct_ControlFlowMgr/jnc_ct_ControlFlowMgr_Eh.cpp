@@ -71,6 +71,9 @@ ControlFlowMgr::markLandingPad(
 void
 ControlFlowMgr::throwException()
 {
+	if (!m_module->hasCodeGen())
+		return;
+
 	Scope* scope = m_module->m_namespaceMgr.getCurrentScope();
 	if (!scope->canStaticThrow())
 	{
