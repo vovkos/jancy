@@ -141,6 +141,9 @@ source_group(
 # jnc_edit code-assisting editor
 #
 
+set(CMAKE_INSTALL_RPATH)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
