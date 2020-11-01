@@ -32,7 +32,11 @@ public:
 
 public:
 	CodeAssistThread(QObject* parent = NULL);
-	~CodeAssistThread();
+
+	~CodeAssistThread()
+	{
+		wait();
+	}
 
 	const ref::Ptr<Module>&
 	getModule()

@@ -20,18 +20,11 @@ namespace jnc {
 CodeAssistThread::CodeAssistThread(QObject* parent):
 	QThread(parent)
 {
-	printf("CodeAssistThread::CodeAssistThread(%p)\n", this);
 	m_codeAssistKind = CodeAssistKind_Undefined;
 
 	ref::Ptr<AutoModule> autoModule = AXL_REF_NEW(ref::Box<AutoModule>);
 	m_module.attach(autoModule->p(), autoModule.getRefCount());
 	autoModule.detach();
-}
-
-CodeAssistThread::~CodeAssistThread()
-{
-	printf("CodeAssistThread::~CodeAssistThread(%p)\n", this);
-	wait();
 }
 
 void
@@ -66,7 +59,7 @@ CodeAssistThread::request(
 void
 CodeAssistThread::cancel()
 {
-	printf("CodeAssistThread::cancel -- not yet supported\n");
+	TRACE("CodeAssistThread::cancel -- not yet supported\n");
 }
 
 void
@@ -107,7 +100,7 @@ CodeAssistThread::compileErrorHandler(
 	jnc::ModuleCompileErrorKind errorKind
 	)
 {
-	printf("CodeAssistThread::compileErrorHandler: %s\n", jnc::getLastErrorDescription_v());
+	TRACE("CodeAssistThread::compileErrorHandler: %s\n", jnc::getLastErrorDescription_v());
 	return true;
 }
 
