@@ -246,6 +246,15 @@ protected:
 			RecoverAction_Fail;
 	}
 
+	void
+	onSynchronizeSkipToken(const Token* token)
+	{
+		if (!m_argumentTipStack.isEmpty() &&
+			token->m_pos.m_offset < m_module->m_codeAssistMgr.getOffset() &&
+			!(token->m_flags & TokenFlag_CodeAssist))
+			m_argumentTipStack.clear();
+	}
+
 	bool
 	parseEofToken(
 		const lex::LineColOffset& pos,
