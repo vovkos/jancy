@@ -563,6 +563,12 @@ public:
 		return m_typedef;
 	}
 
+	Type*
+	getActualType()
+	{
+		return m_typedef->getType();
+	}
+
 protected:
 	virtual
 	void

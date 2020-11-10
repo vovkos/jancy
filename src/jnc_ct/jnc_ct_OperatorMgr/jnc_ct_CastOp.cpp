@@ -160,6 +160,55 @@ CastOperator::cast(
 
 //..............................................................................
 
+CastKind
+Cast_Typedef::getCastKind(
+	const Value& opValue,
+	Type* type
+	)
+{
+	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
+	TypedefShadowType* shadowType = (TypedefShadowType*)type;
+	return m_module->m_operatorMgr.getCastKind(opValue, shadowType->getActualType());
+}
+
+bool
+Cast_Typedef::constCast(
+	const Value& opValue,
+	Type* type,
+	void* dst
+	)
+{
+	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
+	TypedefShadowType* shadowType = (TypedefShadowType*)type;
+
+	Value value;
+	bool result = m_module->m_operatorMgr.castOperator(opValue, shadowType->getActualType(), &value);
+	if (!result)
+		return false;
+
+	if (value.getValueKind() == ValueKind_Const)
+	{
+		ASSERT(type->getSize() == value.getType()->getSize());
+		memcpy(dst, value.getConstData(), type->getSize());
+	}
+
+	return true;
+}
+
+bool
+Cast_Typedef::llvmCast(
+	const Value& opValue,
+	Type* type,
+	Value* resultValue
+	)
+{
+	ASSERT(type->getTypeKind() == TypeKind_TypedefShadow);
+	TypedefShadowType* shadowType = (TypedefShadowType*)type;
+	return m_module->m_operatorMgr.castOperator(opValue, shadowType->getActualType(), resultValue);
+}
+
+//..............................................................................
+
 bool
 Cast_Copy::constCast(
 	const Value& opValue,

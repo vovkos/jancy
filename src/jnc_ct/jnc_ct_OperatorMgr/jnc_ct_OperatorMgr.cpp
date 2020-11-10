@@ -101,19 +101,19 @@ OperatorMgr::OperatorMgr()
 	m_binOp_OrAssign.m_opKind  = BinOpKind_OrAssign;
 	m_binOp_AtAssign.m_opKind  = BinOpKind_AtAssign;
 
-	m_binaryOperatorTable[BinOpKind_Assign]      = &m_binOp_Assign;
-	m_binaryOperatorTable[BinOpKind_RefAssign]   = &m_binOp_RefAssign;
-	m_binaryOperatorTable[BinOpKind_AddAssign]   = &m_binOp_AddAssign;
-	m_binaryOperatorTable[BinOpKind_SubAssign]   = &m_binOp_SubAssign;
-	m_binaryOperatorTable[BinOpKind_MulAssign]   = &m_binOp_MulAssign;
-	m_binaryOperatorTable[BinOpKind_DivAssign]   = &m_binOp_DivAssign;
-	m_binaryOperatorTable[BinOpKind_ModAssign]   = &m_binOp_ModAssign;
-	m_binaryOperatorTable[BinOpKind_ShlAssign]   = &m_binOp_ShlAssign;
-	m_binaryOperatorTable[BinOpKind_ShrAssign]   = &m_binOp_ShrAssign;
-	m_binaryOperatorTable[BinOpKind_AndAssign]   = &m_binOp_AndAssign;
-	m_binaryOperatorTable[BinOpKind_XorAssign]   = &m_binOp_XorAssign;
-	m_binaryOperatorTable[BinOpKind_OrAssign]    = &m_binOp_OrAssign;
-	m_binaryOperatorTable[BinOpKind_AtAssign]    = &m_binOp_AtAssign;
+	m_binaryOperatorTable[BinOpKind_Assign]    = &m_binOp_Assign;
+	m_binaryOperatorTable[BinOpKind_RefAssign] = &m_binOp_RefAssign;
+	m_binaryOperatorTable[BinOpKind_AddAssign] = &m_binOp_AddAssign;
+	m_binaryOperatorTable[BinOpKind_SubAssign] = &m_binOp_SubAssign;
+	m_binaryOperatorTable[BinOpKind_MulAssign] = &m_binOp_MulAssign;
+	m_binaryOperatorTable[BinOpKind_DivAssign] = &m_binOp_DivAssign;
+	m_binaryOperatorTable[BinOpKind_ModAssign] = &m_binOp_ModAssign;
+	m_binaryOperatorTable[BinOpKind_ShlAssign] = &m_binOp_ShlAssign;
+	m_binaryOperatorTable[BinOpKind_ShrAssign] = &m_binOp_ShrAssign;
+	m_binaryOperatorTable[BinOpKind_AndAssign] = &m_binOp_AndAssign;
+	m_binaryOperatorTable[BinOpKind_XorAssign] = &m_binOp_XorAssign;
+	m_binaryOperatorTable[BinOpKind_OrAssign]  = &m_binOp_OrAssign;
+	m_binaryOperatorTable[BinOpKind_AtAssign]  = &m_binOp_AtAssign;
 
 	// cast operators
 
@@ -150,6 +150,7 @@ OperatorMgr::OperatorMgr()
 	m_castOperatorTable[TypeKind_FunctionRef] = &m_cast_FunctionRef;
 	m_castOperatorTable[TypeKind_PropertyPtr] = &m_cast_PropertyPtr;
 	m_castOperatorTable[TypeKind_PropertyRef] = &m_cast_PropertyRef;
+	m_castOperatorTable[TypeKind_TypedefShadow] = &m_cast_Typedef;
 
 	m_unsafeEnterCount = 0;
 }

@@ -163,6 +163,37 @@ public:
 
 //..............................................................................
 
+// we keep typedef shadows during code-assist
+
+class Cast_Typedef: public CastOperator
+{
+public:
+	virtual
+	CastKind
+	getCastKind(
+		const Value& opValue,
+		Type* type
+		);
+
+	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+		);
+
+	virtual
+	bool
+	llvmCast(
+		const Value& opValue,
+		Type* type,
+		Value* resultValue
+		);
+};
+
+//..............................................................................
+
 // cast to void
 
 class Cast_Void: public CastOperator
