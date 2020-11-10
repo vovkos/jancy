@@ -1,9 +1,12 @@
-// TODO: investigation is requied
-// msvc15 x86 release crashes if exception is thrown from LLVM JIT code (ESP gets shifted by 4 bytes)
+// msvc-x86 crashes if exception is thrown from LLVM JIT code 
+
+// on release, unwinding longjmp cause ESP to get shifted by 4 bytes;
+// on debug, non-unwinding jnc_longJmp didn't restore FS:[0] thus causing OutputDebugString to crash 
+// all this seems to be highly dependent on the MSVC runtime 
 
 destruct()
 {
-	// assert(false);
+	assert(false); // exceptions thrown from destructors are ignored, so it won't fail the test
 }
 
 int main()
