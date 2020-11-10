@@ -305,7 +305,7 @@ Value::setType(Type* type)
 {
 	clear();
 
-	m_valueKind = ValueKind_Type;
+	m_valueKind = type->getTypeKind() != TypeKind_Void ? ValueKind_Type : ValueKind_Void;
 	m_type = type;
 }
 
