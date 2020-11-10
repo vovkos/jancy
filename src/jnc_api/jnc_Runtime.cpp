@@ -539,7 +539,7 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 #if (_JNC_OS_WIN)
 #	if (_JNC_CPU_X86)
 
-// reactos/sdk/lib/crt/setjmp/i386/setjmp.s
+// based on: reactos/sdk/lib/crt/setjmp/i386/setjmp.s
 
 #define JB_BP  0
 #define JB_BX  1
@@ -547,6 +547,7 @@ jnc_strengthenClassPtr(jnc_IfaceHdr* iface)
 #define JB_SI  3
 #define JB_SP  4
 #define JB_IP  5
+#define JB_EH  6
 #define PCOFF  0
 #define JMPBUF 4
 
@@ -573,9 +574,14 @@ jnc_setJmp(jmp_buf jmpBuf)
 		mov [edx + JB_SP*4], ecx
 		mov ecx, PCOFF[esp]     /* Save PC we are returning to now.  */
 		mov [edx + JB_IP*4], ecx
+		mov ecx, FS:[0]         /* Save EXCEPTION_REGISTRATION */
+		mov [edx + JB_EH*4], ecx
 		ret
 	}
 }
+
+// warning C4733: Inline asm assigning to 'FS:0': handler not registered as safe handler
+#pragma warning(disable: 4733)
 
 EXTERN_C
 void
@@ -589,6 +595,9 @@ jnc_longJmp(
 	{
 		mov ecx, JMPBUF[esp]   /* User's jmp_buf in %ecx.  */
 		mov eax, [esp + 8]      /* Second argument is return value.  */
+		/* Restore EXCEPTION_REGISTRATION */
+		mov edx, [ecx + JB_EH*4]
+		mov FS:[0], edx
 		/* Save the return address now.  */
 		mov edx, [ecx + JB_IP*4]
 		/* Restore registers.  */
