@@ -3088,11 +3088,11 @@ Parser::appendFmtLiteralValue(
 	if (!fmtSpecifierString.isEmpty())
 	{
 		fmtSpecifierValue.setCharArray(fmtSpecifierString, m_module);
-		m_module->m_operatorMgr.castOperator(&fmtSpecifierValue, m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType_c());
+		m_module->m_operatorMgr.castOperator(&fmtSpecifierValue, m_module->m_typeMgr.getStdType(StdType_CharConstPtr));
 	}
 	else
 	{
-		fmtSpecifierValue = m_module->m_typeMgr.getPrimitiveType(TypeKind_Char)->getDataPtrType_c()->getZeroValue();
+		fmtSpecifierValue = m_module->m_typeMgr.getStdType(StdType_CharConstPtr)->getZeroValue();
 	}
 
 	return m_module->m_operatorMgr.callOperator(
