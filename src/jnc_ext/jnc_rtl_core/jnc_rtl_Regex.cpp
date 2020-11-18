@@ -313,22 +313,26 @@ RegexState::softReset()
 size_t
 RegexState::eof()
 {
-	size_t result;
-
 	if (!m_matchLength) // just matched
 		return RegexResult_Continue;
 
 	if (m_lastAcceptStateId == -1)
 		return RegexResult_Error;
 
-	result = m_lastAcceptStateId;
-
-	ASSERT(m_lastAcceptMatchLength <= m_matchLength);
-	if (m_lastAcceptMatchLength < m_matchLength)
-		rollback();
-	else
+	if (m_lastAcceptMatchLength == m_matchLength)
+	{
+		size_t result = m_lastAcceptStateId;
 		match(m_lastAcceptStateId);
+		return result;
+	}
 
+	ASSERT(m_lastAcceptMatchLength < m_matchLength);
+
+	if (!(m_flags & Flag_Lexer))
+		return RegexResult_Error;
+
+	size_t result = m_lastAcceptStateId;
+	rollback();
 	return result;
 }
 
@@ -368,7 +372,7 @@ RegexState::writeChar(uchar_t c)
 	if (targetStateId != -1)
 		return gotoState(targetStateId);
 
-	if (m_lastAcceptStateId == -1)
+	if (m_lastAcceptStateId == -1 || !(m_flags & Flag_Lexer))
 		return RegexResult_Error;
 
 	size_t result = m_lastAcceptStateId;
@@ -453,7 +457,10 @@ RegexState::match(size_t stateId)
 void
 RegexState::rollback()
 {
-	ASSERT(m_lastAcceptStateId != -1 && m_lastAcceptMatchLength);
+	ASSERT(
+		(m_flags & Flag_Lexer) &&
+		m_lastAcceptStateId != -1 &&
+		m_lastAcceptMatchLength);
 
 	size_t replayLength = m_matchLength - m_lastAcceptMatchLength;
 	m_currentOffset = m_matchOffset + m_lastAcceptMatchLength;

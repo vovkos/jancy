@@ -150,15 +150,15 @@ bitflag enum RegexStateFlags
 		}
 
 	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk
-	(and not as the whole). You do so by setting the `jnc.RegexStateFlag.Incremental`
+	(and not as the whole). You do so by setting the `jnc.RegexStateFlags.Incremental`
 	bit in the `jnc.RegexState.m_flags` field:
 
 	.. ref-code-block::
 
-		jnc.RegexState state(jnc.RegexStateFlag.Incremental);
+		jnc.RegexState state(jnc.RegexStateFlags.Incremental);
 
 		// alternatively, assign:
-		// state.m_flags |= jnc.RegexStateFlag.Incremental;
+		// state.m_flags |= jnc.RegexStateFlags.Incremental;
 
 	Now, whenever the next portion of data becomes available, simply call:
 
