@@ -45,7 +45,7 @@ void scanStream(
 
 int main()
 {
-	jnc.RegexState state(true);
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
 	scanStream(state, "abc123d", 7);
 

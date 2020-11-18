@@ -15,7 +15,7 @@ int main()
 
 	char const* packet = "_[0.36.119.81.150.141]PC|12345";
 
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 	reswitch (state, packet)
 	{
 	case r"_\?":

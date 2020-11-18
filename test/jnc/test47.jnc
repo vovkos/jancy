@@ -56,7 +56,7 @@ int main()
 {
 	printf("main ()\n");
 
-	jnc.RegexState state(true); // incremental recognizer
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
 	int l = 0;
 

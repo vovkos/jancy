@@ -34,7 +34,7 @@ int main()
 	char* p = s;
 	char* end = p + countof(s) - 1;
 
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	while (p < end)
 	{

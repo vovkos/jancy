@@ -31,7 +31,7 @@ public:
 public:
 	construct()
 	{
-		m_regexState.m_isIncremental = true;
+		m_regexState.m_flags = jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental;
 	}
 
 	// xxx_s functions are called in the main thread while log is suspended

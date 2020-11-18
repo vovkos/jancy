@@ -62,7 +62,9 @@ bool errorcode fooBar(
 			if (!state.m_consumedLength)
 				return false;
 
-			assert(state.m_isIncremental && state.m_consumedLength == end - p);
+			assert(
+				(state.m_flags & jnc.RegexStateFlags.Incremental) &&
+				state.m_consumedLength == end - p);
 		}
 
 		p += state.m_consumedLength; // advance to the next lexeme
@@ -79,9 +81,9 @@ int main()
 {
 	printf("main ()\n");
 
-	// you need a jnc.RegexState object to store the state of DFA
+	// we need a jnc.RegexState object to store the state of DFA
 
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	char const* p = " foo bar 100 baz";
 	bool result = try fooBar(state, p);
@@ -94,7 +96,7 @@ int main()
 	// will be delivered as a whole and not as multiple segments.
 
 	state.reset();
-	state.m_isIncremental = true; // turn on incremental matching
+	state.m_flags |= jnc.RegexStateFlags.Incremental;
 
 	try
 	{

@@ -718,7 +718,7 @@ void SpiTapSession.writeLogTextOnly(
 	size_t size
 	)
 {
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	void const* end = p + size;
 	while (p < end)
@@ -743,7 +743,7 @@ void SpiTapSession.writeLogTextOnly(
 	size_t size
 	)
 {
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 
 	void const* end = rx + size;
 	while (rx < end)

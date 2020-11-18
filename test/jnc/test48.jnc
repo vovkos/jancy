@@ -54,7 +54,7 @@ int main()
 {
 	printf("main ()\n");
 
-	jnc.RegexState state(true);
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental);
 
 	try
 	{

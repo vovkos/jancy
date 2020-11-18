@@ -143,7 +143,7 @@ bool errorcode UsbDb.load(char const* fileName)
 	char const* p = file.view(0, size, false);
 	char const* end = p + size;
 
-	jnc.RegexState state;
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
 	UsbVendor* vendor;
 
 	while (p < end)

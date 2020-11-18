@@ -3,7 +3,7 @@ int main()
 	printf("compiling\n");
 
 	jnc.RegexState state;
-	state.m_isIncremental = true;
+	state.m_flags = jnc.RegexStateFlags.Lexer | jnc.RegexStateFlags.Incremental;
 
 	jnc.RegexDfa dfa;
 	dfa.incrementalCompile(r"\x02[^\r]+\r");
