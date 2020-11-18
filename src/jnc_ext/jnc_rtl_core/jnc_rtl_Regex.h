@@ -46,14 +46,14 @@ enum RegexResult
 class RegexState: public IfaceHdr
 {
 public:
-	enum StateFlag
+	enum Flag
 	{
-		StateFlag_Accept = 0x01,
-		StateFlag_Final  = 0x02,
+		Flag_Incremental = 0x01,
+		Flag_Lexer       = 0x02,
 	};
 
 public:
-	bool m_isIncremental;
+	uint_t m_flags;
 
 	size_t m_matchLengthLimit;
 	size_t m_currentOffset;
@@ -83,7 +83,7 @@ protected:
 public:
 	void
 	JNC_CDECL
-	construct(bool isIncremental);
+	construct(uint_t flags);
 
 	void
 	JNC_CDECL

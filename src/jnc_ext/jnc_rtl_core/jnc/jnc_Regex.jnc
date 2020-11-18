@@ -38,6 +38,27 @@ struct RegexMatch
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 /**
+	\brief This enum describes available option flags for `jnc.RegexState`.
+*/
+
+bitflag enum RegexStateFlags
+{
+	//! Makes it possible to match input incrementally, i.e. chunk-by-chunk.
+
+	Incremental,
+
+	/**
+		When a *final DFA state* is reached, it's condidered a successful match
+		even when subsequent characters don't match the regular expression. This
+		behavior is typically required in *lexers* -- hence, the name.
+	*/
+
+	Lexer,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
 	\brief This class holds the lexeme buffer and the state of DFA constructed
 	from an ``reswitch`` statement.
 
@@ -118,7 +139,7 @@ struct RegexMatch
 						return false;
 
 					assert(
-						state.m_isIncremental &&
+						(state.m_flags & jnc.RegexStateFlags.Incremental) &&
 						state.m_consumedLength == end - p);
 				}
 
@@ -129,15 +150,15 @@ struct RegexMatch
 		}
 
 	Recognizer must be aware of the fact it is being fed the date chunk-by-chunk
-	(and not as the whole). You do so by setting ``m_isIncremental`` field to
-	``true``:
+	(and not as the whole). You do so by setting the `jnc.RegexStateFlag.Incremental`
+	bit in the `jnc.RegexState.m_flags` field:
 
 	.. ref-code-block::
 
-		jnc.RegexState state(true);  // turn on incremental matching
+		jnc.RegexState state(jnc.RegexStateFlag.Incremental);
 
 		// alternatively, assign:
-		// state.m_isIncremental = true;
+		// state.m_flags |= jnc.RegexStateFlag.Incremental;
 
 	Now, whenever the next portion of data becomes available, simply call:
 
@@ -157,7 +178,12 @@ struct RegexMatch
 
 opaque class RegexState
 {
-	bool m_isIncremental;
+	/**
+		Holds the matching options. Normally, you set it during (or immediately
+		after) the construction. But it's freely adjustible at any moment.
+	*/
+
+	RegexStateFlags m_flags;
 
 	/**
 		Holds the maximum buffer size for lexemes. Set before starting
@@ -224,11 +250,11 @@ opaque class RegexState
 public:
 	/**
 		Constructor of ``jnc.RegexState`` class. Accepts a single optional
-		argument ``automatonFunc`` which, if supplied, will be written to
-		``m_automatonFunc`` and used for subsequent scanning.
+		argument ``flags`` which will be used to initialize the
+		`jnc.RegexState.m_flags` field.
 	*/
 
-	construct(bool isIncremental = false);
+	construct(RegexStateFlags flags = 0);
 
 	/**
 		Resets state of recognizer including all offsets and captured lexeme

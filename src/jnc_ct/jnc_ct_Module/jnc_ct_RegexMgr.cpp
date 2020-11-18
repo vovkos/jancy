@@ -13,7 +13,6 @@
 #include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_ReSwitchAcceptContext.h"
 #include "jnc_ct_Module.h"
-#include "jnc_rtl_Regex.h"
 
 namespace jnc {
 namespace ct {
@@ -72,10 +71,10 @@ Dfa::build(fsm::Regex* regex)
 				m_maxSubMatchCount = context->m_groupCount;
 
 			stateInfo->m_acceptInfo = acceptInfo;
-			stateInfo->m_flags |= rtl::RegexState::StateFlag_Accept;
+			stateInfo->m_flags |= DfaStateFlag_Accept;
 
 			if (state->m_transitionList.isEmpty())
-				stateInfo->m_flags |= rtl::RegexState::StateFlag_Final;
+				stateInfo->m_flags |= DfaStateFlag_Final;
 		}
 
 		size_t j = state->m_openCaptureIdSet.findBit(0);

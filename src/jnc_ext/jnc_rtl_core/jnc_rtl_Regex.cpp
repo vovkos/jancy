@@ -62,10 +62,10 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 void
 JNC_CDECL
-RegexState::construct(bool isIncremental)
+RegexState::construct(uint_t flags)
 {
+	m_flags = flags;
 	m_lastAcceptStateId = -1;
-	m_isIncremental = isIncremental;
 	m_matchLengthLimit = 256;
 
 	GcHeap* gcHeap = getCurrentThreadGcHeap();
@@ -165,7 +165,7 @@ RegexState::exec(
 
 	if (m_replayLength) // replay is only available after a match
 	{
-		ASSERT(m_isIncremental);
+		ASSERT(m_flags & Flag_Incremental);
 
 		size_t replayBufferOffset = m_replayBufferOffset;
 		size_t replayLength = m_replayLength;
@@ -221,7 +221,7 @@ RegexState::exec(
 	else
 	{
 		result = writeData((uchar_t*)ptr.m_p, length);
-		if (result == RegexResult_Continue && !m_isIncremental)
+		if (result == RegexResult_Continue && !(m_flags & Flag_Incremental))
 			result = eof();
 	}
 
@@ -232,7 +232,7 @@ RegexState::exec(
 		m_replayLength = 0;
 		softReset();
 	}
-	else if (!m_isIncremental)
+	else if (!(m_flags & Flag_Incremental))
 	{
 		m_replayBufferOffset = 0;
 		m_replayLength = 0;
@@ -385,10 +385,10 @@ RegexState::gotoState(size_t stateId)
 	if (state->m_groupSet)
 		processGroupSet(state->m_groupSet);
 
-	if (!(state->m_flags & StateFlag_Accept))
+	if (!(state->m_flags & ct::DfaStateFlag_Accept))
 		return RegexResult_Continue;
 
-	if (state->m_flags & StateFlag_Final)
+	if ((state->m_flags & ct::DfaStateFlag_Final) && (m_flags & Flag_Lexer))
 	{
 		match(stateId);
 		return stateId;

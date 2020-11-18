@@ -35,6 +35,14 @@ struct DfaAcceptInfo: sl::ListLink
 
 //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum DfaStateFlag
+{
+	DfaStateFlag_Accept = 0x01,
+	DfaStateFlag_Final  = 0x02,
+};
+
+//. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct DfaStateInfo
 {
 	uintptr_t m_flags;
