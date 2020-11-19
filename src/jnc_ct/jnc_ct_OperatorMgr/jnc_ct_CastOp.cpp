@@ -151,7 +151,7 @@ CastOperator::cast(
 
 	// if const-cast is not available or fails, try full cast -- but only at compile-time!
 
-	if (m_module->getCompileState() < ModuleCompileState_Compiled)
+	if (m_module->getCompileState() < ModuleCompileState_Compiled && m_module->hasCodeGen())
 		return llvmCast(opValue, type, resultValue);
 
 	setCastError(opValue, type);
