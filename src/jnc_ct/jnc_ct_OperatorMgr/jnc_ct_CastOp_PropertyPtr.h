@@ -182,6 +182,14 @@ public:
 	Cast_PropertyPtr();
 
 	virtual
+	bool
+	constCast(
+		const Value& opValue,
+		Type* type,
+		void* dst
+		);
+
+	virtual
 	CastOperator*
 	getCastOperator(
 		const Value& opValue,

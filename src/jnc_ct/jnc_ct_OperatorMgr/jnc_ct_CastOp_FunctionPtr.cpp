@@ -515,6 +515,34 @@ Cast_FunctionPtr::Cast_FunctionPtr()
 	m_operatorTable[FunctionPtrTypeKind_Thin][FunctionPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
+bool
+Cast_FunctionPtr::constCast(
+	const Value& opValue,
+	Type* type,
+	void* dst
+	)
+{
+	ASSERT(type->getTypeKind() == TypeKind_FunctionPtr);
+
+	TypeKind typeKind = opValue.getType()->getTypeKind();
+	if (typeKind != TypeKind_FunctionPtr &&
+		typeKind != TypeKind_FunctionRef)
+		return false;
+
+	FunctionPtrType* dstType = (FunctionPtrType*)type;
+	FunctionPtrType* srcType = (FunctionPtrType*)opValue.getType();
+
+	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
+		dstType->getTargetType()->cmp(srcType->getTargetType()) != 0 ||
+		(dstType->getFlags() & PtrTypeFlag_Safe) &&
+		!(srcType->getFlags() & PtrTypeFlag_Safe))
+		return false;
+
+	ASSERT(dstType->getSize() == srcType->getSize());
+	memcpy(dst, opValue.getConstData(), dstType->getSize());
+	return true;
+}
+
 CastOperator*
 Cast_FunctionPtr::getCastOperator(
 	const Value& opValue,

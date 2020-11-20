@@ -507,6 +507,34 @@ Cast_PropertyPtr::Cast_PropertyPtr()
 	m_operatorTable[PropertyPtrTypeKind_Thin][PropertyPtrTypeKind_Thin]     = &m_thin2Thin;
 }
 
+bool
+Cast_PropertyPtr::constCast(
+	const Value& opValue,
+	Type* type,
+	void* dst
+	)
+{
+	ASSERT(type->getTypeKind() == TypeKind_PropertyPtr);
+
+	TypeKind typeKind = opValue.getType()->getTypeKind();
+	if (typeKind != TypeKind_PropertyPtr &&
+		typeKind != TypeKind_PropertyRef)
+		return false;
+
+	PropertyPtrType* dstType = (PropertyPtrType*)type;
+	PropertyPtrType* srcType = (PropertyPtrType*)opValue.getType();
+
+	if (dstType->getPtrTypeKind() != srcType->getPtrTypeKind() ||
+		dstType->getTargetType()->cmp(srcType->getTargetType()) != 0 ||
+		(dstType->getFlags() & PtrTypeFlag_Safe) &&
+		!(srcType->getFlags() & PtrTypeFlag_Safe))
+		return false;
+
+	ASSERT(dstType->getSize() == srcType->getSize());
+	memcpy(dst, opValue.getConstData(), dstType->getSize());
+	return true;
+}
+
 CastOperator*
 Cast_PropertyPtr::getCastOperator(
 	const Value& opValue,
