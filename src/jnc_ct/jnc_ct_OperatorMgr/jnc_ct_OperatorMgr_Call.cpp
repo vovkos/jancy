@@ -98,10 +98,6 @@ OperatorMgr::getCdeclVarArgType(Type* type)
 		TypeKind typeKind = type->getTypeKind();
 		switch (typeKind)
 		{
-		case TypeKind_PropertyRef:
-			type = ((PropertyPtrType*)type)->getTargetType()->getReturnType();
-			break;
-
 		case TypeKind_DataRef:
 			type = ((DataPtrType*)type)->getTargetType();
 			break;
@@ -111,6 +107,17 @@ OperatorMgr::getCdeclVarArgType(Type* type)
 				((ClassPtrType*)type)->getPtrTypeKind(),
 				type->getFlags()
 				);
+			break;
+
+		case TypeKind_FunctionRef:
+			type = ((FunctionPtrType*)type)->getTargetType()->getFunctionPtrType(
+				((FunctionPtrType*)type)->getPtrTypeKind(),
+				type->getFlags()
+				);
+			break;
+
+		case TypeKind_PropertyRef:
+			type = ((PropertyPtrType*)type)->getTargetType()->getReturnType();
 			break;
 
 		case TypeKind_BitField:
