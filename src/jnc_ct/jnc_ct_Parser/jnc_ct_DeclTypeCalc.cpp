@@ -697,14 +697,13 @@ DeclTypeCalc::getDataPtrType(Type* dataType)
 			return NULL;
 	}
 
-	DataPtrTypeKind ptrTypeKind = DataPtrTypeKind_Normal;
+	DataPtrTypeKind ptrTypeKind = (m_typeModifiers & TypeModifier_Thin) ?
+		ptrTypeKind = DataPtrTypeKind_Thin :
+		DataPtrTypeKind_Normal;
 
-	if (m_typeModifiers & TypeModifier_Thin)
-		ptrTypeKind = DataPtrTypeKind_Thin;
-
-	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers);
-
+	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers & TypeModifierMaskKind_DataPtr);
 	m_typeModifiers &= ~TypeModifierMaskKind_DataPtr;
+
 	return dataType->getDataPtrType(
 		TypeKind_DataPtr,
 		ptrTypeKind,
@@ -715,10 +714,13 @@ DeclTypeCalc::getDataPtrType(Type* dataType)
 ClassPtrType*
 DeclTypeCalc::getClassPtrType(ClassType* classType)
 {
-	ClassPtrTypeKind ptrTypeKind = (m_typeModifiers & TypeModifier_Weak) ? ClassPtrTypeKind_Weak : ClassPtrTypeKind_Normal;
-	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers);
+	ClassPtrTypeKind ptrTypeKind = (m_typeModifiers & TypeModifier_Weak) ?
+		ClassPtrTypeKind_Weak :
+		ClassPtrTypeKind_Normal;
 
+	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers & TypeModifierMaskKind_ClassPtr);
 	m_typeModifiers &= ~TypeModifierMaskKind_ClassPtr;
+
 	return classType->getClassPtrType(
 		TypeKind_ClassPtr,
 		ptrTypeKind,
@@ -733,8 +735,10 @@ DeclTypeCalc::getFunctionPtrType(FunctionType* functionType)
 		(m_typeModifiers & TypeModifier_Weak) ? FunctionPtrTypeKind_Weak :
 		(m_typeModifiers & TypeModifier_Thin) ? FunctionPtrTypeKind_Thin : FunctionPtrTypeKind_Normal;
 
+	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers & TypeModifierMaskKind_FunctionPtr);
 	m_typeModifiers &= ~TypeModifierMaskKind_FunctionPtr;
-	return functionType->getFunctionPtrType(ptrTypeKind);
+
+	return functionType->getFunctionPtrType(ptrTypeKind, typeFlags);
 }
 
 PropertyPtrType*
@@ -744,8 +748,10 @@ DeclTypeCalc::getPropertyPtrType(PropertyType* propertyType)
 		(m_typeModifiers & TypeModifier_Weak) ? PropertyPtrTypeKind_Weak :
 		(m_typeModifiers & TypeModifier_Thin) ? PropertyPtrTypeKind_Thin : PropertyPtrTypeKind_Normal;
 
+	uint_t typeFlags = getPtrTypeFlagsFromModifiers(m_typeModifiers & TypeModifierMaskKind_PropertyPtr);
 	m_typeModifiers &= ~TypeModifierMaskKind_PropertyPtr;
-	return propertyType->getPropertyPtrType(ptrTypeKind);
+
+	return propertyType->getPropertyPtrType(ptrTypeKind, typeFlags);
 }
 
 ImportPtrType*
