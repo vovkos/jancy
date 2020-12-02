@@ -353,6 +353,10 @@ bool_t
 jnc_Function_IsMemberFunc(jnc_Function* function);
 
 typedef
+bool_t
+jnc_Function_IsUnusedExternalFunc(jnc_Function* function);
+
+typedef
 void*
 jnc_Function_GetMachineCodeFunc(jnc_Function* function);
 
@@ -363,6 +367,7 @@ struct jnc_FunctionFuncTable
 	size_t m_size;
 	jnc_Function_GetFunctionKindFunc* m_getFunctionKindFunc;
 	jnc_Function_IsMemberFunc* m_isMemberFunc;
+	jnc_Function_IsUnusedExternalFunc* m_isUnusedExternalFunc;
 	jnc_Function_GetMachineCodeFunc* m_getMachineCodeFunc;
 };
 

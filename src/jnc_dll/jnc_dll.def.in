@@ -130,6 +130,7 @@ EXPORTS
 	jnc_Function_getFunctionKind
 	jnc_Function_getMachineCode
 	jnc_Function_isMember
+	jnc_Function_isUnusedExternal
 	jnc_FunctionOverload_getFunctionKind
 	jnc_FunctionOverload_getOverload
 	jnc_FunctionOverload_getOverloadCount

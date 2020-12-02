@@ -118,6 +118,14 @@ jnc_Function_isMember(jnc_Function* function)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
+bool_t
+jnc_Function_isUnusedExternal(jnc_Function* function)
+{
+	return jnc_g_dynamicExtensionLibHost->m_functionFuncTable->m_isUnusedExternalFunc(function);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
 void*
 jnc_Function_getMachineCode(jnc_Function* function)
 {
@@ -169,6 +177,14 @@ bool_t
 jnc_Function_isMember(jnc_Function* function)
 {
 	return function->isMember();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_Function_isUnusedExternal(jnc_Function* function)
+{
+	return function->getLlvmFunction() == NULL;
 }
 
 JNC_EXTERN_C

@@ -110,6 +110,7 @@ static jnc_FunctionFuncTable g_functionFuncTable =
 	sizeof(jnc_FunctionFuncTable),
 	jnc_Function_getFunctionKind,
 	jnc_Function_isMember,
+	jnc_Function_isUnusedExternal,
 	jnc_Function_getMachineCode,
 };
 

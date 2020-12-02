@@ -114,6 +114,10 @@ bool_t
 jnc_Function_isMember(jnc_Function* function);
 
 JNC_EXTERN_C
+bool_t
+jnc_Function_isUnusedExternal(jnc_Function* function);
+
+JNC_EXTERN_C
 void*
 jnc_Function_getMachineCode(jnc_Function* function);
 
@@ -139,6 +143,12 @@ struct jnc_Function: jnc_ModuleItem
 	isMember()
 	{
 		return jnc_Function_isMember(this) != 0;
+	}
+
+	bool
+	isUnusedExternal()
+	{
+		return jnc_Function_isUnusedExternal(this) != 0;
 	}
 
 	void*
