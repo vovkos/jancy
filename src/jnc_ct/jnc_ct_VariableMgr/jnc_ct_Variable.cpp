@@ -85,7 +85,7 @@ Variable::prepareStaticData()
 	llvm::ExecutionEngine* llvmExecutionEngine = m_module->getLlvmExecutionEngine();
 
 	m_staticData = (m_module->getCompileFlags() & ModuleCompileFlag_McJit) ?
-		(void*)llvmExecutionEngine->getGlobalValueAddress(llvmGlobalVariable->getName()) :
+		(void*)llvmExecutionEngine->getGlobalValueAddress(llvmGlobalVariable->getName().str()) :
 		(void*)llvmExecutionEngine->getPointerToGlobal(llvmGlobalVariable);
 }
 

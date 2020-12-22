@@ -432,7 +432,7 @@ Module::mapVariable(
 
 	if (m_compileFlags & ModuleCompileFlag_McJit)
 	{
-		std::string name = llvmVariable->getName();
+		std::string name = llvmVariable->getName().str();
 		name += ".mapping";
 
 		llvm::GlobalVariable* llvmMapping = new llvm::GlobalVariable(

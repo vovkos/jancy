@@ -659,7 +659,11 @@ ControlFlowMgr::finalizeSjljFrameArray()
 	m_module->m_llvmIrBuilder.createBitCast(sjljFrameArrayValue, type->getDataPtrType_c(), &sjljFrameArrayValue);
 
 #if (_JNC_CPU_AMD64)
+#	if (LLVM_VERSION_MAJOR < 10)
 	llvmAlloca->setAlignment(16);
+#	else
+	llvmAlloca->setAlignment(llvm::Align(16));
+#	endif
 #endif
 
 	// fixup all uses of sjlj frame array
