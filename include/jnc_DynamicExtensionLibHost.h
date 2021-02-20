@@ -24,6 +24,7 @@
 #include "jnc_StdRbTree.h"
 
 typedef struct jnc_ErrorFuncTable jnc_ErrorFuncTable;
+typedef struct jnc_CapabilityFuncTable jnc_CapabilityFuncTable;
 typedef struct jnc_ModuleItemDeclFuncTable jnc_ModuleItemDeclFuncTable;
 typedef struct jnc_ModuleItemFuncTable jnc_ModuleItemFuncTable;
 typedef struct jnc_AttributeFuncTable jnc_AttributeFuncTable;
@@ -100,6 +101,22 @@ struct jnc_ErrorFuncTable
 	jnc_SetErrnoFunc* m_setErrnoFunc;
 	jnc_SetStringErrorFunc* m_setStringErrorFunc;
 	jnc_GetErrorDescriptionFunc* m_getErrorDescriptionFunc;
+};
+
+//..............................................................................
+
+// Error
+
+typedef
+bool_t
+jnc_IsCapabilityEnabledFunc(const char* capability);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct jnc_CapabilityFuncTable
+{
+	size_t m_size;
+	jnc_IsCapabilityEnabledFunc* m_isCapabilityEnabledFunc;
 };
 
 //..............................................................................
@@ -1043,26 +1060,6 @@ struct jnc_UnitFuncTable
 // Module
 
 typedef
-jnc_Module*
-jnc_Module_CreateFunc();
-
-typedef
-void
-jnc_Module_DestroyFunc(jnc_Module* module);
-
-typedef
-void
-jnc_Module_ClearFunc(jnc_Module* module);
-
-typedef
-void
-jnc_Module_InitializeFunc(
-	jnc_Module* module,
-	const char* tag,
-	uint_t compileFlags
-	);
-
-typedef
 jnc_GlobalNamespace*
 jnc_Module_GetGlobalNamespaceFunc(jnc_Module* module);
 
@@ -1228,10 +1225,6 @@ jnc_Module_getLlvmIrStringFunc(jnc_Module* module);
 struct jnc_ModuleFuncTable
 {
 	size_t m_size;
-	jnc_Module_CreateFunc* m_createFunc;
-	jnc_Module_DestroyFunc* m_destroyFunc;
-	jnc_Module_ClearFunc* m_clearFunc;
-	jnc_Module_InitializeFunc* m_initializeFunc;
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_GetStdNamespaceFunc* m_getStdNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;
@@ -1687,6 +1680,7 @@ struct jnc_DynamicExtensionLibHost
 	size_t m_size;
 	jnc_ErrorRouter* m_errorRouter;
 	jnc_ErrorFuncTable* m_errorFuncTable;
+	jnc_CapabilityFuncTable* m_capabilityFuncTable;
 	jnc_ModuleItemDeclFuncTable* m_moduleItemDeclFuncTable;
 	jnc_ModuleItemFuncTable* m_moduleItemFuncTable;
 	jnc_AttributeFuncTable* m_attributeFuncTable;

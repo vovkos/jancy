@@ -14,6 +14,7 @@
 
 #include "jnc_DynamicExtensionLibHost.h"
 #include "jnc_Error.h"
+#include "jnc_Capability.h"
 #include "jnc_Type.h"
 #include "jnc_ArrayType.h"
 #include "jnc_EnumType.h"
@@ -39,6 +40,13 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 	jnc_setStringError,
 	jnc_getErrorDescription_v,
 };
+
+static jnc_CapabilityFuncTable g_capabilityFuncTable =
+{
+	sizeof(jnc_CapabilityFuncTable ),
+	jnc_isCapabilityEnabled
+};
+
 
 static jnc_ModuleItemDeclFuncTable g_moduleItemDeclFuncTable =
 {
@@ -314,10 +322,6 @@ static jnc_UnitFuncTable g_unitFuncTable =
 static jnc_ModuleFuncTable g_moduleFuncTable =
 {
 	sizeof(jnc_ModuleFuncTable),
-	jnc_Module_create,
-	jnc_Module_destroy,
-	jnc_Module_clear,
-	jnc_Module_initialize,
 	jnc_Module_getGlobalNamespace,
 	jnc_Module_getStdNamespace,
 	jnc_Module_getPrimitiveType,
@@ -427,6 +431,7 @@ jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl =
 	sizeof(jnc_DynamicExtensionLibHost),
 	err::getErrorMgr(),
 	&g_errorFuncTable,
+	&g_capabilityFuncTable,
 	&g_moduleItemDeclFuncTable,
 	&g_moduleItemFuncTable,
 	&g_attributeFuncTable,
