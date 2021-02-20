@@ -100,6 +100,7 @@ target_link_libraries(
 	axl_io
 	axl_lex
 	axl_dox
+	axl_sys_ca
 	axl_core
 	)
 

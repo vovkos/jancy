@@ -243,6 +243,16 @@ jnc_Module_initialize(
 }
 
 JNC_EXTERN_C
+void
+jnc_Module_setDynamicExtensionAuthenticatorConfig(
+	jnc_Module* module,
+	const jnc_CodeAuthenticatorConfig* config
+	)
+{
+	module->m_importMgr.setDynamicExtensionAuthenticatorConfig(config);
+}
+
+JNC_EXTERN_C
 JNC_EXPORT_O
 uint_t
 jnc_Module_getCompileFlags(jnc_Module* module)

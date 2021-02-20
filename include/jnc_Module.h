@@ -118,6 +118,24 @@ jnc_ModuleCompileErrorHandlerFunc(
 
 //..............................................................................
 
+// platform specific (authenticode on windows, codesign on osx, custom-made elf signer on linux)
+
+struct jnc_CodeAuthenticatorConfig
+{
+#if (_JNC_OS_WIN)
+	const char* m_expectedSubjectName;
+	const char* m_expectedSerialNumber;
+	size_t m_expectedSerialNumberSize;
+#elif (_JNC_OS_LINUX)
+	const char* m_publicKeyPem;
+#elif (_JNC_OS_DARWIN)
+#endif
+};
+
+typedef struct jnc_CodeAuthenticatorConfig jnc_CodeAuthenticatorConfig;
+
+//..............................................................................
+
 JNC_EXTERN_C
 jnc_Module*
 jnc_Module_create();
@@ -136,6 +154,13 @@ jnc_Module_initialize(
 	jnc_Module* module,
 	const char* tag,
 	uint_t compileFlags
+	);
+
+JNC_EXTERN_C
+void
+jnc_Module_setDynamicExtensionAuthenticatorConfig(
+	jnc_Module* module,
+	const jnc_CodeAuthenticatorConfig* config
 	);
 
 JNC_EXTERN_C
@@ -397,6 +422,12 @@ struct jnc_Module
 		)
 	{
 		jnc_Module_initialize(this, tag, compileFlags);
+	}
+
+	void
+	setDynamicExtensionAuthenticatorConfig(const jnc_CodeAuthenticatorConfig* config)
+	{
+		jnc_Module_setDynamicExtensionAuthenticatorConfig(this, config);
 	}
 
 	uint_t
@@ -666,8 +697,6 @@ const ModuleCompileState
 	ModuleCompileState_Compiled = jnc_ModuleCompileState_Compiled,
 	ModuleCompileState_Jitted   = jnc_ModuleCompileState_Jitted;
 
-//..............................................................................
-
 typedef jnc_ModuleCompileFlag ModuleCompileFlag;
 
 const ModuleCompileFlag
@@ -688,8 +717,6 @@ const ModuleCompileFlag
 	ModuleCompileFlag_DisableDoxyComment4           = jnc_ModuleCompileFlag_DisableDoxyComment4,
 	ModuleCompileFlag_StdFlags                      = jnc_ModuleCompileFlag_StdFlags;
 
-//..............................................................................
-
 typedef jnc_ModuleCompileErrorHandlerFunc ModuleCompileErrorHandlerFunc;
 typedef jnc_ModuleCompileErrorKind ModuleCompileErrorKind;
 
@@ -697,6 +724,8 @@ const ModuleCompileErrorKind
 	ModuleCompileErrorKind_ParseSyntax   = jnc_ModuleCompileErrorKind_ParseSyntax,
 	ModuleCompileErrorKind_ParseSemantic = jnc_ModuleCompileErrorKind_ParseSemantic,
 	ModuleCompileErrorKind_PostParse     = jnc_ModuleCompileErrorKind_PostParse;
+
+typedef jnc_CodeAuthenticatorConfig CodeAuthenticatorConfig;
 
 //..............................................................................
 

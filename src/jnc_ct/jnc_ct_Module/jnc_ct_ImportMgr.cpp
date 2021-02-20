@@ -22,6 +22,8 @@ ImportMgr::ImportMgr()
 {
 	m_module = Module::getCurrentConstructedModule();
 	ASSERT(m_module);
+
+	m_codeAuthenticator = NULL;
 }
 
 void
@@ -31,6 +33,32 @@ ImportMgr::clear()
 	m_lazyImportList.clear();
 	m_importFilePathMap.clear();
 	m_ignoredImportSet.clear();
+
+	if (m_codeAuthenticator)
+	{
+		AXL_MEM_DELETE(m_codeAuthenticator);
+		m_codeAuthenticator = NULL;
+	}
+}
+
+void
+ImportMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config)
+{
+	m_codeAuthenticator = AXL_MEM_NEW(sys::CodeAuthenticator);
+
+#if (_JNC_OS_WIN)
+	m_codeAuthenticator->setup(
+		sl::StringRef(),
+		config->m_expectedSubjectName,
+		sl::StringRef(),
+		sl::ArrayRef<char>(
+			config->m_expectedSerialNumber,
+			config->m_expectedSerialNumberSize
+			)
+		);
+#elif (_JNC_OS_LINUX)
+#elif (_JNC_OS_DARWIN)
+#endif
 }
 
 bool

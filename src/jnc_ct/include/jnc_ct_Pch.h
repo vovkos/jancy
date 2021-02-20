@@ -261,6 +261,7 @@ typedef Instruction TerminatorInst;
 #include "axl_sys_TlsSlot.h"
 #include "axl_sys_SjljTry.h"
 #include "axl_sys_DynamicLib.h"
+#include "axl_sys_CodeAuthenticator.h"
 #include "axl_zip_ZipReader.h"
 
 #if (_AXL_OS_WIN)
