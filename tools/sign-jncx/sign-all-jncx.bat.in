@@ -1,0 +1,42 @@
+@echo off
+
+::.............................................................................
+
+set CONFIGURATION=Release
+
+:loop
+
+if "%1" == "" goto :finalize
+if /i "%1" == "rel" goto :release
+if /i "%1" == "release" goto :release
+if /i "%1" == "dbg" goto :debug
+if /i "%1" == "debug" goto :debug
+
+echo Invalid configuration argument: "%1" (Release or Debug expected)
+exit -1
+
+:release
+set CONFIGURATION=Release
+shift
+goto :loop
+
+:debug
+set CONFIGURATION=Debug
+shift
+goto :loop
+
+:finalize
+
+::.............................................................................
+
+set JNCX_DIR=${JANCY_DLL_BASE_DIR}\%CONFIGURATION%
+set THIS_DIR=${CMAKE_CURRENT_BINARY_DIR}
+set JNCX_DIR=%JNCX_DIR:/=\%
+set THIS_DIR=%THIS_DIR:/=\%
+
+::.............................................................................
+
+if not exist %JNCX_DIR%\*.jncx echo %JNCX_DIR% contains no *.jncx files
+for %%i in (%JNCX_DIR%\*.jncx) do %THIS_DIR%\sign-jncx.bat %%i
+
+::.............................................................................

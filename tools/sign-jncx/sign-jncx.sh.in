@@ -1,0 +1,47 @@
+#!/bin/bash
+
+sign_jncx()
+{
+	JNCX=$1
+	IDENTITIY=$2
+	MOVE_BIN_DIR=
+
+	if [ "$3" != "" ]; then
+		MOVE_BIN_DIR=$(dirname "$JNCX")
+	fi
+
+	echo -n "  "
+	basename "$JNCX"
+
+	EXTRACT_DIR=$(mktemp -d -t jncx)
+	pushd $EXTRACT_DIR
+
+	${7Z_EXE} e "$JNCX"
+
+	# the loop is to avoid errors if *.bin is an empty set
+
+	for BIN in *.bin; do
+		[ -f "$BIN" ] || continue
+
+		chmod -x $BIN
+
+		codesign \
+			--force \
+			--timestamp \
+			--options runtime \
+			--sign "$IDENTITIY" \
+			$BIN
+
+		if [ "$MOVE_BIN_DIR" != "" ]; then
+			mv $BIN "$MOVE_BIN_DIR"
+		fi
+	done
+
+	# re-create .jncx
+
+	rm "$JNCX"
+	${7Z_EXE} a -tzip -y "$JNCX"
+
+	popd
+	rm -rf $EXTRACT_DIR
+}

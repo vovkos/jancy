@@ -9,18 +9,26 @@
 #
 #...............................................................................
 
-if(QT_FOUND)
-	option(
-		BUILD_JNC_MINI_IDE
-		"Build Jancy Mini-IDE"
-		ON
+if(WIN32)
+	configure_file(
+		sign-jncx.bat.in
+		sign-jncx.bat
 		)
 
-	if(BUILD_JNC_MINI_IDE)
-		add_subdirectory(jnc_mini_ide)
-	endif()
-endif()
+	configure_file(
+		sign-all-jncx.bat.in
+		sign-all-jncx.bat
+		)
+else()
+	configure_file(
+		sign-jncx.sh.in
+		sign-jncx.sh
+		)
 
-add_subdirectory(sign-jncx)
+	configure_file(
+		sign-all-jncx.sh.in
+		sign-all-jncx.sh
+		)
+endif()
 
 #...............................................................................

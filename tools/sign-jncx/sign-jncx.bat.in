@@ -1,0 +1,48 @@
+@echo off
+
+::.............................................................................
+
+if not "%1" == "" goto :main
+
+echo sign-jncx - Jancy extension sign utility
+echo Usage:
+echo     sign-jncx ^<file.jncx^>
+echo Current configuation:
+echo     Path to signtool.exe:   ${SIGNTOOL_EXE}
+echo     Path to 7z.exe:         ${7Z_EXE}
+echo     Timestamp server URL:   ${CODESIGN_TIMESTAMP_URL}
+echo     Certificate thumbprint: ${CODESIGN_SHA1_THUMBPRINT}
+exit -1
+
+::.............................................................................
+
+:main
+
+set JNCX=%~f1
+set THIS_DIR=%CD%
+set EXTRACT_DIR=%TEMP%\%RANDOM%
+
+::.............................................................................
+
+mkdir "%EXTRACT_DIR%" || exit
+cd "%EXTRACT_DIR%" || exit
+
+"${7Z_EXE}" e "%JNCX%" || exit
+if not exist *.bin goto :end
+
+"${SIGNTOOL_EXE}" ^
+	sign ^
+	/t ${CODESIGN_TIMESTAMP_URL} ^
+	/sha1 ${CODESIGN_SHA1_THUMBPRINT} ^
+	*.bin || exit
+
+del /F "%JNCX%" || exit
+"${7Z_EXE}" a -tzip -y "%JNCX%" || exit
+
+::.............................................................................
+
+:end
+
+cd "%THIS_DIR%""
+rmdir /S /Q "%EXTRACT_DIR%""
+
