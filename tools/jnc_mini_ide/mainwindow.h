@@ -113,6 +113,7 @@ private:
 	QAction* m_disableCodeGenAction;
 	QAction* m_optimizeAction;
 	QAction* m_jitAction;
+	QAction* m_signedExtensionsAction;
 
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;

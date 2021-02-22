@@ -197,10 +197,12 @@ void MainWindow::createActions()
 	m_lineNumberMarginAction->setChecked(true);
 	QObject::connect(m_lineNumberMarginAction, SIGNAL(triggered(bool)), this, SLOT(onEnableLineNumberMargin(bool)));
 
-
 	m_stdlibAction = new QAction("Standard &Libraries", this);
 	m_stdlibAction->setCheckable(true);
 	m_stdlibAction->setChecked(true);
+
+	m_signedExtensionsAction = new QAction("&Signed Extensions", this);
+	m_signedExtensionsAction->setCheckable(true);
 
 	m_simpleGcSafePointAction = new QAction("&Simple GC Safe-point", this);
 	m_simpleGcSafePointAction->setCheckable(true);
@@ -247,6 +249,7 @@ void MainWindow::createMenu()
 
 	m_compileMenu = menuBar()->addMenu("&Compile");
 	m_compileMenu->addAction(m_stdlibAction);
+	m_compileMenu->addAction(m_signedExtensionsAction);
 	m_compileMenu->addAction(m_simpleGcSafePointAction);
 	m_compileMenu->addAction(m_disableCodeGenAction);
 	m_compileMenu->addAction(m_debugInfoAction);
@@ -484,6 +487,18 @@ bool MainWindow::compile()
 		m_module->addStaticLib(jnc::SysLib_getLib());
 		m_module->addStaticLib(TestLib_getLib());
 		m_module->addImportDir(m_libDir.toUtf8().constData());
+	}
+
+	if (m_signedExtensionsAction->isChecked())
+	{
+		jnc::CodeAuthenticatorConfig config;
+#if (_JNC_OS_WIN)
+		config.m_expectedSubjectName = "Tibbo Technology Inc.";
+		config.m_expectedIssuerName = "DigiCert EV Code Signing CA";
+#elif (_JNC_OS_LINUX)
+#elif (_JNC_OS_DARWIN)
+#endif
+		m_module->setDynamicExtensionAuthenticatorConfig(&config);
 	}
 
 	m_module->require(jnc::ModuleItemKind_Function, "main");
