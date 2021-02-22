@@ -196,25 +196,20 @@ set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 set(JNC_IO_SSH_NAME io_ssh-${TARGET_CPU}.bin)
 set(JNC_IO_SSH_DLL ${DLL_DIR}/${JNC_IO_SSH_NAME})
 set(JNC_IO_SSH_JNCX ${DLL_DIR}/io_ssh.jncx)
-set(JNC_IO_SSH_JNCX_DEPENDS jnc_io_ssh)
 
-add_custom_target(
-	jnc_io_ssh_jncx
-	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_SSH_JNCX}
+add_custom_command(
+	TARGET jnc_io_ssh
+	POST_BUILD
+	COMMAND
+		echo Creating io_ssh.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_SSH_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
 		${JNC_IO_SSH_JNCX}
 		${JNC_IO_SSH_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	DEPENDS ${JNC_IO_SSH_JNCX_DEPENDS}
-	)
-
-set_target_properties(
-	jnc_io_ssh_jncx
-	PROPERTIES
-	FOLDER extensions
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -176,25 +176,20 @@ set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 set(JNC_IO_PCAP_NAME io_pcap-${TARGET_CPU}.bin)
 set(JNC_IO_PCAP_DLL ${DLL_DIR}/${JNC_IO_PCAP_NAME})
 set(JNC_IO_PCAP_JNCX ${DLL_DIR}/io_pcap.jncx)
-set(JNC_IO_PCAP_JNCX_DEPENDS jnc_io_pcap)
 
-add_custom_target(
-	jnc_io_pcap_jncx
-	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_PCAP_JNCX}
+add_custom_command(
+	TARGET jnc_io_pcap
+	POST_BUILD
+	COMMAND
+		echo Creating io_pcap.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_PCAP_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
 		${JNC_IO_PCAP_JNCX}
 		${JNC_IO_PCAP_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	DEPENDS ${JNC_IO_PCAP_JNCX_DEPENDS}
-	)
-
-set_target_properties(
-	jnc_io_pcap_jncx
-	PROPERTIES
-	FOLDER extensions
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

@@ -187,25 +187,20 @@ set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 set(JNC_IO_SSL_NAME io_ssl-${TARGET_CPU}.bin)
 set(JNC_IO_SSL_DLL ${DLL_DIR}/${JNC_IO_SSL_NAME})
 set(JNC_IO_SSL_JNCX ${DLL_DIR}/io_ssl.jncx)
-set(JNC_IO_SSL_JNCX_DEPENDS jnc_io_ssl)
 
-add_custom_target(
-	jnc_io_ssl_jncx
-	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_SSL_JNCX}
+add_custom_command(
+	TARGET jnc_io_ssl
+	POST_BUILD
+	COMMAND
+		echo Creating io_ssl.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_SSL_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
 		${JNC_IO_SSL_JNCX}
 		${JNC_IO_SSL_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	DEPENDS ${JNC_IO_SSL_JNCX_DEPENDS}
-	)
-
-set_target_properties(
-	jnc_io_ssl_jncx
-	PROPERTIES
-	FOLDER extensions
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

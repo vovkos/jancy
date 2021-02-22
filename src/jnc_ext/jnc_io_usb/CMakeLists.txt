@@ -195,25 +195,20 @@ set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 set(JNC_IO_USB_NAME io_usb-${TARGET_CPU}.bin)
 set(JNC_IO_USB_DLL ${DLL_DIR}/${JNC_IO_USB_NAME})
 set(JNC_IO_USB_JNCX ${DLL_DIR}/io_usb.jncx)
-set(JNC_IO_USB_JNCX_DEPENDS jnc_io_usb)
 
-add_custom_target(
-	jnc_io_usb_jncx
-	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_USB_JNCX}
+add_custom_command(
+	TARGET jnc_io_usb
+	POST_BUILD
+	COMMAND
+		echo Creating io_usb.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_USB_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
 		${JNC_IO_USB_JNCX}
 		${JNC_IO_USB_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
-	DEPENDS ${JNC_IO_USB_JNCX_DEPENDS}
-	)
-
-set_target_properties(
-	jnc_io_usb_jncx
-	PROPERTIES
-	FOLDER extensions
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

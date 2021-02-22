@@ -210,7 +210,6 @@ set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
 set(JNC_IO_DEVMON_NAME io_devmon-${TARGET_CPU}.bin)
 set(JNC_IO_DEVMON_DLL ${DLL_DIR}/${JNC_IO_DEVMON_NAME})
 set(JNC_IO_DEVMON_JNCX ${DLL_DIR}/io_devmon.jncx)
-set(JNC_IO_DEVMON_JNCX_DEPENDS jnc_io_devmon)
 
 configure_file(
 	${CMAKE_CURRENT_LIST_DIR}/jnc/.forced-full.jnc
@@ -218,10 +217,13 @@ configure_file(
 	COPYONLY
 	)
 
-add_custom_target(
-	jnc_io_devmon_jncx
-	ALL
-	COMMAND ${CMAKE_COMMAND} -E remove ${JNC_IO_DEVMON_JNCX}
+add_custom_command(
+	TARGET jnc_io_devmon
+	POST_BUILD
+	COMMAND
+		echo Creating io_devmon.jncx...
+	COMMAND
+		${CMAKE_COMMAND} -E remove ${JNC_IO_DEVMON_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
@@ -229,13 +231,6 @@ add_custom_target(
 		${JNC_IO_DEVMON_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/io_*.jnc
 		${CMAKE_CURRENT_BINARY_DIR}/.forced.jnc
-	DEPENDS ${JNC_IO_DEVMON_JNCX_DEPENDS}
-	)
-
-set_target_properties(
-	jnc_io_devmon_jncx
-	PROPERTIES
-	FOLDER extensions
 	)
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
