@@ -56,6 +56,7 @@ protected:
 	sl::StringHashTable<const OpaqueClassTypeInfo*> m_opaqueClassTypeInfoMap;
 	sl::List<ItemCacheEntry> m_itemCache;
 	ItemCacheMap m_itemCacheMap;
+	sys::CodeAuthenticator* m_codeAuthenticator;
 
 public:
 	sl::String m_dynamicLibraryDir;
@@ -82,6 +83,9 @@ public:
 
 	void
 	clear();
+
+	void
+	setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config);
 
 	void
 	addStaticLib(ExtensionLib* lib);

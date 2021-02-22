@@ -101,18 +101,12 @@ protected:
 	sl::List<LazyImport> m_lazyImportList;
 	sl::StringHashTable<bool> m_ignoredImportSet;
 	sl::StringHashTable<bool> m_importFilePathMap;
-	sys::CodeAuthenticator* m_codeAuthenticator;
 
 public:
 	sl::BoxList<sl::String> m_importDirList;
 
 public:
 	ImportMgr();
-
-	~ImportMgr()
-	{
-		clear();
-	}
 
 	Module*
 	getModule()
@@ -122,9 +116,6 @@ public:
 
 	void
 	clear();
-
-	void
-	setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config);
 
 	bool
 	addImport(const sl::StringRef& fileName);

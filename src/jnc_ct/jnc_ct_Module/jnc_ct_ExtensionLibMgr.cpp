@@ -22,6 +22,7 @@ ExtensionLibMgr::ExtensionLibMgr()
 {
 	m_module = Module::getCurrentConstructedModule();
 	m_dynamicLibraryDir = io::getTempDir();
+	m_codeAuthenticator = NULL;
 	ASSERT(m_module);
 }
 
@@ -54,6 +55,12 @@ ExtensionLibMgr::clear()
 	m_opaqueClassTypeInfoMap.clear();
 	m_itemCache.clear();
 	m_itemCacheMap.clear();
+
+	if (m_codeAuthenticator)
+	{
+		AXL_MEM_DELETE(m_codeAuthenticator);
+		m_codeAuthenticator = NULL;
+	}
 }
 
 void
@@ -62,6 +69,26 @@ ExtensionLibMgr::closeDynamicLibZipReaders()
 	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
 	for (; it; it++)
 		it->m_zipReader.close();
+}
+
+void
+ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config)
+{
+	m_codeAuthenticator = AXL_MEM_NEW(sys::CodeAuthenticator);
+
+#if (_JNC_OS_WIN)
+	m_codeAuthenticator->setup(
+		sl::StringRef(),
+		config->m_expectedSubjectName,
+		config->m_expectedIssuerName,
+		sl::ArrayRef<char>(
+			config->m_expectedSerialNumber,
+			config->m_expectedSerialNumberSize
+			)
+		);
+#elif (_JNC_OS_LINUX)
+#elif (_JNC_OS_DARWIN)
+#endif
 }
 
 void
@@ -166,6 +193,13 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 		}
 
 		return true;
+	}
+
+	if (m_codeAuthenticator)
+	{
+		result = m_codeAuthenticator->verifyFile(dynamicLibFilePath);
+		if (!result)
+			return false;
 	}
 
 	result = entry->m_dynamicLib.open(dynamicLibFilePath);

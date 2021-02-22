@@ -69,6 +69,8 @@ if(WIN32)
 		jnc_rtl_intro
 		jnc_std
 		jnc_sys
+		wintrust
+		crypt32
 		)
 else()
 	target_link_libraries(

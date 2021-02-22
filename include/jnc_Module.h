@@ -124,11 +124,19 @@ struct jnc_CodeAuthenticatorConfig
 {
 #if (_JNC_OS_WIN)
 	const char* m_expectedSubjectName;
+	const char* m_expectedIssuerName;
 	const char* m_expectedSerialNumber;
 	size_t m_expectedSerialNumberSize;
 #elif (_JNC_OS_LINUX)
 	const char* m_publicKeyPem;
 #elif (_JNC_OS_DARWIN)
+#endif
+
+#ifdef __cplusplus
+	jnc_CodeAuthenticatorConfig()
+	{
+		memset(this, 0, sizeof(jnc_CodeAuthenticatorConfig));
+	}
 #endif
 };
 
