@@ -1,30 +1,52 @@
 #!/bin/bash
 
-sign_jncx()
-{
-	JNCX=$1
+set -e
+
+#...............................................................................
+
+if [ "$1" == "" ]; then
+	echo "sign-jncx - Jancy extension sign utility"
+	echo "Usage:"
+	echo "    sign-jncx <file.jncx>"
+	echo "Current configuation:"
+	echo "    Path to 7z:            ${7Z_EXE}"
+	echo "    Path to elfsign:       ${ELFSIGN_EXE}"
+	echo "    Path to elfsign key:   ${ELFSIGN_PRIVATE_KEY_PEM}"
+	echo "    ELF signature section: ${ELFSIGN_SECTION}"
+	exit -1
+fi
+
+#...............................................................................
+
+JNCX=$(realpath $1)
+OS=$(uname -s)
+
+if [ $OS == "Darwin" ]; then
 	IDENTITIY=$2
-	MOVE_BIN_DIR=
+	IS_SIDEBYSIDE=$3
+fi
 
-	if [ "$3" != "" ]; then
-		MOVE_BIN_DIR=$(dirname "$JNCX")
-	fi
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-	echo -n "  "
-	basename "$JNCX"
+EXTRACT_DIR=$(mktemp -d -t jncx-XXXXXX)
+pushd $EXTRACT_DIR
 
-	EXTRACT_DIR=$(mktemp -d -t jncx)
-	pushd $EXTRACT_DIR
+${7Z_EXE} e "$JNCX"
 
-	${7Z_EXE} e "$JNCX"
+BIN_FOUND=
 
-	# the loop is to avoid errors if *.bin is an empty set
+for BIN in *.bin; do
+	[ -f "$BIN" ] || continue
+	BIN_FOUND=1
 
-	for BIN in *.bin; do
-		[ -f "$BIN" ] || continue
-
+	if [ $OS == "Linux" ]; then
+		${ELFSIGN_EXE} \
+			--sign \
+			--key ${ELFSIGN_PRIVATE_KEY_PEM} \
+			--section ${ELFSIGN_SECTION} \
+			$BIN
+	elif [ $OS == "Darwin" ]; then
 		chmod -x $BIN
-
 		codesign \
 			--force \
 			--timestamp \
@@ -32,16 +54,19 @@ sign_jncx()
 			--sign "$IDENTITIY" \
 			$BIN
 
-		if [ "$MOVE_BIN_DIR" != "" ]; then
-			mv $BIN "$MOVE_BIN_DIR"
+		if [ "$IS_SIDEBYSIDE" != "" ]; then
+			JNCX_DIR=$(dirname "$JNCX")
+			mv $BIN "$JNCX_DIR"
 		fi
-	done
+	fi
+done
 
-	# re-create .jncx
-
+if [ "$BIN_FOUND" != "" ]; then
 	rm "$JNCX"
 	${7Z_EXE} a -tzip -y "$JNCX"
+fi
 
-	popd
-	rm -rf $EXTRACT_DIR
-}
+popd
+rm -rf $EXTRACT_DIR
+
+#...............................................................................

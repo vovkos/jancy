@@ -20,14 +20,20 @@ if(WIN32)
 		sign-all-jncx.bat
 		)
 else()
-	configure_file(
+	axl_configure_file_w_permissions(
 		sign-jncx.sh.in
 		sign-jncx.sh
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_WRITE GROUP_EXECUTE
+		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 
-	configure_file(
+	axl_configure_file_w_permissions(
 		sign-all-jncx.sh.in
 		sign-all-jncx.sh
+		OWNER_READ OWNER_WRITE OWNER_EXECUTE
+		GROUP_READ GROUP_WRITE GROUP_EXECUTE
+		WORLD_READ WORLD_WRITE WORLD_EXECUTE
 		)
 endif()
 

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+#...............................................................................
+
+JNCX_DIR=${JANCY_DLL_BASE_DIR}/${CONFIGURATION_SCG}
+THIS_DIR=${CMAKE_CURRENT_BINARY_DIR}
+
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+JNCX_FOUND=
+
+for JNCX in $JNCX_DIR/*.jncx; do
+	[ -f "$JNCX" ] || continue
+	$THIS_DIR/sign-jncx.sh $JNCX
+	JNCX_FOUND=1
+done
+
+if [ "$JNCX_FOUND" == "" ]; then
+	echo $JNCX_DIR contains no *.jncx files
+fi
+
+#...............................................................................
