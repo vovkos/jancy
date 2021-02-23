@@ -128,6 +128,7 @@ struct jnc_CodeAuthenticatorConfig
 	const char* m_expectedSerialNumber;
 	size_t m_expectedSerialNumberSize;
 #elif (_JNC_OS_LINUX)
+	const char* m_signatureSectionName;
 	const char* m_publicKeyPem;
 #elif (_JNC_OS_DARWIN)
 #endif

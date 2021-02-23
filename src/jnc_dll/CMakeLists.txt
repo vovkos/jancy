@@ -18,6 +18,7 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 link_directories(
 	${LLVM_LIB_DIR}
+	${OPENSSL_LIB_DIR}
 	${AXL_LIB_DIR}
 	)
 
@@ -61,6 +62,25 @@ add_library(
 	${DLL_SRC_LIST}
 	)
 
+if(LINUX)
+	set(AXL_CA_LIB_LIST axl_sys_ca axl_cry)
+else()
+	set(AXL_CA_LIB_LIST axl_sys_ca)
+endif()
+
+target_link_libraries(
+	jnc_dll
+	jnc_ct
+	jnc_rt
+	${AXL_CA_LIB_LIST}
+	axl_zip
+	axl_fsm
+	axl_io
+	axl_lex
+	axl_dox
+	axl_core
+	)
+
 if(WIN32)
 	target_link_libraries(
 		jnc_dll
@@ -78,10 +98,12 @@ else()
 		pthread
 		)
 
-	if(NOT APPLE)
+	if(LINUX)
 		target_link_libraries(
 			jnc_dll
+			${OPENSSL_CRYPTO_LIB_NAME}
 			rt
+			dl
 			)
 
 		set_property(
@@ -92,19 +114,6 @@ else()
 			)
 	endif()
 endif()
-
-target_link_libraries(
-	jnc_dll
-	jnc_ct
-	jnc_rt
-	axl_zip
-	axl_fsm
-	axl_io
-	axl_lex
-	axl_dox
-	axl_sys_ca
-	axl_core
-	)
 
 target_link_llvm_jit_libraries(jnc_dll)
 

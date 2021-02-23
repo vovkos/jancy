@@ -87,6 +87,10 @@ ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorC
 			)
 		);
 #elif (_JNC_OS_LINUX)
+	m_codeAuthenticator->setup(
+		config->m_signatureSectionName,
+		config->m_publicKeyPem
+		);
 #elif (_JNC_OS_DARWIN)
 #endif
 }
