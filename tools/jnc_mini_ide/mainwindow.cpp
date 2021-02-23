@@ -496,6 +496,17 @@ bool MainWindow::compile()
 		config.m_expectedSubjectName = "Tibbo Technology Inc.";
 		config.m_expectedIssuerName = "DigiCert EV Code Signing CA";
 #elif (_JNC_OS_LINUX)
+		config.m_signatureSectionName = ".njsig";
+		config.m_publicKeyPem =
+			"-----BEGIN PUBLIC KEY-----\n"
+			"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0asmW7hwuqlO6XWkpCCz\n"
+			"bs/S8JeTn8cpHbwskgRfroK7PR1OOhyZA0CjsB46tau1w0WLeKRB9MPeCn1aufaU\n"
+			"nEQ09Dmqy/8Nhjrzm58AclKWO8wT3qhN2tDOh2r5Kw53w5vXxLysJ1sj6wRMnREq\n"
+			"2AWqLsHGpI/jk93+znPPvwSte3M8ZBPIukQn/QQ1S289sAlEWol4AJjGmlHDsNDI\n"
+			"6dQBZM6uUHejYv5um+YICVhCpcJ4h93pvrRCPpg9JgiCDVxN5dbQ0vDMYKNZAZmL\n"
+			"qc2WkGZ3ubiPpDBHwzzleK3S3pLJZFywdpLMRqNuMJuGBxOm4UxWQybkU8vAtJ0O\n"
+			"yQIDAQAB\n"
+			"-----END PUBLIC KEY-----\n";
 #elif (_JNC_OS_DARWIN)
 #endif
 		m_module->setDynamicExtensionAuthenticatorConfig(&config);

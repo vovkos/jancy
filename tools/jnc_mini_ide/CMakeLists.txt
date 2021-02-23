@@ -95,7 +95,6 @@ file(MAKE_DIRECTORY ${GEN_DIR})
 set(
 	MOC_H_LIST
 	monospaceplaintextedit.h
-	highlighter.h
 	llvmir.h
 	mainwindow.h
 	mdichild.h
@@ -305,6 +304,7 @@ elseif(UNIX)
 		target_link_libraries(
 			jnc_mini_ide
 			rt
+			dl
 			)
 
 		if(NOT JNC_SKIP_BUILD_RPATH)
