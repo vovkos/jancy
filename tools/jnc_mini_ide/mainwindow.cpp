@@ -508,6 +508,7 @@ bool MainWindow::compile()
 			"yQIDAQAB\n"
 			"-----END PUBLIC KEY-----\n";
 #elif (_JNC_OS_DARWIN)
+		config.m_expectedTeamId = "MHV447DZEV";
 #endif
 		m_module->setDynamicExtensionAuthenticatorConfig(&config);
 	}
