@@ -131,6 +131,7 @@ struct jnc_CodeAuthenticatorConfig
 	const char* m_signatureSectionName;
 	const char* m_publicKeyPem;
 #elif (_JNC_OS_DARWIN)
+	const char* m_expectedTeamId;
 #endif
 
 #ifdef __cplusplus

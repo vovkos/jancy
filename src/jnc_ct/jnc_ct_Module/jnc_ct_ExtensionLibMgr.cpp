@@ -92,6 +92,7 @@ ExtensionLibMgr::setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorC
 		config->m_publicKeyPem
 		);
 #elif (_JNC_OS_DARWIN)
+	m_codeAuthenticator->setup(config->m_expectedTeamId);
 #endif
 }
 

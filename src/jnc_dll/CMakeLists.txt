@@ -98,7 +98,18 @@ else()
 		pthread
 		)
 
-	if(LINUX)
+	if(APPLE)
+		find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
+		find_library(SECURITY_FRAMEWORK Security)
+
+		target_link_libraries(
+			jnc_dll
+			axl_sec
+			axl_cf
+			${CORE_FOUNDATION_FRAMEWORK}
+			${SECURITY_FRAMEWORK}
+			)
+	elseif(LINUX)
 		target_link_libraries(
 			jnc_dll
 			${OPENSSL_CRYPTO_LIB_NAME}
