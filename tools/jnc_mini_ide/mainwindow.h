@@ -50,6 +50,7 @@ private slots:
 	void onEnableSyntaxHighlighting(bool isEnabled);
 	void onEnableCurrentLineHighlighting(bool isEnabled);
 	void onEnableLineNumberMargin(bool isEnabled);
+	void onSetCapabilities();
 
 signals:
 	void outputSignal();
@@ -81,6 +82,7 @@ private:
 	QMdiArea* m_mdiArea;
 	QString m_lastDir;
 	QString m_libDir;
+	QString m_capabilities;
 
 	Output* m_output;
 	ModulePane* m_modulePane;
@@ -114,6 +116,7 @@ private:
 	QAction* m_optimizeAction;
 	QAction* m_jitAction;
 	QAction* m_signedExtensionsAction;
+	QAction* m_setCapabilitiesAction;
 
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;

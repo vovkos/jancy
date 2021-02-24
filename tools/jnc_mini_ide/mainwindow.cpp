@@ -45,9 +45,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 {
 	ASSERT(!g_mainWindow);
 	g_mainWindow = this;
-	m_syntaxHighlightingAction = NULL;
-	m_currentLineHighlightingAction = NULL;
-	m_lineNumberMarginAction = NULL;
 
 #if (_JNC_OS_WIN)
 	m_libDir = qApp->applicationDirPath();
@@ -58,6 +55,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	m_libDir = qApp->applicationDirPath() + "/../../lib/Release";
 #	endif
 #endif
+	m_capabilities = "*";
 
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
@@ -224,6 +222,9 @@ void MainWindow::createActions()
 	m_jitAction->setCheckable(true);
 	m_jitAction->setChecked(true);
 
+	m_setCapabilitiesAction = new QAction("Set Capabilities", this);
+	QObject::connect(m_setCapabilitiesAction, SIGNAL(triggered()), this, SLOT(onSetCapabilities()));
+
 	m_compileAction = new QAction(QIcon(":/Images/Compile"), "C&ompile", this);
 	m_compileAction->setShortcut(QKeySequence(Qt::Key_F7));
 	QObject::connect(m_compileAction, SIGNAL(triggered()), this, SLOT(compile()));
@@ -256,6 +257,7 @@ void MainWindow::createMenu()
 	m_compileMenu->addAction(m_optimizeAction);
 	m_compileMenu->addAction(m_jitAction);
 	m_compileMenu->addSeparator();
+	m_compileMenu->addAction(m_setCapabilitiesAction);
 	m_compileMenu->addAction(m_compileAction);
 	m_compileMenu->addAction(m_runAction);
 
@@ -448,6 +450,23 @@ void MainWindow::clearOutput()
 }
 
 //..............................................................................
+
+void MainWindow::onSetCapabilities()
+{
+	QInputDialog inputDialog(this, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+	inputDialog.setWindowTitle("Set Capabilities");
+	inputDialog.setInputMode(QInputDialog::TextInput);
+	inputDialog.setLabelText("Capabilities:");
+	inputDialog.setTextValue(m_capabilities);
+	inputDialog.resize(QSize(640, inputDialog.height()));
+
+	int result = inputDialog.exec();
+	if (result != QDialog::Accepted)
+		return;
+
+	m_capabilities = inputDialog.textValue();
+	jnc::initializeCapabilities(m_capabilities.toLatin1().data());
+}
 
 bool MainWindow::compile()
 {
