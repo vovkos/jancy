@@ -28,7 +28,15 @@ jnc_enableCapability(
 
 JNC_EXTERN_C
 bool_t
+jnc_isEveryCapabilityEnabled();
+
+JNC_EXTERN_C
+bool_t
 jnc_isCapabilityEnabled(const char* capability);
+
+JNC_EXTERN_C
+bool_t
+jnc_requireCapability(const char* capability);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -38,12 +46,15 @@ namespace jnc {
 
 //..............................................................................
 
+inline
 void
 initializeCapabilities(const char* initializer)
 {
 	jnc_initializeCapabilities(initializer);
 }
 
+
+inline
 void
 enableCapability(
 	const char* capability,
@@ -53,10 +64,25 @@ enableCapability(
 	jnc_enableCapability(capability, isEnabled);
 }
 
+inline
+bool
+isEveryCapabilityEnabled()
+{
+	return jnc_isEveryCapabilityEnabled() != 0;
+}
+
+inline
 bool
 isCapabilityEnabled(const char* capability)
 {
 	return jnc_isCapabilityEnabled(capability) != 0;
+}
+
+inline
+bool_t
+requireCapability(const char* capability)
+{
+	return jnc_requireCapability(capability) != 0;
 }
 
 //..............................................................................

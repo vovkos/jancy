@@ -44,6 +44,12 @@ public:
 	}
 
 	bool
+	isEverythingEnabled()
+	{
+		return m_isEverythingEnabled;
+	}
+
+	bool
 	isCapabilityEnabled(const sl::StringRef& capability)
 	{
 		return m_isEverythingEnabled || m_capabilitySet.findValue(capability, false);

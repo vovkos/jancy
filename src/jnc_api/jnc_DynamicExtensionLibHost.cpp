@@ -44,7 +44,9 @@ static jnc_ErrorFuncTable g_errorFuncTable =
 static jnc_CapabilityFuncTable g_capabilityFuncTable =
 {
 	sizeof(jnc_CapabilityFuncTable ),
-	jnc_isCapabilityEnabled
+	jnc_isEveryCapabilityEnabled,
+	jnc_isCapabilityEnabled,
+	jnc_requireCapability
 };
 
 

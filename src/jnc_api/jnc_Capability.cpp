@@ -27,9 +27,25 @@
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
+jnc_isEveryCapabilityEnabled()
+{
+	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_isEveryCapabilityEnabledFunc();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
 jnc_isCapabilityEnabled(const char* capability)
 {
 	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_isCapabilityEnabledFunc(capability);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_requireCapability(const char* capability)
+{
+	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_requireCapabilityFunc(capability);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
@@ -56,9 +72,29 @@ jnc_enableCapability(
 JNC_EXTERN_C
 JNC_EXPORT_O
 bool_t
+jnc_isEveryCapabilityEnabled()
+{
+	return jnc::ct::getCapabilityMgr()->isEverythingEnabled();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
 jnc_isCapabilityEnabled(const char* capability)
 {
 	return jnc::ct::getCapabilityMgr()->isCapabilityEnabled(capability);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_requireCapability(const char* capability)
+{
+	if (jnc::ct::getCapabilityMgr()->isCapabilityEnabled(capability))
+		return true;
+
+	err::setFormatStringError("capability %s is required but not enabled", capability);
+	return false;
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

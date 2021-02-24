@@ -27,13 +27,13 @@ CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer)
 
 	for (size_t i = 0;;)
 	{
-		initializer.findNotOneOf(delimiters, i);
+		i = initializer.findNotOneOf(delimiters, i);
 		if (i == -1)
 			break;
 
 		size_t end = initializer.findOneOf(delimiters, i);
 		if (end == -1)
-			break;
+			end = initializer.getLength();
 
 		sl::StringRef capability = initializer.getSubString(i, end - i);
 		if (capability == "*")
@@ -43,6 +43,7 @@ CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer)
 		}
 
 		m_capabilitySet[capability] = true;
+		i = end;
 	}
 }
 
