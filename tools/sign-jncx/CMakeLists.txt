@@ -20,6 +20,8 @@ if(WIN32)
 		sign-all-jncx.bat
 		)
 else()
+	set(DOLLAR $)
+
 	axl_configure_file_w_permissions(
 		sign-jncx.sh.in
 		sign-jncx.sh

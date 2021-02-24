@@ -4,26 +4,68 @@ set -e
 
 #...............................................................................
 
-if [ "$1" == "" ]; then
-	echo "sign-jncx - Jancy extension sign utility"
-	echo "Usage:"
-	echo "    sign-jncx <file.jncx>"
-	echo "Current configuation:"
-	echo "    Path to 7z:            ${7Z_EXE}"
-	echo "    Path to elfsign:       ${ELFSIGN_EXE}"
-	echo "    Path to elfsign key:   ${ELFSIGN_PRIVATE_KEY_PEM}"
-	echo "    ELF signature section: ${ELFSIGN_SECTION}"
-	exit -1
-fi
-
-#...............................................................................
-
-JNCX=$(realpath $1)
 OS=$(uname -s)
 
-if [ $OS == "Darwin" ]; then
-	IDENTITIY=$2
-	IS_SIDEBYSIDE=$3
+if [ "$OS" == "Linux" ]; then
+	if [ "$1" == "" ]; then
+		echo "sign-jncx - Jancy extension sign utility"
+		echo "Usage:"
+		echo "    sign-jncx <file.jncx>"
+		echo "Current configuation:"
+		echo "    Path to 7z:            ${7Z_EXE}"
+		echo "    Path to elfsign:       ${ELFSIGN_EXE}"
+		echo "    Path to elfsign key:   ${ELFSIGN_PRIVATE_KEY_PEM}"
+		echo "    ELF signature section: ${ELFSIGN_SECTION}"
+		exit -1
+	fi
+
+	JNCX=$(realpath $1)
+elif [ "$OS" == "Darwin" ]; then
+	JNCX=
+	IDENTITY=
+	IS_EXTERNAL=
+	PARAMETER=
+
+	for ARG in "$@"; do
+		if [ "$PARAMETER" != "" ]; then
+			case $PARAMETER in
+			"-i" | "--identity")
+				IDENTITY=$ARG
+				;;
+			*)
+			esac
+
+			PARAMETER=
+			continue
+		fi
+
+		case $ARG in
+		"-x" | "--external")
+			IS_EXTERNAL=1
+			;;
+		"-i" | "--identity")
+			PARAMETER=$ARG
+			;;
+		"-i="* | "--identity="*)
+			IDENTITY="${DOLLAR}{ARG#*=}"
+			;;
+		"-i"*)
+			IDENTITY="${DOLLAR}{ARG:2}"
+			;;
+		*)
+			JNCX=$(realpath $ARG)
+		esac
+	done
+
+	if [[ "$JNCX" == "" || "$IDENTITY" == "" ]]; then
+		echo "sign-jncx - Jancy extension sign utility"
+		echo "Usage:"
+		echo "    sign-jncx [options...] <file.jncx>"
+		echo "Options:"
+		echo "    -i, --identity=<identity> codesign identity (required)"
+		echo "    -x, --external            external *.bin (for AppStore)"
+		exit -1
+	fi
 fi
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -51,10 +93,10 @@ for BIN in *.bin; do
 			--force \
 			--timestamp \
 			--options runtime \
-			--sign "$IDENTITIY" \
+			--sign "$IDENTITY" \
 			$BIN
 
-		if [ "$IS_SIDEBYSIDE" != "" ]; then
+		if [ "$IS_EXTERNAL" != "" ]; then
 			JNCX_DIR=$(dirname "$JNCX")
 			mv $BIN "$JNCX_DIR"
 		fi
