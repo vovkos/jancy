@@ -78,6 +78,10 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule()->setTag("jnc_io_pcap");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
+	jnc_g_dynamicExtensionLibHost = host;
+
+	if (!jnc::requireCapability("org.jancy.io.pcap"))
+		return NULL;
 
 #if (!_JNC_OS_WIN)
 	const char* pcapVersion = ::pcap_lib_version();
@@ -95,7 +99,6 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 #endif
 
 	TRACE("jnc_io_pcap: Pcap version: %s\n", pcapVersion);
-	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::PcapLib_getLib();
 }
 

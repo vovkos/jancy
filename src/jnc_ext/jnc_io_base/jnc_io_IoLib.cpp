@@ -104,6 +104,50 @@ JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
+void
+initializeCapabilities()
+{
+	if (isEveryCapabilityEnabled())
+		return;
+
+	g_capabilities = 0;
+
+	if (isCapabilityEnabled("org.jancy.io.file"))
+		g_capabilities |= IoLibCapability_File;
+
+	if (isCapabilityEnabled("org.jancy.io.file-stream"))
+		g_capabilities |= IoLibCapability_FileStream;
+
+	if (isCapabilityEnabled("org.jancy.io.serial"))
+		g_capabilities |= IoLibCapability_Serial;
+
+	if (isCapabilityEnabled("org.jancy.io.net"))
+		g_capabilities |=
+			IoLibCapability_Socket |
+			IoLibCapability_NetworkAdapter |
+			IoLibCapability_HostNameResolver;
+
+	if (isCapabilityEnabled("org.jancy.io.server"))
+		g_capabilities |= IoLibCapability_Server;
+
+	if (isCapabilityEnabled("org.jancy.io.tcp"))
+		g_capabilities |= IoLibCapability_Tcp;
+
+	if (isCapabilityEnabled("org.jancy.io.udp"))
+		g_capabilities |= IoLibCapability_Udp;
+
+	if (isCapabilityEnabled("org.jancy.io.mailslot"))
+		g_capabilities |= IoLibCapability_Mailslot;
+
+	if (isCapabilityEnabled("org.jancy.io.named-pipe"))
+		g_capabilities |= IoLibCapability_NamedPipe;
+
+	if (isCapabilityEnabled("org.jancy.io.child-process"))
+		g_capabilities |= IoLibCapability_ChildProcess;
+}
+
+//..............................................................................
+
 } // namespace io
 } // namespace jnc
 
@@ -122,6 +166,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_base");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
+	jnc::io::initializeCapabilities();
 	return jnc::io::IoLib_getLib();
 }
 

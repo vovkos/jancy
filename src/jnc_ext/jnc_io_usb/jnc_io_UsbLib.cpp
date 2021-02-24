@@ -67,10 +67,14 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 {
 	g::getModule()->setTag("jnc_io_usb");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
+	jnc_g_dynamicExtensionLibHost = host;
+
+	if (!jnc::requireCapability("org.jancy.io.usv"))
+		return NULL;
+
 	axl::io::registerUsbErrorProvider();
 	axl::io::getUsbDefaultContext()->createDefault();
 	axl::io::getUsbDefaultContextEventThread()->start();
-	jnc_g_dynamicExtensionLibHost = host;
 	return jnc::io::UsbLib_getLib();
 }
 
