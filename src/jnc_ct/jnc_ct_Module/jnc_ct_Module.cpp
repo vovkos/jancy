@@ -1097,12 +1097,14 @@ Module::createConstructor()
 {
 	ASSERT(!m_constructor);
 
+	const sl::Array<Variable*>& staticArray = m_variableMgr.getStaticVariableArray();
 	const sl::Array<Function*>& primerArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_VariablePrimer);
 	const sl::Array<Function*>& initializerArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_VariableInitializer);
 	const sl::Array<Function*>& constructorArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_Constructor);
 	const sl::Array<Function*>& destructorArray = m_functionMgr.getGlobalCtorDtorArray(GlobalCtorDtorKind_Destructor);
 
-	if (primerArray.isEmpty() &&
+	if (staticArray.isEmpty() &&
+		primerArray.isEmpty() &&
 		initializerArray.isEmpty() &&
 		constructorArray.isEmpty() &&
 		destructorArray.isEmpty())
@@ -1117,7 +1119,15 @@ Module::createConstructor()
 	m_functionMgr.internalPrologue(m_constructor);
 	m_compileFlags = prevFlags;
 
-	size_t count = primerArray.getCount();
+	size_t count = staticArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		Variable* variable = staticArray[i];
+		if (variable->getType()->getTypeKind() != TypeKind_Class) // classes are on primerArray anyway
+			m_operatorMgr.zeroInitialize(variable);
+	}
+
+	count = primerArray.getCount();
 	for (size_t i = 0; i < count; i++)
 		m_llvmIrBuilder.createCall(primerArray[i], primerArray[i]->getType(), NULL);
 
