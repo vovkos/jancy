@@ -16,8 +16,46 @@
 //..............................................................................
 
 JNC_EXTERN_C
-void
-jnc_initializeCapabilities(const char* initializer);
+bool_t
+jnc_isEveryCapabilityEnabled();
+
+JNC_EXTERN_C
+bool_t
+jnc_isCapabilityEnabled(const char* capability);
+
+JNC_EXTERN_C
+size_t
+jnc_readCapabilityParam(
+	const char* param,
+	void* value,
+	size_t size
+	);
+
+JNC_INLINE
+size_t
+jnc_getCapabilityParamSize(const char* param)
+{
+	return jnc_readCapabilityParam(param, NULL, 0);
+}
+
+JNC_EXTERN_C
+size_t
+jnc_writeCapabilityParam(
+	const char* param,
+	const void* value,
+	size_t size
+	);
+
+JNC_EXTERN_C
+bool_t
+jnc_failWithCapabilityError(const char* capability);
+
+JNC_INLINE
+bool_t
+jnc_requireCapability(const char* capability)
+{
+	return jnc_isCapabilityEnabled(capability) ? true : jnc_failWithCapabilityError(capability);
+}
 
 JNC_EXTERN_C
 void
@@ -27,16 +65,8 @@ jnc_enableCapability(
 	);
 
 JNC_EXTERN_C
-bool_t
-jnc_isEveryCapabilityEnabled();
-
-JNC_EXTERN_C
-bool_t
-jnc_isCapabilityEnabled(const char* capability);
-
-JNC_EXTERN_C
-bool_t
-jnc_requireCapability(const char* capability);
+void
+jnc_initializeCapabilities(const char* initializer);
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -45,24 +75,6 @@ jnc_requireCapability(const char* capability);
 namespace jnc {
 
 //..............................................................................
-
-inline
-void
-initializeCapabilities(const char* initializer)
-{
-	jnc_initializeCapabilities(initializer);
-}
-
-
-inline
-void
-enableCapability(
-	const char* capability,
-	bool isEnabled = true
-	)
-{
-	jnc_enableCapability(capability, isEnabled);
-}
 
 inline
 bool
@@ -79,10 +91,63 @@ isCapabilityEnabled(const char* capability)
 }
 
 inline
-bool_t
+size_t
+getCapabilityParamSize(const char* param)
+{
+	return jnc_getCapabilityParamSize(param);
+}
+
+inline
+size_t
+readCapabilityParam(
+	const char* param,
+	void* value,
+	size_t size
+	)
+{
+	return jnc_readCapabilityParam(param, value, size);
+}
+
+inline
+size_t
+writeCapabilityParam(
+	const char* param,
+	const void* value,
+	size_t size
+	)
+{
+	return jnc_writeCapabilityParam(param, value, size);
+}
+
+inline
+bool
 requireCapability(const char* capability)
 {
 	return jnc_requireCapability(capability) != 0;
+}
+
+inline
+bool
+failWithCapabilityError(const char* capability)
+{
+	return jnc_failWithCapabilityError(capability) != 0;
+}
+
+inline
+void
+enableCapability(
+	const char* capability,
+	bool isEnabled = true
+	)
+{
+	jnc_enableCapability(capability, isEnabled);
+}
+
+inline
+void
+initializeCapabilities(const char* initializer)
+{
+	jnc_initializeCapabilities(initializer);
 }
 
 //..............................................................................

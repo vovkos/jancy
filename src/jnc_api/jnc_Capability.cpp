@@ -20,12 +20,20 @@
 
 //..............................................................................
 
+JNC_EXTERN_C
+JNC_EXPORT_O
+bool_t
+jnc_failWithCapabilityError(const char* capability)
+{
+	err::setFormatStringError("capability '%s' is required but not enabled", capability);
+	return false;
+}
+
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 // extensions should only have read-only access to capabilities
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_isEveryCapabilityEnabled()
 {
@@ -33,7 +41,6 @@ jnc_isEveryCapabilityEnabled()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_isCapabilityEnabled(const char* capability)
 {
@@ -41,33 +48,17 @@ jnc_isCapabilityEnabled(const char* capability)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
-bool_t
-jnc_requireCapability(const char* capability)
+size_t
+jnc_readCapabilityParam(
+	const char* param,
+	void* value,
+	size_t size
+	)
 {
-	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_requireCapabilityFunc(capability);
+	return jnc_g_dynamicExtensionLibHost->m_capabilityFuncTable->m_readCapabilityParamFunc(param, value, size);
 }
 
 #else // _JNC_DYNAMIC_EXTENSION_LIB
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-void
-jnc_initializeCapabilities(const char* initializer)
-{
-	jnc::ct::getCapabilityMgr()->initializeCapabilities(initializer);
-}
-
-JNC_EXTERN_C
-JNC_EXPORT_O
-void
-jnc_enableCapability(
-	const char* capability,
-	bool_t isEnabled
-	)
-{
-	jnc::ct::getCapabilityMgr()->enableCapability(capability, isEnabled);
-}
 
 JNC_EXTERN_C
 JNC_EXPORT_O
@@ -87,14 +78,45 @@ jnc_isCapabilityEnabled(const char* capability)
 
 JNC_EXTERN_C
 JNC_EXPORT_O
-bool_t
-jnc_requireCapability(const char* capability)
+size_t
+jnc_readCapabilityParam(
+	const char* param,
+	void* value,
+	size_t size
+	)
 {
-	if (jnc::ct::getCapabilityMgr()->isCapabilityEnabled(capability))
-		return true;
+	return jnc::ct::getCapabilityMgr()->readCapabilityParam(param, value, size);
+}
 
-	err::setFormatStringError("capability %s is required but not enabled", capability);
-	return false;
+JNC_EXTERN_C
+JNC_EXPORT_O
+size_t
+jnc_writeCapabilityParam(
+	const char* param,
+	const void* value,
+	size_t size
+	)
+{
+	return jnc::ct::getCapabilityMgr()->writeCapabilityParam(param, value, size);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_enableCapability(
+	const char* capability,
+	bool_t isEnabled
+	)
+{
+	jnc::ct::getCapabilityMgr()->enableCapability(capability, isEnabled);
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_initializeCapabilities(const char* initializer)
+{
+	jnc::ct::getCapabilityMgr()->initializeCapabilities(initializer);
 }
 
 #endif // _JNC_DYNAMIC_EXTENSION_LIB

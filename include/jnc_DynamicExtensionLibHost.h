@@ -116,8 +116,12 @@ bool_t
 jnc_IsCapabilityEnabledFunc(const char* capability);
 
 typedef
-bool_t
-jnc_RequireCapabilityFunc(const char* capability);
+size_t
+jnc_ReadCapabilityParamFunc(
+	const char* param,
+	void* value,
+	size_t size
+	);
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -126,7 +130,7 @@ struct jnc_CapabilityFuncTable
 	size_t m_size;
 	jnc_IsEveryCapabilityEnabledFunc* m_isEveryCapabilityEnabledFunc;
 	jnc_IsCapabilityEnabledFunc* m_isCapabilityEnabledFunc;
-	jnc_RequireCapabilityFunc* m_requireCapabilityFunc;
+	jnc_ReadCapabilityParamFunc* m_readCapabilityParamFunc;
 };
 
 //..............................................................................

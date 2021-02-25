@@ -46,7 +46,7 @@ static jnc_CapabilityFuncTable g_capabilityFuncTable =
 	sizeof(jnc_CapabilityFuncTable ),
 	jnc_isEveryCapabilityEnabled,
 	jnc_isCapabilityEnabled,
-	jnc_requireCapability
+	jnc_readCapabilityParam,
 };
 
 

@@ -8,9 +8,12 @@
 		jnc_setErrno;
 		jnc_setError;
 		jnc_setStringError;
-		jnc_initializeCapabilities;
-		jnc_enableCapability;
+		jnc_isEveryCapabilityEnabled;
 		jnc_isCapabilityEnabled;
+		jnc_readCapabilityParam;
+		jnc_writeCapabilityParam;
+		jnc_enableCapability;
+		jnc_initializeCapabilities;
 		jnc_CodeAssist_getCodeAssistKind;
 		jnc_CodeAssist_getFlags;
 		jnc_CodeAssist_getOffset;
