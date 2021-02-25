@@ -12,6 +12,7 @@
 #include "pch.h"
 #include "jnc_io_SshLib.h"
 #include "jnc_io_Ssh.h"
+#include "jnc_io_SocketCapabilities.h"
 
 namespace jnc {
 namespace io {
@@ -59,9 +60,11 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 
-	return jnc::requireCapability("org.jancy.io.ssh") ?
-		jnc::io::SshLib_getLib() :
-		NULL;
+	if (!jnc::requireCapability("org.jancy.io.ssh"))
+		return NULL;
+
+	jnc::io::initializeSocketCapabilities();
+	return jnc::io::SshLib_getLib();
 }
 
 //..............................................................................
