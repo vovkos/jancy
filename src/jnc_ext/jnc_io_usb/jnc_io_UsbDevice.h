@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_io_UsbInterface.h"
+#include "jnc_io_UsbDeviceFilter.h"
 
 namespace jnc {
 namespace io {
@@ -198,6 +199,16 @@ public:
 	void
 	JNC_CDECL
 	cancelControlTransfers();
+
+protected:
+	bool
+	checkAccess()
+	{
+		return g_canAccessAllUsbDevices || checkAccessByVidPid();
+	}
+
+	bool
+	checkAccessByVidPid();
 };
 
 //..............................................................................

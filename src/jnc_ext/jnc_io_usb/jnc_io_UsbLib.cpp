@@ -15,6 +15,7 @@
 #include "jnc_io_UsbEndpoint.h"
 #include "jnc_io_UsbInterface.h"
 #include "jnc_io_UsbDevice.h"
+#include "jnc_io_UsbDeviceFilter.h"
 
 namespace jnc {
 namespace io {
@@ -55,6 +56,31 @@ JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
+bool
+initializeUsbLibCapabilities()
+{
+	if (requireCapability("org.jancy.io.usb"))
+		return true;
+
+	size_t size = getCapabilityParamSize("org.jancy.io.usb.devices");
+	if (!size)
+		return false; // requireCapability has set the error
+
+	sl::Array<char> buffer;
+	buffer.setCount(size);
+	readCapabilityParam("org.jancy.io.usb.devices", buffer, size);
+
+	const uint32_t* p = (uint32_t*)buffer.cp();
+	const uint32_t* end = p + size / sizeof(uint32_t);
+	for (; p < end; p++)
+		enableUsbDeviceAccess(*p);
+
+	g_canAccessAllUsbDevices = false;
+	return true;
+}
+
+//..............................................................................
+
 } // namespace io
 } // namespace jnc
 
@@ -69,7 +95,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 
-	if (!jnc::requireCapability("org.jancy.io.usv"))
+	if (!jnc::io::initializeUsbLibCapabilities())
 		return NULL;
 
 	axl::io::registerUsbErrorProvider();

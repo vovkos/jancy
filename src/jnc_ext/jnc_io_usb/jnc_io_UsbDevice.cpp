@@ -94,6 +94,9 @@ void
 JNC_CDECL
 UsbDevice::close()
 {
+	if (!m_isOpen)
+		return;
+
 	m_lock.lock();
 	while (!m_interfaceList.isEmpty())
 	{
@@ -122,7 +125,12 @@ bool
 JNC_CDECL
 UsbDevice::open()
 {
-	bool result = m_device.open();
+	close();
+
+	bool result =
+		checkAccess() &&
+		m_device.open();
+
 	if (!result)
 		return false;
 
@@ -301,6 +309,16 @@ UsbDevice::cancelControlTransfers()
 		m_asyncControlEndpoint->cancelTransfers();
 }
 
+bool
+UsbDevice::checkAccessByVidPid()
+{
+	libusb_device_descriptor desc;
+
+	return
+		m_device.getDeviceDescriptor(&desc) &&
+		checkUsbDeviceAccess(desc.idVendor, desc.idProduct);
+}
+
 //..............................................................................
 
 DataPtr
@@ -344,7 +362,11 @@ openUsbDevice(
 	)
 {
 	axl::io::UsbDevice srcDevice;
-	bool result = srcDevice.open(vendorId, productId);
+
+	bool result =
+		checkUsbDeviceAccess(vendorId, productId) &&
+		srcDevice.open(vendorId, productId);
+
 	if (!result)
 		return NULL;
 

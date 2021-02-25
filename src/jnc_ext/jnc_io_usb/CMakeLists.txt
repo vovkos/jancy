@@ -19,6 +19,7 @@ set(
 	jnc_io_UsbEndpoint.h
 	jnc_io_UsbInterface.h
 	jnc_io_UsbDevice.h
+	jnc_io_UsbDeviceFilter.h
 	jnc_io_UsbAsyncControlEndpoint.h
 	jnc_io_UsbLib.h
 	)
