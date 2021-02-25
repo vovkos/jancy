@@ -76,6 +76,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	if (!jnc::requireCapability("org.jancy.io.ssl"))
 		return NULL;
 
+	jnc::io::initializeSocketCapabilities();
 	jnc::io::g_sslSocketSelfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 	return jnc::io::SslLib_getLib();
 }

@@ -305,7 +305,10 @@ bool
 JNC_CDECL
 SslSocket::listen(size_t backLogLimit)
 {
-	bool result = m_socket.listen(backLogLimit);
+	bool result =
+		requireSocketCapability(SocketCapability_Server) &&
+		m_socket.listen(backLogLimit);
+
 	if (!result)
 		return false;
 
