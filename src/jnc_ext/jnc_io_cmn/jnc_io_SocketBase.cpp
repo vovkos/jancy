@@ -90,6 +90,56 @@ SocketBase::setOptions(uint_t options)
 }
 
 bool
+SocketBase::checkAccess(
+	uint16_t family,
+	int protocol
+	)
+{
+	bool result;
+
+	switch (family)
+	{
+	case AddressFamily_Ip4:
+		result = requireSocketCapability(SocketCapability_Ip4);
+		break;
+
+	case AddressFamily_Ip6:
+		result = requireSocketCapability(SocketCapability_Ip6);
+		break;
+
+	default:
+		result = true;
+	}
+
+	if (!result)
+		return false;
+
+	switch (protocol)
+	{
+	case IPPROTO_ICMP:
+		result = requireSocketCapability(SocketCapability_Icmp);
+		break;
+
+	case IPPROTO_TCP:
+		result = requireSocketCapability(SocketCapability_Tcp);
+		break;
+
+	case IPPROTO_UDP:
+		result = requireSocketCapability(SocketCapability_Udp);
+		break;
+
+	case IPPROTO_RAW:
+		result = requireSocketCapability(SocketCapability_Raw);
+		break;
+
+	default:
+		result = true;
+	}
+
+	return result;
+}
+
+bool
 SocketBase::open(
 	uint16_t family_jnc,
 	int protocol,
@@ -100,10 +150,15 @@ SocketBase::open(
 
 	close();
 
+	if (!checkAccess(family_jnc, protocol))
+		return false;
+
 	int family_s = family_jnc == AddressFamily_Ip6 ? AF_INET6 : family_jnc;
 	int socketKind =
 		protocol == IPPROTO_TCP ? SOCK_STREAM :
 		protocol == IPPROTO_RAW ? SOCK_RAW : SOCK_DGRAM;
+
+
 
 #if (_AXL_OS_WIN)
 	result = m_socket.m_socket.wsaOpen(family_s, socketKind, protocol, WSA_FLAG_OVERLAPPED);

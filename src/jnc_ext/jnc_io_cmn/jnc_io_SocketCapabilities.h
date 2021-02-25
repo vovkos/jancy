@@ -16,15 +16,33 @@ namespace io {
 
 //..............................................................................
 
-enum SocketOption
+enum SocketCapability
 {
-	SocketOption_ReuseAddr    = 0x04,
-	SocketOption_TcpKeepAlive = 0x08,
-	SocketOption_TcpNagle     = 0x10,
-	SocketOption_TcpReset     = 0x20,
-	SocketOption_UdpBroadcast = 0x40,
-	SocketOption_RawHdrIncl   = 0x80,
+	SocketCapability_Server = 0x01,
+	SocketCapability_Ip4    = 0x02,
+	SocketCapability_Ip6    = 0x04,
+	SocketCapability_Icmp   = 0x08,
+	SocketCapability_Tcp    = 0x10,
+	SocketCapability_Udp    = 0x20,
+	SocketCapability_Raw    = 0x40,
 };
+
+AXL_SELECT_ANY uint_t g_socketCapabilities = -1;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void
+initializeSocketCapabilities();
+
+bool
+failWithSocketCapabilityError(SocketCapability capability);
+
+inline
+bool
+requireSocketCapability(SocketCapability capability)
+{
+	return (g_socketCapabilities & capability) || failWithSocketCapabilityError(capability);
+}
 
 //..............................................................................
 

@@ -12,13 +12,25 @@
 #pragma once
 
 #include "jnc_io_SocketAddress.h"
-#include "jnc_io_SocketOptions.h"
+#include "jnc_io_SocketCapabilities.h"
 #include "jnc_io_AsyncIoDevice.h"
 
 namespace jnc {
 namespace io {
 
 //..............................................................................
+
+enum SocketOption
+{
+	SocketOption_ReuseAddr    = 0x04,
+	SocketOption_TcpKeepAlive = 0x08,
+	SocketOption_TcpNagle     = 0x10,
+	SocketOption_TcpReset     = 0x20,
+	SocketOption_UdpBroadcast = 0x40,
+	SocketOption_RawHdrIncl   = 0x80,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 class SocketBase: public AsyncIoDevice
 {
@@ -51,6 +63,12 @@ protected:
 
 	bool
 	setOptions(uint_t options);
+
+	bool
+	checkAccess(
+		uint16_t family,
+		int protocol
+		);
 
 	bool
 	open(

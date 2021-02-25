@@ -18,7 +18,7 @@ set(
 	jnc_io_AsyncIoBase.h
 	jnc_io_AsyncIoDevice.h
 	jnc_io_SocketAddress.h
-	jnc_io_SocketOptions.h
+	jnc_io_SocketCapabilities.h
 	jnc_io_SocketBase.h
 	)
 
@@ -27,6 +27,7 @@ set(
 	jnc_io_AsyncIoBase.cpp
 	jnc_io_AsyncIoDevice.cpp
 	jnc_io_SocketAddress.cpp
+	jnc_io_SocketCapabilities.cpp
 	jnc_io_SocketBase.cpp
 	)
 
