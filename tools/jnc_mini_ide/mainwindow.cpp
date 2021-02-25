@@ -55,7 +55,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 	m_libDir = qApp->applicationDirPath() + "/../../lib/Release";
 #	endif
 #endif
+
 	m_capabilities = "*";
+
+	m_usbFilter =
+		"16d0 0e26 "  // serial tap (MSC)
+		"16d0 0e27 "  // i2c-spi tap (MSC)
+		"326f 0003";  // ethernet tap
 
 	m_module->setCompileErrorHandler(compileErrorHandler, this);
 
@@ -225,6 +231,9 @@ void MainWindow::createActions()
 	m_setCapabilitiesAction = new QAction("Set Capabilities", this);
 	QObject::connect(m_setCapabilitiesAction, SIGNAL(triggered()), this, SLOT(onSetCapabilities()));
 
+	m_setUsbFilterAction = new QAction("Set USB Filter", this);
+	QObject::connect(m_setUsbFilterAction, SIGNAL(triggered()), this, SLOT(onSetUsbFilter()));
+
 	m_compileAction = new QAction(QIcon(":/Images/Compile"), "C&ompile", this);
 	m_compileAction->setShortcut(QKeySequence(Qt::Key_F7));
 	QObject::connect(m_compileAction, SIGNAL(triggered()), this, SLOT(compile()));
@@ -258,6 +267,8 @@ void MainWindow::createMenu()
 	m_compileMenu->addAction(m_jitAction);
 	m_compileMenu->addSeparator();
 	m_compileMenu->addAction(m_setCapabilitiesAction);
+	m_compileMenu->addAction(m_setUsbFilterAction);
+	m_compileMenu->addSeparator();
 	m_compileMenu->addAction(m_compileAction);
 	m_compileMenu->addAction(m_runAction);
 
@@ -466,6 +477,43 @@ void MainWindow::onSetCapabilities()
 
 	m_capabilities = inputDialog.textValue();
 	jnc::initializeCapabilities(m_capabilities.toLatin1().data());
+}
+
+void MainWindow::onSetUsbFilter()
+{
+	QInputDialog inputDialog(this, Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
+	inputDialog.setWindowTitle("Set Allowed USB Devices");
+	inputDialog.setInputMode(QInputDialog::TextInput);
+	inputDialog.setLabelText("USB VIDs/PIDs:");
+	inputDialog.setTextValue(m_usbFilter);
+	inputDialog.resize(QSize(640, inputDialog.height()));
+
+	int result = inputDialog.exec();
+	if (result != QDialog::Accepted)
+		return;
+
+	m_usbFilter = inputDialog.textValue();
+
+	QVector<uint16_t> vidPidTable;
+	QByteArray string = m_usbFilter.toLatin1();
+	const char* p = string.data();
+	const char* end = string.end();
+	while (p < end)
+	{
+		char* next;
+		uint16_t id = strtoul(p, &next, 16);
+		if (p == next)
+			break;
+
+		vidPidTable.append(id);
+		p = next;
+	}
+
+	jnc::writeCapabilityParam(
+		"org.jancy.io.usb.devices",
+		vidPidTable.data(),
+		vidPidTable.length() * sizeof(uint16_t)
+		);
 }
 
 bool MainWindow::compile()

@@ -51,6 +51,7 @@ private slots:
 	void onEnableCurrentLineHighlighting(bool isEnabled);
 	void onEnableLineNumberMargin(bool isEnabled);
 	void onSetCapabilities();
+	void onSetUsbFilter();
 
 signals:
 	void outputSignal();
@@ -83,6 +84,7 @@ private:
 	QString m_lastDir;
 	QString m_libDir;
 	QString m_capabilities;
+	QString m_usbFilter;
 
 	Output* m_output;
 	ModulePane* m_modulePane;
@@ -117,6 +119,7 @@ private:
 	QAction* m_jitAction;
 	QAction* m_signedExtensionsAction;
 	QAction* m_setCapabilitiesAction;
+	QAction* m_setUsbFilterAction;
 
 	jnc::AutoModule m_module;
 	jnc::AutoRuntime m_runtime;
