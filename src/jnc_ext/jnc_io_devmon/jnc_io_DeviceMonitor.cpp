@@ -115,6 +115,9 @@ DeviceMonitor::open()
 {
 	close();
 
+	if (!g_hasDevMonCapability)
+		return failWithCapabilityError("org.jancy.io.devmon");
+
 	bool result = m_monitor.open();
 	if (!result)
 		return false;

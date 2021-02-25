@@ -16,6 +16,8 @@ enum DevMonLibTypeCacheSlot
 	DevMonLibTypeCacheSlot_DeviceMonitor,
 };
 
+AXL_SELECT_ANY bool g_hasDevMonCapability = true;
+
 //..............................................................................
 
 } // namespace io

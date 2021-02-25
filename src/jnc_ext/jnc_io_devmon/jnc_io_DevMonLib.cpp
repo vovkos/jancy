@@ -43,10 +43,8 @@ jncDynamicExtensionLibMain(jnc::DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_devmon");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-
-	return jnc::requireCapability("org.jancy.io.devmon") ?
-		jnc::io::DevMonLib_getLib() :
-		NULL;
+	jnc::io::g_hasDevMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
+	return jnc::io::DevMonLib_getLib();
 }
 
 //..............................................................................
