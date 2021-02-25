@@ -95,6 +95,9 @@ FileStream::open(
 
 	close();
 
+	if (!requireIoLibCapability(IoLibCapability_FileStream))
+		return false;
+
 	const char* name = (const char*)namePtr.m_p;
 	openFlags |= axl::io::FileFlag_Asynchronous;
 

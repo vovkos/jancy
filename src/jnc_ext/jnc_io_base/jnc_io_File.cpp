@@ -85,7 +85,10 @@ File::open(
 {
 	close();
 
-	bool result = m_file.open((const char*) namePtr.m_p, flags);
+	bool result =
+		requireIoLibCapability(IoLibCapability_File) &&
+		m_file.open((const char*) namePtr.m_p, flags);
+
 	if (!result)
 		return false;
 

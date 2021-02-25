@@ -74,6 +74,9 @@ NamedPipe::open(DataPtr namePtr)
 
 	close();
 
+	if (!requireIoLibCapability(IoLibCapability_NamedPipe))
+		return false;
+
 	m_pipeName = L"\\\\.\\pipe\\";
 
 	sl::StringRef name((const char*) namePtr.m_p);

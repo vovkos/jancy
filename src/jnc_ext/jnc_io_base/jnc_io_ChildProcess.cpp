@@ -325,6 +325,9 @@ ChildProcess::start(
 {
 	close();
 
+	if (!requireIoLibCapability(IoLibCapability_ChildProcess))
+		return false;
+
 	bool isSeparateStderr = (flags & ChildProcessFlag_SeparateStderr) != 0;
 
 #if (_JNC_OS_WIN)

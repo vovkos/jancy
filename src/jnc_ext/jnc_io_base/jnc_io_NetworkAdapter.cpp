@@ -94,6 +94,9 @@ createNetworkAdapterDescList(
 {
 	Runtime* runtime = getCurrentThreadRuntime();
 
+	if (!requireIoLibCapability(IoLibCapability_NetworkAdapter))
+		return g_nullDataPtr;
+
 	sl::List<axl::io::NetworkAdapterDesc> adapterList;
 	size_t adapterCount = axl::io::createNetworkAdapterDescList(&adapterList);
 

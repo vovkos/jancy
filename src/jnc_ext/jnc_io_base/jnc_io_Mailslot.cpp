@@ -68,6 +68,9 @@ Mailslot::open(DataPtr namePtr)
 {
 	close();
 
+	if (!requireIoLibCapability(IoLibCapability_Mailslot))
+		return false;
+
 	char buffer[256];
 	sl::String_w deviceName(ref::BufKind_Stack, buffer, sizeof(buffer));
 	deviceName = L"\\\\.\\mailslot\\";

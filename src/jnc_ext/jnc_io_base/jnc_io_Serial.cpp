@@ -120,6 +120,9 @@ Serial::open(DataPtr namePtr)
 {
 	close();
 
+	if (!requireIoLibCapability(IoLibCapability_Serial))
+		return false;
+
 	axl::io::SerialSettings serialSettings(
 		m_baudRate,
 		m_dataBits,

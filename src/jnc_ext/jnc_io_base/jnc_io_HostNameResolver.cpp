@@ -58,6 +58,9 @@ HostNameResolver::resolve(
 {
 	cancel();
 
+	if (!requireIoLibCapability(IoLibCapability_HostNameResolver))
+		return false;
+
 	if (!m_isOpen)
 		AsyncIoBase::open();
 

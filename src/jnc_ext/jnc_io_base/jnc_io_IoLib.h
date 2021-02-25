@@ -21,20 +21,28 @@ enum IoLibCapability
 	IoLibCapability_File             = 0x0001,
 	IoLibCapability_FileStream       = 0x0002,
 	IoLibCapability_Serial           = 0x0004,
-	IoLibCapability_Socket           = 0x0008,
-	IoLibCapability_Server           = 0x0010,
-	IoLibCapability_Tcp              = 0x0020,
-	IoLibCapability_Udp              = 0x0040,
-	IoLibCapability_NetworkAdapter   = 0x0080,
-	IoLibCapability_HostNameResolver = 0x0100,
-	IoLibCapability_Mailslot         = 0x0200,
-	IoLibCapability_NamedPipe        = 0x0400,
-	IoLibCapability_ChildProcess     = 0x0800,
+	IoLibCapability_NamedPipe        = 0x0008,
+	IoLibCapability_Mailslot         = 0x0010,
+	IoLibCapability_ChildProcess     = 0x0020,
+	IoLibCapability_NetworkAdapter   = 0x0040,
+	IoLibCapability_HostNameResolver = 0x0080,
 };
 
-AXL_SELECT_ANY uint_t g_capabilities = -1;
+AXL_SELECT_ANY uint_t g_ioLibCapabilities = -1;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool
+failWithIoLibCapabilityError(IoLibCapability capability);
+
+inline
+bool
+requireIoLibCapability(IoLibCapability capability)
+{
+	return (g_ioLibCapabilities & capability) || failWithIoLibCapabilityError(capability);
+}
+
+//..............................................................................
 
 enum IoLibCacheSlot
 {

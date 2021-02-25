@@ -48,6 +48,18 @@ MappedFile::MappedFile()
 	m_isOpen = false;
 }
 
+bool
+JNC_CDECL
+MappedFile::open(
+	DataPtr namePtr,
+	uint_t flags
+	)
+{
+	return
+		requireIoLibCapability(IoLibCapability_File) &&
+		m_file.open((const char*) namePtr.m_p, flags);
+}
+
 DataPtr
 JNC_CDECL
 MappedFile::view(
