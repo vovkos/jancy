@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_BitFieldType_getBaseType(jnc_BitFieldType* type)
 {
@@ -31,7 +30,6 @@ jnc_BitFieldType_getBaseType(jnc_BitFieldType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_BitFieldType_getBitOffset(jnc_BitFieldType* type)
 {
@@ -39,7 +37,6 @@ jnc_BitFieldType_getBitOffset(jnc_BitFieldType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_BitFieldType_getBitCount(jnc_BitFieldType* type)
 {

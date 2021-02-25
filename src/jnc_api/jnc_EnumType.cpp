@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 int64_t
 jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 {
@@ -33,7 +32,6 @@ jnc_EnumConst_getValue(jnc_EnumConst* enumConst)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_EnumType_getBaseType(jnc_EnumType* type)
 {
@@ -41,7 +39,6 @@ jnc_EnumType_getBaseType(jnc_EnumType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_EnumType_getConstCount(jnc_EnumType* type)
 {
@@ -49,7 +46,6 @@ jnc_EnumType_getConstCount(jnc_EnumType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_EnumConst*
 jnc_EnumType_getConst(
 	jnc_EnumType* type,

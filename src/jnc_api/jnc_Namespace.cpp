@@ -45,7 +45,6 @@ jnc_getNamespaceKindString(jnc_NamespaceKind namespaceKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Namespace_isReady(jnc_Namespace* nspace)
 {
@@ -53,7 +52,6 @@ jnc_Namespace_isReady(jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_NamespaceKind
 jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace)
 {
@@ -61,7 +59,6 @@ jnc_Namespace_getNamespaceKind(jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Namespace*
 jnc_Namespace_getParentNamespace(jnc_Namespace* nspace)
 {
@@ -69,7 +66,6 @@ jnc_Namespace_getParentNamespace(jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Namespace_getParentItem(jnc_Namespace* nspace)
 {
@@ -77,7 +73,6 @@ jnc_Namespace_getParentItem(jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_Namespace_getItemCount(jnc_Namespace* nspace)
 {
@@ -85,7 +80,6 @@ jnc_Namespace_getItemCount(jnc_Namespace* nspace)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ModuleItem*
 jnc_Namespace_getItem(
 	jnc_Namespace* nspace,
@@ -96,7 +90,6 @@ jnc_Namespace_getItem(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_FindModuleItemResult
 jnc_Namespace_findItem(
 	jnc_Namespace* nspace,

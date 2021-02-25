@@ -214,7 +214,6 @@ jnc_getDataPtrTypeKindString(jnc_DataPtrTypeKind ptrTypeKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_TypeKind
 jnc_Type_getTypeKind(jnc_Type* type)
 {
@@ -222,7 +221,6 @@ jnc_Type_getTypeKind(jnc_Type* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_Type_getSize(jnc_Type* type)
 {
@@ -230,7 +228,6 @@ jnc_Type_getSize(jnc_Type* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_Type_getTypeString(jnc_Type* type)
 {
@@ -238,7 +235,6 @@ jnc_Type_getTypeString(jnc_Type* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 int
 jnc_Type_cmp(
 	jnc_Type* type,
@@ -249,7 +245,6 @@ jnc_Type_cmp(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtrType*
 jnc_Type_getDataPtrType(
 	jnc_Type* type,
@@ -262,7 +257,6 @@ jnc_Type_getDataPtrType(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Type_ensureLayout(jnc_Type* type)
 {
@@ -270,7 +264,6 @@ jnc_Type_ensureLayout(jnc_Type* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Type_ensureNoImports(jnc_Type* type)
 {
@@ -278,7 +271,6 @@ jnc_Type_ensureNoImports(jnc_Type* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Type_markGcRoots(
 	jnc_Type* type,
@@ -290,7 +282,6 @@ jnc_Type_markGcRoots(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtrTypeKind
 jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type)
 {
@@ -298,7 +289,6 @@ jnc_DataPtrType_getPtrTypeKind(jnc_DataPtrType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_DataPtrType_getTargetType(jnc_DataPtrType* type)
 {

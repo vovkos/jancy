@@ -28,7 +28,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdRbTree*
 jnc_createStdRbTree(
 	jnc_Runtime* runtime,
@@ -39,7 +38,6 @@ jnc_createStdRbTree(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_StdRbTree_clear(jnc_StdRbTree* RbTree)
 {
@@ -47,7 +45,6 @@ jnc_StdRbTree_clear(jnc_StdRbTree* RbTree)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdMapEntry*
 jnc_StdRbTree_find(
 	jnc_StdRbTree* RbTree,
@@ -58,7 +55,6 @@ jnc_StdRbTree_find(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdMapEntry*
 jnc_StdRbTree_add(
 	jnc_StdRbTree* RbTree,
@@ -70,7 +66,6 @@ jnc_StdRbTree_add(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_StdRbTree_remove(
 	jnc_StdRbTree* RbTree,
@@ -81,7 +76,6 @@ jnc_StdRbTree_remove(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_StdRbTree_removeKey(
 	jnc_StdRbTree* RbTree,

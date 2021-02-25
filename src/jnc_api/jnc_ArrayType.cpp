@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_ArrayType_getElementType(jnc_ArrayType* type)
 {
@@ -31,7 +30,6 @@ jnc_ArrayType_getElementType(jnc_ArrayType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_ArrayType_getElementCount(jnc_ArrayType* type)
 {

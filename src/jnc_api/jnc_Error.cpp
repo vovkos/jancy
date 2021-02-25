@@ -21,7 +21,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const jnc_Error*
 jnc_getLastError()
 {
@@ -29,7 +28,6 @@ jnc_getLastError()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_setError(const jnc_Error* error)
 {
@@ -37,7 +35,6 @@ jnc_setError(const jnc_Error* error)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_setErrno(int code)
 {
@@ -45,7 +42,6 @@ jnc_setErrno(int code)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_setStringError(const char* string)
 {
@@ -53,7 +49,6 @@ jnc_setStringError(const char* string)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_getErrorDescription_v(const jnc_Error* error)
 {

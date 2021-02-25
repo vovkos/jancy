@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Runtime*
 jnc_GcHeap_getRuntime(jnc_GcHeap* gcHeap)
 {
@@ -31,7 +30,6 @@ jnc_GcHeap_getRuntime(jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_getStats(
 	jnc_GcHeap* gcHeap,
@@ -42,7 +40,6 @@ jnc_GcHeap_getStats(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_getSizeTriggers(
 	jnc_GcHeap* gcHeap,
@@ -53,7 +50,6 @@ jnc_GcHeap_getSizeTriggers(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_setSizeTriggers(
 	jnc_GcHeap* gcHeap,
@@ -64,7 +60,6 @@ jnc_GcHeap_setSizeTriggers(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_collect(jnc_GcHeap* gcHeap)
 {
@@ -72,7 +67,6 @@ jnc_GcHeap_collect(jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_enterNoCollectRegion(jnc_GcHeap* gcHeap)
 {
@@ -80,7 +74,6 @@ jnc_GcHeap_enterNoCollectRegion(jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_leaveNoCollectRegion(
 	jnc_GcHeap* gcHeap,
@@ -91,7 +84,6 @@ jnc_GcHeap_leaveNoCollectRegion(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_enterWaitRegion(jnc_GcHeap* gcHeap)
 {
@@ -99,7 +91,6 @@ jnc_GcHeap_enterWaitRegion(jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_leaveWaitRegion(jnc_GcHeap* gcHeap)
 {
@@ -107,7 +98,6 @@ jnc_GcHeap_leaveWaitRegion(jnc_GcHeap* gcHeap)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_IfaceHdr*
 jnc_GcHeap_allocateClass(
 	jnc_GcHeap* gcHeap,
@@ -118,7 +108,6 @@ jnc_GcHeap_allocateClass(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_IfaceHdr*
 jnc_GcHeap_tryAllocateClass(
 	jnc_GcHeap* gcHeap,
@@ -129,7 +118,6 @@ jnc_GcHeap_tryAllocateClass(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_allocateData(
 	jnc_GcHeap* gcHeap,
@@ -140,7 +128,6 @@ jnc_GcHeap_allocateData(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_tryAllocateData(
 	jnc_GcHeap* gcHeap,
@@ -151,7 +138,6 @@ jnc_GcHeap_tryAllocateData(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_allocateArray(
 	jnc_GcHeap* gcHeap,
@@ -163,7 +149,6 @@ jnc_GcHeap_allocateArray(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_tryAllocateArray(
 	jnc_GcHeap* gcHeap,
@@ -175,7 +160,6 @@ jnc_GcHeap_tryAllocateArray(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_allocateBuffer(
 	jnc_GcHeap* gcHeap,
@@ -186,7 +170,6 @@ jnc_GcHeap_allocateBuffer(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_tryAllocateBuffer(
 	jnc_GcHeap* gcHeap,
@@ -197,7 +180,6 @@ jnc_GcHeap_tryAllocateBuffer(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtrValidator*
 jnc_GcHeap_createDataPtrValidator(
 	jnc_GcHeap* gcHeap,
@@ -210,7 +192,6 @@ jnc_GcHeap_createDataPtrValidator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DetachedDataBox*
 jnc_GcHeap_createForeignDataBox(
 	jnc_GcHeap* gcHeap,
@@ -224,7 +205,6 @@ jnc_GcHeap_createForeignDataBox(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_DataPtr
 jnc_GcHeap_createForeignBufferPtr(
 	jnc_GcHeap* gcHeap,
@@ -237,7 +217,6 @@ jnc_GcHeap_createForeignBufferPtr(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_invalidateDataPtrValidator(
 	jnc_GcHeap* gcHeap,
@@ -248,7 +227,6 @@ jnc_GcHeap_invalidateDataPtrValidator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_IfaceHdr*
 jnc_GcHeap_getDynamicLayout(
 	jnc_GcHeap* gcHeap,
@@ -259,7 +237,6 @@ jnc_GcHeap_getDynamicLayout(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_resetDynamicLayout(
 	jnc_GcHeap* gcHeap,
@@ -270,7 +247,6 @@ jnc_GcHeap_resetDynamicLayout(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_weakMark(
 	jnc_GcHeap* gcHeap,
@@ -281,7 +257,6 @@ jnc_GcHeap_weakMark(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_markData(
 	jnc_GcHeap* gcHeap,
@@ -292,7 +267,6 @@ jnc_GcHeap_markData(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_GcHeap_markClass(
 	jnc_GcHeap* gcHeap,
@@ -302,6 +276,7 @@ jnc_GcHeap_markClass(
 	return jnc_g_dynamicExtensionLibHost->m_gcHeapFuncTable->m_markClassFunc(gcHeap, box);
 }
 
+JNC_EXTERN_C
 void
 jnc_GcHeap_addBoxToCallSite(jnc_Box* box)
 {
@@ -658,6 +633,8 @@ jnc_GcHeap_addRoot(
 	gcHeap->addRoot(p, type);
 }
 
+JNC_EXTERN_C
+JNC_EXPORT_O
 void
 jnc_GcHeap_addBoxToCallSite(jnc_Box* box)
 {

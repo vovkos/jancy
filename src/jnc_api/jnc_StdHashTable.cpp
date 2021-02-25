@@ -28,7 +28,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdHashTable*
 jnc_createStdHashTable(
 	jnc_Runtime* runtime,
@@ -40,7 +39,6 @@ jnc_createStdHashTable(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_StdHashTable_clear(jnc_StdHashTable* hashTable)
 {
@@ -48,7 +46,6 @@ jnc_StdHashTable_clear(jnc_StdHashTable* hashTable)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdMapEntry*
 jnc_StdHashTable_find(
 	jnc_StdHashTable* hashTable,
@@ -59,7 +56,6 @@ jnc_StdHashTable_find(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StdMapEntry*
 jnc_StdHashTable_add(
 	jnc_StdHashTable* hashTable,
@@ -71,7 +67,6 @@ jnc_StdHashTable_add(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_StdHashTable_remove(
 	jnc_StdHashTable* hashTable,
@@ -82,7 +77,6 @@ jnc_StdHashTable_remove(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_StdHashTable_removeKey(
 	jnc_StdHashTable* hashTable,

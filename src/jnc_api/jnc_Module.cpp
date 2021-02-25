@@ -26,7 +26,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace(jnc_Module* module)
 {
@@ -34,7 +33,6 @@ jnc_Module_getGlobalNamespace(jnc_Module* module)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_GlobalNamespace*
 jnc_Module_getStdNamespace(
 	jnc_Module* module,
@@ -45,7 +43,6 @@ jnc_Module_getStdNamespace(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getPrimitiveType(
 	jnc_Module* module,
@@ -56,7 +53,6 @@ jnc_Module_getPrimitiveType(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_Module_getStdType(
 	jnc_Module* module,
@@ -67,7 +63,6 @@ jnc_Module_getStdType(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 handle_t
 jnc_Module_getExtensionSourceFileIterator(jnc_Module* module)
 {
@@ -75,7 +70,6 @@ jnc_Module_getExtensionSourceFileIterator(jnc_Module* module)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_Module_getNextExtensionSourceFile(
 	jnc_Module* module,
@@ -86,7 +80,6 @@ jnc_Module_getNextExtensionSourceFile(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_FindModuleItemResult
 jnc_Module_findExtensionLibItem(
 	jnc_Module* module,
@@ -99,7 +92,6 @@ jnc_Module_findExtensionLibItem(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Module_mapVariable(
 	jnc_Module* module,
@@ -111,7 +103,6 @@ jnc_Module_mapVariable(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Module_mapFunction(
 	jnc_Module* module,
@@ -123,7 +114,6 @@ jnc_Module_mapFunction(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Module_addSource(
 	jnc_Module* module,
@@ -137,7 +127,6 @@ jnc_Module_addSource(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 handle_t
 jnc_Module_getImportDirIterator(jnc_Module* module)
 {
@@ -145,7 +134,6 @@ jnc_Module_getImportDirIterator(jnc_Module* module)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_Module_getNextImportDir(
 	jnc_Module* module,
@@ -156,7 +144,6 @@ jnc_Module_getNextImportDir(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Module_addImport(
 	jnc_Module* module,
@@ -167,7 +154,6 @@ jnc_Module_addImport(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Module_addOpaqueClassTypeInfo(
 	jnc_Module* module,
@@ -179,7 +165,6 @@ jnc_Module_addOpaqueClassTypeInfo(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Module_require(
 	jnc_Module* module,
@@ -192,7 +177,6 @@ jnc_Module_require(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Module_requireType(
 	jnc_Module* module,

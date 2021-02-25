@@ -104,7 +104,6 @@ jnc_getAccessKindString(jnc_AccessKind accessKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl)
 {
@@ -112,7 +111,6 @@ jnc_ModuleItemDecl_getName(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl)
 {
@@ -120,7 +118,6 @@ jnc_ModuleItemDecl_getQualifiedName(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StorageKind
 jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl)
 {
@@ -128,7 +125,6 @@ jnc_ModuleItemDecl_getStorageKind(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_AccessKind
 jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl)
 {
@@ -136,7 +132,6 @@ jnc_ModuleItemDecl_getAccessKind(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_AttributeBlock*
 jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl)
 {
@@ -144,7 +139,6 @@ jnc_ModuleItemDecl_getAttributeBlock(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Namespace*
 jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl)
 {
@@ -152,7 +146,6 @@ jnc_ModuleItemDecl_getParentNamespace(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Unit*
 jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl)
 {
@@ -160,7 +153,6 @@ jnc_ModuleItemDecl_getParentUnit(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 int
 jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl)
 {
@@ -168,7 +160,6 @@ jnc_ModuleItemDecl_getLine(jnc_ModuleItemDecl* decl)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 int
 jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 {
@@ -178,7 +169,6 @@ jnc_ModuleItemDecl_getCol(jnc_ModuleItemDecl* decl)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Module*
 jnc_ModuleItem_getModule(jnc_ModuleItem* item)
 {
@@ -186,7 +176,6 @@ jnc_ModuleItem_getModule(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ModuleItemKind
 jnc_ModuleItem_getItemKind(jnc_ModuleItem* item)
 {
@@ -194,7 +183,6 @@ jnc_ModuleItem_getItemKind(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 uint_t
 jnc_ModuleItem_getFlags(jnc_ModuleItem* item)
 {
@@ -202,7 +190,6 @@ jnc_ModuleItem_getFlags(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ModuleItemDecl*
 jnc_ModuleItem_getDecl(jnc_ModuleItem* item)
 {
@@ -210,7 +197,6 @@ jnc_ModuleItem_getDecl(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Namespace*
 jnc_ModuleItem_getNamespace(jnc_ModuleItem* item)
 {
@@ -218,7 +204,6 @@ jnc_ModuleItem_getNamespace(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Type*
 jnc_ModuleItem_getType(jnc_ModuleItem* item)
 {
@@ -226,7 +211,6 @@ jnc_ModuleItem_getType(jnc_ModuleItem* item)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_ModuleItem_getSynopsis_v(
 	jnc_ModuleItem* item,
@@ -237,7 +221,6 @@ jnc_ModuleItem_getSynopsis_v(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_ModuleItem_require(jnc_ModuleItem* item)
 {

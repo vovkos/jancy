@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType)
 {
@@ -31,7 +30,6 @@ jnc_BaseTypeSlot_getOffset(jnc_BaseTypeSlot* baseType)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 {
@@ -41,7 +39,6 @@ jnc_BaseTypeSlot_getVtableIndex(jnc_BaseTypeSlot* baseType)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 uint_t
 jnc_Field_getPtrTypeFlags(jnc_Field* field)
 {
@@ -49,7 +46,6 @@ jnc_Field_getPtrTypeFlags(jnc_Field* field)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_Field_getOffset(jnc_Field* field)
 {
@@ -59,7 +55,6 @@ jnc_Field_getOffset(jnc_Field* field)
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 {
@@ -67,7 +62,6 @@ jnc_DerivableType_getStaticConstructor(jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_OverloadableFunction
 jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 {
@@ -75,7 +69,6 @@ jnc_DerivableType_getConstructor(jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 {
@@ -83,7 +76,6 @@ jnc_DerivableType_getDestructor(jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_OverloadableFunction
 jnc_DerivableType_getUnaryOperator(
 	jnc_DerivableType* type,
@@ -94,7 +86,6 @@ jnc_DerivableType_getUnaryOperator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_OverloadableFunction
 jnc_DerivableType_getBinaryOperator(
 	jnc_DerivableType* type,
@@ -105,7 +96,6 @@ jnc_DerivableType_getBinaryOperator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_OverloadableFunction
 jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 {
@@ -113,7 +103,6 @@ jnc_DerivableType_getCallOperator(jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type)
 {
@@ -121,7 +110,6 @@ jnc_DerivableType_getCastOperatorCount(jnc_DerivableType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
 jnc_DerivableType_getCastOperator(
 	jnc_DerivableType* type,

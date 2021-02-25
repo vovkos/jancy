@@ -43,7 +43,6 @@ jnc_getClassPtrTypeKindString(jnc_ClassPtrTypeKind ptrTypeKind)
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ClassTypeKind
 jnc_ClassType_getClassTypeKind(jnc_ClassType* type)
 {
@@ -51,7 +50,6 @@ jnc_ClassType_getClassTypeKind(jnc_ClassType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_StructType*
 jnc_ClassType_getIfaceStructType(jnc_ClassType* type)
 {
@@ -59,7 +57,6 @@ jnc_ClassType_getIfaceStructType(jnc_ClassType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_ClassPtrType*
 jnc_ClassType_getClassPtrType(
 	jnc_ClassType* type,
@@ -74,7 +71,6 @@ jnc_ClassType_getClassPtrType(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type)
 {
@@ -82,7 +78,6 @@ jnc_MulticastClassType_getTargetType(jnc_MulticastClassType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
 jnc_MulticastClassType_getMethod(
 	jnc_MulticastClassType* type,
@@ -95,7 +90,6 @@ jnc_MulticastClassType_getMethod(
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_FunctionPtrType*
 jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type)
 {
@@ -103,7 +97,6 @@ jnc_McSnapshotClassType_getTargetType(jnc_McSnapshotClassType* type)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Function*
 jnc_McSnapshotClassType_getMethod(
 	jnc_McSnapshotClassType* type,

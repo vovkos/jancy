@@ -132,7 +132,6 @@ jnc_createForeignStringPtr(
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Runtime*
 jnc_Runtime_create()
 {
@@ -140,7 +139,6 @@ jnc_Runtime_create()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Runtime_destroy(jnc_Runtime* runtime)
 {
@@ -148,7 +146,6 @@ jnc_Runtime_destroy(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Module*
 jnc_Runtime_getModule(jnc_Runtime* runtime)
 {
@@ -156,7 +153,6 @@ jnc_Runtime_getModule(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_GcHeap*
 jnc_Runtime_getGcHeap(jnc_Runtime* runtime)
 {
@@ -164,7 +160,6 @@ jnc_Runtime_getGcHeap(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Runtime_isAborted(jnc_Runtime* runtime)
 {
@@ -172,7 +167,6 @@ jnc_Runtime_isAborted(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Runtime_startup(
 	jnc_Runtime* runtime,
@@ -183,7 +177,6 @@ jnc_Runtime_startup(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Runtime_shutdown(jnc_Runtime* runtime)
 {
@@ -191,7 +184,6 @@ jnc_Runtime_shutdown(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Runtime_abort(jnc_Runtime* runtime)
 {
@@ -199,7 +191,6 @@ jnc_Runtime_abort(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Runtime_initializeCallSite(
 	jnc_Runtime* runtime,
@@ -210,7 +201,6 @@ jnc_Runtime_initializeCallSite(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Runtime_uninitializeCallSite(
 	jnc_Runtime* runtime,
@@ -221,7 +211,6 @@ jnc_Runtime_uninitializeCallSite(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_SjljFrame*
 jnc_Runtime_setSjljFrame(
 	jnc_Runtime* runtime,
@@ -232,7 +221,6 @@ jnc_Runtime_setSjljFrame(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void*
 jnc_Runtime_getUserData(jnc_Runtime* runtime)
 {
@@ -240,7 +228,6 @@ jnc_Runtime_getUserData(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void*
 jnc_Runtime_setUserData(
 	jnc_Runtime* runtime,
@@ -251,7 +238,6 @@ jnc_Runtime_setUserData(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Runtime*
 jnc_getCurrentThreadRuntime()
 {
@@ -259,7 +245,6 @@ jnc_getCurrentThreadRuntime()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Tls*
 jnc_getCurrentThreadTls()
 {
@@ -267,7 +252,6 @@ jnc_getCurrentThreadTls()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_dynamicThrow()
 {
@@ -275,7 +259,6 @@ jnc_dynamicThrow()
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_primeClass(
 	jnc_Box* box,

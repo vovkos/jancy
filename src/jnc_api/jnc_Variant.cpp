@@ -62,7 +62,6 @@ jnc_Variant_create(
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_cast(
 	const jnc_Variant* variant,
@@ -74,7 +73,6 @@ jnc_Variant_cast(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_unaryOperator(
 	const jnc_Variant* variant,
@@ -86,7 +84,6 @@ jnc_Variant_unaryOperator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_binaryOperator(
 	const jnc_Variant* variant,
@@ -99,7 +96,6 @@ jnc_Variant_binaryOperator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_relationalOperator(
 	const jnc_Variant* variant,
@@ -112,7 +108,6 @@ jnc_Variant_relationalOperator(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_getMember(
 	const jnc_Variant* variant,
@@ -124,7 +119,6 @@ jnc_Variant_getMember(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_setMember(
 	jnc_Variant* variant,
@@ -136,7 +130,6 @@ jnc_Variant_setMember(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_getElement(
 	const jnc_Variant* variant,
@@ -148,7 +141,6 @@ jnc_Variant_getElement(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 bool_t
 jnc_Variant_setElement(
 	jnc_Variant* variant,
@@ -160,7 +152,6 @@ jnc_Variant_setElement(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_Variant_hash(const jnc_Variant* variant)
 {
@@ -168,7 +159,6 @@ jnc_Variant_hash(const jnc_Variant* variant)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 const char*
 jnc_Variant_format_v(
 	const jnc_Variant* variant,

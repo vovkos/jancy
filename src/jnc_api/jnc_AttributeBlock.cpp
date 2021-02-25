@@ -23,7 +23,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 size_t
 jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block)
 {
@@ -31,7 +30,6 @@ jnc_AttributeBlock_getAttributeCount(jnc_AttributeBlock* block)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Attribute*
 jnc_AttributeBlock_getAttribute(
 	jnc_AttributeBlock* block,
@@ -42,7 +40,6 @@ jnc_AttributeBlock_getAttribute(
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Attribute*
 jnc_AttributeBlock_findAttribute(
 	jnc_AttributeBlock* block,

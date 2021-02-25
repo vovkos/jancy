@@ -27,7 +27,6 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 jnc_Promise*
 jnc_createPromise(jnc_Runtime* runtime)
 {
@@ -35,7 +34,6 @@ jnc_createPromise(jnc_Runtime* runtime)
 }
 
 JNC_EXTERN_C
-JNC_EXPORT_O
 void
 jnc_Promise_complete(
 	jnc_Promise* promise,
