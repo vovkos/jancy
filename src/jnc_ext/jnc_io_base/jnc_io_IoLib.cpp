@@ -121,11 +121,13 @@ initializeIoLibCapabilities()
 	if (isCapabilityEnabled("org.jancy.io.serial"))
 		g_ioLibCapabilities |= IoLibCapability_Serial;
 
-	if (isCapabilityEnabled("org.jancy.io.named-pipe"))
+#if (_JNC_OS_WIN)
+	if (isCapabilityEnabled("org.jancy.io.win.named-pipe"))
 		g_ioLibCapabilities |= IoLibCapability_NamedPipe;
 
-	if (isCapabilityEnabled("org.jancy.io.mailslot"))
+	if (isCapabilityEnabled("org.jancy.io.win.mailslot"))
 		g_ioLibCapabilities |= IoLibCapability_Mailslot;
+#endif
 
 	if (isCapabilityEnabled("org.jancy.io.child-process"))
 		g_ioLibCapabilities |= IoLibCapability_ChildProcess;
@@ -134,14 +136,6 @@ initializeIoLibCapabilities()
 		g_ioLibCapabilities |=
 			IoLibCapability_NetworkAdapter |
 			IoLibCapability_HostNameResolver;
-	else
-	{
-		if (isCapabilityEnabled("org.jancy.io.net"))
-			g_ioLibCapabilities |= IoLibCapability_NetworkAdapter;
-
-		if (isCapabilityEnabled("org.jancy.io.dns"))
-			g_ioLibCapabilities |= IoLibCapability_HostNameResolver;
-	}
 
 	initializeSocketCapabilities();
 }
