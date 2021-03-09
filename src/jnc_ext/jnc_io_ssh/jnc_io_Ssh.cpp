@@ -717,7 +717,7 @@ SshChannel::sshReadWriteLoop()
 			else // need to read stderr, too
 			{
 				actualSize = ::libssh2_channel_read_stderr(m_sshChannel, readBlock, readBlock.getCount());
-				if (actualSize == 0)
+				if (actualSize == LIBSSH2_ERROR_EAGAIN)
 					actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
 			}
 
@@ -805,11 +805,10 @@ SshChannel::sshReadWriteLoop()
 
 	sl::Array<char> readBlock;
 	sl::Array<char> writeBlock;
-	readBlock.setCount(Def_ReadBlockSize);
 
-	char buffer[256];
-	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
-	writeParams.setCount(sizeof(SocketAddress));
+	m_lock.lock();
+	bool hasPty = (m_ioThreadFlags & IoFlag_Pty) != 0;
+	m_lock.unlock();
 
 	bool canReadSocket = true;
 	bool canWriteSocket = true;
@@ -857,7 +856,19 @@ SshChannel::sshReadWriteLoop()
 
 		while (canReadSocket && !m_readBuffer.isFull())
 		{
-			ssize_t actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			ssize_t actualSize;
+
+			if (hasPty)
+			{
+				actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			}
+			else // need to read stderr, too
+			{
+				actualSize = ::libssh2_channel_read_stderr(m_sshChannel, readBlock, readBlock.getCount());
+				if (actualSize == LIBSSH2_ERROR_EAGAIN)
+					actualSize = ::libssh2_channel_read(m_sshChannel, readBlock, readBlock.getCount());
+			}
+
 			if (actualSize == LIBSSH2_ERROR_EAGAIN)
 			{
 				canReadSocket = false;
