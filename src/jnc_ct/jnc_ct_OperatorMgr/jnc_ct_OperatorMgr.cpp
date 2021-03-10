@@ -510,7 +510,9 @@ OperatorMgr::castOperator(
 	Value* resultValue
 	)
 {
-	bool result;
+	bool result = type->ensureLayout();
+	if (!result)
+		return false;
 
 	if (!m_module->hasCodeGen() && rawOpValue.getValueKind() != ValueKind_Const)
 	{
