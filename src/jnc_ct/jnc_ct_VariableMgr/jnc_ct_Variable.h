@@ -51,6 +51,7 @@ class Variable:
 protected:
 	Type* m_type;
 	uint_t m_ptrTypeFlags;
+	StdVariable m_stdVariable;
 	sl::BoxList<Token> m_constructor;
 	Scope* m_scope;
 
@@ -81,6 +82,12 @@ public:
 	getPtrTypeFlags()
 	{
 		return m_ptrTypeFlags;
+	}
+
+	StdVariable
+	getStdVariable()
+	{
+		return m_stdVariable;
 	}
 
 	sl::ConstBoxList<Token>

@@ -1123,7 +1123,8 @@ Module::createConstructor()
 	for (size_t i = 0; i < count; i++)
 	{
 		Variable* variable = staticArray[i];
-		if (variable->getType()->getTypeKind() != TypeKind_Class) // classes are on primerArray anyway
+		if (variable->getStdVariable() != StdVariable_GcSafePointTrigger &&
+			variable->getType()->getTypeKind() != TypeKind_Class) // classes are on primerArray anyway
 			m_operatorMgr.zeroInitialize(variable);
 	}
 

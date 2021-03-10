@@ -124,6 +124,7 @@ VariableMgr::getStdVariable(StdVariable stdVariable)
 	result = allocateVariable(variable);
 	ASSERT(result);
 
+	variable->m_stdVariable = stdVariable;
 	m_stdVariableArray[stdVariable] = variable;
 	return variable;
 }

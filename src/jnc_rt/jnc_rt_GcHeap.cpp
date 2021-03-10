@@ -138,7 +138,7 @@ GcHeap::startup(ct::Module* module)
 	else if (module->m_variableMgr.isStdVariableUsed(ct::StdVariable_GcSafePointTrigger))
 	{
 		ct::Variable* safePointTriggerVariable = module->m_variableMgr.getStdVariable(ct::StdVariable_GcSafePointTrigger);
-		*(void**) safePointTriggerVariable->getStaticData() = m_guardPage;
+		*(void**)safePointTriggerVariable->getStaticData() = m_guardPage;
 	}
 
 	addStaticRootVariables(module->m_variableMgr.getStaticGcRootArray());

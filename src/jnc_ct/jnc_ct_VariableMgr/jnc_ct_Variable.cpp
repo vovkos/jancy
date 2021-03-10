@@ -24,6 +24,7 @@ Variable::Variable()
 	m_itemKind = ModuleItemKind_Variable;
 	m_type = NULL;
 	m_ptrTypeFlags = 0;
+	m_stdVariable = (StdVariable)-1;
 	m_scope = NULL;
 	m_tlsField = NULL;
 	m_staticData = NULL;
