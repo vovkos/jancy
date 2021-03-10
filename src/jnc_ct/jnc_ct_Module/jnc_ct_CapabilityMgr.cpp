@@ -54,7 +54,7 @@ CapabilityMgr::writeCapabilityParam(
 void
 CapabilityMgr::initializeCapabilities(const sl::StringRef& initializer)
 {
-	sl::StringRef delimiters(" \t\r\n");
+	sl::StringRef delimiters(",;/ \t\r\n");
 
 	m_capabilitySet.clear();
 	m_isEverythingEnabled = false;
