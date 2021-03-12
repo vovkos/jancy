@@ -50,6 +50,10 @@ typedef
 bool_t
 jnc_ExtensionLib_MapAddressesFunc(jnc_Module* module);
 
+typedef
+void
+jnc_ExtensionLib_UpdateCapabilitiesFunc();
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_ExtensionLib
@@ -61,6 +65,7 @@ struct jnc_ExtensionLib
 	jnc_ExtensionLib_AddSourcesFunc* m_addSourcesFunc;
 	jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc* m_addOpaqueClassTypeInfosFunc;
 	jnc_ExtensionLib_MapAddressesFunc* m_mapAddressesFunc;
+	jnc_ExtensionLib_UpdateCapabilitiesFunc* m_updateCapabilitiesFunc;
 };
 
 //..............................................................................
@@ -91,7 +96,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	jnc_ExtensionLib* \
 	LibPrefix##_getLib();
 
-#define JNC_DEFINE_LIB(LibPrefix, libGuid, libName, libDescription) \
+#define JNC_DEFINE_LIB_EX(LibPrefix, libGuid, libName, libDescription, updateCapabilities) \
 	JNC_EXTERN_C \
 	void \
 	LibPrefix##_addSources(jnc_Module* module); \
@@ -101,6 +106,9 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 	JNC_EXTERN_C \
 	bool_t \
 	LibPrefix##_mapAddresses(jnc_Module* module); \
+	JNC_EXTERN_C \
+	void \
+	LibPrefix##_updateCapabilities(); \
 	JNC_EXTERN_C \
 	JNC_EXPORT_O \
 	jnc_ExtensionLib* \
@@ -114,9 +122,13 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 			LibPrefix##_addSources, \
 			LibPrefix##_addOpaqueClassTypeInfos, \
 			LibPrefix##_mapAddresses, \
+			updateCapabilities \
 		}; \
 		return &lib; \
 	}
+
+#define JNC_DEFINE_LIB(LibPrefix, libGuid, libName, libDescription) \
+	JNC_DEFINE_LIB_EX(LibPrefix, libGuid, libName, libDescription, NULL)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -598,6 +610,7 @@ struct TailPaddingCheck: T
 typedef jnc_ExtensionLib_AddSourcesFunc ExtensionLib_AddSourcesFunc;
 typedef jnc_ExtensionLib_AddOpaqueClassTypeInfosFunc ExtensionLib_AddOpaqueClassTypeInfosFunc;
 typedef jnc_ExtensionLib_MapAddressesFunc ExtensionLib_MapAddressesFunc;
+typedef jnc_ExtensionLib_UpdateCapabilitiesFunc ExtensionLib_UpdateCapabilitiesFunc;
 
 typedef jnc_ExtensionLib ExtensionLib;
 typedef jnc_DynamicExtensionLibHost DynamicExtensionLibHost;

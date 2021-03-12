@@ -168,6 +168,10 @@ jnc_Module_initialize(
 
 JNC_EXTERN_C
 void
+jnc_Module_updateCapabilities(jnc_Module* module);
+
+JNC_EXTERN_C
+void
 jnc_Module_setDynamicExtensionAuthenticatorConfig(
 	jnc_Module* module,
 	const jnc_CodeAuthenticatorConfig* config
@@ -432,6 +436,12 @@ struct jnc_Module
 		)
 	{
 		jnc_Module_initialize(this, tag, compileFlags);
+	}
+
+	void
+	updateCapabilities()
+	{
+		jnc_Module_updateCapabilities(this);
 	}
 
 	void

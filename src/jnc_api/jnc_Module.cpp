@@ -229,6 +229,14 @@ jnc_Module_initialize(
 JNC_EXTERN_C
 JNC_EXPORT_O
 void
+jnc_Module_updateCapabilities(jnc_Module* module)
+{
+	module->m_extensionLibMgr.updateCapabilities();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
 jnc_Module_setDynamicExtensionAuthenticatorConfig(
 	jnc_Module* module,
 	const jnc_CodeAuthenticatorConfig* config

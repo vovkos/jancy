@@ -64,6 +64,18 @@ ExtensionLibMgr::clear()
 }
 
 void
+ExtensionLibMgr::updateCapabilities()
+{
+	size_t count = m_libArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		ExtensionLib* lib = m_libArray[i];
+		if (lib->m_updateCapabilitiesFunc)
+			lib->m_updateCapabilitiesFunc();
+	}
+}
+
+void
 ExtensionLibMgr::closeDynamicLibZipReaders()
 {
 	sl::Iterator<DynamicLibEntry> it = m_dynamicLibList.getHead();
@@ -115,7 +127,9 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 	bool result;
 
 	DynamicLibEntry* entry = AXL_MEM_NEW(DynamicLibEntry);
+	entry->m_lib = NULL;
 	m_dynamicLibList.insertTail(entry);
+
 	result = entry->m_zipReader.openFile(fileName);
 	if (!result)
 		return false;
@@ -193,7 +207,6 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 			size_t j = forcedImportIdxArray[i];
 			sl::Array<char> contents = entry->m_zipReader.extractFileToMem(j);
 			sl::StringRef source(contents.getHdr(), contents.cp(), contents.getCount());
-
 			m_module->m_importMgr.addImport(entry->m_lib, NULL, source);
 		}
 
@@ -227,7 +240,6 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 
 	lib->m_addSourcesFunc(m_module);
 	lib->m_addOpaqueClassTypeInfosFunc(m_module);
-
 	return true;
 }
 

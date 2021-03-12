@@ -88,6 +88,9 @@ public:
 	setDynamicExtensionAuthenticatorConfig(const CodeAuthenticatorConfig* config);
 
 	void
+	updateCapabilities();
+
+	void
 	addStaticLib(ExtensionLib* lib);
 
 	bool

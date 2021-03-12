@@ -184,6 +184,7 @@
 		jnc_Module_parseImports;
 		jnc_Module_require;
 		jnc_Module_requireType;
+		jnc_Module_updateCapabilities;
 		jnc_initialize;
 		jnc_Runtime_abort;
 		jnc_Runtime_create;
