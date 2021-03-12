@@ -21,7 +21,10 @@ void
 initializeSocketCapabilities()
 {
 	if (isEveryCapabilityEnabled())
+	{
+		g_socketCapabilities = -1;
 		return;
+	}
 
 	g_socketCapabilities = 0;
 

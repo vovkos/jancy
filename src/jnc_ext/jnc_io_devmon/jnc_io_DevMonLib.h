@@ -5,6 +5,19 @@ namespace io {
 
 //..............................................................................
 
+AXL_SELECT_ANY bool g_devMonCapability = true;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+requireDevMonCapability()
+{
+	return g_devMonCapability || jnc::failWithCapabilityError("org.jancy.io.devmon");
+}
+
+//..............................................................................
+
 // {A9A83151-4834-472D-AF0B-43F9BE43D465}
 AXL_SL_DEFINE_GUID(
 	g_devMonLibGuid,
@@ -15,8 +28,6 @@ enum DevMonLibTypeCacheSlot
 {
 	DevMonLibTypeCacheSlot_DeviceMonitor,
 };
-
-AXL_SELECT_ANY bool g_hasDevMonCapability = true;
 
 //..............................................................................
 

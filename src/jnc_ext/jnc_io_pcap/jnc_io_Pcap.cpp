@@ -96,6 +96,7 @@ Pcap::openDevice(DataPtr deviceNamePtr)
 	close();
 
 	return
+		requirePcapCapability() &&
 		m_pcap.openDevice((char*)deviceNamePtr.m_p) &&
 		m_pcap.setPromiscious(Def_IsPromiscious) &&
 		m_pcap.setPromiscious(Def_IsPromiscious) &&
@@ -115,13 +116,19 @@ Pcap::openLive(
 {
 	close();
 
-	bool result = m_pcap.openLive(
-		(char*)deviceNamePtr.m_p,
-		snapshotSize,
-		isPromiscious,
-		readTimeout
-		) &&
-		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN);
+	bool result =
+		requirePcapCapability() &&
+		m_pcap.openLive(
+			(char*)deviceNamePtr.m_p,
+			snapshotSize,
+			isPromiscious,
+			readTimeout
+			) &&
+		setFilter(
+			filterPtr,
+			true,
+			PCAP_NETMASK_UNKNOWN
+			);
 
 	if (!result)
 		return false;
@@ -141,6 +148,7 @@ Pcap::openFile(
 	close();
 
 	return
+		requirePcapCapability() &&
 		m_pcap.openFile((char*)fileNamePtr.m_p) &&
 		setFilter(filterPtr, true, PCAP_NETMASK_UNKNOWN) &&
 		finishOpen();

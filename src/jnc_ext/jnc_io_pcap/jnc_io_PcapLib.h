@@ -16,6 +16,19 @@ namespace io {
 
 //..............................................................................
 
+AXL_SELECT_ANY bool g_pcapCapability = true;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+requirePcapCapability()
+{
+	return g_pcapCapability || jnc::failWithCapabilityError("org.jancy.io.pcap");
+}
+
+//..............................................................................
+
 // {72C7158B-F297-4F88-83A7-96E7FB548B29}
 JNC_DEFINE_GUID(
 	g_pcapLibGuid,

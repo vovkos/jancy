@@ -23,11 +23,20 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
+void
+initializePcapLibCapabilities()
+{
+	g_pcapCapability = jnc::isCapabilityEnabled("org.jancy.io.pcap");
+}
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
 	PcapLib,
 	g_pcapLibGuid,
 	"PcapLib",
-	"Jancy libPcap wrapper extension library"
+	"Jancy libPcap wrapper extension library",
+	initializePcapLibCapabilities
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(PcapLib)
@@ -79,9 +88,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_pcap");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-
-	if (!jnc::requireCapability("org.jancy.io.pcap"))
-		return NULL;
+	jnc::io::initializePcapLibCapabilities();
 
 #if (!_JNC_OS_WIN)
 	const char* pcapVersion = ::pcap_lib_version();

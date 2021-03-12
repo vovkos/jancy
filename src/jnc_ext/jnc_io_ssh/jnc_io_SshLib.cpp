@@ -19,11 +19,21 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
+void
+initializeSshLibCapabilities()
+{
+	g_sshCapability = jnc::isCapabilityEnabled("org.jancy.io.ssh");
+	initializeSocketCapabilities();
+}
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
 	SshLib,
 	g_sshLibGuid,
 	"SshLib",
-	"Jancy libSSH2 wrapper extension library"
+	"Jancy libSSH2 wrapper extension library",
+	initializeSshLibCapabilities
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(SshLib)
@@ -59,11 +69,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_ssh");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-
-	if (!jnc::requireCapability("org.jancy.io.ssh"))
-		return NULL;
-
-	jnc::io::initializeSocketCapabilities();
+	jnc::io::initializeSshLibCapabilities();
 	return jnc::io::SshLib_getLib();
 }
 

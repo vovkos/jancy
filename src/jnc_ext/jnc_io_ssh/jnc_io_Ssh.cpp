@@ -78,7 +78,10 @@ SshChannel::open_0(uint16_t family)
 {
 	close();
 
-	bool result = SocketBase::open(family, IPPROTO_TCP, NULL);
+	bool result =
+		requireSshCapability() &&
+		SocketBase::open(family, IPPROTO_TCP, NULL);
+
 	if (!result)
 		return false;
 
@@ -94,7 +97,10 @@ SshChannel::open_1(DataPtr addressPtr)
 
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 
-	bool result = SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
+	bool result =
+		requireSshCapability() &&
+		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address);
+
 	if (!result)
 		return false;
 

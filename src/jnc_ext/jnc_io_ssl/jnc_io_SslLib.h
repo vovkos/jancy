@@ -16,6 +16,19 @@ namespace io {
 
 //..............................................................................
 
+AXL_SELECT_ANY bool g_sslCapability = true;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+requireSslCapability()
+{
+	return g_sslCapability || jnc::failWithCapabilityError("org.jancy.io.ssl");
+}
+
+//..............................................................................
+
 // {275366FE-EA5D-48C9-9414-640E1D43339B}
 JNC_DEFINE_GUID(
 	g_sslLibGuid,

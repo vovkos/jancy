@@ -223,6 +223,7 @@ SslSocket::open_0(uint16_t family)
 	close();
 
 	return
+		requireSslCapability() &&
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
 		openSsl();
 }
@@ -236,6 +237,7 @@ SslSocket::open_1(DataPtr addressPtr)
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 
 	return
+		requireSslCapability() &&
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
 		openSsl();
 }
@@ -256,7 +258,6 @@ SslSocket::openSsl()
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
 	m_ssl.setInfoCallback(sslInfoCallback);
-
 	return m_ioThread.start();
 }
 

@@ -7,11 +7,20 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
+void
+initializeDevMonLibCapabilities()
+{
+	g_devMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
+}
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
 	DevMonLib,
 	g_devMonLibGuid,
 	"DevMonLib",
-	"Jancy library for monitoring IO device activity"
+	"Jancy library for monitoring IO device activity",
+	initializeDevMonLibCapabilities
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(DevMonLib)
@@ -43,7 +52,7 @@ jncDynamicExtensionLibMain(jnc::DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_devmon");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-	jnc::io::g_hasDevMonCapability = jnc::isCapabilityEnabled("org.jancy.io.devmon");
+	jnc::io::initializeDevMonLibCapabilities();
 	return jnc::io::DevMonLib_getLib();
 }
 

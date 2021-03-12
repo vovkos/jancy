@@ -22,11 +22,35 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
+void
+initializeUsbLibCapabilities()
+{
+	g_canAccessAllUsbDevices = isCapabilityEnabled("org.jancy.io.usb");
+	if (g_canAccessAllUsbDevices)
+		return;
+
+	size_t size = getCapabilityParamSize("org.jancy.io.usb.devices");
+	if (!size)
+		return;
+
+	sl::Array<char> buffer;
+	buffer.setCount(size);
+	readCapabilityParam("org.jancy.io.usb.devices", buffer, size);
+
+	const uint32_t* p = (uint32_t*)buffer.cp();
+	const uint32_t* end = p + size / sizeof(uint32_t);
+	for (; p < end; p++)
+		enableUsbDeviceAccess(*p);
+}
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
 	UsbLib,
 	g_usbLibGuid,
 	"UsbLib",
-	"Jancy libusb wrapper extension library"
+	"Jancy libusb wrapper extension library",
+	initializeUsbLibCapabilities
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(UsbLib)
@@ -56,31 +80,6 @@ JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 
-bool
-initializeUsbLibCapabilities()
-{
-	if (requireCapability("org.jancy.io.usb"))
-		return true;
-
-	size_t size = getCapabilityParamSize("org.jancy.io.usb.devices");
-	if (!size)
-		return false; // requireCapability has set the error
-
-	sl::Array<char> buffer;
-	buffer.setCount(size);
-	readCapabilityParam("org.jancy.io.usb.devices", buffer, size);
-
-	const uint32_t* p = (uint32_t*)buffer.cp();
-	const uint32_t* end = p + size / sizeof(uint32_t);
-	for (; p < end; p++)
-		enableUsbDeviceAccess(*p);
-
-	g_canAccessAllUsbDevices = false;
-	return true;
-}
-
-//..............................................................................
-
 } // namespace io
 } // namespace jnc
 
@@ -94,10 +93,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_usb");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-
-	if (!jnc::io::initializeUsbLibCapabilities())
-		return NULL;
-
+	jnc::io::initializeUsbLibCapabilities();
 	axl::io::registerUsbErrorProvider();
 	axl::io::getUsbDefaultContext()->createDefault();
 	axl::io::getUsbDefaultContextEventThread()->start();

@@ -54,61 +54,14 @@ DataPtr getHomeDir()
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
-	IoLib,
-	g_ioLibGuid,
-	"IoLib",
-	"Jancy standard IO extension library"
-	)
-
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE(IoLib)
-JNC_END_LIB_SOURCE_FILE_TABLE()
-
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(IoLib)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(File)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(MappedFile)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FileStream)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Serial)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Socket)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(HostNameResolver)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ChildProcess)
-#if (_JNC_OS_WIN)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedPipe)
-	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Mailslot)
-#endif
-JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
-
-JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
-	JNC_MAP_TYPE(File)
-	JNC_MAP_TYPE(FileStream)
-	JNC_MAP_TYPE(MappedFile)
-	JNC_MAP_TYPE(Serial)
-	JNC_MAP_TYPE(Socket)
-	JNC_MAP_TYPE(Address_ip4)
-	JNC_MAP_TYPE(Address_ip6)
-	JNC_MAP_TYPE(SocketAddress_ip4)
-	JNC_MAP_TYPE(SocketAddress_ip6)
-	JNC_MAP_TYPE(SocketAddress)
-	JNC_MAP_TYPE(HostNameResolver)
-	JNC_MAP_TYPE(ChildProcess)
-#if (_JNC_OS_WIN)
-	JNC_MAP_TYPE(NamedPipe)
-	JNC_MAP_TYPE(Mailslot)
-#endif
-	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
-	JNC_MAP_FUNCTION("io.createSerialPortDescList", createSerialPortDescList)
-	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget", getSymbolicLinkTarget)
-	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
-	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
-JNC_END_LIB_FUNCTION_MAP()
-
-//..............................................................................
-
 void
 initializeIoLibCapabilities()
 {
 	if (isEveryCapabilityEnabled())
+	{
+		g_ioLibCapabilities = -1;
 		return;
+	}
 
 	g_ioLibCapabilities = 0;
 
@@ -170,6 +123,57 @@ failWithIoLibCapabilityError(IoLibCapability capability)
 			"org.jancy.io.?"
 		);
 }
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
+	IoLib,
+	g_ioLibGuid,
+	"IoLib",
+	"Jancy standard IO extension library",
+	initializeIoLibCapabilities
+	)
+
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(IoLib)
+JNC_END_LIB_SOURCE_FILE_TABLE()
+
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(IoLib)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(File)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(MappedFile)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(FileStream)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Serial)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Socket)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(HostNameResolver)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(ChildProcess)
+#if (_JNC_OS_WIN)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(NamedPipe)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(Mailslot)
+#endif
+JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
+
+JNC_BEGIN_LIB_FUNCTION_MAP(IoLib)
+	JNC_MAP_TYPE(File)
+	JNC_MAP_TYPE(FileStream)
+	JNC_MAP_TYPE(MappedFile)
+	JNC_MAP_TYPE(Serial)
+	JNC_MAP_TYPE(Socket)
+	JNC_MAP_TYPE(Address_ip4)
+	JNC_MAP_TYPE(Address_ip6)
+	JNC_MAP_TYPE(SocketAddress_ip4)
+	JNC_MAP_TYPE(SocketAddress_ip6)
+	JNC_MAP_TYPE(SocketAddress)
+	JNC_MAP_TYPE(HostNameResolver)
+	JNC_MAP_TYPE(ChildProcess)
+#if (_JNC_OS_WIN)
+	JNC_MAP_TYPE(NamedPipe)
+	JNC_MAP_TYPE(Mailslot)
+#endif
+	JNC_MAP_FUNCTION("io.createNetworkAdapterDescList", createNetworkAdapterDescList)
+	JNC_MAP_FUNCTION("io.createSerialPortDescList", createSerialPortDescList)
+	JNC_MAP_FUNCTION("io.getSymbolicLinkTarget", getSymbolicLinkTarget)
+	JNC_MAP_FUNCTION("io.getTempDir", getTempDir)
+	JNC_MAP_FUNCTION("io.getHomeDir", getHomeDir)
+JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
 

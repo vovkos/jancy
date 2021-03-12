@@ -20,11 +20,21 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_LIB(
+void
+initializeSslLibCapabilities()
+{
+	g_sslCapability = jnc::isCapabilityEnabled("org.jancy.io.ssl");
+	initializeSocketCapabilities();
+}
+
+//..............................................................................
+
+JNC_DEFINE_LIB_EX(
 	SslLib,
 	g_sslLibGuid,
 	"SslLib",
-	"Jancy libSsl2 wrapper extension library"
+	"Jancy libSsl2 wrapper extension library",
+	initializeSslLibCapabilities
 	)
 
 JNC_BEGIN_LIB_SOURCE_FILE_TABLE(SslLib)
@@ -72,11 +82,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_ssl");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-
-	if (!jnc::requireCapability("org.jancy.io.ssl"))
-		return NULL;
-
-	jnc::io::initializeSocketCapabilities();
+	jnc::io::initializeSslLibCapabilities();
 	jnc::io::g_sslSocketSelfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
 	return jnc::io::SslLib_getLib();
 }

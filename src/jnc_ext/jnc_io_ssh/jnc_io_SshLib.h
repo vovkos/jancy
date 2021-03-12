@@ -16,6 +16,19 @@ namespace io {
 
 //..............................................................................
 
+AXL_SELECT_ANY bool g_sshCapability = true;
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+inline
+bool
+requireSshCapability()
+{
+	return g_sshCapability || jnc::failWithCapabilityError("org.jancy.io.ssh");
+}
+
+//..............................................................................
+
 // {5B43440D-8E4A-4EF5-AA23-D613210EB8E9}
 JNC_DEFINE_GUID(
 	g_sshLibGuid,
