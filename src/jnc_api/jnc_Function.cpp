@@ -177,7 +177,7 @@ JNC_EXPORT_O
 bool_t
 jnc_Function_isUnusedExternal(jnc_Function* function)
 {
-	return function->getLlvmFunction() == NULL;
+	return function->isUnusedExternal();
 }
 
 JNC_EXTERN_C

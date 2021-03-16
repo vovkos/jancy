@@ -139,6 +139,12 @@ public:
 		return m_attributeBlock && m_attributeBlock->findAttribute("prototype");
 	}
 
+	bool
+	isUnusedExternal()
+	{
+		return m_llvmFunction == NULL;
+	}
+
 	ClassType*
 	getVirtualOriginClassType()
 	{
