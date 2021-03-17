@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "jnc_ExtensionLib.h"
+#include "jnc_sys_EventBase.h"
 
 namespace jnc {
 namespace sys {
@@ -20,30 +20,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Event)
 
 //..............................................................................
 
-class Event: public IfaceHdr
-{
-public:
-	axl::sys::Event m_event;
-
-public:
-	void
-	JNC_CDECL
-	signal()
-	{
-		m_event.signal();
-	}
-
-	void
-	JNC_CDECL
-	reset()
-	{
-		m_event.reset();
-	}
-
-	bool
-	JNC_CDECL
-	wait(uint_t timeout);
-};
+typedef EventBase<axl::sys::Event> Event;
 
 //..............................................................................
 

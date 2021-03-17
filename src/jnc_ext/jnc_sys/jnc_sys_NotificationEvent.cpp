@@ -38,23 +38,5 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
-bool
-JNC_CDECL
-NotificationEvent::wait(uint_t timeout)
-{
-	bool result;
-
-	GcHeap* gcHeap = getCurrentThreadGcHeap();
-	ASSERT(gcHeap);
-
-	gcHeap->enterWaitRegion();
-	result = m_event.wait(timeout);
-	gcHeap->leaveWaitRegion();
-
-	return result;
-}
-
-//..............................................................................
-
 } // namespace sys
 } // namespace jnc

@@ -16,6 +16,7 @@
 set(
 	LIB_H_LIST
 	jnc_sys_Lock.h
+	jnc_sys_EventBase.h
 	jnc_sys_Event.h
 	jnc_sys_NotificationEvent.h
 	jnc_sys_Thread.h
