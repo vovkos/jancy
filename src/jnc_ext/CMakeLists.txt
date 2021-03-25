@@ -38,6 +38,16 @@ if(OPENSSL_FOUND)
 	if(BUILD_JNC_IO_SSL)
 		add_subdirectory(jnc_io_ssl)
 	endif()
+
+	option(
+		BUILD_JNC_IO_WEBSOCK
+		"Build jancy WebSock IO extension library"
+		ON
+		)
+
+	if(BUILD_JNC_IO_WEBSOCK)
+		add_subdirectory(jnc_io_websock)
+	endif()
 endif()
 
 if(LIBSSH2_FOUND AND OPENSSL_FOUND)
