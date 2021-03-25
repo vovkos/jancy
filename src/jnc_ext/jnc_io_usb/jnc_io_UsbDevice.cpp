@@ -78,10 +78,9 @@ void
 UsbDevice::removeInterface(UsbInterface* iface)
 {
 	m_lock.lock();
-	sl::ListLink* link = UsbInterface::GetParentLink()(iface);
-	ASSERT((link->getPrev() == NULL) == (link->getNext() == NULL));
 
-	if (link->getNext())
+	sl::ListLink* link = UsbInterface::GetParentLink()(iface);
+	if (link->getPrev() || link->getNext())
 	{
 		m_interfaceList.remove(iface);
 		*link = sl::g_nullListLink;
