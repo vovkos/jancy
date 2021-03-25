@@ -692,7 +692,7 @@ GcHeap::createForeignDataBox(
 	resultBox->m_box.m_rootOffset = 0;
 
 	size_t size = type->getSize();
-	if ((intptr_t) elementCount > 0)
+	if (elementCount != 1)
 	{
 		size *= elementCount;
 		resultBox->m_box.m_flags |= BoxFlag_DynamicArray;
