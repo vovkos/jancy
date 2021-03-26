@@ -1124,7 +1124,8 @@ Module::createConstructor()
 	{
 		Variable* variable = staticArray[i];
 		if (variable->getStdVariable() != StdVariable_GcSafePointTrigger &&
-			variable->getType()->getTypeKind() != TypeKind_Class) // classes are on primerArray anyway
+			variable->getType()->getTypeKind() != TypeKind_Class &&  // classes are on primerArray anyway
+			!(variable->getPtrTypeFlags() & PtrTypeFlag_Const)) // const variables are either initialized or mapped (external)
 			m_operatorMgr.zeroInitialize(variable);
 	}
 
