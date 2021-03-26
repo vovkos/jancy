@@ -741,7 +741,7 @@ SslSocket::sslHandshakeLoop(bool isClient)
 
 	for (;;)
 	{
-		bool result = m_ssl.doHandshake();
+		int result = m_ssl.doHandshake();
 		if (result)
 			break;
 

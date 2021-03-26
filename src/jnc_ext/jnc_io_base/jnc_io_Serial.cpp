@@ -916,7 +916,7 @@ Serial::ioThreadFunc()
 	}
 }
 
-#	if (_JNC_OS_POSIX)
+#	if (_JNC_OS_LINUX)
 
 void
 Serial::waitThreadFunc()
