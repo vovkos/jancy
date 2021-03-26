@@ -93,6 +93,11 @@ protected:
 		Def_Options         = SerialOption_WinReadWaitFirstChar,
 	};
 
+	enum IoThreadFlag
+	{
+		IoThreadFlag_Waiting = 0x0100,
+	};
+
 	class IoThread: public sys::ThreadImpl<IoThread>
 	{
 	public:
@@ -118,6 +123,16 @@ protected:
 			m_serialEvents = 0;
 		}
 	};
+#elif (_AXL_OS_LINUX)
+	class WaitThread: public sys::ThreadImpl<WaitThread>
+	{
+	public:
+		void
+		threadFunc()
+		{
+			containerof(this, Serial, m_waitThread)->waitThreadFunc();
+		}
+	};
 #endif
 
 protected:
@@ -126,6 +141,9 @@ protected:
 
 #if (_AXL_OS_WIN)
 	OverlappedIo* m_overlappedIo;
+#elif (_AXL_OS_LINUX)
+	WaitThread m_waitThread;
+	sys::Event m_waitThreadTerminateEvent;
 #endif
 
 	uint_t m_lineErrors;
@@ -314,9 +332,15 @@ protected:
 	void
 	ioThreadFunc();
 
+	void
+	updateStatusLineEvents(uint_t statusLines);
+
 #if (_AXL_OS_WIN)
 	bool
 	setReadWaitFirstChar();
+#elif (_AXL_OS_LINUX)
+	void
+	waitThreadFunc();
 #endif
 };
 

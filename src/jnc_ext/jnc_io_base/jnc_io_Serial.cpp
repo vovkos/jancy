@@ -156,6 +156,10 @@ Serial::open(DataPtr namePtr)
 
 	AsyncIoDevice::open();
 	m_ioThread.start();
+#if (_AXL_OS_LINUX)
+	m_waitThreadTerminateEvent.reset();
+	m_waitThread.start();
+#endif
 	return true;
 }
 
@@ -169,11 +173,20 @@ Serial::close()
 	m_lock.lock();
 	m_ioThreadFlags |= IoThreadFlag_Closing;
 	wakeIoThread();
+#if (_AXL_OS_LINUX)
+	if (m_ioThreadFlags & IoThreadFlag_Waiting)
+		::pthread_kill(m_waitThread.getThreadId(), SIGUSR1);
+
+	m_waitThreadTerminateEvent.signal();
+#endif
 	m_lock.unlock();
 
 	GcHeap* gcHeap = m_runtime->getGcHeap();
 	gcHeap->enterWaitRegion();
 	m_ioThread.waitAndClose();
+#if (_AXL_OS_LINUX)
+	m_waitThread.waitAndClose();
+#endif
 	gcHeap->leaveWaitRegion();
 
 	m_serial.close();
@@ -489,6 +502,30 @@ Serial::clearLineErrors()
 	return lineErrors;
 }
 
+void
+Serial::updateStatusLineEvents(uint_t statusLines)
+{
+	if (statusLines & axl::io::SerialStatusLine_Cts)
+		m_activeEvents |= SerialEvent_CtsOn;
+	else
+		m_activeEvents |= SerialEvent_CtsOff;
+
+	if (statusLines & axl::io::SerialStatusLine_Dsr)
+		m_activeEvents |= SerialEvent_DsrOn;
+	else
+		m_activeEvents |= SerialEvent_DsrOff;
+
+	if (statusLines & axl::io::SerialStatusLine_Dcd)
+		m_activeEvents |= SerialEvent_DcdOn;
+	else
+		m_activeEvents |= SerialEvent_DcdOff;
+
+	if (statusLines & axl::io::SerialStatusLine_Ring)
+		m_activeEvents |= SerialEvent_RingOn;
+	else
+		m_activeEvents |= SerialEvent_RingOff;
+}
+
 #if (_JNC_OS_WIN)
 
 void
@@ -596,26 +633,7 @@ Serial::ioThreadFunc()
 
 		getNextWriteBlock(&m_overlappedIo->m_writeBlock);
 		updateReadWriteBufferEvents();
-
-		if (statusLines & axl::io::SerialStatusLine_Cts)
-			m_activeEvents |= SerialEvent_CtsOn;
-		else
-			m_activeEvents |= SerialEvent_CtsOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Dsr)
-			m_activeEvents |= SerialEvent_DsrOn;
-		else
-			m_activeEvents |= SerialEvent_DsrOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Dcd)
-			m_activeEvents |= SerialEvent_DcdOn;
-		else
-			m_activeEvents |= SerialEvent_DcdOff;
-
-		if (statusLines & axl::io::SerialStatusLine_Ring)
-			m_activeEvents |= SerialEvent_RingOn;
-		else
-			m_activeEvents |= SerialEvent_RingOff;
+		updateStatusLineEvents(statusLines);
 
 		if (errors & CE_FRAME)
 			m_lineErrors |= SerialLineError_FramingError;
@@ -797,6 +815,8 @@ Serial::ioThreadFunc()
 		if (FD_ISSET(m_serial.m_serial, &writeSet))
 			canWriteSerial = true;
 
+		uint_t statusLines = m_serial.getStatusLines();
+
 		m_lock.lock();
 		if (m_ioThreadFlags & IoThreadFlag_Closing)
 		{
@@ -806,6 +826,26 @@ Serial::ioThreadFunc()
 
 		uint_t prevActiveEvents = m_activeEvents;
 		m_activeEvents = 0;
+
+		if (statusLines & axl::io::SerialStatusLine_Cts)
+			m_activeEvents |= SerialEvent_CtsOn;
+		else
+			m_activeEvents |= SerialEvent_CtsOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Dsr)
+			m_activeEvents |= SerialEvent_DsrOn;
+		else
+			m_activeEvents |= SerialEvent_DsrOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Dcd)
+			m_activeEvents |= SerialEvent_DcdOn;
+		else
+			m_activeEvents |= SerialEvent_DcdOff;
+
+		if (statusLines & axl::io::SerialStatusLine_Ring)
+			m_activeEvents |= SerialEvent_RingOn;
+		else
+			m_activeEvents |= SerialEvent_RingOff;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -867,6 +907,7 @@ Serial::ioThreadFunc()
 		}
 
 		updateReadWriteBufferEvents();
+		updateStatusLineEvents(statusLines);
 
 		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l();
@@ -875,6 +916,57 @@ Serial::ioThreadFunc()
 	}
 }
 
+#	if (_JNC_OS_POSIX)
+
+void
+Serial::waitThreadFunc()
+{
+	ASSERT(m_serial.isOpen());
+
+	GcHeap* gcHeap = m_runtime->getGcHeap();
+
+	JNC_BEGIN_CALL_SITE(m_runtime); // SIGUSR1 handler will call the original handler unless inside a call-site
+
+	m_lock.lock();
+	if (!(m_ioThreadFlags & IoThreadFlag_Closing))
+	{
+		m_ioThreadFlags |= IoThreadFlag_Waiting;
+		m_lock.unlock();
+
+		for (;;)
+		{
+			gcHeap->enterWaitRegion();
+			bool result = m_serial.m_serial.wait(TIOCM_DSR | TIOCM_CTS | TIOCM_CD | TIOCM_RI);
+			gcHeap->leaveWaitRegion();
+
+			if (!result && err::getLastError()->m_code != EINTR)
+				break;
+
+			m_lock.lock();
+			if (m_ioThreadFlags & IoThreadFlag_Closing)
+			{
+				m_lock.unlock();
+				break;
+			}
+
+			m_lock.unlock();
+
+			wakeIoThread();
+		}
+
+		m_lock.lock();
+	}
+
+	m_lock.unlock();
+
+	gcHeap->enterWaitRegion();
+	m_waitThreadTerminateEvent.wait();
+	gcHeap->leaveWaitRegion();
+
+	JNC_END_CALL_SITE()
+}
+
+#	endif
 #endif
 
 //..............................................................................
