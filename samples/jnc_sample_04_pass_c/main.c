@@ -177,7 +177,7 @@ main(
 
 	if (!result)
 	{
-		printf("Exprected error: %s\n", jnc_getLastErrorDescription_v ());
+		printf("Expected error: %s\n", jnc_getLastErrorDescription_v ());
 	}
 	else
 	{

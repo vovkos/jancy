@@ -198,7 +198,7 @@ main(
 	result = jnc::callVoidFunction(runtime, fooFunction, ptr);
 	if (!result)
 	{
-		printf("Exprected error: %s\n", jnc::getLastErrorDescription_v ());
+		printf("Expected error: %s\n", jnc::getLastErrorDescription_v ());
 	}
 	else
 	{
