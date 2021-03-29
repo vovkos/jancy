@@ -11,11 +11,73 @@
 
 #include "pch.h"
 #include "jnc_io_SslState.h"
+#include "jnc_io_SslLib.h"
 
 namespace jnc {
 namespace io {
 
+int SslState::m_selfIdx = 0;
+
 //..............................................................................
+
+JNC_DEFINE_OPAQUE_CLASS_TYPE(
+	SslState,
+	"io.SslState",
+	g_sslLibGuid,
+	SslLibCacheSlot_SslState,
+	SslState,
+	NULL
+	)
+
+JNC_BEGIN_TYPE_FUNCTION_MAP(SslState)
+	JNC_MAP_CONSTRUCTOR(&jnc::construct<SslState>)
+	JNC_MAP_DESTRUCTOR(&jnc::destruct<SslState>)
+
+	JNC_MAP_CONST_PROPERTY("m_stateString", &SslState::getStateString)
+	JNC_MAP_CONST_PROPERTY("m_stateStringLong", &SslState::getStateStringLong)
+	JNC_MAP_CONST_PROPERTY("m_availableCipherCount", &SslState::getAvailableCipherCount)
+	JNC_MAP_CONST_PROPERTY("m_availableCipherSet", &SslState::getAvailableCipherSetEntry)
+	JNC_MAP_CONST_PROPERTY("m_currentCipher", &SslState::getCurrentCipher)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslState::getPeerCertificateChainLength)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslState::getPeerCertificateChainEntry)
+	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslState::getPeerCertificate)
+	JNC_MAP_PROPERTY("m_verifyMode", &SslState::getVerifyMode, &SslState::setVerifyMode)
+	JNC_MAP_PROPERTY("m_verifyDepth", &SslState::getVerifyDepth, &SslState::setVerifyDepth)
+
+	JNC_MAP_FUNCTION("openSsl", &SslState::openSsl)
+	JNC_MAP_FUNCTION("enableCiphers", &SslState::enableCiphers)
+	JNC_MAP_FUNCTION("setEphemeralDhParams", &SslState::setEphemeralDhParams)
+	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslState::loadEphemeralDhParams)
+	JNC_MAP_FUNCTION("setEphemeralDhStdParams", &SslState::setEphemeralDhStdParams)
+	JNC_MAP_FUNCTION("setEphemeralEcdhCurve", &SslState::setEphemeralEcdhCurve)
+	JNC_MAP_FUNCTION("loadVerifyLocations", &SslState::loadVerifyLocations)
+	JNC_MAP_FUNCTION("loadCertificate", &SslState::loadCertificate)
+	JNC_MAP_FUNCTION("loadPrivateKey", &SslState::loadPrivateKey)
+	JNC_MAP_FUNCTION("shutdown", &SslState::shutdown)
+JNC_END_TYPE_FUNCTION_MAP()
+
+//..............................................................................
+
+bool
+JNC_CDECL
+SslState::openSsl(axl::io::Socket* socket)
+{
+	ASSERT(m_selfIdx);
+	ASSERT(socket->isOpen());
+
+	bool result =
+		m_sslCtx.create() &&
+		m_sslBio.createSocket(socket->m_socket) &&
+		m_ssl.create(m_sslCtx);
+
+	if (!result)
+		return false;
+
+	m_ssl.setBio(m_sslBio.detach());
+	m_ssl.setExtraData(m_selfIdx, this);
+	m_ssl.setInfoCallback(sslInfoCallback);
+	return true;
+}
 
 size_t
 JNC_CDECL
@@ -25,7 +87,7 @@ SslState::getPeerCertificateChainLength()
 	return chain ? sk_X509_num(chain) : 0;
 }
 
-IfaceHdr*
+SslCertificate*
 JNC_CDECL
 SslState::getPeerCertificateChainEntry(size_t i)
 {
@@ -34,7 +96,7 @@ SslState::getPeerCertificateChainEntry(size_t i)
 	return cert ? SslCertificate::create(cert) : NULL;
 }
 
-IfaceHdr*
+SslCertificate*
 JNC_CDECL
 SslState::getPeerCertificate()
 {
@@ -50,7 +112,7 @@ SslState::getAvailableCipherCount()
 	return stack ? sk_SSL_CIPHER_num(stack) : 0;
 }
 
-IfaceHdr*
+SslCipher*
 JNC_CDECL
 SslState::getAvailableCipherSetEntry(size_t i)
 {
@@ -59,7 +121,7 @@ SslState::getAvailableCipherSetEntry(size_t i)
 	return cipher ? SslCipher::create(cipher) : NULL;
 }
 
-IfaceHdr*
+SslCipher*
 JNC_CDECL
 SslState::getCurrentCipher()
 {
@@ -148,33 +210,6 @@ SslState::setEphemeralEcdhCurve(DataPtr curveNamePtr)
 		m_ssl.setTmpEcdh(ec);
 }
 
-bool
-SslState::openSsl()
-{
-	ASSERT(m_socket.isOpen());
-
-	bool result =
-		m_sslCtx.create() &&
-		m_sslBio.createSocket(m_socket.m_socket) &&
-		m_ssl.create(m_sslCtx);
-
-	if (!result)
-		return false;
-
-	m_ssl.setBio(m_sslBio.detach());
-	m_ssl.setExtraData(g_SslStateSelfIdx, this);
-	m_ssl.setInfoCallback(sslInfoCallback);
-	return m_ioThread.start();
-}
-
-void
-SslState::closeSsl()
-{
-	m_ssl.close();
-	m_sslBio.close();
-	m_sslCtx.close();
-}
-
 void
 SslState::sslInfoCallback(
 	const SSL* ssl,
@@ -182,12 +217,13 @@ SslState::sslInfoCallback(
 	int ret
 	)
 {
-	SslState* self = (SslState*)::SSL_get_ex_data(ssl, g_SslStateSelfIdx);
+	ASSERT(m_selfIdx);
+	SslState* self = (SslState*)::SSL_get_ex_data(ssl, m_selfIdx);
 	if (!self)
 		return;
 
 	ASSERT(self->m_ssl == ssl);
-	callMulticast(self->m_runtime, self->m_onStateChanged, where, ret);
+	callMulticast(self->m_onStateChanged, where, ret);
 }
 
 //..............................................................................

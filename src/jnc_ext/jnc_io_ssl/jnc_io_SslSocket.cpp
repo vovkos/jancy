@@ -12,7 +12,6 @@
 #include "pch.h"
 #include "jnc_io_SslSocket.h"
 #include "jnc_io_SslLib.h"
-#include "jnc_Error.h"
 
 namespace jnc {
 namespace io {
@@ -34,16 +33,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 
 	JNC_MAP_CONST_PROPERTY("m_address", &SslSocket::getAddress)
 	JNC_MAP_CONST_PROPERTY("m_peerAddress", &SslSocket::getPeerAddress)
-	JNC_MAP_CONST_PROPERTY("m_stateString", &SslSocket::getStateString)
-	JNC_MAP_CONST_PROPERTY("m_stateStringLong", &SslSocket::getStateStringLong)
-	JNC_MAP_CONST_PROPERTY("m_availableCipherCount", &SslSocket::getAvailableCipherCount)
-	JNC_MAP_CONST_PROPERTY("m_availableCipherSet", &SslSocket::getAvailableCipherSetEntry)
-	JNC_MAP_CONST_PROPERTY("m_currentCipher", &SslSocket::getCurrentCipher)
-	JNC_MAP_CONST_PROPERTY("m_peerCertificateChainLength", &SslSocket::getPeerCertificateChainLength)
-	JNC_MAP_CONST_PROPERTY("m_peerCertificateChain", &SslSocket::getPeerCertificateChainEntry)
-	JNC_MAP_CONST_PROPERTY("m_peerCertificate", &SslSocket::getPeerCertificate)
-	JNC_MAP_PROPERTY("m_verifyMode", &SslSocket::getVerifyMode, &SslSocket::setVerifyMode)
-	JNC_MAP_PROPERTY("m_verifyDepth", &SslSocket::getVerifyDepth, &SslSocket::setVerifyDepth)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize", &SslSocket::setReadBlockSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &SslSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &SslSocket::setWriteBufferSize)
@@ -52,14 +41,6 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslSocket)
 	JNC_MAP_FUNCTION("open", &SslSocket::open_0)
 	JNC_MAP_OVERLOAD(&SslSocket::open_1)
 	JNC_MAP_FUNCTION("close", &SslSocket::close)
-	JNC_MAP_FUNCTION("enableCiphers", &SslSocket::enableCiphers)
-	JNC_MAP_FUNCTION("setEphemeralDhParams", &SslSocket::setEphemeralDhParams)
-	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslSocket::loadEphemeralDhParams)
-	JNC_MAP_FUNCTION("setEphemeralDhStdParams", &SslSocket::setEphemeralDhStdParams)
-	JNC_MAP_FUNCTION("setEphemeralEcdhCurve", &SslSocket::setEphemeralEcdhCurve)
-	JNC_MAP_FUNCTION("loadVerifyLocations", &SslSocket::loadVerifyLocations)
-	JNC_MAP_FUNCTION("loadCertificate", &SslSocket::loadCertificate)
-	JNC_MAP_FUNCTION("loadPrivateKey", &SslSocket::loadPrivateKey)
 	JNC_MAP_FUNCTION("connect", &SslSocket::connect)
 	JNC_MAP_FUNCTION("listen", &SslSocket::listen)
 	JNC_MAP_FUNCTION("accept", &SslSocket::accept)
@@ -85,137 +66,6 @@ SslSocket::SslSocket()
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
 }
 
-size_t
-JNC_CDECL
-SslSocket::getPeerCertificateChainLength()
-{
-	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
-	return chain ? sk_X509_num(chain) : 0;
-}
-
-SslCertificate*
-JNC_CDECL
-SslSocket::getPeerCertificateChainEntry(size_t i)
-{
-	STACK_OF(X509)* chain = ::SSL_get_peer_cert_chain(m_ssl);
-	X509* cert = sk_X509_value(chain, i);
-	return cert ? SslCertificate::create(cert) : NULL;
-}
-
-SslCertificate*
-JNC_CDECL
-SslSocket::getPeerCertificate()
-{
-	X509* cert = ::SSL_get_peer_certificate(m_ssl);
-	return cert ? SslCertificate::create(cert) : NULL;
-}
-
-size_t
-JNC_CDECL
-SslSocket::getAvailableCipherCount()
-{
-	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
-	return stack ? sk_SSL_CIPHER_num(stack) : 0;
-}
-
-SslCipher*
-JNC_CDECL
-SslSocket::getAvailableCipherSetEntry(size_t i)
-{
-	STACK_OF(SSL_CIPHER)* stack = ::SSL_get_ciphers(m_ssl);
-	const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(stack, i);
-	return cipher ? SslCipher::create(cipher) : NULL;
-}
-
-SslCipher*
-JNC_CDECL
-SslSocket::getCurrentCipher()
-{
-	const SSL_CIPHER* cipher = ::SSL_get_current_cipher(m_ssl);
-	return cipher ? SslCipher::create(cipher) : NULL;
-}
-
-bool
-JNC_CDECL
-SslSocket::setEphemeralDhParams(
-	DataPtr pemPtr,
-	size_t length
-	)
-{
-	if (length == -1)
-		length = strLen(pemPtr);
-
-	cry::Dh dh;
-	return
-		dh.readParameters(pemPtr.m_p, length) &&
-		m_ssl.setTmpDh(dh);
-}
-
-bool
-JNC_CDECL
-SslSocket::loadEphemeralDhParams(DataPtr fileNamePtr)
-{
-	axl::io::SimpleMappedFile file;
-	cry::Bio bio;
-	cry::Dh dh;
-
-	return
-		file.open((char*)fileNamePtr.m_p, axl::io::FileFlag_ReadOnly | axl::io::FileFlag_OpenExisting) &&
-		bio.createMemBuf(file.p(), file.getMappingSize()) &&
-		dh.readParameters(bio) &&
-		m_ssl.setTmpDh(dh);
-}
-
-bool
-JNC_CDECL
-SslSocket::setEphemeralDhStdParams(uint_t stdDh)
-{
-	cry::Dh dh;
-
-	bool result;
-
-	switch (stdDh)
-	{
-	case SslStdDh_Dh1024x160:
-		result = dh.create1024x160();
-		break;
-
-	case SslStdDh_Dh2048x224:
-		result = dh.create2048x224();
-		break;
-
-	case SslStdDh_Dh2048x256:
-		result = dh.create2048x256();
-		break;
-
-	default:
-		err::setError(err::SystemErrorCode_InvalidParameter);
-		return false;
-	}
-
-	return
-		result &&
-		m_ssl.setTmpDh(dh);
-}
-
-bool
-JNC_CDECL
-SslSocket::setEphemeralEcdhCurve(DataPtr curveNamePtr)
-{
-	int curveId = OBJ_sn2nid((char*)curveNamePtr.m_p);
-	if (curveId == NID_undef)
-	{
-		err::setFormatStringError("invalid curve '%s'", curveNamePtr.m_p);
-		return false;
-	}
-
-	cry::EcKey ec;
-
-	return
-		ec.create(curveId) && // no need to generate key now
-		m_ssl.setTmpEcdh(ec);
-}
-
 bool
 JNC_CDECL
 SslSocket::open_0(uint16_t family)
@@ -225,7 +75,7 @@ SslSocket::open_0(uint16_t family)
 	return
 		requireSslCapability() &&
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		openSsl();
+		openSsl(&m_socket);
 }
 
 bool
@@ -239,26 +89,7 @@ SslSocket::open_1(DataPtr addressPtr)
 	return
 		requireSslCapability() &&
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
-		openSsl();
-}
-
-bool
-SslSocket::openSsl()
-{
-	ASSERT(m_socket.isOpen());
-
-	bool result =
-		m_sslCtx.create() &&
-		m_sslBio.createSocket(m_socket.m_socket) &&
-		m_ssl.create(m_sslCtx);
-
-	if (!result)
-		return false;
-
-	m_ssl.setBio(m_sslBio.detach());
-	m_ssl.setExtraData(g_sslSocketSelfIdx, this);
-	m_ssl.setInfoCallback(sslInfoCallback);
-	return m_ioThread.start();
+		openSsl(&m_socket);
 }
 
 void
@@ -278,11 +109,7 @@ SslSocket::close()
 	m_ioThread.waitAndClose();
 	gcHeap->leaveWaitRegion();
 
-	m_localAddress.m_family = jnc::io::AddressFamily_Undefined;
-
-	m_ssl.close();
-	m_sslBio.close();
-	m_sslCtx.close();
+	closeSsl();
 	SocketBase::close();
 }
 
@@ -353,13 +180,13 @@ SslSocket::accept(
 	m_incomingConnectionPool.put(incomingConnection);
 
 	if (m_pendingIncomingConnectionList.isEmpty())
-		m_activeEvents &= ~SslSocketEvent_IncomingConnection;
+		m_activeEvents &= ~SocketEvent_IncomingConnection;
 
 	m_lock.unlock();
 
 	bool result =
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
-		connectionSocket->openSsl();
+		connectionSocket->openSsl(&connectionSocket->m_socket);
 
 	if (!result)
 		return NULL;
@@ -385,8 +212,8 @@ SslSocket::ioThreadFunc()
 		m_lock.unlock();
 
 		bool result =
-			connectLoop(SslSocketEvent_TcpConnected) &&
-			sslHandshakeLoop(true);
+			connectLoop(SocketEvent_Connected) &&
+			sslHandshakeLoop(this, true);
 
 		if (result)
 		{
@@ -397,15 +224,15 @@ SslSocket::ioThreadFunc()
 	else if (m_ioThreadFlags & IoThreadFlag_Listening)
 	{
 		m_lock.unlock();
-		acceptLoop(SslSocketEvent_IncomingConnection);
+		acceptLoop(SocketEvent_IncomingConnection);
 	}
 	else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection)
 	{
 		m_lock.unlock();
 
 		bool result =
-			sslSuspendLoop() &&
-			sslHandshakeLoop(false);
+			suspendLoop() &&
+			sslHandshakeLoop(this, false);
 
 		if (result)
 		{
@@ -420,122 +247,7 @@ SslSocket::ioThreadFunc()
 	}
 }
 
-bool
-SslSocket::sslSuspendLoop()
-{
-	for (;;)
-	{
-		m_lock.lock();
-
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
-			m_lock.unlock();
-			return false;
-		}
-
-		if (!(m_ioThreadFlags & IoThreadFlag_Suspended))
-		{
-			m_lock.unlock();
-			return true;
-		}
-
-		m_lock.unlock();
-		sleepIoThread();
-	}
-}
-
 #if (_JNC_OS_WIN)
-
-void
-SslSocket::processFdClose(int error)
-{
-	if (!error)
-		setEvents(SslSocketEvent_TcpDisconnected);
-	else if (error == WSAECONNRESET)
-		setEvents(SslSocketEvent_TcpDisconnected | SslSocketEvent_TcpReset);
-	else
-		setIoErrorEvent(error);
-}
-
-bool
-SslSocket::sslHandshakeLoop(bool isClient)
-{
-	if (isClient)
-		m_ssl.setConnectState();
-	else
-		m_ssl.setAcceptState();
-
-	sys::NotificationEvent socketEvent;
-	HANDLE waitTable[] =
-	{
-		m_ioThreadEvent.m_event,
-		socketEvent.m_event,
-	};
-
-	for (;;)
-	{
-		bool result = m_ssl.doHandshake();
-		if (result)
-			break;
-
-		uint_t socketEventMask = FD_CLOSE;
-		uint_t error = err::getLastError()->m_code;
-		switch (error)
-		{
-		case SSL_ERROR_WANT_READ:
-			socketEventMask |= FD_READ;
-			break;
-
-		case SSL_ERROR_WANT_WRITE:
-			socketEventMask |= FD_WRITE;
-			break;
-
-		default:
-			setIoErrorEvent();
-			return false;
-		}
-
-		result = m_socket.m_socket.wsaEventSelect(socketEvent.m_event, socketEventMask);
-		if (!result)
-			return false;
-
-		DWORD waitResult = ::WaitForMultipleObjects(countof(waitTable), waitTable, false, INFINITE);
-		if (waitResult == WAIT_FAILED)
-		{
-			setIoErrorEvent(err::getLastSystemErrorCode());
-			return false;
-		}
-
-		WSANETWORKEVENTS networkEvents;
-		result = m_socket.m_socket.wsaEnumEvents(&networkEvents);
-		if (!result)
-		{
-			setIoErrorEvent();
-			return false;
-		}
-
-		if ((networkEvents.lNetworkEvents & FD_CLOSE) && !(networkEvents.lNetworkEvents & FD_READ))
-		{
-			processFdClose(networkEvents.iErrorCode[FD_CLOSE_BIT]);
-			return false;
-		}
-
-		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
-			m_lock.unlock();
-			return false;
-		}
-
-		m_lock.unlock();
-	}
-
-	m_lock.lock();
-	m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
-	processWaitLists_l();
-
-	return true;
-}
 
 void
 SslSocket::sslReadWriteLoop()
@@ -637,7 +349,7 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -668,7 +380,7 @@ SslSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SslSocketEvent_TcpDisconnected);
+				setEvents(SocketEvent_Disconnected);
 				return;
 			}
 			else
@@ -728,70 +440,6 @@ SslSocket::sslReadWriteLoop()
 }
 
 #elif (_JNC_OS_POSIX)
-
-bool
-SslSocket::sslHandshakeLoop(bool isClient)
-{
-	if (isClient)
-		m_ssl.setConnectState();
-	else
-		m_ssl.setAcceptState();
-
-	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
-
-	for (;;)
-	{
-		int result = m_ssl.doHandshake();
-		if (result)
-			break;
-
-		fd_set readSet = { 0 };
-		fd_set writeSet = { 0 };
-
-		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
-
-		uint_t error = err::getLastError()->m_code;
-		switch (error)
-		{
-		case SSL_ERROR_WANT_READ:
-			FD_SET(m_socket.m_socket, &readSet);
-			break;
-
-		case SSL_ERROR_WANT_WRITE:
-			FD_SET(m_socket.m_socket, &writeSet);
-			break;
-
-		default:
-			setIoErrorEvent();
-			return false;
-		}
-
-		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
-		if (result == -1)
-			break;
-
-		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
-		{
-			char buffer[256];
-			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
-		}
-
-		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
-			m_lock.unlock();
-			return false;
-		}
-
-		m_lock.unlock();
-	}
-
-	m_lock.lock();
-	m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
-	processWaitLists_l();
-
-	return true;
-}
 
 void
 SslSocket::sslReadWriteLoop()
@@ -938,21 +586,6 @@ SslSocket::sslReadWriteLoop()
 }
 
 #endif
-
-void
-SslSocket::sslInfoCallback(
-	const SSL* ssl,
-	int where,
-	int ret
-	)
-{
-	SslSocket* self = (SslSocket*)::SSL_get_ex_data(ssl, g_sslSocketSelfIdx);
-	if (!self)
-		return;
-
-	ASSERT(self->m_ssl == ssl);
-	callMulticast(self->m_runtime, self->m_onStateChanged, where, ret);
-}
 
 //..............................................................................
 

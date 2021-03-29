@@ -41,10 +41,9 @@ enum SslLibCacheSlot
 	SslLibCacheSlot_SslCertName,
 	SslLibCacheSlot_SslCipher,
 	SslLibCacheSlot_SslCertificate,
+	SslLibCacheSlot_SslState,
 	SslLibCacheSlot_SslSocket,
 };
-
-extern int g_sslSocketSelfIdx;
 
 //..............................................................................
 

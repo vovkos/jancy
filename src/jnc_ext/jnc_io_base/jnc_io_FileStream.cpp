@@ -439,8 +439,6 @@ FileStream::ioThreadFunc()
 		}
 		else
 		{
-			// wait-table may already hold correct value -- but there's no harm in writing it over
-
 			OverlappedRead* read = *m_overlappedIo->m_activeOverlappedReadList.getHead();
 			waitTable[2] = read->m_overlapped.m_completionEvent.m_event;
 			waitCount = 3;

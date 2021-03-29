@@ -241,6 +241,30 @@ AsyncIoBase::unsuspendIoThread()
 	m_lock.unlock();
 }
 
+bool
+AsyncIoBase::suspendLoop()
+{
+	for (;;)
+	{
+		m_lock.lock();
+
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return false;
+		}
+
+		if (!(m_ioThreadFlags & IoThreadFlag_Suspended))
+		{
+			m_lock.unlock();
+			return true;
+		}
+
+		m_lock.unlock();
+		sleepIoThread();
+	}
+}
+
 void
 AsyncIoBase::cancelAllWaits()
 {

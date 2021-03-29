@@ -61,25 +61,6 @@ opaque class SslSocket: SslState
 
 	alias dispose = close;
 
-	bool errorcode enableCiphers(char const* ciphers);
-
-	bool errorcode setEphemeralDhParams(
-		char const* pem,
-		size_t length = -1
-		);
-
-	bool errorcode loadEphemeralDhParams(char const* fileName);
-	bool errorcode setEphemeralDhStdParams(SslStdDh dh = SslStdDh.Dh1024x160);
-	bool errorcode setEphemeralEcdhCurve(char const* curveName = "secp112r1");
-
-	bool errorcode loadCertificate(char const* fileName);
-	bool errorcode loadPrivateKey(char const* fileName);
-
-	bool errorcode loadVerifyLocations(
-		char const* caFileName,
-		char const* caDir = null
-		);
-
 	bool errorcode connect(SocketAddress const* address);
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
 
@@ -87,8 +68,6 @@ opaque class SslSocket: SslState
 		SocketAddress* address = null,
 		bool isSuspended = false
 		);
-
-	bool errorcode shutdown();
 
 	void unsuspend();
 

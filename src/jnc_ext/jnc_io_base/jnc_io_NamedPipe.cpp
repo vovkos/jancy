@@ -355,8 +355,6 @@ NamedPipe::ioThreadFunc()
 		}
 		else
 		{
-			// wait-table may already hold correct value -- but there's no harm in writing it over
-
 			OverlappedConnect* connect = *m_overlappedIo->m_activeOverlappedConnectList.getHead();
 			waitTable[1] = connect->m_overlapped.m_completionEvent.m_event;
 			waitCount = 2;

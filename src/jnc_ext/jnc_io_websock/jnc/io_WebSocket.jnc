@@ -10,8 +10,9 @@
 //..............................................................................
 
 import "io_base.jncx"
-import "io_ssl.jncx"
-import "io_SslSocket.jnc"
+import "io_SocketAddress.jnc"
+import "io_SocketOptions.jnc"
+import "io_SslState.jnc"
 
 namespace io {
 
@@ -23,7 +24,7 @@ namespace io {
 bitflag enum WebSocketEvents
 {
 	IoError,
-	IncomingData,
+	Message,
 	ReadBufferFull,
 	WriteBufferEmpty,
 	WriteBufferReady = WriteBufferEmpty,
@@ -36,56 +37,18 @@ bitflag enum WebSocketEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum WebSocketState
-{
-	Connect         = 0x1000,          // SSL_ST_CONNECT
-	Accept          = 0x2000,          // SSL_ST_ACCEPT
-	Loop            = 0x01,            // SSL_CB_LOOP
-	Exit            = 0x02,            // SSL_CB_EXIT
-	Read            = 0x04,            // SSL_CB_READ
-	Write           = 0x08,            // SSL_CB_WRITE
-	Alert           = 0x4000,          // SSL_CB_ALERT
-	ReadAlert       = Alert | Read,    // SSL_CB_READ_ALERT
-	WriteAlert      = Alert | Write,   // SSL_CB_WRITE_ALERT
-	AcceptLoop      = Accept | Loop,   // SSL_CB_ACCEPT_LOOP
-	AcceptExit      = Accept | Exit,   // SSL_CB_ACCEPT_EXIT
-	ConnectLoop     = Connect | Loop,  // SSL_CB_CONNECT_LOOP
-	ConnectExit     = Connect | Exit,  // SSL_CB_CONNECT_EXIT
-	HandshakeStart  = 0x10,            // SSL_CB_HANDSHAKE_START
-	HandshakeDone   = 0x20,            // SSL_CB_HANDSHAKE_DONE
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 opaque class WebSocket
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
-
-	size_t const property m_availableCipherCount;
-	SslCipher* const property m_availableCipherSet(size_t i);
-	SslCipher* const property m_currentCipher;
-	size_t const property m_peerCertificateChainLength;
-	SslCertificate const* const property m_peerCertificateChain(size_t i);
-	SslCertificate const* const property m_peerCertificate;
-
-	SslVerifyMode property m_verifyMode;
-	size_t property m_verifyDepth;
-
-	char const* const property m_stateString;
-	char const* const property m_stateStringLong;
-
-	event m_onStateChanged(
-		SslSocketState state,
-		int alertInfo
-		);
+	SslState* m_sslState;
 
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
 	SocketOptions autoget property m_options;
 
-	io.SslSocketEvents readonly volatile m_activeEvents;
+	io.WebSocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
 
 	bool readonly m_isOpen;
@@ -93,30 +56,19 @@ opaque class WebSocket
 	construct();
 	destruct();
 
-	bool errorcode open(AddressFamily family);
-	bool errorcode open(SocketAddress const* address);
+	bool errorcode open(
+		AddressFamily family,
+		bool isSecure = false
+		);
+
+	bool errorcode open(
+		SocketAddress const* address,
+		bool isSecure = false
+		);
+
 	void close();
 
 	alias dispose = close;
-
-	bool errorcode enableCiphers(char const* ciphers);
-
-	bool errorcode setEphemeralDhParams(
-		char const* pem,
-		size_t length = -1
-		);
-
-	bool errorcode loadEphemeralDhParams(char const* fileName);
-	bool errorcode setEphemeralDhStdParams(SslStdDh dh = SslStdDh.Dh1024x160);
-	bool errorcode setEphemeralEcdhCurve(char const* curveName = "secp112r1");
-
-	bool errorcode loadCertificate(char const* fileName);
-	bool errorcode loadPrivateKey(char const* fileName);
-
-	bool errorcode loadVerifyLocations(
-		char const* caFileName,
-		char const* caDir = null
-		);
 
 	bool errorcode connect(SocketAddress const* address);
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
@@ -125,8 +77,6 @@ opaque class WebSocket
 		SocketAddress* address = null,
 		bool isSuspended = false
 		);
-
-	bool errorcode shutdown();
 
 	void unsuspend();
 
@@ -148,7 +98,7 @@ opaque class WebSocket
 	bool errorcode cancelWait(intptr handle);
 
 	WebSocketEvents blockingWait(
-		SslSocketEvents eventMask,
+		WebSocketEvents eventMask,
 		uint_t timeout = -1
 		);
 

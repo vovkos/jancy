@@ -11,8 +11,14 @@
 
 #pragma once
 
+#include "jnc_io_SslStateBase.h"
+#include "jnc_io_SslCipher.h"
+#include "jnc_io_SslCertificate.h"
+
 namespace jnc {
 namespace io {
+
+JNC_DECLARE_OPAQUE_CLASS_TYPE(SslState)
 
 //..............................................................................
 
@@ -25,25 +31,35 @@ enum SslStdDh
 
 //..............................................................................
 
-class SslState: IfaceHdr
+class SslState: public SslStateBase
 {
-protected:
-	ClassBox<Multicast> m_onStateChanged;
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(SslState)
 
-	axl::io::SslCtx m_sslCtx;
-	axl::cry::Bio m_sslBio;
-	axl::io::Ssl m_ssl;
+protected:
+	static int m_selfIdx;
 
 public:
+	static
+	void
+	initSelfIdx()
+	{
+		 m_selfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
+	}
+
+	bool
+	JNC_CDECL
+	openSsl(axl::io::Socket* socket);
+
 	size_t
 	JNC_CDECL
 	getAvailableCipherCount();
 
-	IfaceHdr*
+	SslCipher*
 	JNC_CDECL
 	getAvailableCipherSetEntry(size_t i);
 
-	IfaceHdr*
+	SslCipher*
 	JNC_CDECL
 	getCurrentCipher();
 
@@ -51,11 +67,11 @@ public:
 	JNC_CDECL
 	getPeerCertificateChainLength();
 
-	IfaceHdr*
+	SslCertificate*
 	JNC_CDECL
 	getPeerCertificateChainEntry(size_t i);
 
-	IfaceHdr*
+	SslCertificate*
 	JNC_CDECL
 	getPeerCertificate();
 
@@ -155,19 +171,14 @@ public:
 		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
 	}
 
+	bool
+	JNC_CDECL
+	shutdown()
+	{
+		return m_ssl.shutdown();
+	}
+
 protected:
-	bool
-	openSsl();
-
-	void
-	closeSsl();
-
-	bool
-	sslSuspendLoop();
-
-	bool
-	sslHandshakeLoop(bool isClient);
-
 	static
 	void
 	sslInfoCallback(
@@ -175,11 +186,6 @@ protected:
 		int where,
 		int ret
 		);
-
-#if (_JNC_OS_WIN)
-	void
-	processFdClose(int error);
-#endif
 };
 
 //..............................................................................

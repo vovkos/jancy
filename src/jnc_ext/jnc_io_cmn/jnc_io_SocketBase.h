@@ -18,6 +18,8 @@
 namespace jnc {
 namespace io {
 
+struct SslStateBase;
+
 //..............................................................................
 
 enum SocketOption
@@ -28,6 +30,16 @@ enum SocketOption
 	SocketOption_TcpReset     = 0x20,
 	SocketOption_UdpBroadcast = 0x40,
 	SocketOption_RawHdrIncl   = 0x80,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum SocketEvent
+{
+	SocketEvent_IncomingConnection = 0x0010,
+	SocketEvent_Connected          = 0x0020,
+	SocketEvent_Disconnected       = 0x0040,
+	SocketEvent_Reset              = 0x0080,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -85,6 +97,14 @@ protected:
 
 	void
 	acceptLoop(uint_t incomingConnectionEvent);
+
+#if (_JNC_OS_WIN)
+	void
+	processFdClose(int error);
+
+	void
+	processSendRecvError();
+#endif
 };
 
 //..............................................................................

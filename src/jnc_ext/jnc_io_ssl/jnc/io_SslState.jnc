@@ -76,10 +76,13 @@ opaque class SslState
 	char const* const property m_stateString;
 	char const* const property m_stateStringLong;
 
-	event m_onChanged(
+	event m_onStateChanged(
 		SslStateFlags flags,
 		int alertInfo
 		);
+
+	construct();
+	destruct();
 
 	bool errorcode enableCiphers(char const* ciphers);
 
@@ -99,6 +102,11 @@ opaque class SslState
 		char const* caFileName,
 		char const* caDir = null
 		);
+
+	bool errorcode shutdown();
+
+protected:
+	bool errorcode openSsl(void thin* socket);
 }
 
 //..............................................................................

@@ -319,21 +319,12 @@ Socket::ioThreadFunc()
 #if (_JNC_OS_WIN)
 
 void
-Socket::handleSendRecvError(bool isDatagram)
+Socket::processSendRecvError(bool isDatagram)
 {
 	if (isDatagram)
-	{
 		setIoErrorEvent();
-		return;
-	}
-
-	err::Error error = err::getLastError();
-	ASSERT(error->m_guid == err::g_systemErrorGuid);
-
-	if (error->m_code == WSAECONNRESET)
-		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
 	else
-		setIoErrorEvent(error);
+		SocketBase::processSendRecvError();
 }
 
 void
@@ -381,7 +372,7 @@ Socket::sendRecvLoop(
 			result = m_socket.m_socket.wsaGetOverlappedResult(&recv->m_overlapped, &actualSize);
 			if (!result)
 			{
-				handleSendRecvError(isDatagram);
+				processSendRecvError(isDatagram);
 				return;
 			}
 
@@ -414,7 +405,7 @@ Socket::sendRecvLoop(
 			result = m_socket.m_socket.wsaGetOverlappedResult(&m_overlappedIo->m_sendOverlapped, &actualSize);
 			if (!result)
 			{
-				handleSendRecvError(isDatagram);
+				processSendRecvError(isDatagram);
 				break;
 			}
 
@@ -478,7 +469,7 @@ Socket::sendRecvLoop(
 
 					if (!result)
 					{
-						handleSendRecvError(isDatagram);
+						processSendRecvError(isDatagram);
 						break;
 					}
 
@@ -497,7 +488,7 @@ Socket::sendRecvLoop(
 
 				if (!result)
 				{
-					handleSendRecvError(isDatagram);
+					processSendRecvError(isDatagram);
 					break;
 				}
 
@@ -508,6 +499,7 @@ Socket::sendRecvLoop(
 		if (!isReadBufferFull && activeReadCount < readParallelism)
 		{
 			size_t newReadCount = readParallelism - activeReadCount;
+			dword_t flags = 0; // if WSARecv doesn't complete immediately, the 'flags' arg is not touched
 
 			if (isDatagram)
 				for (size_t i = 0; i < newReadCount; i++)
@@ -521,7 +513,7 @@ Socket::sendRecvLoop(
 							recv->m_buffer,
 							readBlockSize,
 							NULL,
-							&recv->m_flags,
+							&flags,
 							&recv->m_sockAddr,
 							&recv->m_sockAddrSize,
 							&recv->m_overlapped
@@ -530,7 +522,7 @@ Socket::sendRecvLoop(
 					if (!result)
 					{
 						m_overlappedIo->m_overlappedRecvPool.put(recv);
-						handleSendRecvError(isDatagram);
+						processSendRecvError(isDatagram);
 						return;
 					}
 
@@ -546,14 +538,14 @@ Socket::sendRecvLoop(
 							recv->m_buffer,
 							readBlockSize,
 							NULL,
-							&recv->m_flags,
+							&flags,
 							&recv->m_overlapped
 							);
 
 					if (!result)
 					{
 						m_overlappedIo->m_overlappedRecvPool.put(recv);
-						handleSendRecvError(isDatagram);
+						processSendRecvError(isDatagram);
 						return;
 					}
 
@@ -567,8 +559,6 @@ Socket::sendRecvLoop(
 		}
 		else
 		{
-			// wait-table may already hold correct value -- but there's no harm in writing it over
-
 			OverlappedRecv* recv = *m_overlappedIo->m_activeOverlappedRecvList.getHead();
 			waitTable[2] = recv->m_overlapped.m_completionEvent.m_event;
 			waitCount = 3;

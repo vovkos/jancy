@@ -20,16 +20,6 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(Socket)
 
 //..............................................................................
 
-enum SocketEvent
-{
-	SocketEvent_IncomingConnection = 0x10,
-	SocketEvent_Connected          = 0x20,
-	SocketEvent_Disconnected       = 0x40,
-	SocketEvent_Reset              = 0x80,
-};
-
-//..............................................................................
-
 struct SocketHdr: IfaceHdr
 {
 	uint_t m_readParallelism;
@@ -52,7 +42,7 @@ public:
 protected:
 	enum Def
 	{
-		Def_ReadParallelism = 4,
+		Def_ReadParallelism = 2,
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_WriteBufferSize = 16 * 1024,
@@ -81,12 +71,10 @@ protected:
 	{
 		axl::io::SockAddr m_sockAddr;
 		socklen_t m_sockAddrSize;
-		dword_t m_flags;
 
 		OverlappedRecv()
 		{
 			m_sockAddrSize = 0;
-			m_flags = 0;
 		}
 	};
 
@@ -316,7 +304,7 @@ protected:
 
 #if (_JNC_OS_WIN)
 	void
-	handleSendRecvError(bool isDatagram);
+	processSendRecvError(bool isDatagram);
 #endif
 };
 

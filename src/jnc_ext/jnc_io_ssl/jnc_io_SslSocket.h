@@ -11,34 +11,13 @@
 
 #pragma once
 
-#include "jnc_io_AsyncIoDevice.h"
-#include "jnc_io_SocketBase.h"
+#include "jnc_io_SslSocketBase.h"
 #include "jnc_io_SslState.h"
 
 namespace jnc {
 namespace io {
 
 JNC_DECLARE_OPAQUE_CLASS_TYPE(SslSocket)
-
-//..............................................................................
-
-enum SslSocketEvent
-{
-	SslSocketEvent_IncomingConnection    = 0x0010,
-	SslSocketEvent_TcpConnected          = 0x0020,
-	SslSocketEvent_TcpDisconnected       = 0x0040,
-	SslSocketEvent_TcpReset              = 0x0080,
-	SslSocketEvent_SslHandshakeCompleted = 0x0100,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum SslStdDh
-{
-	SslStdDh_Dh1024x160,
-	SslStdDh_Dh2048x224,
-	SslStdDh_Dh2048x256,
-};
 
 //..............................................................................
 
@@ -53,7 +32,7 @@ struct SslSocketHdr: SslState
 
 class SslSocket:
 	public SslSocketHdr,
-	public SocketBase
+	public SslSocketBase
 {
 	friend class IoThread;
 
@@ -88,8 +67,6 @@ protected:
 
 protected:
 	IoThread m_ioThread;
-	jnc::io::SocketAddress m_localAddress;
-	jnc::io::SocketAddress m_remoteAddress;
 
 public:
 	SslSocket();
@@ -150,30 +127,6 @@ public:
 		return SocketBase::setOptions(flags);
 	}
 
-	size_t
-	JNC_CDECL
-	getAvailableCipherCount();
-
-	SslCipher*
-	JNC_CDECL
-	getAvailableCipherSetEntry(size_t i);
-
-	SslCipher*
-	JNC_CDECL
-	getCurrentCipher();
-
-	size_t
-	JNC_CDECL
-	getPeerCertificateChainLength();
-
-	SslCertificate*
-	JNC_CDECL
-	getPeerCertificateChainEntry(size_t i);
-
-	SslCertificate*
-	JNC_CDECL
-	getPeerCertificate();
-
 	bool
 	JNC_CDECL
 	open_0(uint16_t family);
@@ -185,102 +138,6 @@ public:
 	void
 	JNC_CDECL
 	close();
-
-	int
-	JNC_CDECL
-	getVerifyMode()
-	{
-		return m_ssl.getVerifyMode();
-	}
-
-	void
-	JNC_CDECL
-	setVerifyMode(int mode)
-	{
-		m_ssl.setVerifyMode(mode);
-	}
-
-	size_t
-	JNC_CDECL
-	getVerifyDepth()
-	{
-		return m_ssl.getVerifyDepth();
-	}
-
-	void
-	JNC_CDECL
-	setVerifyDepth(size_t depth)
-	{
-		m_ssl.setVerifyDepth((int)depth);
-	}
-
-	static
-	DataPtr
-	JNC_CDECL
-	getStateString(SslSocket* self)
-	{
-		return strDup(self->m_ssl.getStateString());
-	}
-
-	static
-	DataPtr
-	JNC_CDECL
-	getStateStringLong(SslSocket* self)
-	{
-		return strDup(self->m_ssl.getStateStringLong());
-	}
-
-	bool
-	JNC_CDECL
-	enableCiphers(DataPtr ciphersPtr)
-	{
-		return
-			m_sslCtx.setCipherList((char*)ciphersPtr.m_p) &&
-			m_ssl.setCipherList((char*)ciphersPtr.m_p);
-	}
-
-	bool
-	JNC_CDECL
-	setEphemeralDhParams(
-		DataPtr pemPtr,
-		size_t length
-		);
-
-	bool
-	JNC_CDECL
-	loadEphemeralDhParams(DataPtr fileNamePtr);
-
-	bool
-	JNC_CDECL
-	setEphemeralDhStdParams(uint_t dh);
-
-	bool
-	JNC_CDECL
-	setEphemeralEcdhCurve(DataPtr curveNamePtr);
-
-	bool
-	JNC_CDECL
-	loadVerifyLocations(
-		DataPtr caFileNamePtr,
-		DataPtr caDirPtr
-		)
-	{
-		return m_sslCtx.loadVerifyLocations((char*)caFileNamePtr.m_p, (char*)caDirPtr.m_p);
-	}
-
-	bool
-	JNC_CDECL
-	loadCertificate(DataPtr fileNamePtr)
-	{
-		return m_ssl.useCertificateFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
-	}
-
-	bool
-	JNC_CDECL
-	loadPrivateKey(DataPtr fileNamePtr)
-	{
-		return m_ssl.usePrivateKeyFile((char*)fileNamePtr.m_p, SSL_FILETYPE_PEM);
-	}
 
 	bool
 	JNC_CDECL
@@ -302,13 +159,6 @@ public:
 	unsuspend()
 	{
 		unsuspendIoThread();
-	}
-
-	bool
-	JNC_CDECL
-	shutdown()
-	{
-		return m_ssl.shutdown();
 	}
 
 	size_t
@@ -369,30 +219,8 @@ protected:
 	void
 	ioThreadFunc();
 
-	bool
-	openSsl();
-
-	bool
-	sslSuspendLoop();
-
-	bool
-	sslHandshakeLoop(bool isClient);
-
 	void
 	sslReadWriteLoop();
-
-	static
-	void
-	sslInfoCallback(
-		const SSL* ssl,
-		int where,
-		int ret
-		);
-
-#if (_JNC_OS_WIN)
-	void
-	processFdClose(int error);
-#endif
 };
 
 //..............................................................................

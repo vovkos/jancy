@@ -20,7 +20,8 @@ set(
 	jnc_io_SocketAddress.h
 	jnc_io_SocketCapabilities.h
 	jnc_io_SocketBase.h
-	jnc_io_SslState.h
+	jnc_io_SslStateBase.h
+	jnc_io_SslSocketBase.h
 	)
 
 set(
@@ -30,11 +31,13 @@ set(
 	jnc_io_SocketAddress.cpp
 	jnc_io_SocketCapabilities.cpp
 	jnc_io_SocketBase.cpp
-	jnc_io_SslState.cpp
+	jnc_io_SslStateBase.cpp
+	jnc_io_SslSocketBase.cpp
 	)
 
 if(NOT OPENSSL_FOUND)
-	axl_exclude_from_build(jnc_io_SslState.cpp)
+	axl_exclude_from_build(jnc_io_SslStateBase.cpp)
+	axl_exclude_from_build(jnc_io_SslSocketBase.cpp)
 endif()
 
 source_group(

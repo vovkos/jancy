@@ -249,6 +249,29 @@ SocketBase::close()
 
 #if (_JNC_OS_WIN)
 
+void
+SocketBase::processFdClose(int error)
+{
+	if (!error)
+		setEvents(SocketEvent_Disconnected);
+	else if (error == WSAECONNRESET)
+		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
+	else
+		setIoErrorEvent(error);
+}
+
+void
+SocketBase::processSendRecvError()
+{
+	err::Error error = err::getLastError();
+	ASSERT(error->m_guid == err::g_systemErrorGuid);
+
+	if (error->m_code == WSAECONNRESET)
+		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
+	else
+		setIoErrorEvent(error);
+}
+
 bool
 SocketBase::connectLoop(uint_t connectCompletedEvent)
 {

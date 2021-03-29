@@ -13,6 +13,7 @@
 #include "jnc_io_SslLib.h"
 #include "jnc_io_SslCertificate.h"
 #include "jnc_io_SslCipher.h"
+#include "jnc_io_SslState.h"
 #include "jnc_io_SslSocket.h"
 
 namespace jnc {
@@ -45,6 +46,7 @@ JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(SslLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SslCertName)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SslCertificate)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SslCipher)
+	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SslState)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(SslSocket)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
@@ -56,12 +58,11 @@ JNC_BEGIN_LIB_FUNCTION_MAP(SslLib)
 	JNC_MAP_TYPE(SslCertName)
 	JNC_MAP_TYPE(SslCertificate)
 	JNC_MAP_TYPE(SslCipher)
+	JNC_MAP_TYPE(SslState)
 	JNC_MAP_TYPE(SslSocket)
 JNC_END_LIB_FUNCTION_MAP()
 
 //..............................................................................
-
-int g_sslSocketSelfIdx;
 
 } // namespace io
 } // namespace jnc
@@ -83,7 +84,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeSslLibCapabilities();
-	jnc::io::g_sslSocketSelfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
+	jnc::io::SslState::initSelfIdx();
 	return jnc::io::SslLib_getLib();
 }
 

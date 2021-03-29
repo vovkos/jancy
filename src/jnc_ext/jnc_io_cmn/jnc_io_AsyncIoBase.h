@@ -111,6 +111,9 @@ protected:
 	void
 	unsuspendIoThread();
 
+	bool
+	suspendLoop();
+
 	template <typename T>
 	void
 	setSetting(

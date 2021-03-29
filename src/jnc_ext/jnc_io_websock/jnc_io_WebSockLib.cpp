@@ -21,7 +21,7 @@ namespace io {
 void
 initializeWebSockLibCapabilities()
 {
-	g_webSockCapability = jnc::isCapabilityEnabled("org.jancy.io.websock");
+	g_webSockCapability = jnc::isCapabilityEnabled("org.jancy.io.websocket");
 	initializeSocketCapabilities();
 }
 
