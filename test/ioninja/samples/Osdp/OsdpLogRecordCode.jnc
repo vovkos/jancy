@@ -1,0 +1,21 @@
+//..............................................................................
+//
+// OSDP record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum OsdpLogRecordCode: uint64_t
+{
+	Packet              = 0x01d6a38a95ff0d00 | log.RecordCodeFlags.Foldable,
+	InvalidPacketLength = 0x01d6a38a95ff0d01,
+}
+
+enum OsdpLogPartCode
+{
+	RawPacket,
+}
+
+//..............................................................................

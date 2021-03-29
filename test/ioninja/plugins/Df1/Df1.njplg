@@ -1,0 +1,22 @@
+#..............................................................................
+#
+#  DF1 Analyzer plugin
+#
+
+[plugin]
+
+name        = DF1 Analyzer
+description = "Analyzes a Serial/TCP log and generates a secondary log with decoded DF1 messages"
+id          = df1
+group       = analyzers
+log-guid    = 4eb82c4c-1f48-49a5-92cc-b492e7cfbf92  # DF1
+icon        = images/df1.png
+small-icon  = images/df1-16x16.png
+
+layer-class = Df1Layer
+pure-layer  = true
+
+[scripts]
+
+Df1Layer.jnc
+Df1Parser.jnc

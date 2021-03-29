@@ -1,0 +1,243 @@
+//..............................................................................
+//
+// TCP Flow layer
+//
+
+import "doc_Layer.jnc"
+import "ui_History.jnc"
+import "../NetSnifferLog/NetSnifferLogRecordCode.jnc"
+import "../EthernetTap/EthernetTapLogRecordCode.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class TcpFlowLayer:
+	doc.Layer,
+	log.Converter
+{
+protected:
+	// tcp decoding
+
+	TcpDecoder m_decoder;
+	char const* m_captureFilterString;
+	TcpFlowLogFilter m_filter;
+
+	// toolbar, status bar & menu
+
+	ui.ComboBox* m_viewFilterCombo;
+
+	// property grid
+
+	ui.StringProperty* m_viewFilterProp;
+	ui.IntProperty* m_tcpOutOfSeqLimitProp;
+	ui.IntProperty* m_ipFragmentLimitProp;
+	ui.IntProperty* m_ipFragmentTimeoutProp;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+	override bool convert(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	override void reset()
+	{
+		m_decoder.reset();
+	}
+
+protected:
+	void onSetViewFilter()
+	{
+		try applyViewFilter(true);
+	}
+
+	bool errorcode applyViewFilter(bool rebuildLog = false);
+	void createUi();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpFlowLayer.construct(doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	createUi();
+	pluginHost.m_log.addConverter(this);
+	pluginHost.m_log.addFilter(m_filter);
+}
+
+void TcpFlowLayer.createUi()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel("Filter:");
+	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_viewFilterCombo.m_isEditable = true;
+	m_viewFilterCombo.m_onEnter += onSetViewFilter;
+	m_viewFilterCombo.m_placeholderText = "Enter a filter andress...";
+	m_viewFilterCombo.m_toolTipText = "Only show connections matching this address";
+
+	ui.Action* action = createAction("Apply filter", "images/apply.png");
+	action.m_onTriggered += onSetViewFilter;
+
+	// property grid
+
+	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		"View filter",
+		"Enter a filter address...",
+		"Only show packets matching this address"
+		);
+
+	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
+		"IP fragment limit",
+		"Specify the maximum number of IP fragments"
+		);
+
+	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
+		"IP fragment timeout (ms)",
+		"Specify the maximum delay between IP fragments"
+		);
+
+	m_tcpOutOfSeqLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		"TCP out-of-seq limit",
+		"Specify the maximum number of out-of-order TCP segments"
+		);
+}
+
+bool errorcode TcpFlowLayer.applyViewFilter(bool rebuildLog)
+{
+	m_pluginHost.m_log.suspend();
+	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
+	m_pluginHost.m_log.resume();
+
+	if (!result)
+	{
+		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_viewFilterCombo.addEditTextToHistory();
+	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+
+	if (rebuildLog)
+		m_pluginHost.m_log.rebuild();
+
+	return true;
+}
+
+void TcpFlowLayer.load(doc.Storage* storage)
+{
+	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
+	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
+	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.Defaults.FragmentLimit);
+	m_ipFragmentTimeoutProp.m_value = storage.readInt("ipFragmentTimeout", io.IpDefragmenter.Defaults.FragmentTimeout);
+	m_tcpOutOfSeqLimitProp.m_value = storage.readInt("tcpOutOfSeqLimit", TcpSequencer.Defaults.OutOfSeqLimit);
+
+	m_decoder.setup(
+		m_ipFragmentLimitProp.m_value,
+		m_ipFragmentTimeoutProp.m_value,
+		m_tcpOutOfSeqLimitProp.m_value,
+		TcpDecoder.Defaults.ConnectionTimeout
+		);
+
+	try applyViewFilter();
+}
+
+void TcpFlowLayer.save(doc.Storage* storage)
+{
+	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
+	storage.writeString("viewFilter", m_viewFilterCombo.m_editText);
+	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);
+	storage.writeInt("ipFragmentTimeout", m_ipFragmentTimeoutProp.m_value);
+	storage.writeInt("tcpOutOfSeqLimit", m_tcpOutOfSeqLimitProp.m_value);
+}
+
+void TcpFlowLayer.updateProperties()
+{
+	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
+}
+
+bool errorcode TcpFlowLayer.applyProperties()
+{
+	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
+
+	m_decoder.setup(
+		m_ipFragmentLimitProp.m_value,
+		m_ipFragmentTimeoutProp.m_value,
+		m_tcpOutOfSeqLimitProp.m_value,
+		TcpDecoder.Defaults.ConnectionTimeout
+		);
+
+	applyViewFilter();
+	return true;
+}
+
+void TcpFlowLayer.restoreDefaultProperties()
+{
+	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
+	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
+	m_tcpOutOfSeqLimitProp.m_value = TcpSequencer.Defaults.OutOfSeqLimit;
+}
+
+bool TcpFlowLayer.convert(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	g_logWriter = writer;
+	g_logTimestamp = timestamp;
+
+	bool result = true;
+
+	switch (recordCode)
+	{
+	case log.StdRecordCode.SessionStarted:
+		m_decoder.reset();
+		result = false;
+		break;
+
+	case NetSnifferLogRecordCode.EthernetPacket:
+		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, p, size);
+		break;
+
+	case NetSnifferLogRecordCode.Packet:
+		io.PcapLinkType linkType = *(io.PcapLinkType const*)p;
+		p += sizeof(io.PcapLinkType);
+		size -= sizeof(io.PcapLinkType);
+		m_decoder.decodeLinkHdr(linkType, p, size);
+		break;
+
+	case EthernetTapLogRecordCode.Packet_ch1:
+	case EthernetTapLogRecordCode.Packet_ch2:
+		PacketHdr const* packetHdr = (PacketHdr const*)p;
+		if (!(packetHdr.m_flags & PacketFlags.CrcValid))
+			break; // ignore bad frames
+
+		p += sizeof(PacketHdr);
+		size -= sizeof(PacketHdr);
+		m_decoder.decodeLinkHdr(io.PcapLinkType.Ethernet, p, size);
+		break;
+
+	default:
+		result = false;
+	}
+
+	g_logWriter = null; // don't retain the conversion writer
+	return result;
+}
+
+//..............................................................................

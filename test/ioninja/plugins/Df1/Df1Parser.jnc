@@ -1,0 +1,264 @@
+//..............................................................................
+//
+// DF1 stream parser base class
+//
+
+import "std_Buffer.jnc"
+import "io_Df1.jnc"
+
+//..............................................................................
+
+class Df1Parser
+{
+protected:
+	enum LexerState
+	{
+		Idle,
+		Dle,
+	}
+
+	enum ParserState
+	{
+		Idle,
+		SohStn,
+		Stx,
+		App,
+		EnqStn,
+		Bcc,
+		CrcLo,
+		CrcHi,
+
+		Checksum = Bcc,
+	}
+
+	LexerState m_lexerState;
+	ParserState m_parserState;
+	uint64_t m_messageRecordCode;
+	std.Buffer m_message;
+
+public:
+	io.Df1Mode autoget property m_mode;
+	io.Df1ChecksumKind autoget property m_checksumKind;
+
+public:
+	construct()
+	{
+		m_checksumKind = io.Df1ChecksumKind.Crc;
+	}
+
+	void parse(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		char const* p,
+		size_t size
+		);
+
+	void reset();
+
+protected:
+	void flush(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t originalRecordCode,
+		char const* thin* base,
+		char const* p
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void Df1Parser.m_mode.set(io.Df1Mode mode)
+{
+	if (m_value == mode)
+		return;
+
+	m_value = mode;
+	reset();
+}
+
+void Df1Parser.m_checksumKind.set(io.Df1ChecksumKind checksumKind)
+{
+	if (m_value == checksumKind)
+		return;
+
+	m_value = checksumKind;
+	reset();
+}
+
+void Df1Parser.parse(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	char const* p0,
+	size_t size
+	)
+{
+	char const* p = p0;
+	char const* end = p + size;
+
+	while (p < end)
+	{
+		char c = *p++;
+		bool hasDlePrefix = false;
+
+		if (m_lexerState)
+		{
+			m_lexerState = LexerState.Idle;
+			hasDlePrefix = true;
+		}
+		else if (c == io.Df1Char.Dle && m_parserState < ParserState.Checksum) // checksums are not DLE-encoded
+		{
+			m_lexerState = LexerState.Dle;
+			continue;
+		}
+
+		ParserState prevState = m_parserState;
+		switch (m_parserState)
+		{
+		case ParserState.Idle:
+			if (!hasDlePrefix) // background data
+				continue;
+
+			switch (c)
+			{
+			case io.Df1Char.Enq:
+				if (m_mode == io.Df1Mode.HalfDuplex)
+				{
+					m_parserState = ParserState.EnqStn;
+					m_messageRecordCode = Df1LogRecordCode.EnqStn;
+					break;
+				}
+
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.Enq);
+				break;
+
+			case io.Df1Char.Soh:
+				m_parserState = ParserState.SohStn;
+				m_messageRecordCode = m_checksumKind == io.Df1ChecksumKind.Bcc ?
+					Df1LogRecordCode.SohBcc :
+					Df1LogRecordCode.SohCrc;
+				break;
+
+			case io.Df1Char.Stx:
+				m_parserState = ParserState.App;
+				m_messageRecordCode = m_checksumKind == io.Df1ChecksumKind.Bcc ?
+					Df1LogRecordCode.StxBcc :
+					Df1LogRecordCode.StxCrc;
+				m_message.clear();
+				break;
+
+			case io.Df1Char.Ack:
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.Ack);
+				break;
+
+			case io.Df1Char.Nak:
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.Nak);
+				break;
+
+			case io.Df1Char.Eot:
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.Eot);
+				break;
+
+			default:
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.UnexpectedChar);
+				reset();
+			};
+
+			break;
+
+		case ParserState.SohStn:
+			m_message.copy(c);
+			m_parserState = ParserState.Stx;
+			break;
+
+		case ParserState.Stx:
+			if (!hasDlePrefix || c != io.Df1Char.Stx)
+			{
+				flush(writer, timestamp, originalRecordCode, &p0, p);
+				writer.write(timestamp, Df1LogRecordCode.UnexpectedChar);
+				reset();
+				break;
+			}
+
+			if (m_checksumKind == io.Df1ChecksumKind.Crc)
+				m_message.append(c); // include STX in CRC
+
+			m_parserState = ParserState.App;
+			break;
+
+		case ParserState.App:
+			if (!hasDlePrefix || c != io.Df1Char.Etx)
+			{
+				m_message.append(c);
+				continue;
+			}
+
+			if (m_checksumKind == io.Df1ChecksumKind.Crc) // include ETX in CRC
+				m_message.append(c);
+
+			m_parserState = m_checksumKind == io.Df1ChecksumKind.Bcc ?
+				ParserState.Bcc :
+				ParserState.CrcLo;
+
+			break;
+
+		case ParserState.EnqStn:
+			m_message.copy(c);
+			m_parserState = ParserState.Bcc; // ENQ always use BCC
+			break;
+
+		case ParserState.Bcc:
+			m_message.append(c);
+			flush(writer, timestamp, originalRecordCode, &p0, p);
+			writer.write(timestamp, m_messageRecordCode, m_message.m_p, m_message.m_size);
+			m_parserState = ParserState.Idle;
+			break;
+
+		case ParserState.CrcLo:
+			m_message.append(c);
+			m_parserState = ParserState.CrcHi;
+			break;
+
+		case ParserState.CrcHi:
+			m_message.append(c);
+			flush(writer, timestamp, originalRecordCode, &p0, p);
+			writer.write(timestamp, m_messageRecordCode, m_message.m_p, m_message.m_size);
+			m_parserState = ParserState.Idle;
+			break;
+		}
+	}
+
+	flush(writer, timestamp, originalRecordCode, &p0, p);
+}
+
+void Df1Parser.reset()
+{
+	m_lexerState = LexerState.Idle;
+	m_parserState = ParserState.Idle;
+	m_messageRecordCode = 0;
+	m_message.clear();
+}
+
+void Df1Parser.flush(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t originalRecordCode,
+	char const* thin* base,
+	char const* p
+	)
+{
+	char const* p0 = *base;
+	if (p != p0)
+	{
+		writer.write(timestamp, originalRecordCode, p0, p - p0);
+		*base = p;
+	}
+}
+
+//..............................................................................

@@ -16,10 +16,10 @@ enum EthernetTapLogRecordCode: uint64_t
 	CaptureStarted          = 0x01d4cdafa0abb0e4,
 	CaptureStopped          = 0x01d4cdafa0abb0e5,
 	CaptureError            = 0x01d4cdafa0abb0e6,
-	Packet_ch1              = 0x81d4cdafa0abb0e7,
-	Packet_ch2              = 0x81d4cdafa0abb0e8,
-	PacketDetails_ch1       = 0x81d4cdafa0abb0e9,
-	PacketDetails_ch2       = 0x81d4cdafa0abb0ea,
+	Packet_ch1              = 0x01d4cdafa0abb0e7 | log.RecordCodeFlags.Foldable,
+	Packet_ch2              = 0x01d4cdafa0abb0e8 | log.RecordCodeFlags.Foldable,
+	PacketDetails_ch1       = 0x01d4cdafa0abb0e9 | log.RecordCodeFlags.Foldable,
+	PacketDetails_ch2       = 0x01d4cdafa0abb0ea | log.RecordCodeFlags.Foldable,
 	CypressBufferCleared    = 0x01d4cdafa0abb0eb,
 }
 

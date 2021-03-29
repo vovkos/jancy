@@ -1,0 +1,67 @@
+//..............................................................................
+//
+// UDP packet decoder
+//
+
+import "io_IpDecoder.jnc"
+import "log_Writer.jnc"
+
+threadlocal log.Writer* g_logWriter;
+threadlocal uint64_t g_logTimestamp;
+
+//..............................................................................
+
+class UdpDecoder: io.IpDecoder
+{
+public:
+	io.SocketAddress m_filterAddress; // freely adjustible
+
+protected:
+	override bool decodeTransportHdr(
+		io.SocketAddress* srcAddress,
+		io.SocketAddress* dstAddress,
+		io.IpProtocol protocol,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool UdpDecoder.decodeTransportHdr(
+	io.SocketAddress* srcAddress,
+	io.SocketAddress* dstAddress,
+	io.IpProtocol protocol,
+	void const* p,
+	size_t size
+	)
+{
+	if (protocol != io.IpProtocol.Udp || size < sizeof(io.UdpHdr))
+		return false;
+
+	io.UdpHdr const* udpHdr = (io.UdpHdr const*) p;
+	if (udpHdr.m_length < sizeof(io.UdpHdr) || udpHdr.m_length > size)
+		return false;
+
+	srcAddress.m_port = udpHdr.m_srcPort;
+	dstAddress.m_port = udpHdr.m_dstPort;
+
+	if (m_filterAddress.m_family &&
+		!srcAddress.isMatch(m_filterAddress) &&
+		!dstAddress.isMatch(m_filterAddress))
+		return false;
+
+	p += sizeof(io.UdpHdr);
+	size = udpHdr.m_length - sizeof(io.UdpHdr);
+
+	UdpFlowPacketParams params;
+	params.m_srcAddress = *srcAddress;
+	params.m_dstAddress = *dstAddress;
+	params.m_size = size;
+
+	g_logWriter.write(g_logTimestamp, UdpFlowLogRecordCode.Packet, &params, sizeof(params));
+	g_logWriter.write(g_logTimestamp, log.StdRecordCode.Rx, p, size);
+	return true;
+}
+
+//..............................................................................

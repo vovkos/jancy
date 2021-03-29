@@ -1,0 +1,29 @@
+#...............................................................................
+#
+#  TCP Flow layer plugin
+#
+
+[plugin]
+
+name        = "TCP Flow Analyzer"
+description = "Analyzes Pcap/Ethernet Tap logs and extracts TCP streams"
+id          = tcp-flow
+group       = analyzers
+log-guid    = 5a6cc363-3ace-4db8-9224-3d972d16b30d  # tcp flow
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/tcp-flow.png
+small-icon  = images/tcp-flow-16x16.png
+
+layer-class = TcpFlowLayer
+pure-layer  = true
+
+[required-capabilities]
+
+org.jancy.io.net
+
+[scripts]
+
+TcpFlowLayer.jnc
+TcpFlowLogFilter.jnc
+TcpDecoder.jnc
+TcpSequencer.jnc

@@ -13,6 +13,10 @@ small-icon  = images/replay-16x16.png
 
 layer-class = ReplayLogLayer
 
+[required-capabilities]
+
+org.jancy.io.file
+
 [scripts]
 
 ReplayLogLayer.jnc

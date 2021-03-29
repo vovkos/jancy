@@ -16,6 +16,10 @@ small-icon  = images/mailslot-16x16.png
 
 session-class = MailslotSession
 
+[required-capabilities]
+
+org.jancy.io.win.mailslot
+
 [scripts]
 
 MailslotSession.jnc

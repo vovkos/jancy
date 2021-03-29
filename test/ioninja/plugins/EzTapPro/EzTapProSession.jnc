@@ -506,7 +506,7 @@ void EzTapProSession.stopCapture()
 
 	resetAcquisition();
 
-	m_logWriter.write(SerialLogRecordCode.PortClosed, m_portName);
+	m_logWriter.write(SerialLogRecordCode.PortClosed);
 	m_stdSessionInfoSet.endSession();
 	m_serial.close();
 	m_state = State.Closed;

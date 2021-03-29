@@ -17,6 +17,10 @@ small-icon  = images/mailslotmon-16x16.png
 
 session-class = MailslotMonSession
 
+[required-capabilities]
+
+org.jancy.io.devmon
+
 [scripts]
 
 MailslotMonSession.jnc

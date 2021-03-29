@@ -1,0 +1,81 @@
+//..............................................................................
+//
+// OSDP Protocol Analyzer layer
+//
+
+import "doc_Layer.jnc"
+
+//..............................................................................
+
+class OsdpLayer:
+	doc.Layer,
+	log.Converter
+{
+protected:
+	static const std.Guid m_logGuid = "d5efd9a3-9be1-45ca-8366-c20b0aa80f46";
+
+	OsdpParser m_txParser;
+	OsdpParser m_rxParser;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	override bool convert(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	override void reset();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+OsdpLayer.construct(doc.PluginHost* pluginHost)
+{
+	basetype1.construct(pluginHost);
+	pluginHost.m_log.addConverter(this, &m_logGuid);
+}
+
+bool OsdpLayer.convert(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	bool result;
+	OsdpParser* parser;
+
+	switch (recordCode)
+	{
+	case log.StdRecordCode.SessionStarted:
+		reset();
+		break;
+
+	case log.StdRecordCode.Tx:
+		parser = &m_txParser;
+		break;
+
+	case log.StdRecordCode.Rx:
+		parser = &m_rxParser;
+		break;
+	}
+
+	if (!parser)
+		return false;
+
+	parser.parse(writer, timestamp, recordCode, p, size);
+	return true;
+}
+
+void OsdpLayer.reset()
+{
+	m_txParser.reset();
+	m_rxParser.reset();
+}
+
+//..............................................................................

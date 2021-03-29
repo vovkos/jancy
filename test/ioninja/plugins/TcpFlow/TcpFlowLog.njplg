@@ -1,0 +1,33 @@
+#...............................................................................
+#
+# TCP Flow log representer plugin
+#
+
+[plugin]
+
+name        = "TCP Flow Log"
+description = "TCP Flow log representer"
+group       = net
+guid        = 5a6cc363-3ace-4db8-9224-3d972d16b30d
+icon        = images/tcp-flow.png
+small-icon  = images/tcp-flow-16x16.png
+
+log-representer-func = representTcpFlowLog
+
+[scripts]
+
+TcpFlowLogRecordCode.jnc
+TcpFlowLogRepresenter.jnc
+
+[records]
+
+01d487c96e3d5259  # Connecting
+01d487c96e3d525a  # ConnectCompleted
+01d487c96e3d525b  # ConnectionPickedUp
+01d487c96e3d525c  # Disconnected_old
+01d487c96e3d525d  # OutOfOrderDataDropped
+01d487c96e3d525e  # ConnectionChanged
+01d487c96e3d525f  # Disconnected
+01d487c96e3d5260  # Reset
+01d487c96e3d5261  # DataLost
+01d487c96e3d5262  # TotalDataLost

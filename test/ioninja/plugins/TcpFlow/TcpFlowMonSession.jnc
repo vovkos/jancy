@@ -1,0 +1,602 @@
+//..............................................................................
+//
+// TCP Flow Monitor session
+//
+
+import "doc_Session.jnc"
+import "io_base.jncx"
+import "io_pcap.jncx"
+import "io_SocketAddress.jnc"
+import "ui_Dialog.jnc"
+import "ui_History.jnc"
+import "ui_PcapUi.jnc"
+import "ui_BufferPropertySet.jnc"
+import "ui_StdSessionInfoSet.jnc"
+import "log_ThroughputCalc.jnc"
+import "log_ChecksumCalc.jnc"
+import "std_Buffer.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class TcpFlowMonSession: doc.Session
+{
+protected:
+	enum Defaults
+	{
+		Promiscious      = false,
+		SnapshotSize     = 64 * 1024,
+		KernelBufferSise = 0,
+		BufferSise       = 1 * 1024 * 1024,
+	}
+
+	enum State
+	{
+		Idle,
+		Capturing,
+	}
+
+	enum ActionId
+	{
+		ApplyFilter,
+		Capture,
+		OpenPcap,
+		_Count,
+	}
+
+	enum IconId
+	{
+		Capture,
+		StopCapture,
+		_Count,
+	}
+
+	enum StatusPaneId
+	{
+		State,
+		_Count,
+	}
+
+protected:
+	// pcap & tcp decoding
+
+	State bindable m_state;
+	io.Pcap m_pcap;
+	TcpDecoder m_decoder;
+	char const* m_captureFilterString;
+	std.Buffer m_readBuffer;
+	TcpFlowLogFilter m_filter;
+	uint_t m_syncId;
+
+	// toolbar, status bar & menu
+
+	ui.Action* m_actionTable[ActionId._Count];
+	ui.Icon* m_iconTable[IconId._Count];
+	ui.StatusPane* m_statusPaneTable[StatusPaneId._Count];
+	ui.ComboBox* m_viewFilterCombo;
+	ui.ComboBox* m_deviceCombo;
+	ui.FileDlg* m_fileDlg;
+
+	// property grid
+
+	ui.EnumProperty* m_deviceProp;
+	ui.BoolProperty* m_promisciousProp;
+	ui.StringProperty* m_captureFilterProp;
+	ui.StringProperty* m_viewFilterProp;
+	ui.IntProperty* m_tcpOutOfSeqLimitProp;
+	ui.IntProperty* m_ipFragmentLimitProp;
+	ui.IntProperty* m_ipFragmentTimeoutProp;
+	ui.IntProperty* m_snapshotSizeProp;
+	ui.IntProperty* m_kernelBufferSizeProp;
+	ui.BufferPropertySet m_bufferPropertySet;
+
+	// information grid
+
+	ui.StdSessionInfoSet m_stdSessionInfoSet;
+	ui.ThroughputInfoSet m_throughputInfoSet;
+	ui.ChecksumInfoSet m_checksumInfoSet;
+
+	// ui reactor
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	bool errorcode capture();
+	bool errorcode openPcapFile(char const* fileName);
+	void stopCapture();
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+protected:
+	void onCapture()
+	{
+		m_state ? stopCapture() : try capture();
+	}
+
+	void onSetViewFilter()
+	{
+		try applyViewFilter(true);
+	}
+
+	void onDeviceComboEnter()
+	{
+		try capture();
+	}
+
+	void onOpenPcap();
+	void onFileDlgCompleted(ui.StdDlgButton button);
+
+	void onPcapEvent(
+		uint_t syncId,
+		io.PcapEvents triggeredEvents
+		);
+
+	char const* createCaptureFilterString(io.SocketAddress const* filterAddress);
+	bool errorcode applyCaptureFilter();
+	bool errorcode applyViewFilter(bool rebuildLog = false);
+
+	void waitPcapEvents();
+	void createUi();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+TcpFlowMonSession.construct(doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	createUi();
+
+	pluginHost.m_log.addSelectionProcessor(log.ThroughputCalcRangeProcessor.factory~(m_throughputInfoSet));
+	pluginHost.m_log.addSelectionProcessor(log.ChecksumCalcRangeProcessor.factory~(m_checksumInfoSet));
+	pluginHost.m_log.addFilter(m_filter);
+	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
+}
+
+void TcpFlowMonSession.createUi()
+{
+	// toolbar
+
+	m_pluginHost.m_toolBar.addLabel("Filter:");
+	m_viewFilterCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_viewFilterCombo.m_isEditable = true;
+	m_viewFilterCombo.m_onEnter += onSetViewFilter;
+	m_viewFilterCombo.m_placeholderText = "Enter a filter andress...";
+	m_viewFilterCombo.m_toolTipText = "Only show connections matching this address";
+
+	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
+	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetViewFilter;
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_pluginHost.m_toolBar.addLabel("Device:");
+	m_deviceCombo = ui.createPcapDeviceComboBox(m_pluginHost.m_toolBar);
+	m_deviceCombo.m_onEnter += onDeviceComboEnter;
+
+	m_iconTable[IconId.Capture] = new ui.Icon("images/capture.png");
+	m_iconTable[IconId.StopCapture] = new ui.Icon("images/pause.png");
+
+	m_actionTable[ActionId.Capture] = createAction("Capture", m_iconTable [IconId.Capture]);
+	m_actionTable[ActionId.Capture].m_onTriggered += onCapture;
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_actionTable[ActionId.OpenPcap] = createAction("Open Pcap file (*.pcap)", "images/open-pcap.png");
+	m_actionTable[ActionId.OpenPcap].m_onTriggered += onOpenPcap;
+
+	// status bar
+
+	m_statusPaneTable[StatusPaneId.State] = m_pluginHost.m_statusBar.addPane(, 80);
+
+	// property grid
+
+	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Connection",
+		"Pcap-specific connection settings"
+		);
+
+	m_deviceProp = ui.createPcapDeviceProperty(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		"Device",
+		"Specify the device to capture on"
+		);
+
+	m_promisciousProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		group,,
+		"Promiscious mode",
+		"Put the capturing interface into promiscious mode"
+		);
+
+	m_captureFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"Capture filter",
+		"Enter a filter address...",
+		"Only capture packets matching this address"
+		);
+
+	m_viewFilterProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		group,,
+		"View filter",
+		"Enter a filter address...",
+		"Only show packets matching this address"
+		);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"TCP defragmenter",
+		"TCP defragmentation settings"
+		);
+
+	m_ipFragmentLimitProp  = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"IP fragment limit",
+		"Specify the maximum number of IP fragments"
+		);
+
+	m_ipFragmentTimeoutProp  = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"IP fragment timeout (ms)",
+		"Specify the maximum delay between IP fragments"
+		);
+
+	m_tcpOutOfSeqLimitProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"TCP out-of-seq limit",
+		"Specify the maximum number of out-of-order TCP segments"
+		);
+
+	group = m_pluginHost.m_propertyGrid.createGroupProperty(
+		"Buffering",
+		"Advanced buffering options affecting throughtput and compatibility"
+		);
+
+	m_snapshotSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Snapshot size",
+		"Specify the Pcap snapshot size"
+		);
+
+	m_snapshotSizeProp.m_spinBoxStep = 1024;
+
+	m_kernelBufferSizeProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		group,,
+		"Kernel buffer size",
+		"Specify the Pcap kernel buffer size (0 = default)"
+		);
+
+	m_kernelBufferSizeProp.m_spinBoxStep = 1024;
+
+	ui.BufferPropertySet.PropertyId mask =
+		ui.BufferPropertySet.PropertyId.ReadBufferSize |
+		ui.BufferPropertySet.PropertyId.NotifyReadBufferFull;
+
+	m_bufferPropertySet.createProperties(m_pluginHost.m_propertyGrid, group,, mask);
+	m_bufferPropertySet.m_defaultReadBufferSize = Defaults.BufferSise;
+
+	// information grid
+
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP monitor");
+
+	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
+	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+	m_checksumInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
+
+	m_pluginHost.m_propertyGrid.resizeNameColumnToContents();
+	m_pluginHost.m_informationGrid.resizeNameColumnToContents();
+
+	m_uiReactor.start();
+}
+
+void TcpFlowMonSession.onOpenPcap()
+{
+	if (!m_fileDlg)
+	{
+		m_fileDlg = new ui.FileDlg;
+		m_fileDlg.m_onCompleted += onFileDlgCompleted;
+	}
+
+	m_fileDlg.m_kind = ui.FileDlgKind.Open;
+	m_fileDlg.m_title = "Open Pcap File...";
+	m_fileDlg.m_filter = "Pcap files (*.pcap; *.cap);; All files (*.*)";
+	m_fileDlg.show();
+}
+
+void TcpFlowMonSession.onFileDlgCompleted(ui.StdDlgButton button)
+{
+	if (button == ui.StdDlgButton.Ok)
+		try openPcapFile(m_fileDlg.m_filePath);
+}
+
+bool errorcode TcpFlowMonSession.capture()
+{
+	stopCapture();
+	startSession();
+
+	io.PcapDeviceDesc const* device = m_deviceCombo.m_currentData;
+
+	io.SocketAddress filterAddress;
+	if (m_captureFilterProp.m_value)
+		filterAddress.parse(m_captureFilterProp.m_value);
+
+	char const* filterString = createCaptureFilterString(filterAddress);
+	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
+
+	m_pcap.openDevice(device.m_name);
+	m_pcap.m_isPromiscious = m_promisciousProp.m_value;
+	m_pcap.m_snapshotSize = m_snapshotSizeProp.m_value;
+	m_pcap.m_kernelBufferSize = m_kernelBufferSizeProp.m_value;
+	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_pcap.activate(filterString);
+
+	m_decoder.m_filterAddress = filterAddress;
+	m_captureFilterString = filterString;
+	m_state = State.Capturing;
+	m_logWriter.write(PcapLogRecordCode.CaptureStarted);
+
+	if (filterAddress.m_family)
+		m_logWriter.write(PcapLogRecordCode.SetAddressFilter, filterAddress, sizeof(filterAddress));
+
+	waitPcapEvents();
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	return true;
+
+catch:
+	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	return false;
+}
+
+bool errorcode TcpFlowMonSession.openPcapFile(char const* fileName)
+{
+	stopCapture();
+	startSession();
+
+	io.SocketAddress filterAddress;
+	if (m_captureFilterProp.m_value)
+		filterAddress.parse(m_captureFilterProp.m_value);
+
+	char const* filterString = createCaptureFilterString(filterAddress);
+	m_logWriter.write(PcapLogRecordCode.StartingCapture, filterString);
+
+	m_pcap.openFile(fileName, filterString);
+	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	m_decoder.m_filterAddress = filterAddress;
+	m_captureFilterString = filterString;
+	m_state = State.Capturing;
+
+	m_logWriter.write(PcapLogRecordCode.CaptureStarted);
+
+	if (filterAddress.m_family)
+		m_logWriter.write(PcapLogRecordCode.SetAddressFilter, filterAddress, sizeof(filterAddress));
+
+	waitPcapEvents();
+	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	return true;
+
+catch:
+	m_logWriter.writeLastError(PcapLogRecordCode.CaptureError);
+	return false;
+}
+
+void TcpFlowMonSession.stopCapture()
+{
+	if (!m_state)
+		return;
+
+	if (m_state & State.Capturing)
+		m_logWriter.write(PcapLogRecordCode.CaptureStopped);
+
+	m_pcap.close();
+	m_decoder.reset();
+	m_state = State.Idle;
+	m_syncId++;
+	m_stdSessionInfoSet.endSession();
+}
+
+bool errorcode TcpFlowMonSession.applyCaptureFilter()
+{
+	if (!m_state)
+		return true;
+
+	io.SocketAddress filterAddress;
+	if (m_captureFilterProp.m_value)
+		filterAddress.parse(m_captureFilterProp.m_value);
+
+	char const* filterString = createCaptureFilterString(filterAddress);
+
+	if (strcmp(filterString, m_captureFilterString))
+	{
+		m_pcap.setFilter(filterString);
+		m_captureFilterString = filterString;
+		m_logWriter.write(PcapLogRecordCode.SetCaptureFilter, filterString);
+	}
+
+	if (!filterAddress.isEqual(&m_decoder.m_filterAddress))
+	{
+		m_decoder.m_filterAddress = filterAddress;
+		m_logWriter.write(PcapLogRecordCode.SetAddressFilter, filterAddress, sizeof(filterAddress));
+	}
+
+	return true;
+
+catch:
+	m_logWriter.writeLastError(log.StdRecordCode.Error);
+	return false;
+}
+
+bool errorcode TcpFlowMonSession.applyViewFilter(bool rebuildLog)
+{
+	m_pluginHost.m_log.suspend();
+	bool result = try m_filter.setFilter(m_viewFilterCombo.m_editText);
+	m_pluginHost.m_log.resume();
+
+	if (!result)
+	{
+		m_viewFilterCombo.m_backgroundColor = ui.StdColor.PastelRed;
+		return false;
+	}
+
+	m_viewFilterCombo.addEditTextToHistory();
+	m_viewFilterCombo.m_backgroundColor = ui.ColorFlags.Transparent;
+
+	if (rebuildLog)
+		m_pluginHost.m_log.rebuild();
+
+	return true;
+}
+
+char const* TcpFlowMonSession.createCaptureFilterString(io.SocketAddress const* filterAddress)
+{
+	char const* filterString =
+		filterAddress.m_family == io.AddressFamily.Ip6 ? $"tcp and host $(filterAddress.m_ip6.m_address.getString())" :
+		filterAddress.m_ip4.m_address.m_i32 ? $"tcp and host $(filterAddress.m_ip4.m_address.getString())" :
+		"tcp";
+
+	// fragmented IP packets will not satisfy port filter, so don't add it;
+	// for experimenting, uncomment the following:
+
+	// if (filterAddress.m_port)
+	//	filterString = $"$filterString and port $(filterAddress.m_port)";
+
+	return filterString;
+}
+
+void TcpFlowMonSession.waitPcapEvents()
+{
+	io.PcapEvents eventMask =
+		io.PcapEvents.IoError |
+		io.PcapEvents.ReadBufferFull |
+		io.PcapEvents.IncomingData |
+		io.PcapEvents.Eof;
+
+	m_pcap.wait(eventMask, onPcapEvent~(++m_syncId) @ m_pluginHost.m_mainThreadScheduler);
+}
+
+void TcpFlowMonSession.load(doc.Storage* storage)
+{
+	m_viewFilterCombo.loadHistory(storage, "viewFilterHistory");
+	m_deviceCombo.m_currentIndex = storage.readInt("deviceIdx");
+	m_promisciousProp.m_value = storage.readBool("promiscious");
+	m_captureFilterProp.m_value = storage.readString("captureFilter");
+	m_viewFilterCombo.m_editText = storage.readString("viewFilter");
+	m_ipFragmentLimitProp.m_value = storage.readInt("ipFragmentLimit", io.IpDefragmenter.Defaults.FragmentLimit);
+	m_ipFragmentTimeoutProp.m_value = storage.readInt("ipFragmentTimeout", io.IpDefragmenter.Defaults.FragmentTimeout);
+	m_tcpOutOfSeqLimitProp.m_value = storage.readInt("tcpOutOfSeqLimit", TcpSequencer.Defaults.OutOfSeqLimit);
+	m_snapshotSizeProp.m_value = storage.readInt("snapshotSize", Defaults.SnapshotSize);
+	m_kernelBufferSizeProp.m_value = storage.readInt("kernelBufferSize", Defaults.KernelBufferSise);
+
+	m_bufferPropertySet.load(storage);
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+}
+
+void TcpFlowMonSession.save(doc.Storage* storage)
+{
+	m_bufferPropertySet.save(storage);
+	m_viewFilterCombo.saveHistory(storage, "viewFilterHistory");
+	storage.writeInt("deviceIdx", (int) m_deviceCombo.m_currentIndex);
+	storage.writeBool("promiscious", m_promisciousProp.m_value);
+	storage.writeString("captureFilter", m_captureFilterProp.m_value);
+	storage.writeString("viewFilter", m_viewFilterCombo.m_editText);
+	storage.writeInt("ipFragmentLimit", m_ipFragmentLimitProp.m_value);
+	storage.writeInt("ipFragmentTimeout", m_ipFragmentTimeoutProp.m_value);
+	storage.writeInt("tcpOutOfSeqLimit", m_tcpOutOfSeqLimitProp.m_value);
+	storage.writeInt("snapshotSize", m_snapshotSizeProp.m_value);
+	storage.writeInt("kernelBufferSize", m_kernelBufferSizeProp.m_value);
+}
+
+void TcpFlowMonSession.updateProperties()
+{
+	m_deviceProp.m_currentIndex = m_deviceCombo.m_currentIndex;
+	m_viewFilterProp.m_value = m_viewFilterCombo.m_editText;
+}
+
+bool errorcode TcpFlowMonSession.applyProperties()
+{
+	m_deviceCombo.m_currentIndex = m_deviceProp.m_currentIndex;
+	m_viewFilterCombo.m_editText = m_viewFilterProp.m_value;
+
+	m_decoder.setup(
+		m_ipFragmentLimitProp.m_value,
+		m_ipFragmentTimeoutProp.m_value,
+		m_tcpOutOfSeqLimitProp.m_value,
+		TcpDecoder.Defaults.ConnectionTimeout
+		);
+
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
+
+	applyViewFilter();
+
+	if (!m_pcap.m_isOpen)
+		return true;
+
+	m_pcap.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+	applyCaptureFilter();
+	return true;
+}
+
+void TcpFlowMonSession.restoreDefaultProperties()
+{
+	m_promisciousProp.m_value = Defaults.Promiscious;
+	m_ipFragmentLimitProp.m_value = io.IpDefragmenter.Defaults.FragmentLimit;
+	m_ipFragmentTimeoutProp.m_value = io.IpDefragmenter.Defaults.FragmentTimeout;
+	m_tcpOutOfSeqLimitProp.m_value = TcpSequencer.Defaults.OutOfSeqLimit;
+	m_snapshotSizeProp.m_value = Defaults.SnapshotSize;
+	m_kernelBufferSizeProp.m_value = Defaults.KernelBufferSise;
+	m_bufferPropertySet.restoreDefaults();
+}
+
+void TcpFlowMonSession.onPcapEvent(
+	uint_t syncId,
+	io.PcapEvents triggeredEvents
+	)
+{
+	if (syncId != m_syncId)
+		return;
+
+	if (triggeredEvents & io.PcapEvents.IoError)
+	{
+		m_logWriter.write(log.StdRecordCode.Error, m_pcap.m_ioError);
+		stopCapture();
+		return;
+	}
+
+	if ((triggeredEvents & io.PcapEvents.ReadBufferFull) &&
+		m_bufferPropertySet.m_notifyReadBufferFullProp.m_value)
+		m_logWriter.write(log.StdRecordCode.RxBufferFull);
+
+	if (triggeredEvents & io.PcapEvents.IncomingData)
+	{
+		uint64_t timestamp;
+		size_t result = m_pcap.read(m_readBuffer.m_p, m_readBuffer.m_size, &timestamp);
+		if (result)
+		{
+			g_logWriter = m_pluginHost.m_log.m_writer;
+			g_logTimestamp = timestamp;
+			m_decoder.decodeLinkHdr(m_pcap.m_linkType, m_readBuffer.m_p, result);
+		}
+	}
+
+	if (triggeredEvents & io.PcapEvents.Eof)
+	{
+		stopCapture();
+		return;
+	}
+
+	waitPcapEvents();
+}
+
+reactor TcpFlowMonSession.m_uiReactor
+{
+	m_title = $"TCP Mon $(m_viewFilterCombo.m_currentText)";
+	m_actionTable[ActionId.Capture].m_text = m_state ? "Stop Capture" : "Capture";
+	m_actionTable[ActionId.Capture].m_icon = m_iconTable[m_state ? IconId.StopCapture : IconId.Capture];
+	m_statusPaneTable[StatusPaneId.State].m_text = (m_state & State.Capturing) ?
+		"Capturing" :
+		"Closed";
+}
+
+//..............................................................................

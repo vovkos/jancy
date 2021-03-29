@@ -513,7 +513,7 @@ void SerialTapSession.close()
 	if (m_state != State.Opened)
 		return;
 
-	m_logWriter.write(SerialLogRecordCode.PortClosed, $"$(m_dtePort.m_name):$(m_dcePort.m_name)");
+	m_logWriter.write(SerialLogRecordCode.PortClosed);
 
 	m_dtePort.m_serial.close();
 	m_dcePort.m_serial.close();

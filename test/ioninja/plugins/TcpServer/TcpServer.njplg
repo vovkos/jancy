@@ -7,13 +7,24 @@
 
 name        = TCP Server
 description = "Listens for and accepts TCP connections"
-id          = tcp-listener
+id          = tcp-server
 group       = net
 log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
 icon        = images/listener.png
 small-icon  = images/listener-16x16.png
 
 session-class = TcpServerSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.tcp
+org.jancy.io.server
+
+[optional-capabilities]
+
+org.jancy.io.ip4
+org.jancy.io.ip6
 
 [scripts]
 

@@ -15,14 +15,10 @@ namespace ui {
 
 //..............................................................................
 
-EnumPropertyOption const* createPcapDeviceOptionArray(bool canOpenFile = true)
+EnumPropertyOption const* createPcapDeviceOptionArray()
 {
 	size_t count;
 	io.PcapDeviceDesc const* device = io.createPcapDeviceDescList(&count);
-
-	if (canOpenFile)
-		count++;
-
 	EnumPropertyOption* optionArray = new EnumPropertyOption[count];
 	EnumPropertyOption* option = optionArray;
 
@@ -36,12 +32,6 @@ EnumPropertyOption const* createPcapDeviceOptionArray(bool canOpenFile = true)
 		option.m_value = device;
 	}
 
-	if (canOpenFile)
-	{
-		option.m_text = "Wireshark File (*.cap; *.pcap)";
-		option.m_value = null;
-	}
-
 	return optionArray;
 }
 
@@ -51,12 +41,11 @@ EnumProperty* createPcapDeviceProperty(
 	PropertyGrid* propertyGrid,
 	GroupProperty* group = null,
 	Property* beforeProp = null,
-	bool canOpenFile = true,
 	char const* name,
 	char const* toolTipText
 	)
 {
-	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray(canOpenFile);
+	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
 	size_t optionCount = dynamic countof(optionArray);
 
 	return propertyGrid.createEnumProperty(
@@ -73,11 +62,10 @@ EnumProperty* createPcapDeviceProperty(
 
 ComboBox* createPcapDeviceComboBox(
 	ToolBar* toolBar,
-	bool canOpenFile = true,
 	uint_t width = -1
 	)
 {
-	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray(canOpenFile);
+	EnumPropertyOption const* optionArray = createPcapDeviceOptionArray();
 	size_t optionCount = dynamic countof(optionArray);
 
 	ComboBox* comboBox = toolBar.addComboBox(width);

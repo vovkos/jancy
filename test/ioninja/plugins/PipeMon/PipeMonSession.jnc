@@ -56,6 +56,7 @@ protected:
 	PipeMonitor m_npfsMonitor;
 	PipeMonitor m_lanmanMonitor;
 	PipeMonLogFilter m_filter;
+	char const* m_captureFilter;
 
 	// toolbar, status bar & menu
 
@@ -108,6 +109,12 @@ protected:
 	}
 
 	void onMonitorError();
+
+	char const* createCaptureFilter()
+	{
+		char const* name = m_captureFilterProp.m_value;
+		return name && *name ? strdup(name) : "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
+	}
 
 	void createUi();
 	void applyViewFilter(bool rebuildLog = false);
@@ -244,20 +251,17 @@ bool errorcode PipeMonSession.capture()
 	close();
 	startSession();
 
-	char const* name = m_captureFilterProp.m_value;
-	if (!name || !*name)
-		name = "*"; // null wildcard means we also receive notifications from already-opened "nameless" files
-
+	m_captureFilter = createCaptureFilter();
 	m_npfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
-	m_npfsMonitor.capture(r"\device\namedpipe", name);
+	m_npfsMonitor.capture(r"\device\namedpipe", m_captureFilter);
 
 	if (m_useLanmanMonitorProp.m_value)
 	{
 		m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
-		m_lanmanMonitor.capture(r"\device\lanmanredirector", name);
+		m_lanmanMonitor.capture(r"\device\lanmanredirector", m_captureFilter);
 	}
 
-	m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_filter, name);
+	m_logWriter.write(DeviceMonLogRecordCode.CaptureStarted_filter, m_captureFilter);
 	m_state = State.Opened;
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	applyViewFilter();
@@ -327,6 +331,16 @@ bool errorcode PipeMonSession.applyProperties()
 
 	m_npfsMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
 	m_lanmanMonitor.applyProperties(m_bufferPropertySet, m_pendingNotifySizeLimitProp.m_value);
+
+	char const* captureFilter = createCaptureFilter();
+	if (strcmp(m_captureFilter, captureFilter))
+	{
+		m_captureFilter = captureFilter;
+		m_npfsMonitor.setFileNameFilter(captureFilter);
+		m_lanmanMonitor.setFileNameFilter(captureFilter);
+		m_logWriter.write(DeviceMonLogRecordCode.SetCaptureFilter, captureFilter);
+	}
+
 	return true;
 }
 

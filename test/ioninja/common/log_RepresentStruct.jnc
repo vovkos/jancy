@@ -33,7 +33,7 @@ void representStruct(
 	Representation* representation,
 	jnc.StructType* type,
 	char const* name = null,
-	uint_t binPartRecordCode,
+	uint_t binPartRecordCode = 0,
 	void const* p,
 	size_t baseOffset = 0,
 	uint_t foldFlags = 1,

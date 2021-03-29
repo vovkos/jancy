@@ -121,6 +121,16 @@ public:
 		size_t size
 		);
 
+	override bool errorcode connectSession()
+	{
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession()
+	{
+		disconnect();
+	}
+
 protected:
 	void close();
 	void handleSocketError(std.Error const* error);
@@ -240,6 +250,7 @@ bool errorcode TcpConnectionSession.connect()
 	}
 
 	m_state = State.Resolving;
+	m_sessionConnectionState = SessionConnectionState.Connecting;
 
 	m_logWriter.write(
 		SocketLogRecordCode.Resolving,
@@ -300,6 +311,7 @@ bool errorcode TcpConnectionSession.connect(io.SocketAddress const* remoteAddres
 	}
 
 	m_state = State.Connecting;
+	m_sessionConnectionState = SessionConnectionState.Connecting;
 	m_remoteAddress = *remoteAddress;
 
 	m_socket.connect(remoteAddress);
@@ -367,6 +379,7 @@ void TcpConnectionSession.close()
 	m_isTransmitEnabled = false;
 	m_socket.close();
 	m_state = State.Closed;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_syncId++;
 }
 
@@ -509,6 +522,7 @@ void TcpConnectionSession.onSocketEvent(
 		m_infoTable[InfoId.LocalAddress].m_value = m_localAddress.getString();
 		m_infoTable[InfoId.RemoteAddress].m_value = m_remoteAddress.getString();
 		m_state = State.Connected;
+		m_sessionConnectionState = SessionConnectionState.Connected;
 		m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	}
@@ -556,7 +570,7 @@ void TcpConnectionSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
-	if (io.SocketEvents.WriteBufferReady)
+	if (triggeredEvents & io.SocketEvents.WriteBufferReady)
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();

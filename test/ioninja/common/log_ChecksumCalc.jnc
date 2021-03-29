@@ -81,6 +81,7 @@ void ChecksumCalcRangeProcessor.processBin(
 
 		p++;
 		size--;
+		m_totalSize++;
 	}
 
 	void const* end = p + (size & ~1);

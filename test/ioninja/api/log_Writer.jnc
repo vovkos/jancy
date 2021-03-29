@@ -82,6 +82,11 @@ opaque class Writer
 		write(sys.getPreciseTimestamp(), recordCode, p, strlen(p));
 	}
 
+	void write(char const* p)
+	{
+		write(sys.getPreciseTimestamp(), log.StdRecordCode.PlainText, p, strlen(p));
+	}
+
 	void write(
 		uint64_t timestamp,
 		uint64_t recordCode,
@@ -145,6 +150,13 @@ opaque class Writer
 	{
 		write(StdRecordCode.SyncId, &syncId, sizeof(syncId));
 	}
+}
+
+//..............................................................................
+
+class ProxyWriter: Writer
+{
+	Writer* autoget property m_target;
 }
 
 //..............................................................................

@@ -15,6 +15,10 @@ small-icon  = images/serial-16x16.png
 
 session-class = SerialSession
 
+[required-capabilities]
+
+org.jancy.io.serial
+
 [scripts]
 
 SerialSession.jnc

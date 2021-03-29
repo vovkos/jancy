@@ -1,0 +1,25 @@
+#...............................................................................
+#
+#  OSDP log plugin
+#
+
+[plugin]
+
+name        = "OSDP Log"
+description = "OSDP log representer"
+guid        = d5efd9a3-9be1-45ca-8366-c20b0aa80f46
+icon        = images/osdp.png
+small-icon  = images/osdp-16x16.png
+
+log-representer-func = representOsdpLog
+
+[scripts]
+
+OsdpLogRecordCode.jnc
+OsdpLogRepresenter.jnc
+Osdp.jnc
+
+[records]
+
+81d6a38a95ff0d00  # Packet
+01d6a38a95ff0d01  # InvalidPacketLength

@@ -1,0 +1,122 @@
+//..............................................................................
+//
+// OSDP RTU log record declarations and representer
+//
+
+import "log_Representation.jnc"
+import "log_RepresentStruct.jnc"
+
+//..............................................................................
+
+bool representOsdpLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case OsdpLogRecordCode.Packet:
+		representPacket(representation, p, size, foldFlags);
+		break;
+
+	case OsdpLogRecordCode.InvalidPacketLength:
+		representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+		representation.addHyperText("Invalid packet length");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void representPacket(
+	log.Representation* representation,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	OsdpHdr const* hdr = (OsdpHdr const*)p;
+	OsdpScbHdr const* scbHdr = (OsdpScbHdr const*)(hdr + 1);
+	OsdpCmdReply const* cmdReply = (hdr.m_ctrl & OsdpCtrl.Scb) ?
+		(OsdpCmdReply const*)((char const*)scbHdr + scbHdr.m_length) :
+		(OsdpCmdReply const*)(hdr + 1);
+
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+	representation.m_lineAttr.m_iconIdx = hdr.m_direction ?
+		log.StdLogIcon.RxPacket :
+		log.StdLogIcon.TxPacket;
+
+	if (!foldFlags)
+	{
+		representation.addHyperText($"[\e^+1\e[34m+\e[m] \e[1mOSDP\e[m %1 %2 \e[34m%3"(
+			typeof(OsdpCmdReplyCode).getValueString(cmdReply.m_code),
+			hdr.m_direction ? "\u2190" : "\u2192",
+			hdr.m_address
+			));
+	}
+	else
+	{
+		representation.addHyperText($"[\e^-1\e[34m-\e[m] \e[1mOSDP");
+
+		size_t offset = 0;
+
+		log.representStruct(
+			representation,
+			typeof(OsdpHdr),
+			null,
+			OsdpLogPartCode.RawPacket,
+			p,
+			offset,
+			0, 0, 0
+			);
+
+		offset += sizeof(OsdpHdr);
+
+		if (hdr.m_ctrl & OsdpCtrl.Scb)
+		{
+			// TODO: represent SCB
+			offset += scbHdr.m_length;
+		}
+
+		log.representStruct(
+			representation,
+			typeof(OsdpCmdReply),
+			null,
+			OsdpLogPartCode.RawPacket,
+			p + offset,
+			offset,
+			0, 0, 0
+			);
+
+		offset += sizeof(OsdpCmdReply);
+
+		if (hdr.m_ctrl & OsdpCtrl.Crc)
+		{
+			offset = size - 2;
+
+			log.representStruct(
+				representation,
+				typeof(OsdpCrc),
+				null,
+				OsdpLogPartCode.RawPacket,
+				p + offset,
+				offset,
+				0, 0, 0
+				);
+		}
+
+		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.addBin(OsdpLogPartCode.RawPacket, p, size);
+	}
+}
+
+//..............................................................................

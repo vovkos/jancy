@@ -1,0 +1,59 @@
+//..............................................................................
+//
+// The example extracts sections of the incomiong data stream (RX) between 
+// characters STX (0x02) and CR (0x0A) and saves those in a file called 
+// 'ioninja-stx-cr.bin' in the users's home directory.
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_File.jnc"
+
+void onLogRecord(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	char const* p,
+	size_t size
+	)
+{
+	if (recordCode != log.StdRecordCode.Rx)
+		return;
+
+	static bool stx = false;
+
+	char const* end = p + size;
+	while (p < end)
+	{
+		if (!stx)
+		{
+			p = memchr(p, 0x02, end - p);
+			if (!p)
+				return;
+
+			stx = true;
+		}
+		
+		char const* cr = memchr(p, 0x0d, end - p);
+		if (!cr)
+			break;
+			
+		size_t length = cr - p + 1;
+		save(p, length);
+		p += length;
+		stx = false;
+	}
+
+	save(p, end - p);
+}
+
+void save(
+	void const* p,
+	size_t size
+	)
+{
+	static io.File file;
+	if (!file.m_isOpen)
+		file.open($"%1/ioninja-stx-cr.bin"(io.getHomeDir()));
+
+	file.write(p, size);
+}

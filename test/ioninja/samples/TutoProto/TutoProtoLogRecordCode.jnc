@@ -1,0 +1,21 @@
+//..............................................................................
+//
+// TutoProto Analyzer log record declarations
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum TutoProtoLogRecordCode: uint64_t
+{
+	Packet = 0x01d6bd8b5d4587f0 | log.RecordCodeFlags.Foldable,
+}
+
+enum TutoProtoLogPartCode
+{
+	RawData = 1,
+	Payload = 2,
+}
+
+//..............................................................................

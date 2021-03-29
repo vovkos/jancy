@@ -59,6 +59,11 @@ public:
 		size_t pendingNotifySizeLimit
 		);
 
+	void setFileNameFilter(char const* filter)
+	{
+		m_monitor.m_fileNameFilter = filter;
+	}
+
 protected:
 	void onMonitorEvent(
 		uint_t syncId,

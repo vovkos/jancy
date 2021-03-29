@@ -11,7 +11,7 @@ enum SslLogRecordCode: uint64_t
 {
 	SslHandshaking         = 0x01d5cdeded08f700,
 	SslHandshakeCompleted  = 0x01d5cdeded08f701,
-	SslCertificate         = 0x81d5cdeded08f702,
+	SslCertificate         = 0x01d5cdeded08f702 | log.RecordCodeFlags.Foldable,
 	SslCipher              = 0x01d5cdeded08f703,
 	SslConnectionCompleted = 0x01d5cdeded08f704,
 }

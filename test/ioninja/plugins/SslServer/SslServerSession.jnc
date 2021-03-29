@@ -132,6 +132,11 @@ public:
 		size_t size
 		);
 
+	override void disconnectSession()
+	{
+		disconnectAll();
+	}
+
 protected:
 	void onListen()
 	{
@@ -463,7 +468,10 @@ size_t errorcode SslServerSession.transmit(
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
 	if (result < size)
+	{
 		client.m_isTransmitEnabled = false;
+		waitClientSocketEvents(client);
+	}
 
 	return result;
 }
@@ -541,6 +549,12 @@ void SslServerSession.onListenerSocketEvent(
 		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 		socket.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
 
+		if (m_sslPropertySet.m_useEphemeralDhProp.m_value)
+			socket.setEphemeralDhStdParams(m_sslPropertySet.m_ephemeralDhStdParamsProp.m_value);
+
+		if (m_sslPropertySet.m_useEphemeralEcdhProp.m_value)
+			socket.setEphemeralEcdhCurve(m_sslPropertySet.m_ephemeralEcdhCurveProp.m_value);
+
 		if (m_sslPropertySet.m_useCertificateProp.m_value)
 		{
 			socket.loadCertificate(m_sslPropertySet.m_certificateFileProp.m_value);
@@ -556,14 +570,6 @@ void SslServerSession.onListenerSocketEvent(
 					m_sslPropertySet.m_verifyCaDirProp.m_value
 					);
 			}
-		}
-		else
-		{
-			if (m_sslPropertySet.m_useEphemeralDhProp.m_value)
-				socket.setEphemeralDhStdParams(m_sslPropertySet.m_ephemeralDhStdParamsProp.m_value);
-
-			if (m_sslPropertySet.m_useEphemeralEcdhProp.m_value)
-				socket.setEphemeralEcdhCurve(m_sslPropertySet.m_ephemeralEcdhCurveProp.m_value);
 		}
 
 		socket.unsuspend();
@@ -689,6 +695,10 @@ reactor SslServerSession.m_uiReactor
 	m_isTransmitEnabled =
 		m_clientCombo.m_currentData &&
 		((Client*)m_clientCombo.m_currentData).m_isTransmitEnabled;
+
+	m_sessionConnectionState = m_clientCombo.m_currentData ?
+		SessionConnectionState.Connected :
+		SessionConnectionState.Disconnected;
 }
 
 //..............................................................................

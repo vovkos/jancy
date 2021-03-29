@@ -1,0 +1,28 @@
+#...............................................................................
+#
+#  UDP Flow layer plugin
+#
+
+[plugin]
+
+name        = "UDP Flow Analyzer"
+description = "Analyzes Pcap/Ethernet Tap logs and extracts UDP datagrams"
+id          = udp-flow
+group       = analyzers
+log-guid    = 275d0959-ad5b-4f9c-9439-25993ac35b93  # udp flow
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/udp-flow.png
+small-icon  = images/udp-flow-16x16.png
+
+layer-class = UdpFlowLayer
+pure-layer  = true
+
+[required-capabilities]
+
+org.jancy.io.net
+
+[scripts]
+
+UdpFlowLayer.jnc
+UdpFlowLogFilter.jnc
+UdpDecoder.jnc

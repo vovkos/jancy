@@ -1,0 +1,260 @@
+//..............................................................................
+//
+// TutoProto Analyzer log representer
+//
+
+import "log_Representation.jnc"
+import "log_RepresentStruct.jnc"
+
+//..............................................................................
+
+typedef char const* GetTutoProtoDigestFunc(
+	void const* p,
+	size_t size
+	);
+
+typedef bool RepresentTutoProtoDetailFunc(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	);
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool representTutoProtoParamStruct(
+	log.Representation* representation,
+	jnc.StructType* type,
+	void const* p,
+	size_t size
+	)
+{
+	if (size < type.m_size)
+		return false;
+
+	log.representStruct(
+		representation,
+		type,,
+		TutoProtoLogPartCode.RawData,
+		p,
+		sizeof(TutoProtoHdr),,
+		0
+		);
+
+	return true;
+}
+
+//..............................................................................
+
+bool representTutoProtoLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	if (recordCode != TutoProtoLogRecordCode.Packet)
+		return false;
+
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Packet;
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+
+	TutoProtoHdr const* hdr = (TutoProtoHdr const*)p;
+	jnc.EnumConst* commandEnumConst = typeof(TutoProtoCommand).findConst(hdr.m_command);
+	GetTutoProtoDigestFunc thin* getDigestFunc;
+	RepresentTutoProtoDetailFunc thin* representDetailFunc;
+
+	if (!(foldFlags & 1))
+	{
+		if (hdr.m_flags & TutoProtoFlags.Error)
+			getDigestFunc = getTutoProtoErrorDigest;
+		else if (commandEnumConst)
+			getDigestFunc = commandEnumConst.findAttributeValue(
+				(hdr.m_flags & TutoProtoFlags.Reply) ?
+					"getReplyDigest" :
+					"getCommandDigest"
+				);
+
+		char const* command = commandEnumConst ? commandEnumConst.m_name : null;
+		char const* direction = (hdr.m_flags & TutoProtoFlags.Reply) ? "reply" : "command";
+		char const* digest;
+
+		if (getDigestFunc)
+		{
+			 digest = getDigestFunc(hdr + 1, size - sizeof(TutoProtoHdr));
+			 if (!digest)
+				 digest = "[ \e[31mINVALID\e[m ]";
+		}
+
+		representation.addHyperText($"[\e^+1\e[34m+\e[m] \e[1mTutoProto\e[m %1 %2 %3"(
+			command,
+			direction,
+			digest
+			));
+
+		return true;
+	}
+
+	representation.addHyperText("[\e^-1\e[34m-\e[m] \e[1mTutoProto");
+	log.representStruct(representation, typeof(TutoProtoHdr),, TutoProtoLogPartCode.RawData, p,,, 0);
+
+	// represent command-specific details
+
+	if (hdr.m_flags & TutoProtoFlags.Error)
+		representDetailFunc = representTutoProtoError;
+	else if (commandEnumConst)
+		representDetailFunc = commandEnumConst.findAttributeValue(
+			(hdr.m_flags & TutoProtoFlags.Reply) ?
+				"representReply" :
+				"representCommand"
+			);
+
+	if (representDetailFunc)
+	{
+		bool result = representDetailFunc(representation, hdr + 1, size - sizeof(TutoProtoHdr));
+		if (!result)
+			representation.addHyperText("    [ \e[31mINVALID\e[m ]");
+	}
+
+	// add raw data
+
+	representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+	representation.m_lineAttr.m_backColor = ui.StdColor.White;
+	representation.addBin(TutoProtoLogPartCode.RawData, p, size);
+	return true;
+}
+
+//..............................................................................
+
+char const* getTutoProtoErrorDigest(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(TutoProtoError))
+		return null;
+
+	TutoProtoError const* error = (TutoProtoError const*)p;
+	return formatErrno(&error.m_errno);
+}
+
+bool representTutoProtoError(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	return representTutoProtoParamStruct(representation, typeof(TutoProtoError), p, size);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getTutoProtoReplyDigest_GetVersion(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(TutoProtoVersion))
+		return null;
+
+	TutoProtoVersion const* version = (TutoProtoVersion const*)p;
+	return $"%1.%2.%3"(version.m_major, version.m_minor, version.m_patch);
+}
+
+bool representTutoProtoReply_GetVersion(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	return representTutoProtoParamStruct(representation, typeof(TutoProtoVersion), p, size);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getTutoProtoCommandDigest_Write(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(TutoProtoRange))
+		return null;
+
+	TutoProtoRange const* range = (TutoProtoRange const*)p;
+	if (size - sizeof(TutoProtoRange) < range.m_length)
+		return null;
+
+	return $"@%04X (%d bytes)"(range.m_offset, range.m_length);
+}
+
+bool representTutoProtoCommand_Write(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	bool result = representTutoProtoParamStruct(representation, typeof(TutoProtoRange), p, size);
+	if (!result)
+		return false;
+
+	TutoProtoRange const* range = (TutoProtoRange const*)p;
+	p += sizeof(TutoProtoRange);
+	size -= sizeof(TutoProtoRange);
+
+	if (size < range.m_length)
+		return false;
+
+	representation.addHyperText($"    Payload (%d bytes):"(range.m_length));
+	representation.m_lineAttr.m_textColor = log.StdLogColor.Tx;
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+	representation.addBin(TutoProtoLogPartCode.Payload, p, size);
+	return true;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getTutoProtoCommandDigest_Read(
+	void const* p,
+	size_t size
+	)
+{
+	if (size < sizeof(TutoProtoRange))
+		return null;
+
+	TutoProtoRange const* range = (TutoProtoRange const*)p;
+	return $"@%04X (%d bytes)"(range.m_offset, range.m_length);
+}
+
+bool representTutoProtoCommand_Read(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	return representTutoProtoParamStruct(representation, typeof(TutoProtoRange), p, size);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+char const* getTutoProtoReplyDigest_Read(
+	void const* p,
+	size_t size
+	)
+{
+	return $"%1 bytes"(size);
+}
+
+bool representTutoProtoReply_Read(
+	log.Representation* representation,
+	void const* p,
+	size_t size
+	)
+{
+	representation.addHyperText($"    Payload (%d bytes):"(size));
+	representation.m_lineAttr.m_textColor = log.StdLogColor.Rx;
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelYellow;
+	representation.addBin(TutoProtoLogPartCode.Payload, p, size);
+	return true;
+}
+
+//..............................................................................

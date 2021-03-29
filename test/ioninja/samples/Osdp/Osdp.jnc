@@ -1,0 +1,145 @@
+//..............................................................................
+//
+// OSDP definitions
+//
+
+//..............................................................................
+
+enum OsdpChar: char
+{
+	Som = 0x53,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum OsdpCtrl: uint8_t
+{
+	Crc,
+	Scb,
+	Multi = 0x20, // 0x80 >> 2
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OsdpDirection: uint8_t
+{
+	Command,
+	Response,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+alignment(1);
+
+struct OsdpHdr
+{
+	[ displayName = "SOM" ]
+	OsdpChar m_som;
+
+	[ displayName = "Address" ]
+	uchar_t m_address   : 7;
+
+	[
+		displayName = "Direction",
+		displayType = typeof(OsdpDirection)
+	]
+	uchar_t m_direction : 1;
+
+	[ displayName = "Length" ]
+	uint16_t m_length;
+
+	[ displayName = "Sequence" ]
+	uchar_t m_sqn  : 2;
+
+	[
+		displayName = "Control",
+		displayType = typeof(OsdpCtrl)
+	]
+	uchar_t m_ctrl : 6;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct OsdpScbHdr
+{
+	uchar_t m_length;
+	uchar_t m_type;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum OsdpCmdReplyCode: uchar_t
+{
+	osdp_POLL     = 0x60,
+	osdp_ID       = 0x61,
+	osdp_CAP      = 0x62,
+	osdp_DIAG     = 0x63,
+	osdp_LSTAT    = 0x64,
+	osdp_ISTAT    = 0x65,
+	osdp_OSTAT    = 0x66,
+	osdp_RSTAT    = 0x67,
+	osdp_OUT      = 0x68,
+	osdp_LED      = 0x69,
+	osdp_BUZ      = 0x6A,
+	osdp_TEXT     = 0x6B,
+	osdp_RMODE    = 0x6C,
+	osdp_TDSET    = 0x6D,
+	osdp_COMSET   = 0x6E,
+	osdp_DATA     = 0x6F,
+	osdp_XMIT     = 0x70,
+	osdp_PROMPT   = 0x71,
+	osdp_SPE      = 0x72,
+	osdp_BIOREAD  = 0x73,
+	osdp_BIOMATCH = 0x74,
+	osdp_KEYSET   = 0x75,
+	osdp_CHLNG    = 0x76,
+	osdp_SCRYPT   = 0x77,
+	osdp_CONT     = 0x79,
+	osdp_MFG      = 0x80,
+	osdp_SCDONE   = 0xA0,
+	osdp_XWR      = 0xA1,
+
+	osdp_ACK      = 0x40,
+	osdp_NAK      = 0x41,
+	osdp_PDID     = 0x45,
+	osdp_PDCAP    = 0x46,
+	osdp_LSTATR   = 0x48,
+	osdp_ISTATR   = 0x49,
+	osdp_OSTATR   = 0x4A,
+	osdp_RSTATR   = 0x4B,
+	osdp_RAW      = 0x50,
+	osdp_FMT      = 0x51,
+	osdp_PRES     = 0x52,
+	osdp_KPD      = 0x53,
+	osdp_COM      = 0x54,
+	osdp_SCREP    = 0x55,
+	osdp_SPER     = 0x56,
+	osdp_BIOREADR = 0x57,
+	osdp_FPMATCHR = 0x58,
+	osdp_CCRYPT   = 0x76,
+	osdp_RMACI    = 0x78,
+	osdp_MFGREP   = 0x90,
+	osdp_BUSY     = 0x79,
+	osdp_XRD      = 0xB1,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct OsdpCmdReply
+{
+	[ displayName = "Command/Reply Code" ]
+	OsdpCmdReplyCode m_code;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct OsdpCrc
+{
+	[
+		displayName = "CRC",
+		formatSpec  = "0x%04X"
+	]
+	uint16_t m_crc;
+}
+
+//..............................................................................

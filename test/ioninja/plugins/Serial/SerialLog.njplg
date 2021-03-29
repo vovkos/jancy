@@ -24,7 +24,7 @@ SerialLogRepresenter.jnc
 81d47c8fc7b0f700  # PortOpened
 81d47c8fc7b0f701  # PortOpened_old
 01d47c8fc7b0f702  # PortOpenError
-01d47c8fc7b0f703  # PortClosed
+01d47c8fc7b0f703  # PortClosedNamed
 01d47c8fc7b0f704  # BaudRateChanged
 01d47c8fc7b0f705  # DataBitsChanged
 01d47c8fc7b0f706  # StopBitsChanged
@@ -39,6 +39,7 @@ SerialLogRepresenter.jnc
 01d47c8fc7b0f70f  # ControlLineChanged
 01d47c8fc7b0f710  # LineError
 01d47c8fc7b0f711  # BreakConditionChanged
+01d47c8fc7b0f712  # PortClosed
 
 [filter]
 

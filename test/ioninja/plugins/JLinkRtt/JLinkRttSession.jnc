@@ -756,7 +756,7 @@ void JLinkRttSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_socketReadBuffer.m_p, result);
 	}
 
-	if (io.SocketEvents.WriteBufferReady)
+	if (triggeredEvents & io.SocketEvents.WriteBufferReady)
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();

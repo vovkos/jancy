@@ -1,0 +1,61 @@
+//..............................................................................
+//
+// DF1 record codes
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum Df1LogRecordCode: uint64_t
+{
+	Eot       = 0x01d67c31be5b71a0 | log.RecordCodeFlags.Foldable,
+	Ack       = 0x01d67c31be5b71a1 | log.RecordCodeFlags.Foldable,
+	Nak       = 0x01d67c31be5b71a2 | log.RecordCodeFlags.Foldable,
+	Enq       = 0x01d67c31be5b71a3 | log.RecordCodeFlags.Foldable,
+	EnqStn    = 0x01d67c31be5b71a4 | log.RecordCodeFlags.Foldable,
+	SohBcc    = 0x01d67c31be5b71a5 | log.RecordCodeFlags.Foldable,
+	SohCrc    = 0x01d67c31be5b71a6 | log.RecordCodeFlags.Foldable,
+	StxBcc    = 0x01d67c31be5b71a7 | log.RecordCodeFlags.Foldable,
+	StxCrc    = 0x01d67c31be5b71a8 | log.RecordCodeFlags.Foldable,
+
+	UnexpectedChar = 0x01d67c31be5b71a9,
+}
+
+enum Df1LogPartCode: uint64_t
+{
+	RawDataLinkData = 1,
+	Payload         = 2,
+}
+
+//..............................................................................
+
+bitflag enum Df1FoldFlag: uint8_t
+{
+	Master        = 0x01,
+	DataLinkLayer = 0x02,
+	AppMsgLayer   = 0x04,
+	FuncLayer     = 0x08,
+	Payload       = 0x10,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum Df1Color
+{
+	DataLinkLayer = ui.StdColor.PastelBlue,
+	AppMsgLayer   = ui.StdColor.PastelPurple,
+	FuncLayer     = ui.StdColor.PastelOrange,
+	Payload       = ui.StdColor.PastelYellow,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct Df1ColorRange
+{
+	size_t m_offset;
+	size_t m_size;
+	uint_t m_color;
+}
+
+//..............................................................................

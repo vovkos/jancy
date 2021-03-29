@@ -1,0 +1,52 @@
+//..............................................................................
+//
+// Ninja in-app scripting API
+//
+
+import "log_Writer.jnc"
+import "log_Listener.jnc"
+import "log_RecordCode.jnc"
+
+//! \addtogroup api-ias
+//! @{
+
+//..............................................................................
+
+// don't expose the whole log API -- otherwise, running in-app scripts gets
+// kind of expensive (have to memorize all added converters/filters/etc and
+// remove them all during clean up)
+
+log.Writer* const g_logWriter; // mapped
+void clearLog();
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode connect();
+void disconnect();
+
+size_t errorcode transmit(
+	void const* p,
+	size_t size = -1 // -1 -- use strlen
+	);
+
+size_t errorcode receive(
+	void* p,
+	size_t size
+	);
+
+//..............................................................................
+
+[ prototype ]
+void main();
+
+[ prototype ]
+void onLogRecord(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	);
+
+//..............................................................................
+
+//! @}

@@ -192,6 +192,12 @@ bool representSerialLog(
 		break;
 
 	case SerialLogRecordCode.PortClosed:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.addHyperText("Port closed");
+		break;
+
+	case SerialLogRecordCode.PortClosedNamed:
 		char const* name = (char const*) p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Disconnect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;

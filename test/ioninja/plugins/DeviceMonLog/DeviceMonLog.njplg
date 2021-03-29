@@ -25,3 +25,4 @@ DeviceMonLogRepresenter.jnc
 01d48710873f2c7b  # CaptureStarted_filter
 01d48710873f2c7c  # CaptureStopped
 01d48710873f2c7d  # CaptureError
+01d48710873f2c7e  # SetCaptureFilter

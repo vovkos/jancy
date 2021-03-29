@@ -15,12 +15,12 @@ import "io_ssl.jncx"
 
 void onStateChanged(
 	io.SslSocket* socket,
-	io.SslSocketState state,
+	io.SslStateFlags stateFlags,
 	int alertInfo
 	)
 {
 	if (alertInfo > 0)
-		printf("SSL state: 0x%x, alert: %d, info: %s\n", state, alertInfo, socket.m_stateStringLong);
+		printf("SSL state: 0x%x, alert: %d, info: %s\n", stateFlags, alertInfo, socket.m_stateStringLong);
 }
 
 void printCertName(io.SslCertName const* name)

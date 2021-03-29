@@ -1,0 +1,22 @@
+#...............................................................................
+#
+#  TutoProto Analyzer layer plugin
+#
+
+[plugin]
+
+name        = "TutoProto Analyzer"
+description = "A protocol analyzer for the IO Ninja tutorial"
+id          = tutoproto-analyzer
+group       = others
+log-guid    = 1e4a28b5-387e-4a3f-bb59-9e0bbdf21020
+icon        = images/plugin.png
+small-icon  = images/plugin-16x16.png
+
+layer-class = TutoProtoLayer
+pure-layer  = false
+
+[scripts]
+
+TutoProtoLayer.jnc
+TutoProto.jnc

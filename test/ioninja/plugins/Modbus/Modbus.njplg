@@ -8,6 +8,7 @@
 name        = Modbus Analyzer
 description = "Analyzes a Serial/TCP log and generates a secondary log with decoded Modbus messages"
 id          = modbus
+group       = analyzers
 log-guid    = 53603C98-34BC-46EF-BA08-D3274F1057B4  # modbus
 icon        = images/modbus.png
 small-icon  = images/modbus-16x16.png

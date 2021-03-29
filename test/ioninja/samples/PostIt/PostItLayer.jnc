@@ -1,0 +1,55 @@
+//..............................................................................
+//
+// Post-It layer
+//
+
+import "doc_Layer.jnc"
+import "ui_History.jnc"
+
+using extension ui.ComboBoxHistory;
+
+//..............................................................................
+
+class PostItLayer: doc.Layer
+{
+protected:
+	ui.ComboBox* m_tagCombo;
+	uint64_t m_syncId;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+protected:
+	void onPostIt();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+PostItLayer.construct(doc.PluginHost* pluginHost)
+{
+	basetype.construct(pluginHost);
+
+	m_pluginHost.m_toolBar.addLabel("Tag:");
+	m_tagCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_tagCombo.m_isEditable = true;
+	m_tagCombo.m_onEnter += onPostIt;
+
+	ui.Action* action = createAction("Post-It", "images/post-it.png");
+	action.m_onTriggered += onPostIt;
+	m_pluginHost.m_toolBar.addAction(action);
+
+	m_syncId = sys.getTimestamp();
+}
+
+void PostItLayer.onPostIt()
+{
+	m_tagCombo.addEditTextToHistory();
+
+	if (m_pluginHost.m_log.m_syncId == m_syncId)
+		m_logWriter.write("\n");
+
+	m_logWriter.write(m_tagCombo.m_currentText);
+	m_logWriter.sync(++m_syncId);
+}
+
+//..............................................................................

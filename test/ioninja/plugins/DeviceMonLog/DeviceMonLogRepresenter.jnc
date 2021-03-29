@@ -19,14 +19,14 @@ bool representDeviceMonLog  (
 	switch (recordCode)
 	{
 	case DeviceMonLogRecordCode.CaptureStarted_name:
-		char const* name = (char const*) p;
+		char const* name = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Capture started on \e[34m$name");
 		break;
 
 	case DeviceMonLogRecordCode.CaptureStarted_filter:
-		char const* nameFilter = (char const*) p;
+		char const* nameFilter = (char const*)p;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText($"Capture started with filter \e[34m$nameFilter");
@@ -72,6 +72,17 @@ bool representDeviceMonLog  (
 		if (url)
 			representation.addHyperText($"Read this \e^$url\e[4;34mKB article\e[m for more details");
 
+		break;
+
+	case DeviceMonLogRecordCode.SetCaptureFilter:
+		char const* filter = (char const*) p;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(
+			size && *filter ?
+				$"Set capture filter \e[34m$filter" :
+				"Cleared capture filter"
+			);
 		break;
 
 	default:

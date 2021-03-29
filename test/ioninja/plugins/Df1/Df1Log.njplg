@@ -1,0 +1,33 @@
+#...............................................................................
+#
+#  DF1 log plugin
+#
+
+[plugin]
+
+name        = "Df1 Log"
+description = "Df1 log representer"
+guid        = 4eb82c4c-1f48-49a5-92cc-b492e7cfbf92
+icon        = images/df1.png
+small-icon  = images/df1-16x16.png
+
+log-representer-func = representDf1Log
+
+[scripts]
+
+Df1LogRecordCode.jnc
+Df1LogRepresenter.jnc
+
+[records]
+
+81d67c31be5b71a0  # Eot
+81d67c31be5b71a1  # Ack
+81d67c31be5b71a2  # Nak
+81d67c31be5b71a3  # Enq
+81d67c31be5b71a4  # EnqStn
+81d67c31be5b71a5  # SohBcc
+81d67c31be5b71a6  # SohCrc
+81d67c31be5b71a7  # StxBcc
+81d67c31be5b71a8  # StxCrc
+
+01d67c31be5b71a9  # UnexpectedCharacter

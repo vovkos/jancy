@@ -54,7 +54,6 @@ protected:
 	State bindable m_state;
 	sys.Thread m_readThread;
 	io.MappedFile m_file;
-	size_t m_jlinkReadBufferSize;
 	bool volatile m_readThreadStopFlag;
 	uint_t m_syncId;
 

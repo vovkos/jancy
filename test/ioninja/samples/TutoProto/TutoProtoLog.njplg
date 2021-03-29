@@ -1,0 +1,24 @@
+#...............................................................................
+#
+#  TutoProto Analyzer Log log plugin
+#
+
+[plugin]
+
+name        = "TutoProto Analyzer Log"
+description = "TutoProto Analyzer log representer"
+group       =
+guid        = 1e4a28b5-387e-4a3f-bb59-9e0bbdf21020
+small-icon  = images/plugin-16x16.png
+
+log-representer-func = representTutoProtoLog
+
+[scripts]
+
+TutoProtoLogRepresenter.jnc
+TutoProtoLogRecordCode.jnc
+TutoProto.jnc
+
+[records]
+
+81d6bd8b5d4587f0  # InBandCommand

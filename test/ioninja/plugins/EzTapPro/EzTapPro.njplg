@@ -16,6 +16,10 @@ small-icon  = images/serialmon-16x16.png
 
 session-class = EzTapProSession
 
+[required-capabilities]
+
+org.jancy.io.serial
+
 [scripts]
 
 EzTapProSession.jnc

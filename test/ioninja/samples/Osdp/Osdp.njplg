@@ -1,0 +1,23 @@
+#..............................................................................
+#
+#  OSDP Analyzer plugin
+#
+
+[plugin]
+
+name        = "OSDP Analyzer"
+description = "Analyzes a Serial log and generates a secondary log with decoded OSDP messages"
+id          = osdp
+group       = analyzers
+log-guid    = d5efd9a3-9be1-45ca-8366-c20b0aa80f46  # OSDP
+icon        = images/osdp.png
+small-icon  = images/osdp-16x16.png
+
+layer-class = OsdpLayer
+pure-layer  = true
+
+[scripts]
+
+OsdpLayer.jnc
+OsdpParser.jnc
+Osdp.jnc

@@ -27,6 +27,10 @@ enum
 	TIOCMBIS  = 0x5416,
 	TIOCMBIC  = 0x5417,
 
+	TCSETS2   = 0x402c542b,
+	TCSETSW2  = 0x402c542c,
+	TCSETSF2  = 0x402c542d,
+
 	// modem lines
 
 	TIOCM_DTR = 0x002,
@@ -106,8 +110,8 @@ typedef unsigned int tcflag_t;
 
 enum
 {
-	NCC  = 8,
-	NCCS = 32
+	NCC  = 8,  // 10 on PowerPC (unsupported at the moment)
+	NCCS = 19, // 23 on MIPS, 17 on SPARC (both unsupported at the moment)
 }
 
 struct termio
@@ -128,6 +132,10 @@ struct termios
 	tcflag_t c_lflag;
 	cc_t c_line;
 	cc_t c_cc[NCCS];
+}
+
+struct termios2: termios
+{
 	speed_t c_ispeed;
 	speed_t c_ospeed;
 }
@@ -159,7 +167,8 @@ protected:
 		uint64_t timestamp,
 		uint_t cflags,
 		uint_t iflags,
-		uint_t ospeed
+		uint_t ispeed = 0,
+		uint_t ospeed = 0
 		);
 }
 
@@ -266,7 +275,7 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 			break;
 
 		psx.termio const* attr = (psx.termio const*) argData;
-		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag, 0);
+		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag);
 		break;
 
 	case psx.TCSETS:
@@ -276,7 +285,17 @@ void SerialMonProcessor_lnx.processIoctlNotification(
 			break;
 
 		psx.termios const* attr = (psx.termios const*) argData;
-		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag, attr.c_ospeed);
+		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag);
+		break;
+
+	case psx.TCSETS2:
+	case psx.TCSETSW2:
+	case psx.TCSETSF2:
+		if (argDataSize < sizeof(psx.termios2))
+			break;
+
+		psx.termios2 const* attr = (psx.termios2 const*) argData;
+		processTermiosSetAttr(timestamp, attr.c_cflag, attr.c_iflag, attr.c_ispeed, attr.c_ospeed);
 		break;
 
 	case psx.TIOCMGET:
@@ -347,6 +366,7 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint64_t timestamp,
 	uint_t cflags,
 	uint_t iflags,
+	uint_t ispeed,
 	uint_t ospeed
 	)
 {
@@ -359,8 +379,32 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 	uint_t speed = cflags & (psx.CBAUD | psx.CBAUDEX);
 	switch (speed)
 	{
+	case psx.B0:
+		baudRate = 0;
+		break;
+
+	case psx.B50:
+		baudRate = 50;
+		break;
+
+	case psx.B75:
+		baudRate = 75;
+		break;
+
 	case psx.B110:
 		baudRate = 110;
+		break;
+
+	case psx.B134:
+		baudRate = 134;
+		break;
+
+	case psx.B150:
+		baudRate = 150;
+		break;
+
+	case psx.B200:
+		baudRate = 200;
 		break;
 
 	case psx.B300:
@@ -373,6 +417,10 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 
 	case psx.B1200:
 		baudRate = 1200;
+		break;
+
+	case psx.B1800:
+		baudRate = 1800;
 		break;
 
 	case psx.B2400:
@@ -403,8 +451,64 @@ void SerialMonProcessor_lnx.processTermiosSetAttr(
 		baudRate = 115200;
 		break;
 
-	default:
+	case psx.B230400:
+		baudRate = 230400;
+		break;
+
+	case psx.B460800:
+		baudRate = 460800;
+		break;
+
+	case psx.B500000:
+		baudRate = 500000;
+		break;
+
+	case psx.B576000:
+		baudRate = 576000;
+		break;
+
+	case psx.B921600:
+		baudRate = 921600;
+		break;
+
+	case psx.B1000000:
+		baudRate = 1000000;
+		break;
+
+	case psx.B1152000:
+		baudRate = 1152000;
+		break;
+
+	case psx.B1500000:
+		baudRate = 1500000;
+		break;
+
+	case psx.B2000000:
+		baudRate = 2000000;
+		break;
+
+	case psx.B2500000:
+		baudRate = 2500000;
+		break;
+
+	case psx.B3000000:
+		baudRate = 3000000;
+		break;
+
+	case psx.B3500000:
+		baudRate = 3500000;
+		break;
+
+	case psx.B4000000:
+		baudRate = 4000000;
+		break;
+
+	case psx.CBAUDEX:
 		baudRate = ospeed;
+		break;
+
+	default:
+		baudRate = 0; // unknown
 	}
 
 	uint_t byteSize = cflags & psx.CSIZE;

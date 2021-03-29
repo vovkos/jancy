@@ -125,6 +125,16 @@ public:
 		size_t size
 		);
 
+	override bool errorcode connectSession()
+	{
+		return m_sessionConnectionState ? true : connect();
+	}
+
+	override void disconnectSession()
+	{
+		disconnect();
+	}
+
 protected:
 	void close();
 	void handleSocketError(std.Error const* error);
@@ -260,6 +270,7 @@ bool errorcode SslConnectionSession.connect()
 	}
 
 	m_state = State.Resolving;
+	m_sessionConnectionState = SessionConnectionState.Connecting;
 
 	m_logWriter.write(
 		SocketLogRecordCode.Resolving,
@@ -319,6 +330,7 @@ bool errorcode SslConnectionSession.connect(io.SocketAddress const* remoteAddres
 	}
 
 	m_state = State.TcpConnecting;
+	m_sessionConnectionState = SessionConnectionState.Connecting;
 	m_remoteAddress = *remoteAddress;
 
 	m_socket.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
@@ -412,6 +424,7 @@ void SslConnectionSession.close()
 	m_isTransmitEnabled = false;
 	m_socket.close();
 	m_state = State.Closed;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_syncId++;
 }
 
@@ -578,6 +591,7 @@ void SslConnectionSession.onSocketEvent(
 		m_infoTable[InfoId.LocalAddress].m_value = m_localAddress.getString();
 		m_infoTable[InfoId.RemoteAddress].m_value = m_remoteAddress.getString();
 		m_state = State.Connected;
+		m_sessionConnectionState = SessionConnectionState.Connected;
 		m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	}
@@ -625,7 +639,7 @@ void SslConnectionSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
-	if (io.SslSocketEvents.WriteBufferReady)
+	if (triggeredEvents & io.SslSocketEvents.WriteBufferReady)
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();

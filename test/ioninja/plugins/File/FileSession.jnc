@@ -104,6 +104,16 @@ public:
 		size_t size
 		);
 
+	override bool errorcode connectSession()
+	{
+		return m_sessionConnectionState ? true : open();
+	}
+
+	override void disconnectSession()
+	{
+		close();
+	}
+
 protected:
 	void onOpen()
 	{
@@ -245,6 +255,7 @@ bool errorcode FileSession.open()
 		);
 
 	m_state = State.Opened;
+	m_sessionConnectionState = SessionConnectionState.Connected;
 	m_isTransmitEnabled = access != m_state == State.Opened;
 
 	waitFileStreamEvents();
@@ -265,6 +276,7 @@ void FileSession.close()
 	m_logWriter.write(FileLogRecordCode.Closed);
 	m_file.close();
 	m_state = State.Closed;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_isTransmitEnabled = false;
 	m_syncId++;
 	m_stdSessionInfoSet.endSession();
@@ -411,7 +423,7 @@ void FileSession.onFileStreamEvent(
 		return;
 	}
 
-	if (io.FileStreamEvents.WriteBufferReady)
+	if (triggeredEvents & io.FileStreamEvents.WriteBufferReady)
 		m_isTransmitEnabled = true;
 
 	waitFileStreamEvents();

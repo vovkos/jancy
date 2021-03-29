@@ -95,7 +95,7 @@ protected:
 public:
 	construct(doc.PluginHost* pluginHost);
 
-	void openSocket();
+	bool errorcode openSocket();
 	void closeSocket();
 
 	override void load(doc.Storage* storage);
@@ -109,10 +109,25 @@ public:
 		size_t size
 		);
 
+	override bool errorcode connectSession()
+	{
+		return m_sessionConnectionState ? true : openSocket();
+	}
+
+	override void disconnectSession()
+	{
+		closeSocket();
+	}
+
 protected:
 	void onOpen()
 	{
-		m_state ? closeSocket() : openSocket();
+		m_state ? closeSocket() : try openSocket();
+	}
+
+	void onPortComboEnter()
+	{
+		try openSocket();
 	}
 
 	void onRemoteAddressChanged()
@@ -179,7 +194,7 @@ void UdpSession.createUi()
 	m_pluginHost.m_toolBar.addLabel("Local port:");
 	m_localPortCombo = m_pluginHost.m_toolBar.addComboBox();
 	m_localPortCombo.m_isEditable = true;
-	m_localPortCombo.m_onEnter += openSocket;
+	m_localPortCombo.m_onEnter += onPortComboEnter;
 
 	m_actionTable[ActionId.Open] = createAction("Open socket", m_iconTable [IconId.Open]);
 	m_actionTable[ActionId.Open].m_onTriggered += onOpen;
@@ -233,7 +248,7 @@ void UdpSession.createUi()
 	m_uiReactor.start();
 }
 
-void UdpSession.openSocket()
+bool errorcode UdpSession.openSocket()
 {
 	io.SocketAddress address;
 
@@ -257,12 +272,15 @@ nestedscope:
 	address = m_socket.m_address;
 	m_logWriter.write(SocketLogRecordCode.Open, &address, sizeof(address));
 	m_state = State.Opened;
+	m_sessionConnectionState = SessionConnectionState.Connected;
 	waitSocketEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	return true;
 
 catch:
 	std.Error const* error = std.getLastError();
 	m_logWriter.write(SocketLogRecordCode.OpenError, address, sizeof(address), error, error.m_size);
+	return false;
 }
 
 void UdpSession.closeSocket()
@@ -275,6 +293,7 @@ void UdpSession.closeSocket()
 	m_resolver.cancel();
 	m_logWriter.write(SocketLogRecordCode.Close, &address, sizeof(address));
 	m_state = State.Closed;
+	m_sessionConnectionState = SessionConnectionState.Disconnected;
 	m_socketSyncId++;
 	m_stdSessionInfoSet.endSession();
 }
@@ -333,6 +352,7 @@ bool errorcode UdpSession.applyProperties()
 	m_remoteAddressCombo.m_editText = m_socketPropertySet.m_remoteAddressProp.m_value;
 	m_adapterCombo.m_currentIndex = m_socketPropertySet.m_adapterProp.m_currentIndex;
 	m_localPortCombo.m_editText = $"$(m_socketPropertySet.m_localPortProp.m_value)";
+	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 
 	if (!m_socket.m_isOpen)
 		return true;
@@ -425,6 +445,7 @@ void UdpSession.onSocketEvent(
 		m_logWriter.write(log.StdRecordCode.Error, m_socket.m_ioError);
 		m_socket.close();
 		m_state = State.Closed;
+		m_sessionConnectionState = SessionConnectionState.Disconnected;
 		m_isTransmitEnabled = false;
 		m_stdSessionInfoSet.endSession();
 		return;
@@ -454,7 +475,7 @@ void UdpSession.onSocketEvent(
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
 
-	if (io.SocketEvents.WriteBufferReady)
+	if (triggeredEvents & io.SocketEvents.WriteBufferReady)
 		m_isTransmitEnabled = true;
 
 	waitSocketEvents();

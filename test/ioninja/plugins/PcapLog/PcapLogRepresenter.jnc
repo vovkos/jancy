@@ -37,7 +37,7 @@ bool representPcapLog(
 	case PcapLogRecordCode.CaptureStarted:
 		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addPlainText(PcapLogPartCode.CaptureCompleted, "ok");
 		break;
 
@@ -51,7 +51,7 @@ bool representPcapLog(
 
 	case PcapLogRecordCode.CaptureStopped:
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.StopListen;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Disconnect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addPlainText("Capture stopped");
 		break;
 
@@ -79,7 +79,7 @@ bool representPcapLog(
 		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
 		representation.addHyperText(
-			size & *filter ?
+			size && *filter ?
 				$"Set capture filter \e[34m$filter" :
 				"Cleared capture filter"
 			);

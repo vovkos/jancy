@@ -1,0 +1,25 @@
+#...............................................................................
+#
+#  UDP Flow log representer plugin
+#
+
+[plugin]
+
+name        = "UDP Flow Log"
+description = "UDP Flow log representer"
+group       = net
+guid        = 275d0959-ad5b-4f9c-9439-25993ac35b93
+icon        = images/udp-flow.png
+small-icon  = images/udp-flow-16x16.png
+
+log-representer-func = representUdpFlowLog
+
+[scripts]
+
+UdpFlowLogRecordCode.jnc
+UdpFlowLogRepresenter.jnc
+
+[records]
+
+01d487c65087ebc9  # TxPacket
+01d487c65087ebca  # RxPacket

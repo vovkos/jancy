@@ -1,0 +1,502 @@
+//..............................................................................
+//
+// DF1 definitions
+//
+
+import "ui_Color.jnc"
+import "std_Array.jnc"
+
+namespace io {
+
+//! \addtogroup proto-df1
+//! @{
+
+//..............................................................................
+
+enum Df1Char: char
+{
+	Soh = 0x01,
+	Stx = 0x02,
+	Etx = 0x03,
+	Eot = 0x04,
+	Enq = 0x05,
+	Ack = 0x06,
+	Nak = 0x0f,
+	Dle = 0x10,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum Df1Mode
+{
+	FullDuplex,
+	HalfDuplex,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum Df1ChecksumKind: uchar_t
+{
+	Bcc,
+	Crc,
+}
+
+char const* getDf1ChecksumKindString(Df1ChecksumKind kind)
+{
+	static char const* stringTable[] =
+	{
+		"BCC",
+		"CRC",
+	}
+
+	return stringTable[kind & 1]; // ensure we never run out-of-bounds
+}
+
+//..............................................................................
+
+enum Df1CmdDirection: uchar_t
+{
+	Command, // 0
+	Reply,   // 1
+}
+
+enum Df1CmdPriority: uchar_t
+{
+	Normal, // 0
+	High,   // 1
+}
+
+enum Df1CmdPrefix: uchar_t
+{
+	[ structType = typeof(Df1Write) ]
+	ProtectedWrite      = 0,
+
+	[ structType = typeof(Df1Read) ]
+	UnprotectedRead     = 1,
+
+	[ structType = typeof(Df1Write) ]
+	ProtectedBitWrite   = 2,
+
+	[ structType = typeof(Df1Write) ]
+	PhysicalWrite       = 3,
+
+	[ structType = typeof(Df1Read) ]
+	PhysicalRead        = 4,
+
+	[ structType = typeof(Df1Write) ]
+	UnprotectedBitWrite = 5,
+
+	[ structType = typeof(Df1Write) ]
+	UnprotectedWrite    = 8,
+
+	Command06 = 0x06,
+	Command07 = 0x07,
+	Command0F = 0x0f,
+}
+
+enum Df1CmdFnc: uint16_t
+{
+	[ structType = typeof(Df1ApplyPortConfiguration) ]
+	ApplyPortConfiguration      = 0x0f8f,
+
+	BitWrite                    = 0x0f02, // floating PLC logical address size
+
+	[ structType = typeof(Df1ChangeMode) ]
+	ChangeMode                  = 0x0f80,
+
+	[ structType = typeof(Df1CloseFile) ]
+	CloseFile                   = 0x0f82,
+
+	DiagnosticStatus            = 0x0603, // no extra paramaters
+	DisableForces               = 0x0f41, // no extra paramaters
+	DisableOutputs              = 0x0700, // no extra paramaters
+	DownloadAllRequest          = 0x0f50, // no extra paramaters
+	DownloadCompleted           = 0x0f52, // no extra paramaters
+	DownloadRequest             = 0x0f05, // no extra paramaters
+	Echo                        = 0x0600, // no extra paramaters
+	EnableOutputs               = 0x0701, // no extra paramaters
+	EnablePlcScanning           = 0x0703, // no extra paramaters
+	EnterDownloadMode           = 0x0704, // no extra paramaters
+	EnterUploadMode             = 0x0706, // no extra paramaters
+	ExitDownloadUploadMode      = 0x0705, // no extra paramaters
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	FileRead                    = 0x0f04,
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	FileWrite                   = 0x0f03,
+
+	GetEditResource             = 0x0f11, // no extra paramaters
+	InitializeMemory            = 0x0f57, // no extra paramaters
+
+	[ structType = typeof(Df1ModifyPlc2CompatibilityFile) ]
+	ModifyPlc2CompatibilityFile = 0x0f5e,
+
+	[ structType = typeof(Df1OpenFile) ]
+	OpenFile                    = 0x0f81,
+
+	[ structType = typeof(Df1PhysicalRead) ]
+	PhysicalRead2               = 0x0f09,
+
+	[ structType = typeof(Df1PhysicalWrite) ]
+	PhysicalWrite               = 0x0f08,
+
+	[ structType = typeof(Df1ProtectedTypedReadWrite) ]
+	ProtectedTypedFileRead      = 0x0fa7,
+
+	[ structType = typeof(Df1ProtectedTypedReadWrite) ]
+	ProtectedTypedFileWrite     = 0x0faf,
+
+	[ structType = typeof(Df1ProtectedTypedLogicalReadWrite) ]
+	ProtectedTypedLogicalRead   = 0x0fa2,
+
+	[ structType = typeof(Df1ProtectedTypedLogicalReadWrite) ]
+	ProtectedTypedLogicalWrite  = 0x0faa,
+
+	[ structType = typeof(Df1PhysicalRead) ]
+	ReadBytesPhysical           = 0x0f17,
+
+	[ structType = typeof(Df1Read) ]
+	ReadDiagnosticCounters      = 0x0601,
+
+	ResetDiagnosticCounters     = 0x0607, // no extra paramaters
+
+	[ structType = typeof(Df1Read) ]
+	ReadLinkParameters          = 0x0609,
+
+	ReadModifyWrite             = 0x0f26, // floating PLC logical address size
+	ReadModifyWriteN            = 0x0f79, // floating PLC logical address size
+	ReadSectionSize             = 0x0f29, // floating PLC logical address size
+	RestartRequest              = 0x0f0a, // no extra paramaters
+	ReturnEditResource          = 0x0f12, // no extra paramaters
+
+	[ structType = typeof(Df1SetCpuMode) ]
+	SetCpuMode                  = 0x0f3a,
+
+	SetDataTableSize            = 0x0608, // no extra paramaters
+
+	[ structType = typeof(Df1SetEnqs) ]
+	SetEnqs                     = 0x0606,
+
+	[ structType = typeof(Df1Read) ]
+	SetLinkParameters           = 0x060a,
+
+	[ structType = typeof(Df1SetNaks) ]
+	SetNaks                     = 0x0605, // no extra paramaters
+
+	[ structType = typeof(Df1SetTimeout) ]
+	SetTimeout                  = 0x0604, // no extra paramaters
+
+	[ structType = typeof(Df1SetVariables) ]
+	SetVariables                = 0x0602,
+
+	Shutdown                    = 0x0f07, // no extra paramaters
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	TypedRead                   = 0x0f68,
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	TypedWrite                  = 0x0f67,
+
+	UploadAllRequest            = 0x0f53, // no extra paramaters
+	UploadCompleted             = 0x0f55, // no extra paramaters
+	Upload                      = 0x0f06, // no extra paramaters
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	WordRangeRead               = 0x0f01,
+
+	[ structType = typeof(Df1FileReadWrite) ]
+	WordRangeWrite              = 0x0f00,
+
+	[ structType = typeof(Df1PhysicalWrite) ]
+	WriteBytesPhysical          = 0x0f18,
+}
+
+enum Df1LocalStatus: uchar_t
+{
+	Success,                   // 00
+	DstNodeOutOfBuffer,        // 01
+	CannotGuaranteeDelivery,   // 02
+	DuplicateTokenHolder,      // 03
+	LocalPortDisconnected,     // 04
+	AppLayerTimeout,           // 05
+	DuplicateNode,             // 06
+	StationOffline,            // 07
+	HardwareFault,             // 08
+}
+
+enum Df1RemoteStatus: uchar_t
+{
+	Success,                       // 00
+	IllegalCommand,                // 01
+	HostProblem,                   // 02
+	RemoteNodeHostMissing,         // 03
+	HardwareFault,                 // 04
+	AddressingProblem,             // 05
+	FunctionNotAllowed,            // 06
+	ProcessorInProgramMode,        // 07
+	CompatibilityModeFileMissing,  // 08
+	RemoteNodeCannotBufferCommand, // 09
+	WaitAck,                       // 10
+	DownloadProblem,               // 11
+	WaitAck2,                      // 12
+	ExtSts = 0xf,                  // 15
+}
+
+//..............................................................................
+
+// App message layer
+
+struct Df1AppMsgHdr
+{
+	[ displayName = "Destination"]
+	uchar_t m_destination;
+
+	[ displayName = "Source"]
+	uchar_t m_source;
+
+	[
+		displayName = "Command",
+		displayType = typeof(Df1CmdPrefix)
+	]
+	uchar_t m_command : 4;
+
+	[ displayName = "Reserved"]
+	uchar_t m_reserved : 1;
+
+	[
+		displayName = "Priority",
+		displayType = typeof(Df1CmdPriority)
+	]
+	uchar_t m_priority : 1;
+
+	[
+		displayName = "Direction",
+		displayType = typeof(Df1CmdDirection)
+	]
+	uchar_t m_direction : 1;
+
+	[ displayName = "Reserved"]
+	uchar_t m_reserved2 : 1;
+
+	[
+		displayName = "Local status",
+		displayType = typeof(Df1LocalStatus)
+	]
+	uchar_t m_localStatus : 4;
+
+	[
+		displayName = "Remote status",
+		displayType = typeof(Df1RemoteStatus)
+	]
+	uchar_t m_remoteStatus : 4;
+
+	[ displayName = "Transaction ID"]
+	uint16_t m_transactionId;
+}
+
+//..............................................................................
+
+// CMD + FNC layer
+
+struct Df1ApplyPortConfiguration
+{
+	[ displayName = "Port count"]
+	uchar_t m_count;
+}
+
+enum Df1PlcMode: uchar_t
+{
+	Program             = 1,
+	RunMicroLogix1000   = 2,
+	Run                 = 6,
+	TestContScan        = 7,
+	TestSingleScan      = 8,
+	TestDebugSingleStep = 9,
+}
+
+struct Df1ChangeMode
+{
+	[ displayName = "Mode"]
+	Df1PlcMode m_mode;
+}
+
+struct Df1CloseFile
+{
+	[ displayName = "Tag"]
+	uint16_t m_tag;
+}
+
+struct Df1ModifyPlc2CompatibilityFile
+{
+	[ displayName = "Link ID"]
+	uchar_t m_linkId;
+
+	[ displayName = "Node address"]
+	uchar_t m_address;
+
+	[ displayName = "File number"]
+	uint16_t m_fileNumber;
+}
+
+enum Df1FileProtection: uchar_t
+{
+	Read      = 0x01,
+	ReadWrite = 0x03,
+}
+
+enum Df1FileType: uchar_t
+{
+	Status              = 0x84,
+	Bit                 = 0x85,
+	Timer               = 0x86,
+	Counter             = 0x87,
+	Control             = 0x88,
+	Integer             = 0x89,
+	FloatingPoint       = 0x8a,
+	OutputLogicalBySlot = 0x8b,
+	InputLogicalBySlot  = 0x8c,
+	String              = 0x8d,
+	Ascii               = 0x8e,
+	Bcd                 = 0x8f,
+}
+
+struct Df1OpenFile
+{
+	[ displayName = "Protection"]
+	Df1FileProtection m_protection;
+
+	[ displayName = "File number"]
+	uint16_t m_fileNumber;
+
+	[ displayName = "File type"]
+	Df1FileType m_fileType;
+}
+
+struct Df1FileReadWrite
+{
+	[ displayName = "Packet offset"]
+	uint16_t m_offset;
+
+	[ displayName = "Total trans"]
+	uint16_t m_total;
+}
+
+struct Df1Read
+{
+	[ displayName = "Address"]
+	uint16_t m_address;
+
+	[ displayName = "Data size"]
+	uchar_t m_dataSize;
+}
+
+struct Df1Write
+{
+	[ displayName = "Address"]
+	uint16_t m_address;
+}
+
+struct Df1PhysicalRead
+{
+	[ displayName = "Physical address"]
+	uint32_t m_address;
+
+	[ displayName = "Data size"]
+	uchar_t m_dataSize;
+}
+
+struct Df1PhysicalWrite
+{
+	[ displayName = "Physical address"]
+	uint32_t m_address;
+}
+
+struct Df1ProtectedTypedReadWrite
+{
+	[ displayName = "Data size"]
+	uchar_t m_dataSize;
+
+	[ displayName = "Tag"]
+	uint16_t m_tag;
+
+	[ displayName = "Offset"]
+	uint16_t m_offset;
+
+	[ displayName = "File type"]
+	Df1FileType m_fileType;
+}
+
+struct Df1ProtectedTypedLogicalReadWrite
+{
+	[ displayName = "Data size"]
+	uchar_t m_dataSize;
+
+	[ displayName = "File number"]
+	uchar_t m_fileNumber;
+
+	[ displayName = "File type"]
+	Df1FileType m_fileType;
+
+	[ displayName = "Element number"]
+	uchar_t m_elementNumber;
+
+	[ displayName = "Sub-element number"]
+	uchar_t m_subElementNumber;
+}
+
+enum Df1CpuMode: uchar_t
+{
+	ProgramLoad,
+	RemoteTest,
+	RemoteRun,
+	NoChange,
+}
+
+struct Df1SetCpuMode
+{
+	[
+		displayName = "CPU mode",
+		displayType = typeof(Df1CpuMode)
+	]
+	uchar_t m_mode : 2;
+
+	[ displayName = "Unused" ]
+	uchar_t m_unused : 6;
+}
+
+struct Df1SetEnqs
+{
+	[ displayName = "Maximum number of ENQs" ]
+	uchar_t m_enqLimit;
+}
+
+struct Df1SetNaks
+{
+	[ displayName = "Maximum number of NAKs" ]
+	uchar_t m_nakLimit;
+}
+
+struct Df1SetTimeout
+{
+	[ displayName = "Maximum ACK timeout" ]
+	uchar_t m_timeout;
+}
+
+struct Df1SetVariables
+{
+	[ displayName = "Maximum ACK timeout" ]
+	uchar_t m_timeout;
+
+	[ displayName = "Maximum number of NAKs" ]
+	uchar_t m_nakLimit;
+
+	[ displayName = "Maximum number of ENQs" ]
+	uchar_t m_enqLimit;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

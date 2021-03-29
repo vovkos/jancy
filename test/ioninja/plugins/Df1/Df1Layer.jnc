@@ -1,0 +1,208 @@
+//..............................................................................
+//
+// Df1 Protocol Analyzer layer
+//
+
+import "doc_Layer.jnc"
+import "io_Df1.jnc"
+
+//..............................................................................
+
+class Df1Layer:
+	doc.Layer,
+	log.Converter
+{
+	enum Defaults
+	{
+		Mode         = io.Df1Mode.FullDuplex,
+		ChecksumKind = io.Df1ChecksumKind.Crc,
+	}
+
+protected:
+	static const std.Guid m_logGuid = "4eb82c4c-1f48-49a5-92cc-b492e7cfbf92";
+
+	ui.ComboBox* m_modeCombo;
+	ui.ComboBox* m_checksumKindCombo;
+	ui.Action* m_applyCombosAction;
+
+	ui.EnumProperty* m_modeProp;
+	ui.EnumProperty* m_checksumKindProp;
+
+	Df1Parser m_txParser;
+	Df1Parser m_rxParser;
+
+	reactor m_uiReactor;
+
+public:
+	construct(doc.PluginHost* pluginHost);
+
+	override void load(doc.Storage* storage);
+	override void save(doc.Storage* storage);
+	override void updateProperties();
+	override bool errorcode applyProperties();
+	override void restoreDefaultProperties();
+
+	override bool convert(
+		log.Writer* writer,
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+
+	override void reset();
+
+protected:
+	void createUi();
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Df1Layer.construct(doc.PluginHost* pluginHost)
+{
+	basetype1.construct(pluginHost);
+	createUi();
+	pluginHost.m_log.addConverter(this, &m_logGuid);
+}
+
+void Df1Layer.createUi()
+{
+	static ui.EnumPropertyOption modeTable[] =
+	{
+		{ "Full-duplex", io.Df1Mode.FullDuplex },
+		{ "Half-duplex", io.Df1Mode.HalfDuplex },
+	}
+
+	static ui.EnumPropertyOption checksumKindTable[] =
+	{
+		{ "BCC", io.Df1ChecksumKind.Bcc },
+		{ "CRC", io.Df1ChecksumKind.Crc },
+	}
+
+	m_modeCombo = m_pluginHost.m_toolBar.addComboBox(
+		"Mode:",
+		modeTable,
+		countof(modeTable)
+		);
+
+	m_checksumKindCombo = m_pluginHost.m_toolBar.addComboBox(
+		"Checksum:",
+		checksumKindTable,
+		countof(checksumKindTable)
+		);
+
+	m_modeProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		,,
+		"Mode",
+		"DF1 duplexing mode",
+		modeTable,
+		countof(modeTable)
+		);
+
+	m_checksumKindProp = m_pluginHost.m_propertyGrid.createEnumProperty(
+		,,
+		"Checksum",
+		"DF1 checksum kind",
+		checksumKindTable,
+		countof(checksumKindTable)
+		);
+
+	m_applyCombosAction = createAction("Apply && rebuild", "images/apply.png");
+
+	m_uiReactor.start();
+}
+
+void Df1Layer.load(doc.Storage* storage)
+{
+	m_modeProp.m_value = storage.readInt("mode", Defaults.Mode);
+	m_checksumKindProp.m_value = storage.readInt("checksumKind", Defaults.ChecksumKind);
+	applyProperties();
+}
+
+void Df1Layer.save(doc.Storage* storage)
+{
+	storage.writeInt("mode", m_modeCombo.m_currentData);
+	storage.writeInt("checksumKind", m_checksumKindCombo.m_currentData);
+}
+
+void Df1Layer.updateProperties()
+{
+	m_modeProp.m_value = m_modeCombo.m_currentData;
+	m_checksumKindProp.m_value = m_checksumKindCombo.m_currentData;
+}
+
+bool errorcode Df1Layer.applyProperties()
+{
+	m_pluginHost.m_log.suspend();
+
+	m_modeCombo.m_currentData =
+	m_txParser.m_mode =
+	m_rxParser.m_mode = m_modeProp.m_value;
+
+	m_checksumKindCombo.m_currentData =
+	m_txParser.m_checksumKind =
+	m_rxParser.m_checksumKind = m_checksumKindProp.m_value;
+
+	m_pluginHost.m_log.resume();
+	return true;
+}
+
+void Df1Layer.restoreDefaultProperties()
+{
+	m_modeProp.m_value = Defaults.Mode;
+	m_checksumKindProp.m_value = Defaults.ChecksumKind;
+}
+
+bool Df1Layer.convert(
+	log.Writer* writer,
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	bool result;
+	Df1Parser* parser;
+
+	switch (recordCode)
+	{
+	case log.StdRecordCode.SessionStarted:
+		reset();
+		break;
+
+	case log.StdRecordCode.Tx:
+		parser = &m_txParser;
+		break;
+
+	case log.StdRecordCode.Rx:
+		parser = &m_rxParser;
+		break;
+	}
+
+	if (!parser)
+		return false;
+
+	parser.parse(writer, timestamp, recordCode, p, size);
+	return true;
+}
+
+void Df1Layer.reset()
+{
+	m_txParser.reset();
+	m_rxParser.reset();
+}
+
+reactor Df1Layer.m_uiReactor
+{
+	m_txParser.m_mode = m_rxParser.m_mode = m_modeCombo.m_currentData;
+	m_txParser.m_checksumKind = m_rxParser.m_checksumKind = m_checksumKindCombo.m_currentData;
+
+	onevent m_applyCombosAction.m_onTriggered()
+	{
+		m_txParser.m_mode = m_rxParser.m_mode = m_modeCombo.m_currentData;
+		m_txParser.m_checksumKind = m_rxParser.m_checksumKind = m_checksumKindCombo.m_currentData;
+		m_pluginHost.m_log.rebuild();
+	}
+}
+
+//..............................................................................

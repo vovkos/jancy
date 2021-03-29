@@ -1,0 +1,79 @@
+//..............................................................................
+//
+// UDP flow monitor address log filter
+//
+
+import "log_Filter.jnc"
+import "UdpFlowLogRecordCode.jnc"
+
+//..............................................................................
+
+class UdpFlowLogFilter: log.Filter
+{
+protected:
+	io.SocketAddress m_filterAddress;
+	bool m_isMatch;
+
+public:
+	// suspend log engine before calling setFilter
+
+	bool errorcode setFilter(char const* filter);
+
+protected:
+	override void reset()
+	{
+		m_isMatch = false;
+	}
+
+	override bool filter(
+		uint64_t timestamp,
+		uint64_t recordCode,
+		void const* p,
+		size_t size
+		);
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bool errorcode UdpFlowLogFilter.setFilter(char const* filter)
+{
+	if (filter)
+		return m_filterAddress.parse(filter);
+
+	m_filterAddress = null;
+	return true;
+}
+
+bool UdpFlowLogFilter.filter(
+	uint64_t timestamp,
+	uint64_t recordCode,
+	void const* p,
+	size_t size
+	)
+{
+	if (!m_filterAddress.m_family) // empty address means, filtering is off
+		return true;
+
+	switch (recordCode)
+	{
+	case UdpFlowLogRecordCode.Packet:
+		UdpFlowPacketParams const* params = (UdpFlowPacketParams const*)p;
+
+		m_isMatch =
+			params.m_srcAddress.isMatch(m_filterAddress) ||
+			params.m_dstAddress.isMatch(m_filterAddress);
+
+		return m_isMatch;
+
+	case log.StdRecordCode.Tx:
+	case log.StdRecordCode.Rx:
+		bool result = m_isMatch;
+		m_isMatch = false;
+		return result;
+
+	default:
+		return false; // hide everything else
+	}
+}
+
+//..............................................................................

@@ -367,6 +367,9 @@ bool errorcode SshSerialMonSession.connect(io.SocketAddress const* remoteAddress
 		$"--ioctl $(psx.TCSETS):$(sizeof (psx.termios)) "
 		$"--ioctl $(psx.TCSETSW):$(sizeof (psx.termios)) "
 		$"--ioctl $(psx.TCSETSF):$(sizeof (psx.termios)) "
+		$"--ioctl $(psx.TCSETS2):$(sizeof (psx.termios2)) "
+		$"--ioctl $(psx.TCSETSW2):$(sizeof (psx.termios2)) "
+		$"--ioctl $(psx.TCSETSF2):$(sizeof (psx.termios2)) "
 		$"--ioctl $(psx.TIOCMGET):$(sizeof (uint_t)) "
 		$"--ioctl $(psx.TIOCMBIS):$(sizeof (uint_t)) "
 		$"--ioctl $(psx.TIOCMBIC):$(sizeof (uint_t))";

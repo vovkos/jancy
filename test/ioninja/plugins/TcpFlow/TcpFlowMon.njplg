@@ -1,0 +1,31 @@
+#...............................................................................
+#
+#  TCP Flow Monitor session plugin
+#
+
+[plugin]
+
+name        = "TCP Flow Monitor"
+description = "Monitors TCP communications and produces clean data flow"
+id          = tcp-flow-mon
+group       = net
+monitor     = true
+log-guid    = 5a6cc363-3ace-4db8-9224-3d972d16b30d  # tcp flow
+log-guid    = 074c3414-2622-418a-885d-edfeca2b79e7  # pcap
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+icon        = images/tcp-flow-mon.png
+small-icon  = images/tcp-flow-mon-16x16.png
+
+session-class = TcpFlowMonSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.pcap
+
+[scripts]
+
+TcpFlowMonSession.jnc
+TcpFlowLogFilter.jnc
+TcpDecoder.jnc
+TcpSequencer.jnc

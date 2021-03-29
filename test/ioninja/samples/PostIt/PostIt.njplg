@@ -1,0 +1,18 @@
+//..............................................................................
+//
+// Post-It layer plugin
+//
+
+[plugin]
+
+name        = Post-It
+description = This plugin allows you to add arbitrary text markers to the log
+id          = post-it
+icon        = images/post-it.png
+small-icon  = images/post-it-16x16.png
+
+layer-class = PostItLayer
+
+[scripts]
+
+PostItLayer.jnc

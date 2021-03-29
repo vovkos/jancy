@@ -13,6 +13,10 @@ small-icon  = images/xmodem-16x16.png
 
 layer-class = XModemLayer
 
+[required-capabilities]
+
+org.jancy.io.file
+
 [scripts]
 
 XModem.jnc

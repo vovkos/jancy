@@ -1,0 +1,50 @@
+//..............................................................................
+//
+// This script iterates through all IPs on a class C network and sends
+// an ARP 'whois' request to each.
+//
+// Must be used with a Network Sniffer session.
+//
+//..............................................................................
+
+import "io_TcpIp.jnc"
+
+struct ArpRequestFrame
+{
+	io.EthernetHdr m_ethernet;
+	io.ArpHdr m_arp;
+	uchar_t m_srcMac[6];
+	uchar_t m_srcIp[4];
+	uchar_t m_dstMac[6];
+	uchar_t m_dstIp[4];
+}
+
+// specify MAC/IP of the NIC opened in the Network Sniffer session:
+
+static uchar_t const g_srcMac[6] = 0x"00:e0:4c:68:01:12";
+static uchar_t const g_srcIp[4] = 0d"192.168.1.114";
+
+void main()
+{
+	connect();
+	
+	ArpRequestFrame frame;
+	frame.m_ethernet.m_type = io.EthernetType.Arp;
+	frame.m_ethernet.m_srcAddress = g_srcMac;
+	frame.m_ethernet.m_dstAddress = 0x"ff:ff:ff:ff:ff:ff";
+	frame.m_arp.m_hardwareType = io.ArpHardwareType.Ethernet;
+	frame.m_arp.m_protocolType = io.EthernetType.Ip;
+	frame.m_arp.m_hardwareLength  = 6;
+	frame.m_arp.m_protocolLength  = 4;
+	frame.m_arp.m_opcode = io.ArpOpcode.Request;
+	frame.m_srcMac = g_srcMac;
+	frame.m_srcIp = g_srcIp;
+	frame.m_dstIp = g_srcIp; // the last octet will go 0..254
+
+	for (uint_t i = 0; i <= 254; i++)
+	{
+		frame.m_dstIp[3] = i;
+		transmit(&frame, sizeof(frame));
+		sys.sleep(200); // wait 1/5 second before the next entry
+	}
+}

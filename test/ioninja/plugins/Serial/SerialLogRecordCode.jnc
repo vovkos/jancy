@@ -12,7 +12,7 @@ enum SerialLogRecordCode: uint64_t
 	PortOpened            = 0x01d47c8fc7b0f700 | log.RecordCodeFlags.Foldable,
 	PortOpened_old        = 0x01d47c8fc7b0f701 | log.RecordCodeFlags.Foldable,
 	PortOpenError         = 0x01d47c8fc7b0f702,
-	PortClosed            = 0x01d47c8fc7b0f703,
+	PortClosedNamed       = 0x01d47c8fc7b0f703,
 	BaudRateChanged       = 0x01d47c8fc7b0f704,
 	DataBitsChanged       = 0x01d47c8fc7b0f705,
 	StopBitsChanged       = 0x01d47c8fc7b0f706,
@@ -27,6 +27,7 @@ enum SerialLogRecordCode: uint64_t
 	ControlLineChanged    = 0x01d47c8fc7b0f70f,
 	LineError             = 0x01d47c8fc7b0f710,
 	BreakConditionChanged = 0x01d47c8fc7b0f711,
+	PortClosed            = 0x01d47c8fc7b0f712,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

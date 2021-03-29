@@ -14,7 +14,15 @@ namespace doc {
 
 class Session: Plugin
 {
+	enum SessionConnectionState
+	{
+		Disconnected,
+		Connecting,
+		Connected,
+	}
+
 	char const* autoget property m_title;
+	SessionConnectionState autoget property m_sessionConnectionState;
 	bool autoget property m_isTransmitEnabled;
 
 	construct(PluginHost* host)
@@ -28,6 +36,16 @@ class Session: Plugin
 		)
 	{
 		return size;
+	}
+
+	virtual bool errorcode connectSession()
+	{
+		std.setError("this session doesn't know how to connect");
+		return false;
+	}
+
+	virtual void disconnectSession()
+	{
 	}
 
 	void startSession()
