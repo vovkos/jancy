@@ -1497,6 +1497,14 @@ OperatorMgr::awaitOperator(const Value& value)
 {
 	bool result;
 
+	Value opPromiseValue;
+	result = castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue);
+	if (!result)
+		return false;
+
+	if (!m_module->hasCodeGen())
+		return true;
+
 	Function* function = m_module->m_functionMgr.getCurrentFunction();
 	ASSERT(function->getFunctionKind() == FunctionKind_AsyncSequencer);
 
@@ -1508,14 +1516,12 @@ OperatorMgr::awaitOperator(const Value& value)
 	Value stateFieldValue;
 	Value stateIdValue;
 	Value pendingPromiseFieldValue;
-	Value opPromiseValue;
 	Value waitValue;
 
 	size_t stateId = m_module->m_controlFlowMgr.getAsyncBlockArray().getCount();
 	stateIdValue.setConstSizeT(stateId, m_module);
 
 	result =
-		castOperator(value, m_module->m_typeMgr.getStdType(StdType_PromisePtr), &opPromiseValue) &&
 		memberOperator(opPromiseValue, "wait", &waitValue) &&
 		getPromiseField(thisPromiseValue, "m_state", &stateFieldValue) &&
 		storeDataRef(stateFieldValue, stateIdValue) &&
@@ -1578,8 +1584,14 @@ OperatorMgr::awaitOperator(
 	Value opPromiseValue;
 	Value waitValue;
 
+	bool result = awaitOperator(value);
+	if (!result)
+		return false;
+
+	if (!m_module->hasCodeGen())
+		return true;
+
 	return
-		awaitOperator(value) &&
 		getPromiseField(thisPromiseValue, "m_pendingPromise", &pendingPromiseFieldValue) &&
 		loadDataRef(pendingPromiseFieldValue, &opPromiseValue) &&
 		memberOperator(opPromiseValue, "blockingWait", &waitValue) &&

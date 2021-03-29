@@ -32,6 +32,9 @@ AsyncSequencerFunction::compile()
 {
 	ASSERT(m_parentUnit && m_parentNamespace);
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	bool result;
 
 	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
@@ -134,6 +137,14 @@ AsyncSequencerFunction::compile()
 
 	if (!result)
 		return false;
+
+	if (!m_module->hasCodeGen()) // codegen was gone while parsing the body
+	{
+		m_module->m_namespaceMgr.closeScope();
+		m_module->m_functionMgr.internalEpilogue();
+		m_module->m_namespaceMgr.closeNamespace();
+		return true;
+	}
 
 	// extract state and switch-jump accordingly
 
