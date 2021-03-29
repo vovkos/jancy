@@ -79,7 +79,8 @@ WebSocket::open_0(
 	return
 		requireWebSockCapability() &&
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		(!isSecure || openSsl());
+		(!isSecure || openSsl()) &&
+		m_ioThread.start();
 }
 
 bool
@@ -96,7 +97,8 @@ WebSocket::open_1(
 	return
 		requireWebSockCapability() &&
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
-		(!isSecure || openSsl());
+		(!isSecure || openSsl()) &&
+		m_ioThread.start();
 }
 
 void

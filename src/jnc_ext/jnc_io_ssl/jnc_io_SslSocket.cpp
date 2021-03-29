@@ -75,7 +75,8 @@ SslSocket::open_0(uint16_t family)
 	return
 		requireSslCapability() &&
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		openSsl(&m_socket);
+		openSsl(&m_socket) &&
+		m_ioThread.start();
 }
 
 bool
@@ -89,7 +90,8 @@ SslSocket::open_1(DataPtr addressPtr)
 	return
 		requireSslCapability() &&
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
-		openSsl(&m_socket);
+		openSsl(&m_socket) &&
+		m_ioThread.start();
 }
 
 void

@@ -38,14 +38,12 @@ public:
 
 protected:
 	static int m_selfIdx;
+	static int m_runtimeIdx;
 
 public:
 	static
 	void
-	initSelfIdx()
-	{
-		 m_selfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
-	}
+	initAppData();
 
 	bool
 	JNC_CDECL

@@ -84,7 +84,7 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
 	jnc::io::initializeSslLibCapabilities();
-	jnc::io::SslState::initSelfIdx();
+	jnc::io::SslState::initAppData();
 	return jnc::io::SslLib_getLib();
 }
 

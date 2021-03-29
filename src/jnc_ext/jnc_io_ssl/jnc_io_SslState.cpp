@@ -16,7 +16,8 @@
 namespace jnc {
 namespace io {
 
-int SslState::m_selfIdx = 0;
+int SslState::m_runtimeIdx = -1;
+int SslState::m_selfIdx = -1;
 
 //..............................................................................
 
@@ -58,11 +59,18 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 //..............................................................................
 
+void
+SslState::initAppData()
+{
+	m_runtimeIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
+	m_selfIdx = ::SSL_get_ex_new_index(0, NULL, NULL, NULL, NULL);
+}
+
 bool
 JNC_CDECL
 SslState::openSsl(axl::io::Socket* socket)
 {
-	ASSERT(m_selfIdx);
+	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	ASSERT(socket->isOpen());
 
 	bool result =
@@ -73,8 +81,12 @@ SslState::openSsl(axl::io::Socket* socket)
 	if (!result)
 		return false;
 
+	Runtime* runtime = getCurrentThreadRuntime();
+	ASSERT(runtime);
+
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(m_selfIdx, this);
+	m_ssl.setExtraData(m_runtimeIdx, runtime);
 	m_ssl.setInfoCallback(sslInfoCallback);
 	return true;
 }
@@ -217,13 +229,15 @@ SslState::sslInfoCallback(
 	int ret
 	)
 {
-	ASSERT(m_selfIdx);
+	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	SslState* self = (SslState*)::SSL_get_ex_data(ssl, m_selfIdx);
-	if (!self)
+	Runtime* runtime = (Runtime*)::SSL_get_ex_data(ssl, m_runtimeIdx);
+
+	if (!self || !runtime)
 		return;
 
 	ASSERT(self->m_ssl == ssl);
-	callMulticast(self->m_onStateChanged, where, ret);
+	callMulticast(runtime, self->m_onStateChanged, where, ret);
 }
 
 //..............................................................................
