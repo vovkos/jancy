@@ -12,8 +12,7 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
-import "io_SslCertificate.jnc"
-import "io_SslCipher.jnc"
+import "io_SslState.jnc"
 
 namespace io {
 
@@ -38,70 +37,10 @@ bitflag enum SslSocketEvents
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SslSocketState
-{
-	Connect         = 0x1000,          // SSL_ST_CONNECT
-	Accept          = 0x2000,          // SSL_ST_ACCEPT
-	Loop            = 0x01,            // SSL_CB_LOOP
-	Exit            = 0x02,            // SSL_CB_EXIT
-	Read            = 0x04,            // SSL_CB_READ
-	Write           = 0x08,            // SSL_CB_WRITE
-	Alert           = 0x4000,          // SSL_CB_ALERT
-	ReadAlert       = Alert | Read,    // SSL_CB_READ_ALERT
-	WriteAlert      = Alert | Write,   // SSL_CB_WRITE_ALERT
-	AcceptLoop      = Accept | Loop,   // SSL_CB_ACCEPT_LOOP
-	AcceptExit      = Accept | Exit,   // SSL_CB_ACCEPT_EXIT
-	ConnectLoop     = Connect | Loop,  // SSL_CB_CONNECT_LOOP
-	ConnectExit     = Connect | Exit,  // SSL_CB_CONNECT_EXIT
-	HandshakeStart  = 0x10,            // SSL_CB_HANDSHAKE_START
-	HandshakeDone   = 0x20,            // SSL_CB_HANDSHAKE_DONE
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bitflag enum SslVerifyMode
-{
-	None                        = 0, // SSL_VERIFY_NONE
-	VerifyPeerCertificate       = 1, // SSL_VERIFY_PEER
-	RequireClientCertificate    = 2, // SSL_VERIFY_FAIL_IF_NO_PEER_CERT
-	VerifyClientCertificateOnce = 4, // SSL_VERIFY_CLIENT_ONCE
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-// RFC 5114
-
-enum SslStdDh
-{
-	Dh1024x160,
-	Dh2048x224,
-	Dh2048x256,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-opaque class SslSocket
+opaque class SslSocket: SslState
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
-
-	size_t const property m_availableCipherCount;
-	SslCipher* const property m_availableCipherSet(size_t i);
-	SslCipher* const property m_currentCipher;
-	size_t const property m_peerCertificateChainLength;
-	SslCertificate const* const property m_peerCertificateChain(size_t i);
-	SslCertificate const* const property m_peerCertificate;
-
-	SslVerifyMode property m_verifyMode;
-	size_t property m_verifyDepth;
-
-	char const* const property m_stateString;
-	char const* const property m_stateStringLong;
-
-	event m_onStateChanged(
-		SslSocketState state,
-		int alertInfo
-		);
 
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;

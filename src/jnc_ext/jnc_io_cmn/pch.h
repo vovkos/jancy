@@ -24,6 +24,12 @@
 #	include "axl_io_psx_Pipe.h"
 #endif
 
+#if (_JNC_IO_SSL)
+#	include "axl_cry_Bio.h"
+#	include "axl_cry_Dh.h"
+#	include "axl_io_Ssl.h"
+#endif
+
 #include "jnc_ExtensionLib.h"
 #include "jnc_Capability.h"
 #include "jnc_Runtime.h"

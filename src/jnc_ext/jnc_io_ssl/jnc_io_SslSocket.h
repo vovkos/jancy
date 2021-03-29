@@ -13,8 +13,7 @@
 
 #include "jnc_io_AsyncIoDevice.h"
 #include "jnc_io_SocketBase.h"
-#include "jnc_io_SslCertificate.h"
-#include "jnc_io_SslCipher.h"
+#include "jnc_io_SslState.h"
 
 namespace jnc {
 namespace io {
@@ -43,9 +42,8 @@ enum SslStdDh
 
 //..............................................................................
 
-struct SslSocketHdr: IfaceHdr
+struct SslSocketHdr: SslState
 {
-	ClassBox<Multicast> m_onStateChanged;
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
 	size_t m_writeBufferSize;
@@ -92,10 +90,6 @@ protected:
 	IoThread m_ioThread;
 	jnc::io::SocketAddress m_localAddress;
 	jnc::io::SocketAddress m_remoteAddress;
-
-	axl::io::SslCtx m_sslCtx;
-	axl::cry::Bio m_sslBio;
-	axl::io::Ssl m_ssl;
 
 public:
 	SslSocket();

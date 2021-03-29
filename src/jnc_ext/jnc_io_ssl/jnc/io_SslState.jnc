@@ -9,34 +9,17 @@
 //
 //..............................................................................
 
-import "io_base.jncx"
-import "io_ssl.jncx"
-import "io_SslSocket.jnc"
+import "io_SslCertificate.jnc"
+import "io_SslCipher.jnc"
 
 namespace io {
 
-//! \addtogroup io-websock
+//! \addtogroup io-ssl
 //! @{
 
 //..............................................................................
 
-bitflag enum WebSocketEvents
-{
-	IoError,
-	IncomingData,
-	ReadBufferFull,
-	WriteBufferEmpty,
-	WriteBufferReady = WriteBufferEmpty,
-	IncomingConnection,
-	TcpConnected,
-	TcpDisconnected,
-	TcpReset,
-	SslHandshakeCompleted,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-bitflag enum WebSocketState
+bitflag enum SslStateFlags
 {
 	Connect         = 0x1000,          // SSL_ST_CONNECT
 	Accept          = 0x2000,          // SSL_ST_ACCEPT
@@ -57,11 +40,29 @@ bitflag enum WebSocketState
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-opaque class WebSocket
+bitflag enum SslVerifyMode
 {
-	SocketAddress const property m_address;
-	SocketAddress const property m_peerAddress;
+	None                        = 0, // SSL_VERIFY_NONE
+	VerifyPeerCertificate       = 1, // SSL_VERIFY_PEER
+	RequireClientCertificate    = 2, // SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+	VerifyClientCertificateOnce = 4, // SSL_VERIFY_CLIENT_ONCE
+}
 
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+// RFC 5114
+
+enum SslStdDh
+{
+	Dh1024x160,
+	Dh2048x224,
+	Dh2048x256,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+opaque class SslState
+{
 	size_t const property m_availableCipherCount;
 	SslCipher* const property m_availableCipherSet(size_t i);
 	SslCipher* const property m_currentCipher;
@@ -75,29 +76,10 @@ opaque class WebSocket
 	char const* const property m_stateString;
 	char const* const property m_stateStringLong;
 
-	event m_onStateChanged(
-		SslSocketState state,
+	event m_onChanged(
+		SslStateFlags flags,
 		int alertInfo
 		);
-
-	size_t autoget property m_readBlockSize;
-	size_t autoget property m_readBufferSize;
-	size_t autoget property m_writeBufferSize;
-	SocketOptions autoget property m_options;
-
-	io.SslSocketEvents readonly volatile m_activeEvents;
-	std.Error const* readonly volatile m_ioError;
-
-	bool readonly m_isOpen;
-
-	construct();
-	destruct();
-
-	bool errorcode open(AddressFamily family);
-	bool errorcode open(SocketAddress const* address);
-	void close();
-
-	alias dispose = close;
 
 	bool errorcode enableCiphers(char const* ciphers);
 
@@ -117,42 +99,6 @@ opaque class WebSocket
 		char const* caFileName,
 		char const* caDir = null
 		);
-
-	bool errorcode connect(SocketAddress const* address);
-	bool errorcode listen(size_t backlog = 0); // 0 -- default
-
-	WebSocket* errorcode accept(
-		SocketAddress* address = null,
-		bool isSuspended = false
-		);
-
-	bool errorcode shutdown();
-
-	void unsuspend();
-
-	size_t errorcode read(
-		void* p,
-		size_t size
-		);
-
-	size_t errorcode write(
-		void const* p,
-		size_t size
-		);
-
-	intptr errorcode wait(
-		WebSocketEvents eventMask,
-		function* handler(WebSocketEvents triggeredEvents)
-		);
-
-	bool errorcode cancelWait(intptr handle);
-
-	WebSocketEvents blockingWait(
-		SslSocketEvents eventMask,
-		uint_t timeout = -1
-		);
-
-	async WebSocketEvents asyncWait(WebSocketEvents eventMask);
 }
 
 //..............................................................................

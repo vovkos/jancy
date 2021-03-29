@@ -20,6 +20,7 @@ set(
 	jnc_io_SocketAddress.h
 	jnc_io_SocketCapabilities.h
 	jnc_io_SocketBase.h
+	jnc_io_SslState.h
 	)
 
 set(
@@ -29,7 +30,12 @@ set(
 	jnc_io_SocketAddress.cpp
 	jnc_io_SocketCapabilities.cpp
 	jnc_io_SocketBase.cpp
+	jnc_io_SslState.cpp
 	)
+
+if(NOT OPENSSL_FOUND)
+	axl_exclude_from_build(jnc_io_SslState.cpp)
+endif()
 
 source_group(
 	lib
@@ -61,7 +67,12 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
+	${OPENSSL_INC_DIR}
 	)
+
+if(OPENSSL_FOUND)
+	add_definitions(-D_JNC_IO_SSL=1)
+endif()
 
 add_library(
 	jnc_io_cmn

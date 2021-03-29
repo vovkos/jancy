@@ -512,7 +512,7 @@ void MainWindow::onSetUsbFilter()
 	jnc::writeCapabilityParam(
 		"org.jancy.io.usb.devices",
 		vidPidTable.data(),
-		vidPidTable.length() * sizeof(uint16_t)
+		vidPidTable.size() * sizeof(uint16_t)
 		);
 }
 
