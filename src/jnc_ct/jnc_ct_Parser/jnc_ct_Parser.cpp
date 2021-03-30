@@ -3114,6 +3114,9 @@ Parser::appendFmtLiteralBinValue(
 	if (!result)
 		return false;
 
+	if (!m_module->hasCodeGen())
+		return true;
+
 	Type* type = srcValue.getType();
 	Function* append = m_module->m_functionMgr.getStdFunction(StdFunc_AppendFmtLiteral_a);
 	Type* argType = m_module->m_typeMgr.getStdType(StdType_BytePtr);
