@@ -1072,6 +1072,7 @@ TypedefShadowType::calcLayout()
 	if (!result)
 		return false;
 
+	m_flags |= (type->getFlags() & TypeFlag_Pod);
 	m_size = type->getSize();
 	m_alignment = type->getAlignment();
 	return true;
