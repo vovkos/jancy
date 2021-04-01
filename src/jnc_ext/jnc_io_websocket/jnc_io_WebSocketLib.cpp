@@ -10,7 +10,7 @@
 //..............................................................................
 
 #include "pch.h"
-#include "jnc_io_WebSockLib.h"
+#include "jnc_io_WebSocketLib.h"
 #include "jnc_io_WebSocket.h"
 
 namespace jnc {
@@ -19,31 +19,31 @@ namespace io {
 //..............................................................................
 
 void
-initializeWebSockLibCapabilities()
+initializeWebSocketLibCapabilities()
 {
-	g_webSockCapability = jnc::isCapabilityEnabled("org.jancy.io.websocket");
+	g_webSocketCapability = jnc::isCapabilityEnabled("org.jancy.io.websocket");
 	initializeSocketCapabilities();
 }
 
 //..............................................................................
 
 JNC_DEFINE_LIB_EX(
-	WebSockLib,
-	g_webSockLibGuid,
-	"WebSockLib",
+	WebSocketLib,
+	g_webSocketLibGuid,
+	"WebSocketLib",
 	"Jancy libSsl2 wrapper extension library",
-	initializeWebSockLibCapabilities
+	initializeWebSocketLibCapabilities
 	)
 
-JNC_BEGIN_LIB_SOURCE_FILE_TABLE(WebSockLib)
+JNC_BEGIN_LIB_SOURCE_FILE_TABLE(WebSocketLib)
 	JNC_LIB_IMPORT("io_WebSocket.jnc")
 JNC_END_LIB_SOURCE_FILE_TABLE()
 
-JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(WebSockLib)
+JNC_BEGIN_LIB_OPAQUE_CLASS_TYPE_TABLE(WebSocketLib)
 	JNC_LIB_OPAQUE_CLASS_TYPE_TABLE_ENTRY(WebSocket)
 JNC_END_LIB_OPAQUE_CLASS_TYPE_TABLE()
 
-JNC_BEGIN_LIB_FUNCTION_MAP(WebSockLib)
+JNC_BEGIN_LIB_FUNCTION_MAP(WebSocketLib)
 	JNC_MAP_TYPE(WebSocket)
 JNC_END_LIB_FUNCTION_MAP()
 
@@ -68,8 +68,8 @@ jncDynamicExtensionLibMain(jnc_DynamicExtensionLibHost* host)
 	g::getModule()->setTag("jnc_io_websock");
 	err::getErrorMgr()->setRouter(host->m_errorRouter);
 	jnc_g_dynamicExtensionLibHost = host;
-	jnc::io::initializeWebSockLibCapabilities();
-	return jnc::io::WebSockLib_getLib();
+	jnc::io::initializeWebSocketLibCapabilities();
+	return jnc::io::WebSocketLib_getLib();
 }
 
 //..............................................................................

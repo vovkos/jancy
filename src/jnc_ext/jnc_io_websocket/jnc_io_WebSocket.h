@@ -13,6 +13,7 @@
 
 #include "jnc_io_SslSocketBase.h"
 #include "jnc_io_SslStateBase.h"
+#include "jnc_io_WebSocketState.h"
 
 namespace jnc {
 namespace io {
@@ -21,10 +22,9 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 
 //..............................................................................
 
-enum WebSocketTransport
+enum WebSocketEvent
 {
-	WebSocketTransport_Insecure,
-	WebSocketTransport_Secure,
+	WebSocketEvent_WebSocketHandshakeCompleted = 0x0200,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -56,7 +56,7 @@ protected:
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_WriteBufferSize = 16 * 1024,
-		Def_Options         = 0,
+		Def_Options         = AsyncIoDeviceOption_KeepReadBlockSize | AsyncIoDeviceOption_KeepWriteBlockSize,
 	};
 
 	enum IoThreadFlag
@@ -95,6 +95,8 @@ protected:
 	OverlappedIo* m_overlappedIo;
 #endif
 
+	WebSocketStateMachine m_stateMachine;
+
 public:
 	WebSocket();
 
@@ -105,10 +107,7 @@ public:
 
 	void
 	JNC_CDECL
-	markOpaqueGcRoots(jnc::GcHeap* gcHeap)
-	{
-		AsyncIoDevice::markOpaqueGcRoots(gcHeap);
-	}
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
 
 	static
 	SocketAddress
@@ -137,21 +136,24 @@ public:
 	JNC_CDECL
 	setReadBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setReadBufferSize(&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		AsyncIoDevice::setSetting(&m_readBufferSize, size ? size : Def_ReadBufferSize);
+		return true;
 	}
 
 	bool
 	JNC_CDECL
 	setWriteBufferSize(size_t size)
 	{
-		return AsyncIoDevice::setWriteBufferSize(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		AsyncIoDevice::setSetting(&m_writeBufferSize, size ? size : Def_WriteBufferSize);
+		return true;
 	}
 
 	bool
 	JNC_CDECL
-	setOptions(uint_t flags)
+	setOptions(uint_t options)
 	{
-		return SocketBase::setOptions(flags);
+		options |= AsyncIoDeviceOption_KeepReadBlockSize | AsyncIoDeviceOption_KeepWriteBlockSize;
+		return SocketBase::setOptions(options);
 	}
 
 	bool
@@ -159,14 +161,21 @@ public:
 	open_0(
 		uint16_t family,
 		bool isSecure
-		);
+		)
+	{
+		return openImpl(family, NULL, isSecure);
+	}
 
 	bool
 	JNC_CDECL
 	open_1(
 		DataPtr addressPtr,
 		bool isSecure
-		);
+		)
+	{
+		SocketAddress* address = (SocketAddress*)addressPtr.m_p;
+		return openImpl(address ? address->m_family : AddressFamily_Ip4, address, isSecure);
+	}
 
 	void
 	JNC_CDECL
@@ -196,23 +205,19 @@ public:
 
 	size_t
 	JNC_CDECL
-	read(
-		DataPtr ptr,
+	readMessage(
+		DataPtr typePtr,
+		DataPtr dataPtr,
 		size_t size
-		)
-	{
-		return bufferedRead(ptr, size);
-	}
+		);
 
 	size_t
 	JNC_CDECL
-	write(
+	writeMessage(
+		uint_t type,
 		DataPtr ptr,
 		size_t size
-		)
-	{
-		return bufferedWrite(ptr, size);
-	}
+		);
 
 	handle_t
 	JNC_CDECL
@@ -253,6 +258,13 @@ protected:
 	ioThreadFunc();
 
 	bool
+	openImpl(
+		uint16_t family,
+		const SocketAddress* address,
+		bool isSecure
+		);
+
+	bool
 	openSsl();
 
 	void
@@ -263,6 +275,12 @@ protected:
 
 	void
 	tcpSendRecvLoop();
+
+	bool
+	processIncomingData(
+		const void* p,
+		size_t size
+		);
 };
 
 //..............................................................................

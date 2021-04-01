@@ -10,6 +10,8 @@
 //..............................................................................
 
 import "io_base.jncx"
+import "io_ssl.jncx"
+
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
 import "io_SslState.jnc"
@@ -24,7 +26,7 @@ namespace io {
 bitflag enum WebSocketEvents
 {
 	IoError,
-	Message,
+	IncomingMessage,
 	ReadBufferFull,
 	WriteBufferEmpty,
 	WriteBufferReady = WriteBufferEmpty,
@@ -33,6 +35,14 @@ bitflag enum WebSocketEvents
 	TcpDisconnected,
 	TcpReset,
 	SslHandshakeCompleted,
+	WebSocketHandshakeCompleted,
+}
+
+enum WebSocketMessageType
+{
+	Undefined,
+	Text,
+	Binary
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -80,15 +90,38 @@ opaque class WebSocket
 
 	void unsuspend();
 
-	size_t errorcode read(
+	size_t errorcode readMessage(
+		WebSocketMessageType* type,
 		void* p,
 		size_t size
 		);
 
-	size_t errorcode write(
+	size_t errorcode readMessage(
+		void* p,
+		size_t size
+		)
+	{
+		return readMessage(null, p, size);
+	}
+
+	size_t errorcode writeMessage(
+		WebSocketMessageType type,
 		void const* p,
 		size_t size
 		);
+
+	size_t errorcode writeTextMessage(char const* p)
+	{
+		return writeMessage(WebSocketMessageType.Text, p, strlen(p));
+	}
+
+	size_t errorcode writeBinaryMessage(
+		void const* p,
+		size_t size
+		)
+	{
+		return writeMessage(WebSocketMessageType.Binary, p, size);
+	}
 
 	intptr errorcode wait(
 		WebSocketEvents eventMask,

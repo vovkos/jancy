@@ -40,13 +40,13 @@ if(OPENSSL_FOUND)
 	endif()
 
 	option(
-		BUILD_JNC_IO_WEBSOCK
-		"Build jancy WebSock IO extension library"
+		BUILD_JNC_IO_WEBSOCKET
+		"Build jancy WebSocket IO extension library"
 		ON
 		)
 
-	if(BUILD_JNC_IO_WEBSOCK)
-		add_subdirectory(jnc_io_websock)
+	if(BUILD_JNC_IO_WEBSOCKET)
+		add_subdirectory(jnc_io_websocket)
 	endif()
 endif()
 

@@ -16,13 +16,19 @@
 set(
 	LIB_H_LIST
 	jnc_io_WebSocket.h
-	jnc_io_WebSockLib.h
+	jnc_io_WebSocketHandshake.h
+	jnc_io_WebSocketFrame.h
+	jnc_io_WebSocketState.h
+	jnc_io_WebSocketLib.h
 	)
 
 set(
 	LIB_CPP_LIST
 	jnc_io_WebSocket.cpp
-	jnc_io_WebSockLib.cpp
+	jnc_io_WebSocketHandshake.cpp
+	jnc_io_WebSocketFrame.cpp
+	jnc_io_WebSocketState.cpp
+	jnc_io_WebSocketLib.cpp
 	)
 
 source_group(
@@ -65,7 +71,7 @@ source_group(
 
 #...............................................................................
 #
-# jnc_io_websock library
+# jnc_io_websocket library
 #
 
 include_directories(
@@ -82,7 +88,7 @@ link_directories(
 	)
 
 add_library(
-	jnc_io_websock
+	jnc_io_websocket
 	SHARED
 	${PCH_H}
 	${PCH_CPP}
@@ -93,20 +99,20 @@ add_library(
 	)
 
 target_compile_definitions(
-	jnc_io_websock
+	jnc_io_websocket
 	PUBLIC
 	-D_JNC_DYNAMIC_EXTENSION_LIB=1
 	)
 
 if(GCC AND NOT APPLE)
 	axl_set_export_version_script_gcc(
-		jnc_io_websock
+		jnc_io_websocket
 		jncDynamicExtensionLibMain
 		)
 endif()
 
 axl_set_pch(
-	jnc_io_websock
+	jnc_io_websocket
 	${PCH_H}
 	${PCH_CPP}
 	)
@@ -114,14 +120,14 @@ axl_set_pch(
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
 set_target_properties(
-	jnc_io_websock
+	jnc_io_websocket
 	PROPERTIES
-	OUTPUT_NAME io_websock-${TARGET_CPU}
+	OUTPUT_NAME io_websocket-${TARGET_CPU}
 	SUFFIX .bin
 	)
 
 target_link_libraries(
-	jnc_io_websock
+	jnc_io_websocket
 	jnc_io_cmn
 	jnc_api_ext
 	jnc_std
@@ -135,13 +141,13 @@ target_link_libraries(
 
 if(LINUX)
 	target_link_libraries(
-		jnc_io_websock
+		jnc_io_websocket
 		rt
 		)
 endif()
 
 set_target_properties(
-	jnc_io_websock
+	jnc_io_websocket
 	PROPERTIES
 	FOLDER extensions
 	)
@@ -160,10 +166,10 @@ if(WIN32)
 
 	if(_DLL_LIST)
 		add_custom_command(
-			TARGET jnc_io_websock
+			TARGET jnc_io_websocket
 			POST_BUILD
 			COMMAND
-				echo Copying DLL files for jnc_io_websock...
+				echo Copying DLL files for jnc_io_websocket...
 			COMMAND
 				${CMAKE_COMMAND} -E copy
 				${_DLL_LIST}
@@ -178,22 +184,22 @@ endif()
 #
 
 set(DLL_DIR ${JANCY_DLL_BASE_DIR}/${CONFIGURATION})
-set(JNC_IO_WEBSOCK_NAME io_websock-${TARGET_CPU}.bin)
-set(JNC_IO_WEBSOCK_DLL ${DLL_DIR}/${JNC_IO_WEBSOCK_NAME})
-set(JNC_IO_WEBSOCK_JNCX ${DLL_DIR}/io_websock.jncx)
+set(JNC_IO_WEBSOCKET_NAME io_websocket-${TARGET_CPU}.bin)
+set(JNC_IO_WEBSOCKET_DLL ${DLL_DIR}/${JNC_IO_WEBSOCKET_NAME})
+set(JNC_IO_WEBSOCKET_JNCX ${DLL_DIR}/io_websocket.jncx)
 
 add_custom_command(
-	TARGET jnc_io_websock
+	TARGET jnc_io_websocket
 	POST_BUILD
 	COMMAND
-		echo Creating io_websock.jncx...
+		echo Creating io_websocket.jncx...
 	COMMAND
-		${CMAKE_COMMAND} -E remove ${JNC_IO_WEBSOCK_JNCX}
+		${CMAKE_COMMAND} -E remove ${JNC_IO_WEBSOCKET_JNCX}
 	COMMAND
 		${7Z_EXE}
 		a -tzip -y
-		${JNC_IO_WEBSOCK_JNCX}
-		${JNC_IO_WEBSOCK_DLL}
+		${JNC_IO_WEBSOCKET_JNCX}
+		${JNC_IO_WEBSOCKET_DLL}
 		${CMAKE_CURRENT_LIST_DIR}/jnc/*.jnc
 	)
 

@@ -16,28 +16,28 @@ namespace io {
 
 //..............................................................................
 
-AXL_SELECT_ANY bool g_webSockCapability = true;
+AXL_SELECT_ANY bool g_webSocketCapability = true;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 inline
 bool
-requireWebSockCapability()
+requireWebSocketCapability()
 {
-	return g_webSockCapability || jnc::failWithCapabilityError("org.jancy.io.websock");
+	return g_webSocketCapability || jnc::failWithCapabilityError("org.jancy.io.websocket");
 }
 
 //..............................................................................
 
 // {012e10bc-5a2e-412e-aeaa-bbc04463fa7f}
 JNC_DEFINE_GUID(
-	g_webSockLibGuid,
+	g_webSocketLibGuid,
 	0x012e10bc, 0x5a2e, 0x412e, 0xae, 0xaa, 0xbb, 0xc0, 0x44, 0x63, 0xfa, 0x7f
 	);
 
-enum WebSockLibCacheSlot
+enum WebSocketLibCacheSlot
 {
-	WebSockLibCacheSlot_WebSocket,
+	WebSocketLibCacheSlot_WebSocket,
 };
 
 //..............................................................................

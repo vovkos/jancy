@@ -1,0 +1,59 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_websocket.jncx"
+
+int main()
+{
+	io.SocketAddress address;
+	address.parse("8088");
+
+	io.WebSocket server;
+	server.open(&address);
+	server.listen();
+
+	char buffer[512];
+
+	printf("waiting for a connection...\n");
+
+	io.WebSocketEvents events = server.blockingWait(
+		io.WebSocketEvents.IoError |
+		io.WebSocketEvents.IncomingConnection
+		);
+
+	printf("events: %x\n", events);
+
+	io.WebSocket* connection = server.accept(&address);
+	printf("accepted connection from: %s\n", address.getString());
+
+	for (;;)
+	{
+		printf("waiting for incoming data...\n");
+
+		events = connection.blockingWait(
+			io.WebSocketEvents.IoError |
+			io.WebSocketEvents.IncomingMessage |
+			io.WebSocketEvents.TcpDisconnected
+			);
+
+		printf("events: %x\n", events);
+
+		if (!(events & io.WebSocketEvents.IncomingMessage))
+			break;
+	
+		size_t result = connection.readMessage(buffer, sizeof(buffer) - 1);
+		buffer[result] = 0; // ensure zero-termination
+		printf("message: %s\n", buffer);
+	}
+
+	printf("done\n");
+	return 0;
+}

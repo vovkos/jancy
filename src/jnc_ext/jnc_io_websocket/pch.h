@@ -26,6 +26,8 @@
 #include "axl_sl_Construct.h"
 #include "axl_sl_CircularBuffer.h"
 #include "axl_sl_HandleTable.h"
+#include "axl_sl_StringHashTable.h"
+#include "axl_enc_Base64Encoding.h"
 #include "axl_err_Errno.h"
 #include "axl_err_ErrorMgr.h"
 #include "axl_mem_Pool.h"

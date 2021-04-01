@@ -11,7 +11,7 @@
 
 #include "pch.h"
 #include "jnc_io_WebSocket.h"
-#include "jnc_io_WebSockLib.h"
+#include "jnc_io_WebSocketLib.h"
 
 namespace jnc {
 namespace io {
@@ -21,8 +21,8 @@ namespace io {
 JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	WebSocket,
 	"io.WebSocket",
-	g_webSockLibGuid,
-	WebSockLibCacheSlot_WebSocket,
+	g_webSocketLibGuid,
+	WebSocketLibCacheSlot_WebSocket,
 	WebSocket,
 	&WebSocket::markOpaqueGcRoots
 	)
@@ -45,8 +45,8 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_FUNCTION("listen", &WebSocket::listen)
 	JNC_MAP_FUNCTION("accept", &WebSocket::accept)
 	JNC_MAP_FUNCTION("unsuspend", &WebSocket::unsuspend)
-	JNC_MAP_FUNCTION("read", &WebSocket::read)
-	JNC_MAP_FUNCTION("write", &WebSocket::write)
+	JNC_MAP_FUNCTION("readMessage", &WebSocket::readMessage)
+	JNC_MAP_FUNCTION("writeMessge", &WebSocket::writeMessage)
 	JNC_MAP_FUNCTION("wait", &WebSocket::wait)
 	JNC_MAP_FUNCTION("cancelWait", &WebSocket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &WebSocket::blockingWait)
@@ -61,44 +61,48 @@ WebSocket::WebSocket()
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_writeBufferSize = Def_WriteBufferSize;
-	m_options = Def_Options,
+	m_options = Def_Options;
 
 	m_readBuffer.setBufferSize(Def_ReadBufferSize);
 	m_writeBuffer.setBufferSize(Def_WriteBufferSize);
+
+#if (_AXL_OS_WIN)
+	m_overlappedIo = NULL;
+#endif
+}
+
+void
+JNC_CDECL
+WebSocket::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
+{
+	AsyncIoDevice::markOpaqueGcRoots(gcHeap);
 }
 
 bool
-JNC_CDECL
-WebSocket::open_0(
+WebSocket::openImpl(
 	uint16_t family,
+	const SocketAddress* address,
 	bool isSecure
 	)
 {
 	close();
 
-	return
-		requireWebSockCapability() &&
-		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		(!isSecure || openSsl()) &&
-		m_ioThread.start();
-}
+	bool result =
+		requireWebSocketCapability() &&
+		SocketBase::open(family, IPPROTO_TCP, address) &&
+		(!isSecure || openSsl());
 
-bool
-JNC_CDECL
-WebSocket::open_1(
-	DataPtr addressPtr,
-	bool isSecure
-	)
-{
-	close();
+	if (!result)
+		return false;
 
-	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
+#if (_AXL_OS_WIN)
+	ASSERT(!m_overlappedIo);
+	m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+#endif
 
-	return
-		requireWebSockCapability() &&
-		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
-		(!isSecure || openSsl()) &&
-		m_ioThread.start();
+	m_ioThreadFlags |= IoThreadFlag_Datagram;
+	m_ioThread.start();
+	return true;
 }
 
 void
@@ -125,6 +129,14 @@ WebSocket::close()
 	}
 
 	SocketBase::close();
+
+#if (_AXL_OS_WIN)
+	if (m_overlappedIo)
+	{
+		AXL_MEM_DELETE(m_overlappedIo);
+		m_overlappedIo = NULL;
+	}
+#endif
 }
 
 bool
@@ -188,6 +200,10 @@ WebSocket::accept(
 	if (isSuspended)
 		connectionSocket->m_ioThreadFlags |= IoThreadFlag_Suspended;
 
+#if (_AXL_OS_WIN)
+	connectionSocket->m_overlappedIo = AXL_MEM_NEW(OverlappedIo);
+#endif
+
 	if (address)
 		address->setSockAddr(incomingConnection->m_sockAddr);
 
@@ -200,13 +216,49 @@ WebSocket::accept(
 
 	bool result =
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
-		(!m_sslState || connectionSocket->openSsl());
+		(!m_sslState || connectionSocket->openSsl()) &&
+		connectionSocket->m_ioThread.start();
 
 	if (!result)
 		return NULL;
 
 	connectionSocket->wakeIoThread();
 	return connectionSocket;
+}
+
+size_t
+JNC_CDECL
+WebSocket::readMessage(
+	DataPtr typePtr,
+	DataPtr dataPtr,
+	size_t size
+	)
+{
+	if (!typePtr.m_p)
+		return bufferedRead(dataPtr, size);
+
+	char buffer[256];
+	sl::Array<char> params(ref::BufKind_Stack, buffer, sizeof(buffer));
+	size_t result = bufferedRead(dataPtr, size, &params);
+
+	*(uint_t*)typePtr.m_p = !params.isEmpty() ?
+		(WebSocketMessageType)params[0] :
+		WebSocketMessageType_Binary;
+
+	return result;
+}
+
+size_t
+JNC_CDECL
+WebSocket::writeMessage(
+	uint_t type,
+	DataPtr ptr,
+	size_t size
+	)
+{
+	// mask and add
+
+	return size;
 }
 
 bool
@@ -272,6 +324,76 @@ WebSocket::transportLoop(bool isClient)
 
 	wakeIoThread();
 	sslReadWriteLoop();
+}
+
+bool
+WebSocket::processIncomingData(
+	const void* p0,
+	size_t size
+	)
+{
+	const char* p = (char*)p0;
+	const char* end = p + size;
+
+	sl::String handshakeResponse;
+
+	while (p < end)
+	{
+		WebSocketState prevState = m_stateMachine.getState();
+		size_t result = m_stateMachine.parse(p, end - p);
+		if (result == -1)
+		{
+			setIoErrorEvent();
+			return false;
+		}
+
+		p += result;
+
+		WebSocketState state = m_stateMachine.getState();
+		if (state == prevState)
+			continue;
+
+		switch (state)
+		{
+		case WebSocketState_HandshakeReady:
+			buildWebSocketHandshakeResponse(&handshakeResponse, m_stateMachine.getHandshake());
+			addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
+			setEvents(WebSocketEvent_WebSocketHandshakeCompleted);
+			m_stateMachine.setConnectedState();
+			break;
+
+		case WebSocketState_Connected:
+			break;
+
+		case WebSocketState_ControlFrameReady:
+			printf("control frame %d\n", m_stateMachine.getFrame().m_opcode);
+			m_stateMachine.setConnectedState();
+			break;
+
+		case WebSocketState_MessageReady:
+			{
+			const WebSocketMessage& message = m_stateMachine.getMessage();
+
+			m_lock.lock();
+
+			addToReadBuffer(
+				message.m_payload,
+				message.m_payload.getCount(),
+				&message.m_type,
+				sizeof(&message.m_type)
+				);
+
+			setEvents_l(AsyncIoDeviceEvent_IncomingData);
+			m_stateMachine.setConnectedState();
+			break;
+			}
+
+		default:
+			ASSERT(false);
+		}
+	}
+
+	return true;
 }
 
 #if (_JNC_OS_WIN)
@@ -402,8 +524,6 @@ WebSocket::sslReadWriteLoop()
 					setIoErrorEvent();
 					return;
 				}
-
-				m_lock.lock();
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
@@ -412,9 +532,12 @@ WebSocket::sslReadWriteLoop()
 			}
 			else
 			{
-				m_lock.lock();
-				addToReadBuffer(readBlock, actualSize);
+				result = processIncomingData(readBlock, actualSize);
+				if (!result)
+					return;
 			}
+
+			m_lock.lock();
 		}
 
 		while (canWriteSocket)
@@ -522,9 +645,9 @@ WebSocket::tcpSendRecvLoop()
 
 			// only the main read buffer must be lock-protected
 
-			m_lock.lock();
-			addToReadBuffer(recv->m_buffer, actualSize);
-			m_lock.unlock();
+			result = processIncomingData(recv->m_buffer, actualSize);
+			if (!result)
+				return;
 
 			recv->m_overlapped.m_completionEvent.reset();
 			m_overlappedIo->m_overlappedRecvPool.put(recv);
@@ -542,6 +665,8 @@ WebSocket::tcpSendRecvLoop()
 
 			if (actualSize < m_overlappedIo->m_sendBlock.getCount()) // shouldn't happen, actually (unless with a non-standard WSP)
 				m_overlappedIo->m_sendBlock.remove(0, actualSize);
+			else
+				m_overlappedIo->m_sendBlock.clear();
 
 			m_overlappedIo->m_sendOverlapped.m_completionEvent.reset();
 			isSendingSocket = false;
@@ -762,7 +887,7 @@ WebSocket::sslReadWriteLoop()
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
-		while (canReadSocket && !m_readBuffer.isFull())
+		while (canReadSocket && m_rxMessageSize < m_readBufferSize)
 		{
 			m_lock.unlock();
 
@@ -784,8 +909,6 @@ WebSocket::sslReadWriteLoop()
 					setIoErrorEvent();
 					return;
 				}
-
-				m_lock.lock();
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
@@ -794,9 +917,12 @@ WebSocket::sslReadWriteLoop()
 			}
 			else
 			{
-				m_lock.lock();
-				addToReadBuffer(readBlock, actualSize);
+				result = processIncomingData(readBlock, actualSize);
+				if (!result)
+					return;
 			}
+
+			m_lock.lock();
 		}
 
 		while (canWriteSocket)
