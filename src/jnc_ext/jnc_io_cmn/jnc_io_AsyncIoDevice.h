@@ -47,13 +47,14 @@ protected:
 	struct ReadWriteMeta: sl::ListLink
 	{
 		size_t m_dataSize;
-		size_t m_paramSize;
+		sl::Array<char> m_params;
 	};
 
 protected:
 	sl::CircularBuffer m_readBuffer;
 	sl::CircularBuffer m_writeBuffer;
 	sl::Array<char> m_readOverflowBuffer;
+	sl::Array<char> m_writeOverflowBuffer; // used only for datagrams
 
 	sl::List<ReadWriteMeta> m_readMetaList;
 	sl::List<ReadWriteMeta> m_writeMetaList;
@@ -98,6 +99,14 @@ protected:
 	size_t
 	bufferedWrite(
 		DataPtr dataPtr,
+		size_t dataSize,
+		const void* params = NULL,
+		size_t paramSize = 0
+		);
+
+	size_t
+	addToWriteBuffer(
+		const void* p,
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0

@@ -137,8 +137,9 @@ AsyncIoDevice::isWriteBufferValid()
 {
 	return
 		m_writeBuffer.isValid() &&
+		(m_writeBuffer.isFull() || m_writeOverflowBuffer.isEmpty()) &&
 		(m_writeMetaList.isEmpty() ||
-		m_writeBuffer.getDataSize() == getMetaListDataSize(m_writeMetaList));
+		m_writeBuffer.getDataSize() + m_writeOverflowBuffer.getCount() == getMetaListDataSize(m_writeMetaList));
 }
 
 size_t
@@ -167,7 +168,7 @@ AsyncIoDevice::bufferedRead(
 	{
 		ReadWriteMeta* meta = *m_readMetaList.getHead();
 		if (params)
-			params->copy((char*)(meta + 1), meta->m_paramSize);
+			params->copy(meta->m_params, meta->m_params.getCount());
 
 		if (size >= meta->m_dataSize)
 		{
@@ -235,17 +236,38 @@ AsyncIoDevice::bufferedWrite(
 	size_t paramSize
 	)
 {
-	ASSERT((m_options & AsyncIoDeviceOption_KeepWriteBlockSize) || paramSize == 0);
-
 	if (!m_isOpen)
 	{
 		jnc::setError(err::Error(err::SystemErrorCode_InvalidDeviceState));
 		return -1;
 	}
 
-	m_lock.lock();
+	return addToWriteBuffer(dataPtr.m_p, dataSize, params, paramSize);
+}
 
-	size_t result = m_writeBuffer.write(dataPtr.m_p, dataSize);
+size_t
+AsyncIoDevice::addToWriteBuffer(
+	const void* p,
+	size_t dataSize,
+	const void* params,
+	size_t paramSize
+	)
+{
+	ASSERT((m_options & AsyncIoDeviceOption_KeepWriteBlockSize) || paramSize == 0);
+
+	m_lock.lock();
+	if (m_writeBuffer.isFull())
+	{
+		m_lock.unlock();
+		return 0;
+	}
+
+	size_t result = m_writeBuffer.write(p, dataSize);
+	if (result < dataSize && (m_ioThreadFlags & IoThreadFlag_Datagram))
+	{
+		m_writeOverflowBuffer.append((char*)p + result, dataSize - result);
+		result = dataSize;
+	}
 
 	if (m_options & AsyncIoDeviceOption_KeepWriteBlockSize)
 	{
@@ -300,14 +322,12 @@ AsyncIoDevice::createReadWriteMeta(
 	size_t paramSize
 	)
 {
-	ReadWriteMeta* meta = !m_freeReadWriteMetaList.isEmpty() &&
-		m_freeReadWriteMetaList.getHead()->m_paramSize >= paramSize ?
+	ReadWriteMeta* meta = !m_freeReadWriteMetaList.isEmpty() ?
 		m_freeReadWriteMetaList.removeHead() :
-		AXL_MEM_NEW_EXTRA(ReadWriteMeta, paramSize);
+		AXL_MEM_NEW(ReadWriteMeta);
 
 	meta->m_dataSize = dataSize;
-	meta->m_paramSize = paramSize;
-	memcpy(meta + 1, params, paramSize);
+	meta->m_params.copy((char*)params, paramSize);
 	return meta;
 }
 
@@ -323,19 +343,37 @@ AsyncIoDevice::getNextWriteBlock(
 	if (m_writeMetaList.isEmpty())
 	{
 		m_writeBuffer.readAll(data);
+
+		if (!m_writeOverflowBuffer.isEmpty())
+		{
+			data->append(m_writeOverflowBuffer);
+			m_writeOverflowBuffer.clear();
+		}
+
 		if (params)
 			params->clear();
 	}
 	else
 	{
 		ReadWriteMeta* meta = m_writeMetaList.removeHead();
-		ASSERT(meta->m_dataSize <= m_writeBuffer.getDataSize());
+		ASSERT(
+			meta->m_dataSize <= m_writeBuffer.getDataSize() ||
+			meta->m_dataSize == m_writeBuffer.getDataSize() + m_writeOverflowBuffer.getCount()
+			);
 
 		data->setCount(meta->m_dataSize);
-		m_writeBuffer.read(*data, meta->m_dataSize);
+		size_t result = m_writeBuffer.read(*data, meta->m_dataSize);
+		if (result < meta->m_dataSize)
+		{
+			size_t overflowSize = meta->m_dataSize - result;
+			ASSERT(overflowSize == m_writeOverflowBuffer.getCount());
+
+			memcpy(data->p() + result, m_writeOverflowBuffer, overflowSize);
+			m_writeOverflowBuffer.clear();
+		}
 
 		if (params)
-			params->copy((char*)(meta + 1), meta->m_paramSize);
+			params->copy(meta->m_params, meta->m_params.getCount());
 
 		m_freeReadWriteMetaList.insertHead(meta);
 	}
