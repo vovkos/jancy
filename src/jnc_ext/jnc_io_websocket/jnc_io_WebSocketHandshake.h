@@ -144,6 +144,29 @@ protected:
 //..............................................................................
 
 size_t
+buildWebSocketHandshake(
+	sl::String* handshake,
+	const sl::StringRef& resource,
+	const sl::StringRef& host,
+	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
+	);
+
+inline
+sl::String
+buildWebSocketHandshake(
+	const sl::StringRef& resource,
+	const sl::StringRef& host,
+	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
+	)
+{
+	sl::String handshake;
+	buildWebSocketHandshake(&handshake, resource, host, extraHeaderMap);
+	return handshake;
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+size_t
 buildWebSocketHandshakeResponse(
 	sl::String* response,
 	const WebSocketHandshake& handshake

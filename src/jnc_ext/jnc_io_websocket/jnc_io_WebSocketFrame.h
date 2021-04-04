@@ -150,5 +150,32 @@ public:
 
 //..............................................................................
 
+size_t
+buildWebSocketFrame(
+	sl::Array<char>* buffer,
+	WebSocketOpcode opcode,
+	bool isFinal,
+	bool isMasked,
+	const void* p,
+	size_t size
+	);
+
+inline
+sl::Array<char>
+buildWebSocketFrame(
+	WebSocketOpcode opcode,
+	bool isFinal,
+	bool isMasked,
+	const void* p,
+	size_t size
+	)
+{
+	sl::Array<char> buffer;
+	buildWebSocketFrame(&buffer, opcode, isFinal, isMasked, p, size);
+	return buffer;
+}
+
+//..............................................................................
+
 } // namespace io
 } // namespace jnc

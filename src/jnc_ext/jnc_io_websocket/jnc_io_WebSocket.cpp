@@ -46,7 +46,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_FUNCTION("accept", &WebSocket::accept)
 	JNC_MAP_FUNCTION("unsuspend", &WebSocket::unsuspend)
 	JNC_MAP_FUNCTION("readMessage", &WebSocket::readMessage)
-	JNC_MAP_FUNCTION("writeMessge", &WebSocket::writeMessage)
+	JNC_MAP_FUNCTION("writeMessage", &WebSocket::writeMessage)
 	JNC_MAP_FUNCTION("wait", &WebSocket::wait)
 	JNC_MAP_FUNCTION("cancelWait", &WebSocket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &WebSocket::blockingWait)
@@ -256,16 +256,36 @@ WebSocket::writeMessage(
 	size_t size
 	)
 {
-	// mask and add
+	char buffer[256];
+	sl::Array<char> frame(ref::BufKind_Stack, buffer, sizeof(buffer));
 
+	size_t frameSize = buildWebSocketFrame(
+		&frame,
+		(WebSocketOpcode)type,
+		true,
+		(m_ioThreadFlags & IoThreadFlag_Connecting) != 0, // client's frames are masked, server's are not
+		ptr.m_p,
+		size
+		);
+
+	if (frameSize == -1)
+		return -1;
+
+	addToWriteBuffer(frame, frameSize);
 	return size;
 }
 
 bool
 WebSocket::openSsl()
 {
-	//m_sslState = ;
-	return true;
+	m_sslState = SslStateBase::createExternal(
+		m_runtime,
+		g_webSocketLibGuid,
+		WebSocketLibCacheSlot_CreateSslState,
+		&m_socket
+		);
+
+	return m_sslState != NULL;
 }
 
 void
@@ -311,19 +331,25 @@ WebSocket::ioThreadFunc()
 void
 WebSocket::transportLoop(bool isClient)
 {
-	if (!m_sslState)
+	if (m_sslState)
 	{
-		wakeIoThread();
-		tcpSendRecvLoop();
-		return;
+		bool result = sslHandshakeLoop(m_sslState, isClient);
+		if (!result)
+			return;
 	}
 
-	bool result = sslHandshakeLoop(m_sslState, isClient);
-	if (!result)
-		return;
+	if (m_ioThreadFlags & IoThreadFlag_Connecting)
+	{
+		sl::String handshake = buildWebSocketHandshake("/resource", "host");
+		addToWriteBuffer(handshake.cp(), handshake.getLength());
+	}
 
 	wakeIoThread();
-	sslReadWriteLoop();
+
+	if (m_sslState)
+		sslReadWriteLoop();
+	else
+		tcpSendRecvLoop();
 }
 
 bool
@@ -764,70 +790,7 @@ WebSocket::tcpSendRecvLoop()
 }
 
 #elif (_JNC_OS_POSIX)
-
-bool
-WebSocket::sslHandshakeLoop(bool isClient)
-{
-	if (isClient)
-		m_ssl.setConnectState();
-	else
-		m_ssl.setAcceptState();
-
-	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
-
-	for (;;)
-	{
-		int result = m_ssl.doHandshake();
-		if (result)
-			break;
-
-		fd_set readSet = { 0 };
-		fd_set writeSet = { 0 };
-
-		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
-
-		uint_t error = err::getLastError()->m_code;
-		switch (error)
-		{
-		case SSL_ERROR_WANT_READ:
-			FD_SET(m_socket.m_socket, &readSet);
-			break;
-
-		case SSL_ERROR_WANT_WRITE:
-			FD_SET(m_socket.m_socket, &writeSet);
-			break;
-
-		default:
-			setIoErrorEvent();
-			return false;
-		}
-
-		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
-		if (result == -1)
-			break;
-
-		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
-		{
-			char buffer[256];
-			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
-		}
-
-		m_lock.lock();
-		if (m_ioThreadFlags & IoThreadFlag_Closing)
-		{
-			m_lock.unlock();
-			return false;
-		}
-
-		m_lock.unlock();
-	}
-
-	m_lock.lock();
-	m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
-	processWaitLists_l();
-
-	return true;
-}
+#endif
 
 void
 WebSocket::sslReadWriteLoop()
@@ -887,11 +850,11 @@ WebSocket::sslReadWriteLoop()
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
-		while (canReadSocket && m_rxMessageSize < m_readBufferSize)
+		while (canReadSocket && !m_readBuffer.isFull())
 		{
 			m_lock.unlock();
 
-			ssize_t actualSize = m_ssl.read(readBlock, readBlock.getCount());
+			ssize_t actualSize = m_sslState->m_ssl.read(readBlock, readBlock.getCount());
 			if (actualSize == -1)
 			{
 				uint_t error = err::getLastError()->m_code;
@@ -934,7 +897,7 @@ WebSocket::sslReadWriteLoop()
 			m_lock.unlock();
 
 			size_t blockSize = writeBlock.getCount();
-			ssize_t actualSize = m_ssl.write(writeBlock, blockSize);
+			ssize_t actualSize = m_sslState->m_ssl.write(writeBlock, blockSize);
 			if (actualSize == -1)
 			{
 				uint_t error = err::getLastError()->m_code;
@@ -974,7 +937,141 @@ WebSocket::sslReadWriteLoop()
 	}
 }
 
-#endif
+void
+WebSocket::tcpSendRecvLoop()
+{
+	int result;
+	int selectFd = AXL_MAX(m_socket.m_socket, m_ioThreadSelfPipe.m_readFile) + 1;
+
+	sl::Array<char> readBlock;
+	sl::Array<char> writeBlock;
+	readBlock.setCount(Def_ReadBlockSize);
+
+	char buffer[256];
+	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	writeParams.setCount(sizeof(SocketAddress));
+
+	bool canReadSocket = false;
+	bool canWriteSocket = false;
+
+	for (;;)
+	{
+		fd_set readSet = { 0 };
+		fd_set writeSet = { 0 };
+
+		FD_SET(m_ioThreadSelfPipe.m_readFile, &readSet);
+
+		if (!canReadSocket)
+			FD_SET(m_socket.m_socket, &readSet);
+
+		if (!canWriteSocket)
+			FD_SET(m_socket.m_socket, &writeSet);
+
+		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
+		if (result == -1)
+			break;
+
+		if (FD_ISSET(m_ioThreadSelfPipe.m_readFile, &readSet))
+		{
+			char buffer[256];
+			m_ioThreadSelfPipe.read(buffer, sizeof(buffer));
+		}
+
+		if (FD_ISSET(m_socket.m_socket, &readSet))
+			canReadSocket = true;
+
+		if (FD_ISSET(m_socket.m_socket, &writeSet))
+			canWriteSocket = true;
+
+		m_lock.lock();
+		if (m_ioThreadFlags & IoThreadFlag_Closing)
+		{
+			m_lock.unlock();
+			return;
+		}
+
+		if (m_ioThreadFlags & IoThreadFlag_Suspended)
+		{
+			m_lock.unlock();
+			continue;
+		}
+
+		uint_t prevActiveEvents = m_activeEvents;
+		m_activeEvents = SocketEvent_Connected;
+
+		readBlock.setCount(m_readBlockSize); // update read block size
+
+		while (canReadSocket && !m_readBuffer.isFull())
+		{
+			ssize_t actualSize = ::recv(m_socket.m_socket, readBlock, readBlock.getCount(), 0);
+			if (actualSize == -1)
+			{
+				if (errno == EAGAIN)
+				{
+					canReadSocket = false;
+				}
+				else
+				{
+					setIoErrorEvent_l(err::Errno(errno));
+					return;
+				}
+			}
+			else if (actualSize == 0)
+			{
+				setEvents_l(m_socket.getError() ?
+					SocketEvent_Disconnected | SocketEvent_Reset :
+					SocketEvent_Disconnected
+					);
+				return;
+			}
+			else
+			{
+				result = processIncomingData(readBlock, actualSize);
+				if (!result)
+					return;
+			}
+		}
+
+		while (canWriteSocket)
+		{
+			getNextWriteBlock(&writeBlock);
+			if (writeBlock.isEmpty())
+				break;
+
+			size_t blockSize = writeBlock.getCount();
+			ssize_t actualSize = ::send(m_socket.m_socket, writeBlock, blockSize, 0);
+			if (actualSize == -1)
+			{
+				if (errno == EAGAIN)
+				{
+					canWriteSocket = false;
+				}
+				else
+				{
+					setIoErrorEvent_l(err::Errno(errno));
+					return;
+				}
+			}
+			else if ((size_t)actualSize < blockSize)
+			{
+				writeBlock.remove(0, actualSize);
+			}
+			else
+			{
+				writeBlock.clear();
+			}
+		}
+
+		updateReadWriteBufferEvents();
+
+		if (m_activeEvents != prevActiveEvents)
+			processWaitLists_l();
+		else
+			m_lock.unlock();
+	}
+}
+
+// #endif
 
 //..............................................................................
 

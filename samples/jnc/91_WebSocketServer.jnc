@@ -52,6 +52,8 @@ int main()
 		size_t result = connection.readMessage(buffer, sizeof(buffer) - 1);
 		buffer[result] = 0; // ensure zero-termination
 		printf("message: %s\n", buffer);
+
+		connection.writeTextMessage(buffer, result);
 	}
 
 	printf("done\n");

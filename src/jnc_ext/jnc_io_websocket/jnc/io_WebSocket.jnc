@@ -80,7 +80,12 @@ opaque class WebSocket
 
 	alias dispose = close;
 
-	bool errorcode connect(SocketAddress const* address);
+	bool errorcode connect(
+		SocketAddress const* address,
+		char const* resource,
+		char const* host
+		);
+
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
 
 	WebSocket* errorcode accept(
@@ -110,9 +115,12 @@ opaque class WebSocket
 		size_t size
 		);
 
-	size_t errorcode writeTextMessage(char const* p)
+	size_t errorcode writeTextMessage(
+		char const* p,
+		size_t length = -1
+		)
 	{
-		return writeMessage(WebSocketMessageType.Text, p, strlen(p));
+		return writeMessage(WebSocketMessageType.Text, p, length != -1 ? length : strlen(p));
 	}
 
 	size_t errorcode writeBinaryMessage(

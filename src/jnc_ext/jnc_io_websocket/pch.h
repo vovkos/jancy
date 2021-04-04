@@ -33,6 +33,8 @@
 #include "axl_mem_Pool.h"
 #include "axl_g_Module.h"
 
+#include <openssl/rand.h>
+
 #if (_AXL_OS_WIN)
 #	include "axl_io_win_File.h"
 #elif (_AXL_OS_POSIX)

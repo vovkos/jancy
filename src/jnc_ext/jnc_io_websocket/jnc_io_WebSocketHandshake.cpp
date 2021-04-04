@@ -230,6 +230,47 @@ WebSocketHandshakeParser::finalize()
 //..............................................................................
 
 size_t
+buildWebSocketHandshake(
+	sl::String* handshake,
+	const sl::StringRef& resource,
+	const sl::StringRef& host,
+	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap
+	)
+{
+	uchar_t keyValue[16];
+	::RAND_bytes(keyValue, sizeof(keyValue));
+
+	char buffer[256];
+	sl::String keyString(ref::BufKind_Stack, buffer, sizeof(buffer));
+	enc::Base64Encoding::encode(&keyString, keyValue, sizeof(keyValue));
+
+	handshake->format(
+		"GET %s HTTP/1.1\r\n"
+		"Host: %s\r\n"
+		"Connection: Upgrade\r\n"
+		"Upgrade: websocket\r\n"
+		"Sec-WebSocket-Version: 13\r\n"
+		"Sec-WebSocket-Key: %s\r\n"
+		"\r\n",
+		resource.sz(),
+		host.sz(),
+		keyString.sz()
+	);
+
+	sl::ConstStringHashTableIterator<WebSocketHeader> it = extraHeaderMap ? extraHeaderMap->getHead() : NULL;
+	for (; it; it++)
+	{
+		handshake->appendFormat("%s: %s\n", it->getKey().sz(), it->m_value.m_firstValue.sz());
+
+		sl::ConstBoxIterator<sl::String> it2 = it->m_value.m_extraValueList.getHead();
+		for (; it2; it2++)
+			handshake->appendFormat("%s: %s\n", it->getKey().sz(), it2->sz());
+	}
+
+	return handshake->append("\r\n");
+}
+
+size_t
 buildWebSocketHandshakeResponse(
 	sl::String* response,
 	const WebSocketHandshake& handshake
@@ -248,7 +289,7 @@ buildWebSocketHandshakeResponse(
 	sl::String acceptKey(ref::BufKind_Stack, buffer, sizeof(buffer));
 	enc::Base64Encoding::encode(&acceptKey, hash, sizeof(hash));
 
-	response->format(
+	return response->format(
 		"HTTP/1.1 101 Switching Protocols\r\n"
 		"Upgrade: websocket\r\n"
 		"Connection: Upgrade\r\n"
@@ -256,8 +297,6 @@ buildWebSocketHandshakeResponse(
 		"\r\n",
 		acceptKey.sz()
 		);
-
-	return response->getLength();
 }
 
 //..............................................................................

@@ -39,6 +39,21 @@ bufferUntil(
 	return copySize;
 }
 
+inline
+void
+mask(
+	void* buffer,
+	size_t size,
+	uint32_t key
+	)
+{
+	uint32_t* p = (uint32_t*)buffer;
+	uint32_t* end = (uint32_t*)((char*)buffer + size);
+
+	for (; p < end; p++)
+		*p ^= key;
+}
+
 static
 inline
 void
@@ -47,16 +62,10 @@ mask(
 	uint32_t key
 	)
 {
-	size_t count = buffer->getCount();
-	buffer->setCount(sl::align<4>(count));
-
-	uint32_t* p = (uint32_t*)buffer->cp();
-	uint32_t* end = (uint32_t*)buffer->getEnd();
-
-	for (; p < end; p++)
-		*p ^= key;
-
-	buffer->setCount(count);
+	size_t size = buffer->getCount();
+	buffer->setCount(sl::align<4>(size));
+	mask(buffer->p(), size, key);
+	buffer->setCount(size);
 }
 
 //..............................................................................
@@ -196,6 +205,70 @@ WebSocketFrameParser::parse(
 	}
 
 	return p - (char*)p0;
+}
+
+//..............................................................................
+
+size_t
+buildWebSocketFrame(
+	sl::Array<char>* buffer,
+	WebSocketOpcode opcode,
+	bool isFinal,
+	bool isMasked,
+	const void* payload,
+	size_t payloadSize
+	)
+{
+	size_t reserveSize =
+		sizeof(WebSocketFrameHdr) +
+		sizeof(uint64_t) +
+		sizeof(uint32_t) +
+		sl::align<4>(payloadSize);
+
+	bool result = buffer->setCountZeroConstruct(reserveSize);
+	if (!result)
+		return -1;
+
+	WebSocketFrameHdr* hdr = (WebSocketFrameHdr*)buffer->p();
+	hdr->m_opcode = opcode;
+	hdr->m_fin = isFinal;
+	hdr->m_mask = isMasked;
+
+	char* p = (char*)(hdr + 1);
+
+	if (payloadSize < 126)
+	{
+		hdr->m_lengthCode = (uint8_t) payloadSize;
+	}
+	else if (payloadSize < 65536)
+	{
+		hdr->m_lengthCode = 126;
+		*(uint16_t*)p = sl::swapByteOrder16((uint16_t)payloadSize);
+		p += sizeof(uint16_t);
+	}
+	else
+	{
+		hdr->m_lengthCode = 127;
+		*(uint64_t*)p = sl::swapByteOrder64(payloadSize);
+		p += sizeof(uint64_t);
+	}
+
+	if (!isMasked)
+	{
+		memcpy(p, payload, payloadSize);
+	}
+	else
+	{
+		::RAND_bytes((uchar_t*)p, sizeof(uint32_t));
+		uint32_t key = *(uint32_t*)p;
+		p += sizeof(uint32_t);
+		memcpy(p, payload, payloadSize);
+		mask(p, payloadSize, key);
+	}
+
+	size_t frameSize = p + payloadSize - buffer->p();
+	buffer->setCount(frameSize);
+	return frameSize;
 }
 
 //..............................................................................
