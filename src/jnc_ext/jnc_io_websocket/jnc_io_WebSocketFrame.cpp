@@ -150,7 +150,7 @@ WebSocketFrameParser::parse(
 
 			default:
 				m_frame->m_payloadLength = m_frame->m_lengthCode;
-				m_state = m_frame->m_mask ? State_MaskKey : State_Payload;
+				m_state = getMaskState();
 			}
 
 			m_buffer.clear();
@@ -162,7 +162,7 @@ WebSocketFrameParser::parse(
 				return size;
 
 			m_frame->m_payloadLength = sl::swapByteOrder16(*(uint16_t*)m_buffer.cp());
-			m_state = m_frame->m_mask ? State_MaskKey : State_Payload;
+			m_state = getMaskState();
 			m_buffer.clear();
 			break;
 
@@ -177,7 +177,7 @@ WebSocketFrameParser::parse(
 				return err::fail<size_t>(-1, "payload length too large");
 
 			m_frame->m_payloadLength = (size_t)payloadLength;
-			m_state = m_frame->m_mask ? State_MaskKey : State_Payload;
+			m_state = getMaskState();
 			m_buffer.clear();
 			break;
 
@@ -187,7 +187,7 @@ WebSocketFrameParser::parse(
 				return size;
 
 			m_frame->m_maskKey = *(uint32_t*)m_buffer.cp();
-			m_state = State_Payload;
+			m_state = getPayloadState();
 			m_buffer.clear();
 			break;
 

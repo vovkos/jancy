@@ -146,6 +146,19 @@ public:
 		const void* p,
 		size_t size
 		);
+
+protected:
+	State
+	getPayloadState()
+	{
+		return m_frame->m_payloadLength ? State_Payload : State_Completed;
+	}
+
+	State
+	getMaskState()
+	{
+		return m_frame->m_mask ? State_MaskKey : getPayloadState();
+	}
 };
 
 //..............................................................................
