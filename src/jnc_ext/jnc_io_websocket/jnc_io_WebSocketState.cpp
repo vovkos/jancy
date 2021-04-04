@@ -19,13 +19,22 @@ namespace io {
 
 WebSocketStateMachine::WebSocketStateMachine()
 {
-	m_state = WebSocketState_Handshake;
+	m_state = WebSocketState_Idle;
 	m_handshakeParser = NULL;
 	m_frameParser = NULL;
 }
 
+WebSocketStateMachine::~WebSocketStateMachine()
+{
+	if (m_handshakeParser)
+		AXL_MEM_DELETE(m_handshakeParser);
+
+	if (m_frameParser)
+		AXL_MEM_DELETE(m_frameParser);
+}
+
 void
-WebSocketStateMachine::reset()
+WebSocketStateMachine::reset(const sl::StringRef& handshakeKey)
 {
 	if (m_handshakeParser)
 	{
@@ -42,7 +51,11 @@ WebSocketStateMachine::reset()
 	m_handshake.clear();
 	m_frame.clear();
 	m_message.clear();
-	m_state = WebSocketState_Handshake;
+	m_handshakeKey = handshakeKey;
+
+	m_state = handshakeKey.isEmpty() ?
+		WebSocketState_WaitingHandshake :
+		WebSocketState_WaitingHandshakeResponse;
 }
 
 void
@@ -50,6 +63,7 @@ WebSocketStateMachine::setConnectedState()
 {
 	ASSERT(
 		m_state == WebSocketState_HandshakeReady ||
+		m_state == WebSocketState_HandshakeResponseReady ||
 		m_state == WebSocketState_ControlFrameReady ||
 		m_state == WebSocketState_MessageReady
 		);
@@ -70,10 +84,11 @@ WebSocketStateMachine::parse(
 {
 	size_t result;
 
-	if (m_state == WebSocketState_Handshake)
+	if (m_state == WebSocketState_WaitingHandshake ||
+		m_state == WebSocketState_WaitingHandshakeResponse)
 	{
 		if (!m_handshakeParser)
-			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (&m_handshake));
+			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (&m_handshake, m_handshakeKey));
 
 		result = m_handshakeParser->parse(p0, size);
 		if (result == -1)
@@ -81,7 +96,7 @@ WebSocketStateMachine::parse(
 
 		if (m_handshakeParser->isCompleted())
 		{
-			m_state = WebSocketState_HandshakeReady;
+			m_state = (WebSocketState)(m_state + 2); // WebSocketState_HandshakeReady/ResponseReady
 			AXL_MEM_DELETE(m_handshakeParser);
 			m_handshakeParser = NULL;
 		}

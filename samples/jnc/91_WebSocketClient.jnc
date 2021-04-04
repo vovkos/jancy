@@ -1,0 +1,69 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_websocket.jncx"
+
+void processSocketEvents(io.WebSocket* socket)
+{
+	io.WebSocketEvents events = socket.m_activeEvents;
+	printf("events: 0x%04x: %s\n", events, typeof(io.WebSocketEvents).getValueString(events));
+
+	if (events & io.WebSocketEvents.IoError)
+		printf("error: %s\n", socket.m_ioError.m_description);
+}
+
+int main()
+{
+	char const* host = "127.0.0.1:8080";
+	char const* resource = "/resource";
+
+	io.SocketAddress addr;
+	addr.parse(host);
+
+	printf("connecting to %s...\n", host);
+
+	io.WebSocket socket;
+	socket.open(io.AddressFamily.Ip4);
+	socket.connect(addr, resource, host);
+
+	io.WebSocketEvents events = socket.blockingWait(
+		io.WebSocketEvents.IoError |
+		io.WebSocketEvents.WebSocketHandshakeCompleted
+		);
+
+	processSocketEvents(socket);
+
+	if (!(events & io.WebSocketEvents.WebSocketHandshakeCompleted))
+		return -1;
+
+	socket.writeTextMessage("hello, world!");
+
+	printf("waiting for incoming data...\n");
+
+	events = socket.blockingWait(
+		io.WebSocketEvents.IoError |
+		io.WebSocketEvents.IncomingMessage |
+		io.WebSocketEvents.TcpDisconnected
+		);
+
+	processSocketEvents(socket);
+
+	if (!(events & io.WebSocketEvents.IncomingMessage))
+		return -1;
+
+	char buffer[256];
+	size_t result = socket.readMessage(buffer, sizeof(buffer) - 1);
+	buffer[result] = 0; // ensure zero-termination
+	printf("reply: %s\n", buffer);
+
+	printf("done\n");
+	return 0;
+}

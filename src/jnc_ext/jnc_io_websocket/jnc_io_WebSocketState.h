@@ -21,8 +21,11 @@ namespace io {
 
 enum WebSocketState
 {
-	WebSocketState_Handshake = 0,
+	WebSocketState_Idle = 0,
+	WebSocketState_WaitingHandshake,
+	WebSocketState_WaitingHandshakeResponse,
 	WebSocketState_HandshakeReady,
+	WebSocketState_HandshakeResponseReady,
 	WebSocketState_Connected,
 	WebSocketState_ControlFrameReady,
 	WebSocketState_MessageReady,
@@ -40,13 +43,11 @@ protected:
 	WebSocketFrame m_frame;
 	WebSocketMessage m_message;
 
+	sl::String m_handshakeKey;
+
 public:
 	WebSocketStateMachine();
-
-	~WebSocketStateMachine()
-	{
-		reset();
-	}
+	~WebSocketStateMachine();
 
 	WebSocketState
 	getState()
@@ -73,7 +74,16 @@ public:
 	}
 
 	void
-	reset();
+	waitHandshake()
+	{
+		reset(sl::StringRef());
+	}
+
+	void
+	waitHandshakeResponse(const sl::StringRef& handshakeKey)
+	{
+		reset(handshakeKey);
+	}
 
 	void
 	setConnectedState();
@@ -85,6 +95,9 @@ public:
 		);
 
 protected:
+	void
+	reset(const sl::StringRef& handshakeKey);
+
 	bool
 	processFrame();
 };

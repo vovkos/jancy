@@ -141,12 +141,19 @@ WebSocket::close()
 
 bool
 JNC_CDECL
-WebSocket::connect(DataPtr addressPtr)
+WebSocket::connect(
+	DataPtr addressPtr,
+	DataPtr resourcePtr,
+	DataPtr hostPtr
+	)
 {
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
 	bool result = m_socket.connect(address->getSockAddr());
 	if (!result)
 		return false;
+
+	m_resource.copy((char*)resourcePtr.m_p, strLen(resourcePtr));
+	m_host.copy((char*)hostPtr.m_p, strLen(hostPtr));
 
 	m_lock.lock();
 	m_ioThreadFlags |= IoThreadFlag_Connecting;
@@ -218,6 +225,7 @@ WebSocket::accept(
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
 		(!m_sslState || connectionSocket->openSsl()) &&
 		connectionSocket->m_ioThread.start();
+
 
 	if (!result)
 		return NULL;
@@ -338,10 +346,16 @@ WebSocket::transportLoop(bool isClient)
 			return;
 	}
 
-	if (m_ioThreadFlags & IoThreadFlag_Connecting)
+	if (!isClient)
 	{
-		sl::String handshake = buildWebSocketHandshake("/resource", "host");
+		m_stateMachine.waitHandshake();
+	}
+	else
+	{
+		sl::String key = generateWebSocketHandshakeKey();
+		sl::String handshake = buildWebSocketHandshake(m_resource, m_host, key);
 		addToWriteBuffer(handshake.cp(), handshake.getLength());
+		m_stateMachine.waitHandshakeResponse(key);
 	}
 
 	wakeIoThread();
@@ -384,6 +398,9 @@ WebSocket::processIncomingData(
 		case WebSocketState_HandshakeReady:
 			buildWebSocketHandshakeResponse(&handshakeResponse, m_stateMachine.getHandshake());
 			addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
+			// and fall through
+
+		case WebSocketState_HandshakeResponseReady:
 			setEvents(WebSocketEvent_WebSocketHandshakeCompleted);
 			m_stateMachine.setConnectedState();
 			break;
@@ -392,7 +409,6 @@ WebSocket::processIncomingData(
 			break;
 
 		case WebSocketState_ControlFrameReady:
-			printf("control frame %d\n", m_stateMachine.getFrame().m_opcode);
 			m_stateMachine.setConnectedState();
 			break;
 
@@ -524,7 +540,11 @@ WebSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+
+		m_activeEvents =
+			SocketEvent_Connected |
+			SslSocketEvent_SslHandshakeCompleted |
+			WebSocketEvent_WebSocketHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -712,7 +732,7 @@ WebSocket::tcpSendRecvLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected;
+		m_activeEvents = SocketEvent_Connected | WebSocketEvent_WebSocketHandshakeCompleted;
 
 		getNextWriteBlock(&m_overlappedIo->m_sendBlock);
 		updateReadWriteBufferEvents();
@@ -790,7 +810,6 @@ WebSocket::tcpSendRecvLoop()
 }
 
 #elif (_JNC_OS_POSIX)
-#endif
 
 void
 WebSocket::sslReadWriteLoop()
@@ -1071,7 +1090,7 @@ WebSocket::tcpSendRecvLoop()
 	}
 }
 
-// #endif
+#endif
 
 //..............................................................................
 

@@ -41,6 +41,8 @@ void
 WebSocketHandshake::clear()
 {
 	m_resource.clear();
+	m_statusCode = 0;
+	m_statusString.clear();
 	m_httpVersion.clear();
 	m_headerMap.clear();
 	memset(m_stdHeaderTable, 0, sizeof(m_stdHeaderTable));
@@ -48,11 +50,15 @@ WebSocketHandshake::clear()
 
 //..............................................................................
 
-WebSocketHandshakeParser::WebSocketHandshakeParser(WebSocketHandshake* handshake)
+WebSocketHandshakeParser::WebSocketHandshakeParser(
+	WebSocketHandshake* handshake,
+	const sl::StringRef& key
+	)
 {
 	handshake->clear();
 	m_handshake = handshake;
-	m_state = State_RequestLine;
+	m_key = key;
+	m_state = key.isEmpty() ? State_RequestLine : State_ResponseLine;
 }
 
 size_t
@@ -98,6 +104,10 @@ WebSocketHandshakeParser::parse(
 		{
 		case State_RequestLine:
 			result = parseRequestLine();
+			break;
+
+		case State_ResponseLine:
+			result = parseResponseLine();
 			break;
 
 		case State_HeaderLine:
@@ -163,6 +173,45 @@ WebSocketHandshakeParser::parseRequestLine()
 }
 
 bool
+WebSocketHandshakeParser::parseResponseLine()
+{
+	if (!m_line.isPrefix("HTTP/"))
+		return err::fail("invalid HTTP response line: unexpected version prefix");
+
+	m_line.remove(0, lengthof("HTTP/"));
+	uint_t version = strtoul(m_line, NULL, 10) << 8;
+
+	size_t delim = m_line.find('.');
+	if (delim != -1)
+	{
+		m_line.remove(0, delim + 1);
+		version |= strtoul(m_line, NULL, 10);
+	}
+
+	if (version < 0x0101) // HTTP/1.1
+		return err::fail("invalid HTTP request line: unsupported HTTP version");
+
+	delim = m_line.find(' ');
+	if (delim == -1)
+		return err::fail("invalid HTTP response line: missing status code");
+
+	m_line.remove(0, delim + 1);
+	m_line.trimLeft();
+
+	m_handshake->m_statusCode = strtoul(m_line, NULL, 10);
+
+	delim = m_line.find(' ');
+	if (delim == -1)
+		return err::fail("invalid HTTP response line: missing status text");
+
+	m_line.remove(0, delim + 1);
+	m_line.trimLeft();
+	m_handshake->m_statusString = m_line;
+	m_state = State_HeaderLine;
+	return true;
+}
+
+bool
 WebSocketHandshakeParser::parseHeaderLine()
 {
 	if (m_line.isEmpty())
@@ -210,40 +259,98 @@ findInCsvStringIgnoreCase(
 bool
 WebSocketHandshakeParser::finalize()
 {
-	if (!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Host] ||
+	bool hasMissingFields = !m_key.isEmpty() ?
 		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Connection] ||
 		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Upgrade] ||
-		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketKey] ||
-		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketVersion])
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketAccept]
+		:
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Host] ||
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Connection] ||
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Upgrade] ||
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketVersion] ||
+		!m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketKey];
+
+	if (hasMissingFields)
 		return err::fail("invalid handshake: missing one or more required HTTP headers");
 
-	if (!findInCsvStringIgnoreCase(m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Connection]->m_firstValue, "upgrade"))
+	size_t i = findInCsvStringIgnoreCase(m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Connection]->m_firstValue, "upgrade");
+	if (i == -1)
 		return err::fail("invalid handshake: missing 'Upgrade' in HTTP 'Connection' header");
 
 	if (m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_Upgrade]->m_firstValue.cmpIgnoreCase("websocket") != 0)
 		return err::fail("invalid handshake: unexpected value of HTTP 'Upgrade' header");
 
+	if (!m_key.isEmpty() && !verifyAccept())
+		return false;
+
 	m_state = State_Completed;
+	return true;
+}
+
+bool
+WebSocketHandshakeParser::verifyAccept()
+{
+	ASSERT(!m_key.isEmpty() && m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketAccept]);
+
+	if (m_handshake->m_statusCode != 101)
+	{
+		err::setFormatStringError(
+			"failure to switch HTTP protocol: %d %s",
+			m_handshake->m_statusCode,
+			m_handshake->m_statusString.sz()
+			);
+
+		return false;
+	}
+
+	const sl::String& accept = m_handshake->m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketAccept]->m_firstValue;
+
+	char buffer[256];
+	sl::Array<char> acceptHash(ref::BufKind_Stack, buffer, sizeof(buffer));
+	enc::Base64Encoding::decode(&acceptHash, accept);
+	if (acceptHash.getCount() != SHA_DIGEST_LENGTH)
+		return err::fail("invalid handshake: bad 'Sec-WebSocket-Accept' format");
+
+	uchar_t keyHash[SHA_DIGEST_LENGTH];
+	calcWebSocketHandshakeKeyHash(keyHash, m_key);
+	if (memcmp(acceptHash, keyHash, SHA_DIGEST_LENGTH) != 0)
+		return err::fail("invalid handshake: 'Sec-WebSocket-Accept' doesn't match 'Sec-WebSocket-Key'");
+
 	return true;
 }
 
 //..............................................................................
 
 size_t
+generateWebSocketHandshakeKey(sl::String* key)
+{
+	uchar_t keyValue[16];
+	::RAND_bytes(keyValue, sizeof(keyValue));
+	return enc::Base64Encoding::encode(key, keyValue, sizeof(keyValue));
+}
+
+void
+calcWebSocketHandshakeKeyHash(
+	uchar_t hash[SHA_DIGEST_LENGTH],
+	const sl::StringRef& key
+	)
+{
+	SHA_CTX sha;
+	SHA1_Init(&sha);
+	SHA1_Update(&sha, key.cp(), key.getLength());
+	SHA1_Update(&sha, WebSocketUuid, lengthof(WebSocketUuid));
+	SHA1_Final(hash, &sha);
+}
+
+size_t
 buildWebSocketHandshake(
 	sl::String* handshake,
 	const sl::StringRef& resource,
 	const sl::StringRef& host,
+	const sl::StringRef& key,
 	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap
 	)
 {
-	uchar_t keyValue[16];
-	::RAND_bytes(keyValue, sizeof(keyValue));
-
-	char buffer[256];
-	sl::String keyString(ref::BufKind_Stack, buffer, sizeof(buffer));
-	enc::Base64Encoding::encode(&keyString, keyValue, sizeof(keyValue));
-
 	handshake->format(
 		"GET %s HTTP/1.1\r\n"
 		"Host: %s\r\n"
@@ -254,7 +361,7 @@ buildWebSocketHandshake(
 		"\r\n",
 		resource.sz(),
 		host.sz(),
-		keyString.sz()
+		key.sz()
 	);
 
 	sl::ConstStringHashTableIterator<WebSocketHeader> it = extraHeaderMap ? extraHeaderMap->getHead() : NULL;
@@ -278,12 +385,7 @@ buildWebSocketHandshakeResponse(
 {
 	uchar_t hash[SHA_DIGEST_LENGTH];
 	const sl::String& key = handshake.m_stdHeaderTable[WebSocketHandshakeStdHeader_WebSocketKey]->m_firstValue;
-
-	SHA_CTX sha;
-	SHA1_Init(&sha);
-	SHA1_Update(&sha, key.cp(), key.getLength());
-	SHA1_Update(&sha, WebSocketUuid, lengthof(WebSocketUuid));
-	SHA1_Final(hash, &sha);
+	calcWebSocketHandshakeKeyHash(hash, key);
 
 	char buffer[256];
 	sl::String acceptKey(ref::BufKind_Stack, buffer, sizeof(buffer));

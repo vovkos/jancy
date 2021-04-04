@@ -27,6 +27,7 @@ enum WebSocketHandshakeStdHeader
 	WebSocketHandshakeStdHeader_WebSocketExtension,
 	WebSocketHandshakeStdHeader_WebSocketProtocol,
 	WebSocketHandshakeStdHeader_WebSocketKey,
+	WebSocketHandshakeStdHeader_WebSocketAccept,
 	WebSocketHandshakeStdHeader__Count,
 
 	WebSocketHandshakeStdHeader_Undefined = WebSocketHandshakeStdHeader__Count,
@@ -42,8 +43,9 @@ AXL_SL_BEGIN_STRING_HASH_TABLE_IGNORE_CASE_PCU(WebSocketHandshakeStdHeaderMap, W
 	AXL_SL_HASH_TABLE_ENTRY("Upgrade",                  WebSocketHandshakeStdHeader_Upgrade)
 	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Version",    WebSocketHandshakeStdHeader_WebSocketVersion)
 	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Extensions", WebSocketHandshakeStdHeader_WebSocketExtension)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Protocol",   WebSocketHandshakeStdHeader_WebSocketExtension)
+	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Protocol",   WebSocketHandshakeStdHeader_WebSocketProtocol)
 	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Key",        WebSocketHandshakeStdHeader_WebSocketKey)
+	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Accept",     WebSocketHandshakeStdHeader_WebSocketAccept)
 AXL_SL_END_STRING_HASH_TABLE_IGNORE_CASE_PCU()
 
 //..............................................................................
@@ -72,6 +74,8 @@ struct WebSocketHandshake
 {
 	sl::String m_resource;
 	sl::String m_httpVersion;
+	uint_t m_statusCode;
+	sl::String m_statusString;
 	WebSocketHeader* m_stdHeaderTable[WebSocketHandshakeStdHeader__Count];
 	sl::StringHashTable<WebSocketHeader> m_headerMap;
 
@@ -86,7 +90,9 @@ class WebSocketHandshakeParser
 public:
 	enum State
 	{
-		State_RequestLine = 0,
+		State_Idle = 0,
+		State_RequestLine,
+		State_ResponseLine,
 		State_HeaderLine,
 		State_Completed,
 	};
@@ -102,9 +108,13 @@ protected:
 	WebSocketHandshake* m_handshake;
 	sl::String m_line;
 	State m_state;
+	sl::String m_key;
 
 public:
-	WebSocketHandshakeParser(WebSocketHandshake* handshake);
+	WebSocketHandshakeParser(
+		WebSocketHandshake* handshake,
+		const sl::StringRef& key
+		);
 
 	State
 	getState()
@@ -135,19 +145,44 @@ protected:
 	parseRequestLine();
 
 	bool
+	parseResponseLine();
+
+	bool
 	parseHeaderLine();
 
 	bool
 	finalize();
+
+	bool
+	verifyAccept();
 };
 
 //..............................................................................
+
+size_t
+generateWebSocketHandshakeKey(sl::String* key);
+
+inline
+sl::String
+generateWebSocketHandshakeKey()
+{
+	sl::String key;
+	generateWebSocketHandshakeKey(&key);
+	return key;
+}
+
+void
+calcWebSocketHandshakeKeyHash(
+	uchar_t hash[SHA_DIGEST_LENGTH],
+	const sl::StringRef& key
+	);
 
 size_t
 buildWebSocketHandshake(
 	sl::String* handshake,
 	const sl::StringRef& resource,
 	const sl::StringRef& host,
+	const sl::StringRef& key,
 	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
 	);
 
@@ -156,15 +191,14 @@ sl::String
 buildWebSocketHandshake(
 	const sl::StringRef& resource,
 	const sl::StringRef& host,
+	const sl::StringRef& key,
 	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
 	)
 {
 	sl::String handshake;
-	buildWebSocketHandshake(&handshake, resource, host, extraHeaderMap);
+	buildWebSocketHandshake(&handshake, resource, host, key, extraHeaderMap);
 	return handshake;
 }
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 size_t
 buildWebSocketHandshakeResponse(

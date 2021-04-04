@@ -96,6 +96,8 @@ protected:
 #endif
 
 	WebSocketStateMachine m_stateMachine;
+	sl::String m_resource;
+	sl::String m_host;
 
 public:
 	WebSocket();
@@ -183,7 +185,11 @@ public:
 
 	bool
 	JNC_CDECL
-	connect(DataPtr addressPtr);
+	connect(
+		DataPtr addressPtr,
+		DataPtr resourcePtr,
+		DataPtr hostPtr
+		);
 
 	bool
 	JNC_CDECL
