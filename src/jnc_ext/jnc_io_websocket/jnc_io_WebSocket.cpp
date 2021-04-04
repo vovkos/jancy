@@ -376,6 +376,7 @@ WebSocket::processIncomingData(
 	const char* end = p + size;
 
 	sl::String handshakeResponse;
+	sl::Array<char> pong;
 
 	while (p < end)
 	{
@@ -409,6 +410,20 @@ WebSocket::processIncomingData(
 			break;
 
 		case WebSocketState_ControlFrameReady:
+			if (m_stateMachine.getFrame().m_opcode == WebSocketOpcode_Ping)
+			{
+				buildWebSocketFrame(
+					&pong,
+					WebSocketOpcode_Pong,
+					true,
+					(m_ioThreadFlags & IoThreadFlag_Connecting) != 0, // client's frames are masked, server's are not
+					m_stateMachine.getFrame().m_payload,
+					m_stateMachine.getFrame().m_payloadLength
+					);
+
+				addToWriteBuffer(pong.cp(), pong.getCount());
+			}
+
 			m_stateMachine.setConnectedState();
 			break;
 
