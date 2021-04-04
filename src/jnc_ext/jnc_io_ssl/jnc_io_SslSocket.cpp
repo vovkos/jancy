@@ -75,7 +75,7 @@ SslSocket::open_0(uint16_t family)
 	return
 		requireSslCapability() &&
 		SocketBase::open(family, IPPROTO_TCP, NULL) &&
-		openSsl(&m_socket) &&
+		openSsl(m_runtime, &m_socket) &&
 		m_ioThread.start();
 }
 
@@ -90,7 +90,7 @@ SslSocket::open_1(DataPtr addressPtr)
 	return
 		requireSslCapability() &&
 		SocketBase::open(address ? address->m_family : AF_INET, IPPROTO_TCP, address) &&
-		openSsl(&m_socket) &&
+		openSsl(m_runtime, &m_socket) &&
 		m_ioThread.start();
 }
 
@@ -157,7 +157,7 @@ SslSocket::accept(
 	)
 {
 	SocketAddress* address = ((SocketAddress*)addressPtr.m_p);
-	SslSocket* connectionSocket = createClass<SslSocket> (m_runtime);
+	SslSocket* connectionSocket = createClass<SslSocket>(m_runtime);
 
 	m_lock.lock();
 	if (m_pendingIncomingConnectionList.isEmpty())
@@ -188,7 +188,7 @@ SslSocket::accept(
 
 	bool result =
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
-		connectionSocket->openSsl(&connectionSocket->m_socket);
+		connectionSocket->openSsl(m_runtime, &connectionSocket->m_socket);
 
 	if (!result)
 		return NULL;
@@ -497,7 +497,7 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SslSocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -528,7 +528,7 @@ SslSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SslSocketEvent_TcpDisconnected);
+				setEvents(SocketEvent_Disconnected);
 				return;
 			}
 			else

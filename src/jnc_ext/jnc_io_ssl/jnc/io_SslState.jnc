@@ -106,7 +106,7 @@ opaque class SslState
 	bool errorcode shutdown();
 
 protected:
-	bool errorcode openSsl(void thin* socket);
+	SslState* errorcode createSslState(void thin* socket);
 }
 
 //..............................................................................

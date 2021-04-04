@@ -46,8 +46,14 @@ public:
 	initAppData();
 
 	bool
-	JNC_CDECL
-	openSsl(axl::io::Socket* socket);
+	openSsl(
+		Runtime* runtime,
+		axl::io::Socket* socket
+		);
+
+	static
+	SslState*
+	createSslState(axl::io::Socket* socket);
 
 	size_t
 	JNC_CDECL

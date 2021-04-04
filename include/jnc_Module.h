@@ -526,7 +526,7 @@ struct jnc_Module
 	}
 
 	jnc_FindModuleItemResult
-	findExtenstionLibItem(
+	findExtensionLibItem(
 		const char* name,
 		const jnc_Guid* libGuid,
 		size_t itemCacheSlot

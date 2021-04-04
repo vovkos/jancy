@@ -45,7 +45,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(SslState)
 	JNC_MAP_PROPERTY("m_verifyMode", &SslState::getVerifyMode, &SslState::setVerifyMode)
 	JNC_MAP_PROPERTY("m_verifyDepth", &SslState::getVerifyDepth, &SslState::setVerifyDepth)
 
-	JNC_MAP_FUNCTION("openSsl", &SslState::openSsl)
+	JNC_MAP_FUNCTION("createSslState", &SslState::createSslState)
 	JNC_MAP_FUNCTION("enableCiphers", &SslState::enableCiphers)
 	JNC_MAP_FUNCTION("setEphemeralDhParams", &SslState::setEphemeralDhParams)
 	JNC_MAP_FUNCTION("loadEphemeralDhParams", &SslState::loadEphemeralDhParams)
@@ -67,8 +67,10 @@ SslState::initAppData()
 }
 
 bool
-JNC_CDECL
-SslState::openSsl(axl::io::Socket* socket)
+SslState::openSsl(
+	Runtime* runtime,
+	axl::io::Socket* socket
+	)
 {
 	ASSERT(m_selfIdx != -1 && m_runtimeIdx != -1);
 	ASSERT(socket->isOpen());
@@ -81,14 +83,23 @@ SslState::openSsl(axl::io::Socket* socket)
 	if (!result)
 		return false;
 
-	Runtime* runtime = getCurrentThreadRuntime();
-	ASSERT(runtime);
-
 	m_ssl.setBio(m_sslBio.detach());
 	m_ssl.setExtraData(m_selfIdx, this);
 	m_ssl.setExtraData(m_runtimeIdx, runtime);
 	m_ssl.setInfoCallback(sslInfoCallback);
 	return true;
+}
+
+SslState*
+JNC_CDECL
+SslState::createSslState(axl::io::Socket* socket)
+{
+	Runtime* runtime = getCurrentThreadRuntime();
+	ASSERT(runtime);
+
+	SslState* sslState = createClass<SslState>(runtime);
+	bool result = sslState->openSsl(runtime, socket);
+	return result ? sslState : NULL;
 }
 
 size_t

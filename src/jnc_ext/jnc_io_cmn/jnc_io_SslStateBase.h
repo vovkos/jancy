@@ -28,6 +28,15 @@ struct SslStateBase: public IfaceHdr
 
 	void
 	closeSsl();
+
+	static
+	SslStateBase*
+	createExternal(
+		Runtime* runtime,
+		const Guid& libGuid,
+		size_t cacheSlotIdx,
+		axl::io::Socket* socket
+		);
 };
 
 //..............................................................................

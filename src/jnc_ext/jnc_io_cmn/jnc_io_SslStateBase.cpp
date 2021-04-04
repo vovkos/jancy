@@ -26,6 +26,23 @@ SslStateBase::closeSsl()
 	m_sslCtx.close();
 }
 
+SslStateBase*
+SslStateBase::createExternal(
+	Runtime* runtime,
+	const Guid& libGuid,
+	size_t cacheSlotIdx,
+	axl::io::Socket* socket
+	)
+{
+	Module* module = runtime->getModule();
+	FindModuleItemResult findResult = module->findExtensionLibItem("io.SslState.createSslState", &libGuid, cacheSlotIdx);
+	if (!findResult.m_item || findResult.m_item->getItemKind() != ModuleItemKind_Function)
+		return err::fail<SslStateBase*>(NULL, "'io.SslState.createSslState' not found");
+
+	Function* function = (Function*)findResult.m_item;
+	return callFunction<SslStateBase*>(function, socket);
+}
+
 //..............................................................................
 
 } // namespace jnc
