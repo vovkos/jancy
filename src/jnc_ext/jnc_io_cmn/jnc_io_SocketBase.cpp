@@ -253,9 +253,9 @@ void
 SocketBase::processFdClose(int error)
 {
 	if (!error)
-		setEvents(SocketEvent_Disconnected);
+		setEvents(SocketEvent_TcpDisconnected);
 	else if (error == WSAECONNRESET)
-		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
 	else
 		setIoErrorEvent(error);
 }
@@ -267,7 +267,7 @@ SocketBase::processSendRecvError()
 	ASSERT(error->m_guid == err::g_systemErrorGuid);
 
 	if (error->m_code == WSAECONNRESET)
-		setEvents(SocketEvent_Disconnected | SocketEvent_Reset);
+		setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
 	else
 		setIoErrorEvent(error);
 }

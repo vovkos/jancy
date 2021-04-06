@@ -325,7 +325,7 @@ SshChannel::ioThreadFunc()
 	m_lock.unlock();
 
 	bool result =
-		connectLoop(SshEvent_TcpConnectCompleted) &&
+		connectLoop(SocketEvent_TcpConnected) &&
 		sshConnectLoop();
 
 	if (result)
@@ -485,7 +485,7 @@ SshChannel::sshConnectLoop()
 				return false;
 			}
 
-			result = connectLoop(SshEvent_TcpConnectCompleted);
+			result = connectLoop(SocketEvent_TcpConnected);
 			if (!result)
 				return false;
 
@@ -688,9 +688,9 @@ SshChannel::sshReadWriteLoop()
 			{
 				int error = networkEvents.iErrorCode[FD_CLOSE_BIT];
 				if (!error)
-					setEvents(SshEvent_TcpDisconnected);
+					setEvents(SocketEvent_TcpDisconnected);
 				else if (error == WSAECONNRESET)
-					setEvents(SshEvent_TcpDisconnected | SshEvent_TcpReset);
+					setEvents(SocketEvent_TcpDisconnected | SocketEvent_TcpReset);
 				else
 					setIoErrorEvent(error);
 
@@ -738,7 +738,7 @@ SshChannel::sshReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents_l(SshEvent_TcpDisconnected);
+				setEvents_l(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -886,7 +886,7 @@ SshChannel::sshReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents_l(SshEvent_TcpDisconnected);
+				setEvents_l(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else

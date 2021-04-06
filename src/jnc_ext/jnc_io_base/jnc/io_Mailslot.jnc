@@ -9,6 +9,9 @@
 //
 //..............................................................................
 
+import "io_StreamOptions.jnc"
+import "io_StreamEvents.jnc"
+
 namespace io {
 
 //! \addtogroup io-file
@@ -16,46 +19,8 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum MailslotOptions
-{
-	KeepReadBlockSize,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-/**
-	\import io_base.jncx
-	\import io_Mailslot.jnc
-
-	\brief This enumeration contains codes of all possible events that might
-	happen on `io.Mailslot` object. The set of *active* events is accessible
-	via `io.Mailslot.m_activeEvents`.
-
-	\sa `io.Mailslot`
-*/
-
-bitflag enum MailslotEvents
-{
-	/**
-		An IO error occured on the mailslot; detailed information about the
-		error is available at `io.Mailslot.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		More data is available on the mailslot; this data could be fetched with
-		`io.Mailslot.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		Mailslot receive buffer is full.
-	*/
-
-	ReadBufferFull,
-}
+typedef ReadOnlyStreamOptions MailslotOptions;
+typedef ReadOnlyStreamEvents  MailslotEvents;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

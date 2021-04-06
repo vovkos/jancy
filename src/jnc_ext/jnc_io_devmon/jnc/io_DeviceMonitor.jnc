@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "io_base.jncx"
+import "io_StreamEvents.jnc"
 import "io_DeviceMonitorNotify.jnc"
 
 namespace io {
@@ -18,28 +20,7 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum DeviceMonitorEvents
-{
-	/**
-		An IO error occured on the device monitor; detailed information about
-		the error is available at `io.DeviceMonitor.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		Incoming data is available on the device monitor; this data could be
-		fetched with `io.DeviceMonitor.read`.
-	*/
-
-	IncomingData,
-
-	/**
-		Device monitor receive buffer is full.
-	*/
-
-	ReadBufferFull,
-}
+typedef ReadOnlyStreamEvents DeviceMonitorEvents;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

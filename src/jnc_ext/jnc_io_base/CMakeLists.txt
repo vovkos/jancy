@@ -69,10 +69,13 @@ source_group(
 
 set(
 	JNC_LIST
+	jnc/io_StreamOptions.jnc
+	jnc/io_StreamEvents.jnc
 	jnc/io_Serial.jnc
-	jnc/io_Socket.jnc
 	jnc/io_SocketOptions.jnc
+	jnc/io_SocketEvents.jnc
 	jnc/io_SocketAddress.jnc
+	jnc/io_Socket.jnc
 	jnc/io_HostNameResolver.jnc
 	jnc/io_NetworkAdapter.jnc
 	jnc/io_File.jnc

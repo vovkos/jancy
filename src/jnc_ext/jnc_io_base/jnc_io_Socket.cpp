@@ -295,9 +295,9 @@ Socket::ioThreadFunc()
 	else if (m_ioThreadFlags & IoThreadFlag_Connecting)
 	{
 		m_lock.unlock();
-		bool result = connectLoop(SocketEvent_Connected);
+		bool result = connectLoop(SocketEvent_TcpConnected);
 		if (result)
-			sendRecvLoop(SocketEvent_Connected, false);
+			sendRecvLoop(SocketEvent_TcpConnected, false);
 	}
 	else if (m_ioThreadFlags & IoThreadFlag_Listening)
 	{
@@ -307,7 +307,7 @@ Socket::ioThreadFunc()
 	else if (m_ioThreadFlags & IoThreadFlag_IncomingConnection)
 	{
 		m_lock.unlock();
-		sendRecvLoop(SocketEvent_Connected, false);
+		sendRecvLoop(SocketEvent_TcpConnected, false);
 	}
 	else
 	{
@@ -380,7 +380,7 @@ Socket::sendRecvLoop(
 
 			if (actualSize == 0 && !isDatagram)
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 
@@ -728,8 +728,8 @@ Socket::sendRecvLoop(
 				else if (actualSize == 0)
 				{
 					setEvents_l(m_socket.getError() ?
-						SocketEvent_Disconnected | SocketEvent_Reset :
-						SocketEvent_Disconnected
+						SocketEvent_TcpDisconnected | SocketEvent_TcpReset :
+						SocketEvent_TcpDisconnected
 						);
 					return;
 				}

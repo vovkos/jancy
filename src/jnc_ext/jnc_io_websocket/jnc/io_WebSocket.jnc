@@ -11,9 +11,9 @@
 
 import "io_base.jncx"
 import "io_ssl.jncx"
-
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
+import "io_SocketEvents.jnc"
 import "io_SslState.jnc"
 
 namespace io {
@@ -23,20 +23,21 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum WebSocketEvents
+bitflag enum WebSocketOptions: SocketOptions
 {
-	IoError,
-	IncomingMessage,
-	ReadBufferFull,
-	WriteBufferEmpty,
-	WriteBufferReady = WriteBufferEmpty,
-	IncomingConnection,
-	TcpConnected,
-	TcpDisconnected,
-	TcpReset,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+bitflag enum WebSocketEvents: SocketEvents
+{
 	SslHandshakeCompleted,
 	WebSocketHandshakeCompleted,
+	IncomingControlFrame,
+	IncomingMessage = IncomingData
 }
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum WebSocketMessageType
 {
@@ -47,6 +48,15 @@ enum WebSocketMessageType
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum WebSocketControlFrameType
+{
+	Close = 8,
+	Ping  = 9,
+	Pong  = 10,
+}
+
+//..............................................................................
+
 opaque class WebSocket
 {
 	SocketAddress const property m_address;
@@ -56,7 +66,7 @@ opaque class WebSocket
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
 	size_t autoget property m_writeBufferSize;
-	SocketOptions autoget property m_options;
+	WebSocketOptions autoget property m_options;
 
 	io.WebSocketEvents readonly volatile m_activeEvents;
 	std.Error const* readonly volatile m_ioError;
@@ -130,6 +140,22 @@ opaque class WebSocket
 	{
 		return writeMessage(WebSocketMessageType.Binary, p, size);
 	}
+
+	bool errorcode ping(
+		void const* p,
+		size_t size
+		);
+
+	bool errorcode ping()
+	{
+		return ping(p, size);
+	}
+
+	size_t errorcode readControlFrame(
+		WebSocketControlFrameType* type,
+		void* p,
+		size_t size
+		);
 
 	intptr errorcode wait(
 		WebSocketEvents eventMask,

@@ -97,7 +97,7 @@ SslSocketBase::sslHandshakeLoop(
 	}
 
 	m_lock.lock();
-	m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+	m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 	processWaitLists_l();
 	return true;
 }
@@ -165,7 +165,7 @@ SslSocketBase::sslHandshakeLoop(
 	}
 
 	m_lock.lock();
-	m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+	m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 	processWaitLists_l();
 	return true;
 }

@@ -9,6 +9,8 @@
 //
 //..............................................................................
 
+import "io_StreamOptions.jnc"
+
 namespace io {
 
 //! \addtogroup io-socket
@@ -25,11 +27,8 @@ namespace io {
 
 */
 
-bitflag enum SocketOptions
+bitflag enum SocketOptions: StreamOptions
 {
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
-
 	/**
 		Allow forcibly binding multiple sockets to the same local address
 		(unless there's an active listening a socket  already bound to the same

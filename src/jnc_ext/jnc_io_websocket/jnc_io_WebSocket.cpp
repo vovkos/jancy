@@ -312,7 +312,7 @@ WebSocket::ioThreadFunc()
 	{
 		m_lock.unlock();
 
-		bool result = connectLoop(SocketEvent_Connected);
+		bool result = connectLoop(SocketEvent_TcpConnected);
 		if (result)
 			transportLoop(true);
 	}
@@ -557,7 +557,7 @@ WebSocket::sslReadWriteLoop()
 		uint_t prevActiveEvents = m_activeEvents;
 
 		m_activeEvents =
-			SocketEvent_Connected |
+			SocketEvent_TcpConnected |
 			SslSocketEvent_SslHandshakeCompleted |
 			WebSocketEvent_WebSocketHandshakeCompleted;
 
@@ -588,7 +588,7 @@ WebSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -700,7 +700,7 @@ WebSocket::tcpSendRecvLoop()
 
 			if (actualSize == 0)
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 
@@ -747,7 +747,7 @@ WebSocket::tcpSendRecvLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected | WebSocketEvent_WebSocketHandshakeCompleted;
+		m_activeEvents = SocketEvent_TcpConnected | WebSocketEvent_WebSocketHandshakeCompleted;
 
 		getNextWriteBlock(&m_overlappedIo->m_sendBlock);
 		updateReadWriteBufferEvents();
@@ -880,7 +880,7 @@ WebSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+		m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -909,7 +909,7 @@ WebSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -1031,7 +1031,7 @@ WebSocket::tcpSendRecvLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected;
+		m_activeEvents = SocketEvent_TcpConnected;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -1053,8 +1053,8 @@ WebSocket::tcpSendRecvLoop()
 			else if (actualSize == 0)
 			{
 				setEvents_l(m_socket.getError() ?
-					SocketEvent_Disconnected | SocketEvent_Reset :
-					SocketEvent_Disconnected
+					SocketEvent_TcpDisconnected | SocketEvent_TcpReset :
+					SocketEvent_TcpDisconnected
 					);
 				return;
 			}

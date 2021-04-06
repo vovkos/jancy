@@ -12,6 +12,7 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
+import "io_SocketEvents.jnc"
 
 namespace io {
 
@@ -30,63 +31,8 @@ namespace io {
 	\sa `io.SshChannel`
 */
 
-bitflag enum SshEvents
+bitflag enum SshEvents: SocketEvents
 {
-	/**
-		An IO error occured on the SSH channel; detailed information about the
-		error is available at `io.SshChannel.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		More data is available on the socket; this data could be fetched with
-		`io.SshChannel.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		Socket receive buffer is full(data is arriving faster than the
-		application is able to read it).
-	*/
-
-	ReadBufferFull,
-
-	/**
-		Socket transmit buffer is empty.
-	*/
-
-	WriteBufferEmpty,
-
-	/**
-		Socket transmit buffer is ready to accept more data; it's OK to issue
-		more `io.SshChannel.write` requests.
-	*/
-
-	WriteBufferReady = WriteBufferEmpty,
-
-	/**
-		``SSH`` channel has been closed by the remote server. Note that if
-		connection was terminated by the local node (using
-		`io.SshChannel.close`), ``Disconnect`` event is **not** fired.
-	*/
-
-	TcpDisconnected,
-
-	/**
-		``SSH`` channel has been dropped by the remote server using ``TCP RST``.
-	*/
-
-	TcpReset,
-
-	/**
-		Underlying ``TCP`` connection has been established; ``SSH`` handshake
-		has been initialated.
-	*/
-
-	TcpConnectCompleted,
-
 	/**
 		``SSH`` handshake and protocol information exchange has been completed
 		successfully; an authentication request has been set.

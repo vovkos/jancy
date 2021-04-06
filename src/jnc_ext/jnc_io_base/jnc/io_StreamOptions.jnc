@@ -1,0 +1,59 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-file
+//! @{
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_StreamOptions.jnc
+
+	\brief This enumeration contains standard buffering options for a buffered
+	stream object.
+*/
+
+bitflag enum ReadOnlyStreamOptions
+{
+	/**
+		Don't merge incoming blocks inside the *read* buffer.
+	*/
+
+	KeepReadBlockSize,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_StreamOptions.jnc
+
+	\brief This enumeration contains standard buffering options for a buffered
+	stream object.
+*/
+
+bitflag enum StreamOptions: ReadOnlyStreamOptions
+{
+	/**
+		Don't merge outgoing blocks inside the *write* buffer.
+	*/
+
+	KeepWriteBlockSize,
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

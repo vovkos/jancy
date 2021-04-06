@@ -10,6 +10,7 @@
 //..............................................................................
 
 import "io_base.jncx"
+import "io_StreamEvents.jnc"
 import "io_SocketAddress.jnc"
 
 namespace io {
@@ -45,29 +46,8 @@ enum PcapLinkType
 	\sa `io.Pcap`
 */
 
-bitflag enum PcapEvents
+bitflag enum PcapEvents: ReadOnlyStreamEvents
 {
-	/**
-		An IO error occured on the Pcap device or file; detailed information
-		about the error is available at `io.Pcap.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		New packet(s)are available on the Pcap device or file; the next packet
-		could be fetched with `io.Pcap.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		Pcap device receive buffer is full; upcoming packets may be dropped
-		(depending on the internal buffer size of the kernel Pcap provider).
-	*/
-
-	ReadBufferFull,
-
 	/**
 		End-of-file was reached on the Pcap file.
 	*/

@@ -11,6 +11,7 @@
 
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
+import "io_SocketEvents.jnc"
 
 namespace io {
 
@@ -18,88 +19,6 @@ namespace io {
 //! @{
 
 //..............................................................................
-
-/**
-	\import io_base.jncx
-	\import io_Socket.jnc
-
-	\brief This enumeration contains codes of all possible events that might
-	happen on `io.Socket` object. The set of *active* events is accessible
-	via `io.Socket.m_activeEvents`.
-
-	\sa `io.Socket`
-*/
-
-bitflag enum SocketEvents
-{
-	/**
-		An IO error occured on the socket; detailed information about the error
-		is available at `io.Socket.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		Incoming data is available on the socket; this data could be fetched
-		with `io.Socket.read` or `io.Socket.readDatagram` methods.
-	*/
-
-	IncomingData,
-
-	/**
-		Socket receive buffer is full.
-	*/
-
-	ReadBufferFull,
-
-	/**
-		Socket transmit buffer is empty.
-	*/
-
-	WriteBufferEmpty,
-
-	/**
-		Socket transmit buffer is ready to accept more data; it's OK to issue
-		more `io.Socket.write` or `io.Socket.writeDatagram` requests.
-	*/
-
-	WriteBufferReady = WriteBufferEmpty,
-
-	/**
-		New incoming client connection is pending on the listening server
-		socket. The new client can be accepted using `io.Socket.accept` method
-		(to reject the connection you still have to accept it first, and then
-		close it)
-	*/
-
-	IncomingConnection,
-
-	/**
-		Connection established.
-	*/
-
-	Connected,
-
-	/**
-		Connection has been terminated by the remote node. If the remote node
-		used ``TCP`` reset, then `io.SocketEvents.Reset` will be set at the same
-		time. Note that if connection was terminated by the local node(using
-		`io.Socket.close`), ``Disconnect`` event is **not** fired.
-	*/
-
-	Disconnected,
-
-	/**
-		Connection has been abruptly reset by the remote node. Whenever this
-		event is set, `io.SocketEvents.Disconnected` is also set. Note that if
-		connection was terminated by the local node(using `io.Socket.close`),
-		``Disconnect`` event is **not** fired.
-	*/
-
-	Reset,
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 /**
 	\import io_base.jncx

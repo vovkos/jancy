@@ -37,9 +37,9 @@ enum SocketOption
 enum SocketEvent
 {
 	SocketEvent_IncomingConnection = 0x0010,
-	SocketEvent_Connected          = 0x0020,
-	SocketEvent_Disconnected       = 0x0040,
-	SocketEvent_Reset              = 0x0080,
+	SocketEvent_TcpConnected       = 0x0020,
+	SocketEvent_TcpDisconnected    = 0x0040,
+	SocketEvent_TcpReset           = 0x0080,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

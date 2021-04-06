@@ -214,7 +214,7 @@ SslSocket::ioThreadFunc()
 		m_lock.unlock();
 
 		bool result =
-			connectLoop(SocketEvent_Connected) &&
+			connectLoop(SocketEvent_TcpConnected) &&
 			sslHandshakeLoop(this, true);
 
 		if (result)
@@ -351,7 +351,7 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+		m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -382,7 +382,7 @@ SslSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else
@@ -497,7 +497,7 @@ SslSocket::sslReadWriteLoop()
 		}
 
 		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_Connected | SslSocketEvent_SslHandshakeCompleted;
+		m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -528,7 +528,7 @@ SslSocket::sslReadWriteLoop()
 			}
 			else if (actualSize == 0) // disconnect by remote node
 			{
-				setEvents(SocketEvent_Disconnected);
+				setEvents(SocketEvent_TcpDisconnected);
 				return;
 			}
 			else

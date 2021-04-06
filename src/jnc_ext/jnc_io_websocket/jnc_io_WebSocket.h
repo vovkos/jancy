@@ -25,6 +25,7 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 enum WebSocketEvent
 {
 	WebSocketEvent_WebSocketHandshakeCompleted = 0x0200,
+	WebSocketEvent_IncomingControlFrame        = 0x0400,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

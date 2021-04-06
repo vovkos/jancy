@@ -9,6 +9,9 @@
 //
 //..............................................................................
 
+import "io_StreamOptions.jnc"
+import "io_StreamEvents.jnc"
+
 namespace io {
 
 //! \addtogroup io-serial
@@ -189,10 +192,8 @@ bitflag enum SerialStatusLines
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum SerialOptions
+bitflag enum SerialOptions: StreamOptions
 {
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
 	WinReadCheckComstat,
 	WinReadWaitFirstChar,
 }
@@ -210,41 +211,8 @@ bitflag enum SerialOptions
 	\sa `io.Serial`
 */
 
-bitflag enum SerialEvents
+bitflag enum SerialEvents: StreamEvents
 {
-	/**
-		An IO error occured on the serial port; detailed information about the
-		error is available at `io.Serial.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		Incoming data is available on the serial port; this data could be
-		fetched with `io.Serial.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		Serial port receive buffer is full; upcoming data may be dropped .
-	*/
-
-	ReadBufferFull,
-
-	/**
-		Serial port transmit buffer is empty.
-	*/
-
-	WriteBufferEmpty,
-
-	/**
-		Serial port transmit buffer is ready to accept more data; it's OK to
-		issue more `io.Serial.write` requests.
-	*/
-
-	WriteBufferReady = WriteBufferEmpty,
-
 	CtsOn,
 	CtsOff,
 	DsrOn,

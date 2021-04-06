@@ -1,0 +1,72 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_StreamEvents.jnc"
+
+namespace io {
+
+//! \addtogroup io-socket
+//! @{
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_Socket.jnc
+
+	\brief This enumeration contains codes of all possible events that might
+	happen on `io.Socket` object. The set of *active* events is accessible
+	via `io.Socket.m_activeEvents`.
+
+	\sa `io.Socket`
+*/
+
+bitflag enum SocketEvents: StreamEvents
+{
+	/**
+		New incoming client connection is pending on the listening server
+		socket. The new client can be accepted using the ``accept`` method
+		(to reject the connection you still have to accept it first, and then
+		close it)
+	*/
+
+	IncomingConnection,
+
+	/**
+		TCP connection established.
+	*/
+
+	TcpConnected,
+
+	/**
+		TCP connection has been terminated by the remote node. If the remote node
+		used ``TCP`` reset, then `io.SocketEvents.TcpReset` will be set at the same
+		time. Note that if connection was terminated by the local node (using
+		``close``), the ``TcpDisconnected`` event is **not fired**.
+	*/
+
+	TcpDisconnected,
+
+	/**
+		Connection has been abruptly reset by the remote node. Whenever this
+		event is set, `io.SocketEvents.Disconnected` is also set. Note that if
+		connection was terminated by the local node(using `io.Socket.close`),
+		``Disconnect`` event is **not** fired.
+	*/
+
+	TcpReset,
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

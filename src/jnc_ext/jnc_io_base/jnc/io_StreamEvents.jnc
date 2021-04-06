@@ -1,0 +1,83 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+namespace io {
+
+//! \addtogroup io-file
+//! @{
+
+//..............................................................................
+
+/**
+	\import io_base.jncx
+	\import io_StreamEvents.jnc
+
+	\brief This enumeration contains codes of standard events that might
+	happen on a buffered stream object. The set of *active* events is accessible
+	via the ``m_activeEvents`` field.
+*/
+
+bitflag enum ReadOnlyStreamEvents
+{
+	/**
+		An IO error occured on the tream; detailed information about the
+		error is available at ``m_ioError`` property.
+	*/
+
+	IoError,
+
+	/**
+		More data is available on the tream; this data could be fetched
+		with ``read`` method.
+	*/
+
+	IncomingData,
+
+	/**
+		The stream receive buffer is full; upcoming data may be dropped
+		(depending on the underlying device represented by the file).
+	*/
+
+	ReadBufferFull,
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+/**
+	\import io_base.jncx
+	\import io_StreamEvents.jnc
+
+	\brief This enumeration contains codes of standard events that might
+	happen on a buffered stream object. The set of *active* events is accessible
+	via the ``m_activeEvents`` field.
+*/
+
+bitflag enum StreamEvents: ReadOnlyStreamEvents
+{
+	/**
+		The stream transmit buffer is empty.
+	*/
+
+	WriteBufferEmpty,
+
+	/**
+		The stream transmit buffer is ready to accept more data; it's OK to
+		issue more ``write`` requests.
+	*/
+
+	WriteBufferReady = WriteBufferEmpty,
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

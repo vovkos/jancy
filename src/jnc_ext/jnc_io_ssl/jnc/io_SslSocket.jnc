@@ -12,6 +12,7 @@
 import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
+import "io_SocketEvents.jnc"
 import "io_SslState.jnc"
 
 namespace io {
@@ -21,17 +22,8 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum SslSocketEvents
+bitflag enum SslSocketEvents: SocketEvents
 {
-	IoError,
-	IncomingData,
-	ReadBufferFull,
-	WriteBufferEmpty,
-	WriteBufferReady = WriteBufferEmpty,
-	IncomingConnection,
-	TcpConnected,
-	TcpDisconnected,
-	TcpReset,
 	SslHandshakeCompleted,
 }
 

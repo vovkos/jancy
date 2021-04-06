@@ -19,11 +19,7 @@ namespace io {
 
 //..............................................................................
 
-bitflag enum ChildProcessOptions
-{
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
-}
+typedef StreamOptions ChildProcessOptions;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -36,42 +32,8 @@ bitflag enum ChildProcessStartFlags
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum ChildProcessEvents
+bitflag enum ChildProcessEvents: StreamEvents
 {
-	/**
-		An IO error occured on the file stream; detailed information about the
-		error is available at `io.FileStream.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		More data is available on the file stream; this data could be fetched
-		with `io.FileStream.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		File stream receive buffer is full; upcoming data may be dropped
-		(depending on the underlying device represented by the file).
-	*/
-
-	ReadBufferFull,
-
-	/**
-		File stream transmit buffer is empty.
-	*/
-
-	WriteBufferEmpty,
-
-	/**
-		File stream transmit buffer is ready to accept more data; it's OK to
-		issue more `io.FileStream.write` requests.
-	*/
-
-	WriteBufferReady = WriteBufferEmpty,
-
 	/**
 		End-of-file was reached on the ``stdin`` stream.
 	*/

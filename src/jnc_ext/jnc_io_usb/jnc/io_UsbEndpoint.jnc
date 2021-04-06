@@ -9,6 +9,10 @@
 //
 //..............................................................................
 
+import "io_base.jncx"
+import "io_StreamOptions.jnc"
+import "io_StreamEvents.jnc"
+
 namespace io {
 
 //! \addtogroup io-usb
@@ -61,50 +65,12 @@ struct UsbEndpointDesc
 
 //..............................................................................
 
-bitflag enum UsbEndpointOptions
-{
-	KeepReadBlockSize,
-	KeepWriteBlockSize,
-}
+typedef StreamOptions UsbEndpointOptions;
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum UsbEndpointEvents
+bitflag enum UsbEndpointEvents: StreamEvents
 {
-	/**
-		An IO error occured on the USB endpoint; detailed information about the
-		error is available at `io.UsbEndpoint.m_ioError`.
-	*/
-
-	IoError,
-
-	/**
-		More data is available on the USB endoint; this data could be fetched
-		with `io.UsbEndpoint.read` method.
-	*/
-
-	IncomingData,
-
-	/**
-		IN-endpoint receive buffer is full; upcoming data may be dropped
-		(depending on the endpoint transfer type).
-	*/
-
-	ReadBufferFull,
-
-	/**
-		OUT-endpoint transmit buffer is empty.
-	*/
-
-	WriteBufferEmpty,
-
-	/**
-		OUT-endpoint transmit buffer is ready to accept more data; it's OK to
-		issue more `io.UsbEndpoint.write` requests.
-	*/
-
-	WriteBufferReady = WriteBufferEmpty,
-
 	/**
 		OUT-endpoint has no active or pending USB transfers. Useful when you
 		need to wait for all outbound transfers to complete before closing an
