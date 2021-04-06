@@ -348,6 +348,8 @@ if(BUILD_JNC_IO_SSL)
 			../SslLog/SslLogRepresenter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
+			../WebSocketLog/WebSocketLogRecordCode.jnc
+			../WebSocketLog/WebSocketLogRepresenter.jnc
 		FINALIZE_TEST WebSocketClient
 
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketServer
@@ -362,6 +364,8 @@ if(BUILD_JNC_IO_SSL)
 			../SocketLog/SocketClientLogFilter.jnc
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
+			../WebSocketLog/WebSocketLogRecordCode.jnc
+			../WebSocketLog/WebSocketLogRepresenter.jnc
 		FINALIZE_TEST WebSocketServer
 		)
 endif()
