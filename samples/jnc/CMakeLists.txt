@@ -16,6 +16,13 @@ file(
 	*.jnc
 	)
 
+list(
+	REMOVE_ITEM
+	SAMPLE_JNC_LIST
+	91_WebSocketClient.jnc
+	92_WebSocketServer.jnc
+	)
+	
 source_group(
 	jnc
 	FILES

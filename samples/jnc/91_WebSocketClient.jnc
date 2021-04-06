@@ -22,7 +22,7 @@ void processSocketEvents(io.WebSocket* socket)
 
 int main()
 {
-	char const* host = "127.0.0.1:8080";
+	char const* host = "127.0.0.1:8088";
 	char const* resource = "/resource";
 
 	io.SocketAddress addr;
