@@ -88,7 +88,28 @@ EnumType::EnumType()
 {
 	m_typeKind = TypeKind_Enum;
 	m_flags = TypeFlag_Pod;
+	m_rootType = NULL;
 	m_baseType = NULL;
+}
+
+bool
+EnumType::isBaseType(EnumType* type)
+{
+	if (m_baseType->getTypeKind() != TypeKind_Enum ||
+		type->getRootType()->cmp(m_rootType) != 0) // fast-exit
+		return false;
+
+	EnumType* baseType = (EnumType*)m_baseType;
+
+	for (;;)
+{
+		if (type->cmp(baseType) == 0)
+			return true;
+
+		baseType = (EnumType*)baseType->getBaseType();
+		if (baseType->getTypeKind() != TypeKind_Enum)
+			return false;
+	}
 }
 
 EnumConst*
@@ -150,6 +171,39 @@ EnumType::parseBody()
 	return true;
 }
 
+FindModuleItemResult
+EnumType::findDirectChildItemTraverse(
+	const sl::StringRef& name,
+	MemberCoord* coord,
+	uint_t flags
+	)
+{
+	if (!(flags & TraverseFlag_NoThis))
+	{
+		FindModuleItemResult findResult = findDirectChildItem(name);
+		if (!findResult.m_result)
+			return findResult;
+
+		if (findResult.m_item)
+			return findResult;
+	}
+
+	if (!(flags & TraverseFlag_NoBaseType) && m_baseType->getTypeKind() == TypeKind_Enum)
+	{
+		uint_t modFlags = (flags & ~TraverseFlag_NoThis) | TraverseFlag_NoParentNamespace;
+		FindModuleItemResult findResult = ((EnumType*)m_baseType)->findDirectChildItemTraverse(name, coord, modFlags);
+		if (!findResult.m_result)
+			return findResult;
+
+		if (findResult.m_item)
+			return findResult;
+	}
+
+	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?
+		m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseFlag_NoThis) :
+		g_nullFindModuleItemResult;
+}
+
 bool
 EnumType::calcLayout()
 {
@@ -160,6 +214,15 @@ EnumType::calcLayout()
 
 	if (!result)
 		return false;
+
+	Type* rootType = m_baseType;
+	while (rootType->getTypeKind() == TypeKind_Enum)
+		rootType = ((EnumType*)rootType)->m_baseType;
+
+	if (rootType->getTypeKind() == TypeKind_TypedefShadow)
+		rootType = ((TypedefShadowType*)rootType)->getActualType();
+
+	m_rootType = rootType;
 
 	if (!(m_baseType->getTypeKindFlags() & TypeKindFlag_Integer) &&
 		m_baseType->getTypeKind() != TypeKind_TypedefShadow) // typedef shadows are for documentation & code-assist
@@ -178,23 +241,40 @@ EnumType::calcLayout()
 
 	// assign values to consts
 
+	EnumConst* baseConst = findBaseEnumConst();
+
 	Unit* prevUnit = m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 	m_module->m_namespaceMgr.openNamespace(this);
 
 	result = (m_flags & EnumTypeFlag_BitFlag) ?
-		calcBitflagEnumConstValues() :
-		calcEnumConstValues();
+		calcBitflagEnumConstValues(baseConst) :
+		calcEnumConstValues(baseConst);
 
 	m_module->m_namespaceMgr.closeNamespace();
 	m_module->m_unitMgr.setCurrentUnit(prevUnit);
 	return result;
 }
 
+EnumConst*
+EnumType::findBaseEnumConst()
+{
+	EnumType* baseType = (EnumType*)m_baseType;
+	while (baseType->getTypeKind() == TypeKind_Enum)
+	{
+		if (!baseType->m_constList.isEmpty())
+			return *baseType->m_constList.getTail();
+
+		baseType = (EnumType*)baseType->m_baseType;
+	}
+
+	return NULL;
+}
+
 bool
-EnumType::calcEnumConstValues()
+EnumType::calcEnumConstValues(EnumConst* baseConst)
 {
 	bool finalResult = true;
-	int64_t value = 0;
+	int64_t value = baseConst ? baseConst->m_value + 1 : 0;
 
 	sl::Iterator<EnumConst> constIt = m_constList.getHead();
 	for (; constIt; constIt++, value++)
@@ -219,10 +299,10 @@ EnumType::calcEnumConstValues()
 }
 
 bool
-EnumType::calcBitflagEnumConstValues()
+EnumType::calcBitflagEnumConstValues(EnumConst* baseConst)
 {
 	bool finalResult = true;
-	int64_t value = 1;
+	int64_t value = baseConst ? 2 << sl::getHiBitIdx64(baseConst->m_value) : 1;
 
 	sl::Iterator<EnumConst> constIt = m_constList.getHead();
 	for (; constIt; constIt++)

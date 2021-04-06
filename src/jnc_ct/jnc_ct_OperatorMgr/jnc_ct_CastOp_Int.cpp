@@ -394,7 +394,7 @@ Cast_IntFromEnum::getCastOperators(
 {
 	ASSERT(opValue.getType()->getTypeKind() == TypeKind_Enum);
 
-	Type* intermediateType = ((EnumType*)opValue.getType())->getBaseType();
+	Type* intermediateType = ((EnumType*)opValue.getType())->getRootType();
 
 	if (isEquivalentIntegerTypeKind(type->getTypeKind(), intermediateType->getTypeKind()))
 	{
@@ -421,11 +421,15 @@ Cast_Enum::getCastKind(
 	ASSERT(type->getTypeKind() == TypeKind_Enum);
 	ASSERT(type->cmp(opValue.getType()) != 0); // identity should have been handled earlier
 
+	Type* opType = opValue.getType();
+
 	// 0 could be put to bitflag enum
 
 	return
-		(((EnumType*)type)->getFlags() & EnumTypeFlag_BitFlag) &&
-		opValue.isZero() ? CastKind_Implicit : CastKind_Explicit;
+		opType->getTypeKind() == TypeKind_Enum && ((EnumType*)type)->isBaseType((EnumType*)opType) ||
+		(type->getFlags() & EnumTypeFlag_BitFlag) && opValue.isZero() ?
+			CastKind_Implicit :
+			CastKind_Explicit;
 }
 
 bool
@@ -439,7 +443,7 @@ Cast_Enum::getCastOperators(
 {
 	ASSERT(type->getTypeKind() == TypeKind_Enum);
 
-	Type* intermediateType = ((EnumType*)type)->getBaseType();
+	Type* intermediateType = ((EnumType*)type)->getRootType();
 
 	if (isEquivalentIntegerTypeKind(opValue.getType()->getTypeKind(), intermediateType->getTypeKind()))
 	{

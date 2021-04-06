@@ -75,6 +75,10 @@ jnc_Type*
 jnc_EnumType_getBaseType(jnc_EnumType* type);
 
 JNC_EXTERN_C
+jnc_Type*
+jnc_EnumType_getRootType(jnc_EnumType* type);
+
+JNC_EXTERN_C
 size_t
 jnc_EnumType_getConstCount(jnc_EnumType* type);
 
@@ -93,6 +97,12 @@ struct jnc_EnumType: jnc_NamedType
 	getBaseType()
 	{
 		return jnc_EnumType_getBaseType(this);
+	}
+
+	jnc_Type*
+	getRootType()
+	{
+		return jnc_EnumType_getRootType(this);
 	}
 
 	size_t

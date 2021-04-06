@@ -1269,7 +1269,7 @@ OperatorMgr::prepareOperandType(
 
 		case TypeKind_Enum:
 			if (!(opFlags & OpFlag_KeepEnum))
-				value.overrideType(((EnumType*)type)->getBaseType());
+				value.overrideType(((EnumType*)type)->getRootType());
 
 			break;
 		}
@@ -1479,7 +1479,7 @@ OperatorMgr::prepareOperand(
 
 		case TypeKind_Enum:
 			if (!(opFlags & OpFlag_KeepEnum))
-				value.overrideType(((EnumType*)type)->getBaseType());
+				value.overrideType(((EnumType*)type)->getRootType());
 
 			break;
 		}

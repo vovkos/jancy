@@ -366,6 +366,17 @@ public:
 		sl::String* indexXml
 		);
 
+	virtual
+	FindModuleItemResult
+	findDirectChildItemTraverse(
+		const sl::StringRef& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
+		)
+	{
+		return findDirectChildItemTraverse(name, coord, flags, 0);
+	}
+
 protected:
 	virtual
 	bool
@@ -399,17 +410,6 @@ protected:
 		BaseTypeCoord* coord,
 		size_t level
 		);
-
-	virtual
-	FindModuleItemResult
-	findDirectChildItemTraverse(
-		const sl::StringRef& name,
-		MemberCoord* coord = NULL,
-		uint_t flags = 0
-		)
-	{
-		return findDirectChildItemTraverse(name, coord, flags, 0);
-	}
 
 	FindModuleItemResult
 	findDirectChildItemTraverse(

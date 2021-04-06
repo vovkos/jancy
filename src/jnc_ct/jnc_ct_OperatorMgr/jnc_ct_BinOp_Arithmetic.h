@@ -673,18 +673,6 @@ public:
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-inline
-bool
-isBitFlagEnumOpType(
-	const Value& opValue1,
-	const Value& opValue2
-	)
-{
-	return opValue1.getType() == opValue2.getType() && isBitFlagEnumType(opValue1.getType());
-}
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 class BinOp_BwOr: public BinOp_IntegerOnly<BinOp_BwOr>
 {
 public:

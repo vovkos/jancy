@@ -304,10 +304,11 @@ OperatorMgr::getNamespaceMember(
 		break;
 
 	case ModuleItemKind_Typedef:
-		item = ((Typedef*)item)->getType();
 		result = checkAccess((Typedef*)item);
 		if (!result)
 			return false;
+
+		item = ((Typedef*)item)->getType();
 
 		// and fall through
 
@@ -538,7 +539,7 @@ OperatorMgr::getEnumTypeMember(
 	Value* resultValue
 	)
 {
-	FindModuleItemResult findResult = enumType->findItem(name);
+	FindModuleItemResult findResult = enumType->findDirectChildItemTraverse(name, NULL, TraverseFlag_NoParentNamespace);
 	if (!findResult.m_result)
 		return false;
 

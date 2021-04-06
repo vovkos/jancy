@@ -1281,10 +1281,16 @@ EditPrivate::addAutoCompleteNamespace(
 	if (namespaceKind == NamespaceKind_Type)
 	{
 		NamedType* namedType = (NamedType*)nspace->getParentItem();
-		if (namedType->getTypeKindFlags() & TypeKindFlag_Derivable)
+		if (namedType->getTypeKind() == TypeKind_Enum)
+		{
+			EnumType* enumType = (EnumType*)namedType;
+			Type* baseType = enumType->getBaseType();
+			if (baseType->getTypeKind() == TypeKind_Enum)
+				addAutoCompleteNamespace(model, baseType->getNamespace());
+		}
+		else if (namedType->getTypeKindFlags() & TypeKindFlag_Derivable)
 		{
 			DerivableType* derivableType = (DerivableType*)namedType;
-
 			size_t count = derivableType->getBaseTypeCount();
 			for (size_t i = 0; i < count; i++)
 			{

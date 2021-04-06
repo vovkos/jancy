@@ -92,6 +92,7 @@ class EnumType: public NamedType
 	friend class Parser;
 
 protected:
+	Type* m_rootType;
 	Type* m_baseType;
 	sl::List<EnumConst> m_constList;
 	sl::Array<EnumConst*> m_constArray;
@@ -105,6 +106,16 @@ public:
 	{
 		return m_baseType;
 	}
+
+	Type*
+	getRootType()
+	{
+		ASSERT(m_rootType);
+		return m_rootType;
+	}
+
+	bool
+	isBaseType(EnumType* type);
 
 	const sl::Array<EnumConst*>&
 	getConstArray()
@@ -137,6 +148,14 @@ public:
 		const sl::StringRef& outputDir,
 		sl::String* itemXml,
 		sl::String* indexXml
+		);
+
+	virtual
+	FindModuleItemResult
+	findDirectChildItemTraverse(
+		const sl::StringRef& name,
+		MemberCoord* coord = NULL,
+		uint_t flags = 0
 		);
 
 protected:
@@ -180,11 +199,14 @@ protected:
 	bool
 	calcLayout();
 
-	bool
-	calcBitflagEnumConstValues();
+	EnumConst*
+	findBaseEnumConst();
 
 	bool
-	calcEnumConstValues();
+	calcBitflagEnumConstValues(EnumConst* baseConst);
+
+	bool
+	calcEnumConstValues(EnumConst* baseConst);
 };
 
 //..............................................................................

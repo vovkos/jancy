@@ -234,6 +234,7 @@ static jnc_EnumTypeFuncTable g_enumTypeFuncTable =
 {
 	sizeof(jnc_EnumTypeFuncTable),
 	jnc_EnumType_getBaseType,
+	jnc_EnumType_getRootType,
 	jnc_EnumType_getConstCount,
 	jnc_EnumType_getConst,
 };

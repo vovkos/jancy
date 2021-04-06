@@ -741,6 +741,10 @@ jnc_Type*
 jnc_EnumType_GetBaseTypeFunc(jnc_EnumType* type);
 
 typedef
+jnc_Type*
+jnc_EnumType_GetRootTypeFunc(jnc_EnumType* type);
+
+typedef
 size_t
 jnc_EnumType_GetConstCountFunc(jnc_EnumType* type);
 
@@ -757,6 +761,7 @@ struct jnc_EnumTypeFuncTable
 {
 	size_t m_size;
 	jnc_EnumType_GetBaseTypeFunc* m_getBaseTypeFunc;
+	jnc_EnumType_GetRootTypeFunc* m_getRootTypeFunc;
 	jnc_EnumType_GetConstCountFunc* m_getConstCountFunc;
 	jnc_EnumType_GetConstFunc* m_getConstFunc;
 };

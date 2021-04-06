@@ -39,6 +39,13 @@ jnc_EnumType_getBaseType(jnc_EnumType* type)
 }
 
 JNC_EXTERN_C
+jnc_Type*
+jnc_EnumType_getRootType(jnc_EnumType* type)
+{
+	return jnc_g_dynamicExtensionLibHost->m_enumTypeFuncTable->m_getRootTypeFunc(type);
+}
+
+JNC_EXTERN_C
 size_t
 jnc_EnumType_getConstCount(jnc_EnumType* type)
 {
@@ -73,6 +80,14 @@ jnc_Type*
 jnc_EnumType_getBaseType(jnc_EnumType* type)
 {
 	return type->getBaseType();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+jnc_Type*
+jnc_EnumType_getRootType(jnc_EnumType* type)
+{
+	return type->getRootType();
 }
 
 JNC_EXTERN_C

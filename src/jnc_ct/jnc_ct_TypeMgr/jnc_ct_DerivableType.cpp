@@ -628,14 +628,9 @@ DerivableType::findDirectChildItemTraverse(
 		}
 	}
 
-	if (!(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace)
-	{
-		FindModuleItemResult findResult = m_parentNamespace->findDirectChildItemTraverse(name, coord, flags);
-		if (!findResult.m_result || findResult.m_item)
-			return findResult;
-	}
-
-	return g_nullFindModuleItemResult;
+	return !(flags & TraverseFlag_NoParentNamespace) && m_parentNamespace ?
+		m_parentNamespace->findDirectChildItemTraverse(name, coord, flags & ~TraverseFlag_NoThis) :
+		g_nullFindModuleItemResult;
 }
 
 sl::String

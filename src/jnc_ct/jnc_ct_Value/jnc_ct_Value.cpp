@@ -148,7 +148,7 @@ Value::getLlvmConst(
 	llvm::Constant* llvmConst = NULL;
 
 	if (type->getTypeKind() == TypeKind_Enum)
-		type = ((EnumType*)type)->getBaseType();
+		type = ((EnumType*)type)->getRootType();
 
 	Module* module = type->getModule();
 
