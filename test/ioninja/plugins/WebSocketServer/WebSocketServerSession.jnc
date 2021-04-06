@@ -1,36 +1,44 @@
 //..............................................................................
 //
-// TCP Listener session
+// SSL Listener session
 //
 
 import "doc_Session.jnc"
-import "io_base.jncx"
-import "io_Socket.jnc"
+import "io_websocket.jncx"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
+import "ui_SslPropertySet.jnc"
 import "ui_BufferPropertySet.jnc"
 import "ui_StdSessionInfoSet.jnc"
 import "log_ThroughputCalc.jnc"
 import "log_ChecksumCalc.jnc"
-import "std_Buffer.jnc"
 import "std_List.jnc"
+import "std_Buffer.jnc"
 
 using extension ui.ComboBoxHistory;
 
 //..............................................................................
 
-class TcpServerSession: doc.Session
+class WebSocketServerSession: doc.Session
 {
 protected:
 	enum Defaults
 	{
-		LocalPort = 8080,
+		LocalPort = 8088, // 8443,
 	}
 
-	enum State
+	enum ListenerState
 	{
 		Closed,
 		Listening,
+	}
+
+	enum ConnectionState
+	{
+		Closed,
+		SslHandshaking,
+		WebSocketHandshaking,
+		Connected,
 	}
 
 	enum ActionId
@@ -59,22 +67,23 @@ protected:
 	class Client
 	{
 		std.ListEntry* m_entry;
+		ConnectionState bindable m_state;
 		bool bindable m_isTransmitEnabled;
-		io.Socket* m_socket;
+		io.WebSocket* m_socket;
 		io.SocketAddress m_address;
 		uint_t m_syncId;
 	}
 
 protected:
-	// listener socket & list of clients
+	// listener socket
 
-	State bindable m_state;
-	io.Socket m_listenerSocket;
+	ListenerState bindable m_listenerState;
+	io.WebSocket m_listenerSocket;
 	io.SocketAddress m_localAddress;
 	uint_t m_listenerSyncId;
 	std.List m_clientList;
 	size_t bindable m_clientCount;
-	Client* m_currentClient;
+	io.SocketAddress m_currentClientAddress;
 	std.Buffer m_readBuffer;
 	SocketClientLogFilter m_filter;
 
@@ -91,7 +100,7 @@ protected:
 	// property grid
 
 	ui.SocketPropertySet m_socketPropertySet;
-	ui.StringProperty* m_clientFilterProp;
+	ui.SslPropertySet m_sslPropertySet;
 	ui.BufferPropertySet m_bufferPropertySet;
 
 	// information grid
@@ -131,7 +140,7 @@ public:
 protected:
 	void onListen()
 	{
-		m_state ? stopListen() : try listen();
+		m_listenerState ? stopListen() : try listen();
 	}
 
 	void onPortComboEnter()
@@ -146,13 +155,13 @@ protected:
 
 	void onListenerSocketEvent(
 		uint_t syncId,
-		io.SocketEvents triggeredEvents
+		io.WebSocketEvents triggeredEvents
 		);
 
 	void onClientSocketEvent(
 		Client* client,
 		uint_t syncId,
-		io.SocketEvents triggeredEvents
+		io.WebSocketEvents triggeredEvents
 		);
 
 	bool errorcode applyClientFilter(bool rebuildLog);
@@ -161,13 +170,14 @@ protected:
 	void waitListenerSocketEvents();
 	void waitClientSocketEvents(Client* client);
 	void disconnect(Client* client);
+	void addClient(Client* client);
 	void removeClient(Client* client);
 	void setCurrentClient(Client* client);
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-TcpServerSession.construct(doc.PluginHost* pluginHost)
+WebSocketServerSession.construct(doc.PluginHost* pluginHost)
 {
 	basetype.construct(pluginHost);
 
@@ -179,7 +189,7 @@ TcpServerSession.construct(doc.PluginHost* pluginHost)
 	m_stdSessionInfoSet.addLogListener(pluginHost.m_log);
 }
 
-void TcpServerSession.createUi()
+void WebSocketServerSession.createUi()
 {
 	// toolbar
 
@@ -192,7 +202,6 @@ void TcpServerSession.createUi()
 
 	m_actionTable[ActionId.ApplyFilter] = createAction("Apply filter", "images/apply.png");
 	m_actionTable[ActionId.ApplyFilter].m_onTriggered += onSetClientFilter;
-	m_pluginHost.m_toolBar.addSeparator();
 
 	m_pluginHost.m_toolBar.addLabel("Client:");
 	m_clientCombo = m_pluginHost.m_toolBar.addComboBox(-1);
@@ -201,7 +210,6 @@ void TcpServerSession.createUi()
 	m_actionTable[ActionId.Disconnect].m_onTriggered += disconnect;
 	m_actionTable[ActionId.DisconnectAll] = createAction("Disconnect All", "images/disconnect-all.png");
 	m_actionTable[ActionId.DisconnectAll].m_onTriggered += disconnectAll;
-	m_pluginHost.m_toolBar.addSeparator();
 
 	m_pluginHost.m_toolBar.addLabel("Adapter:");
 	m_adapterCombo = ui.createNetworkAdapterComboBox(m_pluginHost.m_toolBar, ui.NetworkAdapterUsage.Listener);
@@ -224,8 +232,8 @@ void TcpServerSession.createUi()
 	// property grid
 
 	ui.GroupProperty* group = m_pluginHost.m_propertyGrid.createGroupProperty(
-		"TCP connection",
-		"TCP-specific connection settings"
+		"SSL connection",
+		"SSL-specific connection settings"
 		);
 
 	m_socketPropertySet.createProperties(
@@ -236,11 +244,20 @@ void TcpServerSession.createUi()
 
 	m_socketPropertySet.m_defaultLocalPort = Defaults.LocalPort;
 
-	m_bufferPropertySet.createPropertiesGrouped(m_pluginHost.m_propertyGrid);
+	m_sslPropertySet.createProperties(
+		m_pluginHost.m_propertyGrid,
+		group,,
+		ui.SslPropertySet.PropertyId.AllServer
+		);
+
+	m_bufferPropertySet.createPropertiesGrouped(
+		m_pluginHost.m_propertyGrid,,,
+		ui.BufferPropertySet.PropertyId.All & ~ui.BufferPropertySet.PropertyId.ReadParallelism
+		);
 
 	// information grid
 
-	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("TCP listener");
+	ui.InformationGroup* infoGroup = m_pluginHost.m_informationGrid.createGroup("SSL listener");
 
 	m_stdSessionInfoSet.createInformationValues(m_pluginHost.m_informationGrid, infoGroup);
 	m_throughputInfoSet.createInformationValuesGrouped(m_pluginHost.m_informationGrid);
@@ -252,7 +269,7 @@ void TcpServerSession.createUi()
 	m_uiReactor.start();
 }
 
-bool errorcode TcpServerSession.listen()
+bool errorcode WebSocketServerSession.listen()
 {
 	stopListen();
 	startSession();
@@ -261,13 +278,13 @@ bool errorcode TcpServerSession.listen()
 	io.SocketAddress address = *(io.SocketAddress const*) m_adapterCombo.m_currentData;
 	address.m_port = (uint16_t)atoi(m_portCombo.m_editText);
 
-	m_listenerSocket.open(io.Protocol.Tcp, &address);
+	m_listenerSocket.open(&address);
 	m_listenerSocket.listen();
 
 	address = m_listenerSocket.m_address;
 	m_logWriter.write(SocketLogRecordCode.Listening, &address, sizeof(address));
 	m_localAddress = address;
-	m_state = State.Listening;
+	m_listenerState = ListenerState.Listening;
 	waitListenerSocketEvents();
 	m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	return true;
@@ -275,38 +292,38 @@ bool errorcode TcpServerSession.listen()
 catch:
 	m_logWriter.writeLastError(SocketLogRecordCode.ListenError);
 	m_listenerSocket.close();
-	m_state = State.Closed;
+	m_listenerState = ListenerState.Closed;
 	m_listenerSyncId++;
 	m_stdSessionInfoSet.endSession();
 	return false;
 }
 
-void TcpServerSession.stopListen()
+void WebSocketServerSession.stopListen()
 {
-	if (m_state != State.Listening)
+	if (m_listenerState != ListenerState.Listening)
 		return;
 
 	m_logWriter.write(SocketLogRecordCode.ListenStopped, &m_localAddress, sizeof(m_localAddress));
 	m_listenerSocket.close();
-	m_state = State.Closed;
+	m_listenerState = ListenerState.Closed;
 	m_listenerSyncId++;
 	m_stdSessionInfoSet.endSession();
 }
 
-void TcpServerSession.disconnect()
+void WebSocketServerSession.disconnect()
 {
 	Client* client = m_clientCombo.m_currentData;
 	if (client)
 		disconnect(client);
 }
 
-void TcpServerSession.disconnectAll()
+void WebSocketServerSession.disconnectAll()
 {
 	while (m_clientList.m_count)
 		disconnect(m_clientList.m_head.m_data);
 }
 
-void TcpServerSession.disconnect(TcpServerSession.Client* client)
+void WebSocketServerSession.disconnect(WebSocketServerSession.Client* client)
 {
 	TcpDisconnectLogRecordParams params;
 	params.m_address = client.m_address;
@@ -319,7 +336,15 @@ void TcpServerSession.disconnect(TcpServerSession.Client* client)
 	removeClient(client);
 }
 
-void TcpServerSession.removeClient(TcpServerSession.Client* client)
+void WebSocketServerSession.addClient(WebSocketServerSession.Client* client)
+{
+	client.m_entry = m_clientList.add(client);
+	m_clientCombo.addItemSetCurrent(client.m_address.getString(), client);
+	m_clientCount = m_clientList.m_count;
+	m_currentClientAddress = client.m_address;
+}
+
+void WebSocketServerSession.removeClient(WebSocketServerSession.Client* client)
 {
 	client.m_socket.close();
 	client.m_syncId++;
@@ -334,12 +359,12 @@ void TcpServerSession.removeClient(TcpServerSession.Client* client)
 		}
 
 	m_clientCount = m_clientList.m_count;
-	m_currentClient = null;
+	m_currentClientAddress = null;
 }
 
-void TcpServerSession.setCurrentClient(TcpServerSession.Client* client)
+void WebSocketServerSession.setCurrentClient(WebSocketServerSession.Client* client)
 {
-	if (client == m_currentClient)
+	if (m_currentClientAddress.isEqual(client.m_address))
 		return;
 
 	m_logWriter.write(
@@ -348,10 +373,10 @@ void TcpServerSession.setCurrentClient(TcpServerSession.Client* client)
 		sizeof(client.m_address)
 		);
 
-	m_currentClient = client;
+	m_currentClientAddress = client.m_address;
 }
 
-bool errorcode TcpServerSession.applyClientFilter(bool rebuildLog)
+bool errorcode WebSocketServerSession.applyClientFilter(bool rebuildLog)
 {
 	m_pluginHost.m_log.suspend();
 	bool result = try m_filter.setFilter(m_clientFilterCombo.m_editText);
@@ -372,20 +397,22 @@ bool errorcode TcpServerSession.applyClientFilter(bool rebuildLog)
 	return true;
 }
 
-void TcpServerSession.load(doc.Storage* storage)
+void WebSocketServerSession.load(doc.Storage* storage)
 {
 	m_portCombo.loadHistory(storage, "portHistory");
 	m_adapterCombo.m_currentIndex  = storage.readInt("adapterIdx");
 	m_portCombo.m_editText = storage.readString("port");
 
 	m_socketPropertySet.load(storage);
+	m_sslPropertySet.load(storage);
 	m_bufferPropertySet.load(storage);
 	m_readBuffer.setSize(m_bufferPropertySet.m_readBufferSizeProp.m_value);
 }
 
-void TcpServerSession.save(doc.Storage* storage)
+void WebSocketServerSession.save(doc.Storage* storage)
 {
 	m_socketPropertySet.save(storage);
+	m_sslPropertySet.save(storage);
 	m_bufferPropertySet.save(storage);
 
 	m_portCombo.saveHistory(storage, "portHistory");
@@ -393,13 +420,13 @@ void TcpServerSession.save(doc.Storage* storage)
 	storage.writeString("port", m_portCombo.m_editText);
 }
 
-void TcpServerSession.updateProperties()
+void WebSocketServerSession.updateProperties()
 {
 	m_socketPropertySet.m_localPortProp.m_value = atoi(m_portCombo.m_editText);
 	m_socketPropertySet.m_adapterProp.m_currentIndex = m_adapterCombo.m_currentIndex;
 }
 
-bool errorcode TcpServerSession.applyProperties()
+bool errorcode WebSocketServerSession.applyProperties()
 {
 	m_portCombo.m_editText = $"$(m_socketPropertySet.m_localPortProp.m_value)";
 	m_adapterCombo.m_currentIndex = m_socketPropertySet.m_adapterProp.m_currentIndex;
@@ -408,24 +435,24 @@ bool errorcode TcpServerSession.applyProperties()
 	std.ListEntry* entry = m_clientList.m_head;
 	for (; entry; entry = entry.m_next)
 	{
-		Client* client = entry.m_data;
-		client.m_socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
-		client.m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
-		client.m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
-		client.m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-		client.m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		Client* connection = entry.m_data;
+		connection.m_socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+		connection.m_socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+		connection.m_socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+		connection.m_socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
 	}
 
 	return true;
 }
 
-void TcpServerSession.restoreDefaultProperties()
+void WebSocketServerSession.restoreDefaultProperties()
 {
 	m_socketPropertySet.restoreDefaults();
+	m_sslPropertySet.restoreDefaults();
 	m_bufferPropertySet.restoreDefaults();
 }
 
-size_t errorcode TcpServerSession.transmit(
+size_t errorcode WebSocketServerSession.transmit(
 	void const* p,
 	size_t size
 	)
@@ -436,7 +463,7 @@ size_t errorcode TcpServerSession.transmit(
 
 	setCurrentClient(client);
 
-	size_t result = client.m_socket.write(p, size);
+	size_t result = client.m_socket.writeTextMessage(p, size); // choose text/binary
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
@@ -449,25 +476,46 @@ size_t errorcode TcpServerSession.transmit(
 	return result;
 }
 
-void TcpServerSession.waitListenerSocketEvents()
+void WebSocketServerSession.waitListenerSocketEvents()
 {
 	m_listenerSocket.wait(
-		io.SocketEvents.IoError |
-		io.SocketEvents.IncomingConnection,
+		io.WebSocketEvents.IoError |
+		io.WebSocketEvents.IncomingConnection,
 		onListenerSocketEvent~(++m_listenerSyncId) @ m_pluginHost.m_mainThreadScheduler
 		);
 }
 
-void TcpServerSession.waitClientSocketEvents(TcpServerSession.Client* client)
+void WebSocketServerSession.waitClientSocketEvents(WebSocketServerSession.Client* client)
 {
-	io.SocketEvents eventMask =
-		io.SocketEvents.IoError |
-		io.SocketEvents.IncomingData |
-		io.SocketEvents.TcpDisconnected |
-		io.SocketEvents.TcpReset;
+	io.WebSocketEvents eventMask = io.WebSocketEvents.IoError;
 
-	if (!client.m_isTransmitEnabled)
-		eventMask |= io.SocketEvents.WriteBufferReady;
+	switch (client.m_state)
+	{
+	case ConnectionState.SslHandshaking:
+		eventMask |=
+			io.WebSocketEvents.TcpDisconnected |
+			io.WebSocketEvents.TcpReset |
+			io.WebSocketEvents.SslHandshakeCompleted;
+		break;
+
+	case ConnectionState.WebSocketHandshaking:
+		eventMask |=
+			io.WebSocketEvents.TcpDisconnected |
+			io.WebSocketEvents.TcpReset |
+			io.WebSocketEvents.WebSocketHandshakeCompleted;
+		break;
+
+	case ConnectionState.Connected:
+		eventMask |=
+			io.WebSocketEvents.IncomingMessage |
+			io.WebSocketEvents.TcpDisconnected |
+			io.WebSocketEvents.TcpReset;
+
+		if (!client.m_isTransmitEnabled)
+			eventMask |= io.WebSocketEvents.WriteBufferReady;
+
+		break;
+	}
 
 	client.m_socket.wait(
 		eventMask,
@@ -475,61 +523,98 @@ void TcpServerSession.waitClientSocketEvents(TcpServerSession.Client* client)
 		);
 }
 
-void TcpServerSession.onListenerSocketEvent(
+void WebSocketServerSession.onListenerSocketEvent(
 	uint_t syncId,
-	io.SocketEvents triggeredEvents
+	io.WebSocketEvents triggeredEvents
 	)
 {
 	if (syncId != m_listenerSyncId)
 		return;
 
-	if (triggeredEvents & io.SocketEvents.IoError)
+	if (triggeredEvents & io.WebSocketEvents.IoError)
 	{
 		m_logWriter.write(log.StdRecordCode.Error, m_listenerSocket.m_ioError);
 		m_listenerSocket.close();
-		m_state = State.Closed;
+		m_listenerState = ListenerState.Closed;
 		m_stdSessionInfoSet.endSession();
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.IncomingConnection)
+	if (triggeredEvents & io.WebSocketEvents.IncomingConnection)
 	{
-		io.SocketAddress address;
-		io.Socket* socket = m_listenerSocket.accept(&address, true);
-		m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
+		io.WebSocket* socket;
 
-		socket.m_readParallelism = m_bufferPropertySet.m_readParallelismProp.m_value;
-		socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
-		socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
-		socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
-		socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+		bool isSecure = m_listenerSocket.m_sslState != null;
+
+	nestedscope:
+		io.SocketAddress address;
+		socket = m_listenerSocket.accept(&address, true);
+
+		if (isSecure)
+		{
+			m_logWriter.write(SocketLogRecordCode.ClientConnected, &address, sizeof(address));
+			m_logWriter.write(SslLogRecordCode.SslHandshaking);
+
+			socket.m_readBlockSize = m_bufferPropertySet.m_readBlockSizeProp.m_value;
+			socket.m_readBufferSize = m_bufferPropertySet.m_readBufferSizeProp.m_value;
+			socket.m_writeBufferSize = m_bufferPropertySet.m_writeBufferSizeProp.m_value;
+			socket.m_options = ui.getSocketOptions(m_socketPropertySet, m_bufferPropertySet);
+			socket.m_sslState.enableCiphers(m_sslPropertySet.m_cipherSetProp.m_value);
+
+			if (m_sslPropertySet.m_useEphemeralDhProp.m_value)
+				socket.m_sslState.setEphemeralDhStdParams(m_sslPropertySet.m_ephemeralDhStdParamsProp.m_value);
+
+			if (m_sslPropertySet.m_useEphemeralEcdhProp.m_value)
+				socket.m_sslState.setEphemeralEcdhCurve(m_sslPropertySet.m_ephemeralEcdhCurveProp.m_value);
+
+			if (m_sslPropertySet.m_useCertificateProp.m_value)
+			{
+				socket.m_sslState.loadCertificate(m_sslPropertySet.m_certificateFileProp.m_value);
+				socket.m_sslState.loadPrivateKey(m_sslPropertySet.m_privateKeyFileProp.m_value);
+
+				if (m_sslPropertySet.m_verifyCertificateProp.m_value)
+				{
+					socket.m_sslState.m_verifyMode = io.SslVerifyMode.VerifyPeerCertificate;
+					socket.m_sslState.m_verifyDepth = m_sslPropertySet.m_verifyDepthProp.m_value;
+
+					socket.m_sslState.loadVerifyLocations(
+						m_sslPropertySet.m_verifyCaFileProp.m_value,
+						m_sslPropertySet.m_verifyCaDirProp.m_value
+						);
+				}
+			}
+		}
+
 		socket.unsuspend();
 
 		Client* client = new Client;
+		client.m_state = isSecure ? ConnectionState.SslHandshaking : ConnectionState.WebSocketHandshaking;
 		client.m_socket = socket;
 		client.m_address = address;
-		client.m_isTransmitEnabled = true;
-		client.m_entry = m_clientList.add(client);
-		m_clientCombo.addItemSetCurrent(client.m_address.getString(), client);
-		m_clientCount = m_clientList.m_count;
-		m_currentClient = client;
 
+		addClient(client);
 		waitClientSocketEvents(client);
+
+	catch:
+		m_logWriter.writeLastError(SocketLogRecordCode.ConnectError);
+
+		if (socket)
+			socket.close();
 	}
 
 	waitListenerSocketEvents();
 }
 
-void TcpServerSession.onClientSocketEvent(
-	TcpServerSession.Client* client,
+void WebSocketServerSession.onClientSocketEvent(
+	WebSocketServerSession.Client* client,
 	uint_t syncId,
-	io.SocketEvents triggeredEvents
+	io.WebSocketEvents triggeredEvents
 	)
 {
 	if (syncId != client.m_syncId)
 		return;
 
-	if (triggeredEvents & io.SocketEvents.IoError)
+	if (triggeredEvents & io.WebSocketEvents.IoError)
 	{
 		setCurrentClient(client);
 		m_logWriter.write(log.StdRecordCode.Error, client.m_socket.m_ioError);
@@ -537,11 +622,42 @@ void TcpServerSession.onClientSocketEvent(
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
+	if (triggeredEvents & io.WebSocketEvents.SslHandshakeCompleted)
+	{
+		m_logWriter.write(SslLogRecordCode.SslHandshakeCompleted);
+
+		std.Buffer buffer;
+		size_t count = client.m_socket.m_sslState.m_peerCertificateChainLength;
+		for (size_t i = 0; i < count; i++)
+		{
+			client.m_socket.m_sslState.m_peerCertificateChain[i].encode(buffer, io.SslCertFormat.Der);
+			m_logWriter.write(SslLogRecordCode.SslCertificate, buffer.m_p, buffer.m_size);
+		}
+
+		io.SslCertificate const* cert = client.m_socket.m_sslState.m_peerCertificate;
+		if (cert)
+		{
+			cert.encode(buffer, io.SslCertFormat.Der);
+			m_logWriter.write(SslLogRecordCode.SslCertificate, buffer.m_p, buffer.m_size);
+		}
+
+		m_logWriter.write(SslLogRecordCode.SslCipher, client.m_socket.m_sslState.m_currentCipher.m_name);
+	}
+
+	if (triggeredEvents & io.WebSocketEvents.WebSocketHandshakeCompleted)
+	{
+		m_logWriter.write(WebSocketLogRecordCode.WebSocketHandshakeCompleted);
+		m_logWriter.write(WebSocketLogRecordCode.WebSocketConnectCompleted);
+		client.m_state = ConnectionState.Connected;
+		client.m_isTransmitEnabled = true;
+		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
+	}
+
+	if (triggeredEvents & io.WebSocketEvents.TcpDisconnected)
 	{
 		for (;;) // read all the buffered data
 		{
-			size_t result = client.m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+			size_t result = client.m_socket.readMessage(m_readBuffer.m_p, m_readBuffer.m_size);
 			if (!result)
 				break;
 
@@ -553,7 +669,7 @@ void TcpServerSession.onClientSocketEvent(
 		recordParams.m_address = client.m_address;
 		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
-		if (triggeredEvents & io.SocketEvents.TcpReset)
+		if (triggeredEvents & io.WebSocketEvents.TcpReset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
 		m_logWriter.write(
@@ -566,12 +682,12 @@ void TcpServerSession.onClientSocketEvent(
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.IncomingData)
+	if (triggeredEvents & io.WebSocketEvents.IncomingMessage)
 	{
 		setCurrentClient(client);
 		m_clientCombo.m_currentData = client;
 
-		size_t result = client.m_socket.read(m_readBuffer.m_p, m_readBuffer.m_size);
+		size_t result = client.m_socket.readMessage(m_readBuffer.m_p, m_readBuffer.m_size);
 		if (result)
 			m_logWriter.write(log.StdRecordCode.Rx, m_readBuffer.m_p, result);
 	}
@@ -582,14 +698,14 @@ void TcpServerSession.onClientSocketEvent(
 	waitClientSocketEvents(client);
 }
 
-reactor TcpServerSession.m_uiReactor
+reactor WebSocketServerSession.m_uiReactor
 {
-	m_title = $"TCP @ $(m_portCombo.m_editText)";
-	m_actionTable[ActionId.Listen].m_text = m_state ? "Stop Listening" : "Listen";
-	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_state ? IconId.StopListen : IconId.Listen];
+	m_title = $"WebSocket @ $(m_portCombo.m_editText)";
+	m_actionTable[ActionId.Listen].m_text = m_listenerState ? "Stop Listening" : "Listen";
+	m_actionTable[ActionId.Listen].m_icon = m_iconTable[m_listenerState ? IconId.StopListen : IconId.Listen];
 	m_actionTable[ActionId.Disconnect].m_isEnabled =
 	m_actionTable[ActionId.DisconnectAll].m_isEnabled = m_clientCombo.m_currentData;
-	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_state ? "Listening" : "Not listening";
+	m_statusPaneTable[StatusPaneId.ListenerState].m_text = m_listenerState ? "Listening" : "Not listening";
 	m_statusPaneTable[StatusPaneId.ClientCount].m_text = $"$m_clientCount client(s)";
 	m_clientCombo.m_isEnabled = m_clientCount;
 

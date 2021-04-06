@@ -1,0 +1,29 @@
+#...............................................................................
+#
+#  WebSocket log representer plugin
+#
+
+[plugin]
+
+name        = "WebSocket Log"
+description = "WebSocket log representer"
+group       = net
+guid        = 7e211fb4-0040-47c7-a772-15b769cf4dd0
+icon        = images/socket.png
+small-icon  = images/socket-16x16.png
+
+log-representer-func = representWebSocketLog
+
+[scripts]
+
+WebSocketLogRecordCode.jnc
+WebSocketLogRepresenter.jnc
+
+[records]
+
+01d72934a7ab9200  # WebSocketHandshaking
+01d72934a7ab9201  # WebSocketHandshakeCompleted
+01d72934a7ab9202  # WebSocketConnectCompleted
+01d72934a7ab9203  # Ping
+01d72934a7ab9204  # Pong
+01d72934a7ab9205  # Close

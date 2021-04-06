@@ -1,0 +1,48 @@
+//..............................................................................
+//
+// Socket log representer
+//
+
+import "log_Representation.jnc"
+import "WebSocketLogRecordCode.jnc"
+import "SocketLog/SocketLogRecordCode.jnc"
+
+//..............................................................................
+
+bool representWebSocketLog(
+	log.Representation* representation,
+	uint64_t recordCode,
+	void const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	switch (recordCode)
+	{
+	case WebSocketLogRecordCode.WebSocketHandshaking:
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.Connecting, "Performing WebSocket handshake...");
+		break;
+
+	case WebSocketLogRecordCode.WebSocketHandshakeCompleted:
+		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+		break;
+
+	case WebSocketLogRecordCode.WebSocketConnectCompleted:
+		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
+		representation.addHyperText("WebSocket connection established");
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+//..............................................................................

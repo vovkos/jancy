@@ -1,0 +1,20 @@
+//..............................................................................
+//
+// Socket log record codes & params
+//
+
+import "log_RecordCode.jnc"
+
+//..............................................................................
+
+enum WebSocketLogRecordCode: uint64_t
+{
+	WebSocketHandshaking        = 0x01d72934a7ab9200,
+	WebSocketHandshakeCompleted = 0x01d72934a7ab9201,
+	WebSocketConnectCompleted   = 0x01d72934a7ab9202,
+	Ping                        = 0x01d72934a7ab9203,
+	Pong                        = 0x01d72934a7ab9204,
+	Close                       = 0x01d72934a7ab9205,
+}
+
+//..............................................................................

@@ -665,14 +665,14 @@ void JLinkRttSession.waitSocketEvents()
 	switch (m_state)
 	{
 	case State.SocketConnecting:
-		eventMask |= io.SocketEvents.Connected;
+		eventMask |= io.SocketEvents.TcpConnected;
 		break;
 
 	case State.SocketConnected:
 		eventMask |=
 			io.SocketEvents.IncomingData |
-			io.SocketEvents.Disconnected |
-			io.SocketEvents.Reset;
+			io.SocketEvents.TcpDisconnected |
+			io.SocketEvents.TcpReset;
 
 		if (!m_isTransmitEnabled)
 			eventMask |= io.SocketEvents.WriteBufferReady;
@@ -708,7 +708,7 @@ void JLinkRttSession.onSocketEvent(
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.Connected)
+	if (triggeredEvents & io.SocketEvents.TcpConnected)
 	{
 		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
 		m_state = State.SocketConnected;
@@ -716,7 +716,7 @@ void JLinkRttSession.onSocketEvent(
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);
 	}
 
-	if (triggeredEvents & io.SocketEvents.Disconnected)
+	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
 	{
 		for (;;) // read all the buffered data
 		{
@@ -731,7 +731,7 @@ void JLinkRttSession.onSocketEvent(
 		recordParams.m_address = m_socketRemoteAddress;
 		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
-		if (triggeredEvents & io.SocketEvents.Reset)
+		if (triggeredEvents & io.SocketEvents.TcpReset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
 		m_logWriter.write(

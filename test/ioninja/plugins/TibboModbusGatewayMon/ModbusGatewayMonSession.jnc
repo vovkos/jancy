@@ -413,14 +413,14 @@ void ModbusGatewayMonSession.waitSocketEvents()
 	switch (m_state)
 	{
 	case State.Connecting:
-		eventMask |= io.SocketEvents.Connected;
+		eventMask |= io.SocketEvents.TcpConnected;
 		break;
 
 	case State.Connected:
 		eventMask |=
 			io.SocketEvents.IncomingData |
-			io.SocketEvents.Disconnected |
-			io.SocketEvents.Reset;
+			io.SocketEvents.TcpDisconnected |
+			io.SocketEvents.TcpReset;
 
 		break;
 	}
@@ -442,7 +442,7 @@ void ModbusGatewayMonSession.onSocketEvent(
 		return;
 	}
 
-	if (triggeredEvents & io.SocketEvents.Connected)
+	if (triggeredEvents & io.SocketEvents.TcpConnected)
 	{
 		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
 		m_state = State.Connected;
@@ -455,7 +455,7 @@ void ModbusGatewayMonSession.onSocketEvent(
 		}
 	}
 
-	if (triggeredEvents & io.SocketEvents.Disconnected)
+	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
 	{
 		for (;;) // read all the buffered data
 		{
@@ -470,7 +470,7 @@ void ModbusGatewayMonSession.onSocketEvent(
 		recordParams.m_address = m_remoteAddress;
 		recordParams.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
-		if (triggeredEvents & io.SocketEvents.Reset)
+		if (triggeredEvents & io.SocketEvents.TcpReset)
 			recordParams.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
 		m_logWriter.write(

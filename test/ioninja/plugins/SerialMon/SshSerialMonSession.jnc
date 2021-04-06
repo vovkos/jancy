@@ -392,7 +392,7 @@ void SshSerialMonSession.waitSshEvents()
 	switch (m_state)
 	{
 	case State.TcpConnecting:
-		eventMask |= io.SshEvents.TcpConnectCompleted;
+		eventMask |= io.SshEvents.TcpConnected;
 		break;
 
 	case State.SshHandshaking:
@@ -627,7 +627,7 @@ void SshSerialMonSession.onSshEvent(
 		return;
 	}
 
-	if (triggeredEvents & io.SshEvents.TcpConnectCompleted)
+	if (triggeredEvents & io.SshEvents.TcpConnected)
 	{
 		m_logWriter.write(SshLogRecordCode.TcpConnectCompleted);
 		m_state = State.SshHandshaking;
@@ -689,7 +689,7 @@ void SshSerialMonSession.onSshEvent(
 		params.m_address = m_remoteAddress;
 		params.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
-		if (triggeredEvents & io.SocketEvents.Reset)
+		if (triggeredEvents & io.SshEvents.TcpReset)
 			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
 		m_logWriter.write(

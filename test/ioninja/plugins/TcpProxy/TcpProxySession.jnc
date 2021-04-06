@@ -647,7 +647,7 @@ void TcpProxySession.onConnectionSocketEvent(
 	bool isClient = connection == proxy.m_client;
 	Connection* peer = isClient ? &proxy.m_target : &proxy.m_client;
 
-	if (triggeredEvents & io.SocketEvents.Connected)
+	if (triggeredEvents & io.SocketEvents.TcpConnected)
 	{
 		syncConnectCompleted(proxy);
 		m_logWriter.write(SocketLogRecordCode.ConnectCompleted);
@@ -657,7 +657,7 @@ void TcpProxySession.onConnectionSocketEvent(
 		waitConnectionSocketEvents(proxy, peer, true);
 	}
 
-	if (triggeredEvents & io.SocketEvents.Disconnected)
+	if (triggeredEvents & io.SocketEvents.TcpDisconnected)
 	{
 		for (;;) // read all the buffered data
 		{
@@ -674,7 +674,7 @@ void TcpProxySession.onConnectionSocketEvent(
 		params.m_address = connection.m_address;
 		params.m_flags = TcpDisconnectLogRecordFlags.Remote;
 
-		if (triggeredEvents & io.SocketEvents.Reset)
+		if (triggeredEvents & io.SocketEvents.TcpReset)
 			params.m_flags |= TcpDisconnectLogRecordFlags.Reset;
 
 		if (isClient)
@@ -819,13 +819,13 @@ void TcpProxySession.waitConnectionSocketEvents(
 	switch (connection.m_state)
 	{
 	case ConnectionState.Connecting:
-		eventMask |= io.SocketEvents.Connected;
+		eventMask |= io.SocketEvents.TcpConnected;
 		break;
 
 	case ConnectionState.Connected:
 		eventMask |=
-			io.SocketEvents.Disconnected |
-			io.SocketEvents.Reset;
+			io.SocketEvents.TcpDisconnected |
+			io.SocketEvents.TcpReset;
 
 		if (peerCanTransmit)
 			eventMask |= io.SocketEvents.IncomingData;

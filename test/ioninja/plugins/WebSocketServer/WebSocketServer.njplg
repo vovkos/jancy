@@ -1,0 +1,36 @@
+#...............................................................................
+#
+#  WebSocket Server session plugin
+#
+
+[plugin]
+
+name        = WebSocket Server
+description = "Implements server-side of WebSocket protocol over TCP or SSL"
+id          = websocket-server
+group       = net
+log-guid    = 7940a0d5-a84b-4509-bae4-b5928511472d  # ssl
+log-guid    = db8c8923-a699-46cc-be7c-f0bcd523082b  # socket
+log-guid    = 7e211fb4-0040-47c7-a772-15b769cf4dd0  # websocket
+icon        = images/listener.png
+small-icon  = images/listener-16x16.png
+
+session-class = WebSocketServerSession
+
+[required-capabilities]
+
+org.jancy.io.net
+org.jancy.io.tcp
+org.jancy.io.websocket
+org.jancy.io.server
+
+[optional-capabilities]
+
+org.jancy.io.ssl
+org.jancy.io.ip4
+org.jancy.io.ip6
+
+[scripts]
+
+WebSocketServerSession.jnc
+../SocketLog/SocketClientLogFilter.jnc

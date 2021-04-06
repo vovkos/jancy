@@ -337,32 +337,32 @@ if(BUILD_JNC_IO_SSL)
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST SslServer
 
-#		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketClient
-#		REQUIRES
-#			WebSocketClientSession
-#			representSslLog
-#			representSocketLog
-#		FILES
-#			WebSocketClientSession.jnc
-#			../SslLog/SslLogRecordCode.jnc
-#			../SslLog/SslLogRepresenter.jnc
-#			../SocketLog/SocketLogRecordCode.jnc
-#			../SocketLog/SocketLogRepresenter.jnc
-#		FINALIZE_TEST WebSocketClient
-#
-#		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketServer
-#		REQUIRES
-#			WebSocketServerSession
-#			representSslLog
-#			representSocketLog
-#		FILES
-#			WebSocketServerSession.jnc
-#			../SslLog/SslLogRecordCode.jnc
-#			../SslLog/SslLogRepresenter.jnc
-#			../SocketLog/SocketClientLogFilter.jnc
-#			../SocketLog/SocketLogRecordCode.jnc
-#			../SocketLog/SocketLogRepresenter.jnc
-#		FINALIZE_TEST WebSocketServer
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketClient
+		REQUIRES
+			WebSocketClientSession
+			representSslLog
+			representSocketLog
+		FILES
+			WebSocketClientSession.jnc
+			../SslLog/SslLogRecordCode.jnc
+			../SslLog/SslLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST WebSocketClient
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/WebSocketServer
+		REQUIRES
+			WebSocketServerSession
+			representSslLog
+			representSocketLog
+		FILES
+			WebSocketServerSession.jnc
+			../SslLog/SslLogRecordCode.jnc
+			../SslLog/SslLogRepresenter.jnc
+			../SocketLog/SocketClientLogFilter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST WebSocketServer
 		)
 endif()
 
