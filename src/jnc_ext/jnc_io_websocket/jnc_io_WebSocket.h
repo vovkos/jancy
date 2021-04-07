@@ -22,6 +22,15 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 
 //..............................................................................
 
+enum WebSocketOption
+{
+	WebSocketOption_IncludeControlFrames       = 0x04,
+	WebSocketOption_DisableAutoPong            = 0x08,
+	WebSocketOption_DisableAutoServerHandshake = 0x10,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 enum WebSocketEvent
 {
 	WebSocketEvent_WebSocketHandshakeCompleted = 0x0200,
@@ -30,9 +39,22 @@ enum WebSocketEvent
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+enum WebSocketAcceptFlag
+{
+	WebSocketAcceptFlag_Suspended            = 0x01,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct WebSocketHdr: IfaceHdr
 {
 	SslStateBase* m_sslState;
+	WebSocketHandshake* m_publicHandshakeRequest;
+	WebSocketHandshake* m_publicHandshakeResponse;
+
+	size_t m_incomingFrameSizeLimit;
+	size_t m_incomingMessageSizeLimit;
+	size_t m_outgoingFragmentationThreshold;
 
 	size_t m_readBlockSize;
 	size_t m_readBufferSize;
@@ -57,7 +79,9 @@ protected:
 		Def_ReadBlockSize   = 4 * 1024,
 		Def_ReadBufferSize  = 16 * 1024,
 		Def_WriteBufferSize = 16 * 1024,
-		Def_Options         = AsyncIoDeviceOption_KeepReadBlockSize | AsyncIoDeviceOption_KeepWriteBlockSize,
+		Def_Options         =
+			AsyncIoDeviceOption_KeepReadBlockSize |
+			AsyncIoDeviceOption_KeepWriteBlockSize,
 	};
 
 	enum IoThreadFlag
@@ -97,6 +121,8 @@ protected:
 #endif
 
 	WebSocketStateMachine m_stateMachine;
+	ClassBox<WebSocketHandshake> m_handshakeRequest;
+	ClassBox<WebSocketHandshake> m_handshakeResponse;
 	sl::String m_resource;
 	sl::String m_host;
 
@@ -189,7 +215,8 @@ public:
 	connect(
 		DataPtr addressPtr,
 		DataPtr resourcePtr,
-		DataPtr hostPtr
+		DataPtr hostPtr,
+		WebSocketHandshakeHeaders* extraHeaders
 		);
 
 	bool
@@ -212,16 +239,24 @@ public:
 
 	size_t
 	JNC_CDECL
-	readMessage(
-		DataPtr typePtr,
+	serverHandshake(
+		uint_t statusCode,
+		DataPtr statusTextPtr,
+		WebSocketHandshakeHeaders* extraHeaders
+		);
+
+	size_t
+	JNC_CDECL
+	read(
+		DataPtr opcodePtr,
 		DataPtr dataPtr,
 		size_t size
 		);
 
 	size_t
 	JNC_CDECL
-	writeMessage(
-		uint_t type,
+	write(
+		uint_t opcode,
 		DataPtr ptr,
 		size_t size
 		);

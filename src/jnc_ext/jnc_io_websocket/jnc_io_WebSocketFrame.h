@@ -16,15 +16,16 @@ namespace io {
 
 //..............................................................................
 
-enum WebSocketOpcode
+enum WebSocketFrameOpcode
 {
-	WebSocketOpcode_Continuation = 0x0,
-	WebSocketOpcode_Text         = 0x1,
-	WebSocketOpcode_Binary       = 0x2,
-	WebSocketOpcode_Close        = 0x8,
-	WebSocketOpcode_Ping         = 0x9,
-	WebSocketOpcode_Pong         = 0xa,
-	WebSocketOpcode_FirstControl = WebSocketOpcode_Close,
+	WebSocketFrameOpcode_Continuation = 0x0,
+	WebSocketFrameOpcode_Text         = 0x1,
+	WebSocketFrameOpcode_Binary       = 0x2,
+	WebSocketFrameOpcode_Close        = 0x8,
+	WebSocketFrameOpcode_Ping         = 0x9,
+	WebSocketFrameOpcode_Pong         = 0xa,
+	WebSocketFrameOpcode_FirstControl = WebSocketFrameOpcode_Close,
+	WebSocketFrameOpcode_Undefined    = -1,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -65,18 +66,9 @@ struct WebSocketFrame: WebSocketFrameHdr
 
 //..............................................................................
 
-enum WebSocketMessageType
-{
-	WebSocketMessageType_Undefined = 0,
-	WebSocketMessageType_Text,
-	WebSocketMessageType_Binary
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
 struct WebSocketMessage
 {
-	WebSocketMessageType m_type;
+	WebSocketFrameOpcode m_opcode;
 	size_t m_frameCount;
 	sl::Array<char> m_payload;
 
@@ -91,82 +83,25 @@ struct WebSocketMessage
 
 //..............................................................................
 
-class WebSocketFrameParser
+inline
+void
+mask(
+	void* buffer,
+	size_t size,
+	uint32_t key
+	)
 {
-public:
-	enum State
-	{
-		State_Header = 0,
-		State_PayloadLength16,
-		State_PayloadLength64,
-		State_MaskKey,
-		State_Payload,
-		State_Completed,
-	};
+	uint32_t* p = (uint32_t*)buffer;
+	uint32_t* end = (uint32_t*)((char*)buffer + size);
 
-protected:
-	enum Limits: uint64_t
-	{
-#if (JNC_PTR_SIZE == 8)
-		MaxPayloadLength = 0x7fffffffffffffffULL,
-#else
-		MaxPayloadLength = 0x7fffffff,
-#endif
-	};
-
-protected:
-	WebSocketFrame* m_frame;
-	sl::Array<char> m_buffer;
-	State m_state;
-
-public:
-	WebSocketFrameParser(WebSocketFrame* frame)
-	{
-		m_frame = frame;
-		m_state = State_Header;
-	}
-
-	State
-	getState()
-	{
-		return m_state;
-	}
-
-	bool
-	isCompleted()
-	{
-		return m_state >= State_Completed;
-	}
-
-	void
-	reset();
-
-	size_t
-	parse(
-		const void* p,
-		size_t size
-		);
-
-protected:
-	State
-	getPayloadState()
-	{
-		return m_frame->m_payloadLength ? State_Payload : State_Completed;
-	}
-
-	State
-	getMaskState()
-	{
-		return m_frame->m_mask ? State_MaskKey : getPayloadState();
-	}
-};
-
-//..............................................................................
+	for (; p < end; p++)
+		*p ^= key;
+}
 
 size_t
 buildWebSocketFrame(
 	sl::Array<char>* buffer,
-	WebSocketOpcode opcode,
+	WebSocketFrameOpcode opcode,
 	bool isFinal,
 	bool isMasked,
 	const void* p,
@@ -176,7 +111,7 @@ buildWebSocketFrame(
 inline
 sl::Array<char>
 buildWebSocketFrame(
-	WebSocketOpcode opcode,
+	WebSocketFrameOpcode opcode,
 	bool isFinal,
 	bool isMasked,
 	const void* p,

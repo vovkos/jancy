@@ -11,6 +11,8 @@
 
 #include "pch.h"
 #include "jnc_io_WebSocketState.h"
+#include "jnc_io_WebSocketHandshakeParser.h"
+#include "jnc_io_WebSocketFrameParser.h"
 
 namespace jnc {
 namespace io {
@@ -34,7 +36,10 @@ WebSocketStateMachine::~WebSocketStateMachine()
 }
 
 void
-WebSocketStateMachine::reset(const sl::StringRef& handshakeKey)
+WebSocketStateMachine::setHandshake(
+	WebSocketHandshake* handshake,
+	const sl::StringRef& handshakeKey
+	)
 {
 	if (m_handshakeParser)
 	{
@@ -48,7 +53,7 @@ WebSocketStateMachine::reset(const sl::StringRef& handshakeKey)
 		m_frameParser = NULL;
 	}
 
-	m_handshake.clear();
+	m_handshake = handshake;
 	m_frame.clear();
 	m_message.clear();
 	m_handshakeKey = handshakeKey;
@@ -88,7 +93,7 @@ WebSocketStateMachine::parse(
 		m_state == WebSocketState_WaitingHandshakeResponse)
 	{
 		if (!m_handshakeParser)
-			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (&m_handshake, m_handshakeKey));
+			m_handshakeParser = AXL_MEM_NEW_ARGS(WebSocketHandshakeParser, (m_handshake, m_handshakeKey));
 
 		result = m_handshakeParser->parse(p0, size);
 		if (result == -1)
@@ -135,15 +140,15 @@ WebSocketStateMachine::parse(
 bool
 WebSocketStateMachine::processFrame()
 {
-	if (m_frame.m_opcode >= WebSocketOpcode_FirstControl)
+	if (m_frame.m_opcode >= WebSocketFrameOpcode_FirstControl)
 	{
 		m_state = WebSocketState_ControlFrameReady;
 		return true;
 	}
 
-	if (m_frame.m_opcode == WebSocketOpcode_Continuation)
+	if (m_frame.m_opcode == WebSocketFrameOpcode_Continuation)
 	{
-		if (!m_message.m_type)
+		if (!m_message.m_opcode)
 			return err::fail("continuation frame without initial data frame");
 
 		m_message.m_frameCount++;
@@ -151,10 +156,10 @@ WebSocketStateMachine::processFrame()
 	}
 	else
 	{
-		if (m_message.m_type)
+		if (m_message.m_opcode)
 			return err::fail("incomplete fragmented message");
 
-		m_message.m_type = (WebSocketMessageType)m_frame.m_opcode;
+		m_message.m_opcode = (WebSocketFrameOpcode)m_frame.m_opcode;
 		m_message.m_frameCount = 1;
 		m_message.m_payload = m_frame.m_payload;
 	}

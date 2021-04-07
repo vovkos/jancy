@@ -1,0 +1,83 @@
+//..............................................................................
+//
+//  This file is part of the Jancy toolkit.
+//
+//  Jancy is distributed under the MIT license.
+//  For details see accompanying license.txt file,
+//  the public copy of which is also available at:
+//  http://tibbo.com/downloads/archive/jancy/license.txt
+//
+//..............................................................................
+
+import "io_base.jncx"
+import "io_ssl.jncx"
+import "io_SocketAddress.jnc"
+import "io_SocketOptions.jnc"
+import "io_SocketEvents.jnc"
+import "io_SslState.jnc"
+
+namespace io {
+
+//! \addtogroup io-websock
+//! @{
+
+//..............................................................................
+
+opaque class WebSocketHandshakeHeaders
+{
+	size_t readonly m_nameCount;
+	char const* const property m_name(size_t i);
+
+	size_t const property m_valueCount(size_t nameIdx);
+
+	char const* readonly property m_value(
+		size_t nameIdx,
+		size_t valueIdx = 0
+		);
+
+	construct();
+	destruct();
+
+	char const* get(char const* name) const
+	{
+		return findValue(name);
+	}
+
+	size_t set(
+		char const* name,
+		char const* value
+		)
+	{
+		add(name, value);
+	}
+
+	size_t findName(char const* name) const;
+	char const* findValue(char const* name) const;
+
+	void clear();
+
+	size_t add(
+		char const* name,
+		char const* value
+		);
+}
+
+//..............................................................................
+
+opaque class WebSocketHandshake
+{
+	uint_t const m_httpVersion;
+	char const* const property m_resource;     // request only
+	uint_t const m_statusCode;                 // response only
+	char const* const property m_reasonPhrase; // response only
+	WebSocketHandshakeHeaders const* const m_headers;
+
+	construct();
+	destruct();
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace io

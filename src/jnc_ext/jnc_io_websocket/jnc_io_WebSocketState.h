@@ -17,6 +17,9 @@
 namespace jnc {
 namespace io {
 
+class WebSocketHandshakeParser;
+class WebSocketFrameParser;
+
 //..............................................................................
 
 enum WebSocketState
@@ -39,7 +42,7 @@ protected:
 	WebSocketState m_state;
 	WebSocketHandshakeParser* m_handshakeParser;
 	WebSocketFrameParser* m_frameParser;
-	WebSocketHandshake m_handshake;
+	WebSocketHandshake* m_handshake;
 	WebSocketFrame m_frame;
 	WebSocketMessage m_message;
 
@@ -55,12 +58,6 @@ public:
 		return m_state;
 	}
 
-	const WebSocketHandshake&
-	getHandshake()
-	{
-		return m_handshake;
-	}
-
 	const WebSocketFrame&
 	getFrame()
 	{
@@ -74,15 +71,18 @@ public:
 	}
 
 	void
-	waitHandshake()
+	waitHandshake(WebSocketHandshake* handshake)
 	{
-		reset(sl::StringRef());
+		setHandshake(handshake, sl::StringRef());
 	}
 
 	void
-	waitHandshakeResponse(const sl::StringRef& handshakeKey)
+	waitHandshakeResponse(
+		WebSocketHandshake* handshakeResponse,
+		const sl::StringRef& handshakeKey
+		)
 	{
-		reset(handshakeKey);
+		setHandshake(handshakeResponse, handshakeKey);
 	}
 
 	void
@@ -96,7 +96,10 @@ public:
 
 protected:
 	void
-	reset(const sl::StringRef& handshakeKey);
+	setHandshake(
+		WebSocketHandshake* handshake,
+		const sl::StringRef& handshakeKey
+		);
 
 	bool
 	processFrame();

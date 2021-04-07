@@ -15,6 +15,7 @@ import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
 import "io_SocketEvents.jnc"
 import "io_SslState.jnc"
+import "io_WebSocketHandshake.jnc"
 
 namespace io {
 
@@ -25,6 +26,30 @@ namespace io {
 
 bitflag enum WebSocketOptions: SocketOptions
 {
+	/**
+		Make incoming control frames such as ``Close``, ``Ping`` & ``Pong``
+		available via `io.WebSocket.read`
+	*/
+
+	IncludeControlFrames,
+
+	/**
+		Disable automatic transmission of ``Pong`` replies. You would need to
+		read incoming control ``Ping`` frame and then manually send a ``Pong``
+		using `io.WebSocket.pong`.
+	*/
+
+	DisableAutoPong,
+
+	/**
+		Disable automatic transmission of ``101 Switching Protocols`` handshake
+		response from the server. After accepting a conneciton, you can inspect
+		the handshake request via `io.WebSocket.m_handshakeRequest` and then
+		issue a handshake response via `io.WebSocket.serverHandshake` (thus
+		either accepting or rejecting the incoming WebSocket upgrade request).
+	*/
+
+	DisableAutoServerHandshake,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -33,35 +58,33 @@ bitflag enum WebSocketEvents: SocketEvents
 {
 	SslHandshakeCompleted,
 	WebSocketHandshakeCompleted,
-	IncomingControlFrame,
-	IncomingMessage = IncomingData
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-enum WebSocketMessageType
+enum WebSocketFrameOpcode
 {
-	Undefined,
-	Text,
-	Binary
+	Continuation = 0,
+	Text         = 1,
+	Binary       = 2,
+	Close        = 8,
+	Ping         = 9,
+	Pong         = 10,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum WebSocketControlFrameType
-{
-	Close = 8,
-	Ping  = 9,
-	Pong  = 10,
-}
-
-//..............................................................................
 
 opaque class WebSocket
 {
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
-	SslState* m_sslState;
+	SslState* readonly m_sslState; // valid only after secure-open
+	WebSocketHandshake const* readonly m_handshakeRequest;
+	WebSocketHandshake const* readonly m_handshakeResponse;
+
+	size_t autoget property m_incomingFrameSizeLimit;
+	size_t autoget property m_incomingMessageSizeLimit;
+	size_t autoget property m_outgoingFragmentationThreshold;
 
 	size_t autoget property m_readBlockSize;
 	size_t autoget property m_readBufferSize;
@@ -93,7 +116,8 @@ opaque class WebSocket
 	bool errorcode connect(
 		SocketAddress const* address,
 		char const* resource,
-		char const* host
+		char const* host,
+		WebSocketHandshakeHeaders const* extraHeaders = null
 		);
 
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
@@ -105,13 +129,24 @@ opaque class WebSocket
 
 	void unsuspend();
 
-	size_t errorcode readMessage(
-		WebSocketMessageType* type,
+	bool errorcode serverHandshake(
+		uint_t statusCode,
+		char const* statusText,
+		WebSocketHandshakeHeaders const* extraHeaders = null
+		);
+
+	bool errorcode serverHandshake(WebSocketHandshakeHeaders const* extraHeaders = null)
+	{
+		return handshake(101, "Switching Protocols", extraHeaders);
+	}
+
+	size_t errorcode read(
+		WebSocketFrameOpcode* opcode,
 		void* p,
 		size_t size
 		);
 
-	size_t errorcode readMessage(
+	size_t errorcode read(
 		void* p,
 		size_t size
 		)
@@ -119,43 +154,53 @@ opaque class WebSocket
 		return readMessage(null, p, size);
 	}
 
-	size_t errorcode writeMessage(
-		WebSocketMessageType type,
+	size_t errorcode write(
+		WebSocketOpcode opcode,
 		void const* p,
 		size_t size
 		);
 
-	size_t errorcode writeTextMessage(
+	size_t errorcode writeText(
 		char const* p,
 		size_t length = -1
 		)
 	{
-		return writeMessage(WebSocketMessageType.Text, p, length != -1 ? length : strlen(p));
+		return write(WebSocketFrameOpcode.Text, p, length != -1 ? length : strlen(p));
 	}
 
-	size_t errorcode writeBinaryMessage(
+	size_t errorcode writeBinary(
 		void const* p,
 		size_t size
 		)
 	{
-		return writeMessage(WebSocketMessageType.Binary, p, size);
+		return write(WebSocketFrameOpcode.Binary, p, size);
 	}
 
 	bool errorcode ping(
 		void const* p,
 		size_t size
-		);
+		)
+	{
+		return write(WebSocketFrameOpcode.Ping, p, size);
+	}
 
 	bool errorcode ping()
 	{
-		return ping(p, size);
+		return ping(null, 0);
 	}
 
-	size_t errorcode readControlFrame(
-		WebSocketControlFrameType* type,
-		void* p,
+	bool errorcode pong(
+		void const* p,
 		size_t size
-		);
+		)
+	{
+		return write(WebSocketFrameOpcode.Pong, p, size);
+	}
+
+	bool errorcode pong()
+	{
+		return pong(null, 0);
+	}
 
 	intptr errorcode wait(
 		WebSocketEvents eventMask,

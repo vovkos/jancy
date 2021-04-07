@@ -38,6 +38,8 @@ JNC_DEFINE_GUID(
 enum WebSocketLibCacheSlot
 {
 	WebSocketLibCacheSlot_WebSocket,
+	WebSocketLibCacheSlot_WebSocketHandshake,
+	WebSocketLibCacheSlot_WebSocketHandshakeHeaders,
 	WebSocketLibCacheSlot_CreateSslState,
 };
 

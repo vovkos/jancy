@@ -17,7 +17,10 @@ set(
 	LIB_H_LIST
 	jnc_io_WebSocket.h
 	jnc_io_WebSocketHandshake.h
+	jnc_io_WebSocketHandshakeHeaders.h
+	jnc_io_WebSocketHandshakeParser.h
 	jnc_io_WebSocketFrame.h
+	jnc_io_WebSocketFrameParser.h
 	jnc_io_WebSocketState.h
 	jnc_io_WebSocketLib.h
 	)
@@ -26,7 +29,10 @@ set(
 	LIB_CPP_LIST
 	jnc_io_WebSocket.cpp
 	jnc_io_WebSocketHandshake.cpp
+	jnc_io_WebSocketHandshakeHeaders.cpp
+	jnc_io_WebSocketHandshakeParser.cpp
 	jnc_io_WebSocketFrame.cpp
+	jnc_io_WebSocketFrameParser.cpp
 	jnc_io_WebSocketState.cpp
 	jnc_io_WebSocketLib.cpp
 	)
@@ -46,6 +52,7 @@ source_group(
 set(
 	JNC_LIST
 	jnc/io_WebSocket.jnc
+	jnc/io_WebSocketHandshake.jnc
 	)
 
 source_group(

@@ -11,150 +11,58 @@
 
 #pragma once
 
+#include "jnc_io_WebSocketHandshakeHeaders.h"
+
 namespace jnc {
 namespace io {
 
-//..............................................................................
-
-enum WebSocketHandshakeStdHeader
-{
-	WebSocketHandshakeStdHeader_UserAgent,
-	WebSocketHandshakeStdHeader_Host,
-	WebSocketHandshakeStdHeader_Origin,
-	WebSocketHandshakeStdHeader_Connection,
-	WebSocketHandshakeStdHeader_Upgrade,
-	WebSocketHandshakeStdHeader_WebSocketVersion,
-	WebSocketHandshakeStdHeader_WebSocketExtension,
-	WebSocketHandshakeStdHeader_WebSocketProtocol,
-	WebSocketHandshakeStdHeader_WebSocketKey,
-	WebSocketHandshakeStdHeader_WebSocketAccept,
-	WebSocketHandshakeStdHeader__Count,
-
-	WebSocketHandshakeStdHeader_Undefined = WebSocketHandshakeStdHeader__Count,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-AXL_SL_BEGIN_STRING_HASH_TABLE_IGNORE_CASE_PCU(WebSocketHandshakeStdHeaderMap, WebSocketHandshakeStdHeader)
-	AXL_SL_HASH_TABLE_ENTRY("User-Agent",               WebSocketHandshakeStdHeader_UserAgent)
-	AXL_SL_HASH_TABLE_ENTRY("Host",                     WebSocketHandshakeStdHeader_Host)
-	AXL_SL_HASH_TABLE_ENTRY("Origin",                   WebSocketHandshakeStdHeader_Origin)
-	AXL_SL_HASH_TABLE_ENTRY("Connection",               WebSocketHandshakeStdHeader_Connection)
-	AXL_SL_HASH_TABLE_ENTRY("Upgrade",                  WebSocketHandshakeStdHeader_Upgrade)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Version",    WebSocketHandshakeStdHeader_WebSocketVersion)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Extensions", WebSocketHandshakeStdHeader_WebSocketExtension)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Protocol",   WebSocketHandshakeStdHeader_WebSocketProtocol)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Key",        WebSocketHandshakeStdHeader_WebSocketKey)
-	AXL_SL_HASH_TABLE_ENTRY("Sec-WebSocket-Accept",     WebSocketHandshakeStdHeader_WebSocketAccept)
-AXL_SL_END_STRING_HASH_TABLE_IGNORE_CASE_PCU()
+JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocketHandshake)
 
 //..............................................................................
 
-struct WebSocketHeader
+class WebSocketHandshake: IfaceHdr
 {
-	sl::String m_firstValue;
-	sl::BoxList<sl::String> m_extraValueList;
+	friend class WebSocketHandshakeParser;
+	friend class WebSocketHandshakeBuilder;
 
-	bool
-	isEmpty()
-	{
-		return m_firstValue.isEmpty();
-	}
+public:
+	JNC_DECLARE_CLASS_TYPE_STATIC_METHODS(WebSocketHandshake)
 
-	void
-	clear();
-
-	void
-	add(const sl::String& value);
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-struct WebSocketHandshake
-{
-	sl::String m_resource;
-	sl::String m_httpVersion;
+public:
+	uint_t m_httpVersion;
 	uint_t m_statusCode;
-	sl::String m_statusString;
-	WebSocketHeader* m_stdHeaderTable[WebSocketHandshakeStdHeader__Count];
-	sl::StringHashTable<WebSocketHeader> m_headerMap;
+	WebSocketHandshakeHeaders* m_publicHeaders;
+
+protected:
+	DualString m_resource;
+	DualString m_reasonPhrase;
+	ClassBox<WebSocketHandshakeHeaders> m_headers;
+
+public:
+	WebSocketHandshake();
+
+	void
+	JNC_CDECL
+	markOpaqueGcRoots(jnc::GcHeap* gcHeap);
+
+	static
+	DataPtr
+	JNC_CDECL
+	getResource(WebSocketHandshake* self)
+	{
+		return self->m_resource.getPtr();
+	}
+
+	static
+	DataPtr
+	JNC_CDECL
+	getReasonPhrase(WebSocketHandshake* self)
+	{
+		return self->m_reasonPhrase.getPtr();
+	}
 
 	void
 	clear();
-};
-
-//..............................................................................
-
-class WebSocketHandshakeParser
-{
-public:
-	enum State
-	{
-		State_Idle = 0,
-		State_RequestLine,
-		State_ResponseLine,
-		State_HeaderLine,
-		State_Completed,
-	};
-
-protected:
-	enum // limits from Apache, QWebSocket
-	{
-		MaxLineLength  = 8 * 1024,
-		MaxHeaderCount = 100,
-	};
-
-protected:
-	WebSocketHandshake* m_handshake;
-	sl::String m_line;
-	State m_state;
-	sl::String m_key;
-
-public:
-	WebSocketHandshakeParser(
-		WebSocketHandshake* handshake,
-		const sl::StringRef& key
-		);
-
-	State
-	getState()
-	{
-		return m_state;
-	}
-
-	bool
-	isCompleted()
-	{
-		return m_state >= State_Completed;
-	}
-
-	size_t
-	parse(
-		const void* p,
-		size_t size
-		);
-
-protected:
-	size_t
-	bufferLine(
-		const char* p,
-		size_t size
-		);
-
-	bool
-	parseRequestLine();
-
-	bool
-	parseResponseLine();
-
-	bool
-	parseHeaderLine();
-
-	bool
-	finalize();
-
-	bool
-	verifyAccept();
 };
 
 //..............................................................................
@@ -179,40 +87,44 @@ calcWebSocketHandshakeKeyHash(
 
 size_t
 buildWebSocketHandshake(
-	sl::String* handshake,
+	sl::String* resultString,
+	WebSocketHandshake* resultHandshake,
 	const sl::StringRef& resource,
 	const sl::StringRef& host,
 	const sl::StringRef& key,
-	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
+	const WebSocketHandshakeHeaders* extraHeaders = NULL
 	);
 
-inline
 sl::String
 buildWebSocketHandshake(
+	WebSocketHandshake* resultHandshake,
 	const sl::StringRef& resource,
 	const sl::StringRef& host,
 	const sl::StringRef& key,
-	const sl::StringHashTable<WebSocketHeader>* extraHeaderMap = NULL
+	const WebSocketHandshakeHeaders* extraHeaders = NULL
 	)
 {
-	sl::String handshake;
-	buildWebSocketHandshake(&handshake, resource, host, key, extraHeaderMap);
-	return handshake;
+	sl::String string;
+	buildWebSocketHandshake(&string, resultHandshake, resource, host, key, extraHeaders);
+	return string;
 }
 
 size_t
 buildWebSocketHandshakeResponse(
-	sl::String* response,
-	const WebSocketHandshake& handshake
+	sl::String* resultString,
+	WebSocketHandshake* resultHandshakeResponse,
+	const WebSocketHandshake* handshakeRequest
 	);
 
-inline
 sl::String
-buildWebSocketHandshakeResponse(const WebSocketHandshake& handshake)
+buildWebSocketHandshakeResponse(
+	WebSocketHandshake* resultHandshakeResponse,
+	const WebSocketHandshake* handshakeRequest
+	)
 {
-	sl::String response;
-	buildWebSocketHandshakeResponse(&response, handshake);
-	return response;
+	sl::String string;
+	buildWebSocketHandshakeResponse(&string, resultHandshakeResponse, handshakeRequest);
+	return string;
 }
 
 //..............................................................................

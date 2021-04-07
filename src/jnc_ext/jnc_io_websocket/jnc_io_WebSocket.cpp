@@ -45,8 +45,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_FUNCTION("listen", &WebSocket::listen)
 	JNC_MAP_FUNCTION("accept", &WebSocket::accept)
 	JNC_MAP_FUNCTION("unsuspend", &WebSocket::unsuspend)
-	JNC_MAP_FUNCTION("readMessage", &WebSocket::readMessage)
-	JNC_MAP_FUNCTION("writeMessage", &WebSocket::writeMessage)
+	JNC_MAP_FUNCTION("serverHandshake", &WebSocket::serverHandshake)
+	JNC_MAP_FUNCTION("read", &WebSocket::read)
+	JNC_MAP_FUNCTION("write", &WebSocket::write)
 	JNC_MAP_FUNCTION("wait", &WebSocket::wait)
 	JNC_MAP_FUNCTION("cancelWait", &WebSocket::cancelWait)
 	JNC_MAP_FUNCTION("blockingWait", &WebSocket::blockingWait)
@@ -58,6 +59,8 @@ JNC_END_TYPE_FUNCTION_MAP()
 WebSocket::WebSocket()
 {
 	m_sslState = NULL;
+	m_publicHandshakeRequest = NULL;
+	m_publicHandshakeResponse = NULL;
 	m_readBlockSize = Def_ReadBlockSize;
 	m_readBufferSize = Def_ReadBufferSize;
 	m_writeBufferSize = Def_WriteBufferSize;
@@ -69,6 +72,12 @@ WebSocket::WebSocket()
 #if (_AXL_OS_WIN)
 	m_overlappedIo = NULL;
 #endif
+
+	Module* module = m_box->m_type->getModule();
+	jnc::primeClass(module, &m_handshakeRequest);
+	jnc::primeClass(module, &m_handshakeResponse);
+	sl::construct(m_handshakeRequest.p());
+	sl::construct(m_handshakeResponse.p());
 }
 
 void
@@ -128,6 +137,9 @@ WebSocket::close()
 		m_sslState = NULL;
 	}
 
+	m_handshakeRequest->clear();
+	m_handshakeResponse->clear();
+
 	SocketBase::close();
 
 #if (_AXL_OS_WIN)
@@ -144,7 +156,8 @@ JNC_CDECL
 WebSocket::connect(
 	DataPtr addressPtr,
 	DataPtr resourcePtr,
-	DataPtr hostPtr
+	DataPtr hostPtr,
+	WebSocketHandshakeHeaders* extraHeaders
 	)
 {
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
@@ -236,30 +249,41 @@ WebSocket::accept(
 
 size_t
 JNC_CDECL
-WebSocket::readMessage(
-	DataPtr typePtr,
+WebSocket::serverHandshake(
+	uint_t statusCode,
+	DataPtr statusTextPtr,
+	WebSocketHandshakeHeaders* extraHeaders
+	)
+{
+	return 0;
+}
+
+size_t
+JNC_CDECL
+WebSocket::read(
+	DataPtr opcodePtr,
 	DataPtr dataPtr,
 	size_t size
 	)
 {
-	if (!typePtr.m_p)
+	if (!opcodePtr.m_p)
 		return bufferedRead(dataPtr, size);
 
 	char buffer[256];
 	sl::Array<char> params(ref::BufKind_Stack, buffer, sizeof(buffer));
 	size_t result = bufferedRead(dataPtr, size, &params);
 
-	*(uint_t*)typePtr.m_p = !params.isEmpty() ?
-		(WebSocketMessageType)params[0] :
-		WebSocketMessageType_Binary;
+	*(uint_t*)opcodePtr.m_p = !params.isEmpty() ?
+		(WebSocketFrameOpcode)params[0] :
+		WebSocketFrameOpcode_Binary;
 
 	return result;
 }
 
 size_t
 JNC_CDECL
-WebSocket::writeMessage(
-	uint_t type,
+WebSocket::write(
+	uint_t opcode,
 	DataPtr ptr,
 	size_t size
 	)
@@ -269,7 +293,7 @@ WebSocket::writeMessage(
 
 	size_t frameSize = buildWebSocketFrame(
 		&frame,
-		(WebSocketOpcode)type,
+		(WebSocketFrameOpcode)opcode,
 		true,
 		(m_ioThreadFlags & IoThreadFlag_Connecting) != 0, // client's frames are masked, server's are not
 		ptr.m_p,
@@ -348,14 +372,14 @@ WebSocket::transportLoop(bool isClient)
 
 	if (!isClient)
 	{
-		m_stateMachine.waitHandshake();
+		m_stateMachine.waitHandshake(m_handshakeRequest);
 	}
 	else
 	{
 		sl::String key = generateWebSocketHandshakeKey();
-		sl::String handshake = buildWebSocketHandshake(m_resource, m_host, key);
+		sl::String handshake = buildWebSocketHandshake(m_handshakeRequest, m_resource, m_host, key);
 		addToWriteBuffer(handshake.cp(), handshake.getLength());
-		m_stateMachine.waitHandshakeResponse(key);
+		m_stateMachine.waitHandshakeResponse(m_handshakeResponse, key);
 	}
 
 	wakeIoThread();
@@ -397,7 +421,7 @@ WebSocket::processIncomingData(
 		switch (state)
 		{
 		case WebSocketState_HandshakeReady:
-			buildWebSocketHandshakeResponse(&handshakeResponse, m_stateMachine.getHandshake());
+			buildWebSocketHandshakeResponse(&handshakeResponse, m_handshakeResponse, m_handshakeRequest);
 			addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
 			// and fall through
 
@@ -410,11 +434,11 @@ WebSocket::processIncomingData(
 			break;
 
 		case WebSocketState_ControlFrameReady:
-			if (m_stateMachine.getFrame().m_opcode == WebSocketOpcode_Ping)
+			if (m_stateMachine.getFrame().m_opcode == WebSocketFrameOpcode_Ping)
 			{
 				buildWebSocketFrame(
 					&pong,
-					WebSocketOpcode_Pong,
+					WebSocketFrameOpcode_Pong,
 					true,
 					(m_ioThreadFlags & IoThreadFlag_Connecting) != 0, // client's frames are masked, server's are not
 					m_stateMachine.getFrame().m_payload,
@@ -436,8 +460,8 @@ WebSocket::processIncomingData(
 			addToReadBuffer(
 				message.m_payload,
 				message.m_payload.getCount(),
-				&message.m_type,
-				sizeof(&message.m_type)
+				&message.m_opcode,
+				sizeof(&message.m_opcode)
 				);
 
 			setEvents_l(AsyncIoDeviceEvent_IncomingData);
