@@ -621,6 +621,78 @@ createForeignStringPtr(
 	return jnc_createForeignBufferPtr(p, p ? string.getLength() + 1 : 0, isCallSiteLocal);
 }
 
+struct DualString
+{
+	axl::sl::StringRef m_string;
+	DataPtr m_ptr;
+
+	DualString()
+	{
+		m_ptr = g_nullDataPtr;
+	}
+
+	DualString(
+		const axl::sl::StringRef& string,
+		DataPtr ptr = g_nullDataPtr
+		):
+		m_string(string)
+	{
+		m_ptr = ptr;
+	}
+
+#if (_AXL_CPP_HAS_RVALUE_REF)
+	DualString(
+		const axl::sl::StringRef&& string,
+		DataPtr ptr = g_nullDataPtr
+		):
+		m_string(string)
+	{
+		m_ptr = ptr;
+	}
+#endif
+
+	operator const axl::sl::StringRef& () const
+	{
+		return m_string;
+	}
+
+	operator DataPtr () const
+	{
+		return m_ptr;
+	}
+
+	bool
+	isEmpty() const
+	{
+		return m_string.isEmpty();
+	}
+
+	const char*
+	sz() const
+	{
+		return m_string.sz();
+	}
+
+	DataPtr
+	getPtr()
+	{
+		return m_ptr.m_p || m_string.isEmpty() ? m_ptr : (m_ptr = strDup(m_string));
+	}
+
+	void
+	clear()
+	{
+		m_string.clear();
+		m_ptr = g_nullDataPtr;
+	}
+
+	void
+	markGcRoots(jnc::GcHeap* gcHeap)
+	{
+		gcHeap->markDataPtr(m_ptr);
+	}
+};
+
 #endif
 
 //..............................................................................
