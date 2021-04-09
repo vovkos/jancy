@@ -642,7 +642,7 @@ struct DualString
 
 #if (_AXL_CPP_HAS_RVALUE_REF)
 	DualString(
-		const axl::sl::StringRef&& string,
+		axl::sl::StringRef&& string,
 		DataPtr ptr = g_nullDataPtr
 		):
 		m_string(string)
@@ -650,6 +650,15 @@ struct DualString
 		m_ptr = ptr;
 	}
 #endif
+
+	DualString(
+		const char* string,
+		DataPtr ptr = g_nullDataPtr
+		):
+		m_string(string)
+	{
+		m_ptr = ptr;
+	}
 
 	operator const axl::sl::StringRef& () const
 	{
@@ -659,6 +668,32 @@ struct DualString
 	operator DataPtr () const
 	{
 		return m_ptr;
+	}
+
+	DualString&
+	operator = (const axl::sl::StringRef& string)
+	{
+		m_string = string;
+		m_ptr = g_nullDataPtr;
+		return *this;
+	}
+
+#if (_AXL_CPP_HAS_RVALUE_REF)
+	DualString&
+	operator = (axl::sl::StringRef&& string)
+	{
+		m_string = string;
+		m_ptr = g_nullDataPtr;
+		return *this;
+	}
+#endif
+
+	DualString&
+	operator = (const char* string)
+	{
+		m_string = string;
+		m_ptr = g_nullDataPtr;
+		return *this;
 	}
 
 	bool
