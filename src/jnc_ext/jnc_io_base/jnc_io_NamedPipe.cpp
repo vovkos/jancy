@@ -270,15 +270,14 @@ NamedPipe::ioThreadFunc()
 			}
 
 			m_overlappedIo->m_activeOverlappedConnectList.remove(connect);
+			m_overlappedIo->m_overlappedConnectPool.put(connect);
+			connect->m_overlapped.m_completionEvent.reset();
 
 			m_lock.lock();
 			IncomingConnection* connection = m_incomingConnectionPool.get();
 			sl::takeOver(&connection->m_pipe, &connect->m_pipe);
 			m_pendingIncomingConnectionList.insertTail(connection);
 			m_lock.unlock();
-
-			connect->m_overlapped.m_completionEvent.reset();
-			m_overlappedIo->m_overlappedConnectPool.put(connect);
 		}
 
 		m_lock.lock();

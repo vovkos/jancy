@@ -315,6 +315,8 @@ FileStream::ioThreadFunc()
 			}
 
 			m_overlappedIo->m_activeOverlappedReadList.remove(read);
+			m_overlappedIo->m_overlappedReadPool.put(read);
+			read->m_overlapped.m_completionEvent.reset();
 
 			// only the main read buffer must be lock-protected
 
@@ -322,9 +324,6 @@ FileStream::ioThreadFunc()
 			addToReadBuffer(read->m_buffer, actualSize);
 			m_overlappedIo->m_readOffset += actualSize;
 			m_lock.unlock();
-
-			read->m_overlapped.m_completionEvent.reset();
-			m_overlappedIo->m_overlappedReadPool.put(read);
 		}
 
 		if (isWritingFile && m_overlappedIo->m_writeOverlapped.m_completionEvent.wait(0))

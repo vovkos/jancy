@@ -171,15 +171,14 @@ Mailslot::ioThreadFunc()
 			}
 
 			m_overlappedIo->m_activeOverlappedReadList.remove(read);
+			m_overlappedIo->m_overlappedReadPool.put(read);
+			read->m_overlapped.m_completionEvent.reset();
 
 			// only the main read buffer must be lock-protected
 
 			m_lock.lock();
 			addToReadBuffer(read->m_buffer, actualSize);
 			m_lock.unlock();
-
-			read->m_overlapped.m_completionEvent.reset();
-			m_overlappedIo->m_overlappedReadPool.put(read);
 		}
 
 		m_lock.lock();

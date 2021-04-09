@@ -377,6 +377,8 @@ Socket::sendRecvLoop(
 			}
 
 			m_overlappedIo->m_activeOverlappedRecvList.remove(recv);
+			m_overlappedIo->m_overlappedRecvPool.put(recv);
+			recv->m_overlapped.m_completionEvent.reset();
 
 			if (actualSize == 0 && !isDatagram)
 			{
@@ -394,9 +396,6 @@ Socket::sendRecvLoop(
 				addToReadBuffer(recv->m_buffer, actualSize);
 
 			m_lock.unlock();
-
-			recv->m_overlapped.m_completionEvent.reset();
-			m_overlappedIo->m_overlappedRecvPool.put(recv);
 		}
 
 		if (isSendingSocket && m_overlappedIo->m_sendOverlapped.m_completionEvent.wait(0))
