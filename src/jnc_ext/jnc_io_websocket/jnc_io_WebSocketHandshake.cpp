@@ -16,8 +16,6 @@
 namespace jnc {
 namespace io {
 
-static const char WebSocketUuid[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
 //..............................................................................
 
 JNC_DEFINE_OPAQUE_CLASS_TYPE(
@@ -35,7 +33,11 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocketHandshake)
 
 	JNC_MAP_CONST_PROPERTY("m_resource", &WebSocketHandshake::getResource)
 	JNC_MAP_CONST_PROPERTY("m_reasonPhrase", &WebSocketHandshake::getReasonPhrase)
+	JNC_MAP_CONST_PROPERTY("m_rawData", &WebSocketHandshake::getRawData)
 JNC_END_TYPE_FUNCTION_MAP()
+
+JNC_BEGIN_CLASS_TYPE_VTABLE(WebSocketHandshake)
+JNC_END_CLASS_TYPE_VTABLE()
 
 //..............................................................................
 
@@ -43,9 +45,12 @@ WebSocketHandshake::WebSocketHandshake()
 {
 	m_httpVersion = 0;
 	m_statusCode = 0;
-	jnc::primeClass(m_box->m_type->getModule(), &m_headers);
-	sl::construct(m_headers.p());
-	m_publicHeaders = m_headers;
+	sl::construct(m_headers.p()); // already primed (non-opaque class field)
+}
+
+WebSocketHandshake::~WebSocketHandshake()
+{
+	sl::destruct(m_headers.p());
 }
 
 void
@@ -54,6 +59,7 @@ WebSocketHandshake::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 {
 	m_resource.markGcRoots(gcHeap);
 	m_reasonPhrase.markGcRoots(gcHeap);
+	m_rawData.markGcRoots(gcHeap);
 	m_headers->markOpaqueGcRoots(gcHeap);
 }
 
@@ -62,8 +68,83 @@ WebSocketHandshake::clear()
 {
 	m_resource.clear();
 	m_reasonPhrase.clear();
+	m_rawData.clear();
 	m_statusCode = 0;
 	m_headers->clear();
+}
+
+size_t
+WebSocketHandshake::buildRequest(
+	sl::String* resultString,
+	const sl::StringRef& resource,
+	const sl::StringRef& host,
+	const sl::StringRef& key,
+	WebSocketHandshakeHeaders* extraHeaders
+	)
+{
+	resultString->format(
+		"GET %s HTTP/1.1\r\n",
+		resource.sz(),
+		host.sz(),
+		key.sz()
+	);
+
+	m_httpVersion = 0x0101;
+	m_resource = resource;
+
+	m_headers->addImpl("Host", host);
+	m_headers->addImpl("Connection", "Upgrade");
+	m_headers->addImpl("Upgrade", "websocket");
+	m_headers->addImpl("Sec-WebSocket-Version", "13");
+	m_headers->addImpl("Sec-WebSocket-Key", key);
+
+	return finalizeBuild(resultString, extraHeaders);
+}
+
+size_t
+WebSocketHandshake::buildResponse(
+	sl::String* resultString,
+	WebSocketHandshake* handshakeRequest,
+	WebSocketHandshakeHeaders* extraHeaders
+	)
+{
+	static const char ReasonPhrase[] = "Switching Protocols";
+
+	uchar_t hash[SHA_DIGEST_LENGTH];
+	WebSocketHandshakeHeader* keyHeader = handshakeRequest->m_headers->getStdHeader(WebSocketHandshakeStdHeader_WebSocketKey);
+	calcWebSocketHandshakeKeyHash(hash, keyHeader->m_firstValue);
+	sl::String acceptKey = enc::Base64Encoding::encode(hash, sizeof(hash));
+
+	resultString->format(
+		"HTTP/1.1 101 %s\r\n",
+		ReasonPhrase
+		);
+
+	m_httpVersion = 0x0101;
+	m_statusCode = 101;
+	m_reasonPhrase = ReasonPhrase;
+
+	m_headers->addImpl("Connection", "Upgrade");
+	m_headers->addImpl("Upgrade", "websocket");
+	m_headers->addImpl("Sec-WebSocket-Version", "13");
+	m_headers->addImpl("Sec-WebSocket-Accept", acceptKey);
+
+	return finalizeBuild(resultString, extraHeaders);
+}
+
+size_t
+WebSocketHandshake::finalizeBuild(
+	sl::String* resultString,
+	WebSocketHandshakeHeaders* extraHeaders
+	)
+{
+	if (extraHeaders)
+		m_headers->addImpl(extraHeaders);
+
+	m_headers->appendFormat(resultString);
+	resultString->append("\r\n");
+	m_rawData = *resultString;
+	return resultString->getLength();
 }
 
 //..............................................................................
@@ -82,71 +163,13 @@ calcWebSocketHandshakeKeyHash(
 	const sl::StringRef& key
 	)
 {
+	static const char WebSocketUuid[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
 	SHA_CTX sha;
 	SHA1_Init(&sha);
 	SHA1_Update(&sha, key.cp(), key.getLength());
 	SHA1_Update(&sha, WebSocketUuid, lengthof(WebSocketUuid));
 	SHA1_Final(hash, &sha);
-}
-
-size_t
-buildWebSocketHandshake(
-	sl::String* resultString,
-	WebSocketHandshake* resultHandshake,
-	const sl::StringRef& resource,
-	const sl::StringRef& host,
-	const sl::StringRef& key,
-	const WebSocketHandshakeHeaders* extraHeaders
-	)
-{
-	resultString->format(
-		"GET %s HTTP/1.1\r\n"
-		"Host: %s\r\n"
-		"Connection: Upgrade\r\n"
-		"Upgrade: websocket\r\n"
-		"Sec-WebSocket-Version: 13\r\n"
-		"Sec-WebSocket-Key: %s\r\n",
-		resource.sz(),
-		host.sz(),
-		key.sz()
-	);
-
-	sl::ConstStringHashTableIterator<WebSocketHandshakeHeader> it = extraHeaders ? extraHeaders->getHeaderMap().getHead() : NULL;
-	for (; it; it++)
-	{
-		resultString->appendFormat("%s: %s\n", it->getKey().sz(), it->m_value.m_firstValue.sz());
-
-		sl::ConstBoxIterator<DualString> it2 = it->m_value.m_extraValueList.getHead();
-		for (; it2; it2++)
-			resultString->appendFormat("%s: %s\n", it->getKey().sz(), it2->sz());
-	}
-
-	return resultString->append("\r\n");
-}
-
-size_t
-buildWebSocketHandshakeResponse(
-	sl::String* resultString,
-	WebSocketHandshake* resultHandshakeResponse,
-	const WebSocketHandshake* handshakeRequest
-	)
-{
-	uchar_t hash[SHA_DIGEST_LENGTH];
-	WebSocketHandshakeHeader* keyHeader = handshakeRequest->m_publicHeaders->getStdHeader(WebSocketHandshakeStdHeader_WebSocketKey);
-	calcWebSocketHandshakeKeyHash(hash, keyHeader->m_firstValue);
-
-	char buffer[256];
-	sl::String acceptKey(ref::BufKind_Stack, buffer, sizeof(buffer));
-	enc::Base64Encoding::encode(&acceptKey, hash, sizeof(hash));
-
-	return resultString->format(
-		"HTTP/1.1 101 Switching Protocols\r\n"
-		"Upgrade: websocket\r\n"
-		"Connection: Upgrade\r\n"
-		"Sec-WebSocket-Accept: %s\r\n"
-		"\r\n",
-		acceptKey.sz()
-		);
 }
 
 //..............................................................................

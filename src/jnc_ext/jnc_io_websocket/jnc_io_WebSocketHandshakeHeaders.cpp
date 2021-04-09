@@ -33,13 +33,18 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocketHandshakeHeaders)
 
 	JNC_MAP_CONST_PROPERTY("m_name", &WebSocketHandshakeHeaders::getName)
 	JNC_MAP_CONST_PROPERTY("m_valueCount", &WebSocketHandshakeHeaders::getValueCount)
-	JNC_MAP_CONST_PROPERTY("m_value", &WebSocketHandshakeHeaders::getValue)
+	JNC_MAP_CONST_PROPERTY("m_value", &WebSocketHandshakeHeaders::getFirstValue)
 
 	JNC_MAP_FUNCTION("findName", &WebSocketHandshakeHeaders::findName)
 	JNC_MAP_FUNCTION("findValue", &WebSocketHandshakeHeaders::findValue)
+	JNC_MAP_FUNCTION("getValue", &WebSocketHandshakeHeaders::getValue)
 	JNC_MAP_FUNCTION("clear", &WebSocketHandshakeHeaders::clear)
 	JNC_MAP_FUNCTION("add", &WebSocketHandshakeHeaders::add)
+	JNC_MAP_FUNCTION("format", &WebSocketHandshakeHeaders::format)
 JNC_END_TYPE_FUNCTION_MAP()
+
+JNC_BEGIN_CLASS_TYPE_VTABLE(WebSocketHandshakeHeaders)
+JNC_END_CLASS_TYPE_VTABLE()
 
 //..............................................................................
 
@@ -118,6 +123,18 @@ WebSocketHandshakeHeaders::getValueCount(size_t nameIdx)
 
 DataPtr
 JNC_CDECL
+WebSocketHandshakeHeaders::getFirstValue(
+	WebSocketHandshakeHeaders* self,
+	size_t nameIdx
+	)
+{
+	return nameIdx < self->m_headerArray.getCount() ?
+		self->m_headerArray[nameIdx]->m_firstValue.getPtr() :
+		g_nullDataPtr;
+}
+
+DataPtr
+JNC_CDECL
 WebSocketHandshakeHeaders::getValue(
 	WebSocketHandshakeHeaders* self,
 	size_t nameIdx,
@@ -159,7 +176,26 @@ WebSocketHandshakeHeaders::findValue(
 	return it ? it->m_value.m_firstValue.getPtr() : g_nullDataPtr;
 }
 
-size_t
+DataPtr
+JNC_CDECL
+WebSocketHandshakeHeaders::format(
+	WebSocketHandshakeHeaders* self,
+	DataPtr delimiterPtr,
+	DataPtr eolPtr
+	)
+{
+	sl::String string;
+
+	self->appendFormat(
+		&string,
+		sl::StringRef((char*)delimiterPtr.m_p, strLen(delimiterPtr)),
+		sl::StringRef((char*)eolPtr.m_p, strLen(eolPtr))
+		);
+
+	return strDup(string);
+}
+
+WebSocketHandshakeHeader*
 WebSocketHandshakeHeaders::addImpl(
 	const sl::StringRef& name,
 	DataPtr namePtr,
@@ -170,22 +206,77 @@ WebSocketHandshakeHeaders::addImpl(
 	sl::StringHashTableIterator<WebSocketHandshakeHeader> it = m_headerMap.visit(name);
 
 	WebSocketHandshakeHeader* header = &it->m_value;
-	ASSERT(header->m_nameIdx != -1 || !header->m_name.isEmpty() && !header->m_firstValue.isEmpty());
+	ASSERT(header->m_nameIdx != -1 || header->m_name.isEmpty() && header->m_firstValue.isEmpty());
 
-	if (header->m_nameIdx == -1)
+	if (header->m_nameIdx != -1)
 	{
-		header->m_nameIdx = m_headerArray.getCount();
-		header->m_name.m_string = name;
-		header->m_name.m_ptr = namePtr;
-		m_headerArray.append(header);
+		header->add(value, valuePtr);
+		return header;
 	}
+
+	header->m_nameIdx = m_headerArray.getCount();
+	header->m_name.m_string = name;
+	header->m_name.m_ptr = namePtr;
+	m_nameCount = m_headerArray.append(header);
 
 	WebSocketHandshakeStdHeader stdHeader = WebSocketHandshakeStdHeaderMap::findValue(name, WebSocketHandshakeStdHeader_Undefined);
 	if (stdHeader != WebSocketHandshakeStdHeader_Undefined)
 		m_stdHeaderTable[stdHeader] = header;
 
 	header->add(value, valuePtr);
-	return header->m_extraValueArray.getCount() + 1;
+	return header;
+}
+
+void
+WebSocketHandshakeHeaders::addImpl(WebSocketHandshakeHeaders* headers)
+{
+	size_t count = headers->m_headerArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		WebSocketHandshakeHeader* srcHeader = headers->m_headerArray[i];
+
+		WebSocketHandshakeHeader* dstHeader = addImpl(
+			srcHeader->m_name.m_string,
+			srcHeader->m_name.m_ptr,
+			srcHeader->m_firstValue.m_string,
+			srcHeader->m_firstValue.m_ptr
+			);
+
+		sl::ConstBoxIterator<DualString> it = srcHeader->m_extraValueList.getHead();
+		for (; it; it++)
+			dstHeader->add(it->m_string, it->m_ptr);
+	}
+}
+
+size_t
+WebSocketHandshakeHeaders::appendFormat(
+	sl::String* string,
+	const sl::StringRef& delimiter,
+	const sl::StringRef& eol
+	)
+{
+	size_t count = m_headerArray.getCount();
+	for (size_t i = 0; i < count; i++)
+	{
+		WebSocketHandshakeHeader* header = m_headerArray[i];
+
+		string->appendFormat(
+			"%s: %s\r\n",
+			header->m_name.m_string.sz(),
+			header->m_firstValue.sz()
+			);
+
+		sl::ConstBoxIterator<DualString> it = header->m_extraValueList.getHead();
+		for (; it; it++)
+		{
+			string->append(header->m_name.m_string);
+			string->append(delimiter);
+			string->append(*it);
+			string->append(eol);
+		}
+	}
+
+	return string->getLength();
 }
 
 //..............................................................................

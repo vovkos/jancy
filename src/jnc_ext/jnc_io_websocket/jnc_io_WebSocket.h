@@ -24,24 +24,18 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 
 enum WebSocketOption
 {
-	WebSocketOption_IncludeControlFrames       = 0x04,
-	WebSocketOption_DisableAutoPong            = 0x08,
-	WebSocketOption_DisableAutoServerHandshake = 0x10,
+	WebSocketOption_IncludeControlFrames       = 0x0100,
+	WebSocketOption_DisableAutoPong            = 0x0200,
+	WebSocketOption_DisableAutoServerHandshake = 0x0400,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 enum WebSocketEvent
 {
-	WebSocketEvent_WebSocketHandshakeCompleted = 0x0200,
-	WebSocketEvent_IncomingControlFrame        = 0x0400,
-};
-
-// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-enum WebSocketAcceptFlag
-{
-	WebSocketAcceptFlag_Suspended            = 0x01,
+	WebSocketEvent_WebSocketHandshakeRequested = 0x0200,
+	WebSocketEvent_WebSocketHandshakeCompleted = 0x0400,
+	WebSocketEvent_IncomingControlFrame        = 0x0800,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -128,11 +122,7 @@ protected:
 
 public:
 	WebSocket();
-
-	~WebSocket()
-	{
-		close();
-	}
+	~WebSocket();
 
 	void
 	JNC_CDECL
@@ -311,6 +301,9 @@ protected:
 
 	void
 	transportLoop(bool isClient);
+
+	uint_t
+	resetActiveEvents(uint_t baseEvents);
 
 	void
 	sslReadWriteLoop();

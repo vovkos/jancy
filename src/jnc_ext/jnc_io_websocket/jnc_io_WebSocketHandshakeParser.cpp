@@ -86,7 +86,7 @@ WebSocketHandshakeParser::parse(
 
 		p += result;
 
-		if (!m_line.isSuffix('\n')) // line completed
+		if (!m_line.isSuffix('\n')) // incomplete line
 			break;
 
 		m_line.trim();
@@ -115,7 +115,9 @@ WebSocketHandshakeParser::parse(
 		m_line.clear();
 	}
 
-	return p - (char*)p0;
+	size_t length = p - (char*)p0;
+	m_handshake->m_rawData = m_handshake->m_rawData.m_string + sl::StringRef((char*)p0, length);
+	return length;
 }
 
 bool
@@ -145,19 +147,15 @@ WebSocketHandshakeParser::parseRequestLine()
 		return err::fail("invalid HTTP request line: unexpected version prefix");
 
 	m_line.remove(0, lengthof("HTTP/"));
-	uint_t version = strtoul(m_line, NULL, 10) << 8;
+	m_handshake->m_httpVersion = strtoul(m_line, NULL, 10) << 8;
 
 	delim = m_line.find('.');
 	if (delim != -1)
 	{
 		m_line.remove(0, delim + 1);
-		version |= strtoul(m_line, NULL, 10);
+		m_handshake->m_httpVersion |= strtoul(m_line, NULL, 10);
 	}
 
-	if (version < 0x0101) // HTTP/1.1
-		return err::fail("invalid HTTP request line: unsupported HTTP version");
-
-	m_handshake->m_httpVersion = version;
 	m_state = State_HeaderLine;
 	return true;
 }
@@ -169,17 +167,14 @@ WebSocketHandshakeParser::parseResponseLine()
 		return err::fail("invalid HTTP response line: unexpected version prefix");
 
 	m_line.remove(0, lengthof("HTTP/"));
-	uint_t version = strtoul(m_line, NULL, 10) << 8;
+	m_handshake->m_httpVersion = strtoul(m_line, NULL, 10) << 8;
 
 	size_t delim = m_line.find('.');
 	if (delim != -1)
 	{
 		m_line.remove(0, delim + 1);
-		version |= strtoul(m_line, NULL, 10);
+		m_handshake->m_httpVersion |= strtoul(m_line, NULL, 10);
 	}
-
-	if (version < 0x0101) // HTTP/1.1
-		return err::fail("invalid HTTP request line: unsupported HTTP version");
 
 	delim = m_line.find(' ');
 	if (delim == -1)
@@ -220,6 +215,9 @@ WebSocketHandshakeParser::parseHeaderLine()
 bool
 WebSocketHandshakeParser::finalize()
 {
+	if (m_handshake->m_httpVersion < 0x0101) // HTTP/1.1
+		return err::fail("unsupported HTTP version");
+
 	const WebSocketHandshakeHeader* const* stdHeaderTable = m_handshake->m_headers->getStdHeaderTable();
 
 	bool hasMissingFields = !m_key.isEmpty() ?

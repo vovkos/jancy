@@ -18,7 +18,7 @@ namespace io {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	WebSocket,
 	"io.WebSocket",
 	g_webSocketLibGuid,
@@ -26,6 +26,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	WebSocket,
 	&WebSocket::markOpaqueGcRoots
 	)
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(WebSocket)
+	JNC_OPAQUE_CLASS_REQUIRE_CLASS("io.WebSocketHandshake")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_CONSTRUCTOR(&jnc::construct<WebSocket>)
@@ -73,11 +77,21 @@ WebSocket::WebSocket()
 	m_overlappedIo = NULL;
 #endif
 
+	// need to prime opaque class fields
+
 	Module* module = m_box->m_type->getModule();
 	jnc::primeClass(module, &m_handshakeRequest);
 	jnc::primeClass(module, &m_handshakeResponse);
 	sl::construct(m_handshakeRequest.p());
 	sl::construct(m_handshakeResponse.p());
+}
+
+WebSocket::~WebSocket()
+{
+	close();
+
+	sl::destruct(m_handshakeRequest.p());
+	sl::destruct(m_handshakeResponse.p());
 }
 
 void
@@ -139,6 +153,8 @@ WebSocket::close()
 
 	m_handshakeRequest->clear();
 	m_handshakeResponse->clear();
+	m_publicHandshakeRequest = NULL;
+	m_publicHandshakeResponse = NULL;
 
 	SocketBase::close();
 
@@ -377,8 +393,10 @@ WebSocket::transportLoop(bool isClient)
 	else
 	{
 		sl::String key = generateWebSocketHandshakeKey();
-		sl::String handshake = buildWebSocketHandshake(m_handshakeRequest, m_resource, m_host, key);
+		sl::String handshake = m_handshakeRequest->buildRequest(m_resource, m_host, key);
 		addToWriteBuffer(handshake.cp(), handshake.getLength());
+		m_publicHandshakeRequest = m_handshakeRequest;
+		setEvents(WebSocketEvent_WebSocketHandshakeRequested);
 		m_stateMachine.waitHandshakeResponse(m_handshakeResponse, key);
 	}
 
@@ -421,11 +439,14 @@ WebSocket::processIncomingData(
 		switch (state)
 		{
 		case WebSocketState_HandshakeReady:
-			buildWebSocketHandshakeResponse(&handshakeResponse, m_handshakeResponse, m_handshakeRequest);
+			m_publicHandshakeRequest = m_handshakeRequest;
+			setEvents(WebSocketEvent_WebSocketHandshakeRequested);
+			m_handshakeResponse->buildResponse(&handshakeResponse, m_handshakeRequest);
 			addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
 			// and fall through
 
 		case WebSocketState_HandshakeResponseReady:
+			m_publicHandshakeResponse = m_handshakeResponse;
 			setEvents(WebSocketEvent_WebSocketHandshakeCompleted);
 			m_stateMachine.setConnectedState();
 			break;
@@ -434,15 +455,34 @@ WebSocket::processIncomingData(
 			break;
 
 		case WebSocketState_ControlFrameReady:
-			if (m_stateMachine.getFrame().m_opcode == WebSocketFrameOpcode_Ping)
+			{
+			m_lock.lock();
+			const WebSocketFrame& frame = m_stateMachine.getFrame();
+			WebSocketFrameOpcode opcode = (WebSocketFrameOpcode)frame.m_opcode;
+
+			if (m_options & WebSocketOption_IncludeControlFrames)
+				addToReadBuffer(
+					frame.m_payload,
+					frame.m_payload.getCount(),
+					&opcode,
+					sizeof(&opcode)
+					);
+
+			bool isAutoPong =
+				opcode == WebSocketFrameOpcode_Ping &&
+				!(m_options & WebSocketOption_DisableAutoPong);
+
+			m_lock.unlock();
+
+			if (isAutoPong)
 			{
 				buildWebSocketFrame(
 					&pong,
 					WebSocketFrameOpcode_Pong,
 					true,
 					(m_ioThreadFlags & IoThreadFlag_Connecting) != 0, // client's frames are masked, server's are not
-					m_stateMachine.getFrame().m_payload,
-					m_stateMachine.getFrame().m_payloadLength
+					frame.m_payload,
+					frame.m_payloadLength
 					);
 
 				addToWriteBuffer(pong.cp(), pong.getCount());
@@ -450,6 +490,7 @@ WebSocket::processIncomingData(
 
 			m_stateMachine.setConnectedState();
 			break;
+			}
 
 		case WebSocketState_MessageReady:
 			{
@@ -475,6 +516,21 @@ WebSocket::processIncomingData(
 	}
 
 	return true;
+}
+
+uint_t
+WebSocket::resetActiveEvents(uint_t baseEvents)
+{
+	uint_t prevEvents = m_activeEvents;
+	m_activeEvents = baseEvents;
+
+	if (m_publicHandshakeRequest)
+		m_activeEvents |= WebSocketEvent_WebSocketHandshakeRequested;
+
+	if (m_publicHandshakeResponse)
+		m_activeEvents |= WebSocketEvent_WebSocketHandshakeCompleted;
+
+	return prevEvents;
 }
 
 #if (_JNC_OS_WIN)
@@ -578,12 +634,10 @@ WebSocket::sslReadWriteLoop()
 			return;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-
-		m_activeEvents =
+		uint_t prevActiveEvents = resetActiveEvents(
 			SocketEvent_TcpConnected |
-			SslSocketEvent_SslHandshakeCompleted |
-			WebSocketEvent_WebSocketHandshakeCompleted;
+			SslSocketEvent_SslHandshakeCompleted
+			);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -721,6 +775,8 @@ WebSocket::tcpSendRecvLoop()
 			}
 
 			m_overlappedIo->m_activeOverlappedRecvList.remove(recv);
+			m_overlappedIo->m_overlappedRecvPool.put(recv);
+			recv->m_overlapped.m_completionEvent.reset();
 
 			if (actualSize == 0)
 			{
@@ -728,14 +784,9 @@ WebSocket::tcpSendRecvLoop()
 				return;
 			}
 
-			// only the main read buffer must be lock-protected
-
 			result = processIncomingData(recv->m_buffer, actualSize);
 			if (!result)
 				return;
-
-			recv->m_overlapped.m_completionEvent.reset();
-			m_overlappedIo->m_overlappedRecvPool.put(recv);
 		}
 
 		if (isSendingSocket && m_overlappedIo->m_sendOverlapped.m_completionEvent.wait(0))
@@ -770,8 +821,7 @@ WebSocket::tcpSendRecvLoop()
 			continue;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_TcpConnected | WebSocketEvent_WebSocketHandshakeCompleted;
+		uint_t prevActiveEvents = resetActiveEvents(SocketEvent_TcpConnected);
 
 		getNextWriteBlock(&m_overlappedIo->m_sendBlock);
 		updateReadWriteBufferEvents();
@@ -814,6 +864,7 @@ WebSocket::tcpSendRecvLoop()
 			for (size_t i = 0; i < newReadCount; i++)
 			{
 				OverlappedRecv* recv = m_overlappedIo->m_overlappedRecvPool.get();
+
 				result =
 					recv->m_buffer.setCount(readBlockSize) &&
 					m_socket.m_socket.wsaRecv(
@@ -903,8 +954,10 @@ WebSocket::sslReadWriteLoop()
 			return;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_TcpConnected | SslSocketEvent_SslHandshakeCompleted;
+		uint_t prevActiveEvents = resetActiveEvents(
+			SocketEvent_TcpConnected |
+			SslSocketEvent_SslHandshakeCompleted
+			);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 
@@ -1054,8 +1107,7 @@ WebSocket::tcpSendRecvLoop()
 			continue;
 		}
 
-		uint_t prevActiveEvents = m_activeEvents;
-		m_activeEvents = SocketEvent_TcpConnected;
+		uint_t prevActiveEvents = resetActiveEvents(SocketEvent_TcpConnected);
 
 		readBlock.setCount(m_readBlockSize); // update read block size
 

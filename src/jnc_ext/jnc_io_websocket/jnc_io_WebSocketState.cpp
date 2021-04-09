@@ -148,7 +148,7 @@ WebSocketStateMachine::processFrame()
 
 	if (m_frame.m_opcode == WebSocketFrameOpcode_Continuation)
 	{
-		if (!m_message.m_opcode)
+		if (m_message.m_opcode == WebSocketFrameOpcode_Undefined)
 			return err::fail("continuation frame without initial data frame");
 
 		m_message.m_frameCount++;
@@ -156,7 +156,7 @@ WebSocketStateMachine::processFrame()
 	}
 	else
 	{
-		if (m_message.m_opcode)
+		if (m_message.m_opcode != WebSocketFrameOpcode_Undefined)
 			return err::fail("incomplete fragmented message");
 
 		m_message.m_opcode = (WebSocketFrameOpcode)m_frame.m_opcode;

@@ -11,6 +11,15 @@
 
 import "io_websocket.jncx"
 
+void processSocketEvents(io.WebSocket* socket)
+{
+	io.WebSocketEvents events = socket.m_activeEvents;
+	printf("events: 0x%04x: %s\n", events, typeof(io.WebSocketEvents).getValueString(events));
+
+	if (events & io.WebSocketEvents.IoError)
+		printf("error: %s\n", socket.m_ioError.m_description);
+}
+
 int main()
 {
 	io.SocketAddress address;
@@ -29,10 +38,31 @@ int main()
 		io.WebSocketEvents.IncomingConnection
 		);
 
-	printf("events: %x\n", events);
+	processSocketEvents(server);
+
+	if (!(events & io.WebSocketEvents.IncomingConnection))
+		return -1;
 
 	io.WebSocket* connection = server.accept(&address);
 	printf("accepted connection from: %s\n", address.getString());
+
+	printf("waiting for handshake...\n");
+
+	events = connection.blockingWait(
+		io.WebSocketEvents.IoError |
+		io.WebSocketEvents.TcpDisconnected |
+		io.WebSocketEvents.WebSocketHandshakeCompleted
+		);
+
+	processSocketEvents(connection);
+
+	if (!(events & io.WebSocketEvents.WebSocketHandshakeCompleted))
+		return -1;
+
+	printf("handshake request: %p\n", connection.m_handshakeRequest);
+	printf("handshake response: %p\n", connection.m_handshakeResponse);
+
+	printf("headers: %s\n", connection.m_handshakeRequest.m_headers.format());
 
 	for (;;)
 	{
@@ -40,22 +70,19 @@ int main()
 
 		events = connection.blockingWait(
 			io.WebSocketEvents.IoError |
-			io.WebSocketEvents.IncomingMessage |
-			io.WebSocketEvents.TcpDisconnected
+			io.WebSocketEvents.TcpDisconnected |
+			io.WebSocketEvents.IncomingData
 			);
 
-		printf("events: %x\n", events);
+		processSocketEvents(connection);
 
-		if (!(events & io.WebSocketEvents.IncomingMessage))
-			break;
+		if (!(events & io.WebSocketEvents.IncomingData))
+			return -1;
 	
-		size_t result = connection.readMessage(buffer, sizeof(buffer) - 1);
+		size_t result = connection.read(buffer, sizeof(buffer) - 1);
 		buffer[result] = 0; // ensure zero-termination
 		printf("message: %s\n", buffer);
 
-		connection.writeTextMessage(buffer, result);
+		connection.writeText(buffer, result);
 	}
-
-	printf("done\n");
-	return 0;
 }

@@ -44,23 +44,23 @@ int main()
 	if (!(events & io.WebSocketEvents.WebSocketHandshakeCompleted))
 		return -1;
 
-	socket.writeTextMessage("hello, world!");
+	socket.writeText("hello, world!");
 
 	printf("waiting for incoming data...\n");
 
 	events = socket.blockingWait(
 		io.WebSocketEvents.IoError |
-		io.WebSocketEvents.IncomingMessage |
+		io.WebSocketEvents.IncomingData |
 		io.WebSocketEvents.TcpDisconnected
 		);
 
 	processSocketEvents(socket);
 
-	if (!(events & io.WebSocketEvents.IncomingMessage))
+	if (!(events & io.WebSocketEvents.IncomingData))
 		return -1;
 
 	char buffer[256];
-	size_t result = socket.readMessage(buffer, sizeof(buffer) - 1);
+	size_t result = socket.read(buffer, sizeof(buffer) - 1);
 	buffer[result] = 0; // ensure zero-termination
 	printf("reply: %s\n", buffer);
 

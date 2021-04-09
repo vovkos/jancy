@@ -27,13 +27,8 @@ opaque class WebSocketHandshakeHeaders
 {
 	size_t readonly m_nameCount;
 	char const* const property m_name(size_t i);
-
-	size_t const property m_valueCount(size_t nameIdx);
-
-	char const* readonly property m_value(
-		size_t nameIdx,
-		size_t valueIdx = 0
-		);
+	char const* const property m_value(size_t i);
+	size_t const property m_valueCount(size_t i);
 
 	construct();
 	destruct();
@@ -54,23 +49,34 @@ opaque class WebSocketHandshakeHeaders
 	size_t findName(char const* name) const;
 	char const* findValue(char const* name) const;
 
+	char const* getValue(
+		size_t nameIdx,
+		size_t valueIdx
+		) const;
+
 	void clear();
 
 	size_t add(
 		char const* name,
 		char const* value
-		);
+		); // returns name index
+
+	char const* format(
+		char const* delimiter = ": ",
+		char const* eol = "\r\n"
+		) const;
 }
 
 //..............................................................................
 
 opaque class WebSocketHandshake
 {
-	uint_t const m_httpVersion;
+	uint_t readonly m_httpVersion;
 	char const* const property m_resource;     // request only
-	uint_t const m_statusCode;                 // response only
+	uint_t readonly m_statusCode;              // response only
 	char const* const property m_reasonPhrase; // response only
-	WebSocketHandshakeHeaders const* const m_headers;
+	WebSocketHandshakeHeaders readonly m_headers;
+	char const* const property m_rawData;
 
 	construct();
 	destruct();

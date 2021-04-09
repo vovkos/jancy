@@ -13,7 +13,7 @@ import "io_base.jncx"
 import "io_ssl.jncx"
 import "io_SocketAddress.jnc"
 import "io_SocketOptions.jnc"
-import "io_SocketEvents.jnc"
+import "io_SslSocketEvents.jnc"
 import "io_SslState.jnc"
 import "io_WebSocketHandshake.jnc"
 
@@ -54,9 +54,9 @@ bitflag enum WebSocketOptions: SocketOptions
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-bitflag enum WebSocketEvents: SocketEvents
+bitflag enum WebSocketEvents: SslSocketEvents
 {
-	SslHandshakeCompleted,
+	WebSocketHandshakeRequested,
 	WebSocketHandshakeCompleted,
 }
 
@@ -151,11 +151,11 @@ opaque class WebSocket
 		size_t size
 		)
 	{
-		return readMessage(null, p, size);
+		return read(null, p, size);
 	}
 
 	size_t errorcode write(
-		WebSocketOpcode opcode,
+		WebSocketFrameOpcode opcode,
 		void const* p,
 		size_t size
 		);
@@ -176,7 +176,7 @@ opaque class WebSocket
 		return write(WebSocketFrameOpcode.Binary, p, size);
 	}
 
-	bool errorcode ping(
+	size_t errorcode writePing(
 		void const* p,
 		size_t size
 		)
@@ -184,12 +184,12 @@ opaque class WebSocket
 		return write(WebSocketFrameOpcode.Ping, p, size);
 	}
 
-	bool errorcode ping()
+	size_t errorcode writePing()
 	{
-		return ping(null, 0);
+		return writePing(null, 0);
 	}
 
-	bool errorcode pong(
+	size_t errorcode writePong(
 		void const* p,
 		size_t size
 		)
@@ -197,9 +197,14 @@ opaque class WebSocket
 		return write(WebSocketFrameOpcode.Pong, p, size);
 	}
 
-	bool errorcode pong()
+	size_t errorcode writePong()
 	{
-		return pong(null, 0);
+		return writePong(null, 0);
+	}
+
+	bool errorcode writeClose()
+	{
+		return write(WebSocketFrameOpcode.Close, null, 0);
 	}
 
 	intptr errorcode wait(
