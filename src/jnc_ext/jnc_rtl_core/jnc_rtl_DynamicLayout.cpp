@@ -50,8 +50,9 @@ DynamicLayout_getOpaqueClassTypeInfo()
 {
 	static jnc_OpaqueClassTypeInfo typeInfo =
 	{
-		sizeof(DynamicLayout), // m_size
+		sizeof(DynamicLayout),  // m_size
 		NULL,                   // m_markOpaqueGcRootsFunc
+		NULL,                   // m_requireOpaqueItemsFunc
 		false,                  // m_isNonCreatable
 	};
 	return &typeInfo;

@@ -276,13 +276,12 @@ StructType::calcLayout()
 		}
 
 		if (typeInfo->m_markOpaqueGcRootsFunc)
-		{
-			classType->m_markOpaqueGcRootsFunc = typeInfo->m_markOpaqueGcRootsFunc;
 			classType->m_flags |= TypeFlag_GcRoot;
-		}
 
 		if (typeInfo->m_isNonCreatable)
 			classType->m_flags |= ClassTypeFlag_OpaqueNonCreatable;
+
+		classType->m_opaqueClassTypeInfo = typeInfo;
 	}
 
 	if (m_flags & TypeFlag_Dynamic)

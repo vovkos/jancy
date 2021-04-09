@@ -777,12 +777,20 @@ Module::compile()
 	result =
 		m_namespaceMgr.getGlobalNamespace()->resolveOrphans() &&
 		m_variableMgr.allocateNamespaceVariables(sl::ConstIterator<Variable>()) &&
-		m_functionMgr.finalizeNamespaceProperties(sl::ConstIterator<Property>()) &&
-		processRequireSet() &&
-		processCompileArray();
+		m_functionMgr.finalizeNamespaceProperties(sl::ConstIterator<Property>());
 
 	if (!result)
 		return false;
+
+	do // creating opaque class might require more items, hence a loop
+	{
+		result =
+			processRequireSet() &&
+			processCompileArray();
+
+		if (!result)
+			return false;
+	} while (!m_requireSet.isEmpty());
 
 	if (m_compileErrorCount)
 	{
@@ -1020,6 +1028,7 @@ Module::processRequireSet()
 			return false;
 	}
 
+	m_requireSet.clear();
 	return true;
 }
 

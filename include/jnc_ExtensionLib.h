@@ -278,7 +278,7 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		cacheSlot \
 		)
 
-#define JNC_DEFINE_OPAQUE_CLASS_TYPE_EX(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, isNonCreatable) \
+#define JNC_DEFINE_OPAQUE_CLASS_TYPE_EX(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, requireOpaqueItemsFunc, isNonCreatable) \
 	JNC_DEFINE_CLASS_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot) \
 	JNC_EXTERN_C \
 	const jnc_OpaqueClassTypeInfo* \
@@ -288,16 +288,50 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 		{ \
 			sizeof(Type), \
 			(jnc_MarkOpaqueGcRootsFunc*)jnc_pvoid_cast(markOpaqueGcRootsFunc), \
+			requireOpaqueItemsFunc, \
 			isNonCreatable, \
 		}; \
 		return &typeInfo; \
 	}
 
 #define JNC_DEFINE_OPAQUE_CLASS_TYPE(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
-	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, 0)
+	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc, \
+		NULL, \
+		0 \
+		)
+
+#define JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
+	JNC_EXTERN_C \
+	void \
+	TypePrefix##_requireOpaqueItems(jnc_Module* module); \
+	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc, \
+		TypePrefix##_requireOpaqueItems, \
+		0 \
+		)
 
 #define JNC_DEFINE_OPAQUE_CLASS_TYPE_NC(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc) \
-	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX(TypePrefix, qualifiedName, libGuid, cacheSlot, Type, markOpaqueGcRootsFunc, 1)
+	JNC_DEFINE_OPAQUE_CLASS_TYPE_EX( \
+		TypePrefix, \
+		qualifiedName, \
+		libGuid, \
+		cacheSlot, \
+		Type, \
+		markOpaqueGcRootsFunc,  \
+		NULL, \
+		1 \
+		)
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -367,6 +401,25 @@ extern jnc_DynamicExtensionLibHost jnc_g_dynamicExtensionLibHostImpl;
 			NULL, \
 		}; \
 		return vtable; \
+	}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+#define JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(TypePrefix) \
+	void \
+	TypePrefix##_requireOpaqueItems(jnc_Module* module) \
+	{
+
+#define JNC_OPAQUE_CLASS_REQUIRE(itemKind, name) \
+		jnc_Module_require(module, itemKind, name, 1);
+
+#define JNC_OPAQUE_CLASS_REQUIRE_TYPE(typeKind, name) \
+		jnc_Module_requireType(module, typeKind, name, 1);
+
+#define JNC_OPAQUE_CLASS_REQUIRE_CLASS(name) \
+		jnc_Module_requireType(module, jnc_TypeKind_Class, name, 1);
+
+#define JNC_END_OPAQUE_CLASS_REQUIRE_TABLE() \
 	}
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

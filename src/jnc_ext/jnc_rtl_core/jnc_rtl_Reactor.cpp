@@ -44,8 +44,9 @@ ReactorImpl_getOpaqueClassTypeInfo()
 {
 	static jnc_OpaqueClassTypeInfo typeInfo =
 	{
-		sizeof(ReactorImpl), // m_size
+		sizeof(ReactorImpl),  // m_size
 		NULL,                 // m_markOpaqueGcRootsFunc
+		NULL,                 // m_requireOpaqueItemsFunc
 		false,                // m_isNonCreatable
 	};
 

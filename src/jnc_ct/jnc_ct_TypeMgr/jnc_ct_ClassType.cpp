@@ -28,9 +28,9 @@ ClassType::ClassType()
 	m_ifaceStructType = NULL;
 	m_classStructType = NULL;
 	m_vtableStructType = NULL;
-	m_markOpaqueGcRootsFunc = NULL;
 	m_classPtrTypeTuple = NULL;
 	m_vtableVariable = NULL;
+	m_opaqueClassTypeInfo = NULL;
 }
 
 ClassPtrType*
@@ -697,6 +697,9 @@ ClassType::prepareForOperatorNew()
 	if (m_destructor && m_destructor->canCompile())
 		m_module->markForCompile(m_destructor);
 
+	if (m_opaqueClassTypeInfo && m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc)
+		m_opaqueClassTypeInfo->m_requireOpaqueItemsFunc(m_module);
+
 	size_t count = m_classFieldArray.getCount();
 	for (size_t i = 0; i < count; i++)
 	{
@@ -804,8 +807,8 @@ ClassType::markGcRootsImpl(
 		type->markGcRoots(p2, gcHeap);
 	}
 
-	if (m_markOpaqueGcRootsFunc)
-		m_markOpaqueGcRootsFunc(iface, gcHeap);
+	if (m_opaqueClassTypeInfo && m_opaqueClassTypeInfo->m_markOpaqueGcRootsFunc)
+		m_opaqueClassTypeInfo->m_markOpaqueGcRootsFunc(iface, gcHeap);
 }
 
 //..............................................................................

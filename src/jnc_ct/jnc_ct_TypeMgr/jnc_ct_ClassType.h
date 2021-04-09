@@ -43,9 +43,6 @@ protected:
 
 	sl::Array<BaseTypeSlot*> m_classBaseTypeArray;
 	sl::Array<Field*> m_classFieldArray;
-
-	MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
-
 	sl::Array<Function*> m_virtualMethodArray;
 	sl::Array<Function*> m_overrideMethodArray;
 	sl::Array<Property*> m_virtualPropertyArray;
@@ -54,6 +51,7 @@ protected:
 	Variable* m_vtableVariable;
 
 	ClassPtrTypeTuple* m_classPtrTypeTuple;
+	const OpaqueClassTypeInfo* m_opaqueClassTypeInfo;
 
 public:
 	ClassType();
@@ -101,10 +99,10 @@ public:
 		return (Type*)getClassPtrType(ClassPtrTypeKind_Normal, ptrTypeFlags);
 	}
 
-	MarkOpaqueGcRootsFunc*
-	getMarkOpaqueGcRootsFunc()
+	const OpaqueClassTypeInfo*
+	getOpaqueClassTypeInfoFunc()
 	{
-		return m_markOpaqueGcRootsFunc;
+		return m_opaqueClassTypeInfo;
 	}
 
 	virtual

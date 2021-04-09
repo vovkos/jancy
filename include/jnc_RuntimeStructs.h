@@ -297,12 +297,17 @@ jnc_MarkOpaqueGcRootsFunc(
 	jnc_GcHeap* gcHeap
 	);
 
+typedef
+void
+jnc_RequireOpaqueItemsFunc(jnc_Module* module);
+
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 struct jnc_OpaqueClassTypeInfo
 {
 	size_t m_size;
 	jnc_MarkOpaqueGcRootsFunc* m_markOpaqueGcRootsFunc;
+	jnc_RequireOpaqueItemsFunc* m_requireOpaqueItemsFunc;
 	bool_t m_isNonCreatable;
 };
 
