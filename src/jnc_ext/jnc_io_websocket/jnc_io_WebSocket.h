@@ -24,9 +24,10 @@ JNC_DECLARE_OPAQUE_CLASS_TYPE(WebSocket)
 
 enum WebSocketOption
 {
-	WebSocketOption_IncludeControlFrames       = 0x0100,
-	WebSocketOption_DisableAutoPong            = 0x0200,
-	WebSocketOption_DisableAutoServerHandshake = 0x0400,
+	WebSocketOption_IncludeControlFrames           = 0x0100,
+	WebSocketOption_DisableServerHandshakeResponse = 0x0200,
+	WebSocketOption_DisableCloseResponse           = 0x0400,
+	WebSocketOption_DisablePongResponse            = 0x0800,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -35,7 +36,8 @@ enum WebSocketEvent
 {
 	WebSocketEvent_WebSocketHandshakeRequested = 0x0200,
 	WebSocketEvent_WebSocketHandshakeCompleted = 0x0400,
-	WebSocketEvent_IncomingControlFrame        = 0x0800,
+	WebSocketEvent_WebSocketCloseRequested     = 0x0800,
+	WebSocketEvent_WebSocketCloseCompleted     = 0x1000,
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -80,9 +82,10 @@ protected:
 
 	enum IoThreadFlag
 	{
-		IoThreadFlag_Connecting         = 0x0100,
-		IoThreadFlag_Listening          = 0x0200,
-		IoThreadFlag_IncomingConnection = 0x0400,
+		IoThreadFlag_Connecting          = 0x0100,
+		IoThreadFlag_Listening           = 0x0200,
+		IoThreadFlag_IncomingConnection  = 0x0400,
+		IoThreadFlag_WebSocketCloseAdded = 0x0800,
 	};
 
 	class IoThread: public sys::ThreadImpl<IoThread>
@@ -313,6 +316,12 @@ protected:
 
 	bool
 	processIncomingData(
+		const void* p,
+		size_t size
+		);
+
+	void
+	updateCloseEvents(
 		const void* p,
 		size_t size
 		);

@@ -34,14 +34,6 @@ bitflag enum WebSocketOptions: SocketOptions
 	IncludeControlFrames,
 
 	/**
-		Disable automatic transmission of ``Pong`` replies. You would need to
-		read incoming control ``Ping`` frame and then manually send a ``Pong``
-		using `io.WebSocket.pong`.
-	*/
-
-	DisableAutoPong,
-
-	/**
 		Disable automatic transmission of ``101 Switching Protocols`` handshake
 		response from the server. After accepting a conneciton, you can inspect
 		the handshake request via `io.WebSocket.m_handshakeRequest` and then
@@ -49,7 +41,23 @@ bitflag enum WebSocketOptions: SocketOptions
 		either accepting or rejecting the incoming WebSocket upgrade request).
 	*/
 
-	DisableAutoServerHandshake,
+	DisableServerHandshakeResponse,
+
+	/**
+		Disable automatic transmission of ``Close`` replies. If you still want
+		to support WebSocket graceful close, read incoming control ``Close``
+		frame, then manually send a ``Close`` with `io.WebSocket.writeClose`.
+	*/
+
+	DisableCloseResponse,
+
+	/**
+		Disable automatic transmission of ``Pong`` replies. You would need to
+		read incoming control ``Ping`` frame, then manually send a ``Pong``
+		using `io.WebSocket.writePong`.
+	*/
+
+	DisablePongResponse,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -58,6 +66,8 @@ bitflag enum WebSocketEvents: SslSocketEvents
 {
 	WebSocketHandshakeRequested,
 	WebSocketHandshakeCompleted,
+	WebSocketCloseRequested,
+	WebSocketCloseCompleted,
 }
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -202,7 +212,7 @@ opaque class WebSocket
 		return writePong(null, 0);
 	}
 
-	bool errorcode writeClose()
+	size_t errorcode writeClose()
 	{
 		return write(WebSocketFrameOpcode.Close, null, 0);
 	}
