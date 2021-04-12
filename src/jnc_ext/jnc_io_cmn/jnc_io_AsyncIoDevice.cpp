@@ -230,7 +230,7 @@ AsyncIoDevice::bufferedRead(
 
 size_t
 AsyncIoDevice::bufferedWrite(
-	DataPtr dataPtr,
+	const void* p,
 	size_t dataSize,
 	const void* params,
 	size_t paramSize
@@ -242,47 +242,13 @@ AsyncIoDevice::bufferedWrite(
 		return -1;
 	}
 
-	return addToWriteBuffer(dataPtr.m_p, dataSize, params, paramSize);
-}
-
-size_t
-AsyncIoDevice::addToWriteBuffer(
-	const void* p,
-	size_t dataSize,
-	const void* params,
-	size_t paramSize
-	)
-{
-	ASSERT((m_options & AsyncIoDeviceOption_KeepWriteBlockSize) || paramSize == 0);
-
 	m_lock.lock();
-	if (m_writeBuffer.isFull())
-	{
-		m_lock.unlock();
-		return 0;
-	}
 
-	size_t result = m_writeBuffer.write(p, dataSize);
-	if (result < dataSize && (m_ioThreadFlags & IoThreadFlag_Datagram))
-	{
-		m_writeOverflowBuffer.append((char*)p + result, dataSize - result);
-		result = dataSize;
-	}
+	size_t result = addToWriteBuffer(p, dataSize, params, paramSize);
+	if (result)
+		wakeIoThread();
 
-	if (m_options & AsyncIoDeviceOption_KeepWriteBlockSize)
-	{
-		ReadWriteMeta* meta = createReadWriteMeta(result, params, paramSize);
-		m_writeMetaList.insertTail(meta);
-	}
-
-	if (!m_writeBuffer.isEmpty() || !m_writeMetaList.isEmpty())
-		m_activeEvents &= ~AsyncIoDeviceEvent_WriteBufferEmpty;
-
-	wakeIoThread();
-
-	ASSERT(isWriteBufferValid());
 	m_lock.unlock();
-
 	return result;
 }
 
@@ -313,6 +279,39 @@ AsyncIoDevice::addToReadBuffer(
 	}
 
 	ASSERT(isReadBufferValid());
+}
+
+size_t
+AsyncIoDevice::addToWriteBuffer(
+	const void* p,
+	size_t dataSize,
+	const void* params,
+	size_t paramSize
+	)
+{
+	ASSERT((m_options & AsyncIoDeviceOption_KeepWriteBlockSize) || paramSize == 0);
+
+	if (m_writeBuffer.isFull())
+		return 0;
+
+	size_t result = m_writeBuffer.write(p, dataSize);
+	if (result < dataSize && (m_ioThreadFlags & IoThreadFlag_Datagram))
+	{
+		m_writeOverflowBuffer.append((char*)p + result, dataSize - result);
+		result = dataSize;
+	}
+
+	if (m_options & AsyncIoDeviceOption_KeepWriteBlockSize)
+	{
+		ReadWriteMeta* meta = createReadWriteMeta(result, params, paramSize);
+		m_writeMetaList.insertTail(meta);
+	}
+
+	if (!m_writeBuffer.isEmpty() || !m_writeMetaList.isEmpty())
+		m_activeEvents &= ~AsyncIoDeviceEvent_WriteBufferEmpty;
+
+	ASSERT(isWriteBufferValid());
+	return result;
 }
 
 AsyncIoDevice::ReadWriteMeta*

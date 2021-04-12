@@ -102,10 +102,13 @@ protected:
 		size_t dataSize,
 		const void* params = NULL,
 		size_t paramSize = 0
-		);
+		)
+	{
+		return bufferedWrite(dataPtr.m_p, dataSize, params, paramSize);
+	}
 
 	size_t
-	addToWriteBuffer(
+	bufferedWrite(
 		const void* p,
 		size_t dataSize,
 		const void* params = NULL,
@@ -114,6 +117,14 @@ protected:
 
 	void
 	addToReadBuffer(
+		const void* p,
+		size_t dataSize,
+		const void* params = NULL,
+		size_t paramSize = 0
+		);
+
+	size_t
+	addToWriteBuffer(
 		const void* p,
 		size_t dataSize,
 		const void* params = NULL,
