@@ -188,7 +188,8 @@ SslSocket::accept(
 
 	bool result =
 		connectionSocket->m_socket.setBlockingMode(false) && // not guaranteed to be propagated across 'accept' calls
-		connectionSocket->openSsl(m_runtime, &connectionSocket->m_socket);
+		connectionSocket->openSsl(m_runtime, &connectionSocket->m_socket) &&
+		connectionSocket->m_ioThread.start();
 
 	if (!result)
 		return NULL;

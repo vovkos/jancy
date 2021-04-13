@@ -255,7 +255,6 @@ WebSocket::accept(
 		(!m_sslState || connectionSocket->openSsl()) &&
 		connectionSocket->m_ioThread.start();
 
-
 	if (!result)
 		return NULL;
 
