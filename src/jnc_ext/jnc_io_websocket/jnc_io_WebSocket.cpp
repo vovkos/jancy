@@ -41,6 +41,7 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(WebSocket)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBufferSize", &WebSocket::setReadBufferSize)
 	JNC_MAP_AUTOGET_PROPERTY("m_writeBufferSize", &WebSocket::setWriteBufferSize)
  	JNC_MAP_AUTOGET_PROPERTY("m_options", &WebSocket::setOptions)
+ 	JNC_MAP_AUTOGET_PROPERTY("m_extraHeaders", &WebSocket::setExtraHeaders)
 
 	JNC_MAP_FUNCTION("open", &WebSocket::open_0)
 	JNC_MAP_OVERLOAD(&WebSocket::open_1)
@@ -63,6 +64,7 @@ JNC_END_TYPE_FUNCTION_MAP()
 WebSocket::WebSocket()
 {
 	m_sslState = NULL;
+	m_extraHeaders = NULL;
 	m_publicHandshakeRequest = NULL;
 	m_publicHandshakeResponse = NULL;
 	m_readBlockSize = Def_ReadBlockSize;
@@ -99,6 +101,16 @@ JNC_CDECL
 WebSocket::markOpaqueGcRoots(jnc::GcHeap* gcHeap)
 {
 	AsyncIoDevice::markOpaqueGcRoots(gcHeap);
+}
+
+bool
+JNC_CDECL
+WebSocket::setExtraHeaders(WebSocketHandshakeHeaders* headers)
+{
+	m_lock.lock();
+	m_extraHeaders = headers;
+	m_lock.unlock();
+	return true;
 }
 
 bool
@@ -172,8 +184,7 @@ JNC_CDECL
 WebSocket::connect(
 	DataPtr addressPtr,
 	DataPtr resourcePtr,
-	DataPtr hostPtr,
-	WebSocketHandshakeHeaders* extraHeaders
+	DataPtr hostPtr
 	)
 {
 	SocketAddress* address = (SocketAddress*)addressPtr.m_p;
@@ -262,16 +273,37 @@ WebSocket::accept(
 	return connectionSocket;
 }
 
-size_t
+bool
 JNC_CDECL
 WebSocket::serverHandshake(
 	uint_t statusCode,
-	DataPtr statusTextPtr,
-	WebSocketHandshakeHeaders* extraHeaders
+	DataPtr statusTextPtr
 	)
 {
+	sl::String handshakeResponse;
 
-	return 0;
+	m_lock.lock();
+	if (!(m_activeEvents & WebSocketEvent_WebSocketHandshakeRequested))
+	{
+		m_lock.unlock();
+		err::setError(err::SystemErrorCode_InvalidDeviceState);
+		return false;
+	}
+
+	m_handshakeResponse->buildResponse(&handshakeResponse, m_handshakeRequest, m_extraHeaders);
+	m_publicHandshakeRequest = m_handshakeRequest;
+	m_publicHandshakeResponse = m_handshakeResponse;
+	size_t result = addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
+	if (!result)
+	{
+		m_lock.unlock();
+		err::setError(err::SystemErrorCode_BufferOverflow);
+		return false;
+	}
+
+	wakeIoThread();
+	setEvents_l(WebSocketEvent_WebSocketHandshakeRequested | WebSocketEvent_WebSocketHandshakeCompleted);
+	return true;
 }
 
 size_t
@@ -405,10 +437,10 @@ WebSocket::transportLoop(bool isClient)
 	else
 	{
 		sl::String key = generateWebSocketHandshakeKey();
-		sl::String handshake = m_handshakeRequest->buildRequest(m_resource, m_host, key);
-		m_publicHandshakeRequest = m_handshakeRequest;
 
 		m_lock.lock();
+		sl::String handshake = m_handshakeRequest->buildRequest(m_resource, m_host, key, m_extraHeaders);
+		m_publicHandshakeRequest = m_handshakeRequest;
 		addToWriteBuffer(handshake.cp(), handshake.getLength());
 		setEvents_l(WebSocketEvent_WebSocketHandshakeRequested);
 		m_stateMachine.waitHandshakeResponse(m_handshakeResponse, key);
@@ -453,13 +485,20 @@ WebSocket::processIncomingData(
 		switch (state)
 		{
 		case WebSocketState_HandshakeReady:
-			m_handshakeResponse->buildResponse(&handshakeResponse, m_handshakeRequest);
-			m_publicHandshakeRequest = m_handshakeRequest;
-			m_publicHandshakeResponse = m_handshakeResponse;
-
 			m_lock.lock();
-			addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
-			setEvents_l(WebSocketEvent_WebSocketHandshakeRequested | WebSocketEvent_WebSocketHandshakeCompleted);
+			if (m_options & WebSocketOption_DisableServerHandshakeResponse)
+			{
+				setEvents_l(WebSocketEvent_WebSocketHandshakeRequested);
+			}
+			else
+			{
+				m_handshakeResponse->buildResponse(&handshakeResponse, m_handshakeRequest, m_extraHeaders);
+				m_publicHandshakeRequest = m_handshakeRequest;
+				m_publicHandshakeResponse = m_handshakeResponse;
+				addToWriteBuffer(handshakeResponse.cp(), handshakeResponse.getLength());
+				setEvents_l(WebSocketEvent_WebSocketHandshakeRequested | WebSocketEvent_WebSocketHandshakeCompleted);
+			}
+
 			m_stateMachine.setConnectedState();
 			break;
 

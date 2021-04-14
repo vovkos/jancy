@@ -45,6 +45,7 @@ enum WebSocketEvent
 struct WebSocketHdr: IfaceHdr
 {
 	SslStateBase* m_sslState;
+	WebSocketHandshakeHeaders* m_extraHeaders;
 	WebSocketHandshake* m_publicHandshakeRequest;
 	WebSocketHandshake* m_publicHandshakeResponse;
 
@@ -180,6 +181,10 @@ public:
 
 	bool
 	JNC_CDECL
+	setExtraHeaders(WebSocketHandshakeHeaders* headers);
+
+	bool
+	JNC_CDECL
 	open_0(
 		uint16_t family,
 		bool isSecure
@@ -208,8 +213,7 @@ public:
 	connect(
 		DataPtr addressPtr,
 		DataPtr resourcePtr,
-		DataPtr hostPtr,
-		WebSocketHandshakeHeaders* extraHeaders
+		DataPtr hostPtr
 		);
 
 	bool
@@ -230,12 +234,11 @@ public:
 		unsuspendIoThread();
 	}
 
-	size_t
+	bool
 	JNC_CDECL
 	serverHandshake(
 		uint_t statusCode,
-		DataPtr statusTextPtr,
-		WebSocketHandshakeHeaders* extraHeaders
+		DataPtr statusTextPtr
 		);
 
 	size_t

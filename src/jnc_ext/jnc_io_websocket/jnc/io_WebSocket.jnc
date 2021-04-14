@@ -89,6 +89,7 @@ opaque class WebSocket
 	SocketAddress const property m_address;
 	SocketAddress const property m_peerAddress;
 	SslState* readonly m_sslState; // valid only after secure-open
+	WebSocketHandshakeHeaders const* autoget property m_extraHeaders;
 	WebSocketHandshake const* readonly m_handshakeRequest;
 	WebSocketHandshake const* readonly m_handshakeResponse;
 
@@ -126,8 +127,7 @@ opaque class WebSocket
 	bool errorcode connect(
 		SocketAddress const* address,
 		char const* resource,
-		char const* host,
-		WebSocketHandshakeHeaders const* extraHeaders = null
+		char const* host
 		);
 
 	bool errorcode listen(size_t backlog = 0); // 0 -- default
@@ -141,8 +141,7 @@ opaque class WebSocket
 
 	bool errorcode serverHandshake(
 		uint_t statusCode,
-		char const* statusText,
-		WebSocketHandshakeHeaders const* extraHeaders = null
+		char const* statusText
 		);
 
 	bool errorcode serverHandshake(WebSocketHandshakeHeaders const* extraHeaders = null)
