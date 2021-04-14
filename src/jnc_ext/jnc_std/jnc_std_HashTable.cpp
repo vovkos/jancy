@@ -19,7 +19,7 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	HashTable,
 	"std.HashTable",
 	g_stdLibGuid,
@@ -27,6 +27,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	HashTable,
 	NULL
 	)
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(HashTable)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Struct, "std.MapEntry")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(HashTable)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<HashTable, HashFunc*, IsEqualFunc*>))

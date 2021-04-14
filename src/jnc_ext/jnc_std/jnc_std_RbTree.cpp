@@ -19,7 +19,7 @@ namespace std {
 
 //..............................................................................
 
-JNC_DEFINE_OPAQUE_CLASS_TYPE(
+JNC_DEFINE_OPAQUE_CLASS_TYPE_REQ(
 	RbTree,
 	"std.RbTree",
 	g_stdLibGuid,
@@ -27,6 +27,10 @@ JNC_DEFINE_OPAQUE_CLASS_TYPE(
 	RbTree,
 	NULL
 	)
+
+JNC_BEGIN_OPAQUE_CLASS_REQUIRE_TABLE(RbTree)
+	JNC_OPAQUE_CLASS_REQUIRE_TYPE(TypeKind_Struct, "std.MapEntry")
+JNC_END_OPAQUE_CLASS_REQUIRE_TABLE()
 
 JNC_BEGIN_TYPE_FUNCTION_MAP(RbTree)
 	JNC_MAP_CONSTRUCTOR(&(jnc::construct<RbTree, CmpFunc*>))
