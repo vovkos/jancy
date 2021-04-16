@@ -1079,6 +1079,10 @@ struct jnc_UnitFuncTable
 // Module
 
 typedef
+const char*
+jnc_Module_GetNameFunc(jnc_Module* module);
+
+typedef
 jnc_GlobalNamespace*
 jnc_Module_GetGlobalNamespaceFunc(jnc_Module* module);
 
@@ -1244,6 +1248,7 @@ jnc_Module_getLlvmIrStringFunc(jnc_Module* module);
 struct jnc_ModuleFuncTable
 {
 	size_t m_size;
+	jnc_Module_GetNameFunc* m_getNameFunc;
 	jnc_Module_GetGlobalNamespaceFunc* m_getGlobalNamespaceFunc;
 	jnc_Module_GetStdNamespaceFunc* m_getStdNamespaceFunc;
 	jnc_Module_GetPrimitiveTypeFunc* m_getPrimitiveTypeFunc;

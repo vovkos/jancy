@@ -325,6 +325,7 @@ static jnc_UnitFuncTable g_unitFuncTable =
 static jnc_ModuleFuncTable g_moduleFuncTable =
 {
 	sizeof(jnc_ModuleFuncTable),
+	jnc_Module_getName,
 	jnc_Module_getGlobalNamespace,
 	jnc_Module_getStdNamespace,
 	jnc_Module_getPrimitiveType,

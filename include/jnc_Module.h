@@ -162,7 +162,7 @@ JNC_EXTERN_C
 void
 jnc_Module_initialize(
 	jnc_Module* module,
-	const char* tag,
+	const char* name,
 	uint_t compileFlags
 	);
 
@@ -176,6 +176,10 @@ jnc_Module_setDynamicExtensionAuthenticatorConfig(
 	jnc_Module* module,
 	const jnc_CodeAuthenticatorConfig* config
 	);
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getName(jnc_Module* module);
 
 JNC_EXTERN_C
 uint_t
@@ -431,11 +435,11 @@ struct jnc_Module
 
 	void
 	initialize(
-		const char* tag,
+		const char* name,
 		uint_t compileFlags = jnc_ModuleCompileFlag_StdFlags
 		)
 	{
-		jnc_Module_initialize(this, tag, compileFlags);
+		jnc_Module_initialize(this, name, compileFlags);
 	}
 
 	void
@@ -448,6 +452,12 @@ struct jnc_Module
 	setDynamicExtensionAuthenticatorConfig(const jnc_CodeAuthenticatorConfig* config)
 	{
 		jnc_Module_setDynamicExtensionAuthenticatorConfig(this, config);
+	}
+
+	const char*
+	getName()
+	{
+		return jnc_Module_getName(this);
 	}
 
 	uint_t

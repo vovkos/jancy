@@ -188,6 +188,7 @@ EXPORTS
 	jnc_Module_getPrimitiveType
 	jnc_Module_getStdType
 	jnc_Module_getExtensionSourceFileIterator
+	jnc_Module_getName
 	jnc_Module_getNextExtensionSourceFile
 	jnc_Module_getImportDirIterator
 	jnc_Module_getNextImportDir

@@ -26,6 +26,13 @@
 #ifdef _JNC_DYNAMIC_EXTENSION_LIB
 
 JNC_EXTERN_C
+const char*
+jnc_Module_getName(jnc_Module* module)
+{
+	return jnc_g_dynamicExtensionLibHost->m_moduleFuncTable->m_getNameFunc(module);
+}
+
+JNC_EXTERN_C
 jnc_GlobalNamespace*
 jnc_Module_getGlobalNamespace(jnc_Module* module)
 {
@@ -243,6 +250,13 @@ jnc_Module_setDynamicExtensionAuthenticatorConfig(
 	)
 {
 	module->m_extensionLibMgr.setDynamicExtensionAuthenticatorConfig(config);
+}
+
+JNC_EXTERN_C
+const char*
+jnc_Module_getName(jnc_Module* module)
+{
+	return module->getName().sz();
 }
 
 JNC_EXTERN_C
