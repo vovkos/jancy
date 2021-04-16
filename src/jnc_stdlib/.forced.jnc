@@ -1,9 +1,8 @@
 // rtl-core
 
-import "jnc_globals.jnc"
-import "jnc_GcTriggers.jnc"
-import "jnc_GcStats.jnc"
+import "jnc_DataPtr.jnc"
 import "jnc_DynamicLib.jnc"
+import "jnc_gc.jnc"
 import "jnc_Promise.jnc"
 import "jnc_Regex.jnc"
 import "jnc_Scheduler.jnc"
