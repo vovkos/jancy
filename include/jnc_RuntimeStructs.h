@@ -323,9 +323,7 @@ struct jnc_SjljFrame
 struct jnc_Tls
 {
 	jnc_ListLink m_link;
-	jnc_Tls* m_prevTls;
 	jnc_Runtime* m_runtime;
-	size_t m_initializeLevel;
 	jnc_GcMutatorThread m_gcMutatorThread;
 
 	// followed by jnc_TlsVariableTable
@@ -346,11 +344,13 @@ struct jnc_TlsVariableTable
 
 struct jnc_CallSite
 {
-	size_t m_initializeLevel;
-	size_t m_waitRegionLevel;
-	size_t m_noCollectRegionLevel;
+	jnc_CallSite* m_prev;
+	jnc_Tls* m_tls;
 	jnc_GcShadowStackFrame m_gcShadowStackDynamicFrame;
 	jnc_GcShadowStackFrameMapBuffer m_gcShadowStackDynamicFrameMap;
+	size_t m_nestLevel; // the number of times this runtime is nested
+	size_t m_waitRegionLevel;
+	size_t m_noCollectRegionLevel;
 	intptr_t m_result;
 };
 

@@ -84,10 +84,10 @@ public:
 	abort();
 
 	void
-	initializeCallSite(jnc_CallSite* callSite);
+	initializeCallSite(CallSite* callSite);
 
 	void
-	uninitializeCallSite(jnc_CallSite* callSite);
+	uninitializeCallSite(CallSite* callSite);
 
 	SjljFrame*
 	setSjljFrame(SjljFrame* frame);
@@ -103,7 +103,8 @@ JNC_INLINE
 Tls*
 getCurrentThreadTls()
 {
-	return sys::getTlsPtrSlotValue<Tls> ();
+	CallSite* callSite = sys::getTlsPtrSlotValue<CallSite>();
+	return callSite ? callSite->m_tls : NULL;
 }
 
 JNC_INLINE
