@@ -41,6 +41,9 @@ JNC_BEGIN_TYPE_FUNCTION_MAP(Serial)
 	JNC_MAP_AUTOGET_PROPERTY("m_breakCondition", &Serial::setBreakCondition)
 	JNC_MAP_CONST_PROPERTY  ("m_statusLines",    &Serial::getStatusLines)
 
+#if (_JNC_IO_SERIAL_POLL)
+	JNC_MAP_AUTOGET_PROPERTY("m_updateInterval",  &Serial::setUpdateInterval)
+#endif
 	JNC_MAP_AUTOGET_PROPERTY("m_readInterval",    &Serial::setReadInterval)
 	JNC_MAP_AUTOGET_PROPERTY("m_readParallelism", &Serial::setReadParallelism)
 	JNC_MAP_AUTOGET_PROPERTY("m_readBlockSize",   &Serial::setReadBlockSize)
@@ -77,6 +80,9 @@ JNC_END_TYPE_FUNCTION_MAP()
 
 Serial::Serial()
 {
+#if (_JNC_IO_SERIAL_POLL)
+	m_updateInterval = Def_UpdateInterval;
+#endif
 	m_readInterval = Def_ReadInterval;
 	m_readParallelism = Def_ReadParallelism;
 	m_readBlockSize = Def_ReadBlockSize;
@@ -228,6 +234,24 @@ Serial::setReadInterval(uint_t interval)
 	m_readInterval = interval;
 	return true;
 }
+
+#if (_JNC_IO_SERIAL_POLL)
+void
+JNC_CDECL
+Serial::setUpdateInterval(uint_t interval)
+{
+	if (!m_isOpen)
+	{
+		m_updateInterval = interval;
+		return;
+	}
+
+	m_lock.lock();
+	m_updateInterval = interval;
+	wakeIoThread();
+	m_lock.unlock();
+}
+#endif
 
 bool
 JNC_CDECL
@@ -777,6 +801,9 @@ Serial::ioThreadFunc()
 	sl::Array<char> writeBlock;
 
 	readBlock.setCount(Def_ReadBlockSize);
+#if (_JNC_IO_SERIAL_POLL)
+	uint_t updateInterval = m_updateInterval;
+#endif
 
 	bool canReadSerial = false;
 	bool canWriteSerial = false;
@@ -796,7 +823,23 @@ Serial::ioThreadFunc()
 		if (!canWriteSerial)
 			FD_SET(m_serial.m_serial, &writeSet);
 
+#if (_JNC_IO_SERIAL_POLL)
+		if (updateInterval == -1)
+		{
+			result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
+		}
+		else
+		{
+			timeval timeout;
+			timeout.tv_sec = updateInterval / 1000;
+			timeout.tv_usec = (updateInterval % 1000) * 1000;
+
+			result = ::select(selectFd, &readSet, &writeSet, NULL, &timeout);
+		}
+#else
 		result = ::select(selectFd, &readSet, &writeSet, NULL, NULL);
+#endif
+
 		if (result == -1)
 			break;
 
@@ -905,7 +948,9 @@ Serial::ioThreadFunc()
 
 		updateReadWriteBufferEvents();
 		updateStatusLineEvents(statusLines);
-
+#if (_JNC_IO_SERIAL_POLL)
+		updateInterval = m_updateInterval; // grab the latest update interval
+#endif
 		if (m_activeEvents != prevActiveEvents)
 			processWaitLists_l();
 		else

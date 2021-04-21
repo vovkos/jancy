@@ -441,7 +441,6 @@ opaque class Serial
 
 	SerialStatusLines const property m_statusLines;
 
-
 	/**
 		This property is used for getting and setting [#f4]_ ``DTR``
 		(data-terminal-ready) serial control line.
@@ -463,6 +462,13 @@ opaque class Serial
 
 	bool autoget property m_breakCondition;
 
+	// I tried experimenting with polling for status line updates on macOS
+	// due to the lack of TIOCMIWAIT there; however, it seems like standard
+	// Apple drivers for popular USB-to-Serial cables (CH34x, FTDI) don't
+	// handle TIOCMGET properly either. So it was kind of pointless.
+	// As such, it's disabled by default (m_updateInterval = -1).
+
+	uint_t autoget property m_updateInterval;
 	uint_t autoget property m_readInterval;
 	uint_t autoget property m_readParallelism;
 	size_t autoget property m_readBlockSize;

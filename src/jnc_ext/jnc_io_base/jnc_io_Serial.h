@@ -13,6 +13,8 @@
 
 #include "jnc_io_AsyncIoDevice.h"
 
+#define _JNC_IO_SERIAL_POLL 1
+
 namespace jnc {
 namespace io {
 
@@ -66,6 +68,9 @@ struct SerialHdr: IfaceHdr
 	bool m_rts;
 	bool m_breakCondition;
 
+#if (_JNC_IO_SERIAL_POLL)
+	uint_t m_updateInterval;
+#endif
 	uint_t m_readInterval;
 	uint_t m_readParallelism;
 	size_t m_readBlockSize;
@@ -84,6 +89,12 @@ class Serial:
 protected:
 	enum Def
 	{
+#if (_JNC_OS_DARWIN)
+		// doesn't work well with some drivers, so better disable by default
+		Def_UpdateInterval  = -1,
+#else
+		Def_UpdateInterval  = -1,
+#endif
 		Def_ReadInterval    = 0,
 		Def_ReadParallelism = 4,
 		Def_ReadBlockSize   = 1 * 1024,
@@ -181,6 +192,12 @@ public:
 	void
 	JNC_CDECL
 	close();
+
+ #if (_JNC_IO_SERIAL_POLL)
+	void
+	JNC_CDECL
+	setUpdateInterval(uint_t interval);
+ #endif
 
 	bool
 	JNC_CDECL
