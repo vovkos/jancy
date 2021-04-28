@@ -14,7 +14,7 @@ struct
 	sl::BoxList<Token> m_tokenList;
 }
 expression_pass1
-	:	expression_pass1_item<&$.m_tokenList>+
+	:	catch(eof) expression_pass1_item<&$.m_tokenList>+
 	;
 
 expression_pass1_item<sl::BoxList<Token>* $tokenList>
@@ -58,7 +58,7 @@ struct
 	sl::BoxList<Token> m_tokenList;
 }
 arg_list_pass1
-	:	'(' arg_list_pass1_item<&$.m_tokenList>* ')'
+	:	catch(eof) '(' arg_list_pass1_item<&$.m_tokenList>* ')'
 	;
 
 arg_list_pass1_item<sl::BoxList<Token>* $tokenList>
@@ -86,7 +86,7 @@ curly_initializer_pass1
 			{
 				$.m_tokenList.insertTail($1);
 			}
-	|	curly_initializer_pass1_impl<&$.m_tokenList>
+	|	catch(eof) curly_initializer_pass1_impl<&$.m_tokenList>
 	;
 
 curly_initializer_pass1_impl<sl::BoxList<Token>* $tokenList>
@@ -188,7 +188,7 @@ expression_list
 	;
 
 // expression_or_empty_list might seem overcomplicated but
-// this is done to avoid having a singe EValue_Void in case of empty list
+// this is done to avoid having a singe ValueKind_Void in case of empty list
 
 struct
 {
@@ -203,7 +203,7 @@ expression_or_empty_list
 		(
 			',' $c
 				{
-					bumpArgumentTipIdxIf($c.m_pos);
+					m_module->m_codeAssistMgr.bumpArgumentTipIdxIf($c.m_pos);
 				}
 			expression_or_empty $e2
 				{
@@ -216,7 +216,7 @@ expression_or_empty_list
 		(
 			',' $c
 				{
-					bumpArgumentTipIdxIf($c.m_pos);
+					m_module->m_codeAssistMgr.bumpArgumentTipIdxIf($c.m_pos);
 				}
 			expression_or_empty $e2
 				{
@@ -768,22 +768,22 @@ postfix_operator<Value* $value>
 	}
 	:	'(' $l
 			{
-				pushArgumentTipIf($l.m_pos, *$value);
+				m_module->m_codeAssistMgr.pushArgumentTipIf($l.m_pos, *$value);
 			}
 		expression_or_empty_list
 		')' $r
 			{
-				popArgumentTipIf($r.m_pos);
+				m_module->m_codeAssistMgr.popArgumentTipIf($r.m_pos);
 				return m_module->m_operatorMgr.callOperator($value, &$2.m_valueList);
 			}
 	|	'~' '(' $l
 			{
-				pushArgumentTipIf($l.m_pos, *$value);
+				m_module->m_codeAssistMgr.pushArgumentTipIf($l.m_pos, *$value);
 			}
 		expression_or_empty_list
 		')' $r
 			{
-				popArgumentTipIf($r.m_pos);
+				m_module->m_codeAssistMgr.popArgumentTipIf($r.m_pos);
 				return m_module->m_operatorMgr.closureOperator($value, &$3.m_valueList);
 			}
 	|	'[' expression_or_empty ']'

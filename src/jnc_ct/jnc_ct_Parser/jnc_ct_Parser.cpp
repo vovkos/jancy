@@ -222,6 +222,8 @@ Parser::parseTokenList(
 		size_t offset = m_module->m_codeAssistMgr.getOffset();
 		size_t autoCompleteFallbackOffset = offset;
 
+		bool result = true;
+
 		sl::ConstBoxIterator<Token> token = tokenList.getHead();
 		for (; token; token++)
 		{
@@ -245,15 +247,17 @@ Parser::parseTokenList(
 				}
 			}
 
-			bool result = parseToken(&*token);
+			result = parseToken(&*token);
 			if (!result)
-				return false;
+				break;
 		}
 
-		parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
+		if (result)
+			parseEofToken(lastTokenPos, lastTokenPos.m_length); // might trigger actions
 
-		if (!m_module->m_codeAssistMgr.getCodeAssist() && !m_argumentTipStack.isEmpty())
-			generateArgumentTip();
+		if (!m_module->m_codeAssistMgr.getCodeAssist() &&
+			m_module->m_codeAssistMgr.hasArgumentTipStack())
+			m_module->m_codeAssistMgr.createArgumentTipFromStack();
 
 		return true;
 	}
@@ -3313,27 +3317,6 @@ Parser::prepareAutoCompleteFallback(
 	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_namespace = nspace;
 	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_prefix = prefix;
 	m_module->m_codeAssistMgr.m_autoCompleteFallback.m_flags = flags;
-}
-
-void
-Parser::generateArgumentTip()
-{
-	ASSERT(!m_argumentTipStack.isEmpty());
-
-	ArgumentTip* argumentTip = *m_argumentTipStack.getTail();
-
-	size_t baseArgumentIdx;
-	FunctionTypeOverload typeOverload = m_module->m_operatorMgr.getValueFunctionTypeOverload(
-		argumentTip->m_value,
-		&baseArgumentIdx
-		);
-
-	if (typeOverload.getOverloadCount())
-		m_module->m_codeAssistMgr.createArgumentTip(
-			argumentTip->m_pos.m_offset,
-			typeOverload,
-			baseArgumentIdx + argumentTip->m_argumentIdx
-			);
 }
 
 //..............................................................................

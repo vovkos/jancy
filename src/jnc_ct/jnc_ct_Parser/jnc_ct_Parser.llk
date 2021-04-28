@@ -110,23 +110,6 @@ public:
 		}
 	};
 
-	struct ArgumentTip: sl::ListLink
-	{
-		lex::LineColOffset m_pos;
-		Value m_value;
-		size_t m_argumentIdx;
-
-		ArgumentTip(
-			const lex::LineColOffset& pos,
-			const Value& value
-			)
-		{
-			m_pos = pos;
-			m_value = value;
-			m_argumentIdx = 0;
-		}
-	};
-
 protected:
 	Module* m_module;
 	Mode m_mode;
@@ -151,8 +134,6 @@ protected:
 	size_t m_reactionIdx;
 
 	dox::Parser m_doxyParser;
-
-	sl::List<ArgumentTip> m_argumentTipStack;
 
 public:
 	// freely adjustible
@@ -247,12 +228,9 @@ protected:
 	}
 
 	void
-	onSynchronizeSkipToken(const Token* token)
+	onSynchronized(const Token* token)
 	{
-		if (!m_argumentTipStack.isEmpty() &&
-			token->m_pos.m_offset < m_module->m_codeAssistMgr.getOffset() &&
-			!(token->m_flags & TokenFlag_CodeAssist))
-			m_argumentTipStack.clear();
+		m_module->m_codeAssistMgr.resetArgumentTipStackIf(token->m_pos);
 	}
 
 	bool
@@ -693,33 +671,6 @@ protected:
 		);
 
 	void
-	pushArgumentTipIf(
-		const lex::LineColOffset& pos,
-		const Value& value
-		)
-	{
-		if (m_module->m_codeAssistMgr.getCodeAssistKind() == CodeAssistKind_ArgumentTip &&
-			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
-			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
-	}
-
-	void
-	popArgumentTipIf(const lex::LineColOffset& pos)
-	{
-		if (!m_argumentTipStack.isEmpty() &&
-			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
-			m_argumentTipStack.eraseTail();
-	}
-
-	void
-	bumpArgumentTipIdxIf(const lex::LineColOffset& pos)
-	{
-		if (!m_argumentTipStack.isEmpty() &&
-			pos.m_offset < m_module->m_codeAssistMgr.getOffset())
-			m_argumentTipStack.getTail()->m_argumentIdx++;
-	}
-
-	void
 	generateAutoCompleteIf(
 		const Token& token,
 		const Value& value
@@ -788,9 +739,6 @@ protected:
 		const Value& value,
 		const sl::StringRef& name
 		);
-
-	void
-	generateArgumentTip();
 }
 
 //..............................................................................

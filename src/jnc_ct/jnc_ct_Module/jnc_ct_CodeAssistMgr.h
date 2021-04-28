@@ -123,6 +123,23 @@ protected:
 		clear();
 	};
 
+	struct ArgumentTip: sl::ListLink
+	{
+		lex::LineColOffset m_pos;
+		Value m_value;
+		size_t m_argumentIdx;
+
+		ArgumentTip(
+			const lex::LineColOffset& pos,
+			const Value& value
+			)
+		{
+			m_pos = pos;
+			m_value = value;
+			m_argumentIdx = 0;
+		}
+	};
+
 protected:
 	Module* m_module;
 	Module* m_cacheModule;
@@ -131,6 +148,7 @@ protected:
 	size_t m_offset;
 	ModuleItem* m_containerItem;
 	AutoCompleteFallback m_autoCompleteFallback;
+	sl::List<ArgumentTip> m_argumentTipStack;
 
 public:
 	CodeAssistMgr();
@@ -222,6 +240,9 @@ public:
 		);
 
 	CodeAssist*
+	createArgumentTipFromStack();
+
+	CodeAssist*
 	createAutoComplete(
 		size_t offset,
 		Namespace* nspace,
@@ -230,6 +251,49 @@ public:
 
 	CodeAssist*
 	createImportAutoComplete(size_t offset);
+
+	bool
+	hasArgumentTipStack()
+	{
+		return !m_argumentTipStack.isEmpty();
+	}
+
+	void
+	resetArgumentTipStack()
+	{
+		m_argumentTipStack.clear();
+	}
+
+	void
+	resetArgumentTipStackIf(const lex::LineColOffset& pos)
+	{
+		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
+			m_argumentTipStack.clear();
+	}
+
+	void
+	pushArgumentTipIf(
+		const lex::LineColOffset& pos,
+		const Value& value
+		)
+	{
+		if (m_codeAssistKind == CodeAssistKind_ArgumentTip && pos.m_offset < m_offset)
+			m_argumentTipStack.insertTail(AXL_MEM_NEW_ARGS(ArgumentTip, (pos, value)));
+	}
+
+	void
+	popArgumentTipIf(const lex::LineColOffset& pos)
+	{
+		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
+			m_argumentTipStack.eraseTail();
+	}
+
+	void
+	bumpArgumentTipIdxIf(const lex::LineColOffset& pos)
+	{
+		if (!m_argumentTipStack.isEmpty() && pos.m_offset < m_offset)
+			m_argumentTipStack.getTail()->m_argumentIdx++;
+	}
 
 protected:
 	void

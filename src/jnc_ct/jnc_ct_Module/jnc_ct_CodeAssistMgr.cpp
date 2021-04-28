@@ -61,6 +61,7 @@ CodeAssistMgr::clear()
 	m_containerItem = NULL;
 	m_codeAssist = NULL;
 	m_autoCompleteFallback.clear();
+	m_argumentTipStack.clear();
 }
 
 void
@@ -191,6 +192,30 @@ CodeAssistMgr::createArgumentTip(
 	m_codeAssist->m_functionTypeOverload = typeOverload;
 	m_codeAssist->m_argumentIdx = argumentIdx;
 	return m_codeAssist;
+}
+
+CodeAssist*
+CodeAssistMgr::createArgumentTipFromStack()
+{
+	if (m_argumentTipStack.isEmpty())
+		return NULL;
+
+	ArgumentTip* argumentTip = *m_argumentTipStack.getTail();
+
+	size_t baseArgumentIdx;
+	FunctionTypeOverload typeOverload = m_module->m_operatorMgr.getValueFunctionTypeOverload(
+		argumentTip->m_value,
+		&baseArgumentIdx
+		);
+
+	if (!typeOverload.getOverloadCount())
+		return NULL;
+
+	return createArgumentTip(
+		argumentTip->m_pos.m_offset,
+		typeOverload,
+		baseArgumentIdx + argumentTip->m_argumentIdx
+		);
 }
 
 CodeAssist*
