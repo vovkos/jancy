@@ -137,7 +137,7 @@ bool representSslLog(
 		representation.addHyperText($"SSL cipher: \e[34m$((char const*)p)");
 		break;
 
-	case SslLogRecordCode.SslConnectionCompleted:
+	case SslLogRecordCode.SslConnectCompleted:
 		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText("SSL connection established");

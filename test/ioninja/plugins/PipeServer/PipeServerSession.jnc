@@ -497,7 +497,7 @@ size_t errorcode PipeServerSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size)
+	if (result < size && client.m_isTransmitEnabled)
 	{
 		client.m_isTransmitEnabled = false;
 		waitClientPipeEvents(client);

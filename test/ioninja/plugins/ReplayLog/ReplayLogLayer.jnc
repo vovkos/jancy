@@ -28,6 +28,8 @@ protected:
 		ReplayTx         = true,
 		ReplayRx         = false,
 		ReplayCustomCode = false,
+		ReplayCount      = 1,
+		IntervalScale    = 100,
 	}
 
 	enum ActionId
@@ -40,6 +42,7 @@ protected:
 	io.MappedFile m_file;
 	log.RecordFileHdr const* m_hdr;
 	log.Record m_nextRecord;
+	size_t m_replayIdx;
 	uint64_t m_offset;
 	uint64_t m_prevRecordOffset;
 	uint64_t m_firstRecordTimestamp;
@@ -56,6 +59,8 @@ protected:
 	ui.BoolProperty* m_replayRxProp;
 	ui.BoolProperty* m_replayCustomCodeProp;
 	ui.StringProperty* m_customCodeProp;
+	ui.IntProperty* m_replayCountProp;
+	ui.IntProperty* m_intervalScaleProp;
 	ui.FileDlg m_fileDlg;
 	ui.ProgressDlg m_progressDlg;
 	reactor m_uiReactor;
@@ -76,6 +81,23 @@ protected:
 	void handleError();
 	bool errorcode readLoop();
 	bool errorcode sendNextRecord();
+
+	void updateProgressDlgTitle()
+	{
+		m_progressDlg.m_status = m_replayCountProp.m_value > 1 ?
+			$"Replay in progress (iteration %1 of %2)..."(
+				m_replayIdx + 1,
+				m_replayCountProp.m_value
+				) :
+			"Replay in progress...";
+	}
+
+	uint64_t calcInterval(uint64_t timestamp)
+	{
+		return (timestamp - m_firstRecordTimestamp) * (uint64_t)m_intervalScaleProp.m_value / 100;
+	}
+
+	void restart();
 
 	void onBrowse();
 	void onFileDlgCompleted(ui.StdDlgButton button);
@@ -101,6 +123,57 @@ ReplayLogLayer.construct(doc.PluginHost* pluginHost)
 	createUi();
 }
 
+void ReplayLogLayer.createUi()
+{
+	m_pluginHost.m_toolBar.addSeparator();
+
+	m_pluginHost.m_toolBar.addLabel("File:");
+	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
+	m_fileNameCombo.m_isEditable = true;
+	m_fileNameCombo.m_onEnter += onPlay;
+	m_fileNameCombo.m_placeholderText = "Enter a log file name...";
+
+	m_actionTable[ActionId.Browse] = createAction("Browse", "images/browse.png");
+	m_actionTable[ActionId.Browse].m_onTriggered += onBrowse;
+	m_actionTable[ActionId.Play] = createAction("Replay log", "images/play.png");
+	m_actionTable[ActionId.Play].m_onTriggered += onPlay;
+
+	m_fileNameProp = m_pluginHost.m_propertyGrid.createFileProperty("File name", "Path to a *.njlog file");
+
+	m_replayTxProp = m_pluginHost.m_propertyGrid.createBoolProperty("Replay TX", "Replay TX records");
+	m_replayRxProp = m_pluginHost.m_propertyGrid.createBoolProperty("Replay RX", "Replay RX records");
+
+	m_replayCustomCodeProp = m_pluginHost.m_propertyGrid.createBoolProperty(
+		"Replay custom code",
+		"Replay log records with the specificed record code value"
+		);
+
+	m_customCodeProp = m_pluginHost.m_propertyGrid.createStringProperty(
+		m_replayCustomCodeProp,,
+		"Custom code",
+		"Enter a log record code...",
+		"Specify a custom log record code to replay"
+		);
+
+	m_customCodeProp.m_value = "0x0000000000000000";
+
+	m_replayCountProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		"Replay count",
+		"Replay the original log more than one time if you need to"
+		);
+
+	m_replayCountProp.m_minValue = 1;
+
+	m_intervalScaleProp = m_pluginHost.m_propertyGrid.createIntProperty(
+		"Interval scale (%)",
+		"Proportionally increase or decrease time interval between packets"
+		);
+
+	m_intervalScaleProp.m_minValue = 0;
+
+	m_uiReactor.start();
+}
+
 void ReplayLogLayer.load(doc.Storage* storage)
 {
 	m_fileNameCombo.loadHistory(storage, "fileNameHistory");
@@ -109,7 +182,10 @@ void ReplayLogLayer.load(doc.Storage* storage)
 	m_replayRxProp.m_value = storage.readBool("replayRx", Defaults.ReplayRx);
 	m_replayCustomCodeProp.m_value = storage.readBool("replayCustomCode", Defaults.ReplayCustomCode);
 	m_customCodeProp.m_value = storage.readString("customCode", m_customCodeProp.m_value);
+	m_customCodeProp.m_value = storage.readString("customCode", m_customCodeProp.m_value);
 	m_customRecordCode = strtoul(m_customCodeProp.m_value, null, 0);
+	m_replayCountProp.m_value = storage.readInt("replayCount", Defaults.ReplayCount);
+	m_intervalScaleProp.m_value = storage.readInt("intervalScale", Defaults.IntervalScale);
 }
 
 void ReplayLogLayer.save(doc.Storage* storage)
@@ -120,6 +196,8 @@ void ReplayLogLayer.save(doc.Storage* storage)
 	storage.writeBool("replayRx", m_replayRxProp.m_value);
 	storage.writeBool("replayCustomCode", m_replayCustomCodeProp.m_value);
 	storage.writeString("customCode", m_customCodeProp.m_value);
+	storage.writeInt("replayCount", m_replayCountProp.m_value);
+	storage.writeInt("intervalScale", m_intervalScaleProp.m_value);
 }
 
 void ReplayLogLayer.updateProperties()
@@ -139,42 +217,8 @@ void ReplayLogLayer.restoreDefaultProperties()
 	m_replayTxProp.m_value = Defaults.ReplayTx;
 	m_replayRxProp.m_value = Defaults.ReplayRx;
 	m_replayCustomCodeProp.m_value = Defaults.ReplayCustomCode;
-}
-
-void ReplayLogLayer.createUi()
-{
-	m_pluginHost.m_toolBar.addSeparator();
-
-	m_pluginHost.m_toolBar.addLabel("File:");
-	m_fileNameCombo = m_pluginHost.m_toolBar.addComboBox(-1);
-	m_fileNameCombo.m_isEditable = true;
-	m_fileNameCombo.m_onEnter += onPlay;
-	m_fileNameCombo.m_placeholderText = "Enter a log file name...";
-
-	m_actionTable[ActionId.Browse] = createAction("Browse", "images/browse.png");
-	m_actionTable[ActionId.Browse].m_onTriggered += onBrowse;
-	m_actionTable[ActionId.Play] = createAction("Replay log", "images/play.png");
-	m_actionTable[ActionId.Play].m_onTriggered += onPlay;
-
-	m_fileNameProp = m_pluginHost.m_propertyGrid.createFileProperty("File name", "Path to a *.njlog file");
-	m_replayTxProp = m_pluginHost.m_propertyGrid.createBoolProperty("Replay TX", "Replay TX records");
-	m_replayRxProp = m_pluginHost.m_propertyGrid.createBoolProperty("Replay RX", "Replay RX records");
-
-	m_replayCustomCodeProp = m_pluginHost.m_propertyGrid.createBoolProperty(
-		"Replay custom code",
-		"Replay log records with the specificed record code value"
-		);
-
-	m_customCodeProp = m_pluginHost.m_propertyGrid.createStringProperty(
-		m_replayCustomCodeProp,,
-		"Custom code",
-		"Enter a log record code...",
-		"Specify a custom log record code to replay"
-		);
-
-	m_customCodeProp.m_value = "0x0000000000000000";
-
-	m_uiReactor.start();
+	m_replayCountProp.m_value = Defaults.ReplayCount;
+	m_intervalScaleProp.m_value = Defaults.IntervalScale;
 }
 
 void ReplayLogLayer.stop()
@@ -196,6 +240,7 @@ void ReplayLogLayer.close()
 	m_prevRecordOffset = 0;
 	m_firstRecordTimestamp = 0;
 	m_baseTimestamp = 0;
+	m_replayIdx = 0;
 }
 
 void ReplayLogLayer.handleError()
@@ -210,14 +255,17 @@ bool errorcode ReplayLogLayer.readLoop()
 {
 	while (m_offset < m_hdr.m_totalRecordSize)
 	{
-		log.Record const* record = (log.Record const*) m_file.view(
+		log.Record const* record = (log.Record const*)m_file.view(
 			m_hdr.m_recordOffset + m_offset,
 			sizeof(log.Record)
 			);
 
 		if (record.m_signature != log.RecordSignature)
 		{
-			std.setError("Invalid log file format (bad file signature)");
+			if (m_offset)
+				break; // if it happens not on the first record, just stop here (broken log)
+
+			std.setError("Invalid log file format (bad file signature)"); // bad first record
 			return false;
 		}
 
@@ -249,7 +297,7 @@ bool errorcode ReplayLogLayer.readLoop()
 		{
 			m_transmitTimer.startDueTimer(
 				onTransmitTimer~(m_syncId) @ m_pluginHost.m_mainThreadScheduler,
-				m_baseTimestamp + record.m_timestamp - m_firstRecordTimestamp
+				m_baseTimestamp + calcInterval(record.m_timestamp)
 				);
 
 			return true;
@@ -263,6 +311,13 @@ bool errorcode ReplayLogLayer.readLoop()
 			onProgressTimer~(m_syncId) @ m_pluginHost.m_mainThreadScheduler,
 			UpdateProgressPeriod
 			);
+	}
+
+	if (++m_replayIdx < m_replayCountProp.m_value)
+	{
+		// reschedule to give a chance for UI event processing
+		(restart @ m_pluginHost.m_mainThreadScheduler)();
+		return true;
 	}
 
 	stop();
@@ -328,7 +383,20 @@ void ReplayLogLayer.onPlay()
 		throw;
 	}
 
-	m_progressDlg.m_status = "Replay in progress...";
+	updateProgressDlgTitle();
+	readLoop();
+
+catch:
+	handleError();
+}
+
+void ReplayLogLayer.restart()
+{
+	m_offset = 0;
+	m_prevRecordOffset = 0;
+	m_firstRecordTimestamp = 0;
+	m_baseTimestamp = 0;
+	updateProgressDlgTitle();
 	readLoop();
 
 catch:
@@ -353,9 +421,9 @@ void ReplayLogLayer.onProgressTimer(uint_t syncId)
 		return;
 
 	uint64_t timestamp = sys.getTimestamp();
-
-	double timeFraction = (double)(timestamp - m_baseTimestamp) / (m_nextRecord.m_timestamp - m_firstRecordTimestamp);
-	double offset = m_prevRecordOffset + (m_offset - m_prevRecordOffset) * timeFraction;
+	uint64_t interval = calcInterval(m_nextRecord.m_timestamp) | 1; // prevent division by zero
+	double timeFraction = (double)(timestamp - m_baseTimestamp) / interval;
+	double offset = timeFraction < 1 ? m_offset * timeFraction : m_offset;
 
 	m_progressDlg.m_progress = (int)(offset / m_hdr.m_totalRecordSize * 100);
 }

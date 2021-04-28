@@ -589,7 +589,7 @@ size_t errorcode SshChannelSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size)
+	if (result < size && m_isTransmitEnabled)
 	{
 		m_isTransmitEnabled = false;
 		waitSshEvents();

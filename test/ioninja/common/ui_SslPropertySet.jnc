@@ -69,8 +69,8 @@ class SslPropertySet
 
 	void createProperties(
 		PropertyGrid* propertyGrid,
-		GroupProperty* group = null,
-		Property* insertBefore = null,
+		Property* parentProp = null,
+		Property* beforeProp = null,
 		PropertyId mask = PropertyId.AllClient
 		);
 
@@ -83,8 +83,8 @@ class SslPropertySet
 
 void SslPropertySet.createProperties(
 	PropertyGrid* propertyGrid,
-	GroupProperty* group,
-	Property* insertBefore,
+	Property* parentProp,
+	Property* beforeProp,
 	PropertyId mask
 	)
 {
@@ -99,8 +99,8 @@ void SslPropertySet.createProperties(
 		}
 
 		m_cipherSetProp = propertyGrid.createComboProperty(
-			group,
-			insertBefore,
+			parentProp,
+			beforeProp,
 			"Cipher suite",
 			"Enter OpenSSL cipher-string",
 			"Fine-tune the enabled OpenSSL cipher set",
@@ -112,8 +112,8 @@ void SslPropertySet.createProperties(
 	if (mask & PropertyId.Certificate)
 	{
 		m_useCertificateProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			parentProp,
+			beforeProp,
 			"Use certificate",
 			"Specifify a certificate for your SSL connection"
 			);
@@ -143,8 +143,8 @@ void SslPropertySet.createProperties(
 	{
 		m_verifyCertificateProp =
 			(mask & PropertyId.VerifyServerCertificate) ? propertyGrid.createBoolProperty(
-				group,
-				insertBefore,
+				parentProp,
+				beforeProp,
 				"Verify certificates",
 				"Verify sertificate of the target SSL server"
 				) :
@@ -196,8 +196,8 @@ void SslPropertySet.createProperties(
 		}
 
 		m_useEphemeralDhProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			parentProp,
+			beforeProp,
 			"Use ephemeral DH",
 			"Use ephemeral DH in the absense of a certificate"
 			);
@@ -242,8 +242,8 @@ void SslPropertySet.createProperties(
 		}
 
 		m_useEphemeralEcdhProp = propertyGrid.createBoolProperty(
-			group,
-			insertBefore,
+			parentProp,
+			beforeProp,
 			"Use ephemeral ECDH",
 			"Use ephemeral ECDH in the absense of a certificate"
 			);

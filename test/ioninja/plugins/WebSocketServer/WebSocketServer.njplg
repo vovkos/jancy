@@ -34,3 +34,5 @@ org.jancy.io.ip6
 
 WebSocketServerSession.jnc
 ../SocketLog/SocketClientLogFilter.jnc
+iox_WebSocket.jnc
+ui_WebSocketUi.jnc

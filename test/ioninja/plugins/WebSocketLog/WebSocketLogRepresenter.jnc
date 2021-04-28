@@ -9,6 +9,152 @@ import "SocketLog/SocketLogRecordCode.jnc"
 
 //..............................................................................
 
+bool representHttpFirstLine(
+	log.Representation* representation,
+	char const* p,
+	char const* end
+	)
+{
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+	reswitch (state, p, end - p)
+	{
+	case r"([A-Z]+)\s+([^\s]+)\s+HTTP/([0-9\.]+)\r?\n":
+		representation.addHyperText(
+			$"    HTTP version:\t\e[34m%1\n"
+			$"    Verb:\t\e[34m%2\n"
+			$"    Resource:\t\e[34m%3"
+			(
+				state.m_subMatchArray[2].m_text,
+				state.m_subMatchArray[0].m_text,
+				state.m_subMatchArray[1].m_text
+			));
+		break;
+
+	case r"HTTP/([0-9\.]+)\s+([0-9]+)\s+([^\r\n]+)\r?\n":
+		representation.addHyperText(
+			$"    HTTP version:\t\e[34m%1\n"
+			$"    Status code:\t\e[34m%2\n"
+			$"    Reason phrase:\t\e[34m%3"
+			(
+				state.m_subMatchArray[0].m_text,
+				state.m_subMatchArray[1].m_text,
+				state.m_subMatchArray[2].m_text
+			));
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+bool representHttpHeaders(
+	log.Representation* representation,
+	char const* p,
+	char const* end
+	)
+{
+	jnc.RegexState state(jnc.RegexStateFlags.Lexer);
+
+	while (p < end)
+	{
+		reswitch (state, p, end - p)
+		{
+		case r"([^:\r\n]+):\s+([^\r\n]+)\r?\n":
+			representation.addHyperText(
+				$"    %1:\t\e[34m%2"
+				(
+					state.m_subMatchArray[0].m_text,
+					state.m_subMatchArray[1].m_text
+				));
+			break;
+
+		case r"\r?\n":
+			break;
+
+		default:
+			return false;
+		}
+
+		p += state.m_consumedLength;
+	}
+
+	return true;
+}
+
+void representWebSocketHandshake(
+	log.Representation* representation,
+	char const* text,
+	char const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	char const* eol = strchr(p, '\n');
+
+	representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
+	representation.m_lineAttr.m_backColor = ui.StdColor.PastelGray;
+
+	if (!(foldFlags & 1))
+	{
+		char const* httpFirstLine = eol ? jnc.createDataPtr(p, eol - p) : p;
+		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text: \e[34m$httpFirstLine");
+		return;
+	}
+
+	representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
+
+	if (eol)
+	{
+		eol++; // include \n
+		representHttpFirstLine(representation, p, eol);
+		representHttpHeaders(representation, eol, p + size);
+	}
+
+	if (!(foldFlags & 2))
+	{
+		representation.addHyperText("[\e^+2\e[34m+\e[m] Raw data");
+	}
+	else
+	{
+		representation.addHyperText("[\e^-2\e[34m-\e[m] Raw data");
+		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.addBin(p, size);
+	}
+}
+
+void representWebSocketPingPong(
+	log.Representation* representation,
+	char const* text,
+	log.StdLogIcon icon,
+	char const* p,
+	size_t size,
+	uint_t foldFlags
+	)
+{
+	representation.m_lineAttr.m_iconIdx = icon;
+	representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+
+	if (!size)
+	{
+		representation.addPlainText(text);
+	}
+	else if (!(foldFlags & 1))
+	{
+		representation.addHyperText($"[\e^+1\e[34m+\e[m] $text");
+	}
+	else
+	{
+		representation.addHyperText($"[\e^-1\e[34m-\e[m] $text");
+		representation.m_lineAttr.m_textColor = ui.StdColor.Gray;
+		representation.m_lineAttr.m_backColor = ui.StdColor.White;
+		representation.addBin(p, size);
+	}
+}
+
+//..............................................................................
+
 bool representWebSocketLog(
 	log.Representation* representation,
 	uint64_t recordCode,
@@ -19,23 +165,62 @@ bool representWebSocketLog(
 {
 	switch (recordCode)
 	{
-	case WebSocketLogRecordCode.WebSocketHandshaking:
-		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText(SocketLogPartCode.Connecting, "Performing WebSocket handshake...");
+	case WebSocketLogRecordCode.WebSocketHandshakeRequest:
+		representWebSocketHandshake(representation, "WebSocket handshake request", p, size, foldFlags);
 		break;
 
-	case WebSocketLogRecordCode.WebSocketHandshakeCompleted:
-		representation.m_lineAttr.m_flags = log.LineAttrFlags.Override;
-		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Info;
-		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
-		representation.addHyperText(SocketLogPartCode.ConnectCompleted, "ok");
+	case WebSocketLogRecordCode.WebSocketHandshakeResponse:
+		representWebSocketHandshake(representation, "WebSocket handshake response", p, size, foldFlags);
 		break;
 
 	case WebSocketLogRecordCode.WebSocketConnectCompleted:
 		representation.m_lineAttr.m_iconIdx  = log.StdLogIcon.Connect;
 		representation.m_lineAttr.m_backColor = log.StdLogColor.Connect;
 		representation.addHyperText("WebSocket connection established");
+		break;
+
+	case WebSocketLogRecordCode.TxPing:
+	case WebSocketLogRecordCode.RxPing:
+		representWebSocketPingPong(
+			representation,
+			"WebSocket ping",
+			recordCode == WebSocketLogRecordCode.TxPing ?
+				log.StdLogIcon.TxPacket :
+				log.StdLogIcon.RxPacket,
+			p,
+			size,
+			foldFlags
+			);
+		break;
+
+	case WebSocketLogRecordCode.TxPong:
+	case WebSocketLogRecordCode.RxPong:
+		representWebSocketPingPong(
+			representation,
+			"WebSocket pong",
+			recordCode == WebSocketLogRecordCode.TxPong ?
+				log.StdLogIcon.TxPacket :
+				log.StdLogIcon.RxPacket,
+			p,
+			size,
+			foldFlags
+			);
+		break;
+
+	case WebSocketLogRecordCode.TxClose:
+	case WebSocketLogRecordCode.RxClose:
+		representation.m_lineAttr.m_iconIdx = recordCode == WebSocketLogRecordCode.TxClose ?
+			log.StdLogIcon.TxPacket :
+			log.StdLogIcon.RxPacket;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText("WebSocket close");
+		break;
+
+	case WebSocketLogRecordCode.SecureListening:
+		char const* addressString = ((io.SocketAddress const*)p).getString();
+		representation.m_lineAttr.m_iconIdx = log.StdLogIcon.Listen;
+		representation.m_lineAttr.m_backColor = log.StdLogColor.Info;
+		representation.addHyperText($"SSL server listening on \e[34m$addressString");
 		break;
 
 	default:

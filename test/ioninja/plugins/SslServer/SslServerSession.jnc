@@ -467,7 +467,7 @@ size_t errorcode SslServerSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size)
+	if (result < size && client.m_isTransmitEnabled)
 	{
 		client.m_isTransmitEnabled = false;
 		waitClientSocketEvents(client);
@@ -630,7 +630,7 @@ void SslServerSession.onClientSocketEvent(
 
 		m_logWriter.write(SslLogRecordCode.SslCipher, client.m_socket.m_currentCipher.m_name);
 
-		m_logWriter.write(SslLogRecordCode.SslConnectionCompleted);
+		m_logWriter.write(SslLogRecordCode.SslConnectCompleted);
 		client.m_state = ConnectionState.Connected;
 		client.m_isTransmitEnabled = true;
 		m_stdSessionInfoSet.startSession(m_pluginHost.m_mainThreadScheduler);

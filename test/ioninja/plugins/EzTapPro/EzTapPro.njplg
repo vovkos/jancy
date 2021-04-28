@@ -5,7 +5,7 @@
 
 [plugin]
 
-name        = "EZ-Tap Pro"
+name        = "Stratus EZ-Tap Pro"
 description = "Monitor serial communication using EZ-Tap Pro"
 id          = ez-tap-pro
 group       = serial

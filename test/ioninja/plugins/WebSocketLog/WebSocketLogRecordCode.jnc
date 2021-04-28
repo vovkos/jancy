@@ -9,12 +9,17 @@ import "log_RecordCode.jnc"
 
 enum WebSocketLogRecordCode: uint64_t
 {
-	WebSocketHandshaking        = 0x01d72934a7ab9200,
-	WebSocketHandshakeCompleted = 0x01d72934a7ab9201,
+	WebSocketHandshakeRequest   = 0x01d72934a7ab9200 | log.RecordCodeFlags.Foldable,
+	WebSocketHandshakeResponse  = 0x01d72934a7ab9201 | log.RecordCodeFlags.Foldable,
 	WebSocketConnectCompleted   = 0x01d72934a7ab9202,
-	Ping                        = 0x01d72934a7ab9203,
-	Pong                        = 0x01d72934a7ab9204,
-	Close                       = 0x01d72934a7ab9205,
+	TxPing                      = 0x01d72934a7ab9203,
+	RxPing                      = 0x01d72934a7ab9204,
+	TxPong                      = 0x01d72934a7ab9205,
+	RxPong                      = 0x01d72934a7ab9206,
+	TxClose                     = 0x01d72934a7ab9207,
+	RxClose                     = 0x01d72934a7ab9208,
+	CloseTimeout                = 0x01d72934a7ab9209,
+	SecureListening             = 0x01d72934a7ab920a
 }
 
 //..............................................................................

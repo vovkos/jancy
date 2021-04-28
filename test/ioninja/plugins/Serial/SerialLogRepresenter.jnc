@@ -32,17 +32,32 @@ char const* getStatusLineChangeString(
 	)
 {
 	char const* string = $"$lineKindString line(s) changed:";
+
 	if (mask & io.SerialStatusLines.Dsr)
-	{
-		char const* valueString = getOnOffString(lines & io.SerialStatusLines.Dsr);
-		string = $"$string $dsrString: $valueString";
-	}
+		string = $"%1 %2: %3"(
+			string,
+			dsrString,
+			getOnOffString(lines & io.SerialStatusLines.Dsr)
+			);
 
 	if (mask & io.SerialStatusLines.Cts)
-	{
-		char const* valueString = getOnOffString(lines & io.SerialStatusLines.Cts);
-		string = $"$string $ctsString: $valueString";
-	}
+		string = $"%1 %2: %3"(
+			string,
+			ctsString,
+			getOnOffString(lines & io.SerialStatusLines.Cts)
+			);
+
+	if (mask & io.SerialStatusLines.Dcd)
+		string = $"%1 DCD: %2"(
+			string,
+			getOnOffString(lines & io.SerialStatusLines.Dcd)
+			);
+
+	if (mask & io.SerialStatusLines.Ring)
+		string = $"%1 RI: %2"(
+			string,
+			getOnOffString(lines & io.SerialStatusLines.Ring)
+			);
 
 	return string;
 }
@@ -302,7 +317,7 @@ bool representSerialLog(
 
 		char const* string = getStatusLineChangeString(
 			params.m_lines,
-			params.m_mask,
+			params.m_mask & (io.SerialStatusLines.Dsr | io.SerialStatusLines.Cts), // exclude DCD & RI
 			"Control",
 			"DTR",
 			"RTS"

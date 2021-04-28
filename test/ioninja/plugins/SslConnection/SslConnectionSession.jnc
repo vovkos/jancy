@@ -521,7 +521,7 @@ size_t errorcode SslConnectionSession.transmit(
 	if (result)
 		m_logWriter.write(log.StdRecordCode.Tx, p, result);
 
-	if (result < size)
+	if (result < size && m_isTransmitEnabled)
 	{
 		m_isTransmitEnabled = false;
 		waitSocketEvents();
@@ -587,7 +587,7 @@ void SslConnectionSession.onSocketEvent(
 
 		m_logWriter.write(SslLogRecordCode.SslCipher, m_socket.m_currentCipher.m_name);
 
-		m_logWriter.write(SslLogRecordCode.SslConnectionCompleted);
+		m_logWriter.write(SslLogRecordCode.SslConnectCompleted);
 		m_infoTable[InfoId.LocalAddress].m_value = m_localAddress.getString();
 		m_infoTable[InfoId.RemoteAddress].m_value = m_remoteAddress.getString();
 		m_state = State.Connected;

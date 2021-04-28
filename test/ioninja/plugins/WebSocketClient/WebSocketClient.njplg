@@ -32,3 +32,5 @@ org.jancy.io.ip6
 [scripts]
 
 WebSocketClientSession.jnc
+iox_WebSocket.jnc
+ui_WebSocketUi.jnc

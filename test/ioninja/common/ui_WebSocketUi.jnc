@@ -1,0 +1,251 @@
+//..............................................................................
+//
+// WebSocket properties
+//
+
+namespace ui {
+
+//! \addtogroup common-ui
+//! @{
+
+//..............................................................................
+
+enum WebSocketTransmitMode
+{
+	Auto,   // if it's valid UTF-8, send as text, otherwise as binary
+	Text,   // always send as text
+	Binary, // always send as binary
+}
+
+const ui.EnumPropertyOption TransmitModeOptionTable[] =
+{
+	{ "Auto",   ui.WebSocketTransmitMode.Auto },
+	{ "Text",   ui.WebSocketTransmitMode.Text },
+	{ "Binary", ui.WebSocketTransmitMode.Binary },
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+enum WebSocketCloseMode
+{
+	Graceful, // wait for close confirmation
+	Abrupt,   // close socket immediately
+}
+
+ui.EnumPropertyOption CloseModeOptionTable[] =
+{
+	{ "Graceful", ui.WebSocketCloseMode.Graceful },
+	{ "Abrupt",   ui.WebSocketCloseMode.Abrupt },
+}
+
+//..............................................................................
+
+class WebSocketUi
+{
+	bitflag enum SettingId
+	{
+		ExtraHeaders,
+		TransmitMode,
+		CloseMode,
+		CloseTimeout,
+
+		All =
+			ExtraHeaders |
+			TransmitMode |
+			CloseMode |
+			CloseTimeout
+	}
+
+	enum Defaults
+	{
+		TransmitMode = WebSocketTransmitMode.Auto,
+		CloseMode    = WebSocketCloseMode.Graceful,
+		CloseTimeout = 3000,
+	}
+
+	ui.ComboBox* m_transmitModeCombo;
+	ui.EnumProperty* m_transmitModeProp;
+	ui.EnumProperty* m_closeModeProp;
+	ui.IntProperty* m_closeTimeoutProp;
+	ui.DictionaryProperty* m_extraHeadersProp;
+
+	void createCombos(
+		ui.ToolBar* toolBar,
+		SettingId settingMask = SettingId.TransmitMode
+		);
+
+	void createProperties(
+		ui.PropertyGrid* propertyGrid,
+		ui.Property* parentProp = null,
+		ui.Property* beforeProp = null,
+		SettingId settingMask = SettingId.All
+		);
+
+	void load(doc.Storage* storage);
+	void save(doc.Storage* storage);
+	void updateProperties();
+	void applyProperties();
+	void restoreDefaults();
+
+	void onCloseModeChanged()
+	{
+		m_closeTimeoutProp.m_isEnabled = m_closeModeProp.m_value == WebSocketCloseMode.Graceful;
+	}
+}
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+void WebSocketUi.createCombos(
+	ui.ToolBar* toolBar,
+	SettingId settingMask
+	)
+{
+	if (settingMask & SettingId.TransmitMode)
+		m_transmitModeCombo = toolBar.addComboBox(
+			"Transmit as:",
+			TransmitModeOptionTable,
+			countof(TransmitModeOptionTable)
+			);
+}
+
+void WebSocketUi.createProperties(
+	ui.PropertyGrid* propertyGrid,
+	ui.Property* parentProp,
+	ui.Property* beforeProp,
+	SettingId settingMask
+	)
+{
+	if (settingMask & SettingId.ExtraHeaders)
+	{
+		m_extraHeadersProp = propertyGrid.createDictionaryProperty(
+			parentProp,
+			beforeProp,
+			"Extra headers",
+			"Extra HTTP headers for WebSocket handshake"
+			);
+
+		m_extraHeadersProp.m_editDialogTitle = "Edit Extra Headers";
+		m_extraHeadersProp.m_keyLabel = "Header";
+		m_extraHeadersProp.m_newKey = "New-Header";
+		m_extraHeadersProp.m_newValue = "VALUE";
+	}
+
+	if (settingMask & SettingId.TransmitMode)
+		m_transmitModeProp = propertyGrid.createEnumProperty(
+			parentProp,
+			beforeProp,
+			"Transmit mode",
+			"Specify the WebSocket transmission mode",
+			TransmitModeOptionTable,
+			countof(TransmitModeOptionTable)
+			);
+
+	if (settingMask & SettingId.CloseMode)
+	{
+		m_closeModeProp = propertyGrid.createEnumProperty(
+			parentProp,
+			beforeProp,
+			"Close mode",
+			"Specify the WebSocket close mode",
+			CloseModeOptionTable,
+			countof(CloseModeOptionTable)
+			);
+
+		if (settingMask & SettingId.CloseTimeout)
+		{
+			m_closeTimeoutProp = propertyGrid.createIntProperty(
+				parentProp,
+				beforeProp,
+				"Close timeout",
+				"Specify the WebSocket close timeout"
+				);
+
+			m_closeModeProp.m_onChanged += onCloseModeChanged;
+		}
+	}
+}
+
+void WebSocketUi.load(doc.Storage* storage)
+{
+	if (m_extraHeadersProp)
+	{
+		m_extraHeadersProp.m_value.clear();
+
+		for (size_t i = 0;; i++)
+		{
+			char const* header = storage.readString($"webSocketExtraHeader$i");
+			char const* value = storage.readString($"webSocketExtraHeaderValue$i");
+			if (!header)
+				break;
+
+			m_extraHeadersProp.m_value.add(header, value);
+		}
+	}
+
+	if (m_transmitModeCombo)
+		m_transmitModeCombo.m_currentData = storage.readInt("webSocketTransmitMode", Defaults.TransmitMode);
+
+	if (m_closeModeProp)
+		m_closeModeProp.m_value = storage.readInt("webSocketCloseMode", Defaults.CloseMode);
+
+	if (m_closeTimeoutProp)
+		m_closeTimeoutProp.m_value = storage.readInt("webSocketCloseTimeout", Defaults.CloseTimeout);
+}
+
+void WebSocketUi.save(doc.Storage* storage)
+{
+	if (m_extraHeadersProp)
+	{
+		size_t i = 0;
+		std.MapEntry const* entry = m_extraHeadersProp.m_value.m_head;
+		for (; entry; entry = entry.m_next, i++)
+		{
+			storage.writeString($"webSocketExtraHeader$i", entry.m_key);
+			storage.writeString($"webSocketExtraHeaderValue$i", entry.m_value);
+		}
+
+		storage.writeString($"webSocketExtraHeader$i", null);
+	}
+
+	if (m_transmitModeCombo)
+		storage.writeInt("webSocketTransmitMode", m_transmitModeCombo.m_currentData);
+
+	if (m_closeModeProp)
+		storage.writeInt("webSocketCloseMode", m_closeModeProp.m_value);
+
+	if (m_closeTimeoutProp)
+		storage.writeInt("webSocketCloseTimeout", m_closeTimeoutProp.m_value);
+}
+
+void WebSocketUi.updateProperties()
+{
+	if (m_transmitModeCombo && m_transmitModeProp)
+		m_transmitModeProp.m_value = m_transmitModeCombo.m_editText;
+}
+
+void WebSocketUi.applyProperties()
+{
+	if (m_transmitModeCombo && m_transmitModeProp)
+		m_transmitModeCombo.m_currentData = m_transmitModeProp.m_value;
+}
+
+void WebSocketUi.restoreDefaults()
+{
+	if (m_extraHeadersProp)
+		m_extraHeadersProp.m_value.clear();
+
+	if (m_transmitModeProp)
+		m_transmitModeProp.m_value = Defaults.TransmitMode;
+
+	if (m_closeModeProp)
+		m_closeModeProp.m_value = Defaults.CloseMode;
+
+	if (m_closeTimeoutProp)
+		m_closeTimeoutProp.m_value = Defaults.CloseTimeout;
+}
+
+//..............................................................................
+
+//! @}
+
+} // namespace ui

@@ -21,9 +21,27 @@ WebSocketLogRepresenter.jnc
 
 [records]
 
-01d72934a7ab9200  # WebSocketHandshaking
-01d72934a7ab9201  # WebSocketHandshakeCompleted
+81d72934a7ab9200  # WebSocketHandshakeRequest
+81d72934a7ab9201  # WebSocketHandshakeResponse
 01d72934a7ab9202  # WebSocketConnectCompleted
-01d72934a7ab9203  # Ping
-01d72934a7ab9204  # Pong
-01d72934a7ab9205  # Close
+01d72934a7ab9203  # TxPing
+01d72934a7ab9204  # RxPing
+01d72934a7ab9205  # TxPong
+01d72934a7ab9206  # RxPong
+01d72934a7ab9207  # TxClose
+01d72934a7ab9208  # RxClose
+01d72934a7ab9209  # CloseTimeout
+01d72934a7ab920a  # SecureListening
+
+[filter]
+
+id          = websocket-control
+name        = "WebSocket control frames"
+description = "Show/hide WebSocket control frames (Ping, Pong, Close)"
+
+01d72934a7ab9203  # TxPing
+01d72934a7ab9204  # RxPing
+01d72934a7ab9205  # TxPong
+01d72934a7ab9206  # RxPong
+01d72934a7ab9207  # TxClose
+01d72934a7ab9208  # RxClose

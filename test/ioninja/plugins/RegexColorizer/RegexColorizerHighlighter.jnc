@@ -99,27 +99,24 @@ void RegexColorizerHighlighter.write_l(
 	if (!m_attrArray.m_count)
 		return;
 
-	m_regexState.m_currentOffset = -size;
+	m_regexState.m_currentOffset -= size;
 
 	void const* end = p + size;
-
 	size_t result;
 
 	do
 	{
 		result = try m_regexDfa.match(m_regexState, p, end - p);
 		if (result < m_attrArray.m_count)
-		{
 			writer.retroColorize(
 				m_regexState.m_match.m_offset,
 				m_regexState.m_match.m_length,
 				(ui.TextAttr) m_attrArray[result],
 				m_retroColorizerFlags
 				);
-		}
 
 		p += m_regexState.m_consumedLength;
-	} while (result != -1);
+	} while (result != -1 && p < end);
 }
 
 //..............................................................................
