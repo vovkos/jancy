@@ -64,7 +64,7 @@ RegKey::read(
 	)
 {
 	char buffer[256];
-	sl::Array<byte_t> value(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
 	size_t size = self->readImpl(&value, (char*)namePtr.m_p, &type);
@@ -79,7 +79,7 @@ JNC_CDECL
 RegKey::readDword(DataPtr namePtr)
 {
 	char buffer[256];
-	sl::Array<byte_t> value(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
 	size_t size = readImpl(&value, (char*)namePtr.m_p, &type);
@@ -116,7 +116,7 @@ RegKey::readString(
 	)
 {
 	char buffer[256];
-	sl::Array<byte_t> value(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<byte_t> value(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	dword_t type;
 	size_t size = self->readImpl(&value, (char*)namePtr.m_p, &type);

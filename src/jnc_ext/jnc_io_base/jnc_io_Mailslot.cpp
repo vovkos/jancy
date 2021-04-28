@@ -72,7 +72,7 @@ Mailslot::open(DataPtr namePtr)
 		return false;
 
 	char buffer[256];
-	sl::String_w deviceName(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String_w deviceName(rc::BufKind_Stack, buffer, sizeof(buffer));
 	deviceName = L"\\\\.\\mailslot\\";
 
 	sl::StringRef name((const char*) namePtr.m_p);

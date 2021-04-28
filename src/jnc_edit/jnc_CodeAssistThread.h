@@ -20,8 +20,8 @@ class CodeAssistThread: public QThread
 	Q_OBJECT
 
 protected:
-	ref::Ptr<Module> m_module;
-	ref::Ptr<Module> m_cacheModule;
+	rc::Ptr<Module> m_module;
+	rc::Ptr<Module> m_cacheModule;
 	CodeAssistKind m_codeAssistKind;
 	sl::String m_source;
 	size_t m_offset;
@@ -38,7 +38,7 @@ public:
 		wait();
 	}
 
-	const ref::Ptr<Module>&
+	const rc::Ptr<Module>&
 	getModule()
 	{
 		return m_module;
@@ -53,7 +53,7 @@ public:
 	void
 	request(
 		CodeAssistKind kind,
-		const ref::Ptr<Module>& cacheModule,
+		const rc::Ptr<Module>& cacheModule,
 		int position,
 		const QString& source
 		);
@@ -61,7 +61,7 @@ public:
 	void
 	request(
 		CodeAssistKind kind,
-		const ref::Ptr<Module>& cacheModule,
+		const rc::Ptr<Module>& cacheModule,
 		size_t offset,
 		const sl::StringRef& source
 		);

@@ -96,7 +96,7 @@ protected:
 	QStringList m_importDirList;
 	QStringList m_importList;
 	CodeAssistThread* m_thread;
-	ref::Ptr<Module> m_lastCodeAssistModule;
+	rc::Ptr<Module> m_lastCodeAssistModule;
 	CodeAssistKind m_lastCodeAssistKind;
 	size_t m_lastCodeAssistOffset;
 	int m_lastCodeAssistPosition;

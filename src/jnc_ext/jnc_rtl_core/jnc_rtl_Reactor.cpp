@@ -162,7 +162,7 @@ ReactorImpl::reactionLoop()
 	IfaceHdr* parent = parentOffset ? (IfaceHdr*)((char*)this - parentOffset) : NULL;
 
 	char buffer[256];
-	sl::Array<Binding*> oldBindingArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Binding*> oldBindingArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	// first, reset activation count
 

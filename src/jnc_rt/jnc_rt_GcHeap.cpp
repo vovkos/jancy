@@ -921,7 +921,7 @@ GcHeap::addStaticRootVariables(
 		return;
 
 	char buffer[256];
-	sl::Array<Root> rootArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Root> rootArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	rootArray.setCount(count);
 
 	for (size_t i = 0; i < count; i++)

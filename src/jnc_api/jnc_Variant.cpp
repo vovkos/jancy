@@ -582,7 +582,7 @@ formatImpl(
 	AXL_VA_DECL(va, defaultType);
 
 	char buffer[256];
-	sl::String formatString(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String formatString(rc::BufKind_Stack, buffer, sizeof(buffer));
 	jnc::rtl::prepareFormatString(&formatString, fmtSpecifier, defaultType);
 
 	return string->format_va(formatString, va);
@@ -606,7 +606,7 @@ formatStringImpl(
 	// make a zero-terminated copy
 
 	char buffer[256];
-	sl::String string2(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string2(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string2.copy(p, length);
 	return formatImpl(string, fmtSpecifier, "s", string2.sz());
 }

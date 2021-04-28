@@ -266,7 +266,7 @@ WebSocketHandshakeParser::verifyAccept()
 	}
 
 	char buffer[256];
-	sl::Array<char> acceptHash(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> acceptHash(rc::BufKind_Stack, buffer, sizeof(buffer));
 	enc::Base64Encoding::decode(&acceptHash, accept->m_firstValue);
 	if (acceptHash.getCount() != SHA_DIGEST_LENGTH)
 		return err::fail("invalid handshake: bad 'Sec-WebSocket-Accept' format");

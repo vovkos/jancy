@@ -167,7 +167,7 @@ void
 UsbAsyncControlEndpoint::cancelTransfers()
 {
 	char buffer[256];
-	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Transfer*> activeTransferArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	m_lock.lock();
 	ASSERT(!(m_flags & Flag_Stop));
@@ -207,7 +207,7 @@ void
 UsbAsyncControlEndpoint::cancelAllActiveTransfers_l()
 {
 	char buffer[256];
-	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Transfer*> activeTransferArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	sl::Iterator<Transfer> it = m_activeTransferList.getHead();
 	for (; it; it++)

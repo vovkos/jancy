@@ -94,7 +94,7 @@ Namespace::resolveOrphans()
 		return true;
 
 	char buffer[256];
-	sl::Array<Property*> propertyArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Property*> propertyArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	ModuleItem* nspaceItem = getParentItem();
 
 	size_t count = m_orphanArray.getCount();

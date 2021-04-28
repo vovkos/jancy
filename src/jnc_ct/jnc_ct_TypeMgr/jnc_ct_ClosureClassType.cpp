@@ -123,7 +123,7 @@ FunctionClosureClassType::compileThunkFunction(Function* function)
 	size_t argCount = function->getType()->getArgArray().getCount();
 
 	char buffer[256];
-	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);
@@ -182,7 +182,7 @@ PropertyClosureClassType::compileAccessor(Function* accessor)
 	size_t argCount = accessor->getType()->getArgArray().getCount();
 
 	char buffer[256];
-	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
 	m_module->m_functionMgr.internalPrologue(accessor, argValueArray, argCount);

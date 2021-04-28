@@ -972,7 +972,7 @@ EditPrivate::requestCodeAssist(
 		this, SLOT(onThreadFinished())
 		);
 
-	m_thread->request(kind, ref::g_nullPtr, position, q->toPlainText());
+	m_thread->request(kind, rc::g_nullPtr, position, q->toPlainText());
 }
 
 void
@@ -994,7 +994,7 @@ EditPrivate::hideCodeAssist()
 	if (m_codeTip)
 		m_codeTip->close();
 
-	m_lastCodeAssistModule = ref::g_nullPtr;
+	m_lastCodeAssistModule = rc::g_nullPtr;
 	m_lastCodeAssistKind = CodeAssistKind_Undefined;
 	m_lastCodeAssistPosition = -1;
 	m_thread = NULL;

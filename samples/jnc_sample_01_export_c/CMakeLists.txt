@@ -157,7 +157,7 @@ else()
 		jnc_sys
 		jnc_api_core
 		axl_zip
-		axl_fsm
+		axl_re
 		axl_io
 		axl_lex
 		axl_core

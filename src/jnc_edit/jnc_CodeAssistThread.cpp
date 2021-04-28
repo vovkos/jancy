@@ -22,7 +22,7 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 {
 	m_codeAssistKind = CodeAssistKind_Undefined;
 
-	ref::Ptr<AutoModule> autoModule = AXL_REF_NEW(ref::Box<AutoModule>);
+	rc::Ptr<AutoModule> autoModule = AXL_RC_NEW(rc::Box<AutoModule>);
 	m_module.attach(autoModule->p(), autoModule.getRefCount());
 	autoModule.detach();
 }
@@ -30,7 +30,7 @@ CodeAssistThread::CodeAssistThread(QObject* parent):
 void
 CodeAssistThread::request(
 	CodeAssistKind kind,
-	const ref::Ptr<Module>& cacheModule,
+	const rc::Ptr<Module>& cacheModule,
 	int position,
 	const QString& source
 	)
@@ -43,7 +43,7 @@ CodeAssistThread::request(
 void
 CodeAssistThread::request(
 	CodeAssistKind kind,
-	const ref::Ptr<Module>& cacheModule,
+	const rc::Ptr<Module>& cacheModule,
 	size_t offset,
 	const sl::StringRef& source
 	)

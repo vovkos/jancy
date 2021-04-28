@@ -32,7 +32,7 @@ getTlsStringBuffer()
 	if (oldStringBuffer)
 		return oldStringBuffer;
 
-	ref::Ptr<sl::String> newStringBuffer = AXL_REF_NEW(ref::Box<sl::String>);
+	rc::Ptr<sl::String> newStringBuffer = AXL_RC_NEW(rc::Box<sl::String>);
 	sys::getTlsMgr()->setSlotValue(*slot, newStringBuffer);
 	return newStringBuffer;
 }

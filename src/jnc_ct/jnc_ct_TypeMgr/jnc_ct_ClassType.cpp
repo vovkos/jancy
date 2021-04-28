@@ -300,7 +300,7 @@ ClassType::calcLayout()
 	size_t baseTypeCount = m_baseTypeList.getCount();
 
 	char buffer[256];
-	sl::Array<BaseTypeSlot*> ifaceBaseTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<BaseTypeSlot*> ifaceBaseTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	ifaceBaseTypeArray.setCount(baseTypeCount);
 
 	sl::Iterator<BaseTypeSlot> slotIt = m_baseTypeList.getHead();
@@ -717,7 +717,7 @@ ClassType::prepareForOperatorNew()
 	count = m_vtable.getCount();
 
 	char buffer[256];
-	sl::Array<llvm::Constant*> llvmVtable(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Constant*> llvmVtable(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmVtable.setCount(count);
 
 	for (size_t i = 0; i < count; i++)

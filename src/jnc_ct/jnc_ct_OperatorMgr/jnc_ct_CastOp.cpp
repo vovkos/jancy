@@ -139,7 +139,7 @@ CastOperator::cast(
 	}
 
 	char buffer[256];
-	sl::Array<char> constData(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> constData(rc::BufKind_Stack, buffer, sizeof(buffer));
 	constData.setCount(type->getSize());
 
 	bool result = constCast(opValue, type, constData);

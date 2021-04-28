@@ -114,7 +114,7 @@ public:
 	sl::Array<UnionCoord> m_unionCoordArray;
 
 	MemberCoord():
-		m_unionCoordArray(ref::BufKind_Field, m_buffer, sizeof(m_buffer))
+		m_unionCoordArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer))
 	{
 	}
 };

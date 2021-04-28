@@ -318,7 +318,7 @@ WebSocket::read(
 		return bufferedRead(dataPtr, size);
 
 	char buffer[256];
-	sl::Array<char> params(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> params(rc::BufKind_Stack, buffer, sizeof(buffer));
 	size_t result = bufferedRead(dataPtr, size, &params);
 
 	*(uint_t*)opcodePtr.m_p = !params.isEmpty() ?
@@ -337,7 +337,7 @@ WebSocket::write(
 	)
 {
 	char buffer[256];
-	sl::Array<char> frame(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> frame(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	size_t frameSize = buildWebSocketFrame(
 		&frame,
@@ -1016,7 +1016,7 @@ WebSocket::sslReadWriteLoop()
 	readBlock.setCount(Def_ReadBlockSize);
 
 	char buffer[256];
-	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> writeParams(rc::BufKind_Stack, buffer, sizeof(buffer));
 	writeParams.setCount(sizeof(SocketAddress));
 
 	bool canReadSocket = true;
@@ -1164,7 +1164,7 @@ WebSocket::tcpSendRecvLoop()
 	readBlock.setCount(Def_ReadBlockSize);
 
 	char buffer[256];
-	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> writeParams(rc::BufKind_Stack, buffer, sizeof(buffer));
 	writeParams.setCount(sizeof(SocketAddress));
 
 	bool canReadSocket = false;

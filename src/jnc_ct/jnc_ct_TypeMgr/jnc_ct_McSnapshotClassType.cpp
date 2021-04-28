@@ -69,7 +69,7 @@ McSnapshotClassType::compileCallMethod(Function* function)
 	size_t argCount = argArray.getCount();
 
 	char buffer[256];
-	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, argCount);

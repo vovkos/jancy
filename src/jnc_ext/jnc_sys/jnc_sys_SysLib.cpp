@@ -85,7 +85,7 @@ setEnv(
 {
 #if (_AXL_OS_WIN)
 	char buffer[256];
-	sl::String envString(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String envString(rc::BufKind_Stack, buffer, sizeof(buffer));
 	envString.format("%s=%s", namePtr.m_p, valuePtr.m_p ? valuePtr.m_p : "");
 	_putenv(envString);
 #else

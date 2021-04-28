@@ -86,7 +86,7 @@ MulticastClassType::compileCallMethod(Function* function)
 		return false;
 
 	char buffer[256];
-	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	size_t argCount = function->getType()->getArgArray().getCount();
 	argValueArray.setCount(argCount);

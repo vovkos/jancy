@@ -93,7 +93,7 @@ createStdioPipe(
 	)
 {
 	char buffer[256];
-	sl::String_w pipeName(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String_w pipeName(rc::BufKind_Stack, buffer, sizeof(buffer));
 	pipeName.format(
 		L"\\\\.\\pipe\\jnc.ChildProcess.%p.%p",
 		sys::getCurrentProcessId(),
@@ -167,7 +167,7 @@ buildEnvironmentBlock(
 	}
 
 	char buffer[256];
-	sl::String_w variableDef(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String_w variableDef(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	StdMapEntry* entry = environment->m_map.getHead();
 	for (; entry; entry = entry->getNext())
@@ -249,7 +249,7 @@ buildEnvpArray(
 	}
 
 	char buffer[256];
-	sl::Array<size_t> envpIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<size_t> envpIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	block->clear();
 
@@ -283,10 +283,10 @@ exec(
 	) // returns on failure only
 {
 	char buffer[4][256];
-	sl::String argvString(ref::BufKind_Stack, buffer[0], sizeof(buffer[0]));
-	sl::Array<char> envpBlock(ref::BufKind_Stack, buffer[1], sizeof(buffer[1]));
-	sl::Array<char*> argv(ref::BufKind_Stack, buffer[2], sizeof(buffer[2]));
-	sl::Array<char*> envp(ref::BufKind_Stack, buffer[3], sizeof(buffer[3]));
+	sl::String argvString(rc::BufKind_Stack, buffer[0], sizeof(buffer[0]));
+	sl::Array<char> envpBlock(rc::BufKind_Stack, buffer[1], sizeof(buffer[1]));
+	sl::Array<char*> argv(rc::BufKind_Stack, buffer[2], sizeof(buffer[2]));
+	sl::Array<char*> envp(rc::BufKind_Stack, buffer[3], sizeof(buffer[3]));
 
 	int result =
 		buildArgvArray(&argv, &argvString, commandLine) != -1 &&
@@ -351,7 +351,7 @@ ChildProcess::start(
 		return false;
 
 	char buffer[256];
-	sl::Array<wchar_t> environmentBlock(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<wchar_t> environmentBlock(rc::BufKind_Stack, buffer, sizeof(buffer));
 	buildEnvironmentBlock(&environmentBlock, environment, flags);
 
 	STARTUPINFOW startupInfo = { 0 };

@@ -80,12 +80,12 @@ protected:
 	};
 
 	sl::Array<char> m_constData;
-	ref::Ptr<Closure> m_closure;
+	rc::Ptr<Closure> m_closure;
 
 	// codegen-only
 
-	ref::Ptr<DynamicFieldValueInfo> m_dynamicFieldInfo;
-	mutable ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
+	rc::Ptr<DynamicFieldValueInfo> m_dynamicFieldInfo;
+	mutable rc::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	mutable llvm::Value* m_llvmValue;
 
 public:
@@ -378,7 +378,7 @@ public:
 	void
 	clearClosure()
 	{
-		m_closure = ref::g_nullPtr;
+		m_closure = rc::g_nullPtr;
 	}
 
 	Type*
@@ -400,7 +400,7 @@ public:
 	void
 	clearDynamicFieldInfo()
 	{
-		m_closure = ref::g_nullPtr;
+		m_closure = rc::g_nullPtr;
 	}
 
 	void
@@ -712,7 +712,7 @@ Value::getLlvmValue() const
 
 //..............................................................................
 
-struct DynamicFieldValueInfo: ref::RefCount
+struct DynamicFieldValueInfo: rc::RefCount
 {
 	Value m_parentValue;
 	DerivableType* m_parentType;

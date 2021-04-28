@@ -790,7 +790,7 @@ appendFmtLiteralDirect_va(
 	)
 {
 	char buffer2[256];
-	sl::String string(ref::BufKind_Stack, buffer2, sizeof(buffer2));
+	sl::String string(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	string.format_va(formatString, va);
 
 	return appendFmtLiteral_a(fmtLiteral, string, string.getLength());
@@ -820,7 +820,7 @@ appendFmtLiteralImpl(
 	AXL_VA_DECL(va, defaultType);
 
 	char buffer1[256];
-	sl::String formatString(ref::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::String formatString(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	prepareFormatString(&formatString, fmtSpecifier, defaultType);
 
 	return appendFmtLiteralDirect_va(fmtLiteral, formatString, va);
@@ -842,7 +842,7 @@ appendFmtLiteralStringImpl(
 		return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", p);
 
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy(p, length);
 
 	return appendFmtLiteralImpl(fmtLiteral, fmtSpecifier, "s", string.sz());
@@ -930,7 +930,7 @@ appendFmtLiteral_v(
 	)
 {
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	variant.format(&string, fmtSpecifier);
 	return appendFmtLiteral_a(fmtLiteral, string, string.getLength());
 }

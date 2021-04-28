@@ -35,7 +35,7 @@ ThunkFunction::compile()
 	size_t thunkArgCount = thunkArgArray.getCount();
 
 	char buffer[256];
-	sl::Array<Value> thunkArgValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> thunkArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	thunkArgValueArray.setCount(thunkArgCount);
 
 	m_module->m_functionMgr.internalPrologue(this, thunkArgValueArray, thunkArgCount);

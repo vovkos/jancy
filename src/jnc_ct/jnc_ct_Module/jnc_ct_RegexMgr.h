@@ -94,7 +94,7 @@ public:
 	clear();
 
 	bool
-	build(fsm::Regex* regex);
+	build(re::Regex* regex);
 
 	uintptr_t
 	getTransition(

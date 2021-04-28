@@ -39,9 +39,9 @@ Dfa::clear()
 }
 
 bool
-Dfa::build(fsm::Regex* regex)
+Dfa::build(re::Regex* regex)
 {
-	sl::Array<fsm::DfaState*> stateArray = regex->getDfaStateArray();
+	sl::Array<re::DfaState*> stateArray = regex->getDfaStateArray();
 	m_stateCount = stateArray.getCount();
 	m_groupCount = regex->getGroupCount();
 	m_maxSubMatchCount = 0;
@@ -56,7 +56,7 @@ Dfa::build(fsm::Regex* regex)
 
 	for (size_t i = 0; i < m_stateCount; i++)
 	{
-		fsm::DfaState* state = stateArray[i];
+		re::DfaState* state = stateArray[i];
 		if (state->m_isAccept)
 		{
 			ReSwitchAcceptContext* context = (ReSwitchAcceptContext*)state->m_acceptContext;
@@ -102,24 +102,24 @@ Dfa::build(fsm::Regex* regex)
 			stateInfo->m_groupSet = groupSet;
 		}
 
-		sl::Iterator<fsm::DfaTransition> transitionIt = state->m_transitionList.getHead();
+		sl::Iterator<re::DfaTransition> transitionIt = state->m_transitionList.getHead();
 		for (; transitionIt; transitionIt++)
 		{
-			fsm::DfaTransition* transition = *transitionIt;
+			re::DfaTransition* transition = *transitionIt;
 			switch (transition->m_matchCondition.m_conditionKind)
 			{
-			case fsm::MatchConditionKind_Char:
+			case re::MatchConditionKind_Char:
 				ASSERT(transition->m_matchCondition.m_char < 256);
 				transitionRow[transition->m_matchCondition.m_char] = transition->m_outState->m_id;
 				break;
 
-			case fsm::MatchConditionKind_CharSet:
+			case re::MatchConditionKind_CharSet:
 				for (size_t j = 0; j < 256; j++)
 					if (transition->m_matchCondition.m_charSet.getBit(j))
 						transitionRow[j] = transition->m_outState->m_id;
 				break;
 
-			case fsm::MatchConditionKind_Any:
+			case re::MatchConditionKind_Any:
 				for (size_t j = 0; j < 256; j++)
 					transitionRow[j] = transition->m_outState->m_id;
 				break;

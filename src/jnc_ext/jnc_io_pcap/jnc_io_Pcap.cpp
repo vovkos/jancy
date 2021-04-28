@@ -293,7 +293,7 @@ Pcap::read(
 	else
 	{
 		char buffer[256];
-		sl::Array<char> params(ref::BufKind_Stack, buffer, sizeof(buffer));
+		sl::Array<char> params(rc::BufKind_Stack, buffer, sizeof(buffer));
 		result = bufferedRead(dataPtr, size, &params);
 
 		ASSERT(params.getCount() == sizeof(uint64_t));

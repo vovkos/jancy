@@ -50,8 +50,8 @@ OperatorMgr::createClosureObject(
 	char buffer1[256];
 	char buffer2[256];
 
-	sl::Array<Type*> closureArgTypeArray(ref::BufKind_Stack, buffer1, sizeof(buffer1));
-	sl::Array<size_t> closureMap(ref::BufKind_Stack, buffer2, sizeof(buffer2));
+	sl::Array<Type*> closureArgTypeArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<size_t> closureMap(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	size_t closureArgCount = 0;
 	size_t closureThisArgIdx = -1;
 

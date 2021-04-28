@@ -139,7 +139,7 @@ ExtensionLibMgr::loadDynamicLib(const sl::StringRef& fileName)
 	sl::String dynamicLibFilePath;
 
 	char buffer[256];
-	sl::Array<size_t> forcedImportIdxArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<size_t> forcedImportIdxArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	sl::Iterator<SourceFile> sourceFileIt = m_sourceFileList.getTail(); // save source file iterator
 

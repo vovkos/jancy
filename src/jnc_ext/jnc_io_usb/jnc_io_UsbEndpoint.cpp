@@ -167,7 +167,7 @@ void
 UsbEndpoint::cancelAllActiveTransfers()
 {
 	char buffer[256];
-	sl::Array<Transfer*> activeTransferArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Transfer*> activeTransferArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	m_lock.lock();
 

@@ -60,7 +60,7 @@ CdeclCallConv_arm::prepareFunctionType(FunctionType* functionType)
 	size_t argCount = argArray.getCount();
 
 	char buffer[256];
-	sl::Array<llvm::Type*> llvmArgTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
 	functionType->m_argFlagArray.setCountZeroConstruct(argCount);
 

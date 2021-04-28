@@ -31,7 +31,7 @@ BaseTypeSlot::BaseTypeSlot()
 //..............................................................................
 
 BaseTypeCoord::BaseTypeCoord():
-	m_llvmIndexArray(ref::BufKind_Field, m_buffer, sizeof(m_buffer))
+	m_llvmIndexArray(rc::BufKind_Field, m_buffer, sizeof(m_buffer))
 {
 	m_type = NULL;
 	m_offset = 0;

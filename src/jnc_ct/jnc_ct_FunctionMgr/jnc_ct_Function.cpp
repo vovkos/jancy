@@ -234,7 +234,7 @@ Function::compile()
 	size_t argCount = m_type->getArgArray().getCount();
 
 	char buffer[256];
-	sl::Array<Value> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argValueArray.setCount(argCount);
 
 	m_module->m_functionMgr.internalPrologue(this, argValueArray, argCount);

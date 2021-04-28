@@ -275,7 +275,7 @@ LlvmIrBuilder::createGep(
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
-	sl::Array<llvm::Value*> llvmIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Value*> llvmIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
 
 	for (size_t i = 0; i < indexCount; i++)
@@ -303,7 +303,7 @@ LlvmIrBuilder::createGep(
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
-	sl::Array<llvm::Value*> llvmIndexArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Value*> llvmIndexArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmIndexArray.setCount(indexCount);
 
 	for (size_t i = 0; i < indexCount; i++)
@@ -391,7 +391,7 @@ LlvmIrBuilder::createCall(
 	size_t argCount = argValueList.getCount();
 
 	char buffer[256];
-	sl::Array<llvm::Value*> llvmArgValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Value*> llvmArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgValueArray.setCount(argCount);
 
 	sl::ConstBoxIterator<Value> it = argValueList.getHead();
@@ -417,7 +417,7 @@ LlvmIrBuilder::createCall(
 	ASSERT(m_llvmIrBuilder);
 
 	char buffer[256];
-	sl::Array<llvm::Value*> llvmArgValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Value*> llvmArgValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgValueArray.setCount(argCount);
 
 	for (size_t i = 0; i < argCount; i++)

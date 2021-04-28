@@ -60,7 +60,7 @@ Variable::prepareLeanDataPtrValidator()
 	ASSERT(!m_leanDataPtrValidator);
 
 	Value originValue(this);
-	m_leanDataPtrValidator = AXL_REF_NEW(LeanDataPtrValidator);
+	m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
 	m_leanDataPtrValidator->m_originValue = originValue;
 	m_leanDataPtrValidator->m_rangeBeginValue = originValue;
 	m_leanDataPtrValidator->m_rangeLength = m_type->getSize();

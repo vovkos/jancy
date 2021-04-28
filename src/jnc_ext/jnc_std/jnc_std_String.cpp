@@ -110,7 +110,7 @@ StringBuilder::copy_utf16(
 	)
 {
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf16_t*)ptr.m_p, length);
 	return copyImpl(string, string.getLength());
 }
@@ -123,7 +123,7 @@ StringBuilder::copy_utf32(
 	)
 {
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf32_t*)ptr.m_p, length);
 	return copyImpl(string, string.getLength());
 }
@@ -163,7 +163,7 @@ StringBuilder::insert_utf16(
 	)
 {
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf16_t*)ptr.m_p, length);
 	return insertImpl(offset, string, string.getLength());
 }
@@ -177,7 +177,7 @@ StringBuilder::insert_utf32(
 	)
 {
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 	string.copy((utf32_t*)ptr.m_p, length);
 	return insertImpl(offset, string, string.getLength());
 }

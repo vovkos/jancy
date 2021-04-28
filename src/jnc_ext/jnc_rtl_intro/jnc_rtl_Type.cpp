@@ -176,7 +176,7 @@ Type::getValueString_1(
 	)
 {
 	char buffer[256];
-	sl::Array<char> valueBuffer(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> valueBuffer(rc::BufKind_Stack, buffer, sizeof(buffer));
 	valueBuffer.setCount(self->m_item->getSize());
 
 	bool result = value.cast(self->m_item, valueBuffer);

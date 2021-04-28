@@ -721,7 +721,7 @@ Property::createVtableVariable()
 		return false;
 
 	char buffer[256];
-	sl::Array<llvm::Constant*> llvmVtable(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Constant*> llvmVtable(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	size_t count = m_vtable.getCount();
 	llvmVtable.setCount(count);

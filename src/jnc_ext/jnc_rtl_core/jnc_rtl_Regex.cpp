@@ -525,7 +525,7 @@ RegexDfa::incrementalCompile(
 	context->m_actionIdx = m_acceptContextList.getCount();
 	m_acceptContextList.insertTail(context);
 
-	fsm::RegexCompiler compiler(&m_regex);
+	re::RegexCompiler compiler(&m_regex);
 	return compiler.incrementalCompile(sl::StringRef((const char*) regexStringPtr.m_p, length), context);
 }
 
@@ -539,7 +539,7 @@ RegexDfa::finalize()
 		return false;
 	}
 
-	fsm::RegexCompiler regexCompiler(&m_regex);
+	re::RegexCompiler regexCompiler(&m_regex);
 	regexCompiler.finalize();
 
 	sl::Iterator<ct::ReSwitchAcceptContext> prev = m_acceptContextList.getHead();
@@ -576,8 +576,8 @@ RegexDfa::match(
 		return -1;
 	}
 
-	sl::Array<fsm::DfaState*> stateArray = m_regex.getDfaStateArray();
-	fsm::DfaState* dfaState = stateArray[stateId];
+	sl::Array<re::DfaState*> stateArray = m_regex.getDfaStateArray();
+	re::DfaState* dfaState = stateArray[stateId];
 
 	ASSERT(dfaState->m_isAccept);
 	ct::ReSwitchAcceptContext* context = (ct::ReSwitchAcceptContext*)dfaState->m_acceptContext;

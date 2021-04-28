@@ -425,11 +425,11 @@ void ControlFlowMgr::finalizeFinallyScope(Scope* scope)
 	}
 
 	char buffer1[256];
-	sl::Array<intptr_t> routeIdxArray(ref::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<intptr_t> routeIdxArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	routeIdxArray.setCount(count);
 
 	char buffer2[256];
-	sl::Array<BasicBlock*> blockArray(ref::BufKind_Stack, buffer2, sizeof(buffer2));
+	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	blockArray.setCount(count);
 
 	sl::HashTableIterator<size_t, BasicBlock*> it = scope->m_finallyBlock->m_finallyRouteMap.getHead();
@@ -518,11 +518,11 @@ ControlFlowMgr::finalizeDisposableScope(Scope* scope)
 	BasicBlock* switchBlock = m_currentBlock;
 
 	char buffer1[256];
-	sl::Array<intptr_t> levelArray(ref::BufKind_Stack, buffer1, sizeof(buffer1));
+	sl::Array<intptr_t> levelArray(rc::BufKind_Stack, buffer1, sizeof(buffer1));
 	levelArray.setCount(count);
 
 	char buffer2[256];
-	sl::Array<BasicBlock*> blockArray(ref::BufKind_Stack, buffer2, sizeof(buffer2));
+	sl::Array<BasicBlock*> blockArray(rc::BufKind_Stack, buffer2, sizeof(buffer2));
 	blockArray.setCount(count + 1);
 
 	for (size_t i = 0, j = count; i < count; i++, j--)

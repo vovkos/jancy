@@ -149,7 +149,7 @@ Lexer::createCharToken(
 	ASSERT(token->m_pos.m_length >= 1);
 
 	char buffer[256];
-	sl::String string(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::String string(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	const char* p = ts + prefix;
 	size_t length = token->m_pos.m_length - prefix;

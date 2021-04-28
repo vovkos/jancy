@@ -59,7 +59,7 @@ protected:
 
 	Field* m_tlsField;
 	void* m_staticData;
-	ref::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
+	rc::Ptr<LeanDataPtrValidator> m_leanDataPtrValidator;
 	sl::String m_llvmGlobalVariableName;
 	llvm::GlobalVariable* m_llvmGlobalVariable; // for classes this is different from m_llvmValue
 	llvm::Value* m_llvmValue;                   // GlobalVariable* / AllocaInst* / GEPInst* / CallInst*

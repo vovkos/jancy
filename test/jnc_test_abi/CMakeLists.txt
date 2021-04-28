@@ -125,7 +125,7 @@ endif()
 target_link_libraries(
 	jnc_test_abi
 	axl_zip
-	axl_fsm
+	axl_re
 	axl_io
 	axl_lex
 	axl_core

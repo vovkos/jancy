@@ -52,7 +52,7 @@ public:
 		llvm::Type* llvmType = type->getLlvmType();
 
 		char buffer[256];
-		sl::Array<llvm::Constant*> llvmMemberArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+		sl::Array<llvm::Constant*> llvmMemberArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 		const sl::Array<Field*>& fieldArray = type->getFieldArray();
 		size_t count = fieldArray.getCount();
@@ -117,8 +117,8 @@ Value::clear()
 	m_type = NULL;
 	m_item = NULL;
 	m_llvmValue = NULL;
-	m_closure = ref::g_nullPtr;
-	m_leanDataPtrValidator = ref::g_nullPtr;
+	m_closure = rc::g_nullPtr;
+	m_leanDataPtrValidator = rc::g_nullPtr;
 }
 
 llvm::Constant*
@@ -253,7 +253,7 @@ Value::getLlvmConst(
 Closure*
 Value::createClosure()
 {
-	m_closure = AXL_REF_NEW(Closure);
+	m_closure = AXL_RC_NEW(Closure);
 	return m_closure;
 }
 
@@ -276,7 +276,7 @@ Value::setDynamicFieldInfo(
 	Field* field
 	)
 {
-	m_dynamicFieldInfo = AXL_REF_NEW(DynamicFieldValueInfo);
+	m_dynamicFieldInfo = AXL_RC_NEW(DynamicFieldValueInfo);
 	m_dynamicFieldInfo->m_parentValue = parentValue;
 	m_dynamicFieldInfo->m_parentType = parentType;
 	m_dynamicFieldInfo->m_field = field;
@@ -538,7 +538,7 @@ Value::setLeanDataPtrValidator(const Value& originValue)
 	}
 	else
 	{
-		m_leanDataPtrValidator = AXL_REF_NEW(LeanDataPtrValidator);
+		m_leanDataPtrValidator = AXL_RC_NEW(LeanDataPtrValidator);
 		m_leanDataPtrValidator->m_originValue = originValue;
 	}
 }
@@ -552,7 +552,7 @@ Value::setLeanDataPtrValidator(
 {
 	ASSERT(isDataPtrType(m_type, DataPtrTypeKind_Lean));
 
-	ref::Ptr<LeanDataPtrValidator> validator = AXL_REF_NEW(LeanDataPtrValidator);
+	rc::Ptr<LeanDataPtrValidator> validator = AXL_RC_NEW(LeanDataPtrValidator);
 	validator->m_originValue = originValue;
 	validator->m_rangeBeginValue = rangeBeginValue;
 	validator->m_rangeLength = rangeLength;

@@ -455,7 +455,7 @@ SslSocket::sslReadWriteLoop()
 	readBlock.setCount(Def_ReadBlockSize);
 
 	char buffer[256];
-	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> writeParams(rc::BufKind_Stack, buffer, sizeof(buffer));
 	writeParams.setCount(sizeof(SocketAddress));
 
 	bool canReadSocket = true;

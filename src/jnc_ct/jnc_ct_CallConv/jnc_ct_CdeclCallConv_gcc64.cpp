@@ -41,7 +41,7 @@ CdeclCallConv_gcc64::prepareFunctionType(FunctionType* functionType)
 	size_t argRegCount = 6; // rdi, rsi, rdx, rcx, r8, r9
 
 	char buffer[256];
-	sl::Array<llvm::Type*> llvmArgTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Type*> llvmArgTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	llvmArgTypeArray.setCount(argCount);
 	functionType->m_argFlagArray.setCountZeroConstruct(argCount);
 
@@ -183,7 +183,7 @@ CdeclCallConv_gcc64::call(
 
 	unsigned j = 1;
 	char buffer[256];
-	sl::Array<unsigned> byValArgIdxArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<unsigned> byValArgIdxArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	sl::BoxIterator<Value> it = argValueList->getHead();
 	for (; it; it++, j++)

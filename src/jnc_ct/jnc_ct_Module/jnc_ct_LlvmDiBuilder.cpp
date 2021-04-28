@@ -82,7 +82,7 @@ LlvmDiBuilder::createSubroutineType(FunctionType* functionType)
 	size_t count = argArray.getCount();
 
 	char buffer[256];
-	sl::Array<llvm::Metadata*> argTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Metadata*> argTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argTypeArray.setCount(count + 1);
 
 	llvm::Metadata** dst = argTypeArray;
@@ -144,7 +144,7 @@ LlvmDiBuilder::setStructTypeBody(StructType* structType)
 	size_t count = baseTypeCount + fieldCount;
 
 	char buffer[256];
-	sl::Array<llvm::Metadata*> fieldTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Metadata*> fieldTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	fieldTypeArray.setCount(count);
 
 	size_t i = 0;
@@ -231,7 +231,7 @@ LlvmDiBuilder::setUnionTypeBody(UnionType* unionType)
 	size_t count = fieldArray.getCount();
 
 	char buffer[256];
-	sl::Array<llvm::Metadata*> fieldTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Metadata*> fieldTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	fieldTypeArray.setCount(count);
 
 	for (size_t i = 0; i < count; i++)
@@ -273,7 +273,7 @@ llvm::DIType_vn
 LlvmDiBuilder::createArrayType(ArrayType* arrayType)
 {
 	char buffer[256];
-	sl::Array<llvm::Metadata*> dimArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<llvm::Metadata*> dimArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 
 	ArrayType* p = arrayType;
 	for (;;)

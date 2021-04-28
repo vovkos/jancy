@@ -82,7 +82,7 @@ Parser::tokenizeBody(
 	lexer.setLineColOffset(pos);
 
 	char buffer[256];
-	sl::Array<Token*> scopeAnchorTokenStack(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Token*> scopeAnchorTokenStack(rc::BufKind_Stack, buffer, sizeof(buffer));
 	bool isScopeFlagMarkupRequired = m_mode != Mode_Parse;
 
 	for (;;)
@@ -2879,7 +2879,7 @@ Parser::finalizeLiteral(
 	}
 
 	char buffer[256];
-	sl::Array<Value*> argValueArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Value*> argValueArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	size_t argCount = 0;
 
 	if (argValueList)

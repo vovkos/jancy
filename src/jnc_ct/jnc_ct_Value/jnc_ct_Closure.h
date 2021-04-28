@@ -23,7 +23,7 @@ class PropertyPtrType;
 
 //..............................................................................
 
-class Closure: public ref::RefCount
+class Closure: public rc::RefCount
 {
 protected:
 	sl::BoxList<Value> m_argValueList;

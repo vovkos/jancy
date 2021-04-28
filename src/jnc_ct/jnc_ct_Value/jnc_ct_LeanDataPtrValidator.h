@@ -21,7 +21,7 @@ class OperatorMgr;
 
 //..............................................................................
 
-class LeanDataPtrValidator: public ref::RefCount
+class LeanDataPtrValidator: public rc::RefCount
 {
 	friend class Value;
 	friend class Variable;

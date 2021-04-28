@@ -25,7 +25,7 @@ protected:
 	{
 		UsbAsyncControlEndpoint* m_self;
 		axl::io::UsbTransfer m_usbTransfer;
-		axl::ref::Buf<libusb_control_setup> m_buffer;
+		axl::rc::Buf<libusb_control_setup> m_buffer;
 		jnc::DataPtr m_inBufferPtr;
 		jnc::FunctionPtr m_completionFuncPtr;
 	};

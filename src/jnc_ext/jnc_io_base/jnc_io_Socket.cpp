@@ -240,7 +240,7 @@ Socket::readDatagram(
 	else
 	{
 		char buffer[256];
-		sl::Array<char> params(ref::BufKind_Stack, buffer, sizeof(buffer));
+		sl::Array<char> params(rc::BufKind_Stack, buffer, sizeof(buffer));
 		result = bufferedRead(dataPtr, dataSize, &params);
 
 		ASSERT(params.getCount() == sizeof(axl::io::SockAddr));
@@ -581,7 +581,7 @@ Socket::sendRecvLoop(
 	readBlock.setCount(Def_ReadBlockSize);
 
 	char buffer[256];
-	sl::Array<char> writeParams(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<char> writeParams(rc::BufKind_Stack, buffer, sizeof(buffer));
 	writeParams.setCount(sizeof(SocketAddress));
 
 	bool canReadSocket = false;

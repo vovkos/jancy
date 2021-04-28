@@ -939,7 +939,7 @@ TypeMgr::getIndexedPropertyType(
 		return getPropertyType(getterType, NULL, flags);
 
 	char buffer[256];
-	sl::Array<Type*> argTypeArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<Type*> argTypeArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	argTypeArray.copy(indexArgTypeArray, indexArgCount);
 	argTypeArray.append(returnType);
 
@@ -1005,7 +1005,7 @@ TypeMgr::getMemberPropertyType(
 	size_t setterTypeOverloadCount = propertyType->m_setterType.getOverloadCount();
 
 	char buffer[256];
-	sl::Array<FunctionType*> setterTypeOverloadArray(ref::BufKind_Stack, buffer, sizeof(buffer));
+	sl::Array<FunctionType*> setterTypeOverloadArray(rc::BufKind_Stack, buffer, sizeof(buffer));
 	setterTypeOverloadArray.setCount(setterTypeOverloadCount);
 
 	for (size_t i = 0; i < setterTypeOverloadCount; i++)

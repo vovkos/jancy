@@ -74,7 +74,7 @@ target_link_libraries(
 	jnc_rt
 	${AXL_CA_LIB_LIST}
 	axl_zip
-	axl_fsm
+	axl_re
 	axl_io
 	axl_lex
 	axl_dox

@@ -146,7 +146,7 @@ protected:
 class RegexDfa: public IfaceHdr
 {
 protected:
-	fsm::Regex m_regex;
+	re::Regex m_regex;
 	sl::List<ct::ReSwitchAcceptContext> m_acceptContextList;
 	ct::Dfa m_dfa;
 

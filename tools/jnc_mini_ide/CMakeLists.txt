@@ -283,7 +283,7 @@ endif()
 target_link_libraries(
 	jnc_mini_ide
 	axl_zip
-	axl_fsm
+	axl_re
 	axl_io
 	axl_lex
 	axl_core

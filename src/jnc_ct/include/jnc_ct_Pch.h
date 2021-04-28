@@ -244,7 +244,7 @@ typedef Instruction TerminatorInst;
 #include "axl_sl_HandleTable.h"
 #include "axl_sl_Singleton.h"
 #include "axl_sl_Construct.h"
-#include "axl_fsm_Regex.h"
+#include "axl_re_Regex.h"
 #include "axl_enc_HexEncoding.h"
 #include "axl_enc_EscapeEncoding.h"
 #include "axl_io_FilePathUtils.h"

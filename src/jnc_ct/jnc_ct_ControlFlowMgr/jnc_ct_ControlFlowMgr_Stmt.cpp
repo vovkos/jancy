@@ -243,7 +243,7 @@ ControlFlowMgr::reSwitchStmt_Case(
 	context->m_actionBlock = block;
 	stmt->m_acceptContextList.insertTail(context);
 
-	fsm::RegexCompiler regexCompiler(&stmt->m_regex);
+	re::RegexCompiler regexCompiler(&stmt->m_regex);
 	return regexCompiler.incrementalCompile(regexSource, context);
 }
 
@@ -287,7 +287,7 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 
 	// finalize regexp
 
-	fsm::RegexCompiler regexCompiler(&stmt->m_regex);
+	re::RegexCompiler regexCompiler(&stmt->m_regex);
 	regexCompiler.finalize();
 
 	sl::Iterator<ReSwitchAcceptContext> prev = stmt->m_acceptContextList.getHead();
@@ -315,13 +315,13 @@ ControlFlowMgr::reSwitchStmt_Finalize(ReSwitchStmt* stmt)
 
 	// build case map
 
-	sl::Array<fsm::DfaState*> stateArray = stmt->m_regex.getDfaStateArray();
+	sl::Array<re::DfaState*> stateArray = stmt->m_regex.getDfaStateArray();
 	sl::SimpleHashTable<intptr_t, BasicBlock*> caseMap;
 
 	size_t stateCount = stateArray.getCount();
 	for (size_t i = 0; i < stateCount; i++)
 	{
-		fsm::DfaState* state = stateArray[i];
+		re::DfaState* state = stateArray[i];
 
 		if (state->m_isAccept)
 		{
