@@ -6,6 +6,7 @@
 import "doc_Session.jnc"
 import "io_websocket.jncx"
 import "io_WebSocket.jnc"
+import "iox_WebSocket.jnc"
 import "ui_History.jnc"
 import "ui_SocketUi.jnc"
 import "ui_SslPropertySet.jnc"
