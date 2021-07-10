@@ -122,7 +122,7 @@ OperatorMgr::createClosureObject(
 	}
 
 	if (!closureType)
-		return NULL;
+		return false;
 
 	// create instance
 
