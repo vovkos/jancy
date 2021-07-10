@@ -295,7 +295,7 @@ OperatorMgr::getValueFunctionTypeOverload(
 
 	FunctionPtrType* functionPtrType = ((FunctionPtrType*)opType);
 	if (functionPtrType->hasClosure())
-		*baseArgumentIdx++;
+		(*baseArgumentIdx)++;
 
 	return functionPtrType->getTargetType();
 }
