@@ -102,7 +102,7 @@ statement
 statement_sync
 	:	TokenKind_If
 	|	TokenKind_Switch
-	|	TokenKind_Reswitch
+	|	TokenKind_ReSwitch
 	|	TokenKind_While
 	|	TokenKind_Do
 	|	TokenKind_For
