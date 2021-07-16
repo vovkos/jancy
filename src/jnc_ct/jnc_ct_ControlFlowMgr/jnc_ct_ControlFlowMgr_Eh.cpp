@@ -125,6 +125,7 @@ ControlFlowMgr::setJmp(
 
 	BasicBlock* followBlock = createBlock("follow_block");
 	bool result = conditionalJump(returnValue, catchBlock, followBlock, followBlock);
+	ASSERT(result);
 
 	if (sjljFrameIdx >= m_sjljFrameCount)
 	{
