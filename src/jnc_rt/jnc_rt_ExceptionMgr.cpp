@@ -65,11 +65,11 @@ ExceptionMgr::signalHandler(
 {
 	enum
 	{
-	#if (_JNC_OS_DARWIN)
+#if (_JNC_OS_DARWIN)
 		GcGuardPageHitSignal = SIGBUS
-	#else
+#else
 		GcGuardPageHitSignal = SIGSEGV
-	#endif
+#endif
 	};
 
 	// while POSIX does not require pthread_getspecific to be async-signal-safe, in practice it is
@@ -101,7 +101,19 @@ ExceptionMgr::signalHandler(
 	}
 	else
 	{
-		AXL_TODO("add extra variables to the SJLJ frame to store error information");
+		const ucontext_t* ucontext = (ucontext_t *)context;
+#	if (_JNC_CPU_AMD64)
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.gregs[REG_RIP];
+#	elif (_JNC_CPU_X86)
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.gregs[REG_EIP];
+#	elif (_JNC_CPU_ARM32)
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.arm_pc;
+#	else
+#		error unsupported CPU architecture
+#	endif
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_signal = signal;
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_code = signalInfo->si_code;
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_faultAddress = (uintptr_t)signalInfo->si_addr;
 		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);
 	}
@@ -188,8 +200,13 @@ ExceptionMgr::vectoredExceptionHandler(EXCEPTION_POINTERS* exceptionPointers)
 	TlsVariableTable* tlsVariableTable = (TlsVariableTable*)(tls + 1);
 	if (tlsVariableTable->m_sjljFrame)
 	{
-		AXL_TODO("encode SEH information better");
-		sys::win::setNtStatus(status);
+		sys::setWinExceptionError(
+			status,
+			(uintptr_t)exceptionPointers->ExceptionRecord->ExceptionAddress,
+			(const uintptr_t*)exceptionPointers->ExceptionRecord->ExceptionInformation,
+			exceptionPointers->ExceptionRecord->NumberParameters
+			);
+
 		jnc_longJmp(tlsVariableTable->m_sjljFrame->m_jmpBuf, -1);
 		ASSERT(false);
 	}

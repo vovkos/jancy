@@ -213,6 +213,10 @@ jnc_dynamicThrow();
 
 JNC_EXTERN_C
 void
+jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame);
+
+JNC_EXTERN_C
+void
 jnc_primeClass(
 	jnc_Box* box,
 	jnc_Box* root,
@@ -316,6 +320,14 @@ dynamicThrow()
 {
 	return jnc_dynamicThrow();
 }
+
+inline
+void
+saveSignalInfo(SjljFrame* sjljFrame)
+{
+	jnc_saveSignalInfo(sjljFrame);
+}
+
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 

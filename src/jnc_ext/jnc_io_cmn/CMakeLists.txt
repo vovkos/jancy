@@ -70,10 +70,10 @@ source_group(
 include_directories(
 	${AXL_INC_DIR}
 	${JANCY_INC_DIR}
-	${OPENSSL_INC_DIR}
 	)
 
 if(OPENSSL_FOUND)
+	include_directories(${OPENSSL_INC_DIR})
 	add_definitions(-D_JNC_IO_SSL=1)
 endif()
 

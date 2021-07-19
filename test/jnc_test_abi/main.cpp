@@ -50,6 +50,7 @@ main(
 	jnc::initialize("jnc_dll:jnc_test_abi");
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
+	sys::registerExceptionErrorProvider();
 
 	srand((int)sys::getTimestamp());
 

@@ -2135,6 +2135,17 @@ TypeMgr::createSjljFrameType()
 	ArrayType* arrayType = getArrayType(getPrimitiveType(TypeKind_Char), sizeof(jmp_buf));
 	StructType* type = createInternalStructType("jnc.SjljFrame");
 	type->createField("!m_jmpBuf", arrayType);
+
+#if (_JNC_OS_POSIX)
+	type->createField("!m_signal", getPrimitiveType(TypeKind_Int));
+	type->createField("!m_code", getPrimitiveType(TypeKind_Int));
+	type->createField("!m_codeAddress", getPrimitiveType(TypeKind_IntPtr_u));
+	type->createField("!m_faultAddress", getPrimitiveType(TypeKind_IntPtr_u));
+#	if (JNC_PTR_SIZE == 8)
+	type->createField("!m_padding", getPrimitiveType(TypeKind_Int64));
+#	endif
+#endif
+
 	type->ensureLayout();
 	type->m_alignment = 16; // override alignment
 	return type;

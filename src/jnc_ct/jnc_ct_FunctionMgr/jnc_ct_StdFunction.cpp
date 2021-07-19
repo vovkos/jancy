@@ -85,6 +85,7 @@ getStdFunctionSource(StdFunc stdFunc)
 		{ NULL },                                // StdFunc_GetTls,
 
 		{ NULL },                                // StdFunc_SetJmp,
+		{ NULL },                                // StdFunc_SaveSignalInfo,
 		{ NULL },                                // StdFunc_DynamicThrow,
 		{ NULL },                                // StdFunc_AsyncRet,
 		{ NULL },                                // StdFunc_AsyncThrow,

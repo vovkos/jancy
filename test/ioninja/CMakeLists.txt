@@ -204,62 +204,6 @@ add_jancy_tests(
 		XModemTransmitter.jnc
 		XModemReceiver.jnc
 	FINALIZE_TEST XModem
-
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/NetSnifferLog
-	REQUIRES
-		representNetSnifferLog
-		detailizeNetSnifferLog
-	FILES
-		NetSnifferLogFilter.jnc
-		NetSnifferLogRecordCode.jnc
-		NetSnifferLogRepresenter.jnc
-		Protocols.jnc
-		Proto_Simple.jnc
-		Proto_Ethernet.jnc
-		Proto_Loopback.jnc
-		Proto_Arp.jnc
-		Proto_Ip.jnc
-		Proto_Ip6.jnc
-		Proto_Tcp.jnc
-		Proto_Udp.jnc
-		Proto_Dns.jnc
-		Proto_Dhcp.jnc
-	FINALIZE_TEST NetSnifferLog
-
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpFlow
-	REQUIRES
-		TcpFlowLayer
-		representTcpFlowLog
-		representPcapLog
-	FILES
-		TcpFlowLayer.jnc
-		TcpDecoder.jnc
-		TcpSequencer.jnc
-		TcpFlowLogFilter.jnc
-		TcpFlowLogRecordCode.jnc
-		TcpFlowLogRepresenter.jnc
-		../PcapLog/PcapLogRecordCode.jnc
-		../PcapLog/PcapLogRepresenter.jnc
-		../SocketLog/SocketLogRecordCode.jnc
-		../SocketLog/SocketLogRepresenter.jnc
-	FINALIZE_TEST TcpFlowAnalyzer
-
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UdpFlow
-	REQUIRES
-		UdpFlowLayer
-		representUdpFlowLog
-		representPcapLog
-	FILES
-		UdpFlowLayer.jnc
-		UdpDecoder.jnc
-		UdpFlowLogFilter.jnc
-		UdpFlowLogRecordCode.jnc
-		UdpFlowLogRepresenter.jnc
-		../PcapLog/PcapLogRecordCode.jnc
-		../PcapLog/PcapLogRepresenter.jnc
-		../SocketLog/SocketLogRecordCode.jnc
-		../SocketLog/SocketLogRepresenter.jnc
-	FINALIZE_TEST UdpFlowAnalyzer
 	)
 
 if(BUILD_JNC_IO_SSH)
@@ -437,6 +381,62 @@ if(BUILD_JNC_IO_PCAP)
 			../SocketLog/SocketLogRecordCode.jnc
 			../SocketLog/SocketLogRepresenter.jnc
 		FINALIZE_TEST UdpFlowMon
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/NetSnifferLog
+		REQUIRES
+			representNetSnifferLog
+			detailizeNetSnifferLog
+		FILES
+			NetSnifferLogFilter.jnc
+			NetSnifferLogRecordCode.jnc
+			NetSnifferLogRepresenter.jnc
+			Protocols.jnc
+			Proto_Simple.jnc
+			Proto_Ethernet.jnc
+			Proto_Loopback.jnc
+			Proto_Arp.jnc
+			Proto_Ip.jnc
+			Proto_Ip6.jnc
+			Proto_Tcp.jnc
+			Proto_Udp.jnc
+			Proto_Dns.jnc
+			Proto_Dhcp.jnc
+		FINALIZE_TEST NetSnifferLog
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/TcpFlow
+		REQUIRES
+			TcpFlowLayer
+			representTcpFlowLog
+			representPcapLog
+		FILES
+			TcpFlowLayer.jnc
+			TcpDecoder.jnc
+			TcpSequencer.jnc
+			TcpFlowLogFilter.jnc
+			TcpFlowLogRecordCode.jnc
+			TcpFlowLogRepresenter.jnc
+			../PcapLog/PcapLogRecordCode.jnc
+			../PcapLog/PcapLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST TcpFlowAnalyzer
+
+		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/plugins/UdpFlow
+		REQUIRES
+			UdpFlowLayer
+			representUdpFlowLog
+			representPcapLog
+		FILES
+			UdpFlowLayer.jnc
+			UdpDecoder.jnc
+			UdpFlowLogFilter.jnc
+			UdpFlowLogRecordCode.jnc
+			UdpFlowLogRepresenter.jnc
+			../PcapLog/PcapLogRecordCode.jnc
+			../PcapLog/PcapLogRepresenter.jnc
+			../SocketLog/SocketLogRecordCode.jnc
+			../SocketLog/SocketLogRepresenter.jnc
+		FINALIZE_TEST UdpFlowAnalyzer
 		)
 endif()
 

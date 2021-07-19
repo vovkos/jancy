@@ -44,6 +44,7 @@ enum StdFunc
 	StdFunc_GetTls,
 
 	StdFunc_SetJmp,
+	StdFunc_SaveSignalInfo,
 	StdFunc_DynamicThrow,
 	StdFunc_AsyncRet,
 	StdFunc_AsyncThrow,

@@ -253,6 +253,24 @@ Runtime::dynamicThrow()
 	ASSERT(false);
 }
 
+#if (_JNC_OS_POSIX)
+void
+Runtime::saveSignalInfo(SjljFrame* sjljFrame)
+{
+	if (!sjljFrame->m_signalInfo.m_signal) // there was no signal or it's already saved
+		return;
+
+	sys::setPosixSignalError(
+		shljFrame->m_signalInfo.m_signal,
+		shljFrame->m_signalInfo.m_code,
+		shljFrame->m_signalInfo.m_codeAddress,
+		shljFrame->m_signalInfo.m_faultAddress
+		);
+
+	sjljFrame->m_signalInfo.m_signal = 0; // save only once
+}
+#endif
+
 //..............................................................................
 
 } // namespace rt

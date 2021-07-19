@@ -200,6 +200,7 @@
 		jnc_Runtime_startup;
 		jnc_Runtime_uninitializeCallSite;
 		jnc_dynamicThrow;
+		jnc_saveSignalInfo;
 		jnc_getCurrentThreadRuntime;
 		jnc_getCurrentThreadTls;
 		jnc_memDup;

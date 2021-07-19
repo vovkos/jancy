@@ -1360,6 +1360,10 @@ jnc_DynamicThrowFunc();
 
 typedef
 void
+jnc_SaveSignalInfoFunc(jnc_SjljFrame* sjljFrame);
+
+typedef
+void
 jnc_PrimeClassFunc(
 	jnc_Box* box,
 	jnc_Box* root,
@@ -1388,6 +1392,7 @@ struct jnc_RuntimeFuncTable
 	jnc_GetCurrentThreadRuntimeFunc* m_getCurrentThreadRuntimeFunc;
 	jnc_GetCurrentThreadTlsFunc* m_getCurrentThreadTlsFunc;
 	jnc_DynamicThrowFunc* m_dynamicThrowFunc;
+	jnc_SaveSignalInfoFunc* m_saveSignalInfoFunc;
 	jnc_PrimeClassFunc* m_primeClassFunc;
 };
 

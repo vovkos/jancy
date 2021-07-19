@@ -14,9 +14,6 @@
 #define _JNC_CORE 1
 
 #include "jnc_ct_Pch.h"
-
-#if (_AXL_OS_WIN)
-#	include "axl_sys_win_NtStatus.h"
-#endif
+#include "axl_sys_ExceptionError.h"
 
 using namespace axl;

@@ -260,6 +260,13 @@ jnc_dynamicThrow()
 
 JNC_EXTERN_C
 void
+jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame)
+{
+	jnc_g_dynamicExtensionLibHost->m_runtimeFuncTable->m_saveSignalInfoFunc(sjljFrame);
+}
+
+JNC_EXTERN_C
+void
 jnc_primeClass(
 	jnc_Box* box,
 	jnc_Box* root,
@@ -413,6 +420,16 @@ void
 jnc_dynamicThrow()
 {
 	jnc::rt::Runtime::dynamicThrow();
+}
+
+JNC_EXTERN_C
+JNC_EXPORT_O
+void
+jnc_saveSignalInfo(jnc_SjljFrame* sjljFrame)
+{
+#if (_JNC_OS_POSIX)
+	jnc::rt::Runtime::saveSignalInfo(sjljFrame);
+#endif
 }
 
 static

@@ -45,7 +45,6 @@
 // AXL
 
 #include "axl_io_SockAddr.h"
-#include "axl_sys_Time.h"
 
 #if (_JNC_IO_USB)
 #	include "axl_io_UsbError.h"
@@ -56,7 +55,8 @@
 #endif
 
 #include "axl_lex_ParseError.h"
-#include "axl_err_ErrorMgr.h"
+#include "axl_sys_ExceptionError.h"
+#include "axl_sys_Time.h"
 #include "axl_gui_QtRagelSyntaxHighlighter.h"
 
 using namespace axl;

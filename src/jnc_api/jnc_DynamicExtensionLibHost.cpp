@@ -371,6 +371,7 @@ static jnc_RuntimeFuncTable g_runtimeFuncTable =
 	jnc_getCurrentThreadRuntime,
 	jnc_getCurrentThreadTls,
 	jnc_dynamicThrow,
+	jnc_saveSignalInfo,
 	jnc_primeClass,
 };
 

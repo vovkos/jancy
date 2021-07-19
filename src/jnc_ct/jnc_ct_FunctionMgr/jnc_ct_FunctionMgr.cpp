@@ -891,6 +891,13 @@ FunctionMgr::getStdFunction(StdFunc func)
 		function = createInternalFunction("jnc.setJmp", functionType);
 		break;
 
+	case StdFunc_SaveSignalInfo:
+		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
+		argTypeArray[0] = m_module->m_typeMgr.getStdType(StdType_SjljFrame)->getDataPtrType_c();
+		functionType = m_module->m_typeMgr.getFunctionType(returnType, argTypeArray, 1);
+		function = createInternalFunction("jnc.saveSignalInfo", functionType);
+		break;
+
 	case StdFunc_DynamicThrow:
 		returnType = m_module->m_typeMgr.getPrimitiveType(TypeKind_Void);
 		functionType = m_module->m_typeMgr.getFunctionType(returnType, NULL, 0);

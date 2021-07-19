@@ -121,11 +121,32 @@ ControlFlowMgr::setJmp(
 	Value returnValue;
 	m_module->m_llvmIrBuilder.createGep(m_sjljFrameArrayValue, sjljFrameIdx, NULL, &sjljFrameValue);
 	m_module->m_llvmIrBuilder.createStore(sjljFrameValue, sjljFrameVariable);
+
+#if (_JNC_OS_POSIX)
+	Value signalValue;
+	Value zeroValue((int)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
+	m_module->m_llvmIrBuilder.createGep2(sjljFrameValue, 1,  NULL, &signalValue);
+	m_module->m_llvmIrBuilder.createStore(zeroValue, signalValue);
+#endif
+
 	m_module->m_llvmIrBuilder.createCall(setJmpFunc, setJmpFunc->getType(), sjljFrameValue, &returnValue);
 
 	BasicBlock* followBlock = createBlock("follow_block");
+
+#if (!_JNC_OS_POSIX)
 	bool result = conditionalJump(returnValue, catchBlock, followBlock, followBlock);
 	ASSERT(result);
+#else
+	BasicBlock* preCatchBlock = createBlock("pre_catch_block");
+	Function* saveSignalInfoFunc = m_module->m_functionMgr.getStdFunction(StdFunc_SaveSignalInfo);
+
+	bool result = conditionalJump(returnValue, preCatchBlock, followBlock, followBlock);
+	ASSERT(result);
+
+	setCurrentBlock(preCatchBlock);
+	m_module->m_llvmIrBuilder.createCall(saveSignalInfoFunc, saveSignalInfoFunc->getType(), sjljFrameValue, NULL);
+	jump(catchBlock, followBlock);
+#endif
 
 	if (sjljFrameIdx >= m_sjljFrameCount)
 	{

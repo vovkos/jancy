@@ -18,11 +18,11 @@
 #include "axl_sl_CmdLineParser.h"
 #include "axl_sl_Singleton.h"
 #include "axl_sl_BoxList.h"
-#include "axl_sys_Time.h"
 #include "axl_io_FilePathUtils.h"
 #include "axl_io_FileEnumerator.h"
 #include "axl_lex_ParseError.h"
-#include "axl_err_ErrorMgr.h"
+#include "axl_sys_ExceptionError.h"
+#include "axl_sys_Time.h"
 
 using namespace axl;
 

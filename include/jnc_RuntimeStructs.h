@@ -44,6 +44,7 @@ typedef struct jnc_GcShadowStackFrame jnc_GcShadowStackFrame;
 typedef struct jnc_GcShadowStackFrameMapBuffer jnc_GcShadowStackFrameMapBuffer;
 typedef struct jnc_GcMutatorThread jnc_GcMutatorThread;
 typedef struct jnc_OpaqueClassTypeInfo jnc_OpaqueClassTypeInfo;
+typedef struct jnc_SignalInfo jnc_SignalInfo;
 typedef struct jnc_SjljFrame jnc_SjljFrame;
 typedef struct jnc_Tls jnc_Tls;
 typedef struct jnc_TlsVariableTable jnc_TlsVariableTable;
@@ -313,9 +314,27 @@ struct jnc_OpaqueClassTypeInfo
 
 //..............................................................................
 
+#if (_JNC_OS_POSIX)
+struct jnc_SignalInfo
+{
+	int m_signal;
+	int m_code;
+	uintptr_t m_codeAddress;
+	uintptr_t m_faultAddress;
+#	if (JNC_PTR_SIZE == 8)
+	uint64_t m_padding; // ensure 16 byte alignment
+#	endif
+};
+#endif
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
 struct jnc_SjljFrame
 {
 	jmp_buf m_jmpBuf;
+#if (_JNC_OS_POSIX)
+	jnc_SignalInfo m_signalInfo;
+#endif
 };
 
 //..............................................................................
@@ -424,6 +443,7 @@ typedef jnc_GcShadowStackFrameMapBuffer GcShadowStackFrameMapBuffer;
 typedef jnc_GcMutatorThread GcMutatorThread;
 typedef jnc_MarkOpaqueGcRootsFunc MarkOpaqueGcRootsFunc;
 typedef jnc_OpaqueClassTypeInfo OpaqueClassTypeInfo;
+typedef jnc_SignalInfo SignalInfo;
 typedef jnc_SjljFrame SjljFrame;
 typedef jnc_Tls Tls;
 typedef jnc_TlsVariableTable TlsVariableTable;

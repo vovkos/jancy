@@ -29,6 +29,17 @@
 
 //..............................................................................
 
+#if (_JNC_OS_POSIX)
+#	define JNC_INIT_EXCEPTION_INFO() \
+		__jncSjljFrame.m_signalInfo.m_signal = 0;
+#	define JNC_SAVE_EXCEPTION_INFO() \
+        if (__jncSjljBranch) \
+            jnc_saveSignalInfo(&__jncSjljFrame);
+#else // on windows, we save exception information right inside the handler
+#	define JNC_INIT_EXCEPTION_INFO()
+#	define JNC_SAVE_EXCEPTION_INFO()
+#endif
+
 #define JNC_BEGIN_CALL_SITE_IMPL(runtime) \
 	jnc_Runtime* __jncRuntime = (runtime); \
 	jnc_CallSite __jncCallSite; \
@@ -36,17 +47,19 @@
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
 	JNC_ASSERT(runtime); \
+	JNC_INIT_EXCEPTION_INFO(); \
 	jnc_Runtime_initializeCallSite(__jncRuntime, &__jncCallSite); \
 	__jncSjljPrevFrame = jnc_Runtime_setSjljFrame(__jncRuntime, &__jncSjljFrame); \
 	__jncSjljBranch = jnc_setJmp(__jncSjljFrame.m_jmpBuf); \
 	if (!__jncSjljBranch) \
-	{
+    {
 
 #define JNC_CALL_SITE_CATCH() \
 	} \
 	else \
 	{ \
 		{ \
+			JNC_SAVE_EXCEPTION_INFO(); \
 			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
 			JNC_ASSERT(prev == &__jncSjljFrame); \
 		}
@@ -55,6 +68,7 @@
 	} \
 	{ \
 		{ \
+			JNC_SAVE_EXCEPTION_INFO(); \
 			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
 			JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 		}
@@ -62,6 +76,7 @@
 #define JNC_END_CALL_SITE_IMPL() \
 	} \
 	{ \
+		JNC_SAVE_EXCEPTION_INFO(); \
 		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
 		JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
 	} \

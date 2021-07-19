@@ -75,6 +75,7 @@ main(
 	jnc::initialize("jnc_dll:jnc_app");
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
+	sys::registerExceptionErrorProvider();
 
 	int seed = (int)sys::getTimestamp();
 	srand(seed);

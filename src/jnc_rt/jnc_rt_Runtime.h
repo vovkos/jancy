@@ -95,6 +95,12 @@ public:
 	static
 	void
 	dynamicThrow();
+
+#if (_JNC_OS_POSIX)
+	static
+	void
+	saveSignalInfo(SjljFrame* sjljFrame);
+#endif
 };
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

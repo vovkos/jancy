@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 	jnc::initialize("jnc_dll:jnc_mini_ide");
 	jnc::setErrorRouter(err::getErrorMgr());
 	lex::registerParseErrorProvider();
+	sys::registerExceptionErrorProvider();
 
 #if (_JNC_IO_USB)
 	io::registerUsbErrorProvider();
