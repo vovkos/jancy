@@ -51,7 +51,7 @@ main := |*
 'friend'          |
 'public'          |
 'protected'       |
-'alignment'       |
+'pragma'          |
 'setas'           |
 
 'typedef'         |
