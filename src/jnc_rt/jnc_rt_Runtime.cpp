@@ -261,10 +261,10 @@ Runtime::saveSignalInfo(SjljFrame* sjljFrame)
 		return;
 
 	sys::setPosixSignalError(
-		shljFrame->m_signalInfo.m_signal,
-		shljFrame->m_signalInfo.m_code,
-		shljFrame->m_signalInfo.m_codeAddress,
-		shljFrame->m_signalInfo.m_faultAddress
+		sjljFrame->m_signalInfo.m_signal,
+		sjljFrame->m_signalInfo.m_code,
+		sjljFrame->m_signalInfo.m_codeAddress,
+		sjljFrame->m_signalInfo.m_faultAddress
 		);
 
 	sjljFrame->m_signalInfo.m_signal = 0; // save only once
