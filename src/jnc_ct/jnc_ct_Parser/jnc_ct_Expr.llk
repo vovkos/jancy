@@ -713,7 +713,12 @@ cast_operator_rslv
 	{
 		TypeSpecifier $typeSpecifier;
 	}
-	:	TokenKind_Dynamic? '(' type_specifier_modifier<&$typeSpecifier>
+	:	TokenKind_Dynamic? '('
+		(
+			type_specifier_sync |
+			type_modifier_sync |
+			qualified_type_name_rslv
+		)
 	;
 
 resolver(cast_operator_rslv)
