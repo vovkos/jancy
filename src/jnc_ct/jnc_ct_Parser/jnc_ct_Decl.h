@@ -571,7 +571,7 @@ public:
 		);
 
 	void
-	addPointerPrefix();
+	addPointerPrefix(uint_t modifiers = 0);
 
 	DeclArraySuffix*
 	addArraySuffix(sl::BoxList<Token>* elementCountInitializer);

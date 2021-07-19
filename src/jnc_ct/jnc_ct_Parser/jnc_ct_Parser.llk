@@ -115,6 +115,8 @@ protected:
 	Mode m_mode;
 	size_t m_fieldAlignment;
 	size_t m_defaultFieldAlignment;
+	uint_t m_defaultPointerModifiers;
+	uint_t m_defaultEnumFlags;
 
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;
@@ -241,6 +243,12 @@ protected:
 
 	void
 	addDoxyComment(const Token& token);
+
+	bool
+	pragma(
+		const sl::StringRef& name,
+		int value
+		);
 
 	NamedImportType*
 	getNamedImportType(

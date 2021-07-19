@@ -19,9 +19,9 @@
 #include "jnc_ct_ExtensionNamespace.h"
 #include "jnc_ct_AsyncLauncherFunction.h"
 #include "jnc_ct_ReactorClassType.h"
-#include "jnc_rtl_Regex.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_ct_Parser.llk.cpp"
+#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -38,6 +38,8 @@ Parser::Parser(
 	m_mode = mode;
 	m_fieldAlignment = 8;
 	m_defaultFieldAlignment = 8;
+	m_defaultPointerModifiers = 0;
+	m_defaultEnumFlags = 0;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
@@ -139,6 +141,43 @@ Parser::tokenizeBody(
 				break;
 			}
 	}
+}
+
+bool
+Parser::pragma(
+	const sl::StringRef& name,
+	int value
+	)
+{
+	Pragma pragmaKind = PragmaMap::findValue(name, Pragma_Undefined);
+	switch (pragmaKind)
+	{
+	case Pragma_Alignment:
+		if (value < 0)
+			m_fieldAlignment = m_defaultFieldAlignment;
+		else if (sl::isPowerOf2(value) && value <= 16)
+			m_fieldAlignment = value;
+		else
+		{
+			err::setFormatStringError("invalid alignment %d", value);
+			return false;
+		}
+		break;
+
+	case Pragma_ThinPointers:
+		m_defaultPointerModifiers = value > 0 ? TypeModifier_Thin : 0;
+		break;
+
+	case Pragma_ExposedEnums:
+		m_defaultEnumFlags = value > 0 ? EnumTypeFlag_Exposed : 0;
+		break;
+
+	default:
+		err::setFormatStringError("unknown pragma '%s'", name.sz());
+		return false;
+	}
+
+	return true;
 }
 
 void

@@ -25,14 +25,14 @@ doxy_comment
 
 common_declaration
 	:	using_declaration
-	|   alignment_declaration
+	|   pragma_declaration
 	|	named_type_specifier
 	|   attribute_block
 	;
 
 common_declaration_sync
 	:	TokenKind_Using
-	|	TokenKind_Alignment
+	|	TokenKind_Pragma
 	|	named_type_specifier_sync
 	;
 
@@ -169,19 +169,37 @@ access_declaration
 			}
 	;
 
-alignment_declaration
-	:	TokenKind_Alignment '='? alignment_value ';'
-	|	TokenKind_Alignment '(' alignment_value ')'
+pragma_declaration
+	:	TokenKind_Pragma '(' TokenKind_Identifier $i ',' pragma_value $v ')'
+			{
+				return pragma($i.m_data.m_string, $v.m_value);
+			}
 	;
 
-alignment_value
+class
+{
+	int m_value;
+}
+pragma_value
+	enter
+	{
+		$.m_value = 0;
+	}
 	:	TokenKind_Integer
 			{
-				m_fieldAlignment = $1.m_data.m_integer;
+				$.m_value = $1.m_data.m_integer;
+			}
+	|	TokenKind_True
+			{
+				$.m_value = true;
+			}
+	|	TokenKind_False
+			{
+				$.m_value = false;
 			}
 	|	TokenKind_Default
 			{
-				m_fieldAlignment = m_defaultFieldAlignment;
+				$.m_value = -1;
 			}
 	;
 

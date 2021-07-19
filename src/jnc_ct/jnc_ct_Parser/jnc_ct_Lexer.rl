@@ -146,7 +146,7 @@ main := |*
 'friend'         { createToken(TokenKind_Friend); };
 'public'         { createToken(TokenKind_Public); };
 'protected'      { createToken(TokenKind_Protected); };
-'alignment'      { createToken(TokenKind_Alignment); };
+'pragma'         { createToken(TokenKind_Pragma); };
 'setas'          { createToken(TokenKind_SetAs); };
 
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

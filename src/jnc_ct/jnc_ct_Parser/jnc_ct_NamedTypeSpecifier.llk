@@ -87,7 +87,7 @@ enum_specifier
 				$.m_type = createEnumType(
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$t ? $t.m_type : NULL,
-					$.m_flags
+					$.m_flags | m_defaultEnumFlags
 					);
 
 				if (!$.m_type)

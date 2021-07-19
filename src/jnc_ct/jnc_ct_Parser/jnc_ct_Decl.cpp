@@ -377,10 +377,11 @@ Declarator::setPostDeclaratorModifier(PostDeclaratorModifier modifier)
 }
 
 void
-Declarator::addPointerPrefix()
+Declarator::addPointerPrefix(uint_t modifiers)
 {
 	DeclPointerPrefix* prefix = AXL_MEM_NEW(DeclPointerPrefix);
 	prefix->takeOverTypeModifiers(this);
+	prefix->m_typeModifiers |= modifiers;
 	m_pointerPrefixList.insertTail(prefix);
 }
 
