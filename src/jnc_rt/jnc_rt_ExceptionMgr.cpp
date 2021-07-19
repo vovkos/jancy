@@ -102,7 +102,9 @@ ExceptionMgr::signalHandler(
 	else
 	{
 		const ucontext_t* ucontext = (ucontext_t *)context;
-#	if (_JNC_CPU_AMD64)
+#	if (_JNC_OS_DARWIN)
+		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext->__ss.__rip;
+#	elif (_JNC_CPU_AMD64)
 		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.gregs[REG_RIP];
 #	elif (_JNC_CPU_X86)
 		tlsVariableTable->m_sjljFrame->m_signalInfo.m_codeAddress = ucontext->uc_mcontext.gregs[REG_EIP];
