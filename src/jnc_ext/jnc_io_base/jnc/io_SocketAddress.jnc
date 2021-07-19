@@ -180,7 +180,7 @@ union Address_ip6
 
 //..............................................................................
 
-alignment(2);
+pragma(alignment, 2);
 
 /**
 	\import io_base.jncx
@@ -445,8 +445,6 @@ union SocketAddress
 
 	char const* getString() const;
 }
-
-alignment(default);
 
 //..............................................................................
 

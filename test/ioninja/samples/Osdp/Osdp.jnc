@@ -29,7 +29,7 @@ enum OsdpDirection: uint8_t
 
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-alignment(1);
+pragma(alignment, 1);
 
 struct OsdpHdr
 {

@@ -23,7 +23,7 @@ enum MyEnum: int8_t
 	Value3,
 }
 
-alignment(1);
+pragma(alignment, 1);
 
 struct MyPacket
 {
