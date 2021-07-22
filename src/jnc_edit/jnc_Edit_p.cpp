@@ -20,6 +20,17 @@ namespace jnc {
 
 //..............................................................................
 
+static class Init
+{
+public:
+	Init()
+	{
+		g::getModule()->setTag("jnc_edit");
+	}
+} g_init;
+
+//..............................................................................
+
 lex::LineCol
 getCursorLineCol(const QTextCursor& cursor0)
 {
