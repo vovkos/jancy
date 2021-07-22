@@ -46,6 +46,7 @@
 	jnc_SjljFrame __jncSjljFrame; \
 	jnc_SjljFrame* __jncSjljPrevFrame; \
 	int __jncSjljBranch; \
+    int __jncIsSjljFrameRestored = 0; \
 	JNC_ASSERT(runtime); \
 	JNC_INIT_EXCEPTION_INFO(); \
 	jnc_Runtime_initializeCallSite(__jncRuntime, &__jncCallSite); \
@@ -54,32 +55,31 @@
 	if (!__jncSjljBranch) \
     {
 
+#define JNC_RESTORE_SJLJ_FRAME() \
+    if (!__jncIsSjljFrameRestored) \
+	{ \
+		jnc_SjljFrame* prev; \
+		JNC_SAVE_EXCEPTION_INFO(); \
+		prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
+		JNC_ASSERT(prev == &__jncSjljFrame); \
+		__jncIsSjljFrameRestored = 1; \
+	}
+
 #define JNC_CALL_SITE_CATCH() \
 	} \
 	else \
 	{ \
-		{ \
-			JNC_SAVE_EXCEPTION_INFO(); \
-			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
-			JNC_ASSERT(prev == &__jncSjljFrame); \
-		}
+		JNC_ASSERT(!__jncIsSjljFrameRestored); \
+		JNC_RESTORE_SJLJ_FRAME();
 
 #define JNC_CALL_SITE_FINALLY() \
 	} \
 	{ \
-		{ \
-			JNC_SAVE_EXCEPTION_INFO(); \
-			jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
-			JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
-		}
+		JNC_RESTORE_SJLJ_FRAME();
 
 #define JNC_END_CALL_SITE_IMPL() \
 	} \
-	{ \
-		JNC_SAVE_EXCEPTION_INFO(); \
-		jnc_SjljFrame* prev = jnc_Runtime_setSjljFrame(__jncRuntime, __jncSjljPrevFrame); \
-		JNC_ASSERT(prev == &__jncSjljFrame || prev == __jncSjljPrevFrame); \
-	} \
+	JNC_RESTORE_SJLJ_FRAME(); \
 	__jncCallSite.m_result = __jncSjljBranch == 0; \
 	jnc_Runtime_uninitializeCallSite(__jncRuntime, &__jncCallSite);
 
