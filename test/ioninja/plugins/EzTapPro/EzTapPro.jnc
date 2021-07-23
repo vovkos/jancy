@@ -5,7 +5,7 @@
 
 import "std_HashTable.jnc"
 
-pragma(alignment, 1)
+pragma(Alignment, 1)
 
 //..............................................................................
 

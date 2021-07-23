@@ -11,7 +11,7 @@
 
 // test for unions and unnamed structs
 
-pragma(alignment, 2);
+pragma(Alignment, 2);
 
 //..............................................................................
 

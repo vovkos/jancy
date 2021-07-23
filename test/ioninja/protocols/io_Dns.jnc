@@ -10,7 +10,7 @@ namespace io {
 //! \addtogroup proto-dns
 //! @{
 
-pragma(alignment, 1);
+pragma(Alignment, 1);
 
 //..............................................................................
 

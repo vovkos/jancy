@@ -8,7 +8,7 @@ namespace io {
 //! \addtogroup proto-modbus
 //! @{
 
-pragma(alignment, 1);
+pragma(Alignment, 1);
 
 //..............................................................................
 

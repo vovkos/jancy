@@ -7,7 +7,7 @@ import "io_base.jncx"
 import "io_SocketAddress.jnc"
 import "io_TcpIp.jnc"
 
-pragma(alignment, 1);
+pragma(Alignment, 1);
 
 //! \addtogroup packets-tcpip
 //! @{

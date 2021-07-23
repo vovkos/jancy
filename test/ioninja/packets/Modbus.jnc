@@ -9,7 +9,7 @@ import "crc16.jnc"
 //! \addtogroup packets-modbus
 //! @{
 
-pragma(alignment, 1);
+pragma(Alignment, 1);
 
 //..............................................................................
 

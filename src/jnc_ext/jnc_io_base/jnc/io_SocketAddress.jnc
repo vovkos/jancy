@@ -180,7 +180,7 @@ union Address_ip6
 
 //..............................................................................
 
-pragma(alignment, 2);
+pragma(Alignment, 2);
 
 /**
 	\import io_base.jncx

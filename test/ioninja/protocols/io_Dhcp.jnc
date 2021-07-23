@@ -10,7 +10,7 @@ namespace io {
 //! \addtogroup proto-dhcp
 //! @{
 
-pragma(alignment, 1);
+pragma(Alignment, 1);
 
 //..............................................................................
 
