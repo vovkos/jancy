@@ -27,9 +27,9 @@ enum Pragma
 // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 AXL_SL_BEGIN_STRING_HASH_TABLE(PragmaMap, Pragma)
-	AXL_SL_HASH_TABLE_ENTRY("alignment",    Pragma_Alignment)
-	AXL_SL_HASH_TABLE_ENTRY("thinPointers", Pragma_ThinPointers)
-	AXL_SL_HASH_TABLE_ENTRY("exposedEnums", Pragma_ExposedEnums)
+	AXL_SL_HASH_TABLE_ENTRY("Alignment",    Pragma_Alignment)
+	AXL_SL_HASH_TABLE_ENTRY("ThinPointers", Pragma_ThinPointers)
+	AXL_SL_HASH_TABLE_ENTRY("ExposedEnums", Pragma_ExposedEnums)
 AXL_SL_END_STRING_HASH_TABLE()
 
 //..............................................................................
