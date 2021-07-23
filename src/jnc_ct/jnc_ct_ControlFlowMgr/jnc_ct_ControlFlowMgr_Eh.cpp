@@ -124,7 +124,7 @@ ControlFlowMgr::setJmp(
 
 #if (_JNC_OS_POSIX)
 	Value signalValue;
-	Value zeroValue((int)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
+	Value zeroValue((int64_t)0, m_module->m_typeMgr.getPrimitiveType(TypeKind_Int));
 	m_module->m_llvmIrBuilder.createGep2(sjljFrameValue, 1,  NULL, &signalValue);
 	m_module->m_llvmIrBuilder.createStore(zeroValue, signalValue);
 #endif
