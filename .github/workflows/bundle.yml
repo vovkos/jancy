@@ -1,0 +1,29 @@
+name: GitHub CI
+
+on:
+-   workflow_run:
+        workflows: [ "GitHub CI" ]
+        types: [ "completed" ]
+
+jobs:
+    updateBundle:
+        name: Update Bundle-repo
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: ubuntu-18
+        steps:
+        -   name: Update jancy_b
+            run: |
+                echo Checking out jancy_b...
+                git clone https://vovkos:$GITHUB_TOKEN@github.com/vovkos/jancy_b
+
+                cd jancy_b
+
+                echo Updating submodules...
+                git submodule update --init
+                git submodule foreach git checkout master
+                git submodule foreach git pull
+
+                echo Committing...
+                git commit --all --message Update submodules
+
+                echo Pushing...
