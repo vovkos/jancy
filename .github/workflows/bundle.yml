@@ -1,28 +1,38 @@
 name: Update Bundle-repo
 
 on:
+-   push
     workflow_run:
         workflows: ["GitHub CI"]
+        branches: [master]
         types: [completed]
 
 jobs:
     updateBundle:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        runs-on: ubuntu-18
+        runs-on: ubuntu-latest
+        env:
+            JANCY_B_ID_RSA: ${{secrets.JANCY_B_ID_RSA}}
         steps:
         -   name: Update jancy_b
             run: |
-                echo Checking out jancy_b...
-                git clone https://vovkos:$GITHUB_TOKEN@github.com/vovkos/jancy_b
+                mkdir -p ~/.ssh
+                echo "$JANCY_B_ID_RSA" > ~/.ssh/id_rsa
+                chmod 600 ~/.ssh/id_rsa
 
+                git clone git@github.com:vovkos/jancy_b
                 cd jancy_b
 
-                echo Updating submodules...
                 git submodule update --init
                 git submodule foreach git checkout master
-                git submodule foreach git pull
 
-                echo Committing...
-                git commit --all --message Update submodules
+                COMMIT_MESSAGE=$(perl ./jancy/ci/github-actions/get-submodule-update-commit-message.pl)
+                if [[ "$COMMIT_MESSAGE" == "" ]]; then
+                    echo "nothing to commit, submodules are up-to-date."
+                    exit 0
+                fi
 
-                echo Pushing...
+                git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                git config user.name "GitHub Actions"
+                git commit --all --message "$COMMIT_MESSAGE"
+                git push
