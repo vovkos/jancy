@@ -229,7 +229,7 @@ Orphan::adoptOrphanFunction(ModuleItem* item)
 	}
 
 	return
-		originFunction->setBody(m_bodyPos, m_body) &&
+		originFunction->setBody(m_pragmaSettings, m_bodyPos, m_body) &&
 		verifyStorageKind(originFunction);
 }
 
@@ -265,7 +265,7 @@ Orphan::adoptOrphanReactor(ModuleItem* item)
 	originReaction->addUsingSet(&m_usingSet);
 
 	return
-		originType->setBody(m_bodyPos, m_body) &&
+		originType->setBody(m_pragmaSettings, m_bodyPos, m_body) &&
 		verifyStorageKind(originReaction);
 }
 

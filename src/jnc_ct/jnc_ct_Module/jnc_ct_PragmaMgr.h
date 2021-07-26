@@ -49,11 +49,39 @@ struct PragmaSettings
 	uint_t m_pointerModifiers;
 	uint_t m_enumFlags;
 
-	PragmaSettings()
+	PragmaSettings();
+
+	size_t
+	hash() const
 	{
-		m_fieldAlignment = PragmaDefault_Alignment;
-		m_pointerModifiers = PragmaDefault_PointerModifiers;
-		m_enumFlags = PragmaDefault_EnumFlags;
+		return sl::HashDjb2<PragmaSettings>()(this);
+	}
+
+	bool
+	isEqual(const PragmaSettings& src) const
+	{
+		return sl::CmpBin<PragmaSettings>()(this, &src) == 0;
+	}
+};
+
+//..............................................................................
+
+class PragmaMgr
+{
+protected:
+	sl::DuckTypeHashTable<PragmaSettings, bool> m_cache;
+
+public:
+	void
+	clear()
+	{
+		m_cache.clear();
+	}
+
+	const PragmaSettings*
+	getCachedSettings(const PragmaSettings& settings)
+	{
+		return &m_cache.visit(settings)->getKey();
 	}
 };
 

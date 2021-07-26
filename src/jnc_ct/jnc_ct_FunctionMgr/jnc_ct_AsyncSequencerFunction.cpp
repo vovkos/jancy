@@ -129,7 +129,7 @@ AsyncSequencerFunction::compile()
 
 	// parse body
 
-	Parser parser(m_module, Parser::Mode_Compile);
+	Parser parser(m_module, m_pragmaSettings, Parser::Mode_Compile);
 
 	result =
 		parser.parseBody(SymbolKind_compound_stmt, m_bodyPos, m_body) &&

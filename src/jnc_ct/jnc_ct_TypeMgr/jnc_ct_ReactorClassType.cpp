@@ -87,7 +87,7 @@ ReactorClassType::calcLayout()
 
 	m_module->m_unitMgr.setCurrentUnit(m_parentUnit);
 
-	Parser parser(m_module, Parser::Mode_Compile);
+	Parser parser(m_module, m_pragmaSettings, Parser::Mode_Compile);
 	parser.m_reactorType = this;
 
 	Function* prevFunction = m_module->m_functionMgr.setCurrentFunction(m_reaction); // we need some method for OperatorMgr::getThisValueType to work
@@ -131,7 +131,7 @@ ReactorClassType::compileReaction(Function* function)
 	m_module->m_namespaceMgr.openNamespace(this);
 	m_module->m_functionMgr.internalPrologue(function, argValueArray, countof(argValueArray), &m_bodyPos);
 
-	Parser parser(m_module, Parser::Mode_Reaction);
+	Parser parser(m_module, m_pragmaSettings, Parser::Mode_Reaction);
 	parser.m_reactorType = this;
 	parser.m_reactionIdxArgValue = argValueArray[1];
 

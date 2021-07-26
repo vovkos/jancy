@@ -23,6 +23,7 @@ ModuleItemDecl::ModuleItemDecl()
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Public; // public by default
 	m_parentNamespace = NULL;
+	m_pragmaSettings = NULL;
 	m_attributeBlock = NULL;
 	m_doxyBlock = NULL;
 }
@@ -55,6 +56,7 @@ ModuleItemDecl::getDoxyLocationString()
 
 bool
 ModuleItemBodyDecl::setBody(
+	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
@@ -62,6 +64,7 @@ ModuleItemBodyDecl::setBody(
 	if (!canSetBody())
 		return false;
 
+	m_pragmaSettings = pragmaSettings;
 	m_bodyPos = pos;
 	m_body = body;
 	return true;

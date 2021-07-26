@@ -156,7 +156,7 @@ EnumType::parseBody()
 	size_t length = m_body.getLength();
 	ASSERT(length >= 2);
 
-	Parser parser(m_module, Parser::Mode_Parse);
+	Parser parser(m_module, m_pragmaSettings, Parser::Mode_Parse);
 	bool result = parser.parseBody(
 		SymbolKind_enum_const_list,
 		lex::LineColOffset(m_bodyPos.m_line, m_bodyPos.m_col + 1, m_bodyPos.m_offset + 1),

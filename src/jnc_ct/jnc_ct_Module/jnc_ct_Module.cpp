@@ -116,6 +116,7 @@ Module::clear()
 	m_constMgr.clear();
 	m_operatorMgr.clear();
 	m_unitMgr.clear();
+	m_pragmaMgr.clear();
 	m_importMgr.clear();
 	m_extensionLibMgr.clear();
 	m_doxyModule.clear();

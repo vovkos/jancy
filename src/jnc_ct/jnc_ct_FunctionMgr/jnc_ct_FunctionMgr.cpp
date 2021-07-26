@@ -1077,7 +1077,7 @@ FunctionMgr::parseStdFunction(
 	if (stdNamespace)
 		m_module->m_namespaceMgr.openStdNamespace(stdNamespace);
 
-	Parser parser(m_module, Parser::Mode_Compile);
+	Parser parser(m_module, NULL, Parser::Mode_Compile);
 	parser.create("jnc_StdFunctions.jnc", SymbolKind_normal_item_declaration);
 #if (_LLK_RANDOM_ERRORS)
 	parser.disableRandomErrors();

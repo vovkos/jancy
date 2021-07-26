@@ -110,7 +110,7 @@ AsyncLauncherFunction::compile()
 	sequencerFunc->m_thisArgType = m_thisArgType;
 	sequencerFunc->m_thisType = m_thisType;
 	sequencerFunc->m_thisArgDelta = m_thisArgDelta;
-	sequencerFunc->setBody(m_bodyPos, m_body);
+	sequencerFunc->setBody(m_pragmaSettings, m_bodyPos, m_body);
 
 	m_module->m_operatorMgr.callOperator(sequencerFunc, promiseValue);
 

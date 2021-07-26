@@ -12,7 +12,6 @@
 #pragma once
 
 #include "jnc_ct_Namespace.h"
-#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -29,7 +28,7 @@ protected:
 	struct ExtraBody: sl::ListLink
 	{
 		Unit* m_unit;
-		PragmaSettings m_pragmaSettings;
+		const PragmaSettings* m_pragmaSettings;
 		lex::LineColOffset m_pos;
 		sl::StringRef m_body;
 	};
@@ -59,6 +58,7 @@ public:
 	void
 	addBody(
 		Unit* unit,
+		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);
@@ -71,6 +71,7 @@ protected:
 	bool
 	parseBodyImpl(
 		Unit* unit,
+		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);

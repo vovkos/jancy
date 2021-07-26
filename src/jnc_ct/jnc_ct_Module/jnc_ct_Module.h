@@ -22,6 +22,7 @@
 #include "jnc_ct_GcShadowStackMgr.h"
 #include "jnc_ct_RegexMgr.h"
 #include "jnc_ct_UnitMgr.h"
+#include "jnc_ct_PragmaMgr.h"
 #include "jnc_ct_ImportMgr.h"
 #include "jnc_ct_ExtensionLibMgr.h"
 #include "jnc_ct_CodeAssistMgr.h"
@@ -131,6 +132,7 @@ public:
 	GcShadowStackMgr m_gcShadowStackMgr;
 	RegexMgr m_regexMgr;
 	UnitMgr m_unitMgr;
+	PragmaMgr m_pragmaMgr;
 	ImportMgr m_importMgr;
 	ExtensionLibMgr m_extensionLibMgr;
 	CodeAssistMgr m_codeAssistMgr;

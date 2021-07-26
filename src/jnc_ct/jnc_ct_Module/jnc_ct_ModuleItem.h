@@ -27,6 +27,7 @@ class DerivableType;
 class ClassType;
 class Function;
 class Property;
+struct PragmaSettings;
 
 //..............................................................................
 
@@ -115,6 +116,7 @@ protected:
 	sl::String m_name;
 	sl::String m_qualifiedName;
 	Namespace* m_parentNamespace;
+	const PragmaSettings* m_pragmaSettings;
 	AttributeBlock* m_attributeBlock;
 	dox::Block* m_doxyBlock;
 
@@ -152,6 +154,12 @@ public:
 	getParentNamespace()
 	{
 		return m_parentNamespace;
+	}
+
+	const PragmaSettings*
+	getPragmaSettings()
+	{
+		return m_pragmaSettings;
 	}
 
 	AttributeBlock*
@@ -221,6 +229,7 @@ public:
 
 	bool
 	setBody(
+		const PragmaSettings* pragmaSettings,
 		const lex::LineColOffset& pos,
 		const sl::StringRef& body
 		);

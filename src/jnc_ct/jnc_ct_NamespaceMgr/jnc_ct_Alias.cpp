@@ -40,7 +40,7 @@ Alias::resolveImpl()
 
 	m_flags |= AliasFlag_InResolve;
 
-	Parser parser(m_module);
+	Parser parser(m_module, m_pragmaSettings);
 	result = parser.parseTokenList(SymbolKind_qualified_name_save_name, m_initializer);
 	if (!result)
 		return false;

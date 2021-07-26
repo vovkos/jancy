@@ -22,6 +22,7 @@ namespace ct {
 void
 GlobalNamespace::addBody(
 	Unit* unit,
+	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
@@ -29,6 +30,7 @@ GlobalNamespace::addBody(
 	if (m_body.isEmpty())
 	{
 		m_parentUnit = unit;
+		m_pragmaSettings = pragmaSettings;
 		m_bodyPos = pos;
 		m_body = body;
 	}
@@ -36,6 +38,7 @@ GlobalNamespace::addBody(
 	{
 		ExtraBody* extraBody = AXL_MEM_NEW(ExtraBody);
 		extraBody->m_unit = unit;
+		extraBody->m_pragmaSettings = pragmaSettings;
 		extraBody->m_pos = pos;
 		extraBody->m_body = body;
 		m_extraBodyList.insertTail(extraBody);
@@ -69,14 +72,14 @@ GlobalNamespace::parseBody()
 
 	m_module->m_namespaceMgr.openNamespace(this);
 
-	bool result = parseBodyImpl(m_parentUnit, m_bodyPos, m_body);
+	bool result = parseBodyImpl(m_parentUnit, m_pragmaSettings, m_bodyPos, m_body);
 	if (!result)
 		return false;
 
 	sl::Iterator<ExtraBody> it = m_extraBodyList.getHead();
 	for (; it; it++)
 	{
-		result = parseBodyImpl(it->m_unit, it->m_pos, it->m_body);
+		result = parseBodyImpl(it->m_unit, it->m_pragmaSettings, it->m_pos, it->m_body);
 		if (!result)
 			return false;
 	}
@@ -102,6 +105,7 @@ GlobalNamespace::parseBody()
 bool
 GlobalNamespace::parseBodyImpl(
 	Unit* unit,
+	const PragmaSettings* pragmaSettings,
 	const lex::LineColOffset& pos,
 	const sl::StringRef& body
 	)
@@ -111,7 +115,8 @@ GlobalNamespace::parseBodyImpl(
 	size_t length = body.getLength();
 	ASSERT(length >= 2);
 
-	Parser parser(m_module, Parser::Mode_Parse);
+	Parser parser(m_module, pragmaSettings, Parser::Mode_Parse);
+
 	bool result = parser.parseBody(
 		SymbolKind_global_declaration_list,
 		lex::LineColOffset(pos.m_line, pos.m_col + 1, pos.m_offset + 1),

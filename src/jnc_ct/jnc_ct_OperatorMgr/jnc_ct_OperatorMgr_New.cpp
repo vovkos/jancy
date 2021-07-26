@@ -233,7 +233,7 @@ OperatorMgr::parseInitializer(
 	sl::BoxList<Value> argList;
 	if (!constructorTokenList.isEmpty())
 	{
-		Parser parser(m_module, Parser::Mode_Compile);
+		Parser parser(m_module, NULL, Parser::Mode_Compile);
 
 		result = parser.parseTokenList(SymbolKind_expression_or_empty_list_save_list, constructorTokenList);
 		if (!result)
@@ -248,7 +248,7 @@ OperatorMgr::parseInitializer(
 
 	if (!initializerTokenList.isEmpty())
 	{
-		Parser parser(m_module, Parser::Mode_Compile);
+		Parser parser(m_module, NULL, Parser::Mode_Compile);
 		sl::ConstBoxIterator<Token> tokenIt = initializerTokenList.getHead();
 
 		switch (tokenIt->m_token)
@@ -300,8 +300,7 @@ OperatorMgr::parseFunctionArgDefaultValue(
 	Value* resultValue
 	)
 {
-	Parser parser(m_module, Parser::Mode_Compile);
-
+	Parser parser(m_module, decl->getPragmaSettings(), Parser::Mode_Compile);
 	m_module->m_namespaceMgr.openNamespace(decl->getParentNamespace());
 	m_module->m_namespaceMgr.lockSourcePos();
 
@@ -322,7 +321,7 @@ OperatorMgr::parseExpression(
 	Value* resultValue
 	)
 {
-	Parser parser(m_module, Parser::Mode_Compile);
+	Parser parser(m_module, NULL, Parser::Mode_Compile);
 
 	bool result = parser.parseTokenList(SymbolKind_expression_save_value, expressionTokenList);
 	if (!result)

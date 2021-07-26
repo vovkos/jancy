@@ -12,6 +12,18 @@ struct Alignment1
 	long m_l;
 }
 
+namespace a {
+
+struct Alignment1
+{
+	char m_c;
+	int m_i;
+	short m_s;
+	long m_l;
+}
+
+} // namespace a
+
 pragma(Alignment, default)
 
 struct Alignment8
@@ -31,6 +43,15 @@ enum Enum1
 	Enum1_Value1,
 }
 
+namespace b {
+
+enum Enum1
+{
+	Enum1_Value1,
+}
+
+} // namespace b
+
 pragma(ExposedEnums, default)
 
 enum Enum2
@@ -45,6 +66,25 @@ pragma(ThinPointers, true)
 char* g_p1;
 void function* g_p2();
 
+namespace c {
+
+char* g_p1;
+void function* g_p2();
+
+} // namespace c
+
+void foo()
+{
+	char* p1;
+	void function* p2();
+
+	printf("foo(): sizeof(p1) %d\n", sizeof(p1));
+	printf("foo(): sizeof(p2) %d\n", sizeof(p2));
+
+	assert(sizeof(p1) == sizeof(intptr));
+	assert(sizeof(p2) == sizeof(intptr));
+}
+
 pragma(ThinPointers, default)
 
 char* g_p3;
@@ -55,24 +95,32 @@ void function* g_p4();
 int main()
 {
 	printf("sizeof(Alignment1) %d\n", sizeof(Alignment1));
+	printf("sizeof(a.Alignment1) %d\n", sizeof(a.Alignment1));
 	printf("sizeof(Alignment8) %d\n", sizeof(Alignment8));
 
 	assert(sizeof(Alignment1) == 15);
+	assert(sizeof(a.Alignment1) == 15);
 	assert(sizeof(Alignment8) == 24);
 
-	Enum1 a = Enum1_Value1;
-	Enum2 b = Enum2.Value2;
-	// Enum2 c = Value2; // <-- error
+	Enum1 x = Enum1_Value1;
+	b.Enum1 y = b.Enum1_Value1;
+	Enum2 z = Enum2.Value2;
 
 	printf("sizeof(g_p1) %d\n", sizeof(g_p1));
 	printf("sizeof(g_p2) %d\n", sizeof(g_p2));
+	printf("sizeof(c.g_p1) %d\n", sizeof(c.g_p1));
+	printf("sizeof(c.g_p2) %d\n", sizeof(c.g_p2));
 	printf("sizeof(g_p3) %d\n", sizeof(g_p3));
 	printf("sizeof(g_p4) %d\n", sizeof(g_p4));
 
 	assert(sizeof(g_p1) == sizeof(intptr));
 	assert(sizeof(g_p2) == sizeof(intptr));
+	assert(sizeof(c.g_p1) == sizeof(intptr));
+	assert(sizeof(c.g_p2) == sizeof(intptr));
 	assert(sizeof(g_p3) == sizeof(intptr) * 2);
 	assert(sizeof(g_p4) == sizeof(intptr) * 2);
+
+	foo();
 
 	return 0;
 }

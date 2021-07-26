@@ -21,7 +21,6 @@
 #include "jnc_ct_ReactorClassType.h"
 #include "jnc_ct_Parser.llk.h"
 #include "jnc_ct_Parser.llk.cpp"
-#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -30,12 +29,17 @@ namespace ct {
 
 Parser::Parser(
 	Module* module,
+	const PragmaSettings* pragmaSettings,
 	Mode mode
 	):
 	m_doxyParser(&module->m_doxyModule)
 {
 	m_module = module;
 	m_mode = mode;
+	if (pragmaSettings)
+		m_pragmaSettings = *pragmaSettings;
+
+	m_cachedPragmaSettings = pragmaSettings;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
@@ -173,6 +177,7 @@ Parser::pragma(
 		return false;
 	}
 
+	m_cachedPragmaSettings = NULL;
 	return true;
 }
 
@@ -731,7 +736,12 @@ Parser::declareGlobalNamespace(
 			return NULL;
 	}
 
-	nspace->addBody(m_module->m_unitMgr.getCurrentUnit(), bodyToken.m_pos, bodyToken.m_data.m_string);
+	nspace->addBody(
+		m_module->m_unitMgr.getCurrentUnit(),
+		getCachedPragmaSettings(),
+		bodyToken.m_pos,
+		bodyToken.m_data.m_string
+		);
 
 	if (bodyToken.m_flags & TokenFlag_CodeAssist)
 		m_module->m_codeAssistMgr.m_containerItem = nspace;
@@ -764,7 +774,12 @@ Parser::declareExtensionNamespace(
 	if (!result)
 		return NULL;
 
-	result = nspace->setBody(bodyToken.m_pos, bodyToken.m_data.m_string);
+	result = nspace->setBody(
+		getCachedPragmaSettings(),
+		bodyToken.m_pos,
+		bodyToken.m_data.m_string
+		);
+
 	ASSERT(result);
 
 	if (bodyToken.m_flags & TokenFlag_CodeAssist)
@@ -840,10 +855,9 @@ Parser::declareInReaction(Declarator* declarator)
 	token.m_data.m_string = name;
 	declarator->m_initializer.insertHead(token);
 
-	Parser parser(m_module, Mode_Reaction);
+	Parser parser(m_module, getCachedPragmaSettings(), Mode_Reaction);
 	parser.m_reactorType = m_reactorType;
 	parser.m_reactionIdx = m_reactionIdx;
-
 	return parser.parseTokenList(SymbolKind_expression, declarator->m_initializer);
 }
 
@@ -942,6 +956,7 @@ Parser::assignDeclarationAttributes(
 	decl->m_pos = pos;
 	decl->m_parentUnit = m_module->m_unitMgr.getCurrentUnit();
 	decl->m_parentNamespace = m_module->m_namespaceMgr.getCurrentNamespace();
+	decl->m_pragmaSettings = getCachedPragmaSettings();
 	decl->m_attributeBlock = attributeBlock ? attributeBlock : popAttributeBlock();
 
 	if (m_module->getCompileFlags() & ModuleCompileFlag_Documentation)
@@ -1467,15 +1482,10 @@ Parser::parseLastPropertyBody(const sl::ConstBoxList<Token>& body)
 {
 	ASSERT(m_lastDeclaredItem && m_lastDeclaredItem->getItemKind() == ModuleItemKind_Property);
 
-	bool result;
+	Parser parser(m_module, getCachedPragmaSettings(), Mode_Parse);
+	m_module->m_namespaceMgr.openNamespace((Property*)m_lastDeclaredItem);
 
-	Property* prop = (Property*)m_lastDeclaredItem;
-
-	Parser parser(m_module, Mode_Parse);
-
-	m_module->m_namespaceMgr.openNamespace(prop);
-
-	result = parser.parseTokenList(SymbolKind_member_block_declaration_list, body);
+	bool result = parser.parseTokenList(SymbolKind_member_block_declaration_list, body);
 	if (!result)
 		return false;
 
@@ -2026,13 +2036,15 @@ Parser::createFormalArg(
 		return NULL;
 	}
 
-	sl::BoxList<Token>* initializer = &declarator->m_initializer;
+	FunctionArg* arg = m_module->m_typeMgr.createFunctionArg(
+		name,
+		type,
+		ptrTypeFlags,
+		&declarator->m_initializer
+		);
 
-	FunctionArg* arg = m_module->m_typeMgr.createFunctionArg(name, type, ptrTypeFlags, initializer);
 	assignDeclarationAttributes(arg, arg, declarator);
-
 	argSuffix->m_argArray.append(arg);
-
 	return arg;
 }
 
