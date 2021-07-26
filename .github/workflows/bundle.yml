@@ -1,13 +1,12 @@
-name: GitHub CI
+name: Update Bundle-repo
 
 on:
--   workflow_run:
-        workflows: [ "GitHub CI" ]
-        types: [ "completed" ]
+    workflow_run:
+        workflows: ["GitHub CI"]
+        types: [completed]
 
 jobs:
     updateBundle:
-        name: Update Bundle-repo
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: ubuntu-18
         steps:
