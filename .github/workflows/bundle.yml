@@ -1,7 +1,6 @@
 name: Update Bundle-repo
 
 on:
--   push
     workflow_run:
         workflows: ["GitHub CI"]
         branches: [master]
