@@ -24,6 +24,7 @@ HeaderFileBegin
 #include "jnc_ct_Lexer.h"
 #include "jnc_ct_Module.h"
 #include "jnc_ct_Decl.h"
+#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -113,10 +114,7 @@ public:
 protected:
 	Module* m_module;
 	Mode m_mode;
-	size_t m_fieldAlignment;
-	size_t m_defaultFieldAlignment;
-	uint_t m_defaultPointerModifiers;
-	uint_t m_defaultEnumFlags;
+	PragmaSettings m_pragmaSettings;
 
 	StorageKind m_storageKind;
 	AccessKind m_accessKind;

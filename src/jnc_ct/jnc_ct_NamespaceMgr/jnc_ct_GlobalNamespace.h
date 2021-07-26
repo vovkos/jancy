@@ -12,6 +12,7 @@
 #pragma once
 
 #include "jnc_ct_Namespace.h"
+#include "jnc_ct_Pragma.h"
 
 namespace jnc {
 namespace ct {
@@ -28,6 +29,7 @@ protected:
 	struct ExtraBody: sl::ListLink
 	{
 		Unit* m_unit;
+		PragmaSettings m_pragmaSettings;
 		lex::LineColOffset m_pos;
 		sl::StringRef m_body;
 	};

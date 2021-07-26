@@ -34,5 +34,30 @@ AXL_SL_END_STRING_HASH_TABLE()
 
 //..............................................................................
 
+enum PragmaDefault
+{
+	PragmaDefault_Alignment        = 8,
+	PragmaDefault_PointerModifiers = 0,
+	PragmaDefault_EnumFlags        = 0,
+};
+
+// . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+struct PragmaSettings
+{
+	size_t m_fieldAlignment;
+	uint_t m_pointerModifiers;
+	uint_t m_enumFlags;
+
+	PragmaSettings()
+	{
+		m_fieldAlignment = PragmaDefault_Alignment;
+		m_pointerModifiers = PragmaDefault_PointerModifiers;
+		m_enumFlags = PragmaDefault_EnumFlags;
+	}
+};
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

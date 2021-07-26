@@ -36,10 +36,6 @@ Parser::Parser(
 {
 	m_module = module;
 	m_mode = mode;
-	m_fieldAlignment = 8;
-	m_defaultFieldAlignment = 8;
-	m_defaultPointerModifiers = 0;
-	m_defaultEnumFlags = 0;
 	m_storageKind = StorageKind_Undefined;
 	m_accessKind = AccessKind_Undefined;
 	m_attributeBlock = NULL;
@@ -154,9 +150,9 @@ Parser::pragma(
 	{
 	case Pragma_Alignment:
 		if (value < 0)
-			m_fieldAlignment = m_defaultFieldAlignment;
+			m_pragmaSettings.m_fieldAlignment = PragmaDefault_Alignment;
 		else if (sl::isPowerOf2(value) && value <= 16)
-			m_fieldAlignment = value;
+			m_pragmaSettings.m_fieldAlignment = value;
 		else
 		{
 			err::setFormatStringError("invalid alignment %d", value);
@@ -165,11 +161,11 @@ Parser::pragma(
 		break;
 
 	case Pragma_ThinPointers:
-		m_defaultPointerModifiers = value > 0 ? TypeModifier_Thin : 0;
+		m_pragmaSettings.m_pointerModifiers = value > 0 ? TypeModifier_Thin : PragmaDefault_PointerModifiers;
 		break;
 
 	case Pragma_ExposedEnums:
-		m_defaultEnumFlags = value > 0 ? EnumTypeFlag_Exposed : 0;
+		m_pragmaSettings.m_enumFlags = value > 0 ? EnumTypeFlag_Exposed : PragmaDefault_EnumFlags;
 		break;
 
 	default:

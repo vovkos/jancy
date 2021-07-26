@@ -87,7 +87,7 @@ enum_specifier
 				$.m_type = createEnumType(
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$t ? $t.m_type : NULL,
-					$.m_flags | m_defaultEnumFlags
+					$.m_flags | m_pragmaSettings.m_enumFlags
 					);
 
 				if (!$.m_type)
@@ -166,7 +166,7 @@ struct_specifier
 				$.m_type = createStructType(
 					&$n ? $n.m_data.m_string : sl::String(),
 					&$b ? &$b.m_typeList : NULL,
-					m_fieldAlignment,
+					m_pragmaSettings.m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
 					);
 
@@ -196,7 +196,7 @@ union_specifier
 			{
 				$.m_type = createUnionType(
 					&$n ? $n.m_data.m_string : sl::String(),
-					m_fieldAlignment,
+					m_pragmaSettings.m_fieldAlignment,
 					&$d ? TypeFlag_Dynamic : 0
 					);
 
@@ -230,7 +230,7 @@ class_specifier
 				$.m_type = createClassType(
 					$n.m_data.m_string,
 					&$b ? &$b.m_typeList : NULL,
-					m_fieldAlignment,
+					m_pragmaSettings.m_fieldAlignment,
 					&$o ? ClassTypeFlag_Opaque : 0
 					);
 
