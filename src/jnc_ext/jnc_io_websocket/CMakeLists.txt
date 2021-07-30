@@ -213,7 +213,7 @@ add_custom_command(
 #. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 install(
-	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_websock.jncx
+	FILES ${JANCY_DLL_BASE_DIR}/$<CONFIGURATION>/io_websocket.jncx
 	DESTINATION ${JANCY_INSTALL_JNCX_SUBDIR}
 	)
 
