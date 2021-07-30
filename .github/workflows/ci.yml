@@ -8,6 +8,7 @@ jobs:
     windowsBuild:
         name: Windows Build
         runs-on: windows-2016
+
         strategy:
             fail-fast: false
             matrix:
@@ -23,12 +24,15 @@ jobs:
                 -   3.4.2
                 -   8.0.0
 
+        defaults:
+            run:
+                shell: cmd
+
         steps:
         -   name: Checkout repo
             uses: actions/checkout@v2
 
         -   name: Install
-            shell: cmd
             run: |
                 set CONFIGURATION=${{matrix.CONFIGURATION}}
                 set LLVM_VERSION=${{matrix.LLVM_VERSION}}
@@ -38,7 +42,6 @@ jobs:
                 git clone --depth 1 https://github.com/vovkos/graco
 
         -   name: Build and test
-            shell: cmd
             run: |
                 set CONFIGURATION=${{matrix.CONFIGURATION}}
                 set LLVM_VERSION=${{matrix.LLVM_VERSION}}
@@ -72,6 +75,7 @@ jobs:
     linuxBuild:
         name: Linux Build
         runs-on: ubuntu-18.04
+
         strategy:
             fail-fast: false
             matrix:
@@ -84,15 +88,22 @@ jobs:
                 -   amd64
 
                 COMPILER:
-                -   clang
                 -   gcc
+                -   clang
+
+        env:
+            DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' && matrix.COMPILER == 'gcc' }}
+            BUILD_DOC: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' && matrix.TARGET_CPU == 'amd64' && matrix.COMPILER == 'gcc' }}
+
+        defaults:
+            run:
+                shell: bash
 
         steps:
         -   name: Checkout repo
             uses: actions/checkout@v2
 
         -   name: Install
-            shell: bash
             run: |
                 export TARGET_CPU=${{matrix.TARGET_CPU}}
                 source ./ci/github-actions/install-linux.sh
@@ -100,7 +111,6 @@ jobs:
                 git clone --depth 1 https://github.com/vovkos/graco
 
         -   name: Build and test
-            shell: bash
             run: |
                 THIS_DIR=$(pwd)
                 export CC=$(which ${{matrix.COMPILER}})
@@ -123,14 +133,66 @@ jobs:
                 echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR/graco/build/cmake)" >> paths.cmake
 
                 mkdir build
-                cd build
+                pushd build
                 cmake .. -DTARGET_CPU=${{matrix.TARGET_CPU}} -DCMAKE_BUILD_TYPE=${{matrix.CONFIGURATION}}
                 make
                 ctest --output-on-failure
+                popd
+
+        -   name: Build and deploy binary package
+            if: ${{ env.DEPLOY_BINARIES == 'true' }}
+            env:
+                JANCY_PACKAGE_ID_RSA: ${{secrets.JANCY_PACKAGE_ID_RSA}}
+            run: |
+                source ci/github-actions/deploy-package.sh linux-${{matrix.TARGET_CPU}}
+
+        -   name: Build documentation tools
+            if: ${{ env.BUILD_DOC == 'true' }}
+            run: |
+                THIS_DIR=$(pwd)
+
+                mkdir doxyrest/build
+                pushd doxyrest/build
+                cmake ..
+                make
+                popd
+
+                echo "set (DOXYREST_CMAKE_DIR $THIS_DIR/doxyrest/cmake $THIS_DIR/doxyrest/build/cmake)" >> paths.cmake
+
+                pushd build
+                cmake .
+                popd
+
+        -   name: Build documentation
+            if: ${{ env.BUILD_DOC == 'true' }}
+            run: |
+                pushd build/doc
+                source index/build-html.sh
+                source build-guide/build-html.sh
+                source language/build-html.sh
+                source compiler/build-html.sh
+                source grammar/build-llk.sh
+                source grammar/build-html.sh
+                source stdlib/build-xml.sh
+                source stdlib/build-rst.sh
+                source stdlib/build-html.sh
+                source api/build-xml.sh
+                source api/build-rst.sh
+                source api/build-html.sh
+                touch html/.nojekyll
+                popd
+
+        -   name: Deploy to GitHub pages
+            if: ${{ env.BUILD_DOC == 'true' }}
+            uses: peaceiris/actions-gh-pages@v3
+            with:
+                github_token: ${{secrets.GITHUB_TOKEN}}
+                publish_dir: build/doc/html
 
     macOsBuild:
         name: macOS Build
         runs-on: macos-10.15
+
         strategy:
             fail-fast: false
             matrix:
@@ -138,12 +200,18 @@ jobs:
                 -   Debug
                 -   Release
 
+        env:
+            DEPLOY_BINARIES: ${{ github.ref == 'refs/heads/master' && matrix.CONFIGURATION == 'Release' }}
+
+        defaults:
+            run:
+                shell: bash
+
         steps:
         -   name: Checkout repo
             uses: actions/checkout@v2
 
         -   name: Install
-            shell: bash
             run: |
                 pwd
                 source ./ci/github-actions/install-osx.sh
@@ -151,7 +219,6 @@ jobs:
                 git clone --depth 1 https://github.com/vovkos/graco
 
         -   name: Build and test
-            shell: bash
             run: |
                 THIS_DIR=$(pwd)
 
@@ -172,7 +239,15 @@ jobs:
                 echo "set (GRACO_CMAKE_DIR $THIS_DIR/graco/cmake $THIS_DIR/graco/build/cmake)" >> paths.cmake
 
                 mkdir build
-                cd build
+                pushd build
                 cmake .. -DCMAKE_BUILD_TYPE=${{matrix.CONFIGURATION}}
                 make
                 ctest --output-on-failure
+                popd
+
+        -   name: Build and deploy binary package
+            if: ${{ env.DEPLOY_BINARIES == 'true' }}
+            env:
+                JANCY_PACKAGE_ID_RSA: ${{secrets.JANCY_PACKAGE_ID_RSA}}
+            run: |
+                source ci/github-actions/deploy-package.sh osx-amd64

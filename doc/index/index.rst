@@ -12,7 +12,7 @@
 Jancy Documentation Index
 =========================
 
-Jancy is a **scripting programming language** with the **LLVM** back-end. Jancy offers a lot of convenient features for low-level IO (input-output) and UI (user-interface) programming which are not found in mainstream languages (and sometimes, nowhere else). This includes **safe pointer** arithmetics, high level of source-level and ABI **compatibility with C**, **reactive programming**, built-in generator of **incremental lexers/scanners** and a lot more.
+Jancy is *the first and only* scripting language with **safe pointer arithmetics**, high level of ABI and source **compatibility with C**, support for spreadsheet-like **reactive programming**, built-in generator of **incremental lexers/scanners**, **dynamic structures** with array fields of non-constant sizes, **dual error handling model** which allows you to choose between error-code checks and throw semantics at each *call-site*, and a lot of other unique and really useful features.
 
 Follow the links below for additional information.
 

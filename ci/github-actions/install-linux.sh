@@ -9,7 +9,7 @@
 #
 #...............................................................................
 
-if [ "$TARGET_CPU" != "x86" ]; then
+if [[ $TARGET_CPU != "x86" ]]; then
 	sudo apt-get -qq update
 
 	sudo apt-get install -y liblua5.2-dev
@@ -46,3 +46,10 @@ fi
 
 sudo apt-get install -y p7zip-full
 sudo apt-get install -y ragel
+
+if [[ $BUILD_DOC == "true" ]]; then
+	sudo apt-get install -y doxygen
+	sudo pip install sphinx sphinx_rtd_theme
+
+	git clone --depth 1 https://github.com/vovkos/doxyrest
+fi
