@@ -33,11 +33,7 @@ protected:
 	DynamicLibNamespace* m_libNamespace;
 
 public:
-	DynamicLibClassType()
-	{
-		m_libNamespace = NULL;
-		m_namespaceStatus = NamespaceStatus_Ready;
-	}
+	DynamicLibClassType();
 
 	DynamicLibNamespace*
 	getLibNamespace()

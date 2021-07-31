@@ -53,6 +53,7 @@ enum jnc_ClassTypeKind
 	jnc_ClassTypeKind_FunctionClosure,
 	jnc_ClassTypeKind_PropertyClosure,
 	jnc_ClassTypeKind_DataClosure,
+	jnc_ClassTypeKind_DynamicLib,
 };
 
 typedef enum jnc_ClassTypeKind jnc_ClassTypeKind;
@@ -371,7 +372,8 @@ const ClassTypeKind
 	ClassTypeKind_Reactor         = jnc_ClassTypeKind_Reactor,
 	ClassTypeKind_FunctionClosure = jnc_ClassTypeKind_FunctionClosure,
 	ClassTypeKind_PropertyClosure = jnc_ClassTypeKind_PropertyClosure,
-	ClassTypeKind_DataClosure     = jnc_ClassTypeKind_DataClosure;
+	ClassTypeKind_DataClosure     = jnc_ClassTypeKind_DataClosure,
+	ClassTypeKind_DynamicLib      = jnc_ClassTypeKind_DynamicLib;
 
 //..............................................................................
 

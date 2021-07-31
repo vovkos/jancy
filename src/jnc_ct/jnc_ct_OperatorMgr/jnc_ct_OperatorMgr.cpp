@@ -41,7 +41,7 @@ OperatorMgr::OperatorMgr()
 
 	m_unaryOperatorTable[UnOpKind_Addr]     = &m_unOp_Addr;
 	m_unaryOperatorTable[UnOpKind_Indir]    = &m_unOp_Indir;
-	m_unaryOperatorTable[UnOpKind_Ptr]      = &m_unOp_Indir;
+	m_unaryOperatorTable[UnOpKind_Ptr]      = &m_unOp_Ptr;
 
 	// increment operators
 

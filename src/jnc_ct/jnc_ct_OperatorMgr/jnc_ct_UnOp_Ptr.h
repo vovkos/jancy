@@ -63,5 +63,23 @@ public:
 
 //..............................................................................
 
+class UnOp_Ptr: public UnOp_Indir
+{
+public:
+	UnOp_Ptr()
+	{
+		m_opKind = UnOpKind_Ptr;
+	}
+
+	virtual
+	bool
+	op(
+		const Value& opValue,
+		Value* resultValue
+		);
+};
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc

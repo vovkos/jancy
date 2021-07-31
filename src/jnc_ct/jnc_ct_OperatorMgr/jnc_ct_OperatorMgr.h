@@ -92,6 +92,7 @@ protected:
 
 	UnOp_Addr m_unOp_Addr;
 	UnOp_Indir m_unOp_Indir;
+	UnOp_Ptr m_unOp_Ptr;
 
 	// increment operators
 

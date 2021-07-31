@@ -156,5 +156,18 @@ UnOp_Indir::op(
 
 //..............................................................................
 
+bool
+UnOp_Ptr::op(
+	const Value& opValue,
+	Value* resultValue
+	)
+{
+	return isClassPtrType(opValue.getType(), ClassTypeKind_DynamicLib) ?
+		m_module->m_operatorMgr.memberOperator(opValue, "lib", resultValue) :
+		UnOp_Indir::op(opValue, resultValue);
+}
+
+//..............................................................................
+
 } // namespace ct
 } // namespace jnc
