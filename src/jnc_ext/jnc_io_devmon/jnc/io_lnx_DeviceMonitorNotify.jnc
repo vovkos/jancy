@@ -26,6 +26,9 @@ enum DeviceMonitorNotifyCode: uint16_t
 	Write,
 	UnlockedIoctl,
 	CompatIoctl,
+	DataDropped,
+	ReadIter,
+	WriteIter,
 	Count,
 }
 
