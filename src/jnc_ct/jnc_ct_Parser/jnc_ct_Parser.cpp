@@ -165,11 +165,11 @@ Parser::pragma(
 		break;
 
 	case Pragma_ThinPointers:
-		m_pragmaSettings.m_pointerModifiers = value > 0 ? TypeModifier_Thin : PragmaDefault_PointerModifiers;
+		m_pragmaSettings.m_pointerModifiers = value > 0 ? (uint_t)TypeModifier_Thin : PragmaDefault_PointerModifiers;
 		break;
 
 	case Pragma_ExposedEnums:
-		m_pragmaSettings.m_enumFlags = value > 0 ? EnumTypeFlag_Exposed : PragmaDefault_EnumFlags;
+		m_pragmaSettings.m_enumFlags = value > 0 ? (uint_t)EnumTypeFlag_Exposed : PragmaDefault_EnumFlags;
 		break;
 
 	default:
