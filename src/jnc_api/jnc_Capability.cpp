@@ -108,7 +108,7 @@ jnc_enableCapability(
 	bool_t isEnabled
 	)
 {
-	jnc::ct::getCapabilityMgr()->enableCapability(capability, isEnabled);
+	jnc::ct::getCapabilityMgr()->enableCapability(capability, isEnabled != 0);
 }
 
 JNC_EXTERN_C
