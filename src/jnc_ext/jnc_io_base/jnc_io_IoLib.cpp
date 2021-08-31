@@ -60,6 +60,7 @@ initializeIoLibCapabilities()
 	if (isEveryCapabilityEnabled())
 	{
 		g_ioLibCapabilities = -1;
+		initializeSocketCapabilities();
 		return;
 	}
 
