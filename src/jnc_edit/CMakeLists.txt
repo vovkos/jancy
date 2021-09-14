@@ -241,8 +241,6 @@ elseif(UNIX)
 			rt
 			)
 
-		add_qt_rpath_link()
-
 		set_property(
 			TARGET jnc_edit
 			APPEND_STRING

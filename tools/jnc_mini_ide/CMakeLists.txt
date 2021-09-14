@@ -9,13 +9,6 @@
 #
 #...............................................................................
 
-if(LINUX AND NOT ${TARGET_CPU} STREQUAL "x86") # if cross-compiling and64 -> x86, we gotta set rpath
-	set(JNC_SKIP_BUILD_RPATH_DEFAULT TRUE)
-endif()
-
-option(JNC_SKIP_BUILD_RPATH "Skip build rpath (i.e. which QT to use)" ${JNC_SKIP_BUILD_RPATH_DEFAULT})
-
-#...............................................................................
 #
 # app folder
 #
@@ -157,11 +150,6 @@ source_group(
 #
 # jnc_mini_ide - Jancy Minimalistic IDE
 #
-
-if(JNC_SKIP_BUILD_RPATH)
-	set(CMAKE_SKIP_BUILD_RPATH TRUE)
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,'${JANCY_DLL_DIR}'")
-endif()
 
 if(BUILD_JNC_IO_USB)
 	add_definitions(-D_JNC_IO_USB=1)
@@ -306,10 +294,6 @@ elseif(UNIX)
 			rt
 			dl
 			)
-
-		if(NOT JNC_SKIP_BUILD_RPATH)
-			add_qt_rpath_link()
-		endif()
 	endif()
 endif()
 

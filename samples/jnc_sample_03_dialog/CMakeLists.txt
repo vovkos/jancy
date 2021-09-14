@@ -214,8 +214,6 @@ if(UNIX)
 			jnc_sample_03_dialog
 			rt
 			)
-
-		add_qt_rpath_link()
 	endif()
 endif()
 
