@@ -17,7 +17,7 @@ namespace io {
 
 //..............................................................................
 
-bool
+size_t
 findInCsvStringIgnoreCase(
 	const sl::StringRef& string0,
 	const sl::StringRef& value,
