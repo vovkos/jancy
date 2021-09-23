@@ -346,4 +346,11 @@ if(WIN32 AND QT_DLL_DIR)
 		)
 endif()
 
+#. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+install(
+	TARGETS jnc_mini_ide
+	DESTINATION ${JANCY_INSTALL_BIN_SUBDIR}
+	)
+
 #...............................................................................
